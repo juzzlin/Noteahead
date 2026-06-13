@@ -18,8 +18,11 @@
 
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace noteahead {
+
+using LegacyNameList = std::vector<std::string>;
 
 class Parameter
 {
@@ -31,7 +34,7 @@ public:
         Boolean
     };
 
-    Parameter(const std::string & name, float internalValue, int xmlMin, int xmlMax, int xmlDefault, int xmlScale = 1, Type type = Type::Continuous);
+    Parameter(const std::string & name, float internalValue, int xmlMin, int xmlMax, int xmlDefault, int xmlScale = 1, Type type = Type::Continuous, LegacyNameList legacyNames = {});
 
     const std::string & name() const;
 
@@ -49,6 +52,8 @@ public:
     bool isDiscrete() const;
     bool isBoolean() const;
 
+    const LegacyNameList & legacyNames() const;
+
     void setFromXml(int xmlVal, std::optional<int> xmlMin = std::nullopt, std::optional<int> xmlMax = std::nullopt);
 
     void reset();
@@ -58,12 +63,13 @@ public:
 
 private:
     std::string m_name;
-    float m_value { 0.0f };
-    int m_xmlMin { 0 };
-    int m_xmlMax { 100 };
-    int m_xmlDefault { 0 };
-    int m_xmlScale { 1 };
-    Type m_type { Type::Continuous };
+    float m_value = 0.0f;
+    int m_xmlMin = 0;
+    int m_xmlMax = 100;
+    int m_xmlDefault = 0;
+    int m_xmlScale = 1;
+    Type m_type = Type::Continuous;
+    LegacyNameList m_legacyNames;
 };
 
 } // namespace noteahead

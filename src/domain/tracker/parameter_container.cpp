@@ -16,9 +16,11 @@
 #include "domain/tracker/parameter_container.hpp"
 
 #include "common/constants.hpp"
+#include "contrib/SimpleLogger/src/simple_logger.hpp"
 
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
+#include <iomanip>
 
 namespace noteahead {
 
@@ -27,6 +29,9 @@ ParameterContainer::~ParameterContainer() = default;
 void ParameterContainer::addParameter(Parameter parameter)
 {
     const auto name = parameter.name();
+    for (const auto & legacyName : parameter.legacyNames()) {
+        m_legacyNameMap[legacyName] = name;
+    }
     m_parameters.emplace(name, std::move(parameter));
 }
 
@@ -101,8 +106,15 @@ void ParameterContainer::deserializeParametersFromXml(QXmlStreamReader & reader)
 
 void ParameterContainer::deserializeParameter(QXmlStreamReader & reader)
 {
+    static const std::string TAG { "ParameterContainer" };
     const auto attrs = reader.attributes();
-    const auto name = attrs.value(Constants::NahdXml::xmlKeyName()).toString().toStdString();
+    auto name = attrs.value(Constants::NahdXml::xmlKeyName()).toString().toStdString();
+
+    if (const auto it = m_legacyNameMap.find(name); it != m_legacyNameMap.end()) {
+        juzzlin::L(TAG).warning() << "Mapping legacy parameter name " << std::quoted(name) << " to " << std::quoted(it->second);
+        name = it->second;
+    }
+
     const auto valueType = attrs.value(Constants::NahdXml::xmlKeyParameterValueType()).toString();
     const auto xmlValueStr = attrs.value(Constants::NahdXml::xmlKeyValue()).toString();
 

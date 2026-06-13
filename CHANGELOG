@@ -43,6 +43,8 @@ Other:
 
 * Modernize dependency management with PkgConfig imported targets
 
+* Unify parameter XML keys
+
 3.2.0
 =====
 

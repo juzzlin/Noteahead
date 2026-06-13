@@ -333,7 +333,7 @@ void EffectRackControllerTest::test_confirmImportEffectSettings_shouldImportAndN
     writer.writeAttribute(Constants::NahdXml::xmlKeyTypeId(), QString::fromStdString(reverb->typeId()));
     writer.writeAttribute(Constants::NahdXml::xmlKeyType(), QString::fromStdString(reverb->type()));
     writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
-    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), Constants::NahdXml::xmlKeyReverbSize());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), "reverbSize");
     writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), "1230");
     writer.writeEndElement();
     writer.writeEndElement();

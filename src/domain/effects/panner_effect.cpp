@@ -16,6 +16,7 @@
 #include "domain/effects/panner_effect.hpp"
 
 #include "common/constants.hpp"
+#include "domain/tracker/parameter.hpp"
 
 #include <algorithm>
 
@@ -24,7 +25,7 @@ namespace noteahead {
 PannerEffect::PannerEffect()
 {
     addParameter({ Constants::NahdXml::xmlKeyPan().toStdString(), 0.5f, 0, 10000, 5000, 100 });
-    addParameter({ Constants::NahdXml::xmlKeyReverbWidth().toStdString(), 1.0f, 0, 10000, 10000, 100 });
+    addParameter({ Constants::NahdXml::xmlKeyWidth().toStdString(), 1.0f, 0, 10000, 10000, 100, Parameter::Type::Continuous, { "reverbWidth" } });
 }
 
 std::string PannerEffect::typeIdString()
@@ -69,7 +70,7 @@ void PannerEffect::sync()
     if (const auto p = parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p) {
         m_pan = static_cast<double>(p->get().value());
     }
-    if (const auto p = parameter(Constants::NahdXml::xmlKeyReverbWidth().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyWidth().toStdString()); p) {
         m_width = static_cast<double>(p->get().value());
     }
 }

@@ -107,54 +107,54 @@ SynthDevice::SynthDevice(std::string name)
     m_voices.resize(MaxVoices);
 
     // Initialize Parameters
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco1Waveform().toStdString(), 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco1Octave().toStdString(), 0.0f, -1, 2, 0, 1, Parameter::Type::Discrete });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco1Pitch().toStdString(), 0.5f, -2400, 2400, 0 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco1Shape().toStdString(), 0.0f, 0, 10000, 0, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco1Sync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco1Waveform().toStdString(), 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco1Octave().toStdString(), 0.0f, -1, 2, 0, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco1Pitch().toStdString(), 0.5f, -2400, 2400, 0 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco1Shape().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco1Sync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
 
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco2Waveform().toStdString(), 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco2Octave().toStdString(), 0.0f, -1, 2, 0, 1, Parameter::Type::Discrete });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco2Pitch().toStdString(), 0.5f, -2400, 2400, 0 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco2Shape().toStdString(), 0.0f, 0, 10000, 0, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco2Sync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco2Waveform().toStdString(), 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco2Octave().toStdString(), 0.0f, -1, 2, 0, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco2Pitch().toStdString(), 0.5f, -2400, 2400, 0 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco2Shape().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco2Sync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
 
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco3Waveform().toStdString(), 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco3Octave().toStdString(), 0.0f, -1, 2, 0, 1, Parameter::Type::Discrete });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco3Pitch().toStdString(), 0.5f, -2400, 2400, 0 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco3Shape().toStdString(), 0.0f, 0, 10000, 0, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthVco3Sync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco3Waveform().toStdString(), 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco3Octave().toStdString(), 0.0f, -1, 2, 0, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco3Pitch().toStdString(), 0.5f, -2400, 2400, 0 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco3Shape().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco3Sync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
 
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthMultiMode().toStdString(), 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete }); // Low default
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthMultiShape().toStdString(), 0.5f, 0, 10000, 5000, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthMultiLevel().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyMultiMode().toStdString(), 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete }); // Low default
+    addParameter(Parameter { Constants::NahdXml::xmlKeyMultiShape().toStdString(), 0.5f, 0, 10000, 5000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyMultiLevel().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyMultiKeyTrack().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthMixLevel1().toStdString(), 1.0f, 0, 10000, 10000, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthMixLevel2().toStdString(), 0.0f, 0, 10000, 0, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthMixLevel3().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyMixLevel1().toStdString(), 1.0f, 0, 10000, 10000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyMixLevel2().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyMixLevel3().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString(), 1.0f, 0, 10000, 10000, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthLpfResonance().toStdString(), 0.0f, 0, 10000, 0, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthHpfCutoff().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), 1.0f, 0, 10000, 10000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLpfResonance().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyKeyTrack().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthAmpAttack().toStdString(), 0.5f, 0, 10000, 5000, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthAmpDecay().toStdString(), 0.34f, 0, 10000, 3400, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthAmpSustain().toStdString(), 1.0f, 0, 10000, 10000, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthAmpRelease().toStdString(), 0.48f, 0, 10000, 4800, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthAmpVelocitySensitivity().toStdString(), 0.5f, 0, 10000, 10000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyAmpAttack().toStdString(), 0.5f, 0, 10000, 5000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyAmpDecay().toStdString(), 0.34f, 0, 10000, 3400, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyAmpSustain().toStdString(), 1.0f, 0, 10000, 10000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyAmpRelease().toStdString(), 0.48f, 0, 10000, 4800, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyAmpVelocitySensitivity().toStdString(), 0.5f, 0, 10000, 10000, 100 });
 
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthModAttack().toStdString(), 0.5f, 0, 10000, 5000, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthModDecay().toStdString(), 0.34f, 0, 10000, 3400, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthModIntensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthModTarget().toStdString(), 3.0f, 0, 3, 3, 1, Parameter::Type::Discrete }); // Cutoff default
+    addParameter(Parameter { Constants::NahdXml::xmlKeyModAttack().toStdString(), 0.5f, 0, 10000, 5000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyModDecay().toStdString(), 0.34f, 0, 10000, 3400, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyModIntensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyModTarget().toStdString(), 3.0f, 0, 3, 3, 1, Parameter::Type::Discrete }); // Cutoff default
 
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthLfoWaveform().toStdString(), 1.0f, 0, 4, 1, 1, Parameter::Type::Discrete }); // Tri default
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthLfoMode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete }); // Normal default
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthLfoRate().toStdString(), 0.5f, 0, 10000, 5000, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthLfoIntensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeySynthLfoTarget().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete }); // Pitch default
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfoWaveform().toStdString(), 1.0f, 0, 4, 1, 1, Parameter::Type::Discrete }); // Tri default
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfoMode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete }); // Normal default
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfoRate().toStdString(), 0.5f, 0, 10000, 5000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfoIntensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfoTarget().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete }); // Pitch default
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceMode().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceDepth().toStdString(), 0.0f, 0, 10000, 0, 100 });
@@ -367,10 +367,10 @@ void SynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
         if (controller == static_cast<uint8_t>(Controller::ResetAllControllers)) {
             m_lpfCutoff = m_manualLpfCutoff;
             m_hpfCutoff = m_manualHpfCutoff;
-            if (const auto p = parameter(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString()); p) {
+            if (const auto p = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); p) {
                 p->get().setValue(m_lpfCutoff);
             }
-            if (const auto p = parameter(Constants::NahdXml::xmlKeySynthHpfCutoff().toStdString()); p) {
+            if (const auto p = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) {
                 p->get().setValue(m_hpfCutoff);
             }
             updatePanParameter(manualPanInternal(), false);
@@ -387,14 +387,14 @@ void SynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
                 changed |= updatePanParameter(val, false);
             } else if (controller == static_cast<uint8_t>(Controller::SoundController5)) { // Cutoff
                 m_lpfCutoff = val;
-                if (const auto p = parameter(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString()); p) {
+                if (const auto p = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); p) {
                     p->get().setValue(val);
                     syncParameters();
                     changed = true;
                 }
             } else if (controller == static_cast<uint8_t>(Controller::GeneralPurpose6)) { // HPF Cutoff
                 m_hpfCutoff = val;
-                if (const auto p = parameter(Constants::NahdXml::xmlKeySynthHpfCutoff().toStdString()); p) {
+                if (const auto p = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) {
                     p->get().setValue(val);
                     syncParameters();
                     changed = true;
@@ -682,103 +682,103 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
 void SynthDevice::syncParameters()
 {
     Device::syncParameters();
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco1Waveform().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVco1Waveform().toStdString()); p)
         m_vco1Waveform = static_cast<PolyBlepOscillator::Waveform>(p->get().xmlValue());
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco1Octave().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVco1Octave().toStdString()); p)
         m_vco1Octave = p->get().xmlValue();
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco1Pitch().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVco1Pitch().toStdString()); p)
         m_vco1Pitch = p->get().value();
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco1Shape().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVco1Shape().toStdString()); p)
         m_vco1Shape = p->get().value();
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco1Sync().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVco1Sync().toStdString()); p)
         m_vco1Sync = p->get().value() > 0.5f;
 
     const double vco1PitchOffset = ParameterMapper::mapCubicCentered(m_vco1Pitch * 2.0 - 1.0, -2400, 2400);
     m_vco1BasePitchRatio = std::pow(2.0, (m_vco1Octave * 12.0 + vco1PitchOffset / 100.0) / 12.0);
 
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Waveform().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVco2Waveform().toStdString()); p)
         m_vco2Waveform = static_cast<PolyBlepOscillator::Waveform>(p->get().xmlValue());
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Octave().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVco2Octave().toStdString()); p)
         m_vco2Octave = p->get().xmlValue();
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Pitch().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVco2Pitch().toStdString()); p)
         m_vco2Pitch = p->get().value();
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Shape().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVco2Shape().toStdString()); p)
         m_vco2Shape = p->get().value();
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Sync().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVco2Sync().toStdString()); p)
         m_vco2Sync = p->get().value() > 0.5f;
 
     const double vco2PitchOffset = ParameterMapper::mapCubicCentered(m_vco2Pitch * 2.0 - 1.0, -2400, 2400);
     m_vco2BasePitchRatio = std::pow(2.0, (m_vco2Octave * 12.0 + vco2PitchOffset / 100.0) / 12.0);
 
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco3Waveform().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVco3Waveform().toStdString()); p)
         m_vco3Waveform = static_cast<PolyBlepOscillator::Waveform>(p->get().xmlValue());
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco3Octave().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVco3Octave().toStdString()); p)
         m_vco3Octave = p->get().xmlValue();
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco3Pitch().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVco3Pitch().toStdString()); p)
         m_vco3Pitch = p->get().value();
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco3Shape().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVco3Shape().toStdString()); p)
         m_vco3Shape = p->get().value();
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco3Sync().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVco3Sync().toStdString()); p)
         m_vco3Sync = p->get().value() > 0.5f;
 
     const double vco3PitchOffset = ParameterMapper::mapCubicCentered(m_vco3Pitch * 2.0 - 1.0, -2400, 2400);
     m_vco3BasePitchRatio = std::pow(2.0, (m_vco3Octave * 12.0 + vco3PitchOffset / 100.0) / 12.0);
 
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthMultiMode().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyMultiMode().toStdString()); p)
         m_multiType = static_cast<MultiEngine::Type>(p->get().xmlValue());
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthMultiShape().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyMultiShape().toStdString()); p)
         m_multiShape = p->get().value();
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthMultiLevel().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyMultiLevel().toStdString()); p)
         m_multiLevel = p->get().value();
     if (const auto p = parameter(Constants::NahdXml::xmlKeyMultiKeyTrack().toStdString()); p)
         m_multiKeyTrack = p->get().value();
 
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthMixLevel1().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyMixLevel1().toStdString()); p)
         m_mixVco1 = p->get().value();
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthMixLevel2().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyMixLevel2().toStdString()); p)
         m_mixVco2 = p->get().value();
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthMixLevel3().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyMixLevel3().toStdString()); p)
         m_mixVco3 = p->get().value();
 
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); p)
         m_lpfCutoff = p->get().value();
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthLpfResonance().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyLpfResonance().toStdString()); p)
         m_lpfResonance = p->get().value();
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthHpfCutoff().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p)
         m_hpfCutoff = p->get().value();
     if (const auto p = parameter(Constants::NahdXml::xmlKeyKeyTrack().toStdString()); p)
         m_filterKeyTrack = p->get().value();
 
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthAmpAttack().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyAmpAttack().toStdString()); p)
         m_ampAttack = p->get().value();
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthAmpDecay().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyAmpDecay().toStdString()); p)
         m_ampDecay = p->get().value();
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthAmpSustain().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyAmpSustain().toStdString()); p)
         m_ampSustain = p->get().value();
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthAmpRelease().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyAmpRelease().toStdString()); p)
         m_ampRelease = p->get().value();
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthAmpVelocitySensitivity().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyAmpVelocitySensitivity().toStdString()); p)
         m_ampVelocitySensitivity = p->get().value();
 
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthModAttack().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyModAttack().toStdString()); p)
         m_modAttack = p->get().value();
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthModDecay().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyModDecay().toStdString()); p)
         m_modDecay = p->get().value();
 
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthModIntensity().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyModIntensity().toStdString()); p)
         m_modInt = ParameterMapper::mapCubicCentered((p->get().value() - 0.5f) * 2.0f, -1.0, 1.0);
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthModTarget().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyModTarget().toStdString()); p)
         m_modTarget = static_cast<ModTarget>(p->get().xmlValue());
 
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthLfoWaveform().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoWaveform().toStdString()); p)
         m_lfoWaveform = static_cast<Lfo::Waveform>(p->get().xmlValue());
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthLfoMode().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoMode().toStdString()); p)
         m_lfoMode = static_cast<Lfo::Mode>(p->get().xmlValue());
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthLfoRate().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoRate().toStdString()); p)
         m_lfoRate = p->get().value();
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthLfoIntensity().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoIntensity().toStdString()); p)
         m_lfoInt = ParameterMapper::mapCubicCentered((p->get().value() - 0.5f) * 2.0f, -1.0, 1.0);
-    if (const auto p = parameter(Constants::NahdXml::xmlKeySynthLfoTarget().toStdString()); p)
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoTarget().toStdString()); p)
         m_lfoTarget = static_cast<LfoTarget>(p->get().xmlValue());
 
     if (const auto p = parameter(Constants::NahdXml::xmlKeyVoiceMode().toStdString()); p)
@@ -979,7 +979,7 @@ void SynthDevice::setVco1Waveform(PolyBlepOscillator::Waveform wave)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco1Waveform().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco1Waveform().toStdString()); p) {
             p->get().setFromXml(static_cast<int>(wave));
             syncParameters();
             changed = true;
@@ -999,7 +999,7 @@ void SynthDevice::setVco1Octave(int octave)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco1Octave().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco1Octave().toStdString()); p) {
             p->get().setFromXml(octave);
             syncParameters();
             changed = true;
@@ -1019,7 +1019,7 @@ void SynthDevice::setVco1Pitch(float pitch)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco1Pitch().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco1Pitch().toStdString()); p) {
             p->get().setValue(pitch);
             syncParameters();
             changed = true;
@@ -1039,7 +1039,7 @@ void SynthDevice::setVco1Shape(float shape)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco1Shape().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco1Shape().toStdString()); p) {
             p->get().setValue(shape);
             syncParameters();
             changed = true;
@@ -1059,7 +1059,7 @@ void SynthDevice::setVco1Sync(bool sync)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco1Sync().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco1Sync().toStdString()); p) {
             p->get().setValue(sync ? 1.0f : 0.0f);
             syncParameters();
             changed = true;
@@ -1080,7 +1080,7 @@ void SynthDevice::setVco2Waveform(PolyBlepOscillator::Waveform wave)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Waveform().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco2Waveform().toStdString()); p) {
             p->get().setFromXml(static_cast<int>(wave));
             syncParameters();
             changed = true;
@@ -1100,7 +1100,7 @@ void SynthDevice::setVco2Octave(int octave)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Octave().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco2Octave().toStdString()); p) {
             p->get().setFromXml(octave);
             syncParameters();
             changed = true;
@@ -1120,7 +1120,7 @@ void SynthDevice::setVco2Pitch(float pitch)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Pitch().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco2Pitch().toStdString()); p) {
             p->get().setValue(pitch);
             syncParameters();
             changed = true;
@@ -1140,7 +1140,7 @@ void SynthDevice::setVco2Shape(float shape)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Shape().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco2Shape().toStdString()); p) {
             p->get().setValue(shape);
             syncParameters();
             changed = true;
@@ -1160,7 +1160,7 @@ void SynthDevice::setVco2Sync(bool sync)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco2Sync().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco2Sync().toStdString()); p) {
             p->get().setValue(sync ? 1.0f : 0.0f);
             syncParameters();
             changed = true;
@@ -1181,7 +1181,7 @@ void SynthDevice::setMultiType(MultiEngine::Type type)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthMultiMode().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyMultiMode().toStdString()); p) {
             p->get().setFromXml(static_cast<int>(type));
             syncParameters();
             changed = true;
@@ -1201,7 +1201,7 @@ void SynthDevice::setMultiShape(float shape)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthMultiShape().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyMultiShape().toStdString()); p) {
             p->get().setValue(shape);
             syncParameters();
             changed = true;
@@ -1221,7 +1221,7 @@ void SynthDevice::setMultiLevel(float level)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthMultiLevel().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyMultiLevel().toStdString()); p) {
             p->get().setValue(level);
             syncParameters();
             changed = true;
@@ -1262,7 +1262,7 @@ void SynthDevice::setMixVco1(float level)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthMixLevel1().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyMixLevel1().toStdString()); p) {
             p->get().setValue(level);
             syncParameters();
             changed = true;
@@ -1282,7 +1282,7 @@ void SynthDevice::setMixVco2(float level)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthMixLevel2().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyMixLevel2().toStdString()); p) {
             p->get().setValue(level);
             syncParameters();
             changed = true;
@@ -1303,7 +1303,7 @@ void SynthDevice::setLpfCutoff(float cutoff)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); p) {
             p->get().setValue(cutoff);
             m_manualLpfCutoff = p->get().value();
             syncParameters();
@@ -1324,7 +1324,7 @@ void SynthDevice::setLpfResonance(float resonance)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthLpfResonance().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyLpfResonance().toStdString()); p) {
             p->get().setValue(resonance);
             syncParameters();
             changed = true;
@@ -1344,7 +1344,7 @@ void SynthDevice::setHpfCutoff(float cutoff)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthHpfCutoff().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) {
             p->get().setValue(cutoff);
             m_manualHpfCutoff = p->get().value();
             syncParameters();
@@ -1386,7 +1386,7 @@ void SynthDevice::setAmpAttack(float a)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthAmpAttack().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyAmpAttack().toStdString()); p) {
             p->get().setValue(a);
             syncParameters();
             changed = true;
@@ -1406,7 +1406,7 @@ void SynthDevice::setAmpDecay(float d)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthAmpDecay().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyAmpDecay().toStdString()); p) {
             p->get().setValue(d);
             syncParameters();
             changed = true;
@@ -1426,7 +1426,7 @@ void SynthDevice::setAmpSustain(float s)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthAmpSustain().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyAmpSustain().toStdString()); p) {
             p->get().setValue(s);
             syncParameters();
             changed = true;
@@ -1446,7 +1446,7 @@ void SynthDevice::setAmpRelease(float r)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthAmpRelease().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyAmpRelease().toStdString()); p) {
             p->get().setValue(r);
             syncParameters();
             changed = true;
@@ -1466,7 +1466,7 @@ void SynthDevice::setAmpVelocitySensitivity(float sensitivity)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthAmpVelocitySensitivity().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyAmpVelocitySensitivity().toStdString()); p) {
             p->get().setValue(sensitivity);
             syncParameters();
             changed = true;
@@ -1487,7 +1487,7 @@ void SynthDevice::setModAttack(float a)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthModAttack().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyModAttack().toStdString()); p) {
             p->get().setValue(a);
             syncParameters();
             changed = true;
@@ -1507,7 +1507,7 @@ void SynthDevice::setModDecay(float d)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthModDecay().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyModDecay().toStdString()); p) {
             p->get().setValue(d);
             syncParameters();
             changed = true;
@@ -1527,7 +1527,7 @@ void SynthDevice::setModInt(float intensity)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthModIntensity().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyModIntensity().toStdString()); p) {
             p->get().setValue(intensity);
             syncParameters();
             changed = true;
@@ -1547,7 +1547,7 @@ void SynthDevice::setModTarget(ModTarget target)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthModTarget().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyModTarget().toStdString()); p) {
             p->get().setFromXml(static_cast<int>(target));
             syncParameters();
             changed = true;
@@ -1568,7 +1568,7 @@ void SynthDevice::setLfoWaveform(Lfo::Waveform wave)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthLfoWaveform().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoWaveform().toStdString()); p) {
             p->get().setFromXml(static_cast<int>(wave));
             syncParameters();
             changed = true;
@@ -1588,7 +1588,7 @@ void SynthDevice::setLfoMode(Lfo::Mode mode)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthLfoMode().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoMode().toStdString()); p) {
             p->get().setFromXml(static_cast<int>(mode));
             syncParameters();
             changed = true;
@@ -1608,7 +1608,7 @@ void SynthDevice::setLfoRate(float rate)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthLfoRate().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoRate().toStdString()); p) {
             p->get().setValue(rate);
             syncParameters();
             changed = true;
@@ -1628,7 +1628,7 @@ void SynthDevice::setLfoInt(float intensity)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthLfoIntensity().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoIntensity().toStdString()); p) {
             p->get().setValue(intensity);
             syncParameters();
             changed = true;
@@ -1648,7 +1648,7 @@ void SynthDevice::setLfoTarget(LfoTarget target)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthLfoTarget().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoTarget().toStdString()); p) {
             p->get().setFromXml(static_cast<int>(target));
             syncParameters();
             changed = true;
@@ -1977,7 +1977,7 @@ void SynthDevice::setVco3Waveform(PolyBlepOscillator::Waveform wave)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco3Waveform().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco3Waveform().toStdString()); p) {
             p->get().setFromXml(static_cast<int>(wave));
             syncParameters();
             changed = true;
@@ -1997,7 +1997,7 @@ void SynthDevice::setVco3Octave(int octave)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco3Octave().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco3Octave().toStdString()); p) {
             p->get().setFromXml(octave);
             syncParameters();
             changed = true;
@@ -2017,7 +2017,7 @@ void SynthDevice::setVco3Pitch(float pitch)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco3Pitch().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco3Pitch().toStdString()); p) {
             p->get().setValue(pitch);
             syncParameters();
             changed = true;
@@ -2037,7 +2037,7 @@ void SynthDevice::setVco3Shape(float shape)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco3Shape().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco3Shape().toStdString()); p) {
             p->get().setValue(shape);
             syncParameters();
             changed = true;
@@ -2057,7 +2057,7 @@ void SynthDevice::setVco3Sync(bool sync)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthVco3Sync().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco3Sync().toStdString()); p) {
             p->get().setValue(sync ? 1.0f : 0.0f);
             syncParameters();
             changed = true;
@@ -2077,7 +2077,7 @@ void SynthDevice::setMixVco3(float level)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeySynthMixLevel3().toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyMixLevel3().toStdString()); p) {
             p->get().setValue(level);
             syncParameters();
             changed = true;

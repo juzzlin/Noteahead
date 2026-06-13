@@ -21,16 +21,17 @@
 
 #include <algorithm>
 #include <cmath>
+#include <format>
 
 namespace noteahead {
 
 Eq8BandParametricEffect::Eq8BandParametricEffect()
 {
     for (int i = 0; i < static_cast<int>(NumBands); i++) {
-        addParameter(Parameter { Constants::NahdXml::xmlKeyEq8BandParametricType(i).toStdString(), 0.0f, 0, 6, 0 });
-        addParameter(Parameter { Constants::NahdXml::xmlKeyEq8BandParametricFreq(i).toStdString(), 0.5f, 20, 20000, 1000 });
-        addParameter(Parameter { Constants::NahdXml::xmlKeyEq8BandParametricGain(i).toStdString(), 0.5f, -2400, 2400, 0, 100 });
-        addParameter(Parameter { Constants::NahdXml::xmlKeyEq8BandParametricQ(i).toStdString(), 0.5f, 1, 100, 10, 10 });
+        addParameter(Parameter { Constants::NahdXml::xmlKeyBandType(i).toStdString(), 0.0f, 0, 6, 0, 1, Parameter::Type::Discrete, { std::format("eq8BandParametricBand{}Type", i + 1) } });
+        addParameter(Parameter { Constants::NahdXml::xmlKeyBandFreq(i).toStdString(), 0.5f, 20, 20000, 1000, 100, Parameter::Type::Continuous, { std::format("eq8BandParametricBand{}Freq", i + 1) } });
+        addParameter(Parameter { Constants::NahdXml::xmlKeyBandGain(i).toStdString(), 0.5f, -2400, 2400, 0, 100, Parameter::Type::Continuous, { std::format("eq8BandParametricBand{}Gain", i + 1) } });
+        addParameter(Parameter { Constants::NahdXml::xmlKeyBandQ(i).toStdString(), 0.5f, 1, 100, 10, 10, Parameter::Type::Continuous, { std::format("eq8BandParametricBand{}Q", i + 1) } });
     }
 
     syncParameters();
@@ -97,16 +98,16 @@ void Eq8BandParametricEffect::syncParameters()
 {
     for (size_t i = 0; i < NumBands; i++) {
         auto && band = m_bands[i];
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyEq8BandParametricType(i).toStdString()); p) {
-            band.type = static_cast<SvfFilter::Type>(std::clamp(static_cast<int>(std::round(p->get().value() * 6.0f)), 0, 6));
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyBandType(i).toStdString()); p) {
+            band.type = static_cast<SvfFilter::Type>(std::clamp(static_cast<int>(std::round(p->get().value())), 0, 6));
         }
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyEq8BandParametricFreq(i).toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyBandFreq(i).toStdString()); p) {
             band.frequency = ParameterMapper::mapLogFrequency(static_cast<double>(p->get().value()), 20.0, 20000.0);
         }
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyEq8BandParametricGain(i).toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyBandGain(i).toStdString()); p) {
             band.gainDb = -24.0 + static_cast<double>(p->get().value()) * 48.0;
         }
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyEq8BandParametricQ(i).toStdString()); p) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyBandQ(i).toStdString()); p) {
             band.q = ParameterMapper::mapExponential(static_cast<double>(p->get().value()), 0.1, 10.0);
         }
         band.updateCoefficients(m_sampleRate);

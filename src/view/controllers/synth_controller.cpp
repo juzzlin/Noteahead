@@ -440,7 +440,7 @@ void SynthController::setModDecay(int d)
 int SynthController::modInt() const
 {
     if (m_synth) {
-        if (auto p = m_synth->parameter(Constants::NahdXml::xmlKeySynthModIntensity().toStdString()); p) {
+        if (auto p = m_synth->parameter(Constants::NahdXml::xmlKeyModIntensity().toStdString()); p) {
             return static_cast<int>(std::round(p->get().value() * Constants::uiInternalScaling()));
         }
     }
@@ -506,7 +506,7 @@ void SynthController::setLfoRate(int rate)
 int SynthController::lfoInt() const
 {
     if (m_synth) {
-        if (auto p = m_synth->parameter(Constants::NahdXml::xmlKeySynthLfoIntensity().toStdString()); p) {
+        if (auto p = m_synth->parameter(Constants::NahdXml::xmlKeyLfoIntensity().toStdString()); p) {
             return static_cast<int>(std::round(p->get().value() * Constants::uiInternalScaling()));
         }
     }

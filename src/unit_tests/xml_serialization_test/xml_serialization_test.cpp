@@ -30,7 +30,10 @@
 #include "domain/devices/device_factory.hpp"
 #include "domain/devices/sampler_device.hpp"
 #include "domain/devices/synth_device.hpp"
+#include "domain/devices/wavetable_synth_device.hpp"
 #include "domain/dsp/chorus_effect.hpp"
+#include "domain/dsp/clipper_effect.hpp"
+#include "domain/dsp/eq_8_band_parametric_effect.hpp"
 #include "domain/dsp/reverb_effect.hpp"
 #include "domain/effects/delay_effect.hpp"
 #include "domain/effects/effect_factory.hpp"
@@ -877,19 +880,19 @@ void XmlSerializationTest::test_toXmlFromXml_synthDevice_shouldPreserveValuesAnd
     QCOMPARE(synthIn->delayFeedbackHpf(), 0.2f);
 
     // Verify discrete flags
-    const auto vco1Wave = synthIn->parameter(Constants::NahdXml::xmlKeySynthVco1Waveform().toStdString());
+    const auto vco1Wave = synthIn->parameter(Constants::NahdXml::xmlKeyVco1Waveform().toStdString());
     QVERIFY(vco1Wave.has_value());
     QVERIFY(vco1Wave->get().isDiscrete());
 
-    const auto vco1Octave = synthIn->parameter(Constants::NahdXml::xmlKeySynthVco1Octave().toStdString());
+    const auto vco1Octave = synthIn->parameter(Constants::NahdXml::xmlKeyVco1Octave().toStdString());
     QVERIFY(vco1Octave.has_value());
     QVERIFY(vco1Octave->get().isDiscrete());
 
-    const auto lpfCutoff = synthIn->parameter(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString());
+    const auto lpfCutoff = synthIn->parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString());
     QVERIFY(lpfCutoff.has_value());
     QVERIFY(!lpfCutoff->get().isDiscrete());
 
-    const auto multiShape = synthIn->parameter(Constants::NahdXml::xmlKeySynthMultiShape().toStdString());
+    const auto multiShape = synthIn->parameter(Constants::NahdXml::xmlKeyMultiShape().toStdString());
     QVERIFY(multiShape.has_value());
     QVERIFY(!multiShape->get().isDiscrete());
 }
@@ -904,7 +907,7 @@ void XmlSerializationTest::test_toXmlFromXml_synthUserPresets_shouldSaveAndLoad(
     UserPresets userPresets;
     SynthPreset preset;
     preset.name = "Test Preset";
-    preset.parameters[Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString()] = 0.5f;
+    preset.parameters[Constants::NahdXml::xmlKeyLpfCutoff().toStdString()] = 0.5f;
     userPresets[10] = preset;
     deviceServiceOut.setSynthUserPresets(userPresets);
 
@@ -926,7 +929,7 @@ void XmlSerializationTest::test_toXmlFromXml_synthUserPresets_shouldSaveAndLoad(
     const auto & userPresetsIn = deviceServiceIn->synthUserPresets();
     QVERIFY(userPresetsIn.count(10));
     QCOMPARE(userPresetsIn.at(10).name, std::string("Test Preset"));
-    QCOMPARE(userPresetsIn.at(10).parameters.at(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString()), 0.5f);
+    QCOMPARE(userPresetsIn.at(10).parameters.at(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()), 0.5f);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_synthUserPresets_discreteValues_shouldSaveAndLoad()
@@ -940,9 +943,9 @@ void XmlSerializationTest::test_toXmlFromXml_synthUserPresets_discreteValues_sho
     SynthPreset preset;
     preset.name = "Discrete Test";
     // Waveform: Saw (1.0f)
-    preset.parameters[Constants::NahdXml::xmlKeySynthVco1Waveform().toStdString()] = 1.0f;
+    preset.parameters[Constants::NahdXml::xmlKeyVco1Waveform().toStdString()] = 1.0f;
     // Pitch: 0 cents
-    preset.parameters[Constants::NahdXml::xmlKeySynthVco1Pitch().toStdString()] = 0.0f;
+    preset.parameters[Constants::NahdXml::xmlKeyVco1Pitch().toStdString()] = 0.0f;
     userPresets[5] = preset;
     deviceServiceOut.setSynthUserPresets(userPresets);
 
@@ -963,8 +966,8 @@ void XmlSerializationTest::test_toXmlFromXml_synthUserPresets_discreteValues_sho
     const auto & userPresetsIn = deviceServiceIn->synthUserPresets();
     QVERIFY(userPresetsIn.count(5));
     // Verify internal values are preserved
-    QCOMPARE(userPresetsIn.at(5).parameters.at(Constants::NahdXml::xmlKeySynthVco1Waveform().toStdString()), 1.0f);
-    QCOMPARE(userPresetsIn.at(5).parameters.at(Constants::NahdXml::xmlKeySynthVco1Pitch().toStdString()), 0.0f);
+    QCOMPARE(userPresetsIn.at(5).parameters.at(Constants::NahdXml::xmlKeyVco1Waveform().toStdString()), 1.0f);
+    QCOMPARE(userPresetsIn.at(5).parameters.at(Constants::NahdXml::xmlKeyVco1Pitch().toStdString()), 0.0f);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_masterSendEffects_shouldLoadCorrectly()
@@ -1230,6 +1233,190 @@ void XmlSerializationTest::test_fromXml_legacyLength_shouldBeSupported()
 
     // length="5" should be respected
     QCOMPARE(editorServiceIn.songLength(), 5);
+}
+
+void XmlSerializationTest::test_wavetableSynth_legacyNames_shouldLoadCorrectly()
+{
+    WavetableSynthDevice synth("TestWavetable");
+
+    // Create legacy XML
+    QString xml;
+    QXmlStreamWriter writer(&xml);
+    writer.writeStartElement(Constants::NahdXml::xmlKeyDevice());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), "TestWavetable");
+    writer.writeAttribute(Constants::NahdXml::xmlKeyTypeName(), Constants::NahdXml::xmlValueSynths());
+
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameters());
+
+    // Legacy key: wavetableSynthAmpAttack
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), "wavetableSynthAmpAttack");
+    writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueFloat());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), "5000"); // 0.5 internal
+    writer.writeEndElement();
+
+    // Legacy key: wavetableSynthLpfCutoff
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), "wavetableSynthLpfCutoff");
+    writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueFloat());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), "3000"); // 0.3 internal
+    writer.writeEndElement();
+
+    writer.writeEndElement(); // Parameters
+    writer.writeEndElement(); // Device
+
+    QXmlStreamReader reader(xml);
+    while (!reader.atEnd()) {
+        if (reader.readNextStartElement() && reader.name() == Constants::NahdXml::xmlKeyDevice()) {
+            synth.deserializeFromXml(reader);
+        }
+    }
+
+    QCOMPARE(synth.ampAttack(), 0.5f);
+    QCOMPARE(synth.lpfCutoff(), 0.3f);
+}
+
+void XmlSerializationTest::test_eq8BandParametric_legacyNames_shouldLoadCorrectly()
+{
+    Eq8BandParametricEffect effect;
+
+    // Create legacy XML
+    QString xml;
+    QXmlStreamWriter writer(&xml);
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameters());
+
+    // Legacy key: eq8BandParametricBand1Type
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), "eq8BandParametricBand1Type");
+    writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueInt());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), "2"); // HighPass
+    writer.writeEndElement();
+
+    // Legacy key: eq8BandParametricBand2Freq
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), "eq8BandParametricBand2Freq");
+    writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueFloat());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), "10010"); // 0.5 internal (range 20-20000)
+    writer.writeEndElement();
+
+    writer.writeEndElement(); // Parameters
+
+    QXmlStreamReader reader(xml);
+    if (reader.readNextStartElement()) {
+        effect.deserializeParametersFromXml(reader);
+    }
+
+    if (auto p = effect.parameter(Constants::NahdXml::xmlKeyBandType(0).toStdString()); p) {
+        QCOMPARE(p->get().value(), 2.0f);
+    }
+    if (auto p = effect.parameter(Constants::NahdXml::xmlKeyBandFreq(1).toStdString()); p) {
+        QCOMPARE(p->get().value(), 0.5f);
+    }
+}
+
+void XmlSerializationTest::test_chorus_legacyNames_shouldLoadCorrectly()
+{
+    ChorusEffect effect;
+
+    QString xml;
+    QXmlStreamWriter writer(&xml);
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameters());
+
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), "chorusRate");
+    writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueFloat());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), "600"); // 0.6 internal (range 0-1000)
+    writer.writeEndElement();
+
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), "chorusMix");
+    writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueFloat());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), "750"); // 0.75 internal (range 0-1000)
+    writer.writeEndElement();
+
+    writer.writeEndElement(); // Parameters
+
+    QXmlStreamReader reader(xml);
+    if (reader.readNextStartElement()) {
+        effect.deserializeParametersFromXml(reader);
+    }
+
+    if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyRate().toStdString()); p) {
+        QCOMPARE(p->get().value(), 0.6f);
+    }
+    if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyMix().toStdString()); p) {
+        QCOMPARE(p->get().value(), 0.75f);
+    }
+}
+
+void XmlSerializationTest::test_clipper_legacyNames_shouldLoadCorrectly()
+{
+    ClipperEffect effect;
+
+    QString xml;
+    QXmlStreamWriter writer(&xml);
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameters());
+
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), "clipperMode");
+    writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueInt());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), "0"); // Hard
+    writer.writeEndElement();
+
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), "clipperGain");
+    writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueFloat());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), "0"); // 0.5 internal (mid of range -2400..2400)
+    writer.writeEndElement();
+
+    writer.writeEndElement(); // Parameters
+
+    QXmlStreamReader reader(xml);
+    if (reader.readNextStartElement()) {
+        effect.deserializeParametersFromXml(reader);
+    }
+
+    if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyMode().toStdString()); p) {
+        QCOMPARE(p->get().value(), 0.0f);
+    }
+    if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyGain().toStdString()); p) {
+        QCOMPARE(p->get().value(), 0.5f);
+    }
+}
+
+void XmlSerializationTest::test_reverb_legacyNames_shouldLoadCorrectly()
+{
+    ReverbEffect effect;
+
+    QString xml;
+    QXmlStreamWriter writer(&xml);
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameters());
+
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), "reverbSize");
+    writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueFloat());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), "7500"); // 0.75 internal (range 0-10000)
+    writer.writeEndElement();
+
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), "reverbMix");
+    writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueFloat());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), "3000"); // 0.3 internal (range 0-10000)
+    writer.writeEndElement();
+
+    writer.writeEndElement(); // Parameters
+
+    QXmlStreamReader reader(xml);
+    if (reader.readNextStartElement()) {
+        effect.deserializeParametersFromXml(reader);
+    }
+
+    if (const auto p = effect.parameter(Constants::NahdXml::xmlKeySize().toStdString()); p) {
+        QCOMPARE(p->get().value(), 0.75f);
+    }
+    if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyMix().toStdString()); p) {
+        QCOMPARE(p->get().value(), 0.3f);
+    }
 }
 
 } // namespace noteahead

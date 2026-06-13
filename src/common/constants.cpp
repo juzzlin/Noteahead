@@ -331,11 +331,6 @@ QString xmlKeyCutoff()
     return "cutoff";
 }
 
-QString xmlKeyHpfCutoff()
-{
-    return "hpfCutoff";
-}
-
 QString xmlKeyDelay()
 {
     return "delay";
@@ -952,11 +947,6 @@ QString xmlKeyMultiKeyTrack()
     return "multiKeyTrack";
 }
 
-QString xmlKeyVoiceMode()
-{
-    return "voiceMode";
-}
-
 QString xmlKeyMode()
 {
     return "mode";
@@ -967,19 +957,54 @@ QString xmlKeyRate()
     return "rate";
 }
 
-QString xmlKeyVoiceDepth()
+QString xmlKeyDepth()
 {
-    return "voiceDepth";
+    return "depth";
 }
 
-QString xmlKeyPortamento()
+QString xmlKeyWidth()
 {
-    return "portamento";
+    return "width";
 }
 
-QString xmlKeyPanSpread()
+QString xmlKeyMix()
 {
-    return "panSpread";
+    return "mix";
+}
+
+QString xmlKeyThreshold()
+{
+    return "threshold";
+}
+
+QString xmlKeyRatio()
+{
+    return "ratio";
+}
+
+QString xmlKeyKnee()
+{
+    return "knee";
+}
+
+QString xmlKeyMakeup()
+{
+    return "makeup";
+}
+
+QString xmlKeySize()
+{
+    return "size";
+}
+
+QString xmlKeyDamping()
+{
+    return "damping";
+}
+
+QString xmlKeyPreDelay()
+{
+    return "preDelay";
 }
 
 QString xmlKeyPitchBendRange()
@@ -1072,474 +1097,310 @@ QString xmlKeyDelayFeedbackHpf()
     return "delayFeedbackHpf";
 }
 
-QString xmlKeyReverbSize()
+
+QString xmlKeyBandType(size_t bandIndex)
 {
-    return "reverbSize";
+    return QString { "band%1Type" }.arg(bandIndex + 1);
 }
 
-QString xmlKeyReverbDecay()
+QString xmlKeyBandFreq(size_t bandIndex)
 {
-    return "reverbDecay";
+    return QString { "band%1Freq" }.arg(bandIndex + 1);
 }
 
-QString xmlKeyReverbDamping()
+QString xmlKeyBandGain(size_t bandIndex)
 {
-    return "reverbDamping";
+    return QString { "band%1Gain" }.arg(bandIndex + 1);
 }
 
-QString xmlKeyReverbPreDelay()
+QString xmlKeyBandQ(size_t bandIndex)
 {
-    return "reverbPreDelay";
+    return QString { "band%1Q" }.arg(bandIndex + 1);
 }
 
-QString xmlKeyReverbMix()
-{
-    return "reverbMix";
-}
-
-QString xmlKeyReverbWidth()
-{
-    return "reverbWidth";
-}
-
-QString xmlKeyReverbLpfCutoff()
-{
-    return "reverbLpfCutoff";
-}
-
-QString xmlKeyReverbHpfCutoff()
-{
-    return "reverbHpfCutoff";
-}
-
-QString xmlKeyChorusRate()
-{
-    return "chorusRate";
-}
-
-QString xmlKeyChorusDepth()
-{
-    return "chorusDepth";
-}
-
-QString xmlKeyChorusDelay()
-{
-    return "chorusDelay";
-}
-
-QString xmlKeyChorusMix()
-{
-    return "chorusMix";
-}
-
-QString xmlKeyChorusWidth()
-{
-    return "chorusWidth";
-}
-
-QString xmlKeyChorusLpf()
-{
-    return "chorusLpf";
-}
-
-QString xmlKeyChorusHpf()
-{
-    return "chorusHpf";
-}
-
-QString xmlKeyCompressorThreshold()
-{
-    return "threshold";
-}
-
-QString xmlKeyCompressorRatio()
-{
-    return "ratio";
-}
-
-QString xmlKeyCompressorKnee()
-{
-    return "knee";
-}
-
-QString xmlKeyCompressorMakeup()
-{
-    return "makeup";
-}
-
-QString xmlKeyClipperMode()
-{
-    return "clipperMode";
-}
-
-QString xmlKeyClipperThreshold()
-{
-    return "clipperThreshold";
-}
-
-QString xmlKeyClipperGain()
-{
-    return "clipperGain";
-}
-
-QString xmlKeyEq8BandParametricType(size_t bandIndex)
-{
-    return QString { "eq8BandParametricBand%1Type" }.arg(bandIndex + 1);
-}
-
-QString xmlKeyEq8BandParametricFreq(size_t bandIndex)
-{
-    return QString { "eq8BandParametricBand%1Freq" }.arg(bandIndex + 1);
-}
-
-QString xmlKeyEq8BandParametricGain(size_t bandIndex)
-{
-    return QString { "eq8BandParametricBand%1Gain" }.arg(bandIndex + 1);
-}
-
-QString xmlKeyEq8BandParametricQ(size_t bandIndex)
-{
-    return QString { "eq8BandParametricBand%1Q" }.arg(bandIndex + 1);
-}
-
-QString xmlKeySynthVco1Waveform()
+QString xmlKeyVco1Waveform()
 {
     return "vco1Waveform";
 }
 
-QString xmlKeySynthVco1Octave()
+QString xmlKeyVco1Octave()
 {
     return "vco1Octave";
 }
 
-QString xmlKeySynthVco1Pitch()
+QString xmlKeyVco1Pitch()
 {
     return "vco1Pitch";
 }
 
-QString xmlKeySynthVco1Shape()
+QString xmlKeyVco1Shape()
 {
     return "vco1Shape";
 }
 
-QString xmlKeySynthVco1Sync()
+QString xmlKeyVco1Sync()
 {
     return "vco1Sync";
 }
 
-QString xmlKeySynthVco2Waveform()
+QString xmlKeyVco2Waveform()
 {
     return "vco2Waveform";
 }
 
-QString xmlKeySynthVco2Octave()
+QString xmlKeyVco2Octave()
 {
     return "vco2Octave";
 }
 
-QString xmlKeySynthVco2Pitch()
+QString xmlKeyVco2Pitch()
 {
     return "vco2Pitch";
 }
 
-QString xmlKeySynthVco2Shape()
+QString xmlKeyVco2Shape()
 {
     return "vco2Shape";
 }
 
-QString xmlKeySynthVco2Sync()
+QString xmlKeyVco2Sync()
 {
     return "vco2Sync";
 }
 
-QString xmlKeySynthVco3Waveform()
+QString xmlKeyVco3Waveform()
 {
     return "vco3Waveform";
 }
 
-QString xmlKeySynthVco3Octave()
+QString xmlKeyVco3Octave()
 {
     return "vco3Octave";
 }
 
-QString xmlKeySynthVco3Pitch()
+QString xmlKeyVco3Pitch()
 {
     return "vco3Pitch";
 }
 
-QString xmlKeySynthVco3Shape()
+QString xmlKeyVco3Shape()
 {
     return "vco3Shape";
 }
 
-QString xmlKeySynthVco3Sync()
+QString xmlKeyVco3Sync()
 {
     return "vco3Sync";
 }
 
-QString xmlKeyWavetableSynthOsc1Pos()
+QString xmlKeyOsc1Pos()
 {
-    return "wavetableSynthOsc1Pos";
+    return "osc1Pos";
 }
 
-QString xmlKeyWavetableSynthOsc1Octave()
+QString xmlKeyOsc1Octave()
 {
-    return "wavetableSynthOsc1Octave";
+    return "osc1Octave";
 }
 
-QString xmlKeyWavetableSynthOsc1Pitch()
+QString xmlKeyOsc1Pitch()
 {
-    return "wavetableSynthOsc1Pitch";
+    return "osc1Pitch";
 }
 
-QString xmlKeyWavetableSynthOsc1Level()
+QString xmlKeyOsc1Level()
 {
-    return "wavetableSynthOsc1Level";
+    return "osc1Level";
 }
 
-QString xmlKeyWavetableSynthOsc2Pos()
+QString xmlKeyOsc2Pos()
 {
-    return "wavetableSynthOsc2Pos";
+    return "osc2Pos";
 }
 
-QString xmlKeyWavetableSynthOsc2Octave()
+QString xmlKeyOsc2Octave()
 {
-    return "wavetableSynthOsc2Octave";
+    return "osc2Octave";
 }
 
-QString xmlKeyWavetableSynthOsc2Pitch()
+QString xmlKeyOsc2Pitch()
 {
-    return "wavetableSynthOsc2Pitch";
+    return "osc2Pitch";
 }
 
-QString xmlKeyWavetableSynthOsc2Level()
+QString xmlKeyOsc2Level()
 {
-    return "wavetableSynthOsc2Level";
+    return "osc2Level";
 }
 
-QString xmlKeyWavetableSynthNoiseLevel()
+QString xmlKeyNoiseLevel()
 {
-    return "wavetableSynthNoiseLevel";
+    return "noiseLevel";
 }
 
-QString xmlKeyWavetableSynthLpfCutoff()
-{
-    return "wavetableSynthLpfCutoff";
-}
-
-QString xmlKeyWavetableSynthLpfResonance()
-{
-    return "wavetableSynthLpfResonance";
-}
-
-QString xmlKeyWavetableSynthHpfCutoff()
-{
-    return "wavetableSynthHpfCutoff";
-}
-
-QString xmlKeyWavetableSynthAmpAttack()
-{
-    return "wavetableSynthAmpAttack";
-}
-
-QString xmlKeyWavetableSynthAmpDecay()
-{
-    return "wavetableSynthAmpDecay";
-}
-
-QString xmlKeyWavetableSynthAmpSustain()
-{
-    return "wavetableSynthAmpSustain";
-}
-
-QString xmlKeyWavetableSynthAmpRelease()
-{
-    return "wavetableSynthAmpRelease";
-}
-
-QString xmlKeyWavetableSynthModAttack()
-{
-    return "wavetableSynthModAttack";
-}
-
-QString xmlKeyWavetableSynthModDecay()
-{
-    return "wavetableSynthModDecay";
-}
-
-QString xmlKeyWavetableSynthModIntensity()
-{
-    return "wavetableSynthModIntensity";
-}
-
-QString xmlKeyWavetableSynthModTarget()
-{
-    return "wavetableSynthModTarget";
-}
-
-QString xmlKeyWavetableSynthLfoWaveform()
-{
-    return "wavetableSynthLfoWaveform";
-}
-
-QString xmlKeyWavetableSynthLfoMode()
-{
-    return "wavetableSynthLfoMode";
-}
-
-QString xmlKeyWavetableSynthLfoRate()
-{
-    return "wavetableSynthLfoRate";
-}
-
-QString xmlKeyWavetableSynthLfoIntensity()
-{
-    return "wavetableSynthLfoIntensity";
-}
-
-QString xmlKeyWavetableSynthLfoTarget()
-{
-    return "wavetableSynthLfoTarget";
-}
-
-QString xmlKeyWavetableSynthLfo2Waveform()
-{
-    return "wavetableSynthLfo2Waveform";
-}
-
-QString xmlKeyWavetableSynthLfo2Mode()
-{
-    return "wavetableSynthLfo2Mode";
-}
-
-QString xmlKeyWavetableSynthLfo2Rate()
-{
-    return "wavetableSynthLfo2Rate";
-}
-
-QString xmlKeyWavetableSynthLfo2Intensity()
-{
-    return "wavetableSynthLfo2Intensity";
-}
-
-QString xmlKeyWavetableSynthLfo2Target()
-{
-    return "wavetableSynthLfo2Target";
-}
-
-QString xmlKeyWavetableSynthVoiceMode()
-{
-    return "wavetableSynthVoiceMode";
-}
-
-QString xmlKeyWavetableSynthVoiceDepth()
-{
-    return "wavetableSynthVoiceDepth";
-}
-
-QString xmlKeyWavetableSynthPanSpread()
-{
-    return "wavetableSynthPanSpread";
-}
-
-QString xmlKeyWavetableSynthPortamento()
-{
-    return "wavetableSynthPortamento";
-}
-
-QString xmlKeyWavetableSynthWavetableIndex()
-{
-    return "wavetableSynthWavetableIndex";
-}
-
-QString xmlKeySynthMultiMode()
-{
-    return "multiMode";
-}
-
-QString xmlKeySynthMultiShape()
-{
-    return "multiShape";
-}
-
-QString xmlKeySynthMultiLevel()
-{
-    return "multiLevel";
-}
-
-QString xmlKeySynthMixLevel1()
-{
-    return "mixLevel1";
-}
-
-QString xmlKeySynthMixLevel2()
-{
-    return "mixLevel2";
-}
-
-QString xmlKeySynthMixLevel3()
-{
-    return "mixLevel3";
-}
-
-QString xmlKeySynthLpfCutoff()
+QString xmlKeyLpfCutoff()
 {
     return "lpfCutoff";
 }
 
-QString xmlKeySynthLpfResonance()
+QString xmlKeyLpfResonance()
 {
     return "lpfResonance";
 }
 
-QString xmlKeySynthHpfCutoff()
+QString xmlKeyHpfCutoff()
 {
     return "hpfCutoff";
 }
 
-QString xmlKeySynthAmpAttack()
+QString xmlKeyAmpAttack()
 {
     return "ampAttack";
 }
 
-QString xmlKeySynthAmpDecay()
+QString xmlKeyAmpDecay()
 {
     return "ampDecay";
 }
 
-QString xmlKeySynthAmpSustain()
+QString xmlKeyAmpSustain()
 {
     return "ampSustain";
 }
 
-QString xmlKeySynthAmpRelease()
+QString xmlKeyAmpRelease()
 {
     return "ampRelease";
 }
 
-QString xmlKeySynthAmpVelocitySensitivity()
+QString xmlKeyAmpVelocitySensitivity()
 {
     return "ampVelocitySensitivity";
 }
 
-QString xmlKeySynthModAttack()
+QString xmlKeyModAttack()
 {
     return "modAttack";
 }
 
-QString xmlKeySynthModDecay()
+QString xmlKeyModDecay()
 {
     return "modDecay";
 }
 
-QString xmlKeySynthModIntensity()
+QString xmlKeyModIntensity()
 {
     return "modIntensity";
 }
 
-QString xmlKeySynthModTarget()
+QString xmlKeyModTarget()
 {
     return "modTarget";
+}
+
+QString xmlKeyLfoWaveform()
+{
+    return "lfoWaveform";
+}
+
+QString xmlKeyLfoMode()
+{
+    return "lfoMode";
+}
+
+QString xmlKeyLfoRate()
+{
+    return "lfoRate";
+}
+
+QString xmlKeyLfoIntensity()
+{
+    return "lfoIntensity";
+}
+
+QString xmlKeyLfoTarget()
+{
+    return "lfoTarget";
+}
+
+QString xmlKeyLfo2Waveform()
+{
+    return "lfo2Waveform";
+}
+
+QString xmlKeyLfo2Mode()
+{
+    return "lfo2Mode";
+}
+
+QString xmlKeyLfo2Rate()
+{
+    return "lfo2Rate";
+}
+
+QString xmlKeyLfo2Intensity()
+{
+    return "lfo2Intensity";
+}
+
+QString xmlKeyLfo2Target()
+{
+    return "lfo2Target";
+}
+
+QString xmlKeyWavetableIndex()
+{
+    return "wavetableIndex";
+}
+
+QString xmlKeyVoiceMode()
+{
+    return "voiceMode";
+}
+
+QString xmlKeyVoiceDepth()
+{
+    return "voiceDepth";
+}
+
+QString xmlKeyPortamento()
+{
+    return "portamento";
+}
+
+QString xmlKeyPanSpread()
+{
+    return "panSpread";
+}
+
+QString xmlKeyMultiMode()
+{
+    return "multiMode";
+}
+
+QString xmlKeyMultiShape()
+{
+    return "multiShape";
+}
+
+QString xmlKeyMultiLevel()
+{
+    return "multiLevel";
+}
+
+QString xmlKeyMixLevel1()
+{
+    return "mixLevel1";
+}
+
+QString xmlKeyMixLevel2()
+{
+    return "mixLevel2";
+}
+
+QString xmlKeyMixLevel3()
+{
+    return "mixLevel3";
 }
 
 QString xmlKeyUserPresets()
@@ -1555,31 +1416,6 @@ QString xmlKeyPreset()
 QString xmlKeyTypeId()
 {
     return "typeId";
-}
-
-QString xmlKeySynthLfoWaveform()
-{
-    return "lfoWaveform";
-}
-
-QString xmlKeySynthLfoMode()
-{
-    return "lfoMode";
-}
-
-QString xmlKeySynthLfoRate()
-{
-    return "lfoRate";
-}
-
-QString xmlKeySynthLfoIntensity()
-{
-    return "lfoIntensity";
-}
-
-QString xmlKeySynthLfoTarget()
-{
-    return "lfoTarget";
 }
 
 QString xmlKeyBassSynth()

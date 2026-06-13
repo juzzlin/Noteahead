@@ -25,13 +25,13 @@ namespace noteahead {
 
 ChorusEffect::ChorusEffect()
 {
-    addParameter({ Constants::NahdXml::xmlKeyChorusRate().toStdString(), 0.25f, 0, 1000, 250 });
-    addParameter({ Constants::NahdXml::xmlKeyChorusDepth().toStdString(), 0.5f, 0, 1000, 500 });
-    addParameter({ Constants::NahdXml::xmlKeyChorusDelay().toStdString(), 0.4f, 0, 1000, 400 });
-    addParameter({ Constants::NahdXml::xmlKeyChorusWidth().toStdString(), 1.0f, 0, 1000, 1000 });
-    addParameter({ Constants::NahdXml::xmlKeyChorusLpf().toStdString(), 1.0f, 0, 1000, 1000 });
-    addParameter({ Constants::NahdXml::xmlKeyChorusHpf().toStdString(), 0.0f, 0, 1000, 0 });
-    addParameter({ Constants::NahdXml::xmlKeyChorusMix().toStdString(), 0.5f, 0, 1000, 500 });
+    addParameter({ Constants::NahdXml::xmlKeyRate().toStdString(), 0.25f, 0, 1000, 250, 1, Parameter::Type::Continuous, { "chorusRate" } });
+    addParameter({ Constants::NahdXml::xmlKeyDepth().toStdString(), 0.5f, 0, 1000, 500, 1, Parameter::Type::Continuous, { "chorusDepth" } });
+    addParameter({ Constants::NahdXml::xmlKeyDelay().toStdString(), 0.4f, 0, 1000, 400, 1, Parameter::Type::Continuous, { "chorusDelay" } });
+    addParameter({ Constants::NahdXml::xmlKeyWidth().toStdString(), 1.0f, 0, 1000, 1000, 1, Parameter::Type::Continuous, { "chorusWidth" } });
+    addParameter({ Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), 1.0f, 0, 1000, 1000, 1, Parameter::Type::Continuous, { "chorusLpf" } });
+    addParameter({ Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.0f, 0, 1000, 0, 1, Parameter::Type::Continuous, { "chorusHpf" } });
+    addParameter({ Constants::NahdXml::xmlKeyMix().toStdString(), 0.5f, 0, 1000, 500, 1, Parameter::Type::Continuous, { "chorusMix" } });
 
     m_lfoL.setWaveform(Lfo::Waveform::Sine);
     m_lfoR.setWaveform(Lfo::Waveform::Sine);
@@ -161,13 +161,13 @@ std::string ChorusEffect::typeId() const
 
 void ChorusEffect::setRate(double rate)
 {
-    parameter(Constants::NahdXml::xmlKeyChorusRate().toStdString())->get().update(static_cast<float>(rate));
+    parameter(Constants::NahdXml::xmlKeyRate().toStdString())->get().update(static_cast<float>(rate));
     m_shouldSyncParameters = true;
 }
 
 double ChorusEffect::rate() const
 {
-    if (const auto p = parameter(Constants::NahdXml::xmlKeyChorusRate().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyRate().toStdString()); p) {
         return p->get().value();
     }
     return 0.25;
@@ -175,13 +175,13 @@ double ChorusEffect::rate() const
 
 void ChorusEffect::setDepth(double depth)
 {
-    parameter(Constants::NahdXml::xmlKeyChorusDepth().toStdString())->get().update(static_cast<float>(depth));
+    parameter(Constants::NahdXml::xmlKeyDepth().toStdString())->get().update(static_cast<float>(depth));
     m_shouldSyncParameters = true;
 }
 
 double ChorusEffect::depth() const
 {
-    if (const auto p = parameter(Constants::NahdXml::xmlKeyChorusDepth().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyDepth().toStdString()); p) {
         return p->get().value();
     }
     return 0.5;
@@ -189,14 +189,14 @@ double ChorusEffect::depth() const
 
 void ChorusEffect::setDelay(double ms)
 {
-    parameter(Constants::NahdXml::xmlKeyChorusDelay().toStdString())->get().update(static_cast<float>(ms));
+    parameter(Constants::NahdXml::xmlKeyDelay().toStdString())->get().update(static_cast<float>(ms));
     m_shouldSyncParameters = true;
     m_shouldUpdateBuffers = true;
 }
 
 double ChorusEffect::delay() const
 {
-    if (const auto p = parameter(Constants::NahdXml::xmlKeyChorusDelay().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyDelay().toStdString()); p) {
         return p->get().value();
     }
     return 0.4;
@@ -204,13 +204,13 @@ double ChorusEffect::delay() const
 
 void ChorusEffect::setMix(double mix)
 {
-    parameter(Constants::NahdXml::xmlKeyChorusMix().toStdString())->get().update(static_cast<float>(mix));
+    parameter(Constants::NahdXml::xmlKeyMix().toStdString())->get().update(static_cast<float>(mix));
     m_shouldSyncParameters = true;
 }
 
 double ChorusEffect::mix() const
 {
-    if (const auto p = parameter(Constants::NahdXml::xmlKeyChorusMix().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyMix().toStdString()); p) {
         return p->get().value();
     }
     return 0.5;
@@ -218,13 +218,13 @@ double ChorusEffect::mix() const
 
 void ChorusEffect::setWidth(double width)
 {
-    parameter(Constants::NahdXml::xmlKeyChorusWidth().toStdString())->get().update(static_cast<float>(width));
+    parameter(Constants::NahdXml::xmlKeyWidth().toStdString())->get().update(static_cast<float>(width));
     m_shouldSyncParameters = true;
 }
 
 double ChorusEffect::width() const
 {
-    if (const auto p = parameter(Constants::NahdXml::xmlKeyChorusWidth().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyWidth().toStdString()); p) {
         return p->get().value();
     }
     return 1.0;
@@ -232,13 +232,13 @@ double ChorusEffect::width() const
 
 void ChorusEffect::setLpfCutoff(double cutoff)
 {
-    parameter(Constants::NahdXml::xmlKeyChorusLpf().toStdString())->get().update(static_cast<float>(cutoff));
+    parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString())->get().update(static_cast<float>(cutoff));
     m_shouldSyncParameters = true;
 }
 
 double ChorusEffect::lpfCutoff() const
 {
-    if (const auto p = parameter(Constants::NahdXml::xmlKeyChorusLpf().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); p) {
         return p->get().value();
     }
     return 1.0;
@@ -246,13 +246,13 @@ double ChorusEffect::lpfCutoff() const
 
 void ChorusEffect::setHpfCutoff(double cutoff)
 {
-    parameter(Constants::NahdXml::xmlKeyChorusHpf().toStdString())->get().update(static_cast<float>(cutoff));
+    parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString())->get().update(static_cast<float>(cutoff));
     m_shouldSyncParameters = true;
 }
 
 double ChorusEffect::hpfCutoff() const
 {
-    if (const auto p = parameter(Constants::NahdXml::xmlKeyChorusHpf().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) {
         return p->get().value();
     }
     return 0.0;
@@ -260,13 +260,13 @@ double ChorusEffect::hpfCutoff() const
 
 void ChorusEffect::syncParameters()
 {
-    const auto rateParam = parameter(Constants::NahdXml::xmlKeyChorusRate().toStdString());
-    const auto depthParam = parameter(Constants::NahdXml::xmlKeyChorusDepth().toStdString());
-    const auto delayParam = parameter(Constants::NahdXml::xmlKeyChorusDelay().toStdString());
-    const auto widthParam = parameter(Constants::NahdXml::xmlKeyChorusWidth().toStdString());
-    const auto lpfParam = parameter(Constants::NahdXml::xmlKeyChorusLpf().toStdString());
-    const auto hpfParam = parameter(Constants::NahdXml::xmlKeyChorusHpf().toStdString());
-    const auto mixParam = parameter(Constants::NahdXml::xmlKeyChorusMix().toStdString());
+    const auto rateParam = parameter(Constants::NahdXml::xmlKeyRate().toStdString());
+    const auto depthParam = parameter(Constants::NahdXml::xmlKeyDepth().toStdString());
+    const auto delayParam = parameter(Constants::NahdXml::xmlKeyDelay().toStdString());
+    const auto widthParam = parameter(Constants::NahdXml::xmlKeyWidth().toStdString());
+    const auto lpfParam = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString());
+    const auto hpfParam = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString());
+    const auto mixParam = parameter(Constants::NahdXml::xmlKeyMix().toStdString());
 
     m_rate = ParameterMapper::mapExponential(rateParam->get().value(), 0.1, 10.0);
     m_depth = depthParam->get().value();

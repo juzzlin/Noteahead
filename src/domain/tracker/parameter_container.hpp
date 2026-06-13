@@ -58,6 +58,7 @@ public:
 
 private:
     std::map<std::string, Parameter> m_parameters;
+    std::map<std::string, std::string> m_legacyNameMap;
 };
 
 } // namespace noteahead

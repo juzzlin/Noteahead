@@ -75,9 +75,9 @@ BassSynthDevice::BassSynthDevice(std::string name)
     addParameter(Parameter(Constants::NahdXml::xmlKeySubLevel().toStdString(), 0.0f, 0, 10000, 0, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeySubOctave().toStdString(), 1.0f, 1, 2, 1, 1, Parameter::Type::Discrete));
 
-    addParameter(Parameter(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString(), 0.5f, 0, 10000, 5000, 100));
-    addParameter(Parameter(Constants::NahdXml::xmlKeySynthLpfResonance().toStdString(), 0.0f, 0, 10000, 0, 100));
-    addParameter(Parameter(Constants::NahdXml::xmlKeySynthHpfCutoff().toStdString(), 0.0f, 0, 10000, 0, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), 0.5f, 0, 10000, 5000, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyLpfResonance().toStdString(), 0.0f, 0, 10000, 0, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.0f, 0, 10000, 0, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyEnvMod().toStdString(), 0.5f, 0, 10000, 5000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyDecay().toStdString(), 0.5f, 0, 10000, 5000, 100));
 
@@ -163,9 +163,9 @@ void BassSynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
             m_lpfCutoff = m_manualLpfCutoff;
             m_hpfCutoff = m_manualHpfCutoff;
 
-            if (auto p = parameter(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString()); p)
+            if (auto p = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); p)
                 p->get().setValue(m_lpfCutoff);
-            if (auto p = parameter(Constants::NahdXml::xmlKeySynthHpfCutoff().toStdString()); p)
+            if (auto p = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p)
                 p->get().setValue(m_hpfCutoff);
 
             updatePanParameter(manualPanInternal(), false);
@@ -181,14 +181,14 @@ void BassSynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
                 changed |= updatePanParameter(val, false);
             } else if (controller == static_cast<uint8_t>(Controller::SoundController5)) { // Cutoff
                 m_lpfCutoff = val;
-                if (auto p = parameter(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString()); p) {
+                if (auto p = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); p) {
                     p->get().setValue(val);
                     syncParameters();
                     changed = true;
                 }
             } else if (controller == static_cast<uint8_t>(Controller::GeneralPurpose6)) { // HPF Cutoff
                 m_hpfCutoff = val;
-                if (auto p = parameter(Constants::NahdXml::xmlKeySynthHpfCutoff().toStdString()); p) {
+                if (auto p = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) {
                     p->get().setValue(val);
                     syncParameters();
                     changed = true;
@@ -449,11 +449,11 @@ void BassSynthDevice::syncParameters()
     if (auto p = parameter(Constants::NahdXml::xmlKeySubOctave().toStdString()); p)
         m_subOctave = static_cast<int>(p->get().xmlValue());
 
-    if (auto p = parameter(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString()); p)
+    if (auto p = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); p)
         m_lpfCutoff = p->get().value();
-    if (auto p = parameter(Constants::NahdXml::xmlKeySynthLpfResonance().toStdString()); p)
+    if (auto p = parameter(Constants::NahdXml::xmlKeyLpfResonance().toStdString()); p)
         m_lpfResonance = p->get().value();
-    if (auto p = parameter(Constants::NahdXml::xmlKeySynthHpfCutoff().toStdString()); p)
+    if (auto p = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p)
         m_hpfCutoff = p->get().value();
     if (auto p = parameter(Constants::NahdXml::xmlKeyEnvMod().toStdString()); p)
         m_envMod = p->get().value();
@@ -576,7 +576,7 @@ void BassSynthDevice::setLpfCutoff(float cutoff)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (auto p = parameter(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString()); p) {
+        if (auto p = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); p) {
             p->get().setValue(cutoff);
             m_manualLpfCutoff = p->get().value();
             syncParameters();
@@ -597,7 +597,7 @@ void BassSynthDevice::setLpfResonance(float resonance)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (auto p = parameter(Constants::NahdXml::xmlKeySynthLpfResonance().toStdString()); p) {
+        if (auto p = parameter(Constants::NahdXml::xmlKeyLpfResonance().toStdString()); p) {
             p->get().setValue(resonance);
             syncParameters();
             changed = true;
@@ -617,7 +617,7 @@ void BassSynthDevice::setHpfCutoff(float cutoff)
     bool changed = false;
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (auto p = parameter(Constants::NahdXml::xmlKeySynthHpfCutoff().toStdString()); p) {
+        if (auto p = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) {
             p->get().setValue(cutoff);
             m_manualHpfCutoff = p->get().value();
             syncParameters();

@@ -255,8 +255,8 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                       .arg(static_cast<int>(std::round(intensity->get().value() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::chorus()) {
-                const auto rate = effect->parameter(Constants::NahdXml::xmlKeyChorusRate().toStdString());
-                const auto mix = effect->parameter(Constants::NahdXml::xmlKeyChorusMix().toStdString());
+                const auto rate = effect->parameter(Constants::NahdXml::xmlKeyRate().toStdString());
+                const auto mix = effect->parameter(Constants::NahdXml::xmlKeyMix().toStdString());
                 if (rate && mix) {
                     const float rateHz = static_cast<float>(ParameterMapper::mapExponential(rate->get().value(), 0.1, 10.0));
                     return QString { "(rate=%1Hz, mix=%2%)" }
@@ -264,12 +264,12 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                       .arg(static_cast<int>(std::round(mix->get().value() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::clipper()) {
-                if (const auto threshold = effect->parameter(Constants::NahdXml::xmlKeyClipperThreshold().toStdString()); threshold) {
+                if (const auto threshold = effect->parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()); threshold) {
                     return QString { "(thr=%1dB)" }.arg(threshold->get().xmlValue() / 100.0f, 0, 'f', 1);
                 }
             } else if (type == Constants::RackEffectType::compressor()) {
                 const auto attack = effect->parameter(Constants::NahdXml::xmlKeyAttack().toStdString());
-                const auto ratio = effect->parameter(Constants::NahdXml::xmlKeyCompressorRatio().toStdString());
+                const auto ratio = effect->parameter(Constants::NahdXml::xmlKeyRatio().toStdString());
                 if (attack && ratio) {
                     const float attackMs = static_cast<float>(ParameterMapper::mapExponential(attack->get().value(), 0.1, 500.0));
                     const int ratioValue = ratio->get().xmlValue() / ratio->get().xmlScale();
@@ -298,15 +298,15 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                 return "(Parametric)";
             } else if (type == Constants::RackEffectType::panner()) {
                 const auto pan = effect->parameter(Constants::NahdXml::xmlKeyPan().toStdString());
-                const auto width = effect->parameter(Constants::NahdXml::xmlKeyReverbWidth().toStdString());
+                const auto width = effect->parameter(Constants::NahdXml::xmlKeyWidth().toStdString());
                 if (pan && width) {
                     return QString { "(pan=%1%, width=%2%)" }
                       .arg(static_cast<int>(std::round(pan->get().value() * 100.0f)))
                       .arg(static_cast<int>(std::round(width->get().value() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::reverb()) {
-                const auto preDelay = effect->parameter(Constants::NahdXml::xmlKeyReverbPreDelay().toStdString());
-                const auto decay = effect->parameter(Constants::NahdXml::xmlKeyReverbDecay().toStdString());
+                const auto preDelay = effect->parameter(Constants::NahdXml::xmlKeyPreDelay().toStdString());
+                const auto decay = effect->parameter(Constants::NahdXml::xmlKeyDecay().toStdString());
                 if (preDelay && decay) {
                     return QString { "(pre=%1ms, decay=%2ms)" }
                       .arg(preDelay->get().xmlValue() / preDelay->get().xmlScale())
@@ -320,87 +320,87 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
 
 QString EffectRackController::reverbSizeKey() const
 {
-    return Constants::NahdXml::xmlKeyReverbSize();
+    return Constants::NahdXml::xmlKeySize();
 }
 
 QString EffectRackController::reverbDecayKey() const
 {
-    return Constants::NahdXml::xmlKeyReverbDecay();
+    return Constants::NahdXml::xmlKeyDecay();
 }
 
 QString EffectRackController::reverbDampingKey() const
 {
-    return Constants::NahdXml::xmlKeyReverbDamping();
+    return Constants::NahdXml::xmlKeyDamping();
 }
 
 QString EffectRackController::reverbPreDelayKey() const
 {
-    return Constants::NahdXml::xmlKeyReverbPreDelay();
+    return Constants::NahdXml::xmlKeyPreDelay();
 }
 
 QString EffectRackController::reverbWidthKey() const
 {
-    return Constants::NahdXml::xmlKeyReverbWidth();
+    return Constants::NahdXml::xmlKeyWidth();
 }
 
 QString EffectRackController::reverbLpfCutoffKey() const
 {
-    return Constants::NahdXml::xmlKeyReverbLpfCutoff();
+    return Constants::NahdXml::xmlKeyLpfCutoff();
 }
 
 QString EffectRackController::reverbHpfCutoffKey() const
 {
-    return Constants::NahdXml::xmlKeyReverbHpfCutoff();
+    return Constants::NahdXml::xmlKeyHpfCutoff();
 }
 
 QString EffectRackController::reverbMixKey() const
 {
-    return Constants::NahdXml::xmlKeyReverbMix();
+    return Constants::NahdXml::xmlKeyMix();
 }
 
 QString EffectRackController::chorusRateKey() const
 {
-    return Constants::NahdXml::xmlKeyChorusRate();
+    return Constants::NahdXml::xmlKeyRate();
 }
 
 QString EffectRackController::chorusDepthKey() const
 {
-    return Constants::NahdXml::xmlKeyChorusDepth();
+    return Constants::NahdXml::xmlKeyDepth();
 }
 
 QString EffectRackController::chorusDelayKey() const
 {
-    return Constants::NahdXml::xmlKeyChorusDelay();
+    return Constants::NahdXml::xmlKeyDelay();
 }
 
 QString EffectRackController::chorusMixKey() const
 {
-    return Constants::NahdXml::xmlKeyChorusMix();
+    return Constants::NahdXml::xmlKeyMix();
 }
 
 QString EffectRackController::chorusWidthKey() const
 {
-    return Constants::NahdXml::xmlKeyChorusWidth();
+    return Constants::NahdXml::xmlKeyWidth();
 }
 
 QString EffectRackController::chorusLpfKey() const
 {
-    return Constants::NahdXml::xmlKeyChorusLpf();
+    return Constants::NahdXml::xmlKeyLpfCutoff();
 }
 
 QString EffectRackController::chorusHpfKey() const
 {
-    return Constants::NahdXml::xmlKeyChorusHpf();
+    return Constants::NahdXml::xmlKeyHpfCutoff();
 }
 
 QString EffectRackController::compressorThresholdKey() const
 {
-    return Constants::NahdXml::xmlKeyCompressorThreshold();
+    return Constants::NahdXml::xmlKeyThreshold();
 }
 
 QString EffectRackController::compressorRatioKey() const
 {
-    return Constants::NahdXml::xmlKeyCompressorRatio();
+    return Constants::NahdXml::xmlKeyRatio();
 }
 
 QString EffectRackController::compressorAttackKey() const
@@ -415,12 +415,12 @@ QString EffectRackController::compressorReleaseKey() const
 
 QString EffectRackController::compressorKneeKey() const
 {
-    return Constants::NahdXml::xmlKeyCompressorKnee();
+    return Constants::NahdXml::xmlKeyKnee();
 }
 
 QString EffectRackController::compressorMakeupKey() const
 {
-    return Constants::NahdXml::xmlKeyCompressorMakeup();
+    return Constants::NahdXml::xmlKeyMakeup();
 }
 
 QString EffectRackController::compressorLookaheadKey() const
@@ -430,37 +430,37 @@ QString EffectRackController::compressorLookaheadKey() const
 
 QString EffectRackController::clipperModeKey() const
 {
-    return Constants::NahdXml::xmlKeyClipperMode();
+    return Constants::NahdXml::xmlKeyMode();
 }
 
 QString EffectRackController::clipperThresholdKey() const
 {
-    return Constants::NahdXml::xmlKeyClipperThreshold();
+    return Constants::NahdXml::xmlKeyThreshold();
 }
 
 QString EffectRackController::clipperGainKey() const
 {
-    return Constants::NahdXml::xmlKeyClipperGain();
+    return Constants::NahdXml::xmlKeyGain();
 }
 
 QString EffectRackController::eq8BandParametricTypeKey(quint32 bandIndex) const
 {
-    return Constants::NahdXml::xmlKeyEq8BandParametricType(bandIndex);
+    return Constants::NahdXml::xmlKeyBandType(bandIndex);
 }
 
 QString EffectRackController::eq8BandParametricFreqKey(quint32 bandIndex) const
 {
-    return Constants::NahdXml::xmlKeyEq8BandParametricFreq(bandIndex);
+    return Constants::NahdXml::xmlKeyBandFreq(bandIndex);
 }
 
 QString EffectRackController::eq8BandParametricGainKey(quint32 bandIndex) const
 {
-    return Constants::NahdXml::xmlKeyEq8BandParametricGain(bandIndex);
+    return Constants::NahdXml::xmlKeyBandGain(bandIndex);
 }
 
 QString EffectRackController::eq8BandParametricQKey(quint32 bandIndex) const
 {
-    return Constants::NahdXml::xmlKeyEq8BandParametricQ(bandIndex);
+    return Constants::NahdXml::xmlKeyBandQ(bandIndex);
 }
 
 QString EffectRackController::clipperType() const

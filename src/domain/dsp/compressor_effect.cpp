@@ -27,12 +27,12 @@ namespace noteahead {
 
 CompressorEffect::CompressorEffect()
 {
-    addParameter(Parameter { Constants::NahdXml::xmlKeyCompressorThreshold().toStdString(), 0.66f, -6000, 0, -2000, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyCompressorRatio().toStdString(), 0.15789f, 100, 2000, 400, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyThreshold().toStdString(), 0.66f, -6000, 0, -2000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyRatio().toStdString(), 0.15789f, 100, 2000, 400, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyAttack().toStdString(), 0.2f, 0, 500, 10 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyRelease().toStdString(), 0.25f, 1, 2000, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyCompressorKnee().toStdString(), 0.0f, 0, 2400, 0, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyCompressorMakeup().toStdString(), 0.5f, -1200, 1200, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyKnee().toStdString(), 0.0f, 0, 2400, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyMakeup().toStdString(), 0.5f, -1200, 1200, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLookahead().toStdString(), 0.0f, 0, 10, 0 });
 
     syncParameters();
@@ -185,10 +185,10 @@ float CompressorEffect::reductionDb() const
 
 void CompressorEffect::syncParameters()
 {
-    if (auto p = parameter(Constants::NahdXml::xmlKeyCompressorThreshold().toStdString()); p) {
+    if (auto p = parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()); p) {
         m_threshold = -60.0f + p->get().value() * 60.0f;
     }
-    if (auto p = parameter(Constants::NahdXml::xmlKeyCompressorRatio().toStdString()); p) {
+    if (auto p = parameter(Constants::NahdXml::xmlKeyRatio().toStdString()); p) {
         m_ratio = 1.0f + p->get().value() * 19.0f;
     }
     if (auto p = parameter(Constants::NahdXml::xmlKeyAttack().toStdString()); p) {
@@ -197,10 +197,10 @@ void CompressorEffect::syncParameters()
     if (auto p = parameter(Constants::NahdXml::xmlKeyRelease().toStdString()); p) {
         m_releaseMs = static_cast<float>(ParameterMapper::mapExponential(p->get().value(), 1.0, 2000.0));
     }
-    if (auto p = parameter(Constants::NahdXml::xmlKeyCompressorKnee().toStdString()); p) {
+    if (auto p = parameter(Constants::NahdXml::xmlKeyKnee().toStdString()); p) {
         m_knee = p->get().value() * 24.0f;
     }
-    if (auto p = parameter(Constants::NahdXml::xmlKeyCompressorMakeup().toStdString()); p) {
+    if (auto p = parameter(Constants::NahdXml::xmlKeyMakeup().toStdString()); p) {
         m_makeup = -12.0f + p->get().value() * 24.0f;
     }
     if (auto p = parameter(Constants::NahdXml::xmlKeyLookahead().toStdString()); p) {

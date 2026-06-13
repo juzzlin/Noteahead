@@ -390,19 +390,19 @@ void SynthTest::test_parameterDiscreteFlag_shouldReturnCorrectDiscreteState()
     const SynthDevice synth { "Test Synth" };
 
     // Test discrete parameters
-    const auto vco1Wave = synth.parameter(Constants::NahdXml::xmlKeySynthVco1Waveform().toStdString());
+    const auto vco1Wave = synth.parameter(Constants::NahdXml::xmlKeyVco1Waveform().toStdString());
     QVERIFY(vco1Wave.has_value());
     QVERIFY(vco1Wave->get().isDiscrete());
 
-    const auto vco1Octave = synth.parameter(Constants::NahdXml::xmlKeySynthVco1Octave().toStdString());
+    const auto vco1Octave = synth.parameter(Constants::NahdXml::xmlKeyVco1Octave().toStdString());
     QVERIFY(vco1Octave.has_value());
     QVERIFY(vco1Octave->get().isDiscrete());
 
-    const auto vco1Pitch = synth.parameter(Constants::NahdXml::xmlKeySynthVco1Pitch().toStdString());
+    const auto vco1Pitch = synth.parameter(Constants::NahdXml::xmlKeyVco1Pitch().toStdString());
     QVERIFY(vco1Pitch.has_value());
     QVERIFY(!vco1Pitch->get().isDiscrete());
 
-    const auto modTarget = synth.parameter(Constants::NahdXml::xmlKeySynthModTarget().toStdString());
+    const auto modTarget = synth.parameter(Constants::NahdXml::xmlKeyModTarget().toStdString());
     QVERIFY(modTarget.has_value());
     QVERIFY(modTarget->get().isDiscrete());
 
@@ -411,15 +411,15 @@ void SynthTest::test_parameterDiscreteFlag_shouldReturnCorrectDiscreteState()
     QVERIFY(voiceMode->get().isDiscrete());
 
     // Test continuous parameters
-    const auto lpfCutoff = synth.parameter(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString());
+    const auto lpfCutoff = synth.parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString());
     QVERIFY(lpfCutoff.has_value());
     QVERIFY(!lpfCutoff->get().isDiscrete());
 
-    const auto ampAttack = synth.parameter(Constants::NahdXml::xmlKeySynthAmpAttack().toStdString());
+    const auto ampAttack = synth.parameter(Constants::NahdXml::xmlKeyAmpAttack().toStdString());
     QVERIFY(ampAttack.has_value());
     QVERIFY(!ampAttack->get().isDiscrete());
 
-    const auto multiShape = synth.parameter(Constants::NahdXml::xmlKeySynthMultiShape().toStdString());
+    const auto multiShape = synth.parameter(Constants::NahdXml::xmlKeyMultiShape().toStdString());
     QVERIFY(multiShape.has_value());
     QVERIFY(!multiShape->get().isDiscrete());
 }
@@ -430,7 +430,7 @@ void SynthTest::test_midiBankAndProgramChange_shouldLoadCorrectPreset()
 
     // Set some user presets
     UserPresets userPresets;
-    const SynthPreset up1 { "User 1", { { Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString(), 0.123f } } };
+    const SynthPreset up1 { "User 1", { { Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), 0.123f } } };
     userPresets[5] = up1;
     synth.setUserPresets(userPresets);
 
@@ -448,7 +448,7 @@ void SynthTest::test_midiBankAndProgramChange_shouldLoadCorrectPreset()
 
     const auto & factoryPresets = SynthPresets::presets();
     if (!factoryPresets.empty()) {
-        const auto expectedCutoff = factoryPresets[0].parameters.count(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString()) ? factoryPresets[0].parameters.at(Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString()) : 1.0f; // Default 1.0
+        const auto expectedCutoff = factoryPresets[0].parameters.count(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()) ? factoryPresets[0].parameters.at(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()) : 1.0f; // Default 1.0
         QCOMPARE(synth.lpfCutoff(), expectedCutoff);
     }
 }
@@ -461,7 +461,7 @@ void SynthTest::test_userPresets_shouldSaveAndLoad()
     for (int i = 0; i < 128; i++)
         userPresets[i] = SynthPresets::initPreset();
 
-    const SynthPreset myPreset { "My Bass", { { Constants::NahdXml::xmlKeySynthLpfCutoff().toStdString(), 0.42f } } };
+    const SynthPreset myPreset { "My Bass", { { Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), 0.42f } } };
     userPresets[10] = myPreset;
 
     synth.setUserPresets(userPresets);
@@ -475,7 +475,7 @@ void SynthTest::test_userPresetsDiscreteValues_shouldLoadCorrectly()
     SynthDevice synth { "Test Synth" };
 
     UserPresets userPresets;
-    const std::string vco1WaveformKey = Constants::NahdXml::xmlKeySynthVco1Waveform().toStdString();
+    const std::string vco1WaveformKey = Constants::NahdXml::xmlKeyVco1Waveform().toStdString();
 
     // Logical values for discrete parameters:
     // Waveform (0..3): Tri=0.0, Saw=1.0, Square=2.0, Sine=3.0
@@ -504,7 +504,7 @@ void SynthTest::test_userPresetsDiscreteValues_shouldLoadCorrectly()
     QCOMPARE(synth.delayType(), DelayEffect::Type::PingPong);
 
     // Test Phase Sync (vco1Sync)
-    const std::string vco1SyncKey = Constants::NahdXml::xmlKeySynthVco1Sync().toStdString();
+    const std::string vco1SyncKey = Constants::NahdXml::xmlKeyVco1Sync().toStdString();
     const SynthPreset syncPreset { "Sync", { { vco1SyncKey, 1.0f } } };
     userPresets[3] = syncPreset;
     synth.setUserPresets(userPresets);

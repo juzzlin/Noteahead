@@ -263,7 +263,7 @@ void EffectRackTest::test_importEffectSettings_backwardsCompatibility()
     writer.writeStartElement(Constants::NahdXml::xmlKeyEffect());
     writer.writeAttribute(Constants::NahdXml::xmlKeyTypeId(), QString::fromStdString(ReverbEffect::typeIdString()));
     writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
-    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), Constants::NahdXml::xmlKeyReverbSize());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), "reverbSize");
     writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), "4200");
     writer.writeEndElement(); // Parameter
     writer.writeEndElement(); // Effect

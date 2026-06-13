@@ -56,7 +56,7 @@ void PannerTest::test_pan_shouldAdjustGains()
 void PannerTest::test_width_shouldAdjustStereoImage()
 {
     PannerEffect panner;
-    const auto widthParam = panner.parameter(Constants::NahdXml::xmlKeyReverbWidth().toStdString());
+    const auto widthParam = panner.parameter(Constants::NahdXml::xmlKeyWidth().toStdString());
     QVERIFY(widthParam.has_value());
 
     // Width 100% (Normal)

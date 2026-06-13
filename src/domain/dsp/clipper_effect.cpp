@@ -25,9 +25,9 @@ namespace noteahead {
 
 ClipperEffect::ClipperEffect()
 {
-    addParameter(Parameter { Constants::NahdXml::xmlKeyClipperMode().toStdString(), 1.0f, 0, 1, 1, 1, Parameter::Type::Discrete });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyClipperThreshold().toStdString(), 1.0f, -2400, 0, 0, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyClipperGain().toStdString(), 0.5f, -2400, 2400, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyMode().toStdString(), 1.0f, 0, 1, 1, 1, Parameter::Type::Discrete, { "clipperMode" } });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyThreshold().toStdString(), 1.0f, -2400, 0, 0, 100, Parameter::Type::Continuous, { "clipperThreshold" } });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyGain().toStdString(), 0.5f, -2400, 2400, 0, 100, Parameter::Type::Continuous, { "clipperGain" } });
 
     syncParameters();
 }
@@ -100,13 +100,13 @@ float ClipperEffect::reductionDb() const
 
 void ClipperEffect::syncParameters()
 {
-    if (const auto p = parameter(Constants::NahdXml::xmlKeyClipperMode().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyMode().toStdString()); p) {
         m_mode = static_cast<int>(p->get().value()) == 0 ? Mode::Hard : Mode::Soft;
     }
-    if (const auto p = parameter(Constants::NahdXml::xmlKeyClipperThreshold().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()); p) {
         m_thresholdDb = -24.0f + p->get().value() * 24.0f;
     }
-    if (const auto p = parameter(Constants::NahdXml::xmlKeyClipperGain().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyGain().toStdString()); p) {
         m_gainDb = -24.0f + p->get().value() * 48.0f;
     }
 }

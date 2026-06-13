@@ -707,7 +707,7 @@ void EffectsTest::test_eq8BandParametricEffect_shouldApplyBandsAndBeStable()
 
     // Test defaults
     {
-        if (auto p = effect.parameter(Constants::NahdXml::xmlKeyEq8BandParametricQ(0).toStdString()); p) {
+        if (auto p = effect.parameter(Constants::NahdXml::xmlKeyBandQ(0).toStdString()); p) {
             // Default should be 0.5f (maps to 1.0)
             QCOMPARE(p->get().value(), 0.5f);
         }
@@ -726,13 +726,13 @@ void EffectsTest::test_eq8BandParametricEffect_shouldApplyBandsAndBeStable()
     {
         effect.reset();
         // Band 1: Bell, 1000Hz, +12dB, Q=1.0
-        if (auto p = effect.parameter(Constants::NahdXml::xmlKeyEq8BandParametricType(0).toStdString()); p) {
-            p->get().setValue(1.0f / 6.0f); // Bell
+        if (auto p = effect.parameter(Constants::NahdXml::xmlKeyBandType(0).toStdString()); p) {
+            p->get().setValue(1.0f); // Bell
         }
-        if (auto p = effect.parameter(Constants::NahdXml::xmlKeyEq8BandParametricFreq(0).toStdString()); p) {
+        if (auto p = effect.parameter(Constants::NahdXml::xmlKeyBandFreq(0).toStdString()); p) {
             p->get().setValue(0.5f); // 1000Hz approx
         }
-        if (auto p = effect.parameter(Constants::NahdXml::xmlKeyEq8BandParametricGain(0).toStdString()); p) {
+        if (auto p = effect.parameter(Constants::NahdXml::xmlKeyBandGain(0).toStdString()); p) {
             p->get().setValue(0.75f); // +12dB
         }
         effect.sync();
@@ -766,10 +766,10 @@ void EffectsTest::test_clipperEffect_shouldClipSignal()
     // Test Hard Clipping
     {
         effect.reset();
-        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyClipperMode().toStdString()); p) {
+        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyMode().toStdString()); p) {
             p->get().setValue(0.0f); // Hard
         }
-        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyClipperThreshold().toStdString()); p) {
+        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()); p) {
             p->get().setValue(0.5f); // -12dB approx 0.2511
         }
         effect.sync();
@@ -792,10 +792,10 @@ void EffectsTest::test_clipperEffect_shouldClipSignal()
     // Test Soft Clipping (Tanh)
     {
         effect.reset();
-        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyClipperMode().toStdString()); p) {
+        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyMode().toStdString()); p) {
             p->get().setValue(1.0f); // Soft
         }
-        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyClipperThreshold().toStdString()); p) {
+        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()); p) {
             p->get().setValue(1.0f); // 0dB = 1.0
         }
         effect.sync();
@@ -812,13 +812,13 @@ void EffectsTest::test_clipperEffect_shouldClipSignal()
     // Test Gain
     {
         effect.reset();
-        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyClipperMode().toStdString()); p) {
+        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyMode().toStdString()); p) {
             p->get().setValue(0.0f); // Hard
         }
-        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyClipperThreshold().toStdString()); p) {
+        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()); p) {
             p->get().setValue(1.0f); // 0dB = 1.0
         }
-        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyClipperGain().toStdString()); p) {
+        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyGain().toStdString()); p) {
             p->get().setValue(0.75f); // +12dB = 3.98 approx
         }
         effect.sync();

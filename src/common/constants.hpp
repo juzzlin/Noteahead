@@ -277,6 +277,16 @@ QString xmlKeyVoiceMode();
 QString xmlKeyMode();
 QString xmlKeyBaseRate();
 QString xmlKeyRate();
+QString xmlKeyDepth();
+QString xmlKeyWidth();
+QString xmlKeyMix();
+QString xmlKeyThreshold();
+QString xmlKeyRatio();
+QString xmlKeyKnee();
+QString xmlKeyMakeup();
+QString xmlKeySize();
+QString xmlKeyDamping();
+QString xmlKeyPreDelay();
 QString xmlKeyVoiceDepth();
 QString xmlKeyPortamento();
 QString xmlKeyPanSpread();
@@ -299,129 +309,80 @@ QString xmlKeyDelaySyncDivision();
 QString xmlKeyDelayFeedbackLpf();
 QString xmlKeyDelayFeedbackHpf();
 
-QString xmlKeyReverbSize();
-QString xmlKeyReverbDecay();
-QString xmlKeyReverbDamping();
-QString xmlKeyReverbPreDelay();
-QString xmlKeyReverbMix();
-QString xmlKeyReverbWidth();
-QString xmlKeyReverbLpfCutoff();
-QString xmlKeyReverbHpfCutoff();
 
-QString xmlKeyChorusRate();
-QString xmlKeyChorusDepth();
-QString xmlKeyChorusDelay();
-QString xmlKeyChorusMix();
-QString xmlKeyChorusWidth();
-QString xmlKeyChorusLpf();
-QString xmlKeyChorusHpf();
+QString xmlKeyBandType(size_t bandIndex);
+QString xmlKeyBandFreq(size_t bandIndex);
+QString xmlKeyBandGain(size_t bandIndex);
+QString xmlKeyBandQ(size_t bandIndex);
 
-QString xmlKeyCompressorThreshold();
-QString xmlKeyCompressorRatio();
-QString xmlKeyCompressorKnee();
-QString xmlKeyCompressorMakeup();
+QString xmlKeyVco1Waveform();
+QString xmlKeyVco1Octave();
+QString xmlKeyVco1Pitch();
+QString xmlKeyVco1Shape();
+QString xmlKeyVco1Sync();
 
-QString xmlKeyClipperMode();
-QString xmlKeyClipperThreshold();
-QString xmlKeyClipperGain();
+QString xmlKeyVco2Waveform();
+QString xmlKeyVco2Octave();
+QString xmlKeyVco2Pitch();
+QString xmlKeyVco2Shape();
+QString xmlKeyVco2Sync();
 
-QString xmlKeyEq8BandParametricType(size_t bandIndex);
-QString xmlKeyEq8BandParametricFreq(size_t bandIndex);
-QString xmlKeyEq8BandParametricGain(size_t bandIndex);
-QString xmlKeyEq8BandParametricQ(size_t bandIndex);
+QString xmlKeyVco3Waveform();
+QString xmlKeyVco3Octave();
+QString xmlKeyVco3Pitch();
+QString xmlKeyVco3Shape();
+QString xmlKeyVco3Sync();
 
-QString xmlKeySynthVco1Waveform();
-QString xmlKeySynthVco1Octave();
-QString xmlKeySynthVco1Pitch();
-QString xmlKeySynthVco1Shape();
-QString xmlKeySynthVco1Sync();
+QString xmlKeyOsc1Pos();
+QString xmlKeyOsc1Octave();
+QString xmlKeyOsc1Pitch();
+QString xmlKeyOsc1Level();
 
-QString xmlKeySynthVco2Waveform();
-QString xmlKeySynthVco2Octave();
-QString xmlKeySynthVco2Pitch();
-QString xmlKeySynthVco2Shape();
-QString xmlKeySynthVco2Sync();
+QString xmlKeyOsc2Pos();
+QString xmlKeyOsc2Octave();
+QString xmlKeyOsc2Pitch();
+QString xmlKeyOsc2Level();
 
-QString xmlKeySynthVco3Waveform();
-QString xmlKeySynthVco3Octave();
-QString xmlKeySynthVco3Pitch();
-QString xmlKeySynthVco3Shape();
-QString xmlKeySynthVco3Sync();
+QString xmlKeyNoiseLevel();
 
-QString xmlKeyWavetableSynthOsc1Pos();
-QString xmlKeyWavetableSynthOsc1Octave();
-QString xmlKeyWavetableSynthOsc1Pitch();
-QString xmlKeyWavetableSynthOsc1Level();
+QString xmlKeyLpfCutoff();
+QString xmlKeyLpfResonance();
+QString xmlKeyHpfCutoff();
 
-QString xmlKeyWavetableSynthOsc2Pos();
-QString xmlKeyWavetableSynthOsc2Octave();
-QString xmlKeyWavetableSynthOsc2Pitch();
-QString xmlKeyWavetableSynthOsc2Level();
+QString xmlKeyAmpAttack();
+QString xmlKeyAmpDecay();
+QString xmlKeyAmpSustain();
+QString xmlKeyAmpRelease();
+QString xmlKeyAmpVelocitySensitivity();
 
-QString xmlKeyWavetableSynthNoiseLevel();
+QString xmlKeyModAttack();
+QString xmlKeyModDecay();
+QString xmlKeyModIntensity();
+QString xmlKeyModTarget();
 
-QString xmlKeyWavetableSynthLpfCutoff();
-QString xmlKeyWavetableSynthLpfResonance();
-QString xmlKeyWavetableSynthHpfCutoff();
+QString xmlKeyLfoWaveform();
+QString xmlKeyLfoMode();
+QString xmlKeyLfoRate();
+QString xmlKeyLfoIntensity();
+QString xmlKeyLfoTarget();
+QString xmlKeyLfo2Waveform();
+QString xmlKeyLfo2Mode();
+QString xmlKeyLfo2Rate();
+QString xmlKeyLfo2Intensity();
+QString xmlKeyLfo2Target();
+QString xmlKeyWavetableIndex();
 
-QString xmlKeyWavetableSynthAmpAttack();
-QString xmlKeyWavetableSynthAmpDecay();
-QString xmlKeyWavetableSynthAmpSustain();
-QString xmlKeyWavetableSynthAmpRelease();
+QString xmlKeyMultiMode();
+QString xmlKeyMultiShape();
+QString xmlKeyMultiLevel();
 
-QString xmlKeyWavetableSynthModAttack();
-QString xmlKeyWavetableSynthModDecay();
-QString xmlKeyWavetableSynthModIntensity();
-QString xmlKeyWavetableSynthModTarget();
-
-QString xmlKeyWavetableSynthLfoWaveform();
-QString xmlKeyWavetableSynthLfoMode();
-QString xmlKeyWavetableSynthLfoRate();
-QString xmlKeyWavetableSynthLfoIntensity();
-QString xmlKeyWavetableSynthLfoTarget();
-QString xmlKeyWavetableSynthLfo2Waveform();
-QString xmlKeyWavetableSynthLfo2Mode();
-QString xmlKeyWavetableSynthLfo2Rate();
-QString xmlKeyWavetableSynthLfo2Intensity();
-QString xmlKeyWavetableSynthLfo2Target();
-QString xmlKeyWavetableSynthVoiceMode();
-QString xmlKeyWavetableSynthVoiceDepth();
-QString xmlKeyWavetableSynthPanSpread();
-QString xmlKeyWavetableSynthPortamento();
-QString xmlKeyWavetableSynthWavetableIndex();
-
-QString xmlKeySynthMultiMode();
-QString xmlKeySynthMultiShape();
-QString xmlKeySynthMultiLevel();
-
-QString xmlKeySynthMixLevel1();
-QString xmlKeySynthMixLevel2();
-QString xmlKeySynthMixLevel3();
-
-QString xmlKeySynthLpfCutoff();
-QString xmlKeySynthLpfResonance();
-QString xmlKeySynthHpfCutoff();
-
-QString xmlKeySynthAmpAttack();
-QString xmlKeySynthAmpDecay();
-QString xmlKeySynthAmpSustain();
-QString xmlKeySynthAmpRelease();
-QString xmlKeySynthAmpVelocitySensitivity();
-
-QString xmlKeySynthModAttack();
-QString xmlKeySynthModDecay();
-QString xmlKeySynthModIntensity();
-QString xmlKeySynthModTarget();
+QString xmlKeyMixLevel1();
+QString xmlKeyMixLevel2();
+QString xmlKeyMixLevel3();
 
 QString xmlKeyUserPresets();
 QString xmlKeyPreset();
 QString xmlKeyTypeId();
-
-QString xmlKeySynthLfoWaveform();
-QString xmlKeySynthLfoMode();
-QString xmlKeySynthLfoRate();
-QString xmlKeySynthLfoIntensity();
-QString xmlKeySynthLfoTarget();
 
 QString xmlKeyBassSynth();
 QString xmlKeySubLevel();
