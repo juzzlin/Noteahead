@@ -113,9 +113,9 @@ Dialog {
                 model: [qsTr("Bypass"), qsTr("Bell"), qsTr("Low Shelf"), qsTr("High Shelf"), qsTr("Low Cut"), qsTr("High Cut"), qsTr("Notch")]
                 currentIndex: {
                     effectRackController.revision;
-                    return Math.round(effectRackController.parameterValue(effectIndex, effectRackController.eq8BandParametricTypeKey(bandIndex)) * 6);
+                    return effectRackController.parameterValue(effectIndex, effectRackController.eq8BandParametricTypeKey(bandIndex));
                 }
-                onActivated: index => effectRackController.setParameterValue(effectIndex, effectRackController.eq8BandParametricTypeKey(bandIndex), index / 6.0)
+                onActivated: index => effectRackController.setParameterValue(effectIndex, effectRackController.eq8BandParametricTypeKey(bandIndex), index)
             }
         }
 
