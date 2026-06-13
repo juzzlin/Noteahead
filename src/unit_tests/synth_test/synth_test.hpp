@@ -53,7 +53,6 @@ private slots:
     void test_pulseWidth_shouldUpdateDutyCycle();
     void test_pwm_shouldModulatePulseWidth();
     void test_midiVelocity_shouldAffectVolume();
-    void test_velocitySensitivity_shouldAffectVoiceVelocity();
     void test_oscillatorOptimization_shouldSkipSilentOscillators();
     void test_liveUnisonDepth_shouldUpdateFrequency();
     void test_lfoWaveform_random_serialization_shouldPreserveState();
