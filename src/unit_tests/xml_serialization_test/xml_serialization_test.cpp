@@ -1307,7 +1307,7 @@ void XmlSerializationTest::test_eq8BandParametric_legacyNames_shouldLoadCorrectl
     }
 
     if (auto p = effect.parameter(Constants::NahdXml::xmlKeyBandType(0).toStdString()); p) {
-        QCOMPARE(p->get().value(), 2.0f);
+        QCOMPARE(p->get().xmlValue(), 2);
     }
     if (auto p = effect.parameter(Constants::NahdXml::xmlKeyBandFreq(1).toStdString()); p) {
         QCOMPARE(p->get().value(), 0.5f);
