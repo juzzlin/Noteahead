@@ -463,7 +463,7 @@ QString xmlKeyLinesPerBeat()
 
 QString xmlKeyLookahead()
 {
-    return "Lookahead";
+    return "lookahead";
 }
 
 QString xmlKeyParameters()

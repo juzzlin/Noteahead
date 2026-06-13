@@ -134,7 +134,9 @@ void SideChainService::deserializeFromXml(QXmlStreamReader & reader)
                 settings.enabled = *Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeyEnabled());
                 settings.sourceTrackIndex = *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeySourceTrack());
                 settings.sourceColumnIndex = *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeySourceColumn());
-                settings.lookahead = std::chrono::milliseconds(*Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyLookahead()));
+                const auto lookahead = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyLookahead(), false)
+                    .value_or(Utils::Xml::readUIntAttribute(reader, "Lookahead", false).value_or(0));
+                settings.lookahead = std::chrono::milliseconds(lookahead);
                 settings.release = std::chrono::milliseconds(*Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyRelease()));
                 reader.readNext();
 

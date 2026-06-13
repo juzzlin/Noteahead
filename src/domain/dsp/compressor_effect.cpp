@@ -33,7 +33,7 @@ CompressorEffect::CompressorEffect()
     addParameter(Parameter { Constants::NahdXml::xmlKeyRelease().toStdString(), 0.25f, 1, 2000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyKnee().toStdString(), 0.0f, 0, 2400, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyMakeup().toStdString(), 0.5f, -1200, 1200, 0, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyLookahead().toStdString(), 0.0f, 0, 10, 0 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLookahead().toStdString(), 0.0f, 0, 10, 0, 1, Parameter::Type::Continuous, { "Lookahead" } });
 
     syncParameters();
 }
