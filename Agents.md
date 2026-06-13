@@ -51,8 +51,13 @@ Adherence to these standards is mandatory for all contributions:
 - **Namespace**: All code belongs in the `noteahead` namespace.
 - **Formatting**: Strictly follow the project's `.clang-format` located in the root.
 - **Header Guards**: Use `#ifndef FILENAME_HPP` style instead of `#pragma once`.
-- **Standard Library**: Prefer `std::` containers and algorithms where appropriate.
+- **Standard Library**: Prefer `std::` containers and algorithms where appropriate. Use modern C++20 features like `std::format` for string formatting and `if` statements with initializers (e.g., `if (const auto it = map.find(key); it != map.end())`).
 - **Post-increment**: Always use post-increment (`i++`) instead of pre-increment (`++i`) for loop counters.
+
+### XML Serialization
+- **Unified Keys**: XML keys MUST be standardized and prefix-less (e.g., `ampAttack` instead of `wavetableSynthAmpAttack`).
+- **Legacy Support**: Maintain backward compatibility with older project files by using the legacy name mapping system in `ParameterContainer`.
+- **Centralized Constants**: All XML key strings MUST be defined in `src/common/constants.hpp`.
 
 ### Qt & QML
 - **Model/View**: Keep logic in C++ models and services; QML should only handle presentation.
