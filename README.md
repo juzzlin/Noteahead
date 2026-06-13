@@ -44,7 +44,7 @@ Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It bui
 ##
 ## What you can do with it
 
-**Produce entire songs in the box.** Ten internal instruments cover a lot of ground: a six-voice virtual analog Synth, an eight-voice Wavetable Synth, an acid Bass Synth, an eleven-voice Drum Synth, a 16-pad Sampler, two physically modelled pianos, a TR-808-style Kick808, and two vintage string machines after the VP-330/VC340 and the Solina. Each one sits in a slot of the Virtual Device Rack with its own insert effects, sends, fader, level meter and clip LED.
+**Produce entire songs in the box.** Eleven internal instruments cover a lot of ground: a six-voice virtual analog Synth, an eight-voice Wavetable Synth, a four-operator FM Synth, an acid Bass Synth, an eleven-voice Drum Synth, a 16-pad Sampler, two physically modelled pianos, a TR-808-style Kick808, and two vintage string machines after the VP-330/VC340 and the Solina. Each one sits in a slot of the Virtual Device Rack with its own insert effects, sends, fader, level meter and clip LED.
 
 **Mix and master without leaving the application.** All 28 rack effects and analyzers are available both on the master bus and as per-device inserts: four EQs including an 8-band parametric with Mid/Side, two reverbs, single-band and multiband compression, a lookahead limiter, transient shaping, saturation and tube stages, modulation, an auto filter and a phaser — plus LUFS, true-peak and RTA metering to tell you where you stand. The Mixer view puts every device side by side as channel strips.
 
@@ -107,6 +107,8 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
   - Polyphonic VA synthesizer (up to 6 voices) with three oscillators at organ footages (32'..2'), a digital Multi engine, multi-mode filters, ADSR/Mod EGs, two LFOs that can modulate a single oscillator's pitch, Poly/Unison/Dual/Supersaw/Drift/Mono voice modes, and a built-in Delay.
 - Wavetable Synth
   - 8-voice wavetable synthesizer with two independent wavetable oscillators (Classic and Spectral sets), noise generator, cascaded LPF/HPF filters, Amp and Mod EGs, LFO, and Poly/Unison voice modes with stereo pan spread. Features 2× oversampling and portamento.
+- FM Synth
+  - 8-voice four-operator phase-modulation synthesizer in the shape of Yamaha's four-operator machines. Eight algorithms with feedback on the top operator, eight operator waveforms, and per-operator ratio, detune, level, velocity sensitivity, key scaling and envelope. LPF/HPF, Amp and Mod EGs, two LFOs, and the shared voice modes. Ships with sixteen factory presets and a button that assembles a playable patch at random.
 - Bass Synth
   - Monophonic acid-style synthesizer with sub-oscillator, resonant 24dB LPF, and TB-303 style accent/slide.
 - Drum Synth
@@ -384,7 +386,7 @@ The section below is only a quick start — the manual is the authoritative refe
 **1) Give a track a sound.** Click the settings icon on a track header to open **Track Settings**. A track plays either an external MIDI instrument or one of Noteahead's internal devices:
 
 * **External MIDI**: pick the MIDI output port and channel of your synth or drum machine. Devices are hot-plugged, so they appear as they come online.
-* **Internal device**: click **Device Rack...** in the same dialog (also under **Devices => Device rack...**), press **(+)** on a free slot, pick an instrument from the **Device Gallery** — Synth, Wavetable Synth, Bass Synth, Drum Synth, Sampler, Piano Synth, Piano Synth V2, Piano Synth V3, Kick 808, String & Voice, String & Voice V2, String Ensemble, Speech or Sub Mixer — and then select its internal port (e.g. *Noteahead Synth 1*) back in Track Settings. Nothing external is needed; Noteahead renders these itself.
+* **Internal device**: click **Device Rack...** in the same dialog (also under **Devices => Device rack...**), press **(+)** on a free slot, pick an instrument from the **Device Gallery** — Synth, Wavetable Synth, FM Synth, Bass Synth, Drum Synth, Sampler, Piano Synth, Piano Synth V2, Piano Synth V3, Kick 808, String & Voice, String & Voice V2, String Ensemble, Speech or Sub Mixer — and then select its internal port (e.g. *Noteahead Synth 1*) back in Track Settings. Nothing external is needed; Noteahead renders these itself.
 
 **2) Set up the track.** Click the track name to rename it. `[+]`/`[-]` in the track header adds or removes note columns.
 
