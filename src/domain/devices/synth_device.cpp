@@ -162,6 +162,8 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyPanSpread().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyPitchBendRange().toStdString(), 2.0f, 0, 24, 2, 1, Parameter::Type::Discrete });
 
+    addParameter(Parameter { Constants::NahdXml::xmlKeyOscillatorDrift().toStdString(), 0.0f, 0, 10000, 0, 100 });
+
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayType().toStdString(), 0.0f, 0, 3, 0, 1, Parameter::Type::Discrete });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayTime().toStdString(), 0.5f, 0, 10000, 500 }); // 0..10 seconds in ms
@@ -173,9 +175,13 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayFeedbackLpf().toStdString(), 1.0f, 0, 10000, 10000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayFeedbackHpf().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
-    for (auto && voice : m_voices) {
-        voice.lpf.setMode(CascadedSvf::Mode::LowPass);
-        voice.hpf.setMode(CascadedSvf::Mode::HighPass);
+    // Prime-ratio drift rates so each voice drifts independently without coherent beating
+    static constexpr std::array<double, MaxVoices> driftRates = { 0.10, 0.17, 0.23, 0.29, 0.37, 0.43 };
+    for (size_t i = 0; i < m_voices.size(); i++) {
+        m_voices[i].lpf.setMode(CascadedSvf::Mode::LowPass);
+        m_voices[i].hpf.setMode(CascadedSvf::Mode::HighPass);
+        m_voices[i].driftRate = driftRates[i];
+        m_voices[i].driftPhase = static_cast<double>(i) / MaxVoices;
     }
 
     setManualPan(panInternal());
@@ -612,6 +618,14 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
         vco3Freq *= std::exp2(mods.vco3PitchMod);
     }
 
+    if (m_oscillatorDrift > 0.0f) {
+        voice.driftPhase = std::fmod(voice.driftPhase + voice.driftRate / oversampledRate, 1.0);
+        const double driftRatio = std::exp2(m_oscillatorDrift * 5.0 / 1200.0 * std::sin(voice.driftPhase * (2.0 * M_PI)));
+        vco1Freq *= driftRatio;
+        vco2Freq *= driftRatio;
+        vco3Freq *= driftRatio;
+    }
+
     double vco1Val = 0.0;
     double oldPhase1 = voice.vco1.phase();
     if (m_mixVco1 >= 0.001f) {
@@ -791,6 +805,9 @@ void SynthDevice::syncParameters()
         m_panSpread = p->get().value();
     if (const auto p = parameter(Constants::NahdXml::xmlKeyPitchBendRange().toStdString()); p)
         m_pitchBendRange = static_cast<int>(p->get().xmlValue());
+
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyOscillatorDrift().toStdString()); p)
+        m_oscillatorDrift = p->get().value();
 
     if (const auto p = parameter(Constants::NahdXml::xmlKeyDelayType().toStdString()); p)
         m_delayType = static_cast<DelayEffect::Type>(p->get().xmlValue());
@@ -2079,6 +2096,26 @@ void SynthDevice::setMixVco3(float level)
         std::lock_guard<std::recursive_mutex> lock { mutex() };
         if (const auto p = parameter(Constants::NahdXml::xmlKeyMixLevel3().toStdString()); p) {
             p->get().setValue(level);
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+
+float SynthDevice::oscillatorDrift() const
+{
+    return m_oscillatorDrift;
+}
+
+void SynthDevice::setOscillatorDrift(float drift)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyOscillatorDrift().toStdString()); p) {
+            p->get().setValue(drift);
             syncParameters();
             changed = true;
         }

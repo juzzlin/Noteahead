@@ -1097,6 +1097,10 @@ QString xmlKeyDelayFeedbackHpf()
     return "delayFeedbackHpf";
 }
 
+QString xmlKeyOscillatorDrift()
+{
+    return "oscillatorDrift";
+}
 
 QString xmlKeyBandType(size_t bandIndex)
 {

@@ -16,31 +16,32 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
+import QtQuick.Controls.Universal 2.15
 import Noteahead 1.0
+import "../Components"
 
-ScrollView {
-    clip: true
-    property real moduleWidth: 0
+ColumnLayout {
+    Universal.theme: Universal.Dark
+    Universal.accent: themeService.accentColor
+    Layout.fillWidth: true
+    Layout.alignment: Qt.AlignTop
 
-    GridLayout {
-        columns: 3
-        columnSpacing: 20
-        width: parent.width - 20
-        SynthDialog_Lfo {
-            Layout.preferredWidth: moduleWidth
+    Label {
+        text: qsTr("Analog Character")
+        font.bold: true
+        font.pixelSize: 16
+        color: themeService.accentColor
+        Layout.alignment: Qt.AlignLeft
+        Layout.topMargin: 10
+    }
+
+    RowLayout {
+        Layout.fillWidth: true
+        Knob {
+            label: qsTr("Drift")
+            value: synthController.oscillatorDrift
+            onMoved: v => synthController.oscillatorDrift = v
             Layout.fillWidth: true
-            Layout.alignment: Qt.AlignTop
-        }
-        SynthDialog_Delay {
-            Layout.preferredWidth: moduleWidth * 2 + 20
-            Layout.fillWidth: true
-            Layout.columnSpan: 2
-            Layout.alignment: Qt.AlignTop
-        }
-        SynthDialog_Analog {
-            Layout.preferredWidth: moduleWidth
-            Layout.fillWidth: true
-            Layout.alignment: Qt.AlignTop
         }
     }
 }

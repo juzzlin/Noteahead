@@ -5,6 +5,11 @@ Release date:
 
 New features:
 
+* Add oscillator drift to Synth
+  - Per-voice sinusoidal pitch drift (±5 cents max) with independent
+    rates per voice for an analog feel
+  - Exposed as a "Drift" knob under "Analog Character" in the effects tab
+
 Bug fixes:
 
 Other:

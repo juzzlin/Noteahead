@@ -208,6 +208,10 @@ public:
     float gain() const;
     void setGain(float gain) override;
 
+    // Oscillator drift
+    float oscillatorDrift() const;
+    void setOscillatorDrift(float drift);
+
     // Delay parameters
     DelayEffect::Type delayType() const;
     void setDelayType(DelayEffect::Type type);
@@ -251,6 +255,8 @@ private:
         bool active { false };
         float pan { 0.5f };
         float velocity { 1.0f };
+        double driftPhase { 0.0 };
+        double driftRate { 0.2 };
 
         void reset();
         void trigger(uint8_t note, double freq, float pan, float velocity, bool phaseSync, uint64_t triggerId);
@@ -325,6 +331,8 @@ private:
     // Manual settings for CC reset
     float m_manualLpfCutoff { 1.0f };
     float m_manualHpfCutoff { 0.0f };
+
+    float m_oscillatorDrift { 0.0f };
 
     DelayEffect m_delay;
     DelayEffect::Type m_delayType { DelayEffect::Type::Stereo };

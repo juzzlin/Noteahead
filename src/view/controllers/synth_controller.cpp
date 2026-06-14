@@ -649,6 +649,19 @@ void SynthController::setUserPresets(const UserPresets & presets)
     emit userPresetNamesChanged();
 }
 
+// Oscillator drift
+int SynthController::oscillatorDrift() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->oscillatorDrift() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setOscillatorDrift(int drift)
+{
+    if (m_synth) {
+        m_synth->setOscillatorDrift(drift / Constants::uiInternalScaling());
+    }
+}
+
 // Delay
 int SynthController::delayType() const
 {
@@ -824,6 +837,7 @@ void SynthController::requestSettings()
     emit panChanged();
     emit sampleRateChanged();
 
+    emit oscillatorDriftChanged();
     emit delayTypeChanged();
     emit delayTimeChanged();
     emit delayFeedbackChanged();

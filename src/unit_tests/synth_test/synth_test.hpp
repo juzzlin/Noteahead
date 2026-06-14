@@ -57,6 +57,9 @@ private slots:
     void test_liveUnisonDepth_shouldUpdateFrequency();
     void test_lfoWaveform_random_serialization_shouldPreserveState();
     void test_panningAndAmplitude_shouldBeCorrect();
+    void test_oscillatorDrift_zero_shouldProduceSameFrequency();
+    void test_oscillatorDrift_nonZero_shouldModulateFrequency();
+    void test_oscillatorDrift_serialization_shouldPreserveState();
 };
 
 } // namespace noteahead

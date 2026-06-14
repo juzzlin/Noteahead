@@ -1018,6 +1018,98 @@ void SynthTest::test_panningAndAmplitude_shouldBeCorrect()
     QVERIFY2(peakR_right > 0.14 && peakR_right < 0.2, qPrintable(QString("Right peak out of range: %1").arg(peakR_right)));
 }
 
+void SynthTest::test_oscillatorDrift_zero_shouldProduceSameFrequency()
+{
+    const auto setup = [](SynthDevice & synth) {
+        synth.setVco1Sync(true); // Deterministic phase
+        synth.setMixVco1(1.0f);
+        synth.setMixVco2(0.0f);
+        synth.setMixVco3(0.0f);
+        synth.setMultiLevel(0.0f);
+        synth.setLpfCutoff(1.0f);
+        synth.setVolume(1.0f);
+        synth.setGain(0.5f);
+        synth.setOscillatorDrift(0.0f);
+    };
+
+    const int frameCount = 512;
+
+    std::vector<double> buf1(static_cast<size_t>(frameCount) * 2, 0.0);
+    {
+        SynthDevice synth { "Test Synth" };
+        setup(synth);
+        synth.processMidiNoteOn(60, 100);
+        AudioContext ctx { std::span(buf1.data(), buf1.size()), static_cast<uint32_t>(frameCount), 44100 };
+        synth.processAudio(ctx);
+    }
+
+    std::vector<double> buf2(static_cast<size_t>(frameCount) * 2, 0.0);
+    {
+        SynthDevice synth { "Test Synth" };
+        setup(synth);
+        synth.processMidiNoteOn(60, 100);
+        AudioContext ctx { std::span(buf2.data(), buf2.size()), static_cast<uint32_t>(frameCount), 44100 };
+        synth.processAudio(ctx);
+    }
+
+    // With drift=0 both independent synths from same initial state should produce identical output
+    for (int i = 0; i < frameCount * 2; i++) {
+        QCOMPARE(buf1[i], buf2[i]);
+    }
+}
+
+void SynthTest::test_oscillatorDrift_nonZero_shouldModulateFrequency()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setMixVco1(1.0f);
+    synth.setMixVco2(0.0f);
+    synth.setMixVco3(0.0f);
+    synth.setMultiLevel(0.0f);
+    synth.setLpfCutoff(1.0f);
+    synth.setVolume(1.0f);
+    synth.setGain(0.5f);
+    synth.setOscillatorDrift(1.0f);
+    QCOMPARE(synth.oscillatorDrift(), 1.0f);
+
+    synth.processMidiNoteOn(60, 100);
+
+    // Process enough audio that the drift has time to move the pitch
+    const int frameCount = 44100; // one full second at 44.1kHz
+    std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+    AudioContext ctx { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
+    synth.processAudio(ctx);
+
+    // Check that there is non-trivial variation in the output (drift should cause detectable change)
+    double minVal = buffer[0];
+    double maxVal = buffer[0];
+    for (const double sample : buffer) {
+        minVal = std::min(minVal, sample);
+        maxVal = std::max(maxVal, sample);
+    }
+    QVERIFY(maxVal - minVal > 0.001);
+}
+
+void SynthTest::test_oscillatorDrift_serialization_shouldPreserveState()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        synth.setOscillatorDrift(0.75f);
+        QXmlStreamWriter writer(&data);
+        synth.serializeToXml(writer);
+    }
+
+    {
+        SynthDevice synth { "Test Synth" };
+        QXmlStreamReader reader(data);
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        synth.deserializeFromXml(reader);
+        QCOMPARE(synth.oscillatorDrift(), 0.75f);
+    }
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SynthTest)

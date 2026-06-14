@@ -99,6 +99,7 @@ ${QML_BASE_DIR}/Dialogs/IntegerInputDialog.qml
     ${QML_BASE_DIR}/Dialogs/StringInputDialog.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_AmpEg.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDialog_Analog.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Delay.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Filter.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Global.qml

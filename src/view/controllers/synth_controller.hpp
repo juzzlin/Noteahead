@@ -108,6 +108,9 @@ class SynthController : public DeviceController
     Q_PROPERTY(int currentPresetIndex READ currentPresetIndex WRITE setCurrentPresetIndex NOTIFY currentPresetIndexChanged)
     Q_PROPERTY(QStringList userPresetNames READ userPresetNames NOTIFY userPresetNamesChanged)
 
+    // Oscillator drift
+    Q_PROPERTY(int oscillatorDrift READ oscillatorDrift WRITE setOscillatorDrift NOTIFY oscillatorDriftChanged)
+
     // Delay
     Q_PROPERTY(int delayType READ delayType WRITE setDelayType NOTIFY delayTypeChanged)
     Q_PROPERTY(int delayTime READ delayTime WRITE setDelayTime NOTIFY delayTimeChanged)
@@ -244,6 +247,9 @@ public:
     void setCurrentPresetIndex(int index);
     QStringList userPresetNames() const;
 
+    int oscillatorDrift() const;
+    void setOscillatorDrift(int drift);
+
     int delayType() const;
     void setDelayType(int type);
     int delayTime() const;
@@ -319,6 +325,7 @@ signals:
     void portamentoChanged();
     void panSpreadChanged();
     void pitchBendRangeChanged();
+    void oscillatorDriftChanged();
     void delayTypeChanged();
     void delayTimeChanged();
     void delayFeedbackChanged();
