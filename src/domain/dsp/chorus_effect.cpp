@@ -117,9 +117,11 @@ void ChorusEffect::process(double & left, double & right)
     wetL = m_lpfL.process(wetL);
     wetR = m_lpfR.process(wetR);
 
-    // Mix
-    left = dryL * (1.0 - m_mix) + wetL * m_mix;
-    right = dryR * (1.0 - m_mix) + wetR * m_mix;
+    // Constant-power crossfade keeps the send-mode delta (output - dry) non-negative at mix <= 0.5.
+    const double dryCoeff = std::clamp(2.0 * (1.0 - m_mix), 0.0, 1.0);
+    const double wetCoeff = std::clamp(2.0 * m_mix, 0.0, 1.0);
+    left = dryL * dryCoeff + wetL * wetCoeff;
+    right = dryR * dryCoeff + wetR * wetCoeff;
 
     // Update write position
     m_writePos = (m_writePos + 1) % static_cast<uint32_t>(m_bufferL.size());
