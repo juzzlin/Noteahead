@@ -997,6 +997,11 @@ QString xmlKeySideChainSourceDevice()
     return "sidechainSourceDevice";
 }
 
+QString xmlKeySideChainLpf()
+{
+    return "sideChainLpf";
+}
+
 QString xmlKeySize()
 {
     return "size";

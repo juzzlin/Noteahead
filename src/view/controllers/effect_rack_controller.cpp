@@ -433,6 +433,11 @@ QString EffectRackController::compressorSideChainSourceDeviceKey() const
     return Constants::NahdXml::xmlKeySideChainSourceDevice();
 }
 
+QString EffectRackController::compressorSideChainLpfKey() const
+{
+    return Constants::NahdXml::xmlKeySideChainLpf();
+}
+
 QString EffectRackController::clipperModeKey() const
 {
     return Constants::NahdXml::xmlKeyMode();

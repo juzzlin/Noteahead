@@ -29,6 +29,9 @@ private slots:
     void test_audioEngine_rebuildProcessingGraph_shouldCorrectlySortDependentDevices();
     void test_audioEngine_rebuildProcessingGraph_shouldHandleCircularDependencyGracefully();
     void test_compressorEffect_process_shouldApplySidechainGainReduction();
+    void test_compressorEffect_sideChainLpf_bypass_shouldPreserveGainReduction();
+    void test_compressorEffect_sideChainLpf_lowCutoff_shouldAttenuateAcDetectorSignal();
+    void test_compressorEffect_sideChainLpf_serialization_shouldPreserveValue();
 };
 
 } // namespace noteahead

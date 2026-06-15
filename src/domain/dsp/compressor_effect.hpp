@@ -16,6 +16,7 @@
 #ifndef COMPRESSOR_EFFECT_HPP
 #define COMPRESSOR_EFFECT_HPP
 
+#include "cascaded_svf.hpp"
 #include "domain/effects/effect.hpp"
 
 #include <cstdint>
@@ -57,7 +58,11 @@ private:
     float m_knee { 0.0f };
     float m_makeup { 0.0f };
     float m_lookaheadMs { 0.0f };
+    float m_sideChainLpfCutoff { 1.0f };
     std::optional<size_t> m_sidechainSourceDevice;
+
+    CascadedSvf m_sideChainLpfL;
+    CascadedSvf m_sideChainLpfR;
 
     double m_attackCoeff { 0.0 };
     double m_releaseCoeff { 0.0 };

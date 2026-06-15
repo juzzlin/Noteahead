@@ -35,6 +35,10 @@ CompressorEffect::CompressorEffect()
     addParameter(Parameter { Constants::NahdXml::xmlKeyMakeup().toStdString(), 0.5f, -1200, 1200, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLookahead().toStdString(), 0.0f, 0, 10, 0, 1, Parameter::Type::Continuous, { "Lookahead" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeySideChainSourceDevice().toStdString(), -1.0f, -1, static_cast<int>(Constants::deviceRackSize()) - 1, -1, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeySideChainLpf().toStdString(), 1.0f, 0, 1000, 1000, 1 });
+
+    m_sideChainLpfL.setMode(CascadedSvf::Mode::LowPass);
+    m_sideChainLpfR.setMode(CascadedSvf::Mode::LowPass);
 
     syncParameters();
 }
@@ -79,6 +83,11 @@ void CompressorEffect::process(AudioContext & context)
         if (hasSidechain && !sidechainBuffer.empty()) {
             detectorL = sidechainBuffer[i * 2];
             detectorR = sidechainBuffer[i * 2 + 1];
+        }
+
+        if (m_sideChainLpfCutoff < 1.0f) {
+            detectorL = m_sideChainLpfL.process(detectorL);
+            detectorR = m_sideChainLpfR.process(detectorR);
         }
 
         const double detectorDb = calculateDetectorLevelDb(detectorL, detectorR);
@@ -192,6 +201,8 @@ void CompressorEffect::reset()
     std::fill(m_delayBufferL.begin(), m_delayBufferL.end(), 0.0);
     std::fill(m_delayBufferR.begin(), m_delayBufferR.end(), 0.0);
     m_writePos = 0;
+    m_sideChainLpfL.reset();
+    m_sideChainLpfR.reset();
 }
 
 void CompressorEffect::sync()
@@ -233,6 +244,13 @@ void CompressorEffect::syncParameters()
         } else {
             m_sidechainSourceDevice = std::nullopt;
         }
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeySideChainLpf().toStdString()); p) {
+        m_sideChainLpfCutoff = p->get().value();
+        m_sideChainLpfL.setSampleRate(m_sampleRate > 0 ? m_sampleRate : 48000.0);
+        m_sideChainLpfR.setSampleRate(m_sampleRate > 0 ? m_sampleRate : 48000.0);
+        m_sideChainLpfL.setCutoff(m_sideChainLpfCutoff);
+        m_sideChainLpfR.setCutoff(m_sideChainLpfCutoff);
     }
 }
 

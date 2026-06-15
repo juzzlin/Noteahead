@@ -235,6 +235,14 @@ Dialog {
                 }
                 onActivated: index => effectRackController.setParameterValue(root.effectIndex, effectRackController.compressorSideChainSourceDeviceKey(), index - 1)
             }
+            FilterKnob {
+                label: qsTr("LPF")
+                value: {
+                    effectRackController.revision;
+                    return effectRackController.parameterValue(root.effectIndex, effectRackController.compressorSideChainLpfKey()) * Constants.uiInternalScaling;
+                }
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.compressorSideChainLpfKey(), v / Constants.uiInternalScaling)
+            }
         }
     } // ColumnLayout
 

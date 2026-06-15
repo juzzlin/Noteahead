@@ -119,6 +119,7 @@ public:
     Q_INVOKABLE QString compressorMakeupKey() const;
     Q_INVOKABLE QString compressorLookaheadKey() const;
     Q_INVOKABLE QString compressorSideChainSourceDeviceKey() const;
+    Q_INVOKABLE QString compressorSideChainLpfKey() const;
 
     Q_INVOKABLE QString clipperModeKey() const;
     Q_INVOKABLE QString clipperThresholdKey() const;

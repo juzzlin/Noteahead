@@ -321,6 +321,7 @@ QString xmlKeyVco1Pitch();
 QString xmlKeyVco1Shape();
 QString xmlKeyVco1Sync();
 QString xmlKeySideChainSourceDevice();
+QString xmlKeySideChainLpf();
 
 QString xmlKeyVco2Waveform();
 QString xmlKeyVco2Octave();

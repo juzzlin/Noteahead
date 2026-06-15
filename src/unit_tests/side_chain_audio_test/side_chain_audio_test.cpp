@@ -20,7 +20,10 @@
 #include "domain/dsp/compressor_effect.hpp"
 #include "infra/audio/audio_engine.hpp"
 
+#include <QByteArray>
 #include <QTest>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -181,6 +184,134 @@ void SideChainAudioTest::test_compressorEffect_process_shouldApplySidechainGainR
     QVERIFY(buffer[0] > 1.0);
     QVERIFY(buffer[0] < 2.0);
     QVERIFY(compressor->reductionDb() < -1.0f);
+}
+
+void SideChainAudioTest::test_compressorEffect_sideChainLpf_bypass_shouldPreserveGainReduction()
+{
+    const int frameCount = 2048;
+    const double sampleRate = 48000.0;
+
+    // DC side-chain signal (1.0 per sample)
+    std::vector<double> sideChainBuf(frameCount * 2, 1.0);
+    std::array<std::span<const double>, 1> deviceSpans = {
+        std::span<const double>(sideChainBuf.data(), sideChainBuf.size())
+    };
+
+    CompressorEffect comp;
+    if (const auto p = comp.parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()); p) {
+        p->get().setValue(0.0f); // -60 dB
+    }
+    if (const auto p = comp.parameter(Constants::NahdXml::xmlKeyRatio().toStdString()); p) {
+        p->get().setValue(1.0f); // 20:1
+    }
+    if (const auto p = comp.parameter(Constants::NahdXml::xmlKeySideChainSourceDevice().toStdString()); p) {
+        p->get().setValue(0.0f);
+    }
+    // LPF stays at default 1.0 (bypass) — the guard skips the filter
+    comp.setSampleRate(sampleRate);
+    comp.sync();
+
+    std::vector<double> mainBuf(frameCount * 2, 0.0);
+    AudioContext context;
+    context.frameCount = static_cast<uint32_t>(frameCount);
+    context.sampleRate = static_cast<uint32_t>(sampleRate);
+    context.buffer = std::span<double>(mainBuf.data(), mainBuf.size());
+    context.deviceOutputBuffers = std::span<const std::span<const double>>(deviceSpans.data(), deviceSpans.size());
+
+    comp.process(context);
+
+    QVERIFY(comp.reductionDb() < -1.0f);
+}
+
+void SideChainAudioTest::test_compressorEffect_sideChainLpf_lowCutoff_shouldAttenuateAcDetectorSignal()
+{
+    const int frameCount = 4096;
+    const double sampleRate = 48000.0;
+
+    // Alternating +1/-1 (Nyquist-frequency signal) as side-chain
+    std::vector<double> sideChainBuf(frameCount * 2);
+    for (int i = 0; i < frameCount; i++) {
+        const double v = (i % 2 == 0) ? 1.0 : -1.0;
+        sideChainBuf[i * 2] = v;
+        sideChainBuf[i * 2 + 1] = v;
+    }
+    std::array<std::span<const double>, 1> deviceSpans = {
+        std::span<const double>(sideChainBuf.data(), sideChainBuf.size())
+    };
+
+    auto makeCompressor = [&](float lpfCutoff) {
+        auto comp = std::make_unique<CompressorEffect>();
+        if (const auto p = comp->parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()); p) {
+            p->get().setValue(0.0f); // -60 dB
+        }
+        if (const auto p = comp->parameter(Constants::NahdXml::xmlKeyRatio().toStdString()); p) {
+            p->get().setValue(1.0f); // 20:1
+        }
+        if (const auto p = comp->parameter(Constants::NahdXml::xmlKeyAttack().toStdString()); p) {
+            p->get().setValue(0.0f); // fastest attack
+        }
+        if (const auto p = comp->parameter(Constants::NahdXml::xmlKeySideChainSourceDevice().toStdString()); p) {
+            p->get().setValue(0.0f);
+        }
+        if (const auto p = comp->parameter(Constants::NahdXml::xmlKeySideChainLpf().toStdString()); p) {
+            p->get().setValue(lpfCutoff);
+        }
+        comp->setSampleRate(sampleRate);
+        comp->sync();
+        return comp;
+    };
+
+    auto compBypass = makeCompressor(1.0f);
+    auto compFiltered = makeCompressor(0.001f);
+
+    std::vector<double> bufBypass(frameCount * 2, 0.0);
+    std::vector<double> bufFiltered(frameCount * 2, 0.0);
+
+    AudioContext ctx;
+    ctx.frameCount = static_cast<uint32_t>(frameCount);
+    ctx.sampleRate = static_cast<uint32_t>(sampleRate);
+    ctx.deviceOutputBuffers = std::span<const std::span<const double>>(deviceSpans.data(), deviceSpans.size());
+
+    ctx.buffer = std::span<double>(bufBypass.data(), bufBypass.size());
+    compBypass->process(ctx);
+
+    ctx.buffer = std::span<double>(bufFiltered.data(), bufFiltered.size());
+    compFiltered->process(ctx);
+
+    // Bypass: Nyquist detector not filtered → high level detected → more gain reduction
+    // Filtered: LPF at 0.001 heavily attenuates the Nyquist signal → less gain reduction
+    QVERIFY(compBypass->reductionDb() < -1.0f);
+    QVERIFY(compBypass->reductionDb() < compFiltered->reductionDb());
+}
+
+void SideChainAudioTest::test_compressorEffect_sideChainLpf_serialization_shouldPreserveValue()
+{
+    const float expectedCutoff = 0.35f;
+
+    QByteArray data;
+    {
+        CompressorEffect comp;
+        if (const auto p = comp.parameter(Constants::NahdXml::xmlKeySideChainLpf().toStdString()); p) {
+            p->get().setValue(expectedCutoff);
+        }
+        QXmlStreamWriter writer(&data);
+        writer.writeStartElement("compressor");
+        comp.serializeParametersToXml(writer);
+        writer.writeEndElement();
+    }
+
+    {
+        CompressorEffect comp;
+        QXmlStreamReader reader(data);
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        // Reader is at <compressor>; deserializeParametersFromXml reads its children
+        comp.deserializeParametersFromXml(reader);
+        const auto p = comp.parameter(Constants::NahdXml::xmlKeySideChainLpf().toStdString());
+        QVERIFY(p.has_value());
+        QCOMPARE(p->get().value(), expectedCutoff);
+    }
 }
 
 } // namespace noteahead
