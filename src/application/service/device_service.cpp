@@ -223,24 +223,27 @@ std::map<QString, QString> DeviceService::getFilesToEmbed() const
     return allFiles;
 }
 
-void DeviceService::serializeToXml(QXmlStreamWriter & writer) const
+std::shared_ptr<SynthDevice> DeviceService::findFirstSynthDevice() const
 {
-    writer.writeStartElement(Constants::NahdXml::xmlKeyDevices());
+    for (const auto & name : internalDeviceNames()) {
+        if (auto dev = std::dynamic_pointer_cast<SynthDevice>(device(name))) {
+            return dev;
+        }
+    }
+    return {};
+}
+
+void DeviceService::serializeDevices(QXmlStreamWriter & writer) const
+{
     for (const auto & name : internalDeviceNames()) {
         if (const auto dev = device(name)) {
             dev->serializeToXml(writer);
         }
     }
+}
 
-    writer.writeStartElement(Constants::NahdXml::xmlKeyMasterEffects());
-
-    writer.writeStartElement(Constants::NahdXml::xmlKeyInsertEffects());
-    m_audioEngine->insertEffectRack().serializeEffectsToXml(writer);
-    writer.writeEndElement();
-
-    writer.writeStartElement(Constants::NahdXml::xmlKeySendEffects());
-    m_audioEngine->sendEffectRack().serializeEffectsToXml(writer);
-
+void DeviceService::serializeReverbSends(QXmlStreamWriter & writer) const
+{
     for (int deviceSlot = 0; deviceSlot < static_cast<int>(Constants::deviceRackSize()); deviceSlot++) {
         if (const auto dev = m_audioEngine->device(deviceSlot)) {
             for (int effectSlot = 0; effectSlot < static_cast<int>(Constants::effectRackSize()); effectSlot++) {
@@ -255,61 +258,98 @@ void DeviceService::serializeToXml(QXmlStreamWriter & writer) const
             }
         }
     }
+}
+
+void DeviceService::serializeSendEffects(QXmlStreamWriter & writer) const
+{
+    writer.writeStartElement(Constants::NahdXml::xmlKeySendEffects());
+    m_audioEngine->sendEffectRack().serializeEffectsToXml(writer);
+    serializeReverbSends(writer);
     writer.writeEndElement(); // SendEffects
+}
+
+void DeviceService::serializeMasterEffects(QXmlStreamWriter & writer) const
+{
+    writer.writeStartElement(Constants::NahdXml::xmlKeyMasterEffects());
+
+    writer.writeStartElement(Constants::NahdXml::xmlKeyInsertEffects());
+    m_audioEngine->insertEffectRack().serializeEffectsToXml(writer);
+    writer.writeEndElement(); // InsertEffects
+
+    serializeSendEffects(writer);
+
     writer.writeEndElement(); // MasterEffects
+}
 
-    if (!m_synthUserPresets.empty()) {
-        std::shared_ptr<SynthDevice> synth;
-        for (const auto & name : internalDeviceNames()) {
-            if (auto dev = std::dynamic_pointer_cast<SynthDevice>(device(name))) {
-                synth = dev;
-                break;
-            }
-        }
-        const auto typeId = synth ? QString::fromStdString(synth->typeId()) : "";
+void DeviceService::serializePresetParameter(QXmlStreamWriter & writer, const std::string & paramName, float value, const std::shared_ptr<SynthDevice> & synth) const
+{
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), QString::fromStdString(paramName));
 
-        writer.writeStartElement(Constants::NahdXml::xmlKeyUserPresets());
-        if (!typeId.isEmpty()) {
-            writer.writeAttribute(Constants::NahdXml::xmlKeyTypeId(), typeId);
-        }
-
-        for (auto && [index, preset] : m_synthUserPresets) {
-            if (!preset.parameters.empty()) {
-                writer.writeStartElement(Constants::NahdXml::xmlKeyPreset());
-                writer.writeAttribute(Constants::NahdXml::xmlKeyIndex(), QString::number(index));
-                writer.writeAttribute(Constants::NahdXml::xmlKeyName(), QString::fromStdString(preset.name));
-                for (auto && [paramName, value] : preset.parameters) {
-                    writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
-                    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), QString::fromStdString(paramName));
-                    if (synth) {
-                        if (auto p = synth->parameter(paramName); p) {
-                            if (p->get().type() == Parameter::Type::Continuous) {
-                                writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueFloat());
-                                writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(Parameter::internalToXmlValue(value, p->get().xmlMin(), p->get().xmlMax())));
-                                writer.writeAttribute(Constants::NahdXml::xmlKeyMin(), QString::number(p->get().xmlMin()));
-                                writer.writeAttribute(Constants::NahdXml::xmlKeyMax(), QString::number(p->get().xmlMax()));
-                                writer.writeAttribute(Constants::NahdXml::xmlKeyDefault(), QString::number(p->get().xmlDefault()));
-                                writer.writeAttribute(Constants::NahdXml::xmlKeyScale(), QString::number(p->get().xmlScale()));
-                            } else if (p->get().type() == Parameter::Type::Discrete) {
-                                writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueInt());
-                                writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(static_cast<int>(std::round(value))));
-                            } else if (p->get().type() == Parameter::Type::Boolean) {
-                                writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueBool());
-                                writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), value > 0.5f ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
-                            }
-                        } else {
-                            writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(static_cast<double>(value)));
-                        }
-                    } else {
-                        writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(static_cast<double>(value)));
-                    }
-                    writer.writeEndElement(); // Parameter
-                }
-                writer.writeEndElement(); // Preset
-            }
-        }
-        writer.writeEndElement(); // UserPresets
+    const auto p = synth ? synth->parameter(paramName) : std::nullopt;
+    if (!p) {
+        writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(static_cast<double>(value)));
+    } else if (p->get().type() == Parameter::Type::Continuous) {
+        writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueFloat());
+        writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(Parameter::internalToXmlValue(value, p->get().xmlMin(), p->get().xmlMax())));
+        writer.writeAttribute(Constants::NahdXml::xmlKeyMin(), QString::number(p->get().xmlMin()));
+        writer.writeAttribute(Constants::NahdXml::xmlKeyMax(), QString::number(p->get().xmlMax()));
+        writer.writeAttribute(Constants::NahdXml::xmlKeyDefault(), QString::number(p->get().xmlDefault()));
+        writer.writeAttribute(Constants::NahdXml::xmlKeyScale(), QString::number(p->get().xmlScale()));
+    } else if (p->get().type() == Parameter::Type::Discrete) {
+        writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueInt());
+        writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(static_cast<int>(std::round(value))));
+    } else if (p->get().type() == Parameter::Type::Boolean) {
+        writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueBool());
+        writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), value > 0.5f ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
     }
+
+    writer.writeEndElement(); // Parameter
+}
+
+void DeviceService::serializePreset(QXmlStreamWriter & writer, int index, const SynthPreset & preset, const std::shared_ptr<SynthDevice> & synth) const
+{
+    if (preset.parameters.empty()) {
+        return;
+    }
+
+    writer.writeStartElement(Constants::NahdXml::xmlKeyPreset());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyIndex(), QString::number(index));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), QString::fromStdString(preset.name));
+    for (auto && [paramName, value] : preset.parameters) {
+        serializePresetParameter(writer, paramName, value, synth);
+    }
+    writer.writeEndElement(); // Preset
+}
+
+void DeviceService::serializeUserPresets(QXmlStreamWriter & writer) const
+{
+    if (m_synthUserPresets.empty()) {
+        return;
+    }
+
+    const auto synth = findFirstSynthDevice();
+    const auto typeId = synth ? QString::fromStdString(synth->typeId()) : "";
+
+    writer.writeStartElement(Constants::NahdXml::xmlKeyUserPresets());
+    if (!typeId.isEmpty()) {
+        writer.writeAttribute(Constants::NahdXml::xmlKeyTypeId(), typeId);
+    }
+
+    for (auto && [index, preset] : m_synthUserPresets) {
+        serializePreset(writer, index, preset, synth);
+    }
+
+    writer.writeEndElement(); // UserPresets
+}
+
+void DeviceService::serializeToXml(QXmlStreamWriter & writer) const
+{
+    writer.writeStartElement(Constants::NahdXml::xmlKeyDevices());
+
+    serializeDevices(writer);
+    serializeMasterEffects(writer);
+    serializeUserPresets(writer);
 
     writer.writeEndElement(); // Devices
 }
@@ -400,13 +440,7 @@ float DeviceService::legacyPresetParameterValue(QXmlStreamReader & reader, const
     const auto xmlMax = xmlMaxAttr.toInt();
     const auto intValue = xmlValue.toInt();
 
-    std::shared_ptr<SynthDevice> synth;
-    for (const auto & name : internalDeviceNames()) {
-        if (const auto dev = std::dynamic_pointer_cast<SynthDevice>(device(name)); dev) {
-            synth = dev;
-            break;
-        }
-    }
+    const auto synth = findFirstSynthDevice();
     if (!synth) {
         return Parameter::xmlValueToInternal(intValue, xmlMin, xmlMax);
     }

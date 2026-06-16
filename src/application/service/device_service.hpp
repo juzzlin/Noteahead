@@ -36,6 +36,7 @@ namespace noteahead {
 class AudioEngine;
 class DataService;
 class AudioFileReader;
+class SynthDevice;
 
 class DeviceService : public QObject
 {
@@ -110,6 +111,16 @@ signals:
 
 private:
     DeviceService::DeviceS getDevice(std::string name, std::string typeId);
+
+    std::shared_ptr<SynthDevice> findFirstSynthDevice() const;
+
+    void serializeDevices(QXmlStreamWriter & writer) const;
+    void serializeMasterEffects(QXmlStreamWriter & writer) const;
+    void serializeSendEffects(QXmlStreamWriter & writer) const;
+    void serializeReverbSends(QXmlStreamWriter & writer) const;
+    void serializeUserPresets(QXmlStreamWriter & writer) const;
+    void serializePreset(QXmlStreamWriter & writer, int index, const SynthPreset & preset, const std::shared_ptr<SynthDevice> & synth) const;
+    void serializePresetParameter(QXmlStreamWriter & writer, const std::string & paramName, float value, const std::shared_ptr<SynthDevice> & synth) const;
 
     void deserializeDevice(QXmlStreamReader & reader);
     void deserializeMasterEffects(QXmlStreamReader & reader);
