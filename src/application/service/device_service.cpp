@@ -14,16 +14,16 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 #include "device_service.hpp"
 
-#include "common/constants.hpp"
-#include "common/utils.hpp"
-#include "contrib/SimpleLogger/src/simple_logger.hpp"
-#include "domain/devices/device_factory.hpp"
-#include "domain/devices/sampler_device.hpp"
-#include "domain/devices/synth_device.hpp"
-#include "infra/audio/audio_engine.hpp"
-#include "infra/data_service.hpp"
-#include "infra/xml/nahd_xml_reader.hpp"
-#include "infra/xml/nahd_xml_writer.hpp"
+#include "../../common/constants.hpp"
+#include "../../common/utils.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../domain/devices/device_factory.hpp"
+#include "../../domain/devices/sampler_device.hpp"
+#include "../../domain/devices/synth_device.hpp"
+#include "../../infra/audio/audio_engine.hpp"
+#include "../../infra/data_service.hpp"
+#include "../../infra/xml/nahd_xml_reader.hpp"
+#include "../../infra/xml/nahd_xml_writer.hpp"
 
 #include <QDateTime>
 #include <QFile>

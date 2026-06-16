@@ -16,8 +16,8 @@
 #ifndef EFFECT_RACK_HPP
 #define EFFECT_RACK_HPP
 
-#include "domain/dsp/audio_context.hpp"
-#include "domain/effects/effect.hpp"
+#include "../dsp/audio_context.hpp"
+#include "effect.hpp"
 #include <memory>
 #include <mutex>
 #include <vector>

@@ -2,12 +2,12 @@
 // Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
 //
 #include "drum_synth_controller_test.hpp"
-#include "application/service/device_service.hpp"
-#include "common/constants.hpp"
-#include "domain/devices/drum_synth_device.hpp"
-#include "infra/audio/audio_engine.hpp"
-#include "infra/data_service.hpp"
-#include "view/controllers/drum_synth_controller.hpp"
+#include "../../application/service/device_service.hpp"
+#include "../../common/constants.hpp"
+#include "../../domain/devices/drum_synth_device.hpp"
+#include "../../infra/audio/audio_engine.hpp"
+#include "../../infra/data_service.hpp"
+#include "../../view/controllers/drum_synth_controller.hpp"
 
 #include <QSignalSpy>
 #include <QTest>

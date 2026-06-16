@@ -13,13 +13,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "domain/tracker/note_data_manipulator.hpp"
+#include "note_data_manipulator.hpp"
 
-#include "application/position.hpp"
-#include "contrib/SimpleLogger/src/simple_logger.hpp"
-#include "domain/tracker/interpolator.hpp"
-#include "domain/tracker/note_data.hpp"
-#include "domain/tracker/song.hpp"
+#include "../../application/position.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "interpolator.hpp"
+#include "note_data.hpp"
+#include "song.hpp"
 
 namespace noteahead {
 

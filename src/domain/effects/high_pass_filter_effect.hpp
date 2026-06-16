@@ -16,7 +16,7 @@
 #ifndef HIGH_PASS_FILTER_EFFECT_HPP
 #define HIGH_PASS_FILTER_EFFECT_HPP
 
-#include "domain/effects/effect.hpp"
+#include "effect.hpp"
 
 namespace noteahead {
 

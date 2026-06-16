@@ -16,7 +16,7 @@
 #include "midi_settings_model.hpp"
 
 #include "../service/settings_service.hpp"
-#include "contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 
 #include <iomanip>
 

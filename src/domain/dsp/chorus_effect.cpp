@@ -15,8 +15,8 @@
 
 #include "chorus_effect.hpp"
 #include "audio_context.hpp"
-#include "common/constants.hpp"
-#include "common/parameter_mapper.hpp"
+#include "../../common/constants.hpp"
+#include "../../common/parameter_mapper.hpp"
 
 #include <algorithm>
 #include <cmath>

@@ -13,10 +13,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "domain/effects/panner_effect.hpp"
+#include "panner_effect.hpp"
 
-#include "common/constants.hpp"
-#include "domain/tracker/parameter.hpp"
+#include "../../common/constants.hpp"
+#include "../tracker/parameter.hpp"
 
 #include <algorithm>
 

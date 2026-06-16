@@ -15,16 +15,16 @@
 
 #include "application_service_test.hpp"
 
-#include "application/service/application_service.hpp"
-#include "application/service/editor_service.hpp"
-#include "application/service/player_service.hpp"
-#include "application/service/recent_files_manager.hpp"
-#include "application/state_machine.hpp"
-#include "common/constants.hpp"
+#include "../../application/service/application_service.hpp"
+#include "../../application/service/editor_service.hpp"
+#include "../../application/service/player_service.hpp"
+#include "../../application/service/recent_files_manager.hpp"
+#include "../../application/state_machine.hpp"
+#include "../../common/constants.hpp"
 
-#include "application/note_converter.hpp"
-#include "domain/midi/midi_note_data.hpp"
-#include "domain/tracker/instrument.hpp"
+#include "../../application/note_converter.hpp"
+#include "../../domain/midi/midi_note_data.hpp"
+#include "../../domain/tracker/instrument.hpp"
 
 #include <QSignalSpy>
 #include <QTest>

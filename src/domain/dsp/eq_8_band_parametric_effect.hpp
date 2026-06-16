@@ -16,7 +16,7 @@
 #ifndef EQ_8_BAND_PARAMETRIC_EFFECT_HPP
 #define EQ_8_BAND_PARAMETRIC_EFFECT_HPP
 
-#include "domain/effects/effect.hpp"
+#include "../effects/effect.hpp"
 #include "svf_filter.hpp"
 
 #include <array>

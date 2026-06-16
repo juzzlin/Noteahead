@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "domain/midi/pitch_bend_data.hpp"
+#include "pitch_bend_data.hpp"
 
 #include <cmath>
 

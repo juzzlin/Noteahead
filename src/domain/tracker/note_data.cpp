@@ -13,12 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "domain/tracker/note_data.hpp"
+#include "note_data.hpp"
 
-#include "common/constants.hpp"
-#include "common/utils.hpp"
-#include "common/xml/project_reader.hpp"
-#include "common/xml/project_writer.hpp"
+#include "../../common/constants.hpp"
+#include "../../common/utils.hpp"
+#include "../../common/xml/project_reader.hpp"
+#include "../../common/xml/project_writer.hpp"
 
 #include <sstream>
 

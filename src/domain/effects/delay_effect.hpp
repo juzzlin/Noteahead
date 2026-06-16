@@ -16,8 +16,8 @@
 #ifndef DELAY_EFFECT_HPP
 #define DELAY_EFFECT_HPP
 
-#include "domain/dsp/cascaded_svf.hpp"
-#include "domain/effects/effect.hpp"
+#include "../dsp/cascaded_svf.hpp"
+#include "effect.hpp"
 #include <vector>
 
 namespace noteahead {

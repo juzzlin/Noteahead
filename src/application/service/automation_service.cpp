@@ -16,13 +16,13 @@
 #include "automation_service.hpp"
 
 #include "../position.hpp"
-#include "common/constants.hpp"
-#include "common/xml/project_reader.hpp"
-#include "common/xml/project_writer.hpp"
-#include "contrib/SimpleLogger/src/simple_logger.hpp"
-#include "domain/midi/midi_cc_data.hpp"
-#include "domain/midi/pitch_bend_data.hpp"
-#include "domain/tracker/interpolator.hpp"
+#include "../../common/constants.hpp"
+#include "../../common/xml/project_reader.hpp"
+#include "../../common/xml/project_writer.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../domain/midi/midi_cc_data.hpp"
+#include "../../domain/midi/pitch_bend_data.hpp"
+#include "../../domain/tracker/interpolator.hpp"
 #include "property_service.hpp"
 
 #include <algorithm>

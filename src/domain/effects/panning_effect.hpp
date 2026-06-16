@@ -16,7 +16,7 @@
 #ifndef PANNING_EFFECT_HPP
 #define PANNING_EFFECT_HPP
 
-#include "domain/effects/effect.hpp"
+#include "effect.hpp"
 
 namespace noteahead {
 

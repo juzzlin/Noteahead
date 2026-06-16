@@ -22,7 +22,7 @@
 #include <set>
 #include <vector>
 
-#include "domain/tracker/note_data.hpp"
+#include "note_data.hpp"
 
 namespace noteahead {
 

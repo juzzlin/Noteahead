@@ -17,7 +17,7 @@
 #define REVERB_EFFECT_HPP
 
 #include "cascaded_svf.hpp"
-#include "domain/effects/effect.hpp"
+#include "../effects/effect.hpp"
 
 #include <algorithm>
 #include <array>

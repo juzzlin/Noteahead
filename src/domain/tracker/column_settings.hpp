@@ -22,7 +22,7 @@
 
 #include <QString>
 
-#include "domain/tracker/arpeggiator.hpp"
+#include "arpeggiator.hpp"
 
 namespace noteahead {
 

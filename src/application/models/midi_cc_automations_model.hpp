@@ -16,7 +16,7 @@
 #ifndef MIDI_CC_AUTOMATIONS_MODEL_HPP
 #define MIDI_CC_AUTOMATIONS_MODEL_HPP
 
-#include "domain/midi/midi_cc_automation.hpp"
+#include "../../domain/midi/midi_cc_automation.hpp"
 
 #include <QAbstractListModel>
 

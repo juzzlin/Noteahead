@@ -13,17 +13,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "domain/devices/sampler_device.hpp"
+#include "sampler_device.hpp"
 
-#include "common/constants.hpp"
-#include "common/utils.hpp"
-#include "common/xml/project_reader.hpp"
-#include "common/xml/project_writer.hpp"
-#include "infra/audio/backend/audio_file_reader.hpp"
-#include "infra/audio/backend/sndfile_reader.hpp"
-#include "infra/midi/midi_cc_mapping.hpp"
+#include "../../common/constants.hpp"
+#include "../../common/utils.hpp"
+#include "../../common/xml/project_reader.hpp"
+#include "../../common/xml/project_writer.hpp"
+#include "../../infra/audio/backend/audio_file_reader.hpp"
+#include "../../infra/audio/backend/sndfile_reader.hpp"
+#include "../../infra/midi/midi_cc_mapping.hpp"
 
-#include "contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 
 #include <algorithm>
 #include <cmath>

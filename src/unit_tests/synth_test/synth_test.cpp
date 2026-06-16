@@ -15,11 +15,11 @@
 
 #include "synth_test.hpp"
 
-#include "common/constants.hpp"
-#include "domain/devices/synth_device.hpp"
-#include "domain/devices/synth_presets.hpp"
-#include "infra/xml/nahd_xml_reader.hpp"
-#include "infra/xml/nahd_xml_writer.hpp"
+#include "../../common/constants.hpp"
+#include "../../domain/devices/synth_device.hpp"
+#include "../../domain/devices/synth_presets.hpp"
+#include "../../infra/xml/nahd_xml_reader.hpp"
+#include "../../infra/xml/nahd_xml_writer.hpp"
 
 #include <QBuffer>
 #include <QTest>

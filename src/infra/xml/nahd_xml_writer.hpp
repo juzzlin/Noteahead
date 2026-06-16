@@ -16,7 +16,7 @@
 #ifndef NAHD_XML_WRITER_HPP
 #define NAHD_XML_WRITER_HPP
 
-#include "common/xml/project_writer.hpp"
+#include "../../common/xml/project_writer.hpp"
 
 #include <memory>
 

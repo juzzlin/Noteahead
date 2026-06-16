@@ -17,7 +17,7 @@
 #define AUDIO_FILE_RECORDER_HPP
 
 #include "backend/audio_file_reader.hpp"
-#include "common/audio_backend.hpp"
+#include "../../common/audio_backend.hpp"
 #include "ring_buffer.hpp"
 
 #include <atomic>

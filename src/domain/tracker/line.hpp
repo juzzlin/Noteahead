@@ -16,8 +16,8 @@
 #ifndef LINE_HPP
 #define LINE_HPP
 
-#include "domain/tracker/line_event.hpp"
-#include "domain/tracker/note_data.hpp"
+#include "line_event.hpp"
+#include "note_data.hpp"
 
 #include <memory>
 #include <optional>

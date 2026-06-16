@@ -15,10 +15,10 @@
 
 #include "mixer_service.hpp"
 
-#include "common/constants.hpp"
-#include "common/xml/project_reader.hpp"
-#include "common/xml/project_writer.hpp"
-#include "contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../common/constants.hpp"
+#include "../../common/xml/project_reader.hpp"
+#include "../../common/xml/project_writer.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 
 #include <QVariant>
 

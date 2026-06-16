@@ -14,8 +14,8 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "audio_recorder_jack.hpp"
-#include "application/service/jack_service.hpp"
-#include "common/constants.hpp"
+#include "../../../../application/service/jack_service.hpp"
+#include "../../../../common/constants.hpp"
 
 #include <QString>
 

@@ -19,9 +19,9 @@
 #include "device_controller.hpp"
 #include <memory>
 
-#include "domain/devices/sampler_device.hpp"
+#include "../../domain/devices/sampler_device.hpp"
 
-#include "application/models/sampler/sampler_pad_model.hpp"
+#include "../../application/models/sampler/sampler_pad_model.hpp"
 
 namespace noteahead {
 

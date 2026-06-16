@@ -16,8 +16,8 @@
 #ifndef AUTO_PANNER_EFFECT_HPP
 #define AUTO_PANNER_EFFECT_HPP
 
-#include "domain/dsp/lfo.hpp"
-#include "domain/effects/effect.hpp"
+#include "../dsp/lfo.hpp"
+#include "effect.hpp"
 
 namespace noteahead {
 

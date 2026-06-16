@@ -15,16 +15,16 @@
 
 #include "device_service_test.hpp"
 
-#include "application/service/device_service.hpp"
-#include "common/constants.hpp"
-#include "domain/devices/device_factory.hpp"
-#include "domain/devices/sampler_device.hpp"
-#include "domain/devices/synth_device.hpp"
-#include "domain/effects/effect_factory.hpp"
-#include "infra/audio/audio_engine.hpp"
-#include "infra/data_service.hpp"
-#include "infra/xml/nahd_xml_reader.hpp"
-#include "infra/xml/nahd_xml_writer.hpp"
+#include "../../application/service/device_service.hpp"
+#include "../../common/constants.hpp"
+#include "../../domain/devices/device_factory.hpp"
+#include "../../domain/devices/sampler_device.hpp"
+#include "../../domain/devices/synth_device.hpp"
+#include "../../domain/effects/effect_factory.hpp"
+#include "../../infra/audio/audio_engine.hpp"
+#include "../../infra/data_service.hpp"
+#include "../../infra/xml/nahd_xml_reader.hpp"
+#include "../../infra/xml/nahd_xml_writer.hpp"
 
 #include <QBuffer>
 #include <QFile>

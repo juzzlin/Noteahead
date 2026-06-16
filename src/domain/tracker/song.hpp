@@ -28,9 +28,9 @@
 
 #include <QString>
 
-#include "application/position.hpp"
-#include "domain/tracker/instrument.hpp"
-#include "domain/tracker/note_data.hpp"
+#include "../../application/position.hpp"
+#include "instrument.hpp"
+#include "note_data.hpp"
 
 namespace noteahead {
 

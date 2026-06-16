@@ -16,7 +16,7 @@
 #ifndef CLIPPER_EFFECT_HPP
 #define CLIPPER_EFFECT_HPP
 
-#include "domain/effects/effect.hpp"
+#include "../effects/effect.hpp"
 
 #include <cstdint>
 

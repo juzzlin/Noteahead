@@ -16,12 +16,12 @@
 #ifndef WAVETABLE_SYNTH_DEVICE_HPP
 #define WAVETABLE_SYNTH_DEVICE_HPP
 
-#include "domain/devices/device.hpp"
-#include "domain/dsp/adsr_envelope.hpp"
-#include "domain/dsp/cascaded_svf.hpp"
-#include "domain/dsp/lfo.hpp"
-#include "domain/dsp/oversampler.hpp"
-#include "domain/dsp/wavetable_oscillator.hpp"
+#include "device.hpp"
+#include "../dsp/adsr_envelope.hpp"
+#include "../dsp/cascaded_svf.hpp"
+#include "../dsp/lfo.hpp"
+#include "../dsp/oversampler.hpp"
+#include "../dsp/wavetable_oscillator.hpp"
 
 #include <mutex>
 #include <random>

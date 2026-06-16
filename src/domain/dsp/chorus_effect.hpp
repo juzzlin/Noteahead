@@ -17,7 +17,7 @@
 #define CHORUS_EFFECT_HPP
 
 #include "cascaded_svf.hpp"
-#include "domain/effects/effect.hpp"
+#include "../effects/effect.hpp"
 #include "lfo.hpp"
 
 #include <vector>

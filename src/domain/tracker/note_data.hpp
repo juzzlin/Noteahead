@@ -16,8 +16,8 @@
 #ifndef NOTE_DATA_HPP
 #define NOTE_DATA_HPP
 
-#include "application/position.hpp"
-#include "domain/tracker/event_data.hpp"
+#include "../../application/position.hpp"
+#include "event_data.hpp"
 
 #include <cstdint>
 #include <memory>

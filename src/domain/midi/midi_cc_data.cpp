@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "domain/midi/midi_cc_data.hpp"
+#include "midi_cc_data.hpp"
 
 namespace noteahead {
 

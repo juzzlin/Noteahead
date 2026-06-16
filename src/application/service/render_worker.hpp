@@ -16,8 +16,8 @@
 #ifndef RENDER_WORKER_HPP
 #define RENDER_WORKER_HPP
 
-#include "common/audio_backend.hpp"
-#include "domain/tracker/song.hpp"
+#include "../../common/audio_backend.hpp"
+#include "../../domain/tracker/song.hpp"
 
 #include <functional>
 #include <map>

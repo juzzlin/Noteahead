@@ -15,7 +15,7 @@
 
 #include "lfo_test.hpp"
 
-#include "domain/dsp/lfo.hpp"
+#include "../../domain/dsp/lfo.hpp"
 
 #include <QTest>
 #include <algorithm>

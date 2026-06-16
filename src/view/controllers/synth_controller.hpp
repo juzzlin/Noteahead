@@ -17,7 +17,7 @@
 #define SYNTH_CONTROLLER_HPP
 
 #include "device_controller.hpp"
-#include "domain/devices/synth_presets.hpp"
+#include "../../domain/devices/synth_presets.hpp"
 
 #include <memory>
 

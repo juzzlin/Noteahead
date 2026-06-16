@@ -15,11 +15,11 @@
 
 #include "jack_service.hpp"
 
-#include "common/audio_backend.hpp"
-#include "common/constants.hpp"
-#include "common/denormal_protection.hpp"
-#include "contrib/SimpleLogger/src/simple_logger.hpp"
-#include "infra/audio/audio_engine.hpp"
+#include "../../common/audio_backend.hpp"
+#include "../../common/constants.hpp"
+#include "../../common/denormal_protection.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../infra/audio/audio_engine.hpp"
 #include "settings_service.hpp"
 
 #include <algorithm>

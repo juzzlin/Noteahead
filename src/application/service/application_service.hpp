@@ -23,8 +23,8 @@
 
 #include <memory>
 
-#include "domain/midi/midi_import_mode.hpp"
-#include "infra/midi/export/midi_exporter.hpp"
+#include "../../domain/midi/midi_import_mode.hpp"
+#include "../../infra/midi/export/midi_exporter.hpp"
 
 namespace noteahead {
 

@@ -16,7 +16,7 @@
 #ifndef SETTINGS_HPP
 #define SETTINGS_HPP
 
-#include "common/audio_backend.hpp"
+#include "../common/audio_backend.hpp"
 
 #include <cstddef>
 

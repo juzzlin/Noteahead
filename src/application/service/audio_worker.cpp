@@ -14,8 +14,8 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "audio_worker.hpp"
-#include "infra/audio/audio_player.hpp"
-#include "infra/audio/audio_recorder.hpp"
+#include "../../infra/audio/audio_player.hpp"
+#include "../../infra/audio/audio_recorder.hpp"
 
 #include <QVariantMap>
 

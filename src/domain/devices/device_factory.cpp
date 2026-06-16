@@ -13,9 +13,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "domain/devices/device_factory.hpp"
+#include "device_factory.hpp"
 
-#include "contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 
 #include <format>
 #include <map>

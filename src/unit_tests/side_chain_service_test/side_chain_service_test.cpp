@@ -15,11 +15,11 @@
 
 #include "side_chain_service_test.hpp"
 
-#include "application/service/automation_service.hpp"
-#include "application/service/property_service.hpp"
-#include "application/service/side_chain_service.hpp"
-#include "domain/tracker/note_data.hpp"
-#include "domain/tracker/song.hpp"
+#include "../../application/service/automation_service.hpp"
+#include "../../application/service/property_service.hpp"
+#include "../../application/service/side_chain_service.hpp"
+#include "../../domain/tracker/note_data.hpp"
+#include "../../domain/tracker/song.hpp"
 
 #include <QSignalSpy>
 #include <QTest>

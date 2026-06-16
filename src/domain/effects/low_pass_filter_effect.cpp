@@ -13,9 +13,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "domain/effects/low_pass_filter_effect.hpp"
-#include "common/utils.hpp"
-#include "domain/dsp/audio_context.hpp"
+#include "low_pass_filter_effect.hpp"
+#include "../../common/utils.hpp"
+#include "../dsp/audio_context.hpp"
 
 #include <algorithm>
 #include <cmath>

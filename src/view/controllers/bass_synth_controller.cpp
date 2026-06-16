@@ -15,9 +15,9 @@
 
 #include "bass_synth_controller.hpp"
 
-#include "common/constants.hpp"
-#include "common/utils.hpp"
-#include "domain/devices/bass_synth_device.hpp"
+#include "../../common/constants.hpp"
+#include "../../common/utils.hpp"
+#include "../../domain/devices/bass_synth_device.hpp"
 
 #include <QDebug>
 #include <cmath>

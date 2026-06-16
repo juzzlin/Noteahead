@@ -14,7 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "waveform_generator.hpp"
-#include "contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../contrib/SimpleLogger/src/simple_logger.hpp"
 
 #include <algorithm>
 #include <sndfile.h>

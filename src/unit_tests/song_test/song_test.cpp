@@ -15,15 +15,15 @@
 
 #include "song_test.hpp"
 
-#include "application/position.hpp"
-#include "application/service/automation_service.hpp"
-#include "application/service/property_service.hpp"
-#include "application/service/side_chain_service.hpp"
-#include "domain/tracker/column_settings.hpp"
-#include "domain/tracker/event.hpp"
-#include "domain/tracker/note_data.hpp"
-#include "domain/tracker/pattern.hpp"
-#include "domain/tracker/song.hpp"
+#include "../../application/position.hpp"
+#include "../../application/service/automation_service.hpp"
+#include "../../application/service/property_service.hpp"
+#include "../../application/service/side_chain_service.hpp"
+#include "../../domain/tracker/column_settings.hpp"
+#include "../../domain/tracker/event.hpp"
+#include "../../domain/tracker/note_data.hpp"
+#include "../../domain/tracker/pattern.hpp"
+#include "../../domain/tracker/song.hpp"
 
 #include <QTest>
 

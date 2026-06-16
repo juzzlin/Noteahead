@@ -16,7 +16,7 @@
 #ifndef AUTOMATION_HPP
 #define AUTOMATION_HPP
 
-#include "domain/tracker/automation_location.hpp"
+#include "automation_location.hpp"
 
 #include <QString>
 

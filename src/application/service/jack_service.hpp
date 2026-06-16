@@ -24,8 +24,8 @@
 #include <jack/jack.h>
 #endif
 
-#include "infra/audio/audio_file_recorder.hpp"
-#include "infra/audio/audio_file_streamer.hpp"
+#include "../../infra/audio/audio_file_recorder.hpp"
+#include "../../infra/audio/audio_file_streamer.hpp"
 
 #include <QObject>
 

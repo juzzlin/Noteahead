@@ -14,9 +14,9 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "data_service_test.hpp"
-#include "common/constants.hpp"
-#include "infra/data_service.hpp"
-#include "infra/xml/nahd_xml_writer.hpp"
+#include "../../common/constants.hpp"
+#include "../../infra/data_service.hpp"
+#include "../../infra/xml/nahd_xml_writer.hpp"
 
 #include <QTemporaryFile>
 #include <QTest>

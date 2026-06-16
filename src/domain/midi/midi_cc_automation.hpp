@@ -16,8 +16,8 @@
 #ifndef MIDI_CC_AUTOMATION_HPP
 #define MIDI_CC_AUTOMATION_HPP
 
-#include "domain/tracker/automation.hpp"
-#include "domain/tracker/modulation.hpp"
+#include "../tracker/automation.hpp"
+#include "../tracker/modulation.hpp"
 
 #include <cstdint>
 #include <memory>

@@ -15,11 +15,11 @@
 
 #include "bass_synth_controller_test.hpp"
 
-#include "common/constants.hpp"
-#include "domain/devices/bass_synth_device.hpp"
-#include "infra/xml/nahd_xml_reader.hpp"
-#include "infra/xml/nahd_xml_writer.hpp"
-#include "view/controllers/bass_synth_controller.hpp"
+#include "../../common/constants.hpp"
+#include "../../domain/devices/bass_synth_device.hpp"
+#include "../../infra/xml/nahd_xml_reader.hpp"
+#include "../../infra/xml/nahd_xml_writer.hpp"
+#include "../../view/controllers/bass_synth_controller.hpp"
 
 #include <QSignalSpy>
 #include <QTest>

@@ -13,11 +13,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "domain/effects/auto_panner_effect.hpp"
+#include "auto_panner_effect.hpp"
 
-#include "common/constants.hpp"
-#include "common/parameter_mapper.hpp"
-#include "domain/dsp/audio_context.hpp"
+#include "../../common/constants.hpp"
+#include "../../common/parameter_mapper.hpp"
+#include "../dsp/audio_context.hpp"
 
 #include <algorithm>
 #include <cmath>

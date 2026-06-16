@@ -16,8 +16,8 @@
 #ifndef SIDE_CHAIN_SERVICE_HPP
 #define SIDE_CHAIN_SERVICE_HPP
 
-#include "domain/tracker/side_chain_settings.hpp"
-#include "domain/tracker/song.hpp"
+#include "../../domain/tracker/side_chain_settings.hpp"
+#include "../../domain/tracker/song.hpp"
 
 #include <QObject>
 

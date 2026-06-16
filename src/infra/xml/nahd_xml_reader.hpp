@@ -16,7 +16,7 @@
 #ifndef NAHD_XML_READER_HPP
 #define NAHD_XML_READER_HPP
 
-#include "common/xml/project_reader.hpp"
+#include "../../common/xml/project_reader.hpp"
 
 #include <memory>
 

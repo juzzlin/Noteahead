@@ -16,14 +16,14 @@
 #ifndef SAMPLER_DEVICE_HPP
 #define SAMPLER_DEVICE_HPP
 
-#include "domain/devices/device.hpp"
-#include "domain/effects/effect.hpp"
-#include "domain/effects/high_pass_filter_effect.hpp"
-#include "domain/effects/low_pass_filter_effect.hpp"
-#include "domain/effects/panning_effect.hpp"
-#include "domain/effects/volume_effect.hpp"
-#include "domain/tracker/parameter_container.hpp"
-#include "infra/audio/backend/audio_file_reader.hpp"
+#include "device.hpp"
+#include "../effects/effect.hpp"
+#include "../effects/high_pass_filter_effect.hpp"
+#include "../effects/low_pass_filter_effect.hpp"
+#include "../effects/panning_effect.hpp"
+#include "../effects/volume_effect.hpp"
+#include "../tracker/parameter_container.hpp"
+#include "../../infra/audio/backend/audio_file_reader.hpp"
 
 #include <array>
 #include <functional>

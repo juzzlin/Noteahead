@@ -20,8 +20,8 @@
 #include <optional>
 #include <vector>
 
-#include "domain/tracker/mixer_unit.hpp"
-#include "domain/tracker/note_data.hpp"
+#include "mixer_unit.hpp"
+#include "note_data.hpp"
 
 namespace noteahead {
 

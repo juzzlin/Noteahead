@@ -16,15 +16,15 @@
 #ifndef SYNTH_DEVICE_HPP
 #define SYNTH_DEVICE_HPP
 
-#include "domain/devices/device.hpp"
-#include "domain/devices/synth_presets.hpp"
-#include "domain/dsp/adsr_envelope.hpp"
-#include "domain/dsp/cascaded_svf.hpp"
-#include "domain/dsp/lfo.hpp"
-#include "domain/dsp/multi_engine.hpp"
-#include "domain/dsp/oversampler.hpp"
-#include "domain/dsp/poly_blep_oscillator.hpp"
-#include "domain/effects/delay_effect.hpp"
+#include "device.hpp"
+#include "synth_presets.hpp"
+#include "../dsp/adsr_envelope.hpp"
+#include "../dsp/cascaded_svf.hpp"
+#include "../dsp/lfo.hpp"
+#include "../dsp/multi_engine.hpp"
+#include "../dsp/oversampler.hpp"
+#include "../dsp/poly_blep_oscillator.hpp"
+#include "../effects/delay_effect.hpp"
 
 #include <mutex>
 #include <random>

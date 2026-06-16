@@ -21,8 +21,8 @@
 #include <memory>
 #include <vector>
 
-#include "domain/midi/midi_cc_automation.hpp"
-#include "domain/midi/pitch_bend_automation.hpp"
+#include "../../domain/midi/midi_cc_automation.hpp"
+#include "../../domain/midi/pitch_bend_automation.hpp"
 
 namespace noteahead {
 

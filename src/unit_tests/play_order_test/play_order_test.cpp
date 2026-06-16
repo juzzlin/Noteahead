@@ -15,7 +15,7 @@
 
 #include "play_order_test.hpp"
 
-#include "domain/tracker/play_order.hpp"
+#include "../../domain/tracker/play_order.hpp"
 
 #include <QTest>
 

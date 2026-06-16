@@ -14,8 +14,8 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "knob_controller_test.hpp"
-#include "common/constants.hpp"
-#include "view/controllers/knob_controller.hpp"
+#include "../../common/constants.hpp"
+#include "../../view/controllers/knob_controller.hpp"
 
 #include <QTest>
 

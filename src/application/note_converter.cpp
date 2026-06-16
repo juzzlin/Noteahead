@@ -1,6 +1,6 @@
 #include "note_converter.hpp"
 
-#include "contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../contrib/SimpleLogger/src/simple_logger.hpp"
 
 #include <array>
 #include <stdexcept>

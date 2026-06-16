@@ -16,7 +16,7 @@
 #ifndef PARAMETER_CONTAINER_HPP
 #define PARAMETER_CONTAINER_HPP
 
-#include "domain/tracker/parameter.hpp"
+#include "parameter.hpp"
 
 #include <functional>
 #include <map>

@@ -14,13 +14,13 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "effect_rack_test.hpp"
-#include "common/constants.hpp"
-#include "domain/dsp/reverb_effect.hpp"
-#include "domain/effects/effect_factory.hpp"
-#include "domain/effects/effect_rack.hpp"
-#include "domain/effects/volume_effect.hpp"
-#include "infra/xml/nahd_xml_reader.hpp"
-#include "infra/xml/nahd_xml_writer.hpp"
+#include "../../common/constants.hpp"
+#include "../../domain/dsp/reverb_effect.hpp"
+#include "../../domain/effects/effect_factory.hpp"
+#include "../../domain/effects/effect_rack.hpp"
+#include "../../domain/effects/volume_effect.hpp"
+#include "../../infra/xml/nahd_xml_reader.hpp"
+#include "../../infra/xml/nahd_xml_writer.hpp"
 
 #include <QTest>
 

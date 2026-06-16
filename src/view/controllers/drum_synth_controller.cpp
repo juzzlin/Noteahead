@@ -17,10 +17,10 @@
 
 #include <QVariant>
 
-#include "application/service/device_service.hpp"
-#include "common/constants.hpp"
-#include "common/utils.hpp"
-#include "domain/devices/drum_synth_device.hpp"
+#include "../../application/service/device_service.hpp"
+#include "../../common/constants.hpp"
+#include "../../common/utils.hpp"
+#include "../../domain/devices/drum_synth_device.hpp"
 
 #include <cmath>
 

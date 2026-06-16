@@ -13,13 +13,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "domain/tracker/instrument_settings.hpp"
+#include "instrument_settings.hpp"
 
-#include "common/constants.hpp"
-#include "common/utils.hpp"
-#include "common/xml/project_reader.hpp"
-#include "common/xml/project_writer.hpp"
-#include "contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../common/constants.hpp"
+#include "../../common/utils.hpp"
+#include "../../common/xml/project_reader.hpp"
+#include "../../common/xml/project_writer.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 
 namespace noteahead {
 

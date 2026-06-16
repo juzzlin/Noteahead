@@ -14,8 +14,8 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "real_time_worker_pool.hpp"
-#include "common/denormal_protection.hpp"
-#include "contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../common/denormal_protection.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 
 #include <algorithm>
 #include <pthread.h>

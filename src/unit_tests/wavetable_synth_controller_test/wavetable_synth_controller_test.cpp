@@ -15,9 +15,9 @@
 
 #include "wavetable_synth_controller_test.hpp"
 
-#include "common/constants.hpp"
-#include "domain/devices/wavetable_synth_device.hpp"
-#include "view/controllers/wavetable_synth_controller.hpp"
+#include "../../common/constants.hpp"
+#include "../../domain/devices/wavetable_synth_device.hpp"
+#include "../../view/controllers/wavetable_synth_controller.hpp"
 
 #include <QSignalSpy>
 #include <QTest>

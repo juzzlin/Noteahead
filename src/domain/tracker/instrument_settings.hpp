@@ -23,8 +23,8 @@
 
 #include <QString>
 
-#include "domain/midi/midi_cc_setting.hpp"
-#include "domain/tracker/event_data.hpp"
+#include "../midi/midi_cc_setting.hpp"
+#include "event_data.hpp"
 
 namespace noteahead {
 

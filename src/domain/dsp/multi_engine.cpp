@@ -14,7 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "multi_engine.hpp"
-#include "common/constants.hpp"
+#include "../../common/constants.hpp"
 
 #include <algorithm>
 #include <cmath>

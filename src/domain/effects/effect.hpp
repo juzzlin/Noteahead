@@ -19,8 +19,8 @@
 #include <optional>
 #include <string>
 
-#include "domain/dsp/dsp_component.hpp"
-#include "domain/tracker/parameter_container.hpp"
+#include "../dsp/dsp_component.hpp"
+#include "../tracker/parameter_container.hpp"
 
 namespace noteahead {
 

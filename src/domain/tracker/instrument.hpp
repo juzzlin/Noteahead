@@ -21,8 +21,8 @@
 
 #include <QString>
 
-#include "domain/midi/midi_address.hpp"
-#include "domain/tracker/instrument_settings.hpp"
+#include "../midi/midi_address.hpp"
+#include "instrument_settings.hpp"
 
 namespace noteahead {
 

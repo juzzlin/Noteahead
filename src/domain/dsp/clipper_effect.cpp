@@ -15,8 +15,8 @@
 
 #include "clipper_effect.hpp"
 #include "audio_context.hpp"
-#include "common/constants.hpp"
-#include "common/utils.hpp"
+#include "../../common/constants.hpp"
+#include "../../common/utils.hpp"
 
 #include <algorithm>
 #include <cmath>

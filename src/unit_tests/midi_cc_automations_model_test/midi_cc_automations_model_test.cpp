@@ -15,8 +15,8 @@
 
 #include "midi_cc_automations_model_test.hpp"
 
-#include "application/models/midi_cc_automations_model.hpp"
-#include "domain/midi/midi_cc_automation.hpp"
+#include "../../application/models/midi_cc_automations_model.hpp"
+#include "../../domain/midi/midi_cc_automation.hpp"
 
 #include <QSignalSpy>
 #include <QTest>

@@ -15,9 +15,9 @@
 
 #include "midi_worker.hpp"
 
-#include "common/utils.hpp"
-#include "contrib/SimpleLogger/src/simple_logger.hpp"
-#include "infra/midi/midi_backend.hpp"
+#include "../../common/utils.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../infra/midi/midi_backend.hpp"
 
 #include <chrono>
 

@@ -1,6 +1,6 @@
-#include "common/constants.hpp"
-#include "domain/devices/drum_synth_device.hpp"
-#include "domain/dsp/drum/tom_engine.hpp"
+#include "../../common/constants.hpp"
+#include "../../domain/devices/drum_synth_device.hpp"
+#include "../../domain/dsp/drum/tom_engine.hpp"
 #include <QTest>
 
 using namespace noteahead;

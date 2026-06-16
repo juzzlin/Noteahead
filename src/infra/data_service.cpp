@@ -15,10 +15,10 @@
 
 #include "data_service.hpp"
 
-#include "common/constants.hpp"
-#include "common/xml/project_writer.hpp"
-#include "contrib/SimpleLogger/src/simple_logger.hpp"
-#include "infra/xml/nahd_xml_reader.hpp"
+#include "../common/constants.hpp"
+#include "../common/xml/project_writer.hpp"
+#include "../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "xml/nahd_xml_reader.hpp"
 
 #include <QDir>
 #include <QFile>

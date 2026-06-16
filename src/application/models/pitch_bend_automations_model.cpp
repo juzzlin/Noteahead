@@ -15,7 +15,7 @@
 
 #include "pitch_bend_automations_model.hpp"
 
-#include "contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 
 namespace noteahead {
 

@@ -16,7 +16,7 @@
 #ifndef INSTRUMENT_REQUEST_HPP
 #define INSTRUMENT_REQUEST_HPP
 
-#include "domain/tracker/instrument.hpp"
+#include "../domain/tracker/instrument.hpp"
 
 namespace noteahead {
 

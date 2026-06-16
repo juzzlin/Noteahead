@@ -16,7 +16,7 @@
 #ifndef VOLUME_EFFECT_HPP
 #define VOLUME_EFFECT_HPP
 
-#include "domain/effects/effect.hpp"
+#include "effect.hpp"
 
 namespace noteahead {
 

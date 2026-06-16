@@ -15,7 +15,7 @@
 
 #include "audio_player_jack.hpp"
 
-#include "application/service/jack_service.hpp"
+#include "../../../../application/service/jack_service.hpp"
 
 namespace noteahead {
 

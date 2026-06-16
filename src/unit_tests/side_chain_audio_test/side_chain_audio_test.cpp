@@ -15,12 +15,12 @@
 
 #include "side_chain_audio_test.hpp"
 
-#include "common/constants.hpp"
-#include "domain/devices/device.hpp"
-#include "domain/dsp/compressor_effect.hpp"
-#include "infra/audio/audio_engine.hpp"
-#include "infra/xml/nahd_xml_reader.hpp"
-#include "infra/xml/nahd_xml_writer.hpp"
+#include "../../common/constants.hpp"
+#include "../../domain/devices/device.hpp"
+#include "../../domain/dsp/compressor_effect.hpp"
+#include "../../infra/audio/audio_engine.hpp"
+#include "../../infra/xml/nahd_xml_reader.hpp"
+#include "../../infra/xml/nahd_xml_writer.hpp"
 
 #include <QByteArray>
 #include <QTest>

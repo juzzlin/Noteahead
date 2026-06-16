@@ -14,8 +14,8 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "panner_test.hpp"
-#include "common/constants.hpp"
-#include "domain/effects/panner_effect.hpp"
+#include "../../common/constants.hpp"
+#include "../../domain/effects/panner_effect.hpp"
 
 #include <QTest>
 

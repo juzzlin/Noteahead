@@ -1,4 +1,4 @@
-#include "domain/tracker/event_data.hpp"
+#include "event_data.hpp"
 
 namespace noteahead {
 

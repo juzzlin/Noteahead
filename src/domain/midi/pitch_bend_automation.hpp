@@ -16,8 +16,8 @@
 #ifndef PITCH_BEND_AUTOMATION_HPP
 #define PITCH_BEND_AUTOMATION_HPP
 
-#include "domain/tracker/automation.hpp"
-#include "domain/tracker/modulation.hpp"
+#include "../tracker/automation.hpp"
+#include "../tracker/modulation.hpp"
 
 #include <memory>
 

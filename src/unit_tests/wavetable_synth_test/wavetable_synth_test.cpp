@@ -15,10 +15,10 @@
 
 #include "wavetable_synth_test.hpp"
 
-#include "common/constants.hpp"
-#include "domain/devices/wavetable_synth_device.hpp"
-#include "infra/xml/nahd_xml_reader.hpp"
-#include "infra/xml/nahd_xml_writer.hpp"
+#include "../../common/constants.hpp"
+#include "../../domain/devices/wavetable_synth_device.hpp"
+#include "../../infra/xml/nahd_xml_reader.hpp"
+#include "../../infra/xml/nahd_xml_writer.hpp"
 
 #include <QTest>
 #include <cmath>

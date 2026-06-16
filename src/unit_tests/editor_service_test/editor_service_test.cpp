@@ -18,22 +18,22 @@
 #include <algorithm> // Required for std::sort
 #include <vector> // Required for std::vector
 
-#include "application/service/automation_service.hpp"
-#include "application/service/editor_service.hpp"
-#include "application/service/mixer_service.hpp"
-#include "application/service/property_service.hpp"
-#include "application/service/selection_service.hpp"
-#include "application/service/settings_service.hpp"
-#include "application/service/side_chain_service.hpp"
-#include "domain/tracker/column_settings.hpp"
-#include "domain/tracker/instrument.hpp"
-#include "domain/tracker/note_data.hpp"
-#include "domain/tracker/pattern.hpp"
-#include "domain/tracker/side_chain_settings.hpp"
-#include "domain/tracker/song.hpp"
-#include "domain/tracker/track.hpp"
-#include "infra/data_service.hpp"
-#include "infra/settings.hpp"
+#include "../../application/service/automation_service.hpp"
+#include "../../application/service/editor_service.hpp"
+#include "../../application/service/mixer_service.hpp"
+#include "../../application/service/property_service.hpp"
+#include "../../application/service/selection_service.hpp"
+#include "../../application/service/settings_service.hpp"
+#include "../../application/service/side_chain_service.hpp"
+#include "../../domain/tracker/column_settings.hpp"
+#include "../../domain/tracker/instrument.hpp"
+#include "../../domain/tracker/note_data.hpp"
+#include "../../domain/tracker/pattern.hpp"
+#include "../../domain/tracker/side_chain_settings.hpp"
+#include "../../domain/tracker/song.hpp"
+#include "../../domain/tracker/track.hpp"
+#include "../../infra/data_service.hpp"
+#include "../../infra/settings.hpp"
 
 #include <QSignalSpy>
 #include <QTest>

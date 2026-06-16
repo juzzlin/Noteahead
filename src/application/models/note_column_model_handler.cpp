@@ -1,11 +1,11 @@
 #include "note_column_model_handler.hpp"
 
-#include "application/position.hpp"
-#include "application/service/automation_service.hpp"
-#include "application/service/editor_service.hpp"
-#include "application/service/selection_service.hpp"
-#include "application/service/util_service.hpp"
-#include "contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../position.hpp"
+#include "../service/automation_service.hpp"
+#include "../service/editor_service.hpp"
+#include "../service/selection_service.hpp"
+#include "../service/util_service.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "note_column_line_container_helper.hpp"
 #include "note_column_model.hpp"
 

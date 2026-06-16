@@ -14,7 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "oversampler_test.hpp"
-#include "domain/dsp/oversampler.hpp"
+#include "../../domain/dsp/oversampler.hpp"
 
 #include <QTest>
 

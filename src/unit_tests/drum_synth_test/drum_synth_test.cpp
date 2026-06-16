@@ -14,17 +14,17 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "drum_synth_test.hpp"
-#include "common/constants.hpp"
-#include "domain/devices/drum_synth_device.hpp"
-#include "domain/dsp/drum/clap_engine.hpp"
-#include "domain/dsp/drum/crash_engine.hpp"
-#include "domain/dsp/drum/hihat_engine.hpp"
-#include "domain/dsp/drum/kick_engine.hpp"
-#include "domain/dsp/drum/ride_engine.hpp"
-#include "domain/dsp/drum/snare_engine.hpp"
-#include "domain/dsp/drum/tom_engine.hpp"
-#include "infra/xml/nahd_xml_reader.hpp"
-#include "infra/xml/nahd_xml_writer.hpp"
+#include "../../common/constants.hpp"
+#include "../../domain/devices/drum_synth_device.hpp"
+#include "../../domain/dsp/drum/clap_engine.hpp"
+#include "../../domain/dsp/drum/crash_engine.hpp"
+#include "../../domain/dsp/drum/hihat_engine.hpp"
+#include "../../domain/dsp/drum/kick_engine.hpp"
+#include "../../domain/dsp/drum/ride_engine.hpp"
+#include "../../domain/dsp/drum/snare_engine.hpp"
+#include "../../domain/dsp/drum/tom_engine.hpp"
+#include "../../infra/xml/nahd_xml_reader.hpp"
+#include "../../infra/xml/nahd_xml_writer.hpp"
 #include "repro_kick_pop.cpp"
 #include <QTest>
 

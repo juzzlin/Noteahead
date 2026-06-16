@@ -15,8 +15,8 @@
 
 #include "midi_settings_model_test.hpp"
 
-#include "application/models/midi_settings_model.hpp"
-#include "application/service/settings_service.hpp"
+#include "../../application/models/midi_settings_model.hpp"
+#include "../../application/service/settings_service.hpp"
 
 #include <QSettings>
 #include <QSignalSpy>

@@ -15,7 +15,7 @@
 
 #include "recent_files_model_test.hpp"
 
-#include "application/models/recent_files_model.hpp"
+#include "../../application/models/recent_files_model.hpp"
 
 #include <QSignalSpy>
 #include <QTest>

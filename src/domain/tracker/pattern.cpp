@@ -13,19 +13,19 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "domain/tracker/pattern.hpp"
+#include "pattern.hpp"
 
-#include "application/position.hpp"
-#include "application/service/automation_service.hpp"
-#include "common/constants.hpp"
-#include "common/utils.hpp"
-#include "common/xml/project_reader.hpp"
-#include "common/xml/project_writer.hpp"
-#include "contrib/SimpleLogger/src/simple_logger.hpp"
-#include "domain/tracker/column_settings.hpp"
-#include "domain/tracker/instrument.hpp"
-#include "domain/tracker/note_data.hpp"
-#include "domain/tracker/track.hpp"
+#include "../../application/position.hpp"
+#include "../../application/service/automation_service.hpp"
+#include "../../common/constants.hpp"
+#include "../../common/utils.hpp"
+#include "../../common/xml/project_reader.hpp"
+#include "../../common/xml/project_writer.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "column_settings.hpp"
+#include "instrument.hpp"
+#include "note_data.hpp"
+#include "track.hpp"
 
 #include <algorithm>
 #include <stdexcept>

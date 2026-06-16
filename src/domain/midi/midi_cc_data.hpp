@@ -16,7 +16,7 @@
 #ifndef MIDI_CC_DATA_HPP
 #define MIDI_CC_DATA_HPP
 
-#include "domain/tracker/event_data.hpp"
+#include "../tracker/event_data.hpp"
 
 #include <cstdint>
 

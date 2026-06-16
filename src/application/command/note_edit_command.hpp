@@ -24,7 +24,7 @@
 #include <vector>
 
 #include "../position.hpp"
-#include "domain/tracker/note_data.hpp"
+#include "../../domain/tracker/note_data.hpp"
 
 namespace noteahead {
 

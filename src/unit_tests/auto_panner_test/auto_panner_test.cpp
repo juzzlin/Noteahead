@@ -14,8 +14,8 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "auto_panner_test.hpp"
-#include "common/constants.hpp"
-#include "domain/effects/auto_panner_effect.hpp"
+#include "../../common/constants.hpp"
+#include "../../domain/effects/auto_panner_effect.hpp"
 
 #include <QTest>
 

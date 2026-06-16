@@ -15,9 +15,9 @@
 
 #include "wavetable_synth_controller.hpp"
 
-#include "common/constants.hpp"
-#include "domain/devices/wavetable_synth_device.hpp"
-#include "domain/dsp/lfo.hpp"
+#include "../../common/constants.hpp"
+#include "../../domain/devices/wavetable_synth_device.hpp"
+#include "../../domain/dsp/lfo.hpp"
 
 #include <cmath>
 
