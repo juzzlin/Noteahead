@@ -16,6 +16,7 @@
 
 #include "common/constants.hpp"
 #include "common/utils.hpp"
+#include "contrib/SimpleLogger/src/simple_logger.hpp"
 #include "domain/devices/device_factory.hpp"
 #include "domain/devices/sampler_device.hpp"
 #include "domain/devices/synth_device.hpp"
@@ -26,9 +27,13 @@
 #include <QFile>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
+
+#include <format>
 #include <set>
 
 namespace noteahead {
+
+static const auto TAG = "DeviceService";
 
 DeviceService::DeviceService(AudioEngineS audioEngine, DataServiceS dataService, QObject * parent)
   : QObject { parent }
@@ -317,36 +322,21 @@ void DeviceService::deserializeFromXml(QXmlStreamReader & reader)
             const auto deviceName = reader.attributes().value(Constants::NahdXml::xmlKeyName()).toString();
             const auto typeId = reader.attributes().value(Constants::NahdXml::xmlKeyTypeId()).toString();
             const auto slotAttr = reader.attributes().value(Constants::NahdXml::xmlKeySlot());
-            const auto idAttr = reader.attributes().value(Constants::NahdXml::xmlKeyId());
-
-            auto dev = device(deviceName.toStdString());
-            if (!dev && !typeId.isEmpty()) {
-                dev = DeviceFactory::createDevice(typeId.toStdString(), deviceName.toStdString());
-
-                if (dev) {
-                    if (!slotAttr.isNull() && slotAttr.toUInt() < Constants::deviceRackSize()) {
+            if (!slotAttr.isNull() && slotAttr.toUInt() <= Constants::deviceRackSize()) {
+                auto dev = device(deviceName.toStdString());
+                if (!dev && !typeId.isEmpty()) {
+                    dev = DeviceFactory::createDevice(typeId.toStdString(), deviceName.toStdString());
+                    if (dev) {
                         setDevice(slotAttr.toUInt(), dev);
-                    } else if (!idAttr.isNull() && idAttr.toUInt() <= Constants::deviceRackSize()) {
-                        setDevice(idAttr.toUInt() - 1, dev);
-                    } else {
-                        const auto lastSpace = deviceName.lastIndexOf(' ');
-                        if (lastSpace != -1) {
-                            bool ok;
-                            const auto slotIndex = deviceName.mid(lastSpace + 1).toUInt(&ok) - 1;
-                            if (ok && slotIndex < Constants::deviceRackSize()) {
-                                setDevice(slotIndex, dev);
-                            }
-                        }
                     }
-                    // Re-acquire dev from engine because setDevice moved it
-                    dev = device(deviceName.toStdString());
                 }
-            }
-
-            if (dev) {
-                dev->deserializeFromXml(reader);
+                if (dev) {
+                    dev->deserializeFromXml(reader);
+                } else {
+                    reader.skipCurrentElement();
+                }
             } else {
-                reader.skipCurrentElement();
+                juzzlin::L(TAG).warning() << std::format("Skipping device {} ({}) with slot index {} out of bounds!", typeId.toStdString(), deviceName.toStdString(), slotAttr.toUInt());
             }
         } else if (reader.name() == Constants::NahdXml::xmlKeySynth()) {
             // Handled via generic Device element if present in slot

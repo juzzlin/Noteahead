@@ -15,9 +15,14 @@
 
 #include "domain/devices/device_factory.hpp"
 
+#include "contrib/SimpleLogger/src/simple_logger.hpp"
+
+#include <format>
 #include <map>
 
 namespace noteahead {
+
+static const auto TAG = "DeviceFactory";
 
 namespace {
 std::map<std::string, DeviceFactory::Creator> & registry()
@@ -34,10 +39,12 @@ void DeviceFactory::registerDevice(const std::string & typeId, Creator creator)
 
 std::shared_ptr<Device> DeviceFactory::createDevice(const std::string & typeId, const std::string & name)
 {
-    const auto it = registry().find(typeId);
-    if (it != registry().end()) {
+    juzzlin::L(TAG).info() << std::format("Creating a new device {}: {}", typeId, name);
+
+    if (const auto it = registry().find(typeId); it != registry().end()) {
         return it->second(name);
     }
+
     return nullptr;
 }
 
