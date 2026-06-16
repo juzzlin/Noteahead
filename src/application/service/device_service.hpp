@@ -111,6 +111,15 @@ signals:
 private:
     DeviceService::DeviceS getDevice(std::string name, std::string typeId);
 
+    void deserializeDevice(QXmlStreamReader & reader);
+    void deserializeMasterEffects(QXmlStreamReader & reader);
+    void deserializeSendEffects(QXmlStreamReader & reader);
+    void deserializeEffectSend(QXmlStreamReader & reader);
+    void deserializeUserPresets(QXmlStreamReader & reader);
+    SynthPreset deserializePreset(QXmlStreamReader & reader) const;
+    void deserializePresetParameter(QXmlStreamReader & reader, SynthPreset & preset) const;
+    float legacyPresetParameterValue(QXmlStreamReader & reader, const std::string & paramName, const QString & xmlValue) const;
+
     AudioEngineS m_audioEngine;
     DataServiceS m_dataService;
     UserPresets m_synthUserPresets;

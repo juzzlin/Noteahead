@@ -323,137 +323,162 @@ DeviceService::DeviceS DeviceService::getDevice(std::string name, std::string ty
     }
 }
 
+void DeviceService::deserializeDevice(QXmlStreamReader & reader)
+{
+    const auto name = reader.attributes().value(Constants::NahdXml::xmlKeyName()).toString();
+    const auto typeId = reader.attributes().value(Constants::NahdXml::xmlKeyTypeId()).toString();
+    const auto slotAttr = reader.attributes().value(Constants::NahdXml::xmlKeySlot());
+    if (slotAttr.isNull() || slotAttr.toUInt() > Constants::deviceRackSize()) {
+        juzzlin::L(TAG).warning() << std::format("Skipping device {} ({}) with slot index {} out of bounds!", typeId.toStdString(), name.toStdString(), slotAttr.toUInt());
+        reader.skipCurrentElement();
+        return;
+    }
+    if (const auto dev = getDevice(name.toStdString(), typeId.toStdString()); dev) {
+        setDevice(slotAttr.toUInt(), dev);
+        dev->deserializeFromXml(reader);
+    } else {
+        juzzlin::L(TAG).error() << std::format("Failed to create device {} ({}) with slot index {}", typeId.toStdString(), name.toStdString(), slotAttr.toUInt());
+        reader.skipCurrentElement();
+    }
+}
+
+void DeviceService::deserializeEffectSend(QXmlStreamReader & reader)
+{
+    const auto deviceSlot = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyDeviceSlot(), false);
+    const auto effectSlot = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyEffectSlot(), false);
+    const auto value = Utils::Xml::readDoubleAttribute(reader, Constants::NahdXml::xmlKeyValue(), false);
+    if (deviceSlot.has_value() && effectSlot.has_value() && value.has_value()) {
+        if (const auto dev = m_audioEngine->device(static_cast<size_t>(deviceSlot.value()))) {
+            dev->setReverbSend(static_cast<size_t>(effectSlot.value()), static_cast<float>(value.value()));
+        }
+    }
+    reader.skipCurrentElement();
+}
+
+void DeviceService::deserializeSendEffects(QXmlStreamReader & reader)
+{
+    m_audioEngine->sendEffectRack().clear();
+    while (reader.readNextStartElement()) {
+        if (reader.name() == Constants::NahdXml::xmlKeyEffect()) {
+            m_audioEngine->sendEffectRack().deserializeEffect(reader);
+        } else if (reader.name() == Constants::NahdXml::xmlKeySend()) {
+            deserializeEffectSend(reader);
+        } else {
+            reader.skipCurrentElement();
+        }
+    }
+}
+
+void DeviceService::deserializeMasterEffects(QXmlStreamReader & reader)
+{
+    while (reader.readNextStartElement()) {
+        if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects()) {
+            m_audioEngine->insertEffectRack().deserializeEffectsFromXml(reader);
+        } else if (reader.name() == Constants::NahdXml::xmlKeySendEffects()) {
+            deserializeSendEffects(reader);
+        } else if (reader.name() == Constants::NahdXml::xmlKeyEffect()) {
+            // Backward compatibility: effects directly under MasterEffects
+            m_audioEngine->sendEffectRack().deserializeEffect(reader);
+        } else if (reader.name() == Constants::NahdXml::xmlKeySend()) {
+            // Backward compatibility: sends directly under MasterEffects
+            deserializeEffectSend(reader);
+        } else {
+            reader.skipCurrentElement();
+        }
+    }
+}
+
+float DeviceService::legacyPresetParameterValue(QXmlStreamReader & reader, const std::string & paramName, const QString & xmlValue) const
+{
+    const auto xmlMinAttr = reader.attributes().value(Constants::NahdXml::xmlKeyMin());
+    const auto xmlMaxAttr = reader.attributes().value(Constants::NahdXml::xmlKeyMax());
+    if (xmlMinAttr.isNull() || xmlMaxAttr.isNull()) {
+        return xmlValue.toFloat();
+    }
+
+    const auto xmlMin = xmlMinAttr.toInt();
+    const auto xmlMax = xmlMaxAttr.toInt();
+    const auto intValue = xmlValue.toInt();
+
+    std::shared_ptr<SynthDevice> synth;
+    for (const auto & name : internalDeviceNames()) {
+        if (const auto dev = std::dynamic_pointer_cast<SynthDevice>(device(name)); dev) {
+            synth = dev;
+            break;
+        }
+    }
+    if (!synth) {
+        return Parameter::xmlValueToInternal(intValue, xmlMin, xmlMax);
+    }
+
+    if (const auto p = synth->parameter(paramName); p && (p->get().isDiscrete() || p->get().isBoolean())) {
+        return static_cast<float>(intValue);
+    }
+    return Parameter::xmlValueToInternal(intValue, xmlMin, xmlMax);
+}
+
+void DeviceService::deserializePresetParameter(QXmlStreamReader & reader, SynthPreset & preset) const
+{
+    const auto paramName = Utils::Xml::readStringAttribute(reader, Constants::NahdXml::xmlKeyName()).value_or("").toStdString();
+    if (!paramName.empty()) {
+        const auto valueType = reader.attributes().value(Constants::NahdXml::xmlKeyParameterValueType()).toString();
+        const auto xmlValue = reader.attributes().value(Constants::NahdXml::xmlKeyValue()).toString();
+
+        if (valueType == Constants::NahdXml::xmlValueInt()) {
+            preset.parameters[paramName] = static_cast<float>(xmlValue.toInt());
+        } else if (valueType == Constants::NahdXml::xmlValueBool()) {
+            preset.parameters[paramName] = (xmlValue == Constants::NahdXml::xmlValueTrue() || xmlValue == "1") ? 1.0f : 0.0f;
+        } else if (valueType == Constants::NahdXml::xmlValueFloat()) {
+            const auto xmlMin = reader.attributes().value(Constants::NahdXml::xmlKeyMin()).toInt();
+            const auto xmlMax = reader.attributes().value(Constants::NahdXml::xmlKeyMax()).toInt();
+            preset.parameters[paramName] = Parameter::xmlValueToInternal(xmlValue.toInt(), xmlMin, xmlMax);
+        } else {
+            // Fallback for older files
+            preset.parameters[paramName] = legacyPresetParameterValue(reader, paramName, xmlValue);
+        }
+    }
+    reader.skipCurrentElement();
+}
+
+SynthPreset DeviceService::deserializePreset(QXmlStreamReader & reader) const
+{
+    const auto presetName = Utils::Xml::readStringAttribute(reader, Constants::NahdXml::xmlKeyName()).value_or("Init");
+    SynthPreset preset { presetName.toStdString(), {} };
+
+    while (reader.readNextStartElement()) {
+        if (reader.name() == Constants::NahdXml::xmlKeyParameter()) {
+            deserializePresetParameter(reader, preset);
+        } else {
+            reader.skipCurrentElement();
+        }
+    }
+    return preset;
+}
+
+void DeviceService::deserializeUserPresets(QXmlStreamReader & reader)
+{
+    while (reader.readNextStartElement()) {
+        if (reader.name() == Constants::NahdXml::xmlKeyPreset()) {
+            const auto index = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyIndex()).value_or(0);
+            m_synthUserPresets[index] = deserializePreset(reader);
+        } else {
+            reader.skipCurrentElement();
+        }
+    }
+    setSynthUserPresets(m_synthUserPresets);
+}
+
 void DeviceService::deserializeFromXml(QXmlStreamReader & reader)
 {
     while (reader.readNextStartElement()) {
         if (reader.name() == Constants::NahdXml::xmlKeyDevice()) {
-            const auto name = reader.attributes().value(Constants::NahdXml::xmlKeyName()).toString();
-            const auto typeId = reader.attributes().value(Constants::NahdXml::xmlKeyTypeId()).toString();
-            const auto slotAttr = reader.attributes().value(Constants::NahdXml::xmlKeySlot());
-            if (!slotAttr.isNull() && slotAttr.toUInt() <= Constants::deviceRackSize()) {
-                if (const auto dev = getDevice(name.toStdString(), typeId.toStdString()); dev) {
-                    setDevice(slotAttr.toUInt(), dev);
-                    dev->deserializeFromXml(reader);
-                } else {
-                    juzzlin::L(TAG).error() << std::format("Failed to create device {} ({}) with slot index {}", typeId.toStdString(), name.toStdString(), slotAttr.toUInt());
-                    reader.skipCurrentElement();
-                }
-            } else {
-                juzzlin::L(TAG).warning() << std::format("Skipping device {} ({}) with slot index {} out of bounds!", typeId.toStdString(), name.toStdString(), slotAttr.toUInt());
-                reader.skipCurrentElement();
-            }
+            deserializeDevice(reader);
         } else if (reader.name() == Constants::NahdXml::xmlKeySynth()) {
             // Handled via generic Device element if present in slot
         } else if (reader.name() == Constants::NahdXml::xmlKeyMasterEffects()) {
-            while (reader.readNextStartElement()) {
-                if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects()) {
-                    m_audioEngine->insertEffectRack().deserializeEffectsFromXml(reader);
-                } else if (reader.name() == Constants::NahdXml::xmlKeySendEffects()) {
-                    m_audioEngine->sendEffectRack().clear();
-                    while (reader.readNextStartElement()) {
-                        if (reader.name() == Constants::NahdXml::xmlKeyEffect()) {
-                            m_audioEngine->sendEffectRack().deserializeEffect(reader);
-                        } else if (reader.name() == Constants::NahdXml::xmlKeySend()) {
-                            const auto deviceSlot = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyDeviceSlot(), false);
-                            const auto effectSlot = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyEffectSlot(), false);
-                            const auto value = Utils::Xml::readDoubleAttribute(reader, Constants::NahdXml::xmlKeyValue(), false);
-                            if (deviceSlot.has_value() && effectSlot.has_value() && value.has_value()) {
-                                if (const auto dev = m_audioEngine->device(static_cast<size_t>(deviceSlot.value()))) {
-                                    dev->setReverbSend(static_cast<size_t>(effectSlot.value()), static_cast<float>(value.value()));
-                                }
-                            }
-                            reader.skipCurrentElement();
-                        } else {
-                            reader.skipCurrentElement();
-                        }
-                    }
-                } else if (reader.name() == Constants::NahdXml::xmlKeyEffect()) {
-                    // Backward compatibility: effects directly under MasterEffects
-                    m_audioEngine->sendEffectRack().deserializeEffect(reader);
-                } else if (reader.name() == Constants::NahdXml::xmlKeySend()) {
-                    // Backward compatibility: sends directly under MasterEffects
-                    const auto deviceSlot = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyDeviceSlot(), false);
-                    const auto effectSlot = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyEffectSlot(), false);
-                    const auto value = Utils::Xml::readDoubleAttribute(reader, Constants::NahdXml::xmlKeyValue(), false);
-                    if (deviceSlot.has_value() && effectSlot.has_value() && value.has_value()) {
-                        if (const auto dev = m_audioEngine->device(static_cast<size_t>(deviceSlot.value()))) {
-                            dev->setReverbSend(static_cast<size_t>(effectSlot.value()), static_cast<float>(value.value()));
-                        }
-                    }
-                    reader.skipCurrentElement();
-                } else {
-                    reader.skipCurrentElement();
-                }
-            }
+            deserializeMasterEffects(reader);
         } else if (reader.name() == Constants::NahdXml::xmlKeyUserPresets()) {
-            const auto typeId = Utils::Xml::readStringAttribute(reader, Constants::NahdXml::xmlKeyTypeId(), false);
-
-            while (reader.readNextStartElement()) {
-                if (reader.name() == Constants::NahdXml::xmlKeyPreset()) {
-                    const auto index = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyIndex()).value_or(0);
-                    const auto presetName = Utils::Xml::readStringAttribute(reader, Constants::NahdXml::xmlKeyName()).value_or("Init");
-                    SynthPreset preset { presetName.toStdString(), {} };
-
-                    while (reader.readNextStartElement()) {
-                        if (reader.name() == Constants::NahdXml::xmlKeyParameter()) {
-                            const auto paramName = Utils::Xml::readStringAttribute(reader, Constants::NahdXml::xmlKeyName()).value_or("").toStdString();
-                            if (!paramName.empty()) {
-                                const auto valueType = reader.attributes().value(Constants::NahdXml::xmlKeyParameterValueType()).toString();
-                                const auto xmlValue = reader.attributes().value(Constants::NahdXml::xmlKeyValue()).toString();
-
-                                if (valueType == Constants::NahdXml::xmlValueInt()) {
-                                    preset.parameters[paramName] = static_cast<float>(xmlValue.toInt());
-                                } else if (valueType == Constants::NahdXml::xmlValueBool()) {
-                                    preset.parameters[paramName] = (xmlValue == Constants::NahdXml::xmlValueTrue() || xmlValue == "1") ? 1.0f : 0.0f;
-                                } else if (valueType == Constants::NahdXml::xmlValueFloat()) {
-                                    const auto xmlMin = reader.attributes().value(Constants::NahdXml::xmlKeyMin()).toInt();
-                                    const auto xmlMax = reader.attributes().value(Constants::NahdXml::xmlKeyMax()).toInt();
-                                    preset.parameters[paramName] = Parameter::xmlValueToInternal(xmlValue.toInt(), xmlMin, xmlMax);
-                                } else {
-                                    // Fallback for older files
-                                    const auto xmlMinAttr = reader.attributes().value(Constants::NahdXml::xmlKeyMin());
-                                    const auto xmlMaxAttr = reader.attributes().value(Constants::NahdXml::xmlKeyMax());
-                                    if (!xmlMinAttr.isNull() && !xmlMaxAttr.isNull()) {
-                                        const auto xmlMin = xmlMinAttr.toInt();
-                                        const auto xmlMax = xmlMaxAttr.toInt();
-                                        const auto intValue = xmlValue.toInt();
-
-                                        std::shared_ptr<SynthDevice> synth;
-                                        for (const auto & name : internalDeviceNames()) {
-                                            if (const auto dev = std::dynamic_pointer_cast<SynthDevice>(device(name)); dev) {
-                                                synth = dev;
-                                                break;
-                                            }
-                                        }
-                                        if (synth) {
-                                            if (const auto p = synth->parameter(paramName); p) {
-                                                if (p->get().isDiscrete() || p->get().isBoolean()) {
-                                                    preset.parameters[paramName] = static_cast<float>(intValue);
-                                                } else {
-                                                    preset.parameters[paramName] = Parameter::xmlValueToInternal(intValue, xmlMin, xmlMax);
-                                                }
-                                            } else {
-                                                preset.parameters[paramName] = Parameter::xmlValueToInternal(intValue, xmlMin, xmlMax);
-                                            }
-                                        } else {
-                                            preset.parameters[paramName] = Parameter::xmlValueToInternal(intValue, xmlMin, xmlMax);
-                                        }
-                                    } else {
-                                        preset.parameters[paramName] = xmlValue.toFloat();
-                                    }
-                                }
-                            }
-                            reader.skipCurrentElement();
-                        } else {
-                            reader.skipCurrentElement();
-                        }
-                    }
-                    m_synthUserPresets[index] = std::move(preset);
-                } else {
-                    reader.skipCurrentElement();
-                }
-            }
-            setSynthUserPresets(m_synthUserPresets);
+            deserializeUserPresets(reader);
         } else {
             reader.skipCurrentElement();
         }
