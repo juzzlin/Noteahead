@@ -34,15 +34,42 @@ public:
       : m_name(name)
     {
     }
-    std::string name() const override { return m_name; }
-    std::string category() const override { return "Mock"; }
-    std::string typeName() const override { return "MockDevice"; }
-    std::string typeId() const override { return "mock-device-id"; }
 
-    void processMidiNoteOn(uint8_t, uint8_t) override { }
-    void processMidiNoteOff(uint8_t) override { }
-    void processMidiCc(uint8_t, uint8_t, uint8_t) override { }
-    void processMidiAllNotesOff() override { }
+    std::string name() const override
+    {
+        return m_name;
+    }
+
+    std::string category() const override
+    {
+        return "Mock";
+    }
+
+    std::string typeName() const override
+    {
+        return "MockDevice";
+    }
+
+    std::string typeId() const override
+    {
+        return "mock-device-id";
+    }
+
+    void processMidiNoteOn(uint8_t, uint8_t) override
+    {
+    }
+
+    void processMidiNoteOff(uint8_t) override
+    {
+    }
+
+    void processMidiCc(uint8_t, uint8_t, uint8_t) override
+    {
+    }
+
+    void processMidiAllNotesOff() override
+    {
+    }
 
     void processAudio(AudioContext & context) override
     {
@@ -54,7 +81,10 @@ public:
         }
     }
 
-    void setGenerateSignal(bool generate) { m_generateSignal = generate; }
+    void setGenerateSignal(bool generate)
+    {
+        m_generateSignal = generate;
+    }
 
 private:
     std::string m_name;
