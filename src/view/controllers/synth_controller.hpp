@@ -111,6 +111,9 @@ class SynthController : public DeviceController
     // Oscillator drift
     Q_PROPERTY(int oscillatorDrift READ oscillatorDrift WRITE setOscillatorDrift NOTIFY oscillatorDriftChanged)
 
+    // Cross modulation
+    Q_PROPERTY(int crossModDepth READ crossModDepth WRITE setCrossModDepth NOTIFY crossModDepthChanged)
+
     // Delay
     Q_PROPERTY(int delayType READ delayType WRITE setDelayType NOTIFY delayTypeChanged)
     Q_PROPERTY(int delayTime READ delayTime WRITE setDelayTime NOTIFY delayTimeChanged)
@@ -250,6 +253,9 @@ public:
     int oscillatorDrift() const;
     void setOscillatorDrift(int drift);
 
+    int crossModDepth() const;
+    void setCrossModDepth(int depth);
+
     int delayType() const;
     void setDelayType(int type);
     int delayTime() const;
@@ -326,6 +332,7 @@ signals:
     void panSpreadChanged();
     void pitchBendRangeChanged();
     void oscillatorDriftChanged();
+    void crossModDepthChanged();
     void delayTypeChanged();
     void delayTimeChanged();
     void delayFeedbackChanged();

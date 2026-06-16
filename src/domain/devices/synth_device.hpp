@@ -212,6 +212,10 @@ public:
     float oscillatorDrift() const;
     void setOscillatorDrift(float drift);
 
+    // Cross modulation (VCO1 -> VCO2 audio-rate FM)
+    float crossModDepth() const;
+    void setCrossModDepth(float depth);
+
     // Delay parameters
     DelayEffect::Type delayType() const;
     void setDelayType(DelayEffect::Type type);
@@ -333,6 +337,7 @@ private:
     float m_manualHpfCutoff { 0.0f };
 
     float m_oscillatorDrift { 0.0f };
+    float m_crossModDepth { 0.0f };
 
     DelayEffect m_delay;
     DelayEffect::Type m_delayType { DelayEffect::Type::Stereo };

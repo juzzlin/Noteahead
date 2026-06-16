@@ -10,6 +10,8 @@ New features:
     rates per voice for an analog feel
   - Exposed as a "Drift" knob under "Analog Character" in the effects tab
 
+* Add Cross Mod Depth to Synth VCO2
+
 * Implement zero-delay audio side-chaining
 
 Bug fixes:

@@ -60,6 +60,9 @@ private slots:
     void test_oscillatorDrift_zero_shouldProduceSameFrequency();
     void test_oscillatorDrift_nonZero_shouldModulateFrequency();
     void test_oscillatorDrift_serialization_shouldPreserveState();
+    void test_crossModDepth_zero_shouldProduceSameFrequency();
+    void test_crossModDepth_nonZero_shouldModulateVco2Frequency();
+    void test_crossModDepth_serialization_shouldPreserveState();
 };
 
 } // namespace noteahead

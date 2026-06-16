@@ -1112,6 +1112,11 @@ QString xmlKeyOscillatorDrift()
     return "oscillatorDrift";
 }
 
+QString xmlKeyCrossModDepth()
+{
+    return "crossModDepth";
+}
+
 QString xmlKeyBandType(size_t bandIndex)
 {
     return QString { "band%1Type" }.arg(bandIndex + 1);

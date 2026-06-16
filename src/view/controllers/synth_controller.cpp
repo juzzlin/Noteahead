@@ -662,6 +662,19 @@ void SynthController::setOscillatorDrift(int drift)
     }
 }
 
+// Cross modulation
+int SynthController::crossModDepth() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->crossModDepth() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setCrossModDepth(int depth)
+{
+    if (m_synth) {
+        m_synth->setCrossModDepth(depth / Constants::uiInternalScaling());
+    }
+}
+
 // Delay
 int SynthController::delayType() const
 {
@@ -838,6 +851,7 @@ void SynthController::requestSettings()
     emit sampleRateChanged();
 
     emit oscillatorDriftChanged();
+    emit crossModDepthChanged();
     emit delayTypeChanged();
     emit delayTimeChanged();
     emit delayFeedbackChanged();

@@ -309,6 +309,7 @@ QString xmlKeyDelaySyncDivision();
 QString xmlKeyDelayFeedbackLpf();
 QString xmlKeyDelayFeedbackHpf();
 QString xmlKeyOscillatorDrift();
+QString xmlKeyCrossModDepth();
 
 QString xmlKeyBandType(size_t bandIndex);
 QString xmlKeyBandFreq(size_t bandIndex);

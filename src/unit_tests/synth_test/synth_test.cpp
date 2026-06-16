@@ -1110,6 +1110,101 @@ void SynthTest::test_oscillatorDrift_serialization_shouldPreserveState()
     }
 }
 
+void SynthTest::test_crossModDepth_zero_shouldProduceSameFrequency()
+{
+    const auto setup = [](SynthDevice & synth) {
+        synth.setVco1Sync(true); // Deterministic phase
+        synth.setMixVco1(0.0f);
+        synth.setMixVco2(1.0f);
+        synth.setMixVco3(0.0f);
+        synth.setMultiLevel(0.0f);
+        synth.setLpfCutoff(1.0f);
+        synth.setVolume(1.0f);
+        synth.setGain(0.5f);
+        synth.setCrossModDepth(0.0f);
+    };
+
+    const int frameCount = 512;
+
+    std::vector<double> buf1(static_cast<size_t>(frameCount) * 2, 0.0);
+    {
+        SynthDevice synth { "Test Synth" };
+        setup(synth);
+        synth.processMidiNoteOn(60, 100);
+        AudioContext ctx { std::span(buf1.data(), buf1.size()), static_cast<uint32_t>(frameCount), 44100 };
+        synth.processAudio(ctx);
+    }
+
+    std::vector<double> buf2(static_cast<size_t>(frameCount) * 2, 0.0);
+    {
+        SynthDevice synth { "Test Synth" };
+        setup(synth);
+        synth.processMidiNoteOn(60, 100);
+        AudioContext ctx { std::span(buf2.data(), buf2.size()), static_cast<uint32_t>(frameCount), 44100 };
+        synth.processAudio(ctx);
+    }
+
+    for (int i = 0; i < frameCount * 2; i++) {
+        QCOMPARE(buf1[i], buf2[i]);
+    }
+}
+
+void SynthTest::test_crossModDepth_nonZero_shouldModulateVco2Frequency()
+{
+    const auto render = [](float crossModDepth) {
+        SynthDevice synth { "Test Synth" };
+        synth.setVco1Sync(true);
+        synth.setMixVco1(0.0f); // VCO1 is the silent modulator
+        synth.setMixVco2(1.0f);
+        synth.setMixVco3(0.0f);
+        synth.setMultiLevel(0.0f);
+        synth.setLpfCutoff(1.0f);
+        synth.setVolume(1.0f);
+        synth.setGain(0.5f);
+        synth.setCrossModDepth(crossModDepth);
+        synth.processMidiNoteOn(60, 100);
+
+        const int frameCount = 4096;
+        std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+        AudioContext ctx { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
+        synth.processAudio(ctx);
+        return buffer;
+    };
+
+    const auto bufferNoMod = render(0.0f);
+    const auto bufferModulated = render(1.0f);
+
+    bool differs = false;
+    for (size_t i = 0; i < bufferNoMod.size(); i++) {
+        if (std::abs(bufferNoMod[i] - bufferModulated[i]) > 0.001) {
+            differs = true;
+            break;
+        }
+    }
+    QVERIFY(differs);
+}
+
+void SynthTest::test_crossModDepth_serialization_shouldPreserveState()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        synth.setCrossModDepth(0.6f);
+        QXmlStreamWriter writer(&data);
+        synth.serializeToXml(writer);
+    }
+
+    {
+        SynthDevice synth { "Test Synth" };
+        QXmlStreamReader reader(data);
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        synth.deserializeFromXml(reader);
+        QCOMPARE(synth.crossModDepth(), 0.6f);
+    }
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SynthTest)

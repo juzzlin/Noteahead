@@ -61,4 +61,10 @@ ColumnLayout {
         checked: synthController.vco2Sync
         onToggled: synthController.vco2Sync = checked
     }
+    Knob {
+        label: qsTr("Cross Mod Depth")
+        value: synthController.crossModDepth
+        onMoved: v => synthController.crossModDepth = v
+        Layout.fillWidth: true
+    }
 }

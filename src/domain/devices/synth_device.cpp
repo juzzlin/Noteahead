@@ -163,6 +163,7 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyPitchBendRange().toStdString(), 2.0f, 0, 24, 2, 1, Parameter::Type::Discrete });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyOscillatorDrift().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyCrossModDepth().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayType().toStdString(), 0.0f, 0, 3, 0, 1, Parameter::Type::Discrete });
 
@@ -628,11 +629,17 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
 
     double vco1Val = 0.0;
     double oldPhase1 = voice.vco1.phase();
-    if (m_mixVco1 >= 0.001f) {
+    if (m_mixVco1 >= 0.001f || m_crossModDepth >= 0.001f) {
         voice.vco1.setFrequency(vco1Freq);
         voice.vco1.setShape(std::clamp(m_vco1Shape + mods.shapeMod, 0.0, 1.0));
         oldPhase1 = voice.vco1.phase();
         vco1Val = voice.vco1.nextSample();
+    }
+
+    if (m_crossModDepth >= 0.001f) {
+        // Audio-rate FM: VCO1's instantaneous output modulates VCO2's frequency,
+        // mirroring the Minilogue XD's one-way Cross Mod Depth control.
+        vco2Freq *= std::exp2(vco1Val * m_crossModDepth * 4.0);
     }
 
     double vco2Val = 0.0;
@@ -808,6 +815,8 @@ void SynthDevice::syncParameters()
 
     if (const auto p = parameter(Constants::NahdXml::xmlKeyOscillatorDrift().toStdString()); p)
         m_oscillatorDrift = p->get().value();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyCrossModDepth().toStdString()); p)
+        m_crossModDepth = p->get().value();
 
     if (const auto p = parameter(Constants::NahdXml::xmlKeyDelayType().toStdString()); p)
         m_delayType = static_cast<DelayEffect::Type>(p->get().xmlValue());
@@ -2116,6 +2125,26 @@ void SynthDevice::setOscillatorDrift(float drift)
         std::lock_guard<std::recursive_mutex> lock { mutex() };
         if (const auto p = parameter(Constants::NahdXml::xmlKeyOscillatorDrift().toStdString()); p) {
             p->get().setValue(drift);
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+
+float SynthDevice::crossModDepth() const
+{
+    return m_crossModDepth;
+}
+
+void SynthDevice::setCrossModDepth(float depth)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyCrossModDepth().toStdString()); p) {
+            p->get().setValue(depth);
             syncParameters();
             changed = true;
         }
