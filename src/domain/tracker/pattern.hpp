@@ -24,9 +24,6 @@
 
 #include "domain/tracker/note_data.hpp"
 
-class QXmlStreamReader;
-class QXmlStreamWriter;
-
 namespace noteahead {
 
 class AutomationService;
@@ -35,6 +32,8 @@ class Event;
 class Instrument;
 class InstrumentSettings;
 class Line;
+class ProjectReader;
+class ProjectWriter;
 class Track;
 struct Position;
 
@@ -124,9 +123,9 @@ public:
     using AutomationServiceS = std::shared_ptr<AutomationService>;
     EventList renderToEvents(AutomationServiceS automationService, size_t startTick, size_t ticksPerLine, size_t linesPerBeat) const;
 
-    void serializeToXml(QXmlStreamWriter & writer) const;
+    void serializeToXml(ProjectWriter & writer) const;
     using PatternU = std::unique_ptr<Pattern>;
-    static PatternU deserializeFromXml(QXmlStreamReader & reader);
+    static PatternU deserializeFromXml(ProjectReader & reader);
 
     std::unique_ptr<Pattern> copyWithoutData(size_t newPatternIndex) const;
     void copySettingsFrom(const Pattern & other);
@@ -134,7 +133,7 @@ public:
     PatternConfig patternConfig() const;
 
 private:
-    static void deserializeTracks(QXmlStreamReader & reader, Pattern & pattern);
+    static void deserializeTracks(ProjectReader & reader, Pattern & pattern);
 
     void initialize(size_t lineCount, size_t trackCount);
     void initialize(const PatternConfig & config);

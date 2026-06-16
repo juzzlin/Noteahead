@@ -13,39 +13,43 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef DATA_SERVICE_HPP
-#define DATA_SERVICE_HPP
+#ifndef PROJECT_READER_HPP
+#define PROJECT_READER_HPP
 
-#include <QString>
-#include <QTemporaryDir>
-#include <map>
-#include <memory>
+class QString;
+class QStringView;
+class QVariant;
 
 namespace noteahead {
 
-class ProjectReader;
-class ProjectWriter;
-
-class DataService
+class ProjectReader
 {
 public:
-    DataService();
-    ~DataService();
+    enum class TokenType
+    {
+        StartElement,
+        EndElement,
+        Other
+    };
 
-    DataService(const DataService &) = delete;
-    DataService & operator=(const DataService &) = delete;
+    virtual ~ProjectReader() = default;
 
-    void extractDataFromXml(const QString & xml);
-    void extractData(ProjectReader & reader);
-    QString resolvePath(const QString & nahdPath) const;
-    void serializeDataToXml(ProjectWriter & writer, const std::map<QString, QString> & embedFiles) const;
-    void clear();
+    virtual bool readNextStartElement() = 0;
+    virtual TokenType readNext() = 0;
+    virtual bool isStartElement() const = 0;
+    virtual bool isEndElement() const = 0;
+    virtual void skipCurrentElement() = 0;
 
-private:
-    std::unique_ptr<QTemporaryDir> m_tempDir;
-    std::map<QString, QString> m_extractedFiles;
+    virtual QStringView name() const = 0;
+    virtual QVariant attribute(const QString & name) const = 0;
+
+    virtual bool atEnd() const = 0;
+    virtual bool hasError() const = 0;
+    virtual QString errorString() const = 0;
+
+    virtual QString readElementText() = 0;
 };
 
 } // namespace noteahead
 
-#endif // DATA_SERVICE_HPP
+#endif // PROJECT_READER_HPP

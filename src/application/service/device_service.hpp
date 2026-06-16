@@ -28,14 +28,13 @@
 #include <memory>
 #include <string>
 
-class QXmlStreamReader;
-class QXmlStreamWriter;
-
 namespace noteahead {
 
 class AudioEngine;
-class DataService;
 class AudioFileReader;
+class DataService;
+class ProjectReader;
+class ProjectWriter;
 class SynthDevice;
 
 class DeviceService : public QObject
@@ -77,17 +76,17 @@ public:
 
     void setProjectPath(const std::string & projectPath);
 
-    void serializeToXml(QXmlStreamWriter & writer) const;
-    void deserializeFromXml(QXmlStreamReader & reader);
+    void serializeToXml(ProjectWriter & writer) const;
+    void deserializeFromXml(ProjectReader & reader);
 
     using SamplerAudioFileReaderFactory = std::function<std::unique_ptr<AudioFileReader>()>;
     void setSamplerAudioFileReaderFactory(SamplerAudioFileReaderFactory factory);
 
     Q_INVOKABLE bool exportDeviceSettings(int slotIndex, const QString & filePath) const;
-    bool exportDeviceSettings(int slotIndex, QXmlStreamWriter & writer) const;
+    bool exportDeviceSettings(int slotIndex, ProjectWriter & writer) const;
 
     Q_INVOKABLE bool importDeviceSettings(int slotIndex, const QString & filePath);
-    bool importDeviceSettings(int slotIndex, QXmlStreamReader & reader);
+    bool importDeviceSettings(int slotIndex, ProjectReader & reader);
 
     struct DeviceTypeInfo
     {
@@ -96,7 +95,7 @@ public:
     };
 
     DeviceTypeInfo peekDeviceTypeInfo(const QString & filePath) const;
-    DeviceTypeInfo peekDeviceTypeInfo(QXmlStreamReader & reader) const;
+    DeviceTypeInfo peekDeviceTypeInfo(ProjectReader & reader) const;
 
     std::map<QString, QString> getFilesToEmbed() const;
 
@@ -114,22 +113,22 @@ private:
 
     std::shared_ptr<SynthDevice> findFirstSynthDevice() const;
 
-    void serializeDevices(QXmlStreamWriter & writer) const;
-    void serializeMasterEffects(QXmlStreamWriter & writer) const;
-    void serializeSendEffects(QXmlStreamWriter & writer) const;
-    void serializeReverbSends(QXmlStreamWriter & writer) const;
-    void serializeUserPresets(QXmlStreamWriter & writer) const;
-    void serializePreset(QXmlStreamWriter & writer, int index, const SynthPreset & preset, const std::shared_ptr<SynthDevice> & synth) const;
-    void serializePresetParameter(QXmlStreamWriter & writer, const std::string & paramName, float value, const std::shared_ptr<SynthDevice> & synth) const;
+    void serializeDevices(ProjectWriter & writer) const;
+    void serializeMasterEffects(ProjectWriter & writer) const;
+    void serializeSendEffects(ProjectWriter & writer) const;
+    void serializeReverbSends(ProjectWriter & writer) const;
+    void serializeUserPresets(ProjectWriter & writer) const;
+    void serializePreset(ProjectWriter & writer, int index, const SynthPreset & preset, const std::shared_ptr<SynthDevice> & synth) const;
+    void serializePresetParameter(ProjectWriter & writer, const std::string & paramName, float value, const std::shared_ptr<SynthDevice> & synth) const;
 
-    void deserializeDevice(QXmlStreamReader & reader);
-    void deserializeMasterEffects(QXmlStreamReader & reader);
-    void deserializeSendEffects(QXmlStreamReader & reader);
-    void deserializeEffectSend(QXmlStreamReader & reader);
-    void deserializeUserPresets(QXmlStreamReader & reader);
-    SynthPreset deserializePreset(QXmlStreamReader & reader) const;
-    void deserializePresetParameter(QXmlStreamReader & reader, SynthPreset & preset) const;
-    float legacyPresetParameterValue(QXmlStreamReader & reader, const std::string & paramName, const QString & xmlValue) const;
+    void deserializeDevice(ProjectReader & reader);
+    void deserializeMasterEffects(ProjectReader & reader);
+    void deserializeSendEffects(ProjectReader & reader);
+    void deserializeEffectSend(ProjectReader & reader);
+    void deserializeUserPresets(ProjectReader & reader);
+    SynthPreset deserializePreset(ProjectReader & reader) const;
+    void deserializePresetParameter(ProjectReader & reader, SynthPreset & preset) const;
+    float legacyPresetParameterValue(ProjectReader & reader, const std::string & paramName, const QString & xmlValue) const;
 
     AudioEngineS m_audioEngine;
     DataServiceS m_dataService;

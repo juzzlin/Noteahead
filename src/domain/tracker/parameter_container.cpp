@@ -16,11 +16,13 @@
 #include "domain/tracker/parameter_container.hpp"
 
 #include "common/constants.hpp"
+#include "common/xml/project_reader.hpp"
+#include "common/xml/project_writer.hpp"
 #include "contrib/SimpleLogger/src/simple_logger.hpp"
 
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 #include <iomanip>
+
+#include <QVariant>
 
 namespace noteahead {
 
@@ -68,7 +70,7 @@ void ParameterContainer::reset()
     }
 }
 
-void ParameterContainer::serializeParametersToXml(QXmlStreamWriter & writer) const
+void ParameterContainer::serializeParametersToXml(ProjectWriter & writer) const
 {
     for (const auto & [name, p] : m_parameters) {
         writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
@@ -93,7 +95,7 @@ void ParameterContainer::serializeParametersToXml(QXmlStreamWriter & writer) con
     }
 }
 
-void ParameterContainer::deserializeParametersFromXml(QXmlStreamReader & reader)
+void ParameterContainer::deserializeParametersFromXml(ProjectReader & reader)
 {
     while (reader.readNextStartElement()) {
         if (reader.name() == Constants::NahdXml::xmlKeyParameter()) {
@@ -104,27 +106,26 @@ void ParameterContainer::deserializeParametersFromXml(QXmlStreamReader & reader)
     }
 }
 
-void ParameterContainer::deserializeParameter(QXmlStreamReader & reader)
+void ParameterContainer::deserializeParameter(ProjectReader & reader)
 {
     static const std::string TAG { "ParameterContainer" };
-    const auto attrs = reader.attributes();
-    auto name = attrs.value(Constants::NahdXml::xmlKeyName()).toString().toStdString();
+    auto name = reader.attribute(Constants::NahdXml::xmlKeyName()).toString().toStdString();
 
     if (const auto it = m_legacyNameMap.find(name); it != m_legacyNameMap.end()) {
         juzzlin::L(TAG).warning() << "Mapping legacy parameter name " << std::quoted(name) << " to " << std::quoted(it->second);
         name = it->second;
     }
 
-    const auto valueType = attrs.value(Constants::NahdXml::xmlKeyParameterValueType()).toString();
-    const auto xmlValueStr = attrs.value(Constants::NahdXml::xmlKeyValue()).toString();
+    const auto valueType = reader.attribute(Constants::NahdXml::xmlKeyParameterValueType()).toString();
+    const auto xmlValueStr = reader.attribute(Constants::NahdXml::xmlKeyValue()).toString();
 
     std::optional<int> xmlMin;
-    if (attrs.hasAttribute(Constants::NahdXml::xmlKeyMin())) {
-        xmlMin = attrs.value(Constants::NahdXml::xmlKeyMin()).toInt();
+    if (const auto minAttr = reader.attribute(Constants::NahdXml::xmlKeyMin()); minAttr.isValid()) {
+        xmlMin = minAttr.toInt();
     }
     std::optional<int> xmlMax;
-    if (attrs.hasAttribute(Constants::NahdXml::xmlKeyMax())) {
-        xmlMax = attrs.value(Constants::NahdXml::xmlKeyMax()).toInt();
+    if (const auto maxAttr = reader.attribute(Constants::NahdXml::xmlKeyMax()); maxAttr.isValid()) {
+        xmlMax = maxAttr.toInt();
     }
 
     if (auto p = parameter(name); p) {

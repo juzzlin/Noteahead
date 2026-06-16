@@ -22,10 +22,10 @@
 #include <mutex>
 #include <unordered_map>
 
-class QXmlStreamReader;
-class QXmlStreamWriter;
-
 namespace noteahead {
+
+class ProjectReader;
+class ProjectWriter;
 
 class MixerService : public QObject
 {
@@ -71,8 +71,8 @@ public:
 
     bool hasSoloedColumns(quint64 trackIndex) const;
 
-    void deserializeFromXml(QXmlStreamReader & reader);
-    void serializeToXml(QXmlStreamWriter & writer);
+    void deserializeFromXml(ProjectReader & reader);
+    void serializeToXml(ProjectWriter & writer);
 
 signals:
     void columnMuted(quint64 trackIndex, quint64 columnIndex, bool muted);

@@ -26,10 +26,10 @@
 #include "domain/midi/pitch_bend_automation.hpp"
 #include "domain/tracker/event.hpp"
 
-class QXmlStreamReader;
-class QXmlStreamWriter;
-
 namespace noteahead {
+
+class ProjectReader;
+class ProjectWriter;
 
 struct Position;
 
@@ -87,8 +87,8 @@ public:
     EventList renderToEventsByLine(size_t pattern, size_t track, size_t column, size_t line, size_t tick) const;
     EventList renderToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine, size_t linesPerBeat) const;
 
-    void deserializeFromXml(QXmlStreamReader & reader);
-    void serializeToXml(QXmlStreamWriter & writer) const;
+    void deserializeFromXml(ProjectReader & reader);
+    void serializeToXml(ProjectWriter & writer) const;
 
 public slots:
     void deleteMidiCcAutomation(const MidiCcAutomation & automationToDelete);

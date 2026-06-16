@@ -17,16 +17,15 @@
 
 #include "common/constants.hpp"
 #include "common/utils.hpp"
+#include "common/xml/project_reader.hpp"
+#include "common/xml/project_writer.hpp"
 #include "contrib/SimpleLogger/src/simple_logger.hpp"
-
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 
 namespace noteahead {
 
 static const auto TAG = "InstrumentSettings";
 
-void InstrumentSettings::serializeToXml(QXmlStreamWriter & writer) const
+void InstrumentSettings::serializeToXml(ProjectWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyInstrumentSettings());
 
@@ -69,7 +68,7 @@ void InstrumentSettings::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeEndElement(); // Settings
 }
 
-InstrumentSettings::InstrumentSettingsU InstrumentSettings::deserializeFromXml(QXmlStreamReader & reader)
+InstrumentSettings::InstrumentSettingsU InstrumentSettings::deserializeFromXml(ProjectReader & reader)
 {
     juzzlin::L(TAG).trace() << "Reading InstrumentSettings";
 

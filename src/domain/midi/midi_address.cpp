@@ -17,9 +17,8 @@
 
 #include "common/constants.hpp"
 #include "common/utils.hpp"
-
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
+#include "common/xml/project_reader.hpp"
+#include "common/xml/project_writer.hpp"
 
 namespace noteahead {
 
@@ -71,14 +70,14 @@ void MidiAddress::setGroup(uint8_t group)
     m_group = group;
 }
 
-void MidiAddress::serializeToXml(QXmlStreamWriter & writer) const
+void MidiAddress::serializeToXml(ProjectWriter & writer) const
 {
     writer.writeAttribute(Constants::NahdXml::xmlKeyPortName(), m_portName);
     writer.writeAttribute(Constants::NahdXml::xmlKeyChannel(), QString::number(m_channel));
     writer.writeAttribute(Constants::NahdXml::xmlKeyGroup(), QString::number(m_group));
 }
 
-MidiAddress::MidiAddressU MidiAddress::deserializeFromXml(QXmlStreamReader & reader)
+MidiAddress::MidiAddressU MidiAddress::deserializeFromXml(ProjectReader & reader)
 {
     const auto portName = *Utils::Xml::readStringAttribute(reader, Constants::NahdXml::xmlKeyPortName());
     const auto channel = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyChannel(), false).value_or(0);

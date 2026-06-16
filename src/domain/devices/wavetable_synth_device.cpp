@@ -18,10 +18,10 @@
 #include "common/constants.hpp"
 #include "common/parameter_mapper.hpp"
 #include "common/utils.hpp"
+#include "common/xml/project_reader.hpp"
+#include "common/xml/project_writer.hpp"
 #include "infra/midi/midi_cc_mapping.hpp"
 
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 #include <algorithm>
 #include <cmath>
 
@@ -628,7 +628,7 @@ void WavetableSynthDevice::syncParameters()
     }
 }
 
-void WavetableSynthDevice::serializeToXml(QXmlStreamWriter & writer) const
+void WavetableSynthDevice::serializeToXml(ProjectWriter & writer) const
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
@@ -646,7 +646,7 @@ void WavetableSynthDevice::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeEndElement();
 }
 
-void WavetableSynthDevice::deserializeFromXml(QXmlStreamReader & reader)
+void WavetableSynthDevice::deserializeFromXml(ProjectReader & reader)
 {
     {
         const std::lock_guard<std::recursive_mutex> lock { mutex() };
@@ -655,11 +655,11 @@ void WavetableSynthDevice::deserializeFromXml(QXmlStreamReader & reader)
 
         while (!reader.atEnd() && !reader.hasError()) {
             const auto token = reader.readNext();
-            if (token == QXmlStreamReader::EndElement && reader.name() == Constants::NahdXml::xmlKeyDevice()) {
+            if (token == ProjectReader::TokenType::EndElement && reader.name() == Constants::NahdXml::xmlKeyDevice()) {
                 break;
             }
 
-            if (token == QXmlStreamReader::StartElement) {
+            if (token == ProjectReader::TokenType::StartElement) {
                 if (reader.name() == Constants::NahdXml::xmlKeyParameters()) {
                     deserializeParametersFromXml(reader);
                 } else if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects()) {

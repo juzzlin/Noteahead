@@ -17,12 +17,12 @@
 
 #include "common/constants.hpp"
 #include "domain/devices/bass_synth_device.hpp"
+#include "infra/xml/nahd_xml_reader.hpp"
+#include "infra/xml/nahd_xml_writer.hpp"
 #include "view/controllers/bass_synth_controller.hpp"
 
 #include <QSignalSpy>
 #include <QTest>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -63,14 +63,14 @@ void BassSynthControllerTest::test_deserialization_shouldUpdateHzValues()
     device->setLpfCutoff(0.1f);
 
     QString xml;
-    QXmlStreamWriter writer { &xml };
+    NahdXmlWriter writer { xml };
     device->serializeToXml(writer);
 
     device->setLpfCutoff(0.9f);
 
     QSignalSpy lpfSpy { &controller, &BassSynthController::lpfCutoffChanged };
 
-    QXmlStreamReader reader { xml };
+    NahdXmlReader reader { xml };
     if (reader.readNextStartElement()) {
         device->deserializeFromXml(reader);
     }

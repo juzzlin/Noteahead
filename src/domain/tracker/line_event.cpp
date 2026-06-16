@@ -16,10 +16,10 @@
 #include "domain/tracker/line_event.hpp"
 
 #include "common/constants.hpp"
+#include "common/xml/project_reader.hpp"
+#include "common/xml/project_writer.hpp"
 #include "contrib/SimpleLogger/src/simple_logger.hpp"
 #include "domain/tracker/instrument_settings.hpp"
-
-#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -49,7 +49,7 @@ bool LineEvent::hasData() const
     return m_instrumentSettings != nullptr;
 }
 
-void LineEvent::serializeToXml(QXmlStreamWriter & writer) const
+void LineEvent::serializeToXml(ProjectWriter & writer) const
 {
     if (hasData()) {
         writer.writeStartElement(Constants::NahdXml::xmlKeyLineEvent());
@@ -60,7 +60,7 @@ void LineEvent::serializeToXml(QXmlStreamWriter & writer) const
     }
 }
 
-LineEvent::LineEventU LineEvent::deserializeFromXml(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex)
+LineEvent::LineEventU LineEvent::deserializeFromXml(ProjectReader & reader, size_t trackIndex, size_t columnIndex)
 {
     juzzlin::L(TAG).trace() << "Reading LineEvent started";
     auto lineEvent = std::make_unique<LineEvent>(trackIndex, columnIndex);

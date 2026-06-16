@@ -23,10 +23,10 @@
 
 #include <map>
 
-class QXmlStreamReader;
-class QXmlStreamWriter;
-
 namespace noteahead {
+
+class ProjectReader;
+class ProjectWriter;
 
 class SideChainService : public QObject
 {
@@ -74,8 +74,8 @@ public:
 
     void clear();
 
-    void deserializeFromXml(QXmlStreamReader & reader);
-    void serializeToXml(QXmlStreamWriter & writer) const;
+    void deserializeFromXml(ProjectReader & reader);
+    void serializeToXml(ProjectWriter & writer) const;
 
 signals:
     void settingsChanged(quint64 trackIndex);

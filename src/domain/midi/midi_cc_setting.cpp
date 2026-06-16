@@ -17,9 +17,8 @@
 
 #include "common/constants.hpp"
 #include "common/utils.hpp"
-
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
+#include "common/xml/project_reader.hpp"
+#include "common/xml/project_writer.hpp"
 
 namespace noteahead {
 
@@ -64,7 +63,7 @@ void MidiCcSetting::setValue(uint32_t value)
     m_value = value;
 }
 
-void MidiCcSetting::serializeToXml(QXmlStreamWriter & writer) const
+void MidiCcSetting::serializeToXml(ProjectWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyMidiCcSetting());
     writer.writeAttribute(Constants::NahdXml::xmlKeyEnabled(), m_enabled ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
@@ -73,7 +72,7 @@ void MidiCcSetting::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeEndElement();
 }
 
-std::unique_ptr<MidiCcSetting> MidiCcSetting::deserializeFromXml(QXmlStreamReader & reader)
+std::unique_ptr<MidiCcSetting> MidiCcSetting::deserializeFromXml(ProjectReader & reader)
 {
     const auto enabled = static_cast<bool>(Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeyEnabled(), false).value_or(false));
     const auto controller = static_cast<uint8_t>(*Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyController()));

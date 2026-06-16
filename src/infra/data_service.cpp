@@ -16,12 +16,14 @@
 #include "data_service.hpp"
 
 #include "common/constants.hpp"
+#include "common/xml/project_writer.hpp"
 #include "contrib/SimpleLogger/src/simple_logger.hpp"
+#include "infra/xml/nahd_xml_reader.hpp"
 
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <QXmlStreamReader>
+#include <QVariant>
 
 namespace noteahead {
 
@@ -45,10 +47,10 @@ void DataService::extractDataFromXml(const QString & xml)
 
     juzzlin::L(TAG).info() << "Temporary directory created: " << m_tempDir->path().toStdString();
 
-    QXmlStreamReader reader { xml };
+    NahdXmlReader reader { xml };
     while (!reader.atEnd()) {
         if (reader.isStartElement() && reader.name() == Constants::NahdXml::xmlKeyData()) {
-            const auto nahdPath = reader.attributes().value(Constants::NahdXml::xmlKeySamplePath()).toString();
+            const auto nahdPath = reader.attribute(Constants::NahdXml::xmlKeySamplePath()).toString();
             const auto base64Data = reader.readElementText().toUtf8();
             const auto decodedData = QByteArray::fromBase64(base64Data);
 
@@ -77,7 +79,7 @@ void DataService::extractDataFromXml(const QString & xml)
     }
 }
 
-void DataService::extractData(QXmlStreamReader & reader)
+void DataService::extractData(ProjectReader & reader)
 {
     if (!m_tempDir) {
         m_tempDir = std::make_unique<QTemporaryDir>();
@@ -89,7 +91,7 @@ void DataService::extractData(QXmlStreamReader & reader)
     }
 
     if (reader.isStartElement() && reader.name() == Constants::NahdXml::xmlKeyData()) {
-        const auto nahdPath = reader.attributes().value(Constants::NahdXml::xmlKeySamplePath()).toString();
+        const auto nahdPath = reader.attribute(Constants::NahdXml::xmlKeySamplePath()).toString();
         const auto base64Data = reader.readElementText().toUtf8();
         const auto decodedData = QByteArray::fromBase64(base64Data);
 
@@ -120,7 +122,7 @@ QString DataService::resolvePath(const QString & nahdPath) const
     return nahdPath;
 }
 
-void DataService::serializeDataToXml(QXmlStreamWriter & writer, const std::map<QString, QString> & embedFiles) const
+void DataService::serializeDataToXml(ProjectWriter & writer, const std::map<QString, QString> & embedFiles) const
 {
     for (const auto & [nahdPath, realPath] : embedFiles) {
         QFile file { realPath };

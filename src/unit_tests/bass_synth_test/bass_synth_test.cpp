@@ -17,10 +17,10 @@
 
 #include "common/constants.hpp"
 #include "domain/devices/bass_synth_device.hpp"
+#include "infra/xml/nahd_xml_reader.hpp"
+#include "infra/xml/nahd_xml_writer.hpp"
 
 #include <QTest>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -32,11 +32,11 @@ void BassSynthTest::test_serialization_shouldRestoreParameters()
     synth.setSubLevel(0.5f);
 
     QString xml;
-    QXmlStreamWriter writer { &xml };
+    NahdXmlWriter writer { xml };
     synth.serializeToXml(writer);
 
     BassSynthDevice synth2 { "Restored BassSynth" };
-    QXmlStreamReader reader { xml };
+    NahdXmlReader reader { xml };
     if (reader.readNextStartElement()) {
         synth2.deserializeFromXml(reader);
     }

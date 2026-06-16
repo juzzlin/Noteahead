@@ -18,15 +18,14 @@
 #include "application/position.hpp"
 #include "common/constants.hpp"
 #include "common/utils.hpp"
+#include "common/xml/project_reader.hpp"
+#include "common/xml/project_writer.hpp"
 #include "contrib/SimpleLogger/src/simple_logger.hpp"
 #include "domain/tracker/column_settings.hpp"
 #include "domain/tracker/event.hpp"
 #include "domain/tracker/line.hpp"
 #include "domain/tracker/line_event.hpp"
 #include "domain/tracker/note_data.hpp"
-
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 
 #include <algorithm>
 
@@ -232,7 +231,7 @@ void Column::setInstrumentSettings(const Position & position, InstrumentSettings
     m_lines.at(position.line)->setLineEvent(lineEvent);
 }
 
-void Column::serializeToXml(QXmlStreamWriter & writer) const
+void Column::serializeToXml(ProjectWriter & writer) const
 {
     if (!hasData()) {
         return;
@@ -259,7 +258,7 @@ void Column::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeEndElement(); // Column
 }
 
-Column::ColumnU Column::deserializeFromXml(QXmlStreamReader & reader, size_t trackIndex)
+Column::ColumnU Column::deserializeFromXml(ProjectReader & reader, size_t trackIndex)
 {
     juzzlin::L(TAG).trace() << "Reading Column started";
     const auto index = *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyIndex());
@@ -285,7 +284,7 @@ Column::ColumnU Column::deserializeFromXml(QXmlStreamReader & reader, size_t tra
     return column;
 }
 
-void Column::deserializeLines(QXmlStreamReader & reader, size_t trackIndex, Column & column)
+void Column::deserializeLines(ProjectReader & reader, size_t trackIndex, Column & column)
 {
     juzzlin::L(TAG).trace() << "Reading Lines started";
     while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyLines()))) {

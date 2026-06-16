@@ -19,10 +19,10 @@
 #include <QString>
 #include <cstdint>
 
-class QXmlStreamWriter;
-class QXmlStreamReader;
-
 namespace noteahead {
+
+class ProjectReader;
+class ProjectWriter;
 
 class MidiCcSetting
 {
@@ -39,8 +39,8 @@ public:
     uint32_t value() const;
     void setValue(uint32_t value);
 
-    void serializeToXml(QXmlStreamWriter & writer) const;
-    static std::unique_ptr<MidiCcSetting> deserializeFromXml(QXmlStreamReader & reader);
+    void serializeToXml(ProjectWriter & writer) const;
+    static std::unique_ptr<MidiCcSetting> deserializeFromXml(ProjectReader & reader);
 
     QString toString() const;
 

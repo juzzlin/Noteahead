@@ -26,23 +26,22 @@
 #include <set>
 #include <utility>
 
-class QXmlStreamReader;
-class QXmlStreamWriter;
-
 namespace noteahead {
 
-class Song;
+class AudioService;
 class AutomationService;
+class ColumnSettings;
 class DataService;
 class Instrument;
 class InstrumentRequest;
 class InstrumentSettings;
 class Line;
+class MixerService;
+class ProjectReader;
+class ProjectWriter;
 class SelectionService;
 class SettingsService;
-class ColumnSettings;
-class MixerService;
-class AudioService;
+class Song;
 
 class EditorService : public QObject
 {
@@ -349,17 +348,17 @@ signals:
     void lineDataChanged(const Position & position);
     void linesPerBeatChanged();
 
-    void automationSerializationRequested(QXmlStreamWriter & xmlStreamWriter);
-    void automationDeserializationRequested(QXmlStreamReader & xmlStreamReader);
-    void devicesSerializationRequested(QXmlStreamWriter & xmlStreamWriter);
-    void devicesDeserializationRequested(QXmlStreamReader & xmlStreamReader);
-    void dataSerializationRequested(QXmlStreamWriter & xmlStreamWriter);
-    void mixerSerializationRequested(QXmlStreamWriter & xmlStreamWriter);
-    void mixerDeserializationRequested(QXmlStreamReader & xmlStreamReader);
-    void sideChainSerializationRequested(QXmlStreamWriter & xmlStreamWriter);
-    void sideChainDeserializationRequested(QXmlStreamReader & xmlStreamReader);
-    void audioRecorderSerializationRequested(QXmlStreamWriter & xmlStreamWriter);
-    void audioRecorderDeserializationRequested(QXmlStreamReader & xmlStreamReader);
+    void automationSerializationRequested(ProjectWriter & xmlStreamWriter);
+    void automationDeserializationRequested(ProjectReader & xmlStreamReader);
+    void devicesSerializationRequested(ProjectWriter & xmlStreamWriter);
+    void devicesDeserializationRequested(ProjectReader & xmlStreamReader);
+    void dataSerializationRequested(ProjectWriter & xmlStreamWriter);
+    void mixerSerializationRequested(ProjectWriter & xmlStreamWriter);
+    void mixerDeserializationRequested(ProjectReader & xmlStreamReader);
+    void sideChainSerializationRequested(ProjectWriter & xmlStreamWriter);
+    void sideChainDeserializationRequested(ProjectReader & xmlStreamReader);
+    void audioRecorderSerializationRequested(ProjectWriter & xmlStreamWriter);
+    void audioRecorderDeserializationRequested(ProjectReader & xmlStreamReader);
 
     void noteDataAtPositionChanged(const Position & position);
     void patternAtCurrentSongPositionChanged(); // For the play order widget
@@ -400,7 +399,7 @@ private:
     void deleteNoteDataAtPosition(const Position & position, bool shiftNotes);
     void insertNoteAtPosition(const Position & position);
 
-    SongS deserializeProject(QXmlStreamReader & reader);
+    SongS deserializeProject(ProjectReader & reader);
     void doVersionCheck(QString fileFormatVersion);
 
     void logPosition() const;

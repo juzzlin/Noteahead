@@ -17,6 +17,8 @@
 
 #include "common/constants.hpp"
 #include "common/utils.hpp"
+#include "common/xml/project_reader.hpp"
+#include "common/xml/project_writer.hpp"
 #include "infra/audio/backend/audio_file_reader.hpp"
 #include "infra/audio/backend/sndfile_reader.hpp"
 #include "infra/midi/midi_cc_mapping.hpp"
@@ -30,8 +32,7 @@
 
 #include <QDir>
 #include <QFileInfo>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
+#include <QVariant>
 
 namespace noteahead {
 
@@ -798,7 +799,7 @@ bool SamplerDevice::isFinished(uint8_t note) const
     return true;
 }
 
-void SamplerDevice::serializeToXml(QXmlStreamWriter & writer) const
+void SamplerDevice::serializeToXml(ProjectWriter & writer) const
 {
     std::lock_guard<std::recursive_mutex> lock { mutex() };
     writer.writeStartElement(Constants::NahdXml::xmlKeyDevice());
@@ -840,7 +841,7 @@ void SamplerDevice::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeEndElement(); // Device
 }
 
-void SamplerDevice::deserializeFromXml(QXmlStreamReader & reader)
+void SamplerDevice::deserializeFromXml(ProjectReader & reader)
 {
     deserializeAttributesFromXml(reader);
 
@@ -856,7 +857,7 @@ void SamplerDevice::deserializeFromXml(QXmlStreamReader & reader)
             while (reader.readNextStartElement()) {
                 if (reader.name() == Constants::NahdXml::xmlKeySample()) {
                     const auto note = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyNote());
-                    const auto path = reader.attributes().value(Constants::NahdXml::xmlKeySamplePath()).toString();
+                    const auto path = reader.attribute(Constants::NahdXml::xmlKeySamplePath()).toString();
                     if (note.has_value()) {
                         loadSample(static_cast<uint8_t>(note.value()), path.toStdString());
                         std::lock_guard<std::recursive_mutex> lock { mutex() };

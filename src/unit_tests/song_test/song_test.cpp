@@ -26,7 +26,6 @@
 #include "domain/tracker/song.hpp"
 
 #include <QTest>
-#include <QXmlStreamWriter>
 
 namespace noteahead {
 

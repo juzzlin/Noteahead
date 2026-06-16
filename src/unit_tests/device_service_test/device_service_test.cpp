@@ -23,14 +23,15 @@
 #include "domain/effects/effect_factory.hpp"
 #include "infra/audio/audio_engine.hpp"
 #include "infra/data_service.hpp"
+#include "infra/xml/nahd_xml_reader.hpp"
+#include "infra/xml/nahd_xml_writer.hpp"
 
 #include <QBuffer>
 #include <QFile>
 #include <QSignalSpy>
 #include <QTemporaryFile>
 #include <QTest>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
+#include <QVariant>
 
 namespace noteahead {
 
@@ -138,15 +139,15 @@ void DeviceServiceTest::test_exportDeviceSettings_shouldGenerateCorrectXml()
 
     QFile file { filePath };
     QVERIFY(file.open(QIODevice::ReadOnly));
-    QXmlStreamReader reader { &file };
+    NahdXmlReader reader { file };
 
     QVERIFY(reader.readNextStartElement());
     QCOMPARE(reader.name(), Constants::NahdXml::xmlKeySettings());
-    QCOMPARE(reader.attributes().value(Constants::NahdXml::xmlKeyFileFormatVersion()), Constants::fileFormatVersion());
+    QCOMPARE(reader.attribute(Constants::NahdXml::xmlKeyFileFormatVersion()), Constants::fileFormatVersion());
 
     QVERIFY(reader.readNextStartElement());
     QCOMPARE(reader.name(), Constants::NahdXml::xmlKeyDevice());
-    QCOMPARE(reader.attributes().value(Constants::NahdXml::xmlKeyTypeId()), QString::fromStdString(SynthDevice::typeIdString()));
+    QCOMPARE(reader.attribute(Constants::NahdXml::xmlKeyTypeId()), QString::fromStdString(SynthDevice::typeIdString()));
 }
 
 void DeviceServiceTest::test_importDeviceSettings_shouldRestoreParameters()
@@ -280,13 +281,13 @@ void DeviceServiceTest::test_peekDeviceTypeInfo_synth_shouldReturnCorrectTypeInf
     QByteArray data;
     QBuffer buffer { &data };
     buffer.open(QIODevice::WriteOnly);
-    QXmlStreamWriter writer { &buffer };
+    NahdXmlWriter writer { buffer };
     writer.setAutoFormatting(true);
     QVERIFY(service.exportDeviceSettings(0, writer));
     buffer.close();
 
     buffer.open(QIODevice::ReadOnly);
-    QXmlStreamReader reader { &buffer };
+    NahdXmlReader reader { buffer };
     const auto info = service.peekDeviceTypeInfo(reader);
     buffer.close();
 

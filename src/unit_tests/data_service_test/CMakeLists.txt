@@ -5,6 +5,8 @@ set(SRC
     ${NAME}.hpp
     ../../infra/data_service.cpp
     ../../common/constants.cpp
+    ../../infra/xml/nahd_xml_reader.cpp
+    ../../infra/xml/nahd_xml_writer.cpp
 )
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})

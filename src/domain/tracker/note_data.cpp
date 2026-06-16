@@ -17,11 +17,10 @@
 
 #include "common/constants.hpp"
 #include "common/utils.hpp"
+#include "common/xml/project_reader.hpp"
+#include "common/xml/project_writer.hpp"
 
 #include <sstream>
-
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -100,7 +99,7 @@ void NoteData::setDelay(uint8_t ticks)
     m_delay = ticks;
 }
 
-void NoteData::serializeToXml(QXmlStreamWriter & writer) const
+void NoteData::serializeToXml(ProjectWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyNoteData());
 
@@ -118,7 +117,7 @@ void NoteData::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeEndElement(); // NoteData
 }
 
-NoteData::NoteDataS NoteData::deserializeFromXml(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex)
+NoteData::NoteDataS NoteData::deserializeFromXml(ProjectReader & reader, size_t trackIndex, size_t columnIndex)
 {
     const auto typeString = Utils::Xml::readStringAttribute(reader, Constants::NahdXml::xmlKeyType());
     const auto type = typeString == Constants::NahdXml::xmlKeyNoteOn() ? NoteData::Type::NoteOn : NoteData::Type::NoteOff;

@@ -27,14 +27,15 @@
 #include "domain/effects/effect_factory.hpp"
 #include "domain/effects/effect_rack.hpp"
 #include "domain/effects/panner_effect.hpp"
+#include "infra/xml/nahd_xml_reader.hpp"
+#include "infra/xml/nahd_xml_writer.hpp"
 #include "knob_controller.hpp"
 
 #include <QDateTime>
 #include <QFile>
 #include <QStringList>
+#include <QVariant>
 #include <QVariantMap>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -576,7 +577,7 @@ void EffectRackController::exportEffectSettings(int index, const QUrl & fileUrl)
     if (!file.open(QIODevice::WriteOnly)) {
         return;
     }
-    QXmlStreamWriter writer { &file };
+    NahdXmlWriter writer { file };
     writer.setAutoFormatting(true);
     writer.setAutoFormattingIndent(1);
 
@@ -607,7 +608,7 @@ void EffectRackController::confirmImportEffectSettings(int index, const QUrl & f
     if (!file.open(QIODevice::ReadOnly)) {
         return;
     }
-    QXmlStreamReader reader { &file };
+    NahdXmlReader reader { file };
     if (const auto rack = currentRack(); rack) {
         if (rack->get().importEffectSettings(static_cast<size_t>(index), reader)) {
             m_editorService->setIsModified(true);
@@ -623,13 +624,13 @@ EffectRackController::EffectTypeInfo EffectRackController::peekEffectTypeInfo(co
     if (!file.open(QIODevice::ReadOnly)) {
         return {};
     }
-    QXmlStreamReader reader { &file };
+    NahdXmlReader reader { file };
     while (!reader.atEnd() && !reader.hasError()) {
-        if (reader.readNext() == QXmlStreamReader::StartElement) {
+        if (reader.readNext() == ProjectReader::TokenType::StartElement) {
             if (reader.name() == Constants::NahdXml::xmlKeyEffect()) {
                 return {
-                    reader.attributes().value(Constants::NahdXml::xmlKeyTypeId()).toString(),
-                    reader.attributes().value(Constants::NahdXml::xmlKeyType()).toString()
+                    reader.attribute(Constants::NahdXml::xmlKeyTypeId()).toString(),
+                    reader.attribute(Constants::NahdXml::xmlKeyType()).toString()
                 };
             }
         }
@@ -647,13 +648,13 @@ void EffectRackController::exportSettings(const QUrl & fileUrl)
     if (!file.open(QIODevice::WriteOnly)) {
         return;
     }
-    QXmlStreamWriter writer { &file };
+    NahdXmlWriter writer { file };
     writer.setAutoFormatting(true);
     writer.setAutoFormattingIndent(1);
     exportSettings(writer);
 }
 
-bool EffectRackController::exportSettings(QXmlStreamWriter & writer) const
+bool EffectRackController::exportSettings(ProjectWriter & writer) const
 {
     const auto rack = currentRack();
     if (!rack) {
@@ -679,21 +680,21 @@ void EffectRackController::importSettings(const QUrl & fileUrl)
     if (!file.open(QIODevice::ReadOnly)) {
         return;
     }
-    QXmlStreamReader reader { &file };
+    NahdXmlReader reader { file };
     if (importSettings(reader)) {
         m_revision++;
         emit revisionChanged();
     }
 }
 
-bool EffectRackController::importSettings(QXmlStreamReader & reader)
+bool EffectRackController::importSettings(ProjectReader & reader)
 {
     const auto rack = currentRack();
     if (!rack) {
         return false;
     }
     while (!reader.atEnd() && !reader.hasError()) {
-        if (reader.readNext() == QXmlStreamReader::StartElement) {
+        if (reader.readNext() == ProjectReader::TokenType::StartElement) {
             if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects()) {
                 rack->get().deserializeEffectsFromXml(reader);
                 return !reader.hasError();

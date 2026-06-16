@@ -17,6 +17,8 @@
 
 #include "../position.hpp"
 #include "common/constants.hpp"
+#include "common/xml/project_reader.hpp"
+#include "common/xml/project_writer.hpp"
 #include "contrib/SimpleLogger/src/simple_logger.hpp"
 #include "domain/midi/midi_cc_data.hpp"
 #include "domain/midi/pitch_bend_data.hpp"
@@ -27,9 +29,6 @@
 #include <cmath> // For std::sin and M_PI
 #include <random>
 #include <ranges>
-
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -673,7 +672,7 @@ void AutomationService::notifyChangedLinesMerged(const PitchBendAutomation & aut
     notifyChangedLines(location.pattern(), location.track(), location.column(), std::min(interpolation1.line0, interpolation2.line0), std::max(interpolation1.line1, interpolation2.line1));
 }
 
-void AutomationService::deserializeFromXml(QXmlStreamReader & reader)
+void AutomationService::deserializeFromXml(ProjectReader & reader)
 {
     juzzlin::L(TAG).info() << "Deserializing";
     m_automations = {};
@@ -693,7 +692,7 @@ void AutomationService::deserializeFromXml(QXmlStreamReader & reader)
     }
 }
 
-void AutomationService::serializeToXml(QXmlStreamWriter & writer) const
+void AutomationService::serializeToXml(ProjectWriter & writer) const
 {
     juzzlin::L(TAG).info() << "Serializing";
 

@@ -4,6 +4,8 @@ set(HEADER_FILES
     parameter_mapper.hpp
     utils.hpp
     waveform_generator.hpp
+    xml/project_reader.hpp
+    xml/project_writer.hpp
 )
 
 set(SOURCE_FILES

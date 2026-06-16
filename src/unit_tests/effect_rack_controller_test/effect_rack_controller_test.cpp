@@ -12,13 +12,13 @@
 #include "domain/effects/panner_effect.hpp"
 #include "infra/audio/audio_engine.hpp"
 #include "infra/data_service.hpp"
+#include "infra/xml/nahd_xml_reader.hpp"
+#include "infra/xml/nahd_xml_writer.hpp"
 #include "view/controllers/effect_rack_controller.hpp"
 
 #include <QBuffer>
 #include <QSignalSpy>
 #include <QTest>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 #include <memory>
 
 namespace noteahead {
@@ -199,7 +199,7 @@ void EffectRackControllerTest::test_exportSettings_shouldSerializeEffects()
     QByteArray data;
     QBuffer buffer { &data };
     buffer.open(QIODevice::WriteOnly);
-    QXmlStreamWriter writer { &buffer };
+    NahdXmlWriter writer { buffer };
     QVERIFY(controller.exportSettings(writer));
     buffer.close();
 
@@ -221,7 +221,7 @@ void EffectRackControllerTest::test_importSettings_shouldRestoreEffects()
     QByteArray data;
     QBuffer buffer { &data };
     buffer.open(QIODevice::WriteOnly);
-    QXmlStreamWriter writer { &buffer };
+    NahdXmlWriter writer { buffer };
     QVERIFY(controller.exportSettings(writer));
     buffer.close();
 
@@ -229,7 +229,7 @@ void EffectRackControllerTest::test_importSettings_shouldRestoreEffects()
     QCOMPARE(controller.effectType(0), QString {});
 
     buffer.open(QIODevice::ReadOnly);
-    QXmlStreamReader reader { &buffer };
+    NahdXmlReader reader { buffer };
     QVERIFY(controller.importSettings(reader));
     buffer.close();
 
@@ -252,7 +252,7 @@ void EffectRackControllerTest::test_importEffectSettings_matchingType_shouldEmit
     const auto reverb = std::make_shared<ReverbEffect>();
     QFile file { filePath };
     file.open(QIODevice::WriteOnly);
-    QXmlStreamWriter writer { &file };
+    NahdXmlWriter writer { file };
     writer.writeStartDocument();
     writer.writeStartElement(Constants::NahdXml::xmlKeySettings());
     writer.writeStartElement(Constants::NahdXml::xmlKeyEffect());
@@ -291,7 +291,7 @@ void EffectRackControllerTest::test_importEffectSettings_differentType_shouldEmi
     const auto compressor = std::make_shared<CompressorEffect>();
     QFile file { filePath };
     file.open(QIODevice::WriteOnly);
-    QXmlStreamWriter writer { &file };
+    NahdXmlWriter writer { file };
     writer.writeStartDocument();
     writer.writeStartElement(Constants::NahdXml::xmlKeySettings());
     writer.writeStartElement(Constants::NahdXml::xmlKeyEffect());
@@ -326,7 +326,7 @@ void EffectRackControllerTest::test_confirmImportEffectSettings_shouldImportAndN
     const auto reverb = std::make_shared<ReverbEffect>();
     QFile file { filePath };
     file.open(QIODevice::WriteOnly);
-    QXmlStreamWriter writer { &file };
+    NahdXmlWriter writer { file };
     writer.writeStartDocument();
     writer.writeStartElement(Constants::NahdXml::xmlKeySettings());
     writer.writeStartElement(Constants::NahdXml::xmlKeyEffect());

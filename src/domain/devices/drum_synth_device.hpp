@@ -63,8 +63,8 @@ public:
     void reset() override;
     void resetAudio() override;
 
-    void serializeToXml(QXmlStreamWriter & writer) const override;
-    void deserializeFromXml(QXmlStreamReader & reader) override;
+    void serializeToXml(ProjectWriter & writer) const override;
+    void deserializeFromXml(ProjectReader & reader) override;
 
     int selectedVoice() const;
     void setSelectedVoice(int index);

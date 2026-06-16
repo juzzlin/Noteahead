@@ -23,6 +23,8 @@ set(HEADER_FILES
     midi/midi_port.hpp
     settings.hpp
     data_service.hpp
+    xml/nahd_xml_reader.hpp
+    xml/nahd_xml_writer.hpp
 )
 
 set(SOURCE_FILES
@@ -48,6 +50,8 @@ set(SOURCE_FILES
     midi/midi_port.cpp
     settings.cpp
     data_service.cpp
+    xml/nahd_xml_reader.cpp
+    xml/nahd_xml_writer.cpp
 )
 
 add_library(${InfraLibName} OBJECT ${HEADER_FILES} ${SOURCE_FILES})

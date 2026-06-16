@@ -105,6 +105,8 @@ set(SRC
     ../../infra/audio/backend/sndfile_reader.cpp
     ../../infra/audio/real_time_worker_pool.cpp
     ../../infra/data_service.cpp
+    ../../infra/xml/nahd_xml_reader.cpp
+    ../../infra/xml/nahd_xml_writer.cpp
     ../../infra/midi/midi_cc_mapping.cpp
     ../../infra/settings.cpp
 )

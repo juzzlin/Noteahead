@@ -18,11 +18,10 @@
 #include "common/constants.hpp"
 #include "common/parameter_mapper.hpp"
 #include "common/utils.hpp"
+#include "common/xml/project_reader.hpp"
+#include "common/xml/project_writer.hpp"
 
 #include <cmath>
-
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -51,7 +50,7 @@ std::vector<MidiCcController> Device::availableMidiCcControllers() const
     return {};
 }
 
-void Device::serializeToXml(QXmlStreamWriter & writer) const
+void Device::serializeToXml(ProjectWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyDevice());
     serializeAttributesToXml(writer);
@@ -67,7 +66,7 @@ void Device::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeEndElement(); // Device
 }
 
-void Device::deserializeFromXml(QXmlStreamReader & reader)
+void Device::deserializeFromXml(ProjectReader & reader)
 {
     {
         std::lock_guard<std::recursive_mutex> lock { m_mutex };
@@ -75,11 +74,11 @@ void Device::deserializeFromXml(QXmlStreamReader & reader)
 
         while (!reader.atEnd() && !reader.hasError()) {
             const auto token = reader.readNext();
-            if (token == QXmlStreamReader::EndElement && reader.name() == Constants::NahdXml::xmlKeyDevice()) {
+            if (token == ProjectReader::TokenType::EndElement && reader.name() == Constants::NahdXml::xmlKeyDevice()) {
                 break;
             }
 
-            if (token == QXmlStreamReader::StartElement) {
+            if (token == ProjectReader::TokenType::StartElement) {
                 if (reader.name() == Constants::NahdXml::xmlKeyParameters()) {
                     deserializeParametersFromXml(reader);
                 } else if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects()) {
@@ -373,7 +372,7 @@ void Device::setManualReverbSend(size_t index, float send)
     }
 }
 
-void Device::serializeAttributesToXml(QXmlStreamWriter & writer) const
+void Device::serializeAttributesToXml(ProjectWriter & writer) const
 {
     writer.writeAttribute(Constants::NahdXml::xmlKeySlot(), QString::number(m_id));
     writer.writeAttribute(Constants::NahdXml::xmlKeyName(), QString::fromStdString(name()));
@@ -382,7 +381,7 @@ void Device::serializeAttributesToXml(QXmlStreamWriter & writer) const
     writer.writeAttribute(Constants::NahdXml::xmlKeyTypeId(), QString::fromStdString(typeId()));
 }
 
-void Device::deserializeAttributesFromXml(QXmlStreamReader & reader)
+void Device::deserializeAttributesFromXml(ProjectReader & reader)
 {
     if (const auto slot = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeySlot(), false); slot.has_value()) {
         m_id = slot.value();

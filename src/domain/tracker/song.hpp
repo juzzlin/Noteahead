@@ -32,9 +32,6 @@
 #include "domain/tracker/instrument.hpp"
 #include "domain/tracker/note_data.hpp"
 
-class QXmlStreamReader;
-class QXmlStreamWriter;
-
 namespace noteahead {
 
 class AutomationService;
@@ -49,6 +46,8 @@ class LineEvent;
 class NoteData;
 class Pattern;
 class PlayOrder;
+class ProjectReader;
+class ProjectWriter;
 class SideChainService;
 class Track;
 
@@ -206,19 +205,19 @@ public:
     //! To decouple MiserService from Song. I don't want Song to know anything about MixerService.
     //! However, concept-wise the mixer settings should still be Song-specific as track configurations may vary.
     //! The same applies to AutomationSerializationCallback.
-    using MixerSerializationCallback = std::function<void(QXmlStreamWriter & writer)>;
-    using AutomationSerializationCallback = std::function<void(QXmlStreamWriter & writer)>;
-    using DevicesSerializationCallback = std::function<void(QXmlStreamWriter & writer)>;
-    using SideChainSerializationCallback = std::function<void(QXmlStreamWriter & writer)>;
-    using AudioRecorderSerializationCallback = std::function<void(QXmlStreamWriter & writer)>;
-    void serializeToXml(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback, DevicesSerializationCallback devicesSerializationCallback, SideChainSerializationCallback sideChainSerializationCallback, AudioRecorderSerializationCallback audioRecorderSerializationCallback) const;
-    void serializeToXmlAsTemplate(QXmlStreamWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback) const;
-    using MixerDeserializationCallback = std::function<void(QXmlStreamReader & reader)>;
-    using AutomationDeserializationCallback = std::function<void(QXmlStreamReader & reader)>;
-    using DevicesDeserializationCallback = std::function<void(QXmlStreamReader & reader)>;
-    using SideChainDeserializationCallback = std::function<void(QXmlStreamReader & reader)>;
-    using AudioRecorderDeserializationCallback = std::function<void(QXmlStreamReader & reader)>;
-    void deserializeFromXml(QXmlStreamReader & reader, MixerDeserializationCallback mixerDeserializationCallback, AutomationDeserializationCallback automationDeserializationCallback, DevicesDeserializationCallback devicesDeserializationCallback, SideChainDeserializationCallback sideChainDeserializationCallback, AudioRecorderDeserializationCallback audioRecorderDeserializationCallback);
+    using MixerSerializationCallback = std::function<void(ProjectWriter & writer)>;
+    using AutomationSerializationCallback = std::function<void(ProjectWriter & writer)>;
+    using DevicesSerializationCallback = std::function<void(ProjectWriter & writer)>;
+    using SideChainSerializationCallback = std::function<void(ProjectWriter & writer)>;
+    using AudioRecorderSerializationCallback = std::function<void(ProjectWriter & writer)>;
+    void serializeToXml(ProjectWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback, DevicesSerializationCallback devicesSerializationCallback, SideChainSerializationCallback sideChainSerializationCallback, AudioRecorderSerializationCallback audioRecorderSerializationCallback) const;
+    void serializeToXmlAsTemplate(ProjectWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback) const;
+    using MixerDeserializationCallback = std::function<void(ProjectReader & reader)>;
+    using AutomationDeserializationCallback = std::function<void(ProjectReader & reader)>;
+    using DevicesDeserializationCallback = std::function<void(ProjectReader & reader)>;
+    using SideChainDeserializationCallback = std::function<void(ProjectReader & reader)>;
+    using AudioRecorderDeserializationCallback = std::function<void(ProjectReader & reader)>;
+    void deserializeFromXml(ProjectReader & reader, MixerDeserializationCallback mixerDeserializationCallback, AutomationDeserializationCallback automationDeserializationCallback, DevicesDeserializationCallback devicesDeserializationCallback, SideChainDeserializationCallback sideChainDeserializationCallback, AudioRecorderDeserializationCallback audioRecorderDeserializationCallback);
 
     size_t positionToTick(size_t position) const;
     std::chrono::milliseconds tickToTime(size_t tick) const;
@@ -229,9 +228,9 @@ public:
 private:
     void load(const std::string & filename);
 
-    void deserializePlayOrder(QXmlStreamReader & reader);
-    void deserializePosition(QXmlStreamReader & reader);
-    void deserializePatterns(QXmlStreamReader & reader);
+    void deserializePlayOrder(ProjectReader & reader);
+    void deserializePosition(ProjectReader & reader);
+    void deserializePatterns(ProjectReader & reader);
 
     using TrackAndColumn = std::pair<int, int>;
     using ActiveNoteMap = std::map<TrackAndColumn, std::set<uint8_t>>;

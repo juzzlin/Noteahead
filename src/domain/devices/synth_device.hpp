@@ -30,10 +30,10 @@
 #include <random>
 #include <vector>
 
-class QXmlStreamReader;
-class QXmlStreamWriter;
-
 namespace noteahead {
+
+class ProjectReader;
+class ProjectWriter;
 
 class SynthDevice : public Device
 {
@@ -90,8 +90,8 @@ public:
 
     double voiceGlideFrequency(size_t index) const;
 
-    void serializeToXml(QXmlStreamWriter & writer) const override;
-    void deserializeFromXml(QXmlStreamReader & reader) override;
+    void serializeToXml(ProjectWriter & writer) const override;
+    void deserializeFromXml(ProjectReader & reader) override;
 
     // Parameter accessors (VCO1)
     PolyBlepOscillator::Waveform vco1Waveform() const;

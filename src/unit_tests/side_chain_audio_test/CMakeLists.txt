@@ -35,6 +35,8 @@ set(SOURCE_FILES
     ../../domain/effects/volume_effect.cpp
     ../../infra/audio/audio_engine.cpp
     ../../infra/audio/real_time_worker_pool.cpp
+    ../../infra/xml/nahd_xml_reader.cpp
+    ../../infra/xml/nahd_xml_writer.cpp
 )
 
 qt_add_executable(${TEST_NAME} ${SOURCE_FILES})

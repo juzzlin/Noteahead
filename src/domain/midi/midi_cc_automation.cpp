@@ -17,9 +17,10 @@
 
 #include "common/constants.hpp"
 #include "common/utils.hpp"
+#include "common/xml/project_reader.hpp"
+#include "common/xml/project_writer.hpp"
 
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
+#include <QVariant>
 
 namespace noteahead {
 
@@ -134,7 +135,7 @@ QString MidiCcAutomation::toString() const
            QString::number(enabled()));
 }
 
-void MidiCcAutomation::serializeToXml(QXmlStreamWriter & writer) const
+void MidiCcAutomation::serializeToXml(ProjectWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyMidiCcAutomation());
     writer.writeAttribute(Constants::NahdXml::xmlKeyController(), QString::number(m_controller));
@@ -165,12 +166,12 @@ void MidiCcAutomation::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeEndElement(); // Automation
 }
 
-MidiCcAutomation::MidiCcAutomationU MidiCcAutomation::deserializeFromXml(QXmlStreamReader & reader)
+MidiCcAutomation::MidiCcAutomationU MidiCcAutomation::deserializeFromXml(ProjectReader & reader)
 {
-    const quint8 controller = static_cast<quint8>(reader.attributes().value(Constants::NahdXml::xmlKeyController()).toUInt());
-    const quint8 eventsPerBeat = static_cast<quint8>(reader.attributes().value(Constants::NahdXml::xmlKeyEventsPerBeat()).toUInt());
-    const quint8 lineOffset = static_cast<quint8>(reader.attributes().value(Constants::NahdXml::xmlKeyLineOffset()).toUInt());
-    const QString comment = reader.attributes().value(Constants::NahdXml::xmlKeyComment()).toString();
+    const quint8 controller = static_cast<quint8>(reader.attribute(Constants::NahdXml::xmlKeyController()).toUInt());
+    const quint8 eventsPerBeat = static_cast<quint8>(reader.attribute(Constants::NahdXml::xmlKeyEventsPerBeat()).toUInt());
+    const quint8 lineOffset = static_cast<quint8>(reader.attribute(Constants::NahdXml::xmlKeyLineOffset()).toUInt());
+    const QString comment = reader.attribute(Constants::NahdXml::xmlKeyComment()).toString();
     const bool enabled = Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeyEnabled(), false).value_or(true);
     AutomationLocation::AutomationLocationU location = std::make_unique<AutomationLocation>();
     MidiCcAutomation::InterpolationParameters interpolationParameters {};
@@ -182,16 +183,13 @@ MidiCcAutomation::MidiCcAutomationU MidiCcAutomation::deserializeFromXml(QXmlStr
             if (!reader.name().compare(Constants::NahdXml::xmlKeyLocation())) {
                 location = AutomationLocation::deserializeFromXml(reader);
             } else if (!reader.name().compare(Constants::NahdXml::xmlKeyInterpolation())) {
-                const auto attributes = reader.attributes();
-                interpolationParameters.line0 = attributes.value(Constants::NahdXml::xmlKeyLine0()).toULongLong();
-                interpolationParameters.line1 = attributes.value(Constants::NahdXml::xmlKeyLine1()).toULongLong();
-                interpolationParameters.value0 = static_cast<quint8>(attributes.value(Constants::NahdXml::xmlKeyValue0()).toUInt());
-                interpolationParameters.value1 = static_cast<quint8>(attributes.value(Constants::NahdXml::xmlKeyValue1()).toUInt());
+                interpolationParameters.line0 = reader.attribute(Constants::NahdXml::xmlKeyLine0()).toULongLong();
+                interpolationParameters.line1 = reader.attribute(Constants::NahdXml::xmlKeyLine1()).toULongLong();
+                interpolationParameters.value0 = static_cast<quint8>(reader.attribute(Constants::NahdXml::xmlKeyValue0()).toUInt());
+                interpolationParameters.value1 = static_cast<quint8>(reader.attribute(Constants::NahdXml::xmlKeyValue1()).toUInt());
             } else if (!reader.name().compare(Constants::NahdXml::xmlKeyModulation())) {
-                const auto attributes = reader.attributes();
-                if (attributes.hasAttribute(Constants::NahdXml::xmlKeyType())) {
-                    const auto type = attributes.value(Constants::NahdXml::xmlKeyType());
-                    if (!type.compare(Constants::NahdXml::xmlValueRandom())) {
+                if (const auto type = reader.attribute(Constants::NahdXml::xmlKeyType()); type.isValid()) {
+                    if (type.toString() == Constants::NahdXml::xmlValueRandom()) {
                         modulationParameters.type = ModulationParameters::ModulationType::Random;
                     } else {
                         modulationParameters.type = ModulationParameters::ModulationType::SineWave;
@@ -200,22 +198,22 @@ MidiCcAutomation::MidiCcAutomationU MidiCcAutomation::deserializeFromXml(QXmlStr
                     modulationParameters.type = ModulationParameters::ModulationType::SineWave;
                 }
 
-                if (attributes.hasAttribute(Constants::NahdXml::xmlKeyCycles())) {
-                    modulationParameters.cycles = static_cast<float>(attributes.value(Constants::NahdXml::xmlKeyCycles()).toInt());
-                } else if (attributes.hasAttribute("sineCycles")) {
-                    modulationParameters.cycles = static_cast<float>(attributes.value("sineCycles").toInt());
+                if (const auto cycles = reader.attribute(Constants::NahdXml::xmlKeyCycles()); cycles.isValid()) {
+                    modulationParameters.cycles = static_cast<float>(cycles.toInt());
+                } else if (const auto sineCycles = reader.attribute("sineCycles"); sineCycles.isValid()) {
+                    modulationParameters.cycles = static_cast<float>(sineCycles.toInt());
                 }
 
-                if (attributes.hasAttribute(Constants::NahdXml::xmlKeyAmplitude())) {
-                    modulationParameters.amplitude = static_cast<float>(attributes.value(Constants::NahdXml::xmlKeyAmplitude()).toInt());
-                } else if (attributes.hasAttribute("sineAmplitude")) {
-                    modulationParameters.amplitude = static_cast<float>(attributes.value("sineAmplitude").toInt());
+                if (const auto amplitude = reader.attribute(Constants::NahdXml::xmlKeyAmplitude()); amplitude.isValid()) {
+                    modulationParameters.amplitude = static_cast<float>(amplitude.toInt());
+                } else if (const auto sineAmplitude = reader.attribute("sineAmplitude"); sineAmplitude.isValid()) {
+                    modulationParameters.amplitude = static_cast<float>(sineAmplitude.toInt());
                 }
 
-                if (attributes.hasAttribute(Constants::NahdXml::xmlKeyOffset())) {
-                    modulationParameters.offset = static_cast<float>(attributes.value(Constants::NahdXml::xmlKeyOffset()).toInt());
-                } else if (attributes.hasAttribute("sineOffset")) {
-                    modulationParameters.offset = static_cast<float>(attributes.value("sineOffset").toInt());
+                if (const auto offset = reader.attribute(Constants::NahdXml::xmlKeyOffset()); offset.isValid()) {
+                    modulationParameters.offset = static_cast<float>(offset.toInt());
+                } else if (const auto sineOffset = reader.attribute("sineOffset"); sineOffset.isValid()) {
+                    modulationParameters.offset = static_cast<float>(sineOffset.toInt());
                 }
 
                 const auto inverted = Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeyInverted(), false);

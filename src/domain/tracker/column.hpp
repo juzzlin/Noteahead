@@ -23,14 +23,13 @@
 #include "domain/tracker/mixer_unit.hpp"
 #include "domain/tracker/note_data.hpp"
 
-class QXmlStreamReader;
-class QXmlStreamWriter;
-
 namespace noteahead {
 
 class Event;
 class InstrumentSettings;
 class Line;
+class ProjectReader;
+class ProjectWriter;
 struct Position;
 
 class Column : public MixerUnit
@@ -73,14 +72,14 @@ public:
     InstrumentSettingsS instrumentSettings(const Position & position) const;
     void setInstrumentSettings(const Position & position, InstrumentSettingsS instrumentSettings);
 
-    void serializeToXml(QXmlStreamWriter & writer) const;
+    void serializeToXml(ProjectWriter & writer) const;
     using ColumnU = std::unique_ptr<Column>;
-    static ColumnU deserializeFromXml(QXmlStreamReader & reader, size_t trackIndex);
+    static ColumnU deserializeFromXml(ProjectReader & reader, size_t trackIndex);
 
 private:
     PositionList addChangedPosition(const Column::PositionList & changedPositions, const Position & position, size_t line) const;
 
-    static void deserializeLines(QXmlStreamReader & reader, size_t trackIndex, Column & column);
+    static void deserializeLines(ProjectReader & reader, size_t trackIndex, Column & column);
 
     void initialize(size_t length);
 

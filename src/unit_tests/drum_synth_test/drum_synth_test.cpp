@@ -23,10 +23,10 @@
 #include "domain/dsp/drum/ride_engine.hpp"
 #include "domain/dsp/drum/snare_engine.hpp"
 #include "domain/dsp/drum/tom_engine.hpp"
+#include "infra/xml/nahd_xml_reader.hpp"
+#include "infra/xml/nahd_xml_writer.hpp"
 #include "repro_kick_pop.cpp"
 #include <QTest>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -237,11 +237,11 @@ void DrumSynthTest::test_drumSynthDevice_xmlSerialization_shouldRestoreParameter
         p->get().setValue(0.25f);
 
     QString xml;
-    QXmlStreamWriter writer(&xml);
+    NahdXmlWriter writer { xml };
     device.serializeToXml(writer);
 
     DrumSynthDevice restored("Restored");
-    QXmlStreamReader reader(xml);
+    NahdXmlReader reader { xml };
     while (!reader.atEnd() && !reader.isStartElement())
         reader.readNext();
     restored.deserializeFromXml(reader);

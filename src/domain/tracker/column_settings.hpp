@@ -24,10 +24,10 @@
 
 #include "domain/tracker/arpeggiator.hpp"
 
-class QXmlStreamReader;
-class QXmlStreamWriter;
-
 namespace noteahead {
+
+class ProjectReader;
+class ProjectWriter;
 
 class ColumnSettings
 {
@@ -74,9 +74,9 @@ public:
         return delay.count() || transpose || midiDelayEnabled || chordAutomationSettings.isEnabled();
     }
 
-    void serializeToXml(QXmlStreamWriter & writer) const;
+    void serializeToXml(ProjectWriter & writer) const;
     using ColumnSettingsU = std::unique_ptr<ColumnSettings>;
-    static ColumnSettingsU deserializeFromXml(QXmlStreamReader & reader);
+    static ColumnSettingsU deserializeFromXml(ProjectReader & reader);
 
     QString toString() const;
 };

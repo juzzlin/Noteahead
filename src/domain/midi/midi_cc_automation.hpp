@@ -22,10 +22,10 @@
 #include <cstdint>
 #include <memory>
 
-class QXmlStreamReader;
-class QXmlStreamWriter;
-
 namespace noteahead {
+
+class ProjectReader;
+class ProjectWriter;
 
 class MidiCcAutomation : public Automation
 {
@@ -72,9 +72,9 @@ public:
     uint8_t lineOffset() const;
     void setLineOffset(uint8_t lineOffset);
 
-    void serializeToXml(QXmlStreamWriter & writer) const;
+    void serializeToXml(ProjectWriter & writer) const;
     using MidiCcAutomationU = std::unique_ptr<MidiCcAutomation>;
-    static MidiCcAutomationU deserializeFromXml(QXmlStreamReader & reader);
+    static MidiCcAutomationU deserializeFromXml(ProjectReader & reader);
 
     QString toString() const;
 

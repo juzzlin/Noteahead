@@ -19,10 +19,10 @@
 #include "domain/effects/effect_factory.hpp"
 #include "domain/effects/effect_rack.hpp"
 #include "domain/effects/volume_effect.hpp"
+#include "infra/xml/nahd_xml_reader.hpp"
+#include "infra/xml/nahd_xml_writer.hpp"
 
 #include <QTest>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -110,13 +110,13 @@ void EffectRackTest::test_serialization_shouldSerializeAndDeserializeEffects()
     rack.setEffect(2, reverb);
 
     QString xml;
-    QXmlStreamWriter writer(&xml);
+    NahdXmlWriter writer { xml };
     writer.writeStartElement(Constants::NahdXml::xmlKeyMasterEffects());
     rack.serializeEffectsToXml(writer);
     writer.writeEndElement();
 
     EffectRack rack2;
-    QXmlStreamReader reader(xml);
+    NahdXmlReader reader { xml };
     while (reader.readNextStartElement()) {
         if (reader.name() == Constants::NahdXml::xmlKeyMasterEffects()) {
             rack2.deserializeEffectsFromXml(reader);
@@ -138,13 +138,13 @@ void EffectRackTest::test_serialization_shouldSerializeAndDeserializeEffects()
     // Test disabled serialization
     reverb2->setEnabled(false);
     xml.clear();
-    QXmlStreamWriter writer2(&xml);
+    NahdXmlWriter writer2 { xml };
     writer2.writeStartElement(Constants::NahdXml::xmlKeyMasterEffects());
     rack2.serializeEffectsToXml(writer2);
     writer2.writeEndElement();
 
     EffectRack rack3;
-    QXmlStreamReader reader2(xml);
+    NahdXmlReader reader2 { xml };
     while (reader2.readNextStartElement()) {
         if (reader2.name() == Constants::NahdXml::xmlKeyMasterEffects()) {
             rack3.deserializeEffectsFromXml(reader2);
@@ -236,7 +236,7 @@ void EffectRackTest::test_exportImportEffectSettings_shouldWorkForSingleEffect()
     rack.setEffect(1, reverb);
 
     QString xml;
-    QXmlStreamWriter writer(&xml);
+    NahdXmlWriter writer { xml };
     QVERIFY(rack.exportEffectSettings(1, writer));
 
     // Verify it contains root Settings and Effect
@@ -245,7 +245,7 @@ void EffectRackTest::test_exportImportEffectSettings_shouldWorkForSingleEffect()
     QVERIFY(xml.contains("slot=\"1\""));
 
     EffectRack rack2;
-    QXmlStreamReader reader(xml);
+    NahdXmlReader reader { xml };
     QVERIFY(rack2.importEffectSettings(3, reader)); // Import into slot 3
 
     const auto reverb2 = std::dynamic_pointer_cast<ReverbEffect>(rack2.effect(3));
@@ -257,7 +257,7 @@ void EffectRackTest::test_importEffectSettings_backwardsCompatibility()
 {
     // Old format (whole rack)
     QString xml;
-    QXmlStreamWriter writer(&xml);
+    NahdXmlWriter writer { xml };
     writer.writeStartElement(Constants::NahdXml::xmlKeySettings());
     writer.writeStartElement(Constants::NahdXml::xmlKeyInsertEffects());
     writer.writeStartElement(Constants::NahdXml::xmlKeyEffect());
@@ -271,7 +271,7 @@ void EffectRackTest::test_importEffectSettings_backwardsCompatibility()
     writer.writeEndElement(); // Settings
 
     EffectRack rack;
-    QXmlStreamReader reader(xml);
+    NahdXmlReader reader { xml };
     QVERIFY(rack.importEffectSettings(0, reader));
 
     const auto reverb = std::dynamic_pointer_cast<ReverbEffect>(rack.effect(0));

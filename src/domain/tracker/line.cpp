@@ -17,11 +17,10 @@
 
 #include "common/constants.hpp"
 #include "common/utils.hpp"
+#include "common/xml/project_reader.hpp"
+#include "common/xml/project_writer.hpp"
 #include "contrib/SimpleLogger/src/simple_logger.hpp"
 #include "domain/tracker/instrument_settings.hpp"
-
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -82,7 +81,7 @@ bool Line::hasData() const
     return (m_noteData && m_noteData->type() != NoteData::Type::None) || m_lineEvent;
 }
 
-void Line::serializeToXml(QXmlStreamWriter & writer) const
+void Line::serializeToXml(ProjectWriter & writer) const
 {
     if (hasData()) {
         writer.writeStartElement(Constants::NahdXml::xmlKeyLine());
@@ -97,7 +96,7 @@ void Line::serializeToXml(QXmlStreamWriter & writer) const
     }
 }
 
-Line::LineU Line::deserializeFromXml(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex)
+Line::LineU Line::deserializeFromXml(ProjectReader & reader, size_t trackIndex, size_t columnIndex)
 {
     juzzlin::L(TAG).trace() << "Reading Line started";
     const auto index = *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyIndex());

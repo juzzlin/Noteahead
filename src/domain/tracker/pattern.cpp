@@ -19,13 +19,13 @@
 #include "application/service/automation_service.hpp"
 #include "common/constants.hpp"
 #include "common/utils.hpp"
+#include "common/xml/project_reader.hpp"
+#include "common/xml/project_writer.hpp"
 #include "contrib/SimpleLogger/src/simple_logger.hpp"
 #include "domain/tracker/column_settings.hpp"
 #include "domain/tracker/instrument.hpp"
 #include "domain/tracker/note_data.hpp"
 #include "domain/tracker/track.hpp"
-
-#include <QXmlStreamWriter>
 
 #include <algorithm>
 #include <stdexcept>
@@ -454,7 +454,7 @@ Pattern::EventList Pattern::renderToEvents(AutomationServiceS automationService,
     return eventList;
 }
 
-void Pattern::serializeToXml(QXmlStreamWriter & writer) const
+void Pattern::serializeToXml(ProjectWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyPattern());
 
@@ -476,7 +476,7 @@ void Pattern::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeEndElement(); // Pattern
 }
 
-Pattern::PatternU Pattern::deserializeFromXml(QXmlStreamReader & reader)
+Pattern::PatternU Pattern::deserializeFromXml(ProjectReader & reader)
 {
     juzzlin::L(TAG).trace() << "Reading Pattern started";
     const auto index = *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyIndex());
@@ -496,7 +496,7 @@ Pattern::PatternU Pattern::deserializeFromXml(QXmlStreamReader & reader)
     return pattern;
 }
 
-void Pattern::deserializeTracks(QXmlStreamReader & reader, Pattern & pattern)
+void Pattern::deserializeTracks(ProjectReader & reader, Pattern & pattern)
 {
     juzzlin::L(TAG).trace() << "Reading Tracks started";
     size_t position = 0;

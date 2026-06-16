@@ -17,10 +17,10 @@
 
 #include "common/constants.hpp"
 #include "domain/devices/wavetable_synth_device.hpp"
+#include "infra/xml/nahd_xml_reader.hpp"
+#include "infra/xml/nahd_xml_writer.hpp"
 
 #include <QTest>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 #include <cmath>
 
 namespace noteahead {
@@ -143,11 +143,11 @@ void WavetableSynthTest::test_serialization_shouldPreserveState()
     synth1.setWavetableIndex(wtIndex);
 
     QString xml;
-    QXmlStreamWriter writer { &xml };
+    NahdXmlWriter writer { xml };
     synth1.serializeToXml(writer);
 
     WavetableSynthDevice synth2 { "Test Synth 2" };
-    QXmlStreamReader reader { xml };
+    NahdXmlReader reader { xml };
     if (reader.readNextStartElement()) {
         synth2.deserializeFromXml(reader);
     }
@@ -324,11 +324,11 @@ void WavetableSynthTest::test_lfo2_serialization_shouldPreserveState()
     synth1.setLfo2Target(WavetableSynthDevice::LfoTarget::Cutoff);
 
     QString xml;
-    QXmlStreamWriter writer { &xml };
+    NahdXmlWriter writer { xml };
     synth1.serializeToXml(writer);
 
     WavetableSynthDevice synth2 { "Test Synth 2" };
-    QXmlStreamReader reader { xml };
+    NahdXmlReader reader { xml };
     if (reader.readNextStartElement()) {
         synth2.deserializeFromXml(reader);
     }
@@ -346,11 +346,11 @@ void WavetableSynthTest::test_lfoWaveform_random_serialization_shouldPreserveSta
     synth1.setLfoWaveform(Lfo::Waveform::Random);
 
     QString xml;
-    QXmlStreamWriter writer { &xml };
+    NahdXmlWriter writer { xml };
     synth1.serializeToXml(writer);
 
     WavetableSynthDevice synth2 { "Test Synth 2" };
-    QXmlStreamReader reader { xml };
+    NahdXmlReader reader { xml };
     if (reader.readNextStartElement()) {
         synth2.deserializeFromXml(reader);
     }
@@ -364,11 +364,11 @@ void WavetableSynthTest::test_lfo2Waveform_random_serialization_shouldPreserveSt
     synth1.setLfo2Waveform(Lfo::Waveform::Random);
 
     QString xml;
-    QXmlStreamWriter writer { &xml };
+    NahdXmlWriter writer { xml };
     synth1.serializeToXml(writer);
 
     WavetableSynthDevice synth2 { "Test Synth 2" };
-    QXmlStreamReader reader { xml };
+    NahdXmlReader reader { xml };
     if (reader.readNextStartElement()) {
         synth2.deserializeFromXml(reader);
     }

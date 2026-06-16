@@ -19,6 +19,8 @@
 #include "common/audio_backend.hpp"
 #include "common/constants.hpp"
 #include "common/waveform_generator.hpp"
+#include "common/xml/project_reader.hpp"
+#include "common/xml/project_writer.hpp"
 #include "contrib/SimpleLogger/src/simple_logger.hpp"
 #include "infra/audio/implementation/jack/audio_player_jack.hpp"
 #include "infra/audio/implementation/jack/audio_recorder_jack.hpp"
@@ -28,8 +30,7 @@
 
 #include <QFile>
 #include <QTimer>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
+#include <QVariant>
 #include <RtAudio.h>
 #include <sndfile.h>
 
@@ -265,7 +266,7 @@ quint64 AudioService::latestRecordingEndTick() const
     return m_latestRecordingEndTick;
 }
 
-void AudioService::serializeToXml(QXmlStreamWriter & writer) const
+void AudioService::serializeToXml(ProjectWriter & writer) const
 {
     if (!m_latestRecordingFileName.isEmpty()) {
         writer.writeStartElement(Constants::NahdXml::xmlKeyAudioRecorder());
@@ -276,11 +277,11 @@ void AudioService::serializeToXml(QXmlStreamWriter & writer) const
     }
 }
 
-void AudioService::deserializeFromXml(QXmlStreamReader & reader)
+void AudioService::deserializeFromXml(ProjectReader & reader)
 {
-    const auto filePath = reader.attributes().value(Constants::NahdXml::xmlKeyLatestRecordingFilePath()).toString();
-    const auto startTick = reader.attributes().value(Constants::NahdXml::xmlKeyLatestRecordingStartTick()).toULongLong();
-    const auto endTick = reader.attributes().value(Constants::NahdXml::xmlKeyLatestRecordingEndTick()).toULongLong();
+    const auto filePath = reader.attribute(Constants::NahdXml::xmlKeyLatestRecordingFilePath()).toString();
+    const auto startTick = reader.attribute(Constants::NahdXml::xmlKeyLatestRecordingStartTick()).toULongLong();
+    const auto endTick = reader.attribute(Constants::NahdXml::xmlKeyLatestRecordingEndTick()).toULongLong();
     if (QFile::exists(filePath)) {
         setLatestRecordingInfo(filePath, startTick, endTick);
     }

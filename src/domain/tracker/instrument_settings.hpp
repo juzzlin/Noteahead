@@ -26,10 +26,10 @@
 #include "domain/midi/midi_cc_setting.hpp"
 #include "domain/tracker/event_data.hpp"
 
-class QXmlStreamReader;
-class QXmlStreamWriter;
-
 namespace noteahead {
+
+class ProjectReader;
+class ProjectWriter;
 
 class InstrumentSettings : public EventData
 {
@@ -74,9 +74,9 @@ public:
 
     std::vector<MidiCcSetting> midiCcSettings;
 
-    void serializeToXml(QXmlStreamWriter & writer) const;
+    void serializeToXml(ProjectWriter & writer) const;
     using InstrumentSettingsU = std::unique_ptr<InstrumentSettings>;
-    static InstrumentSettingsU deserializeFromXml(QXmlStreamReader & reader);
+    static InstrumentSettingsU deserializeFromXml(ProjectReader & reader);
 
     QString toString() const;
 };

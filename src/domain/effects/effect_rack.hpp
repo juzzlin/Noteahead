@@ -22,10 +22,10 @@
 #include <mutex>
 #include <vector>
 
-class QXmlStreamReader;
-class QXmlStreamWriter;
-
 namespace noteahead {
+
+class ProjectReader;
+class ProjectWriter;
 
 class EffectRack
 {
@@ -48,12 +48,12 @@ public:
     void setBpm(float bpm);
     void clear();
 
-    void serializeEffectsToXml(QXmlStreamWriter & writer) const;
-    void deserializeEffectsFromXml(QXmlStreamReader & reader);
-    void deserializeEffect(QXmlStreamReader & reader);
+    void serializeEffectsToXml(ProjectWriter & writer) const;
+    void deserializeEffectsFromXml(ProjectReader & reader);
+    void deserializeEffect(ProjectReader & reader);
 
-    bool exportEffectSettings(size_t index, QXmlStreamWriter & writer) const;
-    bool importEffectSettings(size_t index, QXmlStreamReader & reader);
+    bool exportEffectSettings(size_t index, ProjectWriter & writer) const;
+    bool importEffectSettings(size_t index, ProjectReader & reader);
 
 private:
     std::vector<EffectS> m_effects;

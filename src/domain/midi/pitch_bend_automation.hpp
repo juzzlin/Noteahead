@@ -21,10 +21,10 @@
 
 #include <memory>
 
-class QXmlStreamReader;
-class QXmlStreamWriter;
-
 namespace noteahead {
+
+class ProjectReader;
+class ProjectWriter;
 
 class PitchBendAutomation : public Automation
 {
@@ -62,9 +62,9 @@ public:
     const ModulationParameters & modulation() const;
     void setModulation(const ModulationParameters & modulation);
 
-    void serializeToXml(QXmlStreamWriter & writer) const;
+    void serializeToXml(ProjectWriter & writer) const;
     using PitchBendAutomationU = std::unique_ptr<PitchBendAutomation>;
-    static PitchBendAutomationU deserializeFromXml(QXmlStreamReader & reader);
+    static PitchBendAutomationU deserializeFromXml(ProjectReader & reader);
 
     QString toString() const;
 

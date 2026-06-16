@@ -17,14 +17,16 @@
 
 #include "common/constants.hpp"
 #include "common/utils.hpp"
+#include "common/xml/project_reader.hpp"
+#include "common/xml/project_writer.hpp"
 #include "contrib/SimpleLogger/src/simple_logger.hpp"
 #include "domain/midi/midi_cc_data.hpp"
 #include "domain/tracker/event.hpp"
 #include "domain/tracker/note_data.hpp"
 
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
+
 #include <algorithm>
+#include <QVariant>
 
 namespace noteahead {
 
@@ -118,7 +120,7 @@ void SideChainService::clear()
     m_settings.clear();
 }
 
-void SideChainService::deserializeFromXml(QXmlStreamReader & reader)
+void SideChainService::deserializeFromXml(ProjectReader & reader)
 {
     juzzlin::L(TAG).trace() << "Reading SideChain started";
 
@@ -128,7 +130,7 @@ void SideChainService::deserializeFromXml(QXmlStreamReader & reader)
         juzzlin::L(TAG).trace() << "Current element: " << reader.name().toString().toStdString();
         if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeySideChainSettings())) {
             bool trackOk = false;
-            const quint64 trackIndex = reader.attributes().value(Constants::NahdXml::xmlKeyTrackAttr()).toUInt(&trackOk);
+            const quint64 trackIndex = reader.attribute(Constants::NahdXml::xmlKeyTrackAttr()).toUInt(&trackOk);
             if (trackOk) {
                 SideChainSettings settings;
                 settings.enabled = *Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeyEnabled());
@@ -166,7 +168,7 @@ void SideChainService::deserializeFromXml(QXmlStreamReader & reader)
     juzzlin::L(TAG).trace() << "Reading SideChain ended";
 }
 
-void SideChainService::serializeToXml(QXmlStreamWriter & writer) const
+void SideChainService::serializeToXml(ProjectWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeySideChain());
 

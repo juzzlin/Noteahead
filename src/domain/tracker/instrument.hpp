@@ -24,10 +24,10 @@
 #include "domain/midi/midi_address.hpp"
 #include "domain/tracker/instrument_settings.hpp"
 
-class QXmlStreamReader;
-class QXmlStreamWriter;
-
 namespace noteahead {
+
+class ProjectReader;
+class ProjectWriter;
 
 class Instrument
 {
@@ -41,9 +41,9 @@ public:
     const InstrumentSettings & settings() const;
     void setSettings(const InstrumentSettings & settings);
 
-    void serializeToXml(QXmlStreamWriter & writer) const;
+    void serializeToXml(ProjectWriter & writer) const;
     using InstrumentU = std::unique_ptr<Instrument>;
-    static InstrumentU deserializeFromXml(QXmlStreamReader & reader);
+    static InstrumentU deserializeFromXml(ProjectReader & reader);
 
     QString toString() const;
 

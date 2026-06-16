@@ -21,10 +21,10 @@
 #include <cstdint>
 #include <memory>
 
-class QXmlStreamReader;
-class QXmlStreamWriter;
-
 namespace noteahead {
+
+class ProjectReader;
+class ProjectWriter;
 
 class MidiAddress
 {
@@ -33,9 +33,9 @@ public:
     MidiAddress(QString portName, uint8_t channel);
     MidiAddress(QString portName, uint8_t channel, uint8_t group);
 
-    void serializeToXml(QXmlStreamWriter & writer) const;
+    void serializeToXml(ProjectWriter & writer) const;
     using MidiAddressU = std::unique_ptr<MidiAddress>;
-    static MidiAddressU deserializeFromXml(QXmlStreamReader & reader);
+    static MidiAddressU deserializeFromXml(ProjectReader & reader);
 
     QString portName() const;
     void setPort(QString portName);

@@ -26,6 +26,8 @@
 #include "domain/effects/effect_factory.hpp"
 #include "infra/audio/audio_engine.hpp"
 #include "infra/data_service.hpp"
+#include "infra/xml/nahd_xml_reader.hpp"
+#include "infra/xml/nahd_xml_writer.hpp"
 #include "view/controllers/device_rack_controller.hpp"
 #include "view/controllers/sampler_controller.hpp"
 #include "view/controllers/synth_controller.hpp"
@@ -33,8 +35,6 @@
 #include <QBuffer>
 #include <QSignalSpy>
 #include <QTest>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -112,11 +112,11 @@ public:
     {
     }
 
-    void serializeToXml(QXmlStreamWriter &) const override
+    void serializeToXml(ProjectWriter &) const override
     {
     }
 
-    void deserializeFromXml(QXmlStreamReader &) override
+    void deserializeFromXml(ProjectReader &) override
     {
     }
 
@@ -333,12 +333,12 @@ void DeviceRackControllerTest::test_importSettings_matchingType_shouldEmitConfir
     QByteArray data;
     QBuffer buffer { &data };
     buffer.open(QIODevice::WriteOnly);
-    QXmlStreamWriter writer { &buffer };
+    NahdXmlWriter writer { buffer };
     QVERIFY(deviceService->exportDeviceSettings(0, writer));
     buffer.close();
 
     buffer.open(QIODevice::ReadOnly);
-    QXmlStreamReader reader { &buffer };
+    NahdXmlReader reader { buffer };
     const auto typeInfo = deviceService->peekDeviceTypeInfo(reader);
     buffer.close();
 
@@ -356,14 +356,14 @@ void DeviceRackControllerTest::test_importSettings_differentType_shouldEmitConfi
     QByteArray data;
     QBuffer buffer { &data };
     buffer.open(QIODevice::WriteOnly);
-    QXmlStreamWriter writer { &buffer };
+    NahdXmlWriter writer { buffer };
     QVERIFY(deviceService->exportDeviceSettings(0, writer));
     buffer.close();
 
     deviceService->setDevice(0, DeviceFactory::createDevice(SamplerDevice::typeIdString(), "TestSampler"));
 
     buffer.open(QIODevice::ReadOnly);
-    QXmlStreamReader reader { &buffer };
+    NahdXmlReader reader { buffer };
     const auto typeInfo = deviceService->peekDeviceTypeInfo(reader);
     buffer.close();
 
@@ -384,7 +384,7 @@ void DeviceRackControllerTest::test_confirmImportSettings_shouldImportAndNotify(
     QByteArray data;
     QBuffer buffer { &data };
     buffer.open(QIODevice::WriteOnly);
-    QXmlStreamWriter writer { &buffer };
+    NahdXmlWriter writer { buffer };
     QVERIFY(deviceService->exportDeviceSettings(0, writer));
     buffer.close();
 
@@ -392,7 +392,7 @@ void DeviceRackControllerTest::test_confirmImportSettings_shouldImportAndNotify(
     QCOMPARE(synth->volume(), 1.0f);
 
     buffer.open(QIODevice::ReadOnly);
-    QXmlStreamReader reader { &buffer };
+    NahdXmlReader reader { buffer };
     QVERIFY(deviceService->importDeviceSettings(0, reader));
     buffer.close();
 

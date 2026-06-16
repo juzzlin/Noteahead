@@ -18,12 +18,11 @@
 
 #include <memory>
 
-class QXmlStreamReader;
-class QXmlStreamWriter;
-
 namespace noteahead {
 
 class InstrumentSettings;
+class ProjectReader;
+class ProjectWriter;
 
 class LineEvent
 {
@@ -36,9 +35,9 @@ public:
 
     bool hasData() const;
 
-    void serializeToXml(QXmlStreamWriter & writer) const;
+    void serializeToXml(ProjectWriter & writer) const;
     using LineEventU = std::shared_ptr<LineEvent>;
-    static LineEventU deserializeFromXml(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex);
+    static LineEventU deserializeFromXml(ProjectReader & reader, size_t trackIndex, size_t columnIndex);
 
 private:
     InstrumentSettingsS m_instrumentSettings;

@@ -13,39 +13,31 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef DATA_SERVICE_HPP
-#define DATA_SERVICE_HPP
+#ifndef PROJECT_WRITER_HPP
+#define PROJECT_WRITER_HPP
 
-#include <QString>
-#include <QTemporaryDir>
-#include <map>
-#include <memory>
+class QString;
 
 namespace noteahead {
 
-class ProjectReader;
-class ProjectWriter;
-
-class DataService
+class ProjectWriter
 {
 public:
-    DataService();
-    ~DataService();
+    virtual ~ProjectWriter() = default;
 
-    DataService(const DataService &) = delete;
-    DataService & operator=(const DataService &) = delete;
+    virtual void writeStartDocument() = 0;
+    virtual void writeEndDocument() = 0;
 
-    void extractDataFromXml(const QString & xml);
-    void extractData(ProjectReader & reader);
-    QString resolvePath(const QString & nahdPath) const;
-    void serializeDataToXml(ProjectWriter & writer, const std::map<QString, QString> & embedFiles) const;
-    void clear();
+    virtual void writeStartElement(const QString & name) = 0;
+    virtual void writeEndElement() = 0;
 
-private:
-    std::unique_ptr<QTemporaryDir> m_tempDir;
-    std::map<QString, QString> m_extractedFiles;
+    virtual void writeAttribute(const QString & name, const QString & value) = 0;
+    virtual void writeCharacters(const QString & text) = 0;
+
+    virtual void setAutoFormatting(bool enable) = 0;
+    virtual void setAutoFormattingIndent(int indent) = 0;
 };
 
 } // namespace noteahead
 
-#endif // DATA_SERVICE_HPP
+#endif // PROJECT_WRITER_HPP

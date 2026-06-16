@@ -19,10 +19,10 @@
 #include <cstddef>
 #include <memory>
 
-class QXmlStreamReader;
-class QXmlStreamWriter;
-
 namespace noteahead {
+
+class ProjectReader;
+class ProjectWriter;
 
 class AutomationLocation
 {
@@ -33,9 +33,9 @@ public:
     bool operator==(const AutomationLocation & other) const;
     bool operator!=(const AutomationLocation & other) const;
 
-    void serializeToXml(QXmlStreamWriter & writer) const;
+    void serializeToXml(ProjectWriter & writer) const;
     using AutomationLocationU = std::unique_ptr<AutomationLocation>;
-    static AutomationLocationU deserializeFromXml(QXmlStreamReader & reader);
+    static AutomationLocationU deserializeFromXml(ProjectReader & reader);
 
     size_t pattern() const;
     void setPattern(size_t pattern);

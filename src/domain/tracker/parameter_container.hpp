@@ -23,10 +23,10 @@
 #include <optional>
 #include <string>
 
-class QXmlStreamReader;
-class QXmlStreamWriter;
-
 namespace noteahead {
+
+class ProjectReader;
+class ProjectWriter;
 
 class ParameterContainer
 {
@@ -52,9 +52,9 @@ public:
 
     virtual void reset();
 
-    virtual void serializeParametersToXml(QXmlStreamWriter & writer) const;
-    virtual void deserializeParametersFromXml(QXmlStreamReader & reader);
-    void deserializeParameter(QXmlStreamReader & reader);
+    virtual void serializeParametersToXml(ProjectWriter & writer) const;
+    virtual void deserializeParametersFromXml(ProjectReader & reader);
+    void deserializeParameter(ProjectReader & reader);
 
 private:
     std::map<std::string, Parameter> m_parameters;

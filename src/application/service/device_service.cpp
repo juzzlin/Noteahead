@@ -22,11 +22,12 @@
 #include "domain/devices/synth_device.hpp"
 #include "infra/audio/audio_engine.hpp"
 #include "infra/data_service.hpp"
+#include "infra/xml/nahd_xml_reader.hpp"
+#include "infra/xml/nahd_xml_writer.hpp"
 
 #include <QDateTime>
 #include <QFile>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
+#include <QVariant>
 
 #include <format>
 #include <set>
@@ -233,7 +234,7 @@ std::shared_ptr<SynthDevice> DeviceService::findFirstSynthDevice() const
     return {};
 }
 
-void DeviceService::serializeDevices(QXmlStreamWriter & writer) const
+void DeviceService::serializeDevices(ProjectWriter & writer) const
 {
     for (const auto & name : internalDeviceNames()) {
         if (const auto dev = device(name)) {
@@ -242,7 +243,7 @@ void DeviceService::serializeDevices(QXmlStreamWriter & writer) const
     }
 }
 
-void DeviceService::serializeReverbSends(QXmlStreamWriter & writer) const
+void DeviceService::serializeReverbSends(ProjectWriter & writer) const
 {
     for (int deviceSlot = 0; deviceSlot < static_cast<int>(Constants::deviceRackSize()); deviceSlot++) {
         if (const auto dev = m_audioEngine->device(deviceSlot)) {
@@ -260,7 +261,7 @@ void DeviceService::serializeReverbSends(QXmlStreamWriter & writer) const
     }
 }
 
-void DeviceService::serializeSendEffects(QXmlStreamWriter & writer) const
+void DeviceService::serializeSendEffects(ProjectWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeySendEffects());
     m_audioEngine->sendEffectRack().serializeEffectsToXml(writer);
@@ -268,7 +269,7 @@ void DeviceService::serializeSendEffects(QXmlStreamWriter & writer) const
     writer.writeEndElement(); // SendEffects
 }
 
-void DeviceService::serializeMasterEffects(QXmlStreamWriter & writer) const
+void DeviceService::serializeMasterEffects(ProjectWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyMasterEffects());
 
@@ -281,7 +282,7 @@ void DeviceService::serializeMasterEffects(QXmlStreamWriter & writer) const
     writer.writeEndElement(); // MasterEffects
 }
 
-void DeviceService::serializePresetParameter(QXmlStreamWriter & writer, const std::string & paramName, float value, const std::shared_ptr<SynthDevice> & synth) const
+void DeviceService::serializePresetParameter(ProjectWriter & writer, const std::string & paramName, float value, const std::shared_ptr<SynthDevice> & synth) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
     writer.writeAttribute(Constants::NahdXml::xmlKeyName(), QString::fromStdString(paramName));
@@ -307,7 +308,7 @@ void DeviceService::serializePresetParameter(QXmlStreamWriter & writer, const st
     writer.writeEndElement(); // Parameter
 }
 
-void DeviceService::serializePreset(QXmlStreamWriter & writer, int index, const SynthPreset & preset, const std::shared_ptr<SynthDevice> & synth) const
+void DeviceService::serializePreset(ProjectWriter & writer, int index, const SynthPreset & preset, const std::shared_ptr<SynthDevice> & synth) const
 {
     if (preset.parameters.empty()) {
         return;
@@ -322,7 +323,7 @@ void DeviceService::serializePreset(QXmlStreamWriter & writer, int index, const 
     writer.writeEndElement(); // Preset
 }
 
-void DeviceService::serializeUserPresets(QXmlStreamWriter & writer) const
+void DeviceService::serializeUserPresets(ProjectWriter & writer) const
 {
     if (m_synthUserPresets.empty()) {
         return;
@@ -343,7 +344,7 @@ void DeviceService::serializeUserPresets(QXmlStreamWriter & writer) const
     writer.writeEndElement(); // UserPresets
 }
 
-void DeviceService::serializeToXml(QXmlStreamWriter & writer) const
+void DeviceService::serializeToXml(ProjectWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyDevices());
 
@@ -363,11 +364,11 @@ DeviceService::DeviceS DeviceService::getDevice(std::string name, std::string ty
     }
 }
 
-void DeviceService::deserializeDevice(QXmlStreamReader & reader)
+void DeviceService::deserializeDevice(ProjectReader & reader)
 {
-    const auto name = reader.attributes().value(Constants::NahdXml::xmlKeyName()).toString();
-    const auto typeId = reader.attributes().value(Constants::NahdXml::xmlKeyTypeId()).toString();
-    const auto slotAttr = reader.attributes().value(Constants::NahdXml::xmlKeySlot());
+    const auto name = reader.attribute(Constants::NahdXml::xmlKeyName()).toString();
+    const auto typeId = reader.attribute(Constants::NahdXml::xmlKeyTypeId()).toString();
+    const auto slotAttr = reader.attribute(Constants::NahdXml::xmlKeySlot());
     if (slotAttr.isNull() || slotAttr.toUInt() > Constants::deviceRackSize()) {
         juzzlin::L(TAG).warning() << std::format("Skipping device {} ({}) with slot index {} out of bounds!", typeId.toStdString(), name.toStdString(), slotAttr.toUInt());
         reader.skipCurrentElement();
@@ -382,7 +383,7 @@ void DeviceService::deserializeDevice(QXmlStreamReader & reader)
     }
 }
 
-void DeviceService::deserializeEffectSend(QXmlStreamReader & reader)
+void DeviceService::deserializeEffectSend(ProjectReader & reader)
 {
     const auto deviceSlot = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyDeviceSlot(), false);
     const auto effectSlot = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyEffectSlot(), false);
@@ -395,7 +396,7 @@ void DeviceService::deserializeEffectSend(QXmlStreamReader & reader)
     reader.skipCurrentElement();
 }
 
-void DeviceService::deserializeSendEffects(QXmlStreamReader & reader)
+void DeviceService::deserializeSendEffects(ProjectReader & reader)
 {
     m_audioEngine->sendEffectRack().clear();
     while (reader.readNextStartElement()) {
@@ -409,7 +410,7 @@ void DeviceService::deserializeSendEffects(QXmlStreamReader & reader)
     }
 }
 
-void DeviceService::deserializeMasterEffects(QXmlStreamReader & reader)
+void DeviceService::deserializeMasterEffects(ProjectReader & reader)
 {
     while (reader.readNextStartElement()) {
         if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects()) {
@@ -428,10 +429,10 @@ void DeviceService::deserializeMasterEffects(QXmlStreamReader & reader)
     }
 }
 
-float DeviceService::legacyPresetParameterValue(QXmlStreamReader & reader, const std::string & paramName, const QString & xmlValue) const
+float DeviceService::legacyPresetParameterValue(ProjectReader & reader, const std::string & paramName, const QString & xmlValue) const
 {
-    const auto xmlMinAttr = reader.attributes().value(Constants::NahdXml::xmlKeyMin());
-    const auto xmlMaxAttr = reader.attributes().value(Constants::NahdXml::xmlKeyMax());
+    const auto xmlMinAttr = reader.attribute(Constants::NahdXml::xmlKeyMin());
+    const auto xmlMaxAttr = reader.attribute(Constants::NahdXml::xmlKeyMax());
     if (xmlMinAttr.isNull() || xmlMaxAttr.isNull()) {
         return xmlValue.toFloat();
     }
@@ -451,20 +452,20 @@ float DeviceService::legacyPresetParameterValue(QXmlStreamReader & reader, const
     return Parameter::xmlValueToInternal(intValue, xmlMin, xmlMax);
 }
 
-void DeviceService::deserializePresetParameter(QXmlStreamReader & reader, SynthPreset & preset) const
+void DeviceService::deserializePresetParameter(ProjectReader & reader, SynthPreset & preset) const
 {
     const auto paramName = Utils::Xml::readStringAttribute(reader, Constants::NahdXml::xmlKeyName()).value_or("").toStdString();
     if (!paramName.empty()) {
-        const auto valueType = reader.attributes().value(Constants::NahdXml::xmlKeyParameterValueType()).toString();
-        const auto xmlValue = reader.attributes().value(Constants::NahdXml::xmlKeyValue()).toString();
+        const auto valueType = reader.attribute(Constants::NahdXml::xmlKeyParameterValueType()).toString();
+        const auto xmlValue = reader.attribute(Constants::NahdXml::xmlKeyValue()).toString();
 
         if (valueType == Constants::NahdXml::xmlValueInt()) {
             preset.parameters[paramName] = static_cast<float>(xmlValue.toInt());
         } else if (valueType == Constants::NahdXml::xmlValueBool()) {
             preset.parameters[paramName] = (xmlValue == Constants::NahdXml::xmlValueTrue() || xmlValue == "1") ? 1.0f : 0.0f;
         } else if (valueType == Constants::NahdXml::xmlValueFloat()) {
-            const auto xmlMin = reader.attributes().value(Constants::NahdXml::xmlKeyMin()).toInt();
-            const auto xmlMax = reader.attributes().value(Constants::NahdXml::xmlKeyMax()).toInt();
+            const auto xmlMin = reader.attribute(Constants::NahdXml::xmlKeyMin()).toInt();
+            const auto xmlMax = reader.attribute(Constants::NahdXml::xmlKeyMax()).toInt();
             preset.parameters[paramName] = Parameter::xmlValueToInternal(xmlValue.toInt(), xmlMin, xmlMax);
         } else {
             // Fallback for older files
@@ -474,7 +475,7 @@ void DeviceService::deserializePresetParameter(QXmlStreamReader & reader, SynthP
     reader.skipCurrentElement();
 }
 
-SynthPreset DeviceService::deserializePreset(QXmlStreamReader & reader) const
+SynthPreset DeviceService::deserializePreset(ProjectReader & reader) const
 {
     const auto presetName = Utils::Xml::readStringAttribute(reader, Constants::NahdXml::xmlKeyName()).value_or("Init");
     SynthPreset preset { presetName.toStdString(), {} };
@@ -489,7 +490,7 @@ SynthPreset DeviceService::deserializePreset(QXmlStreamReader & reader) const
     return preset;
 }
 
-void DeviceService::deserializeUserPresets(QXmlStreamReader & reader)
+void DeviceService::deserializeUserPresets(ProjectReader & reader)
 {
     while (reader.readNextStartElement()) {
         if (reader.name() == Constants::NahdXml::xmlKeyPreset()) {
@@ -502,7 +503,7 @@ void DeviceService::deserializeUserPresets(QXmlStreamReader & reader)
     setSynthUserPresets(m_synthUserPresets);
 }
 
-void DeviceService::deserializeFromXml(QXmlStreamReader & reader)
+void DeviceService::deserializeFromXml(ProjectReader & reader)
 {
     while (reader.readNextStartElement()) {
         if (reader.name() == Constants::NahdXml::xmlKeyDevice()) {
@@ -531,13 +532,13 @@ bool DeviceService::exportDeviceSettings(int slotIndex, const QString & filePath
     if (!file.open(QIODevice::WriteOnly)) {
         return false;
     }
-    QXmlStreamWriter writer { &file };
+    NahdXmlWriter writer { file };
     writer.setAutoFormatting(true);
     writer.setAutoFormattingIndent(1);
     return exportDeviceSettings(slotIndex, writer);
 }
 
-bool DeviceService::exportDeviceSettings(int slotIndex, QXmlStreamWriter & writer) const
+bool DeviceService::exportDeviceSettings(int slotIndex, ProjectWriter & writer) const
 {
     const auto dev = device(static_cast<size_t>(slotIndex));
     if (!dev) {
@@ -570,18 +571,18 @@ DeviceService::DeviceTypeInfo DeviceService::peekDeviceTypeInfo(const QString & 
     if (!file.open(QIODevice::ReadOnly)) {
         return {};
     }
-    QXmlStreamReader reader { &file };
+    NahdXmlReader reader { file };
     return peekDeviceTypeInfo(reader);
 }
 
-DeviceService::DeviceTypeInfo DeviceService::peekDeviceTypeInfo(QXmlStreamReader & reader) const
+DeviceService::DeviceTypeInfo DeviceService::peekDeviceTypeInfo(ProjectReader & reader) const
 {
     while (!reader.atEnd() && !reader.hasError()) {
-        if (reader.readNext() == QXmlStreamReader::StartElement) {
+        if (reader.readNext() == ProjectReader::TokenType::StartElement) {
             if (reader.name() == Constants::NahdXml::xmlKeyDevice()) {
                 return {
-                    reader.attributes().value(Constants::NahdXml::xmlKeyTypeId()).toString(),
-                    reader.attributes().value(Constants::NahdXml::xmlKeyTypeName()).toString()
+                    reader.attribute(Constants::NahdXml::xmlKeyTypeId()).toString(),
+                    reader.attribute(Constants::NahdXml::xmlKeyTypeName()).toString()
                 };
             }
         }
@@ -595,20 +596,20 @@ bool DeviceService::importDeviceSettings(int slotIndex, const QString & filePath
     if (!file.open(QIODevice::ReadOnly)) {
         return false;
     }
-    QXmlStreamReader reader { &file };
+    NahdXmlReader reader { file };
     return importDeviceSettings(slotIndex, reader);
 }
 
-bool DeviceService::importDeviceSettings(int slotIndex, QXmlStreamReader & reader)
+bool DeviceService::importDeviceSettings(int slotIndex, ProjectReader & reader)
 {
     while (!reader.atEnd() && !reader.hasError()) {
         const auto token = reader.readNext();
-        if (token == QXmlStreamReader::StartElement) {
+        if (token == ProjectReader::TokenType::StartElement) {
             if (reader.name() == Constants::NahdXml::xmlKeySettings()) {
                 while (reader.readNextStartElement()) {
                     if (reader.name() == Constants::NahdXml::xmlKeyDevice()) {
-                        const auto typeId = reader.attributes().value(Constants::NahdXml::xmlKeyTypeId()).toString();
-                        const auto deviceName = reader.attributes().value(Constants::NahdXml::xmlKeyName()).toString();
+                        const auto typeId = reader.attribute(Constants::NahdXml::xmlKeyTypeId()).toString();
+                        const auto deviceName = reader.attribute(Constants::NahdXml::xmlKeyName()).toString();
 
                         auto dev = device(static_cast<size_t>(slotIndex));
                         if (dev && dev->typeId() != typeId.toStdString()) {

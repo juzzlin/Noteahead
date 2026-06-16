@@ -44,6 +44,8 @@
 #include "infra/audio/audio_engine.hpp"
 #include "infra/audio/backend/audio_file_reader.hpp"
 #include "infra/data_service.hpp"
+#include "infra/xml/nahd_xml_reader.hpp"
+#include "infra/xml/nahd_xml_writer.hpp"
 
 #include <QSignalSpy>
 #include <QTemporaryFile>
@@ -1241,7 +1243,7 @@ void XmlSerializationTest::test_wavetableSynth_legacyNames_shouldLoadCorrectly()
 
     // Create legacy XML
     QString xml;
-    QXmlStreamWriter writer(&xml);
+    NahdXmlWriter writer { xml };
     writer.writeStartElement(Constants::NahdXml::xmlKeyDevice());
     writer.writeAttribute(Constants::NahdXml::xmlKeyName(), "TestWavetable");
     writer.writeAttribute(Constants::NahdXml::xmlKeyTypeName(), Constants::NahdXml::xmlValueSynths());
@@ -1265,7 +1267,7 @@ void XmlSerializationTest::test_wavetableSynth_legacyNames_shouldLoadCorrectly()
     writer.writeEndElement(); // Parameters
     writer.writeEndElement(); // Device
 
-    QXmlStreamReader reader(xml);
+    NahdXmlReader reader { xml };
     while (!reader.atEnd()) {
         if (reader.readNextStartElement() && reader.name() == Constants::NahdXml::xmlKeyDevice()) {
             synth.deserializeFromXml(reader);
@@ -1282,7 +1284,7 @@ void XmlSerializationTest::test_eq8BandParametric_legacyNames_shouldLoadCorrectl
 
     // Create legacy XML
     QString xml;
-    QXmlStreamWriter writer(&xml);
+    NahdXmlWriter writer { xml };
     writer.writeStartElement(Constants::NahdXml::xmlKeyParameters());
 
     // Legacy key: eq8BandParametricBand1Type
@@ -1301,7 +1303,7 @@ void XmlSerializationTest::test_eq8BandParametric_legacyNames_shouldLoadCorrectl
 
     writer.writeEndElement(); // Parameters
 
-    QXmlStreamReader reader(xml);
+    NahdXmlReader reader { xml };
     if (reader.readNextStartElement()) {
         effect.deserializeParametersFromXml(reader);
     }
@@ -1319,7 +1321,7 @@ void XmlSerializationTest::test_chorus_legacyNames_shouldLoadCorrectly()
     ChorusEffect effect;
 
     QString xml;
-    QXmlStreamWriter writer(&xml);
+    NahdXmlWriter writer { xml };
     writer.writeStartElement(Constants::NahdXml::xmlKeyParameters());
 
     writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
@@ -1336,7 +1338,7 @@ void XmlSerializationTest::test_chorus_legacyNames_shouldLoadCorrectly()
 
     writer.writeEndElement(); // Parameters
 
-    QXmlStreamReader reader(xml);
+    NahdXmlReader reader { xml };
     if (reader.readNextStartElement()) {
         effect.deserializeParametersFromXml(reader);
     }
@@ -1354,7 +1356,7 @@ void XmlSerializationTest::test_clipper_legacyNames_shouldLoadCorrectly()
     ClipperEffect effect;
 
     QString xml;
-    QXmlStreamWriter writer(&xml);
+    NahdXmlWriter writer { xml };
     writer.writeStartElement(Constants::NahdXml::xmlKeyParameters());
 
     writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
@@ -1371,7 +1373,7 @@ void XmlSerializationTest::test_clipper_legacyNames_shouldLoadCorrectly()
 
     writer.writeEndElement(); // Parameters
 
-    QXmlStreamReader reader(xml);
+    NahdXmlReader reader { xml };
     if (reader.readNextStartElement()) {
         effect.deserializeParametersFromXml(reader);
     }
@@ -1389,7 +1391,7 @@ void XmlSerializationTest::test_reverb_legacyNames_shouldLoadCorrectly()
     ReverbEffect effect;
 
     QString xml;
-    QXmlStreamWriter writer(&xml);
+    NahdXmlWriter writer { xml };
     writer.writeStartElement(Constants::NahdXml::xmlKeyParameters());
 
     writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
@@ -1406,7 +1408,7 @@ void XmlSerializationTest::test_reverb_legacyNames_shouldLoadCorrectly()
 
     writer.writeEndElement(); // Parameters
 
-    QXmlStreamReader reader(xml);
+    NahdXmlReader reader { xml };
     if (reader.readNextStartElement()) {
         effect.deserializeParametersFromXml(reader);
     }

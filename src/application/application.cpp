@@ -18,6 +18,7 @@
 #include "common/audio_backend.hpp"
 #include "common/constants.hpp"
 #include "common/utils.hpp"
+#include "common/xml/project_writer.hpp"
 #include "contrib/Argengine/src/argengine.hpp"
 #include "contrib/SimpleLogger/src/simple_logger.hpp"
 #include "domain/devices/bass_synth_device.hpp"
@@ -344,7 +345,7 @@ void Application::connectDeviceService()
 
     connect(m_editorService.get(), &EditorService::devicesSerializationRequested, m_deviceService.get(), &DeviceService::serializeToXml);
     connect(m_editorService.get(), &EditorService::devicesDeserializationRequested, m_deviceService.get(), &DeviceService::deserializeFromXml);
-    connect(m_editorService.get(), &EditorService::dataSerializationRequested, this, [this](QXmlStreamWriter & writer) {
+    connect(m_editorService.get(), &EditorService::dataSerializationRequested, this, [this](ProjectWriter & writer) {
         const auto files = m_deviceService->getFilesToEmbed();
         m_dataService->serializeDataToXml(writer, files);
     });

@@ -19,11 +19,11 @@
 #include "domain/devices/device.hpp"
 #include "domain/dsp/compressor_effect.hpp"
 #include "infra/audio/audio_engine.hpp"
+#include "infra/xml/nahd_xml_reader.hpp"
+#include "infra/xml/nahd_xml_writer.hpp"
 
 #include <QByteArray>
 #include <QTest>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -324,7 +324,7 @@ void SideChainAudioTest::test_compressorEffect_sideChainLpf_serialization_should
         if (const auto p = comp.parameter(Constants::NahdXml::xmlKeySideChainLpf().toStdString()); p) {
             p->get().setValue(expectedCutoff);
         }
-        QXmlStreamWriter writer(&data);
+        NahdXmlWriter writer { data };
         writer.writeStartElement("compressor");
         comp.serializeParametersToXml(writer);
         writer.writeEndElement();
@@ -332,7 +332,7 @@ void SideChainAudioTest::test_compressorEffect_sideChainLpf_serialization_should
 
     {
         CompressorEffect comp;
-        QXmlStreamReader reader(data);
+        NahdXmlReader reader { data };
         while (!reader.atEnd() && !reader.isStartElement()) {
             reader.readNext();
         }

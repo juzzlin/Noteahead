@@ -22,10 +22,10 @@
 #include <memory>
 #include <optional>
 
-class QXmlStreamReader;
-class QXmlStreamWriter;
-
 namespace noteahead {
+
+class ProjectReader;
+class ProjectWriter;
 
 class Line
 {
@@ -47,9 +47,9 @@ public:
     LineEventOpt lineEvent() const;
     void setLineEvent(LineEventOpt lineEvent);
 
-    void serializeToXml(QXmlStreamWriter & writer) const;
+    void serializeToXml(ProjectWriter & writer) const;
     using LineU = std::unique_ptr<Line>;
-    static LineU deserializeFromXml(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex);
+    static LineU deserializeFromXml(ProjectReader & reader, size_t trackIndex, size_t columnIndex);
 
 private:
     size_t m_index = 0;

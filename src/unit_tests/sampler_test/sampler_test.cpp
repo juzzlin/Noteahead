@@ -17,10 +17,10 @@
 #include "common/constants.hpp"
 #include "domain/devices/sampler_device.hpp"
 #include "infra/audio/backend/audio_file_reader.hpp"
+#include "infra/xml/nahd_xml_reader.hpp"
+#include "infra/xml/nahd_xml_writer.hpp"
 
 #include <QTest>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -231,13 +231,13 @@ void SamplerTest::test_serialization_shouldSaveAndLoadGain()
         SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
         sampler.setGain(0.8f);
         sampler.setVolume(0.4f);
-        QXmlStreamWriter writer(&data);
+        NahdXmlWriter writer { data };
         sampler.serializeToXml(writer);
     }
 
     {
         SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
-        QXmlStreamReader reader(data);
+        NahdXmlReader reader { data };
         while (!reader.atEnd() && !reader.isStartElement()) {
             reader.readNext();
         }
@@ -279,13 +279,13 @@ void SamplerTest::test_projectLoadMidiCcResetGlobal_shouldRestoreLoadedValues()
         sampler.setVolume(0.4f);
         sampler.setPan(0.6f);
         sampler.setGain(0.7f);
-        QXmlStreamWriter writer(&data);
+        NahdXmlWriter writer { data };
         sampler.serializeToXml(writer);
     }
 
     {
         SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
-        QXmlStreamReader reader(data);
+        NahdXmlReader reader { data };
         while (!reader.atEnd() && !reader.isStartElement()) {
             reader.readNext();
         }

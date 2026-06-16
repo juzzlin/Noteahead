@@ -17,11 +17,11 @@
 
 #include "common/constants.hpp"
 #include "common/utils.hpp"
+#include "common/xml/project_reader.hpp"
+#include "common/xml/project_writer.hpp"
 #include "contrib/SimpleLogger/src/simple_logger.hpp"
 
 #include <QStringBuilder>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -29,7 +29,7 @@ static const auto TAG = "ColumnSettings";
 
 ColumnSettings::ColumnSettings() = default;
 
-void ColumnSettings::serializeToXml(QXmlStreamWriter & writer) const
+void ColumnSettings::serializeToXml(ProjectWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyColumnSettings());
 
@@ -57,7 +57,7 @@ void ColumnSettings::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeEndElement(); // ColumnSettings
 }
 
-ColumnSettings::ColumnSettingsU ColumnSettings::deserializeFromXml(QXmlStreamReader & reader)
+ColumnSettings::ColumnSettingsU ColumnSettings::deserializeFromXml(ProjectReader & reader)
 {
     juzzlin::L(TAG).trace() << "Reading ColumnSettings";
 

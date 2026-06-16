@@ -20,7 +20,9 @@
 #include <set>
 #include <vector>
 
-class QXmlStreamWriter;
+namespace noteahead {
+class ProjectWriter;
+}
 
 namespace noteahead {
 
@@ -49,11 +51,11 @@ public:
     using PatternSet = std::set<size_t>;
     void removeMissingPatterns(const PatternSet & validPatterns);
 
-    void serializeToXml(QXmlStreamWriter & writer) const;
-    void serializeToXml(QXmlStreamWriter & writer, size_t lastPosition) const;
+    void serializeToXml(ProjectWriter & writer) const;
+    void serializeToXml(ProjectWriter & writer, size_t lastPosition) const;
 
 private:
-    void serializePosition(QXmlStreamWriter & writer, size_t position) const;
+    void serializePosition(ProjectWriter & writer, size_t position) const;
 
     size_t m_defaultPatternIndex;
     using PlayOrderItem = std::pair<size_t, bool>;

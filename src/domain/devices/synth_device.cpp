@@ -14,6 +14,8 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "domain/devices/synth_device.hpp"
+#include "common/xml/project_reader.hpp"
+#include "common/xml/project_writer.hpp"
 #include "domain/devices/synth_presets.hpp"
 
 #include "common/constants.hpp"
@@ -21,8 +23,6 @@
 #include "common/utils.hpp"
 #include "infra/midi/midi_cc_mapping.hpp"
 
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 #include <algorithm>
 #include <cmath>
 
@@ -875,7 +875,7 @@ void SynthDevice::syncParameters()
     }
 }
 
-void SynthDevice::serializeToXml(QXmlStreamWriter & writer) const
+void SynthDevice::serializeToXml(ProjectWriter & writer) const
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
@@ -893,7 +893,7 @@ void SynthDevice::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeEndElement();
 }
 
-void SynthDevice::deserializeFromXml(QXmlStreamReader & reader)
+void SynthDevice::deserializeFromXml(ProjectReader & reader)
 {
     {
         const std::lock_guard<std::recursive_mutex> lock { mutex() };
@@ -902,11 +902,11 @@ void SynthDevice::deserializeFromXml(QXmlStreamReader & reader)
 
         while (!reader.atEnd() && !reader.hasError()) {
             const auto token = reader.readNext();
-            if (token == QXmlStreamReader::EndElement && reader.name() == Constants::NahdXml::xmlKeyDevice()) {
+            if (token == ProjectReader::TokenType::EndElement && reader.name() == Constants::NahdXml::xmlKeyDevice()) {
                 break;
             }
 
-            if (token == QXmlStreamReader::StartElement) {
+            if (token == ProjectReader::TokenType::StartElement) {
                 if (reader.name() == Constants::NahdXml::xmlKeyParameters()) {
                     deserializeParametersFromXml(reader);
                 } else if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects()) {

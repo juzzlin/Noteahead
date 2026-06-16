@@ -18,11 +18,11 @@
 #include "common/constants.hpp"
 #include "domain/devices/synth_device.hpp"
 #include "domain/devices/synth_presets.hpp"
+#include "infra/xml/nahd_xml_reader.hpp"
+#include "infra/xml/nahd_xml_writer.hpp"
 
 #include <QBuffer>
 #include <QTest>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 #include <cmath>
 #include <map>
 
@@ -519,13 +519,13 @@ void SynthTest::test_projectLoadPhaseSync_shouldLoadCorrectly()
     {
         SynthDevice synth { "Test Synth" };
         synth.setVco1Sync(true);
-        QXmlStreamWriter writer(&data);
+        NahdXmlWriter writer { data };
         synth.serializeToXml(writer);
     }
 
     {
         SynthDevice synth { "Test Synth" };
-        QXmlStreamReader reader(data);
+        NahdXmlReader reader { data };
         while (!reader.atEnd() && !reader.isStartElement()) {
             reader.readNext();
         }
@@ -540,13 +540,13 @@ void SynthTest::test_serialization_shouldSaveAndLoadGain()
     {
         SynthDevice synth { "Test Synth" };
         synth.setGain(0.8f);
-        QXmlStreamWriter writer(&data);
+        NahdXmlWriter writer { data };
         synth.serializeToXml(writer);
     }
 
     {
         SynthDevice synth { "Test Synth" };
-        QXmlStreamReader reader(data);
+        NahdXmlReader reader { data };
         while (!reader.atEnd() && !reader.isStartElement()) {
             reader.readNext();
         }
@@ -604,13 +604,13 @@ void SynthTest::test_projectLoadMidiCcReset_shouldRestoreLoadedValues()
         synth.setPan(0.6f);
         synth.setGain(0.7f);
         synth.setLpfCutoff(0.33f);
-        QXmlStreamWriter writer(&data);
+        NahdXmlWriter writer { data };
         synth.serializeToXml(writer);
     }
 
     {
         SynthDevice synth { "Test Synth" };
-        QXmlStreamReader reader(data);
+        NahdXmlReader reader { data };
         while (!reader.atEnd() && !reader.isStartElement()) {
             reader.readNext();
         }
@@ -940,13 +940,13 @@ void SynthTest::test_lfoWaveform_random_serialization_shouldPreserveState()
     {
         SynthDevice synth { "Test Synth" };
         synth.setLfoWaveform(Lfo::Waveform::Random);
-        QXmlStreamWriter writer(&data);
+        NahdXmlWriter writer { data };
         synth.serializeToXml(writer);
     }
 
     {
         SynthDevice synth { "Test Synth" };
-        QXmlStreamReader reader(data);
+        NahdXmlReader reader { data };
         while (!reader.atEnd() && !reader.isStartElement()) {
             reader.readNext();
         }
@@ -1095,13 +1095,13 @@ void SynthTest::test_oscillatorDrift_serialization_shouldPreserveState()
     {
         SynthDevice synth { "Test Synth" };
         synth.setOscillatorDrift(0.75f);
-        QXmlStreamWriter writer(&data);
+        NahdXmlWriter writer { data };
         synth.serializeToXml(writer);
     }
 
     {
         SynthDevice synth { "Test Synth" };
-        QXmlStreamReader reader(data);
+        NahdXmlReader reader { data };
         while (!reader.atEnd() && !reader.isStartElement()) {
             reader.readNext();
         }
@@ -1190,13 +1190,13 @@ void SynthTest::test_crossModDepth_serialization_shouldPreserveState()
     {
         SynthDevice synth { "Test Synth" };
         synth.setCrossModDepth(0.6f);
-        QXmlStreamWriter writer(&data);
+        NahdXmlWriter writer { data };
         synth.serializeToXml(writer);
     }
 
     {
         SynthDevice synth { "Test Synth" };
-        QXmlStreamReader reader(data);
+        NahdXmlReader reader { data };
         while (!reader.atEnd() && !reader.isStartElement()) {
             reader.readNext();
         }

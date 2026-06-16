@@ -26,10 +26,10 @@
 #include <tuple>
 #include <vector>
 
-class QXmlStreamWriter;
-class QXmlStreamReader;
-
 namespace noteahead {
+
+class ProjectReader;
+class ProjectWriter;
 
 class NoteData : public EventData
 {
@@ -61,9 +61,9 @@ public:
     void setDelay(uint8_t ticks);
 
     std::string toString() const;
-    void serializeToXml(QXmlStreamWriter & writer) const;
+    void serializeToXml(ProjectWriter & writer) const;
     using NoteDataS = std::shared_ptr<NoteData>;
-    static NoteDataS deserializeFromXml(QXmlStreamReader & reader, size_t trackIndex, size_t columnIndex);
+    static NoteDataS deserializeFromXml(ProjectReader & reader, size_t trackIndex, size_t columnIndex);
 
     size_t track() const;
     size_t column() const;

@@ -24,15 +24,14 @@
 #include <QVariantList>
 #include <QVector>
 
-class QXmlStreamReader;
-class QXmlStreamWriter;
-
 namespace noteahead {
 
-class AudioWorker;
-class SettingsService;
-class JackService;
 class AudioEngine;
+class AudioWorker;
+class JackService;
+class ProjectReader;
+class ProjectWriter;
+class SettingsService;
 
 class AudioService : public QObject
 {
@@ -79,8 +78,8 @@ public:
     Q_INVOKABLE quint64 latestRecordingStartTick() const;
     Q_INVOKABLE quint64 latestRecordingEndTick() const;
 
-    void serializeToXml(QXmlStreamWriter & writer) const;
-    void deserializeFromXml(QXmlStreamReader & reader);
+    void serializeToXml(ProjectWriter & writer) const;
+    void deserializeFromXml(ProjectReader & reader);
 
 signals:
     void latestRecordingFileNameChanged();

@@ -18,10 +18,10 @@
 #include "common/constants.hpp"
 #include "common/parameter_mapper.hpp"
 #include "common/utils.hpp"
+#include "common/xml/project_reader.hpp"
+#include "common/xml/project_writer.hpp"
 #include "infra/midi/midi_cc_mapping.hpp"
 
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 #include <algorithm>
 #include <cmath>
 
@@ -330,7 +330,7 @@ void BassSynthDevice::resetAudio()
     m_distLpState = 0.0f;
 }
 
-void BassSynthDevice::serializeToXml(QXmlStreamWriter & writer) const
+void BassSynthDevice::serializeToXml(ProjectWriter & writer) const
 {
     const std::lock_guard<std::recursive_mutex> lock(mutex());
     writer.writeStartElement(Constants::NahdXml::xmlKeyDevice());
@@ -347,7 +347,7 @@ void BassSynthDevice::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeEndElement();
 }
 
-void BassSynthDevice::deserializeFromXml(QXmlStreamReader & reader)
+void BassSynthDevice::deserializeFromXml(ProjectReader & reader)
 {
     {
         const std::lock_guard<std::recursive_mutex> lock(mutex());
@@ -355,11 +355,11 @@ void BassSynthDevice::deserializeFromXml(QXmlStreamReader & reader)
 
         while (!reader.atEnd() && !reader.hasError()) {
             const auto token = reader.readNext();
-            if (token == QXmlStreamReader::EndElement && reader.name() == Constants::NahdXml::xmlKeyDevice()) {
+            if (token == ProjectReader::TokenType::EndElement && reader.name() == Constants::NahdXml::xmlKeyDevice()) {
                 break;
             }
 
-            if (token == QXmlStreamReader::StartElement) {
+            if (token == ProjectReader::TokenType::StartElement) {
                 if (reader.name() == Constants::NahdXml::xmlKeyParameters()) {
                     deserializeParametersFromXml(reader);
                 } else if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects()) {

@@ -16,12 +16,11 @@
 #include "domain/devices/drum_synth_device.hpp"
 
 #include "common/constants.hpp"
+#include "common/xml/project_reader.hpp"
+#include "common/xml/project_writer.hpp"
 #include "infra/midi/midi_cc_mapping.hpp"
 
 #include "domain/dsp/drum/clap_engine.hpp"
-
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -278,7 +277,7 @@ void DrumSynthDevice::resetAudio()
     m_oversamplerR.reset();
 }
 
-void DrumSynthDevice::serializeToXml(QXmlStreamWriter & writer) const
+void DrumSynthDevice::serializeToXml(ProjectWriter & writer) const
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     writer.writeStartElement(Constants::NahdXml::xmlKeyDevice());
@@ -295,7 +294,7 @@ void DrumSynthDevice::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeEndElement();
 }
 
-void DrumSynthDevice::deserializeFromXml(QXmlStreamReader & reader)
+void DrumSynthDevice::deserializeFromXml(ProjectReader & reader)
 {
     {
         const std::lock_guard<std::recursive_mutex> lock { mutex() };
@@ -303,11 +302,11 @@ void DrumSynthDevice::deserializeFromXml(QXmlStreamReader & reader)
 
         while (!reader.atEnd() && !reader.hasError()) {
             const auto token = reader.readNext();
-            if (token == QXmlStreamReader::EndElement && reader.name() == Constants::NahdXml::xmlKeyDevice()) {
+            if (token == ProjectReader::TokenType::EndElement && reader.name() == Constants::NahdXml::xmlKeyDevice()) {
                 break;
             }
 
-            if (token == QXmlStreamReader::StartElement) {
+            if (token == ProjectReader::TokenType::StartElement) {
                 if (reader.name() == Constants::NahdXml::xmlKeyParameters()) {
                     deserializeParametersFromXml(reader);
                 } else if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects()) {

@@ -26,10 +26,10 @@
 #include <memory>
 #include <optional>
 
-class QXmlStreamReader;
-class QXmlStreamWriter;
-
 namespace noteahead {
+
+class ProjectReader;
+class ProjectWriter;
 
 class EffectRackController : public QObject
 {
@@ -83,10 +83,10 @@ public:
     Q_INVOKABLE void confirmImportEffectSettings(int index, const QUrl & fileUrl);
 
     Q_INVOKABLE void exportSettings(const QUrl & fileUrl);
-    bool exportSettings(QXmlStreamWriter & writer) const;
+    bool exportSettings(ProjectWriter & writer) const;
 
     Q_INVOKABLE void importSettings(const QUrl & fileUrl);
-    bool importSettings(QXmlStreamReader & reader);
+    bool importSettings(ProjectReader & reader);
     Q_INVOKABLE QVariantList availableEffects() const;
 
     Q_INVOKABLE bool isEffectEnabled(quint32 effectIndex) const;

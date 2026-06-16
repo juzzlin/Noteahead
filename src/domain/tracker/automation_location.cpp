@@ -16,9 +16,10 @@
 #include "domain/tracker/automation_location.hpp"
 
 #include "common/constants.hpp"
+#include "common/xml/project_reader.hpp"
+#include "common/xml/project_writer.hpp"
 
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
+#include <QVariant>
 
 namespace noteahead {
 
@@ -41,7 +42,7 @@ bool AutomationLocation::operator!=(const AutomationLocation & other) const
     return !(*this == other);
 }
 
-void AutomationLocation::serializeToXml(QXmlStreamWriter & writer) const
+void AutomationLocation::serializeToXml(ProjectWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyLocation());
     writer.writeAttribute(Constants::NahdXml::xmlKeyPatternAttr(), QString::number(m_pattern));
@@ -50,12 +51,11 @@ void AutomationLocation::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeEndElement();
 }
 
-AutomationLocation::AutomationLocationU AutomationLocation::deserializeFromXml(QXmlStreamReader & reader)
+AutomationLocation::AutomationLocationU AutomationLocation::deserializeFromXml(ProjectReader & reader)
 {
-    const auto attributes = reader.attributes();
-    const auto pattern = attributes.value(Constants::NahdXml::xmlKeyPatternAttr()).toULongLong();
-    const auto track = attributes.value(Constants::NahdXml::xmlKeyTrackAttr()).toULongLong();
-    const auto column = attributes.value(Constants::NahdXml::xmlKeyColumnAttr()).toULongLong();
+    const auto pattern = reader.attribute(Constants::NahdXml::xmlKeyPatternAttr()).toULongLong();
+    const auto track = reader.attribute(Constants::NahdXml::xmlKeyTrackAttr()).toULongLong();
+    const auto column = reader.attribute(Constants::NahdXml::xmlKeyColumnAttr()).toULongLong();
     return std::make_unique<AutomationLocation>(pattern, track, column);
 }
 

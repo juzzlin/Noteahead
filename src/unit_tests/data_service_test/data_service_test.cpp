@@ -16,10 +16,10 @@
 #include "data_service_test.hpp"
 #include "common/constants.hpp"
 #include "infra/data_service.hpp"
+#include "infra/xml/nahd_xml_writer.hpp"
 
 #include <QTemporaryFile>
 #include <QTest>
-#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -63,7 +63,7 @@ void DataServiceTest::test_serializeDataToXml_shouldEmbedFilesAsBase64()
     embedFiles[nahdPath] = tempFile.fileName();
 
     QString xml;
-    QXmlStreamWriter writer { &xml };
+    NahdXmlWriter writer { xml };
     writer.writeStartElement("Project");
     service.serializeDataToXml(writer, embedFiles);
     writer.writeEndElement();

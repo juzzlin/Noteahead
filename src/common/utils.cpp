@@ -17,13 +17,14 @@
 
 #include "constants.hpp"
 #include "parameter_mapper.hpp"
+#include "xml/project_reader.hpp"
 
 #include <algorithm>
 #include <array>
 #include <charconv>
 #include <string>
 
-#include <QXmlStreamReader>
+#include <QVariant>
 
 namespace noteahead::Utils {
 namespace Midi {
@@ -82,75 +83,81 @@ QStringList stdStringVectorToQStringList(const std::vector<std::string> & string
 } // namespace Misc
 
 namespace Xml {
-std::optional<bool> readBoolAttribute(QXmlStreamReader & reader, QString name, bool required)
+std::optional<bool> readBoolAttribute(ProjectReader & reader, QString name, bool required)
 {
-    if (!reader.attributes().hasAttribute(name)) {
+    const auto attribute = reader.attribute(name);
+    if (!attribute.isValid()) {
         if (required) {
             throw std::runtime_error { "Attribute '" + name.toStdString() + "' not found!" };
         }
         return {};
     } else {
-        return reader.attributes().value(name).toString() == Constants::NahdXml::xmlValueTrue();
+        return attribute.toString() == Constants::NahdXml::xmlValueTrue();
     }
 }
 
-std::optional<int> readIntAttribute(QXmlStreamReader & reader, QString name, bool required)
+std::optional<int> readIntAttribute(ProjectReader & reader, QString name, bool required)
 {
-    if (!reader.attributes().hasAttribute(name)) {
+    const auto attribute = reader.attribute(name);
+    if (!attribute.isValid()) {
         if (required) {
             throw std::runtime_error { "Attribute '" + name.toStdString() + "' not found!" };
         }
         return {};
     } else {
-        return reader.attributes().value(name).toInt();
+        return attribute.toInt();
     }
 }
 
-std::optional<double> readDoubleAttribute(QXmlStreamReader & reader, QString name, bool required)
+std::optional<double> readDoubleAttribute(ProjectReader & reader, QString name, bool required)
 {
-    if (!reader.attributes().hasAttribute(name)) {
+    const auto attribute = reader.attribute(name);
+    if (!attribute.isValid()) {
         if (required) {
             throw std::runtime_error { "Attribute '" + name.toStdString() + "' not found!" };
         }
         return {};
     } else {
-        return reader.attributes().value(name).toDouble();
+        return attribute.toDouble();
     }
 }
 
-std::optional<size_t> readUIntAttribute(QXmlStreamReader & reader, QString name, bool required)
+std::optional<size_t> readUIntAttribute(ProjectReader & reader, QString name, bool required)
 {
-    if (!reader.attributes().hasAttribute(name)) {
+    const auto attribute = reader.attribute(name);
+    if (!attribute.isValid()) {
         if (required) {
             throw std::runtime_error { "Attribute '" + name.toStdString() + "' not found!" };
         }
         return {};
     } else {
-        return reader.attributes().value(name).toUInt();
+        return attribute.toUInt();
     }
 }
 
-std::optional<QString> readStringAttribute(QXmlStreamReader & reader, QString name, bool required)
+std::optional<QString> readStringAttribute(ProjectReader & reader, QString name, bool required)
 {
-    if (!reader.attributes().hasAttribute(name)) {
+    const auto attribute = reader.attribute(name);
+    if (!attribute.isValid()) {
         if (required) {
             throw std::runtime_error { "Attribute '" + name.toStdString() + "' not found!" };
         }
         return {};
     } else {
-        return reader.attributes().value(name).toString();
+        return attribute.toString();
     }
 }
 
-std::optional<std::chrono::milliseconds> readMSecAttribute(QXmlStreamReader & reader, QString name, bool required)
+std::optional<std::chrono::milliseconds> readMSecAttribute(ProjectReader & reader, QString name, bool required)
 {
-    if (!reader.attributes().hasAttribute(name)) {
+    const auto attribute = reader.attribute(name);
+    if (!attribute.isValid()) {
         if (required) {
             throw std::runtime_error { "Attribute '" + name.toStdString() + "' not found!" };
         }
         return {};
     } else {
-        return static_cast<std::chrono::milliseconds>(reader.attributes().value(name).toInt());
+        return static_cast<std::chrono::milliseconds>(attribute.toInt());
     }
 }
 

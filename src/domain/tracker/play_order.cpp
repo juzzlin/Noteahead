@@ -16,12 +16,11 @@
 #include "domain/tracker/play_order.hpp"
 
 #include "common/constants.hpp"
+#include "common/xml/project_writer.hpp"
 #include "contrib/SimpleLogger/src/simple_logger.hpp"
 
 #include <algorithm>
 #include <ranges>
-
-#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -145,7 +144,7 @@ void PlayOrder::removeMissingPatterns(const PatternSet & validPatterns)
     m_playOrder.erase(it, m_playOrder.end());
 }
 
-void PlayOrder::serializePosition(QXmlStreamWriter & writer, size_t position) const
+void PlayOrder::serializePosition(ProjectWriter & writer, size_t position) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyPosition());
     writer.writeAttribute(Constants::NahdXml::xmlKeyIndex(), QString::number(position));
@@ -156,7 +155,7 @@ void PlayOrder::serializePosition(QXmlStreamWriter & writer, size_t position) co
     writer.writeEndElement();
 }
 
-void PlayOrder::serializeToXml(QXmlStreamWriter & writer) const
+void PlayOrder::serializeToXml(ProjectWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyPlayOrder());
     for (size_t i = 0; i < m_playOrder.size(); i++) {
@@ -165,7 +164,7 @@ void PlayOrder::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeEndElement();
 }
 
-void PlayOrder::serializeToXml(QXmlStreamWriter & writer, size_t lastPosition) const
+void PlayOrder::serializeToXml(ProjectWriter & writer, size_t lastPosition) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyPlayOrder());
     for (size_t i = 0; i <= lastPosition && i < m_playOrder.size(); i++) {

@@ -127,6 +127,8 @@ set(SRC
     ../../infra/midi/midi_cc_mapping.cpp
     ../../infra/midi/midi_port.cpp
     ../../infra/data_service.cpp
+    ../../infra/xml/nahd_xml_reader.cpp
+    ../../infra/xml/nahd_xml_writer.cpp
     ../../infra/settings.cpp
     ../../view/controllers/device_controller.cpp
     ../../view/controllers/drum_synth_controller.cpp

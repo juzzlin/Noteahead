@@ -27,10 +27,10 @@
 #include <string>
 #include <vector>
 
-class QXmlStreamReader;
-class QXmlStreamWriter;
-
 namespace noteahead {
+
+class ProjectReader;
+class ProjectWriter;
 
 namespace Constants {
 double defaultSampleRate();
@@ -95,8 +95,8 @@ public:
     uint32_t sampleRate() const;
     void setSampleRate(uint32_t sampleRate);
 
-    virtual void serializeToXml(QXmlStreamWriter & writer) const;
-    virtual void deserializeFromXml(QXmlStreamReader & reader);
+    virtual void serializeToXml(ProjectWriter & writer) const;
+    virtual void deserializeFromXml(ProjectReader & reader);
 
     float volume() const;
     virtual void setVolume(float volume);
@@ -116,8 +116,8 @@ signals:
     void sampleRateChanged();
 
 protected:
-    void serializeAttributesToXml(QXmlStreamWriter & writer) const;
-    void deserializeAttributesFromXml(QXmlStreamReader & reader);
+    void serializeAttributesToXml(ProjectWriter & writer) const;
+    void deserializeAttributesFromXml(ProjectReader & reader);
 
     virtual void syncParameters();
 
