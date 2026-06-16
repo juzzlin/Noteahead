@@ -109,6 +109,8 @@ signals:
     void synthUserPresetsChanged(const UserPresets & presets);
 
 private:
+    DeviceService::DeviceS getDevice(std::string name, std::string typeId);
+
     AudioEngineS m_audioEngine;
     DataServiceS m_dataService;
     UserPresets m_synthUserPresets;

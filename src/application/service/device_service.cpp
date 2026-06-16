@@ -314,29 +314,33 @@ void DeviceService::serializeToXml(QXmlStreamWriter & writer) const
     writer.writeEndElement(); // Devices
 }
 
+DeviceService::DeviceS DeviceService::getDevice(std::string name, std::string typeId)
+{
+    if (const auto dev = device(name); !dev && !typeId.empty()) {
+        return DeviceFactory::createDevice(typeId, name);
+    } else {
+        return dev;
+    }
+}
+
 void DeviceService::deserializeFromXml(QXmlStreamReader & reader)
 {
     while (reader.readNextStartElement()) {
-        const auto name = reader.name();
-        if (name == Constants::NahdXml::xmlKeyDevice()) {
-            const auto deviceName = reader.attributes().value(Constants::NahdXml::xmlKeyName()).toString();
+        if (reader.name() == Constants::NahdXml::xmlKeyDevice()) {
+            const auto name = reader.attributes().value(Constants::NahdXml::xmlKeyName()).toString();
             const auto typeId = reader.attributes().value(Constants::NahdXml::xmlKeyTypeId()).toString();
             const auto slotAttr = reader.attributes().value(Constants::NahdXml::xmlKeySlot());
             if (!slotAttr.isNull() && slotAttr.toUInt() <= Constants::deviceRackSize()) {
-                auto dev = device(deviceName.toStdString());
-                if (!dev && !typeId.isEmpty()) {
-                    dev = DeviceFactory::createDevice(typeId.toStdString(), deviceName.toStdString());
-                    if (dev) {
-                        setDevice(slotAttr.toUInt(), dev);
-                    }
-                }
-                if (dev) {
+                if (const auto dev = getDevice(name.toStdString(), typeId.toStdString()); dev) {
+                    setDevice(slotAttr.toUInt(), dev);
                     dev->deserializeFromXml(reader);
                 } else {
+                    juzzlin::L(TAG).error() << std::format("Failed to create device {} ({}) with slot index {}", typeId.toStdString(), name.toStdString(), slotAttr.toUInt());
                     reader.skipCurrentElement();
                 }
             } else {
-                juzzlin::L(TAG).warning() << std::format("Skipping device {} ({}) with slot index {} out of bounds!", typeId.toStdString(), deviceName.toStdString(), slotAttr.toUInt());
+                juzzlin::L(TAG).warning() << std::format("Skipping device {} ({}) with slot index {} out of bounds!", typeId.toStdString(), name.toStdString(), slotAttr.toUInt());
+                reader.skipCurrentElement();
             }
         } else if (reader.name() == Constants::NahdXml::xmlKeySynth()) {
             // Handled via generic Device element if present in slot
@@ -416,13 +420,13 @@ void DeviceService::deserializeFromXml(QXmlStreamReader & reader)
 
                                         std::shared_ptr<SynthDevice> synth;
                                         for (const auto & name : internalDeviceNames()) {
-                                            if (auto dev = std::dynamic_pointer_cast<SynthDevice>(device(name))) {
+                                            if (const auto dev = std::dynamic_pointer_cast<SynthDevice>(device(name)); dev) {
                                                 synth = dev;
                                                 break;
                                             }
                                         }
                                         if (synth) {
-                                            if (auto p = synth->parameter(paramName); p) {
+                                            if (const auto p = synth->parameter(paramName); p) {
                                                 if (p->get().isDiscrete() || p->get().isBoolean()) {
                                                     preset.parameters[paramName] = static_cast<float>(intValue);
                                                 } else {
