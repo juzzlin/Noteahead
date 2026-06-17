@@ -6,6 +6,7 @@ import "../Components"
 Menu {
     title: qsTr("Track")
     width: rootItem.width
+
     Action {
         text: qsTr("Settings")
         onTriggered: UiService.requestTrackSettingsDialog(editorService.position.track)

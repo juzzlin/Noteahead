@@ -5,6 +5,26 @@ import "../Components"
 
 Menu {
     id: rootItem
+
+    readonly property string trackPortName: editorService.instrumentPortName(editorService.position.track)
+    readonly property bool trackHasInternalDevice: deviceService.isInternalDevice(trackPortName)
+
+    MenuItem {
+        text: qsTr("Insert FX...")
+        visible: trackHasInternalDevice
+        onTriggered: UiService.requestDeviceInsertEffectsDialog(trackPortName)
+    }
+    MenuSeparator {
+        visible: trackHasInternalDevice
+    }
+    MenuItem {
+        text: qsTr("Effect Sends...")
+        visible: trackHasInternalDevice
+        onTriggered: UiService.requestEffectSendsDialog(trackPortName)
+    }
+    MenuSeparator {
+        visible: trackHasInternalDevice
+    }
     MainContextMenu_Line {}
     MenuSeparator {}
     MainContextMenu_Column {}

@@ -5,6 +5,9 @@ Release date:
 
 New features:
 
+* Add Insert FX and Effect Sends shortcuts to the track right-click menu
+  - Shortcuts appear at the top of the menu when the track has an internal device
+
 * Add LFO targets Volume, Resonance, and Pan to Synth and Wavetable Synth
   - Volume: tremolo effect (LFO modulates amplitude)
   - Resonance: filter resonance swept by LFO
