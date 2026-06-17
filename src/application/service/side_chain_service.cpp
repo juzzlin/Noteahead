@@ -24,9 +24,8 @@
 #include "../../domain/tracker/event.hpp"
 #include "../../domain/tracker/note_data.hpp"
 
-
-#include <algorithm>
 #include <QVariant>
+#include <algorithm>
 
 namespace noteahead {
 

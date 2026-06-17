@@ -15,8 +15,8 @@
 
 #include "midi_out_rt_midi.hpp"
 
-#include "../../midi_cc_mapping.hpp"
 #include "../../../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../midi_cc_mapping.hpp"
 
 #include <iomanip>
 #include <memory>

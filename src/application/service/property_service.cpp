@@ -16,9 +16,9 @@
 #include "property_service.hpp"
 
 #include "../../common/constants.hpp"
-#include "device_service.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../infra/midi/midi_cc_mapping.hpp"
+#include "device_service.hpp"
 
 #include <QVariantMap>
 

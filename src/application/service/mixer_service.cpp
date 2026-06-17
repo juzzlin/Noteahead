@@ -22,7 +22,6 @@
 
 #include <QVariant>
 
-
 namespace noteahead {
 
 static const auto TAG = "MixerService";

@@ -16,7 +16,6 @@
 #include "render_worker.hpp"
 
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "device_service.hpp"
 #include "../../domain/midi/midi_cc_data.hpp"
 #include "../../domain/midi/pitch_bend_data.hpp"
 #include "../../domain/tracker/event.hpp"
@@ -24,6 +23,7 @@
 #include "../../domain/tracker/note_data.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/audio/audio_file_recorder.hpp"
+#include "device_service.hpp"
 #include "mixer_service.hpp"
 
 #include <algorithm>

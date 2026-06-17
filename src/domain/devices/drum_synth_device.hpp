@@ -16,8 +16,6 @@
 #ifndef DRUM_SYNTH_DEVICE_HPP
 #define DRUM_SYNTH_DEVICE_HPP
 
-#include "device.hpp"
-#include "drum_synth_constants.hpp"
 #include "../dsp/drum/crash_engine.hpp"
 #include "../dsp/drum/hihat_engine.hpp"
 #include "../dsp/drum/kick_engine.hpp"
@@ -29,6 +27,8 @@
 #include "../effects/low_pass_filter_effect.hpp"
 #include "../effects/panning_effect.hpp"
 #include "../effects/volume_effect.hpp"
+#include "device.hpp"
+#include "drum_synth_constants.hpp"
 
 #include <array>
 #include <memory>

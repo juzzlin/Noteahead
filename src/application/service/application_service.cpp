@@ -15,13 +15,13 @@
 
 #include "application_service.hpp"
 
-#include "../note_converter.hpp"
-#include "../state_machine.hpp"
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/midi/midi_note_data.hpp"
 #include "../../domain/tracker/instrument.hpp"
+#include "../note_converter.hpp"
+#include "../state_machine.hpp"
 #include "editor_service.hpp"
 #include "player_service.hpp"
 #include "recent_files_manager.hpp"

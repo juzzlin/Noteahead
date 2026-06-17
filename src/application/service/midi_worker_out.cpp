@@ -15,11 +15,11 @@
 
 #include "midi_worker_out.hpp"
 
-#include "../instrument_request.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/tracker/instrument.hpp"
 #include "../../infra/midi/implementation/librtmidi/midi_out_rt_midi.hpp"
 #include "../../infra/midi/midi_cc_mapping.hpp"
+#include "../instrument_request.hpp"
 
 #include <chrono>
 

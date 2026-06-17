@@ -14,9 +14,9 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "chorus_effect.hpp"
-#include "audio_context.hpp"
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
+#include "audio_context.hpp"
 
 #include <algorithm>
 #include <cmath>

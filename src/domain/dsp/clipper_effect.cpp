@@ -14,9 +14,9 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "clipper_effect.hpp"
-#include "audio_context.hpp"
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
+#include "audio_context.hpp"
 
 #include <algorithm>
 #include <cmath>
