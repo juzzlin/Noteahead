@@ -5,6 +5,9 @@ Release date:
 
 New features:
 
+* Add Move Up/Down to insert effect Manage menu
+  - Reorders effects within the insert rack via context menu
+
 * Add Insert FX and Effect Sends shortcuts to the track right-click menu
   - Shortcuts appear at the top of the menu when the track has an internal device
 

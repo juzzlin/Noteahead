@@ -41,6 +41,14 @@ void EffectRack::setEffect(size_t index, EffectS effect)
     }
 }
 
+void EffectRack::swapEffects(size_t indexA, size_t indexB)
+{
+    std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    if (indexA < m_effects.size() && indexB < m_effects.size()) {
+        std::swap(m_effects[indexA], m_effects[indexB]);
+    }
+}
+
 void EffectRack::removeEffect(size_t index)
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };

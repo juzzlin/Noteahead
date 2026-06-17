@@ -279,6 +279,38 @@ void EffectRackTest::test_importEffectSettings_backwardsCompatibility()
     QCOMPARE(reverb->size(), 0.42f);
 }
 
+void EffectRackTest::test_swapEffects_shouldSwapTwoSlots()
+{
+    EffectRack rack;
+    const auto reverbA = std::make_shared<ReverbEffect>();
+    reverbA->setSize(0.3f);
+    const auto reverbB = std::make_shared<ReverbEffect>();
+    reverbB->setSize(0.7f);
+
+    rack.setEffect(0, reverbA);
+    rack.setEffect(1, reverbB);
+
+    rack.swapEffects(0, 1);
+
+    const auto a = std::dynamic_pointer_cast<ReverbEffect>(rack.effect(0));
+    const auto b = std::dynamic_pointer_cast<ReverbEffect>(rack.effect(1));
+    QVERIFY(a);
+    QVERIFY(b);
+    QCOMPARE(a->size(), 0.7f);
+    QCOMPARE(b->size(), 0.3f);
+}
+
+void EffectRackTest::test_swapEffects_outOfBounds_shouldDoNothing()
+{
+    EffectRack rack;
+    const auto reverb = std::make_shared<ReverbEffect>();
+    rack.setEffect(0, reverb);
+
+    rack.swapEffects(0, 999);
+
+    QCOMPARE(rack.effect(0), reverb);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::EffectRackTest)

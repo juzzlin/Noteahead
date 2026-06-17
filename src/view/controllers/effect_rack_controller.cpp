@@ -161,6 +161,32 @@ void EffectRackController::clearEffect(int slotIndex)
     }
 }
 
+void EffectRackController::moveEffectUp(int index)
+{
+    if (index <= 0) {
+        return;
+    }
+    if (const auto rack = currentRack(); rack) {
+        rack->get().swapEffects(static_cast<size_t>(index), static_cast<size_t>(index - 1));
+        m_editorService->setIsModified(true);
+        m_revision++;
+        emit revisionChanged();
+    }
+}
+
+void EffectRackController::moveEffectDown(int index)
+{
+    if (const auto rack = currentRack(); rack) {
+        if (index >= static_cast<int>(rack->get().effectCount()) - 1) {
+            return;
+        }
+        rack->get().swapEffects(static_cast<size_t>(index), static_cast<size_t>(index + 1));
+        m_editorService->setIsModified(true);
+        m_revision++;
+        emit revisionChanged();
+    }
+}
+
 QVariantList EffectRackController::availableEffects() const
 {
     QVariantList list;

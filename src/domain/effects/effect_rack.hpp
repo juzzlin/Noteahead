@@ -36,6 +36,7 @@ public:
     ~EffectRack();
 
     void setEffect(size_t index, EffectS effect);
+    void swapEffects(size_t indexA, size_t indexB);
     void removeEffect(size_t index);
     EffectS effect(size_t index) const;
     std::vector<EffectS> effects() const;
