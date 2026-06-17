@@ -16,12 +16,12 @@
 #ifndef WAVETABLE_SYNTH_DEVICE_HPP
 #define WAVETABLE_SYNTH_DEVICE_HPP
 
-#include "device.hpp"
 #include "../dsp/adsr_envelope.hpp"
 #include "../dsp/cascaded_svf.hpp"
 #include "../dsp/lfo.hpp"
 #include "../dsp/oversampler.hpp"
 #include "../dsp/wavetable_oscillator.hpp"
+#include "device.hpp"
 
 #include <mutex>
 #include <random>
@@ -50,7 +50,10 @@ public:
         Pitch,
         Cutoff,
         Osc1Pos,
-        Osc2Pos
+        Osc2Pos,
+        Volume,
+        Resonance,
+        Pan
     };
 
     enum class VoiceMode
@@ -282,6 +285,9 @@ private:
         double cutoffMod { 0.0 };
         double osc1PosMod { 0.0 };
         double osc2PosMod { 0.0 };
+        double resonanceMod { 0.0 };
+        double panMod { 0.0 };
+        double volumeMod { 0.0 };
     };
 
     ModulationValues calculateModulation(Voice & voice) const;

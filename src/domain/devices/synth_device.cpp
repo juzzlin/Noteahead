@@ -154,7 +154,7 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoMode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete }); // Normal default
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoRate().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoIntensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyLfoTarget().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete }); // Pitch default
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfoTarget().toStdString(), 0.0f, 0, 5, 0, 1, Parameter::Type::Discrete }); // Pitch default
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceMode().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceDepth().toStdString(), 0.0f, 0, 10000, 0, 100 });
@@ -189,6 +189,7 @@ SynthDevice::SynthDevice(std::string name)
     setManualVolume(volumeInternal());
     setManualGain(gainInternal());
     m_manualLpfCutoff = m_lpfCutoff;
+    m_manualLpfResonance = m_lpfResonance;
     m_manualHpfCutoff = m_hpfCutoff;
 
     SynthDevice::syncParameters();
@@ -225,8 +226,10 @@ std::vector<MidiCcController> SynthDevice::availableMidiCcControllers() const
 {
     using namespace MidiCcMapping;
     return {
+        { static_cast<uint8_t>(Controller::ModulationWheelMSB), "LFO Int" },
         { static_cast<uint8_t>(Controller::ChannelVolumeMSB), "Volume" },
         { static_cast<uint8_t>(Controller::PanMSB), "Pan" },
+        { static_cast<uint8_t>(Controller::SoundController2), "Resonance" },
         { static_cast<uint8_t>(Controller::SoundController5), "LPF" },
         { static_cast<uint8_t>(Controller::GeneralPurpose6), "HPF" }
     };
@@ -272,9 +275,6 @@ void SynthDevice::renderVoice(Voice & voice, AudioContext & context, uint32_t ov
     updateVoiceParameters(voice, oversampledRate, index);
 
     const float gain = (1.0f / static_cast<float>(MaxVoices)) * linearGainInternal() * voice.velocity;
-    const float voicePan = std::clamp(panInternal() + voice.pan - 0.5f, 0.0f, 1.0f);
-    const float panL = (1.0f - voicePan) * 2.0f;
-    const float panR = voicePan * 2.0f;
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
         for (int os = 0; os < 2; os++) {
@@ -282,6 +282,10 @@ void SynthDevice::renderVoice(Voice & voice, AudioContext & context, uint32_t ov
 
             const ModulationValues mods = calculateModulation(voice);
             const float finalHighRateSample = generateVoiceSample(voice, mods, oversampledRate, pbRatio) * gain;
+
+            const float voicePan = std::clamp(panInternal() + voice.pan - 0.5f + static_cast<float>(mods.panMod) * 0.5f, 0.0f, 1.0f);
+            const float panL = (1.0f - voicePan) * 2.0f;
+            const float panR = voicePan * 2.0f;
 
             m_oversampledBuffer[(i * 2 + os) * 2] += finalHighRateSample * panL;
             m_oversampledBuffer[(i * 2 + os) * 2 + 1] += finalHighRateSample * panR;
@@ -373,12 +377,19 @@ void SynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
         std::lock_guard<std::recursive_mutex> lock { mutex() };
         if (controller == static_cast<uint8_t>(Controller::ResetAllControllers)) {
             m_lpfCutoff = m_manualLpfCutoff;
+            m_lpfResonance = m_manualLpfResonance;
             m_hpfCutoff = m_manualHpfCutoff;
             if (const auto p = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); p) {
                 p->get().setValue(m_lpfCutoff);
             }
+            if (const auto p = parameter(Constants::NahdXml::xmlKeyLpfResonance().toStdString()); p) {
+                p->get().setValue(m_lpfResonance);
+            }
             if (const auto p = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) {
                 p->get().setValue(m_hpfCutoff);
+            }
+            if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoIntensity().toStdString()); p) {
+                m_lfoInt = ParameterMapper::mapCubicCentered((p->get().value() - 0.5f) * 2.0f, -1.0, 1.0);
             }
             updatePanParameter(manualPanInternal(), false);
             updateVolumeParameter(manualVolumeInternal(), false);
@@ -388,10 +399,20 @@ void SynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
             m_currentBank = std::clamp(static_cast<int>(value), 0, 1); // 0: Factory, 1: User
         } else {
             const float val = static_cast<float>(value) / 127.0f;
-            if (controller == static_cast<uint8_t>(Controller::ChannelVolumeMSB)) {
+            if (controller == static_cast<uint8_t>(Controller::ModulationWheelMSB)) { // LFO intensity (temporary, not saved to param)
+                m_lfoInt = val;
+                changed = true;
+            } else if (controller == static_cast<uint8_t>(Controller::ChannelVolumeMSB)) {
                 changed |= updateVolumeParameter(val, false);
             } else if (controller == static_cast<uint8_t>(Controller::PanMSB)) {
                 changed |= updatePanParameter(val, false);
+            } else if (controller == static_cast<uint8_t>(Controller::SoundController2)) { // Resonance
+                m_lpfResonance = val;
+                if (const auto p = parameter(Constants::NahdXml::xmlKeyLpfResonance().toStdString()); p) {
+                    p->get().setValue(val);
+                    syncParameters();
+                    changed = true;
+                }
             } else if (controller == static_cast<uint8_t>(Controller::SoundController5)) { // Cutoff
                 m_lpfCutoff = val;
                 if (const auto p = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); p) {
@@ -600,6 +621,16 @@ SynthDevice::ModulationValues SynthDevice::calculateModulation(Voice & voice) co
         mods.vco3PitchMod += lfoVal;
     }
 
+    if (m_lfoTarget == LfoTarget::Volume) {
+        mods.volumeMod = lfoVal;
+    }
+    if (m_lfoTarget == LfoTarget::Resonance) {
+        mods.resonanceMod = lfoVal;
+    }
+    if (m_lfoTarget == LfoTarget::Pan) {
+        mods.panMod = lfoVal;
+    }
+
     return mods;
 }
 
@@ -694,10 +725,12 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
     const double cutoffMod = mods.cutoffMod + (voice.note - 60.0) / 127.0 * m_filterKeyTrack;
 
     voice.lpf.setCutoff(std::clamp(m_lpfCutoff + cutoffMod, 0.0, 1.0));
+    voice.lpf.setResonance(std::clamp(m_lpfResonance + static_cast<float>(mods.resonanceMod), 0.0f, 1.0f));
     voice.hpf.setCutoff(m_hpfCutoff);
 
     const float filtered = voice.hpf.process(voice.lpf.process(static_cast<float>(mixHeadroom)));
-    return filtered * static_cast<float>(mods.ampEnvelope);
+    const float ampMod = static_cast<float>(std::max(0.0, 1.0 + mods.volumeMod));
+    return filtered * static_cast<float>(mods.ampEnvelope) * ampMod;
 }
 
 void SynthDevice::syncParameters()
@@ -926,6 +959,7 @@ void SynthDevice::deserializeFromXml(ProjectReader & reader)
         setManualVolume(volumeInternal());
         setManualGain(gainInternal());
         m_manualLpfCutoff = m_lpfCutoff;
+        m_manualLpfResonance = m_lpfResonance;
         m_manualHpfCutoff = m_hpfCutoff;
     }
     emit dataChanged();
@@ -980,6 +1014,7 @@ void SynthDevice::loadPreset(int bank, int index)
         setManualVolume(volumeInternal());
         setManualGain(gainInternal());
         m_manualLpfCutoff = m_lpfCutoff;
+        m_manualLpfResonance = m_lpfResonance;
         m_manualHpfCutoff = m_hpfCutoff;
     }
 
@@ -1352,6 +1387,7 @@ void SynthDevice::setLpfResonance(float resonance)
         std::lock_guard<std::recursive_mutex> lock { mutex() };
         if (const auto p = parameter(Constants::NahdXml::xmlKeyLpfResonance().toStdString()); p) {
             p->get().setValue(resonance);
+            m_manualLpfResonance = p->get().value();
             syncParameters();
             changed = true;
         }

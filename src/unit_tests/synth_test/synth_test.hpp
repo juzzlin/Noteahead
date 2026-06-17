@@ -63,6 +63,14 @@ private slots:
     void test_crossModDepth_zero_shouldProduceSameFrequency();
     void test_crossModDepth_nonZero_shouldModulateVco2Frequency();
     void test_crossModDepth_serialization_shouldPreserveState();
+
+    void test_midiCcResonance_shouldUpdateParameter();
+    void test_midiCcResonanceReset_shouldRestoreManualValue();
+    void test_midiCcModWheel_shouldOverrideLfoIntensity();
+    void test_midiCcModWheelReset_shouldRestoreLfoIntensity();
+    void test_lfoTarget_volume_shouldModulateAmplitude();
+    void test_lfoTarget_resonance_shouldModulateResonance();
+    void test_lfoTarget_pan_shouldModulatePanning();
 };
 
 } // namespace noteahead

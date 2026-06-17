@@ -16,8 +16,6 @@
 #ifndef SYNTH_DEVICE_HPP
 #define SYNTH_DEVICE_HPP
 
-#include "device.hpp"
-#include "synth_presets.hpp"
 #include "../dsp/adsr_envelope.hpp"
 #include "../dsp/cascaded_svf.hpp"
 #include "../dsp/lfo.hpp"
@@ -25,6 +23,8 @@
 #include "../dsp/oversampler.hpp"
 #include "../dsp/poly_blep_oscillator.hpp"
 #include "../effects/delay_effect.hpp"
+#include "device.hpp"
+#include "synth_presets.hpp"
 
 #include <mutex>
 #include <random>
@@ -58,7 +58,10 @@ public:
     {
         Pitch,
         Shape,
-        Cutoff
+        Cutoff,
+        Volume,
+        Resonance,
+        Pan
     };
 
     explicit SynthDevice(std::string name);
@@ -334,6 +337,7 @@ private:
 
     // Manual settings for CC reset
     float m_manualLpfCutoff { 1.0f };
+    float m_manualLpfResonance { 0.0f };
     float m_manualHpfCutoff { 0.0f };
 
     float m_oscillatorDrift { 0.0f };
@@ -375,6 +379,9 @@ private:
         double vco1PitchMod { 0.0 };
         double vco2PitchMod { 0.0 };
         double vco3PitchMod { 0.0 };
+        double resonanceMod { 0.0 };
+        double panMod { 0.0 };
+        double volumeMod { 0.0 };
     };
 
     ModulationValues calculateModulation(Voice & voice) const;

@@ -5,6 +5,16 @@ Release date:
 
 New features:
 
+* Add LFO targets Volume, Resonance, and Pan to Synth and Wavetable Synth
+  - Volume: tremolo effect (LFO modulates amplitude)
+  - Resonance: filter resonance swept by LFO
+  - Pan: auto-pan / stereo movement
+  - All three targets also supported by LFO 2 in Wavetable Synth
+
+* Add MIDI CC mappings to Synth and Wavetable Synth
+  - CC 1 (Mod Wheel): temporarily overrides LFO intensity; reset by CC 121
+  - CC 71 (Resonance): controls LPF resonance in Synth (already present in Wavetable Synth)
+
 * Add oscillator drift to Synth
   - Per-voice sinusoidal pitch drift (±5 cents max) with independent
     rates per voice for an analog feel

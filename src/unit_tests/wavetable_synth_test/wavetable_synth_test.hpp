@@ -41,6 +41,14 @@ private slots:
     void test_lfo2_serialization_shouldPreserveState();
     void test_lfoWaveform_random_serialization_shouldPreserveState();
     void test_lfo2Waveform_random_serialization_shouldPreserveState();
+
+    void test_midiCcModWheel_shouldOverrideLfoIntensity();
+    void test_lfoTarget_volume_shouldModulateAmplitude();
+    void test_lfoTarget_resonance_shouldModulateResonance();
+    void test_lfoTarget_pan_shouldModulatePanning();
+    void test_lfo2Target_volume_shouldModulateAmplitude();
+    void test_lfo2Target_resonance_shouldModulateResonance();
+    void test_lfo2Target_pan_shouldModulatePanning();
 };
 
 } // namespace noteahead

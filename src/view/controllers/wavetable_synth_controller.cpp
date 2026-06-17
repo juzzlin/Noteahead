@@ -534,7 +534,7 @@ QStringList WavetableSynthController::lfoModeNames() const
 
 QStringList WavetableSynthController::lfoTargetNames() const
 {
-    return { tr("Pitch"), tr("Cutoff"), tr("Osc 1 Pos"), tr("Osc 2 Pos") };
+    return { tr("Pitch"), tr("Cutoff"), tr("Osc 1 Pos"), tr("Osc 2 Pos"), tr("Volume"), tr("Resonance"), tr("Pan") };
 }
 
 QStringList WavetableSynthController::lfo2WaveformNames() const

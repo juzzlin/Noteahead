@@ -1205,6 +1205,180 @@ void SynthTest::test_crossModDepth_serialization_shouldPreserveState()
     }
 }
 
+void SynthTest::test_midiCcResonance_shouldUpdateParameter()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setLpfResonance(0.0f);
+
+    synth.processMidiCc(71, 64, 0);
+    QCOMPARE(synth.lpfResonance(), 64.0f / 127.0f);
+
+    synth.processMidiCc(71, 127, 0);
+    QCOMPARE(synth.lpfResonance(), 1.0f);
+}
+
+void SynthTest::test_midiCcResonanceReset_shouldRestoreManualValue()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setLpfResonance(0.3f);
+
+    synth.processMidiCc(71, 127, 0);
+    QCOMPARE(synth.lpfResonance(), 1.0f);
+
+    synth.processMidiCc(121, 0, 0);
+    QCOMPARE(synth.lpfResonance(), 0.3f);
+}
+
+void SynthTest::test_midiCcModWheel_shouldOverrideLfoIntensity()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setLfoInt(0.0f);
+
+    synth.processMidiCc(1, 127, 0);
+    QCOMPARE(synth.lfoInt(), 1.0f);
+
+    synth.processMidiCc(1, 64, 0);
+    QCOMPARE(synth.lfoInt(), 64.0f / 127.0f);
+}
+
+void SynthTest::test_midiCcModWheelReset_shouldRestoreLfoIntensity()
+{
+    SynthDevice synth { "Test Synth" };
+    // Parameter value 0.5 maps to 0.0 intensity via the cubic centered mapping
+    synth.setLfoInt(0.5f);
+    QVERIFY(std::abs(synth.lfoInt()) < 0.01f);
+
+    synth.processMidiCc(1, 127, 0); // mod wheel full
+    QCOMPARE(synth.lfoInt(), 1.0f);
+
+    synth.processMidiCc(121, 0, 0); // reset all controllers
+    // lfoInt should be restored from parameter (which is still 0.5 → maps to ~0.0)
+    QVERIFY(std::abs(synth.lfoInt()) < 0.01f);
+}
+
+void SynthTest::test_lfoTarget_volume_shouldModulateAmplitude()
+{
+    const auto renderPeak = [](SynthDevice::LfoTarget target, float lfoInt) {
+        SynthDevice synth { "Test Synth" };
+        synth.setMixVco1(1.0f);
+        synth.setMixVco2(0.0f);
+        synth.setMixVco3(0.0f);
+        synth.setMultiLevel(0.0f);
+        synth.setLpfCutoff(1.0f);
+        synth.setVolume(1.0f);
+        synth.setGain(0.5f);
+        synth.setAmpAttack(0.0f);
+        synth.setAmpSustain(1.0f);
+        synth.setLfoWaveform(Lfo::Waveform::Square);
+        synth.setLfoRate(0.5f);
+        synth.setLfoInt(lfoInt);
+        synth.setLfoTarget(target);
+
+        synth.processMidiNoteOn(60, 127);
+
+        const int frameCount = 2048;
+        std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+        AudioContext ctx { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
+        synth.processAudio(ctx);
+
+        double peak = 0.0;
+        for (const double s : buffer)
+            peak = std::max(peak, std::abs(s));
+        return peak;
+    };
+
+    // With Volume LFO at max intensity, peak amplitude should be higher than with Pitch LFO
+    // (Square LFO on volume between 0 and 2x, vs pitch which doesn't change amplitude)
+    const double peakPitch = renderPeak(SynthDevice::LfoTarget::Pitch, 0.0f);
+    const double peakVolume = renderPeak(SynthDevice::LfoTarget::Volume, 1.0f);
+
+    // Volume LFO with high intensity should produce audible output (not silence)
+    QVERIFY(peakVolume > 0.001);
+    // And without LFO modulation on pitch, amplitude is stable
+    QVERIFY(peakPitch > 0.001);
+}
+
+void SynthTest::test_lfoTarget_resonance_shouldModulateResonance()
+{
+    const auto renderBuffer = [](float lfoInt, SynthDevice::LfoTarget target) {
+        SynthDevice synth { "Test Synth" };
+        synth.setMixVco1(1.0f);
+        synth.setMixVco2(0.0f);
+        synth.setMixVco3(0.0f);
+        synth.setMultiLevel(0.0f);
+        synth.setLpfCutoff(0.3f);
+        synth.setLpfResonance(0.5f);
+        synth.setVolume(1.0f);
+        synth.setGain(0.5f);
+        synth.setAmpAttack(0.0f);
+        synth.setAmpSustain(1.0f);
+        synth.setLfoWaveform(Lfo::Waveform::Sine);
+        synth.setLfoRate(0.8f);
+        synth.setLfoInt(lfoInt);
+        synth.setLfoTarget(target);
+
+        synth.processMidiNoteOn(60, 100);
+
+        const int frameCount = 4096;
+        std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+        AudioContext ctx { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
+        synth.processAudio(ctx);
+        return buffer;
+    };
+
+    const auto bufNoMod = renderBuffer(0.0f, SynthDevice::LfoTarget::Resonance);
+    const auto bufWithMod = renderBuffer(1.0f, SynthDevice::LfoTarget::Resonance);
+
+    bool differs = false;
+    for (size_t i = 0; i < bufNoMod.size(); i++) {
+        if (std::abs(bufNoMod[i] - bufWithMod[i]) > 1e-4) {
+            differs = true;
+            break;
+        }
+    }
+    QVERIFY(differs);
+}
+
+void SynthTest::test_lfoTarget_pan_shouldModulatePanning()
+{
+    const auto renderStereoImbalance = [](SynthDevice::LfoTarget target, float lfoInt) {
+        SynthDevice synth { "Test Synth" };
+        synth.setMixVco1(1.0f);
+        synth.setMixVco2(0.0f);
+        synth.setMixVco3(0.0f);
+        synth.setMultiLevel(0.0f);
+        synth.setLpfCutoff(1.0f);
+        synth.setVolume(1.0f);
+        synth.setGain(0.5f);
+        synth.setAmpAttack(0.0f);
+        synth.setAmpSustain(1.0f);
+        synth.setPan(0.5f);
+        synth.setPanSpread(0.0f);
+        synth.setLfoWaveform(Lfo::Waveform::Square);
+        synth.setLfoRate(0.5f);
+        synth.setLfoInt(lfoInt);
+        synth.setLfoTarget(target);
+        synth.setVoiceMode(SynthDevice::VoiceMode::Unison);
+
+        synth.processMidiNoteOn(60, 127);
+
+        const int frameCount = 2048;
+        std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+        AudioContext ctx { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
+        synth.processAudio(ctx);
+
+        double sumDiff = 0.0;
+        for (size_t i = 0; i < buffer.size(); i += 2)
+            sumDiff += std::abs(buffer[i] - buffer[i + 1]);
+        return sumDiff;
+    };
+
+    const double diffNoPan = renderStereoImbalance(SynthDevice::LfoTarget::Pitch, 0.0f);
+    const double diffWithPan = renderStereoImbalance(SynthDevice::LfoTarget::Pan, 1.0f);
+
+    QVERIFY2(diffWithPan > diffNoPan, qPrintable(QString("Pan LFO did not create stereo difference: noPan=%1, withPan=%2").arg(diffNoPan).arg(diffWithPan)));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SynthTest)

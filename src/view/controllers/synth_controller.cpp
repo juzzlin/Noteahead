@@ -103,7 +103,7 @@ QStringList SynthController::lfoModeNames() const
 
 QStringList SynthController::lfoTargetNames() const
 {
-    return { tr("Pitch"), tr("Shape"), tr("Cutoff") };
+    return { tr("Pitch"), tr("Shape"), tr("Cutoff"), tr("Volume"), tr("Resonance"), tr("Pan") };
 }
 
 // VCO1

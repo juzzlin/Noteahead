@@ -119,13 +119,13 @@ WavetableSynthDevice::WavetableSynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoMode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete, { "wavetableSynthLfoMode" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoRate().toStdString(), 0.5f, 0, 10000, 5000, 100, Parameter::Type::Continuous, { "wavetableSynthLfoRate" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoIntensity().toStdString(), 0.5f, 0, 10000, 5000, 100, Parameter::Type::Continuous, { "wavetableSynthLfoIntensity" } });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyLfoTarget().toStdString(), 0.0f, 0, 3, 0, 1, Parameter::Type::Discrete, { "wavetableSynthLfoTarget" } });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfoTarget().toStdString(), 0.0f, 0, 6, 0, 1, Parameter::Type::Discrete, { "wavetableSynthLfoTarget" } });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Waveform().toStdString(), 1.0f, 0, 4, 1, 1, Parameter::Type::Discrete, { "wavetableSynthLfo2Waveform" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Mode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete, { "wavetableSynthLfo2Mode" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Rate().toStdString(), 0.5f, 0, 10000, 5000, 100, Parameter::Type::Continuous, { "wavetableSynthLfo2Rate" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Intensity().toStdString(), 0.5f, 0, 10000, 5000, 100, Parameter::Type::Continuous, { "wavetableSynthLfo2Intensity" } });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Target().toStdString(), 0.0f, 0, 3, 0, 1, Parameter::Type::Discrete, { "wavetableSynthLfo2Target" } });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Target().toStdString(), 0.0f, 0, 6, 0, 1, Parameter::Type::Discrete, { "wavetableSynthLfo2Target" } });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceMode().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete, { "wavetableSynthVoiceMode" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceDepth().toStdString(), 0.1f, 0, 10000, 1000, 100, Parameter::Type::Continuous, { "wavetableSynthVoiceDepth" } });
@@ -171,10 +171,11 @@ std::string WavetableSynthDevice::typeId() const
 std::vector<MidiCcController> WavetableSynthDevice::availableMidiCcControllers() const
 {
     return {
+        MidiCcController { 1, "LFO Int" },
         MidiCcController { 7, "Volume" },
         MidiCcController { 10, "Pan" },
-        MidiCcController { 74, "Cutoff" },
         MidiCcController { 71, "Resonance" },
+        MidiCcController { 74, "Cutoff" },
         MidiCcController { 81, "HPF Cutoff" }
     };
 }
@@ -242,14 +243,14 @@ void WavetableSynthDevice::renderVoice(Voice & voice, AudioContext & context, ui
 
     const float gain = (1.0f / static_cast<float>(MaxVoices)) * linearGainInternal() * voice.velocity;
     for (uint32_t i = 0; i < context.frameCount; i++) {
-        const float voicePan = std::clamp(panInternal() + voice.pan - 0.5f, 0.0f, 1.0f);
-        const float panL = (1.0f - voicePan) * 2.0f;
-        const float panR = voicePan * 2.0f;
-
         for (int subSample = 0; subSample < 2; subSample++) {
             voice.glideFrequency += (voice.frequency - voice.glideFrequency) * portamentoCoeff;
             const ModulationValues mods = calculateModulation(voice);
             const float sample = generateVoiceSample(voice, mods, oversampledRate, pbRatio) * gain;
+
+            const float voicePan = std::clamp(panInternal() + voice.pan - 0.5f + static_cast<float>(mods.panMod) * 0.5f, 0.0f, 1.0f);
+            const float panL = (1.0f - voicePan) * 2.0f;
+            const float panR = voicePan * 2.0f;
 
             m_oversampledBuffer[(i * 2 + subSample) * 2] += sample * panL;
             m_oversampledBuffer[(i * 2 + subSample) * 2 + 1] += sample * panR;
@@ -303,7 +304,10 @@ void WavetableSynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint
     {
         const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
-        if (controller == 7) {
+        if (controller == 1) { // LFO intensity (temporary, not saved to param)
+            m_lfoInt = val;
+            changed = true;
+        } else if (controller == 7) {
             changed = updateVolumeParameter(val, false);
         } else if (controller == 10) {
             changed = updatePanParameter(val, false);
@@ -467,6 +471,12 @@ WavetableSynthDevice::ModulationValues WavetableSynthDevice::calculateModulation
         mods.osc1PosMod += mods.lfoValue;
     } else if (m_lfoTarget == LfoTarget::Osc2Pos) {
         mods.osc2PosMod += mods.lfoValue;
+    } else if (m_lfoTarget == LfoTarget::Volume) {
+        mods.volumeMod += mods.lfoValue;
+    } else if (m_lfoTarget == LfoTarget::Resonance) {
+        mods.resonanceMod += mods.lfoValue;
+    } else if (m_lfoTarget == LfoTarget::Pan) {
+        mods.panMod += mods.lfoValue;
     }
 
     if (m_lfo2Target == LfoTarget::Cutoff) {
@@ -475,6 +485,12 @@ WavetableSynthDevice::ModulationValues WavetableSynthDevice::calculateModulation
         mods.osc1PosMod += mods.lfo2Value;
     } else if (m_lfo2Target == LfoTarget::Osc2Pos) {
         mods.osc2PosMod += mods.lfo2Value;
+    } else if (m_lfo2Target == LfoTarget::Volume) {
+        mods.volumeMod += mods.lfo2Value;
+    } else if (m_lfo2Target == LfoTarget::Resonance) {
+        mods.resonanceMod += mods.lfo2Value;
+    } else if (m_lfo2Target == LfoTarget::Pan) {
+        mods.panMod += mods.lfo2Value;
     }
 
     return mods;
@@ -522,9 +538,11 @@ float WavetableSynthDevice::generateVoiceSample(Voice & voice, const ModulationV
     const float mix = osc1Val + osc2Val + noise;
 
     voice.lpf.setCutoff(std::clamp(m_lpfCutoff + static_cast<float>(mods.cutoffMod), 0.0f, 1.0f));
+    voice.lpf.setResonance(std::clamp(m_lpfResonance + static_cast<float>(mods.resonanceMod), 0.0f, 1.0f));
     voice.hpf.setCutoff(m_hpfCutoff);
 
-    return voice.hpf.process(voice.lpf.process(mix)) * static_cast<float>(mods.ampEnvelope);
+    const float ampMod = static_cast<float>(std::max(0.0, 1.0 + mods.volumeMod));
+    return voice.hpf.process(voice.lpf.process(mix)) * static_cast<float>(mods.ampEnvelope) * ampMod;
 }
 
 void WavetableSynthDevice::syncParameters()

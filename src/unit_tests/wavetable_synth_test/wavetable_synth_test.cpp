@@ -376,6 +376,176 @@ void WavetableSynthTest::test_lfo2Waveform_random_serialization_shouldPreserveSt
     QCOMPARE(synth2.lfo2Waveform(), Lfo::Waveform::Random);
 }
 
+void WavetableSynthTest::test_midiCcModWheel_shouldOverrideLfoIntensity()
+{
+    WavetableSynthDevice synth { "Test Synth" };
+    synth.setLfoInt(0.5f); // zero intensity (midpoint)
+
+    synth.processMidiCc(1, 127, 0);
+    QCOMPARE(synth.lfoInt(), 1.0f);
+
+    synth.processMidiCc(1, 0, 0);
+    QCOMPARE(synth.lfoInt(), 0.0f);
+}
+
+static void setupBasicSynth(WavetableSynthDevice & synth)
+{
+    synth.setOsc1Level(1.0f);
+    synth.setOsc2Level(0.0f);
+    synth.setNoiseLevel(0.0f);
+    synth.setLpfCutoff(0.4f);
+    synth.setLpfResonance(0.5f);
+    synth.setVolume(1.0f);
+    synth.setAmpAttack(0.0f);
+    synth.setAmpSustain(1.0f);
+    synth.setLfoWaveform(Lfo::Waveform::Sine);
+    synth.setLfoRate(0.8f);
+}
+
+static std::vector<double> renderBuffer(WavetableSynthDevice & synth)
+{
+    synth.processMidiNoteOn(60, 100);
+    const int frameCount = 4096;
+    std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+    AudioContext ctx { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
+    synth.processAudio(ctx);
+    return buffer;
+}
+
+void WavetableSynthTest::test_lfoTarget_volume_shouldModulateAmplitude()
+{
+    WavetableSynthDevice synthNoMod { "Test Synth" };
+    setupBasicSynth(synthNoMod);
+    synthNoMod.setLfoInt(0.5f); // zero intensity
+    synthNoMod.setLfoTarget(WavetableSynthDevice::LfoTarget::Volume);
+    const auto bufNoMod = renderBuffer(synthNoMod);
+
+    WavetableSynthDevice synthWithMod { "Test Synth" };
+    setupBasicSynth(synthWithMod);
+    synthWithMod.setLfoInt(1.0f);
+    synthWithMod.setLfoTarget(WavetableSynthDevice::LfoTarget::Volume);
+    const auto bufWithMod = renderBuffer(synthWithMod);
+
+    bool differs = false;
+    for (size_t i = 0; i < bufNoMod.size(); i++) {
+        if (std::abs(bufNoMod[i] - bufWithMod[i]) > 1e-4) {
+            differs = true;
+            break;
+        }
+    }
+    QVERIFY(differs);
+}
+
+void WavetableSynthTest::test_lfoTarget_resonance_shouldModulateResonance()
+{
+    WavetableSynthDevice synthNoMod { "Test Synth" };
+    setupBasicSynth(synthNoMod);
+    synthNoMod.setLfoInt(0.5f);
+    synthNoMod.setLfoTarget(WavetableSynthDevice::LfoTarget::Resonance);
+    const auto bufNoMod = renderBuffer(synthNoMod);
+
+    WavetableSynthDevice synthWithMod { "Test Synth" };
+    setupBasicSynth(synthWithMod);
+    synthWithMod.setLfoInt(1.0f);
+    synthWithMod.setLfoTarget(WavetableSynthDevice::LfoTarget::Resonance);
+    const auto bufWithMod = renderBuffer(synthWithMod);
+
+    bool differs = false;
+    for (size_t i = 0; i < bufNoMod.size(); i++) {
+        if (std::abs(bufNoMod[i] - bufWithMod[i]) > 1e-4) {
+            differs = true;
+            break;
+        }
+    }
+    QVERIFY(differs);
+}
+
+void WavetableSynthTest::test_lfoTarget_pan_shouldModulatePanning()
+{
+    WavetableSynthDevice synth { "Test Synth" };
+    setupBasicSynth(synth);
+    synth.setLfoInt(1.0f);
+    synth.setLfoTarget(WavetableSynthDevice::LfoTarget::Pan);
+    synth.setPan(0.5f);
+    synth.setPanSpread(0.0f);
+    synth.setVoiceMode(WavetableSynthDevice::VoiceMode::Unison);
+
+    const auto buf = renderBuffer(synth);
+
+    double sumDiff = 0.0;
+    for (size_t i = 0; i < buf.size(); i += 2)
+        sumDiff += std::abs(buf[i] - buf[i + 1]);
+
+    QVERIFY2(sumDiff > 0.001, "Pan LFO did not create any stereo difference");
+}
+
+void WavetableSynthTest::test_lfo2Target_volume_shouldModulateAmplitude()
+{
+    WavetableSynthDevice synthNoMod { "Test Synth" };
+    setupBasicSynth(synthNoMod);
+    synthNoMod.setLfo2Int(0.5f);
+    synthNoMod.setLfo2Target(WavetableSynthDevice::LfoTarget::Volume);
+    const auto bufNoMod = renderBuffer(synthNoMod);
+
+    WavetableSynthDevice synthWithMod { "Test Synth" };
+    setupBasicSynth(synthWithMod);
+    synthWithMod.setLfo2Int(1.0f);
+    synthWithMod.setLfo2Target(WavetableSynthDevice::LfoTarget::Volume);
+    const auto bufWithMod = renderBuffer(synthWithMod);
+
+    bool differs = false;
+    for (size_t i = 0; i < bufNoMod.size(); i++) {
+        if (std::abs(bufNoMod[i] - bufWithMod[i]) > 1e-4) {
+            differs = true;
+            break;
+        }
+    }
+    QVERIFY(differs);
+}
+
+void WavetableSynthTest::test_lfo2Target_resonance_shouldModulateResonance()
+{
+    WavetableSynthDevice synthNoMod { "Test Synth" };
+    setupBasicSynth(synthNoMod);
+    synthNoMod.setLfo2Int(0.5f);
+    synthNoMod.setLfo2Target(WavetableSynthDevice::LfoTarget::Resonance);
+    const auto bufNoMod = renderBuffer(synthNoMod);
+
+    WavetableSynthDevice synthWithMod { "Test Synth" };
+    setupBasicSynth(synthWithMod);
+    synthWithMod.setLfo2Int(1.0f);
+    synthWithMod.setLfo2Target(WavetableSynthDevice::LfoTarget::Resonance);
+    const auto bufWithMod = renderBuffer(synthWithMod);
+
+    bool differs = false;
+    for (size_t i = 0; i < bufNoMod.size(); i++) {
+        if (std::abs(bufNoMod[i] - bufWithMod[i]) > 1e-4) {
+            differs = true;
+            break;
+        }
+    }
+    QVERIFY(differs);
+}
+
+void WavetableSynthTest::test_lfo2Target_pan_shouldModulatePanning()
+{
+    WavetableSynthDevice synth { "Test Synth" };
+    setupBasicSynth(synth);
+    synth.setLfo2Int(1.0f);
+    synth.setLfo2Target(WavetableSynthDevice::LfoTarget::Pan);
+    synth.setPan(0.5f);
+    synth.setPanSpread(0.0f);
+    synth.setVoiceMode(WavetableSynthDevice::VoiceMode::Unison);
+
+    const auto buf = renderBuffer(synth);
+
+    double sumDiff = 0.0;
+    for (size_t i = 0; i < buf.size(); i += 2)
+        sumDiff += std::abs(buf[i] - buf[i + 1]);
+
+    QVERIFY2(sumDiff > 0.001, "LFO2 Pan did not create any stereo difference");
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::WavetableSynthTest)
