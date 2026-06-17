@@ -30,6 +30,7 @@ public:
     float nextSample() override;
     bool isActive() const override;
     void reset() override;
+    void stop() override;
 
     void setTune(float tune);
     void setDecay(float decay);
@@ -50,6 +51,7 @@ private:
     float m_pitchDepth { 0.5f };
     float m_pitchDecay { 0.5f };
     float m_velocity { 1.0f };
+    bool m_stopping { false };
 };
 
 } // namespace noteahead

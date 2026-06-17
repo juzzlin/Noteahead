@@ -32,6 +32,7 @@ public:
     float nextSample() override;
     bool isActive() const override;
     void reset() override;
+    void stop() override;
 
     void setTune(float tune);
     void setDecay(float decay);
@@ -61,6 +62,7 @@ private:
     float m_tonalDecayRate { 1.0f };
     float m_decayRate { 1.0f };
     double m_lastSampleRate { 0.0 };
+    bool m_stopping { false };
 
     std::mt19937 m_rng;
     std::uniform_real_distribution<float> m_dist { -1.0f, 1.0f };

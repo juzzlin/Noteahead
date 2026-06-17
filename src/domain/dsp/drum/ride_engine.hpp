@@ -34,6 +34,7 @@ public:
     float nextSample() override;
     bool isActive() const override;
     void reset() override;
+    void stop() override;
 
     void setTune(float tune);
     void setDecay(float decay);
@@ -54,6 +55,7 @@ private:
     CascadedSvf m_filter;
 
     std::array<double, 6> m_phases { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    bool m_stopping { false };
 };
 
 } // namespace noteahead

@@ -30,6 +30,7 @@ void RideEngine::trigger(float velocity)
 {
     m_velocity = velocity;
     m_active = true;
+    m_stopping = false;
     m_filter.reset();
     m_ampEnv = 1.0f;
     m_attackEnv = 0.0f;
@@ -70,7 +71,8 @@ float RideEngine::nextSample()
     const float attackRate { 1.0f / (0.0005f * static_cast<float>(sampleRate())) };
     m_attackEnv = std::min(1.0f, m_attackEnv + attackRate);
 
-    const float decayRate { 1.0f - (1.0f / (std::max(0.01f, m_decay) * 2.0f * static_cast<float>(sampleRate()))) };
+    const float chokeDecayRate { 1.0f - (1.0f / (ChokeFadeSeconds * static_cast<float>(sampleRate()))) };
+    const float decayRate = m_stopping ? chokeDecayRate : 1.0f - (1.0f / (std::max(0.01f, m_decay) * 2.0f * static_cast<float>(sampleRate())));
     m_ampEnv *= decayRate;
     if (m_ampEnv < AmplitudeThreshold) {
         m_active = false;
@@ -88,7 +90,13 @@ bool RideEngine::isActive() const
 void RideEngine::reset()
 {
     m_active = false;
+    m_stopping = false;
     m_ampEnv = 0.0f;
+}
+
+void RideEngine::stop()
+{
+    m_stopping = true;
 }
 
 void RideEngine::setTune(float tune)

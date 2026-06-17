@@ -35,6 +35,7 @@ void SnareEngine::trigger(float velocity)
     m_attackEnv = 0.0f;
     m_tonalEnv = 1.0f;
     m_pitchEnv = 1.0f;
+    m_stopping = false;
     m_tonalPhase1 = std::uniform_real_distribution<double>(0.0, 1.0)(m_rng);
     m_tonalPhase2 = std::uniform_real_distribution<double>(0.0, 1.0)(m_rng);
     m_active = true;
@@ -97,8 +98,9 @@ float SnareEngine::nextSample()
     // Separate decay for tonal part (much faster than noise)
     const float attackRate { 1.0f / (0.0005f * static_cast<float>(sr)) };
     m_attackEnv = std::min(1.0f, m_attackEnv + attackRate);
-    m_tonalEnv *= m_tonalDecayRate;
-    m_ampEnv *= m_decayRate;
+    const float chokeDecayRate { 1.0f - (1.0f / (ChokeFadeSeconds * static_cast<float>(sr))) };
+    m_tonalEnv *= m_stopping ? chokeDecayRate : m_tonalDecayRate;
+    m_ampEnv *= m_stopping ? chokeDecayRate : m_decayRate;
 
     if (m_ampEnv < AmplitudeThreshold) {
         m_active = false;
@@ -117,7 +119,13 @@ bool SnareEngine::isActive() const
 void SnareEngine::reset()
 {
     m_active = false;
+    m_stopping = false;
     m_ampEnv = 0.0f;
+}
+
+void SnareEngine::stop()
+{
+    m_stopping = true;
 }
 
 void SnareEngine::setTune(float tune)

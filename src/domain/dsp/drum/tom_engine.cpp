@@ -32,6 +32,7 @@ void TomEngine::trigger(float velocity)
     m_pitchEnv = 1.0f;
     m_phase = 0.0;
     m_active = true;
+    m_stopping = false;
 }
 
 float TomEngine::nextSample()
@@ -56,7 +57,8 @@ float TomEngine::nextSample()
         m_phase -= 1.0;
     }
 
-    const float ampDecayRate { 1.0f - (1.0f / (std::max(0.001f, m_decay) * 0.8f * static_cast<float>(sampleRate()))) };
+    const float chokeDecayRate { 1.0f - (1.0f / (ChokeFadeSeconds * static_cast<float>(sampleRate()))) };
+    const float ampDecayRate = m_stopping ? chokeDecayRate : 1.0f - (1.0f / (std::max(0.001f, m_decay) * 0.8f * static_cast<float>(sampleRate())));
     const float pitchDecayRate { 1.0f - (1.0f / (std::max(0.001f, m_pitchDecay * 0.1f) * static_cast<float>(sampleRate()))) };
 
     const float attackRate { 1.0f / (0.0005f * static_cast<float>(sampleRate())) };
@@ -78,9 +80,15 @@ float TomEngine::nextSample()
 void TomEngine::reset()
 {
     m_active = false;
+    m_stopping = false;
     m_ampEnv = 0.0f;
     m_lastOut = 0.0f;
     m_retriggerOffset = 0.0f;
+}
+
+void TomEngine::stop()
+{
+    m_stopping = true;
 }
 
 bool TomEngine::isActive() const

@@ -189,7 +189,7 @@ void DrumSynthDevice::processMidiAllNotesOff()
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     for (auto && voice : m_voices) {
-        voice.engine->reset();
+        voice.engine->stop();
     }
 }
 

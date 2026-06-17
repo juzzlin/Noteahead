@@ -152,7 +152,7 @@ void HiHatEngine::updateRates()
         m_lastSampleRate = sr;
         m_bodyDecayRate = 1.0f - (1.0f / (0.06f * static_cast<float>(sr)));
         m_decayRate = 1.0f - (1.0f / (std::max(0.001f, m_decay) * 0.18f * static_cast<float>(sr)));
-        m_chokeDecayRate = 1.0f - (1.0f / (0.015f * static_cast<float>(sr)));
+        m_chokeDecayRate = 1.0f - (1.0f / (ChokeFadeSeconds * static_cast<float>(sr)));
     }
 }
 

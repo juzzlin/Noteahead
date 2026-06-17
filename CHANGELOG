@@ -34,6 +34,9 @@ Bug fixes:
 
 * Fix Chorus send mode making signal quieter
 
+* Fix drum synth pop at end of song
+  - Each drum engine now fades out over 15ms when stopped (same pattern as Synth voice release)
+
 Other:
 
 4.0.0

@@ -41,6 +41,7 @@ public:
     float nextSample() override;
     bool isActive() const override;
     void reset() override;
+    void stop() override;
 
     void setTune(float tune);
     void setDecay(float decay);
@@ -71,6 +72,7 @@ private:
     float m_sizzleEnv { 0.0f };
     float m_bodyEnv { 0.0f };
     double m_wobblePhase { 0.0 };
+    bool m_stopping { false };
 };
 
 } // namespace noteahead

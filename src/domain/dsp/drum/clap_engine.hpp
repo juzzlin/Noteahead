@@ -33,6 +33,7 @@ public:
     float nextSample() override;
     bool isActive() const override;
     void reset() override;
+    void stop() override;
 
     void setTune(float tune);
     void setDecay(float decay);
@@ -59,6 +60,7 @@ private:
     std::vector<Burst> m_bursts;
     int m_sampleCount { 0 };
     float m_tailEnv { 0.0f };
+    bool m_stopping { false };
 };
 
 } // namespace noteahead

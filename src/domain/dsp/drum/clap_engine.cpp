@@ -30,6 +30,7 @@ void ClapEngine::trigger(float velocity)
 {
     m_velocity = velocity;
     m_active = true;
+    m_stopping = false;
     m_sampleCount = 0;
     m_tailEnv = 1.0f;
     m_attackEnv = 0.0f;
@@ -62,7 +63,8 @@ float ClapEngine::nextSample()
     const int tailStart = static_cast<int>(0.03f * sr);
     if (m_sampleCount >= tailStart) {
         tailAmp = m_tailEnv;
-        const float decayRate = 1.0f - (1.0f / (std::max(0.01f, m_decay) * 0.2f * static_cast<float>(sr)));
+        const float chokeDecayRate { 1.0f - (1.0f / (ChokeFadeSeconds * static_cast<float>(sr))) };
+        const float decayRate = m_stopping ? chokeDecayRate : 1.0f - (1.0f / (std::max(0.01f, m_decay) * 0.2f * static_cast<float>(sr)));
         m_tailEnv *= decayRate;
     }
 
@@ -93,7 +95,13 @@ bool ClapEngine::isActive() const
 void ClapEngine::reset()
 {
     m_active = false;
+    m_stopping = false;
     m_sampleCount = 0;
+}
+
+void ClapEngine::stop()
+{
+    m_stopping = true;
 }
 
 void ClapEngine::setTune(float tune)

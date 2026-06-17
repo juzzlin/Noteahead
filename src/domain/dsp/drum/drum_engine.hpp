@@ -24,6 +24,7 @@ class DrumEngine : public DspComponent
 {
 public:
     static constexpr float AmplitudeThreshold { 0.0001f };
+    static constexpr float ChokeFadeSeconds { 0.015f };
 
     virtual ~DrumEngine() override = default;
     virtual void trigger(float velocity) = 0;

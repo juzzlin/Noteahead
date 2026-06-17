@@ -39,6 +39,7 @@ void CrashEngine::trigger(float velocity)
 {
     m_velocity = velocity;
     m_active = true;
+    m_stopping = false;
     m_pitchEnv = 1.0f;
     m_sizzleEnv = 1.0f;
     m_bodyEnv = 1.0f;
@@ -144,19 +145,28 @@ float CrashEngine::nextSample()
 
     const auto out = static_cast<float>((m_lpf.process(filtered) + bodySource * m_attackEnv) * m_ampEnv * m_velocity);
 
+    const float chokeDecayRate { 1.0f - (1.0f / (ChokeFadeSeconds * static_cast<float>(sampleRate()))) };
     if (m_mode == Mode::Normal) {
-        const float decayRate { 1.0f - (1.0f / (std::max(0.01f, m_decay) * 2.5f * static_cast<float>(sampleRate()))) };
+        const float decayRate = m_stopping ? chokeDecayRate : 1.0f - (1.0f / (std::max(0.01f, m_decay) * 2.5f * static_cast<float>(sampleRate())));
         m_ampEnv *= decayRate;
         if (m_ampEnv < AmplitudeThreshold) {
             m_active = false;
             m_ampEnv = 0.0f;
         }
     } else {
-        const float riseRate { 1.0f / (std::max(0.01f, m_decay) * 4.0f * static_cast<float>(sampleRate())) };
-        m_ampEnv += riseRate;
-        if (m_ampEnv >= 1.0f) {
-            m_ampEnv = 1.0f;
-            m_active = false;
+        if (m_stopping) {
+            m_ampEnv *= chokeDecayRate;
+            if (m_ampEnv < AmplitudeThreshold) {
+                m_active = false;
+                m_ampEnv = 0.0f;
+            }
+        } else {
+            const float riseRate { 1.0f / (std::max(0.01f, m_decay) * 4.0f * static_cast<float>(sampleRate())) };
+            m_ampEnv += riseRate;
+            if (m_ampEnv >= 1.0f) {
+                m_ampEnv = 1.0f;
+                m_active = false;
+            }
         }
     }
 
@@ -171,7 +181,13 @@ bool CrashEngine::isActive() const
 void CrashEngine::reset()
 {
     m_active = false;
+    m_stopping = false;
     m_ampEnv = 0.0f;
+}
+
+void CrashEngine::stop()
+{
+    m_stopping = true;
 }
 
 void CrashEngine::setTune(float tune)

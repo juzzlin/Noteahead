@@ -36,6 +36,7 @@ void KickEngine::trigger(float velocity)
     m_phase = 0.0;
     m_clickPhase = 0.0;
     m_active = true;
+    m_stopping = false;
     m_ampEnv = 1.0f;
     m_attackEnv = 0.0f;
     m_clickEnv = 1.0f;
@@ -88,7 +89,8 @@ float KickEngine::nextSample()
     // Envelopes
     const float attackRate { 1.0f / (0.0005f * static_cast<float>(sr)) };
     m_attackEnv = std::min(1.0f, m_attackEnv + attackRate);
-    m_ampEnv *= m_ampDecayRate;
+    const float chokeDecayRate { 1.0f - (1.0f / (ChokeFadeSeconds * static_cast<float>(sr))) };
+    m_ampEnv *= m_stopping ? chokeDecayRate : m_ampDecayRate;
     m_clickEnv *= m_clickDecayRate;
     m_pitchEnv *= m_pitchDecayRate;
 
@@ -110,10 +112,16 @@ bool KickEngine::isActive() const
 void KickEngine::reset()
 {
     m_active = false;
+    m_stopping = false;
     m_ampEnv = 0.0f;
     m_clickEnv = 0.0f;
     m_lastOut = 0.0f;
     m_retriggerOffset = 0.0f;
+}
+
+void KickEngine::stop()
+{
+    m_stopping = true;
 }
 
 void KickEngine::setTune(float tune)
