@@ -45,7 +45,12 @@ CompressorEffect::CompressorEffect()
 
 std::optional<size_t> CompressorEffect::sidechainSourceDeviceIndex() const
 {
-    return m_sidechainSourceDevice;
+    if (const auto p = parameter(Constants::NahdXml::xmlKeySideChainSourceDevice().toStdString()); p) {
+        if (const int val = p->get().xmlValue(); val >= 0) {
+            return static_cast<size_t>(val);
+        }
+    }
+    return std::nullopt;
 }
 
 void CompressorEffect::process(double & left, double & right)
