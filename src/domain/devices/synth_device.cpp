@@ -14,14 +14,14 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "synth_device.hpp"
-#include "../../common/xml/project_reader.hpp"
-#include "../../common/xml/project_writer.hpp"
-#include "synth_presets.hpp"
 
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
 #include "../../common/utils.hpp"
+#include "../../common/xml/project_reader.hpp"
+#include "../../common/xml/project_writer.hpp"
 #include "../../infra/midi/midi_cc_mapping.hpp"
+#include "synth_presets.hpp"
 
 #include <algorithm>
 #include <cmath>
