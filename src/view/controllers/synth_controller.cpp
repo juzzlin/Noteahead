@@ -166,7 +166,7 @@ int SynthController::vco1Shape() const
 void SynthController::setVco1Shape(int s)
 {
     if (m_synth) {
-        m_synth->setVco1Shape(s / Constants::uiInternalScaling());
+        m_synth->setVco1Shape(static_cast<float>(s) / Constants::uiInternalScaling());
     }
 }
 
@@ -227,7 +227,7 @@ int SynthController::vco2Shape() const
 void SynthController::setVco2Shape(int s)
 {
     if (m_synth) {
-        m_synth->setVco2Shape(s / Constants::uiInternalScaling());
+        m_synth->setVco2Shape(static_cast<float>(s) / Constants::uiInternalScaling());
     }
 }
 
@@ -264,7 +264,7 @@ int SynthController::multiShape() const
 void SynthController::setMultiShape(int s)
 {
     if (m_synth) {
-        m_synth->setMultiShape(s / Constants::uiInternalScaling());
+        m_synth->setMultiShape(static_cast<float>(s) / Constants::uiInternalScaling());
     }
 }
 
@@ -276,7 +276,7 @@ int SynthController::multiLevel() const
 void SynthController::setMultiLevel(int lvl)
 {
     if (m_synth) {
-        m_synth->setMultiLevel(lvl / Constants::uiInternalScaling());
+        m_synth->setMultiLevel(static_cast<float>(lvl) / Constants::uiInternalScaling());
     }
 }
 
@@ -288,7 +288,7 @@ int SynthController::multiKeyTrack() const
 void SynthController::setMultiKeyTrack(int t)
 {
     if (m_synth) {
-        m_synth->setMultiKeyTrack(t / Constants::uiInternalScaling());
+        m_synth->setMultiKeyTrack(static_cast<float>(t) / Constants::uiInternalScaling());
     }
 }
 
@@ -301,7 +301,7 @@ int SynthController::mixVco1() const
 void SynthController::setMixVco1(int lvl)
 {
     if (m_synth) {
-        m_synth->setMixVco1(lvl / Constants::uiInternalScaling());
+        m_synth->setMixVco1(static_cast<float>(lvl) / Constants::uiInternalScaling());
     }
 }
 
@@ -313,7 +313,7 @@ int SynthController::mixVco2() const
 void SynthController::setMixVco2(int lvl)
 {
     if (m_synth) {
-        m_synth->setMixVco2(lvl / Constants::uiInternalScaling());
+        m_synth->setMixVco2(static_cast<float>(lvl) / Constants::uiInternalScaling());
     }
 }
 
@@ -326,7 +326,7 @@ int SynthController::lpfCutoff() const
 void SynthController::setLpfCutoff(int c)
 {
     if (m_synth) {
-        m_synth->setLpfCutoff(c / Constants::uiInternalScaling());
+        m_synth->setLpfCutoff(static_cast<float>(c) / Constants::uiInternalScaling());
     }
 }
 
@@ -338,7 +338,7 @@ int SynthController::lpfResonance() const
 void SynthController::setLpfResonance(int r)
 {
     if (m_synth) {
-        m_synth->setLpfResonance(r / Constants::uiInternalScaling());
+        m_synth->setLpfResonance(static_cast<float>(r) / Constants::uiInternalScaling());
     }
 }
 
@@ -350,7 +350,7 @@ int SynthController::hpfCutoff() const
 void SynthController::setHpfCutoff(int c)
 {
     if (m_synth) {
-        m_synth->setHpfCutoff(c / Constants::uiInternalScaling());
+        m_synth->setHpfCutoff(static_cast<float>(c) / Constants::uiInternalScaling());
     }
 }
 
@@ -362,7 +362,7 @@ int SynthController::filterKeyTrack() const
 void SynthController::setFilterKeyTrack(int t)
 {
     if (m_synth) {
-        m_synth->setFilterKeyTrack(t / Constants::uiInternalScaling());
+        m_synth->setFilterKeyTrack(static_cast<float>(t) / Constants::uiInternalScaling());
     }
 }
 
@@ -375,7 +375,7 @@ int SynthController::ampAttack() const
 void SynthController::setAmpAttack(int a)
 {
     if (m_synth) {
-        m_synth->setAmpAttack(a / Constants::uiInternalScaling());
+        m_synth->setAmpAttack(static_cast<float>(a) / Constants::uiInternalScaling());
     }
 }
 
@@ -387,7 +387,7 @@ int SynthController::ampDecay() const
 void SynthController::setAmpDecay(int d)
 {
     if (m_synth) {
-        m_synth->setAmpDecay(d / Constants::uiInternalScaling());
+        m_synth->setAmpDecay(static_cast<float>(d) / Constants::uiInternalScaling());
     }
 }
 
@@ -399,7 +399,7 @@ int SynthController::ampSustain() const
 void SynthController::setAmpSustain(int s)
 {
     if (m_synth) {
-        m_synth->setAmpSustain(s / Constants::uiInternalScaling());
+        m_synth->setAmpSustain(static_cast<float>(s) / Constants::uiInternalScaling());
     }
 }
 
@@ -411,7 +411,7 @@ int SynthController::ampRelease() const
 void SynthController::setAmpRelease(int r)
 {
     if (m_synth) {
-        m_synth->setAmpRelease(r / Constants::uiInternalScaling());
+        m_synth->setAmpRelease(static_cast<float>(r) / Constants::uiInternalScaling());
     }
 }
 
@@ -423,7 +423,7 @@ int SynthController::ampVelocitySensitivity() const
 void SynthController::setAmpVelocitySensitivity(int sensitivity)
 {
     if (m_synth) {
-        m_synth->setAmpVelocitySensitivity(sensitivity / Constants::uiInternalScaling());
+        m_synth->setAmpVelocitySensitivity(static_cast<float>(sensitivity) / Constants::uiInternalScaling());
     }
 }
 
@@ -436,7 +436,7 @@ int SynthController::modAttack() const
 void SynthController::setModAttack(int a)
 {
     if (m_synth) {
-        m_synth->setModAttack(a / Constants::uiInternalScaling());
+        m_synth->setModAttack(static_cast<float>(a) / Constants::uiInternalScaling());
     }
 }
 
@@ -448,7 +448,7 @@ int SynthController::modDecay() const
 void SynthController::setModDecay(int d)
 {
     if (m_synth) {
-        m_synth->setModDecay(d / Constants::uiInternalScaling());
+        m_synth->setModDecay(static_cast<float>(d) / Constants::uiInternalScaling());
     }
 }
 
@@ -465,7 +465,7 @@ int SynthController::modInt() const
 void SynthController::setModInt(int i)
 {
     if (m_synth) {
-        m_synth->setModInt(i / Constants::uiInternalScaling());
+        m_synth->setModInt(static_cast<float>(i) / Constants::uiInternalScaling());
     }
 }
 
@@ -514,7 +514,7 @@ int SynthController::lfoRate() const
 void SynthController::setLfoRate(int rate)
 {
     if (m_synth) {
-        m_synth->setLfoRate(rate / Constants::uiInternalScaling());
+        m_synth->setLfoRate(static_cast<float>(rate) / Constants::uiInternalScaling());
     }
 }
 
@@ -531,7 +531,7 @@ int SynthController::lfoInt() const
 void SynthController::setLfoInt(int intensity)
 {
     if (m_synth) {
-        m_synth->setLfoInt(intensity / Constants::uiInternalScaling());
+        m_synth->setLfoInt(static_cast<float>(intensity) / Constants::uiInternalScaling());
     }
 }
 
@@ -580,7 +580,7 @@ int SynthController::lfo2Rate() const
 void SynthController::setLfo2Rate(int rate)
 {
     if (m_synth) {
-        m_synth->setLfo2Rate(rate / Constants::uiInternalScaling());
+        m_synth->setLfo2Rate(static_cast<float>(rate) / Constants::uiInternalScaling());
     }
 }
 
@@ -597,7 +597,7 @@ int SynthController::lfo2Int() const
 void SynthController::setLfo2Int(int intensity)
 {
     if (m_synth) {
-        m_synth->setLfo2Int(intensity / Constants::uiInternalScaling());
+        m_synth->setLfo2Int(static_cast<float>(intensity) / Constants::uiInternalScaling());
     }
 }
 
@@ -634,7 +634,7 @@ int SynthController::voiceDepth() const
 void SynthController::setVoiceDepth(int d)
 {
     if (m_synth) {
-        m_synth->setVoiceDepth(d / Constants::uiInternalScaling());
+        m_synth->setVoiceDepth(static_cast<float>(d) / Constants::uiInternalScaling());
     }
 }
 
@@ -646,7 +646,7 @@ int SynthController::portamento() const
 void SynthController::setPortamento(int p)
 {
     if (m_synth) {
-        m_synth->setPortamento(p / Constants::uiInternalScaling());
+        m_synth->setPortamento(static_cast<float>(p) / Constants::uiInternalScaling());
     }
 }
 
@@ -658,7 +658,7 @@ int SynthController::panSpread() const
 void SynthController::setPanSpread(int s)
 {
     if (m_synth) {
-        m_synth->setPanSpread(s / Constants::uiInternalScaling());
+        m_synth->setPanSpread(static_cast<float>(s) / Constants::uiInternalScaling());
     }
 }
 
@@ -739,7 +739,7 @@ int SynthController::oscillatorDrift() const
 void SynthController::setOscillatorDrift(int drift)
 {
     if (m_synth) {
-        m_synth->setOscillatorDrift(drift / Constants::uiInternalScaling());
+        m_synth->setOscillatorDrift(static_cast<float>(drift) / Constants::uiInternalScaling());
     }
 }
 
@@ -752,7 +752,7 @@ int SynthController::crossModDepth() const
 void SynthController::setCrossModDepth(int depth)
 {
     if (m_synth) {
-        m_synth->setCrossModDepth(depth / Constants::uiInternalScaling());
+        m_synth->setCrossModDepth(static_cast<float>(depth) / Constants::uiInternalScaling());
     }
 }
 
@@ -777,7 +777,7 @@ int SynthController::delayTime() const
 void SynthController::setDelayTime(int time)
 {
     if (m_synth) {
-        m_synth->setDelayTime(time / 10000.0);
+        m_synth->setDelayTime(static_cast<float>(time) / 10'000.0f);
     }
 }
 
@@ -789,7 +789,7 @@ int SynthController::delayFeedback() const
 void SynthController::setDelayFeedback(int fb)
 {
     if (m_synth) {
-        m_synth->setDelayFeedback(fb / Constants::uiInternalScaling());
+        m_synth->setDelayFeedback(static_cast<float>(fb) / Constants::uiInternalScaling());
     }
 }
 
@@ -801,7 +801,7 @@ int SynthController::delayDepth() const
 void SynthController::setDelayDepth(int d)
 {
     if (m_synth) {
-        m_synth->setDelayDepth(d / Constants::uiInternalScaling());
+        m_synth->setDelayDepth(static_cast<float>(d) / Constants::uiInternalScaling());
     }
 }
 
@@ -813,7 +813,7 @@ int SynthController::delayMix() const
 void SynthController::setDelayMix(int mix)
 {
     if (m_synth) {
-        m_synth->setDelayMix(mix / Constants::uiInternalScaling());
+        m_synth->setDelayMix(static_cast<float>(mix) / Constants::uiInternalScaling());
     }
 }
 
@@ -837,7 +837,7 @@ int SynthController::delaySyncDivision() const
 void SynthController::setDelaySyncDivision(int div)
 {
     if (m_synth) {
-        m_synth->setDelaySyncDivision(div / Constants::uiInternalScaling());
+        m_synth->setDelaySyncDivision(static_cast<float>(div) / Constants::uiInternalScaling());
     }
 }
 
@@ -849,7 +849,7 @@ int SynthController::delayFeedbackLpf() const
 void SynthController::setDelayFeedbackLpf(int cutoff)
 {
     if (m_synth) {
-        m_synth->setFeedbackLpf(cutoff / Constants::uiInternalScaling());
+        m_synth->setFeedbackLpf(static_cast<float>(cutoff) / Constants::uiInternalScaling());
     }
 }
 
@@ -861,7 +861,7 @@ int SynthController::delayFeedbackHpf() const
 void SynthController::setDelayFeedbackHpf(int cutoff)
 {
     if (m_synth) {
-        m_synth->setFeedbackHpf(cutoff / Constants::uiInternalScaling());
+        m_synth->setFeedbackHpf(static_cast<float>(cutoff) / Constants::uiInternalScaling());
     }
 }
 
