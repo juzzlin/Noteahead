@@ -5,6 +5,11 @@ Release date:
 
 New features:
 
+* Add LFO 2 to Synth
+  - Same targets as LFO 1: Pitch, Shape, Cutoff, Volume, Resonance, Pan
+  - Modulations stack additively with LFO 1
+  - Displayed side-by-side with LFO 1 in the effects tab
+
 Bug fixes:
 
 Other:

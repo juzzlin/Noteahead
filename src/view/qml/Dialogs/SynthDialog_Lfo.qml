@@ -12,7 +12,7 @@ ColumnLayout {
     Layout.alignment: Qt.AlignTop
 
     Label {
-        text: qsTr("LFO")
+        text: qsTr("LFO 1")
         font.bold: true
         font.pixelSize: 16
         color: themeService.accentColor

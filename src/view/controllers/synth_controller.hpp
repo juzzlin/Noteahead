@@ -38,6 +38,9 @@ class SynthController : public DeviceController
     Q_PROPERTY(QStringList modTargetNames READ modTargetNames CONSTANT)
     Q_PROPERTY(QStringList lfoModeNames READ lfoModeNames CONSTANT)
     Q_PROPERTY(QStringList lfoTargetNames READ lfoTargetNames CONSTANT)
+    Q_PROPERTY(QStringList lfo2WaveformNames READ lfo2WaveformNames CONSTANT)
+    Q_PROPERTY(QStringList lfo2ModeNames READ lfo2ModeNames CONSTANT)
+    Q_PROPERTY(QStringList lfo2TargetNames READ lfo2TargetNames CONSTANT)
 
     // VCO1
     Q_PROPERTY(int vco1Waveform READ vco1Waveform WRITE setVco1Waveform NOTIFY vco1WaveformChanged)
@@ -97,6 +100,13 @@ class SynthController : public DeviceController
     Q_PROPERTY(int lfoInt READ lfoInt WRITE setLfoInt NOTIFY lfoIntChanged)
     Q_PROPERTY(int lfoTarget READ lfoTarget WRITE setLfoTarget NOTIFY lfoTargetChanged)
 
+    // Lfo 2
+    Q_PROPERTY(int lfo2Waveform READ lfo2Waveform WRITE setLfo2Waveform NOTIFY lfo2WaveformChanged)
+    Q_PROPERTY(int lfo2Mode READ lfo2Mode WRITE setLfo2Mode NOTIFY lfo2ModeChanged)
+    Q_PROPERTY(int lfo2Rate READ lfo2Rate WRITE setLfo2Rate NOTIFY lfo2RateChanged)
+    Q_PROPERTY(int lfo2Int READ lfo2Int WRITE setLfo2Int NOTIFY lfo2IntChanged)
+    Q_PROPERTY(int lfo2Target READ lfo2Target WRITE setLfo2Target NOTIFY lfo2TargetChanged)
+
     // Global
     Q_PROPERTY(int voiceMode READ voiceMode WRITE setVoiceMode NOTIFY voiceModeChanged)
     Q_PROPERTY(int voiceDepth READ voiceDepth WRITE setVoiceDepth NOTIFY voiceDepthChanged)
@@ -142,6 +152,9 @@ public:
     QStringList modTargetNames() const;
     QStringList lfoModeNames() const;
     QStringList lfoTargetNames() const;
+    QStringList lfo2WaveformNames() const;
+    QStringList lfo2ModeNames() const;
+    QStringList lfo2TargetNames() const;
 
     int vco1Waveform() const;
     void setVco1Waveform(int wave);
@@ -231,6 +244,17 @@ public:
     void setLfoInt(int intensity);
     int lfoTarget() const;
     void setLfoTarget(int target);
+
+    int lfo2Waveform() const;
+    void setLfo2Waveform(int wave);
+    int lfo2Mode() const;
+    void setLfo2Mode(int mode);
+    int lfo2Rate() const;
+    void setLfo2Rate(int rate);
+    int lfo2Int() const;
+    void setLfo2Int(int intensity);
+    int lfo2Target() const;
+    void setLfo2Target(int target);
 
     int voiceMode() const;
     void setVoiceMode(int m);
@@ -326,6 +350,11 @@ signals:
     void lfoRateChanged();
     void lfoIntChanged();
     void lfoTargetChanged();
+    void lfo2WaveformChanged();
+    void lfo2ModeChanged();
+    void lfo2RateChanged();
+    void lfo2IntChanged();
+    void lfo2TargetChanged();
     void voiceModeChanged();
     void voiceDepthChanged();
     void portamentoChanged();

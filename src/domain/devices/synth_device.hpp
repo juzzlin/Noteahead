@@ -194,6 +194,18 @@ public:
     LfoTarget lfoTarget() const;
     void setLfoTarget(LfoTarget target);
 
+    // Lfo 2
+    Lfo::Waveform lfo2Waveform() const;
+    void setLfo2Waveform(Lfo::Waveform wave);
+    Lfo::Mode lfo2Mode() const;
+    void setLfo2Mode(Lfo::Mode mode);
+    float lfo2Rate() const;
+    void setLfo2Rate(float rate);
+    float lfo2Int() const;
+    void setLfo2Int(float intensity);
+    LfoTarget lfo2Target() const;
+    void setLfo2Target(LfoTarget target);
+
     // Voice / Global
     VoiceMode voiceMode() const;
     void setVoiceMode(VoiceMode mode);
@@ -254,6 +266,7 @@ private:
         AdsrEnvelope ampEg;
         AdsrEnvelope modEg;
         Lfo lfo;
+        Lfo lfo2;
 
         uint8_t note { 0 };
         uint64_t triggerId { 0 };
@@ -326,6 +339,12 @@ private:
     float m_lfoRate { 0.5f };
     float m_lfoInt { 0.0f };
     LfoTarget m_lfoTarget { LfoTarget::Pitch };
+
+    Lfo::Waveform m_lfo2Waveform { Lfo::Waveform::Triangle };
+    Lfo::Mode m_lfo2Mode { Lfo::Mode::Normal };
+    float m_lfo2Rate { 0.5f };
+    float m_lfo2Int { 0.0f };
+    LfoTarget m_lfo2Target { LfoTarget::Pitch };
 
     VoiceMode m_voiceMode { VoiceMode::Poly };
     uint64_t m_nextTriggerId { 1 };

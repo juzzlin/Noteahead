@@ -22,25 +22,40 @@ ScrollView {
     clip: true
     property real moduleWidth: 0
 
-    GridLayout {
-        columns: 3
-        columnSpacing: 20
+    ColumnLayout {
         width: parent.width - 20
-        SynthDialog_Lfo {
-            Layout.preferredWidth: moduleWidth
+        spacing: 20
+
+        RowLayout {
+            spacing: 20
             Layout.fillWidth: true
-            Layout.alignment: Qt.AlignTop
+
+            SynthDialog_Lfo {
+                Layout.preferredWidth: moduleWidth * 1.5
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignTop
+            }
+            SynthDialog_Lfo2 {
+                Layout.preferredWidth: moduleWidth * 1.5
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignTop
+            }
         }
-        SynthDialog_Delay {
-            Layout.preferredWidth: moduleWidth * 2 + 20
+
+        RowLayout {
+            spacing: 20
             Layout.fillWidth: true
-            Layout.columnSpan: 2
-            Layout.alignment: Qt.AlignTop
-        }
-        SynthDialog_Analog {
-            Layout.preferredWidth: moduleWidth
-            Layout.fillWidth: true
-            Layout.alignment: Qt.AlignTop
+
+            SynthDialog_Delay {
+                Layout.preferredWidth: moduleWidth * 2 + 20
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignTop
+            }
+            SynthDialog_Analog {
+                Layout.preferredWidth: moduleWidth
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignTop
+            }
         }
     }
 }

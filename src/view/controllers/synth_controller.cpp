@@ -106,6 +106,21 @@ QStringList SynthController::lfoTargetNames() const
     return { tr("Pitch"), tr("Shape"), tr("Cutoff"), tr("Volume"), tr("Resonance"), tr("Pan") };
 }
 
+QStringList SynthController::lfo2WaveformNames() const
+{
+    return lfoWaveformNames();
+}
+
+QStringList SynthController::lfo2ModeNames() const
+{
+    return lfoModeNames();
+}
+
+QStringList SynthController::lfo2TargetNames() const
+{
+    return lfoTargetNames();
+}
+
 // VCO1
 int SynthController::vco1Waveform() const
 {
@@ -532,6 +547,72 @@ void SynthController::setLfoTarget(int target)
     }
 }
 
+// Lfo 2
+int SynthController::lfo2Waveform() const
+{
+    return m_synth ? static_cast<int>(m_synth->lfo2Waveform()) : 0;
+}
+
+void SynthController::setLfo2Waveform(int wave)
+{
+    if (m_synth) {
+        m_synth->setLfo2Waveform(static_cast<Lfo::Waveform>(wave));
+    }
+}
+
+int SynthController::lfo2Mode() const
+{
+    return m_synth ? static_cast<int>(m_synth->lfo2Mode()) : 0;
+}
+
+void SynthController::setLfo2Mode(int mode)
+{
+    if (m_synth) {
+        m_synth->setLfo2Mode(static_cast<Lfo::Mode>(mode));
+    }
+}
+
+int SynthController::lfo2Rate() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->lfo2Rate() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setLfo2Rate(int rate)
+{
+    if (m_synth) {
+        m_synth->setLfo2Rate(rate / Constants::uiInternalScaling());
+    }
+}
+
+int SynthController::lfo2Int() const
+{
+    if (m_synth) {
+        if (auto p = m_synth->parameter(Constants::NahdXml::xmlKeyLfo2Intensity().toStdString()); p) {
+            return static_cast<int>(std::round(p->get().value() * Constants::uiInternalScaling()));
+        }
+    }
+    return 0;
+}
+
+void SynthController::setLfo2Int(int intensity)
+{
+    if (m_synth) {
+        m_synth->setLfo2Int(intensity / Constants::uiInternalScaling());
+    }
+}
+
+int SynthController::lfo2Target() const
+{
+    return m_synth ? static_cast<int>(m_synth->lfo2Target()) : 0;
+}
+
+void SynthController::setLfo2Target(int target)
+{
+    if (m_synth) {
+        m_synth->setLfo2Target(static_cast<SynthDevice::LfoTarget>(target));
+    }
+}
+
 // Global
 int SynthController::voiceMode() const
 {
@@ -838,6 +919,11 @@ void SynthController::requestSettings()
     emit lfoRateChanged();
     emit lfoIntChanged();
     emit lfoTargetChanged();
+    emit lfo2WaveformChanged();
+    emit lfo2ModeChanged();
+    emit lfo2RateChanged();
+    emit lfo2IntChanged();
+    emit lfo2TargetChanged();
 
     emit voiceModeChanged();
     emit voiceDepthChanged();

@@ -104,6 +104,7 @@ ${QML_BASE_DIR}/Dialogs/IntegerInputDialog.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Filter.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Global.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Lfo.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDialog_Lfo2.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_ModEg.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Multi.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Presets.qml

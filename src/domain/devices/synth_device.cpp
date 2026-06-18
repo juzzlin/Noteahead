@@ -39,6 +39,7 @@ void SynthDevice::Voice::reset()
     ampEg.reset();
     modEg.reset();
     lfo.reset();
+    lfo2.reset();
     glideFrequency = 0.0;
     active = false;
 }
@@ -55,6 +56,7 @@ void SynthDevice::Voice::trigger(uint8_t n, double freq, float p, float v, bool 
     velocity = v;
 
     lfo.reset();
+    lfo2.reset();
 
     // Only sync oscillator phase on a fresh (idle) voice to avoid a pop from a
     // hard phase jump while the voice is still producing audio (retrigger/steal).
@@ -81,6 +83,7 @@ void SynthDevice::Voice::triggerRandomized(uint8_t n, double freq, float p, floa
     velocity = v;
 
     lfo.reset();
+    lfo2.reset();
 
     // Only sync oscillator phase on a fresh (idle) voice to avoid a pop from a
     // hard phase jump while the voice is still producing audio (retrigger/steal).
@@ -155,6 +158,12 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoRate().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoIntensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoTarget().toStdString(), 0.0f, 0, 5, 0, 1, Parameter::Type::Discrete }); // Pitch default
+
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Waveform().toStdString(), 1.0f, 0, 4, 1, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Mode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Rate().toStdString(), 0.5f, 0, 10000, 5000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Intensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Target().toStdString(), 0.0f, 0, 5, 0, 1, Parameter::Type::Discrete });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceMode().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceDepth().toStdString(), 0.0f, 0, 10000, 0, 100 });
@@ -308,6 +317,7 @@ void SynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversampledRate,
     voice.ampEg.setSampleRate(oversampledRate);
     voice.modEg.setSampleRate(oversampledRate);
     voice.lfo.setSampleRate(oversampledRate);
+    voice.lfo2.setSampleRate(oversampledRate);
 
     voice.lpf.setResonance(m_lpfResonance);
     voice.vco1.setWaveform(m_vco1Waveform);
@@ -603,13 +613,20 @@ SynthDevice::ModulationValues SynthDevice::calculateModulation(Voice & voice) co
     mods.ampEnvelope = voice.ampEg.nextSample();
     const double modEnv = voice.modEg.nextSample() * m_modInt;
     const double lfoVal = voice.lfo.nextSample() * m_lfoInt;
+    const double lfo2Val = voice.lfo2.nextSample() * m_lfo2Int;
 
     mods.cutoffMod = (m_modTarget == ModTarget::Cutoff) ? modEnv : 0.0;
     if (m_lfoTarget == LfoTarget::Cutoff) {
         mods.cutoffMod += lfoVal;
     }
+    if (m_lfo2Target == LfoTarget::Cutoff) {
+        mods.cutoffMod += lfo2Val;
+    }
 
     mods.shapeMod = (m_lfoTarget == LfoTarget::Shape) ? lfoVal : 0.0;
+    if (m_lfo2Target == LfoTarget::Shape) {
+        mods.shapeMod += lfo2Val;
+    }
 
     mods.vco1PitchMod = (m_modTarget == ModTarget::Pitch1) ? modEnv : 0.0;
     mods.vco2PitchMod = (m_modTarget == ModTarget::Pitch2) ? modEnv : 0.0;
@@ -620,15 +637,29 @@ SynthDevice::ModulationValues SynthDevice::calculateModulation(Voice & voice) co
         mods.vco2PitchMod += lfoVal;
         mods.vco3PitchMod += lfoVal;
     }
+    if (m_lfo2Target == LfoTarget::Pitch) {
+        mods.vco1PitchMod += lfo2Val;
+        mods.vco2PitchMod += lfo2Val;
+        mods.vco3PitchMod += lfo2Val;
+    }
 
     if (m_lfoTarget == LfoTarget::Volume) {
         mods.volumeMod = lfoVal;
     }
+    if (m_lfo2Target == LfoTarget::Volume) {
+        mods.volumeMod += lfo2Val;
+    }
     if (m_lfoTarget == LfoTarget::Resonance) {
         mods.resonanceMod = lfoVal;
     }
+    if (m_lfo2Target == LfoTarget::Resonance) {
+        mods.resonanceMod += lfo2Val;
+    }
     if (m_lfoTarget == LfoTarget::Pan) {
         mods.panMod = lfoVal;
+    }
+    if (m_lfo2Target == LfoTarget::Pan) {
+        mods.panMod += lfo2Val;
     }
 
     return mods;
@@ -835,6 +866,17 @@ void SynthDevice::syncParameters()
     if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoTarget().toStdString()); p)
         m_lfoTarget = static_cast<LfoTarget>(p->get().xmlValue());
 
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyLfo2Waveform().toStdString()); p)
+        m_lfo2Waveform = static_cast<Lfo::Waveform>(p->get().xmlValue());
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyLfo2Mode().toStdString()); p)
+        m_lfo2Mode = static_cast<Lfo::Mode>(p->get().xmlValue());
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyLfo2Rate().toStdString()); p)
+        m_lfo2Rate = p->get().value();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyLfo2Intensity().toStdString()); p)
+        m_lfo2Int = ParameterMapper::mapCubicCentered((p->get().value() - 0.5f) * 2.0f, -1.0, 1.0);
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyLfo2Target().toStdString()); p)
+        m_lfo2Target = static_cast<LfoTarget>(p->get().xmlValue());
+
     if (const auto p = parameter(Constants::NahdXml::xmlKeyVoiceMode().toStdString()); p)
         m_voiceMode = static_cast<VoiceMode>(p->get().xmlValue());
     if (const auto p = parameter(Constants::NahdXml::xmlKeyVoiceDepth().toStdString()); p)
@@ -896,6 +938,17 @@ void SynthDevice::syncParameters()
             freq = static_cast<float>(ParameterMapper::mapLfoFrequency(m_lfoRate, 0.05, 20.0));
         }
         voice.lfo.setFrequency(freq);
+
+        voice.lfo2.setWaveform(m_lfo2Waveform);
+        voice.lfo2.setMode(m_lfo2Mode);
+
+        double freq2 = 0.0;
+        if (m_lfo2Mode == Lfo::Mode::BPM) {
+            freq2 = (m_delay.bpm() / 60.0f) * (0.25f / std::max(0.0001f, m_lfo2Rate));
+        } else {
+            freq2 = static_cast<float>(ParameterMapper::mapLfoFrequency(m_lfo2Rate, 0.05, 20.0));
+        }
+        voice.lfo2.setFrequency(freq2);
 
         voice.ampEg.setAttackTime(ParameterMapper::mapExponential(m_ampAttack, 0.000001, 20.0));
         voice.ampEg.setDecayTime(ParameterMapper::mapExponential(m_ampDecay, 0.01, 60.0));
@@ -1711,6 +1764,107 @@ void SynthDevice::setLfoTarget(LfoTarget target)
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
         if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoTarget().toStdString()); p) {
+            p->get().setFromXml(static_cast<int>(target));
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+
+// Lfo 2
+Lfo::Waveform SynthDevice::lfo2Waveform() const
+{
+    return m_lfo2Waveform;
+}
+
+void SynthDevice::setLfo2Waveform(Lfo::Waveform wave)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyLfo2Waveform().toStdString()); p) {
+            p->get().setFromXml(static_cast<int>(wave));
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+
+Lfo::Mode SynthDevice::lfo2Mode() const
+{
+    return m_lfo2Mode;
+}
+
+void SynthDevice::setLfo2Mode(Lfo::Mode mode)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyLfo2Mode().toStdString()); p) {
+            p->get().setFromXml(static_cast<int>(mode));
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+
+float SynthDevice::lfo2Rate() const
+{
+    return m_lfo2Rate;
+}
+
+void SynthDevice::setLfo2Rate(float rate)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyLfo2Rate().toStdString()); p) {
+            p->get().setValue(rate);
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+
+float SynthDevice::lfo2Int() const
+{
+    return m_lfo2Int;
+}
+
+void SynthDevice::setLfo2Int(float intensity)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyLfo2Intensity().toStdString()); p) {
+            p->get().setValue(intensity);
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+
+SynthDevice::LfoTarget SynthDevice::lfo2Target() const
+{
+    return m_lfo2Target;
+}
+
+void SynthDevice::setLfo2Target(LfoTarget target)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyLfo2Target().toStdString()); p) {
             p->get().setFromXml(static_cast<int>(target));
             syncParameters();
             changed = true;
