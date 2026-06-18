@@ -5,6 +5,19 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+4.1.0
+=====
+
+Release date:
+
+Thu, 18 Jun 2026 18:51:02 +0300
+
+New features:
+
 * Add Move Up/Down to insert effect Manage menu
   - Reorders effects within the insert rack via context menu
 
