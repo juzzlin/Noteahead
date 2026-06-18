@@ -259,6 +259,36 @@ void Device::syncParameters()
     }
 }
 
+void Device::setContinuousParameterValue(const std::string & key, float value)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { m_mutex };
+        if (const auto p = parameter(key); p) {
+            p->get().setValue(value);
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+
+void Device::setDiscreteParameterValue(const std::string & key, int value)
+{
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { m_mutex };
+        if (const auto p = parameter(key); p) {
+            p->get().setFromXml(value);
+            syncParameters();
+            changed = true;
+        }
+    }
+    if (changed)
+        emit dataChanged();
+}
+
 void Device::setBpm(float bpm)
 {
     m_insertEffectRack.setBpm(bpm);

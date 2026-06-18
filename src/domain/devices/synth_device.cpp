@@ -1090,17 +1090,7 @@ PolyBlepOscillator::Waveform SynthDevice::vco1Waveform() const
 
 void SynthDevice::setVco1Waveform(PolyBlepOscillator::Waveform wave)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco1Waveform().toStdString()); p) {
-            p->get().setFromXml(static_cast<int>(wave));
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyVco1Waveform().toStdString(), static_cast<int>(wave));
 }
 
 int SynthDevice::vco1Octave() const
@@ -1110,17 +1100,7 @@ int SynthDevice::vco1Octave() const
 
 void SynthDevice::setVco1Octave(int octave)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco1Octave().toStdString()); p) {
-            p->get().setFromXml(octave);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyVco1Octave().toStdString(), octave);
 }
 
 float SynthDevice::vco1Pitch() const
@@ -1130,17 +1110,7 @@ float SynthDevice::vco1Pitch() const
 
 void SynthDevice::setVco1Pitch(float pitch)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco1Pitch().toStdString()); p) {
-            p->get().setValue(pitch);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVco1Pitch().toStdString(), pitch);
 }
 
 float SynthDevice::vco1Shape() const
@@ -1150,17 +1120,7 @@ float SynthDevice::vco1Shape() const
 
 void SynthDevice::setVco1Shape(float shape)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco1Shape().toStdString()); p) {
-            p->get().setValue(shape);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVco1Shape().toStdString(), shape);
 }
 
 bool SynthDevice::vco1Sync() const
@@ -1170,17 +1130,7 @@ bool SynthDevice::vco1Sync() const
 
 void SynthDevice::setVco1Sync(bool sync)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco1Sync().toStdString()); p) {
-            p->get().setValue(sync ? 1.0f : 0.0f);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVco1Sync().toStdString(), sync ? 1.0f : 0.0f);
 }
 
 // Accessors (VCO2)
@@ -1191,17 +1141,7 @@ PolyBlepOscillator::Waveform SynthDevice::vco2Waveform() const
 
 void SynthDevice::setVco2Waveform(PolyBlepOscillator::Waveform wave)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco2Waveform().toStdString()); p) {
-            p->get().setFromXml(static_cast<int>(wave));
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyVco2Waveform().toStdString(), static_cast<int>(wave));
 }
 
 int SynthDevice::vco2Octave() const
@@ -1211,17 +1151,7 @@ int SynthDevice::vco2Octave() const
 
 void SynthDevice::setVco2Octave(int octave)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco2Octave().toStdString()); p) {
-            p->get().setFromXml(octave);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyVco2Octave().toStdString(), octave);
 }
 
 float SynthDevice::vco2Pitch() const
@@ -1231,17 +1161,7 @@ float SynthDevice::vco2Pitch() const
 
 void SynthDevice::setVco2Pitch(float pitch)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco2Pitch().toStdString()); p) {
-            p->get().setValue(pitch);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVco2Pitch().toStdString(), pitch);
 }
 
 float SynthDevice::vco2Shape() const
@@ -1251,17 +1171,7 @@ float SynthDevice::vco2Shape() const
 
 void SynthDevice::setVco2Shape(float shape)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco2Shape().toStdString()); p) {
-            p->get().setValue(shape);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVco2Shape().toStdString(), shape);
 }
 
 bool SynthDevice::vco2Sync() const
@@ -1271,17 +1181,7 @@ bool SynthDevice::vco2Sync() const
 
 void SynthDevice::setVco2Sync(bool sync)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco2Sync().toStdString()); p) {
-            p->get().setValue(sync ? 1.0f : 0.0f);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVco2Sync().toStdString(), sync ? 1.0f : 0.0f);
 }
 
 // Multi Engine
@@ -1292,17 +1192,7 @@ MultiEngine::Type SynthDevice::multiType() const
 
 void SynthDevice::setMultiType(MultiEngine::Type type)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyMultiMode().toStdString()); p) {
-            p->get().setFromXml(static_cast<int>(type));
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyMultiMode().toStdString(), static_cast<int>(type));
 }
 
 float SynthDevice::multiShape() const
@@ -1312,17 +1202,7 @@ float SynthDevice::multiShape() const
 
 void SynthDevice::setMultiShape(float shape)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyMultiShape().toStdString()); p) {
-            p->get().setValue(shape);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyMultiShape().toStdString(), shape);
 }
 
 float SynthDevice::multiLevel() const
@@ -1332,17 +1212,7 @@ float SynthDevice::multiLevel() const
 
 void SynthDevice::setMultiLevel(float level)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyMultiLevel().toStdString()); p) {
-            p->get().setValue(level);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyMultiLevel().toStdString(), level);
 }
 
 float SynthDevice::multiKeyTrack() const
@@ -1352,17 +1222,7 @@ float SynthDevice::multiKeyTrack() const
 
 void SynthDevice::setMultiKeyTrack(float keyTrack)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyMultiKeyTrack().toStdString()); p) {
-            p->get().setValue(keyTrack);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyMultiKeyTrack().toStdString(), keyTrack);
 }
 
 // Mixer
@@ -1373,17 +1233,7 @@ float SynthDevice::mixVco1() const
 
 void SynthDevice::setMixVco1(float level)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyMixLevel1().toStdString()); p) {
-            p->get().setValue(level);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyMixLevel1().toStdString(), level);
 }
 
 float SynthDevice::mixVco2() const
@@ -1393,17 +1243,7 @@ float SynthDevice::mixVco2() const
 
 void SynthDevice::setMixVco2(float level)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyMixLevel2().toStdString()); p) {
-            p->get().setValue(level);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyMixLevel2().toStdString(), level);
 }
 
 // Filter
@@ -1477,17 +1317,7 @@ float SynthDevice::filterKeyTrack() const
 
 void SynthDevice::setFilterKeyTrack(float track)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyKeyTrack().toStdString()); p) {
-            p->get().setValue(track);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyKeyTrack().toStdString(), track);
 }
 
 // Amp EG
@@ -1498,17 +1328,7 @@ float SynthDevice::ampAttack() const
 
 void SynthDevice::setAmpAttack(float a)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyAmpAttack().toStdString()); p) {
-            p->get().setValue(a);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyAmpAttack().toStdString(), a);
 }
 
 float SynthDevice::ampDecay() const
@@ -1518,17 +1338,7 @@ float SynthDevice::ampDecay() const
 
 void SynthDevice::setAmpDecay(float d)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyAmpDecay().toStdString()); p) {
-            p->get().setValue(d);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyAmpDecay().toStdString(), d);
 }
 
 float SynthDevice::ampSustain() const
@@ -1538,17 +1348,7 @@ float SynthDevice::ampSustain() const
 
 void SynthDevice::setAmpSustain(float s)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyAmpSustain().toStdString()); p) {
-            p->get().setValue(s);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyAmpSustain().toStdString(), s);
 }
 
 float SynthDevice::ampRelease() const
@@ -1558,17 +1358,7 @@ float SynthDevice::ampRelease() const
 
 void SynthDevice::setAmpRelease(float r)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyAmpRelease().toStdString()); p) {
-            p->get().setValue(r);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyAmpRelease().toStdString(), r);
 }
 
 float SynthDevice::ampVelocitySensitivity() const
@@ -1578,17 +1368,7 @@ float SynthDevice::ampVelocitySensitivity() const
 
 void SynthDevice::setAmpVelocitySensitivity(float sensitivity)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyAmpVelocitySensitivity().toStdString()); p) {
-            p->get().setValue(sensitivity);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyAmpVelocitySensitivity().toStdString(), sensitivity);
 }
 
 // Mod EG
@@ -1599,17 +1379,7 @@ float SynthDevice::modAttack() const
 
 void SynthDevice::setModAttack(float a)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyModAttack().toStdString()); p) {
-            p->get().setValue(a);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyModAttack().toStdString(), a);
 }
 
 float SynthDevice::modDecay() const
@@ -1619,17 +1389,7 @@ float SynthDevice::modDecay() const
 
 void SynthDevice::setModDecay(float d)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyModDecay().toStdString()); p) {
-            p->get().setValue(d);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyModDecay().toStdString(), d);
 }
 
 float SynthDevice::modInt() const
@@ -1639,17 +1399,7 @@ float SynthDevice::modInt() const
 
 void SynthDevice::setModInt(float intensity)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyModIntensity().toStdString()); p) {
-            p->get().setValue(intensity);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyModIntensity().toStdString(), intensity);
 }
 
 SynthDevice::ModTarget SynthDevice::modTarget() const
@@ -1659,17 +1409,7 @@ SynthDevice::ModTarget SynthDevice::modTarget() const
 
 void SynthDevice::setModTarget(ModTarget target)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyModTarget().toStdString()); p) {
-            p->get().setFromXml(static_cast<int>(target));
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyModTarget().toStdString(), static_cast<int>(target));
 }
 
 // Lfo
@@ -1680,17 +1420,7 @@ Lfo::Waveform SynthDevice::lfoWaveform() const
 
 void SynthDevice::setLfoWaveform(Lfo::Waveform wave)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoWaveform().toStdString()); p) {
-            p->get().setFromXml(static_cast<int>(wave));
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyLfoWaveform().toStdString(), static_cast<int>(wave));
 }
 
 Lfo::Mode SynthDevice::lfoMode() const
@@ -1700,17 +1430,7 @@ Lfo::Mode SynthDevice::lfoMode() const
 
 void SynthDevice::setLfoMode(Lfo::Mode mode)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoMode().toStdString()); p) {
-            p->get().setFromXml(static_cast<int>(mode));
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyLfoMode().toStdString(), static_cast<int>(mode));
 }
 
 float SynthDevice::lfoRate() const
@@ -1720,17 +1440,7 @@ float SynthDevice::lfoRate() const
 
 void SynthDevice::setLfoRate(float rate)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoRate().toStdString()); p) {
-            p->get().setValue(rate);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfoRate().toStdString(), rate);
 }
 
 float SynthDevice::lfoInt() const
@@ -1740,17 +1450,7 @@ float SynthDevice::lfoInt() const
 
 void SynthDevice::setLfoInt(float intensity)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoIntensity().toStdString()); p) {
-            p->get().setValue(intensity);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfoIntensity().toStdString(), intensity);
 }
 
 SynthDevice::LfoTarget SynthDevice::lfoTarget() const
@@ -1760,17 +1460,7 @@ SynthDevice::LfoTarget SynthDevice::lfoTarget() const
 
 void SynthDevice::setLfoTarget(LfoTarget target)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoTarget().toStdString()); p) {
-            p->get().setFromXml(static_cast<int>(target));
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyLfoTarget().toStdString(), static_cast<int>(target));
 }
 
 // Lfo 2
@@ -1781,17 +1471,7 @@ Lfo::Waveform SynthDevice::lfo2Waveform() const
 
 void SynthDevice::setLfo2Waveform(Lfo::Waveform wave)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyLfo2Waveform().toStdString()); p) {
-            p->get().setFromXml(static_cast<int>(wave));
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyLfo2Waveform().toStdString(), static_cast<int>(wave));
 }
 
 Lfo::Mode SynthDevice::lfo2Mode() const
@@ -1801,17 +1481,7 @@ Lfo::Mode SynthDevice::lfo2Mode() const
 
 void SynthDevice::setLfo2Mode(Lfo::Mode mode)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyLfo2Mode().toStdString()); p) {
-            p->get().setFromXml(static_cast<int>(mode));
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyLfo2Mode().toStdString(), static_cast<int>(mode));
 }
 
 float SynthDevice::lfo2Rate() const
@@ -1821,17 +1491,7 @@ float SynthDevice::lfo2Rate() const
 
 void SynthDevice::setLfo2Rate(float rate)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyLfo2Rate().toStdString()); p) {
-            p->get().setValue(rate);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfo2Rate().toStdString(), rate);
 }
 
 float SynthDevice::lfo2Int() const
@@ -1841,17 +1501,7 @@ float SynthDevice::lfo2Int() const
 
 void SynthDevice::setLfo2Int(float intensity)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyLfo2Intensity().toStdString()); p) {
-            p->get().setValue(intensity);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfo2Intensity().toStdString(), intensity);
 }
 
 SynthDevice::LfoTarget SynthDevice::lfo2Target() const
@@ -1861,17 +1511,7 @@ SynthDevice::LfoTarget SynthDevice::lfo2Target() const
 
 void SynthDevice::setLfo2Target(LfoTarget target)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyLfo2Target().toStdString()); p) {
-            p->get().setFromXml(static_cast<int>(target));
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyLfo2Target().toStdString(), static_cast<int>(target));
 }
 
 // Voice / Global
@@ -1882,17 +1522,7 @@ SynthDevice::VoiceMode SynthDevice::voiceMode() const
 
 void SynthDevice::setVoiceMode(VoiceMode mode)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyVoiceMode().toStdString()); p) {
-            p->get().setFromXml(static_cast<int>(mode));
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyVoiceMode().toStdString(), static_cast<int>(mode));
 }
 
 float SynthDevice::voiceDepth() const
@@ -1902,17 +1532,7 @@ float SynthDevice::voiceDepth() const
 
 void SynthDevice::setVoiceDepth(float depth)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyVoiceDepth().toStdString()); p) {
-            p->get().setValue(depth);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVoiceDepth().toStdString(), depth);
 }
 
 float SynthDevice::portamento() const
@@ -1922,17 +1542,7 @@ float SynthDevice::portamento() const
 
 void SynthDevice::setPortamento(float val)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyPortamento().toStdString()); p) {
-            p->get().setValue(val);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyPortamento().toStdString(), val);
 }
 
 float SynthDevice::panSpread() const
@@ -1942,17 +1552,7 @@ float SynthDevice::panSpread() const
 
 void SynthDevice::setPanSpread(float spread)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyPanSpread().toStdString()); p) {
-            p->get().setValue(spread);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyPanSpread().toStdString(), spread);
 }
 
 int SynthDevice::pitchBendRange() const
@@ -1962,17 +1562,7 @@ int SynthDevice::pitchBendRange() const
 
 void SynthDevice::setPitchBendRange(int range)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyPitchBendRange().toStdString()); p) {
-            p->get().setValue(static_cast<float>(range));
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyPitchBendRange().toStdString(), static_cast<float>(range));
 }
 
 float SynthDevice::currentPitchBendOffset() const
@@ -2009,17 +1599,7 @@ DelayEffect::Type SynthDevice::delayType() const
 
 void SynthDevice::setDelayType(DelayEffect::Type type)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyDelayType().toStdString()); p) {
-            p->get().setFromXml(static_cast<int>(type));
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyDelayType().toStdString(), static_cast<int>(type));
 }
 
 float SynthDevice::delayTime() const
@@ -2029,17 +1609,7 @@ float SynthDevice::delayTime() const
 
 void SynthDevice::setDelayTime(float time)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString()); p) {
-            p->get().setValue(time);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyDelayTime().toStdString(), time);
 }
 
 float SynthDevice::delayFeedback() const
@@ -2049,17 +1619,7 @@ float SynthDevice::delayFeedback() const
 
 void SynthDevice::setDelayFeedback(float fb)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyDelayFeedback().toStdString()); p) {
-            p->get().setValue(fb);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyDelayFeedback().toStdString(), fb);
 }
 
 float SynthDevice::delayDepth() const
@@ -2069,17 +1629,7 @@ float SynthDevice::delayDepth() const
 
 void SynthDevice::setDelayDepth(float depth)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyDelayDepth().toStdString()); p) {
-            p->get().setValue(depth);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyDelayDepth().toStdString(), depth);
 }
 
 float SynthDevice::delayMix() const
@@ -2089,17 +1639,7 @@ float SynthDevice::delayMix() const
 
 void SynthDevice::setDelayMix(float mix)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyDelayMix().toStdString()); p) {
-            p->get().setValue(mix);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyDelayMix().toStdString(), mix);
 }
 
 bool SynthDevice::delaySync() const
@@ -2109,17 +1649,7 @@ bool SynthDevice::delaySync() const
 
 void SynthDevice::setDelaySync(bool sync)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyDelaySync().toStdString()); p) {
-            p->get().setValue(sync ? 1.0f : 0.0f);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyDelaySync().toStdString(), sync ? 1.0f : 0.0f);
 }
 
 float SynthDevice::delaySyncDivision() const
@@ -2129,17 +1659,7 @@ float SynthDevice::delaySyncDivision() const
 
 void SynthDevice::setDelaySyncDivision(float division)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString()); p) {
-            p->get().setValue(division);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString(), division);
 }
 
 float SynthDevice::delayFeedbackLpf() const
@@ -2149,17 +1669,7 @@ float SynthDevice::delayFeedbackLpf() const
 
 void SynthDevice::setFeedbackLpf(float cutoff)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyDelayFeedbackLpf().toStdString()); p) {
-            p->get().setValue(cutoff);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyDelayFeedbackLpf().toStdString(), cutoff);
 }
 
 float SynthDevice::delayFeedbackHpf() const
@@ -2169,17 +1679,7 @@ float SynthDevice::delayFeedbackHpf() const
 
 void SynthDevice::setFeedbackHpf(float cutoff)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyDelayFeedbackHpf().toStdString()); p) {
-            p->get().setValue(cutoff);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyDelayFeedbackHpf().toStdString(), cutoff);
 }
 
 // Accessors (VCO3)
@@ -2190,17 +1690,7 @@ PolyBlepOscillator::Waveform SynthDevice::vco3Waveform() const
 
 void SynthDevice::setVco3Waveform(PolyBlepOscillator::Waveform wave)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco3Waveform().toStdString()); p) {
-            p->get().setFromXml(static_cast<int>(wave));
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyVco3Waveform().toStdString(), static_cast<int>(wave));
 }
 
 int SynthDevice::vco3Octave() const
@@ -2210,17 +1700,7 @@ int SynthDevice::vco3Octave() const
 
 void SynthDevice::setVco3Octave(int octave)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco3Octave().toStdString()); p) {
-            p->get().setFromXml(octave);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyVco3Octave().toStdString(), octave);
 }
 
 float SynthDevice::vco3Pitch() const
@@ -2230,17 +1710,7 @@ float SynthDevice::vco3Pitch() const
 
 void SynthDevice::setVco3Pitch(float pitch)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco3Pitch().toStdString()); p) {
-            p->get().setValue(pitch);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVco3Pitch().toStdString(), pitch);
 }
 
 float SynthDevice::vco3Shape() const
@@ -2250,17 +1720,7 @@ float SynthDevice::vco3Shape() const
 
 void SynthDevice::setVco3Shape(float shape)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco3Shape().toStdString()); p) {
-            p->get().setValue(shape);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVco3Shape().toStdString(), shape);
 }
 
 bool SynthDevice::vco3Sync() const
@@ -2270,17 +1730,7 @@ bool SynthDevice::vco3Sync() const
 
 void SynthDevice::setVco3Sync(bool sync)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyVco3Sync().toStdString()); p) {
-            p->get().setValue(sync ? 1.0f : 0.0f);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVco3Sync().toStdString(), sync ? 1.0f : 0.0f);
 }
 
 float SynthDevice::mixVco3() const
@@ -2290,17 +1740,7 @@ float SynthDevice::mixVco3() const
 
 void SynthDevice::setMixVco3(float level)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyMixLevel3().toStdString()); p) {
-            p->get().setValue(level);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyMixLevel3().toStdString(), level);
 }
 
 float SynthDevice::oscillatorDrift() const
@@ -2310,17 +1750,7 @@ float SynthDevice::oscillatorDrift() const
 
 void SynthDevice::setOscillatorDrift(float drift)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyOscillatorDrift().toStdString()); p) {
-            p->get().setValue(drift);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyOscillatorDrift().toStdString(), drift);
 }
 
 float SynthDevice::crossModDepth() const
@@ -2330,17 +1760,7 @@ float SynthDevice::crossModDepth() const
 
 void SynthDevice::setCrossModDepth(float depth)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto p = parameter(Constants::NahdXml::xmlKeyCrossModDepth().toStdString()); p) {
-            p->get().setValue(depth);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyCrossModDepth().toStdString(), depth);
 }
 
 } // namespace noteahead

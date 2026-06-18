@@ -121,6 +121,9 @@ protected:
 
     virtual void syncParameters();
 
+    void setContinuousParameterValue(const std::string & key, float value);
+    void setDiscreteParameterValue(const std::string & key, int value);
+
     bool updateVolumeParameter(float volume, bool updateManual);
     bool updateGainParameter(float gain, bool updateManual);
     bool updatePanParameter(float pan, bool updateManual);
