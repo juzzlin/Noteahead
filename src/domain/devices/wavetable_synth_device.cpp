@@ -1130,18 +1130,7 @@ WavetableSynthDevice::VoiceMode WavetableSynthDevice::voiceMode() const
 
 void WavetableSynthDevice::setVoiceMode(VoiceMode mode)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyVoiceMode().toStdString()); synthParameter) {
-            synthParameter->get().setFromXml(static_cast<int>(mode));
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed) {
-        emit dataChanged();
-    }
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyVoiceMode().toStdString(), static_cast<int>(mode));
 }
 
 float WavetableSynthDevice::voiceDepth() const
@@ -1152,18 +1141,7 @@ float WavetableSynthDevice::voiceDepth() const
 
 void WavetableSynthDevice::setVoiceDepth(float depth)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyVoiceDepth().toStdString()); synthParameter) {
-            synthParameter->get().setValue(depth);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed) {
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVoiceDepth().toStdString(), depth);
 }
 
 float WavetableSynthDevice::panSpread() const
@@ -1174,18 +1152,7 @@ float WavetableSynthDevice::panSpread() const
 
 void WavetableSynthDevice::setPanSpread(float spread)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyPanSpread().toStdString()); synthParameter) {
-            synthParameter->get().setValue(spread);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed) {
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyPanSpread().toStdString(), spread);
 }
 
 float WavetableSynthDevice::portamento() const
@@ -1196,18 +1163,7 @@ float WavetableSynthDevice::portamento() const
 
 void WavetableSynthDevice::setPortamento(float p)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyPortamento().toStdString()); synthParameter) {
-            synthParameter->get().setValue(p);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed) {
-        emit dataChanged();
-    }
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyPortamento().toStdString(), p);
 }
 
 int WavetableSynthDevice::wavetableIndex() const
@@ -1218,18 +1174,7 @@ int WavetableSynthDevice::wavetableIndex() const
 
 void WavetableSynthDevice::setWavetableIndex(int index)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyWavetableIndex().toStdString()); synthParameter) {
-            synthParameter->get().setFromXml(index);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed) {
-        emit dataChanged();
-    }
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyWavetableIndex().toStdString(), index);
 }
 
 std::vector<std::string> WavetableSynthDevice::wavetableNames() const

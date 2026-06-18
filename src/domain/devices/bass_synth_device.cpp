@@ -493,17 +493,7 @@ PolyBlepOscillator::Waveform BassSynthDevice::waveform() const
 
 void BassSynthDevice::setWaveform(PolyBlepOscillator::Waveform wave)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (auto p = parameter(Constants::NahdXml::xmlKeyWaveform().toStdString()); p) {
-            p->get().setFromXml(static_cast<int>(wave));
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyWaveform().toStdString(), static_cast<int>(wave));
 }
 
 float BassSynthDevice::tuning() const
@@ -513,17 +503,7 @@ float BassSynthDevice::tuning() const
 
 void BassSynthDevice::setTuning(float tuning)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (auto p = parameter(Constants::NahdXml::xmlKeyPitch().toStdString()); p) {
-            p->get().setValue(tuning);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyPitch().toStdString(), tuning);
 }
 
 float BassSynthDevice::subLevel() const
@@ -533,17 +513,7 @@ float BassSynthDevice::subLevel() const
 
 void BassSynthDevice::setSubLevel(float level)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (auto p = parameter(Constants::NahdXml::xmlKeySubLevel().toStdString()); p) {
-            p->get().setValue(level);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeySubLevel().toStdString(), level);
 }
 
 int BassSynthDevice::subOctave() const
@@ -553,17 +523,7 @@ int BassSynthDevice::subOctave() const
 
 void BassSynthDevice::setSubOctave(int octave)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (auto p = parameter(Constants::NahdXml::xmlKeySubOctave().toStdString()); p) {
-            p->get().setFromXml(octave);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeySubOctave().toStdString(), octave);
 }
 
 float BassSynthDevice::lpfCutoff() const
@@ -594,17 +554,7 @@ float BassSynthDevice::lpfResonance() const
 
 void BassSynthDevice::setLpfResonance(float resonance)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (auto p = parameter(Constants::NahdXml::xmlKeyLpfResonance().toStdString()); p) {
-            p->get().setValue(resonance);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLpfResonance().toStdString(), resonance);
 }
 
 float BassSynthDevice::hpfCutoff() const
@@ -635,17 +585,7 @@ float BassSynthDevice::envMod() const
 
 void BassSynthDevice::setEnvMod(float mod)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (auto p = parameter(Constants::NahdXml::xmlKeyEnvMod().toStdString()); p) {
-            p->get().setValue(mod);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyEnvMod().toStdString(), mod);
 }
 
 float BassSynthDevice::decay() const
@@ -655,17 +595,7 @@ float BassSynthDevice::decay() const
 
 void BassSynthDevice::setDecay(float decay)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (auto p = parameter(Constants::NahdXml::xmlKeyDecay().toStdString()); p) {
-            p->get().setValue(decay);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyDecay().toStdString(), decay);
 }
 
 float BassSynthDevice::accent() const
@@ -675,17 +605,7 @@ float BassSynthDevice::accent() const
 
 void BassSynthDevice::setAccent(float accent)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (auto p = parameter(Constants::NahdXml::xmlKeyAccent().toStdString()); p) {
-            p->get().setValue(accent);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyAccent().toStdString(), accent);
 }
 
 float BassSynthDevice::slide() const
@@ -695,17 +615,7 @@ float BassSynthDevice::slide() const
 
 void BassSynthDevice::setSlide(float slide)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (auto p = parameter(Constants::NahdXml::xmlKeySlide().toStdString()); p) {
-            p->get().setValue(slide);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeySlide().toStdString(), slide);
 }
 
 float BassSynthDevice::distDrive() const
@@ -715,17 +625,7 @@ float BassSynthDevice::distDrive() const
 
 void BassSynthDevice::setDistDrive(float drive)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (auto p = parameter(Constants::NahdXml::xmlKeyDistDrive().toStdString()); p) {
-            p->get().setValue(drive);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyDistDrive().toStdString(), drive);
 }
 
 float BassSynthDevice::distTone() const
@@ -735,17 +635,7 @@ float BassSynthDevice::distTone() const
 
 void BassSynthDevice::setDistTone(float tone)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (auto p = parameter(Constants::NahdXml::xmlKeyDistTone().toStdString()); p) {
-            p->get().setValue(tone);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyDistTone().toStdString(), tone);
 }
 
 float BassSynthDevice::distLevel() const
@@ -755,17 +645,7 @@ float BassSynthDevice::distLevel() const
 
 void BassSynthDevice::setDistLevel(float level)
 {
-    bool changed = false;
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (auto p = parameter(Constants::NahdXml::xmlKeyDistLevel().toStdString()); p) {
-            p->get().setValue(level);
-            syncParameters();
-            changed = true;
-        }
-    }
-    if (changed)
-        emit dataChanged();
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyDistLevel().toStdString(), level);
 }
 
 } // namespace noteahead
