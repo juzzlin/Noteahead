@@ -847,6 +847,16 @@ void XmlSerializationTest::test_toXmlFromXml_synthDevice_shouldPreserveValuesAnd
     synthOut->setDelaySyncDivision(0.25f);
     synthOut->setFeedbackLpf(0.6f);
     synthOut->setFeedbackHpf(0.2f);
+    synthOut->setLfoWaveform(Lfo::Waveform::Saw);
+    synthOut->setLfoMode(Lfo::Mode::OneShot);
+    synthOut->setLfoRate(0.4f);
+    synthOut->setLfoInt(0.6f);
+    synthOut->setLfoTarget(SynthDevice::LfoTarget::Cutoff);
+    synthOut->setLfo2Waveform(Lfo::Waveform::Square);
+    synthOut->setLfo2Mode(Lfo::Mode::OneShot);
+    synthOut->setLfo2Rate(0.3f);
+    synthOut->setLfo2Int(0.7f);
+    synthOut->setLfo2Target(SynthDevice::LfoTarget::Volume);
     deviceServiceOut.setDevice(0, synthOut);
 
     EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
@@ -880,6 +890,14 @@ void XmlSerializationTest::test_toXmlFromXml_synthDevice_shouldPreserveValuesAnd
     QCOMPARE(synthIn->delaySyncDivision(), 0.25f);
     QCOMPARE(synthIn->delayFeedbackLpf(), 0.6f);
     QCOMPARE(synthIn->delayFeedbackHpf(), 0.2f);
+    QCOMPARE(synthIn->lfoWaveform(), Lfo::Waveform::Saw);
+    QCOMPARE(synthIn->lfoMode(), Lfo::Mode::OneShot);
+    QCOMPARE(synthIn->lfoRate(), 0.4f);
+    QCOMPARE(synthIn->lfoTarget(), SynthDevice::LfoTarget::Cutoff);
+    QCOMPARE(synthIn->lfo2Waveform(), Lfo::Waveform::Square);
+    QCOMPARE(synthIn->lfo2Mode(), Lfo::Mode::OneShot);
+    QCOMPARE(synthIn->lfo2Rate(), 0.3f);
+    QCOMPARE(synthIn->lfo2Target(), SynthDevice::LfoTarget::Volume);
 
     // Verify discrete flags
     const auto vco1Wave = synthIn->parameter(Constants::NahdXml::xmlKeyVco1Waveform().toStdString());
@@ -897,6 +915,48 @@ void XmlSerializationTest::test_toXmlFromXml_synthDevice_shouldPreserveValuesAnd
     const auto multiShape = synthIn->parameter(Constants::NahdXml::xmlKeyMultiShape().toStdString());
     QVERIFY(multiShape.has_value());
     QVERIFY(!multiShape->get().isDiscrete());
+
+    const auto lfoWaveform = synthIn->parameter(Constants::NahdXml::xmlKeyLfoWaveform().toStdString());
+    QVERIFY(lfoWaveform.has_value());
+    QVERIFY(lfoWaveform->get().isDiscrete());
+
+    const auto lfoMode = synthIn->parameter(Constants::NahdXml::xmlKeyLfoMode().toStdString());
+    QVERIFY(lfoMode.has_value());
+    QVERIFY(lfoMode->get().isDiscrete());
+
+    const auto lfoRate = synthIn->parameter(Constants::NahdXml::xmlKeyLfoRate().toStdString());
+    QVERIFY(lfoRate.has_value());
+    QVERIFY(!lfoRate->get().isDiscrete());
+
+    const auto lfoIntensity = synthIn->parameter(Constants::NahdXml::xmlKeyLfoIntensity().toStdString());
+    QVERIFY(lfoIntensity.has_value());
+    QCOMPARE(lfoIntensity->get().value(), 0.6f);
+    QVERIFY(!lfoIntensity->get().isDiscrete());
+
+    const auto lfoTarget = synthIn->parameter(Constants::NahdXml::xmlKeyLfoTarget().toStdString());
+    QVERIFY(lfoTarget.has_value());
+    QVERIFY(lfoTarget->get().isDiscrete());
+
+    const auto lfo2Waveform = synthIn->parameter(Constants::NahdXml::xmlKeyLfo2Waveform().toStdString());
+    QVERIFY(lfo2Waveform.has_value());
+    QVERIFY(lfo2Waveform->get().isDiscrete());
+
+    const auto lfo2Mode = synthIn->parameter(Constants::NahdXml::xmlKeyLfo2Mode().toStdString());
+    QVERIFY(lfo2Mode.has_value());
+    QVERIFY(lfo2Mode->get().isDiscrete());
+
+    const auto lfo2Rate = synthIn->parameter(Constants::NahdXml::xmlKeyLfo2Rate().toStdString());
+    QVERIFY(lfo2Rate.has_value());
+    QVERIFY(!lfo2Rate->get().isDiscrete());
+
+    const auto lfo2Intensity = synthIn->parameter(Constants::NahdXml::xmlKeyLfo2Intensity().toStdString());
+    QVERIFY(lfo2Intensity.has_value());
+    QCOMPARE(lfo2Intensity->get().value(), 0.7f);
+    QVERIFY(!lfo2Intensity->get().isDiscrete());
+
+    const auto lfo2Target = synthIn->parameter(Constants::NahdXml::xmlKeyLfo2Target().toStdString());
+    QVERIFY(lfo2Target.has_value());
+    QVERIFY(lfo2Target->get().isDiscrete());
 }
 
 void XmlSerializationTest::test_toXmlFromXml_synthUserPresets_shouldSaveAndLoad()
