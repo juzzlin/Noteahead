@@ -2995,6 +2995,41 @@
     </message>
 </context>
 <context>
+    <name>Eq32BandGraphicalDialog</name>
+    <message>
+        <source>EQ 32-Band Graphical (Slot %1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stereo Mode</source>
+        <translation type="unfinished">Mode stéréo</translation>
+    </message>
+    <message>
+        <source>Stereo</source>
+        <translation type="unfinished">Stéréo</translation>
+    </message>
+    <message>
+        <source>Mid</source>
+        <translation type="unfinished">Médiums</translation>
+    </message>
+    <message>
+        <source>Side</source>
+        <translation type="unfinished">Side</translation>
+    </message>
+    <message>
+        <source>Flat</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Every slider back to 0 dB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="unfinished">Sortie</translation>
+    </message>
+</context>
+<context>
     <name>Eq8BandParametricDialog</name>
     <message>
         <source>EQ 8-Band Parametric (Slot %1)</source>
@@ -5931,6 +5966,10 @@
     <message>
         <source>HPF Cutoff</source>
         <translation type="unfinished">Coupure du HPF</translation>
+    </message>
+    <message>
+        <source>Output Gain</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10777,6 +10816,10 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
     <message>
         <source>Side</source>
         <translation>Side</translation>
+    </message>
+    <message>
+        <source>Stereo</source>
+        <translation type="unfinished">Stéréo</translation>
     </message>
     <message>
         <source>Normal</source>
