@@ -69,6 +69,19 @@ EffectDialog {
                 }
                 onActivated: index => effectRackController.setParameterValue(root.effectIndex, effectRackController.eq32BandGraphicalStereoModeKey(), index)
             }
+            CheckBox {
+                text: qsTr("Linear Phase")
+                checked: {
+                    effectRackController.revision;
+                    return effectRackController.parameterValue(root.effectIndex, effectRackController.eq32BandGraphicalLinearPhaseKey()) >= 0.5;
+                }
+                onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.eq32BandGraphicalLinearPhaseKey(), checked ? 1 : 0)
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
+                ToolTip.visible: hovered
+                // The same curve either way; what changes is the phase, and the price of it is time
+                ToolTip.text: qsTr("Shape the sound without shifting the phase of any frequency against the others, at the cost of delaying the output by %1 ms. Nothing makes up for that delay while playing, so use it on the master, where the whole mix is late together; a rendered file is put back in time.").arg(Math.round(effectRackController.eq32BandGraphicalLinearPhaseLatencyMs(root.effectIndex)))
+            }
             AppButton {
                 text: qsTr("Flat")
                 toolTipText: qsTr("Every slider back to 0 dB")

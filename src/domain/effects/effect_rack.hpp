@@ -66,6 +66,8 @@ public:
     //! Whether every enabled effect in the rack is back at rest. The engine uses this to decide
     //! that a silent device really can stop being processed.
     bool isSettled() const;
+    //! Total latency of the enabled effects at @p sampleRate, which run in series.
+    size_t latencyFrames(double sampleRate) const;
 
     std::vector<size_t> sidechainDependencies() const;
     //! Allocation-free variant: fills out (cleared first) with the sidechain source device indices.

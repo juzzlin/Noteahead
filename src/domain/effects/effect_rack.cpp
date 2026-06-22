@@ -207,6 +207,18 @@ bool EffectRack::isSettled() const
     });
 }
 
+size_t EffectRack::latencyFrames(double sampleRate) const
+{
+    std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    size_t total = 0;
+    for (auto && effect : m_effects) {
+        if (effect && effect->enabled()) {
+            total += effect->latencyFrames(sampleRate);
+        }
+    }
+    return total;
+}
+
 std::vector<size_t> EffectRack::sidechainDependencies() const
 {
     std::vector<size_t> dependencies;

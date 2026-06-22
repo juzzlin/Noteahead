@@ -17,6 +17,7 @@
 #define EQ_32_BAND_GRAPHICAL_HPP
 
 #include "../dsp/graphic_eq_designer.hpp"
+#include "../dsp/linear_phase_fir.hpp"
 #include "../dsp/matched_bell_filter.hpp"
 #include "effect.hpp"
 
@@ -46,6 +47,16 @@ public:
     void processBlock(AudioContext & context) override;
     void reset() override;
     void sync() override;
+
+    //! Holds on to a tail as long as the linear-phase filter does, which is about a second: the
+    //! engine would otherwise stop a silent device with the end of its last note still inside, and
+    //! play it at the start of the next one.
+    bool isSettled() const override;
+    //! Half the linear-phase kernel and one partition while Linear Phase is on, nothing otherwise.
+    size_t latencyFrames(double sampleRate) const override;
+    //! What latencyFrames() comes to at @p sampleRate with Linear Phase on, for the dialog to show
+    //! before the mode is engaged.
+    static size_t linearPhaseLatencyFrames(double sampleRate);
 
     const EffectPresetList & factoryPresets() const override;
 
@@ -79,6 +90,7 @@ private:
         GraphicEqDesigner::Gains filterGainsDb {};
         StereoMode stereoMode { StereoMode::Stereo };
         double outputGain { 1.0 };
+        bool linearPhase { false };
     };
 
     Settings settingsFromParameters() const;
@@ -86,6 +98,8 @@ private:
     void updateBuffers();
     void syncParameters();
     void processFrame(double & left, double & right);
+    void processFrameLinearPhase(double & left, double & right);
+    void startLinearPhaseDesign();
 
     //! The bands of one path through the equalizer.
     using Bands = std::array<MatchedBellFilter, BandCount>;
@@ -95,6 +109,17 @@ private:
     std::array<Bands, 2> m_paths;
     StereoMode m_stereoMode { StereoMode::Stereo };
     double m_outputGain { 1.0 };
+
+    bool m_linearPhase { false };
+    LinearPhaseFir m_fir;
+    //! True from a reset, or from switching Linear Phase on, until audio has gone through. Engaging
+    //! starts the filter empty, so nothing of the minimum-phase path's signal is replayed late.
+    bool m_firIsIdle { true };
+    //! The path Mid or Side mode leaves alone, delayed to stay in time with the filtered one.
+    std::vector<double> m_bypassDelay;
+    size_t m_bypassIndex { 0 };
+    //! Frames since the input last carried anything, against the filter's memory.
+    size_t m_quietFrames { 0 };
 
     uint32_t m_lastSampleRate { 0 };
     bool m_shouldUpdateBuffers { true };

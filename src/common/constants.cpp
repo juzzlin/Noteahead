@@ -1555,6 +1555,11 @@ QString xmlKeyStereoMode()
     return "stereoMode";
 }
 
+QString xmlKeyLinearPhase()
+{
+    return "linearPhase";
+}
+
 QString xmlKeyStereoPhase()
 {
     return "stereoPhase";

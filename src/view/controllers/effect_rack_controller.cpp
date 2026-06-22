@@ -968,6 +968,9 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                         break;
                     }
                 }
+                if (effect->latencyFrames(effect->sampleRate()) > 0) {
+                    return QString { "(Graphical, %1, %2)" }.arg(modeName, tr("Linear Phase"));
+                }
                 return QString { "(Graphical, %1)" }.arg(modeName);
             } else if (type == Constants::RackEffectType::vintagePassiveEq()) {
                 return "(Passive)";
@@ -1728,6 +1731,20 @@ QString EffectRackController::eq32BandGraphicalStereoModeKey() const
 QString EffectRackController::eq32BandGraphicalOutputGainKey() const
 {
     return Constants::NahdXml::xmlKeyGain();
+}
+
+QString EffectRackController::eq32BandGraphicalLinearPhaseKey() const
+{
+    return Constants::NahdXml::xmlKeyLinearPhase();
+}
+
+double EffectRackController::eq32BandGraphicalLinearPhaseLatencyMs(quint32 effectIndex) const
+{
+    const auto effect = effectAt(effectIndex);
+    if (!effect || effect->sampleRate() <= 0.0) {
+        return 0.0;
+    }
+    return static_cast<double>(Eq32BandGraphical::linearPhaseLatencyFrames(effect->sampleRate())) * 1000.0 / effect->sampleRate();
 }
 
 void EffectRackController::eq32BandGraphicalFlatten(quint32 effectIndex)

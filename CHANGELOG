@@ -16,6 +16,7 @@ New features:
 
 * EQ 32-Band Graphical
   - A third-octave mastering EQ whose curve passes through its sliders
+  - Linear Phase mode; a render takes the master's latency back out
 
 * Reverb, Compressor, Endless Reverb, Multiband Compressor and Early Reflections
   - Save and delete presets of your own, as on the other effects

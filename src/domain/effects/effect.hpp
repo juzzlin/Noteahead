@@ -16,6 +16,7 @@
 #ifndef EFFECT_HPP
 #define EFFECT_HPP
 
+#include <cstddef>
 #include <cstdint>
 #include <optional>
 #include <string>
@@ -149,6 +150,13 @@ public:
     //! effect reports itself unsettled until its envelope has released, and the engine keeps the
     //! device running until then. True unless overridden: most effects have nothing to settle.
     virtual bool isSettled() const;
+
+    //! How many frames late the effect's output is at @p sampleRate. Zero for everything that works
+    //! sample by sample; a linear-phase filter has to hold back half its kernel. Nothing compensates
+    //! for it in real time, so an effect that reports some is one for the master, where the whole mix
+    //! is late together; a render takes it back out. The rate is asked for rather than taken from the
+    //! effect because a render can run at another one than the effect last played at.
+    virtual size_t latencyFrames(double sampleRate) const;
 
     //! Internal oversampling factor (1, 2 or 4) for nonlinear effects that render their shaping stage
     //! at a higher rate to suppress aliasing. Pushed per block from the AudioContext; 1 (no

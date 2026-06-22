@@ -48,6 +48,7 @@ set(HEADER_FILES
     dsp/graphic_eq_designer.hpp
     dsp/high_pass_filter.hpp
     dsp/lfo.hpp
+    dsp/linear_phase_fir.hpp
     dsp/matched_bell_filter.hpp
     dsp/metronome.hpp
     dsp/micro_pitch_shifter.hpp
@@ -229,6 +230,7 @@ set(SOURCE_FILES
     dsp/graphic_eq_designer.cpp
     dsp/high_pass_filter.cpp
     dsp/lfo.cpp
+    dsp/linear_phase_fir.cpp
     dsp/matched_bell_filter.cpp
     dsp/metronome.cpp
     dsp/micro_pitch_shifter.cpp

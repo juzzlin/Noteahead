@@ -16,6 +16,7 @@
 #ifndef MATCHED_BELL_FILTER_HPP
 #define MATCHED_BELL_FILTER_HPP
 
+#include <array>
 #include <complex>
 
 namespace noteahead {
@@ -45,6 +46,18 @@ public:
     //! The response of the coefficients process() runs on.
     std::complex<double> responseAt(double frequency, double sampleRate) const;
     double magnitudeDbAt(double frequency, double sampleRate) const;
+
+    //! The squared magnitude as a ratio of two polynomials in phi1 = sin^2(w/2), with
+    //! phi0 = 1 - phi1 and phi2 = 4 phi0 phi1: numerator[0] phi0 + numerator[1] phi1 + numerator[2]
+    //! phi2 over the same in denominator. Lets a whole spectrum be evaluated with a few
+    //! multiplications a bin instead of a complex division.
+    struct SquaredMagnitude
+    {
+        std::array<double, 3> numerator { 1.0, 1.0, 0.0 };
+        std::array<double, 3> denominator { 1.0, 1.0, 0.0 };
+    };
+
+    SquaredMagnitude squaredMagnitude() const;
 
     double process(double input);
     void reset();

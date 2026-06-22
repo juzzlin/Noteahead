@@ -37,6 +37,17 @@ private slots:
     void test_factoryPresets_flat_shouldComeFirst();
     void test_factoryPresets_slider_shouldLandOnItsBand();
     void test_parameterDisplay_everyBand_shouldBeDescribed();
+
+    void test_linearPhase_off_shouldHaveNoLatency();
+    void test_linearPhase_impulse_shouldArriveAtTheLatency();
+    void test_linearPhase_impulseResponse_shouldBeSymmetric();
+    void test_linearPhase_coldStart_shouldBeReadyWithinTheLatency();
+    void test_linearPhase_sine_shouldMatchTheCurve();
+    void test_linearPhase_midMode_shouldDelayTheSideUnchanged();
+    void test_linearPhase_sliderMoved_shouldReachTheNewCurve();
+    void test_linearPhase_sliderMoved_shouldRenderTheSameEveryTime();
+    void test_linearPhase_tail_shouldKeepTheEffectUnsettled();
+    void test_effectRack_latency_shouldSumTheEnabledEffects();
 };
 
 } // namespace noteahead

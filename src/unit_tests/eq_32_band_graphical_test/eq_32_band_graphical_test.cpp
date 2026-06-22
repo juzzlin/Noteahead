@@ -18,12 +18,14 @@
 #include "../../common/constants.hpp"
 #include "../../domain/dsp/audio_context.hpp"
 #include "../../domain/dsp/graphic_eq_designer.hpp"
+#include "../../domain/effects/effect_rack.hpp"
 #include "../../domain/effects/eq_32_band_graphical.hpp"
 
 #include <QTest>
 
 #include <algorithm>
 #include <cmath>
+#include <memory>
 #include <numbers>
 #include <random>
 #include <span>
@@ -78,7 +80,9 @@ std::vector<double> render(Eq32BandGraphical & eq, std::vector<double> stereo)
 double measuredGainDb(Eq32BandGraphical & eq, double frequency)
 {
     const double rate = eq.sampleRate();
-    const auto frames = static_cast<size_t>(rate);
+    // Two seconds, measured over the second: a linear-phase kernel is over half a second long and
+    // only settles once it is full
+    const auto frames = static_cast<size_t>(rate * 2.0);
     std::vector<double> stereo(frames * 2);
     for (size_t i = 0; i < frames; i++) {
         stereo[i * 2] = stereo[i * 2 + 1] = std::sin(2.0 * std::numbers::pi * frequency * static_cast<double>(i) / rate);
@@ -92,6 +96,32 @@ double measuredGainDb(Eq32BandGraphical & eq, double frequency)
         out += output[i * 2] * output[i * 2];
     }
     return 10.0 * std::log10(out / in);
+}
+
+std::unique_ptr<Eq32BandGraphical> linearPhaseEq(const Gains & sliders, int stereoMode = 0)
+{
+    auto eq = std::make_unique<Eq32BandGraphical>();
+    eq->setSampleRate(48000.0);
+    setSliders(*eq, sliders);
+    setParameter(*eq, Constants::NahdXml::xmlKeyStereoMode(), static_cast<float>(stereoMode));
+    setParameter(*eq, Constants::NahdXml::xmlKeyLinearPhase(), 1.0f);
+    return eq;
+}
+
+//! The response to an impulse @p warmUp frames into the run, from the impulse on.
+std::vector<double> impulseResponse(Eq32BandGraphical & eq, size_t frames, size_t warmUp = 0)
+{
+    if (warmUp > 0) {
+        render(eq, std::vector<double>(warmUp * 2, 0.0));
+    }
+    std::vector<double> stereo(frames * 2, 0.0);
+    stereo[0] = stereo[1] = 1.0;
+    const auto output = render(eq, stereo);
+    std::vector<double> left(frames);
+    for (size_t i = 0; i < frames; i++) {
+        left[i] = output[i * 2];
+    }
+    return left;
 }
 
 } // namespace
@@ -277,6 +307,147 @@ void Eq32BandGraphicalTest::test_parameterDisplay_everyBand_shouldBeDescribed()
         QCOMPARE(display->unit, std::string { "dB" });
         QCOMPARE(display->label, Eq32BandGraphical::nominalLabel(i));
     }
+}
+
+void Eq32BandGraphicalTest::test_linearPhase_off_shouldHaveNoLatency()
+{
+    Eq32BandGraphical eq;
+    QCOMPARE(eq.latencyFrames(48000.0), size_t { 0 });
+    // 32768 taps at 48 kHz: half of them, and one of the 32 partitions
+    QCOMPARE(Eq32BandGraphical::linearPhaseLatencyFrames(48000.0), size_t { 16384 + 1024 });
+    QCOMPARE(Eq32BandGraphical::linearPhaseLatencyFrames(96000.0), size_t { 32768 + 2048 });
+}
+
+void Eq32BandGraphicalTest::test_linearPhase_impulse_shouldArriveAtTheLatency()
+{
+    // Flat: the kernel is a pure delay, so the impulse comes out whole, exactly that late
+    auto eq = linearPhaseEq({});
+    const auto latency = eq->latencyFrames(48000.0);
+    QCOMPARE(latency, Eq32BandGraphical::linearPhaseLatencyFrames(48000.0));
+    const auto response = impulseResponse(*eq, latency * 2);
+    for (size_t i = 0; i < response.size(); i++) {
+        QVERIFY2(std::abs(response.at(i) - (i == latency ? 1.0 : 0.0)) < 1.0e-9, qPrintable(QString { "frame %1: %2" }.arg(i).arg(response.at(i))));
+    }
+}
+
+void Eq32BandGraphicalTest::test_linearPhase_impulseResponse_shouldBeSymmetric()
+{
+    // Linear phase is a symmetric impulse response: the same before its centre as after
+    auto eq = linearPhaseEq(testSettings().at(2));
+    const auto latency = eq->latencyFrames(48000.0);
+    // Once the kernel is built; see the cold start below for the first moments
+    const auto response = impulseResponse(*eq, latency * 2, latency);
+    for (size_t n = 1; n < 16000; n++) {
+        QVERIFY2(std::abs(response.at(latency + n) - response.at(latency - n)) < 1.0e-9, qPrintable(QString::number(n)));
+    }
+}
+
+void Eq32BandGraphicalTest::test_linearPhase_coldStart_shouldBeReadyWithinTheLatency()
+{
+    // The kernel is built in slices even from cold, and has to be in place well before anything
+    // reaches the output. From then on the output is the finished filter's exactly: only the
+    // pre-ringing of the first few thousand frames is missing, which a render trims with the latency.
+    const auto latency = linearPhaseEq({})->latencyFrames(48000.0);
+    auto cold = linearPhaseEq(testSettings().at(2));
+    auto warm = linearPhaseEq(testSettings().at(2));
+    const auto coldResponse = impulseResponse(*cold, latency * 2);
+    const auto warmResponse = impulseResponse(*warm, latency * 2, latency);
+    for (size_t i = latency / 2; i < coldResponse.size(); i++) {
+        QVERIFY2(std::abs(coldResponse.at(i) - warmResponse.at(i)) < 1.0e-12, qPrintable(QString::number(i)));
+    }
+}
+
+void Eq32BandGraphicalTest::test_linearPhase_sine_shouldMatchTheCurve()
+{
+    // The same magnitude as the minimum-phase bands, which is what the curve shows. Exact on a smooth
+    // curve; on random sliders the bottom bands, where neighbours jump by 20 dB, ring for longer than
+    // the kernel holds and come out a few tenths off.
+    const auto check = [](const Gains & sliders, double lowTolerance) {
+        auto eq = linearPhaseEq(sliders);
+        for (const double hz : { 20.0, 31.5, 40.0, 63.0, 400.0, 1000.0, 3150.0, 12500.0 }) {
+            const double measured = measuredGainDb(*eq, hz);
+            const double tolerance = hz < 50.0 ? lowTolerance : 0.05;
+            QVERIFY2(std::abs(measured - eq->magnitudeDbAt(hz)) < tolerance, qPrintable(QString { "%1 Hz: %2 dB measured, %3 dB drawn" }.arg(hz).arg(measured).arg(eq->magnitudeDbAt(hz))));
+        }
+    };
+    check(testSettings().at(1), 0.05);
+    check(testSettings().at(2), 0.5);
+}
+
+void Eq32BandGraphicalTest::test_linearPhase_midMode_shouldDelayTheSideUnchanged()
+{
+    auto eq = linearPhaseEq(testSettings().at(2), 1);
+    const auto latency = eq->latencyFrames(48000.0);
+    const size_t frames = latency + 4096;
+    std::vector<double> stereo(frames * 2);
+    for (size_t i = 0; i < frames; i++) {
+        const double sample = std::sin(static_cast<double>(i) * 0.05);
+        stereo[i * 2] = sample;
+        stereo[i * 2 + 1] = -sample;
+    }
+    const auto output = render(*eq, stereo);
+    for (size_t i = latency; i < frames; i++) {
+        QVERIFY(std::abs(output[i * 2] - stereo[(i - latency) * 2]) < 1.0e-12);
+        QVERIFY(std::abs(output[i * 2 + 1] - stereo[(i - latency) * 2 + 1]) < 1.0e-12);
+    }
+}
+
+void Eq32BandGraphicalTest::test_linearPhase_sliderMoved_shouldReachTheNewCurve()
+{
+    // Moved while audio runs, the kernel is rebuilt a slice at a time and faded in; once it has,
+    // the filter is the new curve
+    auto eq = linearPhaseEq({});
+    render(*eq, std::vector<double>(48000 * 2, 0.0));
+    setSliders(*eq, testSettings().at(1));
+    render(*eq, std::vector<double>(48000 * 2, 0.0));
+    for (const double hz : { 400.0, 3150.0 }) {
+        const double measured = measuredGainDb(*eq, hz);
+        QVERIFY2(std::abs(measured - eq->magnitudeDbAt(hz)) < 0.1, qPrintable(QString { "%1 Hz: %2 dB" }.arg(hz).arg(measured)));
+    }
+}
+
+void Eq32BandGraphicalTest::test_linearPhase_sliderMoved_shouldRenderTheSameEveryTime()
+{
+    // The rebuild is paced by frames, not by the clock, so a render does not depend on the machine
+    std::vector<double> stereo(48000 * 2);
+    std::mt19937 generator { 4 };
+    std::uniform_real_distribution<double> noise { -0.5, 0.5 };
+    std::ranges::generate(stereo, [&] { return noise(generator); });
+    const auto run = [&stereo]() {
+        auto eq = linearPhaseEq({});
+        std::vector<double> output;
+        for (size_t block = 0; block < 4; block++) {
+            if (block == 1) {
+                setSliders(*eq, testSettings().at(2));
+            }
+            const auto rendered = render(*eq, stereo);
+            output.insert(output.end(), rendered.begin(), rendered.end());
+        }
+        return output;
+    };
+    QCOMPARE(run(), run());
+}
+
+void Eq32BandGraphicalTest::test_linearPhase_tail_shouldKeepTheEffectUnsettled()
+{
+    auto eq = linearPhaseEq(testSettings().at(2));
+    QVERIFY(eq->isSettled());
+    render(*eq, std::vector<double>(4096 * 2, 0.5));
+    QVERIFY(!eq->isSettled());
+    // A second of silence is longer than the kernel and a partition either side of it
+    render(*eq, std::vector<double>(48000 * 2, 0.0));
+    QVERIFY(eq->isSettled());
+}
+
+void Eq32BandGraphicalTest::test_effectRack_latency_shouldSumTheEnabledEffects()
+{
+    EffectRack rack;
+    rack.setEffect(0, linearPhaseEq({}));
+    rack.setEffect(1, linearPhaseEq({}));
+    const auto one = Eq32BandGraphical::linearPhaseLatencyFrames(48000.0);
+    QCOMPARE(rack.latencyFrames(48000.0), one * 2);
+    rack.effect(1)->setEnabled(false);
+    QCOMPARE(rack.latencyFrames(48000.0), one);
 }
 
 } // namespace noteahead

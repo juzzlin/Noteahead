@@ -207,6 +207,11 @@ bool Effect::isSettled() const
     return true;
 }
 
+size_t Effect::latencyFrames(double) const
+{
+    return 0;
+}
+
 void Effect::processBlock(AudioContext & context)
 {
     for (uint32_t i = 0; i < context.frameCount; i++) {

@@ -52,6 +52,8 @@ Eq32BandGraphical::Eq32BandGraphical()
     }
     addParameter(Parameter { C::xmlKeyStereoMode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { C::xmlKeyGain().toStdString(), 0.5f, -1200, 1200, 0, 100, Parameter::Type::Continuous });
+    // Off, which is also what a project from before the switch existed gets
+    addParameter(Parameter { C::xmlKeyLinearPhase().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
     setParameterDisplay(C::xmlKeyGain().toStdString(), { .unit = "dB", .min = -MaxGainDb, .max = MaxGainDb, .rest = Display::Rest::Centre, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Output Gain") });
 
     syncParameters();
@@ -88,6 +90,7 @@ Eq32BandGraphical::Settings Eq32BandGraphical::settingsFromParameters() const
     settings.filterGainsDb = GraphicEqDesigner::filterGains(sliders, m_sampleRate);
     settings.stereoMode = static_cast<StereoMode>(std::clamp(static_cast<int>(std::round(valueOf(C::xmlKeyStereoMode(), 0.0f))), 0, 2));
     settings.outputGain = std::pow(10.0, sliderGainDb(valueOf(C::xmlKeyGain(), 0.5f)) / 20.0);
+    settings.linearPhase = valueOf(C::xmlKeyLinearPhase(), 0.0f) >= 0.5f;
     return settings;
 }
 
@@ -101,6 +104,45 @@ void Eq32BandGraphical::syncParameters()
     }
     m_stereoMode = settings.stereoMode;
     m_outputGain = settings.outputGain;
+
+    if (settings.linearPhase) {
+        if (!m_linearPhase) {
+            // Engaged: nothing of the minimum-phase path's state carries over
+            m_firIsIdle = true;
+            m_quietFrames = 0;
+        }
+        startLinearPhaseDesign();
+    }
+    m_linearPhase = settings.linearPhase;
+}
+
+void Eq32BandGraphical::startLinearPhaseDesign()
+{
+    const auto rate = m_sampleRate;
+    if (rate <= 0.0) {
+        return;
+    }
+    m_fir.configure(rate);
+    if (m_bypassDelay.size() != m_fir.latencyFrames()) {
+        m_bypassDelay.assign(m_fir.latencyFrames(), 0.0);
+        m_bypassIndex = 0;
+    }
+    std::vector<MatchedBellFilter::SquaredMagnitude> sections;
+    sections.reserve(BandCount);
+    for (auto && band : m_paths.at(0)) {
+        if (!band.isBypassed()) {
+            sections.push_back(band.squaredMagnitude());
+        }
+    }
+    if (m_firIsIdle) {
+        m_fir.reset();
+        std::ranges::fill(m_bypassDelay, 0.0);
+    }
+    // Built a slice at a time even from cold, which takes a few thousand frames: well inside the
+    // latency, during which nothing but the kernel's faint pre-ringing reaches the output anyway,
+    // and the convolution keeps no state of its own output, so the finished kernel takes over as
+    // though it had been there from the start
+    m_fir.startDesign(sections, 1.0);
 }
 
 void Eq32BandGraphical::updateBuffers()
@@ -152,13 +194,48 @@ void Eq32BandGraphical::processFrame(double & left, double & right)
     right *= m_outputGain;
 }
 
+void Eq32BandGraphical::processFrameLinearPhase(double & left, double & right)
+{
+    m_quietFrames = (left != 0.0 || right != 0.0) ? 0 : m_quietFrames + 1;
+    switch (m_stereoMode) {
+    case StereoMode::Stereo:
+        m_fir.process(left, right);
+        break;
+    case StereoMode::Mid:
+    case StereoMode::Side: {
+        double mid = (left + right) * 0.5;
+        double side = (left - right) * 0.5;
+        double & shaped = m_stereoMode == StereoMode::Mid ? mid : side;
+        double & passed = m_stereoMode == StereoMode::Mid ? side : mid;
+        // The filter's second channel has nothing to do in these modes
+        double unused = 0.0;
+        m_fir.process(shaped, unused);
+        const double delayed = m_bypassDelay[m_bypassIndex];
+        m_bypassDelay[m_bypassIndex] = passed;
+        m_bypassIndex = (m_bypassIndex + 1) % m_bypassDelay.size();
+        passed = delayed;
+        left = mid + side;
+        right = mid - side;
+        break;
+    }
+    }
+    left *= m_outputGain;
+    right *= m_outputGain;
+}
+
 void Eq32BandGraphical::processSample(double & left, double & right)
 {
     if (m_sampleRate <= 0) {
         return;
     }
     updateBuffers();
-    processFrame(left, right);
+    if (m_linearPhase) {
+        m_fir.advanceDesign(1);
+        processFrameLinearPhase(left, right);
+        m_firIsIdle = false;
+    } else {
+        processFrame(left, right);
+    }
 }
 
 void Eq32BandGraphical::processBlock(AudioContext & context)
@@ -167,6 +244,14 @@ void Eq32BandGraphical::processBlock(AudioContext & context)
         return;
     }
     updateBuffers();
+    if (m_linearPhase) {
+        m_fir.advanceDesign(context.frameCount);
+        for (uint32_t i = 0; i < context.frameCount; i++) {
+            processFrameLinearPhase(context.buffer[i * 2], context.buffer[i * 2 + 1]);
+        }
+        m_firIsIdle = false;
+        return;
+    }
     for (uint32_t i = 0; i < context.frameCount; i++) {
         processFrame(context.buffer[i * 2], context.buffer[i * 2 + 1]);
     }
@@ -179,6 +264,29 @@ void Eq32BandGraphical::reset()
             band.reset();
         }
     }
+    m_fir.reset();
+    std::ranges::fill(m_bypassDelay, 0.0);
+    m_firIsIdle = true;
+    m_quietFrames = 0;
+}
+
+bool Eq32BandGraphical::isSettled() const
+{
+    // The whole kernel, and the partition being gathered, has to have run out of signal
+    return !m_linearPhase || m_firIsIdle || m_quietFrames > m_fir.kernelLength() + 2 * m_fir.partitionSize();
+}
+
+size_t Eq32BandGraphical::latencyFrames(double sampleRate) const
+{
+    // Off the parameter rather than m_linearPhase, which is brought up to date only when a block
+    // is processed: a render asks before it has processed anything
+    const auto p = parameter(Constants::NahdXml::xmlKeyLinearPhase().toStdString());
+    return p && p->get().value() >= 0.5f ? linearPhaseLatencyFrames(sampleRate) : 0;
+}
+
+size_t Eq32BandGraphical::linearPhaseLatencyFrames(double sampleRate)
+{
+    return LinearPhaseFir::latencyFramesFor(sampleRate);
 }
 
 void Eq32BandGraphical::sync()

@@ -510,6 +510,9 @@ public:
     Q_INVOKABLE QString eq32BandGraphicalBandLabel(quint32 bandIndex) const;
     Q_INVOKABLE QString eq32BandGraphicalStereoModeKey() const;
     Q_INVOKABLE QString eq32BandGraphicalOutputGainKey() const;
+    Q_INVOKABLE QString eq32BandGraphicalLinearPhaseKey() const;
+    //! How late Linear Phase makes the output at the effect's sample rate, in milliseconds.
+    Q_INVOKABLE double eq32BandGraphicalLinearPhaseLatencyMs(quint32 effectIndex) const;
     //! Every slider back to 0 dB, leaving the stereo mode and the output gain where they are, which
     //! is how this differs from the Flat preset.
     Q_INVOKABLE void eq32BandGraphicalFlatten(quint32 effectIndex);

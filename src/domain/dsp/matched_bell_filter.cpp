@@ -131,6 +131,17 @@ double MatchedBellFilter::magnitudeDbAt(double frequency, double sampleRate) con
     return 20.0 * std::log10(std::abs(responseAt(frequency, sampleRate)));
 }
 
+MatchedBellFilter::SquaredMagnitude MatchedBellFilter::squaredMagnitude() const
+{
+    if (m_isBypassed) {
+        return {};
+    }
+    const auto terms = [](double c0, double c1, double c2) {
+        return std::array<double, 3> { (c0 + c1 + c2) * (c0 + c1 + c2), (c0 - c1 + c2) * (c0 - c1 + c2), -4.0 * c0 * c2 };
+    };
+    return { terms(m_b0, m_b1, m_b2), terms(1.0, m_a1, m_a2) };
+}
+
 double MatchedBellFilter::process(double input)
 {
     if (m_isBypassed) {
