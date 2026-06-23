@@ -78,6 +78,7 @@ public:
     QString reverbType() const;
 
     Q_INVOKABLE QString effectParametersSummary(quint32 effectIndex) const;
+    Q_INVOKABLE QString effectDisplayName(const QString & typeId) const;
     Q_INVOKABLE float parameterValue(quint32 effectIndex, const QString & paramName) const;
     Q_INVOKABLE void setParameterValue(quint32 effectIndex, const QString & paramName, float value);
 

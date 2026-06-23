@@ -266,6 +266,17 @@ QString EffectRackController::effectType(quint32 effectIndex) const
     return "";
 }
 
+QString EffectRackController::effectDisplayName(const QString & typeId) const
+{
+    for (const auto & item : availableEffects()) {
+        const auto map = item.toMap();
+        if (map["typeId"].toString() == typeId) {
+            return map["name"].toString();
+        }
+    }
+    return typeId;
+}
+
 QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
 {
     if (const auto rack = currentRack(); rack) {

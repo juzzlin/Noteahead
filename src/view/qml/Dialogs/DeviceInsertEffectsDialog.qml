@@ -139,12 +139,7 @@ Dialog {
                         text: {
                             effectRackController.revision;
                             if (effectType === "") return "";
-                            let name = effectType;
-                            if (effectType === effectRackController.eq8BandParametricType) {
-                                name = "EQ 8-Band Parametric";
-                            } else {
-                                name = effectType.charAt(0).toUpperCase() + effectType.slice(1);
-                            }
+                            const name = effectRackController.effectDisplayName(effectType);
                             const summary = effectRackController.effectParametersSummary(index);
                             return qsTr("Slot %1: %2 %3").arg(index + 1).arg(name).arg(summary);
                         }
