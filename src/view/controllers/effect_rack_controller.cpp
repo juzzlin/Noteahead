@@ -315,10 +315,10 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                 const auto ratio = effect->parameter(Constants::NahdXml::xmlKeyRatio().toStdString());
                 if (attack && ratio) {
                     const float attackMs = static_cast<float>(ParameterMapper::mapExponential(attack->get().value(), 0.1, 500.0));
-                    const int ratioValue = ratio->get().xmlValue() / ratio->get().xmlScale();
+                    const float ratioValue = static_cast<float>(ratio->get().xmlValue()) / static_cast<float>(ratio->get().xmlScale());
                     return QString { "(attack=%1ms, ratio=%2:1)" }
                       .arg(attackMs, 0, 'f', 1)
-                      .arg(ratioValue);
+                      .arg(ratioValue, 0, 'f', 1);
                 }
             } else if (type == Constants::RackEffectType::delay()) {
                 const auto sync = effect->parameter(Constants::NahdXml::xmlKeyDelaySync().toStdString());
