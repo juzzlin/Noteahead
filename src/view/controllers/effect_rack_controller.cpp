@@ -329,7 +329,7 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                     const float ratioValue = static_cast<float>(ratio->get().xmlValue()) / static_cast<float>(ratio->get().xmlScale());
                     return QString { "(attack=%1ms, ratio=%2:1)" }
                       .arg(attackMs, 0, 'f', 1)
-                      .arg(ratioValue, 0, 'f', 1);
+                      .arg(ratioValue, 0, 'g', 3);
                 }
             } else if (type == Constants::RackEffectType::delay()) {
                 const auto sync = effect->parameter(Constants::NahdXml::xmlKeyDelaySync().toStdString());
@@ -347,6 +347,16 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                     return QString { "(time=%1, fb=%2%)" }
                       .arg(timeStr)
                       .arg(static_cast<int>(std::round(feedback->get().value() * 100.0f)));
+                }
+            } else if (type == Constants::RackEffectType::lufsMeter()) {
+                if (const auto meter = std::dynamic_pointer_cast<LufsMeter>(effect)) {
+                    const auto fmt = [](float v) { return v <= -70.0f ? QString("-∞") : QString("%1").arg(v, 0, 'f', 1); };
+                    return QString { "(M=%1 S=%2 LUFS)" }.arg(fmt(meter->momentaryLufs())).arg(fmt(meter->shortTermLufs()));
+                }
+            } else if (type == Constants::RackEffectType::dbtpMeter()) {
+                if (const auto meter = std::dynamic_pointer_cast<DbTpMeter>(effect)) {
+                    const auto fmt = [](float v) { return v <= -70.0f ? QString("-∞") : QString("%1").arg(v, 0, 'f', 1); };
+                    return QString { "(L=%1 R=%2 dBTP)" }.arg(fmt(meter->truePeakHoldL())).arg(fmt(meter->truePeakHoldR()));
                 }
             } else if (type == Constants::RackEffectType::eq8BandParametric()) {
                 return "(Parametric)";
