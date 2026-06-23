@@ -301,6 +301,16 @@ void ApplicationService::requestLiveNoteOff(quint8 key, quint8 octave)
     }
 }
 
+void ApplicationService::requestLiveNoteOffAtCurrentPosition()
+{
+    if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
+        juzzlin::L(TAG).debug() << "Live note OFF at current position requested on instrument " << instrument->toString().toStdString();
+        emit liveNoteOffAtCurrentPositionRequested(instrument);
+    } else {
+        juzzlin::L(TAG).info() << "No instrument set on track!";
+    }
+}
+
 void ApplicationService::cancelOpenProject()
 {
     m_stateMachine->calculateState(StateMachine::Action::OpeningProjectCanceled);

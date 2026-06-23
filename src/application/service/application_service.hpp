@@ -101,6 +101,7 @@ public:
 
     Q_INVOKABLE void requestAllNotesOff();
     Q_INVOKABLE virtual void requestLiveNoteOff(quint8 key, quint8 octave);
+    Q_INVOKABLE virtual void requestLiveNoteOffAtCurrentPosition();
     Q_INVOKABLE virtual void requestLiveNoteOn(quint8 key, quint8 octave, quint8 velocity);
     Q_INVOKABLE virtual void requestLiveNoteOnAtCurrentPosition();
 
@@ -167,6 +168,7 @@ signals:
 
     void allNotesOffRequested();
     void liveNoteOnAtCurrentPositionRequested(InstrumentS instrument);
+    void liveNoteOffAtCurrentPositionRequested(InstrumentS instrument);
     void liveNoteOnRequested(InstrumentS instrument, MidiNoteDataCR data);
     void liveNoteOffRequested(InstrumentS instrument, MidiNoteDataCR data);
 

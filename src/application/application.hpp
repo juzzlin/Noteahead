@@ -21,6 +21,7 @@
 #include "state_machine.hpp"
 
 #include <memory>
+#include <optional>
 
 #include <QObject>
 
@@ -194,6 +195,9 @@ private:
     std::unique_ptr<QQmlApplicationEngine> m_engine;
 
     std::unique_ptr<QTimer> m_instrumentTimer;
+
+    std::shared_ptr<Instrument> m_livePositionNoteInstrument;
+    std::optional<uint8_t> m_livePositionNote;
 };
 
 } // namespace noteahead
