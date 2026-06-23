@@ -62,6 +62,7 @@ private slots:
     void test_toXmlFromXml_synthUserPresets_discreteValues_shouldSaveAndLoad();
     void test_toXmlFromXml_masterSendEffects_shouldLoadCorrectly();
     void test_toXmlFromXml_chorusEffect_shouldLoadCorrectly();
+    void test_toXmlFromXml_lufsMeterEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_delayEffectRack_shouldLoadCorrectly();
     void test_fromXml_samplerDevice_missingId_shouldNotThrow();
 

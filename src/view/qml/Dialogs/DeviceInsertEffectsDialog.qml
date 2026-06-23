@@ -92,7 +92,13 @@ Dialog {
                     onExited: effectListView.hoveredIndex = -1
                     onClicked: {
                         effectListView.hoveredIndex = -1;
-                        if (effectType === effectRackController.clipperType) {
+                        if (effectType === effectRackController.allPassFilterType) {
+                            allPassFilterDialog.effectIndex = index;
+                            allPassFilterDialog.open();
+                        } else if (effectType === effectRackController.lufsMeterType) {
+                            lufsMeterDialog.effectIndex = index;
+                            lufsMeterDialog.open();
+                        } else if (effectType === effectRackController.clipperType) {
                             clipperDialog.effectIndex = index;
                             clipperDialog.open();
                         } else if (effectType === effectRackController.compressorType) {

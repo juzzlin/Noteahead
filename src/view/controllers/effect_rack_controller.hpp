@@ -40,6 +40,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(bool isInsertRack READ isInsertRack WRITE setIsInsertRack NOTIFY isInsertRackChanged)
 
     Q_PROPERTY(QString allPassFilterType READ allPassFilterType CONSTANT)
+    Q_PROPERTY(QString lufsMeterType READ lufsMeterType CONSTANT)
     Q_PROPERTY(QString chorusType READ chorusType CONSTANT)
     Q_PROPERTY(QString clipperType READ clipperType CONSTANT)
     Q_PROPERTY(QString compressorType READ compressorType CONSTANT)
@@ -65,6 +66,7 @@ public:
 
     QString allPassFilterType() const;
     QString autoPannerType() const;
+    QString lufsMeterType() const;
     QString clipperType() const;
     QString compressorType() const;
     QString delayType() const;
@@ -140,6 +142,8 @@ public:
 
     Q_INVOKABLE float compressorReductionDb(quint32 effectIndex) const;
     Q_INVOKABLE float clipperReductionDb(quint32 effectIndex) const;
+    Q_INVOKABLE float lufsMeterMomentary(quint32 effectIndex) const;
+    Q_INVOKABLE float lufsMeterShortTerm(quint32 effectIndex) const;
 
     Q_INVOKABLE QStringList reverbPresets() const;
     Q_INVOKABLE void applyReverbPreset(quint32 effectIndex, quint32 presetIndex);

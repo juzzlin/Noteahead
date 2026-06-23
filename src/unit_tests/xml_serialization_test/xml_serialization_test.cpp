@@ -34,6 +34,7 @@
 #include "../../domain/dsp/chorus_effect.hpp"
 #include "../../domain/dsp/clipper_effect.hpp"
 #include "../../domain/dsp/eq_8_band_parametric_effect.hpp"
+#include "../../domain/dsp/lufs_meter.hpp"
 #include "../../domain/dsp/reverb_effect.hpp"
 #include "../../domain/effects/delay_effect.hpp"
 #include "../../domain/effects/effect_factory.hpp"
@@ -1106,6 +1107,31 @@ void XmlSerializationTest::test_toXmlFromXml_chorusEffect_shouldLoadCorrectly()
     QCOMPARE(restoredChorus->width(), 0.8f);
     QCOMPARE(restoredChorus->lpfCutoff(), 0.9f);
     QCOMPARE(restoredChorus->hpfCutoff(), 0.1f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_lufsMeterEffect_shouldLoadCorrectly()
+{
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    deviceServiceOut.sendEffectRack().setEffect(0, std::make_shared<LufsMeter>());
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(effect);
+    QCOMPARE(effect->typeId(), LufsMeter::typeIdString());
+    QVERIFY(std::dynamic_pointer_cast<LufsMeter>(effect));
 }
 
 void XmlSerializationTest::test_toXmlFromXml_delayEffectRack_shouldLoadCorrectly()

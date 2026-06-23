@@ -1,12 +1,11 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/src)
-set(NAME all_pass_filter_test)
+set(NAME lufs_meter_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
     ../../common/constants.cpp
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
-    ../../domain/dsp/all_pass_filter.cpp
     ../../domain/dsp/lufs_meter.cpp
     ../../domain/dsp/dsp_component.cpp
     ../../domain/effects/effect.cpp

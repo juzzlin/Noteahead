@@ -76,6 +76,7 @@ QString autoPanner();
 QString eq8BandParametric();
 QString eq8BandParametricLegacy();
 QString allPassFilter();
+QString lufsMeter();
 } // namespace RackEffectType
 
 namespace NahdXml {
@@ -419,6 +420,8 @@ QString xmlKeyPitchDecay();
 QString xmlKeyAllPassFilterFrequency();
 QString xmlKeyAllPassFilterQ();
 QString xmlKeyAllPassFilterStages();
+
+QString xmlKeyLufsMeter();
 
 QString embeddedDataPathPrefix();
 

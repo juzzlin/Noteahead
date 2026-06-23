@@ -177,6 +177,11 @@ QString allPassFilter()
 {
     return "allpassfilter";
 }
+
+QString lufsMeter()
+{
+    return "lufsmeter";
+}
 } // namespace RackEffectType
 
 namespace NahdXml {
@@ -1575,6 +1580,11 @@ QString xmlKeyAllPassFilterQ()
 QString xmlKeyAllPassFilterStages()
 {
     return "allPassFilterStages";
+}
+
+QString xmlKeyLufsMeter()
+{
+    return "lufsMeter";
 }
 
 QString embeddedDataPathPrefix()

@@ -22,6 +22,7 @@
 #include "../../domain/dsp/clipper_effect.hpp"
 #include "../../domain/dsp/compressor_effect.hpp"
 #include "../../domain/dsp/eq_8_band_parametric_effect.hpp"
+#include "../../domain/dsp/lufs_meter.hpp"
 #include "../../domain/dsp/reverb_effect.hpp"
 #include "../../domain/effects/auto_panner_effect.hpp"
 #include "../../domain/effects/delay_effect.hpp"
@@ -206,6 +207,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Compressor", CompressorEffect::typeIdString());
     addEffect("Delay", DelayEffect::typeIdString());
     addEffect("EQ 8-Band Parametric", Eq8BandParametricEffect::typeIdString());
+    addEffect("LUFS Meter", LufsMeter::typeIdString());
     addEffect("Panner", PannerEffect::typeIdString());
     addEffect("Reverb", ReverbEffect::typeIdString());
 
@@ -530,6 +532,11 @@ QString EffectRackController::allPassFilterType() const
     return Constants::RackEffectType::allPassFilter();
 }
 
+QString EffectRackController::lufsMeterType() const
+{
+    return Constants::RackEffectType::lufsMeter();
+}
+
 QString EffectRackController::clipperType() const
 {
     return Constants::RackEffectType::clipper();
@@ -594,6 +601,30 @@ float EffectRackController::clipperReductionDb(quint32 effectIndex) const
     }
 
     return 0.0f;
+}
+
+float EffectRackController::lufsMeterMomentary(quint32 effectIndex) const
+{
+    if (const auto rack = currentRack()) {
+        if (const auto effect = rack->get().effect(effectIndex)) {
+            if (const auto meter = std::dynamic_pointer_cast<LufsMeter>(effect)) {
+                return meter->momentaryLufs();
+            }
+        }
+    }
+    return -70.0f;
+}
+
+float EffectRackController::lufsMeterShortTerm(quint32 effectIndex) const
+{
+    if (const auto rack = currentRack()) {
+        if (const auto effect = rack->get().effect(effectIndex)) {
+            if (const auto meter = std::dynamic_pointer_cast<LufsMeter>(effect)) {
+                return meter->shortTermLufs();
+            }
+        }
+    }
+    return -70.0f;
 }
 
 QStringList EffectRackController::reverbPresets() const

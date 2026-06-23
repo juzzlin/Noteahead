@@ -98,6 +98,9 @@ Dialog {
                         if (effectType === effectRackController.allPassFilterType) {
                             allPassFilterDialog.effectIndex = index;
                             allPassFilterDialog.open();
+                        } else if (effectType === effectRackController.lufsMeterType) {
+                            lufsMeterDialog.effectIndex = index;
+                            lufsMeterDialog.open();
                         } else if (effectType === effectRackController.clipperType) {
                             clipperDialog.effectIndex = index;
                             clipperDialog.open();

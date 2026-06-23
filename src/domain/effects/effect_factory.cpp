@@ -20,6 +20,7 @@
 #include "../dsp/clipper_effect.hpp"
 #include "../dsp/compressor_effect.hpp"
 #include "../dsp/eq_8_band_parametric_effect.hpp"
+#include "../dsp/lufs_meter.hpp"
 #include "../dsp/reverb_effect.hpp"
 #include "auto_panner_effect.hpp"
 #include "delay_effect.hpp"
@@ -82,6 +83,7 @@ void EffectFactory::init()
     registerEffect(CompressorEffect::typeIdString(), []() { return std::make_shared<CompressorEffect>(); });
     registerEffect(DelayEffect::typeIdString(), []() { return std::make_shared<DelayEffect>(); });
     registerEffect(Eq8BandParametricEffect::typeIdString(), []() { return std::make_shared<Eq8BandParametricEffect>(); });
+    registerEffect(LufsMeter::typeIdString(), []() { return std::make_shared<LufsMeter>(); });
     registerEffect(PannerEffect::typeIdString(), []() { return std::make_shared<PannerEffect>(); });
     registerEffect(ReverbEffect::typeIdString(), []() { return std::make_shared<ReverbEffect>(); });
 
