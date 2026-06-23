@@ -33,6 +33,7 @@
 #include "../../domain/devices/wavetable_synth_device.hpp"
 #include "../../domain/dsp/chorus_effect.hpp"
 #include "../../domain/dsp/clipper_effect.hpp"
+#include "../../domain/dsp/dbtp_meter.hpp"
 #include "../../domain/dsp/eq_8_band_parametric_effect.hpp"
 #include "../../domain/dsp/lufs_meter.hpp"
 #include "../../domain/dsp/reverb_effect.hpp"
@@ -1132,6 +1133,31 @@ void XmlSerializationTest::test_toXmlFromXml_lufsMeterEffect_shouldLoadCorrectly
     QVERIFY(effect);
     QCOMPARE(effect->typeId(), LufsMeter::typeIdString());
     QVERIFY(std::dynamic_pointer_cast<LufsMeter>(effect));
+}
+
+void XmlSerializationTest::test_toXmlFromXml_dbtpMeterEffect_shouldLoadCorrectly()
+{
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    deviceServiceOut.sendEffectRack().setEffect(0, std::make_shared<DbTpMeter>());
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(effect);
+    QCOMPARE(effect->typeId(), DbTpMeter::typeIdString());
+    QVERIFY(std::dynamic_pointer_cast<DbTpMeter>(effect));
 }
 
 void XmlSerializationTest::test_toXmlFromXml_delayEffectRack_shouldLoadCorrectly()

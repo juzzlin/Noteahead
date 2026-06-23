@@ -7,6 +7,7 @@ set(SRC
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
     ../../domain/dsp/all_pass_filter.cpp
+    ../../domain/dsp/dbtp_meter.cpp
     ../../domain/dsp/lufs_meter.cpp
     ../../domain/dsp/dsp_component.cpp
     ../../domain/effects/effect.cpp

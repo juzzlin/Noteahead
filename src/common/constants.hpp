@@ -77,6 +77,7 @@ QString eq8BandParametric();
 QString eq8BandParametricLegacy();
 QString allPassFilter();
 QString lufsMeter();
+QString dbtpMeter();
 } // namespace RackEffectType
 
 namespace NahdXml {
@@ -422,6 +423,7 @@ QString xmlKeyAllPassFilterQ();
 QString xmlKeyAllPassFilterStages();
 
 QString xmlKeyLufsMeter();
+QString xmlKeyDbTpMeter();
 
 QString embeddedDataPathPrefix();
 

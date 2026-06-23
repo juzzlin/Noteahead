@@ -19,6 +19,7 @@
 #include "../dsp/chorus_effect.hpp"
 #include "../dsp/clipper_effect.hpp"
 #include "../dsp/compressor_effect.hpp"
+#include "../dsp/dbtp_meter.hpp"
 #include "../dsp/eq_8_band_parametric_effect.hpp"
 #include "../dsp/lufs_meter.hpp"
 #include "../dsp/reverb_effect.hpp"
@@ -81,6 +82,7 @@ void EffectFactory::init()
     registerEffect(ChorusEffect::typeIdString(), []() { return std::make_shared<ChorusEffect>(); });
     registerEffect(ClipperEffect::typeIdString(), []() { return std::make_shared<ClipperEffect>(); });
     registerEffect(CompressorEffect::typeIdString(), []() { return std::make_shared<CompressorEffect>(); });
+    registerEffect(DbTpMeter::typeIdString(), []() { return std::make_shared<DbTpMeter>(); });
     registerEffect(DelayEffect::typeIdString(), []() { return std::make_shared<DelayEffect>(); });
     registerEffect(Eq8BandParametricEffect::typeIdString(), []() { return std::make_shared<Eq8BandParametricEffect>(); });
     registerEffect(LufsMeter::typeIdString(), []() { return std::make_shared<LufsMeter>(); });

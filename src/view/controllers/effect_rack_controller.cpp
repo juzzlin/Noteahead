@@ -21,6 +21,7 @@
 #include "../../domain/dsp/chorus_effect.hpp"
 #include "../../domain/dsp/clipper_effect.hpp"
 #include "../../domain/dsp/compressor_effect.hpp"
+#include "../../domain/dsp/dbtp_meter.hpp"
 #include "../../domain/dsp/eq_8_band_parametric_effect.hpp"
 #include "../../domain/dsp/lufs_meter.hpp"
 #include "../../domain/dsp/reverb_effect.hpp"
@@ -40,6 +41,8 @@
 #include <QVariantMap>
 
 namespace noteahead {
+
+static constexpr float dbtpFloor = -70.0f;
 
 EffectRackController::EffectRackController(DeviceServiceS deviceService, EditorServiceS editorService, QObject * parent)
   : QObject { parent }
@@ -205,6 +208,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Chorus", ChorusEffect::typeIdString());
     addEffect("Clipper", ClipperEffect::typeIdString());
     addEffect("Compressor", CompressorEffect::typeIdString());
+    addEffect("dBTP Meter", DbTpMeter::typeIdString());
     addEffect("Delay", DelayEffect::typeIdString());
     addEffect("EQ 8-Band Parametric", Eq8BandParametricEffect::typeIdString());
     addEffect("LUFS Meter", LufsMeter::typeIdString());
@@ -537,6 +541,11 @@ QString EffectRackController::lufsMeterType() const
     return Constants::RackEffectType::lufsMeter();
 }
 
+QString EffectRackController::dbtpMeterType() const
+{
+    return Constants::RackEffectType::dbtpMeter();
+}
+
 QString EffectRackController::clipperType() const
 {
     return Constants::RackEffectType::clipper();
@@ -625,6 +634,54 @@ float EffectRackController::lufsMeterShortTerm(quint32 effectIndex) const
         }
     }
     return -70.0f;
+}
+
+float EffectRackController::dbtpMeterTruePeakL(quint32 effectIndex) const
+{
+    if (const auto rack = currentRack()) {
+        if (const auto effect = rack->get().effect(effectIndex)) {
+            if (const auto meter = std::dynamic_pointer_cast<DbTpMeter>(effect)) {
+                return meter->truePeakL();
+            }
+        }
+    }
+    return dbtpFloor;
+}
+
+float EffectRackController::dbtpMeterTruePeakR(quint32 effectIndex) const
+{
+    if (const auto rack = currentRack()) {
+        if (const auto effect = rack->get().effect(effectIndex)) {
+            if (const auto meter = std::dynamic_pointer_cast<DbTpMeter>(effect)) {
+                return meter->truePeakR();
+            }
+        }
+    }
+    return dbtpFloor;
+}
+
+float EffectRackController::dbtpMeterTruePeakHoldL(quint32 effectIndex) const
+{
+    if (const auto rack = currentRack()) {
+        if (const auto effect = rack->get().effect(effectIndex)) {
+            if (const auto meter = std::dynamic_pointer_cast<DbTpMeter>(effect)) {
+                return meter->truePeakHoldL();
+            }
+        }
+    }
+    return dbtpFloor;
+}
+
+float EffectRackController::dbtpMeterTruePeakHoldR(quint32 effectIndex) const
+{
+    if (const auto rack = currentRack()) {
+        if (const auto effect = rack->get().effect(effectIndex)) {
+            if (const auto meter = std::dynamic_pointer_cast<DbTpMeter>(effect)) {
+                return meter->truePeakHoldR();
+            }
+        }
+    }
+    return dbtpFloor;
 }
 
 QStringList EffectRackController::reverbPresets() const

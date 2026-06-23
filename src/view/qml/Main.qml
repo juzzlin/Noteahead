@@ -375,6 +375,12 @@ ApplicationWindow {
         width: parent.width * Constants.effectDialogScale
         height: parent.height * Constants.effectDialogScale
     }
+    DbtpMeterDialog {
+        id: dbtpMeterDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.effectDialogScale
+        height: parent.height * Constants.effectDialogScale
+    }
     CompressorDialog {
         id: compressorDialog
         anchors.centerIn: parent

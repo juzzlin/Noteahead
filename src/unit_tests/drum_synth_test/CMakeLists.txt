@@ -37,6 +37,7 @@ set(SRC
     ../../domain/dsp/oversampler.cpp
     ../../domain/dsp/reverb_effect.cpp
     ../../domain/dsp/all_pass_filter.cpp
+    ../../domain/dsp/dbtp_meter.cpp
     ../../domain/dsp/lufs_meter.cpp
     ../../domain/dsp/chorus_effect.cpp
     ../../domain/tracker/parameter.cpp

@@ -38,6 +38,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/AddMidiCcSettingDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddPitchBendAutomationDialog.qml
     ${QML_BASE_DIR}/Dialogs/AllPassFilterDialog.qml
+    ${QML_BASE_DIR}/Dialogs/DbtpMeterDialog.qml
     ${QML_BASE_DIR}/Dialogs/LufsMeterDialog.qml
     ${QML_BASE_DIR}/Dialogs/AudioRenderDialog.qml
     ${QML_BASE_DIR}/Dialogs/AutoPannerDialog.qml

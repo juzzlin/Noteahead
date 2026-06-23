@@ -98,6 +98,9 @@ Dialog {
                         } else if (effectType === effectRackController.lufsMeterType) {
                             lufsMeterDialog.effectIndex = index;
                             lufsMeterDialog.open();
+                        } else if (effectType === effectRackController.dbtpMeterType) {
+                            dbtpMeterDialog.effectIndex = index;
+                            dbtpMeterDialog.open();
                         } else if (effectType === effectRackController.clipperType) {
                             clipperDialog.effectIndex = index;
                             clipperDialog.open();

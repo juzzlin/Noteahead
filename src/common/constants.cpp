@@ -182,6 +182,11 @@ QString lufsMeter()
 {
     return "lufsmeter";
 }
+
+QString dbtpMeter()
+{
+    return "dbtpmeter";
+}
 } // namespace RackEffectType
 
 namespace NahdXml {
@@ -1585,6 +1590,11 @@ QString xmlKeyAllPassFilterStages()
 QString xmlKeyLufsMeter()
 {
     return "lufsMeter";
+}
+
+QString xmlKeyDbTpMeter()
+{
+    return "dbtpMeter";
 }
 
 QString embeddedDataPathPrefix()

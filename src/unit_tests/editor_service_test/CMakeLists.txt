@@ -75,6 +75,7 @@ set(SRC
     ../../domain/dsp/poly_blep_oscillator.cpp
     ../../domain/dsp/reverb_effect.cpp
     ../../domain/dsp/all_pass_filter.cpp
+    ../../domain/dsp/dbtp_meter.cpp
     ../../domain/dsp/lufs_meter.cpp
     ../../domain/dsp/chorus_effect.cpp
     ../../domain/tracker/event.cpp
@@ -198,6 +199,7 @@ set(DELAY_TEST_SRC
     ../../domain/dsp/poly_blep_oscillator.cpp
     ../../domain/dsp/reverb_effect.cpp
     ../../domain/dsp/all_pass_filter.cpp
+    ../../domain/dsp/dbtp_meter.cpp
     ../../domain/dsp/lufs_meter.cpp
     ../../domain/dsp/chorus_effect.cpp
     ../../domain/tracker/event.cpp

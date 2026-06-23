@@ -1,5 +1,5 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/src)
-set(NAME lufs_meter_test)
+set(NAME dbtp_meter_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
@@ -7,7 +7,6 @@ set(SRC
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
     ../../domain/dsp/dbtp_meter.cpp
-    ../../domain/dsp/lufs_meter.cpp
     ../../domain/dsp/dsp_component.cpp
     ../../domain/effects/effect.cpp
     ../../domain/tracker/parameter.cpp

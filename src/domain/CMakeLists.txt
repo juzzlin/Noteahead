@@ -25,6 +25,7 @@ set(HEADER_FILES
     effects/volume_effect.hpp
     dsp/adsr_envelope.hpp
     dsp/all_pass_filter.hpp
+    dsp/dbtp_meter.hpp
     dsp/lufs_meter.hpp
     dsp/cascaded_svf.hpp
     dsp/clipper_effect.hpp
@@ -103,6 +104,7 @@ set(SOURCE_FILES
     effects/volume_effect.cpp
     dsp/adsr_envelope.cpp
     dsp/all_pass_filter.cpp
+    dsp/dbtp_meter.cpp
     dsp/lufs_meter.cpp
     dsp/cascaded_svf.cpp
     dsp/chorus_effect.cpp
