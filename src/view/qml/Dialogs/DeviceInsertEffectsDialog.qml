@@ -32,6 +32,14 @@ Dialog {
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
 
+    property int meterPoll: 0
+    Timer {
+        interval: 100
+        running: root.opened
+        repeat: true
+        onTriggered: root.meterPoll++
+    }
+
     onOpened: {
         effectRackController.isInsertRack = true;
         effectRackController.targetDeviceName = deviceName;
@@ -138,6 +146,7 @@ Dialog {
                     Text {
                         text: {
                             effectRackController.revision;
+                            root.meterPoll;
                             if (effectType === "") return "";
                             const name = effectRackController.effectDisplayName(effectType);
                             const summary = effectRackController.effectParametersSummary(index);
