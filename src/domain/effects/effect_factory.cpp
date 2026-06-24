@@ -15,6 +15,7 @@
 
 #include "effect_factory.hpp"
 
+#include "../../common/constants.hpp"
 #include "../dsp/all_pass_filter.hpp"
 #include "../dsp/chorus_effect.hpp"
 #include "../dsp/clipper_effect.hpp"
@@ -88,6 +89,10 @@ void EffectFactory::init()
     registerEffect(LufsMeter::typeIdString(), []() { return std::make_shared<LufsMeter>(); });
     registerEffect(PannerEffect::typeIdString(), []() { return std::make_shared<PannerEffect>(); });
     registerEffect(ReverbEffect::typeIdString(), []() { return std::make_shared<ReverbEffect>(); });
+
+    // Readable-string aliases so the gallery can create these effects by their type() name
+    registerEffect(Constants::RackEffectType::autoPanner().toStdString(), []() { return std::make_shared<AutoPannerEffect>(); });
+    registerEffect(Constants::RackEffectType::eq8BandParametric().toStdString(), []() { return std::make_shared<Eq8BandParametricEffect>(); });
 
     // Legacy support
     registerLegacyEffect("auto_panner", []() { return std::make_shared<AutoPannerEffect>(); });

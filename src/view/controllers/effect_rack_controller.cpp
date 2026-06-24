@@ -204,16 +204,16 @@ QVariantList EffectRackController::availableEffects() const
     };
 
     addEffect("All-Pass Filter", AllPassFilter::typeIdString());
-    addEffect("Auto Panner", AutoPannerEffect::typeIdString());
+    addEffect("Auto Panner", Constants::RackEffectType::autoPanner().toStdString());
     addEffect("Chorus", ChorusEffect::typeIdString());
-    addEffect("Clipper", ClipperEffect::typeIdString());
-    addEffect("Compressor", CompressorEffect::typeIdString());
+    addEffect("Clipper", Constants::RackEffectType::clipper().toStdString());
+    addEffect("Compressor", Constants::RackEffectType::compressor().toStdString());
     addEffect("dBTP Meter", DbTpMeter::typeIdString());
-    addEffect("Delay", DelayEffect::typeIdString());
-    addEffect("EQ 8-Band Parametric", Eq8BandParametricEffect::typeIdString());
+    addEffect("Delay", Constants::RackEffectType::delay().toStdString());
+    addEffect("EQ 8-Band Parametric", Constants::RackEffectType::eq8BandParametric().toStdString());
     addEffect("LUFS Meter", LufsMeter::typeIdString());
-    addEffect("Panner", PannerEffect::typeIdString());
-    addEffect("Reverb", ReverbEffect::typeIdString());
+    addEffect("Panner", Constants::RackEffectType::panner().toStdString());
+    addEffect("Reverb", Constants::RackEffectType::reverb().toStdString());
 
     return list;
 }
