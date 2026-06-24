@@ -84,7 +84,7 @@ Dialog {
                         text: {
                             effectRackController.revision;
                             const summary = effectRackController.effectParametersSummary(index);
-                            return qsTr("Send %1 (%2) %3").arg(index + 1).arg(effectType.toUpperCase()).arg(summary);
+                            return qsTr("Send %1: %2 %3").arg(index + 1).arg(effectRackController.effectDisplayName(effectType)).arg(summary);
                         }
                         font.pointSize: 12
                         Layout.fillWidth: true
