@@ -90,9 +90,14 @@ void EffectFactory::init()
     registerEffect(PannerEffect::typeIdString(), []() { return std::make_shared<PannerEffect>(); });
     registerEffect(ReverbEffect::typeIdString(), []() { return std::make_shared<ReverbEffect>(); });
 
-    // Readable-string aliases so the gallery can create these effects by their type() name
+    // Readable-string aliases so the gallery can create effects by their type() name
     registerEffect(Constants::RackEffectType::autoPanner().toStdString(), []() { return std::make_shared<AutoPannerEffect>(); });
+    registerEffect(Constants::RackEffectType::clipper().toStdString(), []() { return std::make_shared<ClipperEffect>(); });
+    registerEffect(Constants::RackEffectType::compressor().toStdString(), []() { return std::make_shared<CompressorEffect>(); });
+    registerEffect(Constants::RackEffectType::delay().toStdString(), []() { return std::make_shared<DelayEffect>(); });
     registerEffect(Constants::RackEffectType::eq8BandParametric().toStdString(), []() { return std::make_shared<Eq8BandParametricEffect>(); });
+    registerEffect(Constants::RackEffectType::panner().toStdString(), []() { return std::make_shared<PannerEffect>(); });
+    registerEffect(Constants::RackEffectType::reverb().toStdString(), []() { return std::make_shared<ReverbEffect>(); });
 
     // Legacy support
     registerLegacyEffect("auto_panner", []() { return std::make_shared<AutoPannerEffect>(); });
