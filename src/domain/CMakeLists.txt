@@ -29,6 +29,7 @@ set(HEADER_FILES
     dsp/lufs_meter.hpp
     dsp/cascaded_svf.hpp
     dsp/clipper_effect.hpp
+    dsp/dc_blocker.hpp
     dsp/compressor_effect.hpp
     dsp/diode_ladder_filter.hpp
     dsp/drum/clap_engine.hpp
@@ -108,6 +109,7 @@ set(SOURCE_FILES
     dsp/lufs_meter.cpp
     dsp/cascaded_svf.cpp
     dsp/chorus_effect.cpp
+    dsp/dc_blocker.cpp
     dsp/clipper_effect.cpp
     dsp/compressor_effect.cpp
     dsp/diode_ladder_filter.cpp

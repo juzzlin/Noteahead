@@ -244,6 +244,9 @@ void BassSynthDevice::processAudio(AudioContext & context)
     const double pbOffset = (static_cast<double>(m_pitchBend) - 8192.0) / 8192.0 * (m_pitchBendRange / 12.0);
     const double combinedPitchRatio = m_vcoBasePitchRatio * std::exp2(pbOffset);
 
+    m_dcBlockerL.setSampleRate(context.sampleRate);
+    m_dcBlockerR.setSampleRate(context.sampleRate);
+
     for (uint32_t i = 0; i < context.frameCount; i++) {
         float l[2] { 0.0f, 0.0f };
         float r[2] { 0.0f, 0.0f };
@@ -298,8 +301,11 @@ void BassSynthDevice::processAudio(AudioContext & context)
             r[os] = finalSample * panInternal() * 2.0f;
         }
 
-        context.buffer[i * 2] += m_oversamplerL.process(l[0], l[1]) * volumeInternal();
-        context.buffer[i * 2 + 1] += m_oversamplerR.process(r[0], r[1]) * volumeInternal();
+        const double outL = m_oversamplerL.process(l[0], l[1]) * volumeInternal();
+        const double outR = m_oversamplerR.process(r[0], r[1]) * volumeInternal();
+
+        context.buffer[i * 2] += m_dcBlockerL.process(outL);
+        context.buffer[i * 2 + 1] += m_dcBlockerR.process(outR);
     }
 
     if (m_voice.ampEg.state() == AdsrEnvelope::State::Idle) {
@@ -328,6 +334,8 @@ void BassSynthDevice::resetAudio()
     m_oversamplerL.reset();
     m_oversamplerR.reset();
     m_distLpState = 0.0f;
+    m_dcBlockerL.reset();
+    m_dcBlockerR.reset();
 }
 
 void BassSynthDevice::serializeToXml(ProjectWriter & writer) const

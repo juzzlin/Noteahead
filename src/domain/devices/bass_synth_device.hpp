@@ -18,6 +18,7 @@
 
 #include "../dsp/adsr_envelope.hpp"
 #include "../dsp/cascaded_svf.hpp"
+#include "../dsp/dc_blocker.hpp"
 #include "../dsp/diode_ladder_filter.hpp"
 #include "../dsp/oversampler.hpp"
 #include "../dsp/poly_blep_oscillator.hpp"
@@ -147,6 +148,9 @@ private:
 
     Oversampler2x m_oversamplerL;
     Oversampler2x m_oversamplerR;
+
+    DcBlocker m_dcBlockerL;
+    DcBlocker m_dcBlockerR;
 
     uint16_t m_pitchBend { 8192 };
     int m_pitchBendRange { 2 };

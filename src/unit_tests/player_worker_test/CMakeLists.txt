@@ -20,6 +20,7 @@ set(SRC
     ../../common/utils.cpp
     ../../common/waveform_generator.cpp
     ../../domain/devices/bass_synth_device.cpp
+    ../../domain/dsp/dc_blocker.cpp
     ../../domain/effects/delay_effect.cpp
     ../../domain/effects/effect_factory.cpp
     ../../domain/devices/device.cpp
