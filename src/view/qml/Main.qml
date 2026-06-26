@@ -296,6 +296,12 @@ ApplicationWindow {
         width: parent.width * Constants.largeDialogScale
         height: parent.height * Constants.largeDialogScale
     }
+    PianoSynthDialog {
+        id: pianoSynthDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.largeDialogScale
+        height: parent.height * Constants.largeDialogScale
+    }
     DeviceRackDialog {
         id: deviceRackDialog
         anchors.centerIn: parent
@@ -600,6 +606,7 @@ ApplicationWindow {
         applicationService.unsavedChangesDialogRequested.connect(unsavedChangesDialog.open);
         deviceRackController.bassSynthDialogRequested.connect(bassSynthDialog.open);
         deviceRackController.drumSynthDialogRequested.connect(drumSynthDialog.open);
+        deviceRackController.pianoSynthDialogRequested.connect(pianoSynthDialog.open);
         deviceRackController.samplerDialogRequested.connect(samplerDialog.open);
         deviceRackController.synthDialogRequested.connect(synthDialog.open);
         deviceRackController.wavetableSynthDialogRequested.connect(wavetableSynthDialog.open);

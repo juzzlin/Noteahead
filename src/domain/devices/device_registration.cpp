@@ -16,6 +16,7 @@
 #include "bass_synth_device.hpp"
 #include "device_factory.hpp"
 #include "drum_synth_device.hpp"
+#include "piano_synth_device.hpp"
 #include "sampler_device.hpp"
 #include "synth_device.hpp"
 #include "wavetable_synth_device.hpp"
@@ -38,6 +39,9 @@ void DeviceFactory::init()
     });
     registerDevice(WavetableSynthDevice::typeIdString(), [](const std::string & name) {
         return std::make_shared<WavetableSynthDevice>(name);
+    });
+    registerDevice(PianoSynthDevice::typeIdString(), [](const std::string & name) {
+        return std::make_shared<PianoSynthDevice>(name);
     });
 }
 

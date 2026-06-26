@@ -1,36 +1,23 @@
 set(HEADER_FILES
-    tracker/arpeggiator.hpp
-    tracker/automation.hpp
-    tracker/automation_location.hpp
-    tracker/column.hpp
-    tracker/column_settings.hpp
-    effects/auto_panner_effect.hpp
     devices/bass_synth_device.hpp
-    effects/delay_effect.hpp
     devices/device.hpp
     devices/device_factory.hpp
     devices/drum_synth_constants.hpp
     devices/drum_synth_device.hpp
-    effects/effect.hpp
-    effects/effect_factory.hpp
-    effects/effect_rack.hpp
-    effects/high_pass_filter_effect.hpp
-    effects/low_pass_filter_effect.hpp
-    effects/panner_effect.hpp
-    effects/panning_effect.hpp
+    devices/piano_synth_device.hpp
     devices/sampler_device.hpp
     devices/synth_device.hpp
     devices/synth_presets.hpp
     devices/wavetable_synth_device.hpp
-    effects/volume_effect.hpp
     dsp/adsr_envelope.hpp
     dsp/all_pass_filter.hpp
-    dsp/dbtp_meter.hpp
-    dsp/lufs_meter.hpp
+    dsp/all_pass_chain.hpp
     dsp/cascaded_svf.hpp
     dsp/clipper_effect.hpp
-    dsp/dc_blocker.hpp
     dsp/compressor_effect.hpp
+    dsp/dbtp_meter.hpp
+    dsp/dc_blocker.hpp
+    dsp/delay_line.hpp
     dsp/diode_ladder_filter.hpp
     dsp/drum/clap_engine.hpp
     dsp/drum/crash_engine.hpp
@@ -43,12 +30,37 @@ set(HEADER_FILES
     dsp/dsp_component.hpp
     dsp/eq_8_band_parametric_effect.hpp
     dsp/lfo.hpp
+    dsp/lufs_meter.hpp
     dsp/multi_engine.hpp
     dsp/oversampler.hpp
     dsp/poly_blep_oscillator.hpp
     dsp/reverb_effect.hpp
     dsp/svf_filter.hpp
+    dsp/waveguide_string.hpp
     dsp/wavetable_oscillator.hpp
+    effects/auto_panner_effect.hpp
+    effects/delay_effect.hpp
+    effects/effect.hpp
+    effects/effect_factory.hpp
+    effects/effect_rack.hpp
+    effects/high_pass_filter_effect.hpp
+    effects/low_pass_filter_effect.hpp
+    effects/panner_effect.hpp
+    effects/panning_effect.hpp
+    effects/volume_effect.hpp
+    midi/midi_address.hpp
+    midi/midi_cc_automation.hpp
+    midi/midi_cc_data.hpp
+    midi/midi_cc_setting.hpp
+    midi/midi_import_mode.hpp
+    midi/midi_note_data.hpp
+    midi/pitch_bend_automation.hpp
+    midi/pitch_bend_data.hpp
+    tracker/arpeggiator.hpp
+    tracker/automation.hpp
+    tracker/automation_location.hpp
+    tracker/column.hpp
+    tracker/column_settings.hpp
     tracker/event.hpp
     tracker/event_data.hpp
     tracker/instrument.hpp
@@ -56,12 +68,6 @@ set(HEADER_FILES
     tracker/interpolator.hpp
     tracker/line.hpp
     tracker/line_event.hpp
-    midi/midi_address.hpp
-    midi/midi_cc_automation.hpp
-    midi/midi_cc_data.hpp
-    midi/midi_cc_setting.hpp
-    midi/midi_import_mode.hpp
-    midi/midi_note_data.hpp
     tracker/mixer_unit.hpp
     tracker/modulation.hpp
     tracker/note_data.hpp
@@ -69,8 +75,6 @@ set(HEADER_FILES
     tracker/parameter.hpp
     tracker/parameter_container.hpp
     tracker/pattern.hpp
-    midi/pitch_bend_automation.hpp
-    midi/pitch_bend_data.hpp
     tracker/play_order.hpp
     tracker/side_chain_settings.hpp
     tracker/song.hpp
@@ -78,40 +82,28 @@ set(HEADER_FILES
 )
 
 set(SOURCE_FILES
-    tracker/arpeggiator.cpp
-    tracker/automation.cpp
-    tracker/automation_location.cpp
-    tracker/column.cpp
-    tracker/column_settings.cpp
-    effects/auto_panner_effect.cpp
     devices/bass_synth_device.cpp
-    effects/delay_effect.cpp
+    devices/piano_synth_device.cpp
     devices/device.cpp
     devices/device_factory.cpp
     devices/device_registration.cpp
     devices/drum_synth_constants.cpp
     devices/drum_synth_device.cpp
-    effects/effect.cpp
-    effects/effect_factory.cpp
-    effects/effect_rack.cpp
-    effects/high_pass_filter_effect.cpp
-    effects/low_pass_filter_effect.cpp
-    effects/panner_effect.cpp
-    effects/panning_effect.cpp
     devices/sampler_device.cpp
     devices/synth_device.cpp
     devices/synth_presets.cpp
     devices/wavetable_synth_device.cpp
-    effects/volume_effect.cpp
     dsp/adsr_envelope.cpp
+    dsp/all_pass_chain.cpp
+    dsp/delay_line.cpp
+    dsp/waveguide_string.cpp
     dsp/all_pass_filter.cpp
-    dsp/dbtp_meter.cpp
-    dsp/lufs_meter.cpp
     dsp/cascaded_svf.cpp
     dsp/chorus_effect.cpp
-    dsp/dc_blocker.cpp
     dsp/clipper_effect.cpp
     dsp/compressor_effect.cpp
+    dsp/dbtp_meter.cpp
+    dsp/dc_blocker.cpp
     dsp/diode_ladder_filter.cpp
     dsp/drum/clap_engine.cpp
     dsp/drum/crash_engine.cpp
@@ -123,6 +115,7 @@ set(SOURCE_FILES
     dsp/dsp_component.cpp
     dsp/eq_8_band_parametric_effect.cpp
     dsp/lfo.cpp
+    dsp/lufs_meter.cpp
     dsp/multi_engine.cpp
     dsp/oversampler.cpp
     dsp/poly_blep_oscillator.cpp
@@ -130,6 +123,28 @@ set(SOURCE_FILES
     dsp/svf_filter.cpp
     dsp/wavetable.cpp
     dsp/wavetable_oscillator.cpp
+    effects/auto_panner_effect.cpp
+    effects/delay_effect.cpp
+    effects/effect.cpp
+    effects/effect_factory.cpp
+    effects/effect_rack.cpp
+    effects/high_pass_filter_effect.cpp
+    effects/low_pass_filter_effect.cpp
+    effects/panner_effect.cpp
+    effects/panning_effect.cpp
+    effects/volume_effect.cpp
+    midi/midi_address.cpp
+    midi/midi_cc_automation.cpp
+    midi/midi_cc_data.cpp
+    midi/midi_cc_setting.cpp
+    midi/midi_note_data.cpp
+    midi/pitch_bend_automation.cpp
+    midi/pitch_bend_data.cpp
+    tracker/arpeggiator.cpp
+    tracker/automation.cpp
+    tracker/automation_location.cpp
+    tracker/column.cpp
+    tracker/column_settings.cpp
     tracker/event.cpp
     tracker/event_data.cpp
     tracker/instrument.cpp
@@ -137,19 +152,12 @@ set(SOURCE_FILES
     tracker/interpolator.cpp
     tracker/line.cpp
     tracker/line_event.cpp
-    midi/midi_address.cpp
-    midi/midi_cc_automation.cpp
-    midi/midi_cc_data.cpp
-    midi/midi_cc_setting.cpp
-    midi/midi_note_data.cpp
     tracker/mixer_unit.cpp
     tracker/note_data.cpp
     tracker/note_data_manipulator.cpp
     tracker/parameter.cpp
     tracker/parameter_container.cpp
     tracker/pattern.cpp
-    midi/pitch_bend_automation.cpp
-    midi/pitch_bend_data.cpp
     tracker/play_order.cpp
     tracker/song.cpp
     tracker/track.cpp

@@ -21,11 +21,13 @@
 #include "../../domain/devices/bass_synth_device.hpp"
 #include "../../domain/devices/device_factory.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
+#include "../../domain/devices/piano_synth_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/wavetable_synth_device.hpp"
 #include "bass_synth_controller.hpp"
 #include "drum_synth_controller.hpp"
+#include "piano_synth_controller.hpp"
 #include "sampler_controller.hpp"
 #include "synth_controller.hpp"
 
@@ -131,6 +133,8 @@ void DeviceRackController::openDevice(const QString & name)
                     emit bassSynthDialogRequested();
                 } else if (typeId == DrumSynthDevice::typeIdString()) {
                     emit drumSynthDialogRequested();
+                } else if (typeId == PianoSynthDevice::typeIdString()) {
+                    emit pianoSynthDialogRequested();
                 }
                 return;
             }
@@ -252,6 +256,7 @@ QVariantList DeviceRackController::availableDevices() const
     addDevice("Wavetable Synth", QString::fromStdString(WavetableSynthDevice::typeIdString()));
     addDevice("Bass Synth", QString::fromStdString(BassSynthDevice::typeIdString()));
     addDevice("Drum Synth", QString::fromStdString(DrumSynthDevice::typeIdString()));
+    addDevice("Piano Synth", QString::fromStdString(PianoSynthDevice::typeIdString()));
 
     return list;
 }
@@ -301,6 +306,16 @@ void DeviceRackController::addDrumSynth()
     for (int i = 0; i < deviceCount(); i++) {
         if (!m_deviceService->device(static_cast<size_t>(i))) {
             setDevice(i, QString::fromStdString(DrumSynthDevice::typeIdString()));
+            return;
+        }
+    }
+}
+
+void DeviceRackController::addPianoSynth()
+{
+    for (int i = 0; i < deviceCount(); i++) {
+        if (!m_deviceService->device(static_cast<size_t>(i))) {
+            setDevice(i, QString::fromStdString(PianoSynthDevice::typeIdString()));
             return;
         }
     }

@@ -46,6 +46,7 @@ class DeviceRackController;
 class DeviceService;
 class BassSynthController;
 class DrumSynthController;
+class PianoSynthController;
 class EditorService;
 class EffectRackController;
 class EventSelectionModel;
@@ -156,6 +157,7 @@ private:
     std::shared_ptr<WavetableSynthController> m_wavetableSynthController;
     std::shared_ptr<BassSynthController> m_bassSynthController;
     std::shared_ptr<DrumSynthController> m_drumSynthController;
+    std::shared_ptr<PianoSynthController> m_pianoSynthController;
     std::shared_ptr<EffectRackController> m_effectRackController;
     std::shared_ptr<DeviceRackController> m_deviceRackController;
     std::shared_ptr<KnobController> m_knobController;

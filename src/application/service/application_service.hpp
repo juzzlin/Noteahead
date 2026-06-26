@@ -45,6 +45,7 @@ class ApplicationService : public QObject
     Q_PROPERTY(QString wavetableSynthDeviceName READ wavetableSynthDeviceName CONSTANT)
     Q_PROPERTY(QString bassSynthDeviceName READ bassSynthDeviceName CONSTANT)
     Q_PROPERTY(QString drumSynthDeviceName READ drumSynthDeviceName CONSTANT)
+    Q_PROPERTY(QString pianoSynthDeviceName READ pianoSynthDeviceName CONSTANT)
 
 public:
     ApplicationService();
@@ -66,6 +67,7 @@ public:
     Q_INVOKABLE QString wavetableSynthDeviceName() const;
     Q_INVOKABLE QString bassSynthDeviceName() const;
     Q_INVOKABLE QString drumSynthDeviceName() const;
+    Q_INVOKABLE QString pianoSynthDeviceName() const;
 
     Q_INVOKABLE QStringList recentFiles() const;
     Q_INVOKABLE void addRecentFile(QString filePath);

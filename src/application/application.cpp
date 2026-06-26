@@ -24,6 +24,7 @@
 #include "../domain/devices/bass_synth_device.hpp"
 #include "../domain/devices/device_factory.hpp"
 #include "../domain/devices/drum_synth_device.hpp"
+#include "../domain/devices/piano_synth_device.hpp"
 #include "../domain/devices/sampler_device.hpp"
 #include "../domain/devices/synth_device.hpp"
 #include "../domain/devices/wavetable_synth_device.hpp"
@@ -40,6 +41,7 @@
 #include "../view/controllers/drum_synth_controller.hpp"
 #include "../view/controllers/effect_rack_controller.hpp"
 #include "../view/controllers/knob_controller.hpp"
+#include "../view/controllers/piano_synth_controller.hpp"
 #include "../view/controllers/sampler_controller.hpp"
 #include "../view/controllers/synth_controller.hpp"
 #include "../view/controllers/wavetable_synth_controller.hpp"
@@ -114,8 +116,9 @@ Application::Application(int & argc, char ** argv)
   , m_wavetableSynthController { std::make_shared<WavetableSynthController>(std::make_shared<WavetableSynthDevice>("Default WavetableSynth")) }
   , m_bassSynthController { std::make_shared<BassSynthController>(std::make_shared<BassSynthDevice>("Default BassSynth")) }
   , m_drumSynthController { std::make_shared<DrumSynthController>(m_deviceService) }
+  , m_pianoSynthController { std::make_shared<PianoSynthController>(std::make_shared<PianoSynthDevice>("Default PianoSynth")) }
   , m_effectRackController { std::make_shared<EffectRackController>(m_deviceService, m_editorService) }
-  , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, std::vector<DeviceController::DeviceControllerS> { m_samplerController, m_synthController, m_wavetableSynthController, m_bassSynthController, m_drumSynthController }, m_editorService) }
+  , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, std::vector<DeviceController::DeviceControllerS> { m_samplerController, m_synthController, m_wavetableSynthController, m_bassSynthController, m_drumSynthController, m_pianoSynthController }, m_editorService) }
   , m_knobController { std::make_shared<KnobController>() }
   , m_jackService { std::make_shared<JackService>(m_settingsService, m_audioEngine) }
   , m_audioService { std::make_shared<AudioService>(m_settingsService, m_jackService, m_audioEngine) }
@@ -205,6 +208,7 @@ void Application::registerTypes()
     qmlRegisterType<SamplerPadModel>("Noteahead", majorVersion, minorVersion, "SamplerPadModel");
     qmlRegisterType<DrumSynthController>("Noteahead", majorVersion, minorVersion, "DrumSynthController");
     qmlRegisterType<BassSynthController>("Noteahead", majorVersion, minorVersion, "BassSynthController");
+    qmlRegisterType<PianoSynthController>("Noteahead", majorVersion, minorVersion, "PianoSynthController");
     qmlRegisterType<SynthController>("Noteahead", majorVersion, minorVersion, "SynthController");
     qmlRegisterType<WavetableSynthController>("Noteahead", majorVersion, minorVersion, "WavetableSynthController");
     qmlRegisterType<SelectionService>("Noteahead", majorVersion, minorVersion, "SelectionService");
@@ -233,6 +237,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("wavetableSynthController", m_wavetableSynthController.get());
     m_engine->rootContext()->setContextProperty("bassSynthController", m_bassSynthController.get());
     m_engine->rootContext()->setContextProperty("drumSynthController", m_drumSynthController.get());
+    m_engine->rootContext()->setContextProperty("pianoSynthController", m_pianoSynthController.get());
     m_engine->rootContext()->setContextProperty("effectRackController", m_effectRackController.get());
     m_engine->rootContext()->setContextProperty("selectionService", m_selectionService.get());
     m_engine->rootContext()->setContextProperty("eventSelectionModel", m_eventSelectionModel.get());

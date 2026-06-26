@@ -114,6 +114,11 @@ QString ApplicationService::drumSynthDeviceName() const
     return Constants::drumSynthDeviceName();
 }
 
+QString ApplicationService::pianoSynthDeviceName() const
+{
+    return Constants::pianoSynthDeviceName();
+}
+
 void ApplicationService::acceptUnsavedChangesDialog()
 {
     juzzlin::L(TAG).info() << "Unsaved changes accepted";

@@ -83,6 +83,9 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/ModulationGroupBox.qml
     ${QML_BASE_DIR}/Dialogs/NoteFrequencyDialog.qml
     ${QML_BASE_DIR}/Dialogs/PannerDialog.qml
+    ${QML_BASE_DIR}/Dialogs/PianoSynthDialog.qml
+    ${QML_BASE_DIR}/Dialogs/PianoSynthDialog_Global.qml
+    ${QML_BASE_DIR}/Dialogs/PianoSynthDialog_String.qml
     ${QML_BASE_DIR}/Dialogs/PitchBendAutomationModel.qml
     ${QML_BASE_DIR}/Dialogs/RecentFilesDialog.qml
     ${QML_BASE_DIR}/Dialogs/ReverbDialog.qml

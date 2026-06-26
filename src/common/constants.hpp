@@ -51,6 +51,7 @@ QString synthDeviceName();
 QString wavetableSynthDeviceName();
 QString bassSynthDeviceName();
 QString drumSynthDeviceName();
+QString pianoSynthDeviceName();
 
 QString internalDevicePortPrefix();
 double defaultSampleRate();
@@ -421,6 +422,10 @@ QString xmlKeyPitchDecay();
 QString xmlKeyAllPassFilterFrequency();
 QString xmlKeyAllPassFilterQ();
 QString xmlKeyAllPassFilterStages();
+
+QString xmlKeyBrightness();
+QString xmlKeyInharmonicity();
+QString xmlKeyHardness();
 
 QString xmlKeyLufsMeter();
 QString xmlKeyDbTpMeter();

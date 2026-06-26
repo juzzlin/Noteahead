@@ -122,6 +122,11 @@ QString drumSynthDeviceName()
     return "Noteahead DrumSynth";
 }
 
+QString pianoSynthDeviceName()
+{
+    return "Noteahead PianoSynth";
+}
+
 QString internalDevicePortPrefix()
 {
     return "Noteahead Internal Device";
@@ -1645,6 +1650,21 @@ QString xmlValueSamplers()
 QString xmlValueSynths()
 {
     return "Synths";
+}
+
+QString xmlKeyBrightness()
+{
+    return "brightness";
+}
+
+QString xmlKeyInharmonicity()
+{
+    return "inharmonicity";
+}
+
+QString xmlKeyHardness()
+{
+    return "hardness";
 }
 
 } // namespace NahdXml
