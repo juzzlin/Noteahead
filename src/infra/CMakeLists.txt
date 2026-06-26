@@ -12,6 +12,7 @@ set(HEADER_FILES
     audio/implementation/librtaudio/audio_recorder_rt_audio.hpp
     audio/real_time_worker_pool.hpp
     audio/ring_buffer.hpp
+    data_service.hpp
     midi/export/midi_exporter.hpp
     midi/implementation/librtmidi/midi_in_rt_midi.hpp
     midi/implementation/librtmidi/midi_out_rt_midi.hpp
@@ -22,7 +23,6 @@ set(HEADER_FILES
     midi/midi_cc_mapping.hpp
     midi/midi_port.hpp
     settings.hpp
-    data_service.hpp
     xml/nahd_xml_reader.hpp
     xml/nahd_xml_writer.hpp
 )
@@ -39,6 +39,7 @@ set(SOURCE_FILES
     audio/implementation/librtaudio/audio_player_rt_audio.cpp
     audio/implementation/librtaudio/audio_recorder_rt_audio.cpp
     audio/real_time_worker_pool.cpp
+    data_service.cpp
     midi/export/midi_exporter.cpp
     midi/implementation/librtmidi/midi_in_rt_midi.cpp
     midi/implementation/librtmidi/midi_out_rt_midi.cpp
@@ -49,7 +50,6 @@ set(SOURCE_FILES
     midi/midi_cc_mapping.cpp
     midi/midi_port.cpp
     settings.cpp
-    data_service.cpp
     xml/nahd_xml_reader.cpp
     xml/nahd_xml_writer.cpp
 )
