@@ -22,6 +22,9 @@
 
 #include "../dsp/drum/clap_engine.hpp"
 
+#include <cmath>
+#include <numbers>
+
 namespace noteahead {
 
 using namespace DrumSynth;
@@ -229,10 +232,14 @@ void DrumSynthDevice::processAudio(AudioContext & context)
                 }
             }
 
-            oversampledBuffer[(i * 2 + os) * 2] += mixL * globalGain * (1.0f - panInternal()) * 2.0f;
-            oversampledBuffer[(i * 2 + os) * 2 + 1] += mixR * globalGain * panInternal() * 2.0f;
+            oversampledBuffer[(i * 2 + os) * 2] += mixL * globalGain;
+            oversampledBuffer[(i * 2 + os) * 2 + 1] += mixR * globalGain;
         }
     }
+
+    const double panAngle = static_cast<double>(panInternal()) * std::numbers::pi * 0.5;
+    const float panL = static_cast<float>(std::cos(panAngle));
+    const float panR = static_cast<float>(std::sin(panAngle));
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
         const float l0 = oversampledBuffer[i * 4];
@@ -241,11 +248,11 @@ void DrumSynthDevice::processAudio(AudioContext & context)
         const float r1 = oversampledBuffer[i * 4 + 3];
 
         // Soft-clip at high rate and then downsample
-        float l = m_oversamplerL.process(std::tanh(l0), std::tanh(l1));
-        float r = m_oversamplerR.process(std::tanh(r0), std::tanh(r1));
+        const float l = m_oversamplerL.process(std::tanh(l0), std::tanh(l1));
+        const float r = m_oversamplerR.process(std::tanh(r0), std::tanh(r1));
 
-        context.buffer[i * 2] += l * volumeInternal();
-        context.buffer[i * 2 + 1] += r * volumeInternal();
+        context.buffer[i * 2] += l * panL * volumeInternal();
+        context.buffer[i * 2 + 1] += r * panR * volumeInternal();
     }
 }
 

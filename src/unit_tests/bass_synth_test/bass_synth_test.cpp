@@ -177,11 +177,9 @@ void BassSynthTest::test_outputLevel_shouldBeCorrect()
         peak = std::max(peak, std::abs(sample));
     }
 
-    // Square wave peak should be 1.0. Panning center multiplier is 2.0 * 0.5 = 1.0.
-    // So peak should be around 1.0.
-    // (Previous bug had 0.5 * 0.5 = 0.25)
-    // Updated: Diode ladder has some gain even at 0 resonance, peak around 1.1 is fine.
-    QVERIFY2(peak > 0.9f && peak < 1.3f, QString("Peak level incorrect: %1").arg(static_cast<double>(peak)).toUtf8().constData());
+    // Square wave base peak is ~1.0. Constant-power center pan gives cos(π/4) ≈ 0.707 multiplier.
+    // Diode ladder adds some gain even at 0 resonance, so observed peak is around 0.76.
+    QVERIFY2(peak > 0.6f && peak < 1.0f, QString("Peak level incorrect: %1").arg(static_cast<double>(peak)).toUtf8().constData());
 }
 
 void BassSynthTest::test_noteOff_shouldCutNoteQuickly()

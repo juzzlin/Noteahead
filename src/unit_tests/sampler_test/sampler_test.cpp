@@ -21,6 +21,8 @@
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
 #include <QTest>
+#include <cmath>
+#include <numbers>
 
 namespace noteahead {
 
@@ -220,8 +222,10 @@ void SamplerTest::test_processAudio_shouldProduceOutput()
     std::vector<double> buffer(4, 0.0);
     AudioContext context { std::span(buffer.data(), buffer.size()), 2, static_cast<uint32_t>(Constants::defaultSampleRate()) };
     sampler.processAudio(context);
-    QCOMPARE(buffer[0], 1.0f);
-    QCOMPARE(buffer[1], 1.0f);
+    // Constant-power center pan: mono sample 1.0 → cos(π/4) on both channels
+    const double expected = std::cos(std::numbers::pi * 0.25);
+    QVERIFY(std::abs(buffer[0] - expected) < 1e-10);
+    QVERIFY(std::abs(buffer[1] - expected) < 1e-10);
 }
 
 void SamplerTest::test_serialization_shouldSaveAndLoadGain()

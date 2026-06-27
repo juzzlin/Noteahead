@@ -32,6 +32,7 @@
 #include <QTest>
 
 #include <cmath>
+#include <numbers>
 
 namespace noteahead {
 
@@ -58,14 +59,15 @@ void EffectsTest::test_panningEffect_shouldDistributeSignalToChannels()
 {
     PanningEffect effect;
 
-    // Center
+    // Center: constant-power pan gives cos(π/4) on both channels
     {
         double left = 1.0;
         double right = 1.0;
         effect.setPan(0.5f);
         effect.process(left, right);
-        QCOMPARE(left, 1.0f);
-        QCOMPARE(right, 1.0f);
+        const double angle = static_cast<double>(0.5f) * std::numbers::pi * 0.5;
+        QCOMPARE(left, std::cos(angle));
+        QCOMPARE(right, std::sin(angle));
     }
 
     // Full Left

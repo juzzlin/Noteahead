@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <numbers>
 
 namespace noteahead {
 
@@ -297,8 +298,9 @@ void BassSynthDevice::processAudio(AudioContext & context)
                 finalSample *= (1.0f + m_accent);
             }
 
-            l[os] = finalSample * (1.0f - panInternal()) * 2.0f;
-            r[os] = finalSample * panInternal() * 2.0f;
+            const double panAngle = static_cast<double>(panInternal()) * std::numbers::pi * 0.5;
+            l[os] = finalSample * static_cast<float>(std::cos(panAngle));
+            r[os] = finalSample * static_cast<float>(std::sin(panAngle));
         }
 
         const double outL = m_oversamplerL.process(l[0], l[1]) * volumeInternal();

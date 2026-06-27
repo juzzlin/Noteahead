@@ -991,31 +991,31 @@ void SynthTest::test_panningAndAmplitude_shouldBeCorrect()
     synth.processMidiNoteOn(60, 127);
 
     // With current gain staging:
-    // Amplitude = (1/6) * mixHeadroom(0.4) * velocity(1.0) = 0.0666...
-    // Center pan: L=Amplitude, R=Amplitude
-    // Full pan: Target=Amplitude * 2.0 = 0.1333...
+    // Amplitude = (1/6) * mixHeadroom(0.4) * velocity(1.0) ≈ 0.0666...
+    // Constant-power center pan: L=R=Amplitude*cos(π/4) ≈ Amplitude*0.707
+    // Full pan (cos(0)=1 / sin(π/2)=1): L or R = Amplitude
 
-    // 1. Center Pan (default)
+    // 1. Center Pan (default): constant-power gives cos(π/4) ≈ 0.707 of full amplitude
     synth.setPan(0.5f);
     auto [peakL_center, peakR_center] = getPeak();
-    QVERIFY2(peakL_center > 0.07 && peakL_center < 0.1, qPrintable(QString("Center L peak out of range: %1").arg(peakL_center)));
-    QVERIFY2(peakR_center > 0.07 && peakR_center < 0.1, qPrintable(QString("Center R peak out of range: %1").arg(peakR_center)));
+    QVERIFY2(peakL_center > 0.04 && peakL_center < 0.08, qPrintable(QString("Center L peak out of range: %1").arg(peakL_center)));
+    QVERIFY2(peakR_center > 0.04 && peakR_center < 0.08, qPrintable(QString("Center R peak out of range: %1").arg(peakR_center)));
 
-    // 2. Full Left
+    // 2. Full Left: cos(0)=1 gives full amplitude to L channel
     synth.resetAudio();
     synth.processMidiNoteOn(60, 127);
     synth.setPan(0.0f);
     auto [peakL_left, peakR_left] = getPeak();
-    QVERIFY2(peakL_left > 0.14 && peakL_left < 0.2, qPrintable(QString("Left peak out of range: %1").arg(peakL_left)));
+    QVERIFY2(peakL_left > 0.06 && peakL_left < 0.12, qPrintable(QString("Left peak out of range: %1").arg(peakL_left)));
     QVERIFY2(peakR_left < 0.001, qPrintable(QString("Bleed into Right: %1").arg(peakR_left)));
 
-    // 3. Full Right
+    // 3. Full Right: sin(π/2)=1 gives full amplitude to R channel
     synth.resetAudio();
     synth.processMidiNoteOn(60, 127);
     synth.setPan(1.0f);
     auto [peakL_right, peakR_right] = getPeak();
     QVERIFY2(peakL_right < 0.001, qPrintable(QString("Bleed into Left: %1").arg(peakL_right)));
-    QVERIFY2(peakR_right > 0.14 && peakR_right < 0.2, qPrintable(QString("Right peak out of range: %1").arg(peakR_right)));
+    QVERIFY2(peakR_right > 0.06 && peakR_right < 0.12, qPrintable(QString("Right peak out of range: %1").arg(peakR_right)));
 }
 
 void SynthTest::test_oscillatorDrift_zero_shouldProduceSameFrequency()

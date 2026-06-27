@@ -25,6 +25,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <numbers>
 
 namespace noteahead {
 
@@ -293,8 +294,9 @@ void SynthDevice::renderVoice(Voice & voice, AudioContext & context, uint32_t ov
             const float finalHighRateSample = generateVoiceSample(voice, mods, oversampledRate, pbRatio) * gain;
 
             const float voicePan = std::clamp(panInternal() + voice.pan - 0.5f + static_cast<float>(mods.panMod) * 0.5f, 0.0f, 1.0f);
-            const float panL = (1.0f - voicePan) * 2.0f;
-            const float panR = voicePan * 2.0f;
+            const double panAngle = static_cast<double>(voicePan) * std::numbers::pi * 0.5;
+            const float panL = static_cast<float>(std::cos(panAngle));
+            const float panR = static_cast<float>(std::sin(panAngle));
 
             m_oversampledBuffer[(i * 2 + os) * 2] += finalHighRateSample * panL;
             m_oversampledBuffer[(i * 2 + os) * 2 + 1] += finalHighRateSample * panR;
