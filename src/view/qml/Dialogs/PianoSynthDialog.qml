@@ -76,19 +76,16 @@ Dialog {
             }
 
             // String section
-            ScrollView {
+            ColumnLayout {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                clip: true
+                Layout.alignment: Qt.AlignTop
 
-                ColumnLayout {
-                    width: parent.width - 20
-                    spacing: 20
-
-                    PianoSynthDialog_String {
-                        Layout.fillWidth: true
-                    }
+                PianoSynthDialog_String {
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignTop
                 }
+                Item { Layout.fillHeight: true }
             }
         }
 
