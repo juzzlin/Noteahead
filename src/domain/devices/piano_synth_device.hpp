@@ -17,6 +17,7 @@
 #define PIANO_SYNTH_DEVICE_HPP
 
 #include "../dsp/dc_blocker.hpp"
+#include "../dsp/true_stereo_panner.hpp"
 #include "../dsp/waveguide_string.hpp"
 #include "device.hpp"
 
@@ -78,7 +79,6 @@ private:
         WaveguideString string;
         uint8_t note { 0 };
         float velocity { 1.0f };
-        float pan { 0.5f };
         bool active { false };
         bool pendingRelease { false };
 
@@ -91,6 +91,9 @@ private:
 
     DcBlocker m_dcBlockerL;
     DcBlocker m_dcBlockerR;
+
+    TrueStereoPanner m_panner;
+    TrueStereoPanner m_voicePanner;
 
     float m_brightness { 0.5f };
     float m_decay { 0.5f };

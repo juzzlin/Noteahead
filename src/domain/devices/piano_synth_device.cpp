@@ -156,6 +156,7 @@ void PianoSynthDevice::processAudio(AudioContext & context)
 
     m_dcBlockerL.setSampleRate(context.sampleRate);
     m_dcBlockerR.setSampleRate(context.sampleRate);
+    m_panner.setPan(static_cast<double>(panInternal()));
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
         double outL = 0.0;
@@ -174,12 +175,17 @@ void PianoSynthDevice::processAudio(AudioContext & context)
                 continue;
             }
 
-            outL += sample * static_cast<double>(1.0f - v.pan) * 2.0;
-            outR += sample * static_cast<double>(v.pan) * 2.0;
+            double voiceL = 0.0;
+            double voiceR = 0.0;
+            m_voicePanner.setPan(static_cast<double>(noteToPan(v.note)));
+            m_voicePanner.processMono(sample, voiceL, voiceR);
+            outL += voiceL;
+            outR += voiceR;
         }
 
-        outL *= volumeInternal();
-        outR *= volumeInternal();
+        outL *= static_cast<double>(volumeInternal());
+        outR *= static_cast<double>(volumeInternal());
+        m_panner.process(outL, outR);
 
         context.buffer[i * 2] += m_dcBlockerL.process(outL);
         context.buffer[i * 2 + 1] += m_dcBlockerR.process(outR);
@@ -282,7 +288,6 @@ void PianoSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
     v.string.trigger(note, vel, effectiveBright, m_inharmonicity, m_decay);
     v.note = note;
     v.velocity = vel;
-    v.pan = noteToPan(note);
     v.active = true;
     v.pendingRelease = false;
 }
