@@ -47,6 +47,7 @@ set(SRC
     ../../domain/effects/low_pass_filter_effect.cpp
     ../../domain/effects/panner_effect.cpp
     ../../domain/effects/panning_effect.cpp
+    ../../domain/dsp/true_stereo_panner.cpp
     ../../domain/devices/sampler_device.cpp
     ../../domain/devices/synth_device.cpp
     ../../domain/devices/wavetable_synth_device.cpp

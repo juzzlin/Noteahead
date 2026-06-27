@@ -18,8 +18,6 @@
 #include "../../common/constants.hpp"
 #include "../tracker/parameter.hpp"
 
-#include <algorithm>
-
 namespace noteahead {
 
 PannerEffect::PannerEffect()
@@ -45,33 +43,16 @@ std::string PannerEffect::typeId() const
 
 void PannerEffect::process(double & left, double & right)
 {
-    // Stereo Width (Mid-Side processing)
-    // Mid = (L + R) / 2
-    // Side = (L - R) / 2
-    // New L = Mid + Side * width
-    // New R = Mid - Side * width
-
-    const double mid = (left + right) * 0.5;
-    const double side = (left - right) * 0.5;
-
-    left = mid + side * m_width;
-    right = mid - side * m_width;
-
-    // Panning (Linear)
-    const double gainL = std::min(1.0, 2.0 - m_pan * 2.0);
-    const double gainR = std::min(1.0, m_pan * 2.0);
-
-    left *= gainL;
-    right *= gainR;
+    m_panner.process(left, right);
 }
 
 void PannerEffect::sync()
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p) {
-        m_pan = static_cast<double>(p->get().value());
+        m_panner.setPan(static_cast<double>(p->get().value()));
     }
     if (const auto p = parameter(Constants::NahdXml::xmlKeyWidth().toStdString()); p) {
-        m_width = static_cast<double>(p->get().value());
+        m_panner.setWidth(static_cast<double>(p->get().value()));
     }
 }
 

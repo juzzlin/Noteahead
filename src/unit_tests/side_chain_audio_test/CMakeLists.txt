@@ -35,6 +35,7 @@ set(SOURCE_FILES
     ../../domain/effects/low_pass_filter_effect.cpp
     ../../domain/effects/panner_effect.cpp
     ../../domain/effects/panning_effect.cpp
+    ../../domain/dsp/true_stereo_panner.cpp
     ../../domain/effects/volume_effect.cpp
     ../../infra/audio/audio_engine.cpp
     ../../infra/audio/real_time_worker_pool.cpp

@@ -16,6 +16,7 @@
 #ifndef PANNING_EFFECT_HPP
 #define PANNING_EFFECT_HPP
 
+#include "../dsp/true_stereo_panner.hpp"
 #include "effect.hpp"
 
 namespace noteahead {
@@ -31,7 +32,7 @@ public:
     void process(double & left, double & right) override;
 
 private:
-    float m_pan { 0.5f };
+    TrueStereoPanner m_panner;
 };
 
 } // namespace noteahead

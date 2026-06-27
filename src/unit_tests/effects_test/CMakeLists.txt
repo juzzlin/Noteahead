@@ -11,6 +11,7 @@ set(SRC
     ../../domain/effects/high_pass_filter_effect.cpp
     ../../domain/effects/low_pass_filter_effect.cpp
     ../../domain/effects/panning_effect.cpp
+    ../../domain/dsp/true_stereo_panner.cpp
     ../../domain/effects/volume_effect.cpp
     ../../domain/dsp/svf_filter.cpp
     ../../domain/dsp/cascaded_svf.cpp

@@ -15,21 +15,16 @@
 
 #include "panning_effect.hpp"
 
-#include <algorithm>
-
 namespace noteahead {
 
 void PanningEffect::setPan(float pan)
 {
-    m_pan = pan;
+    m_panner.setPan(static_cast<double>(pan));
 }
 
 void PanningEffect::process(double & left, double & right)
 {
-    const double gainL = std::min(1.0, 2.0 - static_cast<double>(m_pan) * 2.0);
-    const double gainR = std::min(1.0, static_cast<double>(m_pan) * 2.0);
-    left *= gainL;
-    right *= gainR;
+    m_panner.process(left, right);
 }
 
 std::string PanningEffect::typeIdString()
