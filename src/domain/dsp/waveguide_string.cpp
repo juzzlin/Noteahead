@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <cmath>
 #include <numbers>
+#include <random>
 
 namespace noteahead {
 
@@ -54,8 +55,8 @@ void WaveguideString::trigger(uint8_t note, float velocity, float brightness, fl
     const double loopFilterDelay = m_loopFilterCoeff;
     const double apDelay = ApStages * (1.0 - apCoeff) / (1.0 + apCoeff);
     const size_t N = std::clamp(
-        static_cast<size_t>(std::round(m_sampleRate / freq - loopFilterDelay - apDelay)),
-        size_t { 4 }, MaxDelaySamples);
+      static_cast<size_t>(std::round(m_sampleRate / freq - loopFilterDelay - apDelay)),
+      size_t { 4 }, MaxDelaySamples);
 
     m_delay.setMaxDelay(N);
     m_delay.setDelay(N);
@@ -73,6 +74,13 @@ void WaveguideString::trigger(uint8_t note, float velocity, float brightness, fl
     const size_t width = std::max(size_t { 1 }, N / std::max(size_t { 1 }, static_cast<size_t>(2.0 + static_cast<double>(velocity) * 6.0)));
     const double amplitude = static_cast<double>(velocity) * 0.5;
 
+    // Noise burst seeded by note so repeated strikes are consistent but each pitch differs.
+    // Decays in ~N/6 samples to model brief hammer-felt impact noise before the tone settles.
+    std::minstd_rand rng { static_cast<uint32_t>(note) + 17u };
+    std::uniform_real_distribution<double> noiseDist { -1.0, 1.0 };
+    const double noiseGain = static_cast<double>(velocity) * 0.08;
+    const double noiseDecay = 6.0 / static_cast<double>(N);
+
     // Pre-load excitation into the delay buffer so output starts immediately.
     m_delay.reset();
     for (size_t i = 0; i < N; i++) {
@@ -81,6 +89,7 @@ void WaveguideString::trigger(uint8_t note, float velocity, float brightness, fl
             const double t = static_cast<double>(i) / static_cast<double>(width);
             excite = amplitude * 0.5 * (1.0 - std::cos(2.0 * std::numbers::pi * t));
         }
+        excite += noiseDist(rng) * noiseGain * std::exp(-noiseDecay * static_cast<double>(i));
         m_delay.write(excite);
     }
 

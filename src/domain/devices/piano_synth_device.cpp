@@ -42,7 +42,7 @@ PianoSynthDevice::PianoSynthDevice(std::string name)
     addParameter(Parameter(Constants::NahdXml::xmlKeyReleaseTime().toStdString(), 0.3f, 0, 10000, 3000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyPanSpread().toStdString(), 0.7f, 0, 10000, 7000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyHardness().toStdString(), 0.5f, 0, 10000, 5000, 100));
-    addParameter(Parameter(Constants::NahdXml::xmlKeyStringDetune().toStdString(), 0.3f, 0, 10000, 3000, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyStringDetune().toStdString(), 0.1f, 0, 10000, 1000, 100));
 
     PianoSynthDevice::syncParameters();
 }
@@ -283,8 +283,8 @@ void PianoSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
 {
     const float vel = static_cast<float>(velocity) / 127.0f;
     const float velBright = vel * m_hammerHardness;
-    // Higher notes are naturally brighter; shift brightness by ±0.15 across the keyboard.
-    const float noteBrightOffset = (static_cast<float>(note) - 60.0f) / 127.0f * 0.3f;
+    // Higher notes are naturally brighter; shift brightness by ±0.24 across the keyboard.
+    const float noteBrightOffset = (static_cast<float>(note) - 60.0f) / 127.0f * 0.6f;
     const float effectiveBright = std::clamp(m_brightness + velBright + noteBrightOffset, 0.0f, 1.0f);
     // Detuning in cents for the second string (0–15 cents).
     const double detuneCents = static_cast<double>(m_stringDetune) * 15.0;
