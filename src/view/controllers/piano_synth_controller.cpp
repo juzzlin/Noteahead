@@ -117,6 +117,18 @@ void PianoSynthController::setHammerHardness(int value)
     }
 }
 
+int PianoSynthController::stringDetune() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->stringDetune() * Constants::uiInternalScaling())) : 0;
+}
+
+void PianoSynthController::setStringDetune(int value)
+{
+    if (m_device) {
+        m_device->setStringDetune(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
 void PianoSynthController::requestSettings()
 {
     emit brightnessChanged();
@@ -125,6 +137,7 @@ void PianoSynthController::requestSettings()
     emit releaseTimeChanged();
     emit stereoWidthChanged();
     emit hammerHardnessChanged();
+    emit stringDetuneChanged();
     emit volumeChanged();
     emit gainChanged();
     emit panChanged();

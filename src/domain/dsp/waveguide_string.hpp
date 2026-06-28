@@ -37,8 +37,8 @@ public:
 
     void setSampleRate(double sampleRate) override;
 
-    // brightness: 0=dark, 1=bright. decayTime: 0=short, 1=long.
-    void trigger(uint8_t note, float velocity, float brightness, float inharmonicity, float decayTime);
+    // brightness: 0=dark, 1=bright. decayTime: 0=short, 1=long. detuneCents: frequency offset in cents.
+    void trigger(uint8_t note, float velocity, float brightness, float inharmonicity, float decayTime, double detuneCents = 0.0);
     void release(float releaseTime);
 
     double nextSample();

@@ -28,6 +28,7 @@ namespace noteahead {
 void PianoSynthDevice::Voice::reset()
 {
     string.reset();
+    string2.reset();
     active = false;
     pendingRelease = false;
 }
@@ -41,6 +42,7 @@ PianoSynthDevice::PianoSynthDevice(std::string name)
     addParameter(Parameter(Constants::NahdXml::xmlKeyReleaseTime().toStdString(), 0.3f, 0, 10000, 3000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyPanSpread().toStdString(), 0.7f, 0, 10000, 7000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyHardness().toStdString(), 0.5f, 0, 10000, 5000, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyStringDetune().toStdString(), 0.3f, 0, 10000, 3000, 100));
 
     PianoSynthDevice::syncParameters();
 }
@@ -118,10 +120,11 @@ void PianoSynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
             } else if (controller == static_cast<uint8_t>(Controller::SustainPedal)) {
                 const bool pedalOn = value >= 64;
                 if (m_sustainPedal && !pedalOn) {
-                    const float rt = 0.01f + m_releaseTime * 0.49f;
+                    const float rt = 0.005f + m_releaseTime * 1.995f;
                     for (auto & v : m_voices) {
                         if (v.active && v.pendingRelease) {
                             v.string.release(rt);
+                            v.string2.release(rt);
                             v.pendingRelease = false;
                         }
                     }
@@ -139,10 +142,11 @@ void PianoSynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
 void PianoSynthDevice::processMidiAllNotesOff()
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
-    const float rt = 0.01f + m_releaseTime * 0.49f;
+    const float rt = 0.005f + m_releaseTime * 1.995f;
     for (auto & v : m_voices) {
         if (v.active) {
             v.string.release(rt);
+            v.string2.release(rt);
             v.pendingRelease = false;
         }
     }
@@ -168,9 +172,12 @@ void PianoSynthDevice::processAudio(AudioContext & context)
             }
 
             v.string.setSampleRate(context.sampleRate);
-            const double sample = v.string.nextSample() * static_cast<double>(v.velocity) * linearGainInternal();
+            v.string2.setSampleRate(context.sampleRate);
+            const double s1 = v.string.nextSample();
+            const double s2 = v.string2.nextSample();
+            const double sample = (s1 + s2) * 0.5 * static_cast<double>(v.velocity) * linearGainInternal();
 
-            if (!v.string.isActive()) {
+            if (!v.string.isActive() && !v.string2.isActive()) {
                 v.active = false;
                 continue;
             }
@@ -275,8 +282,12 @@ void PianoSynthDevice::deserializeFromXml(ProjectReader & reader)
 void PianoSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
 {
     const float vel = static_cast<float>(velocity) / 127.0f;
-    const float velBright = vel * m_hammerHardness * 0.5f;
-    const float effectiveBright = std::clamp(m_brightness + velBright, 0.0f, 1.0f);
+    const float velBright = vel * m_hammerHardness;
+    // Higher notes are naturally brighter; shift brightness by ±0.15 across the keyboard.
+    const float noteBrightOffset = (static_cast<float>(note) - 60.0f) / 127.0f * 0.3f;
+    const float effectiveBright = std::clamp(m_brightness + velBright + noteBrightOffset, 0.0f, 1.0f);
+    // Detuning in cents for the second string (0–15 cents).
+    const double detuneCents = static_cast<double>(m_stringDetune) * 15.0;
 
     int idx = findVoiceForNote(note);
     if (idx < 0) {
@@ -285,7 +296,9 @@ void PianoSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
 
     auto & v = m_voices[idx];
     v.string.setSampleRate(sampleRate());
-    v.string.trigger(note, vel, effectiveBright, m_inharmonicity, m_decay);
+    v.string2.setSampleRate(sampleRate());
+    v.string.trigger(note, vel, effectiveBright, m_inharmonicity, m_decay, 0.0);
+    v.string2.trigger(note, vel, effectiveBright, m_inharmonicity, m_decay, detuneCents);
     v.note = note;
     v.velocity = vel;
     v.active = true;
@@ -294,13 +307,14 @@ void PianoSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
 
 void PianoSynthDevice::handleNoteOff(uint8_t note)
 {
-    const float rt = 0.01f + m_releaseTime * 0.49f;
+    const float rt = 0.005f + m_releaseTime * 1.995f;
     for (auto & v : m_voices) {
         if (v.active && v.note == note) {
             if (m_sustainPedal) {
                 v.pendingRelease = true;
             } else {
                 v.string.release(rt);
+                v.string2.release(rt);
             }
         }
     }
@@ -354,6 +368,9 @@ void PianoSynthDevice::syncParameters()
     }
     if (const auto p = parameter(Constants::NahdXml::xmlKeyHardness().toStdString()); p) {
         m_hammerHardness = p->get().value();
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyStringDetune().toStdString()); p) {
+        m_stringDetune = p->get().value();
     }
 }
 
@@ -415,6 +432,16 @@ float PianoSynthDevice::hammerHardness() const
 void PianoSynthDevice::setHammerHardness(float hardness)
 {
     setContinuousParameterValue(Constants::NahdXml::xmlKeyHardness().toStdString(), hardness);
+}
+
+float PianoSynthDevice::stringDetune() const
+{
+    return m_stringDetune;
+}
+
+void PianoSynthDevice::setStringDetune(float detune)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyStringDetune().toStdString(), detune);
 }
 
 } // namespace noteahead

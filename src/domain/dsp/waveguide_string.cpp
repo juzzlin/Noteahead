@@ -33,11 +33,29 @@ void WaveguideString::setSampleRate(double sampleRate)
     m_dispersion.setSampleRate(sampleRate);
 }
 
-void WaveguideString::trigger(uint8_t note, float velocity, float brightness, float inharmonicity, float decayTime)
+void WaveguideString::trigger(uint8_t note, float velocity, float brightness, float inharmonicity, float decayTime, double detuneCents)
 {
-    const double freq = midiNoteToFreq(note);
-    const size_t N = std::clamp(static_cast<size_t>(std::round(m_sampleRate / freq)),
-                                size_t { 4 }, MaxDelaySamples);
+    const double freq = midiNoteToFreq(note) * std::pow(2.0, detuneCents / 1200.0);
+
+    // Compute filter parameters first so N can be corrected for loop delay.
+    // Loop filter FIR y[n]=(1-c)*x[n]+c*x[n-1] has group delay ≈ c samples at DC.
+    m_loopFilterCoeff = static_cast<double>(1.0f - brightness) * 0.5;
+    m_loopFilterPrev = 0.0;
+
+    // All-pass chain H(z)=(a+z^-1)/(1+a*z^-1): group delay = (1-a)/(1+a) per stage at DC.
+    constexpr int ApStages = 4;
+    const double apCoeff = static_cast<double>(inharmonicity) * 0.15;
+    m_dispersion.setStages(ApStages);
+    m_dispersion.setCoefficient(apCoeff);
+    m_dispersion.reset();
+
+    // Subtract the combined filter delay from the delay-line length so the sounding
+    // pitch matches the target frequency.
+    const double loopFilterDelay = m_loopFilterCoeff;
+    const double apDelay = ApStages * (1.0 - apCoeff) / (1.0 + apCoeff);
+    const size_t N = std::clamp(
+        static_cast<size_t>(std::round(m_sampleRate / freq - loopFilterDelay - apDelay)),
+        size_t { 4 }, MaxDelaySamples);
 
     m_delay.setMaxDelay(N);
     m_delay.setDelay(N);
@@ -45,21 +63,11 @@ void WaveguideString::trigger(uint8_t note, float velocity, float brightness, fl
     // Loop gain derived from desired T60 decay time.
     // Each cycle of N samples multiplies amplitude by loopGain.
     // loopGain^(T60 * freq) = 0.001 → loopGain = exp(-6.908 / (T60 * freq))
-    const double T60 = 0.5 + static_cast<double>(decayTime) * 9.5;
+    // T60 scales with sqrt(refFreq/freq) so lower notes sustain much longer than higher ones.
+    const double refFreq = 261.63; // C4
+    const double baseT60 = 0.5 + static_cast<double>(decayTime) * 9.5;
+    const double T60 = std::clamp(baseT60 * std::sqrt(refFreq / freq), 0.2, 30.0);
     m_loopGain = std::clamp(std::exp(-6.908 / (T60 * freq)), 0.0, 0.99999);
-
-    // Loop filter: y[n] = (1-c)*x[n] + c*x[n-1]
-    // Gain at Nyquist = |1 - 2c|, so c=0 is bright, c=0.5 is darkest.
-    // velocity shifts toward brighter (harder hammer = narrower excitation = brighter).
-    const float velBright = static_cast<float>(velocity) * 0.35f;
-    const float effectiveBright = std::clamp(brightness + velBright, 0.0f, 1.0f);
-    m_loopFilterCoeff = static_cast<double>(1.0f - effectiveBright) * 0.5;
-    m_loopFilterPrev = 0.0;
-
-    // Dispersion: 4 all-pass stages, coefficient scales with inharmonicity.
-    m_dispersion.setStages(4);
-    m_dispersion.setCoefficient(static_cast<double>(inharmonicity) * 0.15);
-    m_dispersion.reset();
 
     // Excitation: raised cosine pulse; width ∝ 1/velocity (harder strike = narrower)
     const size_t width = std::max(size_t { 1 }, N / std::max(size_t { 1 }, static_cast<size_t>(2.0 + static_cast<double>(velocity) * 6.0)));

@@ -426,6 +426,7 @@ QString xmlKeyAllPassFilterStages();
 QString xmlKeyBrightness();
 QString xmlKeyInharmonicity();
 QString xmlKeyHardness();
+QString xmlKeyStringDetune();
 
 QString xmlKeyLufsMeter();
 QString xmlKeyDbTpMeter();

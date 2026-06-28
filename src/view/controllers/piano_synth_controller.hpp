@@ -33,6 +33,7 @@ class PianoSynthController : public DeviceController
     Q_PROPERTY(int releaseTime READ releaseTime WRITE setReleaseTime NOTIFY releaseTimeChanged)
     Q_PROPERTY(int stereoWidth READ stereoWidth WRITE setStereoWidth NOTIFY stereoWidthChanged)
     Q_PROPERTY(int hammerHardness READ hammerHardness WRITE setHammerHardness NOTIFY hammerHardnessChanged)
+    Q_PROPERTY(int stringDetune READ stringDetune WRITE setStringDetune NOTIFY stringDetuneChanged)
 
 public:
     explicit PianoSynthController(std::shared_ptr<PianoSynthDevice> device, QObject * parent = nullptr);
@@ -53,6 +54,8 @@ public:
     void setStereoWidth(int value);
     int hammerHardness() const;
     void setHammerHardness(int value);
+    int stringDetune() const;
+    void setStringDetune(int value);
 
     Q_INVOKABLE void requestSettings() override;
 
@@ -64,6 +67,7 @@ signals:
     void releaseTimeChanged();
     void stereoWidthChanged();
     void hammerHardnessChanged();
+    void stringDetuneChanged();
 
 public:
     void setDevice(std::shared_ptr<PianoSynthDevice> device);

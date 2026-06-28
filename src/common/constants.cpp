@@ -1667,6 +1667,11 @@ QString xmlKeyHardness()
     return "hardness";
 }
 
+QString xmlKeyStringDetune()
+{
+    return "stringDetune";
+}
+
 } // namespace NahdXml
 
 } // namespace noteahead::Constants

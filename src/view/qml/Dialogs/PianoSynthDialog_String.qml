@@ -50,4 +50,10 @@ ColumnLayout {
         onMoved: v => pianoSynthController.releaseTime = v
         Layout.fillWidth: true
     }
+    Knob {
+        label: qsTr("String Detune")
+        value: pianoSynthController.stringDetune
+        onMoved: v => pianoSynthController.stringDetune = v
+        Layout.fillWidth: true
+    }
 }

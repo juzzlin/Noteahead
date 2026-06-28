@@ -67,6 +67,8 @@ public:
     void setStereoWidth(float stereoWidth);
     float hammerHardness() const;
     void setHammerHardness(float hardness);
+    float stringDetune() const;
+    void setStringDetune(float detune);
 
 protected:
     void syncParameters() override;
@@ -77,6 +79,7 @@ private:
     struct Voice
     {
         WaveguideString string;
+        WaveguideString string2;
         uint8_t note { 0 };
         float velocity { 1.0f };
         bool active { false };
@@ -101,6 +104,7 @@ private:
     float m_releaseTime { 0.3f };
     float m_stereoWidth { 0.7f };
     float m_hammerHardness { 0.5f };
+    float m_stringDetune { 0.3f };
 
     void handleNoteOn(uint8_t note, uint8_t velocity);
     void handleNoteOff(uint8_t note);
