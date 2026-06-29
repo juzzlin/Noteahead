@@ -49,6 +49,9 @@ private slots:
     void test_toXmlFromXml_noteData_noteOff_shouldBeCorrect();
     void test_toXmlFromXml_noteData_noteOn_shouldBeCorrect();
     void test_toXmlFromXml_noteData_delay_shouldSaveAndLoadDelay();
+    void test_toXmlFromXml_noteData_pan_shouldSaveAndLoadPan();
+    void test_toXmlFromXml_noteData_pan_absent_shouldDefaultToNullopt();
+    void test_toXmlFromXml_noteData_pan_panOnly_shouldSaveAndLoad();
 
     void test_toXmlFromXml_playOrder_shouldBeCorrect();
     void test_toXmlFromXml_removeTrack_shouldLoadSong();

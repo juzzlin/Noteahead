@@ -60,6 +60,10 @@ public:
     uint8_t delay() const;
     void setDelay(uint8_t ticks);
 
+    std::optional<uint8_t> pan() const;
+    void setPan(uint8_t pan);
+    void clearPan();
+
     std::string toString() const;
     void serializeToXml(ProjectWriter & writer) const;
     using NoteDataS = std::shared_ptr<NoteData>;
@@ -73,6 +77,7 @@ private:
 
     std::optional<uint8_t> m_note;
     std::optional<uint8_t> m_delay; // In ticks per line
+    std::optional<uint8_t> m_pan;
     uint8_t m_velocity = 0;
 };
 

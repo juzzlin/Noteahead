@@ -85,7 +85,8 @@ std::string NoteData::toString() const
        << " Track: " << static_cast<int>(track()) << " Column: " << static_cast<int>(column())
        << " Note: " << (m_note.has_value() ? std::to_string(static_cast<int>(*m_note)) : "N/A")
        << " Velocity: " << static_cast<int>(m_velocity)
-       << " Delay: " << static_cast<int>(m_delay.value_or(0)) << " ]";
+       << " Delay: " << static_cast<int>(m_delay.value_or(0))
+       << " Pan: " << (m_pan.has_value() ? std::to_string(static_cast<int>(*m_pan)) : "N/A") << " ]";
     return ss.str();
 }
 
@@ -99,6 +100,21 @@ void NoteData::setDelay(uint8_t ticks)
     m_delay = ticks;
 }
 
+std::optional<uint8_t> NoteData::pan() const
+{
+    return m_pan;
+}
+
+void NoteData::setPan(uint8_t pan)
+{
+    m_pan = pan;
+}
+
+void NoteData::clearPan()
+{
+    m_pan = std::nullopt;
+}
+
 void NoteData::serializeToXml(ProjectWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyNoteData());
@@ -110,6 +126,14 @@ void NoteData::serializeToXml(ProjectWriter & writer) const
         if (m_delay.has_value()) {
             writer.writeAttribute(Constants::NahdXml::xmlKeyDelay(), QString::number(*m_delay));
         }
+        if (m_pan.has_value()) {
+            writer.writeAttribute(Constants::NahdXml::xmlKeyPan(), QString::number(*m_pan));
+        }
+    } else if (m_type == Type::None) {
+        writer.writeAttribute(Constants::NahdXml::xmlKeyType(), Constants::NahdXml::xmlKeyNone());
+        if (m_pan.has_value()) {
+            writer.writeAttribute(Constants::NahdXml::xmlKeyPan(), QString::number(*m_pan));
+        }
     } else {
         writer.writeAttribute(Constants::NahdXml::xmlKeyType(), Constants::NahdXml::xmlKeyNoteOff());
     }
@@ -120,14 +144,20 @@ void NoteData::serializeToXml(ProjectWriter & writer) const
 NoteData::NoteDataS NoteData::deserializeFromXml(ProjectReader & reader, size_t trackIndex, size_t columnIndex)
 {
     const auto typeString = Utils::Xml::readStringAttribute(reader, Constants::NahdXml::xmlKeyType());
-    const auto type = typeString == Constants::NahdXml::xmlKeyNoteOn() ? NoteData::Type::NoteOn : NoteData::Type::NoteOff;
     auto noteData = std::make_unique<NoteData>(trackIndex, columnIndex);
-    if (type == NoteData::Type::NoteOn) {
+    if (typeString == Constants::NahdXml::xmlKeyNoteOn()) {
         const auto note = *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyNote());
         const auto velocity = *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyVelocity());
         noteData->setAsNoteOn(static_cast<uint8_t>(note), static_cast<uint8_t>(velocity));
         if (const auto delay = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyDelay(), false); delay.has_value()) {
             noteData->setDelay(static_cast<uint8_t>(*delay));
+        }
+        if (const auto pan = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyPan(), false); pan.has_value()) {
+            noteData->setPan(static_cast<uint8_t>(*pan));
+        }
+    } else if (typeString == Constants::NahdXml::xmlKeyNone()) {
+        if (const auto pan = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyPan(), false); pan.has_value()) {
+            noteData->setPan(static_cast<uint8_t>(*pan));
         }
     } else {
         noteData->setAsNoteOff();

@@ -5,6 +5,13 @@ Release date:
 
 New features:
 
+* Add a pan column to the tracker
+  - Per-line stereo panning sent as MIDI CC #10 (0 = left, 64 = center, 127 = right)
+  - Displayed and editable only on the first note column of each track; other columns show ---
+  - Pan values can be placed on any line including empty ones, so panning changes are sent
+    on every step regardless of note events
+  - Pan interpolation available via right-click => Column => Interpolate pan
+
 * Add LFO 2 to Synth
   - Same targets as LFO 1: Pitch, Shape, Cutoff, Volume, Resonance, Pan
   - Modulations stack additively with LFO 1
@@ -21,6 +28,8 @@ New features:
 Bug fixes:
 
 Other:
+
+* Update user manual with pan column documentation
 
 * Add LFO 1 and LFO 2 to synth XML serialization round-trip test
 

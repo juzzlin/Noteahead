@@ -8,6 +8,7 @@ Dialog {
     id: rootItem
     modal: true
     standardButtons: Dialog.Ok | Dialog.Cancel
+    property bool showPercentages: true
     function usePercentages() {
         return percentageCheckBox.checked;
     }
@@ -47,6 +48,7 @@ Dialog {
         CheckBox {
             id: percentageCheckBox
             text: qsTr("Use percentages")
+            visible: rootItem.showPercentages
             Layout.columnSpan: 4
             Layout.row: 0
             onCheckedChanged: {

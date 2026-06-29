@@ -44,14 +44,15 @@
 </ul>
 
 <h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Editor Columns</h2>
-<p>Each Note Column consists of three main data fields per line:</p>
+<p>Each Note Column consists of four data fields per line:</p>
 <p style="font-family: monospace; background-color: #333; padding: 10px; border-radius: 4px;">
-    <span style="color: #ffffff;">C-4</span> <span style="color: #ffffff;">100</span> <span style="color: #ffffff;">00</span>
+    <span style="color: #ffffff;">C-4</span> <span style="color: #ffffff;">100</span> <span style="color: #ffffff;">00</span> <span style="color: #ffffff;">064</span>
 </p>
 <ol>
     <li><strong>Note (e.g., C-4)</strong>: The musical pitch and octave. "OFF" indicates a Note Off event, which stops the playing note.</li>
     <li><strong>Velocity (000-127)</strong>: How hard the note is struck. 127 is maximum, 0 is silent.</li>
     <li><strong>Delay (00-XX)</strong>: Sub-line timing delay. This allows you to "humanize" your sequence by starting a note slightly after the line's exact beat. The maximum value depends on your <strong>Ticks Per Line</strong> setting.</li>
+    <li><strong>Pan (000-127, first column only)</strong>: Stereo position sent as <strong>MIDI CC #10</strong>. 0 is hard left, 64 is center, 127 is hard right. Pan is only editable and displayed on the <strong>first note column</strong> of each track; additional columns show <code>---</code>. A pan value can be placed on any line — including lines without a note — so that panning changes can be sent on every step regardless of note events.</li>
 </ol>
 
 <h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Core Concepts</h2>
@@ -80,7 +81,7 @@
 <p>The main context menu can be accessed by <strong>right-clicking</strong> anywhere in the editor view. It provides a comprehensive set of tools for manipulating your sequence at different scopes.</p>
 <ul>
     <li><strong>Line</strong>: Insert or remove specific events (like Patch Changes), set sub-line delays, and manage line-specific automations.</li>
-    <li><strong>Column</strong>: Perform Cut/Copy/Paste and transposition on the current note column. You can also <strong>Add Note OFF</strong> to quickly insert a note-off event on the first line of the column, <strong>Interpolate velocity</strong> across the entire column, or manage column-wide automations.</li>
+    <li><strong>Column</strong>: Perform Cut/Copy/Paste and transposition on the current note column. You can also <strong>Add Note OFF</strong> to quickly insert a note-off event on the first line of the column, <strong>Interpolate velocity</strong> or <strong>Interpolate pan</strong> across the entire column (pan interpolation always targets the first column and fills every line in the range with a pan value), or manage column-wide automations.</li>
     <li><strong>Track</strong>: Manage the current track (Insert/Delete), <strong>Add Note OFF</strong> to all columns in the track (first line), transpose all columns within the track, and edit track-specific automations.</li>
     <li><strong>Pattern</strong>: <strong>Add Note OFF</strong> to all columns in the entire pattern (first line), transpose, or perform clipboard operations for the entire active pattern.</li>
     <li><strong>Song</strong>: Access the <strong>Device Rack...</strong> to manage internal instruments or perform song-wide transposition.</li>

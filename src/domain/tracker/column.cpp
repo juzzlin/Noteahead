@@ -21,6 +21,7 @@
 #include "../../common/xml/project_reader.hpp"
 #include "../../common/xml/project_writer.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../midi/midi_cc_data.hpp"
 #include "column_settings.hpp"
 #include "event.hpp"
 #include "line.hpp"
@@ -208,9 +209,14 @@ Column::EventList Column::renderToEvents(size_t startTick, size_t ticksPerLine) 
                 }
             }
             if (const auto noteData = line->noteData(); noteData->type() == NoteData::Type::NoteOn) {
+                if (index() == 0 && noteData->pan().has_value()) {
+                    eventList.push_back(std::make_shared<Event>(tick + noteData->delay(), MidiCcData { noteData->track(), noteData->column(), 10, *noteData->pan() }));
+                }
                 eventList.push_back(std::make_shared<Event>(tick + noteData->delay(), *noteData));
-            } else if (noteData->type() != NoteData::Type::None) {
+            } else if (noteData->type() == NoteData::Type::NoteOff) {
                 eventList.push_back(std::make_shared<Event>(tick + noteData->delay(), *noteData));
+            } else if (noteData->type() == NoteData::Type::None && index() == 0 && noteData->pan().has_value()) {
+                eventList.push_back(std::make_shared<Event>(tick, MidiCcData { noteData->track(), noteData->column(), 10, *noteData->pan() }));
             }
         }
         tick += ticksPerLine;

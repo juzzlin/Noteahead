@@ -86,19 +86,29 @@ void EditorServiceDelayTest::test_cursorNavigation_shouldIncludeDelayColumns()
     QCOMPARE(editorService.position().lineColumn, 5);
     QVERIFY(editorService.isAtDelayColumn());
 
-    // Move right to next column (or wrap around if last column)
+    // Move right to pan columns (column 0 only)
+    editorService.requestCursorRight();
+    QCOMPARE(editorService.position().lineColumn, 6);
+    QVERIFY(editorService.isAtPanColumn());
+    editorService.requestCursorRight();
+    QCOMPARE(editorService.position().lineColumn, 7);
+    editorService.requestCursorRight();
+    QCOMPARE(editorService.position().lineColumn, 8);
+    QVERIFY(editorService.isAtPanColumn());
+
+    // Move right to next column (column 0's last pan digit -> column 1)
     editorService.requestNewColumn(0);
-    // Reset to first column, last delay digit
-    editorService.requestPosition(0, 0, 0, 0, 5);
+    // Reset to first column, last pan digit
+    editorService.requestPosition(0, 0, 0, 0, 8);
 
     editorService.requestCursorRight();
     QCOMPARE(editorService.position().column, 1);
     QCOMPARE(editorService.position().lineColumn, 0);
 
-    // Move left back to delay column of previous column
+    // Move left back to pan column of previous column
     editorService.requestCursorLeft();
     QCOMPARE(editorService.position().column, 0);
-    QCOMPARE(editorService.position().lineColumn, 5);
+    QCOMPARE(editorService.position().lineColumn, 8);
 }
 
 } // namespace noteahead

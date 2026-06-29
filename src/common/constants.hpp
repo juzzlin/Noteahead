@@ -208,6 +208,7 @@ QString xmlKeyTrackVelocityScale();
 
 QString xmlKeyName();
 
+QString xmlKeyNone();
 QString xmlKeyNote();
 QString xmlKeyNoteOn();
 QString xmlKeyNoteOff();

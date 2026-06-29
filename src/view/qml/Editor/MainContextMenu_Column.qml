@@ -85,6 +85,11 @@ Menu {
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestColumnVelocityInterpolationDialog()
     }
+    Action {
+        text: qsTr("Interpolate pan")
+        enabled: !UiService.isPlaying()
+        onTriggered: UiService.requestColumnPanInterpolationDialog()
+    }
     MenuSeparator {}
     Action {
         text: qsTr("Add MIDI CC automation")

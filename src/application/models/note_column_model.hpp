@@ -44,6 +44,7 @@ public:
         IsVirtualRow,
         Line,
         LineColumn,
+        Pan,
         Velocity,
     };
     Q_ENUM(DataRole)
@@ -75,9 +76,11 @@ public:
     void updateNoteDataAtPosition(quint64 line);
 
 private:
+    bool isPanColumn() const;
     QString displayNote(const Line & line) const;
     QString displayVelocity(const Line & line) const;
     QString displayDelay(const Line & line) const;
+    QString displayPan(const Line & line) const;
     QString displayLine(const Line & line) const;
     QString noDataString() const;
     QString padVelocityToThreeDigits(const QString & velocity) const;

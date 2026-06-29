@@ -505,6 +505,15 @@ ApplicationWindow {
             editorService.requestLinearVelocityInterpolationOnSelection(startLine(), endLine(), startValue(), endValue(), usePercentages());
         }
     }
+    InterpolationDialog {
+        id: columnPanInterpolationDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
+        showPercentages: false
+        onAccepted: {
+            editorService.requestLinearPanInterpolationOnColumn(startLine(), endLine(), startValue(), endValue());
+        }
+    }
     AddMidiCcAutomationDialog {
         id: addMidiCcAutomationDialog
         portName: editorService.instrumentPortName(editorService.position.track)
@@ -763,6 +772,14 @@ ApplicationWindow {
             trackVelocityInterpolationDialog.setEndValue(UiService.interpolationEndValue);
             trackVelocityInterpolationDialog.setUsePercentages(UiService.interpolationUsePercentages);
             trackVelocityInterpolationDialog.open();
+        });
+        UiService.columnPanInterpolationDialogRequested.connect(() => {
+            columnPanInterpolationDialog.setTitle(qsTr("Interpolate pan"));
+            columnPanInterpolationDialog.setStartLine(0);
+            columnPanInterpolationDialog.setEndLine(editorService.currentLineCount - 1);
+            columnPanInterpolationDialog.setStartValue(64);
+            columnPanInterpolationDialog.setEndValue(64);
+            columnPanInterpolationDialog.open();
         });
         UiService.lineDelayDialogRequested.connect(() => {
             lineDelayDialog.setValue(editorService.delayAtCurrentPosition());

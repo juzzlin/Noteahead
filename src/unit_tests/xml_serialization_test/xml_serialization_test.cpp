@@ -582,6 +582,57 @@ void XmlSerializationTest::test_toXmlFromXml_noteData_delay_shouldSaveAndLoadDel
     QCOMPARE(editorServiceIn.delayAtCurrentPosition(), 0);
 }
 
+void XmlSerializationTest::test_toXmlFromXml_noteData_pan_shouldSaveAndLoadPan()
+{
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorServiceOut.requestPosition(0, 0, 0, 0, 0);
+    editorServiceOut.requestNoteOnAtCurrentPosition(1, 3, 64);
+    const auto noteData = editorServiceOut.song()->noteDataAtPosition({ 0, 0, 0, 0, 0 });
+    QVERIFY(noteData);
+    noteData->setPan(42);
+
+    const auto xml = editorServiceOut.toXml();
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorServiceIn.fromXml(xml);
+    const auto loaded = editorServiceIn.song()->noteDataAtPosition({ 0, 0, 0, 0, 0 });
+    QVERIFY(loaded);
+    QVERIFY(loaded->pan().has_value());
+    QCOMPARE(*loaded->pan(), 42);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_noteData_pan_absent_shouldDefaultToNullopt()
+{
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorServiceOut.requestPosition(0, 0, 0, 0, 0);
+    editorServiceOut.requestNoteOnAtCurrentPosition(1, 3, 64);
+
+    const auto xml = editorServiceOut.toXml();
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorServiceIn.fromXml(xml);
+    const auto loaded = editorServiceIn.song()->noteDataAtPosition({ 0, 0, 0, 0, 0 });
+    QVERIFY(loaded);
+    QVERIFY(!loaded->pan().has_value());
+}
+
+void XmlSerializationTest::test_toXmlFromXml_noteData_pan_panOnly_shouldSaveAndLoad()
+{
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorServiceOut.requestPosition(0, 0, 0, 0, 0);
+    const auto noteData = editorServiceOut.song()->noteDataAtPosition({ 0, 0, 0, 0, 0 });
+    QVERIFY(noteData);
+    QCOMPARE(noteData->type(), NoteData::Type::None);
+    noteData->setPan(99);
+
+    const auto xml = editorServiceOut.toXml();
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorServiceIn.fromXml(xml);
+    const auto loaded = editorServiceIn.song()->noteDataAtPosition({ 0, 0, 0, 0, 0 });
+    QVERIFY(loaded);
+    QCOMPARE(loaded->type(), NoteData::Type::None);
+    QVERIFY(loaded->pan().has_value());
+    QCOMPARE(*loaded->pan(), 99);
+}
+
 void XmlSerializationTest::test_toXmlFromXml_noteData_noteOff_shouldBeCorrect()
 {
     EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };

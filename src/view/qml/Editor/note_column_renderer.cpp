@@ -95,7 +95,7 @@ void NoteColumnRenderer::paint(QPainter * painter)
 
     const QFontMetricsF fm { font };
     const qreal charWidth = fm.horizontalAdvance("0");
-    const qreal totalTextWidth = charWidth * 10;
+    const qreal totalTextWidth = charWidth * 14;
     const qreal textX = (width() - totalTextWidth) / 2.0;
 
     for (int i = startRow; i < endRow; ++i) {
@@ -135,8 +135,10 @@ void NoteColumnRenderer::paint(QPainter * painter)
                 focusWidth = 3 * charWidth;
             } else if (lineColumn <= 3) {
                 focusX = textX + (3 + lineColumn) * charWidth;
-            } else {
+            } else if (lineColumn <= 5) {
                 focusX = textX + (4 + lineColumn) * charWidth;
+            } else {
+                focusX = textX + (5 + lineColumn) * charWidth;
             }
 
             QColor focusColor = QColor("red");

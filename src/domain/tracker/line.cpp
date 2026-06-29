@@ -78,7 +78,7 @@ void Line::setLineEvent(LineEventOpt lineEvent)
 
 bool Line::hasData() const
 {
-    return (m_noteData && m_noteData->type() != NoteData::Type::None) || m_lineEvent;
+    return (m_noteData && (m_noteData->type() != NoteData::Type::None || m_noteData->pan().has_value())) || m_lineEvent;
 }
 
 void Line::serializeToXml(ProjectWriter & writer) const
@@ -86,7 +86,7 @@ void Line::serializeToXml(ProjectWriter & writer) const
     if (hasData()) {
         writer.writeStartElement(Constants::NahdXml::xmlKeyLine());
         writer.writeAttribute(Constants::NahdXml::xmlKeyIndex(), QString::number(m_index));
-        if (m_noteData->type() != NoteData::Type::None) {
+        if (m_noteData->type() != NoteData::Type::None || m_noteData->pan().has_value()) {
             m_noteData->serializeToXml(writer);
         }
         if (m_lineEvent) {

@@ -21,6 +21,8 @@
 #include "note_data.hpp"
 #include "song.hpp"
 
+#include <algorithm>
+
 namespace noteahead {
 
 static const auto TAG = "NoteDataManipulator";
@@ -72,6 +74,44 @@ NoteDataManipulator::ChangedPositions NoteDataManipulator::interpolateVelocityOn
                     }
                     changedPositions.push_back(targetPosition);
                 }
+            }
+        }
+    }
+    return changedPositions;
+}
+
+NoteDataManipulator::ChangedPositions NoteDataManipulator::interpolatePanOnColumn(SongW song, const Position & start, const Position & end, uint8_t startValue, uint8_t endValue)
+{
+    juzzlin::L(TAG).info() << "Requesting linear pan interpolation on a column: " << start.toString() << " -> " << end.toString() << ", " << static_cast<int>(startValue) << " -> " << static_cast<int>(endValue);
+    NoteDataManipulator::ChangedPositions changedPositions;
+    if (const auto locked = song.lock(); locked) {
+        const Interpolator interpolator { start.line, end.line, static_cast<double>(startValue), static_cast<double>(endValue) };
+        for (auto line = start.line; line <= end.line; line++) {
+            auto targetPosition = start;
+            targetPosition.column = 0;
+            targetPosition.line = line;
+            if (const auto noteData = locked->noteDataAtPosition(targetPosition); noteData) {
+                noteData->setPan(static_cast<uint8_t>(std::clamp(interpolator.getValue(targetPosition.line), 0.0, 127.0)));
+                changedPositions.push_back(targetPosition);
+            }
+        }
+    }
+    return changedPositions;
+}
+
+NoteDataManipulator::ChangedPositions NoteDataManipulator::interpolatePanOnTrack(SongW song, const Position & start, const Position & end, uint8_t startValue, uint8_t endValue)
+{
+    juzzlin::L(TAG).info() << "Requesting linear pan interpolation on a track: " << start.toString() << " -> " << end.toString() << ", " << static_cast<int>(startValue) << " -> " << static_cast<int>(endValue);
+    NoteDataManipulator::ChangedPositions changedPositions;
+    if (const auto locked = song.lock(); locked) {
+        const Interpolator interpolator { start.line, end.line, static_cast<double>(startValue), static_cast<double>(endValue) };
+        for (auto line = start.line; line <= end.line; line++) {
+            auto targetPosition = start;
+            targetPosition.column = 0;
+            targetPosition.line = line;
+            if (const auto noteData = locked->noteDataAtPosition(targetPosition); noteData) {
+                noteData->setPan(static_cast<uint8_t>(std::clamp(interpolator.getValue(targetPosition.line), 0.0, 127.0)));
+                changedPositions.push_back(targetPosition);
             }
         }
     }

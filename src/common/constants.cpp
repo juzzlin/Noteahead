@@ -692,6 +692,11 @@ QString xmlKeyNote()
     return "note";
 }
 
+QString xmlKeyNone()
+{
+    return "none";
+}
+
 QString xmlKeyNoteOn()
 {
     return "noteOn";

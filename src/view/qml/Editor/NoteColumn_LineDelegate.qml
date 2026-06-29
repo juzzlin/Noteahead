@@ -16,14 +16,17 @@ Rectangle {
     }
     Rectangle {
         width: {
-            if (model.lineColumn === 0) return 3 * (textElement ? textElement.contentWidth : 0) / 10;
-            return (textElement ? textElement.contentWidth : 0) / 10;
+            if (model.lineColumn === 0) return 3 * (textElement ? textElement.contentWidth : 0) / 14;
+            return (textElement ? textElement.contentWidth : 0) / 14;
         }
         height: textElement.contentHeight
         x: {
             if (model.lineColumn === 0) return (textElement ? textElement.x : 0);
-            if (model.lineColumn <= 3) return (textElement ? textElement.x + (3 + model.lineColumn) * textElement.contentWidth / 10 : 0);
-            return (textElement ? textElement.x + (4 + model.lineColumn) * textElement.contentWidth / 10 : 0);
+            const cw = textElement ? textElement.contentWidth / 14 : 0;
+            const tx = textElement ? textElement.x : 0;
+            if (model.lineColumn <= 3) return tx + (3 + model.lineColumn) * cw;
+            if (model.lineColumn <= 5) return tx + (4 + model.lineColumn) * cw;
+            return tx + (5 + model.lineColumn) * cw;
         }
         color: "red"
         opacity: 0.5

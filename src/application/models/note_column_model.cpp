@@ -42,6 +42,11 @@ int NoteColumnModel::rowCount(const QModelIndex & parent) const
     return parent.isValid() ? 0 : static_cast<int>(m_lines.size()) + virtualLineCount;
 }
 
+bool NoteColumnModel::isPanColumn() const
+{
+    return std::get<2>(m_columnAddress) == 0;
+}
+
 QString NoteColumnModel::noDataString() const
 {
     return "---";
@@ -87,9 +92,19 @@ QString NoteColumnModel::displayDelay(const Line & line) const
     }
 }
 
+QString NoteColumnModel::displayPan(const Line & line) const
+{
+    if (isPanColumn()) {
+        if (const auto noteData = line.noteData(); noteData->pan().has_value()) {
+            return QString::number(*noteData->pan()).rightJustified(3, '0', true);
+        }
+    }
+    return noDataString();
+}
+
 QString NoteColumnModel::displayLine(const Line & line) const
 {
-    return displayNote(line) + " " + displayVelocity(line) + " " + displayDelay(line);
+    return displayNote(line) + " " + displayVelocity(line) + " " + displayDelay(line) + " " + displayPan(line);
 }
 
 QVariant NoteColumnModel::lineColor(quint64 lineIndex) const
@@ -119,6 +134,8 @@ QVariant NoteColumnModel::virtualLineData(int role) const
     case LineColumn:
         return 0;
     case Note:
+        return "";
+    case Pan:
         return "";
     case Velocity:
         return "";
@@ -151,6 +168,8 @@ QVariant NoteColumnModel::data(const QModelIndex & index, int role) const
             return m_focusedLines.contains(static_cast<size_t>(index.row())) ? m_focusedLines.at(static_cast<size_t>(index.row())) : 0;
         case Note:
             return displayNote(*line);
+        case Pan:
+            return displayPan(*line);
         case Velocity:
             return displayVelocity(*line);
         case IsFocused:
@@ -174,6 +193,7 @@ QHash<int, QByteArray> NoteColumnModel::roleNames() const
         { static_cast<int>(Line), "line" },
         { static_cast<int>(LineColumn), "lineColumn" },
         { static_cast<int>(Note), "note" },
+        { static_cast<int>(Pan), "pan" },
         { static_cast<int>(Velocity), "velocity" },
     };
 }
@@ -230,7 +250,7 @@ void NoteColumnModel::updateIndexHighlightRange(quint64 startLine, quint64 endLi
 
 void NoteColumnModel::updateNoteDataAtPosition(quint64 line)
 {
-    notifyDataChanged(static_cast<int>(line), static_cast<int>(line), { static_cast<int>(DataRole::Note), static_cast<int>(DataRole::Velocity), static_cast<int>(DataRole::Delay), static_cast<int>(DataRole::Line) });
+    notifyDataChanged(static_cast<int>(line), static_cast<int>(line), { static_cast<int>(DataRole::Note), static_cast<int>(DataRole::Velocity), static_cast<int>(DataRole::Delay), static_cast<int>(DataRole::Pan), static_cast<int>(DataRole::Line) });
 }
 
 void NoteColumnModel::updateRowCount()

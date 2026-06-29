@@ -113,11 +113,11 @@ void NoteColumnModelTest::test_data_LineRole_shouldReturnCorrectValue()
 
     // Test filled line
     const auto idx0 = model.index(barLine, 0);
-    QCOMPARE(model.data(idx0, static_cast<int>(NoteColumnModel::DataRole::Line)).toString(), QString { "C-5 100 12" });
+    QCOMPARE(model.data(idx0, static_cast<int>(NoteColumnModel::DataRole::Line)).toString(), QString { "C-5 100 12 ---" });
 
     // Test empty line
     const auto idx1 = model.index(barLine + 1, 0);
-    QCOMPARE(model.data(idx1, static_cast<int>(NoteColumnModel::DataRole::Line)).toString(), QString { "--- --- --" });
+    QCOMPARE(model.data(idx1, static_cast<int>(NoteColumnModel::DataRole::Line)).toString(), QString { "--- --- -- ---" });
 }
 
 void NoteColumnModelTest::test_updateNoteDataAtPosition_shouldEmitDataChangedWithCorrectRoles()

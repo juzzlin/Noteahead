@@ -31,6 +31,9 @@ using ChangedPositions = std::vector<Position>;
 ChangedPositions interpolateVelocityOnColumn(SongW song, const Position & start, const Position & end, uint8_t startValue, uint8_t endValue, bool usePercentages);
 ChangedPositions interpolateVelocityOnTrack(SongW song, const Position & start, const Position & end, uint8_t startValue, uint8_t endValue, bool usePercentages);
 
+ChangedPositions interpolatePanOnColumn(SongW song, const Position & start, const Position & end, uint8_t startValue, uint8_t endValue);
+ChangedPositions interpolatePanOnTrack(SongW song, const Position & start, const Position & end, uint8_t startValue, uint8_t endValue);
+
 } // namespace NoteDataManipulator
 } // namespace noteahead
 
