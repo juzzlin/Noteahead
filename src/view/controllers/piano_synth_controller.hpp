@@ -30,6 +30,8 @@ class PianoSynthController : public DeviceController
     Q_PROPERTY(int brightness READ brightness WRITE setBrightness NOTIFY brightnessChanged)
     Q_PROPERTY(int decay READ decay WRITE setDecay NOTIFY decayChanged)
     Q_PROPERTY(int inharmonicity READ inharmonicity WRITE setInharmonicity NOTIFY inharmonicityChanged)
+    Q_PROPERTY(int lpfCutoff READ lpfCutoff WRITE setLpfCutoff NOTIFY lpfCutoffChanged)
+    Q_PROPERTY(int hpfCutoff READ hpfCutoff WRITE setHpfCutoff NOTIFY hpfCutoffChanged)
     Q_PROPERTY(int releaseTime READ releaseTime WRITE setReleaseTime NOTIFY releaseTimeChanged)
     Q_PROPERTY(int stereoWidth READ stereoWidth WRITE setStereoWidth NOTIFY stereoWidthChanged)
     Q_PROPERTY(int hammerHardness READ hammerHardness WRITE setHammerHardness NOTIFY hammerHardnessChanged)
@@ -48,6 +50,10 @@ public:
     void setDecay(int value);
     int inharmonicity() const;
     void setInharmonicity(int value);
+    int lpfCutoff() const;
+    void setLpfCutoff(int value);
+    int hpfCutoff() const;
+    void setHpfCutoff(int value);
     int releaseTime() const;
     void setReleaseTime(int value);
     int stereoWidth() const;
@@ -64,6 +70,8 @@ signals:
     void brightnessChanged();
     void decayChanged();
     void inharmonicityChanged();
+    void lpfCutoffChanged();
+    void hpfCutoffChanged();
     void releaseTimeChanged();
     void stereoWidthChanged();
     void hammerHardnessChanged();

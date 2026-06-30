@@ -16,6 +16,7 @@
 #ifndef PIANO_SYNTH_DEVICE_HPP
 #define PIANO_SYNTH_DEVICE_HPP
 
+#include "../dsp/cascaded_svf.hpp"
 #include "../dsp/dc_blocker.hpp"
 #include "../dsp/true_stereo_panner.hpp"
 #include "../dsp/waveguide_string.hpp"
@@ -61,6 +62,10 @@ public:
     void setDecay(float decay);
     float inharmonicity() const;
     void setInharmonicity(float inharmonicity);
+    float lpfCutoff() const;
+    void setLpfCutoff(float cutoff);
+    float hpfCutoff() const;
+    void setHpfCutoff(float cutoff);
     float releaseTime() const;
     void setReleaseTime(float releaseTime);
     float stereoWidth() const;
@@ -95,12 +100,19 @@ private:
     DcBlocker m_dcBlockerL;
     DcBlocker m_dcBlockerR;
 
+    CascadedSvf m_lpfL;
+    CascadedSvf m_lpfR;
+    CascadedSvf m_hpfL;
+    CascadedSvf m_hpfR;
+
     TrueStereoPanner m_panner;
     TrueStereoPanner m_voicePanner;
 
     float m_brightness { 0.5f };
     float m_decay { 0.5f };
     float m_inharmonicity { 0.3f };
+    float m_lpfCutoff { 1.0f };
+    float m_hpfCutoff { 0.0f };
     float m_releaseTime { 0.3f };
     float m_stereoWidth { 0.7f };
     float m_hammerHardness { 0.5f };

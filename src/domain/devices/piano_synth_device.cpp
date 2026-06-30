@@ -39,10 +39,17 @@ PianoSynthDevice::PianoSynthDevice(std::string name)
     addParameter(Parameter(Constants::NahdXml::xmlKeyBrightness().toStdString(), 0.5f, 0, 10000, 5000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyDecay().toStdString(), 0.5f, 0, 10000, 5000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyInharmonicity().toStdString(), 0.3f, 0, 10000, 3000, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), 1.0f, 0, 10000, 10000, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.0f, 0, 10000, 0, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyReleaseTime().toStdString(), 0.3f, 0, 10000, 3000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyPanSpread().toStdString(), 0.7f, 0, 10000, 7000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyHardness().toStdString(), 0.5f, 0, 10000, 5000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyStringDetune().toStdString(), 0.1f, 0, 10000, 1000, 100));
+
+    m_lpfL.setMode(CascadedSvf::Mode::LowPass);
+    m_lpfR.setMode(CascadedSvf::Mode::LowPass);
+    m_hpfL.setMode(CascadedSvf::Mode::HighPass);
+    m_hpfR.setMode(CascadedSvf::Mode::HighPass);
 
     PianoSynthDevice::syncParameters();
 }
@@ -160,6 +167,14 @@ void PianoSynthDevice::processAudio(AudioContext & context)
 
     m_dcBlockerL.setSampleRate(context.sampleRate);
     m_dcBlockerR.setSampleRate(context.sampleRate);
+    m_lpfL.setSampleRate(context.sampleRate);
+    m_lpfR.setSampleRate(context.sampleRate);
+    m_hpfL.setSampleRate(context.sampleRate);
+    m_hpfR.setSampleRate(context.sampleRate);
+    m_lpfL.setCutoff(static_cast<double>(m_lpfCutoff));
+    m_lpfR.setCutoff(static_cast<double>(m_lpfCutoff));
+    m_hpfL.setCutoff(static_cast<double>(m_hpfCutoff));
+    m_hpfR.setCutoff(static_cast<double>(m_hpfCutoff));
     m_panner.setPan(static_cast<double>(panInternal()));
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
@@ -193,6 +208,11 @@ void PianoSynthDevice::processAudio(AudioContext & context)
         outL *= static_cast<double>(volumeInternal());
         outR *= static_cast<double>(volumeInternal());
         m_panner.process(outL, outR);
+
+        outL = m_lpfL.process(outL);
+        outR = m_lpfR.process(outR);
+        outL = m_hpfL.process(outL);
+        outR = m_hpfR.process(outR);
 
         context.buffer[i * 2] += m_dcBlockerL.process(outL);
         context.buffer[i * 2 + 1] += m_dcBlockerR.process(outR);
@@ -228,6 +248,10 @@ void PianoSynthDevice::resetAudio()
     m_nextVoiceToSteal = 0;
     m_dcBlockerL.reset();
     m_dcBlockerR.reset();
+    m_lpfL.reset();
+    m_lpfR.reset();
+    m_hpfL.reset();
+    m_hpfR.reset();
 }
 
 void PianoSynthDevice::serializeToXml(ProjectWriter & writer) const
@@ -360,6 +384,12 @@ void PianoSynthDevice::syncParameters()
     if (const auto p = parameter(Constants::NahdXml::xmlKeyInharmonicity().toStdString()); p) {
         m_inharmonicity = p->get().value();
     }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); p) {
+        m_lpfCutoff = p->get().value();
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) {
+        m_hpfCutoff = p->get().value();
+    }
     if (const auto p = parameter(Constants::NahdXml::xmlKeyReleaseTime().toStdString()); p) {
         m_releaseTime = p->get().value();
     }
@@ -402,6 +432,26 @@ float PianoSynthDevice::inharmonicity() const
 void PianoSynthDevice::setInharmonicity(float inharmonicity)
 {
     setContinuousParameterValue(Constants::NahdXml::xmlKeyInharmonicity().toStdString(), inharmonicity);
+}
+
+float PianoSynthDevice::lpfCutoff() const
+{
+    return m_lpfCutoff;
+}
+
+void PianoSynthDevice::setLpfCutoff(float cutoff)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), cutoff);
+}
+
+float PianoSynthDevice::hpfCutoff() const
+{
+    return m_hpfCutoff;
+}
+
+void PianoSynthDevice::setHpfCutoff(float cutoff)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), cutoff);
 }
 
 float PianoSynthDevice::releaseTime() const

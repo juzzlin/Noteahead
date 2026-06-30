@@ -76,10 +76,15 @@ void WaveguideString::trigger(uint8_t note, float velocity, float brightness, fl
 
     // Noise burst seeded by note so repeated strikes are consistent but each pitch differs.
     // Decays in ~N/6 samples to model brief hammer-felt impact noise before the tone settles.
+    // The noise is low-pass filtered to ~16× the fundamental so that high-brightness settings
+    // don't leave wideband noise circulating in the delay line indefinitely.
     std::minstd_rand rng { static_cast<uint32_t>(note) + 17u };
     std::uniform_real_distribution<double> noiseDist { -1.0, 1.0 };
     const double noiseGain = static_cast<double>(velocity) * 0.08;
     const double noiseDecay = 6.0 / static_cast<double>(N);
+    const double noiseCutoff = std::min(freq * 16.0, m_sampleRate * 0.45);
+    const double noiseAlpha = std::exp(-2.0 * std::numbers::pi * noiseCutoff / m_sampleRate);
+    double noiseLpState = 0.0;
 
     // Pre-load excitation into the delay buffer so output starts immediately.
     m_delay.reset();
@@ -89,7 +94,9 @@ void WaveguideString::trigger(uint8_t note, float velocity, float brightness, fl
             const double t = static_cast<double>(i) / static_cast<double>(width);
             excite = amplitude * 0.5 * (1.0 - std::cos(2.0 * std::numbers::pi * t));
         }
-        excite += noiseDist(rng) * noiseGain * std::exp(-noiseDecay * static_cast<double>(i));
+        const double rawNoise = noiseDist(rng) * noiseGain * std::exp(-noiseDecay * static_cast<double>(i));
+        noiseLpState = noiseAlpha * noiseLpState + (1.0 - noiseAlpha) * rawNoise;
+        excite += noiseLpState;
         m_delay.write(excite);
     }
 

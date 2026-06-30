@@ -49,4 +49,16 @@ ColumnLayout {
         onMoved: v => pianoSynthController.stereoWidth = v
         Layout.fillWidth: true
     }
+    Knob {
+        label: qsTr("LPF Cutoff")
+        value: pianoSynthController.lpfCutoff
+        onMoved: v => pianoSynthController.lpfCutoff = v
+        Layout.fillWidth: true
+    }
+    Knob {
+        label: qsTr("HPF Cutoff")
+        value: pianoSynthController.hpfCutoff
+        onMoved: v => pianoSynthController.hpfCutoff = v
+        Layout.fillWidth: true
+    }
 }

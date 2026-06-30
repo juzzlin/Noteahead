@@ -81,6 +81,30 @@ void PianoSynthController::setInharmonicity(int value)
     }
 }
 
+int PianoSynthController::lpfCutoff() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->lpfCutoff() * Constants::uiInternalScaling())) : 0;
+}
+
+void PianoSynthController::setLpfCutoff(int value)
+{
+    if (m_device) {
+        m_device->setLpfCutoff(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int PianoSynthController::hpfCutoff() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->hpfCutoff() * Constants::uiInternalScaling())) : 0;
+}
+
+void PianoSynthController::setHpfCutoff(int value)
+{
+    if (m_device) {
+        m_device->setHpfCutoff(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
 int PianoSynthController::releaseTime() const
 {
     return m_device ? static_cast<int>(std::round(m_device->releaseTime() * Constants::uiInternalScaling())) : 0;
@@ -134,6 +158,8 @@ void PianoSynthController::requestSettings()
     emit brightnessChanged();
     emit decayChanged();
     emit inharmonicityChanged();
+    emit lpfCutoffChanged();
+    emit hpfCutoffChanged();
     emit releaseTimeChanged();
     emit stereoWidthChanged();
     emit hammerHardnessChanged();
