@@ -1290,6 +1290,15 @@ void EffectRackControllerTest::test_effectDisplayName_phaseScope_shouldBeTwoWord
     QCOMPARE(context.controller.effectDisplayName(context.controller.phaseScopeType()), QString { "Phase Scope" });
 }
 
+void EffectRackControllerTest::test_effectDisplayName_registeredEffect_shouldBeGalleryName()
+{
+    // A rack names its effects by type string, while the gallery lists registered effects by id
+    auto context = createContext();
+    QCOMPARE(context.controller.effectDisplayName(Constants::RackEffectType::roomMics()), QString { "Room Mics" });
+    QCOMPARE(context.controller.effectDisplayName(Constants::RackEffectType::gain()), QString { "Gain" });
+    QCOMPARE(context.controller.effectDisplayName(Constants::RackEffectType::stereoWidener()), QString { "Stereo Widener" });
+}
+
 void EffectRackControllerTest::test_availableEffects_shouldOfferTheAmbience()
 {
     auto context = createContext();
