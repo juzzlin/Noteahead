@@ -192,6 +192,11 @@ QString dbtpMeter()
 {
     return "dbtpmeter";
 }
+
+QString rta()
+{
+    return "rta";
+}
 } // namespace RackEffectType
 
 namespace NahdXml {
@@ -1675,6 +1680,36 @@ QString xmlKeyHardness()
 QString xmlKeyStringDetune()
 {
     return "stringDetune";
+}
+
+QString xmlKeyBandCount()
+{
+    return "bandCount";
+}
+
+QString xmlKeyDbRange()
+{
+    return "dbRange";
+}
+
+QString xmlKeyShowPinkNoise()
+{
+    return "showPinkNoise";
+}
+
+QString xmlKeyPinkNoiseLevel()
+{
+    return "pinkNoiseLevel";
+}
+
+QString xmlKeySpeed()
+{
+    return "speed";
+}
+
+QString xmlKeyFftRate()
+{
+    return "fftRate";
 }
 
 } // namespace NahdXml

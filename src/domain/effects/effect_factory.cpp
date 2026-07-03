@@ -24,6 +24,7 @@
 #include "../dsp/eq_8_band_parametric_effect.hpp"
 #include "../dsp/lufs_meter.hpp"
 #include "../dsp/reverb_effect.hpp"
+#include "../dsp/rta.hpp"
 #include "auto_panner_effect.hpp"
 #include "delay_effect.hpp"
 #include "panner_effect.hpp"
@@ -88,6 +89,7 @@ void EffectFactory::init()
     registerEffect(Eq8BandParametricEffect::typeIdString(), []() { return std::make_shared<Eq8BandParametricEffect>(); });
     registerEffect(LufsMeter::typeIdString(), []() { return std::make_shared<LufsMeter>(); });
     registerEffect(PannerEffect::typeIdString(), []() { return std::make_shared<PannerEffect>(); });
+    registerEffect(Rta::typeIdString(), []() { return std::make_shared<Rta>(); });
     registerEffect(ReverbEffect::typeIdString(), []() { return std::make_shared<ReverbEffect>(); });
 
     // Readable-string aliases so the gallery can create effects by their type() name
@@ -98,6 +100,7 @@ void EffectFactory::init()
     registerEffect(Constants::RackEffectType::eq8BandParametric().toStdString(), []() { return std::make_shared<Eq8BandParametricEffect>(); });
     registerEffect(Constants::RackEffectType::panner().toStdString(), []() { return std::make_shared<PannerEffect>(); });
     registerEffect(Constants::RackEffectType::reverb().toStdString(), []() { return std::make_shared<ReverbEffect>(); });
+    registerEffect(Constants::RackEffectType::rta().toStdString(), []() { return std::make_shared<Rta>(); });
 
     // Legacy support
     registerLegacyEffect("auto_panner", []() { return std::make_shared<AutoPannerEffect>(); });

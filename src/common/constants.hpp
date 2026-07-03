@@ -79,6 +79,7 @@ QString eq8BandParametricLegacy();
 QString allPassFilter();
 QString lufsMeter();
 QString dbtpMeter();
+QString rta();
 } // namespace RackEffectType
 
 namespace NahdXml {
@@ -431,6 +432,13 @@ QString xmlKeyStringDetune();
 
 QString xmlKeyLufsMeter();
 QString xmlKeyDbTpMeter();
+
+QString xmlKeyBandCount();
+QString xmlKeyDbRange();
+QString xmlKeyShowPinkNoise();
+QString xmlKeyPinkNoiseLevel();
+QString xmlKeySpeed();
+QString xmlKeyFftRate();
 
 QString embeddedDataPathPrefix();
 

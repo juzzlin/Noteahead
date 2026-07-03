@@ -45,6 +45,7 @@
 #include "../view/controllers/sampler_controller.hpp"
 #include "../view/controllers/synth_controller.hpp"
 #include "../view/controllers/wavetable_synth_controller.hpp"
+#include "../view/qml/Dialogs/rta_renderer.hpp"
 #include "../view/qml/Editor/line_number_renderer.hpp"
 #include "../view/qml/Editor/note_column_renderer.hpp"
 #include "models/audio_settings_model.hpp"
@@ -202,6 +203,7 @@ void Application::registerTypes()
     qmlRegisterType<MixerService>("Noteahead", majorVersion, minorVersion, "MixerService");
     qmlRegisterType<NoteColumnLineContainerHelper>("Noteahead", majorVersion, minorVersion, "NoteColumnLineContainerHelper");
     qmlRegisterType<NoteColumnRenderer>("Noteahead", majorVersion, minorVersion, "NoteColumnRenderer");
+    qmlRegisterType<RtaRenderer>("Noteahead", majorVersion, minorVersion, "RtaRenderer");
     qmlRegisterType<PitchBendAutomationsModel>("Noteahead", majorVersion, minorVersion, "PitchBendAutomationsModel");
     qmlRegisterType<PropertyService>("Noteahead", majorVersion, minorVersion, "PropertyService");
     qmlRegisterType<RecentFilesModel>("Noteahead", majorVersion, minorVersion, "RecentFilesModel");

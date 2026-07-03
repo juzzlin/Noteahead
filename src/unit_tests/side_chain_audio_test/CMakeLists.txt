@@ -24,6 +24,7 @@ set(SOURCE_FILES
     ../../domain/dsp/all_pass_filter.cpp
     ../../domain/dsp/dbtp_meter.cpp
     ../../domain/dsp/lufs_meter.cpp
+    ../../domain/dsp/rta.cpp
     ../../domain/dsp/chorus_effect.cpp
     ../../domain/dsp/clipper_effect.cpp
     ../../domain/dsp/eq_8_band_parametric_effect.cpp

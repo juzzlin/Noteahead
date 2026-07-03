@@ -136,6 +136,9 @@ Dialog {
                         } else if (effectType === effectRackController.reverbType) {
                             reverbDialog.effectIndex = index;
                             reverbDialog.open();
+                        } else if (effectType === effectRackController.rtaType) {
+                            rtaDialog.effectIndex = index;
+                            rtaDialog.open();
                         } else if (effectType === "") {
                             UiService.requestEffectsGalleryDialog(index);
                         } else {

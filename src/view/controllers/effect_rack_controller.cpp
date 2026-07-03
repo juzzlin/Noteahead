@@ -25,6 +25,7 @@
 #include "../../domain/dsp/eq_8_band_parametric_effect.hpp"
 #include "../../domain/dsp/lufs_meter.hpp"
 #include "../../domain/dsp/reverb_effect.hpp"
+#include "../../domain/dsp/rta.hpp"
 #include "../../domain/effects/auto_panner_effect.hpp"
 #include "../../domain/effects/delay_effect.hpp"
 #include "../../domain/effects/effect_factory.hpp"
@@ -214,6 +215,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("LUFS Meter", LufsMeter::typeIdString());
     addEffect("Panner", Constants::RackEffectType::panner().toStdString());
     addEffect("Reverb", Constants::RackEffectType::reverb().toStdString());
+    addEffect("RTA", Constants::RackEffectType::rta().toStdString());
 
     return list;
 }
@@ -567,6 +569,11 @@ QString EffectRackController::dbtpMeterType() const
     return Constants::RackEffectType::dbtpMeter();
 }
 
+QString EffectRackController::rtaType() const
+{
+    return Constants::RackEffectType::rta();
+}
+
 QString EffectRackController::clipperType() const
 {
     return Constants::RackEffectType::clipper();
@@ -703,6 +710,80 @@ float EffectRackController::dbtpMeterTruePeakHoldR(quint32 effectIndex) const
         }
     }
     return dbtpFloor;
+}
+
+QVariantList EffectRackController::rtaBandMagnitudes(quint32 effectIndex) const
+{
+    if (const auto rack = currentRack()) {
+        if (const auto effect = rack->get().effect(effectIndex)) {
+            if (const auto rta = std::dynamic_pointer_cast<Rta>(effect)) {
+                QVariantList list;
+                for (const float v : rta->bandMagnitudesDb()) {
+                    list.append(v);
+                }
+                return list;
+            }
+        }
+    }
+    return {};
+}
+
+QVariantList EffectRackController::rtaBandLogPositions(quint32 effectIndex) const
+{
+    if (const auto rack = currentRack()) {
+        if (const auto effect = rack->get().effect(effectIndex)) {
+            if (const auto rta = std::dynamic_pointer_cast<Rta>(effect)) {
+                QVariantList list;
+                for (const auto & [xLo, xHi] : rta->bandLogPositions()) {
+                    list.append(xLo);
+                    list.append(xHi);
+                }
+                return list;
+            }
+        }
+    }
+    return {};
+}
+
+QString EffectRackController::rtaBandCountKey() const
+{
+    return Constants::NahdXml::xmlKeyBandCount();
+}
+
+QString EffectRackController::rtaDbRangeKey() const
+{
+    return Constants::NahdXml::xmlKeyDbRange();
+}
+
+QString EffectRackController::rtaShowPinkNoiseKey() const
+{
+    return Constants::NahdXml::xmlKeyShowPinkNoise();
+}
+
+QString EffectRackController::rtaPinkNoiseLevelKey() const
+{
+    return Constants::NahdXml::xmlKeyPinkNoiseLevel();
+}
+
+QString EffectRackController::rtaSpeedKey() const
+{
+    return Constants::NahdXml::xmlKeySpeed();
+}
+
+QString EffectRackController::rtaFftRateKey() const
+{
+    return Constants::NahdXml::xmlKeyFftRate();
+}
+
+void EffectRackController::rtaSetActive(quint32 effectIndex, bool active)
+{
+    if (const auto rack = currentRack()) {
+        if (const auto effect = rack->get().effect(effectIndex)) {
+            if (const auto rta = std::dynamic_pointer_cast<Rta>(effect)) {
+                rta->setAnalysisEnabled(active);
+            }
+        }
+    }
 }
 
 QStringList EffectRackController::reverbPresets() const

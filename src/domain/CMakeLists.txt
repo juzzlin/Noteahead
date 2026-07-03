@@ -35,6 +35,7 @@ set(HEADER_FILES
     dsp/oversampler.hpp
     dsp/poly_blep_oscillator.hpp
     dsp/reverb_effect.hpp
+    dsp/rta.hpp
     dsp/svf_filter.hpp
     dsp/true_stereo_panner.hpp
     dsp/waveguide_string.hpp
@@ -121,6 +122,7 @@ set(SOURCE_FILES
     dsp/oversampler.cpp
     dsp/poly_blep_oscillator.cpp
     dsp/reverb_effect.cpp
+    dsp/rta.cpp
     dsp/svf_filter.cpp
     dsp/true_stereo_panner.cpp
     dsp/wavetable.cpp

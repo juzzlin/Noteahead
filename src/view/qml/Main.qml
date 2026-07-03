@@ -351,6 +351,12 @@ ApplicationWindow {
         width: parent.width * Constants.effectDialogScale
         height: parent.height * Constants.effectDialogScale
     }
+    RtaDialog {
+        id: rtaDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.largeDialogScale
+        height: parent.height * Constants.largeDialogScale
+    }
     ChorusDialog {
         id: chorusDialog
         anchors.centerIn: parent

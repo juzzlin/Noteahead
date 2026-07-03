@@ -42,6 +42,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString allPassFilterType READ allPassFilterType CONSTANT)
     Q_PROPERTY(QString lufsMeterType READ lufsMeterType CONSTANT)
     Q_PROPERTY(QString dbtpMeterType READ dbtpMeterType CONSTANT)
+    Q_PROPERTY(QString rtaType READ rtaType CONSTANT)
     Q_PROPERTY(QString chorusType READ chorusType CONSTANT)
     Q_PROPERTY(QString clipperType READ clipperType CONSTANT)
     Q_PROPERTY(QString compressorType READ compressorType CONSTANT)
@@ -69,6 +70,7 @@ public:
     QString autoPannerType() const;
     QString dbtpMeterType() const;
     QString lufsMeterType() const;
+    QString rtaType() const;
     QString clipperType() const;
     QString compressorType() const;
     QString delayType() const;
@@ -151,6 +153,16 @@ public:
     Q_INVOKABLE float dbtpMeterTruePeakR(quint32 effectIndex) const;
     Q_INVOKABLE float dbtpMeterTruePeakHoldL(quint32 effectIndex) const;
     Q_INVOKABLE float dbtpMeterTruePeakHoldR(quint32 effectIndex) const;
+
+    Q_INVOKABLE QVariantList rtaBandMagnitudes(quint32 effectIndex) const;
+    Q_INVOKABLE QVariantList rtaBandLogPositions(quint32 effectIndex) const;
+    Q_INVOKABLE QString rtaBandCountKey() const;
+    Q_INVOKABLE QString rtaDbRangeKey() const;
+    Q_INVOKABLE QString rtaShowPinkNoiseKey() const;
+    Q_INVOKABLE QString rtaPinkNoiseLevelKey() const;
+    Q_INVOKABLE QString rtaSpeedKey() const;
+    Q_INVOKABLE QString rtaFftRateKey() const;
+    Q_INVOKABLE void rtaSetActive(quint32 effectIndex, bool active);
 
     Q_INVOKABLE QStringList reverbPresets() const;
     Q_INVOKABLE void applyReverbPreset(quint32 effectIndex, quint32 presetIndex);
