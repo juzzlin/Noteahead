@@ -41,6 +41,7 @@ private slots:
     void test_availableEffects_shouldOfferTheReverb224();
     void test_availableEffects_shouldOfferTheRoomMics();
     void test_effectDisplayName_phaseScope_shouldBeTwoWords();
+    void test_effectDisplayName_registeredEffect_shouldBeGalleryName();
     void test_setEffect_masterSendRack_shouldStartMixAtTheTop();
     void test_parameterAutomation_effectInView_shouldRefreshWhenTheChangeLands();
     void test_parameterAutomation_effectNotInView_shouldNotRefresh();

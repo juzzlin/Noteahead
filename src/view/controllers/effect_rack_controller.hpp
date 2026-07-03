@@ -182,7 +182,7 @@ public:
     QString tremoloType() const;
 
     Q_INVOKABLE QString effectParametersSummary(quint32 effectIndex) const;
-    Q_INVOKABLE QString effectDisplayName(const QString & typeId) const;
+    Q_INVOKABLE QString effectDisplayName(const QString & type) const;
     Q_INVOKABLE float parameterValue(quint32 effectIndex, const QString & paramName) const;
     //! The top of a discrete parameter's range, such as the most a Rate Divider divides by.
     Q_INVOKABLE int parameterMaximum(quint32 effectIndex, const QString & paramName) const;

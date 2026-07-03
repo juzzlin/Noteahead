@@ -669,15 +669,20 @@ QString EffectRackController::effectId(quint32 effectIndex) const
     return "";
 }
 
-QString EffectRackController::effectDisplayName(const QString & typeId) const
+QString EffectRackController::effectDisplayName(const QString & type) const
 {
+    // The racks know an effect by its type string, but the gallery lists the registered effects by
+    // id, so those are found in the catalog by type rather than in the gallery list.
+    if (const auto plugin = PluginCatalog::effectByType(type); plugin) {
+        return plugin->name;
+    }
     for (const auto & item : availableEffects()) {
         const auto map = item.toMap();
-        if (map["typeId"].toString() == typeId) {
+        if (map["typeId"].toString() == type) {
             return map["name"].toString();
         }
     }
-    return typeId;
+    return type;
 }
 
 QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
