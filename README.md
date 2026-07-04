@@ -52,7 +52,7 @@ A short synth demo:
 
 A song with Noteahead's built-in synths and drums only:
 
-- [Arctic Music Project - Awesome (Noteahead Remix) (SoundCloud)](https://soundcloud.com/arctic-music-project/awesome-noteahead-remix)
+- [Arctic Music Project - Massive (SoundCloud)](https://soundcloud.com/arctic-music-project/massive)
 
 Noteahead with hardware synths:
 
