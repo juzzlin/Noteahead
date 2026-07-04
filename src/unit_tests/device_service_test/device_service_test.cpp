@@ -306,6 +306,52 @@ void DeviceServiceTest::test_peekDeviceTypeInfo_nonexistentFile_shouldReturnEmpt
     QVERIFY(info.typeName.isEmpty());
 }
 
+void DeviceServiceTest::test_reverbSends_shouldSaveAndLoadCorrectly()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto dataService = std::make_shared<DataService>();
+    DeviceService service { audioEngine, dataService };
+
+    const auto dev = DeviceFactory::createDevice(SynthDevice::typeIdString(), "TestSynth");
+    service.setDevice(0, dev);
+
+    // Initial state check
+    QCOMPARE(dev->reverbSendCount(), Constants::effectRackSize());
+    for (size_t i = 0; i < dev->reverbSendCount(); i++) {
+        QCOMPARE(dev->reverbSend(i), 0.0f);
+    }
+
+    // Set values
+    dev->setReverbSend(0, 0.5f);
+    dev->setReverbSend(2, 0.75f);
+
+    QCOMPARE(dev->reverbSend(0), 0.5f);
+    QCOMPARE(dev->reverbSend(1), 0.0f);
+    QCOMPARE(dev->reverbSend(2), 0.75f);
+
+    // Serialize
+    QString xml;
+    NahdXmlWriter writer { xml };
+    service.serializeToXml(writer);
+
+    // Deserialize into another engine / service
+    const auto audioEngine2 = std::make_shared<AudioEngine>();
+    const auto dataService2 = std::make_shared<DataService>();
+    DeviceService service2 { audioEngine2, dataService2 };
+
+    const auto dev2 = DeviceFactory::createDevice(SynthDevice::typeIdString(), "TestSynth");
+    service2.setDevice(0, dev2);
+
+    NahdXmlReader reader { xml };
+    QVERIFY(reader.readNextStartElement());
+    QCOMPARE(reader.name(), Constants::NahdXml::xmlKeyDevices());
+    service2.deserializeFromXml(reader);
+
+    QCOMPARE(dev2->reverbSend(0), 0.5f);
+    QCOMPARE(dev2->reverbSend(1), 0.0f);
+    QCOMPARE(dev2->reverbSend(2), 0.75f);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::DeviceServiceTest)
