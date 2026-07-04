@@ -28,15 +28,15 @@ void AllPassFilterTest::test_allPassFilter_defaultParameters_shouldMatchXmlDefau
 {
     AllPassFilter filter;
 
-    const auto freqParam = filter.parameter(Constants::NahdXml::xmlKeyAllPassFilterFrequency().toStdString());
+    const auto freqParam = filter.parameter(Constants::NahdXml::xmlKeyFrequency().toStdString());
     QVERIFY(freqParam);
     QCOMPARE(freqParam->get().xmlValue(), freqParam->get().xmlDefault());
 
-    const auto qParam = filter.parameter(Constants::NahdXml::xmlKeyAllPassFilterQ().toStdString());
+    const auto qParam = filter.parameter(Constants::NahdXml::xmlKeyQ().toStdString());
     QVERIFY(qParam);
     QCOMPARE(qParam->get().xmlValue(), qParam->get().xmlDefault());
 
-    const auto stagesParam = filter.parameter(Constants::NahdXml::xmlKeyAllPassFilterStages().toStdString());
+    const auto stagesParam = filter.parameter(Constants::NahdXml::xmlKeyStages().toStdString());
     QVERIFY(stagesParam);
     QCOMPARE(stagesParam->get().xmlValue(), stagesParam->get().xmlDefault());
 }
@@ -77,7 +77,7 @@ void AllPassFilterTest::test_allPassFilter_stages_shouldProcessWithoutInstabilit
     filter.setSampleRate(48000.0);
 
     // Set 4 stages via parameter
-    if (const auto p = filter.parameter(Constants::NahdXml::xmlKeyAllPassFilterStages().toStdString()); p) {
+    if (const auto p = filter.parameter(Constants::NahdXml::xmlKeyStages().toStdString()); p) {
         p->get().setFromXml(4);
     }
     filter.sync();

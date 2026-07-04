@@ -285,8 +285,8 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
         if (const auto effect = rack->get().effect(effectIndex); effect) {
             const auto type = QString::fromStdString(effect->type());
             if (type == Constants::RackEffectType::allPassFilter()) {
-                const auto freq = effect->parameter(Constants::NahdXml::xmlKeyAllPassFilterFrequency().toStdString());
-                const auto stages = effect->parameter(Constants::NahdXml::xmlKeyAllPassFilterStages().toStdString());
+                const auto freq = effect->parameter(Constants::NahdXml::xmlKeyFrequency().toStdString());
+                const auto stages = effect->parameter(Constants::NahdXml::xmlKeyStages().toStdString());
                 if (freq && stages) {
                     return QString { "(freq=%1Hz, stages=%2)" }
                       .arg(freq->get().xmlValue())
@@ -506,17 +506,17 @@ QString EffectRackController::compressorSideChainLpfKey() const
 
 QString EffectRackController::allPassFilterFrequencyKey() const
 {
-    return Constants::NahdXml::xmlKeyAllPassFilterFrequency();
+    return Constants::NahdXml::xmlKeyFrequency();
 }
 
 QString EffectRackController::allPassFilterQKey() const
 {
-    return Constants::NahdXml::xmlKeyAllPassFilterQ();
+    return Constants::NahdXml::xmlKeyQ();
 }
 
 QString EffectRackController::allPassFilterStagesKey() const
 {
-    return Constants::NahdXml::xmlKeyAllPassFilterStages();
+    return Constants::NahdXml::xmlKeyStages();
 }
 
 QString EffectRackController::clipperModeKey() const

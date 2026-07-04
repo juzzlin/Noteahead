@@ -27,11 +27,11 @@ namespace noteahead {
 AllPassFilter::AllPassFilter()
 {
     // Log-mapped: internal [0,1] → mapLogFrequency(internal, 20, 20000). Default 100 Hz ≈ internal 0.101.
-    addParameter(Parameter { Constants::NahdXml::xmlKeyAllPassFilterFrequency().toStdString(),
-                             Parameter::xmlValueToInternal(2038, 20, 20000), 20, 20000, 2038, 1 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyAllPassFilterQ().toStdString(),
-                             Parameter::xmlValueToInternal(707, 10, 1000), 10, 1000, 707, 1000 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyAllPassFilterStages().toStdString(), 1.0f, 1, maxStages, 1, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyFrequency().toStdString(),
+                             Parameter::xmlValueToInternal(2038, 20, 20000), 20, 20000, 2038, 1, Parameter::Type::Continuous, { "allPassFilterFrequency" } });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyQ().toStdString(),
+                             Parameter::xmlValueToInternal(707, 10, 1000), 10, 1000, 707, 1000, Parameter::Type::Continuous, { "allPassFilterQ" } });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyStages().toStdString(), 1.0f, 1, maxStages, 1, 1, Parameter::Type::Discrete, { "allPassFilterStages" } });
 
     syncParameters();
 }
@@ -69,14 +69,14 @@ void AllPassFilter::updateCoefficients()
 
 void AllPassFilter::syncParameters()
 {
-    if (const auto p = parameter(Constants::NahdXml::xmlKeyAllPassFilterFrequency().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyFrequency().toStdString()); p) {
         m_frequency = static_cast<float>(ParameterMapper::mapLogFrequency(p->get().value(), 20.0, 20000.0));
     }
-    if (const auto p = parameter(Constants::NahdXml::xmlKeyAllPassFilterQ().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyQ().toStdString()); p) {
         m_q = static_cast<float>(p->get().xmlValue()) / static_cast<float>(p->get().xmlScale());
         m_q = std::max(m_q, 0.01f);
     }
-    if (const auto p = parameter(Constants::NahdXml::xmlKeyAllPassFilterStages().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyStages().toStdString()); p) {
         m_stages = std::clamp(p->get().xmlValue(), 1, maxStages);
     }
     updateCoefficients();

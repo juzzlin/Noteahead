@@ -1587,19 +1587,19 @@ QString xmlKeyPitchDecay()
     return "pitchDecay";
 }
 
-QString xmlKeyAllPassFilterFrequency()
+QString xmlKeyFrequency()
 {
-    return "allPassFilterFrequency";
+    return "frequency";
 }
 
-QString xmlKeyAllPassFilterQ()
+QString xmlKeyQ()
 {
-    return "allPassFilterQ";
+    return "q";
 }
 
-QString xmlKeyAllPassFilterStages()
+QString xmlKeyStages()
 {
-    return "allPassFilterStages";
+    return "stages";
 }
 
 QString xmlKeyLufsMeter()

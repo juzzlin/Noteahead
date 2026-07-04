@@ -421,9 +421,9 @@ QString xmlKeyTone();
 QString xmlKeyPitchDepth();
 QString xmlKeyPitchDecay();
 
-QString xmlKeyAllPassFilterFrequency();
-QString xmlKeyAllPassFilterQ();
-QString xmlKeyAllPassFilterStages();
+QString xmlKeyFrequency();
+QString xmlKeyQ();
+QString xmlKeyStages();
 
 QString xmlKeyBrightness();
 QString xmlKeyInharmonicity();

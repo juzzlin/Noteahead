@@ -82,6 +82,7 @@ private slots:
     void test_chorus_legacyNames_shouldLoadCorrectly();
     void test_clipper_legacyNames_shouldLoadCorrectly();
     void test_reverb_legacyNames_shouldLoadCorrectly();
+    void test_allPassFilter_legacyNames_shouldLoadCorrectly();
 };
 
 } // namespace noteahead

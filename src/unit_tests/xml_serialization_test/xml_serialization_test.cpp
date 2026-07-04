@@ -31,6 +31,7 @@
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/wavetable_synth_device.hpp"
+#include "../../domain/dsp/all_pass_filter.hpp"
 #include "../../domain/dsp/chorus_effect.hpp"
 #include "../../domain/dsp/clipper_effect.hpp"
 #include "../../domain/dsp/dbtp_meter.hpp"
@@ -1581,6 +1582,50 @@ void XmlSerializationTest::test_reverb_legacyNames_shouldLoadCorrectly()
     }
     if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyMix().toStdString()); p) {
         QCOMPARE(p->get().value(), 0.3f);
+    }
+}
+
+void XmlSerializationTest::test_allPassFilter_legacyNames_shouldLoadCorrectly()
+{
+    AllPassFilter effect;
+
+    QString xml;
+    NahdXmlWriter writer { xml };
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameters());
+
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), "allPassFilterFrequency");
+    writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueFloat());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), "1000");
+    writer.writeEndElement();
+
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), "allPassFilterQ");
+    writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueFloat());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), "500");
+    writer.writeEndElement();
+
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), "allPassFilterStages");
+    writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueInt());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), "3");
+    writer.writeEndElement();
+
+    writer.writeEndElement(); // Parameters
+
+    NahdXmlReader reader { xml };
+    if (reader.readNextStartElement()) {
+        effect.deserializeParametersFromXml(reader);
+    }
+
+    if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyFrequency().toStdString()); p) {
+        QCOMPARE(p->get().xmlValue(), 1000);
+    }
+    if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyQ().toStdString()); p) {
+        QCOMPARE(p->get().xmlValue(), 500);
+    }
+    if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyStages().toStdString()); p) {
+        QCOMPARE(p->get().xmlValue(), 3);
     }
 }
 
