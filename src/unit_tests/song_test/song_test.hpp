@@ -78,6 +78,7 @@ private slots:
 
     void test_deleteUnusedPatterns_shouldRemoveUnusedPatterns();
     void test_deleteUnusedPatterns_skippedButUsed_shouldNotBeRemoved();
+    void test_deleteUnusedPatterns_recreatedPatternHasNoNoteData();
     void test_hasPatternInPlayOrder_shouldReturnCorrectValue();
     void test_duration_allPatternsSkipped_shouldReturnZero();
 

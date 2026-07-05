@@ -2726,7 +2726,7 @@ void EditorService::setSongLength(quint64 songLength)
         emit songLengthChanged();
         updateDuration();
         if (songPosition() >= m_song->length()) {
-            setSongPosition(songPosition() - 1);
+            setSongPosition(m_song->length() > 0 ? m_song->length() - 1 : 0);
         }
         setIsModified(true);
     }

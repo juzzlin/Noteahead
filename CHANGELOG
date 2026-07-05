@@ -29,6 +29,8 @@ New features:
 
 Bug fixes:
 
+* Fix song position clamping when song length decreases
+
 Other:
 
 * Update user manual with pan column documentation

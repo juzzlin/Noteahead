@@ -1835,6 +1835,31 @@ void EditorServiceTest::test_midiNotesAtPosition_shouldReturnCorrectNotes()
     }
 }
 
+void EditorServiceTest::test_setSongLength_clampingPosition_shouldClampCorrectly()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+
+    editorService.setSongPosition(0);
+    editorService.insertPatternToPlayOrder(); // Now length is 2
+    editorService.insertPatternToPlayOrder(); // Now length is 3
+    editorService.insertPatternToPlayOrder(); // Now length is 4
+
+    QCOMPARE(editorService.songLength(), 4);
+
+    editorService.setSongPosition(3); // Go to last position (3)
+    QCOMPARE(editorService.songPosition(), 3);
+
+    // Set song length to 2.
+    // If the clamping bug exists, this will set song length to 2, then set position to 2,
+    // which triggers extension back to 3!
+    editorService.setSongLength(2);
+
+    // The song length should be 2.
+    QCOMPARE(editorService.songLength(), 2);
+    // The song position should be clamped to 1.
+    QCOMPARE(editorService.songPosition(), 1);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::EditorServiceTest)

@@ -1208,6 +1208,35 @@ void SongTest::test_removePatternFromPlayOrder_shouldDecreaseLengthByOne()
     QCOMPARE(song.patternAtSongPosition(0), 1);
 }
 
+void SongTest::test_deleteUnusedPatterns_recreatedPatternHasNoNoteData()
+{
+    Song song;
+    song.createPattern(1);
+    song.createPattern(2);
+    QCOMPARE(song.patternCount(), 3);
+
+    Position pos { 2, 0, 0, 0 }; // pattern 2, track 0, column 0, line 0
+    NoteData note;
+    note.setAsNoteOn(60, 100);
+    song.pattern(2)->setNoteDataAtPosition(note, pos);
+    QVERIFY(song.pattern(2)->hasData());
+
+    song.setLength(2);
+    song.setPatternAtSongPosition(0, 0);
+    song.setPatternAtSongPosition(1, 1);
+
+    // Pattern 2 is unused, 0 and 1 are used
+    song.deleteUnusedPatterns();
+
+    QCOMPARE(song.patternCount(), 2);
+    QVERIFY(!song.hasPattern(2));
+
+    // Recreate pattern 2
+    song.createPattern(2);
+    QVERIFY(song.hasPattern(2));
+    QVERIFY(!song.pattern(2)->hasData()); // This should be empty, without the note data!
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SongTest)
