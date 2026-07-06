@@ -491,7 +491,11 @@ void SamplerDevice::loadSample(uint8_t note, const std::string & filePath)
     m_audioFileReader->close();
 
     auto sample = std::make_unique<Sample>();
-    sample->filePath = filePath;
+    if (QString::fromStdString(filePath).startsWith(Constants::NahdXml::embeddedDataPathPrefix())) {
+        sample->filePath = filePath;
+    } else {
+        sample->filePath = absolutePath.toStdString();
+    }
     sample->channels = info.channels;
     sample->sampleRate = info.samplerate;
     sample->data = std::move(data);

@@ -878,6 +878,82 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_relativePath_shouldLo
     QCOMPARE(samplerIn->absoluteFilePath(60), absolutePath);
 }
 
+void XmlSerializationTest::test_toXmlFromXml_samplerDevice_saveAs_shouldPreserveEmbeddedData()
+{
+    const std::string projectPath { "/tmp/noteahead_test" };
+    const std::string relativePath { "samples/kick.wav" };
+    const std::string absolutePath { QDir(QString::fromStdString(projectPath)).absoluteFilePath(QString::fromStdString(relativePath)).toStdString() };
+
+    // Create the dummy directory and file on disk so serializeDataToXml can open it
+    QDir().mkpath(QFileInfo(QString::fromStdString(absolutePath)).absolutePath());
+    QFile dummyFile { QString::fromStdString(absolutePath) };
+    QVERIFY(dummyFile.open(QIODevice::WriteOnly));
+    dummyFile.write("dummy-wav-data");
+    dummyFile.close();
+
+    const auto samplerName = "Noteahead Internal Device 1";
+
+    const auto engine = std::make_shared<AudioEngine>();
+    const auto dataService = std::make_shared<DataService>();
+    DeviceService deviceServiceOut { engine, dataService };
+    deviceServiceOut.setProjectPath(projectPath);
+
+    const auto samplerOut = std::make_shared<SamplerDevice>(samplerName, std::make_unique<MockAudioFileReader>());
+    samplerOut->loadSample(60, absolutePath);
+    samplerOut->setEmbedWaveData(true);
+    deviceServiceOut.setDevice(0, samplerOut);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), dataService };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+    connect(&editorServiceOut, &EditorService::dataSerializationRequested, [&deviceServiceOut, dataService](ProjectWriter & writer) {
+        const auto files = deviceServiceOut.getFilesToEmbed();
+        dataService->serializeDataToXml(writer, files);
+    });
+
+    const auto xml = editorServiceOut.toXml();
+
+    // Now load it in a new setup
+    const auto engine2 = std::make_shared<AudioEngine>();
+    const auto dataService2 = std::make_shared<DataService>();
+    DeviceService deviceServiceIn { engine2, dataService2 };
+    deviceServiceIn.setProjectPath(projectPath);
+
+    const auto samplerIn = std::make_shared<SamplerDevice>(samplerName, std::make_unique<MockAudioFileReader>());
+    deviceServiceIn.setDevice(0, samplerIn);
+
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), dataService2 };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+    connect(&editorServiceIn, &EditorService::devicesSerializationRequested, &deviceServiceIn, &DeviceService::serializeToXml);
+    connect(&editorServiceIn, &EditorService::dataSerializationRequested, [&deviceServiceIn, dataService2](ProjectWriter & writer) {
+        const auto files = deviceServiceIn.getFilesToEmbed();
+        dataService2->serializeDataToXml(writer, files);
+    });
+
+    editorServiceIn.fromXml(xml);
+
+    // Verify it is loaded and its path in memory is absolute (our fix!)
+    QVERIFY(samplerIn->sample(60));
+    const auto expectedMemoryPath = samplerIn->sample(60)->filePath;
+    // It should start with nahd:// because it was deserialized as embedded
+    QVERIFY(QString::fromStdString(expectedMemoryPath).startsWith(Constants::NahdXml::embeddedDataPathPrefix()));
+
+    // Now simulate "Save As" by changing project path to a new location
+    const std::string newProjectPath { "/tmp/noteahead_test_new" };
+    deviceServiceIn.setProjectPath(newProjectPath);
+
+    // Serialize again! If the bug exists, this will fail or serialize empty data
+    // because absoluteFilePath(60) would be resolved relative to the new path and point to a non-existent file
+    const auto xml2 = editorServiceIn.toXml();
+
+    // Verify the second XML has the embedded data block
+    QVERIFY(xml2.contains("<Data"));
+    QVERIFY(xml2.contains("nahd://kick.wav"));
+
+    // Cleanup
+    QFile::remove(QString::fromStdString(absolutePath));
+    QDir().rmdir(QFileInfo(QString::fromStdString(absolutePath)).absolutePath());
+}
+
 void XmlSerializationTest::test_toXmlFromXml_synthDevice_shouldPreserveValuesAndDiscreteFlags()
 {
     const auto synthName = "Noteahead Internal Device 1";

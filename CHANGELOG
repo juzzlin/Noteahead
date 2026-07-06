@@ -31,6 +31,8 @@ Bug fixes:
 
 * Fix song position clamping when song length decreases
 
+* Fix sampler failing to locate embedded sample files during save as
+
 Other:
 
 * Update user manual with pan column documentation
