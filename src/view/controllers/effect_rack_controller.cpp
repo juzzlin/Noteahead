@@ -324,14 +324,21 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                     return QString { "(thr=%1dB)" }.arg(threshold->get().xmlValue() / 100.0f, 0, 'f', 1);
                 }
             } else if (type == Constants::RackEffectType::compressor()) {
-                const auto attack = effect->parameter(Constants::NahdXml::xmlKeyAttack().toStdString());
-                const auto ratio = effect->parameter(Constants::NahdXml::xmlKeyRatio().toStdString());
+                const auto attack { effect->parameter(Constants::NahdXml::xmlKeyAttack().toStdString()) };
+                const auto ratio { effect->parameter(Constants::NahdXml::xmlKeyRatio().toStdString()) };
                 if (attack && ratio) {
-                    const float attackMs = static_cast<float>(ParameterMapper::mapExponential(attack->get().value(), 0.1, 500.0));
-                    const float ratioValue = static_cast<float>(ratio->get().xmlValue()) / static_cast<float>(ratio->get().xmlScale());
-                    return QString { "(attack=%1ms, ratio=%2:1)" }
+                    const float attackMs { static_cast<float>(ParameterMapper::mapExponential(attack->get().value(), 0.1, 500.0)) };
+                    const float ratioValue { static_cast<float>(ratio->get().xmlValue()) / static_cast<float>(ratio->get().xmlScale()) };
+                    QString scName { tr("None") };
+                    if (const auto sourceIndex { effect->sidechainSourceDeviceIndex() }; sourceIndex) {
+                        if (const auto sourceDevice { m_deviceService->device(*sourceIndex) }) {
+                            scName = QString::fromStdString(sourceDevice->name());
+                        }
+                    }
+                    return QString { "(attack=%1ms, ratio=%2:1, sidechain=%3)" }
                       .arg(attackMs, 0, 'f', 1)
-                      .arg(ratioValue, 0, 'g', 3);
+                      .arg(ratioValue, 0, 'g', 3)
+                      .arg(scName);
                 }
             } else if (type == Constants::RackEffectType::delay()) {
                 const auto sync = effect->parameter(Constants::NahdXml::xmlKeyDelaySync().toStdString());

@@ -27,6 +27,8 @@ New features:
 
 * Add an RTA rack effect
 
+* Add side chain source name to the Compressor effects rack preview string
+
 Bug fixes:
 
 * Fix song position clamping when song length decreases

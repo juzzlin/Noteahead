@@ -28,9 +28,21 @@ AllPassFilter::AllPassFilter()
 {
     // Log-mapped: internal [0,1] → mapLogFrequency(internal, 20, 20000). Default 100 Hz ≈ internal 0.101.
     addParameter(Parameter { Constants::NahdXml::xmlKeyFrequency().toStdString(),
-                             Parameter::xmlValueToInternal(2038, 20, 20000), 20, 20000, 2038, 1, Parameter::Type::Continuous, { "allPassFilterFrequency" } });
+                             Parameter::xmlValueToInternal(2038, 20, 20000),
+                             20,
+                             20000,
+                             2038,
+                             1,
+                             Parameter::Type::Continuous,
+                             { "allPassFilterFrequency" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyQ().toStdString(),
-                             Parameter::xmlValueToInternal(707, 10, 1000), 10, 1000, 707, 1000, Parameter::Type::Continuous, { "allPassFilterQ" } });
+                             Parameter::xmlValueToInternal(707, 10, 1000),
+                             10,
+                             1000,
+                             707,
+                             1000,
+                             Parameter::Type::Continuous,
+                             { "allPassFilterQ" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyStages().toStdString(), 1.0f, 1, maxStages, 1, 1, Parameter::Type::Discrete, { "allPassFilterStages" } });
 
     syncParameters();
