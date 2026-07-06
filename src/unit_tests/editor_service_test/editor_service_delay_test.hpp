@@ -26,6 +26,7 @@ class EditorServiceDelayTest : public QObject
 
 private slots:
     void test_requestDigitSetAtCurrentPosition_shouldSetDelay_whenAtDelayColumn();
+    void test_requestDigitSetAtCurrentPosition_shouldSetPan_whenAtPanColumn();
     void test_cursorNavigation_shouldIncludeDelayColumns();
 };
 

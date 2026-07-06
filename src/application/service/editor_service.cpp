@@ -1079,7 +1079,7 @@ bool EditorService::setPanAtCurrentPosition(uint8_t digit)
         return false;
     }
 
-    if (noteData->type() != NoteData::Type::NoteOn) {
+    if (noteData->type() != NoteData::Type::NoteOn && noteData->type() != NoteData::Type::None) {
         return false;
     }
 

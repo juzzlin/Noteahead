@@ -122,6 +122,16 @@ public:
         m_isAtDelayColumn = val;
     }
 
+    bool isAtPanColumn() const override
+    {
+        return m_isAtPanColumn;
+    }
+
+    void setMockIsAtPanColumn(bool val)
+    {
+        m_isAtPanColumn = val;
+    }
+
     bool requestNoteOnAtCurrentPosition(quint8, quint8, quint8) override
     {
         return true;
@@ -164,6 +174,7 @@ private:
     bool m_isAtNoteColumn = true;
     bool m_isAtVelocityColumn = false;
     bool m_isAtDelayColumn = false;
+    bool m_isAtPanColumn = false;
     std::optional<quint8> m_digitSet;
     bool m_noteOffRequested = false;
 };
@@ -386,6 +397,47 @@ void KeyboardServiceTest::test_handleKeyPressed_Delete_shouldClearDelay_whenAtDe
     applicationService->setEditMode(true);
     editorService->setMockIsAtNoteColumn(false);
     editorService->setMockIsAtDelayColumn(true);
+
+    QVERIFY(keyboardService.handleKeyPressed(Qt::Key_Delete, Qt::NoModifier, false));
+
+    QVERIFY(editorService->digitSet().has_value());
+    QCOMPARE(*editorService->digitSet(), quint8 { 0 });
+}
+
+void KeyboardServiceTest::test_handleKeyPressed_Digit_shouldSetPan_whenAtPanColumn()
+{
+    const auto applicationService = std::make_shared<MockApplicationService>();
+    const auto editorService = std::make_shared<MockEditorService>();
+    const auto playerService = std::make_shared<MockPlayerService>();
+    const auto selectionService = std::make_shared<MockSelectionService>();
+    const auto settingsService = std::make_shared<MockSettingsService>();
+
+    KeyboardService keyboardService { applicationService, editorService, playerService, selectionService, settingsService };
+
+    applicationService->setEditMode(true);
+    editorService->setMockIsAtNoteColumn(false);
+    editorService->setMockIsAtPanColumn(true);
+
+    // Press '5' key
+    QVERIFY(keyboardService.handleKeyPressed(Qt::Key_5, Qt::NoModifier, false));
+
+    QVERIFY(editorService->digitSet().has_value());
+    QCOMPARE(*editorService->digitSet(), quint8 { 5 });
+}
+
+void KeyboardServiceTest::test_handleKeyPressed_Delete_shouldClearPan_whenAtPanColumn()
+{
+    const auto applicationService = std::make_shared<MockApplicationService>();
+    const auto editorService = std::make_shared<MockEditorService>();
+    const auto playerService = std::make_shared<MockPlayerService>();
+    const auto selectionService = std::make_shared<MockSelectionService>();
+    const auto settingsService = std::make_shared<MockSettingsService>();
+
+    KeyboardService keyboardService { applicationService, editorService, playerService, selectionService, settingsService };
+
+    applicationService->setEditMode(true);
+    editorService->setMockIsAtNoteColumn(false);
+    editorService->setMockIsAtPanColumn(true);
 
     QVERIFY(keyboardService.handleKeyPressed(Qt::Key_Delete, Qt::NoModifier, false));
 

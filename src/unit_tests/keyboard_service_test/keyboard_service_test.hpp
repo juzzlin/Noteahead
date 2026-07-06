@@ -36,6 +36,8 @@ private slots:
     void test_handleKeyReleased_Note_shouldTriggerNoteOff();
     void test_handleKeyPressed_Digit_shouldSetDelay_whenAtDelayColumn();
     void test_handleKeyPressed_Delete_shouldClearDelay_whenAtDelayColumn();
+    void test_handleKeyPressed_Digit_shouldSetPan_whenAtPanColumn();
+    void test_handleKeyPressed_Delete_shouldClearPan_whenAtPanColumn();
     void test_handleKeyPressed_Note_shouldIgnoreRepeatDuringPlayback();
     void test_handleKeyPressed_NoteOff_shouldIgnoreRepeatDuringPlayback();
     void test_handleKeyPressed_Digit_shouldIgnoreRepeatDuringPlayback();

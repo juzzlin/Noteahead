@@ -33,6 +33,8 @@ Bug fixes:
 
 * Fix sampler failing to locate embedded sample files during save as
 
+* Fix manual pan entry not working on the pan column
+
 Other:
 
 * Update user manual with pan column documentation

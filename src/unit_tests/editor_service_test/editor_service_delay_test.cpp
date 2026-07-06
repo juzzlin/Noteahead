@@ -60,6 +60,43 @@ void EditorServiceDelayTest::test_requestDigitSetAtCurrentPosition_shouldSetDela
     QCOMPARE(editorService.delayAtCurrentPosition(), 15); // Should still be 15
 }
 
+void EditorServiceDelayTest::test_requestDigitSetAtCurrentPosition_shouldSetPan_whenAtPanColumn()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorService.requestNewTrackToRight(); // Ensure we have a track
+
+    // 1. Check on line with NoteOn
+    editorService.requestPosition(0, 0, 0, 0, 0);
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 4, 100));
+
+    // Navigate to pan column (hundreds)
+    editorService.requestPosition(0, 0, 0, 0, 6);
+    QVERIFY(editorService.isAtPanColumn());
+
+    // Set hundreds digit
+    QVERIFY(editorService.requestDigitSetAtCurrentPosition(1));
+    // Set tens digit (lineColumn 7)
+    editorService.requestPosition(0, 0, 0, 0, 7);
+    QVERIFY(editorService.requestDigitSetAtCurrentPosition(2));
+    // Set ones digit (lineColumn 8)
+    editorService.requestPosition(0, 0, 0, 0, 8);
+    QVERIFY(editorService.requestDigitSetAtCurrentPosition(5));
+
+    QCOMPARE(editorService.panAtCurrentPosition(), 125);
+
+    // 2. Check on line with Type::None (No Note)
+    editorService.requestPosition(0, 0, 0, 1, 6);
+    QVERIFY(editorService.isAtPanColumn());
+    // Try to set pan digit 6 (tens digit) on lineColumn 7
+    editorService.requestPosition(0, 0, 0, 1, 7);
+    QVERIFY(editorService.requestDigitSetAtCurrentPosition(6));
+    // Ones digit to 4
+    editorService.requestPosition(0, 0, 0, 1, 8);
+    QVERIFY(editorService.requestDigitSetAtCurrentPosition(4));
+
+    QCOMPARE(editorService.panAtCurrentPosition(), 64);
+}
+
 void EditorServiceDelayTest::test_cursorNavigation_shouldIncludeDelayColumns()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
