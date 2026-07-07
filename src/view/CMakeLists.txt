@@ -22,6 +22,7 @@ set(SOURCE_FILES
     controllers/effect_rack_controller.cpp
     controllers/knob_controller.cpp
     controllers/piano_synth_controller.cpp
+    controllers/string_voice_controller.cpp
     controllers/sampler_controller.cpp
     controllers/synth_controller.cpp
     controllers/wavetable_synth_controller.cpp

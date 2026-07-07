@@ -78,7 +78,7 @@ public:
 
     virtual void processAudio(AudioContext & context) = 0;
     void processInsertEffects(AudioContext & context);
-    std::vector<size_t> sidechainDependencies() const;
+    virtual std::vector<size_t> sidechainDependencies() const;
     EffectRack & insertEffectRack();
     const EffectRack & insertEffectRack() const;
 

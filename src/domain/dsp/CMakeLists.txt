@@ -4,6 +4,7 @@ set(DSP_SOURCES
     dc_blocker.cpp
     diode_ladder_filter.cpp
     dsp_component.cpp
+    ensemble_chorus.cpp
     lfo.cpp
     multi_engine.cpp
     oversampler.cpp

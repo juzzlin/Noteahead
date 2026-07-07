@@ -52,6 +52,7 @@ QString wavetableSynthDeviceName();
 QString bassSynthDeviceName();
 QString drumSynthDeviceName();
 QString pianoSynthDeviceName();
+QString stringVoiceDeviceName();
 
 QString internalDevicePortPrefix();
 double defaultSampleRate();
@@ -453,6 +454,24 @@ QString xmlValueSineWave();
 QString xmlValueRandom();
 QString xmlValueSamplers();
 QString xmlValueSynths();
+
+QString xmlKeyStringsLevel8();
+QString xmlKeyStringsLevel4();
+QString xmlKeyStringsAttack();
+QString xmlKeyStringsRelease();
+QString xmlKeyVoiceMale8();
+QString xmlKeyVoiceMale4();
+QString xmlKeyVoiceFemale8();
+QString xmlKeyVoiceFemale4();
+QString xmlKeyVoiceAttack();
+QString xmlKeyVoiceRelease();
+QString xmlKeyVibratoRate();
+QString xmlKeyVibratoDepth();
+QString xmlKeyVibratoDelay();
+QString xmlKeyEnsembleEnabled();
+QString xmlKeyEnsembleMode();
+QString xmlKeyVocoderEnabled();
+QString xmlKeyVocoderSidechain();
 
 } // namespace NahdXml
 } // namespace noteahead::Constants

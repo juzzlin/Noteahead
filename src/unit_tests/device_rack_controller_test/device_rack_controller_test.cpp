@@ -21,7 +21,9 @@
 #include "../../domain/devices/bass_synth_device.hpp"
 #include "../../domain/devices/device_factory.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
+#include "../../domain/devices/piano_synth_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
+#include "../../domain/devices/string_voice_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../infra/audio/audio_engine.hpp"
@@ -288,6 +290,16 @@ void DeviceRackControllerTest::test_addMethods_shouldAddDevicesToFirstEmptySlot(
     controller.addSampler();
     QVERIFY(deviceService->device(4) != nullptr);
     QCOMPARE(deviceService->device(4)->typeId(), SamplerDevice::typeIdString());
+
+    // addPianoSynth should go to slot 5
+    controller.addPianoSynth();
+    QVERIFY(deviceService->device(5) != nullptr);
+    QCOMPARE(deviceService->device(5)->typeId(), PianoSynthDevice::typeIdString());
+
+    // addStringVoice should go to slot 6
+    controller.addStringVoice();
+    QVERIFY(deviceService->device(6) != nullptr);
+    QCOMPARE(deviceService->device(6)->typeId(), StringVoiceDevice::typeIdString());
 }
 
 void DeviceRackControllerTest::test_availableDevices_shouldReturnCorrectList()
@@ -295,13 +307,14 @@ void DeviceRackControllerTest::test_availableDevices_shouldReturnCorrectList()
     DeviceRackController controller { nullptr, {}, nullptr };
     const auto list = controller.availableDevices();
 
-    QCOMPARE(list.size(), 6);
+    QCOMPARE(list.size(), 7);
     QCOMPARE(list.at(0).toMap()["name"].toString(), QString("Sampler"));
     QCOMPARE(list.at(1).toMap()["name"].toString(), QString("Synth"));
     QCOMPARE(list.at(2).toMap()["name"].toString(), QString("Wavetable Synth"));
     QCOMPARE(list.at(3).toMap()["name"].toString(), QString("Bass Synth"));
     QCOMPARE(list.at(4).toMap()["name"].toString(), QString("Drum Synth"));
     QCOMPARE(list.at(5).toMap()["name"].toString(), QString("Piano Synth"));
+    QCOMPARE(list.at(6).toMap()["name"].toString(), QString("String & Voice"));
 }
 
 void DeviceRackControllerTest::test_removeDeviceByName_shouldClearCorrectSlot()

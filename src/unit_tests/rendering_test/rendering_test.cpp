@@ -7,6 +7,7 @@
 #include "../../domain/devices/device_factory.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
+#include "../../domain/devices/string_voice_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/midi/pitch_bend_data.hpp"
@@ -159,6 +160,58 @@ void RenderingTest::test_renderSynth_shouldNotBeSilent()
     synth->setGain(0.5f); // 0 dB
     synth->setVolume(1.0f);
     deviceService->setDevice(0, synth);
+
+    RenderWorker worker(audioEngine, deviceService, mixerService);
+
+    MockRenderIo * mockIoPtr = nullptr;
+    worker.setAudioFileReaderFactory([&]() {
+        auto io = std::make_unique<MockRenderIo>();
+        mockIoPtr = io.get();
+        return io;
+    });
+
+    RenderWorker::EventList events;
+    auto instrument = std::make_shared<Instrument>("Noteahead Internal Device 1");
+    NoteData noteData { 0, 0 };
+    noteData.setAsNoteOn(60, 100);
+    auto event = std::make_shared<Event>(0, noteData);
+    event->setInstrument(instrument);
+    events.push_back(event);
+
+    RenderWorker::Timing timing;
+    timing.beatsPerMinute = 120;
+    timing.linesPerBeat = 4;
+    timing.ticksPerLine = 6;
+
+    worker.render("dummy.wav", events, timing, 48, 44100);
+
+    QVERIFY(mockIoPtr != nullptr);
+    const auto & audioData = mockIoPtr->data();
+
+    bool hasSound = false;
+    float maxAmp = 0.0f;
+    for (float s : audioData) {
+        maxAmp = std::max(maxAmp, std::abs(s));
+        if (std::abs(s) > 0.001f) {
+            hasSound = true;
+            break;
+        }
+    }
+
+    if (!hasSound) {
+        qDebug() << "Max amplitude detected:" << maxAmp;
+    }
+    QVERIFY(hasSound);
+}
+
+void RenderingTest::test_renderStringVoice_shouldNotBeSilent()
+{
+    auto audioEngine = std::make_shared<AudioEngine>();
+    auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    auto mixerService = std::make_shared<MixerService>();
+
+    auto stringVoice = std::make_shared<StringVoiceDevice>("Noteahead String & Voice");
+    deviceService->setDevice(0, stringVoice);
 
     RenderWorker worker(audioEngine, deviceService, mixerService);
 

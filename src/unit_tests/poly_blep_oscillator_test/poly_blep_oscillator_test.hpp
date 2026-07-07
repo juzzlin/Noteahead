@@ -35,6 +35,9 @@ private slots:
     void test_sync_shouldResetPhase();
     void test_setPulseWidth_shouldClampValues();
     void test_setShape_shouldClampValues();
+    void test_pulseWidth_shouldAffectOutput();
+    void test_shape_shouldAffectSquareOutput();
+    void test_shape_shouldAffectSawOutput();
 };
 
 } // namespace noteahead

@@ -5,6 +5,8 @@ Release date:
 
 New features:
 
+* Implement an experimental string & voice device based on VC340
+
 * Add a pan column to the tracker
   - Per-line stereo panning sent as MIDI CC #10 (0 = left, 64 = center, 127 = right)
   - Displayed and editable only on the first note column of each track; other columns show ---

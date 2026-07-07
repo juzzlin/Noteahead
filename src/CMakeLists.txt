@@ -86,6 +86,11 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/PianoSynthDialog.qml
     ${QML_BASE_DIR}/Dialogs/PianoSynthDialog_Global.qml
     ${QML_BASE_DIR}/Dialogs/PianoSynthDialog_String.qml
+    ${QML_BASE_DIR}/Dialogs/StringVoiceDialog.qml
+    ${QML_BASE_DIR}/Dialogs/StringVoiceDialog_Ensemble.qml
+    ${QML_BASE_DIR}/Dialogs/StringVoiceDialog_Global.qml
+    ${QML_BASE_DIR}/Dialogs/StringVoiceDialog_Strings.qml
+    ${QML_BASE_DIR}/Dialogs/StringVoiceDialog_Voice.qml
     ${QML_BASE_DIR}/Dialogs/PitchBendAutomationModel.qml
     ${QML_BASE_DIR}/Dialogs/RecentFilesDialog.qml
     ${QML_BASE_DIR}/Dialogs/ReverbDialog.qml

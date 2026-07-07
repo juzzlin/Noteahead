@@ -87,6 +87,7 @@ set(HEADER_FILES
 set(SOURCE_FILES
     devices/bass_synth_device.cpp
     devices/piano_synth_device.cpp
+    devices/string_voice_device.cpp
     devices/device.cpp
     devices/device_factory.cpp
     devices/device_registration.cpp
@@ -116,6 +117,7 @@ set(SOURCE_FILES
     dsp/drum/snare_engine.cpp
     dsp/drum/tom_engine.cpp
     dsp/dsp_component.cpp
+    dsp/ensemble_chorus.cpp
     dsp/eq_8_band_parametric.cpp
     dsp/lfo.cpp
     dsp/lufs_meter.cpp

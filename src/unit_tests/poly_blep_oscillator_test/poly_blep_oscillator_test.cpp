@@ -259,6 +259,87 @@ void PolyBlepOscillatorTest::test_setShape_shouldClampValues()
     QCOMPARE(osc.shape(), 1.0);
 }
 
+void PolyBlepOscillatorTest::test_pulseWidth_shouldAffectOutput()
+{
+    PolyBlepOscillator osc;
+    osc.setSampleRate(44100.0);
+    osc.setFrequency(441.0); // 100 samples per period
+    osc.setWaveform(PolyBlepOscillator::Waveform::Square);
+
+    // Render with 50% pulse width
+    osc.setPulseWidth(0.5);
+    osc.sync(0.0);
+    std::vector<double> samples50;
+    for (int i = 0; i < 100; ++i) {
+        samples50.push_back(osc.nextSample());
+    }
+
+    // Render with 25% pulse width
+    osc.setPulseWidth(0.25);
+    osc.sync(0.0);
+    std::vector<double> samples25;
+    for (int i = 0; i < 100; ++i) {
+        samples25.push_back(osc.nextSample());
+    }
+
+    // The output arrays should not be identical
+    QVERIFY(samples50 != samples25);
+}
+
+void PolyBlepOscillatorTest::test_shape_shouldAffectSquareOutput()
+{
+    PolyBlepOscillator osc;
+    osc.setSampleRate(44100.0);
+    osc.setFrequency(441.0);
+    osc.setWaveform(PolyBlepOscillator::Waveform::Square);
+
+    // Render with shape = 0.0 (50% pulse width)
+    osc.setShape(0.0);
+    osc.sync(0.0);
+    std::vector<double> samplesShape0;
+    for (int i = 0; i < 100; ++i) {
+        samplesShape0.push_back(osc.nextSample());
+    }
+
+    // Render with shape = 0.5 (narrower pulse width)
+    osc.setShape(0.5);
+    osc.sync(0.0);
+    std::vector<double> samplesShape05;
+    for (int i = 0; i < 100; ++i) {
+        samplesShape05.push_back(osc.nextSample());
+    }
+
+    // The outputs should not be identical
+    QVERIFY(samplesShape0 != samplesShape05);
+}
+
+void PolyBlepOscillatorTest::test_shape_shouldAffectSawOutput()
+{
+    PolyBlepOscillator osc;
+    osc.setSampleRate(44100.0);
+    osc.setFrequency(441.0);
+    osc.setWaveform(PolyBlepOscillator::Waveform::Saw);
+
+    // Render with shape = 0.0
+    osc.setShape(0.0);
+    osc.sync(0.0);
+    std::vector<double> samplesShape0;
+    for (int i = 0; i < 100; ++i) {
+        samplesShape0.push_back(osc.nextSample());
+    }
+
+    // Render with shape = 0.5
+    osc.setShape(0.5);
+    osc.sync(0.0);
+    std::vector<double> samplesShape05;
+    for (int i = 0; i < 100; ++i) {
+        samplesShape05.push_back(osc.nextSample());
+    }
+
+    // The outputs should not be identical
+    QVERIFY(samplesShape0 != samplesShape05);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::PolyBlepOscillatorTest)

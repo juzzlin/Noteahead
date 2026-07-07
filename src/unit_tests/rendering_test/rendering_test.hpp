@@ -15,6 +15,7 @@ private slots:
 
     void test_renderSynth_shouldPreserveParameters();
     void test_renderSynth_shouldNotBeSilent();
+    void test_renderStringVoice_shouldNotBeSilent();
     void test_renderSampler_shouldPreserveParameters();
     void test_renderDrumSynth_shouldPreserveParameters();
     void test_render_shouldNotCrashWithNullInstrumentEvents();

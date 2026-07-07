@@ -28,6 +28,7 @@ set(SOURCE_FILES
     ../../domain/tracker/column_settings.cpp
     ../../domain/devices/bass_synth_device.cpp
     ../../domain/devices/piano_synth_device.cpp
+    ../../domain/devices/string_voice_device.cpp
     ../../domain/dsp/all_pass_chain.cpp
     ../../domain/dsp/delay_line.cpp
     ../../domain/dsp/waveguide_string.cpp
@@ -53,7 +54,7 @@ set(SOURCE_FILES
     ../../domain/effects/volume.cpp
     ../../domain/dsp/adsr_envelope.cpp
     ../../domain/dsp/svf_filter.cpp
-        ../../domain/dsp/wavetable.cpp
+    ../../domain/dsp/wavetable.cpp
     ../../domain/dsp/wavetable_oscillator.cpp
     ../../domain/dsp/cascaded_svf.cpp
     ../../domain/dsp/diode_ladder_filter.cpp
@@ -74,6 +75,7 @@ set(SOURCE_FILES
     ../../domain/dsp/oversampler.cpp
     ../../domain/dsp/poly_blep_oscillator.cpp
     ../../domain/dsp/reverb.cpp
+    ../../domain/dsp/ensemble_chorus.cpp
     ../../domain/dsp/all_pass_filter.cpp
     ../../domain/dsp/dbtp_meter.cpp
     ../../domain/dsp/lufs_meter.cpp

@@ -127,6 +127,11 @@ QString pianoSynthDeviceName()
     return "Noteahead PianoSynth";
 }
 
+QString stringVoiceDeviceName()
+{
+    return "Noteahead String & Voice";
+}
+
 QString internalDevicePortPrefix()
 {
     return "Noteahead Internal Device";
@@ -1720,6 +1725,91 @@ QString xmlKeySpeed()
 QString xmlKeyFftRate()
 {
     return "fftRate";
+}
+
+QString xmlKeyStringsLevel8()
+{
+    return "stringsLevel8";
+}
+
+QString xmlKeyStringsLevel4()
+{
+    return "stringsLevel4";
+}
+
+QString xmlKeyStringsAttack()
+{
+    return "stringsAttack";
+}
+
+QString xmlKeyStringsRelease()
+{
+    return "stringsRelease";
+}
+
+QString xmlKeyVoiceMale8()
+{
+    return "voiceMale8";
+}
+
+QString xmlKeyVoiceMale4()
+{
+    return "voiceMale4";
+}
+
+QString xmlKeyVoiceFemale8()
+{
+    return "voiceFemale8";
+}
+
+QString xmlKeyVoiceFemale4()
+{
+    return "voiceFemale4";
+}
+
+QString xmlKeyVoiceAttack()
+{
+    return "voiceAttack";
+}
+
+QString xmlKeyVoiceRelease()
+{
+    return "voiceRelease";
+}
+
+QString xmlKeyVibratoRate()
+{
+    return "vibratoRate";
+}
+
+QString xmlKeyVibratoDepth()
+{
+    return "vibratoDepth";
+}
+
+QString xmlKeyVibratoDelay()
+{
+    return "vibratoDelay";
+}
+
+QString xmlKeyEnsembleEnabled()
+{
+    return "ensembleEnabled";
+}
+
+QString xmlKeyEnsembleMode()
+{
+    return "ensembleMode";
+}
+
+QString xmlKeyVocoderEnabled()
+{
+    return "vocoderEnabled";
+}
+
+QString xmlKeyVocoderSidechain()
+{
+    return "vocoderSidechain";
 }
 
 } // namespace NahdXml

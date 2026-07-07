@@ -68,7 +68,10 @@ double PolyBlepOscillator::nextSample()
         }
         value -= polyBlep(t);
     } else if (m_waveform == Waveform::Square) {
-        double pw = 0.5 * (1.0 - m_shape * 0.99);
+        double pw = m_pulseWidth;
+        if (m_shape > 0.0) {
+            pw = 0.5 * (1.0 - m_shape * 0.99);
+        }
         value = (t < pw) ? 1.0 : -1.0;
         value -= (2.0 * pw - 1.0);
         value += polyBlep(t);
