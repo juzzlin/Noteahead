@@ -61,6 +61,7 @@ set(SRC
     ../../domain/dsp/diode_ladder_filter.cpp
     ../../domain/dsp/compressor_effect.cpp
     ../../domain/dsp/clipper_effect.cpp
+    ../../domain/dsp/saturator_effect.cpp
     ../../domain/dsp/drum/clap_engine.cpp
     ../../domain/dsp/drum/crash_engine.cpp
     ../../domain/dsp/drum/hihat_engine.cpp

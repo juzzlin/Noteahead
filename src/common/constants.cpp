@@ -163,6 +163,11 @@ QString clipper()
     return "clipper";
 }
 
+QString saturator()
+{
+    return "saturator";
+}
+
 QString panner()
 {
     return "panner";
@@ -1020,6 +1025,11 @@ QString xmlKeyKnee()
 QString xmlKeyMakeup()
 {
     return "makeup";
+}
+
+QString xmlKeyDrive()
+{
+    return "drive";
 }
 
 QString xmlKeySideChainSourceDevice()

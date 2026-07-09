@@ -6,6 +6,7 @@
 #include "../../domain/dsp/compressor_effect.hpp"
 #include "../../domain/dsp/eq_8_band_parametric_effect.hpp"
 #include "../../domain/dsp/reverb_effect.hpp"
+#include "../../domain/dsp/saturator_effect.hpp"
 #include "../../domain/effects/auto_panner_effect.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/effect_rack.hpp"
@@ -189,6 +190,21 @@ void EffectRackControllerTest::test_effectParametersSummary_clipper_shouldReturn
     // Default clipper: threshold 0.0dB
     const auto summary = controller.effectParametersSummary(0);
     QCOMPARE(summary, QString { "(thr=0.0dB)" });
+}
+
+void EffectRackControllerTest::test_effectParametersSummary_saturator_shouldReturnFormattedSummary()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(SaturatorEffect::typeIdString()));
+
+    // Default saturator: drive 6.0dB, mix 100%
+    const auto summary = controller.effectParametersSummary(0);
+    QCOMPARE(summary, QString { "(drive=6.0dB, mix=100%)" });
 }
 
 void EffectRackControllerTest::test_effectParametersSummary_eq8BandParametric_shouldReturnFormattedSummary()

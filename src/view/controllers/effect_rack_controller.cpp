@@ -26,6 +26,7 @@
 #include "../../domain/dsp/lufs_meter.hpp"
 #include "../../domain/dsp/reverb_effect.hpp"
 #include "../../domain/dsp/rta.hpp"
+#include "../../domain/dsp/saturator_effect.hpp"
 #include "../../domain/effects/auto_panner_effect.hpp"
 #include "../../domain/effects/delay_effect.hpp"
 #include "../../domain/effects/effect_factory.hpp"
@@ -216,6 +217,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Panner", Constants::RackEffectType::panner().toStdString());
     addEffect("Reverb", Constants::RackEffectType::reverb().toStdString());
     addEffect("RTA", Constants::RackEffectType::rta().toStdString());
+    addEffect("Saturator", Constants::RackEffectType::saturator().toStdString());
 
     return list;
 }
@@ -385,6 +387,14 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                       .arg(preDelay->get().xmlValue() / preDelay->get().xmlScale())
                       .arg(decay->get().xmlValue() / decay->get().xmlScale());
                 }
+            } else if (type == Constants::RackEffectType::saturator()) {
+                const auto drive = effect->parameter(Constants::NahdXml::xmlKeyDrive().toStdString());
+                const auto mix = effect->parameter(Constants::NahdXml::xmlKeyMix().toStdString());
+                if (drive && mix) {
+                    return QString { "(drive=%1dB, mix=%2%)" }
+                      .arg(drive->get().value() * 24.0f, 0, 'f', 1)
+                      .arg(static_cast<int>(std::round(mix->get().value() * 100.0f)));
+                }
             }
         }
     }
@@ -541,6 +551,31 @@ QString EffectRackController::clipperGainKey() const
     return Constants::NahdXml::xmlKeyGain();
 }
 
+QString EffectRackController::saturatorModeKey() const
+{
+    return Constants::NahdXml::xmlKeyMode();
+}
+
+QString EffectRackController::saturatorDriveKey() const
+{
+    return Constants::NahdXml::xmlKeyDrive();
+}
+
+QString EffectRackController::saturatorToneKey() const
+{
+    return Constants::NahdXml::xmlKeyTone();
+}
+
+QString EffectRackController::saturatorMixKey() const
+{
+    return Constants::NahdXml::xmlKeyMix();
+}
+
+QString EffectRackController::saturatorGainKey() const
+{
+    return Constants::NahdXml::xmlKeyGain();
+}
+
 QString EffectRackController::eq8BandParametricTypeKey(quint32 bandIndex) const
 {
     return Constants::NahdXml::xmlKeyBandType(bandIndex);
@@ -584,6 +619,11 @@ QString EffectRackController::rtaType() const
 QString EffectRackController::clipperType() const
 {
     return Constants::RackEffectType::clipper();
+}
+
+QString EffectRackController::saturatorType() const
+{
+    return Constants::RackEffectType::saturator();
 }
 
 QString EffectRackController::chorusType() const
@@ -640,6 +680,19 @@ float EffectRackController::clipperReductionDb(quint32 effectIndex) const
         if (const auto effect = rack->get().effect(effectIndex); effect) {
             if (const auto clipper = std::dynamic_pointer_cast<ClipperEffect>(effect); clipper) {
                 return clipper->reductionDb();
+            }
+        }
+    }
+
+    return 0.0f;
+}
+
+float EffectRackController::saturatorSaturationDb(quint32 effectIndex) const
+{
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(effectIndex); effect) {
+            if (const auto saturator = std::dynamic_pointer_cast<SaturatorEffect>(effect); saturator) {
+                return saturator->saturationDb();
             }
         }
     }

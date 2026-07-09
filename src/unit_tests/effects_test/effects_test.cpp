@@ -23,6 +23,7 @@
 #include "../../domain/dsp/compressor_effect.hpp"
 #include "../../domain/dsp/eq_8_band_parametric_effect.hpp"
 #include "../../domain/dsp/reverb_effect.hpp"
+#include "../../domain/dsp/saturator_effect.hpp"
 #include "../../domain/effects/delay_effect.hpp"
 #include "../../domain/effects/high_pass_filter_effect.hpp"
 #include "../../domain/effects/low_pass_filter_effect.hpp"
@@ -832,6 +833,116 @@ void EffectsTest::test_clipperEffect_shouldClipSignal()
         const auto expected = 0.5 * Utils::Dsp::dbToLinear(12.0f);
         QCOMPARE(static_cast<float>(left), expected);
     }
+}
+
+void EffectsTest::test_saturatorEffect_shouldShapeSignalPerMode()
+{
+    SaturatorEffect effect;
+
+    // Tape mode: unity drive, full wet, open tone -> plain tanh shaping
+    {
+        effect.reset();
+        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyMode().toStdString()); p) {
+            p->get().setValue(0.0f); // Tape
+        }
+        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyDrive().toStdString()); p) {
+            p->get().setValue(0.0f); // 0dB
+        }
+        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyTone().toStdString()); p) {
+            p->get().setValue(1.0f); // Fully open, filter bypassed
+        }
+        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyMix().toStdString()); p) {
+            p->get().setValue(1.0f); // Fully wet
+        }
+        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyGain().toStdString()); p) {
+            p->get().setValue(0.5f); // 0dB
+        }
+        effect.sync();
+
+        auto left = 1.0;
+        auto right = 1.0;
+        effect.process(left, right);
+
+        QCOMPARE(static_cast<float>(left), static_cast<float>(std::tanh(1.0)));
+        QCOMPARE(static_cast<float>(right), static_cast<float>(std::tanh(1.0)));
+    }
+
+    // Diode mode: heavy drive should saturate to unity
+    {
+        effect.reset();
+        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyMode().toStdString()); p) {
+            p->get().setValue(2.0f); // Diode
+        }
+        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyDrive().toStdString()); p) {
+            p->get().setValue(1.0f); // +24dB
+        }
+        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyTone().toStdString()); p) {
+            p->get().setValue(1.0f);
+        }
+        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyMix().toStdString()); p) {
+            p->get().setValue(1.0f);
+        }
+        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyGain().toStdString()); p) {
+            p->get().setValue(0.5f);
+        }
+        effect.sync();
+
+        auto left = 1.0;
+        auto right = -1.0;
+        effect.process(left, right);
+
+        QCOMPARE(static_cast<float>(left), 1.0f);
+        QCOMPARE(static_cast<float>(right), -1.0f);
+    }
+}
+
+void EffectsTest::test_saturatorEffect_shouldRespectMix()
+{
+    SaturatorEffect effect;
+    effect.reset();
+
+    if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyDrive().toStdString()); p) {
+        p->get().setValue(1.0f); // Heavy drive so wet/dry clearly differ
+    }
+    if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyMix().toStdString()); p) {
+        p->get().setValue(0.0f); // Fully dry
+    }
+    if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyGain().toStdString()); p) {
+        p->get().setValue(0.5f); // 0dB
+    }
+    effect.sync();
+
+    auto left = 0.3;
+    auto right = -0.4;
+    effect.process(left, right);
+
+    QCOMPARE(static_cast<float>(left), 0.3f);
+    QCOMPARE(static_cast<float>(right), -0.4f);
+}
+
+void EffectsTest::test_saturatorEffect_shouldReportSaturationMeter()
+{
+    SaturatorEffect effect;
+    effect.reset();
+
+    if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyMode().toStdString()); p) {
+        p->get().setValue(2.0f); // Diode
+    }
+    if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyDrive().toStdString()); p) {
+        p->get().setValue(1.0f); // +24dB, drives well past the shaping knee
+    }
+    if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyMix().toStdString()); p) {
+        p->get().setValue(1.0f);
+    }
+    effect.sync();
+
+    QCOMPARE(effect.saturationDb(), 0.0f);
+
+    auto left = 1.0;
+    auto right = 1.0;
+    effect.process(left, right);
+
+    QVERIFY(effect.saturationDb() < 0.0f);
 }
 
 void EffectsTest::test_filterStability_shouldHandleChangingCutoff()

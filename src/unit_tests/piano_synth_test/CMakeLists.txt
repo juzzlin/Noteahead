@@ -29,6 +29,7 @@ set(SRC
     ../../domain/dsp/cascaded_svf.cpp
     ../../domain/dsp/compressor_effect.cpp
     ../../domain/dsp/clipper_effect.cpp
+    ../../domain/dsp/saturator_effect.cpp
     ../../domain/dsp/eq_8_band_parametric_effect.cpp
     ../../domain/dsp/lfo.cpp
     ../../domain/dsp/oversampler.cpp

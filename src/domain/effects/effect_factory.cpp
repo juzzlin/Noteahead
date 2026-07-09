@@ -25,6 +25,7 @@
 #include "../dsp/lufs_meter.hpp"
 #include "../dsp/reverb_effect.hpp"
 #include "../dsp/rta.hpp"
+#include "../dsp/saturator_effect.hpp"
 #include "auto_panner_effect.hpp"
 #include "delay_effect.hpp"
 #include "panner_effect.hpp"
@@ -91,6 +92,7 @@ void EffectFactory::init()
     registerEffect(PannerEffect::typeIdString(), []() { return std::make_shared<PannerEffect>(); });
     registerEffect(Rta::typeIdString(), []() { return std::make_shared<Rta>(); });
     registerEffect(ReverbEffect::typeIdString(), []() { return std::make_shared<ReverbEffect>(); });
+    registerEffect(SaturatorEffect::typeIdString(), []() { return std::make_shared<SaturatorEffect>(); });
 
     // Readable-string aliases so the gallery can create effects by their type() name
     registerEffect(Constants::RackEffectType::autoPanner().toStdString(), []() { return std::make_shared<AutoPannerEffect>(); });
@@ -101,6 +103,7 @@ void EffectFactory::init()
     registerEffect(Constants::RackEffectType::panner().toStdString(), []() { return std::make_shared<PannerEffect>(); });
     registerEffect(Constants::RackEffectType::reverb().toStdString(), []() { return std::make_shared<ReverbEffect>(); });
     registerEffect(Constants::RackEffectType::rta().toStdString(), []() { return std::make_shared<Rta>(); });
+    registerEffect(Constants::RackEffectType::saturator().toStdString(), []() { return std::make_shared<SaturatorEffect>(); });
 
     // Legacy support
     registerLegacyEffect("auto_panner", []() { return std::make_shared<AutoPannerEffect>(); });

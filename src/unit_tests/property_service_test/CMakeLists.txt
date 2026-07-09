@@ -56,6 +56,7 @@ set(SRC
     ../../domain/dsp/chorus_effect.cpp
     ../../domain/dsp/compressor_effect.cpp
     ../../domain/dsp/clipper_effect.cpp
+    ../../domain/dsp/saturator_effect.cpp
     ../../domain/dsp/eq_8_band_parametric_effect.cpp
     ../../domain/tracker/parameter.cpp
     ../../domain/tracker/parameter_container.cpp

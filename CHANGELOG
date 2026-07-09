@@ -29,6 +29,8 @@ New features:
 
 * Add side chain source name to the Compressor effects rack preview string
 
+* Add Saturator rack effect
+
 Bug fixes:
 
 * Fix song position clamping when song length decreases
