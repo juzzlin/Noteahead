@@ -17,7 +17,7 @@
 
 #include "../../common/constants.hpp"
 #include "../../domain/devices/device.hpp"
-#include "../../domain/dsp/compressor_effect.hpp"
+#include "../../domain/dsp/compressor.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
@@ -119,7 +119,7 @@ void SideChainAudioTest::test_audioEngine_rebuildProcessingGraph_shouldCorrectly
     const auto device2 = std::make_shared<MockDevice>("Device 2");
 
     // Add compressor to device 2 that side-chains from device 1 (slot 0)
-    const auto compressor = std::make_shared<CompressorEffect>();
+    const auto compressor = std::make_shared<Compressor>();
     if (const auto p = compressor->parameter(Constants::NahdXml::xmlKeySideChainSourceDevice().toStdString()); p) {
         p->get().setValue(0.0f); // Slot 0
         compressor->sync();
@@ -146,7 +146,7 @@ void SideChainAudioTest::test_audioEngine_rebuildProcessingGraph_shouldHandleCir
     const auto device2 = std::make_shared<MockDevice>("Device 2");
 
     // Device 1 side-chains from Device 2
-    const auto comp1 = std::make_shared<CompressorEffect>();
+    const auto comp1 = std::make_shared<Compressor>();
     if (const auto p = comp1->parameter(Constants::NahdXml::xmlKeySideChainSourceDevice().toStdString()); p) {
         p->get().setValue(1.0f); // Slot 1
         comp1->sync();
@@ -154,7 +154,7 @@ void SideChainAudioTest::test_audioEngine_rebuildProcessingGraph_shouldHandleCir
     device1->insertEffectRack().setEffect(0, comp1);
 
     // Device 2 side-chains from Device 1
-    const auto comp2 = std::make_shared<CompressorEffect>();
+    const auto comp2 = std::make_shared<Compressor>();
     if (const auto p = comp2->parameter(Constants::NahdXml::xmlKeySideChainSourceDevice().toStdString()); p) {
         p->get().setValue(0.0f); // Slot 0
         comp2->sync();
@@ -184,7 +184,7 @@ void SideChainAudioTest::test_compressorEffect_process_shouldApplySidechainGainR
     device1->setGenerateSignal(true); // Source sends 1.0
     device2->setGenerateSignal(true); // Target sends 1.0
 
-    const auto compressor = std::make_shared<CompressorEffect>();
+    const auto compressor = std::make_shared<Compressor>();
     // Set aggressive compression
     if (const auto p = compressor->parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()); p) {
         p->get().setValue(0.0f); // -60dB
@@ -227,7 +227,7 @@ void SideChainAudioTest::test_compressorEffect_sideChainLpf_bypass_shouldPreserv
         std::span<const double>(sideChainBuf.data(), sideChainBuf.size())
     };
 
-    CompressorEffect comp;
+    Compressor comp;
     if (const auto p = comp.parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()); p) {
         p->get().setValue(0.0f); // -60 dB
     }
@@ -270,7 +270,7 @@ void SideChainAudioTest::test_compressorEffect_sideChainLpf_lowCutoff_shouldAtte
     };
 
     auto makeCompressor = [&](float lpfCutoff) {
-        auto comp = std::make_unique<CompressorEffect>();
+        auto comp = std::make_unique<Compressor>();
         if (const auto p = comp->parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()); p) {
             p->get().setValue(0.0f); // -60 dB
         }
@@ -320,7 +320,7 @@ void SideChainAudioTest::test_compressorEffect_sideChainLpf_serialization_should
 
     QByteArray data;
     {
-        CompressorEffect comp;
+        Compressor comp;
         if (const auto p = comp.parameter(Constants::NahdXml::xmlKeySideChainLpf().toStdString()); p) {
             p->get().setValue(expectedCutoff);
         }
@@ -331,7 +331,7 @@ void SideChainAudioTest::test_compressorEffect_sideChainLpf_serialization_should
     }
 
     {
-        CompressorEffect comp;
+        Compressor comp;
         NahdXmlReader reader { data };
         while (!reader.atEnd() && !reader.isStartElement()) {
             reader.readNext();

@@ -6,7 +6,7 @@ set(SRC
     ../../common/constants.cpp
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
-    ../../domain/effects/auto_panner_effect.cpp
+    ../../domain/effects/auto_panner.cpp
     ../../domain/effects/effect.cpp
     ../../domain/dsp/lfo.cpp
     ../../domain/dsp/dsp_component.cpp

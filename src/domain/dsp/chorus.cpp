@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "chorus_effect.hpp"
+#include "chorus.hpp"
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
 #include "audio_context.hpp"
@@ -23,7 +23,7 @@
 
 namespace noteahead {
 
-ChorusEffect::ChorusEffect()
+Chorus::Chorus()
 {
     addParameter({ Constants::NahdXml::xmlKeyRate().toStdString(), 0.25f, 0, 1000, 250, 1, Parameter::Type::Continuous, { "chorusRate" } });
     addParameter({ Constants::NahdXml::xmlKeyDepth().toStdString(), 0.5f, 0, 1000, 500, 1, Parameter::Type::Continuous, { "chorusDepth" } });
@@ -47,10 +47,10 @@ ChorusEffect::ChorusEffect()
     m_lpfL.setOrder(2);
     m_lpfR.setOrder(2);
 
-    ChorusEffect::syncParameters();
+    Chorus::syncParameters();
 }
 
-void ChorusEffect::process(double & left, double & right)
+void Chorus::process(double & left, double & right)
 {
     if (m_sampleRate <= 0) {
         return;
@@ -127,7 +127,7 @@ void ChorusEffect::process(double & left, double & right)
     m_writePos = (m_writePos + 1) % static_cast<uint32_t>(m_bufferL.size());
 }
 
-void ChorusEffect::reset()
+void Chorus::reset()
 {
     std::fill(m_bufferL.begin(), m_bufferL.end(), 0.0);
     std::fill(m_bufferR.begin(), m_bufferR.end(), 0.0);
@@ -141,33 +141,33 @@ void ChorusEffect::reset()
     m_lpfR.reset();
 }
 
-void ChorusEffect::sync()
+void Chorus::sync()
 {
     m_shouldSyncParameters = true;
 }
 
-std::string ChorusEffect::typeIdString()
+std::string Chorus::typeIdString()
 {
     return Constants::RackEffectType::chorus().toStdString();
 }
 
-std::string ChorusEffect::type() const
+std::string Chorus::type() const
 {
     return Constants::RackEffectType::chorus().toStdString();
 }
 
-std::string ChorusEffect::typeId() const
+std::string Chorus::typeId() const
 {
     return typeIdString();
 }
 
-void ChorusEffect::setRate(double rate)
+void Chorus::setRate(double rate)
 {
     parameter(Constants::NahdXml::xmlKeyRate().toStdString())->get().update(static_cast<float>(rate));
     m_shouldSyncParameters = true;
 }
 
-double ChorusEffect::rate() const
+double Chorus::rate() const
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeyRate().toStdString()); p) {
         return p->get().value();
@@ -175,13 +175,13 @@ double ChorusEffect::rate() const
     return 0.25;
 }
 
-void ChorusEffect::setDepth(double depth)
+void Chorus::setDepth(double depth)
 {
     parameter(Constants::NahdXml::xmlKeyDepth().toStdString())->get().update(static_cast<float>(depth));
     m_shouldSyncParameters = true;
 }
 
-double ChorusEffect::depth() const
+double Chorus::depth() const
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeyDepth().toStdString()); p) {
         return p->get().value();
@@ -189,14 +189,14 @@ double ChorusEffect::depth() const
     return 0.5;
 }
 
-void ChorusEffect::setDelay(double ms)
+void Chorus::setDelay(double ms)
 {
     parameter(Constants::NahdXml::xmlKeyDelay().toStdString())->get().update(static_cast<float>(ms));
     m_shouldSyncParameters = true;
     m_shouldUpdateBuffers = true;
 }
 
-double ChorusEffect::delay() const
+double Chorus::delay() const
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeyDelay().toStdString()); p) {
         return p->get().value();
@@ -204,13 +204,13 @@ double ChorusEffect::delay() const
     return 0.4;
 }
 
-void ChorusEffect::setMix(double mix)
+void Chorus::setMix(double mix)
 {
     parameter(Constants::NahdXml::xmlKeyMix().toStdString())->get().update(static_cast<float>(mix));
     m_shouldSyncParameters = true;
 }
 
-double ChorusEffect::mix() const
+double Chorus::mix() const
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeyMix().toStdString()); p) {
         return p->get().value();
@@ -218,13 +218,13 @@ double ChorusEffect::mix() const
     return 0.5;
 }
 
-void ChorusEffect::setWidth(double width)
+void Chorus::setWidth(double width)
 {
     parameter(Constants::NahdXml::xmlKeyWidth().toStdString())->get().update(static_cast<float>(width));
     m_shouldSyncParameters = true;
 }
 
-double ChorusEffect::width() const
+double Chorus::width() const
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeyWidth().toStdString()); p) {
         return p->get().value();
@@ -232,13 +232,13 @@ double ChorusEffect::width() const
     return 1.0;
 }
 
-void ChorusEffect::setLpfCutoff(double cutoff)
+void Chorus::setLpfCutoff(double cutoff)
 {
     parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString())->get().update(static_cast<float>(cutoff));
     m_shouldSyncParameters = true;
 }
 
-double ChorusEffect::lpfCutoff() const
+double Chorus::lpfCutoff() const
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); p) {
         return p->get().value();
@@ -246,13 +246,13 @@ double ChorusEffect::lpfCutoff() const
     return 1.0;
 }
 
-void ChorusEffect::setHpfCutoff(double cutoff)
+void Chorus::setHpfCutoff(double cutoff)
 {
     parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString())->get().update(static_cast<float>(cutoff));
     m_shouldSyncParameters = true;
 }
 
-double ChorusEffect::hpfCutoff() const
+double Chorus::hpfCutoff() const
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) {
         return p->get().value();
@@ -260,7 +260,7 @@ double ChorusEffect::hpfCutoff() const
     return 0.0;
 }
 
-void ChorusEffect::syncParameters()
+void Chorus::syncParameters()
 {
     const auto rateParam = parameter(Constants::NahdXml::xmlKeyRate().toStdString());
     const auto depthParam = parameter(Constants::NahdXml::xmlKeyDepth().toStdString());
@@ -286,7 +286,7 @@ void ChorusEffect::syncParameters()
     updateFilters();
 }
 
-void ChorusEffect::updateBuffers()
+void Chorus::updateBuffers()
 {
     m_lastSampleRate = static_cast<uint32_t>(m_sampleRate);
     // Max delay (base + mod) is around 50ms + 10ms = 60ms.
@@ -299,7 +299,7 @@ void ChorusEffect::updateBuffers()
     }
 }
 
-void ChorusEffect::updateFilters()
+void Chorus::updateFilters()
 {
     m_hpfL.setSampleRate(m_sampleRate);
     m_hpfR.setSampleRate(m_sampleRate);

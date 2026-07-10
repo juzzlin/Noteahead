@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef EQ_8_BAND_PARAMETRIC_EFFECT_HPP
-#define EQ_8_BAND_PARAMETRIC_EFFECT_HPP
+#ifndef EQ_8_BAND_PARAMETRIC_HPP
+#define EQ_8_BAND_PARAMETRIC_HPP
 
 #include "../effects/effect.hpp"
 #include "svf_filter.hpp"
@@ -24,10 +24,10 @@
 
 namespace noteahead {
 
-class Eq8BandParametricEffect : public Effect
+class Eq8BandParametric : public Effect
 {
 public:
-    Eq8BandParametricEffect();
+    Eq8BandParametric();
 
     static std::string typeIdString();
     std::string type() const override;
@@ -103,4 +103,4 @@ private:
 
 } // namespace noteahead
 
-#endif // EQ_8_BAND_PARAMETRIC_EFFECT_HPP
+#endif // EQ_8_BAND_PARAMETRIC_HPP

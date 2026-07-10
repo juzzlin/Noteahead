@@ -32,13 +32,13 @@
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/wavetable_synth_device.hpp"
 #include "../../domain/dsp/all_pass_filter.hpp"
-#include "../../domain/dsp/chorus_effect.hpp"
-#include "../../domain/dsp/clipper_effect.hpp"
+#include "../../domain/dsp/chorus.hpp"
+#include "../../domain/dsp/clipper.hpp"
 #include "../../domain/dsp/dbtp_meter.hpp"
-#include "../../domain/dsp/eq_8_band_parametric_effect.hpp"
+#include "../../domain/dsp/eq_8_band_parametric.hpp"
 #include "../../domain/dsp/lufs_meter.hpp"
-#include "../../domain/dsp/reverb_effect.hpp"
-#include "../../domain/effects/delay_effect.hpp"
+#include "../../domain/dsp/reverb.hpp"
+#include "../../domain/effects/delay.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/tracker/column_settings.hpp"
 #include "../../domain/tracker/instrument.hpp"
@@ -972,7 +972,7 @@ void XmlSerializationTest::test_toXmlFromXml_synthDevice_shouldPreserveValuesAnd
     synthOut->setMultiLevel(0.88f);
     synthOut->setMultiKeyTrack(0.5f);
     synthOut->setPan(0.12f);
-    synthOut->setDelayType(DelayEffect::Type::PingPong);
+    synthOut->setDelayType(Delay::Type::PingPong);
     synthOut->setDelaySync(true);
     synthOut->setDelaySyncDivision(0.25f);
     synthOut->setFeedbackLpf(0.6f);
@@ -1015,7 +1015,7 @@ void XmlSerializationTest::test_toXmlFromXml_synthDevice_shouldPreserveValuesAnd
     QCOMPARE(synthIn->multiLevel(), 0.88f);
     QCOMPARE(synthIn->multiKeyTrack(), 0.5f);
     QCOMPARE(synthIn->pan(), 0.12f);
-    QCOMPARE(synthIn->delayType(), DelayEffect::Type::PingPong);
+    QCOMPARE(synthIn->delayType(), Delay::Type::PingPong);
     QCOMPARE(synthIn->delaySync(), true);
     QCOMPARE(synthIn->delaySyncDivision(), 0.25f);
     QCOMPARE(synthIn->delayFeedbackLpf(), 0.6f);
@@ -1168,7 +1168,7 @@ void XmlSerializationTest::test_toXmlFromXml_masterSendEffects_shouldLoadCorrect
     DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
 
     // Add a reverb effect to slot 0 of master send rack
-    auto reverb = std::make_shared<ReverbEffect>();
+    auto reverb = std::make_shared<Reverb>();
     reverb->setDecay(0.75f); // internal value
     reverb->setLpfCutoff(0.72f);
     reverb->setHpfCutoff(0.28f);
@@ -1188,8 +1188,8 @@ void XmlSerializationTest::test_toXmlFromXml_masterSendEffects_shouldLoadCorrect
 
     auto effect = deviceServiceIn.sendEffectRack().effect(0);
     QVERIFY(effect);
-    QCOMPARE(effect->typeId(), ReverbEffect::typeIdString());
-    auto restoredReverb = std::dynamic_pointer_cast<ReverbEffect>(effect);
+    QCOMPARE(effect->typeId(), Reverb::typeIdString());
+    auto restoredReverb = std::dynamic_pointer_cast<Reverb>(effect);
     QVERIFY(restoredReverb);
     QCOMPARE(restoredReverb->decay(), 0.75f);
     QCOMPARE(restoredReverb->lpfCutoff(), 0.72f);
@@ -1202,7 +1202,7 @@ void XmlSerializationTest::test_toXmlFromXml_chorusEffect_shouldLoadCorrectly()
     DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
 
     // Add a chorus effect to slot 0 of master send rack
-    auto chorus = std::make_shared<ChorusEffect>();
+    auto chorus = std::make_shared<Chorus>();
     chorus->setRate(0.5f);
     chorus->setDepth(0.6f);
     chorus->setDelay(0.4f);
@@ -1226,8 +1226,8 @@ void XmlSerializationTest::test_toXmlFromXml_chorusEffect_shouldLoadCorrectly()
 
     auto effect = deviceServiceIn.sendEffectRack().effect(0);
     QVERIFY(effect);
-    QCOMPARE(effect->typeId(), ChorusEffect::typeIdString());
-    auto restoredChorus = std::dynamic_pointer_cast<ChorusEffect>(effect);
+    QCOMPARE(effect->typeId(), Chorus::typeIdString());
+    auto restoredChorus = std::dynamic_pointer_cast<Chorus>(effect);
     QVERIFY(restoredChorus);
     QCOMPARE(restoredChorus->rate(), 0.5f);
     QCOMPARE(restoredChorus->depth(), 0.6f);
@@ -1294,8 +1294,8 @@ void XmlSerializationTest::test_toXmlFromXml_delayEffectRack_shouldLoadCorrectly
     DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
 
     // Add a delay effect to slot 1 of master send rack
-    auto delay = std::make_shared<DelayEffect>();
-    delay->setType(DelayEffect::Type::PingPong);
+    auto delay = std::make_shared<Delay>();
+    delay->setType(Delay::Type::PingPong);
     delay->setTime(0.5);
     delay->setFeedback(0.7);
     delay->setDepth(0.8);
@@ -1343,7 +1343,7 @@ void XmlSerializationTest::test_toXmlFromXml_delayEffectRack_shouldLoadCorrectly
 
     auto effect = deviceServiceIn.sendEffectRack().effect(1);
     QVERIFY(effect);
-    QCOMPARE(effect->typeId(), DelayEffect::typeIdString());
+    QCOMPARE(effect->typeId(), Delay::typeIdString());
 
     // Verify parameter values
     if (const auto p = effect->parameter(Constants::NahdXml::xmlKeyDelayType().toStdString()); p)
@@ -1520,7 +1520,7 @@ void XmlSerializationTest::test_wavetableSynth_legacyNames_shouldLoadCorrectly()
 
 void XmlSerializationTest::test_eq8BandParametric_legacyNames_shouldLoadCorrectly()
 {
-    Eq8BandParametricEffect effect;
+    Eq8BandParametric effect;
 
     // Create legacy XML
     QString xml;
@@ -1558,7 +1558,7 @@ void XmlSerializationTest::test_eq8BandParametric_legacyNames_shouldLoadCorrectl
 
 void XmlSerializationTest::test_chorus_legacyNames_shouldLoadCorrectly()
 {
-    ChorusEffect effect;
+    Chorus effect;
 
     QString xml;
     NahdXmlWriter writer { xml };
@@ -1593,7 +1593,7 @@ void XmlSerializationTest::test_chorus_legacyNames_shouldLoadCorrectly()
 
 void XmlSerializationTest::test_clipper_legacyNames_shouldLoadCorrectly()
 {
-    ClipperEffect effect;
+    Clipper effect;
 
     QString xml;
     NahdXmlWriter writer { xml };
@@ -1628,7 +1628,7 @@ void XmlSerializationTest::test_clipper_legacyNames_shouldLoadCorrectly()
 
 void XmlSerializationTest::test_reverb_legacyNames_shouldLoadCorrectly()
 {
-    ReverbEffect effect;
+    Reverb effect;
 
     QString xml;
     NahdXmlWriter writer { xml };

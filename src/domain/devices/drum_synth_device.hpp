@@ -23,10 +23,10 @@
 #include "../dsp/drum/snare_engine.hpp"
 #include "../dsp/drum/tom_engine.hpp"
 #include "../dsp/oversampler.hpp"
-#include "../effects/high_pass_filter_effect.hpp"
-#include "../effects/low_pass_filter_effect.hpp"
-#include "../effects/panning_effect.hpp"
-#include "../effects/volume_effect.hpp"
+#include "../effects/high_pass_filter.hpp"
+#include "../effects/low_pass_filter.hpp"
+#include "../effects/panning.hpp"
+#include "../effects/volume.hpp"
 #include "device.hpp"
 #include "drum_synth_constants.hpp"
 
@@ -80,10 +80,10 @@ private:
     struct Voice
     {
         std::unique_ptr<DrumEngine> engine;
-        std::shared_ptr<LowPassFilterEffect> lpf;
-        std::shared_ptr<HighPassFilterEffect> hpf;
-        std::shared_ptr<VolumeEffect> volumeEffect;
-        std::shared_ptr<PanningEffect> panningEffect;
+        std::shared_ptr<LowPassFilter> lpf;
+        std::shared_ptr<HighPassFilter> hpf;
+        std::shared_ptr<Volume> volumeEffect;
+        std::shared_ptr<Panning> panningEffect;
 
         uint8_t midiNote { 0 };
         float level { 1.0f };

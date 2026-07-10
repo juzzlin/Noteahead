@@ -2,15 +2,15 @@
 #include "../../application/service/device_service.hpp"
 #include "../../application/service/editor_service.hpp"
 #include "../../common/constants.hpp"
-#include "../../domain/dsp/clipper_effect.hpp"
-#include "../../domain/dsp/compressor_effect.hpp"
-#include "../../domain/dsp/eq_8_band_parametric_effect.hpp"
-#include "../../domain/dsp/reverb_effect.hpp"
-#include "../../domain/dsp/saturator_effect.hpp"
-#include "../../domain/effects/auto_panner_effect.hpp"
+#include "../../domain/dsp/clipper.hpp"
+#include "../../domain/dsp/compressor.hpp"
+#include "../../domain/dsp/eq_8_band_parametric.hpp"
+#include "../../domain/dsp/reverb.hpp"
+#include "../../domain/dsp/saturator.hpp"
+#include "../../domain/effects/auto_panner.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/effect_rack.hpp"
-#include "../../domain/effects/panner_effect.hpp"
+#include "../../domain/effects/panner.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
@@ -105,7 +105,7 @@ void EffectRackControllerTest::test_effectParametersSummary_reverb_shouldReturnF
     EffectRackController controller { deviceService, editorService };
 
     controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(ReverbEffect::typeIdString()));
+    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
 
     // Default reverb: pre-delay 20ms, decay 1500ms
     const auto summary = controller.effectParametersSummary(0);
@@ -127,7 +127,7 @@ void EffectRackControllerTest::test_effectParametersSummary_compressor_shouldRet
     EffectRackController controller { deviceService, editorService };
 
     controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(CompressorEffect::typeIdString()));
+    controller.setEffect(0, QString::fromStdString(Compressor::typeIdString()));
 
     // Default compressor: attack 0.2 internal -> ~0.5ms, ratio 0.15 internal -> 4:1, sidechain=None
     const auto summary { controller.effectParametersSummary(0) };
@@ -155,7 +155,7 @@ void EffectRackControllerTest::test_effectParametersSummary_autoPanner_shouldRet
     EffectRackController controller { deviceService, editorService };
 
     controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(AutoPannerEffect::typeIdString()));
+    controller.setEffect(0, QString::fromStdString(AutoPanner::typeIdString()));
 
     // Default auto panner: rate 1.00Hz, intensity 100%
     const auto summary = controller.effectParametersSummary(0);
@@ -170,7 +170,7 @@ void EffectRackControllerTest::test_effectParametersSummary_panner_shouldReturnF
     EffectRackController controller { deviceService, editorService };
 
     controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(PannerEffect::typeIdString()));
+    controller.setEffect(0, QString::fromStdString(Panner::typeIdString()));
 
     // Default panner: pan 50%, width 100%
     const auto summary = controller.effectParametersSummary(0);
@@ -185,7 +185,7 @@ void EffectRackControllerTest::test_effectParametersSummary_clipper_shouldReturn
     EffectRackController controller { deviceService, editorService };
 
     controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(ClipperEffect::typeIdString()));
+    controller.setEffect(0, QString::fromStdString(Clipper::typeIdString()));
 
     // Default clipper: threshold 0.0dB
     const auto summary = controller.effectParametersSummary(0);
@@ -200,7 +200,7 @@ void EffectRackControllerTest::test_effectParametersSummary_saturator_shouldRetu
     EffectRackController controller { deviceService, editorService };
 
     controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(SaturatorEffect::typeIdString()));
+    controller.setEffect(0, QString::fromStdString(Saturator::typeIdString()));
 
     // Default saturator: drive 6.0dB, mix 100%
     const auto summary = controller.effectParametersSummary(0);
@@ -215,7 +215,7 @@ void EffectRackControllerTest::test_effectParametersSummary_eq8BandParametric_sh
     EffectRackController controller { deviceService, editorService };
 
     controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(Eq8BandParametricEffect::typeIdString()));
+    controller.setEffect(0, QString::fromStdString(Eq8BandParametric::typeIdString()));
 
     const auto summary = controller.effectParametersSummary(0);
     QCOMPARE(summary, QString { "(Parametric)" });
@@ -240,7 +240,7 @@ void EffectRackControllerTest::test_isEffectEnabled_shouldReturnEnabledState()
     EffectRackController controller { deviceService, editorService };
 
     controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(ReverbEffect::typeIdString()));
+    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
 
     QVERIFY(controller.isEffectEnabled(0));
 
@@ -281,7 +281,7 @@ void EffectRackControllerTest::test_exportSettings_shouldSerializeEffects()
     EffectRackController controller { deviceService, editorService };
 
     controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(ReverbEffect::typeIdString()));
+    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
 
     QByteArray data;
     QBuffer buffer { &data };
@@ -291,7 +291,7 @@ void EffectRackControllerTest::test_exportSettings_shouldSerializeEffects()
     buffer.close();
 
     QVERIFY(!data.isEmpty());
-    QVERIFY(data.contains(ReverbEffect::typeIdString().c_str()));
+    QVERIFY(data.contains(Reverb::typeIdString().c_str()));
 }
 
 void EffectRackControllerTest::test_importSettings_shouldRestoreEffects()
@@ -302,7 +302,7 @@ void EffectRackControllerTest::test_importSettings_shouldRestoreEffects()
     EffectRackController controller { deviceService, editorService };
 
     controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(ReverbEffect::typeIdString()));
+    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
     controller.setParameterValue(0, controller.reverbDecayKey(), 0.75f);
 
     QByteArray data;
@@ -332,11 +332,11 @@ void EffectRackControllerTest::test_importEffectSettings_matchingType_shouldEmit
     EffectRackController controller { deviceService, editorService };
 
     controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(ReverbEffect::typeIdString()));
+    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
 
     // Create a temporary reverb settings file
     const QString filePath = "test_matching_effect.nahdeff";
-    const auto reverb = std::make_shared<ReverbEffect>();
+    const auto reverb = std::make_shared<Reverb>();
     QFile file { filePath };
     file.open(QIODevice::WriteOnly);
     NahdXmlWriter writer { file };
@@ -371,11 +371,11 @@ void EffectRackControllerTest::test_importEffectSettings_differentType_shouldEmi
     EffectRackController controller { deviceService, editorService };
 
     controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(ReverbEffect::typeIdString()));
+    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
 
     // Create a temporary compressor settings file
     const QString filePath = "test_different_effect.nahdeff";
-    const auto compressor = std::make_shared<CompressorEffect>();
+    const auto compressor = std::make_shared<Compressor>();
     QFile file { filePath };
     file.open(QIODevice::WriteOnly);
     NahdXmlWriter writer { file };
@@ -407,10 +407,10 @@ void EffectRackControllerTest::test_confirmImportEffectSettings_shouldImportAndN
     EffectRackController controller { deviceService, editorService };
 
     controller.setIsInsertRack(true);
-    controller.setEffect(0, QString::fromStdString(ReverbEffect::typeIdString()));
+    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
 
     const QString filePath = "test_confirm_effect.nahdeff";
-    const auto reverb = std::make_shared<ReverbEffect>();
+    const auto reverb = std::make_shared<Reverb>();
     QFile file { filePath };
     file.open(QIODevice::WriteOnly);
     NahdXmlWriter writer { file };

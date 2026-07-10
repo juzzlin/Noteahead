@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "delay_effect.hpp"
+#include "delay.hpp"
 
 #include "../../common/constants.hpp"
 
@@ -22,12 +22,12 @@
 
 namespace noteahead {
 
-DelayEffect::DelayEffect()
+Delay::Delay()
 {
     updateBuffers();
 }
 
-void DelayEffect::setSampleRate(double sampleRate)
+void Delay::setSampleRate(double sampleRate)
 {
     if (std::abs(m_sampleRate - sampleRate) > 0.1) {
         DspComponent::setSampleRate(sampleRate);
@@ -35,47 +35,47 @@ void DelayEffect::setSampleRate(double sampleRate)
     }
 }
 
-void DelayEffect::setType(Type type)
+void Delay::setType(Type type)
 {
     m_type = type;
 }
 
-void DelayEffect::setTime(double seconds)
+void Delay::setTime(double seconds)
 {
     m_time = std::clamp(seconds, 0.001, 2.0);
 }
 
-void DelayEffect::setFeedback(double feedback)
+void Delay::setFeedback(double feedback)
 {
     m_feedback = std::clamp(feedback, 0.0, 0.95);
 }
 
-void DelayEffect::setDepth(double depth)
+void Delay::setDepth(double depth)
 {
     m_depth = std::clamp(depth, 0.0, 1.0);
 }
 
-void DelayEffect::setMix(double mix)
+void Delay::setMix(double mix)
 {
     m_mix = std::clamp(mix, 0.0, 1.0);
 }
 
-void DelayEffect::setBpm(double bpm)
+void Delay::setBpm(double bpm)
 {
     m_bpm = std::max(1.0, bpm);
 }
 
-void DelayEffect::setSync(bool sync)
+void Delay::setSync(bool sync)
 {
     m_sync = sync;
 }
 
-void DelayEffect::setSyncDivision(double division)
+void Delay::setSyncDivision(double division)
 {
     m_syncDivision = division;
 }
 
-double DelayEffect::getDelaySamples() const
+double Delay::getDelaySamples() const
 {
     if (m_sync) {
         // beat duration = 60 / BPM
@@ -85,7 +85,7 @@ double DelayEffect::getDelaySamples() const
     return m_time * m_sampleRate;
 }
 
-void DelayEffect::updateBuffers()
+void Delay::updateBuffers()
 {
     // Max 3 seconds buffer
     size_t size = static_cast<size_t>(m_sampleRate * 3.0);
@@ -94,7 +94,7 @@ void DelayEffect::updateBuffers()
     m_writePos = 0;
 }
 
-void DelayEffect::reset()
+void Delay::reset()
 {
     std::fill(m_bufferL.begin(), m_bufferL.end(), 0.0f);
     std::fill(m_bufferR.begin(), m_bufferR.end(), 0.0f);
@@ -102,7 +102,7 @@ void DelayEffect::reset()
     m_hpStateL = m_hpStateR = 0.0f;
 }
 
-void DelayEffect::process(float & left, float & right)
+void Delay::process(float & left, float & right)
 {
     if (m_mix <= Constants::minEffectLevel()) {
         return;
@@ -135,7 +135,7 @@ void DelayEffect::process(float & left, float & right)
     applyMix(left, right, outL, outR);
 }
 
-float DelayEffect::readFromBuffer(const std::vector<float> & buffer, double delay) const
+float Delay::readFromBuffer(const std::vector<float> & buffer, double delay) const
 {
     const size_t bufSize = buffer.size();
     double readPos = static_cast<double>(m_writePos) - delay;
@@ -150,7 +150,7 @@ float DelayEffect::readFromBuffer(const std::vector<float> & buffer, double dela
     return buffer[i0] * (1.0f - frac) + buffer[i1] * frac;
 }
 
-void DelayEffect::applyTapeSaturation(float & fbL, float & fbR)
+void Delay::applyTapeSaturation(float & fbL, float & fbR)
 {
     if (m_type == Type::Tape) {
         m_lpStateL += 0.3f * (fbL - m_lpStateL);
@@ -161,7 +161,7 @@ void DelayEffect::applyTapeSaturation(float & fbL, float & fbR)
     }
 }
 
-void DelayEffect::updateWriteBuffer(float inputL, float inputR, float fbL, float fbR, float & outL, float & outR)
+void Delay::updateWriteBuffer(float inputL, float inputR, float fbL, float fbR, float & outL, float & outR)
 {
     (void)outL;
     (void)outR;
@@ -187,7 +187,7 @@ void DelayEffect::updateWriteBuffer(float inputL, float inputR, float fbL, float
     m_writePos = (m_writePos + 1) % bufSize;
 }
 
-void DelayEffect::applyMix(float & left, float & right, float outL, float outR) const
+void Delay::applyMix(float & left, float & right, float outL, float outR) const
 {
     // Mix: Unity-dry crossfade strategy
     const float dry = std::clamp(2.0f * (1.0f - static_cast<float>(m_mix)), 0.0f, 1.0f);

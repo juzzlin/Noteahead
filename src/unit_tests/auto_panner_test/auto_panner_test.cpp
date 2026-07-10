@@ -15,7 +15,7 @@
 
 #include "auto_panner_test.hpp"
 #include "../../common/constants.hpp"
-#include "../../domain/effects/auto_panner_effect.hpp"
+#include "../../domain/effects/auto_panner.hpp"
 
 #include <QTest>
 
@@ -23,7 +23,7 @@ namespace noteahead {
 
 void AutoPannerTest::test_process_shouldModulatePanning()
 {
-    AutoPannerEffect effect;
+    AutoPanner effect;
     effect.setSampleRate(44100);
 
     // Set rate to 1Hz, Sine waveform
@@ -49,7 +49,7 @@ void AutoPannerTest::test_process_shouldModulatePanning()
 
 void AutoPannerTest::test_intensity_shouldScaleModulation()
 {
-    AutoPannerEffect effect;
+    AutoPanner effect;
     effect.setSampleRate(44100);
 
     // Intensity 0%
@@ -67,7 +67,7 @@ void AutoPannerTest::test_intensity_shouldScaleModulation()
 
 void AutoPannerTest::test_setBpm_shouldUpdateLfoFrequencyInSyncMode()
 {
-    AutoPannerEffect effect;
+    AutoPanner effect;
     effect.setSampleRate(44100);
 
     // Enable sync

@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "eq_8_band_parametric_effect.hpp"
+#include "eq_8_band_parametric.hpp"
 
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
@@ -25,7 +25,7 @@
 
 namespace noteahead {
 
-Eq8BandParametricEffect::Eq8BandParametricEffect()
+Eq8BandParametric::Eq8BandParametric()
 {
     for (int i = 0; i < static_cast<int>(NumBands); i++) {
         addParameter(Parameter { Constants::NahdXml::xmlKeyBandType(i).toStdString(), 0.0f, 0, 6, 0, 1, Parameter::Type::Discrete, { std::format("eq8BandParametricBand{}Type", i + 1) } });
@@ -37,7 +37,7 @@ Eq8BandParametricEffect::Eq8BandParametricEffect()
     syncParameters();
 }
 
-void Eq8BandParametricEffect::process(double & left, double & right)
+void Eq8BandParametric::process(double & left, double & right)
 {
     if (m_sampleRate <= 0) {
         return;
@@ -47,7 +47,7 @@ void Eq8BandParametricEffect::process(double & left, double & right)
     processStereo(left, right);
 }
 
-void Eq8BandParametricEffect::process(AudioContext & context)
+void Eq8BandParametric::process(AudioContext & context)
 {
     if (m_sampleRate <= 0) {
         return;
@@ -60,7 +60,7 @@ void Eq8BandParametricEffect::process(AudioContext & context)
     }
 }
 
-void Eq8BandParametricEffect::updateBuffers()
+void Eq8BandParametric::updateBuffers()
 {
     if (static_cast<uint32_t>(m_sampleRate) != m_lastSampleRate || m_shouldUpdateBuffers) {
         m_lastSampleRate = static_cast<uint32_t>(m_sampleRate);
@@ -74,7 +74,7 @@ void Eq8BandParametricEffect::updateBuffers()
     }
 }
 
-void Eq8BandParametricEffect::processStereo(double & left, double & right)
+void Eq8BandParametric::processStereo(double & left, double & right)
 {
     for (auto & band : m_bands) {
         left = band.filterL.process(left);
@@ -82,19 +82,19 @@ void Eq8BandParametricEffect::processStereo(double & left, double & right)
     }
 }
 
-void Eq8BandParametricEffect::reset()
+void Eq8BandParametric::reset()
 {
     for (auto & band : m_bands) {
         band.reset();
     }
 }
 
-void Eq8BandParametricEffect::sync()
+void Eq8BandParametric::sync()
 {
     m_shouldUpdateBuffers = true;
 }
 
-void Eq8BandParametricEffect::syncParameters()
+void Eq8BandParametric::syncParameters()
 {
     for (size_t i = 0; i < NumBands; i++) {
         auto && band = m_bands[i];
@@ -114,17 +114,17 @@ void Eq8BandParametricEffect::syncParameters()
     }
 }
 
-std::string Eq8BandParametricEffect::typeIdString()
+std::string Eq8BandParametric::typeIdString()
 {
     return "b2e1f3a4-c5d6-4e7f-8a9b-0c1d2e3f4a5b";
 }
 
-std::string Eq8BandParametricEffect::type() const
+std::string Eq8BandParametric::type() const
 {
     return Constants::RackEffectType::eq8BandParametric().toStdString();
 }
 
-std::string Eq8BandParametricEffect::typeId() const
+std::string Eq8BandParametric::typeId() const
 {
     return typeIdString();
 }

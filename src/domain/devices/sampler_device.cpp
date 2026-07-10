@@ -69,10 +69,10 @@ SamplerDevice::~SamplerDevice() = default;
 
 SamplerDevice::Voice::Voice()
 {
-    lpf = std::make_shared<LowPassFilterEffect>();
-    hpf = std::make_shared<HighPassFilterEffect>();
-    volumeEffect = std::make_shared<VolumeEffect>();
-    panningEffect = std::make_shared<PanningEffect>();
+    lpf = std::make_shared<LowPassFilter>();
+    hpf = std::make_shared<HighPassFilter>();
+    volumeEffect = std::make_shared<Volume>();
+    panningEffect = std::make_shared<Panning>();
     effects = { lpf, hpf, volumeEffect, panningEffect };
 }
 

@@ -13,49 +13,28 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef CLIPPER_EFFECT_HPP
-#define CLIPPER_EFFECT_HPP
+#ifndef PANNING_HPP
+#define PANNING_HPP
 
-#include "../effects/effect.hpp"
-
-#include <cstdint>
+#include "../dsp/true_stereo_panner.hpp"
+#include "effect.hpp"
 
 namespace noteahead {
 
-class ClipperEffect : public Effect
+class Panning : public Effect
 {
 public:
-    enum class Mode
-    {
-        Hard,
-        Soft
-    };
-
-    ClipperEffect();
-
     static std::string typeIdString();
     std::string type() const override;
     std::string typeId() const override;
 
+    void setPan(float pan);
     void process(double & left, double & right) override;
-    void process(AudioContext & context) override;
-    void reset() override;
-    void sync() override;
-
-    float reductionDb() const;
 
 private:
-    void syncParameters();
-
-    Mode m_mode { Mode::Soft };
-    float m_thresholdDb { 0.0f };
-    float m_gainDb { 0.0f };
-
-    double m_reductionDb { 0.0 };
-    double m_meterReleaseCoeff { 0.0 };
-    uint32_t m_lastSampleRate { 0 };
+    TrueStereoPanner m_panner;
 };
 
 } // namespace noteahead
 
-#endif // CLIPPER_EFFECT_HPP
+#endif // PANNING_HPP

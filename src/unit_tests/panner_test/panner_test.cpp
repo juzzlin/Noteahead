@@ -15,7 +15,7 @@
 
 #include "panner_test.hpp"
 #include "../../common/constants.hpp"
-#include "../../domain/effects/panner_effect.hpp"
+#include "../../domain/effects/panner.hpp"
 
 #include <QTest>
 #include <cmath>
@@ -25,7 +25,7 @@ namespace noteahead {
 
 void PannerTest::test_pan_shouldAdjustGains()
 {
-    PannerEffect panner;
+    Panner panner;
 
     const auto panParam = panner.parameter(Constants::NahdXml::xmlKeyPan().toStdString());
     QVERIFY(panParam.has_value());
@@ -58,7 +58,7 @@ void PannerTest::test_pan_shouldAdjustGains()
 
 void PannerTest::test_width_shouldAdjustStereoImage()
 {
-    PannerEffect panner;
+    Panner panner;
     const auto widthParam = panner.parameter(Constants::NahdXml::xmlKeyWidth().toStdString());
     QVERIFY(widthParam.has_value());
 
@@ -88,7 +88,7 @@ void PannerTest::test_width_shouldAdjustStereoImage()
 
 void PannerTest::test_sync_shouldUpdateInternalState()
 {
-    PannerEffect panner;
+    Panner panner;
     const auto panParam = panner.parameter(Constants::NahdXml::xmlKeyPan().toStdString());
     QVERIFY(panParam.has_value());
 

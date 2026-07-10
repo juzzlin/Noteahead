@@ -13,31 +13,32 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "panning_effect.hpp"
+#include "volume.hpp"
 
 namespace noteahead {
 
-void PanningEffect::setPan(float pan)
+void Volume::setVolume(float volume)
 {
-    m_panner.setPan(static_cast<double>(pan));
+    m_volume = volume;
 }
 
-void PanningEffect::process(double & left, double & right)
+void Volume::process(double & left, double & right)
 {
-    m_panner.process(left, right);
+    left *= m_volume;
+    right *= m_volume;
 }
 
-std::string PanningEffect::typeIdString()
+std::string Volume::typeIdString()
 {
-    return "c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f";
+    return "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a";
 }
 
-std::string PanningEffect::type() const
+std::string Volume::type() const
 {
-    return "panning";
+    return "volume";
 }
 
-std::string PanningEffect::typeId() const
+std::string Volume::typeId() const
 {
     return typeIdString();
 }

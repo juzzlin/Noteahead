@@ -13,32 +13,38 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef HIGH_PASS_FILTER_EFFECT_HPP
-#define HIGH_PASS_FILTER_EFFECT_HPP
+#ifndef AUTO_PANNER_HPP
+#define AUTO_PANNER_HPP
 
+#include "../dsp/lfo.hpp"
 #include "effect.hpp"
 
 namespace noteahead {
 
-class HighPassFilterEffect : public Effect
+class AutoPanner : public Effect
 {
 public:
+    AutoPanner();
+
     static std::string typeIdString();
     std::string type() const override;
     std::string typeId() const override;
 
-    void setCutoff(float cutoff);
     void process(double & left, double & right) override;
     void process(AudioContext & context) override;
-    void reset() override;
+    void sync() override;
+    void setBpm(float bpm) override;
 
 private:
-    void processSample(double & left, double & right, double g, double damping, double k);
-    float m_cutoff { 0.0f };
-    double m_s1L { 0.0 }, m_s2L { 0.0 };
-    double m_s1R { 0.0 }, m_s2R { 0.0 };
+    Lfo m_lfo;
+    double m_intensity { 1.0 };
+    double m_rate { 0.5 };
+    double m_syncDivision { 0.25 };
+    bool m_sync { false };
+
+    void updateLfoFrequency();
 };
 
 } // namespace noteahead
 
-#endif // HIGH_PASS_FILTER_EFFECT_HPP
+#endif // AUTO_PANNER_HPP

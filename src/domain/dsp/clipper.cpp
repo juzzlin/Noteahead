@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "clipper_effect.hpp"
+#include "clipper.hpp"
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
 #include "audio_context.hpp"
@@ -23,7 +23,7 @@
 
 namespace noteahead {
 
-ClipperEffect::ClipperEffect()
+Clipper::Clipper()
 {
     addParameter(Parameter { Constants::NahdXml::xmlKeyMode().toStdString(), 1.0f, 0, 1, 1, 1, Parameter::Type::Discrete, { "clipperMode" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyThreshold().toStdString(), 1.0f, -2400, 0, 0, 100, Parameter::Type::Continuous, { "clipperThreshold" } });
@@ -32,7 +32,7 @@ ClipperEffect::ClipperEffect()
     syncParameters();
 }
 
-void ClipperEffect::process(double & left, double & right)
+void Clipper::process(double & left, double & right)
 {
     const auto thresholdLin = std::max(1e-5, static_cast<double>(Utils::Dsp::dbToLinear(m_thresholdDb)));
     const auto gainLin = static_cast<double>(Utils::Dsp::dbToLinear(m_gainDb));
@@ -71,7 +71,7 @@ void ClipperEffect::process(double & left, double & right)
     right *= gainLin;
 }
 
-void ClipperEffect::process(AudioContext & context)
+void Clipper::process(AudioContext & context)
 {
     if (static_cast<uint32_t>(context.sampleRate) != m_lastSampleRate) {
         m_meterReleaseCoeff = std::exp(-1.0 / (100.0 * context.sampleRate / 1000.0));
@@ -83,22 +83,22 @@ void ClipperEffect::process(AudioContext & context)
     }
 }
 
-void ClipperEffect::reset()
+void Clipper::reset()
 {
     m_reductionDb = 0.0;
 }
 
-void ClipperEffect::sync()
+void Clipper::sync()
 {
     syncParameters();
 }
 
-float ClipperEffect::reductionDb() const
+float Clipper::reductionDb() const
 {
     return static_cast<float>(m_reductionDb);
 }
 
-void ClipperEffect::syncParameters()
+void Clipper::syncParameters()
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeyMode().toStdString()); p) {
         m_mode = static_cast<int>(p->get().value()) == 0 ? Mode::Hard : Mode::Soft;
@@ -111,17 +111,17 @@ void ClipperEffect::syncParameters()
     }
 }
 
-std::string ClipperEffect::typeIdString()
+std::string Clipper::typeIdString()
 {
     return "9e1f2a3b-4c5d-6e7f-8a9b-0c1d2e3f4a5b";
 }
 
-std::string ClipperEffect::type() const
+std::string Clipper::type() const
 {
     return Constants::RackEffectType::clipper().toStdString();
 }
 
-std::string ClipperEffect::typeId() const
+std::string Clipper::typeId() const
 {
     return typeIdString();
 }

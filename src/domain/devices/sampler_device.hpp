@@ -18,10 +18,10 @@
 
 #include "../../infra/audio/backend/audio_file_reader.hpp"
 #include "../effects/effect.hpp"
-#include "../effects/high_pass_filter_effect.hpp"
-#include "../effects/low_pass_filter_effect.hpp"
-#include "../effects/panning_effect.hpp"
-#include "../effects/volume_effect.hpp"
+#include "../effects/high_pass_filter.hpp"
+#include "../effects/low_pass_filter.hpp"
+#include "../effects/panning.hpp"
+#include "../effects/volume.hpp"
 #include "../tracker/parameter_container.hpp"
 #include "device.hpp"
 
@@ -154,10 +154,10 @@ private:
         float cutoff = 1.0f;
         float hpfCutoff = 0.0f;
 
-        std::shared_ptr<LowPassFilterEffect> lpf;
-        std::shared_ptr<HighPassFilterEffect> hpf;
-        std::shared_ptr<VolumeEffect> volumeEffect;
-        std::shared_ptr<PanningEffect> panningEffect;
+        std::shared_ptr<LowPassFilter> lpf;
+        std::shared_ptr<HighPassFilter> hpf;
+        std::shared_ptr<Volume> volumeEffect;
+        std::shared_ptr<Panning> panningEffect;
         std::vector<std::shared_ptr<Effect>> effects;
 
         bool active = false;

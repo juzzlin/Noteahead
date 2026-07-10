@@ -13,52 +13,49 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SATURATOR_EFFECT_HPP
-#define SATURATOR_EFFECT_HPP
+#ifndef CLIPPER_HPP
+#define CLIPPER_HPP
 
 #include "../effects/effect.hpp"
-#include "cascaded_svf.hpp"
+
+#include <cstdint>
 
 namespace noteahead {
 
-class SaturatorEffect : public Effect
+class Clipper : public Effect
 {
 public:
     enum class Mode
     {
-        Tape,
-        Tube,
-        Diode
+        Hard,
+        Soft
     };
 
-    SaturatorEffect();
+    Clipper();
 
     static std::string typeIdString();
     std::string type() const override;
     std::string typeId() const override;
 
     void process(double & left, double & right) override;
+    void process(AudioContext & context) override;
     void reset() override;
     void sync() override;
 
-    float saturationDb() const;
+    float reductionDb() const;
 
 private:
     void syncParameters();
-    double shape(double x) const;
 
-    Mode m_mode { Mode::Tape };
-    float m_driveDb { 0.0f };
-    float m_tone { 1.0f };
-    float m_mix { 1.0f };
-    float m_outputDb { 0.0f };
+    Mode m_mode { Mode::Soft };
+    float m_thresholdDb { 0.0f };
+    float m_gainDb { 0.0f };
 
-    CascadedSvf m_toneFilterL;
-    CascadedSvf m_toneFilterR;
-
-    double m_saturationDb { 0.0 };
+    double m_reductionDb { 0.0 };
+    double m_meterReleaseCoeff { 0.0 };
+    uint32_t m_lastSampleRate { 0 };
 };
 
 } // namespace noteahead
 
-#endif // SATURATOR_EFFECT_HPP
+#endif // CLIPPER_HPP

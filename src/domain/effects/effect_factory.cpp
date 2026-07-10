@@ -17,18 +17,18 @@
 
 #include "../../common/constants.hpp"
 #include "../dsp/all_pass_filter.hpp"
-#include "../dsp/chorus_effect.hpp"
-#include "../dsp/clipper_effect.hpp"
-#include "../dsp/compressor_effect.hpp"
+#include "../dsp/chorus.hpp"
+#include "../dsp/clipper.hpp"
+#include "../dsp/compressor.hpp"
 #include "../dsp/dbtp_meter.hpp"
-#include "../dsp/eq_8_band_parametric_effect.hpp"
+#include "../dsp/eq_8_band_parametric.hpp"
 #include "../dsp/lufs_meter.hpp"
-#include "../dsp/reverb_effect.hpp"
+#include "../dsp/reverb.hpp"
 #include "../dsp/rta.hpp"
-#include "../dsp/saturator_effect.hpp"
-#include "auto_panner_effect.hpp"
-#include "delay_effect.hpp"
-#include "panner_effect.hpp"
+#include "../dsp/saturator.hpp"
+#include "auto_panner.hpp"
+#include "delay.hpp"
+#include "panner.hpp"
 
 #include <map>
 
@@ -81,39 +81,39 @@ std::shared_ptr<Effect> EffectFactory::createEffect(const std::string & typeId, 
 void EffectFactory::init()
 {
     registerEffect(AllPassFilter::typeIdString(), []() { return std::make_shared<AllPassFilter>(); });
-    registerEffect(AutoPannerEffect::typeIdString(), []() { return std::make_shared<AutoPannerEffect>(); });
-    registerEffect(ChorusEffect::typeIdString(), []() { return std::make_shared<ChorusEffect>(); });
-    registerEffect(ClipperEffect::typeIdString(), []() { return std::make_shared<ClipperEffect>(); });
-    registerEffect(CompressorEffect::typeIdString(), []() { return std::make_shared<CompressorEffect>(); });
+    registerEffect(AutoPanner::typeIdString(), []() { return std::make_shared<AutoPanner>(); });
+    registerEffect(Chorus::typeIdString(), []() { return std::make_shared<Chorus>(); });
+    registerEffect(Clipper::typeIdString(), []() { return std::make_shared<Clipper>(); });
+    registerEffect(Compressor::typeIdString(), []() { return std::make_shared<Compressor>(); });
     registerEffect(DbTpMeter::typeIdString(), []() { return std::make_shared<DbTpMeter>(); });
-    registerEffect(DelayEffect::typeIdString(), []() { return std::make_shared<DelayEffect>(); });
-    registerEffect(Eq8BandParametricEffect::typeIdString(), []() { return std::make_shared<Eq8BandParametricEffect>(); });
+    registerEffect(Delay::typeIdString(), []() { return std::make_shared<Delay>(); });
+    registerEffect(Eq8BandParametric::typeIdString(), []() { return std::make_shared<Eq8BandParametric>(); });
     registerEffect(LufsMeter::typeIdString(), []() { return std::make_shared<LufsMeter>(); });
-    registerEffect(PannerEffect::typeIdString(), []() { return std::make_shared<PannerEffect>(); });
+    registerEffect(Panner::typeIdString(), []() { return std::make_shared<Panner>(); });
     registerEffect(Rta::typeIdString(), []() { return std::make_shared<Rta>(); });
-    registerEffect(ReverbEffect::typeIdString(), []() { return std::make_shared<ReverbEffect>(); });
-    registerEffect(SaturatorEffect::typeIdString(), []() { return std::make_shared<SaturatorEffect>(); });
+    registerEffect(Reverb::typeIdString(), []() { return std::make_shared<Reverb>(); });
+    registerEffect(Saturator::typeIdString(), []() { return std::make_shared<Saturator>(); });
 
     // Readable-string aliases so the gallery can create effects by their type() name
-    registerEffect(Constants::RackEffectType::autoPanner().toStdString(), []() { return std::make_shared<AutoPannerEffect>(); });
-    registerEffect(Constants::RackEffectType::clipper().toStdString(), []() { return std::make_shared<ClipperEffect>(); });
-    registerEffect(Constants::RackEffectType::compressor().toStdString(), []() { return std::make_shared<CompressorEffect>(); });
-    registerEffect(Constants::RackEffectType::delay().toStdString(), []() { return std::make_shared<DelayEffect>(); });
-    registerEffect(Constants::RackEffectType::eq8BandParametric().toStdString(), []() { return std::make_shared<Eq8BandParametricEffect>(); });
-    registerEffect(Constants::RackEffectType::panner().toStdString(), []() { return std::make_shared<PannerEffect>(); });
-    registerEffect(Constants::RackEffectType::reverb().toStdString(), []() { return std::make_shared<ReverbEffect>(); });
+    registerEffect(Constants::RackEffectType::autoPanner().toStdString(), []() { return std::make_shared<AutoPanner>(); });
+    registerEffect(Constants::RackEffectType::clipper().toStdString(), []() { return std::make_shared<Clipper>(); });
+    registerEffect(Constants::RackEffectType::compressor().toStdString(), []() { return std::make_shared<Compressor>(); });
+    registerEffect(Constants::RackEffectType::delay().toStdString(), []() { return std::make_shared<Delay>(); });
+    registerEffect(Constants::RackEffectType::eq8BandParametric().toStdString(), []() { return std::make_shared<Eq8BandParametric>(); });
+    registerEffect(Constants::RackEffectType::panner().toStdString(), []() { return std::make_shared<Panner>(); });
+    registerEffect(Constants::RackEffectType::reverb().toStdString(), []() { return std::make_shared<Reverb>(); });
     registerEffect(Constants::RackEffectType::rta().toStdString(), []() { return std::make_shared<Rta>(); });
-    registerEffect(Constants::RackEffectType::saturator().toStdString(), []() { return std::make_shared<SaturatorEffect>(); });
+    registerEffect(Constants::RackEffectType::saturator().toStdString(), []() { return std::make_shared<Saturator>(); });
 
     // Legacy support
-    registerLegacyEffect("auto_panner", []() { return std::make_shared<AutoPannerEffect>(); });
-    registerLegacyEffect("chorus", []() { return std::make_shared<ChorusEffect>(); });
-    registerLegacyEffect("clipper", []() { return std::make_shared<ClipperEffect>(); });
-    registerLegacyEffect("compressor", []() { return std::make_shared<CompressorEffect>(); });
-    registerLegacyEffect("delay", []() { return std::make_shared<DelayEffect>(); });
-    registerLegacyEffect("eq_8_band_parametric", []() { return std::make_shared<Eq8BandParametricEffect>(); });
-    registerLegacyEffect("panner", []() { return std::make_shared<PannerEffect>(); });
-    registerLegacyEffect("reverb", []() { return std::make_shared<ReverbEffect>(); });
+    registerLegacyEffect("auto_panner", []() { return std::make_shared<AutoPanner>(); });
+    registerLegacyEffect("chorus", []() { return std::make_shared<Chorus>(); });
+    registerLegacyEffect("clipper", []() { return std::make_shared<Clipper>(); });
+    registerLegacyEffect("compressor", []() { return std::make_shared<Compressor>(); });
+    registerLegacyEffect("delay", []() { return std::make_shared<Delay>(); });
+    registerLegacyEffect("eq_8_band_parametric", []() { return std::make_shared<Eq8BandParametric>(); });
+    registerLegacyEffect("panner", []() { return std::make_shared<Panner>(); });
+    registerLegacyEffect("reverb", []() { return std::make_shared<Reverb>(); });
 }
 
 void EffectFactory::clear()

@@ -13,31 +13,52 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef PANNER_EFFECT_HPP
-#define PANNER_EFFECT_HPP
+#ifndef SATURATOR_HPP
+#define SATURATOR_HPP
 
-#include "../dsp/true_stereo_panner.hpp"
-#include "effect.hpp"
+#include "../effects/effect.hpp"
+#include "cascaded_svf.hpp"
 
 namespace noteahead {
 
-class PannerEffect : public Effect
+class Saturator : public Effect
 {
 public:
-    PannerEffect();
+    enum class Mode
+    {
+        Tape,
+        Tube,
+        Diode
+    };
+
+    Saturator();
 
     static std::string typeIdString();
-
     std::string type() const override;
     std::string typeId() const override;
 
     void process(double & left, double & right) override;
+    void reset() override;
     void sync() override;
 
+    float saturationDb() const;
+
 private:
-    TrueStereoPanner m_panner;
+    void syncParameters();
+    double shape(double x) const;
+
+    Mode m_mode { Mode::Tape };
+    float m_driveDb { 0.0f };
+    float m_tone { 1.0f };
+    float m_mix { 1.0f };
+    float m_outputDb { 0.0f };
+
+    CascadedSvf m_toneFilterL;
+    CascadedSvf m_toneFilterR;
+
+    double m_saturationDb { 0.0 };
 };
 
 } // namespace noteahead
 
-#endif // PANNER_EFFECT_HPP
+#endif // SATURATOR_HPP

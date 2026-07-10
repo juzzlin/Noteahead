@@ -21,16 +21,16 @@ set(SRC
     ../../domain/devices/drum_synth_device.cpp
     ../../domain/devices/drum_synth_constants.cpp
     ../../domain/dsp/lfo.cpp
-    ../../domain/effects/auto_panner_effect.cpp
+    ../../domain/effects/auto_panner.cpp
     ../../domain/effects/effect_rack.cpp
     ../../domain/effects/effect.cpp
-    ../../domain/effects/volume_effect.cpp
-    ../../domain/effects/panning_effect.cpp
+    ../../domain/effects/volume.cpp
+    ../../domain/effects/panning.cpp
     ../../domain/dsp/true_stereo_panner.cpp
-    ../../domain/effects/panner_effect.cpp
-    ../../domain/effects/low_pass_filter_effect.cpp
-    ../../domain/effects/high_pass_filter_effect.cpp
-    ../../domain/effects/delay_effect.cpp
+    ../../domain/effects/panner.cpp
+    ../../domain/effects/low_pass_filter.cpp
+    ../../domain/effects/high_pass_filter.cpp
+    ../../domain/effects/delay.cpp
     ../../domain/devices/synth_presets.cpp
     ../../domain/dsp/adsr_envelope.cpp
     ../../domain/dsp/svf_filter.cpp
@@ -48,16 +48,16 @@ set(SRC
     ../../domain/dsp/drum/crash_engine.cpp
     ../../domain/dsp/drum/ride_engine.cpp
     ../../domain/dsp/dsp_component.cpp
-    ../../domain/dsp/reverb_effect.cpp
+    ../../domain/dsp/reverb.cpp
     ../../domain/dsp/all_pass_filter.cpp
     ../../domain/dsp/dbtp_meter.cpp
     ../../domain/dsp/lufs_meter.cpp
     ../../domain/dsp/rta.cpp
-    ../../domain/dsp/chorus_effect.cpp
-    ../../domain/dsp/compressor_effect.cpp
-    ../../domain/dsp/clipper_effect.cpp
-    ../../domain/dsp/saturator_effect.cpp
-    ../../domain/dsp/eq_8_band_parametric_effect.cpp
+    ../../domain/dsp/chorus.cpp
+    ../../domain/dsp/compressor.cpp
+    ../../domain/dsp/clipper.cpp
+    ../../domain/dsp/saturator.cpp
+    ../../domain/dsp/eq_8_band_parametric.cpp
     ../../domain/tracker/parameter.cpp
     ../../domain/tracker/parameter_container.cpp
     ../../infra/audio/audio_engine.cpp

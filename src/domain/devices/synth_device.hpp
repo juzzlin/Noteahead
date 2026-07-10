@@ -22,7 +22,7 @@
 #include "../dsp/multi_engine.hpp"
 #include "../dsp/oversampler.hpp"
 #include "../dsp/poly_blep_oscillator.hpp"
-#include "../effects/delay_effect.hpp"
+#include "../effects/delay.hpp"
 #include "device.hpp"
 #include "synth_presets.hpp"
 
@@ -233,8 +233,8 @@ public:
     void setCrossModDepth(float depth);
 
     // Delay parameters
-    DelayEffect::Type delayType() const;
-    void setDelayType(DelayEffect::Type type);
+    Delay::Type delayType() const;
+    void setDelayType(Delay::Type type);
     float delayTime() const;
     void setDelayTime(float time);
     float delayFeedback() const;
@@ -364,8 +364,8 @@ private:
     float m_oscillatorDrift { 0.0f };
     float m_crossModDepth { 0.0f };
 
-    DelayEffect m_delay;
-    DelayEffect::Type m_delayType { DelayEffect::Type::Stereo };
+    Delay m_delay;
+    Delay::Type m_delayType { Delay::Type::Stereo };
     float m_delayTime { 0.5f };
     float m_delayFeedback { 0.3f };
     float m_delayDepth { 0.5f };

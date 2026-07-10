@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "reverb_effect.hpp"
+#include "reverb.hpp"
 
 #include "../../common/constants.hpp"
 #include "audio_context.hpp"
@@ -24,7 +24,7 @@
 
 namespace noteahead {
 
-ReverbEffect::ReverbEffect()
+Reverb::Reverb()
 {
     addParameter({ Constants::NahdXml::xmlKeySize().toStdString(), 0.5f, 0, 10000, 5000, 100, Parameter::Type::Continuous, { "reverbSize" } });
     addParameter({ Constants::NahdXml::xmlKeyDecay().toStdString(), 0.15f, 0, 10000, 1500, 1, Parameter::Type::Continuous, { "reverbDecay" } });
@@ -47,10 +47,10 @@ ReverbEffect::ReverbEffect()
     m_wetHpfL.setMode(CascadedSvf::Mode::HighPass);
     m_wetHpfR.setMode(CascadedSvf::Mode::HighPass);
 
-    ReverbEffect::syncParameters();
+    Reverb::syncParameters();
 }
 
-void ReverbEffect::process(double & left, double & right)
+void Reverb::process(double & left, double & right)
 {
     if (m_sampleRate <= 0) {
         return;
@@ -141,7 +141,7 @@ void ReverbEffect::process(double & left, double & right)
     right = dryR + wetR * static_cast<double>(m_mix);
 }
 
-void ReverbEffect::process(AudioContext & context)
+void Reverb::process(AudioContext & context)
 {
     if (m_sampleRate <= 0) {
         return;
@@ -162,7 +162,7 @@ void ReverbEffect::process(AudioContext & context)
     }
 }
 
-void ReverbEffect::reset()
+void Reverb::reset()
 {
     for (auto && dl : m_delays) {
         dl.reset();
@@ -175,27 +175,27 @@ void ReverbEffect::reset()
     m_wetHpfR.reset();
 }
 
-void ReverbEffect::sync()
+void Reverb::sync()
 {
     m_shouldUpdateBuffers = true;
 }
 
-std::string ReverbEffect::typeIdString()
+std::string Reverb::typeIdString()
 {
     return "47a2e2d0-1e5e-4f3a-9c6a-6a5b2d7e8f1a";
 }
 
-std::string ReverbEffect::type() const
+std::string Reverb::type() const
 {
     return Constants::RackEffectType::reverb().toStdString();
 }
 
-std::string ReverbEffect::typeId() const
+std::string Reverb::typeId() const
 {
     return typeIdString();
 }
 
-void ReverbEffect::setSize(float size)
+void Reverb::setSize(float size)
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeySize().toStdString()); p) {
         p->get().setValue(size);
@@ -203,7 +203,7 @@ void ReverbEffect::setSize(float size)
     }
 }
 
-float ReverbEffect::size() const
+float Reverb::size() const
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeySize().toStdString()); p) {
         return p->get().value();
@@ -211,7 +211,7 @@ float ReverbEffect::size() const
     return 0.5f;
 }
 
-void ReverbEffect::setDecay(float decay)
+void Reverb::setDecay(float decay)
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeyDecay().toStdString()); p) {
         p->get().setValue(decay);
@@ -219,7 +219,7 @@ void ReverbEffect::setDecay(float decay)
     }
 }
 
-float ReverbEffect::decay() const
+float Reverb::decay() const
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeyDecay().toStdString()); p) {
         return p->get().value();
@@ -227,7 +227,7 @@ float ReverbEffect::decay() const
     return 0.15f;
 }
 
-void ReverbEffect::setDamping(float damping)
+void Reverb::setDamping(float damping)
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeyDamping().toStdString()); p) {
         p->get().setValue(damping);
@@ -235,12 +235,12 @@ void ReverbEffect::setDamping(float damping)
     }
 }
 
-float ReverbEffect::damping() const
+float Reverb::damping() const
 {
     return m_damping;
 }
 
-void ReverbEffect::setPreDelay(float ms)
+void Reverb::setPreDelay(float ms)
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeyPreDelay().toStdString()); p) {
         p->get().setValue(ms);
@@ -248,7 +248,7 @@ void ReverbEffect::setPreDelay(float ms)
     }
 }
 
-float ReverbEffect::preDelay() const
+float Reverb::preDelay() const
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeyPreDelay().toStdString()); p) {
         return p->get().value();
@@ -256,7 +256,7 @@ float ReverbEffect::preDelay() const
     return 0.04f;
 }
 
-void ReverbEffect::setMix(float mix)
+void Reverb::setMix(float mix)
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeyMix().toStdString()); p) {
         p->get().setValue(mix);
@@ -264,12 +264,12 @@ void ReverbEffect::setMix(float mix)
     }
 }
 
-float ReverbEffect::mix() const
+float Reverb::mix() const
 {
     return m_mix;
 }
 
-void ReverbEffect::setWidth(float width)
+void Reverb::setWidth(float width)
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeyWidth().toStdString()); p) {
         p->get().setValue(width);
@@ -277,12 +277,12 @@ void ReverbEffect::setWidth(float width)
     }
 }
 
-float ReverbEffect::width() const
+float Reverb::width() const
 {
     return m_width;
 }
 
-void ReverbEffect::setLpfCutoff(float cutoff)
+void Reverb::setLpfCutoff(float cutoff)
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); p) {
         p->get().setValue(cutoff);
@@ -290,7 +290,7 @@ void ReverbEffect::setLpfCutoff(float cutoff)
     }
 }
 
-float ReverbEffect::lpfCutoff() const
+float Reverb::lpfCutoff() const
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); p) {
         return p->get().value();
@@ -298,7 +298,7 @@ float ReverbEffect::lpfCutoff() const
     return 0.85f;
 }
 
-void ReverbEffect::setHpfCutoff(float cutoff)
+void Reverb::setHpfCutoff(float cutoff)
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) {
         p->get().setValue(cutoff);
@@ -306,7 +306,7 @@ void ReverbEffect::setHpfCutoff(float cutoff)
     }
 }
 
-float ReverbEffect::hpfCutoff() const
+float Reverb::hpfCutoff() const
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) {
         return p->get().value();
@@ -314,7 +314,7 @@ float ReverbEffect::hpfCutoff() const
     return 0.2f;
 }
 
-void ReverbEffect::applyPreset(Preset preset)
+void Reverb::applyPreset(Preset preset)
 {
     switch (preset) {
     case Preset::Hall:
@@ -392,7 +392,7 @@ void ReverbEffect::applyPreset(Preset preset)
     }
 }
 
-std::string ReverbEffect::presetToString(Preset preset)
+std::string Reverb::presetToString(Preset preset)
 {
     switch (preset) {
     case Preset::Hall:
@@ -415,7 +415,7 @@ std::string ReverbEffect::presetToString(Preset preset)
     return "Hall";
 }
 
-ReverbEffect::Preset ReverbEffect::stringToPreset(const std::string & presetName)
+Reverb::Preset Reverb::stringToPreset(const std::string & presetName)
 {
     if (presetName == "Hall")
         return Preset::Hall;
@@ -436,12 +436,12 @@ ReverbEffect::Preset ReverbEffect::stringToPreset(const std::string & presetName
     return Preset::Hall;
 }
 
-std::vector<std::string> ReverbEffect::presetNames()
+std::vector<std::string> Reverb::presetNames()
 {
     return { "Hall", "Large Room", "Small Room", "Plate", "Cathedral", "Basement", "Tunnel", "Spring" };
 }
 
-void ReverbEffect::syncParameters()
+void Reverb::syncParameters()
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeySize().toStdString()); p) {
         m_size = std::clamp(p->get().value(), 0.01f, 1.0f);
@@ -471,7 +471,7 @@ void ReverbEffect::syncParameters()
     updateFilters();
 }
 
-void ReverbEffect::updateBuffers()
+void Reverb::updateBuffers()
 {
     if (m_sampleRate <= 0) {
         return;
@@ -508,7 +508,7 @@ void ReverbEffect::updateBuffers()
     }
 }
 
-void ReverbEffect::updateFilters()
+void Reverb::updateFilters()
 {
     for (auto & delay : m_delays) {
         delay.fbLpf.setSampleRate(m_sampleRate);
@@ -527,7 +527,7 @@ void ReverbEffect::updateFilters()
     m_wetHpfR.setCutoff(static_cast<double>(m_hpfCutoff));
 }
 
-void ReverbEffect::applyWetFilters(double & wetL, double & wetR)
+void Reverb::applyWetFilters(double & wetL, double & wetR)
 {
     if (m_hpfCutoff > 0.001f) {
         wetL = m_wetHpfL.process(wetL);

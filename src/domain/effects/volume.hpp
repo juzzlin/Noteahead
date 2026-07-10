@@ -13,34 +13,27 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "volume_effect.hpp"
+#ifndef VOLUME_HPP
+#define VOLUME_HPP
+
+#include "effect.hpp"
 
 namespace noteahead {
 
-void VolumeEffect::setVolume(float volume)
+class Volume : public Effect
 {
-    m_volume = volume;
-}
+public:
+    static std::string typeIdString();
+    std::string type() const override;
+    std::string typeId() const override;
 
-void VolumeEffect::process(double & left, double & right)
-{
-    left *= m_volume;
-    right *= m_volume;
-}
+    void setVolume(float volume);
+    void process(double & left, double & right) override;
 
-std::string VolumeEffect::typeIdString()
-{
-    return "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a";
-}
-
-std::string VolumeEffect::type() const
-{
-    return "volume";
-}
-
-std::string VolumeEffect::typeId() const
-{
-    return typeIdString();
-}
+private:
+    float m_volume { 1.0f };
+};
 
 } // namespace noteahead
+
+#endif // VOLUME_HPP

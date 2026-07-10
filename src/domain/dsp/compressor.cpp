@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "compressor_effect.hpp"
+#include "compressor.hpp"
 #include "audio_context.hpp"
 
 #include "../../common/constants.hpp"
@@ -25,7 +25,7 @@
 
 namespace noteahead {
 
-CompressorEffect::CompressorEffect()
+Compressor::Compressor()
 {
     addParameter(Parameter { Constants::NahdXml::xmlKeyThreshold().toStdString(), 0.66f, -6000, 0, -2000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyRatio().toStdString(), 0.15789f, 100, 2000, 400, 100 });
@@ -43,7 +43,7 @@ CompressorEffect::CompressorEffect()
     syncParameters();
 }
 
-std::optional<size_t> CompressorEffect::sidechainSourceDeviceIndex() const
+std::optional<size_t> Compressor::sidechainSourceDeviceIndex() const
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeySideChainSourceDevice().toStdString()); p) {
         if (const int val = p->get().xmlValue(); val >= 0) {
@@ -53,7 +53,7 @@ std::optional<size_t> CompressorEffect::sidechainSourceDeviceIndex() const
     return std::nullopt;
 }
 
-void CompressorEffect::process(double & left, double & right)
+void Compressor::process(double & left, double & right)
 {
     if (m_sampleRate <= 0) {
         return;
@@ -69,7 +69,7 @@ void CompressorEffect::process(double & left, double & right)
     applyGain(left, right);
 }
 
-void CompressorEffect::process(AudioContext & context)
+void Compressor::process(AudioContext & context)
 {
     if (m_sampleRate <= 0) {
         return;
@@ -103,7 +103,7 @@ void CompressorEffect::process(AudioContext & context)
     }
 }
 
-void CompressorEffect::updateBuffers()
+void Compressor::updateBuffers()
 {
     if (static_cast<uint32_t>(m_sampleRate) != m_lastSampleRate || m_shouldUpdateBuffers || m_delayBufferL.empty()) {
         syncParameters();
@@ -124,7 +124,7 @@ void CompressorEffect::updateBuffers()
     }
 }
 
-void CompressorEffect::updateCoefficients()
+void Compressor::updateCoefficients()
 {
     if (m_sampleRate > 0) {
         m_attackCoeff = std::exp(-1.0 / (static_cast<double>(m_attackMs) * m_sampleRate / 1000.0));
@@ -132,13 +132,13 @@ void CompressorEffect::updateCoefficients()
     }
 }
 
-double CompressorEffect::calculateDetectorLevelDb(double left, double right) const
+double Compressor::calculateDetectorLevelDb(double left, double right) const
 {
     const double detector = std::max(std::abs(left), std::abs(right));
     return Utils::Dsp::linearToDb(static_cast<float>(detector)); // Assuming linearToDb can handle float
 }
 
-double CompressorEffect::calculateGainReductionDb(double detectorDb) const
+double Compressor::calculateGainReductionDb(double detectorDb) const
 {
     double targetDb = detectorDb;
     const double threshold = static_cast<double>(m_threshold);
@@ -161,7 +161,7 @@ double CompressorEffect::calculateGainReductionDb(double detectorDb) const
     return targetDb - detectorDb;
 }
 
-void CompressorEffect::updateEnvelope(double gainReductionDb)
+void Compressor::updateEnvelope(double gainReductionDb)
 {
     if (gainReductionDb < m_envelopeDb) {
         m_envelopeDb = m_attackCoeff * m_envelopeDb + (1.0 - m_attackCoeff) * gainReductionDb;
@@ -177,7 +177,7 @@ void CompressorEffect::updateEnvelope(double gainReductionDb)
     m_reductionDb = m_envelopeDb;
 }
 
-void CompressorEffect::applyGain(double & left, double & right)
+void Compressor::applyGain(double & left, double & right)
 {
     if (m_delayBufferL.empty()) {
         updateBuffers();
@@ -199,7 +199,7 @@ void CompressorEffect::applyGain(double & left, double & right)
     right = outR * totalGain;
 }
 
-void CompressorEffect::reset()
+void Compressor::reset()
 {
     m_envelopeDb = 0.0;
     m_reductionDb = 0.0;
@@ -210,17 +210,17 @@ void CompressorEffect::reset()
     m_sideChainLpfR.reset();
 }
 
-void CompressorEffect::sync()
+void Compressor::sync()
 {
     m_shouldUpdateBuffers = true;
 }
 
-float CompressorEffect::reductionDb() const
+float Compressor::reductionDb() const
 {
     return static_cast<float>(m_reductionDb);
 }
 
-void CompressorEffect::syncParameters()
+void Compressor::syncParameters()
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()); p) {
         m_threshold = -60.0f + p->get().value() * 60.0f;
@@ -259,17 +259,17 @@ void CompressorEffect::syncParameters()
     }
 }
 
-std::string CompressorEffect::typeIdString()
+std::string Compressor::typeIdString()
 {
     return "7a2b3c4d-5e6f-4a8b-9c0d-1e2f3a4b5c6d";
 }
 
-std::string CompressorEffect::type() const
+std::string Compressor::type() const
 {
     return Constants::RackEffectType::compressor().toStdString();
 }
 
-std::string CompressorEffect::typeId() const
+std::string Compressor::typeId() const
 {
     return typeIdString();
 }

@@ -967,7 +967,7 @@ void SynthDevice::syncParameters()
         m_crossModDepth = p->get().value();
 
     if (const auto p = parameter(Constants::NahdXml::xmlKeyDelayType().toStdString()); p)
-        m_delayType = static_cast<DelayEffect::Type>(p->get().xmlValue());
+        m_delayType = static_cast<Delay::Type>(p->get().xmlValue());
     if (const auto p = parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString()); p)
         m_delayTime = p->get().value() * 10.0f;
     if (const auto p = parameter(Constants::NahdXml::xmlKeyDelayFeedback().toStdString()); p)
@@ -1665,12 +1665,12 @@ void SynthDevice::setGain(float val)
 }
 
 // Delay Accessors
-DelayEffect::Type SynthDevice::delayType() const
+Delay::Type SynthDevice::delayType() const
 {
     return m_delayType;
 }
 
-void SynthDevice::setDelayType(DelayEffect::Type type)
+void SynthDevice::setDelayType(Delay::Type type)
 {
     setDiscreteParameterValue(Constants::NahdXml::xmlKeyDelayType().toStdString(), static_cast<int>(type));
 }

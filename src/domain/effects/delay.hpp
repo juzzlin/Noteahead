@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef DELAY_EFFECT_HPP
-#define DELAY_EFFECT_HPP
+#ifndef DELAY_HPP
+#define DELAY_HPP
 
 #include "../dsp/cascaded_svf.hpp"
 #include "effect.hpp"
@@ -22,7 +22,7 @@
 
 namespace noteahead {
 
-class DelayEffect : public Effect
+class Delay : public Effect
 {
 public:
     enum class Type
@@ -33,7 +33,7 @@ public:
         Tape
     };
 
-    DelayEffect();
+    Delay();
 
     static std::string typeIdString();
     std::string type() const override;
@@ -98,4 +98,4 @@ private:
 
 } // namespace noteahead
 
-#endif // DELAY_EFFECT_HPP
+#endif // DELAY_HPP

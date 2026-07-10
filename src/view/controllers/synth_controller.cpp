@@ -765,7 +765,7 @@ int SynthController::delayType() const
 void SynthController::setDelayType(int type)
 {
     if (m_synth) {
-        m_synth->setDelayType(static_cast<DelayEffect::Type>(type));
+        m_synth->setDelayType(static_cast<Delay::Type>(type));
     }
 }
 

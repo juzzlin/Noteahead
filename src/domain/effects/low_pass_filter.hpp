@@ -13,28 +13,32 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef PANNING_EFFECT_HPP
-#define PANNING_EFFECT_HPP
+#ifndef LOW_PASS_FILTER_HPP
+#define LOW_PASS_FILTER_HPP
 
-#include "../dsp/true_stereo_panner.hpp"
 #include "effect.hpp"
 
 namespace noteahead {
 
-class PanningEffect : public Effect
+class LowPassFilter : public Effect
 {
 public:
     static std::string typeIdString();
     std::string type() const override;
     std::string typeId() const override;
 
-    void setPan(float pan);
+    void setCutoff(double cutoff);
     void process(double & left, double & right) override;
+    void process(AudioContext & context) override;
+    void reset() override;
 
 private:
-    TrueStereoPanner m_panner;
+    void processSample(double & left, double & right, double g, double damping, double k);
+    double m_cutoff { 1.0 };
+    double m_s1L { 0.0 }, m_s2L { 0.0 };
+    double m_s1R { 0.0 }, m_s2R { 0.0 };
 };
 
 } // namespace noteahead
 
-#endif // PANNING_EFFECT_HPP
+#endif // LOW_PASS_FILTER_HPP

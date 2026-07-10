@@ -370,10 +370,10 @@ void DrumSynthDevice::initializeVoices()
 
     for (int i { 0 }; i < NumVoices; i++) {
         m_voices.at(i).midiNote = notes.at(i);
-        m_voices.at(i).lpf = std::make_shared<LowPassFilterEffect>();
-        m_voices.at(i).hpf = std::make_shared<HighPassFilterEffect>();
-        m_voices.at(i).volumeEffect = std::make_shared<VolumeEffect>();
-        m_voices.at(i).panningEffect = std::make_shared<PanningEffect>();
+        m_voices.at(i).lpf = std::make_shared<LowPassFilter>();
+        m_voices.at(i).hpf = std::make_shared<HighPassFilter>();
+        m_voices.at(i).volumeEffect = std::make_shared<Volume>();
+        m_voices.at(i).panningEffect = std::make_shared<Panning>();
 
         const auto voiceIdx { static_cast<VoiceIndex>(i) };
         if (voiceIdx == VoiceIndex::Kick)

@@ -2,18 +2,18 @@ set(EFFECTS_SOURCES
     effect.cpp
     effect_factory.cpp
     effect_rack.cpp
-    auto_panner_effect.cpp
-    delay_effect.cpp
-    high_pass_filter_effect.cpp
-    low_pass_filter_effect.cpp
-    panner_effect.cpp
-    panning_effect.cpp
-    volume_effect.cpp
-    ../dsp/chorus_effect.cpp
-    ../dsp/clipper_effect.cpp
-    ../dsp/compressor_effect.cpp
-    ../dsp/eq_8_band_parametric_effect.cpp
-    ../dsp/reverb_effect.cpp
+    auto_panner.cpp
+    delay.cpp
+    high_pass_filter.cpp
+    low_pass_filter.cpp
+    panner.cpp
+    panning.cpp
+    volume.cpp
+    ../dsp/chorus.cpp
+    ../dsp/clipper.cpp
+    ../dsp/compressor.cpp
+    ../dsp/eq_8_band_parametric.cpp
+    ../dsp/reverb.cpp
 )
 
 add_library(Effects STATIC ${EFFECTS_SOURCES})

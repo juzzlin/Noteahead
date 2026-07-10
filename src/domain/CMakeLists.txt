@@ -13,8 +13,8 @@ set(HEADER_FILES
     dsp/all_pass_filter.hpp
     dsp/all_pass_chain.hpp
     dsp/cascaded_svf.hpp
-    dsp/clipper_effect.hpp
-    dsp/compressor_effect.hpp
+    dsp/clipper.hpp
+    dsp/compressor.hpp
     dsp/dbtp_meter.hpp
     dsp/dc_blocker.hpp
     dsp/delay_line.hpp
@@ -28,29 +28,29 @@ set(HEADER_FILES
     dsp/drum/snare_engine.hpp
     dsp/drum/tom_engine.hpp
     dsp/dsp_component.hpp
-    dsp/eq_8_band_parametric_effect.hpp
+    dsp/eq_8_band_parametric.hpp
     dsp/lfo.hpp
     dsp/lufs_meter.hpp
     dsp/multi_engine.hpp
     dsp/oversampler.hpp
     dsp/poly_blep_oscillator.hpp
-    dsp/reverb_effect.hpp
+    dsp/reverb.hpp
     dsp/rta.hpp
-    dsp/saturator_effect.hpp
+    dsp/saturator.hpp
     dsp/svf_filter.hpp
     dsp/true_stereo_panner.hpp
     dsp/waveguide_string.hpp
     dsp/wavetable_oscillator.hpp
-    effects/auto_panner_effect.hpp
-    effects/delay_effect.hpp
+    effects/auto_panner.hpp
+    effects/delay.hpp
     effects/effect.hpp
     effects/effect_factory.hpp
     effects/effect_rack.hpp
-    effects/high_pass_filter_effect.hpp
-    effects/low_pass_filter_effect.hpp
-    effects/panner_effect.hpp
-    effects/panning_effect.hpp
-    effects/volume_effect.hpp
+    effects/high_pass_filter.hpp
+    effects/low_pass_filter.hpp
+    effects/panner.hpp
+    effects/panning.hpp
+    effects/volume.hpp
     midi/midi_address.hpp
     midi/midi_cc_automation.hpp
     midi/midi_cc_data.hpp
@@ -102,9 +102,9 @@ set(SOURCE_FILES
     dsp/waveguide_string.cpp
     dsp/all_pass_filter.cpp
     dsp/cascaded_svf.cpp
-    dsp/chorus_effect.cpp
-    dsp/clipper_effect.cpp
-    dsp/compressor_effect.cpp
+    dsp/chorus.cpp
+    dsp/clipper.cpp
+    dsp/compressor.cpp
     dsp/dbtp_meter.cpp
     dsp/dc_blocker.cpp
     dsp/diode_ladder_filter.cpp
@@ -116,29 +116,29 @@ set(SOURCE_FILES
     dsp/drum/snare_engine.cpp
     dsp/drum/tom_engine.cpp
     dsp/dsp_component.cpp
-    dsp/eq_8_band_parametric_effect.cpp
+    dsp/eq_8_band_parametric.cpp
     dsp/lfo.cpp
     dsp/lufs_meter.cpp
     dsp/multi_engine.cpp
     dsp/oversampler.cpp
     dsp/poly_blep_oscillator.cpp
-    dsp/reverb_effect.cpp
+    dsp/reverb.cpp
     dsp/rta.cpp
-    dsp/saturator_effect.cpp
+    dsp/saturator.cpp
     dsp/svf_filter.cpp
     dsp/true_stereo_panner.cpp
     dsp/wavetable.cpp
     dsp/wavetable_oscillator.cpp
-    effects/auto_panner_effect.cpp
-    effects/delay_effect.cpp
+    effects/auto_panner.cpp
+    effects/delay.cpp
     effects/effect.cpp
     effects/effect_factory.cpp
     effects/effect_rack.cpp
-    effects/high_pass_filter_effect.cpp
-    effects/low_pass_filter_effect.cpp
-    effects/panner_effect.cpp
-    effects/panning_effect.cpp
-    effects/volume_effect.cpp
+    effects/high_pass_filter.cpp
+    effects/low_pass_filter.cpp
+    effects/panner.cpp
+    effects/panning.cpp
+    effects/volume.cpp
     midi/midi_address.cpp
     midi/midi_cc_automation.cpp
     midi/midi_cc_data.cpp

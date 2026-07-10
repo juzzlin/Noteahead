@@ -18,20 +18,20 @@
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
 #include "../../domain/dsp/all_pass_filter.hpp"
-#include "../../domain/dsp/chorus_effect.hpp"
-#include "../../domain/dsp/clipper_effect.hpp"
-#include "../../domain/dsp/compressor_effect.hpp"
+#include "../../domain/dsp/chorus.hpp"
+#include "../../domain/dsp/clipper.hpp"
+#include "../../domain/dsp/compressor.hpp"
 #include "../../domain/dsp/dbtp_meter.hpp"
-#include "../../domain/dsp/eq_8_band_parametric_effect.hpp"
+#include "../../domain/dsp/eq_8_band_parametric.hpp"
 #include "../../domain/dsp/lufs_meter.hpp"
-#include "../../domain/dsp/reverb_effect.hpp"
+#include "../../domain/dsp/reverb.hpp"
 #include "../../domain/dsp/rta.hpp"
-#include "../../domain/dsp/saturator_effect.hpp"
-#include "../../domain/effects/auto_panner_effect.hpp"
-#include "../../domain/effects/delay_effect.hpp"
+#include "../../domain/dsp/saturator.hpp"
+#include "../../domain/effects/auto_panner.hpp"
+#include "../../domain/effects/delay.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/effect_rack.hpp"
-#include "../../domain/effects/panner_effect.hpp"
+#include "../../domain/effects/panner.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 #include "knob_controller.hpp"
@@ -207,7 +207,7 @@ QVariantList EffectRackController::availableEffects() const
 
     addEffect("All-Pass Filter", AllPassFilter::typeIdString());
     addEffect("Auto Panner", Constants::RackEffectType::autoPanner().toStdString());
-    addEffect("Chorus", ChorusEffect::typeIdString());
+    addEffect("Chorus", Chorus::typeIdString());
     addEffect("Clipper", Constants::RackEffectType::clipper().toStdString());
     addEffect("Compressor", Constants::RackEffectType::compressor().toStdString());
     addEffect("dBTP Meter", DbTpMeter::typeIdString());
@@ -665,7 +665,7 @@ float EffectRackController::compressorReductionDb(quint32 effectIndex) const
 {
     if (const auto rack = currentRack()) {
         if (const auto effect = rack->get().effect(effectIndex)) {
-            if (const auto compressor = std::dynamic_pointer_cast<CompressorEffect>(effect)) {
+            if (const auto compressor = std::dynamic_pointer_cast<Compressor>(effect)) {
                 return compressor->reductionDb();
             }
         }
@@ -678,7 +678,7 @@ float EffectRackController::clipperReductionDb(quint32 effectIndex) const
 {
     if (const auto rack = currentRack(); rack) {
         if (const auto effect = rack->get().effect(effectIndex); effect) {
-            if (const auto clipper = std::dynamic_pointer_cast<ClipperEffect>(effect); clipper) {
+            if (const auto clipper = std::dynamic_pointer_cast<Clipper>(effect); clipper) {
                 return clipper->reductionDb();
             }
         }
@@ -691,7 +691,7 @@ float EffectRackController::saturatorSaturationDb(quint32 effectIndex) const
 {
     if (const auto rack = currentRack(); rack) {
         if (const auto effect = rack->get().effect(effectIndex); effect) {
-            if (const auto saturator = std::dynamic_pointer_cast<SaturatorEffect>(effect); saturator) {
+            if (const auto saturator = std::dynamic_pointer_cast<Saturator>(effect); saturator) {
                 return saturator->saturationDb();
             }
         }
@@ -849,7 +849,7 @@ void EffectRackController::rtaSetActive(quint32 effectIndex, bool active)
 QStringList EffectRackController::reverbPresets() const
 {
     QStringList presets;
-    for (const auto & name : ReverbEffect::presetNames()) {
+    for (const auto & name : Reverb::presetNames()) {
         presets.append(QString::fromStdString(name));
     }
     return presets;
@@ -859,10 +859,10 @@ void EffectRackController::applyReverbPreset(quint32 effectIndex, quint32 preset
 {
     if (const auto rack = currentRack(); rack) {
         if (const auto effect = rack->get().effect(effectIndex); effect) {
-            if (const auto reverb = std::dynamic_pointer_cast<ReverbEffect>(effect); reverb) {
-                const auto presetNames = ReverbEffect::presetNames();
+            if (const auto reverb = std::dynamic_pointer_cast<Reverb>(effect); reverb) {
+                const auto presetNames = Reverb::presetNames();
                 if (presetIndex < presetNames.size()) {
-                    reverb->applyPreset(ReverbEffect::stringToPreset(presetNames[static_cast<size_t>(presetIndex)]));
+                    reverb->applyPreset(Reverb::stringToPreset(presetNames[static_cast<size_t>(presetIndex)]));
                     m_editorService->setIsModified(true);
                     m_revision++;
                     emit revisionChanged();

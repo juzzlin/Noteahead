@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef REVERB_EFFECT_HPP
-#define REVERB_EFFECT_HPP
+#ifndef REVERB_HPP
+#define REVERB_HPP
 
 #include "../effects/effect.hpp"
 #include "cascaded_svf.hpp"
@@ -25,7 +25,7 @@
 
 namespace noteahead {
 
-class ReverbEffect : public Effect
+class Reverb : public Effect
 {
 public:
     enum class Preset
@@ -40,7 +40,7 @@ public:
         Spring
     };
 
-    ReverbEffect();
+    Reverb();
 
     static std::string typeIdString();
     std::string type() const override;
@@ -134,4 +134,4 @@ private:
 
 } // namespace noteahead
 
-#endif // REVERB_EFFECT_HPP
+#endif // REVERB_HPP

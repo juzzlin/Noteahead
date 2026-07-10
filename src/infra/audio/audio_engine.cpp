@@ -17,7 +17,7 @@
 
 #include "../../common/constants.hpp"
 #include "../../common/denormal_protection.hpp"
-#include "../../domain/dsp/reverb_effect.hpp"
+#include "../../domain/dsp/reverb.hpp"
 #include "../../domain/effects/effect_rack.hpp"
 #include "real_time_worker_pool.hpp"
 

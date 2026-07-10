@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "saturator_effect.hpp"
+#include "saturator.hpp"
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
 
@@ -22,7 +22,7 @@
 
 namespace noteahead {
 
-SaturatorEffect::SaturatorEffect()
+Saturator::Saturator()
 {
     addParameter(Parameter { Constants::NahdXml::xmlKeyMode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDrive().toStdString(), 0.25f, 0, 2400, 600, 100, Parameter::Type::Continuous });
@@ -36,7 +36,7 @@ SaturatorEffect::SaturatorEffect()
     syncParameters();
 }
 
-double SaturatorEffect::shape(double x) const
+double Saturator::shape(double x) const
 {
     switch (m_mode) {
     case Mode::Tape:
@@ -60,7 +60,7 @@ double SaturatorEffect::shape(double x) const
     }
 }
 
-void SaturatorEffect::process(double & left, double & right)
+void Saturator::process(double & left, double & right)
 {
     const double sampleRate = m_sampleRate > 0 ? m_sampleRate : 48000.0;
     m_toneFilterL.setSampleRate(sampleRate);
@@ -108,24 +108,24 @@ void SaturatorEffect::process(double & left, double & right)
     right = (dryR * (1.0 - mix) + wetR * mix) * outputLin;
 }
 
-void SaturatorEffect::reset()
+void Saturator::reset()
 {
     m_saturationDb = 0.0;
     m_toneFilterL.reset();
     m_toneFilterR.reset();
 }
 
-void SaturatorEffect::sync()
+void Saturator::sync()
 {
     syncParameters();
 }
 
-float SaturatorEffect::saturationDb() const
+float Saturator::saturationDb() const
 {
     return static_cast<float>(m_saturationDb);
 }
 
-void SaturatorEffect::syncParameters()
+void Saturator::syncParameters()
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeyMode().toStdString()); p) {
         const int mode = static_cast<int>(p->get().value());
@@ -146,17 +146,17 @@ void SaturatorEffect::syncParameters()
     }
 }
 
-std::string SaturatorEffect::typeIdString()
+std::string Saturator::typeIdString()
 {
     return "2f4a6c8e-1b3d-4f5a-9c7e-0d2b4e6f8a1c";
 }
 
-std::string SaturatorEffect::type() const
+std::string Saturator::type() const
 {
     return Constants::RackEffectType::saturator().toStdString();
 }
 
-std::string SaturatorEffect::typeId() const
+std::string Saturator::typeId() const
 {
     return typeIdString();
 }

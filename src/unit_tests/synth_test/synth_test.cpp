@@ -501,7 +501,7 @@ void SynthTest::test_userPresetsDiscreteValues_shouldLoadCorrectly()
 
     // Load PingPong
     synth.loadPreset(1, 2);
-    QCOMPARE(synth.delayType(), DelayEffect::Type::PingPong);
+    QCOMPARE(synth.delayType(), Delay::Type::PingPong);
 
     // Test Phase Sync (vco1Sync)
     const std::string vco1SyncKey = Constants::NahdXml::xmlKeyVco1Sync().toStdString();

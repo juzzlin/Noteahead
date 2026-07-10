@@ -6,24 +6,24 @@ set(SRC
     ../../common/constants.cpp
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
-    ../../domain/effects/delay_effect.cpp
+    ../../domain/effects/delay.cpp
     ../../domain/effects/effect.cpp
-    ../../domain/effects/high_pass_filter_effect.cpp
-    ../../domain/effects/low_pass_filter_effect.cpp
-    ../../domain/effects/panning_effect.cpp
+    ../../domain/effects/high_pass_filter.cpp
+    ../../domain/effects/low_pass_filter.cpp
+    ../../domain/effects/panning.cpp
     ../../domain/dsp/true_stereo_panner.cpp
-    ../../domain/effects/volume_effect.cpp
+    ../../domain/effects/volume.cpp
     ../../domain/dsp/svf_filter.cpp
     ../../domain/dsp/cascaded_svf.cpp
     ../../domain/dsp/diode_ladder_filter.cpp
-    ../../domain/dsp/compressor_effect.cpp
-    ../../domain/dsp/clipper_effect.cpp
-    ../../domain/dsp/saturator_effect.cpp
+    ../../domain/dsp/compressor.cpp
+    ../../domain/dsp/clipper.cpp
+    ../../domain/dsp/saturator.cpp
     ../../domain/dsp/dsp_component.cpp
-    ../../domain/dsp/eq_8_band_parametric_effect.cpp
+    ../../domain/dsp/eq_8_band_parametric.cpp
     ../../domain/dsp/lfo.cpp
-    ../../domain/dsp/reverb_effect.cpp
-    ../../domain/dsp/chorus_effect.cpp
+    ../../domain/dsp/reverb.cpp
+    ../../domain/dsp/chorus.cpp
     ../../domain/tracker/parameter.cpp
     ../../domain/tracker/parameter_container.cpp
 )

@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "delay_effect.hpp"
+#include "delay.hpp"
 
 #include "../../common/constants.hpp"
 #include "../dsp/audio_context.hpp"
@@ -23,7 +23,7 @@
 
 namespace noteahead {
 
-DelayEffect::DelayEffect()
+Delay::Delay()
 {
     m_fbLpfL.setMode(CascadedSvf::Mode::LowPass);
     m_fbLpfR.setMode(CascadedSvf::Mode::LowPass);
@@ -41,7 +41,7 @@ DelayEffect::DelayEffect()
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayFeedbackHpf().toStdString(), 0.0f, 0, 10000, 0, 100 });
 }
 
-void DelayEffect::sync()
+void Delay::sync()
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeyDelayType().toStdString()); p) {
         m_type = static_cast<Type>(p->get().xmlValue());
@@ -74,7 +74,7 @@ void DelayEffect::sync()
     updateFilters();
 }
 
-void DelayEffect::process(double & left, double & right)
+void Delay::process(double & left, double & right)
 {
     if (m_bufferL.empty()) {
         return;
@@ -100,7 +100,7 @@ void DelayEffect::process(double & left, double & right)
     applyMix(left, right, outL, outR);
 }
 
-void DelayEffect::updateFilters()
+void Delay::updateFilters()
 {
     m_fbLpfL.setCutoff(m_feedbackLpfCutoff);
     m_fbLpfR.setCutoff(m_feedbackLpfCutoff);
@@ -108,7 +108,7 @@ void DelayEffect::updateFilters()
     m_fbHpfR.setCutoff(std::max(0.001, m_feedbackHpfCutoff));
 }
 
-void DelayEffect::updateWriteBuffer(double inputL, double inputR, double fbL, double fbR, double & outL, double & outR)
+void Delay::updateWriteBuffer(double inputL, double inputR, double fbL, double fbR, double & outL, double & outR)
 {
     const size_t bufSize = m_bufferL.size();
     double writeL = inputL;
@@ -141,7 +141,7 @@ void DelayEffect::updateWriteBuffer(double inputL, double inputR, double fbL, do
     m_writePos = (m_writePos + 1) % bufSize;
 }
 
-double DelayEffect::calculateDelaySamples() const
+double Delay::calculateDelaySamples() const
 {
     const size_t bufSize = m_bufferL.size();
     if (bufSize < 2) {
@@ -152,7 +152,7 @@ double DelayEffect::calculateDelaySamples() const
     return std::clamp(delayTime * sampleRate, 1.0, static_cast<double>(bufSize - 2));
 }
 
-double DelayEffect::readFromBuffer(const std::vector<double> & buffer, double delay) const
+double Delay::readFromBuffer(const std::vector<double> & buffer, double delay) const
 {
     const size_t bufSize = buffer.size();
     const double bufSizeD = static_cast<double>(bufSize);
@@ -171,7 +171,7 @@ double DelayEffect::readFromBuffer(const std::vector<double> & buffer, double de
     return buffer[i0] * (1.0 - frac) + buffer[i1] * frac;
 }
 
-void DelayEffect::applyFeedbackFilters(double & fbL, double & fbR)
+void Delay::applyFeedbackFilters(double & fbL, double & fbR)
 {
     if (m_feedbackLpfCutoff < 0.999) {
         fbL = m_fbLpfL.process(fbL);
@@ -183,22 +183,22 @@ void DelayEffect::applyFeedbackFilters(double & fbL, double & fbR)
     }
 }
 
-std::string DelayEffect::typeIdString()
+std::string Delay::typeIdString()
 {
     return "7c2e3d0a-4f6b-4b2a-8c1d-1a2b3c4d5e6f";
 }
 
-std::string DelayEffect::type() const
+std::string Delay::type() const
 {
     return Constants::RackEffectType::delay().toStdString();
 }
 
-std::string DelayEffect::typeId() const
+std::string Delay::typeId() const
 {
     return typeIdString();
 }
 
-void DelayEffect::applyTapeSaturation(double & fbL, double & fbR)
+void Delay::applyTapeSaturation(double & fbL, double & fbR)
 {
     if (m_type != Type::Tape) {
         return;
@@ -221,7 +221,7 @@ void DelayEffect::applyTapeSaturation(double & fbL, double & fbR)
     }
 }
 
-void DelayEffect::applyMix(double & left, double & right, double outL, double outR) const
+void Delay::applyMix(double & left, double & right, double outL, double outR) const
 {
     if (m_mix <= Constants::minEffectLevel()) {
         return;
@@ -234,7 +234,7 @@ void DelayEffect::applyMix(double & left, double & right, double outL, double ou
     right = right * dry + outR * wet;
 }
 
-void DelayEffect::process(AudioContext & context)
+void Delay::process(AudioContext & context)
 {
     const auto sampleRate = static_cast<uint32_t>(m_sampleRate);
     if ((sampleRate != m_lastSampleRate || m_bufferL.empty()) && sampleRate > 0) {
@@ -253,7 +253,7 @@ void DelayEffect::process(AudioContext & context)
     }
 }
 
-void DelayEffect::setSampleRate(double sampleRate)
+void Delay::setSampleRate(double sampleRate)
 {
     if (std::abs(m_sampleRate - sampleRate) > 0.1 || m_bufferL.empty()) {
         DspComponent::setSampleRate(sampleRate);
@@ -269,7 +269,7 @@ void DelayEffect::setSampleRate(double sampleRate)
     }
 }
 
-void DelayEffect::reset()
+void Delay::reset()
 {
     std::fill(m_bufferL.begin(), m_bufferL.end(), 0.0);
     std::fill(m_bufferR.begin(), m_bufferR.end(), 0.0);
@@ -281,62 +281,62 @@ void DelayEffect::reset()
     m_fbHpfR.reset();
 }
 
-void DelayEffect::setType(Type type)
+void Delay::setType(Type type)
 {
     m_type = type;
 }
 
-void DelayEffect::setTime(double seconds)
+void Delay::setTime(double seconds)
 {
     m_time = std::clamp(seconds, 0.001, 10.0);
 }
 
-void DelayEffect::setFeedback(double feedback)
+void Delay::setFeedback(double feedback)
 {
     m_feedback = std::clamp(feedback, 0.0, 1.0);
 }
 
-void DelayEffect::setDepth(double depth)
+void Delay::setDepth(double depth)
 {
     m_depth = std::clamp(depth, 0.0, 1.0);
 }
 
-void DelayEffect::setMix(double mix)
+void Delay::setMix(double mix)
 {
     m_mix = std::clamp(mix, 0.0, 1.0);
 }
 
-void DelayEffect::setSync(bool sync)
+void Delay::setSync(bool sync)
 {
     m_sync = sync;
 }
 
-void DelayEffect::setSyncDivision(double division)
+void Delay::setSyncDivision(double division)
 {
     m_syncDivision = division;
 }
 
-void DelayEffect::setFeedbackLpf(double cutoff)
+void Delay::setFeedbackLpf(double cutoff)
 {
     m_feedbackLpfCutoff = std::clamp(cutoff, 0.0, 1.0);
 }
 
-double DelayEffect::feedbackLpf() const
+double Delay::feedbackLpf() const
 {
     return m_feedbackLpfCutoff;
 }
 
-void DelayEffect::setFeedbackHpf(double cutoff)
+void Delay::setFeedbackHpf(double cutoff)
 {
     m_feedbackHpfCutoff = std::clamp(cutoff, 0.0, 1.0);
 }
 
-double DelayEffect::feedbackHpf() const
+double Delay::feedbackHpf() const
 {
     return m_feedbackHpfCutoff;
 }
 
-void DelayEffect::updateBuffers(uint32_t sampleRate)
+void Delay::updateBuffers(uint32_t sampleRate)
 {
     size_t size = static_cast<size_t>(sampleRate * 10); // 10 seconds max
     m_bufferL.assign(size, 0.0);

@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "high_pass_filter_effect.hpp"
+#include "high_pass_filter.hpp"
 #include "../../common/utils.hpp"
 #include "../dsp/audio_context.hpp"
 
@@ -23,12 +23,12 @@
 
 namespace noteahead {
 
-void HighPassFilterEffect::setCutoff(float cutoff)
+void HighPassFilter::setCutoff(float cutoff)
 {
     m_cutoff = cutoff;
 }
 
-void HighPassFilterEffect::process(double & left, double & right)
+void HighPassFilter::process(double & left, double & right)
 {
     if (m_cutoff <= 0.001f) {
         return;
@@ -43,7 +43,7 @@ void HighPassFilterEffect::process(double & left, double & right)
     processSample(left, right, g, damping, k);
 }
 
-void HighPassFilterEffect::process(AudioContext & context)
+void HighPassFilter::process(AudioContext & context)
 {
     if (m_cutoff <= 0.001f) {
         return;
@@ -59,7 +59,7 @@ void HighPassFilterEffect::process(AudioContext & context)
     }
 }
 
-void HighPassFilterEffect::processSample(double & left, double & right, double g, double damping, double k)
+void HighPassFilter::processSample(double & left, double & right, double g, double damping, double k)
 {
     // Left channel
     {
@@ -103,23 +103,23 @@ void HighPassFilterEffect::processSample(double & left, double & right, double g
     }
 }
 
-void HighPassFilterEffect::reset()
+void HighPassFilter::reset()
 {
     m_s1L = m_s2L = 0.0;
     m_s1R = m_s2R = 0.0;
 }
 
-std::string HighPassFilterEffect::typeIdString()
+std::string HighPassFilter::typeIdString()
 {
     return "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d";
 }
 
-std::string HighPassFilterEffect::type() const
+std::string HighPassFilter::type() const
 {
     return "highPassFilter";
 }
 
-std::string HighPassFilterEffect::typeId() const
+std::string HighPassFilter::typeId() const
 {
     return typeIdString();
 }

@@ -13,81 +13,73 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef CHORUS_EFFECT_HPP
-#define CHORUS_EFFECT_HPP
+#ifndef COMPRESSOR_HPP
+#define COMPRESSOR_HPP
 
 #include "../effects/effect.hpp"
 #include "cascaded_svf.hpp"
-#include "lfo.hpp"
 
+#include <cstdint>
 #include <vector>
 
 namespace noteahead {
 
-class ChorusEffect : public Effect
+class Compressor : public Effect
 {
 public:
-    ChorusEffect();
+    Compressor();
 
     static std::string typeIdString();
     std::string type() const override;
     std::string typeId() const override;
 
     void process(double & left, double & right) override;
+    void process(AudioContext & context) override;
     void reset() override;
     void sync() override;
 
-    void setRate(double rate);
-    double rate() const;
+    std::optional<size_t> sidechainSourceDeviceIndex() const override;
 
-    void setDepth(double depth);
-    double depth() const;
-
-    void setDelay(double ms);
-    double delay() const;
-
-    void setMix(double mix);
-    double mix() const;
-
-    void setWidth(double width);
-    double width() const;
-
-    void setLpfCutoff(double cutoff);
-    double lpfCutoff() const;
-
-    void setHpfCutoff(double cutoff);
-    double hpfCutoff() const;
+    float reductionDb() const;
 
 private:
-    void syncParameters();
     void updateBuffers();
-    void updateFilters();
+    void updateCoefficients();
+    double calculateDetectorLevelDb(double left, double right) const;
+    double calculateGainReductionDb(double detectorDb) const;
+    void updateEnvelope(double gainReductionDb);
+    void applyGain(double & left, double & right);
+    void syncParameters();
 
-    double m_rate { 1.0 };
-    double m_depth { 0.5 };
-    double m_delayMs { 20.0 };
-    double m_mix { 0.5 };
-    double m_width { 1.0 };
-    double m_lpfCutoff { 1.0 };
-    double m_hpfCutoff { 0.0 };
+    float m_threshold { -20.0f };
+    float m_ratio { 4.0f };
+    float m_attackMs { 10.0f };
+    float m_releaseMs { 100.0f };
+    float m_knee { 0.0f };
+    float m_makeup { 0.0f };
+    float m_lookaheadMs { 0.0f };
+    float m_sideChainLpfCutoff { 1.0f };
+    std::optional<size_t> m_sidechainSourceDevice;
+
+    CascadedSvf m_sideChainLpfL;
+    CascadedSvf m_sideChainLpfR;
+
+    double m_attackCoeff { 0.0 };
+    double m_releaseCoeff { 0.0 };
+
+    double m_envelopeDb { 0.0 };
+    double m_reductionDb { 0.0 };
+
+    std::vector<double> m_delayBufferL;
+    std::vector<double> m_delayBufferR;
+    uint32_t m_writePos { 0 };
+    uint32_t m_delaySamples { 0 };
 
     bool m_shouldSyncParameters { false };
     bool m_shouldUpdateBuffers { false };
-
-    std::vector<double> m_bufferL;
-    std::vector<double> m_bufferR;
-    uint32_t m_writePos { 0 };
     uint32_t m_lastSampleRate { 0 };
-
-    Lfo m_lfoL;
-    Lfo m_lfoR;
-
-    CascadedSvf m_hpfL;
-    CascadedSvf m_hpfR;
-    CascadedSvf m_lpfL;
-    CascadedSvf m_lpfR;
 };
 
 } // namespace noteahead
 
-#endif // CHORUS_EFFECT_HPP
+#endif // COMPRESSOR_HPP

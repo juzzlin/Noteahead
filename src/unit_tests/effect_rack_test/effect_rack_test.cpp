@@ -15,10 +15,10 @@
 
 #include "effect_rack_test.hpp"
 #include "../../common/constants.hpp"
-#include "../../domain/dsp/reverb_effect.hpp"
+#include "../../domain/dsp/reverb.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/effect_rack.hpp"
-#include "../../domain/effects/volume_effect.hpp"
+#include "../../domain/effects/volume.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
@@ -41,7 +41,7 @@ void EffectRackTest::test_addRemove_shouldAddAndRemoveEffects()
     EffectRack rack;
     QCOMPARE(rack.effectCount(), Constants::effectRackSize());
 
-    auto reverb = std::make_shared<ReverbEffect>();
+    auto reverb = std::make_shared<Reverb>();
     rack.setEffect(0, reverb);
     QCOMPARE(rack.effectCount(), Constants::effectRackSize());
     QCOMPARE(rack.effect(0), reverb);
@@ -53,7 +53,7 @@ void EffectRackTest::test_addRemove_shouldAddAndRemoveEffects()
 void EffectRackTest::test_process_shouldProcessAudio()
 {
     EffectRack rack;
-    auto reverb = std::make_shared<ReverbEffect>();
+    auto reverb = std::make_shared<Reverb>();
     reverb->setMix(1.0f); // Full wet
     reverb->setSize(0.5f);
     reverb->setDecay(0.5f);
@@ -85,7 +85,7 @@ void EffectRackTest::test_process_shouldProcessAudio()
 void EffectRackTest::test_processInPlace_shouldApplyEffectToBuffer()
 {
     EffectRack rack;
-    auto volume = std::make_shared<VolumeEffect>();
+    auto volume = std::make_shared<Volume>();
     volume->setVolume(0.5f); // Half volume
     rack.setEffect(0, volume);
 
@@ -103,7 +103,7 @@ void EffectRackTest::test_processInPlace_shouldApplyEffectToBuffer()
 void EffectRackTest::test_serialization_shouldSerializeAndDeserializeEffects()
 {
     EffectRack rack;
-    auto reverb = std::make_shared<ReverbEffect>();
+    auto reverb = std::make_shared<Reverb>();
     reverb->setSize(0.75f);
     reverb->setLpfCutoff(0.7f);
     reverb->setHpfCutoff(0.25f);
@@ -128,7 +128,7 @@ void EffectRackTest::test_serialization_shouldSerializeAndDeserializeEffects()
     QCOMPARE(rack2.effectCount(), Constants::effectRackSize());
     QVERIFY(rack2.effect(0) == nullptr);
     QVERIFY(rack2.effect(1) == nullptr);
-    auto reverb2 = std::dynamic_pointer_cast<ReverbEffect>(rack2.effect(2));
+    auto reverb2 = std::dynamic_pointer_cast<Reverb>(rack2.effect(2));
     QVERIFY(reverb2 != nullptr);
     QCOMPARE(reverb2->size(), 0.75f);
     QCOMPARE(reverb2->lpfCutoff(), 0.7f);
@@ -152,7 +152,7 @@ void EffectRackTest::test_serialization_shouldSerializeAndDeserializeEffects()
             reader2.skipCurrentElement();
         }
     }
-    auto reverb3 = std::dynamic_pointer_cast<ReverbEffect>(rack3.effect(2));
+    auto reverb3 = std::dynamic_pointer_cast<Reverb>(rack3.effect(2));
     QVERIFY(reverb3 != nullptr);
     QVERIFY(!reverb3->enabled());
 }
@@ -160,7 +160,7 @@ void EffectRackTest::test_serialization_shouldSerializeAndDeserializeEffects()
 void EffectRackTest::test_enabled_flag_shouldControlProcessing()
 {
     EffectRack rack;
-    auto volume = std::make_shared<VolumeEffect>();
+    auto volume = std::make_shared<Volume>();
     volume->setVolume(0.5f); // Half volume
     volume->setEnabled(false);
     rack.setEffect(0, volume);
@@ -195,7 +195,7 @@ void EffectRackTest::test_enabled_flag_shouldControlProcessing()
 
 void EffectRackTest::test_reverb_parameters_shouldGetAndSetParameters()
 {
-    auto reverb = std::make_shared<ReverbEffect>();
+    auto reverb = std::make_shared<Reverb>();
 
     // Decay: 0.5 internal should be 5000ms
     reverb->setDecay(0.5f);
@@ -214,24 +214,24 @@ void EffectRackTest::test_reverb_parameters_shouldGetAndSetParameters()
 
 void EffectRackTest::test_reverb_presets_shouldApplyPresets()
 {
-    auto reverb = std::make_shared<ReverbEffect>();
+    auto reverb = std::make_shared<Reverb>();
 
-    const auto presets = ReverbEffect::presetNames();
+    const auto presets = Reverb::presetNames();
     QVERIFY(!presets.empty());
     QCOMPARE(presets[0], "Hall");
 
-    reverb->applyPreset(ReverbEffect::stringToPreset("Cathedral"));
+    reverb->applyPreset(Reverb::stringToPreset("Cathedral"));
     QCOMPARE(reverb->size(), 1.0f);
     QCOMPARE(reverb->lpfCutoff(), 0.84f);
     QCOMPARE(reverb->hpfCutoff(), 0.16f);
 
-    QCOMPARE(ReverbEffect::presetToString(ReverbEffect::Preset::Spring), "Spring");
+    QCOMPARE(Reverb::presetToString(Reverb::Preset::Spring), "Spring");
 }
 
 void EffectRackTest::test_exportImportEffectSettings_shouldWorkForSingleEffect()
 {
     EffectRack rack;
-    const auto reverb = std::make_shared<ReverbEffect>();
+    const auto reverb = std::make_shared<Reverb>();
     reverb->setSize(0.85f);
     rack.setEffect(1, reverb);
 
@@ -248,7 +248,7 @@ void EffectRackTest::test_exportImportEffectSettings_shouldWorkForSingleEffect()
     NahdXmlReader reader { xml };
     QVERIFY(rack2.importEffectSettings(3, reader)); // Import into slot 3
 
-    const auto reverb2 = std::dynamic_pointer_cast<ReverbEffect>(rack2.effect(3));
+    const auto reverb2 = std::dynamic_pointer_cast<Reverb>(rack2.effect(3));
     QVERIFY(reverb2 != nullptr);
     QCOMPARE(reverb2->size(), 0.85f);
 }
@@ -261,7 +261,7 @@ void EffectRackTest::test_importEffectSettings_backwardsCompatibility()
     writer.writeStartElement(Constants::NahdXml::xmlKeySettings());
     writer.writeStartElement(Constants::NahdXml::xmlKeyInsertEffects());
     writer.writeStartElement(Constants::NahdXml::xmlKeyEffect());
-    writer.writeAttribute(Constants::NahdXml::xmlKeyTypeId(), QString::fromStdString(ReverbEffect::typeIdString()));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyTypeId(), QString::fromStdString(Reverb::typeIdString()));
     writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
     writer.writeAttribute(Constants::NahdXml::xmlKeyName(), "reverbSize");
     writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), "4200");
@@ -274,7 +274,7 @@ void EffectRackTest::test_importEffectSettings_backwardsCompatibility()
     NahdXmlReader reader { xml };
     QVERIFY(rack.importEffectSettings(0, reader));
 
-    const auto reverb = std::dynamic_pointer_cast<ReverbEffect>(rack.effect(0));
+    const auto reverb = std::dynamic_pointer_cast<Reverb>(rack.effect(0));
     QVERIFY(reverb != nullptr);
     QCOMPARE(reverb->size(), 0.42f);
 }
@@ -282,9 +282,9 @@ void EffectRackTest::test_importEffectSettings_backwardsCompatibility()
 void EffectRackTest::test_swapEffects_shouldSwapTwoSlots()
 {
     EffectRack rack;
-    const auto reverbA = std::make_shared<ReverbEffect>();
+    const auto reverbA = std::make_shared<Reverb>();
     reverbA->setSize(0.3f);
-    const auto reverbB = std::make_shared<ReverbEffect>();
+    const auto reverbB = std::make_shared<Reverb>();
     reverbB->setSize(0.7f);
 
     rack.setEffect(0, reverbA);
@@ -292,8 +292,8 @@ void EffectRackTest::test_swapEffects_shouldSwapTwoSlots()
 
     rack.swapEffects(0, 1);
 
-    const auto a = std::dynamic_pointer_cast<ReverbEffect>(rack.effect(0));
-    const auto b = std::dynamic_pointer_cast<ReverbEffect>(rack.effect(1));
+    const auto a = std::dynamic_pointer_cast<Reverb>(rack.effect(0));
+    const auto b = std::dynamic_pointer_cast<Reverb>(rack.effect(1));
     QVERIFY(a);
     QVERIFY(b);
     QCOMPARE(a->size(), 0.7f);
@@ -303,7 +303,7 @@ void EffectRackTest::test_swapEffects_shouldSwapTwoSlots()
 void EffectRackTest::test_swapEffects_outOfBounds_shouldDoNothing()
 {
     EffectRack rack;
-    const auto reverb = std::make_shared<ReverbEffect>();
+    const auto reverb = std::make_shared<Reverb>();
     rack.setEffect(0, reverb);
 
     rack.swapEffects(0, 999);

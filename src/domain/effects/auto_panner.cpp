@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "auto_panner_effect.hpp"
+#include "auto_panner.hpp"
 
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
@@ -24,7 +24,7 @@
 
 namespace noteahead {
 
-AutoPannerEffect::AutoPannerEffect()
+AutoPanner::AutoPanner()
 {
     addParameter({ Constants::NahdXml::xmlKeyWaveform().toStdString(), 0.0f, 0, 3, 0, 1, Parameter::Type::Discrete });
     addParameter({ Constants::NahdXml::xmlKeyIntensity().toStdString(), 1.0f, 0, 10000, 10000, 100 });
@@ -33,22 +33,22 @@ AutoPannerEffect::AutoPannerEffect()
     addParameter({ Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString(), 0.25f, 0, 100, 25 });
 }
 
-std::string AutoPannerEffect::typeIdString()
+std::string AutoPanner::typeIdString()
 {
     return "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b";
 }
 
-std::string AutoPannerEffect::type() const
+std::string AutoPanner::type() const
 {
     return Constants::RackEffectType::autoPanner().toStdString();
 }
 
-std::string AutoPannerEffect::typeId() const
+std::string AutoPanner::typeId() const
 {
     return typeIdString();
 }
 
-void AutoPannerEffect::process(double & left, double & right)
+void AutoPanner::process(double & left, double & right)
 {
     const double lfoValue = m_lfo.nextSample(); // -1.0 to 1.0
     const double pan = 0.5 + (lfoValue * 0.5 * m_intensity); // 0.0 to 1.0
@@ -59,7 +59,7 @@ void AutoPannerEffect::process(double & left, double & right)
     right *= gainR;
 }
 
-void AutoPannerEffect::process(AudioContext & context)
+void AutoPanner::process(AudioContext & context)
 {
     m_lfo.setSampleRate(context.sampleRate);
     updateLfoFrequency();
@@ -69,7 +69,7 @@ void AutoPannerEffect::process(AudioContext & context)
     }
 }
 
-void AutoPannerEffect::sync()
+void AutoPanner::sync()
 {
     if (auto p = parameter(Constants::NahdXml::xmlKeyWaveform().toStdString()); p) {
         m_lfo.setWaveform(static_cast<Lfo::Waveform>(static_cast<int>(p->get().value() * 3.0f + 0.5f)));
@@ -89,13 +89,13 @@ void AutoPannerEffect::sync()
     updateLfoFrequency();
 }
 
-void AutoPannerEffect::setBpm(float bpm)
+void AutoPanner::setBpm(float bpm)
 {
     Effect::setBpm(bpm);
     updateLfoFrequency();
 }
 
-void AutoPannerEffect::updateLfoFrequency()
+void AutoPanner::updateLfoFrequency()
 {
     if (m_sync) {
         const double bps = static_cast<double>(bpm()) / 60.0;

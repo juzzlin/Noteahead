@@ -18,17 +18,17 @@
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
 #include "../../domain/dsp/cascaded_svf.hpp"
-#include "../../domain/dsp/chorus_effect.hpp"
-#include "../../domain/dsp/clipper_effect.hpp"
-#include "../../domain/dsp/compressor_effect.hpp"
-#include "../../domain/dsp/eq_8_band_parametric_effect.hpp"
-#include "../../domain/dsp/reverb_effect.hpp"
-#include "../../domain/dsp/saturator_effect.hpp"
-#include "../../domain/effects/delay_effect.hpp"
-#include "../../domain/effects/high_pass_filter_effect.hpp"
-#include "../../domain/effects/low_pass_filter_effect.hpp"
-#include "../../domain/effects/panning_effect.hpp"
-#include "../../domain/effects/volume_effect.hpp"
+#include "../../domain/dsp/chorus.hpp"
+#include "../../domain/dsp/clipper.hpp"
+#include "../../domain/dsp/compressor.hpp"
+#include "../../domain/dsp/eq_8_band_parametric.hpp"
+#include "../../domain/dsp/reverb.hpp"
+#include "../../domain/dsp/saturator.hpp"
+#include "../../domain/effects/delay.hpp"
+#include "../../domain/effects/high_pass_filter.hpp"
+#include "../../domain/effects/low_pass_filter.hpp"
+#include "../../domain/effects/panning.hpp"
+#include "../../domain/effects/volume.hpp"
 
 #include <QTest>
 
@@ -39,7 +39,7 @@ namespace noteahead {
 
 void EffectsTest::test_volumeEffect_shouldApplyGainToSignal()
 {
-    VolumeEffect effect;
+    Volume effect;
     double left = 1.0;
     double right = 1.0;
     effect.setVolume(0.5f);
@@ -58,7 +58,7 @@ void EffectsTest::test_volumeEffect_shouldApplyGainToSignal()
 
 void EffectsTest::test_panningEffect_shouldDistributeSignalToChannels()
 {
-    PanningEffect effect;
+    Panning effect;
 
     // Center: constant-power pan gives cos(π/4) on both channels
     {
@@ -94,7 +94,7 @@ void EffectsTest::test_panningEffect_shouldDistributeSignalToChannels()
 
 void EffectsTest::test_lowPassFilterEffect_shouldProcessAudioStablely()
 {
-    LowPassFilterEffect effect;
+    LowPassFilter effect;
     double left = 1.0;
     double right = 1.0;
     // Cutoff 1.0 (bypass)
@@ -116,7 +116,7 @@ void EffectsTest::test_lowPassFilterEffect_shouldProcessAudioStablely()
 
 void EffectsTest::test_highPassFilterEffect_shouldProcessAudioStablely()
 {
-    HighPassFilterEffect effect;
+    HighPassFilter effect;
 
     // Cutoff 0.0 (bypass)
     {
@@ -151,7 +151,7 @@ void EffectsTest::test_highPassFilterEffect_shouldProcessAudioStablely()
 
 void EffectsTest::test_reverb_mix_shouldApplyEffectBasedOnMixLevel()
 {
-    ReverbEffect reverb;
+    Reverb reverb;
     reverb.setSampleRate(44100);
     reverb.setMix(0.0f);
     reverb.setLpfCutoff(1.0f);
@@ -199,7 +199,7 @@ void EffectsTest::test_reverb_mix_shouldApplyEffectBasedOnMixLevel()
 void EffectsTest::test_reverb_filters_shouldShapeWetSignal()
 {
     auto measureDcWetEnergy = [](float hpfCutoff) {
-        ReverbEffect reverb;
+        Reverb reverb;
         reverb.setSampleRate(44100);
         reverb.setMix(1.0f);
         reverb.setSize(0.6f);
@@ -231,7 +231,7 @@ void EffectsTest::test_reverb_filters_shouldShapeWetSignal()
 
 void EffectsTest::test_delayEffect_shouldProcessSignalAndHandleSampleRateChanges()
 {
-    DelayEffect effect;
+    Delay effect;
     effect.setSampleRate(44100.0);
     effect.setBpm(120.0);
     effect.setSync(true);
@@ -258,7 +258,7 @@ void EffectsTest::test_delayEffect_shouldProcessSignalAndHandleSampleRateChanges
 
 void EffectsTest::test_delayEffect_shouldProduceDelayedSignal()
 {
-    DelayEffect effect;
+    Delay effect;
     const float sampleRate = 44100.0f;
     effect.setSampleRate(sampleRate);
     effect.setMix(1.0f); // 100% wet
@@ -334,7 +334,7 @@ void EffectsTest::test_delayEffect_shouldProduceDelayedSignal()
 
 void EffectsTest::test_delayEffect_shouldMaintainFeedbackLoop()
 {
-    DelayEffect effect;
+    Delay effect;
     const float sampleRate = 44100.0f;
     effect.setSampleRate(sampleRate);
     effect.setMix(1.0f); // 100% wet
@@ -390,10 +390,10 @@ void EffectsTest::test_delayEffect_shouldMaintainFeedbackLoop()
 
 void EffectsTest::test_delayEffect_shouldMaintainStereoFeedback()
 {
-    DelayEffect effect;
+    Delay effect;
     const float sampleRate = 44100.0f;
     effect.setSampleRate(sampleRate);
-    effect.setType(DelayEffect::Type::Stereo);
+    effect.setType(Delay::Type::Stereo);
     effect.setMix(1.0f); // 100% wet
     effect.setFeedback(0.9f); // 90% feedback
     effect.setTime(0.1f); // 100ms delay = 4410 samples
@@ -428,7 +428,7 @@ void EffectsTest::test_delayEffect_shouldMaintainStereoFeedback()
 
 void EffectsTest::test_delayEffect_shouldProduceDecayingSeriesOfEchoes()
 {
-    DelayEffect effect;
+    Delay effect;
     const float sampleRate = 44100.0f;
     effect.setSampleRate(sampleRate);
     effect.setMix(1.0f); // 100% wet
@@ -471,10 +471,10 @@ void EffectsTest::test_delayEffect_shouldProduceDecayingSeriesOfEchoes()
 
 void EffectsTest::test_delayEffect_shouldProcessMonoMode()
 {
-    DelayEffect effect;
+    Delay effect;
     const float sampleRate = 44100.0f;
     effect.setSampleRate(sampleRate);
-    effect.setType(DelayEffect::Type::Mono);
+    effect.setType(Delay::Type::Mono);
     effect.setMix(1.0f);
     effect.setFeedback(1.0f);
     effect.setTime(0.1f);
@@ -505,10 +505,10 @@ void EffectsTest::test_delayEffect_shouldProcessMonoMode()
 
 void EffectsTest::test_delayEffect_shouldProcessPingPongMode()
 {
-    DelayEffect effect;
+    Delay effect;
     const float sampleRate = 44100.0f;
     effect.setSampleRate(sampleRate);
-    effect.setType(DelayEffect::Type::PingPong);
+    effect.setType(Delay::Type::PingPong);
     effect.setMix(1.0f);
     effect.setFeedback(1.0f);
     effect.setDepth(1.0f); // Max width
@@ -562,10 +562,10 @@ void EffectsTest::test_delayEffect_shouldProcessPingPongMode()
 
 void EffectsTest::test_delayEffect_shouldProcessTapeMode()
 {
-    DelayEffect effect;
+    Delay effect;
     const float sampleRate = 44100.0f;
     effect.setSampleRate(sampleRate);
-    effect.setType(DelayEffect::Type::Tape);
+    effect.setType(Delay::Type::Tape);
     effect.setMix(1.0f); // 100% wet
     effect.setFeedback(1.0f);
     effect.setDepth(1.0f); // High saturation
@@ -603,7 +603,7 @@ void EffectsTest::test_delayEffect_shouldProcessTapeMode()
 
 void EffectsTest::test_delayEffect_shouldSyncParameters()
 {
-    DelayEffect effect;
+    Delay effect;
     effect.setSampleRate(44100.0);
 
     // Initial check (defaults)
@@ -638,7 +638,7 @@ void EffectsTest::test_delayEffect_shouldSyncParameters()
 
 void EffectsTest::test_compressorEffect_shouldReduceGainAndHandleLookahead()
 {
-    CompressorEffect effect;
+    Compressor effect;
     effect.setSampleRate(44100.0);
 
     // Default: Threshold -20dB, Ratio 4:1, Attack 10ms, Release 100ms, Makeup 0dB, Lookahead 0ms
@@ -705,7 +705,7 @@ void EffectsTest::test_compressorEffect_shouldReduceGainAndHandleLookahead()
 
 void EffectsTest::test_eq8BandParametricEffect_shouldApplyBandsAndBeStable()
 {
-    Eq8BandParametricEffect effect;
+    Eq8BandParametric effect;
     effect.setSampleRate(44100.0);
 
     // Test defaults
@@ -764,7 +764,7 @@ void EffectsTest::test_eq8BandParametricEffect_shouldApplyBandsAndBeStable()
 
 void EffectsTest::test_clipperEffect_shouldClipSignal()
 {
-    ClipperEffect effect;
+    Clipper effect;
 
     // Test Hard Clipping
     {
@@ -837,7 +837,7 @@ void EffectsTest::test_clipperEffect_shouldClipSignal()
 
 void EffectsTest::test_saturatorEffect_shouldShapeSignalPerMode()
 {
-    SaturatorEffect effect;
+    Saturator effect;
 
     // Tape mode: unity drive, full wet, open tone -> plain tanh shaping
     {
@@ -898,7 +898,7 @@ void EffectsTest::test_saturatorEffect_shouldShapeSignalPerMode()
 
 void EffectsTest::test_saturatorEffect_shouldRespectMix()
 {
-    SaturatorEffect effect;
+    Saturator effect;
     effect.reset();
 
     if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyDrive().toStdString()); p) {
@@ -922,7 +922,7 @@ void EffectsTest::test_saturatorEffect_shouldRespectMix()
 
 void EffectsTest::test_saturatorEffect_shouldReportSaturationMeter()
 {
-    SaturatorEffect effect;
+    Saturator effect;
     effect.reset();
 
     if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyMode().toStdString()); p) {
@@ -947,8 +947,8 @@ void EffectsTest::test_saturatorEffect_shouldReportSaturationMeter()
 
 void EffectsTest::test_filterStability_shouldHandleChangingCutoff()
 {
-    LowPassFilterEffect lp;
-    HighPassFilterEffect hp;
+    LowPassFilter lp;
+    HighPassFilter hp;
 
     for (int i = 0; i < 1000; ++i) {
         double left = 1.0;
@@ -990,7 +990,7 @@ void EffectsTest::test_cascadedSvfStability_shouldHandleRapidParameterChanges()
 
 void EffectsTest::test_chorusEffect_shouldProcessAudio()
 {
-    ChorusEffect effect;
+    Chorus effect;
     effect.setSampleRate(44100.0);
     effect.setRate(1.0);
     effect.setDepth(0.5);

@@ -16,29 +16,29 @@ set(SOURCE_FILES
     ../../domain/effects/effect_rack.cpp
     ../../domain/effects/effect_factory.cpp
     ../../domain/dsp/dsp_component.cpp
-    ../../domain/dsp/compressor_effect.cpp
+    ../../domain/dsp/compressor.cpp
     ../../domain/dsp/svf_filter.cpp
     ../../domain/dsp/cascaded_svf.cpp
     ../../domain/dsp/diode_ladder_filter.cpp
-    ../../domain/dsp/reverb_effect.cpp
+    ../../domain/dsp/reverb.cpp
     ../../domain/dsp/all_pass_filter.cpp
     ../../domain/dsp/dbtp_meter.cpp
     ../../domain/dsp/lufs_meter.cpp
     ../../domain/dsp/rta.cpp
-    ../../domain/dsp/chorus_effect.cpp
-    ../../domain/dsp/clipper_effect.cpp
-    ../../domain/dsp/saturator_effect.cpp
-    ../../domain/dsp/eq_8_band_parametric_effect.cpp
+    ../../domain/dsp/chorus.cpp
+    ../../domain/dsp/clipper.cpp
+    ../../domain/dsp/saturator.cpp
+    ../../domain/dsp/eq_8_band_parametric.cpp
     ../../domain/dsp/lfo.cpp
     ../../domain/dsp/oversampler.cpp
-    ../../domain/effects/auto_panner_effect.cpp
-    ../../domain/effects/delay_effect.cpp
-    ../../domain/effects/high_pass_filter_effect.cpp
-    ../../domain/effects/low_pass_filter_effect.cpp
-    ../../domain/effects/panner_effect.cpp
-    ../../domain/effects/panning_effect.cpp
+    ../../domain/effects/auto_panner.cpp
+    ../../domain/effects/delay.cpp
+    ../../domain/effects/high_pass_filter.cpp
+    ../../domain/effects/low_pass_filter.cpp
+    ../../domain/effects/panner.cpp
+    ../../domain/effects/panning.cpp
     ../../domain/dsp/true_stereo_panner.cpp
-    ../../domain/effects/volume_effect.cpp
+    ../../domain/effects/volume.cpp
     ../../infra/audio/audio_engine.cpp
     ../../infra/audio/real_time_worker_pool.cpp
     ../../infra/xml/nahd_xml_reader.cpp
