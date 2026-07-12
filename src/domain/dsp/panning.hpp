@@ -16,8 +16,8 @@
 #ifndef PANNING_HPP
 #define PANNING_HPP
 
-#include "../dsp/true_stereo_panner.hpp"
-#include "effect.hpp"
+#include "../effects/effect.hpp"
+#include "true_stereo_panner.hpp"
 
 namespace noteahead {
 

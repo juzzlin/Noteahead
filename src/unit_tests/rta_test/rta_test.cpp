@@ -17,7 +17,7 @@
 
 #include "../../common/constants.hpp"
 #include "../../domain/dsp/audio_context.hpp"
-#include "../../domain/dsp/rta.hpp"
+#include "../../domain/utility/rta.hpp"
 
 #include <QTest>
 

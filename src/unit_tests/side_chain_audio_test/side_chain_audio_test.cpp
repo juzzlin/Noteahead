@@ -17,7 +17,7 @@
 
 #include "../../common/constants.hpp"
 #include "../../domain/devices/device.hpp"
-#include "../../domain/dsp/compressor.hpp"
+#include "../../domain/effects/compressor.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"

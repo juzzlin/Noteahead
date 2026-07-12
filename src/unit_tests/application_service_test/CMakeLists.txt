@@ -54,25 +54,25 @@ set(SRC
     ../../domain/dsp/lfo.cpp
     ../../domain/effects/auto_panner.cpp
     ../../domain/effects/effect_rack.cpp
-    ../../domain/effects/high_pass_filter.cpp
-    ../../domain/effects/low_pass_filter.cpp
+    ../../domain/dsp/high_pass_filter.cpp
+    ../../domain/dsp/low_pass_filter.cpp
     ../../domain/effects/panner.cpp
-    ../../domain/effects/panning.cpp
+    ../../domain/dsp/panning.cpp
     ../../domain/dsp/true_stereo_panner.cpp
     ../../domain/devices/sampler_device.cpp
     ../../domain/devices/synth_device.cpp
     ../../domain/devices/wavetable_synth_device.cpp
     ../../domain/devices/synth_presets.cpp
-    ../../domain/effects/volume.cpp
+    ../../domain/dsp/volume.cpp
     ../../domain/dsp/adsr_envelope.cpp
     ../../domain/dsp/svf_filter.cpp
         ../../domain/dsp/wavetable.cpp
     ../../domain/dsp/wavetable_oscillator.cpp
     ../../domain/dsp/cascaded_svf.cpp
     ../../domain/dsp/diode_ladder_filter.cpp
-    ../../domain/dsp/compressor.cpp
-    ../../domain/dsp/clipper.cpp
-    ../../domain/dsp/saturator.cpp
+    ../../domain/effects/compressor.cpp
+    ../../domain/effects/clipper.cpp
+    ../../domain/effects/saturator.cpp
     ../../domain/dsp/drum/clap_engine.cpp
     ../../domain/dsp/drum/crash_engine.cpp
     ../../domain/dsp/drum/hihat_engine.cpp
@@ -81,17 +81,17 @@ set(SRC
     ../../domain/dsp/drum/snare_engine.cpp
     ../../domain/dsp/drum/tom_engine.cpp
     ../../domain/dsp/dsp_component.cpp
-    ../../domain/dsp/eq_8_band_parametric.cpp
+    ../../domain/effects/eq_8_band_parametric.cpp
     ../../domain/dsp/lfo.cpp
     ../../domain/dsp/multi_engine.cpp
     ../../domain/dsp/oversampler.cpp
     ../../domain/dsp/poly_blep_oscillator.cpp
-    ../../domain/dsp/reverb.cpp
-    ../../domain/dsp/all_pass_filter.cpp
-    ../../domain/dsp/dbtp_meter.cpp
-    ../../domain/dsp/lufs_meter.cpp
-    ../../domain/dsp/rta.cpp
-    ../../domain/dsp/chorus.cpp
+    ../../domain/effects/reverb.cpp
+    ../../domain/effects/all_pass_filter.cpp
+    ../../domain/utility/dbtp_meter.cpp
+    ../../domain/utility/lufs_meter.cpp
+    ../../domain/utility/rta.cpp
+    ../../domain/effects/chorus.cpp
     ../../domain/tracker/event.cpp
     ../../domain/tracker/event_data.cpp
     ../../domain/tracker/instrument.cpp

@@ -16,7 +16,7 @@
 #include "reverb.hpp"
 
 #include "../../common/constants.hpp"
-#include "audio_context.hpp"
+#include "../dsp/audio_context.hpp"
 
 #include <algorithm>
 #include <cmath>

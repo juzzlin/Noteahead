@@ -15,10 +15,10 @@
 
 #include "effect_rack_test.hpp"
 #include "../../common/constants.hpp"
-#include "../../domain/dsp/reverb.hpp"
+#include "../../domain/dsp/volume.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/effect_rack.hpp"
-#include "../../domain/effects/volume.hpp"
+#include "../../domain/effects/reverb.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 

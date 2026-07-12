@@ -13,32 +13,49 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef HIGH_PASS_FILTER_HPP
-#define HIGH_PASS_FILTER_HPP
+#ifndef CLIPPER_HPP
+#define CLIPPER_HPP
 
 #include "effect.hpp"
 
+#include <cstdint>
+
 namespace noteahead {
 
-class HighPassFilter : public Effect
+class Clipper : public Effect
 {
 public:
+    enum class Mode
+    {
+        Hard,
+        Soft
+    };
+
+    Clipper();
+
     static std::string typeIdString();
     std::string type() const override;
     std::string typeId() const override;
 
-    void setCutoff(float cutoff);
     void process(double & left, double & right) override;
     void process(AudioContext & context) override;
     void reset() override;
+    void sync() override;
+
+    float reductionDb() const;
 
 private:
-    void processSample(double & left, double & right, double g, double damping, double k);
-    float m_cutoff { 0.0f };
-    double m_s1L { 0.0 }, m_s2L { 0.0 };
-    double m_s1R { 0.0 }, m_s2R { 0.0 };
+    void syncParameters();
+
+    Mode m_mode { Mode::Soft };
+    float m_thresholdDb { 0.0f };
+    float m_gainDb { 0.0f };
+
+    double m_reductionDb { 0.0 };
+    double m_meterReleaseCoeff { 0.0 };
+    uint32_t m_lastSampleRate { 0 };
 };
 
 } // namespace noteahead
 
-#endif // HIGH_PASS_FILTER_HPP
+#endif // CLIPPER_HPP

@@ -13,27 +13,32 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef VOLUME_HPP
-#define VOLUME_HPP
+#ifndef HIGH_PASS_FILTER_HPP
+#define HIGH_PASS_FILTER_HPP
 
-#include "effect.hpp"
+#include "../effects/effect.hpp"
 
 namespace noteahead {
 
-class Volume : public Effect
+class HighPassFilter : public Effect
 {
 public:
     static std::string typeIdString();
     std::string type() const override;
     std::string typeId() const override;
 
-    void setVolume(float volume);
+    void setCutoff(float cutoff);
     void process(double & left, double & right) override;
+    void process(AudioContext & context) override;
+    void reset() override;
 
 private:
-    float m_volume { 1.0f };
+    void processSample(double & left, double & right, double g, double damping, double k);
+    float m_cutoff { 0.0f };
+    double m_s1L { 0.0 }, m_s2L { 0.0 };
+    double m_s1R { 0.0 }, m_s2R { 0.0 };
 };
 
 } // namespace noteahead
 
-#endif // VOLUME_HPP
+#endif // HIGH_PASS_FILTER_HPP

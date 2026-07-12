@@ -16,8 +16,8 @@
 #ifndef COMPRESSOR_HPP
 #define COMPRESSOR_HPP
 
-#include "../effects/effect.hpp"
-#include "cascaded_svf.hpp"
+#include "../dsp/cascaded_svf.hpp"
+#include "effect.hpp"
 
 #include <cstdint>
 #include <vector>

@@ -15,7 +15,7 @@
 
 #include "dbtp_meter_test.hpp"
 
-#include "../../domain/dsp/dbtp_meter.hpp"
+#include "../../domain/utility/dbtp_meter.hpp"
 
 #include <QTest>
 

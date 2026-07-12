@@ -9,11 +9,11 @@ set(EFFECTS_SOURCES
     panner.cpp
     panning.cpp
     volume.cpp
-    ../dsp/chorus.cpp
-    ../dsp/clipper.cpp
-    ../dsp/compressor.cpp
-    ../dsp/eq_8_band_parametric.cpp
-    ../dsp/reverb.cpp
+    ../effects/chorus.cpp
+    ../effects/clipper.cpp
+    ../effects/compressor.cpp
+    ../effects/eq_8_band_parametric.cpp
+    ../effects/reverb.cpp
 )
 
 add_library(Effects STATIC ${EFFECTS_SOURCES})

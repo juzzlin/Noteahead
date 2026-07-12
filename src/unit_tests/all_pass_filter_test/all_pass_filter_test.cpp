@@ -16,7 +16,7 @@
 #include "all_pass_filter_test.hpp"
 
 #include "../../common/constants.hpp"
-#include "../../domain/dsp/all_pass_filter.hpp"
+#include "../../domain/effects/all_pass_filter.hpp"
 
 #include <QTest>
 

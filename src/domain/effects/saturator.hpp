@@ -13,22 +13,25 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef ALL_PASS_FILTER_HPP
-#define ALL_PASS_FILTER_HPP
+#ifndef SATURATOR_HPP
+#define SATURATOR_HPP
 
-#include "../effects/effect.hpp"
-
-#include <array>
-#include <cstdint>
+#include "../dsp/cascaded_svf.hpp"
+#include "effect.hpp"
 
 namespace noteahead {
 
-class AllPassFilter : public Effect
+class Saturator : public Effect
 {
 public:
-    static constexpr int maxStages = 4;
+    enum class Mode
+    {
+        Tape,
+        Tube,
+        Diode
+    };
 
-    AllPassFilter();
+    Saturator();
 
     static std::string typeIdString();
     std::string type() const override;
@@ -38,28 +41,24 @@ public:
     void reset() override;
     void sync() override;
 
+    float saturationDb() const;
+
 private:
-    void updateCoefficients();
     void syncParameters();
+    double shape(double x) const;
 
-    double m_b0 { 1.0 };
-    double m_b1 { 0.0 };
-    double m_b2 { 1.0 };
+    Mode m_mode { Mode::Tape };
+    float m_driveDb { 0.0f };
+    float m_tone { 1.0f };
+    float m_mix { 1.0f };
+    float m_outputDb { 0.0f };
 
-    // Per-stage delay-line state: {xn1, xn2, yn1, yn2}
-    using StageState = std::array<double, 4>;
-    using StateArray = std::array<StageState, maxStages>;
-    StateArray m_stateL {};
-    StateArray m_stateR {};
+    CascadedSvf m_toneFilterL;
+    CascadedSvf m_toneFilterR;
 
-    float m_frequency { 100.0f };
-    float m_q { 0.707f };
-    int m_stages { 1 };
-
-    bool m_shouldSyncParameters { false };
-    uint32_t m_lastSampleRate { 0 };
+    double m_saturationDb { 0.0 };
 };
 
 } // namespace noteahead
 
-#endif // ALL_PASS_FILTER_HPP
+#endif // SATURATOR_HPP

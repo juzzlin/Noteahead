@@ -16,8 +16,8 @@
 #ifndef EQ_8_BAND_PARAMETRIC_HPP
 #define EQ_8_BAND_PARAMETRIC_HPP
 
-#include "../effects/effect.hpp"
-#include "svf_filter.hpp"
+#include "../dsp/svf_filter.hpp"
+#include "effect.hpp"
 
 #include <array>
 #include <cstdint>

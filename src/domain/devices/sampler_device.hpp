@@ -17,11 +17,11 @@
 #define SAMPLER_DEVICE_HPP
 
 #include "../../infra/audio/backend/audio_file_reader.hpp"
+#include "../dsp/high_pass_filter.hpp"
+#include "../dsp/low_pass_filter.hpp"
+#include "../dsp/panning.hpp"
+#include "../dsp/volume.hpp"
 #include "../effects/effect.hpp"
-#include "../effects/high_pass_filter.hpp"
-#include "../effects/low_pass_filter.hpp"
-#include "../effects/panning.hpp"
-#include "../effects/volume.hpp"
 #include "../tracker/parameter_container.hpp"
 #include "device.hpp"
 

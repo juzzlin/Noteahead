@@ -7,7 +7,7 @@ set(SRC
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
     ../../domain/dsp/dsp_component.cpp
-    ../../domain/dsp/rta.cpp
+    ../../domain/utility/rta.cpp
     ../../domain/effects/effect.cpp
     ../../domain/tracker/parameter.cpp
     ../../domain/tracker/parameter_container.cpp
