@@ -1,19 +1,9 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/src)
 set(NAME lufs_meter_test)
 set(SRC
-    ${NAME}.cpp
-    ${NAME}.hpp
-    ../../common/constants.cpp
-    ../../common/parameter_mapper.cpp
-    ../../common/utils.cpp
-    ../../domain/dsp/dsp_component.cpp
-    ../../domain/effects/effect.cpp
-    ../../domain/tracker/parameter.cpp
-    ../../domain/tracker/parameter_container.cpp
-    ../../domain/utility/dbtp_meter.cpp
-    ../../domain/utility/lufs_meter.cpp
-)
+${NAME}.cpp
+    ${NAME}.hpp)
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})
 add_test(${NAME} ${UNIT_TEST_BASE_DIR}/${NAME})
-target_link_libraries(${NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Test SimpleLogger)
+target_link_libraries(${NAME} PRIVATE ApplicationLib Argengine_static CommonLib DomainLib InfraLib SimpleLogger_static ViewLib Qt${QT_VERSION_MAJOR}::Test SimpleLogger_static)

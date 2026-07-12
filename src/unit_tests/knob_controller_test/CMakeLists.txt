@@ -3,15 +3,11 @@ set(HEADER_FILES
 )
 
 set(SOURCE_FILES
-    ../../common/constants.cpp
-    ../../common/parameter_mapper.cpp
-    ../../view/controllers/knob_controller.cpp
-    knob_controller_test.cpp
-)
+    knob_controller_test.cpp)
 
 qt_add_executable(knob_controller_test ${HEADER_FILES} ${SOURCE_FILES})
 
-target_link_libraries(knob_controller_test PRIVATE Qt6::Test Qt6::Core)
+target_link_libraries(knob_controller_test PRIVATE ApplicationLib Argengine_static CommonLib DomainLib InfraLib SimpleLogger_static ViewLib Qt6::Test Qt6::Core)
 target_include_directories(knob_controller_test PRIVATE ../../contrib/SimpleLogger/src)
 target_include_directories(knob_controller_test PRIVATE ../../contrib/Argengine/src)
 
