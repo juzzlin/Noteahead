@@ -141,4 +141,4 @@ void DbTpMeterTest::test_dbtpMeter_peakHold_shouldRetainMaximum()
 
 } // namespace noteahead
 
-QTEST_MAIN(noteahead::DbTpMeterTest)
+QTEST_GUILESS_MAIN(noteahead::DbTpMeterTest)

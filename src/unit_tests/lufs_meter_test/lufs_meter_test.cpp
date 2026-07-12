@@ -132,4 +132,4 @@ void LufsMeterTest::test_lufsMeter_sampleRateChange_shouldReinitialize()
 
 } // namespace noteahead
 
-QTEST_MAIN(noteahead::LufsMeterTest)
+QTEST_GUILESS_MAIN(noteahead::LufsMeterTest)

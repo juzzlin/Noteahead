@@ -115,4 +115,4 @@ void AllPassFilterTest::test_allPassFilter_reset_shouldClearState()
 
 } // namespace noteahead
 
-QTEST_MAIN(noteahead::AllPassFilterTest)
+QTEST_GUILESS_MAIN(noteahead::AllPassFilterTest)

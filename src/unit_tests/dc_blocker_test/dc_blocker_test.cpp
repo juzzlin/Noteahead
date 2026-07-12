@@ -108,4 +108,4 @@ void DcBlockerTest::test_dcBlocker_reset_shouldClearState()
 
 } // namespace noteahead
 
-QTEST_MAIN(noteahead::DcBlockerTest)
+QTEST_GUILESS_MAIN(noteahead::DcBlockerTest)
