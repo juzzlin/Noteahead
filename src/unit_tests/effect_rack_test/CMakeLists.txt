@@ -6,34 +6,34 @@ set(SRC
     ../../common/constants.cpp
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
-    ../../domain/effects/delay.cpp
-    ../../domain/effects/effect.cpp
-    ../../domain/dsp/lfo.cpp
-    ../../domain/effects/auto_panner.cpp
-    ../../domain/effects/effect_rack.cpp
-    ../../domain/effects/effect_factory.cpp
-    ../../domain/dsp/high_pass_filter.cpp
-    ../../domain/dsp/low_pass_filter.cpp
-    ../../domain/dsp/panning.cpp
-    ../../domain/dsp/true_stereo_panner.cpp
-    ../../domain/effects/panner.cpp
-    ../../domain/dsp/volume.cpp
-    ../../domain/dsp/svf_filter.cpp
     ../../domain/dsp/cascaded_svf.cpp
     ../../domain/dsp/diode_ladder_filter.cpp
-    ../../domain/effects/compressor.cpp
-    ../../domain/effects/clipper.cpp
-    ../../domain/effects/saturator.cpp
     ../../domain/dsp/dsp_component.cpp
-    ../../domain/effects/eq_8_band_parametric.cpp
-    ../../domain/effects/reverb.cpp
+    ../../domain/dsp/high_pass_filter.cpp
+    ../../domain/dsp/lfo.cpp
+    ../../domain/dsp/low_pass_filter.cpp
+    ../../domain/dsp/panning.cpp
+    ../../domain/dsp/svf_filter.cpp
+    ../../domain/dsp/true_stereo_panner.cpp
+    ../../domain/dsp/volume.cpp
     ../../domain/effects/all_pass_filter.cpp
+    ../../domain/effects/auto_panner.cpp
+    ../../domain/effects/chorus.cpp
+    ../../domain/effects/clipper.cpp
+    ../../domain/effects/compressor.cpp
+    ../../domain/effects/delay.cpp
+    ../../domain/effects/effect.cpp
+    ../../domain/effects/effect_factory.cpp
+    ../../domain/effects/effect_rack.cpp
+    ../../domain/effects/eq_8_band_parametric.cpp
+    ../../domain/effects/panner.cpp
+    ../../domain/effects/reverb.cpp
+    ../../domain/effects/saturator.cpp
+    ../../domain/tracker/parameter.cpp
+    ../../domain/tracker/parameter_container.cpp
     ../../domain/utility/dbtp_meter.cpp
     ../../domain/utility/lufs_meter.cpp
     ../../domain/utility/rta.cpp
-    ../../domain/effects/chorus.cpp
-    ../../domain/tracker/parameter.cpp
-    ../../domain/tracker/parameter_container.cpp
     ../../infra/xml/nahd_xml_reader.cpp
     ../../infra/xml/nahd_xml_writer.cpp
 )

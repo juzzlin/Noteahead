@@ -3,16 +3,16 @@ set(NAME track_settings_model_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
-    ../../application/models/track_settings_model.cpp
     ../../application/models/midi_cc_selection_model.cpp
+    ../../application/models/track_settings_model.cpp
     ../../common/constants.cpp
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
-    ../../domain/tracker/instrument.cpp
-    ../../domain/tracker/instrument_settings.cpp
-    ../../domain/tracker/event_data.cpp
     ../../domain/midi/midi_address.cpp
     ../../domain/midi/midi_cc_setting.cpp
+    ../../domain/tracker/event_data.cpp
+    ../../domain/tracker/instrument.cpp
+    ../../domain/tracker/instrument_settings.cpp
     ../../infra/midi/midi_cc_mapping.cpp
 )
 qt_add_executable(${NAME} ${SRC})

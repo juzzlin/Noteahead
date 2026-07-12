@@ -3,47 +3,47 @@ set(NAME bass_synth_controller_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
-    ../../view/controllers/device_controller.cpp
-    ../../view/controllers/bass_synth_controller.cpp
     ../../common/constants.cpp
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
     ../../domain/devices/bass_synth_device.cpp
-    ../../domain/dsp/dc_blocker.cpp
-    ../../domain/effects/delay.cpp
-    ../../domain/effects/effect_factory.cpp
     ../../domain/devices/device.cpp
-    ../../domain/effects/effect.cpp
-    ../../domain/dsp/lfo.cpp
-    ../../domain/effects/auto_panner.cpp
-    ../../domain/effects/effect_rack.cpp
-    ../../domain/dsp/high_pass_filter.cpp
-    ../../domain/dsp/low_pass_filter.cpp
-    ../../domain/dsp/panning.cpp
-    ../../domain/dsp/true_stereo_panner.cpp
-    ../../domain/effects/panner.cpp
-    ../../domain/dsp/volume.cpp
     ../../domain/dsp/adsr_envelope.cpp
-    ../../domain/dsp/svf_filter.cpp
     ../../domain/dsp/cascaded_svf.cpp
+    ../../domain/dsp/dc_blocker.cpp
     ../../domain/dsp/diode_ladder_filter.cpp
-    ../../domain/effects/compressor.cpp
-    ../../domain/effects/clipper.cpp
-    ../../domain/effects/saturator.cpp
     ../../domain/dsp/dsp_component.cpp
-    ../../domain/effects/eq_8_band_parametric.cpp
+    ../../domain/dsp/high_pass_filter.cpp
+    ../../domain/dsp/lfo.cpp
+    ../../domain/dsp/low_pass_filter.cpp
     ../../domain/dsp/oversampler.cpp
+    ../../domain/dsp/panning.cpp
     ../../domain/dsp/poly_blep_oscillator.cpp
-    ../../domain/effects/reverb.cpp
+    ../../domain/dsp/svf_filter.cpp
+    ../../domain/dsp/true_stereo_panner.cpp
+    ../../domain/dsp/volume.cpp
     ../../domain/effects/all_pass_filter.cpp
+    ../../domain/effects/auto_panner.cpp
+    ../../domain/effects/chorus.cpp
+    ../../domain/effects/clipper.cpp
+    ../../domain/effects/compressor.cpp
+    ../../domain/effects/delay.cpp
+    ../../domain/effects/effect.cpp
+    ../../domain/effects/effect_factory.cpp
+    ../../domain/effects/effect_rack.cpp
+    ../../domain/effects/eq_8_band_parametric.cpp
+    ../../domain/effects/panner.cpp
+    ../../domain/effects/reverb.cpp
+    ../../domain/effects/saturator.cpp
+    ../../domain/tracker/parameter.cpp
+    ../../domain/tracker/parameter_container.cpp
     ../../domain/utility/dbtp_meter.cpp
     ../../domain/utility/lufs_meter.cpp
     ../../domain/utility/rta.cpp
-    ../../domain/effects/chorus.cpp
-    ../../domain/tracker/parameter.cpp
-    ../../domain/tracker/parameter_container.cpp
     ../../infra/xml/nahd_xml_reader.cpp
     ../../infra/xml/nahd_xml_writer.cpp
+    ../../view/controllers/bass_synth_controller.cpp
+    ../../view/controllers/device_controller.cpp
 )
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})

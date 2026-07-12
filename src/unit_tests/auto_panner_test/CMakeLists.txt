@@ -6,10 +6,10 @@ set(SRC
     ../../common/constants.cpp
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
+    ../../domain/dsp/dsp_component.cpp
+    ../../domain/dsp/lfo.cpp
     ../../domain/effects/auto_panner.cpp
     ../../domain/effects/effect.cpp
-    ../../domain/dsp/lfo.cpp
-    ../../domain/dsp/dsp_component.cpp
     ../../domain/tracker/parameter.cpp
     ../../domain/tracker/parameter_container.cpp
 )

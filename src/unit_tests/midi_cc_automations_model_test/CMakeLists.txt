@@ -7,9 +7,9 @@ set(SRC
     ../../common/constants.cpp
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
+    ../../domain/midi/midi_cc_automation.cpp
     ../../domain/tracker/automation.cpp
     ../../domain/tracker/automation_location.cpp
-    ../../domain/midi/midi_cc_automation.cpp
 )
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})

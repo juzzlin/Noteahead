@@ -14,13 +14,19 @@ set(SRC
     ../../common/constants.cpp
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
+    ../../domain/devices/drum_synth_constants.cpp
+    ../../domain/devices/synth_presets.cpp
+    ../../domain/midi/midi_address.cpp
+    ../../domain/midi/midi_cc_automation.cpp
+    ../../domain/midi/midi_cc_data.cpp
+    ../../domain/midi/midi_cc_setting.cpp
+    ../../domain/midi/pitch_bend_automation.cpp
+    ../../domain/midi/pitch_bend_data.cpp
     ../../domain/tracker/arpeggiator.cpp
     ../../domain/tracker/automation.cpp
     ../../domain/tracker/automation_location.cpp
     ../../domain/tracker/column.cpp
     ../../domain/tracker/column_settings.cpp
-    ../../domain/devices/drum_synth_constants.cpp
-    ../../domain/devices/synth_presets.cpp
     ../../domain/tracker/event.cpp
     ../../domain/tracker/event_data.cpp
     ../../domain/tracker/instrument.cpp
@@ -28,16 +34,10 @@ set(SRC
     ../../domain/tracker/interpolator.cpp
     ../../domain/tracker/line.cpp
     ../../domain/tracker/line_event.cpp
-    ../../domain/midi/midi_address.cpp
-    ../../domain/midi/midi_cc_automation.cpp
-    ../../domain/midi/midi_cc_data.cpp
-    ../../domain/midi/midi_cc_setting.cpp
     ../../domain/tracker/mixer_unit.cpp
     ../../domain/tracker/note_data.cpp
     ../../domain/tracker/note_data_manipulator.cpp
     ../../domain/tracker/pattern.cpp
-    ../../domain/midi/pitch_bend_automation.cpp
-    ../../domain/midi/pitch_bend_data.cpp
     ../../domain/tracker/play_order.cpp
     ../../domain/tracker/song.cpp
     ../../domain/tracker/track.cpp

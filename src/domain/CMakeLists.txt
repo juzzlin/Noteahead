@@ -10,12 +10,8 @@ set(HEADER_FILES
     devices/synth_presets.hpp
     devices/wavetable_synth_device.hpp
     dsp/adsr_envelope.hpp
-    effects/all_pass_filter.hpp
     dsp/all_pass_chain.hpp
     dsp/cascaded_svf.hpp
-    effects/clipper.hpp
-    effects/compressor.hpp
-    utility/dbtp_meter.hpp
     dsp/dc_blocker.hpp
     dsp/delay_line.hpp
     dsp/diode_ladder_filter.hpp
@@ -28,29 +24,30 @@ set(HEADER_FILES
     dsp/drum/snare_engine.hpp
     dsp/drum/tom_engine.hpp
     dsp/dsp_component.hpp
-    effects/eq_8_band_parametric.hpp
+    dsp/high_pass_filter.hpp
     dsp/lfo.hpp
-    utility/lufs_meter.hpp
+    dsp/low_pass_filter.hpp
     dsp/multi_engine.hpp
     dsp/oversampler.hpp
+    dsp/panning.hpp
     dsp/poly_blep_oscillator.hpp
-    effects/reverb.hpp
-    utility/rta.hpp
-    effects/saturator.hpp
     dsp/svf_filter.hpp
     dsp/true_stereo_panner.hpp
+    dsp/volume.hpp
     dsp/waveguide_string.hpp
     dsp/wavetable_oscillator.hpp
+    effects/all_pass_filter.hpp
     effects/auto_panner.hpp
+    effects/clipper.hpp
+    effects/compressor.hpp
     effects/delay.hpp
     effects/effect.hpp
     effects/effect_factory.hpp
     effects/effect_rack.hpp
-    dsp/high_pass_filter.hpp
-    dsp/low_pass_filter.hpp
+    effects/eq_8_band_parametric.hpp
     effects/panner.hpp
-    dsp/panning.hpp
-    dsp/volume.hpp
+    effects/reverb.hpp
+    effects/saturator.hpp
     midi/midi_address.hpp
     midi/midi_cc_automation.hpp
     midi/midi_cc_data.hpp
@@ -82,32 +79,29 @@ set(HEADER_FILES
     tracker/side_chain_settings.hpp
     tracker/song.hpp
     tracker/track.hpp
+    utility/dbtp_meter.hpp
+    utility/lufs_meter.hpp
+    utility/rta.hpp
 )
 
 set(SOURCE_FILES
     devices/bass_synth_device.cpp
-    devices/piano_synth_device.cpp
-    devices/string_voice_device.cpp
     devices/device.cpp
     devices/device_factory.cpp
     devices/device_registration.cpp
     devices/drum_synth_constants.cpp
     devices/drum_synth_device.cpp
+    devices/piano_synth_device.cpp
     devices/sampler_device.cpp
+    devices/string_voice_device.cpp
     devices/synth_device.cpp
     devices/synth_presets.cpp
     devices/wavetable_synth_device.cpp
     dsp/adsr_envelope.cpp
     dsp/all_pass_chain.cpp
-    dsp/delay_line.cpp
-    dsp/waveguide_string.cpp
-    effects/all_pass_filter.cpp
     dsp/cascaded_svf.cpp
-    effects/chorus.cpp
-    effects/clipper.cpp
-    effects/compressor.cpp
-    utility/dbtp_meter.cpp
     dsp/dc_blocker.cpp
+    dsp/delay_line.cpp
     dsp/diode_ladder_filter.cpp
     dsp/drum/clap_engine.cpp
     dsp/drum/crash_engine.cpp
@@ -118,29 +112,32 @@ set(SOURCE_FILES
     dsp/drum/tom_engine.cpp
     dsp/dsp_component.cpp
     dsp/ensemble_chorus.cpp
-    effects/eq_8_band_parametric.cpp
+    dsp/high_pass_filter.cpp
     dsp/lfo.cpp
-    utility/lufs_meter.cpp
+    dsp/low_pass_filter.cpp
     dsp/multi_engine.cpp
     dsp/oversampler.cpp
+    dsp/panning.cpp
     dsp/poly_blep_oscillator.cpp
-    effects/reverb.cpp
-    utility/rta.cpp
-    effects/saturator.cpp
     dsp/svf_filter.cpp
     dsp/true_stereo_panner.cpp
+    dsp/volume.cpp
+    dsp/waveguide_string.cpp
     dsp/wavetable.cpp
     dsp/wavetable_oscillator.cpp
+    effects/all_pass_filter.cpp
     effects/auto_panner.cpp
+    effects/chorus.cpp
+    effects/clipper.cpp
+    effects/compressor.cpp
     effects/delay.cpp
     effects/effect.cpp
     effects/effect_factory.cpp
     effects/effect_rack.cpp
-    dsp/high_pass_filter.cpp
-    dsp/low_pass_filter.cpp
+    effects/eq_8_band_parametric.cpp
     effects/panner.cpp
-    dsp/panning.cpp
-    dsp/volume.cpp
+    effects/reverb.cpp
+    effects/saturator.cpp
     midi/midi_address.cpp
     midi/midi_cc_automation.cpp
     midi/midi_cc_data.cpp
@@ -169,6 +166,9 @@ set(SOURCE_FILES
     tracker/play_order.cpp
     tracker/song.cpp
     tracker/track.cpp
+    utility/dbtp_meter.cpp
+    utility/lufs_meter.cpp
+    utility/rta.cpp
 )
 
 add_library(${DomainLibName} STATIC ${HEADER_FILES} ${SOURCE_FILES})

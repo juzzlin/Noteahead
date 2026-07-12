@@ -6,11 +6,11 @@ set(SRC
     ../../common/constants.cpp
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
-    ../../domain/utility/dbtp_meter.cpp
     ../../domain/dsp/dsp_component.cpp
     ../../domain/effects/effect.cpp
     ../../domain/tracker/parameter.cpp
     ../../domain/tracker/parameter_container.cpp
+    ../../domain/utility/dbtp_meter.cpp
 )
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})

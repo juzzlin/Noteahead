@@ -7,10 +7,10 @@ set(SRC
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
     ../../domain/dsp/dsp_component.cpp
-    ../../domain/utility/rta.cpp
     ../../domain/effects/effect.cpp
     ../../domain/tracker/parameter.cpp
     ../../domain/tracker/parameter_container.cpp
+    ../../domain/utility/rta.cpp
 )
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})

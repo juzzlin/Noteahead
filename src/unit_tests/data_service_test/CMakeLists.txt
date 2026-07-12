@@ -3,8 +3,8 @@ set(NAME data_service_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
-    ../../infra/data_service.cpp
     ../../common/constants.cpp
+    ../../infra/data_service.cpp
     ../../infra/xml/nahd_xml_reader.cpp
     ../../infra/xml/nahd_xml_writer.cpp
 )

@@ -14,7 +14,6 @@ set(SRC
     ../../application/service/automation_service.cpp
     ../../application/service/copy_manager.cpp
     ../../application/service/device_service.cpp
-    ../../domain/devices/device_factory.cpp
     ../../application/service/editor_service.cpp
     ../../application/service/mixer_service.cpp
     ../../application/service/property_service.cpp
@@ -27,41 +26,19 @@ set(SRC
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
     ../../common/waveform_generator.cpp
-    ../../domain/tracker/arpeggiator.cpp
-    ../../domain/tracker/automation.cpp
-    ../../domain/tracker/automation_location.cpp
-    ../../domain/tracker/column.cpp
-    ../../domain/tracker/column_settings.cpp
     ../../domain/devices/bass_synth_device.cpp
-    ../../domain/dsp/dc_blocker.cpp
-    ../../domain/effects/delay.cpp
     ../../domain/devices/device.cpp
-    ../../domain/effects/effect_factory.cpp
+    ../../domain/devices/device_factory.cpp
     ../../domain/devices/drum_synth_constants.cpp
     ../../domain/devices/drum_synth_device.cpp
-    ../../domain/effects/effect.cpp
-    ../../domain/dsp/lfo.cpp
-    ../../domain/effects/auto_panner.cpp
-    ../../domain/effects/effect_rack.cpp
-    ../../domain/dsp/high_pass_filter.cpp
-    ../../domain/dsp/low_pass_filter.cpp
-    ../../domain/dsp/panning.cpp
-    ../../domain/dsp/true_stereo_panner.cpp
-    ../../domain/effects/panner.cpp
     ../../domain/devices/sampler_device.cpp
     ../../domain/devices/synth_device.cpp
-    ../../domain/devices/wavetable_synth_device.cpp
     ../../domain/devices/synth_presets.cpp
-    ../../domain/dsp/volume.cpp
+    ../../domain/devices/wavetable_synth_device.cpp
     ../../domain/dsp/adsr_envelope.cpp
-    ../../domain/dsp/svf_filter.cpp
-        ../../domain/dsp/wavetable.cpp
-    ../../domain/dsp/wavetable_oscillator.cpp
     ../../domain/dsp/cascaded_svf.cpp
+    ../../domain/dsp/dc_blocker.cpp
     ../../domain/dsp/diode_ladder_filter.cpp
-    ../../domain/effects/compressor.cpp
-    ../../domain/effects/clipper.cpp
-    ../../domain/effects/saturator.cpp
     ../../domain/dsp/drum/clap_engine.cpp
     ../../domain/dsp/drum/crash_engine.cpp
     ../../domain/dsp/drum/hihat_engine.cpp
@@ -70,17 +47,44 @@ set(SRC
     ../../domain/dsp/drum/snare_engine.cpp
     ../../domain/dsp/drum/tom_engine.cpp
     ../../domain/dsp/dsp_component.cpp
-    ../../domain/effects/eq_8_band_parametric.cpp
+    ../../domain/dsp/high_pass_filter.cpp
     ../../domain/dsp/lfo.cpp
+    ../../domain/dsp/lfo.cpp
+    ../../domain/dsp/low_pass_filter.cpp
     ../../domain/dsp/multi_engine.cpp
     ../../domain/dsp/oversampler.cpp
+    ../../domain/dsp/panning.cpp
     ../../domain/dsp/poly_blep_oscillator.cpp
-    ../../domain/effects/reverb.cpp
+    ../../domain/dsp/svf_filter.cpp
+    ../../domain/dsp/true_stereo_panner.cpp
+    ../../domain/dsp/volume.cpp
+    ../../domain/dsp/wavetable.cpp
+    ../../domain/dsp/wavetable_oscillator.cpp
     ../../domain/effects/all_pass_filter.cpp
-    ../../domain/utility/dbtp_meter.cpp
-    ../../domain/utility/lufs_meter.cpp
-    ../../domain/utility/rta.cpp
+    ../../domain/effects/auto_panner.cpp
     ../../domain/effects/chorus.cpp
+    ../../domain/effects/clipper.cpp
+    ../../domain/effects/compressor.cpp
+    ../../domain/effects/delay.cpp
+    ../../domain/effects/effect.cpp
+    ../../domain/effects/effect_factory.cpp
+    ../../domain/effects/effect_rack.cpp
+    ../../domain/effects/eq_8_band_parametric.cpp
+    ../../domain/effects/panner.cpp
+    ../../domain/effects/reverb.cpp
+    ../../domain/effects/saturator.cpp
+    ../../domain/midi/midi_address.cpp
+    ../../domain/midi/midi_cc_automation.cpp
+    ../../domain/midi/midi_cc_data.cpp
+    ../../domain/midi/midi_cc_setting.cpp
+    ../../domain/midi/midi_note_data.cpp
+    ../../domain/midi/pitch_bend_automation.cpp
+    ../../domain/midi/pitch_bend_data.cpp
+    ../../domain/tracker/arpeggiator.cpp
+    ../../domain/tracker/automation.cpp
+    ../../domain/tracker/automation_location.cpp
+    ../../domain/tracker/column.cpp
+    ../../domain/tracker/column_settings.cpp
     ../../domain/tracker/event.cpp
     ../../domain/tracker/event_data.cpp
     ../../domain/tracker/instrument.cpp
@@ -88,30 +92,26 @@ set(SRC
     ../../domain/tracker/interpolator.cpp
     ../../domain/tracker/line.cpp
     ../../domain/tracker/line_event.cpp
-    ../../domain/midi/midi_address.cpp
-    ../../domain/midi/midi_cc_automation.cpp
-    ../../domain/midi/midi_cc_data.cpp
-    ../../domain/midi/midi_cc_setting.cpp
-    ../../domain/midi/midi_note_data.cpp
     ../../domain/tracker/mixer_unit.cpp
     ../../domain/tracker/note_data.cpp
     ../../domain/tracker/note_data_manipulator.cpp
     ../../domain/tracker/parameter.cpp
     ../../domain/tracker/parameter_container.cpp
     ../../domain/tracker/pattern.cpp
-    ../../domain/midi/pitch_bend_automation.cpp
-    ../../domain/midi/pitch_bend_data.cpp
     ../../domain/tracker/play_order.cpp
     ../../domain/tracker/song.cpp
     ../../domain/tracker/track.cpp
+    ../../domain/utility/dbtp_meter.cpp
+    ../../domain/utility/lufs_meter.cpp
+    ../../domain/utility/rta.cpp
     ../../infra/audio/audio_engine.cpp
     ../../infra/audio/backend/sndfile_reader.cpp
     ../../infra/audio/real_time_worker_pool.cpp
     ../../infra/data_service.cpp
-    ../../infra/xml/nahd_xml_reader.cpp
-    ../../infra/xml/nahd_xml_writer.cpp
     ../../infra/midi/midi_cc_mapping.cpp
     ../../infra/settings.cpp
+    ../../infra/xml/nahd_xml_reader.cpp
+    ../../infra/xml/nahd_xml_writer.cpp
 )
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})

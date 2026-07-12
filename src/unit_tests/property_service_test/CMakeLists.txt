@@ -3,70 +3,70 @@ set(NAME property_service_test)
 set(SRC
     ${NAME}.cpp
     ${NAME}.hpp
-    ../../application/service/property_service.cpp
     ../../application/service/device_service.cpp
-    ../../domain/devices/device_factory.cpp
+    ../../application/service/property_service.cpp
     ../../common/constants.cpp
     ../../common/parameter_mapper.cpp
     ../../common/utils.cpp
-    ../../domain/effects/effect_factory.cpp
+    ../../domain/devices/bass_synth_device.cpp
     ../../domain/devices/device.cpp
+    ../../domain/devices/device_factory.cpp
+    ../../domain/devices/drum_synth_constants.cpp
+    ../../domain/devices/drum_synth_device.cpp
     ../../domain/devices/sampler_device.cpp
     ../../domain/devices/synth_device.cpp
-    ../../domain/devices/wavetable_synth_device.cpp
-        ../../domain/dsp/wavetable.cpp
-    ../../domain/dsp/wavetable_oscillator.cpp
-    ../../domain/devices/bass_synth_device.cpp
-    ../../domain/dsp/dc_blocker.cpp
-    ../../domain/devices/drum_synth_device.cpp
-    ../../domain/devices/drum_synth_constants.cpp
-    ../../domain/dsp/lfo.cpp
-    ../../domain/effects/auto_panner.cpp
-    ../../domain/effects/effect_rack.cpp
-    ../../domain/effects/effect.cpp
-    ../../domain/dsp/volume.cpp
-    ../../domain/dsp/panning.cpp
-    ../../domain/dsp/true_stereo_panner.cpp
-    ../../domain/effects/panner.cpp
-    ../../domain/dsp/low_pass_filter.cpp
-    ../../domain/dsp/high_pass_filter.cpp
-    ../../domain/effects/delay.cpp
     ../../domain/devices/synth_presets.cpp
+    ../../domain/devices/wavetable_synth_device.cpp
     ../../domain/dsp/adsr_envelope.cpp
-    ../../domain/dsp/svf_filter.cpp
     ../../domain/dsp/cascaded_svf.cpp
+    ../../domain/dsp/dc_blocker.cpp
     ../../domain/dsp/diode_ladder_filter.cpp
-    ../../domain/dsp/oversampler.cpp
-    ../../domain/dsp/poly_blep_oscillator.cpp
-    ../../domain/dsp/multi_engine.cpp
-    ../../domain/dsp/lfo.cpp
-    ../../domain/dsp/drum/kick_engine.cpp
-    ../../domain/dsp/drum/snare_engine.cpp
     ../../domain/dsp/drum/clap_engine.cpp
-    ../../domain/dsp/drum/hihat_engine.cpp
-    ../../domain/dsp/drum/tom_engine.cpp
     ../../domain/dsp/drum/crash_engine.cpp
+    ../../domain/dsp/drum/hihat_engine.cpp
+    ../../domain/dsp/drum/kick_engine.cpp
     ../../domain/dsp/drum/ride_engine.cpp
+    ../../domain/dsp/drum/snare_engine.cpp
+    ../../domain/dsp/drum/tom_engine.cpp
     ../../domain/dsp/dsp_component.cpp
-    ../../domain/effects/reverb.cpp
+    ../../domain/dsp/high_pass_filter.cpp
+    ../../domain/dsp/lfo.cpp
+    ../../domain/dsp/lfo.cpp
+    ../../domain/dsp/low_pass_filter.cpp
+    ../../domain/dsp/multi_engine.cpp
+    ../../domain/dsp/oversampler.cpp
+    ../../domain/dsp/panning.cpp
+    ../../domain/dsp/poly_blep_oscillator.cpp
+    ../../domain/dsp/svf_filter.cpp
+    ../../domain/dsp/true_stereo_panner.cpp
+    ../../domain/dsp/volume.cpp
+    ../../domain/dsp/wavetable.cpp
+    ../../domain/dsp/wavetable_oscillator.cpp
     ../../domain/effects/all_pass_filter.cpp
+    ../../domain/effects/auto_panner.cpp
+    ../../domain/effects/chorus.cpp
+    ../../domain/effects/clipper.cpp
+    ../../domain/effects/compressor.cpp
+    ../../domain/effects/delay.cpp
+    ../../domain/effects/effect.cpp
+    ../../domain/effects/effect_factory.cpp
+    ../../domain/effects/effect_rack.cpp
+    ../../domain/effects/eq_8_band_parametric.cpp
+    ../../domain/effects/panner.cpp
+    ../../domain/effects/reverb.cpp
+    ../../domain/effects/saturator.cpp
+    ../../domain/tracker/parameter.cpp
+    ../../domain/tracker/parameter_container.cpp
     ../../domain/utility/dbtp_meter.cpp
     ../../domain/utility/lufs_meter.cpp
     ../../domain/utility/rta.cpp
-    ../../domain/effects/chorus.cpp
-    ../../domain/effects/compressor.cpp
-    ../../domain/effects/clipper.cpp
-    ../../domain/effects/saturator.cpp
-    ../../domain/effects/eq_8_band_parametric.cpp
-    ../../domain/tracker/parameter.cpp
-    ../../domain/tracker/parameter_container.cpp
     ../../infra/audio/audio_engine.cpp
-    ../../infra/audio/real_time_worker_pool.cpp
     ../../infra/audio/backend/sndfile_reader.cpp
+    ../../infra/audio/real_time_worker_pool.cpp
     ../../infra/data_service.cpp
+    ../../infra/midi/midi_cc_mapping.cpp
     ../../infra/xml/nahd_xml_reader.cpp
     ../../infra/xml/nahd_xml_writer.cpp
-    ../../infra/midi/midi_cc_mapping.cpp
 )
 qt_add_executable(${NAME} ${SRC})
 set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BASE_DIR})
