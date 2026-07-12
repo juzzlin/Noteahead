@@ -17,11 +17,11 @@
 
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../infra/data_service.hpp"
 #include "../../infra/midi/midi_cc_mapping.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
-#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 
 #include <algorithm>
 #include <cmath>
