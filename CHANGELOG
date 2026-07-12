@@ -5,8 +5,6 @@ Release date:
 
 New features:
 
-* Implement an experimental string & voice device based on VC340
-
 * Add a pan column to the tracker
   - Per-line stereo panning sent as MIDI CC #10 (0 = left, 64 = center, 127 = right)
   - Displayed and editable only on the first note column of each track; other columns show ---
@@ -14,24 +12,25 @@ New features:
     on every step regardless of note events
   - Pan interpolation available via right-click => Column => Interpolate pan
 
-* Add LFO 2 to Synth
-  - Same targets as LFO 1: Pitch, Shape, Cutoff, Volume, Resonance, Pan
-  - Modulations stack additively with LFO 1
-  - Displayed side-by-side with LFO 1 in the effects tab
+* Synth improvements
+  * Add LFO 2
+    - Same targets as LFO 1: Pitch, Shape, Cutoff, Volume, Resonance, Pan
+    - Modulations stack additively with LFO 1
+    - Displayed side-by-side with LFO 1 in the effects tab
+  * Add Dual voice mode
 
-* Add an all-pass filter rack effect
+* New rack effects
+  - All-pass Filter
+  - Saturator
 
-* Add Dual voice mode to SynthDevice
-
-* Add a LUFS meter insert effect
-
-* Add a True Peak meter insert effect
-
-* Add an RTA rack effect
+* New utility rack effects (use as inserts)
+  - LUFS meter
+  - True Peak meter
+  - RTA (Real-time Analysator)
 
 * Add side chain source name to the Compressor effects rack preview string
 
-* Add Saturator rack effect
+* Implement an experimental String & Voice device based on VC340
 
 Bug fixes:
 
@@ -40,6 +39,8 @@ Bug fixes:
 * Fix sampler failing to locate embedded sample files during save as
 
 * Fix manual pan entry not working on the pan column
+
+* Fix square wave shape not working unless modulated
 
 Other:
 
