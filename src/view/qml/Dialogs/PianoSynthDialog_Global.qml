@@ -49,14 +49,17 @@ ColumnLayout {
         onMoved: v => pianoSynthController.stereoWidth = v
         Layout.fillWidth: true
     }
-    Knob {
+    FilterKnob {
         label: qsTr("LPF Cutoff")
+        controller: pianoSynthController
         value: pianoSynthController.lpfCutoff
         onMoved: v => pianoSynthController.lpfCutoff = v
         Layout.fillWidth: true
     }
-    Knob {
+    FilterKnob {
         label: qsTr("HPF Cutoff")
+        controller: pianoSynthController
+        isHpf: true
         value: pianoSynthController.hpfCutoff
         onMoved: v => pianoSynthController.hpfCutoff = v
         Layout.fillWidth: true
