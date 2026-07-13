@@ -5,6 +5,19 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+5.0.0
+=====
+
+Release date:
+
+Mon, 13 Jul 2026 21:34:26 +0300
+
+New features:
+
 * Add audio normalization, trimming, and loudness/true peak analysis options to render/export
 
 * Add a pan column to the tracker
