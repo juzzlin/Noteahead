@@ -21,11 +21,16 @@
 #include "../../domain/tracker/event.hpp"
 #include "../../domain/tracker/instrument.hpp"
 #include "../../domain/tracker/note_data.hpp"
+#include "../../domain/utility/loudness_analyzer.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/audio/audio_file_recorder.hpp"
+#include "../../infra/audio/backend/sndfile_reader.hpp"
 #include "device_service.hpp"
 #include "mixer_service.hpp"
 
+#include <QDir>
+#include <QFile>
+#include <QUuid>
 #include <algorithm>
 #include <cmath>
 
@@ -48,7 +53,18 @@ void RenderWorker::setAudioFileReaderFactory(AudioFileReaderFactory factory)
     m_audioFileReaderFactory = std::move(factory);
 }
 
-void RenderWorker::render(const QString & fileName, const noteahead::RenderWorker::EventList & events, const noteahead::RenderWorker::Timing & timing, quint64 maxTick, quint32 sampleRate, noteahead::BitDepth bitDepth)
+void RenderWorker::render(const QString & fileName,
+                          const noteahead::RenderWorker::EventList & events,
+                          const noteahead::RenderWorker::Timing & timing,
+                          quint64 maxTick,
+                          quint32 sampleRate,
+                          noteahead::BitDepth bitDepth,
+                          bool normalize,
+                          double normalizeTargetDb,
+                          bool trim,
+                          int trimMinutes,
+                          int trimSeconds,
+                          bool analyze)
 {
     if (m_isRendering) {
         return;
@@ -67,10 +83,22 @@ void RenderWorker::render(const QString & fileName, const noteahead::RenderWorke
             eventMap[event->tick()].push_back(event);
         }
 
+        // Setup rendering path and bit depth based on two-pass options
+        QString renderPath = fileName;
+        QString tempPath = "";
+        BitDepth actualBitDepth = bitDepth;
+        if (normalize || analyze) {
+            tempPath = QString { "%1/noteahead_temp_render_%2.wav" }
+                         .arg(QDir::tempPath())
+                         .arg(QUuid::createUuid().toString(QUuid::WithoutBraces));
+            renderPath = tempPath;
+            actualBitDepth = BitDepth::Float_32;
+        }
+
         AudioFileRecorder recorder { m_audioFileReaderFactory ? m_audioFileReaderFactory() : nullptr };
         const quint32 channelCount = 2;
         const size_t recordingBufferSize = static_cast<size_t>(sampleRate) * channelCount * 10; // 10 seconds buffer
-        recorder.start(fileName.toStdString(), sampleRate, channelCount, recordingBufferSize, bitDepth);
+        recorder.start(renderPath.toStdString(), sampleRate, channelCount, recordingBufferSize, actualBitDepth);
 
         m_audioEngine->setBpm(static_cast<float>(timing.beatsPerMinute));
         m_deviceService->processMidiAllNotesOff();
@@ -83,7 +111,14 @@ void RenderWorker::render(const QString & fileName, const noteahead::RenderWorke
         std::vector<double> audioBuffer {};
         std::vector<float> finalBuffer {};
 
+        quint64 totalFramesWritten = 0;
+        const quint64 targetTrimFrames = static_cast<quint64>((trimMinutes * 60 + trimSeconds) * sampleRate);
+
         for (quint64 tick = 0; tick <= maxTick; tick++) {
+            if (trim && totalFramesWritten >= targetTrimFrames) {
+                break;
+            }
+
             if (auto it = eventMap.find(tick); it != eventMap.end()) {
                 for (auto && event : it->second) {
                     handleEvent(*event);
@@ -91,7 +126,11 @@ void RenderWorker::render(const QString & fileName, const noteahead::RenderWorke
             }
 
             sampleCounter += samplesPerTick;
-            const quint32 framesToProcess = static_cast<quint32>(sampleCounter);
+            quint32 framesToProcess = static_cast<quint32>(sampleCounter);
+            if (trim && totalFramesWritten + framesToProcess > targetTrimFrames) {
+                framesToProcess = static_cast<quint32>(targetTrimFrames - totalFramesWritten);
+            }
+
             if (framesToProcess > 0) {
                 const size_t totalSamples = static_cast<size_t>(framesToProcess) * 2;
                 if (audioBuffer.size() < totalSamples) {
@@ -103,9 +142,13 @@ void RenderWorker::render(const QString & fileName, const noteahead::RenderWorke
                 AudioContext audioContext { std::span(audioBuffer.data(), totalSamples), framesToProcess, sampleRate };
                 m_audioEngine->process(audioContext);
 
-                // Convert to float and clamp signal to prevent overflow when writing to PCM
+                // Convert to float and clamp signal to prevent overflow when writing to PCM (only clamp when not writing Float_32)
                 for (size_t i = 0; i < totalSamples; i++) {
-                    finalBuffer[i] = static_cast<float>(std::clamp(audioBuffer[i], -1.0, 1.0));
+                    if (actualBitDepth == BitDepth::Float_32) {
+                        finalBuffer[i] = static_cast<float>(audioBuffer[i]);
+                    } else {
+                        finalBuffer[i] = static_cast<float>(std::clamp(audioBuffer[i], -1.0, 1.0));
+                    }
                 }
 
                 if (!recorder.push(finalBuffer.data(), totalSamples)) {
@@ -113,6 +156,7 @@ void RenderWorker::render(const QString & fileName, const noteahead::RenderWorke
                         std::this_thread::sleep_for(std::chrono::milliseconds { 1 });
                     }
                 }
+                totalFramesWritten += framesToProcess;
                 sampleCounter -= static_cast<double>(framesToProcess);
             }
 
@@ -122,7 +166,13 @@ void RenderWorker::render(const QString & fileName, const noteahead::RenderWorke
         }
 
         // Process any remaining sub-sample (round to nearest)
-        const quint32 finalFrames = static_cast<quint32>(std::round(sampleCounter));
+        quint32 finalFrames = static_cast<quint32>(std::round(sampleCounter));
+        if (trim && totalFramesWritten >= targetTrimFrames) {
+            finalFrames = 0;
+        } else if (trim && totalFramesWritten + finalFrames > targetTrimFrames) {
+            finalFrames = static_cast<quint32>(targetTrimFrames - totalFramesWritten);
+        }
+
         if (finalFrames > 0) {
             const size_t totalSamples = static_cast<size_t>(finalFrames) * 2;
             if (audioBuffer.size() < totalSamples) {
@@ -135,21 +185,60 @@ void RenderWorker::render(const QString & fileName, const noteahead::RenderWorke
 
             // Convert to float and clamp signal to prevent overflow when writing to PCM
             for (size_t i = 0; i < totalSamples; i++) {
-                finalBuffer[i] = static_cast<float>(std::clamp(audioBuffer[i], -1.0, 1.0));
+                if (actualBitDepth == BitDepth::Float_32) {
+                    finalBuffer[i] = static_cast<float>(audioBuffer[i]);
+                } else {
+                    finalBuffer[i] = static_cast<float>(std::clamp(audioBuffer[i], -1.0, 1.0));
+                }
             }
 
             while (!recorder.push(finalBuffer.data(), totalSamples)) {
                 std::this_thread::sleep_for(std::chrono::milliseconds { 1 });
             }
+            totalFramesWritten += finalFrames;
+        }
+
+        // Pad with silence if trimming is enabled and rendered duration is shorter than target length
+        if (trim && totalFramesWritten < targetTrimFrames) {
+            const quint64 remainingFrames = targetTrimFrames - totalFramesWritten;
+            std::vector<float> silenceBuffer(16384 * 2, 0.0f);
+            quint64 framesLeft = remainingFrames;
+            while (framesLeft > 0) {
+                const size_t chunkFrames = std::min(static_cast<size_t>(framesLeft), size_t { 16384 });
+                while (!recorder.push(silenceBuffer.data(), chunkFrames * 2)) {
+                    std::this_thread::sleep_for(std::chrono::milliseconds { 1 });
+                }
+                framesLeft -= chunkFrames;
+            }
+            totalFramesWritten = targetTrimFrames;
         }
 
         juzzlin::L(TAG).info() << "Finalizing record...";
         recorder.stop();
+
+        double gain = 1.0;
+        if (normalize && !tempPath.isEmpty()) {
+            const double maxPeak = runNormalizationScan(tempPath);
+            if (maxPeak > 0.0) {
+                gain = std::pow(10.0, normalizeTargetDb / 20.0) / maxPeak;
+            }
+            juzzlin::L(TAG).info() << "Normalization scan finished. Max peak: " << maxPeak << ", calculated gain factor: " << gain;
+        }
+
+        if (!tempPath.isEmpty()) {
+            writeFinalFile(tempPath, fileName, gain, sampleRate, recordingBufferSize, bitDepth);
+        }
+
+        QString report = "";
+        if (analyze) {
+            report = runLoudnessAnalysis(fileName, sampleRate);
+        }
+
         m_audioEngine->reset();
         m_audioEngine->setIsExclusive(false);
         m_isRendering = false;
         juzzlin::L(TAG).info() << "Render finished successfully";
-        emit finished(true, "");
+        emit finished(true, report);
     } catch (const std::exception & e) {
         m_audioEngine->reset();
         m_audioEngine->setIsExclusive(false);
@@ -197,6 +286,111 @@ void RenderWorker::handleEvent(const Event & event)
             }
         }
     });
+}
+
+double RenderWorker::runNormalizationScan(const QString & tempPath)
+{
+    juzzlin::L(TAG).info() << "Running normalization scan on temporary file...";
+    auto reader = m_audioFileReaderFactory ? m_audioFileReaderFactory() : std::make_unique<SndFileReader>();
+    AudioFileReader::Info info {};
+    if (!reader->open(tempPath.toStdString(), AudioFileReader::Mode::Read, info)) {
+        throw std::runtime_error { "Failed to open temporary file for normalization scan: " + tempPath.toStdString() };
+    }
+
+    double maxPeak = 0.0;
+    std::vector<float> scanBuffer(16384);
+    int64_t read = 0;
+    while ((read = reader->readFloat(scanBuffer)) > 0) {
+        const int64_t numSamples = read * info.channels;
+        for (int64_t i = 0; i < numSamples; i++) {
+            maxPeak = std::max(maxPeak, static_cast<double>(std::abs(scanBuffer[i])));
+        }
+    }
+    reader->close();
+    return maxPeak;
+}
+
+void RenderWorker::writeFinalFile(const QString & tempPath,
+                                  const QString & finalPath,
+                                  double gain,
+                                  quint32 sampleRate,
+                                  quint32 recordingBufferSize,
+                                  noteahead::BitDepth bitDepth)
+{
+    juzzlin::L(TAG).info() << "Writing final audio to " << finalPath.toStdString();
+    auto reader = m_audioFileReaderFactory ? m_audioFileReaderFactory() : std::make_unique<SndFileReader>();
+    AudioFileRecorder finalRecorder { m_audioFileReaderFactory ? m_audioFileReaderFactory() : nullptr };
+    finalRecorder.start(finalPath.toStdString(), sampleRate, 2, recordingBufferSize, bitDepth);
+
+    AudioFileReader::Info info {};
+    if (!reader->open(tempPath.toStdString(), AudioFileReader::Mode::Read, info)) {
+        throw std::runtime_error { "Failed to open temporary file for writing pass: " + tempPath.toStdString() };
+    }
+
+    std::vector<float> writeBuffer(16384);
+    int64_t read = 0;
+    while ((read = reader->readFloat(writeBuffer)) > 0) {
+        const int64_t numSamples = read * info.channels;
+        for (int64_t i = 0; i < numSamples; i++) {
+            writeBuffer[i] = static_cast<float>(std::clamp(writeBuffer[i] * gain, -1.0, 1.0));
+        }
+        if (!finalRecorder.push(writeBuffer.data(), numSamples)) {
+            while (!finalRecorder.push(writeBuffer.data(), numSamples)) {
+                std::this_thread::sleep_for(std::chrono::milliseconds { 1 });
+            }
+        }
+    }
+    reader->close();
+    finalRecorder.stop();
+
+    juzzlin::L(TAG).info() << "Removing temporary file: " << tempPath.toStdString();
+    QFile::remove(tempPath);
+}
+
+QString RenderWorker::runLoudnessAnalysis(const QString & finalPath, quint32 sampleRate)
+{
+    juzzlin::L(TAG).info() << "Running loudness/peak analysis on final file...";
+    auto reader = m_audioFileReaderFactory ? m_audioFileReaderFactory() : std::make_unique<SndFileReader>();
+    AudioFileReader::Info info {};
+    if (!reader->open(finalPath.toStdString(), AudioFileReader::Mode::Read, info)) {
+        throw std::runtime_error { "Failed to open final file for analysis: " + finalPath.toStdString() };
+    }
+
+    LoudnessAnalyzer analyzer { static_cast<double>(sampleRate) };
+    std::vector<float> analyzeBuffer(16384);
+    int64_t read = 0;
+    while ((read = reader->readFloat(analyzeBuffer)) > 0) {
+        const int64_t numSamples = read * info.channels;
+        analyzer.process(analyzeBuffer.data(), numSamples);
+    }
+    reader->close();
+
+    const auto result = analyzer.calculate();
+    QString report = QString("<table width='100%' cellpadding='5' cellspacing='0'>"
+                             "<tr>"
+                             "<td bgcolor='#2c2c2c'><b>Parameter</b></td><td align='right' bgcolor='#2c2c2c'><b>Value</b></td>"
+                             "</tr>"
+                             "<tr>"
+                             "<td>Integrated Loudness</td><td align='right'><font color='#4CAF50'><b>%1 LUFS</b></font></td>"
+                             "</tr>"
+                             "<tr>"
+                             "<td>True Peak</td><td align='right'><font color='#FF9800'><b>%2 dBTP</b></font></td>"
+                             "</tr>"
+                             "<tr>"
+                             "<td>Loudness Range (LRA)</td><td align='right'><font color='#2196F3'><b>%3 LU</b></font></td>"
+                             "</tr>"
+                             "<tr>"
+                             "<td>Threshold</td><td align='right'><font color='#888888'>%4 LUFS</font></td>"
+                             "</tr>"
+                             "</table>")
+                       .arg(result.integratedLoudness, 0, 'f', 1)
+                       .arg(result.truePeak, 0, 'f', 1)
+                       .arg(result.loudnessRange, 0, 'f', 1)
+                       .arg(result.threshold, 0, 'f', 1);
+
+    juzzlin::L(TAG).info() << "Analysis completed:\n"
+                           << report.toStdString();
+    return report;
 }
 
 } // namespace noteahead

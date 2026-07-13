@@ -289,6 +289,84 @@ void SettingsService::setRenderBitDepth(int bitDepth)
     }
 }
 
+bool SettingsService::renderNormalizeEnabled() const
+{
+    return Settings::renderNormalizeEnabled();
+}
+
+void SettingsService::setRenderNormalizeEnabled(bool enabled)
+{
+    if (this->renderNormalizeEnabled() != enabled) {
+        Settings::setRenderNormalizeEnabled(enabled);
+        emit renderNormalizeEnabledChanged();
+    }
+}
+
+double SettingsService::renderNormalizeLevel() const
+{
+    return Settings::renderNormalizeLevel();
+}
+
+void SettingsService::setRenderNormalizeLevel(double level)
+{
+    if (std::abs(this->renderNormalizeLevel() - level) > 1e-9) {
+        Settings::setRenderNormalizeLevel(level);
+        emit renderNormalizeLevelChanged();
+    }
+}
+
+bool SettingsService::renderTrimEnabled() const
+{
+    return Settings::renderTrimEnabled();
+}
+
+void SettingsService::setRenderTrimEnabled(bool enabled)
+{
+    if (this->renderTrimEnabled() != enabled) {
+        Settings::setRenderTrimEnabled(enabled);
+        emit renderTrimEnabledChanged();
+    }
+}
+
+int SettingsService::renderTrimMinutes() const
+{
+    return Settings::renderTrimMinutes();
+}
+
+void SettingsService::setRenderTrimMinutes(int minutes)
+{
+    if (this->renderTrimMinutes() != minutes) {
+        Settings::setRenderTrimMinutes(minutes);
+        emit renderTrimMinutesChanged();
+    }
+}
+
+int SettingsService::renderTrimSeconds() const
+{
+    return Settings::renderTrimSeconds();
+}
+
+void SettingsService::setRenderTrimSeconds(int seconds)
+{
+    if (this->renderTrimSeconds() != seconds) {
+        Settings::setRenderTrimSeconds(seconds);
+        emit renderTrimSecondsChanged();
+    }
+}
+
+bool SettingsService::renderAnalyzeEnabled() const
+{
+    return Settings::renderAnalyzeEnabled();
+}
+
+void SettingsService::setRenderAnalyzeEnabled(bool enabled)
+{
+    if (this->renderAnalyzeEnabled() != enabled) {
+        Settings::setRenderAnalyzeEnabled(enabled);
+        emit renderAnalyzeEnabledChanged();
+    }
+}
+
 SettingsService::~SettingsService() = default;
 
 } // namespace noteahead

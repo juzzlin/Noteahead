@@ -11,7 +11,7 @@ Dialog {
     title: "<strong>" + qsTr("Render audio") + "</strong>"
     modal: true
     width: 600
-    height: 500
+    height: 580
 
     property string outputFileName
     property string outputDirectory
@@ -80,6 +80,94 @@ Dialog {
                         ]
                         currentIndex: settingsService.renderBitDepth
                         onActivated: settingsService.renderBitDepth = valueAt(index)
+                    }
+                }
+            }
+
+            GroupBox {
+                title: qsTr("Export Options")
+                Layout.fillWidth: true
+                ColumnLayout {
+                    spacing: 12
+                    Layout.fillWidth: true
+
+                    RowLayout {
+                        spacing: 10
+                        Layout.fillWidth: true
+                        CheckBox {
+                            id: normalizeCheckBox
+                            text: qsTr("Normalize audio")
+                            checked: settingsService.renderNormalizeEnabled
+                            onToggled: settingsService.renderNormalizeEnabled = checked
+                        }
+                        Label {
+                            text: qsTr("Target Level:")
+                            enabled: normalizeCheckBox.checked
+                        }
+                        SpinBox {
+                            id: normalizeLevelSpinBox
+                            enabled: normalizeCheckBox.checked
+                            from: -300
+                            to: 0
+                            stepSize: 1
+                            value: settingsService.renderNormalizeLevel * 10
+                            editable: true
+                            onValueModified: settingsService.renderNormalizeLevel = value / 10
+                            textFromValue: function(value, locale) {
+                                return Number(value / 10).toLocaleString(locale, 'f', 1)
+                            }
+                            valueFromText: function(text, locale) {
+                                return Number.fromLocaleString(locale, text) * 10
+                            }
+                        }
+                        Label {
+                            text: "dB"
+                            enabled: normalizeCheckBox.checked
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Layout.fillWidth: true
+                        CheckBox {
+                            id: trimCheckBox
+                            text: qsTr("Trim duration")
+                            checked: settingsService.renderTrimEnabled
+                            onToggled: settingsService.renderTrimEnabled = checked
+                        }
+                        SpinBox {
+                            id: trimMinSpinBox
+                            enabled: trimCheckBox.checked
+                            from: 0
+                            to: 59
+                            value: settingsService.renderTrimMinutes
+                            editable: true
+                            onValueModified: settingsService.renderTrimMinutes = value
+                        }
+                        Label {
+                            text: qsTr("min")
+                            enabled: trimCheckBox.checked
+                        }
+                        SpinBox {
+                            id: trimSecSpinBox
+                            enabled: trimCheckBox.checked
+                            from: 0
+                            to: 59
+                            value: settingsService.renderTrimSeconds
+                            editable: true
+                            onValueModified: settingsService.renderTrimSeconds = value
+                        }
+                        Label {
+                            text: qsTr("s")
+                            enabled: trimCheckBox.checked
+                        }
+                    }
+
+                    CheckBox {
+                        id: analyzeCheckBox
+                        text: qsTr("Analyze loudness (LUFS, LRA, dBTP)")
+                        checked: settingsService.renderAnalyzeEnabled
+                        onToggled: settingsService.renderAnalyzeEnabled = checked
                     }
                 }
             }
@@ -178,7 +266,11 @@ Dialog {
         target: renderService
         function onRenderingFinished(success, message) {
             if (success) {
-                uiLogger.info("Render", qsTr("Rendering finished successfully."));
+                if (message !== "") {
+                    applicationService.requestLoudnessReportDialog(message);
+                } else {
+                    uiLogger.info("Render", qsTr("Rendering finished successfully."));
+                }
                 rootItem.accept();
             } else {
                 uiLogger.error("Render", qsTr("Rendering failed: ") + message);

@@ -22,6 +22,8 @@ private slots:
     void test_render_shouldClampSignal();
     void test_render_midiSideChain_shouldProcessEventWhenSourceTrackIsMuted();
     void test_render_pitchBend_shouldProcessEvent();
+    void test_render_shouldTrimAudio();
+    void test_render_shouldNormalizeAudio();
 };
 
 } // namespace noteahead

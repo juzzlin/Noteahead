@@ -60,7 +60,18 @@ public:
     void setAudioFileReaderFactory(AudioFileReaderFactory factory);
 
 public slots:
-    void render(const QString & fileName, const noteahead::RenderWorker::EventList & events, const noteahead::RenderWorker::Timing & timing, quint64 maxTick, quint32 sampleRate, noteahead::BitDepth bitDepth = BitDepth::PCM_16);
+    void render(const QString & fileName,
+                const noteahead::RenderWorker::EventList & events,
+                const noteahead::RenderWorker::Timing & timing,
+                quint64 maxTick,
+                quint32 sampleRate,
+                noteahead::BitDepth bitDepth = BitDepth::PCM_16,
+                bool normalize = false,
+                double normalizeTargetDb = -0.3,
+                bool trim = false,
+                int trimMinutes = 0,
+                int trimSeconds = 0,
+                bool analyze = false);
 
 signals:
     void progressChanged(double progress);
@@ -68,6 +79,9 @@ signals:
 
 private:
     void handleEvent(const Event & event);
+    double runNormalizationScan(const QString & tempPath);
+    void writeFinalFile(const QString & tempPath, const QString & finalPath, double gain, quint32 sampleRate, quint32 recordingBufferSize, noteahead::BitDepth bitDepth);
+    QString runLoudnessAnalysis(const QString & finalPath, quint32 sampleRate);
 
     AudioEngineS m_audioEngine;
     DeviceServiceS m_deviceService;

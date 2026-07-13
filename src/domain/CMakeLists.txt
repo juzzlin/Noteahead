@@ -80,6 +80,7 @@ set(HEADER_FILES
     tracker/song.hpp
     tracker/track.hpp
     utility/dbtp_meter.hpp
+    utility/loudness_analyzer.hpp
     utility/lufs_meter.hpp
     utility/rta.hpp
 )
@@ -167,6 +168,7 @@ set(SOURCE_FILES
     tracker/song.cpp
     tracker/track.cpp
     utility/dbtp_meter.cpp
+    utility/loudness_analyzer.cpp
     utility/lufs_meter.cpp
     utility/rta.cpp
 )

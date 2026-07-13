@@ -48,11 +48,45 @@ void RenderingTest::cleanupTestCase()
 class MockRenderIo : public AudioFileReader
 {
 public:
-    bool open(const std::string &, Mode mode, Info & info) override
+    struct FileEntry
     {
+        std::vector<float> data;
+        Info info;
+    };
+
+    using Registry = std::map<std::string, FileEntry>;
+
+    MockRenderIo(Registry * registry = nullptr, std::mutex * registryMutex = nullptr)
+      : m_registry { registry }
+      , m_registryMutex { registryMutex }
+    {
+    }
+
+    bool open(const std::string & filePath, Mode mode, Info & info) override
+    {
+        m_filePath = filePath;
         m_mode = mode;
-        m_info = info;
         m_isOpen = true;
+        m_readPos = 0;
+
+        if (m_registry) {
+            std::lock_guard<std::mutex> lock(*m_registryMutex);
+            auto & entry = (*m_registry)[m_filePath];
+            if (mode == Mode::Write) {
+                entry.info = info;
+            } else {
+                info = entry.info;
+            }
+            m_info = entry.info;
+        } else {
+            if (mode == Mode::Write) {
+                m_info = info;
+            } else {
+                info.channels = 2;
+                info.samplerate = 44100;
+                m_info = info;
+            }
+        }
         return true;
     }
 
@@ -61,9 +95,27 @@ public:
         m_isOpen = false;
     }
 
-    int64_t readFloat(std::span<float>) override
+    int64_t readFloat(std::span<float> data) override
     {
-        return 0;
+        if (m_registry) {
+            std::lock_guard<std::mutex> lock(*m_registryMutex);
+            auto & vec = (*m_registry)[m_filePath].data;
+            if (m_readPos >= vec.size()) {
+                return 0;
+            }
+            const size_t toRead = std::min(data.size(), vec.size() - m_readPos);
+            std::copy(vec.begin() + m_readPos, vec.begin() + m_readPos + toRead, data.begin());
+            m_readPos += toRead;
+            return static_cast<int64_t>(toRead / 2); // returns frames
+        }
+        std::lock_guard<std::mutex> lock(m_mutex);
+        if (m_readPos >= m_data.size()) {
+            return 0;
+        }
+        const size_t toRead = std::min(data.size(), m_data.size() - m_readPos);
+        std::copy(m_data.begin() + m_readPos, m_data.begin() + m_readPos + toRead, data.begin());
+        m_readPos += toRead;
+        return static_cast<int64_t>(toRead / 2); // returns frames
     }
 
     int64_t readDouble(std::span<double>) override
@@ -78,6 +130,12 @@ public:
 
     int64_t writeFloat(std::span<const float> data) override
     {
+        if (m_registry) {
+            std::lock_guard<std::mutex> lock(*m_registryMutex);
+            auto & vec = (*m_registry)[m_filePath].data;
+            vec.insert(vec.end(), data.begin(), data.end());
+            return static_cast<int64_t>(data.size() / 2);
+        }
         std::lock_guard<std::mutex> lock(m_mutex);
         m_data.insert(m_data.end(), data.begin(), data.end());
         return static_cast<int64_t>(data.size() / 2);
@@ -88,8 +146,38 @@ public:
         return 0;
     }
 
-    bool seek(int64_t, int) override
+    bool seek(int64_t frames, int whence) override
     {
+        if (m_registry) {
+            std::lock_guard<std::mutex> lock(*m_registryMutex);
+            auto & vec = (*m_registry)[m_filePath].data;
+            size_t targetPos = 0;
+            if (whence == 0) { // SEEK_SET
+                targetPos = static_cast<size_t>(frames * 2);
+            } else if (whence == 1) { // SEEK_CUR
+                targetPos = m_readPos + static_cast<size_t>(frames * 2);
+            } else if (whence == 2) { // SEEK_END
+                targetPos = vec.size() + static_cast<size_t>(frames * 2);
+            }
+            if (targetPos > vec.size()) {
+                return false;
+            }
+            m_readPos = targetPos;
+            return true;
+        }
+        std::lock_guard<std::mutex> lock(m_mutex);
+        size_t targetPos = 0;
+        if (whence == 0) { // SEEK_SET
+            targetPos = static_cast<size_t>(frames * 2);
+        } else if (whence == 1) { // SEEK_CUR
+            targetPos = m_readPos + static_cast<size_t>(frames * 2);
+        } else if (whence == 2) { // SEEK_END
+            targetPos = m_data.size() + static_cast<size_t>(frames * 2);
+        }
+        if (targetPos > m_data.size()) {
+            return false;
+        }
+        m_readPos = targetPos;
         return true;
     }
 
@@ -105,6 +193,10 @@ public:
 
     const std::vector<float> & data() const
     {
+        if (m_registry) {
+            std::lock_guard<std::mutex> lock(*m_registryMutex);
+            return (*m_registry)[m_filePath].data;
+        }
         return m_data;
     }
 
@@ -112,8 +204,12 @@ private:
     bool m_isOpen = false;
     Mode m_mode = Mode::Write;
     Info m_info;
+    std::string m_filePath;
     std::vector<float> m_data;
+    size_t m_readPos = 0;
     std::mutex m_mutex;
+    Registry * m_registry = nullptr;
+    std::mutex * m_registryMutex = nullptr;
 };
 
 void RenderingTest::test_renderSynth_shouldPreserveParameters()
@@ -507,6 +603,107 @@ void RenderingTest::test_render_pitchBend_shouldProcessEvent()
     // We use a small delta to account for MIDI resolution (14-bit) and float precision
     const float offset = synth->currentPitchBendOffset();
     QVERIFY2(std::abs(offset - 12.0f) < 0.01f, qPrintable(QString { "Pitch bend offset %1 is not close to 12.0" }.arg(static_cast<double>(offset))));
+}
+
+void RenderingTest::test_render_shouldTrimAudio()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto mixerService = std::make_shared<MixerService>();
+
+    const auto synth = std::make_shared<SynthDevice>("Noteahead Synth");
+    synth->setLpfCutoff(1.0f);
+    synth->setGain(0.5f);
+    synth->setVolume(1.0f);
+    deviceService->setDevice(0, synth);
+
+    RenderWorker worker { audioEngine, deviceService, mixerService };
+
+    MockRenderIo * mockIoPtr = nullptr;
+    worker.setAudioFileReaderFactory([&]() {
+        auto io = std::make_unique<MockRenderIo>();
+        mockIoPtr = io.get();
+        return io;
+    });
+
+    RenderWorker::EventList events;
+    const auto instrument = std::make_shared<Instrument>("Noteahead Internal Device 1");
+    NoteData noteData { 0, 0 };
+    noteData.setAsNoteOn(60, 100);
+    const auto event = std::make_shared<Event>(0, noteData);
+    event->setInstrument(instrument);
+    events.push_back(event);
+
+    RenderWorker::Timing timing;
+    timing.beatsPerMinute = 120;
+    timing.linesPerBeat = 4;
+    timing.ticksPerLine = 6;
+
+    // Render with trim: trim to 2 seconds
+    const int trimMinutes = 0;
+    const int trimSeconds = 2;
+    worker.render("dummy.wav", events, timing, 1000, 44100, BitDepth::PCM_16, false, -0.3, true, trimMinutes, trimSeconds, false);
+
+    QVERIFY(mockIoPtr != nullptr);
+    const auto & audioData = mockIoPtr->data();
+    QVERIFY(!audioData.empty());
+
+    // 2 seconds of stereo audio at 44100Hz should have exactly 2 * 44100 * 2 = 176400 samples
+    const size_t expectedSamples = 2 * 44100 * 2;
+    QCOMPARE(audioData.size(), expectedSamples);
+}
+
+void RenderingTest::test_render_shouldNormalizeAudio()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto mixerService = std::make_shared<MixerService>();
+
+    const auto synth = std::make_shared<SynthDevice>("Noteahead Synth");
+    synth->setLpfCutoff(1.0f);
+    synth->setGain(0.2f); // Make it quiet (peak well below 1.0)
+    synth->setVolume(1.0f);
+    deviceService->setDevice(0, synth);
+
+    RenderWorker worker { audioEngine, deviceService, mixerService };
+
+    MockRenderIo::Registry registry;
+    std::mutex registryMutex;
+    worker.setAudioFileReaderFactory([&]() {
+        return std::make_unique<MockRenderIo>(&registry, &registryMutex);
+    });
+
+    RenderWorker::EventList events;
+    const auto instrument = std::make_shared<Instrument>("Noteahead Internal Device 1");
+    NoteData noteData { 0, 0 };
+    noteData.setAsNoteOn(60, 100);
+    const auto event = std::make_shared<Event>(0, noteData);
+    event->setInstrument(instrument);
+    events.push_back(event);
+
+    RenderWorker::Timing timing;
+    timing.beatsPerMinute = 120;
+    timing.linesPerBeat = 4;
+    timing.ticksPerLine = 6;
+
+    // Render with normalization: normalize to -6.0 dB (approx 0.5 amplitude)
+    const double targetDb = -6.0;
+    worker.render("dummy.wav", events, timing, 48, 44100, BitDepth::PCM_16, true, targetDb, false, 0, 0, false);
+
+    // The normalized audio will be written to "dummy.wav" (the final path)
+    QVERIFY(registry.find("dummy.wav") != registry.end());
+    const auto & audioData = registry["dummy.wav"].data;
+    QVERIFY(!audioData.empty());
+
+    float maxAmp = 0.0f;
+    for (float s : audioData) {
+        maxAmp = std::max(maxAmp, std::abs(s));
+    }
+
+    // Peak amplitude should be close to 0.5 (linear for -6 dB is 10^(-6/20) ≈ 0.501)
+    const float expectedPeak = std::pow(10.0f, targetDb / 20.0f);
+    QVERIFY(maxAmp > expectedPeak - 0.05f);
+    QVERIFY(maxAmp < expectedPeak + 0.05f);
 }
 
 } // namespace noteahead

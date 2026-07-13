@@ -482,6 +482,11 @@ void ApplicationService::requestAlertDialog(QString text)
     emit alertDialogRequested(text);
 }
 
+void ApplicationService::requestLoudnessReportDialog(QString text)
+{
+    emit loudnessReportDialogRequested(text);
+}
+
 void ApplicationService::requestStatusText(QString text)
 {
     emit statusTextRequested(text);

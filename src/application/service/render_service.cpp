@@ -73,6 +73,7 @@ void RenderService::renderMaster(const QString & fileName)
     m_queue.clear();
     m_queue.push_back({ fileName, {} });
     m_currentJobIndex = 0;
+    m_aggregatedReport.clear();
     m_isRendering = true;
     emit isRenderingChanged();
 
@@ -110,6 +111,7 @@ void RenderService::renderIndividualTracks(const QString & directory)
     }
 
     m_currentJobIndex = 0;
+    m_aggregatedReport.clear();
     m_isRendering = true;
     emit isRenderingChanged();
 
@@ -162,12 +164,24 @@ void RenderService::onWorkerFinished(bool success, QString message)
         return;
     }
 
+    if (!message.isEmpty()) {
+        if (m_queue.size() > 1) {
+            const auto baseName = QFileInfo { m_queue[m_currentJobIndex].fileName }.fileName();
+            if (!m_aggregatedReport.isEmpty()) {
+                m_aggregatedReport += "<br/><br/>";
+            }
+            m_aggregatedReport += "<b>" + baseName + "</b>:<br/>" + message;
+        } else {
+            m_aggregatedReport = message;
+        }
+    }
+
     m_currentJobIndex++;
     if (m_currentJobIndex < m_queue.size()) {
         startNextRender();
     } else {
         juzzlin::L(TAG).info() << "All render jobs completed successfully";
-        finalize(true, "");
+        finalize(true, m_aggregatedReport);
     }
 }
 
@@ -207,17 +221,17 @@ void RenderService::startNextRender()
     const auto maxTick = song->totalTicks();
     const quint32 sampleRate = static_cast<quint32>(Settings::renderSampleRate());
     const BitDepth bitDepth = Settings::renderBitDepth();
+    const bool normalize = Settings::renderNormalizeEnabled();
+    const double normalizeTargetDb = Settings::renderNormalizeLevel();
+    const bool trim = Settings::renderTrimEnabled();
+    const int trimMinutes = Settings::renderTrimMinutes();
+    const int trimSeconds = Settings::renderTrimSeconds();
+    const bool analyze = Settings::renderAnalyzeEnabled();
 
     juzzlin::L(TAG).info() << "Invoking RenderWorker::render... events=" << events.size() << " maxTick=" << maxTick << " sampleRate=" << sampleRate << " bitDepth=" << static_cast<int>(bitDepth);
 
-    bool success = QMetaObject::invokeMethod(m_worker.get(), "render",
-                                             Qt::QueuedConnection,
-                                             Q_ARG(QString, job.fileName),
-                                             Q_ARG(noteahead::RenderWorker::EventList, events),
-                                             Q_ARG(noteahead::RenderWorker::Timing, timing),
-                                             Q_ARG(quint64, maxTick),
-                                             Q_ARG(quint32, sampleRate),
-                                             Q_ARG(noteahead::BitDepth, bitDepth));
+    const auto renderWorker = m_worker.get();
+    bool success = QMetaObject::invokeMethod(renderWorker, [renderWorker, fileName = job.fileName, events, timing, maxTick, sampleRate, bitDepth, normalize, normalizeTargetDb, trim, trimMinutes, trimSeconds, analyze]() { renderWorker->render(fileName, events, timing, maxTick, sampleRate, bitDepth, normalize, normalizeTargetDb, trim, trimMinutes, trimSeconds, analyze); }, Qt::QueuedConnection);
     if (!success) {
         juzzlin::L(TAG).error() << "Failed to invoke RenderWorker::render!";
         onWorkerFinished(false, "Internal error: Failed to start render worker.");

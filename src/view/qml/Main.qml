@@ -117,6 +117,12 @@ ApplicationWindow {
         width: parent.width * Constants.defaultDialogScale
         height: parent.height * Constants.defaultDialogScale
     }
+    LoudnessReportDialog {
+        id: loudnessReportDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.effectDialogScale
+        height: parent.height * Constants.effectDialogScale
+    }
     EventSelectionDialog {
         id: eventSelectionDialog
         anchors.centerIn: parent
@@ -620,6 +626,10 @@ ApplicationWindow {
         applicationService.alertDialogRequested.connect(text => {
             errorDialog.errorMessage = text;
             errorDialog.open();
+        });
+        applicationService.loudnessReportDialogRequested.connect(text => {
+            loudnessReportDialog.reportText = text;
+            loudnessReportDialog.open();
         });
         applicationService.audioRenderDialogRequested.connect(audioRenderDialog.open);
         applicationService.masterEffectsDialogRequested.connect(masterEffectsDialog.open);

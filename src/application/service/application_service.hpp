@@ -147,6 +147,7 @@ public:
     void requestSaveAsTemplateDialog();
 
     Q_INVOKABLE void requestAlertDialog(QString text);
+    Q_INVOKABLE void requestLoudnessReportDialog(QString text);
     Q_INVOKABLE void requestStatusText(QString text);
 
     using RecentFilesManagerS = std::shared_ptr<RecentFilesManager>;
@@ -199,6 +200,7 @@ signals:
     void midiImportRequested(QString fileName, MidiImportMode importMode, int patternLength, bool quantizeNoteOn, bool quantizeNoteOff, bool connectMidiPorts);
 
     void alertDialogRequested(QString message);
+    void loudnessReportDialogRequested(QString message);
     void statusTextRequested(QString message);
 
 private:

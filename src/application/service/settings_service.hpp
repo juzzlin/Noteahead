@@ -39,6 +39,12 @@ class SettingsService : public QObject
     Q_PROPERTY(bool midiExportAutoAssignChannels READ midiExportAutoAssignChannels WRITE setMidiExportAutoAssignChannels NOTIFY midiExportAutoAssignChannelsChanged)
     Q_PROPERTY(int renderSampleRate READ renderSampleRate WRITE setRenderSampleRate NOTIFY renderSampleRateChanged)
     Q_PROPERTY(int renderBitDepth READ renderBitDepth WRITE setRenderBitDepth NOTIFY renderBitDepthChanged)
+    Q_PROPERTY(bool renderNormalizeEnabled READ renderNormalizeEnabled WRITE setRenderNormalizeEnabled NOTIFY renderNormalizeEnabledChanged)
+    Q_PROPERTY(double renderNormalizeLevel READ renderNormalizeLevel WRITE setRenderNormalizeLevel NOTIFY renderNormalizeLevelChanged)
+    Q_PROPERTY(bool renderTrimEnabled READ renderTrimEnabled WRITE setRenderTrimEnabled NOTIFY renderTrimEnabledChanged)
+    Q_PROPERTY(int renderTrimMinutes READ renderTrimMinutes WRITE setRenderTrimMinutes NOTIFY renderTrimMinutesChanged)
+    Q_PROPERTY(int renderTrimSeconds READ renderTrimSeconds WRITE setRenderTrimSeconds NOTIFY renderTrimSecondsChanged)
+    Q_PROPERTY(bool renderAnalyzeEnabled READ renderAnalyzeEnabled WRITE setRenderAnalyzeEnabled NOTIFY renderAnalyzeEnabledChanged)
 
 public:
     SettingsService();
@@ -107,6 +113,24 @@ public:
     virtual Q_INVOKABLE int renderBitDepth() const;
     virtual Q_INVOKABLE void setRenderBitDepth(int bitDepth);
 
+    virtual Q_INVOKABLE bool renderNormalizeEnabled() const;
+    virtual Q_INVOKABLE void setRenderNormalizeEnabled(bool enabled);
+
+    virtual Q_INVOKABLE double renderNormalizeLevel() const;
+    virtual Q_INVOKABLE void setRenderNormalizeLevel(double level);
+
+    virtual Q_INVOKABLE bool renderTrimEnabled() const;
+    virtual Q_INVOKABLE void setRenderTrimEnabled(bool enabled);
+
+    virtual Q_INVOKABLE int renderTrimMinutes() const;
+    virtual Q_INVOKABLE void setRenderTrimMinutes(int minutes);
+
+    virtual Q_INVOKABLE int renderTrimSeconds() const;
+    virtual Q_INVOKABLE void setRenderTrimSeconds(int seconds);
+
+    virtual Q_INVOKABLE bool renderAnalyzeEnabled() const;
+    virtual Q_INVOKABLE void setRenderAnalyzeEnabled(bool enabled);
+
 signals:
     void controllerPortChanged();
     void uiUpdatesDisabledDuringPlaybackChanged();
@@ -123,6 +147,12 @@ signals:
     void midiExportAutoAssignChannelsChanged();
     void renderSampleRateChanged();
     void renderBitDepthChanged();
+    void renderNormalizeEnabledChanged();
+    void renderNormalizeLevelChanged();
+    void renderTrimEnabledChanged();
+    void renderTrimMinutesChanged();
+    void renderTrimSecondsChanged();
+    void renderAnalyzeEnabledChanged();
 
 private:
     QString m_controllerPort;

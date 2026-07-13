@@ -99,6 +99,7 @@ private:
 
     std::vector<RenderJob> m_queue;
     size_t m_currentJobIndex = 0;
+    QString m_aggregatedReport;
 };
 
 } // namespace noteahead

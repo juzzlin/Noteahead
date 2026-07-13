@@ -100,6 +100,24 @@ void setRenderSampleRate(int sampleRate);
 BitDepth renderBitDepth();
 void setRenderBitDepth(BitDepth bitDepth);
 
+bool renderNormalizeEnabled();
+void setRenderNormalizeEnabled(bool enabled);
+
+double renderNormalizeLevel();
+void setRenderNormalizeLevel(double level);
+
+bool renderTrimEnabled();
+void setRenderTrimEnabled(bool enabled);
+
+int renderTrimMinutes();
+void setRenderTrimMinutes(int minutes);
+
+int renderTrimSeconds();
+void setRenderTrimSeconds(int seconds);
+
+bool renderAnalyzeEnabled();
+void setRenderAnalyzeEnabled(bool enabled);
+
 QColor accentColor(QColor defaultAccentColor);
 void setAccentColor(QColor accentColor);
 

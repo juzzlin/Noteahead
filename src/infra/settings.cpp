@@ -39,6 +39,12 @@ const auto jackSyncEnabledKey = "jackSyncEnabled";
 const auto jackBpmSyncEnabledKey = "jackBpmSyncEnabled";
 const auto midiSyncEnabledKey = "midiSyncEnabled";
 const auto waveViewEnabledKey = "waveViewEnabled";
+const auto renderNormalizeEnabledKey = "renderNormalizeEnabled";
+const auto renderNormalizeLevelKey = "renderNormalizeLevel";
+const auto renderTrimEnabledKey = "renderTrimEnabled";
+const auto renderTrimMinutesKey = "renderTrimMinutes";
+const auto renderTrimSecondsKey = "renderTrimSeconds";
+const auto renderAnalyzeEnabledKey = "renderAnalyzeEnabled";
 
 const auto midiExportForceDrumChannel10Key = "midiExportForceDrumChannel10";
 const auto midiExportAutoAssignChannelsKey = "midiExportAutoAssignChannels";
@@ -488,6 +494,108 @@ void setRenderBitDepth(BitDepth bitDepth)
     QSettings settings;
     settings.beginGroup(settingsGroupAudio);
     settings.setValue(renderBitDepthKey, static_cast<int>(bitDepth));
+    settings.endGroup();
+}
+
+bool renderNormalizeEnabled()
+{
+    QSettings settings {};
+    settings.beginGroup(settingsGroupAudio);
+    const auto enabled = settings.value(renderNormalizeEnabledKey, false).toBool();
+    settings.endGroup();
+    return enabled;
+}
+
+void setRenderNormalizeEnabled(bool enabled)
+{
+    QSettings settings {};
+    settings.beginGroup(settingsGroupAudio);
+    settings.setValue(renderNormalizeEnabledKey, enabled);
+    settings.endGroup();
+}
+
+double renderNormalizeLevel()
+{
+    QSettings settings {};
+    settings.beginGroup(settingsGroupAudio);
+    const auto level = settings.value(renderNormalizeLevelKey, -0.3).toDouble();
+    settings.endGroup();
+    return level;
+}
+
+void setRenderNormalizeLevel(double level)
+{
+    QSettings settings {};
+    settings.beginGroup(settingsGroupAudio);
+    settings.setValue(renderNormalizeLevelKey, level);
+    settings.endGroup();
+}
+
+bool renderTrimEnabled()
+{
+    QSettings settings {};
+    settings.beginGroup(settingsGroupAudio);
+    const auto enabled = settings.value(renderTrimEnabledKey, false).toBool();
+    settings.endGroup();
+    return enabled;
+}
+
+void setRenderTrimEnabled(bool enabled)
+{
+    QSettings settings {};
+    settings.beginGroup(settingsGroupAudio);
+    settings.setValue(renderTrimEnabledKey, enabled);
+    settings.endGroup();
+}
+
+int renderTrimMinutes()
+{
+    QSettings settings {};
+    settings.beginGroup(settingsGroupAudio);
+    const auto minutes = settings.value(renderTrimMinutesKey, 0).toInt();
+    settings.endGroup();
+    return minutes;
+}
+
+void setRenderTrimMinutes(int minutes)
+{
+    QSettings settings {};
+    settings.beginGroup(settingsGroupAudio);
+    settings.setValue(renderTrimMinutesKey, minutes);
+    settings.endGroup();
+}
+
+int renderTrimSeconds()
+{
+    QSettings settings {};
+    settings.beginGroup(settingsGroupAudio);
+    const auto seconds = settings.value(renderTrimSecondsKey, 0).toInt();
+    settings.endGroup();
+    return seconds;
+}
+
+void setRenderTrimSeconds(int seconds)
+{
+    QSettings settings {};
+    settings.beginGroup(settingsGroupAudio);
+    settings.setValue(renderTrimSecondsKey, seconds);
+    settings.endGroup();
+}
+
+bool renderAnalyzeEnabled()
+{
+    QSettings settings {};
+    settings.beginGroup(settingsGroupAudio);
+    const auto enabled = settings.value(renderAnalyzeEnabledKey, false).toBool();
+    settings.endGroup();
+    return enabled;
+}
+
+void setRenderAnalyzeEnabled(bool enabled)
+{
+    QSettings settings {};
+    settings.beginGroup(settingsGroupAudio);
+    settings.setValue(renderAnalyzeEnabledKey, enabled);
     settings.endGroup();
 }
 
