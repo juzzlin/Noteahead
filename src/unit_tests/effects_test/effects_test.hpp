@@ -41,6 +41,8 @@ private slots:
     void test_delayEffect_shouldProcessTapeMode();
     void test_delayEffect_shouldSyncParameters();
     void test_compressorEffect_shouldReduceGainAndHandleLookahead();
+    void test_limiterEffect_shouldLimitPeaksToCeiling();
+    void test_limiterEffect_shouldBoostToCeiling();
     void test_eq8BandParametricEffect_shouldApplyBandsAndBeStable();
     void test_clipperEffect_shouldClipSignal();
     void test_saturatorEffect_shouldShapeSignalPerMode();

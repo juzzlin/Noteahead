@@ -5,6 +5,11 @@ Release date:
 
 New features:
 
+* Add a mastering Limiter rack effect
+  - Lookahead brickwall peak limiter with Threshold, Ceiling, Release and Lookahead controls
+  - Boost switch lifts the threshold to the ceiling for maximum loudness
+  - Gain reduction meter
+
 Bug fixes:
 
 Other:

@@ -173,6 +173,11 @@ QString saturator()
     return "saturator";
 }
 
+QString limiter()
+{
+    return "limiter";
+}
+
 QString panner()
 {
     return "panner";
@@ -1030,6 +1035,16 @@ QString xmlKeyKnee()
 QString xmlKeyMakeup()
 {
     return "makeup";
+}
+
+QString xmlKeyCeiling()
+{
+    return "ceiling";
+}
+
+QString xmlKeyBoost()
+{
+    return "boost";
 }
 
 QString xmlKeyDrive()

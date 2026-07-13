@@ -118,6 +118,9 @@ Dialog {
                         } else if (effectType === effectRackController.saturatorType) {
                             saturatorDialog.effectIndex = index;
                             saturatorDialog.open();
+                        } else if (effectType === effectRackController.limiterType) {
+                            limiterDialog.effectIndex = index;
+                            limiterDialog.open();
                         } else if (effectType === effectRackController.compressorType) {
                             compressorDialog.effectIndex = index;
                             compressorDialog.open();

@@ -27,6 +27,7 @@
 #include "../../domain/effects/compressor.hpp"
 #include "../../domain/effects/delay.hpp"
 #include "../../domain/effects/eq_8_band_parametric.hpp"
+#include "../../domain/effects/limiter.hpp"
 #include "../../domain/effects/reverb.hpp"
 #include "../../domain/effects/saturator.hpp"
 
@@ -701,6 +702,83 @@ void EffectsTest::test_compressorEffect_shouldReduceGainAndHandleLookahead()
         // But reduction should already start happening based on the input
         QVERIFY(effect.reductionDb() < 0.0f);
     }
+}
+
+void EffectsTest::test_limiterEffect_shouldLimitPeaksToCeiling()
+{
+    Limiter effect;
+    effect.setSampleRate(44100.0);
+
+    // Defaults: Threshold 0dB, Ceiling -0.3dB, Boost off, Lookahead 5ms, Release ~100ms.
+    const double ceilingLin = Utils::Dsp::dbToLinear(-0.3f);
+
+    // Feed a full-scale signal; the limiter must pull it down to the ceiling. Process long enough for
+    // the lookahead delay line to flush and the envelope to settle.
+    double left = 0.0;
+    double right = 0.0;
+    for (int i = 0; i < 4000; i++) {
+        left = 1.0;
+        right = 1.0;
+        effect.process(left, right);
+        // The brickwall backstop guarantees the output never exceeds the ceiling.
+        QVERIFY(std::abs(left) <= ceilingLin + 1e-6);
+        QVERIFY(std::abs(right) <= ceilingLin + 1e-6);
+    }
+
+    // After settling the output should sit right at the ceiling and gain reduction should be reported.
+    QVERIFY(std::abs(std::abs(left) - ceilingLin) < 1e-3);
+    QVERIFY(effect.reductionDb() < 0.0f);
+
+    // Drive it hard: a full-scale signal against a -12dB threshold must show ~12dB of real gain reduction
+    // (not a token amount), which confirms the smooth limiter gain — not just the brickwall clamp — is working.
+    {
+        effect.reset();
+        if (auto p = effect.parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()); p) {
+            p->get().setValue(0.5f); // -12dB
+        }
+        effect.sync();
+
+        for (int i = 0; i < 4000; i++) {
+            left = 1.0;
+            right = 1.0;
+            effect.process(left, right);
+        }
+
+        QVERIFY(effect.reductionDb() < -11.0f);
+        QVERIFY(effect.reductionDb() > -13.0f);
+        // Output limited to the -12dB threshold (below the ceiling, so no boost make-up).
+        QVERIFY(std::abs(std::abs(left) - Utils::Dsp::dbToLinear(-12.0f)) < 1e-2);
+    }
+}
+
+void EffectsTest::test_limiterEffect_shouldBoostToCeiling()
+{
+    Limiter effect;
+    effect.setSampleRate(44100.0);
+
+    // Threshold -12dB, Boost on: a -12dB signal should be lifted so it peaks at the ceiling (-0.3dB).
+    if (auto p = effect.parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()); p) {
+        p->get().setValue(0.5f); // -24 + 0.5 * 24 = -12dB
+    }
+    if (auto p = effect.parameter(Constants::NahdXml::xmlKeyBoost().toStdString()); p) {
+        p->get().setValue(1.0f); // On
+    }
+    effect.sync();
+
+    const double ceilingLin = Utils::Dsp::dbToLinear(-0.3f);
+    const double val = Utils::Dsp::dbToLinear(-12.0f);
+
+    double left = 0.0;
+    double right = 0.0;
+    for (int i = 0; i < 2000; i++) {
+        left = val;
+        right = val;
+        effect.process(left, right);
+    }
+
+    // Boost make-up brings -12dB up to the -0.3dB ceiling without gain reduction (signal sits at threshold).
+    QVERIFY(std::abs(std::abs(left) - ceilingLin) < 1e-3);
+    QVERIFY(std::abs(std::abs(right) - ceilingLin) < 1e-3);
 }
 
 void EffectsTest::test_eq8BandParametricEffect_shouldApplyBandsAndBeStable()

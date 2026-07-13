@@ -26,6 +26,7 @@
 #include "compressor.hpp"
 #include "delay.hpp"
 #include "eq_8_band_parametric.hpp"
+#include "limiter.hpp"
 #include "panner.hpp"
 #include "reverb.hpp"
 #include "saturator.hpp"
@@ -88,6 +89,7 @@ void EffectFactory::init()
     registerEffect(DbTpMeter::typeIdString(), []() { return std::make_shared<DbTpMeter>(); });
     registerEffect(Delay::typeIdString(), []() { return std::make_shared<Delay>(); });
     registerEffect(Eq8BandParametric::typeIdString(), []() { return std::make_shared<Eq8BandParametric>(); });
+    registerEffect(Limiter::typeIdString(), []() { return std::make_shared<Limiter>(); });
     registerEffect(LufsMeter::typeIdString(), []() { return std::make_shared<LufsMeter>(); });
     registerEffect(Panner::typeIdString(), []() { return std::make_shared<Panner>(); });
     registerEffect(Rta::typeIdString(), []() { return std::make_shared<Rta>(); });
@@ -100,6 +102,7 @@ void EffectFactory::init()
     registerEffect(Constants::RackEffectType::compressor().toStdString(), []() { return std::make_shared<Compressor>(); });
     registerEffect(Constants::RackEffectType::delay().toStdString(), []() { return std::make_shared<Delay>(); });
     registerEffect(Constants::RackEffectType::eq8BandParametric().toStdString(), []() { return std::make_shared<Eq8BandParametric>(); });
+    registerEffect(Constants::RackEffectType::limiter().toStdString(), []() { return std::make_shared<Limiter>(); });
     registerEffect(Constants::RackEffectType::panner().toStdString(), []() { return std::make_shared<Panner>(); });
     registerEffect(Constants::RackEffectType::reverb().toStdString(), []() { return std::make_shared<Reverb>(); });
     registerEffect(Constants::RackEffectType::rta().toStdString(), []() { return std::make_shared<Rta>(); });
@@ -112,6 +115,7 @@ void EffectFactory::init()
     registerLegacyEffect("compressor", []() { return std::make_shared<Compressor>(); });
     registerLegacyEffect("delay", []() { return std::make_shared<Delay>(); });
     registerLegacyEffect("eq_8_band_parametric", []() { return std::make_shared<Eq8BandParametric>(); });
+    registerLegacyEffect("limiter", []() { return std::make_shared<Limiter>(); });
     registerLegacyEffect("panner", []() { return std::make_shared<Panner>(); });
     registerLegacyEffect("reverb", []() { return std::make_shared<Reverb>(); });
 }

@@ -45,6 +45,7 @@ set(HEADER_FILES
     effects/effect_factory.hpp
     effects/effect_rack.hpp
     effects/eq_8_band_parametric.hpp
+    effects/limiter.hpp
     effects/panner.hpp
     effects/reverb.hpp
     effects/saturator.hpp
@@ -136,6 +137,7 @@ set(SOURCE_FILES
     effects/effect_factory.cpp
     effects/effect_rack.cpp
     effects/eq_8_band_parametric.cpp
+    effects/limiter.cpp
     effects/panner.cpp
     effects/reverb.cpp
     effects/saturator.cpp

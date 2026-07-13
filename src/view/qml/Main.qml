@@ -429,6 +429,12 @@ ApplicationWindow {
         width: parent.width * Constants.effectDialogScale
         height: parent.height * Constants.effectDialogScale
     }
+    LimiterDialog {
+        id: limiterDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.effectDialogScale
+        height: parent.height * Constants.effectDialogScale
+    }
     Eq8BandParametricDialog {
         id: eq8BandParametricDialog
         anchors.centerIn: parent

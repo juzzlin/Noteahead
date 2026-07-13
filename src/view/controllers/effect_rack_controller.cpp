@@ -26,6 +26,7 @@
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/effect_rack.hpp"
 #include "../../domain/effects/eq_8_band_parametric.hpp"
+#include "../../domain/effects/limiter.hpp"
 #include "../../domain/effects/panner.hpp"
 #include "../../domain/effects/reverb.hpp"
 #include "../../domain/effects/saturator.hpp"
@@ -213,6 +214,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("dBTP Meter", DbTpMeter::typeIdString());
     addEffect("Delay", Constants::RackEffectType::delay().toStdString());
     addEffect("EQ 8-Band Parametric", Constants::RackEffectType::eq8BandParametric().toStdString());
+    addEffect("Limiter", Constants::RackEffectType::limiter().toStdString());
     addEffect("LUFS Meter", LufsMeter::typeIdString());
     addEffect("Panner", Constants::RackEffectType::panner().toStdString());
     addEffect("Reverb", Constants::RackEffectType::reverb().toStdString());
@@ -324,6 +326,14 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
             } else if (type == Constants::RackEffectType::clipper()) {
                 if (const auto threshold = effect->parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()); threshold) {
                     return QString { "(thr=%1dB)" }.arg(threshold->get().xmlValue() / 100.0f, 0, 'f', 1);
+                }
+            } else if (type == Constants::RackEffectType::limiter()) {
+                const auto ceiling = effect->parameter(Constants::NahdXml::xmlKeyCeiling().toStdString());
+                const auto boost = effect->parameter(Constants::NahdXml::xmlKeyBoost().toStdString());
+                if (ceiling && boost) {
+                    return QString { "(ceil=%1dB, boost=%2)" }
+                      .arg(ceiling->get().xmlValue() / 100.0f, 0, 'f', 1)
+                      .arg(boost->get().value() > 0.5f ? tr("on") : tr("off"));
                 }
             } else if (type == Constants::RackEffectType::compressor()) {
                 const auto attack { effect->parameter(Constants::NahdXml::xmlKeyAttack().toStdString()) };
@@ -551,6 +561,31 @@ QString EffectRackController::clipperGainKey() const
     return Constants::NahdXml::xmlKeyGain();
 }
 
+QString EffectRackController::limiterThresholdKey() const
+{
+    return Constants::NahdXml::xmlKeyThreshold();
+}
+
+QString EffectRackController::limiterCeilingKey() const
+{
+    return Constants::NahdXml::xmlKeyCeiling();
+}
+
+QString EffectRackController::limiterReleaseKey() const
+{
+    return Constants::NahdXml::xmlKeyRelease();
+}
+
+QString EffectRackController::limiterLookaheadKey() const
+{
+    return Constants::NahdXml::xmlKeyLookahead();
+}
+
+QString EffectRackController::limiterBoostKey() const
+{
+    return Constants::NahdXml::xmlKeyBoost();
+}
+
 QString EffectRackController::saturatorModeKey() const
 {
     return Constants::NahdXml::xmlKeyMode();
@@ -626,6 +661,11 @@ QString EffectRackController::saturatorType() const
     return Constants::RackEffectType::saturator();
 }
 
+QString EffectRackController::limiterType() const
+{
+    return Constants::RackEffectType::limiter();
+}
+
 QString EffectRackController::chorusType() const
 {
     return Constants::RackEffectType::chorus();
@@ -680,6 +720,19 @@ float EffectRackController::clipperReductionDb(quint32 effectIndex) const
         if (const auto effect = rack->get().effect(effectIndex); effect) {
             if (const auto clipper = std::dynamic_pointer_cast<Clipper>(effect); clipper) {
                 return clipper->reductionDb();
+            }
+        }
+    }
+
+    return 0.0f;
+}
+
+float EffectRackController::limiterReductionDb(quint32 effectIndex) const
+{
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(effectIndex); effect) {
+            if (const auto limiter = std::dynamic_pointer_cast<Limiter>(effect); limiter) {
+                return limiter->reductionDb();
             }
         }
     }
