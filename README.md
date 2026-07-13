@@ -98,6 +98,10 @@ All Arctic Music Project songs:
   - Multi-engine drum machine with 11 independent voices (Kick, Snare, Toms, etc.) and dedicated per-voice controls.
 - Sampler
   - 16-pad internal sampler with WAV support, dual filters, and per-sample panning/volume.
+- PianoSynth
+  - Physically modelled (waveguide) piano with brightness, decay, inharmonicity, LPF/HPF shaping, release, and stereo pan spread.
+- String & Voice
+  - Vintage string/choir ensemble inspired by the Roland VP-330 / Behringer VC340, with strings and voice registers, BBD ensemble chorus, and a sidechain vocoder.
 - Dynamic Routing
   - Per-device Effect Sends for flexible mixing.
 
@@ -110,8 +114,24 @@ All Arctic Music Project songs:
   - High-quality Feedback Delay Network algorithm with 8 studio presets (Hall, Cathedral, etc.) and fine-grained controls.
 - Compressor
   - Feed-forward compressor with soft-knee interpolation, lookahead support, and real-time gain reduction metering.
+- Limiter
+  - Lookahead brickwall peak limiter with Threshold, Ceiling, Release and Lookahead controls, a Boost switch for maximum loudness, and gain reduction metering.
+- Clipper
+  - Hard/soft clipper with adjustable threshold and output gain.
+- Saturator
+  - Multi-mode saturation/distortion for adding harmonics and warmth.
+- Chorus
+  - Stereo chorus with rate, depth, delay, width, and LPF/HPF shaping.
+- Delay
+  - Studio-standard delay with feedback, tempo sync, and Mono/Ping-Pong/Tape modes.
+- Panner & Auto Panner
+  - Static stereo panning plus an LFO-driven auto panner.
+- All-Pass Filter
+  - Multi-stage all-pass filter for phase shaping.
+- Metering & Analysis
+  - LUFS loudness meter, dBTP true-peak meter, and a real-time analyzer (RTA).
 - Integrated Effects
-  - Includes studio-standard Delay, High-Pass/Low-Pass filters, and Panning/Volume utilities.
+  - Includes High-Pass/Low-Pass filters and Panning/Volume utilities.
 
 ### Editing & Sequencing
 - Keyboard-Driven Workflow
