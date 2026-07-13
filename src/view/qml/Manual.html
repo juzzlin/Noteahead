@@ -429,7 +429,7 @@
 <p>Accessed via <code>Devices => Device rack...</code>, <code>Right-click => Song => Device Rack...</code>, or the <strong>Device Rack...</strong> button in <strong>Track Settings</strong>, the rack is the central hub for all internal instruments in Noteahead. Opening it from Track Settings is the quickest route when you are setting up a track: add the device, then pick its internal port for the track.</p>
 <ul>
     <li><strong>Managing Devices</strong>: The rack displays all active internal devices. Each entry shows the device name and a list of all tracks currently assigned to it. Click an active device entry to open its dedicated control dialog.</li>
-    <li><strong>Dynamic Addition</strong>: Internal devices can be added to any empty slot by clicking the <strong>(+) icon</strong>. This opens the <strong>Device Gallery</strong>, where you can select from the available instruments — <strong>Sampler</strong>, <strong>Synth</strong>, <strong>Wavetable Synth</strong>, <strong>FM Synth</strong>, <strong>Bass Synth</strong>, <strong>Drum Synth</strong>, <strong>Piano Synth</strong>, <strong>String &amp; Voice</strong>, <strong>String Ensemble</strong>, <strong>Speech</strong> and <strong>Sub Mixer</strong> — or use <strong>Import Device...</strong> to create a device straight from an exported settings file, or <strong>Copy Device...</strong> to duplicate an existing one.</li>
+    <li><strong>Dynamic Addition</strong>: Internal devices can be added to any empty slot by clicking the <strong>(+) icon</strong>. This opens the <strong>Device Gallery</strong>, where you can select from the available instruments — <strong>Sampler</strong>, <strong>Synth</strong>, <strong>Wavetable Synth</strong>, <strong>FM Synth</strong>, <strong>Bass Synth</strong>, <strong>Drum Synth</strong>, <strong>Piano Synth</strong>, <strong>Piano Synth V2</strong>, <strong>Piano Synth V3</strong>, <strong>Kick 808</strong>, <strong>String &amp; Voice</strong>, <strong>String &amp; Voice V2</strong>, <strong>String Ensemble</strong>, <strong>Speech</strong> and <strong>Sub Mixer</strong> — or use <strong>Import Device...</strong> to create a device straight from an exported settings file, or <strong>Copy Device...</strong> to duplicate an existing one.</li>
     <li><strong>Per-Slot Buttons</strong>: <strong>Insert FX</strong> opens the device's own effect rack, <strong>Sends</strong> its send levels to the master send effects, <strong>Settings</strong> the Device Settings dialog (see <em>Gain Staging</em> below), and <strong>Manage</strong> exports or imports the device's settings.</li>
     <li><strong>Level Meters</strong>: Each slot has a peak/RMS meter with a <strong>-18 dBFS marker</strong> to gain stage against. It is tapped after Gain and before the insert effects, so it shows the level your inserts actually see. See <a href="#reading-the-level-meters">Reading the Level Meters</a> below.</li>
     <li><strong>DSP Load</strong>: While the dialog is open, each slot shows the share of the audio callback its device consumes, and the footer shows the total, a peak hold and a <strong>dropout</strong> counter. The measurement only runs while the Device Rack is visible, so it costs nothing otherwise.</li>
@@ -688,6 +688,15 @@
     <li><strong>Registers</strong>: Independent strings and voice (choir) sections that can be mixed freely.</li>
     <li><strong>Ensemble</strong>: A BBD-style ensemble chorus for the classic wide, shimmering movement.</li>
     <li><strong>Vocoder</strong>: A side-chain vocoder section driven by another track.</li>
+</ul>
+
+<h3>String &amp; Voice V2</h3>
+<p>The same ensemble rebuilt against a recording of the hardware. It is a separate instrument rather than a change to the original because the corrections move the sound, and a song written against V1 has to keep playing V1.</p>
+<ul>
+    <li><strong>Strings</strong>: <strong>Upper</strong> and <strong>Lower</strong> switches, as the hardware has, saying which half of the keyboard split the section sounds on, with <strong>Balance</strong> for how loud. A <strong>Tone</strong> control fitted to the recording takes the place of V1's 8'/4' levels, which a VC340 does not actually have on this section.</li>
+    <li><strong>Voices</strong>: summed rather than scaled by how many are sounding, so releasing part of a chord no longer lifts the notes still held.</li>
+    <li><strong>Velocity Sensitivity</strong>: spans both sections at once.</li>
+    <li><strong>Ensemble and Vocoder</strong>: as in the original — a BBD-style ensemble chorus, and a side-chain vocoder driven by another track.</li>
 </ul>
 
 <h3>String Ensemble</h3>

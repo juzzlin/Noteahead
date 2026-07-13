@@ -4,7 +4,7 @@
 
 Noteahead is a pattern-based MIDI sequencer and music production environment for Linux, built around the tracker workflow: fast, keyboard-driven editing with the whole song in front of you.
 
-It is also a complete studio. Ten internal instruments, a virtual device rack with per-device insert effects and sends, a mixer view, 28 rack effects and analyzers, and a sample-accurate offline renderer take a song from the first note to a finished master without ever leaving the application. Point it outwards instead and it drives a room full of MIDI hardware with the same precision — or does both at once, in the same song.
+It is also a complete studio. Fourteen internal instruments, a virtual device rack with per-device insert effects and sends, a mixer view, 35 rack effects and analyzers, and a sample-accurate offline renderer take a song from the first note to a finished master without ever leaving the application. Point it outwards instead and it drives a room full of MIDI hardware with the same precision — or does both at once, in the same song.
 
 Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It builds with CMake and uses CTest + Qt Test framework for unit tests.
 
@@ -44,9 +44,9 @@ Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It bui
 ##
 ## What you can do with it
 
-**Produce entire songs in the box.** Eleven internal instruments cover a lot of ground: a six-voice virtual analog Synth, an eight-voice Wavetable Synth, a four-operator FM Synth, an acid Bass Synth, an eleven-voice Drum Synth, a 16-pad Sampler, two physically modelled pianos, a TR-808-style Kick808, and two vintage string machines after the VP-330/VC340 and the Solina. Each one sits in a slot of the Virtual Device Rack with its own insert effects, sends, fader, level meter and clip LED.
+**Produce entire songs in the box.** Fourteen internal instruments cover a lot of ground: a six-voice virtual analog Synth, an eight-voice Wavetable Synth, a four-operator FM Synth, an acid Bass Synth, an eleven-voice Drum Synth, a 16-pad Sampler, three physically modelled pianos, a TR-808-style Kick808, three vintage string machines after the VP-330/VC340 and the Solina, and a formant speech synth. Each one sits in a slot of the Virtual Device Rack with its own insert effects, sends, fader, level meter and clip LED.
 
-**Mix and master without leaving the application.** All 28 rack effects and analyzers are available both on the master bus and as per-device inserts: four EQs including an 8-band parametric with Mid/Side, two reverbs, single-band and multiband compression, a lookahead limiter, transient shaping, saturation and tube stages, modulation, an auto filter and a phaser — plus LUFS, true-peak and RTA metering to tell you where you stand. The Mixer view puts every device side by side as channel strips.
+**Mix and master without leaving the application.** All 35 rack effects and analyzers are available both on the master bus and as per-device inserts: four EQs including an 8-band parametric with Mid/Side, two reverbs, single-band and multiband compression, a lookahead limiter, transient shaping, saturation and tube stages, modulation, an auto filter and a phaser — plus LUFS, true-peak and RTA metering to tell you where you stand. The Mixer view puts every device side by side as channel strips.
 
 **Sequence external gear.** Noteahead began as a MIDI brain and is still a very good one. Ports are hot-plugged, every track routes to its own port and channel, and CC and pitch bend automation, an arpeggiator, chords, step recording and MIDI side-chaining are all there. Internal and external instruments live happily in the same song.
 
