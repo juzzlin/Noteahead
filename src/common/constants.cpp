@@ -89,12 +89,12 @@ size_t defaultTrackCount()
 
 size_t deviceRackSize()
 {
-    return 8;
+    return 16;
 }
 
 size_t effectRackSize()
 {
-    return 8;
+    return 16;
 }
 
 QString samplerDeviceName()
