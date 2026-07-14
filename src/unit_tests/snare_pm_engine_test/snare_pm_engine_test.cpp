@@ -28,10 +28,10 @@ namespace {
 
 constexpr double TestSampleRate = 44100.0;
 
-std::vector<double> renderMono(SnarePmEngine & engine, int samples)
+std::vector<double> renderMono(SnarePmEngine & engine, int samples, float velocity = 1.0f)
 {
     std::vector<double> out(static_cast<size_t>(samples));
-    engine.trigger(1.0f);
+    engine.trigger(velocity);
     for (auto & sample : out) {
         float left = 0.0f;
         float right = 0.0f;
@@ -413,6 +413,91 @@ void SnarePmEngineTest::test_punch_shouldFrontLoadTheHeads()
     QVERIFY(drop(punchedHit) > drop(plainHit) + 6.0);
     // The ring after it is the drum's own
     QVERIFY(std::abs(bandEnergyDb(punchedHit, 80.0, 400.0, 0.15, 0.3) - bandEnergyDb(plainHit, 80.0, 400.0, 0.15, 0.3)) < 1.0);
+}
+
+void SnarePmEngineTest::test_upperModes_highTone_shouldRingInTail()
+{
+    auto highTone = makeEngine();
+    highTone.setTone(0.95f);
+    highTone.setSnappy(0.0f);
+    highTone.setPosition(0.35f);
+    highTone.setDecay(0.6f);
+
+    auto lowTone = makeEngine();
+    lowTone.setTone(0.0f);
+    lowTone.setSnappy(0.0f);
+    lowTone.setPosition(0.35f);
+    lowTone.setDecay(0.6f);
+
+    const auto highHit = renderMono(highTone, static_cast<int>(seconds(0.30)));
+    const auto lowHit = renderMono(lowTone, static_cast<int>(seconds(0.30)));
+
+    const double highUpperTail = bandEnergyDb(highHit, 300.0, 1000.0, 0.10, 0.25);
+    const double highLowTail = bandEnergyDb(highHit, 120.0, 260.0, 0.10, 0.25);
+    const double lowUpperTail = bandEnergyDb(lowHit, 300.0, 1000.0, 0.10, 0.25);
+
+    QVERIFY2(highUpperTail > highLowTail - 14.0, qPrintable(QString::number(highUpperTail - highLowTail)));
+    QVERIFY2(highUpperTail > lowUpperTail + 6.0, qPrintable(QString::number(highUpperTail - lowUpperTail)));
+}
+
+void SnarePmEngineTest::test_wires_shouldRollOffAboveEightKilohertz()
+{
+    auto engine = makeEngine();
+    engine.setSnappy(0.8f);
+    engine.setWireWidth(0.0f);
+
+    const auto hit = renderMono(engine, static_cast<int>(seconds(0.30)));
+    const double ultraHigh = bandEnergyDb(hit, 12000.0, 18000.0, 0.0, 0.30);
+    const double wireCore = bandEnergyDb(hit, 2000.0, 6000.0, 0.0, 0.30);
+
+    QVERIFY2(ultraHigh < wireCore - 8.0, qPrintable(QString::number(ultraHigh - wireCore)));
+}
+
+void SnarePmEngineTest::test_velocity_shouldBrightenHardHitsComparedToGhostNotes()
+{
+    auto softEngine = makeEngine();
+    softEngine.setSnappy(0.6f);
+    softEngine.setTone(0.65f);
+
+    auto hardEngine = makeEngine();
+    hardEngine.setSnappy(0.6f);
+    hardEngine.setTone(0.65f);
+
+    const auto softHit = renderMono(softEngine, static_cast<int>(seconds(0.15)), 0.2f);
+    const auto hardHit = renderMono(hardEngine, static_cast<int>(seconds(0.15)), 1.0f);
+
+    const auto brightness = [](const std::vector<double> & hit) {
+        return bandEnergyDb(hit, 2000.0, 8000.0, 0.0, 0.15) - bandEnergyDb(hit, 100.0, 400.0, 0.0, 0.15);
+    };
+    const double softBrightness = brightness(softHit);
+    const double hardBrightness = brightness(hardHit);
+
+    QVERIFY2(hardBrightness > softBrightness + 2.0, qPrintable(QString::number(hardBrightness - softBrightness)));
+}
+
+void SnarePmEngineTest::test_click_shouldBeBroadbandNotPureTone()
+{
+    auto noClick = makeEngine();
+    noClick.setSnappy(0.0f);
+    noClick.setClick(0.0f);
+
+    auto fullClick = makeEngine();
+    fullClick.setSnappy(0.0f);
+    fullClick.setClick(1.0f);
+
+    const auto noClickHit = renderMono(noClick, static_cast<int>(seconds(0.03)));
+    const auto fullHit = renderMono(fullClick, static_cast<int>(seconds(0.03)));
+    std::vector<double> diff(noClickHit.size());
+    for (size_t i = 0; i < diff.size(); i++) {
+        diff[i] = fullHit[i] - noClickHit[i];
+    }
+
+    const double lowMid = bandEnergyDb(diff, 1000.0, 2500.0, 0.0, 0.02);
+    const double highMid = bandEnergyDb(diff, 2500.0, 6000.0, 0.0, 0.02);
+
+    QVERIFY2(lowMid > -40.0, qPrintable(QString::number(lowMid)));
+    QVERIFY2(highMid > -40.0, qPrintable(QString::number(highMid)));
+    QVERIFY2(std::abs(lowMid - highMid) < 12.0, qPrintable(QString::number(lowMid - highMid)));
 }
 
 } // namespace noteahead

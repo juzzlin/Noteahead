@@ -88,7 +88,7 @@ SnareSynthDevice::SnareSynthDevice(std::string name)
 {
     namespace Xml = Constants::NahdXml;
     addParameter(Parameter(Xml::xmlKeyTune().toStdString(), 0.2857f, 0, 10000, 2857, 100));
-    addParameter(Parameter(Xml::xmlKeyTone().toStdString(), 0.5f, 0, 10000, 5000, 100));
+    addParameter(Parameter(Xml::xmlKeyTone().toStdString(), 0.65f, 0, 10000, 6500, 100));
     addParameter(Parameter(Xml::xmlKeyDecay().toStdString(), 0.1554f, 0, 10000, 1554, 100));
     addParameter(Parameter(Xml::xmlKeyHeadTension().toStdString(), 0.35f, 0, 10000, 3500, 100));
     addParameter(Parameter(Xml::xmlKeyPitchDepth().toStdString(), 0.25f, 0, 10000, 2500, 100));
@@ -106,8 +106,8 @@ SnareSynthDevice::SnareSynthDevice(std::string name)
     addParameter(Parameter(Xml::xmlKeyDrive().toStdString(), 0.0f, 0, 10000, 0, 100));
     addParameter(Parameter(Xml::xmlKeyPanSpread().toStdString(), 0.5f, 0, 10000, 5000, 100));
     addParameter(Parameter(Xml::xmlKeyCrack().toStdString(), 0.0f, 0, 10000, 0, 100));
-    addParameter(Parameter(Xml::xmlKeyPunch().toStdString(), 0.0f, 0, 10000, 0, 100));
-    addParameter(Parameter(Xml::xmlKeyWireWidth().toStdString(), 0.0f, 0, 10000, 0, 100));
+    addParameter(Parameter(Xml::xmlKeyPunch().toStdString(), 0.20f, 0, 10000, 2000, 100));
+    addParameter(Parameter(Xml::xmlKeyWireWidth().toStdString(), 0.35f, 0, 10000, 3500, 100));
 
     addParameter(Parameter(Xml::xmlKeyAmpAttack().toStdString(), 0.0f, 0, 10000, 0, 100));
     addParameter(Parameter(Xml::xmlKeyAmpHold().toStdString(), 0.0f, 0, 10000, 0, 100));

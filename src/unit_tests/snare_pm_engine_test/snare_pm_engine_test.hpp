@@ -40,6 +40,10 @@ private slots:
     void test_crack_shouldFillTheMidsOfTheHit();
     void test_wireWidth_shouldReachDownIntoTheMids();
     void test_punch_shouldFrontLoadTheHeads();
+    void test_upperModes_highTone_shouldRingInTail();
+    void test_wires_shouldRollOffAboveEightKilohertz();
+    void test_velocity_shouldBrightenHardHitsComparedToGhostNotes();
+    void test_click_shouldBeBroadbandNotPureTone();
 };
 
 } // namespace noteahead
