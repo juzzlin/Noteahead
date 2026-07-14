@@ -5,6 +5,10 @@ Release date:
 
 New features:
 
+* Add Mid/Side processing modes to the 8-band parametric EQ
+  - Select Mid + Side (default), Mid, or Side per EQ instance
+  - Only the selected mode is applied on that instance
+
 * Add a mastering Limiter rack effect
   - Lookahead brickwall peak limiter with Threshold, Ceiling, Release and Lookahead controls
   - Boost switch lifts the threshold to the ceiling for maximum loudness

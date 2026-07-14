@@ -34,6 +34,8 @@ Eq8BandParametric::Eq8BandParametric()
         addParameter(Parameter { Constants::NahdXml::xmlKeyBandQ(i).toStdString(), 0.5f, 1, 100, 10, 10, Parameter::Type::Continuous, { std::format("eq8BandParametricBand{}Q", i + 1) } });
     }
 
+    addParameter(Parameter { Constants::NahdXml::xmlKeyStereoMode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete });
+
     syncParameters();
 }
 
@@ -76,10 +78,25 @@ void Eq8BandParametric::updateBuffers()
 
 void Eq8BandParametric::processStereo(double & left, double & right)
 {
+    // The EQ always works in Mid/Side internally. Processing both channels identically (MidSide mode) is
+    // mathematically equivalent to processing L/R independently, so it preserves the classic stereo behavior.
+    double mid = (left + right) * 0.5;
+    double side = (left - right) * 0.5;
+
+    const bool processMid = m_stereoMode != StereoMode::Side;
+    const bool processSide = m_stereoMode != StereoMode::Mid;
+
     for (auto & band : m_bands) {
-        left = band.filterL.process(left);
-        right = band.filterR.process(right);
+        if (processMid) {
+            mid = band.filterMid.process(mid);
+        }
+        if (processSide) {
+            side = band.filterSide.process(side);
+        }
     }
+
+    left = mid + side;
+    right = mid - side;
 }
 
 void Eq8BandParametric::reset()
@@ -111,6 +128,10 @@ void Eq8BandParametric::syncParameters()
             band.q = ParameterMapper::mapExponential(static_cast<double>(p->get().value()), 0.1, 10.0);
         }
         band.updateCoefficients(m_sampleRate);
+    }
+
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyStereoMode().toStdString()); p) {
+        m_stereoMode = static_cast<StereoMode>(std::clamp(static_cast<int>(std::round(p->get().value())), 0, 2));
     }
 }
 

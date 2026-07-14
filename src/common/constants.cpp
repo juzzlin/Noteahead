@@ -997,6 +997,11 @@ QString xmlKeyMode()
     return "mode";
 }
 
+QString xmlKeyStereoMode()
+{
+    return "stereoMode";
+}
+
 QString xmlKeyRate()
 {
     return "rate";

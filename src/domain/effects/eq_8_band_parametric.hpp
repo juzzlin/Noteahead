@@ -38,11 +38,19 @@ public:
     void reset() override;
     void sync() override;
 
+    enum class StereoMode
+    {
+        MidSide, // Both mid and side channels are processed (equivalent to independent L/R processing).
+        Mid, // Only the mid (mono/center) channel is processed; the side channel passes through.
+        Side // Only the side (stereo/difference) channel is processed; the mid channel passes through.
+    };
+
 private:
     struct Band
     {
-        SvfFilter filterL;
-        SvfFilter filterR;
+        // The EQ operates internally in Mid/Side, so these process the mid and side channels respectively.
+        SvfFilter filterMid;
+        SvfFilter filterSide;
         SvfFilter::Type type { SvfFilter::Type::Bypass };
         double frequency { 1000.0 };
         double gainDb { 0.0 };
@@ -50,40 +58,40 @@ private:
 
         void reset()
         {
-            filterL.reset();
-            filterR.reset();
+            filterMid.reset();
+            filterSide.reset();
         }
 
         void updateCoefficients(double sampleRate)
         {
             switch (type) {
             case SvfFilter::Type::Bypass:
-                filterL.setBypass();
-                filterR.setBypass();
+                filterMid.setBypass();
+                filterSide.setBypass();
                 break;
             case SvfFilter::Type::Bell:
-                filterL.calculateBell(frequency, sampleRate, q, gainDb);
-                filterR.calculateBell(frequency, sampleRate, q, gainDb);
+                filterMid.calculateBell(frequency, sampleRate, q, gainDb);
+                filterSide.calculateBell(frequency, sampleRate, q, gainDb);
                 break;
             case SvfFilter::Type::LowShelf:
-                filterL.calculateLowShelf(frequency, sampleRate, q, gainDb);
-                filterR.calculateLowShelf(frequency, sampleRate, q, gainDb);
+                filterMid.calculateLowShelf(frequency, sampleRate, q, gainDb);
+                filterSide.calculateLowShelf(frequency, sampleRate, q, gainDb);
                 break;
             case SvfFilter::Type::HighShelf:
-                filterL.calculateHighShelf(frequency, sampleRate, q, gainDb);
-                filterR.calculateHighShelf(frequency, sampleRate, q, gainDb);
+                filterMid.calculateHighShelf(frequency, sampleRate, q, gainDb);
+                filterSide.calculateHighShelf(frequency, sampleRate, q, gainDb);
                 break;
             case SvfFilter::Type::LowCut:
-                filterL.calculateLowCut(frequency, sampleRate, q);
-                filterR.calculateLowCut(frequency, sampleRate, q);
+                filterMid.calculateLowCut(frequency, sampleRate, q);
+                filterSide.calculateLowCut(frequency, sampleRate, q);
                 break;
             case SvfFilter::Type::HighCut:
-                filterL.calculateHighCut(frequency, sampleRate, q);
-                filterR.calculateHighCut(frequency, sampleRate, q);
+                filterMid.calculateHighCut(frequency, sampleRate, q);
+                filterSide.calculateHighCut(frequency, sampleRate, q);
                 break;
             case SvfFilter::Type::Notch:
-                filterL.calculateNotch(frequency, sampleRate, q);
-                filterR.calculateNotch(frequency, sampleRate, q);
+                filterMid.calculateNotch(frequency, sampleRate, q);
+                filterSide.calculateNotch(frequency, sampleRate, q);
                 break;
             }
         }
@@ -95,6 +103,8 @@ private:
 
     static constexpr size_t NumBands = 8;
     std::array<Band, NumBands> m_bands;
+
+    StereoMode m_stereoMode { StereoMode::MidSide };
 
     bool m_shouldSyncParameters { false };
     bool m_shouldUpdateBuffers { false };

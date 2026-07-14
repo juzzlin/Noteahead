@@ -44,6 +44,10 @@ private slots:
     void test_limiterEffect_shouldLimitPeaksToCeiling();
     void test_limiterEffect_shouldBoostToCeiling();
     void test_eq8BandParametricEffect_shouldApplyBandsAndBeStable();
+    void test_eq8BandParametricEffect_stereoMode_shouldDefaultToMidSide();
+    void test_eq8BandParametricEffect_midMode_shouldAffectMidOnly();
+    void test_eq8BandParametricEffect_sideMode_shouldAffectSideOnly();
+    void test_eq8BandParametricEffect_midSideMode_shouldAffectBothChannels();
     void test_clipperEffect_shouldClipSignal();
     void test_saturatorEffect_shouldShapeSignalPerMode();
     void test_saturatorEffect_shouldRespectMix();

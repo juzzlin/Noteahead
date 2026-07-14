@@ -284,6 +284,7 @@ QString xmlKeyMultiType();
 QString xmlKeyMultiKeyTrack();
 QString xmlKeyVoiceMode();
 QString xmlKeyMode();
+QString xmlKeyStereoMode();
 QString xmlKeyBaseRate();
 QString xmlKeyRate();
 QString xmlKeyDepth();

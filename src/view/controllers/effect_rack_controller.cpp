@@ -631,6 +631,11 @@ QString EffectRackController::eq8BandParametricQKey(quint32 bandIndex) const
     return Constants::NahdXml::xmlKeyBandQ(bandIndex);
 }
 
+QString EffectRackController::eq8BandParametricStereoModeKey() const
+{
+    return Constants::NahdXml::xmlKeyStereoMode();
+}
+
 QString EffectRackController::allPassFilterType() const
 {
     return Constants::RackEffectType::allPassFilter();

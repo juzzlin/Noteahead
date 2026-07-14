@@ -840,6 +840,119 @@ void EffectsTest::test_eq8BandParametricEffect_shouldApplyBandsAndBeStable()
     }
 }
 
+namespace {
+// Configure band 0 as a Low Shelf boosting DC (~10 kHz corner) by +12 dB and select the given stereo mode,
+// so a constant (DC) input reaches a clean, boosted steady state on the processed channel.
+void configureShelfEq(Eq8BandParametric & eq, float stereoModeValue)
+{
+    if (auto p = eq.parameter(Constants::NahdXml::xmlKeyBandType(0).toStdString()); p) {
+        p->get().setValue(2.0f); // Low Shelf
+    }
+    if (auto p = eq.parameter(Constants::NahdXml::xmlKeyBandFreq(0).toStdString()); p) {
+        p->get().setValue(0.9f); // ~10 kHz, so DC sits well inside the shelf
+    }
+    if (auto p = eq.parameter(Constants::NahdXml::xmlKeyBandGain(0).toStdString()); p) {
+        p->get().setValue(0.75f); // +12 dB
+    }
+    if (auto p = eq.parameter(Constants::NahdXml::xmlKeyStereoMode().toStdString()); p) {
+        p->get().setValue(stereoModeValue);
+    }
+    eq.sync();
+}
+} // namespace
+
+void EffectsTest::test_eq8BandParametricEffect_stereoMode_shouldDefaultToMidSide()
+{
+    Eq8BandParametric effect;
+    if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyStereoMode().toStdString()); p) {
+        QCOMPARE(p->get().value(), 0.0f); // 0 == Mid + Side
+    }
+}
+
+void EffectsTest::test_eq8BandParametricEffect_midMode_shouldAffectMidOnly()
+{
+    Eq8BandParametric effect;
+    effect.setSampleRate(44100.0);
+    configureShelfEq(effect, 1.0f); // Mid
+
+    // Pure mid content (L == R) is processed and boosted.
+    double left = 0.0;
+    double right = 0.0;
+    for (int i = 0; i < 4000; i++) {
+        left = 0.2;
+        right = 0.2;
+        effect.process(left, right);
+    }
+    QVERIFY(left > 0.5); // Boosted from 0.2 (+12 dB ~= 0.79)
+    QVERIFY(std::abs(left - right) < 1e-9); // Stays balanced (pure mid)
+
+    // Pure side content (L == -R) has zero mid, so it passes through untouched.
+    effect.reset();
+    for (int i = 0; i < 4000; i++) {
+        left = 0.2;
+        right = -0.2;
+        effect.process(left, right);
+    }
+    QVERIFY(std::abs(left - 0.2) < 1e-3);
+    QVERIFY(std::abs(right + 0.2) < 1e-3);
+}
+
+void EffectsTest::test_eq8BandParametricEffect_sideMode_shouldAffectSideOnly()
+{
+    Eq8BandParametric effect;
+    effect.setSampleRate(44100.0);
+    configureShelfEq(effect, 2.0f); // Side
+
+    // Pure side content (L == -R) is processed and boosted.
+    double left = 0.0;
+    double right = 0.0;
+    for (int i = 0; i < 4000; i++) {
+        left = 0.2;
+        right = -0.2;
+        effect.process(left, right);
+    }
+    QVERIFY(std::abs(left) > 0.5); // Boosted side
+    QVERIFY(std::abs(left + right) < 1e-9); // Stays anti-symmetric (pure side)
+
+    // Pure mid content (L == R) has zero side, so it passes through untouched.
+    effect.reset();
+    for (int i = 0; i < 4000; i++) {
+        left = 0.2;
+        right = 0.2;
+        effect.process(left, right);
+    }
+    QVERIFY(std::abs(left - 0.2) < 1e-3);
+    QVERIFY(std::abs(right - 0.2) < 1e-3);
+}
+
+void EffectsTest::test_eq8BandParametricEffect_midSideMode_shouldAffectBothChannels()
+{
+    Eq8BandParametric effect;
+    effect.setSampleRate(44100.0);
+    configureShelfEq(effect, 0.0f); // Mid + Side (default)
+
+    // Pure mid content is boosted.
+    double left = 0.0;
+    double right = 0.0;
+    for (int i = 0; i < 4000; i++) {
+        left = 0.2;
+        right = 0.2;
+        effect.process(left, right);
+    }
+    QVERIFY(left > 0.5);
+    QVERIFY(right > 0.5);
+
+    // Pure side content is also boosted (unlike Mid or Side modes, both are processed).
+    effect.reset();
+    for (int i = 0; i < 4000; i++) {
+        left = 0.2;
+        right = -0.2;
+        effect.process(left, right);
+    }
+    QVERIFY(std::abs(left) > 0.5);
+    QVERIFY(std::abs(right) > 0.5);
+}
+
 void EffectsTest::test_clipperEffect_shouldClipSignal()
 {
     Clipper effect;

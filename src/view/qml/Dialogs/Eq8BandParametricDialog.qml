@@ -49,6 +49,29 @@ Dialog {
         anchors.margins: 20
         spacing: 20
 
+        RowLayout {
+            spacing: 15
+            Layout.fillWidth: true
+
+            Label {
+                text: qsTr("Stereo Mode")
+                font.bold: true
+            }
+            ComboBox {
+                id: stereoModeCombo
+                implicitWidth: 160
+                model: [qsTr("Mid + Side"), qsTr("Mid"), qsTr("Side")]
+                currentIndex: {
+                    effectRackController.revision;
+                    return effectRackController.parameterValue(root.effectIndex, effectRackController.eq8BandParametricStereoModeKey());
+                }
+                onActivated: index => effectRackController.setParameterValue(root.effectIndex, effectRackController.eq8BandParametricStereoModeKey(), index)
+            }
+            Item {
+                Layout.fillWidth: true
+            }
+        }
+
         ScrollView {
             id: scrollView
             Layout.fillWidth: true
