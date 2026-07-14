@@ -29,22 +29,21 @@ namespace noteahead {
 //! Physical modelling bass drum engine.
 //!
 //! Models the parts of an acoustic kick that real recordings show to matter:
-//! 1. Batter head: a bank of decaying modes. The air inside the drum loads them, which pulls the
-//!    overtones down into a cluster at 1.3-2x the fundamental rather than a free membrane's ratios.
-//! 2. Tension modulation: a head stretched by a hit is tighter, so it starts sharp and settles as it
-//!    decays. The rise follows the head's own amplitude, so a harder hit starts sharper and a long
-//!    undamped drum stays sharp longer, as real ones do.
-//! 3. Front head: a second set of modes near the batter's, coupled through the air inside. Solid it
-//!    adds the long boom and the beating of two heads; ported it is short and quiet.
-//! 4. Damping: a pillow against the heads, which shortens a kick faster than exponentially.
-//! 5. Beater: felt to hard. The contact time decides how much of the higher modes the hit reaches,
-//!    and the click it makes.
-//! 6. Shell knock, a microphone from inside the drum to outside the front head, and drive.
+//! 1. Batter head: a bank of decaying modes with lug-asymmetry doublets. Air inside the drum
+//!    pulls the low overtones up while upper modes reach past 5x the fundamental.
+//! 2. Quadratic tension modulation: a head stretched by a hit rises in pitch with displacement
+//!    squared and settles early rather than sagging through the whole tail.
+//! 3. Front head: a second set of modes near the batter's, driven across the shell air transit
+//!    delay. Solid it adds the long boom and beating of two heads; ported it is short and quiet.
+//! 4. Two-stage damping: a pillow damps the batter impact quickly into the slower cavity/front tail.
+//! 5. Beater: Hertzian felt-to-hard contact time shapes upper modes, finite attack ramp, low-mid
+//!    thud and high slap click nonlinearly with velocity.
+//! 6. Shell knock, inside-to-outside microphone balance, comb-colored upper-mode ring, and drive.
 class KickPmEngine : public DrumEngine
 {
 public:
-    static constexpr int BatterModes = 8;
-    static constexpr int FrontModes = 4;
+    static constexpr int BatterModes = 14;
+    static constexpr int FrontModes = 6;
     static constexpr int TotalModes = BatterModes + FrontModes;
 
     KickPmEngine();
@@ -63,7 +62,7 @@ public:
     void setDecay(float decaySeconds);
     //! How fast the higher modes die against the fundamental: 0 dark, 1 bright.
     void setTone(float tone);
-    //! How sharp a full-velocity hit starts, 0..1: 1 is 60 % above the settled pitch.
+    //! How sharp a full-velocity hit starts, 0..1.
     void setPitchDrop(float drop);
     //! A pillow against the heads, 0..1. 0 leaves the drum ringing.
     void setDamping(float damping);
@@ -84,8 +83,8 @@ public:
     //! The microphone, inside the drum near the beater (0) to outside the front head (1).
     void setMic(float mic);
     void setDrive(float drive);
-    //! Level of the head's dense upper modes, which a mode bank of eight leaves out: the broad
-    //! 300 Hz-5 kHz ring of a real kick that outlasts the beater.
+    //! Level of the head's dense upper modes, which the discrete mode bank leaves out: the broad
+    //! upper ring of a real kick that outlasts the beater.
     void setRing(float ring);
     //! T60 of that ring.
     void setRingDecay(float seconds);
@@ -106,10 +105,11 @@ private:
 
     void initModes();
     void triggerModes(float velocity);
-    //! How much of a mode at @p hz a beater in contact for the beater's contact time reaches: the
-    //! spectrum of a half-sine force pulse.
-    double contactWeight(double hz) const;
-    double contactSeconds() const;
+    void updateVelocityFilters(double velocity);
+    //! How much of a mode at @p hz a beater in contact for contactSeconds(velocity) reaches:
+    //! the spectrum of a half-sine force pulse.
+    double contactWeight(double hz, double velocity) const;
+    double contactSeconds(double velocity) const;
 
     std::array<Mode, TotalModes> m_modes {};
 
@@ -135,17 +135,30 @@ private:
     //! measured against.
     double m_referenceAmplitude { 1.0 };
 
-    // Pillow: exp(-(t / tau)^2), run as a recurrence
-    double m_pillowEnv { 1.0 };
-    double m_pillowRatio { 1.0 };
-    double m_pillowRatioStep { 1.0 };
-    double m_pillowFirstRatio { 1.0 };
+    // Fast batter impact punch & local geometric tension relaxation
+    double m_impactEnv { 0.0 };
+    double m_impactDecayRate { 1.0 };
+    double m_impactAmount { 0.0 };
+    double m_tensionEnv { 0.0 };
+    double m_tensionDecayRate { 1.0 };
 
-    // Beater click: noise through a band set by the beater, decaying with it
+    // Beater contact attack ramp & acoustic shell-transit delay to front head
+    double m_headAttack { 1.0 };
+    double m_headAttackCoeff { 1.0 };
+    double m_frontAttack { 1.0 };
+    double m_frontAttackCoeff { 1.0 };
+    std::array<double, 512> m_frontDelayBuf {};
+    size_t m_frontDelayPos { 0 };
+    size_t m_frontDelaySamples { 1 };
+
+    // Beater click: high slap + low-mid thud, noise-driven
     double m_clickEnv { 0.0 };
     double m_clickDecayRate { 1.0 };
     CascadedSvf m_clickHp {};
     CascadedSvf m_clickLp {};
+    double m_thudEnv { 0.0 };
+    double m_thudDecayRate { 1.0 };
+    CascadedSvf m_thudFilter {};
 
     CascadedSvf m_shellResonator {};
 
@@ -155,13 +168,19 @@ private:
     double m_ringDecayRate { 1.0 };
     CascadedSvf m_ringHp {};
     CascadedSvf m_ringLp {};
+    std::array<double, 256> m_ringCombBuf {};
+    size_t m_ringCombPos { 0 };
+    size_t m_ringCombDelay { 1 };
 
     double m_tailDamping { 0.0 };
 
-    static constexpr uint32_t RngSeed { 20271 };
-    std::mt19937 m_rng { RngSeed };
+    static constexpr uint32_t RngSeedClick { 20271 };
+    static constexpr uint32_t RngSeedRing { 20272 };
+    std::mt19937 m_rngClick { RngSeedClick };
+    std::mt19937 m_rngRing { RngSeedRing };
     std::uniform_real_distribution<float> m_dist { -1.0f, 1.0f };
-    BaseRateSource m_noiseBank {};
+    BaseRateSource m_noiseBankClick {};
+    BaseRateSource m_noiseBankRing {};
 
     double m_lastSampleRate { 0.0 };
 };

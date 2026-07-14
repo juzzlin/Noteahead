@@ -17,11 +17,13 @@
 
 #include "../../../../../common/constants.hpp"
 #include "../../../../../domain/dsp/audio_context.hpp"
+#include "../../../../../domain/dsp/cascaded_svf.hpp"
 #include "../../../../../domain/dsp/drum/kick_pm_engine.hpp"
 #include "../../kick_synth_device.hpp"
 #include "../../kick_synth_presets.hpp"
 #include "../../kick_synth_preview.hpp"
 
+#include <QString>
 #include <QTest>
 
 #include <cmath>
@@ -35,15 +37,58 @@ namespace Xml = Constants::NahdXml;
 
 constexpr double SampleRate = 44100.0;
 
-std::vector<double> render(KickPmEngine & engine, float velocity, double seconds)
+std::vector<double> render(KickPmEngine & engine, float velocity, double seconds, double sampleRate = SampleRate)
 {
-    engine.setSampleRate(SampleRate);
+    engine.setSampleRate(sampleRate);
     engine.trigger(velocity);
     std::vector<double> out;
-    for (size_t i = 0; i < static_cast<size_t>(seconds * SampleRate); i++) {
+    for (size_t i = 0; i < static_cast<size_t>(seconds * sampleRate); i++) {
         out.push_back(static_cast<double>(engine.nextSample()));
     }
     return out;
+}
+
+double bandEnergyDb(const std::vector<double> & signal, double lowHz, double highHz, double fromSeconds, double toSeconds, double sampleRate = SampleRate)
+{
+    CascadedSvf highPass {};
+    highPass.setMode(CascadedSvf::Mode::HighPass);
+    CascadedSvf lowPass {};
+    lowPass.setMode(CascadedSvf::Mode::LowPass);
+    const auto cutoff = [sampleRate](double hz) {
+        const double maxFreq = std::min(20000.0, sampleRate * 0.49);
+        return std::clamp(std::log2(hz / 20.0) / std::log2(maxFreq / 20.0), 0.0, 1.0);
+    };
+    for (auto * filter : { &highPass, &lowPass }) {
+        filter->setSampleRate(sampleRate);
+        filter->setOrder(4);
+        filter->setResonance(0.29);
+    }
+    highPass.setCutoff(cutoff(lowHz));
+    lowPass.setCutoff(cutoff(highHz));
+    double energy = 1.0e-20;
+    const size_t from = static_cast<size_t>(fromSeconds * sampleRate);
+    const size_t to = std::min(signal.size(), static_cast<size_t>(toSeconds * sampleRate));
+    for (size_t i = 0; i < signal.size(); i++) {
+        const double filtered = lowPass.process(highPass.process(signal[i]));
+        if (i >= from && i < to) {
+            energy += filtered * filtered;
+        }
+    }
+    return 10.0 * std::log10(energy);
+}
+
+double windowRmsDbRelativeToPeak(const std::vector<double> & signal, double peakValue, double fromSeconds, double toSeconds)
+{
+    const size_t from = static_cast<size_t>(fromSeconds * SampleRate);
+    const size_t to = std::min(signal.size(), static_cast<size_t>(toSeconds * SampleRate));
+    double sumSq = 1.0e-20;
+    size_t count = 0;
+    for (size_t i = from; i < to; i++) {
+        sumSq += signal.at(i) * signal.at(i);
+        count++;
+    }
+    const double rms = std::sqrt(sumSq / static_cast<double>(std::max<size_t>(1, count)));
+    return 20.0 * std::log10(std::max(rms, 1.0e-12) / std::max(peakValue, 1.0e-12));
 }
 
 //! The head alone: no click, ring, shell or front head to blur its pitch
@@ -198,6 +243,108 @@ void KickSynthTest::test_engine_retrigger_damped_shouldNotJumpTheTail()
         tail.push_back(static_cast<double>(engine.nextSample()));
     }
     QVERIFY(peak(tail) < before * 1.2);
+}
+
+void KickSynthTest::test_engine_damping_shouldDecayConcaveUpNotCliffDrop()
+{
+    KickPmEngine engine {};
+    engine.setTune(45.0f);
+    engine.setDecay(1.5f);
+    engine.setDamping(0.85f);
+    engine.setFrontHead(0.6f);
+    engine.setClick(0.0f);
+    engine.setRing(0.0f);
+
+    const auto hit = render(engine, 1.0f, 0.6);
+    const double pk = peak(hit);
+    const double earlyDb = windowRmsDbRelativeToPeak(hit, pk, 0.010, 0.030);
+    const double midDb = windowRmsDbRelativeToPeak(hit, pk, 0.050, 0.100);
+    const double tailDb = windowRmsDbRelativeToPeak(hit, pk, 0.150, 0.300);
+
+    QVERIFY2(midDb < earlyDb - 6.0, qPrintable(QString::number(earlyDb - midDb)));
+    QVERIFY2(tailDb > -55.0, qPrintable(QString::number(tailDb)));
+}
+
+void KickSynthTest::test_engine_velocity_shouldBrightenHardHits()
+{
+    KickPmEngine soft {};
+    KickPmEngine hard {};
+    for (auto * engine : { &soft, &hard }) {
+        engine->setClick(0.5f);
+        engine->setRing(0.3f);
+        engine->setTone(0.5f);
+        engine->setBeater(0.5f);
+        engine->setDrive(0.0f);
+    }
+
+    const auto softHit = render(soft, 0.25f, 0.25);
+    const auto hardHit = render(hard, 1.0f, 0.25);
+
+    const auto brightness = [](const std::vector<double> & hit) {
+        return bandEnergyDb(hit, 1500.0, 8000.0, 0.0, 0.25) - bandEnergyDb(hit, 30.0, 120.0, 0.0, 0.25);
+    };
+    const double softBrightness = brightness(softHit);
+    const double hardBrightness = brightness(hardHit);
+
+    QVERIFY2(hardBrightness > softBrightness + 4.0, qPrintable(QString::number(hardBrightness - softBrightness)));
+}
+
+void KickSynthTest::test_engine_upperModes_highTone_shouldRingInTail()
+{
+    KickPmEngine lowTone {};
+    KickPmEngine highTone {};
+    for (auto * engine : { &lowTone, &highTone }) {
+        engine->setTune(85.0f);
+        engine->setDecay(1.2f);
+        engine->setPosition(0.4f);
+        engine->setDamping(0.1f);
+        engine->setClick(0.0f);
+        engine->setRing(0.0f);
+        engine->setFrontHead(0.0f);
+    }
+    lowTone.setTone(0.0f);
+    highTone.setTone(0.9f);
+
+    const auto lowHit = render(lowTone, 1.0f, 0.35);
+    const auto highHit = render(highTone, 1.0f, 0.35);
+
+    const double highTail = bandEnergyDb(highHit, 220.0, 600.0, 0.10, 0.30);
+    const double lowTail = bandEnergyDb(lowHit, 220.0, 600.0, 0.10, 0.30);
+    QVERIFY2(highTail > lowTail + 8.0, qPrintable(QString::number(highTail - lowTail)));
+}
+
+void KickSynthTest::test_engine_sampleRate_shouldPreserveNoiseBalance()
+{
+    KickPmEngine e44 {};
+    KickPmEngine e96 {};
+    for (auto * engine : { &e44, &e96 }) {
+        engine->setClick(0.5f);
+        engine->setRing(0.5f);
+        engine->setDrive(0.0f);
+    }
+
+    const auto hit44 = render(e44, 1.0f, 0.25, 44100.0);
+    const auto hit96 = render(e96, 1.0f, 0.25, 96000.0);
+
+    const double balance44 = bandEnergyDb(hit44, 1000.0, 6000.0, 0.0, 0.25, 44100.0) - bandEnergyDb(hit44, 30.0, 150.0, 0.0, 0.25, 44100.0);
+    const double balance96 = bandEnergyDb(hit96, 1000.0, 6000.0, 0.0, 0.25, 96000.0) - bandEnergyDb(hit96, 30.0, 150.0, 0.0, 0.25, 96000.0);
+    QVERIFY2(std::abs(balance96 - balance44) < 1.5, qPrintable(QString::number(balance96 - balance44)));
+}
+
+void KickSynthTest::test_engine_pitchDrop_shouldSettleQuickly()
+{
+    auto engine = bareHead();
+    engine.setTune(70.0f);
+    engine.setDecay(2.5f);
+    engine.setPitchDrop(0.7f);
+    engine.setDamping(0.0f);
+
+    const auto hit = render(engine, 1.0f, 0.5);
+    const double startPitch = pitchHz(hit, 0.0, 0.04);
+    const double latePitch = pitchHz(hit, 0.20, 0.35);
+
+    QVERIFY2(startPitch > 70.0 * 1.15, qPrintable(QString::number(startPitch)));
+    QVERIFY2(latePitch < 70.0 * 1.06, qPrintable(QString::number(latePitch)));
 }
 
 void KickSynthTest::test_presets_every_shouldPeakNearInit()

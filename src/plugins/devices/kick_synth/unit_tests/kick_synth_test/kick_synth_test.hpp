@@ -28,9 +28,14 @@ private slots:
     void test_engine_trigger_shouldSoundAndFallSilent();
     void test_engine_hardHit_shouldStartSharperThanASoftOne();
     void test_engine_damping_shouldShortenTheDrum();
+    void test_engine_damping_shouldDecayConcaveUpNotCliffDrop();
     void test_engine_frontHead_solid_shouldRingLongerThanPorted();
     void test_engine_beater_hard_shouldClickMoreThanFelt();
     void test_engine_retrigger_damped_shouldNotJumpTheTail();
+    void test_engine_velocity_shouldBrightenHardHits();
+    void test_engine_upperModes_highTone_shouldRingInTail();
+    void test_engine_sampleRate_shouldPreserveNoiseBalance();
+    void test_engine_pitchDrop_shouldSettleQuickly();
     void test_presets_every_shouldPeakNearInit();
     void test_device_noteOff_withoutEnvelope_shouldLetTheDrumRing();
     void test_device_ampEnvelope_shouldShortenTheHit();
