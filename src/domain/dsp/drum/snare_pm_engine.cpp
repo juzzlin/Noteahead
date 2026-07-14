@@ -36,11 +36,10 @@ constexpr double FlatResonance = 0.2929;
 constexpr double CrackTau = 0.042;
 constexpr double CrackLowHz = 250.0;
 constexpr double CrackHighHz = 2500.0;
-constexpr double CrackGain = 1.0;
+constexpr double CrackGain = 1.30;
 
-//! The wide wire band: the wires of a real snare reach down to 300 Hz under a hard hit
+//! The wide wire band: the wires of a real snare reach down to 350 Hz under a hard hit
 constexpr double WideWireLowHz = 350.0;
-constexpr double WideWireHighHz = 6000.0;
 constexpr double WideWireGain = 1.0;
 constexpr double WideWireBloomSeconds = 0.015;
 
@@ -65,11 +64,15 @@ SnarePmEngine::SnarePmEngine()
 {
     m_snareFilterL.setMode(CascadedSvf::Mode::BandPass);
     m_snareFilterL.setOrder(2);
-    m_snareFilterL.setResonance(0.35);
+    m_snareFilterL.setResonance(0.20);
 
     m_snareFilterR.setMode(CascadedSvf::Mode::BandPass);
     m_snareFilterR.setOrder(2);
-    m_snareFilterR.setResonance(0.35);
+    m_snareFilterR.setResonance(0.20);
+
+    m_clickFilter.setMode(CascadedSvf::Mode::BandPass);
+    m_clickFilter.setOrder(2);
+    m_clickFilter.setResonance(0.30);
 
     m_shellResonator.setMode(CascadedSvf::Mode::BandPass);
     m_shellResonator.setOrder(2);
@@ -80,7 +83,7 @@ SnarePmEngine::SnarePmEngine()
         filter->setOrder(2);
         filter->setResonance(FlatResonance);
     }
-    for (auto * filter : { &m_wideLpL, &m_wideLpR, &m_crackLp }) {
+    for (auto * filter : { &m_snareLpL, &m_snareLpR, &m_wideLpL, &m_wideLpR, &m_crackLp }) {
         filter->setMode(CascadedSvf::Mode::LowPass);
         filter->setOrder(2);
         filter->setResonance(FlatResonance);
@@ -104,13 +107,20 @@ void SnarePmEngine::initModes()
     m_modes[5].ratio = 2.917;
     m_modes[6].ratio = 3.500;
     m_modes[7].ratio = 3.600;
+    // Lug/snare-bed asymmetry doublets, higher ring modes, and hoop/rim ping
+    m_modes[8].ratio = 1.635;
+    m_modes[9].ratio = 2.185;
+    m_modes[10].ratio = 2.715;
+    m_modes[11].ratio = 4.240;
+    m_modes[12].ratio = 4.860;
+    m_modes[13].ratio = 9.400;
 
     // Resonant bottom head modes coupled via drum shell air
     const double tension = static_cast<double>(m_headTension);
-    m_modes[8].ratio = 1.000 * tension;
-    m_modes[9].ratio = 1.593 * tension;
-    m_modes[10].ratio = 2.135 * tension;
-    m_modes[11].ratio = 2.295 * tension;
+    m_modes[14].ratio = 1.000 * tension;
+    m_modes[15].ratio = 1.593 * tension;
+    m_modes[16].ratio = 2.135 * tension;
+    m_modes[17].ratio = 2.295 * tension;
 
     // Modal amplitudes dependent on strike position (0.0 = center, 1.0 = rim),
     // stick tip hardness (0.0 = soft felt, 1.0 = hard nylon/wood tip),
@@ -131,11 +141,18 @@ void SnarePmEngine::initModes()
     m_modes[6].amplitude = 0.5 * std::sin(piHalf * pos) * overtoneScale;
     m_modes[7].amplitude = 0.4 * std::sin(piHalf * pos) * overtoneScale;
 
+    m_modes[8].amplitude = 0.55 * m_modes[1].amplitude;
+    m_modes[9].amplitude = 0.55 * m_modes[2].amplitude;
+    m_modes[10].amplitude = 0.55 * m_modes[4].amplitude;
+    m_modes[11].amplitude = 0.30 * std::sin(piHalf * pos) * overtoneScale;
+    m_modes[12].amplitude = 0.24 * std::sin(piHalf * pos) * overtoneScale;
+    m_modes[13].amplitude = 0.75 * (pos * pos) * (0.25 + 0.75 * hardness);
+
     // Bottom modes excitation via internal shell air coupling
-    m_modes[8].amplitude = 0.35 * std::cos(piHalf * pos) * fundamentalScale;
-    m_modes[9].amplitude = 0.25 * std::sin(std::numbers::pi * pos) * overtoneScale;
-    m_modes[10].amplitude = 0.20 * std::sin(piHalf * pos) * overtoneScale;
-    m_modes[11].amplitude = 0.15 * std::cos(piHalf * pos) * overtoneScale;
+    m_modes[14].amplitude = 0.35 * std::cos(piHalf * pos) * fundamentalScale;
+    m_modes[15].amplitude = 0.30 * std::sin(std::numbers::pi * pos) * overtoneScale;
+    m_modes[16].amplitude = 0.24 * std::sin(piHalf * pos) * overtoneScale;
+    m_modes[17].amplitude = 0.18 * std::cos(piHalf * pos) * overtoneScale;
 }
 
 void SnarePmEngine::updateModeDamping()
@@ -147,15 +164,25 @@ void SnarePmEngine::updateModeDamping()
 
     const double t0 = std::max(0.005, static_cast<double>(m_decay));
     const double tau0 = t0 / T60ToTau;
-    const double toneDampingSlope = 1.0 + (1.0 - static_cast<double>(m_tone)) * 6.0;
+    const double tone = static_cast<double>(std::clamp(m_tone, 0.0f, 1.0f));
     const double body = static_cast<double>(std::clamp(m_body, 0.0f, 1.0f));
-    const double fundamentalDecayFactor = 0.4 + 1.0 * body;
+    const double toneRing = 0.25 + 1.05 * tone;
+    const double slope = 0.35 + (1.0 - tone) * 2.2;
 
     for (int i = 0; i < TotalModes; i++) {
         const double ratio = m_modes[i].ratio;
-        double modeTau = tau0 / (1.0 + (ratio - 1.0) * toneDampingSlope);
+        double modeTau = 0.0;
         if (i == 0 || i == BatterModes) {
-            modeTau *= fundamentalDecayFactor;
+            // (0,1) fundamental radiates strongly into air and responds to Body
+            modeTau = tau0 * (0.45 + 0.90 * body);
+        } else if (i == 1 || i == 2 || i == 4 || i == 8 || i == 9 || i == 10 || i == 15 || i == 16) {
+            // Antisymmetric ring modes & doublets radiate poorly and ring longer at high Tone
+            modeTau = tau0 * toneRing / (1.0 + 0.18 * (ratio - 1.0));
+        } else if (i == 13) {
+            // Hoop/rim ping
+            modeTau = tau0 * (0.12 + 0.22 * tone);
+        } else {
+            modeTau = tau0 / (1.0 + (ratio - 1.0) * slope);
         }
         m_modes[i].damping = exponentialDecayPerSample(modeTau, sr);
     }
@@ -182,20 +209,41 @@ void SnarePmEngine::updateRates()
     const double buzzTau = std::max(0.01, buzzTime) / T60ToTau;
     m_buzzEnvDecayRate = exponentialDecayPerSample(buzzTau, sr);
 
-    const double clickHz = 1800.0 + static_cast<double>(m_hardness) * 4200.0;
+    const double hardness = static_cast<double>(std::clamp(m_hardness, 0.0f, 1.0f));
+    const double clickFilterHz = 1200.0 + hardness * 3800.0;
+    m_clickFilter.setSampleRate(sr);
+    m_clickFilter.setCutoff(hzToNormalizedCutoff(clickFilterHz, sr));
+
+    const double clickHz = 1400.0 + hardness * 2000.0;
     m_clickPhaseIncrement = 2.0 * std::numbers::pi * clickHz / sr;
-    const double clickTime = 0.0015 + (1.0 - static_cast<double>(m_hardness)) * 0.0055;
+    const double clickTime = 0.0020 + (1.0 - hardness) * 0.0045;
     m_clickDecayRate = exponentialDecayPerSample(clickTime / T60ToTau, sr);
+    m_clickWoodDecayRate = exponentialDecayPerSample((clickTime * 0.45) / T60ToTau, sr);
 
     m_tailDamping = exponentialDecayPerSample(RetriggerFadeSeconds / T60ToTau, sr);
 
-    // Snare wire filter bandpass frequency mapping based on tension (2200 Hz to 6500 Hz)
-    const double snareHz = 2200.0 + static_cast<double>(m_snareTension) * 4300.0;
+    // Snare wire filter bandpass & high-frequency roll-off based on tension
+    const double tension = static_cast<double>(std::clamp(m_snareTension, 0.0f, 1.0f));
+    const double snareHz = 1800.0 + tension * 3600.0;
     const double snareCutoff = hzToNormalizedCutoff(snareHz, sr);
     m_snareFilterL.setSampleRate(sr);
     m_snareFilterR.setSampleRate(sr);
     m_snareFilterL.setCutoff(snareCutoff);
     m_snareFilterR.setCutoff(snareCutoff);
+
+    const double wireLpHz = 6500.0 + tension * 2500.0;
+    const double wireLpCutoff = hzToNormalizedCutoff(wireLpHz, sr);
+    for (auto * filter : { &m_snareLpL, &m_snareLpR, &m_wideLpL, &m_wideLpR }) {
+        filter->setSampleRate(sr);
+        filter->setCutoff(wireLpCutoff);
+    }
+
+    m_bottomDelaySamples = std::clamp<size_t>(static_cast<size_t>(std::lround(0.0005 * sr)), 1, m_bottomDelayBuf.size() - 1);
+    m_bottomEnvAttackRate = 1.0 - exponentialDecayPerSample(0.0005, sr);
+    m_bottomEnvReleaseRate = 1.0 - exponentialDecayPerSample(0.008, sr);
+
+    m_wireCombDelayL = std::clamp<size_t>(static_cast<size_t>(std::lround(0.00041 * sr)), 1, m_wireCombL.size() - 1);
+    m_wireCombDelayR = std::clamp<size_t>(static_cast<size_t>(std::lround(0.00053 * sr)), 1, m_wireCombR.size() - 1);
 
     // Shell cavity resonance filter tuned around fundamental
     const double body = static_cast<double>(std::clamp(m_body, 0.0f, 1.0f));
@@ -208,10 +256,6 @@ void SnarePmEngine::updateRates()
     for (auto * filter : { &m_wideHpL, &m_wideHpR }) {
         filter->setSampleRate(sr);
         filter->setCutoff(hzToNormalizedCutoff(WideWireLowHz, sr));
-    }
-    for (auto * filter : { &m_wideLpL, &m_wideLpR }) {
-        filter->setSampleRate(sr);
-        filter->setCutoff(hzToNormalizedCutoff(WideWireHighHz, sr));
     }
     m_wideBloomCoefficient = 1.0 - std::exp(-1.0 / (WideWireBloomSeconds * sr));
     m_punchDecayRate = exponentialDecayPerSample(PunchTau, sr);
@@ -228,6 +272,7 @@ void SnarePmEngine::updateRates()
     m_noiseBankL.setOversampleFactor(oversampleFactor());
     m_noiseBankR.setOversampleFactor(oversampleFactor());
     m_noiseBankCrack.setOversampleFactor(oversampleFactor());
+    m_noiseBankClick.setOversampleFactor(oversampleFactor());
 }
 
 void SnarePmEngine::trigger(float velocity)
@@ -237,6 +282,10 @@ void SnarePmEngine::trigger(float velocity)
     }
 
     m_velocity = std::clamp(velocity, 0.0f, 1.0f);
+    const double vel = static_cast<double>(m_velocity);
+    m_velPitchScale = 0.25 + 0.75 * vel;
+    m_velStrikeScale = std::pow(vel, 1.35);
+    m_velWireScale = std::pow(vel, 1.15);
     m_active = true;
 
     // Pitch envelope reset
@@ -248,6 +297,7 @@ void SnarePmEngine::trigger(float velocity)
 
     // Click transient reset
     m_clickSample = 1.0;
+    m_clickWoodEnv = 1.0;
     m_clickPhase = 0.0;
 
     m_punchEnv = 1.0;
@@ -262,13 +312,21 @@ void SnarePmEngine::trigger(float velocity)
 
 void SnarePmEngine::triggerModes(float velocity)
 {
+    static constexpr std::array<double, TotalModes> modePhases {
+        0.0, 0.75, 1.40, 2.15, 0.55, 1.95, 2.60, 0.95,
+        2.35, 3.05, 1.85, 0.40, 2.75, 1.15,
+        0.0, 1.25, 2.10, 0.65
+    };
+
     const double vel = static_cast<double>(velocity);
+    const double upperVelScale = vel * (0.45 + 0.55 * std::pow(vel, 0.75));
 
     for (int i = 0; i < TotalModes; i++) {
         m_modes[i].tailRe += m_modes[i].re;
         m_modes[i].tailIm += m_modes[i].im;
-        m_modes[i].re = vel * m_modes[i].amplitude;
-        m_modes[i].im = 0.0;
+        const double amp = (m_modes[i].ratio > 1.2 ? upperVelScale : vel) * m_modes[i].amplitude;
+        m_modes[i].re = amp * std::cos(modePhases[i]);
+        m_modes[i].im = amp * std::sin(modePhases[i]);
     }
 }
 
@@ -293,8 +351,8 @@ void SnarePmEngine::nextSample(float & left, float & right)
         updateRates();
     }
 
-    // Dynamic pitch deflection from strike impact
-    const double pitchRatio = std::exp2(m_pitchEnv * (static_cast<double>(m_pitchDepth) / 12.0));
+    // Dynamic pitch deflection from strike impact (scales nonlinearly with velocity)
+    const double pitchRatio = std::exp2(m_pitchEnv * (static_cast<double>(m_pitchDepth) * m_velPitchScale / 12.0));
     const double baseFreq = static_cast<double>(m_tune) * pitchRatio;
 
     // Membrane modal synthesis
@@ -336,14 +394,22 @@ void SnarePmEngine::nextSample(float & left, float & right)
         totalEnergy += std::abs(m_modes[i].re) + std::abs(m_modes[i].im) + std::abs(m_modes[i].tailRe) + std::abs(m_modes[i].tailIm);
     }
 
-    // Stick strike click transient
-    const double clickPulse = std::cos(m_clickPhase) * m_clickSample;
-    const double click = clickPulse * (static_cast<double>(m_click) * 2.0) * static_cast<double>(m_velocity);
+    const double noiseDensity = std::sqrt(baseSampleRate() / 44100.0);
+
+    // Stick strike click transient (broadband stick-tip impact + brief wooden body resonance)
+    if (m_noiseBankClick.needsBaseSample()) {
+        m_noiseBankClick.setBaseSample(m_dist(m_rngClick));
+    }
+    const double rawClickNoise = static_cast<double>(m_noiseBankClick.nextSample()) * noiseDensity;
+    const double clickNoise = m_clickFilter.process(rawClickNoise) * m_clickSample;
+    const double clickWood = std::sin(m_clickPhase) * m_clickWoodEnv;
+    const double click = (clickNoise * 2.1 + clickWood * 0.55) * (static_cast<double>(m_click) * 2.0) * m_velStrikeScale;
     m_clickPhase += m_clickPhaseIncrement;
     if (m_clickPhase > 2.0 * std::numbers::pi) {
         m_clickPhase -= 2.0 * std::numbers::pi;
     }
     m_clickSample *= m_clickDecayRate;
+    m_clickWoodEnv *= m_clickWoodDecayRate;
 
     // Stick crack: band-limited noise, centred with the head
     double crack = 0.0;
@@ -351,8 +417,8 @@ void SnarePmEngine::nextSample(float & left, float & right)
         if (m_noiseBankCrack.needsBaseSample()) {
             m_noiseBankCrack.setBaseSample(m_dist(m_rngCrack));
         }
-        const double noise = static_cast<double>(m_noiseBankCrack.nextSample());
-        crack = m_crackLp.process(m_crackHp.process(noise)) * m_crackEnv * static_cast<double>(m_crack) * CrackGain * static_cast<double>(m_velocity);
+        const double noise = static_cast<double>(m_noiseBankCrack.nextSample()) * noiseDensity;
+        crack = m_crackLp.process(m_crackHp.process(noise)) * m_crackEnv * static_cast<double>(m_crack) * CrackGain * m_velStrikeScale;
         m_crackEnv *= m_crackRatio;
         m_crackRatio *= m_crackRatioStep;
     }
@@ -361,7 +427,7 @@ void SnarePmEngine::nextSample(float & left, float & right)
     const double shellInput = batterHead * 0.7 + click * 0.3;
     const double shellBody = m_shellResonator.process(shellInput);
 
-    // Snare wire rattle & non-linear contact chatter
+    // Snare wire rattle & non-linear contact chatter coupled via acoustic shell-transit delay
     if (m_noiseBankL.needsBaseSample()) {
         m_noiseBankL.setBaseSample(m_dist(m_rngL));
     }
@@ -369,16 +435,26 @@ void SnarePmEngine::nextSample(float & left, float & right)
         m_noiseBankR.setBaseSample(m_dist(m_rngR));
     }
 
-    const double buzzAmount = static_cast<double>(m_snareBuzz);
-    const double excursion = std::clamp(std::abs(bottomHead), 0.0, 1.0);
-    const double contactBuzz = excursion * (buzzAmount * 0.35);
-    const double buzzTail = m_buzzEnv * (buzzAmount * 0.85);
-    const double wireExcitation = (m_snareEnv + contactBuzz + buzzTail) * static_cast<double>(m_velocity);
+    const size_t delaySize = m_bottomDelayBuf.size();
+    const double delayedBottom = m_bottomDelayBuf[(m_bottomDelayPos + delaySize - m_bottomDelaySamples) % delaySize];
+    m_bottomDelayBuf[m_bottomDelayPos] = bottomHead;
+    m_bottomDelayPos = (m_bottomDelayPos + 1) % delaySize;
 
-    const double rawNoiseL = static_cast<double>(m_noiseBankL.nextSample());
-    const double rawNoiseR = static_cast<double>(m_noiseBankR.nextSample());
-    double wireL = m_snareFilterL.process(rawNoiseL * wireExcitation);
-    double wireR = m_snareFilterR.process(rawNoiseR * wireExcitation);
+    const double absBottom = std::abs(delayedBottom);
+    const double envCoeff = absBottom > m_bottomEnv ? m_bottomEnvAttackRate : m_bottomEnvReleaseRate;
+    m_bottomEnv += (absBottom - m_bottomEnv) * envCoeff;
+
+    const double buzzAmount = static_cast<double>(m_snareBuzz);
+    const double excursion = std::clamp(absBottom, 0.0, 1.5);
+    const double rattleMod = 1.0 + buzzAmount * 0.55 * std::tanh(excursion * 2.5);
+    const double contactBuzz = (excursion * 0.45 + m_bottomEnv * 0.35) * buzzAmount;
+    const double buzzTail = m_buzzEnv * (buzzAmount * 0.85);
+    const double wireExcitation = (m_snareEnv * rattleMod + contactBuzz + buzzTail) * m_velWireScale;
+
+    const double rawNoiseL = static_cast<double>(m_noiseBankL.nextSample()) * noiseDensity;
+    const double rawNoiseR = static_cast<double>(m_noiseBankR.nextSample()) * noiseDensity;
+    double wireL = m_snareLpL.process(m_snareFilterL.process(rawNoiseL * wireExcitation));
+    double wireR = m_snareLpR.process(m_snareFilterR.process(rawNoiseR * wireExcitation));
     if (m_wireWidth > 0.0f) {
         const double width = static_cast<double>(m_wireWidth);
         m_wideExcitation += (wireExcitation - m_wideExcitation) * m_wideBloomCoefficient;
@@ -387,6 +463,15 @@ void SnarePmEngine::nextSample(float & left, float & right)
         wireL += (wideL - wireL) * width;
         wireR += (wideR - wireR) * width;
     }
+
+    const size_t combSize = m_wireCombL.size();
+    const double combOutL = wireL + 0.26 * m_wireCombL[(m_wireCombPos + combSize - m_wireCombDelayL) % combSize];
+    const double combOutR = wireR + 0.26 * m_wireCombR[(m_wireCombPos + combSize - m_wireCombDelayR) % combSize];
+    m_wireCombL[m_wireCombPos] = combOutL;
+    m_wireCombR[m_wireCombPos] = combOutR;
+    m_wireCombPos = (m_wireCombPos + 1) % combSize;
+    wireL = wireL * 0.65 + combOutL * 0.35;
+    wireR = wireR * 0.65 + combOutR * 0.35;
 
     m_pitchEnv *= m_pitchEnvDecayRate;
     m_snareEnv *= m_snareEnvDecayRate;
@@ -427,7 +512,7 @@ void SnarePmEngine::nextSample(float & left, float & right)
     right = static_cast<float>(outR);
 
     // Energy tracking for voice active state
-    totalEnergy += m_snareEnv + m_buzzEnv * buzzAmount + m_clickSample + (m_crack > 0.0f ? m_crackEnv : 0.0);
+    totalEnergy += m_snareEnv + m_buzzEnv * buzzAmount + m_clickSample + m_clickWoodEnv + (m_crack > 0.0f ? m_crackEnv : 0.0);
     if (totalEnergy < AmplitudeThreshold) {
         m_active = false;
         reset();
@@ -452,13 +537,23 @@ void SnarePmEngine::reset()
     m_snareEnv = 0.0;
     m_buzzEnv = 0.0;
     m_clickSample = 0.0;
+    m_clickWoodEnv = 0.0;
     m_clickPhase = 0.0;
     m_crackEnv = 0.0;
     m_wideExcitation = 0.0;
     m_punchEnv = 0.0;
+    m_bottomEnv = 0.0;
+    m_bottomDelayPos = 0;
+    m_bottomDelayBuf.fill(0.0);
+    m_wireCombPos = 0;
+    m_wireCombL.fill(0.0);
+    m_wireCombR.fill(0.0);
 
     m_snareFilterL.reset();
     m_snareFilterR.reset();
+    m_snareLpL.reset();
+    m_snareLpR.reset();
+    m_clickFilter.reset();
     m_shellResonator.reset();
     m_wideHpL.reset();
     m_wideHpR.reset();
@@ -469,10 +564,12 @@ void SnarePmEngine::reset()
     m_noiseBankL.reset();
     m_noiseBankR.reset();
     m_noiseBankCrack.reset();
+    m_noiseBankClick.reset();
 
     m_rngL.seed(RngSeedL);
     m_rngR.seed(RngSeedR);
     m_rngCrack.seed(RngSeedCrack);
+    m_rngClick.seed(RngSeedClick);
 }
 
 void SnarePmEngine::stop()

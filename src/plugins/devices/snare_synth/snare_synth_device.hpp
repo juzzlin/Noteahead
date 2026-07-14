@@ -189,7 +189,7 @@ private:
 
     // Internal parameter values
     float m_tune { 0.2857f };
-    float m_tone { 0.5f };
+    float m_tone { 0.65f };
     float m_decay { 0.1554f };
     float m_headTension { 0.35f };
     float m_pitchDepth { 0.25f };
@@ -207,8 +207,8 @@ private:
     float m_drive { 0.0f };
     float m_panSpread { 0.5f };
     float m_crack { 0.0f };
-    float m_punch { 0.0f };
-    float m_wireWidth { 0.0f };
+    float m_punch { 0.20f };
+    float m_wireWidth { 0.35f };
 
     float m_ampAttack { 0.0f };
     float m_ampHold { 0.0f };

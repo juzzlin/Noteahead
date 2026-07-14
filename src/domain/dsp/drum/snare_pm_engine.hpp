@@ -36,7 +36,7 @@ namespace noteahead {
 class SnarePmEngine : public DrumEngine
 {
 public:
-    static constexpr int BatterModes = 8;
+    static constexpr int BatterModes = 14;
     static constexpr int BottomModes = 4;
     static constexpr int TotalModes = BatterModes + BottomModes;
 
@@ -127,27 +127,46 @@ private:
     // State
     bool m_active { false };
     float m_velocity { 1.0f };
+    double m_velPitchScale { 1.0 };
+    double m_velStrikeScale { 1.0 };
+    double m_velWireScale { 1.0 };
 
     // Pitch envelope
     double m_pitchEnv { 0.0 };
     double m_pitchEnvDecayRate { 1.0 };
 
-    // Snare wire envelope, buzz & filters
+    // Snare wire envelope, buzz, acoustic delay coupling, micro-comb & filters
     double m_snareEnv { 0.0 };
     double m_snareEnvDecayRate { 1.0 };
     double m_buzzEnv { 0.0 };
     double m_buzzEnvDecayRate { 1.0 };
     CascadedSvf m_snareFilterL {};
     CascadedSvf m_snareFilterR {};
+    CascadedSvf m_snareLpL {};
+    CascadedSvf m_snareLpR {};
+    std::array<double, 512> m_bottomDelayBuf {};
+    size_t m_bottomDelayPos { 0 };
+    size_t m_bottomDelaySamples { 1 };
+    double m_bottomEnv { 0.0 };
+    double m_bottomEnvAttackRate { 1.0 };
+    double m_bottomEnvReleaseRate { 1.0 };
+    std::array<double, 256> m_wireCombL {};
+    std::array<double, 256> m_wireCombR {};
+    size_t m_wireCombPos { 0 };
+    size_t m_wireCombDelayL { 1 };
+    size_t m_wireCombDelayR { 1 };
 
     // Shell body resonator
     CascadedSvf m_shellResonator {};
 
     // Stick impact click state
     double m_clickSample { 0.0 };
+    double m_clickWoodEnv { 0.0 };
     double m_clickPhase { 0.0 };
     double m_clickPhaseIncrement { 0.0 };
     double m_clickDecayRate { 1.0 };
+    double m_clickWoodDecayRate { 1.0 };
+    CascadedSvf m_clickFilter {};
 
     // Wide snare wire band
     CascadedSvf m_wideHpL {};
@@ -173,17 +192,20 @@ private:
     // Tail damping on retrigger
     double m_tailDamping { 0.0 };
 
-    // Noise generation for snare wires
+    // Noise generation for snare wires, crack and stick impact
     static constexpr uint32_t RngSeedL { 20261 };
     static constexpr uint32_t RngSeedR { 20262 };
     static constexpr uint32_t RngSeedCrack { 20263 };
+    static constexpr uint32_t RngSeedClick { 20264 };
     std::mt19937 m_rngL { RngSeedL };
     std::mt19937 m_rngR { RngSeedR };
     std::mt19937 m_rngCrack { RngSeedCrack };
+    std::mt19937 m_rngClick { RngSeedClick };
     std::uniform_real_distribution<float> m_dist { -1.0f, 1.0f };
     BaseRateSource m_noiseBankL {};
     BaseRateSource m_noiseBankR {};
     BaseRateSource m_noiseBankCrack {};
+    BaseRateSource m_noiseBankClick {};
 
     double m_lastSampleRate { 0.0 };
 };
