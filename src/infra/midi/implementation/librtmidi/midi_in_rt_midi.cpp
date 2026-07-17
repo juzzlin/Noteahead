@@ -52,28 +52,28 @@ MidiBackend::PortNameList MidiInRtMidi::availablePortNames() const
 
 void MidiInRtMidi::openPort(MidiPortCR port)
 {
-    if (!m_openedPorts.contains(port.index())) {
+    if (!m_openedPorts.contains(port.name())) {
         if (auto && midiIn = std::make_unique<RtMidiIn>(); port.index() >= midiIn->getPortCount()) {
             throw std::runtime_error { "Invalid MIDI port index: " + std::to_string(port.index()) };
         } else {
             midiIn->openPort(static_cast<uint8_t>(port.index()));
-            m_openedPorts[port.index()] = std::move(midiIn);
+            m_openedPorts[port.name()] = std::move(midiIn);
         }
     }
 }
 
 void MidiInRtMidi::closePort(MidiPortCR port)
 {
-    if (auto && it = m_openedPorts.find(port.index()); it != m_openedPorts.end()) {
-        m_callbacks.erase(port.index());
-        m_callbackInfos.erase(port.index());
+    if (auto && it = m_openedPorts.find(port.name()); it != m_openedPorts.end()) {
+        m_callbacks.erase(port.name());
+        m_callbackInfos.erase(port.name());
         m_openedPorts.erase(it);
     }
 }
 
 bool MidiInRtMidi::isPortOpen(MidiPortCR port) const
 {
-    return m_openedPorts.contains(port.index());
+    return m_openedPorts.contains(port.name());
 }
 
 std::string MidiInRtMidi::midiApiName() const
@@ -83,12 +83,12 @@ std::string MidiInRtMidi::midiApiName() const
 
 void MidiInRtMidi::setCallbackForPort(const MidiPort & port, InputCallback callback)
 {
-    if (const auto index = port.index(); m_openedPorts.contains(index)) {
-        m_openedPorts[index]->cancelCallback();
-        m_callbacks[index] = std::move(callback);
-        m_callbackInfos[index] = std::make_unique<CallbackInfo>(this, index);
-        m_openedPorts[index]->setCallback(&MidiInRtMidi::staticCallback, m_callbackInfos[index].get());
-        m_openedPorts[index]->ignoreTypes(false, false, true);
+    if (const auto name = port.name(); m_openedPorts.contains(name)) {
+        m_openedPorts[name]->cancelCallback();
+        m_callbacks[name] = std::move(callback);
+        m_callbackInfos[name] = std::make_unique<CallbackInfo>(this, name);
+        m_openedPorts[name]->setCallback(&MidiInRtMidi::staticCallback, m_callbackInfos[name].get());
+        m_openedPorts[name]->ignoreTypes(false, false, true);
     } else {
         throw std::runtime_error("Port must be opened before setting callback!");
     }
@@ -97,7 +97,7 @@ void MidiInRtMidi::setCallbackForPort(const MidiPort & port, InputCallback callb
 void MidiInRtMidi::clearCallbacks()
 {
     juzzlin::L(TAG).debug() << "Clearing callbacks";
-    for (auto & [index, midiIn] : m_openedPorts) {
+    for (auto & [name, midiIn] : m_openedPorts) {
         midiIn->cancelCallback();
     }
     m_callbacks.clear();
@@ -109,9 +109,9 @@ void MidiInRtMidi::staticCallback(double deltaTime, MessageP message, void * use
     if (userData && message) {
         const auto info = static_cast<CallbackInfo *>(userData);
         const auto self = info->backend;
-        const auto index = info->index;
-        if (self->m_callbacks.contains(index) && self->m_callbacks.at(index)) {
-            self->m_callbacks.at(index)(deltaTime, *message);
+        const auto & portName = info->portName;
+        if (self->m_callbacks.contains(portName) && self->m_callbacks.at(portName)) {
+            self->m_callbacks.at(portName)(deltaTime, *message);
         }
     }
 }

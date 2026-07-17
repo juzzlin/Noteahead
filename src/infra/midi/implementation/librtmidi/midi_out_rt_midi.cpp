@@ -70,12 +70,12 @@ void MidiOutRtMidi::openPort(MidiPortCR port)
 {
     if (isVirtualPort(port.name())) {
         openVirtualPort(port.name());
-    } else if (!m_ports.contains(port.index())) {
+    } else if (!m_ports.contains(port.name())) {
         if (auto && midiOut = std::make_unique<RtMidiOut>(); port.index() >= midiOut->getPortCount()) {
             throw std::runtime_error { "Invalid MIDI port index: " + std::to_string(port.index()) };
         } else {
             midiOut->openPort(static_cast<uint8_t>(port.index()));
-            m_ports[port.index()] = std::move(midiOut);
+            m_ports[port.name()] = std::move(midiOut);
         }
     }
 }
@@ -92,7 +92,7 @@ void MidiOutRtMidi::openVirtualPort(const std::string & name)
 
 void MidiOutRtMidi::closePort(MidiPortCR port)
 {
-    if (auto && it = m_ports.find(port.index()); it != m_ports.end()) {
+    if (auto && it = m_ports.find(port.name()); it != m_ports.end()) {
         m_ports.erase(it);
     }
 }
@@ -111,7 +111,7 @@ void MidiOutRtMidi::sendMessage(MidiPortCR port, const Message & message) const
             it->second->sendMessage(&message);
         }
     } else {
-        if (auto && it = m_ports.find(port.index()); it == m_ports.end()) {
+        if (auto && it = m_ports.find(port.name()); it == m_ports.end()) {
             throw std::runtime_error { "physical port not opened." };
         } else {
             it->second->sendMessage(&message);

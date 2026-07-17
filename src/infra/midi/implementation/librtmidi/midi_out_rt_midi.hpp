@@ -63,7 +63,7 @@ private:
 
     void sendMessage(MidiPortCR port, const Message & message) const;
 
-    std::unordered_map<size_t, std::unique_ptr<RtMidiOut>> m_ports;
+    std::unordered_map<std::string, std::unique_ptr<RtMidiOut>> m_ports;
     std::unordered_map<std::string, std::unique_ptr<RtMidiOut>> m_virtualPorts;
 };
 
