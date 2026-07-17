@@ -43,6 +43,21 @@ Dialog {
                     cursorShape: Qt.PointingHandCursor
                 }
             }
+            Label {
+                text: " "
+            }
+            Label {
+                id: support_Text
+                text: `${qsTr("Support this project by listening music created with Noteahead:")} <a href="https://www.arcticmusicproject.com">https://www.arcticmusicproject.com</a>.<br/>${qsTr("Spotify playlist:")} <a href="https://open.spotify.com/playlist/5yyhZlUsetq5C9NgPhAMQK">https://open.spotify.com/playlist/5yyhZlUsetq5C9NgPhAMQK</a>`
+                onLinkActivated: link => Qt.openUrlExternally(link)
+                wrapMode: Text.WordWrap
+                Layout.preferredWidth: 350
+                MouseArea {
+                    anchors.fill: parent
+                    acceptedButtons: Qt.NoButton // Don't eat the mouse clicks
+                    cursorShape: Qt.PointingHandCursor
+                }
+            }
         }
     }
     Component.onCompleted: {
