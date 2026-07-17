@@ -47,20 +47,30 @@ void MidiWorker::initializeScanTimer()
                 const auto oldPortNames = Utils::Misc::stdStringVectorToQStringList(m_midiBackend->portNames());
                 const auto availablePortNames = Utils::Misc::stdStringVectorToQStringList(m_midiBackend->availablePortNames());
                 if (oldPortNames != availablePortNames || oldPortNames.empty()) {
-                    updatePorts();
-                    const auto updatedPortNames = Utils::Misc::stdStringVectorToQStringList(m_midiBackend->portNames());
                     QStringList newPortNames;
-                    for (auto && portName : updatedPortNames) {
+                    for (auto && portName : availablePortNames) {
                         if (!oldPortNames.contains(portName)) {
                             newPortNames << portName;
                         }
                     }
                     QStringList offlinePortNames;
                     for (auto && portName : oldPortNames) {
-                        if (!updatedPortNames.contains(portName)) {
+                        if (!availablePortNames.contains(portName)) {
                             offlinePortNames << portName;
                         }
                     }
+
+                    if (!offlinePortNames.isEmpty()) {
+                        for (auto && portName : offlinePortNames) {
+                            if (const auto port = m_midiBackend->portByName(portName.toStdString()); port) {
+                                juzzlin::L(TAG).info() << QString { "Closing MIDI %1 port " }.arg(m_role).toStdString() << portName.toStdString();
+                                m_midiBackend->closePort(*port);
+                            }
+                        }
+                    }
+
+                    updatePorts();
+
                     if (!newPortNames.isEmpty()) {
                         for (auto && portName : newPortNames) {
                             juzzlin::L(TAG).info() << QString { "Detected MIDI %1 port " }.arg(m_role).toStdString() << portName.toStdString();
@@ -72,12 +82,6 @@ void MidiWorker::initializeScanTimer()
                         }
                     }
                     if (!offlinePortNames.isEmpty()) {
-                        for (auto && portName : offlinePortNames) {
-                            if (const auto port = m_midiBackend->portByName(portName.toStdString()); port) {
-                                juzzlin::L(TAG).info() << QString { "Closing MIDI %1 port " }.arg(m_role).toStdString() << portName.toStdString();
-                                m_midiBackend->closePort(*port);
-                            }
-                        }
                         if (newPortNames.size() <= 3) {
                             emit statusTextRequested(tr("MIDI %1 ports went offline: ").arg(m_role) + offlinePortNames.join(","));
                         } else {
