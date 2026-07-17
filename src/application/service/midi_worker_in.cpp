@@ -60,10 +60,9 @@ void MidiWorkerIn::setControllerPort(QString portName)
     }
 
     if (!m_controllerPort.isEmpty()) {
-        if (const auto oldPort = midiBackend()->portByName(m_controllerPort.toStdString()); oldPort) {
-            juzzlin::L(TAG).info() << "Closing previous controller input port: " << m_controllerPort.toStdString();
-            m_midiWorkerIn->closePort(*oldPort);
-        }
+        juzzlin::L(TAG).info() << "Closing previous controller input port: " << m_controllerPort.toStdString();
+        const MidiPort oldPort(0, m_controllerPort.toStdString());
+        m_midiWorkerIn->closePort(oldPort);
     }
 
     if (!portName.isEmpty()) {
