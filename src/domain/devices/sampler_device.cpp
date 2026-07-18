@@ -52,6 +52,7 @@ SamplerDevice::SamplerDevice(std::string name, AudioFileReaderU audioFileReader)
   , m_audioFileReader { audioFileReader ? std::move(audioFileReader) : std::make_unique<SndFileReader>() }
 {
     addParameter(Parameter { Constants::NahdXml::xmlKeyChannelMode().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyChromaticMode().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
     addParameter(Parameter { Constants::NahdXml::xmlKeyEmbedWaveData().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
 
     m_voices.resize(m_maxVoices);
@@ -130,7 +131,25 @@ void SamplerDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
 {
     std::lock_guard<std::recursive_mutex> lock { mutex() };
 
-    if (note >= maxSamples || !m_samples.at(note)) {
+    if (note >= maxSamples) {
+        return;
+    }
+
+    // In chromatic mode the note is pitched from the covering octave-root sample; otherwise each note plays
+    // its own dedicated sample (drum style).
+    Sample * sample = nullptr;
+    double pitchRatio = 1.0;
+    if (m_chromaticMode) {
+        uint8_t rootNote = 0;
+        sample = const_cast<Sample *>(coveringSample(note, rootNote));
+        if (sample) {
+            pitchRatio = std::pow(2.0, (static_cast<double>(note) - static_cast<double>(rootNote)) / 12.0);
+        }
+    } else if (m_samples.at(note)) {
+        sample = m_samples.at(note).get();
+    }
+
+    if (!sample) {
         return;
     }
 
@@ -147,7 +166,8 @@ void SamplerDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
     for (auto && voice : m_voices) {
         if (!voice.active) {
             voice.note = note;
-            voice.sample = m_samples.at(note).get();
+            voice.sample = sample;
+            voice.pitchRatio = pitchRatio;
             voice.position = voice.sample->startOffset * voice.sample->sampleRate;
             voice.velocity = static_cast<float>(velocity) / 127.0f;
             voice.pan = panInternal();
@@ -366,7 +386,7 @@ void SamplerDevice::processAudio(AudioContext & context)
 
         const auto & sampleData { *voice.sample->data };
         const int channels = voice.sample->channels;
-        const float pitchScale = static_cast<float>(voice.sample->sampleRate) / static_cast<float>(context.sampleRate);
+        const double pitchScale = static_cast<double>(voice.sample->sampleRate) / static_cast<double>(context.sampleRate) * voice.pitchRatio;
 
         for (uint32_t i = 0; i < context.frameCount; i++) {
             const double currentPos = voice.position;
@@ -412,7 +432,7 @@ void SamplerDevice::processAudio(AudioContext & context)
             buffer[i * 2] += left * static_cast<double>(linearGainInternal());
             buffer[i * 2 + 1] += right * static_cast<double>(linearGainInternal());
 
-            voice.position += static_cast<double>(pitchScale);
+            voice.position += pitchScale;
         }
     }
 
@@ -742,6 +762,62 @@ void SamplerDevice::setChannelMode(bool enabled)
     emit dataChanged();
 }
 
+bool SamplerDevice::chromaticMode() const
+{
+    std::lock_guard<std::recursive_mutex> lock { mutex() };
+    return m_chromaticMode;
+}
+
+void SamplerDevice::setChromaticMode(bool enabled)
+{
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (auto p = parameter(Constants::NahdXml::xmlKeyChromaticMode().toStdString()); p) {
+            p->get().setValue(enabled ? 1.0f : 0.0f);
+            m_chromaticMode = p->get().value() > 0.5f;
+        }
+    }
+    emit dataChanged();
+}
+
+const SamplerDevice::Sample * SamplerDevice::coveringSample(uint8_t note, uint8_t & rootNote) const
+{
+    std::lock_guard<std::recursive_mutex> lock { mutex() };
+
+    // Find the greatest octave root (multiple of 12) at or below the note that has a sample. If there is none
+    // below, fall back to the lowest set root so the lowest sample also covers everything beneath it.
+    const Sample * covering = nullptr;
+    rootNote = 0;
+
+    for (int root = (note / 12) * 12; root >= 0; root -= 12) {
+        if (m_samples.at(static_cast<size_t>(root))) {
+            covering = m_samples.at(static_cast<size_t>(root)).get();
+            rootNote = static_cast<uint8_t>(root);
+            return covering;
+        }
+    }
+
+    // Nothing at or below: use the lowest set root above the note.
+    for (int root = ((note / 12) + 1) * 12; root < static_cast<int>(maxSamples); root += 12) {
+        if (m_samples.at(static_cast<size_t>(root))) {
+            covering = m_samples.at(static_cast<size_t>(root)).get();
+            rootNote = static_cast<uint8_t>(root);
+            return covering;
+        }
+    }
+
+    return nullptr;
+}
+
+double SamplerDevice::chromaticPitchRatio(uint8_t note) const
+{
+    uint8_t rootNote = 0;
+    if (!coveringSample(note, rootNote)) {
+        return 1.0;
+    }
+    return std::pow(2.0, (static_cast<double>(note) - static_cast<double>(rootNote)) / 12.0);
+}
+
 bool SamplerDevice::embedWaveData() const
 {
     std::lock_guard<std::recursive_mutex> lock { mutex() };
@@ -974,6 +1050,9 @@ void SamplerDevice::syncParameters()
     Device::syncParameters();
     if (auto p = parameter(Constants::NahdXml::xmlKeyChannelMode().toStdString()); p) {
         m_channelMode = p->get().value() > 0.5f;
+    }
+    if (auto p = parameter(Constants::NahdXml::xmlKeyChromaticMode().toStdString()); p) {
+        m_chromaticMode = p->get().value() > 0.5f;
     }
     if (auto p = parameter(Constants::NahdXml::xmlKeyEmbedWaveData().toStdString()); p) {
         m_embedWaveData = p->get().value() > 0.5f;

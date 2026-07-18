@@ -42,6 +42,7 @@ class SamplerController : public DeviceController
     Q_PROPERTY(int selectedPadStartOffsetMilliseconds READ selectedPadStartOffsetMilliseconds WRITE setSelectedPadStartOffsetMilliseconds NOTIFY selectedPadStartOffsetChanged)
     Q_PROPERTY(double selectedPadDuration READ selectedPadDuration NOTIFY selectedPadDurationChanged)
     Q_PROPERTY(bool channelMode READ channelMode WRITE setChannelMode NOTIFY channelModeChanged)
+    Q_PROPERTY(bool chromaticMode READ chromaticMode WRITE setChromaticMode NOTIFY chromaticModeChanged)
     Q_PROPERTY(bool embedWaveData READ embedWaveData WRITE setEmbedWaveData NOTIFY embedWaveDataChanged)
 
 public:
@@ -83,6 +84,9 @@ public:
     bool channelMode() const;
     void setChannelMode(bool enabled);
 
+    bool chromaticMode() const;
+    void setChromaticMode(bool enabled);
+
     bool embedWaveData() const;
     void setEmbedWaveData(bool enabled);
 
@@ -109,10 +113,13 @@ signals:
     void selectedPadStartOffsetChanged();
     void selectedPadDurationChanged();
     void channelModeChanged();
+    void chromaticModeChanged();
     void embedWaveDataChanged();
     void samplerChanged();
 
 private:
+    int noteForPad(int padIndex) const;
+
     SamplerDevice::SamplerDeviceS m_sampler;
     std::unique_ptr<SamplerPadModel> m_padModel;
     int m_selectedPad = 0;

@@ -39,6 +39,11 @@ private slots:
     void test_cutoff_shouldAdjustCutoff();
 
     void test_channelMode_shouldToggleCorrectMode();
+    void test_chromaticMode_shouldToggleCorrectMode();
+    void test_chromaticMode_singleSample_shouldCoverWholeRange();
+    void test_chromaticMode_multipleSamples_shouldSelectCoveringSample();
+    void test_chromaticMode_pitch_shouldMatchSemitoneRatio();
+    void test_chromaticMode_shouldRoundTripThroughXml();
     void test_midiCcReset_shouldResetInternalValues();
 
     void test_startOffset_shouldShiftPlaybackStart();

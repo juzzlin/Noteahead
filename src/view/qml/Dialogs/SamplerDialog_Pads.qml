@@ -53,6 +53,13 @@ GridView {
                     Layout.alignment: Qt.AlignHCenter
                 }
                 Text {
+                    text: rangeLabel
+                    visible: samplerController.chromaticMode && isLoaded && rangeLabel !== ""
+                    color: "white"
+                    font.pointSize: 8
+                    Layout.alignment: Qt.AlignHCenter
+                }
+                Text {
                     text: isLoaded ? "LOADED" : "EMPTY"
                     color: "white"
                     font.pointSize: 8

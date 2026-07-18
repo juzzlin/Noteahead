@@ -174,6 +174,84 @@ void SamplerTest::test_channelMode_shouldToggleCorrectMode()
     QCOMPARE(sampler.channelMode(), true);
 }
 
+void SamplerTest::test_chromaticMode_shouldToggleCorrectMode()
+{
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    QCOMPARE(sampler.chromaticMode(), false);
+    sampler.setChromaticMode(true);
+    QCOMPARE(sampler.chromaticMode(), true);
+}
+
+void SamplerTest::test_chromaticMode_singleSample_shouldCoverWholeRange()
+{
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    sampler.setChromaticMode(true);
+    sampler.loadSample(0, "test.wav"); // Octave 0 root (C0)
+
+    // A single sample covers the entire range: every note resolves to it, pitched from the C0 root.
+    uint8_t root = 255;
+    QVERIFY(sampler.coveringSample(0, root));
+    QCOMPARE(root, static_cast<uint8_t>(0));
+    QVERIFY(sampler.coveringSample(60, root));
+    QCOMPARE(root, static_cast<uint8_t>(0));
+    QVERIFY(sampler.coveringSample(127, root));
+    QCOMPARE(root, static_cast<uint8_t>(0));
+
+    QVERIFY(qFuzzyCompare(sampler.chromaticPitchRatio(0), 1.0));
+    QVERIFY(qFuzzyCompare(sampler.chromaticPitchRatio(12), 2.0)); // One octave up
+}
+
+void SamplerTest::test_chromaticMode_multipleSamples_shouldSelectCoveringSample()
+{
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    sampler.setChromaticMode(true);
+    sampler.loadSample(0, "low.wav"); // C0
+    sampler.loadSample(36, "high.wav"); // C3
+
+    // Notes below C3 resolve to the C0 sample, notes at/above C3 to the C3 sample.
+    uint8_t root = 255;
+    sampler.coveringSample(12, root);
+    QCOMPARE(root, static_cast<uint8_t>(0));
+    sampler.coveringSample(35, root);
+    QCOMPARE(root, static_cast<uint8_t>(0));
+    sampler.coveringSample(36, root);
+    QCOMPARE(root, static_cast<uint8_t>(36));
+    sampler.coveringSample(60, root);
+    QCOMPARE(root, static_cast<uint8_t>(36));
+}
+
+void SamplerTest::test_chromaticMode_pitch_shouldMatchSemitoneRatio()
+{
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    sampler.setChromaticMode(true);
+    sampler.loadSample(12, "test.wav"); // C1 root
+
+    QVERIFY(qFuzzyCompare(sampler.chromaticPitchRatio(12), 1.0)); // At the root
+    QVERIFY(qFuzzyCompare(sampler.chromaticPitchRatio(24), 2.0)); // One octave above
+    QVERIFY(qFuzzyCompare(sampler.chromaticPitchRatio(0), 0.5)); // One octave below (lowest root extends down)
+}
+
+void SamplerTest::test_chromaticMode_shouldRoundTripThroughXml()
+{
+    QByteArray data;
+    {
+        SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+        sampler.setChromaticMode(true);
+        NahdXmlWriter writer { data };
+        sampler.serializeToXml(writer);
+    }
+
+    {
+        SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+        NahdXmlReader reader { data };
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        sampler.deserializeFromXml(reader);
+        QCOMPARE(sampler.chromaticMode(), true);
+    }
+}
+
 void SamplerTest::test_midiCcReset_shouldResetInternalValues()
 {
     SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };

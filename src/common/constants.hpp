@@ -414,6 +414,7 @@ QString xmlKeySample();
 QString xmlKeySamples();
 QString xmlKeySamplePath();
 QString xmlKeyChannelMode();
+QString xmlKeyChromaticMode();
 QString xmlKeyEmbedWaveData();
 QString xmlKeyStartOffset();
 

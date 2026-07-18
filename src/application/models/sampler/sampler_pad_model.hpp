@@ -33,6 +33,7 @@ public:
     {
         Note = Qt::UserRole + 1,
         NoteName,
+        RangeLabel,
         FilePath,
         IsLoaded
     };
@@ -48,7 +49,12 @@ public:
 
     void updatePad(int padIndex);
 
+    // MIDI note a pad maps to: drum mode starts at StartNote; chromatic mode maps each pad to an octave root.
+    int noteForPad(int padIndex) const;
+
 private:
+    QString chromaticRangeLabel(int padIndex) const;
+
     SamplerDevice::SamplerDeviceS m_sampler;
     static constexpr int PadCount = 16;
     static constexpr int StartNote = 36;

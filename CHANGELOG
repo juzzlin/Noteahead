@@ -14,6 +14,8 @@ New features:
   - Boost switch lifts the threshold to the ceiling for maximum loudness
   - Gain reduction meter
 
+* Add chromatic mode to the Sampler
+
 Bug fixes:
 
 Other:

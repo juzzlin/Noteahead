@@ -26,7 +26,8 @@ SamplerPadModel::SamplerPadModel(SamplerDevice::SamplerDeviceS sampler, QObject 
 {
     if (m_sampler) {
         connect(m_sampler.get(), &SamplerDevice::dataChanged, this, [this]() {
-            emit dataChanged(index(0), index(PadCount - 1), { NoteName, FilePath, IsLoaded });
+            // Toggling chromatic mode remaps every pad's note and range, so refresh all roles.
+            emit dataChanged(index(0), index(PadCount - 1), { Note, NoteName, RangeLabel, FilePath, IsLoaded });
         });
     }
 }
@@ -44,7 +45,8 @@ void SamplerPadModel::setSampler(SamplerDevice::SamplerDeviceS sampler)
     m_sampler = std::move(sampler);
     if (m_sampler) {
         connect(m_sampler.get(), &SamplerDevice::dataChanged, this, [this]() {
-            emit dataChanged(index(0), index(PadCount - 1), { NoteName, FilePath, IsLoaded });
+            // Toggling chromatic mode remaps every pad's note and range, so refresh all roles.
+            emit dataChanged(index(0), index(PadCount - 1), { Note, NoteName, RangeLabel, FilePath, IsLoaded });
         });
     }
     endResetModel();
@@ -58,20 +60,69 @@ int SamplerPadModel::rowCount(const QModelIndex & parent) const
     return PadCount;
 }
 
+// Mirrors SamplerController::noteForPad; see the addressing table there for how the drum and chromatic
+// layouts share the per-note sample array.
+int SamplerPadModel::noteForPad(int padIndex) const
+{
+    if (m_sampler && m_sampler->chromaticMode()) {
+        return padIndex * 12; // Each pad is an octave; its root is the C of that octave.
+    }
+    return StartNote + padIndex;
+}
+
+QString SamplerPadModel::chromaticRangeLabel(int padIndex) const
+{
+    if (!m_sampler) {
+        return {};
+    }
+
+    const int root = noteForPad(padIndex);
+    if (root >= static_cast<int>(SamplerDevice::maxSamples) || !m_sampler->sample(static_cast<uint8_t>(root))) {
+        return {};
+    }
+
+    // A set pad covers from its own C down to the previous set pad (or note 0 if it is the lowest) and up to
+    // the next set pad (or the top of the keyboard if it is the highest).
+    bool isLowestSet = true;
+    for (int r = root - 12; r >= 0; r -= 12) {
+        if (m_sampler->sample(static_cast<uint8_t>(r))) {
+            isLowestSet = false;
+            break;
+        }
+    }
+
+    int nextRoot = -1;
+    for (int r = root + 12; r < static_cast<int>(SamplerDevice::maxSamples); r += 12) {
+        if (m_sampler->sample(static_cast<uint8_t>(r))) {
+            nextRoot = r;
+            break;
+        }
+    }
+
+    const int startNote = isLowestSet ? 0 : root;
+    const int endNote = nextRoot >= 0 ? nextRoot : static_cast<int>(SamplerDevice::maxSamples) - 1;
+
+    return QString::fromStdString(NoteConverter::midiToString(static_cast<uint8_t>(startNote)))
+      + " - " + QString::fromStdString(NoteConverter::midiToString(static_cast<uint8_t>(endNote)));
+}
+
 QVariant SamplerPadModel::data(const QModelIndex & index, int role) const
 {
     if (!index.isValid() || !m_sampler) {
         return {};
     }
 
-    const auto note = static_cast<uint8_t>(StartNote + index.row());
-    const auto sample = m_sampler->sample(note);
+    const int noteValue = noteForPad(index.row());
+    const bool inRange = noteValue < static_cast<int>(SamplerDevice::maxSamples);
+    const auto sample = inRange ? m_sampler->sample(static_cast<uint8_t>(noteValue)) : nullptr;
 
     switch (role) {
     case Note:
-        return note;
+        return noteValue;
     case NoteName:
-        return QString::fromStdString(NoteConverter::midiToString(note));
+        return inRange ? QString::fromStdString(NoteConverter::midiToString(static_cast<uint8_t>(noteValue))) : QString {};
+    case RangeLabel:
+        return m_sampler->chromaticMode() ? chromaticRangeLabel(index.row()) : QString {};
     case FilePath:
         return sample ? QString::fromStdString(sample->filePath) : QString {};
     case IsLoaded:
@@ -86,6 +137,7 @@ QHash<int, QByteArray> SamplerPadModel::roleNames() const
     QHash<int, QByteArray> roles;
     roles[Note] = "note";
     roles[NoteName] = "noteName";
+    roles[RangeLabel] = "rangeLabel";
     roles[FilePath] = "filePath";
     roles[IsLoaded] = "isLoaded";
     return roles;

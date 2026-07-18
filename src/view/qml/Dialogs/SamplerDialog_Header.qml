@@ -25,8 +25,15 @@ ColumnLayout {
 
     RowLayout {
         Layout.fillWidth: true
-        Item {
-            Layout.preferredWidth: resetBtn.implicitWidth
+        CheckBox {
+            id: chromaticModeCheckbox
+            text: qsTr("Chromatic mode")
+            checked: samplerController.chromaticMode
+            onToggled: samplerController.chromaticMode = checked
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("When enabled, each pad maps to an octave and its sample is pitched chromatically across it. If only one pad is set, its sample covers the whole range.")
         }
         Label {
             text: qsTr("Emulation of a 16-pad sampler")

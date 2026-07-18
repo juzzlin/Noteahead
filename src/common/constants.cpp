@@ -1567,6 +1567,11 @@ QString xmlKeyChannelMode()
     return "channelMode";
 }
 
+QString xmlKeyChromaticMode()
+{
+    return "chromaticMode";
+}
+
 QString xmlKeyEmbedWaveData()
 {
     return "embedWaveData";

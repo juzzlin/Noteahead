@@ -115,6 +115,17 @@ public:
     bool channelMode() const;
     void setChannelMode(bool enabled);
 
+    bool chromaticMode() const;
+    void setChromaticMode(bool enabled);
+
+    // Resolves the sample that covers the given note in chromatic mode and, via rootNote, the octave root it
+    // is pitched from. Returns nullptr if no sample is set. The lowest set root extends down and the highest
+    // set root extends up, so a single set sample covers the whole range.
+    const Sample * coveringSample(uint8_t note, uint8_t & rootNote) const;
+
+    // Playback speed ratio for the given note in chromatic mode: 2^((note - coveringRoot) / 12).
+    double chromaticPitchRatio(uint8_t note) const;
+
     bool embedWaveData() const;
     void setEmbedWaveData(bool enabled);
 
@@ -149,6 +160,7 @@ private:
         uint8_t note = 0;
         Sample * sample = nullptr;
         double position = 0.0;
+        double pitchRatio = 1.0;
         float velocity = 1.0f;
         float pan = 0.5f;
         float cutoff = 1.0f;
@@ -175,6 +187,7 @@ private:
     float m_manualGlobalCutoff = 1.0f;
     float m_manualGlobalHpfCutoff = 0.0f;
     bool m_channelMode = false;
+    bool m_chromaticMode = false;
     bool m_embedWaveData = false;
     std::string m_projectPath;
     PathResolver m_pathResolver;
