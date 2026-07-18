@@ -178,6 +178,11 @@ QString limiter()
     return "limiter";
 }
 
+QString endless()
+{
+    return "endless";
+}
+
 QString panner()
 {
     return "panner";
@@ -1050,6 +1055,11 @@ QString xmlKeyCeiling()
 QString xmlKeyBoost()
 {
     return "boost";
+}
+
+QString xmlKeyFreeze()
+{
+    return "freeze";
 }
 
 QString xmlKeyDrive()

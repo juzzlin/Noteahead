@@ -70,6 +70,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/EditPitchBendAutomationsDialog.qml
     ${QML_BASE_DIR}/Dialogs/EffectSendsDialog.qml
     ${QML_BASE_DIR}/Dialogs/EffectsGalleryDialog.qml
+    ${QML_BASE_DIR}/Dialogs/EndlessReverbDialog.qml
     ${QML_BASE_DIR}/Dialogs/Eq8BandParametricDialog.qml
     ${QML_BASE_DIR}/Dialogs/ErrorDialog.qml
     ${QML_BASE_DIR}/Dialogs/EventSelectionDialog.qml

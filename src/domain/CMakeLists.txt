@@ -44,6 +44,7 @@ set(HEADER_FILES
     effects/effect.hpp
     effects/effect_factory.hpp
     effects/effect_rack.hpp
+    effects/endless_reverb.hpp
     effects/eq_8_band_parametric.hpp
     effects/limiter.hpp
     effects/panner.hpp
@@ -136,6 +137,7 @@ set(SOURCE_FILES
     effects/effect.cpp
     effects/effect_factory.cpp
     effects/effect_rack.cpp
+    effects/endless_reverb.cpp
     effects/eq_8_band_parametric.cpp
     effects/limiter.cpp
     effects/panner.cpp

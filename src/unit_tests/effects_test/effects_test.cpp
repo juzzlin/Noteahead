@@ -26,6 +26,7 @@
 #include "../../domain/effects/clipper.hpp"
 #include "../../domain/effects/compressor.hpp"
 #include "../../domain/effects/delay.hpp"
+#include "../../domain/effects/endless_reverb.hpp"
 #include "../../domain/effects/eq_8_band_parametric.hpp"
 #include "../../domain/effects/limiter.hpp"
 #include "../../domain/effects/reverb.hpp"
@@ -831,6 +832,107 @@ void EffectsTest::test_limiterEffect_shouldBoostToCeiling()
     // Boost make-up brings -12dB up to the -0.3dB ceiling without gain reduction (signal sits at threshold).
     QVERIFY(std::abs(std::abs(left) - ceilingLin) < 1e-3);
     QVERIFY(std::abs(std::abs(right) - ceilingLin) < 1e-3);
+}
+
+void EffectsTest::test_endlessReverb_shouldProduceStableWetTail()
+{
+    EndlessReverb effect;
+    effect.setSampleRate(44100.0);
+
+    const auto setParam = [&](const QString & key, float value) {
+        if (const auto p = effect.parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    };
+    setParam(Constants::NahdXml::xmlKeyMix(), 1.0f); // Fully wet
+    setParam(Constants::NahdXml::xmlKeySize(), 0.5f);
+    setParam(Constants::NahdXml::xmlKeyDecay(), 0.6f);
+    effect.sync();
+
+    // Feed a single impulse, then process silence and collect the tail.
+    double left = 1.0;
+    double right = 1.0;
+    effect.process(left, right);
+
+    double energy = 0.0;
+    double maxAbs = 0.0;
+    for (int i = 0; i < 20000; i++) {
+        double l = 0.0;
+        double r = 0.0;
+        effect.process(l, r);
+        QVERIFY(std::isfinite(l));
+        QVERIFY(std::isfinite(r));
+        energy += l * l + r * r;
+        maxAbs = std::max(maxAbs, std::max(std::abs(l), std::abs(r)));
+    }
+
+    QVERIFY(energy > 0.0); // A reverberant tail was produced.
+    QVERIFY(maxAbs < 10.0); // ...and it stayed bounded/stable.
+}
+
+void EffectsTest::test_endlessReverb_mixZero_shouldPassDrySignal()
+{
+    EndlessReverb effect;
+    effect.setSampleRate(44100.0);
+    effect.sync(); // Mix defaults to 0 (fully dry).
+
+    double left = 0.7;
+    double right = -0.3;
+    effect.process(left, right);
+
+    QVERIFY(std::abs(left - 0.7) < 1.0e-9);
+    QVERIFY(std::abs(right + 0.3) < 1.0e-9);
+}
+
+void EffectsTest::test_endlessReverb_freeze_shouldSustainTail()
+{
+    EndlessReverb effect;
+    effect.setSampleRate(44100.0);
+
+    const auto setParam = [&](const QString & key, float value) {
+        if (const auto p = effect.parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    };
+    setParam(Constants::NahdXml::xmlKeyMix(), 1.0f);
+    setParam(Constants::NahdXml::xmlKeySize(), 0.5f);
+    setParam(Constants::NahdXml::xmlKeyDecay(), 0.9f);
+    effect.sync();
+
+    // Build energy in the network.
+    for (int i = 0; i < 8000; i++) {
+        double l = (i % 97 < 3) ? 0.8 : 0.0;
+        double r = (i % 89 < 3) ? 0.8 : 0.0;
+        effect.process(l, r);
+    }
+
+    // Engage freeze: the tail should now sustain instead of decaying.
+    setParam(Constants::NahdXml::xmlKeyFreeze(), 1.0f);
+    effect.sync();
+
+    const auto windowEnergy = [&](int frames) {
+        double e = 0.0;
+        for (int i = 0; i < frames; i++) {
+            double l = 0.0;
+            double r = 0.0;
+            effect.process(l, r);
+            e += l * l + r * r;
+        }
+        return e;
+    };
+
+    const double firstEnergy = windowEnergy(4000);
+    for (int i = 0; i < 40000; i++) {
+        double l = 0.0;
+        double r = 0.0;
+        effect.process(l, r);
+        QVERIFY(std::isfinite(l));
+    }
+    const double lastEnergy = windowEnergy(4000);
+
+    QVERIFY(firstEnergy > 0.0);
+    // A frozen (lossless) network keeps most of its energy rather than decaying toward silence.
+    QVERIFY(lastEnergy > 0.25 * firstEnergy);
 }
 
 void EffectsTest::test_eq8BandParametricEffect_shouldApplyBandsAndBeStable()

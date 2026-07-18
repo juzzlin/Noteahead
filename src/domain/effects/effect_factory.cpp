@@ -25,6 +25,7 @@
 #include "clipper.hpp"
 #include "compressor.hpp"
 #include "delay.hpp"
+#include "endless_reverb.hpp"
 #include "eq_8_band_parametric.hpp"
 #include "limiter.hpp"
 #include "panner.hpp"
@@ -83,6 +84,7 @@ void EffectFactory::init()
 {
     registerEffect(AllPassFilter::typeIdString(), []() { return std::make_shared<AllPassFilter>(); });
     registerEffect(AutoPanner::typeIdString(), []() { return std::make_shared<AutoPanner>(); });
+    registerEffect(EndlessReverb::typeIdString(), []() { return std::make_shared<EndlessReverb>(); });
     registerEffect(Chorus::typeIdString(), []() { return std::make_shared<Chorus>(); });
     registerEffect(Clipper::typeIdString(), []() { return std::make_shared<Clipper>(); });
     registerEffect(Compressor::typeIdString(), []() { return std::make_shared<Compressor>(); });
@@ -98,6 +100,7 @@ void EffectFactory::init()
 
     // Readable-string aliases so the gallery can create effects by their type() name
     registerEffect(Constants::RackEffectType::autoPanner().toStdString(), []() { return std::make_shared<AutoPanner>(); });
+    registerEffect(Constants::RackEffectType::endless().toStdString(), []() { return std::make_shared<EndlessReverb>(); });
     registerEffect(Constants::RackEffectType::clipper().toStdString(), []() { return std::make_shared<Clipper>(); });
     registerEffect(Constants::RackEffectType::compressor().toStdString(), []() { return std::make_shared<Compressor>(); });
     registerEffect(Constants::RackEffectType::delay().toStdString(), []() { return std::make_shared<Delay>(); });
@@ -110,6 +113,7 @@ void EffectFactory::init()
 
     // Legacy support
     registerLegacyEffect("auto_panner", []() { return std::make_shared<AutoPanner>(); });
+    registerLegacyEffect("endless", []() { return std::make_shared<EndlessReverb>(); });
     registerLegacyEffect("chorus", []() { return std::make_shared<Chorus>(); });
     registerLegacyEffect("clipper", []() { return std::make_shared<Clipper>(); });
     registerLegacyEffect("compressor", []() { return std::make_shared<Compressor>(); });

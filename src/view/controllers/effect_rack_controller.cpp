@@ -208,6 +208,7 @@ QVariantList EffectRackController::availableEffects() const
 
     addEffect("All-Pass Filter", AllPassFilter::typeIdString());
     addEffect("Auto Panner", Constants::RackEffectType::autoPanner().toStdString());
+    addEffect("Endless Reverb", Constants::RackEffectType::endless().toStdString());
     addEffect("Chorus", Chorus::typeIdString());
     addEffect("Clipper", Constants::RackEffectType::clipper().toStdString());
     addEffect("Compressor", Constants::RackEffectType::compressor().toStdString());
@@ -404,6 +405,14 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                     return QString { "(drive=%1dB, mix=%2%)" }
                       .arg(drive->get().value() * 24.0f, 0, 'f', 1)
                       .arg(static_cast<int>(std::round(mix->get().value() * 100.0f)));
+                }
+            } else if (type == Constants::RackEffectType::endless()) {
+                const auto size = effect->parameter(Constants::NahdXml::xmlKeySize().toStdString());
+                const auto freeze = effect->parameter(Constants::NahdXml::xmlKeyFreeze().toStdString());
+                if (size && freeze) {
+                    return QString { "(size=%1%, freeze=%2)" }
+                      .arg(static_cast<int>(std::round(size->get().value() * 100.0f)))
+                      .arg(freeze->get().value() > 0.5f ? tr("on") : tr("off"));
                 }
             }
         }
@@ -704,6 +713,66 @@ QString EffectRackController::autoPannerType() const
 QString EffectRackController::reverbType() const
 {
     return Constants::RackEffectType::reverb();
+}
+
+QString EffectRackController::endlessType() const
+{
+    return Constants::RackEffectType::endless();
+}
+
+QString EffectRackController::endlessSizeKey() const
+{
+    return Constants::NahdXml::xmlKeySize();
+}
+
+QString EffectRackController::endlessFeedbackKey() const
+{
+    return Constants::NahdXml::xmlKeyDecay();
+}
+
+QString EffectRackController::endlessDampingKey() const
+{
+    return Constants::NahdXml::xmlKeyDamping();
+}
+
+QString EffectRackController::endlessPreDelayKey() const
+{
+    return Constants::NahdXml::xmlKeyPreDelay();
+}
+
+QString EffectRackController::endlessModDepthKey() const
+{
+    return Constants::NahdXml::xmlKeyDepth();
+}
+
+QString EffectRackController::endlessModRateKey() const
+{
+    return Constants::NahdXml::xmlKeyRate();
+}
+
+QString EffectRackController::endlessWidthKey() const
+{
+    return Constants::NahdXml::xmlKeyWidth();
+}
+
+QString EffectRackController::endlessLpfCutoffKey() const
+{
+    return Constants::NahdXml::xmlKeyLpfCutoff();
+}
+
+QString EffectRackController::endlessHpfCutoffKey() const
+{
+    return Constants::NahdXml::xmlKeyHpfCutoff();
+}
+
+QString EffectRackController::endlessMixKey() const
+{
+    return Constants::NahdXml::xmlKeyMix();
+}
+
+QString EffectRackController::endlessFreezeKey() const
+{
+    return Constants::NahdXml::xmlKeyFreeze();
 }
 
 float EffectRackController::compressorReductionDb(quint32 effectIndex) const

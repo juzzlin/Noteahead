@@ -5,6 +5,11 @@ Release date:
 
 New features:
 
+* Add Endless Reverb rack effect
+  - Large, otherworldly ambient reverb: an 8-line modulated Householder FDN with input diffusion
+  - Feedback (decay), Size, Damping, Pre-Delay, modulation Depth/Rate, Width, LPF/HPF and Mix controls
+  - Freeze switch for an infinite tail
+
 * Add Mid/Side processing modes to the 8-band parametric EQ
   - Select Mid + Side (default), Mid, or Side per EQ instance
   - Only the selected mode is applied on that instance

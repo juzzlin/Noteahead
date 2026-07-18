@@ -44,6 +44,9 @@ private slots:
     void test_compressorEffect_shouldReduceGainAndHandleLookahead();
     void test_limiterEffect_shouldLimitPeaksToCeiling();
     void test_limiterEffect_shouldBoostToCeiling();
+    void test_endlessReverb_shouldProduceStableWetTail();
+    void test_endlessReverb_mixZero_shouldPassDrySignal();
+    void test_endlessReverb_freeze_shouldSustainTail();
     void test_eq8BandParametricEffect_shouldApplyBandsAndBeStable();
     void test_eq8BandParametricEffect_stereoMode_shouldDefaultToMidSide();
     void test_eq8BandParametricEffect_midMode_shouldAffectMidOnly();

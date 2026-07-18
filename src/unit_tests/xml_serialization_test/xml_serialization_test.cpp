@@ -36,6 +36,7 @@
 #include "../../domain/effects/clipper.hpp"
 #include "../../domain/effects/delay.hpp"
 #include "../../domain/effects/effect_factory.hpp"
+#include "../../domain/effects/endless_reverb.hpp"
 #include "../../domain/effects/eq_8_band_parametric.hpp"
 #include "../../domain/effects/limiter.hpp"
 #include "../../domain/effects/reverb.hpp"
@@ -1237,6 +1238,45 @@ void XmlSerializationTest::test_toXmlFromXml_chorusEffect_shouldLoadCorrectly()
     QCOMPARE(restoredChorus->width(), 0.8f);
     QCOMPARE(restoredChorus->lpfCutoff(), 0.9f);
     QCOMPARE(restoredChorus->hpfCutoff(), 0.1f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_endlessReverbEffect_shouldLoadCorrectly()
+{
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto endless = std::make_shared<EndlessReverb>();
+    if (auto p = endless->parameter(Constants::NahdXml::xmlKeySize().toStdString()); p) {
+        p->get().setValue(0.8f);
+    }
+    if (auto p = endless->parameter(Constants::NahdXml::xmlKeyFreeze().toStdString()); p) {
+        p->get().setValue(1.0f);
+    }
+    deviceServiceOut.sendEffectRack().setEffect(0, endless);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(effect);
+    QCOMPARE(effect->typeId(), EndlessReverb::typeIdString());
+    const auto restored = std::dynamic_pointer_cast<EndlessReverb>(effect);
+    QVERIFY(restored);
+    if (auto p = restored->parameter(Constants::NahdXml::xmlKeySize().toStdString()); p) {
+        QCOMPARE(p->get().value(), 0.8f);
+    }
+    if (auto p = restored->parameter(Constants::NahdXml::xmlKeyFreeze().toStdString()); p) {
+        QCOMPARE(p->get().value(), 1.0f);
+    }
 }
 
 void XmlSerializationTest::test_toXmlFromXml_limiterEffect_shouldLoadCorrectly()

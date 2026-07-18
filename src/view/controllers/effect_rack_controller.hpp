@@ -53,6 +53,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString pannerType READ pannerType CONSTANT)
     Q_PROPERTY(QString autoPannerType READ autoPannerType CONSTANT)
     Q_PROPERTY(QString reverbType READ reverbType CONSTANT)
+    Q_PROPERTY(QString endlessType READ endlessType CONSTANT)
 
 public:
     using DeviceServiceS = std::shared_ptr<DeviceService>;
@@ -82,6 +83,7 @@ public:
     QString eq8BandParametricType() const;
     QString pannerType() const;
     QString reverbType() const;
+    QString endlessType() const;
 
     Q_INVOKABLE QString effectParametersSummary(quint32 effectIndex) const;
     Q_INVOKABLE QString effectDisplayName(const QString & typeId) const;
@@ -149,6 +151,18 @@ public:
     Q_INVOKABLE QString limiterReleaseKey() const;
     Q_INVOKABLE QString limiterLookaheadKey() const;
     Q_INVOKABLE QString limiterBoostKey() const;
+
+    Q_INVOKABLE QString endlessSizeKey() const;
+    Q_INVOKABLE QString endlessFeedbackKey() const;
+    Q_INVOKABLE QString endlessDampingKey() const;
+    Q_INVOKABLE QString endlessPreDelayKey() const;
+    Q_INVOKABLE QString endlessModDepthKey() const;
+    Q_INVOKABLE QString endlessModRateKey() const;
+    Q_INVOKABLE QString endlessWidthKey() const;
+    Q_INVOKABLE QString endlessLpfCutoffKey() const;
+    Q_INVOKABLE QString endlessHpfCutoffKey() const;
+    Q_INVOKABLE QString endlessMixKey() const;
+    Q_INVOKABLE QString endlessFreezeKey() const;
 
     Q_INVOKABLE QString saturatorModeKey() const;
     Q_INVOKABLE QString saturatorDriveKey() const;

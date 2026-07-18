@@ -363,6 +363,12 @@ ApplicationWindow {
         width: parent.width * Constants.effectDialogScale
         height: parent.height * Constants.effectDialogScale
     }
+    EndlessReverbDialog {
+        id: endlessReverbDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.effectDialogScale
+        height: parent.height * Constants.effectDialogScale
+    }
     RtaDialog {
         id: rtaDialog
         anchors.centerIn: parent
