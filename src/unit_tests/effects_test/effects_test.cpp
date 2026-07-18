@@ -637,6 +637,58 @@ void EffectsTest::test_delayEffect_shouldSyncParameters()
     }
 }
 
+void EffectsTest::test_delayEffect_typeParameter_shouldSelectPingPong()
+{
+    // Regression: selecting a mode via the parameter system (as the UI does) must actually change the mode.
+    // delayType is a discrete parameter whose value is the raw enum index; PingPong is index 2.
+    Delay effect;
+    effect.setSampleRate(44100.0);
+
+    const auto setParam = [&](const QString & key, float value) {
+        if (const auto p = effect.parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    };
+
+    setParam(Constants::NahdXml::xmlKeyDelayType(), 2.0f); // PingPong
+    setParam(Constants::NahdXml::xmlKeyDelayMix(), 1.0f); // Fully wet
+    setParam(Constants::NahdXml::xmlKeyDelayFeedback(), 1.0f);
+    setParam(Constants::NahdXml::xmlKeyDelayDepth(), 1.0f); // Max width
+    setParam(Constants::NahdXml::xmlKeyDelayTime(), 0.01f); // 0.01 * 10s = 0.1s
+    effect.sync();
+
+    const int delaySamples = static_cast<int>(0.1 * 44100.0);
+
+    // Feed a pulse to the LEFT channel only.
+    double left = 1.0;
+    double right = 0.0;
+    effect.process(left, right);
+
+    // First echo appears on the LEFT (same side as input).
+    for (int i = 0; i + 1 < delaySamples; i++) {
+        double l = 0.0;
+        double r = 0.0;
+        effect.process(l, r);
+    }
+    left = 0.0;
+    right = 0.0;
+    effect.process(left, right);
+    QVERIFY(std::abs(left - 1.0) < 1.0e-3);
+    QVERIFY(std::abs(right) < 1.0e-3);
+
+    // Second echo bounces to the RIGHT: this only happens in PingPong mode.
+    for (int i = 0; i + 1 < delaySamples; i++) {
+        double l = 0.0;
+        double r = 0.0;
+        effect.process(l, r);
+    }
+    left = 0.0;
+    right = 0.0;
+    effect.process(left, right);
+    QVERIFY(std::abs(left) < 1.0e-3);
+    QVERIFY(std::abs(right - 1.0) < 1.0e-3);
+}
+
 void EffectsTest::test_compressorEffect_shouldReduceGainAndHandleLookahead()
 {
     Compressor effect;

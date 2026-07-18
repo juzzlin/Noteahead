@@ -18,6 +18,8 @@ New features:
 
 Bug fixes:
 
+* Fix rack Delay effect mode selector (Mono/Ping Pong/Tape had no effect)
+
 Other:
 
 * Double the maximum number of devices and effects per rack to 16

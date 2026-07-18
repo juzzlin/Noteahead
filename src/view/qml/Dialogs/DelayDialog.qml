@@ -68,9 +68,10 @@ Dialog {
                     model: ["Stereo", "Mono", "PingPong", "Tape"]
                     currentIndex: {
                         effectRackController.revision;
-                        return Math.round(effectRackController.parameterValue(root.effectIndex, "delayType") * 3);
+                        // delayType is a discrete parameter whose value is the raw enum index (0..3).
+                        return Math.round(effectRackController.parameterValue(root.effectIndex, "delayType"));
                     }
-                    onActivated: index => effectRackController.setParameterValue(root.effectIndex, "delayType", index / 3.0)
+                    onActivated: index => effectRackController.setParameterValue(root.effectIndex, "delayType", index)
                     Layout.fillWidth: true
                 }
             }
