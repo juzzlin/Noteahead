@@ -25,7 +25,7 @@ ColumnLayout {
 
     RowLayout {
         Layout.fillWidth: true
-        CheckBox {
+        Switch {
             id: chromaticModeCheckbox
             text: qsTr("Chromatic mode")
             checked: samplerController.chromaticMode
