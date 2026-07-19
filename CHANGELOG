@@ -34,6 +34,8 @@ Bug fixes:
 
 * Fix rack Delay effect mode selector (Mono/Ping Pong/Tape had no effect)
 
+* Fix rack Delay effect manual (non-sync) time knob clamping at ~11 ms
+
 Other:
 
 * Double the maximum number of devices and effects per rack to 16

@@ -117,7 +117,9 @@ Dialog {
                     mapping: "cubic"
                     mapMin: 1
                     mapMax: 10000
-                    to: 10000
+                    // 'to' intentionally left at the default uiInternalScaling so the slider domain matches
+                    // the value domain below (parameterValue * uiInternalScaling). The cubic 1..10000 ms
+                    // display range comes from mapMin/mapMax, not from 'to'.
                     value: {
                         effectRackController.revision;
                         return effectRackController.parameterValue(root.effectIndex, "delayTime") * Constants.uiInternalScaling;
