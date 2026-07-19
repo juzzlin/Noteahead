@@ -23,6 +23,9 @@ import "../Components"
 Dialog {
     id: root
     property string deviceName: ""
+    // -1 targets the whole-device insert rack; >= 0 targets a Sampler pad (note) or Drum Synth voice.
+    property int subIndex: -1
+    property string subLabel: ""
     title: "<strong>" + qsTr("Insert Effects") + "</strong>"
     modal: true
     focus: true
@@ -43,6 +46,12 @@ Dialog {
     onOpened: {
         effectRackController.isInsertRack = true;
         effectRackController.targetDeviceName = deviceName;
+        effectRackController.targetSubIndex = subIndex;
+    }
+
+    onClosed: {
+        // Reset so a subsequent whole-device open does not inherit a stale pad/voice sub-index.
+        effectRackController.targetSubIndex = -1;
     }
 
     background: Rectangle {
@@ -65,7 +74,7 @@ Dialog {
         spacing: 20
 
         Label {
-            text: qsTr("%1 Insert Effects").arg(deviceName)
+            text: root.subIndex >= 0 ? qsTr("%1 — %2 Insert Effects").arg(deviceName).arg(root.subLabel) : qsTr("%1 Insert Effects").arg(deviceName)
             font.bold: true
             font.pointSize: 18
             color: "white"

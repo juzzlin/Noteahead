@@ -28,6 +28,7 @@
 #include "../../application/service/side_chain_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/devices/device_factory.hpp"
+#include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/wavetable_synth_device.hpp"
@@ -844,6 +845,75 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_shouldLoadSamplerDevi
     QCOMPARE(samplerIn->samplePan(60), 0.75f);
     QCOMPARE(samplerIn->sampleVolume(60), 0.8f);
     QCOMPARE(samplerIn->sampleCutoff(60), 0.4f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_samplerDevice_padEffectRack_shouldRoundTrip()
+{
+    const std::string fileName = "test.wav";
+    const auto samplerName = "Noteahead Internal Device 1";
+
+    DeviceService deviceServiceOut { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+    const auto samplerOut = std::make_shared<SamplerDevice>(samplerName, std::make_unique<MockAudioFileReader>());
+    samplerOut->loadSample(60, fileName);
+    const auto reverbOut = std::make_shared<Reverb>();
+    reverbOut->setEnabled(false);
+    samplerOut->sampleEffectRack(60).setEffect(0, reverbOut);
+    deviceServiceOut.setDevice(0, samplerOut);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto deviceServiceIn = std::make_shared<DeviceService>(std::make_shared<AudioEngine>(), std::make_shared<DataService>());
+    const auto samplerIn = std::make_shared<SamplerDevice>(samplerName, std::make_unique<MockAudioFileReader>());
+    deviceServiceIn->setDevice(0, samplerIn);
+
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, deviceServiceIn.get(), &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    QVERIFY(samplerIn->sample(60));
+    const auto effect = samplerIn->sampleEffectRack(60).effect(0);
+    QVERIFY(effect);
+    QCOMPARE(effect->typeId(), reverbOut->typeId());
+    QVERIFY(!effect->enabled());
+    // A pad without an added effect must not gain a phantom rack entry.
+    QVERIFY(!samplerIn->sampleEffectRack(61).hasEffects());
+}
+
+void XmlSerializationTest::test_toXmlFromXml_drumSynthDevice_voiceEffectRack_shouldRoundTrip()
+{
+    const auto drumName = "Noteahead Internal Device 1";
+
+    DeviceService deviceServiceOut { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+    const auto drumOut = std::make_shared<DrumSynthDevice>(drumName);
+    const auto reverbOut = std::make_shared<Reverb>();
+    reverbOut->setEnabled(false);
+    drumOut->voiceEffectRack(1).setEffect(0, reverbOut);
+    deviceServiceOut.setDevice(0, drumOut);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto deviceServiceIn = std::make_shared<DeviceService>(std::make_shared<AudioEngine>(), std::make_shared<DataService>());
+    const auto drumIn = std::make_shared<DrumSynthDevice>(drumName);
+    deviceServiceIn->setDevice(0, drumIn);
+
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, deviceServiceIn.get(), &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = drumIn->voiceEffectRack(1).effect(0);
+    QVERIFY(effect);
+    QCOMPARE(effect->typeId(), reverbOut->typeId());
+    QVERIFY(!effect->enabled());
+    // A voice without an added effect must not gain one.
+    QVERIFY(!drumIn->voiceEffectRack(0).hasEffects());
 }
 
 void XmlSerializationTest::test_toXmlFromXml_samplerDevice_relativePath_shouldLoadCorrectly()

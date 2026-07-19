@@ -16,6 +16,7 @@
 #include "drum_synth_device.hpp"
 
 #include "../../common/constants.hpp"
+#include "../../common/utils.hpp"
 #include "../../common/xml/project_reader.hpp"
 #include "../../common/xml/project_writer.hpp"
 #include "../../infra/midi/midi_cc_mapping.hpp"
@@ -208,6 +209,23 @@ void DrumSynthDevice::processAudio(AudioContext & context)
         voice.hpf->setSampleRate(oversampledRate);
     }
 
+    // Snapshot each voice's insert-rack effects for per-sample processing at the oversampled rate. The
+    // rack is inserted after the fixed per-voice DSP chain and runs sample-by-sample like the other voice
+    // effects, so time-based effects stay correct (their times derive from the oversampled sample rate).
+    std::array<std::vector<EffectRack::EffectS>, NumVoices> voiceRackEffects;
+    for (int v = 0; v < NumVoices; v++) {
+        if (m_voices.at(v).effectRack.hasEffects()) {
+            for (auto & effect : m_voices.at(v).effectRack.effects()) {
+                if (effect && effect->enabled()) {
+                    effect->setSampleRate(oversampledRate);
+                    effect->setBpm(static_cast<float>(context.bpm));
+                    effect->sync();
+                    voiceRackEffects.at(v).push_back(effect);
+                }
+            }
+        }
+    }
+
     std::vector<float> oversampledBuffer(context.frameCount * 4, 0.0f);
     const float globalGain = linearGainInternal();
 
@@ -216,7 +234,8 @@ void DrumSynthDevice::processAudio(AudioContext & context)
             float mixL = 0.0f;
             float mixR = 0.0f;
 
-            for (auto && voice : m_voices) {
+            for (int v = 0; v < NumVoices; v++) {
+                auto & voice = m_voices.at(v);
                 if (voice.engine->isActive()) {
                     float sample = voice.engine->nextSample();
                     double l = sample;
@@ -226,6 +245,10 @@ void DrumSynthDevice::processAudio(AudioContext & context)
                     voice.hpf->process(l, r);
                     voice.volumeEffect->process(l, r);
                     voice.panningEffect->process(l, r);
+
+                    for (auto & effect : voiceRackEffects.at(v)) {
+                        effect->process(l, r);
+                    }
 
                     mixL += static_cast<float>(l);
                     mixR += static_cast<float>(r);
@@ -279,6 +302,7 @@ void DrumSynthDevice::resetAudio()
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     for (auto && voice : m_voices) {
         voice.engine->reset();
+        voice.effectRack.reset();
     }
     m_oversamplerL.reset();
     m_oversamplerR.reset();
@@ -297,6 +321,19 @@ void DrumSynthDevice::serializeToXml(ProjectWriter & writer) const
     writer.writeStartElement(Constants::NahdXml::xmlKeyParameters());
     serializeParametersToXml(writer);
     writer.writeEndElement();
+
+    writer.writeStartElement(Constants::NahdXml::xmlKeyVoices());
+    for (int v = 0; v < NumVoices; v++) {
+        if (m_voices.at(v).effectRack.hasEffects()) {
+            writer.writeStartElement(Constants::NahdXml::xmlKeyVoice());
+            writer.writeAttribute(Constants::NahdXml::xmlKeyIndex(), QString::number(v));
+            writer.writeStartElement(Constants::NahdXml::xmlKeyInsertEffects());
+            m_voices.at(v).effectRack.serializeEffectsToXml(writer);
+            writer.writeEndElement(); // InsertEffects
+            writer.writeEndElement(); // Voice
+        }
+    }
+    writer.writeEndElement(); // Voices
 
     writer.writeEndElement();
 }
@@ -320,6 +357,21 @@ void DrumSynthDevice::deserializeFromXml(ProjectReader & reader)
                     insertEffectRack().deserializeEffectsFromXml(reader);
                 } else if (reader.name() == Constants::NahdXml::xmlKeyParameter()) {
                     deserializeParameter(reader);
+                } else if (reader.name() == Constants::NahdXml::xmlKeyVoices()) {
+                    while (reader.readNextStartElement()) {
+                        if (reader.name() == Constants::NahdXml::xmlKeyVoice()) {
+                            const auto index = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyIndex(), false);
+                            while (reader.readNextStartElement()) {
+                                if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects() && index.has_value() && index.value() >= 0 && index.value() < NumVoices) {
+                                    m_voices.at(index.value()).effectRack.deserializeEffectsFromXml(reader);
+                                } else {
+                                    reader.skipCurrentElement();
+                                }
+                            }
+                        } else {
+                            reader.skipCurrentElement();
+                        }
+                    }
                 } else {
                     reader.skipCurrentElement();
                 }
@@ -347,6 +399,12 @@ uint8_t DrumSynthDevice::voiceNote(int index) const
         return m_voices.at(index).midiNote;
     }
     return 0;
+}
+
+EffectRack & DrumSynthDevice::voiceEffectRack(int index)
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    return m_voices.at(std::clamp(index, 0, NumVoices - 1)).effectRack;
 }
 
 void DrumSynthDevice::initializeVoices()

@@ -17,6 +17,8 @@
 
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
+#include "../../domain/devices/drum_synth_device.hpp"
+#include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/effects/all_pass_filter.hpp"
 #include "../../domain/effects/auto_panner.hpp"
 #include "../../domain/effects/chorus.hpp"
@@ -102,6 +104,20 @@ void EffectRackController::setIsInsertRack(bool isInsert)
     emit effectCountChanged();
 }
 
+int EffectRackController::targetSubIndex() const
+{
+    return m_targetSubIndex;
+}
+
+void EffectRackController::setTargetSubIndex(int index)
+{
+    m_targetSubIndex = index;
+    emit targetSubIndexChanged();
+    m_revision++;
+    emit revisionChanged();
+    emit effectCountChanged();
+}
+
 std::optional<std::reference_wrapper<EffectRack>> EffectRackController::currentRack() const
 {
     if (m_targetDeviceName.isEmpty()) {
@@ -112,6 +128,15 @@ std::optional<std::reference_wrapper<EffectRack>> EffectRackController::currentR
         }
     } else {
         if (const auto device = m_deviceService->device(m_targetDeviceName.toStdString()); device) {
+            if (m_targetSubIndex >= 0) {
+                if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(device)) {
+                    return std::ref(sampler->sampleEffectRack(static_cast<uint8_t>(m_targetSubIndex)));
+                }
+                if (const auto drum = std::dynamic_pointer_cast<DrumSynthDevice>(device)) {
+                    return std::ref(drum->voiceEffectRack(m_targetSubIndex));
+                }
+                return std::nullopt;
+            }
             return std::ref(device->insertEffectRack());
         }
     }

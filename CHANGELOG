@@ -5,6 +5,11 @@ Release date:
 
 New features:
 
+* Add per-pad and per-voice insert effects
+  - Each Sampler pad and Drum Synth voice can have its own insert effect rack
+  - Open via an "FX" button on each Sampler pad and each Drum Synth voice button
+  - Racks are saved with the project and included in device import/export
+
 * Add a gate to the Reverb (gated reverb)
   - Noise gate on the wet signal, keyed off the dry input
   - Threshold, Attack, Hold and Release controls; off by default

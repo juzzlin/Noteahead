@@ -54,6 +54,7 @@ public:
     uint32_t sampleRate() const;
 
     Q_INVOKABLE float cutoffToHz(float cutoff) const;
+    Q_INVOKABLE QString deviceName() const;
 
     Q_INVOKABLE virtual void reset();
     Q_INVOKABLE virtual void requestSettings() = 0;

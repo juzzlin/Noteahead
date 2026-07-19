@@ -67,6 +67,23 @@ GridView {
                 }
             }
 
+            Button {
+                text: qsTr("FX")
+                visible: isLoaded
+                anchors.top: parent.top
+                anchors.right: parent.right
+                anchors.margins: 6
+                implicitWidth: 40
+                implicitHeight: 26
+                padding: 2
+                font.pointSize: 9
+                z: 10
+                onClicked: UiService.requestDeviceSubEffectsDialog(samplerController.deviceName(), note, qsTr("Note %1 (%2)").arg(noteName).arg(note))
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Insert effects for this pad")
+            }
+
             MouseArea {
                 id: mouseArea
                 anchors.fill: parent

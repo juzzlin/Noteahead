@@ -79,6 +79,14 @@ float DeviceController::cutoffToHz(float cutoff) const
     return Utils::Dsp::cutoffToHz(cutoff / Constants::uiInternalScaling(), static_cast<float>(sampleRate()));
 }
 
+QString DeviceController::deviceName() const
+{
+    if (const auto dev = device(); dev) {
+        return QString::fromStdString(dev->name());
+    }
+    return {};
+}
+
 void DeviceController::reset()
 {
     if (auto dev = device(); dev) {

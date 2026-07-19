@@ -21,6 +21,7 @@ private slots:
     void test_effectParametersSummary_eq8BandParametric_shouldReturnFormattedSummary();
     void test_effectParametersSummary_emptySlot_shouldReturnEmptyString();
     void test_isEffectEnabled_shouldReturnEnabledState();
+    void test_currentRack_drumVoiceSubIndex_shouldTargetVoiceRack();
     void test_revision_shouldIncrementOnPropertySet();
     void test_exportSettings_shouldSerializeEffects();
     void test_importSettings_shouldRestoreEffects();

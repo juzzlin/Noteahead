@@ -16,6 +16,7 @@ QtObject {
     signal deviceDialogRequested(string deviceName)
     signal deviceGalleryDialogRequested(int slotIndex)
     signal deviceInsertEffectsDialogRequested(string deviceName)
+    signal deviceSubEffectsDialogRequested(string deviceName, int subIndex, string subLabel)
     signal deviceRackDialogFromTrackSettingsRequested
     signal deviceRackDialogRequested
     signal exportDeviceSettingsRequested(int slotIndex, string deviceName, string deviceTypeName)
@@ -186,6 +187,9 @@ QtObject {
     }
     function requestDeviceInsertEffectsDialog(deviceName: string): void {
         deviceInsertEffectsDialogRequested(deviceName);
+    }
+    function requestDeviceSubEffectsDialog(deviceName: string, subIndex: int, subLabel: string): void {
+        deviceSubEffectsDialogRequested(deviceName, subIndex, subLabel);
     }
     function requestDrumSynthDialog(): void {
         drumSynthDialogRequested();

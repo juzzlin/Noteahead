@@ -416,6 +416,8 @@ QString xmlKeyDistLevel();
 
 QString xmlKeySample();
 QString xmlKeySamples();
+QString xmlKeyVoice();
+QString xmlKeyVoices();
 QString xmlKeySamplePath();
 QString xmlKeyChannelMode();
 QString xmlKeyChromaticMode();

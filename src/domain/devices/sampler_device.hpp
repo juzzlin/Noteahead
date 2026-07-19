@@ -88,6 +88,10 @@ public:
         float manualVolume = 1.0f;
         float manualCutoff = 1.0f;
         float manualHpfCutoff = 0.0f;
+
+        // Per-pad insert effect rack. Shared so Sample stays copyable (saveState/restoreState deep-copy)
+        // and so every voice/note playing this sample runs through the same stateful effect chain.
+        std::shared_ptr<EffectRack> effectRack;
     };
 
     void loadSample(uint8_t note, const std::string & filePath);
@@ -111,6 +115,9 @@ public:
     void setSampleStartOffset(uint8_t note, double offset);
 
     double sampleDuration(uint8_t note) const;
+
+    // Per-pad insert effect rack for the given note, created lazily on first access.
+    EffectRack & sampleEffectRack(uint8_t note);
 
     bool channelMode() const;
     void setChannelMode(bool enabled);

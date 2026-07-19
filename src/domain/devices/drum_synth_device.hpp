@@ -71,6 +71,9 @@ public:
 
     uint8_t voiceNote(int index) const;
 
+    // Per-voice insert effect rack.
+    EffectRack & voiceEffectRack(int index);
+
     bool updateVoiceParameter(int voiceIndex, const std::string & paramName, float value);
 
 protected:
@@ -84,6 +87,7 @@ private:
         std::shared_ptr<HighPassFilter> hpf;
         std::shared_ptr<Volume> volumeEffect;
         std::shared_ptr<Panning> panningEffect;
+        EffectRack effectRack;
 
         uint8_t midiNote { 0 };
         float level { 1.0f };

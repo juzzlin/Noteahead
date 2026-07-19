@@ -1577,6 +1577,16 @@ QString xmlKeySamples()
     return "Samples";
 }
 
+QString xmlKeyVoice()
+{
+    return "Voice";
+}
+
+QString xmlKeyVoices()
+{
+    return "Voices";
+}
+
 QString xmlKeySamplePath()
 {
     return "path";

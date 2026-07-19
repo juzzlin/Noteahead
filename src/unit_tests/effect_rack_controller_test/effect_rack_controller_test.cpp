@@ -23,6 +23,7 @@
 #include <memory>
 
 #include "../../domain/devices/device.hpp"
+#include "../../domain/devices/drum_synth_device.hpp"
 
 namespace noteahead {
 
@@ -250,6 +251,30 @@ void EffectRackControllerTest::test_isEffectEnabled_shouldReturnEnabledState()
 
     controller.setIsEffectEnabled(0, true);
     QVERIFY(controller.isEffectEnabled(0));
+}
+
+void EffectRackControllerTest::test_currentRack_drumVoiceSubIndex_shouldTargetVoiceRack()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    const auto drum = std::make_shared<DrumSynthDevice>("Drum 1");
+    deviceService->setDevice(0, drum);
+
+    EffectRackController controller { deviceService, editorService };
+    controller.setTargetDeviceName("Drum 1");
+    controller.setTargetSubIndex(2);
+    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+
+    // The effect lands on voice 2's rack only.
+    QVERIFY(drum->voiceEffectRack(2).hasEffects());
+    QVERIFY(!drum->voiceEffectRack(0).hasEffects());
+    QVERIFY(!drum->insertEffectRack().hasEffects());
+
+    // Switching back to the whole-device rack targets the device insert rack.
+    controller.setTargetSubIndex(-1);
+    controller.setEffect(1, QString::fromStdString(Reverb::typeIdString()));
+    QVERIFY(drum->insertEffectRack().hasEffects());
 }
 
 void EffectRackControllerTest::test_revision_shouldIncrementOnPropertySet()

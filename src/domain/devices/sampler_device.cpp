@@ -371,9 +371,25 @@ void SamplerDevice::processAudio(AudioContext & context)
     setSampleRate(context.sampleRate);
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
-    std::vector<double> buffer(context.frameCount * 2, 0.0);
+    const uint32_t bufferSize = context.frameCount * 2;
+    std::vector<double> buffer(bufferSize, 0.0);
+
+    // Per-pad sub-mix buffers for samples carrying a non-empty insert rack. Voices are grouped by their
+    // Sample so a single stateful rack instance processes the summed signal of that pad (correct also in
+    // chromatic mode, where several notes share one covering sample).
+    std::vector<std::pair<Sample *, std::vector<double>>> padBuffers;
+    const auto padBufferFor = [&](Sample * sample) -> std::vector<double> & {
+        for (auto & [s, buf] : padBuffers) {
+            if (s == sample) {
+                return buf;
+            }
+        }
+        padBuffers.emplace_back(sample, std::vector<double>(bufferSize, 0.0));
+        return padBuffers.back().second;
+    };
 
     const float fadeStep = 1.0f / 256.0f;
+    const double gain = static_cast<double>(linearGainInternal());
 
     for (auto && voice : m_voices) {
         if (!voice.active || !voice.sample || !voice.sample->data) {
@@ -383,6 +399,12 @@ void SamplerDevice::processAudio(AudioContext & context)
         for (auto && effect : voice.effects) {
             effect->setSampleRate(context.sampleRate);
         }
+
+        // Rack pads accumulate dry (unity gain) into their own buffer; device gain is applied when the
+        // processed pad buffer is folded into the main output. Rack-less pads take the direct fast path.
+        const bool hasRack = voice.sample->effectRack && voice.sample->effectRack->hasEffects();
+        std::vector<double> & target = hasRack ? padBufferFor(voice.sample) : buffer;
+        const double voiceGain = hasRack ? 1.0 : gain;
 
         const auto & sampleData { *voice.sample->data };
         const int channels = voice.sample->channels;
@@ -429,10 +451,21 @@ void SamplerDevice::processAudio(AudioContext & context)
                 }
             }
 
-            buffer[i * 2] += left * static_cast<double>(linearGainInternal());
-            buffer[i * 2 + 1] += right * static_cast<double>(linearGainInternal());
+            target[i * 2] += left * voiceGain;
+            target[i * 2 + 1] += right * voiceGain;
 
             voice.position += pitchScale;
+        }
+    }
+
+    // Apply each pad's insert rack to its sub-mix and fold it into the main buffer with device gain.
+    for (auto & [sample, padBuffer] : padBuffers) {
+        auto & rack = *sample->effectRack;
+        rack.setBpm(static_cast<float>(context.bpm));
+        AudioContext padContext { std::span<double>(padBuffer.data(), bufferSize), context.frameCount, context.sampleRate, context.bpm, {} };
+        rack.processInPlace(padContext);
+        for (uint32_t i = 0; i < bufferSize; i++) {
+            buffer[i] += padBuffer[i] * gain;
         }
     }
 
@@ -522,6 +555,10 @@ void SamplerDevice::loadSample(uint8_t note, const std::string & filePath)
 
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
+        // Preserve the pad's insert rack across sample reloads (e.g. re-recording onto the same pad).
+        if (const auto & existing = m_samples.at(note); existing && existing->effectRack) {
+            sample->effectRack = std::move(existing->effectRack);
+        }
         m_samples.at(note) = std::move(sample);
     }
 
@@ -744,6 +781,19 @@ double SamplerDevice::sampleDuration(uint8_t note) const
     return static_cast<double>(s->data->size() / static_cast<size_t>(s->channels)) / static_cast<double>(s->sampleRate);
 }
 
+EffectRack & SamplerDevice::sampleEffectRack(uint8_t note)
+{
+    std::lock_guard<std::recursive_mutex> lock { mutex() };
+    auto & slot = m_samples.at(note);
+    if (!slot) {
+        slot = std::make_unique<Sample>();
+    }
+    if (!slot->effectRack) {
+        slot->effectRack = std::make_shared<EffectRack>();
+    }
+    return *slot->effectRack;
+}
+
 bool SamplerDevice::channelMode() const
 {
     std::lock_guard<std::recursive_mutex> lock { mutex() };
@@ -896,6 +946,10 @@ void SamplerDevice::serializeToXml(ProjectWriter & writer) const
     writer.writeStartElement(Constants::NahdXml::xmlKeySamples());
     for (uint8_t note = 0; note < maxSamples; note++) {
         if (const auto & s = m_samples.at(note)) {
+            // Skip phantom shells created solely to host an insert rack for an empty pad.
+            if (s->filePath.empty() && !s->data) {
+                continue;
+            }
             writer.writeStartElement(Constants::NahdXml::xmlKeySample());
             writer.writeAttribute(Constants::NahdXml::xmlKeyNote(), QString::number(note));
 
@@ -913,6 +967,12 @@ void SamplerDevice::serializeToXml(ProjectWriter & writer) const
             writer.writeAttribute(Constants::NahdXml::xmlKeySamplePath(), path);
 
             s->serializeParametersToXml(writer);
+
+            if (s->effectRack && s->effectRack->hasEffects()) {
+                writer.writeStartElement(Constants::NahdXml::xmlKeyInsertEffects());
+                s->effectRack->serializeEffectsToXml(writer);
+                writer.writeEndElement();
+            }
 
             writer.writeEndElement();
         }
@@ -942,7 +1002,20 @@ void SamplerDevice::deserializeFromXml(ProjectReader & reader)
                         loadSample(static_cast<uint8_t>(note.value()), path.toStdString());
                         std::lock_guard<std::recursive_mutex> lock { mutex() };
                         if (const auto s = m_samples.at(note.value()).get(); s) {
-                            s->deserializeParametersFromXml(reader);
+                            // Manual dispatch so the nested per-pad InsertEffects rack is read rather than
+                            // swallowed by ParameterContainer::deserializeParametersFromXml.
+                            while (reader.readNextStartElement()) {
+                                if (reader.name() == Constants::NahdXml::xmlKeyParameter()) {
+                                    s->deserializeParameter(reader);
+                                } else if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects()) {
+                                    if (!s->effectRack) {
+                                        s->effectRack = std::make_shared<EffectRack>();
+                                    }
+                                    s->effectRack->deserializeEffectsFromXml(reader);
+                                } else {
+                                    reader.skipCurrentElement();
+                                }
+                            }
                             // Sync internal fields from parameters
                             if (auto p = s->parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p)
                                 s->pan = p->get().value();

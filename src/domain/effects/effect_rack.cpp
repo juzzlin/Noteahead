@@ -24,6 +24,8 @@
 #include <QDateTime>
 #include <QVariant>
 
+#include <algorithm>
+
 namespace noteahead {
 
 EffectRack::EffectRack()
@@ -76,6 +78,12 @@ size_t EffectRack::effectCount() const
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
     return m_effects.size();
+}
+
+bool EffectRack::hasEffects() const
+{
+    std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    return std::ranges::any_of(m_effects, [](const auto & effect) { return effect != nullptr; });
 }
 
 void EffectRack::process(AudioContext & outputContext, const double * sendBus, size_t effectIndex)

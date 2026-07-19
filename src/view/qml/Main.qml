@@ -706,6 +706,14 @@ ApplicationWindow {
         });
         UiService.deviceInsertEffectsDialogRequested.connect(deviceName => {
             deviceInsertEffectsDialog.deviceName = deviceName;
+            deviceInsertEffectsDialog.subIndex = -1;
+            deviceInsertEffectsDialog.subLabel = "";
+            deviceInsertEffectsDialog.open();
+        });
+        UiService.deviceSubEffectsDialogRequested.connect((deviceName, subIndex, subLabel) => {
+            deviceInsertEffectsDialog.deviceName = deviceName;
+            deviceInsertEffectsDialog.subIndex = subIndex;
+            deviceInsertEffectsDialog.subLabel = subLabel;
             deviceInsertEffectsDialog.open();
         });
 

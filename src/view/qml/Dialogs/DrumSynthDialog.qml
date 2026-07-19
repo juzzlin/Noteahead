@@ -28,6 +28,8 @@ Dialog {
     width: 800
     height: 700
 
+    readonly property var voiceNames: ["Kick", "Snare", "CHH", "Clap", "OHH", "Lo Tom", "Mid Tom", "Hi Tom", "Crash", "Ride", "Rev Crash"]
+
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
 
@@ -92,7 +94,7 @@ Dialog {
                 columnSpacing: 10
 
                 Repeater {
-                    model: ["Kick", "Snare", "CHH", "Clap", "OHH", "Lo Tom", "Mid Tom", "Hi Tom", "Crash", "Ride", "Rev Crash"]
+                    model: root.voiceNames
                     delegate: Button {
                         text: modelData
                         Layout.fillWidth: true
@@ -102,6 +104,22 @@ Dialog {
                             drumSynthController.selectedVoice = index
                             drumSynthController.playVoice(index)
                         }
+
+                        Button {
+                            text: qsTr("FX")
+                            anchors.top: parent.top
+                            anchors.right: parent.right
+                            anchors.margins: 3
+                            implicitWidth: 30
+                            implicitHeight: 20
+                            padding: 0
+                            font.pointSize: 8
+                            z: 10
+                            onClicked: UiService.requestDeviceSubEffectsDialog(drumSynthController.deviceName(), index, root.voiceNames[index])
+                            ToolTip.delay: Constants.toolTipDelay
+                            ToolTip.visible: hovered
+                            ToolTip.text: qsTr("Insert effects for this voice")
+                        }
                     }
                 }
             }
@@ -109,7 +127,7 @@ Dialog {
 
         // Voice Settings
         GroupBox {
-            title: qsTr("Voice Settings") + " (" + ["Kick", "Snare", "CHH", "Clap", "OHH", "Lo Tom", "Mid Tom", "Hi Tom", "Crash", "Ride", "Rev Crash"][drumSynthController.selectedVoice] + ")"
+            title: qsTr("Voice Settings") + " (" + root.voiceNames[drumSynthController.selectedVoice] + ")"
             Layout.fillWidth: true
             Layout.preferredHeight: 150
             
@@ -121,7 +139,7 @@ Dialog {
                 RowLayout {
                     id: settingsRow
                     spacing: 15
-                    
+
                     Knob {
                         label: qsTr("Level")
                         mapping: "volume"
