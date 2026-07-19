@@ -231,6 +231,84 @@ void EffectsTest::test_reverb_filters_shouldShapeWetSignal()
     QVERIFY(highPassedEnergy < openEnergy * 0.25);
 }
 
+void EffectsTest::test_reverb_gate_shouldCutTail()
+{
+    Reverb reverb;
+    reverb.setSampleRate(44100.0);
+
+    const auto setParam = [&](const QString & key, float value) {
+        if (const auto p = reverb.parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    };
+    setParam(Constants::NahdXml::xmlKeyMix(), 1.0f); // Fully wet
+    setParam(Constants::NahdXml::xmlKeySize(), 0.6f);
+    setParam(Constants::NahdXml::xmlKeyDecay(), 0.8f); // Long natural tail (~8 s)
+    setParam(Constants::NahdXml::xmlKeyPreDelay(), 0.0f);
+    setParam(Constants::NahdXml::xmlKeyGated(), 1.0f);
+    setParam(Constants::NahdXml::xmlKeyThreshold(), 0.333f); // ~ -40 dB
+    setParam(Constants::NahdXml::xmlKeyHold(), 0.05f); // 50 ms
+    setParam(Constants::NahdXml::xmlKeyRelease(), 0.4f); // ~21 ms (fast chop)
+    reverb.sync();
+
+    // A loud impulse opens the gate; then silence.
+    double left = 1.0;
+    double right = 1.0;
+    reverb.process(left, right);
+
+    double earlyEnergy = 0.0;
+    double lateEnergy = 0.0;
+    for (int i = 0; i < 20000; i++) {
+        double l = 0.0;
+        double r = 0.0;
+        reverb.process(l, r);
+        QVERIFY(std::isfinite(l));
+        const double e = l * l + r * r;
+        if (i >= 200 && i < 2000) {
+            earlyEnergy += e; // Gate open (within the 50 ms hold)
+        } else if (i >= 12000) {
+            lateEnergy += e; // Gate long closed
+        }
+    }
+
+    QVERIFY(earlyEnergy > 0.0); // The reverb bloomed while the gate was open.
+    QVERIFY(lateEnergy < 0.001 * earlyEnergy); // ...and the tail was chopped off.
+}
+
+void EffectsTest::test_reverb_gate_disabled_shouldNotCutTail()
+{
+    Reverb reverb;
+    reverb.setSampleRate(44100.0);
+
+    const auto setParam = [&](const QString & key, float value) {
+        if (const auto p = reverb.parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    };
+    setParam(Constants::NahdXml::xmlKeyMix(), 1.0f);
+    setParam(Constants::NahdXml::xmlKeySize(), 0.6f);
+    setParam(Constants::NahdXml::xmlKeyDecay(), 0.8f);
+    setParam(Constants::NahdXml::xmlKeyPreDelay(), 0.0f);
+    // Gate defaults to off.
+    reverb.sync();
+
+    double left = 1.0;
+    double right = 1.0;
+    reverb.process(left, right);
+
+    double lateEnergy = 0.0;
+    for (int i = 0; i < 14000; i++) {
+        double l = 0.0;
+        double r = 0.0;
+        reverb.process(l, r);
+        if (i >= 12000) {
+            lateEnergy += l * l + r * r;
+        }
+    }
+
+    QVERIFY(lateEnergy > 0.0); // Without the gate, the long tail persists.
+}
+
 void EffectsTest::test_delayEffect_shouldProcessSignalAndHandleSampleRateChanges()
 {
     Delay effect;

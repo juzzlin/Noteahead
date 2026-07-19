@@ -16,6 +16,8 @@
 #include "reverb.hpp"
 
 #include "../../common/constants.hpp"
+#include "../../common/parameter_mapper.hpp"
+#include "../../common/utils.hpp"
 #include "../dsp/audio_context.hpp"
 
 #include <algorithm>
@@ -34,6 +36,12 @@ Reverb::Reverb()
     addParameter({ Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), 0.85f, 0, 10000, 8500, 100, Parameter::Type::Continuous, { "reverbLpfCutoff" } });
     addParameter({ Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.2f, 0, 10000, 2000, 100, Parameter::Type::Continuous, { "reverbHpfCutoff" } });
     addParameter({ Constants::NahdXml::xmlKeyMix().toStdString(), 0.0f, 0, 10000, 0, 100, Parameter::Type::Continuous, { "reverbMix" } });
+
+    addParameter({ Constants::NahdXml::xmlKeyGated().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
+    addParameter({ Constants::NahdXml::xmlKeyThreshold().toStdString(), 0.333f, 0, 10000, 3333, 100 });
+    addParameter({ Constants::NahdXml::xmlKeyAttack().toStdString(), 0.566f, 0, 10000, 5660, 100 });
+    addParameter({ Constants::NahdXml::xmlKeyHold().toStdString(), 0.2f, 0, 1000, 200, 1 });
+    addParameter({ Constants::NahdXml::xmlKeyRelease().toStdString(), 0.606f, 0, 10000, 6060, 100 });
 
     for (auto && delay : m_delays) {
         delay.fbLpf.setMode(CascadedSvf::Mode::LowPass);
@@ -137,6 +145,8 @@ void Reverb::process(double & left, double & right)
     wetL = mid + side * static_cast<double>(m_width);
     wetR = mid - side * static_cast<double>(m_width);
 
+    applyGate(dryL, dryR, wetL, wetR);
+
     left = dryL + wetL * static_cast<double>(m_mix);
     right = dryR + wetR * static_cast<double>(m_mix);
 }
@@ -173,6 +183,8 @@ void Reverb::reset()
     m_wetLpfR.reset();
     m_wetHpfL.reset();
     m_wetHpfR.reset();
+    m_gateGain = 1.0;
+    m_gateHoldCounter = 0;
 }
 
 void Reverb::sync()
@@ -467,8 +479,62 @@ void Reverb::syncParameters()
     if (const auto p = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) {
         m_hpfCutoff = std::clamp(p->get().value(), 0.0f, 1.0f);
     }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyGated().toStdString()); p) {
+        m_gated = p->get().value() > 0.5f;
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()); p) {
+        m_gateThresholdDb = -60.0f + p->get().value() * 60.0f;
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyAttack().toStdString()); p) {
+        m_gateAttackMs = static_cast<float>(ParameterMapper::mapExponential(p->get().value(), 0.1, 100.0));
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyHold().toStdString()); p) {
+        m_gateHoldMs = p->get().value() * 1000.0f;
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyRelease().toStdString()); p) {
+        m_gateReleaseMs = static_cast<float>(ParameterMapper::mapExponential(p->get().value(), 1.0, 2000.0));
+    }
 
     updateFilters();
+    updateGateCoefficients();
+}
+
+void Reverb::updateGateCoefficients()
+{
+    if (m_sampleRate > 0) {
+        m_gateAttackCoeff = std::exp(-1.0 / (std::max(0.01, static_cast<double>(m_gateAttackMs)) * m_sampleRate / 1000.0));
+        m_gateReleaseCoeff = std::exp(-1.0 / (std::max(0.01, static_cast<double>(m_gateReleaseMs)) * m_sampleRate / 1000.0));
+    }
+}
+
+void Reverb::applyGate(double dryL, double dryR, double & wetL, double & wetR)
+{
+    if (!m_gated) {
+        return;
+    }
+
+    // Key the gate off the dry input: a hit opens it (fast attack), it stays open for the hold time after the
+    // key falls below the threshold, then closes over the release time (short release = abrupt gated tail).
+    const double key = std::max(std::abs(dryL), std::abs(dryR));
+    const double thresholdLin = static_cast<double>(Utils::Dsp::dbToLinear(m_gateThresholdDb));
+
+    double target = 0.0;
+    if (key > thresholdLin) {
+        m_gateHoldCounter = static_cast<uint32_t>(std::max(0.0, m_gateHoldMs * m_sampleRate / 1000.0));
+        target = 1.0;
+    } else if (m_gateHoldCounter > 0) {
+        m_gateHoldCounter--;
+        target = 1.0;
+    }
+
+    const double coeff = target > m_gateGain ? m_gateAttackCoeff : m_gateReleaseCoeff;
+    m_gateGain = coeff * m_gateGain + (1.0 - coeff) * target;
+    if (m_gateGain < 1.0e-15) {
+        m_gateGain = 0.0;
+    }
+
+    wetL *= m_gateGain;
+    wetR *= m_gateGain;
 }
 
 void Reverb::updateBuffers()

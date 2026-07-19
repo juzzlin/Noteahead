@@ -1279,6 +1279,44 @@ void XmlSerializationTest::test_toXmlFromXml_endlessReverbEffect_shouldLoadCorre
     }
 }
 
+void XmlSerializationTest::test_toXmlFromXml_reverbGate_shouldLoadCorrectly()
+{
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto reverb = std::make_shared<Reverb>();
+    if (auto p = reverb->parameter(Constants::NahdXml::xmlKeyGated().toStdString()); p) {
+        p->get().setValue(1.0f);
+    }
+    if (auto p = reverb->parameter(Constants::NahdXml::xmlKeyHold().toStdString()); p) {
+        p->get().setValue(0.4f);
+    }
+    deviceServiceOut.sendEffectRack().setEffect(0, reverb);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(effect);
+    const auto restored = std::dynamic_pointer_cast<Reverb>(effect);
+    QVERIFY(restored);
+    if (auto p = restored->parameter(Constants::NahdXml::xmlKeyGated().toStdString()); p) {
+        QCOMPARE(p->get().value(), 1.0f);
+    }
+    if (auto p = restored->parameter(Constants::NahdXml::xmlKeyHold().toStdString()); p) {
+        QCOMPARE(p->get().value(), 0.4f);
+    }
+}
+
 void XmlSerializationTest::test_toXmlFromXml_limiterEffect_shouldLoadCorrectly()
 {
     const auto engineOut = std::make_shared<AudioEngine>();

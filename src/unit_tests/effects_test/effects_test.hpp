@@ -31,6 +31,8 @@ private slots:
     void test_highPassFilterEffect_shouldProcessAudioStablely();
     void test_reverb_mix_shouldApplyEffectBasedOnMixLevel();
     void test_reverb_filters_shouldShapeWetSignal();
+    void test_reverb_gate_shouldCutTail();
+    void test_reverb_gate_disabled_shouldNotCutTail();
     void test_delayEffect_shouldProcessSignalAndHandleSampleRateChanges();
     void test_delayEffect_shouldProduceDelayedSignal();
     void test_delayEffect_shouldMaintainFeedbackLoop();

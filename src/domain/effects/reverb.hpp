@@ -85,7 +85,9 @@ private:
     void syncParameters();
     void updateBuffers();
     void updateFilters();
+    void updateGateCoefficients();
     void applyWetFilters(double & wetL, double & wetR);
+    void applyGate(double dryL, double dryR, double & wetL, double & wetR);
 
     float m_size { 0.5f };
     float m_decayMs { 1500.0f };
@@ -95,6 +97,17 @@ private:
     float m_width { 1.0f };
     float m_lpfCutoff { 0.85f };
     float m_hpfCutoff { 0.2f };
+
+    // Noise gate on the wet signal, keyed off the dry input (gated reverb).
+    bool m_gated { false };
+    float m_gateThresholdDb { -40.0f };
+    float m_gateAttackMs { 5.0f };
+    float m_gateHoldMs { 200.0f };
+    float m_gateReleaseMs { 100.0f };
+    double m_gateGain { 1.0 };
+    uint32_t m_gateHoldCounter { 0 };
+    double m_gateAttackCoeff { 0.0 };
+    double m_gateReleaseCoeff { 0.0 };
 
     bool m_shouldSyncParameters { false };
     bool m_shouldUpdateBuffers { false };

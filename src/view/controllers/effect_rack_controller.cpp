@@ -460,6 +460,31 @@ QString EffectRackController::reverbMixKey() const
     return Constants::NahdXml::xmlKeyMix();
 }
 
+QString EffectRackController::reverbGatedKey() const
+{
+    return Constants::NahdXml::xmlKeyGated();
+}
+
+QString EffectRackController::reverbGateThresholdKey() const
+{
+    return Constants::NahdXml::xmlKeyThreshold();
+}
+
+QString EffectRackController::reverbGateAttackKey() const
+{
+    return Constants::NahdXml::xmlKeyAttack();
+}
+
+QString EffectRackController::reverbGateHoldKey() const
+{
+    return Constants::NahdXml::xmlKeyHold();
+}
+
+QString EffectRackController::reverbGateReleaseKey() const
+{
+    return Constants::NahdXml::xmlKeyRelease();
+}
+
 QString EffectRackController::chorusRateKey() const
 {
     return Constants::NahdXml::xmlKeyRate();

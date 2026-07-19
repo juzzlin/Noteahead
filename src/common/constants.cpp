@@ -1062,6 +1062,16 @@ QString xmlKeyFreeze()
     return "freeze";
 }
 
+QString xmlKeyGated()
+{
+    return "gated";
+}
+
+QString xmlKeyHold()
+{
+    return "hold";
+}
+
 QString xmlKeyDrive()
 {
     return "drive";

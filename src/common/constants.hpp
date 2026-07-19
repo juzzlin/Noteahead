@@ -298,6 +298,8 @@ QString xmlKeyMakeup();
 QString xmlKeyCeiling();
 QString xmlKeyBoost();
 QString xmlKeyFreeze();
+QString xmlKeyGated();
+QString xmlKeyHold();
 QString xmlKeyDrive();
 QString xmlKeySize();
 QString xmlKeyDamping();

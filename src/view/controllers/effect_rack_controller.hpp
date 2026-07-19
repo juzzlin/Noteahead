@@ -120,6 +120,11 @@ public:
     Q_INVOKABLE QString reverbLpfCutoffKey() const;
     Q_INVOKABLE QString reverbHpfCutoffKey() const;
     Q_INVOKABLE QString reverbMixKey() const;
+    Q_INVOKABLE QString reverbGatedKey() const;
+    Q_INVOKABLE QString reverbGateThresholdKey() const;
+    Q_INVOKABLE QString reverbGateAttackKey() const;
+    Q_INVOKABLE QString reverbGateHoldKey() const;
+    Q_INVOKABLE QString reverbGateReleaseKey() const;
 
     Q_INVOKABLE QString chorusRateKey() const;
     Q_INVOKABLE QString chorusDepthKey() const;

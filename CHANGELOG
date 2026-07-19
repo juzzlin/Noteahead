@@ -5,6 +5,10 @@ Release date:
 
 New features:
 
+* Add a gate to the Reverb (gated reverb)
+  - Noise gate on the wet signal, keyed off the dry input
+  - Threshold, Attack, Hold and Release controls; off by default
+
 * Add Endless Reverb rack effect
   - Large, otherworldly ambient reverb: an 8-line modulated Householder FDN with input diffusion
   - Feedback (decay), Size, Damping, Pre-Delay, modulation Depth/Rate, Width, LPF/HPF and Mix controls
