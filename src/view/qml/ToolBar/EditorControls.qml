@@ -391,8 +391,8 @@ Row {
                 SpinBox {
                     id: bpmSpinBox
                     value: playerService.isPlaying ? playerService.beatsPerMinute : editorService.beatsPerMinute
-                    from: 30
-                    to: 300
+                    from: 1
+                    to: 666
                     editable: true
                     enabled: !playerService.isPlaying
                     onValueModified: {
