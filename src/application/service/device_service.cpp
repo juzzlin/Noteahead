@@ -609,14 +609,17 @@ bool DeviceService::importDeviceSettings(int slotIndex, ProjectReader & reader)
                 while (reader.readNextStartElement()) {
                     if (reader.name() == Constants::NahdXml::xmlKeyDevice()) {
                         const auto typeId = reader.attribute(Constants::NahdXml::xmlKeyTypeId()).toString();
-                        const auto deviceName = reader.attribute(Constants::NahdXml::xmlKeyName()).toString();
 
                         auto dev = device(static_cast<size_t>(slotIndex));
-                        if (dev && dev->typeId() != typeId.toStdString()) {
+                        // Create a device when the slot is empty or holds a device of a different type. The slot's
+                        // canonical name is used so the imported device integrates as this slot's device regardless of
+                        // the name stored in the file.
+                        if (!dev || dev->typeId() != typeId.toStdString()) {
+                            const auto slotName = Constants::internalDevicePortPrefix().toStdString() + " " + std::to_string(slotIndex + 1);
                             if (typeId.toStdString() == SamplerDevice::typeIdString() && m_samplerAudioFileReaderFactory) {
-                                dev = std::make_shared<SamplerDevice>(deviceName.toStdString(), m_samplerAudioFileReaderFactory());
+                                dev = std::make_shared<SamplerDevice>(slotName, m_samplerAudioFileReaderFactory());
                             } else {
-                                dev = DeviceFactory::createDevice(typeId.toStdString(), deviceName.toStdString());
+                                dev = DeviceFactory::createDevice(typeId.toStdString(), slotName);
                             }
                             if (dev) {
                                 setDevice(static_cast<size_t>(slotIndex), dev);

@@ -31,6 +31,7 @@ private slots:
     void test_exportDeviceSettings_shouldGenerateCorrectXml();
     void test_importDeviceSettings_shouldRestoreParameters();
     void test_importDeviceSettings_shouldReplaceDeviceIfTypeDiffers();
+    void test_importDeviceSettings_emptySlot_shouldCreateDeviceFromFile();
     void test_exportImport_withEmbeddedData_shouldWork();
     void test_peekDeviceTypeInfo_synth_shouldReturnCorrectTypeInfo();
     void test_peekDeviceTypeInfo_nonexistentFile_shouldReturnEmpty();

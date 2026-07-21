@@ -40,6 +40,16 @@ Dialog {
 
     footer: DialogButtonBox {
         Button {
+            text: qsTr("Import Device...")
+            implicitWidth: Constants.defaultButtonWidth
+            visible: root.slotIndex !== -1
+            DialogButtonBox.buttonRole: DialogButtonBox.ActionRole
+            onClicked: {
+                root.accept();
+                UiService.requestImportDeviceSettings(root.slotIndex);
+            }
+        }
+        Button {
             text: qsTr("Close")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole

@@ -202,6 +202,36 @@ void DeviceServiceTest::test_importDeviceSettings_shouldReplaceDeviceIfTypeDiffe
     QCOMPARE(service.device(0)->typeId(), SamplerDevice::typeIdString());
 }
 
+void DeviceServiceTest::test_importDeviceSettings_emptySlot_shouldCreateDeviceFromFile()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto dataService = std::make_shared<DataService>();
+    DeviceService service { audioEngine, dataService };
+
+    // Export a synth from another service instance
+    QTemporaryFile tempFile;
+    QVERIFY(tempFile.open());
+    const auto filePath = tempFile.fileName();
+    tempFile.close();
+
+    {
+        DeviceService service2 { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+        const auto synth = std::dynamic_pointer_cast<SynthDevice>(DeviceFactory::createDevice(SynthDevice::typeIdString(), "TestSynth"));
+        synth->setVolume(0.75f);
+        service2.setDevice(0, synth);
+        QVERIFY(service2.exportDeviceSettings(0, filePath));
+    }
+
+    // The target slot is empty; import should create the device from the file's type
+    QVERIFY(!service.device(0));
+    QVERIFY(service.importDeviceSettings(0, filePath));
+    QVERIFY(service.device(0));
+    QCOMPARE(service.device(0)->typeId(), SynthDevice::typeIdString());
+    const auto synth = std::dynamic_pointer_cast<SynthDevice>(service.device(0));
+    QVERIFY(synth);
+    QCOMPARE(synth->volume(), 0.75f);
+}
+
 void DeviceServiceTest::test_exportImport_withEmbeddedData_shouldWork()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();

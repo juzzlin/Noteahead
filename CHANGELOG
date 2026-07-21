@@ -32,6 +32,10 @@ New features:
   - Boost switch lifts the threshold to the ceiling for maximum loudness
   - Gain reduction meter
 
+* Import an exported device directly from the Device Gallery
+  - New "Import Device..." button creates the device from the exported settings
+  - The device type is taken from the file, so there's no need to add a device first
+
 * Add chromatic mode to the Sampler
 
 Bug fixes:
