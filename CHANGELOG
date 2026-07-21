@@ -40,6 +40,11 @@ New features:
 
 Bug fixes:
 
+* Fix crash when importing a device with embedded samples
+  - Embedded data is now extracted before the device is deserialized, so a
+    Sampler can resolve its sample paths while loading
+  - A failed sample load during import now fails gracefully instead of crashing
+
 * Fix rack Delay effect mode selector (Mono/Ping Pong/Tape had no effect)
 
 * Fix rack Delay effect manual (non-sync) time knob clamping at ~11 ms

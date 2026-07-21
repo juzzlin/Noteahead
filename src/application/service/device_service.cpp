@@ -596,7 +596,22 @@ bool DeviceService::importDeviceSettings(int slotIndex, const QString & filePath
     if (!file.open(QIODevice::ReadOnly)) {
         return false;
     }
-    NahdXmlReader reader { file };
+    const auto xml = QString::fromUtf8(file.readAll());
+
+    // Extract embedded data before deserializing the device so that a Sampler can resolve its
+    // nahd:// sample paths while loading. In the file the <Device> element precedes the <Data>
+    // blocks, so a single streaming pass would try to load samples before they are extracted.
+    // extractData() appends to the already-extracted data (it does not clear), so any embedded
+    // samples of a currently loaded project are preserved.
+    NahdXmlReader dataReader { xml };
+    while (!dataReader.atEnd()) {
+        if (dataReader.isStartElement() && dataReader.name() == Constants::NahdXml::xmlKeyData()) {
+            m_dataService->extractData(dataReader);
+        }
+        dataReader.readNext();
+    }
+
+    NahdXmlReader reader { xml };
     return importDeviceSettings(slotIndex, reader);
 }
 
@@ -629,8 +644,16 @@ bool DeviceService::importDeviceSettings(int slotIndex, ProjectReader & reader)
                         }
 
                         if (dev) {
-                            dev->deserializeFromXml(reader);
-                            dev->setId(static_cast<size_t>(slotIndex));
+                            try {
+                                dev->deserializeFromXml(reader);
+                                dev->setId(static_cast<size_t>(slotIndex));
+                            } catch (const std::exception & e) {
+                                // Deserialization can throw (e.g. a Sampler failing to load a sample). This is
+                                // invoked from QML, so swallow the exception here to fail gracefully instead of
+                                // crossing the C++/QML boundary and crashing.
+                                juzzlin::L(TAG).error() << std::format("Failed to import device settings: {}", e.what());
+                                return false;
+                            }
                         } else {
                             reader.skipCurrentElement();
                         }

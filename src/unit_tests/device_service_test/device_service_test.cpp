@@ -110,6 +110,20 @@ private:
     QByteArray m_writtenData;
 };
 
+// Simulates a real reader (e.g. SndFileReader) that cannot open an unresolved embedded path.
+// Used to prove that embedded data is extracted before samples are loaded during import.
+class NahdFailingMockAudioFileReader : public MockAudioFileReader
+{
+public:
+    bool open(const std::string & path, Mode mode, Info & info) override
+    {
+        if (QString::fromStdString(path).startsWith(Constants::NahdXml::embeddedDataPathPrefix())) {
+            return false;
+        }
+        return MockAudioFileReader::open(path, mode, info);
+    }
+};
+
 void DeviceServiceTest::initTestCase()
 {
     EffectFactory::init();
@@ -298,6 +312,52 @@ void DeviceServiceTest::test_exportImport_withEmbeddedData_shouldWork()
     QVERIFY(resolvedFile.open(QIODevice::ReadOnly));
     // MockAudioFileReader returns 100 frames of 2 channels (800 bytes for float)
     QCOMPARE(resolvedFile.size(), 100 * 2 * sizeof(float));
+}
+
+void DeviceServiceTest::test_importDeviceSettings_embeddedData_emptySlot_shouldExtractDataBeforeLoadingSamples()
+{
+    // Export a Sampler with an embedded sample.
+    QTemporaryFile settingsFile;
+    QVERIFY(settingsFile.open());
+    const auto settingsPath = settingsFile.fileName();
+    settingsFile.close();
+
+    {
+        DeviceService service { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+        auto sampler = std::make_shared<SamplerDevice>("TestSampler", std::make_unique<MockAudioFileReader>());
+        service.setDevice(0, sampler);
+
+        QTemporaryFile sampleFile { "test.wav" };
+        QVERIFY(sampleFile.open());
+        const auto samplePath = sampleFile.fileName();
+        sampleFile.write(QByteArray { 800, 0 });
+        sampleFile.close();
+
+        sampler->loadSample(60, samplePath.toStdString());
+        sampler->setEmbedWaveData(true);
+        QVERIFY(service.exportDeviceSettings(0, settingsPath));
+    }
+
+    // Import into a fresh service with an empty device rack (i.e. no project loaded first).
+    // The reader fails to open unresolved nahd:// paths, so if the embedded data were not
+    // extracted before the device is deserialized, the sample load would throw and import
+    // would fail. This reproduces the crash reported when importing without a loaded project.
+    const auto dataService = std::make_shared<DataService>();
+    DeviceService service { std::make_shared<AudioEngine>(), dataService };
+    service.setSamplerAudioFileReaderFactory([]() {
+        return std::make_unique<NahdFailingMockAudioFileReader>();
+    });
+
+    QVERIFY(!service.device(0)); // Empty slot
+    QVERIFY(service.importDeviceSettings(0, settingsPath));
+
+    const auto importedSampler = std::dynamic_pointer_cast<SamplerDevice>(service.device(0));
+    QVERIFY(importedSampler);
+    QVERIFY(importedSampler->sample(60));
+
+    const auto importedPath = QString::fromStdString(importedSampler->sample(60)->filePath);
+    QVERIFY(importedPath.startsWith(Constants::NahdXml::embeddedDataPathPrefix()));
+    QVERIFY(dataService->resolvePath(importedPath) != importedPath);
 }
 
 void DeviceServiceTest::test_peekDeviceTypeInfo_synth_shouldReturnCorrectTypeInfo()

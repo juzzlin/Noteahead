@@ -33,6 +33,7 @@ private slots:
     void test_importDeviceSettings_shouldReplaceDeviceIfTypeDiffers();
     void test_importDeviceSettings_emptySlot_shouldCreateDeviceFromFile();
     void test_exportImport_withEmbeddedData_shouldWork();
+    void test_importDeviceSettings_embeddedData_emptySlot_shouldExtractDataBeforeLoadingSamples();
     void test_peekDeviceTypeInfo_synth_shouldReturnCorrectTypeInfo();
     void test_peekDeviceTypeInfo_nonexistentFile_shouldReturnEmpty();
     void test_reverbSends_shouldSaveAndLoadCorrectly();
