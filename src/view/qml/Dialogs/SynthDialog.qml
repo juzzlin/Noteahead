@@ -149,6 +149,10 @@ Dialog {
                     SynthDialog_Tab3 {
                         moduleWidth: mainRow.moduleWidth
                     }
+
+                    SynthDialog_Tab4 {
+                        moduleWidth: mainRow.moduleWidth
+                    }
                 }
 
                 TabBar {
@@ -162,6 +166,9 @@ Dialog {
                     }
                     TabButton {
                         text: qsTr("LFO / Effects")
+                    }
+                    TabButton {
+                        text: qsTr("Scope")
                     }
                 }
             }

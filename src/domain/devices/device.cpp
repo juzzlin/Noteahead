@@ -326,6 +326,11 @@ const EffectRack & Device::insertEffectRack() const
     return m_insertEffectRack;
 }
 
+AudioScope & Device::scope()
+{
+    return m_scope;
+}
+
 float Device::volumeInternal() const
 {
     return m_volume;

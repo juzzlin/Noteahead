@@ -29,6 +29,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Components/LayoutSeparator.qml
     ${QML_BASE_DIR}/Components/MenuItemDelegate.qml
     ${QML_BASE_DIR}/Components/MidiCcComboBox.qml
+    ${QML_BASE_DIR}/Components/Oscilloscope.qml
     ${QML_BASE_DIR}/Components/SyncSlider.qml
     ${QML_BASE_DIR}/Components/VirtualKeyboard.qml
     ${QML_BASE_DIR}/Components/WaveformView.qml
@@ -127,6 +128,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Tab1.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Tab2.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Tab3.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDialog_Tab4.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Vco1.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Vco2.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Vco3.qml

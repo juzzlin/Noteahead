@@ -17,6 +17,7 @@
 #define DEVICE_CONTROLLER_HPP
 
 #include <QObject>
+#include <QVariantList>
 #include <memory>
 
 namespace noteahead {
@@ -55,6 +56,13 @@ public:
 
     Q_INVOKABLE float cutoffToHz(float cutoff) const;
     Q_INVOKABLE QString deviceName() const;
+
+    //! Enable/disable the device's oscilloscope capture. Keep it enabled only while a scope is shown.
+    Q_INVOKABLE void setScopeActive(bool active);
+    //! Returns [leftSamples, rightSamples] as nested lists of floats in output amplitude units,
+    //! decimated to at most maxPoints per channel. Empty when no device is set.
+    Q_INVOKABLE QVariantList scopeSamples(int maxPoints) const;
+    Q_INVOKABLE int scopeSampleRate() const;
 
     Q_INVOKABLE virtual void reset();
     Q_INVOKABLE virtual void requestSettings() = 0;

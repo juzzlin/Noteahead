@@ -5,6 +5,10 @@ Release date:
 
 New features:
 
+* Add a stereo oscilloscope to the Synth
+  - Live L/R waveform traces side by side on a new "Scope" tab
+  - Reusable component that can later be added to other device dialogs
+
 * Add per-pad and per-voice insert effects
   - Each Sampler pad and Drum Synth voice can have its own insert effect rack
   - Open via an "FX" button on each Sampler pad and each Drum Synth voice button

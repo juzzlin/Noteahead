@@ -81,6 +81,7 @@ set(HEADER_FILES
     tracker/side_chain_settings.hpp
     tracker/song.hpp
     tracker/track.hpp
+    utility/audio_scope.hpp
     utility/dbtp_meter.hpp
     utility/loudness_analyzer.hpp
     utility/lufs_meter.hpp
@@ -171,6 +172,7 @@ set(SOURCE_FILES
     tracker/play_order.cpp
     tracker/song.cpp
     tracker/track.cpp
+    utility/audio_scope.cpp
     utility/dbtp_meter.cpp
     utility/loudness_analyzer.cpp
     utility/lufs_meter.cpp

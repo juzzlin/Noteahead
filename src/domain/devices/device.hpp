@@ -21,6 +21,7 @@
 #include "../dsp/audio_context.hpp"
 #include "../effects/effect_rack.hpp"
 #include "../tracker/parameter_container.hpp"
+#include "../utility/audio_scope.hpp"
 
 #include <cstdint>
 #include <mutex>
@@ -81,6 +82,9 @@ public:
     virtual std::vector<size_t> sidechainDependencies() const;
     EffectRack & insertEffectRack();
     const EffectRack & insertEffectRack() const;
+
+    //! Oscilloscope tap for this device's output. Capture is gated by AudioScope::setActive().
+    AudioScope & scope();
 
     virtual bool hasActiveAudio() const
     {
@@ -161,6 +165,7 @@ private:
     float m_manualPan { 0.5f };
     std::vector<float> m_manualReverbSends;
     EffectRack m_insertEffectRack;
+    AudioScope m_scope;
 
     mutable std::recursive_mutex m_mutex;
 };

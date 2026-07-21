@@ -88,6 +88,9 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
     device->processAudio(audioContext);
     device->processInsertEffects(audioContext);
 
+    // Feed this device's final output to its oscilloscope tap (no-op unless a scope is active).
+    device->scope().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
+
     if (deviceContext.deviceOutputBuffersMutable) {
         const auto slotIndex = deviceContext.slotSnapshot->at(deviceSnapshotIndex);
         auto & outputBuffer = deviceContext.deviceOutputBuffersMutable->at(slotIndex);

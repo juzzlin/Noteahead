@@ -20,6 +20,7 @@
 #include "../../domain/devices/device.hpp"
 
 #include <QDebug>
+#include <algorithm>
 #include <cmath>
 
 namespace noteahead {
@@ -85,6 +86,40 @@ QString DeviceController::deviceName() const
         return QString::fromStdString(dev->name());
     }
     return {};
+}
+
+void DeviceController::setScopeActive(bool active)
+{
+    if (const auto dev = device(); dev) {
+        dev->scope().setActive(active);
+    }
+}
+
+QVariantList DeviceController::scopeSamples(int maxPoints) const
+{
+    QVariantList result;
+    if (const auto dev = device(); dev) {
+        const auto snapshot = dev->scope().snapshot(static_cast<size_t>(std::max(0, maxPoints)));
+        const auto toList = [](const std::vector<float> & samples) {
+            QVariantList list;
+            list.reserve(static_cast<int>(samples.size()));
+            for (const auto sample : samples) {
+                list.append(sample);
+            }
+            return list;
+        };
+        result.append(QVariant { toList(snapshot.left) });
+        result.append(QVariant { toList(snapshot.right) });
+    }
+    return result;
+}
+
+int DeviceController::scopeSampleRate() const
+{
+    if (const auto dev = device(); dev) {
+        return static_cast<int>(dev->scope().sampleRate());
+    }
+    return 0;
 }
 
 void DeviceController::reset()
