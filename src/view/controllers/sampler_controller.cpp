@@ -52,6 +52,11 @@ void SamplerController::setSampler(SamplerDevice::SamplerDeviceS sampler)
         connectDeviceSignals();
         m_padModel->setSampler(m_sampler);
         emit samplerChanged();
+        // Refresh the global switches so they reflect the newly selected instance instead of
+        // retaining the previous one's state.
+        emit chromaticModeChanged();
+        emit channelModeChanged();
+        emit embedWaveDataChanged();
         setSelectedPad(m_selectedPad); // Trigger updates for properties
     }
 }

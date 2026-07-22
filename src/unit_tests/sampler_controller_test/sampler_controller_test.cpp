@@ -74,6 +74,31 @@ void SamplerControllerTest::test_reset_shouldRestoreDefaultValues()
     QCOMPARE(controller.volume(), 1000);
 }
 
+void SamplerControllerTest::test_setSampler_shouldRefreshGlobalSwitchesToReflectNewInstance()
+{
+    // First instance with chromatic mode enabled.
+    const auto samplerA = std::make_shared<SamplerDevice>("Sampler A");
+    SamplerController controller { samplerA };
+    controller.setChromaticMode(true);
+    QVERIFY(controller.chromaticMode());
+
+    // Switching to a second instance (chromatic mode off) must notify the UI so the switch
+    // reflects the new instance instead of retaining the previous one's state.
+    const auto samplerB = std::make_shared<SamplerDevice>("Sampler B");
+    QVERIFY(!samplerB->chromaticMode());
+
+    QSignalSpy chromaticSpy { &controller, &SamplerController::chromaticModeChanged };
+    QSignalSpy channelSpy { &controller, &SamplerController::channelModeChanged };
+    QSignalSpy embedSpy { &controller, &SamplerController::embedWaveDataChanged };
+
+    controller.setSampler(samplerB);
+
+    QCOMPARE(chromaticSpy.count(), 1);
+    QCOMPARE(channelSpy.count(), 1);
+    QCOMPARE(embedSpy.count(), 1);
+    QVERIFY(!controller.chromaticMode());
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SamplerControllerTest)

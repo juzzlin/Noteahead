@@ -40,6 +40,10 @@ New features:
 
 Bug fixes:
 
+* Fix Sampler global switches not updating when switching instance
+  - Chromatic mode, channel mode and embed-wave-data switches now reflect the
+    selected Sampler instead of retaining the previous instance's state
+
 * Fix crash when importing a device with embedded samples
   - Embedded data is now extracted before the device is deserialized, so a
     Sampler can resolve its sample paths while loading
