@@ -16,8 +16,6 @@ jobs:
         include:
           - name: Ubuntu 24.04
             container: ubuntu:24.04
-          - name: Ubuntu 25.10
-            container: ubuntu:25.10
           - name: Ubuntu 26.04
             container: ubuntu:26.04
           - name: Fedora 42

@@ -5,7 +5,7 @@ pipeline {
             matrix {
                 agent {
                     docker {
-                        image 'juzzlin/qt6-25.10:latest'
+                        image 'juzzlin/qt6-26.04:latest'
                         args '--privileged -t -v $WORKSPACE:/noteahead'
                     }
                 }
@@ -29,7 +29,7 @@ pipeline {
                 axes {
                     axis {
                         name 'UBUNTU_VERSION'
-                        values '24.04', '25.10', '26.04'
+                        values '24.04', '26.04'
                     }
                 }
                 stages {
