@@ -79,6 +79,23 @@ void RealTimeWorkerPoolTest::test_singleTaskUsesCallerThread_shouldExecuteOnCurr
     QCOMPARE(context.callerThreadTasks.load(std::memory_order_relaxed), 1);
 }
 
+void RealTimeWorkerPoolTest::test_defaultWorkerCount_envOverride_shouldBeRespected()
+{
+    qputenv("NOTEAHEAD_AUDIO_WORKERS", "0");
+    QCOMPARE(RealTimeWorkerPool::defaultWorkerCount(), static_cast<size_t>(0));
+
+    qputenv("NOTEAHEAD_AUDIO_WORKERS", "1");
+    QCOMPARE(RealTimeWorkerPool::defaultWorkerCount(), static_cast<size_t>(1));
+
+    // Invalid values fall back to the computed hardware-based default.
+    qunsetenv("NOTEAHEAD_AUDIO_WORKERS");
+    const auto computedDefault = RealTimeWorkerPool::defaultWorkerCount();
+    qputenv("NOTEAHEAD_AUDIO_WORKERS", "not-a-number");
+    QCOMPARE(RealTimeWorkerPool::defaultWorkerCount(), computedDefault);
+
+    qunsetenv("NOTEAHEAD_AUDIO_WORKERS");
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::RealTimeWorkerPoolTest)

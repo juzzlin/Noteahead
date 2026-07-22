@@ -18,12 +18,16 @@
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 
 #include <algorithm>
+#include <cstdlib>
 #include <pthread.h>
 
 namespace noteahead {
 
 RealTimeWorkerPool::RealTimeWorkerPool(size_t workerCount)
 {
+    juzzlin::L("RealTimeWorkerPool").info() << "Starting with " << workerCount << " worker thread(s)"
+                                            << (workerCount == 0 ? " (serial processing on the audio thread)" : "");
+
     m_startSemaphores.reserve(workerCount);
     m_workers.reserve(workerCount);
 
@@ -43,7 +47,9 @@ RealTimeWorkerPool::RealTimeWorkerPool(size_t workerCount)
             struct sched_param param;
             param.sched_priority = 80; // High priority for audio
             if (pthread_setschedparam(pthread_self(), SCHED_FIFO, &param) != 0) {
-                juzzlin::L("RealTimeWorkerPool").warning() << "Failed to set RT priority for " << threadName;
+                juzzlin::L("RealTimeWorkerPool").warning() << "Failed to set RT priority for " << threadName
+                                                          << " (needs rtprio limits, e.g. the 'audio' group); "
+                                                          << "audio may stutter under load. Set NOTEAHEAD_AUDIO_WORKERS=0 to disable the pool.";
             }
 
             workerLoop(i);
@@ -117,6 +123,22 @@ void RealTimeWorkerPool::run(size_t taskCount, void * context, TaskCallback call
 size_t RealTimeWorkerPool::defaultWorkerCount()
 {
     const auto hardwareThreads = std::thread::hardware_concurrency();
+
+    // Allow overriding the worker count via the environment. NOTEAHEAD_AUDIO_WORKERS=0 disables the
+    // pool entirely (all device processing runs serially on the audio thread), which avoids the
+    // worker wakeup latency that can cause stutter when the worker threads cannot obtain real-time
+    // scheduling. Useful both as a workaround and for diagnosing threading-related audio glitches.
+    if (const char * env = std::getenv("NOTEAHEAD_AUDIO_WORKERS"); env && *env) {
+        char * end = nullptr;
+        const long requested = std::strtol(env, &end, 10);
+        if (end != env && requested >= 0) {
+            const auto clamped = std::min<long>(requested, hardwareThreads > 0 ? hardwareThreads : requested);
+            juzzlin::L("RealTimeWorkerPool").info() << "Worker count overridden via NOTEAHEAD_AUDIO_WORKERS: " << clamped;
+            return static_cast<size_t>(clamped);
+        }
+        juzzlin::L("RealTimeWorkerPool").warning() << "Ignoring invalid NOTEAHEAD_AUDIO_WORKERS value: " << env;
+    }
+
     if (hardwareThreads <= 1) {
         return 0;
     }

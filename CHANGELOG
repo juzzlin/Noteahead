@@ -70,6 +70,12 @@ Bug fixes:
 
 Other:
 
+* Add NOTEAHEAD_AUDIO_WORKERS env var to control audio worker threads
+  - Set to 0 to process devices serially on the audio thread; useful as a
+    workaround (and for diagnosis) when worker threads cannot get real-time
+    scheduling and audio stutters under load
+  - Warn in the log when real-time priority cannot be set for worker threads
+
 * Double the maximum number of devices and effects per rack to 16
 
 * Update README's device and effect listings
