@@ -3016,6 +3016,14 @@
         <translation type="unfinished">侧向</translation>
     </message>
     <message>
+        <source>Linear Phase</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shape the sound without shifting the phase of any frequency against the others, at the cost of delaying the output by %1 ms. Nothing makes up for that delay while playing, so use it on the master, where the whole mix is late together; a rendered file is put back in time.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Flat</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10818,6 +10826,10 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>Stereo</source>
         <translation type="unfinished">立体声</translation>
+    </message>
+    <message>
+        <source>Linear Phase</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Normal</source>

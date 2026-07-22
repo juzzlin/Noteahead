@@ -3017,6 +3017,14 @@
         <translation type="unfinished">Side</translation>
     </message>
     <message>
+        <source>Linear Phase</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shape the sound without shifting the phase of any frequency against the others, at the cost of delaying the output by %1 ms. Nothing makes up for that delay while playing, so use it on the master, where the whole mix is late together; a rendered file is put back in time.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Flat</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10820,6 +10828,10 @@ Um apóstrofo marca a sílaba tônica: A&apos;merica</translation>
     <message>
         <source>Stereo</source>
         <translation type="unfinished">Estéreo</translation>
+    </message>
+    <message>
+        <source>Linear Phase</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Normal</source>
