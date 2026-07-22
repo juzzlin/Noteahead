@@ -27,8 +27,9 @@ namespace noteahead {
 //!
 //! The audio thread pushes interleaved stereo output via write(); the UI thread polls a
 //! trigger-aligned stereo waveform via snapshot(). Mirrors the Rta threading model: an atomic
-//! gate makes write() a cheap no-op while no scope is displayed, and a short-held mutex guards
-//! the shared ring buffers on both sides.
+//! gate makes write() a cheap no-op while no scope is displayed. The audio thread never blocks on
+//! the mutex — write() try-locks and skips the buffer on contention — while snapshot() holds the
+//! lock only long enough to copy the raw rings, doing the reordering/decimation unlocked.
 class AudioScope
 {
 public:

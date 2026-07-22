@@ -40,6 +40,10 @@ New features:
 
 Bug fixes:
 
+* Fix audio stutter caused by the oscilloscope
+  - The audio thread no longer blocks on the scope lock (it skips a buffer on
+    contention), and the UI snapshot now holds the lock only to copy the rings
+
 * Fix oscilloscope capturing while its tab is not open
   - Capture now follows the shown instance and stops on the previous device,
     so a hidden or no-longer-displayed device never keeps capturing

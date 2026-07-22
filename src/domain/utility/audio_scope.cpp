@@ -15,6 +15,8 @@
 
 #include "audio_scope.hpp"
 
+#include <algorithm>
+
 namespace noteahead {
 
 AudioScope::AudioScope()
@@ -39,9 +41,16 @@ void AudioScope::write(const double * interleavedStereo, uint32_t frameCount, ui
         return;
     }
 
+    // Never block the audio thread: if the UI thread is reading a snapshot, skip capturing this
+    // buffer rather than wait on the lock. A missed buffer only causes a negligible visual gap,
+    // whereas blocking here would stall the audio callback and cause stutter.
+    std::unique_lock<std::mutex> lock { m_mutex, std::try_to_lock };
+    if (!lock.owns_lock()) {
+        return;
+    }
+
     m_sampleRate.store(sampleRate);
 
-    const std::lock_guard<std::mutex> lock { m_mutex };
     for (uint32_t i = 0; i < frameCount; i++) {
         m_ringL[m_writePos] = static_cast<float>(interleavedStereo[i * 2]);
         m_ringR[m_writePos] = static_cast<float>(interleavedStereo[i * 2 + 1]);
@@ -51,16 +60,26 @@ void AudioScope::write(const double * interleavedStereo, uint32_t frameCount, ui
 
 AudioScope::Snapshot AudioScope::snapshot(size_t maxPoints) const
 {
+    // Copy the raw rings under the lock, then release it before doing the (comparatively slow)
+    // reordering and decimation. This keeps the critical section down to two plain buffer copies so
+    // the audio thread's write() is almost never made to skip a buffer.
+    std::vector<float> rawL(ringSize, 0.0f);
+    std::vector<float> rawR(ringSize, 0.0f);
+    size_t writePos = 0;
+    {
+        const std::lock_guard<std::mutex> lock { m_mutex };
+        std::copy(m_ringL.begin(), m_ringL.end(), rawL.begin());
+        std::copy(m_ringR.begin(), m_ringR.end(), rawR.begin());
+        writePos = m_writePos;
+    }
+
     // Reorder both rings into chronological linear buffers ending at the newest sample.
     std::vector<float> linearL(ringSize, 0.0f);
     std::vector<float> linearR(ringSize, 0.0f);
-    {
-        const std::lock_guard<std::mutex> lock { m_mutex };
-        for (size_t j = 0; j < ringSize; j++) {
-            const size_t index = (m_writePos + j) % ringSize;
-            linearL[j] = m_ringL[index];
-            linearR[j] = m_ringR[index];
-        }
+    for (size_t j = 0; j < ringSize; j++) {
+        const size_t index = (writePos + j) % ringSize;
+        linearL[j] = rawL[index];
+        linearR[j] = rawR[index];
     }
 
     // Align the display window to the first rising zero-crossing of the left channel so the trace

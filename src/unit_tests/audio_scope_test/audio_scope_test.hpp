@@ -28,6 +28,7 @@ private slots:
     void test_write_inactive_shouldNotCapture();
     void test_snapshot_activeSine_shouldAlignToZeroCrossing();
     void test_snapshot_stereo_shouldReturnBothChannels();
+    void test_concurrentWriteAndSnapshot_shouldStayResponsive();
 };
 
 } // namespace noteahead

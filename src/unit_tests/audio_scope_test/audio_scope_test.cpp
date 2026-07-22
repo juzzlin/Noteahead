@@ -19,8 +19,11 @@
 
 #include <QTest>
 
+#include <atomic>
+#include <chrono>
 #include <cmath>
 #include <numbers>
+#include <thread>
 #include <vector>
 
 namespace noteahead {
@@ -104,6 +107,47 @@ void AudioScopeTest::test_snapshot_stereo_shouldReturnBothChannels()
     }
     QVERIFY(peakL > 0.7f);
     QVERIFY(peakR > 0.35f && peakR < 0.45f);
+}
+
+void AudioScopeTest::test_concurrentWriteAndSnapshot_shouldStayResponsive()
+{
+    AudioScope scope;
+    scope.setActive(true);
+
+    // A producer standing in for the audio thread and a consumer standing in for the UI thread
+    // hammer the scope simultaneously. write() must never block (it try-locks and skips on
+    // contention), so this must complete promptly without deadlocking, and capture must still work.
+    std::atomic<bool> stop { false };
+    std::atomic<int> writeCount { 0 };
+
+    std::thread producer { [&] {
+        while (!stop.load()) {
+            writeSines(scope, 0.8f, 0.8f, 128.0, 256, 48000);
+            writeCount.fetch_add(1);
+        }
+    } };
+
+    std::thread consumer { [&] {
+        while (!stop.load()) {
+            const auto snapshot = scope.snapshot(512);
+            Q_UNUSED(snapshot);
+        }
+    } };
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    stop.store(true);
+    producer.join();
+    consumer.join();
+
+    // The producer kept running throughout (no deadlock), and the scope still captures.
+    QVERIFY(writeCount.load() > 0);
+
+    float peak = 0.0f;
+    const auto snapshot = scope.snapshot(512);
+    for (const auto sample : snapshot.left) {
+        peak = std::max(peak, std::abs(sample));
+    }
+    QVERIFY(peak > 0.7f);
 }
 
 } // namespace noteahead
