@@ -16,6 +16,8 @@ private slots:
     void test_renderMaster_shouldGiveTheDeviceTheNoteLength();
     void test_renderMaster_parameterAutomation_shouldSweepTheEffect();
     void test_renderMaster_parameterAutomation_shouldSweepTheDevice();
+    void test_renderMaster_masterLatency_shouldBeTakenOut();
+    void test_renderMaster_disabledLatency_shouldNotBeTakenOut();
 };
 
 } // namespace noteahead

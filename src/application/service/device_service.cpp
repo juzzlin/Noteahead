@@ -1199,6 +1199,11 @@ EffectRack & DeviceService::insertEffectRack()
     return m_audioEngine->insertEffectRack();
 }
 
+size_t DeviceService::masterLatencyFrames(double sampleRate)
+{
+    return insertEffectRack().latencyFrames(sampleRate);
+}
+
 DeviceService::AudioEngineS DeviceService::audioEngine() const
 {
     return m_audioEngine;

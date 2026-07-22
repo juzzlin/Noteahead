@@ -19,6 +19,7 @@
 #include "../../domain/tracker/parameter_automation.hpp"
 #include "../../domain/tracker/song.hpp"
 #include "../../infra/audio/audio_engine.hpp"
+#include "../../infra/audio/backend/sndfile_reader.hpp"
 #include "../../infra/data_service.hpp"
 
 #include <QCoreApplication>
@@ -28,7 +29,9 @@
 
 #include <algorithm>
 #include <cmath>
+#include <memory>
 #include <optional>
+#include <span>
 #include <vector>
 
 namespace noteahead {
@@ -141,6 +144,83 @@ protected:
 
 private:
     std::vector<float> m_seen;
+};
+
+//! An effect that puts a click into the signal at a fixed frame of the render.
+class ClickEffect : public Effect
+{
+public:
+    static constexpr uint64_t ClickFrame { 1000 };
+
+    std::string type() const override
+    {
+        return "Click";
+    }
+
+    std::string typeId() const override
+    {
+        return "00000000-0000-4000-8000-00000000c11c";
+    }
+
+    void reset() override
+    {
+        m_frame = 0;
+    }
+
+protected:
+    void processSample(double & left, double & right) override
+    {
+        if (m_frame++ == ClickFrame) {
+            left += 0.5;
+            right += 0.5;
+        }
+    }
+
+private:
+    uint64_t m_frame { 0 };
+};
+
+//! An effect that does nothing but delay the signal, and says by how much, as a linear-phase
+//! filter does.
+class LatencyEffect : public Effect
+{
+public:
+    static constexpr size_t Latency { 3000 };
+
+    std::string type() const override
+    {
+        return "Latency";
+    }
+
+    std::string typeId() const override
+    {
+        return "00000000-0000-4000-8000-0000000de1a9";
+    }
+
+    size_t latencyFrames(double) const override
+    {
+        return Latency;
+    }
+
+    void reset() override
+    {
+        std::ranges::fill(m_left, 0.0);
+        std::ranges::fill(m_right, 0.0);
+        m_index = 0;
+    }
+
+protected:
+    void processSample(double & left, double & right) override
+    {
+        std::swap(left, m_left[m_index]);
+        std::swap(right, m_right[m_index]);
+        m_index = (m_index + 1) % Latency;
+    }
+
+private:
+    std::vector<double> m_left = std::vector<double>(Latency, 0.0);
+    std::vector<double> m_right = std::vector<double>(Latency, 0.0);
+    size_t m_index { 0 };
 };
 
 //! A device that remembers the value its one described parameter had in every block it rendered.
@@ -576,6 +656,80 @@ void RenderServiceTest::test_renderMaster_parameterAutomation_shouldSweepTheDevi
 
     // And the render leaves the knob as the user set it
     QCOMPARE(probe->parameter("probe")->get().value(), 0.8f);
+}
+
+namespace {
+
+//! Renders an empty song through @p masterInserts and returns the left channel of the file.
+std::vector<float> renderThrough(const std::vector<std::shared_ptr<Effect>> & masterInserts)
+{
+    auto audioEngine = std::make_shared<AudioEngine>();
+    auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    auto editorService = std::make_shared<MockEditorService>();
+    auto song = std::make_shared<Song>();
+    song->setBeatsPerMinute(120);
+    song->setLinesPerBeat(4);
+    song->setInstrument(0, std::make_shared<Instrument>(Constants::internalDevicePortPrefix() + " 1"));
+    editorService->setSong(song);
+    editorService->setTrackIndices({ 0 });
+    editorService->setInstrumentPort(0, Constants::internalDevicePortPrefix() + " 1");
+    for (size_t i = 0; i < masterInserts.size(); i++) {
+        deviceService->insertEffectRack().setEffect(i, masterInserts.at(i));
+    }
+
+    RenderService renderService { audioEngine, deviceService, std::make_shared<MixerService>(), editorService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>() };
+    QTemporaryDir tempDir;
+    const auto path = tempDir.filePath("render.wav");
+    QSignalSpy spy { &renderService, &RenderService::renderingFinished };
+    renderService.renderMaster(path);
+    waitForRenders(spy, 1);
+    if (!spy.at(0).at(0).toBool()) {
+        return {};
+    }
+
+    SndFileReader reader;
+    AudioFileReader::Info info {};
+    if (!reader.open(path.toStdString(), AudioFileReader::Mode::Read, info)) {
+        return {};
+    }
+    std::vector<float> interleaved(static_cast<size_t>(info.frames * info.channels));
+    reader.readFloat(std::span<float> { interleaved });
+    reader.close();
+    std::vector<float> left;
+    for (size_t i = 0; i < interleaved.size(); i += static_cast<size_t>(info.channels)) {
+        left.push_back(interleaved.at(i));
+    }
+    return left;
+}
+
+size_t loudestFrame(const std::vector<float> & samples)
+{
+    return static_cast<size_t>(std::distance(samples.begin(), std::ranges::max_element(samples, {}, [](float sample) { return std::abs(sample); })));
+}
+
+} // namespace
+
+void RenderServiceTest::test_renderMaster_masterLatency_shouldBeTakenOut()
+{
+    // A linear-phase master is late by its latency. The render drops that many frames from the start
+    // and renders that many more at the end, so the file is the song, in time and at its length.
+    const auto plain = renderThrough({ std::make_shared<ClickEffect>() });
+    const auto late = renderThrough({ std::make_shared<ClickEffect>(), std::make_shared<LatencyEffect>() });
+    QVERIFY(!plain.empty());
+    QCOMPARE(late.size(), plain.size());
+    QCOMPARE(loudestFrame(plain), size_t { ClickEffect::ClickFrame });
+    QCOMPARE(loudestFrame(late), size_t { ClickEffect::ClickFrame });
+    QVERIFY(std::abs(late.at(ClickEffect::ClickFrame) - 0.5f) < 1.0e-3f);
+}
+
+void RenderServiceTest::test_renderMaster_disabledLatency_shouldNotBeTakenOut()
+{
+    // Only what is actually in the path counts
+    auto latency = std::make_shared<LatencyEffect>();
+    latency->setEnabled(false);
+    const auto render = renderThrough({ std::make_shared<ClickEffect>(), latency });
+    QVERIFY(!render.empty());
+    QCOMPARE(loudestFrame(render), size_t { ClickEffect::ClickFrame });
 }
 
 } // namespace noteahead

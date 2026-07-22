@@ -196,6 +196,10 @@ public:
 
     EffectRack & sendEffectRack();
     EffectRack & insertEffectRack();
+    //! How late the master inserts make the whole mix at @p sampleRate, which a render takes back
+    //! out. Latency anywhere else -- a track's own rack, a send -- only puts that part late against
+    //! the rest, and nothing can take that out of a mix after the fact.
+    size_t masterLatencyFrames(double sampleRate);
 
     //! The effects a send bus runs after its own effect. See AudioEngine::sendChainRack().
     EffectRack & sendChainRack(size_t busIndex);

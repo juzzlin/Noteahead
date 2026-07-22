@@ -192,19 +192,30 @@ void RenderWorker::render(const QString & fileName,
             return 0.5 * (1.0 + std::cos(std::numbers::pi * position));
         };
 
-        // Both the per-tick chunk and the sub-sample remainder below go out through this.
-        const auto convertAndPush = [&](size_t totalSamples, quint64 startFrame) {
+        // A linear-phase master is late by its latency. The frames it owes are dropped from the start
+        // and rendered on at the end, so the file starts with the song and is as long as it.
+        const quint64 masterLatencyFrames = m_deviceService->masterLatencyFrames(static_cast<double>(sampleRate));
+        quint64 latencyFramesToDrop = masterLatencyFrames;
+
+        // Both the per-tick chunk and the sub-sample remainder below go out through this. Returns how
+        // many frames went to the file.
+        const auto convertAndPush = [&](size_t totalSamples, quint64 startFrame) -> quint64 {
+            const quint64 dropped = std::min<quint64>(latencyFramesToDrop, totalSamples / 2);
+            latencyFramesToDrop -= dropped;
+            const size_t first = static_cast<size_t>(dropped) * 2;
+            totalSamples -= first;
             for (size_t i = 0; i < totalSamples; i++) {
-                auto sample = audioBuffer[i];
+                auto sample = audioBuffer[first + i];
                 if (options.fadeOut) {
                     sample *= fadeGain(startFrame + i / 2);
                 }
                 // Clamp to prevent overflow when writing to PCM, but leave Float_32 alone
                 finalBuffer[i] = static_cast<float>(actualBitDepth == BitDepth::Float_32 ? sample : std::clamp(sample, -1.0, 1.0));
             }
-            while (!recorder.push(finalBuffer.data(), totalSamples)) {
+            while (totalSamples > 0 && !recorder.push(finalBuffer.data(), totalSamples)) {
                 std::this_thread::sleep_for(std::chrono::milliseconds { 1 });
             }
+            return totalSamples / 2;
         };
 
         // A tick is a very short block -- 93 frames at 148 BPM -- and driving the engine one tick at a
@@ -253,9 +264,7 @@ void RenderWorker::render(const QString & fileName,
                 audioContext.offline = true;
                 m_audioEngine->process(audioContext);
 
-                convertAndPush(totalSamples, totalFramesWritten);
-
-                totalFramesWritten += framesToProcess;
+                totalFramesWritten += convertAndPush(totalSamples, totalFramesWritten);
                 sampleCounter -= static_cast<double>(framesToProcess);
             }
 
@@ -287,9 +296,30 @@ void RenderWorker::render(const QString & fileName,
             audioContext.offline = true;
             m_audioEngine->process(audioContext);
 
-            convertAndPush(totalSamples, totalFramesWritten);
+            totalFramesWritten += convertAndPush(totalSamples, totalFramesWritten);
+        }
 
-            totalFramesWritten += finalFrames;
+        // The end of the song, still inside the master's latency. Rendered on for as many frames as
+        // were dropped from the start, with nothing new played into it.
+        quint64 latencyFramesOwed = masterLatencyFrames - latencyFramesToDrop;
+        latencyFramesToDrop = 0;
+        while (latencyFramesOwed > 0 && !(hasFixedLength && totalFramesWritten >= audioEndFrames)) {
+            quint32 frames = static_cast<quint32>(std::min(latencyFramesOwed, static_cast<quint64>(targetRenderBlockFrames)));
+            if (hasFixedLength) {
+                frames = static_cast<quint32>(std::min<quint64>(frames, audioEndFrames - totalFramesWritten));
+            }
+            const size_t totalSamples = static_cast<size_t>(frames) * 2;
+            if (audioBuffer.size() < totalSamples) {
+                audioBuffer.resize(totalSamples);
+                finalBuffer.resize(totalSamples);
+            }
+            std::fill(audioBuffer.begin(), audioBuffer.begin() + totalSamples, 0.0);
+            AudioContext audioContext { std::span(audioBuffer.data(), totalSamples), frames, sampleRate };
+            audioContext.oversampleFactor = options.oversampleFactor;
+            audioContext.offline = true;
+            m_audioEngine->process(audioContext);
+            totalFramesWritten += convertAndPush(totalSamples, totalFramesWritten);
+            latencyFramesOwed -= frames;
         }
 
         // Pads out to the target length: the tail silence, and the shortfall when the song is shorter
