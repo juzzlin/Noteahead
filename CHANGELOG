@@ -47,6 +47,8 @@ Bug fixes:
 * Fix oscilloscope capturing while its tab is not open
   - Capture now follows the shown instance and stops on the previous device,
     so a hidden or no-longer-displayed device never keeps capturing
+  - Capture is now gated on the dialog being open and the Scope tab being
+    current, instead of the (unreliable inside a dialog) nested item visibility
 
 * Fix Sampler global switches not updating when switching instance
   - Chromatic mode, channel mode and embed-wave-data switches now reflect the

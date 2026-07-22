@@ -21,10 +21,13 @@ import "../Components"
 
 Item {
     property real moduleWidth: 0
+    // Set by the host to a reliable "scope is shown" condition (dialog open + this tab current).
+    property bool scopeActive: false
 
     Oscilloscope {
         anchors.fill: parent
         anchors.margins: 10
         deviceController: synthController
+        active: scopeActive
     }
 }

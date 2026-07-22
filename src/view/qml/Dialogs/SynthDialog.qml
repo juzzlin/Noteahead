@@ -152,6 +152,9 @@ Dialog {
 
                     SynthDialog_Tab4 {
                         moduleWidth: mainRow.moduleWidth
+                        // Drive scope capture from dependable signals: the dialog is open and the
+                        // Scope tab (index 3) is current. Avoids relying on nested-item visibility.
+                        scopeActive: root.visible && synthTabBar.currentIndex === 3
                     }
                 }
 

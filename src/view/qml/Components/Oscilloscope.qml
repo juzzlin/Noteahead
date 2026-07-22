@@ -19,17 +19,29 @@ import QtQuick.Layouts 1.15
 import Noteahead 1.0
 
 // Reusable stereo oscilloscope: two live traces (L / R) side by side, driven by any
-// DeviceController. Capture runs only while this item is visible.
+// DeviceController. Capture runs only while "active" is true.
+//
+// "active" defaults to this item's visibility, but a nested item's visible property is not a
+// reliable signal inside a Popup/Dialog (closing the dialog does not always propagate to it).
+// Hosts should therefore bind "active" to a dependable condition (e.g. the dialog's own visible
+// combined with the current tab) so capture provably stops when the scope is not shown.
 Item {
     id: root
 
     property var deviceController: null
     property int fps: 30
     property color accentColor: themeService.accentColor
+    property bool active: visible
 
-    onVisibleChanged: {
+    onActiveChanged: {
         if (deviceController) {
-            deviceController.setScopeActive(visible);
+            deviceController.setScopeActive(active);
+        }
+    }
+
+    Component.onCompleted: {
+        if (deviceController && active) {
+            deviceController.setScopeActive(true);
         }
     }
 
@@ -41,7 +53,7 @@ Item {
 
     Timer {
         interval: Math.max(16, Math.round(1000 / root.fps))
-        running: root.visible && root.deviceController !== null
+        running: root.active && root.deviceController !== null
         repeat: true
         onTriggered: {
             const points = Math.max(2, Math.round(leftScope.width));
