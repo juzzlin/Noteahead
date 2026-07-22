@@ -139,6 +139,57 @@ void SideChainAudioTest::test_audioEngine_rebuildProcessingGraph_shouldCorrectly
     QCOMPARE(compressor->sidechainSourceDeviceIndex().value_or(999), 0u);
 }
 
+void SideChainAudioTest::test_audioEngine_process_runtimeSidechainChange_shouldRebuildGraph()
+{
+    // The processing graph is now cached and only rebuilt when its inputs change. This is an
+    // end-to-end guard that a sidechain routing change made *after* the devices are already
+    // registered and processed still yields correct output (no crash, no stale/frozen state): the
+    // compressor follows the newly selected source. device1 is loud, device2 is silent.
+    AudioEngine engine;
+    const auto target = std::make_shared<MockDevice>("Target");
+    const auto loud = std::make_shared<MockDevice>("Loud");
+    const auto silent = std::make_shared<MockDevice>("Silent");
+    target->setGenerateSignal(true);
+    loud->setGenerateSignal(true);
+    silent->setGenerateSignal(false);
+
+    const auto compressor = std::make_shared<Compressor>();
+    const auto setParam = [&](const QString & key, float value) {
+        if (const auto p = compressor->parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+            compressor->sync();
+        }
+    };
+    setParam(Constants::NahdXml::xmlKeyThreshold(), 0.0f); // -60 dB
+    setParam(Constants::NahdXml::xmlKeyRatio(), 1.0f); // 20:1
+    setParam(Constants::NahdXml::xmlKeySideChainSourceDevice(), 1.0f); // Loud (slot 1)
+    target->insertEffectRack().setEffect(0, compressor);
+
+    engine.setDevice(0, target);
+    engine.setDevice(1, loud);
+    engine.setDevice(2, silent);
+
+    std::vector<double> buffer(128, 0.0);
+    AudioContext context { std::span(buffer.data(), 128), 64, 44100 };
+
+    // Sidechained from the loud source: significant reduction.
+    engine.process(context);
+    QVERIFY(compressor->reductionDb() < -1.0f);
+
+    // Re-route the sidechain to the silent source at runtime; the graph must pick up the change.
+    setParam(Constants::NahdXml::xmlKeySideChainSourceDevice(), 2.0f); // Silent (slot 2)
+
+    // Let the envelope release settle over several buffers.
+    for (int i = 0; i < 200; i++) {
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        engine.process(context);
+    }
+
+    // With a silent detector there is essentially no reduction anymore.
+    QVERIFY(compressor->reductionDb() > -0.5f);
+    QCOMPARE(compressor->sidechainSourceDeviceIndex().value_or(999), 2u);
+}
+
 void SideChainAudioTest::test_audioEngine_rebuildProcessingGraph_shouldHandleCircularDependencyGracefully()
 {
     AudioEngine engine;

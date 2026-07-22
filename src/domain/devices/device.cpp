@@ -316,6 +316,11 @@ std::vector<size_t> Device::sidechainDependencies() const
     return m_insertEffectRack.sidechainDependencies();
 }
 
+void Device::sidechainDependencies(std::vector<size_t> & out) const
+{
+    m_insertEffectRack.sidechainDependencies(out);
+}
+
 EffectRack & Device::insertEffectRack()
 {
     return m_insertEffectRack;

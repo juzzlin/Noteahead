@@ -40,6 +40,11 @@ New features:
 
 Bug fixes:
 
+* Fix audio stutter from rebuilding the processing graph every buffer
+  - The device processing graph is now cached and only rebuilt when devices or
+    their sidechain routing change, instead of allocating and topologically
+    sorting on every audio callback
+
 * Fix audio stutter caused by the oscilloscope
   - The audio thread no longer blocks on the scope lock (it skips a buffer on
     contention), and the UI snapshot now holds the lock only to copy the rings

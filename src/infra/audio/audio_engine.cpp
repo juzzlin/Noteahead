@@ -167,8 +167,37 @@ void AudioEngine::ensureDeviceOutputBuffers(uint32_t bufferSize)
     }
 }
 
+bool AudioEngine::processingGraphChanged()
+{
+    // Flatten the graph inputs into a signature: [deviceCount, (slot, depCount, deps...) per device].
+    // Built into reusable buffers so no allocation happens once they have grown to size.
+    m_graphSignature.clear();
+    m_graphSignature.push_back(m_deviceSnapshot.size());
+    for (size_t i = 0; i < m_deviceSnapshot.size(); i++) {
+        m_graphSignature.push_back(m_deviceSlotSnapshot[i]);
+        m_deviceSnapshot[i]->sidechainDependencies(m_scratchDeps);
+        m_graphSignature.push_back(m_scratchDeps.size());
+        for (const auto dep : m_scratchDeps) {
+            m_graphSignature.push_back(dep);
+        }
+    }
+
+    if (m_graphSignature == m_prevGraphSignature) {
+        return false;
+    }
+    std::swap(m_prevGraphSignature, m_graphSignature);
+    return true;
+}
+
 void AudioEngine::rebuildProcessingGraph()
 {
+    // The topology only changes when devices are added/removed or their sidechain routing changes,
+    // which is rare. Skip the (allocating) rebuild and reuse the cached layers otherwise, so the
+    // audio callback does no heap allocation in steady state.
+    if (!processingGraphChanged()) {
+        return;
+    }
+
     m_processingLayers.clear();
     if (m_deviceSnapshot.empty()) {
         return;
@@ -179,8 +208,8 @@ void AudioEngine::rebuildProcessingGraph()
     std::vector<int> inDegree(deviceCount, 0);
 
     for (size_t i = 0; i < deviceCount; i++) {
-        const auto deps = m_deviceSnapshot[i]->sidechainDependencies();
-        for (const auto slotIndex : deps) {
+        m_deviceSnapshot[i]->sidechainDependencies(m_scratchDeps);
+        for (const auto slotIndex : m_scratchDeps) {
             for (size_t j = 0; j < deviceCount; j++) {
                 if (m_deviceSlotSnapshot[j] == slotIndex) {
                     adj[j].push_back(i);

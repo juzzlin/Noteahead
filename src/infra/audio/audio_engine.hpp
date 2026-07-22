@@ -73,6 +73,10 @@ private:
     void ensureDeviceOutputBuffers(uint32_t bufferSize);
 
     void rebuildProcessingGraph();
+    //! Builds a signature of the current graph inputs (device slots + their sidechain deps) into a
+    //! reusable buffer and reports whether it changed since the last rebuild. Allocation-free in
+    //! steady state so it is safe to call every audio callback.
+    bool processingGraphChanged();
 
     std::map<size_t, DeviceS> m_devices;
     std::unique_ptr<EffectRack> m_sendEffectRack;
@@ -89,6 +93,9 @@ private:
     std::vector<std::vector<double>> m_deviceOutputBuffers;
     std::vector<std::span<const double>> m_deviceOutputBufferSpans;
     std::vector<std::vector<size_t>> m_processingLayers;
+    std::vector<size_t> m_scratchDeps;
+    std::vector<size_t> m_graphSignature;
+    std::vector<size_t> m_prevGraphSignature;
     mutable std::mutex m_mutex;
     std::atomic<bool> m_isExclusive { false };
 };

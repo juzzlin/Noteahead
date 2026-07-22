@@ -80,6 +80,8 @@ public:
     virtual void processAudio(AudioContext & context) = 0;
     void processInsertEffects(AudioContext & context);
     virtual std::vector<size_t> sidechainDependencies() const;
+    //! Allocation-free variant used on the audio thread; fills out (cleared first).
+    virtual void sidechainDependencies(std::vector<size_t> & out) const;
     EffectRack & insertEffectRack();
     const EffectRack & insertEffectRack() const;
 

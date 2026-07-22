@@ -27,6 +27,7 @@ class SideChainAudioTest : public QObject
 private slots:
     void test_audioEngine_rebuildProcessingGraph_shouldCorrectlySortIndependentDevices();
     void test_audioEngine_rebuildProcessingGraph_shouldCorrectlySortDependentDevices();
+    void test_audioEngine_process_runtimeSidechainChange_shouldRebuildGraph();
     void test_audioEngine_rebuildProcessingGraph_shouldHandleCircularDependencyGracefully();
     void test_compressorEffect_process_shouldApplySidechainGainReduction();
     void test_compressorEffect_sideChainLpf_bypass_shouldPreserveGainReduction();

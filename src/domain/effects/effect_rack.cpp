@@ -130,16 +130,22 @@ void EffectRack::processInPlace(AudioContext & context)
 
 std::vector<size_t> EffectRack::sidechainDependencies() const
 {
-    std::lock_guard<std::recursive_mutex> lock { m_mutex };
     std::vector<size_t> dependencies;
+    sidechainDependencies(dependencies);
+    return dependencies;
+}
+
+void EffectRack::sidechainDependencies(std::vector<size_t> & out) const
+{
+    std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    out.clear();
     for (const auto & effect : m_effects) {
         if (effect && effect->enabled()) {
             if (const auto sourceIndex = effect->sidechainSourceDeviceIndex(); sourceIndex) {
-                dependencies.push_back(*sourceIndex);
+                out.push_back(*sourceIndex);
             }
         }
     }
-    return dependencies;
 }
 
 void EffectRack::reset()

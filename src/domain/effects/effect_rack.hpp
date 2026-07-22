@@ -46,6 +46,9 @@ public:
     void process(AudioContext & outputContext, const double * sendBus, size_t effectIndex);
     void processInPlace(AudioContext & context);
     std::vector<size_t> sidechainDependencies() const;
+    //! Allocation-free variant: fills out (cleared first) with the sidechain source device indices.
+    //! Used on the audio thread where allocating every callback must be avoided.
+    void sidechainDependencies(std::vector<size_t> & out) const;
     void reset();
     void setBpm(float bpm);
     void clear();
