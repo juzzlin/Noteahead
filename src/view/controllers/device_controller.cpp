@@ -90,9 +90,22 @@ QString DeviceController::deviceName() const
 
 void DeviceController::setScopeActive(bool active)
 {
-    if (const auto dev = device(); dev) {
-        dev->scope().setActive(active);
+    m_scopeActive = active;
+    applyScopeActive();
+}
+
+void DeviceController::applyScopeActive()
+{
+    const auto current = device();
+    // Disable capture on any device we previously enabled so switching instances (or repeated
+    // toggles) can never leave a stale scope running in the audio thread while nothing is shown.
+    if (const auto previous = m_scopeDevice.lock(); previous && previous != current) {
+        previous->scope().setActive(false);
     }
+    if (current) {
+        current->scope().setActive(m_scopeActive);
+    }
+    m_scopeDevice = m_scopeActive ? current : DeviceS {};
 }
 
 QVariantList DeviceController::scopeSamples(int maxPoints) const

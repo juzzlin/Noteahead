@@ -3,6 +3,7 @@
 //
 #include "synth_controller_test.hpp"
 #include "../../common/constants.hpp"
+#include "../../domain/devices/device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../view/controllers/synth_controller.hpp"
 
@@ -103,6 +104,31 @@ void SynthControllerTest::test_voiceModes()
     QCOMPARE(modes.at(0), QString("Poly"));
     QCOMPARE(modes.at(1), QString("Unison"));
     QCOMPARE(modes.at(2), QString("Dual"));
+}
+
+void SynthControllerTest::test_scopeActive_shouldFollowShownInstance()
+{
+    const auto synthA = std::make_shared<SynthDevice>("Synth A");
+    const auto synthB = std::make_shared<SynthDevice>("Synth B");
+    SynthController controller { synthA };
+
+    // Nothing captures until the scope is shown.
+    QVERIFY(!synthA->scope().active());
+
+    // Showing the scope enables capture on the current instance only.
+    controller.setScopeActive(true);
+    QVERIFY(synthA->scope().active());
+    QVERIFY(!synthB->scope().active());
+
+    // Switching instance while the scope is shown must move capture to the new instance and stop
+    // it on the old one, so a device that is no longer displayed never keeps capturing.
+    controller.setDevice(synthB);
+    QVERIFY(!synthA->scope().active());
+    QVERIFY(synthB->scope().active());
+
+    // Hiding the scope stops all capture.
+    controller.setScopeActive(false);
+    QVERIFY(!synthB->scope().active());
 }
 
 } // namespace noteahead

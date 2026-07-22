@@ -982,6 +982,9 @@ void SynthController::setSynth(std::shared_ptr<SynthDevice> synth)
         }
         m_synth = std::move(synth);
         connectDeviceSignals();
+        // Keep the oscilloscope bound to the shown instance: disable it on the previous device and
+        // re-apply the desired state to the new one.
+        applyScopeActive();
         emit synthChanged();
         requestSettings();
     }

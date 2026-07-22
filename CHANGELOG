@@ -40,6 +40,10 @@ New features:
 
 Bug fixes:
 
+* Fix oscilloscope capturing while its tab is not open
+  - Capture now follows the shown instance and stops on the previous device,
+    so a hidden or no-longer-displayed device never keeps capturing
+
 * Fix Sampler global switches not updating when switching instance
   - Chromatic mode, channel mode and embed-wave-data switches now reflect the
     selected Sampler instead of retaining the previous instance's state

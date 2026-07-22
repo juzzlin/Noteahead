@@ -17,6 +17,7 @@ private slots:
     void test_properties_shouldUpdateDeviceAndEmitSignals();
     void test_reset_shouldRestoreDefaultValues();
     void test_voiceModes();
+    void test_scopeActive_shouldFollowShownInstance();
 };
 
 } // namespace noteahead

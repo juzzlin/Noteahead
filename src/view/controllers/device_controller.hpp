@@ -80,6 +80,14 @@ signals:
 
 protected:
     void connectDeviceSignals();
+    //! Re-applies the desired scope-active state to the current device. Concrete controllers must
+    //! call this after swapping the underlying device so the scope always follows the shown device
+    //! and never keeps capturing on a device that is no longer displayed.
+    void applyScopeActive();
+
+private:
+    bool m_scopeActive = false;
+    std::weak_ptr<Device> m_scopeDevice;
 };
 
 } // namespace noteahead
