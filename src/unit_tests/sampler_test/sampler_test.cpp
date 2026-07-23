@@ -123,6 +123,34 @@ void SamplerTest::test_midiNoteOn_shouldPlaySample()
     QVERIFY(buffer[0] > 0);
 }
 
+void SamplerTest::test_processAudio_reusesBuffersWithoutLeaking()
+{
+    auto mockReader = std::make_unique<MockAudioFileReader>();
+    mockReader->setForceChannels(1);
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::move(mockReader) };
+    sampler.loadSample(60, "test.wav");
+    sampler.processMidiNoteOn(60, 127);
+
+    const auto sampleRate = static_cast<uint32_t>(Constants::defaultSampleRate());
+
+    // First callback: the note is playing, so the output is non-silent.
+    std::vector<double> buffer1(8, 0.0);
+    AudioContext context1 { std::span(buffer1.data(), buffer1.size()), 4, sampleRate };
+    sampler.processAudio(context1);
+    QVERIFY(buffer1[0] > 0.0);
+
+    // Stop all voices, then process again. processAudio() reuses a member mix buffer across callbacks;
+    // it must be cleared each time, so with no active voice the sampler must add pure silence — any
+    // stale data from the previous callback would leak through here.
+    sampler.processMidiAllNotesOff();
+    std::vector<double> buffer2(8, 0.0);
+    AudioContext context2 { std::span(buffer2.data(), buffer2.size()), 4, sampleRate };
+    sampler.processAudio(context2);
+    for (const double sample : buffer2) {
+        QCOMPARE(sample, 0.0);
+    }
+}
+
 void SamplerTest::test_midiAllNotesOff_shouldStopAllVoices()
 {
     SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };

@@ -40,6 +40,10 @@ New features:
 
 Bug fixes:
 
+* Fix per-buffer heap allocation in the Sampler audio path
+  - processAudio() now reuses member scratch buffers (main mix and per-pad
+    sub-mixes) instead of allocating on every audio callback
+
 * Fix audio stutter by processing real-time playback single-threaded
   - Splitting per-buffer device processing across worker threads added
     synchronization and cache overhead that hurt real-time playback; playback

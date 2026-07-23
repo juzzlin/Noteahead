@@ -188,6 +188,11 @@ private:
     std::array<std::unique_ptr<Sample>, maxSamples> m_savedSamples;
     std::vector<Voice> m_voices;
 
+    // Reusable audio-thread scratch buffers, kept as members so processAudio() does not allocate on
+    // every callback. m_padBuffers is a pool of per-pad sub-mix buffers reused across callbacks.
+    std::vector<double> m_mixBuffer;
+    std::vector<std::pair<Sample *, std::vector<double>>> m_padBuffers;
+
     std::string m_name;
     float m_globalCutoff = 1.0f;
     float m_globalHpfCutoff = 0.0f;

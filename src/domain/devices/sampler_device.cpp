@@ -372,20 +372,35 @@ void SamplerDevice::processAudio(AudioContext & context)
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
     const uint32_t bufferSize = context.frameCount * 2;
-    std::vector<double> buffer(bufferSize, 0.0);
+
+    // Reuse the member scratch buffer instead of allocating on every audio callback.
+    if (m_mixBuffer.size() < bufferSize) {
+        m_mixBuffer.resize(bufferSize);
+    }
+    std::fill(m_mixBuffer.begin(), m_mixBuffer.begin() + bufferSize, 0.0);
+    std::vector<double> & buffer = m_mixBuffer;
 
     // Per-pad sub-mix buffers for samples carrying a non-empty insert rack. Voices are grouped by their
     // Sample so a single stateful rack instance processes the summed signal of that pad (correct also in
-    // chromatic mode, where several notes share one covering sample).
-    std::vector<std::pair<Sample *, std::vector<double>>> padBuffers;
+    // chromatic mode, where several notes share one covering sample). m_padBuffers is a reusable pool;
+    // only the first padCount entries are used this callback, so no allocation happens after warmup.
+    size_t padCount = 0;
     const auto padBufferFor = [&](Sample * sample) -> std::vector<double> & {
-        for (auto & [s, buf] : padBuffers) {
-            if (s == sample) {
-                return buf;
+        for (size_t k = 0; k < padCount; k++) {
+            if (m_padBuffers[k].first == sample) {
+                return m_padBuffers[k].second;
             }
         }
-        padBuffers.emplace_back(sample, std::vector<double>(bufferSize, 0.0));
-        return padBuffers.back().second;
+        if (padCount >= m_padBuffers.size()) {
+            m_padBuffers.emplace_back(nullptr, std::vector<double>(bufferSize, 0.0));
+        }
+        auto & slot = m_padBuffers[padCount++];
+        slot.first = sample;
+        if (slot.second.size() < bufferSize) {
+            slot.second.resize(bufferSize);
+        }
+        std::fill(slot.second.begin(), slot.second.begin() + bufferSize, 0.0);
+        return slot.second;
     };
 
     const float fadeStep = 1.0f / 256.0f;
@@ -459,7 +474,8 @@ void SamplerDevice::processAudio(AudioContext & context)
     }
 
     // Apply each pad's insert rack to its sub-mix and fold it into the main buffer with device gain.
-    for (auto & [sample, padBuffer] : padBuffers) {
+    for (size_t k = 0; k < padCount; k++) {
+        auto & [sample, padBuffer] = m_padBuffers[k];
         auto & rack = *sample->effectRack;
         rack.setBpm(static_cast<float>(context.bpm));
         AudioContext padContext { std::span<double>(padBuffer.data(), bufferSize), context.frameCount, context.sampleRate, context.bpm, {} };

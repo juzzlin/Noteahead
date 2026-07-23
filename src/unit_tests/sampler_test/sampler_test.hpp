@@ -53,6 +53,7 @@ private slots:
     void test_midiCcResetGlobalPanAndVolume_shouldRestoreManualValues();
     void test_projectLoadMidiCcResetGlobal_shouldRestoreLoadedValues();
     void test_loadSample_relativePath_shouldWorkWithProjectPath();
+    void test_processAudio_reusesBuffersWithoutLeaking();
 };
 
 } // namespace noteahead
