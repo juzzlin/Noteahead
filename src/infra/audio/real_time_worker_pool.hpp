@@ -26,6 +26,9 @@
 
 namespace noteahead {
 
+//! Fan-out/fan-in worker pool used to parallelize offline rendering/export (see AudioEngine::process).
+//! Real-time playback runs serially on the audio thread and does not use this pool, so the workers run
+//! at normal priority. The class name is historical.
 class RealTimeWorkerPool
 {
 public:

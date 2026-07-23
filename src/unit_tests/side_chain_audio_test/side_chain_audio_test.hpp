@@ -29,6 +29,7 @@ private slots:
     void test_audioEngine_rebuildProcessingGraph_shouldCorrectlySortDependentDevices();
     void test_audioEngine_process_runtimeSidechainChange_shouldRebuildGraph();
     void test_audioEngine_rebuildProcessingGraph_shouldHandleCircularDependencyGracefully();
+    void test_audioEngine_serialAndExclusive_shouldProduceIdenticalOutput();
     void test_compressorEffect_process_shouldApplySidechainGainReduction();
     void test_compressorEffect_sideChainLpf_bypass_shouldPreserveGainReduction();
     void test_compressorEffect_sideChainLpf_lowCutoff_shouldAttenuateAcDetectorSignal();

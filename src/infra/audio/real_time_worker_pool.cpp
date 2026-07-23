@@ -25,8 +25,8 @@ namespace noteahead {
 
 RealTimeWorkerPool::RealTimeWorkerPool(size_t workerCount)
 {
-    juzzlin::L("RealTimeWorkerPool").info() << "Starting with " << workerCount << " worker thread(s)"
-                                            << (workerCount == 0 ? " (serial processing on the audio thread)" : "");
+    juzzlin::L("RealTimeWorkerPool").info() << "Render worker pool: " << workerCount << " worker thread(s)"
+                                            << (workerCount == 0 ? " (single-threaded rendering)" : "");
 
     m_startSemaphores.reserve(workerCount);
     m_workers.reserve(workerCount);
@@ -40,17 +40,12 @@ RealTimeWorkerPool::RealTimeWorkerPool(size_t workerCount)
             enableHardwareDenormalProtection();
 
             // Set thread name for easier debugging
-            const std::string threadName = "AudioWorker-" + std::to_string(i);
+            const std::string threadName = "RenderWorker-" + std::to_string(i);
             pthread_setname_np(pthread_self(), threadName.c_str());
 
-            // Set real-time priority
-            struct sched_param param;
-            param.sched_priority = 80; // High priority for audio
-            if (pthread_setschedparam(pthread_self(), SCHED_FIFO, &param) != 0) {
-                juzzlin::L("RealTimeWorkerPool").warning() << "Failed to set RT priority for " << threadName
-                                                          << " (needs rtprio limits, e.g. the 'audio' group); "
-                                                          << "audio may stutter under load. Set NOTEAHEAD_AUDIO_WORKERS=0 to disable the pool.";
-            }
+            // These workers only run during offline rendering/export (see AudioEngine::process), which
+            // has no real-time deadline, so they run at normal priority. Elevating them to real-time
+            // would let them preempt the UI thread and make the app unresponsive while exporting.
 
             workerLoop(i);
         });
@@ -124,10 +119,9 @@ size_t RealTimeWorkerPool::defaultWorkerCount()
 {
     const auto hardwareThreads = std::thread::hardware_concurrency();
 
-    // Allow overriding the worker count via the environment. NOTEAHEAD_AUDIO_WORKERS=0 disables the
-    // pool entirely (all device processing runs serially on the audio thread), which avoids the
-    // worker wakeup latency that can cause stutter when the worker threads cannot obtain real-time
-    // scheduling. Useful both as a workaround and for diagnosing threading-related audio glitches.
+    // This pool parallelizes offline rendering/export only; real-time playback always runs serially on
+    // the audio thread. NOTEAHEAD_AUDIO_WORKERS overrides the render worker count (0 = single-threaded
+    // rendering).
     if (const char * env = std::getenv("NOTEAHEAD_AUDIO_WORKERS"); env && *env) {
         char * end = nullptr;
         const long requested = std::strtol(env, &end, 10);

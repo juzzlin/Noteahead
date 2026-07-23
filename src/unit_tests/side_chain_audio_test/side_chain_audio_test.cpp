@@ -395,6 +395,37 @@ void SideChainAudioTest::test_compressorEffect_sideChainLpf_serialization_should
     }
 }
 
+void SideChainAudioTest::test_audioEngine_serialAndExclusive_shouldProduceIdenticalOutput()
+{
+    // Real-time playback processes serially; offline render (exclusive mode) may fan out to worker
+    // threads. The two paths must produce identical output. Several independent devices in one layer
+    // exercise the parallel fan-out and the per-lane summing.
+    const auto render = [](bool exclusive, std::vector<double> & out) {
+        AudioEngine engine;
+        engine.setIsExclusive(exclusive);
+        for (int i = 0; i < 5; i++) {
+            const auto device = std::make_shared<MockDevice>("Device " + std::to_string(i));
+            device->setGenerateSignal(true);
+            engine.setDevice(static_cast<size_t>(i), device);
+        }
+        out.assign(128, 0.0);
+        AudioContext context { std::span(out.data(), 128), 64, 44100 };
+        engine.process(context);
+    };
+
+    std::vector<double> serialOut;
+    std::vector<double> exclusiveOut;
+    render(false, serialOut);
+    render(true, exclusiveOut);
+
+    QCOMPARE(serialOut.size(), exclusiveOut.size());
+    for (size_t i = 0; i < serialOut.size(); i++) {
+        QVERIFY(std::abs(serialOut[i] - exclusiveOut[i]) < 1e-9);
+    }
+    // Five devices each emitting 1.0 sum to 5.0 per sample.
+    QVERIFY(std::abs(serialOut[0] - 5.0) < 1e-9);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SideChainAudioTest)

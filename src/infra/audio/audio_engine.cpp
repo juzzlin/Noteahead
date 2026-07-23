@@ -354,6 +354,12 @@ void AudioEngine::process(AudioContext & context)
     const size_t sendCount = effects.size();
     const size_t laneCount = m_workerPool->laneCount();
 
+    // Only fan out to worker threads for offline rendering/export (exclusive mode). Real-time
+    // playback processes serially on the audio thread: splitting the per-buffer work across threads
+    // adds synchronization and cross-core cache overhead that hurts real-time performance, whereas
+    // offline rendering has no deadline and benefits from the extra throughput.
+    const bool useWorkers = m_isExclusive.load();
+
     ensureWorkBuffers(laneCount, sendCount, bufferSize);
     ensureEffectWetBuffers(sendCount, bufferSize);
     ensureEffectActiveFlags(sendCount);
@@ -395,7 +401,13 @@ void AudioEngine::process(AudioContext & context)
             }
         }
 
-        for (auto & workBuffer : m_workBuffers) {
+        // Serial processing uses only lane 0, so clear/sum just that lane then; parallel rendering
+        // spreads work across all lanes. The buffers stay allocated at the full lane count either way,
+        // so no reallocation happens when switching between real-time playback and rendering.
+        const size_t usedLanes = useWorkers ? m_workBuffers.size() : std::min<size_t>(1, m_workBuffers.size());
+
+        for (size_t lane = 0; lane < usedLanes; lane++) {
+            auto & workBuffer = m_workBuffers[lane];
             std::fill(workBuffer.outputBuffer.begin(), workBuffer.outputBuffer.begin() + bufferSize, 0.0);
             for (auto & sendBuffer : workBuffer.sendBuffers) {
                 std::fill(sendBuffer.begin(), sendBuffer.begin() + bufferSize, 0.0);
@@ -418,11 +430,18 @@ void AudioEngine::process(AudioContext & context)
                 bufferSize,
                 context.bpm
             };
-            m_workerPool->run(layer.size(), &deviceContext, processDeviceTask);
+            if (useWorkers) {
+                m_workerPool->run(layer.size(), &deviceContext, processDeviceTask);
+            } else {
+                for (size_t taskIndex = 0; taskIndex < layer.size(); taskIndex++) {
+                    processDeviceTask(&deviceContext, taskIndex, 0);
+                }
+            }
         }
 
-        // Sum parallel results into the main output and send buses
-        for (const auto & workBuffer : m_workBuffers) {
+        // Sum the (parallel) lane results into the main output and send buses.
+        for (size_t lane = 0; lane < usedLanes; lane++) {
+            const auto & workBuffer = m_workBuffers[lane];
             for (uint32_t i = 0; i < bufferSize; i++) {
                 context.buffer[i] += workBuffer.outputBuffer[i];
             }
@@ -446,7 +465,13 @@ void AudioEngine::process(AudioContext & context)
             context.sampleRate,
             context.bpm
         };
-        m_workerPool->run(sendCount, &effectContext, processEffectTask);
+        if (useWorkers) {
+            m_workerPool->run(sendCount, &effectContext, processEffectTask);
+        } else {
+            for (size_t taskIndex = 0; taskIndex < sendCount; taskIndex++) {
+                processEffectTask(&effectContext, taskIndex, 0);
+            }
+        }
 
         for (const auto & wetBuffer : m_effectWetBuffers) {
             for (uint32_t i = 0; i < bufferSize; i++) {
