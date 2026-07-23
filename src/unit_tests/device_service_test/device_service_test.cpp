@@ -442,6 +442,36 @@ void DeviceServiceTest::test_reverbSends_shouldSaveAndLoadCorrectly()
     QCOMPARE(dev2->reverbSend(2), 0.75f);
 }
 
+void DeviceServiceTest::test_masterRackEnabled_shouldSaveAndLoadCorrectly()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto dataService = std::make_shared<DataService>();
+    DeviceService service { audioEngine, dataService };
+
+    // Both master racks are enabled by default.
+    QVERIFY(service.insertEffectRack().enabled());
+    QVERIFY(service.sendEffectRack().enabled());
+
+    service.insertEffectRack().setEnabled(false);
+    service.sendEffectRack().setEnabled(false);
+
+    QString xml;
+    NahdXmlWriter writer { xml };
+    service.serializeToXml(writer);
+
+    const auto audioEngine2 = std::make_shared<AudioEngine>();
+    const auto dataService2 = std::make_shared<DataService>();
+    DeviceService service2 { audioEngine2, dataService2 };
+
+    NahdXmlReader reader { xml };
+    QVERIFY(reader.readNextStartElement());
+    QCOMPARE(reader.name(), Constants::NahdXml::xmlKeyDevices());
+    service2.deserializeFromXml(reader);
+
+    QVERIFY(!service2.insertEffectRack().enabled());
+    QVERIFY(!service2.sendEffectRack().enabled());
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::DeviceServiceTest)

@@ -85,6 +85,7 @@ void EffectRackController::setTargetDeviceName(const QString & name)
 {
     m_targetDeviceName = name;
     emit targetDeviceNameChanged();
+    emit rackEnabledChanged();
     m_revision++;
     emit revisionChanged();
     emit effectCountChanged();
@@ -99,6 +100,7 @@ void EffectRackController::setIsInsertRack(bool isInsert)
 {
     m_isInsertRack = isInsert;
     emit isInsertRackChanged();
+    emit rackEnabledChanged();
     m_revision++;
     emit revisionChanged();
     emit effectCountChanged();
@@ -113,6 +115,7 @@ void EffectRackController::setTargetSubIndex(int index)
 {
     m_targetSubIndex = index;
     emit targetSubIndexChanged();
+    emit rackEnabledChanged();
     m_revision++;
     emit revisionChanged();
     emit effectCountChanged();
@@ -270,6 +273,27 @@ void EffectRackController::setIsEffectEnabled(quint32 effectIndex, bool enabled)
                 m_revision++;
                 emit revisionChanged();
             }
+        }
+    }
+}
+
+bool EffectRackController::rackEnabled() const
+{
+    if (const auto rack = currentRack(); rack) {
+        return rack->get().enabled();
+    }
+    return true;
+}
+
+void EffectRackController::setRackEnabled(bool enabled)
+{
+    if (const auto rack = currentRack(); rack) {
+        if (rack->get().enabled() != enabled) {
+            rack->get().setEnabled(enabled);
+            m_editorService->setIsModified(true);
+            emit rackEnabledChanged();
+            m_revision++;
+            emit revisionChanged();
         }
     }
 }

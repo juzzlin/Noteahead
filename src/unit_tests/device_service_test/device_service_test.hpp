@@ -37,6 +37,7 @@ private slots:
     void test_peekDeviceTypeInfo_synth_shouldReturnCorrectTypeInfo();
     void test_peekDeviceTypeInfo_nonexistentFile_shouldReturnEmpty();
     void test_reverbSends_shouldSaveAndLoadCorrectly();
+    void test_masterRackEnabled_shouldSaveAndLoadCorrectly();
 };
 
 } // namespace noteahead

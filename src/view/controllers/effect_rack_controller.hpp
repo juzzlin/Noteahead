@@ -39,6 +39,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString targetDeviceName READ targetDeviceName WRITE setTargetDeviceName NOTIFY targetDeviceNameChanged)
     Q_PROPERTY(bool isInsertRack READ isInsertRack WRITE setIsInsertRack NOTIFY isInsertRackChanged)
     Q_PROPERTY(int targetSubIndex READ targetSubIndex WRITE setTargetSubIndex NOTIFY targetSubIndexChanged)
+    Q_PROPERTY(bool rackEnabled READ rackEnabled WRITE setRackEnabled NOTIFY rackEnabledChanged)
 
     Q_PROPERTY(QString allPassFilterType READ allPassFilterType CONSTANT)
     Q_PROPERTY(QString lufsMeterType READ lufsMeterType CONSTANT)
@@ -73,6 +74,9 @@ public:
     // -1 targets the whole-device rack; >= 0 targets a Sampler pad (note) or Drum Synth voice (index).
     int targetSubIndex() const;
     void setTargetSubIndex(int index);
+
+    bool rackEnabled() const;
+    void setRackEnabled(bool enabled);
 
     QString allPassFilterType() const;
     QString autoPannerType() const;
@@ -219,6 +223,7 @@ signals:
     void targetDeviceNameChanged();
     void isInsertRackChanged();
     void targetSubIndexChanged();
+    void rackEnabledChanged();
     void parameterChanged(quint32 effectIndex, const QString & paramName);
     void importEffectSettingsConfirmationRequested(int slotIndex, QUrl fileUrl, QString currentType, QString importedType, bool typeMismatch);
 

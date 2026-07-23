@@ -72,6 +72,16 @@ uint64_t EffectRack::version() const
     return m_version.load(std::memory_order_acquire);
 }
 
+bool EffectRack::enabled() const
+{
+    return m_enabled.load();
+}
+
+void EffectRack::setEnabled(bool enabled)
+{
+    m_enabled.store(enabled);
+}
+
 EffectRack::EffectS EffectRack::effect(size_t index) const
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
@@ -101,6 +111,10 @@ bool EffectRack::hasEffects() const
 
 void EffectRack::process(AudioContext & outputContext, const double * sendBus, size_t effectIndex)
 {
+    if (!m_enabled.load()) {
+        return;
+    }
+
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
     if (effectIndex >= m_effects.size())
         return;
@@ -131,6 +145,10 @@ void EffectRack::process(AudioContext & outputContext, const double * sendBus, s
 
 void EffectRack::processInPlace(AudioContext & context)
 {
+    if (!m_enabled.load()) {
+        return;
+    }
+
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
     for (auto & effect : m_effects) {
         if (!effect || !effect->enabled())
@@ -191,6 +209,11 @@ void EffectRack::clear()
 void EffectRack::serializeEffectsToXml(ProjectWriter & writer) const
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
+
+    // Rack-level enabled flag. Written as an attribute on the parent element the caller opened
+    // (<InsertEffects> / <SendEffects>), so it must precede any child element.
+    writer.writeAttribute(Constants::NahdXml::xmlKeyEnabled(), m_enabled.load() ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
+
     for (size_t i = 0; i < m_effects.size(); i++) {
         const auto & effect = m_effects[i];
         if (effect) {
@@ -210,6 +233,10 @@ void EffectRack::deserializeEffectsFromXml(ProjectReader & reader)
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
     std::fill(m_effects.begin(), m_effects.end(), nullptr);
     markChanged();
+
+    // Rack-level enabled flag from the parent element's attribute. Defaults to enabled for older
+    // projects that predate this attribute.
+    m_enabled.store(reader.attribute(Constants::NahdXml::xmlKeyEnabled()).toString() != Constants::NahdXml::xmlValueFalse());
 
     while (reader.readNextStartElement()) {
         if (reader.name() == Constants::NahdXml::xmlKeyEffect()) {

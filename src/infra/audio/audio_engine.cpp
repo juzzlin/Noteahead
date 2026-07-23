@@ -461,7 +461,7 @@ void AudioEngine::process(AudioContext & context)
         }
     }
 
-    if (std::ranges::any_of(effects, [](const auto & effect) { return effect != nullptr; })) {
+    if (m_sendEffectRack->enabled() && std::ranges::any_of(effects, [](const auto & effect) { return effect != nullptr; })) {
         EffectProcessContext effectContext {
             &effects,
             &m_sendBusBuffers,

@@ -84,6 +84,72 @@ void EffectRackTest::test_version_shouldChangeOnlyWhenEffectsChange()
     QVERIFY(rack.version() != v4);
 }
 
+void EffectRackTest::test_rackEnabled_shouldBypassWholeRack()
+{
+    EffectRack rack;
+    QVERIFY(rack.enabled()); // Enabled by default
+
+    auto volume = std::make_shared<Volume>();
+    volume->setVolume(0.5f);
+    rack.setEffect(0, volume);
+
+    // Disabling the whole rack bypasses it even though the effect itself is enabled.
+    rack.setEnabled(false);
+    std::vector<double> buffer(4, 1.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), 2, 44100 };
+    rack.processInPlace(context);
+    for (double sample : buffer) {
+        QCOMPARE(sample, 1.0f);
+    }
+
+    // Re-enabling applies the effect again.
+    rack.setEnabled(true);
+    rack.processInPlace(context);
+    for (double sample : buffer) {
+        QCOMPARE(sample, 0.5f);
+    }
+}
+
+void EffectRackTest::test_rackEnabled_serialization_shouldRoundTrip()
+{
+    // A disabled rack round-trips as disabled.
+    EffectRack rack;
+    rack.setEffect(0, std::make_shared<Volume>());
+    rack.setEnabled(false);
+
+    QString xml;
+    NahdXmlWriter writer { xml };
+    writer.writeStartElement(Constants::NahdXml::xmlKeyInsertEffects());
+    rack.serializeEffectsToXml(writer);
+    writer.writeEndElement();
+
+    EffectRack loaded;
+    NahdXmlReader reader { xml };
+    while (reader.readNextStartElement()) {
+        if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects()) {
+            loaded.deserializeEffectsFromXml(reader);
+        } else {
+            reader.skipCurrentElement();
+        }
+    }
+    QVERIFY(!loaded.enabled());
+    QVERIFY(loaded.effect(0) != nullptr);
+
+    // Backward compatibility: an element without the attribute deserializes as enabled.
+    const QString legacyXml = "<" + Constants::NahdXml::xmlKeyInsertEffects() + "></" + Constants::NahdXml::xmlKeyInsertEffects() + ">";
+    EffectRack legacy;
+    legacy.setEnabled(false); // Start disabled to prove the default enables it
+    NahdXmlReader legacyReader { legacyXml };
+    while (legacyReader.readNextStartElement()) {
+        if (legacyReader.name() == Constants::NahdXml::xmlKeyInsertEffects()) {
+            legacy.deserializeEffectsFromXml(legacyReader);
+        } else {
+            legacyReader.skipCurrentElement();
+        }
+    }
+    QVERIFY(legacy.enabled());
+}
+
 void EffectRackTest::test_process_shouldProcessAudio()
 {
     EffectRack rack;

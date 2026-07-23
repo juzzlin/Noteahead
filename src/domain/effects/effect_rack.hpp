@@ -50,6 +50,11 @@ public:
     //! only refresh it when this changes, avoiding a per-audio-callback copy. Cheap atomic read.
     uint64_t version() const;
 
+    //! Whether the whole rack is active. When disabled the rack is bypassed (audio passes through
+    //! unchanged). Enabled by default. Used e.g. to switch off effects when rendering individual tracks.
+    bool enabled() const;
+    void setEnabled(bool enabled);
+
     void process(AudioContext & outputContext, const double * sendBus, size_t effectIndex);
     void processInPlace(AudioContext & context);
     std::vector<size_t> sidechainDependencies() const;
@@ -72,6 +77,7 @@ private:
 
     std::vector<EffectS> m_effects;
     std::atomic<uint64_t> m_version { 0 };
+    std::atomic<bool> m_enabled { true };
     mutable std::recursive_mutex m_mutex;
 };
 

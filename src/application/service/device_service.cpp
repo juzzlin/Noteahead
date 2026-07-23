@@ -399,6 +399,8 @@ void DeviceService::deserializeEffectSend(ProjectReader & reader)
 void DeviceService::deserializeSendEffects(ProjectReader & reader)
 {
     m_audioEngine->sendEffectRack().clear();
+    // Rack-level enabled flag from the <SendEffects> element (defaults to enabled for older projects).
+    m_audioEngine->sendEffectRack().setEnabled(reader.attribute(Constants::NahdXml::xmlKeyEnabled()).toString() != Constants::NahdXml::xmlValueFalse());
     while (reader.readNextStartElement()) {
         if (reader.name() == Constants::NahdXml::xmlKeyEffect()) {
             m_audioEngine->sendEffectRack().deserializeEffect(reader);

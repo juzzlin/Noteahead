@@ -67,12 +67,28 @@ Dialog {
         anchors.margins: 20
         spacing: 20
 
-        Label {
-            text: qsTr("Master Effect Rack")
-            font.bold: true
-            font.pointSize: 18
-            color: "white"
-            Layout.alignment: Qt.AlignHCenter
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 10
+
+            Switch {
+                text: qsTr("Enabled")
+                checked: effectRackController.rackEnabled
+                onToggled: effectRackController.rackEnabled = checked
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Enable or bypass this whole effect rack. Useful e.g. to switch off effects when rendering individual tracks.")
+            }
+
+            Label {
+                text: qsTr("Master Effect Rack")
+                font.bold: true
+                font.pointSize: 18
+                color: "white"
+                Layout.fillWidth: true
+                horizontalAlignment: Text.AlignHCenter
+            }
         }
 
         ListView {

@@ -36,6 +36,12 @@ New features:
   - New "Import Device..." button creates the device from the exported settings
   - The device type is taken from the file, so there's no need to add a device first
 
+* Add a per-rack Enable switch to all effect racks
+  - Header-level switch (on the left) bypasses the whole rack when off; on by default
+  - Independent for the master Insert and Send tabs, and for each device/pad/voice
+    insert rack; saved with the project
+  - Handy for switching effects off when rendering individual tracks
+
 * Add chromatic mode to the Sampler
 
 Bug fixes:
