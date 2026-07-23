@@ -18,6 +18,8 @@
 
 #include "../dsp/audio_context.hpp"
 #include "effect.hpp"
+#include <atomic>
+#include <cstdint>
 #include <memory>
 #include <mutex>
 #include <vector>
@@ -43,6 +45,11 @@ public:
     size_t effectCount() const;
     bool hasEffects() const;
 
+    //! Monotonically increasing counter bumped whenever the effect list changes (effects added,
+    //! removed, swapped, cleared or deserialized). Lets callers cache a snapshot of effects() and
+    //! only refresh it when this changes, avoiding a per-audio-callback copy. Cheap atomic read.
+    uint64_t version() const;
+
     void process(AudioContext & outputContext, const double * sendBus, size_t effectIndex);
     void processInPlace(AudioContext & context);
     std::vector<size_t> sidechainDependencies() const;
@@ -61,7 +68,10 @@ public:
     bool importEffectSettings(size_t index, ProjectReader & reader);
 
 private:
+    void markChanged();
+
     std::vector<EffectS> m_effects;
+    std::atomic<uint64_t> m_version { 0 };
     mutable std::recursive_mutex m_mutex;
 };
 

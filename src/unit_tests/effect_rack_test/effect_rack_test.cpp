@@ -50,6 +50,40 @@ void EffectRackTest::test_addRemove_shouldAddAndRemoveEffects()
     QCOMPARE(rack.effect(0), nullptr);
 }
 
+void EffectRackTest::test_version_shouldChangeOnlyWhenEffectsChange()
+{
+    EffectRack rack;
+
+    // Adding, removing, swapping and clearing effects must bump the version so cached snapshots of
+    // effects() (e.g. in AudioEngine::process) get refreshed. Read-only access must not.
+    const auto v0 = rack.version();
+
+    rack.setEffect(0, std::make_shared<Volume>());
+    const auto v1 = rack.version();
+    QVERIFY(v1 != v0);
+
+    // Read-only queries leave the version unchanged.
+    (void)rack.effects();
+    (void)rack.effect(0);
+    (void)rack.effectCount();
+    QCOMPARE(rack.version(), v1);
+
+    rack.setEffect(1, std::make_shared<Volume>());
+    const auto v2 = rack.version();
+    QVERIFY(v2 != v1);
+
+    rack.swapEffects(0, 1);
+    const auto v3 = rack.version();
+    QVERIFY(v3 != v2);
+
+    rack.removeEffect(0);
+    const auto v4 = rack.version();
+    QVERIFY(v4 != v3);
+
+    rack.clear();
+    QVERIFY(rack.version() != v4);
+}
+
 void EffectRackTest::test_process_shouldProcessAudio()
 {
     EffectRack rack;

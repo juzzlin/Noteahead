@@ -18,6 +18,8 @@
 
 #include "../../domain/devices/device.hpp"
 
+#include <cstdint>
+#include <limits>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -81,6 +83,11 @@ private:
     std::map<size_t, DeviceS> m_devices;
     std::unique_ptr<EffectRack> m_sendEffectRack;
     std::unique_ptr<EffectRack> m_insertEffectRack;
+
+    // Cached snapshot of the send effect rack, refreshed only when the rack changes so that process()
+    // does not copy the effect vector (and bump shared_ptr refcounts) on every audio callback.
+    std::vector<std::shared_ptr<Effect>> m_sendEffectsSnapshot;
+    uint64_t m_sendEffectsVersion = std::numeric_limits<uint64_t>::max();
     std::unique_ptr<RealTimeWorkerPool> m_workerPool;
     std::vector<AudioEngineWorkBuffer> m_workBuffers;
     std::vector<DeviceS> m_deviceSnapshot;

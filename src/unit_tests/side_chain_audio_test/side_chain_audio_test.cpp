@@ -17,6 +17,7 @@
 
 #include "../../common/constants.hpp"
 #include "../../domain/devices/device.hpp"
+#include "../../domain/dsp/volume.hpp"
 #include "../../domain/effects/compressor.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
@@ -424,6 +425,35 @@ void SideChainAudioTest::test_audioEngine_serialAndExclusive_shouldProduceIdenti
     }
     // Five devices each emitting 1.0 sum to 5.0 per sample.
     QVERIFY(std::abs(serialOut[0] - 5.0) < 1e-9);
+}
+
+void SideChainAudioTest::test_audioEngine_sendEffectAddedAfterProcess_shouldBeApplied()
+{
+    // AudioEngine caches a snapshot of the send effect rack and only refreshes it when the rack's
+    // version changes. A send effect added *after* the first process() must still be applied.
+    AudioEngine engine;
+    const auto device = std::make_shared<MockDevice>("Source");
+    device->setGenerateSignal(true); // Emits 1.0
+    device->setReverbSend(0, 1.0f); // Route fully to send bus 0
+    engine.setDevice(0, device);
+
+    std::vector<double> buffer(128, 0.0);
+    AudioContext context { std::span(buffer.data(), 128), 64, 44100 };
+
+    // No send effect yet: output is just the device's dry signal.
+    engine.process(context);
+    QVERIFY(std::abs(buffer[0] - 1.0) < 1e-9);
+
+    // Add a send effect after the first process(); the cached snapshot must refresh.
+    const auto volume = std::make_shared<Volume>();
+    volume->setVolume(0.5f);
+    engine.sendEffectRack().setEffect(0, volume);
+
+    std::fill(buffer.begin(), buffer.end(), 0.0);
+    engine.process(context);
+
+    // Output = dry device (1.0) + wet send (0.5 * 1.0 - 1.0 = -0.5) = 0.5.
+    QVERIFY(std::abs(buffer[0] - 0.5) < 1e-6);
 }
 
 } // namespace noteahead

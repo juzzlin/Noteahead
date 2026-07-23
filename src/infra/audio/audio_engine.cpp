@@ -350,7 +350,13 @@ void AudioEngine::process(AudioContext & context)
     if (!bufferSize) {
         return;
     }
-    auto effects = m_sendEffectRack->effects();
+    // Refresh the cached send-effects snapshot only when the rack actually changed, so the common
+    // case avoids copying the vector (and bumping shared_ptr refcounts) under a lock every callback.
+    if (const auto version = m_sendEffectRack->version(); version != m_sendEffectsVersion) {
+        m_sendEffectsSnapshot = m_sendEffectRack->effects();
+        m_sendEffectsVersion = version;
+    }
+    auto & effects = m_sendEffectsSnapshot;
     const size_t sendCount = effects.size();
     const size_t laneCount = m_workerPool->laneCount();
 

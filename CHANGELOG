@@ -40,6 +40,11 @@ New features:
 
 Bug fixes:
 
+* Avoid copying the send effect list on every audio callback
+  - AudioEngine caches a snapshot of the send effect rack and refreshes it only
+    when the rack changes (tracked by a version counter), instead of copying the
+    effect vector under a lock every buffer
+
 * Fix per-buffer heap allocation in the Sampler audio path
   - processAudio() now reuses member scratch buffers (main mix and per-pad
     sub-mixes) instead of allocating on every audio callback

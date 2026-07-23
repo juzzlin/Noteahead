@@ -28,6 +28,7 @@ private slots:
     void initTestCase();
     void cleanupTestCase();
     void test_addRemove_shouldAddAndRemoveEffects();
+    void test_version_shouldChangeOnlyWhenEffectsChange();
     void test_process_shouldProcessAudio();
     void test_processInPlace_shouldApplyEffectToBuffer();
     void test_serialization_shouldSerializeAndDeserializeEffects();

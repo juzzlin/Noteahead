@@ -40,6 +40,7 @@ void EffectRack::setEffect(size_t index, EffectS effect)
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
     if (index < m_effects.size()) {
         m_effects[index] = std::move(effect);
+        markChanged();
     }
 }
 
@@ -48,6 +49,7 @@ void EffectRack::swapEffects(size_t indexA, size_t indexB)
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
     if (indexA < m_effects.size() && indexB < m_effects.size()) {
         std::swap(m_effects[indexA], m_effects[indexB]);
+        markChanged();
     }
 }
 
@@ -56,7 +58,18 @@ void EffectRack::removeEffect(size_t index)
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
     if (index < m_effects.size()) {
         m_effects.erase(m_effects.begin() + index);
+        markChanged();
     }
+}
+
+void EffectRack::markChanged()
+{
+    m_version.fetch_add(1, std::memory_order_release);
+}
+
+uint64_t EffectRack::version() const
+{
+    return m_version.load(std::memory_order_acquire);
 }
 
 EffectRack::EffectS EffectRack::effect(size_t index) const
@@ -172,6 +185,7 @@ void EffectRack::clear()
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
     std::fill(m_effects.begin(), m_effects.end(), nullptr);
+    markChanged();
 }
 
 void EffectRack::serializeEffectsToXml(ProjectWriter & writer) const
@@ -195,6 +209,7 @@ void EffectRack::deserializeEffectsFromXml(ProjectReader & reader)
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
     std::fill(m_effects.begin(), m_effects.end(), nullptr);
+    markChanged();
 
     while (reader.readNextStartElement()) {
         if (reader.name() == Constants::NahdXml::xmlKeyEffect()) {
@@ -224,6 +239,7 @@ void EffectRack::deserializeEffect(ProjectReader & reader)
             m_effects.resize(targetIndex + 1, nullptr);
         }
         m_effects[targetIndex] = std::move(effect);
+        markChanged();
     } else {
         reader.skipCurrentElement();
     }
@@ -280,6 +296,7 @@ bool EffectRack::importEffectSettings(size_t index, ProjectReader & reader)
                             effect->deserializeParametersFromXml(reader);
                             effect->sync();
                             m_effects[index] = std::move(effect);
+                            markChanged();
                             return true;
                         } else {
                             reader.skipCurrentElement();
@@ -297,6 +314,7 @@ bool EffectRack::importEffectSettings(size_t index, ProjectReader & reader)
                                     effect->deserializeParametersFromXml(reader);
                                     effect->sync();
                                     m_effects[index] = std::move(effect);
+                                    markChanged();
                                     return true;
                                 } else {
                                     reader.skipCurrentElement();
