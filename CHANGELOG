@@ -46,6 +46,10 @@ New features:
 
 Bug fixes:
 
+* Fix Panner rack effect Width knob having no effect
+  - The knob read and wrote the "reverbWidth" legacy alias, which is only mapped
+    at deserialization, so it never reached the actual "width" parameter
+
 * Avoid copying the send effect list on every audio callback
   - AudioEngine caches a snapshot of the send effect rack and refreshes it only
     when the rack changes (tracked by a version counter), instead of copying the

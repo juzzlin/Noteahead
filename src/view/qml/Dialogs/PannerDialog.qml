@@ -70,11 +70,12 @@ Dialog {
 
             Knob {
                 label: qsTr("Width")
+                mapping: "width"
                 value: {
                     effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, "reverbWidth") * Constants.uiInternalScaling;
+                    return effectRackController.parameterValue(root.effectIndex, "width") * Constants.uiInternalScaling;
                 }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, "reverbWidth", v / Constants.uiInternalScaling)
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, "width", v / Constants.uiInternalScaling)
                 Layout.fillWidth: true
             }
         }
