@@ -5,6 +5,12 @@ Release date:
 
 New features:
 
+* Copy an existing device or effect when creating a new one
+  - "Copy Device..." in the Device Gallery duplicates another device into the slot
+  - The device list shows the track(s) each device is used on
+  - "Copy Effect..." in the Effects Gallery duplicates another effect in the same rack
+  - Add direct "Import Effect..." to the Effects Gallery, matching device import
+
 * Add a stereo oscilloscope to the Synth
   - Live L/R waveform traces side by side on a new "Scope" tab
   - Reusable component that can later be added to other device dialogs

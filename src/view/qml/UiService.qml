@@ -15,6 +15,8 @@ QtObject {
     signal deleteUnusedPatternsRequested
     signal deviceDialogRequested(string deviceName)
     signal deviceGalleryDialogRequested(int slotIndex)
+    signal copyDeviceDialogRequested(int slotIndex)
+    signal copyEffectDialogRequested(int slotIndex)
     signal deviceInsertEffectsDialogRequested(string deviceName)
     signal deviceSubEffectsDialogRequested(string deviceName, int subIndex, string subLabel)
     signal deviceRackDialogFromTrackSettingsRequested
@@ -148,6 +150,12 @@ QtObject {
     }
     function requestDeviceGalleryDialog(slotIndex: int): void {
         deviceGalleryDialogRequested(slotIndex);
+    }
+    function requestCopyDeviceDialog(slotIndex: int): void {
+        copyDeviceDialogRequested(slotIndex);
+    }
+    function requestCopyEffectDialog(slotIndex: int): void {
+        copyEffectDialogRequested(slotIndex);
     }
     function requestGainConverterDialog(): void {
         gainConverterDialogRequested();

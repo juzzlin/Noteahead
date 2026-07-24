@@ -32,6 +32,10 @@ private slots:
     void test_importDeviceSettings_shouldRestoreParameters();
     void test_importDeviceSettings_shouldReplaceDeviceIfTypeDiffers();
     void test_importDeviceSettings_emptySlot_shouldCreateDeviceFromFile();
+    void test_copyDevice_shouldDuplicateParametersIntoTargetSlot();
+    void test_copyDevice_differentType_shouldReplaceTargetDevice();
+    void test_copyDevice_emptySource_shouldFail();
+    void test_copyDevice_sameSlot_shouldFail();
     void test_exportImport_withEmbeddedData_shouldWork();
     void test_importDeviceSettings_embeddedData_emptySlot_shouldExtractDataBeforeLoadingSamples();
     void test_peekDeviceTypeInfo_synth_shouldReturnCorrectTypeInfo();

@@ -379,6 +379,43 @@ void EffectRackTest::test_importEffectSettings_backwardsCompatibility()
     QCOMPARE(reverb->size(), 0.42f);
 }
 
+void EffectRackTest::test_copyEffect_shouldDuplicateIntoTargetSlot()
+{
+    EffectRack rack;
+    const auto reverb = std::make_shared<Reverb>();
+    reverb->setSize(0.85f);
+    reverb->setEnabled(false);
+    rack.setEffect(1, reverb);
+
+    QVERIFY(!rack.effect(3));
+    QVERIFY(rack.copyEffect(1, 3));
+
+    const auto copy = std::dynamic_pointer_cast<Reverb>(rack.effect(3));
+    QVERIFY(copy != nullptr);
+    QCOMPARE(copy->size(), 0.85f);
+    QCOMPARE(copy->enabled(), false);
+    // The copy is an independent instance, not the same shared pointer.
+    QVERIFY(copy != reverb);
+    // The source is left untouched.
+    QCOMPARE(rack.effect(1), reverb);
+}
+
+void EffectRackTest::test_copyEffect_emptySource_shouldFail()
+{
+    EffectRack rack;
+    rack.setEffect(0, std::make_shared<Reverb>());
+
+    QVERIFY(!rack.copyEffect(2, 0)); // Slot 2 is empty
+}
+
+void EffectRackTest::test_copyEffect_sameSlot_shouldFail()
+{
+    EffectRack rack;
+    rack.setEffect(0, std::make_shared<Reverb>());
+
+    QVERIFY(!rack.copyEffect(0, 0));
+}
+
 void EffectRackTest::test_swapEffects_shouldSwapTwoSlots()
 {
     EffectRack rack;

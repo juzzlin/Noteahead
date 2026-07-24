@@ -40,6 +40,26 @@ Dialog {
 
     footer: DialogButtonBox {
         Button {
+            text: qsTr("Import Effect...")
+            implicitWidth: Constants.defaultButtonWidth
+            visible: root.slotIndex !== -1
+            DialogButtonBox.buttonRole: DialogButtonBox.ActionRole
+            onClicked: {
+                root.accept();
+                UiService.requestImportEffectSettings(root.slotIndex);
+            }
+        }
+        Button {
+            text: qsTr("Copy Effect...")
+            implicitWidth: Constants.defaultButtonWidth
+            visible: root.slotIndex !== -1
+            DialogButtonBox.buttonRole: DialogButtonBox.ActionRole
+            onClicked: {
+                root.accept();
+                UiService.requestCopyEffectDialog(root.slotIndex);
+            }
+        }
+        Button {
             text: qsTr("Close")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole

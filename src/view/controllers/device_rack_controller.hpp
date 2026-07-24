@@ -73,6 +73,9 @@ public:
     Q_INVOKABLE void importSettings(int index, const QUrl & fileUrl);
     Q_INVOKABLE void confirmImportSettings(int index, const QUrl & fileUrl);
 
+    Q_INVOKABLE void copyDevice(int sourceSlot, int targetSlot);
+    Q_INVOKABLE QVariantList populatedDevices() const;
+
     Q_INVOKABLE QString deviceType(int slotIndex) const;
     Q_INVOKABLE QString deviceTypeName(int slotIndex) const;
     Q_INVOKABLE QString deviceName(int slotIndex) const;

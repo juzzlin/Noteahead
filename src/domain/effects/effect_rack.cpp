@@ -361,4 +361,34 @@ bool EffectRack::importEffectSettings(size_t index, ProjectReader & reader)
     return false;
 }
 
+bool EffectRack::copyEffect(size_t sourceIndex, size_t targetIndex)
+{
+    const std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    if (sourceIndex == targetIndex || sourceIndex >= m_effects.size() || !m_effects[sourceIndex]) {
+        return false;
+    }
+
+    const auto & source = m_effects[sourceIndex];
+    auto clone = EffectFactory::createEffect(source->typeId(), source->type());
+    if (!clone) {
+        return false;
+    }
+
+    clone->setEnabled(source->enabled());
+    for (const auto & [name, parameter] : source->parameters()) {
+        if (const auto target = clone->parameter(name); target) {
+            target->get().update(parameter.value());
+        }
+    }
+    clone->sync();
+
+    if (targetIndex >= m_effects.size()) {
+        m_effects.resize(targetIndex + 1, nullptr);
+    }
+    m_effects[targetIndex] = std::move(clone);
+    markChanged();
+
+    return true;
+}
+
 } // namespace noteahead

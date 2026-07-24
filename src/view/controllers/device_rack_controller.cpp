@@ -204,6 +204,31 @@ void DeviceRackController::confirmImportSettings(int index, const QUrl & fileUrl
     }
 }
 
+void DeviceRackController::copyDevice(int sourceSlot, int targetSlot)
+{
+    if (m_deviceService->copyDevice(sourceSlot, targetSlot)) {
+        m_editorService->setIsModified(true);
+        m_revision++;
+        emit revisionChanged();
+    }
+}
+
+QVariantList DeviceRackController::populatedDevices() const
+{
+    QVariantList list;
+    for (int i = 0; i < deviceCount(); i++) {
+        if (const auto device = m_deviceService->device(static_cast<size_t>(i))) {
+            QVariantMap map;
+            map["slotIndex"] = i;
+            map["name"] = QString::fromStdString(device->name());
+            map["typeName"] = QString::fromStdString(device->typeName());
+            map["trackNames"] = trackNames(i);
+            list.append(map);
+        }
+    }
+    return list;
+}
+
 QString DeviceRackController::deviceType(int slotIndex) const
 {
     if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex))) {

@@ -413,6 +413,45 @@ void DeviceRackControllerTest::test_confirmImportSettings_shouldImportAndNotify(
     QCOMPARE(synth->volume(), 0.42f);
 }
 
+void DeviceRackControllerTest::test_copyDevice_shouldDuplicateAndNotify()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<MockEditorService>();
+
+    const auto synth = std::dynamic_pointer_cast<SynthDevice>(DeviceFactory::createDevice(SynthDevice::typeIdString(), "TestSynth"));
+    synth->setVolume(0.42f);
+    deviceService->setDevice(0, synth);
+
+    DeviceRackController controller { deviceService, {}, editorService };
+    QSignalSpy revisionSpy { &controller, &DeviceRackController::revisionChanged };
+
+    controller.copyDevice(0, 1);
+
+    QVERIFY(revisionSpy.count() > 0);
+    QVERIFY(editorService->isModified());
+    const auto copy = std::dynamic_pointer_cast<SynthDevice>(deviceService->device(1));
+    QVERIFY(copy != nullptr);
+    QCOMPARE(copy->volume(), 0.42f);
+}
+
+void DeviceRackControllerTest::test_populatedDevices_shouldReturnOnlyFilledSlots()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<MockEditorService>();
+
+    deviceService->setDevice(0, DeviceFactory::createDevice(SynthDevice::typeIdString(), "TestSynth"));
+    deviceService->setDevice(2, DeviceFactory::createDevice(SamplerDevice::typeIdString(), "TestSampler"));
+
+    DeviceRackController controller { deviceService, {}, editorService };
+
+    const auto populated = controller.populatedDevices();
+    QCOMPARE(populated.size(), 2);
+    QCOMPARE(populated.at(0).toMap()["slotIndex"].toInt(), 0);
+    QCOMPARE(populated.at(1).toMap()["slotIndex"].toInt(), 2);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::DeviceRackControllerTest)

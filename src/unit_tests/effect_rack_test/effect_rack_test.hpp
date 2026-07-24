@@ -39,6 +39,9 @@ private slots:
     void test_reverb_presets_shouldApplyPresets();
     void test_exportImportEffectSettings_shouldWorkForSingleEffect();
     void test_importEffectSettings_backwardsCompatibility();
+    void test_copyEffect_shouldDuplicateIntoTargetSlot();
+    void test_copyEffect_emptySource_shouldFail();
+    void test_copyEffect_sameSlot_shouldFail();
     void test_swapEffects_shouldSwapTwoSlots();
     void test_swapEffects_outOfBounds_shouldDoNothing();
 };

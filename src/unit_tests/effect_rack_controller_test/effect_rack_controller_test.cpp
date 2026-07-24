@@ -463,6 +463,43 @@ void EffectRackControllerTest::test_confirmImportEffectSettings_shouldImportAndN
     QFile::remove(filePath);
 }
 
+void EffectRackControllerTest::test_copyEffect_shouldDuplicateAndNotify()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+    controller.setParameterValue(0, controller.reverbSizeKey(), 0.42f);
+
+    QSignalSpy revisionSpy { &controller, &EffectRackController::revisionChanged };
+    controller.copyEffect(0, 2);
+
+    QVERIFY(revisionSpy.count() > 0);
+    QVERIFY(editorService->isModified());
+    QCOMPARE(controller.effectType(2), controller.reverbType());
+    QCOMPARE(controller.parameterValue(2, controller.reverbSizeKey()), 0.42f);
+}
+
+void EffectRackControllerTest::test_populatedEffects_shouldReturnOnlyFilledSlots()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+    controller.setEffect(2, QString::fromStdString(Compressor::typeIdString()));
+
+    const auto populated = controller.populatedEffects();
+    QCOMPARE(populated.size(), 2);
+    QCOMPARE(populated.at(0).toMap()["slotIndex"].toInt(), 0);
+    QCOMPARE(populated.at(1).toMap()["slotIndex"].toInt(), 2);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::EffectRackControllerTest)

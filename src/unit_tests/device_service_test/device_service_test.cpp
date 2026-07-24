@@ -246,6 +246,64 @@ void DeviceServiceTest::test_importDeviceSettings_emptySlot_shouldCreateDeviceFr
     QCOMPARE(synth->volume(), 0.75f);
 }
 
+void DeviceServiceTest::test_copyDevice_shouldDuplicateParametersIntoTargetSlot()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto dataService = std::make_shared<DataService>();
+    DeviceService service { audioEngine, dataService };
+
+    const auto synth = std::dynamic_pointer_cast<SynthDevice>(DeviceFactory::createDevice(SynthDevice::typeIdString(), "TestSynth"));
+    synth->setVolume(0.75f);
+    service.setDevice(0, synth);
+
+    QVERIFY(!service.device(1));
+    QVERIFY(service.copyDevice(0, 1));
+
+    const auto copy = std::dynamic_pointer_cast<SynthDevice>(service.device(1));
+    QVERIFY(copy);
+    QCOMPARE(copy->typeId(), SynthDevice::typeIdString());
+    QCOMPARE(copy->volume(), 0.75f);
+    // The copy is an independent instance, not the same shared pointer.
+    QVERIFY(copy != synth);
+    // The source is left untouched.
+    QCOMPARE(service.device(0), synth);
+}
+
+void DeviceServiceTest::test_copyDevice_differentType_shouldReplaceTargetDevice()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto dataService = std::make_shared<DataService>();
+    DeviceService service { audioEngine, dataService };
+
+    service.setDevice(0, DeviceFactory::createDevice(SynthDevice::typeIdString(), "TestSynth"));
+    service.setDevice(1, DeviceFactory::createDevice(SamplerDevice::typeIdString(), "TestSampler"));
+
+    QCOMPARE(service.device(1)->typeId(), SamplerDevice::typeIdString());
+    QVERIFY(service.copyDevice(0, 1));
+    QCOMPARE(service.device(1)->typeId(), SynthDevice::typeIdString());
+}
+
+void DeviceServiceTest::test_copyDevice_emptySource_shouldFail()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto dataService = std::make_shared<DataService>();
+    DeviceService service { audioEngine, dataService };
+
+    QVERIFY(!service.device(0));
+    QVERIFY(!service.copyDevice(0, 1));
+    QVERIFY(!service.device(1));
+}
+
+void DeviceServiceTest::test_copyDevice_sameSlot_shouldFail()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto dataService = std::make_shared<DataService>();
+    DeviceService service { audioEngine, dataService };
+
+    service.setDevice(0, DeviceFactory::createDevice(SynthDevice::typeIdString(), "TestSynth"));
+    QVERIFY(!service.copyDevice(0, 0));
+}
+
 void DeviceServiceTest::test_exportImport_withEmbeddedData_shouldWork()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();

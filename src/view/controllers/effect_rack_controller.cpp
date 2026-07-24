@@ -253,6 +253,34 @@ QVariantList EffectRackController::availableEffects() const
     return list;
 }
 
+void EffectRackController::copyEffect(int sourceSlot, int targetSlot)
+{
+    if (const auto rack = currentRack(); rack) {
+        if (rack->get().copyEffect(static_cast<size_t>(sourceSlot), static_cast<size_t>(targetSlot))) {
+            m_editorService->setIsModified(true);
+            m_revision++;
+            emit revisionChanged();
+        }
+    }
+}
+
+QVariantList EffectRackController::populatedEffects() const
+{
+    QVariantList list;
+    if (const auto rack = currentRack(); rack) {
+        const auto count = rack->get().effectCount();
+        for (size_t i = 0; i < count; i++) {
+            if (const auto effect = rack->get().effect(i)) {
+                QVariantMap map;
+                map["slotIndex"] = static_cast<int>(i);
+                map["name"] = effectDisplayName(QString::fromStdString(effect->type()));
+                list.append(map);
+            }
+        }
+    }
+    return list;
+}
+
 bool EffectRackController::isEffectEnabled(quint32 effectIndex) const
 {
     if (const auto rack = currentRack(); rack) {

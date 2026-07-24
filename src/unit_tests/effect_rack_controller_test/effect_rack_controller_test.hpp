@@ -28,6 +28,8 @@ private slots:
     void test_importEffectSettings_matchingType_shouldEmitConfirmationWithoutMismatch();
     void test_importEffectSettings_differentType_shouldEmitConfirmationWithMismatch();
     void test_confirmImportEffectSettings_shouldImportAndNotify();
+    void test_copyEffect_shouldDuplicateAndNotify();
+    void test_populatedEffects_shouldReturnOnlyFilledSlots();
 };
 
 } // namespace noteahead

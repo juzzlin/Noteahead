@@ -72,6 +72,10 @@ public:
     bool exportEffectSettings(size_t index, ProjectWriter & writer) const;
     bool importEffectSettings(size_t index, ProjectReader & reader);
 
+    //! Duplicate the effect in sourceIndex into targetIndex (in-memory clone). Returns false if the
+    //! source slot is empty or source and target are the same slot.
+    bool copyEffect(size_t sourceIndex, size_t targetIndex);
+
 private:
     void markChanged();
 

@@ -21,13 +21,18 @@ import Noteahead 1.0
 
 Dialog {
     id: root
-    title: "<strong>" + qsTr("Device Gallery") + "</strong>"
+    title: "<strong>" + qsTr("Copy Effect") + "</strong>"
     modal: true
     focus: true
     width: parent ? parent.width * Constants.largeDialogScale : 800
     height: parent ? parent.height * Constants.largeDialogScale : 600
 
     property int slotIndex: -1
+
+    // Populated when the dialog is opened so the list reflects the current effect rack.
+    property var effects: []
+
+    onOpened: effects = effectRackController.populatedEffects()
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
@@ -39,26 +44,6 @@ Dialog {
     }
 
     footer: DialogButtonBox {
-        Button {
-            text: qsTr("Import Device...")
-            implicitWidth: Constants.defaultButtonWidth
-            visible: root.slotIndex !== -1
-            DialogButtonBox.buttonRole: DialogButtonBox.ActionRole
-            onClicked: {
-                root.accept();
-                UiService.requestImportDeviceSettings(root.slotIndex);
-            }
-        }
-        Button {
-            text: qsTr("Copy Device...")
-            implicitWidth: Constants.defaultButtonWidth
-            visible: root.slotIndex !== -1
-            DialogButtonBox.buttonRole: DialogButtonBox.ActionRole
-            onClicked: {
-                root.accept();
-                UiService.requestCopyDeviceDialog(root.slotIndex);
-            }
-        }
         Button {
             text: qsTr("Close")
             implicitWidth: Constants.defaultButtonWidth
@@ -72,16 +57,24 @@ Dialog {
         spacing: 20
 
         Label {
-            text: qsTr("Select Device")
+            text: qsTr("Copy From Effect")
             font.bold: true
             font.pointSize: 16
             color: "white"
             Layout.alignment: Qt.AlignHCenter
         }
 
+        Label {
+            text: qsTr("No effects to copy.")
+            color: "#aaa"
+            font.pointSize: 12
+            visible: root.effects.length === 0 || (root.effects.length === 1 && root.effects[0].slotIndex === root.slotIndex)
+            Layout.alignment: Qt.AlignHCenter
+        }
+
         ListView {
-            id: deviceListView
-            model: deviceRackController.availableDevices()
+            id: effectListView
+            model: root.effects
             property int hoveredIndex: -1
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -89,41 +82,32 @@ Dialog {
             spacing: 10
             ScrollBar.vertical: ScrollBar {}
             delegate: Rectangle {
-                width: deviceListView.width
+                width: effectListView.width
                 height: 50
-                color: (deviceListView.hoveredIndex === index && root.activeFocus) ? themeService.accentColor : "#333"
+                // The target slot itself is not a valid copy source.
+                visible: modelData.slotIndex !== root.slotIndex
+                color: (effectListView.hoveredIndex === index && root.activeFocus) ? themeService.accentColor : "#333"
                 radius: 5
                 border.color: "#555"
                 MouseArea {
-                    id: mouseArea
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
-                    onEntered: deviceListView.hoveredIndex = index
-                    onExited: deviceListView.hoveredIndex = -1
+                    onEntered: effectListView.hoveredIndex = index
+                    onExited: effectListView.hoveredIndex = -1
                     onClicked: {
-                        deviceListView.hoveredIndex = -1;
-                        deviceRackController.setDevice(root.slotIndex, modelData.typeId);
+                        effectListView.hoveredIndex = -1;
+                        effectRackController.copyEffect(modelData.slotIndex, root.slotIndex);
                         root.accept();
                     }
                 }
                 Text {
                     anchors.centerIn: parent
-                    text: modelData.name
+                    text: qsTr("Slot %1: %2").arg(modelData.slotIndex + 1).arg(modelData.name)
                     color: "white"
                     font.pointSize: 12
-                    font.bold: deviceListView.hoveredIndex === index && root.activeFocus
+                    font.bold: effectListView.hoveredIndex === index && root.activeFocus
                 }
-            }
-        }
-
-        Button {
-            text: qsTr("Clear Slot")
-            Layout.fillWidth: true
-            visible: root.slotIndex !== -1 && deviceRackController.deviceType(root.slotIndex) !== ""
-            onClicked: {
-                deviceRackController.clearDevice(root.slotIndex);
-                root.accept();
             }
         }
     }

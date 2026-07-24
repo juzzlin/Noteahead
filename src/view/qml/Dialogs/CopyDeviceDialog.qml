@@ -21,13 +21,18 @@ import Noteahead 1.0
 
 Dialog {
     id: root
-    title: "<strong>" + qsTr("Device Gallery") + "</strong>"
+    title: "<strong>" + qsTr("Copy Device") + "</strong>"
     modal: true
     focus: true
     width: parent ? parent.width * Constants.largeDialogScale : 800
     height: parent ? parent.height * Constants.largeDialogScale : 600
 
     property int slotIndex: -1
+
+    // Populated when the dialog is opened so the list reflects the current device rack.
+    property var devices: []
+
+    onOpened: devices = deviceRackController.populatedDevices()
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
@@ -39,26 +44,6 @@ Dialog {
     }
 
     footer: DialogButtonBox {
-        Button {
-            text: qsTr("Import Device...")
-            implicitWidth: Constants.defaultButtonWidth
-            visible: root.slotIndex !== -1
-            DialogButtonBox.buttonRole: DialogButtonBox.ActionRole
-            onClicked: {
-                root.accept();
-                UiService.requestImportDeviceSettings(root.slotIndex);
-            }
-        }
-        Button {
-            text: qsTr("Copy Device...")
-            implicitWidth: Constants.defaultButtonWidth
-            visible: root.slotIndex !== -1
-            DialogButtonBox.buttonRole: DialogButtonBox.ActionRole
-            onClicked: {
-                root.accept();
-                UiService.requestCopyDeviceDialog(root.slotIndex);
-            }
-        }
         Button {
             text: qsTr("Close")
             implicitWidth: Constants.defaultButtonWidth
@@ -72,16 +57,24 @@ Dialog {
         spacing: 20
 
         Label {
-            text: qsTr("Select Device")
+            text: qsTr("Copy From Device")
             font.bold: true
             font.pointSize: 16
             color: "white"
             Layout.alignment: Qt.AlignHCenter
         }
 
+        Label {
+            text: qsTr("No devices to copy.")
+            color: "#aaa"
+            font.pointSize: 12
+            visible: root.devices.length === 0 || (root.devices.length === 1 && root.devices[0].slotIndex === root.slotIndex)
+            Layout.alignment: Qt.AlignHCenter
+        }
+
         ListView {
             id: deviceListView
-            model: deviceRackController.availableDevices()
+            model: root.devices
             property int hoveredIndex: -1
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -91,11 +84,12 @@ Dialog {
             delegate: Rectangle {
                 width: deviceListView.width
                 height: 50
+                // The target slot itself is not a valid copy source.
+                visible: modelData.slotIndex !== root.slotIndex
                 color: (deviceListView.hoveredIndex === index && root.activeFocus) ? themeService.accentColor : "#333"
                 radius: 5
                 border.color: "#555"
                 MouseArea {
-                    id: mouseArea
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
@@ -103,27 +97,31 @@ Dialog {
                     onExited: deviceListView.hoveredIndex = -1
                     onClicked: {
                         deviceListView.hoveredIndex = -1;
-                        deviceRackController.setDevice(root.slotIndex, modelData.typeId);
+                        deviceRackController.copyDevice(modelData.slotIndex, root.slotIndex);
                         root.accept();
                     }
                 }
-                Text {
-                    anchors.centerIn: parent
-                    text: modelData.name
-                    color: "white"
-                    font.pointSize: 12
-                    font.bold: deviceListView.hoveredIndex === index && root.activeFocus
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.margins: 15
+                    Text {
+                        text: modelData.name + " (" + modelData.typeName + ")"
+                        color: "white"
+                        font.pointSize: 12
+                        font.bold: deviceListView.hoveredIndex === index && root.activeFocus
+                        Layout.fillWidth: true
+                        elide: Text.ElideRight
+                    }
+                    Text {
+                        text: modelData.trackNames
+                        color: "#aaa"
+                        font.pointSize: 11
+                        horizontalAlignment: Text.AlignRight
+                        elide: Text.ElideRight
+                        visible: modelData.trackNames !== ""
+                        Layout.preferredWidth: 200
+                    }
                 }
-            }
-        }
-
-        Button {
-            text: qsTr("Clear Slot")
-            Layout.fillWidth: true
-            visible: root.slotIndex !== -1 && deviceRackController.deviceType(root.slotIndex) !== ""
-            onClicked: {
-                deviceRackController.clearDevice(root.slotIndex);
-                root.accept();
             }
         }
     }

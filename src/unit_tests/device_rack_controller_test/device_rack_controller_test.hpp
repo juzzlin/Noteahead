@@ -38,6 +38,8 @@ private slots:
     void test_importSettings_matchingType_shouldEmitConfirmationWithoutMismatch();
     void test_importSettings_differentType_shouldEmitConfirmationWithMismatch();
     void test_confirmImportSettings_shouldImportAndNotify();
+    void test_copyDevice_shouldDuplicateAndNotify();
+    void test_populatedDevices_shouldReturnOnlyFilledSlots();
 };
 
 } // namespace noteahead

@@ -598,8 +598,11 @@ bool DeviceService::importDeviceSettings(int slotIndex, const QString & filePath
     if (!file.open(QIODevice::ReadOnly)) {
         return false;
     }
-    const auto xml = QString::fromUtf8(file.readAll());
+    return importDeviceSettingsFromXml(slotIndex, QString::fromUtf8(file.readAll()));
+}
 
+bool DeviceService::importDeviceSettingsFromXml(int slotIndex, const QString & xml)
+{
     // Extract embedded data before deserializing the device so that a Sampler can resolve its
     // nahd:// sample paths while loading. In the file the <Device> element precedes the <Data>
     // blocks, so a single streaming pass would try to load samples before they are extracted.
@@ -615,6 +618,23 @@ bool DeviceService::importDeviceSettings(int slotIndex, const QString & filePath
 
     NahdXmlReader reader { xml };
     return importDeviceSettings(slotIndex, reader);
+}
+
+bool DeviceService::copyDevice(int sourceSlot, int targetSlot)
+{
+    if (sourceSlot == targetSlot || !device(static_cast<size_t>(sourceSlot))) {
+        return false;
+    }
+
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        if (!exportDeviceSettings(sourceSlot, writer)) {
+            return false;
+        }
+    }
+
+    return importDeviceSettingsFromXml(targetSlot, xml);
 }
 
 bool DeviceService::importDeviceSettings(int slotIndex, ProjectReader & reader)

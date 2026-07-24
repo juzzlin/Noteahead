@@ -142,6 +142,18 @@ ApplicationWindow {
         width: parent.width * Constants.defaultDialogScale
         height: parent.height * Constants.defaultDialogScale
     }
+    CopyDeviceDialog {
+        id: copyDeviceDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
+    }
+    CopyEffectDialog {
+        id: copyEffectDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
+    }
     FileDialog {
         id: saveAsDialog
         currentFolder: StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
@@ -975,6 +987,14 @@ ApplicationWindow {
         UiService.deviceGalleryDialogRequested.connect(slotIndex => {
             deviceGalleryDialog.slotIndex = slotIndex;
             deviceGalleryDialog.open();
+        });
+        UiService.copyDeviceDialogRequested.connect(slotIndex => {
+            copyDeviceDialog.slotIndex = slotIndex;
+            copyDeviceDialog.open();
+        });
+        UiService.copyEffectDialogRequested.connect(slotIndex => {
+            copyEffectDialog.slotIndex = slotIndex;
+            copyEffectDialog.open();
         });
         UiService.gainConverterDialogRequested.connect(() => {
             gainConverterDialog.open();

@@ -108,6 +108,9 @@ public:
     Q_INVOKABLE void importEffectSettings(int index, const QUrl & fileUrl);
     Q_INVOKABLE void confirmImportEffectSettings(int index, const QUrl & fileUrl);
 
+    Q_INVOKABLE void copyEffect(int sourceSlot, int targetSlot);
+    Q_INVOKABLE QVariantList populatedEffects() const;
+
     Q_INVOKABLE void exportSettings(const QUrl & fileUrl);
     bool exportSettings(ProjectWriter & writer) const;
 

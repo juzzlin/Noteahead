@@ -88,6 +88,10 @@ public:
     Q_INVOKABLE bool importDeviceSettings(int slotIndex, const QString & filePath);
     bool importDeviceSettings(int slotIndex, ProjectReader & reader);
 
+    //! Duplicate the device in sourceSlot into targetSlot (in-memory clone). Returns false if the
+    //! source slot is empty or source and target are the same slot.
+    bool copyDevice(int sourceSlot, int targetSlot);
+
     struct DeviceTypeInfo
     {
         QString typeId;
@@ -109,6 +113,8 @@ signals:
     void synthUserPresetsChanged(const UserPresets & presets);
 
 private:
+    bool importDeviceSettingsFromXml(int slotIndex, const QString & xml);
+
     DeviceService::DeviceS getDevice(std::string name, std::string typeId);
 
     std::shared_ptr<SynthDevice> findFirstSynthDevice() const;
