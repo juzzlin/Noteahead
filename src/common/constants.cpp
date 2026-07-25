@@ -168,6 +168,11 @@ QString clipper()
     return "clipper";
 }
 
+QString drive()
+{
+    return "drive";
+}
+
 QString saturator()
 {
     return "saturator";

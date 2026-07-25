@@ -73,6 +73,7 @@ QString compressor();
 QString delay();
 QString chorus();
 QString clipper();
+QString drive();
 QString saturator();
 QString limiter();
 QString endless();

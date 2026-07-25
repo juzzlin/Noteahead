@@ -48,6 +48,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString chorusType READ chorusType CONSTANT)
     Q_PROPERTY(QString clipperType READ clipperType CONSTANT)
     Q_PROPERTY(QString saturatorType READ saturatorType CONSTANT)
+    Q_PROPERTY(QString driveType READ driveType CONSTANT)
     Q_PROPERTY(QString limiterType READ limiterType CONSTANT)
     Q_PROPERTY(QString compressorType READ compressorType CONSTANT)
     Q_PROPERTY(QString delayType READ delayType CONSTANT)
@@ -85,6 +86,7 @@ public:
     QString rtaType() const;
     QString clipperType() const;
     QString saturatorType() const;
+    QString driveType() const;
     QString limiterType() const;
     QString compressorType() const;
     QString delayType() const;
@@ -186,6 +188,11 @@ public:
     Q_INVOKABLE QString saturatorToneKey() const;
     Q_INVOKABLE QString saturatorMixKey() const;
     Q_INVOKABLE QString saturatorGainKey() const;
+
+    Q_INVOKABLE QString driveModeKey() const;
+    Q_INVOKABLE QString driveAmountKey() const;
+    Q_INVOKABLE QString driveMixKey() const;
+    Q_INVOKABLE QString driveGainKey() const;
 
     Q_INVOKABLE QString eq8BandParametricTypeKey(quint32 bandIndex) const;
     Q_INVOKABLE QString eq8BandParametricFreqKey(quint32 bandIndex) const;

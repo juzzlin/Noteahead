@@ -5,6 +5,11 @@ Release date:
 
 New features:
 
+* Add a Drive rack effect
+  - Overdrive with Drive amount, dry/wet Mix and an output Gain (dB) knob
+  - Algorithm dropdown: Soft (tanh), Hard (clip), Fold (wavefolder) and
+    Dist (aggressive, electric-guitar-style distortion)
+
 * Copy an existing device or effect when creating a new one
   - "Copy Device..." in the Device Gallery duplicates another device into the slot
   - The device list shows the track(s) each device is used on

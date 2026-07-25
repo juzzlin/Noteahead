@@ -25,6 +25,7 @@
 #include "../../domain/effects/clipper.hpp"
 #include "../../domain/effects/compressor.hpp"
 #include "../../domain/effects/delay.hpp"
+#include "../../domain/effects/drive.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/effect_rack.hpp"
 #include "../../domain/effects/eq_8_band_parametric.hpp"
@@ -242,6 +243,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Compressor", Constants::RackEffectType::compressor().toStdString());
     addEffect("dBTP Meter", DbTpMeter::typeIdString());
     addEffect("Delay", Constants::RackEffectType::delay().toStdString());
+    addEffect("Drive", Constants::RackEffectType::drive().toStdString());
     addEffect("EQ 8-Band Parametric", Constants::RackEffectType::eq8BandParametric().toStdString());
     addEffect("Limiter", Constants::RackEffectType::limiter().toStdString());
     addEffect("LUFS Meter", LufsMeter::typeIdString());
@@ -483,6 +485,14 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                       .arg(drive->get().value() * 24.0f, 0, 'f', 1)
                       .arg(static_cast<int>(std::round(mix->get().value() * 100.0f)));
                 }
+            } else if (type == Constants::RackEffectType::drive()) {
+                const auto drive = effect->parameter(Constants::NahdXml::xmlKeyDrive().toStdString());
+                const auto mix = effect->parameter(Constants::NahdXml::xmlKeyMix().toStdString());
+                if (drive && mix) {
+                    return QString { "(drive=%1%, mix=%2%)" }
+                      .arg(static_cast<int>(std::round(drive->get().value() * 100.0f)))
+                      .arg(static_cast<int>(std::round(mix->get().value() * 100.0f)));
+                }
             } else if (type == Constants::RackEffectType::endless()) {
                 const auto size = effect->parameter(Constants::NahdXml::xmlKeySize().toStdString());
                 const auto freeze = effect->parameter(Constants::NahdXml::xmlKeyFreeze().toStdString());
@@ -722,6 +732,26 @@ QString EffectRackController::saturatorGainKey() const
     return Constants::NahdXml::xmlKeyGain();
 }
 
+QString EffectRackController::driveModeKey() const
+{
+    return Constants::NahdXml::xmlKeyMode();
+}
+
+QString EffectRackController::driveAmountKey() const
+{
+    return Constants::NahdXml::xmlKeyDrive();
+}
+
+QString EffectRackController::driveMixKey() const
+{
+    return Constants::NahdXml::xmlKeyMix();
+}
+
+QString EffectRackController::driveGainKey() const
+{
+    return Constants::NahdXml::xmlKeyGain();
+}
+
 QString EffectRackController::eq8BandParametricTypeKey(quint32 bandIndex) const
 {
     return Constants::NahdXml::xmlKeyBandType(bandIndex);
@@ -775,6 +805,11 @@ QString EffectRackController::clipperType() const
 QString EffectRackController::saturatorType() const
 {
     return Constants::RackEffectType::saturator();
+}
+
+QString EffectRackController::driveType() const
+{
+    return Constants::RackEffectType::drive();
 }
 
 QString EffectRackController::limiterType() const

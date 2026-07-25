@@ -41,6 +41,7 @@ set(HEADER_FILES
     effects/clipper.hpp
     effects/compressor.hpp
     effects/delay.hpp
+    effects/drive.hpp
     effects/effect.hpp
     effects/effect_factory.hpp
     effects/effect_rack.hpp
@@ -135,6 +136,7 @@ set(SOURCE_FILES
     effects/clipper.cpp
     effects/compressor.cpp
     effects/delay.cpp
+    effects/drive.cpp
     effects/effect.cpp
     effects/effect_factory.cpp
     effects/effect_rack.cpp

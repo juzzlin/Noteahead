@@ -16,6 +16,7 @@
 #include "effect_rack_test.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/dsp/volume.hpp"
+#include "../../domain/effects/drive.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/effect_rack.hpp"
 #include "../../domain/effects/reverb.hpp"
@@ -377,6 +378,32 @@ void EffectRackTest::test_importEffectSettings_backwardsCompatibility()
     const auto reverb = std::dynamic_pointer_cast<Reverb>(rack.effect(0));
     QVERIFY(reverb != nullptr);
     QCOMPARE(reverb->size(), 0.42f);
+}
+
+void EffectRackTest::test_exportImportEffectSettings_drive_shouldRoundTrip()
+{
+    EffectRack rack;
+    const auto drive = std::make_shared<Drive>();
+    drive->parameter(Constants::NahdXml::xmlKeyMode().toStdString())->get().update(2.0f); // Fold
+    drive->parameter(Constants::NahdXml::xmlKeyDrive().toStdString())->get().update(0.7f);
+    drive->parameter(Constants::NahdXml::xmlKeyMix().toStdString())->get().update(0.4f);
+    drive->parameter(Constants::NahdXml::xmlKeyGain().toStdString())->get().update(0.6f);
+    rack.setEffect(0, drive);
+
+    QString xml;
+    NahdXmlWriter writer { xml };
+    QVERIFY(rack.exportEffectSettings(0, writer));
+
+    EffectRack rack2;
+    NahdXmlReader reader { xml };
+    QVERIFY(rack2.importEffectSettings(1, reader));
+
+    const auto drive2 = std::dynamic_pointer_cast<Drive>(rack2.effect(1));
+    QVERIFY(drive2 != nullptr);
+    QCOMPARE(drive2->parameter(Constants::NahdXml::xmlKeyMode().toStdString())->get().value(), 2.0f);
+    QCOMPARE(drive2->parameter(Constants::NahdXml::xmlKeyDrive().toStdString())->get().value(), 0.7f);
+    QCOMPARE(drive2->parameter(Constants::NahdXml::xmlKeyMix().toStdString())->get().value(), 0.4f);
+    QCOMPARE(drive2->parameter(Constants::NahdXml::xmlKeyGain().toStdString())->get().value(), 0.6f);
 }
 
 void EffectRackTest::test_copyEffect_shouldDuplicateIntoTargetSlot()

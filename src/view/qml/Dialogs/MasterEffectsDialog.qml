@@ -134,6 +134,9 @@ Dialog {
                         } else if (effectType === effectRackController.saturatorType) {
                             saturatorDialog.effectIndex = index;
                             saturatorDialog.open();
+                        } else if (effectType === effectRackController.driveType) {
+                            driveDialog.effectIndex = index;
+                            driveDialog.open();
                         } else if (effectType === effectRackController.limiterType) {
                             limiterDialog.effectIndex = index;
                             limiterDialog.open();
