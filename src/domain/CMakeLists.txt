@@ -15,6 +15,7 @@ set(HEADER_FILES
     dsp/dc_blocker.hpp
     dsp/delay_line.hpp
     dsp/diode_ladder_filter.hpp
+    dsp/downsampler.hpp
     dsp/drum/clap_engine.hpp
     dsp/drum/crash_engine.hpp
     dsp/drum/drum_engine.hpp
@@ -108,6 +109,7 @@ set(SOURCE_FILES
     dsp/dc_blocker.cpp
     dsp/delay_line.cpp
     dsp/diode_ladder_filter.cpp
+    dsp/downsampler.cpp
     dsp/drum/clap_engine.cpp
     dsp/drum/crash_engine.cpp
     dsp/drum/hihat_engine.cpp

@@ -71,7 +71,8 @@ public slots:
                 bool trim = false,
                 int trimMinutes = 0,
                 int trimSeconds = 0,
-                bool analyze = false);
+                bool analyze = false,
+                quint8 oversampleFactor = 2);
 
 signals:
     void progressChanged(double progress);

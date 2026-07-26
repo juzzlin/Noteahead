@@ -227,11 +227,12 @@ void RenderService::startNextRender()
     const int trimMinutes = Settings::renderTrimMinutes();
     const int trimSeconds = Settings::renderTrimSeconds();
     const bool analyze = Settings::renderAnalyzeEnabled();
+    const quint8 oversampleFactor = static_cast<quint8>(Settings::renderOversampleFactor());
 
     juzzlin::L(TAG).info() << "Invoking RenderWorker::render... events=" << events.size() << " maxTick=" << maxTick << " sampleRate=" << sampleRate << " bitDepth=" << static_cast<int>(bitDepth);
 
     const auto renderWorker = m_worker.get();
-    bool success = QMetaObject::invokeMethod(renderWorker, [renderWorker, fileName = job.fileName, events, timing, maxTick, sampleRate, bitDepth, normalize, normalizeTargetDb, trim, trimMinutes, trimSeconds, analyze]() { renderWorker->render(fileName, events, timing, maxTick, sampleRate, bitDepth, normalize, normalizeTargetDb, trim, trimMinutes, trimSeconds, analyze); }, Qt::QueuedConnection);
+    bool success = QMetaObject::invokeMethod(renderWorker, [renderWorker, fileName = job.fileName, events, timing, maxTick, sampleRate, bitDepth, normalize, normalizeTargetDb, trim, trimMinutes, trimSeconds, analyze, oversampleFactor]() { renderWorker->render(fileName, events, timing, maxTick, sampleRate, bitDepth, normalize, normalizeTargetDb, trim, trimMinutes, trimSeconds, analyze, oversampleFactor); }, Qt::QueuedConnection);
     if (!success) {
         juzzlin::L(TAG).error() << "Failed to invoke RenderWorker::render!";
         onWorkerFinished(false, "Internal error: Failed to start render worker.");

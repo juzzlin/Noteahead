@@ -21,6 +21,7 @@
 #include "../../common/xml/project_reader.hpp"
 #include "../../common/xml/project_writer.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/audio/implementation/jack/audio_player_jack.hpp"
 #include "../../infra/audio/implementation/jack/audio_recorder_jack.hpp"
 #include "../../infra/audio/implementation/librtaudio/audio_player_rt_audio.hpp"
@@ -43,6 +44,9 @@ AudioService::AudioService(SettingsServiceS settingsService, JackServiceS jackSe
   , m_jackService { std::move(jackService) }
   , m_audioEngine { std::move(audioEngine) }
 {
+    connect(m_settingsService.get(), &SettingsService::playbackOversampleFactorChanged, this, [this]() {
+        m_audioEngine->setPlaybackOversampleFactor(static_cast<uint8_t>(m_settingsService->playbackOversampleFactor()));
+    });
     if (autoInitialize) {
         reinitialize();
     }
@@ -51,6 +55,8 @@ AudioService::AudioService(SettingsServiceS settingsService, JackServiceS jackSe
 void AudioService::reinitialize()
 {
     juzzlin::L(TAG).info() << "Reinitializing audio engine...";
+
+    m_audioEngine->setPlaybackOversampleFactor(static_cast<uint8_t>(m_settingsService->playbackOversampleFactor()));
 
     if (m_isRecording) {
         stopRecording(m_currentRecordingStartTick);

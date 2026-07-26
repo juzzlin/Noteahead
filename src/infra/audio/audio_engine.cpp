@@ -43,6 +43,7 @@ struct DeviceProcessContext
     uint32_t sampleRate {};
     uint32_t bufferSize {};
     double bpm {};
+    uint8_t oversampleFactor {};
 };
 
 struct EffectProcessContext
@@ -84,7 +85,7 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
         return;
     }
 
-    AudioContext audioContext { std::span(workBuffer.deviceBuffer.data(), deviceContext.bufferSize), deviceContext.frameCount, deviceContext.sampleRate, deviceContext.bpm, deviceContext.deviceOutputBuffers };
+    AudioContext audioContext { std::span(workBuffer.deviceBuffer.data(), deviceContext.bufferSize), deviceContext.frameCount, deviceContext.sampleRate, deviceContext.bpm, deviceContext.deviceOutputBuffers, deviceContext.oversampleFactor };
     device->processAudio(audioContext);
     device->processInsertEffects(audioContext);
 
@@ -434,7 +435,8 @@ void AudioEngine::process(AudioContext & context)
                 context.frameCount,
                 context.sampleRate,
                 bufferSize,
-                context.bpm
+                context.bpm,
+                context.oversampleFactor
             };
             if (useWorkers) {
                 m_workerPool->run(layer.size(), &deviceContext, processDeviceTask);
@@ -543,6 +545,16 @@ void AudioEngine::setIsExclusive(bool exclusive)
 bool AudioEngine::isExclusive() const
 {
     return m_isExclusive;
+}
+
+void AudioEngine::setPlaybackOversampleFactor(uint8_t factor)
+{
+    m_playbackOversampleFactor = factor;
+}
+
+uint8_t AudioEngine::playbackOversampleFactor() const
+{
+    return m_playbackOversampleFactor;
 }
 
 void AudioEngine::ensureWorkBuffers(size_t laneCount, size_t sendCount, uint32_t bufferSize)

@@ -23,6 +23,7 @@
 #include "../../infra/midi/midi_cc_mapping.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <numbers>
 
@@ -187,7 +188,8 @@ void WavetableSynthDevice::processAudio(AudioContext & context)
 
     prepareForProcessing(context);
 
-    const uint32_t oversampledRate = context.sampleRate * 2;
+    const uint8_t oversampleFactor = clampOversampleFactor(context.oversampleFactor);
+    const uint32_t oversampledRate = context.sampleRate * oversampleFactor;
 
     const double portamentoTime = ParameterMapper::mapExponential(m_portamento, 0.01, 2.0);
     const double portamentoCoeff = m_portamento > 0 ? 1.0 - std::pow(0.001, 1.0 / (portamentoTime * oversampledRate)) : 1.0;
@@ -212,39 +214,41 @@ void WavetableSynthDevice::processAudio(AudioContext & context)
         }
 
         if (voice.active) {
-            renderVoice(voice, context, oversampledRate, portamentoCoeff, pbRatio);
+            renderVoice(voice, context, oversampleFactor, oversampledRate, portamentoCoeff, pbRatio);
         }
     }
 
     const float vol = volumeInternal();
+    std::array<float, 4> highL {};
+    std::array<float, 4> highR {};
     for (uint32_t i = 0; i < context.frameCount; i++) {
-        const float l0 = m_oversampledBuffer[i * 4];
-        const float r0 = m_oversampledBuffer[i * 4 + 1];
-        const float l1 = m_oversampledBuffer[i * 4 + 2];
-        const float r1 = m_oversampledBuffer[i * 4 + 3];
+        for (uint8_t os = 0; os < oversampleFactor; os++) {
+            highL[os] = m_oversampledBuffer[(i * oversampleFactor + os) * 2];
+            highR[os] = m_oversampledBuffer[(i * oversampleFactor + os) * 2 + 1];
+        }
 
-        context.buffer[i * 2] += static_cast<double>(m_oversamplerL.process(l0, l1) * vol);
-        context.buffer[i * 2 + 1] += static_cast<double>(m_oversamplerR.process(r0, r1) * vol);
+        context.buffer[i * 2] += static_cast<double>(m_downsamplerL.process(highL.data(), oversampleFactor) * vol);
+        context.buffer[i * 2 + 1] += static_cast<double>(m_downsamplerR.process(highR.data(), oversampleFactor) * vol);
     }
 }
 
 void WavetableSynthDevice::prepareForProcessing(AudioContext & context)
 {
     setSampleRate(context.sampleRate);
-    const size_t requiredSize = static_cast<size_t>(context.frameCount) * 4;
+    const size_t requiredSize = static_cast<size_t>(context.frameCount) * clampOversampleFactor(context.oversampleFactor) * 2;
     if (m_oversampledBuffer.size() < requiredSize) {
         m_oversampledBuffer.resize(requiredSize);
     }
     std::fill(m_oversampledBuffer.begin(), m_oversampledBuffer.begin() + requiredSize, 0.0f);
 }
 
-void WavetableSynthDevice::renderVoice(Voice & voice, AudioContext & context, uint32_t oversampledRate, double portamentoCoeff, double pbRatio)
+void WavetableSynthDevice::renderVoice(Voice & voice, AudioContext & context, uint8_t oversampleFactor, uint32_t oversampledRate, double portamentoCoeff, double pbRatio)
 {
     updateVoiceParameters(voice, oversampledRate);
 
     const float gain = (1.0f / static_cast<float>(MaxVoices)) * linearGainInternal() * voice.velocity;
     for (uint32_t i = 0; i < context.frameCount; i++) {
-        for (int subSample = 0; subSample < 2; subSample++) {
+        for (uint8_t subSample = 0; subSample < oversampleFactor; subSample++) {
             voice.glideFrequency += (voice.frequency - voice.glideFrequency) * portamentoCoeff;
             const ModulationValues mods = calculateModulation(voice);
             const float sample = generateVoiceSample(voice, mods, oversampledRate, pbRatio) * gain;
@@ -254,8 +258,8 @@ void WavetableSynthDevice::renderVoice(Voice & voice, AudioContext & context, ui
             const float panL = static_cast<float>(std::cos(panAngle));
             const float panR = static_cast<float>(std::sin(panAngle));
 
-            m_oversampledBuffer[(i * 2 + subSample) * 2] += sample * panL;
-            m_oversampledBuffer[(i * 2 + subSample) * 2 + 1] += sample * panR;
+            m_oversampledBuffer[(i * oversampleFactor + subSample) * 2] += sample * panL;
+            m_oversampledBuffer[(i * oversampleFactor + subSample) * 2 + 1] += sample * panR;
         }
 
         if (voice.ampEg.state() == AdsrEnvelope::State::Idle) {

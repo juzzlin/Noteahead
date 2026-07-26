@@ -5,6 +5,13 @@ Release date:
 
 New features:
 
+* Add selectable audio quality (oversampling) for playback and export
+  - Separate "Playback quality" (Audio settings) and export "Quality"
+    (Render dialog): Draft (1x), Normal (2x) or High (4x)
+  - Lower the playback quality to save CPU while working; render at higher
+    quality for the final export
+  - Affects the internal Synth, Bass Synth, Drum Synth and Wavetable Synth
+
 * Add a Drive rack effect
   - Overdrive with Drive amount, dry/wet Mix and an output Gain (dB) knob
   - Algorithm dropdown: Soft (tanh), Hard (clip), Fold (wavefolder) and

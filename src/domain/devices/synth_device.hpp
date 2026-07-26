@@ -18,9 +18,9 @@
 
 #include "../dsp/adsr_envelope.hpp"
 #include "../dsp/cascaded_svf.hpp"
+#include "../dsp/downsampler.hpp"
 #include "../dsp/lfo.hpp"
 #include "../dsp/multi_engine.hpp"
-#include "../dsp/oversampler.hpp"
 #include "../dsp/poly_blep_oscillator.hpp"
 #include "../effects/delay.hpp"
 #include "device.hpp"
@@ -376,8 +376,8 @@ private:
     int m_currentBank = 0;
     UserPresets m_userPresets;
 
-    Oversampler2x m_oversamplerL;
-    Oversampler2x m_oversamplerR;
+    Downsampler m_downsamplerL;
+    Downsampler m_downsamplerR;
 
     std::vector<float> m_oversampledBuffer;
 
@@ -410,7 +410,7 @@ private:
 
     void prepareForProcessing(AudioContext & context);
     void updateVoiceParameters(Voice & voice, uint32_t oversampledRate, size_t index);
-    void renderVoice(Voice & voice, AudioContext & context, uint32_t oversampledRate, double portamentoCoeff, double pbRatio, size_t index);
+    void renderVoice(Voice & voice, AudioContext & context, uint8_t oversampleFactor, uint32_t oversampledRate, double portamentoCoeff, double pbRatio, size_t index);
     void applyGlobalEffects(AudioContext & context);
 
     std::string m_name;

@@ -18,8 +18,8 @@
 
 #include "../dsp/adsr_envelope.hpp"
 #include "../dsp/cascaded_svf.hpp"
+#include "../dsp/downsampler.hpp"
 #include "../dsp/lfo.hpp"
-#include "../dsp/oversampler.hpp"
 #include "../dsp/wavetable_oscillator.hpp"
 #include "device.hpp"
 
@@ -295,13 +295,13 @@ private:
 
     void prepareForProcessing(AudioContext & context);
     void updateVoiceParameters(Voice & voice, uint32_t oversampledRate);
-    void renderVoice(Voice & voice, AudioContext & context, uint32_t oversampledRate, double portamentoCoeff, double pbRatio);
+    void renderVoice(Voice & voice, AudioContext & context, uint8_t oversampleFactor, uint32_t oversampledRate, double portamentoCoeff, double pbRatio);
 
     std::string m_name;
 
     std::vector<float> m_oversampledBuffer;
-    Oversampler2x m_oversamplerL;
-    Oversampler2x m_oversamplerR;
+    Downsampler m_downsamplerL;
+    Downsampler m_downsamplerR;
 };
 
 } // namespace noteahead

@@ -94,6 +94,12 @@ void setAudioInputDeviceId(int deviceId);
 int audioOutputDeviceId();
 void setAudioOutputDeviceId(int deviceId);
 
+int playbackOversampleFactor();
+void setPlaybackOversampleFactor(int factor);
+
+int renderOversampleFactor();
+void setRenderOversampleFactor(int factor);
+
 int renderSampleRate();
 void setRenderSampleRate(int sampleRate);
 

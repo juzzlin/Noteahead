@@ -37,6 +37,8 @@ class SettingsService : public QObject
     Q_PROPERTY(bool waveViewEnabled READ waveViewEnabled WRITE setWaveViewEnabled NOTIFY waveViewEnabledChanged)
     Q_PROPERTY(bool midiExportForceDrumChannel10 READ midiExportForceDrumChannel10 WRITE setMidiExportForceDrumChannel10 NOTIFY midiExportForceDrumChannel10Changed)
     Q_PROPERTY(bool midiExportAutoAssignChannels READ midiExportAutoAssignChannels WRITE setMidiExportAutoAssignChannels NOTIFY midiExportAutoAssignChannelsChanged)
+    Q_PROPERTY(int playbackOversampleFactor READ playbackOversampleFactor WRITE setPlaybackOversampleFactor NOTIFY playbackOversampleFactorChanged)
+    Q_PROPERTY(int renderOversampleFactor READ renderOversampleFactor WRITE setRenderOversampleFactor NOTIFY renderOversampleFactorChanged)
     Q_PROPERTY(int renderSampleRate READ renderSampleRate WRITE setRenderSampleRate NOTIFY renderSampleRateChanged)
     Q_PROPERTY(int renderBitDepth READ renderBitDepth WRITE setRenderBitDepth NOTIFY renderBitDepthChanged)
     Q_PROPERTY(bool renderNormalizeEnabled READ renderNormalizeEnabled WRITE setRenderNormalizeEnabled NOTIFY renderNormalizeEnabledChanged)
@@ -107,6 +109,12 @@ public:
     virtual Q_INVOKABLE int audioOutputDeviceId() const;
     virtual Q_INVOKABLE void setAudioOutputDeviceId(int deviceId);
 
+    virtual Q_INVOKABLE int playbackOversampleFactor() const;
+    virtual Q_INVOKABLE void setPlaybackOversampleFactor(int factor);
+
+    virtual Q_INVOKABLE int renderOversampleFactor() const;
+    virtual Q_INVOKABLE void setRenderOversampleFactor(int factor);
+
     virtual Q_INVOKABLE int renderSampleRate() const;
     virtual Q_INVOKABLE void setRenderSampleRate(int sampleRate);
 
@@ -145,6 +153,8 @@ signals:
     void waveViewEnabledChanged();
     void midiExportForceDrumChannel10Changed();
     void midiExportAutoAssignChannelsChanged();
+    void playbackOversampleFactorChanged();
+    void renderOversampleFactorChanged();
     void renderSampleRateChanged();
     void renderBitDepthChanged();
     void renderNormalizeEnabledChanged();

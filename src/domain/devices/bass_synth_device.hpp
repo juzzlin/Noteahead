@@ -20,7 +20,7 @@
 #include "../dsp/cascaded_svf.hpp"
 #include "../dsp/dc_blocker.hpp"
 #include "../dsp/diode_ladder_filter.hpp"
-#include "../dsp/oversampler.hpp"
+#include "../dsp/downsampler.hpp"
 #include "../dsp/poly_blep_oscillator.hpp"
 #include "device.hpp"
 
@@ -146,8 +146,8 @@ private:
     double m_slideCoeff { 1.0 };
     uint32_t m_lastOversampledRate { 0 };
 
-    Oversampler2x m_oversamplerL;
-    Oversampler2x m_oversamplerR;
+    Downsampler m_downsamplerL;
+    Downsampler m_downsamplerR;
 
     DcBlocker m_dcBlockerL;
     DcBlocker m_dcBlockerR;

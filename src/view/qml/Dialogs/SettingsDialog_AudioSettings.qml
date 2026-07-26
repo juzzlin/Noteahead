@@ -37,6 +37,25 @@ GroupBox {
                     }
                 }
 
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        text: qsTr("Playback quality:")
+                    }
+                    ComboBox {
+                        id: playbackQualityComboBox
+                        Layout.fillWidth: true
+                        readonly property var factors: [1, 2, 4]
+                        model: [qsTr("Draft (1x)"), qsTr("Normal (2x)"), qsTr("High (4x)")]
+                        currentIndex: Math.max(0, factors.indexOf(settingsService.playbackOversampleFactor))
+                        onActivated: settingsService.playbackOversampleFactor = factors[currentIndex]
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Oversampling factor for realtime playback. Lower saves CPU; higher reduces aliasing in the internal synths.")
+                    }
+                }
+
                 CheckBox {
                     id: showWaveViewCheckbox
                     text: qsTr("Show recording and playback wave view at the bottom of the editor.")

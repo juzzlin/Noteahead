@@ -263,6 +263,32 @@ void SettingsService::setAudioOutputDeviceId(int deviceId)
     Settings::setAudioOutputDeviceId(deviceId);
 }
 
+int SettingsService::playbackOversampleFactor() const
+{
+    return Settings::playbackOversampleFactor();
+}
+
+void SettingsService::setPlaybackOversampleFactor(int factor)
+{
+    if (this->playbackOversampleFactor() != factor) {
+        Settings::setPlaybackOversampleFactor(factor);
+        emit playbackOversampleFactorChanged();
+    }
+}
+
+int SettingsService::renderOversampleFactor() const
+{
+    return Settings::renderOversampleFactor();
+}
+
+void SettingsService::setRenderOversampleFactor(int factor)
+{
+    if (this->renderOversampleFactor() != factor) {
+        Settings::setRenderOversampleFactor(factor);
+        emit renderOversampleFactorChanged();
+    }
+}
+
 int SettingsService::renderSampleRate() const
 {
     return Settings::renderSampleRate();

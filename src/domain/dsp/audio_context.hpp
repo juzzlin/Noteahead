@@ -34,6 +34,10 @@ struct AudioContext
     uint32_t sampleRate { 0 };
     double bpm { 120.0 };
     std::span<const std::span<const double>> deviceOutputBuffers {};
+    //! Internal oversampling factor (1, 2 or 4) for devices that render their nonlinear stages at a
+    //! higher rate. Lower for realtime playback to save CPU, higher for offline export. Default 2
+    //! preserves the historical fixed 2x behaviour.
+    uint8_t oversampleFactor { 2 };
 };
 
 } // namespace noteahead

@@ -220,7 +220,8 @@ void BassSynthDevice::processMidiAllNotesOff()
 void BassSynthDevice::processAudio(AudioContext & context)
 {
     setSampleRate(context.sampleRate);
-    const uint32_t oversampledRate = context.sampleRate * 2;
+    const uint8_t oversampleFactor = clampOversampleFactor(context.oversampleFactor);
+    const uint32_t oversampledRate = context.sampleRate * oversampleFactor;
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
     if (!m_voice.active)
@@ -249,10 +250,10 @@ void BassSynthDevice::processAudio(AudioContext & context)
     m_dcBlockerR.setSampleRate(context.sampleRate);
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
-        float l[2] { 0.0f, 0.0f };
-        float r[2] { 0.0f, 0.0f };
+        float l[4] { 0.0f, 0.0f, 0.0f, 0.0f };
+        float r[4] { 0.0f, 0.0f, 0.0f, 0.0f };
 
-        for (int os = 0; os < 2; os++) {
+        for (uint8_t os = 0; os < oversampleFactor; os++) {
             m_voice.glideFrequency += (m_voice.frequency - m_voice.glideFrequency) * m_slideCoeff;
 
             const double vcoFreq = m_voice.glideFrequency * combinedPitchRatio;
@@ -303,8 +304,8 @@ void BassSynthDevice::processAudio(AudioContext & context)
             r[os] = finalSample * static_cast<float>(std::sin(panAngle));
         }
 
-        const double outL = m_oversamplerL.process(l[0], l[1]) * volumeInternal();
-        const double outR = m_oversamplerR.process(r[0], r[1]) * volumeInternal();
+        const double outL = m_downsamplerL.process(l, oversampleFactor) * volumeInternal();
+        const double outR = m_downsamplerR.process(r, oversampleFactor) * volumeInternal();
 
         context.buffer[i * 2] += m_dcBlockerL.process(outL);
         context.buffer[i * 2 + 1] += m_dcBlockerR.process(outR);
@@ -333,8 +334,8 @@ void BassSynthDevice::resetAudio()
 {
     const std::lock_guard<std::recursive_mutex> lock(mutex());
     m_voice.reset();
-    m_oversamplerL.reset();
-    m_oversamplerR.reset();
+    m_downsamplerL.reset();
+    m_downsamplerR.reset();
     m_distLpState = 0.0f;
     m_dcBlockerL.reset();
     m_dcBlockerR.reset();
@@ -424,8 +425,8 @@ void BassSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
         m_voice.ampEg.trigger();
     } else {
         m_distLpState = 0.0f;
-        m_oversamplerL.reset();
-        m_oversamplerR.reset();
+        m_downsamplerL.reset();
+        m_downsamplerR.reset();
         if (hasAccent) {
             m_voice.filterEg.setDecayTime(ParameterMapper::mapExponential(m_decay, 0.1, 10.0) * 0.5);
         } else {

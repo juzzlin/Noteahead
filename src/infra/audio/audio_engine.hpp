@@ -64,6 +64,11 @@ public:
     void setIsExclusive(bool exclusive);
     bool isExclusive() const;
 
+    //! Oversampling factor used for realtime playback (offline export sets its own factor directly on
+    //! the AudioContext). Read by the playback context builders and stamped onto each device's context.
+    void setPlaybackOversampleFactor(uint8_t factor);
+    uint8_t playbackOversampleFactor() const;
+
     EffectRack & sendEffectRack();
     EffectRack & insertEffectRack();
 
@@ -105,6 +110,7 @@ private:
     std::vector<size_t> m_prevGraphSignature;
     mutable std::mutex m_mutex;
     std::atomic<bool> m_isExclusive { false };
+    std::atomic<uint8_t> m_playbackOversampleFactor { 2 };
 };
 
 } // namespace noteahead

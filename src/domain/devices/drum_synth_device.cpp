@@ -200,7 +200,8 @@ void DrumSynthDevice::processMidiAllNotesOff()
 void DrumSynthDevice::processAudio(AudioContext & context)
 {
     setSampleRate(context.sampleRate);
-    const uint32_t oversampledRate = context.sampleRate * 2;
+    const uint8_t oversampleFactor = clampOversampleFactor(context.oversampleFactor);
+    const uint32_t oversampledRate = context.sampleRate * oversampleFactor;
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
     for (auto && voice : m_voices) {
@@ -226,11 +227,11 @@ void DrumSynthDevice::processAudio(AudioContext & context)
         }
     }
 
-    std::vector<float> oversampledBuffer(context.frameCount * 4, 0.0f);
+    std::vector<float> oversampledBuffer(static_cast<size_t>(context.frameCount) * oversampleFactor * 2, 0.0f);
     const float globalGain = linearGainInternal();
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
-        for (int os = 0; os < 2; os++) {
+        for (uint8_t os = 0; os < oversampleFactor; os++) {
             float mixL = 0.0f;
             float mixR = 0.0f;
 
@@ -255,8 +256,8 @@ void DrumSynthDevice::processAudio(AudioContext & context)
                 }
             }
 
-            oversampledBuffer[(i * 2 + os) * 2] += mixL * globalGain;
-            oversampledBuffer[(i * 2 + os) * 2 + 1] += mixR * globalGain;
+            oversampledBuffer[(i * oversampleFactor + os) * 2] += mixL * globalGain;
+            oversampledBuffer[(i * oversampleFactor + os) * 2 + 1] += mixR * globalGain;
         }
     }
 
@@ -264,15 +265,17 @@ void DrumSynthDevice::processAudio(AudioContext & context)
     const float panL = static_cast<float>(std::cos(panAngle));
     const float panR = static_cast<float>(std::sin(panAngle));
 
+    std::array<float, 4> highL {};
+    std::array<float, 4> highR {};
     for (uint32_t i = 0; i < context.frameCount; i++) {
-        const float l0 = oversampledBuffer[i * 4];
-        const float r0 = oversampledBuffer[i * 4 + 1];
-        const float l1 = oversampledBuffer[i * 4 + 2];
-        const float r1 = oversampledBuffer[i * 4 + 3];
-
         // Soft-clip at high rate and then downsample
-        const float l = m_oversamplerL.process(std::tanh(l0), std::tanh(l1));
-        const float r = m_oversamplerR.process(std::tanh(r0), std::tanh(r1));
+        for (uint8_t os = 0; os < oversampleFactor; os++) {
+            highL[os] = std::tanh(oversampledBuffer[(i * oversampleFactor + os) * 2]);
+            highR[os] = std::tanh(oversampledBuffer[(i * oversampleFactor + os) * 2 + 1]);
+        }
+
+        const float l = m_downsamplerL.process(highL.data(), oversampleFactor);
+        const float r = m_downsamplerR.process(highR.data(), oversampleFactor);
 
         context.buffer[i * 2] += l * panL * volumeInternal();
         context.buffer[i * 2 + 1] += r * panR * volumeInternal();
@@ -304,8 +307,8 @@ void DrumSynthDevice::resetAudio()
         voice.engine->reset();
         voice.effectRack.reset();
     }
-    m_oversamplerL.reset();
-    m_oversamplerR.reset();
+    m_downsamplerL.reset();
+    m_downsamplerR.reset();
 }
 
 void DrumSynthDevice::serializeToXml(ProjectWriter & writer) const

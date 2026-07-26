@@ -62,6 +62,7 @@ int AudioPlayerRtAudio::playCallback(void * outputBuffer, void *,
         }
 
         AudioContext audioContext { std::span(self->m_doubleBuffer.data(), self->m_doubleBuffer.size()), frameCount, self->m_rtAudio.getStreamSampleRate() };
+        audioContext.oversampleFactor = self->m_audioEngine->playbackOversampleFactor();
         self->m_audioEngine->process(audioContext);
         for (uint32_t frame = 0; frame < frameCount; frame++) {
             // Mix with existing buffer (converted to float)

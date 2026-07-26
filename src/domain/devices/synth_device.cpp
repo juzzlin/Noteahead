@@ -24,6 +24,7 @@
 #include "synth_presets.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <numbers>
 
@@ -251,7 +252,8 @@ void SynthDevice::processAudio(AudioContext & context)
 
     prepareForProcessing(context);
 
-    const uint32_t oversampledRate = context.sampleRate * 2;
+    const uint8_t oversampleFactor = clampOversampleFactor(context.oversampleFactor);
+    const uint32_t oversampledRate = context.sampleRate * oversampleFactor;
 
     const double portamentoTime = ParameterMapper::mapExponential(m_portamento, 0.01, 2.0);
     const double portamentoCoeff = m_portamento > 0 ? 1.0 - std::pow(0.001, 1.0 / (portamentoTime * oversampledRate)) : 1.0;
@@ -261,7 +263,7 @@ void SynthDevice::processAudio(AudioContext & context)
     for (size_t i = 0; i < m_voices.size(); i++) {
         auto & voice = m_voices.at(i);
         if (voice.active) {
-            renderVoice(voice, context, oversampledRate, portamentoCoeff, pbRatio, i);
+            renderVoice(voice, context, oversampleFactor, oversampledRate, portamentoCoeff, pbRatio, i);
         }
     }
 
@@ -273,21 +275,21 @@ void SynthDevice::prepareForProcessing(AudioContext & context)
     setSampleRate(context.sampleRate);
     m_delay.setSampleRate(static_cast<double>(context.sampleRate));
 
-    const size_t requiredSize = static_cast<size_t>(context.frameCount) * 4;
+    const size_t requiredSize = static_cast<size_t>(context.frameCount) * clampOversampleFactor(context.oversampleFactor) * 2;
     if (m_oversampledBuffer.size() < requiredSize) {
         m_oversampledBuffer.resize(requiredSize);
     }
     std::fill(m_oversampledBuffer.begin(), m_oversampledBuffer.begin() + requiredSize, 0.0f);
 }
 
-void SynthDevice::renderVoice(Voice & voice, AudioContext & context, uint32_t oversampledRate, double portamentoCoeff, double pbRatio, size_t index)
+void SynthDevice::renderVoice(Voice & voice, AudioContext & context, uint8_t oversampleFactor, uint32_t oversampledRate, double portamentoCoeff, double pbRatio, size_t index)
 {
     updateVoiceParameters(voice, oversampledRate, index);
 
     const float gain = (1.0f / static_cast<float>(MaxVoices)) * linearGainInternal() * voice.velocity;
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
-        for (int os = 0; os < 2; os++) {
+        for (uint8_t os = 0; os < oversampleFactor; os++) {
             voice.glideFrequency += (voice.frequency - voice.glideFrequency) * portamentoCoeff;
 
             const ModulationValues mods = calculateModulation(voice);
@@ -298,8 +300,8 @@ void SynthDevice::renderVoice(Voice & voice, AudioContext & context, uint32_t ov
             const float panL = static_cast<float>(std::cos(panAngle));
             const float panR = static_cast<float>(std::sin(panAngle));
 
-            m_oversampledBuffer[(i * 2 + os) * 2] += finalHighRateSample * panL;
-            m_oversampledBuffer[(i * 2 + os) * 2 + 1] += finalHighRateSample * panR;
+            m_oversampledBuffer[(i * oversampleFactor + os) * 2] += finalHighRateSample * panL;
+            m_oversampledBuffer[(i * oversampleFactor + os) * 2 + 1] += finalHighRateSample * panR;
         }
     }
 
@@ -355,14 +357,17 @@ void SynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversampledRate,
 
 void SynthDevice::applyGlobalEffects(AudioContext & context)
 {
+    const uint8_t oversampleFactor = clampOversampleFactor(context.oversampleFactor);
+    std::array<float, 4> highL {};
+    std::array<float, 4> highR {};
     for (uint32_t i = 0; i < context.frameCount; i++) {
-        const float l0 = m_oversampledBuffer[i * 4];
-        const float r0 = m_oversampledBuffer[i * 4 + 1];
-        const float l1 = m_oversampledBuffer[i * 4 + 2];
-        const float r1 = m_oversampledBuffer[i * 4 + 3];
+        for (uint8_t os = 0; os < oversampleFactor; os++) {
+            highL[os] = m_oversampledBuffer[(i * oversampleFactor + os) * 2];
+            highR[os] = m_oversampledBuffer[(i * oversampleFactor + os) * 2 + 1];
+        }
 
-        double l = static_cast<double>(m_oversamplerL.process(l0, l1));
-        double r = static_cast<double>(m_oversamplerR.process(r0, r1));
+        double l = static_cast<double>(m_downsamplerL.process(highL.data(), oversampleFactor));
+        double r = static_cast<double>(m_downsamplerR.process(highR.data(), oversampleFactor));
 
         m_delay.process(l, r);
 
@@ -488,8 +493,8 @@ void SynthDevice::resetAudio()
         voice.reset();
     }
     m_delay.reset();
-    m_oversamplerL.reset();
-    m_oversamplerR.reset();
+    m_downsamplerL.reset();
+    m_downsamplerR.reset();
     m_polyNextVoice = 0;
     m_dualNextPair = 0;
     m_nextTriggerId = 1;

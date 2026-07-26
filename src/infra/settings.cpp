@@ -32,6 +32,8 @@ const auto audioBackendKey = "audioBackend";
 const auto audioBufferSizeKey = "audioBufferSize";
 const auto audioInputDeviceIdKey = "audioInputDeviceId";
 const auto audioOutputDeviceIdKey = "audioOutputDeviceId";
+const auto playbackOversampleFactorKey = "playbackOversampleFactor";
+const auto renderOversampleFactorKey = "renderOversampleFactor";
 const auto renderSampleRateKey = "renderSampleRate";
 const auto renderBitDepthKey = "renderBitDepth";
 const auto recordingEnabledKey = "recordingEnabled";
@@ -460,6 +462,40 @@ void setAudioOutputDeviceId(int deviceId)
     QSettings settings;
     settings.beginGroup(settingsGroupAudio);
     settings.setValue(audioOutputDeviceIdKey, deviceId);
+    settings.endGroup();
+}
+
+int playbackOversampleFactor()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    const auto factor = settings.value(playbackOversampleFactorKey, 2).toInt();
+    settings.endGroup();
+    return factor;
+}
+
+void setPlaybackOversampleFactor(int factor)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    settings.setValue(playbackOversampleFactorKey, factor);
+    settings.endGroup();
+}
+
+int renderOversampleFactor()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    const auto factor = settings.value(renderOversampleFactorKey, 2).toInt();
+    settings.endGroup();
+    return factor;
+}
+
+void setRenderOversampleFactor(int factor)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    settings.setValue(renderOversampleFactorKey, factor);
     settings.endGroup();
 }
 

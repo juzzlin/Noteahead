@@ -322,6 +322,7 @@ int JackService::processCallback(jack_nframes_t frameCount, void * arg)
         }
 
         AudioContext audioContext { std::span(self->m_doubleAccumulationBuffer.data(), totalSamples), frameCount, self->sampleRate() };
+        audioContext.oversampleFactor = self->m_audioEngine->playbackOversampleFactor();
         self->m_audioEngine->process(audioContext);
 
         auto outL = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(self->m_outputPortL, frameCount));

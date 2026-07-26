@@ -64,7 +64,8 @@ void RenderWorker::render(const QString & fileName,
                           bool trim,
                           int trimMinutes,
                           int trimSeconds,
-                          bool analyze)
+                          bool analyze,
+                          quint8 oversampleFactor)
 {
     if (m_isRendering) {
         return;
@@ -140,6 +141,7 @@ void RenderWorker::render(const QString & fileName,
 
                 std::fill(audioBuffer.begin(), audioBuffer.begin() + totalSamples, 0.0);
                 AudioContext audioContext { std::span(audioBuffer.data(), totalSamples), framesToProcess, sampleRate };
+                audioContext.oversampleFactor = oversampleFactor;
                 m_audioEngine->process(audioContext);
 
                 // Convert to float and clamp signal to prevent overflow when writing to PCM (only clamp when not writing Float_32)
@@ -181,6 +183,7 @@ void RenderWorker::render(const QString & fileName,
             }
             std::fill(audioBuffer.begin(), audioBuffer.begin() + totalSamples, 0.0);
             AudioContext audioContext { std::span(audioBuffer.data(), totalSamples), finalFrames, sampleRate };
+            audioContext.oversampleFactor = oversampleFactor;
             m_audioEngine->process(audioContext);
 
             // Convert to float and clamp signal to prevent overflow when writing to PCM
