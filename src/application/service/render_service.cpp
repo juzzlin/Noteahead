@@ -90,6 +90,16 @@ void RenderService::renderIndividualTracks(const QString & directory)
     m_mixerService->pushState();
 
     const auto date = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
+    const auto sampleRateSuffix = QString::number(Settings::renderSampleRate() / 1000) + "k";
+    const auto bitDepthSuffix = []() {
+        switch (Settings::renderBitDepth()) {
+        case BitDepth::PCM_24: return "24bit";
+        case BitDepth::PCM_32: return "32bit";
+        case BitDepth::Float_32: return "32bitFloat";
+        case BitDepth::PCM_16:
+        default: return "16bit";
+        }
+    }();
 
     m_queue.clear();
     for (auto trackIndex : m_editorService->trackIndices()) {
@@ -100,7 +110,7 @@ void RenderService::renderIndividualTracks(const QString & directory)
         }
 
         const auto trackName = m_editorService->trackName(trackIndex);
-        const auto fileName = QDir(directory).filePath(trackName + "_" + date + ".wav");
+        const auto fileName = QDir(directory).filePath(QString{"%1_%2_%3_%4.wav"}.arg(trackName, sampleRateSuffix, bitDepthSuffix, date));
         m_queue.push_back({ fileName, { trackIndex } });
     }
 
@@ -135,7 +145,17 @@ QString RenderService::defaultRenderFileName() const
         return {};
     }
     const auto date = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
-    return projectFileName + "_" + date + ".wav";
+    const auto sampleRateSuffix = QString::number(Settings::renderSampleRate() / 1000) + "k";
+    const auto bitDepthSuffix = []() {
+        switch (Settings::renderBitDepth()) {
+        case BitDepth::PCM_24: return "24bit";
+        case BitDepth::PCM_32: return "32bit";
+        case BitDepth::Float_32: return "32bitFloat";
+        case BitDepth::PCM_16:
+        default: return "16bit";
+        }
+    }();
+    return QString{"%1_%2_%3_%4.wav"}.arg(projectFileName, sampleRateSuffix, bitDepthSuffix, date);
 }
 
 QString RenderService::defaultRenderDirectory() const
