@@ -40,7 +40,7 @@ Menu {
     }
     MenuSeparator {}
     Action {
-        text: qsTr("Settings")
+        text: qsTr("Settings...")
         onTriggered: UiService.requestSettingsDialog()
     }
     delegate: MenuItemDelegate {}
