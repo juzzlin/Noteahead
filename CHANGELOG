@@ -5,6 +5,11 @@ Release date:
 
 New features:
 
+* Add FLAC support to the Sampler
+  - Load FLAC files as samples in addition to WAV
+  - The sample file browser now lists both WAV and FLAC files
+  - Embedding a FLAC sample into the project works as with WAV
+
 * Add selectable audio quality (oversampling) for playback and export
   - Separate "Playback quality" (Audio settings) and export "Quality"
     (Render dialog): Draft (1x), Normal (2x) or High (4x)

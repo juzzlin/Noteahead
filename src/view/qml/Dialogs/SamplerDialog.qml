@@ -67,7 +67,7 @@ Dialog {
     FileDialog {
         id: sampleFileDialog
         title: qsTr("Select Sample")
-        nameFilters: [qsTr("Audio files (*.wav *.WAV)")]
+        nameFilters: [qsTr("Audio files") + " (*.wav *.WAV *.flac *.FLAC)", qsTr("WAV files") + " (*.wav *.WAV)", qsTr("FLAC files") + " (*.flac *.FLAC)"]
         property int padToAssign: -1
         onAccepted: {
             if (padToAssign !== -1) {

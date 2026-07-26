@@ -18,8 +18,11 @@
 #include "../../infra/audio/audio_file_recorder.hpp"
 #include "../../infra/audio/audio_file_streamer.hpp"
 #include "../../infra/audio/backend/audio_file_reader.hpp"
+#include "../../infra/audio/backend/sndfile_reader.hpp"
 
+#include <QDir>
 #include <QTest>
+#include <cmath>
 #include <condition_variable>
 #include <mutex>
 #include <thread>
@@ -54,6 +57,8 @@ public:
 
     void setTag(TagType type, const std::string & value) override
     {
+        (void)type;
+        (void)value;
     }
 
     int64_t readFloat(std::span<float> data) override
@@ -275,6 +280,52 @@ void AudioFileIoTest::test_position_shouldSeekAndReportCorrectPosition()
         QCOMPARE(totalRead, 100u);
         QVERIFY(streamer.position() > 0.5);
     }
+}
+
+void AudioFileIoTest::test_sndFileReader_flac_shouldWriteAndReadBackCorrectly()
+{
+    const uint32_t sampleRate { 44100 };
+    const uint32_t channels { 2 };
+    const size_t bufferSize { 8192 };
+    const size_t frames { 1024 };
+
+    // A ramp-based signal in [-1, 1] with distinct per-channel values
+    std::vector<float> sourceData(frames * channels);
+    for (size_t i = 0; i < frames; i++) {
+        sourceData[i * channels] = std::sin(static_cast<float>(i) * 0.05f);
+        sourceData[i * channels + 1] = -std::sin(static_cast<float>(i) * 0.05f);
+    }
+
+    const auto filePath = QDir { QDir::tempPath() }.absoluteFilePath("noteahead_sampler_flac_test.flac").toStdString();
+
+    // Write a real FLAC file using the same backend the sampler reads with
+    {
+        AudioFileRecorder recorder {};
+        recorder.start(filePath, sampleRate, channels, bufferSize, BitDepth::PCM_16, AudioFormat::Flac);
+        QVERIFY(recorder.push(sourceData.data(), sourceData.size()));
+        recorder.stop();
+    }
+
+    // Read it back exactly as SamplerDevice::loadSample does
+    SndFileReader reader;
+    AudioFileReader::Info info {};
+    QVERIFY(reader.open(filePath, AudioFileReader::Mode::Read, info));
+    QCOMPARE(info.channels, static_cast<int>(channels));
+    QCOMPARE(info.samplerate, static_cast<int>(sampleRate));
+    QCOMPARE(info.frames, static_cast<int64_t>(frames));
+
+    std::vector<float> readData(static_cast<size_t>(info.frames * info.channels));
+    const auto readFrames = reader.readFloat(std::span<float> { readData });
+    reader.close();
+    QCOMPARE(readFrames, static_cast<int64_t>(frames));
+
+    // PCM_16 quantization tolerance
+    const float tolerance = 2.0f / 32768.0f;
+    for (size_t i = 0; i < readData.size(); i++) {
+        QVERIFY(std::abs(readData[i] - sourceData[i]) < tolerance);
+    }
+
+    QDir {}.remove(QString::fromStdString(filePath));
 }
 
 } // namespace noteahead
