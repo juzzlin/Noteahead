@@ -95,6 +95,12 @@ public:
         m_isOpen = false;
     }
 
+    void setTag(TagType type, const std::string & value) override
+    {
+        (void)type;
+        (void)value;
+    }
+
     int64_t readFloat(std::span<float> data) override
     {
         if (m_registry) {

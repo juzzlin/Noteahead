@@ -66,7 +66,8 @@ void RenderWorker::render(const QString & fileName,
                           int trimSeconds,
                           bool analyze,
                           quint8 oversampleFactor,
-                          noteahead::AudioFormat format)
+                          noteahead::AudioFormat format,
+                          std::map<noteahead::AudioFileReader::TagType, std::string> tags)
 {
     if (m_isRendering) {
         return;
@@ -230,7 +231,7 @@ void RenderWorker::render(const QString & fileName,
         }
 
         if (!tempPath.isEmpty()) {
-            writeFinalFile(tempPath, fileName, gain, sampleRate, recordingBufferSize, bitDepth, format);
+            writeFinalFile(tempPath, fileName, gain, sampleRate, recordingBufferSize, bitDepth, format, tags);
         }
 
         QString report = "";
@@ -320,12 +321,17 @@ void RenderWorker::writeFinalFile(const QString & tempPath,
                                   quint32 sampleRate,
                                   quint32 recordingBufferSize,
                                   noteahead::BitDepth bitDepth,
-                                  noteahead::AudioFormat format)
+                                  noteahead::AudioFormat format,
+                                  const std::map<noteahead::AudioFileReader::TagType, std::string> & tags)
 {
     juzzlin::L(TAG).info() << "Writing final audio to " << finalPath.toStdString();
     auto reader = m_audioFileReaderFactory ? m_audioFileReaderFactory() : std::make_unique<SndFileReader>();
     AudioFileRecorder finalRecorder { m_audioFileReaderFactory ? m_audioFileReaderFactory() : nullptr };
     finalRecorder.start(finalPath.toStdString(), sampleRate, 2, recordingBufferSize, bitDepth, format);
+
+    for (const auto & [type, value] : tags) {
+        finalRecorder.setTag(type, value);
+    }
 
     AudioFileReader::Info info {};
     if (!reader->open(tempPath.toStdString(), AudioFileReader::Mode::Read, info)) {

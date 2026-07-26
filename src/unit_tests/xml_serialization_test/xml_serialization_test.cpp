@@ -87,6 +87,12 @@ public:
         m_isOpen = false;
     }
 
+    void setTag(TagType type, const std::string & value) override
+    {
+        (void)type;
+        (void)value;
+    }
+
     int64_t readFloat(std::span<float> data) override
     {
         std::fill(data.begin(), data.end(), 0.0f);
@@ -178,6 +184,45 @@ void XmlSerializationTest::test_toXmlFromXml_songProperties_shouldBeCorrect()
     QCOMPARE(editorServiceIn.linesPerBeat(), editorServiceOut.linesPerBeat());
     QCOMPARE(editorServiceIn.patternName(0), editorServiceOut.patternName(0));
     QCOMPARE(editorServiceIn.songLength(), editorServiceOut.songLength());
+}
+
+void XmlSerializationTest::test_toXmlFromXml_songMetadata_shouldRoundTrip()
+{
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorServiceOut.setSongMetadataTitle("Song Title");
+    editorServiceOut.setSongMetadataArtist("Song Artist");
+    editorServiceOut.setSongMetadataAlbum("Song Album");
+    editorServiceOut.setSongMetadataDate("2026");
+    editorServiceOut.setSongMetadataGenre("Chiptune");
+    editorServiceOut.setSongMetadataTrackNumber("3");
+    editorServiceOut.setSongMetadataComment("Song Comment");
+
+    const auto xml = editorServiceOut.toXml();
+
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorServiceIn.fromXml(xml);
+
+    QCOMPARE(editorServiceIn.songMetadataTitle(), editorServiceOut.songMetadataTitle());
+    QCOMPARE(editorServiceIn.songMetadataArtist(), editorServiceOut.songMetadataArtist());
+    QCOMPARE(editorServiceIn.songMetadataAlbum(), editorServiceOut.songMetadataAlbum());
+    QCOMPARE(editorServiceIn.songMetadataDate(), editorServiceOut.songMetadataDate());
+    QCOMPARE(editorServiceIn.songMetadataGenre(), editorServiceOut.songMetadataGenre());
+    QCOMPARE(editorServiceIn.songMetadataTrackNumber(), editorServiceOut.songMetadataTrackNumber());
+    QCOMPARE(editorServiceIn.songMetadataComment(), editorServiceOut.songMetadataComment());
+}
+
+void XmlSerializationTest::test_toXmlFromXml_songMetadata_empty_shouldRoundTrip()
+{
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+
+    const auto xml = editorServiceOut.toXml();
+
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorServiceIn.fromXml(xml);
+
+    QCOMPARE(editorServiceIn.songMetadataTitle(), QString {});
+    QCOMPARE(editorServiceIn.songMetadataArtist(), QString {});
+    QCOMPARE(editorServiceIn.songMetadataComment(), QString {});
 }
 
 void XmlSerializationTest::test_toXmlFromXml_columnName_shouldLoadColumnName()

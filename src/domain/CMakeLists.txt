@@ -73,6 +73,7 @@ set(HEADER_FILES
     tracker/interpolator.hpp
     tracker/line.hpp
     tracker/line_event.hpp
+    tracker/metadata.hpp
     tracker/mixer_unit.hpp
     tracker/modulation.hpp
     tracker/note_data.hpp
@@ -169,6 +170,7 @@ set(SOURCE_FILES
     tracker/interpolator.cpp
     tracker/line.cpp
     tracker/line_event.cpp
+    tracker/metadata.cpp
     tracker/mixer_unit.cpp
     tracker/note_data.cpp
     tracker/note_data_manipulator.cpp

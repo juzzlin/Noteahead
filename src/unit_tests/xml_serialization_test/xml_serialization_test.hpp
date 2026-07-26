@@ -56,6 +56,8 @@ private slots:
     void test_toXmlFromXml_playOrder_shouldBeCorrect();
     void test_toXmlFromXml_removeTrack_shouldLoadSong();
     void test_toXmlFromXml_songProperties_shouldBeCorrect();
+    void test_toXmlFromXml_songMetadata_shouldRoundTrip();
+    void test_toXmlFromXml_songMetadata_empty_shouldRoundTrip();
     void test_toXmlFromXml_trackName_shouldLoadTrackName();
     void test_toXmlFromXml_trackDrumTrack_shouldLoadTrackDrumTrack();
     void test_toXmlFromXml_samplerDevice_shouldLoadSamplerDevice();

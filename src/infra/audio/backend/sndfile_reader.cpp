@@ -60,6 +60,41 @@ void SndFileReader::close()
     }
 }
 
+void SndFileReader::setTag(TagType type, const std::string & value)
+{
+    if (!m_sndFile)
+        return;
+
+    int sfType = 0;
+    switch (type) {
+    case TagType::Title:
+        sfType = SF_STR_TITLE;
+        break;
+    case TagType::Artist:
+        sfType = SF_STR_ARTIST;
+        break;
+    case TagType::Album:
+        sfType = SF_STR_ALBUM;
+        break;
+    case TagType::Date:
+        sfType = SF_STR_DATE;
+        break;
+    case TagType::Comment:
+        sfType = SF_STR_COMMENT;
+        break;
+    case TagType::Genre:
+        sfType = SF_STR_GENRE;
+        break;
+    case TagType::TrackNumber:
+        sfType = SF_STR_TRACKNUMBER;
+        break;
+    }
+
+    if (sfType != 0 && !value.empty()) {
+        sf_set_string(m_sndFile, sfType, value.c_str());
+    }
+}
+
 int64_t SndFileReader::readFloat(std::span<float> data)
 {
     return m_sndFile ? sf_readf_float(m_sndFile, data.data(), static_cast<sf_count_t>(data.size() / static_cast<size_t>(m_sfInfo.channels))) : 0;

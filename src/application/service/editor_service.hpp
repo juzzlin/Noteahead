@@ -63,6 +63,14 @@ class EditorService : public QObject
     Q_PROPERTY(QString currentTime READ currentTime NOTIFY currentTimeChanged)
     Q_PROPERTY(QString duration READ duration NOTIFY durationChanged)
 
+    Q_PROPERTY(QString songMetadataTitle READ songMetadataTitle WRITE setSongMetadataTitle NOTIFY songMetadataChanged)
+    Q_PROPERTY(QString songMetadataArtist READ songMetadataArtist WRITE setSongMetadataArtist NOTIFY songMetadataChanged)
+    Q_PROPERTY(QString songMetadataAlbum READ songMetadataAlbum WRITE setSongMetadataAlbum NOTIFY songMetadataChanged)
+    Q_PROPERTY(QString songMetadataDate READ songMetadataDate WRITE setSongMetadataDate NOTIFY songMetadataChanged)
+    Q_PROPERTY(QString songMetadataComment READ songMetadataComment WRITE setSongMetadataComment NOTIFY songMetadataChanged)
+    Q_PROPERTY(QString songMetadataGenre READ songMetadataGenre WRITE setSongMetadataGenre NOTIFY songMetadataChanged)
+    Q_PROPERTY(QString songMetadataTrackNumber READ songMetadataTrackNumber WRITE setSongMetadataTrackNumber NOTIFY songMetadataChanged)
+
     Q_PROPERTY(bool hasColumnToPaste READ hasColumnToPaste NOTIFY copyManagerStateChanged)
     Q_PROPERTY(bool hasTrackToPaste READ hasTrackToPaste NOTIFY copyManagerStateChanged)
     Q_PROPERTY(bool hasPatternToPaste READ hasPatternToPaste NOTIFY copyManagerStateChanged)
@@ -126,6 +134,21 @@ public:
     virtual Q_INVOKABLE QString currentPatternTime() const;
     virtual Q_INVOKABLE QString currentTime() const;
     virtual Q_INVOKABLE QString duration() const;
+
+    virtual Q_INVOKABLE QString songMetadataTitle() const;
+    virtual Q_INVOKABLE void setSongMetadataTitle(const QString & title);
+    virtual Q_INVOKABLE QString songMetadataArtist() const;
+    virtual Q_INVOKABLE void setSongMetadataArtist(const QString & artist);
+    virtual Q_INVOKABLE QString songMetadataAlbum() const;
+    virtual Q_INVOKABLE void setSongMetadataAlbum(const QString & album);
+    virtual Q_INVOKABLE QString songMetadataDate() const;
+    virtual Q_INVOKABLE void setSongMetadataDate(const QString & date);
+    virtual Q_INVOKABLE QString songMetadataComment() const;
+    virtual Q_INVOKABLE void setSongMetadataComment(const QString & comment);
+    virtual Q_INVOKABLE QString songMetadataGenre() const;
+    virtual Q_INVOKABLE void setSongMetadataGenre(const QString & genre);
+    virtual Q_INVOKABLE QString songMetadataTrackNumber() const;
+    virtual Q_INVOKABLE void setSongMetadataTrackNumber(const QString & trackNumber);
 
     virtual Q_INVOKABLE quint64 minLineCount() const;
     virtual Q_INVOKABLE quint64 maxLineCount() const;
@@ -341,6 +364,7 @@ signals:
     void currentPatternTimeChanged();
     void currentTimeChanged();
     void durationChanged();
+    void songMetadataChanged();
 
     void horizontalScrollChanged();
 
@@ -436,6 +460,9 @@ private:
     void updateDuration();
 
     void updateScrollBar();
+
+    QString getTag(const QString & key) const;
+    void setTag(const QString & key, const QString & value);
 
     SongS m_song;
     std::unique_ptr<UndoStack> m_undoStack;

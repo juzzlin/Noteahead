@@ -31,6 +31,8 @@ public:
     bool open(const std::string & filePath, Mode mode, Info & info) override;
     void close() override;
 
+    void setTag(TagType type, const std::string & value) override;
+
     int64_t readFloat(std::span<float> data) override;
     int64_t readDouble(std::span<double> data) override;
     int64_t readInt(std::span<int32_t> data) override;

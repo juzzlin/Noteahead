@@ -30,6 +30,7 @@
 
 #include "../../application/position.hpp"
 #include "instrument.hpp"
+#include "metadata.hpp"
 #include "note_data.hpp"
 
 namespace noteahead {
@@ -202,6 +203,9 @@ public:
     void setLength(size_t length);
     size_t totalTicks() const;
 
+    const Metadata & metadata() const;
+    Metadata & metadata();
+
     //! To decouple MiserService from Song. I don't want Song to know anything about MixerService.
     //! However, concept-wise the mixer settings should still be Song-specific as track configurations may vary.
     //! The same applies to AutomationSerializationCallback.
@@ -265,6 +269,8 @@ private:
     mutable std::unordered_map<size_t, SongPosition> m_tickToSongPositionMap;
 
     std::string m_fileName;
+
+    Metadata m_metadata;
 };
 
 } // namespace noteahead

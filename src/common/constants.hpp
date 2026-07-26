@@ -195,6 +195,15 @@ QString xmlKeyLine1();
 QString xmlKeyValue0();
 QString xmlKeyValue1();
 QString xmlKeyComment();
+QString xmlKeyMetadata();
+QString xmlKeyTags();
+QString xmlKeyTag();
+QString xmlKeyTitle();
+QString xmlKeyArtist();
+QString xmlKeyAlbum();
+QString xmlKeyDate();
+QString xmlKeyGenre();
+QString xmlKeyTrackNumber();
 
 QString xmlKeyModulation();
 QString xmlKeyCycles();

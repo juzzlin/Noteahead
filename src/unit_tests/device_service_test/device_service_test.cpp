@@ -56,6 +56,12 @@ public:
         m_isOpen = false;
     }
 
+    void setTag(TagType type, const std::string & value) override
+    {
+        (void)type;
+        (void)value;
+    }
+
     bool isOpen() const override
     {
         return m_isOpen;

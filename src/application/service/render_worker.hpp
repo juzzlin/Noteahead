@@ -24,6 +24,8 @@
 #include <memory>
 #include <vector>
 
+#include "../../infra/audio/backend/audio_file_reader.hpp"
+
 #include <QObject>
 
 namespace noteahead {
@@ -73,7 +75,8 @@ public slots:
                 int trimSeconds = 0,
                 bool analyze = false,
                 quint8 oversampleFactor = 2,
-                noteahead::AudioFormat format = AudioFormat::Wav);
+                noteahead::AudioFormat format = AudioFormat::Wav,
+                std::map<noteahead::AudioFileReader::TagType, std::string> tags = {});
 
 signals:
     void progressChanged(double progress);
@@ -82,7 +85,7 @@ signals:
 private:
     void handleEvent(const Event & event);
     double runNormalizationScan(const QString & tempPath);
-    void writeFinalFile(const QString & tempPath, const QString & finalPath, double gain, quint32 sampleRate, quint32 recordingBufferSize, noteahead::BitDepth bitDepth, noteahead::AudioFormat format);
+    void writeFinalFile(const QString & tempPath, const QString & finalPath, double gain, quint32 sampleRate, quint32 recordingBufferSize, noteahead::BitDepth bitDepth, noteahead::AudioFormat format, const std::map<noteahead::AudioFileReader::TagType, std::string> & tags);
     QString runLoudnessAnalysis(const QString & finalPath, quint32 sampleRate);
 
     AudioEngineS m_audioEngine;

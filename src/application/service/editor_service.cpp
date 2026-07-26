@@ -114,6 +114,7 @@ void EditorService::setSong(SongS song)
     emit currentPatternChanged();
     emit songLengthChanged();
     emit currentFileNameChanged();
+    emit songMetadataChanged();
 
     updateScrollBar();
 
@@ -444,6 +445,92 @@ QString EditorService::currentFileName() const
 quint64 EditorService::currentLineCount() const
 {
     return m_song->lineCount(currentPattern());
+}
+
+QString EditorService::getTag(const QString & key) const
+{
+    auto it = m_song->metadata().tags().find(key.toStdString());
+    if (it != m_song->metadata().tags().end()) {
+        return QString::fromStdString(it->second);
+    }
+    return QString();
+}
+
+void EditorService::setTag(const QString & key, const QString & value)
+{
+    m_song->metadata().setTag(key.toStdString(), value.toStdString());
+    emit songMetadataChanged();
+    setIsModified(true);
+}
+
+QString EditorService::songMetadataTitle() const
+{
+    return getTag(Constants::NahdXml::xmlKeyTitle());
+}
+
+void EditorService::setSongMetadataTitle(const QString & title)
+{
+    setTag(Constants::NahdXml::xmlKeyTitle(), title);
+}
+
+QString EditorService::songMetadataArtist() const
+{
+    return getTag(Constants::NahdXml::xmlKeyArtist());
+}
+
+void EditorService::setSongMetadataArtist(const QString & artist)
+{
+    setTag(Constants::NahdXml::xmlKeyArtist(), artist);
+}
+
+QString EditorService::songMetadataAlbum() const
+{
+    return getTag(Constants::NahdXml::xmlKeyAlbum());
+}
+
+void EditorService::setSongMetadataAlbum(const QString & album)
+{
+    setTag(Constants::NahdXml::xmlKeyAlbum(), album);
+}
+
+QString EditorService::songMetadataDate() const
+{
+    return getTag(Constants::NahdXml::xmlKeyDate());
+}
+
+void EditorService::setSongMetadataDate(const QString & date)
+{
+    setTag(Constants::NahdXml::xmlKeyDate(), date);
+}
+
+QString EditorService::songMetadataComment() const
+{
+    return getTag(Constants::NahdXml::xmlKeyComment());
+}
+
+void EditorService::setSongMetadataComment(const QString & comment)
+{
+    setTag(Constants::NahdXml::xmlKeyComment(), comment);
+}
+
+QString EditorService::songMetadataGenre() const
+{
+    return getTag(Constants::NahdXml::xmlKeyGenre());
+}
+
+void EditorService::setSongMetadataGenre(const QString & genre)
+{
+    setTag(Constants::NahdXml::xmlKeyGenre(), genre);
+}
+
+QString EditorService::songMetadataTrackNumber() const
+{
+    return getTag(Constants::NahdXml::xmlKeyTrackNumber());
+}
+
+void EditorService::setSongMetadataTrackNumber(const QString & trackNumber)
+{
+    setTag(Constants::NahdXml::xmlKeyTrackNumber(), trackNumber);
 }
 
 void EditorService::clampCursorLine(quint64 oldLineCount, quint64 newLineCount)

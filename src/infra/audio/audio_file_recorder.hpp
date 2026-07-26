@@ -36,6 +36,8 @@ public:
     void start(const std::string & fileName, uint32_t sampleRate, uint32_t channelCount, size_t bufferSize, BitDepth bitDepth = BitDepth::PCM_16, AudioFormat format = AudioFormat::Wav);
     void stop();
 
+    void setTag(AudioFileReader::TagType type, const std::string & value);
+
     bool push(const float * data, size_t count);
     bool push(const int32_t * data, size_t count);
 

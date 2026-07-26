@@ -647,6 +647,51 @@ QString xmlKeyComment()
     return "comment";
 }
 
+QString xmlKeyMetadata()
+{
+    return "Metadata";
+}
+
+QString xmlKeyTags()
+{
+    return "Tags";
+}
+
+QString xmlKeyTag()
+{
+    return "Tag";
+}
+
+QString xmlKeyTitle()
+{
+    return "Title";
+}
+
+QString xmlKeyArtist()
+{
+    return "Artist";
+}
+
+QString xmlKeyAlbum()
+{
+    return "Album";
+}
+
+QString xmlKeyDate()
+{
+    return "Date";
+}
+
+QString xmlKeyGenre()
+{
+    return "Genre";
+}
+
+QString xmlKeyTrackNumber()
+{
+    return "TrackNumber";
+}
+
 QString xmlKeyModulation()
 {
     return "Modulation";

@@ -260,10 +260,31 @@ void RenderService::startNextRender()
     const auto analyze = Settings::renderAnalyzeEnabled();
     const auto oversampleFactor = static_cast<quint8>(Settings::renderOversampleFactor());
 
+    const std::map<AudioFileReader::TagType, std::string> tags = [&song]() {
+        std::map<AudioFileReader::TagType, std::string> t;
+        for (const auto & [key, value] : song->metadata().tags()) {
+            if (key == Constants::NahdXml::xmlKeyTitle().toStdString())
+                t[AudioFileReader::TagType::Title] = value;
+            else if (key == Constants::NahdXml::xmlKeyArtist().toStdString())
+                t[AudioFileReader::TagType::Artist] = value;
+            else if (key == Constants::NahdXml::xmlKeyAlbum().toStdString())
+                t[AudioFileReader::TagType::Album] = value;
+            else if (key == Constants::NahdXml::xmlKeyDate().toStdString())
+                t[AudioFileReader::TagType::Date] = value;
+            else if (key == Constants::NahdXml::xmlKeyComment().toStdString())
+                t[AudioFileReader::TagType::Comment] = value;
+            else if (key == Constants::NahdXml::xmlKeyGenre().toStdString())
+                t[AudioFileReader::TagType::Genre] = value;
+            else if (key == Constants::NahdXml::xmlKeyTrackNumber().toStdString())
+                t[AudioFileReader::TagType::TrackNumber] = value;
+        }
+        return t;
+    }();
+
     juzzlin::L(TAG).info() << "Invoking RenderWorker::render... events=" << events.size() << " maxTick=" << maxTick << " sampleRate=" << sampleRate << " bitDepth=" << static_cast<int>(bitDepth);
 
     const auto renderWorker = m_worker.get();
-    bool success = QMetaObject::invokeMethod(renderWorker, [renderWorker, fileName = job.fileName, events, timing, maxTick, sampleRate, bitDepth, normalize, normalizeTargetDb, trim, trimMinutes, trimSeconds, analyze, oversampleFactor, format]() { renderWorker->render(fileName, events, timing, maxTick, sampleRate, bitDepth, normalize, normalizeTargetDb, trim, trimMinutes, trimSeconds, analyze, oversampleFactor, format); }, Qt::QueuedConnection);
+    bool success = QMetaObject::invokeMethod(renderWorker, [renderWorker, fileName = job.fileName, events, timing, maxTick, sampleRate, bitDepth, normalize, normalizeTargetDb, trim, trimMinutes, trimSeconds, analyze, oversampleFactor, format, tags]() { renderWorker->render(fileName, events, timing, maxTick, sampleRate, bitDepth, normalize, normalizeTargetDb, trim, trimMinutes, trimSeconds, analyze, oversampleFactor, format, tags); }, Qt::QueuedConnection);
     if (!success) {
         juzzlin::L(TAG).error() << "Failed to invoke RenderWorker::render!";
         onWorkerFinished(false, "Internal error: Failed to start render worker.");

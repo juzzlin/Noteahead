@@ -42,8 +42,21 @@ public:
         Write
     };
 
+    enum class TagType
+    {
+        Title,
+        Artist,
+        Album,
+        Date,
+        Comment,
+        Genre,
+        TrackNumber
+    };
+
     virtual bool open(const std::string & filePath, Mode mode, Info & info) = 0;
     virtual void close() = 0;
+
+    virtual void setTag(TagType type, const std::string & value) = 0;
 
     virtual int64_t readFloat(std::span<float> data) = 0;
     virtual int64_t readDouble(std::span<double> data) = 0;

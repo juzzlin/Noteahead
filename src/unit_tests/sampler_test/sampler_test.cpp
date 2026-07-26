@@ -39,6 +39,12 @@ public:
     {
     }
 
+    void setTag(TagType type, const std::string & value) override
+    {
+        (void)type;
+        (void)value;
+    }
+
     int64_t readFloat(std::span<float> data) override
     {
         std::fill(data.begin(), data.end(), 1.0f);

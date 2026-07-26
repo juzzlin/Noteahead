@@ -94,6 +94,13 @@ void AudioFileRecorder::stop()
     }
 }
 
+void AudioFileRecorder::setTag(AudioFileReader::TagType type, const std::string & value)
+{
+    if (m_writer) {
+        m_writer->setTag(type, value);
+    }
+}
+
 bool AudioFileRecorder::push(const float * data, size_t count)
 {
     return m_ringBuffer.push(data, count);

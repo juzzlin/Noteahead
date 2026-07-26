@@ -1092,12 +1092,24 @@ Song::EventList Song::renderToEvents(AutomationServiceS automationService, SideC
     return eventList;
 }
 
+const Metadata & Song::metadata() const
+{
+    return m_metadata;
+}
+
+Metadata & Song::metadata()
+{
+    return m_metadata;
+}
+
 void Song::serializeToXml(ProjectWriter & writer, MixerSerializationCallback mixerSerializationCallback, AutomationSerializationCallback automationSerializationCallback, DevicesSerializationCallback devicesSerializationCallback, SideChainSerializationCallback sideChainSerializationCallback, AudioRecorderSerializationCallback audioRecorderSerializationCallback) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeySong());
 
     writer.writeAttribute(Constants::NahdXml::xmlKeyBeatsPerMinute(), QString::number(m_beatsPerMinute));
     writer.writeAttribute(Constants::NahdXml::xmlKeyLinesPerBeat(), QString::number(m_linesPerBeat));
+
+    m_metadata.serializeToXml(writer);
 
     m_playOrder->serializeToXml(writer);
 
@@ -1171,6 +1183,8 @@ void Song::deserializeFromXml(ProjectReader & reader, MixerDeserializationCallba
         if (reader.isStartElement()) {
             if (!reader.name().compare(Constants::NahdXml::xmlKeyPatterns())) {
                 deserializePatterns(reader);
+            } else if (!reader.name().compare(Constants::NahdXml::xmlKeyMetadata())) {
+                m_metadata.deserializeFromXml(reader);
             } else if (!reader.name().compare(Constants::NahdXml::xmlKeyPlayOrder())) {
                 deserializePlayOrder(reader);
             } else if (!reader.name().compare(Constants::NahdXml::xmlKeyMixer())) {

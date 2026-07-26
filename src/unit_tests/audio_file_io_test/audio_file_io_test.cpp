@@ -52,6 +52,10 @@ public:
         m_cv.notify_all();
     }
 
+    void setTag(TagType type, const std::string & value) override
+    {
+    }
+
     int64_t readFloat(std::span<float> data) override
     {
         std::lock_guard<std::mutex> lock { m_mutex };

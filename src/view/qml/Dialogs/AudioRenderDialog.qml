@@ -259,6 +259,67 @@ Dialog {
                 }
             }
 
+            GroupBox {
+                title: qsTr("Metadata")
+                Layout.fillWidth: true
+                GridLayout {
+                    columns: 6
+                    rowSpacing: 6
+                    columnSpacing: 12
+                    width: parent.width
+
+                    Label { text: qsTr("Title") }
+                    TextField {
+                        Layout.fillWidth: true
+                        text: editorService.songMetadataTitle
+                        onTextEdited: editorService.songMetadataTitle = text
+                    }
+
+                    Label { text: qsTr("Artist") }
+                    TextField {
+                        Layout.fillWidth: true
+                        text: editorService.songMetadataArtist
+                        onTextEdited: editorService.songMetadataArtist = text
+                    }
+
+                    Label { text: qsTr("Album") }
+                    TextField {
+                        Layout.fillWidth: true
+                        text: editorService.songMetadataAlbum
+                        onTextEdited: editorService.songMetadataAlbum = text
+                    }
+
+                    Label { text: qsTr("Date") }
+                    TextField {
+                        Layout.fillWidth: true
+                        text: editorService.songMetadataDate
+                        onTextEdited: editorService.songMetadataDate = text
+                    }
+
+                    Label { text: qsTr("Genre") }
+                    TextField {
+                        Layout.fillWidth: true
+                        text: editorService.songMetadataGenre
+                        onTextEdited: editorService.songMetadataGenre = text
+                    }
+
+                    Label { text: qsTr("Track Number") }
+                    TextField {
+                        Layout.fillWidth: true
+                        text: editorService.songMetadataTrackNumber
+                        onTextEdited: editorService.songMetadataTrackNumber = text
+                    }
+
+                    Label { text: qsTr("Comment") }
+                    TextField {
+                        Layout.fillWidth: true
+                        Layout.columnSpan: 5
+                        text: editorService.songMetadataComment
+                        onTextEdited: editorService.songMetadataComment = text
+                    }
+                }
+            }
+
             ColumnLayout {
                 Layout.fillWidth: true
                 visible: masterMixRadioButton.checked
