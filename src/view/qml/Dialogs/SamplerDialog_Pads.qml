@@ -40,7 +40,9 @@ GridView {
             anchors.fill: parent
             anchors.margins: 8
             radius: 12
-            readonly property color textColor: isLoaded ? "white" : "#888888"
+            // On assigned pads the accent color is the background, so use a text
+            // color that contrasts with it (dark on bright accents like mint).
+            readonly property color textColor: isLoaded ? themeService.accentTextColor : "#888888"
             color: isLoaded ? themeService.accentColor : "#333333"
             border.color: samplerController.selectedPad === index ? themeService.accentColor : (mouseArea.pressed ? "white" : "#555")
             border.width: samplerController.selectedPad === index ? 3 : 2

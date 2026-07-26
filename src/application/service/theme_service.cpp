@@ -41,6 +41,18 @@ void ThemeService::setAccentColor(const QColor & accentColor)
     }
 }
 
+QColor ThemeService::accentTextColor() const
+{
+    return contrastingTextColor(m_accentColor);
+}
+
+QColor ThemeService::contrastingTextColor(const QColor & background) const
+{
+    // Perceived (Rec. 601) luminance in the 0..1 range
+    const auto luminance = 0.299 * background.redF() + 0.587 * background.greenF() + 0.114 * background.blueF();
+    return luminance > 0.6 ? QColor { "#555555" } : QColor { "white" };
+}
+
 QColor ThemeService::lineNumberColumnBackgroundColor() const
 {
     return QColor { "black" };

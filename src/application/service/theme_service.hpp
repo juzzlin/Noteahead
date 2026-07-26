@@ -27,6 +27,7 @@ class ThemeService : public QObject
     Q_OBJECT
 
     Q_PROPERTY(QColor accentColor READ accentColor WRITE setAccentColor NOTIFY accentColorChanged)
+    Q_PROPERTY(QColor accentTextColor READ accentTextColor NOTIFY accentColorChanged)
 
     Q_PROPERTY(QColor lineNumberColumnBackgroundColor READ lineNumberColumnBackgroundColor CONSTANT)
     Q_PROPERTY(QColor lineNumberColumnBorderColor READ lineNumberColumnBorderColor CONSTANT)
@@ -60,6 +61,12 @@ public:
 
     QColor accentColor() const;
     void setAccentColor(const QColor & accentColor);
+
+    QColor accentTextColor() const;
+
+    //! Returns a legible text color (near-black or white) for the given background,
+    //! chosen from the background's perceived luminance.
+    Q_INVOKABLE QColor contrastingTextColor(const QColor & background) const;
 
     QColor lineNumberColumnBackgroundColor() const;
     QColor lineNumberColumnBorderColor() const;
