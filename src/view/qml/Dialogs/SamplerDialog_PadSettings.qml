@@ -71,4 +71,8 @@ ColumnLayout {
             samplerController.selectedPadHpfCutoff = v / Constants.uiInternalScaling;
         }
     }
+
+    SamplerDialog_Offset {
+        Layout.fillWidth: true
+    }
 }

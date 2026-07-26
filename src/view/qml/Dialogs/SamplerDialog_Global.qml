@@ -52,10 +52,6 @@ ColumnLayout {
         }
     }
 
-    SamplerDialog_Offset {
-        Layout.fillWidth: true
-    }
-
     CheckBox {
         id: channelModeCheckbox
         text: qsTr("Map pads to MIDI channels 1-16 (for MIDI CC automation only)")
