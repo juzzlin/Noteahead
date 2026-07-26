@@ -15,8 +15,10 @@ Dialog {
 
     property string outputFileName
     property string outputDirectory
+    property bool customFileName: false
 
     onOpened: {
+        customFileName = false;
         outputFileName = renderService.defaultRenderFileName;
         outputDirectory = renderService.defaultRenderDirectory;
     }
@@ -69,7 +71,10 @@ Dialog {
                             Layout.fillWidth: true
                             model: [44100, 48000, 88200, 96000, 176400, 192000]
                             currentIndex: model.indexOf(settingsService.renderSampleRate)
-                            onActivated: settingsService.renderSampleRate = model[index]
+                            onActivated: {
+                                settingsService.renderSampleRate = model[index];
+                                if (!rootItem.customFileName) rootItem.outputFileName = renderService.defaultRenderFileName;
+                            }
                         }
                     }
 
@@ -93,7 +98,10 @@ Dialog {
                                 { text: qsTr("32-bit Float"), value: 3 }
                             ]
                             currentIndex: settingsService.renderBitDepth
-                            onActivated: settingsService.renderBitDepth = valueAt(index)
+                            onActivated: {
+                                settingsService.renderBitDepth = valueAt(index);
+                                if (!rootItem.customFileName) rootItem.outputFileName = renderService.defaultRenderFileName;
+                            }
                         }
                     }
 
@@ -240,6 +248,10 @@ Dialog {
                         id: fileNameTextField
                         Layout.fillWidth: true
                         text: rootItem.outputFileName
+                        onTextEdited: {
+                            rootItem.outputFileName = text;
+                            rootItem.customFileName = true;
+                        }
                     }
                     Button {
                         text: qsTr("Browse...")
@@ -260,6 +272,9 @@ Dialog {
                         id: directoryTextField
                         Layout.fillWidth: true
                         text: rootItem.outputDirectory
+                        onTextEdited: {
+                            rootItem.outputDirectory = text;
+                        }
                     }
                     Button {
                         text: qsTr("Browse...")
@@ -307,6 +322,7 @@ Dialog {
         nameFilters: [qsTr("WAV files") + " (*.wav)"]
         onAccepted: {
             rootItem.outputFileName = utilService.urlToLocalFile(selectedFile);
+            rootItem.customFileName = true;
         }
     }
 
