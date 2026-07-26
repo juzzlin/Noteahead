@@ -55,10 +55,17 @@ ColumnLayout {
     CheckBox {
         id: channelModeCheckbox
         text: qsTr("Map pads to MIDI channels 1-16 (for MIDI CC automation only)")
-        Layout.alignment: Qt.AlignLeft
+        Layout.fillWidth: true
         Layout.leftMargin: 20
         checked: samplerController.channelMode
         onToggled: samplerController.channelMode = checked
+        contentItem: Label {
+            text: channelModeCheckbox.text
+            color: "white"
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            leftPadding: channelModeCheckbox.indicator.width + channelModeCheckbox.spacing
+        }
         ToolTip.delay: Constants.toolTipDelay
         ToolTip.timeout: Constants.toolTipTimeout
         ToolTip.visible: hovered
@@ -66,11 +73,19 @@ ColumnLayout {
     }
 
     CheckBox {
+        id: embedCheckbox
         text: qsTr("Embed wave data in the project file")
-        Layout.alignment: Qt.AlignLeft
+        Layout.fillWidth: true
         Layout.leftMargin: 20
         checked: samplerController.embedWaveData
         onToggled: samplerController.embedWaveData = checked
+        contentItem: Label {
+            text: embedCheckbox.text
+            color: "white"
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            leftPadding: embedCheckbox.indicator.width + embedCheckbox.spacing
+        }
         ToolTip.delay: Constants.toolTipDelay
         ToolTip.timeout: Constants.toolTipTimeout
         ToolTip.visible: hovered
