@@ -93,13 +93,18 @@ void RenderService::renderIndividualTracks(const QString & directory)
     const auto sampleRateSuffix = QString::number(Settings::renderSampleRate() / 1000) + "k";
     const auto bitDepthSuffix = []() {
         switch (Settings::renderBitDepth()) {
-        case BitDepth::PCM_24: return "24bit";
-        case BitDepth::PCM_32: return "32bit";
-        case BitDepth::Float_32: return "32bitFloat";
+        case BitDepth::PCM_24:
+            return "24bit";
+        case BitDepth::PCM_32:
+            return "32bit";
+        case BitDepth::Float_32:
+            return "32bitFloat";
         case BitDepth::PCM_16:
-        default: return "16bit";
+        default:
+            return "16bit";
         }
     }();
+    const auto ext = Settings::renderFormat() == AudioFormat::Flac ? ".flac" : ".wav";
 
     m_queue.clear();
     for (auto trackIndex : m_editorService->trackIndices()) {
@@ -110,7 +115,7 @@ void RenderService::renderIndividualTracks(const QString & directory)
         }
 
         const auto trackName = m_editorService->trackName(trackIndex);
-        const auto fileName = QDir(directory).filePath(QString{"%1_%2_%3_%4.wav"}.arg(trackName, sampleRateSuffix, bitDepthSuffix, date));
+        const auto fileName = QDir(directory).filePath(QString { "%1_%2_%3_%4%5" }.arg(trackName, sampleRateSuffix, bitDepthSuffix, date, ext));
         m_queue.push_back({ fileName, { trackIndex } });
     }
 
@@ -148,14 +153,19 @@ QString RenderService::defaultRenderFileName() const
     const auto sampleRateSuffix = QString::number(Settings::renderSampleRate() / 1000) + "k";
     const auto bitDepthSuffix = []() {
         switch (Settings::renderBitDepth()) {
-        case BitDepth::PCM_24: return "24bit";
-        case BitDepth::PCM_32: return "32bit";
-        case BitDepth::Float_32: return "32bitFloat";
+        case BitDepth::PCM_24:
+            return "24bit";
+        case BitDepth::PCM_32:
+            return "32bit";
+        case BitDepth::Float_32:
+            return "32bitFloat";
         case BitDepth::PCM_16:
-        default: return "16bit";
+        default:
+            return "16bit";
         }
     }();
-    return QString{"%1_%2_%3_%4.wav"}.arg(projectFileName, sampleRateSuffix, bitDepthSuffix, date);
+    const auto ext = Settings::renderFormat() == AudioFormat::Flac ? ".flac" : ".wav";
+    return QString { "%1_%2_%3_%4%5" }.arg(projectFileName, sampleRateSuffix, bitDepthSuffix, date, ext);
 }
 
 QString RenderService::defaultRenderDirectory() const
@@ -239,20 +249,21 @@ void RenderService::startNextRender()
 
     const auto events = song->renderToEvents(m_automationService, m_sideChainService, 0);
     const auto maxTick = song->totalTicks();
-    const quint32 sampleRate = static_cast<quint32>(Settings::renderSampleRate());
-    const BitDepth bitDepth = Settings::renderBitDepth();
-    const bool normalize = Settings::renderNormalizeEnabled();
-    const double normalizeTargetDb = Settings::renderNormalizeLevel();
-    const bool trim = Settings::renderTrimEnabled();
-    const int trimMinutes = Settings::renderTrimMinutes();
-    const int trimSeconds = Settings::renderTrimSeconds();
-    const bool analyze = Settings::renderAnalyzeEnabled();
-    const quint8 oversampleFactor = static_cast<quint8>(Settings::renderOversampleFactor());
+    const auto sampleRate = Settings::renderSampleRate();
+    const auto bitDepth = static_cast<BitDepth>(Settings::renderBitDepth());
+    const auto format = Settings::renderFormat();
+    const auto normalize = Settings::renderNormalizeEnabled();
+    const auto normalizeTargetDb = Settings::renderNormalizeLevel();
+    const auto trim = Settings::renderTrimEnabled();
+    const auto trimMinutes = Settings::renderTrimMinutes();
+    const auto trimSeconds = Settings::renderTrimSeconds();
+    const auto analyze = Settings::renderAnalyzeEnabled();
+    const auto oversampleFactor = static_cast<quint8>(Settings::renderOversampleFactor());
 
     juzzlin::L(TAG).info() << "Invoking RenderWorker::render... events=" << events.size() << " maxTick=" << maxTick << " sampleRate=" << sampleRate << " bitDepth=" << static_cast<int>(bitDepth);
 
     const auto renderWorker = m_worker.get();
-    bool success = QMetaObject::invokeMethod(renderWorker, [renderWorker, fileName = job.fileName, events, timing, maxTick, sampleRate, bitDepth, normalize, normalizeTargetDb, trim, trimMinutes, trimSeconds, analyze, oversampleFactor]() { renderWorker->render(fileName, events, timing, maxTick, sampleRate, bitDepth, normalize, normalizeTargetDb, trim, trimMinutes, trimSeconds, analyze, oversampleFactor); }, Qt::QueuedConnection);
+    bool success = QMetaObject::invokeMethod(renderWorker, [renderWorker, fileName = job.fileName, events, timing, maxTick, sampleRate, bitDepth, normalize, normalizeTargetDb, trim, trimMinutes, trimSeconds, analyze, oversampleFactor, format]() { renderWorker->render(fileName, events, timing, maxTick, sampleRate, bitDepth, normalize, normalizeTargetDb, trim, trimMinutes, trimSeconds, analyze, oversampleFactor, format); }, Qt::QueuedConnection);
     if (!success) {
         juzzlin::L(TAG).error() << "Failed to invoke RenderWorker::render!";
         onWorkerFinished(false, "Internal error: Failed to start render worker.");

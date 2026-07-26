@@ -315,6 +315,19 @@ void SettingsService::setRenderBitDepth(int bitDepth)
     }
 }
 
+int SettingsService::renderFormat() const
+{
+    return static_cast<int>(Settings::renderFormat());
+}
+
+void SettingsService::setRenderFormat(int format)
+{
+    if (this->renderFormat() != format) {
+        Settings::setRenderFormat(static_cast<AudioFormat>(format));
+        emit renderFormatChanged();
+    }
+}
+
 bool SettingsService::renderNormalizeEnabled() const
 {
     return Settings::renderNormalizeEnabled();

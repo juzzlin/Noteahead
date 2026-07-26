@@ -106,6 +106,9 @@ void setRenderSampleRate(int sampleRate);
 BitDepth renderBitDepth();
 void setRenderBitDepth(BitDepth bitDepth);
 
+AudioFormat renderFormat();
+void setRenderFormat(AudioFormat format);
+
 bool renderNormalizeEnabled();
 void setRenderNormalizeEnabled(bool enabled);
 

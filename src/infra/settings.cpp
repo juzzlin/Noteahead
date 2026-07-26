@@ -36,6 +36,7 @@ const auto playbackOversampleFactorKey = "playbackOversampleFactor";
 const auto renderOversampleFactorKey = "renderOversampleFactor";
 const auto renderSampleRateKey = "renderSampleRate";
 const auto renderBitDepthKey = "renderBitDepth";
+const auto renderFormatKey = "renderFormat";
 const auto recordingEnabledKey = "recordingEnabled";
 const auto jackSyncEnabledKey = "jackSyncEnabled";
 const auto jackBpmSyncEnabledKey = "jackBpmSyncEnabled";
@@ -530,6 +531,23 @@ void setRenderBitDepth(BitDepth bitDepth)
     QSettings settings;
     settings.beginGroup(settingsGroupAudio);
     settings.setValue(renderBitDepthKey, static_cast<int>(bitDepth));
+    settings.endGroup();
+}
+
+AudioFormat renderFormat()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    const auto format = static_cast<AudioFormat>(settings.value(renderFormatKey, static_cast<int>(AudioFormat::Wav)).toInt());
+    settings.endGroup();
+    return format;
+}
+
+void setRenderFormat(AudioFormat format)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    settings.setValue(renderFormatKey, static_cast<int>(format));
     settings.endGroup();
 }
 

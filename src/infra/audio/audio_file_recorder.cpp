@@ -39,7 +39,7 @@ AudioFileRecorder::~AudioFileRecorder()
     stop();
 }
 
-void AudioFileRecorder::start(const std::string & fileName, uint32_t sampleRate, uint32_t channelCount, size_t bufferSize, BitDepth bitDepth)
+void AudioFileRecorder::start(const std::string & fileName, uint32_t sampleRate, uint32_t channelCount, size_t bufferSize, BitDepth bitDepth, AudioFormat format)
 {
     stop();
 
@@ -47,22 +47,27 @@ void AudioFileRecorder::start(const std::string & fileName, uint32_t sampleRate,
     info.samplerate = static_cast<int>(sampleRate);
     info.channels = static_cast<int>(channelCount);
 
-    int format = SF_FORMAT_WAV;
+    int formatFlag = (format == AudioFormat::Flac) ? SF_FORMAT_FLAC : SF_FORMAT_WAV;
+
+    if (format == AudioFormat::Flac && (bitDepth == BitDepth::PCM_32 || bitDepth == BitDepth::Float_32)) {
+        bitDepth = BitDepth::PCM_24;
+    }
+
     switch (bitDepth) {
     case BitDepth::PCM_16:
-        format |= SF_FORMAT_PCM_16;
+        formatFlag |= SF_FORMAT_PCM_16;
         break;
     case BitDepth::PCM_24:
-        format |= SF_FORMAT_PCM_24;
+        formatFlag |= SF_FORMAT_PCM_24;
         break;
     case BitDepth::PCM_32:
-        format |= SF_FORMAT_PCM_32;
+        formatFlag |= SF_FORMAT_PCM_32;
         break;
     case BitDepth::Float_32:
-        format |= SF_FORMAT_FLOAT;
+        formatFlag |= SF_FORMAT_FLOAT;
         break;
     }
-    info.format = format;
+    info.format = formatFlag;
 
     if (!m_writer->open(fileName, AudioFileReader::Mode::Write, info)) {
         throw std::runtime_error { "Error opening file for writing: " + fileName };

@@ -33,7 +33,7 @@ public:
     explicit AudioFileRecorder(std::unique_ptr<AudioFileReader> writer = nullptr);
     ~AudioFileRecorder();
 
-    void start(const std::string & fileName, uint32_t sampleRate, uint32_t channelCount, size_t bufferSize, BitDepth bitDepth = BitDepth::PCM_16);
+    void start(const std::string & fileName, uint32_t sampleRate, uint32_t channelCount, size_t bufferSize, BitDepth bitDepth = BitDepth::PCM_16, AudioFormat format = AudioFormat::Wav);
     void stop();
 
     bool push(const float * data, size_t count);

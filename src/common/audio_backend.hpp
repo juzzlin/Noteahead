@@ -26,6 +26,12 @@ enum class AudioBackend
     Jack = 3
 };
 
+enum class AudioFormat
+{
+    Wav = 0,
+    Flac = 1
+};
+
 enum class BitDepth
 {
     PCM_16 = 0,

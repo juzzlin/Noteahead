@@ -41,6 +41,7 @@ class SettingsService : public QObject
     Q_PROPERTY(int renderOversampleFactor READ renderOversampleFactor WRITE setRenderOversampleFactor NOTIFY renderOversampleFactorChanged)
     Q_PROPERTY(int renderSampleRate READ renderSampleRate WRITE setRenderSampleRate NOTIFY renderSampleRateChanged)
     Q_PROPERTY(int renderBitDepth READ renderBitDepth WRITE setRenderBitDepth NOTIFY renderBitDepthChanged)
+    Q_PROPERTY(int renderFormat READ renderFormat WRITE setRenderFormat NOTIFY renderFormatChanged)
     Q_PROPERTY(bool renderNormalizeEnabled READ renderNormalizeEnabled WRITE setRenderNormalizeEnabled NOTIFY renderNormalizeEnabledChanged)
     Q_PROPERTY(double renderNormalizeLevel READ renderNormalizeLevel WRITE setRenderNormalizeLevel NOTIFY renderNormalizeLevelChanged)
     Q_PROPERTY(bool renderTrimEnabled READ renderTrimEnabled WRITE setRenderTrimEnabled NOTIFY renderTrimEnabledChanged)
@@ -121,6 +122,9 @@ public:
     virtual Q_INVOKABLE int renderBitDepth() const;
     virtual Q_INVOKABLE void setRenderBitDepth(int bitDepth);
 
+    virtual Q_INVOKABLE int renderFormat() const;
+    virtual Q_INVOKABLE void setRenderFormat(int format);
+
     virtual Q_INVOKABLE bool renderNormalizeEnabled() const;
     virtual Q_INVOKABLE void setRenderNormalizeEnabled(bool enabled);
 
@@ -157,6 +161,7 @@ signals:
     void renderOversampleFactorChanged();
     void renderSampleRateChanged();
     void renderBitDepthChanged();
+    void renderFormatChanged();
     void renderNormalizeEnabledChanged();
     void renderNormalizeLevelChanged();
     void renderTrimEnabledChanged();

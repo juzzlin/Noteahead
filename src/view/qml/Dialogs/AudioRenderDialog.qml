@@ -64,6 +64,26 @@ Dialog {
                         spacing: 6
 
                         Label {
+                            text: qsTr("Format:")
+                        }
+                        ComboBox {
+                            id: formatComboBox
+                            Layout.fillWidth: true
+                            model: [qsTr("WAV"), qsTr("FLAC")]
+                            currentIndex: settingsService.renderFormat
+                            onActivated: {
+                                settingsService.renderFormat = index;
+                                if (!rootItem.customFileName) rootItem.outputFileName = renderService.defaultRenderFileName;
+                            }
+                        }
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignTop
+                        spacing: 6
+
+                        Label {
                             text: qsTr("Sample Rate:")
                         }
                         ComboBox {
@@ -91,7 +111,10 @@ Dialog {
                             Layout.fillWidth: true
                             textRole: "text"
                             valueRole: "value"
-                            model: [
+                            model: settingsService.renderFormat === 1 ? [
+                                { text: qsTr("16-bit PCM"), value: 0 },
+                                { text: qsTr("24-bit PCM"), value: 1 }
+                            ] : [
                                 { text: qsTr("16-bit PCM"), value: 0 },
                                 { text: qsTr("24-bit PCM"), value: 1 },
                                 { text: qsTr("32-bit PCM"), value: 2 },
@@ -319,7 +342,7 @@ Dialog {
         id: audioRenderFileNameDialog
         currentFolder: StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
         fileMode: FileDialog.SaveFile
-        nameFilters: [qsTr("WAV files") + " (*.wav)"]
+        nameFilters: [qsTr("Audio files") + " (*.wav *.flac)", qsTr("WAV files") + " (*.wav)", qsTr("FLAC files") + " (*.flac)"]
         onAccepted: {
             rootItem.outputFileName = utilService.urlToLocalFile(selectedFile);
             rootItem.customFileName = true;

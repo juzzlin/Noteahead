@@ -72,7 +72,8 @@ public slots:
                 int trimMinutes = 0,
                 int trimSeconds = 0,
                 bool analyze = false,
-                quint8 oversampleFactor = 2);
+                quint8 oversampleFactor = 2,
+                noteahead::AudioFormat format = AudioFormat::Wav);
 
 signals:
     void progressChanged(double progress);
@@ -81,7 +82,7 @@ signals:
 private:
     void handleEvent(const Event & event);
     double runNormalizationScan(const QString & tempPath);
-    void writeFinalFile(const QString & tempPath, const QString & finalPath, double gain, quint32 sampleRate, quint32 recordingBufferSize, noteahead::BitDepth bitDepth);
+    void writeFinalFile(const QString & tempPath, const QString & finalPath, double gain, quint32 sampleRate, quint32 recordingBufferSize, noteahead::BitDepth bitDepth, noteahead::AudioFormat format);
     QString runLoudnessAnalysis(const QString & finalPath, quint32 sampleRate);
 
     AudioEngineS m_audioEngine;
