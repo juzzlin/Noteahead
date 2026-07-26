@@ -4,7 +4,7 @@ import QtQuick.Controls.Universal 2.15
 import QtQuick.Dialogs
 import QtQuick.Layouts
 
-Dialog {
+AnimatedDialog {
     id: rootItem
     modal: true
     anchors.centerIn: parent

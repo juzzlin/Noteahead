@@ -20,7 +20,7 @@ import QtQuick.Layouts 1.15
 import Noteahead 1.0
 import "../Components"
 
-Dialog {
+AnimatedDialog {
     id: root
     property string deviceName: ""
     // -1 targets the whole-device insert rack; >= 0 targets a Sampler pad (note) or Drum Synth voice.

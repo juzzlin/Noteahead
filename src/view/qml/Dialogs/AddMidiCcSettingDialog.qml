@@ -5,7 +5,7 @@ import QtQuick.Layouts
 import ".."
 import "../Components"
 
-Dialog {
+AnimatedDialog {
     id: rootItem
     modal: true
     title: "<strong>" + qsTr("Add MIDI CC Setting") + "</strong>"

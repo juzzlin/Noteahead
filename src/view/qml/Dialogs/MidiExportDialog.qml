@@ -6,7 +6,7 @@ import QtQuick.Dialogs
 import QtQuick.Layouts
 import ".."
 
-Dialog {
+AnimatedDialog {
     id: rootItem
     title: "<strong>" + qsTr("Export song as a MIDI file") + "</strong>"
     modal: true

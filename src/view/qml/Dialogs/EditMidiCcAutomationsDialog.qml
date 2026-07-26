@@ -5,7 +5,7 @@ import QtQuick.Dialogs
 import QtQuick.Layouts
 import ".."
 
-Dialog {
+AnimatedDialog {
     id: rootItem
     modal: true
     standardButtons: Dialog.Ok | Dialog.Cancel

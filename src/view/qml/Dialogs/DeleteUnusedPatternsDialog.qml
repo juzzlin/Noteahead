@@ -3,7 +3,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import ".."
 
-Dialog {
+AnimatedDialog {
     id: rootItem
     title: qsTr("Delete unused patterns")
     modal: true

@@ -5,7 +5,7 @@ import QtQuick.Dialogs
 import QtQuick.Layouts
 import Noteahead 1.0
 
-Dialog {
+AnimatedDialog {
     id: rootItem
     title: qsTr("Import MIDI file")
     modal: true

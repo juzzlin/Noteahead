@@ -27,5 +27,9 @@ QtObject {
 
     readonly property real maxEventDelay: 10000
 
+    readonly property int dialogEnterTransitionDuration: 120
+    readonly property int dialogExitTransitionDuration: 200
+    readonly property real dialogExitScale: 0.85
+
     readonly property real uiInternalScaling: 1000.0
 }

@@ -20,7 +20,7 @@ import QtQuick.Layouts 1.15
 import Noteahead 1.0
 import "../Components"
 
-Dialog {
+AnimatedDialog {
     id: root
     property int effectIndex: -1
 

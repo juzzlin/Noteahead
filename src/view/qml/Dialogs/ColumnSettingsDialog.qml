@@ -6,7 +6,7 @@ import QtQuick.Layouts
 import ".."
 import "../Components"
 
-Dialog {
+AnimatedDialog {
     id: rootItem
     title: "<strong>" + qsTr("Column settings for track %1, column %2").arg(columnSettingsModel.trackIndex + 1).arg(columnSettingsModel.columnIndex + 1) + "</strong>"
     modal: true

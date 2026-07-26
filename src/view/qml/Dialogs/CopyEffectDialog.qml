@@ -19,7 +19,7 @@ import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts 1.15
 import Noteahead 1.0
 
-Dialog {
+AnimatedDialog {
     id: root
     title: "<strong>" + qsTr("Copy Effect") + "</strong>"
     modal: true

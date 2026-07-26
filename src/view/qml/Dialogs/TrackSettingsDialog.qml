@@ -6,7 +6,7 @@ import QtQuick.Layouts
 import ".."
 import "../Components"
 
-Dialog {
+AnimatedDialog {
     id: rootItem
     title: "<strong>" + qsTr("Track settings for track %1: '%2'").arg(trackSettingsModel.trackIndex + 1).arg(editorService.trackName(trackSettingsModel.trackIndex)) + "</strong>"
     modal: true

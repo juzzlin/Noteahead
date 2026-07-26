@@ -3,7 +3,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import Noteahead 1.0
 
-Dialog {
+AnimatedDialog {
     id: rootItem
     title: qsTr("User Manual")
     modal: true

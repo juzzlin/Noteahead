@@ -3,7 +3,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts 1.15
 
-Dialog {
+AnimatedDialog {
     id: delayCalculatorDialog
     title: qsTr("Delay Time Calculator")
     modal: true

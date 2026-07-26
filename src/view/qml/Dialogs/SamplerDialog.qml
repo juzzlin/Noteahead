@@ -22,7 +22,7 @@ import QtQuick.Dialogs
 import Noteahead 1.0
 import "../Components"
 
-Dialog {
+AnimatedDialog {
     id: root
     title: "<strong>" + applicationService.samplerDeviceName + "</strong>"
     modal: true

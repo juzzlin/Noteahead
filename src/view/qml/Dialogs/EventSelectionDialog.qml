@@ -5,7 +5,7 @@ import QtQuick.Dialogs
 import QtQuick.Layouts
 import ".."
 
-Dialog {
+AnimatedDialog {
     id: rootItem
     title: "<strong>" + qsTr("MIDI Events for Line") + ` ${editorService.position.line} on Track ${editorService.position.track + 1}` + "</strong>"
     modal: true

@@ -39,6 +39,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/AddMidiCcSettingDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddPitchBendAutomationDialog.qml
     ${QML_BASE_DIR}/Dialogs/AllPassFilterDialog.qml
+    ${QML_BASE_DIR}/Dialogs/AnimatedDialog.qml
     ${QML_BASE_DIR}/Dialogs/DbtpMeterDialog.qml
     ${QML_BASE_DIR}/Dialogs/LimiterDialog.qml
     ${QML_BASE_DIR}/Dialogs/LufsMeterDialog.qml

@@ -4,7 +4,7 @@ import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts 1.15
 import ".."
 
-Dialog {
+AnimatedDialog {
     id: rootItem
     title: qsTr("Note Frequencies")
     modal: true
