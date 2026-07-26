@@ -52,45 +52,67 @@ Dialog {
             GroupBox {
                 title: qsTr("Audio Settings")
                 Layout.fillWidth: true
-                GridLayout {
-                    columns: 2
-                    Label {
-                        text: qsTr("Sample Rate:")
-                    }
-                    ComboBox {
-                        id: sampleRateComboBox
+                RowLayout {
+                    width: parent.width
+                    spacing: 12
+
+                    RowLayout {
                         Layout.fillWidth: true
-                        model: [44100, 48000, 88200, 96000, 176400, 192000]
-                        currentIndex: model.indexOf(settingsService.renderSampleRate)
-                        onActivated: settingsService.renderSampleRate = model[index]
+                        Layout.alignment: Qt.AlignTop
+                        spacing: 6
+
+                        Label {
+                            text: qsTr("Sample Rate:")
+                        }
+                        ComboBox {
+                            id: sampleRateComboBox
+                            Layout.fillWidth: true
+                            model: [44100, 48000, 88200, 96000, 176400, 192000]
+                            currentIndex: model.indexOf(settingsService.renderSampleRate)
+                            onActivated: settingsService.renderSampleRate = model[index]
+                        }
                     }
-                    Label {
-                        text: qsTr("Bit Depth:")
-                    }
-                    ComboBox {
-                        id: bitDepthComboBox
+
+                    RowLayout {
                         Layout.fillWidth: true
-                        textRole: "text"
-                        valueRole: "value"
-                        model: [
-                            { text: qsTr("16-bit PCM"), value: 0 },
-                            { text: qsTr("24-bit PCM"), value: 1 },
-                            { text: qsTr("32-bit PCM"), value: 2 },
-                            { text: qsTr("32-bit Float"), value: 3 }
-                        ]
-                        currentIndex: settingsService.renderBitDepth
-                        onActivated: settingsService.renderBitDepth = valueAt(index)
+                        Layout.alignment: Qt.AlignTop
+                        spacing: 6
+
+                        Label {
+                            text: qsTr("Bit Depth:")
+                        }
+                        ComboBox {
+                            id: bitDepthComboBox
+                            Layout.fillWidth: true
+                            textRole: "text"
+                            valueRole: "value"
+                            model: [
+                                { text: qsTr("16-bit PCM"), value: 0 },
+                                { text: qsTr("24-bit PCM"), value: 1 },
+                                { text: qsTr("32-bit PCM"), value: 2 },
+                                { text: qsTr("32-bit Float"), value: 3 }
+                            ]
+                            currentIndex: settingsService.renderBitDepth
+                            onActivated: settingsService.renderBitDepth = valueAt(index)
+                        }
                     }
-                    Label {
-                        text: qsTr("Quality:")
-                    }
-                    ComboBox {
-                        id: qualityComboBox
+
+                    RowLayout {
                         Layout.fillWidth: true
-                        readonly property var factors: [1, 2, 4]
-                        model: [qsTr("Draft (1x)"), qsTr("Normal (2x)"), qsTr("High (4x)")]
-                        currentIndex: Math.max(0, factors.indexOf(settingsService.renderOversampleFactor))
-                        onActivated: settingsService.renderOversampleFactor = factors[currentIndex]
+                        Layout.alignment: Qt.AlignTop
+                        spacing: 6
+
+                        Label {
+                            text: qsTr("Quality:")
+                        }
+                        ComboBox {
+                            id: qualityComboBox
+                            Layout.fillWidth: true
+                            readonly property var factors: [1, 2, 4]
+                            model: [qsTr("Draft (1x)"), qsTr("Normal (2x)"), qsTr("High (4x)")]
+                            currentIndex: Math.max(0, factors.indexOf(settingsService.renderOversampleFactor))
+                            onActivated: settingsService.renderOversampleFactor = factors[currentIndex]
+                        }
                     }
                 }
             }
