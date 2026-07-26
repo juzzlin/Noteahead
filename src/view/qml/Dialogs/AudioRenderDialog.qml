@@ -98,25 +98,31 @@ Dialog {
             GroupBox {
                 title: qsTr("Export Options")
                 Layout.fillWidth: true
-                ColumnLayout {
+                RowLayout {
+                    width: parent.width
                     spacing: 12
-                    Layout.fillWidth: true
 
+                    // Column 1: Normalize
                     RowLayout {
-                        spacing: 10
                         Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignTop
+                        spacing: 6
+
                         CheckBox {
                             id: normalizeCheckBox
                             text: qsTr("Normalize audio")
                             checked: settingsService.renderNormalizeEnabled
                             onToggled: settingsService.renderNormalizeEnabled = checked
                         }
+
                         Label {
                             text: qsTr("Target Level:")
                             enabled: normalizeCheckBox.checked
                         }
+
                         SpinBox {
                             id: normalizeLevelSpinBox
+                            Layout.fillWidth: true
                             enabled: normalizeCheckBox.checked
                             from: -300
                             to: 0
@@ -131,23 +137,29 @@ Dialog {
                                 return Number.fromLocaleString(locale, text) * 10
                             }
                         }
+
                         Label {
                             text: "dB"
                             enabled: normalizeCheckBox.checked
                         }
                     }
 
+                    // Column 2: Trim duration
                     RowLayout {
-                        spacing: 10
                         Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignTop
+                        spacing: 6
+
                         CheckBox {
                             id: trimCheckBox
                             text: qsTr("Trim duration")
                             checked: settingsService.renderTrimEnabled
                             onToggled: settingsService.renderTrimEnabled = checked
                         }
+
                         SpinBox {
                             id: trimMinSpinBox
+                            Layout.fillWidth: true
                             enabled: trimCheckBox.checked
                             from: 0
                             to: 59
@@ -155,12 +167,15 @@ Dialog {
                             editable: true
                             onValueModified: settingsService.renderTrimMinutes = value
                         }
+
                         Label {
                             text: qsTr("min")
                             enabled: trimCheckBox.checked
                         }
+
                         SpinBox {
                             id: trimSecSpinBox
+                            Layout.fillWidth: true
                             enabled: trimCheckBox.checked
                             from: 0
                             to: 59
@@ -168,17 +183,25 @@ Dialog {
                             editable: true
                             onValueModified: settingsService.renderTrimSeconds = value
                         }
+
                         Label {
                             text: qsTr("s")
                             enabled: trimCheckBox.checked
                         }
                     }
 
-                    CheckBox {
-                        id: analyzeCheckBox
-                        text: qsTr("Analyze loudness (LUFS, LRA, dBTP)")
-                        checked: settingsService.renderAnalyzeEnabled
-                        onToggled: settingsService.renderAnalyzeEnabled = checked
+                    // Column 3: Analyze loudness
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignTop
+                        spacing: 6
+
+                        CheckBox {
+                            id: analyzeCheckBox
+                            text: qsTr("Analyze loudness (LUFS, LRA, dBTP)")
+                            checked: settingsService.renderAnalyzeEnabled
+                            onToggled: settingsService.renderAnalyzeEnabled = checked
+                        }
                     }
                 }
             }
