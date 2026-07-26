@@ -105,14 +105,19 @@ Dialog {
 
                 SamplerDialog_Pads {
                     fileDialog: sampleFileDialog
-                    Layout.fillWidth: true
                     Layout.fillHeight: true
-                    Layout.preferredWidth: parent.width * 0.66
+                    Layout.alignment: Qt.AlignTop
+                }
+
+                SamplerDialog_PadSettings {
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: parent.width * 0.25
+                    Layout.alignment: Qt.AlignTop
                 }
 
                 SamplerDialog_Global {
                     Layout.fillWidth: true
-                    Layout.preferredWidth: parent.width * 0.33
+                    Layout.preferredWidth: parent.width * 0.25
                     Layout.alignment: Qt.AlignTop
                 }
 

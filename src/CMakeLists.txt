@@ -106,6 +106,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/SamplerDialog_Global.qml
     ${QML_BASE_DIR}/Dialogs/SamplerDialog_Header.qml
     ${QML_BASE_DIR}/Dialogs/SamplerDialog_Offset.qml
+    ${QML_BASE_DIR}/Dialogs/SamplerDialog_PadSettings.qml
     ${QML_BASE_DIR}/Dialogs/SamplerDialog_Pads.qml
     ${QML_BASE_DIR}/Dialogs/SamplerDialog_WaveformView.qml
     ${QML_BASE_DIR}/Dialogs/SaturatorDialog.qml

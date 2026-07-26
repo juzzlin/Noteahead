@@ -22,57 +22,14 @@ import "../Components"
 
 ColumnLayout {
     Layout.fillWidth: true
-    Layout.preferredWidth: parent.width * 0.33
     Layout.alignment: Qt.AlignTop
     spacing: 15
-
-    // Pan Knob
-    Knob {
-        label: qsTr("Pan")
-        mapping: "pan"
-        value: samplerController.selectedPadPan * Constants.uiInternalScaling
-        onMoved: v => {
-            samplerController.selectedPadPan = v / Constants.uiInternalScaling;
-        }
-    }
-
-    // Volume Knob
-    Knob {
-        label: qsTr("Volume")
-        mapping: "volume"
-        value: samplerController.selectedPadVolume * Constants.uiInternalScaling
-        onMoved: v => {
-            samplerController.selectedPadVolume = v / Constants.uiInternalScaling;
-        }
-    }
-
-    // LPF Cutoff Knob
-    FilterKnob {
-        label: qsTr("LPF Cutoff")
-        controller: samplerController
-        value: samplerController.selectedPadCutoff * Constants.uiInternalScaling
-        onMoved: v => {
-            samplerController.selectedPadCutoff = v / Constants.uiInternalScaling;
-        }
-    }
-
-    // HPF Cutoff Knob
-    FilterKnob {
-        label: qsTr("HPF Cutoff")
-        controller: samplerController
-        value: samplerController.selectedPadHpfCutoff * Constants.uiInternalScaling
-        isHpf: true
-        onMoved: v => {
-            samplerController.selectedPadHpfCutoff = v / Constants.uiInternalScaling;
-        }
-    }
 
     // Global Settings
     Label {
         text: qsTr("Global Settings")
         font.bold: true
         color: themeService.accentColor
-        Layout.topMargin: 10
     }
 
     Knob {

@@ -20,12 +20,12 @@ import Noteahead 1.0
 
 GridView {
     id: padGrid
-    Layout.fillWidth: true
     Layout.fillHeight: true
-    Layout.preferredWidth: parent.width * 0.66
+    Layout.preferredWidth: cellWidth * 4
     implicitHeight: 400
-    cellWidth: width / 4
+    // Square cells sized from the available height, keeping the 4x4 grid square
     cellHeight: height / 4
+    cellWidth: cellHeight
     model: samplerController.padModel
     interactive: false
 
@@ -49,7 +49,7 @@ GridView {
                 anchors.centerIn: parent
                 spacing: 2
                 Text {
-                    text: "Note: " + noteName + " (" + note + ")"
+                    text: noteName + " (" + note + ")"
                     color: padRect.textColor
                     font.bold: true
                     Layout.alignment: Qt.AlignHCenter
