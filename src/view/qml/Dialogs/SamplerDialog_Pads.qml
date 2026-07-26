@@ -36,10 +36,12 @@ GridView {
         height: padGrid.cellHeight
 
         Rectangle {
+            id: padRect
             anchors.fill: parent
             anchors.margins: 8
             radius: 12
-            color: isLoaded ? "#228822" : "#882222"
+            readonly property color textColor: isLoaded ? "white" : "#888888"
+            color: isLoaded ? themeService.accentColor : "#333333"
             border.color: samplerController.selectedPad === index ? themeService.accentColor : (mouseArea.pressed ? "white" : "#555")
             border.width: samplerController.selectedPad === index ? 3 : 2
 
@@ -48,20 +50,20 @@ GridView {
                 spacing: 2
                 Text {
                     text: "Note: " + noteName + " (" + note + ")"
-                    color: "white"
+                    color: padRect.textColor
                     font.bold: true
                     Layout.alignment: Qt.AlignHCenter
                 }
                 Text {
                     text: rangeLabel
                     visible: samplerController.chromaticMode && isLoaded && rangeLabel !== ""
-                    color: "white"
+                    color: padRect.textColor
                     font.pointSize: 8
                     Layout.alignment: Qt.AlignHCenter
                 }
                 Text {
                     text: isLoaded ? "LOADED" : "EMPTY"
-                    color: "white"
+                    color: padRect.textColor
                     font.pointSize: 8
                     Layout.alignment: Qt.AlignHCenter
                 }
