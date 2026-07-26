@@ -34,6 +34,7 @@ Effect::StringList Effect::parameterNames() const
 
 void Effect::process(AudioContext & context)
 {
+    setOversampleFactor(context.oversampleFactor);
     for (uint32_t i = 0; i < context.frameCount; i++) {
         process(context.buffer[i * 2], context.buffer[i * 2 + 1]);
     }
@@ -65,6 +66,16 @@ void Effect::setBpm(float bpm)
 float Effect::bpm() const
 {
     return m_bpm;
+}
+
+void Effect::setOversampleFactor(uint8_t factor)
+{
+    m_oversampleFactor = factor;
+}
+
+uint8_t Effect::oversampleFactor() const
+{
+    return m_oversampleFactor;
 }
 
 } // namespace noteahead

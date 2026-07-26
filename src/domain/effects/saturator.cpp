@@ -16,13 +16,25 @@
 #include "saturator.hpp"
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
+#include "../dsp/downsampler.hpp"
+#include "../dsp/upsampler.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 
 namespace noteahead {
 
+struct Saturator::Oversampling
+{
+    Upsampler upsamplerL;
+    Upsampler upsamplerR;
+    Decimator decimatorL;
+    Decimator decimatorR;
+};
+
 Saturator::Saturator()
+  : m_oversampling { std::make_unique<Oversampling>() }
 {
     addParameter(Parameter { Constants::NahdXml::xmlKeyMode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDrive().toStdString(), 0.25f, 0, 2400, 600, 100, Parameter::Type::Continuous });
@@ -35,6 +47,8 @@ Saturator::Saturator()
 
     syncParameters();
 }
+
+Saturator::~Saturator() = default;
 
 double Saturator::shape(double x) const
 {
@@ -62,33 +76,68 @@ double Saturator::shape(double x) const
 
 void Saturator::process(double & left, double & right)
 {
-    const double sampleRate = m_sampleRate > 0 ? m_sampleRate : 48000.0;
-    m_toneFilterL.setSampleRate(sampleRate);
-    m_toneFilterR.setSampleRate(sampleRate);
+    const double baseSampleRate = m_sampleRate > 0 ? m_sampleRate : 48000.0;
+    const uint8_t factor = clampOversampleFactor(oversampleFactor());
+    // The tone filter runs alongside the shaper, so it must operate at the oversampled rate. Its cutoff
+    // is capped at 20 kHz, so the audible tone is unchanged across factors for normal sample rates.
+    const double stageSampleRate = baseSampleRate * factor;
+    m_toneFilterL.setSampleRate(stageSampleRate);
+    m_toneFilterR.setSampleRate(stageSampleRate);
     m_toneFilterL.setCutoff(static_cast<double>(m_tone));
     m_toneFilterR.setCutoff(static_cast<double>(m_tone));
 
     const double driveLin = static_cast<double>(Utils::Dsp::dbToLinear(m_driveDb));
     const double outputLin = static_cast<double>(Utils::Dsp::dbToLinear(m_outputDb));
+    const double mix = static_cast<double>(m_mix);
 
     const double dryL = left;
     const double dryR = right;
 
-    const double drivenL = dryL * driveLin;
-    const double drivenR = dryR * driveLin;
+    double peakPre = 0.0;
+    double peakPost = 0.0;
+    double outL = 0.0;
+    double outR = 0.0;
 
-    double wetL = shape(drivenL);
-    double wetR = shape(drivenR);
-
-    const double peakPre = std::max(std::abs(drivenL), std::abs(drivenR));
-    const double peakPost = std::max(std::abs(wetL), std::abs(wetR));
+    if (factor == 1) {
+        const double drivenL = dryL * driveLin;
+        const double drivenR = dryR * driveLin;
+        double wetL = shape(drivenL);
+        double wetR = shape(drivenR);
+        peakPre = std::max(std::abs(drivenL), std::abs(drivenR));
+        peakPost = std::max(std::abs(wetL), std::abs(wetR));
+        wetL = m_toneFilterL.process(wetL);
+        wetR = m_toneFilterR.process(wetR);
+        outL = dryL * (1.0 - mix) + wetL * mix;
+        outR = dryR * (1.0 - mix) + wetR * mix;
+    } else {
+        std::array<float, 4> highL {};
+        std::array<float, 4> highR {};
+        m_oversampling->upsamplerL.process(static_cast<float>(dryL), highL.data(), factor);
+        m_oversampling->upsamplerR.process(static_cast<float>(dryR), highR.data(), factor);
+        for (uint8_t k = 0; k < factor; k++) {
+            const double dryHiL = static_cast<double>(highL[k]);
+            const double dryHiR = static_cast<double>(highR[k]);
+            const double drivenL = dryHiL * driveLin;
+            const double drivenR = dryHiR * driveLin;
+            double wetL = shape(drivenL);
+            double wetR = shape(drivenR);
+            peakPre = std::max(peakPre, std::max(std::abs(drivenL), std::abs(drivenR)));
+            peakPost = std::max(peakPost, std::max(std::abs(wetL), std::abs(wetR)));
+            wetL = m_toneFilterL.process(wetL);
+            wetR = m_toneFilterR.process(wetR);
+            highL[k] = static_cast<float>(dryHiL * (1.0 - mix) + wetL * mix);
+            highR[k] = static_cast<float>(dryHiR * (1.0 - mix) + wetR * mix);
+        }
+        outL = static_cast<double>(m_oversampling->decimatorL.process(highL.data(), factor));
+        outR = static_cast<double>(m_oversampling->decimatorR.process(highR.data(), factor));
+    }
 
     double saturationDb = 0.0;
     if (peakPre > 1e-10 && peakPost < peakPre) {
         saturationDb = Utils::Dsp::linearToDb(static_cast<float>(peakPost / peakPre));
     }
 
-    const double meterReleaseCoeff = std::exp(-1.0 / (100.0 * sampleRate / 1000.0));
+    const double meterReleaseCoeff = std::exp(-1.0 / (100.0 * baseSampleRate / 1000.0));
     if (saturationDb < m_saturationDb) {
         m_saturationDb = saturationDb;
     } else {
@@ -100,12 +149,8 @@ void Saturator::process(double & left, double & right)
         m_saturationDb = 0.0;
     }
 
-    wetL = m_toneFilterL.process(wetL);
-    wetR = m_toneFilterR.process(wetR);
-
-    const double mix = static_cast<double>(m_mix);
-    left = (dryL * (1.0 - mix) + wetL * mix) * outputLin;
-    right = (dryR * (1.0 - mix) + wetR * mix) * outputLin;
+    left = outL * outputLin;
+    right = outR * outputLin;
 }
 
 void Saturator::reset()
@@ -113,6 +158,10 @@ void Saturator::reset()
     m_saturationDb = 0.0;
     m_toneFilterL.reset();
     m_toneFilterR.reset();
+    m_oversampling->upsamplerL.reset();
+    m_oversampling->upsamplerR.reset();
+    m_oversampling->decimatorL.reset();
+    m_oversampling->decimatorR.reset();
 }
 
 void Saturator::sync()

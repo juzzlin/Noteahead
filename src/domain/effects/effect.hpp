@@ -16,6 +16,7 @@
 #ifndef EFFECT_HPP
 #define EFFECT_HPP
 
+#include <cstdint>
 #include <optional>
 #include <string>
 
@@ -57,9 +58,16 @@ public:
     virtual void setBpm(float bpm);
     float bpm() const;
 
+    //! Internal oversampling factor (1, 2 or 4) for nonlinear effects that render their shaping stage
+    //! at a higher rate to suppress aliasing. Pushed per block from the AudioContext; 1 (no
+    //! oversampling) unless set, so linear effects and direct per-sample use are unaffected.
+    void setOversampleFactor(uint8_t factor);
+    uint8_t oversampleFactor() const;
+
 private:
     bool m_enabled { true };
     float m_bpm = 120;
+    uint8_t m_oversampleFactor { 1 };
 };
 
 } // namespace noteahead

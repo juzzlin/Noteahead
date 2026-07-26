@@ -34,6 +34,7 @@ set(HEADER_FILES
     dsp/poly_blep_oscillator.hpp
     dsp/svf_filter.hpp
     dsp/true_stereo_panner.hpp
+    dsp/upsampler.hpp
     dsp/volume.hpp
     dsp/waveguide_string.hpp
     dsp/wavetable_oscillator.hpp
@@ -128,6 +129,7 @@ set(SOURCE_FILES
     dsp/poly_blep_oscillator.cpp
     dsp/svf_filter.cpp
     dsp/true_stereo_panner.cpp
+    dsp/upsampler.cpp
     dsp/volume.cpp
     dsp/waveguide_string.cpp
     dsp/wavetable.cpp

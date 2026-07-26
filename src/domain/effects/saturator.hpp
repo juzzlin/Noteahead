@@ -19,7 +19,12 @@
 #include "../dsp/cascaded_svf.hpp"
 #include "effect.hpp"
 
+#include <memory>
+
 namespace noteahead {
+
+class Decimator;
+class Upsampler;
 
 class Saturator : public Effect
 {
@@ -32,6 +37,7 @@ public:
     };
 
     Saturator();
+    ~Saturator() override;
 
     static std::string typeIdString();
     std::string type() const override;
@@ -57,6 +63,9 @@ private:
     CascadedSvf m_toneFilterR;
 
     double m_saturationDb { 0.0 };
+
+    struct Oversampling;
+    std::unique_ptr<Oversampling> m_oversampling;
 };
 
 } // namespace noteahead

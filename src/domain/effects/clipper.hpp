@@ -19,6 +19,7 @@
 #include "effect.hpp"
 
 #include <cstdint>
+#include <memory>
 
 namespace noteahead {
 
@@ -32,6 +33,7 @@ public:
     };
 
     Clipper();
+    ~Clipper() override;
 
     static std::string typeIdString();
     std::string type() const override;
@@ -46,6 +48,7 @@ public:
 
 private:
     void syncParameters();
+    float clipSample(float sample, double thresholdLin) const;
 
     Mode m_mode { Mode::Soft };
     float m_thresholdDb { 0.0f };
@@ -54,6 +57,9 @@ private:
     double m_reductionDb { 0.0 };
     double m_meterReleaseCoeff { 0.0 };
     uint32_t m_lastSampleRate { 0 };
+
+    struct Oversampling;
+    std::unique_ptr<Oversampling> m_oversampling;
 };
 
 } // namespace noteahead

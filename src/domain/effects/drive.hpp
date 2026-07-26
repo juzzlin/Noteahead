@@ -18,7 +18,12 @@
 
 #include "effect.hpp"
 
+#include <memory>
+
 namespace noteahead {
+
+class Decimator;
+class Upsampler;
 
 //! A simple overdrive: a drive amount pushes the signal into one of a few soft/hard/fold shaping
 //! curves, blended back with the dry signal via a dry/wet Mix.
@@ -34,6 +39,7 @@ public:
     };
 
     Drive();
+    ~Drive() override;
 
     static std::string typeIdString();
     std::string type() const override;
@@ -46,11 +52,16 @@ public:
 private:
     void syncParameters();
     double shape(double x) const;
+    //! Oversampled per-channel processing: interpolate, shape+mix at the high rate, then decimate.
+    float processOversampled(Upsampler & upsampler, Decimator & decimator, float sample, double driveGain, double mix, uint8_t factor);
 
     Mode m_mode { Mode::Soft };
     float m_drive { 0.5f };
     float m_mix { 1.0f };
     float m_outputDb { 0.0f };
+
+    struct Oversampling;
+    std::unique_ptr<Oversampling> m_oversampling;
 };
 
 } // namespace noteahead

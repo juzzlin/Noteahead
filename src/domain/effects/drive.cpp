@@ -16,13 +16,25 @@
 #include "drive.hpp"
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
+#include "../dsp/downsampler.hpp"
+#include "../dsp/upsampler.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 
 namespace noteahead {
 
+struct Drive::Oversampling
+{
+    Upsampler upsamplerL;
+    Upsampler upsamplerR;
+    Decimator decimatorL;
+    Decimator decimatorR;
+};
+
 Drive::Drive()
+  : m_oversampling { std::make_unique<Oversampling>() }
 {
     addParameter(Parameter { Constants::NahdXml::xmlKeyMode().toStdString(), 0.0f, 0, 3, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDrive().toStdString(), 0.5f, 0, 100, 50, 100, Parameter::Type::Continuous });
@@ -31,6 +43,8 @@ Drive::Drive()
 
     syncParameters();
 }
+
+Drive::~Drive() = default;
 
 double Drive::shape(double x) const
 {
@@ -63,24 +77,48 @@ double Drive::shape(double x) const
     }
 }
 
+float Drive::processOversampled(Upsampler & upsampler, Decimator & decimator, float sample, double driveGain, double mix, uint8_t factor)
+{
+    std::array<float, 4> high {};
+    upsampler.process(sample, high.data(), factor);
+    for (uint8_t k = 0; k < factor; k++) {
+        const double dry = static_cast<double>(high[k]);
+        const double wet = shape(dry * driveGain);
+        // Reconstruct the dry/wet blend at the high rate so the dry path shares the resampler latency
+        // and stays aligned with the shaped signal (no comb filtering at partial mix).
+        high[k] = static_cast<float>(dry * (1.0 - mix) + wet * mix);
+    }
+    return decimator.process(high.data(), factor);
+}
+
 void Drive::process(double & left, double & right)
 {
     const double driveGain = 1.0 + static_cast<double>(m_drive) * 9.0; // 1x .. 10x
     const double mix = static_cast<double>(m_mix);
     const double outputLin = static_cast<double>(Utils::Dsp::dbToLinear(m_outputDb));
+    const uint8_t factor = clampOversampleFactor(oversampleFactor());
 
     const double dryL = left;
     const double dryR = right;
 
-    const double wetL = shape(dryL * driveGain);
-    const double wetR = shape(dryR * driveGain);
+    if (factor == 1 || mix <= 0.0) {
+        const double wetL = shape(dryL * driveGain);
+        const double wetR = shape(dryR * driveGain);
+        left = (dryL * (1.0 - mix) + wetL * mix) * outputLin;
+        right = (dryR * (1.0 - mix) + wetR * mix) * outputLin;
+        return;
+    }
 
-    left = (dryL * (1.0 - mix) + wetL * mix) * outputLin;
-    right = (dryR * (1.0 - mix) + wetR * mix) * outputLin;
+    left = static_cast<double>(processOversampled(m_oversampling->upsamplerL, m_oversampling->decimatorL, static_cast<float>(dryL), driveGain, mix, factor)) * outputLin;
+    right = static_cast<double>(processOversampled(m_oversampling->upsamplerR, m_oversampling->decimatorR, static_cast<float>(dryR), driveGain, mix, factor)) * outputLin;
 }
 
 void Drive::reset()
 {
+    m_oversampling->upsamplerL.reset();
+    m_oversampling->upsamplerR.reset();
+    m_oversampling->decimatorL.reset();
+    m_oversampling->decimatorR.reset();
 }
 
 void Drive::sync()

@@ -55,6 +55,7 @@ struct EffectProcessContext
     uint32_t frameCount {};
     uint32_t sampleRate {};
     double bpm {};
+    uint8_t oversampleFactor {};
 };
 
 bool bufferContainsSignal(const std::vector<double> & buffer, uint32_t bufferSize)
@@ -136,7 +137,7 @@ void processEffectTask(void * context, size_t taskIndex, size_t /*workerIndex*/)
     // Copy dry signal to wet buffer for in-place processing
     std::copy(sendBus.begin(), sendBus.begin() + bufferSize, wetBuffer.begin());
 
-    AudioContext context_obj { std::span(wetBuffer.data(), bufferSize), effectContext.frameCount, effectContext.sampleRate, effectContext.bpm, {} };
+    AudioContext context_obj { std::span(wetBuffer.data(), bufferSize), effectContext.frameCount, effectContext.sampleRate, effectContext.bpm, {}, effectContext.oversampleFactor };
     effect->process(context_obj);
 
     bool hasWetSignal = false;
@@ -471,7 +472,8 @@ void AudioEngine::process(AudioContext & context)
             &m_effectActiveFlags,
             context.frameCount,
             context.sampleRate,
-            context.bpm
+            context.bpm,
+            context.oversampleFactor
         };
         if (useWorkers) {
             m_workerPool->run(sendCount, &effectContext, processEffectTask);

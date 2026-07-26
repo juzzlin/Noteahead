@@ -124,6 +124,7 @@ void EffectRack::process(AudioContext & outputContext, const double * sendBus, s
         return;
 
     effect->setSampleRate(outputContext.sampleRate);
+    effect->setOversampleFactor(outputContext.oversampleFactor);
     effect->sync();
 
     // Call block-based process if available (via default implementation or override)

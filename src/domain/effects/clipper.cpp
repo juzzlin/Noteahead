@@ -17,13 +17,25 @@
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
 #include "../dsp/audio_context.hpp"
+#include "../dsp/downsampler.hpp"
+#include "../dsp/upsampler.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 
 namespace noteahead {
 
+struct Clipper::Oversampling
+{
+    Upsampler upsamplerL;
+    Upsampler upsamplerR;
+    Decimator decimatorL;
+    Decimator decimatorR;
+};
+
 Clipper::Clipper()
+  : m_oversampling { std::make_unique<Oversampling>() }
 {
     addParameter(Parameter { Constants::NahdXml::xmlKeyMode().toStdString(), 1.0f, 0, 1, 1, 1, Parameter::Type::Discrete, { "clipperMode" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyThreshold().toStdString(), 1.0f, -2400, 0, 0, 100, Parameter::Type::Continuous, { "clipperThreshold" } });
@@ -32,20 +44,42 @@ Clipper::Clipper()
     syncParameters();
 }
 
+Clipper::~Clipper() = default;
+
+float Clipper::clipSample(float sample, double thresholdLin) const
+{
+    const auto t = static_cast<float>(thresholdLin);
+    if (m_mode == Mode::Hard) {
+        return std::clamp(sample, -t, t);
+    }
+    return t * std::tanh(sample / t);
+}
+
 void Clipper::process(double & left, double & right)
 {
     const auto thresholdLin = std::max(1e-5, static_cast<double>(Utils::Dsp::dbToLinear(m_thresholdDb)));
     const auto gainLin = static_cast<double>(Utils::Dsp::dbToLinear(m_gainDb));
+    const uint8_t factor = clampOversampleFactor(oversampleFactor());
 
     const double preL = left;
     const double preR = right;
 
-    if (m_mode == Mode::Hard) {
-        left = std::clamp(left, -thresholdLin, thresholdLin);
-        right = std::clamp(right, -thresholdLin, thresholdLin);
+    if (factor == 1) {
+        left = clipSample(static_cast<float>(left), thresholdLin);
+        right = clipSample(static_cast<float>(right), thresholdLin);
     } else {
-        left = thresholdLin * std::tanh(left / thresholdLin);
-        right = thresholdLin * std::tanh(right / thresholdLin);
+        // Clip at the oversampled rate so the harmonics generated fold above Nyquist and are removed
+        // by the decimation filter instead of aliasing back into the audible band.
+        std::array<float, 4> highL {};
+        std::array<float, 4> highR {};
+        m_oversampling->upsamplerL.process(static_cast<float>(left), highL.data(), factor);
+        m_oversampling->upsamplerR.process(static_cast<float>(right), highR.data(), factor);
+        for (uint8_t k = 0; k < factor; k++) {
+            highL[k] = clipSample(highL[k], thresholdLin);
+            highR[k] = clipSample(highR[k], thresholdLin);
+        }
+        left = static_cast<double>(m_oversampling->decimatorL.process(highL.data(), factor));
+        right = static_cast<double>(m_oversampling->decimatorR.process(highR.data(), factor));
     }
 
     const double peakPre = std::max(std::abs(preL), std::abs(preR));
@@ -73,6 +107,7 @@ void Clipper::process(double & left, double & right)
 
 void Clipper::process(AudioContext & context)
 {
+    setOversampleFactor(context.oversampleFactor);
     if (static_cast<uint32_t>(context.sampleRate) != m_lastSampleRate) {
         m_meterReleaseCoeff = std::exp(-1.0 / (100.0 * context.sampleRate / 1000.0));
         m_lastSampleRate = static_cast<uint32_t>(context.sampleRate);
@@ -86,6 +121,10 @@ void Clipper::process(AudioContext & context)
 void Clipper::reset()
 {
     m_reductionDb = 0.0;
+    m_oversampling->upsamplerL.reset();
+    m_oversampling->upsamplerR.reset();
+    m_oversampling->decimatorL.reset();
+    m_oversampling->decimatorR.reset();
 }
 
 void Clipper::sync()

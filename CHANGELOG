@@ -11,6 +11,8 @@ New features:
   - Lower the playback quality to save CPU while working; render at higher
     quality for the final export
   - Affects the internal Synth, Bass Synth, Drum Synth and Wavetable Synth
+  - Also oversamples the nonlinear rack effects (Drive, Saturator, Clipper)
+    at the selected factor to suppress aliasing
 
 * Add a Drive rack effect
   - Overdrive with Drive amount, dry/wet Mix and an output Gain (dB) knob
