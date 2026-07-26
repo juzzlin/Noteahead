@@ -111,7 +111,7 @@ Dialog {
                             readonly property var factors: [1, 2, 4]
                             model: [qsTr("Draft (1x)"), qsTr("Normal (2x)"), qsTr("High (4x)")]
                             currentIndex: Math.max(0, factors.indexOf(settingsService.renderOversampleFactor))
-                            onActivated: settingsService.renderOversampleFactor = factors[currentIndex]
+                            onActivated: index => settingsService.renderOversampleFactor = factors[index]
                         }
                     }
                 }

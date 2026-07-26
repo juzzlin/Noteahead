@@ -48,7 +48,7 @@ GroupBox {
                         readonly property var factors: [1, 2, 4]
                         model: [qsTr("Draft (1x)"), qsTr("Normal (2x)"), qsTr("High (4x)")]
                         currentIndex: Math.max(0, factors.indexOf(settingsService.playbackOversampleFactor))
-                        onActivated: settingsService.playbackOversampleFactor = factors[currentIndex]
+                        onActivated: index => settingsService.playbackOversampleFactor = factors[index]
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.timeout: Constants.toolTipTimeout
                         ToolTip.visible: hovered
