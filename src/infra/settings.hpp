@@ -79,6 +79,9 @@ void setMidiSyncEnabled(bool enabled);
 bool waveViewEnabled();
 void setWaveViewEnabled(bool enabled);
 
+bool patternPeekEnabled();
+void setPatternPeekEnabled(bool enabled);
+
 bool midiExportForceDrumChannel10();
 void setMidiExportForceDrumChannel10(bool enabled);
 

@@ -5,6 +5,12 @@ Release date:
 
 New features:
 
+* Add Pattern Peek to the editor
+  - The offset areas above/below the current pattern show a dimmed glimpse
+    of the previous/next patterns in the play order
+  - Follows the play order and stops at the song boundaries (no wraparound)
+  - Toggle via Settings => General => Editor => "Pattern Peek" (on by default)
+
 * Add FLAC support to the Sampler
   - Load FLAC files as samples in addition to WAV
   - The sample file browser now lists both WAV and FLAC files

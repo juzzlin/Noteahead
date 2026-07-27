@@ -5,6 +5,7 @@
 #include "../service/automation_service.hpp"
 #include "../service/editor_service.hpp"
 #include "../service/selection_service.hpp"
+#include "../service/settings_service.hpp"
 #include "../service/util_service.hpp"
 #include "note_column_line_container_helper.hpp"
 #include "note_column_model.hpp"
@@ -28,6 +29,11 @@ NoteColumnModelHandler::NoteColumnModelHandler(EditorServiceS editorService, Sel
     connect(m_editorService.get(), &EditorService::lineDataChanged, this, &NoteColumnModelHandler::updateIndexHighlightAtPosition);
     connect(m_editorService.get(), &EditorService::noteDataAtPositionChanged, this, &NoteColumnModelHandler::updateNoteDataAtPosition);
     connect(m_editorService.get(), &EditorService::positionChanged, this, &NoteColumnModelHandler::updatePosition);
+    connect(m_editorService.get(), &EditorService::currentPatternChanged, this, &NoteColumnModelHandler::updateGhostData);
+    connect(m_editorService.get(), &EditorService::songPositionChanged, this, &NoteColumnModelHandler::updateGhostData);
+    connect(m_editorService.get(), &EditorService::songLengthChanged, this, &NoteColumnModelHandler::updateGhostData);
+    connect(m_editorService.get(), &EditorService::skippedChanged, this, &NoteColumnModelHandler::updateGhostData);
+    connect(m_settingsService.get(), &SettingsService::patternPeekEnabledChanged, this, &NoteColumnModelHandler::updateGhostData);
 
     connect(m_selectionService.get(), &SelectionService::selectionCleared, this, &NoteColumnModelHandler::updateIndexHighlightRange);
     connect(m_selectionService.get(), &SelectionService::selectionChanged, this, &NoteColumnModelHandler::updateIndexHighlightRange);
@@ -43,6 +49,53 @@ NoteColumnModelHandler::ColumnAddress NoteColumnModelHandler::positionToColumnAd
     return {
         position.pattern, position.track, position.column
     };
+}
+
+std::optional<quint64> NoteColumnModelHandler::neighborSongPosition(quint64 songPosition, int direction, quint64 songLength) const
+{
+    // Walk the play order toward the song boundary (no wraparound) until a non-skipped position is found.
+    // Returns nothing when there is no such neighbor, so the offset area stays black at the song edges.
+    if (direction < 0) {
+        for (quint64 position = songPosition; position > 0;) {
+            if (!m_editorService->isSkipped(--position)) {
+                return position;
+            }
+        }
+        return std::nullopt;
+    }
+    for (quint64 position = songPosition + 1; position < songLength; position++) {
+        if (!m_editorService->isSkipped(position)) {
+            return position;
+        }
+    }
+    return std::nullopt;
+}
+
+void NoteColumnModelHandler::applyGhostData(NoteColumnModelP model, const ColumnAddress & address) const
+{
+    const auto [pattern, track, column] = address;
+    const auto songPosition = m_editorService->songPosition();
+    const auto songLength = m_editorService->songLength();
+    const auto ghostLines = [this, track, column](std::optional<quint64> neighborPosition) {
+        if (!m_settingsService->patternPeekEnabled() || !neighborPosition.has_value()) {
+            return EditorService::LineList {};
+        }
+        const auto pattern = m_editorService->patternAtSongPosition(*neighborPosition);
+        return m_editorService->columnData({ pattern, track, column });
+    };
+    model->setGhostData(
+      ghostLines(neighborSongPosition(songPosition, -1, songLength)),
+      ghostLines(neighborSongPosition(songPosition, 1, songLength)));
+}
+
+void NoteColumnModelHandler::updateGhostData()
+{
+    const auto currentPattern = m_editorService->currentPattern();
+    for (auto && [address, model] : m_noteColumnModels) {
+        if (std::get<0>(address) == currentPattern) {
+            applyGhostData(model, address);
+        }
+    }
 }
 
 void NoteColumnModelHandler::updateIndexHighlightAtPosition(const Position & position)
@@ -92,6 +145,10 @@ QAbstractListModel * NoteColumnModelHandler::columnModel(quint64 pattern, quint6
         const auto currentPos = m_editorService->position();
         if (currentPos.pattern == pattern && currentPos.track == track && currentPos.column == column) {
             model->setLineFocused(currentPos.line, currentPos.lineColumn);
+        }
+
+        if (m_editorService->currentPattern() == pattern) {
+            applyGhostData(model, columnAddress);
         }
 
         m_noteColumnModels[columnAddress] = model;

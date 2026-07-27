@@ -141,6 +141,38 @@ QVariant NoteColumnModel::virtualLineData(int role) const
         return "";
     case IsFocused:
         return false;
+    case IsGhostRow:
+        return false;
+    case IsVirtualRow:
+        return true;
+    }
+    return {};
+}
+
+QVariant NoteColumnModel::ghostLineData(int role, const Line & line) const
+{
+    using enum DataRole;
+    switch (static_cast<DataRole>(role)) {
+    case Border:
+        return 0;
+    case Color:
+        return QColor { "#0d0d0d" }; // Dark gray backdrop distinguishing the ghost from the active pattern
+    case Delay:
+        return displayDelay(line);
+    case Line:
+        return displayLine(line);
+    case LineColumn:
+        return 0;
+    case Note:
+        return displayNote(line);
+    case Pan:
+        return displayPan(line);
+    case Velocity:
+        return displayVelocity(line);
+    case IsFocused:
+        return false;
+    case IsGhostRow:
+        return true;
     case IsVirtualRow:
         return true;
     }
@@ -149,8 +181,18 @@ QVariant NoteColumnModel::virtualLineData(int role) const
 
 QVariant NoteColumnModel::data(const QModelIndex & index, int role) const
 {
-    if (const int shiftedIndex = index.row() - static_cast<int>(m_editorService->positionBarLine());
-        shiftedIndex < 0 || shiftedIndex >= static_cast<int>(m_lines.size())) {
+    const int shiftedIndex = index.row() - static_cast<int>(m_editorService->positionBarLine());
+    if (shiftedIndex < 0) {
+        // Top offset area: show the tail of the previous play order neighbor as a ghost
+        if (const int ghostIndex = static_cast<int>(m_previousLines.size()) + shiftedIndex; ghostIndex >= 0 && ghostIndex < static_cast<int>(m_previousLines.size())) {
+            return ghostLineData(role, *m_previousLines.at(static_cast<size_t>(ghostIndex)));
+        }
+        return virtualLineData(role);
+    } else if (shiftedIndex >= static_cast<int>(m_lines.size())) {
+        // Bottom offset area: show the head of the next play order neighbor as a ghost
+        if (const int ghostIndex = shiftedIndex - static_cast<int>(m_lines.size()); ghostIndex >= 0 && ghostIndex < static_cast<int>(m_nextLines.size())) {
+            return ghostLineData(role, *m_nextLines.at(static_cast<size_t>(ghostIndex)));
+        }
         return virtualLineData(role);
     } else {
         const auto & line = m_lines.at(static_cast<size_t>(shiftedIndex));
@@ -174,6 +216,8 @@ QVariant NoteColumnModel::data(const QModelIndex & index, int role) const
             return displayVelocity(*line);
         case IsFocused:
             return m_focusedLines.contains(static_cast<size_t>(index.row()));
+        case IsGhostRow:
+            return false;
         case IsVirtualRow:
             return false;
         }
@@ -189,6 +233,7 @@ QHash<int, QByteArray> NoteColumnModel::roleNames() const
         { static_cast<int>(Color), "color" },
         { static_cast<int>(Delay), "delay" },
         { static_cast<int>(IsFocused), "isFocused" },
+        { static_cast<int>(IsGhostRow), "isGhostRow" },
         { static_cast<int>(IsVirtualRow), "isVirtualRow" },
         { static_cast<int>(Line), "line" },
         { static_cast<int>(LineColumn), "lineColumn" },
@@ -206,6 +251,14 @@ void NoteColumnModel::setColumnData(LineListCR lines)
     endResetModel();
 }
 
+void NoteColumnModel::setGhostData(LineListCR previousLines, LineListCR nextLines)
+{
+    beginResetModel();
+    m_previousLines = previousLines;
+    m_nextLines = nextLines;
+    endResetModel();
+}
+
 void NoteColumnModel::setColumnAddress(const ColumnAddress & columnAddress)
 {
     m_columnAddress = columnAddress;
@@ -215,6 +268,8 @@ void NoteColumnModel::clear()
 {
     beginResetModel();
     m_lines.clear();
+    m_previousLines.clear();
+    m_nextLines.clear();
     m_focusedLines.clear();
     endResetModel();
 }

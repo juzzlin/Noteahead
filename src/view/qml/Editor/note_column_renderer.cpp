@@ -105,7 +105,8 @@ void NoteColumnRenderer::paint(QPainter * painter)
         }
 
         const bool isVirtualRow = m_model->data(idx, static_cast<int>(NoteColumnModel::DataRole::IsVirtualRow)).toBool();
-        if (isVirtualRow) {
+        const bool isGhostRow = m_model->data(idx, static_cast<int>(NoteColumnModel::DataRole::IsGhostRow)).toBool();
+        if (isVirtualRow && !isGhostRow) {
             continue;
         }
 
@@ -118,11 +119,21 @@ void NoteColumnRenderer::paint(QPainter * painter)
         // Text
         const QString lineText = m_model->data(idx, static_cast<int>(NoteColumnModel::DataRole::Line)).toString();
         const QString noteText = m_model->data(idx, static_cast<int>(NoteColumnModel::DataRole::Note)).toString();
-        const QColor textColor = (noteText != "" && noteText != "---") ? QColor("#ffffff") : QColor("#888888");
+        QColor textColor;
+        if (isGhostRow) {
+            textColor = QColor("#444444"); // Dim gray so the neighboring pattern reads as a subordinate glimpse
+        } else {
+            textColor = (noteText != "" && noteText != "---") ? QColor("#ffffff") : QColor("#999999");
+        }
 
         painter->setPen(textColor);
         const qreal textY = y + (rowHeight + fm.ascent() - fm.descent()) / 2.0;
         painter->drawText(QPointF(textX, textY), lineText);
+
+        // Ghost rows are a non-interactive preview: never draw the focus overlay
+        if (isGhostRow) {
+            continue;
+        }
 
         // Focus
         const bool isFocused = m_model->data(idx, static_cast<int>(NoteColumnModel::DataRole::IsFocused)).toBool();

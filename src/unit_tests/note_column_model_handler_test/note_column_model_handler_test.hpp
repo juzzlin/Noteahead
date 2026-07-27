@@ -31,6 +31,10 @@ private slots:
     void test_columnModel_shouldCreateAndReturnModel();
     void test_clear_shouldClearModels();
     void test_updatePattern_shouldPreserveFocus();
+
+    void test_patternPeek_middlePosition_shouldPreviewPlayOrderNeighbors();
+    void test_patternPeek_songBoundaries_shouldStayBlack();
+    void test_patternPeek_disabled_shouldStayBlack();
 };
 
 } // namespace noteahead

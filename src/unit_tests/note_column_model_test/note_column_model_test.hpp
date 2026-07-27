@@ -32,6 +32,7 @@ private slots:
 
     void test_data_shouldReturnCorrectValues();
     void test_data_LineRole_shouldReturnCorrectValue();
+    void test_data_GhostRow_shouldReturnNeighborLines();
 
     void test_updateNoteDataAtPosition_shouldEmitDataChangedWithCorrectRoles();
 

@@ -42,6 +42,7 @@ const auto jackSyncEnabledKey = "jackSyncEnabled";
 const auto jackBpmSyncEnabledKey = "jackBpmSyncEnabled";
 const auto midiSyncEnabledKey = "midiSyncEnabled";
 const auto waveViewEnabledKey = "waveViewEnabled";
+const auto patternPeekEnabledKey = "patternPeekEnabled";
 const auto renderNormalizeEnabledKey = "renderNormalizeEnabled";
 const auto renderNormalizeLevelKey = "renderNormalizeLevel";
 const auto renderTrimEnabledKey = "renderTrimEnabled";
@@ -378,6 +379,23 @@ void setWaveViewEnabled(bool enabled)
     QSettings settings;
     settings.beginGroup(settingsGroupAudio);
     settings.setValue(waveViewEnabledKey, enabled);
+    settings.endGroup();
+}
+
+bool patternPeekEnabled()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    const auto enabled = settings.value(patternPeekEnabledKey, true).toBool();
+    settings.endGroup();
+    return enabled;
+}
+
+void setPatternPeekEnabled(bool enabled)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    settings.setValue(patternPeekEnabledKey, enabled);
     settings.endGroup();
 }
 

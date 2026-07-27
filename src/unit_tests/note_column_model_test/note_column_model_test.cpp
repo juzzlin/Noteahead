@@ -120,6 +120,55 @@ void NoteColumnModelTest::test_data_LineRole_shouldReturnCorrectValue()
     QCOMPARE(model.data(idx1, static_cast<int>(NoteColumnModel::DataRole::Line)).toString(), QString { "--- --- -- ---" });
 }
 
+void NoteColumnModelTest::test_data_GhostRow_shouldReturnNeighborLines()
+{
+    const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    const auto selectionService { std::make_shared<SelectionService>() };
+    const auto settingsService { std::make_shared<SettingsService>() };
+    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
+    const auto utilService { std::make_shared<UtilService>() };
+    const auto helper { std::make_shared<NoteColumnLineContainerHelper>(automationService, editorService, selectionService, utilService) };
+
+    NoteColumnModel model { { 0, 0, 0 }, editorService, helper, settingsService };
+
+    const int barLine = static_cast<int>(editorService->positionBarLine());
+    QVERIFY(barLine >= 1); // The top offset area requires at least one virtual row above line 0
+
+    // Two lines in the current column
+    model.setColumnData({ std::make_shared<Line>(0), std::make_shared<Line>(1) });
+
+    // Previous neighbor: two lines, the last one directly abutting the current line 0
+    auto previousTail { std::make_shared<Line>(1) };
+    NoteData previousNote {};
+    previousNote.setAsNoteOn(62, 100); // D-5
+    previousTail->setNoteData(previousNote);
+
+    // Next neighbor: a single head line directly abutting the current last line
+    auto nextHead { std::make_shared<Line>(0) };
+    NoteData nextNote {};
+    nextNote.setAsNoteOn(64, 100); // E-5
+    nextHead->setNoteData(nextNote);
+
+    model.setGhostData({ std::make_shared<Line>(0), previousTail }, { nextHead });
+
+    // The row directly above line 0 shows the tail of the previous neighbor as a ghost
+    const auto topGhost = model.index(barLine - 1, 0);
+    QCOMPARE(model.data(topGhost, static_cast<int>(NoteColumnModel::DataRole::IsGhostRow)).toBool(), true);
+    QCOMPARE(model.data(topGhost, static_cast<int>(NoteColumnModel::DataRole::IsVirtualRow)).toBool(), true);
+    QCOMPARE(model.data(topGhost, static_cast<int>(NoteColumnModel::DataRole::Note)).toString(), QString { "D-5" });
+
+    // The row directly below the last line shows the head of the next neighbor as a ghost
+    const auto bottomGhost = model.index(barLine + 2, 0);
+    QCOMPARE(model.data(bottomGhost, static_cast<int>(NoteColumnModel::DataRole::IsGhostRow)).toBool(), true);
+    QCOMPARE(model.data(bottomGhost, static_cast<int>(NoteColumnModel::DataRole::Note)).toString(), QString { "E-5" });
+
+    // Beyond the neighbor's lines the offset area stays a plain (black) virtual row
+    const auto beyondGhost = model.index(barLine + 3, 0);
+    QCOMPARE(model.data(beyondGhost, static_cast<int>(NoteColumnModel::DataRole::IsGhostRow)).toBool(), false);
+    QCOMPARE(model.data(beyondGhost, static_cast<int>(NoteColumnModel::DataRole::IsVirtualRow)).toBool(), true);
+    QCOMPARE(model.data(beyondGhost, static_cast<int>(NoteColumnModel::DataRole::Line)).toString(), QString { "" });
+}
+
 void NoteColumnModelTest::test_updateNoteDataAtPosition_shouldEmitDataChangedWithCorrectRoles()
 {
     const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };

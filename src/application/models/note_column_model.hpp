@@ -41,6 +41,7 @@ public:
         Color,
         Delay,
         IsFocused,
+        IsGhostRow,
         IsVirtualRow,
         Line,
         LineColumn,
@@ -64,6 +65,7 @@ public:
     using LineList = std::vector<LineS>;
     using LineListCR = const LineList &;
     void setColumnData(LineListCR lines);
+    void setGhostData(LineListCR previousLines, LineListCR nextLines);
     void setColumnAddress(const ColumnAddress & columnAddress);
     void clear();
 
@@ -90,6 +92,7 @@ private:
 
     void notifyDataChanged(int startLine, int endLine, const QList<int> & roles = QList<int> {});
     QVariant virtualLineData(int role) const;
+    QVariant ghostLineData(int role, const Line & line) const;
 
     void updateRowCount();
 
@@ -99,6 +102,8 @@ private:
     SettingsServiceS m_settingsService;
 
     LineList m_lines;
+    LineList m_previousLines; //!< Tail of the previous play order neighbor, drawn as a ghost in the top offset area
+    LineList m_nextLines; //!< Head of the next play order neighbor, drawn as a ghost in the bottom offset area
     std::unordered_map<quint64, quint64> m_focusedLines;
 };
 

@@ -35,6 +35,7 @@ class SettingsService : public QObject
     Q_PROPERTY(bool jackBpmSyncEnabled READ jackBpmSyncEnabled WRITE setJackBpmSyncEnabled NOTIFY jackBpmSyncEnabledChanged)
     Q_PROPERTY(bool midiSyncEnabled READ midiSyncEnabled WRITE setMidiSyncEnabled NOTIFY midiSyncEnabledChanged)
     Q_PROPERTY(bool waveViewEnabled READ waveViewEnabled WRITE setWaveViewEnabled NOTIFY waveViewEnabledChanged)
+    Q_PROPERTY(bool patternPeekEnabled READ patternPeekEnabled WRITE setPatternPeekEnabled NOTIFY patternPeekEnabledChanged)
     Q_PROPERTY(bool midiExportForceDrumChannel10 READ midiExportForceDrumChannel10 WRITE setMidiExportForceDrumChannel10 NOTIFY midiExportForceDrumChannel10Changed)
     Q_PROPERTY(bool midiExportAutoAssignChannels READ midiExportAutoAssignChannels WRITE setMidiExportAutoAssignChannels NOTIFY midiExportAutoAssignChannelsChanged)
     Q_PROPERTY(int playbackOversampleFactor READ playbackOversampleFactor WRITE setPlaybackOversampleFactor NOTIFY playbackOversampleFactorChanged)
@@ -94,6 +95,9 @@ public:
 
     virtual Q_INVOKABLE bool waveViewEnabled() const;
     virtual Q_INVOKABLE void setWaveViewEnabled(bool enabled);
+
+    virtual Q_INVOKABLE bool patternPeekEnabled() const;
+    virtual Q_INVOKABLE void setPatternPeekEnabled(bool enabled);
 
     virtual Q_INVOKABLE bool midiExportForceDrumChannel10() const;
     virtual Q_INVOKABLE void setMidiExportForceDrumChannel10(bool enabled);
@@ -155,6 +159,7 @@ signals:
     void jackBpmSyncEnabledChanged();
     void midiSyncEnabledChanged();
     void waveViewEnabledChanged();
+    void patternPeekEnabledChanged();
     void midiExportForceDrumChannel10Changed();
     void midiExportAutoAssignChannelsChanged();
     void playbackOversampleFactorChanged();

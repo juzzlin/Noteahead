@@ -15,7 +15,7 @@ GroupBox {
             Layout.fillWidth: true
             GridLayout {
                 columns: 9
-                rows: 2
+                rows: 3
                 width: parent.width
                 Label {
                     text: qsTr("Number of lines visible:")
@@ -64,6 +64,26 @@ GroupBox {
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Set font size for track/column headers")
+                }
+                Label {
+                    text: qsTr("Pattern Peek:")
+                    Layout.column: 0
+                    Layout.columnSpan: 2
+                    Layout.row: 2
+                    Layout.fillWidth: true
+                }
+                CheckBox {
+                    id: patternPeekCheckBox
+                    Layout.column: 4
+                    Layout.columnSpan: 5
+                    Layout.row: 2
+                    Layout.fillWidth: true
+                    checked: settingsService.patternPeekEnabled
+                    onCheckedChanged: settingsService.setPatternPeekEnabled(checked)
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Show a dimmed glimpse of the previous/next patterns in the editor's offset areas")
                 }
             }
         }

@@ -5,6 +5,7 @@
 
 #include <map>
 #include <memory>
+#include <optional>
 #include <set>
 #include <tuple>
 
@@ -52,6 +53,10 @@ private:
 
     using ColumnAddress = std::tuple<quint64, quint64, quint64>; // Pattern, Track, Column
     ColumnAddress positionToColumnAddress(const Position & position) const;
+
+    std::optional<quint64> neighborSongPosition(quint64 songPosition, int direction, quint64 songLength) const;
+    void applyGhostData(NoteColumnModelP model, const ColumnAddress & address) const;
+    void updateGhostData();
 
     void updateCurrentLineCount();
     void updateIndexHighlightAtPosition(const Position & position);

@@ -207,6 +207,19 @@ void SettingsService::setWaveViewEnabled(bool enabled)
     }
 }
 
+bool SettingsService::patternPeekEnabled() const
+{
+    return Settings::patternPeekEnabled();
+}
+
+void SettingsService::setPatternPeekEnabled(bool enabled)
+{
+    if (patternPeekEnabled() != enabled) {
+        Settings::setPatternPeekEnabled(enabled);
+        emit patternPeekEnabledChanged();
+    }
+}
+
 bool SettingsService::midiExportForceDrumChannel10() const
 {
     return Settings::midiExportForceDrumChannel10();
