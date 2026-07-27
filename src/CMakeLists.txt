@@ -112,6 +112,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/SamplerDialog_WaveformView.qml
     ${QML_BASE_DIR}/Dialogs/SaturatorDialog.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog.qml
+    ${QML_BASE_DIR}/Dialogs/SimpleEqDialog.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog_AudioSettings.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog_GeneralSettings.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog_MidiSettings.qml

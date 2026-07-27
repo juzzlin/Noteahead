@@ -152,6 +152,9 @@ AnimatedDialog {
                         } else if (effectType === effectRackController.vintagePassiveEqType) {
                             vintagePassiveEqDialog.effectIndex = index;
                             vintagePassiveEqDialog.open();
+                        } else if (effectType === effectRackController.simpleEqType) {
+                            simpleEqDialog.effectIndex = index;
+                            simpleEqDialog.open();
                         } else if (effectType === effectRackController.pannerType) {
                             pannerDialog.effectIndex = index;
                             pannerDialog.open();

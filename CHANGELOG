@@ -5,6 +5,12 @@ Release date:
 
 New features:
 
+* Add a Simple EQ rack effect
+  - A single "Sounds Good" (Amount) knob sweeps a fixed loudness-smile curve:
+    low-shelf body, a gentle low-mid mud scoop and a high-shelf air lift
+  - At zero it is flat; turn it up until it sounds good
+  - Available from both the master and device-insert effect racks
+
 * Add a Vintage Passive EQ rack effect
   - Passive "program equalizer" in the classic EQP-1A tradition
   - Low section: shared frequency selector (20/30/60/100 Hz) with independent

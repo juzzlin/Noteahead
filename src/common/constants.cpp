@@ -208,6 +208,11 @@ QString vintagePassiveEq()
     return "vintagepassiveeq";
 }
 
+QString simpleEq()
+{
+    return "simpleeq";
+}
+
 QString allPassFilter()
 {
     return "allpassfilter";
@@ -1275,6 +1280,11 @@ QString xmlKeyBandGain(size_t bandIndex)
 QString xmlKeyBandQ(size_t bandIndex)
 {
     return QString { "band%1Q" }.arg(bandIndex + 1);
+}
+
+QString xmlKeyAmount()
+{
+    return "amount";
 }
 
 QString xmlKeyLowFreq()

@@ -246,6 +246,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Drive", Constants::RackEffectType::drive().toStdString());
     addEffect("EQ 8-Band Parametric", Constants::RackEffectType::eq8BandParametric().toStdString());
     addEffect("Vintage Passive EQ", Constants::RackEffectType::vintagePassiveEq().toStdString());
+    addEffect("Simple EQ", Constants::RackEffectType::simpleEq().toStdString());
     addEffect("Limiter", Constants::RackEffectType::limiter().toStdString());
     addEffect("LUFS Meter", LufsMeter::typeIdString());
     addEffect("Panner", Constants::RackEffectType::panner().toStdString());
@@ -464,6 +465,10 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                 return "(Parametric)";
             } else if (type == Constants::RackEffectType::vintagePassiveEq()) {
                 return "(Passive)";
+            } else if (type == Constants::RackEffectType::simpleEq()) {
+                if (const auto amount = effect->parameter(Constants::NahdXml::xmlKeyAmount().toStdString()); amount) {
+                    return QString { "(%1%)" }.arg(static_cast<int>(std::round(amount->get().value() * 100.0f)));
+                }
             } else if (type == Constants::RackEffectType::panner()) {
                 const auto pan = effect->parameter(Constants::NahdXml::xmlKeyPan().toStdString());
                 const auto width = effect->parameter(Constants::NahdXml::xmlKeyWidth().toStdString());
@@ -820,6 +825,11 @@ QString EffectRackController::vintagePassiveEqHighAttenKey() const
     return Constants::NahdXml::xmlKeyHighAtten();
 }
 
+QString EffectRackController::simpleEqAmountKey() const
+{
+    return Constants::NahdXml::xmlKeyAmount();
+}
+
 QString EffectRackController::allPassFilterType() const
 {
     return Constants::RackEffectType::allPassFilter();
@@ -883,6 +893,11 @@ QString EffectRackController::eq8BandParametricType() const
 QString EffectRackController::vintagePassiveEqType() const
 {
     return Constants::RackEffectType::vintagePassiveEq();
+}
+
+QString EffectRackController::simpleEqType() const
+{
+    return Constants::RackEffectType::simpleEq();
 }
 
 QString EffectRackController::pannerType() const
