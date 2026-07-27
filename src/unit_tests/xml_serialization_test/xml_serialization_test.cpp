@@ -41,6 +41,7 @@
 #include "../../domain/effects/eq_8_band_parametric.hpp"
 #include "../../domain/effects/limiter.hpp"
 #include "../../domain/effects/reverb.hpp"
+#include "../../domain/effects/vintage_passive_eq.hpp"
 #include "../../domain/tracker/column_settings.hpp"
 #include "../../domain/tracker/instrument.hpp"
 #include "../../domain/tracker/note_data.hpp"
@@ -1392,6 +1393,58 @@ void XmlSerializationTest::test_toXmlFromXml_endlessReverbEffect_shouldLoadCorre
     if (auto p = restored->parameter(Constants::NahdXml::xmlKeyFreeze().toStdString()); p) {
         QCOMPARE(p->get().value(), 1.0f);
     }
+}
+
+void XmlSerializationTest::test_toXmlFromXml_vintagePassiveEqEffect_shouldLoadCorrectly()
+{
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto eq = std::make_shared<VintagePassiveEq>();
+    const auto setParam = [&eq](const QString & key, float value) {
+        if (auto p = eq->parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    };
+    setParam(Constants::NahdXml::xmlKeyLowFreq(), 3.0f); // 100 Hz
+    setParam(Constants::NahdXml::xmlKeyLowBoost(), 0.6f);
+    setParam(Constants::NahdXml::xmlKeyLowAtten(), 0.3f);
+    setParam(Constants::NahdXml::xmlKeyHighBoostFreq(), 4.0f); // 10 kHz
+    setParam(Constants::NahdXml::xmlKeyHighBoost(), 0.7f);
+    setParam(Constants::NahdXml::xmlKeyBandwidth(), 0.4f);
+    setParam(Constants::NahdXml::xmlKeyHighAttenFreq(), 2.0f); // 20 kHz
+    setParam(Constants::NahdXml::xmlKeyHighAtten(), 0.5f);
+    deviceServiceOut.sendEffectRack().setEffect(0, eq);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(effect);
+    QCOMPARE(effect->typeId(), VintagePassiveEq::typeIdString());
+    const auto restored = std::dynamic_pointer_cast<VintagePassiveEq>(effect);
+    QVERIFY(restored);
+    const auto valueOf = [&restored](const QString & key) {
+        const auto p = restored->parameter(key.toStdString());
+        return p ? p->get().value() : -1.0f;
+    };
+    QCOMPARE(valueOf(Constants::NahdXml::xmlKeyLowFreq()), 3.0f);
+    QCOMPARE(valueOf(Constants::NahdXml::xmlKeyLowBoost()), 0.6f);
+    QCOMPARE(valueOf(Constants::NahdXml::xmlKeyLowAtten()), 0.3f);
+    QCOMPARE(valueOf(Constants::NahdXml::xmlKeyHighBoostFreq()), 4.0f);
+    QCOMPARE(valueOf(Constants::NahdXml::xmlKeyHighBoost()), 0.7f);
+    QCOMPARE(valueOf(Constants::NahdXml::xmlKeyBandwidth()), 0.4f);
+    QCOMPARE(valueOf(Constants::NahdXml::xmlKeyHighAttenFreq()), 2.0f);
+    QCOMPARE(valueOf(Constants::NahdXml::xmlKeyHighAtten()), 0.5f);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_reverbGate_shouldLoadCorrectly()

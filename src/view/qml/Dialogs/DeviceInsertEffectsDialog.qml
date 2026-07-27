@@ -152,6 +152,9 @@ AnimatedDialog {
                         } else if (effectType === effectRackController.eq8BandParametricType) {
                             eq8BandParametricDialog.effectIndex = index;
                             eq8BandParametricDialog.open();
+                        } else if (effectType === effectRackController.vintagePassiveEqType) {
+                            vintagePassiveEqDialog.effectIndex = index;
+                            vintagePassiveEqDialog.open();
                         } else if (effectType === effectRackController.pannerType) {
                             pannerDialog.effectIndex = index;
                             pannerDialog.open();

@@ -81,6 +81,7 @@ QString panner();
 QString autoPanner();
 QString eq8BandParametric();
 QString eq8BandParametricLegacy();
+QString vintagePassiveEq();
 QString allPassFilter();
 QString lufsMeter();
 QString dbtpMeter();
@@ -342,6 +343,15 @@ QString xmlKeyBandType(size_t bandIndex);
 QString xmlKeyBandFreq(size_t bandIndex);
 QString xmlKeyBandGain(size_t bandIndex);
 QString xmlKeyBandQ(size_t bandIndex);
+
+QString xmlKeyLowFreq();
+QString xmlKeyLowBoost();
+QString xmlKeyLowAtten();
+QString xmlKeyHighBoostFreq();
+QString xmlKeyHighBoost();
+QString xmlKeyBandwidth();
+QString xmlKeyHighAttenFreq();
+QString xmlKeyHighAtten();
 
 QString xmlKeyVco1Waveform();
 QString xmlKeyVco1Octave();

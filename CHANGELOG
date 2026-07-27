@@ -5,6 +5,14 @@ Release date:
 
 New features:
 
+* Add a Vintage Passive EQ rack effect
+  - Passive "program equalizer" in the classic EQP-1A tradition
+  - Low section: shared frequency selector (20/30/60/100 Hz) with independent
+    Boost and Atten shelves that interact for the signature low-end curve
+  - High section: a bell Boost (3-16 kHz) with a Bandwidth control plus a
+    separate shelving Atten (5/10/20 kHz)
+  - Available from both the master and device-insert effect racks
+
 * Add Pattern Peek to the editor
   - The offset areas above/below the current pattern show a dimmed glimpse
     of the previous/next patterns in the play order

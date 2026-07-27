@@ -203,6 +203,11 @@ QString eq8BandParametric()
     return "eq8bandparametric";
 }
 
+QString vintagePassiveEq()
+{
+    return "vintagepassiveeq";
+}
+
 QString allPassFilter()
 {
     return "allpassfilter";
@@ -1270,6 +1275,46 @@ QString xmlKeyBandGain(size_t bandIndex)
 QString xmlKeyBandQ(size_t bandIndex)
 {
     return QString { "band%1Q" }.arg(bandIndex + 1);
+}
+
+QString xmlKeyLowFreq()
+{
+    return "lowFreq";
+}
+
+QString xmlKeyLowBoost()
+{
+    return "lowBoost";
+}
+
+QString xmlKeyLowAtten()
+{
+    return "lowAtten";
+}
+
+QString xmlKeyHighBoostFreq()
+{
+    return "highBoostFreq";
+}
+
+QString xmlKeyHighBoost()
+{
+    return "highBoost";
+}
+
+QString xmlKeyBandwidth()
+{
+    return "bandwidth";
+}
+
+QString xmlKeyHighAttenFreq()
+{
+    return "highAttenFreq";
+}
+
+QString xmlKeyHighAtten()
+{
+    return "highAtten";
 }
 
 QString xmlKeyVco1Waveform()

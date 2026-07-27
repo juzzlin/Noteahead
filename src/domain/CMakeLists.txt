@@ -53,6 +53,7 @@ set(HEADER_FILES
     effects/panner.hpp
     effects/reverb.hpp
     effects/saturator.hpp
+    effects/vintage_passive_eq.hpp
     midi/midi_address.hpp
     midi/midi_cc_automation.hpp
     midi/midi_cc_data.hpp
@@ -151,6 +152,7 @@ set(SOURCE_FILES
     effects/panner.cpp
     effects/reverb.cpp
     effects/saturator.cpp
+    effects/vintage_passive_eq.cpp
     midi/midi_address.cpp
     midi/midi_cc_automation.cpp
     midi/midi_cc_data.cpp

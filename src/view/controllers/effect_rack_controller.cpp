@@ -245,6 +245,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Delay", Constants::RackEffectType::delay().toStdString());
     addEffect("Drive", Constants::RackEffectType::drive().toStdString());
     addEffect("EQ 8-Band Parametric", Constants::RackEffectType::eq8BandParametric().toStdString());
+    addEffect("Vintage Passive EQ", Constants::RackEffectType::vintagePassiveEq().toStdString());
     addEffect("Limiter", Constants::RackEffectType::limiter().toStdString());
     addEffect("LUFS Meter", LufsMeter::typeIdString());
     addEffect("Panner", Constants::RackEffectType::panner().toStdString());
@@ -461,6 +462,8 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                 }
             } else if (type == Constants::RackEffectType::eq8BandParametric()) {
                 return "(Parametric)";
+            } else if (type == Constants::RackEffectType::vintagePassiveEq()) {
+                return "(Passive)";
             } else if (type == Constants::RackEffectType::panner()) {
                 const auto pan = effect->parameter(Constants::NahdXml::xmlKeyPan().toStdString());
                 const auto width = effect->parameter(Constants::NahdXml::xmlKeyWidth().toStdString());
@@ -777,6 +780,46 @@ QString EffectRackController::eq8BandParametricStereoModeKey() const
     return Constants::NahdXml::xmlKeyStereoMode();
 }
 
+QString EffectRackController::vintagePassiveEqLowFreqKey() const
+{
+    return Constants::NahdXml::xmlKeyLowFreq();
+}
+
+QString EffectRackController::vintagePassiveEqLowBoostKey() const
+{
+    return Constants::NahdXml::xmlKeyLowBoost();
+}
+
+QString EffectRackController::vintagePassiveEqLowAttenKey() const
+{
+    return Constants::NahdXml::xmlKeyLowAtten();
+}
+
+QString EffectRackController::vintagePassiveEqHighBoostFreqKey() const
+{
+    return Constants::NahdXml::xmlKeyHighBoostFreq();
+}
+
+QString EffectRackController::vintagePassiveEqHighBoostKey() const
+{
+    return Constants::NahdXml::xmlKeyHighBoost();
+}
+
+QString EffectRackController::vintagePassiveEqBandwidthKey() const
+{
+    return Constants::NahdXml::xmlKeyBandwidth();
+}
+
+QString EffectRackController::vintagePassiveEqHighAttenFreqKey() const
+{
+    return Constants::NahdXml::xmlKeyHighAttenFreq();
+}
+
+QString EffectRackController::vintagePassiveEqHighAttenKey() const
+{
+    return Constants::NahdXml::xmlKeyHighAtten();
+}
+
 QString EffectRackController::allPassFilterType() const
 {
     return Constants::RackEffectType::allPassFilter();
@@ -835,6 +878,11 @@ QString EffectRackController::delayType() const
 QString EffectRackController::eq8BandParametricType() const
 {
     return Constants::RackEffectType::eq8BandParametric();
+}
+
+QString EffectRackController::vintagePassiveEqType() const
+{
+    return Constants::RackEffectType::vintagePassiveEq();
 }
 
 QString EffectRackController::pannerType() const

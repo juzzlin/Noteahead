@@ -32,6 +32,7 @@
 #include "panner.hpp"
 #include "reverb.hpp"
 #include "saturator.hpp"
+#include "vintage_passive_eq.hpp"
 
 #include <map>
 
@@ -99,6 +100,7 @@ void EffectFactory::init()
     registerEffect(Rta::typeIdString(), []() { return std::make_shared<Rta>(); });
     registerEffect(Reverb::typeIdString(), []() { return std::make_shared<Reverb>(); });
     registerEffect(Saturator::typeIdString(), []() { return std::make_shared<Saturator>(); });
+    registerEffect(VintagePassiveEq::typeIdString(), []() { return std::make_shared<VintagePassiveEq>(); });
 
     // Readable-string aliases so the gallery can create effects by their type() name
     registerEffect(Constants::RackEffectType::autoPanner().toStdString(), []() { return std::make_shared<AutoPanner>(); });
@@ -113,6 +115,7 @@ void EffectFactory::init()
     registerEffect(Constants::RackEffectType::reverb().toStdString(), []() { return std::make_shared<Reverb>(); });
     registerEffect(Constants::RackEffectType::rta().toStdString(), []() { return std::make_shared<Rta>(); });
     registerEffect(Constants::RackEffectType::saturator().toStdString(), []() { return std::make_shared<Saturator>(); });
+    registerEffect(Constants::RackEffectType::vintagePassiveEq().toStdString(), []() { return std::make_shared<VintagePassiveEq>(); });
 
     // Legacy support
     registerLegacyEffect("auto_panner", []() { return std::make_shared<AutoPanner>(); });
@@ -125,6 +128,7 @@ void EffectFactory::init()
     registerLegacyEffect("limiter", []() { return std::make_shared<Limiter>(); });
     registerLegacyEffect("panner", []() { return std::make_shared<Panner>(); });
     registerLegacyEffect("reverb", []() { return std::make_shared<Reverb>(); });
+    registerLegacyEffect("vintage_passive_eq", []() { return std::make_shared<VintagePassiveEq>(); });
 }
 
 void EffectFactory::clear()
