@@ -25,11 +25,21 @@
 #include "../../infra/data_service.hpp"
 
 #include <QSettings>
+#include <QTemporaryDir>
 #include <QTest>
 
 namespace noteahead {
 
 namespace {
+
+// Keeps the settings written by this test process out of the user scope shared by all
+// processes. Without it, concurrent runs of this binary (parallel CI workspaces) race on the
+// same settings file and observe each other's pattern peek writes.
+QTemporaryDir & settingsDirectory()
+{
+    static QTemporaryDir directory;
+    return directory;
+}
 
 // Builds a three-position play order (positions 0, 1, 2 mapped to patterns 0, 1, 2) and drops a
 // note on the tail of pattern 0 and the head of pattern 2, so the peeked neighbors are identifiable.
@@ -74,6 +84,10 @@ void NoteColumnModelHandlerTest::initTestCase()
 {
     QCoreApplication::setOrganizationName("NoteaheadTest");
     QCoreApplication::setApplicationName("NoteColumnModelHandlerTest");
+
+    QVERIFY(settingsDirectory().isValid());
+    QSettings::setDefaultFormat(QSettings::IniFormat);
+    QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, settingsDirectory().path());
 }
 
 void NoteColumnModelHandlerTest::cleanupTestCase()

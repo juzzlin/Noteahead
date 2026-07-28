@@ -20,14 +20,32 @@
 
 #include <QSettings>
 #include <QSignalSpy>
+#include <QTemporaryDir>
 #include <QTest>
 
 namespace noteahead {
+
+namespace {
+
+// Keeps the settings written by this test process out of the user scope shared by all
+// processes. Without it, concurrent runs of this binary (parallel CI workspaces) race on the
+// same settings file.
+QTemporaryDir & settingsDirectory()
+{
+    static QTemporaryDir directory;
+    return directory;
+}
+
+} // namespace
 
 void MidiSettingsModelTest::initTestCase()
 {
     QCoreApplication::setOrganizationName("NoteaheadTest");
     QCoreApplication::setApplicationName("MidiSettingsModelTest");
+
+    QVERIFY(settingsDirectory().isValid());
+    QSettings::setDefaultFormat(QSettings::IniFormat);
+    QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, settingsDirectory().path());
 }
 
 void MidiSettingsModelTest::cleanupTestCase()
