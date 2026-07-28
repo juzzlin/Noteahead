@@ -16,6 +16,8 @@
 #ifndef SETTINGS_SERVICE_H
 #define SETTINGS_SERVICE_H
 
+#include <optional>
+
 #include <QObject>
 #include <QSize>
 
@@ -66,10 +68,10 @@ public:
     virtual Q_INVOKABLE QSize windowSize(QSize defaultSize) const;
     virtual Q_INVOKABLE void setWindowSize(QSize size);
 
-    virtual Q_INVOKABLE int step(int defaultStep) const;
+    virtual Q_INVOKABLE int step() const;
     virtual Q_INVOKABLE void setStep(int step);
 
-    virtual Q_INVOKABLE int velocity(int defaultVelocity) const;
+    virtual Q_INVOKABLE int velocity() const;
     virtual Q_INVOKABLE void setVelocity(int velocity);
 
     virtual Q_INVOKABLE int visibleLines() const;
@@ -175,11 +177,44 @@ signals:
     void renderAnalyzeEnabledChanged();
 
 private:
+    int m_autoNoteOffOffset;
     QString m_controllerPort;
     bool m_uiUpdatesDisabledDuringPlayback;
 
+    // Unset until the user has resized the window; the caller-provided default applies until then
+    std::optional<QSize> m_windowSize;
+
+    int m_step;
+    int m_velocity;
     int m_visibleLines;
     int m_trackHeaderFontSize;
+
+    bool m_recordingEnabled;
+    int m_audioBackend;
+    int m_audioBufferSize;
+    int m_audioInputDeviceId;
+    int m_audioOutputDeviceId;
+
+    bool m_jackSyncEnabled;
+    bool m_jackBpmSyncEnabled;
+    bool m_midiSyncEnabled;
+    bool m_waveViewEnabled;
+    bool m_patternPeekEnabled;
+
+    bool m_midiExportForceDrumChannel10;
+    bool m_midiExportAutoAssignChannels;
+
+    int m_playbackOversampleFactor;
+    int m_renderOversampleFactor;
+    int m_renderSampleRate;
+    int m_renderBitDepth;
+    int m_renderFormat;
+    bool m_renderNormalizeEnabled;
+    double m_renderNormalizeLevel;
+    bool m_renderTrimEnabled;
+    int m_renderTrimMinutes;
+    int m_renderTrimSeconds;
+    bool m_renderAnalyzeEnabled;
 };
 
 } // namespace noteahead

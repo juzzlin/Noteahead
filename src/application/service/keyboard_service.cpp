@@ -206,10 +206,10 @@ void KeyboardService::handleDelete()
     if (m_applicationService->editMode()) {
         if (m_editorService->isAtNoteColumn()) {
             m_editorService->requestNoteDeletionAtCurrentPosition(false);
-            m_editorService->requestScroll(m_settingsService->step(1));
+            m_editorService->requestScroll(m_settingsService->step());
         } else if (m_editorService->isAtVelocityColumn() || m_editorService->isAtDelayColumn() || m_editorService->isAtPanColumn()) {
             if (m_editorService->requestDigitSetAtCurrentPosition(0)) {
-                m_editorService->requestScroll(m_settingsService->step(1));
+                m_editorService->requestScroll(m_settingsService->step());
             }
         }
     }
@@ -264,7 +264,7 @@ void KeyboardService::handleNoteOff(bool isAutoRepeat)
 
     if (m_applicationService->editMode()) {
         if (m_editorService->requestNoteOffAtCurrentPosition()) {
-            m_editorService->requestScroll(m_settingsService->step(1));
+            m_editorService->requestScroll(m_settingsService->step());
         }
     }
 }
@@ -281,14 +281,14 @@ void KeyboardService::handleNoteTriggered(int key, int modifiers, bool isAutoRep
         if (m_editorService->isAtNoteColumn()) {
             if (const auto note = effectiveNote(key)) {
                 const auto octave = effectiveOctave(key);
-                if (m_editorService->requestNoteOnAtCurrentPosition(*note, *octave, static_cast<uint8_t>(m_settingsService->velocity(100)))) {
-                    m_editorService->requestScroll(m_settingsService->step(1));
+                if (m_editorService->requestNoteOnAtCurrentPosition(*note, *octave, static_cast<uint8_t>(m_settingsService->velocity()))) {
+                    m_editorService->requestScroll(m_settingsService->step());
                 }
             }
             if (!isAutoRepeat) {
                 if (const auto note = effectiveNote(key)) {
                     const auto octave = effectiveOctave(key);
-                    m_applicationService->requestLiveNoteOn(*note, static_cast<uint8_t>(*octave), static_cast<uint8_t>(m_settingsService->velocity(100)));
+                    m_applicationService->requestLiveNoteOn(*note, static_cast<uint8_t>(*octave), static_cast<uint8_t>(m_settingsService->velocity()));
                 }
             }
         } else if (m_editorService->isAtVelocityColumn() || m_editorService->isAtDelayColumn() || m_editorService->isAtPanColumn()) {
@@ -298,7 +298,7 @@ void KeyboardService::handleNoteTriggered(int key, int modifiers, bool isAutoRep
                     m_applicationService->requestLiveNoteOnAtCurrentPosition();
                 }
                 if (updated) {
-                    m_editorService->requestScroll(m_settingsService->step(1));
+                    m_editorService->requestScroll(m_settingsService->step());
                 }
             } else if (!isAutoRepeat) {
                 m_applicationService->requestLiveNoteOnAtCurrentPosition();
@@ -307,7 +307,7 @@ void KeyboardService::handleNoteTriggered(int key, int modifiers, bool isAutoRep
     } else if (!isAutoRepeat) {
         if (const auto note = effectiveNote(key)) {
             const auto octave = effectiveOctave(key);
-            m_applicationService->requestLiveNoteOn(*note, static_cast<uint8_t>(*octave), static_cast<uint8_t>(m_settingsService->velocity(100)));
+            m_applicationService->requestLiveNoteOn(*note, static_cast<uint8_t>(*octave), static_cast<uint8_t>(m_settingsService->velocity()));
         }
     }
 }

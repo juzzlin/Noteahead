@@ -69,7 +69,7 @@ QtObject {
         keyboardService.activeOctave = octave;
     }
     signal activeStepChanged(int activeStep)
-    property int _activeStep: settingsService.step(1)
+    property int _activeStep: settingsService.step()
     function activeStep(): int {
         return _activeStep;
     }
@@ -81,7 +81,7 @@ QtObject {
         }
     }
     signal activeVelocityChanged(int activeVelocity)
-    property int _activeVelocity: settingsService.velocity(100)
+    property int _activeVelocity: settingsService.velocity()
 
     Component.onCompleted: {
         applicationService.deviceRackDialogRequested.connect(deviceRackDialogRequested);

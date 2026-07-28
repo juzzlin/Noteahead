@@ -25,9 +25,23 @@
 
 #include <QSettings>
 #include <QSignalSpy>
+#include <QTemporaryDir>
 #include <QTest>
 
 namespace noteahead {
+
+namespace {
+
+// Keeps the settings written by this test process out of the user scope shared by all
+// processes. Without it, concurrent runs of this binary (parallel CI workspaces) race on the
+// same settings file.
+QTemporaryDir & settingsDirectory()
+{
+    static QTemporaryDir directory;
+    return directory;
+}
+
+} // namespace
 
 class MockApplicationService : public ApplicationService
 {
@@ -229,12 +243,12 @@ private:
 class MockSettingsService : public SettingsService
 {
 public:
-    int step(int) const override
+    int step() const override
     {
         return 1;
     }
 
-    int velocity(int) const override
+    int velocity() const override
     {
         return 100;
     }
@@ -244,6 +258,11 @@ void KeyboardServiceTest::initTestCase()
 {
     QCoreApplication::setOrganizationName("NoteaheadTest");
     QCoreApplication::setApplicationName("KeyboardServiceTest");
+
+    QVERIFY(settingsDirectory().isValid());
+    QSettings::setDefaultFormat(QSettings::IniFormat);
+    QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, settingsDirectory().path());
+
     qRegisterMetaType<MidiNoteData>("MidiNoteData");
     qRegisterMetaType<MidiNoteData>("MidiNoteDataCR");
 }

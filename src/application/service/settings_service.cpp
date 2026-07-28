@@ -25,21 +25,54 @@ namespace noteahead {
 static const auto TAG = "SettingsService";
 
 SettingsService::SettingsService()
-  : m_controllerPort { Settings::controllerPort("") }
+  : m_autoNoteOffOffset { Settings::autoNoteOffOffset(250) }
+  , m_controllerPort { Settings::controllerPort("") }
   , m_uiUpdatesDisabledDuringPlayback { Settings::uiUpdatesDisabledDuringPlayback() }
+  , m_step { Settings::step(1) }
+  , m_velocity { Settings::velocity(100) }
   , m_visibleLines { Settings::visibleLines(32) }
   , m_trackHeaderFontSize { Settings::trackHeaderFontSize(20) }
+  , m_recordingEnabled { Settings::recordingEnabled() }
+  , m_audioBackend { static_cast<int>(Settings::audioBackend()) }
+  , m_audioBufferSize { Settings::audioBufferSize() }
+  , m_audioInputDeviceId { Settings::audioInputDeviceId() }
+  , m_audioOutputDeviceId { Settings::audioOutputDeviceId() }
+  , m_jackSyncEnabled { Settings::jackSyncEnabled() }
+  , m_jackBpmSyncEnabled { Settings::jackBpmSyncEnabled() }
+  , m_midiSyncEnabled { Settings::midiSyncEnabled() }
+  , m_waveViewEnabled { Settings::waveViewEnabled() }
+  , m_patternPeekEnabled { Settings::patternPeekEnabled() }
+  , m_midiExportForceDrumChannel10 { Settings::midiExportForceDrumChannel10() }
+  , m_midiExportAutoAssignChannels { Settings::midiExportAutoAssignChannels() }
+  , m_playbackOversampleFactor { Settings::playbackOversampleFactor() }
+  , m_renderOversampleFactor { Settings::renderOversampleFactor() }
+  , m_renderSampleRate { Settings::renderSampleRate() }
+  , m_renderBitDepth { static_cast<int>(Settings::renderBitDepth()) }
+  , m_renderFormat { static_cast<int>(Settings::renderFormat()) }
+  , m_renderNormalizeEnabled { Settings::renderNormalizeEnabled() }
+  , m_renderNormalizeLevel { Settings::renderNormalizeLevel() }
+  , m_renderTrimEnabled { Settings::renderTrimEnabled() }
+  , m_renderTrimMinutes { Settings::renderTrimMinutes() }
+  , m_renderTrimSeconds { Settings::renderTrimSeconds() }
+  , m_renderAnalyzeEnabled { Settings::renderAnalyzeEnabled() }
 {
+    // An invalid size means nothing has been stored yet, in which case the caller's default wins
+    if (const auto storedWindowSize = Settings::windowSize(QSize {}); storedWindowSize.isValid()) {
+        m_windowSize = storedWindowSize;
+    }
 }
 
 int SettingsService::autoNoteOffOffset() const
 {
-    return Settings::autoNoteOffOffset(250);
+    return m_autoNoteOffOffset;
 }
 
 void SettingsService::setAutoNoteOffOffset(int autoNoteOffOffset)
 {
-    Settings::setAutoNoteOffOffset(autoNoteOffOffset);
+    if (m_autoNoteOffOffset != autoNoteOffOffset) {
+        m_autoNoteOffOffset = autoNoteOffOffset;
+        Settings::setAutoNoteOffOffset(autoNoteOffOffset);
+    }
 }
 
 QString SettingsService::controllerPort() const
@@ -73,32 +106,41 @@ void SettingsService::setUiUpdatesDisabledDuringPlayback(bool disabled)
 
 QSize SettingsService::windowSize(QSize defaultSize) const
 {
-    return Settings::windowSize(defaultSize);
+    return m_windowSize.value_or(defaultSize);
 }
 
 void SettingsService::setWindowSize(QSize size)
 {
-    Settings::setWindowSize(size);
+    if (m_windowSize != size) {
+        m_windowSize = size;
+        Settings::setWindowSize(size);
+    }
 }
 
-int SettingsService::step(int defaultStep) const
+int SettingsService::step() const
 {
-    return Settings::step(defaultStep);
+    return m_step;
 }
 
 void SettingsService::setStep(int step)
 {
-    Settings::setStep(step);
+    if (m_step != step) {
+        m_step = step;
+        Settings::setStep(step);
+    }
 }
 
-int SettingsService::velocity(int defaultVelocity) const
+int SettingsService::velocity() const
 {
-    return Settings::velocity(defaultVelocity);
+    return m_velocity;
 }
 
 void SettingsService::setVelocity(int velocity)
 {
-    Settings::setVelocity(velocity);
+    if (m_velocity != velocity) {
+        m_velocity = velocity;
+        Settings::setVelocity(velocity);
+    }
 }
 
 int SettingsService::visibleLines() const
@@ -131,12 +173,13 @@ void SettingsService::setTrackHeaderFontSize(int trackHeaderFontSize)
 
 bool SettingsService::recordingEnabled() const
 {
-    return Settings::recordingEnabled();
+    return m_recordingEnabled;
 }
 
 void SettingsService::setRecordingEnabled(bool enabled)
 {
-    if (recordingEnabled() != enabled) {
+    if (m_recordingEnabled != enabled) {
+        m_recordingEnabled = enabled;
         Settings::setRecordingEnabled(enabled);
         emit recordingEnabledChanged();
     }
@@ -144,12 +187,13 @@ void SettingsService::setRecordingEnabled(bool enabled)
 
 int SettingsService::audioBackend() const
 {
-    return static_cast<int>(Settings::audioBackend());
+    return m_audioBackend;
 }
 
 void SettingsService::setAudioBackend(int audioBackend)
 {
-    if (this->audioBackend() != audioBackend) {
+    if (m_audioBackend != audioBackend) {
+        m_audioBackend = audioBackend;
         Settings::setAudioBackend(static_cast<AudioBackend>(audioBackend));
         emit audioBackendChanged();
     }
@@ -157,12 +201,13 @@ void SettingsService::setAudioBackend(int audioBackend)
 
 bool SettingsService::jackSyncEnabled() const
 {
-    return Settings::jackSyncEnabled();
+    return m_jackSyncEnabled;
 }
 
 void SettingsService::setJackSyncEnabled(bool enabled)
 {
-    if (jackSyncEnabled() != enabled) {
+    if (m_jackSyncEnabled != enabled) {
+        m_jackSyncEnabled = enabled;
         Settings::setJackSyncEnabled(enabled);
         emit jackSyncEnabledChanged();
     }
@@ -170,12 +215,13 @@ void SettingsService::setJackSyncEnabled(bool enabled)
 
 bool SettingsService::jackBpmSyncEnabled() const
 {
-    return Settings::jackBpmSyncEnabled();
+    return m_jackBpmSyncEnabled;
 }
 
 void SettingsService::setJackBpmSyncEnabled(bool enabled)
 {
-    if (jackBpmSyncEnabled() != enabled) {
+    if (m_jackBpmSyncEnabled != enabled) {
+        m_jackBpmSyncEnabled = enabled;
         Settings::setJackBpmSyncEnabled(enabled);
         emit jackBpmSyncEnabledChanged();
     }
@@ -183,12 +229,13 @@ void SettingsService::setJackBpmSyncEnabled(bool enabled)
 
 bool SettingsService::midiSyncEnabled() const
 {
-    return Settings::midiSyncEnabled();
+    return m_midiSyncEnabled;
 }
 
 void SettingsService::setMidiSyncEnabled(bool enabled)
 {
-    if (midiSyncEnabled() != enabled) {
+    if (m_midiSyncEnabled != enabled) {
+        m_midiSyncEnabled = enabled;
         Settings::setMidiSyncEnabled(enabled);
         emit midiSyncEnabledChanged();
     }
@@ -196,12 +243,13 @@ void SettingsService::setMidiSyncEnabled(bool enabled)
 
 bool SettingsService::waveViewEnabled() const
 {
-    return Settings::waveViewEnabled();
+    return m_waveViewEnabled;
 }
 
 void SettingsService::setWaveViewEnabled(bool enabled)
 {
-    if (waveViewEnabled() != enabled) {
+    if (m_waveViewEnabled != enabled) {
+        m_waveViewEnabled = enabled;
         Settings::setWaveViewEnabled(enabled);
         emit waveViewEnabledChanged();
     }
@@ -209,12 +257,13 @@ void SettingsService::setWaveViewEnabled(bool enabled)
 
 bool SettingsService::patternPeekEnabled() const
 {
-    return Settings::patternPeekEnabled();
+    return m_patternPeekEnabled;
 }
 
 void SettingsService::setPatternPeekEnabled(bool enabled)
 {
-    if (patternPeekEnabled() != enabled) {
+    if (m_patternPeekEnabled != enabled) {
+        m_patternPeekEnabled = enabled;
         Settings::setPatternPeekEnabled(enabled);
         emit patternPeekEnabledChanged();
     }
@@ -222,12 +271,13 @@ void SettingsService::setPatternPeekEnabled(bool enabled)
 
 bool SettingsService::midiExportForceDrumChannel10() const
 {
-    return Settings::midiExportForceDrumChannel10();
+    return m_midiExportForceDrumChannel10;
 }
 
 void SettingsService::setMidiExportForceDrumChannel10(bool enabled)
 {
-    if (midiExportForceDrumChannel10() != enabled) {
+    if (m_midiExportForceDrumChannel10 != enabled) {
+        m_midiExportForceDrumChannel10 = enabled;
         Settings::setMidiExportForceDrumChannel10(enabled);
         emit midiExportForceDrumChannel10Changed();
     }
@@ -235,12 +285,13 @@ void SettingsService::setMidiExportForceDrumChannel10(bool enabled)
 
 bool SettingsService::midiExportAutoAssignChannels() const
 {
-    return Settings::midiExportAutoAssignChannels();
+    return m_midiExportAutoAssignChannels;
 }
 
 void SettingsService::setMidiExportAutoAssignChannels(bool enabled)
 {
-    if (midiExportAutoAssignChannels() != enabled) {
+    if (m_midiExportAutoAssignChannels != enabled) {
+        m_midiExportAutoAssignChannels = enabled;
         Settings::setMidiExportAutoAssignChannels(enabled);
         emit midiExportAutoAssignChannelsChanged();
     }
@@ -248,42 +299,52 @@ void SettingsService::setMidiExportAutoAssignChannels(bool enabled)
 
 int SettingsService::audioBufferSize() const
 {
-    return Settings::audioBufferSize();
+    return m_audioBufferSize;
 }
 
 void SettingsService::setAudioBufferSize(int samples)
 {
-    Settings::setAudioBufferSize(samples);
+    if (m_audioBufferSize != samples) {
+        m_audioBufferSize = samples;
+        Settings::setAudioBufferSize(samples);
+    }
 }
 
 int SettingsService::audioInputDeviceId() const
 {
-    return Settings::audioInputDeviceId();
+    return m_audioInputDeviceId;
 }
 
 void SettingsService::setAudioInputDeviceId(int deviceId)
 {
-    Settings::setAudioInputDeviceId(deviceId);
+    if (m_audioInputDeviceId != deviceId) {
+        m_audioInputDeviceId = deviceId;
+        Settings::setAudioInputDeviceId(deviceId);
+    }
 }
 
 int SettingsService::audioOutputDeviceId() const
 {
-    return Settings::audioOutputDeviceId();
+    return m_audioOutputDeviceId;
 }
 
 void SettingsService::setAudioOutputDeviceId(int deviceId)
 {
-    Settings::setAudioOutputDeviceId(deviceId);
+    if (m_audioOutputDeviceId != deviceId) {
+        m_audioOutputDeviceId = deviceId;
+        Settings::setAudioOutputDeviceId(deviceId);
+    }
 }
 
 int SettingsService::playbackOversampleFactor() const
 {
-    return Settings::playbackOversampleFactor();
+    return m_playbackOversampleFactor;
 }
 
 void SettingsService::setPlaybackOversampleFactor(int factor)
 {
-    if (this->playbackOversampleFactor() != factor) {
+    if (m_playbackOversampleFactor != factor) {
+        m_playbackOversampleFactor = factor;
         Settings::setPlaybackOversampleFactor(factor);
         emit playbackOversampleFactorChanged();
     }
@@ -291,12 +352,13 @@ void SettingsService::setPlaybackOversampleFactor(int factor)
 
 int SettingsService::renderOversampleFactor() const
 {
-    return Settings::renderOversampleFactor();
+    return m_renderOversampleFactor;
 }
 
 void SettingsService::setRenderOversampleFactor(int factor)
 {
-    if (this->renderOversampleFactor() != factor) {
+    if (m_renderOversampleFactor != factor) {
+        m_renderOversampleFactor = factor;
         Settings::setRenderOversampleFactor(factor);
         emit renderOversampleFactorChanged();
     }
@@ -304,12 +366,13 @@ void SettingsService::setRenderOversampleFactor(int factor)
 
 int SettingsService::renderSampleRate() const
 {
-    return Settings::renderSampleRate();
+    return m_renderSampleRate;
 }
 
 void SettingsService::setRenderSampleRate(int sampleRate)
 {
-    if (this->renderSampleRate() != sampleRate) {
+    if (m_renderSampleRate != sampleRate) {
+        m_renderSampleRate = sampleRate;
         Settings::setRenderSampleRate(sampleRate);
         emit renderSampleRateChanged();
     }
@@ -317,12 +380,13 @@ void SettingsService::setRenderSampleRate(int sampleRate)
 
 int SettingsService::renderBitDepth() const
 {
-    return static_cast<int>(Settings::renderBitDepth());
+    return m_renderBitDepth;
 }
 
 void SettingsService::setRenderBitDepth(int bitDepth)
 {
-    if (this->renderBitDepth() != bitDepth) {
+    if (m_renderBitDepth != bitDepth) {
+        m_renderBitDepth = bitDepth;
         Settings::setRenderBitDepth(static_cast<BitDepth>(bitDepth));
         emit renderBitDepthChanged();
     }
@@ -330,12 +394,13 @@ void SettingsService::setRenderBitDepth(int bitDepth)
 
 int SettingsService::renderFormat() const
 {
-    return static_cast<int>(Settings::renderFormat());
+    return m_renderFormat;
 }
 
 void SettingsService::setRenderFormat(int format)
 {
-    if (this->renderFormat() != format) {
+    if (m_renderFormat != format) {
+        m_renderFormat = format;
         Settings::setRenderFormat(static_cast<AudioFormat>(format));
         emit renderFormatChanged();
     }
@@ -343,12 +408,13 @@ void SettingsService::setRenderFormat(int format)
 
 bool SettingsService::renderNormalizeEnabled() const
 {
-    return Settings::renderNormalizeEnabled();
+    return m_renderNormalizeEnabled;
 }
 
 void SettingsService::setRenderNormalizeEnabled(bool enabled)
 {
-    if (this->renderNormalizeEnabled() != enabled) {
+    if (m_renderNormalizeEnabled != enabled) {
+        m_renderNormalizeEnabled = enabled;
         Settings::setRenderNormalizeEnabled(enabled);
         emit renderNormalizeEnabledChanged();
     }
@@ -356,12 +422,13 @@ void SettingsService::setRenderNormalizeEnabled(bool enabled)
 
 double SettingsService::renderNormalizeLevel() const
 {
-    return Settings::renderNormalizeLevel();
+    return m_renderNormalizeLevel;
 }
 
 void SettingsService::setRenderNormalizeLevel(double level)
 {
-    if (std::abs(this->renderNormalizeLevel() - level) > 1e-9) {
+    if (std::abs(m_renderNormalizeLevel - level) > 1e-9) {
+        m_renderNormalizeLevel = level;
         Settings::setRenderNormalizeLevel(level);
         emit renderNormalizeLevelChanged();
     }
@@ -369,12 +436,13 @@ void SettingsService::setRenderNormalizeLevel(double level)
 
 bool SettingsService::renderTrimEnabled() const
 {
-    return Settings::renderTrimEnabled();
+    return m_renderTrimEnabled;
 }
 
 void SettingsService::setRenderTrimEnabled(bool enabled)
 {
-    if (this->renderTrimEnabled() != enabled) {
+    if (m_renderTrimEnabled != enabled) {
+        m_renderTrimEnabled = enabled;
         Settings::setRenderTrimEnabled(enabled);
         emit renderTrimEnabledChanged();
     }
@@ -382,12 +450,13 @@ void SettingsService::setRenderTrimEnabled(bool enabled)
 
 int SettingsService::renderTrimMinutes() const
 {
-    return Settings::renderTrimMinutes();
+    return m_renderTrimMinutes;
 }
 
 void SettingsService::setRenderTrimMinutes(int minutes)
 {
-    if (this->renderTrimMinutes() != minutes) {
+    if (m_renderTrimMinutes != minutes) {
+        m_renderTrimMinutes = minutes;
         Settings::setRenderTrimMinutes(minutes);
         emit renderTrimMinutesChanged();
     }
@@ -395,12 +464,13 @@ void SettingsService::setRenderTrimMinutes(int minutes)
 
 int SettingsService::renderTrimSeconds() const
 {
-    return Settings::renderTrimSeconds();
+    return m_renderTrimSeconds;
 }
 
 void SettingsService::setRenderTrimSeconds(int seconds)
 {
-    if (this->renderTrimSeconds() != seconds) {
+    if (m_renderTrimSeconds != seconds) {
+        m_renderTrimSeconds = seconds;
         Settings::setRenderTrimSeconds(seconds);
         emit renderTrimSecondsChanged();
     }
@@ -408,12 +478,13 @@ void SettingsService::setRenderTrimSeconds(int seconds)
 
 bool SettingsService::renderAnalyzeEnabled() const
 {
-    return Settings::renderAnalyzeEnabled();
+    return m_renderAnalyzeEnabled;
 }
 
 void SettingsService::setRenderAnalyzeEnabled(bool enabled)
 {
-    if (this->renderAnalyzeEnabled() != enabled) {
+    if (m_renderAnalyzeEnabled != enabled) {
+        m_renderAnalyzeEnabled = enabled;
         Settings::setRenderAnalyzeEnabled(enabled);
         emit renderAnalyzeEnabledChanged();
     }
