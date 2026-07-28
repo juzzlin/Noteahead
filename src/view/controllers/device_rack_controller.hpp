@@ -82,6 +82,26 @@ public:
     Q_INVOKABLE QString trackNames(int slotIndex) const;
     Q_INVOKABLE QVariantList availableDevices() const;
 
+    //! Every occupied slot a SubMixer could take, with whether it already belongs to one.
+    //!
+    //! Entries carry "owner" so the dialog can show a device as claimed elsewhere rather than
+    //! silently stealing it, and "blocked" for slots that would close a routing loop.
+    Q_INVOKABLE QVariantList subMixerCandidates(int subMixerSlot) const;
+    //! Mixer values of the device in a slot, in the same 0..uiInternalScaling units
+    //! DeviceController uses.
+    //!
+    //! Devices with a dedicated controller expose these through it; a Sub Mixer has none, so its
+    //! dialog reads and writes them by slot instead.
+    Q_INVOKABLE int deviceVolume(int slotIndex) const;
+    Q_INVOKABLE void setDeviceVolume(int slotIndex, int value);
+    Q_INVOKABLE int deviceGain(int slotIndex) const;
+    Q_INVOKABLE void setDeviceGain(int slotIndex, int value);
+    Q_INVOKABLE int devicePan(int slotIndex) const;
+    Q_INVOKABLE void setDevicePan(int slotIndex, int value);
+
+    Q_INVOKABLE bool addSubMixerMember(int subMixerSlot, int memberSlot);
+    Q_INVOKABLE bool removeSubMixerMember(int subMixerSlot, int memberSlot);
+
     Q_INVOKABLE void addSampler();
     Q_INVOKABLE void addSynth();
     Q_INVOKABLE void addWavetableSynth();
@@ -89,6 +109,7 @@ public:
     Q_INVOKABLE void addDrumSynth();
     Q_INVOKABLE void addPianoSynth();
     Q_INVOKABLE void addStringVoice();
+    Q_INVOKABLE void addSubMixer();
     Q_INVOKABLE void removeDevice(const QString & name);
 
 signals:
@@ -102,6 +123,7 @@ signals:
     void drumSynthDialogRequested();
     void pianoSynthDialogRequested();
     void stringVoiceDialogRequested();
+    void subMixerDialogRequested(int slotIndex);
     void effectSendsDialogRequested(const QString & deviceName);
 
 private:

@@ -363,6 +363,13 @@ ApplicationWindow {
         height: parent.height * Constants.defaultDialogScale
     }
 
+    SubMixerDialog {
+        id: subMixerDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.largeDialogScale
+        height: parent.height * Constants.largeDialogScale
+    }
+
     EffectSendsDialog {
         id: effectSendsDialog
         anchors.centerIn: parent
@@ -693,6 +700,10 @@ ApplicationWindow {
         deviceRackController.drumSynthDialogRequested.connect(drumSynthDialog.open);
         deviceRackController.pianoSynthDialogRequested.connect(pianoSynthDialog.open);
         deviceRackController.stringVoiceDialogRequested.connect(stringVoiceDialog.open);
+        deviceRackController.subMixerDialogRequested.connect(slotIndex => {
+            subMixerDialog.slotIndex = slotIndex;
+            subMixerDialog.open();
+        });
         deviceRackController.samplerDialogRequested.connect(samplerDialog.open);
         deviceRackController.synthDialogRequested.connect(synthDialog.open);
         deviceRackController.wavetableSynthDialogRequested.connect(wavetableSynthDialog.open);

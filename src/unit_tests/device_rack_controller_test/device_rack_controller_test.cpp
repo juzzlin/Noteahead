@@ -24,6 +24,7 @@
 #include "../../domain/devices/piano_synth_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/string_voice_device.hpp"
+#include "../../domain/devices/sub_mixer_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../infra/audio/audio_engine.hpp"
@@ -225,6 +226,66 @@ void DeviceRackControllerTest::test_trackNames_shouldReturnTrackNamesForDevice()
     QCOMPARE(controller.data(controller.index(1), static_cast<int>(DeviceRackController::DataRole::TrackNames)).toString(), QString("Track 2, Track 4"));
 }
 
+void DeviceRackControllerTest::test_subMixerCandidates_shouldCarryTrackNames()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto memberName = "Device 1";
+    deviceService->setDevice(0, std::make_shared<MockDevice>(memberName));
+    deviceService->setDevice(1, std::make_shared<SubMixerDevice>("Sub"));
+
+    const auto editorService = std::make_shared<MockEditorService>();
+    editorService->setMockIndices({ 0, 1 });
+    editorService->setMockTrackName(0, "Drums");
+    editorService->setMockInstrumentPortName(0, QString::fromStdString(memberName));
+    editorService->setMockTrackName(1, "Bass");
+    editorService->setMockInstrumentPortName(1, QString::fromStdString(memberName));
+
+    DeviceRackController controller { deviceService, {}, editorService };
+
+    const auto candidates = controller.subMixerCandidates(1);
+    QCOMPARE(candidates.size(), 1);
+
+    // A slot number says little about what a device actually is; the tracks it plays on do, which
+    // is why the Device Rack listing shows them and the member list has to as well.
+    const auto entry = candidates.at(0).toMap();
+    QCOMPARE(entry["slot"].toInt(), 0);
+    QCOMPARE(entry["trackNames"].toString(), QString("Drums, Bass"));
+    // Name and type stay separate so the member list can compose the Device Rack's caption.
+    QCOMPARE(entry["name"].toString(), QString(memberName));
+    QVERIFY(!entry["typeName"].toString().isEmpty());
+}
+
+void DeviceRackControllerTest::test_deviceGain_shouldDefaultToUnityAndRoundTrip()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto subMixer = std::make_shared<SubMixerDevice>("Sub");
+    deviceService->setDevice(0, subMixer);
+
+    const auto editorService = std::make_shared<MockEditorService>();
+    DeviceRackController controller { deviceService, {}, editorService };
+
+    // Centre of the -30..+30 dB range, so a fresh Sub Mixer passes its group through untouched.
+    QCOMPARE(controller.deviceGain(0), 500);
+    QCOMPARE(subMixer->gain(), 0.5f);
+
+    QSignalSpy revisionSpy { &controller, &DeviceRackController::revisionChanged };
+
+    controller.setDeviceGain(0, 750);
+    QCOMPARE(controller.deviceGain(0), 750);
+    QVERIFY(editorService->isModified());
+
+    // The QML knob reads gain through a plain invokable, so its binding only re-evaluates because
+    // the write reaches revisionChanged. Without this the slider snaps back to its stale value the
+    // moment the drag ends, which reads as the control being stuck.
+    QVERIFY(revisionSpy.count() > 0);
+
+    // An empty slot has no gain to report; 0 dB is the sane answer rather than silence or a crash.
+    QCOMPARE(controller.deviceGain(9), 500);
+    controller.setDeviceGain(9, 750);
+}
+
 void DeviceRackControllerTest::test_setDevice_shouldAddDeviceAndNotify()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
@@ -307,7 +368,7 @@ void DeviceRackControllerTest::test_availableDevices_shouldReturnCorrectList()
     DeviceRackController controller { nullptr, {}, nullptr };
     const auto list = controller.availableDevices();
 
-    QCOMPARE(list.size(), 7);
+    QCOMPARE(list.size(), 8);
     QCOMPARE(list.at(0).toMap()["name"].toString(), QString("Sampler"));
     QCOMPARE(list.at(1).toMap()["name"].toString(), QString("Synth"));
     QCOMPARE(list.at(2).toMap()["name"].toString(), QString("Wavetable Synth"));
@@ -315,6 +376,7 @@ void DeviceRackControllerTest::test_availableDevices_shouldReturnCorrectList()
     QCOMPARE(list.at(4).toMap()["name"].toString(), QString("Drum Synth"));
     QCOMPARE(list.at(5).toMap()["name"].toString(), QString("Piano Synth"));
     QCOMPARE(list.at(6).toMap()["name"].toString(), QString("String & Voice"));
+    QCOMPARE(list.at(7).toMap()["name"].toString(), QString("Sub Mixer"));
 }
 
 void DeviceRackControllerTest::test_removeDeviceByName_shouldClearCorrectSlot()

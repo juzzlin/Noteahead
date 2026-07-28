@@ -30,6 +30,8 @@ private slots:
 
     void test_devices_shouldReturnDeviceNames();
     void test_trackNames_shouldReturnTrackNamesForDevice();
+    void test_subMixerCandidates_shouldCarryTrackNames();
+    void test_deviceGain_shouldDefaultToUnityAndRoundTrip();
     void test_setDevice_shouldAddDeviceAndNotify();
     void test_clearDevice_shouldRemoveDeviceAndNotify();
     void test_addMethods_shouldAddDevicesToFirstEmptySlot();

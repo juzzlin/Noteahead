@@ -52,6 +52,7 @@ QString wavetableSynthDeviceName();
 QString bassSynthDeviceName();
 QString drumSynthDeviceName();
 QString pianoSynthDeviceName();
+QString subMixerDeviceName();
 QString stringVoiceDeviceName();
 
 QString internalDevicePortPrefix();
@@ -233,6 +234,8 @@ QString xmlKeyNoteOff();
 QString xmlKeyNoteData();
 
 QString xmlKeySlot();
+QString xmlKeyMembers();
+QString xmlKeyMember();
 QString xmlKeyPan();
 QString xmlKeyReverbSend();
 QString xmlKeyReverbSend1();
@@ -491,6 +494,7 @@ QString xmlValueSineWave();
 QString xmlValueRandom();
 QString xmlValueSamplers();
 QString xmlValueSynths();
+QString xmlValueMixers();
 
 QString xmlKeyStringsLevel8();
 QString xmlKeyStringsLevel4();

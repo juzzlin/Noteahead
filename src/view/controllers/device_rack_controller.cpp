@@ -24,6 +24,7 @@
 #include "../../domain/devices/piano_synth_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/string_voice_device.hpp"
+#include "../../domain/devices/sub_mixer_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/wavetable_synth_device.hpp"
 #include "bass_synth_controller.hpp"
@@ -33,6 +34,8 @@
 #include "synth_controller.hpp"
 
 #include <QVariantMap>
+
+#include <cmath>
 
 namespace noteahead {
 
@@ -122,6 +125,12 @@ void DeviceRackController::refresh()
 void DeviceRackController::openDevice(const QString & name)
 {
     if (const auto device = m_deviceService->device(name.toStdString()); device) {
+        // The SubMixer has no per-type controller to bind: its dialog works straight off the device
+        // service, so it is dispatched by slot before the controller lookup below.
+        if (device->typeId() == SubMixerDevice::typeIdString()) {
+            emit subMixerDialogRequested(static_cast<int>(device->id()));
+            return;
+        }
         for (const auto & controller : m_controllers) {
             if (controller->setDevice(device)) {
                 if (const auto typeId = device->typeId(); typeId == SamplerDevice::typeIdString()) {
@@ -286,8 +295,112 @@ QVariantList DeviceRackController::availableDevices() const
     addDevice("Drum Synth", QString::fromStdString(DrumSynthDevice::typeIdString()));
     addDevice("Piano Synth", QString::fromStdString(PianoSynthDevice::typeIdString()));
     addDevice("String & Voice", QString::fromStdString(StringVoiceDevice::typeIdString()));
+    addDevice("Sub Mixer", QString::fromStdString(SubMixerDevice::typeIdString()));
 
     return list;
+}
+
+QVariantList DeviceRackController::subMixerCandidates(int subMixerSlot) const
+{
+    QVariantList list;
+    for (int slotIndex = 0; slotIndex < deviceCount(); slotIndex++) {
+        if (slotIndex == subMixerSlot) {
+            continue;
+        }
+        const auto device = m_deviceService->device(static_cast<size_t>(slotIndex));
+        if (!device) {
+            continue;
+        }
+
+        const auto owner = m_deviceService->subMixerOwningSlot(slotIndex);
+        QVariantMap map;
+        map["slot"] = slotIndex;
+        // Name and type are kept apart so the member list can compose the same "Slot N: name (type)"
+        // caption the Device Rack listing uses, rather than a second, drifting format.
+        map["name"] = QString::fromStdString(device->name());
+        map["typeName"] = QString::fromStdString(device->typeName());
+        map["trackNames"] = trackNames(slotIndex);
+        map["member"] = owner == subMixerSlot;
+        map["owner"] = owner;
+        // Probe the real rule rather than reimplementing it here, so the dialog cannot drift out of
+        // step with what the service will actually accept.
+        map["blocked"] = owner != subMixerSlot && !m_deviceService->canAddSubMixerMember(subMixerSlot, slotIndex);
+        list.append(map);
+    }
+    return list;
+}
+
+int DeviceRackController::deviceVolume(int slotIndex) const
+{
+    const auto device = m_deviceService->device(static_cast<size_t>(slotIndex));
+    // Full scale, matching the parameter default, so an absent device reads as unity.
+    return device ? static_cast<int>(std::round(device->volume() * Constants::uiInternalScaling())) : static_cast<int>(Constants::uiInternalScaling());
+}
+
+void DeviceRackController::setDeviceVolume(int slotIndex, int value)
+{
+    if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex))) {
+        device->setVolume(static_cast<float>(value) / Constants::uiInternalScaling());
+        m_editorService->setIsModified(true);
+    }
+}
+
+int DeviceRackController::devicePan(int slotIndex) const
+{
+    const auto device = m_deviceService->device(static_cast<size_t>(slotIndex));
+    // Centre, which is also the sane answer for an absent device.
+    return device ? static_cast<int>(std::round(device->pan() * Constants::uiInternalScaling())) : 500;
+}
+
+void DeviceRackController::setDevicePan(int slotIndex, int value)
+{
+    if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex))) {
+        device->setPan(static_cast<float>(value) / Constants::uiInternalScaling());
+        m_editorService->setIsModified(true);
+    }
+}
+
+int DeviceRackController::deviceGain(int slotIndex) const
+{
+    const auto device = m_deviceService->device(static_cast<size_t>(slotIndex));
+    // Centre of the range is 0 dB, which is also what an absent device should read as.
+    return device ? static_cast<int>(std::round(device->gain() * Constants::uiInternalScaling())) : 500;
+}
+
+void DeviceRackController::setDeviceGain(int slotIndex, int value)
+{
+    if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex))) {
+        device->setGain(static_cast<float>(value) / Constants::uiInternalScaling());
+        m_editorService->setIsModified(true);
+    }
+}
+
+bool DeviceRackController::addSubMixerMember(int subMixerSlot, int memberSlot)
+{
+    const auto added = m_deviceService->addSubMixerMember(subMixerSlot, memberSlot);
+    if (added) {
+        refresh();
+    }
+    return added;
+}
+
+bool DeviceRackController::removeSubMixerMember(int subMixerSlot, int memberSlot)
+{
+    const auto removed = m_deviceService->removeSubMixerMember(subMixerSlot, memberSlot);
+    if (removed) {
+        refresh();
+    }
+    return removed;
+}
+
+void DeviceRackController::addSubMixer()
+{
+    for (int i = 0; i < deviceCount(); i++) {
+        if (!m_deviceService->device(static_cast<size_t>(i))) {
+            setDevice(i, QString::fromStdString(SubMixerDevice::typeIdString()));
+            return;
+        }
+    }
 }
 
 void DeviceRackController::addSampler()

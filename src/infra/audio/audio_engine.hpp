@@ -80,6 +80,9 @@ private:
     void ensureDeviceOutputBuffers(uint32_t bufferSize);
 
     void rebuildProcessingGraph();
+    //! Marks which devices still feed the master directly. A device claimed as a SubMixer member
+    //! is heard through that SubMixer instead, so its direct contribution has to be suppressed.
+    void updateDirectOutSnapshot();
     //! Builds a signature of the current graph inputs (device slots + their sidechain deps) into a
     //! reusable buffer and reports whether it changed since the last rebuild. Allocation-free in
     //! steady state so it is safe to call every audio callback.
@@ -99,6 +102,7 @@ private:
     std::vector<size_t> m_deviceSlotSnapshot;
     std::vector<uint8_t> m_deviceActiveFlags;
     std::vector<double> m_deviceSendSnapshot;
+    std::vector<uint8_t> m_deviceDirectOutSnapshot;
     std::vector<std::vector<double>> m_sendBusBuffers;
     std::vector<std::vector<double>> m_effectWetBuffers;
     std::vector<uint8_t> m_effectActiveFlags;

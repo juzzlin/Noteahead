@@ -127,6 +127,11 @@ QString pianoSynthDeviceName()
     return "Noteahead PianoSynth";
 }
 
+QString subMixerDeviceName()
+{
+    return "Noteahead SubMixer";
+}
+
 QString stringVoiceDeviceName()
 {
     return "Noteahead String & Voice";
@@ -805,6 +810,16 @@ QString xmlKeyNoteData()
 QString xmlKeySlot()
 {
     return "slot";
+}
+
+QString xmlKeyMembers()
+{
+    return "Members";
+}
+
+QString xmlKeyMember()
+{
+    return "Member";
 }
 
 QString xmlKeyPan()
@@ -1845,6 +1860,11 @@ QString xmlValueRandom()
 QString xmlValueSamplers()
 {
     return "Samplers";
+}
+
+QString xmlValueMixers()
+{
+    return "Mixers";
 }
 
 QString xmlValueSynths()

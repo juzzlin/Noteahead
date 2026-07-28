@@ -6,6 +6,7 @@ set(HEADER_FILES
     devices/drum_synth_device.hpp
     devices/piano_synth_device.hpp
     devices/sampler_device.hpp
+    devices/sub_mixer_device.hpp
     devices/synth_device.hpp
     devices/synth_presets.hpp
     devices/wavetable_synth_device.hpp
@@ -106,6 +107,7 @@ set(SOURCE_FILES
     devices/piano_synth_device.cpp
     devices/sampler_device.cpp
     devices/string_voice_device.cpp
+    devices/sub_mixer_device.cpp
     devices/synth_device.cpp
     devices/synth_presets.cpp
     devices/wavetable_synth_device.cpp

@@ -30,6 +30,7 @@
 #include "../../domain/devices/device_factory.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
+#include "../../domain/devices/sub_mixer_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/wavetable_synth_device.hpp"
 #include "../../domain/effects/air_band_eq.hpp"
@@ -1528,6 +1529,47 @@ void XmlSerializationTest::test_toXmlFromXml_airBandEqEffect_shouldLoadCorrectly
     QCOMPARE(valueOf(Constants::NahdXml::xmlKeyAirFreq()), 4.0f);
     QVERIFY(std::abs(valueOf(Constants::NahdXml::xmlKeyAirGain()) - 0.65f) < 0.001f);
     QVERIFY(std::abs(valueOf(Constants::NahdXml::xmlKeyGain()) - 0.4f) < 0.001f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_subMixerDevice_shouldLoadCorrectly()
+{
+    // Unlike effects, devices are rebuilt through DeviceFactory, which this suite does not
+    // otherwise need and so never initialises.
+    DeviceFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto subMixer = std::make_shared<SubMixerDevice>("SubMixer");
+    subMixer->setMembers({ 2, 5, 7 });
+    subMixer->setVolume(0.8f);
+    subMixer->setPan(0.3f);
+    deviceServiceOut.setDevice(1, subMixer);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto restored = std::dynamic_pointer_cast<SubMixerDevice>(deviceServiceIn.device(size_t { 1 }));
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), SubMixerDevice::typeIdString());
+
+    const auto members = restored->members();
+    QCOMPARE(members.size(), size_t { 3 });
+    QCOMPARE(members[0], size_t { 2 });
+    QCOMPARE(members[1], size_t { 5 });
+    QCOMPARE(members[2], size_t { 7 });
+
+    QVERIFY(std::abs(restored->volume() - 0.8f) < 0.001f);
+    QVERIFY(std::abs(restored->pan() - 0.3f) < 0.001f);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_reverbGate_shouldLoadCorrectly()

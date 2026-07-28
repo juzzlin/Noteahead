@@ -19,6 +19,7 @@
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/devices/device_factory.hpp"
 #include "../../domain/devices/sampler_device.hpp"
+#include "../../domain/devices/sub_mixer_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
@@ -29,7 +30,9 @@
 #include <QFile>
 #include <QVariant>
 
+#include <algorithm>
 #include <format>
+#include <ranges>
 #include <set>
 
 namespace noteahead {
@@ -65,7 +68,153 @@ void DeviceService::setDevice(size_t slotIndex, DeviceS device)
 void DeviceService::clearDevice(size_t slotIndex)
 {
     m_audioEngine->clearDevice(slotIndex);
+    pruneSubMixerMembers();
     emit dataChanged();
+}
+
+bool DeviceService::wouldCreateCycle(size_t subMixerSlot, size_t memberSlot) const
+{
+    if (subMixerSlot == memberSlot) {
+        return true;
+    }
+
+    // Walk up from the prospective SubMixer: if anything already reachable as one of memberSlot's
+    // descendants is the SubMixer itself, adding the edge would close the loop.
+    std::vector<size_t> pending { memberSlot };
+    std::set<size_t> visited;
+    while (!pending.empty()) {
+        const auto current = pending.back();
+        pending.pop_back();
+        if (!visited.insert(current).second) {
+            continue;
+        }
+        if (current == subMixerSlot) {
+            return true;
+        }
+        if (const auto sub = std::dynamic_pointer_cast<SubMixerDevice>(device(current))) {
+            for (const auto nested : sub->members()) {
+                pending.push_back(nested);
+            }
+        }
+    }
+    return false;
+}
+
+void DeviceService::pruneSubMixerMembers()
+{
+    for (size_t slotIndex = 0; slotIndex < Constants::deviceRackSize(); slotIndex++) {
+        const auto sub = std::dynamic_pointer_cast<SubMixerDevice>(device(slotIndex));
+        if (!sub) {
+            continue;
+        }
+        auto members = sub->members();
+        const auto removed = std::remove_if(members.begin(), members.end(), [this](size_t memberSlot) {
+            return !device(memberSlot);
+        });
+        if (removed != members.end()) {
+            members.erase(removed, members.end());
+            sub->setMembers(std::move(members));
+        }
+    }
+}
+
+bool DeviceService::canAddSubMixerMember(int subMixerSlot, int memberSlot) const
+{
+    if (subMixerSlot < 0 || memberSlot < 0) {
+        return false;
+    }
+
+    const auto subSlot = static_cast<size_t>(subMixerSlot);
+    const auto slot = static_cast<size_t>(memberSlot);
+    return std::dynamic_pointer_cast<SubMixerDevice>(device(subSlot)) && device(slot) && !wouldCreateCycle(subSlot, slot);
+}
+
+bool DeviceService::addSubMixerMember(int subMixerSlot, int memberSlot)
+{
+    if (!canAddSubMixerMember(subMixerSlot, memberSlot)) {
+        return false;
+    }
+
+    const auto subSlot = static_cast<size_t>(subMixerSlot);
+    const auto slot = static_cast<size_t>(memberSlot);
+    const auto sub = std::dynamic_pointer_cast<SubMixerDevice>(device(subSlot));
+
+    // Exclusive membership: being summed by two SubMixers would play the device twice.
+    for (size_t other = 0; other < Constants::deviceRackSize(); other++) {
+        if (other == subSlot) {
+            continue;
+        }
+        if (const auto otherSub = std::dynamic_pointer_cast<SubMixerDevice>(device(other))) {
+            auto members = otherSub->members();
+            const auto removed = std::remove(members.begin(), members.end(), slot);
+            if (removed != members.end()) {
+                members.erase(removed, members.end());
+                otherSub->setMembers(std::move(members));
+            }
+        }
+    }
+
+    auto members = sub->members();
+    if (std::ranges::find(members, slot) == members.end()) {
+        members.push_back(slot);
+        sub->setMembers(std::move(members));
+    }
+
+    emit dataChanged();
+    return true;
+}
+
+bool DeviceService::removeSubMixerMember(int subMixerSlot, int memberSlot)
+{
+    if (subMixerSlot < 0 || memberSlot < 0) {
+        return false;
+    }
+
+    const auto sub = std::dynamic_pointer_cast<SubMixerDevice>(device(static_cast<size_t>(subMixerSlot)));
+    if (!sub) {
+        return false;
+    }
+
+    auto members = sub->members();
+    const auto removed = std::remove(members.begin(), members.end(), static_cast<size_t>(memberSlot));
+    if (removed == members.end()) {
+        return false;
+    }
+    members.erase(removed, members.end());
+    sub->setMembers(std::move(members));
+
+    emit dataChanged();
+    return true;
+}
+
+QVariantList DeviceService::subMixerMembers(int subMixerSlot) const
+{
+    QVariantList result;
+    if (subMixerSlot < 0) {
+        return result;
+    }
+    if (const auto sub = std::dynamic_pointer_cast<SubMixerDevice>(device(static_cast<size_t>(subMixerSlot)))) {
+        for (const auto slot : sub->members()) {
+            result.append(static_cast<int>(slot));
+        }
+    }
+    return result;
+}
+
+int DeviceService::subMixerOwningSlot(int memberSlot) const
+{
+    if (memberSlot < 0) {
+        return -1;
+    }
+    for (size_t slotIndex = 0; slotIndex < Constants::deviceRackSize(); slotIndex++) {
+        if (const auto sub = std::dynamic_pointer_cast<SubMixerDevice>(device(slotIndex))) {
+            const auto members = sub->members();
+            if (std::ranges::find(members, static_cast<size_t>(memberSlot)) != members.end()) {
+                return static_cast<int>(slotIndex);
+            }
+        }
+    }
+    return -1;
 }
 
 DeviceService::DeviceS DeviceService::device(size_t slotIndex) const

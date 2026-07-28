@@ -79,6 +79,13 @@ public:
 
     virtual void processAudio(AudioContext & context) = 0;
     void processInsertEffects(AudioContext & context);
+    //! Device slots whose direct contribution to the master this device takes over.
+    //!
+    //! A device that mixes other devices' outputs lists them here so the engine can suppress
+    //! their direct path; they are then heard only through this device. Keeps the engine free of
+    //! any knowledge of which concrete device types do the mixing.
+    virtual std::vector<size_t> claimedOutputSlots() const;
+
     virtual std::vector<size_t> sidechainDependencies() const;
     //! Allocation-free variant used on the audio thread; fills out (cleared first).
     virtual void sidechainDependencies(std::vector<size_t> & out) const;

@@ -5,6 +5,15 @@ Release date:
 
 New features:
 
+* Add a Sub Mixer device
+  - Groups other devices so a whole set is mixed and processed as one entity,
+    e.g. everything except the lead synth through a single compressor
+  - Members are summed and no longer reach the master on their own, so the Sub
+    Mixer's insert effects, Volume, Gain and Pan apply to the whole group
+  - Members keep their own reverb sends
+  - Volume and Pan can be ridden from a track over MIDI CC 7 and CC 10
+  - Sub Mixers can be nested, and a device can only belong to one of them
+
 * Add an Air Band EQ rack effect
   - Six-band "air band" equalizer built on a parallel-summed topology: the
     bands are taps fed from the dry signal and added back to it, not a cascade

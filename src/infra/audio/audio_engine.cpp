@@ -34,6 +34,9 @@ struct DeviceProcessContext
     std::vector<AudioEngineWorkBuffer> * workBuffers {};
     std::vector<uint8_t> * deviceActiveFlags {};
     std::vector<double> * deviceSends {};
+    //! Per snapshot index: 0 when a SubMixer claims this device, so it must not also reach
+    //! the master or the global sends. Its output buffer is still written for the SubMixer.
+    std::vector<uint8_t> * deviceDirectOut {};
     std::vector<size_t> * layerDevices {};
     std::vector<size_t> * slotSnapshot {};
     std::vector<std::vector<double>> * deviceOutputBuffersMutable {};
@@ -102,9 +105,23 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
     const bool hasOutputSignal = bufferContainsSignal(workBuffer.deviceBuffer, deviceContext.bufferSize);
     deviceContext.deviceActiveFlags->at(deviceSnapshotIndex) = hasOutputSignal ? 1 : 0;
 
+    // A device claimed by a SubMixer is heard only through that SubMixer, which sums the output
+    // buffer written above. Letting its dry path also reach the master here would play the group
+    // twice: once dry, once through the SubMixer's effects.
+    //
+    // Its sends still apply. A send bus is a parallel tap rather than part of the master sum, so
+    // nothing is double-counted by keeping them, and a device keeps whatever reverb amount it was
+    // given instead of losing it silently the moment it joins a group.
+    const bool directOut = deviceContext.deviceDirectOut->at(deviceSnapshotIndex) != 0;
+    if (!directOut && !deviceContext.sendCount) {
+        return;
+    }
+
     for (uint32_t i = 0; i < deviceContext.bufferSize; i++) {
         const double sample = workBuffer.deviceBuffer[i];
-        workBuffer.outputBuffer[i] += sample;
+        if (directOut) {
+            workBuffer.outputBuffer[i] += sample;
+        }
 
         for (size_t sendIndex = 0; sendIndex < deviceContext.sendCount; sendIndex++) {
             const double send = deviceContext.deviceSends->at(deviceSnapshotIndex * deviceContext.sendCount + sendIndex);
@@ -200,6 +217,10 @@ void AudioEngine::rebuildProcessingGraph()
         return;
     }
 
+    // Membership shows up in the graph signature (members are sidechain dependencies), so the
+    // claimed-slot map only has to be recomputed when we already know the topology moved.
+    updateDirectOutSnapshot();
+
     m_processingLayers.clear();
     if (m_deviceSnapshot.empty()) {
         return;
@@ -254,6 +275,22 @@ void AudioEngine::rebuildProcessingGraph()
     }
     if (!circularLayer.empty()) {
         m_processingLayers.push_back(circularLayer);
+    }
+}
+
+void AudioEngine::updateDirectOutSnapshot()
+{
+    m_deviceDirectOutSnapshot.assign(m_deviceSnapshot.size(), 1);
+
+    for (const auto & device : m_deviceSnapshot) {
+        for (const auto claimedSlot : device->claimedOutputSlots()) {
+            for (size_t i = 0; i < m_deviceSlotSnapshot.size(); i++) {
+                if (m_deviceSlotSnapshot[i] == claimedSlot) {
+                    m_deviceDirectOutSnapshot[i] = 0;
+                    break;
+                }
+            }
+        }
     }
 }
 
@@ -409,6 +446,12 @@ void AudioEngine::process(AudioContext & context)
             }
         }
 
+        // Recomputed only when the topology changes; this is just a cheap safety guard so the
+        // per-device lookup below can never index out of range on the audio thread.
+        if (m_deviceDirectOutSnapshot.size() != m_deviceSnapshot.size()) {
+            m_deviceDirectOutSnapshot.assign(m_deviceSnapshot.size(), 1);
+        }
+
         // Serial processing uses only lane 0, so clear/sum just that lane then; parallel rendering
         // spreads work across all lanes. The buffers stay allocated at the full lane count either way,
         // so no reallocation happens when switching between real-time playback and rendering.
@@ -428,6 +471,7 @@ void AudioEngine::process(AudioContext & context)
                 &m_workBuffers,
                 &m_deviceActiveFlags,
                 &m_deviceSendSnapshot,
+                &m_deviceDirectOutSnapshot,
                 &layer,
                 &m_deviceSlotSnapshot,
                 &m_deviceOutputBuffers,

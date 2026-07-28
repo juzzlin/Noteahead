@@ -142,6 +142,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_InstrumentSettings.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiCcSettings.qml
+    ${QML_BASE_DIR}/Dialogs/SubMixerDialog.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiEffects.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_TimingSettings.qml
     ${QML_BASE_DIR}/Dialogs/UnsavedChangesDialog.qml

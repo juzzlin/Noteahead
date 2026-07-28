@@ -23,6 +23,7 @@
 
 #include <QObject>
 #include <QStringList>
+#include <QVariantList>
 
 #include <functional>
 #include <memory>
@@ -64,6 +65,20 @@ public:
 
     using InternalDeviceNames = std::vector<std::string>;
     virtual InternalDeviceNames internalDeviceNames() const;
+
+    //! Add a device slot to a SubMixer's member list.
+    //!
+    //! Fails if either slot is empty, if the target is not a SubMixer, or if the addition would
+    //! create a cycle. A device can only belong to one SubMixer, so it is removed from any other
+    //! first -- otherwise it would be summed twice and heard twice.
+    //! Whether addSubMixerMember() would succeed. The UI asks rather than reimplementing the
+    //! rules, so a greyed-out entry always matches what the service would actually do.
+    Q_INVOKABLE bool canAddSubMixerMember(int subMixerSlot, int memberSlot) const;
+    Q_INVOKABLE bool addSubMixerMember(int subMixerSlot, int memberSlot);
+    Q_INVOKABLE bool removeSubMixerMember(int subMixerSlot, int memberSlot);
+    Q_INVOKABLE QVariantList subMixerMembers(int subMixerSlot) const;
+    //! Slot of the SubMixer that claims this device, or -1 when it goes straight to the master.
+    Q_INVOKABLE int subMixerOwningSlot(int memberSlot) const;
 
     Q_INVOKABLE virtual QStringList internalDeviceNamesQt() const;
 
@@ -114,6 +129,14 @@ signals:
 
 private:
     bool importDeviceSettingsFromXml(int slotIndex, const QString & xml);
+
+    //! Whether routing memberSlot into subMixerSlot would close a loop, walking the membership
+    //! chain upwards. The audio engine tolerates cycles by dumping them into a trailing layer, but
+    //! the result is meaningless, so they are rejected here instead.
+    bool wouldCreateCycle(size_t subMixerSlot, size_t memberSlot) const;
+    //! Drops member slots that no longer hold a device, so a deleted device cannot leave a
+    //! SubMixer silently claiming an empty slot.
+    void pruneSubMixerMembers();
 
     DeviceService::DeviceS getDevice(std::string name, std::string typeId);
 
