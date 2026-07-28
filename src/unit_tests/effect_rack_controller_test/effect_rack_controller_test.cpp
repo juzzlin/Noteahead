@@ -363,7 +363,7 @@ void EffectRackControllerTest::test_importEffectSettings_matchingType_shouldEmit
     const QString filePath = "test_matching_effect.nahdeff";
     const auto reverb = std::make_shared<Reverb>();
     QFile file { filePath };
-    file.open(QIODevice::WriteOnly);
+    QVERIFY(file.open(QIODevice::WriteOnly));
     NahdXmlWriter writer { file };
     writer.writeStartDocument();
     writer.writeStartElement(Constants::NahdXml::xmlKeySettings());
@@ -402,7 +402,7 @@ void EffectRackControllerTest::test_importEffectSettings_differentType_shouldEmi
     const QString filePath = "test_different_effect.nahdeff";
     const auto compressor = std::make_shared<Compressor>();
     QFile file { filePath };
-    file.open(QIODevice::WriteOnly);
+    QVERIFY(file.open(QIODevice::WriteOnly));
     NahdXmlWriter writer { file };
     writer.writeStartDocument();
     writer.writeStartElement(Constants::NahdXml::xmlKeySettings());
@@ -437,7 +437,7 @@ void EffectRackControllerTest::test_confirmImportEffectSettings_shouldImportAndN
     const QString filePath = "test_confirm_effect.nahdeff";
     const auto reverb = std::make_shared<Reverb>();
     QFile file { filePath };
-    file.open(QIODevice::WriteOnly);
+    QVERIFY(file.open(QIODevice::WriteOnly));
     NahdXmlWriter writer { file };
     writer.writeStartDocument();
     writer.writeStartElement(Constants::NahdXml::xmlKeySettings());
