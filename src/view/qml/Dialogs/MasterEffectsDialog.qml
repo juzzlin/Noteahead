@@ -240,6 +240,16 @@ AnimatedDialog {
                                 enabled: index < effectRackController.effectCount - 1
                                 onClicked: effectRackController.moveEffectDown(index)
                             }
+                            MenuItem {
+                                text: qsTr("Move to Top")
+                                enabled: index > 0
+                                onClicked: effectRackController.moveEffectToTop(index)
+                            }
+                            MenuItem {
+                                text: qsTr("Move to Bottom")
+                                enabled: index < effectRackController.effectCount - 1
+                                onClicked: effectRackController.moveEffectToBottom(index)
+                            }
                             MenuSeparator {}
                             MenuItem {
                                 text: qsTr("Export Settings...")

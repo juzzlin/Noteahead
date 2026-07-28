@@ -224,6 +224,33 @@ void EffectRackController::moveEffectDown(int index)
     }
 }
 
+void EffectRackController::moveEffectToTop(int index)
+{
+    if (index <= 0) {
+        return;
+    }
+    if (const auto rack = currentRack(); rack) {
+        rack->get().moveEffect(static_cast<size_t>(index), 0);
+        m_editorService->setIsModified(true);
+        m_revision++;
+        emit revisionChanged();
+    }
+}
+
+void EffectRackController::moveEffectToBottom(int index)
+{
+    if (const auto rack = currentRack(); rack) {
+        const auto lastIndex = static_cast<int>(rack->get().effectCount()) - 1;
+        if (index < 0 || index >= lastIndex) {
+            return;
+        }
+        rack->get().moveEffect(static_cast<size_t>(index), static_cast<size_t>(lastIndex));
+        m_editorService->setIsModified(true);
+        m_revision++;
+        emit revisionChanged();
+    }
+}
+
 QVariantList EffectRackController::availableEffects() const
 {
     QVariantList list;

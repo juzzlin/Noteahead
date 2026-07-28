@@ -45,6 +45,10 @@ private slots:
     void test_copyEffect_sameSlot_shouldFail();
     void test_swapEffects_shouldSwapTwoSlots();
     void test_swapEffects_outOfBounds_shouldDoNothing();
+    void test_moveEffect_upwards_shouldShiftSlotsInBetweenDown();
+    void test_moveEffect_downwards_shouldShiftSlotsInBetweenUp();
+    void test_moveEffect_sameSlot_shouldDoNothing();
+    void test_moveEffect_outOfBounds_shouldDoNothing();
 };
 
 } // namespace noteahead

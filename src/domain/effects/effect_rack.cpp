@@ -53,6 +53,23 @@ void EffectRack::swapEffects(size_t indexA, size_t indexB)
     }
 }
 
+void EffectRack::moveEffect(size_t sourceIndex, size_t targetIndex)
+{
+    std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    if (sourceIndex == targetIndex || sourceIndex >= m_effects.size() || targetIndex >= m_effects.size()) {
+        return;
+    }
+    const auto begin = m_effects.begin();
+    const auto source = begin + static_cast<ptrdiff_t>(sourceIndex);
+    const auto target = begin + static_cast<ptrdiff_t>(targetIndex);
+    if (sourceIndex < targetIndex) {
+        std::rotate(source, source + 1, target + 1);
+    } else {
+        std::rotate(target, source, source + 1);
+    }
+    markChanged();
+}
+
 void EffectRack::removeEffect(size_t index)
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };

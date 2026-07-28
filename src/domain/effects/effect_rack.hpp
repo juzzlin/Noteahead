@@ -39,6 +39,9 @@ public:
 
     void setEffect(size_t index, EffectS effect);
     void swapEffects(size_t indexA, size_t indexB);
+    //! Move the effect in sourceIndex to targetIndex, shifting the slots in between by one so that
+    //! the relative order of the other effects is preserved. Repeated swaps in one go.
+    void moveEffect(size_t sourceIndex, size_t targetIndex);
     void removeEffect(size_t index);
     EffectS effect(size_t index) const;
     std::vector<EffectS> effects() const;

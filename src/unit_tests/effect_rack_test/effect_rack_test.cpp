@@ -475,6 +475,71 @@ void EffectRackTest::test_swapEffects_outOfBounds_shouldDoNothing()
     QCOMPARE(rack.effect(0), reverb);
 }
 
+void EffectRackTest::test_moveEffect_upwards_shouldShiftSlotsInBetweenDown()
+{
+    EffectRack rack;
+    const auto a = std::make_shared<Reverb>();
+    const auto b = std::make_shared<Reverb>();
+    const auto c = std::make_shared<Reverb>();
+    rack.setEffect(0, a);
+    rack.setEffect(1, b);
+    rack.setEffect(2, c);
+
+    const auto version = rack.version();
+    rack.moveEffect(2, 0); // "Move to top"
+
+    QCOMPARE(rack.effect(0), c);
+    QCOMPARE(rack.effect(1), a);
+    QCOMPARE(rack.effect(2), b);
+    QVERIFY(rack.version() != version);
+}
+
+void EffectRackTest::test_moveEffect_downwards_shouldShiftSlotsInBetweenUp()
+{
+    EffectRack rack;
+    const auto a = std::make_shared<Reverb>();
+    const auto b = std::make_shared<Reverb>();
+    const auto c = std::make_shared<Reverb>();
+    rack.setEffect(0, a);
+    rack.setEffect(1, b);
+    rack.setEffect(2, c);
+
+    const auto lastIndex = rack.effectCount() - 1;
+    rack.moveEffect(0, lastIndex); // "Move to bottom"
+
+    QCOMPARE(rack.effect(0), b);
+    QCOMPARE(rack.effect(1), c);
+    QCOMPARE(rack.effect(2), nullptr);
+    QCOMPARE(rack.effect(lastIndex), a);
+}
+
+void EffectRackTest::test_moveEffect_sameSlot_shouldDoNothing()
+{
+    EffectRack rack;
+    const auto reverb = std::make_shared<Reverb>();
+    rack.setEffect(1, reverb);
+
+    const auto version = rack.version();
+    rack.moveEffect(1, 1);
+
+    QCOMPARE(rack.effect(1), reverb);
+    QCOMPARE(rack.version(), version);
+}
+
+void EffectRackTest::test_moveEffect_outOfBounds_shouldDoNothing()
+{
+    EffectRack rack;
+    const auto reverb = std::make_shared<Reverb>();
+    rack.setEffect(0, reverb);
+
+    const auto version = rack.version();
+    rack.moveEffect(0, 999);
+    rack.moveEffect(999, 0);
+
+    QCOMPARE(rack.effect(0), reverb);
+    QCOMPARE(rack.version(), version);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::EffectRackTest)

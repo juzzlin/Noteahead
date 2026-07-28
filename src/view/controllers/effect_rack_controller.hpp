@@ -111,6 +111,8 @@ public:
     Q_INVOKABLE void clearEffect(int slotIndex);
     Q_INVOKABLE void moveEffectUp(int index);
     Q_INVOKABLE void moveEffectDown(int index);
+    Q_INVOKABLE void moveEffectToTop(int index);
+    Q_INVOKABLE void moveEffectToBottom(int index);
 
     Q_INVOKABLE void exportEffectSettings(int index, const QUrl & fileUrl);
     Q_INVOKABLE void importEffectSettings(int index, const QUrl & fileUrl);
