@@ -131,16 +131,6 @@ Bug fixes:
     their sidechain routing change, instead of allocating and topologically
     sorting on every audio callback
 
-* Fix audio stutter caused by the oscilloscope
-  - The audio thread no longer blocks on the scope lock (it skips a buffer on
-    contention), and the UI snapshot now holds the lock only to copy the rings
-
-* Fix oscilloscope capturing while its tab is not open
-  - Capture now follows the shown instance and stops on the previous device,
-    so a hidden or no-longer-displayed device never keeps capturing
-  - Capture is now gated on the dialog being open and the Scope tab being
-    current, instead of the (unreliable inside a dialog) nested item visibility
-
 * Fix Sampler global switches not updating when switching instance
   - Chromatic mode, channel mode and embed-wave-data switches now reflect the
     selected Sampler instead of retaining the previous instance's state
