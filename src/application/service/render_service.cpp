@@ -18,10 +18,10 @@
 #include "../../common/constants.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/tracker/song.hpp"
-#include "../../infra/settings.hpp"
 #include "editor_service.hpp"
 #include "mixer_service.hpp"
 #include "render_worker.hpp"
+#include "settings_service.hpp"
 
 #include <QDateTime>
 #include <QDir>
@@ -37,6 +37,7 @@ RenderService::RenderService(AudioEngineS audioEngine,
                              EditorServiceS editorService,
                              AutomationServiceS automationService,
                              SideChainServiceS sideChainService,
+                             SettingsServiceS settingsService,
                              QObject * parent)
   : QObject { parent }
   , m_audioEngine { std::move(audioEngine) }
@@ -45,6 +46,7 @@ RenderService::RenderService(AudioEngineS audioEngine,
   , m_editorService { std::move(editorService) }
   , m_automationService { std::move(automationService) }
   , m_sideChainService { std::move(sideChainService) }
+  , m_settingsService { std::move(settingsService) }
 {
     m_worker = std::make_unique<RenderWorker>(m_audioEngine, m_deviceService, m_mixerService);
     m_worker->moveToThread(&m_workerThread);
@@ -89,23 +91,6 @@ void RenderService::renderIndividualTracks(const QString & directory)
 
     m_mixerService->pushState();
 
-    const auto date = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
-    const auto sampleRateSuffix = QString::number(Settings::renderSampleRate() / 1000) + "k";
-    const auto bitDepthSuffix = []() {
-        switch (Settings::renderBitDepth()) {
-        case BitDepth::PCM_24:
-            return "24bit";
-        case BitDepth::PCM_32:
-            return "32bit";
-        case BitDepth::Float_32:
-            return "32bitFloat";
-        case BitDepth::PCM_16:
-        default:
-            return "16bit";
-        }
-    }();
-    const auto ext = Settings::renderFormat() == AudioFormat::Flac ? ".flac" : ".wav";
-
     m_queue.clear();
     for (auto trackIndex : m_editorService->trackIndices()) {
         const auto portName = m_editorService->instrumentPortName(trackIndex);
@@ -115,7 +100,7 @@ void RenderService::renderIndividualTracks(const QString & directory)
         }
 
         const auto trackName = m_editorService->trackName(trackIndex);
-        const auto fileName = QDir(directory).filePath(QString { "%1_%2_%3_%4%5" }.arg(trackName, sampleRateSuffix, bitDepthSuffix, date, ext));
+        const auto fileName = QDir(directory).filePath(renderFileName(trackName));
         m_queue.push_back({ fileName, { trackIndex } });
     }
 
@@ -143,16 +128,12 @@ double RenderService::progress() const
     return m_progress;
 }
 
-QString RenderService::defaultRenderFileName() const
+QString RenderService::renderFileName(const QString & baseName) const
 {
-    const auto projectFileName = m_editorService->currentFileName();
-    if (projectFileName.isEmpty()) {
-        return {};
-    }
     const auto date = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
-    const auto sampleRateSuffix = QString::number(Settings::renderSampleRate() / 1000) + "k";
-    const auto bitDepthSuffix = []() {
-        switch (Settings::renderBitDepth()) {
+    const auto sampleRateSuffix = QString::number(m_settingsService->renderSampleRate() / 1000) + "k";
+    const auto bitDepthSuffix = [this]() {
+        switch (static_cast<BitDepth>(m_settingsService->renderBitDepth())) {
         case BitDepth::PCM_24:
             return "24bit";
         case BitDepth::PCM_32:
@@ -164,8 +145,17 @@ QString RenderService::defaultRenderFileName() const
             return "16bit";
         }
     }();
-    const auto ext = Settings::renderFormat() == AudioFormat::Flac ? ".flac" : ".wav";
-    return QString { "%1_%2_%3_%4%5" }.arg(projectFileName, sampleRateSuffix, bitDepthSuffix, date, ext);
+    const auto ext = static_cast<AudioFormat>(m_settingsService->renderFormat()) == AudioFormat::Flac ? ".flac" : ".wav";
+    return QString { "%1_%2_%3_%4%5" }.arg(baseName, sampleRateSuffix, bitDepthSuffix, date, ext);
+}
+
+QString RenderService::defaultRenderFileName() const
+{
+    const auto projectFileName = m_editorService->currentFileName();
+    if (projectFileName.isEmpty()) {
+        return {};
+    }
+    return renderFileName(projectFileName);
 }
 
 QString RenderService::defaultRenderDirectory() const
@@ -249,16 +239,16 @@ void RenderService::startNextRender()
 
     const auto events = song->renderToEvents(m_automationService, m_sideChainService, 0);
     const auto maxTick = song->totalTicks();
-    const auto sampleRate = Settings::renderSampleRate();
-    const auto bitDepth = static_cast<BitDepth>(Settings::renderBitDepth());
-    const auto format = Settings::renderFormat();
-    const auto normalize = Settings::renderNormalizeEnabled();
-    const auto normalizeTargetDb = Settings::renderNormalizeLevel();
-    const auto trim = Settings::renderTrimEnabled();
-    const auto trimMinutes = Settings::renderTrimMinutes();
-    const auto trimSeconds = Settings::renderTrimSeconds();
-    const auto analyze = Settings::renderAnalyzeEnabled();
-    const auto oversampleFactor = static_cast<quint8>(Settings::renderOversampleFactor());
+    const auto sampleRate = m_settingsService->renderSampleRate();
+    const auto bitDepth = static_cast<BitDepth>(m_settingsService->renderBitDepth());
+    const auto format = static_cast<AudioFormat>(m_settingsService->renderFormat());
+    const auto normalize = m_settingsService->renderNormalizeEnabled();
+    const auto normalizeTargetDb = m_settingsService->renderNormalizeLevel();
+    const auto trim = m_settingsService->renderTrimEnabled();
+    const auto trimMinutes = m_settingsService->renderTrimMinutes();
+    const auto trimSeconds = m_settingsService->renderTrimSeconds();
+    const auto analyze = m_settingsService->renderAnalyzeEnabled();
+    const auto oversampleFactor = static_cast<quint8>(m_settingsService->renderOversampleFactor());
 
     const std::map<AudioFileReader::TagType, std::string> tags = [&song]() {
         std::map<AudioFileReader::TagType, std::string> t;

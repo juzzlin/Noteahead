@@ -83,6 +83,7 @@ void RenderServiceTest::test_renderIndividualTracks_shouldSkipNonInternalInstrum
     auto propertyService = std::make_shared<PropertyService>();
     auto automationService = std::make_shared<AutomationService>(propertyService);
     auto sideChainService = std::make_shared<SideChainService>();
+    auto settingsService = std::make_shared<SettingsService>();
 
     auto song = std::make_shared<Song>();
     editorService->setSong(song);
@@ -95,7 +96,7 @@ void RenderServiceTest::test_renderIndividualTracks_shouldSkipNonInternalInstrum
     editorService->setInstrumentPort(1, "External MIDI Port");
     editorService->setInstrumentPort(2, Constants::internalDevicePortPrefix() + " 2");
 
-    RenderService renderService(audioEngine, deviceService, mixerService, editorService, automationService, sideChainService);
+    RenderService renderService(audioEngine, deviceService, mixerService, editorService, automationService, sideChainService, settingsService);
 
     QTemporaryDir tempDir;
     QVERIFY(tempDir.isValid());
@@ -145,6 +146,7 @@ void RenderServiceTest::test_renderIndividualTracks_shouldRestoreMixerState()
     auto propertyService = std::make_shared<PropertyService>();
     auto automationService = std::make_shared<AutomationService>(propertyService);
     auto sideChainService = std::make_shared<SideChainService>();
+    auto settingsService = std::make_shared<SettingsService>();
 
     auto song = std::make_shared<Song>();
     editorService->setSong(song);
@@ -157,7 +159,7 @@ void RenderServiceTest::test_renderIndividualTracks_shouldRestoreMixerState()
     mixerService->soloTrack(0, true);
     mixerService->muteTrack(1, true);
 
-    RenderService renderService(audioEngine, deviceService, mixerService, editorService, automationService, sideChainService);
+    RenderService renderService(audioEngine, deviceService, mixerService, editorService, automationService, sideChainService, settingsService);
 
     QTemporaryDir tempDir;
     QVERIFY(tempDir.isValid());

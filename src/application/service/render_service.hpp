@@ -32,6 +32,7 @@ class SideChainService;
 class MixerService;
 class EditorService;
 class RenderWorker;
+class SettingsService;
 
 class RenderService : public QObject
 {
@@ -48,6 +49,7 @@ public:
     using EditorServiceS = std::shared_ptr<EditorService>;
     using AutomationServiceS = std::shared_ptr<AutomationService>;
     using SideChainServiceS = std::shared_ptr<SideChainService>;
+    using SettingsServiceS = std::shared_ptr<SettingsService>;
 
     RenderService(AudioEngineS audioEngine,
                   DeviceServiceS deviceService,
@@ -55,6 +57,7 @@ public:
                   EditorServiceS editorService,
                   AutomationServiceS automationService,
                   SideChainServiceS sideChainService,
+                  SettingsServiceS settingsService,
                   QObject * parent = nullptr);
     ~RenderService() override;
 
@@ -78,12 +81,15 @@ private slots:
 private:
     void startNextRender();
 
+    QString renderFileName(const QString & baseName) const;
+
     AudioEngineS m_audioEngine;
     DeviceServiceS m_deviceService;
     MixerServiceS m_mixerService;
     EditorServiceS m_editorService;
     AutomationServiceS m_automationService;
     SideChainServiceS m_sideChainService;
+    SettingsServiceS m_settingsService;
 
     std::unique_ptr<RenderWorker> m_worker;
     QThread m_workerThread;

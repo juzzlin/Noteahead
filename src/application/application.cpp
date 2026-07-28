@@ -138,7 +138,7 @@ Application::Application(int & argc, char ** argv)
   , m_stateMachine { std::make_shared<StateMachine>(m_applicationService, m_editorService) }
   , m_recentFilesManager { std::make_shared<RecentFilesManager>() }
   , m_recentFilesModel { std::make_unique<RecentFilesModel>() }
-  , m_renderService { std::make_shared<RenderService>(m_audioEngine, m_deviceService, m_mixerService, m_editorService, m_automationService, m_sideChainService) }
+  , m_renderService { std::make_shared<RenderService>(m_audioEngine, m_deviceService, m_mixerService, m_editorService, m_automationService, m_sideChainService, m_settingsService) }
   , m_midiCcAutomationsModel { std::make_unique<MidiCcAutomationsModel>() }
   , m_pitchBendAutomationsModel { std::make_unique<PitchBendAutomationsModel>() }
   , m_columnSettingsModel { std::make_unique<ColumnSettingsModel>() }
