@@ -65,12 +65,14 @@ The codebase is split into five layers. Logic must never leak upward (domain kno
 
 ## Adding a New Rack Effect (checklist)
 
-1. Create `src/domain/dsp/<name>_effect.hpp/.cpp` inheriting from `Effect`. Implement `type()`, `typeId()`, `typeIdString()` (static), `process(double&, double&)`, `sync()`, `reset()`. Register `Parameter` objects in the constructor.
-2. Add sources to `src/domain/CMakeLists.txt` and `src/domain/effects/CMakeLists.txt`.
-3. Add `xmlKey<Name>()` constant(s) to `Constants::NahdXml` in `src/common/constants.hpp/.cpp`. Add the effect type string to `Constants::RackEffectType`.
-4. Register the effect (and any legacy alias) in `EffectFactory::init()` in `src/domain/effects/effect_factory.cpp`.
-5. Add `Q_PROPERTY` type string and `Q_INVOKABLE` parameter-key methods to `EffectRackController`.
-6. Add `src/view/qml/Dialogs/<Name>Dialog.qml` and wire it in `MasterEffectsDialog.qml` (click handler + instantiation).
+1. Create `src/domain/effects/<name>.hpp/.cpp` inheriting from `Effect`. Implement `type()`, `typeId()`, `typeIdString()` (static), `process(double&, double&)`, `process(AudioContext&)`, `sync()`, `reset()`. Register `Parameter` objects in the constructor.
+2. Add both files to `HEADER_FILES` and `SOURCE_FILES` in `src/domain/CMakeLists.txt` (alphabetical). New `dsp/` sources also go in `src/domain/dsp/CMakeLists.txt`.
+3. Add `xmlKey<Name>()` constant(s) to `Constants::NahdXml` in `src/common/constants.hpp/.cpp`. Add the effect type string to `Constants::RackEffectType`. Reuse existing generic keys where they fit — e.g. `xmlKeyBandGain(i)`, `xmlKeyGain()`.
+4. Register the effect in `EffectFactory::init()` in `src/domain/effects/effect_factory.cpp`: by `typeIdString()`, by type string, and a `registerLegacyEffect()` snake_case alias.
+5. Add `Q_PROPERTY` type string, `Q_INVOKABLE` parameter-key methods, an `addEffect(...)` line in `availableEffects()`, and an `effectParametersSummary()` branch to `EffectRackController`.
+6. Add `src/view/qml/Dialogs/<Name>Dialog.qml`, register it in `QML_SOURCE_FILES` in `src/CMakeLists.txt` (alphabetical), instantiate it in `Main.qml`, and add the click handler to **both** `MasterEffectsDialog.qml` and `DeviceInsertEffectsDialog.qml`.
+7. Add `src/unit_tests/<name>_test/` with its own `CMakeLists.txt`, plus `add_subdirectory` in `src/unit_tests/CMakeLists.txt`.
+8. Add a round-trip case to `xml_serialization_test` and a `CHANGELOG` entry under *New features*.
 
 ## Coding Standards
 

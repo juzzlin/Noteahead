@@ -32,6 +32,7 @@
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/wavetable_synth_device.hpp"
+#include "../../domain/effects/air_band_eq.hpp"
 #include "../../domain/effects/all_pass_filter.hpp"
 #include "../../domain/effects/chorus.hpp"
 #include "../../domain/effects/clipper.hpp"
@@ -1479,6 +1480,54 @@ void XmlSerializationTest::test_toXmlFromXml_simpleEqEffect_shouldLoadCorrectly(
     if (const auto p = restored->parameter(Constants::NahdXml::xmlKeyAmount().toStdString()); p) {
         QCOMPARE(p->get().value(), 0.65f);
     }
+}
+
+void XmlSerializationTest::test_toXmlFromXml_airBandEqEffect_shouldLoadCorrectly()
+{
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto eq = std::make_shared<AirBandEq>();
+    const auto setParam = [&eq](const QString & key, float value) {
+        if (auto p = eq->parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    };
+    for (size_t i = 0; i < AirBandEq::BandCount; i++) {
+        setParam(Constants::NahdXml::xmlKeyBandGain(i), 0.1f * static_cast<float>(i + 1));
+    }
+    setParam(Constants::NahdXml::xmlKeyAirFreq(), 4.0f); // 20 kHz
+    setParam(Constants::NahdXml::xmlKeyAirGain(), 0.65f);
+    setParam(Constants::NahdXml::xmlKeyGain(), 0.4f);
+    deviceServiceOut.sendEffectRack().setEffect(0, eq);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(effect);
+    QCOMPARE(effect->typeId(), AirBandEq::typeIdString());
+    const auto restored = std::dynamic_pointer_cast<AirBandEq>(effect);
+    QVERIFY(restored);
+    const auto valueOf = [&restored](const QString & key) {
+        const auto p = restored->parameter(key.toStdString());
+        return p ? p->get().value() : -1.0f;
+    };
+    for (size_t i = 0; i < AirBandEq::BandCount; i++) {
+        QVERIFY(std::abs(valueOf(Constants::NahdXml::xmlKeyBandGain(i)) - 0.1f * static_cast<float>(i + 1)) < 0.001f);
+    }
+    QCOMPARE(valueOf(Constants::NahdXml::xmlKeyAirFreq()), 4.0f);
+    QVERIFY(std::abs(valueOf(Constants::NahdXml::xmlKeyAirGain()) - 0.65f) < 0.001f);
+    QVERIFY(std::abs(valueOf(Constants::NahdXml::xmlKeyGain()) - 0.4f) < 0.001f);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_reverbGate_shouldLoadCorrectly()

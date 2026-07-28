@@ -208,6 +208,11 @@ QString vintagePassiveEq()
     return "vintagepassiveeq";
 }
 
+QString airBandEq()
+{
+    return "airbandeq";
+}
+
 QString simpleEq()
 {
     return "simpleeq";
@@ -1325,6 +1330,16 @@ QString xmlKeyHighAttenFreq()
 QString xmlKeyHighAtten()
 {
     return "highAtten";
+}
+
+QString xmlKeyAirFreq()
+{
+    return "airFreq";
+}
+
+QString xmlKeyAirGain()
+{
+    return "airGain";
 }
 
 QString xmlKeyVco1Waveform()

@@ -54,6 +54,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString delayType READ delayType CONSTANT)
     Q_PROPERTY(QString eq8BandParametricType READ eq8BandParametricType CONSTANT)
     Q_PROPERTY(QString vintagePassiveEqType READ vintagePassiveEqType CONSTANT)
+    Q_PROPERTY(QString airBandEqType READ airBandEqType CONSTANT)
     Q_PROPERTY(QString simpleEqType READ simpleEqType CONSTANT)
     Q_PROPERTY(QString pannerType READ pannerType CONSTANT)
     Q_PROPERTY(QString autoPannerType READ autoPannerType CONSTANT)
@@ -95,6 +96,7 @@ public:
     QString chorusType() const;
     QString eq8BandParametricType() const;
     QString vintagePassiveEqType() const;
+    QString airBandEqType() const;
     QString simpleEqType() const;
     QString pannerType() const;
     QString reverbType() const;
@@ -212,6 +214,11 @@ public:
     Q_INVOKABLE QString vintagePassiveEqBandwidthKey() const;
     Q_INVOKABLE QString vintagePassiveEqHighAttenFreqKey() const;
     Q_INVOKABLE QString vintagePassiveEqHighAttenKey() const;
+
+    Q_INVOKABLE QString airBandEqBandGainKey(quint32 bandIndex) const;
+    Q_INVOKABLE QString airBandEqAirFreqKey() const;
+    Q_INVOKABLE QString airBandEqAirGainKey() const;
+    Q_INVOKABLE QString airBandEqOutputGainKey() const;
 
     Q_INVOKABLE QString simpleEqAmountKey() const;
 

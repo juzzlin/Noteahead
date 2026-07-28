@@ -152,6 +152,9 @@ AnimatedDialog {
                         } else if (effectType === effectRackController.vintagePassiveEqType) {
                             vintagePassiveEqDialog.effectIndex = index;
                             vintagePassiveEqDialog.open();
+                        } else if (effectType === effectRackController.airBandEqType) {
+                            airBandEqDialog.effectIndex = index;
+                            airBandEqDialog.open();
                         } else if (effectType === effectRackController.simpleEqType) {
                             simpleEqDialog.effectIndex = index;
                             simpleEqDialog.open();

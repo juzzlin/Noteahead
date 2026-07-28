@@ -21,6 +21,8 @@ namespace noteahead {
 class SvfFilter
 {
 public:
+    //! Append only. Eq8BandParametric persists a band's type as this enum's ordinal and casts the
+    //! stored integer straight back, so reordering silently reinterprets every saved project.
     enum class Type
     {
         Bypass,
@@ -29,10 +31,20 @@ public:
         HighShelf,
         LowCut,
         HighCut,
-        Notch
+        Notch,
+        BandPass
     };
 
     void calculateBell(double frequency, double sampleRate, double q, double gainDb);
+
+    //! Unity-peak band-pass tap: passes the band around the corner and rejects everything else.
+    //!
+    //! Unlike the shaping calculators this one does not carry the dry signal, so it is the building
+    //! block for parallel-summed equalizers, where band outputs are added to an untouched dry path.
+    //! Note that setBypass() still returns the input unchanged, which is transparent for a shaping
+    //! filter but not for a tap: drop the tap from the sum instead of bypassing it.
+    void calculateBandPass(double frequency, double sampleRate, double q);
+
     void calculateLowShelf(double frequency, double sampleRate, double q, double gainDb);
     void calculateHighShelf(double frequency, double sampleRate, double q, double gainDb);
     void calculateLowCut(double frequency, double sampleRate, double q);

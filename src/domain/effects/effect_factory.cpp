@@ -19,6 +19,7 @@
 #include "../utility/dbtp_meter.hpp"
 #include "../utility/lufs_meter.hpp"
 #include "../utility/rta.hpp"
+#include "air_band_eq.hpp"
 #include "all_pass_filter.hpp"
 #include "auto_panner.hpp"
 #include "chorus.hpp"
@@ -85,6 +86,7 @@ std::shared_ptr<Effect> EffectFactory::createEffect(const std::string & typeId, 
 
 void EffectFactory::init()
 {
+    registerEffect(AirBandEq::typeIdString(), []() { return std::make_shared<AirBandEq>(); });
     registerEffect(AllPassFilter::typeIdString(), []() { return std::make_shared<AllPassFilter>(); });
     registerEffect(AutoPanner::typeIdString(), []() { return std::make_shared<AutoPanner>(); });
     registerEffect(EndlessReverb::typeIdString(), []() { return std::make_shared<EndlessReverb>(); });
@@ -118,6 +120,7 @@ void EffectFactory::init()
     registerEffect(Constants::RackEffectType::rta().toStdString(), []() { return std::make_shared<Rta>(); });
     registerEffect(Constants::RackEffectType::saturator().toStdString(), []() { return std::make_shared<Saturator>(); });
     registerEffect(Constants::RackEffectType::vintagePassiveEq().toStdString(), []() { return std::make_shared<VintagePassiveEq>(); });
+    registerEffect(Constants::RackEffectType::airBandEq().toStdString(), []() { return std::make_shared<AirBandEq>(); });
     registerEffect(Constants::RackEffectType::simpleEq().toStdString(), []() { return std::make_shared<SimpleEq>(); });
 
     // Legacy support
@@ -132,6 +135,7 @@ void EffectFactory::init()
     registerLegacyEffect("panner", []() { return std::make_shared<Panner>(); });
     registerLegacyEffect("reverb", []() { return std::make_shared<Reverb>(); });
     registerLegacyEffect("vintage_passive_eq", []() { return std::make_shared<VintagePassiveEq>(); });
+    registerLegacyEffect("air_band_eq", []() { return std::make_shared<AirBandEq>(); });
     registerLegacyEffect("simple_eq", []() { return std::make_shared<SimpleEq>(); });
 }
 

@@ -5,6 +5,12 @@ Release date:
 
 New features:
 
+* Add an Air Band EQ rack effect
+  - Six-band "air band" equalizer built on a parallel-summed topology: the
+    bands are taps fed from the dry signal and added back to it, not a cascade
+  - Five fixed band passes (Sub, 40 Hz, 160 Hz, 650 Hz, 2.5 kHz) that interact,
+    so lowering all five equally drops the whole curve without reshaping it
+
 * Add a Simple EQ rack effect
   - A single "Sounds Good" (Amount) knob sweeps a fixed loudness-smile curve:
     low-shelf body, a gentle low-mid mud scoop and a high-shelf air lift

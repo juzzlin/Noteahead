@@ -471,6 +471,12 @@ ApplicationWindow {
         width: parent.width * Constants.defaultDialogScale
         height: parent.height * Constants.defaultDialogScale
     }
+    AirBandEqDialog {
+        id: airBandEqDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
+    }
     SimpleEqDialog {
         id: simpleEqDialog
         anchors.centerIn: parent

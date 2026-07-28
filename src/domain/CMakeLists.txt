@@ -29,6 +29,7 @@ set(HEADER_FILES
     dsp/lfo.hpp
     dsp/low_pass_filter.hpp
     dsp/multi_engine.hpp
+    dsp/one_pole_filter.hpp
     dsp/oversampler.hpp
     dsp/panning.hpp
     dsp/poly_blep_oscillator.hpp
@@ -38,6 +39,7 @@ set(HEADER_FILES
     dsp/volume.hpp
     dsp/waveguide_string.hpp
     dsp/wavetable_oscillator.hpp
+    effects/air_band_eq.hpp
     effects/all_pass_filter.hpp
     effects/auto_panner.hpp
     effects/clipper.hpp
@@ -127,6 +129,7 @@ set(SOURCE_FILES
     dsp/lfo.cpp
     dsp/low_pass_filter.cpp
     dsp/multi_engine.cpp
+    dsp/one_pole_filter.cpp
     dsp/oversampler.cpp
     dsp/panning.cpp
     dsp/poly_blep_oscillator.cpp
@@ -137,6 +140,7 @@ set(SOURCE_FILES
     dsp/waveguide_string.cpp
     dsp/wavetable.cpp
     dsp/wavetable_oscillator.cpp
+    effects/air_band_eq.cpp
     effects/all_pass_filter.cpp
     effects/auto_panner.cpp
     effects/chorus.cpp

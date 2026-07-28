@@ -93,6 +93,12 @@ private:
                 filterMid.calculateNotch(frequency, sampleRate, q);
                 filterSide.calculateNotch(frequency, sampleRate, q);
                 break;
+            case SvfFilter::Type::BandPass:
+                // A raw tap carries no dry signal, so it is meaningless in this cascade. The band
+                // type selector never offers it; treat it as a no-op rather than silently shaping.
+                filterMid.setBypass();
+                filterSide.setBypass();
+                break;
             }
         }
     };

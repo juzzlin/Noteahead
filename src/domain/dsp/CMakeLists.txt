@@ -7,6 +7,7 @@ set(DSP_SOURCES
     ensemble_chorus.cpp
     lfo.cpp
     multi_engine.cpp
+    one_pole_filter.cpp
     oversampler.cpp
     poly_blep_oscillator.cpp
     svf_filter.cpp

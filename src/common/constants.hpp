@@ -82,6 +82,7 @@ QString autoPanner();
 QString eq8BandParametric();
 QString eq8BandParametricLegacy();
 QString vintagePassiveEq();
+QString airBandEq();
 QString simpleEq();
 QString allPassFilter();
 QString lufsMeter();
@@ -354,6 +355,9 @@ QString xmlKeyHighBoost();
 QString xmlKeyBandwidth();
 QString xmlKeyHighAttenFreq();
 QString xmlKeyHighAtten();
+
+QString xmlKeyAirFreq();
+QString xmlKeyAirGain();
 
 QString xmlKeyVco1Waveform();
 QString xmlKeyVco1Octave();

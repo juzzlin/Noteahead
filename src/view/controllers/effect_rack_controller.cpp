@@ -246,6 +246,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Drive", Constants::RackEffectType::drive().toStdString());
     addEffect("EQ 8-Band Parametric", Constants::RackEffectType::eq8BandParametric().toStdString());
     addEffect("Vintage Passive EQ", Constants::RackEffectType::vintagePassiveEq().toStdString());
+    addEffect("Air Band EQ", Constants::RackEffectType::airBandEq().toStdString());
     addEffect("Simple EQ", Constants::RackEffectType::simpleEq().toStdString());
     addEffect("Limiter", Constants::RackEffectType::limiter().toStdString());
     addEffect("LUFS Meter", LufsMeter::typeIdString());
@@ -465,6 +466,8 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                 return "(Parametric)";
             } else if (type == Constants::RackEffectType::vintagePassiveEq()) {
                 return "(Passive)";
+            } else if (type == Constants::RackEffectType::airBandEq()) {
+                return "(Air)";
             } else if (type == Constants::RackEffectType::simpleEq()) {
                 if (const auto amount = effect->parameter(Constants::NahdXml::xmlKeyAmount().toStdString()); amount) {
                     return QString { "(%1%)" }.arg(static_cast<int>(std::round(amount->get().value() * 100.0f)));
@@ -830,6 +833,26 @@ QString EffectRackController::simpleEqAmountKey() const
     return Constants::NahdXml::xmlKeyAmount();
 }
 
+QString EffectRackController::airBandEqBandGainKey(quint32 bandIndex) const
+{
+    return Constants::NahdXml::xmlKeyBandGain(bandIndex);
+}
+
+QString EffectRackController::airBandEqAirFreqKey() const
+{
+    return Constants::NahdXml::xmlKeyAirFreq();
+}
+
+QString EffectRackController::airBandEqAirGainKey() const
+{
+    return Constants::NahdXml::xmlKeyAirGain();
+}
+
+QString EffectRackController::airBandEqOutputGainKey() const
+{
+    return Constants::NahdXml::xmlKeyGain();
+}
+
 QString EffectRackController::allPassFilterType() const
 {
     return Constants::RackEffectType::allPassFilter();
@@ -893,6 +916,11 @@ QString EffectRackController::eq8BandParametricType() const
 QString EffectRackController::vintagePassiveEqType() const
 {
     return Constants::RackEffectType::vintagePassiveEq();
+}
+
+QString EffectRackController::airBandEqType() const
+{
+    return Constants::RackEffectType::airBandEq();
 }
 
 QString EffectRackController::simpleEqType() const

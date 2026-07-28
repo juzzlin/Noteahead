@@ -15,15 +15,34 @@
 
 #include "svf_filter.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <numbers>
 
 namespace noteahead {
 
+namespace {
+
+//! Keep the corner far enough below Nyquist that the bilinear prewarp stays finite and positive.
+//!
+//! std::tan() grows without bound as the corner approaches Nyquist and flips sign beyond it, which
+//! silently yields a mirrored, meaningless response. Corners nominally specified above the audio
+//! band are legitimate (the 40 kHz air-band position, for one), so every calculator clamps instead
+//! of trusting the caller.
+constexpr double MaxNyquistRatio = 0.49;
+
+double prewarp(double frequency, double sampleRate)
+{
+    const double limit = sampleRate * MaxNyquistRatio;
+    return std::tan(std::numbers::pi * std::clamp(frequency, 0.0, limit) / sampleRate);
+}
+
+} // namespace
+
 void SvfFilter::calculateBell(double frequency, double sampleRate, double q, double gainDb)
 {
     const double A = std::pow(10.0, gainDb / 40.0);
-    const double g = std::tan(std::numbers::pi * frequency / sampleRate);
+    const double g = prewarp(frequency, sampleRate);
     const double k = 1.0 / (q * A);
     const double den = 1.0 / (1.0 + g * (g + k));
 
@@ -39,10 +58,30 @@ void SvfFilter::calculateBell(double frequency, double sampleRate, double q, dou
     m_isBypassed = false;
 }
 
+void SvfFilter::calculateBandPass(double frequency, double sampleRate, double q)
+{
+    const double g = prewarp(frequency, sampleRate);
+    const double k = 1.0 / q;
+    const double den = 1.0 / (1.0 + g * (g + k));
+
+    m_g = g;
+    m_k = k;
+    m_a1 = den;
+    m_a2 = g * den;
+    m_a3 = g * m_a2;
+    // The raw band-pass state peaks at 1/k, so scaling by k normalises the peak to unity and makes
+    // the tap's gain read directly as the amount summed into the dry path.
+    m_m0 = 0.0;
+    m_m1 = k;
+    m_m2 = 0.0;
+
+    m_isBypassed = false;
+}
+
 void SvfFilter::calculateLowShelf(double frequency, double sampleRate, double q, double gainDb)
 {
     const double A = std::pow(10.0, gainDb / 40.0);
-    const double g = std::tan(std::numbers::pi * frequency / sampleRate) / std::sqrt(A);
+    const double g = prewarp(frequency, sampleRate) / std::sqrt(A);
     const double k = 1.0 / q;
     const double den = 1.0 / (1.0 + g * (g + k));
 
@@ -61,7 +100,7 @@ void SvfFilter::calculateLowShelf(double frequency, double sampleRate, double q,
 void SvfFilter::calculateHighShelf(double frequency, double sampleRate, double q, double gainDb)
 {
     const double A = std::pow(10.0, gainDb / 40.0);
-    const double g = std::tan(std::numbers::pi * frequency / sampleRate) * std::sqrt(A);
+    const double g = prewarp(frequency, sampleRate) * std::sqrt(A);
     const double k = 1.0 / q;
     const double den = 1.0 / (1.0 + g * (g + k));
 
@@ -79,7 +118,7 @@ void SvfFilter::calculateHighShelf(double frequency, double sampleRate, double q
 
 void SvfFilter::calculateLowCut(double frequency, double sampleRate, double q)
 {
-    const double g = std::tan(std::numbers::pi * frequency / sampleRate);
+    const double g = prewarp(frequency, sampleRate);
     const double k = 1.0 / q;
     const double den = 1.0 / (1.0 + g * (g + k));
 
@@ -97,7 +136,7 @@ void SvfFilter::calculateLowCut(double frequency, double sampleRate, double q)
 
 void SvfFilter::calculateHighCut(double frequency, double sampleRate, double q)
 {
-    const double g = std::tan(std::numbers::pi * frequency / sampleRate);
+    const double g = prewarp(frequency, sampleRate);
     const double k = 1.0 / q;
     const double den = 1.0 / (1.0 + g * (g + k));
 
@@ -115,7 +154,7 @@ void SvfFilter::calculateHighCut(double frequency, double sampleRate, double q)
 
 void SvfFilter::calculateNotch(double frequency, double sampleRate, double q)
 {
-    const double g = std::tan(std::numbers::pi * frequency / sampleRate);
+    const double g = prewarp(frequency, sampleRate);
     const double k = 1.0 / q;
     const double den = 1.0 / (1.0 + g * (g + k));
 
