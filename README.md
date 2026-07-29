@@ -95,28 +95,40 @@ All Arctic Music Project songs:
   - Central hub for managing multiple independent instances of internal instruments.
 - Synth
   - Polyphonic VA synthesizer (up to 6 voices) with dual oscillators, multi-mode filters, ADSR/Mod EGs, LFO, and built-in Delay.
-- WavetableSynth
+- Wavetable Synth
   - 8-voice wavetable synthesizer with two independent wavetable oscillators (Classic and Spectral sets), noise generator, cascaded LPF/HPF filters, Amp and Mod EGs, LFO, and Poly/Unison voice modes with stereo pan spread. Features 2× oversampling and portamento.
-- BassSynth
+- Bass Synth
   - Monophonic acid-style synthesizer with sub-oscillator, resonant 24dB LPF, and TB-303 style accent/slide.
-- DrumSynth
+- Drum Synth
   - Multi-engine drum machine with 11 independent voices (Kick, Snare, Toms, etc.) and dedicated per-voice controls.
 - Sampler
   - 16-pad internal sampler with WAV support, dual filters, and per-sample panning/volume.
-- PianoSynth
+- Piano Synth
   - Physically modelled (waveguide) piano with brightness, decay, inharmonicity, LPF/HPF shaping, release, and stereo pan spread.
 - String & Voice
   - Vintage string/choir ensemble inspired by the Roland VP-330 / Behringer VC340, with strings and voice registers, BBD ensemble chorus, and a sidechain vocoder.
+- String Ensemble
+  - Divide-down string machine in the Solina tradition: twelve master oscillators tapped at 16'/8'/4' by every key, so octaves stay phase-locked and polyphony is unlimited. Bass section (Contrabass, Cello) below the split with its own Volume Bass, upper section (Horn, Viola, Trumpet, Violin) above it, plus Crescendo/Sustain Length, ensemble chorus and a swept phaser.
+- Sub Mixer
+  - Groups other devices so a whole set is mixed and processed as one entity, with its own insert effects, Volume, Gain and Pan. Members keep their own reverb sends, Sub Mixers can be nested, and Volume/Pan can be ridden from a track over MIDI CC.
 - Dynamic Routing
   - Per-device Effect Sends for flexible mixing.
 
-### Master Effects Rack
-- Master Effect Rack
-  - Studio-quality global effects hub with support for multiple independent instances.
+### Effects Racks
+- Master and Per-Device Effect Racks
+  - Studio-quality effects hub with support for multiple independent instances. Every effect below is available in both the master rack and each device's insert rack.
 - 8-Band Parametric EQ
-  - High-precision equalizer with multiple filter types (Bell, Shelf, Cut, Notch) per band.
+  - High-precision equalizer with multiple filter types (Bell, Shelf, Cut, Notch) per band and Mid/Side processing modes.
+- Vintage Passive EQ
+  - Passive "program equalizer" in the EQP-1A tradition, with interacting low Boost/Atten shelves, a high bell Boost with Bandwidth, and a separate high Atten shelf.
+- Air Band EQ
+  - Six-band parallel-summed "air band" equalizer whose fixed bands (Sub, 40 Hz, 160 Hz, 650 Hz, 2.5 kHz) are taps added back to the dry signal rather than a cascade.
+- Simple EQ
+  - A single "Sounds Good" knob sweeping a fixed loudness-smile curve: low-shelf body, a gentle low-mid scoop and a high-shelf air lift.
 - FDN Reverb
   - High-quality Feedback Delay Network algorithm with 8 studio presets (Hall, Cathedral, etc.) and fine-grained controls.
+- Endless Reverb
+  - Large ambient reverb built on an 8-line modulated Householder FDN with input diffusion, plus a Freeze switch for an infinite tail.
 - Compressor
   - Feed-forward compressor with soft-knee interpolation, lookahead support, and real-time gain reduction metering.
 - Limiter
@@ -125,6 +137,8 @@ All Arctic Music Project songs:
   - Hard/soft clipper with adjustable threshold and output gain.
 - Saturator
   - Multi-mode saturation/distortion for adding harmonics and warmth.
+- Drive
+  - Overdrive with Drive amount, dry/wet Mix and output Gain, in Soft (tanh), Hard (clip), Fold (wavefolder) and Dist algorithms.
 - Chorus
   - Stereo chorus with rate, depth, delay, width, and LPF/HPF shaping.
 - Delay
