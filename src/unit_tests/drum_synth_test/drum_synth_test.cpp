@@ -210,6 +210,30 @@ void DrumSynthTest::test_clapEngine_trigger_shouldBeActive()
     QVERIFY(engine.isActive());
 }
 
+void DrumSynthTest::test_clapEngine_tune_lowTuneShouldBeDarker()
+{
+    // Zero crossings serve as a cheap brightness measure: the darker the sound, the fewer of them
+    const auto zeroCrossings = [](float tune) {
+        ClapEngine engine;
+        engine.setSampleRate(44100.0);
+        engine.setTune(tune);
+        engine.trigger(1.0f);
+        size_t crossings = 0;
+        float previous = 0.0f;
+        for (int i = 0; i < 8192; i++) {
+            const float sample = engine.nextSample();
+            if ((sample < 0.0f) != (previous < 0.0f)) {
+                crossings++;
+            }
+            previous = sample;
+        }
+        return crossings;
+    };
+
+    QVERIFY(zeroCrossings(0.0f) < zeroCrossings(0.5f));
+    QVERIFY(zeroCrossings(0.5f) < zeroCrossings(1.0f));
+}
+
 void DrumSynthTest::test_drumSynthDevice_midiNoteOn_shouldTriggerVoice()
 {
     DrumSynthDevice device("Test");

@@ -154,6 +154,13 @@ Bug fixes:
 
 Other:
 
+* Make the Drum Synth's Clap darker at low Tune settings
+  - The noise was only high-passed, so it stayed hissy and snare-like across
+    the whole Tune range
+  - Tune now also tracks a low-pass, taking the clap down to a thick, body-heavy
+    tone at 0 % while 100 % keeps the previous bright character
+  - The level is compensated as the band narrows, so Tune stays a tone control
+
 * Add NOTEAHEAD_AUDIO_WORKERS env var to tune the render worker threads
   - Controls how many worker threads offline rendering/export fans out across
     (0 = single-threaded rendering); real-time playback is always single-threaded

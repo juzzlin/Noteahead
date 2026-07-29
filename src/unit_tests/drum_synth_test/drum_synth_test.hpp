@@ -43,6 +43,7 @@ private slots:
     void test_rideEngine_trigger_shouldBeActive();
     void test_tomEngine_trigger_shouldBeActive();
     void test_clapEngine_trigger_shouldBeActive();
+    void test_clapEngine_tune_lowTuneShouldBeDarker();
     void test_drumSynthDevice_midiNoteOn_shouldTriggerVoice();
     void test_drumSynthDevice_xmlSerialization_shouldRestoreParameters();
     void test_processMidiCc_shouldUpdateVoicePanLpfHpf();

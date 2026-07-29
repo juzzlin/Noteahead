@@ -20,10 +20,16 @@
 
 namespace noteahead {
 
+// Low-pass cutoff tracked by tune: fully dark and body-heavy at 0 %, wide open at 100 %
+static constexpr float LowPassCutoffBase { 0.53f };
+static constexpr float LowPassCutoffRange { 0.44f };
+
 ClapEngine::ClapEngine()
 {
     m_rng.seed(0);
-    m_filter.setMode(CascadedSvf::Mode::HighPass);
+    m_highPassFilter.setMode(CascadedSvf::Mode::HighPass);
+    m_lowPassFilter.setMode(CascadedSvf::Mode::LowPass);
+    m_lowPassFilter.setOrder(2); // Gentle slope keeps some of the transient snap while darkening the body
 }
 
 void ClapEngine::trigger(float velocity)
@@ -34,7 +40,8 @@ void ClapEngine::trigger(float velocity)
     m_sampleCount = 0;
     m_tailEnv = 1.0f;
     m_attackEnv = 0.0f;
-    m_filter.reset();
+    m_highPassFilter.reset();
+    m_lowPassFilter.reset();
 }
 
 float ClapEngine::nextSample()
@@ -69,11 +76,20 @@ float ClapEngine::nextSample()
     }
 
     const float noise = m_dist(m_rng);
-    m_filter.setSampleRate(sr);
-    m_filter.setCutoff(0.2f + m_tune * 0.5f);
-    m_filter.setResonance(0.3f);
+    m_highPassFilter.setSampleRate(sr);
+    m_highPassFilter.setCutoff(0.2f + m_tune * 0.5f);
+    m_highPassFilter.setResonance(0.3f);
+    m_lowPassFilter.setSampleRate(sr);
+    m_lowPassFilter.setCutoff(LowPassCutoffBase + m_tune * LowPassCutoffRange);
+    m_lowPassFilter.setResonance(0.2f);
 
-    const float out = m_filter.process(noise) * (burstAmp + tailAmp) * m_attackEnv * m_velocity;
+    const auto filteredNoise = static_cast<float>(m_lowPassFilter.process(m_highPassFilter.process(noise)));
+
+    // Narrowing the band drops the noise energy, so compensate to keep the perceived level even across the tune range
+    const float bandNarrowing { 1.0f - m_tune };
+    const float bandCompensation { 1.0f + bandNarrowing * bandNarrowing * 3.0f };
+
+    const float out = filteredNoise * bandCompensation * (burstAmp + tailAmp) * m_attackEnv * m_velocity;
 
     const float attackRate { 1.0f / (0.0005f * static_cast<float>(sampleRate())) };
     m_attackEnv = std::min(1.0f, m_attackEnv + attackRate);

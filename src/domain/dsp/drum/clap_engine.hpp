@@ -49,7 +49,8 @@ private:
 
     std::mt19937 m_rng;
     std::uniform_real_distribution<float> m_dist { -1.0f, 1.0f };
-    CascadedSvf m_filter;
+    CascadedSvf m_highPassFilter;
+    CascadedSvf m_lowPassFilter;
 
     struct Burst
     {
