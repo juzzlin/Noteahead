@@ -5,6 +5,20 @@ Release date:
 
 New features:
 
+* Add a String Ensemble device
+  - Divide-down string machine in the Solina tradition: twelve free-running
+    master oscillators, one per pitch class, tapped at 16', 8' and 4' by every
+    held key, so octaves are phase-locked and polyphony is unlimited
+  - Bass section (Contrabass 16', Cello 8') with its own Volume Bass, played by
+    keys below B3; upper section (Horn 16', Viola 8', Trumpet 8', Violin 4')
+    from B3 up, each register a switch with its own fixed voicing filter
+  - Crescendo and Sustain Length shape the key envelope, Velocity sets how much
+    velocity affects level (zero gives the original's flat organ response)
+  - Modulation switches in the ensemble chorus, which also turns the mono
+    register bus into stereo; the Phaser adds a swept six-stage all-pass with
+    Color and Rate
+  - Global Volume, Gain, Pan, HPF and LPF, plus MIDI CC for Volume and Pan
+
 * Add a Sub Mixer device
   - Groups other devices so a whole set is mixed and processed as one entity,
     e.g. everything except the lead synth through a single compressor

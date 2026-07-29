@@ -326,6 +326,12 @@ ApplicationWindow {
         width: parent.width * Constants.largeDialogScale
         height: parent.height * Constants.largeDialogScale
     }
+    StringEnsembleDialog {
+        id: stringEnsembleDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.largeDialogScale
+        height: parent.height * Constants.largeDialogScale
+    }
     DeviceRackDialog {
         id: deviceRackDialog
         anchors.centerIn: parent
@@ -700,6 +706,7 @@ ApplicationWindow {
         deviceRackController.drumSynthDialogRequested.connect(drumSynthDialog.open);
         deviceRackController.pianoSynthDialogRequested.connect(pianoSynthDialog.open);
         deviceRackController.stringVoiceDialogRequested.connect(stringVoiceDialog.open);
+        deviceRackController.stringEnsembleDialogRequested.connect(stringEnsembleDialog.open);
         deviceRackController.subMixerDialogRequested.connect(slotIndex => {
             subMixerDialog.slotIndex = slotIndex;
             subMixerDialog.open();

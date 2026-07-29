@@ -137,6 +137,11 @@ QString stringVoiceDeviceName()
     return "Noteahead String & Voice";
 }
 
+QString stringEnsembleDeviceName()
+{
+    return "Noteahead String Ensemble";
+}
+
 QString internalDevicePortPrefix()
 {
     return "Noteahead Internal Device";
@@ -2005,6 +2010,61 @@ QString xmlKeyVocoderEnabled()
 QString xmlKeyVocoderSidechain()
 {
     return "vocoderSidechain";
+}
+
+QString xmlKeyContrabass()
+{
+    return "contrabass";
+}
+
+QString xmlKeyCello()
+{
+    return "cello";
+}
+
+QString xmlKeyViola()
+{
+    return "viola";
+}
+
+QString xmlKeyViolin()
+{
+    return "violin";
+}
+
+QString xmlKeyTrumpet()
+{
+    return "trumpet";
+}
+
+QString xmlKeyHorn()
+{
+    return "horn";
+}
+
+QString xmlKeyVolumeBass()
+{
+    return "volumeBass";
+}
+
+QString xmlKeyPhaserEnabled()
+{
+    return "phaserEnabled";
+}
+
+QString xmlKeyPhaserColor()
+{
+    return "phaserColor";
+}
+
+QString xmlKeyPhaserRate()
+{
+    return "phaserRate";
+}
+
+QString xmlKeyVelocitySensitivity()
+{
+    return "velocitySensitivity";
 }
 
 } // namespace NahdXml

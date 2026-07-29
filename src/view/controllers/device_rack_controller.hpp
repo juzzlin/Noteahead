@@ -123,6 +123,7 @@ signals:
     void drumSynthDialogRequested();
     void pianoSynthDialogRequested();
     void stringVoiceDialogRequested();
+    void stringEnsembleDialogRequested();
     void subMixerDialogRequested(int slotIndex);
     void effectSendsDialogRequested(const QString & deviceName);
 

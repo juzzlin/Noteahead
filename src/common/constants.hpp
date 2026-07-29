@@ -54,6 +54,7 @@ QString drumSynthDeviceName();
 QString pianoSynthDeviceName();
 QString subMixerDeviceName();
 QString stringVoiceDeviceName();
+QString stringEnsembleDeviceName();
 
 QString internalDevicePortPrefix();
 double defaultSampleRate();
@@ -513,6 +514,18 @@ QString xmlKeyEnsembleEnabled();
 QString xmlKeyEnsembleMode();
 QString xmlKeyVocoderEnabled();
 QString xmlKeyVocoderSidechain();
+
+QString xmlKeyContrabass();
+QString xmlKeyCello();
+QString xmlKeyViola();
+QString xmlKeyViolin();
+QString xmlKeyTrumpet();
+QString xmlKeyHorn();
+QString xmlKeyVolumeBass();
+QString xmlKeyPhaserEnabled();
+QString xmlKeyPhaserColor();
+QString xmlKeyPhaserRate();
+QString xmlKeyVelocitySensitivity();
 
 } // namespace NahdXml
 } // namespace noteahead::Constants

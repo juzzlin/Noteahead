@@ -4,11 +4,13 @@ set(DSP_SOURCES
     dc_blocker.cpp
     diode_ladder_filter.cpp
     dsp_component.cpp
+    divide_down_generator.cpp
     ensemble_chorus.cpp
     lfo.cpp
     multi_engine.cpp
     one_pole_filter.cpp
     oversampler.cpp
+    phaser.cpp
     poly_blep_oscillator.cpp
     svf_filter.cpp
     wavetable.cpp

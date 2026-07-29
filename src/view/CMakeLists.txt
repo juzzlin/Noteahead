@@ -7,6 +7,7 @@ set(HEADER_FILES
     controllers/knob_controller.hpp
     controllers/piano_synth_controller.hpp
     controllers/sampler_controller.hpp
+    controllers/string_ensemble_controller.hpp
     controllers/synth_controller.hpp
     controllers/wavetable_synth_controller.hpp
     qml/Components/oscilloscope_renderer.hpp
@@ -24,6 +25,7 @@ set(SOURCE_FILES
     controllers/knob_controller.cpp
     controllers/piano_synth_controller.cpp
     controllers/sampler_controller.cpp
+    controllers/string_ensemble_controller.cpp
     controllers/string_voice_controller.cpp
     controllers/synth_controller.cpp
     controllers/wavetable_synth_controller.cpp

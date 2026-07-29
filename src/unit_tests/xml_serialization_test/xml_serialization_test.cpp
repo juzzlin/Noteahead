@@ -30,6 +30,7 @@
 #include "../../domain/devices/device_factory.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
+#include "../../domain/devices/string_ensemble_device.hpp"
 #include "../../domain/devices/sub_mixer_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/wavetable_synth_device.hpp"
@@ -1570,6 +1571,60 @@ void XmlSerializationTest::test_toXmlFromXml_subMixerDevice_shouldLoadCorrectly(
 
     QVERIFY(std::abs(restored->volume() - 0.8f) < 0.001f);
     QVERIFY(std::abs(restored->pan() - 0.3f) < 0.001f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_stringEnsembleDevice_shouldLoadCorrectly()
+{
+    // Devices are rebuilt through DeviceFactory, so this also covers the factory registration:
+    // without it the device would silently vanish from a reloaded project.
+    DeviceFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto stringEnsemble = std::make_shared<StringEnsembleDevice>("StringEnsemble");
+    stringEnsemble->setContrabassEnabled(true);
+    stringEnsemble->setViolaEnabled(false);
+    stringEnsemble->setTrumpetEnabled(true);
+    stringEnsemble->setModulationEnabled(false);
+    stringEnsemble->setPhaserEnabled(true);
+    stringEnsemble->setVolumeBass(0.42f);
+    stringEnsemble->setCrescendo(0.66f);
+    stringEnsemble->setSustainLength(0.77f);
+    stringEnsemble->setPhaserColor(0.25f);
+    stringEnsemble->setPhaserRate(0.8f);
+    stringEnsemble->setVelocitySensitivity(0.3f);
+    deviceServiceOut.setDevice(1, stringEnsemble);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto restored = std::dynamic_pointer_cast<StringEnsembleDevice>(deviceServiceIn.device(size_t { 1 }));
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), StringEnsembleDevice::typeIdString());
+
+    QCOMPARE(restored->contrabassEnabled(), true);
+    QCOMPARE(restored->celloEnabled(), false);
+    QCOMPARE(restored->violaEnabled(), false);
+    QCOMPARE(restored->violinEnabled(), true);
+    QCOMPARE(restored->trumpetEnabled(), true);
+    QCOMPARE(restored->modulationEnabled(), false);
+    QCOMPARE(restored->phaserEnabled(), true);
+    QVERIFY(std::abs(restored->volumeBass() - 0.42f) < 0.001f);
+    QVERIFY(std::abs(restored->crescendo() - 0.66f) < 0.001f);
+    QVERIFY(std::abs(restored->sustainLength() - 0.77f) < 0.001f);
+    QVERIFY(std::abs(restored->phaserColor() - 0.25f) < 0.001f);
+    QVERIFY(std::abs(restored->phaserRate() - 0.8f) < 0.001f);
+    QVERIFY(std::abs(restored->velocitySensitivity() - 0.3f) < 0.001f);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_reverbGate_shouldLoadCorrectly()

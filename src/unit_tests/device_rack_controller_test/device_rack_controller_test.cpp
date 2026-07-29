@@ -368,7 +368,7 @@ void DeviceRackControllerTest::test_availableDevices_shouldReturnCorrectList()
     DeviceRackController controller { nullptr, {}, nullptr };
     const auto list = controller.availableDevices();
 
-    QCOMPARE(list.size(), 8);
+    QCOMPARE(list.size(), 9);
     QCOMPARE(list.at(0).toMap()["name"].toString(), QString("Sampler"));
     QCOMPARE(list.at(1).toMap()["name"].toString(), QString("Synth"));
     QCOMPARE(list.at(2).toMap()["name"].toString(), QString("Wavetable Synth"));
@@ -376,7 +376,8 @@ void DeviceRackControllerTest::test_availableDevices_shouldReturnCorrectList()
     QCOMPARE(list.at(4).toMap()["name"].toString(), QString("Drum Synth"));
     QCOMPARE(list.at(5).toMap()["name"].toString(), QString("Piano Synth"));
     QCOMPARE(list.at(6).toMap()["name"].toString(), QString("String & Voice"));
-    QCOMPARE(list.at(7).toMap()["name"].toString(), QString("Sub Mixer"));
+    QCOMPARE(list.at(7).toMap()["name"].toString(), QString("String Ensemble"));
+    QCOMPARE(list.at(8).toMap()["name"].toString(), QString("Sub Mixer"));
 }
 
 void DeviceRackControllerTest::test_removeDeviceByName_shouldClearCorrectSlot()

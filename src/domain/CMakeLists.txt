@@ -6,6 +6,7 @@ set(HEADER_FILES
     devices/drum_synth_device.hpp
     devices/piano_synth_device.hpp
     devices/sampler_device.hpp
+    devices/string_ensemble_device.hpp
     devices/sub_mixer_device.hpp
     devices/synth_device.hpp
     devices/synth_presets.hpp
@@ -15,6 +16,7 @@ set(HEADER_FILES
     dsp/cascaded_svf.hpp
     dsp/dc_blocker.hpp
     dsp/delay_line.hpp
+    dsp/divide_down_generator.hpp
     dsp/diode_ladder_filter.hpp
     dsp/downsampler.hpp
     dsp/drum/clap_engine.hpp
@@ -33,6 +35,7 @@ set(HEADER_FILES
     dsp/one_pole_filter.hpp
     dsp/oversampler.hpp
     dsp/panning.hpp
+    dsp/phaser.hpp
     dsp/poly_blep_oscillator.hpp
     dsp/svf_filter.hpp
     dsp/true_stereo_panner.hpp
@@ -106,6 +109,7 @@ set(SOURCE_FILES
     devices/drum_synth_device.cpp
     devices/piano_synth_device.cpp
     devices/sampler_device.cpp
+    devices/string_ensemble_device.cpp
     devices/string_voice_device.cpp
     devices/sub_mixer_device.cpp
     devices/synth_device.cpp
@@ -117,6 +121,7 @@ set(SOURCE_FILES
     dsp/dc_blocker.cpp
     dsp/delay_line.cpp
     dsp/diode_ladder_filter.cpp
+    dsp/divide_down_generator.cpp
     dsp/downsampler.cpp
     dsp/drum/clap_engine.cpp
     dsp/drum/crash_engine.cpp
@@ -134,6 +139,7 @@ set(SOURCE_FILES
     dsp/one_pole_filter.cpp
     dsp/oversampler.cpp
     dsp/panning.cpp
+    dsp/phaser.cpp
     dsp/poly_blep_oscillator.cpp
     dsp/svf_filter.cpp
     dsp/true_stereo_panner.cpp

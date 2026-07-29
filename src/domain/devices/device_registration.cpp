@@ -18,6 +18,7 @@
 #include "drum_synth_device.hpp"
 #include "piano_synth_device.hpp"
 #include "sampler_device.hpp"
+#include "string_ensemble_device.hpp"
 #include "string_voice_device.hpp"
 #include "sub_mixer_device.hpp"
 #include "synth_device.hpp"
@@ -50,6 +51,9 @@ void DeviceFactory::init()
     });
     registerDevice(StringVoiceDevice::typeIdString(), [](const std::string & name) {
         return std::make_shared<StringVoiceDevice>(name);
+    });
+    registerDevice(StringEnsembleDevice::typeIdString(), [](const std::string & name) {
+        return std::make_shared<StringEnsembleDevice>(name);
     });
 }
 

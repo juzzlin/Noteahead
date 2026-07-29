@@ -124,6 +124,11 @@ QString ApplicationService::stringVoiceDeviceName() const
     return Constants::stringVoiceDeviceName();
 }
 
+QString ApplicationService::stringEnsembleDeviceName() const
+{
+    return Constants::stringEnsembleDeviceName();
+}
+
 void ApplicationService::acceptUnsavedChangesDialog()
 {
     juzzlin::L(TAG).info() << "Unsaved changes accepted";
