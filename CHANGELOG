@@ -146,6 +146,12 @@ Bug fixes:
 
 * Fix rack Delay effect manual (non-sync) time knob clamping at ~11 ms
 
+* Fix Synth Multi engine ignoring Key Track in the High, Low and Peak modes
+  - Only the Decim mode tracked the played note, so the noise engine sounded
+    identical on every key and couldn't be tuned, e.g. as a synth snare
+  - The filter frequency now follows the note in all modes, scaled by Key
+    Track (1.0 = one octave per octave played) and clamped below Nyquist
+
 Other:
 
 * Add NOTEAHEAD_AUDIO_WORKERS env var to tune the render worker threads

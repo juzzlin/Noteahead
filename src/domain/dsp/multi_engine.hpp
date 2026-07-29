@@ -66,13 +66,16 @@ private:
     double m_k { 0.0 };
     double m_damping { 0.0 };
     double m_decimRate { 0.0 };
-    double m_lastCutoff { -1.0 };
+    double m_lastFrequency { -1.0 };
     double m_lastResonance { -1.0 };
     double m_lastSampleRate { -1.0 };
     float m_lastDecimRateParam { -1.0f };
     uint8_t m_lastNote { 0xFF };
 
-    void updateCoefficients(float cutoff, float resonance);
+    double maxFrequency() const;
+    double shapeToFrequency(float shape) const;
+    double keyTrackedFrequency(double frequency) const;
+    void updateCoefficients(double frequency, float resonance);
     void updateDecimRate();
     float processFilter(float input, int mode);
 };

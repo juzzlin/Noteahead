@@ -57,6 +57,10 @@ void MultiEngine::reset()
     m_s2 = 0.0;
     m_phase = 0.0;
     m_lastSample = 0.0f;
+    m_lastFrequency = -1.0;
+    m_lastResonance = -1.0;
+    m_lastDecimRateParam = -1.0f;
+    m_lastNote = 0xFF;
 }
 
 float MultiEngine::nextSample()
@@ -64,23 +68,19 @@ float MultiEngine::nextSample()
     float noise = m_dist(m_rng);
 
     if (m_type == Type::High) {
-        // High-pass [10Hz ... 21kHz]
-        float cutoff = m_shape * m_shape; // Use multiplication instead of std::pow
-        updateCoefficients(cutoff, 0.1f);
+        // High-pass [20Hz ... 20kHz]
+        const float cutoff = m_shape * m_shape; // Use multiplication instead of std::pow
+        updateCoefficients(keyTrackedFrequency(shapeToFrequency(cutoff)), 0.1f);
         return processFilter(noise, 1); // 1 = HP
     } else if (m_type == Type::Low) {
-        // Low-pass [10Hz ... 21kHz]
-        float cutoff = m_shape * m_shape;
-        updateCoefficients(cutoff, 0.1f);
+        // Low-pass [20Hz ... 20kHz]
+        const float cutoff = m_shape * m_shape;
+        updateCoefficients(keyTrackedFrequency(shapeToFrequency(cutoff)), 0.1f);
         return processFilter(noise, 0); // 0 = LP
     } else if (m_type == Type::Peak) {
         // Bandpass [110Hz ... 880Hz]
-        // Map 0..1 to 110..880
-        float freqHz = 110.0f + m_shape * (880.0f - 110.0f);
-        // Map Hz back to 0..1 range for processFilter approx
-        // log10(20000/20) = 3.0
-        float cutoff = std::log10(freqHz * 0.05f) * 0.3333333333333333f;
-        updateCoefficients(cutoff, 0.8f);
+        const double freqHz = 110.0 + static_cast<double>(m_shape) * (880.0 - 110.0);
+        updateCoefficients(keyTrackedFrequency(freqHz), 0.8f);
         return processFilter(noise, 2); // 2 = BP
     } else if (m_type == Type::Decim) {
         // Decimator [240Hz ... 48kHz]
@@ -96,19 +96,34 @@ float MultiEngine::nextSample()
     return noise;
 }
 
-void MultiEngine::updateCoefficients(float cutoff, float resonance)
+double MultiEngine::maxFrequency() const
 {
-    if (std::abs(cutoff - m_lastCutoff) < 0.000001f && std::abs(resonance - m_lastResonance) < 0.000001f && std::abs(m_sampleRate - m_lastSampleRate) < 0.1) {
+    return std::min(20000.0, m_sampleRate * 0.49);
+}
+
+double MultiEngine::shapeToFrequency(float shape) const
+{
+    return 20.0 * std::exp2(static_cast<double>(shape) * std::log2(maxFrequency() / 20.0));
+}
+
+double MultiEngine::keyTrackedFrequency(double frequency) const
+{
+    return frequency * std::exp2((static_cast<double>(m_note) - 60.0) / 12.0 * static_cast<double>(m_keyTrack));
+}
+
+void MultiEngine::updateCoefficients(double frequency, float resonance)
+{
+    const double clampedFrequency = std::clamp(frequency, 10.0, maxFrequency());
+
+    if (std::abs(clampedFrequency - m_lastFrequency) < 0.000001 && std::abs(resonance - m_lastResonance) < 0.000001f && std::abs(m_sampleRate - m_lastSampleRate) < 0.1) {
         return;
     }
 
-    const double maxFreq = std::min(20000.0, m_sampleRate * 0.49);
-    const double freq = 20.0 * std::exp2(static_cast<double>(cutoff) * std::log2(maxFreq / 20.0));
-    m_g = std::tan(std::numbers::pi * freq / m_sampleRate);
+    m_g = std::tan(std::numbers::pi * clampedFrequency / m_sampleRate);
     m_k = 2.0 * (1.0 - resonance);
     m_damping = 1.0 / (1.0 + m_g * (m_g + m_k));
 
-    m_lastCutoff = cutoff;
+    m_lastFrequency = clampedFrequency;
     m_lastResonance = resonance;
     m_lastSampleRate = m_sampleRate;
 }
