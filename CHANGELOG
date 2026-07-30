@@ -148,6 +148,10 @@ New features:
 
 Bug fixes:
 
+* Fix the Drum Synth allocating memory on the audio thread every callback
+  - It built its oversampling scratch buffer per callback instead of reusing one,
+    which is worst at 4x where the buffer is four times larger
+
 * Fix voices never ending when a patch has zero sustain
   - The envelope decayed to silence and parked in Sustain, which is not Idle, so
     the voice kept being rendered until the note was released, which in a pattern

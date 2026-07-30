@@ -228,7 +228,12 @@ void DrumSynthDevice::processAudio(AudioContext & context)
         }
     }
 
-    std::vector<float> oversampledBuffer(static_cast<size_t>(context.frameCount) * oversampleFactor * 2, 0.0f);
+    const size_t oversampledSize = static_cast<size_t>(context.frameCount) * oversampleFactor * 2;
+    if (m_oversampledBuffer.size() < oversampledSize) {
+        m_oversampledBuffer.resize(oversampledSize);
+    }
+    std::fill(m_oversampledBuffer.begin(), m_oversampledBuffer.begin() + oversampledSize, 0.0f);
+    auto & oversampledBuffer = m_oversampledBuffer;
     const float globalGain = linearGainInternal();
 
     for (uint32_t i = 0; i < context.frameCount; i++) {

@@ -102,6 +102,10 @@ private:
     std::array<Voice, DrumSynth::NumVoices> m_voices;
     int m_selectedVoice { 0 };
 
+    //! Scratch buffer for the oversampled mix, kept as a member so no allocation happens on the
+    //! audio thread. It only ever grows.
+    std::vector<float> m_oversampledBuffer;
+
     Decimator m_downsamplerL;
     Decimator m_downsamplerR;
 
