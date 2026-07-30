@@ -99,7 +99,8 @@ void SongTest::test_autoNoteOffOffset_notSet_shouldUseDefault()
     song.setLinesPerBeat(4);
 
     QVERIFY(!song.settings().autoNoteOffOffset().has_value());
-    QCOMPARE(song.autoNoteOffOffsetTicks(), 24); // The 125 ms default
+    // The 25 ms default: a fifth of a line at 120 BPM and four lines per beat.
+    QCOMPARE(song.autoNoteOffOffsetTicks(), 4);
 }
 
 void SongTest::test_createPattern_columnAdded_shouldCreatePattern()

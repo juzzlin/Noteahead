@@ -76,7 +76,8 @@ void AutoNoteOffOffsetTest::test_defaults_shouldBeMilliseconds()
 
     QVERIFY(!offset.syncEnabled());
     QCOMPARE(offset.mode(), AutoNoteOffOffset::Mode::Milliseconds);
-    QCOMPARE(offset.milliseconds(), 125ms);
+    QCOMPARE(offset.milliseconds(), Constants::defaultAutoNoteOffOffset());
+    QCOMPARE(Constants::defaultAutoNoteOffOffset(), 25ms);
 }
 
 void AutoNoteOffOffsetTest::test_ticks_milliseconds_shouldScaleWithTempo()

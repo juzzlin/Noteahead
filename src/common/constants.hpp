@@ -16,9 +16,13 @@
 #ifndef CONSTANTS_HPP
 #define CONSTANTS_HPP
 
+#include <chrono>
+
 #include <QString>
 
 namespace noteahead::Constants {
+
+using namespace std::chrono_literals;
 
 QString applicationName();
 QString applicationVersion();
@@ -66,6 +70,15 @@ int audioCallbackRealTimePriority();
 constexpr float minEffectLevel()
 {
     return 0.001f;
+}
+
+//! Milliseconds a note-off precedes the next note-on on the same column, unless the song or the
+//! channel says otherwise. Real MIDI hardware needs the gap to retrigger. This is both the fallback
+//! for a song that stores no offset and the value new songs are seeded with, so the two cannot drift
+//! apart. Long enough for hardware to notice, short enough to stay well inside a single line.
+constexpr std::chrono::milliseconds defaultAutoNoteOffOffset()
+{
+    return 25ms;
 }
 
 constexpr float uiInternalScaling()

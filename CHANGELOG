@@ -10,6 +10,7 @@ New features:
     including the 1/24 and 1/48 triplets)
   - Channels can override both the offset and the mode in their timing settings
   - The application-wide setting is now the default new songs start from
+  - Lower that default from 250 ms to 25 ms, which existing settings keep
 
 Bug fixes:
 

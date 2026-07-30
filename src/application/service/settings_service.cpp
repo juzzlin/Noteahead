@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "settings_service.hpp"
+#include "../../common/constants.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../infra/settings.hpp"
 
@@ -25,7 +26,7 @@ namespace noteahead {
 static const auto TAG = "SettingsService";
 
 SettingsService::SettingsService()
-  : m_autoNoteOffOffset { Settings::autoNoteOffOffset(250) }
+  : m_autoNoteOffOffset { Settings::autoNoteOffOffset(static_cast<int>(Constants::defaultAutoNoteOffOffset().count())) }
   , m_controllerPort { Settings::controllerPort("") }
   , m_uiUpdatesDisabledDuringPlayback { Settings::uiUpdatesDisabledDuringPlayback() }
   , m_step { Settings::step(1) }

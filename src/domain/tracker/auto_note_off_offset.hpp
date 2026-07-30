@@ -22,6 +22,8 @@
 
 #include <QString>
 
+#include "../../common/constants.hpp"
+
 namespace noteahead {
 
 class ProjectReader;
@@ -86,7 +88,7 @@ public:
 private:
     Mode m_mode = Mode::Milliseconds;
 
-    std::chrono::milliseconds m_milliseconds { 125 };
+    std::chrono::milliseconds m_milliseconds { Constants::defaultAutoNoteOffOffset() };
 
     int m_syncDenominator = 32;
 };
