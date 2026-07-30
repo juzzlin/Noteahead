@@ -46,7 +46,7 @@ AnimatedDialog {
                     }
                     RadioButton {
                         id: individualTracksRadioButton
-                        text: qsTr("Individual Tracks (WAV per track)")
+                        text: qsTr("Individual Tracks (one file per track)")
                     }
                 }
             }

@@ -9,6 +9,7 @@
 </style>
 <h1 style="color: orange; border-bottom: 2px solid orange;">Noteahead User Manual</h1>
 <p>Noteahead is a "simple" MIDI tracker and sequencer for Linux focusing on ease of use. It is designed for fast, keyboard-driven sequencing of external synths and drum machines, with clear handling of patch changes, automation, and CCs — no cryptic hex values required.</p>
+<p>It also ships with a rack of internal instruments and studio-quality effects, so a whole song can be written, mixed and rendered to audio without leaving the application. See <em>Internal Devices</em> and <em>Effect Racks</em> below.</p>
 
 <h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">The Toolbar</h2>
 <p>The toolbar at the top of the window provides essential controls for song structure, pattern editing, and global settings.</p>
@@ -90,14 +91,32 @@
     <li><strong>Global Automation</strong>: At the bottom of the menu, you can find options to edit <strong>ALL</strong> MIDI CC or Pitch Bend automations in the project.</li>
 </ul>
 
-<h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Master Effects</h2>
+<h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Effect Racks</h2>
 <h3 style="color: orange;">Effect Rack</h3>
-<p>Accessed via <code>Devices => Master Effects...</code>, the Effect Rack is the central hub for global audio processing. It allows you to manage a collection of high-quality effects that all internal instruments (Synths and Samplers) can share.</p>
+<p>Accessed via <code>Effects => Master effect rack...</code>, the Effect Rack is the central hub for global audio processing. It has two tabs: <strong>Insert Effects</strong>, processed in order on the master output, and <strong>Send Effects</strong>, which all internal instruments can share via their sends.</p>
+<p>The same rack appears in several places, and works identically everywhere:</p>
 <ul>
-    <li><strong>Managing Effects</strong>: The rack displays a list of active effect slots. Click an active slot to open its dedicated parameter dialog.</li>
-    <li><strong>Dynamic Addition</strong>: Master effects can be added to any empty slot by clicking the <strong>(+) icon</strong>. This opens the <strong>Effects Gallery</strong> where you can select the desired effect type (e.g., Reverb).</li>
+    <li><strong>Master rack</strong>: insert and send effects for the whole mix.</li>
+    <li><strong>Device insert rack</strong>: the <strong>Insert FX</strong> button in the Device Rack gives every device its own chain.</li>
+    <li><strong>Per-pad and per-voice racks</strong>: the small <strong>FX</strong> button on a Sampler pad or a Drum Synth voice opens an insert rack for that pad or voice alone.</li>
+</ul>
+<ul>
+    <li><strong>Managing Effects</strong>: The rack displays a list of active effect slots. Click an active slot to open its dedicated parameter dialog. Each slot has its own <strong>enable switch</strong>, and the whole rack can be bypassed with the <strong>Enabled</strong> switch in the header — handy for switching effects off when rendering individual tracks.</li>
+    <li><strong>Dynamic Addition</strong>: Effects can be added to any empty slot by clicking the <strong>(+) icon</strong>. This opens the <strong>Effects Gallery</strong>, where you can pick an effect type, <strong>Import Effect...</strong> from an exported settings file, or <strong>Copy Effect...</strong> to duplicate another effect in the same rack.</li>
+    <li><strong>Manage Menu</strong>: Reorder a slot with <strong>Move Up</strong>, <strong>Move Down</strong>, <strong>Move to Top</strong> and <strong>Move to Bottom</strong>, or <strong>Export Settings...</strong> / <strong>Import Settings...</strong> to reuse an effect elsewhere.</li>
     <li><strong>Multiple Instances</strong>: You can add multiple independent effect instances. For example, you can have several <strong>FDN Reverbs</strong> with different acoustic settings.</li>
     <li><strong>Removal</strong>: Click the <strong>trash can icon</strong> on an active slot to remove the effect from the rack.</li>
+</ul>
+
+<h3 style="color: orange;">Available Effects</h3>
+<ul>
+    <li><strong>Equalizers</strong>: <strong>EQ 8-Band Parametric</strong> (Bell, Shelf, Cut and Notch types per band, plus Mid/Side modes), <strong>Vintage Passive EQ</strong> (EQP-1A style, with interacting low Boost/Atten shelves and a high bell), <strong>Air Band EQ</strong> (fixed parallel-summed bands added back to the dry signal) and <strong>Simple EQ</strong> (a single "Sounds Good" knob sweeping a loudness-smile curve).</li>
+    <li><strong>Reverbs</strong>: <strong>Reverb</strong> (the FDN reverb described below) and <strong>Endless Reverb</strong> (a large modulated ambient reverb with a Freeze switch for an infinite tail).</li>
+    <li><strong>Dynamics</strong>: <strong>Compressor</strong> (with side-chain support), <strong>Limiter</strong> (lookahead brickwall with gain reduction metering) and <strong>Clipper</strong>.</li>
+    <li><strong>Saturation</strong>: <strong>Drive</strong> (Soft, Hard, Fold and Dist algorithms) and <strong>Saturator</strong>.</li>
+    <li><strong>Modulation & Time</strong>: <strong>Chorus</strong>, <strong>Delay</strong> (Mono, Ping Pong and Tape modes, with BPM sync) and <strong>All-Pass Filter</strong>.</li>
+    <li><strong>Stereo</strong>: <strong>Panner</strong> and <strong>Auto Panner</strong>.</li>
+    <li><strong>Metering & Analysis</strong>: <strong>LUFS Meter</strong>, <strong>dBTP Meter</strong> (true peak) and <strong>RTA</strong> (real-time analyzer). Use these as inserts to watch the signal at any point in the chain.</li>
 </ul>
 
 <h3 style="color: orange;">Reverb Parameters</h3>
@@ -164,6 +183,9 @@
 </table>
 
 <h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Advanced Features</h2>
+<h3 style="color: orange;">Pattern Peek</h3>
+<p>Enabled by default in <code>Settings => General => Editor</code>, Pattern Peek shows a dimmed glimpse of the previous and next patterns in the editor's offset areas above and below the current one, so you can see what you are cutting to and from.</p>
+
 <h3 style="color: orange;">Column Settings</h3>
 <p>Accessed by clicking the <strong>wheel icon</strong> in the column header or by <strong>right-clicking</strong> a note column and selecting <strong>Column settings</strong>, this dialog allows you to fine-tune the behavior of individual columns using three tabs:</p>
 <ul>
@@ -202,12 +224,25 @@
 
 <h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Internal Devices</h2>
 <h3 style="color: orange;">Device Rack</h3>
-<p>Accessed via <code>Devices => Rack...</code> or <code>Right-click => Song => Device Rack...</code>, the rack is the central hub for all internal instruments in Noteahead.</p>
+<p>Accessed via <code>Devices => Device rack...</code> or <code>Right-click => Song => Device Rack...</code>, the rack is the central hub for all internal instruments in Noteahead.</p>
 <ul>
     <li><strong>Managing Devices</strong>: The rack displays all active internal devices. Each entry shows the device name and a list of all tracks currently assigned to it. Click an active device entry to open its dedicated control dialog.</li>
-    <li><strong>Dynamic Addition</strong>: Internal devices can be added to any empty slot by clicking the <strong>(+) icon</strong>. This opens the <strong>Device Gallery</strong> where you can select from available instruments (Sampler, Synth, BassSynth, or DrumSynth).</li>
+    <li><strong>Dynamic Addition</strong>: Internal devices can be added to any empty slot by clicking the <strong>(+) icon</strong>. This opens the <strong>Device Gallery</strong>, where you can select from the available instruments — <strong>Sampler</strong>, <strong>Synth</strong>, <strong>Wavetable Synth</strong>, <strong>Bass Synth</strong>, <strong>Drum Synth</strong>, <strong>Piano Synth</strong>, <strong>String &amp; Voice</strong>, <strong>String Ensemble</strong> and <strong>Sub Mixer</strong> — or use <strong>Import Device...</strong> to create a device straight from an exported settings file, or <strong>Copy Device...</strong> to duplicate an existing one.</li>
+    <li><strong>Per-Slot Buttons</strong>: <strong>Insert FX</strong> opens the device's own effect rack, <strong>Sends</strong> its send levels to the master send effects, <strong>Settings</strong> the Device Settings dialog (see <em>Gain Staging</em> below), and <strong>Manage</strong> exports or imports the device's settings.</li>
+    <li><strong>Level Meters</strong>: Each slot has a peak/RMS meter with a <strong>-18 dBFS marker</strong> to gain stage against. It is tapped after Gain and before the insert effects, so it shows the level your inserts actually see.</li>
+    <li><strong>DSP Load</strong>: While the dialog is open, each slot shows the share of the audio callback its device consumes, and the footer shows the total, a peak hold and a <strong>dropout</strong> counter. The measurement only runs while the Device Rack is visible, so it costs nothing otherwise.</li>
     <li><strong>Multiple Instances</strong>: You can add as many instances of internal devices as your system resources allow. Each instance maintains its own settings, samples, and presets.</li>
     <li><strong>Removal</strong>: Click the <strong>trash can icon</strong> on an active slot to remove the device from the rack.</li>
+</ul>
+
+<h3 style="color: orange;">Gain Staging</h3>
+<p>Every device has a <strong>Gain</strong> knob above a <strong>Fader</strong> knob, in signal-flow order: Gain trims the device into its insert effects, and the Fader balances it in the mix. Aim for about <strong>-18 dBFS</strong> on the slot meter with Gain, then use the Fader for balance.</p>
+<p>The <strong>Settings</strong> button on a rack slot opens the <strong>Device Settings</strong> dialog, which decides where those two stages sit:</p>
+<ul>
+    <li><strong>Fader position - Before insert effects</strong>: the fader feeds the insert effects, so moving it changes how hard a compressor or saturator is driven. This is how devices behaved before the setting existed and stays the default, so existing projects sound unchanged.</li>
+    <li><strong>Fader position - After insert effects</strong>: the insert effects run at the level Gain sets, and the fader only balances what comes out of them. This is the setting to choose if you want to gain stage first and balance afterwards without disturbing the dynamics.</li>
+    <li><strong>Send tap - Post-fader</strong> (default): sends follow the fader, so pulling a device down takes its reverb with it and the wet/dry ratio stays put.</li>
+    <li><strong>Send tap - Pre-fader</strong>: sends keep their level whatever the fader does, so the device gets wetter as you pull it down.</li>
 </ul>
 
 <h3 style="color: orange;">Sampler</h3>
@@ -215,8 +250,11 @@
 <ul>
     <li><strong>Selection</strong>: Assign a track to a specific sampler by selecting its name (e.g., "Noteahead Sampler 1") in the <strong>Track Settings</strong> port list.</li>
     <li><strong>Pads</strong>: Each sampler features 16 pads, mapped to MIDI notes 36 to 51.</li>
-    <li><strong>Loading Samples</strong>: Click an empty pad to open a file dialog and select a WAV file. Once loaded, the pad will turn green.</li>
+    <li><strong>Loading Samples</strong>: Click an empty pad to open a file dialog and select a <strong>WAV</strong> or <strong>FLAC</strong> file. Once loaded, the pad is highlighted.</li>
     <li><strong>Playback</strong>: Press and hold a pad to play the sample, and release to stop. In the sequencer, use the corresponding MIDI note to trigger the sample.</li>
+    <li><strong>Chromatic Mode</strong>: When enabled in the header, each pad maps to an octave and its sample is pitched chromatically across it. If only one pad is loaded, its sample covers the whole range — turning the Sampler into a simple multi-octave instrument.</li>
+    <li><strong>Per-Pad Insert Effects</strong>: The small <strong>FX</strong> button on a loaded pad opens an insert effect rack for that pad alone.</li>
+    <li><strong>Embedding</strong>: <strong>Embed wave data in the project file</strong> saves the sample data straight into the project, making it portable at the cost of size.</li>
     <li><strong>Panning</strong>: Each pad has its own base <strong>Pan</strong> setting (-100% to +100%). This can be adjusted using the slider on the right side of the pads.</li>
     <li><strong>Volume</strong>: Each pad has its own base <strong>Volume</strong> setting (0-100%).</li>
     <li><strong>Filters</strong>: Each pad features dual filters:
@@ -241,7 +279,7 @@
 <p>The Noteahead Synth is a powerful built-in polyphonic synthesizer (up to 6 voices) designed for classic and modern electronic sounds.</p>
 <ul>
     <li><strong>Selection</strong>: Assign a track to a specific synth by selecting its name (e.g., "Noteahead Synth 1") in the <strong>Track Settings</strong> port list.</li>
-    <li><strong>Oscillators (VCO1 & VCO2)</strong>: Two high-quality oscillators with <strong>Triangle</strong>, <strong>Saw</strong>, and <strong>Square</strong> waveforms. Each oscillator features <strong>Octave</strong>, <strong>Pitch</strong> (fine-tuning), <strong>Shape</strong> (pulse-width or waveform modulation), and <strong>Sync</strong>.</li>
+    <li><strong>Oscillators (VCO1 & VCO2)</strong>: Two high-quality oscillators with <strong>Triangle</strong>, <strong>Saw</strong>, and <strong>Square</strong> waveforms. Each oscillator features <strong>Octave</strong>, <strong>Pitch</strong> (fine-tuning), <strong>Shape</strong> (pulse-width or waveform modulation), and <strong>Sync</strong>. VCO2 adds <strong>Cross Mod Depth</strong> for FM-style timbres.</li>
     <li><strong>Multi Engine</strong>: An additional digital engine providing <strong>Low</strong> and <strong>High</strong> frequency content, <strong>Peak</strong> (peaking filter), and <strong>Decim</strong> (bit-crusher/decimator) textures. It includes its own <strong>Shape</strong> and <strong>Level</strong> controls.</li>
     <li><strong>Mixer</strong>: Balance the output of VCO1 and VCO2.</li>
     <li><strong>Filters</strong>:
@@ -257,14 +295,17 @@
             <li><strong>Mod EG</strong>: An AD (Attack, Decay) envelope with adjustable <strong>Intensity</strong> that can target <strong>Pitch 1</strong>, <strong>Pitch 2</strong>, or <strong>Filter Cutoff</strong>.</li>
         </ul>
     </li>
-    <li><strong>LFO</strong>: A flexible Low-Frequency Oscillator with multiple waveforms and modes (Normal, Fast, 1-Shot, and BPM-synced). It can target <strong>Pitch</strong>, <strong>Shape</strong>, or <strong>Filter Cutoff</strong>.</li>
+    <li><strong>LFO 1 &amp; LFO 2</strong>: Two independent Low-Frequency Oscillators with multiple waveforms and modes (Normal, Fast, 1-Shot, and BPM-synced). Each can target <strong>Pitch</strong>, <strong>Shape</strong>, <strong>Cutoff</strong>, <strong>Volume</strong> (tremolo), <strong>Resonance</strong> or <strong>Pan</strong> (auto-pan). Their modulations stack additively.</li>
+    <li><strong>Analog Character</strong>: A <strong>Drift</strong> knob applies a slow per-voice pitch drift (up to &plusmn;5 cents) with an independent rate per voice, for an analog feel.</li>
     <li><strong>Voice / Global</strong>:
         <ul>
-            <li><strong>Voice Mode</strong>: Choose between <strong>Poly</strong> for chords or <strong>Unison</strong> for thick, stacked lead and bass sounds.</li>
+            <li><strong>Voice Mode</strong>: Choose between <strong>Poly</strong> for chords, <strong>Unison</strong> for thick, stacked lead and bass sounds, or <strong>Dual</strong>.</li>
             <li><strong>Portamento</strong>: Smoothly glides between notes.</li>
             <li><strong>Pan Spread</strong>: Spreads voices across the stereo field for a wider sound.</li>
+            <li><strong>Gain / Fader / Pan</strong>: Output stage of the device; see <em>Gain Staging</em> above.</li>
         </ul>
     </li>
+    <li><strong>Scope</strong>: A dedicated tab showing live left and right waveform traces side by side.</li>
     <li><strong>Delay Effect</strong>: A built-in delay with multiple types (Stereo, Mono, Ping Pong, and Tape), feedback, depth, and optional <strong>BPM Sync</strong>.</li>
     <li><strong>Presets</strong>:
         <ul>
@@ -342,6 +383,7 @@
             <li><strong>Toms</strong>: Pitch Depth and Pitch Decay.</li>
         </ul>
     </li>
+    <li><strong>Per-Voice Insert Effects</strong>: The small <strong>FX</strong> button next to a voice opens an insert effect rack for that voice alone.</li>
     <li><strong>Automation</strong>: DrumSynth supports simplified direct MIDI CC automation for essential parameters of each voice. Automation targets include:
         <ul>
             <li><strong>CC 7</strong>: Global Volume.</li>
@@ -349,6 +391,49 @@
             <li><strong>Voice Pan, LPF, and HPF</strong>: Direct CCs are assigned to each voice (e.g., Kick uses CC 14-16, Snare uses CC 17-19, etc.). The <strong>Property Service</strong> provides descriptive names for these CCs in the automation editor.</li>
         </ul>
     </li>
+</ul>
+
+<h3 style="color: orange;">Wavetable Synth</h3>
+<p>An 8-voice wavetable synthesizer for digital and evolving timbres.</p>
+<ul>
+    <li><strong>Oscillators</strong>: Two independent wavetable oscillators with Classic and Spectral wavetable sets, plus a noise generator.</li>
+    <li><strong>Filters</strong>: Cascaded LPF and HPF with resonance.</li>
+    <li><strong>Modulation</strong>: Amp and Mod envelopes and two LFOs, with the same target list as the Synth.</li>
+    <li><strong>Voices</strong>: Poly and Unison modes with stereo pan spread and portamento.</li>
+</ul>
+
+<h3 style="color: orange;">Piano Synth</h3>
+<p>A physically modelled (waveguide) piano rather than a sampled one, so it stays small and responds continuously to velocity.</p>
+<ul>
+    <li><strong>String</strong>: <strong>Brightness</strong>, <strong>Decay</strong>, <strong>Inharmonicity</strong> and <strong>Release</strong> shape the tone from a soft upright to a bright grand.</li>
+    <li><strong>Global</strong>: LPF/HPF shaping, stereo pan spread, and the usual Gain/Fader/Pan output stage.</li>
+</ul>
+
+<h3 style="color: orange;">String &amp; Voice</h3>
+<p>A vintage string and choir ensemble inspired by the Roland VP-330 and Behringer VC340.</p>
+<ul>
+    <li><strong>Registers</strong>: Independent strings and voice (choir) sections that can be mixed freely.</li>
+    <li><strong>Ensemble</strong>: A BBD-style ensemble chorus for the classic wide, shimmering movement.</li>
+    <li><strong>Vocoder</strong>: A side-chain vocoder section driven by another track.</li>
+</ul>
+
+<h3 style="color: orange;">String Ensemble</h3>
+<p>A divide-down string machine in the Solina tradition. Twelve master oscillators are tapped at 16', 8' and 4' by every key, so octaves stay phase-locked and polyphony is effectively unlimited — hold as many keys as you like.</p>
+<ul>
+    <li><strong>Bass Section</strong> (keys below B3): <strong>Contrabass 16'</strong> and <strong>Cello 8'</strong>, with a <strong>Volume Bass</strong> knob to balance them against the upper section.</li>
+    <li><strong>Upper Section</strong> (keys from B3 up): <strong>Horn 16'</strong>, <strong>Viola 8'</strong>, <strong>Trumpet 8'</strong> and <strong>Violin 4'</strong>. Any combination of registers can be on at once.</li>
+    <li><strong>Envelope</strong>: <strong>Crescendo</strong> sets the attack and <strong>Sustain Length</strong> the release. <strong>Velocity</strong> sets how much playing dynamics affect the level; at zero every note plays at full level.</li>
+    <li><strong>Modulation</strong>: An <strong>Ensemble</strong> chorus for the instrument's signature width, and a <strong>Phaser</strong> with <strong>Color</strong> and <strong>Rate</strong> controls.</li>
+    <li><strong>Global</strong>: Gain, Fader, Pan and LPF/HPF cutoff. MIDI CC automation for Volume (CC 7) and Pan (CC 10).</li>
+</ul>
+
+<h3 style="color: orange;">Sub Mixer</h3>
+<p>Not an instrument but a grouping device: it sums other devices so a whole set is mixed and processed as one entity — for example everything except the lead synth through a single compressor.</p>
+<ul>
+    <li><strong>Members</strong>: Choose which devices feed the Sub Mixer. Members keep their own send levels to the master send effects.</li>
+    <li><strong>Processing</strong>: The Sub Mixer has its own insert effect rack plus Gain, Fader and Pan.</li>
+    <li><strong>Nesting</strong>: Sub Mixers can feed other Sub Mixers.</li>
+    <li><strong>Automation</strong>: Its Volume and Pan can be ridden from a track over MIDI CC, so assign a track to it as you would to an instrument.</li>
 </ul>
 
 <h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Synchronization</h2>
@@ -377,10 +462,16 @@
             <li><strong>Persistence</strong>: The path to the last recorded file is saved with your project, allowing for seamless workflow across sessions.</li>
         </ul>
     </li>
-    <li><strong>Audio Renderer</strong>: Export your entire song to a high-quality WAV file.
+    <li><strong>Playback Quality</strong>: <code>Settings => Audio => Playback quality</code> sets the oversampling factor used during playback: <strong>Draft (1x)</strong>, <strong>Normal (2x)</strong> or <strong>High (4x)</strong>. Lower saves CPU while composing; higher reduces aliasing in the internal synths. The export has its own quality setting, so you can work at 1x and still render at 4x.</li>
+    <li><strong>Spread playback across CPU cores</strong>: Also in <code>Settings => Audio</code>, off by default. When enabled, devices are processed on several threads during playback. It needs real-time scheduling privileges; without them playback quietly stays single-threaded. Offline rendering always uses all cores.</li>
+    <li><strong>Audio Renderer</strong>: Export your song to WAV or FLAC via <code>File => Render audio...</code>.
         <ul>
-            <li><strong>Accuracy</strong>: Offline rendering ensures sample-accurate timing and full reproduction of all internal instrument behaviors (Synth, Sampler, DrumSynth), including complex automations.</li>
-            <li><strong>Usage</strong>: Accessible via the main menu (<code>File => Render to audio...</code>).</li>
+            <li><strong>Accuracy</strong>: Offline rendering ensures sample-accurate timing and full reproduction of all internal instrument behaviors, including complex automations.</li>
+            <li><strong>Render Mode</strong>: <strong>Master Mix</strong> writes the whole mix; <strong>Individual Tracks</strong> writes one file per track that uses an internal device, which is how you get stems for an external DAW.</li>
+            <li><strong>Audio Settings</strong>: Format (WAV or FLAC), sample rate, bit depth (16/24/32-bit PCM or 32-bit float, depending on format) and <strong>Quality</strong> (1x, 2x or 4x oversampling).</li>
+            <li><strong>Export Options</strong>: <strong>Normalize audio</strong> to a target level, <strong>Trim duration</strong> to a given length, and <strong>Analyze loudness</strong> to get a LUFS, LRA and dBTP report after the render.</li>
+            <li><strong>Metadata</strong>: Title, artist, album, date, genre, track number and comment are stored with the song and written into the exported file.</li>
+            <li><strong>Song-Specific</strong>: All of these options are saved with the song, like the tags, so one song can never inherit another's trim length. A new song starts from FLAC, 48 kHz, 24-bit, 4x quality with loudness analysis on.</li>
         </ul>
     </li>
     <li><strong>Delay Calculator</strong>: Quickly find millisecond values for various beat divisions based on the current BPM.</li>
