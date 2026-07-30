@@ -85,17 +85,8 @@ void RealTimeWorkerPool::startWorkers()
             workerLoop(i);
         };
 
-        bool realTime = false;
-        if (m_threadFactory) {
-            if (!m_threadFactory(i, body, realTime)) {
-                juzzlin::L(TAG).error() << "Worker thread " << i << " could not be started";
-                continue;
-            }
-        } else {
-            m_workers.emplace_back(body);
-            realTime = tryRealTimeScheduling(m_workers.back().native_handle(), m_realTimePriority);
-        }
-        m_workerIsRealTime[i] = realTime ? 1 : 0;
+        m_workers.emplace_back(body);
+        m_workerIsRealTime[i] = tryRealTimeScheduling(m_workers.back().native_handle(), m_realTimePriority) ? 1 : 0;
     }
 }
 
@@ -110,13 +101,6 @@ void RealTimeWorkerPool::stopWorkers()
         }
     }
     m_workers.clear();
-}
-
-void RealTimeWorkerPool::setThreadFactory(ThreadFactory factory)
-{
-    stopWorkers();
-    m_threadFactory = std::move(factory);
-    startWorkers();
 }
 
 void RealTimeWorkerPool::setRealTimePriority(int priority)

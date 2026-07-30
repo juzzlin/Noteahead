@@ -49,10 +49,6 @@ class RealTimeWorkerPool
 public:
     using TaskCallback = std::function<void(void * context, size_t taskIndex, size_t workerIndex)>;
 
-    //! Starts one worker thread. Returns false if the thread could not be created, and sets
-    //! realTime to whether it got real-time scheduling.
-    using ThreadFactory = std::function<bool(size_t index, std::function<void()> body, bool & realTime)>;
-
     explicit RealTimeWorkerPool(size_t workerCount = defaultWorkerCount());
     ~RealTimeWorkerPool();
 
@@ -63,11 +59,6 @@ public:
     size_t laneCount() const;
 
     void run(size_t taskCount, void * context, TaskCallback callback);
-
-    //! Restarts the workers using the given factory, so a backend can create them the way it must —
-    //! JACK hands out real-time priority through its own call, for instance. Must not be called
-    //! while run() is in flight.
-    void setThreadFactory(ThreadFactory factory);
 
     //! True only when *every* worker got real-time scheduling. Playback must not fan out otherwise.
     bool hasRealTimeScheduling() const;
@@ -94,7 +85,13 @@ private:
     std::vector<uint8_t> m_workerIsRealTime;
 
     size_t m_requestedWorkerCount { 0 };
-    ThreadFactory m_threadFactory {};
+    //! Priority requested for the workers. Zero leaves them at normal priority, which is what
+    //! offline rendering wants: real-time workers there would preempt the UI during an export.
+    //!
+    //! Running the workers under JACK's own jack_client_create_thread() would be the better fit for
+    //! that backend, but it needs the pool to track threads it did not create itself — the handle
+    //! to join and the count — which it does not yet do. Until then everything goes through
+    //! std::thread plus pthread_setschedparam, which works on both backends.
     int m_realTimePriority { 0 };
 
     std::atomic_bool m_stopping { false };
