@@ -33,6 +33,7 @@ class SettingsService : public QObject
     Q_PROPERTY(int trackHeaderFontSize READ trackHeaderFontSize WRITE setTrackHeaderFontSize NOTIFY trackHeaderFontSizeChanged)
     Q_PROPERTY(bool recordingEnabled READ recordingEnabled WRITE setRecordingEnabled NOTIFY recordingEnabledChanged)
     Q_PROPERTY(int audioBackend READ audioBackend WRITE setAudioBackend NOTIFY audioBackendChanged)
+    Q_PROPERTY(bool multiThreadedPlaybackEnabled READ multiThreadedPlaybackEnabled WRITE setMultiThreadedPlaybackEnabled NOTIFY multiThreadedPlaybackEnabledChanged)
     Q_PROPERTY(bool jackSyncEnabled READ jackSyncEnabled WRITE setJackSyncEnabled NOTIFY jackSyncEnabledChanged)
     Q_PROPERTY(bool jackBpmSyncEnabled READ jackBpmSyncEnabled WRITE setJackBpmSyncEnabled NOTIFY jackBpmSyncEnabledChanged)
     Q_PROPERTY(bool midiSyncEnabled READ midiSyncEnabled WRITE setMidiSyncEnabled NOTIFY midiSyncEnabledChanged)
@@ -85,6 +86,9 @@ public:
 
     virtual Q_INVOKABLE int audioBackend() const;
     virtual Q_INVOKABLE void setAudioBackend(int audioBackend);
+
+    virtual Q_INVOKABLE bool multiThreadedPlaybackEnabled() const;
+    virtual Q_INVOKABLE void setMultiThreadedPlaybackEnabled(bool enabled);
 
     virtual Q_INVOKABLE bool jackSyncEnabled() const;
     virtual Q_INVOKABLE void setJackSyncEnabled(bool enabled);
@@ -157,6 +161,7 @@ signals:
     void trackHeaderFontSizeChanged();
     void recordingEnabledChanged();
     void audioBackendChanged();
+    void multiThreadedPlaybackEnabledChanged();
     void jackSyncEnabledChanged();
     void jackBpmSyncEnabledChanged();
     void midiSyncEnabledChanged();
@@ -195,6 +200,7 @@ private:
     int m_audioInputDeviceId;
     int m_audioOutputDeviceId;
 
+    bool m_multiThreadedPlaybackEnabled;
     bool m_jackSyncEnabled;
     bool m_jackBpmSyncEnabled;
     bool m_midiSyncEnabled;

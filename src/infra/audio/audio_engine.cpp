@@ -17,6 +17,7 @@
 
 #include "../../common/constants.hpp"
 #include "../../common/denormal_protection.hpp"
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/effects/effect_rack.hpp"
 #include "../../domain/effects/reverb.hpp"
 #include "real_time_worker_pool.hpp"
@@ -24,10 +25,16 @@
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <pthread.h>
 
 namespace noteahead {
 
 namespace {
+
+constexpr auto TAG = "AudioEngine";
+
+//! Modest real-time priority for the playback workers: above ordinary threads, below the audio
+//! callback itself, which must always be able to preempt them.
 
 struct DeviceProcessContext
 {
@@ -440,11 +447,17 @@ void AudioEngine::process(AudioContext & context)
     const size_t sendCount = effects.size();
     const size_t laneCount = m_workerPool->laneCount();
 
-    // Only fan out to worker threads for offline rendering/export (exclusive mode). Real-time
-    // playback processes serially on the audio thread: splitting the per-buffer work across threads
-    // adds synchronization and cross-core cache overhead that hurts real-time performance, whereas
-    // offline rendering has no deadline and benefits from the extra throughput.
-    const bool useWorkers = m_isExclusive.load();
+    if (!m_isExclusive.load()) {
+        detectCallbackScheduling();
+    }
+
+    // Offline rendering always fans out: it has no deadline and only gains from the throughput.
+    // Real-time playback does so only when asked to, when the workers hold real-time scheduling,
+    // and when the thread driving playback is itself real-time. That last condition matters as much
+    // as the others: real-time workers above an ordinary callback thread preempt the very thread
+    // waiting on them, which is heard as stuttering. Some backends — PulseAudio through RtAudio in
+    // particular — do not give their callback thread real-time scheduling at all.
+    const bool useWorkers = m_isExclusive.load() || (m_playbackThreadingEnabled.load() && callbackIsRealTime() && m_workerPool->hasRealTimeScheduling());
 
     ensureWorkBuffers(laneCount, sendCount, bufferSize);
     ensureEffectWetBuffers(sendCount, bufferSize);
@@ -642,6 +655,74 @@ void AudioEngine::clear()
 void AudioEngine::setIsExclusive(bool exclusive)
 {
     m_isExclusive = exclusive;
+}
+
+void AudioEngine::detectCallbackScheduling()
+{
+    if (m_callbackPolicy.load(std::memory_order_acquire) >= 0) {
+        return;
+    }
+    int policy = 0;
+    sched_param parameters {};
+    if (pthread_getschedparam(pthread_self(), &policy, &parameters) != 0) {
+        return;
+    }
+    m_callbackPriority.store(parameters.sched_priority, std::memory_order_release);
+    m_callbackPolicy.store(policy, std::memory_order_release);
+    juzzlin::L(TAG).info() << "Playback thread scheduling: policy " << policy
+                           << " (" << (policy == SCHED_FIFO ? "FIFO" : policy == SCHED_RR ? "RR"
+                                                                                          : "not real-time")
+                           << "), priority " << parameters.sched_priority;
+}
+
+bool AudioEngine::callbackIsRealTime() const
+{
+    const int policy = m_callbackPolicy.load(std::memory_order_acquire);
+    return policy == SCHED_FIFO || policy == SCHED_RR;
+}
+
+void AudioEngine::setCallbackRealTimePriority(int priority)
+{
+    if (priority <= 0) {
+        return;
+    }
+    {
+        std::lock_guard<std::mutex> lock { m_mutex };
+        m_callbackPriority.store(priority, std::memory_order_release);
+        m_callbackPolicy.store(SCHED_FIFO, std::memory_order_release);
+    }
+    juzzlin::L(TAG).info() << "Backend reported callback real-time priority " << priority;
+    // Re-size the workers against it: they were started against a guess.
+    applyWorkerPriority();
+}
+
+void AudioEngine::applyWorkerPriority()
+{
+    std::lock_guard<std::mutex> lock { m_mutex };
+    // Strictly below the thread driving playback, so the workers can never preempt the thread that
+    // is waiting for them. Until that thread has been seen, assume the priority we ask the backend
+    // for; a worker below the callback is safe either way, one above it stutters.
+    const int callbackPriority = callbackIsRealTime() ? m_callbackPriority.load(std::memory_order_acquire)
+                                                      : Constants::audioCallbackRealTimePriority();
+    m_workerPool->setRealTimePriority(m_playbackThreadingEnabled.load() ? std::max(1, callbackPriority - 1) : 0);
+}
+
+void AudioEngine::setPlaybackThreadingEnabled(bool enabled)
+{
+    m_playbackThreadingEnabled = enabled;
+    // Real-time scheduling is only asked for when playback needs it. Export does not: elevating
+    // those workers would let a render preempt the UI and make the app unresponsive.
+    applyWorkerPriority();
+}
+
+bool AudioEngine::playbackThreadingEnabled() const
+{
+    return m_playbackThreadingEnabled;
+}
+
+bool AudioEngine::supportsPlaybackThreading() const
+{
+    return callbackIsRealTime() && m_workerPool->hasRealTimeScheduling();
 }
 
 bool AudioEngine::isExclusive() const

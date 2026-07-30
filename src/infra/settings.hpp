@@ -67,6 +67,9 @@ void setUiUpdatesDisabledDuringPlayback(bool disabled);
 bool recordingEnabled();
 void setRecordingEnabled(bool enabled);
 
+bool multiThreadedPlaybackEnabled();
+void setMultiThreadedPlaybackEnabled(bool enabled);
+
 bool jackSyncEnabled();
 void setJackSyncEnabled(bool enabled);
 

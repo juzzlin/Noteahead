@@ -147,6 +147,14 @@ QString internalDevicePortPrefix()
     return "Noteahead Internal Device";
 }
 
+int audioCallbackRealTimePriority()
+{
+    // Modest on purpose: high enough to beat ordinary threads, low enough not to fight the rest of
+    // the system. RtAudio otherwise defaults this to 1, the lowest real-time priority there is,
+    // which leaves no room for the workers to sit below it.
+    return 10;
+}
+
 double defaultSampleRate()
 {
     return 48000.0;

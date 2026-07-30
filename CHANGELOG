@@ -5,6 +5,13 @@ Release date:
 
 New features:
 
+* Add optional multi-threaded playback
+  - "Spread playback across CPU cores" in Audio settings, off by default
+  - Only engages when the audio callback thread and the workers both hold
+    real-time scheduling; otherwise playback stays single-threaded
+  - The audio callback now asks for a defined real-time priority instead of the
+    lowest one, and the workers run one step below it
+
 * Add DSP load metering to the Device Rack
   - Each slot shows the share of the audio callback its device takes, alongside a
     total, a peak hold and a dropout counter

@@ -39,6 +39,7 @@ const auto renderBitDepthKey = "renderBitDepth";
 const auto renderFormatKey = "renderFormat";
 const auto recordingEnabledKey = "recordingEnabled";
 const auto jackSyncEnabledKey = "jackSyncEnabled";
+const auto multiThreadedPlaybackEnabledKey = "multiThreadedPlaybackEnabled";
 const auto jackBpmSyncEnabledKey = "jackBpmSyncEnabled";
 const auto midiSyncEnabledKey = "midiSyncEnabled";
 const auto waveViewEnabledKey = "waveViewEnabled";
@@ -311,6 +312,25 @@ void setRecordingEnabled(bool enabled)
     QSettings settings;
     settings.beginGroup(settingsGroupAudio);
     settings.setValue(recordingEnabledKey, enabled);
+    settings.endGroup();
+}
+
+bool multiThreadedPlaybackEnabled()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    // Off by default: threading playback was reverted once for stutter, so nobody gets it without
+    // asking, and it additionally requires real-time scheduling at runtime.
+    const auto enabled = settings.value(multiThreadedPlaybackEnabledKey, false).toBool();
+    settings.endGroup();
+    return enabled;
+}
+
+void setMultiThreadedPlaybackEnabled(bool enabled)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    settings.setValue(multiThreadedPlaybackEnabledKey, enabled);
     settings.endGroup();
 }
 

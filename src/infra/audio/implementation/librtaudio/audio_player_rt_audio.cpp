@@ -129,6 +129,9 @@ uint32_t AudioPlayerRtAudio::initializeSoundStream(uint32_t deviceId, uint32_t c
 
     RtAudio::StreamOptions streamOptions;
     streamOptions.flags = RTAUDIO_MINIMIZE_LATENCY | RTAUDIO_SCHEDULE_REALTIME;
+    // Without this RtAudio asks for priority 1, the lowest real-time priority, leaving no room for
+    // the playback workers to run below the callback.
+    streamOptions.priority = Constants::audioCallbackRealTimePriority();
     // ALSA defaults this to 4 or 8 in many setups, which multiplies latency.
     // 2 is the standard for double-buffered low-latency audio.
     streamOptions.numberOfBuffers = 2;

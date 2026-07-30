@@ -57,6 +57,22 @@ GroupBox {
                 }
 
                 CheckBox {
+                    id: multiThreadedPlaybackCheckbox
+                    text: qsTr("Spread playback across CPU cores.")
+                    checked: settingsService.multiThreadedPlaybackEnabled
+                    Layout.fillWidth: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Processes devices on several threads during playback. Needs real-time scheduling privileges; without them playback stays single-threaded.")
+                    onCheckedChanged: {
+                        if (settingsService.multiThreadedPlaybackEnabled !== checked) {
+                            settingsService.multiThreadedPlaybackEnabled = checked
+                        }
+                    }
+                }
+
+                CheckBox {
                     id: showWaveViewCheckbox
                     text: qsTr("Show recording and playback wave view at the bottom of the editor.")
                     checked: settingsService.waveViewEnabled

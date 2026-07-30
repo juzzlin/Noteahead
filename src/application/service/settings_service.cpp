@@ -37,6 +37,7 @@ SettingsService::SettingsService()
   , m_audioBufferSize { Settings::audioBufferSize() }
   , m_audioInputDeviceId { Settings::audioInputDeviceId() }
   , m_audioOutputDeviceId { Settings::audioOutputDeviceId() }
+  , m_multiThreadedPlaybackEnabled { Settings::multiThreadedPlaybackEnabled() }
   , m_jackSyncEnabled { Settings::jackSyncEnabled() }
   , m_jackBpmSyncEnabled { Settings::jackBpmSyncEnabled() }
   , m_midiSyncEnabled { Settings::midiSyncEnabled() }
@@ -196,6 +197,20 @@ void SettingsService::setAudioBackend(int audioBackend)
         m_audioBackend = audioBackend;
         Settings::setAudioBackend(static_cast<AudioBackend>(audioBackend));
         emit audioBackendChanged();
+    }
+}
+
+bool SettingsService::multiThreadedPlaybackEnabled() const
+{
+    return m_multiThreadedPlaybackEnabled;
+}
+
+void SettingsService::setMultiThreadedPlaybackEnabled(bool enabled)
+{
+    if (m_multiThreadedPlaybackEnabled != enabled) {
+        m_multiThreadedPlaybackEnabled = enabled;
+        Settings::setMultiThreadedPlaybackEnabled(enabled);
+        emit multiThreadedPlaybackEnabledChanged();
     }
 }
 

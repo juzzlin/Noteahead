@@ -392,6 +392,10 @@ void Application::connectJackService()
     connect(m_settingsService.get(), &SettingsService::audioBackendChanged, m_jackService.get(), &JackService::onAudioBackendChanged, Qt::QueuedConnection);
     connect(m_settingsService.get(), &SettingsService::audioBackendChanged, m_audioService.get(), &AudioService::reinitialize, Qt::QueuedConnection);
     connect(m_settingsService.get(), &SettingsService::jackSyncEnabledChanged, m_jackService.get(), &JackService::onAudioBackendChanged, Qt::QueuedConnection);
+    connect(m_settingsService.get(), &SettingsService::multiThreadedPlaybackEnabledChanged, this, [this] {
+        m_audioEngine->setPlaybackThreadingEnabled(m_settingsService->multiThreadedPlaybackEnabled());
+    });
+    m_audioEngine->setPlaybackThreadingEnabled(m_settingsService->multiThreadedPlaybackEnabled());
 
     connect(m_jackService.get(), &JackService::errorOccurred, m_applicationService.get(), &ApplicationService::requestAlertDialog);
     connect(m_jackService.get(), &JackService::rewindRequested, this, [this]() {

@@ -66,6 +66,26 @@ public:
     void clear();
 
     void setIsExclusive(bool exclusive);
+
+    //! Opt-in fan-out for real-time playback. Honoured only when the worker pool actually got
+    //! real-time scheduling; without that, threading playback is a priority inversion waiting to
+    //! happen and the engine stays serial.
+    void setPlaybackThreadingEnabled(bool enabled);
+    bool playbackThreadingEnabled() const;
+    //! Whether threaded playback can be used at all on this system.
+    bool supportsPlaybackThreading() const;
+
+    //! Told by a backend that knows its callback thread's real-time priority up front — JACK does,
+    //! through jack_client_real_time_priority(). Without this the engine only learns the priority
+    //! from inside the callback, too late to have sized the workers against it.
+    void setCallbackRealTimePriority(int priority);
+
+private:
+    void detectCallbackScheduling();
+    bool callbackIsRealTime() const;
+    void applyWorkerPriority();
+
+public:
     bool isExclusive() const;
 
     //! Whole-callback DSP load, in percent of the real-time budget, plus an overrun count.
@@ -122,6 +142,12 @@ private:
     std::vector<size_t> m_prevGraphSignature;
     mutable std::mutex m_mutex;
     std::atomic<bool> m_isExclusive { false };
+    std::atomic<bool> m_playbackThreadingEnabled { false };
+    //! Scheduling of the thread that drives playback, sampled once from process(). Threading
+    //! playback is only safe when that thread is itself real-time: workers above a non-real-time
+    //! callback preempt the very thread waiting on them, which is heard as stuttering.
+    std::atomic<int> m_callbackPolicy { -1 };
+    std::atomic<int> m_callbackPriority { 0 };
     LoadMeter m_loadMeter;
     std::atomic<uint8_t> m_playbackOversampleFactor { 2 };
 };

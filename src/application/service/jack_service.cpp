@@ -20,7 +20,9 @@
 #include "../../common/denormal_protection.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../infra/audio/audio_engine.hpp"
+
 #include "settings_service.hpp"
+#include <jack/thread.h>
 
 #include <algorithm>
 #include <cmath>
@@ -110,12 +112,18 @@ void JackService::initialize()
         m_lastFrame = pos.frame;
 
         jack_set_process_callback(m_client, &JackService::processCallback, this);
+
         if (jack_activate(m_client) != 0) {
             const auto message = tr("Could not activate JACK client!");
             juzzlin::L(TAG).error() << message.toStdString();
             emit errorOccurred(message);
             jack_client_close(m_client);
             m_client = nullptr;
+        } else if (m_audioEngine) {
+            // Only valid once the client is active. JACK knows the priority it runs the process
+            // callback at, so the engine can size the playback workers against it rather than
+            // guessing; workers left far below it get starved and the callback waits on them.
+            m_audioEngine->setCallbackRealTimePriority(jack_client_real_time_priority(m_client));
         }
     } else {
         const auto message = tr("Could not open JACK client: %1").arg(jackStatusToString(status));

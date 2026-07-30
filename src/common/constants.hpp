@@ -59,6 +59,10 @@ QString stringEnsembleDeviceName();
 QString internalDevicePortPrefix();
 double defaultSampleRate();
 
+//! Real-time priority requested for the audio callback thread. The playback worker threads sit one
+//! step below it, so they can never preempt the thread that is waiting for them.
+int audioCallbackRealTimePriority();
+
 constexpr float minEffectLevel()
 {
     return 0.001f;
