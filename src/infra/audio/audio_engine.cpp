@@ -681,6 +681,33 @@ bool AudioEngine::callbackIsRealTime() const
     return policy == SCHED_FIFO || policy == SCHED_RR;
 }
 
+void AudioEngine::prepare(uint32_t frameCount)
+{
+    const uint32_t bufferSize = frameCount * 2;
+    if (!bufferSize) {
+        return;
+    }
+
+    std::lock_guard<std::mutex> lock { m_mutex };
+
+    const size_t sendCount = m_sendEffectRack->effectCount();
+    ensureWorkBuffers(m_workerPool->laneCount(), sendCount, bufferSize);
+    ensureEffectWetBuffers(sendCount, bufferSize);
+    ensureEffectActiveFlags(sendCount);
+    ensureDeviceOutputBuffers(bufferSize);
+
+    if (m_sendBusBuffers.size() != sendCount) {
+        m_sendBusBuffers.resize(sendCount);
+    }
+    for (auto & bus : m_sendBusBuffers) {
+        if (bus.size() < bufferSize) {
+            bus.resize(bufferSize, 0.0);
+        }
+    }
+
+    juzzlin::L(TAG).info() << "Prepared engine buffers for " << frameCount << " frames";
+}
+
 void AudioEngine::setCallbackRealTimePriority(int priority)
 {
     if (priority <= 0) {

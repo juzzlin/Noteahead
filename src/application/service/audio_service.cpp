@@ -15,6 +15,8 @@
 
 #include "audio_service.hpp"
 
+#include "../../infra/settings.hpp"
+
 #include "../../common/audio_backend.hpp"
 #include "../../common/constants.hpp"
 #include "../../common/waveform_generator.hpp"
@@ -57,6 +59,8 @@ void AudioService::reinitialize()
     juzzlin::L(TAG).info() << "Reinitializing audio engine...";
 
     m_audioEngine->setPlaybackOversampleFactor(static_cast<uint8_t>(m_settingsService->playbackOversampleFactor()));
+    // Get the allocations out of the way here rather than inside the first audio callback.
+    m_audioEngine->prepare(static_cast<uint32_t>(Settings::audioBufferSize()));
 
     if (m_isRecording) {
         stopRecording(m_currentRecordingStartTick);

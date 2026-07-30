@@ -80,6 +80,13 @@ public:
     //! from inside the callback, too late to have sized the workers against it.
     void setCallbackRealTimePriority(int priority);
 
+    //! Allocates the engine's working buffers ahead of time for the given block size.
+    //!
+    //! Without this the first audio callback does every allocation and first touch itself, which is
+    //! heard as a stutter on the first play. Call it from a normal thread whenever the block size is
+    //! known; it is cheap and idempotent.
+    void prepare(uint32_t frameCount);
+
 private:
     void detectCallbackScheduling();
     bool callbackIsRealTime() const;

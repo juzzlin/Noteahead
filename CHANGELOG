@@ -148,6 +148,10 @@ New features:
 
 Bug fixes:
 
+* Fix a stutter on the first play
+  - The engine's working buffers were allocated inside the first audio callback;
+    they are now prepared in advance when the audio engine is initialised
+
 * Fix the Drum Synth allocating memory on the audio thread every callback
   - It built its oversampling scratch buffer per callback instead of reusing one,
     which is worst at 4x where the buffer is four times larger
