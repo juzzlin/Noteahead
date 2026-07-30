@@ -14,6 +14,10 @@ New features:
 
 Bug fixes:
 
+* Fix the Clipper's reduction meter reading near full scale at all times
+  - It compared the input against an output delayed by the oversampling
+    filters, so it never tracked the threshold
+
 * Use the configured auto note-off offset when rendering to audio and when
   exporting MIDI
   - Both used a hard-coded default unless the song had been played first

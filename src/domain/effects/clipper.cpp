@@ -60,12 +60,18 @@ void Clipper::process(double & left, double & right)
     const auto gainLin = static_cast<double>(Utils::Dsp::dbToLinear(m_gainDb));
     const uint8_t factor = clampOversampleFactor(oversampleFactor());
 
-    const double preL = left;
-    const double preR = right;
+    // Measured around the clipping itself, never across the whole block: the half-band filters are
+    // linear-phase, so the upsample/decimate round trip delays the output by tens of base-rate
+    // samples. Dividing the current input by an output that old pins the meter near full scale on
+    // any periodic signal, whether or not a single sample was actually clipped.
+    double peakPre = 0.0;
+    double peakPost = 0.0;
 
     if (factor == 1) {
+        peakPre = std::max(std::abs(left), std::abs(right));
         left = clipSample(static_cast<float>(left), thresholdLin);
         right = clipSample(static_cast<float>(right), thresholdLin);
+        peakPost = std::max(std::abs(left), std::abs(right));
     } else {
         // Clip at the oversampled rate so the harmonics generated fold above Nyquist and are removed
         // by the decimation filter instead of aliasing back into the audible band.
@@ -74,15 +80,14 @@ void Clipper::process(double & left, double & right)
         m_oversampling->upsamplerL.process(static_cast<float>(left), highL.data(), factor);
         m_oversampling->upsamplerR.process(static_cast<float>(right), highR.data(), factor);
         for (uint8_t k = 0; k < factor; k++) {
+            peakPre = std::max(peakPre, std::max(std::abs(static_cast<double>(highL[k])), std::abs(static_cast<double>(highR[k]))));
             highL[k] = clipSample(highL[k], thresholdLin);
             highR[k] = clipSample(highR[k], thresholdLin);
+            peakPost = std::max(peakPost, std::max(std::abs(static_cast<double>(highL[k])), std::abs(static_cast<double>(highR[k]))));
         }
         left = static_cast<double>(m_oversampling->decimatorL.process(highL.data(), factor));
         right = static_cast<double>(m_oversampling->decimatorR.process(highR.data(), factor));
     }
-
-    const double peakPre = std::max(std::abs(preL), std::abs(preR));
-    const double peakPost = std::max(std::abs(left), std::abs(right));
 
     double reductionDb = 0.0;
     if (peakPre > 1e-10 && peakPost < peakPre) {
