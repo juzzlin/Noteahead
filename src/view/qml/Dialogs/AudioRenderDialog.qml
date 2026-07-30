@@ -70,9 +70,9 @@ AnimatedDialog {
                             id: formatComboBox
                             Layout.fillWidth: true
                             model: [qsTr("WAV"), qsTr("FLAC")]
-                            currentIndex: settingsService.renderFormat
+                            currentIndex: renderSettingsModel.format
                             onActivated: {
-                                settingsService.renderFormat = index;
+                                renderSettingsModel.format = index;
                                 if (!rootItem.customFileName) rootItem.outputFileName = renderService.defaultRenderFileName;
                             }
                         }
@@ -90,9 +90,9 @@ AnimatedDialog {
                             id: sampleRateComboBox
                             Layout.fillWidth: true
                             model: [44100, 48000, 88200, 96000, 176400, 192000]
-                            currentIndex: model.indexOf(settingsService.renderSampleRate)
+                            currentIndex: model.indexOf(renderSettingsModel.sampleRate)
                             onActivated: {
-                                settingsService.renderSampleRate = model[index];
+                                renderSettingsModel.sampleRate = model[index];
                                 if (!rootItem.customFileName) rootItem.outputFileName = renderService.defaultRenderFileName;
                             }
                         }
@@ -111,7 +111,7 @@ AnimatedDialog {
                             Layout.fillWidth: true
                             textRole: "text"
                             valueRole: "value"
-                            model: settingsService.renderFormat === 1 ? [
+                            model: renderSettingsModel.format === 1 ? [
                                 { text: qsTr("16-bit PCM"), value: 0 },
                                 { text: qsTr("24-bit PCM"), value: 1 }
                             ] : [
@@ -120,9 +120,9 @@ AnimatedDialog {
                                 { text: qsTr("32-bit PCM"), value: 2 },
                                 { text: qsTr("32-bit Float"), value: 3 }
                             ]
-                            currentIndex: settingsService.renderBitDepth
+                            currentIndex: renderSettingsModel.bitDepth
                             onActivated: {
-                                settingsService.renderBitDepth = valueAt(index);
+                                renderSettingsModel.bitDepth = valueAt(index);
                                 if (!rootItem.customFileName) rootItem.outputFileName = renderService.defaultRenderFileName;
                             }
                         }
@@ -141,8 +141,8 @@ AnimatedDialog {
                             Layout.fillWidth: true
                             readonly property var factors: [1, 2, 4]
                             model: [qsTr("Draft (1x)"), qsTr("Normal (2x)"), qsTr("High (4x)")]
-                            currentIndex: Math.max(0, factors.indexOf(settingsService.renderOversampleFactor))
-                            onActivated: index => settingsService.renderOversampleFactor = factors[index]
+                            currentIndex: Math.max(0, factors.indexOf(renderSettingsModel.oversampleFactor))
+                            onActivated: index => renderSettingsModel.oversampleFactor = factors[index]
                         }
                     }
                 }
@@ -164,8 +164,8 @@ AnimatedDialog {
                         CheckBox {
                             id: normalizeCheckBox
                             text: qsTr("Normalize audio")
-                            checked: settingsService.renderNormalizeEnabled
-                            onToggled: settingsService.renderNormalizeEnabled = checked
+                            checked: renderSettingsModel.normalizeEnabled
+                            onToggled: renderSettingsModel.normalizeEnabled = checked
                         }
 
                         Label {
@@ -180,9 +180,9 @@ AnimatedDialog {
                             from: -300
                             to: 0
                             stepSize: 1
-                            value: settingsService.renderNormalizeLevel * 10
+                            value: renderSettingsModel.normalizeLevelTenthsDb
                             editable: true
-                            onValueModified: settingsService.renderNormalizeLevel = value / 10
+                            onValueModified: renderSettingsModel.normalizeLevelTenthsDb = value
                             textFromValue: function(value, locale) {
                                 return Number(value / 10).toLocaleString(locale, 'f', 1)
                             }
@@ -206,8 +206,8 @@ AnimatedDialog {
                         CheckBox {
                             id: trimCheckBox
                             text: qsTr("Trim duration")
-                            checked: settingsService.renderTrimEnabled
-                            onToggled: settingsService.renderTrimEnabled = checked
+                            checked: renderSettingsModel.trimEnabled
+                            onToggled: renderSettingsModel.trimEnabled = checked
                         }
 
                         SpinBox {
@@ -216,9 +216,9 @@ AnimatedDialog {
                             enabled: trimCheckBox.checked
                             from: 0
                             to: 59
-                            value: settingsService.renderTrimMinutes
+                            value: renderSettingsModel.trimMinutes
                             editable: true
-                            onValueModified: settingsService.renderTrimMinutes = value
+                            onValueModified: renderSettingsModel.trimMinutes = value
                         }
 
                         Label {
@@ -232,9 +232,9 @@ AnimatedDialog {
                             enabled: trimCheckBox.checked
                             from: 0
                             to: 59
-                            value: settingsService.renderTrimSeconds
+                            value: renderSettingsModel.trimSeconds
                             editable: true
-                            onValueModified: settingsService.renderTrimSeconds = value
+                            onValueModified: renderSettingsModel.trimSeconds = value
                         }
 
                         Label {
@@ -252,8 +252,8 @@ AnimatedDialog {
                         CheckBox {
                             id: analyzeCheckBox
                             text: qsTr("Analyze loudness (LUFS, LRA, dBTP)")
-                            checked: settingsService.renderAnalyzeEnabled
-                            onToggled: settingsService.renderAnalyzeEnabled = checked
+                            checked: renderSettingsModel.analyzeEnabled
+                            onToggled: renderSettingsModel.analyzeEnabled = checked
                         }
                     }
                 }

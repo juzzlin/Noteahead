@@ -15,6 +15,8 @@
 
 #include "editor_service.hpp"
 
+#include <cmath>
+
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"

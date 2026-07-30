@@ -33,10 +33,6 @@ const auto audioBufferSizeKey = "audioBufferSize";
 const auto audioInputDeviceIdKey = "audioInputDeviceId";
 const auto audioOutputDeviceIdKey = "audioOutputDeviceId";
 const auto playbackOversampleFactorKey = "playbackOversampleFactor";
-const auto renderOversampleFactorKey = "renderOversampleFactor";
-const auto renderSampleRateKey = "renderSampleRate";
-const auto renderBitDepthKey = "renderBitDepth";
-const auto renderFormatKey = "renderFormat";
 const auto recordingEnabledKey = "recordingEnabled";
 const auto jackSyncEnabledKey = "jackSyncEnabled";
 const auto multiThreadedPlaybackEnabledKey = "multiThreadedPlaybackEnabled";
@@ -44,12 +40,6 @@ const auto jackBpmSyncEnabledKey = "jackBpmSyncEnabled";
 const auto midiSyncEnabledKey = "midiSyncEnabled";
 const auto waveViewEnabledKey = "waveViewEnabled";
 const auto patternPeekEnabledKey = "patternPeekEnabled";
-const auto renderNormalizeEnabledKey = "renderNormalizeEnabled";
-const auto renderNormalizeLevelKey = "renderNormalizeLevel";
-const auto renderTrimEnabledKey = "renderTrimEnabled";
-const auto renderTrimMinutesKey = "renderTrimMinutes";
-const auto renderTrimSecondsKey = "renderTrimSeconds";
-const auto renderAnalyzeEnabledKey = "renderAnalyzeEnabled";
 
 const auto midiExportForceDrumChannel10Key = "midiExportForceDrumChannel10";
 const auto midiExportAutoAssignChannelsKey = "midiExportAutoAssignChannels";
@@ -518,176 +508,6 @@ void setPlaybackOversampleFactor(int factor)
     QSettings settings;
     settings.beginGroup(settingsGroupAudio);
     settings.setValue(playbackOversampleFactorKey, factor);
-    settings.endGroup();
-}
-
-int renderOversampleFactor()
-{
-    QSettings settings;
-    settings.beginGroup(settingsGroupAudio);
-    const auto factor = settings.value(renderOversampleFactorKey, 2).toInt();
-    settings.endGroup();
-    return factor;
-}
-
-void setRenderOversampleFactor(int factor)
-{
-    QSettings settings;
-    settings.beginGroup(settingsGroupAudio);
-    settings.setValue(renderOversampleFactorKey, factor);
-    settings.endGroup();
-}
-
-int renderSampleRate()
-{
-    QSettings settings;
-    settings.beginGroup(settingsGroupAudio);
-    const auto sampleRate = settings.value(renderSampleRateKey, 48000).toInt();
-    settings.endGroup();
-    return sampleRate;
-}
-
-void setRenderSampleRate(int sampleRate)
-{
-    QSettings settings;
-    settings.beginGroup(settingsGroupAudio);
-    settings.setValue(renderSampleRateKey, sampleRate);
-    settings.endGroup();
-}
-
-BitDepth renderBitDepth()
-{
-    QSettings settings;
-    settings.beginGroup(settingsGroupAudio);
-    const auto bitDepth = static_cast<BitDepth>(settings.value(renderBitDepthKey, static_cast<int>(BitDepth::PCM_24)).toInt());
-    settings.endGroup();
-    return bitDepth;
-}
-
-void setRenderBitDepth(BitDepth bitDepth)
-{
-    QSettings settings;
-    settings.beginGroup(settingsGroupAudio);
-    settings.setValue(renderBitDepthKey, static_cast<int>(bitDepth));
-    settings.endGroup();
-}
-
-AudioFormat renderFormat()
-{
-    QSettings settings;
-    settings.beginGroup(settingsGroupAudio);
-    const auto format = static_cast<AudioFormat>(settings.value(renderFormatKey, static_cast<int>(AudioFormat::Wav)).toInt());
-    settings.endGroup();
-    return format;
-}
-
-void setRenderFormat(AudioFormat format)
-{
-    QSettings settings;
-    settings.beginGroup(settingsGroupAudio);
-    settings.setValue(renderFormatKey, static_cast<int>(format));
-    settings.endGroup();
-}
-
-bool renderNormalizeEnabled()
-{
-    QSettings settings {};
-    settings.beginGroup(settingsGroupAudio);
-    const auto enabled = settings.value(renderNormalizeEnabledKey, false).toBool();
-    settings.endGroup();
-    return enabled;
-}
-
-void setRenderNormalizeEnabled(bool enabled)
-{
-    QSettings settings {};
-    settings.beginGroup(settingsGroupAudio);
-    settings.setValue(renderNormalizeEnabledKey, enabled);
-    settings.endGroup();
-}
-
-double renderNormalizeLevel()
-{
-    QSettings settings {};
-    settings.beginGroup(settingsGroupAudio);
-    const auto level = settings.value(renderNormalizeLevelKey, -0.3).toDouble();
-    settings.endGroup();
-    return level;
-}
-
-void setRenderNormalizeLevel(double level)
-{
-    QSettings settings {};
-    settings.beginGroup(settingsGroupAudio);
-    settings.setValue(renderNormalizeLevelKey, level);
-    settings.endGroup();
-}
-
-bool renderTrimEnabled()
-{
-    QSettings settings {};
-    settings.beginGroup(settingsGroupAudio);
-    const auto enabled = settings.value(renderTrimEnabledKey, false).toBool();
-    settings.endGroup();
-    return enabled;
-}
-
-void setRenderTrimEnabled(bool enabled)
-{
-    QSettings settings {};
-    settings.beginGroup(settingsGroupAudio);
-    settings.setValue(renderTrimEnabledKey, enabled);
-    settings.endGroup();
-}
-
-int renderTrimMinutes()
-{
-    QSettings settings {};
-    settings.beginGroup(settingsGroupAudio);
-    const auto minutes = settings.value(renderTrimMinutesKey, 0).toInt();
-    settings.endGroup();
-    return minutes;
-}
-
-void setRenderTrimMinutes(int minutes)
-{
-    QSettings settings {};
-    settings.beginGroup(settingsGroupAudio);
-    settings.setValue(renderTrimMinutesKey, minutes);
-    settings.endGroup();
-}
-
-int renderTrimSeconds()
-{
-    QSettings settings {};
-    settings.beginGroup(settingsGroupAudio);
-    const auto seconds = settings.value(renderTrimSecondsKey, 0).toInt();
-    settings.endGroup();
-    return seconds;
-}
-
-void setRenderTrimSeconds(int seconds)
-{
-    QSettings settings {};
-    settings.beginGroup(settingsGroupAudio);
-    settings.setValue(renderTrimSecondsKey, seconds);
-    settings.endGroup();
-}
-
-bool renderAnalyzeEnabled()
-{
-    QSettings settings {};
-    settings.beginGroup(settingsGroupAudio);
-    const auto enabled = settings.value(renderAnalyzeEnabledKey, false).toBool();
-    settings.endGroup();
-    return enabled;
-}
-
-void setRenderAnalyzeEnabled(bool enabled)
-{
-    QSettings settings {};
-    settings.beginGroup(settingsGroupAudio);
-    settings.setValue(renderAnalyzeEnabledKey, enabled);
     settings.endGroup();
 }
 

@@ -62,6 +62,7 @@
 #include "models/note_column_model_handler.hpp"
 #include "models/pitch_bend_automations_model.hpp"
 #include "models/recent_files_model.hpp"
+#include "models/render_settings_model.hpp"
 #include "models/sampler/sampler_pad_model.hpp"
 #include "models/track_settings_model.hpp"
 #include "note_converter.hpp"
@@ -141,7 +142,8 @@ Application::Application(int & argc, char ** argv)
   , m_stateMachine { std::make_shared<StateMachine>(m_applicationService, m_editorService) }
   , m_recentFilesManager { std::make_shared<RecentFilesManager>() }
   , m_recentFilesModel { std::make_unique<RecentFilesModel>() }
-  , m_renderService { std::make_shared<RenderService>(m_audioEngine, m_deviceService, m_mixerService, m_editorService, m_automationService, m_sideChainService, m_settingsService) }
+  , m_renderSettingsModel { std::make_unique<RenderSettingsModel>(m_editorService) }
+  , m_renderService { std::make_shared<RenderService>(m_audioEngine, m_deviceService, m_mixerService, m_editorService, m_automationService, m_sideChainService) }
   , m_midiCcAutomationsModel { std::make_unique<MidiCcAutomationsModel>() }
   , m_pitchBendAutomationsModel { std::make_unique<PitchBendAutomationsModel>() }
   , m_columnSettingsModel { std::make_unique<ColumnSettingsModel>() }
@@ -215,6 +217,7 @@ void Application::registerTypes()
     qmlRegisterType<PitchBendAutomationsModel>("Noteahead", majorVersion, minorVersion, "PitchBendAutomationsModel");
     qmlRegisterType<PropertyService>("Noteahead", majorVersion, minorVersion, "PropertyService");
     qmlRegisterType<RecentFilesModel>("Noteahead", majorVersion, minorVersion, "RecentFilesModel");
+    qmlRegisterType<RenderSettingsModel>("Noteahead", majorVersion, minorVersion, "RenderSettingsModel");
     qmlRegisterType<SamplerPadModel>("Noteahead", majorVersion, minorVersion, "SamplerPadModel");
     qmlRegisterType<DrumSynthController>("Noteahead", majorVersion, minorVersion, "DrumSynthController");
     qmlRegisterType<BassSynthController>("Noteahead", majorVersion, minorVersion, "BassSynthController");
@@ -267,6 +270,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("playerService", m_playerService.get());
     m_engine->rootContext()->setContextProperty("propertyService", m_propertyService.get());
     m_engine->rootContext()->setContextProperty("recentFilesModel", m_recentFilesModel.get());
+    m_engine->rootContext()->setContextProperty("renderSettingsModel", m_renderSettingsModel.get());
     m_engine->rootContext()->setContextProperty("renderService", m_renderService.get());
     m_engine->rootContext()->setContextProperty("selectionService", m_selectionService.get());
     m_engine->rootContext()->setContextProperty("settingsService", m_settingsService.get());

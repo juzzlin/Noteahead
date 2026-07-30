@@ -16,6 +16,7 @@ set(HEADER_FILES
     models/note_column_model_handler.hpp
     models/pitch_bend_automations_model.hpp
     models/recent_files_model.hpp
+    models/render_settings_model.hpp
     models/sampler/sampler_model.hpp
     models/sampler/sampler_pad_model.hpp
     models/track_settings_model.hpp
@@ -69,6 +70,7 @@ set(SOURCE_FILES
     models/note_column_model_handler.cpp
     models/pitch_bend_automations_model.cpp
     models/recent_files_model.cpp
+    models/render_settings_model.cpp
     models/sampler/sampler_model.cpp
     models/sampler/sampler_pad_model.cpp
     models/track_settings_model.cpp

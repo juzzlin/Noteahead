@@ -685,6 +685,61 @@ QString xmlKeyMetadata()
     return "Metadata";
 }
 
+QString xmlKeyRenderSettings()
+{
+    return "RenderSettings";
+}
+
+QString xmlKeyFormat()
+{
+    return "format";
+}
+
+QString xmlKeySampleRate()
+{
+    return "sampleRate";
+}
+
+QString xmlKeyBitDepth()
+{
+    return "bitDepth";
+}
+
+QString xmlKeyOversampleFactor()
+{
+    return "oversampleFactor";
+}
+
+QString xmlKeyNormalizeEnabled()
+{
+    return "normalizeEnabled";
+}
+
+QString xmlKeyNormalizeLevelTenthsDb()
+{
+    return "normalizeLevelTenthsDb";
+}
+
+QString xmlKeyTrimEnabled()
+{
+    return "trimEnabled";
+}
+
+QString xmlKeyTrimMinutes()
+{
+    return "trimMinutes";
+}
+
+QString xmlKeyTrimSeconds()
+{
+    return "trimSeconds";
+}
+
+QString xmlKeyAnalyzeEnabled()
+{
+    return "analyzeEnabled";
+}
+
 QString xmlKeyTags()
 {
     return "Tags";

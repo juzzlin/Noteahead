@@ -89,6 +89,7 @@ set(HEADER_FILES
     tracker/parameter_container.hpp
     tracker/pattern.hpp
     tracker/play_order.hpp
+    tracker/render_settings.hpp
     tracker/side_chain_settings.hpp
     tracker/song.hpp
     tracker/track.hpp
@@ -194,6 +195,7 @@ set(SOURCE_FILES
     tracker/parameter_container.cpp
     tracker/pattern.cpp
     tracker/play_order.cpp
+    tracker/render_settings.cpp
     tracker/song.cpp
     tracker/track.cpp
     utility/audio_scope.cpp

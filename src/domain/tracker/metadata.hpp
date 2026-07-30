@@ -16,6 +16,8 @@
 #ifndef METADATA_HPP
 #define METADATA_HPP
 
+#include "render_settings.hpp"
+
 #include <map>
 #include <string>
 
@@ -30,6 +32,11 @@ public:
     Metadata() = default;
 
     const std::map<std::string, std::string> & tags() const;
+
+    //! How this song renders to audio. Kept here so that everything about a song that is not notes
+    //! travels together, and so that Song needs no separate member for it.
+    const RenderSettings & renderSettings() const;
+    RenderSettings & renderSettings();
     void setTag(const std::string & name, const std::string & value);
     void removeTag(const std::string & name);
     void clear();
@@ -39,6 +46,7 @@ public:
 
 private:
     std::map<std::string, std::string> m_tags;
+    RenderSettings m_renderSettings;
 };
 
 } // namespace noteahead

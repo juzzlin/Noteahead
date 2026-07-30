@@ -8,7 +8,6 @@
 #include "../../application/service/render_service.hpp"
 #include "../../application/service/render_worker.hpp"
 #include "../../application/service/selection_service.hpp"
-#include "../../application/service/settings_service.hpp"
 #include "../../application/service/side_chain_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/tracker/song.hpp"
@@ -83,7 +82,6 @@ void RenderServiceTest::test_renderIndividualTracks_shouldSkipNonInternalInstrum
     auto propertyService = std::make_shared<PropertyService>();
     auto automationService = std::make_shared<AutomationService>(propertyService);
     auto sideChainService = std::make_shared<SideChainService>();
-    auto settingsService = std::make_shared<SettingsService>();
 
     auto song = std::make_shared<Song>();
     editorService->setSong(song);
@@ -96,7 +94,7 @@ void RenderServiceTest::test_renderIndividualTracks_shouldSkipNonInternalInstrum
     editorService->setInstrumentPort(1, "External MIDI Port");
     editorService->setInstrumentPort(2, Constants::internalDevicePortPrefix() + " 2");
 
-    RenderService renderService(audioEngine, deviceService, mixerService, editorService, automationService, sideChainService, settingsService);
+    RenderService renderService(audioEngine, deviceService, mixerService, editorService, automationService, sideChainService);
 
     QTemporaryDir tempDir;
     QVERIFY(tempDir.isValid());
@@ -132,9 +130,9 @@ void RenderServiceTest::test_renderIndividualTracks_shouldSkipNonInternalInstrum
         return false;
     };
 
-    QVERIFY(containsGlob(files, "Track0_*.wav"));
-    QVERIFY(containsGlob(files, "Track2_*.wav"));
-    QVERIFY(!containsGlob(files, "Track1_*.wav"));
+    QVERIFY(containsGlob(files, "Track0_*.flac"));
+    QVERIFY(containsGlob(files, "Track2_*.flac"));
+    QVERIFY(!containsGlob(files, "Track1_*.flac"));
 }
 
 void RenderServiceTest::test_renderIndividualTracks_shouldRestoreMixerState()
@@ -146,7 +144,6 @@ void RenderServiceTest::test_renderIndividualTracks_shouldRestoreMixerState()
     auto propertyService = std::make_shared<PropertyService>();
     auto automationService = std::make_shared<AutomationService>(propertyService);
     auto sideChainService = std::make_shared<SideChainService>();
-    auto settingsService = std::make_shared<SettingsService>();
 
     auto song = std::make_shared<Song>();
     editorService->setSong(song);
@@ -159,7 +156,7 @@ void RenderServiceTest::test_renderIndividualTracks_shouldRestoreMixerState()
     mixerService->soloTrack(0, true);
     mixerService->muteTrack(1, true);
 
-    RenderService renderService(audioEngine, deviceService, mixerService, editorService, automationService, sideChainService, settingsService);
+    RenderService renderService(audioEngine, deviceService, mixerService, editorService, automationService, sideChainService);
 
     QTemporaryDir tempDir;
     QVERIFY(tempDir.isValid());

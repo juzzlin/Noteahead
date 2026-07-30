@@ -103,36 +103,6 @@ void setAudioOutputDeviceId(int deviceId);
 int playbackOversampleFactor();
 void setPlaybackOversampleFactor(int factor);
 
-int renderOversampleFactor();
-void setRenderOversampleFactor(int factor);
-
-int renderSampleRate();
-void setRenderSampleRate(int sampleRate);
-
-BitDepth renderBitDepth();
-void setRenderBitDepth(BitDepth bitDepth);
-
-AudioFormat renderFormat();
-void setRenderFormat(AudioFormat format);
-
-bool renderNormalizeEnabled();
-void setRenderNormalizeEnabled(bool enabled);
-
-double renderNormalizeLevel();
-void setRenderNormalizeLevel(double level);
-
-bool renderTrimEnabled();
-void setRenderTrimEnabled(bool enabled);
-
-int renderTrimMinutes();
-void setRenderTrimMinutes(int minutes);
-
-int renderTrimSeconds();
-void setRenderTrimSeconds(int seconds);
-
-bool renderAnalyzeEnabled();
-void setRenderAnalyzeEnabled(bool enabled);
-
 QColor accentColor(QColor defaultAccentColor);
 void setAccentColor(QColor accentColor);
 

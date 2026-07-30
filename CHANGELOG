@@ -5,6 +5,13 @@ Release date:
 
 New features:
 
+* Store the render settings with the song
+  - Format, sample rate, bit depth, quality, normalize, trim and analyze now
+    belong to the song, like the tags, so exporting one song no longer inherits
+    another song's trim length
+  - Songs without them, including projects saved earlier, start from fixed
+    defaults: FLAC, 48 kHz, 24-bit, 4x quality and analyze on
+
 * Add optional multi-threaded playback
   - "Spread playback across CPU cores" in Audio settings, off by default
   - Only engages when the audio callback thread and the workers both hold

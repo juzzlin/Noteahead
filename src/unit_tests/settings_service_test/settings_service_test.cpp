@@ -94,17 +94,14 @@ void SettingsServiceTest::test_getters_shouldBeServedFromMembers()
     SettingsService settingsService;
     settingsService.setRecordingEnabled(true);
     settingsService.setMidiSyncEnabled(true);
-    settingsService.setRenderSampleRate(44100);
     settingsService.setVisibleLines(24);
 
     Settings::setRecordingEnabled(false);
     Settings::setMidiSyncEnabled(false);
-    Settings::setRenderSampleRate(96000);
     Settings::setVisibleLines(64);
 
     QCOMPARE(settingsService.recordingEnabled(), true);
     QCOMPARE(settingsService.midiSyncEnabled(), true);
-    QCOMPARE(settingsService.renderSampleRate(), 44100);
     QCOMPARE(settingsService.visibleLines(), 24);
 }
 
@@ -149,7 +146,6 @@ void SettingsServiceTest::test_setters_shouldPersistAcrossInstances()
         settingsService.setStep(4);
         settingsService.setVelocity(77);
         settingsService.setTrackHeaderFontSize(18);
-        settingsService.setRenderNormalizeLevel(-1.5);
         settingsService.setAutoNoteOffOffset(125);
     }
 
@@ -158,7 +154,6 @@ void SettingsServiceTest::test_setters_shouldPersistAcrossInstances()
     QCOMPARE(reloadedSettingsService.step(), 4);
     QCOMPARE(reloadedSettingsService.velocity(), 77);
     QCOMPARE(reloadedSettingsService.trackHeaderFontSize(), 18);
-    QCOMPARE(reloadedSettingsService.renderNormalizeLevel(), -1.5);
     QCOMPARE(reloadedSettingsService.autoNoteOffOffset(), 125);
 }
 

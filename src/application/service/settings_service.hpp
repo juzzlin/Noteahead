@@ -42,16 +42,6 @@ class SettingsService : public QObject
     Q_PROPERTY(bool midiExportForceDrumChannel10 READ midiExportForceDrumChannel10 WRITE setMidiExportForceDrumChannel10 NOTIFY midiExportForceDrumChannel10Changed)
     Q_PROPERTY(bool midiExportAutoAssignChannels READ midiExportAutoAssignChannels WRITE setMidiExportAutoAssignChannels NOTIFY midiExportAutoAssignChannelsChanged)
     Q_PROPERTY(int playbackOversampleFactor READ playbackOversampleFactor WRITE setPlaybackOversampleFactor NOTIFY playbackOversampleFactorChanged)
-    Q_PROPERTY(int renderOversampleFactor READ renderOversampleFactor WRITE setRenderOversampleFactor NOTIFY renderOversampleFactorChanged)
-    Q_PROPERTY(int renderSampleRate READ renderSampleRate WRITE setRenderSampleRate NOTIFY renderSampleRateChanged)
-    Q_PROPERTY(int renderBitDepth READ renderBitDepth WRITE setRenderBitDepth NOTIFY renderBitDepthChanged)
-    Q_PROPERTY(int renderFormat READ renderFormat WRITE setRenderFormat NOTIFY renderFormatChanged)
-    Q_PROPERTY(bool renderNormalizeEnabled READ renderNormalizeEnabled WRITE setRenderNormalizeEnabled NOTIFY renderNormalizeEnabledChanged)
-    Q_PROPERTY(double renderNormalizeLevel READ renderNormalizeLevel WRITE setRenderNormalizeLevel NOTIFY renderNormalizeLevelChanged)
-    Q_PROPERTY(bool renderTrimEnabled READ renderTrimEnabled WRITE setRenderTrimEnabled NOTIFY renderTrimEnabledChanged)
-    Q_PROPERTY(int renderTrimMinutes READ renderTrimMinutes WRITE setRenderTrimMinutes NOTIFY renderTrimMinutesChanged)
-    Q_PROPERTY(int renderTrimSeconds READ renderTrimSeconds WRITE setRenderTrimSeconds NOTIFY renderTrimSecondsChanged)
-    Q_PROPERTY(bool renderAnalyzeEnabled READ renderAnalyzeEnabled WRITE setRenderAnalyzeEnabled NOTIFY renderAnalyzeEnabledChanged)
 
 public:
     SettingsService();
@@ -123,36 +113,6 @@ public:
     virtual Q_INVOKABLE int playbackOversampleFactor() const;
     virtual Q_INVOKABLE void setPlaybackOversampleFactor(int factor);
 
-    virtual Q_INVOKABLE int renderOversampleFactor() const;
-    virtual Q_INVOKABLE void setRenderOversampleFactor(int factor);
-
-    virtual Q_INVOKABLE int renderSampleRate() const;
-    virtual Q_INVOKABLE void setRenderSampleRate(int sampleRate);
-
-    virtual Q_INVOKABLE int renderBitDepth() const;
-    virtual Q_INVOKABLE void setRenderBitDepth(int bitDepth);
-
-    virtual Q_INVOKABLE int renderFormat() const;
-    virtual Q_INVOKABLE void setRenderFormat(int format);
-
-    virtual Q_INVOKABLE bool renderNormalizeEnabled() const;
-    virtual Q_INVOKABLE void setRenderNormalizeEnabled(bool enabled);
-
-    virtual Q_INVOKABLE double renderNormalizeLevel() const;
-    virtual Q_INVOKABLE void setRenderNormalizeLevel(double level);
-
-    virtual Q_INVOKABLE bool renderTrimEnabled() const;
-    virtual Q_INVOKABLE void setRenderTrimEnabled(bool enabled);
-
-    virtual Q_INVOKABLE int renderTrimMinutes() const;
-    virtual Q_INVOKABLE void setRenderTrimMinutes(int minutes);
-
-    virtual Q_INVOKABLE int renderTrimSeconds() const;
-    virtual Q_INVOKABLE void setRenderTrimSeconds(int seconds);
-
-    virtual Q_INVOKABLE bool renderAnalyzeEnabled() const;
-    virtual Q_INVOKABLE void setRenderAnalyzeEnabled(bool enabled);
-
 signals:
     void controllerPortChanged();
     void uiUpdatesDisabledDuringPlaybackChanged();
@@ -170,16 +130,6 @@ signals:
     void midiExportForceDrumChannel10Changed();
     void midiExportAutoAssignChannelsChanged();
     void playbackOversampleFactorChanged();
-    void renderOversampleFactorChanged();
-    void renderSampleRateChanged();
-    void renderBitDepthChanged();
-    void renderFormatChanged();
-    void renderNormalizeEnabledChanged();
-    void renderNormalizeLevelChanged();
-    void renderTrimEnabledChanged();
-    void renderTrimMinutesChanged();
-    void renderTrimSecondsChanged();
-    void renderAnalyzeEnabledChanged();
 
 private:
     int m_autoNoteOffOffset;
@@ -211,16 +161,6 @@ private:
     bool m_midiExportAutoAssignChannels;
 
     int m_playbackOversampleFactor;
-    int m_renderOversampleFactor;
-    int m_renderSampleRate;
-    int m_renderBitDepth;
-    int m_renderFormat;
-    bool m_renderNormalizeEnabled;
-    double m_renderNormalizeLevel;
-    bool m_renderTrimEnabled;
-    int m_renderTrimMinutes;
-    int m_renderTrimSeconds;
-    bool m_renderAnalyzeEnabled;
 };
 
 } // namespace noteahead

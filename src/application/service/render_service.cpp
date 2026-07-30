@@ -21,7 +21,6 @@
 #include "editor_service.hpp"
 #include "mixer_service.hpp"
 #include "render_worker.hpp"
-#include "settings_service.hpp"
 
 #include <QDateTime>
 #include <QDir>
@@ -37,7 +36,6 @@ RenderService::RenderService(AudioEngineS audioEngine,
                              EditorServiceS editorService,
                              AutomationServiceS automationService,
                              SideChainServiceS sideChainService,
-                             SettingsServiceS settingsService,
                              QObject * parent)
   : QObject { parent }
   , m_audioEngine { std::move(audioEngine) }
@@ -46,7 +44,6 @@ RenderService::RenderService(AudioEngineS audioEngine,
   , m_editorService { std::move(editorService) }
   , m_automationService { std::move(automationService) }
   , m_sideChainService { std::move(sideChainService) }
-  , m_settingsService { std::move(settingsService) }
 {
     m_worker = std::make_unique<RenderWorker>(m_audioEngine, m_deviceService, m_mixerService);
     m_worker->moveToThread(&m_workerThread);
@@ -131,9 +128,10 @@ double RenderService::progress() const
 QString RenderService::renderFileName(const QString & baseName) const
 {
     const auto date = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
-    const auto sampleRateSuffix = QString::number(m_settingsService->renderSampleRate() / 1000) + "k";
-    const auto bitDepthSuffix = [this]() {
-        switch (static_cast<BitDepth>(m_settingsService->renderBitDepth())) {
+    const auto renderSettings = m_editorService->song() ? m_editorService->song()->metadata().renderSettings() : RenderSettings {};
+    const auto sampleRateSuffix = QString::number(renderSettings.sampleRate() / 1000) + "k";
+    const auto bitDepthSuffix = [&renderSettings]() {
+        switch (static_cast<BitDepth>(renderSettings.bitDepth())) {
         case BitDepth::PCM_24:
             return "24bit";
         case BitDepth::PCM_32:
@@ -145,7 +143,7 @@ QString RenderService::renderFileName(const QString & baseName) const
             return "16bit";
         }
     }();
-    const auto ext = static_cast<AudioFormat>(m_settingsService->renderFormat()) == AudioFormat::Flac ? ".flac" : ".wav";
+    const auto ext = static_cast<AudioFormat>(renderSettings.format()) == AudioFormat::Flac ? ".flac" : ".wav";
     return QString { "%1_%2_%3_%4%5" }.arg(baseName, sampleRateSuffix, bitDepthSuffix, date, ext);
 }
 
@@ -239,16 +237,18 @@ void RenderService::startNextRender()
 
     const auto events = song->renderToEvents(m_automationService, m_sideChainService, 0);
     const auto maxTick = song->totalTicks();
-    const auto sampleRate = m_settingsService->renderSampleRate();
-    const auto bitDepth = static_cast<BitDepth>(m_settingsService->renderBitDepth());
-    const auto format = static_cast<AudioFormat>(m_settingsService->renderFormat());
-    const auto normalize = m_settingsService->renderNormalizeEnabled();
-    const auto normalizeTargetDb = m_settingsService->renderNormalizeLevel();
-    const auto trim = m_settingsService->renderTrimEnabled();
-    const auto trimMinutes = m_settingsService->renderTrimMinutes();
-    const auto trimSeconds = m_settingsService->renderTrimSeconds();
-    const auto analyze = m_settingsService->renderAnalyzeEnabled();
-    const auto oversampleFactor = static_cast<quint8>(m_settingsService->renderOversampleFactor());
+    // Render settings belong to the song, so exporting one song cannot inherit another's trim.
+    const auto & renderSettings = song->metadata().renderSettings();
+    const auto sampleRate = renderSettings.sampleRate();
+    const auto bitDepth = static_cast<BitDepth>(renderSettings.bitDepth());
+    const auto format = static_cast<AudioFormat>(renderSettings.format());
+    const auto normalize = renderSettings.normalizeEnabled();
+    const auto normalizeTargetDb = static_cast<double>(renderSettings.normalizeLevelTenthsDb()) / 10.0;
+    const auto trim = renderSettings.trimEnabled();
+    const auto trimMinutes = renderSettings.trimMinutes();
+    const auto trimSeconds = renderSettings.trimSeconds();
+    const auto analyze = renderSettings.analyzeEnabled();
+    const auto oversampleFactor = static_cast<quint8>(renderSettings.oversampleFactor());
 
     const std::map<AudioFileReader::TagType, std::string> tags = [&song]() {
         std::map<AudioFileReader::TagType, std::string> t;

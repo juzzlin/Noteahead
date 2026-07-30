@@ -28,6 +28,16 @@ const std::map<std::string, std::string> & Metadata::tags() const
     return m_tags;
 }
 
+const RenderSettings & Metadata::renderSettings() const
+{
+    return m_renderSettings;
+}
+
+RenderSettings & Metadata::renderSettings()
+{
+    return m_renderSettings;
+}
+
 void Metadata::setTag(const std::string & name, const std::string & value)
 {
     m_tags[name] = value;
@@ -41,6 +51,7 @@ void Metadata::removeTag(const std::string & name)
 void Metadata::clear()
 {
     m_tags.clear();
+    m_renderSettings = RenderSettings {};
 }
 
 void Metadata::serializeToXml(ProjectWriter & writer) const
@@ -58,6 +69,8 @@ void Metadata::serializeToXml(ProjectWriter & writer) const
         writer.writeEndElement(); // Tags
     }
 
+    m_renderSettings.serializeToXml(writer);
+
     writer.writeEndElement(); // Metadata
 }
 
@@ -67,7 +80,9 @@ void Metadata::deserializeFromXml(ProjectReader & reader)
     clear();
 
     while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyMetadata()))) {
-        if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyTags())) {
+        if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyRenderSettings())) {
+            m_renderSettings.deserializeFromXml(reader);
+        } else if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyTags())) {
             // Read Tags
             while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyTags()))) {
                 if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyTag())) {

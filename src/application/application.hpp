@@ -69,6 +69,7 @@ class PlayerService;
 class PropertyService;
 class RecentFilesManager;
 class RecentFilesModel;
+class RenderSettingsModel;
 class RenderService;
 class SamplerController;
 class SelectionService;
@@ -185,6 +186,7 @@ private:
 
     std::shared_ptr<RecentFilesManager> m_recentFilesManager;
     std::unique_ptr<RecentFilesModel> m_recentFilesModel;
+    std::unique_ptr<RenderSettingsModel> m_renderSettingsModel;
 
     std::shared_ptr<RenderService> m_renderService;
 
