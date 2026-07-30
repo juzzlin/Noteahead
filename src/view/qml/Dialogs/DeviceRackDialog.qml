@@ -250,18 +250,29 @@ AnimatedDialog {
             Layout.fillWidth: true
             spacing: 16
 
-            // Re-read on every meter tick, like the per-slot readouts above.
-            readonly property int tick: deviceListView.meterTick
-
             Text {
-                text: qsTr("DSP load: %1 % (peak %2 %)").arg(deviceRackController.totalLoad().toFixed(1)).arg(deviceRackController.totalPeakLoad().toFixed(1))
-                color: deviceRackController.totalPeakLoad() > 90 ? "#ff6060" : "#aaa"
+                // The tick has to be read inside each binding: a property declared on the parent
+                // creates no dependency here, so these would evaluate once and never update.
+                readonly property real load: {
+                    deviceListView.meterTick;
+                    return deviceRackController.totalLoad();
+                }
+                readonly property real peak: {
+                    deviceListView.meterTick;
+                    return deviceRackController.totalPeakLoad();
+                }
+                text: qsTr("DSP load: %1 % (peak %2 %)").arg(load.toFixed(1)).arg(peak.toFixed(1))
+                color: peak > 90 ? "#ff6060" : "#aaa"
                 font.pointSize: 11
             }
 
             Text {
-                text: qsTr("Dropouts: %1").arg(deviceRackController.overrunCount())
-                color: deviceRackController.overrunCount() > 0 ? "#ff6060" : "#aaa"
+                readonly property int dropouts: {
+                    deviceListView.meterTick;
+                    return deviceRackController.overrunCount();
+                }
+                text: qsTr("Dropouts: %1").arg(dropouts)
+                color: dropouts > 0 ? "#ff6060" : "#aaa"
                 font.pointSize: 11
             }
 
