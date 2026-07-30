@@ -469,6 +469,16 @@ QString xmlKeyAutoNoteOffOffset()
     return "autoNoteOffOffset";
 }
 
+QString xmlKeyAutoNoteOffSyncEnabled()
+{
+    return "autoNoteOffSyncEnabled";
+}
+
+QString xmlKeyAutoNoteOffSyncDenominator()
+{
+    return "autoNoteOffSyncDenominator";
+}
+
 QString xmlKeyIndex()
 {
     return "index";
@@ -688,6 +698,13 @@ QString xmlKeyMetadata()
 QString xmlKeyRenderSettings()
 {
     return "RenderSettings";
+}
+
+QString xmlKeySongSettings()
+{
+    // Not plain "Settings": that name is already taken by the element inside Devices and EffectRack,
+    // and Song's deserialization dispatches on element names alone.
+    return "SongSettings";
 }
 
 QString xmlKeyFormat()

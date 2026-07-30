@@ -58,7 +58,7 @@ void InstrumentSettings::serializeToXml(ProjectWriter & writer) const
     writer.writeAttribute(Constants::NahdXml::xmlKeyVelocityKeyTrackOffset(), QString::number(midiEffects.velocityKeyTrackOffset));
 
     if (timing.autoNoteOffOffset.has_value()) {
-        writer.writeAttribute(Constants::NahdXml::xmlKeyAutoNoteOffOffset(), QString::number(timing.autoNoteOffOffset->count()));
+        timing.autoNoteOffOffset->serializeToXmlAttributes(writer);
     }
 
     for (auto && midiCcSetting : midiCcSettings) {
@@ -98,7 +98,11 @@ InstrumentSettings::InstrumentSettingsU InstrumentSettings::deserializeFromXml(P
 
     settings->timing.sendMidiClock = Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeySendMidiClock(), false);
     settings->timing.sendTransport = Utils::Xml::readBoolAttribute(reader, Constants::NahdXml::xmlKeySendTransport(), false);
-    settings->timing.autoNoteOffOffset = Utils::Xml::readMSecAttribute(reader, Constants::NahdXml::xmlKeyAutoNoteOffOffset(), false);
+    // The milliseconds attribute is written whichever mode the override is in, so its presence is
+    // what tells an override apart from a channel that just follows the song.
+    if (Utils::Xml::readMSecAttribute(reader, Constants::NahdXml::xmlKeyAutoNoteOffOffset(), false).has_value()) {
+        settings->timing.autoNoteOffOffset = AutoNoteOffOffset::deserializeFromXmlAttributes(reader);
+    }
     settings->timing.delay = std::chrono::milliseconds { Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyDelay(), false).value_or(0) };
 
     settings->midiEffects.velocityJitter = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyVelocityJitter(), false).value_or(0);

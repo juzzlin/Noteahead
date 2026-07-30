@@ -418,6 +418,9 @@ public slots:
     void requestPositionByTick(quint64 tick);
 
 private:
+    //! Gives a song that stores no settings of its own the application-wide defaults.
+    void seedSongSettings();
+
     void clampCursorLine(quint64 oldLineCount, quint64 newLineCount);
 
     void setSongPositionInternal(quint64 songPosition, bool updateTime, bool allowExtend = true);

@@ -34,6 +34,7 @@ private slots:
     void test_toXmlFromXml_columnSettings_shouldSaveAndLoad();
 
     void test_toXmlFromXml_instrumentSettings_shouldParseInstrumentSettings();
+    void test_toXmlFromXml_instrumentSettings_syncedAutoNoteOff_shouldRoundTrip();
     void test_toXmlFromXml_instrument_shouldParseInstrument();
 
     void test_toXmlFromXml_sideChainService_shouldLoadSideChainService();
@@ -58,6 +59,10 @@ private slots:
     void test_toXmlFromXml_songProperties_shouldBeCorrect();
     void test_toXmlFromXml_songMetadata_shouldRoundTrip();
     void test_toXmlFromXml_songMetadata_empty_shouldRoundTrip();
+    void test_toXmlFromXml_songSettings_milliseconds_shouldRoundTrip();
+    void test_toXmlFromXml_songSettings_sync_shouldRoundTrip();
+    void test_fromXml_songSettingsMissing_shouldSeedFromApplicationDefault();
+    void test_fromXml_legacyAutoNoteOffOffset_shouldLoadAsMilliseconds();
     void test_toXmlFromXml_trackName_shouldLoadTrackName();
     void test_toXmlFromXml_trackDrumTrack_shouldLoadTrackDrumTrack();
     void test_toXmlFromXml_samplerDevice_shouldLoadSamplerDevice();

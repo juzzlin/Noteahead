@@ -26,7 +26,10 @@ class SongTest : public QObject
 
 private slots:
 
-    void test_autoNoteOffOffset_shouldCalculateCorrectOffset();
+    void test_autoNoteOffOffset_milliseconds_shouldCalculateCorrectOffset();
+    void test_autoNoteOffOffset_sync_shouldCalculateCorrectOffset();
+    void test_autoNoteOffOffset_sync_shouldNotDependOnTempo();
+    void test_autoNoteOffOffset_notSet_shouldUseDefault();
 
     void test_createPattern_columnAdded_shouldCreatePattern();
 
@@ -64,6 +67,7 @@ private slots:
     void test_renderToEvents_velocityKeyTrackSet_shouldScaleVelocity();
     void test_renderToEvents_velocityKeyTrackOffsetSet_shouldScaleVelocity();
     void test_renderToEvents_customNoteOffOffsetSet_shouldApplyCorrectOffset();
+    void test_renderToEvents_syncedNoteOffOffsetSet_shouldApplyCorrectOffset();
 
     void test_addTrack_shouldUseSmallestFreeId();
     void test_addTrackToLeft_shouldUseSmallestFreeId();

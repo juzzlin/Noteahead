@@ -70,6 +70,7 @@ class PropertyService;
 class RecentFilesManager;
 class RecentFilesModel;
 class RenderSettingsModel;
+class SongSettingsModel;
 class RenderService;
 class SamplerController;
 class SelectionService;
@@ -187,6 +188,7 @@ private:
     std::shared_ptr<RecentFilesManager> m_recentFilesManager;
     std::unique_ptr<RecentFilesModel> m_recentFilesModel;
     std::unique_ptr<RenderSettingsModel> m_renderSettingsModel;
+    std::unique_ptr<SongSettingsModel> m_songSettingsModel;
 
     std::shared_ptr<RenderService> m_renderService;
 

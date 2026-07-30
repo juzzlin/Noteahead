@@ -16,6 +16,7 @@
 #include "track_settings_model.hpp"
 
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../domain/tracker/auto_note_off_offset.hpp"
 #include "../../domain/tracker/instrument.hpp"
 
 #include <iomanip>
@@ -220,7 +221,10 @@ void TrackSettingsModel::setInstrumentData(const Instrument & instrument)
     setSendTransport(instrument.settings().timing.sendTransport.has_value() && *instrument.settings().timing.sendTransport);
     setAutoNoteOffOffsetEnabled(instrument.settings().timing.autoNoteOffOffset.has_value());
     if (autoNoteOffOffsetEnabled()) {
-        setAutoNoteOffOffset(static_cast<int>(instrument.settings().timing.autoNoteOffOffset.value().count()));
+        const auto & offset = *instrument.settings().timing.autoNoteOffOffset;
+        setAutoNoteOffOffset(static_cast<int>(offset.milliseconds().count()));
+        setAutoNoteOffSyncEnabled(offset.syncEnabled());
+        setAutoNoteOffSyncDenominator(offset.syncDenominator());
     }
     setDelay(static_cast<int>(instrument.settings().timing.delay.count()));
 
@@ -285,7 +289,11 @@ TrackSettingsModel::InstrumentU TrackSettingsModel::toInstrument() const
     settings.timing.delay = std::chrono::milliseconds { m_timingSettings.delay };
 
     if (m_timingSettings.autoNoteOffOffsetEnabled) {
-        settings.timing.autoNoteOffOffset = std::chrono::milliseconds { m_timingSettings.autoNoteOffOffset };
+        AutoNoteOffOffset offset;
+        offset.setMilliseconds(std::chrono::milliseconds { m_timingSettings.autoNoteOffOffset });
+        offset.setSyncDenominator(m_timingSettings.autoNoteOffSyncDenominator);
+        offset.setSyncEnabled(m_timingSettings.autoNoteOffSyncEnabled);
+        settings.timing.autoNoteOffOffset = offset;
     }
 
     settings.midiEffects.velocityJitter = m_midiEffectSettings.velocityJitter;
@@ -481,6 +489,37 @@ void TrackSettingsModel::setAutoNoteOffOffsetEnabled(bool enabled)
         m_timingSettings.autoNoteOffOffsetEnabled = enabled;
         emit autoNoteOffOffsetEnabledChanged();
         applyAll();
+    }
+}
+
+bool TrackSettingsModel::autoNoteOffSyncEnabled() const
+{
+    return m_timingSettings.autoNoteOffSyncEnabled;
+}
+
+void TrackSettingsModel::setAutoNoteOffSyncEnabled(bool enabled)
+{
+    juzzlin::L(TAG).debug() << "Enabling auto note-off BPM sync: " << static_cast<int>(enabled);
+
+    if (m_timingSettings.autoNoteOffSyncEnabled != enabled) {
+        m_timingSettings.autoNoteOffSyncEnabled = enabled;
+        emit autoNoteOffSyncEnabledChanged();
+        applyAll();
+    }
+}
+
+int TrackSettingsModel::autoNoteOffSyncDenominator() const
+{
+    return m_timingSettings.autoNoteOffSyncDenominator;
+}
+
+void TrackSettingsModel::setAutoNoteOffSyncDenominator(int denominator)
+{
+    juzzlin::L(TAG).debug() << "Setting auto note-off sync denominator to " << denominator;
+
+    if (m_timingSettings.autoNoteOffSyncDenominator != denominator) {
+        m_timingSettings.autoNoteOffSyncDenominator = denominator;
+        emit autoNoteOffSyncDenominatorChanged();
     }
 }
 

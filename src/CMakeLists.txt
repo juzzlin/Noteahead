@@ -126,6 +126,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/SettingsDialog_ThemeSettings.qml
     ${QML_BASE_DIR}/Dialogs/ShortcutsDialog.qml
     ${QML_BASE_DIR}/Dialogs/SideChainTargetDelegate.qml
+    ${QML_BASE_DIR}/Dialogs/SongSettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/StringInputDialog.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_AmpEg.qml
@@ -201,6 +202,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/MainMenu/MainMenu_Effects.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu_File.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu_Help.qml
+    ${QML_BASE_DIR}/MainMenu/MainMenu_Song.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu_Tools.qml
     ${QML_BASE_DIR}/NoteVisualizer.qml
     ${QML_BASE_DIR}/ToolBar/EditorControls.qml

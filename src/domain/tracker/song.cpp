@@ -588,27 +588,25 @@ void Song::setBeatsPerMinute(size_t bpm)
     m_beatsPerMinute = bpm;
 }
 
-std::chrono::milliseconds Song::autoNoteOffOffset() const
+const SongSettings & Song::settings() const
 {
-    return m_autoNoteOffOffset;
+    return m_settings;
 }
 
-void Song::setAutoNoteOffOffset(std::chrono::milliseconds autoNoteOffOffset)
+SongSettings & Song::settings()
 {
-    m_autoNoteOffOffset = autoNoteOffOffset;
+    return m_settings;
 }
 
 size_t Song::autoNoteOffOffsetTicks() const
 {
-    return autoNoteOffOffsetTicks(m_autoNoteOffOffset);
+    static const AutoNoteOffOffset defaultOffset;
+    return autoNoteOffOffsetTicks(m_settings.autoNoteOffOffset().value_or(defaultOffset));
 }
 
-size_t Song::autoNoteOffOffsetTicks(std::chrono::milliseconds offset) const
+size_t Song::autoNoteOffOffsetTicks(const AutoNoteOffOffset & offset) const
 {
-    const double linesPerMinute = static_cast<double>(m_beatsPerMinute) * static_cast<double>(m_linesPerBeat);
-    const double offsetLines = static_cast<double>(offset.count()) * linesPerMinute / 60'000.0;
-    const double offsetTicks = offsetLines * static_cast<double>(m_ticksPerLine);
-    return static_cast<size_t>(offsetTicks);
+    return offset.ticks(m_beatsPerMinute, m_linesPerBeat, m_ticksPerLine);
 }
 
 Song::EventList Song::generateNoteOffsForActiveNotes(TrackAndColumn trackAndColumn, size_t tick, ActiveNoteMap & activeNotes) const
@@ -701,7 +699,7 @@ Song::EventList Song::generateNoteOffs(EventListCR events) const
             auto instrumentAutoNoteOffOffset = autoNoteOffOffset;
             if (const auto instrument = this->instrument(trackAndColumn.first); instrument) {
                 if (instrument->settings().timing.autoNoteOffOffset.has_value()) {
-                    instrumentAutoNoteOffOffset = autoNoteOffOffsetTicks(instrument->settings().timing.autoNoteOffOffset.value());
+                    instrumentAutoNoteOffOffset = autoNoteOffOffsetTicks(*instrument->settings().timing.autoNoteOffOffset);
                     juzzlin::L(TAG).trace() << "Auto note-off offset override on track" << trackAndColumn.first << ": " << instrumentAutoNoteOffOffset << " ticks";
                 }
             }
@@ -1111,6 +1109,8 @@ void Song::serializeToXml(ProjectWriter & writer, MixerSerializationCallback mix
 
     m_metadata.serializeToXml(writer);
 
+    m_settings.serializeToXml(writer);
+
     m_playOrder->serializeToXml(writer);
 
     if (mixerSerializationCallback) {
@@ -1152,6 +1152,8 @@ void Song::serializeToXmlAsTemplate(ProjectWriter & writer, MixerSerializationCa
     writer.writeAttribute(Constants::NahdXml::xmlKeyBeatsPerMinute(), QString::number(m_beatsPerMinute));
     writer.writeAttribute(Constants::NahdXml::xmlKeyLinesPerBeat(), QString::number(m_linesPerBeat));
 
+    m_settings.serializeToXml(writer);
+
     if (mixerSerializationCallback) {
         mixerSerializationCallback(writer);
     }
@@ -1185,6 +1187,8 @@ void Song::deserializeFromXml(ProjectReader & reader, MixerDeserializationCallba
                 deserializePatterns(reader);
             } else if (!reader.name().compare(Constants::NahdXml::xmlKeyMetadata())) {
                 m_metadata.deserializeFromXml(reader);
+            } else if (!reader.name().compare(Constants::NahdXml::xmlKeySongSettings())) {
+                m_settings.deserializeFromXml(reader);
             } else if (!reader.name().compare(Constants::NahdXml::xmlKeyPlayOrder())) {
                 deserializePlayOrder(reader);
             } else if (!reader.name().compare(Constants::NahdXml::xmlKeyMixer())) {

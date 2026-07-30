@@ -21,6 +21,7 @@
 #include "../../common/utils.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/devices/device.hpp"
+#include "../../domain/tracker/auto_note_off_offset.hpp"
 #include "../../domain/tracker/column_settings.hpp"
 #include "../../domain/tracker/instrument.hpp"
 #include "../../domain/tracker/instrument_settings.hpp"
@@ -88,6 +89,20 @@ void EditorService::initialize()
     emit statusTextRequested(tr("An empty song initialized"));
 }
 
+void EditorService::seedSongSettings()
+{
+    if (!m_song || !m_settingsService) {
+        return;
+    }
+
+    // A song that stores no auto note-off offset either has just been created or predates song
+    // settings. Both get the application-wide default, so that projects saved before this setting
+    // moved into the song keep playing exactly as they did.
+    if (!m_song->settings().autoNoteOffOffset().has_value()) {
+        m_song->settings().setAutoNoteOffOffset(AutoNoteOffOffset { std::chrono::milliseconds { m_settingsService->autoNoteOffOffset() } });
+    }
+}
+
 void EditorService::setMixerService(MixerServiceS mixerService)
 {
     m_mixerService = mixerService;
@@ -108,6 +123,8 @@ void EditorService::setSong(SongS song)
     m_state = State {};
 
     m_song = song;
+
+    seedSongSettings();
     m_undoStack->clear();
     emit songChanged();
     emit beatsPerMinuteChanged();

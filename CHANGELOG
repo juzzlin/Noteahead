@@ -5,7 +5,18 @@ Release date:
 
 New features:
 
+* Store the auto note-off offset with the song
+  - New Song => Settings menu, with an optional BPM sync mode (1/4 .. 1/128,
+    including the 1/24 and 1/48 triplets)
+  - Channels can override both the offset and the mode in their timing settings
+  - The application-wide setting is now the default new songs start from
+
 Bug fixes:
+
+* Use the configured auto note-off offset when rendering to audio and when
+  exporting MIDI
+  - Both used a hard-coded default unless the song had been played first
+  - Channel overrides were applied correctly and are unaffected
 
 Other:
 

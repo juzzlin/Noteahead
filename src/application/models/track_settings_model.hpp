@@ -56,6 +56,9 @@ class TrackSettingsModel : public QObject
     Q_PROPERTY(int velocityKeyTrackOffset READ velocityKeyTrackOffset WRITE setVelocityKeyTrackOffset NOTIFY velocityKeyTrackOffsetChanged)
     Q_PROPERTY(int autoNoteOffOffset READ autoNoteOffOffset WRITE setAutoNoteOffOffset NOTIFY autoNoteOffOffsetChanged)
     Q_PROPERTY(bool autoNoteOffOffsetEnabled READ autoNoteOffOffsetEnabled WRITE setAutoNoteOffOffsetEnabled NOTIFY autoNoteOffOffsetEnabledChanged)
+    Q_PROPERTY(bool autoNoteOffSyncEnabled READ autoNoteOffSyncEnabled WRITE setAutoNoteOffSyncEnabled NOTIFY autoNoteOffSyncEnabledChanged)
+    //! The 1/N of sync mode, e.g. 16 for a sixteenth note.
+    Q_PROPERTY(int autoNoteOffSyncDenominator READ autoNoteOffSyncDenominator WRITE setAutoNoteOffSyncDenominator NOTIFY autoNoteOffSyncDenominatorChanged)
     Q_PROPERTY(bool drumTrack READ drumTrack WRITE setDrumTrack NOTIFY drumTrackChanged)
 
     Q_PROPERTY(MidiCcSelectionModel * midiCcModel READ midiCcModel CONSTANT)
@@ -129,6 +132,10 @@ public:
     void setAutoNoteOffOffset(int autoNoteOffOffset);
     bool autoNoteOffOffsetEnabled() const;
     void setAutoNoteOffOffsetEnabled(bool enabled);
+    bool autoNoteOffSyncEnabled() const;
+    void setAutoNoteOffSyncEnabled(bool enabled);
+    int autoNoteOffSyncDenominator() const;
+    void setAutoNoteOffSyncDenominator(int denominator);
 
     bool drumTrack() const;
     void setDrumTrack(bool enabled);
@@ -176,6 +183,8 @@ signals:
     void velocityKeyTrackOffsetChanged();
     void autoNoteOffOffsetChanged();
     void autoNoteOffOffsetEnabledChanged();
+    void autoNoteOffSyncEnabledChanged();
+    void autoNoteOffSyncDenominatorChanged();
     void drumTrackChanged();
 
 private:
@@ -205,6 +214,8 @@ private:
         int delay { 0 };
         bool autoNoteOffOffsetEnabled { false };
         int autoNoteOffOffset { 0 };
+        bool autoNoteOffSyncEnabled { false };
+        int autoNoteOffSyncDenominator { 32 };
     };
 
     TimingSettings m_timingSettings;

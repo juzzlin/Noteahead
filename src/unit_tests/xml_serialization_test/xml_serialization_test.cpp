@@ -46,9 +46,12 @@
 #include "../../domain/effects/reverb.hpp"
 #include "../../domain/effects/simple_eq.hpp"
 #include "../../domain/effects/vintage_passive_eq.hpp"
+#include "../../domain/tracker/auto_note_off_offset.hpp"
 #include "../../domain/tracker/column_settings.hpp"
 #include "../../domain/tracker/instrument.hpp"
 #include "../../domain/tracker/note_data.hpp"
+#include "../../domain/tracker/song.hpp"
+#include "../../domain/tracker/song_settings.hpp"
 #include "../../domain/tracker/track.hpp"
 #include "../../domain/utility/dbtp_meter.hpp"
 #include "../../domain/utility/lufs_meter.hpp"
@@ -58,6 +61,7 @@
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
+#include <QRegularExpression>
 #include <QSignalSpy>
 #include <QTemporaryFile>
 #include <QTest>
@@ -228,6 +232,89 @@ void XmlSerializationTest::test_toXmlFromXml_songMetadata_empty_shouldRoundTrip(
     QCOMPARE(editorServiceIn.songMetadataTitle(), QString {});
     QCOMPARE(editorServiceIn.songMetadataArtist(), QString {});
     QCOMPARE(editorServiceIn.songMetadataComment(), QString {});
+}
+
+void XmlSerializationTest::test_toXmlFromXml_songSettings_milliseconds_shouldRoundTrip()
+{
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorServiceOut.song()->settings().setAutoNoteOffOffset(AutoNoteOffOffset { std::chrono::milliseconds { 333 } });
+
+    const auto xml = editorServiceOut.toXml();
+
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorServiceIn.fromXml(xml);
+
+    const auto offsetIn = editorServiceIn.song()->settings().autoNoteOffOffset();
+    QVERIFY(offsetIn.has_value());
+    QVERIFY(!offsetIn->syncEnabled());
+    QCOMPARE(offsetIn->milliseconds(), std::chrono::milliseconds { 333 });
+}
+
+void XmlSerializationTest::test_toXmlFromXml_songSettings_sync_shouldRoundTrip()
+{
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    AutoNoteOffOffset offsetOut { 64 };
+    offsetOut.setMilliseconds(std::chrono::milliseconds { 42 });
+    editorServiceOut.song()->settings().setAutoNoteOffOffset(offsetOut);
+
+    const auto xml = editorServiceOut.toXml();
+
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorServiceIn.fromXml(xml);
+
+    const auto offsetIn = editorServiceIn.song()->settings().autoNoteOffOffset();
+    QVERIFY(offsetIn.has_value());
+    QVERIFY(offsetIn->syncEnabled());
+    QCOMPARE(offsetIn->syncDenominator(), 64);
+    // The inactive mode's value survives the trip, so switching back in the UI restores it.
+    QCOMPARE(offsetIn->milliseconds(), std::chrono::milliseconds { 42 });
+}
+
+void XmlSerializationTest::test_fromXml_songSettingsMissing_shouldSeedFromApplicationDefault()
+{
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    auto xml = editorServiceOut.toXml();
+
+    // A project saved before the setting moved into the song has no SongSettings element at all.
+    xml.remove(QRegularExpression { "<SongSettings[^>]*/>" });
+    QVERIFY(!xml.contains(Constants::NahdXml::xmlKeySongSettings()));
+
+    const auto settingsService = std::make_shared<SettingsService>();
+    settingsService->setAutoNoteOffOffset(200);
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorServiceIn.fromXml(xml);
+
+    // Such a song used to play with the application-wide offset, so it still does.
+    const auto offsetIn = editorServiceIn.song()->settings().autoNoteOffOffset();
+    QVERIFY(offsetIn.has_value());
+    QVERIFY(!offsetIn->syncEnabled());
+    QCOMPARE(offsetIn->milliseconds(), std::chrono::milliseconds { 200 });
+}
+
+void XmlSerializationTest::test_fromXml_legacyAutoNoteOffOffset_shouldLoadAsMilliseconds()
+{
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorServiceOut.requestPosition(0, 0, 0, 0, 0);
+
+    auto instrumentSettingsOut = std::make_shared<InstrumentSettings>();
+    instrumentSettingsOut->timing.autoNoteOffOffset = AutoNoteOffOffset { std::chrono::milliseconds { 666 } };
+    editorServiceOut.setInstrumentSettingsAtCurrentPosition(instrumentSettingsOut);
+
+    // Strip everything sync mode added, leaving the milliseconds attribute a pre-sync project had.
+    auto xml = editorServiceOut.toXml();
+    xml.remove(QRegularExpression { " autoNoteOffSync[A-Za-z]*=\"[^\"]*\"" });
+    QVERIFY(xml.contains(Constants::NahdXml::xmlKeyAutoNoteOffOffset()));
+    QVERIFY(!xml.contains(Constants::NahdXml::xmlKeyAutoNoteOffSyncEnabled()));
+
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorServiceIn.fromXml(xml);
+    editorServiceIn.requestPosition(0, 0, 0, 0, 0);
+
+    const auto instrumentSettingsIn = editorServiceIn.instrumentSettingsAtCurrentPosition();
+    QVERIFY(instrumentSettingsIn);
+    QVERIFY(instrumentSettingsIn->timing.autoNoteOffOffset.has_value());
+    QVERIFY(!instrumentSettingsIn->timing.autoNoteOffOffset->syncEnabled());
+    QCOMPARE(instrumentSettingsIn->timing.autoNoteOffOffset->milliseconds(), std::chrono::milliseconds { 666 });
 }
 
 void XmlSerializationTest::test_toXmlFromXml_columnName_shouldLoadColumnName()
@@ -492,7 +579,7 @@ void XmlSerializationTest::test_toXmlFromXml_instrumentSettings_shouldParseInstr
     instrumentSettingsOut->bank = { 10, 20, true };
     instrumentSettingsOut->transpose = -12;
     instrumentSettingsOut->timing.sendMidiClock = true;
-    instrumentSettingsOut->timing.autoNoteOffOffset = std::chrono::milliseconds { 666 };
+    instrumentSettingsOut->timing.autoNoteOffOffset = AutoNoteOffOffset { std::chrono::milliseconds { 666 } };
     instrumentSettingsOut->timing.delay = std::chrono::milliseconds { -666 };
     instrumentSettingsOut->midiEffects.velocityJitter = 42;
     instrumentSettingsOut->midiCcSettings = {
@@ -722,6 +809,26 @@ void XmlSerializationTest::test_toXmlFromXml_noteData_noteOff_shouldBeCorrect()
     QCOMPARE(noteData->column(), 0);
     QCOMPARE(editorServiceIn.displayNoteAtPosition(0, 0, 0, 4), "OFF");
     QCOMPARE(editorServiceIn.displayVelocityAtPosition(0, 0, 0, 4), "---");
+}
+
+void XmlSerializationTest::test_toXmlFromXml_instrumentSettings_syncedAutoNoteOff_shouldRoundTrip()
+{
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorServiceOut.requestPosition(0, 0, 0, 0, 0);
+
+    auto instrumentSettingsOut = std::make_shared<InstrumentSettings>();
+    instrumentSettingsOut->timing.autoNoteOffOffset = AutoNoteOffOffset { 32 };
+    editorServiceOut.setInstrumentSettingsAtCurrentPosition(instrumentSettingsOut);
+
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorServiceIn.fromXml(editorServiceOut.toXml());
+    editorServiceIn.requestPosition(0, 0, 0, 0, 0);
+
+    const auto instrumentSettingsIn = editorServiceIn.instrumentSettingsAtCurrentPosition();
+    QVERIFY(instrumentSettingsIn);
+    QCOMPARE(instrumentSettingsIn->timing.autoNoteOffOffset, instrumentSettingsOut->timing.autoNoteOffOffset);
+    QVERIFY(instrumentSettingsIn->timing.autoNoteOffOffset->syncEnabled());
+    QCOMPARE(instrumentSettingsIn->timing.autoNoteOffOffset->syncDenominator(), 32);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_instrument_shouldParseInstrument()

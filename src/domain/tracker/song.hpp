@@ -32,6 +32,7 @@
 #include "instrument.hpp"
 #include "metadata.hpp"
 #include "note_data.hpp"
+#include "song_settings.hpp"
 
 namespace noteahead {
 
@@ -60,10 +61,13 @@ public:
     Song();
     ~Song();
 
-    std::chrono::milliseconds autoNoteOffOffset() const;
-    void setAutoNoteOffOffset(std::chrono::milliseconds autoNoteOffOffset);
+    const SongSettings & settings() const;
+    SongSettings & settings();
+
+    //! The song's offset in ticks, falling back on the default when the song has none stored.
     size_t autoNoteOffOffsetTicks() const;
-    size_t autoNoteOffOffsetTicks(std::chrono::milliseconds offset) const;
+    //! The given offset in ticks at this song's tempo. Used for channel overrides.
+    size_t autoNoteOffOffsetTicks(const AutoNoteOffOffset & offset) const;
 
     using ChangedPositions = std::vector<Position>;
     ChangedPositions cutColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager, const AutomationService & automationService) const;
@@ -256,8 +260,6 @@ private:
 
     PatternS masterPattern() const;
 
-    std::chrono::milliseconds m_autoNoteOffOffset = 125ms;
-
     size_t m_beatsPerMinute = 120;
     size_t m_linesPerBeat = 8;
     size_t m_ticksPerLine = 24;
@@ -271,6 +273,8 @@ private:
     std::string m_fileName;
 
     Metadata m_metadata;
+
+    SongSettings m_settings;
 };
 
 } // namespace noteahead

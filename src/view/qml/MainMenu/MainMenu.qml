@@ -5,6 +5,7 @@ import QtQuick.Controls.Universal 2.15
 MenuBar {
     MainMenu_File {}
     MainMenu_Edit {}
+    MainMenu_Song {}
     MainMenu_Devices {}
     MainMenu_Effects {}
     MainMenu_Tools {}

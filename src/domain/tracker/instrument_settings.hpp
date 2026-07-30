@@ -24,6 +24,7 @@
 #include <QString>
 
 #include "../midi/midi_cc_setting.hpp"
+#include "auto_note_off_offset.hpp"
 #include "event_data.hpp"
 
 namespace noteahead {
@@ -57,8 +58,8 @@ public:
 
         std::chrono::milliseconds delay { 0 };
 
-        //! Overrides the global setting
-        std::optional<std::chrono::milliseconds> autoNoteOffOffset;
+        //! Overrides the song's setting
+        std::optional<AutoNoteOffOffset> autoNoteOffOffset;
     };
 
     TimingSettings timing;

@@ -19,6 +19,7 @@
 #include "../../application/service/automation_service.hpp"
 #include "../../application/service/property_service.hpp"
 #include "../../application/service/side_chain_service.hpp"
+#include "../../domain/tracker/auto_note_off_offset.hpp"
 #include "../../domain/tracker/column_settings.hpp"
 #include "../../domain/tracker/event.hpp"
 #include "../../domain/tracker/note_data.hpp"
@@ -29,16 +30,16 @@
 
 namespace noteahead {
 
-void SongTest::test_autoNoteOffOffset_shouldCalculateCorrectOffset()
+void SongTest::test_autoNoteOffOffset_milliseconds_shouldCalculateCorrectOffset()
 {
     Song song;
     song.setBeatsPerMinute(120);
     song.setLinesPerBeat(4);
-    song.setAutoNoteOffOffset(125ms);
+    song.settings().setAutoNoteOffOffset(AutoNoteOffOffset { 125ms });
 
     QCOMPARE(song.autoNoteOffOffsetTicks(), 24);
 
-    song.setAutoNoteOffOffset(250ms);
+    song.settings().setAutoNoteOffOffset(AutoNoteOffOffset { 250ms });
 
     QCOMPARE(song.autoNoteOffOffsetTicks(), 48);
 
@@ -50,9 +51,55 @@ void SongTest::test_autoNoteOffOffset_shouldCalculateCorrectOffset()
 
     QCOMPARE(song.autoNoteOffOffsetTicks(), 48);
 
-    song.setAutoNoteOffOffset(0ms);
+    song.settings().setAutoNoteOffOffset(AutoNoteOffOffset { 0ms });
 
     QCOMPARE(song.autoNoteOffOffsetTicks(), 0);
+}
+
+void SongTest::test_autoNoteOffOffset_sync_shouldCalculateCorrectOffset()
+{
+    Song song;
+    song.setBeatsPerMinute(120);
+    song.setLinesPerBeat(4);
+
+    // A whole note is four beats, so 1/16 is a quarter of a beat: one line of 24 ticks.
+    song.settings().setAutoNoteOffOffset(AutoNoteOffOffset { 16 });
+
+    QCOMPARE(song.autoNoteOffOffsetTicks(), 24);
+
+    song.settings().setAutoNoteOffOffset(AutoNoteOffOffset { 32 });
+
+    QCOMPARE(song.autoNoteOffOffsetTicks(), 12);
+
+    song.settings().setAutoNoteOffOffset(AutoNoteOffOffset { 64 });
+
+    QCOMPARE(song.autoNoteOffOffsetTicks(), 6);
+}
+
+void SongTest::test_autoNoteOffOffset_sync_shouldNotDependOnTempo()
+{
+    Song song;
+    song.setBeatsPerMinute(120);
+    song.setLinesPerBeat(4);
+    song.settings().setAutoNoteOffOffset(AutoNoteOffOffset { 16 });
+
+    const auto ticksAt120 = song.autoNoteOffOffsetTicks();
+
+    song.setBeatsPerMinute(240);
+
+    // Sync mode is in note lengths, so the tick count is the same however fast the song runs. It is
+    // the milliseconds those ticks take that changes.
+    QCOMPARE(song.autoNoteOffOffsetTicks(), ticksAt120);
+}
+
+void SongTest::test_autoNoteOffOffset_notSet_shouldUseDefault()
+{
+    Song song;
+    song.setBeatsPerMinute(120);
+    song.setLinesPerBeat(4);
+
+    QVERIFY(!song.settings().autoNoteOffOffset().has_value());
+    QCOMPARE(song.autoNoteOffOffsetTicks(), 24); // The 125 ms default
 }
 
 void SongTest::test_createPattern_columnAdded_shouldCreatePattern()
@@ -719,9 +766,9 @@ void SongTest::test_renderToEvents_customNoteOffOffsetSet_shouldApplyCorrectOffs
     song.setBeatsPerMinute(120);
     song.setLinesPerBeat(4);
     song.setInstrument(0, instrument);
-    song.setAutoNoteOffOffset(250ms); // Should not apply
+    song.settings().setAutoNoteOffOffset(AutoNoteOffOffset { 250ms }); // Should not apply
     auto settings = instrument->settings();
-    settings.timing.autoNoteOffOffset = 125ms;
+    settings.timing.autoNoteOffOffset = AutoNoteOffOffset { 125ms };
     instrument->setSettings(settings);
 
     song.noteDataAtPosition({ 0, 0, 0, 0, 0 })->setAsNoteOn(60, 100);
@@ -736,6 +783,31 @@ void SongTest::test_renderToEvents_customNoteOffOffsetSet_shouldApplyCorrectOffs
     auto noteOff = events.at(2);
     noteOn = events.at(3);
     QCOMPARE(noteOn->tick() - noteOff->tick(), song.autoNoteOffOffsetTicks(settings.timing.autoNoteOffOffset.value()));
+}
+
+void SongTest::test_renderToEvents_syncedNoteOffOffsetSet_shouldApplyCorrectOffset()
+{
+    Song song;
+
+    const auto instrument = std::make_shared<Instrument>("");
+    song.setBeatsPerMinute(120);
+    song.setLinesPerBeat(4);
+    song.setInstrument(0, instrument);
+    song.settings().setAutoNoteOffOffset(AutoNoteOffOffset { 250ms }); // Should not apply
+    auto settings = instrument->settings();
+    settings.timing.autoNoteOffOffset = AutoNoteOffOffset { 16 };
+    instrument->setSettings(settings);
+
+    song.noteDataAtPosition({ 0, 0, 0, 0, 0 })->setAsNoteOn(60, 100);
+    song.noteDataAtPosition({ 0, 0, 0, 8, 0 })->setAsNoteOn(60, 100);
+
+    auto events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
+    QCOMPARE(events.size(), 6);
+
+    const auto noteOff = events.at(2);
+    const auto noteOn = events.at(3);
+    // One line at four lines per beat: a sixteenth note.
+    QCOMPARE(noteOn->tick() - noteOff->tick(), song.ticksPerLine());
 }
 
 void SongTest::test_addTrack_shouldUseSmallestFreeId()

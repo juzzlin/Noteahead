@@ -86,7 +86,6 @@ void PlayerService::initializeWorker()
 void PlayerService::initializeWorkerWithSongData()
 {
     const PlayerWorker::Timing timing { m_song->beatsPerMinute(), m_song->linesPerBeat(), m_song->ticksPerLine() };
-    m_song->setAutoNoteOffOffset(std::chrono::milliseconds { m_settingsService->autoNoteOffOffset() });
     m_playerWorker->setJackBpmSyncEnabled(m_settingsService->jackSyncEnabled() && m_settingsService->jackBpmSyncEnabled());
     if (m_playerWorker->isLooping()) {
         m_playerWorker->initialize(m_song->renderToEvents(m_automationService, m_sideChainService, m_songPosition, m_songPosition + 1), timing);

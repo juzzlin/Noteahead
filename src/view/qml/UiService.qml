@@ -55,6 +55,7 @@ QtObject {
     signal selectionAddPitchBendAutomationDialogRequested
     signal selectionVelocityInterpolationDialogRequested
     signal settingsDialogRequested
+    signal songSettingsDialogRequested
     signal shortcutsDialogRequested
     signal trackSettingsDialogRequested(int trackIndex)
     signal trackVelocityInterpolationDialogRequested
@@ -211,6 +212,9 @@ QtObject {
     }
     function requestSettingsDialog(): void {
         settingsDialogRequested();
+    }
+    function requestSongSettingsDialog(): void {
+        songSettingsDialogRequested();
     }
     function requestColumnSettingsDialog(trackIndex, columnIndex): void {
         columnSettingsDialogRequested(trackIndex, columnIndex);

@@ -153,6 +153,8 @@ QString xmlKeyVelocityJitter();
 QString xmlKeyVelocityKeyTrack();
 QString xmlKeyVelocityKeyTrackOffset();
 QString xmlKeyAutoNoteOffOffset();
+QString xmlKeyAutoNoteOffSyncEnabled();
+QString xmlKeyAutoNoteOffSyncDenominator();
 QString xmlKeyIndex();
 
 QString xmlKeyInstrument();
@@ -206,6 +208,7 @@ QString xmlKeyValue1();
 QString xmlKeyComment();
 QString xmlKeyMetadata();
 QString xmlKeyRenderSettings();
+QString xmlKeySongSettings();
 QString xmlKeyFormat();
 QString xmlKeySampleRate();
 QString xmlKeyBitDepth();

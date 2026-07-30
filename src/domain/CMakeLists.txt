@@ -69,6 +69,7 @@ set(HEADER_FILES
     midi/pitch_bend_automation.hpp
     midi/pitch_bend_data.hpp
     tracker/arpeggiator.hpp
+    tracker/auto_note_off_offset.hpp
     tracker/automation.hpp
     tracker/automation_location.hpp
     tracker/column.hpp
@@ -92,6 +93,7 @@ set(HEADER_FILES
     tracker/render_settings.hpp
     tracker/side_chain_settings.hpp
     tracker/song.hpp
+    tracker/song_settings.hpp
     tracker/track.hpp
     utility/audio_scope.hpp
     utility/dbtp_meter.hpp
@@ -176,6 +178,7 @@ set(SOURCE_FILES
     midi/pitch_bend_automation.cpp
     midi/pitch_bend_data.cpp
     tracker/arpeggiator.cpp
+    tracker/auto_note_off_offset.cpp
     tracker/automation.cpp
     tracker/automation_location.cpp
     tracker/column.cpp
@@ -197,6 +200,7 @@ set(SOURCE_FILES
     tracker/play_order.cpp
     tracker/render_settings.cpp
     tracker/song.cpp
+    tracker/song_settings.cpp
     tracker/track.cpp
     utility/audio_scope.cpp
     utility/dbtp_meter.cpp

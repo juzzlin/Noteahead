@@ -15,6 +15,8 @@ GroupBox {
         delaySpinBox.value = trackSettingsModel.delay;
         autoNoteOffOffsetCheckbox.checked = trackSettingsModel.autoNoteOffOffsetEnabled;
         autoNoteOffOffsetSpinBox.value = trackSettingsModel.autoNoteOffOffset;
+        autoNoteOffSyncCheckbox.checked = trackSettingsModel.autoNoteOffSyncEnabled;
+        autoNoteOffSyncComboBox.currentIndex = autoNoteOffSyncComboBox.indexOfDenominator(trackSettingsModel.autoNoteOffSyncDenominator);
     }
     ColumnLayout {
         spacing: 8
@@ -86,31 +88,63 @@ GroupBox {
                 ToolTip.text: qsTr("Override the default auto note-off offset")
                 onCheckedChanged: trackSettingsModel.autoNoteOffOffsetEnabled = checked
             }
-            Label {
-                text: qsTr("Auto note-off offset (ms):")
+            CheckBox {
+                id: autoNoteOffSyncCheckbox
+                text: qsTr("Sync to BPM")
                 Layout.column: 2
                 Layout.columnSpan: 2
                 Layout.row: 4
                 Layout.fillWidth: true
                 enabled: autoNoteOffOffsetCheckbox.checked
-            }
-            SpinBox {
-                id: autoNoteOffOffsetSpinBox
-                from: 0
-                to: 500
-                stepSize: 5
-                Layout.column: 4
-                Layout.columnSpan: 5
-                Layout.row: 4
-                Layout.fillWidth: true
-                editable: true
-                enabled: autoNoteOffOffsetCheckbox.checked
-                Keys.onReturnPressed: focus = false
                 ToolTip.delay: Constants.toolTipDelay
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered
-                ToolTip.text: qsTr("Set offset for auto note-off events in milliseconds. This defines the time between a note-off and the following note-on in the same column.")
-                onValueModified: trackSettingsModel.autoNoteOffOffset = value
+                ToolTip.text: qsTr("Express the offset as a note length instead of milliseconds, so that it follows the tempo")
+                onCheckedChanged: trackSettingsModel.autoNoteOffSyncEnabled = checked
+            }
+            Label {
+                text: autoNoteOffSyncCheckbox.checked ? qsTr("Offset:") : qsTr("Offset (ms):")
+                Layout.column: 4
+                Layout.row: 4
+                Layout.fillWidth: true
+                enabled: autoNoteOffOffsetCheckbox.checked
+            }
+            StackLayout {
+                Layout.column: 5
+                Layout.columnSpan: 4
+                Layout.row: 4
+                Layout.fillWidth: true
+                currentIndex: autoNoteOffSyncCheckbox.checked ? 1 : 0
+                SpinBox {
+                    id: autoNoteOffOffsetSpinBox
+                    from: 0
+                    to: 500
+                    stepSize: 5
+                    Layout.fillWidth: true
+                    editable: true
+                    enabled: autoNoteOffOffsetCheckbox.checked
+                    Keys.onReturnPressed: focus = false
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Set offset for auto note-off events in milliseconds. This defines the time between a note-off and the following note-on in the same column.")
+                    onValueModified: trackSettingsModel.autoNoteOffOffset = value
+                }
+                ComboBox {
+                    id: autoNoteOffSyncComboBox
+                    Layout.fillWidth: true
+                    enabled: autoNoteOffOffsetCheckbox.checked
+                    model: songSettingsModel.autoNoteOffSyncDenominators.map(denominator => `1/${denominator}`)
+                    function indexOfDenominator(denominator: int): int {
+                        const index = songSettingsModel.autoNoteOffSyncDenominators.indexOf(denominator);
+                        return index >= 0 ? index : 0;
+                    }
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Set offset for auto note-off events as a note length. This defines the time between a note-off and the following note-on in the same column.")
+                    onActivated: trackSettingsModel.autoNoteOffSyncDenominator = songSettingsModel.autoNoteOffSyncDenominators[currentIndex]
+                }
             }
         }
     }

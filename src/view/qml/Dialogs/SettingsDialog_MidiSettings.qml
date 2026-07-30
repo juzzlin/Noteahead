@@ -141,10 +141,10 @@ GroupBox {
             Layout.fillHeight: true
             GridLayout {
                 columns: 9
-                rows: 1
+                rows: 2
                 width: parent.width
                 Label {
-                    text: qsTr("Auto note-off offset (ms):")
+                    text: qsTr("Default auto note-off offset (ms):")
                     Layout.column: 0
                     Layout.columnSpan: 2
                     Layout.row: 0
@@ -165,7 +165,17 @@ GroupBox {
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Set offset for auto note-off events in milliseconds. This defines the time between a note-off and the following note-on in the same column.")
+                    ToolTip.text: qsTr("Set the offset new songs start with, in milliseconds. This defines the time between a note-off and the following note-on in the same column.")
+                }
+                Label {
+                    Layout.column: 0
+                    Layout.columnSpan: 9
+                    Layout.row: 1
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignHCenter
+                    wrapMode: Text.WordWrap
+                    color: themeService.accentColor
+                    text: qsTr("Applies to new songs. Override per song in Song → Settings, or per channel in Track Settings.")
                 }
             }
         }
