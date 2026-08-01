@@ -5,52 +5,9 @@ Release date:
 
 New features:
 
-* Store the auto note-off offset with the song
-  - New Song => Settings menu, with an optional BPM sync mode (1/4 .. 1/128,
-    including the 1/24 and 1/48 triplets)
-  - Channels can override both the offset and the mode in their timing settings
-  - The application-wide setting is now the default new songs start from
-  - Lower that default from 250 ms to 25 ms, which existing settings keep
-
-* Let modulation stay where it sweeps to
-  - A finished one-shot LFO now holds the value its shape ends on instead
-    of snapping back to zero
-  - Add a Sustain control to the Mod EG of the Synth and Wavetable Synth,
-    0 keeping the previous AD behaviour
-
-* Add Supersaw and Drift voice modes to the Synth
-  - Supersaw spaces the detune unevenly around a centre voice held at full
-    level, so the stack keeps a core pitch instead of smearing it
-  - Drift replaces fixed detune with per-voice wander, so no pair settles
-    into a steady beat
-  - Both roll the top off the outer voices, where the beating is roughest
-  - Switching voice mode no longer changes the level
-
-* Make the Device Rack's gain staging target configurable
-  - "Gain staging target (dBFS)" in General settings, -18 by default
-
 Bug fixes:
 
-* Fix Unison being far louder than Poly in Synth and Wavetable Synth
-  - Unison spent every voice on one note but kept the gain compensation
-    sized for a full chord, landing 11-18 dB hot
-  - Wavetable Synth also started its unison voices at the same phase, so
-    they summed instead of thickening
-
-* Fix the render progress bar starting at the previous export's value
-
-* Fix the Clipper's reduction meter reading near full scale at all times
-  - It compared the input against an output delayed by the oversampling
-    filters, so it never tracked the threshold
-
-* Use the configured auto note-off offset when rendering to audio and when
-  exporting MIDI
-  - Both used a hard-coded default unless the song had been played first
-  - Channel overrides were applied correctly and are unaffected
-
 Other:
-
-* Hold the DSP load peak before letting it fall, so spikes stay readable
 
 6.0.0
 =====
@@ -129,6 +86,30 @@ New features:
 
 * Add chromatic mode to the Sampler
 
+* Store the auto note-off offset with the song
+  - New Song => Settings menu, with an optional BPM sync mode (1/4 .. 1/128,
+    including the 1/24 and 1/48 triplets)
+  - Channels can override both the offset and the mode in their timing settings
+  - The application-wide setting is now the default new songs start from
+  - Lower that default from 250 ms to 25 ms, which existing settings keep
+
+* Let modulation stay where it sweeps to
+  - A finished one-shot LFO now holds the value its shape ends on instead
+    of snapping back to zero
+  - Add a Sustain control to the Mod EG of the Synth and Wavetable Synth,
+    0 keeping the previous AD behaviour
+
+* Add Supersaw and Drift voice modes to the Synth
+  - Supersaw spaces the detune unevenly around a centre voice held at full
+    level, so the stack keeps a core pitch instead of smearing it
+  - Drift replaces fixed detune with per-voice wander, so no pair settles
+    into a steady beat
+  - Both roll the top off the outer voices, where the beating is roughest
+  - Switching voice mode no longer changes the level
+
+* Make the Device Rack's gain staging target configurable
+  - "Gain staging target (dBFS)" in General settings, -18 by default
+
 Bug fixes:
 
 * Fix a stutter on the first play
@@ -161,6 +142,17 @@ Bug fixes:
 
 * Fix Synth Multi engine ignoring Key Track in the High, Low and Peak modes
 
+* Fix Unison being far louder than Poly in Synth and Wavetable Synth
+
+* Fix the render progress bar starting at the previous export's value
+
+* Fix the Clipper's reduction meter reading near full scale at all times
+
+* Use the configured auto note-off offset when rendering to audio and when
+  exporting MIDI
+  - Both used a hard-coded default unless the song had been played first
+  - Channel overrides were applied correctly and are unaffected
+
 Other:
 
 * Speed up rendering and export by cutting the worker pool's synchronisation cost
@@ -176,6 +168,8 @@ Other:
 * Update README's device and effect listings
 
 * Update the user manual for the current devices, effects and render options
+
+* Hold the DSP load peak before letting it fall, so spikes stay readable
 
 5.0.0
 =====
