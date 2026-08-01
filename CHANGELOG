@@ -5,6 +5,9 @@ Release date:
 
 New features:
 
+* Add an Auto Ducker rack effect
+  - Side chain driven level rider whose Amount is signed, so it ducks or lifts
+
 Bug fixes:
 
 Other:

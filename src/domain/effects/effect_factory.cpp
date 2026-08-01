@@ -21,6 +21,7 @@
 #include "../utility/rta.hpp"
 #include "air_band_eq.hpp"
 #include "all_pass_filter.hpp"
+#include "auto_ducker.hpp"
 #include "auto_panner.hpp"
 #include "chorus.hpp"
 #include "clipper.hpp"
@@ -88,6 +89,7 @@ void EffectFactory::init()
 {
     registerEffect(AirBandEq::typeIdString(), []() { return std::make_shared<AirBandEq>(); });
     registerEffect(AllPassFilter::typeIdString(), []() { return std::make_shared<AllPassFilter>(); });
+    registerEffect(AutoDucker::typeIdString(), []() { return std::make_shared<AutoDucker>(); });
     registerEffect(AutoPanner::typeIdString(), []() { return std::make_shared<AutoPanner>(); });
     registerEffect(EndlessReverb::typeIdString(), []() { return std::make_shared<EndlessReverb>(); });
     registerEffect(Chorus::typeIdString(), []() { return std::make_shared<Chorus>(); });
@@ -107,6 +109,7 @@ void EffectFactory::init()
     registerEffect(SimpleEq::typeIdString(), []() { return std::make_shared<SimpleEq>(); });
 
     // Readable-string aliases so the gallery can create effects by their type() name
+    registerEffect(Constants::RackEffectType::autoDucker().toStdString(), []() { return std::make_shared<AutoDucker>(); });
     registerEffect(Constants::RackEffectType::autoPanner().toStdString(), []() { return std::make_shared<AutoPanner>(); });
     registerEffect(Constants::RackEffectType::endless().toStdString(), []() { return std::make_shared<EndlessReverb>(); });
     registerEffect(Constants::RackEffectType::clipper().toStdString(), []() { return std::make_shared<Clipper>(); });
@@ -124,6 +127,7 @@ void EffectFactory::init()
     registerEffect(Constants::RackEffectType::simpleEq().toStdString(), []() { return std::make_shared<SimpleEq>(); });
 
     // Legacy support
+    registerLegacyEffect("auto_ducker", []() { return std::make_shared<AutoDucker>(); });
     registerLegacyEffect("auto_panner", []() { return std::make_shared<AutoPanner>(); });
     registerLegacyEffect("endless", []() { return std::make_shared<EndlessReverb>(); });
     registerLegacyEffect("chorus", []() { return std::make_shared<Chorus>(); });

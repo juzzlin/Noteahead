@@ -44,6 +44,7 @@ set(HEADER_FILES
     dsp/wavetable_oscillator.hpp
     effects/air_band_eq.hpp
     effects/all_pass_filter.hpp
+    effects/auto_ducker.hpp
     effects/auto_panner.hpp
     effects/clipper.hpp
     effects/compressor.hpp
@@ -153,6 +154,7 @@ set(SOURCE_FILES
     dsp/wavetable_oscillator.cpp
     effects/air_band_eq.cpp
     effects/all_pass_filter.cpp
+    effects/auto_ducker.cpp
     effects/auto_panner.cpp
     effects/chorus.cpp
     effects/clipper.cpp

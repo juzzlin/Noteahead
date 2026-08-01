@@ -131,6 +131,8 @@ All Arctic Music Project songs:
   - Large ambient reverb built on an 8-line modulated Householder FDN with input diffusion, plus a Freeze switch for an infinite tail.
 - Compressor
   - Feed-forward compressor with soft-knee interpolation, lookahead support, and real-time gain reduction metering.
+- Auto Ducker
+  - Side-chain driven level rider with Threshold, Knee, Attack, Hold and Release. Amount is signed, so the same effect ducks the signal out of the way or lifts it with the side chain.
 - Limiter
   - Lookahead brickwall peak limiter with Threshold, Ceiling, Release and Lookahead controls, a Boost switch for maximum loudness, and gain reduction metering.
 - Clipper

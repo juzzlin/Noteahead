@@ -143,6 +143,9 @@ AnimatedDialog {
                         } else if (effectType === effectRackController.compressorType) {
                             compressorDialog.effectIndex = index;
                             compressorDialog.open();
+                        } else if (effectType === effectRackController.autoDuckerType) {
+                            autoDuckerDialog.effectIndex = index;
+                            autoDuckerDialog.open();
                         } else if (effectType === effectRackController.delayType) {
                             delayDialog.effectIndex = index;
                             delayDialog.open();

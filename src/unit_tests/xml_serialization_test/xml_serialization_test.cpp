@@ -36,6 +36,7 @@
 #include "../../domain/devices/wavetable_synth_device.hpp"
 #include "../../domain/effects/air_band_eq.hpp"
 #include "../../domain/effects/all_pass_filter.hpp"
+#include "../../domain/effects/auto_ducker.hpp"
 #include "../../domain/effects/chorus.hpp"
 #include "../../domain/effects/clipper.hpp"
 #include "../../domain/effects/delay.hpp"
@@ -1818,6 +1819,55 @@ void XmlSerializationTest::test_toXmlFromXml_limiterEffect_shouldLoadCorrectly()
     if (auto p = restored->parameter(Constants::NahdXml::xmlKeyBoost().toStdString()); p) {
         QCOMPARE(p->get().value(), 1.0f);
     }
+}
+
+void XmlSerializationTest::test_toXmlFromXml_autoDuckerEffect_shouldLoadCorrectly()
+{
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto autoDucker = std::make_shared<AutoDucker>();
+    if (auto p = autoDucker->parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()); p) {
+        p->get().setValue(0.5f);
+    }
+    if (auto p = autoDucker->parameter(Constants::NahdXml::xmlKeyAmount().toStdString()); p) {
+        p->get().setValue(0.75f); // +12 dB, the boosting half of the range
+    }
+    if (auto p = autoDucker->parameter(Constants::NahdXml::xmlKeyHold().toStdString()); p) {
+        p->get().setValue(0.4f);
+    }
+    if (auto p = autoDucker->parameter(Constants::NahdXml::xmlKeySideChainSourceDevice().toStdString()); p) {
+        p->get().setValue(2.0f);
+    }
+    deviceServiceOut.sendEffectRack().setEffect(0, autoDucker);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(effect);
+    QCOMPARE(effect->typeId(), AutoDucker::typeIdString());
+    const auto restored = std::dynamic_pointer_cast<AutoDucker>(effect);
+    QVERIFY(restored);
+    if (auto p = restored->parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()); p) {
+        QCOMPARE(p->get().value(), 0.5f);
+    }
+    if (auto p = restored->parameter(Constants::NahdXml::xmlKeyAmount().toStdString()); p) {
+        QCOMPARE(p->get().value(), 0.75f);
+    }
+    if (auto p = restored->parameter(Constants::NahdXml::xmlKeyHold().toStdString()); p) {
+        QCOMPARE(p->get().value(), 0.4f);
+    }
+    QCOMPARE(restored->sidechainSourceDeviceIndex(), std::optional<size_t> { 2 });
 }
 
 void XmlSerializationTest::test_toXmlFromXml_lufsMeterEffect_shouldLoadCorrectly()

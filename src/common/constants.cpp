@@ -216,6 +216,11 @@ QString autoPanner()
     return "autopanner";
 }
 
+QString autoDucker()
+{
+    return "autoducker";
+}
+
 QString eq8BandParametric()
 {
     return "eq8bandparametric";

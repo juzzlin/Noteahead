@@ -58,6 +58,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString simpleEqType READ simpleEqType CONSTANT)
     Q_PROPERTY(QString pannerType READ pannerType CONSTANT)
     Q_PROPERTY(QString autoPannerType READ autoPannerType CONSTANT)
+    Q_PROPERTY(QString autoDuckerType READ autoDuckerType CONSTANT)
     Q_PROPERTY(QString reverbType READ reverbType CONSTANT)
     Q_PROPERTY(QString endlessType READ endlessType CONSTANT)
 
@@ -83,6 +84,7 @@ public:
     void setRackEnabled(bool enabled);
 
     QString allPassFilterType() const;
+    QString autoDuckerType() const;
     QString autoPannerType() const;
     QString dbtpMeterType() const;
     QString lufsMeterType() const;
@@ -165,6 +167,15 @@ public:
     Q_INVOKABLE QString compressorSideChainSourceDeviceKey() const;
     Q_INVOKABLE QString compressorSideChainLpfKey() const;
 
+    Q_INVOKABLE QString autoDuckerThresholdKey() const;
+    Q_INVOKABLE QString autoDuckerAmountKey() const;
+    Q_INVOKABLE QString autoDuckerKneeKey() const;
+    Q_INVOKABLE QString autoDuckerAttackKey() const;
+    Q_INVOKABLE QString autoDuckerReleaseKey() const;
+    Q_INVOKABLE QString autoDuckerHoldKey() const;
+    Q_INVOKABLE QString autoDuckerSideChainSourceDeviceKey() const;
+    Q_INVOKABLE QString autoDuckerSideChainLpfKey() const;
+
     Q_INVOKABLE QString allPassFilterFrequencyKey() const;
     Q_INVOKABLE QString allPassFilterQKey() const;
     Q_INVOKABLE QString allPassFilterStagesKey() const;
@@ -225,6 +236,7 @@ public:
     Q_INVOKABLE QString simpleEqAmountKey() const;
 
     Q_INVOKABLE float compressorReductionDb(quint32 effectIndex) const;
+    Q_INVOKABLE float autoDuckerGainDb(quint32 effectIndex) const;
     Q_INVOKABLE float clipperReductionDb(quint32 effectIndex) const;
     Q_INVOKABLE float limiterReductionDb(quint32 effectIndex) const;
     Q_INVOKABLE float saturatorSaturationDb(quint32 effectIndex) const;

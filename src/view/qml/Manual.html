@@ -112,7 +112,7 @@
 <ul>
     <li><strong>Equalizers</strong>: <strong>EQ 8-Band Parametric</strong> (Bell, Shelf, Cut and Notch types per band, plus Mid/Side modes), <strong>Vintage Passive EQ</strong> (EQP-1A style, with interacting low Boost/Atten shelves and a high bell), <strong>Air Band EQ</strong> (fixed parallel-summed bands added back to the dry signal) and <strong>Simple EQ</strong> (a single "Sounds Good" knob sweeping a loudness-smile curve).</li>
     <li><strong>Reverbs</strong>: <strong>Reverb</strong> (the FDN reverb described below) and <strong>Endless Reverb</strong> (a large modulated ambient reverb with a Freeze switch for an infinite tail).</li>
-    <li><strong>Dynamics</strong>: <strong>Compressor</strong> (with side-chain support), <strong>Limiter</strong> (lookahead brickwall with gain reduction metering) and <strong>Clipper</strong>.</li>
+    <li><strong>Dynamics</strong>: <strong>Compressor</strong> (with side-chain support), <strong>Auto Ducker</strong> (side-chain driven ducking or boosting), <strong>Limiter</strong> (lookahead brickwall with gain reduction metering) and <strong>Clipper</strong>.</li>
     <li><strong>Saturation</strong>: <strong>Drive</strong> (Soft, Hard, Fold and Dist algorithms) and <strong>Saturator</strong>.</li>
     <li><strong>Modulation & Time</strong>: <strong>Chorus</strong>, <strong>Delay</strong> (Mono, Ping Pong and Tape modes, with BPM sync) and <strong>All-Pass Filter</strong>.</li>
     <li><strong>Stereo</strong>: <strong>Panner</strong> and <strong>Auto Panner</strong>.</li>
@@ -142,6 +142,19 @@
     <li><strong>Makeup (dB)</strong>: Compensates for the level loss caused by compression (-12 to +12 dB).</li>
     <li><strong>Lookahead (ms)</strong>: Delays the audio path slightly to allow the detector to "see" incoming peaks before they occur (0 to 10 ms), enabling more precise peak management.</li>
     <li><strong>Reduction Meter</strong>: Provides real-time visual feedback of the current gain reduction in dB.</li>
+</ul>
+
+<h3 style="color: orange;">Auto Ducker Parameters</h3>
+<p>The Auto Ducker rides the level of the signal it sits on according to what a side chain source is doing. Point it at the kick to pump a pad, or at the lead to pull a bed out of the way. With no side chain source selected it listens to its own input.</p>
+<ul>
+    <li><strong>Threshold (dB)</strong>: The side chain level at which the ducker starts to engage (-60 to 0 dB).</li>
+    <li><strong>Amount (dB)</strong>: The gain applied once the side chain is fully above the threshold (-24 to +24 dB). Negative values duck the signal, positive values lift it.</li>
+    <li><strong>Knee (dB)</strong>: The range above the threshold over which the amount fades in (0 to 24 dB). A zero knee switches to the full amount at the threshold.</li>
+    <li><strong>Attack</strong>: How quickly the gain moves towards the amount as the side chain engages (0.1 to 500 ms).</li>
+    <li><strong>Release</strong>: How quickly the gain returns once the side chain falls back (1 to 2000 ms).</li>
+    <li><strong>Hold (ms)</strong>: Keeps the gain where it is before the release starts (0 to 500 ms), so a busy side chain does not chatter.</li>
+    <li><strong>Side Chain Source</strong>: The device the detector listens to, with an LPF for keying off the low end only.</li>
+    <li><strong>Gain Meter</strong>: Shows the gain currently applied, downwards while ducking and upwards while boosting.</li>
 </ul>
 
 <h3 style="color: orange;">Send Routing</h3>

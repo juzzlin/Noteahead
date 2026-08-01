@@ -20,6 +20,7 @@
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/effects/all_pass_filter.hpp"
+#include "../../domain/effects/auto_ducker.hpp"
 #include "../../domain/effects/auto_panner.hpp"
 #include "../../domain/effects/chorus.hpp"
 #include "../../domain/effects/clipper.hpp"
@@ -263,6 +264,7 @@ QVariantList EffectRackController::availableEffects() const
     };
 
     addEffect("All-Pass Filter", AllPassFilter::typeIdString());
+    addEffect("Auto Ducker", Constants::RackEffectType::autoDucker().toStdString());
     addEffect("Auto Panner", Constants::RackEffectType::autoPanner().toStdString());
     addEffect("Endless Reverb", Constants::RackEffectType::endless().toStdString());
     addEffect("Chorus", Chorus::typeIdString());
@@ -460,6 +462,21 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                     return QString { "(attack=%1ms, ratio=%2:1, sidechain=%3)" }
                       .arg(attackMs, 0, 'f', 1)
                       .arg(ratioValue, 0, 'g', 3)
+                      .arg(scName);
+                }
+            } else if (type == Constants::RackEffectType::autoDucker()) {
+                const auto amount { effect->parameter(Constants::NahdXml::xmlKeyAmount().toStdString()) };
+                const auto threshold { effect->parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()) };
+                if (amount && threshold) {
+                    QString scName { tr("None") };
+                    if (const auto sourceIndex { effect->sidechainSourceDeviceIndex() }; sourceIndex) {
+                        if (const auto sourceDevice { m_deviceService->device(*sourceIndex) }) {
+                            scName = QString::fromStdString(sourceDevice->name());
+                        }
+                    }
+                    return QString { "(amount=%1dB, thr=%2dB, sidechain=%3)" }
+                      .arg(amount->get().xmlValue() / 100.0f, 0, 'f', 1)
+                      .arg(threshold->get().xmlValue() / 100.0f, 0, 'f', 1)
                       .arg(scName);
                 }
             } else if (type == Constants::RackEffectType::delay()) {
@@ -686,6 +703,46 @@ QString EffectRackController::compressorSideChainSourceDeviceKey() const
 }
 
 QString EffectRackController::compressorSideChainLpfKey() const
+{
+    return Constants::NahdXml::xmlKeySideChainLpf();
+}
+
+QString EffectRackController::autoDuckerThresholdKey() const
+{
+    return Constants::NahdXml::xmlKeyThreshold();
+}
+
+QString EffectRackController::autoDuckerAmountKey() const
+{
+    return Constants::NahdXml::xmlKeyAmount();
+}
+
+QString EffectRackController::autoDuckerKneeKey() const
+{
+    return Constants::NahdXml::xmlKeyKnee();
+}
+
+QString EffectRackController::autoDuckerAttackKey() const
+{
+    return Constants::NahdXml::xmlKeyAttack();
+}
+
+QString EffectRackController::autoDuckerReleaseKey() const
+{
+    return Constants::NahdXml::xmlKeyRelease();
+}
+
+QString EffectRackController::autoDuckerHoldKey() const
+{
+    return Constants::NahdXml::xmlKeyHold();
+}
+
+QString EffectRackController::autoDuckerSideChainSourceDeviceKey() const
+{
+    return Constants::NahdXml::xmlKeySideChainSourceDevice();
+}
+
+QString EffectRackController::autoDuckerSideChainLpfKey() const
 {
     return Constants::NahdXml::xmlKeySideChainLpf();
 }
@@ -930,6 +987,11 @@ QString EffectRackController::compressorType() const
     return Constants::RackEffectType::compressor();
 }
 
+QString EffectRackController::autoDuckerType() const
+{
+    return Constants::RackEffectType::autoDucker();
+}
+
 QString EffectRackController::delayType() const
 {
     return Constants::RackEffectType::delay();
@@ -1062,6 +1124,19 @@ float EffectRackController::limiterReductionDb(quint32 effectIndex) const
         if (const auto effect = rack->get().effect(effectIndex); effect) {
             if (const auto limiter = std::dynamic_pointer_cast<Limiter>(effect); limiter) {
                 return limiter->reductionDb();
+            }
+        }
+    }
+
+    return 0.0f;
+}
+
+float EffectRackController::autoDuckerGainDb(quint32 effectIndex) const
+{
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(effectIndex); effect) {
+            if (const auto autoDucker = std::dynamic_pointer_cast<AutoDucker>(effect); autoDucker) {
+                return autoDucker->gainDb();
             }
         }
     }

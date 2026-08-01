@@ -106,6 +106,7 @@ QString limiter();
 QString endless();
 QString panner();
 QString autoPanner();
+QString autoDucker();
 QString eq8BandParametric();
 QString eq8BandParametricLegacy();
 QString vintagePassiveEq();
