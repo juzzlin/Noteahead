@@ -16,9 +16,14 @@
 #include "note_column_renderer.hpp"
 
 #include "../../../application/models/note_column_model.hpp"
+#include "../../../application/service/theme_service.hpp"
+#include "../../../common/constants.hpp"
 
 #include <QAbstractListModel>
 #include <QPainter>
+
+#include <algorithm>
+#include <cmath>
 
 namespace noteahead {
 
@@ -76,6 +81,73 @@ void NoteColumnRenderer::setVisibleLines(int visibleLines)
         emit visibleLinesChanged();
         update();
     }
+}
+
+int NoteColumnRenderer::automationDisplayMode() const
+{
+    return m_automationDisplayMode;
+}
+
+void NoteColumnRenderer::setAutomationDisplayMode(int mode)
+{
+    if (m_automationDisplayMode != mode) {
+        m_automationDisplayMode = mode;
+        emit automationDisplayModeChanged();
+        update();
+    }
+}
+
+void NoteColumnRenderer::paintAutomationCurves(QPainter * painter, int startRow, int endRow, qreal rowHeight)
+{
+    const auto model = qobject_cast<NoteColumnModel *>(m_model.data());
+    if (!model || endRow <= startRow) {
+        return;
+    }
+
+    // Rows, not lines: the model shifts by the position bar and the offset areas hold no lines
+    const auto curves = model->automationCurves(startRow, endRow);
+    if (curves.empty()) {
+        return;
+    }
+
+    // Inset so the extremes stay visible instead of merging with the column border
+    const qreal margin = std::min(4.0, width() / 8.0);
+    const qreal usableWidth = std::max(1.0, width() - 2.0 * margin);
+    const auto valueX = [&](double value) { return margin + value * usableWidth; };
+    const auto rowY = [&](int row) { return (static_cast<double>(row) - m_scrollOffset + 0.5) * rowHeight; };
+
+    const auto palette = ThemeService::automationCurveColorList();
+
+    // Pitch bend swings around a centre the eye needs to find, so mark it once behind the traces
+    if (std::ranges::any_of(curves, [](auto && curve) { return curve.isPitchBend; })) {
+        QColor centerColor { "#808080" };
+        centerColor.setAlphaF(0.35);
+        painter->setPen(QPen { centerColor, 1.0, Qt::DashLine });
+        painter->drawLine(QPointF(valueX(0.5), 0.0), QPointF(valueX(0.5), height()));
+    }
+
+    painter->setRenderHint(QPainter::Antialiasing, true);
+    for (size_t curveIndex = 0; curveIndex < curves.size(); curveIndex++) {
+        const auto & curve = curves.at(curveIndex);
+        QColor color = palette.at(static_cast<int>(curveIndex % static_cast<size_t>(palette.size())));
+        color.setAlphaF(0.75);
+        painter->setPen(QPen { color, 1.5 });
+
+        // Broken into runs, so a gap where the automation does not reach is a gap on screen too
+        QPolygonF run;
+        for (size_t i = 0; i < curve.values.size(); i++) {
+            if (const auto & value = curve.values.at(i); value.has_value()) {
+                run.append(QPointF(valueX(*value), rowY(startRow + static_cast<int>(i))));
+            } else if (!run.isEmpty()) {
+                painter->drawPolyline(run);
+                run.clear();
+            }
+        }
+        if (!run.isEmpty()) {
+            painter->drawPolyline(run);
+        }
+    }
+    painter->setRenderHint(QPainter::Antialiasing, false);
 }
 
 void NoteColumnRenderer::paint(QPainter * painter)
@@ -156,6 +228,10 @@ void NoteColumnRenderer::paint(QPainter * painter)
             focusColor.setAlphaF(0.5);
             painter->fillRect(QRectF(focusX, y + (rowHeight - fm.height()) / 2.0, focusWidth, fm.height()), focusColor);
         }
+    }
+
+    if (m_automationDisplayMode == static_cast<int>(Constants::AutomationDisplayMode::Curve)) {
+        paintAutomationCurves(painter, startRow, endRow, rowHeight);
     }
 }
 

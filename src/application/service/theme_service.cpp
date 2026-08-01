@@ -123,6 +123,34 @@ QColor ThemeService::noteColumnCellBorderColor() const
     return QColor { "#222222" };
 }
 
+QList<QColor> ThemeService::automationCurveColorList()
+{
+    // White first, so the common single-automation case reads as a plain trace; the rest are picked
+    // to stay legible against the tracker's dark rows and apart from each other.
+    return {
+        QColor { "#ffffff" },
+        QColor { "#00c8ff" },
+        QColor { "#ffb000" },
+        QColor { "#00e070" },
+        QColor { "#ff5fa0" },
+        QColor { "#b78cff" }
+    };
+}
+
+QVariantList ThemeService::automationCurveColors() const
+{
+    QVariantList colors;
+    for (auto && color : automationCurveColorList()) {
+        colors.append(color);
+    }
+    return colors;
+}
+
+QColor ThemeService::automationCurveCenterLineColor() const
+{
+    return QColor { "#808080" };
+}
+
 QColor ThemeService::noteColumnTextColor() const
 {
     return QColor { "white" };

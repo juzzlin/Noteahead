@@ -19,6 +19,8 @@
 #include <tuple>
 #include <unordered_set>
 
+#include "../service/automation_service.hpp"
+
 #include <QAbstractListModel>
 #include <QObject>
 
@@ -67,6 +69,13 @@ public:
     void setColumnData(LineListCR lines);
     void setGhostData(LineListCR previousLines, LineListCR nextLines);
     void setColumnAddress(const ColumnAddress & columnAddress);
+
+    //! Automation traces for a range of *rows*, for the renderer to draw over this column.
+    //!
+    //! Takes rows rather than lines because the two are not the same: rows are shifted by the
+    //! position bar and the offset areas hold ghost or empty rows that belong to no line at all.
+    //! The returned values are aligned to the row range, with the rows outside the pattern unset.
+    AutomationService::AutomationCurveList automationCurves(int startRow, int endRow) const;
     void clear();
 
     void setLineFocused(quint64 line, quint64 column);

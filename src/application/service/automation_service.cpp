@@ -235,7 +235,7 @@ bool AutomationService::hasMidiCcAutomations(quint64 pattern, quint64 track, qui
     const auto match = std::ranges::find_if(m_automations.midiCc, [&](auto && automation) {
         auto && location = automation.location();
         auto && interpolation = automation.interpolation();
-        return location.pattern() == pattern && location.track() == track && location.column() == column && line >= interpolation.line0 && line <= interpolation.line1;
+        return automation.enabled() && location.pattern() == pattern && location.track() == track && location.column() == column && line >= interpolation.line0 && line <= interpolation.line1;
     });
     return match != m_automations.midiCc.end();
 }
@@ -245,9 +245,59 @@ bool AutomationService::hasPitchBendAutomations(quint64 pattern, quint64 track, 
     const auto match = std::ranges::find_if(m_automations.pitchBend, [&](auto && automation) {
         auto && location = automation.location();
         auto && interpolation = automation.interpolation();
-        return location.pattern() == pattern && location.track() == track && location.column() == column && line >= interpolation.line0 && line <= interpolation.line1;
+        return automation.enabled() && location.pattern() == pattern && location.track() == track && location.column() == column && line >= interpolation.line0 && line <= interpolation.line1;
     });
     return match != m_automations.pitchBend.end();
+}
+
+AutomationService::AutomationCurveList AutomationService::automationCurves(quint64 pattern, quint64 track, quint64 column, quint64 startLine, quint64 endLine) const
+{
+    AutomationCurveList curves;
+    if (endLine < startLine) {
+        return curves;
+    }
+    const auto lineCount = static_cast<size_t>(endLine - startLine + 1);
+
+    // Values are normalized to 0..1 so both kinds share one axis. Lines the automation does not
+    // cover are left unset, which is what breaks the drawn curve instead of running it to the edge.
+    const auto collect = [&](quint64 id, bool isPitchBend, quint64 line0, quint64 line1, auto && valueAt) {
+        AutomationCurve curve;
+        curve.id = id;
+        curve.isPitchBend = isPitchBend;
+        curve.values.resize(lineCount);
+        bool any = false;
+        for (size_t i = 0; i < lineCount; i++) {
+            const auto line = startLine + i;
+            if (line >= line0 && line <= line1) {
+                curve.values[i] = valueAt(static_cast<size_t>(line));
+                any = true;
+            }
+        }
+        if (any) {
+            curves.push_back(std::move(curve));
+        }
+    };
+
+    for (const auto & automation : m_automations.midiCc) {
+        const auto & location = automation.location();
+        if (!automation.enabled() || location.pattern() != pattern || location.track() != track || location.column() != column) {
+            continue;
+        }
+        const auto maxValue = controllerMaxValue(automation.controller(), location.track());
+        collect(automation.id(), false, automation.interpolation().line0, automation.interpolation().line1,
+                [&](size_t line) { return maxValue > 0 ? static_cast<double>(midiCcValueAt(automation, line)) / maxValue : 0.0; });
+    }
+
+    for (const auto & automation : m_automations.pitchBend) {
+        const auto & location = automation.location();
+        if (!automation.enabled() || location.pattern() != pattern || location.track() != track || location.column() != column) {
+            continue;
+        }
+        collect(automation.id(), true, automation.interpolation().line0, automation.interpolation().line1,
+                [&](size_t line) { return (static_cast<double>(pitchBendValueAt(automation, line)) + 100.0) / 200.0; });
+    }
+
+    return curves;
 }
 
 double AutomationService::automationWeight(quint64 pattern, quint64 track, quint64 column, quint64 line) const
@@ -257,26 +307,36 @@ double AutomationService::automationWeight(quint64 pattern, quint64 track, quint
 
 double AutomationService::midiCcAutomationWeight(quint64 pattern, quint64 track, quint64 column, quint64 line) const
 {
-    if (const auto events = renderMidiCcToEventsByLine(pattern, track, column, line, 0); !events.empty()) {
-        const double sum = std::accumulate(events.begin(), events.end(), 0.0, [](double acc, auto && event) {
-            return acc + (event->midiCcData() ? event->midiCcData()->normalizedValue() : 0);
-        });
-        return sum / static_cast<int>(events.size());
-    } else {
-        return 0;
+    // Sampled directly rather than through the event renderer: this runs for every visible line of
+    // every column on every repaint, and rendering allocated a shared Event per automation per call.
+    double sum = 0.0;
+    int count = 0;
+    for (const auto & automation : m_automations.midiCc) {
+        const auto & location = automation.location();
+        const auto & interpolation = automation.interpolation();
+        if (automation.enabled() && location.pattern() == pattern && location.track() == track && location.column() == column && line >= interpolation.line0 && line <= interpolation.line1) {
+            if (const auto maxValue = controllerMaxValue(automation.controller(), location.track()); maxValue > 0) {
+                sum += static_cast<double>(midiCcValueAt(automation, static_cast<size_t>(line))) / maxValue;
+                count++;
+            }
+        }
     }
+    return count ? sum / count : 0;
 }
 
 double AutomationService::pitchBendAutomationWeight(quint64 pattern, quint64 track, quint64 column, quint64 line) const
 {
-    if (const auto events = renderPitchBendToEventsByLine(pattern, track, column, line, 0); !events.empty()) {
-        const double sum = std::accumulate(events.begin(), events.end(), 0.0, [](double acc, auto && event) {
-            return acc + (event->pitchBendData() ? event->pitchBendData()->normalizedValue() : 0);
-        });
-        return sum / static_cast<int>(events.size());
-    } else {
-        return 0;
+    double sum = 0.0;
+    int count = 0;
+    for (const auto & automation : m_automations.pitchBend) {
+        const auto & location = automation.location();
+        const auto & interpolation = automation.interpolation();
+        if (automation.enabled() && location.pattern() == pattern && location.track() == track && location.column() == column && line >= interpolation.line0 && line <= interpolation.line1) {
+            sum += (static_cast<double>(pitchBendValueAt(automation, static_cast<size_t>(line))) + 100.0) / 200.0;
+            count++;
+        }
     }
+    return count ? sum / count : 0;
 }
 
 AutomationService::MidiCcAutomationList AutomationService::midiCcAutomationsByLine(quint64 pattern, quint64 track, quint64 column, quint64 line) const
@@ -395,6 +455,39 @@ AutomationService::EventList AutomationService::renderToEventsByLine(size_t patt
     return events;
 }
 
+int AutomationService::midiCcValueAt(const MidiCcAutomation & automation, size_t line) const
+{
+    const auto & location = automation.location();
+    const auto & interpolation = automation.interpolation();
+    const auto & modulation = automation.modulation();
+
+    Interpolator interpolator {
+        static_cast<size_t>(interpolation.line0),
+        static_cast<size_t>(interpolation.line1),
+        static_cast<double>(interpolation.value0),
+        static_cast<double>(interpolation.value1)
+    };
+    double interpolatedValue = interpolator.getValue(line);
+
+    double totalModulation = 0.0;
+    if (modulation.cycles > 0.f || modulation.amplitude > 0.f) {
+        const double phase = interpolation.line1 > interpolation.line0 ? static_cast<double>(line - interpolation.line0) / (static_cast<double>(interpolation.line1 - interpolation.line0)) : 0;
+        double modulationValue = 0.0;
+        if (modulation.type == ModulationParameters::ModulationType::SineWave) {
+            modulationValue = sineModulationValue(modulation, phase);
+        } else if (modulation.type == ModulationParameters::ModulationType::Random) {
+            modulationValue = randomModulationValue(automation.id(), modulation, phase);
+        }
+        totalModulation = modulationValue * modulation.amplitude / 100.0; // Amplitude is a percentage
+    }
+    totalModulation += modulation.offset / 100.0;
+
+    const auto maxValue = controllerMaxValue(automation.controller(), location.track());
+    interpolatedValue += totalModulation * maxValue;
+
+    return std::clamp(static_cast<int>(std::round(interpolatedValue)), 0, maxValue); // Value range of the destination
+}
+
 AutomationService::EventList AutomationService::renderMidiCcToEventsByLine(size_t pattern, size_t track, size_t column, size_t line, size_t tick) const
 {
     EventList events;
@@ -405,30 +498,8 @@ AutomationService::EventList AutomationService::renderMidiCcToEventsByLine(size_
             const auto & interpolation = automation.interpolation();
             const auto & modulation = automation.modulation();
             if (location.pattern() == pattern && location.track() == track && location.column() == column && line >= interpolation.line0 && line <= interpolation.line1) {
-                Interpolator interpolator {
-                    static_cast<size_t>(interpolation.line0),
-                    static_cast<size_t>(interpolation.line1),
-                    static_cast<double>(interpolation.value0),
-                    static_cast<double>(interpolation.value1)
-                };
-                double interpolatedValue = interpolator.getValue(static_cast<size_t>(line));
-
-                double totalModulation = 0.0;
-                if (modulation.cycles > 0.f || modulation.amplitude > 0.f) {
-                    const double phase = interpolation.line1 > interpolation.line0 ? static_cast<double>(line - interpolation.line0) / (static_cast<double>(interpolation.line1 - interpolation.line0)) : 0;
-                    double modulationValue = 0.0;
-                    if (modulation.type == ModulationParameters::ModulationType::SineWave) {
-                        modulationValue = sineModulationValue(modulation, phase);
-                    } else if (modulation.type == ModulationParameters::ModulationType::Random) {
-                        modulationValue = randomModulationValue(automation.id(), modulation, phase);
-                    }
-                    totalModulation = modulationValue * modulation.amplitude / 100.0; // Amplitude is a percentage
-                }
-                totalModulation += modulation.offset / 100.0;
-                interpolatedValue += totalModulation * controllerMaxValue(automation.controller(), location.track());
-
-                const auto clampedValue = std::clamp(static_cast<int>(std::round(interpolatedValue)), 0, controllerMaxValue(automation.controller(), location.track())); // Value range of the destination
-                events.push_back(std::make_shared<Event>(tick, MidiCcData { track, column, automation.controller(), static_cast<uint8_t>(clampedValue) }));
+                const auto value = midiCcValueAt(automation, line);
+                events.push_back(std::make_shared<Event>(tick, MidiCcData { track, column, automation.controller(), static_cast<uint8_t>(value) }));
             }
         }
     }
@@ -452,6 +523,36 @@ double AutomationService::randomModulationValue(size_t automationId, const Modul
     return 0.0; // Return to 0
 }
 
+int AutomationService::pitchBendValueAt(const PitchBendAutomation & automation, size_t line) const
+{
+    const auto & interpolation = automation.interpolation();
+    const auto & modulation = automation.modulation();
+
+    Interpolator interpolator {
+        static_cast<size_t>(interpolation.line0),
+        static_cast<size_t>(interpolation.line1),
+        static_cast<double>(interpolation.value0),
+        static_cast<double>(interpolation.value1)
+    };
+    double interpolatedValue = interpolator.getValue(line);
+
+    double totalModulation = 0.0;
+    if (modulation.cycles > 0.f || modulation.amplitude > 0.f) {
+        const double phase = interpolation.line1 > interpolation.line0 ? static_cast<double>(line - interpolation.line0) / (static_cast<double>(interpolation.line1 - interpolation.line0)) : 0;
+        double modulationValue = 0.0;
+        if (modulation.type == ModulationParameters::ModulationType::SineWave) {
+            modulationValue = sineModulationValue(modulation, phase);
+        } else if (modulation.type == ModulationParameters::ModulationType::Random) {
+            modulationValue = randomModulationValue(automation.id(), modulation, phase);
+        }
+        totalModulation = modulationValue * modulation.amplitude / 100.0; // Amplitude is a percentage
+    }
+    totalModulation += modulation.offset / 100.0;
+    interpolatedValue += totalModulation * 100.0;
+
+    return std::clamp(static_cast<int>(std::round(interpolatedValue)), -100, 100);
+}
+
 AutomationService::EventList AutomationService::renderPitchBendToEventsByLine(size_t pattern, size_t track, size_t column, size_t line, size_t tick) const
 {
     EventList events;
@@ -462,29 +563,7 @@ AutomationService::EventList AutomationService::renderPitchBendToEventsByLine(si
             const auto & interpolation = automation.interpolation();
             const auto & modulation = automation.modulation();
             if (location.pattern() == pattern && location.track() == track && location.column() == column && line >= interpolation.line0 && line <= interpolation.line1) {
-                Interpolator interpolator {
-                    static_cast<size_t>(interpolation.line0),
-                    static_cast<size_t>(interpolation.line1),
-                    static_cast<double>(interpolation.value0),
-                    static_cast<double>(interpolation.value1)
-                };
-                double interpolatedValue = interpolator.getValue(static_cast<size_t>(line));
-
-                double totalModulation = 0.0;
-                if (modulation.cycles > 0.f || modulation.amplitude > 0.f) {
-                    const double phase = interpolation.line1 > interpolation.line0 ? static_cast<double>(line - interpolation.line0) / (static_cast<double>(interpolation.line1 - interpolation.line0)) : 0;
-                    double modulationValue = 0.0;
-                    if (modulation.type == ModulationParameters::ModulationType::SineWave) {
-                        modulationValue = sineModulationValue(modulation, phase);
-                    } else if (modulation.type == ModulationParameters::ModulationType::Random) {
-                        modulationValue = randomModulationValue(automation.id(), modulation, phase);
-                    }
-                    totalModulation = modulationValue * modulation.amplitude / 100.0; // Amplitude is a percentage
-                }
-                totalModulation += modulation.offset / 100.0;
-                interpolatedValue += totalModulation * 100.0;
-
-                const auto percentage = std::clamp(static_cast<int>(std::round(interpolatedValue)), -100, 100);
+                const auto percentage = pitchBendValueAt(automation, line);
                 events.push_back(std::make_shared<Event>(tick, PitchBendData { track, column, static_cast<double>(percentage) }));
             }
         }

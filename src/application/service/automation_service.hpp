@@ -20,6 +20,7 @@
 
 #include <functional>
 #include <memory>
+#include <optional>
 #include <set>
 #include <vector>
 
@@ -78,6 +79,21 @@ public:
     Q_INVOKABLE bool hasAutomations(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
     Q_INVOKABLE double automationWeight(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
 
+    //! One automation's value on each line of a range, normalized to 0..1 so MIDI CC and pitch bend
+    //! share an axis. Lines the automation does not cover are left unset, which is what makes the
+    //! drawn curve stop at its ends instead of running to the edge of the pattern.
+    struct AutomationCurve
+    {
+        quint64 id { 0 };
+        bool isPitchBend { false };
+        std::vector<std::optional<double>> values;
+    };
+
+    using AutomationCurveList = std::vector<AutomationCurve>;
+    //! Every automation on a column, sampled per line. One call per repaint rather than one per
+    //! line per automation, since sampling walks the automation list and applies its modulation.
+    AutomationCurveList automationCurves(quint64 pattern, quint64 track, quint64 column, quint64 startLine, quint64 endLine) const;
+
     using MidiCcAutomationList = std::vector<MidiCcAutomation>;
     MidiCcAutomationList midiCcAutomationsByLine(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
     MidiCcAutomationList midiCcAutomationsByColumn(quint64 pattern, quint64 track, quint64 column) const;
@@ -114,6 +130,10 @@ private:
     bool hasPitchBendAutomations(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
     double midiCcAutomationWeight(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
     double pitchBendAutomationWeight(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
+    //! Interpolation plus modulation for one automation on one line, in the automation's own units.
+    //! Shared with the event rendering so what is drawn cannot drift from what is played.
+    int midiCcValueAt(const MidiCcAutomation & automation, size_t line) const;
+    int pitchBendValueAt(const PitchBendAutomation & automation, size_t line) const;
     void notifyChangedLines(quint64 pattern, quint64 track, quint64 column, quint64 line0, quint64 line1);
     void notifyChangedLines(const MidiCcAutomation & automation);
     void notifyChangedLinesMerged(const MidiCcAutomation & automation1, const MidiCcAutomation & automation2);

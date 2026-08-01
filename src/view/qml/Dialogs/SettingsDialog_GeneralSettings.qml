@@ -15,7 +15,7 @@ GroupBox {
             Layout.fillWidth: true
             GridLayout {
                 columns: 9
-                rows: 3
+                rows: 4
                 width: parent.width
                 Label {
                     text: qsTr("Number of lines visible:")
@@ -84,6 +84,27 @@ GroupBox {
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Show a dimmed glimpse of the previous/next patterns in the editor's offset areas")
+                }
+                Label {
+                    text: qsTr("Automation display:")
+                    Layout.column: 0
+                    Layout.columnSpan: 2
+                    Layout.row: 3
+                    Layout.fillWidth: true
+                }
+                ComboBox {
+                    id: automationDisplayModeComboBox
+                    Layout.column: 4
+                    Layout.columnSpan: 5
+                    Layout.row: 3
+                    Layout.fillWidth: true
+                    model: [qsTr("Tint"), qsTr("Curve")]
+                    currentIndex: settingsService.automationDisplayMode
+                    onActivated: i => settingsService.automationDisplayMode = i
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Tint colours each automated line by its value. Curve draws every automation on the column as its own vertical trace, value running left to right.")
                 }
             }
         }

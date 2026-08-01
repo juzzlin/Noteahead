@@ -25,6 +25,7 @@ namespace noteahead {
 class AutomationService;
 class EditorService;
 class SelectionService;
+class SettingsService;
 class UtilService;
 
 class NoteColumnLineContainerHelper : public QObject
@@ -35,16 +36,20 @@ public:
     using AutomationServiceS = std::shared_ptr<AutomationService>;
     using EditorServiceS = std::shared_ptr<EditorService>;
     using SelectionServiceS = std::shared_ptr<SelectionService>;
+    using SettingsServiceS = std::shared_ptr<SettingsService>;
     using UtilServiceS = std::shared_ptr<UtilService>;
     explicit NoteColumnLineContainerHelper(
-      AutomationServiceS automationService, EditorServiceS editorService, SelectionServiceS selectionService, UtilServiceS utilService, QObject * parent = nullptr);
+      AutomationServiceS automationService, EditorServiceS editorService, SelectionServiceS selectionService, SettingsServiceS settingsService, UtilServiceS utilService, QObject * parent = nullptr);
 
     Q_INVOKABLE QList<QVariant> lineColorAndBorderWidth(quint64 patternIndex, quint64 trackIndex, quint64 columnIndex, quint64 lineIndex) const;
+
+    AutomationServiceS automationService() const;
 
 private:
     AutomationServiceS m_automationService;
     EditorServiceS m_editorService;
     SelectionServiceS m_selectionService;
+    SettingsServiceS m_settingsService;
     UtilServiceS m_utilService;
 };
 

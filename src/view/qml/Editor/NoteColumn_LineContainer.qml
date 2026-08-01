@@ -73,6 +73,7 @@ Item {
         NoteColumnRenderer {
             anchors.fill: parent
             visibleLines: settingsService.visibleLines
+            automationDisplayMode: settingsService.automationDisplayMode
         }
     }
     VolumeMeter {

@@ -29,6 +29,8 @@ class NoteColumnRenderer : public QQuickPaintedItem
     Q_PROPERTY(QAbstractListModel * model READ model WRITE setModel NOTIFY modelChanged)
     Q_PROPERTY(double scrollOffset READ scrollOffset WRITE setScrollOffset NOTIFY scrollOffsetChanged)
     Q_PROPERTY(int visibleLines READ visibleLines WRITE setVisibleLines NOTIFY visibleLinesChanged)
+    //! See Constants::AutomationDisplayMode. Curve draws each automation as its own vertical trace.
+    Q_PROPERTY(int automationDisplayMode READ automationDisplayMode WRITE setAutomationDisplayMode NOTIFY automationDisplayModeChanged)
 
 public:
     explicit NoteColumnRenderer(QQuickItem * parent = nullptr);
@@ -42,17 +44,24 @@ public:
     int visibleLines() const;
     void setVisibleLines(int visibleLines);
 
+    int automationDisplayMode() const;
+    void setAutomationDisplayMode(int mode);
+
     void paint(QPainter * painter) override;
 
 signals:
     void modelChanged();
     void scrollOffsetChanged();
     void visibleLinesChanged();
+    void automationDisplayModeChanged();
 
 private:
     QPointer<QAbstractListModel> m_model { nullptr };
     double m_scrollOffset { 0.0 };
     int m_visibleLines { 0 };
+    int m_automationDisplayMode { 0 };
+
+    void paintAutomationCurves(QPainter * painter, int startRow, int endRow, qreal rowHeight);
 };
 
 } // namespace noteahead

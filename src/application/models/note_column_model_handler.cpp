@@ -20,7 +20,7 @@ NoteColumnModelHandler::NoteColumnModelHandler(EditorServiceS editorService, Sel
   , m_selectionService { selectionService }
   , m_automationService { automationService }
   , m_helper { std::make_unique<NoteColumnLineContainerHelper>(
-      m_automationService, m_editorService, m_selectionService, std::make_unique<UtilService>()) }
+      m_automationService, m_editorService, m_selectionService, settingsService, std::make_unique<UtilService>()) }
   , m_settingsService { settingsService }
 {
     connect(m_automationService.get(), &AutomationService::lineDataChanged, this, &NoteColumnModelHandler::updateIndexHighlightAtPosition);

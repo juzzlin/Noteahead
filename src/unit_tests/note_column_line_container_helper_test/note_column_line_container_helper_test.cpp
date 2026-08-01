@@ -37,7 +37,7 @@ void NoteColumnLineContainerHelperTest::test_lineColorAndBorderWidth_selected_sh
     const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
     const auto utilService { std::make_shared<UtilService>() };
 
-    const NoteColumnLineContainerHelper helper { automationService, editorService, selectionService, utilService };
+    const NoteColumnLineContainerHelper helper { automationService, editorService, selectionService, settingsService, utilService };
 
     selectionService->requestSelectionStart(0, 0, 0, 0);
     selectionService->requestSelectionEnd(0, 0, 0, 0);
@@ -55,7 +55,7 @@ void NoteColumnLineContainerHelperTest::test_lineColorAndBorderWidth_hasInstrume
     const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
     const auto utilService { std::make_shared<UtilService>() };
 
-    const NoteColumnLineContainerHelper helper { automationService, editorService, selectionService, utilService };
+    const NoteColumnLineContainerHelper helper { automationService, editorService, selectionService, settingsService, utilService };
 
     editorService->requestPosition(0, 0, 0, 0, 0);
     editorService->setInstrumentSettingsAtCurrentPosition(std::make_shared<InstrumentSettings>());
@@ -74,7 +74,7 @@ void NoteColumnLineContainerHelperTest::test_lineColorAndBorderWidth_hasAutomati
     const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
     const auto utilService { std::make_shared<UtilService>() };
 
-    const NoteColumnLineContainerHelper helper { automationService, editorService, selectionService, utilService };
+    const NoteColumnLineContainerHelper helper { automationService, editorService, selectionService, settingsService, utilService };
 
     automationService->addMidiCcAutomation(0, 0, 0, 7, 0, 4, 0, 100, "Test", true, 8, 0);
 
@@ -91,7 +91,7 @@ void NoteColumnLineContainerHelperTest::test_lineColorAndBorderWidth_default_sho
     const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
     const auto utilService { std::make_shared<UtilService>() };
 
-    const NoteColumnLineContainerHelper helper { automationService, editorService, selectionService, utilService };
+    const NoteColumnLineContainerHelper helper { automationService, editorService, selectionService, settingsService, utilService };
 
     const auto result = helper.lineColorAndBorderWidth(0, 0, 0, 0);
     QCOMPARE(result.size(), 2);

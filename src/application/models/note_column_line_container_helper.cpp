@@ -18,20 +18,29 @@
 #include "../service/automation_service.hpp"
 #include "../service/editor_service.hpp"
 #include "../service/selection_service.hpp"
+#include "../service/settings_service.hpp"
 #include "../service/util_service.hpp"
+
+#include "../../common/constants.hpp"
 
 #include <QColor>
 
 namespace noteahead {
 
 NoteColumnLineContainerHelper::NoteColumnLineContainerHelper(
-  AutomationServiceS automationService, EditorServiceS editorService, SelectionServiceS selectionService, UtilServiceS utilService, QObject * parent)
+  AutomationServiceS automationService, EditorServiceS editorService, SelectionServiceS selectionService, SettingsServiceS settingsService, UtilServiceS utilService, QObject * parent)
   : QObject { parent }
   , m_automationService { automationService }
   , m_editorService { editorService }
   , m_selectionService { selectionService }
+  , m_settingsService { settingsService }
   , m_utilService { utilService }
 {
+}
+
+NoteColumnLineContainerHelper::AutomationServiceS NoteColumnLineContainerHelper::automationService() const
+{
+    return m_automationService;
 }
 
 QList<QVariant> NoteColumnLineContainerHelper::lineColorAndBorderWidth(quint64 patternIndex, quint64 trackIndex, quint64 columnIndex, quint64 lineIndex) const
@@ -49,7 +58,8 @@ QList<QVariant> NoteColumnLineContainerHelper::lineColorAndBorderWidth(quint64 p
             const QColor baseColor = m_utilService->scaledColor(QColor("#ffffff"), m_utilService->indexHighlightOpacity(lineIndex, linesPerBeat));
             color = m_utilService->blendColors(baseColor, QColor("#3e65ff"), 0.5); // Universal.Cobalt
             borderWidth = 1;
-        } else if (m_automationService->hasAutomations(patternIndex, trackIndex, columnIndex, lineIndex)) {
+        } else if (m_settingsService->automationDisplayMode() == static_cast<int>(Constants::AutomationDisplayMode::Tint)
+                   && m_automationService->hasAutomations(patternIndex, trackIndex, columnIndex, lineIndex)) {
             const QColor baseColor = m_utilService->scaledColor(QColor("#ffffff"), m_utilService->indexHighlightOpacity(lineIndex, linesPerBeat));
             const qreal automationWeight = m_automationService->automationWeight(patternIndex, trackIndex, columnIndex, lineIndex);
             const QColor automationColor = m_utilService->blendColors(QColor("#e51400"), QColor("#60a917"), automationWeight); // Universal.Red -> Universal.Green

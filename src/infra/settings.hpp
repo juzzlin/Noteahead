@@ -101,6 +101,9 @@ int audioOutputDeviceId();
 void setAudioOutputDeviceId(int deviceId);
 
 int playbackOversampleFactor();
+
+int automationDisplayMode(int defaultAutomationDisplayMode);
+void setAutomationDisplayMode(int mode);
 void setPlaybackOversampleFactor(int factor);
 
 int gainStagingTargetDb(int defaultGainStagingTargetDb);

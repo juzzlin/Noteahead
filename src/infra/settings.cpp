@@ -33,6 +33,7 @@ const auto audioBufferSizeKey = "audioBufferSize";
 const auto audioInputDeviceIdKey = "audioInputDeviceId";
 const auto audioOutputDeviceIdKey = "audioOutputDeviceId";
 const auto playbackOversampleFactorKey = "playbackOversampleFactor";
+const auto automationDisplayModeKey = "automationDisplayMode";
 const auto gainStagingTargetDbKey = "gainStagingTargetDb";
 const auto recordingEnabledKey = "recordingEnabled";
 const auto jackSyncEnabledKey = "jackSyncEnabled";
@@ -509,6 +510,23 @@ void setPlaybackOversampleFactor(int factor)
     QSettings settings;
     settings.beginGroup(settingsGroupAudio);
     settings.setValue(playbackOversampleFactorKey, factor);
+    settings.endGroup();
+}
+
+int automationDisplayMode(int defaultAutomationDisplayMode)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    const auto mode = settings.value(automationDisplayModeKey, defaultAutomationDisplayMode).toInt();
+    settings.endGroup();
+    return mode;
+}
+
+void setAutomationDisplayMode(int mode)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    settings.setValue(automationDisplayModeKey, mode);
     settings.endGroup();
 }
 

@@ -172,6 +172,103 @@ void AutomationServiceTest::test_automationWeight_midiCc_shouldCalculateCorrectW
     QCOMPARE(automationService.automationWeight(pattern, track, column, line1), 1);
 }
 
+void AutomationServiceTest::test_hasAutomations_disabled_shouldReportNone()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+
+    const quint64 pattern = 0, track = 1, column = 2;
+    const auto midiCcId = automationService.addMidiCcAutomation(pattern, track, column, 64, 0, 8, 0, 127, {}, false, 8, 0);
+    const auto pitchBendId = automationService.addPitchBendAutomation(pattern, track, column, 0, 8, -100, 100, {}, false);
+    QVERIFY(midiCcId);
+    QVERIFY(pitchBendId);
+
+    // A disabled automation is not there as far as the display is concerned. It used to still count,
+    // which left the column tinted at weight zero, i.e. solid red, after switching it off.
+    QVERIFY(!automationService.hasAutomations(pattern, track, column, 4));
+    QCOMPARE(automationService.automationWeight(pattern, track, column, 4), 0.0);
+    QVERIFY(automationService.automationCurves(pattern, track, column, 0, 8).empty());
+}
+
+void AutomationServiceTest::test_automationCurves_midiCc_shouldFollowInterpolation()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+
+    const quint64 pattern = 0, track = 1, column = 2;
+    automationService.addMidiCcAutomation(pattern, track, column, 64, 0, 16, 0, 127, {}, true, 8, 0);
+
+    const auto curves = automationService.automationCurves(pattern, track, column, 0, 16);
+    QCOMPARE(curves.size(), size_t { 1 });
+    QCOMPARE(curves.at(0).isPitchBend, false);
+    QCOMPARE(curves.at(0).values.size(), size_t { 17 });
+
+    // Normalized to 0..1 against the controller's own range, so both kinds share one axis
+    QVERIFY(curves.at(0).values.at(0).has_value());
+    QVERIFY(std::fabs(*curves.at(0).values.at(0) - 0.0) < 0.01);
+    QVERIFY(std::fabs(*curves.at(0).values.at(8) - 0.5) < 0.01);
+    QVERIFY(std::fabs(*curves.at(0).values.at(16) - 1.0) < 0.01);
+}
+
+void AutomationServiceTest::test_automationCurves_outsideRange_shouldLeaveLinesUnset()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+
+    const quint64 pattern = 0, track = 1, column = 2;
+    automationService.addMidiCcAutomation(pattern, track, column, 64, 4, 8, 0, 127, {}, true, 8, 0);
+
+    // Lines the automation does not cover stay unset, which is what makes the drawn trace stop at
+    // its ends rather than running to the edge of the pattern
+    const auto curves = automationService.automationCurves(pattern, track, column, 0, 12);
+    QCOMPARE(curves.size(), size_t { 1 });
+    QVERIFY(!curves.at(0).values.at(0).has_value());
+    QVERIFY(!curves.at(0).values.at(3).has_value());
+    QVERIFY(curves.at(0).values.at(4).has_value());
+    QVERIFY(curves.at(0).values.at(8).has_value());
+    QVERIFY(!curves.at(0).values.at(9).has_value());
+}
+
+void AutomationServiceTest::test_automationCurves_sineModulation_shouldOscillate()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+
+    const quint64 pattern = 0, track = 1, column = 2;
+    // Flat interpolation at the mid point, so everything the curve does comes from the modulation
+    const auto id = automationService.addMidiCcAutomation(pattern, track, column, 64, 0, 32, 64, 64, {}, true, 8, 0);
+    automationService.addMidiCcModulation(id, 0, 1, 50.0f, 0.0f, false); // One sine cycle at 50%
+
+    const auto curves = automationService.automationCurves(pattern, track, column, 0, 32);
+    QCOMPARE(curves.size(), size_t { 1 });
+    const auto & values = curves.at(0).values;
+
+    // A full cycle has to rise above the mid point and fall below it again
+    double minimum = 1.0, maximum = 0.0;
+    for (auto && value : values) {
+        QVERIFY(value.has_value());
+        minimum = std::min(minimum, *value);
+        maximum = std::max(maximum, *value);
+    }
+    QVERIFY2(maximum > 0.6, qPrintable(QString { "Maximum %1" }.arg(maximum)));
+    QVERIFY2(minimum < 0.4, qPrintable(QString { "Minimum %1" }.arg(minimum)));
+}
+
+void AutomationServiceTest::test_automationCurves_severalAutomations_shouldStayApart()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+
+    const quint64 pattern = 0, track = 1, column = 2;
+    automationService.addMidiCcAutomation(pattern, track, column, 64, 0, 8, 0, 127, {}, true, 8, 0);
+    automationService.addMidiCcAutomation(pattern, track, column, 74, 0, 8, 127, 0, {}, true, 8, 0);
+    automationService.addPitchBendAutomation(pattern, track, column, 0, 8, -100, 100, {}, true);
+
+    // Each automation keeps its own trace instead of being averaged into one value per line
+    const auto curves = automationService.automationCurves(pattern, track, column, 0, 8);
+    QCOMPARE(curves.size(), size_t { 3 });
+    QCOMPARE(curves.at(2).isPitchBend, true);
+    QVERIFY(std::fabs(*curves.at(0).values.at(0) - 0.0) < 0.01);
+    QVERIFY(std::fabs(*curves.at(1).values.at(0) - 1.0) < 0.01);
+    QVERIFY(std::fabs(*curves.at(2).values.at(0) - 0.0) < 0.01); // -100% maps to the left edge
+    QVERIFY(std::fabs(*curves.at(2).values.at(4) - 0.5) < 0.01); // Centre
+}
+
 void AutomationServiceTest::test_automationWeight_pitchBendUp_shouldCalculateCorrectWeight()
 {
     AutomationService automationService { std::make_shared<PropertyService>() };

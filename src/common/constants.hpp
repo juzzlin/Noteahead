@@ -97,6 +97,21 @@ constexpr float uiInternalScaling()
 //! Where unity gain sits on a fader's 0..1 throw. Everything above it is boost, so the usable
 //! range is -inf .. maxFaderBoostDb(). Chosen so the taper below unity is the linear-amplitude
 //! one faders had before the boost range existed, just compressed into the lower part of the throw.
+//! How automations are drawn over the tracker lines.
+//!
+//! Curve plots each automation as its own vertical trace across the column, value on the horizontal
+//! axis; Tint is the older single blended background colour per line.
+enum class AutomationDisplayMode
+{
+    Tint = 0,
+    Curve = 1
+};
+
+constexpr int defaultAutomationDisplayMode()
+{
+    return static_cast<int>(AutomationDisplayMode::Curve);
+}
+
 constexpr float faderUnityPosition()
 {
     return 0.75f;

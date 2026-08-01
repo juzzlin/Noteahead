@@ -153,7 +153,7 @@ Application::Application(int & argc, char ** argv)
   , m_midiSettingsModel { std::make_unique<MidiSettingsModel>(m_settingsService) }
   , m_audioSettingsModel { std::make_unique<AudioSettingsModel>(m_audioService, m_settingsService) }
   , m_noteColumnLineContainerHelper { std::make_shared<NoteColumnLineContainerHelper>(
-      m_automationService, m_editorService, m_selectionService, m_utilService) }
+      m_automationService, m_editorService, m_selectionService, m_settingsService, m_utilService) }
   , m_noteColumnModelHandler { std::make_unique<NoteColumnModelHandler>(m_editorService, m_selectionService, m_automationService, m_settingsService) }
   , m_engine { std::make_unique<QQmlApplicationEngine>() }
 {

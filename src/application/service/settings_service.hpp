@@ -44,6 +44,8 @@ class SettingsService : public QObject
     Q_PROPERTY(int playbackOversampleFactor READ playbackOversampleFactor WRITE setPlaybackOversampleFactor NOTIFY playbackOversampleFactorChanged)
     //! Level the Device Rack's meter marker sits at, in dBFS.
     Q_PROPERTY(int gainStagingTargetDb READ gainStagingTargetDb WRITE setGainStagingTargetDb NOTIFY gainStagingTargetDbChanged)
+    //! How automations are drawn over the tracker lines. See Constants::AutomationDisplayMode.
+    Q_PROPERTY(int automationDisplayMode READ automationDisplayMode WRITE setAutomationDisplayMode NOTIFY automationDisplayModeChanged)
 
 public:
     SettingsService();
@@ -118,6 +120,9 @@ public:
     virtual Q_INVOKABLE int gainStagingTargetDb() const;
     virtual Q_INVOKABLE void setGainStagingTargetDb(int targetDb);
 
+    virtual Q_INVOKABLE int automationDisplayMode() const;
+    virtual Q_INVOKABLE void setAutomationDisplayMode(int mode);
+
 signals:
     void controllerPortChanged();
     void uiUpdatesDisabledDuringPlaybackChanged();
@@ -136,6 +141,7 @@ signals:
     void midiExportAutoAssignChannelsChanged();
     void playbackOversampleFactorChanged();
     void gainStagingTargetDbChanged();
+    void automationDisplayModeChanged();
 
 private:
     int m_autoNoteOffOffset;
@@ -168,6 +174,7 @@ private:
 
     int m_playbackOversampleFactor;
     int m_gainStagingTargetDb;
+    int m_automationDisplayMode;
 };
 
 } // namespace noteahead

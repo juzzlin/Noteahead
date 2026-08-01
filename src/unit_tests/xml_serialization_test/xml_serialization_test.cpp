@@ -422,8 +422,11 @@ void XmlSerializationTest::test_toXmlFromXml_automationService_midiCc_shouldLoad
     for (size_t pattern = 0; pattern < 10; pattern++) {
         for (size_t track = 0; track < 8; track++) {
             for (size_t column = 0; column < 3; column++) {
-                QVERIFY(automationServiceIn.hasAutomations(pattern, track, column, line0));
-                QVERIFY(automationServiceIn.hasAutomations(pattern, track, column, line1));
+                // Only an enabled automation counts as present, which is what keeps a disabled one
+                // from colouring its column. The round trip itself is asserted just below.
+                const bool enabled = track % 2 == 0;
+                QCOMPARE(automationServiceIn.hasAutomations(pattern, track, column, line0), enabled);
+                QCOMPARE(automationServiceIn.hasAutomations(pattern, track, column, line1), enabled);
                 QCOMPARE(automationServiceIn.midiCcAutomationsByLine(pattern, track, column, line0).size(), 1);
                 QCOMPARE(automationServiceIn.midiCcAutomationsByLine(pattern, track, column, line0).at(0).controller(), controller);
                 QCOMPARE(automationServiceIn.midiCcAutomationsByLine(pattern, track, column, line0).at(0).interpolation().line0, line0);
@@ -504,8 +507,11 @@ void XmlSerializationTest::test_toXmlFromXml_automationService_pitchBend_shouldL
     for (size_t pattern = 0; pattern < 10; pattern++) {
         for (size_t track = 0; track < 8; track++) {
             for (size_t column = 0; column < 3; column++) {
-                QVERIFY(automationServiceIn.hasAutomations(pattern, track, column, line0));
-                QVERIFY(automationServiceIn.hasAutomations(pattern, track, column, line1));
+                // Only an enabled automation counts as present, which is what keeps a disabled one
+                // from colouring its column. The round trip itself is asserted just below.
+                const bool enabled = track % 2 == 0;
+                QCOMPARE(automationServiceIn.hasAutomations(pattern, track, column, line0), enabled);
+                QCOMPARE(automationServiceIn.hasAutomations(pattern, track, column, line1), enabled);
                 QCOMPARE(automationServiceIn.pitchBendAutomationsByLine(pattern, track, column, line0).size(), 1);
                 QCOMPARE(automationServiceIn.pitchBendAutomationsByLine(pattern, track, column, line0).at(0).interpolation().line0, line0);
                 QCOMPARE(automationServiceIn.pitchBendAutomationsByLine(pattern, track, column, line0).at(0).interpolation().line1, line1);

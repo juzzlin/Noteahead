@@ -43,6 +43,9 @@ class ThemeService : public QObject
     Q_PROPERTY(QColor noteColumnBorderColor READ noteColumnBorderColor CONSTANT)
     Q_PROPERTY(QColor noteColumnCellBackgroundColor READ noteColumnCellBackgroundColor CONSTANT)
     Q_PROPERTY(QColor noteColumnCellBorderColor READ noteColumnCellBorderColor CONSTANT)
+    //! Colours automation curves cycle through, so several automations on one column stay apart.
+    Q_PROPERTY(QVariantList automationCurveColors READ automationCurveColors CONSTANT)
+    Q_PROPERTY(QColor automationCurveCenterLineColor READ automationCurveCenterLineColor CONSTANT)
     Q_PROPERTY(QColor noteColumnTextColor READ noteColumnTextColor CONSTANT)
     Q_PROPERTY(QColor noteColumnTextColorEmpty READ noteColumnTextColorEmpty CONSTANT)
     Q_PROPERTY(QColor positionBarBorderColor READ positionBarBorderColor CONSTANT)
@@ -82,6 +85,9 @@ public:
     QColor noteColumnBorderColor() const;
     QColor noteColumnCellBackgroundColor() const;
     QColor noteColumnCellBorderColor() const;
+    QVariantList automationCurveColors() const;
+    static QList<QColor> automationCurveColorList();
+    QColor automationCurveCenterLineColor() const;
     QColor noteColumnTextColor() const;
     QColor noteColumnTextColorEmpty() const;
     QColor positionBarBorderColor() const;

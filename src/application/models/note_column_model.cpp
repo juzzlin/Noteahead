@@ -107,6 +107,37 @@ QString NoteColumnModel::displayLine(const Line & line) const
     return displayNote(line) + " " + displayVelocity(line) + " " + displayDelay(line) + " " + displayPan(line);
 }
 
+AutomationService::AutomationCurveList NoteColumnModel::automationCurves(int startRow, int endRow) const
+{
+    if (endRow < startRow || m_lines.empty()) {
+        return {};
+    }
+
+    const auto positionBarLine = static_cast<int>(m_editorService->positionBarLine());
+    const auto lineCount = static_cast<int>(m_lines.size());
+    // Rows outside the pattern's own lines are the ghost/offset areas, which carry no automation
+    const int firstLine = std::max(0, startRow - positionBarLine);
+    const int lastLine = std::min(lineCount - 1, endRow - positionBarLine);
+    if (lastLine < firstLine) {
+        return {};
+    }
+
+    const auto [pattern, track, column] = m_columnAddress;
+    auto curves = m_helper->automationService()->automationCurves(pattern, track, column, static_cast<quint64>(firstLine), static_cast<quint64>(lastLine));
+
+    // Shift back into row space, so the renderer can index straight by row
+    const auto rowCount = static_cast<size_t>(endRow - startRow + 1);
+    const auto leadingRows = static_cast<size_t>(firstLine + positionBarLine - startRow);
+    for (auto & curve : curves) {
+        std::vector<std::optional<double>> aligned(rowCount);
+        for (size_t i = 0; i < curve.values.size() && leadingRows + i < rowCount; i++) {
+            aligned[leadingRows + i] = curve.values[i];
+        }
+        curve.values = std::move(aligned);
+    }
+    return curves;
+}
+
 QVariant NoteColumnModel::lineColor(quint64 lineIndex) const
 {
     const auto [pattern, track, column] = m_columnAddress;
