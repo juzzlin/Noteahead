@@ -121,7 +121,7 @@ void PianoSynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
             const float val = static_cast<float>(value) / 127.0f;
 
             if (controller == static_cast<uint8_t>(Controller::ChannelVolumeMSB)) {
-                changed |= updateVolumeParameter(val, false);
+                changed |= updateVolumeParameter(faderPositionFromMidiCc(value), false);
             } else if (controller == static_cast<uint8_t>(Controller::PanMSB)) {
                 changed |= updatePanParameter(val, false);
             } else if (controller == static_cast<uint8_t>(Controller::SustainPedal)) {

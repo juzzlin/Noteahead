@@ -105,7 +105,7 @@ void WavetableSynthTest::test_midiCc_shouldUpdateParameters()
 
     // CC 7 (Volume)
     synth.processMidiCc(7, 64, 0);
-    QCOMPARE(synth.volume(), 64.0f / 127.0f);
+    QCOMPARE(synth.volume(), Device::faderPositionFromMidiCc(64));
 
     // CC 10 (Pan)
     synth.processMidiCc(10, 32, 0);

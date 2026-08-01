@@ -45,7 +45,7 @@ ColumnLayout {
 
     Knob {
         label: qsTr("Fader")
-        mapping: "volume"
+        mapping: "fader"
         value: samplerController.volume
         onMoved: v => {
             samplerController.volume = v;

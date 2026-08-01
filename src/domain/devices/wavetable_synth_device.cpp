@@ -323,7 +323,7 @@ void WavetableSynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint
             m_lfoInt = val;
             changed = true;
         } else if (controller == 7) {
-            changed = updateVolumeParameter(val, false);
+            changed = updateVolumeParameter(faderPositionFromMidiCc(value), false);
         } else if (controller == 10) {
             changed = updatePanParameter(val, false);
         } else if (controller == 74) {

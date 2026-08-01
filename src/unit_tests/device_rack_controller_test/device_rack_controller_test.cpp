@@ -411,6 +411,35 @@ void DeviceRackControllerTest::test_deviceMeterLevels_shouldReportPreInsertLevel
     QVERIFY(!device->meter().active());
 }
 
+void DeviceRackControllerTest::test_deviceClipped_shouldLatchUntilCleared()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<MockEditorService>();
+    const auto prefix = Constants::internalDevicePortPrefix().toStdString();
+    const auto device = std::make_shared<MockDevice>(prefix + " 1");
+    deviceService->setDevice(0, device);
+
+    DeviceRackController controller { deviceService, {}, editorService };
+
+    QVERIFY(!controller.deviceClipped(0));
+    // An empty slot cannot clip, and asking must not fall over
+    QVERIFY(!controller.deviceClipped(1));
+
+    const std::vector<double> fullScale(64, 1.0);
+    // Deliberately without setMetersActive(): the clip indicator has to catch what happened while
+    // nothing was on screen, unlike the level meters.
+    device->clipDetector().write(fullScale.data(), 32);
+    QVERIFY(controller.deviceClipped(0));
+
+    controller.clearDeviceClip(0);
+    QVERIFY(!controller.deviceClipped(0));
+
+    device->clipDetector().write(fullScale.data(), 32);
+    controller.clearAllDeviceClips();
+    QVERIFY(!controller.deviceClipped(0));
+}
+
 void DeviceRackControllerTest::test_deviceSettings_shouldRoundTripThroughController()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();

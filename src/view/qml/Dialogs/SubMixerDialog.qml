@@ -175,7 +175,7 @@ AnimatedDialog {
 
             Knob {
                 label: qsTr("Fader")
-                mapping: "volume"
+                mapping: "fader"
                 Layout.fillWidth: true
                 value: {
                     deviceRackController.revision;

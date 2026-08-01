@@ -250,6 +250,7 @@
 
 <h3 style="color: orange;">Gain Staging</h3>
 <p>Every device has a <strong>Gain</strong> knob above a <strong>Fader</strong> knob, in signal-flow order: Gain trims the device into its insert effects, and the Fader balances it in the mix. Aim for about <strong>-18 dBFS</strong> on the slot meter with Gain, then use the Fader for balance.</p>
+<p>The Fader runs from <strong>-inf</strong> to <strong>+10 dB</strong>, with unity gain three quarters of the way up its throw, so a device can be pushed past unity without reaching for Gain. Sampler pads have the same fader. Each rack row carries a <strong>clip LED</strong> next to its meter: it lights red as soon as that device's output touches full scale and stays lit until you click it, so a single overshoot cannot slip past while you are looking elsewhere.</p>
 <p>The <strong>Settings</strong> button on a rack slot opens the <strong>Device Settings</strong> dialog, which decides where those two stages sit:</p>
 <ul>
     <li><strong>Fader position - Before insert effects</strong>: the fader feeds the insert effects, so moving it changes how hard a compressor or saturator is driven. This is how devices behaved before the setting existed and stays the default, so existing projects sound unchanged.</li>

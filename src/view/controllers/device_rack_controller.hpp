@@ -114,6 +114,12 @@ public:
     //! Gates every device's level and load tap. Keep it enabled only while meters are on screen.
     Q_INVOKABLE void setMetersActive(bool active);
 
+    //! Whether the device's output has hit full scale since the indicator was last cleared. Latches
+    //! regardless of whether meters are on screen, so it also reports clipping you were not watching.
+    Q_INVOKABLE bool deviceClipped(int slotIndex) const;
+    Q_INVOKABLE void clearDeviceClip(int slotIndex);
+    Q_INVOKABLE void clearAllDeviceClips();
+
     //! Share of the audio callback's real-time budget this device takes, in percent.
     Q_INVOKABLE double deviceLoad(int slotIndex) const;
     //! Whole-engine load in percent, and how many buffers have overrun since metering started.

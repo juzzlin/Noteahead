@@ -139,6 +139,10 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
     // Feed this device's final output to its oscilloscope tap (no-op unless a scope is active).
     device->scope().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
 
+    // Clipping is judged on what the device finally hands over, so it accounts for the fader, any
+    // boost past unity and whatever the insert rack did.
+    device->clipDetector().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount);
+
     if (deviceContext.deviceOutputBuffersMutable) {
         const auto slotIndex = deviceContext.slotSnapshot->at(deviceSnapshotIndex);
         auto & outputBuffer = deviceContext.deviceOutputBuffersMutable->at(slotIndex);

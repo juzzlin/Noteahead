@@ -236,6 +236,26 @@ void DeviceRackController::setMetersActive(bool active)
     }
 }
 
+bool DeviceRackController::deviceClipped(int slotIndex) const
+{
+    const auto device = m_deviceService->device(static_cast<size_t>(slotIndex));
+    return device ? device->clipDetector().clipped() : false;
+}
+
+void DeviceRackController::clearDeviceClip(int slotIndex)
+{
+    if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex))) {
+        device->clipDetector().clear();
+    }
+}
+
+void DeviceRackController::clearAllDeviceClips()
+{
+    for (int slotIndex = 0; slotIndex < deviceCount(); slotIndex++) {
+        clearDeviceClip(slotIndex);
+    }
+}
+
 double DeviceRackController::deviceLoad(int slotIndex) const
 {
     const auto device = m_deviceService->device(static_cast<size_t>(slotIndex));
@@ -428,8 +448,8 @@ QVariantList DeviceRackController::subMixerCandidates(int subMixerSlot) const
 int DeviceRackController::deviceVolume(int slotIndex) const
 {
     const auto device = m_deviceService->device(static_cast<size_t>(slotIndex));
-    // Full scale, matching the parameter default, so an absent device reads as unity.
-    return device ? static_cast<int>(std::round(device->volume() * Constants::uiInternalScaling())) : static_cast<int>(Constants::uiInternalScaling());
+    // The unity point of the throw, matching the parameter default, so an absent device reads as unity.
+    return device ? static_cast<int>(std::round(device->volume() * Constants::uiInternalScaling())) : static_cast<int>(std::round(Constants::faderUnityPosition() * Constants::uiInternalScaling()));
 }
 
 void DeviceRackController::setDeviceVolume(int slotIndex, int value)

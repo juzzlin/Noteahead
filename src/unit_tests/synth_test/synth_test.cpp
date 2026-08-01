@@ -123,7 +123,7 @@ void SynthTest::test_midiCc_shouldUpdateParameters()
 
     // Test individual CC updates
     synth.processMidiCc(7, 64, 0); // Volume ~0.5
-    QCOMPARE(synth.volume(), 64.0f / 127.0f);
+    QCOMPARE(synth.volume(), Device::faderPositionFromMidiCc(64));
 
     synth.processMidiCc(10, 32, 0); // Pan ~0.25
     QCOMPARE(synth.pan(), 32.0f / 127.0f);
@@ -146,7 +146,7 @@ void SynthTest::test_midiCc_shouldUpdateParameters()
     synth.processMidiCc(7, 10, 0);
     synth.processMidiCc(74, 127, 0);
 
-    QCOMPARE(synth.volume(), 10.0f / 127.0f);
+    QCOMPARE(synth.volume(), Device::faderPositionFromMidiCc(10));
     QCOMPARE(synth.lpfCutoff(), 127.0f / 127.0f);
 
     // Trigger Reset
@@ -568,9 +568,9 @@ void SynthTest::test_midiCcResetPanAndVolume_shouldRestoreManualValues()
     synth.setGain(0.6f);
 
     // 2. Change via MIDI CC
-    synth.processMidiCc(7, 127, 0); // Volume to 1.0
+    synth.processMidiCc(7, 127, 0); // Volume to unity
     synth.processMidiCc(10, 127, 0); // Pan to 1.0
-    QCOMPARE(synth.volume(), 1.0f);
+    QCOMPARE(synth.volume(), Constants::faderUnityPosition());
     QCOMPARE(synth.pan(), 1.0f);
 
     // 3. Reset All Controllers (CC 121)
@@ -628,7 +628,7 @@ void SynthTest::test_projectLoadMidiCcReset_shouldRestoreLoadedValues()
         synth.processMidiCc(7, 127, 0);
         synth.processMidiCc(10, 127, 0);
         synth.processMidiCc(74, 127, 0);
-        QCOMPARE(synth.volume(), 1.0f);
+        QCOMPARE(synth.volume(), Constants::faderUnityPosition());
         QCOMPARE(synth.pan(), 1.0f);
         QCOMPARE(synth.lpfCutoff(), 1.0f);
 

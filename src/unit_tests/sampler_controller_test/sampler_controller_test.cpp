@@ -71,7 +71,7 @@ void SamplerControllerTest::test_reset_shouldRestoreDefaultValues()
     QSignalSpy spy { &controller, &SamplerController::volumeChanged };
     controller.reset();
     QVERIFY(spy.count() >= 1);
-    QCOMPARE(controller.volume(), 1000);
+    QCOMPARE(controller.volume(), static_cast<int>(std::round(Constants::faderUnityPosition() * Constants::uiInternalScaling())));
 }
 
 void SamplerControllerTest::test_setSampler_shouldRefreshGlobalSwitchesToReflectNewInstance()

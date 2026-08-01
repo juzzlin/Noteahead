@@ -73,7 +73,7 @@ ColumnLayout {
     }
     Knob {
         label: qsTr("Fader")
-        mapping: "volume"
+        mapping: "fader"
         value: wavetableSynthController.volume
         onMoved: v => wavetableSynthController.volume = v
         Layout.fillWidth: true

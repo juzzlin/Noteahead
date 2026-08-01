@@ -97,6 +97,7 @@ set(HEADER_FILES
     tracker/song_settings.hpp
     tracker/track.hpp
     utility/audio_scope.hpp
+    utility/clip_detector.hpp
     utility/dbtp_meter.hpp
     utility/level_meter.hpp
     utility/load_meter.hpp
@@ -205,6 +206,7 @@ set(SOURCE_FILES
     tracker/song_settings.cpp
     tracker/track.cpp
     utility/audio_scope.cpp
+    utility/clip_detector.cpp
     utility/dbtp_meter.cpp
     utility/level_meter.cpp
     utility/load_meter.cpp

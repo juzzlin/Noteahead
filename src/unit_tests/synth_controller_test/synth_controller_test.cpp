@@ -92,7 +92,7 @@ void SynthControllerTest::test_reset_shouldRestoreDefaultValues()
     QSignalSpy spy { &controller, &SynthController::volumeChanged };
     controller.reset();
     QVERIFY(spy.count() >= 1);
-    QCOMPARE(controller.volume(), 1000);
+    QCOMPARE(controller.volume(), static_cast<int>(std::round(Constants::faderUnityPosition() * Constants::uiInternalScaling())));
 }
 
 void SynthControllerTest::test_voiceModes()

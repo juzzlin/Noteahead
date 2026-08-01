@@ -15,6 +15,8 @@
 
 #include "parameter_mapper.hpp"
 
+#include "constants.hpp"
+
 #include <algorithm>
 #include <cmath>
 
@@ -117,6 +119,27 @@ double ParameterMapper::mapLfoFrequency(double value, double /*min*/, double /*m
 double ParameterMapper::unmapLfoFrequency(double mappedValue, double /*min*/, double /*max*/)
 {
     return std::log(std::max(0.0001, mappedValue + 0.95)) / std::log(20.0);
+}
+
+double ParameterMapper::mapFader(double position)
+{
+    const double unity = static_cast<double>(Constants::faderUnityPosition());
+    const double clamped = std::clamp(position, 0.0, 1.0);
+    if (clamped <= unity) {
+        return clamped / unity;
+    }
+    const double db = static_cast<double>(Constants::maxFaderBoostDb()) * (clamped - unity) / (1.0 - unity);
+    return std::pow(10.0, db / 20.0);
+}
+
+double ParameterMapper::unmapFader(double linearGain)
+{
+    const double unity = static_cast<double>(Constants::faderUnityPosition());
+    if (linearGain <= 1.0) {
+        return std::clamp(linearGain, 0.0, 1.0) * unity;
+    }
+    const double db = 20.0 * std::log10(linearGain);
+    return unity + std::clamp(db / static_cast<double>(Constants::maxFaderBoostDb()), 0.0, 1.0) * (1.0 - unity);
 }
 
 } // namespace noteahead

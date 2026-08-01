@@ -31,7 +31,7 @@ ColumnLayout {
     }
     Knob {
         label: qsTr("Fader")
-        mapping: "volume"
+        mapping: "fader"
         value: pianoSynthController.volume
         onMoved: v => pianoSynthController.volume = v
         Layout.fillWidth: true

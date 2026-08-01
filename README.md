@@ -93,6 +93,8 @@ All Arctic Music Project songs:
 ### Internal Instruments (Virtual Device Rack)
 - Virtual Device Rack
   - Central hub for managing multiple independent instances of internal instruments.
+  - Per-slot level meter with a gain staging marker, a load readout, and a clip LED that latches on any full-scale output until clicked.
+  - Faders run from -inf to +10 dB, with unity three quarters up the throw, on devices and Sampler pads alike.
 - Synth
   - Polyphonic VA synthesizer (up to 6 voices) with dual oscillators, multi-mode filters, ADSR/Mod EGs, LFO, and built-in Delay.
 - Wavetable Synth

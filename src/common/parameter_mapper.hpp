@@ -38,6 +38,11 @@ public:
 
     static double mapLfoFrequency(double value, double min, double max);
     static double unmapLfoFrequency(double mappedValue, double min, double max);
+
+    //! Fader throw (0..1) to linear gain. Linear in amplitude up to unity at
+    //! Constants::faderUnityPosition(), then linear in dB up to Constants::maxFaderBoostDb().
+    static double mapFader(double position);
+    static double unmapFader(double linearGain);
 };
 
 } // namespace noteahead

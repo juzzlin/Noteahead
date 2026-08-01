@@ -42,6 +42,8 @@ double KnobController::map(double value, const QString & type, double min, doubl
         return ParameterMapper::mapLogFrequency(value, min, max);
     if (type == "decibel")
         return ParameterMapper::mapDecibel(value, (max - min) / 2.0);
+    if (type == "fader")
+        return ParameterMapper::mapFader(value);
     return min + (value * (max - min)); // linear
 }
 
@@ -57,6 +59,8 @@ double KnobController::unmap(double mappedValue, const QString & type, double mi
         return ParameterMapper::unmapLogFrequency(mappedValue, min, max);
     if (type == "decibel")
         return ParameterMapper::unmapDecibel(mappedValue, (max - min) / 2.0);
+    if (type == "fader")
+        return ParameterMapper::unmapFader(mappedValue);
     return (max != min) ? (mappedValue - min) / (max - min) : 0.0;
 }
 
@@ -71,6 +75,14 @@ QString KnobController::format(double value, const QString & type, const QString
         const QString pctStr = percentageToString(linearValue);
         const QString dbStr = decibelMultiplierToString(value);
         return QString { "%1 / %2" }.arg(pctStr).arg(dbStr);
+    }
+
+    if (type == "fader") {
+        // The knob's own position says little once the taper is not linear in gain, so both halves
+        // of the readout describe the gain the fader is actually applying
+        const double gain = ParameterMapper::mapFader(value);
+        const QString pctStr = percentageToString(gain * Constants::uiInternalScaling());
+        return QString { "%1 / %2" }.arg(pctStr).arg(decibelMultiplierToString(gain));
     }
 
     const double mappedValue = map(value, type, min, max);

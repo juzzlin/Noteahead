@@ -79,6 +79,7 @@ public:
         int sampleRate = 0;
 
         float pan = 0.5f;
+        //! Fader position, not a gain: seeded to unity in the constructor, mapped by mapFader().
         float volume = 1.0f;
         float cutoff = 1.0f;
         float hpfCutoff = 0.0f;

@@ -16,6 +16,7 @@
 #ifndef PARAMETER_HPP
 #define PARAMETER_HPP
 
+#include <functional>
 #include <optional>
 #include <string>
 #include <vector>
@@ -23,6 +24,11 @@
 namespace noteahead {
 
 using LegacyNameList = std::vector<std::string>;
+
+//! Rescales a value that arrived under a legacy name into the current parameter's domain. Needed
+//! when a parameter is not merely renamed but reinterpreted, since the stored number is a position
+//! within whatever range was in effect when the project was saved.
+using LegacyValueConverter = std::function<float(float)>;
 
 class Parameter
 {
@@ -34,7 +40,7 @@ public:
         Boolean
     };
 
-    Parameter(const std::string & name, float internalValue, int xmlMin, int xmlMax, int xmlDefault, int xmlScale = 1, Type type = Type::Continuous, LegacyNameList legacyNames = {});
+    Parameter(const std::string & name, float internalValue, int xmlMin, int xmlMax, int xmlDefault, int xmlScale = 1, Type type = Type::Continuous, LegacyNameList legacyNames = {}, LegacyValueConverter legacyValueConverter = {});
 
     const std::string & name() const;
 
@@ -53,6 +59,7 @@ public:
     bool isBoolean() const;
 
     const LegacyNameList & legacyNames() const;
+    const LegacyValueConverter & legacyValueConverter() const;
 
     void setFromXml(int xmlVal, std::optional<int> xmlMin = std::nullopt, std::optional<int> xmlMax = std::nullopt);
 
@@ -70,6 +77,7 @@ private:
     int m_xmlScale = 1;
     Type m_type = Type::Continuous;
     LegacyNameList m_legacyNames;
+    LegacyValueConverter m_legacyValueConverter;
 };
 
 } // namespace noteahead

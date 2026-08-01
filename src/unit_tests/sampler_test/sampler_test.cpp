@@ -317,7 +317,7 @@ void SamplerTest::test_reset_shouldResetParametersAndPads()
     sampler.reset();
 
     QCOMPARE(sampler.channelMode(), false);
-    QCOMPARE(sampler.volume(), 1.0f);
+    QCOMPARE(sampler.volume(), Constants::faderUnityPosition());
     QCOMPARE(sampler.pan(), 0.5f);
     for (uint8_t note = 36; note < 36 + 16; note++) {
         QVERIFY(!sampler.sample(note));
@@ -373,9 +373,9 @@ void SamplerTest::test_midiCcResetGlobalPanAndVolume_shouldRestoreManualValues()
     sampler.setGain(0.6f);
 
     // 2. Change via MIDI CC
-    sampler.processMidiCc(7, 127, 0); // Volume to 1.0
+    sampler.processMidiCc(7, 127, 0); // Volume to unity
     sampler.processMidiCc(10, 127, 0); // Pan to 1.0
-    QCOMPARE(sampler.volume(), 1.0f);
+    QCOMPARE(sampler.volume(), Constants::faderUnityPosition());
     QCOMPARE(sampler.pan(), 1.0f);
 
     // 3. Reset All Controllers (CC 121)
@@ -414,7 +414,7 @@ void SamplerTest::test_projectLoadMidiCcResetGlobal_shouldRestoreLoadedValues()
         // Change via MIDI CC
         sampler.processMidiCc(7, 127, 0);
         sampler.processMidiCc(10, 127, 0);
-        QCOMPARE(sampler.volume(), 1.0f);
+        QCOMPARE(sampler.volume(), Constants::faderUnityPosition());
         QCOMPARE(sampler.pan(), 1.0f);
 
         // Reset All Controllers

@@ -1022,6 +1022,11 @@ QString xmlKeyVolume()
     return "volume";
 }
 
+QString xmlKeyFader()
+{
+    return "fader";
+}
+
 QString xmlKeyGain()
 {
     return "gain";

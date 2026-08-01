@@ -90,7 +90,7 @@ void DrumSynthControllerTest::test_reset_shouldRestoreDefaultValues()
     QSignalSpy spy { &controller, &DrumSynthController::volumeChanged };
     controller.reset();
     QVERIFY(spy.count() >= 1);
-    QCOMPARE(controller.volume(), 1000);
+    QCOMPARE(controller.volume(), static_cast<int>(std::round(Constants::faderUnityPosition() * Constants::uiInternalScaling())));
 }
 
 } // namespace noteahead

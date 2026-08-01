@@ -20,7 +20,7 @@
 
 namespace noteahead {
 
-Parameter::Parameter(const std::string & name, float internalValue, int xmlMin, int xmlMax, int xmlDefault, int xmlScale, Type type, LegacyNameList legacyNames)
+Parameter::Parameter(const std::string & name, float internalValue, int xmlMin, int xmlMax, int xmlDefault, int xmlScale, Type type, LegacyNameList legacyNames, LegacyValueConverter legacyValueConverter)
   : m_name { name }
   , m_xmlMin { xmlMin }
   , m_xmlMax { xmlMax }
@@ -28,6 +28,7 @@ Parameter::Parameter(const std::string & name, float internalValue, int xmlMin, 
   , m_xmlScale { xmlScale }
   , m_type { type }
   , m_legacyNames { std::move(legacyNames) }
+  , m_legacyValueConverter { std::move(legacyValueConverter) }
 {
     setValue(internalValue);
 }
@@ -40,6 +41,11 @@ const std::string & Parameter::name() const
 const LegacyNameList & Parameter::legacyNames() const
 {
     return m_legacyNames;
+}
+
+const LegacyValueConverter & Parameter::legacyValueConverter() const
+{
+    return m_legacyValueConverter;
 }
 
 float Parameter::value() const

@@ -111,9 +111,11 @@ void ParameterContainer::deserializeParameter(ProjectReader & reader)
     static const std::string TAG { "ParameterContainer" };
     auto name = reader.attribute(Constants::NahdXml::xmlKeyName()).toString().toStdString();
 
+    bool wasLegacyName = false;
     if (const auto it = m_legacyNameMap.find(name); it != m_legacyNameMap.end()) {
         juzzlin::L(TAG).warning() << "Mapping legacy parameter name " << std::quoted(name) << " to " << std::quoted(it->second);
         name = it->second;
+        wasLegacyName = true;
     }
 
     const auto valueType = reader.attribute(Constants::NahdXml::xmlKeyParameterValueType()).toString();
@@ -136,6 +138,13 @@ void ParameterContainer::deserializeParameter(ProjectReader & reader)
         } else {
             // Fallback for older files
             p->get().setFromXml(xmlValueStr.toInt(), xmlMin, xmlMax);
+        }
+        // A renamed parameter takes the stored value as-is, but a reinterpreted one has to be
+        // converted into its new domain, or the same number would silently mean something else
+        if (wasLegacyName) {
+            if (const auto & converter = p->get().legacyValueConverter(); converter) {
+                p->get().setValue(converter(p->get().value()));
+            }
         }
     }
     reader.skipCurrentElement();

@@ -16,6 +16,7 @@
 #include "channel_strip_test.hpp"
 
 #include "../../common/constants.hpp"
+#include "../../common/parameter_mapper.hpp"
 #include "../../domain/devices/string_ensemble_device.hpp"
 #include "../../domain/effects/effect.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
@@ -173,7 +174,8 @@ void ChannelStripTest::test_defaults_shouldMatchLegacyChain()
 
 void ChannelStripTest::test_applyFader_shouldScaleTheWholeBuffer()
 {
-    auto device = makeDevice(0.25f);
+    constexpr float position = 0.25f;
+    auto device = makeDevice(position);
     for (int i = 0; i < WarmUpBuffers; i++) {
         renderRaw(*device);
     }
@@ -186,13 +188,13 @@ void ChannelStripTest::test_applyFader_shouldScaleTheWholeBuffer()
 
     QVERIFY(peakLevel(dry) > 0.0);
     for (size_t i = 0; i < samples.size(); i++) {
-        QVERIFY(std::abs(samples[i] - dry[i] * 0.25) < 1.0e-12);
+        QVERIFY(std::abs(samples[i] - dry[i] * ParameterMapper::mapFader(position)) < 1.0e-12);
     }
 }
 
 void ChannelStripTest::test_applyFader_unityShouldLeaveBufferUntouched()
 {
-    auto device = makeDevice(1.0f);
+    auto device = makeDevice(Constants::faderUnityPosition());
     for (int i = 0; i < WarmUpBuffers; i++) {
         renderRaw(*device);
     }
@@ -289,13 +291,13 @@ void ChannelStripTest::test_sendTap_postFader_shouldFollowFader()
         return renderToSendTap(*device);
     };
 
-    const auto loud = renderAtVolume(1.0f);
+    const auto loud = renderAtVolume(Constants::faderUnityPosition());
     const auto quiet = renderAtVolume(0.2f);
 
     QVERIFY(peakLevel(loud) > 0.0);
     // The fader is stored as a float, so compare against the value the device actually holds
     // rather than the double literal it was set from.
-    const double expected = peakLevel(loud) * static_cast<double>(0.2f);
+    const double expected = peakLevel(loud) * ParameterMapper::mapFader(static_cast<double>(0.2f));
     QVERIFY2(std::abs(peakLevel(quiet) - expected) < 1.0e-12,
              qPrintable(QString { "expected %1, got %2" }.arg(expected).arg(peakLevel(quiet))));
 }

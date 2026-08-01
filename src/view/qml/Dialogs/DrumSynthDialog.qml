@@ -68,7 +68,7 @@ AnimatedDialog {
                 }
                 Knob {
                     label: qsTr("Fader")
-                    mapping: "volume"
+                    mapping: "fader"
                     value: drumSynthController.volume
                     onMoved: (val) => drumSynthController.volume = val
                 }

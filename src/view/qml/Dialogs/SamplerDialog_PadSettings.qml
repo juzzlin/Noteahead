@@ -41,10 +41,10 @@ ColumnLayout {
         }
     }
 
-    // Volume Knob
+    // Fader Knob
     Knob {
-        label: qsTr("Volume")
-        mapping: "volume"
+        label: qsTr("Fader")
+        mapping: "fader"
         value: samplerController.selectedPadVolume * Constants.uiInternalScaling
         onMoved: v => {
             samplerController.selectedPadVolume = v / Constants.uiInternalScaling;

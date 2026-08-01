@@ -33,7 +33,8 @@ DeviceController::DeviceController(QObject * parent)
 int DeviceController::volume() const
 {
     auto dev = device();
-    return dev ? static_cast<int>(std::round(dev->volume() * Constants::uiInternalScaling())) : 1000;
+    // Unity, which is also the sane answer for an absent device
+    return dev ? static_cast<int>(std::round(dev->volume() * Constants::uiInternalScaling())) : static_cast<int>(std::round(Constants::faderUnityPosition() * Constants::uiInternalScaling()));
 }
 
 void DeviceController::setVolume(int value)

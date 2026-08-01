@@ -26,9 +26,27 @@
 
 namespace noteahead {
 
+Parameter Device::faderParameter()
+{
+    // Stored as a 0..1 position on the throw rather than as a gain, so the taper can change without
+    // the stored number changing meaning. Projects saved before the boost range existed carry a
+    // "volume" that was the linear gain itself, which unmapFader() converts back to a position.
+    return Parameter {
+        Constants::NahdXml::xmlKeyFader().toStdString(),
+        Constants::faderUnityPosition(),
+        0,
+        10000,
+        static_cast<int>(std::lround(Constants::faderUnityPosition() * 10000.0f)),
+        100,
+        Parameter::Type::Continuous,
+        { Constants::NahdXml::xmlKeyVolume().toStdString() },
+        [](float legacyGain) { return static_cast<float>(ParameterMapper::unmapFader(static_cast<double>(legacyGain))); }
+    };
+}
+
 Device::Device()
 {
-    addParameter(Parameter { Constants::NahdXml::xmlKeyVolume().toStdString(), 1.0f, 0, 10000, 10000, 100 });
+    addParameter(faderParameter());
     addParameter(Parameter { Constants::NahdXml::xmlKeyGain().toStdString(), 0.5f, -3000, 3000, 0, 100, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeyPan().toStdString(), 0.5f, 0, 10000, 5000, 100 });
 
@@ -36,6 +54,9 @@ Device::Device()
     // back then — which carries neither key — loads and sounds exactly as it did.
     addParameter(Parameter { Constants::NahdXml::xmlKeyFaderPosition().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeySendTap().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
+
+    m_volume = Constants::faderUnityPosition();
+    m_manualVolume = m_volume;
 
     m_reverbSends.resize(Constants::effectRackSize(), 0.0f);
     m_manualReverbSends.resize(Constants::effectRackSize(), 0.0f);
@@ -141,6 +162,11 @@ void Device::setVolume(float volume)
     }
 }
 
+float Device::faderPositionFromMidiCc(uint8_t value)
+{
+    return static_cast<float>(value) / 127.0f * Constants::faderUnityPosition();
+}
+
 float Device::gain() const
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
@@ -192,7 +218,7 @@ size_t Device::reverbSendCount() const
 bool Device::updateVolumeParameter(float volume, bool updateManual)
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
-    if (auto p = parameter(Constants::NahdXml::xmlKeyVolume().toStdString()); p) {
+    if (auto p = parameter(Constants::NahdXml::xmlKeyFader().toStdString()); p) {
         const float oldVal = p->get().value();
         p->get().setValue(volume);
         if (updateManual) {
@@ -253,7 +279,7 @@ bool Device::updateReverbSendParameter(size_t index, float send, bool updateManu
 
 void Device::syncParameters()
 {
-    if (auto p = parameter(Constants::NahdXml::xmlKeyVolume().toStdString()); p) {
+    if (auto p = parameter(Constants::NahdXml::xmlKeyFader().toStdString()); p) {
         m_volume = p->get().value();
     }
     if (auto p = parameter(Constants::NahdXml::xmlKeyGain().toStdString()); p) {
@@ -328,7 +354,7 @@ void Device::applyFader(AudioContext & context) const
     double volume {};
     {
         const std::lock_guard<std::recursive_mutex> lock { m_mutex };
-        volume = static_cast<double>(m_volume);
+        volume = ParameterMapper::mapFader(static_cast<double>(m_volume));
     }
 
     const uint32_t sampleCount = context.frameCount * 2;
@@ -402,6 +428,16 @@ const LevelMeter & Device::meter() const
 LoadMeter & Device::loadMeter()
 {
     return m_loadMeter;
+}
+
+ClipDetector & Device::clipDetector()
+{
+    return m_clipDetector;
+}
+
+const ClipDetector & Device::clipDetector() const
+{
+    return m_clipDetector;
 }
 
 const LoadMeter & Device::loadMeter() const

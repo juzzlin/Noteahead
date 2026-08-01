@@ -22,6 +22,7 @@
 #include "../effects/effect_rack.hpp"
 #include "../tracker/parameter_container.hpp"
 #include "../utility/audio_scope.hpp"
+#include "../utility/clip_detector.hpp"
 #include "../utility/level_meter.hpp"
 #include "../utility/load_meter.hpp"
 
@@ -142,6 +143,11 @@ public:
     LoadMeter & loadMeter();
     const LoadMeter & loadMeter() const;
 
+    //! Full-scale latch on this device's final output, taken after both the fader and the insert
+    //! rack. Ungated, unlike the meters, so it still catches clipping with no dialog open.
+    ClipDetector & clipDetector();
+    const ClipDetector & clipDetector() const;
+
     virtual bool hasActiveAudio() const
     {
         return true;
@@ -158,8 +164,17 @@ public:
     virtual void serializeToXml(ProjectWriter & writer) const;
     virtual void deserializeFromXml(ProjectReader & reader);
 
+    //! The fader parameter shared by every device and by the Sampler's pads. Public so the pads,
+    //! which are not Devices, get the same taper and the same legacy conversion.
+    static Parameter faderParameter();
+
+    //! Position on the fader throw, 0..1, not a gain: run it through ParameterMapper::mapFader().
     float volume() const;
     virtual void setVolume(float volume);
+
+    //! Fader position a MIDI Channel Volume (CC 7) value maps to. Full CC lands on unity rather
+    //! than on the top of the throw, so CC 7 keeps meaning what it always did.
+    static float faderPositionFromMidiCc(uint8_t value);
 
     float gain() const;
     virtual void setGain(float gain);
@@ -209,6 +224,7 @@ private:
     size_t m_id { 0 };
     uint32_t m_sampleRate { static_cast<uint32_t>(Constants::defaultSampleRate()) };
 
+    //! Fader position, seeded to unity in the constructor.
     float m_volume { 1.0f };
     float m_gain { 0.5f };
     float m_pan { 0.5f };
@@ -226,6 +242,7 @@ private:
     AudioScope m_scope;
     LevelMeter m_meter;
     LoadMeter m_loadMeter;
+    ClipDetector m_clipDetector;
 
     mutable std::recursive_mutex m_mutex;
 };

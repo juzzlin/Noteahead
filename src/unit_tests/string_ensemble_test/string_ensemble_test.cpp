@@ -385,7 +385,7 @@ void StringEnsembleTest::test_midiCc_shouldUpdateVolumeAndPan()
     QCOMPARE(controllers.at(1).name, std::string { "Pan" });
 
     device.processMidiCc(controllers.at(0).number, 64, 0);
-    QVERIFY(std::abs(device.volume() - 64.0f / 127.0f) < 0.001f);
+    QVERIFY(std::abs(device.volume() - Device::faderPositionFromMidiCc(64)) < 0.001f);
 
     device.processMidiCc(controllers.at(1).number, 127, 0);
     QVERIFY(std::abs(device.pan() - 1.0f) < 0.001f);

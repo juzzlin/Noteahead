@@ -16,6 +16,7 @@
 #include "sampler_device.hpp"
 
 #include "../../common/constants.hpp"
+#include "../../common/parameter_mapper.hpp"
 #include "../../common/utils.hpp"
 #include "../../common/xml/project_reader.hpp"
 #include "../../common/xml/project_writer.hpp"
@@ -41,7 +42,9 @@ static const auto TAG = "SamplerDevice";
 SamplerDevice::Sample::Sample()
 {
     addParameter(Parameter { Constants::NahdXml::xmlKeyPan().toStdString(), 0.5f, -10000, 10000, 0, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyVolume().toStdString(), 1.0f, 0, 10000, 10000, 100 });
+    addParameter(Device::faderParameter());
+    volume = Constants::faderUnityPosition();
+    manualVolume = volume;
     addParameter(Parameter { Constants::NahdXml::xmlKeyCutoff().toStdString(), 1.0f, 0, 10000, 10000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyStartOffset().toStdString(), 0.0f, 0, 60000, 0, 1 });
@@ -84,7 +87,7 @@ void SamplerDevice::updateVoiceEffects(Voice & voice)
     const float combinedPan = (std::clamp(sPan + mPan, -1.0f, 1.0f) + 1.0f) / 2.0f;
     voice.panningEffect->setPan(combinedPan);
 
-    const float combinedVolume = voice.sample->volume * voice.velocity;
+    const float combinedVolume = static_cast<float>(ParameterMapper::mapFader(voice.sample->volume)) * voice.velocity;
     voice.volumeEffect->setVolume(combinedVolume);
 
     voice.lpf->setCutoff(std::clamp(voice.sample->cutoff + (voice.cutoff - 1.0f), 0.0f, 1.0f));
@@ -221,7 +224,7 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
 
                     if (auto p = sample->parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p)
                         p->get().setValue(sample->pan);
-                    if (auto p = sample->parameter(Constants::NahdXml::xmlKeyVolume().toStdString()); p)
+                    if (auto p = sample->parameter(Constants::NahdXml::xmlKeyFader().toStdString()); p)
                         p->get().setValue(sample->volume);
                     if (auto p = sample->parameter(Constants::NahdXml::xmlKeyCutoff().toStdString()); p)
                         p->get().setValue(sample->cutoff);
@@ -249,9 +252,9 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
                     if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p)
                         p->get().setValue(val);
                 } else if (controller == static_cast<uint8_t>(Controller::ChannelVolumeMSB)) { // Volume
-                    m_samples.at(note)->volume = val;
-                    if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyVolume().toStdString()); p)
-                        p->get().setValue(val);
+                    m_samples.at(note)->volume = faderPositionFromMidiCc(value);
+                    if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyFader().toStdString()); p)
+                        p->get().setValue(m_samples.at(note)->volume);
                 } else if (controller == static_cast<uint8_t>(Controller::SoundController5)) { // Cutoff (LPF)
                     m_samples.at(note)->cutoff = val;
                     if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyCutoff().toStdString()); p)
@@ -286,7 +289,7 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
                     }
                 }
             } else if (controller == static_cast<uint8_t>(Controller::ChannelVolumeMSB)) { // Volume
-                changed |= updateVolumeParameter(static_cast<float>(value) / 127.0f, false);
+                changed |= updateVolumeParameter(faderPositionFromMidiCc(value), false);
                 // Update all active voices' volume
                 for (auto && voice : m_voices) {
                     if (voice.active) {
@@ -343,7 +346,7 @@ void SamplerDevice::processMidiAllNotesOff()
 
                 if (auto p = sample->parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p)
                     p->get().setValue(sample->pan);
-                if (auto p = sample->parameter(Constants::NahdXml::xmlKeyVolume().toStdString()); p)
+                if (auto p = sample->parameter(Constants::NahdXml::xmlKeyFader().toStdString()); p)
                     p->get().setValue(sample->volume);
                 if (auto p = sample->parameter(Constants::NahdXml::xmlKeyCutoff().toStdString()); p)
                     p->get().setValue(sample->cutoff);
@@ -671,7 +674,7 @@ void SamplerDevice::setSampleVolume(uint8_t note, float volume)
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
         if (m_samples.at(note)) {
-            if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyVolume().toStdString()); p) {
+            if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyFader().toStdString()); p) {
                 p->get().setValue(volume);
                 m_samples.at(note)->volume = p->get().value();
                 m_samples.at(note)->manualVolume = m_samples.at(note)->volume;
@@ -1035,7 +1038,7 @@ void SamplerDevice::deserializeFromXml(ProjectReader & reader)
                             // Sync internal fields from parameters
                             if (auto p = s->parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p)
                                 s->pan = p->get().value();
-                            if (auto p = s->parameter(Constants::NahdXml::xmlKeyVolume().toStdString()); p)
+                            if (auto p = s->parameter(Constants::NahdXml::xmlKeyFader().toStdString()); p)
                                 s->volume = p->get().value();
                             if (auto p = s->parameter(Constants::NahdXml::xmlKeyCutoff().toStdString()); p)
                                 s->cutoff = p->get().value();

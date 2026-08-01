@@ -116,6 +116,11 @@ AnimatedDialog {
                     deviceRackController.revision;
                     return deviceRackController.deviceLoad(index);
                 }
+                readonly property bool deviceClipped: {
+                    deviceListView.meterTick;
+                    deviceRackController.revision;
+                    return deviceRackController.deviceClipped(index);
+                }
 
                 MouseArea {
                     id: mouseArea
@@ -173,6 +178,34 @@ AnimatedDialog {
                         peakDb: meterLevels.length ? meterLevels[0] : -120
                         rmsDb: meterLevels.length ? meterLevels[1] : -120
                         markerDb: settingsService.gainStagingTargetDb
+                    }
+
+                    // Clip LED. Latches on any full-scale sample in the device's output and stays
+                    // lit until clicked, so a single overshoot cannot go unnoticed.
+                    Rectangle {
+                        id: clipLed
+                        Layout.preferredWidth: 14
+                        Layout.preferredHeight: 14
+                        Layout.alignment: Qt.AlignVCenter
+                        visible: deviceType !== ""
+                        radius: width / 2
+                        color: deviceClipped ? "#ff2020" : "#3a1010"
+                        border.color: deviceClipped ? "#ff8080" : "#552020"
+                        border.width: 1
+
+                        ToolTip.visible: clipMouseArea.containsMouse
+                        ToolTip.text: deviceClipped ? qsTr("Output clipped. Click to clear.") : qsTr("No clipping")
+
+                        MouseArea {
+                            id: clipMouseArea
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                deviceRackController.clearDeviceClip(index);
+                                deviceListView.meterTick++;
+                            }
+                        }
                     }
 
                     Text {

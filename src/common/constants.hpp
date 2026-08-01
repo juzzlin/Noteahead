@@ -94,6 +94,20 @@ constexpr float uiInternalScaling()
     return 1000.0f;
 }
 
+//! Where unity gain sits on a fader's 0..1 throw. Everything above it is boost, so the usable
+//! range is -inf .. maxFaderBoostDb(). Chosen so the taper below unity is the linear-amplitude
+//! one faders had before the boost range existed, just compressed into the lower part of the throw.
+constexpr float faderUnityPosition()
+{
+    return 0.75f;
+}
+
+//! How far a fader can be pushed past unity, in dB.
+constexpr float maxFaderBoostDb()
+{
+    return 10.0f;
+}
+
 namespace RackEffectType {
 QString reverb();
 QString compressor();
@@ -308,6 +322,7 @@ QString xmlKeyValue();
 
 QString xmlKeyVelocity();
 QString xmlKeyVolume();
+QString xmlKeyFader();
 QString xmlKeyGain();
 
 QString xmlKeyProject();
