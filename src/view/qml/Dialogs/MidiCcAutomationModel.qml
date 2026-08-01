@@ -168,6 +168,11 @@ Item {
                     to: propertyService.maxValue(midiCcSelector.currentController, rootItem.portName)
                     value: 0
                     editable: true
+                    // Ranges differ per controller now, so a narrower one must not leave a
+                    // stale value behind
+                    onToChanged: if (value > to) {
+                        value = to;
+                    }
                     Keys.onReturnPressed: {
                         focus = false;
                     }
@@ -186,6 +191,11 @@ Item {
                     to: propertyService.maxValue(midiCcSelector.currentController, rootItem.portName)
                     value: 0
                     editable: true
+                    // Ranges differ per controller now, so a narrower one must not leave a
+                    // stale value behind
+                    onToChanged: if (value > to) {
+                        value = to;
+                    }
                     enabled: startLine() !== endLine()
                     Keys.onReturnPressed: {
                         focus = false;

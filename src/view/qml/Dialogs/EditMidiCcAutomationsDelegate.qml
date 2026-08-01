@@ -7,7 +7,10 @@ import "../Components"
 import "../ToolBar"
 
 GroupBox {
+    id: rootItem
     title: `Pattern: ${model.pattern}, Track: ${model.track}, Column: ${model.column}`
+    //! Value ranges are per port, so every lookup here has to go through the track's instrument.
+    readonly property string portName: (track !== undefined) ? editorService.instrumentPortName(track) : ""
     function initialize(): void {
         if (model && model.controller !== undefined) {
             controllerComboBox.currentIndex = controllerComboBox.indexOfValue(model.controller);
@@ -59,7 +62,7 @@ GroupBox {
                 }
                 MidiCcComboBox {
                     id: controllerComboBox
-                    portName: (track !== undefined) ? editorService.instrumentPortName(track) : ""
+                    portName: rootItem.portName
                     Layout.row: 1
                     Layout.column: 1
                     Layout.fillWidth: true
@@ -122,8 +125,8 @@ GroupBox {
                 }
                 SpinBox {
                     id: startValueSpinBox
-                    from: propertyService.minValue(model.controller, (track !== undefined) ? editorService.instrumentPortName(track) : "")
-                    to: propertyService.maxValue(model.controller, (track !== undefined) ? editorService.instrumentPortName(track) : "")
+                    from: propertyService.minValue(model.controller, rootItem.portName)
+                    to: propertyService.maxValue(model.controller, rootItem.portName)
                     editable: true
                     Keys.onReturnPressed: focus = false
                     Layout.row: 1
@@ -134,6 +137,12 @@ GroupBox {
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("The controller value at the start line")
                     onValueModified: model.value0 = value
+                    // Controllers no longer share one range, so switching to a narrower one has to
+                    // bring the stored value along instead of leaving it out of bounds
+                    onToChanged: if (value > to) {
+                        value = to;
+                        model.value0 = to;
+                    }
                 }
                 Label {
                     text: qsTr("End value")
@@ -143,8 +152,8 @@ GroupBox {
                 }
                 SpinBox {
                     id: endValueSpinBox
-                    from: propertyService.minValue(model.controller, (track !== undefined) ? editorService.instrumentPortName(track) : "")
-                    to: propertyService.maxValue(model.controller, (track !== undefined) ? editorService.instrumentPortName(track) : "")
+                    from: propertyService.minValue(model.controller, rootItem.portName)
+                    to: propertyService.maxValue(model.controller, rootItem.portName)
                     editable: true
                     enabled: model.line0 !== model.line1
                     Keys.onReturnPressed: focus = false
@@ -156,6 +165,10 @@ GroupBox {
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("The controller value at the end line")
                     onValueModified: model.value1 = value
+                    onToChanged: if (value > to) {
+                        value = to;
+                        model.value1 = to;
+                    }
                 }
             }
         }
