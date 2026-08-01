@@ -108,6 +108,18 @@ constexpr float maxFaderBoostDb()
     return 10.0f;
 }
 
+//! Highest MIDI CC value an internal device's fader accepts.
+//!
+//! 127 keeps meaning unity, so every stored automation value means exactly what it always did; the
+//! values above it are what reaches into the boost range. External gear stays on the MIDI 1.0
+//! range — PropertyService is what decides which of the two a port gets.
+constexpr int faderMaxMidiCcValue()
+{
+    return static_cast<int>(127.0f / faderUnityPosition() + 1.0f);
+}
+
+static_assert(faderMaxMidiCcValue() > 127 && faderMaxMidiCcValue() <= 255, "The fader's CC range has to extend past MIDI 1.0 and still fit in a byte");
+
 namespace RackEffectType {
 QString reverb();
 QString compressor();

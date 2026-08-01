@@ -150,7 +150,7 @@ std::vector<MidiCcController> StringVoiceDevice::availableMidiCcControllers() co
 {
     using namespace MidiCcMapping;
     return {
-        { static_cast<uint8_t>(Controller::ChannelVolumeMSB), "Volume" },
+        faderMidiCcController(),
         { static_cast<uint8_t>(Controller::PanMSB), "Pan" },
         { static_cast<uint8_t>(Controller::SustainPedal), "Sustain" }
     };

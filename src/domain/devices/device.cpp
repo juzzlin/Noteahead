@@ -20,8 +20,10 @@
 #include "../../common/utils.hpp"
 #include "../../common/xml/project_reader.hpp"
 #include "../../common/xml/project_writer.hpp"
+#include "../../infra/midi/midi_cc_mapping.hpp"
 #include "../dsp/true_stereo_panner.hpp"
 
+#include <algorithm>
 #include <cmath>
 
 namespace noteahead {
@@ -164,7 +166,14 @@ void Device::setVolume(float volume)
 
 float Device::faderPositionFromMidiCc(uint8_t value)
 {
-    return static_cast<float>(value) / 127.0f * Constants::faderUnityPosition();
+    return std::min(1.0f, static_cast<float>(value) / 127.0f * Constants::faderUnityPosition());
+}
+
+MidiCcController Device::faderMidiCcController()
+{
+    // Named after the knob it drives rather than after the MIDI controller it rides on: every
+    // device labels this Fader, and the automation editor takes its name from here.
+    return { static_cast<uint8_t>(MidiCcMapping::Controller::ChannelVolumeMSB), "Fader", 0, Constants::faderMaxMidiCcValue() };
 }
 
 float Device::gain() const

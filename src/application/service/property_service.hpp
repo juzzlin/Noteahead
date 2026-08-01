@@ -19,6 +19,9 @@
 #include <QObject>
 #include <QVariantList>
 #include <memory>
+#include <optional>
+
+#include "../../domain/devices/device.hpp"
 
 namespace noteahead {
 
@@ -37,10 +40,19 @@ public:
     QVariantList availableMidiControllers() const;
     Q_INVOKABLE QVariantList getAvailableMidiControllers(const QString & portName = {}) const;
 
-    Q_INVOKABLE int minValue(int controller) const;
-    Q_INVOKABLE int maxValue(int controller) const;
+    //! Value range a controller accepts on the given port.
+    //!
+    //! External ports get the MIDI 1.0 range, because anything wider is not a legal data byte on
+    //! the wire. An internal device answers for itself through availableMidiCcControllers(), which
+    //! is how the fader exposes its boost range. An unknown or empty port falls back to MIDI 1.0.
+    Q_INVOKABLE int minValue(int controller, const QString & portName = {}) const;
+    Q_INVOKABLE int maxValue(int controller, const QString & portName = {}) const;
 
 private:
+    //! The controller as the port's device declares it, or nothing when the port is not an
+    //! internal device or does not offer that controller.
+    std::optional<MidiCcController> deviceController(int controller, const QString & portName) const;
+
     std::weak_ptr<DeviceService> m_deviceService;
 };
 

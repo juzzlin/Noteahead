@@ -24,6 +24,7 @@
 #include "../../domain/devices/synth_device.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
+#include "../../infra/midi/midi_cc_mapping.hpp"
 
 #include <QTest>
 #include <memory>
@@ -47,6 +48,66 @@ void PropertyServiceTest::test_availableMidiControllers_shouldReturnCorrectContr
     const auto last = controllers.last().toMap();
     QCOMPARE(last["number"].toInt(), 127);
     QCOMPARE(last["name"].toString(), QString { "127: PolyModeOn" });
+}
+
+void PropertyServiceTest::test_valueRange_internalDeviceFader_shouldExtendPastMidi1()
+{
+    auto audioEngine = std::make_shared<AudioEngine>();
+    auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    PropertyService propertyService;
+    propertyService.setDeviceService(deviceService);
+
+    deviceService->setDevice(0, std::make_shared<SynthDevice>("Synth 1"));
+    const QString portName = Constants::internalDevicePortPrefix() + " 1";
+
+    const auto volumeCc = static_cast<int>(MidiCcMapping::Controller::ChannelVolumeMSB);
+    const auto panCc = static_cast<int>(MidiCcMapping::Controller::PanMSB);
+
+    // The fader reaches past MIDI 1.0 so automation can drive it into the boost range
+    QCOMPARE(propertyService.minValue(volumeCc, portName), 0);
+    QCOMPARE(propertyService.maxValue(volumeCc, portName), Constants::faderMaxMidiCcValue());
+    QVERIFY(Constants::faderMaxMidiCcValue() > 127);
+
+    // Everything else on the same device stays on the MIDI 1.0 range
+    QCOMPARE(propertyService.maxValue(panCc, portName), 127);
+
+    // As does the same controller once it is bound for real MIDI gear
+    QCOMPARE(propertyService.maxValue(volumeCc, "Some External Port"), 127);
+    QCOMPARE(propertyService.maxValue(volumeCc), 127);
+    QCOMPARE(propertyService.maxValue(volumeCc, ""), 127);
+}
+
+void PropertyServiceTest::test_getAvailableMidiControllers_internalDevice_shouldCarryDeviceRanges()
+{
+    auto audioEngine = std::make_shared<AudioEngine>();
+    auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    PropertyService propertyService;
+    propertyService.setDeviceService(deviceService);
+
+    deviceService->setDevice(0, std::make_shared<SynthDevice>("Synth 1"));
+    const QString portName = Constants::internalDevicePortPrefix() + " 1";
+
+    // The ranges used to be hardcoded here, which is what kept the device's own range from ever
+    // reaching the automation editor
+    const auto controllers = propertyService.getAvailableMidiControllers(portName);
+    QVERIFY(!controllers.isEmpty());
+
+    const auto rangeOf = [&controllers](int number) {
+        for (auto && controller : controllers) {
+            if (const auto map = controller.toMap(); map["number"].toInt() == number) {
+                return map["maxValue"].toInt();
+            }
+        }
+        return -1;
+    };
+
+    QCOMPARE(rangeOf(static_cast<int>(MidiCcMapping::Controller::ChannelVolumeMSB)), Constants::faderMaxMidiCcValue());
+    QCOMPARE(rangeOf(static_cast<int>(MidiCcMapping::Controller::PanMSB)), 127);
+
+    // A port with no internal device behind it stays on MIDI 1.0 throughout
+    for (auto && controller : propertyService.getAvailableMidiControllers("Some External Port")) {
+        QCOMPARE(controller.toMap()["maxValue"].toInt(), 127);
+    }
 }
 
 void PropertyServiceTest::test_getAvailableMidiControllers_withInternalDevice_shouldReturnDeviceSpecificControllers()
@@ -75,7 +136,7 @@ void PropertyServiceTest::test_getAvailableMidiControllers_withInternalDevice_sh
     {
         const auto controllers = propertyService.getAvailableMidiControllers(samplerPortName);
         QCOMPARE(controllers.size(), 4);
-        QCOMPARE(controllers.at(0).toMap()["name"].toString(), "7: Volume");
+        QCOMPARE(controllers.at(0).toMap()["name"].toString(), "7: Fader");
         QCOMPARE(controllers.at(1).toMap()["name"].toString(), "10: Pan");
         QCOMPARE(controllers.at(2).toMap()["name"].toString(), "74: LPF");
         QCOMPARE(controllers.at(3).toMap()["name"].toString(), "81: HPF");
@@ -86,7 +147,7 @@ void PropertyServiceTest::test_getAvailableMidiControllers_withInternalDevice_sh
         const auto controllers = propertyService.getAvailableMidiControllers(drumSynthPortName);
         // Volume + Pan + (11 voices * 3 CCs per voice) = 2 + 33 = 35
         QCOMPARE(controllers.size(), 35);
-        QCOMPARE(controllers.at(0).toMap()["name"].toString(), "7: Volume");
+        QCOMPARE(controllers.at(0).toMap()["name"].toString(), "7: Fader");
         QCOMPARE(controllers.at(1).toMap()["name"].toString(), "10: Pan");
         QCOMPARE(controllers.at(2).toMap()["name"].toString(), "14: Kick Pan");
     }
@@ -110,7 +171,7 @@ void PropertyServiceTest::test_getAvailableMidiControllers_withInternalDevice_sh
     {
         const auto controllers = propertyService.getAvailableMidiControllers("Sampler 1");
         QCOMPARE(controllers.size(), 4);
-        QCOMPARE(controllers.at(0).toMap()["name"].toString(), "7: Volume");
+        QCOMPARE(controllers.at(0).toMap()["name"].toString(), "7: Fader");
     }
 }
 

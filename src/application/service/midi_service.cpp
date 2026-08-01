@@ -15,6 +15,8 @@
 
 #include "midi_service.hpp"
 
+#include <algorithm>
+
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/midi/midi_address.hpp"
 #include "../../domain/midi/midi_cc_data.hpp"
@@ -216,7 +218,9 @@ void MidiService::sendCcData(InstrumentW instrument, MidiCcDataCR data)
         if (m_deviceService && m_deviceService->isInternalDevice(portName)) {
             m_deviceService->processMidiCc(portName, data.controller(), data.value(), instr->midiAddress().channel());
         } else {
-            m_outputWorker->sendCcData(portName, instr->midiAddress().channel(), data.controller(), data.value());
+            // Last line of defence for the wire: an internal device may accept values past the MIDI
+            // 1.0 range, but those are not legal data bytes once they leave the application.
+            m_outputWorker->sendCcData(portName, instr->midiAddress().channel(), data.controller(), std::min<uint8_t>(data.value(), 127));
         }
     }
 }

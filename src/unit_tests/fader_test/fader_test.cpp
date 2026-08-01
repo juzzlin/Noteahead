@@ -175,6 +175,28 @@ void FaderTest::test_fader_boostedPosition_shouldRoundTripThroughXml()
     QVERIFY2(std::abs(gainOf(device) - expected) < 1.0e-6, qPrintable(QString { "Gain %1" }.arg(gainOf(device))));
 }
 
+void FaderTest::test_midiCc7_extendedValue_shouldReachTheBoostRange()
+{
+    // The point of the extended range: automation can drive the fader past unity, while 0..127
+    // keeps meaning exactly what it always did.
+    PianoSynthDevice device { "Fixture" };
+    device.processMidiCc(7, static_cast<uint8_t>(Constants::faderMaxMidiCcValue()), 0);
+
+    QCOMPARE(device.volume(), 1.0f);
+    const double expected = std::pow(10.0, Constants::maxFaderBoostDb() / 20.0);
+    QVERIFY2(std::abs(gainOf(device) - expected) < 1.0e-6, qPrintable(QString { "Gain %1" }.arg(gainOf(device))));
+}
+
+void FaderTest::test_midiCcController_fader_shouldDeclareTheExtendedRange()
+{
+    const auto controller = Device::faderMidiCcController();
+    QCOMPARE(controller.number, static_cast<uint8_t>(7));
+    QCOMPARE(controller.minValue, 0);
+    QCOMPARE(controller.maxValue, Constants::faderMaxMidiCcValue());
+    // Has to stay inside a byte, since that is what every value in the chain is stored as
+    QVERIFY(controller.maxValue <= 255);
+}
+
 void FaderTest::test_midiCc7_fullValue_shouldLandOnUnity()
 {
     // CC 7 at 127 is nominal maximum, not "boost by 10 dB", or existing CC 7 automation would get

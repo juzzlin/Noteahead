@@ -18,6 +18,7 @@
 
 #include <QObject>
 
+#include <functional>
 #include <memory>
 #include <set>
 #include <vector>
@@ -41,6 +42,15 @@ class AutomationService : public QObject
 
 public:
     AutomationService(std::shared_ptr<PropertyService> propertyService);
+
+    //! Resolves the MIDI port a track plays through.
+    //!
+    //! Value ranges are per port — an internal device may accept more than MIDI 1.0 allows — and
+    //! that range is not only a clamp here but the scale modulation depth is measured against, so
+    //! rendering has to know the destination. Injected rather than depended on directly to keep
+    //! this service out of the song's business.
+    using PortNameResolver = std::function<QString(size_t track)>;
+    void setPortNameResolver(PortNameResolver resolver);
 
     void clear();
 
@@ -123,8 +133,12 @@ private:
         PitchBendAutomationList pitchBend;
     };
 
+    //! Value range of a controller at the given track's destination.
+    int controllerMaxValue(uint8_t controller, size_t track) const;
+
     Automations m_automations;
     std::shared_ptr<PropertyService> m_propertyService;
+    PortNameResolver m_portNameResolver;
 };
 
 } // namespace noteahead

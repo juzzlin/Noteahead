@@ -122,8 +122,8 @@ GroupBox {
                 }
                 SpinBox {
                     id: startValueSpinBox
-                    from: propertyService.minValue(model.controller)
-                    to: propertyService.maxValue(model.controller)
+                    from: propertyService.minValue(model.controller, (track !== undefined) ? editorService.instrumentPortName(track) : "")
+                    to: propertyService.maxValue(model.controller, (track !== undefined) ? editorService.instrumentPortName(track) : "")
                     editable: true
                     Keys.onReturnPressed: focus = false
                     Layout.row: 1
@@ -143,8 +143,8 @@ GroupBox {
                 }
                 SpinBox {
                     id: endValueSpinBox
-                    from: propertyService.minValue(model.controller)
-                    to: propertyService.maxValue(model.controller)
+                    from: propertyService.minValue(model.controller, (track !== undefined) ? editorService.instrumentPortName(track) : "")
+                    to: propertyService.maxValue(model.controller, (track !== undefined) ? editorService.instrumentPortName(track) : "")
                     editable: true
                     enabled: model.line0 !== model.line1
                     Keys.onReturnPressed: focus = false

@@ -164,8 +164,8 @@ Item {
                 }
                 SpinBox {
                     id: startValueSpinBox
-                    from: propertyService.minValue(midiCcSelector.currentController)
-                    to: propertyService.maxValue(midiCcSelector.currentController)
+                    from: propertyService.minValue(midiCcSelector.currentController, rootItem.portName)
+                    to: propertyService.maxValue(midiCcSelector.currentController, rootItem.portName)
                     value: 0
                     editable: true
                     Keys.onReturnPressed: {
@@ -182,8 +182,8 @@ Item {
                 }
                 SpinBox {
                     id: endValueSpinBox
-                    from: propertyService.minValue(midiCcSelector.currentController)
-                    to: propertyService.maxValue(midiCcSelector.currentController)
+                    from: propertyService.minValue(midiCcSelector.currentController, rootItem.portName)
+                    to: propertyService.maxValue(midiCcSelector.currentController, rootItem.portName)
                     value: 0
                     editable: true
                     enabled: startLine() !== endLine()

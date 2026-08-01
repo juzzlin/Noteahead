@@ -172,9 +172,13 @@ public:
     float volume() const;
     virtual void setVolume(float volume);
 
-    //! Fader position a MIDI Channel Volume (CC 7) value maps to. Full CC lands on unity rather
-    //! than on the top of the throw, so CC 7 keeps meaning what it always did.
+    //! Fader position a MIDI Channel Volume (CC 7) value maps to. 127 lands on unity rather than on
+    //! the top of the throw, so CC 7 keeps meaning what it always did, and the values above it
+    //! reach into the boost range.
     static float faderPositionFromMidiCc(uint8_t value);
+
+    //! CC 7 as an internal device exposes it, carrying the extended value range.
+    static MidiCcController faderMidiCcController();
 
     float gain() const;
     virtual void setGain(float gain);

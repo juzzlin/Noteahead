@@ -86,7 +86,7 @@ std::vector<MidiCcController> SubMixerDevice::availableMidiCcControllers() const
 {
     using namespace MidiCcMapping;
     return {
-        { static_cast<uint8_t>(Controller::ChannelVolumeMSB), "Volume" },
+        faderMidiCcController(),
         { static_cast<uint8_t>(Controller::PanMSB), "Pan" }
     };
 }

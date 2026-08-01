@@ -24,6 +24,12 @@
 
 namespace noteahead {
 
+namespace {
+//! What a controller is worth on the wire. Anything wider only exists inside the application.
+constexpr int midi1MinValue = 0;
+constexpr int midi1MaxValue = 127;
+} // namespace
+
 PropertyService::PropertyService(QObject * parent)
   : QObject { parent }
 {
@@ -44,7 +50,7 @@ QVariantList PropertyService::getAvailableMidiControllers(const QString & portNa
     using namespace MidiCcMapping;
     QVariantList list;
 
-    const auto addController = [&](uint8_t i, const QString & customName = {}) {
+    const auto addController = [&](uint8_t i, const QString & customName = {}, int minValue = midi1MinValue, int maxValue = midi1MaxValue) {
         QString name;
         if (!customName.isEmpty()) {
             name = QString { "%1: %2" }.arg(i).arg(customName);
@@ -59,14 +65,15 @@ QVariantList PropertyService::getAvailableMidiControllers(const QString & portNa
         list.append(QVariantMap {
           { "number", i },
           { "name", name },
-          { "minValue", 0 },
-          { "maxValue", 127 } });
+          { "minValue", minValue },
+          { "maxValue", maxValue } });
     };
 
     if (auto ds = m_deviceService.lock()) {
         if (auto dev = ds->device(portName.toStdString())) {
+            // An internal device answers for its own ranges rather than being held to MIDI 1.0
             for (auto && controller : dev->availableMidiCcControllers()) {
-                addController(controller.number, QString::fromStdString(controller.name));
+                addController(controller.number, QString::fromStdString(controller.name), controller.minValue, controller.maxValue);
             }
             return list;
         }
@@ -78,18 +85,37 @@ QVariantList PropertyService::getAvailableMidiControllers(const QString & portNa
     return list;
 }
 
-int PropertyService::minValue(int controller) const
+std::optional<MidiCcController> PropertyService::deviceController(int controller, const QString & portName) const
 {
-    Q_UNUSED(controller)
-
-    return 0;
+    if (portName.isEmpty()) {
+        return std::nullopt;
+    }
+    if (const auto ds = m_deviceService.lock()) {
+        if (const auto dev = ds->device(portName.toStdString())) {
+            for (auto && available : dev->availableMidiCcControllers()) {
+                if (available.number == controller) {
+                    return available;
+                }
+            }
+        }
+    }
+    return std::nullopt;
 }
 
-int PropertyService::maxValue(int controller) const
+int PropertyService::minValue(int controller, const QString & portName) const
 {
-    Q_UNUSED(controller)
+    if (const auto available = deviceController(controller, portName)) {
+        return available->minValue;
+    }
+    return midi1MinValue;
+}
 
-    return 127;
+int PropertyService::maxValue(int controller, const QString & portName) const
+{
+    if (const auto available = deviceController(controller, portName)) {
+        return available->maxValue;
+    }
+    return midi1MaxValue;
 }
 
 } // namespace noteahead

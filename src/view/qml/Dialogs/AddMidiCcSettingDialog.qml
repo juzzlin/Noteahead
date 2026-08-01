@@ -28,8 +28,8 @@ AnimatedDialog {
         SpinBox {
             id: valueSpinBox
             Layout.fillWidth: true
-            from: propertyService.minValue(controllerComboBox.currentValue)
-            to: propertyService.maxValue(controllerComboBox.currentValue)
+            from: propertyService.minValue(controllerComboBox.currentValue, rootItem.portName)
+            to: propertyService.maxValue(controllerComboBox.currentValue, rootItem.portName)
             value: 0
             editable: true
         }

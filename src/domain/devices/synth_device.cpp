@@ -240,7 +240,7 @@ std::vector<MidiCcController> SynthDevice::availableMidiCcControllers() const
     using namespace MidiCcMapping;
     return {
         { static_cast<uint8_t>(Controller::ModulationWheelMSB), "LFO Int" },
-        { static_cast<uint8_t>(Controller::ChannelVolumeMSB), "Volume" },
+        faderMidiCcController(),
         { static_cast<uint8_t>(Controller::PanMSB), "Pan" },
         { static_cast<uint8_t>(Controller::SoundController2), "Resonance" },
         { static_cast<uint8_t>(Controller::SoundController5), "LPF" },

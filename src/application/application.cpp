@@ -63,8 +63,8 @@
 #include "models/pitch_bend_automations_model.hpp"
 #include "models/recent_files_model.hpp"
 #include "models/render_settings_model.hpp"
-#include "models/song_settings_model.hpp"
 #include "models/sampler/sampler_pad_model.hpp"
+#include "models/song_settings_model.hpp"
 #include "models/track_settings_model.hpp"
 #include "note_converter.hpp"
 #include "service/application_service.hpp"
@@ -483,6 +483,15 @@ void Application::connectAutomationService()
 {
     connect(m_automationService.get(), &AutomationService::lineDataChanged, this, [this]() {
         m_editorService->setIsModified(true);
+    });
+
+    // Weak on purpose: the editor service owns the automation service, so capturing it by value
+    // here would keep the pair alive forever.
+    m_automationService->setPortNameResolver([editorService = std::weak_ptr<EditorService> { m_editorService }](size_t track) {
+        if (const auto locked = editorService.lock()) {
+            return locked->instrumentPortName(static_cast<quint64>(track));
+        }
+        return QString {};
     });
 }
 

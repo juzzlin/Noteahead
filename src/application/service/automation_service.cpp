@@ -39,6 +39,16 @@ AutomationService::AutomationService(std::shared_ptr<PropertyService> propertySe
 {
 }
 
+void AutomationService::setPortNameResolver(PortNameResolver resolver)
+{
+    m_portNameResolver = std::move(resolver);
+}
+
+int AutomationService::controllerMaxValue(uint8_t controller, size_t track) const
+{
+    return m_propertyService->maxValue(controller, m_portNameResolver ? m_portNameResolver(track) : QString {});
+}
+
 quint64 AutomationService::addMidiCcAutomation(quint64 pattern, quint64 track, quint64 column, quint8 controller, quint64 line0, quint64 line1, quint8 value0, quint8 value1, QString comment, bool enabled, quint8 eventsPerBeat, quint8 lineOffset)
 {
     const auto maxIdItem = std::max_element(m_automations.midiCc.begin(), m_automations.midiCc.end(), [](auto && lhs, auto && rhs) { return lhs.id() < rhs.id(); });
@@ -415,9 +425,9 @@ AutomationService::EventList AutomationService::renderMidiCcToEventsByLine(size_
                     totalModulation = modulationValue * modulation.amplitude / 100.0; // Amplitude is a percentage
                 }
                 totalModulation += modulation.offset / 100.0;
-                interpolatedValue += totalModulation * m_propertyService->maxValue(automation.controller());
+                interpolatedValue += totalModulation * controllerMaxValue(automation.controller(), location.track());
 
-                const auto clampedValue = std::clamp(static_cast<int>(std::round(interpolatedValue)), 0, m_propertyService->maxValue(automation.controller())); // MIDI CC value range
+                const auto clampedValue = std::clamp(static_cast<int>(std::round(interpolatedValue)), 0, controllerMaxValue(automation.controller(), location.track())); // Value range of the destination
                 events.push_back(std::make_shared<Event>(tick, MidiCcData { track, column, automation.controller(), static_cast<uint8_t>(clampedValue) }));
             }
         }
@@ -547,9 +557,9 @@ AutomationService::EventList AutomationService::renderMidiCcToEventsByColumn(siz
                         totalModulation = modulationValue * modulation.amplitude / 100.0;
                     }
                     totalModulation += modulation.offset / 100.0;
-                    interpolatedValue += totalModulation * m_propertyService->maxValue(automation.controller());
+                    interpolatedValue += totalModulation * controllerMaxValue(automation.controller(), location.track());
 
-                    const auto clampedValue = std::clamp(static_cast<int>(std::round(interpolatedValue)), 0, m_propertyService->maxValue(automation.controller())); // MIDI CC value range
+                    const auto clampedValue = std::clamp(static_cast<int>(std::round(interpolatedValue)), 0, controllerMaxValue(automation.controller(), location.track())); // Value range of the destination
                     if (!prevValue || *prevValue != clampedValue) {
                         events.push_back(std::make_shared<Event>(tick + line * ticksPerLine, MidiCcData { track, column, automation.controller(), static_cast<uint8_t>(clampedValue) }));
                         prevValue = clampedValue;

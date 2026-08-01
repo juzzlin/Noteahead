@@ -84,7 +84,7 @@ std::vector<MidiCcController> DrumSynthDevice::availableMidiCcControllers() cons
     using namespace MidiCcMapping;
     std::vector<MidiCcController> list;
 
-    list.push_back({ static_cast<uint8_t>(Controller::ChannelVolumeMSB), "Volume" });
+    list.push_back(faderMidiCcController());
     list.push_back({ static_cast<uint8_t>(Controller::PanMSB), "Pan" });
 
     using namespace DrumSynth;

@@ -381,7 +381,7 @@ void StringEnsembleTest::test_midiCc_shouldUpdateVolumeAndPan()
 
     const auto controllers = device.availableMidiCcControllers();
     QCOMPARE(controllers.size(), size_t { 2 });
-    QCOMPARE(controllers.at(0).name, std::string { "Volume" });
+    QCOMPARE(controllers.at(0).name, std::string { "Fader" });
     QCOMPARE(controllers.at(1).name, std::string { "Pan" });
 
     device.processMidiCc(controllers.at(0).number, 64, 0);

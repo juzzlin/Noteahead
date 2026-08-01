@@ -10,6 +10,8 @@ New features:
 
 * Extend faders to +10 dB, on devices and Sampler pads
   - Unity now sits three quarters up the throw; existing projects keep their gain
+  - Internal devices report their own MIDI CC ranges, so CC 7 automates the
+    whole fader; external ports stay on the MIDI 1.0 range
 
 * Add a clip LED to every Device Rack row
   - Latches on any full-scale output, clears on click
