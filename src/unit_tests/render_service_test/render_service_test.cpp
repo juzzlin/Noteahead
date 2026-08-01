@@ -174,6 +174,49 @@ void RenderServiceTest::test_renderIndividualTracks_shouldRestoreMixerState()
     QCOMPARE(mixerService->isTrackMuted(0), false);
 }
 
+void RenderServiceTest::test_renderMaster_secondRender_shouldStartFromZeroProgress()
+{
+    auto audioEngine = std::make_shared<AudioEngine>();
+    auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    auto mixerService = std::make_shared<MixerService>();
+    auto editorService = std::make_shared<MockEditorService>();
+    auto propertyService = std::make_shared<PropertyService>();
+    auto automationService = std::make_shared<AutomationService>(propertyService);
+    auto sideChainService = std::make_shared<SideChainService>();
+
+    editorService->setSong(std::make_shared<Song>());
+
+    RenderService renderService { audioEngine, deviceService, mixerService, editorService, automationService, sideChainService };
+
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+
+    // The progress bar appears when isRendering turns true, so what it shows first is whatever
+    // progress reads at that moment.
+    double progressWhenBarAppears = -1.0;
+    QObject::connect(&renderService, &RenderService::isRenderingChanged, &renderService, [&] {
+        if (renderService.isRendering()) {
+            progressWhenBarAppears = renderService.progress();
+        }
+    });
+
+    QSignalSpy spy { &renderService, &RenderService::renderingFinished };
+
+    renderService.renderMaster(QDir { tempDir.path() }.filePath("first.flac"));
+    QVERIFY(spy.wait(5000));
+    QCOMPARE(progressWhenBarAppears, 0.0);
+
+    // The first render left progress where it finished. Starting another one has to clear that, or
+    // the bar shows the previous export as complete until the first progress callback lands.
+    QVERIFY2(renderService.progress() > 0.0, qPrintable(QString::number(renderService.progress())));
+
+    progressWhenBarAppears = -1.0;
+    renderService.renderMaster(QDir { tempDir.path() }.filePath("second.flac"));
+    QCOMPARE(progressWhenBarAppears, 0.0);
+
+    QVERIFY(spy.wait(5000));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::RenderServiceTest)

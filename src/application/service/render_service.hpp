@@ -76,6 +76,8 @@ private slots:
     void onWorkerProgressChanged(double progress);
 
 private:
+    //! Clears the state left by the previous export and starts the queued jobs.
+    void beginRender();
     void startNextRender();
 
     QString renderFileName(const QString & baseName) const;

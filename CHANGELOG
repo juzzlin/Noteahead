@@ -20,6 +20,8 @@ Bug fixes:
   - Wavetable Synth also started its unison voices at the same phase, so
     they summed instead of thickening
 
+* Fix the render progress bar starting at the previous export's value
+
 * Fix the Clipper's reduction meter reading near full scale at all times
   - It compared the input against an output delayed by the oversampling
     filters, so it never tracked the threshold

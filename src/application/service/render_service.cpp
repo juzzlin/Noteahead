@@ -71,12 +71,8 @@ void RenderService::renderMaster(const QString & fileName)
 
     m_queue.clear();
     m_queue.push_back({ fileName, {} });
-    m_currentJobIndex = 0;
-    m_aggregatedReport.clear();
-    m_isRendering = true;
-    emit isRenderingChanged();
 
-    startNextRender();
+    beginRender();
 }
 
 void RenderService::renderIndividualTracks(const QString & directory)
@@ -107,8 +103,19 @@ void RenderService::renderIndividualTracks(const QString & directory)
         return;
     }
 
+    beginRender();
+}
+
+void RenderService::beginRender()
+{
     m_currentJobIndex = 0;
     m_aggregatedReport.clear();
+
+    // Before isRenderingChanged, which is what makes the progress bar visible: left at the value the
+    // previous export finished on, it would flash full until the first progress callback arrives.
+    m_progress = 0.0;
+    emit progressChanged();
+
     m_isRendering = true;
     emit isRenderingChanged();
 
@@ -205,6 +212,12 @@ void RenderService::onWorkerFinished(bool success, QString message)
 
 void RenderService::onWorkerProgressChanged(double progress)
 {
+    // The worker's signal is queued, so one can still land after the queue has been cleared on
+    // finish. Dividing by the job count then would leave the bar on a non-finite value.
+    if (m_queue.empty()) {
+        return;
+    }
+
     m_progress = (static_cast<double>(m_currentJobIndex) + progress) / static_cast<double>(m_queue.size());
     emit progressChanged();
 }
