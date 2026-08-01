@@ -42,6 +42,7 @@ void SynthDevice::Voice::reset()
     modEg.reset();
     lfo.reset();
     lfo2.reset();
+    unisonDamp.reset();
     glideFrequency = 0.0;
     active = false;
 }
@@ -167,7 +168,7 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Intensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Target().toStdString(), 0.0f, 0, 5, 0, 1, Parameter::Type::Discrete });
 
-    addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceMode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceMode().toStdString(), 0.0f, 0, 4, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceDepth().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyPortamento().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyPanSpread().toStdString(), 0.0f, 0, 10000, 0, 100 });
@@ -283,17 +284,117 @@ void SynthDevice::prepareForProcessing(AudioContext & context)
     std::fill(m_oversampledBuffer.begin(), m_oversampledBuffer.begin() + requiredSize, 0.0f);
 }
 
+bool SynthDevice::isStacked(VoiceMode mode)
+{
+    return mode == VoiceMode::Unison || mode == VoiceMode::Supersaw || mode == VoiceMode::Drift;
+}
+
 int SynthDevice::voicesPerNote() const
+{
+    if (isStacked(m_voiceMode)) {
+        return MaxVoices;
+    }
+    return m_voiceMode == VoiceMode::Dual ? 2 : 1;
+}
+
+namespace {
+
+//! Relative detune of the JP-8000's seven saws, the spacing that makes a supersaw a supersaw.
+//!
+//! The point is that they are *not* evenly spaced. Even spacing gives every adjacent pair the same
+//! beat rate and every wider pair an exact multiple of it, so the beating lines up into one periodic
+//! comb — the buzz that makes plain unison harsh in a dense mix. These offsets never line up.
+//! Six voices, so the outermost of the seven is dropped; the centre one is kept, because the whole
+//! arrangement hangs off having a voice exactly at pitch.
+constexpr std::array<double, SynthDevice::MaxVoices> supersawOffsets { -0.11002313, -0.06288439, -0.01952356, 0.0, 0.01991221, 0.06216538 };
+
+//! Widest detune of the outermost voice, in semitones, at full depth.
+constexpr double supersawMaxDetuneSemitones = 0.5;
+
+//! Widest wander of a Drift voice, in cents, at full depth. Deliberately narrower than the Supersaw
+//! spread: the movement is what thickens the sound here, not the interval.
+constexpr double driftModeMaxCents = 25.0;
+
+//! Level of the centre voice, from Szabo's analysis of the JP-8000. It starts at unity and gives way
+//! as the detune opens up.
+double supersawCentreGain(double depth)
+{
+    return -0.55366 * depth + 0.99785;
+}
+
+//! Level of every other voice, likewise. Near silent at zero detune, so a closed supersaw collapses
+//! to a single clean saw rather than six voices in unison.
+double supersawSideGain(double depth)
+{
+    return -0.73764 * depth * depth + 1.2841 * depth + 0.044372;
+}
+
+} // namespace
+
+double SynthDevice::voiceDetuneSemitones(size_t index) const
 {
     switch (m_voiceMode) {
     case VoiceMode::Unison:
-        return MaxVoices;
-    case VoiceMode::Dual:
-        return 2;
+        return (static_cast<double>(index) - (MaxVoices - 1) / 2.0) * std::pow(m_voiceDepth, 1.5) * 0.2;
+    case VoiceMode::Supersaw:
+        // Normalized so the outermost voice lands on the stated spread; what matters is the spacing.
+        return supersawOffsets.at(index) / std::abs(supersawOffsets.front()) * supersawMaxDetuneSemitones * std::pow(m_voiceDepth, 1.5);
+    case VoiceMode::Drift:
+        // Nothing fixed: the wander applied per sample in generateVoiceSample is the whole detune.
+        return 0.0;
+    case VoiceMode::Dual: {
+        constexpr double dualDetuneScale = 0.1;
+        const double detuneSign = (index % 2 == 0) ? -1.0 : 1.0;
+        return detuneSign * std::pow(m_voiceDepth, 1.5) * dualDetuneScale;
+    }
     case VoiceMode::Poly:
     default:
-        return 1;
+        return 0.0;
     }
+}
+
+float SynthDevice::voiceLevel(size_t index) const
+{
+    if (m_voiceMode != VoiceMode::Supersaw) {
+        return 1.0f;
+    }
+    const auto depth = static_cast<double>(m_voiceDepth);
+    return static_cast<float>(supersawOffsets.at(index) == 0.0 ? supersawCentreGain(depth) : supersawSideGain(depth));
+}
+
+float SynthDevice::voiceStackNormalization() const
+{
+    // Equal-power: detuned voices are mutually uncorrelated for most of their beat cycle, so their
+    // power sums and the compensation is the RMS of the level weights. Weighting by the actual
+    // levels rather than the raw voice count matters for Supersaw, where a closed-up stack is one
+    // voice and a wide one is six; a flat 1/sqrt(N) would leave it 8 dB down when closed.
+    double power = 0.0;
+    for (int i = 0; i < voicesPerNote(); i++) {
+        const double weight = static_cast<double>(voiceLevel(static_cast<size_t>(i)));
+        power += weight * weight;
+    }
+    return power > 0.0 ? static_cast<float>(1.0 / std::sqrt(power)) : 1.0f;
+}
+
+double SynthDevice::voiceDampingHz(size_t index) const
+{
+    if (m_voiceMode != VoiceMode::Supersaw && m_voiceMode != VoiceMode::Drift) {
+        return 0.0;
+    }
+
+    // How far this voice sits from the centre of the stack, 0..1. Supersaw has a real spread to
+    // measure; Drift has none, so the voice index stands in for it.
+    const double distance = m_voiceMode == VoiceMode::Supersaw
+      ? std::abs(supersawOffsets.at(index)) / std::abs(supersawOffsets.front())
+      : static_cast<double>(index) / (MaxVoices - 1);
+
+    // Full brightness at the centre, progressively darker outwards, and only as far as the depth
+    // knob opens the stack up. The roughness lives in the top octaves, so this is where taking the
+    // edge off costs the least character.
+    constexpr double brightestHz = 20000.0;
+    constexpr double darkestHz = 4000.0;
+    const double amount = distance * static_cast<double>(m_voiceDepth);
+    return brightestHz + (darkestHz - brightestHz) * amount;
 }
 
 void SynthDevice::renderVoice(Voice & voice, AudioContext & context, uint8_t oversampleFactor, uint32_t oversampledRate, double portamentoCoeff, double pbRatio, size_t index)
@@ -301,16 +402,27 @@ void SynthDevice::renderVoice(Voice & voice, AudioContext & context, uint8_t ove
     updateVoiceParameters(voice, oversampledRate, index);
 
     // The 1/MaxVoices base is the headroom for a full chord: every voice sounding at once reaches
-    // full scale. Unison and dual spend several voices on a single note, so without the stack
-    // compensation one note would arrive up to MaxVoices times hotter than the same note in poly.
-    const float gain = (1.0f / static_cast<float>(MaxVoices)) * Utils::Dsp::voiceStackGain(voicesPerNote()) * linearGainInternal() * voice.velocity;
+    // full scale. The stack normalization then keeps one note at the same level whatever the voice
+    // mode, so switching modes changes the character and not the gain.
+    const float gain = (1.0f / static_cast<float>(MaxVoices)) * voiceStackNormalization() * linearGainInternal() * voice.velocity * voiceLevel(index);
+
+    const double dampingHz = voiceDampingHz(index);
+    const bool damped = dampingHz > 0.0 && dampingHz < OnePoleFilter::maxCorner(oversampledRate);
+    if (damped) {
+        voice.unisonDamp.calculate(dampingHz, oversampledRate);
+    }
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
         for (uint8_t os = 0; os < oversampleFactor; os++) {
             voice.glideFrequency += (voice.frequency - voice.glideFrequency) * portamentoCoeff;
 
             const ModulationValues mods = calculateModulation(voice);
-            const float finalHighRateSample = generateVoiceSample(voice, mods, oversampledRate, pbRatio) * gain;
+            float voiceSample = generateVoiceSample(voice, mods, oversampledRate, pbRatio);
+            if (damped) {
+                voice.unisonDamp.process(static_cast<double>(voiceSample));
+                voiceSample = static_cast<float>(voice.unisonDamp.lowPass());
+            }
+            const float finalHighRateSample = voiceSample * gain;
 
             const float voicePan = std::clamp(panInternal() + voice.pan - 0.5f + static_cast<float>(mods.panMod) * 0.5f, 0.0f, 1.0f);
             const double panAngle = static_cast<double>(voicePan) * std::numbers::pi * 0.5;
@@ -353,16 +465,10 @@ void SynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversampledRate,
     voice.multi.setKeyTrack(m_multiKeyTrack);
     voice.multi.setNote(voice.note);
 
-    if (m_voiceMode == VoiceMode::Unison) {
-        const double baseFreq = midiNoteToFreq(voice.note);
-        const double detuneAmount = (static_cast<double>(index) - (MaxVoices - 1) / 2.0) * std::pow(m_voiceDepth, 1.5) * 0.2;
-        voice.frequency = baseFreq * std::pow(2.0, detuneAmount / 12.0);
+    if (isStacked(m_voiceMode)) {
+        voice.frequency = midiNoteToFreq(voice.note) * std::pow(2.0, voiceDetuneSemitones(index) / 12.0);
     } else if (m_voiceMode == VoiceMode::Dual) {
-        const double baseFreq = midiNoteToFreq(voice.note);
-        const double detuneSign = (index % 2 == 0) ? -1.0 : 1.0;
-        constexpr double dualDetuneScale = 0.1;
-        const double detuneAmount = detuneSign * std::pow(m_voiceDepth, 1.5) * dualDetuneScale;
-        voice.frequency = baseFreq * std::pow(2.0, detuneAmount / 12.0);
+        voice.frequency = midiNoteToFreq(voice.note) * std::pow(2.0, voiceDetuneSemitones(index) / 12.0);
         const float side = (index % 2 == 0) ? -1.0f : 1.0f;
         voice.pan = 0.5f + (side * m_panSpread * 0.5f);
         return;
@@ -603,12 +709,10 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
                 m_voices.at(bestVoice.value()).triggerRandomized(note, freq, pan, finalVel, m_phaseDist(m_rng), m_nextTriggerId++);
             }
         }
-    } else if (m_voiceMode == VoiceMode::Unison) {
+    } else if (isStacked(m_voiceMode)) {
         const uint64_t tid { m_nextTriggerId++ };
         for (size_t i = 0; i < MaxVoices; i++) {
-            // Non-linear detune spread for better texture
-            const double detuneAmount = (static_cast<double>(i) - (MaxVoices - 1) / 2.0) * std::pow(m_voiceDepth, 1.5) * 0.2;
-            const double voiceFreq = freq * std::pow(2.0, detuneAmount / 12.0);
+            const double voiceFreq = freq * std::pow(2.0, voiceDetuneSemitones(i) / 12.0);
 
             if (m_portamento <= 0.001f) {
                 m_voices.at(i).glideFrequency = voiceFreq;
@@ -777,9 +881,15 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
         vco3Freq *= std::exp2(mods.vco3PitchMod);
     }
 
-    if (m_oscillatorDrift > 0.0f) {
+    // Drift voice mode has no fixed detune, so the wander is the detune: the depth knob feeds the
+    // same per-voice oscillator drift the Drift parameter uses, on top of whatever that is set to.
+    // Each voice has its own rate, and the rates are mutually irrational enough that no two voices
+    // ever settle into a steady beat, which is what keeps the stack from combing.
+    const double driftCents = static_cast<double>(m_oscillatorDrift) * 5.0
+      + (m_voiceMode == VoiceMode::Drift ? static_cast<double>(m_voiceDepth) * driftModeMaxCents : 0.0);
+    if (driftCents > 0.0) {
         voice.driftPhase = std::fmod(voice.driftPhase + voice.driftRate / oversampledRate, 1.0);
-        const double driftRatio = std::exp2(m_oscillatorDrift * 5.0 / 1200.0 * std::sin(voice.driftPhase * (2.0 * M_PI)));
+        const double driftRatio = std::exp2(driftCents / 1200.0 * std::sin(voice.driftPhase * (2.0 * M_PI)));
         vco1Freq *= driftRatio;
         vco2Freq *= driftRatio;
         vco3Freq *= driftRatio;

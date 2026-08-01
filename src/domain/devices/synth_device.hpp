@@ -20,6 +20,7 @@
 #include "../dsp/cascaded_svf.hpp"
 #include "../dsp/lfo.hpp"
 #include "../dsp/multi_engine.hpp"
+#include "../dsp/one_pole_filter.hpp"
 #include "../dsp/poly_blep_oscillator.hpp"
 #include "../dsp/upsampler.hpp"
 #include "../effects/delay.hpp"
@@ -40,12 +41,23 @@ class SynthDevice : public Device
 public:
     static constexpr int MaxVoices = 6;
 
+    //! Serialized as a raw ordinal, so this is append-only: inserting a value would silently change
+    //! the voice mode of every project saved before the change.
     enum class VoiceMode
     {
         Poly,
         Unison,
-        Dual
+        Dual,
+        //! JP-8000 style: unevenly spaced detune around a centre voice held at full level, so the
+        //! stack keeps a solid core pitch instead of six equal voices smearing it.
+        Supersaw,
+        //! No fixed detune at all. Each voice wanders at its own slow rate, so no pair ever settles
+        //! into a steady beat and the comb pattern that makes plain unison harsh never forms.
+        Drift
     };
+
+    //! Voice modes that spend every voice on a single note.
+    static bool isStacked(VoiceMode mode);
 
     enum class ModTarget
     {
@@ -93,6 +105,9 @@ public:
     void resetAudio() override;
 
     double voiceGlideFrequency(size_t index) const;
+    //! Level weighting the current voice mode gives this voice. Only Supersaw uses anything but
+    //! unity, where the centre voice is held up and the outer ones give way.
+    float voiceLevel(size_t index) const;
 
     void serializeToXml(ProjectWriter & writer) const override;
     void deserializeFromXml(ProjectReader & reader) override;
@@ -278,6 +293,8 @@ private:
         float velocity { 1.0f };
         double driftPhase { 0.0 };
         double driftRate { 0.2 };
+        //! Rolls the top off the outer voices of a stacked mode, where the beating is roughest.
+        OnePoleFilter unisonDamp;
 
         void reset();
         void trigger(uint8_t note, double freq, float pan, float velocity, bool phaseSync, uint64_t triggerId);
@@ -415,6 +432,14 @@ private:
     //! Voices the current voice mode spends on a single note. Poly plays one, dual pairs two and
     //! unison stacks the lot.
     int voicesPerNote() const;
+
+    //! Detune of the given voice in semitones, for the current voice mode. Both the note-on and
+    //! the per-block parameter update read it from here so the two can never disagree.
+    double voiceDetuneSemitones(size_t index) const;
+    //! Per-voice gain that keeps one note at the same level in every voice mode.
+    float voiceStackNormalization() const;
+    //! Corner for the voice's damping filter, or 0 when the mode damps nothing.
+    double voiceDampingHz(size_t index) const;
 
     void renderVoice(Voice & voice, AudioContext & context, uint8_t oversampleFactor, uint32_t oversampledRate, double portamentoCoeff, double pbRatio, size_t index);
     void applyGlobalEffects(AudioContext & context);

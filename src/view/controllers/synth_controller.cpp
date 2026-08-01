@@ -78,7 +78,7 @@ QStringList SynthController::lfoWaveformNames() const
 
 QStringList SynthController::voiceModes() const
 {
-    return { tr("Poly"), tr("Unison"), tr("Dual") };
+    return { tr("Poly"), tr("Unison"), tr("Dual"), tr("Supersaw"), tr("Drift") };
 }
 
 QStringList SynthController::octaveNames() const

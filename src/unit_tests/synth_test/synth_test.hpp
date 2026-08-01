@@ -81,6 +81,12 @@ private slots:
 
     void test_voiceMode_unison_shouldMatchPolyLevel();
     void test_voiceMode_dual_shouldMatchPolyLevel();
+    void test_voiceMode_supersaw_shouldMatchPolyLevel();
+    void test_voiceMode_drift_shouldMatchPolyLevel();
+    void test_voiceMode_supersaw_shouldSpaceDetuneUnevenly();
+    void test_voiceMode_supersaw_zeroDepth_shouldCollapseToOneVoice();
+    void test_voiceMode_drift_shouldNotDetuneStatically();
+    void test_voiceMode_serialization_shouldPreserveEveryMode();
 };
 
 } // namespace noteahead

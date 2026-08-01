@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <cmath>
 #include <map>
+#include <vector>
 
 namespace noteahead {
 
@@ -1524,6 +1525,37 @@ void SynthTest::test_dualMode_serialization_shouldPreserveState()
     }
 }
 
+void SynthTest::test_voiceMode_serialization_shouldPreserveEveryMode()
+{
+    // The mode is stored as a raw ordinal, so this also pins the enum order down: appending is
+    // safe, reordering would silently change the voice mode of every existing project.
+    const std::vector<SynthDevice::VoiceMode> modes {
+        SynthDevice::VoiceMode::Poly,
+        SynthDevice::VoiceMode::Unison,
+        SynthDevice::VoiceMode::Dual,
+        SynthDevice::VoiceMode::Supersaw,
+        SynthDevice::VoiceMode::Drift
+    };
+
+    for (auto && mode : modes) {
+        QByteArray data;
+        {
+            SynthDevice synth { "Test Synth" };
+            synth.setVoiceMode(mode);
+            NahdXmlWriter writer { data };
+            synth.serializeToXml(writer);
+        }
+
+        SynthDevice synth { "Test Synth" };
+        NahdXmlReader reader { data };
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        synth.deserializeFromXml(reader);
+        QCOMPARE(synth.voiceMode(), mode);
+    }
+}
+
 namespace {
 
 //! Peak of one note held for a while in the given voice mode, with everything else left at defaults.
@@ -1565,6 +1597,96 @@ void SynthTest::test_voiceMode_unison_shouldMatchPolyLevel()
     const auto differenceDb = Utils::Dsp::linearToDb(static_cast<float>(unisonPeak / polyPeak));
     QVERIFY2(differenceDb < 6.0f, qPrintable(QString { "Unison is %1 dB above poly" }.arg(differenceDb)));
     QVERIFY2(differenceDb > -6.0f, qPrintable(QString { "Unison is %1 dB below poly" }.arg(differenceDb)));
+}
+
+namespace {
+
+//! Detune of each voice in semitones, read back through the glide frequency the note-on set.
+std::vector<double> voiceDetunes(SynthDevice & synth, uint8_t note)
+{
+    synth.processMidiNoteOn(note, 100);
+    const double base = 440.0 * std::pow(2.0, (static_cast<int>(note) - 69) / 12.0);
+
+    std::vector<double> detunes;
+    for (size_t i = 0; i < SynthDevice::MaxVoices; i++) {
+        detunes.push_back(12.0 * std::log2(synth.voiceGlideFrequency(i) / base));
+    }
+    return detunes;
+}
+
+} // namespace
+
+void SynthTest::test_voiceMode_supersaw_shouldSpaceDetuneUnevenly()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Supersaw);
+    synth.setVoiceDepth(1.0f);
+
+    auto detunes = voiceDetunes(synth, 60);
+    std::ranges::sort(detunes);
+
+    // Evenly spaced detune is what makes plain unison comb: every adjacent pair beats at the same
+    // rate and every wider pair at an exact multiple. Supersaw's whole point is that no two gaps
+    // match, so the beating never lines up.
+    std::vector<double> gaps;
+    for (size_t i = 1; i < detunes.size(); i++) {
+        gaps.push_back(detunes.at(i) - detunes.at(i - 1));
+    }
+    for (size_t i = 1; i < gaps.size(); i++) {
+        QVERIFY2(std::abs(gaps.at(i) - gaps.at(i - 1)) > 1.0e-6,
+                 qPrintable(QString { "Gaps %1 and %2 are equal at %3" }.arg(i - 1).arg(i).arg(gaps.at(i))));
+    }
+
+    // And one voice sits exactly at pitch, which is the core the rest hangs off.
+    QVERIFY(std::ranges::any_of(detunes, [](double detune) { return std::abs(detune) < 1.0e-9; }));
+}
+
+void SynthTest::test_voiceMode_supersaw_zeroDepth_shouldCollapseToOneVoice()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Supersaw);
+    synth.setVoiceDepth(0.0f);
+
+    // Closed up, the side voices fall away and it becomes a single clean saw rather than six voices
+    // piled in unison.
+    QVERIFY(synth.voiceLevel(0) < 0.1f);
+    QVERIFY(synth.voiceLevel(3) > 0.9f);
+}
+
+void SynthTest::test_voiceMode_drift_shouldNotDetuneStatically()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Drift);
+    synth.setVoiceDepth(1.0f);
+
+    // Drift has no fixed intervals at all; the movement over time is the entire detune.
+    for (auto && detune : voiceDetunes(synth, 60)) {
+        QVERIFY2(std::abs(detune) < 1.0e-9, qPrintable(QString::number(detune)));
+    }
+}
+
+void SynthTest::test_voiceMode_supersaw_shouldMatchPolyLevel()
+{
+    const auto polyPeak = notePeak(SynthDevice::VoiceMode::Poly);
+    const auto supersawPeak = notePeak(SynthDevice::VoiceMode::Supersaw);
+
+    QVERIFY(polyPeak > 0.0);
+
+    const auto differenceDb = Utils::Dsp::linearToDb(static_cast<float>(supersawPeak / polyPeak));
+    QVERIFY2(differenceDb < 6.0f, qPrintable(QString { "Supersaw is %1 dB above poly" }.arg(differenceDb)));
+    QVERIFY2(differenceDb > -6.0f, qPrintable(QString { "Supersaw is %1 dB below poly" }.arg(differenceDb)));
+}
+
+void SynthTest::test_voiceMode_drift_shouldMatchPolyLevel()
+{
+    const auto polyPeak = notePeak(SynthDevice::VoiceMode::Poly);
+    const auto driftPeak = notePeak(SynthDevice::VoiceMode::Drift);
+
+    QVERIFY(polyPeak > 0.0);
+
+    const auto differenceDb = Utils::Dsp::linearToDb(static_cast<float>(driftPeak / polyPeak));
+    QVERIFY2(differenceDb < 6.0f, qPrintable(QString { "Drift is %1 dB above poly" }.arg(differenceDb)));
+    QVERIFY2(differenceDb > -6.0f, qPrintable(QString { "Drift is %1 dB below poly" }.arg(differenceDb)));
 }
 
 void SynthTest::test_voiceMode_dual_shouldMatchPolyLevel()
