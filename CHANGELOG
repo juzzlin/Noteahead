@@ -5,17 +5,6 @@ Release date:
 
 New features:
 
-* Add an Auto Ducker rack effect
-  - Side chain driven level rider whose Amount is signed, so it ducks or lifts
-
-* Extend faders to +10 dB, on devices and Sampler pads
-  - Unity now sits three quarters up the throw; existing projects keep their gain
-  - Internal devices report their own MIDI CC ranges, so CC 7 automates the
-    whole fader; external ports stay on the MIDI 1.0 range
-
-* Add a clip LED to every Device Rack row
-  - Latches on any full-scale output, clears on click
-
 Bug fixes:
 
 Other:
@@ -25,7 +14,7 @@ Other:
 
 Release date:
 
-Thu, 30 Jul 2026 20:19:37 +0300
+Sat, 01 Aug 2026 15:06:29 +0300
 
 New features:
 
@@ -120,6 +109,17 @@ New features:
 
 * Make the Device Rack's gain staging target configurable
   - "Gain staging target (dBFS)" in General settings, -18 by default
+
+* Add an Auto Ducker rack effect
+  - Side chain driven level rider whose Amount is signed, so it ducks or lifts
+
+* Extend faders to +10 dB, on devices and Sampler pads
+  - Unity now sits three quarters up the throw; existing projects keep their gain
+  - Internal devices report their own MIDI CC ranges, so CC 7 automates the
+    whole fader; external ports stay on the MIDI 1.0 range
+
+* Add a clip LED to every Device Rack row
+  - Latches on any full-scale output, clears on click
 
 Bug fixes:
 
