@@ -47,6 +47,7 @@ SettingsService::SettingsService()
   , m_midiExportForceDrumChannel10 { Settings::midiExportForceDrumChannel10() }
   , m_midiExportAutoAssignChannels { Settings::midiExportAutoAssignChannels() }
   , m_playbackOversampleFactor { Settings::playbackOversampleFactor() }
+  , m_gainStagingTargetDb { Settings::gainStagingTargetDb(Constants::defaultGainStagingTargetDb()) }
 {
     // An invalid size means nothing has been stored yet, in which case the caller's default wins
     if (const auto storedWindowSize = Settings::windowSize(QSize {}); storedWindowSize.isValid()) {
@@ -353,6 +354,20 @@ void SettingsService::setPlaybackOversampleFactor(int factor)
         m_playbackOversampleFactor = factor;
         Settings::setPlaybackOversampleFactor(factor);
         emit playbackOversampleFactorChanged();
+    }
+}
+
+int SettingsService::gainStagingTargetDb() const
+{
+    return m_gainStagingTargetDb;
+}
+
+void SettingsService::setGainStagingTargetDb(int targetDb)
+{
+    if (m_gainStagingTargetDb != targetDb) {
+        m_gainStagingTargetDb = targetDb;
+        Settings::setGainStagingTargetDb(targetDb);
+        emit gainStagingTargetDbChanged();
     }
 }
 

@@ -76,6 +76,14 @@ constexpr float minEffectLevel()
 //! channel says otherwise. Real MIDI hardware needs the gap to retrigger. This is both the fallback
 //! for a song that stores no offset and the value new songs are seeded with, so the two cannot drift
 //! apart. Long enough for hardware to notice, short enough to stay well inside a single line.
+//! Level the Device Rack's meter marker sits at, in dBFS: where a gain staged device should be
+//! reading. -18 is the EBU R128 reference; -20 (SMPTE), -14 and -12 are the other common choices,
+//! which is why this is a setting rather than a fixed line.
+constexpr int defaultGainStagingTargetDb()
+{
+    return -18;
+}
+
 constexpr std::chrono::milliseconds defaultAutoNoteOffOffset()
 {
     return 25ms;

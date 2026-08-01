@@ -42,6 +42,8 @@ class SettingsService : public QObject
     Q_PROPERTY(bool midiExportForceDrumChannel10 READ midiExportForceDrumChannel10 WRITE setMidiExportForceDrumChannel10 NOTIFY midiExportForceDrumChannel10Changed)
     Q_PROPERTY(bool midiExportAutoAssignChannels READ midiExportAutoAssignChannels WRITE setMidiExportAutoAssignChannels NOTIFY midiExportAutoAssignChannelsChanged)
     Q_PROPERTY(int playbackOversampleFactor READ playbackOversampleFactor WRITE setPlaybackOversampleFactor NOTIFY playbackOversampleFactorChanged)
+    //! Level the Device Rack's meter marker sits at, in dBFS.
+    Q_PROPERTY(int gainStagingTargetDb READ gainStagingTargetDb WRITE setGainStagingTargetDb NOTIFY gainStagingTargetDbChanged)
 
 public:
     SettingsService();
@@ -113,6 +115,9 @@ public:
     virtual Q_INVOKABLE int playbackOversampleFactor() const;
     virtual Q_INVOKABLE void setPlaybackOversampleFactor(int factor);
 
+    virtual Q_INVOKABLE int gainStagingTargetDb() const;
+    virtual Q_INVOKABLE void setGainStagingTargetDb(int targetDb);
+
 signals:
     void controllerPortChanged();
     void uiUpdatesDisabledDuringPlaybackChanged();
@@ -130,6 +135,7 @@ signals:
     void midiExportForceDrumChannel10Changed();
     void midiExportAutoAssignChannelsChanged();
     void playbackOversampleFactorChanged();
+    void gainStagingTargetDbChanged();
 
 private:
     int m_autoNoteOffOffset;
@@ -161,6 +167,7 @@ private:
     bool m_midiExportAutoAssignChannels;
 
     int m_playbackOversampleFactor;
+    int m_gainStagingTargetDb;
 };
 
 } // namespace noteahead

@@ -12,6 +12,9 @@ New features:
   - The application-wide setting is now the default new songs start from
   - Lower that default from 250 ms to 25 ms, which existing settings keep
 
+* Make the Device Rack's gain staging target configurable
+  - "Gain staging target (dBFS)" in General settings, -18 by default
+
 Bug fixes:
 
 * Fix Unison being far louder than Poly in Synth and Wavetable Synth

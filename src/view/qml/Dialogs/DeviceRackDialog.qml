@@ -172,6 +172,7 @@ AnimatedDialog {
                         visible: deviceType !== ""
                         peakDb: meterLevels.length ? meterLevels[0] : -120
                         rmsDb: meterLevels.length ? meterLevels[1] : -120
+                        markerDb: settingsService.gainStagingTargetDb
                     }
 
                     Text {

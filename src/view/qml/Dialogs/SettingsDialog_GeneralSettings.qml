@@ -89,6 +89,41 @@ GroupBox {
         }
 
         GroupBox {
+            title: qsTr("Device Rack")
+            Layout.fillWidth: true
+            GridLayout {
+                columns: 9
+                rows: 1
+                width: parent.width
+                Label {
+                    text: qsTr("Gain staging target (dBFS):")
+                    Layout.column: 0
+                    Layout.columnSpan: 2
+                    Layout.row: 0
+                    Layout.fillWidth: true
+                }
+                SpinBox {
+                    id: gainStagingTargetSpinBox
+                    Layout.column: 4
+                    Layout.columnSpan: 5
+                    Layout.row: 0
+                    Layout.fillWidth: true
+                    from: -30
+                    to: 0
+                    stepSize: 1
+                    editable: true
+                    value: settingsService.gainStagingTargetDb
+                    Keys.onReturnPressed: focus = false
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Where the marker sits on the Device Rack level meters, i.e. the level a gain staged device should read. Common choices are -18 (EBU R128), -20 (SMPTE), -14 and -12.")
+                    onValueModified: settingsService.gainStagingTargetDb = value
+                }
+            }
+        }
+
+        GroupBox {
             title: qsTr("Playback")
             Layout.fillWidth: true
             GridLayout {

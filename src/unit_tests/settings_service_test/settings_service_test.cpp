@@ -147,6 +147,7 @@ void SettingsServiceTest::test_setters_shouldPersistAcrossInstances()
         settingsService.setVelocity(77);
         settingsService.setTrackHeaderFontSize(18);
         settingsService.setAutoNoteOffOffset(125);
+        settingsService.setGainStagingTargetDb(-20);
     }
 
     SettingsService reloadedSettingsService;
@@ -155,6 +156,7 @@ void SettingsServiceTest::test_setters_shouldPersistAcrossInstances()
     QCOMPARE(reloadedSettingsService.velocity(), 77);
     QCOMPARE(reloadedSettingsService.trackHeaderFontSize(), 18);
     QCOMPARE(reloadedSettingsService.autoNoteOffOffset(), 125);
+    QCOMPARE(reloadedSettingsService.gainStagingTargetDb(), -20);
 }
 
 } // namespace noteahead

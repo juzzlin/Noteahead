@@ -103,6 +103,9 @@ void setAudioOutputDeviceId(int deviceId);
 int playbackOversampleFactor();
 void setPlaybackOversampleFactor(int factor);
 
+int gainStagingTargetDb(int defaultGainStagingTargetDb);
+void setGainStagingTargetDb(int gainStagingTargetDb);
+
 QColor accentColor(QColor defaultAccentColor);
 void setAccentColor(QColor accentColor);
 
