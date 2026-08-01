@@ -366,7 +366,9 @@ void SamplerDevice::processMidiAllNotesOff()
         }
     }
 
-    emit dataChanged();
+    // Transport traffic, not an edit: this runs on every stop, so routing it through dataChanged()
+    // marked the project modified just for playing it.
+    emit parametersChanged();
 }
 
 void SamplerDevice::processAudio(AudioContext & context)

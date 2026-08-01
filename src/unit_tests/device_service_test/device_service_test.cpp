@@ -160,9 +160,32 @@ void DeviceServiceTest::test_midiCc_shouldNotEmitDataChanged()
     QCOMPARE(structuralSpy.count(), 0);
     QCOMPARE(parameterSpy.count(), 1);
 
+    // Stopping the transport sends all-notes-off to every device, so that is transport traffic too:
+    // routing it through dataChanged() marked the project modified just for playing it.
+    device->processMidiAllNotesOff();
+    QCOMPARE(structuralSpy.count(), 0);
+
     // A real edit still has to reach the rest of the application
     device->setVolume(0.1f);
     QVERIFY(structuralSpy.count() > 0);
+}
+
+void DeviceServiceTest::test_allNotesOff_sampler_shouldNotEmitDataChanged()
+{
+    // The Sampler is the one that restores its manual values on all-notes-off, and it was the one
+    // still announcing that as a data change on every stop.
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    DeviceService deviceService { audioEngine, std::make_shared<DataService>() };
+    const auto device = std::make_shared<SamplerDevice>("Sampler 1", std::make_unique<MockAudioFileReader>());
+    deviceService.setDevice(0, device);
+
+    QSignalSpy structuralSpy { &deviceService, &DeviceService::dataChanged };
+    QSignalSpy parameterSpy { device.get(), &Device::parametersChanged };
+
+    device->processMidiAllNotesOff();
+
+    QCOMPARE(structuralSpy.count(), 0);
+    QCOMPARE(parameterSpy.count(), 1);
 }
 
 void DeviceServiceTest::test_exportDeviceSettings_shouldGenerateCorrectXml()
