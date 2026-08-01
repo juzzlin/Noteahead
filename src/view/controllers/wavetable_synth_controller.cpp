@@ -273,6 +273,18 @@ void WavetableSynthController::setModDecay(int d)
     }
 }
 
+int WavetableSynthController::modSustain() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->modSustain() * Constants::uiInternalScaling())) : 0;
+}
+
+void WavetableSynthController::setModSustain(int sustain)
+{
+    if (m_synth) {
+        m_synth->setModSustain(static_cast<float>(sustain) / Constants::uiInternalScaling());
+    }
+}
+
 int WavetableSynthController::modInt() const
 {
     return m_synth ? static_cast<int>(std::round(m_synth->modInt() * Constants::uiInternalScaling())) : 0;
@@ -572,6 +584,7 @@ void WavetableSynthController::requestSettings()
     emit ampReleaseChanged();
     emit modAttackChanged();
     emit modDecayChanged();
+    emit modSustainChanged();
     emit modIntChanged();
     emit modTargetChanged();
     emit lfoWaveformChanged();

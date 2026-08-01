@@ -87,6 +87,9 @@ private slots:
     void test_voiceMode_supersaw_zeroDepth_shouldCollapseToOneVoice();
     void test_voiceMode_drift_shouldNotDetuneStatically();
     void test_voiceMode_serialization_shouldPreserveEveryMode();
+
+    void test_modEg_defaultSustain_shouldReturnToStart();
+    void test_modEg_sustain_shouldHoldTheModulation();
 };
 
 } // namespace noteahead

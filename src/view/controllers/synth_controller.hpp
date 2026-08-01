@@ -90,6 +90,7 @@ class SynthController : public DeviceController
     // Mod EG
     Q_PROPERTY(int modAttack READ modAttack WRITE setModAttack NOTIFY modAttackChanged)
     Q_PROPERTY(int modDecay READ modDecay WRITE setModDecay NOTIFY modDecayChanged)
+    Q_PROPERTY(int modSustain READ modSustain WRITE setModSustain NOTIFY modSustainChanged)
     Q_PROPERTY(int modInt READ modInt WRITE setModInt NOTIFY modIntChanged)
     Q_PROPERTY(int modTarget READ modTarget WRITE setModTarget NOTIFY modTargetChanged)
 
@@ -229,6 +230,8 @@ public:
     void setModAttack(int a);
     int modDecay() const;
     void setModDecay(int d);
+    int modSustain() const;
+    void setModSustain(int sustain);
     int modInt() const;
     void setModInt(int i);
     int modTarget() const;
@@ -343,6 +346,7 @@ signals:
     void ampVelocitySensitivityChanged();
     void modAttackChanged();
     void modDecayChanged();
+    void modSustainChanged();
     void modIntChanged();
     void modTargetChanged();
     void lfoWaveformChanged();

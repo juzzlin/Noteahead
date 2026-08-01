@@ -12,7 +12,7 @@ ColumnLayout {
     Layout.alignment: Qt.AlignTop
 
     Label {
-        text: qsTr("Mod EG (AD)")
+        text: qsTr("Mod EG")
         font.bold: true
         font.pixelSize: 16
         color: themeService.accentColor
@@ -46,6 +46,12 @@ ColumnLayout {
         suffix: "s"
         value: synthController.modDecay
         onMoved: v => synthController.modDecay = v
+        Layout.fillWidth: true
+    }
+    Knob {
+        label: qsTr("Sustain")
+        value: synthController.modSustain
+        onMoved: v => synthController.modSustain = v
         Layout.fillWidth: true
     }
     Knob {

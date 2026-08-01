@@ -128,9 +128,71 @@ void LfoTest::test_oneShotMode_shouldStopAfterOneCycle()
         lfo.nextSample();
     }
 
+    // Stopped: the same value forever, not a second cycle.
+    const auto held = lfo.nextSample();
     for (int i = 0; i < 100; i++) {
-        QCOMPARE(lfo.nextSample(), 0.0);
+        QCOMPARE(lfo.nextSample(), held);
     }
+}
+
+void LfoTest::test_oneShotMode_saw_shouldHoldItsEndValue()
+{
+    Lfo lfo;
+    lfo.setSampleRate(100.0);
+    lfo.setFrequency(1.0);
+    lfo.setWaveform(Lfo::Waveform::Saw);
+    lfo.setMode(Lfo::Mode::OneShot);
+    lfo.reset();
+
+    for (int i = 0; i < 100; i++) {
+        lfo.nextSample();
+    }
+
+    // A saw ends at the top. Parking there is what lets a one-shot leave the target somewhere other
+    // than where it started, which snapping back to zero made impossible.
+    QVERIFY2(std::abs(lfo.nextSample() - 1.0) < 1.0e-9, qPrintable(QString::number(lfo.nextSample())));
+}
+
+void LfoTest::test_oneShotMode_shouldNotStepWhenItFinishes()
+{
+    Lfo lfo;
+    lfo.setSampleRate(1000.0);
+    lfo.setFrequency(1.0);
+    lfo.setWaveform(Lfo::Waveform::Saw);
+    lfo.setMode(Lfo::Mode::OneShot);
+    lfo.reset();
+
+    double previous = 0.0;
+    double largestJump = 0.0;
+    for (int i = 0; i < 1200; i++) {
+        const auto value = lfo.nextSample();
+        if (i > 0) {
+            largestJump = std::max(largestJump, std::abs(value - previous));
+        }
+        previous = value;
+    }
+
+    // The saw's own slope over one sample is 2/1000. A jump anywhere near the full 1.0 the old
+    // snap-to-zero produced is a click on whatever the LFO is modulating.
+    QVERIFY2(largestJump < 0.01, qPrintable(QString::number(largestJump)));
+}
+
+void LfoTest::test_oneShotMode_random_shouldHoldTheValueItPlayed()
+{
+    Lfo lfo;
+    lfo.setSampleRate(100.0);
+    lfo.setFrequency(1.0);
+    lfo.setWaveform(Lfo::Waveform::Random);
+    lfo.setMode(Lfo::Mode::OneShot);
+    lfo.reset();
+
+    const auto played = lfo.nextSample();
+    for (int i = 0; i < 99; i++) {
+        lfo.nextSample();
+    }
+
+    // Holding a freshly drawn value would be a random jump at the end of the cycle.
+    QCOMPARE(lfo.nextSample(), played);
 }
 
 void LfoTest::test_normalMode_shouldContinueAcrossMultipleCycles()

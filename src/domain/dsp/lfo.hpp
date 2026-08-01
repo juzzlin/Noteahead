@@ -63,12 +63,16 @@ private:
     double m_phase { 0.0 };
     double m_phaseStep { 0.0 };
     bool m_oneShotActive { true };
+    //! Value a finished one-shot parks on: the level its shape ends at.
+    double m_oneShotHold { 0.0 };
 
     double m_randomValue { 0.0 };
     std::mt19937 m_rng { 0 };
     std::uniform_real_distribution<double> m_dist { -1.0, 1.0 };
 
     void updatePhaseStep();
+
+    double waveformValue(double phase) const;
 };
 
 } // namespace noteahead

@@ -193,6 +193,8 @@ public:
     void setModAttack(float a);
     float modDecay() const;
     void setModDecay(float d);
+    float modSustain() const;
+    void setModSustain(float sustain);
     float modInt() const;
     void setModInt(float intensity);
     ModTarget modTarget() const;
@@ -350,6 +352,7 @@ private:
 
     float m_modAttack { 0.1f };
     float m_modDecay { 0.2f };
+    float m_modSustain { 0.0f };
     float m_modInt { 0.0f };
     ModTarget m_modTarget { ModTarget::Cutoff };
 

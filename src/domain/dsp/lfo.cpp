@@ -70,45 +70,49 @@ void Lfo::reset()
 {
     m_phase = 0.0;
     m_oneShotActive = true;
+    m_oneShotHold = 0.0;
     m_rng.seed(0);
     m_randomValue = m_dist(m_rng);
+}
+
+double Lfo::waveformValue(double phase) const
+{
+    switch (m_waveform) {
+    case Waveform::Sine:
+        return std::sin(2.0 * M_PI * phase);
+    case Waveform::Saw:
+        return 2.0 * phase - 1.0;
+    case Waveform::Triangle:
+        return (phase < 0.5) ? (4.0 * phase - 1.0) : (3.0 - 4.0 * phase);
+    case Waveform::Square:
+        return (phase < 0.5) ? 1.0 : -1.0;
+    case Waveform::Random:
+        return m_randomValue;
+    }
+    return 0.0;
 }
 
 double Lfo::nextSample()
 {
     if (m_mode == Mode::OneShot && !m_oneShotActive) {
-        return 0.0;
+        return m_oneShotHold;
     }
 
-    double value = 0.0;
-
-    switch (m_waveform) {
-    case Waveform::Sine:
-        value = std::sin(2.0 * M_PI * m_phase);
-        break;
-    case Waveform::Saw:
-        value = 2.0 * m_phase - 1.0;
-        break;
-    case Waveform::Triangle:
-        value = (m_phase < 0.5) ? (4.0 * m_phase - 1.0) : (3.0 - 4.0 * m_phase);
-        break;
-    case Waveform::Square:
-        value = (m_phase < 0.5) ? 1.0 : -1.0;
-        break;
-    case Waveform::Random:
-        value = m_randomValue;
-        break;
-    }
+    double value = waveformValue(m_phase);
 
     m_phase += m_phaseStep;
     if (m_phase >= 1.0) {
         m_phase -= 1.0;
-        if (m_waveform == Waveform::Random) {
-            m_randomValue = m_dist(m_rng);
-        }
         if (m_mode == Mode::OneShot) {
             m_oneShotActive = false;
-            value = 0.0;
+            // Park on the value the shape ends on rather than snapping to zero. Zero made the two
+            // things a one-shot is for impossible: leaving the target somewhere other than where it
+            // started, and doing so without a step — a saw jumping from +1 to 0 is an audible click
+            // at the end of every note.
+            m_oneShotHold = waveformValue(1.0);
+            value = m_oneShotHold;
+        } else if (m_waveform == Waveform::Random) {
+            m_randomValue = m_dist(m_rng);
         }
     }
 

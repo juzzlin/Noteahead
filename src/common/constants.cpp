@@ -1612,6 +1612,11 @@ QString xmlKeyModDecay()
     return "modDecay";
 }
 
+QString xmlKeyModSustain()
+{
+    return "modSustain";
+}
+
 QString xmlKeyModIntensity()
 {
     return "modIntensity";

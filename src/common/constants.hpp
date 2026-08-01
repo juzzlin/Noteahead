@@ -447,6 +447,7 @@ QString xmlKeyAmpVelocitySensitivity();
 QString xmlKeyModAttack();
 QString xmlKeyModDecay();
 QString xmlKeyModIntensity();
+QString xmlKeyModSustain();
 QString xmlKeyModTarget();
 
 QString xmlKeyLfoWaveform();

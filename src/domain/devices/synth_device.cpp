@@ -153,6 +153,7 @@ SynthDevice::SynthDevice(std::string name)
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyModAttack().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyModDecay().toStdString(), 0.34f, 0, 10000, 3400, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyModSustain().toStdString(), 0.0f, 0, 10000, 0, 100 }); // AD by default
     addParameter(Parameter { Constants::NahdXml::xmlKeyModIntensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyModTarget().toStdString(), 3.0f, 0, 3, 3, 1, Parameter::Type::Discrete }); // Cutoff default
 
@@ -1056,6 +1057,8 @@ void SynthDevice::syncParameters()
     if (const auto p = parameter(Constants::NahdXml::xmlKeyModDecay().toStdString()); p)
         m_modDecay = p->get().value();
 
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyModSustain().toStdString()); p)
+        m_modSustain = p->get().value();
     if (const auto p = parameter(Constants::NahdXml::xmlKeyModIntensity().toStdString()); p)
         m_modInt = ParameterMapper::mapCubicCentered((p->get().value() - 0.5f) * 2.0f, -1.0, 1.0);
     if (const auto p = parameter(Constants::NahdXml::xmlKeyModTarget().toStdString()); p)
@@ -1162,7 +1165,10 @@ void SynthDevice::syncParameters()
         voice.ampEg.setReleaseTime(ParameterMapper::mapExponential(m_ampRelease, 0.001, 60.0));
         voice.modEg.setAttackTime(ParameterMapper::mapExponential(m_modAttack, 0.000001, 20.0));
         voice.modEg.setDecayTime(ParameterMapper::mapExponential(m_modDecay, 0.01, 60.0));
-        voice.modEg.setSustainLevel(0.0); // Mod EG is AD only
+        // Zero leaves it AD: the sweep returns to where it started. Anything above holds the
+        // modulation there for as long as the note is held, which is the only way to sweep to a
+        // new place and stay.
+        voice.modEg.setSustainLevel(m_modSustain);
         voice.modEg.setReleaseTime(ParameterMapper::mapExponential(m_modDecay, 0.01, 60.0));
     }
 }
@@ -1596,6 +1602,16 @@ float SynthDevice::modDecay() const
 void SynthDevice::setModDecay(float d)
 {
     setContinuousParameterValue(Constants::NahdXml::xmlKeyModDecay().toStdString(), d);
+}
+
+float SynthDevice::modSustain() const
+{
+    return m_modSustain;
+}
+
+void SynthDevice::setModSustain(float sustain)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyModSustain().toStdString(), sustain);
 }
 
 float SynthDevice::modInt() const

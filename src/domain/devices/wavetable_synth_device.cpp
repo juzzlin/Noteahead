@@ -114,6 +114,7 @@ WavetableSynthDevice::WavetableSynthDevice(std::string name)
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyModAttack().toStdString(), 0.1f, 0, 10000, 1000, 100, Parameter::Type::Continuous, { "wavetableSynthModAttack" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyModDecay().toStdString(), 0.2f, 0, 10000, 2000, 100, Parameter::Type::Continuous, { "wavetableSynthModDecay" } });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyModSustain().toStdString(), 0.0f, 0, 10000, 0, 100 }); // AD by default
     addParameter(Parameter { Constants::NahdXml::xmlKeyModIntensity().toStdString(), 0.5f, 0, 10000, 5000, 100, Parameter::Type::Continuous, { "wavetableSynthModIntensity" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyModTarget().toStdString(), 0.0f, 0, 4, 0, 1, Parameter::Type::Discrete, { "wavetableSynthModTarget" } });
 
@@ -598,6 +599,7 @@ void WavetableSynthDevice::syncParameters()
 
     updateParam(Constants::NahdXml::xmlKeyModAttack(), m_modAttack);
     updateParam(Constants::NahdXml::xmlKeyModDecay(), m_modDecay);
+    updateParam(Constants::NahdXml::xmlKeyModSustain(), m_modSustain);
     updateParam(Constants::NahdXml::xmlKeyModIntensity(), m_modInt);
     updateDiscreteParam(Constants::NahdXml::xmlKeyModTarget(), m_modTarget);
 
@@ -655,7 +657,9 @@ void WavetableSynthDevice::syncParameters()
 
         voice.modEg.setAttackTime(ParameterMapper::mapExponential(m_modAttack, 0.001, 10.0));
         voice.modEg.setDecayTime(ParameterMapper::mapExponential(m_modDecay, 0.01, 10.0));
-        voice.modEg.setSustainLevel(0.0);
+        // Zero leaves it AD: the sweep returns to where it started. Anything above holds the
+        // modulation there for as long as the note is held.
+        voice.modEg.setSustainLevel(m_modSustain);
         voice.modEg.setReleaseTime(ParameterMapper::mapExponential(m_modDecay, 0.01, 10.0));
     }
 }
@@ -968,6 +972,19 @@ void WavetableSynthDevice::setModDecay(float d)
 float WavetableSynthDevice::modInt() const
 {
     return m_modInt;
+}
+
+float WavetableSynthDevice::modSustain() const
+{
+    return m_modSustain;
+}
+
+void WavetableSynthDevice::setModSustain(float sustain)
+{
+    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyModSustain().toStdString()); synthParameter) {
+        synthParameter->get().setValue(sustain);
+        syncParameters();
+    }
 }
 
 void WavetableSynthDevice::setModInt(float intensity)

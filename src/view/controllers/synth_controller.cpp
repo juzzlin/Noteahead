@@ -452,6 +452,18 @@ void SynthController::setModDecay(int d)
     }
 }
 
+int SynthController::modSustain() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->modSustain() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setModSustain(int sustain)
+{
+    if (m_synth) {
+        m_synth->setModSustain(static_cast<float>(sustain) / Constants::uiInternalScaling());
+    }
+}
+
 int SynthController::modInt() const
 {
     if (m_synth) {
@@ -911,6 +923,7 @@ void SynthController::requestSettings()
 
     emit modAttackChanged();
     emit modDecayChanged();
+    emit modSustainChanged();
     emit modIntChanged();
     emit modTargetChanged();
 

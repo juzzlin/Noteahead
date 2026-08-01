@@ -40,6 +40,12 @@ ColumnLayout {
         Layout.fillWidth: true
     }
     Knob {
+        label: qsTr("Sustain")
+        value: wavetableSynthController.modSustain
+        onMoved: v => wavetableSynthController.modSustain = v
+        Layout.fillWidth: true
+    }
+    Knob {
         label: qsTr("Intensity")
         mapping: "cubicCentered"
         mapMin: -100

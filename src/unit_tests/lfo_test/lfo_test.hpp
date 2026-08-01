@@ -37,6 +37,9 @@ private slots:
     void test_squareWaveform_shouldOutputNegativeOneInSecondHalf();
 
     void test_oneShotMode_shouldStopAfterOneCycle();
+    void test_oneShotMode_saw_shouldHoldItsEndValue();
+    void test_oneShotMode_shouldNotStepWhenItFinishes();
+    void test_oneShotMode_random_shouldHoldTheValueItPlayed();
     void test_normalMode_shouldContinueAcrossMultipleCycles();
 
     void test_setPhase_shouldAffectOutput();

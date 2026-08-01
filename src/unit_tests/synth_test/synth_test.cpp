@@ -1701,6 +1701,59 @@ void SynthTest::test_voiceMode_dual_shouldMatchPolyLevel()
     QVERIFY2(differenceDb > -6.0f, qPrintable(QString { "Dual is %1 dB below poly" }.arg(differenceDb)));
 }
 
+namespace {
+
+//! Runs a note for a while with the Mod EG sweeping the cutoff, and returns the peak seen late in
+//! the note, once the envelope has had time to finish its attack and decay.
+double lateNotePeak(float modSustain)
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setModTarget(SynthDevice::ModTarget::Cutoff);
+    synth.setModAttack(0.0f);
+    synth.setModDecay(0.2f);
+    synth.setModInt(1.0f);
+    synth.setModSustain(modSustain);
+    synth.setLpfCutoff(0.0f); // Closed, so the modulation is the only thing opening it
+    synth.processMidiNoteOn(60, 100);
+
+    constexpr uint32_t frameCount = 512;
+    double buffer[frameCount * 2] {};
+    AudioContext context { std::span(buffer, frameCount * 2), frameCount, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+
+    double peak = 0.0;
+    for (int block = 0; block < 400; block++) {
+        std::fill(std::begin(buffer), std::end(buffer), 0.0);
+        synth.processAudio(context);
+        if (block > 300) { // Well past the decay
+            for (auto && sample : buffer) {
+                peak = std::max(peak, std::abs(sample));
+            }
+        }
+    }
+    return peak;
+}
+
+} // namespace
+
+void SynthTest::test_modEg_defaultSustain_shouldReturnToStart()
+{
+    // The default keeps the old AD behaviour, so existing patches are unchanged: the sweep decays
+    // back and leaves the filter where it started.
+    SynthDevice synth { "Test Synth" };
+    QCOMPARE(synth.modSustain(), 0.0f);
+}
+
+void SynthTest::test_modEg_sustain_shouldHoldTheModulation()
+{
+    const auto withoutSustain = lateNotePeak(0.0f);
+    const auto withSustain = lateNotePeak(1.0f);
+
+    // With sustain the envelope parks on its level and the filter stays open for as long as the
+    // note is held. Without it the sweep collapses back, which made "sweep somewhere and stay"
+    // impossible.
+    QVERIFY2(withSustain > withoutSustain * 2.0, qPrintable(QString { "sustained %1 vs %2" }.arg(withSustain).arg(withoutSustain)));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SynthTest)
