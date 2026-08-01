@@ -84,7 +84,7 @@ void LoadMeterTest::test_overrunCount_shouldCountOnlyBlocksOverBudget()
     QCOMPARE(meter.overrunCount(), uint64_t { 7 });
 }
 
-void LoadMeterTest::test_peak_shouldFallBackAfterASpike()
+void LoadMeterTest::test_peak_shouldHoldAfterASpike()
 {
     LoadMeter meter;
     meter.setActive(true);
@@ -92,11 +92,38 @@ void LoadMeterTest::test_peak_shouldFallBackAfterASpike()
     feed(meter, 90.0, 1);
     const float afterSpike = meter.peakPercent();
 
-    // One second of quiet buffers at the specified fallback rate.
+    // One second of quiet, which is inside the hold time.
     feed(meter, 10.0, static_cast<int>(1.0 / BufferSeconds));
 
     QVERIFY2(afterSpike > 85.0f, qPrintable(QString::number(afterSpike)));
+    // A spike that starts falling the moment it appears is gone before it can be read, so the peak
+    // stays put until the hold expires.
+    QCOMPARE(meter.peakPercent(), afterSpike);
+}
+
+void LoadMeterTest::test_peak_shouldFallBackAfterTheHold()
+{
+    LoadMeter meter;
+    meter.setActive(true);
+    feed(meter, 10.0, 100);
+    feed(meter, 90.0, 1);
+    const float afterSpike = meter.peakPercent();
+
+    // Well past the hold, with enough quiet after it for the fallback to bite.
+    feed(meter, 10.0, static_cast<int>(6.0 / BufferSeconds));
+
     QVERIFY2(meter.peakPercent() < afterSpike - 30.0f, qPrintable(QString::number(meter.peakPercent())));
+}
+
+void LoadMeterTest::test_peak_higherSpikeDuringHold_shouldTakeOver()
+{
+    LoadMeter meter;
+    meter.setActive(true);
+    feed(meter, 30.0, 1);
+    feed(meter, 90.0, 1);
+
+    // The hold must never swallow a worse peak, which is the one worth seeing.
+    QVERIFY2(meter.peakPercent() > 85.0f, qPrintable(QString::number(meter.peakPercent())));
 }
 
 void LoadMeterTest::test_addBlock_zeroWork_shouldDecayToIdle()

@@ -33,6 +33,8 @@ Bug fixes:
 
 Other:
 
+* Hold the DSP load peak before letting it fall, so spikes stay readable
+
 6.0.0
 =====
 

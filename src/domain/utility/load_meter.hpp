@@ -51,12 +51,15 @@ public:
 private:
     //! Averaging window, in seconds of audio. Long enough to read, short enough to react.
     static constexpr float WindowSeconds { 0.5f };
-    //! How fast the peak reading falls, in percentage points per second.
-    static constexpr float PeakFallbackPerSecond { 50.0f };
+    //! How long a new peak stays put before it starts falling, in seconds.
+    static constexpr float PeakHoldSeconds { 2.0f };
+    //! How fast the peak reading falls once the hold has expired, in percentage points per second.
+    static constexpr float PeakFallbackPerSecond { 15.0f };
 
     std::atomic<bool> m_active { false };
     std::atomic<float> m_load { 0.0f };
     std::atomic<float> m_peak { 0.0f };
+    std::atomic<float> m_peakHoldSeconds { 0.0f };
     std::atomic<uint64_t> m_overruns { 0 };
 };
 

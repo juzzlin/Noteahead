@@ -29,7 +29,9 @@ private slots:
     void test_addBlock_halfBudget_shouldReadFiftyPercent();
     void test_addBlock_shouldSettleOnTheAverage();
     void test_overrunCount_shouldCountOnlyBlocksOverBudget();
-    void test_peak_shouldFallBackAfterASpike();
+    void test_peak_shouldHoldAfterASpike();
+    void test_peak_shouldFallBackAfterTheHold();
+    void test_peak_higherSpikeDuringHold_shouldTakeOver();
     void test_addBlock_zeroWork_shouldDecayToIdle();
     void test_setActive_false_shouldClearEverything();
 };

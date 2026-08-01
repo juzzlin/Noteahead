@@ -46,8 +46,19 @@ void LoadMeter::addBlock(std::chrono::nanoseconds elapsed, double bufferSeconds)
     const float load = m_load.load();
     m_load.store(load + smoothing * (percent - load));
 
-    const float fallback = PeakFallbackPerSecond * static_cast<float>(bufferSeconds);
-    m_peak.store(std::max(percent, m_peak.load() - fallback));
+    // Hold the peak still for a moment before letting it fall, the way a peak meter does. A spike is
+    // the thing worth reading, and one that starts decaying immediately is gone before the eye finds
+    // it.
+    if (percent >= m_peak.load()) {
+        m_peak.store(percent);
+        m_peakHoldSeconds.store(PeakHoldSeconds);
+    } else if (const float remaining = m_peakHoldSeconds.load() - static_cast<float>(bufferSeconds); remaining > 0.0f) {
+        m_peakHoldSeconds.store(remaining);
+    } else {
+        m_peakHoldSeconds.store(0.0f);
+        const float fallback = PeakFallbackPerSecond * static_cast<float>(bufferSeconds);
+        m_peak.store(std::max(percent, m_peak.load() - fallback));
+    }
 
     if (percent > 100.0f) {
         m_overruns.fetch_add(1);
@@ -73,6 +84,7 @@ void LoadMeter::reset()
 {
     m_load.store(0.0f);
     m_peak.store(0.0f);
+    m_peakHoldSeconds.store(0.0f);
     m_overruns.store(0);
 }
 
