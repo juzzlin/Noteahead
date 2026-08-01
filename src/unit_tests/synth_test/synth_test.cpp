@@ -16,6 +16,7 @@
 #include "synth_test.hpp"
 
 #include "../../common/constants.hpp"
+#include "../../common/utils.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/synth_presets.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
@@ -23,6 +24,7 @@
 
 #include <QBuffer>
 #include <QTest>
+#include <algorithm>
 #include <cmath>
 #include <map>
 
@@ -1520,6 +1522,61 @@ void SynthTest::test_dualMode_serialization_shouldPreserveState()
         synth.deserializeFromXml(reader);
         QCOMPARE(synth.voiceMode(), SynthDevice::VoiceMode::Dual);
     }
+}
+
+namespace {
+
+//! Peak of one note held for a while in the given voice mode, with everything else left at defaults.
+double notePeak(SynthDevice::VoiceMode voiceMode)
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(voiceMode);
+    synth.processMidiNoteOn(60, 100);
+
+    constexpr uint32_t frameCount = 512;
+    double buffer[frameCount * 2] {};
+    AudioContext context { std::span(buffer, frameCount * 2), frameCount, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+
+    double peak = 0.0;
+    // Long enough for the detuned voices to drift through a good part of their beat cycle, so the
+    // peak seen is a fair one rather than whatever the attack transient happened to be.
+    for (int block = 0; block < 200; block++) {
+        std::fill(std::begin(buffer), std::end(buffer), 0.0);
+        synth.processAudio(context);
+        for (auto && sample : buffer) {
+            peak = std::max(peak, std::abs(sample));
+        }
+    }
+    return peak;
+}
+
+} // namespace
+
+void SynthTest::test_voiceMode_unison_shouldMatchPolyLevel()
+{
+    const auto polyPeak = notePeak(SynthDevice::VoiceMode::Poly);
+    const auto unisonPeak = notePeak(SynthDevice::VoiceMode::Unison);
+
+    QVERIFY(polyPeak > 0.0);
+
+    // Unison spends every voice on this one note, so without equal-power compensation it would land
+    // up to MaxVoices (~15.6 dB) above poly and overload whatever follows. The voices are detuned,
+    // so some margin is expected where they align; what must not come back is the raw voice count.
+    const auto differenceDb = Utils::Dsp::linearToDb(static_cast<float>(unisonPeak / polyPeak));
+    QVERIFY2(differenceDb < 6.0f, qPrintable(QString { "Unison is %1 dB above poly" }.arg(differenceDb)));
+    QVERIFY2(differenceDb > -6.0f, qPrintable(QString { "Unison is %1 dB below poly" }.arg(differenceDb)));
+}
+
+void SynthTest::test_voiceMode_dual_shouldMatchPolyLevel()
+{
+    const auto polyPeak = notePeak(SynthDevice::VoiceMode::Poly);
+    const auto dualPeak = notePeak(SynthDevice::VoiceMode::Dual);
+
+    QVERIFY(polyPeak > 0.0);
+
+    const auto differenceDb = Utils::Dsp::linearToDb(static_cast<float>(dualPeak / polyPeak));
+    QVERIFY2(differenceDb < 6.0f, qPrintable(QString { "Dual is %1 dB above poly" }.arg(differenceDb)));
+    QVERIFY2(differenceDb > -6.0f, qPrintable(QString { "Dual is %1 dB below poly" }.arg(differenceDb)));
 }
 
 } // namespace noteahead

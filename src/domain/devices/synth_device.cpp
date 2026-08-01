@@ -283,11 +283,27 @@ void SynthDevice::prepareForProcessing(AudioContext & context)
     std::fill(m_oversampledBuffer.begin(), m_oversampledBuffer.begin() + requiredSize, 0.0f);
 }
 
+int SynthDevice::voicesPerNote() const
+{
+    switch (m_voiceMode) {
+    case VoiceMode::Unison:
+        return MaxVoices;
+    case VoiceMode::Dual:
+        return 2;
+    case VoiceMode::Poly:
+    default:
+        return 1;
+    }
+}
+
 void SynthDevice::renderVoice(Voice & voice, AudioContext & context, uint8_t oversampleFactor, uint32_t oversampledRate, double portamentoCoeff, double pbRatio, size_t index)
 {
     updateVoiceParameters(voice, oversampledRate, index);
 
-    const float gain = (1.0f / static_cast<float>(MaxVoices)) * linearGainInternal() * voice.velocity;
+    // The 1/MaxVoices base is the headroom for a full chord: every voice sounding at once reaches
+    // full scale. Unison and dual spend several voices on a single note, so without the stack
+    // compensation one note would arrive up to MaxVoices times hotter than the same note in poly.
+    const float gain = (1.0f / static_cast<float>(MaxVoices)) * Utils::Dsp::voiceStackGain(voicesPerNote()) * linearGainInternal() * voice.velocity;
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
         for (uint8_t os = 0; os < oversampleFactor; os++) {

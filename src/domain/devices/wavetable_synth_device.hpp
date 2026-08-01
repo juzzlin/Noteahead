@@ -205,7 +205,10 @@ private:
         float pan { 0.5f };
 
         void reset();
-        void trigger(uint8_t note, double freq, float pan, float velocity, uint64_t triggerId);
+        //! @p startPhase spreads unison voices apart. Voices started at the same phase stay
+        //! correlated and simply sum, which is a level jump rather than the thickening unison is
+        //! for; poly needs no spread and leaves it at zero.
+        void trigger(uint8_t note, double freq, float pan, float velocity, uint64_t triggerId, double startPhase = 0.0);
         void release();
     };
 
@@ -297,6 +300,9 @@ private:
 
     void prepareForProcessing(AudioContext & context);
     void updateVoiceParameters(Voice & voice, uint32_t oversampledRate);
+    //! Voices the current voice mode spends on a single note. Poly plays one, unison stacks the lot.
+    int voicesPerNote() const;
+
     void renderVoice(Voice & voice, AudioContext & context, uint8_t oversampleFactor, uint32_t oversampledRate, double portamentoCoeff, double pbRatio);
 
     std::string m_name;

@@ -182,5 +182,10 @@ float linearToDb(float linear)
     }
     return 20.0f * std::log10(linear);
 }
+
+float voiceStackGain(int voicesPerNote)
+{
+    return voicesPerNote > 1 ? 1.0f / std::sqrt(static_cast<float>(voicesPerNote)) : 1.0f;
+}
 } // namespace Dsp
 } // namespace noteahead::Utils

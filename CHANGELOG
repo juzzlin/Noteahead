@@ -14,6 +14,12 @@ New features:
 
 Bug fixes:
 
+* Fix Unison being far louder than Poly in Synth and Wavetable Synth
+  - Unison spent every voice on one note but kept the gain compensation
+    sized for a full chord, landing 11-18 dB hot
+  - Wavetable Synth also started its unison voices at the same phase, so
+    they summed instead of thickening
+
 * Fix the Clipper's reduction meter reading near full scale at all times
   - It compared the input against an output delayed by the oversampling
     filters, so it never tracked the threshold

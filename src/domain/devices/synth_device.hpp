@@ -412,6 +412,10 @@ private:
 
     void prepareForProcessing(AudioContext & context);
     void updateVoiceParameters(Voice & voice, uint32_t oversampledRate, size_t index);
+    //! Voices the current voice mode spends on a single note. Poly plays one, dual pairs two and
+    //! unison stacks the lot.
+    int voicesPerNote() const;
+
     void renderVoice(Voice & voice, AudioContext & context, uint8_t oversampleFactor, uint32_t oversampledRate, double portamentoCoeff, double pbRatio, size_t index);
     void applyGlobalEffects(AudioContext & context);
 

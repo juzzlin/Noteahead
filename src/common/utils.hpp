@@ -54,6 +54,17 @@ namespace Dsp {
 float cutoffToHz(float cutoff, float sampleRate);
 float dbToLinear(float db);
 float linearToDb(float linear);
+
+//! Equal-power gain compensation for stacking @p voicesPerNote detuned voices on a single note, as
+//! unison and dual voice modes do.
+//!
+//! Detuned voices are mutually uncorrelated for most of their beat cycle, so their power sums rather
+//! than their amplitude and the compensation is 1/sqrt(N). Dividing by N instead — the amplitude sum
+//! — would hold even when every voice happens to align, but it makes unison audibly quieter than a
+//! single voice, which is not what a unison mode is for. The remaining sqrt(N) between the two is
+//! the transient that arrives when the voices do drift into phase, and it is what the headroom below
+//! full scale exists to absorb.
+float voiceStackGain(int voicesPerNote);
 } // namespace Dsp
 } // namespace noteahead::Utils
 

@@ -45,7 +45,7 @@ void WavetableSynthDevice::Voice::reset()
     pan = 0.5f;
 }
 
-void WavetableSynthDevice::Voice::trigger(uint8_t n, double freq, float p, float vel, uint64_t tid)
+void WavetableSynthDevice::Voice::trigger(uint8_t n, double freq, float p, float vel, uint64_t tid, double startPhase)
 {
     note = n;
     triggerId = tid;
@@ -59,8 +59,8 @@ void WavetableSynthDevice::Voice::trigger(uint8_t n, double freq, float p, float
     // Only sync oscillator phase on a fresh (idle) voice to avoid a pop from a
     // hard phase jump while the voice is still producing audio (retrigger/steal).
     if (!active) {
-        osc1.sync(0.0);
-        osc2.sync(0.0);
+        osc1.sync(startPhase);
+        osc2.sync(startPhase);
     }
 
     active = true;
@@ -242,11 +242,19 @@ void WavetableSynthDevice::prepareForProcessing(AudioContext & context)
     std::fill(m_oversampledBuffer.begin(), m_oversampledBuffer.begin() + requiredSize, 0.0f);
 }
 
+int WavetableSynthDevice::voicesPerNote() const
+{
+    return m_voiceMode == VoiceMode::Unison ? MaxVoices : 1;
+}
+
 void WavetableSynthDevice::renderVoice(Voice & voice, AudioContext & context, uint8_t oversampleFactor, uint32_t oversampledRate, double portamentoCoeff, double pbRatio)
 {
     updateVoiceParameters(voice, oversampledRate);
 
-    const float gain = (1.0f / static_cast<float>(MaxVoices)) * linearGainInternal() * voice.velocity;
+    // The 1/MaxVoices base is the headroom for a full chord: every voice sounding at once reaches
+    // full scale. Unison spends every voice on a single note, so without the stack compensation one
+    // note would arrive up to MaxVoices times hotter than the same note in poly.
+    const float gain = (1.0f / static_cast<float>(MaxVoices)) * Utils::Dsp::voiceStackGain(voicesPerNote()) * linearGainInternal() * voice.velocity;
     for (uint32_t i = 0; i < context.frameCount; i++) {
         for (uint8_t subSample = 0; subSample < oversampleFactor; subSample++) {
             voice.glideFrequency += (voice.frequency - voice.glideFrequency) * portamentoCoeff;
@@ -406,7 +414,7 @@ void WavetableSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
             const float depth = 1.0f - static_cast<float>(i / 2) * (2.0f / static_cast<float>(MaxVoices));
             const float pan = 0.5f + (side * depth * m_panSpread * 0.5f);
 
-            m_voices.at(i).trigger(note, voiceFreq, pan, finalVel, tid);
+            m_voices.at(i).trigger(note, voiceFreq, pan, finalVel, tid, m_phaseDist(m_rng));
         }
     } else {
         // Polyphonic mode

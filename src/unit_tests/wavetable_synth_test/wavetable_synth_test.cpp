@@ -16,11 +16,13 @@
 #include "wavetable_synth_test.hpp"
 
 #include "../../common/constants.hpp"
+#include "../../common/utils.hpp"
 #include "../../domain/devices/wavetable_synth_device.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
 #include <QTest>
+#include <algorithm>
 #include <cmath>
 
 namespace noteahead {
@@ -544,6 +546,49 @@ void WavetableSynthTest::test_lfo2Target_pan_shouldModulatePanning()
         sumDiff += std::abs(buf[i] - buf[i + 1]);
 
     QVERIFY2(sumDiff > 0.001, "LFO2 Pan did not create any stereo difference");
+}
+
+namespace {
+
+//! Peak of one note held for a while in the given voice mode, with everything else left at defaults.
+double notePeak(WavetableSynthDevice::VoiceMode voiceMode)
+{
+    WavetableSynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(voiceMode);
+    synth.processMidiNoteOn(60, 100);
+
+    constexpr uint32_t frameCount = 512;
+    double buffer[frameCount * 2] {};
+    AudioContext context { std::span(buffer, frameCount * 2), frameCount, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+
+    double peak = 0.0;
+    // Long enough for the detuned voices to drift through a good part of their beat cycle, so the
+    // peak seen is a fair one rather than whatever the attack transient happened to be.
+    for (int block = 0; block < 200; block++) {
+        std::fill(std::begin(buffer), std::end(buffer), 0.0);
+        synth.processAudio(context);
+        for (auto && sample : buffer) {
+            peak = std::max(peak, std::abs(sample));
+        }
+    }
+    return peak;
+}
+
+} // namespace
+
+void WavetableSynthTest::test_voiceMode_unison_shouldMatchPolyLevel()
+{
+    const auto polyPeak = notePeak(WavetableSynthDevice::VoiceMode::Poly);
+    const auto unisonPeak = notePeak(WavetableSynthDevice::VoiceMode::Unison);
+
+    QVERIFY(polyPeak > 0.0);
+
+    // Unison spends every voice on this one note, so without equal-power compensation it would land
+    // up to MaxVoices (~18 dB) above poly and overload whatever follows. The voices are detuned, so
+    // some margin is expected where they align; what must not come back is the raw voice count.
+    const auto differenceDb = Utils::Dsp::linearToDb(static_cast<float>(unisonPeak / polyPeak));
+    QVERIFY2(differenceDb < 6.0f, qPrintable(QString { "Unison is %1 dB above poly" }.arg(differenceDb)));
+    QVERIFY2(differenceDb > -6.0f, qPrintable(QString { "Unison is %1 dB below poly" }.arg(differenceDb)));
 }
 
 } // namespace noteahead
