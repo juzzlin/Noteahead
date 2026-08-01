@@ -94,7 +94,7 @@ void AutomationService::addMidiCcModulation(quint64 automationId, int type, quin
             return automationId == existingAutomation.id();
         });
         iter != m_automations.midiCc.end()) {
-        ModulationParameters modulation { static_cast<ModulationParameters::ModulationType>(type), static_cast<float>(cycles), amplitude, offset, inverted };
+        const ModulationParameters modulation { static_cast<ModulationParameters::ModulationType>(type), static_cast<float>(cycles), amplitude, offset, inverted };
         iter->setModulation(modulation);
         notifyChangedLines(*iter);
         juzzlin::L(TAG).info() << "MIDI CC Modulation added to automation id " << automationId;
@@ -109,7 +109,7 @@ void AutomationService::addPitchBendModulation(quint64 automationId, int type, q
             return automationId == existingAutomation.id();
         });
         iter != m_automations.pitchBend.end()) {
-        ModulationParameters modulation { static_cast<ModulationParameters::ModulationType>(type), static_cast<float>(cycles), amplitude, offset, inverted };
+        const ModulationParameters modulation { static_cast<ModulationParameters::ModulationType>(type), static_cast<float>(cycles), amplitude, offset, inverted };
         iter->setModulation(modulation);
         notifyChangedLines(*iter);
         juzzlin::L(TAG).info() << "Pitch Bend Modulation added to automation id " << automationId;
@@ -496,7 +496,6 @@ AutomationService::EventList AutomationService::renderMidiCcToEventsByLine(size_
         if (automation.enabled()) {
             const auto & location = automation.location();
             const auto & interpolation = automation.interpolation();
-            const auto & modulation = automation.modulation();
             if (location.pattern() == pattern && location.track() == track && location.column() == column && line >= interpolation.line0 && line <= interpolation.line1) {
                 const auto value = midiCcValueAt(automation, line);
                 events.push_back(std::make_shared<Event>(tick, MidiCcData { track, column, automation.controller(), static_cast<uint8_t>(value) }));
@@ -561,7 +560,6 @@ AutomationService::EventList AutomationService::renderPitchBendToEventsByLine(si
         if (automation.enabled()) {
             const auto & location = automation.location();
             const auto & interpolation = automation.interpolation();
-            const auto & modulation = automation.modulation();
             if (location.pattern() == pattern && location.track() == track && location.column() == column && line >= interpolation.line0 && line <= interpolation.line1) {
                 const auto percentage = pitchBendValueAt(automation, line);
                 events.push_back(std::make_shared<Event>(tick, PitchBendData { track, column, static_cast<double>(percentage) }));

@@ -142,6 +142,29 @@ void DeviceServiceTest::cleanupTestCase()
     DeviceFactory::clear();
 }
 
+void DeviceServiceTest::test_midiCc_shouldNotEmitDataChanged()
+{
+    // Automation traffic arrives many times per beat. DeviceService::dataChanged resets the Device
+    // Rack model, rebuilds the MIDI port lists and marks the song modified, so routing MIDI CC
+    // through it made playing an automated song cost far more than playing the same song without.
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    DeviceService deviceService { audioEngine, std::make_shared<DataService>() };
+    const auto device = std::make_shared<SynthDevice>("Synth 1");
+    deviceService.setDevice(0, device);
+
+    QSignalSpy structuralSpy { &deviceService, &DeviceService::dataChanged };
+    QSignalSpy parameterSpy { device.get(), &Device::parametersChanged };
+
+    device->processMidiCc(7, 64, 0);
+
+    QCOMPARE(structuralSpy.count(), 0);
+    QCOMPARE(parameterSpy.count(), 1);
+
+    // A real edit still has to reach the rest of the application
+    device->setVolume(0.1f);
+    QVERIFY(structuralSpy.count() > 0);
+}
+
 void DeviceServiceTest::test_exportDeviceSettings_shouldGenerateCorrectXml()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();

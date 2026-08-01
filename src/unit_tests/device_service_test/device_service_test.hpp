@@ -28,6 +28,7 @@ private slots:
     void initTestCase();
     void cleanupTestCase();
 
+    void test_midiCc_shouldNotEmitDataChanged();
     void test_exportDeviceSettings_shouldGenerateCorrectXml();
     void test_importDeviceSettings_shouldRestoreParameters();
     void test_importDeviceSettings_shouldReplaceDeviceIfTypeDiffers();

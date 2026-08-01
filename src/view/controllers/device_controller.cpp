@@ -171,6 +171,8 @@ void DeviceController::connectDeviceSignals()
     if (auto dev = device(); dev) {
         connect(dev.get(), &Device::sampleRateChanged, this, &DeviceController::requestSettings, Qt::UniqueConnection);
         connect(dev.get(), &Device::dataChanged, this, &DeviceController::requestSettings, Qt::UniqueConnection);
+        // The open dialog still follows incoming MIDI CC, but nothing else in the application does
+        connect(dev.get(), &Device::parametersChanged, this, &DeviceController::requestSettings, Qt::UniqueConnection);
     }
 }
 

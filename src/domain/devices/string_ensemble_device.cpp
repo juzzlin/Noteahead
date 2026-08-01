@@ -203,7 +203,7 @@ void StringEnsembleDevice::processMidiCc(uint8_t controller, uint8_t value, uint
     }
 
     if (changed) {
-        emit dataChanged();
+        emit parametersChanged();
     }
 }
 

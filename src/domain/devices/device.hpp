@@ -191,7 +191,13 @@ public:
     size_t reverbSendCount() const;
 
 signals:
+    //! The device itself changed in a way the rest of the application has to react to: it was
+    //! added, removed, renamed, re-patched. Deliberately *not* emitted for incoming MIDI CC.
     void dataChanged();
+    //! A parameter value moved. Emitted for MIDI CC traffic, which during playback of an automation
+    //! arrives many times per beat, so only the device's own dialog listens to it. Routing that
+    //! through dataChanged() reset the Device Rack model and rebuilt the port lists per event.
+    void parametersChanged();
     void sampleRateChanged();
 
 protected:

@@ -199,7 +199,7 @@ void BassSynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
     }
 
     if (changed) {
-        emit dataChanged();
+        emit parametersChanged();
     }
 }
 

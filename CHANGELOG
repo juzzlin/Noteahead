@@ -14,6 +14,11 @@ Bug fixes:
 
 * Fix a disabled automation still colouring its column red
 
+* Fix automation playback costing far more CPU than it should
+  - Every MIDI CC event reset the Device Rack model and rebuilt the port lists
+
+* Fix playing a song with automations marking it as modified
+
 Other:
 
 * Sample automation values directly when drawing the editor, instead of
