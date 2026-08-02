@@ -63,6 +63,7 @@ const auto windowSizeKey = "size";
 
 const auto accentColorKey = "accentColor";
 const auto cursorColorKey = "cursorColor";
+const auto paletteAccentBlendKey = "paletteAccentBlend";
 
 AudioBackend audioBackend()
 {
@@ -597,6 +598,23 @@ void setCursorColor(QColor cursorColor)
     QSettings settings;
     settings.beginGroup(settingsGroupTheme);
     settings.setValue(cursorColorKey, cursorColor);
+    settings.endGroup();
+}
+
+int paletteAccentBlend(int defaultPaletteAccentBlend)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupTheme);
+    const auto blend = settings.value(paletteAccentBlendKey, defaultPaletteAccentBlend).toInt();
+    settings.endGroup();
+    return blend;
+}
+
+void setPaletteAccentBlend(int paletteAccentBlend)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupTheme);
+    settings.setValue(paletteAccentBlendKey, paletteAccentBlend);
     settings.endGroup();
 }
 

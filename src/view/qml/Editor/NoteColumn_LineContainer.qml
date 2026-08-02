@@ -94,6 +94,8 @@ Item {
             textColor: themeService.noteColumnTextColor
             textColorEmpty: themeService.noteColumnTextColorEmpty
             textColorGhost: themeService.noteColumnTextColorGhost
+            automationCurveColors: themeService.automationCurveColors
+            automationCurveCenterLineColor: themeService.automationCurveCenterLineColor
         }
     }
     VolumeMeter {

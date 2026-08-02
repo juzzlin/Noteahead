@@ -15,9 +15,11 @@
 
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Controls.Universal 2.15
 import QtQuick.Dialogs
 import QtQuick.Layouts
 import ".."
+import "../Components"
 
 GroupBox {
     title: qsTr("Theme")
@@ -40,66 +42,115 @@ GroupBox {
                 font.bold: true
             }
 
-            // The group is already titled "Colors", so the labels only need to name the target.
-            // Equal preferred widths split the row into even cells, and centering the swatch in
-            // its cell puts the two boxes at 25% and 75% of the row regardless of label lengths.
-            RowLayout {
+            ColumnLayout {
                 spacing: 10
                 width: parent.width
 
-                Item {
+                // The group is already titled "Colors", so the labels only need to name the target.
+                // Equal preferred widths split the row into even cells, and centering the swatch in
+                // its cell puts the two boxes at 25% and 75% of the row regardless of label lengths.
+                RowLayout {
+                    spacing: 10
                     Layout.fillWidth: true
-                    Layout.preferredWidth: 0
-                    implicitHeight: Math.max(accentColorLabel.implicitHeight, accentColorPreview.height)
-                    Label {
-                        id: accentColorLabel
-                        text: qsTr("Accent:")
-                        color: themeService.mainMenuTextColor
-                        anchors.left: parent.left
-                        anchors.verticalCenter: parent.verticalCenter
+
+                    Item {
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: 0
+                        implicitHeight: Math.max(accentColorLabel.implicitHeight, accentColorPreview.height)
+                        Label {
+                            id: accentColorLabel
+                            text: qsTr("Accent:")
+                            color: themeService.mainMenuTextColor
+                            anchors.left: parent.left
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Rectangle {
+                            id: accentColorPreview
+                            width: 40
+                            height: 20
+                            color: themeService.accentColor
+                            border.color: themeService.mainMenuTextColor
+                            border.width: 1
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: accentColorDialog.open()
+                            }
+                        }
                     }
-                    Rectangle {
-                        id: accentColorPreview
-                        width: 40
-                        height: 20
-                        color: themeService.accentColor
-                        border.color: themeService.mainMenuTextColor
-                        border.width: 1
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.verticalCenter: parent.verticalCenter
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: accentColorDialog.open()
+
+                    Item {
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: 0
+                        implicitHeight: Math.max(cursorColorLabel.implicitHeight, cursorColorPreview.height)
+                        Label {
+                            id: cursorColorLabel
+                            text: qsTr("Cursor:")
+                            color: themeService.mainMenuTextColor
+                            anchors.left: parent.left
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Rectangle {
+                            id: cursorColorPreview
+                            width: 40
+                            height: 20
+                            color: themeService.cursorColor
+                            border.color: themeService.mainMenuTextColor
+                            border.width: 1
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: cursorColorDialog.open()
+                            }
                         }
                     }
                 }
 
-                Item {
+                LayoutSeparator {}
+
+                // Track and automation colors are blended towards the accent color. This decides how far:
+                // 0 % is the original fixed palette, 100 % puts every entry on the accent hue.
+                RowLayout {
+                    spacing: 10
                     Layout.fillWidth: true
-                    Layout.preferredWidth: 0
-                    implicitHeight: Math.max(cursorColorLabel.implicitHeight, cursorColorPreview.height)
+
                     Label {
-                        id: cursorColorLabel
-                        text: qsTr("Cursor:")
+                        text: qsTr("Accent blend:")
                         color: themeService.mainMenuTextColor
-                        anchors.left: parent.left
-                        anchors.verticalCenter: parent.verticalCenter
                     }
-                    Rectangle {
-                        id: cursorColorPreview
-                        width: 40
-                        height: 20
-                        color: themeService.cursorColor
-                        border.color: themeService.mainMenuTextColor
-                        border.width: 1
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.verticalCenter: parent.verticalCenter
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: cursorColorDialog.open()
+                    Slider {
+                        id: accentBlendSlider
+                        Layout.fillWidth: true
+                        from: 0
+                        to: 100
+                        stepSize: 1
+                        snapMode: Slider.SnapAlways
+                        value: themeService.paletteAccentBlend
+                        onMoved: themeService.paletteAccentBlend = value
+                        // Same look as the device knobs, which set both of these themselves
+                        Universal.theme: Universal.Dark
+                        Universal.accent: themeService.accentColor
+                        // ...and the same feel: the wheel nudges it like it does on a knob
+                        WheelHandler {
+                            onWheel: wheel => {
+                                const delta = wheel.angleDelta.y > 0 ? 1 : -1;
+                                themeService.paletteAccentBlend = Math.max(accentBlendSlider.from, Math.min(accentBlendSlider.to, accentBlendSlider.value + delta));
+                            }
                         }
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("How far the track and automation colors are pulled towards the accent color. 0 % is the original palette, 100 % puts every color on the accent hue.")
+                    }
+                    Label {
+                        text: qsTr("%1 %").arg(Math.round(accentBlendSlider.value))
+                        color: themeService.mainMenuTextColor
+                        horizontalAlignment: Text.AlignRight
+                        Layout.preferredWidth: 40
                     }
                 }
             }

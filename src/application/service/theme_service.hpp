@@ -32,6 +32,10 @@ class ThemeService : public QObject
     //! Hue of the edit cursor. The renderer draws it half-transparent, so the note under it stays readable.
     Q_PROPERTY(QColor cursorColor READ cursorColor WRITE setCursorColor NOTIFY cursorColorChanged)
 
+    //! How far the track and automation palettes are pulled towards the accent color, as a
+    //! percentage. 0 is the original fixed palette, 100 puts every entry on the accent hue.
+    Q_PROPERTY(int paletteAccentBlend READ paletteAccentBlend WRITE setPaletteAccentBlend NOTIFY paletteAccentBlendChanged)
+
     Q_PROPERTY(QColor lineNumberColumnBackgroundColor READ lineNumberColumnBackgroundColor CONSTANT)
     Q_PROPERTY(QColor lineNumberColumnBorderColor READ lineNumberColumnBorderColor CONSTANT)
     Q_PROPERTY(QColor lineNumberColumnCellBackgroundColor READ lineNumberColumnCellBackgroundColor CONSTANT)
@@ -47,7 +51,7 @@ class ThemeService : public QObject
     Q_PROPERTY(QColor noteColumnCellBackgroundColor READ noteColumnCellBackgroundColor CONSTANT)
     Q_PROPERTY(QColor noteColumnCellBorderColor READ noteColumnCellBorderColor CONSTANT)
     //! Colours automation curves cycle through, so several automations on one column stay apart.
-    Q_PROPERTY(QVariantList automationCurveColors READ automationCurveColors CONSTANT)
+    Q_PROPERTY(QVariantList automationCurveColors READ automationCurveColors NOTIFY automationCurveColorsChanged)
     Q_PROPERTY(QColor automationCurveCenterLineColor READ automationCurveCenterLineColor CONSTANT)
     Q_PROPERTY(QColor noteColumnTextColor READ noteColumnTextColor CONSTANT)
     Q_PROPERTY(QColor noteColumnTextColorEmpty READ noteColumnTextColorEmpty CONSTANT)
@@ -66,6 +70,8 @@ class ThemeService : public QObject
     Q_PROPERTY(QVariantList trackHeaderTextColors READ trackHeaderTextColors NOTIFY trackHeaderTextColorsChanged)
 
 public:
+    using Palette = QList<QColor>;
+
     ThemeService();
     ~ThemeService() override;
 
@@ -78,6 +84,11 @@ public:
     void setCursorColor(const QColor & cursorColor);
 
     static QColor defaultCursorColor();
+
+    int paletteAccentBlend() const;
+    void setPaletteAccentBlend(int paletteAccentBlend);
+
+    static int defaultPaletteAccentBlend();
 
     //! Returns a legible text color (near-black or white) for the given background,
     //! chosen from the background's perceived luminance.
@@ -98,7 +109,6 @@ public:
     QColor noteColumnCellBackgroundColor() const;
     QColor noteColumnCellBorderColor() const;
     QVariantList automationCurveColors() const;
-    static QList<QColor> automationCurveColorList();
     QColor automationCurveCenterLineColor() const;
     QColor noteColumnTextColor() const;
     QColor noteColumnTextColorEmpty() const;
@@ -119,11 +129,25 @@ public:
 signals:
     void accentColorChanged();
     void cursorColorChanged();
+    void paletteAccentBlendChanged();
+    void automationCurveColorsChanged();
     void trackHeaderTextColorsChanged();
 
 private:
+    //! The fixed palettes the editor shipped with, returned unchanged at a blend of 0.
+    Palette legacyTrackHeaderTextColors() const;
+    static Palette legacyAutomationCurveColors();
+
+    //! An all-accent-hue palette of the given size, told apart by lightness alone. This is what a
+    //! blend of 100 resolves to, so its entries stay unique and legible on the editor background.
+    Palette accentPalette(int count) const;
+
+    //! Pulls each entry of the given palette towards its accent counterpart by the configured blend.
+    Palette blendedPalette(const Palette & palette) const;
+
     QColor m_accentColor;
     QColor m_cursorColor;
+    int m_paletteAccentBlend;
 };
 
 } // namespace noteahead

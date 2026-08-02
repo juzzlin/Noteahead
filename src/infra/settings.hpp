@@ -118,6 +118,9 @@ void setAccentColor(QColor accentColor);
 QColor cursorColor(QColor defaultCursorColor);
 void setCursorColor(QColor cursorColor);
 
+int paletteAccentBlend(int defaultPaletteAccentBlend);
+void setPaletteAccentBlend(int paletteAccentBlend);
+
 } // namespace noteahead::Settings
 
 #endif // SETTINGS_HPP

@@ -17,8 +17,10 @@
 #define NOTE_COLUMN_RENDERER_HPP
 
 #include <QColor>
+#include <QList>
 #include <QPointer>
 #include <QQuickPaintedItem>
+#include <QVariantList>
 
 class QAbstractListModel;
 
@@ -39,6 +41,9 @@ class NoteColumnRenderer : public QQuickPaintedItem
     Q_PROPERTY(QColor textColor READ textColor WRITE setTextColor NOTIFY textColorChanged)
     Q_PROPERTY(QColor textColorEmpty READ textColorEmpty WRITE setTextColorEmpty NOTIFY textColorEmptyChanged)
     Q_PROPERTY(QColor textColorGhost READ textColorGhost WRITE setTextColorGhost NOTIFY textColorGhostChanged)
+    //! Colours the automation curves cycle through, so several automations on one column stay apart.
+    Q_PROPERTY(QVariantList automationCurveColors READ automationCurveColors WRITE setAutomationCurveColors NOTIFY automationCurveColorsChanged)
+    Q_PROPERTY(QColor automationCurveCenterLineColor READ automationCurveCenterLineColor WRITE setAutomationCurveCenterLineColor NOTIFY automationCurveCenterLineColorChanged)
 
 public:
     explicit NoteColumnRenderer(QQuickItem * parent = nullptr);
@@ -70,6 +75,12 @@ public:
     QColor textColorGhost() const;
     void setTextColorGhost(const QColor & textColorGhost);
 
+    QVariantList automationCurveColors() const;
+    void setAutomationCurveColors(const QVariantList & automationCurveColors);
+
+    QColor automationCurveCenterLineColor() const;
+    void setAutomationCurveCenterLineColor(const QColor & automationCurveCenterLineColor);
+
     void paint(QPainter * painter) override;
 
 signals:
@@ -82,6 +93,8 @@ signals:
     void textColorChanged();
     void textColorEmptyChanged();
     void textColorGhostChanged();
+    void automationCurveColorsChanged();
+    void automationCurveCenterLineColorChanged();
 
 private:
     QPointer<QAbstractListModel> m_model { nullptr };
@@ -93,6 +106,8 @@ private:
     QColor m_textColor { "#ffffff" };
     QColor m_textColorEmpty { "#888888" };
     QColor m_textColorGhost { "#444444" };
+    QList<QColor> m_automationCurveColors;
+    QColor m_automationCurveCenterLineColor { "#808080" };
 
     void paintAutomationCurves(QPainter * painter, int startRow, int endRow, qreal rowHeight);
 

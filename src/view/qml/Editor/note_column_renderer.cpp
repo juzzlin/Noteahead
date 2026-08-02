@@ -16,7 +16,6 @@
 #include "note_column_renderer.hpp"
 
 #include "../../../application/models/note_column_model.hpp"
-#include "../../../application/service/theme_service.hpp"
 #include "../../../common/constants.hpp"
 
 #include <QAbstractListModel>
@@ -169,6 +168,42 @@ void NoteColumnRenderer::setTextColorGhost(const QColor & textColorGhost)
     }
 }
 
+QVariantList NoteColumnRenderer::automationCurveColors() const
+{
+    QVariantList colors;
+    for (auto && color : m_automationCurveColors) {
+        colors.append(color);
+    }
+    return colors;
+}
+
+void NoteColumnRenderer::setAutomationCurveColors(const QVariantList & automationCurveColors)
+{
+    QList<QColor> colors;
+    for (auto && color : automationCurveColors) {
+        colors.append(qvariant_cast<QColor>(color));
+    }
+    if (m_automationCurveColors != colors) {
+        m_automationCurveColors = colors;
+        emit automationCurveColorsChanged();
+        update();
+    }
+}
+
+QColor NoteColumnRenderer::automationCurveCenterLineColor() const
+{
+    return m_automationCurveCenterLineColor;
+}
+
+void NoteColumnRenderer::setAutomationCurveCenterLineColor(const QColor & automationCurveCenterLineColor)
+{
+    if (m_automationCurveCenterLineColor != automationCurveCenterLineColor) {
+        m_automationCurveCenterLineColor = automationCurveCenterLineColor;
+        emit automationCurveCenterLineColorChanged();
+        update();
+    }
+}
+
 void NoteColumnRenderer::updateRows(int firstRow, int lastRow)
 {
     // No row geometry to clip against yet: fall back to repainting everything
@@ -208,11 +243,14 @@ void NoteColumnRenderer::paintAutomationCurves(QPainter * painter, int startRow,
     const auto valueX = [&](double value) { return margin + value * usableWidth; };
     const auto rowY = [&](int row) { return (static_cast<double>(row) - m_scrollOffset + 0.5) * rowHeight; };
 
-    const auto palette = ThemeService::automationCurveColorList();
+    const auto & palette = m_automationCurveColors;
+    if (palette.isEmpty()) {
+        return;
+    }
 
     // Pitch bend swings around a centre the eye needs to find, so mark it once behind the traces
     if (std::ranges::any_of(curves, [](auto && curve) { return curve.isPitchBend; })) {
-        QColor centerColor { "#808080" };
+        QColor centerColor = m_automationCurveCenterLineColor;
         centerColor.setAlphaF(0.35);
         painter->setPen(QPen { centerColor, 1.0, Qt::DashLine });
         painter->drawLine(QPointF(valueX(0.5), 0.0), QPointF(valueX(0.5), height()));

@@ -32,6 +32,18 @@ private slots:
     void test_cursorColor_setter_shouldUpdateGetterAndEmitSignal();
     void test_cursorColor_sameValue_shouldNotEmitSignal();
     void test_cursorColor_setter_shouldPersistAcrossInstances();
+
+    void test_paletteAccentBlend_setter_shouldUpdateGetterAndEmitSignals();
+    void test_paletteAccentBlend_outOfRange_shouldBeClamped();
+    void test_paletteAccentBlend_setter_shouldPersistAcrossInstances();
+
+    void test_trackHeaderTextColors_zeroBlend_shouldReturnTheOriginalPalette();
+    void test_trackHeaderTextColors_fullBlend_shouldShareTheAccentHue();
+    void test_trackHeaderTextColors_blended_shouldBeUnique();
+    void test_trackHeaderTextColors_fullBlend_shouldBeLegibleOnBlack();
+
+    void test_automationCurveColors_zeroBlend_shouldReturnTheOriginalPalette();
+    void test_automationCurveColors_fullBlend_shouldBeUniqueAndLegible();
 };
 
 } // namespace noteahead
