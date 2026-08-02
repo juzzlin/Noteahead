@@ -10,10 +10,12 @@ Menu {
         text: qsTr("Delay time calculator")
         onTriggered: UiService.requestDelayCalculatorDialog()
     }
+    MenuSeparator {}
     Action {
         text: qsTr("Note frequencies")
         onTriggered: UiService.requestNoteFrequencyDialog()
     }
+    MenuSeparator {}
     Action {
         text: qsTr("Gain converter")
         onTriggered: UiService.requestGainConverterDialog()

@@ -3,13 +3,21 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Dialogs
 import QtQuick.Layouts
+import ".."
 
 AnimatedDialog {
     id: rootItem
     title: qsTr("Keyboard Shortcuts")
     modal: true
-    standardButtons: DialogButtonBox.Ok
     visible: false
+
+    footer: DialogButtonBox {
+        Button {
+            text: qsTr("Ok")
+            implicitWidth: Constants.defaultButtonWidth
+            DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
+        }
+    }
     readonly property var shortcuts: [
         // --- Basic Controls ---
         {

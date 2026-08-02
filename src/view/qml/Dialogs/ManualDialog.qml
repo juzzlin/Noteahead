@@ -2,13 +2,21 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import Noteahead 1.0
+import ".."
 
 AnimatedDialog {
     id: rootItem
     title: qsTr("User Manual")
     modal: true
-    standardButtons: DialogButtonBox.Ok
     visible: false
+
+    footer: DialogButtonBox {
+        Button {
+            text: qsTr("Ok")
+            implicitWidth: Constants.defaultButtonWidth
+            DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
+        }
+    }
 
     Flickable {
         id: scrollView

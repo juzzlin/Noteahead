@@ -10,10 +10,12 @@ Menu {
         text: qsTr("About")
         onTriggered: UiService.requestAboutDialog()
     }
+    MenuSeparator {}
     Action {
-        text: qsTr("Manual")
+        text: qsTr("User Manual")
         onTriggered: UiService.requestManualDialog()
     }
+    MenuSeparator {}
     Action {
         text: qsTr("Shortcuts")
         onTriggered: UiService.requestShortcutsDialog()
