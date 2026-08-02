@@ -8,6 +8,9 @@ New features:
 * Add Help => What's New
   - Shows the bundled CHANGELOG from the latest release onwards
 
+* Make the automation curve thickness configurable
+  - Settings => General => Editor => "Automation line thickness"
+
 Bug fixes:
 
 6.0.0

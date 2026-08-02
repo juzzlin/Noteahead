@@ -46,6 +46,8 @@ class SettingsService : public QObject
     Q_PROPERTY(int gainStagingTargetDb READ gainStagingTargetDb WRITE setGainStagingTargetDb NOTIFY gainStagingTargetDbChanged)
     //! How automations are drawn over the tracker lines. See Constants::AutomationDisplayMode.
     Q_PROPERTY(int automationDisplayMode READ automationDisplayMode WRITE setAutomationDisplayMode NOTIFY automationDisplayModeChanged)
+    //! Width of a drawn automation curve, in tenths of a pixel.
+    Q_PROPERTY(int automationCurveThicknessTenths READ automationCurveThicknessTenths WRITE setAutomationCurveThicknessTenths NOTIFY automationCurveThicknessTenthsChanged)
 
 public:
     SettingsService();
@@ -123,6 +125,9 @@ public:
     virtual Q_INVOKABLE int automationDisplayMode() const;
     virtual Q_INVOKABLE void setAutomationDisplayMode(int mode);
 
+    virtual Q_INVOKABLE int automationCurveThicknessTenths() const;
+    virtual Q_INVOKABLE void setAutomationCurveThicknessTenths(int tenths);
+
 signals:
     void controllerPortChanged();
     void uiUpdatesDisabledDuringPlaybackChanged();
@@ -142,6 +147,7 @@ signals:
     void playbackOversampleFactorChanged();
     void gainStagingTargetDbChanged();
     void automationDisplayModeChanged();
+    void automationCurveThicknessTenthsChanged();
 
 private:
     int m_autoNoteOffOffset;
@@ -175,6 +181,7 @@ private:
     int m_playbackOversampleFactor;
     int m_gainStagingTargetDb;
     int m_automationDisplayMode;
+    int m_automationCurveThicknessTenths;
 };
 
 } // namespace noteahead

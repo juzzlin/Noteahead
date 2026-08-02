@@ -15,7 +15,7 @@ GroupBox {
             Layout.fillWidth: true
             GridLayout {
                 columns: 9
-                rows: 4
+                rows: 5
                 width: parent.width
                 Label {
                     text: qsTr("Number of lines visible:")
@@ -105,6 +105,39 @@ GroupBox {
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Tint colours each automated line by its value. Curve draws every automation on the column as its own vertical trace, value running left to right.")
+                }
+                Label {
+                    text: qsTr("Automation line thickness:")
+                    Layout.column: 0
+                    Layout.columnSpan: 2
+                    Layout.row: 4
+                    Layout.fillWidth: true
+                }
+                SpinBox {
+                    id: automationCurveThicknessSpinBox
+                    Layout.column: 4
+                    Layout.columnSpan: 5
+                    Layout.row: 4
+                    Layout.fillWidth: true
+                    // Tenths of a pixel: the useful range is finer than a whole pixel
+                    from: 5
+                    to: 50
+                    stepSize: 5
+                    editable: true
+                    enabled: settingsService.automationDisplayMode === 1
+                    value: settingsService.automationCurveThicknessTenths
+                    onValueModified: settingsService.automationCurveThicknessTenths = value
+                    textFromValue: function (value, locale) {
+                        return Number(value / 10).toLocaleString(locale, 'f', 1);
+                    }
+                    valueFromText: function (text, locale) {
+                        return Number.fromLocaleString(locale, text) * 10;
+                    }
+                    Keys.onReturnPressed: focus = false
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Width of a drawn automation curve, in pixels")
                 }
             }
         }

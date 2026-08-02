@@ -112,6 +112,13 @@ constexpr int defaultAutomationDisplayMode()
     return static_cast<int>(AutomationDisplayMode::Curve);
 }
 
+//! Width of an automation curve in the tracker, in tenths of a pixel. Stored as tenths because the
+//! useful range is finer than a whole pixel, matching how the render settings store their level.
+constexpr int defaultAutomationCurveThicknessTenths()
+{
+    return 15;
+}
+
 constexpr float faderUnityPosition()
 {
     return 0.75f;

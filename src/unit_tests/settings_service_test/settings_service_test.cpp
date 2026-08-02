@@ -16,6 +16,7 @@
 #include "settings_service_test.hpp"
 
 #include "../../application/service/settings_service.hpp"
+#include "../../common/constants.hpp"
 #include "../../infra/settings.hpp"
 
 #include <QSettings>
@@ -148,6 +149,8 @@ void SettingsServiceTest::test_setters_shouldPersistAcrossInstances()
         settingsService.setTrackHeaderFontSize(18);
         settingsService.setAutoNoteOffOffset(125);
         settingsService.setGainStagingTargetDb(-20);
+        settingsService.setAutomationDisplayMode(static_cast<int>(Constants::AutomationDisplayMode::Tint));
+        settingsService.setAutomationCurveThicknessTenths(25);
     }
 
     SettingsService reloadedSettingsService;
@@ -157,6 +160,8 @@ void SettingsServiceTest::test_setters_shouldPersistAcrossInstances()
     QCOMPARE(reloadedSettingsService.trackHeaderFontSize(), 18);
     QCOMPARE(reloadedSettingsService.autoNoteOffOffset(), 125);
     QCOMPARE(reloadedSettingsService.gainStagingTargetDb(), -20);
+    QCOMPARE(reloadedSettingsService.automationDisplayMode(), static_cast<int>(Constants::AutomationDisplayMode::Tint));
+    QCOMPARE(reloadedSettingsService.automationCurveThicknessTenths(), 25);
 }
 
 } // namespace noteahead

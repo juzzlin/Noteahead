@@ -104,6 +104,9 @@ int playbackOversampleFactor();
 
 int automationDisplayMode(int defaultAutomationDisplayMode);
 void setAutomationDisplayMode(int mode);
+
+int automationCurveThicknessTenths(int defaultAutomationCurveThicknessTenths);
+void setAutomationCurveThicknessTenths(int tenths);
 void setPlaybackOversampleFactor(int factor);
 
 int gainStagingTargetDb(int defaultGainStagingTargetDb);

@@ -97,6 +97,20 @@ void NoteColumnRenderer::setAutomationDisplayMode(int mode)
     }
 }
 
+int NoteColumnRenderer::automationCurveThicknessTenths() const
+{
+    return m_automationCurveThicknessTenths;
+}
+
+void NoteColumnRenderer::setAutomationCurveThicknessTenths(int tenths)
+{
+    if (m_automationCurveThicknessTenths != tenths) {
+        m_automationCurveThicknessTenths = tenths;
+        emit automationCurveThicknessTenthsChanged();
+        update();
+    }
+}
+
 void NoteColumnRenderer::paintAutomationCurves(QPainter * painter, int startRow, int endRow, qreal rowHeight)
 {
     const auto model = qobject_cast<NoteColumnModel *>(m_model.data());
@@ -131,7 +145,7 @@ void NoteColumnRenderer::paintAutomationCurves(QPainter * painter, int startRow,
         const auto & curve = curves.at(curveIndex);
         QColor color = palette.at(static_cast<int>(curveIndex % static_cast<size_t>(palette.size())));
         color.setAlphaF(0.75);
-        painter->setPen(QPen { color, 1.5 });
+        painter->setPen(QPen { color, static_cast<double>(m_automationCurveThicknessTenths) / 10.0 });
 
         // Broken into runs, so a gap where the automation does not reach is a gap on screen too
         QPolygonF run;

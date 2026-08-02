@@ -49,6 +49,7 @@ SettingsService::SettingsService()
   , m_playbackOversampleFactor { Settings::playbackOversampleFactor() }
   , m_gainStagingTargetDb { Settings::gainStagingTargetDb(Constants::defaultGainStagingTargetDb()) }
   , m_automationDisplayMode { Settings::automationDisplayMode(Constants::defaultAutomationDisplayMode()) }
+  , m_automationCurveThicknessTenths { Settings::automationCurveThicknessTenths(Constants::defaultAutomationCurveThicknessTenths()) }
 {
     // An invalid size means nothing has been stored yet, in which case the caller's default wins
     if (const auto storedWindowSize = Settings::windowSize(QSize {}); storedWindowSize.isValid()) {
@@ -383,6 +384,20 @@ void SettingsService::setAutomationDisplayMode(int mode)
         m_automationDisplayMode = mode;
         Settings::setAutomationDisplayMode(mode);
         emit automationDisplayModeChanged();
+    }
+}
+
+int SettingsService::automationCurveThicknessTenths() const
+{
+    return m_automationCurveThicknessTenths;
+}
+
+void SettingsService::setAutomationCurveThicknessTenths(int tenths)
+{
+    if (m_automationCurveThicknessTenths != tenths) {
+        m_automationCurveThicknessTenths = tenths;
+        Settings::setAutomationCurveThicknessTenths(tenths);
+        emit automationCurveThicknessTenthsChanged();
     }
 }
 

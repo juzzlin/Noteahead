@@ -74,6 +74,7 @@ Item {
             anchors.fill: parent
             visibleLines: settingsService.visibleLines
             automationDisplayMode: settingsService.automationDisplayMode
+            automationCurveThicknessTenths: settingsService.automationCurveThicknessTenths
         }
     }
     VolumeMeter {
