@@ -28,6 +28,9 @@ private slots:
     void initTestCase();
     void test_initialState_shouldBeCorrect();
     void test_applicationProperties_shouldMatchConstants();
+    void test_stripUnreleasedSection_shouldStartAtTheFirstRelease();
+    void test_stripUnreleasedSection_versionInsideText_shouldNotCut();
+    void test_stripUnreleasedSection_nothingReleased_shouldBeEmpty();
     void test_editMode_shouldToggleCorrectly();
     void test_recentFiles_shouldBeManagedCorrectly();
     void test_stateMachineInteractions_shouldTriggerCorrectActions();

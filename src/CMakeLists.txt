@@ -154,6 +154,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiEffects.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_TimingSettings.qml
     ${QML_BASE_DIR}/Dialogs/UnsavedChangesDialog.qml
+    ${QML_BASE_DIR}/Dialogs/WhatsNewDialog.qml
     ${QML_BASE_DIR}/Dialogs/VintagePassiveEqDialog.qml
     ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog.qml
     ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_AmpEg.qml
@@ -220,6 +221,11 @@ set(QML_SOURCE_FILES
 
 set(HTML_SOURCE_FILES ${QML_BASE_DIR}/Manual.html)
 
+# The CHANGELOG lives at the repo root, so it needs an explicit alias: Qt would otherwise derive the
+# resource path from where the file sits relative to the QML module.
+set(CHANGELOG_FILE ${CMAKE_SOURCE_DIR}/CHANGELOG)
+set_source_files_properties(${CHANGELOG_FILE} PROPERTIES QT_RESOURCE_ALIAS CHANGELOG)
+
 set(PNG_SOURCE_FILES
     ${QML_BASE_DIR}/Graphics/add_box.png
     ${QML_BASE_DIR}/Graphics/alert.png
@@ -241,7 +247,7 @@ qt_add_qml_module(${BINARY_NAME}
     VERSION 1.0
     URI ${URI}
     QML_FILES ${QML_SOURCE_FILES}
-    RESOURCES ${PNG_SOURCE_FILES} ${HTML_SOURCE_FILES}
+    RESOURCES ${PNG_SOURCE_FILES} ${HTML_SOURCE_FILES} ${CHANGELOG_FILE}
 )
 
 set(ApplicationLibName "ApplicationLib")

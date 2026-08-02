@@ -63,6 +63,14 @@ public:
     Q_INVOKABLE QString midiFileExtension() const;
     Q_INVOKABLE bool isMidiFile(const QString & filePath) const;
     Q_INVOKABLE QString license() const;
+
+    //! The bundled CHANGELOG from the first released version onwards.
+    //!
+    //! The unreleased section on top is what the maintainer is still working on, so it is stripped:
+    //! What's New is about what shipped. Empty when nothing has been released yet.
+    Q_INVOKABLE QString changeLog() const;
+    //! Exposed for testing the stripping rule without going through the bundled resource.
+    static QString stripUnreleasedSection(const QString & changeLog);
     Q_INVOKABLE QString webSiteUrl() const;
     Q_INVOKABLE QString samplerDeviceName() const;
     Q_INVOKABLE QString synthDeviceName() const;

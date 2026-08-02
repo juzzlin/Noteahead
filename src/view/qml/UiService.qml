@@ -57,6 +57,7 @@ QtObject {
     signal settingsDialogRequested
     signal songSettingsDialogRequested
     signal shortcutsDialogRequested
+    signal whatsNewDialogRequested
     signal trackSettingsDialogRequested(int trackIndex)
     signal trackVelocityInterpolationDialogRequested
     signal trackVelocityScaleDialogRequested(int trackIndex)
@@ -140,6 +141,9 @@ QtObject {
     }
     function requestShortcutsDialog(): void {
         shortcutsDialogRequested();
+    }
+    function requestWhatsNewDialog(): void {
+        whatsNewDialogRequested();
     }
     function requestDelayCalculatorDialog(): void {
         delayCalculatorDialogRequested();

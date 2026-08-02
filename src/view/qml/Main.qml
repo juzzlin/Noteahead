@@ -542,6 +542,12 @@ ApplicationWindow {
         width: parent.width * Constants.defaultDialogScale
         height: parent.height * Constants.defaultDialogScale
     }
+    WhatsNewDialog {
+        id: whatsNewDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
+    }
     UnsavedChangesDialog {
         id: unsavedChangesDialog
         anchors.centerIn: parent
@@ -746,6 +752,7 @@ ApplicationWindow {
     function _connectUiService(): void {
         UiService.aboutDialogRequested.connect(aboutDialog.open);
         UiService.manualDialogRequested.connect(manualDialog.open);
+        UiService.whatsNewDialogRequested.connect(whatsNewDialog.open);
         UiService.shortcutsDialogRequested.connect(shortcutsDialog.open);
         UiService.eventSelectionDialogRequested.connect(() => {
             eventSelectionDialog.requestData();

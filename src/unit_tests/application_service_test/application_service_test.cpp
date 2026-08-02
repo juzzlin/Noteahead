@@ -151,6 +151,70 @@ void ApplicationServiceTest::test_applicationProperties_shouldMatchConstants()
     QCOMPARE(service.webSiteUrl(), Constants::webSiteUrl());
 }
 
+void ApplicationServiceTest::test_stripUnreleasedSection_shouldStartAtTheFirstRelease()
+{
+    const QString changeLog {
+        "x.y.z\n"
+        "=====\n"
+        "\n"
+        "New features:\n"
+        "\n"
+        "* Something still in progress\n"
+        "\n"
+        "6.0.0\n"
+        "=====\n"
+        "\n"
+        "Release date:\n"
+        "\n"
+        "* Something that shipped\n"
+    };
+
+    const auto stripped = ApplicationService::stripUnreleasedSection(changeLog);
+
+    // What's New is about what shipped, so the section still being worked on is dropped
+    QVERIFY(!stripped.contains("x.y.z"));
+    QVERIFY(!stripped.contains("Something still in progress"));
+    QVERIFY(stripped.startsWith("6.0.0\n=====\n"));
+    QVERIFY(stripped.contains("Something that shipped"));
+}
+
+void ApplicationServiceTest::test_stripUnreleasedSection_versionInsideText_shouldNotCut()
+{
+    const QString changeLog {
+        "x.y.z\n"
+        "=====\n"
+        "\n"
+        "* Fix a thing that broke in 5.0.0\n"
+        "  - 1.2.3\n"
+        "\n"
+        "6.0.0\n"
+        "=====\n"
+        "\n"
+        "* Shipped\n"
+    };
+
+    // A version has to be a heading, i.e. underlined, before it counts. Matching the bare number
+    // would cut the file at the bullet above.
+    const auto stripped = ApplicationService::stripUnreleasedSection(changeLog);
+
+    QVERIFY(stripped.startsWith("6.0.0\n"));
+    QVERIFY(!stripped.contains("broke in 5.0.0"));
+}
+
+void ApplicationServiceTest::test_stripUnreleasedSection_nothingReleased_shouldBeEmpty()
+{
+    const QString changeLog {
+        "x.y.z\n"
+        "=====\n"
+        "\n"
+        "* The very first release is not out yet\n"
+    };
+
+    // Better to say there is nothing to show than to present unreleased work as shipped
+    QVERIFY(ApplicationService::stripUnreleasedSection(changeLog).isEmpty());
+    QVERIFY(ApplicationService::stripUnreleasedSection({}).isEmpty());
+}
+
 void ApplicationServiceTest::test_editMode_shouldToggleCorrectly()
 {
     ApplicationService service;

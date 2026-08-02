@@ -20,5 +20,10 @@ Menu {
         text: qsTr("Shortcuts")
         onTriggered: UiService.requestShortcutsDialog()
     }
+    MenuSeparator {}
+    Action {
+        text: qsTr("What's New")
+        onTriggered: UiService.requestWhatsNewDialog()
+    }
     delegate: MenuItemDelegate {}
 }

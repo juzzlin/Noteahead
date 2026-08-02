@@ -27,7 +27,9 @@
 #include "recent_files_manager.hpp"
 
 #include <QDateTime>
+#include <QFile>
 #include <QFileInfo>
+#include <QRegularExpression>
 
 namespace noteahead {
 
@@ -57,6 +59,38 @@ QString ApplicationService::copyright() const
 QString ApplicationService::license() const
 {
     return Constants::license();
+}
+
+QString ApplicationService::stripUnreleasedSection(const QString & changeLog)
+{
+    // A heading is a bare version on its own line with an underline beneath it. Matching on the
+    // pair rather than the version alone keeps a version mentioned inside a bullet from cutting the
+    // file in the wrong place.
+    static const QRegularExpression versionHeading { "^\\d+\\.\\d+\\.\\d+$" };
+
+    const auto lines = changeLog.split(QChar { '\n' });
+    for (qsizetype i = 0; i + 1 < lines.size(); i++) {
+        if (versionHeading.match(lines.at(i)).hasMatch() && lines.at(i + 1).startsWith("=====")) {
+            return lines.mid(i).join(QChar { '\n' });
+        }
+    }
+
+    return {};
+}
+
+QString ApplicationService::changeLog() const
+{
+    // Read once: the file is bundled, so it cannot change under a running application
+    static const QString changeLog = [] {
+        QFile file { ":/noteahead/CHANGELOG" };
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            juzzlin::L(TAG).error() << "Couldn't open the bundled CHANGELOG";
+            return QString {};
+        }
+        return stripUnreleasedSection(QString::fromUtf8(file.readAll()));
+    }();
+
+    return changeLog;
 }
 
 QString ApplicationService::deviceSettingsExtension() const
