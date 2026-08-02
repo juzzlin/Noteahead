@@ -56,8 +56,10 @@ A short synth demo:
 
 - [Noteahead Synth Demo 1: I So Threw Up That Day (SoundCloud)](https://soundcloud.com/arctic-music-project/noteahead-synth-demo-1)
 
-A song with Noteahead's built-in synths and drums only:
+Songs with Noteahead's built-in synths and drums only:
 
+- [Arctic Music Project - Halla Once More (SoundCloud)](https://soundcloud.com/arctic-music-project/halla-once-more)
+- [Arctic Music Project - Fairytale (SoundCloud)](https://soundcloud.com/arctic-music-project/fairytale)
 - [Arctic Music Project - Massive (SoundCloud)](https://soundcloud.com/arctic-music-project/massive)
 
 Noteahead with hardware synths:

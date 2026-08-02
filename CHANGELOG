@@ -5,44 +5,16 @@ Release date:
 
 New features:
 
-* Add Help => What's New
-  - Shows the bundled CHANGELOG from the latest release onwards
-
-* Make the automation curve thickness configurable
-  - Settings => General => Editor => "Automation line thickness"
-
-* Make the edit cursor color configurable
-  - Settings => Theme => Colors => "Cursor color"
-
-* Add Settings and Master effect rack to the Song context menu
-
-* Mark every menu action that opens a dialog with an ellipsis
-
-* Add a table of contents to the user manual
-  - Sections are listed in a sidebar and clicking one scrolls the manual
-  - Cross references inside the text jump to their section
-  - The manual now follows the theme accent instead of a fixed orange
-
-* Blend the track and automation colors towards the accent color
-  - Settings => Theme => Colors => "Accent blend"
-  - 0 % is the original palette, 100 % puts every color on the accent hue
-
-* Redraw the track and column velocity scales in the accent color
-  - Flat and gray at 100 %, so only scaled tracks and columns stand out
-  - The tooltip now states the current value
-
 Bug fixes:
 
-* Remove the empty space above the first main context menu item
-
-* Honor the theme colors in the tracker columns again
+Other:
 
 6.0.0
 =====
 
 Release date:
 
-Sat, 01 Aug 2026 15:06:29 +0300
+Sun, 02 Aug 2026 20:54:17 +0300
 
 New features:
 
@@ -154,6 +126,32 @@ New features:
     so a sine modulation reads as a sine
   - Settings => General => Editor => "Automation display" switches back to Tint
 
+* Add Help => What's New
+  - Shows the bundled CHANGELOG from the latest release onwards
+
+* Make the automation curve thickness configurable
+  - Settings => General => Editor => "Automation line thickness"
+
+* Make the edit cursor color configurable
+  - Settings => Theme => Colors => "Cursor color"
+
+* Add Settings and Master effect rack to the Song context menu
+
+* Mark every menu action that opens a dialog with an ellipsis
+
+* Add a table of contents to the user manual
+  - Sections are listed in a sidebar and clicking one scrolls the manual
+  - Cross references inside the text jump to their section
+  - The manual now follows the theme accent instead of a fixed orange
+
+* Blend the track and automation colors towards the accent color
+  - Settings => Theme => Colors => "Accent blend"
+  - 0 % is the original palette, 100 % puts every color on the accent hue
+
+* Redraw the track and column velocity scales in the accent color
+  - Flat and gray at 100 %, so only scaled tracks and columns stand out
+  - The tooltip now states the current value
+
 Bug fixes:
 
 * Fix a stutter on the first play
@@ -203,6 +201,8 @@ Bug fixes:
   - Every MIDI CC event reset the Device Rack model and rebuilt the port lists
 
 * Fix playing a song with automations marking it as modified
+
+* Remove the empty space above the first main context menu item
 
 Other:
 
