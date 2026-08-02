@@ -115,6 +115,9 @@ void setGainStagingTargetDb(int gainStagingTargetDb);
 QColor accentColor(QColor defaultAccentColor);
 void setAccentColor(QColor accentColor);
 
+QColor cursorColor(QColor defaultCursorColor);
+void setCursorColor(QColor cursorColor);
+
 } // namespace noteahead::Settings
 
 #endif // SETTINGS_HPP

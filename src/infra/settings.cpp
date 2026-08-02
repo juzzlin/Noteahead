@@ -62,6 +62,7 @@ const auto visibleLinesKey = "visibleLines";
 const auto windowSizeKey = "size";
 
 const auto accentColorKey = "accentColor";
+const auto cursorColorKey = "cursorColor";
 
 AudioBackend audioBackend()
 {
@@ -579,6 +580,23 @@ void setAccentColor(QColor accentColor)
     QSettings settings;
     settings.beginGroup(settingsGroupTheme);
     settings.setValue(accentColorKey, accentColor);
+    settings.endGroup();
+}
+
+QColor cursorColor(QColor defaultCursorColor)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupTheme);
+    const auto color = settings.value(cursorColorKey, defaultCursorColor).value<QColor>();
+    settings.endGroup();
+    return color;
+}
+
+void setCursorColor(QColor cursorColor)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupTheme);
+    settings.setValue(cursorColorKey, cursorColor);
     settings.endGroup();
 }
 

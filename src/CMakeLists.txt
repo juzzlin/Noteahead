@@ -170,12 +170,9 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Tab2.qml
     ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Tab3.qml
     ${QML_BASE_DIR}/Editor/AudioWaveView.qml
-    ${QML_BASE_DIR}/Editor/Cursor.qml
     ${QML_BASE_DIR}/Editor/EditorView.qml
-    ${QML_BASE_DIR}/Editor/IndexHighlight.qml
     ${QML_BASE_DIR}/Editor/KeyboardHandler.qml
     ${QML_BASE_DIR}/Editor/LineNumberColumn.qml
-    ${QML_BASE_DIR}/Editor/LineNumberDelegate.qml
     ${QML_BASE_DIR}/Editor/MainContextMenu.qml
     ${QML_BASE_DIR}/Editor/MainContextMenu_Column.qml
     ${QML_BASE_DIR}/Editor/MainContextMenu_Line.qml
@@ -188,7 +185,6 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Editor/NoteColumn.qml
     ${QML_BASE_DIR}/Editor/NoteColumnHeader.qml
     ${QML_BASE_DIR}/Editor/NoteColumn_LineContainer.qml
-    ${QML_BASE_DIR}/Editor/NoteColumn_LineDelegate.qml
     ${QML_BASE_DIR}/Editor/Pattern.qml
     ${QML_BASE_DIR}/Editor/PositionBar.qml
     ${QML_BASE_DIR}/Editor/SongView.qml

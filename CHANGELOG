@@ -11,7 +11,12 @@ New features:
 * Make the automation curve thickness configurable
   - Settings => General => Editor => "Automation line thickness"
 
+* Make the edit cursor color configurable
+  - Settings => Theme => Colors => "Cursor color"
+
 Bug fixes:
+
+* Honor the theme colors in the tracker columns again
 
 6.0.0
 =====

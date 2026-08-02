@@ -29,6 +29,9 @@ class ThemeService : public QObject
     Q_PROPERTY(QColor accentColor READ accentColor WRITE setAccentColor NOTIFY accentColorChanged)
     Q_PROPERTY(QColor accentTextColor READ accentTextColor NOTIFY accentColorChanged)
 
+    //! Hue of the edit cursor. The renderer draws it half-transparent, so the note under it stays readable.
+    Q_PROPERTY(QColor cursorColor READ cursorColor WRITE setCursorColor NOTIFY cursorColorChanged)
+
     Q_PROPERTY(QColor lineNumberColumnBackgroundColor READ lineNumberColumnBackgroundColor CONSTANT)
     Q_PROPERTY(QColor lineNumberColumnBorderColor READ lineNumberColumnBorderColor CONSTANT)
     Q_PROPERTY(QColor lineNumberColumnCellBackgroundColor READ lineNumberColumnCellBackgroundColor CONSTANT)
@@ -48,6 +51,8 @@ class ThemeService : public QObject
     Q_PROPERTY(QColor automationCurveCenterLineColor READ automationCurveCenterLineColor CONSTANT)
     Q_PROPERTY(QColor noteColumnTextColor READ noteColumnTextColor CONSTANT)
     Q_PROPERTY(QColor noteColumnTextColorEmpty READ noteColumnTextColorEmpty CONSTANT)
+    //! Dim gray, so a neighboring pattern peeked in the offset area reads as a subordinate glimpse.
+    Q_PROPERTY(QColor noteColumnTextColorGhost READ noteColumnTextColorGhost CONSTANT)
     Q_PROPERTY(QColor positionBarBorderColor READ positionBarBorderColor CONSTANT)
     Q_PROPERTY(QColor positionBarBorderColorEditMode READ positionBarBorderColorEditMode CONSTANT)
     Q_PROPERTY(QColor progressBarBackgroundColor READ progressBarBackgroundColor CONSTANT)
@@ -66,6 +71,11 @@ public:
     void setAccentColor(const QColor & accentColor);
 
     QColor accentTextColor() const;
+
+    QColor cursorColor() const;
+    void setCursorColor(const QColor & cursorColor);
+
+    static QColor defaultCursorColor();
 
     //! Returns a legible text color (near-black or white) for the given background,
     //! chosen from the background's perceived luminance.
@@ -90,6 +100,7 @@ public:
     QColor automationCurveCenterLineColor() const;
     QColor noteColumnTextColor() const;
     QColor noteColumnTextColorEmpty() const;
+    QColor noteColumnTextColorGhost() const;
     QColor positionBarBorderColor() const;
     QColor positionBarBorderColorEditMode() const;
     QColor progressBarBackgroundColor() const;
@@ -104,10 +115,12 @@ public:
 
 signals:
     void accentColorChanged();
+    void cursorColorChanged();
     void trackHeaderTextColorsChanged();
 
 private:
     QColor m_accentColor;
+    QColor m_cursorColor;
 };
 
 } // namespace noteahead

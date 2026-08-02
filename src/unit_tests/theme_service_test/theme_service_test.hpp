@@ -13,10 +13,27 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-import QtQuick 2.15
+#ifndef THEME_SERVICE_TEST_HPP
+#define THEME_SERVICE_TEST_HPP
 
-Rectangle {
-    color: "red"
-    opacity: 0.5
-    visible: false
-}
+#include <QObject>
+
+namespace noteahead {
+
+class ThemeServiceTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase();
+    void cleanupTestCase();
+
+    void test_cursorColor_unset_shouldReturnDefault();
+    void test_cursorColor_setter_shouldUpdateGetterAndEmitSignal();
+    void test_cursorColor_sameValue_shouldNotEmitSignal();
+    void test_cursorColor_setter_shouldPersistAcrossInstances();
+};
+
+} // namespace noteahead
+
+#endif // THEME_SERVICE_TEST_HPP

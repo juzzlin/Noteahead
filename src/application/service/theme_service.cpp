@@ -21,6 +21,7 @@ namespace noteahead {
 
 ThemeService::ThemeService()
   : m_accentColor { Settings::accentColor(QColor { "orange" }) }
+  , m_cursorColor { Settings::cursorColor(defaultCursorColor()) }
 {
 }
 
@@ -44,6 +45,25 @@ void ThemeService::setAccentColor(const QColor & accentColor)
 QColor ThemeService::accentTextColor() const
 {
     return contrastingTextColor(m_accentColor);
+}
+
+QColor ThemeService::defaultCursorColor()
+{
+    return QColor { "red" };
+}
+
+QColor ThemeService::cursorColor() const
+{
+    return m_cursorColor;
+}
+
+void ThemeService::setCursorColor(const QColor & cursorColor)
+{
+    if (m_cursorColor != cursorColor) {
+        m_cursorColor = cursorColor;
+        Settings::setCursorColor(m_cursorColor);
+        emit cursorColorChanged();
+    }
 }
 
 QColor ThemeService::contrastingTextColor(const QColor & background) const
@@ -159,6 +179,11 @@ QColor ThemeService::noteColumnTextColor() const
 QColor ThemeService::noteColumnTextColorEmpty() const
 {
     return QColor { "#888888" };
+}
+
+QColor ThemeService::noteColumnTextColorGhost() const
+{
+    return QColor { "#444444" };
 }
 
 QColor ThemeService::positionBarBorderColor() const

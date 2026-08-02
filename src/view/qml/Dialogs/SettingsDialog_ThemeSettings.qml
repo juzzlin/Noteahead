@@ -40,25 +40,66 @@ GroupBox {
                 font.bold: true
             }
 
+            // The group is already titled "Colors", so the labels only need to name the target.
+            // Equal preferred widths split the row into even cells, and centering the swatch in
+            // its cell puts the two boxes at 25% and 75% of the row regardless of label lengths.
             RowLayout {
-                spacing: 20
+                spacing: 10
                 width: parent.width
-                Label {
-                    text: qsTr("Accent color:")
+
+                Item {
                     Layout.fillWidth: true
-                    color: themeService.mainMenuTextColor
+                    Layout.preferredWidth: 0
+                    implicitHeight: Math.max(accentColorLabel.implicitHeight, accentColorPreview.height)
+                    Label {
+                        id: accentColorLabel
+                        text: qsTr("Accent:")
+                        color: themeService.mainMenuTextColor
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    Rectangle {
+                        id: accentColorPreview
+                        width: 40
+                        height: 20
+                        color: themeService.accentColor
+                        border.color: themeService.mainMenuTextColor
+                        border.width: 1
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.verticalCenter: parent.verticalCenter
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: accentColorDialog.open()
+                        }
+                    }
                 }
-                Rectangle {
-                    id: colorPreview
-                    width: 40
-                    height: 20
-                    color: themeService.accentColor
-                    border.color: themeService.mainMenuTextColor
-                    border.width: 1
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: colorDialog.open()
+
+                Item {
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 0
+                    implicitHeight: Math.max(cursorColorLabel.implicitHeight, cursorColorPreview.height)
+                    Label {
+                        id: cursorColorLabel
+                        text: qsTr("Cursor:")
+                        color: themeService.mainMenuTextColor
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    Rectangle {
+                        id: cursorColorPreview
+                        width: 40
+                        height: 20
+                        color: themeService.cursorColor
+                        border.color: themeService.mainMenuTextColor
+                        border.width: 1
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.verticalCenter: parent.verticalCenter
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: cursorColorDialog.open()
+                        }
                     }
                 }
             }
@@ -70,11 +111,20 @@ GroupBox {
     }
 
     ColorDialog {
-        id: colorDialog
+        id: accentColorDialog
         title: qsTr("Select Accent Color")
         selectedColor: themeService.accentColor
         onAccepted: {
             themeService.accentColor = selectedColor
+        }
+    }
+
+    ColorDialog {
+        id: cursorColorDialog
+        title: qsTr("Select Cursor Color")
+        selectedColor: themeService.cursorColor
+        onAccepted: {
+            themeService.cursorColor = selectedColor
         }
     }
 }

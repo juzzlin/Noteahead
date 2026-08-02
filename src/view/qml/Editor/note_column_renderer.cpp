@@ -45,7 +45,9 @@ void NoteColumnRenderer::setModel(QAbstractListModel * model)
         }
         m_model = model;
         if (m_model) {
-            connect(m_model, &QAbstractListModel::dataChanged, this, [this] { update(); });
+            connect(m_model, &QAbstractListModel::dataChanged, this, [this](const QModelIndex & topLeft, const QModelIndex & bottomRight) {
+                updateRows(topLeft.row(), bottomRight.row());
+            });
             connect(m_model, &QAbstractListModel::modelReset, this, [this] { update(); });
             connect(m_model, &QAbstractListModel::rowsInserted, this, [this] { update(); });
             connect(m_model, &QAbstractListModel::rowsRemoved, this, [this] { update(); });
@@ -109,6 +111,82 @@ void NoteColumnRenderer::setAutomationCurveThicknessTenths(int tenths)
         emit automationCurveThicknessTenthsChanged();
         update();
     }
+}
+
+QColor NoteColumnRenderer::cursorColor() const
+{
+    return m_cursorColor;
+}
+
+void NoteColumnRenderer::setCursorColor(const QColor & cursorColor)
+{
+    if (m_cursorColor != cursorColor) {
+        m_cursorColor = cursorColor;
+        emit cursorColorChanged();
+        update();
+    }
+}
+
+QColor NoteColumnRenderer::textColor() const
+{
+    return m_textColor;
+}
+
+void NoteColumnRenderer::setTextColor(const QColor & textColor)
+{
+    if (m_textColor != textColor) {
+        m_textColor = textColor;
+        emit textColorChanged();
+        update();
+    }
+}
+
+QColor NoteColumnRenderer::textColorEmpty() const
+{
+    return m_textColorEmpty;
+}
+
+void NoteColumnRenderer::setTextColorEmpty(const QColor & textColorEmpty)
+{
+    if (m_textColorEmpty != textColorEmpty) {
+        m_textColorEmpty = textColorEmpty;
+        emit textColorEmptyChanged();
+        update();
+    }
+}
+
+QColor NoteColumnRenderer::textColorGhost() const
+{
+    return m_textColorGhost;
+}
+
+void NoteColumnRenderer::setTextColorGhost(const QColor & textColorGhost)
+{
+    if (m_textColorGhost != textColorGhost) {
+        m_textColorGhost = textColorGhost;
+        emit textColorGhostChanged();
+        update();
+    }
+}
+
+void NoteColumnRenderer::updateRows(int firstRow, int lastRow)
+{
+    // No row geometry to clip against yet: fall back to repainting everything
+    if (m_visibleLines <= 0 || height() <= 0.0 || width() <= 0.0) {
+        update();
+        return;
+    }
+
+    if (firstRow > lastRow) {
+        std::swap(firstRow, lastRow);
+    }
+
+    // Automation curves are drawn as polylines between row centres, so a changed row also
+    // disturbs the segments reaching into its neighbors. Pad by one row on each side.
+    const qreal rowHeight = height() / m_visibleLines;
+    const qreal top = (firstRow - 1 - m_scrollOffset) * rowHeight;
+    const qreal bottom = (lastRow + 2 - m_scrollOffset) * rowHeight;
+    update(QRectF(0.0, top, width(), bottom - top).toAlignedRect());
 }
 
 void NoteColumnRenderer::paintAutomationCurves(QPainter * painter, int startRow, int endRow, qreal rowHeight)
@@ -205,14 +283,14 @@ void NoteColumnRenderer::paint(QPainter * painter)
         // Text
         const QString lineText = m_model->data(idx, static_cast<int>(NoteColumnModel::DataRole::Line)).toString();
         const QString noteText = m_model->data(idx, static_cast<int>(NoteColumnModel::DataRole::Note)).toString();
-        QColor textColor;
+        QColor rowTextColor;
         if (isGhostRow) {
-            textColor = QColor("#444444"); // Dim gray so the neighboring pattern reads as a subordinate glimpse
+            rowTextColor = m_textColorGhost; // Dim gray so the neighboring pattern reads as a subordinate glimpse
         } else {
-            textColor = (noteText != "" && noteText != "---") ? QColor("#ffffff") : QColor("#999999");
+            rowTextColor = (noteText != "" && noteText != "---") ? m_textColor : m_textColorEmpty;
         }
 
-        painter->setPen(textColor);
+        painter->setPen(rowTextColor);
         const qreal textY = y + (rowHeight + fm.ascent() - fm.descent()) / 2.0;
         painter->drawText(QPointF(textX, textY), lineText);
 
@@ -238,8 +316,8 @@ void NoteColumnRenderer::paint(QPainter * painter)
                 focusX = textX + (5 + lineColumn) * charWidth;
             }
 
-            QColor focusColor = QColor("red");
-            focusColor.setAlphaF(0.5);
+            QColor focusColor = m_cursorColor;
+            focusColor.setAlphaF(0.5); // Half-transparent, so the note under the cursor stays readable
             painter->fillRect(QRectF(focusX, y + (rowHeight - fm.height()) / 2.0, focusWidth, fm.height()), focusColor);
         }
     }

@@ -90,6 +90,10 @@ Item {
             visibleLines: settingsService.visibleLines
             automationDisplayMode: settingsService.automationDisplayMode
             automationCurveThicknessTenths: settingsService.automationCurveThicknessTenths
+            cursorColor: themeService.cursorColor
+            textColor: themeService.noteColumnTextColor
+            textColorEmpty: themeService.noteColumnTextColorEmpty
+            textColorGhost: themeService.noteColumnTextColorGhost
         }
     }
     VolumeMeter {
