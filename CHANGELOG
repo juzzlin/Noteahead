@@ -29,6 +29,8 @@ New features:
 
 Bug fixes:
 
+* Remove the empty space above the first main context menu item
+
 * Honor the theme colors in the tracker columns again
 
 6.0.0
