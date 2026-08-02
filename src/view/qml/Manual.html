@@ -1,20 +1,11 @@
-<style>
-    body {
-        font-size: 1.1em;
-        line-height: 1.4;
-    }
-    li {
-        margin-bottom: 8px;
-    }
-</style>
-<h1 style="color: orange; border-bottom: 2px solid orange;">Noteahead User Manual</h1>
+<h1>Noteahead User Manual</h1>
 <p>Noteahead is a "simple" MIDI tracker and sequencer for Linux focusing on ease of use. It is designed for fast, keyboard-driven sequencing of external synths and drum machines, with clear handling of patch changes, automation, and CCs — no cryptic hex values required.</p>
-<p>It also ships with a rack of internal instruments and studio-quality effects, so a whole song can be written, mixed and rendered to audio without leaving the application. See <em>Internal Devices</em> and <em>Effect Racks</em> below.</p>
+<p>It also ships with a rack of internal instruments and studio-quality effects, so a whole song can be written, mixed and rendered to audio without leaving the application. See <a href="#internal-devices">Internal Devices</a> and <a href="#effect-racks">Effect Racks</a> below.</p>
 
-<h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">The Toolbar</h2>
+<h2>The Toolbar</h2>
 <p>The toolbar at the top of the window provides essential controls for song structure, pattern editing, and global settings.</p>
 
-<h3 style="color: orange;">Song Section</h3>
+<h3>Song Section</h3>
 <ul>
     <li><strong>Player Controls</strong>: Play, Previous, Stop, and Loop buttons.</li>
     <li><strong>POS</strong>: The current position in the <strong>Song Play Order</strong> (0-indexed).</li>
@@ -24,30 +15,30 @@
     <li><strong>[+] / [-]</strong>: Insert or remove a position in the song play order.</li>
 </ul>
 
-<h3 style="color: orange;">Pattern Section</h3>
+<h3>Pattern Section</h3>
 <ul>
     <li><strong>Pattern Name</strong>: Click the orange text to rename the active pattern.</li>
     <li><strong>PAT</strong>: The <strong>Active Pattern Index</strong> being edited. You can switch between patterns here to work on different parts of your project.</li>
     <li><strong>LEN</strong>: The length of the <strong>current pattern</strong> in lines (e.g., 64). Each pattern can have a different length.</li>
 </ul>
 
-<h3 style="color: orange;">Edit Section</h3>
+<h3>Edit Section</h3>
 <ul>
     <li><strong>STEP</strong>: The edit step. When you enter a note, the cursor automatically moves down by this number of lines. Set to 0 to stay on the same line.</li>
     <li><strong>VEL</strong>: The default velocity (0-127) assigned to new notes you input.</li>
     <li><strong>OCT</strong>: The base octave (0-8) for note entry.</li>
 </ul>
 
-<h3 style="color: orange;">Tempo Section</h3>
+<h3>Tempo Section</h3>
 <ul>
     <li><strong>BPM</strong>: Beats Per Minute. Sets the overall playback speed.</li>
     <li><strong>LBP</strong>: Lines Per Beat. Defines how many tracker lines make up one musical beat (usually 4 for a standard 4/4 signature).</li>
 </ul>
 
-<h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Editor Columns</h2>
+<h2>Editor Columns</h2>
 <p>Each Note Column consists of four data fields per line:</p>
-<p style="font-family: monospace; background-color: #333; padding: 10px; border-radius: 4px;">
-    <span style="color: #ffffff;">C-4</span> <span style="color: #ffffff;">100</span> <span style="color: #ffffff;">00</span> <span style="color: #ffffff;">064</span>
+<p class="example">
+    C-4 100 00 064
 </p>
 <ol>
     <li><strong>Note (e.g., C-4)</strong>: The musical pitch and octave. "OFF" indicates a Note Off event, which stops the playing note.</li>
@@ -56,21 +47,22 @@
     <li><strong>Pan (000-127, first column only)</strong>: Stereo position sent as <strong>MIDI CC #10</strong>. 0 is hard left, 64 is center, 127 is hard right. Pan is only editable and displayed on the <strong>first note column</strong> of each track; additional columns show <code>---</code>. A pan value can be placed on any line — including lines without a note — so that panning changes can be sent on every step regardless of note events.</li>
 </ol>
 
-<h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Core Concepts</h2>
-<h3 style="color: orange;">Tracks and Note Columns</h3>
-<p>Each track in Noteahead represents one MIDI instrument. While you can change patches on-the-fly, the track-based approach keeps your sequence organized.</p>
+<h2>Core Concepts</h2>
+<h3>Tracks and Note Columns</h3>
+<p>Each track in Noteahead represents one instrument. That instrument is either an <strong>external MIDI instrument</strong>, addressed by a MIDI port and channel, or one of the <a href="#internal-devices">Internal Devices</a> hosted by Noteahead itself. A track drives exactly one of the two, so the channel you assign in Track Settings is what decides which synth, drum machine or internal device the notes on that track will play.</p>
+<p>Both kinds of track behave the same way in the editor: the same note columns, the same velocity, delay and pan fields, and the same automation. The difference is only where the notes end up — out of a MIDI port, or into an internal device whose audio Noteahead mixes and renders itself. While you can change patches on-the-fly, the track-based approach keeps your sequence organized.</p>
 <ul>
-    <li><strong>Track Settings</strong>: Set the MIDI port, channel, bank, patch, volume, pan, and cutoff.</li>
+    <li><strong>Track Settings</strong>: Set the MIDI port, channel, bank, patch, volume, pan, and cutoff. Assigning an internal device instead is done from the same dialog.</li>
     <li><strong>Drum track</strong>: When enabled in Track Settings, the track is excluded from pattern-wide transposition commands. This is useful for tracks triggering drum kits where transposition would change the instrument instead of the pitch.</li>
     <li><strong>Note Columns</strong>: Use the <code>[+]</code> and <code>[-]</code> buttons in the track header to manage multiple note columns per track, allowing for polyphonic sequencing or complex layered parts.</li>
     <li><strong>Velocity Scaling</strong>: Velocity is calculated as the product of track scale, column scale, and individual note velocity.</li>
 </ul>
 
-<h3 style="color: orange;">Internal Timing</h3>
+<h3>Internal Timing</h3>
 <p>Noteahead uses a high-precision internal timing strategy. The song is rendered into events just before playback, and the player thread syncs to these pre-calculated timestamps to ensure jitter-free and drift-free MIDI output.</p>
 
-<h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Basic Workflow</h2>
-<h3 style="color: orange;">Getting Started</h3>
+<h2>Basic Workflow</h2>
+<h3>Getting Started</h3>
 <ol>
     <li><strong>Setup MIDI</strong>: Click the settings icon on a track header to select your MIDI output device and channel.</li>
     <li><strong>Edit Mode</strong>: Press <strong>ESC</strong> to enter edit mode. The cursor will change color to indicate you can now input notes.</li>
@@ -78,7 +70,7 @@
     <li><strong>Playback</strong>: Press <strong>SPACE</strong> to start or stop playback.</li>
 </ol>
 
-<h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Main Context Menu</h2>
+<h2>Main Context Menu</h2>
 <p>The main context menu can be accessed by <strong>right-clicking</strong> anywhere in the editor view. It provides a comprehensive set of tools for manipulating your sequence at different scopes.</p>
 <ul>
     <li><strong>Line</strong>: Insert or remove specific events (like Patch Changes), set sub-line delays, and manage line-specific automations.</li>
@@ -91,8 +83,8 @@
     <li><strong>Global Automation</strong>: At the bottom of the menu, you can find options to edit <strong>ALL</strong> MIDI CC or Pitch Bend automations in the project.</li>
 </ul>
 
-<h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Effect Racks</h2>
-<h3 style="color: orange;">Effect Rack</h3>
+<h2>Effect Racks</h2>
+<h3>Effect Rack</h3>
 <p>Accessed via <code>Effects => Master effect rack...</code>, the Effect Rack is the central hub for global audio processing. It has two tabs: <strong>Insert Effects</strong>, processed in order on the master output, and <strong>Send Effects</strong>, which all internal instruments can share via their sends.</p>
 <p>The same rack appears in several places, and works identically everywhere:</p>
 <ul>
@@ -108,7 +100,7 @@
     <li><strong>Removal</strong>: Click the <strong>trash can icon</strong> on an active slot to remove the effect from the rack.</li>
 </ul>
 
-<h3 style="color: orange;">Available Effects</h3>
+<h3>Available Effects</h3>
 <ul>
     <li><strong>Equalizers</strong>: <strong>EQ 8-Band Parametric</strong> (Bell, Shelf, Cut and Notch types per band, plus Mid/Side modes), <strong>Vintage Passive EQ</strong> (EQP-1A style, with interacting low Boost/Atten shelves and a high bell), <strong>Air Band EQ</strong> (fixed parallel-summed bands added back to the dry signal) and <strong>Simple EQ</strong> (a single "Sounds Good" knob sweeping a loudness-smile curve).</li>
     <li><strong>Reverbs</strong>: <strong>Reverb</strong> (the FDN reverb described below) and <strong>Endless Reverb</strong> (a large modulated ambient reverb with a Freeze switch for an infinite tail).</li>
@@ -119,7 +111,7 @@
     <li><strong>Metering & Analysis</strong>: <strong>LUFS Meter</strong>, <strong>dBTP Meter</strong> (true peak) and <strong>RTA</strong> (real-time analyzer). Use these as inserts to watch the signal at any point in the chain.</li>
 </ul>
 
-<h3 style="color: orange;">Reverb Parameters</h3>
+<h3>Reverb Parameters</h3>
 <p>Noteahead features a studio-quality <strong>Feedback Delay Network (FDN)</strong> reverb, designed for lush tails and natural-sounding high-frequency absorption.</p>
 <ul>
     <li><strong>Preset Selection</strong>: Choose from 8 professional presets (e.g., Hall, Cathedral, Plate) using the ComboBox at the top. This will automatically adjust all parameters for the selected acoustic space.</li>
@@ -131,7 +123,7 @@
     <li><strong>Mix</strong>: Controls the wet/dry balance of the effect within its dedicated send bus.</li>
 </ul>
 
-<h3 style="color: orange;">Compressor Parameters</h3>
+<h3>Compressor Parameters</h3>
 <p>The Compressor is a versatile dynamic processor used to control the signal's dynamic range. It uses a high-quality feed-forward algorithm with optional lookahead.</p>
 <ul>
     <li><strong>Threshold (dB)</strong>: The level above which compression starts to occur (-60 to 0 dB).</li>
@@ -144,7 +136,7 @@
     <li><strong>Reduction Meter</strong>: Provides real-time visual feedback of the current gain reduction in dB.</li>
 </ul>
 
-<h3 style="color: orange;">Auto Ducker Parameters</h3>
+<h3>Auto Ducker Parameters</h3>
 <p>The Auto Ducker rides the level of the signal it sits on according to what a side chain source is doing. Point it at the kick to pump a pad, or at the lead to pull a bed out of the way. With no side chain source selected it listens to its own input.</p>
 <ul>
     <li><strong>Threshold (dB)</strong>: The side chain level at which the ducker starts to engage (-60 to 0 dB).</li>
@@ -157,49 +149,49 @@
     <li><strong>Gain Meter</strong>: Shows the gain currently applied, downwards while ducking and upwards while boosting.</li>
 </ul>
 
-<h3 style="color: orange;">Send Routing</h3>
+<h3>Send Routing</h3>
 <p>Instead of having fixed effect chains, Noteahead uses a flexible <strong>Send Bus</strong> architecture. This allows you to route varying amounts of each instrument's signal to any of the master effects.</p>
 <ul>
     <li><strong>Effect Sends Dialog</strong>: In the <strong>Device Rack</strong>, each instrument instance has a dedicated <strong>Sends</strong> button. Clicking this opens a dialog with independent send knobs for all master effect slots.</li>
     <li><strong>Parallel Processing</strong>: Because effects are shared, you can apply the same "Hall Reverb" to multiple instruments at different levels, creating a cohesive sense of space in your mix while saving CPU resources.</li>
 </ul>
 
-<h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Keyboard Shortcuts</h2>
+<h2>Keyboard Shortcuts</h2>
 
-<h3 style="color: orange;">Navigation & Editing</h3>
+<h3>Navigation & Editing</h3>
 <table width="100%">
-    <tr><th align="left" style="color: orange;">Key</th><th align="left" style="color: orange;">Action</th></tr>
-    <tr><td style="border-bottom: 1px solid #444;"><strong>ESC</strong></td><td style="border-bottom: 1px solid #444;">Toggle Edit Mode</td></tr>
-    <tr><td style="border-bottom: 1px solid #444;"><strong>SPACE</strong></td><td style="border-bottom: 1px solid #444;">Toggle Play/Stop</td></tr>
-    <tr><td style="border-bottom: 1px solid #444;"><strong>INSERT</strong></td><td style="border-bottom: 1px solid #444;">Insert empty line</td></tr>
-    <tr><td style="border-bottom: 1px solid #444;"><strong>BACKSPACE</strong></td><td style="border-bottom: 1px solid #444;">Delete current line (pulls subsequent lines up)</td></tr>
-    <tr><td style="border-bottom: 1px solid #444;"><strong>DELETE</strong></td><td style="border-bottom: 1px solid #444;">Clear current event</td></tr>
-    <tr><td style="border-bottom: 1px solid #444;"><strong>A</strong></td><td style="border-bottom: 1px solid #444;">Insert Note Off event</td></tr>
-    <tr><td style="border-bottom: 1px solid #444;"><strong>F3 / F4</strong></td><td style="border-bottom: 1px solid #444;">Decrease / Increase current octave</td></tr>
+    <tr><th align="left">Key</th><th align="left">Action</th></tr>
+    <tr><td><strong>ESC</strong></td><td>Toggle Edit Mode</td></tr>
+    <tr><td><strong>SPACE</strong></td><td>Toggle Play/Stop</td></tr>
+    <tr><td><strong>INSERT</strong></td><td>Insert empty line</td></tr>
+    <tr><td><strong>BACKSPACE</strong></td><td>Delete current line (pulls subsequent lines up)</td></tr>
+    <tr><td><strong>DELETE</strong></td><td>Clear current event</td></tr>
+    <tr><td><strong>A</strong></td><td>Insert Note Off event</td></tr>
+    <tr><td><strong>F3 / F4</strong></td><td>Decrease / Increase current octave</td></tr>
 </table>
 
-<h3 style="color: orange;">Clipboard Operations</h3>
+<h3>Clipboard Operations</h3>
 <table width="100%">
-    <tr><th align="left" style="color: orange;">Shortcut</th><th align="left" style="color: orange;">Action</th></tr>
-    <tr><td style="border-bottom: 1px solid #444;"><strong>Ctrl + X / C / V</strong></td><td style="border-bottom: 1px solid #444;">Cut / Copy / Paste selection</td></tr>
-    <tr><td style="border-bottom: 1px solid #444;"><strong>Alt + F3 / F4 / F5</strong></td><td style="border-bottom: 1px solid #444;">Cut / Copy / Paste current <strong>column</strong></td></tr>
-    <tr><td style="border-bottom: 1px solid #444;"><strong>Shift + F3 / F4 / F5</strong></td><td style="border-bottom: 1px solid #444;">Cut / Copy / Paste current <strong>track</strong></td></tr>
-    <tr><td style="border-bottom: 1px solid #444;"><strong>Ctrl + F3 / F4 / F5</strong></td><td style="border-bottom: 1px solid #444;">Cut / Copy / Paste current <strong>pattern</strong></td></tr>
+    <tr><th align="left">Shortcut</th><th align="left">Action</th></tr>
+    <tr><td><strong>Ctrl + X / C / V</strong></td><td>Cut / Copy / Paste selection</td></tr>
+    <tr><td><strong>Alt + F3 / F4 / F5</strong></td><td>Cut / Copy / Paste current <strong>column</strong></td></tr>
+    <tr><td><strong>Shift + F3 / F4 / F5</strong></td><td>Cut / Copy / Paste current <strong>track</strong></td></tr>
+    <tr><td><strong>Ctrl + F3 / F4 / F5</strong></td><td>Cut / Copy / Paste current <strong>pattern</strong></td></tr>
 </table>
 
-<h3 style="color: orange;">Transposition</h3>
+<h3>Transposition</h3>
 <table width="100%">
-    <tr><th align="left" style="color: orange;">Scope</th><th align="left" style="color: orange;">-1 Semi</th><th align="left" style="color: orange;">+1 Semi</th><th align="left" style="color: orange;">-12 Semi</th><th align="left" style="color: orange;">+12 Semi</th></tr>
-    <tr><td style="border-bottom: 1px solid #444;">Column</td><td style="border-bottom: 1px solid #444;"><strong>Alt+F9</strong></td><td style="border-bottom: 1px solid #444;"><strong>Alt+F10</strong></td><td style="border-bottom: 1px solid #444;"><strong>Alt+F11</strong></td><td style="border-bottom: 1px solid #444;"><strong>Alt+F12</strong></td></tr>
-    <tr><td style="border-bottom: 1px solid #444;">Track</td><td style="border-bottom: 1px solid #444;"><strong>Shift+F9</strong></td><td style="border-bottom: 1px solid #444;"><strong>Shift+F10</strong></td><td style="border-bottom: 1px solid #444;"><strong>Shift+F11</strong></td><td style="border-bottom: 1px solid #444;"><strong>Shift+F12</strong></td></tr>
-    <tr><td style="border-bottom: 1px solid #444;">Pattern</td><td style="border-bottom: 1px solid #444;"><strong>Ctrl+F9</strong></td><td style="border-bottom: 1px solid #444;"><strong>Ctrl+F10</strong></td><td style="border-bottom: 1px solid #444;"><strong>Ctrl+F11</strong></td><td style="border-bottom: 1px solid #444;"><strong>Ctrl+F12</strong></td></tr>
+    <tr><th align="left">Scope</th><th align="left">-1 Semi</th><th align="left">+1 Semi</th><th align="left">-12 Semi</th><th align="left">+12 Semi</th></tr>
+    <tr><td>Column</td><td><strong>Alt+F9</strong></td><td><strong>Alt+F10</strong></td><td><strong>Alt+F11</strong></td><td><strong>Alt+F12</strong></td></tr>
+    <tr><td>Track</td><td><strong>Shift+F9</strong></td><td><strong>Shift+F10</strong></td><td><strong>Shift+F11</strong></td><td><strong>Shift+F12</strong></td></tr>
+    <tr><td>Pattern</td><td><strong>Ctrl+F9</strong></td><td><strong>Ctrl+F10</strong></td><td><strong>Ctrl+F11</strong></td><td><strong>Ctrl+F12</strong></td></tr>
 </table>
 
-<h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Advanced Features</h2>
-<h3 style="color: orange;">Pattern Peek</h3>
+<h2>Advanced Features</h2>
+<h3>Pattern Peek</h3>
 <p>Enabled by default in <code>Settings => General => Editor</code>, Pattern Peek shows a dimmed glimpse of the previous and next patterns in the editor's offset areas above and below the current one, so you can see what you are cutting to and from.</p>
 
-<h3 style="color: orange;">Column Settings</h3>
+<h3>Column Settings</h3>
 <p>Accessed by clicking the <strong>wheel icon</strong> in the column header or by <strong>right-clicking</strong> a note column and selecting <strong>Column settings</strong>, this dialog allows you to fine-tune the behavior of individual columns using three tabs:</p>
 <ul>
     <li><strong>Instrument</strong>: Set the <strong>Transpose</strong> value for all notes in the column. This value is added to the track-level transpose.</li>
@@ -207,7 +199,7 @@
     <li><strong>MIDI Effects</strong>: Manage <strong>Chord Automation</strong>, the <strong>Arpeggiator</strong>, and <strong>MIDI Delay</strong> for the column.</li>
     </ul>
 
-    <h3 style="color: orange;">Chord Automation & Arpeggiator</h3>
+    <h3>Chord Automation & Arpeggiator</h3>
     <p>Located in the <strong>MIDI Effects</strong> tab of the Column Settings, these tools allow you to generate complex harmony and movement from a single note.</p>
     <ul>
     <li><strong>Chord Automation</strong>: Set semi-tone offsets for up to three additional notes relative to your root note. Each chord note has its own velocity and delay settings, allowing for thick, humanized chords.</li>
@@ -219,24 +211,24 @@
     </li>
     </ul>
 
-    <h3 style="color: orange;">MIDI Delay</h3>
+    <h3>MIDI Delay</h3>
     <p>Also located in the <strong>MIDI Effects</strong> tab, this effect adds delayed echoes to all notes in the column.</p>
     <ul>
         <li><strong>Lines</strong>: Set the delay time between echoes in musical lines (e.g., 1.5 lines).</li>
         <li><strong>Feedback (%)</strong>: Adjust the velocity of each subsequent echo relative to the previous one (0-100%).</li>
         <li><strong>Max repetitions</strong>: Set the maximum number of echoes to generate.</li>
     </ul>
-<h3 style="color: orange;">MIDI CC & Pitch Bend Automation</h3>
+<h3>MIDI CC & Pitch Bend Automation</h3>
 <ul>
     <li><strong>Add Automation</strong>: Select a range of lines, right-click, and choose "Add MIDI CC Automation" or "Add Pitch Bend Automation".</li>
     <li><strong>Interpolation & Modulation</strong>: Choose <strong>Linear</strong> for steady changes, or add <strong>Modulation</strong> (Sine Wave or Random) for organic, oscillating, or experimental movements.</li>
 </ul>
 
-<h3 style="color: orange;">MIDI Side-chain</h3>
+<h3>MIDI Side-chain</h3>
 <p>Located in Track settings, this allows one track/column to trigger MIDI CC events on another, perfect for "pumping" effects or rhythmic modulation.</p>
 
-<h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Internal Devices</h2>
-<h3 style="color: orange;">Device Rack</h3>
+<h2>Internal Devices</h2>
+<h3>Device Rack</h3>
 <p>Accessed via <code>Devices => Device rack...</code> or <code>Right-click => Song => Device Rack...</code>, the rack is the central hub for all internal instruments in Noteahead.</p>
 <ul>
     <li><strong>Managing Devices</strong>: The rack displays all active internal devices. Each entry shows the device name and a list of all tracks currently assigned to it. Click an active device entry to open its dedicated control dialog.</li>
@@ -248,7 +240,7 @@
     <li><strong>Removal</strong>: Click the <strong>trash can icon</strong> on an active slot to remove the device from the rack.</li>
 </ul>
 
-<h3 style="color: orange;">Gain Staging</h3>
+<h3>Gain Staging</h3>
 <p>Every device has a <strong>Gain</strong> knob above a <strong>Fader</strong> knob, in signal-flow order: Gain trims the device into its insert effects, and the Fader balances it in the mix. Aim for about <strong>-18 dBFS</strong> on the slot meter with Gain, then use the Fader for balance.</p>
 <p>The Fader runs from <strong>-inf</strong> to <strong>+10 dB</strong>, with unity gain three quarters of the way up its throw, so a device can be pushed past unity without reaching for Gain. Sampler pads have the same fader. Each rack row carries a <strong>clip LED</strong> next to its meter: it lights red as soon as that device's output touches full scale and stays lit until you click it, so a single overshoot cannot slip past while you are looking elsewhere.</p>
 <p>The <strong>Settings</strong> button on a rack slot opens the <strong>Device Settings</strong> dialog, which decides where those two stages sit:</p>
@@ -259,7 +251,7 @@
     <li><strong>Send tap - Pre-fader</strong>: sends keep their level whatever the fader does, so the device gets wetter as you pull it down.</li>
 </ul>
 
-<h3 style="color: orange;">Sampler</h3>
+<h3>Sampler</h3>
 <p>The Sampler is a versatile internal instrument for triggering audio samples.</p>
 <ul>
     <li><strong>Selection</strong>: Assign a track to a specific sampler by selecting its name (e.g., "Noteahead Sampler 1") in the <strong>Track Settings</strong> port list.</li>
@@ -289,7 +281,7 @@
     <li><strong>Management</strong>: <strong>Right-click</strong> a loaded pad to clear its assignment.</li>
 </ul>
 
-<h3 style="color: orange;">Synth</h3>
+<h3>Synth</h3>
 <p>The Noteahead Synth is a powerful built-in polyphonic synthesizer (up to 6 voices) designed for classic and modern electronic sounds.</p>
 <ul>
     <li><strong>Selection</strong>: Assign a track to a specific synth by selecting its name (e.g., "Noteahead Synth 1") in the <strong>Track Settings</strong> port list.</li>
@@ -337,7 +329,7 @@
     </li>
 </ul>
 
-<h3 style="color: orange;">BassSynth</h3>
+<h3>BassSynth</h3>
 <p>The BassSynth is a specialized monophonic instrument designed for classic acid basslines and powerful low-end sounds.</p>
 <ul>
     <li><strong>Selection</strong>: Assign a track to a specific BassSynth by selecting its name (e.g., "Noteahead BassSynth 1") in the <strong>Track Settings</strong> port list.</li>
@@ -376,7 +368,7 @@
     <li><strong>Automation</strong>: Supports real-time MIDI CC automation for Volume (CC 7), Pan (CC 10), LPF Cutoff (CC 74), and HPF Cutoff (CC 81).</li>
 </ul>
 
-<h3 style="color: orange;">DrumSynth</h3>
+<h3>DrumSynth</h3>
 <p>The DrumSynth is a specialized internal instrument for synthesizing drum sounds, featuring 11 independent voices with dedicated synthesis engines.</p>
 <ul>
     <li><strong>Selection</strong>: Assign a track to a specific DrumSynth by selecting its name (e.g., "Noteahead DrumSynth 1") in the <strong>Track Settings</strong> port list.</li>
@@ -407,7 +399,7 @@
     </li>
 </ul>
 
-<h3 style="color: orange;">Wavetable Synth</h3>
+<h3>Wavetable Synth</h3>
 <p>An 8-voice wavetable synthesizer for digital and evolving timbres.</p>
 <ul>
     <li><strong>Oscillators</strong>: Two independent wavetable oscillators with Classic and Spectral wavetable sets, plus a noise generator.</li>
@@ -416,14 +408,14 @@
     <li><strong>Voices</strong>: Poly and Unison modes with stereo pan spread and portamento.</li>
 </ul>
 
-<h3 style="color: orange;">Piano Synth</h3>
+<h3>Piano Synth</h3>
 <p>A physically modelled (waveguide) piano rather than a sampled one, so it stays small and responds continuously to velocity.</p>
 <ul>
     <li><strong>String</strong>: <strong>Brightness</strong>, <strong>Decay</strong>, <strong>Inharmonicity</strong> and <strong>Release</strong> shape the tone from a soft upright to a bright grand.</li>
     <li><strong>Global</strong>: LPF/HPF shaping, stereo pan spread, and the usual Gain/Fader/Pan output stage.</li>
 </ul>
 
-<h3 style="color: orange;">String &amp; Voice</h3>
+<h3>String &amp; Voice</h3>
 <p>A vintage string and choir ensemble inspired by the Roland VP-330 and Behringer VC340.</p>
 <ul>
     <li><strong>Registers</strong>: Independent strings and voice (choir) sections that can be mixed freely.</li>
@@ -431,7 +423,7 @@
     <li><strong>Vocoder</strong>: A side-chain vocoder section driven by another track.</li>
 </ul>
 
-<h3 style="color: orange;">String Ensemble</h3>
+<h3>String Ensemble</h3>
 <p>A divide-down string machine in the Solina tradition. Twelve master oscillators are tapped at 16', 8' and 4' by every key, so octaves stay phase-locked and polyphony is effectively unlimited — hold as many keys as you like.</p>
 <ul>
     <li><strong>Bass Section</strong> (keys below B3): <strong>Contrabass 16'</strong> and <strong>Cello 8'</strong>, with a <strong>Volume Bass</strong> knob to balance them against the upper section.</li>
@@ -441,7 +433,7 @@
     <li><strong>Global</strong>: Gain, Fader, Pan and LPF/HPF cutoff. MIDI CC automation for Volume (CC 7) and Pan (CC 10).</li>
 </ul>
 
-<h3 style="color: orange;">Sub Mixer</h3>
+<h3>Sub Mixer</h3>
 <p>Not an instrument but a grouping device: it sums other devices so a whole set is mixed and processed as one entity — for example everything except the lead synth through a single compressor.</p>
 <ul>
     <li><strong>Members</strong>: Choose which devices feed the Sub Mixer. Members keep their own send levels to the master send effects.</li>
@@ -450,7 +442,7 @@
     <li><strong>Automation</strong>: Its Volume and Pan can be ridden from a track over MIDI CC, so assign a track to it as you would to an instrument.</li>
 </ul>
 
-<h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Synchronization</h2>
+<h2>Synchronization</h2>
 <p>Noteahead can be synchronized with external audio hosts and MIDI hardware. These options are available in <code>Settings => MIDI => Synchronization</code>.</p>
 <ul>
     <li><strong>Jack Transport Sync</strong>: (Requires **JACK** audio backend) When enabled, Noteahead acts as a JACK client and will follow the Play, Stop, and Rewind commands from a JACK transport master (like Carla or QjackCtl).</li>
@@ -458,7 +450,7 @@
     <li><strong>MIDI Transport Sync</strong>: Allows Noteahead to be started and stopped by external MIDI controllers. Support is included for standard MIDI Start/Stop messages as well as common hardware CC mappings (e.g., Arturia Keystep).</li>
 </ul>
 
-<h2 style="color: orange; border-bottom: 1px solid #444; margin-top: 20px;">Tools & Audio</h2>
+<h2>Tools & Audio</h2>
 <ul>
     <li><strong>Audio Backend</strong>: Choose your preferred audio driver in <code>Settings => Audio => Backend</code>.
         <ul>
@@ -492,4 +484,4 @@
     <li><strong>Note Frequency Calculator</strong>: Reference tool for sound design and tuning.</li>
 </ul>
 
-<p style="margin-top: 30px; font-size: 0.8em; color: #888;">Noteahead is licensed under the GNU GPLv3.</p>
+<p class="footer">Noteahead is licensed under the GNU GPLv3.</p>

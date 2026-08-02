@@ -243,6 +243,21 @@ QColor ThemeService::mainMenuTextColor() const
     return QColor { "white" };
 }
 
+QColor ThemeService::manualCodeBackgroundColor() const
+{
+    return QColor { "#333333" };
+}
+
+QColor ThemeService::manualRuleColor() const
+{
+    return QColor { "#444444" };
+}
+
+QColor ThemeService::manualFooterTextColor() const
+{
+    return QColor { "#888888" };
+}
+
 QColor ThemeService::mainToolBarGradientStartColor() const
 {
     return QColor { "#303030" };

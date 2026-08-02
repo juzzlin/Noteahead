@@ -42,6 +42,11 @@ class ThemeService : public QObject
     Q_PROPERTY(QColor lineNumberColumnCellBorderColor READ lineNumberColumnCellBorderColor CONSTANT)
     Q_PROPERTY(QColor lineNumberColumnOverflowTextColor READ lineNumberColumnOverflowTextColor CONSTANT)
     Q_PROPERTY(QColor mainMenuTextColor READ mainMenuTextColor CONSTANT)
+    //! Backdrop of the monospace example blocks in the user manual.
+    Q_PROPERTY(QColor manualCodeBackgroundColor READ manualCodeBackgroundColor CONSTANT)
+    //! Rules and table cell borders in the user manual, and its footer text.
+    Q_PROPERTY(QColor manualRuleColor READ manualRuleColor CONSTANT)
+    Q_PROPERTY(QColor manualFooterTextColor READ manualFooterTextColor CONSTANT)
     Q_PROPERTY(QColor mainToolBarGradientStartColor READ mainToolBarGradientStartColor CONSTANT)
     Q_PROPERTY(QColor mainToolBarGradientStopColor READ mainToolBarGradientStopColor CONSTANT)
     Q_PROPERTY(QColor mainToolBarSeparatorColor READ mainToolBarSeparatorColor CONSTANT)
@@ -100,6 +105,9 @@ public:
     QColor lineNumberColumnCellBorderColor() const;
     QColor lineNumberColumnOverflowTextColor() const;
     QColor mainMenuTextColor() const;
+    QColor manualCodeBackgroundColor() const;
+    QColor manualRuleColor() const;
+    QColor manualFooterTextColor() const;
     QColor mainToolBarGradientStartColor() const;
     QColor mainToolBarGradientStopColor() const;
     QColor mainToolBarSeparatorColor() const;

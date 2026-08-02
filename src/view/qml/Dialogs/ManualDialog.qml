@@ -16,6 +16,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
+import QtQuick.Layouts
 import Noteahead 1.0
 import ".."
 
@@ -25,6 +26,10 @@ AnimatedDialog {
     modal: true
     visible: false
 
+    readonly property string _tag: "ManualDialog"
+    //! Guards the lookup below: the manual is only searched once it has actually been laid out.
+    property bool _contentReady: false
+
     footer: DialogButtonBox {
         Button {
             text: qsTr("Ok")
@@ -33,48 +38,150 @@ AnimatedDialog {
         }
     }
 
-    Flickable {
-        id: scrollView
-        anchors.fill: parent
-        clip: true
-        contentHeight: contentText.height
-        contentWidth: width
-        interactive: true
-        boundsBehavior: Flickable.StopAtBounds
-
-        Text {
-            id: contentText
-            width: scrollView.width
-            textFormat: Text.RichText
-            wrapMode: Text.WordWrap
-            color: "white"
-            onLinkActivated: link => Qt.openUrlExternally(link)
-            font.pointSize: 10
-            leftPadding: 20
-            rightPadding: 20
-            topPadding: 20
-            bottomPadding: 20
+    //! Character offset of a heading in the laid-out manual.
+    //!
+    //! Headings are searched in document order and each search starts where the previous heading
+    //! was found, so a title that also occurs in the prose cannot capture a later section.
+    function _headingPosition(anchor: string): int {
+        const contents = manualService.tableOfContents;
+        const plainText = contentText.getText(0, contentText.length);
+        let searchFrom = 0;
+        for (let i = 0; i < contents.length; i++) {
+            const found = plainText.indexOf(contents[i].title, searchFrom);
+            if (found < 0) {
+                continue;
+            }
+            searchFrom = found + contents[i].title.length;
+            if (contents[i].anchor === anchor) {
+                return found;
+            }
         }
-
-        ScrollBar.vertical: ScrollBar {
-            policy: ScrollBar.AsNeeded
-            anchors.right: scrollView.right
-        }
+        return -1;
     }
 
-    Component.onCompleted: {
-        var manualUrl = Qt.resolvedUrl("../Manual.html");
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === XMLHttpRequest.DONE) {
-                if (xhr.status === 200 || xhr.status === 0) {
-                    contentText.text = xhr.responseText;
-                } else {
-                    contentText.text = "Failed to load manual: " + xhr.status + " " + xhr.statusText;
+    function _scrollTo(anchor: string): void {
+        if (!_contentReady) {
+            return;
+        }
+        const position = _headingPosition(anchor);
+        if (position < 0) {
+            uiLogger.warning(_tag, `No heading found for anchor '${anchor}'`);
+            return;
+        }
+        const target = contentText.positionToRectangle(position).y;
+        const flickable = contentScrollView.contentItem;
+        scrollAnimation.stop();
+        scrollAnimation.to = Math.max(0, Math.min(target, flickable.contentHeight - flickable.height));
+        scrollAnimation.start();
+    }
+
+    RowLayout {
+        anchors.fill: parent
+        spacing: 0
+
+        // Table of contents. Stays put while the manual scrolls, which is the point of having it
+        // here rather than as a list at the top of the document.
+        Rectangle {
+            Layout.fillHeight: true
+            Layout.preferredWidth: Math.round(rootItem.availableWidth * 0.3)
+            color: themeService.manualCodeBackgroundColor
+
+            ListView {
+                id: tableOfContents
+                anchors.fill: parent
+                anchors.margins: 8
+                clip: true
+                model: manualService.tableOfContents
+                currentIndex: -1
+                boundsBehavior: Flickable.StopAtBounds
+
+                ScrollBar.vertical: ScrollBar {
+                    policy: ScrollBar.AsNeeded
+                }
+
+                delegate: ItemDelegate {
+                    width: tableOfContents.width - 8
+                    height: implicitHeight
+                    highlighted: tableOfContents.currentIndex === index
+                    onClicked: {
+                        tableOfContents.currentIndex = index;
+                        rootItem._scrollTo(modelData.anchor);
+                    }
+                    contentItem: Text {
+                        // Sub-headings are indented under the section they belong to
+                        leftPadding: (modelData.level - 1) * 12
+                        text: modelData.title
+                        color: modelData.level <= 2 ? themeService.accentColor : themeService.mainMenuTextColor
+                        font.pixelSize: modelData.level <= 2 ? 16 : 14
+                        font.bold: modelData.level <= 2
+                        elide: Text.ElideRight
+                        wrapMode: Text.NoWrap
+                    }
+                    Universal.theme: Universal.Dark
+                    Universal.accent: themeService.accentColor
                 }
             }
-        };
-        xhr.open("GET", manualUrl);
-        xhr.send();
+        }
+
+        Rectangle {
+            Layout.fillHeight: true
+            Layout.preferredWidth: 1
+            color: themeService.manualRuleColor
+        }
+
+        // ScrollView with a TextArea, rather than a TextEdit inside a hand-rolled Flickable: a
+        // read-only TextEdit still tracks a cursor and forces its Flickable to scroll to it on
+        // every click, which threw the position away and left gaps where it had not rendered.
+        // TextArea cooperates with the ScrollView's flickable instead.
+        ScrollView {
+            id: contentScrollView
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            clip: true
+            contentWidth: availableWidth // No horizontal scrolling: the text wraps instead
+            ScrollBar.vertical.policy: ScrollBar.AsNeeded
+
+            NumberAnimation {
+                id: scrollAnimation
+                target: contentScrollView.contentItem
+                property: "contentY"
+                duration: 200
+                easing.type: Easing.OutCubic
+            }
+
+            TextArea {
+                id: contentText
+                readOnly: true
+                selectByMouse: true
+                textFormat: TextEdit.RichText
+                wrapMode: Text.WordWrap
+                color: themeService.noteColumnTextColor
+                text: manualService.html
+                font.pointSize: 12
+                background: null
+                leftPadding: 20
+                rightPadding: 20
+                topPadding: 20
+                bottomPadding: 20
+                onLinkActivated: link => {
+                    // In-document cross references scroll the view; everything else is a real URL
+                    if (link.startsWith("#")) {
+                        rootItem._scrollTo(link.substring(1));
+                    } else {
+                        Qt.openUrlExternally(link);
+                    }
+                }
+                onTextChanged: rootItem._contentReady = text.length > 0
+            }
+        }
     }
+
+    Connections {
+        target: manualService
+        function onLoadFailed(reason) {
+            uiLogger.error(rootItem._tag, `Failed to load the user manual: ${reason}`);
+        }
+    }
+
+    Component.onCompleted: manualService.load(Qt.resolvedUrl("../Manual.html"))
 }

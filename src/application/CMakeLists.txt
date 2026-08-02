@@ -32,6 +32,7 @@ set(HEADER_FILES
     service/editor_service.hpp
     service/jack_service.hpp
     service/keyboard_service.hpp
+    service/manual_service.hpp
     service/midi_service.hpp
     service/midi_worker.hpp
     service/midi_worker_in.hpp
@@ -86,6 +87,7 @@ set(SOURCE_FILES
     service/editor_service.cpp
     service/jack_service.cpp
     service/keyboard_service.cpp
+    service/manual_service.cpp
     service/midi_service.cpp
     service/midi_worker.cpp
     service/midi_worker_in.cpp

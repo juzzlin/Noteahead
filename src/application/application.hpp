@@ -56,6 +56,7 @@ class Instrument;
 class JackService;
 class KeyboardService;
 class KnobController;
+class ManualService;
 class MidiCcAutomationsModel;
 class MidiExporter;
 class MidiImporter;
@@ -144,6 +145,7 @@ private:
 
     std::shared_ptr<SettingsService> m_settingsService;
     std::shared_ptr<ThemeService> m_themeService;
+    std::shared_ptr<ManualService> m_manualService;
 
     std::shared_ptr<SelectionService> m_selectionService;
 

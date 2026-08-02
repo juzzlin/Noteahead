@@ -74,6 +74,7 @@
 #include "service/editor_service.hpp"
 #include "service/jack_service.hpp"
 #include "service/keyboard_service.hpp"
+#include "service/manual_service.hpp"
 #include "service/midi_service.hpp"
 #include "service/mixer_service.hpp"
 #include "service/player_service.hpp"
@@ -111,6 +112,7 @@ Application::Application(int & argc, char ** argv)
   , m_applicationService { std::make_shared<ApplicationService>() }
   , m_settingsService { std::make_shared<SettingsService>() }
   , m_themeService { std::make_shared<ThemeService>() }
+  , m_manualService { std::make_shared<ManualService>(m_themeService) }
   , m_selectionService { std::make_shared<SelectionService>() }
   , m_utilService { std::make_shared<UtilService>() }
   , m_propertyService { std::make_shared<PropertyService>() }
@@ -279,6 +281,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("selectionService", m_selectionService.get());
     m_engine->rootContext()->setContextProperty("settingsService", m_settingsService.get());
     m_engine->rootContext()->setContextProperty("themeService", m_themeService.get());
+    m_engine->rootContext()->setContextProperty("manualService", m_manualService.get());
     m_engine->rootContext()->setContextProperty("sideChainService", m_sideChainService.get());
     m_engine->rootContext()->setContextProperty("trackSettingsModel", m_trackSettingsModel.get());
     m_engine->rootContext()->setContextProperty("uiLogger", m_uiLogger.get());

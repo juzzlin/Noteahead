@@ -14,6 +14,11 @@ New features:
 * Make the edit cursor color configurable
   - Settings => Theme => Colors => "Cursor color"
 
+* Add a table of contents to the user manual
+  - Sections are listed in a sidebar and clicking one scrolls the manual
+  - Cross references inside the text jump to their section
+  - The manual now follows the theme accent instead of a fixed orange
+
 * Blend the track and automation colors towards the accent color
   - Settings => Theme => Colors => "Accent blend"
   - 0 % is the original palette, 100 % puts every color on the accent hue
