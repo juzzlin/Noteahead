@@ -5,24 +5,7 @@ Release date:
 
 New features:
 
-* Draw automations as curves over the tracker lines
-  - Each automation on a column gets its own vertical trace, value left to right,
-    so a sine modulation reads as a sine
-  - Settings => General => Editor => "Automation display" switches back to Tint
-
 Bug fixes:
-
-* Fix a disabled automation still colouring its column red
-
-* Fix automation playback costing far more CPU than it should
-  - Every MIDI CC event reset the Device Rack model and rebuilt the port lists
-
-* Fix playing a song with automations marking it as modified
-
-Other:
-
-* Sample automation values directly when drawing the editor, instead of
-  rendering throwaway events for every visible line on every repaint
 
 6.0.0
 =====
@@ -136,6 +119,11 @@ New features:
 * Add a clip LED to every Device Rack row
   - Latches on any full-scale output, clears on click
 
+* Draw automations as curves over the tracker lines
+  - Each automation on a column gets its own vertical trace, value left to right,
+    so a sine modulation reads as a sine
+  - Settings => General => Editor => "Automation display" switches back to Tint
+
 Bug fixes:
 
 * Fix a stutter on the first play
@@ -179,6 +167,13 @@ Bug fixes:
   - Both used a hard-coded default unless the song had been played first
   - Channel overrides were applied correctly and are unaffected
 
+* Fix a disabled automation still colouring its column red
+
+* Fix automation playback costing far more CPU than it should
+  - Every MIDI CC event reset the Device Rack model and rebuilt the port lists
+
+* Fix playing a song with automations marking it as modified
+
 Other:
 
 * Speed up rendering and export by cutting the worker pool's synchronisation cost
@@ -196,6 +191,9 @@ Other:
 * Update the user manual for the current devices, effects and render options
 
 * Hold the DSP load peak before letting it fall, so spikes stay readable
+
+* Sample automation values directly when drawing the editor, instead of
+  rendering throwaway events for every visible line on every repaint
 
 5.0.0
 =====
