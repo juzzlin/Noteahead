@@ -23,29 +23,44 @@ Item {
     readonly property int maxValue: 100
     property int value: 100
     property string toolTipText
+    //! 100 % means "no scaling at all", which is the default on every track and column. Drawing
+    //! that state flat and dim keeps a fresh song quiet and lets an actually scaled track stand
+    //! out, rather than filling every header with a fully saturated bar.
+    readonly property bool _neutral: value >= maxValue
     signal clicked
     ToolTip.delay: Constants.toolTipDelay
     ToolTip.timeout: Constants.toolTipTimeout
     ToolTip.visible: hoverHandler.hovered
-    ToolTip.text: toolTipText
+    ToolTip.text: qsTr("%1 %").arg(value) + "\n" + toolTipText
     Rectangle {
-        color: "transparent"
-        border.color: "white"
-        border.width: 1
-        height: parent.height * 0.8
-        width: 10
+        id: trough
+        color: themeService.velocityScaleTroughColor
+        radius: 2
+        width: Math.max(6, rootItem.width * 0.4)
+        height: rootItem.height * 0.8
         anchors.centerIn: parent
         clip: true
         Rectangle {
             id: bar
-            color: Qt.rgba(value / maxValue, 1 - value / maxValue * (1 - 0.647), 0, 1)
+            color: themeService.accentColor
+            // Hovering lifts the neutral bar part way, so the control still answers the pointer
+            opacity: rootItem._neutral ? (hoverHandler.hovered ? 0.6 : 0.25) : 1
+            radius: parent.radius
             anchors.bottom: parent.bottom
-            anchors.bottomMargin: parent.border.width
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.leftMargin: parent.border.width
-            anchors.rightMargin: parent.border.width
-            height: (value - minValue) * (parent.height - parent.border.width * 2) / (maxValue - minValue)
+            height: parent.height * (rootItem.value - rootItem.minValue) / (rootItem.maxValue - rootItem.minValue)
+            Behavior on height {
+                NumberAnimation {
+                    duration: 120
+                    easing.type: Easing.OutCubic
+                }
+            }
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: 120
+                }
+            }
         }
     }
     HoverHandler {

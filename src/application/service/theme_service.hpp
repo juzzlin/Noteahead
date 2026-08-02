@@ -60,6 +60,8 @@ class ThemeService : public QObject
     Q_PROPERTY(QColor trackBorderColor READ trackBorderColor CONSTANT)
     Q_PROPERTY(QColor trackHeaderBackgroundColor READ trackHeaderBackgroundColor CONSTANT)
     Q_PROPERTY(QColor trackHeaderBorderColor READ trackHeaderBorderColor CONSTANT)
+    //! Unfilled part of a velocity scale widget. The filled part is drawn in the accent color.
+    Q_PROPERTY(QColor velocityScaleTroughColor READ velocityScaleTroughColor CONSTANT)
 
     Q_PROPERTY(QVariantList trackHeaderTextColors READ trackHeaderTextColors NOTIFY trackHeaderTextColorsChanged)
 
@@ -108,6 +110,7 @@ public:
     QColor trackBorderColor() const;
     QColor trackHeaderBackgroundColor() const;
     QColor trackHeaderBorderColor() const;
+    QColor velocityScaleTroughColor() const;
 
     QVariantList trackHeaderTextColors() const;
 

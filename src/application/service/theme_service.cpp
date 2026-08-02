@@ -221,6 +221,11 @@ QColor ThemeService::trackHeaderBorderColor() const
     return QColor { "#222222" };
 }
 
+QColor ThemeService::velocityScaleTroughColor() const
+{
+    return QColor { "#3a3a3a" };
+}
+
 QVariantList ThemeService::trackHeaderTextColors() const
 {
     return QVariantList {

@@ -14,6 +14,10 @@ New features:
 * Make the edit cursor color configurable
   - Settings => Theme => Colors => "Cursor color"
 
+* Redraw the track and column velocity scales in the accent color
+  - Flat and gray at 100 %, so only scaled tracks and columns stand out
+  - The tooltip now states the current value
+
 Bug fixes:
 
 * Honor the theme colors in the tracker columns again
