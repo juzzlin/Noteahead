@@ -3,12 +3,19 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Dialogs
 import QtQuick.Layouts
+import ".."
 
 AnimatedDialog {
     id: rootItem
     title: `${qsTr("About ")} ${applicationService.applicationName()} ${qsTr("MIDI tracker v")}${applicationService.applicationVersion()}`
     modal: true
-    standardButtons: DialogButtonBox.Ok
+    footer: DialogButtonBox {
+        Button {
+            text: qsTr("Ok")
+            implicitWidth: Constants.defaultButtonWidth
+            DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
+        }
+    }
     RowLayout {
         spacing: 10
         Image {
