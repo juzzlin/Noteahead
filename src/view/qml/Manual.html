@@ -64,7 +64,9 @@
 <h2>Basic Workflow</h2>
 <h3>Getting Started</h3>
 <ol>
-    <li><strong>Setup MIDI</strong>: Click the settings icon on a track header to select your MIDI output device and channel.</li>
+    <li><strong>Choose an instrument</strong>: Click the settings icon on a track header to open <strong>Track Settings</strong>. A track plays either an external MIDI instrument or one of Noteahead's own <a href="#internal-devices">Internal Devices</a>, and this is where you pick which.</li>
+    <li><strong>...over MIDI</strong>: Select the MIDI output port and channel for the external synth or drum machine you want the track to drive.</li>
+    <li><strong>...or with a built-in device</strong>: Click <strong>Device Rack...</strong> in the same dialog to open the <a href="#device-rack">Device Rack</a>, add an instrument such as <strong>Synth</strong>, <strong>Sampler</strong> or <strong>Drum Synth</strong> to a free slot, then select its internal port back in Track Settings. Nothing external is needed — Noteahead renders these itself.</li>
     <li><strong>Edit Mode</strong>: Press <strong>ESC</strong> to enter edit mode. The cursor will change color to indicate you can now input notes.</li>
     <li><strong>Inputting Notes</strong>: Use your PC keyboard as a virtual piano (e.g., <code>Z</code> is C, <code>S</code> is C#, <code>X</code> is D).</li>
     <li><strong>Playback</strong>: Press <strong>SPACE</strong> to start or stop playback.</li>
@@ -229,7 +231,7 @@
 
 <h2>Internal Devices</h2>
 <h3>Device Rack</h3>
-<p>Accessed via <code>Devices => Device rack...</code> or <code>Right-click => Song => Device Rack...</code>, the rack is the central hub for all internal instruments in Noteahead.</p>
+<p>Accessed via <code>Devices => Device rack...</code>, <code>Right-click => Song => Device Rack...</code>, or the <strong>Device Rack...</strong> button in <strong>Track Settings</strong>, the rack is the central hub for all internal instruments in Noteahead. Opening it from Track Settings is the quickest route when you are setting up a track: add the device, then pick its internal port for the track.</p>
 <ul>
     <li><strong>Managing Devices</strong>: The rack displays all active internal devices. Each entry shows the device name and a list of all tracks currently assigned to it. Click an active device entry to open its dedicated control dialog.</li>
     <li><strong>Dynamic Addition</strong>: Internal devices can be added to any empty slot by clicking the <strong>(+) icon</strong>. This opens the <strong>Device Gallery</strong>, where you can select from the available instruments — <strong>Sampler</strong>, <strong>Synth</strong>, <strong>Wavetable Synth</strong>, <strong>Bass Synth</strong>, <strong>Drum Synth</strong>, <strong>Piano Synth</strong>, <strong>String &amp; Voice</strong>, <strong>String Ensemble</strong> and <strong>Sub Mixer</strong> — or use <strong>Import Device...</strong> to create a device straight from an exported settings file, or <strong>Copy Device...</strong> to duplicate an existing one.</li>
