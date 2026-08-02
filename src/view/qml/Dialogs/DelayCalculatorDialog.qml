@@ -2,13 +2,20 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts 1.15
+import ".."
 
 AnimatedDialog {
     id: delayCalculatorDialog
     title: qsTr("Delay Time Calculator")
     modal: true
     clip: true
-    standardButtons: Dialog.Ok
+    footer: DialogButtonBox {
+        Button {
+            text: qsTr("Ok")
+            implicitWidth: Constants.defaultButtonWidth
+            DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
+        }
+    }
     property real bpm: 120
     readonly property string _defaultNoteDuration: "1/4"
     property string noteDuration: _defaultNoteDuration

@@ -2,13 +2,20 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts
+import ".."
 
 AnimatedDialog {
     id: gainConverterDialog
     title: qsTr("Gain Converter (dB => linear)")
     modal: true
     clip: true
-    standardButtons: Dialog.Ok
+    footer: DialogButtonBox {
+        Button {
+            text: qsTr("Ok")
+            implicitWidth: Constants.defaultButtonWidth
+            DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
+        }
+    }
     property real dbValue: 0.0
     property real linearValue: 1.0
     property bool updating: false

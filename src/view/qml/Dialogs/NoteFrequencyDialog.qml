@@ -8,7 +8,13 @@ AnimatedDialog {
     id: rootItem
     title: qsTr("Note Frequencies")
     modal: true
-    standardButtons: Dialog.Ok
+    footer: DialogButtonBox {
+        Button {
+            text: qsTr("Ok")
+            implicitWidth: Constants.defaultButtonWidth
+            DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
+        }
+    }
 
     // Tunable reference (A4)
     property real referenceFrequency: 440.0
@@ -21,12 +27,12 @@ AnimatedDialog {
             const octave = Math.floor(midi / 12) - 1; // MIDI => octave
             const freq = referenceFrequency * Math.pow(2, (midi - 69) / 12);
             rows.push({
-                    "noteLabel": name + octave,
-                    "note": name,
-                    "octave": octave,
-                    "frequency": freq,
-                    "midi": midi
-                });
+                "noteLabel": name + octave,
+                "note": name,
+                "octave": octave,
+                "frequency": freq,
+                "midi": midi
+            });
         }
         return rows;
     }
@@ -132,8 +138,7 @@ AnimatedDialog {
                     }
                 }
 
-                ScrollBar.vertical: ScrollBar {
-                }
+                ScrollBar.vertical: ScrollBar {}
             }
         }
 
