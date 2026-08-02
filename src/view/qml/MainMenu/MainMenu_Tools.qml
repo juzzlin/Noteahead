@@ -22,17 +22,17 @@ import "../Components"
 Menu {
     title: qsTr("&Tools")
     Action {
-        text: qsTr("Delay time calculator")
+        text: qsTr("Delay time calculator...")
         onTriggered: UiService.requestDelayCalculatorDialog()
     }
     MenuSeparator {}
     Action {
-        text: qsTr("Note frequencies")
+        text: qsTr("Note frequencies...")
         onTriggered: UiService.requestNoteFrequencyDialog()
     }
     MenuSeparator {}
     Action {
-        text: qsTr("Gain converter")
+        text: qsTr("Gain converter...")
         onTriggered: UiService.requestGainConverterDialog()
     }
     delegate: MenuItemDelegate {}

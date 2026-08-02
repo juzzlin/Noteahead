@@ -23,7 +23,7 @@ Menu {
     width: rootItem.width
 
     Action {
-        text: qsTr("Settings")
+        text: qsTr("Settings...")
         onTriggered: UiService.requestTrackSettingsDialog(editorService.position.track)
     }
     MenuSeparator {}
@@ -97,7 +97,7 @@ Menu {
     }
     MenuSeparator {}
     Action {
-        text: qsTr("Interpolate velocity")
+        text: qsTr("Interpolate velocity...")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestTrackVelocityInterpolationDialog()
     }
@@ -122,13 +122,13 @@ Menu {
     }
     MenuSeparator {}
     Action {
-        text: qsTr("Edit MIDI CC automations")
+        text: qsTr("Edit MIDI CC automations...")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEditMidiCcAutomationsDialogByTrack()
     }
     MenuSeparator {}
     Action {
-        text: qsTr("Edit Pitch Bend automations")
+        text: qsTr("Edit Pitch Bend automations...")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEditPitchBendAutomationsDialogByTrack()
     }

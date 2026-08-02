@@ -91,13 +91,13 @@ Menu {
     }
     MenuSeparator {}
     Action {
-        text: qsTr("Edit MIDI CC automations")
+        text: qsTr("Edit MIDI CC automations...")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEditMidiCcAutomationsDialogByPattern()
     }
     MenuSeparator {}
     Action {
-        text: qsTr("Edit Pitch Bend automations")
+        text: qsTr("Edit Pitch Bend automations...")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEditPitchBendAutomationsDialogByPattern()
     }

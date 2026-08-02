@@ -14,6 +14,10 @@ New features:
 * Make the edit cursor color configurable
   - Settings => Theme => Colors => "Cursor color"
 
+* Add Settings and Master effect rack to the Song context menu
+
+* Mark every menu action that opens a dialog with an ellipsis
+
 * Add a table of contents to the user manual
   - Sections are listed in a sidebar and clicking one scrolls the manual
   - Cross references inside the text jump to their section

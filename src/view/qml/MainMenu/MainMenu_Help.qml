@@ -22,22 +22,22 @@ import "../Components"
 Menu {
     title: qsTr("&Help")
     Action {
-        text: qsTr("About")
+        text: qsTr("About...")
         onTriggered: UiService.requestAboutDialog()
     }
     MenuSeparator {}
     Action {
-        text: qsTr("User Manual")
+        text: qsTr("User Manual...")
         onTriggered: UiService.requestManualDialog()
     }
     MenuSeparator {}
     Action {
-        text: qsTr("Shortcuts")
+        text: qsTr("Shortcuts...")
         onTriggered: UiService.requestShortcutsDialog()
     }
     MenuSeparator {}
     Action {
-        text: qsTr("What's New")
+        text: qsTr("What's New...")
         onTriggered: UiService.requestWhatsNewDialog()
     }
     delegate: MenuItemDelegate {}

@@ -33,7 +33,7 @@ Menu {
         onTriggered: applicationService.requestOpenProject()
     }
     Action {
-        text: qsTr("Recent files")
+        text: qsTr("Recent files...")
         onTriggered: UiService.requestRecentFilesDialog()
     }
     MenuSeparator {}
@@ -54,12 +54,12 @@ Menu {
     }
     MenuSeparator {}
     Action {
-        text: qsTr("Export MIDI file")
+        text: qsTr("Export MIDI file...")
         shortcut: "Ctrl+E"
         onTriggered: applicationService.requestMidiExportDialog()
     }
     Action {
-        text: qsTr("Import MIDI file")
+        text: qsTr("Import MIDI file...")
         shortcut: "Ctrl+I"
         onTriggered: applicationService.requestMidiImportDialog()
     }

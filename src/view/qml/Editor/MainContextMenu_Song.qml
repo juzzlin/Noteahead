@@ -23,8 +23,18 @@ Menu {
     title: qsTr("Song")
     width: rootItem.width
     Action {
+        text: qsTr("Settings...")
+        onTriggered: UiService.requestSongSettingsDialog()
+    }
+    MenuSeparator {}
+    Action {
         text: qsTr("Device Rack...")
         onTriggered: applicationService.requestDeviceRackDialog()
+    }
+    MenuSeparator {}
+    Action {
+        text: qsTr("Master effect rack...")
+        onTriggered: applicationService.requestMasterEffectsDialog()
     }
     MenuSeparator {}
     Action {

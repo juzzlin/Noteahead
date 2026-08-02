@@ -60,13 +60,13 @@ Menu {
     MainContextMenu_Song {}
     MenuSeparator {}
     Action {
-        text: qsTr("Edit MIDI CC automations (ALL)")
+        text: qsTr("Edit MIDI CC automations (ALL)...")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEditMidiCcAutomationsDialog()
     }
     MenuSeparator {}
     Action {
-        text: qsTr("Edit Pitch Bend automations (ALL)")
+        text: qsTr("Edit Pitch Bend automations (ALL)...")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEditPitchBendAutomationsDialog()
     }

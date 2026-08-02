@@ -85,19 +85,19 @@ Menu {
     }
     MenuSeparator {}
     Action {
-        text: qsTr("Interpolate velocity")
+        text: qsTr("Interpolate velocity...")
         enabled: !UiService.isPlaying() && selectionService.isValidSelection
         onTriggered: UiService.requestSelectionVelocityInterpolationDialog()
     }
     MenuSeparator {}
     Action {
-        text: qsTr("Add MIDI CC automation")
+        text: qsTr("Add MIDI CC automation...")
         enabled: !UiService.isPlaying() && selectionService.isValidSelection
         onTriggered: UiService.requestSelectionAddMidiCcAutomationDialog()
     }
     MenuSeparator {}
     Action {
-        text: qsTr("Add Pitch Bend automation")
+        text: qsTr("Add Pitch Bend automation...")
         enabled: !UiService.isPlaying() && selectionService.isValidSelection
         onTriggered: UiService.requestSelectionAddPitchBendAutomationDialog()
     }

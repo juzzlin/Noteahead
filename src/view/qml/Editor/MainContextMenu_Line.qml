@@ -22,7 +22,7 @@ Menu {
     title: qsTr("Line")
     width: rootItem.width
     Action {
-        text: qsTr("Insert an event")
+        text: qsTr("Insert an event...")
         shortcut: "Alt+E"
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEventSelectionDialog()
@@ -35,29 +35,29 @@ Menu {
     }
     MenuSeparator {}
     Action {
-        text: qsTr("Set delay")
+        text: qsTr("Set delay...")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestLineDelayDialog()
     }
     MenuSeparator {}
     Action {
-        text: qsTr("Add MIDI CC automation")
+        text: qsTr("Add MIDI CC automation...")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestLineAddMidiCcAutomationDialog()
     }
     Action {
-        text: qsTr("Edit MIDI CC automations")
+        text: qsTr("Edit MIDI CC automations...")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEditMidiCcAutomationsDialogByLine()
     }
     MenuSeparator {}
     Action {
-        text: qsTr("Add Pitch Bend automation")
+        text: qsTr("Add Pitch Bend automation...")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestLineAddPitchBendAutomationDialog()
     }
     Action {
-        text: qsTr("Edit Pitch Bend automations")
+        text: qsTr("Edit Pitch Bend automations...")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEditPitchBendAutomationsDialogByLine()
     }

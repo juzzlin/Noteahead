@@ -22,7 +22,7 @@ Menu {
     title: qsTr("Column")
     width: rootItem.width
     Action {
-        text: qsTr("Settings")
+        text: qsTr("Settings...")
         onTriggered: UiService.requestColumnSettingsDialog(editorService.position.track, editorService.position.column)
     }
     MenuSeparator {}
@@ -96,34 +96,34 @@ Menu {
     }
     MenuSeparator {}
     Action {
-        text: qsTr("Interpolate velocity")
+        text: qsTr("Interpolate velocity...")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestColumnVelocityInterpolationDialog()
     }
     Action {
-        text: qsTr("Interpolate pan")
+        text: qsTr("Interpolate pan...")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestColumnPanInterpolationDialog()
     }
     MenuSeparator {}
     Action {
-        text: qsTr("Add MIDI CC automation")
+        text: qsTr("Add MIDI CC automation...")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestColumnAddMidiCcAutomationDialog()
     }
     Action {
-        text: qsTr("Edit MIDI CC automations")
+        text: qsTr("Edit MIDI CC automations...")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEditMidiCcAutomationsDialogByColumn()
     }
     MenuSeparator {}
     Action {
-        text: qsTr("Add Pitch Bend automation")
+        text: qsTr("Add Pitch Bend automation...")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestColumnAddPitchBendAutomationDialog()
     }
     Action {
-        text: qsTr("Edit Pitch Bend automations")
+        text: qsTr("Edit Pitch Bend automations...")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEditPitchBendAutomationsDialogByColumn()
     }
