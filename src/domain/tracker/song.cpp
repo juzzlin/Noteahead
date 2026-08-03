@@ -705,9 +705,10 @@ Song::EventList Song::generateNoteOffs(EventListCR events) const
             }
             if (noteData->type() == NoteData::Type::NoteOn) {
                 // Note: Chord automation may generate multiple notes on the same column!
-                const auto previousNoteOnTick = lastNoteOnTick.contains(trackAndColumn)
-                  ? std::optional<size_t> { lastNoteOnTick.at(trackAndColumn) }
-                  : std::nullopt;
+                std::optional<size_t> previousNoteOnTick;
+                if (const auto iter = lastNoteOnTick.find(trackAndColumn); iter != lastNoteOnTick.end()) {
+                    previousNoteOnTick = iter->second;
+                }
                 const bool isNewTick = !previousNoteOnTick.has_value() || previousNoteOnTick.value() != event->tick();
                 lastNoteOnTick[trackAndColumn] = event->tick();
                 if (isNewTick) {
