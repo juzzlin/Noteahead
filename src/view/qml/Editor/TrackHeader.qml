@@ -126,16 +126,9 @@ Rectangle {
                     deviceContextMenu.popup();
                 }
             }
-            Menu {
+            DeviceContextMenu {
                 id: deviceContextMenu
-                MenuItem {
-                    text: qsTr("Insert effects...")
-                    onTriggered: UiService.requestDeviceInsertEffectsDialog(directDeviceButton.portName)
-                }
-                MenuItem {
-                    text: qsTr("Effect sends...")
-                    onTriggered: UiService.requestEffectSendsDialog(directDeviceButton.portName)
-                }
+                portName: directDeviceButton.portName
             }
             Keys.onPressed: event => {
                 if (event.key === Qt.Key_Space) {

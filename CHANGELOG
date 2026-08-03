@@ -23,6 +23,12 @@ Bug fixes:
 
 Other:
 
+* Group the device actions of a track under a Device sub-menu
+  - Open Device, Insert FX, Effect Sends, Settings and Manage, matching the
+    Device Rack
+  - Same entries in the editor context menu and in the track header's device
+    button menu
+
 6.0.0
 =====
 

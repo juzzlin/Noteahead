@@ -175,6 +175,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Tab2.qml
     ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Tab3.qml
     ${QML_BASE_DIR}/Editor/AudioWaveView.qml
+    ${QML_BASE_DIR}/Editor/DeviceContextMenu.qml
     ${QML_BASE_DIR}/Editor/EditorView.qml
     ${QML_BASE_DIR}/Editor/KeyboardHandler.qml
     ${QML_BASE_DIR}/Editor/LineNumberColumn.qml

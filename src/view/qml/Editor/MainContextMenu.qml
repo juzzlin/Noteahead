@@ -24,24 +24,12 @@ Menu {
     readonly property string trackPortName: editorService.instrumentPortName(editorService.position.track)
     readonly property bool trackHasInternalDevice: deviceService.isInternalDevice(trackPortName)
 
-    // A Menu lays its items out in a ListView, which still reserves the height of an item that is
-    // merely invisible. Without collapsing the height too, a track with no internal device opens
-    // the menu with two items and two separators worth of dead space above "Line".
-    MenuItem {
-        text: qsTr("Insert FX...")
-        visible: trackHasInternalDevice
-        height: visible ? implicitHeight : 0
-        onTriggered: UiService.requestDeviceInsertEffectsDialog(trackPortName)
-    }
-    MenuSeparator {
-        visible: trackHasInternalDevice
-        height: visible ? implicitHeight : 0
-    }
-    MenuItem {
-        text: qsTr("Effect Sends...")
-        visible: trackHasInternalDevice
-        height: visible ? implicitHeight : 0
-        onTriggered: UiService.requestEffectSendsDialog(trackPortName)
+    // MenuItemDelegate hides and collapses the row of a disabled sub-menu, which is what keeps a
+    // track with no internal device from opening the menu with dead space above "Line".
+    DeviceContextMenu {
+        portName: trackPortName
+        enabled: trackHasInternalDevice
+        width: rootItem.width
     }
     MenuSeparator {
         visible: trackHasInternalDevice

@@ -19,6 +19,11 @@ import QtQuick.Controls.Universal 2.15
 
 MenuItem {
     id: rootItem
+    // A sub-menu's own visible property drives its popup, not this row, so a menu can only hide a
+    // whole sub-menu by disabling it. A Menu lays its items out in a ListView, which still reserves
+    // the height of a merely invisible item, hence the collapse.
+    visible: !subMenu || subMenu.enabled
+    height: visible ? implicitHeight : 0
     contentItem: Item {
         anchors.centerIn: parent
         Text {
