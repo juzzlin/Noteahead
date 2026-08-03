@@ -3106,6 +3106,8 @@ void XmlSerializationTest::test_toXmlFromXml_roomMicsEffect_shouldLoadCorrectly(
         { C::xmlKeySourceX(), 0.33f },
         { C::xmlKeySourceY(), 0.21f },
         { C::xmlKeySpread(), 0.12f },
+        { C::xmlKeyHpfCutoff(), 0.27f },
+        { C::xmlKeyLpfCutoff(), 0.73f },
         { C::xmlKeyMix(), 0.44f },
         { C::xmlKeySolo(), 1.0f },
     };

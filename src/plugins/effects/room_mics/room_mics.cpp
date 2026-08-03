@@ -106,6 +106,9 @@ RoomMics::RoomMics()
         continuous(C::xmlKeyMicLevel(g));
     }
 
+    continuous(C::xmlKeyHpfCutoff());
+    continuous(C::xmlKeyLpfCutoff());
+
     // The mics replace the signal: the Close pair at its default is the signal, with the room
     addMixParameter(1.0f, MixLaw::Crossfade, 0, 10000, 100);
     addSoloParameter();
@@ -118,6 +121,8 @@ RoomMics::RoomMics()
     describe(C::xmlKeyRoomHeight(), { .mapping = Display::Mapping::Exponential, .unit = "m", .min = MinSizeM, .max = MaxHeightM, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Height") });
     describe(C::xmlKeySourceX(), { .unit = "%", .min = 0.0, .max = 100.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Source X") });
     describe(C::xmlKeySourceY(), { .unit = "%", .min = 0.0, .max = 100.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Source Y") });
+    describe(C::xmlKeyHpfCutoff(), { .mapping = Display::Mapping::LogFrequencyHighPass, .unit = "Hz", .min = 20.0, .max = 20000.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "HPF Cutoff") });
+    describe(C::xmlKeyLpfCutoff(), { .mapping = Display::Mapping::LogFrequency, .unit = "Hz", .min = 20.0, .max = 20000.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "LPF Cutoff") });
     describe(C::xmlKeySpread(), { .unit = "m", .min = 0.0, .max = MaxSpreadM, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Spread") });
     const std::array<const char *, MicGroupCount> levelLabels { QT_TRANSLATE_NOOP("ParameterDisplay", "Close Level"), QT_TRANSLATE_NOOP("ParameterDisplay", "Room Level"), QT_TRANSLATE_NOOP("ParameterDisplay", "Far Level") };
     const std::array<const char *, MicGroupCount> xLabels { QT_TRANSLATE_NOOP("ParameterDisplay", "Close X"), QT_TRANSLATE_NOOP("ParameterDisplay", "Room X"), QT_TRANSLATE_NOOP("ParameterDisplay", "Far X") };
@@ -229,6 +234,9 @@ std::map<std::string, float> RoomMics::parametersFor(const RoomSettings & settin
         { key(C::xmlKeySourceX()), static_cast<float>(settings.sourceX) },
         { key(C::xmlKeySourceY()), static_cast<float>(settings.sourceY) },
         { key(C::xmlKeySpread()), static_cast<float>(settings.sourceSpreadM / MaxSpreadM) },
+        // Off, so that a preset is the room as it sounds
+        { key(C::xmlKeyHpfCutoff()), 0.0f },
+        { key(C::xmlKeyLpfCutoff()), 1.0f },
         { key(C::xmlKeyMix()), mix },
     };
     for (size_t g = 0; g < MicGroupCount; g++) {
@@ -250,7 +258,20 @@ std::map<std::string, float> RoomMics::parametersFor(const RoomSettings & settin
 
 void RoomMics::syncParameters()
 {
+    namespace C = Constants::NahdXml;
     m_requested = settings();
+    const auto valueOf = [this](const QString & name, float fallback) {
+        const auto p = parameter(key(name));
+        return static_cast<double>(p ? p->get().value() : fallback);
+    };
+    m_hpfCutoff = std::clamp(valueOf(C::xmlKeyHpfCutoff(), 0.0f), 0.0, 1.0);
+    m_lpfCutoff = std::clamp(valueOf(C::xmlKeyLpfCutoff(), 1.0f), 0.0, 1.0);
+    for (auto && filter : m_hpf) {
+        filter.setCutoff(m_hpfCutoff);
+    }
+    for (auto && filter : m_lpf) {
+        filter.setCutoff(m_lpfCutoff);
+    }
 }
 
 void RoomMics::configure()
@@ -262,6 +283,14 @@ void RoomMics::configure()
     m_tail.configure(rate);
     for (auto && kernel : m_kernels) {
         kernel.assign(maxLength, 0.0);
+    }
+    for (size_t channel = 0; channel < 2; channel++) {
+        m_hpf[channel].setMode(CascadedSvf::Mode::HighPass);
+        m_lpf[channel].setMode(CascadedSvf::Mode::LowPass);
+        m_hpf[channel].setSampleRate(rate);
+        m_lpf[channel].setSampleRate(rate);
+        m_hpf[channel].reset();
+        m_lpf[channel].reset();
     }
     m_configuredSampleRate = rate;
     m_lateGainSmooth = 1.0 - std::exp(-1.0 / std::max(1.0, lateGainSmoothSeconds * rate));
@@ -369,6 +398,20 @@ void RoomMics::renderFrame(double & left, double & right)
     m_convolver.process(left, right);
     left += lateLeft * m_lateGain;
     right += lateRight * m_lateGain;
+    applyOutputFilters(left, right);
+}
+
+void RoomMics::applyOutputFilters(double & left, double & right)
+{
+    // Not run at all at the ends of their travel, where they would only pass the signal through
+    if (m_hpfCutoff > CascadedSvf::BypassThresholdHighPass) {
+        left = m_hpf[0].process(left);
+        right = m_hpf[1].process(right);
+    }
+    if (m_lpfCutoff < CascadedSvf::BypassThresholdLowPass) {
+        left = m_lpf[0].process(left);
+        right = m_lpf[1].process(right);
+    }
 }
 
 void RoomMics::processSample(double & left, double & right)
@@ -431,6 +474,10 @@ void RoomMics::reset()
 {
     m_convolver.reset();
     m_tail.reset();
+    for (size_t channel = 0; channel < 2; channel++) {
+        m_hpf[channel].reset();
+        m_lpf[channel].reset();
+    }
     m_lateGain = m_targetLateGain;
 }
 

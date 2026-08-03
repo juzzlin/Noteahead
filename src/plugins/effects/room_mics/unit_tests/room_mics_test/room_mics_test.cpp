@@ -355,6 +355,44 @@ void RoomMicsTest::test_processBlock_closeMics_shouldHaveNoLatency()
     QVERIFY2(output[0] > 0.7 && output[0] < 1.2, qPrintable(QString::number(output[0])));
 }
 
+void RoomMicsTest::test_processBlock_hpf_shouldCutTheLows()
+{
+    // A 50 Hz sine through the Close pair alone, with the HPF at about 500 Hz
+    const auto sine = [](size_t frames, double hz) {
+        std::vector<double> stereo(frames * 2, 0.0);
+        for (size_t n = 0; n < frames; n++) {
+            stereo[n * 2] = stereo[n * 2 + 1] = 0.5 * std::sin(2.0 * std::numbers::pi * hz * static_cast<double>(n) / rate);
+        }
+        return stereo;
+    };
+    auto open = makeRoomMics();
+    soloGroup(*open, MicGroup::Close);
+    auto cut = makeRoomMics();
+    soloGroup(*cut, MicGroup::Close);
+    setParameter(*cut, C::xmlKeyHpfCutoff(), 0.47f);
+    const size_t frames = 48000;
+    const auto openOutput = render(*open, sine(frames, 50.0));
+    const auto cutOutput = render(*cut, sine(frames, 50.0));
+    const double ratioDb = 10.0 * std::log10(energy(cutOutput, 0, frames / 2, frames) / energy(openOutput, 0, frames / 2, frames));
+    QVERIFY2(ratioDb < -30.0, qPrintable(QString::number(ratioDb)));
+}
+
+void RoomMicsTest::test_filters_defaults_shouldBeOff()
+{
+    // A project saved before the filters loads them at their defaults, which must pass it untouched
+    const auto effect = makeRoomMics();
+    QCOMPARE(effect->parameter(C::xmlKeyHpfCutoff().toStdString())->get().value(), 0.0f);
+    QCOMPARE(effect->parameter(C::xmlKeyLpfCutoff().toStdString())->get().value(), 1.0f);
+    for (auto && preset : effect->factoryPresets()) {
+        // Init names nothing: it is the defaults
+        if (preset.parameters.empty()) {
+            continue;
+        }
+        QCOMPARE(preset.parameters.at(C::xmlKeyHpfCutoff().toStdString()), 0.0f);
+        QCOMPARE(preset.parameters.at(C::xmlKeyLpfCutoff().toStdString()), 1.0f);
+    }
+}
+
 void RoomMicsTest::test_processBlock_roomPair_shouldHearTheLeftSourceFirstOnTheLeft()
 {
     auto effect = makeRoomMics();

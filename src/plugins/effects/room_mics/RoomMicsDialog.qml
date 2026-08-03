@@ -283,28 +283,50 @@ EffectDialog {
             SectionLabel {
                 text: qsTr("Output")
             }
+            // In the Mics' three columns: Mix and Solo under Close, the filters under Room and Far
             RowLayout {
                 spacing: 24
                 Layout.fillWidth: true
-                ParameterKnob {
-                    label: qsTr("Mix")
-                    suffix: "%"
-                    key: NahdXml.mix
-                    Layout.fillWidth: false
-                    Layout.preferredWidth: 120
-                }
-                Switch {
-                    text: qsTr("Solo")
-                    checked: root.parameterValue(NahdXml.solo) > 0.5
-                    onToggled: root.setParameterValue(NahdXml.solo, checked ? 1 : 0)
-                    ToolTip.delay: Constants.toolTipDelay
-                    ToolTip.timeout: Constants.toolTipTimeout
-                    ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Pass only what the effect changes, without the input")
-                    Layout.alignment: Qt.AlignVCenter
-                }
-                Item {
+                RowLayout {
+                    spacing: 12
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
+                    ParameterKnob {
+                        label: qsTr("Mix")
+                        suffix: "%"
+                        key: NahdXml.mix
+                    }
+                    Switch {
+                        text: qsTr("Solo")
+                        checked: root.parameterValue(NahdXml.solo) > 0.5
+                        onToggled: root.setParameterValue(NahdXml.solo, checked ? 1 : 0)
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Pass only what the effect changes, without the input")
+                        Layout.alignment: Qt.AlignVCenter
+                    }
+                }
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 1
+                    FilterKnob {
+                        label: qsTr("HPF")
+                        isHpf: true
+                        value: root.parameterValue(NahdXml.hpfCutoff) * Constants.uiInternalScaling
+                        onMoved: v => root.setParameterValue(NahdXml.hpfCutoff, v / Constants.uiInternalScaling)
+                        Layout.fillWidth: true
+                    }
+                }
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 1
+                    FilterKnob {
+                        label: qsTr("LPF")
+                        value: root.parameterValue(NahdXml.lpfCutoff) * Constants.uiInternalScaling
+                        onMoved: v => root.setParameterValue(NahdXml.lpfCutoff, v / Constants.uiInternalScaling)
+                        Layout.fillWidth: true
+                    }
                 }
             }
         }
