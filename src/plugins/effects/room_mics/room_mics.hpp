@@ -16,6 +16,7 @@
 #ifndef ROOM_MICS_HPP
 #define ROOM_MICS_HPP
 
+#include "../../../domain/dsp/cascaded_svf.hpp"
 #include "../../../domain/effects/effect.hpp"
 #include "room_acoustics.hpp"
 #include "room_convolver.hpp"
@@ -40,7 +41,8 @@ namespace noteahead {
 //! The input's two channels are two sources, Spread apart, like a pair of speakers. The Close mics
 //! sit on them unless moved, so at their defaults they hear the input itself and a little of the
 //! room. Each pair is brought to the level of a mic on its source, so that the levels mix three
-//! sounds of the same loudness, however far a pair stands.
+//! sounds of the same loudness, however far a pair stands. The Output section's HPF and LPF filter
+//! what the mics hear, before Mix.
 class RoomMics : public Effect
 {
 public:
@@ -88,6 +90,7 @@ private:
     void advanceJobs(size_t frames, bool complete);
     void combineAndLoad();
     void renderFrame(double & left, double & right);
+    void applyOutputFilters(double & left, double & right);
 
     RoomAcoustics::ImpulseDesigner m_designer;
     RoomConvolver m_convolver;
@@ -105,6 +108,12 @@ private:
     double m_lateGain { 0.0 };
     double m_targetLateGain { 0.0 };
     double m_lateGainSmooth { 0.001 };
+
+    //! One per channel; out of the way at the ends of their travel, as everywhere else.
+    std::array<CascadedSvf, 2> m_hpf;
+    std::array<CascadedSvf, 2> m_lpf;
+    double m_hpfCutoff { 0.0 };
+    double m_lpfCutoff { 1.0 };
 
     bool m_shouldSyncParameters { true };
     double m_configuredSampleRate { 0.0 };

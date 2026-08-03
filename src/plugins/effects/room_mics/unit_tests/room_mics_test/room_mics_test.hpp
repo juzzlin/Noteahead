@@ -35,6 +35,8 @@ private slots:
     void test_layout_closeMics_shouldFollowTheSource();
     void test_layout_pair_shouldKeepTheRightOnTheRight();
     void test_processBlock_closeMics_shouldHaveNoLatency();
+    void test_processBlock_hpf_shouldCutTheLows();
+    void test_filters_defaults_shouldBeOff();
     void test_processBlock_roomPair_shouldHearTheLeftSourceFirstOnTheLeft();
     void test_processBlock_tail_shouldDecayAtTheRoomsReverbTime();
     void test_processBlock_tail_shouldJoinTheEarlyPartWithoutAStep();
