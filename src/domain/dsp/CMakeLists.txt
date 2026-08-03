@@ -18,6 +18,7 @@ set(DSP_SOURCES
     drum/clap_engine.cpp
     drum/crash_engine.cpp
     drum/hihat_engine.cpp
+    drum/kick_808_engine.cpp
     drum/kick_engine.cpp
     drum/ride_engine.cpp
     drum/snare_engine.cpp

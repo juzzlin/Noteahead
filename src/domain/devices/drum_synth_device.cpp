@@ -61,7 +61,7 @@ std::string DrumSynthDevice::name() const
 
 std::string DrumSynthDevice::category() const
 {
-    return "Drums";
+    return Constants::NahdXml::xmlValueDrums().toStdString();
 }
 
 std::string DrumSynthDevice::typeName() const

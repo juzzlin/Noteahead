@@ -21,6 +21,7 @@
 #include "../../domain/devices/bass_synth_device.hpp"
 #include "../../domain/devices/device_factory.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
+#include "../../domain/devices/kick_808_device.hpp"
 #include "../../domain/devices/piano_synth_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/string_voice_device.hpp"
@@ -365,6 +366,11 @@ void DeviceRackControllerTest::test_addMethods_shouldAddDevicesToFirstEmptySlot(
     controller.addStringVoice();
     QVERIFY(deviceService->device(6) != nullptr);
     QCOMPARE(deviceService->device(6)->typeId(), StringVoiceDevice::typeIdString());
+
+    // addKick808 should go to slot 7
+    controller.addKick808();
+    QVERIFY(deviceService->device(7) != nullptr);
+    QCOMPARE(deviceService->device(7)->typeId(), Kick808Device::typeIdString());
 }
 
 void DeviceRackControllerTest::test_availableDevices_shouldReturnCorrectList()
@@ -372,16 +378,17 @@ void DeviceRackControllerTest::test_availableDevices_shouldReturnCorrectList()
     DeviceRackController controller { nullptr, {}, nullptr };
     const auto list = controller.availableDevices();
 
-    QCOMPARE(list.size(), 9);
+    QCOMPARE(list.size(), 10);
     QCOMPARE(list.at(0).toMap()["name"].toString(), QString("Sampler"));
     QCOMPARE(list.at(1).toMap()["name"].toString(), QString("Synth"));
     QCOMPARE(list.at(2).toMap()["name"].toString(), QString("Wavetable Synth"));
     QCOMPARE(list.at(3).toMap()["name"].toString(), QString("Bass Synth"));
     QCOMPARE(list.at(4).toMap()["name"].toString(), QString("Drum Synth"));
     QCOMPARE(list.at(5).toMap()["name"].toString(), QString("Piano Synth"));
-    QCOMPARE(list.at(6).toMap()["name"].toString(), QString("String & Voice"));
-    QCOMPARE(list.at(7).toMap()["name"].toString(), QString("String Ensemble"));
-    QCOMPARE(list.at(8).toMap()["name"].toString(), QString("Sub Mixer"));
+    QCOMPARE(list.at(6).toMap()["name"].toString(), QString("Kick 808"));
+    QCOMPARE(list.at(7).toMap()["name"].toString(), QString("String & Voice"));
+    QCOMPARE(list.at(8).toMap()["name"].toString(), QString("String Ensemble"));
+    QCOMPARE(list.at(9).toMap()["name"].toString(), QString("Sub Mixer"));
 }
 
 void DeviceRackControllerTest::test_deviceMeterLevels_shouldReportPreInsertLevel()

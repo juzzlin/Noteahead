@@ -29,6 +29,7 @@
 #include "../../common/constants.hpp"
 #include "../../domain/devices/device_factory.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
+#include "../../domain/devices/kick_808_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/string_ensemble_device.hpp"
 #include "../../domain/devices/sub_mixer_device.hpp"
@@ -1743,6 +1744,61 @@ void XmlSerializationTest::test_toXmlFromXml_stringEnsembleDevice_shouldLoadCorr
     QVERIFY(std::abs(restored->velocitySensitivity() - 0.3f) < 0.001f);
 
     // The channel strip settings live on the Device base class, so this covers them for every device.
+    QCOMPARE(static_cast<int>(restored->faderPosition()), static_cast<int>(Device::FaderPosition::PostInserts));
+    QCOMPARE(static_cast<int>(restored->sendTap()), static_cast<int>(Device::SendTap::PreFader));
+}
+
+void XmlSerializationTest::test_toXmlFromXml_kick808Device_shouldLoadCorrectly()
+{
+    // Devices are rebuilt through DeviceFactory, so this also covers the factory registration:
+    // without it the device would silently vanish from a reloaded project.
+    DeviceFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto kick = std::make_shared<Kick808Device>("Kick808");
+    kick->setTune(0.62f);
+    kick->setTone(0.18f);
+    kick->setDecay(0.88f);
+    kick->setPitchDepth(0.55f);
+    kick->setPitchDecay(0.12f);
+    kick->setDrive(0.44f);
+    kick->setGlide(0.33f);
+    kick->setKeyTrack(false);
+    kick->setLpfCutoff(0.65f);
+    kick->setHpfCutoff(0.2f);
+    kick->setFaderPosition(Device::FaderPosition::PostInserts);
+    kick->setSendTap(Device::SendTap::PreFader);
+    deviceServiceOut.setDevice(1, kick);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto restored = std::dynamic_pointer_cast<Kick808Device>(deviceServiceIn.device(size_t { 1 }));
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), Kick808Device::typeIdString());
+
+    QVERIFY(std::abs(restored->tune() - 0.62f) < 0.001f);
+    QVERIFY(std::abs(restored->tone() - 0.18f) < 0.001f);
+    QVERIFY(std::abs(restored->decay() - 0.88f) < 0.001f);
+    QVERIFY(std::abs(restored->pitchDepth() - 0.55f) < 0.001f);
+    QVERIFY(std::abs(restored->pitchDecay() - 0.12f) < 0.001f);
+    QVERIFY(std::abs(restored->drive() - 0.44f) < 0.001f);
+    QVERIFY(std::abs(restored->glide() - 0.33f) < 0.001f);
+    QCOMPARE(restored->keyTrack(), false);
+    QVERIFY(std::abs(restored->lpfCutoff() - 0.65f) < 0.001f);
+    QVERIFY(std::abs(restored->hpfCutoff() - 0.2f) < 0.001f);
+
     QCOMPARE(static_cast<int>(restored->faderPosition()), static_cast<int>(Device::FaderPosition::PostInserts));
     QCOMPARE(static_cast<int>(restored->sendTap()), static_cast<int>(Device::SendTap::PreFader));
 }

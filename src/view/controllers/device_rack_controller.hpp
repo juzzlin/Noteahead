@@ -136,6 +136,7 @@ public:
     Q_INVOKABLE void addBassSynth();
     Q_INVOKABLE void addDrumSynth();
     Q_INVOKABLE void addPianoSynth();
+    Q_INVOKABLE void addKick808();
     Q_INVOKABLE void addStringVoice();
     Q_INVOKABLE void addSubMixer();
     Q_INVOKABLE void removeDevice(const QString & name);
@@ -150,6 +151,7 @@ signals:
     void bassSynthDialogRequested();
     void drumSynthDialogRequested();
     void pianoSynthDialogRequested();
+    void kick808DialogRequested();
     void stringVoiceDialogRequested();
     void stringEnsembleDialogRequested();
     void deviceSettingsDialogRequested(QString deviceName);

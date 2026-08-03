@@ -56,6 +56,7 @@ QString wavetableSynthDeviceName();
 QString bassSynthDeviceName();
 QString drumSynthDeviceName();
 QString pianoSynthDeviceName();
+QString kick808DeviceName();
 QString subMixerDeviceName();
 QString stringVoiceDeviceName();
 QString stringEnsembleDeviceName();
@@ -586,6 +587,7 @@ QString xmlValueRandom();
 QString xmlValueSamplers();
 QString xmlValueSynths();
 QString xmlValueMixers();
+QString xmlValueDrums();
 
 QString xmlKeyStringsLevel8();
 QString xmlKeyStringsLevel4();

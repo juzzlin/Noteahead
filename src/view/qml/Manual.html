@@ -417,6 +417,21 @@
     <li><strong>Global</strong>: LPF/HPF shaping, stereo pan spread, and the usual Gain/Fader/Pan output stage.</li>
 </ul>
 
+<h3>Kick808</h3>
+<p>A TR-808-style bass drum. Where the Drum Synth's kick follows the 909 lineage — a pitch-swept oscillator under an amplitude envelope — this one models the 808's bridged-T network as a high-Q resonator that the trigger pulse rings. That is what gives it the very long, near-pure sub tail, and it means overlapping hits sum into the ringing tail instead of cutting it off.</p>
+<p>It is deliberately a <em>pitched, monophonic</em> instrument rather than a drum machine voice, because the 808 kick is played as a bass line at least as often as it is played as a drum. Notes are one-shot: <strong>Decay</strong> owns the tail and a note off does not cut it, exactly like the hardware. Only <em>Stop all notes</em> chokes a ringing hit.</p>
+<ul>
+    <li><strong>Tuning</strong>: Pitch offset, up to two octaves either way. On the RD-8 this knob sits in the Accent column, which is only panel layout — it is a bass drum parameter and has nothing to do with accent. Accent itself is just velocity, which the note column already gives you.</li>
+    <li><strong>Tone</strong>: Shortens and brightens the excitation pulse and raises the amount of it that leaks straight to the output, so it controls how much click sits on the front of the hit.</li>
+    <li><strong>Decay</strong>: The resonator's own damping, sweeping from a bare click through to a boom of a few seconds.</li>
+    <li><strong>Drive</strong>: Saturation for the modern, distorted 808 sound. Fully bypassed at zero.</li>
+    <li><strong>Pitch Depth</strong> and <strong>Pitch Decay</strong>: The downward sweep at the start of the hit — the "pop" of the attack.</li>
+    <li><strong>Key Track</strong>: On, the voice follows the note column and <strong>Glide</strong> slurs between notes, which is how 808 bass lines are written. Off, it stays at a fixed C2 and behaves like the hardware's single tuned voice.</li>
+    <li><strong>LPF/HPF Cutoff</strong>: The same output filters the other internal devices have, in the Global section.</li>
+</ul>
+<p>Being monophonic, a new hit takes the voice over rather than piling onto the one before it: the ring that is still sounding fades out from under it over a few milliseconds. That is what keeps every hit weighing the same in a fast pattern, and it means a run of kicks stays even instead of drifting in and out of reinforcement.</p>
+<p><em>Every</em> parameter above is reachable over MIDI CC, so a whole kick can be automated per line from a note column. LPF and HPF sit on the same controller numbers the other devices use for them.</p>
+
 <h3>String &amp; Voice</h3>
 <p>A vintage string and choir ensemble inspired by the Roland VP-330 and Behringer VC340.</p>
 <ul>

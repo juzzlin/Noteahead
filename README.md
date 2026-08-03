@@ -110,6 +110,8 @@ All Arctic Music Project songs:
   - 16-pad internal sampler with WAV support, dual filters, and per-sample panning/volume.
 - Piano Synth
   - Physically modelled (waveguide) piano with brightness, decay, inharmonicity, LPF/HPF shaping, release, and stereo pan spread.
+- Kick808
+  - TR-808-style bass drum built on a pulse-excited resonator, sweeping from a short click to a long sub boom. Pitched and monophonic, so Key Track and Glide let it play bass lines as well as drums, with Tuning, Tone, Decay, Drive and a pitch envelope.
 - String & Voice
   - Vintage string/choir ensemble inspired by the Roland VP-330 / Behringer VC340, with strings and voice registers, BBD ensemble chorus, and a sidechain vocoder.
 - String Ensemble

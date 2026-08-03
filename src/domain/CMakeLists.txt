@@ -4,6 +4,7 @@ set(HEADER_FILES
     devices/device_factory.hpp
     devices/drum_synth_constants.hpp
     devices/drum_synth_device.hpp
+    devices/kick_808_device.hpp
     devices/piano_synth_device.hpp
     devices/sampler_device.hpp
     devices/string_ensemble_device.hpp
@@ -23,6 +24,7 @@ set(HEADER_FILES
     dsp/drum/crash_engine.hpp
     dsp/drum/drum_engine.hpp
     dsp/drum/hihat_engine.hpp
+    dsp/drum/kick_808_engine.hpp
     dsp/drum/kick_engine.hpp
     dsp/drum/ride_engine.hpp
     dsp/drum/snare_engine.hpp
@@ -113,6 +115,7 @@ set(SOURCE_FILES
     devices/device_registration.cpp
     devices/drum_synth_constants.cpp
     devices/drum_synth_device.cpp
+    devices/kick_808_device.cpp
     devices/piano_synth_device.cpp
     devices/sampler_device.cpp
     devices/string_ensemble_device.cpp
@@ -132,6 +135,7 @@ set(SOURCE_FILES
     dsp/drum/clap_engine.cpp
     dsp/drum/crash_engine.cpp
     dsp/drum/hihat_engine.cpp
+    dsp/drum/kick_808_engine.cpp
     dsp/drum/kick_engine.cpp
     dsp/drum/ride_engine.cpp
     dsp/drum/snare_engine.cpp

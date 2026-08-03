@@ -5,6 +5,14 @@ Release date:
 
 New features:
 
+* Add the Kick808 device
+  - TR-808-style bass drum built on a pulse-excited resonator, from a short
+    click to a long sub boom
+  - Pitched and monophonic: Key Track follows the note column and Glide
+    slurs between notes, so it plays as a bass line as well as a drum
+  - Tuning, Tone, Decay, Pitch Depth, Pitch Decay, Drive, Glide and LPF/HPF,
+    all of them automatable over MIDI CC
+
 Bug fixes:
 
 Other:

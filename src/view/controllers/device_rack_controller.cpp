@@ -21,6 +21,7 @@
 #include "../../domain/devices/bass_synth_device.hpp"
 #include "../../domain/devices/device_factory.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
+#include "../../domain/devices/kick_808_device.hpp"
 #include "../../domain/devices/piano_synth_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/string_ensemble_device.hpp"
@@ -31,6 +32,7 @@
 #include "../../infra/audio/audio_engine.hpp"
 #include "bass_synth_controller.hpp"
 #include "drum_synth_controller.hpp"
+#include "kick_808_controller.hpp"
 #include "piano_synth_controller.hpp"
 #include "sampler_controller.hpp"
 #include "synth_controller.hpp"
@@ -147,6 +149,8 @@ void DeviceRackController::openDevice(const QString & name)
                     emit drumSynthDialogRequested();
                 } else if (typeId == PianoSynthDevice::typeIdString()) {
                     emit pianoSynthDialogRequested();
+                } else if (typeId == Kick808Device::typeIdString()) {
+                    emit kick808DialogRequested();
                 } else if (typeId == StringVoiceDevice::typeIdString()) {
                     emit stringVoiceDialogRequested();
                 } else if (typeId == StringEnsembleDevice::typeIdString()) {
@@ -408,6 +412,7 @@ QVariantList DeviceRackController::availableDevices() const
     addDevice("Bass Synth", QString::fromStdString(BassSynthDevice::typeIdString()));
     addDevice("Drum Synth", QString::fromStdString(DrumSynthDevice::typeIdString()));
     addDevice("Piano Synth", QString::fromStdString(PianoSynthDevice::typeIdString()));
+    addDevice("Kick 808", QString::fromStdString(Kick808Device::typeIdString()));
     addDevice("String & Voice", QString::fromStdString(StringVoiceDevice::typeIdString()));
     addDevice("String Ensemble", QString::fromStdString(StringEnsembleDevice::typeIdString()));
     addDevice("Sub Mixer", QString::fromStdString(SubMixerDevice::typeIdString()));
@@ -573,6 +578,16 @@ void DeviceRackController::addPianoSynth()
     for (int i = 0; i < deviceCount(); i++) {
         if (!m_deviceService->device(static_cast<size_t>(i))) {
             setDevice(i, QString::fromStdString(PianoSynthDevice::typeIdString()));
+            return;
+        }
+    }
+}
+
+void DeviceRackController::addKick808()
+{
+    for (int i = 0; i < deviceCount(); i++) {
+        if (!m_deviceService->device(static_cast<size_t>(i))) {
+            setDevice(i, QString::fromStdString(Kick808Device::typeIdString()));
             return;
         }
     }

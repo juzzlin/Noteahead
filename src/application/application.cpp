@@ -24,6 +24,7 @@
 #include "../domain/devices/bass_synth_device.hpp"
 #include "../domain/devices/device_factory.hpp"
 #include "../domain/devices/drum_synth_device.hpp"
+#include "../domain/devices/kick_808_device.hpp"
 #include "../domain/devices/piano_synth_device.hpp"
 #include "../domain/devices/sampler_device.hpp"
 #include "../domain/devices/string_ensemble_device.hpp"
@@ -42,6 +43,7 @@
 #include "../view/controllers/device_rack_controller.hpp"
 #include "../view/controllers/drum_synth_controller.hpp"
 #include "../view/controllers/effect_rack_controller.hpp"
+#include "../view/controllers/kick_808_controller.hpp"
 #include "../view/controllers/knob_controller.hpp"
 #include "../view/controllers/piano_synth_controller.hpp"
 #include "../view/controllers/sampler_controller.hpp"
@@ -127,10 +129,11 @@ Application::Application(int & argc, char ** argv)
   , m_bassSynthController { std::make_shared<BassSynthController>(std::make_shared<BassSynthDevice>("Default BassSynth")) }
   , m_drumSynthController { std::make_shared<DrumSynthController>(m_deviceService) }
   , m_pianoSynthController { std::make_shared<PianoSynthController>(std::make_shared<PianoSynthDevice>("Default PianoSynth")) }
+  , m_kick808Controller { std::make_shared<Kick808Controller>(std::make_shared<Kick808Device>("Default Kick808")) }
   , m_stringVoiceController { std::make_shared<StringVoiceController>(std::make_shared<StringVoiceDevice>("Default StringVoice")) }
   , m_stringEnsembleController { std::make_shared<StringEnsembleController>(std::make_shared<StringEnsembleDevice>("Default StringEnsemble")) }
   , m_effectRackController { std::make_shared<EffectRackController>(m_deviceService, m_editorService) }
-  , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, std::vector<DeviceController::DeviceControllerS> { m_samplerController, m_synthController, m_wavetableSynthController, m_bassSynthController, m_drumSynthController, m_pianoSynthController, m_stringVoiceController, m_stringEnsembleController }, m_editorService) }
+  , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, std::vector<DeviceController::DeviceControllerS> { m_samplerController, m_synthController, m_wavetableSynthController, m_bassSynthController, m_drumSynthController, m_pianoSynthController, m_kick808Controller, m_stringVoiceController, m_stringEnsembleController }, m_editorService) }
   , m_knobController { std::make_shared<KnobController>() }
   , m_jackService { std::make_shared<JackService>(m_settingsService, m_audioEngine) }
   , m_audioService { std::make_shared<AudioService>(m_settingsService, m_jackService, m_audioEngine) }
@@ -227,6 +230,7 @@ void Application::registerTypes()
     qmlRegisterType<DrumSynthController>("Noteahead", majorVersion, minorVersion, "DrumSynthController");
     qmlRegisterType<BassSynthController>("Noteahead", majorVersion, minorVersion, "BassSynthController");
     qmlRegisterType<PianoSynthController>("Noteahead", majorVersion, minorVersion, "PianoSynthController");
+    qmlRegisterType<Kick808Controller>("Noteahead", majorVersion, minorVersion, "Kick808Controller");
     qmlRegisterType<StringVoiceController>("Noteahead", majorVersion, minorVersion, "StringVoiceController");
     qmlRegisterType<StringEnsembleController>("Noteahead", majorVersion, minorVersion, "StringEnsembleController");
     qmlRegisterType<SynthController>("Noteahead", majorVersion, minorVersion, "SynthController");
@@ -258,6 +262,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("bassSynthController", m_bassSynthController.get());
     m_engine->rootContext()->setContextProperty("drumSynthController", m_drumSynthController.get());
     m_engine->rootContext()->setContextProperty("pianoSynthController", m_pianoSynthController.get());
+    m_engine->rootContext()->setContextProperty("kick808Controller", m_kick808Controller.get());
     m_engine->rootContext()->setContextProperty("stringVoiceController", m_stringVoiceController.get());
     m_engine->rootContext()->setContextProperty("stringEnsembleController", m_stringEnsembleController.get());
     m_engine->rootContext()->setContextProperty("effectRackController", m_effectRackController.get());

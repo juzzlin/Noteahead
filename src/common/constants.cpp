@@ -127,6 +127,11 @@ QString pianoSynthDeviceName()
     return "Noteahead PianoSynth";
 }
 
+QString kick808DeviceName()
+{
+    return "Noteahead Kick808";
+}
+
 QString subMixerDeviceName()
 {
     return "Noteahead SubMixer";
@@ -1970,6 +1975,11 @@ QString xmlValueMixers()
 QString xmlValueSynths()
 {
     return "Synths";
+}
+
+QString xmlValueDrums()
+{
+    return "Drums";
 }
 
 QString xmlKeyBrightness()

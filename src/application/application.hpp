@@ -46,6 +46,7 @@ class DeviceRackController;
 class DeviceService;
 class BassSynthController;
 class DrumSynthController;
+class Kick808Controller;
 class PianoSynthController;
 class StringEnsembleController;
 class StringVoiceController;
@@ -164,6 +165,7 @@ private:
     std::shared_ptr<BassSynthController> m_bassSynthController;
     std::shared_ptr<DrumSynthController> m_drumSynthController;
     std::shared_ptr<PianoSynthController> m_pianoSynthController;
+    std::shared_ptr<Kick808Controller> m_kick808Controller;
     std::shared_ptr<StringVoiceController> m_stringVoiceController;
     std::shared_ptr<StringEnsembleController> m_stringEnsembleController;
     std::shared_ptr<EffectRackController> m_effectRackController;

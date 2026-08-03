@@ -320,6 +320,12 @@ ApplicationWindow {
         width: parent.width * Constants.largeDialogScale
         height: parent.height * Constants.largeDialogScale
     }
+    Kick808Dialog {
+        id: kick808Dialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.largeDialogScale
+        height: parent.height * Constants.largeDialogScale
+    }
     StringVoiceDialog {
         id: stringVoiceDialog
         anchors.centerIn: parent
@@ -727,6 +733,7 @@ ApplicationWindow {
         deviceRackController.bassSynthDialogRequested.connect(bassSynthDialog.open);
         deviceRackController.drumSynthDialogRequested.connect(drumSynthDialog.open);
         deviceRackController.pianoSynthDialogRequested.connect(pianoSynthDialog.open);
+        deviceRackController.kick808DialogRequested.connect(kick808Dialog.open);
         deviceRackController.stringVoiceDialogRequested.connect(stringVoiceDialog.open);
         deviceRackController.stringEnsembleDialogRequested.connect(stringEnsembleDialog.open);
         deviceRackController.subMixerDialogRequested.connect(slotIndex => {
