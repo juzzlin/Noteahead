@@ -124,6 +124,9 @@ void EditorService::setSong(SongS song)
 
     m_song = song;
 
+    // A default-constructed cursor sits on track index 0, which need not exist. See firstTrackIndex().
+    m_state.cursorPosition.track = firstTrackIndex();
+
     seedSongSettings();
     m_undoStack->clear();
     emit songChanged();
@@ -281,10 +284,24 @@ void EditorService::fromXml(QString xml)
     }
 }
 
+size_t EditorService::firstTrackIndex() const
+{
+    // Track indices are ids rather than positions, so they are neither dense nor guaranteed to start
+    // at zero: a song whose first track was deleted has a gap, and projects saved by older versions
+    // can carry any set of indices at all. The leftmost track therefore has to be looked up.
+    if (m_song) {
+        if (const auto trackIndex = m_song->trackIndexByPosition(0); trackIndex.has_value()) {
+            return *trackIndex;
+        }
+    }
+    return 0;
+}
+
 void EditorService::resetCursorPosition()
 {
     const auto oldPosition = m_state.cursorPosition;
     m_state.cursorPosition = {};
+    m_state.cursorPosition.track = firstTrackIndex();
     notifyPositionChange(oldPosition);
 }
 
@@ -789,6 +806,12 @@ void EditorService::setColumnName(quint64 trackIndex, quint64 columnIndex, QStri
 
 EditorService::InstrumentS EditorService::instrument(quint64 trackIndex) const
 {
+    // The domain throws on an index no track carries. This is reachable from QML, which cannot catch
+    // it, so an index that has gone stale would take the whole application down rather than render
+    // an empty field. Report "no instrument" instead and let the caller deal with it.
+    if (!m_song || !m_song->trackPositionByIndex(trackIndex).has_value()) {
+        return nullptr;
+    }
     return m_song->instrument(trackIndex);
 }
 

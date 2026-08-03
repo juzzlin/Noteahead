@@ -1860,6 +1860,34 @@ void EditorServiceTest::test_setSongLength_clampingPosition_shouldClampCorrectly
     QCOMPARE(editorService.songPosition(), 1);
 }
 
+void EditorServiceTest::test_fromXml_songWithoutTrackIndexZero_shouldNotThrow()
+{
+    // Track indices are ids, not positions, so a song need not have one at zero: deleting the first
+    // track leaves a gap, and projects saved by older versions can carry any set of indices. Loading
+    // one used to leave the cursor on the default index zero, and the first QML binding that asked
+    // that track for its port name took the whole application down with it.
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    QVERIFY(editorServiceOut.song()->deleteTrack(0));
+    const auto xml = editorServiceOut.toXml();
+
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorServiceIn.fromXml(xml);
+
+    const auto trackIndices = editorServiceIn.trackIndices();
+    QVERIFY(!trackIndices.empty());
+    QVERIFY(std::ranges::find(trackIndices, 0) == trackIndices.end());
+
+    // The cursor has to land on a track that exists, which is the leftmost one.
+    QCOMPARE(editorServiceIn.position().track, static_cast<size_t>(trackIndices.front()));
+
+    // The call the QML bindings make must survive whatever the cursor is on.
+    editorServiceIn.instrumentPortName(editorServiceIn.position().track);
+
+    // And an index no track carries is reported as having no instrument rather than throwing.
+    QVERIFY(!editorServiceIn.instrument(0));
+    QCOMPARE(editorServiceIn.instrumentPortName(0), QString {});
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::EditorServiceTest)

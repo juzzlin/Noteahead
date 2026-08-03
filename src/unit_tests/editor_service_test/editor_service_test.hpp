@@ -120,6 +120,7 @@ private slots:
     void test_velocityAtPosition_shouldReturnCorrectVelocity();
     void test_midiNotesAtPosition_shouldReturnCorrectNotes();
     void test_setSongLength_clampingPosition_shouldClampCorrectly();
+    void test_fromXml_songWithoutTrackIndexZero_shouldNotThrow();
 };
 
 } // namespace noteahead

@@ -446,6 +446,10 @@ private:
 
     void removeDuplicateNoteOffs();
 
+    //! Index of the leftmost track, which is where the cursor belongs when there is nothing better.
+    //! Not necessarily zero: track indices are ids, so they can be sparse and need not start at zero.
+    size_t firstTrackIndex() const;
+
     void resetCursorPosition();
     void moveCursorToNextTrack();
     void moveCursorToPrevTrack();
