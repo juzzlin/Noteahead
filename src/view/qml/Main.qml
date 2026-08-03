@@ -476,6 +476,12 @@ ApplicationWindow {
         width: parent.width * Constants.effectDialogScale
         height: parent.height * Constants.effectDialogScale
     }
+    TubeStageDialog {
+        id: tubeStageDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.effectDialogScale
+        height: parent.height * Constants.effectDialogScale
+    }
     DriveDialog {
         id: driveDialog
         anchors.centerIn: parent

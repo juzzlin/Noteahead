@@ -201,6 +201,11 @@ QString saturator()
     return "saturator";
 }
 
+QString tubeStage()
+{
+    return "tubeStage";
+}
+
 QString limiter()
 {
     return "limiter";
@@ -1255,6 +1260,11 @@ QString xmlKeyHold()
 QString xmlKeyDrive()
 {
     return "drive";
+}
+
+QString xmlKeyBias()
+{
+    return "bias";
 }
 
 QString xmlKeySideChainSourceDevice()

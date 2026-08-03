@@ -34,6 +34,7 @@
 #include "../../domain/effects/panner.hpp"
 #include "../../domain/effects/reverb.hpp"
 #include "../../domain/effects/saturator.hpp"
+#include "../../domain/effects/tube_stage.hpp"
 #include "../../domain/utility/dbtp_meter.hpp"
 #include "../../domain/utility/lufs_meter.hpp"
 #include "../../domain/utility/rta.hpp"
@@ -283,6 +284,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Reverb", Constants::RackEffectType::reverb().toStdString());
     addEffect("RTA", Constants::RackEffectType::rta().toStdString());
     addEffect("Saturator", Constants::RackEffectType::saturator().toStdString());
+    addEffect("Tube Stage", Constants::RackEffectType::tubeStage().toStdString());
 
     return list;
 }
@@ -531,6 +533,14 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                     return QString { "(pre=%1ms, decay=%2ms)" }
                       .arg(preDelay->get().xmlValue() / preDelay->get().xmlScale())
                       .arg(decay->get().xmlValue() / decay->get().xmlScale());
+                }
+            } else if (type == Constants::RackEffectType::tubeStage()) {
+                const auto drive = effect->parameter(Constants::NahdXml::xmlKeyDrive().toStdString());
+                const auto bias = effect->parameter(Constants::NahdXml::xmlKeyBias().toStdString());
+                if (drive && bias) {
+                    return QString { "(drive=%1dB, bias=%2%)" }
+                      .arg(drive->get().value() * 36.0f, 0, 'f', 1)
+                      .arg(static_cast<int>(std::round(bias->get().value() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::saturator()) {
                 const auto drive = effect->parameter(Constants::NahdXml::xmlKeyDrive().toStdString());
@@ -827,6 +837,36 @@ QString EffectRackController::saturatorGainKey() const
     return Constants::NahdXml::xmlKeyGain();
 }
 
+QString EffectRackController::tubeStageModeKey() const
+{
+    return Constants::NahdXml::xmlKeyMode();
+}
+
+QString EffectRackController::tubeStageDriveKey() const
+{
+    return Constants::NahdXml::xmlKeyDrive();
+}
+
+QString EffectRackController::tubeStageBiasKey() const
+{
+    return Constants::NahdXml::xmlKeyBias();
+}
+
+QString EffectRackController::tubeStageToneKey() const
+{
+    return Constants::NahdXml::xmlKeyTone();
+}
+
+QString EffectRackController::tubeStageMixKey() const
+{
+    return Constants::NahdXml::xmlKeyMix();
+}
+
+QString EffectRackController::tubeStageGainKey() const
+{
+    return Constants::NahdXml::xmlKeyGain();
+}
+
 QString EffectRackController::driveModeKey() const
 {
     return Constants::NahdXml::xmlKeyMode();
@@ -965,6 +1005,11 @@ QString EffectRackController::clipperType() const
 QString EffectRackController::saturatorType() const
 {
     return Constants::RackEffectType::saturator();
+}
+
+QString EffectRackController::tubeStageType() const
+{
+    return Constants::RackEffectType::tubeStage();
 }
 
 QString EffectRackController::driveType() const
@@ -1150,6 +1195,19 @@ float EffectRackController::saturatorSaturationDb(quint32 effectIndex) const
         if (const auto effect = rack->get().effect(effectIndex); effect) {
             if (const auto saturator = std::dynamic_pointer_cast<Saturator>(effect); saturator) {
                 return saturator->saturationDb();
+            }
+        }
+    }
+
+    return 0.0f;
+}
+
+float EffectRackController::tubeStageSaturationDb(quint32 effectIndex) const
+{
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(effectIndex); effect) {
+            if (const auto tubeStage = std::dynamic_pointer_cast<TubeStage>(effect); tubeStage) {
+                return tubeStage->saturationDb();
             }
         }
     }

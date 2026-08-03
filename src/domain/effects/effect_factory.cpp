@@ -35,6 +35,7 @@
 #include "reverb.hpp"
 #include "saturator.hpp"
 #include "simple_eq.hpp"
+#include "tube_stage.hpp"
 #include "vintage_passive_eq.hpp"
 
 #include <map>
@@ -105,6 +106,7 @@ void EffectFactory::init()
     registerEffect(Rta::typeIdString(), []() { return std::make_shared<Rta>(); });
     registerEffect(Reverb::typeIdString(), []() { return std::make_shared<Reverb>(); });
     registerEffect(Saturator::typeIdString(), []() { return std::make_shared<Saturator>(); });
+    registerEffect(TubeStage::typeIdString(), []() { return std::make_shared<TubeStage>(); });
     registerEffect(VintagePassiveEq::typeIdString(), []() { return std::make_shared<VintagePassiveEq>(); });
     registerEffect(SimpleEq::typeIdString(), []() { return std::make_shared<SimpleEq>(); });
 
@@ -125,9 +127,11 @@ void EffectFactory::init()
     registerEffect(Constants::RackEffectType::vintagePassiveEq().toStdString(), []() { return std::make_shared<VintagePassiveEq>(); });
     registerEffect(Constants::RackEffectType::airBandEq().toStdString(), []() { return std::make_shared<AirBandEq>(); });
     registerEffect(Constants::RackEffectType::simpleEq().toStdString(), []() { return std::make_shared<SimpleEq>(); });
+    registerEffect(Constants::RackEffectType::tubeStage().toStdString(), []() { return std::make_shared<TubeStage>(); });
 
     // Legacy support
     registerLegacyEffect("auto_ducker", []() { return std::make_shared<AutoDucker>(); });
+    registerLegacyEffect("tube_stage", []() { return std::make_shared<TubeStage>(); });
     registerLegacyEffect("auto_panner", []() { return std::make_shared<AutoPanner>(); });
     registerLegacyEffect("endless", []() { return std::make_shared<EndlessReverb>(); });
     registerLegacyEffect("chorus", []() { return std::make_shared<Chorus>(); });

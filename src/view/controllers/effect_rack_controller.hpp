@@ -48,6 +48,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString chorusType READ chorusType CONSTANT)
     Q_PROPERTY(QString clipperType READ clipperType CONSTANT)
     Q_PROPERTY(QString saturatorType READ saturatorType CONSTANT)
+    Q_PROPERTY(QString tubeStageType READ tubeStageType CONSTANT)
     Q_PROPERTY(QString driveType READ driveType CONSTANT)
     Q_PROPERTY(QString limiterType READ limiterType CONSTANT)
     Q_PROPERTY(QString compressorType READ compressorType CONSTANT)
@@ -91,6 +92,7 @@ public:
     QString rtaType() const;
     QString clipperType() const;
     QString saturatorType() const;
+    QString tubeStageType() const;
     QString driveType() const;
     QString limiterType() const;
     QString compressorType() const;
@@ -208,6 +210,13 @@ public:
     Q_INVOKABLE QString saturatorMixKey() const;
     Q_INVOKABLE QString saturatorGainKey() const;
 
+    Q_INVOKABLE QString tubeStageModeKey() const;
+    Q_INVOKABLE QString tubeStageDriveKey() const;
+    Q_INVOKABLE QString tubeStageBiasKey() const;
+    Q_INVOKABLE QString tubeStageToneKey() const;
+    Q_INVOKABLE QString tubeStageMixKey() const;
+    Q_INVOKABLE QString tubeStageGainKey() const;
+
     Q_INVOKABLE QString driveModeKey() const;
     Q_INVOKABLE QString driveAmountKey() const;
     Q_INVOKABLE QString driveMixKey() const;
@@ -240,6 +249,7 @@ public:
     Q_INVOKABLE float clipperReductionDb(quint32 effectIndex) const;
     Q_INVOKABLE float limiterReductionDb(quint32 effectIndex) const;
     Q_INVOKABLE float saturatorSaturationDb(quint32 effectIndex) const;
+    Q_INVOKABLE float tubeStageSaturationDb(quint32 effectIndex) const;
     Q_INVOKABLE float lufsMeterMomentary(quint32 effectIndex) const;
     Q_INVOKABLE float lufsMeterShortTerm(quint32 effectIndex) const;
     Q_INVOKABLE float dbtpMeterTruePeakL(quint32 effectIndex) const;

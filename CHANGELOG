@@ -5,6 +5,12 @@ Release date:
 
 New features:
 
+* Add the Tube Stage effect
+  - Valve preamp with a Bias control for the operating point, which is what
+    decides how much even-harmonic warmth the stage generates
+  - Triode and Pentode curves, tilt Tone, Mix and output trim
+  - Oversampled shaping, with the DC an asymmetric curve leaves blocked
+
 * Add the Kick808 device
   - TR-808-style bass drum built on a pulse-excited resonator, from a short
     click to a long sub boom

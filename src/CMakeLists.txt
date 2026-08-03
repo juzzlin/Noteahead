@@ -152,6 +152,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Vco2.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Vco3.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog.qml
+    ${QML_BASE_DIR}/Dialogs/TubeStageDialog.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_InstrumentSettings.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiCcSettings.qml
     ${QML_BASE_DIR}/Dialogs/SubMixerDialog.qml

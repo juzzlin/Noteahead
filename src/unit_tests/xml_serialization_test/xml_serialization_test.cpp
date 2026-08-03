@@ -47,6 +47,7 @@
 #include "../../domain/effects/limiter.hpp"
 #include "../../domain/effects/reverb.hpp"
 #include "../../domain/effects/simple_eq.hpp"
+#include "../../domain/effects/tube_stage.hpp"
 #include "../../domain/effects/vintage_passive_eq.hpp"
 #include "../../domain/tracker/auto_note_off_offset.hpp"
 #include "../../domain/tracker/column_settings.hpp"
@@ -1801,6 +1802,62 @@ void XmlSerializationTest::test_toXmlFromXml_kick808Device_shouldLoadCorrectly()
 
     QCOMPARE(static_cast<int>(restored->faderPosition()), static_cast<int>(Device::FaderPosition::PostInserts));
     QCOMPARE(static_cast<int>(restored->sendTap()), static_cast<int>(Device::SendTap::PreFader));
+}
+
+void XmlSerializationTest::test_toXmlFromXml_tubeStage_shouldLoadCorrectly()
+{
+    // Effects are rebuilt through EffectFactory, so this also covers the factory registration:
+    // without it the effect would silently vanish from a reloaded project.
+    EffectFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto tubeStage = std::make_shared<TubeStage>();
+    if (auto p = tubeStage->parameter(Constants::NahdXml::xmlKeyMode().toStdString()); p) {
+        p->get().setValue(1.0f);
+    }
+    if (auto p = tubeStage->parameter(Constants::NahdXml::xmlKeyDrive().toStdString()); p) {
+        p->get().setValue(0.72f);
+    }
+    if (auto p = tubeStage->parameter(Constants::NahdXml::xmlKeyBias().toStdString()); p) {
+        p->get().setValue(0.31f);
+    }
+    if (auto p = tubeStage->parameter(Constants::NahdXml::xmlKeyTone().toStdString()); p) {
+        p->get().setValue(0.64f);
+    }
+    if (auto p = tubeStage->parameter(Constants::NahdXml::xmlKeyMix().toStdString()); p) {
+        p->get().setValue(0.85f);
+    }
+    deviceServiceOut.sendEffectRack().setEffect(0, tubeStage);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(effect);
+    const auto restored = std::dynamic_pointer_cast<TubeStage>(effect);
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), TubeStage::typeIdString());
+
+    const auto value = [&](const QString & key) {
+        const auto p = restored->parameter(key.toStdString());
+        return p ? p->get().value() : -1.0f;
+    };
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyMode()) - 1.0f) < 0.001f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyDrive()) - 0.72f) < 0.001f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyBias()) - 0.31f) < 0.001f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyTone()) - 0.64f) < 0.001f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyMix()) - 0.85f) < 0.001f);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_reverbGate_shouldLoadCorrectly()

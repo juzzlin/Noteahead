@@ -146,6 +146,8 @@ All Arctic Music Project songs:
   - Hard/soft clipper with adjustable threshold and output gain.
 - Saturator
   - Multi-mode saturation/distortion for adding harmonics and warmth.
+- Tube Stage
+  - Valve preamp stage with a Bias control for the operating point, so the same drive can run from nearly symmetric to hard against cutoff, plus Triode/Pentode curves, a tilt Tone control and oversampled shaping.
 - Drive
   - Overdrive with Drive amount, dry/wet Mix and output Gain, in Soft (tanh), Hard (clip), Fold (wavefolder) and Dist algorithms.
 - Chorus

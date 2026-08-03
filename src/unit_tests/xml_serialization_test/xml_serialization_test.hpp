@@ -81,6 +81,7 @@ private slots:
     void test_toXmlFromXml_subMixerDevice_shouldLoadCorrectly();
     void test_toXmlFromXml_stringEnsembleDevice_shouldLoadCorrectly();
     void test_toXmlFromXml_kick808Device_shouldLoadCorrectly();
+    void test_toXmlFromXml_tubeStage_shouldLoadCorrectly();
     void test_toXmlFromXml_simpleEqEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_reverbGate_shouldLoadCorrectly();
     void test_toXmlFromXml_limiterEffect_shouldLoadCorrectly();

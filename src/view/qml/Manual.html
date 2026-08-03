@@ -107,11 +107,24 @@
     <li><strong>Equalizers</strong>: <strong>EQ 8-Band Parametric</strong> (Bell, Shelf, Cut and Notch types per band, plus Mid/Side modes), <strong>Vintage Passive EQ</strong> (EQP-1A style, with interacting low Boost/Atten shelves and a high bell), <strong>Air Band EQ</strong> (fixed parallel-summed bands added back to the dry signal) and <strong>Simple EQ</strong> (a single "Sounds Good" knob sweeping a loudness-smile curve).</li>
     <li><strong>Reverbs</strong>: <strong>Reverb</strong> (the FDN reverb described below) and <strong>Endless Reverb</strong> (a large modulated ambient reverb with a Freeze switch for an infinite tail).</li>
     <li><strong>Dynamics</strong>: <strong>Compressor</strong> (with side-chain support), <strong>Auto Ducker</strong> (side-chain driven ducking or boosting), <strong>Limiter</strong> (lookahead brickwall with gain reduction metering) and <strong>Clipper</strong>.</li>
-    <li><strong>Saturation</strong>: <strong>Drive</strong> (Soft, Hard, Fold and Dist algorithms) and <strong>Saturator</strong>.</li>
+    <li><strong>Saturation</strong>: <strong>Drive</strong> (Soft, Hard, Fold and Dist algorithms), <strong>Saturator</strong> and <strong>Tube Stage</strong> (valve preamp, described below).</li>
     <li><strong>Modulation & Time</strong>: <strong>Chorus</strong>, <strong>Delay</strong> (Mono, Ping Pong and Tape modes, with BPM sync) and <strong>All-Pass Filter</strong>.</li>
     <li><strong>Stereo</strong>: <strong>Panner</strong> and <strong>Auto Panner</strong>.</li>
     <li><strong>Metering & Analysis</strong>: <strong>LUFS Meter</strong>, <strong>dBTP Meter</strong> (true peak) and <strong>RTA</strong> (real-time analyzer). Use these as inserts to watch the signal at any point in the chain.</li>
 </ul>
+
+<h3>Tube Stage Parameters</h3>
+<p>A valve preamp stage, for warming a signal the way a console's tube channel does. It differs from the Saturator's Tube mode in where the valve <em>sits</em> on its curve rather than in the curve itself.</p>
+<p>A triode does not run symmetrically about zero: it idles at a grid bias, so the two halves of a waveform meet different parts of the curve. That asymmetry is what generates <strong>even</strong> harmonics, which is the warmth a valve is actually wanted for. A symmetric shaper can only generate odd harmonics, which read as harshness. Bias exposes that operating point directly.</p>
+<ul>
+    <li><strong>Valve</strong>: <strong>Triode</strong> has a soft, gradual knee, the classic warm preamp valve. <strong>Pentode</strong> holds its shape longer and then gives way more abruptly, colouring less until pushed and running odd harmonics rather than even.</li>
+    <li><strong>Drive</strong>: Level into the valve, up to 36 dB. This is what decides how much of the curve the signal actually uses.</li>
+    <li><strong>Bias</strong>: The idle point. Centred is the most symmetric and cleanest; away from centre the halves are shaped differently and the even harmonics come up. Pushed to an extreme it runs hard against cutoff.</li>
+    <li><strong>Tone</strong>: A tilt around 700 Hz. Turning it up lifts the top and drops the bottom together rather than simply adding level, so the centre position is exactly flat.</li>
+    <li><strong>Mix</strong>: Dry/wet, for parallel warming.</li>
+    <li><strong>Output</strong>: Trim either side of unity, since drive changes the level.</li>
+</ul>
+<p>The shaping runs oversampled, so the harmonics it generates fold above Nyquist and are filtered out rather than aliasing back down into the audible band, and the DC offset an asymmetric curve leaves behind is blocked before it reaches the rest of the rack.</p>
 
 <h3>Reverb Parameters</h3>
 <p>Noteahead features a studio-quality <strong>Feedback Delay Network (FDN)</strong> reverb, designed for lush tails and natural-sounding high-frequency absorption.</p>
