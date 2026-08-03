@@ -280,69 +280,83 @@ Optionally install locally:
     $ cpack -G DEB
 
 ##
+## User manual
+
+Noteahead ships with a complete user manual, available in the application under **Help => User Manual...**. It has a table of contents, follows the current theme, and covers everything in detail: the toolbar, the editor columns, every internal device and effect, automations, synchronization, and audio rendering.
+
+The manual source lives in [`src/view/qml/Manual.html`](src/view/qml/Manual.html).
+
+A quick keyboard shortcut reference is also available under **Help => Shortcuts...**.
+
+The section below is only a quick start — the manual is the authoritative reference.
+
+##
 ## Basic usage
 
-When starting a new project, just click on the settings icon on a desired track and setup the MIDI device. I have all my synthesizers connected via USB.
+### Quick start
 
-Click on the track name to change it. `[+]`/`[-]` in the track header adds or removes note columns.
+**1) Give a track a sound.** Click the settings icon on a track header to open **Track Settings**. A track plays either an external MIDI instrument or one of Noteahead's internal devices:
 
-Press **ESC** to enter to edit mode and use your PC keyboard to input notes on a note column. The keyboard acts as a virtual "piano" like they usually do in tracker applications, **Z** is "C" on the lower octave.
+* **External MIDI**: pick the MIDI output port and channel of your synth or drum machine. Devices are hot-plugged, so they appear as they come online.
+* **Internal device**: click **Device Rack...** in the same dialog (also under **Devices => Device rack...**), press **(+)** on a free slot, pick an instrument from the **Device Gallery** — Synth, Wavetable Synth, Bass Synth, Drum Synth, Sampler, Piano Synth, String & Voice, String Ensemble or Sub Mixer — and then select its internal port (e.g. *Noteahead Synth 1*) back in Track Settings. Nothing external is needed; Noteahead renders these itself.
 
-When sequenced enough, press **SPACE** or use the play buttons to start playing.
+**2) Set up the track.** Click the track name to rename it. `[+]`/`[-]` in the track header adds or removes note columns.
 
-Create a new pattern by increasing the value on the **PAT** spinner. Use **LEN** to set the pattern length.
+**3) Sequence.** Press **ESC** to enter edit mode and use your PC keyboard as a virtual "piano": **Z**..**M** is the lower octave (**Z** is "C"), **Q**..**U** the higher one. The **STEP**, **VEL** and **OCT** spinners in the toolbar control the cursor advance, the default velocity and the base octave.
 
-Click on the pattern name to change it.
+**4) Play.** Press **SPACE** or use the play buttons.
 
-Use the Song section to set the play order of your patterns as well as the song length.
+**5) Build the song.** In the *Pattern* section, the **PAT** spinner selects the pattern being edited (increase it to create a new one) and **LEN** sets its length in lines — each pattern can have its own. Click the pattern name to rename it. In the *Song* section, **POS** selects the position in the play order, **PAT** the pattern assigned to it, and **LEN** the song length. Right-click a position button to mark it as skipped.
+
+**6) Mix.** Each device rack slot has **Insert FX** for its own effect rack, **Sends** for the shared send effects, and a fader with a level meter and clip LED for gain staging. The master rack is under **Effects => Master effect rack...**.
+
+**7) Export.** **File => Render audio...** renders offline to WAV or FLAC, either as a master mix or as per-track stems, with optional normalization and a loudness report. **File => Export MIDI file...** writes an SMF Type 1 file including automations.
+
+### Editor columns
+
+Each note column line has four fields:
+
+    C-4 100 00 064
+
+* **Note**: pitch and octave, or `OFF` for a note off event.
+* **Velocity**: `000`..`127`.
+* **Delay**: sub-line timing offset for humanizing.
+* **Pan**: `000`..`127`, sent as MIDI CC #10. Only on the first note column of a track; the others show `---`.
 
 ### Context menu
 
-The main context menu can be accessed by right-clicking on the editor view.
-
-Here you can cut/copy/paste, transpose, and set events on individual lines e.g. to change patch. The lines that have an event assigned will be rendered in a accent color.
+The main context menu is accessed by right-clicking on the editor view. Its actions are grouped by scope — **Line**, **Column**, **Track**, **Pattern**, **Song** and **Selection** — and cover cut/copy/paste, transposition, note-off insertion, velocity and pan interpolation, MIDI CC and pitch bend automations, and line events such as patch changes. Lines that have an event assigned are rendered in an accent color.
 
 ### Most important "special" keys
 
-* **ESC**: toggles the edit mode
-* **SPACE**: toggles the play mode
-* **INSERT**: inserts an empty line and moves subsequent lines down
-* **BACKSPACE**: deletes the current line and pulls subsequent lines up
-* **A**: inserts a note off event
-* **F3**: decreases the current octave
-* **F4**: increases the current octave
-* **Z**..**M**: play/insert notes of the lower octave
-* **Q**..**U**: play/insert notes of the higher octave
+| Key | Action |
+| --- | --- |
+| **ESC** | Toggle edit mode |
+| **SPACE** | Toggle play mode |
+| **INSERT** | Insert an empty line and move subsequent lines down |
+| **BACKSPACE** | Delete the current line and pull subsequent lines up |
+| **DELETE** | Clear the current event |
+| **A** | Insert a note off event |
+| **F3** / **F4** | Decrease / increase the current octave |
+| **Z**..**M** | Play/insert notes of the lower octave |
+| **Q**..**U** | Play/insert notes of the higher octave |
 
 Cut/Copy/Paste (also available via right-clicking on the editor):
 
-* **Alt + F3**: cut the current column
-* **Alt + F4**: copy the current column
-* **Alt + F5**: paste the copied column
-* **Shift + F3**: cut the current track
-* **Shift + F4**: copy the current track
-* **Shift + F5**: paste the copied track
-* **Ctrl + F3**: cut the current pattern
-* **Ctrl + F4**: copy the current pattern
-* **Ctrl + F5**: paste the copied pattern
-* **Ctrl + X**: cut the current selection
-* **Ctrl + C**: copy the current selection
-* **Ctrl + V**: paste the copied selection
+| Scope | Cut | Copy | Paste |
+| --- | --- | --- | --- |
+| Selection | **Ctrl + X** | **Ctrl + C** | **Ctrl + V** |
+| Column | **Alt + F3** | **Alt + F4** | **Alt + F5** |
+| Track | **Shift + F3** | **Shift + F4** | **Shift + F5** |
+| Pattern | **Ctrl + F3** | **Ctrl + F4** | **Ctrl + F5** |
 
 Transposition (also available via right-clicking on the editor):
 
-* **Alt + F9**: transpose column by -1 semitone
-* **Alt + F10**: transpose column by +1 semitone
-* **Alt + F11**: transpose column by -12 semitones
-* **Alt + F12**: transpose column by +12 semitones
-* **Shift + F9**: transpose track by -1 semitone
-* **Shift + F10**: transpose track by +1 semitone
-* **Shift + F11**: transpose track by -12 semitones
-* **Shift + F12**: transpose track by +12 semitones
-* **Ctrl + F9**: transpose pattern by -1 semitone
-* **Ctrl + F10**: transpose pattern by +1 semitone
-* **Ctrl + F11**: transpose pattern by -12 semitones
-* **Ctrl + F12**: transpose pattern by +12 semitones
+| Scope | -1 semitone | +1 semitone | -12 semitones | +12 semitones |
+| --- | --- | --- | --- | --- |
+| Column | **Alt + F9** | **Alt + F10** | **Alt + F11** | **Alt + F12** |
+| Track | **Shift + F9** | **Shift + F10** | **Shift + F11** | **Shift + F12** |
+| Pattern | **Ctrl + F9** | **Ctrl + F10** | **Ctrl + F11** | **Ctrl + F12** |
 
 ##
 ## Real-world test cases
