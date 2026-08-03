@@ -38,6 +38,7 @@ private slots:
     void test_availableDevices_shouldReturnCorrectList();
     void test_deviceMeterLevels_shouldReportPreInsertLevel();
     void test_deviceClipped_shouldLatchUntilCleared();
+    void test_deviceClipped_afterClearing_shouldStayClearWhileBelowFullScale();
     void test_deviceSettings_shouldRoundTripThroughController();
     void test_removeDeviceByName_shouldClearCorrectSlot();
     void test_importSettings_matchingType_shouldEmitConfirmationWithoutMismatch();

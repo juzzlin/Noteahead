@@ -418,6 +418,84 @@ void DeviceRackControllerTest::test_deviceMeterLevels_shouldReportPreInsertLevel
     QVERIFY(!device->meter().active());
 }
 
+namespace {
+//! Emits a constant level so a test can put the engine's device path either side of full scale.
+class ClippingDevice : public MockDevice
+{
+public:
+    using MockDevice::MockDevice;
+
+    void processAudio(AudioContext & context) override
+    {
+        for (uint32_t i = 0; i < context.frameCount * 2; i++) {
+            context.buffer[i] += m_amplitude;
+        }
+    }
+
+    bool hasActiveAudio() const override
+    {
+        return m_active;
+    }
+
+    void setAmplitude(double amplitude)
+    {
+        m_amplitude = amplitude;
+    }
+
+    void setActive(bool active)
+    {
+        m_active = active;
+    }
+
+private:
+    double m_amplitude { 0.0 };
+    bool m_active { true };
+};
+} // namespace
+
+void DeviceRackControllerTest::test_deviceClipped_afterClearing_shouldStayClearWhileBelowFullScale()
+{
+    // Drives the real engine rather than poking the detector directly, because the indicator staying
+    // lit after it is cleared would come from the engine re-latching it, not from the detector.
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto device = std::make_shared<ClippingDevice>(Constants::internalDevicePortPrefix().toStdString() + " 1");
+    deviceService->setDevice(0, device);
+    DeviceRackController controller { deviceService, {}, std::make_shared<MockEditorService>() };
+
+    std::vector<double> buffer(256 * 2, 0.0);
+    const auto render = [&] {
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), 256, 48000 };
+        audioEngine->process(context);
+    };
+
+    device->setAmplitude(1.5);
+    render();
+    QVERIFY(controller.deviceClipped(0));
+
+    controller.clearDeviceClip(0);
+    QVERIFY(!controller.deviceClipped(0));
+
+    // Gone quiet: the engine clears each device's buffer before rendering, so a silent device must
+    // not keep re-latching the indicator off whatever it last played.
+    device->setAmplitude(0.0);
+    device->setActive(false);
+    for (int i = 0; i < 5; i++) {
+        render();
+    }
+    QVERIFY(!controller.deviceClipped(0));
+
+    // Still playing, but comfortably below full scale.
+    controller.clearDeviceClip(0);
+    device->setAmplitude(0.5);
+    device->setActive(true);
+    for (int i = 0; i < 5; i++) {
+        render();
+    }
+    QVERIFY(!controller.deviceClipped(0));
+}
+
 void DeviceRackControllerTest::test_deviceClipped_shouldLatchUntilCleared()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
