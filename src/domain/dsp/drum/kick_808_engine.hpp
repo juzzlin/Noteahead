@@ -91,6 +91,9 @@ private:
     double m_tailRe { 0.0 };
     double m_tailIm { 0.0 };
 
+    // One pole holding the click's step down to a rolloff the hardware also has.
+    double m_clickLowPass { 0.0 };
+
     // The click's tick, a third phasor at a fixed frequency. m_tickIm is its output tap.
     double m_tickRe { 0.0 };
     double m_tickIm { 0.0 };
@@ -124,6 +127,7 @@ private:
     float m_clickSlowDecayRate { 0.0f };
     float m_clickFastDecayRate { 0.0f };
     double m_clickBodyNormalization { 1.0 };
+    double m_clickLowPassRate { 0.0 };
     float m_pitchDecayRate { 0.0f };
     double m_excitationGain { 0.0 };
     double m_excitationCompensation { 1.0 };

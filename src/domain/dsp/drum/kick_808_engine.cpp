@@ -94,6 +94,10 @@ constexpr double ClickTickGain = 0.40;
 constexpr double ClickBodyFloor = 0.30;
 constexpr double ClickTickFloor = 0.29;
 
+//! Corner the click is band limited at. Chosen against the RD-8's own top octaves rather than as
+//! high as possible: the click is a step, and a step has to be rolled off somewhere.
+constexpr double ClickLowPassFrequency = 8000.0;
+
 //! Ratio between a -60 dB time and the exponential time constant that produces it.
 constexpr double T60ToTau = 6.907755;
 
@@ -247,10 +251,18 @@ float Kick808Engine::nextSample()
     m_tickRe = tickDamping * (tickRe * m_tickCos - m_tickIm * m_tickSin);
     m_tickIm = tickDamping * (tickRe * m_tickSin + m_tickIm * m_tickCos);
 
+    // Both parts of the click start from zero in a single sample, and a step like that carries level
+    // all the way to Nyquist: without this the top two octaves come out flat instead of continuing
+    // to fall, which reads as a small shelf climbing towards 20 kHz on an analyser. One pole is
+    // enough to put the rolloff back where the hardware's is, and it is far enough above the click
+    // itself to leave the rest of the spectrum alone.
+    const double click = clickBody + m_tickIm;
+    m_clickLowPass += (click - m_clickLowPass) * m_clickLowPassRate;
+
     // The click enters against the body's polarity. The resonator's first swing under the pitch
     // envelope is what puts energy around 200 Hz, and a click of the same sign partly cancels it -
     // measured as a 10 dB hole right where the hardware is strongest. Inverted, the two reinforce.
-    double out = (m_resonatorIm + m_tailIm - clickBody - m_tickIm) * OutputGain;
+    double out = (m_resonatorIm + m_tailIm - m_clickLowPass) * OutputGain;
 
     // Saturation stays fully bypassed at zero drive, so the clean tail is bit-for-bit unaffected.
     if (m_drive > 0.0f) {
@@ -276,6 +288,7 @@ float Kick808Engine::nextSample()
         m_pulseEnv = 0.0f;
         m_clickSlowEnv = 0.0f;
         m_clickFastEnv = 0.0f;
+        m_clickLowPass = 0.0;
     }
 
     return static_cast<float>(out);
@@ -300,6 +313,7 @@ void Kick808Engine::reset()
     m_pitchEnv = 0.0f;
     m_clickSlowEnv = 0.0f;
     m_clickFastEnv = 0.0f;
+    m_clickLowPass = 0.0;
     m_currentFrequency = 0.0;
 }
 
@@ -338,6 +352,8 @@ void Kick808Engine::updateRates()
     // Normalize the shape by its own peak, which is at t = 0, so ClickBodyGain stays the click's
     // level rather than something the time constants quietly scale.
     m_clickBodyNormalization = 1.0 / (1.0 - ClickBodyFastTau / ClickBodySlowTau);
+
+    m_clickLowPassRate = 1.0 - std::exp(-2.0 * std::numbers::pi * std::min(ClickLowPassFrequency, sr * 0.45) / sr);
 
     const double tickOmega = 2.0 * std::numbers::pi * std::clamp(ClickTickFrequency, 1.0, sr * 0.45) / sr;
     m_tickCos = std::cos(tickOmega);
