@@ -60,6 +60,10 @@ Bug fixes:
 
 Other:
 
+* Give the virtual keyboard a more instrument-like look
+  - Shaded keys with rounded fronts, gloss and a shadow under the black
+    keys, and a felt strip along the back in the accent colour
+
 * Lay the StringVoice dialog out in five equal columns
   - Balance and the Vocoder move into a column of their own
 
