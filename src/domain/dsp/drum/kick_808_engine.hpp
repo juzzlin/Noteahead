@@ -40,6 +40,12 @@ namespace noteahead {
 //! repeating pattern. Restarting from zero makes every hit identical, and handing the residual to
 //! the tail rather than zeroing it keeps the output continuous so nothing clicks.
 //!
+//! What the resonator alone cannot give is the attack. Third-octave measurements of an RD-8 put its
+//! hit tens of decibels above a bare resonator from 200 Hz up, so the click is generated separately:
+//! a zero-mean band pass burst covering 200 Hz - 1 kHz plus a short damped sine for the top end,
+//! both tilted by Tone and both entering against the body's polarity, where they reinforce the
+//! swept first swing rather than cancelling it.
+//!
 //! The resonator is in coupled (rotating phasor) form: each sample rotates the state vector by the
 //! current angular frequency and scales it by the damping factor. Unlike a direct-form biquad the
 //! coupled form stays stable and click-free when the frequency is modulated per sample, which both
@@ -70,6 +76,9 @@ public:
 private:
     void updateRates();
     double targetFrequency() const;
+    //! Tone mapped onto [floorFraction, 1], so a control can be tilted by Tone without being
+    //! switched off at the bottom of its range.
+    double toneScaled(double floorFraction) const;
     static double noteToFrequency(double note);
 
     // Resonator state as a rotating phasor. m_resonatorIm is the output tap.
@@ -82,12 +91,18 @@ private:
     double m_tailRe { 0.0 };
     double m_tailIm { 0.0 };
 
+    // The click's tick, a third phasor at a fixed frequency. m_tickIm is its output tap.
+    double m_tickRe { 0.0 };
+    double m_tickIm { 0.0 };
+
     // Frequency actually rendered, in Hz. Chases m_targetNote when glide is engaged.
     double m_currentFrequency { 0.0 };
     float m_targetNote { 36.0f };
 
     float m_pulseEnv { 0.0f };
     float m_pitchEnv { 0.0f };
+    float m_clickSlowEnv { 0.0f };
+    float m_clickFastEnv { 0.0f };
     float m_velocity { 1.0f };
     bool m_active { false };
     bool m_stopping { false };
@@ -102,9 +117,17 @@ private:
     // Per-sample multipliers, recomputed whenever a rate-defining parameter or the sample rate moves.
     double m_resonatorDamping { 0.0 };
     double m_tailDamping { 0.0 };
+    double m_tickDamping { 0.0 };
+    double m_tickCos { 0.0 };
+    double m_tickSin { 0.0 };
     float m_pulseDecayRate { 0.0f };
+    float m_clickSlowDecayRate { 0.0f };
+    float m_clickFastDecayRate { 0.0f };
+    double m_clickBodyNormalization { 1.0 };
     float m_pitchDecayRate { 0.0f };
     double m_excitationGain { 0.0 };
+    double m_excitationCompensation { 1.0 };
+    double m_pulseTau { 0.0 };
     double m_glideRate { 0.0 };
     double m_lastSampleRate { -1.0 };
 };

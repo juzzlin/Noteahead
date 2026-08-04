@@ -22,6 +22,7 @@
 #include <QTest>
 #include <algorithm>
 #include <cmath>
+#include <numbers>
 #include <vector>
 
 namespace noteahead {
@@ -66,6 +67,26 @@ double estimateFrequency(const std::vector<double> & samples, uint32_t skipFrame
     }
     const double seconds = static_cast<double>(samples.size() - skipFrames) / SampleRate;
     return crossings / seconds;
+}
+
+//! Energy between two frequencies, summed over log-spaced DFT probes. Enough to compare how bright
+//! two hits are without pulling in an FFT.
+double bandEnergy(const std::vector<double> & samples, double lowHz, double highHz)
+{
+    constexpr int probes = 12;
+    double energy = 0.0;
+    for (int probe = 0; probe < probes; probe++) {
+        const double frequency = lowHz * std::pow(highHz / lowHz, static_cast<double>(probe) / (probes - 1));
+        const double omega = 2.0 * std::numbers::pi * frequency / SampleRate;
+        double re = 0.0;
+        double im = 0.0;
+        for (size_t i = 0; i < samples.size(); i++) {
+            re += samples[i] * std::cos(omega * static_cast<double>(i));
+            im -= samples[i] * std::sin(omega * static_cast<double>(i));
+        }
+        energy += re * re + im * im;
+    }
+    return energy;
 }
 
 //! Settles a voice for pitch measurements: no pitch envelope to bend the tail and a long decay so
@@ -204,6 +225,49 @@ void Kick808Test::test_tune_raised_shouldRaisePitch()
 
     QVERIFY2(std::abs(raisedFrequency / centredFrequency - 2.0) < 0.1,
              QString("Tune ratio was %1 (%2 Hz vs %3 Hz)").arg(raisedFrequency / centredFrequency).arg(raisedFrequency).arg(centredFrequency).toUtf8().constData());
+}
+
+void Kick808Test::test_tone_full_shouldRaiseHighFrequencyContent()
+{
+    // Tone is the click's top-end tilt. It used to shorten the excitation pulse the click was tied
+    // to, which made opening the knob radiate *less* high end than closing it did.
+    Kick808Device dark { "Dark Kick" };
+    dark.setTone(0.0f);
+    dark.processMidiNoteOn(36, 127);
+    const auto darkHit = renderMono(dark, SampleRate / 4);
+
+    Kick808Device bright { "Bright Kick" };
+    bright.setTone(1.0f);
+    bright.processMidiNoteOn(36, 127);
+    const auto brightHit = renderMono(bright, SampleRate / 4);
+
+    const double darkHigh = bandEnergy(darkHit, 800.0, 4000.0);
+    const double brightHigh = bandEnergy(brightHit, 800.0, 4000.0);
+    QVERIFY2(brightHigh > darkHigh * 4.0,
+             QString("Full tone (%1) did not clearly brighten against zero tone (%2)").arg(brightHigh).arg(darkHigh).toUtf8().constData());
+
+    // Below the click it is a tilt, not a level control: an RD-8 measures within a decibel or two
+    // of itself at 100 Hz across the whole range of the knob.
+    const double darkLow = bandEnergy(darkHit, 40.0, 100.0);
+    const double brightLow = bandEnergy(brightHit, 40.0, 100.0);
+    QVERIFY2(brightLow > darkLow * 0.5 && brightLow < darkLow * 2.0,
+             QString("Tone moved the low end from %1 to %2").arg(darkLow).arg(brightLow).toUtf8().constData());
+}
+
+void Kick808Test::test_tone_zero_shouldStillClick()
+{
+    // The hardware clicks throughout its Tone range, and a kick with no click at all disappears on
+    // anything smaller than a full-range speaker.
+    Kick808Device kick { "Test Kick" };
+    kick.setTone(0.0f);
+    kick.processMidiNoteOn(36, 127);
+    const auto hit = renderMono(kick, SampleRate / 4);
+
+    // Against the fundamental, which sits an octave and a half below.
+    const double fundamental = bandEnergy(hit, 55.0, 75.0);
+    const double click = bandEnergy(hit, 300.0, 1000.0);
+    QVERIFY2(click > fundamental * 1.0e-5,
+             QString("Zero tone left no click: 300 - 1000 Hz at %1 against %2 at the fundamental").arg(click).arg(fundamental).toUtf8().constData());
 }
 
 void Kick808Test::test_velocity_shouldAffectOutputLevel()

@@ -46,8 +46,10 @@ constexpr double MaxGlideSeconds = 0.5;
 //! cannot beat audibly against the hit that replaced it, long enough to stay a smooth fade.
 constexpr double RetriggerFadeSeconds = 0.004;
 
-//! Leaves headroom so a full-velocity hit with drive off does not sit at full scale.
-constexpr double OutputGain = 0.7;
+//! Leaves headroom so a full-velocity hit with drive off does not sit at full scale. Re-based when
+//! the excitation gained its pulse-length compensation, which lifted the quiet end of Tone's range
+//! by some 10 dB rather than lowering the loud end.
+constexpr double OutputGain = 0.5;
 
 //! Peak the drive stage saturates towards.
 //!
@@ -61,7 +63,36 @@ constexpr double OutputGain = 0.7;
 //! changes the harmonics rather than the level.
 constexpr double DriveCeiling = 0.5;
 
-constexpr double ClickGain = 0.5;
+//! The click is in two parts, which is what an RD-8 measures like.
+//!
+//! Third-octave band energies of a hit, taken against that machine, put its attack 5 - 18 dB above
+//! ours through 200 Hz - 800 Hz and 7 - 27 dB above it everywhere over 200 Hz once its Tone is
+//! backed off. Above 800 Hz with Tone up we were already close. So the gap is a missing mid-band
+//! transient, not a missing top end, and the hardware clicks with Tone at zero where we did not
+//! click at all.
+//!
+//! The body of the click carries 200 Hz - 1 kHz. Weighting the slow term by the ratio of the two
+//! time constants makes the shape integrate to zero, so the click is a band pass burst with nothing
+//! left under the fundamental: a one-sided blip carries DC and sub instead, which turned Tone into
+//! a 10 dB level control down there.
+//!
+//! Its length used to be the excitation pulse's, which Tone shortens. That pushed its corner up to
+//! about 1 kHz at full Tone, leaving a hole between the fundamental and the top end, and it made
+//! the click carry *less* energy the further Tone was opened.
+constexpr double ClickBodyFastTau = 0.00084;
+constexpr double ClickBodySlowTau = 0.00145;
+constexpr double ClickBodyGain = 0.27;
+
+//! The tick is a damped sine burst about two cycles long, which is the top end of the measurement.
+//! Being bipolar it leaves nothing at DC for the device's blocker to throw away.
+constexpr double ClickTickFrequency = 830.0;
+constexpr double ClickTickT60 = 0.0024;
+constexpr double ClickTickGain = 0.40;
+
+//! What Tone leaves of each part at zero. The hardware clicks across its whole range - Tone is a
+//! tilt on the click rather than an on/off switch for it - so neither part backs out entirely.
+constexpr double ClickBodyFloor = 0.30;
+constexpr double ClickTickFloor = 0.29;
 
 //! Ratio between a -60 dB time and the exponential time constant that produces it.
 constexpr double T60ToTau = 6.907755;
@@ -117,6 +148,11 @@ void Kick808Engine::setGlide(float glide)
     updateRates();
 }
 
+double Kick808Engine::toneScaled(double floorFraction) const
+{
+    return floorFraction + (1.0 - floorFraction) * static_cast<double>(m_tone);
+}
+
 double Kick808Engine::noteToFrequency(double note)
 {
     return 440.0 * std::pow(2.0, (note - 69.0) / 12.0);
@@ -143,6 +179,19 @@ void Kick808Engine::trigger(float velocity)
     m_pitchEnv = 1.0f;
     m_active = true;
     m_stopping = false;
+
+    m_clickSlowEnv = 1.0f;
+    m_clickFastEnv = 1.0f;
+
+    // The pulse rings the resonator through what amounts to a one-pole low pass at the frequency
+    // the hit starts on, which is the swept one rather than the note's own.
+    const double sweptStart = m_currentFrequency * (1.0 + static_cast<double>(m_pitchDepth) * PitchDepthRange);
+    m_excitationCompensation = std::hypot(1.0, 2.0 * std::numbers::pi * sweptStart * m_pulseTau);
+
+    // Strike the tick resonator on its real axis. The output tap is the imaginary part, so a hit
+    // that lands while the previous tick is still ringing adds to it without stepping the output,
+    // and no separate fade is needed for a burst this short.
+    m_tickRe += toneScaled(ClickTickFloor) * static_cast<double>(velocity) * ClickTickGain;
 
     // Hand the ring that is still sounding to the tail and restart the resonator from zero, so every
     // hit is identical regardless of what the previous one was doing. Accumulating rather than
@@ -175,7 +224,7 @@ float Kick808Engine::nextSample()
     const double sinOmega = std::sin(omega);
 
     // Drive the resonator with the excitation pulse, then rotate and damp it.
-    const double excitation = static_cast<double>(m_pulseEnv) * static_cast<double>(m_velocity) * m_excitationGain;
+    const double excitation = static_cast<double>(m_pulseEnv) * static_cast<double>(m_velocity) * m_excitationGain * m_excitationCompensation;
     const double re = m_resonatorRe + excitation;
     const double im = m_resonatorIm;
     const double chokeDamping = m_stopping ? exponentialDecayPerSample(ChokeFadeSeconds, sr) : 1.0;
@@ -189,12 +238,19 @@ float Kick808Engine::nextSample()
     m_tailRe = tailDamping * (tailRe * cosOmega - m_tailIm * sinOmega);
     m_tailIm = tailDamping * (tailRe * sinOmega + m_tailIm * cosOmega);
 
-    // The trigger pulse also leaks straight to the output, which is the audible click. Cubing the
-    // shared envelope makes the click noticeably shorter than the excitation without extra state.
-    const float pulse = m_pulseEnv;
-    const double click = static_cast<double>(pulse * pulse * pulse * m_tone * m_velocity) * ClickGain;
+    // The click is the excitation heard directly rather than part of the drum's body, so neither of
+    // its parts is swept by the pitch envelope or glided.
+    const double clickBody = static_cast<double>(m_clickFastEnv - ClickBodyFastTau / ClickBodySlowTau * m_clickSlowEnv) * m_clickBodyNormalization * static_cast<double>(m_velocity) * toneScaled(ClickBodyFloor) * ClickBodyGain;
 
-    double out = (m_resonatorIm + m_tailIm + click) * OutputGain;
+    const double tickRe = m_tickRe;
+    const double tickDamping = m_tickDamping * chokeDamping;
+    m_tickRe = tickDamping * (tickRe * m_tickCos - m_tickIm * m_tickSin);
+    m_tickIm = tickDamping * (tickRe * m_tickSin + m_tickIm * m_tickCos);
+
+    // The click enters against the body's polarity. The resonator's first swing under the pitch
+    // envelope is what puts energy around 200 Hz, and a click of the same sign partly cancels it -
+    // measured as a 10 dB hole right where the hardware is strongest. Inverted, the two reinforce.
+    double out = (m_resonatorIm + m_tailIm - clickBody - m_tickIm) * OutputGain;
 
     // Saturation stays fully bypassed at zero drive, so the clean tail is bit-for-bit unaffected.
     if (m_drive > 0.0f) {
@@ -205,15 +261,21 @@ float Kick808Engine::nextSample()
 
     m_pulseEnv *= m_pulseDecayRate;
     m_pitchEnv *= m_pitchDecayRate;
+    m_clickSlowEnv *= m_clickSlowDecayRate;
+    m_clickFastEnv *= m_clickFastDecayRate;
 
-    const double amplitude = std::hypot(m_resonatorRe, m_resonatorIm) + std::hypot(m_tailRe, m_tailIm);
-    if (amplitude < AmplitudeThreshold && m_pulseEnv < AmplitudeThreshold) {
+    const double amplitude = std::hypot(m_resonatorRe, m_resonatorIm) + std::hypot(m_tailRe, m_tailIm) + std::hypot(m_tickRe, m_tickIm);
+    if (amplitude < AmplitudeThreshold && m_pulseEnv < AmplitudeThreshold && m_clickSlowEnv < AmplitudeThreshold) {
         m_active = false;
         m_resonatorRe = 0.0;
         m_resonatorIm = 0.0;
         m_tailRe = 0.0;
         m_tailIm = 0.0;
+        m_tickRe = 0.0;
+        m_tickIm = 0.0;
         m_pulseEnv = 0.0f;
+        m_clickSlowEnv = 0.0f;
+        m_clickFastEnv = 0.0f;
     }
 
     return static_cast<float>(out);
@@ -232,8 +294,12 @@ void Kick808Engine::reset()
     m_resonatorIm = 0.0;
     m_tailRe = 0.0;
     m_tailIm = 0.0;
+    m_tickRe = 0.0;
+    m_tickIm = 0.0;
     m_pulseEnv = 0.0f;
     m_pitchEnv = 0.0f;
+    m_clickSlowEnv = 0.0f;
+    m_clickFastEnv = 0.0f;
     m_currentFrequency = 0.0;
 }
 
@@ -255,12 +321,28 @@ void Kick808Engine::updateRates()
     m_resonatorDamping = exponentialDecayPerSample(t60 / T60ToTau, sr);
     m_tailDamping = exponentialDecayPerSample(RetriggerFadeSeconds, sr);
 
-    const double pulseTau = MaxPulseTau + (MinPulseTau - MaxPulseTau) * static_cast<double>(m_tone);
-    m_pulseDecayRate = static_cast<float>(exponentialDecayPerSample(pulseTau, sr));
+    m_pulseTau = MaxPulseTau + (MinPulseTau - MaxPulseTau) * static_cast<double>(m_tone);
+    m_pulseDecayRate = static_cast<float>(exponentialDecayPerSample(m_pulseTau, sr));
 
     // Normalize the injected energy against the pulse length so Tone changes the attack's colour
-    // rather than the level of the tail behind it.
-    m_excitationGain = 1.0 / (pulseTau * sr);
+    // rather than the level of the tail behind it. Matching the area alone does not achieve that:
+    // the injection is spread over the pulse, so once it is no longer short against the resonator's
+    // own period it starts averaging against itself. That left Tone worth 9 dB of level at the
+    // fundamental, measured, which is the resonator's one-pole response to the pulse. trigger()
+    // divides that response back out, at the frequency the hit actually starts on.
+    m_excitationGain = 1.0 / (m_pulseTau * sr);
+
+    m_clickSlowDecayRate = static_cast<float>(exponentialDecayPerSample(ClickBodySlowTau, sr));
+    m_clickFastDecayRate = static_cast<float>(exponentialDecayPerSample(ClickBodyFastTau, sr));
+
+    // Normalize the shape by its own peak, which is at t = 0, so ClickBodyGain stays the click's
+    // level rather than something the time constants quietly scale.
+    m_clickBodyNormalization = 1.0 / (1.0 - ClickBodyFastTau / ClickBodySlowTau);
+
+    const double tickOmega = 2.0 * std::numbers::pi * std::clamp(ClickTickFrequency, 1.0, sr * 0.45) / sr;
+    m_tickCos = std::cos(tickOmega);
+    m_tickSin = std::sin(tickOmega);
+    m_tickDamping = exponentialDecayPerSample(ClickTickT60 / T60ToTau, sr);
 
     const double pitchTau = MinPitchTau + (MaxPitchTau - MinPitchTau) * static_cast<double>(m_pitchDecay);
     m_pitchDecayRate = static_cast<float>(exponentialDecayPerSample(pitchTau, sr));

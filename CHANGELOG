@@ -21,6 +21,14 @@ New features:
 
 Bug fixes:
 
+* Give the Kick808 the attack a real 808 has
+  - Its hit was tens of decibels short of an RD-8 from 200 Hz up, which left
+    it audible only where the fundamental is
+  - The click is now a band pass burst plus a damped sine tick, measured
+    against that machine
+  - Tone raises the top end instead of lowering it, and no longer doubles as
+    a 10 dB level control at the fundamental
+
 Other:
 
 * Group the device actions of a track under a Device sub-menu
