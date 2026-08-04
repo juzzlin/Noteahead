@@ -205,9 +205,9 @@ Row {
                     focus = false;
                     UiService.requestFocusOnEditorView();
                 }
-                onTextChanged: if (!playerService.isPlaying) {
-                    editorService.setCurrentPatternName(text);
-                }
+                // textEdited rather than textChanged: the latter also fires when the binding above
+                // hands the field a new pattern's name, which is not the user renaming anything.
+                onTextEdited: editorService.setCurrentPatternName(text)
                 ToolTip.delay: Constants.toolTipDelay
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered

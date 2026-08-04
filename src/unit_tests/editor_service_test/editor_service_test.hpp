@@ -26,6 +26,7 @@ class EditorServiceTest : public QObject
 
 private slots:
 
+    void test_setPatternName_sameName_shouldNotMarkModified();
     void test_initialize_shouldInitializeCorrectly();
 
     void test_defaultSong_shouldReturnCorrectProperties();

@@ -761,6 +761,13 @@ QString EditorService::patternName(quint64 patternIndex) const
 
 void EditorService::setPatternName(quint64 patternIndex, QString name)
 {
+    // Writing the name a pattern already has is not an edit. The name field in the toolbar is bound
+    // to the current pattern's name, so switching pattern hands it back its own value, and marking
+    // the project modified for that made rewinding after playback look like an edit.
+    if (patternName(patternIndex) == name) {
+        return;
+    }
+
     m_song->setPatternName(patternIndex, name.toStdString());
 
     setIsModified(true);

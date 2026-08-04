@@ -40,6 +40,23 @@
 
 namespace noteahead {
 
+void EditorServiceTest::test_setPatternName_sameName_shouldNotMarkModified()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorService.initialize();
+    editorService.setPatternName(0, "Verse");
+    editorService.setIsModified(false);
+
+    // The name field in the toolbar is bound to the current pattern's name, so moving to another
+    // pattern and back hands the field its own value to write again. Rewinding after playback does
+    // exactly that, and it used to leave the project looking edited.
+    editorService.setPatternName(0, "Verse");
+    QVERIFY(!editorService.isModified());
+
+    editorService.setPatternName(0, "Chorus");
+    QVERIFY(editorService.isModified());
+}
+
 void EditorServiceTest::test_initialize_shouldInitializeCorrectly()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };

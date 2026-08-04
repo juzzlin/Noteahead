@@ -26,6 +26,11 @@ New features:
 
 Bug fixes:
 
+* Stop rewinding from marking the song modified
+  - The toolbar's pattern name field wrote its value back whenever the
+    binding handed it a new pattern's name, not only when renamed
+  - Setting a pattern the name it already has is no longer an edit
+
 * Make the StringVoice voice section sing a vowel
   - The registers now sit on measured sung-vowel formants, male an "ooh" and
     female an "aah", instead of a set with no F3 above 1.3 kHz
