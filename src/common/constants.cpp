@@ -2057,6 +2057,11 @@ QString xmlKeyVoiceBalance()
     return "voiceBalance";
 }
 
+QString xmlKeyVoiceUpperMale8()
+{
+    return "voiceUpperMale8";
+}
+
 QString xmlKeyStringsLevel4()
 {
     return "stringsLevel4";

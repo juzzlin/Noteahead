@@ -87,8 +87,8 @@ public:
     float voiceMale4() const;
     void setVoiceMale4(float val);
 
-    float voiceFemale8() const;
-    void setVoiceFemale8(float val);
+    float voiceUpperMale8() const;
+    void setVoiceUpperMale8(float val);
 
     float voiceFemale4() const;
     void setVoiceFemale4(float val);
@@ -135,6 +135,10 @@ protected:
 private:
     static constexpr int MaxVoices { 32 };
 
+    //! Where the keyboard splits into the two register pairs, as the hardware's does: below it a
+    //! note sounds the Lower registers, at or above it the Upper ones.
+    static constexpr uint8_t SplitNote { 60 }; // C4
+
     struct Voice
     {
         PolyBlepOscillator stringOsc8;
@@ -180,9 +184,12 @@ private:
     float m_stringsAttack { 50.0f };
     float m_stringsRelease { 800.0f };
 
+    // The registers follow the hardware's two switches: Lower carries Male 8' and 4', Upper carries
+    // Male 8' and Female 4'. There is no Female 8' - the female voice exists only an octave up, in
+    // the upper half of the keyboard.
     float m_voiceMale8 { 0.8f };
     float m_voiceMale4 { 0.0f };
-    float m_voiceFemale8 { 0.0f };
+    float m_voiceUpperMale8 { 0.8f };
     float m_voiceFemale4 { 0.0f };
     float m_voiceAttack { 100.0f };
     float m_voiceRelease { 1000.0f };

@@ -38,8 +38,15 @@ namespace noteahead {
 //! measurements put it.
 //!
 //! The registers sing different vowels, which is what the hardware's Male and Female voices do:
-//! male an /u/ ("ooh"), female an /a/ ("aah"). Frequencies and bandwidths are the usual sung-vowel
-//! values; the small gain trims correct what the tilt over- or under-does at each peak.
+//! male an /o/ ("oh"), female an /a/ ("aah"). The female is at the usual sung-vowel values; the
+//! small gain trims correct what the tilt over- or under-does at each peak.
+//!
+//! The male register is measured rather than tabulated. A VC340 recording of its Male 8' and 4'
+//! alone, no ensemble, holding every C, puts that machine's formant region at 650 - 1050 Hz: on the
+//! partials of the lowest note, which are the only ones no other note contributes to, it peaks at
+//! 654 and 916 Hz and falls away either side. A textbook /u/ sits an octave below that, and against
+//! the recording it left this register 20 - 32 dB short right where the hardware sings, which is
+//! most of what made it read as a filtered string rather than a voice.
 //!
 //! Adjacent resonances are summed with alternating polarity. Summed in phase they cancel between
 //! the peaks, which measured as 15 - 28 dB notches where a real vowel has valleys of 5 - 10 dB.
@@ -107,7 +114,7 @@ private:
     //! Sung /u/ and /a/. Bandwidths set the Q, which is why they are given rather than a Q: a
     //! formant's bandwidth stays roughly put as its frequency moves, so the two are not the same
     //! thing to specify.
-    static constexpr FormantList MaleFormants { { { 325.0, 60.0, 1.0 }, { 700.0, 90.0, 0.45 }, { 2530.0, 160.0, 1.8 } } };
+    static constexpr FormantList MaleFormants { { { 700.0, 90.0, 1.0 }, { 900.0, 90.0, 1.4 }, { 2530.0, 160.0, 1.8 } } };
     static constexpr FormantList FemaleFormants { { { 850.0, 80.0, 1.0 }, { 1220.0, 110.0, 0.9 }, { 2810.0, 180.0, 1.35 } } };
 
     //! Corner of the glottal tilt. A property of the pulse the folds make rather than of the note
@@ -121,7 +128,7 @@ private:
     //! further up, where both the tilt and the sawtooth feeding it have already given away that
     //! much. Deriving it rather than measuring it would mean modelling the source, which is only
     //! a sawtooth by convenience.
-    static constexpr double MaleOutputGain { 5.95 };
+    static constexpr double MaleOutputGain { 12.1 };
     static constexpr double FemaleOutputGain { 22.7 };
 
     double filterRegister(std::array<CascadedSvf, 3> & filters, const FormantList & formants, double input, double outputGain)

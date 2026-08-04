@@ -17,6 +17,7 @@
 
 #include "../../common/constants.hpp"
 #include "../../domain/devices/string_voice_device.hpp"
+#include "../../domain/dsp/formant_filter_bank.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
@@ -112,11 +113,14 @@ std::vector<double> renderRegister(bool male, uint32_t frames)
     dev.setStringsLevel8(0.0f);
     dev.setStringsLevel4(0.0f);
     dev.setVoiceMale8(male ? 1.0f : 0.0f);
-    dev.setVoiceFemale8(male ? 0.0f : 1.0f);
+    dev.setVoiceUpperMale8(0.0f);
+    dev.setVoiceFemale4(male ? 0.0f : 1.0f);
     dev.setVoiceAttack(0.0f);
     dev.setEnsembleEnabled(false);
     dev.setVibratoDepth(0.0f);
-    dev.processMidiNoteOn(48, 100); // C3, well below every formant
+    // The male register is asked for a note below the keyboard split and the female one above it,
+    // which is the only place either sounds.
+    dev.processMidiNoteOn(male ? 48 : 60, 100);
 
     std::vector<double> buffer(static_cast<size_t>(frames) * 2, 0.0);
     auto ctx = makeContext(buffer, frames);
@@ -159,6 +163,9 @@ void StringVoiceTest::test_polyphony_shouldSupportMultipleSimultaneousNotes()
     // relative phase at any given sample is essentially random. Total energy
     // (RMS) across the buffer is the correct, interference-robust way to
     // verify that a second voice is genuinely contributing audio.
+    // The window has to be long enough to resolve what the second voice adds. The mix is equal
+    // power, so two notes carry only some 6 - 13 % more than one, and 256 frames is under two
+    // cycles of the lower note: too short to tell that apart from where the two happen to interfere.
     StringVoiceDevice dev { "Test StringVoice" };
     dev.setStringsAttack(0.0f);
     dev.setVoiceAttack(0.0f);
@@ -166,7 +173,7 @@ void StringVoiceTest::test_polyphony_shouldSupportMultipleSimultaneousNotes()
     dev.processMidiNoteOn(60, 100);
     dev.processMidiNoteOn(64, 100);
 
-    const uint32_t frameCount { 256 };
+    const uint32_t frameCount { 8192 };
     std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
     auto ctx = makeContext(buffer, frameCount);
     dev.processAudio(ctx);
@@ -237,7 +244,7 @@ void StringVoiceTest::test_serialization_shouldRestoreParameters()
         dev.setStringsLevel8(0.45f);
         dev.setStringsLevel4(0.6f);
         dev.setVoiceMale4(0.3f);
-        dev.setVoiceFemale8(0.7f);
+        dev.setVoiceUpperMale8(0.7f);
         dev.setEnsembleEnabled(false);
         dev.setEnsembleMode(1);
         dev.setVocoderEnabled(true);
@@ -265,7 +272,7 @@ void StringVoiceTest::test_serialization_shouldRestoreParameters()
         QCOMPARE(dev.stringsLevel8(), 0.45f);
         QCOMPARE(dev.stringsLevel4(), 0.6f);
         QCOMPARE(dev.voiceMale4(), 0.3f);
-        QCOMPARE(dev.voiceFemale8(), 0.7f);
+        QCOMPARE(dev.voiceUpperMale8(), 0.7f);
         QCOMPARE(dev.ensembleEnabled(), false);
         QCOMPARE(dev.ensembleMode(), 1);
         QCOMPARE(dev.vocoderEnabled(), true);
@@ -366,12 +373,10 @@ void StringVoiceTest::test_ensembleMode_shouldSupportChorusIPlusII()
     QCOMPARE(dev.ensembleMode(), 2);
 }
 
-void StringVoiceTest::test_voiceRegisters_shouldRouteMale4AndFemale8Independently()
+void StringVoiceTest::test_voiceRegisters_shouldFollowTheKeyboardSplit()
 {
-    // Male 4' and Female 8' used to be unreachable: the choir path only ever
-    // wired the 8' oscillator into the Male mix and the 4' oscillator into
-    // the Female mix. Verify each new register independently produces audio,
-    // and that silence results when nothing at all is routed.
+    // The keyboard splits at C4 the way the hardware's does: below it a note sounds Male 8' and 4',
+    // at or above it Male 8' and Female 4'. Neither pair may sound on the other side of the split.
     auto renderPeak = [](StringVoiceDevice & dev) {
         std::vector<double> buffer(512 * 2, 0.0);
         auto ctx = makeContext(buffer, 512);
@@ -379,36 +384,48 @@ void StringVoiceTest::test_voiceRegisters_shouldRouteMale4AndFemale8Independentl
         return peakLevel(buffer);
     };
 
-    StringVoiceDevice male4Dev { "Male4" };
-    male4Dev.setStringsLevel8(0.0f);
-    male4Dev.setStringsLevel4(0.0f);
-    male4Dev.setVoiceMale8(0.0f);
-    male4Dev.setVoiceMale4(1.0f);
-    male4Dev.setVoiceFemale8(0.0f);
-    male4Dev.setVoiceFemale4(0.0f);
-    male4Dev.setVoiceAttack(0.0f);
-    male4Dev.setEnsembleEnabled(false);
-    male4Dev.processMidiNoteOn(60, 100);
-    QVERIFY(renderPeak(male4Dev) > 0.001);
+    auto onlyRegister = [](StringVoiceDevice & dev, float male8, float male4, float upperMale8, float female4) {
+        dev.setStringsLevel8(0.0f);
+        dev.setStringsLevel4(0.0f);
+        dev.setVoiceMale8(male8);
+        dev.setVoiceMale4(male4);
+        dev.setVoiceUpperMale8(upperMale8);
+        dev.setVoiceFemale4(female4);
+        dev.setVoiceAttack(0.0f);
+        dev.setEnsembleEnabled(false);
+    };
 
-    StringVoiceDevice female8Dev { "Female8" };
-    female8Dev.setStringsLevel8(0.0f);
-    female8Dev.setStringsLevel4(0.0f);
-    female8Dev.setVoiceMale8(0.0f);
-    female8Dev.setVoiceMale4(0.0f);
-    female8Dev.setVoiceFemale8(1.0f);
-    female8Dev.setVoiceFemale4(0.0f);
-    female8Dev.setVoiceAttack(0.0f);
-    female8Dev.setEnsembleEnabled(false);
-    female8Dev.processMidiNoteOn(60, 100);
-    QVERIFY(renderPeak(female8Dev) > 0.001);
+    StringVoiceDevice male4Lower { "Male4 lower" };
+    onlyRegister(male4Lower, 0.0f, 1.0f, 0.0f, 0.0f);
+    male4Lower.processMidiNoteOn(48, 100);
+    QVERIFY2(renderPeak(male4Lower) > 0.001, "Male 4' was silent below the split, where it belongs");
+
+    StringVoiceDevice male4Upper { "Male4 upper" };
+    onlyRegister(male4Upper, 0.0f, 1.0f, 0.0f, 0.0f);
+    male4Upper.processMidiNoteOn(72, 100);
+    QVERIFY2(renderPeak(male4Upper) < 0.001, "Male 4' sounded above the split, where the hardware has none");
+
+    StringVoiceDevice femaleUpper { "Female4 upper" };
+    onlyRegister(femaleUpper, 0.0f, 0.0f, 0.0f, 1.0f);
+    femaleUpper.processMidiNoteOn(72, 100);
+    QVERIFY2(renderPeak(femaleUpper) > 0.001, "Female 4' was silent above the split, where it belongs");
+
+    StringVoiceDevice femaleLower { "Female4 lower" };
+    onlyRegister(femaleLower, 0.0f, 0.0f, 0.0f, 1.0f);
+    femaleLower.processMidiNoteOn(48, 100);
+    QVERIFY2(renderPeak(femaleLower) < 0.001, "The female voice sounded below the split, which the hardware never does");
+
+    StringVoiceDevice upperMale { "UpperMale8" };
+    onlyRegister(upperMale, 0.0f, 0.0f, 1.0f, 0.0f);
+    upperMale.processMidiNoteOn(72, 100);
+    QVERIFY2(renderPeak(upperMale) > 0.001, "Upper Male 8' was silent above the split");
 
     StringVoiceDevice silentDev { "Silent" };
     silentDev.setStringsLevel8(0.0f);
     silentDev.setStringsLevel4(0.0f);
     silentDev.setVoiceMale8(0.0f);
     silentDev.setVoiceMale4(0.0f);
-    silentDev.setVoiceFemale8(0.0f);
+    silentDev.setVoiceUpperMale8(0.0f);
     silentDev.setVoiceFemale4(0.0f);
     silentDev.setVoiceAttack(0.0f);
     silentDev.setEnsembleEnabled(false);
@@ -458,10 +475,12 @@ void StringVoiceTest::test_balance_shouldScaleEachSectionIndependently()
              QString("Half balance gave %1, expected about %2").arg(halfStrings).arg(stringsOnly * 0.5).toUtf8().constData());
 }
 
-void StringVoiceTest::test_formants_male_shouldPeakAtOohFrequencies()
+void StringVoiceTest::test_formants_male_shouldPeakAtOhFrequencies()
 {
-    // The male register sings an /u/: F1 325, F2 700, F3 2530 Hz. F3 is the one that decides whether
-    // the ear hears a voice at all, and it used to sit at 1300 Hz with nothing above 2 kHz.
+    // The male register sings an /o/, F1 700 and F2 900 Hz, which is where a VC340 recording of
+    // the same registers puts that machine's formant region. It sang a textbook /u/ an octave below
+    // until that measurement, which left it 20 - 32 dB short of the hardware right where the
+    // hardware sings, and reading as a filtered string rather than a voice.
     constexpr uint32_t frames { 32768 };
     const auto buffer { renderRegister(true, frames) };
     const uint32_t start { frames / 4 };
@@ -469,30 +488,52 @@ void StringVoiceTest::test_formants_male_shouldPeakAtOohFrequencies()
 
     // Bands wide enough to hold partials of the note being played: C3's land 131 Hz apart, so a
     // band narrower than that can fall between two of them and measure only the skirts.
-    const double f1 { bandEnergy(buffer, start, window, 250.0, 450.0) };
-    const double f2 { bandEnergy(buffer, start, window, 600.0, 820.0) };
-    const double f3 { bandEnergy(buffer, start, window, 2300.0, 2700.0) };
-    const double aboveF2 { bandEnergy(buffer, start, window, 1800.0, 2150.0) };
+    const double belowFormants { bandEnergy(buffer, start, window, 200.0, 450.0) };
+    const double formants { bandEnergy(buffer, start, window, 600.0, 1050.0) };
+    const double top { bandEnergy(buffer, start, window, 4000.0, 6000.0) };
 
-    QVERIFY2(f1 > f2 * 4.0,
-             QString("F1 (%1) is not clearly above F2 (%2), which an /u/ needs").arg(f1).arg(f2).toUtf8().constData());
-    QVERIFY2(f3 > aboveF2 * 2.0,
-             QString("No F3: %1 at 2.4 - 2.65 kHz against %2 just below it").arg(f3).arg(aboveF2).toUtf8().constData());
+    QVERIFY2(formants > belowFormants * 10.0,
+             QString("The formant region (%1) does not dominate what lies below it (%2)").arg(formants).arg(belowFormants).toUtf8().constData());
+    QVERIFY2(top < formants * 1.0e-3,
+             QString("Too much above the formants: %1 at 4 - 6 kHz against %2 across them").arg(top).arg(formants).toUtf8().constData());
 }
 
 void StringVoiceTest::test_formants_female_shouldNotNotchBetweenPeaks()
 {
     // Summing the resonances in phase cancelled between the peaks: the female register measured a
     // 28 dB hole between F1 and F2 where a real vowel has a valley of a few decibels.
-    constexpr uint32_t frames { 32768 };
-    const auto buffer { renderRegister(false, frames) };
-    const uint32_t start { frames / 4 };
-    const uint32_t window { frames / 2 };
+    //
+    // Measured on the bank itself rather than on a rendered note. The female voice only sounds an
+    // octave above the keyboard split now, so its partials are too far apart to land either side of
+    // a valley this narrow.
+    constexpr int responseLength { 8192 };
+    constexpr double sampleRate { 44100.0 };
+    FormantFilterBank bank;
+    bank.setSampleRate(sampleRate);
 
-    const double f1 { bandEnergy(buffer, start, window, 750.0, 950.0) };
-    const double valley { bandEnergy(buffer, start, window, 980.0, 1120.0) };
+    std::vector<double> response(responseLength, 0.0);
+    for (int i = 0; i < responseLength; i++) {
+        double male { 0.0 };
+        double female { 0.0 };
+        bank.process(0.0, i == 0 ? 1.0 : 0.0, male, female);
+        response[i] = female;
+    }
 
-    QVERIFY2(valley > f1 * 0.05,
+    const auto magnitudeAt = [&response](double frequency) {
+        double re { 0.0 };
+        double im { 0.0 };
+        for (size_t i = 0; i < response.size(); i++) {
+            const double omega { 2.0 * std::numbers::pi * frequency * static_cast<double>(i) / sampleRate };
+            re += response[i] * std::cos(omega);
+            im -= response[i] * std::sin(omega);
+        }
+        return std::hypot(re, im);
+    };
+
+    const double f1 { magnitudeAt(850.0) };
+    const double valley { magnitudeAt(1030.0) };
+
+    QVERIFY2(valley > f1 * 0.1,
              QString("Notch between F1 (%1) and F2: %2 in between").arg(f1).arg(valley).toUtf8().constData());
 }
 

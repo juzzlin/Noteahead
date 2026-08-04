@@ -98,6 +98,7 @@ private slots:
     void test_fromXml_missingPatterns_shouldRemoveThemFromPlayOrder();
     void test_fromXml_legacyLength_shouldBeSupported();
 
+    void test_stringVoice_legacyFemale8_shouldLoadAsUpperMale8();
     void test_wavetableSynth_legacyNames_shouldLoadCorrectly();
     void test_eq8BandParametric_legacyNames_shouldLoadCorrectly();
     void test_chorus_legacyNames_shouldLoadCorrectly();

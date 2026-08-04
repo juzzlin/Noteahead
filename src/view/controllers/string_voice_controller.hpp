@@ -37,7 +37,7 @@ class StringVoiceController : public DeviceController
 
     Q_PROPERTY(int voiceMale8 READ voiceMale8 WRITE setVoiceMale8 NOTIFY voiceMale8Changed)
     Q_PROPERTY(int voiceMale4 READ voiceMale4 WRITE setVoiceMale4 NOTIFY voiceMale4Changed)
-    Q_PROPERTY(int voiceFemale8 READ voiceFemale8 WRITE setVoiceFemale8 NOTIFY voiceFemale8Changed)
+    Q_PROPERTY(int voiceUpperMale8 READ voiceUpperMale8 WRITE setVoiceUpperMale8 NOTIFY voiceUpperMale8Changed)
     Q_PROPERTY(int voiceFemale4 READ voiceFemale4 WRITE setVoiceFemale4 NOTIFY voiceFemale4Changed)
     Q_PROPERTY(int voiceAttack READ voiceAttack WRITE setVoiceAttack NOTIFY voiceAttackChanged)
     Q_PROPERTY(int voiceRelease READ voiceRelease WRITE setVoiceRelease NOTIFY voiceReleaseChanged)
@@ -87,8 +87,8 @@ public:
     int voiceMale4() const;
     void setVoiceMale4(int value);
 
-    int voiceFemale8() const;
-    void setVoiceFemale8(int value);
+    int voiceUpperMale8() const;
+    void setVoiceUpperMale8(int value);
 
     int voiceFemale4() const;
     void setVoiceFemale4(int value);
@@ -141,7 +141,7 @@ signals:
     void stringsReleaseChanged();
     void voiceMale8Changed();
     void voiceMale4Changed();
-    void voiceFemale8Changed();
+    void voiceUpperMale8Changed();
     void voiceFemale4Changed();
     void voiceAttackChanged();
     void voiceReleaseChanged();

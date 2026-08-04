@@ -111,6 +111,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/StringVoiceDialog_Ensemble.qml
     ${QML_BASE_DIR}/Dialogs/StringVoiceDialog_Global.qml
     ${QML_BASE_DIR}/Dialogs/StringVoiceDialog_Strings.qml
+    ${QML_BASE_DIR}/Dialogs/StringVoiceDialog_Vocoder.qml
     ${QML_BASE_DIR}/Dialogs/StringVoiceDialog_Voice.qml
     ${QML_BASE_DIR}/Dialogs/PitchBendAutomationModel.qml
     ${QML_BASE_DIR}/Dialogs/RecentFilesDialog.qml

@@ -25,7 +25,7 @@ AnimatedDialog {
     title: applicationService.stringVoiceDeviceName
     modal: true
     focus: true
-    width: 1150
+    width: 1400
     height: 700
     clip: true
 
@@ -72,9 +72,10 @@ AnimatedDialog {
             Layout.fillHeight: true
             spacing: 20
 
-            // Fixed Sidebar: Global settings
+            // Global settings
             ColumnLayout {
-                Layout.preferredWidth: 220
+                Layout.fillWidth: true
+                Layout.preferredWidth: 1
                 Layout.fillHeight: true
                 Layout.alignment: Qt.AlignTop
 
@@ -102,6 +103,7 @@ AnimatedDialog {
             // Ensemble Chorus section
             ColumnLayout {
                 Layout.fillWidth: true
+                Layout.preferredWidth: 1
                 Layout.fillHeight: true
                 Layout.alignment: Qt.AlignTop
 
@@ -129,6 +131,7 @@ AnimatedDialog {
             // Strings section
             ColumnLayout {
                 Layout.fillWidth: true
+                Layout.preferredWidth: 1
                 Layout.fillHeight: true
                 Layout.alignment: Qt.AlignTop
 
@@ -140,22 +143,8 @@ AnimatedDialog {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
 
-                    ColumnLayout {
+                    StringVoiceDialog_Strings {
                         width: stringsScrollView.availableWidth
-                        spacing: 12
-
-                        StringVoiceDialog_Strings {
-                            Layout.fillWidth: true
-                        }
-
-                        LayoutSeparator {
-                            Layout.fillWidth: true
-                            Layout.topMargin: 8
-                        }
-
-                        StringVoiceDialog_Balance {
-                            Layout.fillWidth: true
-                        }
                     }
                 }
             }
@@ -170,6 +159,7 @@ AnimatedDialog {
             // Voice Section
             ColumnLayout {
                 Layout.fillWidth: true
+                Layout.preferredWidth: 1
                 Layout.fillHeight: true
                 Layout.alignment: Qt.AlignTop
 
@@ -183,6 +173,48 @@ AnimatedDialog {
 
                     StringVoiceDialog_Voice {
                         width: voiceScrollView.availableWidth
+                    }
+                }
+            }
+
+            // Vertical Separator
+            Rectangle {
+                Layout.preferredWidth: 1
+                Layout.fillHeight: true
+                color: "#333"
+            }
+
+            // Balance and Vocoder
+            ColumnLayout {
+                Layout.fillWidth: true
+                Layout.preferredWidth: 1
+                Layout.fillHeight: true
+                Layout.alignment: Qt.AlignTop
+
+                ScrollView {
+                    id: balanceScrollView
+                    clip: true
+                    ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                    ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+
+                    ColumnLayout {
+                        width: balanceScrollView.availableWidth
+                        spacing: 12
+
+                        StringVoiceDialog_Balance {
+                            Layout.fillWidth: true
+                        }
+
+                        LayoutSeparator {
+                            Layout.fillWidth: true
+                            Layout.topMargin: 8
+                        }
+
+                        StringVoiceDialog_Vocoder {
+                            Layout.fillWidth: true
+                        }
                     }
                 }
             }

@@ -36,6 +36,13 @@ ColumnLayout {
         Layout.topMargin: 5
     }
 
+    Label {
+        text: qsTr("Lower (below C4)")
+        font.bold: true
+        font.pixelSize: 13
+        color: "#aaa"
+        Layout.alignment: Qt.AlignLeft
+    }
     Knob {
         label: qsTr("Male 8'")
         value: stringVoiceController.voiceMale8
@@ -48,16 +55,34 @@ ColumnLayout {
         onMoved: v => stringVoiceController.voiceMale4 = v
         Layout.fillWidth: true
     }
+
+    Label {
+        text: qsTr("Upper (C4 and above)")
+        font.bold: true
+        font.pixelSize: 13
+        color: "#aaa"
+        Layout.alignment: Qt.AlignLeft
+        Layout.topMargin: 6
+    }
     Knob {
-        label: qsTr("Female 8'")
-        value: stringVoiceController.voiceFemale8
-        onMoved: v => stringVoiceController.voiceFemale8 = v
+        label: qsTr("Male 8'")
+        value: stringVoiceController.voiceUpperMale8
+        onMoved: v => stringVoiceController.voiceUpperMale8 = v
         Layout.fillWidth: true
     }
     Knob {
         label: qsTr("Female 4'")
         value: stringVoiceController.voiceFemale4
         onMoved: v => stringVoiceController.voiceFemale4 = v
+        Layout.fillWidth: true
+    }
+
+    Label {
+        text: qsTr("The female voice sounds only above the split, an octave up, as on the hardware.")
+        color: "#aaa"
+        font.italic: true
+        font.pixelSize: 11
+        wrapMode: Text.WordWrap
         Layout.fillWidth: true
     }
     Knob {
@@ -71,44 +96,5 @@ ColumnLayout {
         value: stringVoiceController.voiceRelease
         onMoved: v => stringVoiceController.voiceRelease = v
         Layout.fillWidth: true
-    }
-
-    Label {
-        text: qsTr("Vocoder")
-        font.bold: true
-        font.pixelSize: 14
-        color: themeService.accentColor
-        Layout.topMargin: 10
-    }
-
-    CheckBox {
-        text: qsTr("Enable Vocoder")
-        checked: stringVoiceController.vocoderEnabled
-        onToggled: stringVoiceController.vocoderEnabled = checked
-        Layout.fillWidth: true
-    }
-
-    RowLayout {
-        Layout.fillWidth: true
-        enabled: stringVoiceController.vocoderEnabled
-        spacing: 10
-
-        Label {
-            text: qsTr("Modulator:")
-        }
-
-        ComboBox {
-            id: sideChainCombo
-            model: {
-                var items = [qsTr("None")];
-                for (var i = 0; i < deviceRackController.deviceCount; i++) {
-                    items.push(qsTr("Device %1").arg(i + 1));
-                }
-                return items;
-            }
-            currentIndex: stringVoiceController.vocoderSidechain + 1
-            onActivated: index => stringVoiceController.vocoderSidechain = index - 1
-            Layout.fillWidth: true
-        }
     }
 }

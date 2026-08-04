@@ -69,7 +69,7 @@ StringVoiceDevice::StringVoiceDevice(std::string name)
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceMale8().toStdString(), 0.8f, 0, 100, 80, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceMale4().toStdString(), 0.0f, 0, 100, 0, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceFemale8().toStdString(), 0.0f, 0, 100, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceUpperMale8().toStdString(), 0.8f, 0, 100, 80, 100, Parameter::Type::Continuous, { Constants::NahdXml::xmlKeyVoiceFemale8().toStdString() } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceFemale4().toStdString(), 0.0f, 0, 100, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceAttack().toStdString(), 0.25f, 0, 100, 25, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceRelease().toStdString(), 0.45f, 0, 100, 45, 100 });
@@ -220,7 +220,9 @@ void StringVoiceDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
-    juzzlin::L("StringVoiceDevice").info() << "Note On: " << int(note) << " velocity: " << int(velocity);
+    // Trace, not info: every note of every pattern comes through here, and no other device
+    // announces its notes at all.
+    juzzlin::L("StringVoiceDevice").trace() << "Note On: " << int(note) << " velocity: " << int(velocity);
 
     int idx { findVoiceForNote(note) };
     if (idx < 0) {
@@ -265,7 +267,7 @@ void StringVoiceDevice::processMidiNoteOff(uint8_t note)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
-    juzzlin::L("StringVoiceDevice").info() << "Note Off: " << int(note);
+    juzzlin::L("StringVoiceDevice").trace() << "Note Off: " << int(note);
 
     const double strReleaseSec { ParameterMapper::mapExponential(m_stringsRelease, 0.005, 10.0) };
     const double vocReleaseSec { ParameterMapper::mapExponential(m_voiceRelease, 0.005, 10.0) };
@@ -448,8 +450,14 @@ void StringVoiceDevice::processAudio(AudioContext & context)
             const double voiceGain { static_cast<double>(v.velocity) * linearGainInternal() * 0.25 * polyphonyGain };
 
             const double strSample { (strSample8 * m_stringsLevel8 + strSample4 * m_stringsLevel4) * strEnv * voiceGain * m_stringsBalance };
-            const double maleSample { (vocSample8 * m_voiceMale8 + vocSample4 * m_voiceMale4) * vocEnv * voiceGain * m_voiceBalance };
-            const double femaleSample { (vocSample8 * m_voiceFemale8 + vocSample4 * m_voiceFemale4) * vocEnv * voiceGain * m_voiceBalance };
+
+            // Which register pair a note sounds is decided by the split, as on the hardware: the
+            // lower half of the keyboard carries Male 8' and 4', the upper half Male 8' and
+            // Female 4'. The female voice never sounds below the split.
+            const bool upper { v.note >= SplitNote };
+            const double maleLevel { upper ? m_voiceUpperMale8 : m_voiceMale8 };
+            const double maleSample { (vocSample8 * maleLevel + (upper ? 0.0 : vocSample4 * m_voiceMale4)) * vocEnv * voiceGain * m_voiceBalance };
+            const double femaleSample { (upper ? vocSample4 * m_voiceFemale4 : 0.0) * vocEnv * voiceGain * m_voiceBalance };
 
             stringsSumL += strSample * (1.0 - v.pan);
             stringsSumR += strSample * v.pan;
@@ -680,14 +688,14 @@ void StringVoiceDevice::setVoiceMale4(float val)
     setContinuousParameterValue(Constants::NahdXml::xmlKeyVoiceMale4().toStdString(), val);
 }
 
-float StringVoiceDevice::voiceFemale8() const
+float StringVoiceDevice::voiceUpperMale8() const
 {
-    return m_voiceFemale8;
+    return m_voiceUpperMale8;
 }
 
-void StringVoiceDevice::setVoiceFemale8(float val)
+void StringVoiceDevice::setVoiceUpperMale8(float val)
 {
-    setContinuousParameterValue(Constants::NahdXml::xmlKeyVoiceFemale8().toStdString(), val);
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVoiceUpperMale8().toStdString(), val);
 }
 
 float StringVoiceDevice::voiceFemale4() const
@@ -861,8 +869,8 @@ void StringVoiceDevice::syncParameters()
     if (const auto p = parameter(Constants::NahdXml::xmlKeyVoiceMale4().toStdString()); p) {
         m_voiceMale4 = p->get().value();
     }
-    if (const auto p = parameter(Constants::NahdXml::xmlKeyVoiceFemale8().toStdString()); p) {
-        m_voiceFemale8 = p->get().value();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVoiceUpperMale8().toStdString()); p) {
+        m_voiceUpperMale8 = p->get().value();
     }
     if (const auto p = parameter(Constants::NahdXml::xmlKeyVoiceFemale4().toStdString()); p) {
         m_voiceFemale4 = p->get().value();

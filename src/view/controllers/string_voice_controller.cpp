@@ -141,15 +141,15 @@ void StringVoiceController::setVoiceMale4(int value)
     }
 }
 
-int StringVoiceController::voiceFemale8() const
+int StringVoiceController::voiceUpperMale8() const
 {
-    return m_device ? static_cast<int>(std::round(m_device->voiceFemale8() * Constants::uiInternalScaling())) : 0;
+    return m_device ? static_cast<int>(std::round(m_device->voiceUpperMale8() * Constants::uiInternalScaling())) : 0;
 }
 
-void StringVoiceController::setVoiceFemale8(int value)
+void StringVoiceController::setVoiceUpperMale8(int value)
 {
     if (m_device) {
-        m_device->setVoiceFemale8(static_cast<float>(value) / Constants::uiInternalScaling());
+        m_device->setVoiceUpperMale8(static_cast<float>(value) / Constants::uiInternalScaling());
     }
 }
 
@@ -319,7 +319,7 @@ void StringVoiceController::requestSettings()
     emit stringsReleaseChanged();
     emit voiceMale8Changed();
     emit voiceMale4Changed();
-    emit voiceFemale8Changed();
+    emit voiceUpperMale8Changed();
     emit voiceFemale4Changed();
     emit voiceAttackChanged();
     emit voiceReleaseChanged();

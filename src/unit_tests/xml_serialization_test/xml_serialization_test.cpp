@@ -32,6 +32,7 @@
 #include "../../domain/devices/kick_808_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/string_ensemble_device.hpp"
+#include "../../domain/devices/string_voice_device.hpp"
 #include "../../domain/devices/sub_mixer_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/wavetable_synth_device.hpp"
@@ -2226,6 +2227,40 @@ void XmlSerializationTest::test_fromXml_legacyLength_shouldBeSupported()
 
     // length="5" should be respected
     QCOMPARE(editorServiceIn.songLength(), 5);
+}
+
+void XmlSerializationTest::test_stringVoice_legacyFemale8_shouldLoadAsUpperMale8()
+{
+    // The Human Voice section follows the hardware's two switches now: Lower carries Male 8' and 4',
+    // Upper carries Male 8' and Female 4'. There is no Female 8' on a VC340, so that register
+    // became the upper register's Male 8' and a project written before the change has to find its
+    // value there.
+    StringVoiceDevice device { "Test StringVoice" };
+
+    QString xml;
+    NahdXmlWriter writer { xml };
+    writer.writeStartElement(Constants::NahdXml::xmlKeyDevice());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), "Test StringVoice");
+    writer.writeAttribute(Constants::NahdXml::xmlKeyTypeName(), Constants::NahdXml::xmlValueSynths());
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameters());
+
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), "voiceFemale8");
+    writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueFloat());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), "70"); // 0.7 internal
+    writer.writeEndElement();
+
+    writer.writeEndElement(); // Parameters
+    writer.writeEndElement(); // Device
+
+    NahdXmlReader reader { xml };
+    while (!reader.atEnd()) {
+        if (reader.readNextStartElement() && reader.name() == Constants::NahdXml::xmlKeyDevice()) {
+            device.deserializeFromXml(reader);
+        }
+    }
+
+    QCOMPARE(device.voiceUpperMale8(), 0.7f);
 }
 
 void XmlSerializationTest::test_wavetableSynth_legacyNames_shouldLoadCorrectly()

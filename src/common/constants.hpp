@@ -417,6 +417,7 @@ QString xmlKeyVoiceDepth();
 QString xmlKeyPortamento();
 QString xmlKeyPanSpread();
 QString xmlKeyVoiceBalance();
+QString xmlKeyVoiceUpperMale8();
 QString xmlKeyPitchBendRange();
 QString xmlKeyResonance();
 QString xmlKeyKeyTrack();
