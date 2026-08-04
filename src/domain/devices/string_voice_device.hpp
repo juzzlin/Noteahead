@@ -63,6 +63,12 @@ public:
     void deserializeFromXml(ProjectReader & reader) override;
 
     // Getters and Setters for Parameters
+    float stringsBalance() const;
+    void setStringsBalance(float val);
+
+    float voiceBalance() const;
+    void setVoiceBalance(float val);
+
     float stringsLevel8() const;
     void setStringsLevel8(float val);
 
@@ -164,6 +170,11 @@ private:
     uint64_t m_nextTriggerId { 1 };
 
     // Device Parameters cache
+    //! Section balance, the hardware's own Balance sliders: one level per section, so a patch can
+    //! be tipped between strings and voices without touching each register's footage.
+    float m_stringsBalance { 1.0f };
+    float m_voiceBalance { 1.0f };
+
     float m_stringsLevel8 { 0.8f };
     float m_stringsLevel4 { 0.0f };
     float m_stringsAttack { 50.0f };

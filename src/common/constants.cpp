@@ -2042,9 +2042,19 @@ QString xmlKeyFftRate()
     return "fftRate";
 }
 
+QString xmlKeyStringsBalance()
+{
+    return "stringsBalance";
+}
+
 QString xmlKeyStringsLevel8()
 {
     return "stringsLevel8";
+}
+
+QString xmlKeyVoiceBalance()
+{
+    return "voiceBalance";
 }
 
 QString xmlKeyStringsLevel4()

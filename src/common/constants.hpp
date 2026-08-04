@@ -416,6 +416,7 @@ QString xmlKeyPreDelay();
 QString xmlKeyVoiceDepth();
 QString xmlKeyPortamento();
 QString xmlKeyPanSpread();
+QString xmlKeyVoiceBalance();
 QString xmlKeyPitchBendRange();
 QString xmlKeyResonance();
 QString xmlKeyKeyTrack();
@@ -591,6 +592,7 @@ QString xmlValueSynths();
 QString xmlValueMixers();
 QString xmlValueDrums();
 
+QString xmlKeyStringsBalance();
 QString xmlKeyStringsLevel8();
 QString xmlKeyStringsLevel4();
 QString xmlKeyStringsAttack();

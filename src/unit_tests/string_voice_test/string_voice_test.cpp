@@ -232,6 +232,8 @@ void StringVoiceTest::test_serialization_shouldRestoreParameters()
     {
         NahdXmlWriter writer { buffer };
         StringVoiceDevice dev { "Test StringVoice" };
+        dev.setStringsBalance(0.35f);
+        dev.setVoiceBalance(0.65f);
         dev.setStringsLevel8(0.45f);
         dev.setStringsLevel4(0.6f);
         dev.setVoiceMale4(0.3f);
@@ -258,6 +260,8 @@ void StringVoiceTest::test_serialization_shouldRestoreParameters()
 
         dev.deserializeFromXml(reader);
 
+        QCOMPARE(dev.stringsBalance(), 0.35f);
+        QCOMPARE(dev.voiceBalance(), 0.65f);
         QCOMPARE(dev.stringsLevel8(), 0.45f);
         QCOMPARE(dev.stringsLevel4(), 0.6f);
         QCOMPARE(dev.voiceMale4(), 0.3f);
@@ -410,6 +414,48 @@ void StringVoiceTest::test_voiceRegisters_shouldRouteMale4AndFemale8Independentl
     silentDev.setEnsembleEnabled(false);
     silentDev.processMidiNoteOn(60, 100);
     QCOMPARE(renderPeak(silentDev), 0.0);
+}
+
+void StringVoiceTest::test_balance_shouldScaleEachSectionIndependently()
+{
+    // One level per section, the hardware's Balance sliders. Turning one down must not touch the
+    // other, which is the whole point of not having to reach for each register's footage.
+    const auto render = [](float stringsBalance, float voiceBalance) {
+        StringVoiceDevice dev { "Test StringVoice" };
+        dev.setSampleRate(44100);
+        dev.setStringsLevel8(1.0f);
+        dev.setVoiceMale8(1.0f);
+        dev.setStringsAttack(0.0f);
+        dev.setVoiceAttack(0.0f);
+        dev.setEnsembleEnabled(false);
+        dev.setStringsBalance(stringsBalance);
+        dev.setVoiceBalance(voiceBalance);
+        dev.processMidiNoteOn(48, 100);
+
+        constexpr uint32_t frameCount { 8192 };
+        std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+        auto ctx = makeContext(buffer, frameCount);
+        dev.processAudio(ctx);
+        return buffer;
+    };
+
+    const double both { rmsLevel(render(1.0f, 1.0f)) };
+    const double stringsOnly { rmsLevel(render(1.0f, 0.0f)) };
+    const double voiceOnly { rmsLevel(render(0.0f, 1.0f)) };
+    const double neither { rmsLevel(render(0.0f, 0.0f)) };
+
+    QVERIFY(both > 0.0);
+    QVERIFY2(stringsOnly > 0.0 && voiceOnly > 0.0,
+             QString("A section fell silent with its own balance up: strings %1, voice %2").arg(stringsOnly).arg(voiceOnly).toUtf8().constData());
+    QVERIFY2(neither < both * 0.001,
+             QString("Both balances down still gave %1 against %2").arg(neither).arg(both).toUtf8().constData());
+    QVERIFY(stringsOnly < both);
+    QVERIFY(voiceOnly < both);
+
+    // Half of the strings section must land halfway in level, not somewhere the voice section moved.
+    const double halfStrings { rmsLevel(render(0.5f, 0.0f)) };
+    QVERIFY2(std::abs(halfStrings - stringsOnly * 0.5) < stringsOnly * 0.05,
+             QString("Half balance gave %1, expected about %2").arg(halfStrings).arg(stringsOnly * 0.5).toUtf8().constData());
 }
 
 void StringVoiceTest::test_formants_male_shouldPeakAtOohFrequencies()

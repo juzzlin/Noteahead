@@ -59,6 +59,9 @@ void StringVoiceDevice::Voice::reset()
 StringVoiceDevice::StringVoiceDevice(std::string name)
   : m_name { std::move(name) }
 {
+    addParameter(Parameter { Constants::NahdXml::xmlKeyStringsBalance().toStdString(), 1.0f, 0, 100, 100, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceBalance().toStdString(), 1.0f, 0, 100, 100, 100 });
+
     addParameter(Parameter { Constants::NahdXml::xmlKeyStringsLevel8().toStdString(), 0.8f, 0, 100, 80, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyStringsLevel4().toStdString(), 0.0f, 0, 100, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyStringsAttack().toStdString(), 0.2f, 0, 100, 20, 100 });
@@ -444,9 +447,9 @@ void StringVoiceDevice::processAudio(AudioContext & context)
 
             const double voiceGain { static_cast<double>(v.velocity) * linearGainInternal() * 0.25 * polyphonyGain };
 
-            const double strSample { (strSample8 * m_stringsLevel8 + strSample4 * m_stringsLevel4) * strEnv * voiceGain };
-            const double maleSample { (vocSample8 * m_voiceMale8 + vocSample4 * m_voiceMale4) * vocEnv * voiceGain };
-            const double femaleSample { (vocSample8 * m_voiceFemale8 + vocSample4 * m_voiceFemale4) * vocEnv * voiceGain };
+            const double strSample { (strSample8 * m_stringsLevel8 + strSample4 * m_stringsLevel4) * strEnv * voiceGain * m_stringsBalance };
+            const double maleSample { (vocSample8 * m_voiceMale8 + vocSample4 * m_voiceMale4) * vocEnv * voiceGain * m_voiceBalance };
+            const double femaleSample { (vocSample8 * m_voiceFemale8 + vocSample4 * m_voiceFemale4) * vocEnv * voiceGain * m_voiceBalance };
 
             stringsSumL += strSample * (1.0 - v.pan);
             stringsSumR += strSample * v.pan;
@@ -597,6 +600,26 @@ void StringVoiceDevice::deserializeFromXml(ProjectReader & reader)
 }
 
 // Getters and Setters implementation
+float StringVoiceDevice::stringsBalance() const
+{
+    return m_stringsBalance;
+}
+
+void StringVoiceDevice::setStringsBalance(float val)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyStringsBalance().toStdString(), val);
+}
+
+float StringVoiceDevice::voiceBalance() const
+{
+    return m_voiceBalance;
+}
+
+void StringVoiceDevice::setVoiceBalance(float val)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVoiceBalance().toStdString(), val);
+}
+
 float StringVoiceDevice::stringsLevel8() const
 {
     return m_stringsLevel8;
@@ -814,6 +837,12 @@ void StringVoiceDevice::syncParameters()
 
     Device::syncParameters();
 
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyStringsBalance().toStdString()); p) {
+        m_stringsBalance = p->get().value();
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVoiceBalance().toStdString()); p) {
+        m_voiceBalance = p->get().value();
+    }
     if (const auto p = parameter(Constants::NahdXml::xmlKeyStringsLevel8().toStdString()); p) {
         m_stringsLevel8 = p->get().value();
     }

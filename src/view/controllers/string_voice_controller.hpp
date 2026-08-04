@@ -27,6 +27,9 @@ class StringVoiceController : public DeviceController
 {
     Q_OBJECT
 
+    Q_PROPERTY(int stringsBalance READ stringsBalance WRITE setStringsBalance NOTIFY stringsBalanceChanged)
+    Q_PROPERTY(int voiceBalance READ voiceBalance WRITE setVoiceBalance NOTIFY voiceBalanceChanged)
+
     Q_PROPERTY(int stringsLevel8 READ stringsLevel8 WRITE setStringsLevel8 NOTIFY stringsLevel8Changed)
     Q_PROPERTY(int stringsLevel4 READ stringsLevel4 WRITE setStringsLevel4 NOTIFY stringsLevel4Changed)
     Q_PROPERTY(int stringsAttack READ stringsAttack WRITE setStringsAttack NOTIFY stringsAttackChanged)
@@ -59,6 +62,12 @@ public:
 
     DeviceS device() const override;
     bool setDevice(DeviceS device) override;
+
+    int stringsBalance() const;
+    void setStringsBalance(int value);
+
+    int voiceBalance() const;
+    void setVoiceBalance(int value);
 
     int stringsLevel8() const;
     void setStringsLevel8(int value);
@@ -124,6 +133,8 @@ public:
 
 signals:
     void deviceChanged();
+    void stringsBalanceChanged();
+    void voiceBalanceChanged();
     void stringsLevel8Changed();
     void stringsLevel4Changed();
     void stringsAttackChanged();

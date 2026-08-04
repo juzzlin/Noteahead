@@ -107,6 +107,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/StringEnsembleDialog_Global.qml
     ${QML_BASE_DIR}/Dialogs/StringEnsembleDialog_Registers.qml
     ${QML_BASE_DIR}/Dialogs/StringVoiceDialog.qml
+    ${QML_BASE_DIR}/Dialogs/StringVoiceDialog_Balance.qml
     ${QML_BASE_DIR}/Dialogs/StringVoiceDialog_Ensemble.qml
     ${QML_BASE_DIR}/Dialogs/StringVoiceDialog_Global.qml
     ${QML_BASE_DIR}/Dialogs/StringVoiceDialog_Strings.qml

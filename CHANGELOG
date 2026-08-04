@@ -5,6 +5,11 @@ Release date:
 
 New features:
 
+* Add a Balance section to the StringVoice, below the Strings section
+  - Human Voice and Strings levels, one per section, so the two can be
+    balanced without re-tuning each register's footage
+  - Both default to full, leaving existing projects as they were
+
 * Add the Tube Stage effect
   - Valve preamp with a Bias control for the operating point, which is what
     decides how much even-harmonic warmth the stage generates

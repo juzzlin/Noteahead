@@ -45,6 +45,30 @@ bool StringVoiceController::setDevice(DeviceS device)
     return false;
 }
 
+int StringVoiceController::stringsBalance() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->stringsBalance() * Constants::uiInternalScaling())) : 0;
+}
+
+void StringVoiceController::setStringsBalance(int value)
+{
+    if (m_device) {
+        m_device->setStringsBalance(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int StringVoiceController::voiceBalance() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->voiceBalance() * Constants::uiInternalScaling())) : 0;
+}
+
+void StringVoiceController::setVoiceBalance(int value)
+{
+    if (m_device) {
+        m_device->setVoiceBalance(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
 int StringVoiceController::stringsLevel8() const
 {
     return m_device ? static_cast<int>(std::round(m_device->stringsLevel8() * Constants::uiInternalScaling())) : 0;
@@ -287,6 +311,8 @@ void StringVoiceController::setPanSpread(int value)
 
 void StringVoiceController::requestSettings()
 {
+    emit stringsBalanceChanged();
+    emit voiceBalanceChanged();
     emit stringsLevel8Changed();
     emit stringsLevel4Changed();
     emit stringsAttackChanged();

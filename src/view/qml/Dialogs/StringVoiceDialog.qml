@@ -140,8 +140,22 @@ AnimatedDialog {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
 
-                    StringVoiceDialog_Strings {
+                    ColumnLayout {
                         width: stringsScrollView.availableWidth
+                        spacing: 12
+
+                        StringVoiceDialog_Strings {
+                            Layout.fillWidth: true
+                        }
+
+                        LayoutSeparator {
+                            Layout.fillWidth: true
+                            Layout.topMargin: 8
+                        }
+
+                        StringVoiceDialog_Balance {
+                            Layout.fillWidth: true
+                        }
                     }
                 }
             }
