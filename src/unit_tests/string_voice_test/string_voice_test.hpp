@@ -36,6 +36,8 @@ private slots:
     void test_vibrato_shouldModulatePitchWithinASingleBuffer();
     void test_ensembleMode_shouldSupportChorusIPlusII();
     void test_voiceRegisters_shouldRouteMale4AndFemale8Independently();
+    void test_formants_male_shouldPeakAtOohFrequencies();
+    void test_formants_female_shouldNotNotchBetweenPeaks();
     void test_voiceStealing_shouldRemainStableWhenOversubscribed();
     void test_hpfAndLpf_shouldAttenuateSignal();
     void test_panSpread_shouldCreateStereoSeparation();

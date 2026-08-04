@@ -22,6 +22,9 @@
 
 #include <QBuffer>
 #include <QTest>
+#include <algorithm>
+#include <limits>
+#include <numbers>
 
 #include <array>
 #include <cmath>
@@ -78,6 +81,47 @@ double averageZeroCrossingPeriod(const std::vector<double> & buffer, uint32_t st
         return 0.0;
     }
     return static_cast<double>(crossings.back() - crossings.front()) / static_cast<double>(crossings.size() - 1);
+}
+
+//! Energy between two frequencies, from log-spaced DFT probes. The voices drift a few cents by
+//! design, so anything that measures at exact harmonic multiples would read low.
+double bandEnergy(const std::vector<double> & buffer, uint32_t startFrame, uint32_t frames, double lowHz, double highHz, uint32_t sampleRate = 44100)
+{
+    constexpr int probes { 9 };
+    double energy { 0.0 };
+    for (int probe = 0; probe < probes; probe++) {
+        const double frequency { lowHz * std::pow(highHz / lowHz, static_cast<double>(probe) / (probes - 1)) };
+        const double omega { 2.0 * std::numbers::pi * frequency / sampleRate };
+        double re { 0.0 };
+        double im { 0.0 };
+        for (uint32_t i = 0; i < frames; i++) {
+            const double sample { buffer[(startFrame + i) * 2] };
+            re += sample * std::cos(omega * i);
+            im -= sample * std::sin(omega * i);
+        }
+        energy += re * re + im * im;
+    }
+    return energy;
+}
+
+//! One register on its own, held long enough for the envelope to settle.
+std::vector<double> renderRegister(bool male, uint32_t frames)
+{
+    StringVoiceDevice dev { "Test StringVoice" };
+    dev.setSampleRate(44100);
+    dev.setStringsLevel8(0.0f);
+    dev.setStringsLevel4(0.0f);
+    dev.setVoiceMale8(male ? 1.0f : 0.0f);
+    dev.setVoiceFemale8(male ? 0.0f : 1.0f);
+    dev.setVoiceAttack(0.0f);
+    dev.setEnsembleEnabled(false);
+    dev.setVibratoDepth(0.0f);
+    dev.processMidiNoteOn(48, 100); // C3, well below every formant
+
+    std::vector<double> buffer(static_cast<size_t>(frames) * 2, 0.0);
+    auto ctx = makeContext(buffer, frames);
+    dev.processAudio(ctx);
+    return buffer;
 }
 
 } // namespace
@@ -292,13 +336,23 @@ void StringVoiceTest::test_vibrato_shouldModulatePitchWithinASingleBuffer()
     auto ctx = makeContext(buffer, frameCount);
     dev.processAudio(ctx);
 
-    // Quarter-buffer windows land at different vibrato LFO phases.
-    const double periodQ1 { averageZeroCrossingPeriod(buffer, 0, frameCount / 4) };
-    const double periodQ3 { averageZeroCrossingPeriod(buffer, frameCount / 2, frameCount * 3 / 4) };
+    // Measure over windows well short of one vibrato cycle and take the spread across the whole
+    // render. Comparing two quarter-buffer windows instead would average out most of a ~10 Hz
+    // modulation and leave what is left dependent on where those two windows happen to fall in its
+    // phase, which is not what this test is about.
+    constexpr int windows { 20 };
+    double shortest { std::numeric_limits<double>::max() };
+    double longest { 0.0 };
+    for (int window = 0; window < windows; window++) {
+        const double period { averageZeroCrossingPeriod(buffer, frameCount * window / windows, frameCount * (window + 1) / windows) };
+        QVERIFY(period > 0.0);
+        shortest = std::min(shortest, period);
+        longest = std::max(longest, period);
+    }
 
-    QVERIFY(periodQ1 > 0.0);
-    QVERIFY(periodQ3 > 0.0);
-    QVERIFY(std::abs(periodQ1 - periodQ3) > 0.5);
+    // A semitone of vibrato is about 6 % peak to peak on the period.
+    QVERIFY2(longest - shortest > shortest * 0.03,
+             QString("Pitch only moved from %1 to %2 samples per cycle").arg(shortest).arg(longest).toUtf8().constData());
 }
 
 void StringVoiceTest::test_ensembleMode_shouldSupportChorusIPlusII()
@@ -356,6 +410,44 @@ void StringVoiceTest::test_voiceRegisters_shouldRouteMale4AndFemale8Independentl
     silentDev.setEnsembleEnabled(false);
     silentDev.processMidiNoteOn(60, 100);
     QCOMPARE(renderPeak(silentDev), 0.0);
+}
+
+void StringVoiceTest::test_formants_male_shouldPeakAtOohFrequencies()
+{
+    // The male register sings an /u/: F1 325, F2 700, F3 2530 Hz. F3 is the one that decides whether
+    // the ear hears a voice at all, and it used to sit at 1300 Hz with nothing above 2 kHz.
+    constexpr uint32_t frames { 32768 };
+    const auto buffer { renderRegister(true, frames) };
+    const uint32_t start { frames / 4 };
+    const uint32_t window { frames / 2 };
+
+    // Bands wide enough to hold partials of the note being played: C3's land 131 Hz apart, so a
+    // band narrower than that can fall between two of them and measure only the skirts.
+    const double f1 { bandEnergy(buffer, start, window, 250.0, 450.0) };
+    const double f2 { bandEnergy(buffer, start, window, 600.0, 820.0) };
+    const double f3 { bandEnergy(buffer, start, window, 2300.0, 2700.0) };
+    const double aboveF2 { bandEnergy(buffer, start, window, 1800.0, 2150.0) };
+
+    QVERIFY2(f1 > f2 * 4.0,
+             QString("F1 (%1) is not clearly above F2 (%2), which an /u/ needs").arg(f1).arg(f2).toUtf8().constData());
+    QVERIFY2(f3 > aboveF2 * 2.0,
+             QString("No F3: %1 at 2.4 - 2.65 kHz against %2 just below it").arg(f3).arg(aboveF2).toUtf8().constData());
+}
+
+void StringVoiceTest::test_formants_female_shouldNotNotchBetweenPeaks()
+{
+    // Summing the resonances in phase cancelled between the peaks: the female register measured a
+    // 28 dB hole between F1 and F2 where a real vowel has a valley of a few decibels.
+    constexpr uint32_t frames { 32768 };
+    const auto buffer { renderRegister(false, frames) };
+    const uint32_t start { frames / 4 };
+    const uint32_t window { frames / 2 };
+
+    const double f1 { bandEnergy(buffer, start, window, 750.0, 950.0) };
+    const double valley { bandEnergy(buffer, start, window, 980.0, 1120.0) };
+
+    QVERIFY2(valley > f1 * 0.05,
+             QString("Notch between F1 (%1) and F2: %2 in between").arg(f1).arg(valley).toUtf8().constData());
 }
 
 void StringVoiceTest::test_voiceStealing_shouldRemainStableWhenOversubscribed()

@@ -21,6 +21,14 @@ New features:
 
 Bug fixes:
 
+* Make the StringVoice voice section sing a vowel
+  - The registers now sit on measured sung-vowel formants, male an "ooh" and
+    female an "aah", instead of a set with no F3 above 1.3 kHz
+  - A glottal tilt on the source, and resonances summed with alternating
+    polarity, replace the 15 - 28 dB notches with a vowel's own valleys
+  - Vibrato is per voice with a slow drift of its own, so a chord no longer
+    modulates in lockstep
+
 * Give the Kick808 the attack a real 808 has
   - Its hit was tens of decibels short of an RD-8 from 200 Hz up, which left
     it audible only where the fundamental is

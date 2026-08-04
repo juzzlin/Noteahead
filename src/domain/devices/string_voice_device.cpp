@@ -85,8 +85,6 @@ StringVoiceDevice::StringVoiceDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyPanSpread().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
-    m_vibratoLfo.setWaveform(Lfo::Waveform::Sine);
-
     m_lpfL.setMode(CascadedSvf::Mode::LowPass);
     m_lpfR.setMode(CascadedSvf::Mode::LowPass);
     m_hpfL.setMode(CascadedSvf::Mode::HighPass);
@@ -114,6 +112,15 @@ StringVoiceDevice::StringVoiceDevice(std::string name)
 
         // Per-voice PWM phase offset so simultaneous notes don't pulse in lockstep.
         v.pwmPhase = static_cast<double>(i) / static_cast<double>(MaxVoices);
+
+        // A choir is not one singer multiplied. Each voice gets its own vibrato phase and a rate a
+        // couple of percent off the others, so they never settle into the lockstep a single shared
+        // LFO gives them, plus a slow drift of its own that keeps the tuning from sitting perfectly
+        // still the way only a synthesiser's does.
+        v.vibratoPhase = static_cast<double>(i) / static_cast<double>(MaxVoices);
+        v.vibratoRateRatio = 1.0 + spread * 0.08;
+        v.driftPhase = static_cast<double>((i * 7) % MaxVoices) / static_cast<double>(MaxVoices);
+        v.driftRateRatio = 1.0 + spread * 0.55;
     }
 
     syncParameters();
@@ -316,9 +323,7 @@ void StringVoiceDevice::processAudio(AudioContext & context)
 
     const double sRate { static_cast<double>(context.sampleRate) };
 
-    m_vibratoLfo.setSampleRate(sRate);
     const double vibRateHz { m_vibratoRate * 9.9 + 0.1 };
-    m_vibratoLfo.setFrequency(vibRateHz);
 
     m_lpfL.setSampleRate(sRate);
     m_lpfR.setSampleRate(sRate);
@@ -350,8 +355,12 @@ void StringVoiceDevice::processAudio(AudioContext & context)
 
     constexpr double pwmRateHz { 0.13 }; // slow, subtle pulse-width drift for a less static choir tone
 
+    // Depth and speed of the per-voice tuning drift. Small enough to read as a singer rather than
+    // as a detuned oscillator: a held sung note wanders by a few cents over a second or two.
+    constexpr double DriftCents { 3.5 };
+    constexpr double DriftRateHz { 0.45 };
+
     for (uint32_t i { 0 }; i < context.frameCount; ++i) {
-        const double vibratoLfoVal { m_vibratoLfo.nextSample() }; // -1.0 to 1.0
 
         double stringsSumL { 0.0 };
         double stringsSumR { 0.0 };
@@ -388,6 +397,18 @@ void StringVoiceDevice::processAudio(AudioContext & context)
 
             v.triggerFrame++;
 
+            v.vibratoPhase += vibRateHz * v.vibratoRateRatio / sRate;
+            if (v.vibratoPhase >= 1.0) {
+                v.vibratoPhase -= 1.0;
+            }
+            const double vibratoLfoVal { std::sin(2.0 * std::numbers::pi * v.vibratoPhase) };
+
+            v.driftPhase += DriftRateHz * v.driftRateRatio / sRate;
+            if (v.driftPhase >= 1.0) {
+                v.driftPhase -= 1.0;
+            }
+            const double driftOctaves { std::sin(2.0 * std::numbers::pi * v.driftPhase) * DriftCents / 1200.0 };
+
             v.pwmPhase += pwmRateHz / sRate;
             if (v.pwmPhase >= 1.0) {
                 v.pwmPhase -= 1.0;
@@ -399,6 +420,9 @@ void StringVoiceDevice::processAudio(AudioContext & context)
             const double pitchModRatio { std::exp2(vibratoLfoVal * currentVibratoDepth) };
 
             const double baseFreq { midiNoteToFreq(v.note) * pitchModRatio * v.detuneRatio };
+            // The drift is the voice section's alone: the strings' fixed detune is meant to read as
+            // analog imprecision, not as a singer holding a note.
+            const double voiceFreq { baseFreq * std::exp2(driftOctaves) };
 
             // Setup oscillators
             v.stringOsc8.setSampleRate(sRate);
@@ -407,9 +431,9 @@ void StringVoiceDevice::processAudio(AudioContext & context)
             v.stringOsc4.setFrequency(baseFreq * 2.0);
 
             v.voiceOsc8.setSampleRate(sRate);
-            v.voiceOsc8.setFrequency(baseFreq);
+            v.voiceOsc8.setFrequency(voiceFreq);
             v.voiceOsc4.setSampleRate(sRate);
-            v.voiceOsc4.setFrequency(baseFreq * 2.0);
+            v.voiceOsc4.setFrequency(voiceFreq * 2.0);
 
             // Generate oscillator samples
             const double strSample8 { v.stringOsc8.nextSample() };

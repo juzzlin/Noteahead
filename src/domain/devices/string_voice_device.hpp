@@ -20,7 +20,6 @@
 #include "../dsp/cascaded_svf.hpp"
 #include "../dsp/ensemble_chorus.hpp"
 #include "../dsp/formant_filter_bank.hpp"
-#include "../dsp/lfo.hpp"
 #include "../dsp/poly_blep_oscillator.hpp"
 #include "../dsp/true_stereo_panner.hpp"
 #include "../dsp/vocoder.hpp"
@@ -147,6 +146,10 @@ private:
         uint64_t triggerId { 0 }; // monotonic allocation order, used for stealing
         double detuneRatio { 1.0 }; // fixed per-voice pitch drift (analog divider imprecision)
         double pwmPhase { 0.0 }; // per-voice PWM LFO phase offset for choir movement
+        double vibratoPhase { 0.0 }; // own vibrato phase, so a chord does not vibrate in lockstep
+        double vibratoRateRatio { 1.0 };
+        double driftPhase { 0.0 }; // slow tuning wander, the voice section's alone
+        double driftRateRatio { 1.0 };
         double pan { 0.5 };
 
         void reset();
@@ -192,7 +195,6 @@ private:
     FormantFilterBank m_formantFiltersR;
     EnsembleChorus m_ensemble;
     TrueStereoPanner m_panner;
-    Lfo m_vibratoLfo;
     Vocoder m_vocoder;
     CascadedSvf m_lpfL;
     CascadedSvf m_lpfR;
