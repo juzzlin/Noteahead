@@ -69,6 +69,10 @@ AnimatedDialog {
                     Layout.row: 0
                     Layout.column: 0
                     label: qsTr("Attack")
+                    suffix: "%"
+                    mapping: "bipolar"
+                    mapMin: -100
+                    mapMax: 100
                     from: -100
                     to: 100
                     value: {
@@ -83,6 +87,10 @@ AnimatedDialog {
                     Layout.row: 0
                     Layout.column: 1
                     label: qsTr("Sustain")
+                    suffix: "%"
+                    mapping: "bipolar"
+                    mapMin: -100
+                    mapMax: 100
                     from: -100
                     to: 100
                     value: {

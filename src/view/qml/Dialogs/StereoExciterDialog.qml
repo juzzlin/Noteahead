@@ -122,6 +122,9 @@ AnimatedDialog {
                         Layout.column: 1
                         label: qsTr("Timbre")
                         suffix: ""
+                        mapping: "bipolar"
+                        mapMin: -50
+                        mapMax: 50
                         from: -50
                         to: 50
                         value: {

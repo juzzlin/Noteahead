@@ -171,6 +171,26 @@ void KnobControllerTest::test_format_shouldHandleMappingAndUnits()
     QCOMPARE(controller.format(normVal, "exponential", "", 0.1, 10.0), QString { "1.23" });
 }
 
+void KnobControllerTest::test_bipolarMapping_shouldReadZeroAtTheCentre()
+{
+    KnobController controller;
+
+    // A control centred on zero cannot use the plain percentage readout, which ignores the range
+    // and reports the knob's own position: neutral would read 50 % and nothing would ever read
+    // negative. That is what the Wave Designer's Attack and Sustain showed.
+    QCOMPARE(controller.format(0.5, "bipolar", "%", -100.0, 100.0), QString { "0.0%" });
+    QCOMPARE(controller.format(0.0, "bipolar", "%", -100.0, 100.0), QString { "-100.0%" });
+    QCOMPARE(controller.format(1.0, "bipolar", "%", -100.0, 100.0), QString { "+100.0%" });
+    QCOMPARE(controller.format(0.75, "bipolar", "%", -100.0, 100.0), QString { "+50.0%" });
+
+    // Without a unit, as the exciter's Timbre wants it.
+    QCOMPARE(controller.format(0.25, "bipolar", "", -50.0, 50.0), QString { "-25.0" });
+
+    // The mapping itself stays linear, so the knob's travel is even.
+    QCOMPARE(controller.map(0.5, "bipolar", -100.0, 100.0), 0.0);
+    QCOMPARE(controller.map(0.25, "bipolar", -100.0, 100.0), -50.0);
+}
+
 void KnobControllerTest::test_frequencyToString_shouldFormatFrequencyStrings()
 {
     KnobController controller;

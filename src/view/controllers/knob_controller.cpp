@@ -44,6 +44,9 @@ double KnobController::map(double value, const QString & type, double min, doubl
         return ParameterMapper::mapDecibel(value, (max - min) / 2.0);
     if (type == "fader")
         return ParameterMapper::mapFader(value);
+    // "bipolar" is linear too: it differs only in how it reads out, which format() handles. A
+    // control centred on zero cannot use the plain percentage readout, which ignores the range and
+    // shows the knob's own position: neutral would read 50 % and nothing would ever read negative.
     return min + (value * (max - min)); // linear
 }
 
@@ -87,7 +90,7 @@ QString KnobController::format(double value, const QString & type, const QString
 
     const double mappedValue = map(value, type, min, max);
 
-    if (type == "intensity" || type == "cubicCentered") {
+    if (type == "intensity" || type == "cubicCentered" || type == "bipolar") {
         return bipolarToString(mappedValue, suffix, min, max);
     }
     if (type == "logFrequency" || type == "frequency") {
