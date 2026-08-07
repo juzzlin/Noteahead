@@ -28,6 +28,7 @@
 #include "synth_presets.hpp"
 
 #include <mutex>
+#include <optional>
 #include <random>
 #include <vector>
 
@@ -53,7 +54,10 @@ public:
         Supersaw,
         //! No fixed detune at all. Each voice wanders at its own slow rate, so no pair ever settles
         //! into a steady beat and the comb pattern that makes plain unison harsh never forms.
-        Drift
+        Drift,
+        //! Poly with a single voice: overlapping notes glide instead of stacking. Appended last
+        //! because the ordinal is persisted, so it cannot sit next to Poly where it belongs.
+        Mono
     };
 
     //! Voice modes that spend every voice on a single note.
@@ -307,6 +311,9 @@ private:
     std::vector<Voice> m_voices;
     size_t m_polyNextVoice = 0;
     size_t m_dualNextPair { 0 };
+    //! Pan-spread slot of the note Mono is currently sounding. Unset until the first note, so the
+    //! line starts at the same position a poly patch would.
+    std::optional<size_t> m_monoPanSlot;
 
     mutable std::mt19937 m_rng { 0 };
     mutable std::uniform_real_distribution<double> m_phaseDist { 0.0, 1.0 };
@@ -408,6 +415,8 @@ private:
     double m_vco3BasePitchRatio { 1.0 };
 
     void handleNoteOn(uint8_t note, uint8_t velocity);
+    //! Mono voice allocation: one voice, legato on overlap, a fresh pan slot on every new note.
+    void handleMonoNoteOn(uint8_t note, double frequency, float velocity);
     void handleNoteOff(uint8_t note);
     double midiNoteToFreq(uint8_t note) const;
     void syncParameters() override;
@@ -441,6 +450,9 @@ private:
     double voiceDetuneSemitones(size_t index) const;
     //! Per-voice gain that keeps one note at the same level in every voice mode.
     float voiceStackNormalization() const;
+    //! Position in the stereo field of the given pan-spread slot. Slots alternate sides and close in
+    //! towards the centre, so a stack stays balanced however many of them are sounding.
+    float voiceSpreadPan(size_t slot) const;
     //! Corner for the voice's damping filter, or 0 when the mode damps nothing.
     double voiceDampingHz(size_t index) const;
 

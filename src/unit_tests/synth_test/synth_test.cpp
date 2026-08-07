@@ -1534,7 +1534,8 @@ void SynthTest::test_voiceMode_serialization_shouldPreserveEveryMode()
         SynthDevice::VoiceMode::Unison,
         SynthDevice::VoiceMode::Dual,
         SynthDevice::VoiceMode::Supersaw,
-        SynthDevice::VoiceMode::Drift
+        SynthDevice::VoiceMode::Drift,
+        SynthDevice::VoiceMode::Mono
     };
 
     for (auto && mode : modes) {
@@ -1687,6 +1688,151 @@ void SynthTest::test_voiceMode_drift_shouldMatchPolyLevel()
     const auto differenceDb = Utils::Dsp::linearToDb(static_cast<float>(driftPeak / polyPeak));
     QVERIFY2(differenceDb < 6.0f, qPrintable(QString { "Drift is %1 dB above poly" }.arg(differenceDb)));
     QVERIFY2(differenceDb > -6.0f, qPrintable(QString { "Drift is %1 dB below poly" }.arg(differenceDb)));
+}
+
+void SynthTest::test_voiceMode_mono_shouldMatchPolyLevel()
+{
+    const auto polyPeak = notePeak(SynthDevice::VoiceMode::Poly);
+    const auto monoPeak = notePeak(SynthDevice::VoiceMode::Mono);
+
+    QVERIFY(polyPeak > 0.0);
+
+    // Mono is poly with a single voice, so a single note must come out at exactly the same level.
+    const auto differenceDb = Utils::Dsp::linearToDb(static_cast<float>(monoPeak / polyPeak));
+    QVERIFY2(std::abs(differenceDb) < 0.01f, qPrintable(QString { "Mono is %1 dB off poly" }.arg(differenceDb)));
+}
+
+namespace {
+
+//! Runs the synth for the given number of blocks and returns the peak of the last one, per channel.
+std::pair<double, double> renderPeaks(SynthDevice & synth, int blocks)
+{
+    constexpr uint32_t frameCount = 512;
+    double buffer[frameCount * 2] {};
+    AudioContext context { std::span(buffer, frameCount * 2), frameCount, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+
+    double left = 0.0;
+    double right = 0.0;
+    for (int block = 0; block < blocks; block++) {
+        std::fill(std::begin(buffer), std::end(buffer), 0.0);
+        synth.processAudio(context);
+        left = 0.0;
+        right = 0.0;
+        for (uint32_t i = 0; i < frameCount; i++) {
+            left = std::max(left, std::abs(buffer[i * 2]));
+            right = std::max(right, std::abs(buffer[i * 2 + 1]));
+        }
+    }
+    return { left, right };
+}
+
+//! Number of voices the synth has ever triggered, counted through the glide frequency a trigger seeds.
+size_t triggeredVoiceCount(const SynthDevice & synth)
+{
+    size_t count = 0;
+    for (size_t i = 0; i < SynthDevice::MaxVoices; i++) {
+        if (synth.voiceGlideFrequency(i) > 0.0) {
+            count++;
+        }
+    }
+    return count;
+}
+
+} // namespace
+
+void SynthTest::test_voiceMode_mono_overlappingNotes_shouldUseOneVoice()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Mono);
+
+    // A chord's worth of note-ons with nothing released in between: poly would spend four voices,
+    // mono must keep them all on one.
+    synth.processMidiNoteOn(60, 100);
+    synth.processMidiNoteOn(64, 100);
+    synth.processMidiNoteOn(67, 100);
+    synth.processMidiNoteOn(72, 100);
+
+    QCOMPARE(triggeredVoiceCount(synth), 1u);
+}
+
+void SynthTest::test_voiceMode_mono_overlappingNotes_shouldGlideToNewPitch()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Mono);
+    synth.setPortamento(0.5f);
+
+    const double lowFreq = 440.0 * std::pow(2.0, (60 - 69) / 12.0);
+    const double highFreq = 440.0 * std::pow(2.0, (72 - 69) / 12.0);
+
+    synth.processMidiNoteOn(60, 100);
+    renderPeaks(synth, 20);
+    QVERIFY(std::abs(synth.voiceGlideFrequency(0) - lowFreq) < 0.1);
+
+    // The second note arrives while the first is still held, so the pitch travels there instead of
+    // jumping: partway through it must sit strictly between the two.
+    synth.processMidiNoteOn(72, 100);
+    renderPeaks(synth, 3);
+    QVERIFY(synth.voiceGlideFrequency(0) > lowFreq + 1.0);
+    QVERIFY(synth.voiceGlideFrequency(0) < highFreq - 1.0);
+
+    renderPeaks(synth, 200);
+    QVERIFY(std::abs(synth.voiceGlideFrequency(0) - highFreq) < 1.0);
+}
+
+void SynthTest::test_voiceMode_mono_legato_shouldNotRetriggerAmpEnvelope()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Mono);
+    // Long enough that a restarted attack would still be near silent one block later.
+    synth.setAmpAttack(0.8f);
+
+    synth.processMidiNoteOn(60, 100);
+    const auto [beforeLeft, beforeRight] = renderPeaks(synth, 40);
+    const double before = std::max(beforeLeft, beforeRight);
+    QVERIFY(before > 0.0);
+
+    // Same note again while it is still held. Legato means the envelope carries on, so the level
+    // keeps climbing rather than collapsing back to the start of the attack.
+    synth.processMidiNoteOn(60, 100);
+    const auto [afterLeft, afterRight] = renderPeaks(synth, 1);
+    QVERIFY2(std::max(afterLeft, afterRight) >= before, "Amp envelope was retriggered on a legato note");
+}
+
+void SynthTest::test_voiceMode_mono_newNotes_shouldStepThroughPanSpread()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Mono);
+    synth.setPanSpread(1.0f);
+    synth.setAmpRelease(0.0f);
+
+    // Slot 0 puts the note hard left, slot 1 hard right. Each note here starts from silence, so the
+    // line steps through the spread the way successive poly voices would.
+    synth.processMidiNoteOn(60, 100);
+    const auto [firstLeft, firstRight] = renderPeaks(synth, 10);
+    QVERIFY2(firstLeft > firstRight, "First mono note is not panned left");
+
+    synth.processMidiNoteOff(60);
+    renderPeaks(synth, 40);
+
+    synth.processMidiNoteOn(60, 100);
+    const auto [secondLeft, secondRight] = renderPeaks(synth, 10);
+    QVERIFY2(secondRight > secondLeft, "Second mono note is not panned right");
+}
+
+void SynthTest::test_voiceMode_mono_legato_shouldKeepPanPosition()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Mono);
+    synth.setPanSpread(1.0f);
+
+    synth.processMidiNoteOn(60, 100);
+    const auto [firstLeft, firstRight] = renderPeaks(synth, 10);
+    QVERIFY(firstLeft > firstRight);
+
+    // A glided note is part of the same gesture, so it must not jump across the field mid-glide.
+    synth.processMidiNoteOn(64, 100);
+    const auto [secondLeft, secondRight] = renderPeaks(synth, 10);
+    QVERIFY2(secondLeft > secondRight, "Legato note moved to the next pan slot");
 }
 
 void SynthTest::test_voiceMode_dual_shouldMatchPolyLevel()

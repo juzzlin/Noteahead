@@ -169,7 +169,7 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Intensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Target().toStdString(), 0.0f, 0, 5, 0, 1, Parameter::Type::Discrete });
 
-    addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceMode().toStdString(), 0.0f, 0, 4, 0, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceMode().toStdString(), 0.0f, 0, 5, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceDepth().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyPortamento().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyPanSpread().toStdString(), 0.0f, 0, 10000, 0, 100 });
@@ -349,6 +349,7 @@ double SynthDevice::voiceDetuneSemitones(size_t index) const
         return detuneSign * std::pow(m_voiceDepth, 1.5) * dualDetuneScale;
     }
     case VoiceMode::Poly:
+    case VoiceMode::Mono:
     default:
         return 0.0;
     }
@@ -375,6 +376,15 @@ float SynthDevice::voiceStackNormalization() const
         power += weight * weight;
     }
     return power > 0.0 ? static_cast<float>(1.0 / std::sqrt(power)) : 1.0f;
+}
+
+float SynthDevice::voiceSpreadPan(size_t slot) const
+{
+    // Voice-alternating distribution inspired by Behringer DeepMind: consecutive slots swap sides and
+    // step in towards the centre, so any prefix of the sequence is still balanced left to right.
+    const float side = (slot % 2 == 0) ? -1.0f : 1.0f;
+    const float depth = 1.0f - static_cast<float>(slot / 2) * (2.0f / static_cast<float>(MaxVoices));
+    return 0.5f + (side * depth * m_panSpread * 0.5f);
 }
 
 double SynthDevice::voiceDampingHz(size_t index) const
@@ -475,9 +485,9 @@ void SynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversampledRate,
         return;
     }
 
-    const float side = (index % 2 == 0) ? -1.0f : 1.0f;
-    const float depth = 1.0f - static_cast<float>(index / 2) * (2.0f / static_cast<float>(MaxVoices));
-    voice.pan = 0.5f + (side * depth * m_panSpread * 0.5f);
+    // Mono always sounds the same voice, so its position comes from the slot the note was given
+    // rather than the voice index, which would pin every note to the same side of the field.
+    voice.pan = voiceSpreadPan(m_voiceMode == VoiceMode::Mono ? m_monoPanSlot.value_or(0) : index);
 }
 
 void SynthDevice::applyGlobalEffects(AudioContext & context)
@@ -622,6 +632,7 @@ void SynthDevice::resetAudio()
     m_downsamplerR.reset();
     m_polyNextVoice = 0;
     m_dualNextPair = 0;
+    m_monoPanSlot.reset();
     m_nextTriggerId = 1;
 }
 
@@ -633,16 +644,23 @@ double SynthDevice::voiceGlideFrequency(size_t index) const
 
 void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
 {
+    const double freq = midiNoteToFreq(note);
+    const float vel = static_cast<float>(velocity) / 127.0f;
+    const float finalVel = std::clamp((1.0f - m_ampVelocitySensitivity) + m_ampVelocitySensitivity * vel, 0.0f, 1.0f);
+
+    if (m_voiceMode == VoiceMode::Mono) {
+        // Mono keeps the sounding voice alive on purpose, so the release-first pass below would undo
+        // the legato it exists to produce.
+        handleMonoNoteOn(note, freq, finalVel);
+        return;
+    }
+
     // First release any existing voices for this note to avoid multiple voices for same note in poly
     for (auto && voice : m_voices) {
         if (voice.active && voice.note == note) {
             voice.release();
         }
     }
-
-    const double freq = midiNoteToFreq(note);
-    const float vel = static_cast<float>(velocity) / 127.0f;
-    const float finalVel = std::clamp((1.0f - m_ampVelocitySensitivity) + m_ampVelocitySensitivity * vel, 0.0f, 1.0f);
 
     if (m_voiceMode == VoiceMode::Poly) {
         std::optional<size_t> bestVoice;
@@ -699,10 +717,7 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
                 m_voices.at(bestVoice.value()).glideFrequency = freq;
             }
 
-            // Balanced Pan Spread (Voice-alternating distribution inspired by Behringer DeepMind)
-            const float side = (bestVoice.value() % 2 == 0) ? -1.0f : 1.0f;
-            const float depth = 1.0f - static_cast<float>(bestVoice.value() / 2) * (2.0f / static_cast<float>(MaxVoices));
-            const float pan = 0.5f + (side * depth * m_panSpread * 0.5f);
+            const float pan = voiceSpreadPan(bestVoice.value());
 
             if (m_vco1Sync) {
                 m_voices.at(bestVoice.value()).trigger(note, freq, pan, finalVel, true, m_nextTriggerId++);
@@ -719,9 +734,7 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
                 m_voices.at(i).glideFrequency = voiceFreq;
             }
 
-            const float side = (i % 2 == 0) ? -1.0f : 1.0f;
-            const float depth = 1.0f - static_cast<float>(i / 2) * (2.0f / static_cast<float>(MaxVoices));
-            const float pan = 0.5f + (side * depth * m_panSpread * 0.5f);
+            const float pan = voiceSpreadPan(i);
 
             if (m_vco1Sync) {
                 m_voices.at(i).trigger(note, voiceFreq, pan, finalVel, true, tid);
@@ -791,6 +804,39 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
                 m_voices.at(v1).triggerRandomized(note, freq1, pan1, finalVel, m_phaseDist(m_rng), tid);
             }
         }
+    }
+}
+
+void SynthDevice::handleMonoNoteOn(uint8_t note, double frequency, float velocity)
+{
+    auto & voice = m_voices.front();
+
+    // Legato: the previous note has not been let go, so this is a move within one gesture. Only the
+    // pitch target changes — the envelopes keep running and the oscillators keep their phase, which
+    // is what turns the portamento into a glide rather than two notes with a slide between them.
+    if (voice.active && voice.ampEg.state() != AdsrEnvelope::State::Release) {
+        voice.note = note;
+        voice.frequency = frequency;
+        voice.velocity = velocity;
+        if (m_portamento <= 0.001f) {
+            voice.glideFrequency = frequency;
+        }
+        return;
+    }
+
+    // A note that starts from silence takes the next pan slot, so a mono line still travels across
+    // the field the way successive poly voices would. Glided notes stay where the gesture began.
+    m_monoPanSlot = m_monoPanSlot ? (m_monoPanSlot.value() + 1) % MaxVoices : 0;
+    const float pan = voiceSpreadPan(m_monoPanSlot.value());
+
+    if (m_portamento <= 0.001f) {
+        voice.glideFrequency = frequency;
+    }
+
+    if (m_vco1Sync) {
+        voice.trigger(note, frequency, pan, velocity, true, m_nextTriggerId++);
+    } else {
+        voice.triggerRandomized(note, frequency, pan, velocity, m_phaseDist(m_rng), m_nextTriggerId++);
     }
 }
 

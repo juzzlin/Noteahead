@@ -78,7 +78,9 @@ QStringList SynthController::lfoWaveformNames() const
 
 QStringList SynthController::voiceModes() const
 {
-    return { tr("Poly"), tr("Unison"), tr("Dual"), tr("Supersaw"), tr("Drift") };
+    // Order is the persisted VoiceMode ordinal, so Mono trails the stacked modes rather than sitting
+    // next to Poly.
+    return { tr("Poly"), tr("Unison"), tr("Dual"), tr("Supersaw"), tr("Drift"), tr("Mono") };
 }
 
 QStringList SynthController::octaveNames() const

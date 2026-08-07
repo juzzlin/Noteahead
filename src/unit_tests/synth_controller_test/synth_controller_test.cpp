@@ -100,7 +100,7 @@ void SynthControllerTest::test_voiceModes()
     const auto synth = std::make_shared<SynthDevice>("Test Synth");
     SynthController controller { synth };
     const auto modes = controller.voiceModes();
-    QCOMPARE(modes.size(), 5);
+    QCOMPARE(modes.size(), 6);
     // The order is the serialized VoiceMode ordinal, so it is append-only: reordering these would
     // change the voice mode of every project saved before the change.
     QCOMPARE(modes.at(0), QString("Poly"));
@@ -108,6 +108,7 @@ void SynthControllerTest::test_voiceModes()
     QCOMPARE(modes.at(2), QString("Dual"));
     QCOMPARE(modes.at(3), QString("Supersaw"));
     QCOMPARE(modes.at(4), QString("Drift"));
+    QCOMPARE(modes.at(5), QString("Mono"));
 }
 
 void SynthControllerTest::test_scopeActive_shouldFollowShownInstance()
