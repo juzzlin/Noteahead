@@ -46,185 +46,180 @@ AnimatedDialog {
         }
     }
 
-    ColumnLayout {
+    ScrollView {
+        id: scrollView
         anchors.fill: parent
         anchors.margins: 20
-        spacing: 16
-
-        Label {
-            text: qsTr("A psychoacoustic EQ rather than an equalizer: each band is taken out, worked on and added back. Bass returns as harmonics of the low end, the midrange is dipped to open up the two ends, and Spread widens only what is already off-centre.")
-            color: "#aaa"
-            font.italic: true
-            font.pixelSize: 11
-            wrapMode: Text.WordWrap
-            Layout.fillWidth: true
-        }
-
-        CheckBox {
-            text: qsTr("Solo Mode")
-            checked: {
-                effectRackController.revision;
-                return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerSoloKey()) > 0.5;
-            }
-            onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerSoloKey(), checked ? 1 : 0)
-            ToolTip.delay: Constants.toolTipDelay
-            ToolTip.timeout: Constants.toolTipTimeout
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("Pass only what the enhancer adds, so it can be heard on its own")
-            Layout.fillWidth: true
-        }
+        clip: true
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
         GridLayout {
+            width: scrollView.availableWidth
             columns: 2
             columnSpacing: 30
             rowSpacing: 16
-            Layout.fillWidth: true
-            Layout.alignment: Qt.AlignTop
 
-                    Knob {
-                        Layout.row: 0
-                        Layout.column: 0
-                        label: qsTr("Bass Gain")
-                        suffix: "%"
-                        from: 0
-                        to: 100
-                        value: {
-                            effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerBassGainKey()) * 100;
-                        }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerBassGainKey(), v / 100)
-                        Layout.fillWidth: true
-                    }
+            Knob {
+                Layout.row: 0
+                Layout.column: 0
+                label: qsTr("Bass Gain")
+                suffix: "%"
+                from: 0
+                to: 100
+                value: {
+                    effectRackController.revision;
+                    return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerBassGainKey()) * 100;
+                }
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerBassGainKey(), v / 100)
+                Layout.fillWidth: true
+            }
 
-                    Knob {
-                        Layout.row: 0
-                        Layout.column: 1
-                        label: qsTr("Bass Freq")
-                        suffix: "Hz"
-                        mapping: "logFrequency"
-                        mapMin: 40
-                        mapMax: 400
-                        from: 0
-                        to: 1000
-                        value: {
-                            effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerBassFreqKey()) * 1000;
-                        }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerBassFreqKey(), v / 1000)
-                        Layout.fillWidth: true
-                    }
+            Knob {
+                Layout.row: 0
+                Layout.column: 1
+                label: qsTr("Bass Freq")
+                suffix: "Hz"
+                mapping: "logFrequency"
+                mapMin: 40
+                mapMax: 400
+                from: 0
+                to: 1000
+                value: {
+                    effectRackController.revision;
+                    return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerBassFreqKey()) * 1000;
+                }
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerBassFreqKey(), v / 1000)
+                Layout.fillWidth: true
+            }
 
-                    Knob {
-                        Layout.row: 1
-                        Layout.column: 0
-                        label: qsTr("Mid Gain")
-                        suffix: "%"
-                        from: 0
-                        to: 100
-                        value: {
-                            effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerMidGainKey()) * 100;
-                        }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerMidGainKey(), v / 100)
-                        Layout.fillWidth: true
-                    }
+            Knob {
+                Layout.row: 1
+                Layout.column: 0
+                label: qsTr("Mid Gain")
+                suffix: "%"
+                from: 0
+                to: 100
+                value: {
+                    effectRackController.revision;
+                    return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerMidGainKey()) * 100;
+                }
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerMidGainKey(), v / 100)
+                Layout.fillWidth: true
+            }
 
-                    Knob {
-                        Layout.row: 1
-                        Layout.column: 1
-                        label: qsTr("Mid Q")
-                        suffix: ""
-                        mapping: "exponential"
-                        mapMin: 0.3
-                        mapMax: 10
-                        from: 0
-                        to: 1000
-                        value: {
-                            effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerMidQKey()) * 1000;
-                        }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerMidQKey(), v / 1000)
-                        Layout.fillWidth: true
-                    }
+            Knob {
+                Layout.row: 1
+                Layout.column: 1
+                label: qsTr("Mid Q")
+                suffix: ""
+                mapping: "exponential"
+                mapMin: 0.3
+                mapMax: 10
+                from: 0
+                to: 1000
+                value: {
+                    effectRackController.revision;
+                    return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerMidQKey()) * 1000;
+                }
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerMidQKey(), v / 1000)
+                Layout.fillWidth: true
+            }
 
-                    Knob {
-                        Layout.row: 2
-                        Layout.column: 0
-                        label: qsTr("Hi Gain")
-                        suffix: "%"
-                        from: 0
-                        to: 100
-                        value: {
-                            effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerHighGainKey()) * 100;
-                        }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerHighGainKey(), v / 100)
-                        Layout.fillWidth: true
-                    }
+            Knob {
+                Layout.row: 2
+                Layout.column: 0
+                label: qsTr("Hi Gain")
+                suffix: "%"
+                from: 0
+                to: 100
+                value: {
+                    effectRackController.revision;
+                    return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerHighGainKey()) * 100;
+                }
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerHighGainKey(), v / 100)
+                Layout.fillWidth: true
+            }
 
-                    Knob {
-                        Layout.row: 2
-                        Layout.column: 1
-                        label: qsTr("Hi Freq")
-                        suffix: "Hz"
-                        mapping: "logFrequency"
-                        mapMin: 1500
-                        mapMax: 16000
-                        from: 0
-                        to: 1000
-                        value: {
-                            effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerHighFreqKey()) * 1000;
-                        }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerHighFreqKey(), v / 1000)
-                        Layout.fillWidth: true
-                    }
+            Knob {
+                Layout.row: 2
+                Layout.column: 1
+                label: qsTr("Hi Freq")
+                suffix: "Hz"
+                mapping: "logFrequency"
+                mapMin: 1500
+                mapMax: 16000
+                from: 0
+                to: 1000
+                value: {
+                    effectRackController.revision;
+                    return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerHighFreqKey()) * 1000;
+                }
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerHighFreqKey(), v / 1000)
+                Layout.fillWidth: true
+            }
 
-                    Knob {
-                        Layout.row: 3
-                        Layout.column: 0
-                        label: qsTr("Out Gain")
-                        suffix: "dB"
-                        from: -12
-                        to: 12
-                        value: {
-                            effectRackController.revision;
-                            return (effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerGainKey()) - 0.5) * 24;
-                        }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerGainKey(), v / 24 + 0.5)
-                        Layout.fillWidth: true
-                    }
+            Knob {
+                Layout.row: 3
+                Layout.column: 0
+                label: qsTr("Out Gain")
+                suffix: "dB"
+                from: -12
+                to: 12
+                value: {
+                    effectRackController.revision;
+                    return (effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerGainKey()) - 0.5) * 24;
+                }
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerGainKey(), v / 24 + 0.5)
+                Layout.fillWidth: true
+            }
 
-                    Knob {
-                        Layout.row: 3
-                        Layout.column: 1
-                        label: qsTr("Spread")
-                        suffix: "%"
-                        from: 0
-                        to: 100
-                        value: {
-                            effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerSpreadKey()) * 100;
-                        }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerSpreadKey(), v / 100)
-                        Layout.fillWidth: true
-                    }
+            Knob {
+                Layout.row: 3
+                Layout.column: 1
+                label: qsTr("Spread")
+                suffix: "%"
+                from: 0
+                to: 100
+                value: {
+                    effectRackController.revision;
+                    return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerSpreadKey()) * 100;
+                }
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerSpreadKey(), v / 100)
+                Layout.fillWidth: true
+            }
 
-                    Knob {
-                        Layout.row: 4
-                        Layout.column: 0
-                        label: qsTr("Mix")
-                        suffix: "%"
-                        from: 0
-                        to: 100
-                        value: {
-                            effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerMixKey()) * 100;
-                        }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerMixKey(), v / 100)
-                        Layout.fillWidth: true
-                    }
+            Knob {
+                Layout.row: 4
+                Layout.column: 0
+                label: qsTr("Mix")
+                suffix: "%"
+                from: 0
+                to: 100
+                value: {
+                    effectRackController.revision;
+                    return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerMixKey()) * 100;
+                }
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerMixKey(), v / 100)
+                Layout.fillWidth: true
+            }
 
+            CheckBox {
+                Layout.row: 4
+                Layout.column: 1
+                text: qsTr("Solo Mode")
+                checked: {
+                    effectRackController.revision;
+                    return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerSoloKey()) > 0.5;
+                }
+                onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerSoloKey(), checked ? 1 : 0)
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Pass only what the enhancer adds, so it can be heard on its own")
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignVCenter
+            }
         }
     }
 }

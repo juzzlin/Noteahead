@@ -46,31 +46,28 @@ AnimatedDialog {
         }
     }
 
-    ColumnLayout {
+    ScrollView {
+        id: scrollView
         anchors.fill: parent
         anchors.margins: 20
-        spacing: 16
+        clip: true
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-        Label {
-            text: qsTr("Generates harmonics of the band above Tune and adds them back, for presence an equalizer cannot give: it makes top end where there is none to lift. Timbre runs odd harmonics at one end for edge, even at the other for warmth.")
-            color: "#aaa"
-            font.italic: true
-            font.pixelSize: 11
-            wrapMode: Text.WordWrap
-            Layout.fillWidth: true
-        }
+        ColumnLayout {
+            width: scrollView.availableWidth
+            spacing: 16
 
-        RowLayout {
-            spacing: 20
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-
-            GridLayout {
-                columns: 2
-                columnSpacing: 30
-                rowSpacing: 16
+            RowLayout {
+                spacing: 20
                 Layout.fillWidth: true
-                Layout.alignment: Qt.AlignTop
+
+                GridLayout {
+                    columns: 2
+                    columnSpacing: 30
+                    rowSpacing: 16
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignTop
 
                     Knob {
                         Layout.row: 0
@@ -164,58 +161,63 @@ AnimatedDialog {
                         onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoExciterMixKey(), v / 100)
                         Layout.fillWidth: true
                     }
-
-            }
-
-            ColumnLayout {
-                spacing: 10
-                Layout.alignment: Qt.AlignTop
-
-                Label {
-                    text: qsTr("Harmonics")
-                    font.bold: true
-                    Layout.alignment: Qt.AlignHCenter
                 }
 
-                Rectangle {
-                    width: 30
-                    height: 180
-                    color: "#111"
-                    border.color: "#333"
-                    Layout.alignment: Qt.AlignHCenter
+                ColumnLayout {
+                    spacing: 10
+                    Layout.alignment: Qt.AlignTop
+
+                    Label {
+                        text: qsTr("Harmonics")
+                        font.bold: true
+                        Layout.alignment: Qt.AlignHCenter
+                    }
 
                     Rectangle {
-                        anchors.bottom: parent.bottom
-                        anchors.bottomMargin: 2
-                        width: parent.width - 4
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        // -60 dB at the bottom of the scale, 0 dB at the top.
-                        height: Math.max(0, Math.min(parent.height - 4, (1 + root.currentHarmonicsDb / 60.0) * (parent.height - 4)))
+                        width: 30
+                        height: 180
+                        color: "#111"
+                        border.color: "#333"
+                        Layout.alignment: Qt.AlignHCenter
+
+                        Rectangle {
+                            anchors.bottom: parent.bottom
+                            anchors.bottomMargin: 2
+                            width: parent.width - 4
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            // -60 dB at the bottom of the scale, 0 dB at the top.
+                            height: Math.max(0, Math.min(parent.height - 4, (1 + root.currentHarmonicsDb / 60.0) * (parent.height - 4)))
+                            color: themeService.accentColor
+                        }
+                    }
+
+                    // Fixed width, because the reading is what the rest of the dialog is laid out
+                    // against: letting it resize as the value crosses ten or zero shifts everything
+                    // beside it on every meter tick.
+                    Label {
+                        text: root.currentHarmonicsDb.toFixed(1) + " dB"
                         color: themeService.accentColor
+                        font.family: "Monospace"
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.preferredWidth: 90
+                        Layout.alignment: Qt.AlignHCenter
                     }
                 }
+            }
 
-                Label {
-                    text: root.currentHarmonicsDb.toFixed(1) + " dB"
-                    color: themeService.accentColor
-                    font.family: "Monospace"
-                    Layout.alignment: Qt.AlignHCenter
+            CheckBox {
+                text: qsTr("Solo Mode")
+                checked: {
+                    effectRackController.revision;
+                    return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoExciterSoloKey()) > 0.5;
                 }
+                onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoExciterSoloKey(), checked ? 1 : 0)
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Pass only the harmonics being generated, so they can be heard on their own")
+                Layout.fillWidth: true
             }
-        }
-
-        CheckBox {
-            text: qsTr("Solo Mode")
-            checked: {
-                effectRackController.revision;
-                return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoExciterSoloKey()) > 0.5;
-            }
-            onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoExciterSoloKey(), checked ? 1 : 0)
-            ToolTip.delay: Constants.toolTipDelay
-            ToolTip.timeout: Constants.toolTipTimeout
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("Pass only the harmonics being generated, so they can be heard on their own")
-            Layout.fillWidth: true
         }
     }
 
