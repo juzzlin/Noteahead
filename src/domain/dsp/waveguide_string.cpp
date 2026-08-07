@@ -36,6 +36,14 @@ double loopFilterPhaseDelay(double c, double w)
     return std::atan2(c * std::sin(w), (1.0 - c) + c * std::cos(w)) / w;
 }
 
+// Magnitude response of the loop filter y[n] = (1-c)*x[n] + c*x[n-1] at angular
+// frequency w. Unity at DC and falling from there, so a loop built around it stays
+// stable as long as the gain multiplying it does not exceed one.
+double loopFilterMagnitude(double c, double w)
+{
+    return std::hypot((1.0 - c) + c * std::cos(w), c * std::sin(w));
+}
+
 // Phase delay in samples of one all-pass stage H(z) = (a + z^-1) / (1 + a*z^-1).
 double allPassPhaseDelay(double a, double w)
 {
@@ -132,7 +140,35 @@ size_t WaveguideString::retune()
     m_tuning.setStages(1);
     m_tuning.setCoefficient(allPassCoefficientForDelay(fractional, w));
 
+    updateLoopGain();
+
     return m_delay.delay();
+}
+
+void WaveguideString::updateLoopGain()
+{
+    if (m_frequency <= 0.0) {
+        return;
+    }
+
+    // Loop gain derived from desired T60 decay time.
+    // Each cycle of N samples multiplies amplitude by loopGain.
+    // loopGain^(T60 * freq) = 0.001 → loopGain = exp(-6.908 / (T60 * freq))
+    // T60 scales with sqrt(refFreq/freq) so lower notes sustain much longer than higher ones.
+    const double refFreq = 261.63; // C4
+    const double baseT60 = 0.5 + m_decayTime * 9.5;
+    const double T60 = std::clamp(baseT60 * std::sqrt(refFreq / m_frequency), 0.2, 30.0);
+    const double perLap = std::exp(-6.908 / (T60 * m_frequency));
+
+    // The loop filter takes its own bite out of the fundamental on every lap, and the
+    // number of laps in a second is the frequency itself, so the same filter costs a top
+    // octave note hundreds of times what it costs a bass note over the same stretch of
+    // time. Dividing that loss out leaves the decay following the time asked for instead
+    // of collapsing towards the treble. Held at unity so the loop cannot grow at DC,
+    // where the filter has nothing left to give back.
+    const double w = 2.0 * std::numbers::pi * m_frequency / m_sampleRate;
+    const double filterLoss = loopFilterMagnitude(m_loopFilterCoeff, w);
+    m_loopGain = std::clamp(perLap / std::max(filterLoss, 1e-6), 0.0, MaxLoopGain);
 }
 
 void WaveguideString::trigger(uint8_t note, float velocity, float brightness, float inharmonicity, float decayTime, double detuneCents)
@@ -157,17 +193,10 @@ void WaveguideString::trigger(uint8_t note, float velocity, float brightness, fl
 
     // The loop length is fractional, so the sounding pitch matches the target exactly
     // instead of snapping to the nearest whole sample. N below is only the integer part,
-    // used to size the excitation.
+    // used to size the excitation. Retuning settles the loop gain too, since how much the
+    // loop filter costs per lap depends on where the note sits.
+    m_decayTime = static_cast<double>(decayTime);
     const size_t N = retune();
-
-    // Loop gain derived from desired T60 decay time.
-    // Each cycle of N samples multiplies amplitude by loopGain.
-    // loopGain^(T60 * freq) = 0.001 → loopGain = exp(-6.908 / (T60 * freq))
-    // T60 scales with sqrt(refFreq/freq) so lower notes sustain much longer than higher ones.
-    const double refFreq = 261.63; // C4
-    const double baseT60 = 0.5 + static_cast<double>(decayTime) * 9.5;
-    const double T60 = std::clamp(baseT60 * std::sqrt(refFreq / freq), 0.2, 30.0);
-    m_loopGain = std::clamp(std::exp(-6.908 / (T60 * freq)), 0.0, 0.99999);
 
     // Excitation: raised cosine pulse; width ∝ 1/velocity (harder strike = narrower)
     const size_t width = std::max(size_t { 1 }, N / std::max(size_t { 1 }, static_cast<size_t>(2.0 + static_cast<double>(velocity) * 6.0)));

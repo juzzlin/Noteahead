@@ -51,6 +51,9 @@ public:
 private:
     static constexpr double SilenceThreshold = 1e-9;
     static constexpr int ApStages = 4;
+    // Ceiling on the loop gain, so that compensating the loop filter can never let the
+    // loop hold on to more than it was given.
+    static constexpr double MaxLoopGain = 0.99999;
     // Smallest loss the loop filter may impose, so that it never becomes a pass-through.
     static constexpr double MinLoopFilterCoeff = 0.005;
     // How far apart in time two strings struck together may have their hammers land.
@@ -63,6 +66,9 @@ private:
     // Sets the delay-line length so that the whole loop resonates at m_frequency.
     // Returns the integer part of that length.
     size_t retune();
+    // Sets the loop gain that produces the wanted decay time at the current pitch,
+    // allowing for what the loop filter costs on each lap.
+    void updateLoopGain();
 
     DelayLine m_delay;
     AllPassChain m_dispersion;
@@ -70,6 +76,7 @@ private:
     AllPassChain m_tuning;
 
     double m_frequency { 0.0 };
+    double m_decayTime { 0.5 };
     double m_loopGain { 0.0 };
     double m_loopFilterCoeff { 0.25 };
     double m_loopFilterPrev { 0.0 };
