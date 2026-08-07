@@ -1104,6 +1104,11 @@ QString EffectRackController::stereoEnhancerMixKey() const
     return Constants::NahdXml::xmlKeyMix();
 }
 
+QString EffectRackController::stereoEnhancerSoloKey() const
+{
+    return Constants::NahdXml::xmlKeySolo();
+}
+
 QString EffectRackController::tubeStageType() const
 {
     return Constants::RackEffectType::tubeStage();

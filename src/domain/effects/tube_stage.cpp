@@ -108,7 +108,7 @@ double TubeStage::shape(double v) const
     return sign * magnitude / std::pow(1.0 + std::pow(magnitude, PentodeKnee), 1.0 / PentodeKnee);
 }
 
-void TubeStage::process(double & left, double & right)
+void TubeStage::processSample(double & left, double & right)
 {
     const double baseSampleRate = m_sampleRate > 0 ? m_sampleRate : 48000.0;
     const uint8_t factor = clampOversampleFactor(oversampleFactor());

@@ -16,6 +16,7 @@
 #include "stereo_enhancer_test.hpp"
 
 #include "../../common/constants.hpp"
+#include "../../domain/dsp/audio_context.hpp"
 #include "../../domain/effects/stereo_enhancer.hpp"
 
 #include <QTest>
@@ -246,6 +247,77 @@ void StereoEnhancerTest::test_mix_zero_shouldPassSignalThrough()
         QVERIFY2(std::abs(left - sample) < 1.0e-9,
                  QString("Sample %1 changed with the mix fully dry: %2 against %3").arg(i).arg(left).arg(sample).toUtf8().constData());
     }
+}
+
+void StereoEnhancerTest::test_solo_shouldPassOnlyWhatTheEffectAdds()
+{
+    // Solo is the difference between what came in and what goes out, so soloed output plus dry has
+    // to reconstruct the ordinary output exactly.
+    constexpr double frequency = 80.0;
+
+    StereoEnhancer ordinary;
+    setParameter(ordinary, Constants::NahdXml::xmlKeyBassGain(), 1.0f);
+    setParameter(ordinary, Constants::NahdXml::xmlKeyHighGain(), 0.7f);
+    const auto wet = renderSine(ordinary, frequency, 0.5);
+
+    StereoEnhancer soloed;
+    setParameter(soloed, Constants::NahdXml::xmlKeyBassGain(), 1.0f);
+    setParameter(soloed, Constants::NahdXml::xmlKeyHighGain(), 0.7f);
+    setParameter(soloed, Constants::NahdXml::xmlKeySolo(), 1.0f);
+    const auto difference = renderSine(soloed, frequency, 0.5);
+
+    QVERIFY(rms(difference.left) > 0.0);
+
+    for (size_t i = 0; i < wet.left.size(); i++) {
+        const double phase = 2.0 * std::numbers::pi * frequency * static_cast<double>(i) / SampleRate;
+        const double dry = 0.5 * std::sin(phase);
+        QVERIFY2(std::abs((difference.left[i] + dry) - wet.left[i]) < 1.0e-9,
+                 QString("Sample %1 did not reconstruct: %2 + %3 against %4").arg(i).arg(difference.left[i]).arg(dry).arg(wet.left[i]).toUtf8().constData());
+    }
+}
+
+void StereoEnhancerTest::test_solo_blockPath_shouldMatchTheSamplePath()
+{
+    // The rack calls effects both a frame at a time and a block at a time, and Solo has to mean the
+    // same thing either way: the block path has to keep its own copy of the dry signal to subtract.
+    const auto renderBlock = [](bool solo) {
+        StereoEnhancer effect;
+        effect.setSampleRate(SampleRate);
+        setParameter(effect, Constants::NahdXml::xmlKeyBassGain(), 1.0f);
+        if (solo) {
+            setParameter(effect, Constants::NahdXml::xmlKeySolo(), 1.0f);
+        }
+        constexpr uint32_t frames = 2048;
+        std::vector<double> buffer(frames * 2, 0.0);
+        for (uint32_t i = 0; i < frames; i++) {
+            const double sample = 0.5 * std::sin(2.0 * std::numbers::pi * 80.0 * i / SampleRate);
+            buffer[i * 2] = sample;
+            buffer[i * 2 + 1] = sample;
+        }
+        AudioContext context { std::span(buffer.data(), buffer.size()), frames, static_cast<uint32_t>(SampleRate) };
+        effect.process(context);
+        return buffer;
+    };
+
+    const auto wet = renderBlock(false);
+    const auto difference = renderBlock(true);
+
+    for (uint32_t i = 0; i < 2048; i++) {
+        const double dry = 0.5 * std::sin(2.0 * std::numbers::pi * 80.0 * i / SampleRate);
+        QVERIFY2(std::abs((difference[i * 2] + dry) - wet[i * 2]) < 1.0e-9,
+                 QString("Frame %1 did not reconstruct through the block path").arg(i).toUtf8().constData());
+    }
+}
+
+void StereoEnhancerTest::test_solo_transparentEffect_shouldFallSilent()
+{
+    // With every band at zero the enhancer adds nothing, so there is nothing for Solo to pass.
+    StereoEnhancer effect;
+    setParameter(effect, Constants::NahdXml::xmlKeySolo(), 1.0f);
+    const auto output = renderSine(effect, 1000.0, 0.5);
+
+    QVERIFY2(rms(output.left) < 1.0e-9,
+             QString("Solo passed %1 from an effect that adds nothing").arg(rms(output.left)).toUtf8().constData());
 }
 
 } // namespace noteahead

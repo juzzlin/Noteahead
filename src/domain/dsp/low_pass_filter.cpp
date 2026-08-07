@@ -28,7 +28,7 @@ void LowPassFilter::setCutoff(double cutoff)
     m_cutoff = cutoff;
 }
 
-void LowPassFilter::process(double & left, double & right)
+void LowPassFilter::processSample(double & left, double & right)
 {
     if (m_cutoff >= 0.999) {
         return;
@@ -43,7 +43,7 @@ void LowPassFilter::process(double & left, double & right)
     processSample(left, right, g, damping, k);
 }
 
-void LowPassFilter::process(AudioContext & context)
+void LowPassFilter::processBlock(AudioContext & context)
 {
     if (m_cutoff >= 0.999) {
         return;

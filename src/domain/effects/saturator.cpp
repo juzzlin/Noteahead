@@ -73,7 +73,7 @@ double Saturator::shape(double x) const
     }
 }
 
-void Saturator::process(double & left, double & right)
+void Saturator::processSample(double & left, double & right)
 {
     const double baseSampleRate = m_sampleRate > 0 ? m_sampleRate : 48000.0;
     const uint8_t factor = clampOversampleFactor(oversampleFactor());

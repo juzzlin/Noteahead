@@ -60,6 +60,20 @@ AnimatedDialog {
             Layout.fillWidth: true
         }
 
+        CheckBox {
+            text: qsTr("Solo Mode")
+            checked: {
+                effectRackController.revision;
+                return effectRackController.parameterValue(root.effectIndex, effectRackController.stereoEnhancerSoloKey()) > 0.5;
+            }
+            onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.stereoEnhancerSoloKey(), checked ? 1 : 0)
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Pass only what the enhancer adds, so it can be heard on its own")
+            Layout.fillWidth: true
+        }
+
         GridLayout {
             columns: 2
             columnSpacing: 30

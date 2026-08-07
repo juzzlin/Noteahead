@@ -1883,6 +1883,7 @@ void XmlSerializationTest::test_toXmlFromXml_stereoEnhancer_shouldLoadCorrectly(
     set(Constants::NahdXml::xmlKeyHighGain(), 0.58f);
     set(Constants::NahdXml::xmlKeyHighFreq(), 0.81f);
     set(Constants::NahdXml::xmlKeySpread(), 0.24f);
+    set(Constants::NahdXml::xmlKeySolo(), 1.0f);
     deviceServiceOut.sendEffectRack().setEffect(0, enhancer);
 
     EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
@@ -1914,6 +1915,7 @@ void XmlSerializationTest::test_toXmlFromXml_stereoEnhancer_shouldLoadCorrectly(
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyHighGain()) - 0.58f) < 0.01f);
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyHighFreq()) - 0.81f) < 0.01f);
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeySpread()) - 0.24f) < 0.01f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeySolo()) - 1.0f) < 0.01f);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_waveDesigner_shouldLoadCorrectly()

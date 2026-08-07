@@ -77,6 +77,10 @@ StereoEnhancer::StereoEnhancer()
     addParameter(Parameter { Constants::NahdXml::xmlKeySpread().toStdString(), 0.0f, 0, 10000, 0, 100, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeyMix().toStdString(), 1.0f, 0, 10000, 10000, 100, Parameter::Type::Continuous });
 
+    // Solo passes only what this adds, which is the point of a psycho EQ: what it contributes is
+    // hard to judge underneath the signal it is contributing to.
+    addSoloParameter();
+
     syncParameters();
 }
 
@@ -117,7 +121,7 @@ void StereoEnhancer::updateFilters()
     m_midR.calculateBell(MidHz, sampleRate, midQ, midDipDb);
 }
 
-void StereoEnhancer::process(double & left, double & right)
+void StereoEnhancer::processSample(double & left, double & right)
 {
     updateFilters();
 

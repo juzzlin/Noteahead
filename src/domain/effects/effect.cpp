@@ -15,6 +15,10 @@
 
 #include "effect.hpp"
 
+#include "../../common/constants.hpp"
+
+#include <vector>
+
 #include "../dsp/audio_context.hpp"
 
 #include <algorithm>
@@ -32,11 +36,61 @@ Effect::StringList Effect::parameterNames() const
     return names;
 }
 
+void Effect::process(double & left, double & right)
+{
+    const double dryLeft = left;
+    const double dryRight = right;
+
+    processSample(left, right);
+
+    applySolo(dryLeft, dryRight, left, right);
+}
+
 void Effect::process(AudioContext & context)
 {
     setOversampleFactor(context.oversampleFactor);
+
+    if (!solo()) {
+        processBlock(context);
+        return;
+    }
+
+    // Soloing needs the dry signal to subtract, and a block-form effect has overwritten it by the
+    // time it returns. The copy is only taken while Solo is engaged, which is a monitoring state.
+    std::vector<double> dry(context.buffer.begin(), context.buffer.begin() + static_cast<ptrdiff_t>(context.frameCount) * 2);
+
+    processBlock(context);
+
     for (uint32_t i = 0; i < context.frameCount; i++) {
-        process(context.buffer[i * 2], context.buffer[i * 2 + 1]);
+        applySolo(dry[i * 2], dry[i * 2 + 1], context.buffer[i * 2], context.buffer[i * 2 + 1]);
+    }
+}
+
+void Effect::processBlock(AudioContext & context)
+{
+    for (uint32_t i = 0; i < context.frameCount; i++) {
+        processSample(context.buffer[i * 2], context.buffer[i * 2 + 1]);
+    }
+}
+
+void Effect::addSoloParameter()
+{
+    addParameter(Parameter { Constants::NahdXml::xmlKeySolo().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
+}
+
+bool Effect::solo() const
+{
+    if (const auto parameter = this->parameter(Constants::NahdXml::xmlKeySolo().toStdString()); parameter) {
+        return parameter->get().value() > 0.5f;
+    }
+    return false;
+}
+
+void Effect::applySolo(double dryLeft, double dryRight, double & left, double & right) const
+{
+    if (solo()) {
+        left -= dryLeft;
+        right -= dryRight;
     }
 }
 

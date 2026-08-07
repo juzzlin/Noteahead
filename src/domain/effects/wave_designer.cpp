@@ -123,7 +123,7 @@ void WaveDesigner::updateCoefficients()
     m_slow.releaseCoefficient = coefficientFor(SlowReleaseMs, sampleRate);
 }
 
-void WaveDesigner::process(double & left, double & right)
+void WaveDesigner::processSample(double & left, double & right)
 {
     updateCoefficients();
 

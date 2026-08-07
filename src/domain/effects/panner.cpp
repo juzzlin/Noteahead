@@ -41,7 +41,7 @@ std::string Panner::typeId() const
     return typeIdString();
 }
 
-void Panner::process(double & left, double & right)
+void Panner::processSample(double & left, double & right)
 {
     m_panner.process(left, right);
 }

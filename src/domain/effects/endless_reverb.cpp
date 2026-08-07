@@ -64,7 +64,7 @@ EndlessReverb::EndlessReverb()
     EndlessReverb::syncParameters();
 }
 
-void EndlessReverb::process(double & left, double & right)
+void EndlessReverb::processSample(double & left, double & right)
 {
     if (m_sampleRate <= 0) {
         return;
@@ -80,10 +80,10 @@ void EndlessReverb::process(double & left, double & right)
         m_shouldSyncParameters = false;
     }
 
-    processSample(left, right);
+    renderSample(left, right);
 }
 
-void EndlessReverb::process(AudioContext & context)
+void EndlessReverb::processBlock(AudioContext & context)
 {
     if (m_sampleRate <= 0) {
         return;
@@ -100,11 +100,11 @@ void EndlessReverb::process(AudioContext & context)
     }
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
-        processSample(context.buffer[i * 2], context.buffer[i * 2 + 1]);
+        renderSample(context.buffer[i * 2], context.buffer[i * 2 + 1]);
     }
 }
 
-void EndlessReverb::processSample(double & left, double & right)
+void EndlessReverb::renderSample(double & left, double & right)
 {
     if (m_delays[0].buffer.empty()) {
         return;

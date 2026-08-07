@@ -36,7 +36,7 @@ Limiter::Limiter()
     syncParameters();
 }
 
-void Limiter::process(double & left, double & right)
+void Limiter::processSample(double & left, double & right)
 {
     if (m_sampleRate <= 0) {
         return;
@@ -47,7 +47,7 @@ void Limiter::process(double & left, double & right)
     applyLimiter(left, right);
 }
 
-void Limiter::process(AudioContext & context)
+void Limiter::processBlock(AudioContext & context)
 {
     if (m_sampleRate <= 0) {
         return;

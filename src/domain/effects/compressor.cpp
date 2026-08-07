@@ -53,7 +53,7 @@ std::optional<size_t> Compressor::sidechainSourceDeviceIndex() const
     return std::nullopt;
 }
 
-void Compressor::process(double & left, double & right)
+void Compressor::processSample(double & left, double & right)
 {
     if (m_sampleRate <= 0) {
         return;
@@ -69,7 +69,7 @@ void Compressor::process(double & left, double & right)
     applyGain(left, right);
 }
 
-void Compressor::process(AudioContext & context)
+void Compressor::processBlock(AudioContext & context)
 {
     if (m_sampleRate <= 0) {
         return;

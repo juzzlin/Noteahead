@@ -50,7 +50,7 @@ SimpleEq::SimpleEq()
     syncParameters();
 }
 
-void SimpleEq::process(double & left, double & right)
+void SimpleEq::processSample(double & left, double & right)
 {
     if (m_sampleRate <= 0) {
         return;
@@ -60,7 +60,7 @@ void SimpleEq::process(double & left, double & right)
     processStereo(left, right);
 }
 
-void SimpleEq::process(AudioContext & context)
+void SimpleEq::processBlock(AudioContext & context)
 {
     if (m_sampleRate <= 0) {
         return;

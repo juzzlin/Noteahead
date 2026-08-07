@@ -48,7 +48,7 @@ std::string AutoPanner::typeId() const
     return typeIdString();
 }
 
-void AutoPanner::process(double & left, double & right)
+void AutoPanner::processSample(double & left, double & right)
 {
     const double lfoValue = m_lfo.nextSample(); // -1.0 to 1.0
     const double pan = 0.5 + (lfoValue * 0.5 * m_intensity); // 0.0 to 1.0
@@ -59,13 +59,13 @@ void AutoPanner::process(double & left, double & right)
     right *= gainR;
 }
 
-void AutoPanner::process(AudioContext & context)
+void AutoPanner::processBlock(AudioContext & context)
 {
     m_lfo.setSampleRate(context.sampleRate);
     updateLfoFrequency();
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
-        process(context.buffer[i * 2], context.buffer[i * 2 + 1]);
+        processSample(context.buffer[i * 2], context.buffer[i * 2 + 1]);
     }
 }
 

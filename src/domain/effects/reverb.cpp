@@ -58,7 +58,7 @@ Reverb::Reverb()
     Reverb::syncParameters();
 }
 
-void Reverb::process(double & left, double & right)
+void Reverb::processSample(double & left, double & right)
 {
     if (m_sampleRate <= 0) {
         return;
@@ -151,7 +151,7 @@ void Reverb::process(double & left, double & right)
     right = dryR + wetR * static_cast<double>(m_mix);
 }
 
-void Reverb::process(AudioContext & context)
+void Reverb::processBlock(AudioContext & context)
 {
     if (m_sampleRate <= 0) {
         return;
@@ -168,7 +168,7 @@ void Reverb::process(AudioContext & context)
     }
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
-        process(context.buffer[i * 2], context.buffer[i * 2 + 1]);
+        processSample(context.buffer[i * 2], context.buffer[i * 2 + 1]);
     }
 }
 

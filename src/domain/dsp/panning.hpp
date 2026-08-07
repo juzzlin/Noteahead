@@ -29,7 +29,7 @@ public:
     std::string typeId() const override;
 
     void setPan(float pan);
-    void process(double & left, double & right) override;
+    void processSample(double & left, double & right) override;
 
 private:
     TrueStereoPanner m_panner;

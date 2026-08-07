@@ -136,7 +136,7 @@ void LufsMeter::advanceBlock(double meanPower)
     m_shortTermLufs = toLufs(sPower / static_cast<double>(m_blocksValid));
 }
 
-void LufsMeter::process(double & left, double & right)
+void LufsMeter::processSample(double & left, double & right)
 {
     if (m_sampleRate <= 0) {
         return;

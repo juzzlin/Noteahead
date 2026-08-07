@@ -54,7 +54,7 @@ float Clipper::clipSample(float sample, double thresholdLin) const
     return t * std::tanh(sample / t);
 }
 
-void Clipper::process(double & left, double & right)
+void Clipper::processSample(double & left, double & right)
 {
     const auto thresholdLin = std::max(1e-5, static_cast<double>(Utils::Dsp::dbToLinear(m_thresholdDb)));
     const auto gainLin = static_cast<double>(Utils::Dsp::dbToLinear(m_gainDb));
@@ -109,7 +109,7 @@ void Clipper::process(double & left, double & right)
     right *= gainLin;
 }
 
-void Clipper::process(AudioContext & context)
+void Clipper::processBlock(AudioContext & context)
 {
     setOversampleFactor(context.oversampleFactor);
     if (static_cast<uint32_t>(context.sampleRate) != m_lastSampleRate) {
@@ -118,7 +118,7 @@ void Clipper::process(AudioContext & context)
     }
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
-        process(context.buffer[i * 2], context.buffer[i * 2 + 1]);
+        processSample(context.buffer[i * 2], context.buffer[i * 2 + 1]);
     }
 }
 

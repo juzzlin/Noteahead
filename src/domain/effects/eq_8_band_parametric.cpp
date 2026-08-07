@@ -39,7 +39,7 @@ Eq8BandParametric::Eq8BandParametric()
     syncParameters();
 }
 
-void Eq8BandParametric::process(double & left, double & right)
+void Eq8BandParametric::processSample(double & left, double & right)
 {
     if (m_sampleRate <= 0) {
         return;
@@ -49,7 +49,7 @@ void Eq8BandParametric::process(double & left, double & right)
     processStereo(left, right);
 }
 
-void Eq8BandParametric::process(AudioContext & context)
+void Eq8BandParametric::processBlock(AudioContext & context)
 {
     if (m_sampleRate <= 0) {
         return;
@@ -58,7 +58,7 @@ void Eq8BandParametric::process(AudioContext & context)
     updateBuffers();
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
-        process(context.buffer[i * 2], context.buffer[i * 2 + 1]);
+        processSample(context.buffer[i * 2], context.buffer[i * 2 + 1]);
     }
 }
 

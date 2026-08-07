@@ -99,7 +99,7 @@ AirBandEq::AirBandEq()
     syncParameters();
 }
 
-void AirBandEq::process(double & left, double & right)
+void AirBandEq::processSample(double & left, double & right)
 {
     if (m_sampleRate <= 0) {
         return;
@@ -109,7 +109,7 @@ void AirBandEq::process(double & left, double & right)
     processStereo(left, right);
 }
 
-void AirBandEq::process(AudioContext & context)
+void AirBandEq::processBlock(AudioContext & context)
 {
     if (m_sampleRate <= 0) {
         return;

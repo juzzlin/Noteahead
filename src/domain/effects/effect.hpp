@@ -40,8 +40,12 @@ public:
 
     virtual std::string type() const = 0;
     virtual std::string typeId() const = 0;
-    virtual void process(double & left, double & right) = 0;
-    virtual void process(AudioContext & context);
+
+    //! The two entry points the rack calls. Deliberately not virtual: this is where the controls
+    //! every effect shares are applied around the effect's own work, so that no effect has to
+    //! remember to honour them and none can honour them differently.
+    void process(double & left, double & right);
+    void process(AudioContext & context);
     using StringList = std::vector<std::string>;
     virtual StringList parameterNames() const;
 
@@ -64,7 +68,28 @@ public:
     void setOversampleFactor(uint8_t factor);
     uint8_t oversampleFactor() const;
 
+protected:
+    //! The effect's own work on one frame.
+    virtual void processSample(double & left, double & right) = 0;
+
+    //! The effect's own work on a whole block, for anything that cannot be done a frame at a time:
+    //! lookahead, side chains, transforms. Loops processSample() unless overridden.
+    virtual void processBlock(AudioContext & context);
+
+    //! Registers the Solo control, which passes only what the effect adds to the signal, so that it
+    //! can be heard on its own. Effects that have something to add opt in; one that only shapes what
+    //! is already there, an equalizer say, has nothing to isolate.
+    void addSoloParameter();
+
+    //! Whether Solo is registered and engaged.
+    bool solo() const;
+
 private:
+    //! Replaces the wet signal with the difference between it and the dry one, which is exactly what
+    //! the effect contributed.
+    void applySolo(double dryLeft, double dryRight, double & left, double & right) const;
+
+    bool m_solo { false };
     bool m_enabled { true };
     float m_bpm = 120;
     uint8_t m_oversampleFactor { 1 };

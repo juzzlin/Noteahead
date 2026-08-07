@@ -30,8 +30,8 @@ public:
     std::string type() const override;
     std::string typeId() const override;
 
-    void process(double & left, double & right) override;
-    void process(AudioContext & context) override;
+    void processSample(double & left, double & right) override;
+    void processBlock(AudioContext & context) override;
     void sync() override;
     void setBpm(float bpm) override;
 

@@ -453,6 +453,7 @@ QString xmlKeyMidGain();
 QString xmlKeyMidQ();
 QString xmlKeyHighGain();
 QString xmlKeyHighFreq();
+QString xmlKeySolo();
 QString xmlKeySpread();
 QString xmlKeyLowFreq();
 QString xmlKeyLowBoost();

@@ -74,7 +74,7 @@ void Delay::sync()
     updateFilters();
 }
 
-void Delay::process(double & left, double & right)
+void Delay::processSample(double & left, double & right)
 {
     if (m_bufferL.empty()) {
         return;
@@ -234,7 +234,7 @@ void Delay::applyMix(double & left, double & right, double outL, double outR) co
     right = right * dry + outR * wet;
 }
 
-void Delay::process(AudioContext & context)
+void Delay::processBlock(AudioContext & context)
 {
     const auto sampleRate = static_cast<uint32_t>(m_sampleRate);
     if ((sampleRate != m_lastSampleRate || m_bufferL.empty()) && sampleRate > 0) {
@@ -249,7 +249,7 @@ void Delay::process(AudioContext & context)
     updateFilters();
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
-        process(context.buffer[i * 2], context.buffer[i * 2 + 1]);
+        processSample(context.buffer[i * 2], context.buffer[i * 2 + 1]);
     }
 }
 

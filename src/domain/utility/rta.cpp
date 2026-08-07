@@ -314,11 +314,11 @@ void Rta::runFastAnalysis()
     }
 }
 
-void Rta::process(double &, double &)
+void Rta::processSample(double &, double &)
 {
 }
 
-void Rta::process(AudioContext & context)
+void Rta::processBlock(AudioContext & context)
 {
     if (!m_analysisEnabled.load(std::memory_order_relaxed)) {
         return;

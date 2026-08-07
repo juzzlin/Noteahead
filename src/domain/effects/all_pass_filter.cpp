@@ -99,7 +99,7 @@ void AllPassFilter::sync()
     m_shouldSyncParameters = true;
 }
 
-void AllPassFilter::process(double & left, double & right)
+void AllPassFilter::processSample(double & left, double & right)
 {
     if (m_sampleRate <= 0) {
         return;

@@ -235,6 +235,7 @@ public:
     Q_INVOKABLE QString stereoEnhancerGainKey() const;
     Q_INVOKABLE QString stereoEnhancerSpreadKey() const;
     Q_INVOKABLE QString stereoEnhancerMixKey() const;
+    Q_INVOKABLE QString stereoEnhancerSoloKey() const;
 
     Q_INVOKABLE QString driveModeKey() const;
     Q_INVOKABLE QString driveAmountKey() const;

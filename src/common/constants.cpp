@@ -1457,6 +1457,11 @@ QString xmlKeyHighFreq()
     return "highFreq";
 }
 
+QString xmlKeySolo()
+{
+    return "solo";
+}
+
 QString xmlKeySpread()
 {
     return "spread";

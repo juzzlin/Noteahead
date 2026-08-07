@@ -22,7 +22,7 @@ void Volume::setVolume(float volume)
     m_volume = volume;
 }
 
-void Volume::process(double & left, double & right)
+void Volume::processSample(double & left, double & right)
 {
     left *= m_volume;
     right *= m_volume;

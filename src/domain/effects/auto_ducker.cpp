@@ -53,7 +53,7 @@ std::optional<size_t> AutoDucker::sidechainSourceDeviceIndex() const
     return std::nullopt;
 }
 
-void AutoDucker::process(double & left, double & right)
+void AutoDucker::processSample(double & left, double & right)
 {
     if (m_sampleRate <= 0) {
         return;
@@ -66,7 +66,7 @@ void AutoDucker::process(double & left, double & right)
     applyGain(left, right);
 }
 
-void AutoDucker::process(AudioContext & context)
+void AutoDucker::processBlock(AudioContext & context)
 {
     if (m_sampleRate <= 0) {
         return;

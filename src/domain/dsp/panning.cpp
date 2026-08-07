@@ -22,7 +22,7 @@ void Panning::setPan(float pan)
     m_panner.setPan(static_cast<double>(pan));
 }
 
-void Panning::process(double & left, double & right)
+void Panning::processSample(double & left, double & right)
 {
     m_panner.process(left, right);
 }

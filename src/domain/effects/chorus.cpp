@@ -50,7 +50,7 @@ Chorus::Chorus()
     Chorus::syncParameters();
 }
 
-void Chorus::process(double & left, double & right)
+void Chorus::processSample(double & left, double & right)
 {
     if (m_sampleRate <= 0) {
         return;

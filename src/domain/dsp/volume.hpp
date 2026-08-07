@@ -28,7 +28,7 @@ public:
     std::string typeId() const override;
 
     void setVolume(float volume);
-    void process(double & left, double & right) override;
+    void processSample(double & left, double & right) override;
 
 private:
     float m_volume { 1.0f };

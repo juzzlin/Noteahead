@@ -71,7 +71,7 @@ VintagePassiveEq::VintagePassiveEq()
     syncParameters();
 }
 
-void VintagePassiveEq::process(double & left, double & right)
+void VintagePassiveEq::processSample(double & left, double & right)
 {
     if (m_sampleRate <= 0) {
         return;
@@ -81,7 +81,7 @@ void VintagePassiveEq::process(double & left, double & right)
     processStereo(left, right);
 }
 
-void VintagePassiveEq::process(AudioContext & context)
+void VintagePassiveEq::processBlock(AudioContext & context)
 {
     if (m_sampleRate <= 0) {
         return;

@@ -53,7 +53,7 @@ public:
         return "test-clipper";
     }
 
-    void process(double & left, double & right) override
+    void processSample(double & left, double & right) override
     {
         left = std::clamp(left, -Threshold, Threshold);
         right = std::clamp(right, -Threshold, Threshold);
@@ -77,7 +77,7 @@ public:
         return "test-halver";
     }
 
-    void process(double & left, double & right) override
+    void processSample(double & left, double & right) override
     {
         left *= 0.5;
         right *= 0.5;

@@ -31,7 +31,7 @@ public:
     std::string type() const override;
     std::string typeId() const override;
 
-    void process(double & left, double & right) override;
+    void processSample(double & left, double & right) override;
     void sync() override;
 
 private:

@@ -90,7 +90,7 @@ float Drive::processOversampled(Upsampler & upsampler, Decimator & decimator, fl
     return decimator.process(high.data(), factor);
 }
 
-void Drive::process(double & left, double & right)
+void Drive::processSample(double & left, double & right)
 {
     const double driveGain = 1.0 + static_cast<double>(m_drive) * 9.0; // 1x .. 10x
     const double mix = static_cast<double>(m_mix);

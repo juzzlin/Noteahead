@@ -110,7 +110,7 @@ float DbTpMeter::linearToDbtp(double linear)
     return static_cast<float>(std::max(static_cast<double>(dbtpFloor), 20.0 * std::log10(linear)));
 }
 
-void DbTpMeter::process(double & left, double & right)
+void DbTpMeter::processSample(double & left, double & right)
 {
     if (m_sampleRate <= 0) {
         return;

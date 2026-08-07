@@ -33,6 +33,9 @@ private slots:
     void test_spread_monoInput_shouldStayMono();
     void test_outGain_shouldScaleOutput();
     void test_mix_zero_shouldPassSignalThrough();
+    void test_solo_shouldPassOnlyWhatTheEffectAdds();
+    void test_solo_blockPath_shouldMatchTheSamplePath();
+    void test_solo_transparentEffect_shouldFallSilent();
 };
 
 } // namespace noteahead

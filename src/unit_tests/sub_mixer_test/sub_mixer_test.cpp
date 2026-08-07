@@ -114,7 +114,7 @@ public:
         return "test-gain-id";
     }
 
-    void process(double & left, double & right) override
+    void processSample(double & left, double & right) override
     {
         left *= 2.0;
         right *= 2.0;

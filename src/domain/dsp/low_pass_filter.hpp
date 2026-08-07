@@ -28,8 +28,8 @@ public:
     std::string typeId() const override;
 
     void setCutoff(double cutoff);
-    void process(double & left, double & right) override;
-    void process(AudioContext & context) override;
+    void processSample(double & left, double & right) override;
+    void processBlock(AudioContext & context) override;
     void reset() override;
 
 private:
