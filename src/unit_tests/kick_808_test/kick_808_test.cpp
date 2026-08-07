@@ -89,6 +89,22 @@ double bandEnergy(const std::vector<double> & samples, double lowHz, double high
     return energy;
 }
 
+//! Tapers the second half of a render to zero with a raised cosine.
+//!
+//! bandEnergy probes the buffer exactly as it stands, and a hit cut off mid-ring is a step at the
+//! end of the buffer whose leakage spreads the fundamental over the whole spectrum - far above what
+//! is left of the click two octaves up, so without this the top octaves measure the truncation
+//! rather than the drum. The onset is deliberately left alone: the click's own step is the subject.
+std::vector<double> fadedOut(const std::vector<double> & samples)
+{
+    std::vector<double> faded = samples;
+    const size_t fade = faded.size() / 2;
+    for (size_t i = 0; i < fade; i++) {
+        faded[faded.size() - fade + i] *= 0.5 * (1.0 + std::cos(std::numbers::pi * static_cast<double>(i) / static_cast<double>(fade)));
+    }
+    return faded;
+}
+
 //! Frequency of the first half cycle of a hit, which is where the pitch envelope is at its
 //! deepest. Half a period is all there is to measure at that point, so it is measured directly
 //! rather than by counting crossings over a window the sweep would move under.
@@ -240,6 +256,25 @@ void Kick808Test::test_peakLevel_anySetting_shouldLeaveHeadroom()
                      QString("Peak was %1 at tone %2, decay %3").arg(peak).arg(toneStep / 4.0).arg(decayStep / 4.0).toUtf8().constData());
         }
     }
+}
+
+void Kick808Test::test_click_brightest_shouldKeepFallingTowardsNyquist()
+{
+    Kick808Device kick { "Test Kick" };
+    kick.setTone(1.0f);
+    kick.processMidiNoteOn(36, 127);
+    const auto rendered = fadedOut(renderMono(kick, SampleRate / 4));
+
+    // The click is a step, and a step left unfiltered carries as much level at 20 kHz as at 10 kHz.
+    // A single pole does not fix that: its response flattens out towards Nyquist rather than
+    // continuing to fall, which on a constant percentage bandwidth analyser reads as the top of the
+    // spectrum ramping back up. The top octave has to stay well under the one below it even at the
+    // Tone setting that opens the click furthest.
+    const double upper = bandEnergy(rendered, 10000.0, 20000.0);
+    const double lower = bandEnergy(rendered, 5000.0, 10000.0);
+    const double fall = 10.0 * std::log10(upper / lower);
+    QVERIFY2(fall < -12.0,
+             QString("Top octave was only %1 dB under the one below it").arg(fall).toUtf8().constData());
 }
 
 void Kick808Test::test_keyTrack_enabled_shouldFollowNotePitch()

@@ -126,6 +126,17 @@ constexpr double ClickTickFloor = 0.29;
 //! high as possible: the click is a step, and a step has to be rolled off somewhere.
 constexpr double ClickLowPassFrequency = 8000.0;
 
+//! Two poles at that corner rather than one, and Butterworth so the band below it stays flat.
+//!
+//! One pole does not roll off near Nyquist at all: its response flattens out towards half the
+//! sample rate instead of continuing to fall, and it reaches Nyquist only 6 dB down. That left the
+//! click's step just as flat above 10 kHz as it was without a filter, which on a constant
+//! percentage bandwidth analyser - where a band holds more bins the higher it sits - reads as the
+//! whole top of the spectrum ramping back up towards 20 kHz. A second-order low pass has a zero at
+//! Nyquist, so it keeps falling all the way up, and the top band ends up some 18 dB down on where
+//! one pole left it while nothing under 8 kHz moves by as much as a decibel.
+constexpr double ClickLowPassQ = std::numbers::sqrt2 / 2.0;
+
 //! Ratio between a -60 dB time and the exponential time constant that produces it.
 constexpr double T60ToTau = 6.907755;
 
@@ -281,16 +292,15 @@ float Kick808Engine::nextSample()
 
     // Both parts of the click start from zero in a single sample, and a step like that carries level
     // all the way to Nyquist: without this the top two octaves come out flat instead of continuing
-    // to fall, which reads as a small shelf climbing towards 20 kHz on an analyser. One pole is
-    // enough to put the rolloff back where the hardware's is, and it is far enough above the click
-    // itself to leave the rest of the spectrum alone.
+    // to fall, which reads as a shelf climbing towards 20 kHz on an analyser. The corner is far
+    // enough above the click itself to leave the rest of the spectrum alone.
     const double click = clickBody + m_tickIm;
-    m_clickLowPass += (click - m_clickLowPass) * m_clickLowPassRate;
+    const double clickBandLimited = m_clickLowPass.process(click);
 
     // The click enters against the body's polarity. The resonator's first swing under the pitch
     // envelope is what puts energy around 200 Hz, and a click of the same sign partly cancels it -
     // measured as a 10 dB hole right where the hardware is strongest. Inverted, the two reinforce.
-    double out = (m_resonatorIm + m_tailIm - m_clickLowPass) * OutputGain;
+    double out = (m_resonatorIm + m_tailIm - clickBandLimited) * OutputGain;
 
     // Saturation stays fully bypassed at zero drive, so the clean tail is bit-for-bit unaffected.
     if (m_drive > 0.0f) {
@@ -316,7 +326,7 @@ float Kick808Engine::nextSample()
         m_pulseEnv = 0.0f;
         m_clickSlowEnv = 0.0f;
         m_clickFastEnv = 0.0f;
-        m_clickLowPass = 0.0;
+        m_clickLowPass.reset();
     }
 
     return static_cast<float>(out);
@@ -341,7 +351,7 @@ void Kick808Engine::reset()
     m_pitchEnv = 0.0f;
     m_clickSlowEnv = 0.0f;
     m_clickFastEnv = 0.0f;
-    m_clickLowPass = 0.0;
+    m_clickLowPass.reset();
     m_currentFrequency = 0.0;
 }
 
@@ -381,7 +391,7 @@ void Kick808Engine::updateRates()
     // level rather than something the time constants quietly scale.
     m_clickBodyNormalization = 1.0 / (1.0 - ClickBodyFastTau / ClickBodySlowTau);
 
-    m_clickLowPassRate = 1.0 - std::exp(-2.0 * std::numbers::pi * std::min(ClickLowPassFrequency, sr * 0.45) / sr);
+    m_clickLowPass.calculateHighCut(ClickLowPassFrequency, sr, ClickLowPassQ);
 
     const double tickOmega = 2.0 * std::numbers::pi * std::clamp(ClickTickFrequency, 1.0, sr * 0.45) / sr;
     m_tickCos = std::cos(tickOmega);

@@ -34,6 +34,7 @@ private slots:
     void test_pitchEnvelope_default_shouldStartWellAboveTheNote();
     void test_pitchEnvelope_default_shouldSettleWithinTwentyFiveMilliseconds();
     void test_peakLevel_anySetting_shouldLeaveHeadroom();
+    void test_click_brightest_shouldKeepFallingTowardsNyquist();
     void test_keyTrack_enabled_shouldFollowNotePitch();
     void test_keyTrack_disabled_shouldIgnoreNotePitch();
     void test_tune_raised_shouldRaisePitch();
