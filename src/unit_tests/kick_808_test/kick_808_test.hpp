@@ -30,6 +30,10 @@ private slots:
     void test_allNotesOff_shouldChokeVoice();
     void test_decay_short_shouldProduceShorterTailThanLong();
     void test_decay_full_shouldRingForSeconds();
+    void test_decay_half_shouldStillRingAfterAQuarterSecond();
+    void test_pitchEnvelope_default_shouldStartWellAboveTheNote();
+    void test_pitchEnvelope_default_shouldSettleWithinTwentyFiveMilliseconds();
+    void test_peakLevel_anySetting_shouldLeaveHeadroom();
     void test_keyTrack_enabled_shouldFollowNotePitch();
     void test_keyTrack_disabled_shouldIgnoreNotePitch();
     void test_tune_raised_shouldRaisePitch();

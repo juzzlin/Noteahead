@@ -89,6 +89,21 @@ double bandEnergy(const std::vector<double> & samples, double lowHz, double high
     return energy;
 }
 
+//! Frequency of the first half cycle of a hit, which is where the pitch envelope is at its
+//! deepest. Half a period is all there is to measure at that point, so it is measured directly
+//! rather than by counting crossings over a window the sweep would move under.
+double firstHalfCycleFrequency(const std::vector<double> & samples)
+{
+    std::vector<double> crossings;
+    for (size_t i = 1; i < samples.size() && crossings.size() < 3; i++) {
+        if ((samples[i - 1] <= 0.0 && samples[i] > 0.0) || (samples[i - 1] >= 0.0 && samples[i] < 0.0)) {
+            const double fraction = std::abs(samples[i - 1]) / (std::abs(samples[i - 1]) + std::abs(samples[i]));
+            crossings.push_back((static_cast<double>(i - 1) + fraction) / SampleRate);
+        }
+    }
+    return crossings.size() >= 2 ? 0.5 / (crossings.at(1) - crossings.at(0)) : 0.0;
+}
+
 //! Settles a voice for pitch measurements: no pitch envelope to bend the tail and a long decay so
 //! there is plenty of waveform to count.
 void makeSteady(Kick808Device & kick)
@@ -164,6 +179,67 @@ void Kick808Test::test_decay_full_shouldRingForSeconds()
     // The full BOOM end of the range has to survive a full second.
     renderMono(kick, SampleRate);
     QVERIFY(kick.hasActiveAudio());
+}
+
+void Kick808Test::test_decay_half_shouldStillRingAfterAQuarterSecond()
+{
+    Kick808Device kick { "Test Kick" };
+    kick.setDecay(0.5f);
+    kick.processMidiNoteOn(36, 127);
+    const auto rendered = renderMono(kick, SampleRate);
+
+    const std::vector<double> early { rendered.begin() + SampleRate * 40 / 1000, rendered.begin() + SampleRate * 60 / 1000 };
+    const std::vector<double> late { rendered.begin() + SampleRate / 4, rendered.begin() + SampleRate * 270 / 1000 };
+    const double decayed = 20.0 * std::log10(peakLevel(late) / peakLevel(early));
+
+    // Mid knob is the hardware's own mid knob: an RD-8 with Decay at half is some 15 dB down a
+    // quarter of a second in, which is a -60 dB time near a second rather than a third of one.
+    QVERIFY2(decayed > -22.0 && decayed < -9.0,
+             QString("Level at 250 ms was %1 dB below 40 ms, expected around -15 dB").arg(decayed).toUtf8().constData());
+}
+
+void Kick808Test::test_pitchEnvelope_default_shouldStartWellAboveTheNote()
+{
+    Kick808Device kick { "Test Kick" };
+    kick.processMidiNoteOn(36, 127);
+    const auto rendered = renderMono(kick, SampleRate / 2);
+
+    // C2 is 65.41 Hz, and the sweep has to carry the first swings up into the couple of hundred
+    // hertz where the body of an 808 hit sits. Without that the drum is nothing but its fundamental.
+    const double first = firstHalfCycleFrequency(rendered);
+    QVERIFY2(first > 2.0 * 65.41,
+             QString("First half cycle was %1 Hz, expected well over an octave above the note").arg(first).toUtf8().constData());
+}
+
+void Kick808Test::test_pitchEnvelope_default_shouldSettleWithinTwentyFiveMilliseconds()
+{
+    Kick808Device kick { "Test Kick" };
+    kick.processMidiNoteOn(36, 127);
+    const auto rendered = renderMono(kick, SampleRate / 10);
+
+    // The sweep is a strike, not a glide: by 25 ms it has to be over and the drum sitting on its
+    // note, or the hit reads as a falling tone rather than as a drum.
+    const double settled = estimateFrequency(rendered, SampleRate * 25 / 1000);
+    QVERIFY2(std::abs(settled / 65.41 - 1.0) < 0.05,
+             QString("Pitch was still %1 Hz after 25 ms, expected C2 at 65.41 Hz").arg(settled).toUtf8().constData());
+}
+
+void Kick808Test::test_peakLevel_anySetting_shouldLeaveHeadroom()
+{
+    // The excitation is compensated at the frequency the sweep starts on, so a deeper sweep is also
+    // a hotter hit. No corner of the Tone and Decay ranges may run a full-velocity hit out of room
+    // for the fader, the pan or the drive stage.
+    for (int toneStep = 0; toneStep <= 4; toneStep++) {
+        for (int decayStep = 0; decayStep <= 4; decayStep++) {
+            Kick808Device kick { "Test Kick" };
+            kick.setTone(static_cast<float>(toneStep) / 4.0f);
+            kick.setDecay(static_cast<float>(decayStep) / 4.0f);
+            kick.processMidiNoteOn(36, 127);
+            const double peak = peakLevel(renderMono(kick, SampleRate / 2));
+            QVERIFY2(peak < 0.8,
+                     QString("Peak was %1 at tone %2, decay %3").arg(peak).arg(toneStep / 4.0).arg(decayStep / 4.0).toUtf8().constData());
+        }
+    }
 }
 
 void Kick808Test::test_keyTrack_enabled_shouldFollowNotePitch()

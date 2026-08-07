@@ -52,6 +52,13 @@ New features:
 
 Bug fixes:
 
+* Give the Kick808 the pitch sweep a real 808 has
+  - Its hits started twice the note and took 130 ms to land, where an RD-8
+    starts 5.4x above it and is done in 3, so ours never passed through the
+    couple of hundred hertz a kick gets its body from
+  - Decay at half knob now rings about a second, as the hardware does,
+    instead of a third of one
+
 * Fix crash on cancelling the Sampler dialog during playback
   - Cancelling restored the saved samples out from under the voices playing
     them, and the next audio callback read the freed memory

@@ -28,17 +28,38 @@ namespace {
 constexpr double MinDecayT60 = 0.04;
 constexpr double MaxDecayT60 = 3.0;
 
+//! Curvature applied to the Decay control before the range above is swept geometrically.
+//!
+//! Sweeping the range geometrically off the raw control put the middle of the knob at 0.35 s, where
+//! an RD-8 with its own Decay at half rings for closer to 0.9 s: the same setting on the two gave
+//! tails a factor of two apart. Taking the root first lands mid-knob on the hardware and tracks its
+//! envelope within a decibel from 80 ms out, while leaving both ends of the range where they were.
+constexpr double DecayCurve = 0.5;
+
 //! Excitation pulse time constants. A shorter pulse is a broader spectrum, so Tone brightens the
 //! attack by shortening it.
 constexpr double MaxPulseTau = 0.004;
 constexpr double MinPulseTau = 0.0005;
 
 //! Pitch envelope time constants, from a snap to an audible downward sweep.
-constexpr double MinPitchTau = 0.005;
+//!
+//! Mapped geometrically rather than linearly. What an 808 wants is a couple of milliseconds, and on
+//! a linear map to 155 ms that is the bottom two percent of the knob: the whole useful range was
+//! crammed against the stop while nine tenths of the travel bought sweeps far too slow to read as a
+//! drum at all. Zero-crossing measurements of an RD-8 put its own sweep at 3.25 ms, which is a
+//! quarter of the way up a geometric map, so the control's default sits where the hardware does.
+constexpr double MinPitchTau = 0.001;
 constexpr double MaxPitchTau = 0.155;
 
 //! Frequency multiplier the pitch envelope reaches at full depth.
-constexpr double PitchDepthRange = 3.0;
+//!
+//! The same measurements put the RD-8's first half cycle at 271 Hz against a 58 Hz fundamental, and
+//! a fit over its first 22 zero crossings gives a sweep starting 5.4x above the note. The old range
+//! could not reach that even with the control at maximum, so the drum never passed through the two
+//! or three hundred hertz where the body of an 808 hit lives - the fundamental was all there was,
+//! which is what made it sound hollow. Half a knob is 5.4x now, leaving the top half for sweeps
+//! deeper than the hardware's.
+constexpr double PitchDepthRange = 8.8;
 
 constexpr double MaxGlideSeconds = 0.5;
 
@@ -48,8 +69,15 @@ constexpr double RetriggerFadeSeconds = 0.004;
 
 //! Leaves headroom so a full-velocity hit with drive off does not sit at full scale. Re-based when
 //! the excitation gained its pulse-length compensation, which lifted the quiet end of Tone's range
-//! by some 10 dB rather than lowering the loud end.
-constexpr double OutputGain = 0.5;
+//! by some 10 dB rather than lowering the loud end, and again when the pitch envelope was deepened
+//! to the hardware's: the compensation is taken at the frequency the sweep starts on, so a start
+//! five times the note rather than twice it is worth another 8 dB of excitation at the dark end of
+//! Tone, which put a full-velocity hit a fifth of a decibel under full scale.
+//!
+//! Rebasing here rather than damping the compensation is what keeps Tone out of the level: the
+//! compensation multiplies the excitation, and the excitation is the whole drum, so anything taken
+//! off it at one end of Tone tilts the tail as well as the attack.
+constexpr double OutputGain = 0.36;
 
 //! Peak the drive stage saturates towards.
 //!
@@ -331,7 +359,7 @@ void Kick808Engine::updateRates()
 
     m_lastSampleRate = sr;
 
-    const double t60 = MinDecayT60 * std::pow(MaxDecayT60 / MinDecayT60, static_cast<double>(m_decay));
+    const double t60 = MinDecayT60 * std::pow(MaxDecayT60 / MinDecayT60, std::pow(static_cast<double>(m_decay), DecayCurve));
     m_resonatorDamping = exponentialDecayPerSample(t60 / T60ToTau, sr);
     m_tailDamping = exponentialDecayPerSample(RetriggerFadeSeconds, sr);
 
@@ -360,7 +388,7 @@ void Kick808Engine::updateRates()
     m_tickSin = std::sin(tickOmega);
     m_tickDamping = exponentialDecayPerSample(ClickTickT60 / T60ToTau, sr);
 
-    const double pitchTau = MinPitchTau + (MaxPitchTau - MinPitchTau) * static_cast<double>(m_pitchDecay);
+    const double pitchTau = MinPitchTau * std::pow(MaxPitchTau / MinPitchTau, static_cast<double>(m_pitchDecay));
     m_pitchDecayRate = static_cast<float>(exponentialDecayPerSample(pitchTau, sr));
 
     const double glideSeconds = static_cast<double>(m_glide) * MaxGlideSeconds;

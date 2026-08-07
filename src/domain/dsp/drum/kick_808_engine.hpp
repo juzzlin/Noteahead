@@ -112,7 +112,7 @@ private:
 
     float m_decay { 0.6f };
     float m_tone { 0.35f };
-    float m_pitchDepth { 0.35f };
+    float m_pitchDepth { 0.5f };
     float m_pitchDecay { 0.25f };
     float m_drive { 0.0f };
     float m_glide { 0.0f };

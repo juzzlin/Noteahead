@@ -65,7 +65,7 @@ Kick808Device::Kick808Device(std::string name)
     addParameter(Parameter(Constants::NahdXml::xmlKeyTune().toStdString(), 0.5f, 0, 10000, 5000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyTone().toStdString(), 0.35f, 0, 10000, 3500, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyDecay().toStdString(), 0.6f, 0, 10000, 6000, 100));
-    addParameter(Parameter(Constants::NahdXml::xmlKeyPitchDepth().toStdString(), 0.35f, 0, 10000, 3500, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyPitchDepth().toStdString(), 0.5f, 0, 10000, 5000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyPitchDecay().toStdString(), 0.25f, 0, 10000, 2500, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyDrive().toStdString(), 0.0f, 0, 10000, 0, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyPortamento().toStdString(), 0.0f, 0, 10000, 0, 100));
