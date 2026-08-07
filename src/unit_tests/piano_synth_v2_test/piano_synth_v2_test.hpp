@@ -32,6 +32,7 @@ private slots:
     void test_sustainPedal_shouldReleaseNoteWhenPedalLifted();
     void test_allNotesOff_shouldSilenceAllVoices();
     void test_serialization_shouldRestoreParameters();
+    void test_reset_shouldRestoreFactoryDefaults();
     void test_velocity_shouldFollowSquareLaw();
     void test_velocity_shouldBrightenTheStrike();
     void test_brightness_shouldTiltTheStrike();

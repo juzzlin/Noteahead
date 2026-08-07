@@ -188,18 +188,6 @@ std::vector<double> partialEnvelope(const std::vector<double> & mono, double sam
     return envelope;
 }
 
-// Level over time in short blocks, for attack and tail levels where the whole signal
-// counts rather than one partial.
-std::vector<double> rmsEnvelope(const std::vector<double> & mono, double sampleRate, double blockSeconds)
-{
-    const auto block = static_cast<size_t>(sampleRate * blockSeconds);
-    std::vector<double> envelope;
-    for (size_t start = 0; start + block <= mono.size(); start += block) {
-        envelope.push_back(rmsLevel({ mono.begin() + static_cast<long>(start), mono.begin() + static_cast<long>(start + block) }));
-    }
-    return envelope;
-}
-
 // Decay of one partial in dB per second, fitted over a stretch of the note starting a
 // given time after the strike. Which stretch is measured matters here: a piano note
 // decays in two stages, and the fast one sits on top of the slow one at the start.
@@ -509,6 +497,35 @@ void PianoSynthV2Test::test_serialization_shouldRestoreParameters()
     QCOMPARE(piano2.stretch(), piano.stretch());
     QCOMPARE(piano2.richness(), piano.richness());
     QCOMPARE(piano2.doubleDecay(), piano.doubleDecay());
+}
+
+void PianoSynthV2Test::test_reset_shouldRestoreFactoryDefaults()
+{
+    // What the Reset button in the dialog is wired to. Every control has to come back,
+    // including the ones on the Device base class.
+    PianoSynthV2Device piano { "Test Piano" };
+
+    const float brightness = piano.brightness();
+    const float decay = piano.decay();
+    const float richness = piano.richness();
+    const float stretch = piano.stretch();
+    const float stereoWidth = piano.stereoWidth();
+
+    piano.setBrightness(0.93f);
+    piano.setDecay(0.07f);
+    piano.setRichness(0.11f);
+    piano.setStretch(0.88f);
+    piano.setStereoWidth(0.95f);
+    piano.setGain(0.31f);
+    QVERIFY(std::abs(piano.brightness() - brightness) > 0.1f);
+
+    piano.reset();
+
+    QVERIFY(std::abs(piano.brightness() - brightness) < 0.001f);
+    QVERIFY(std::abs(piano.decay() - decay) < 0.001f);
+    QVERIFY(std::abs(piano.richness() - richness) < 0.001f);
+    QVERIFY(std::abs(piano.stretch() - stretch) < 0.001f);
+    QVERIFY(std::abs(piano.stereoWidth() - stereoWidth) < 0.001f);
 }
 
 void PianoSynthV2Test::test_velocity_shouldFollowSquareLaw()

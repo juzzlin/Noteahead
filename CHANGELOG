@@ -15,6 +15,8 @@ New features:
   - The existing Piano Synth is untouched
   - Brightness tilts the strike as well as the decay of the upper partials,
     and is neutral in the middle of its travel
+  - Reset restores every control to its factory default, leaving the insert
+    effects as they are
 
 * Add the fade out and tail silence options to the audio export
   - The fade out lands on zero right where the tail silence begins

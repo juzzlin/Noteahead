@@ -43,6 +43,16 @@ AnimatedDialog {
 
     footer: DialogButtonBox {
         Button {
+            text: qsTr("Reset")
+            implicitWidth: Constants.defaultButtonWidth
+            // Reset role so that the box leaves the dialog open: the point is to hear the
+            // defaults and carry on voicing from them.
+            DialogButtonBox.buttonRole: DialogButtonBox.ResetRole
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Restore every control to its factory default. Insert effects are left alone.")
+            onClicked: pianoSynthV2Controller.reset()
+        }
+        Button {
             text: qsTr("Ok")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
