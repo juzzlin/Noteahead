@@ -45,6 +45,14 @@ class RenderSettingsModel : public QObject
     Q_PROPERTY(bool trimEnabled READ trimEnabled WRITE setTrimEnabled NOTIFY changed)
     Q_PROPERTY(int trimMinutes READ trimMinutes WRITE setTrimMinutes NOTIFY changed)
     Q_PROPERTY(int trimSeconds READ trimSeconds WRITE setTrimSeconds NOTIFY changed)
+    //! Whole seconds plus tenths of a second, the same split the trim spin boxes use for minutes and
+    //! seconds. The project format holds no floating-point values; see RenderSettings.
+    Q_PROPERTY(bool fadeOutEnabled READ fadeOutEnabled WRITE setFadeOutEnabled NOTIFY changed)
+    Q_PROPERTY(int fadeOutSeconds READ fadeOutSeconds WRITE setFadeOutSeconds NOTIFY changed)
+    Q_PROPERTY(int fadeOutTenths READ fadeOutTenths WRITE setFadeOutTenths NOTIFY changed)
+    Q_PROPERTY(bool silenceEnabled READ silenceEnabled WRITE setSilenceEnabled NOTIFY changed)
+    Q_PROPERTY(int silenceSeconds READ silenceSeconds WRITE setSilenceSeconds NOTIFY changed)
+    Q_PROPERTY(int silenceTenths READ silenceTenths WRITE setSilenceTenths NOTIFY changed)
     Q_PROPERTY(bool analyzeEnabled READ analyzeEnabled WRITE setAnalyzeEnabled NOTIFY changed)
 
 public:
@@ -79,6 +87,24 @@ public:
 
     int trimSeconds() const;
     void setTrimSeconds(int seconds);
+
+    bool fadeOutEnabled() const;
+    void setFadeOutEnabled(bool enabled);
+
+    int fadeOutSeconds() const;
+    void setFadeOutSeconds(int seconds);
+
+    int fadeOutTenths() const;
+    void setFadeOutTenths(int tenths);
+
+    bool silenceEnabled() const;
+    void setSilenceEnabled(bool enabled);
+
+    int silenceSeconds() const;
+    void setSilenceSeconds(int seconds);
+
+    int silenceTenths() const;
+    void setSilenceTenths(int tenths);
 
     bool analyzeEnabled() const;
     void setAnalyzeEnabled(bool enabled);

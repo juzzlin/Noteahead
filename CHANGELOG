@@ -5,6 +5,11 @@ Release date:
 
 New features:
 
+* Add the fade out and tail silence options to the audio export
+  - The fade out lands on zero right where the tail silence begins
+  - Trimming still fixes the length of the file, so both are carved out
+    of its end; without it the silence follows the song end
+
 * Add the RMS detector mode to the Compressor
   - Peak stays the default; RMS averages over 10 ms and rides the body
     of the signal instead of every transient

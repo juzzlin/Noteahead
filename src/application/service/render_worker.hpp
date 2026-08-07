@@ -35,6 +35,32 @@ class DeviceService;
 class MixerService;
 class AudioFileReader;
 
+//! Everything the song's RenderSettings say about one export. A struct rather than yet more
+//! positional arguments, because render() already took fifteen of them. Lives here at namespace
+//! scope rather than nested in RenderWorker, because a nested aggregate's default member
+//! initializers cannot be used in a default argument of its own enclosing class.
+struct RenderOptions
+{
+    BitDepth bitDepth = BitDepth::PCM_16;
+    AudioFormat format = AudioFormat::Wav;
+    bool normalize = false;
+    double normalizeTargetDb = -0.3;
+    bool trim = false;
+    int trimMinutes = 0;
+    int trimSeconds = 0;
+    //! Fades the audio out so that it reaches silence where the tail silence begins.
+    bool fadeOut = false;
+    int fadeOutSeconds = 0;
+    int fadeOutTenths = 0;
+    //! Silence ending the file. Carved out of the trimmed length when trimming, so that the trim
+    //! stays the exact length of the file, and appended after the song end otherwise.
+    bool silence = false;
+    int silenceSeconds = 0;
+    int silenceTenths = 0;
+    bool analyze = false;
+    quint8 oversampleFactor = 2;
+};
+
 class RenderWorker : public QObject
 {
     Q_OBJECT
@@ -67,15 +93,7 @@ public slots:
                 const noteahead::RenderWorker::Timing & timing,
                 quint64 maxTick,
                 quint32 sampleRate,
-                noteahead::BitDepth bitDepth = BitDepth::PCM_16,
-                bool normalize = false,
-                double normalizeTargetDb = -0.3,
-                bool trim = false,
-                int trimMinutes = 0,
-                int trimSeconds = 0,
-                bool analyze = false,
-                quint8 oversampleFactor = 2,
-                noteahead::AudioFormat format = AudioFormat::Wav,
+                noteahead::RenderOptions options = {},
                 std::map<noteahead::AudioFileReader::TagType, std::string> tags = {});
 
 signals:
@@ -100,6 +118,7 @@ private:
 } // namespace noteahead
 
 Q_DECLARE_METATYPE(noteahead::RenderWorker::Timing)
+Q_DECLARE_METATYPE(noteahead::RenderOptions)
 Q_DECLARE_METATYPE(noteahead::RenderWorker::EventList)
 Q_DECLARE_METATYPE(noteahead::BitDepth)
 

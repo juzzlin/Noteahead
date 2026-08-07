@@ -33,6 +33,7 @@
 #include <QUuid>
 #include <algorithm>
 #include <cmath>
+#include <numbers>
 
 namespace noteahead {
 
@@ -58,17 +59,14 @@ void RenderWorker::render(const QString & fileName,
                           const noteahead::RenderWorker::Timing & timing,
                           quint64 maxTick,
                           quint32 sampleRate,
-                          noteahead::BitDepth bitDepth,
-                          bool normalize,
-                          double normalizeTargetDb,
-                          bool trim,
-                          int trimMinutes,
-                          int trimSeconds,
-                          bool analyze,
-                          quint8 oversampleFactor,
-                          noteahead::AudioFormat format,
+                          noteahead::RenderOptions options,
                           std::map<noteahead::AudioFileReader::TagType, std::string> tags)
 {
+    const auto bitDepth = options.bitDepth;
+    const auto normalize = options.normalize;
+    const auto analyze = options.analyze;
+    const auto format = options.format;
+
     if (m_isRendering) {
         return;
     }
@@ -115,10 +113,54 @@ void RenderWorker::render(const QString & fileName,
         std::vector<float> finalBuffer {};
 
         quint64 totalFramesWritten = 0;
-        const quint64 targetTrimFrames = static_cast<quint64>((trimMinutes * 60 + trimSeconds) * sampleRate);
+        const quint64 targetTrimFrames = static_cast<quint64>(options.trimMinutes * 60 + options.trimSeconds) * sampleRate;
+        const quint64 silenceFrames = options.silence ? static_cast<quint64>(options.silenceSeconds * 10 + options.silenceTenths) * sampleRate / 10 : 0;
+        const quint64 requestedFadeFrames = options.fadeOut ? static_cast<quint64>(options.fadeOutSeconds * 10 + options.fadeOutTenths) * sampleRate / 10 : 0;
+
+        // Trimming fixes the length of the whole file, so the tail silence is carved out of its end.
+        // Without it there is nothing to fit inside and the silence simply extends the file past the
+        // song end. The prediction matches what the loop below writes to within a single sample,
+        // which the fade's flat landing on zero absorbs.
+        const quint64 predictedFrames = static_cast<quint64>(std::llround(static_cast<double>(maxTick + 1) * samplesPerTick));
+        const quint64 targetTotalFrames = options.trim ? targetTrimFrames : predictedFrames + silenceFrames;
+        const quint64 audioEndFrames = targetTotalFrames > silenceFrames ? targetTotalFrames - silenceFrames : 0;
+        const quint64 fadeStartFrames = audioEndFrames > requestedFadeFrames ? audioEndFrames - requestedFadeFrames : 0;
+        // A fade longer than the music itself simply fades the whole of it.
+        const quint64 fadeFrames = audioEndFrames - fadeStartFrames;
+        // Only trimming and the tail silence fix the length of the file. A plain render still runs
+        // for as long as it runs, so that a mispredicted end cannot truncate it.
+        const bool hasFixedLength = options.trim || silenceFrames > 0;
+
+        // Equal-power cosine: it leaves the music at full level and lands on zero with zero slope, so
+        // being a sample off at either end cannot be heard.
+        const auto fadeGain = [fadeStartFrames, audioEndFrames, fadeFrames](quint64 frame) {
+            if (frame <= fadeStartFrames) {
+                return 1.0;
+            }
+            if (frame >= audioEndFrames) {
+                return 0.0;
+            }
+            const double position = static_cast<double>(frame - fadeStartFrames) / static_cast<double>(fadeFrames);
+            return 0.5 * (1.0 + std::cos(std::numbers::pi * position));
+        };
+
+        // Both the per-tick chunk and the sub-sample remainder below go out through this.
+        const auto convertAndPush = [&](size_t totalSamples, quint64 startFrame) {
+            for (size_t i = 0; i < totalSamples; i++) {
+                auto sample = audioBuffer[i];
+                if (options.fadeOut) {
+                    sample *= fadeGain(startFrame + i / 2);
+                }
+                // Clamp to prevent overflow when writing to PCM, but leave Float_32 alone
+                finalBuffer[i] = static_cast<float>(actualBitDepth == BitDepth::Float_32 ? sample : std::clamp(sample, -1.0, 1.0));
+            }
+            while (!recorder.push(finalBuffer.data(), totalSamples)) {
+                std::this_thread::sleep_for(std::chrono::milliseconds { 1 });
+            }
+        };
 
         for (quint64 tick = 0; tick <= maxTick; tick++) {
-            if (trim && totalFramesWritten >= targetTrimFrames) {
+            if (hasFixedLength && totalFramesWritten >= audioEndFrames) {
                 break;
             }
 
@@ -130,8 +172,8 @@ void RenderWorker::render(const QString & fileName,
 
             sampleCounter += samplesPerTick;
             quint32 framesToProcess = static_cast<quint32>(sampleCounter);
-            if (trim && totalFramesWritten + framesToProcess > targetTrimFrames) {
-                framesToProcess = static_cast<quint32>(targetTrimFrames - totalFramesWritten);
+            if (hasFixedLength && totalFramesWritten + framesToProcess > audioEndFrames) {
+                framesToProcess = static_cast<quint32>(audioEndFrames - totalFramesWritten);
             }
 
             if (framesToProcess > 0) {
@@ -143,23 +185,11 @@ void RenderWorker::render(const QString & fileName,
 
                 std::fill(audioBuffer.begin(), audioBuffer.begin() + totalSamples, 0.0);
                 AudioContext audioContext { std::span(audioBuffer.data(), totalSamples), framesToProcess, sampleRate };
-                audioContext.oversampleFactor = oversampleFactor;
+                audioContext.oversampleFactor = options.oversampleFactor;
                 m_audioEngine->process(audioContext);
 
-                // Convert to float and clamp signal to prevent overflow when writing to PCM (only clamp when not writing Float_32)
-                for (size_t i = 0; i < totalSamples; i++) {
-                    if (actualBitDepth == BitDepth::Float_32) {
-                        finalBuffer[i] = static_cast<float>(audioBuffer[i]);
-                    } else {
-                        finalBuffer[i] = static_cast<float>(std::clamp(audioBuffer[i], -1.0, 1.0));
-                    }
-                }
+                convertAndPush(totalSamples, totalFramesWritten);
 
-                if (!recorder.push(finalBuffer.data(), totalSamples)) {
-                    while (!recorder.push(finalBuffer.data(), totalSamples)) {
-                        std::this_thread::sleep_for(std::chrono::milliseconds { 1 });
-                    }
-                }
                 totalFramesWritten += framesToProcess;
                 sampleCounter -= static_cast<double>(framesToProcess);
             }
@@ -171,10 +201,10 @@ void RenderWorker::render(const QString & fileName,
 
         // Process any remaining sub-sample (round to nearest)
         quint32 finalFrames = static_cast<quint32>(std::round(sampleCounter));
-        if (trim && totalFramesWritten >= targetTrimFrames) {
+        if (hasFixedLength && totalFramesWritten >= audioEndFrames) {
             finalFrames = 0;
-        } else if (trim && totalFramesWritten + finalFrames > targetTrimFrames) {
-            finalFrames = static_cast<quint32>(targetTrimFrames - totalFramesWritten);
+        } else if (hasFixedLength && totalFramesWritten + finalFrames > audioEndFrames) {
+            finalFrames = static_cast<quint32>(audioEndFrames - totalFramesWritten);
         }
 
         if (finalFrames > 0) {
@@ -185,27 +215,18 @@ void RenderWorker::render(const QString & fileName,
             }
             std::fill(audioBuffer.begin(), audioBuffer.begin() + totalSamples, 0.0);
             AudioContext audioContext { std::span(audioBuffer.data(), totalSamples), finalFrames, sampleRate };
-            audioContext.oversampleFactor = oversampleFactor;
+            audioContext.oversampleFactor = options.oversampleFactor;
             m_audioEngine->process(audioContext);
 
-            // Convert to float and clamp signal to prevent overflow when writing to PCM
-            for (size_t i = 0; i < totalSamples; i++) {
-                if (actualBitDepth == BitDepth::Float_32) {
-                    finalBuffer[i] = static_cast<float>(audioBuffer[i]);
-                } else {
-                    finalBuffer[i] = static_cast<float>(std::clamp(audioBuffer[i], -1.0, 1.0));
-                }
-            }
+            convertAndPush(totalSamples, totalFramesWritten);
 
-            while (!recorder.push(finalBuffer.data(), totalSamples)) {
-                std::this_thread::sleep_for(std::chrono::milliseconds { 1 });
-            }
             totalFramesWritten += finalFrames;
         }
 
-        // Pad with silence if trimming is enabled and rendered duration is shorter than target length
-        if (trim && totalFramesWritten < targetTrimFrames) {
-            const quint64 remainingFrames = targetTrimFrames - totalFramesWritten;
+        // Pads out to the target length: the tail silence, and the shortfall when the song is shorter
+        // than the trim
+        if (hasFixedLength && totalFramesWritten < targetTotalFrames) {
+            const quint64 remainingFrames = targetTotalFrames - totalFramesWritten;
             std::vector<float> silenceBuffer(16384 * 2, 0.0f);
             quint64 framesLeft = remainingFrames;
             while (framesLeft > 0) {
@@ -215,7 +236,7 @@ void RenderWorker::render(const QString & fileName,
                 }
                 framesLeft -= chunkFrames;
             }
-            totalFramesWritten = targetTrimFrames;
+            totalFramesWritten = targetTotalFrames;
         }
 
         juzzlin::L(TAG).info() << "Finalizing record...";
@@ -225,7 +246,7 @@ void RenderWorker::render(const QString & fileName,
         if (normalize && !tempPath.isEmpty()) {
             const double maxPeak = runNormalizationScan(tempPath);
             if (maxPeak > 0.0) {
-                gain = std::pow(10.0, normalizeTargetDb / 20.0) / maxPeak;
+                gain = std::pow(10.0, options.normalizeTargetDb / 20.0) / maxPeak;
             }
             juzzlin::L(TAG).info() << "Normalization scan finished. Max peak: " << maxPeak << ", calculated gain factor: " << gain;
         }

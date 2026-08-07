@@ -646,9 +646,10 @@ void RenderingTest::test_render_shouldTrimAudio()
     timing.ticksPerLine = 6;
 
     // Render with trim: trim to 2 seconds
-    const int trimMinutes = 0;
-    const int trimSeconds = 2;
-    worker.render("dummy.wav", events, timing, 1000, 44100, BitDepth::PCM_16, false, -0.3, true, trimMinutes, trimSeconds, false);
+    RenderOptions options;
+    options.trim = true;
+    options.trimSeconds = 2;
+    worker.render("dummy.wav", events, timing, 1000, 44100, options);
 
     QVERIFY(mockIoPtr != nullptr);
     const auto & audioData = mockIoPtr->data();
@@ -657,6 +658,137 @@ void RenderingTest::test_render_shouldTrimAudio()
     // 2 seconds of stereo audio at 44100Hz should have exactly 2 * 44100 * 2 = 176400 samples
     const size_t expectedSamples = 2 * 44100 * 2;
     QCOMPARE(audioData.size(), expectedSamples);
+}
+
+namespace {
+
+//! What the fade and silence tests all need: one held note through a synth, differing only in the
+//! options. Returns the stereo samples that reached the file.
+std::vector<float> renderHeldNote(const RenderOptions & options, quint64 maxTick, quint32 sampleRate)
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto mixerService = std::make_shared<MixerService>();
+
+    const auto synth = std::make_shared<SynthDevice>("Noteahead Synth");
+    synth->setLpfCutoff(1.0f);
+    synth->setGain(0.5f);
+    synth->setVolume(1.0f);
+    deviceService->setDevice(0, synth);
+
+    RenderWorker worker { audioEngine, deviceService, mixerService };
+
+    // The registry outlives the reader the recorder owns, unlike a bare pointer to it.
+    MockRenderIo::Registry registry;
+    std::mutex registryMutex;
+    worker.setAudioFileReaderFactory([&]() {
+        return std::make_unique<MockRenderIo>(&registry, &registryMutex);
+    });
+
+    RenderWorker::EventList events;
+    const auto instrument = std::make_shared<Instrument>("Noteahead Internal Device 1");
+    NoteData noteData { 0, 0 };
+    noteData.setAsNoteOn(60, 100);
+    const auto event = std::make_shared<Event>(0, noteData);
+    event->setInstrument(instrument);
+    events.push_back(event);
+
+    RenderWorker::Timing timing;
+    timing.beatsPerMinute = 120;
+    timing.linesPerBeat = 4;
+    timing.ticksPerLine = 6;
+
+    worker.render("dummy.wav", events, timing, maxTick, sampleRate, options);
+
+    return registry["dummy.wav"].data;
+}
+
+//! Largest absolute sample over a frame range, both channels.
+float peakOverFrames(const std::vector<float> & data, size_t firstFrame, size_t lastFrame)
+{
+    float peak = 0.0f;
+    for (size_t i = firstFrame * 2; i < lastFrame * 2 && i < data.size(); i++) {
+        peak = std::max(peak, std::abs(data[i]));
+    }
+    return peak;
+}
+
+} // namespace
+
+void RenderingTest::test_render_silence_shouldFitInsideTrim()
+{
+    // Trimming fixes the length of the file, so the tail silence is carved out of its end rather
+    // than added to it.
+    const quint32 sampleRate = 44100;
+    RenderOptions options;
+    options.trim = true;
+    options.trimSeconds = 2;
+    options.silence = true;
+    options.silenceTenths = 5; // 0.5 s
+
+    const auto audioData = renderHeldNote(options, 1000, sampleRate);
+
+    QCOMPARE(audioData.size(), size_t { 2 * 44100 * 2 });
+
+    const size_t silenceFrames = sampleRate / 2;
+    const size_t totalFrames = audioData.size() / 2;
+    QCOMPARE(peakOverFrames(audioData, totalFrames - silenceFrames, totalFrames), 0.0f);
+    QVERIFY(peakOverFrames(audioData, 0, totalFrames - silenceFrames) > 0.0f);
+}
+
+void RenderingTest::test_render_silence_withoutTrim_shouldExtendFile()
+{
+    // Without a trim there is nothing to fit inside, so the silence follows the song end.
+    const quint32 sampleRate = 44100;
+    const quint64 maxTick = 48;
+    RenderOptions options;
+    options.silence = true;
+    options.silenceTenths = 5; // 0.5 s
+
+    const auto audioData = renderHeldNote(options, maxTick, sampleRate);
+
+    const double samplesPerTick = 60.0 * sampleRate / (120.0 * 4.0 * 6.0);
+    const auto songFrames = static_cast<size_t>(std::llround(static_cast<double>(maxTick + 1) * samplesPerTick));
+    const size_t silenceFrames = sampleRate / 2;
+    QCOMPARE(audioData.size(), (songFrames + silenceFrames) * 2);
+
+    const size_t totalFrames = audioData.size() / 2;
+    QCOMPARE(peakOverFrames(audioData, songFrames, totalFrames), 0.0f);
+    QVERIFY(peakOverFrames(audioData, 0, songFrames) > 0.0f);
+}
+
+void RenderingTest::test_render_fadeOut_shouldRampDownToZero()
+{
+    // Compared against the very same render without the fade, so that a synth decaying on its own
+    // cannot make this pass.
+    const quint32 sampleRate = 44100;
+    RenderOptions options;
+    options.trim = true;
+    options.trimSeconds = 2;
+
+    const auto withoutFade = renderHeldNote(options, 1000, sampleRate);
+
+    options.fadeOut = true;
+    options.fadeOutSeconds = 1;
+    const auto withFade = renderHeldNote(options, 1000, sampleRate);
+
+    QCOMPARE(withFade.size(), withoutFade.size());
+
+    const size_t totalFrames = withFade.size() / 2;
+    const size_t fadeStart = totalFrames - sampleRate; // The fade covers the last second
+    const size_t tailStart = totalFrames - sampleRate / 10;
+
+    // Untouched before the fade begins
+    QCOMPARE(peakOverFrames(withFade, 0, fadeStart), peakOverFrames(withoutFade, 0, fadeStart));
+
+    // The last tenth of the fade is where the cosine has all but landed on zero
+    const auto fadedTailPeak = peakOverFrames(withFade, tailStart, totalFrames);
+    const auto originalTailPeak = peakOverFrames(withoutFade, tailStart, totalFrames);
+    QVERIFY(originalTailPeak > 0.0f);
+    QVERIFY(fadedTailPeak < originalTailPeak * 0.1f);
+
+    // And the very last frame is silent
+    QVERIFY(std::abs(withFade[withFade.size() - 1]) < 1e-6f);
 }
 
 void RenderingTest::test_render_shouldNormalizeAudio()
@@ -694,7 +826,10 @@ void RenderingTest::test_render_shouldNormalizeAudio()
 
     // Render with normalization: normalize to -6.0 dB (approx 0.5 amplitude)
     const double targetDb = -6.0;
-    worker.render("dummy.wav", events, timing, 48, 44100, BitDepth::PCM_16, true, targetDb, false, 0, 0, false);
+    RenderOptions options;
+    options.normalize = true;
+    options.normalizeTargetDb = targetDb;
+    worker.render("dummy.wav", events, timing, 48, 44100, options);
 
     // The normalized audio will be written to "dummy.wav" (the final path)
     QVERIFY(registry.find("dummy.wav") != registry.end());

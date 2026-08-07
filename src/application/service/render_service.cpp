@@ -253,15 +253,25 @@ void RenderService::startNextRender()
     // Render settings belong to the song, so exporting one song cannot inherit another's trim.
     const auto & renderSettings = song->metadata().renderSettings();
     const auto sampleRate = renderSettings.sampleRate();
-    const auto bitDepth = static_cast<BitDepth>(renderSettings.bitDepth());
-    const auto format = static_cast<AudioFormat>(renderSettings.format());
-    const auto normalize = renderSettings.normalizeEnabled();
-    const auto normalizeTargetDb = static_cast<double>(renderSettings.normalizeLevelTenthsDb()) / 10.0;
-    const auto trim = renderSettings.trimEnabled();
-    const auto trimMinutes = renderSettings.trimMinutes();
-    const auto trimSeconds = renderSettings.trimSeconds();
-    const auto analyze = renderSettings.analyzeEnabled();
-    const auto oversampleFactor = static_cast<quint8>(renderSettings.oversampleFactor());
+    const auto options = [&renderSettings]() {
+        RenderOptions options;
+        options.bitDepth = static_cast<BitDepth>(renderSettings.bitDepth());
+        options.format = static_cast<AudioFormat>(renderSettings.format());
+        options.normalize = renderSettings.normalizeEnabled();
+        options.normalizeTargetDb = static_cast<double>(renderSettings.normalizeLevelTenthsDb()) / 10.0;
+        options.trim = renderSettings.trimEnabled();
+        options.trimMinutes = renderSettings.trimMinutes();
+        options.trimSeconds = renderSettings.trimSeconds();
+        options.fadeOut = renderSettings.fadeOutEnabled();
+        options.fadeOutSeconds = renderSettings.fadeOutSeconds();
+        options.fadeOutTenths = renderSettings.fadeOutTenths();
+        options.silence = renderSettings.silenceEnabled();
+        options.silenceSeconds = renderSettings.silenceSeconds();
+        options.silenceTenths = renderSettings.silenceTenths();
+        options.analyze = renderSettings.analyzeEnabled();
+        options.oversampleFactor = static_cast<quint8>(renderSettings.oversampleFactor());
+        return options;
+    }();
 
     const std::map<AudioFileReader::TagType, std::string> tags = [&song]() {
         std::map<AudioFileReader::TagType, std::string> t;
@@ -284,10 +294,10 @@ void RenderService::startNextRender()
         return t;
     }();
 
-    juzzlin::L(TAG).info() << "Invoking RenderWorker::render... events=" << events.size() << " maxTick=" << maxTick << " sampleRate=" << sampleRate << " bitDepth=" << static_cast<int>(bitDepth);
+    juzzlin::L(TAG).info() << "Invoking RenderWorker::render... events=" << events.size() << " maxTick=" << maxTick << " sampleRate=" << sampleRate << " bitDepth=" << static_cast<int>(options.bitDepth);
 
     const auto renderWorker = m_worker.get();
-    bool success = QMetaObject::invokeMethod(renderWorker, [renderWorker, fileName = job.fileName, events, timing, maxTick, sampleRate, bitDepth, normalize, normalizeTargetDb, trim, trimMinutes, trimSeconds, analyze, oversampleFactor, format, tags]() { renderWorker->render(fileName, events, timing, maxTick, sampleRate, bitDepth, normalize, normalizeTargetDb, trim, trimMinutes, trimSeconds, analyze, oversampleFactor, format, tags); }, Qt::QueuedConnection);
+    bool success = QMetaObject::invokeMethod(renderWorker, [renderWorker, fileName = job.fileName, events, timing, maxTick, sampleRate, options, tags]() { renderWorker->render(fileName, events, timing, maxTick, sampleRate, options, tags); }, Qt::QueuedConnection);
     if (!success) {
         juzzlin::L(TAG).error() << "Failed to invoke RenderWorker::render!";
         onWorkerFinished(false, "Internal error: Failed to start render worker.");

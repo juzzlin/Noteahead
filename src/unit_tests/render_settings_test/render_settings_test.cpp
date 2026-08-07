@@ -42,6 +42,12 @@ void populate(RenderSettings & settings)
     settings.setTrimEnabled(true);
     settings.setTrimMinutes(3);
     settings.setTrimSeconds(30);
+    settings.setFadeOutEnabled(true);
+    settings.setFadeOutSeconds(5);
+    settings.setFadeOutTenths(5);
+    settings.setSilenceEnabled(true);
+    settings.setSilenceSeconds(2);
+    settings.setSilenceTenths(3);
     settings.setAnalyzeEnabled(false);
 }
 
@@ -56,6 +62,12 @@ void verify(const RenderSettings & settings)
     QCOMPARE(settings.trimEnabled(), true);
     QCOMPARE(settings.trimMinutes(), 3);
     QCOMPARE(settings.trimSeconds(), 30);
+    QCOMPARE(settings.fadeOutEnabled(), true);
+    QCOMPARE(settings.fadeOutSeconds(), 5);
+    QCOMPARE(settings.fadeOutTenths(), 5);
+    QCOMPARE(settings.silenceEnabled(), true);
+    QCOMPARE(settings.silenceSeconds(), 2);
+    QCOMPARE(settings.silenceTenths(), 3);
     QCOMPARE(settings.analyzeEnabled(), false);
 }
 
@@ -97,6 +109,8 @@ void RenderSettingsTest::test_defaults_shouldBeTheOnesANewSongStartsFrom()
     QCOMPARE(settings.analyzeEnabled(), true);
     QCOMPARE(settings.normalizeEnabled(), false);
     QCOMPARE(settings.trimEnabled(), false);
+    QCOMPARE(settings.fadeOutEnabled(), false);
+    QCOMPARE(settings.silenceEnabled(), false);
 }
 
 void RenderSettingsTest::test_serialization_shouldRoundTripThroughMetadata()

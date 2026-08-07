@@ -65,6 +65,29 @@ public:
     int trimSeconds() const;
     void setTrimSeconds(int seconds);
 
+    //! The fade out ends where the tail silence begins, i.e. on the trimmed end minus the silence
+    //! when trimming, and on the song end otherwise. Its length is split into whole seconds and
+    //! tenths of a second the same way trimming splits into minutes and seconds.
+    bool fadeOutEnabled() const;
+    void setFadeOutEnabled(bool enabled);
+
+    int fadeOutSeconds() const;
+    void setFadeOutSeconds(int seconds);
+
+    int fadeOutTenths() const;
+    void setFadeOutTenths(int tenths);
+
+    //! Silence ending the rendered file. It is carved out of the trimmed length when trimming, so
+    //! that the trim stays the exact length of the file, and appended after the song end otherwise.
+    bool silenceEnabled() const;
+    void setSilenceEnabled(bool enabled);
+
+    int silenceSeconds() const;
+    void setSilenceSeconds(int seconds);
+
+    int silenceTenths() const;
+    void setSilenceTenths(int tenths);
+
     bool analyzeEnabled() const;
     void setAnalyzeEnabled(bool enabled);
 
@@ -82,6 +105,12 @@ private:
     bool m_trimEnabled = false;
     int m_trimMinutes = 0;
     int m_trimSeconds = 0;
+    bool m_fadeOutEnabled = false;
+    int m_fadeOutSeconds = 0;
+    int m_fadeOutTenths = 0;
+    bool m_silenceEnabled = false;
+    int m_silenceSeconds = 0;
+    int m_silenceTenths = 0;
     bool m_analyzeEnabled = true;
 };
 

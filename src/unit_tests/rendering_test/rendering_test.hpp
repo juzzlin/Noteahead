@@ -23,6 +23,9 @@ private slots:
     void test_render_midiSideChain_shouldProcessEventWhenSourceTrackIsMuted();
     void test_render_pitchBend_shouldProcessEvent();
     void test_render_shouldTrimAudio();
+    void test_render_silence_shouldFitInsideTrim();
+    void test_render_silence_withoutTrim_shouldExtendFile();
+    void test_render_fadeOut_shouldRampDownToZero();
     void test_render_shouldNormalizeAudio();
 };
 

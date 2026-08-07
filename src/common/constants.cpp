@@ -782,6 +782,36 @@ QString xmlKeyTrimSeconds()
     return "trimSeconds";
 }
 
+QString xmlKeyFadeOutEnabled()
+{
+    return "fadeOutEnabled";
+}
+
+QString xmlKeyFadeOutSeconds()
+{
+    return "fadeOutSeconds";
+}
+
+QString xmlKeyFadeOutTenths()
+{
+    return "fadeOutTenths";
+}
+
+QString xmlKeySilenceEnabled()
+{
+    return "silenceEnabled";
+}
+
+QString xmlKeySilenceSeconds()
+{
+    return "silenceSeconds";
+}
+
+QString xmlKeySilenceTenths()
+{
+    return "silenceTenths";
+}
+
 QString xmlKeyAnalyzeEnabled()
 {
     return "analyzeEnabled";

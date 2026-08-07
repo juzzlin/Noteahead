@@ -150,6 +150,66 @@ void RenderSettingsModel::setTrimSeconds(int seconds)
     apply([&](RenderSettings & settings) { settings.setTrimSeconds(seconds); });
 }
 
+bool RenderSettingsModel::fadeOutEnabled() const
+{
+    return read(m_editorService, [](const RenderSettings & s) { return s.fadeOutEnabled(); });
+}
+
+void RenderSettingsModel::setFadeOutEnabled(bool enabled)
+{
+    apply([&](RenderSettings & settings) { settings.setFadeOutEnabled(enabled); });
+}
+
+int RenderSettingsModel::fadeOutSeconds() const
+{
+    return read(m_editorService, [](const RenderSettings & s) { return s.fadeOutSeconds(); });
+}
+
+void RenderSettingsModel::setFadeOutSeconds(int seconds)
+{
+    apply([&](RenderSettings & settings) { settings.setFadeOutSeconds(seconds); });
+}
+
+int RenderSettingsModel::fadeOutTenths() const
+{
+    return read(m_editorService, [](const RenderSettings & s) { return s.fadeOutTenths(); });
+}
+
+void RenderSettingsModel::setFadeOutTenths(int tenths)
+{
+    apply([&](RenderSettings & settings) { settings.setFadeOutTenths(tenths); });
+}
+
+bool RenderSettingsModel::silenceEnabled() const
+{
+    return read(m_editorService, [](const RenderSettings & s) { return s.silenceEnabled(); });
+}
+
+void RenderSettingsModel::setSilenceEnabled(bool enabled)
+{
+    apply([&](RenderSettings & settings) { settings.setSilenceEnabled(enabled); });
+}
+
+int RenderSettingsModel::silenceSeconds() const
+{
+    return read(m_editorService, [](const RenderSettings & s) { return s.silenceSeconds(); });
+}
+
+void RenderSettingsModel::setSilenceSeconds(int seconds)
+{
+    apply([&](RenderSettings & settings) { settings.setSilenceSeconds(seconds); });
+}
+
+int RenderSettingsModel::silenceTenths() const
+{
+    return read(m_editorService, [](const RenderSettings & s) { return s.silenceTenths(); });
+}
+
+void RenderSettingsModel::setSilenceTenths(int tenths)
+{
+    apply([&](RenderSettings & settings) { settings.setSilenceTenths(tenths); });
+}
+
 bool RenderSettingsModel::analyzeEnabled() const
 {
     return read(m_editorService, [](const RenderSettings & s) { return s.analyzeEnabled(); });

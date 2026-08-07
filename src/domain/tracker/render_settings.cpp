@@ -114,6 +114,66 @@ void RenderSettings::setTrimSeconds(int seconds)
     m_trimSeconds = seconds;
 }
 
+bool RenderSettings::fadeOutEnabled() const
+{
+    return m_fadeOutEnabled;
+}
+
+void RenderSettings::setFadeOutEnabled(bool enabled)
+{
+    m_fadeOutEnabled = enabled;
+}
+
+int RenderSettings::fadeOutSeconds() const
+{
+    return m_fadeOutSeconds;
+}
+
+void RenderSettings::setFadeOutSeconds(int seconds)
+{
+    m_fadeOutSeconds = seconds;
+}
+
+int RenderSettings::fadeOutTenths() const
+{
+    return m_fadeOutTenths;
+}
+
+void RenderSettings::setFadeOutTenths(int tenths)
+{
+    m_fadeOutTenths = tenths;
+}
+
+bool RenderSettings::silenceEnabled() const
+{
+    return m_silenceEnabled;
+}
+
+void RenderSettings::setSilenceEnabled(bool enabled)
+{
+    m_silenceEnabled = enabled;
+}
+
+int RenderSettings::silenceSeconds() const
+{
+    return m_silenceSeconds;
+}
+
+void RenderSettings::setSilenceSeconds(int seconds)
+{
+    m_silenceSeconds = seconds;
+}
+
+int RenderSettings::silenceTenths() const
+{
+    return m_silenceTenths;
+}
+
+void RenderSettings::setSilenceTenths(int tenths)
+{
+    m_silenceTenths = tenths;
+}
+
 bool RenderSettings::analyzeEnabled() const
 {
     return m_analyzeEnabled;
@@ -137,6 +197,12 @@ void RenderSettings::serializeToXml(ProjectWriter & writer) const
     writer.writeAttribute(Constants::NahdXml::xmlKeyTrimEnabled(), m_trimEnabled ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
     writer.writeAttribute(Constants::NahdXml::xmlKeyTrimMinutes(), QString::number(m_trimMinutes));
     writer.writeAttribute(Constants::NahdXml::xmlKeyTrimSeconds(), QString::number(m_trimSeconds));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyFadeOutEnabled(), m_fadeOutEnabled ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyFadeOutSeconds(), QString::number(m_fadeOutSeconds));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyFadeOutTenths(), QString::number(m_fadeOutTenths));
+    writer.writeAttribute(Constants::NahdXml::xmlKeySilenceEnabled(), m_silenceEnabled ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
+    writer.writeAttribute(Constants::NahdXml::xmlKeySilenceSeconds(), QString::number(m_silenceSeconds));
+    writer.writeAttribute(Constants::NahdXml::xmlKeySilenceTenths(), QString::number(m_silenceTenths));
     writer.writeAttribute(Constants::NahdXml::xmlKeyAnalyzeEnabled(), m_analyzeEnabled ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
 
     writer.writeEndElement(); // RenderSettings
@@ -162,6 +228,12 @@ void RenderSettings::deserializeFromXml(ProjectReader & reader)
     m_trimEnabled = boolean(Constants::NahdXml::xmlKeyTrimEnabled(), m_trimEnabled);
     m_trimMinutes = integer(Constants::NahdXml::xmlKeyTrimMinutes(), m_trimMinutes);
     m_trimSeconds = integer(Constants::NahdXml::xmlKeyTrimSeconds(), m_trimSeconds);
+    m_fadeOutEnabled = boolean(Constants::NahdXml::xmlKeyFadeOutEnabled(), m_fadeOutEnabled);
+    m_fadeOutSeconds = integer(Constants::NahdXml::xmlKeyFadeOutSeconds(), m_fadeOutSeconds);
+    m_fadeOutTenths = integer(Constants::NahdXml::xmlKeyFadeOutTenths(), m_fadeOutTenths);
+    m_silenceEnabled = boolean(Constants::NahdXml::xmlKeySilenceEnabled(), m_silenceEnabled);
+    m_silenceSeconds = integer(Constants::NahdXml::xmlKeySilenceSeconds(), m_silenceSeconds);
+    m_silenceTenths = integer(Constants::NahdXml::xmlKeySilenceTenths(), m_silenceTenths);
     m_analyzeEnabled = boolean(Constants::NahdXml::xmlKeyAnalyzeEnabled(), m_analyzeEnabled);
 }
 
