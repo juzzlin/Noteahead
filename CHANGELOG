@@ -66,6 +66,10 @@ New features:
 
 Bug fixes:
 
+* Open the Limiter and RTA editors from a device insert slot
+  - Neither had a click handler in the insert rack, so clicking one fell
+    through to the effects gallery instead of its own dialog
+
 * Remove a DC offset from the Synth's output
   - Hard sync combined with Cross Mod left an offset that nothing downstream
     removed, as the HPF is bypassed at cutoff zero

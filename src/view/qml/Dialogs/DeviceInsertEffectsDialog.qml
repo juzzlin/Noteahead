@@ -155,6 +155,9 @@ AnimatedDialog {
                         } else if (effectType === effectRackController.driveType) {
                             driveDialog.effectIndex = index;
                             driveDialog.open();
+                        } else if (effectType === effectRackController.limiterType) {
+                            limiterDialog.effectIndex = index;
+                            limiterDialog.open();
                         } else if (effectType === effectRackController.compressorType) {
                             compressorDialog.effectIndex = index;
                             compressorDialog.open();
@@ -191,6 +194,9 @@ AnimatedDialog {
                         } else if (effectType === effectRackController.endlessType) {
                             endlessReverbDialog.effectIndex = index;
                             endlessReverbDialog.open();
+                        } else if (effectType === effectRackController.rtaType) {
+                            rtaDialog.effectIndex = index;
+                            rtaDialog.open();
                         } else if (effectType === "") {
                             UiService.requestEffectsGalleryDialog(index);
                         } else {
