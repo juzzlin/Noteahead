@@ -25,6 +25,10 @@
 
 namespace noteahead {
 
+//! Averaging time of the RMS detector. Short enough to still catch syllables, long enough to
+//! ignore individual peaks the way an RMS-sensing compressor is expected to.
+static constexpr double rmsWindowMs = 10.0;
+
 Compressor::Compressor()
 {
     addParameter(Parameter { Constants::NahdXml::xmlKeyThreshold().toStdString(), 0.66f, -6000, 0, -2000, 100 });
@@ -36,6 +40,7 @@ Compressor::Compressor()
     addParameter(Parameter { Constants::NahdXml::xmlKeyLookahead().toStdString(), 0.0f, 0, 10, 0, 1, Parameter::Type::Continuous, { "Lookahead" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeySideChainSourceDevice().toStdString(), -1.0f, -1, static_cast<int>(Constants::deviceRackSize()) - 1, -1, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeySideChainLpf().toStdString(), 1.0f, 0, 1000, 1000, 1 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyMode().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
 
     m_sideChainLpfL.setMode(CascadedSvf::Mode::LowPass);
     m_sideChainLpfR.setMode(CascadedSvf::Mode::LowPass);
@@ -129,11 +134,22 @@ void Compressor::updateCoefficients()
     if (m_sampleRate > 0) {
         m_attackCoeff = std::exp(-1.0 / (static_cast<double>(m_attackMs) * m_sampleRate / 1000.0));
         m_releaseCoeff = std::exp(-1.0 / (static_cast<double>(m_releaseMs) * m_sampleRate / 1000.0));
+        m_rmsCoeff = std::exp(-1.0 / (rmsWindowMs * m_sampleRate / 1000.0));
     }
 }
 
-double Compressor::calculateDetectorLevelDb(double left, double right) const
+double Compressor::calculateDetectorLevelDb(double left, double right)
 {
+    if (m_detectorMode == DetectorMode::Rms) {
+        const double meanSquare = (left * left + right * right) * 0.5;
+        m_rmsSquare = m_rmsCoeff * m_rmsSquare + (1.0 - m_rmsCoeff) * meanSquare;
+        // Denormal protection
+        if (m_rmsSquare < 1.0e-30) {
+            m_rmsSquare = 0.0;
+        }
+        return Utils::Dsp::linearToDb(static_cast<float>(std::sqrt(m_rmsSquare)));
+    }
+
     const double detector = std::max(std::abs(left), std::abs(right));
     return Utils::Dsp::linearToDb(static_cast<float>(detector)); // Assuming linearToDb can handle float
 }
@@ -203,6 +219,7 @@ void Compressor::reset()
 {
     m_envelopeDb = 0.0;
     m_reductionDb = 0.0;
+    m_rmsSquare = 0.0;
     std::fill(m_delayBufferL.begin(), m_delayBufferL.end(), 0.0);
     std::fill(m_delayBufferR.begin(), m_delayBufferR.end(), 0.0);
     m_writePos = 0;
@@ -256,6 +273,13 @@ void Compressor::syncParameters()
         m_sideChainLpfR.setSampleRate(m_sampleRate > 0 ? m_sampleRate : 48000.0);
         m_sideChainLpfL.setCutoff(m_sideChainLpfCutoff);
         m_sideChainLpfR.setCutoff(m_sideChainLpfCutoff);
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyMode().toStdString()); p) {
+        const auto mode = p->get().value() > 0.5f ? DetectorMode::Rms : DetectorMode::Peak;
+        if (mode != m_detectorMode) {
+            m_rmsSquare = 0.0;
+        }
+        m_detectorMode = mode;
     }
 }
 

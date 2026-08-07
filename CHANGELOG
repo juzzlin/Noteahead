@@ -5,6 +5,10 @@ Release date:
 
 New features:
 
+* Add the RMS detector mode to the Compressor
+  - Peak stays the default; RMS averages over 10 ms and rides the body
+    of the signal instead of every transient
+
 * Add the 32' footage to the Synth's oscillators
   - All three VCOs now reach two octaves below 8', for sub weight the
     16' setting could not get down to

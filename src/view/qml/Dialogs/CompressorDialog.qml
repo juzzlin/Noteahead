@@ -173,6 +173,28 @@ AnimatedDialog {
                 }
 
                 RowLayout {
+                    Layout.row: 2
+                    Layout.column: 1
+                    Layout.columnSpan: 2
+                    Layout.fillWidth: true
+                    spacing: 10
+                    Label {
+                        text: qsTr("Detector:")
+                        font.bold: true
+                    }
+                    ComboBox {
+                        id: detectorModeCombo
+                        Layout.fillWidth: true
+                        model: [qsTr("Peak"), qsTr("RMS")]
+                        currentIndex: {
+                            effectRackController.revision;
+                            return effectRackController.parameterValue(root.effectIndex, effectRackController.compressorModeKey());
+                        }
+                        onActivated: index => effectRackController.setParameterValue(root.effectIndex, effectRackController.compressorModeKey(), index)
+                    }
+                }
+
+                RowLayout {
                     Layout.row: 3
                     Layout.column: 0
                     Layout.columnSpan: 3

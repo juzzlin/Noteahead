@@ -27,6 +27,12 @@ namespace noteahead {
 class Compressor : public Effect
 {
 public:
+    enum class DetectorMode
+    {
+        Peak,
+        Rms
+    };
+
     Compressor();
 
     static std::string typeIdString();
@@ -45,7 +51,7 @@ public:
 private:
     void updateBuffers();
     void updateCoefficients();
-    double calculateDetectorLevelDb(double left, double right) const;
+    double calculateDetectorLevelDb(double left, double right);
     double calculateGainReductionDb(double detectorDb) const;
     void updateEnvelope(double gainReductionDb);
     void applyGain(double & left, double & right);
@@ -59,6 +65,7 @@ private:
     float m_makeup { 0.0f };
     float m_lookaheadMs { 0.0f };
     float m_sideChainLpfCutoff { 1.0f };
+    DetectorMode m_detectorMode { DetectorMode::Peak };
     std::optional<size_t> m_sidechainSourceDevice;
 
     CascadedSvf m_sideChainLpfL;
@@ -66,6 +73,9 @@ private:
 
     double m_attackCoeff { 0.0 };
     double m_releaseCoeff { 0.0 };
+    double m_rmsCoeff { 0.0 };
+
+    double m_rmsSquare { 0.0 };
 
     double m_envelopeDb { 0.0 };
     double m_reductionDb { 0.0 };

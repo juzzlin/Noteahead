@@ -165,6 +165,7 @@ public:
     Q_INVOKABLE QString chorusWidthKey() const;
     Q_INVOKABLE QString chorusLpfKey() const;
     Q_INVOKABLE QString chorusHpfKey() const;
+    Q_INVOKABLE QString compressorModeKey() const;
     Q_INVOKABLE QString compressorThresholdKey() const;
     Q_INVOKABLE QString compressorRatioKey() const;
     Q_INVOKABLE QString compressorAttackKey() const;

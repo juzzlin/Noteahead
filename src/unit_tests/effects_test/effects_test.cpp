@@ -916,6 +916,53 @@ void EffectsTest::test_compressorEffect_shouldReduceGainAndHandleLookahead()
     }
 }
 
+void EffectsTest::test_compressorEffect_detectorMode_shouldDefaultToPeak()
+{
+    Compressor effect;
+    effect.setSampleRate(44100.0);
+
+    const auto mode = effect.parameter(Constants::NahdXml::xmlKeyMode().toStdString());
+    QVERIFY(mode.has_value());
+    QCOMPARE(mode->get().value(), 0.0f);
+
+    // A single full-scale sample is already above the -20dB threshold, so the peak detector must react to it.
+    double left = 1.0;
+    double right = 1.0;
+    effect.process(left, right);
+    QVERIFY(effect.reductionDb() < 0.0f);
+}
+
+void EffectsTest::test_compressorEffect_rmsMode_shouldIgnoreShortTransients()
+{
+    const auto setDetectorMode = [](Compressor & effect, Compressor::DetectorMode mode) {
+        if (auto p = effect.parameter(Constants::NahdXml::xmlKeyMode().toStdString()); p) {
+            p->get().setValue(mode == Compressor::DetectorMode::Rms ? 1.0f : 0.0f);
+            effect.sync();
+        }
+    };
+
+    const auto burstReductionDb = [&setDetectorMode](Compressor::DetectorMode mode, int sampleCount) {
+        Compressor effect;
+        effect.setSampleRate(44100.0);
+        setDetectorMode(effect, mode);
+        for (int i = 0; i < sampleCount; i++) {
+            double left = 1.0;
+            double right = 1.0;
+            effect.process(left, right);
+        }
+        return effect.reductionDb();
+    };
+
+    // A ~0.5ms burst is far shorter than the RMS window, so the RMS detector must stay closer to unity gain.
+    const int burstSamples = 20;
+    QVERIFY(burstReductionDb(Compressor::DetectorMode::Rms, burstSamples) > burstReductionDb(Compressor::DetectorMode::Peak, burstSamples));
+
+    // On a steady full-scale signal both detectors settle to the same reduction: 20dB over the
+    // threshold at 4:1 means 15dB down.
+    QVERIFY(burstReductionDb(Compressor::DetectorMode::Rms, 20000) < -14.0f);
+    QVERIFY(burstReductionDb(Compressor::DetectorMode::Rms, 20000) > -16.0f);
+}
+
 void EffectsTest::test_limiterEffect_shouldLimitPeaksToCeiling()
 {
     Limiter effect;

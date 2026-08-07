@@ -704,6 +704,11 @@ QString EffectRackController::chorusHpfKey() const
     return Constants::NahdXml::xmlKeyHpfCutoff();
 }
 
+QString EffectRackController::compressorModeKey() const
+{
+    return Constants::NahdXml::xmlKeyMode();
+}
+
 QString EffectRackController::compressorThresholdKey() const
 {
     return Constants::NahdXml::xmlKeyThreshold();
