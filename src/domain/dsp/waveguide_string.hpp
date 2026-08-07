@@ -51,6 +51,10 @@ public:
 private:
     static constexpr double SilenceThreshold = 1e-9;
     static constexpr int ApStages = 4;
+    // Smallest loss the loop filter may impose, so that it never becomes a pass-through.
+    static constexpr double MinLoopFilterCoeff = 0.005;
+    // How far apart in time two strings struck together may have their hammers land.
+    static constexpr double StrikeSpreadSeconds = 0.0025;
 
     static double midiNoteToFreq(uint8_t note);
     void buildExcitation(size_t width, float velocity);

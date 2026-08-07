@@ -46,6 +46,15 @@ double peakLevel(const std::vector<double> & buffer)
     return peak;
 }
 
+double rmsLevel(const std::vector<double> & buffer)
+{
+    double sum = 0.0;
+    for (const double s : buffer) {
+        sum += s * s;
+    }
+    return std::sqrt(sum / static_cast<double>(buffer.size()));
+}
+
 void renderFrames(PianoSynthDevice & piano, uint32_t frames, uint32_t sampleRate = 44100)
 {
     std::vector<double> buffer(static_cast<size_t>(frames) * 2, 0.0);
@@ -178,23 +187,18 @@ void PianoSynthTest::test_polyphony_shouldSupportMultipleSimultaneousNotes()
     piano.processMidiNoteOn(64, 100);
     piano.processMidiNoteOn(67, 100);
 
-    const uint32_t frameCount = 256;
-    std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
-    auto ctx = makeContext(buffer, frameCount);
-    piano.processAudio(ctx);
-
-    // Three simultaneous notes should produce higher output than one
-    const double peakThree = peakLevel(buffer);
+    // Compare energy rather than peak level: the hammer strikes of a chord are spread
+    // over a couple of milliseconds on purpose, so three notes carry three times the
+    // sound without stacking into a taller transient.
+    const uint32_t frameCount = 8192;
+    const double rmsThree = rmsLevel(renderTone(piano, 44100, 0, frameCount));
 
     PianoSynthDevice pianoOne { "Test Piano One" };
     pianoOne.processMidiNoteOn(60, 100);
-    std::vector<double> bufferOne(static_cast<size_t>(frameCount) * 2, 0.0);
-    auto ctxOne = makeContext(bufferOne, frameCount);
-    pianoOne.processAudio(ctxOne);
-    const double peakOne = peakLevel(bufferOne);
+    const double rmsOne = rmsLevel(renderTone(pianoOne, 44100, 0, frameCount));
 
-    QVERIFY2(peakThree > peakOne,
-             QString("Three-note peak (%1) not greater than one-note peak (%2)").arg(peakThree).arg(peakOne).toUtf8().constData());
+    QVERIFY2(rmsThree > rmsOne,
+             QString { "Three-note level (%1) not greater than one-note level (%2)" }.arg(rmsThree).arg(rmsOne).toUtf8().constData());
 }
 
 void PianoSynthTest::test_sustainPedal_shouldKeepNoteActiveAfterNoteOff()
@@ -324,6 +328,62 @@ void PianoSynthTest::test_tuning_shouldNotDependOnVelocity()
 
     QVERIFY2(std::abs(difference) < 1.0,
              QString { "Velocity shifted the pitch by %1 cents" }.arg(difference).toUtf8().constData());
+}
+
+void PianoSynthTest::test_chord_shouldNotStackHammerStrikes()
+{
+    constexpr uint32_t sampleRate = 44100;
+    constexpr uint32_t attackFrames = 512; // ~12 ms, the whole strike
+    const std::vector<int> chord = { 56, 60, 63 };
+
+    // The hammer pulse is one-sided, so when every voice loaded it at the same point in
+    // its delay line the notes of a chord added up into a spike far above any of them.
+    double loudestAlone = 0.0;
+    for (const int note : chord) {
+        PianoSynthDevice single { "Test Piano" };
+        single.processMidiNoteOn(static_cast<uint8_t>(note), 127);
+        loudestAlone = std::max(loudestAlone, peakLevel(renderTone(single, sampleRate, 0, attackFrames)));
+    }
+
+    PianoSynthDevice piano { "Test Piano" };
+    for (const int note : chord) {
+        piano.processMidiNoteOn(static_cast<uint8_t>(note), 127);
+    }
+    const double together = peakLevel(renderTone(piano, sampleRate, 0, attackFrames));
+
+    // Struck together they used to reach nearly the sum of all three
+    QVERIFY2(together < loudestAlone * 1.6,
+             QString { "Chord attack %1 against %2 for the loudest note alone" }
+               .arg(together)
+               .arg(loudestAlone)
+               .toUtf8()
+               .constData());
+}
+
+void PianoSynthTest::test_brightness_shouldStayEffective_whenStruckHard()
+{
+    constexpr uint32_t sampleRate = 44100;
+
+    // Velocity and register used to be added on top of Brightness and the sum clamped, so
+    // above the clamp the control did nothing whatsoever: these two settings rendered
+    // sample for sample identically on a hard-struck note.
+    const auto render = [](float brightness) {
+        PianoSynthDevice piano { "Test Piano" };
+        piano.setBrightness(brightness);
+        piano.processMidiNoteOn(72, 127);
+        return renderTone(piano, sampleRate, 0, 8192);
+    };
+
+    const auto dark = render(0.5f);
+    const auto bright = render(0.9f);
+
+    double difference = 0.0;
+    for (size_t i = 0; i < dark.size(); i++) {
+        difference = std::max(difference, std::abs(dark[i] - bright[i]));
+    }
+
+    QVERIFY2(difference > 1e-4,
+             QString { "Brightness 0.5 and 0.9 differ by only %1 at velocity 127" }.arg(difference).toUtf8().constData());
 }
 
 } // namespace noteahead

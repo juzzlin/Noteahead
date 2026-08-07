@@ -35,6 +35,8 @@ private slots:
     void test_velocity_shouldAffectOutputLevel();
     void test_tuning_shouldMatchNoteFrequency_acrossKeyboard();
     void test_tuning_shouldNotDependOnVelocity();
+    void test_chord_shouldNotStackHammerStrikes();
+    void test_brightness_shouldStayEffective_whenStruckHard();
 };
 
 } // namespace noteahead

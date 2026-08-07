@@ -103,8 +103,10 @@ void WaveguideString::trigger(uint8_t note, float velocity, float brightness, fl
     const double freq = m_frequency;
 
     // Compute the filter parameters first so the delay length can be corrected for
-    // the delay they add to the loop.
-    m_loopFilterCoeff = static_cast<double>(1.0f - brightness) * 0.5;
+    // the delay they add to the loop. A real string always loses more of its high
+    // partials than its low ones on every pass, so the loop filter is never allowed to
+    // disappear altogether however bright the tone is asked to be.
+    m_loopFilterCoeff = std::max(MinLoopFilterCoeff, static_cast<double>(1.0f - brightness) * 0.5);
     m_loopFilterPrev = 0.0;
 
     m_dispersionCoeff = static_cast<double>(inharmonicity) * 0.15;
@@ -134,7 +136,10 @@ void WaveguideString::trigger(uint8_t note, float velocity, float brightness, fl
     // Decays in ~N/6 samples to model brief hammer-felt impact noise before the tone settles.
     // The noise is low-pass filtered to ~16× the fundamental so that high-brightness settings
     // don't leave wideband noise circulating in the delay line indefinitely.
-    std::minstd_rand rng { static_cast<uint32_t>(note) + 17u };
+    // The note is mixed into the seed because this generator's first output is nothing but
+    // the seed times its multiplier: seeding straight from the note number left every pitch
+    // starting its burst on the same near-full-scale negative sample.
+    std::minstd_rand rng { static_cast<uint32_t>(note) * 2654435761u + 17u };
     std::uniform_real_distribution<double> noiseDist { -1.0, 1.0 };
     const double noiseGain = static_cast<double>(velocity) * 0.08;
     const double noiseDecay = 6.0 / static_cast<double>(N);
@@ -142,9 +147,24 @@ void WaveguideString::trigger(uint8_t note, float velocity, float brightness, fl
     const double noiseAlpha = std::exp(-2.0 * std::numbers::pi * noiseCutoff / m_sampleRate);
     double noiseLpState = 0.0;
 
+    // Real hammers never strike in sample-lock, but every voice used to load its pulse at
+    // the same point in its delay line, so the notes of a chord all fired on the same
+    // sample. The pulse is one-sided, so those peaks added up instead of partly
+    // cancelling, and a hard-struck chord led with a spike some 22 dB above its own body.
+    // Holding the strike back by a fraction of a period leaves a single note exactly as it
+    // was and lets a chord's pulses fall apart. Stepping by the golden ratio puts
+    // neighbouring notes — the ones most likely to be struck together — at opposite ends of
+    // the spread, which drawing at random would leave to chance.
+    const size_t maxStrikeOffset = std::min(N - 1, static_cast<size_t>(m_sampleRate * StrikeSpreadSeconds));
+    const double strikePhase = std::fmod(static_cast<double>(note) * std::numbers::phi, 1.0);
+    const size_t strikeOffset = static_cast<size_t>(strikePhase * static_cast<double>(maxStrikeOffset));
+
     // Pre-load excitation into the delay buffer so output starts immediately.
     m_delay.reset();
-    for (size_t i = 0; i < N; i++) {
+    for (size_t i = 0; i < strikeOffset; i++) {
+        m_delay.write(0.0);
+    }
+    for (size_t i = 0; i < N - strikeOffset; i++) {
         double excite = 0.0;
         if (i < width) {
             const double t = static_cast<double>(i) / static_cast<double>(width);

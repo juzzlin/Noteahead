@@ -312,7 +312,12 @@ void PianoSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
     const float velBright = vel * m_hammerHardness;
     // Higher notes are naturally brighter; shift brightness by ±0.24 across the keyboard.
     const float noteBrightOffset = (static_cast<float>(note) - 60.0f) / 127.0f * 0.6f;
-    const float effectiveBright = std::clamp(m_brightness + velBright + noteBrightOffset, 0.0f, 1.0f);
+    // How hard the key is struck and how high it sits take up the headroom left above the
+    // Brightness setting rather than being added on top of it. Added, the sum saturated at
+    // 1.0 for every note from C-5 up at full velocity, which held the loop filter wide open
+    // and left both Brightness and Hardness with nothing left to do over half the keyboard.
+    const float strikeBright = std::clamp(velBright + noteBrightOffset, 0.0f, 1.0f);
+    const float effectiveBright = m_brightness + (1.0f - m_brightness) * strikeBright;
     // Unison detuning (0–15 cents), split symmetrically so that the pair stays centred
     // on the nominal pitch instead of drifting sharp as the spread is opened up.
     const double detuneCents = static_cast<double>(m_stringDetune) * 15.0 * 0.5;
