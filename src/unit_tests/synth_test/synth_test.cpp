@@ -1271,6 +1271,59 @@ void SynthTest::test_crossModDepth_serialization_shouldPreserveState()
     }
 }
 
+void SynthTest::test_dcOffset_syncWithCrossMod_shouldStayNearZero()
+{
+    // Hard sync truncates VCO2's ramp, and cross mod walks the truncation point, so the mean of the
+    // resulting wave is non-zero. Neither alone does it; the two together do. The HPF is bypassed at
+    // cutoff zero, so only the DC blocker can take it out.
+    SynthDevice synth { "Test Synth" };
+    synth.setVco2Sync(true);
+    synth.setCrossModDepth(1.0f);
+    synth.setMixVco1(1.0f);
+    synth.setMixVco2(1.0f);
+    synth.setMixVco3(0.0f);
+    synth.setMultiLevel(0.0f);
+    synth.setVco2Pitch(0.35f);
+    synth.setAmpAttack(0.0f);
+    synth.setAmpSustain(1.0f);
+    synth.setLpfCutoff(1.0f);
+    synth.setHpfCutoff(0.0f);
+    synth.setDelayMix(0.0f);
+    synth.setVolume(1.0f);
+    synth.processMidiNoteOn(60, 100);
+
+    const uint32_t sampleRate = 44100;
+    const uint32_t frameCount = 512;
+    std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+
+    double sum = 0.0;
+    double sumOfSquares = 0.0;
+    size_t count = 0;
+    // A second of audio, less the first 100 ms: the note onset is a genuinely one-sided transient,
+    // and the blocker's ~5 Hz corner takes some 30 ms to settle after it.
+    const int skippedBlocks = static_cast<int>(0.1 * sampleRate / frameCount);
+    for (int block = 0; block < static_cast<int>(sampleRate / frameCount); block++) {
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), frameCount, sampleRate };
+        synth.processAudio(context);
+        if (block < skippedBlocks) {
+            continue;
+        }
+        for (uint32_t i = 0; i < frameCount; i++) {
+            sum += buffer[i * 2];
+            sumOfSquares += buffer[i * 2] * buffer[i * 2];
+            count++;
+        }
+    }
+
+    QVERIFY(count > 0);
+    const double rms = std::sqrt(sumOfSquares / static_cast<double>(count));
+    QVERIFY(rms > 0.001); // The patch must actually be sounding for the offset to mean anything
+    const double dc = sum / static_cast<double>(count);
+    // Without the blocker this measures about -41 % of RMS at this depth; with it, well under 1 %.
+    QVERIFY(std::abs(dc) < rms * 0.005);
+}
+
 void SynthTest::test_midiCcResonance_shouldUpdateParameter()
 {
     SynthDevice synth { "Test Synth" };

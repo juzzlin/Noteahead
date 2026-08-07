@@ -66,6 +66,10 @@ New features:
 
 Bug fixes:
 
+* Remove a DC offset from the Synth's output
+  - Hard sync combined with Cross Mod left an offset that nothing downstream
+    removed, as the HPF is bypassed at cutoff zero
+
 * Let the Piano's top octaves speak and ring
   - The hammer pulse was sized as a fraction of the string loop and rounded
     down, which above the sixth octave left no strike at all: the top notes

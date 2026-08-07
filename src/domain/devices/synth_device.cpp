@@ -493,6 +493,8 @@ void SynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversampledRate,
 void SynthDevice::applyGlobalEffects(AudioContext & context)
 {
     const uint8_t oversampleFactor = clampOversampleFactor(context.oversampleFactor);
+    m_dcBlockerL.setSampleRate(context.sampleRate);
+    m_dcBlockerR.setSampleRate(context.sampleRate);
     std::array<float, 4> highL {};
     std::array<float, 4> highR {};
     for (uint32_t i = 0; i < context.frameCount; i++) {
@@ -501,9 +503,10 @@ void SynthDevice::applyGlobalEffects(AudioContext & context)
             highR[os] = m_oversampledBuffer[(i * oversampleFactor + os) * 2 + 1];
         }
 
-        double l = static_cast<double>(m_downsamplerL.process(highL.data(), oversampleFactor));
-        double r = static_cast<double>(m_downsamplerR.process(highR.data(), oversampleFactor));
+        double l = m_dcBlockerL.process(static_cast<double>(m_downsamplerL.process(highL.data(), oversampleFactor)));
+        double r = m_dcBlockerR.process(static_cast<double>(m_downsamplerR.process(highR.data(), oversampleFactor)));
 
+        // Ahead of the delay, not after it: the feedback path would otherwise integrate the offset.
         m_delay.process(l, r);
 
         context.buffer[i * 2] += l;
@@ -630,6 +633,8 @@ void SynthDevice::resetAudio()
     m_delay.reset();
     m_downsamplerL.reset();
     m_downsamplerR.reset();
+    m_dcBlockerL.reset();
+    m_dcBlockerR.reset();
     m_polyNextVoice = 0;
     m_dualNextPair = 0;
     m_monoPanSlot.reset();

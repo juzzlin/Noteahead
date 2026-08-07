@@ -18,6 +18,7 @@
 
 #include "../dsp/adsr_envelope.hpp"
 #include "../dsp/cascaded_svf.hpp"
+#include "../dsp/dc_blocker.hpp"
 #include "../dsp/lfo.hpp"
 #include "../dsp/multi_engine.hpp"
 #include "../dsp/one_pole_filter.hpp"
@@ -407,6 +408,12 @@ private:
     uint8_t m_oversampleFactor { 1 };
     Decimator m_downsamplerL;
     Decimator m_downsamplerR;
+
+    //! Hard sync resets VCO2 mid-ramp, and cross mod moves the reset point every sample, so the
+    //! truncated ramp has a mean that is both non-zero and wandering. Nothing downstream is
+    //! guaranteed to remove it: the HPF is bypassed at cutoff zero.
+    DcBlocker m_dcBlockerL;
+    DcBlocker m_dcBlockerR;
 
     std::vector<float> m_oversampledBuffer;
 

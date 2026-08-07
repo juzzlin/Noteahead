@@ -66,6 +66,8 @@ private slots:
     void test_crossModDepth_nonZero_shouldModulateVco2Frequency();
     void test_crossModDepth_serialization_shouldPreserveState();
 
+    void test_dcOffset_syncWithCrossMod_shouldStayNearZero();
+
     void test_midiCcResonance_shouldUpdateParameter();
     void test_midiCcResonanceReset_shouldRestoreManualValue();
     void test_midiCcModWheel_shouldOverrideLfoIntensity();
