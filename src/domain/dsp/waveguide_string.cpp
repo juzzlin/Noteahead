@@ -113,6 +113,20 @@ size_t WaveguideString::retune()
 {
     const double w = 2.0 * std::numbers::pi * m_frequency / m_sampleRate;
 
+    // A loop filter set from brightness alone costs the same share of the signal on every
+    // lap wherever the note sits, and since a top octave string travels its loop thousands
+    // of times a second that fixed share damps it out of all proportion: the filter alone
+    // decided the decay above the fifth octave, leaving nothing for the decay setting to
+    // say. Holding it to a share of the loss the wanted decay allows leaves the rest of
+    // that budget for the loop gain, so the fundamental keeps the decay it was asked for
+    // and the filter is left doing what it is for, which is taking the partials down
+    // faster than the fundamental. The ceiling only bites in the top octaves, where there
+    // are few partials left below Nyquist to tell apart in any case.
+    const double budget = (1.0 - targetGainPerLap()) * FilterLossShare;
+    const double lossPerUnit = 1.0 - std::cos(w); // 1 - |H| to first order in the coefficient
+    const double ceiling = lossPerUnit > 1e-12 ? budget / lossPerUnit : 1.0;
+    m_loopFilterCoeff = std::max(std::min(m_brightnessCoeff, ceiling), MinLoopFilterCoeff);
+
     // Everything in the loop contributes to the period, so the delay line only has to
     // supply what the filters do not.
     const double loopFilterDelay = loopFilterPhaseDelay(m_loopFilterCoeff, w);
@@ -145,20 +159,25 @@ size_t WaveguideString::retune()
     return m_delay.delay();
 }
 
+// Loop gain that would produce the wanted decay time on its own.
+// Each cycle of N samples multiplies amplitude by the gain.
+// gain^(T60 * freq) = 0.001 → gain = exp(-6.908 / (T60 * freq))
+// T60 scales with sqrt(refFreq/freq) so lower notes sustain much longer than higher ones.
+double WaveguideString::targetGainPerLap() const
+{
+    const double refFreq = 261.63; // C4
+    const double baseT60 = 0.5 + m_decayTime * 9.5;
+    const double T60 = std::clamp(baseT60 * std::sqrt(refFreq / m_frequency), 0.2, 30.0);
+    return std::exp(-6.908 / (T60 * m_frequency));
+}
+
 void WaveguideString::updateLoopGain()
 {
     if (m_frequency <= 0.0) {
         return;
     }
 
-    // Loop gain derived from desired T60 decay time.
-    // Each cycle of N samples multiplies amplitude by loopGain.
-    // loopGain^(T60 * freq) = 0.001 → loopGain = exp(-6.908 / (T60 * freq))
-    // T60 scales with sqrt(refFreq/freq) so lower notes sustain much longer than higher ones.
-    const double refFreq = 261.63; // C4
-    const double baseT60 = 0.5 + m_decayTime * 9.5;
-    const double T60 = std::clamp(baseT60 * std::sqrt(refFreq / m_frequency), 0.2, 30.0);
-    const double perLap = std::exp(-6.908 / (T60 * m_frequency));
+    const double perLap = targetGainPerLap();
 
     // The loop filter takes its own bite out of the fundamental on every lap, and the
     // number of laps in a second is the frequency itself, so the same filter costs a top
@@ -179,10 +198,9 @@ void WaveguideString::trigger(uint8_t note, float velocity, float brightness, fl
     const double freq = m_frequency;
 
     // Compute the filter parameters first so the delay length can be corrected for
-    // the delay they add to the loop. A real string always loses more of its high
-    // partials than its low ones on every pass, so the loop filter is never allowed to
-    // disappear altogether however bright the tone is asked to be.
-    m_loopFilterCoeff = std::max(MinLoopFilterCoeff, static_cast<double>(1.0f - brightness) * 0.5);
+    // the delay they add to the loop. What brightness asks for is only the starting
+    // point: retuning caps it against the decay budget for this pitch.
+    m_brightnessCoeff = static_cast<double>(1.0f - brightness) * 0.5;
     m_loopFilterPrev = 0.0;
 
     m_dispersionCoeff = static_cast<double>(inharmonicity) * 0.15;
@@ -305,6 +323,7 @@ void WaveguideString::reset()
     m_tuning.reset();
     m_frequency = 0.0;
     m_loopGain = 0.0;
+    m_brightnessCoeff = 0.25;
     m_loopFilterCoeff = 0.25;
     m_loopFilterPrev = 0.0;
     m_dispersionCoeff = 0.0;

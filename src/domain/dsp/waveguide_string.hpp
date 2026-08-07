@@ -55,7 +55,12 @@ private:
     // loop hold on to more than it was given.
     static constexpr double MaxLoopGain = 0.99999;
     // Smallest loss the loop filter may impose, so that it never becomes a pass-through.
-    static constexpr double MinLoopFilterCoeff = 0.005;
+    // Small enough not to stand in the way of the decay wanted at the top of the keyboard,
+    // where what the filter may take is a very small share of a very small budget.
+    static constexpr double MinLoopFilterCoeff = 1e-4;
+    // Share of the per-lap loss allowed by the wanted decay that the loop filter may take,
+    // leaving the rest for the loop gain to supply.
+    static constexpr double FilterLossShare = 0.5;
     // How far apart in time two strings struck together may have their hammers land.
     static constexpr double StrikeSpreadSeconds = 0.0025;
 
@@ -66,6 +71,8 @@ private:
     // Sets the delay-line length so that the whole loop resonates at m_frequency.
     // Returns the integer part of that length.
     size_t retune();
+    // Loop gain that would produce the wanted decay time at the current pitch on its own.
+    double targetGainPerLap() const;
     // Sets the loop gain that produces the wanted decay time at the current pitch,
     // allowing for what the loop filter costs on each lap.
     void updateLoopGain();
@@ -78,6 +85,8 @@ private:
     double m_frequency { 0.0 };
     double m_decayTime { 0.5 };
     double m_loopGain { 0.0 };
+    // What brightness alone asks of the loop filter, before the decay budget caps it
+    double m_brightnessCoeff { 0.25 };
     double m_loopFilterCoeff { 0.25 };
     double m_loopFilterPrev { 0.0 };
     double m_dispersionCoeff { 0.0 };
