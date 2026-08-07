@@ -512,6 +512,7 @@ void SamplerDevice::reset()
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
         Device::reset();
+        stopVoicesUsing(nullptr);
         for (auto && sample : m_samples) {
             sample = nullptr;
         }
@@ -524,6 +525,17 @@ void SamplerDevice::reset()
     }
 
     emit dataChanged();
+}
+
+void SamplerDevice::stopVoicesUsing(const Sample * sample)
+{
+    for (auto && voice : m_voices) {
+        if (voice.sample && (!sample || voice.sample == sample)) {
+            voice.active = false;
+            voice.releasing = false;
+            voice.sample = nullptr;
+        }
+    }
 }
 
 void SamplerDevice::resetAudio()
@@ -580,6 +592,7 @@ void SamplerDevice::loadSample(uint8_t note, const std::string & filePath)
         if (const auto & existing = m_samples.at(note); existing && existing->effectRack) {
             sample->effectRack = std::move(existing->effectRack);
         }
+        stopVoicesUsing(m_samples.at(note).get());
         m_samples.at(note) = std::move(sample);
     }
 
@@ -593,6 +606,7 @@ void SamplerDevice::clearSample(uint8_t note)
     }
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
+        stopVoicesUsing(m_samples.at(note).get());
         m_samples.at(note) = nullptr;
     }
     emit dataChanged();
@@ -1099,6 +1113,9 @@ void SamplerDevice::restoreState()
 {
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
+        // Cancelling the dialog throws away every sample it has been editing, so nothing may still
+        // be playing through one of them.
+        stopVoicesUsing(nullptr);
         for (size_t i = 0; i < maxSamples; i++) {
             m_samples.at(i) = std::move(m_savedSamples.at(i));
             m_savedSamples.at(i) = nullptr;

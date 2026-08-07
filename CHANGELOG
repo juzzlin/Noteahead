@@ -52,6 +52,11 @@ New features:
 
 Bug fixes:
 
+* Fix crash on cancelling the Sampler dialog during playback
+  - Cancelling restored the saved samples out from under the voices playing
+    them, and the next audio callback read the freed memory
+  - Loading over or clearing a sounding pad had the same fault
+
 * Sing the male voice at the vowel a VC340 sings
   - Its formant region sits at 650 - 1050 Hz, where ours was a textbook /u/
     an octave below and 20 - 32 dB short of the hardware

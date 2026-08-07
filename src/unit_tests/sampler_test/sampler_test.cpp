@@ -21,6 +21,8 @@
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
 #include <QTest>
+
+#include <algorithm>
 #include <cmath>
 #include <numbers>
 
@@ -206,6 +208,81 @@ void SamplerTest::test_channelMode_shouldToggleCorrectMode()
     SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
     sampler.setChannelMode(true);
     QCOMPARE(sampler.channelMode(), true);
+}
+
+void SamplerTest::test_restoreState_whilePlaying_shouldNotLeaveVoicesOnFreedSamples()
+{
+    // Cancelling the Sampler dialog restores the samples it saved on opening, which destroys the
+    // ones playing. A voice holds a raw pointer to its sample, so any voice still running through
+    // one of them is left pointing at freed memory and the next audio callback reads it. Chromatic
+    // mode makes it near certain, since every note plays through the same sample.
+    auto mockReader = std::make_unique<MockAudioFileReader>();
+    mockReader->setForceChannels(1);
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::move(mockReader) };
+    sampler.setChromaticMode(true);
+    sampler.loadSample(60, "test.wav");
+
+    // What the dialog does when it opens.
+    sampler.saveState();
+
+    sampler.processMidiNoteOn(67, 127);
+    std::vector<double> buffer(64, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), 32, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+    sampler.processAudio(context);
+    QVERIFY2(sampler.hasActiveAudio(), "The note did not start, so the test would prove nothing");
+
+    // What Cancel does.
+    sampler.restoreState();
+
+    QVERIFY2(!sampler.hasActiveAudio(),
+             "A voice outlived the sample it was playing, and the next callback would read freed memory");
+
+    // Which the next callback must survive.
+    std::fill(buffer.begin(), buffer.end(), 0.0);
+    sampler.processAudio(context);
+}
+
+void SamplerTest::test_loadSample_whilePlaying_shouldNotLeaveVoicesOnFreedSamples()
+{
+    auto mockReader = std::make_unique<MockAudioFileReader>();
+    mockReader->setForceChannels(1);
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::move(mockReader) };
+    sampler.loadSample(60, "test.wav");
+    sampler.processMidiNoteOn(60, 127);
+
+    std::vector<double> buffer(64, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), 32, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+    sampler.processAudio(context);
+    QVERIFY(sampler.hasActiveAudio());
+
+    // Loading over a pad that is sounding destroys the sample the voice is reading.
+    sampler.loadSample(60, "other.wav");
+
+    QVERIFY2(!sampler.hasActiveAudio(), "A voice outlived the sample it was playing");
+
+    std::fill(buffer.begin(), buffer.end(), 0.0);
+    sampler.processAudio(context);
+}
+
+void SamplerTest::test_clearSample_whilePlaying_shouldNotLeaveVoicesOnFreedSamples()
+{
+    auto mockReader = std::make_unique<MockAudioFileReader>();
+    mockReader->setForceChannels(1);
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::move(mockReader) };
+    sampler.loadSample(60, "test.wav");
+    sampler.processMidiNoteOn(60, 127);
+
+    std::vector<double> buffer(64, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), 32, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+    sampler.processAudio(context);
+    QVERIFY(sampler.hasActiveAudio());
+
+    sampler.clearSample(60);
+
+    QVERIFY2(!sampler.hasActiveAudio(), "A voice outlived the sample it was playing");
+
+    std::fill(buffer.begin(), buffer.end(), 0.0);
+    sampler.processAudio(context);
 }
 
 void SamplerTest::test_chromaticMode_shouldToggleCorrectMode()

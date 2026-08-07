@@ -40,6 +40,9 @@ private slots:
 
     void test_channelMode_shouldToggleCorrectMode();
     void test_chromaticMode_shouldToggleCorrectMode();
+    void test_restoreState_whilePlaying_shouldNotLeaveVoicesOnFreedSamples();
+    void test_loadSample_whilePlaying_shouldNotLeaveVoicesOnFreedSamples();
+    void test_clearSample_whilePlaying_shouldNotLeaveVoicesOnFreedSamples();
     void test_chromaticMode_singleSample_shouldCoverWholeRange();
     void test_chromaticMode_multipleSamples_shouldSelectCoveringSample();
     void test_chromaticMode_pitch_shouldMatchSemitoneRatio();

@@ -159,6 +159,13 @@ public:
 private:
     struct Voice;
     void updateVoiceEffects(Voice & voice);
+
+    //! Silences every voice playing through a sample that is about to be replaced or destroyed,
+    //! or through any sample at all when given nothing.
+    //!
+    //! A voice holds a raw pointer to its sample, so a sample outliving nothing is not enough: it
+    //! has to outlive every voice reading it. Call this under the lock, before the sample goes.
+    void stopVoicesUsing(const Sample * sample);
     void syncParameters() override;
 
     struct Voice
