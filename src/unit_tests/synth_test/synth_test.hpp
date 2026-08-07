@@ -89,9 +89,9 @@ private slots:
     void test_voiceMode_mono_shouldMatchPolyLevel();
     void test_voiceMode_mono_overlappingNotes_shouldUseOneVoice();
     void test_voiceMode_mono_overlappingNotes_shouldGlideToNewPitch();
-    void test_voiceMode_mono_legato_shouldNotRetriggerAmpEnvelope();
+    void test_voiceMode_mono_overlappingNote_shouldRetriggerAmpEnvelope();
     void test_voiceMode_mono_newNotes_shouldStepThroughPanSpread();
-    void test_voiceMode_mono_legato_shouldKeepPanPosition();
+    void test_voiceMode_mono_overlappingNote_shouldKeepPanPosition();
     void test_voiceMode_serialization_shouldPreserveEveryMode();
 
     void test_modEg_defaultSustain_shouldReturnToStart();

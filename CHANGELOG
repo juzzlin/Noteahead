@@ -6,8 +6,8 @@ Release date:
 New features:
 
 * Add the Mono voice mode to the Synth
-  - Poly on a single voice: overlapping notes glide to the new pitch
-    instead of stacking, and the envelopes keep running through the move
+  - Poly on a single voice: notes glide to the new pitch instead of
+    stacking, while every note still gets its own envelope attack
   - The whole stereo path still applies, and each note that starts from
     silence steps to the next Pan Spread position
 

@@ -811,24 +811,19 @@ void SynthDevice::handleMonoNoteOn(uint8_t note, double frequency, float velocit
 {
     auto & voice = m_voices.front();
 
-    // Legato: the previous note has not been let go, so this is a move within one gesture. Only the
-    // pitch target changes — the envelopes keep running and the oscillators keep their phase, which
-    // is what turns the portamento into a glide rather than two notes with a slide between them.
-    if (voice.active && voice.ampEg.state() != AdsrEnvelope::State::Release) {
-        voice.note = note;
-        voice.frequency = frequency;
-        voice.velocity = velocity;
-        if (m_portamento <= 0.001f) {
-            voice.glideFrequency = frequency;
-        }
-        return;
-    }
-
     // A note that starts from silence takes the next pan slot, so a mono line still travels across
-    // the field the way successive poly voices would. Glided notes stay where the gesture began.
-    m_monoPanSlot = m_monoPanSlot ? (m_monoPanSlot.value() + 1) % MaxVoices : 0;
-    const float pan = voiceSpreadPan(m_monoPanSlot.value());
+    // the field the way successive poly voices would. A note arriving over a sounding one belongs to
+    // the same gesture and stays where that gesture began, which also keeps the pan from jumping
+    // under a tone that never falls silent between the two.
+    if (!voice.active || voice.ampEg.state() == AdsrEnvelope::State::Release) {
+        m_monoPanSlot = m_monoPanSlot ? (m_monoPanSlot.value() + 1) % MaxVoices : 0;
+    }
+    const float pan = voiceSpreadPan(m_monoPanSlot.value_or(0));
 
+    // Every note gets its own attack — the envelopes retrigger even mid-glide, which is what keeps a
+    // mono line articulate. Only the pitch is continuous: the glide frequency is left where the last
+    // note put it, so the oscillators travel to the new note rather than jumping, and their phase is
+    // carried over by the triggers below, which only re-sync a voice that had fallen silent.
     if (m_portamento <= 0.001f) {
         voice.glideFrequency = frequency;
     }

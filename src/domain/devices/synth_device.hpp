@@ -55,7 +55,7 @@ public:
         //! No fixed detune at all. Each voice wanders at its own slow rate, so no pair ever settles
         //! into a steady beat and the comb pattern that makes plain unison harsh never forms.
         Drift,
-        //! Poly with a single voice: overlapping notes glide instead of stacking. Appended last
+        //! Poly with a single voice: notes glide into each other instead of stacking. Appended last
         //! because the ordinal is persisted, so it cannot sit next to Poly where it belongs.
         Mono
     };
@@ -415,7 +415,7 @@ private:
     double m_vco3BasePitchRatio { 1.0 };
 
     void handleNoteOn(uint8_t note, uint8_t velocity);
-    //! Mono voice allocation: one voice, legato on overlap, a fresh pan slot on every new note.
+    //! Mono voice allocation: one voice, envelopes retriggered per note, pitch and phase carried over.
     void handleMonoNoteOn(uint8_t note, double frequency, float velocity);
     void handleNoteOff(uint8_t note);
     double midiNoteToFreq(uint8_t note) const;

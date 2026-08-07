@@ -1779,23 +1779,29 @@ void SynthTest::test_voiceMode_mono_overlappingNotes_shouldGlideToNewPitch()
     QVERIFY(std::abs(synth.voiceGlideFrequency(0) - highFreq) < 1.0);
 }
 
-void SynthTest::test_voiceMode_mono_legato_shouldNotRetriggerAmpEnvelope()
+void SynthTest::test_voiceMode_mono_overlappingNote_shouldRetriggerAmpEnvelope()
 {
     SynthDevice synth { "Test Synth" };
     synth.setVoiceMode(SynthDevice::VoiceMode::Mono);
-    // Long enough that a restarted attack would still be near silent one block later.
-    synth.setAmpAttack(0.8f);
+    synth.setAmpAttack(0.3f);
+    synth.setAmpDecay(0.4f);
+    // Well below unity, so a fresh attack has somewhere to climb to and is plain to see.
+    synth.setAmpSustain(0.3f);
 
     synth.processMidiNoteOn(60, 100);
-    const auto [beforeLeft, beforeRight] = renderPeaks(synth, 40);
-    const double before = std::max(beforeLeft, beforeRight);
-    QVERIFY(before > 0.0);
+    const auto [sustainLeft, sustainRight] = renderPeaks(synth, 400);
+    const double sustained = std::max(sustainLeft, sustainRight);
+    QVERIFY(sustained > 0.0);
 
-    // Same note again while it is still held. Legato means the envelope carries on, so the level
-    // keeps climbing rather than collapsing back to the start of the attack.
+    // A note arriving over the sounding one still gets its own attack, which is what keeps a mono
+    // line articulate: the level climbs back above sustain instead of holding flat through the move.
     synth.processMidiNoteOn(60, 100);
-    const auto [afterLeft, afterRight] = renderPeaks(synth, 1);
-    QVERIFY2(std::max(afterLeft, afterRight) >= before, "Amp envelope was retriggered on a legato note");
+    double peak = 0.0;
+    for (int block = 0; block < 100; block++) {
+        const auto [left, right] = renderPeaks(synth, 1);
+        peak = std::max({ peak, left, right });
+    }
+    QVERIFY2(peak > sustained * 1.5, qPrintable(QString { "Peak %1 did not rise above sustain %2" }.arg(peak).arg(sustained)));
 }
 
 void SynthTest::test_voiceMode_mono_newNotes_shouldStepThroughPanSpread()
@@ -1819,7 +1825,7 @@ void SynthTest::test_voiceMode_mono_newNotes_shouldStepThroughPanSpread()
     QVERIFY2(secondRight > secondLeft, "Second mono note is not panned right");
 }
 
-void SynthTest::test_voiceMode_mono_legato_shouldKeepPanPosition()
+void SynthTest::test_voiceMode_mono_overlappingNote_shouldKeepPanPosition()
 {
     SynthDevice synth { "Test Synth" };
     synth.setVoiceMode(SynthDevice::VoiceMode::Mono);
@@ -1829,10 +1835,11 @@ void SynthTest::test_voiceMode_mono_legato_shouldKeepPanPosition()
     const auto [firstLeft, firstRight] = renderPeaks(synth, 10);
     QVERIFY(firstLeft > firstRight);
 
-    // A glided note is part of the same gesture, so it must not jump across the field mid-glide.
+    // The tone never falls silent between the two notes, so moving the pan now would be an audible
+    // jump under a held sound rather than a new note appearing somewhere else.
     synth.processMidiNoteOn(64, 100);
     const auto [secondLeft, secondRight] = renderPeaks(synth, 10);
-    QVERIFY2(secondLeft > secondRight, "Legato note moved to the next pan slot");
+    QVERIFY2(secondLeft > secondRight, "Overlapping note moved to the next pan slot");
 }
 
 void SynthTest::test_voiceMode_dual_shouldMatchPolyLevel()
