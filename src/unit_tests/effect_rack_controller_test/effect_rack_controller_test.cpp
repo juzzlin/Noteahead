@@ -219,7 +219,13 @@ void EffectRackControllerTest::test_effectParametersSummary_eq8BandParametric_sh
     controller.setEffect(0, QString::fromStdString(Eq8BandParametric::typeIdString()));
 
     const auto summary = controller.effectParametersSummary(0);
-    QCOMPARE(summary, QString { "(Parametric)" });
+    QCOMPARE(summary, QString { "(Parametric, Mid + Side)" });
+
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeyStereoMode(), static_cast<float>(Eq8BandParametric::StereoMode::Mid));
+    QCOMPARE(controller.effectParametersSummary(0), QString { "(Parametric, Mid)" });
+
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeyStereoMode(), static_cast<float>(Eq8BandParametric::StereoMode::Side));
+    QCOMPARE(controller.effectParametersSummary(0), QString { "(Parametric, Side)" });
 }
 
 void EffectRackControllerTest::test_effectParametersSummary_emptySlot_shouldReturnEmptyString()

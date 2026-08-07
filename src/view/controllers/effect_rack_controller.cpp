@@ -51,6 +51,9 @@
 #include <QVariant>
 #include <QVariantMap>
 
+#include <algorithm>
+#include <cmath>
+
 namespace noteahead {
 
 static constexpr float dbtpFloor = -70.0f;
@@ -515,7 +518,20 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                     return QString { "(L=%1 R=%2 dBTP)" }.arg(fmt(meter->truePeakHoldL())).arg(fmt(meter->truePeakHoldR()));
                 }
             } else if (type == Constants::RackEffectType::eq8BandParametric()) {
-                return "(Parametric)";
+                QString modeName { tr("Mid + Side") };
+                if (const auto stereoMode { effect->parameter(Constants::NahdXml::xmlKeyStereoMode().toStdString()) }; stereoMode) {
+                    switch (static_cast<Eq8BandParametric::StereoMode>(std::clamp(static_cast<int>(std::round(stereoMode->get().value())), 0, 2))) {
+                    case Eq8BandParametric::StereoMode::Mid:
+                        modeName = tr("Mid");
+                        break;
+                    case Eq8BandParametric::StereoMode::Side:
+                        modeName = tr("Side");
+                        break;
+                    case Eq8BandParametric::StereoMode::MidSide:
+                        break;
+                    }
+                }
+                return QString { "(Parametric, %1)" }.arg(modeName);
             } else if (type == Constants::RackEffectType::vintagePassiveEq()) {
                 return "(Passive)";
             } else if (type == Constants::RackEffectType::airBandEq()) {
