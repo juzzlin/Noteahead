@@ -66,6 +66,8 @@ private:
 
     DelayLine m_delay;
     AllPassChain m_dispersion;
+    // Supplies the fractional part of the loop length without touching the magnitude
+    AllPassChain m_tuning;
 
     double m_frequency { 0.0 };
     double m_loopGain { 0.0 };

@@ -47,6 +47,26 @@ double allPassPhaseDelay(double a, double w)
     return (std::atan2(sinW, a + cosW) - std::atan2(a * sinW, 1.0 + a * cosW)) / w;
 }
 
+// Coefficient of the all-pass stage that delays w by the wanted number of samples. The
+// phase delay falls monotonically as the coefficient rises, so a bisection converges on
+// it without needing the inverse in closed form, which the frequency dependence does not
+// have. Solving it at the sounding frequency rather than taking the value the low
+// frequency approximation gives keeps the top octaves in tune, where the two part company.
+double allPassCoefficientForDelay(double delay, double w)
+{
+    double low = -0.98;
+    double high = 0.98;
+    for (int i = 0; i < 60; i++) {
+        const double mid = 0.5 * (low + high);
+        if (allPassPhaseDelay(mid, w) > delay) {
+            low = mid;
+        } else {
+            high = mid;
+        }
+    }
+    return 0.5 * (low + high);
+}
+
 } // namespace
 
 double WaveguideString::midiNoteToFreq(uint8_t note)
@@ -86,11 +106,31 @@ size_t WaveguideString::retune()
     const double w = 2.0 * std::numbers::pi * m_frequency / m_sampleRate;
 
     // Everything in the loop contributes to the period, so the delay line only has to
-    // supply what the filters do not. The interpolating read contributes its own
-    // fractional part to within a thousandth of a sample, which is far below audibility.
+    // supply what the filters do not.
     const double loopFilterDelay = loopFilterPhaseDelay(m_loopFilterCoeff, w);
     const double apDelay = ApStages * allPassPhaseDelay(m_dispersionCoeff, w);
-    m_delay.setFractionalDelay(m_sampleRate / m_frequency - loopFilterDelay - apDelay);
+    const double remaining = m_sampleRate / m_frequency - loopFilterDelay - apDelay;
+
+    // The fraction of a sample the loop still needs is supplied by an all-pass stage
+    // rather than by interpolating between two taps. Interpolation would be a low-pass
+    // as well as a delay, and one that costs the same fraction of the signal on every
+    // lap: at the top of the keyboard the loop is travelled thousands of times a second,
+    // which was enough on its own to silence the top octave in a fraction of a second
+    // however the decay was set. An all-pass leaves the magnitude alone at every
+    // frequency, so what the string loses is left to the loop filter to decide.
+    //
+    // The integer part is taken half a sample short so that the all-pass is asked for
+    // something in the middle of its comfortable range: a stage asked for almost no
+    // delay at all needs a coefficient close to one, which rings for many samples after
+    // the strike.
+    const double wanted = std::max(remaining, 1.5);
+    auto integerDelay = static_cast<size_t>(wanted - 0.5);
+    integerDelay = std::max(integerDelay, size_t { 1 });
+    const double fractional = wanted - static_cast<double>(integerDelay);
+
+    m_delay.setDelay(integerDelay);
+    m_tuning.setStages(1);
+    m_tuning.setCoefficient(allPassCoefficientForDelay(fractional, w));
 
     return m_delay.delay();
 }
@@ -113,6 +153,7 @@ void WaveguideString::trigger(uint8_t note, float velocity, float brightness, fl
     m_dispersion.setStages(ApStages);
     m_dispersion.setCoefficient(m_dispersionCoeff);
     m_dispersion.reset();
+    m_tuning.reset();
 
     // The loop length is fractional, so the sounding pitch matches the target exactly
     // instead of snapping to the nearest whole sample. N below is only the integer part,
@@ -200,8 +241,11 @@ double WaveguideString::nextSample()
 
     const double out = m_delay.read();
 
+    // Fractional tuning all-pass: supplies the part of a sample the integer delay cannot
+    const double tuned = m_tuning.process(out);
+
     // Dispersion all-pass chain (string stiffness / inharmonicity)
-    const double dispersed = m_dispersion.process(out);
+    const double dispersed = m_dispersion.process(tuned);
 
     // Loop filter: 2-point weighted average for frequency-dependent decay
     const double filtered = (1.0 - m_loopFilterCoeff) * dispersed + m_loopFilterCoeff * m_loopFilterPrev;
@@ -229,6 +273,7 @@ void WaveguideString::reset()
 {
     m_delay.reset();
     m_dispersion.reset();
+    m_tuning.reset();
     m_frequency = 0.0;
     m_loopGain = 0.0;
     m_loopFilterCoeff = 0.25;
