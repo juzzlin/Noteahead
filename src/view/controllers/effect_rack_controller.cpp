@@ -470,7 +470,14 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                             scName = QString::fromStdString(sourceDevice->name());
                         }
                     }
-                    return QString { "(attack=%1ms, ratio=%2:1, sidechain=%3)" }
+                    QString modeName { tr("Peak") };
+                    if (const auto mode { effect->parameter(Constants::NahdXml::xmlKeyMode().toStdString()) }; mode) {
+                        if (mode->get().value() > 0.5f) {
+                            modeName = tr("RMS");
+                        }
+                    }
+                    return QString { "(%1, attack=%2ms, ratio=%3:1, sidechain=%4)" }
+                      .arg(modeName)
                       .arg(attackMs, 0, 'f', 1)
                       .arg(ratioValue, 0, 'g', 3)
                       .arg(scName);

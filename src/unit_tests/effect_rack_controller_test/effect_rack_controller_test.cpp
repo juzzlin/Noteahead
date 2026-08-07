@@ -130,14 +130,14 @@ void EffectRackControllerTest::test_effectParametersSummary_compressor_shouldRet
     controller.setIsInsertRack(true);
     controller.setEffect(0, QString::fromStdString(Compressor::typeIdString()));
 
-    // Default compressor: attack 0.2 internal -> ~0.5ms, ratio 0.15 internal -> 4:1, sidechain=None
+    // Default compressor: detector Peak, attack 0.2 internal -> ~0.5ms, ratio 0.15 internal -> 4:1, sidechain=None
     const auto summary { controller.effectParametersSummary(0) };
-    QCOMPARE(summary, QString { "(attack=0.5ms, ratio=4:1, sidechain=None)" });
+    QCOMPARE(summary, QString { "(Peak, attack=0.5ms, ratio=4:1, sidechain=None)" });
 
     // Change ratio to 10:1 (internal = (10-1)/19 = 0.473...)
     controller.setParameterValue(0, controller.compressorRatioKey(), 9.0f / 19.0f);
     const auto summary2 { controller.effectParametersSummary(0) };
-    QCOMPARE(summary2, QString { "(attack=0.5ms, ratio=10:1, sidechain=None)" });
+    QCOMPARE(summary2, QString { "(Peak, attack=0.5ms, ratio=10:1, sidechain=None)" });
 
     // Put a device in slot 1 and set it as sidechain source
     const auto device1 { std::make_shared<MockDevice>("Device 1") };
@@ -145,7 +145,11 @@ void EffectRackControllerTest::test_effectParametersSummary_compressor_shouldRet
 
     controller.setParameterValue(0, controller.compressorSideChainSourceDeviceKey(), 1.0f);
     const auto summary3 { controller.effectParametersSummary(0) };
-    QCOMPARE(summary3, QString { "(attack=0.5ms, ratio=10:1, sidechain=Device 1)" });
+    QCOMPARE(summary3, QString { "(Peak, attack=0.5ms, ratio=10:1, sidechain=Device 1)" });
+
+    controller.setParameterValue(0, controller.compressorModeKey(), 1.0f);
+    const auto summary4 { controller.effectParametersSummary(0) };
+    QCOMPARE(summary4, QString { "(RMS, attack=0.5ms, ratio=10:1, sidechain=Device 1)" });
 }
 
 void EffectRackControllerTest::test_effectParametersSummary_autoPanner_shouldReturnFormattedSummary()

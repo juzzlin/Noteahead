@@ -115,6 +115,9 @@ Other:
 * Show the stereo mode in the EQ 8-Band Parametric rack preview
   - The slot now reads Mid + Side, Mid or Side instead of just Parametric
 
+* Show the detector mode in the Compressor rack preview
+  - The slot now starts with Peak or RMS
+
 * Give the virtual keyboard a more instrument-like look
   - Shaded keys with rounded fronts, gloss and a shadow under the black
     keys, and a felt strip along the back in the accent colour
