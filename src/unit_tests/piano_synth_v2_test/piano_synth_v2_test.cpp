@@ -163,6 +163,19 @@ std::vector<double> renderNote(int note, uint8_t velocity, double seconds, uint3
     return renderTone(piano, sampleRate, 0, frames);
 }
 
+std::vector<double> renderNoteWithBrightness(int note, uint8_t velocity, double seconds, float brightness)
+{
+    PianoSynthV2Device piano { "Test Piano" };
+    piano.setVolume(1.0f);
+    piano.setGain(0.5f);
+    piano.setStringDetune(0.0f);
+    piano.setBrightness(brightness);
+    piano.processMidiNoteOn(static_cast<uint8_t>(note), velocity);
+
+    const auto frames = static_cast<uint32_t>(seconds * DefaultSampleRate);
+    return renderTone(piano, DefaultSampleRate, 0, frames);
+}
+
 // Amplitude of one partial over time, taken from successive half-overlapping windows.
 std::vector<double> partialEnvelope(const std::vector<double> & mono, double sampleRate, double frequency, double windowSeconds)
 {
@@ -520,6 +533,32 @@ void PianoSynthV2Test::test_velocity_shouldBrightenTheStrike()
 
     QVERIFY2(hard > soft * 1.15,
              QString { "Centroid moved from %1 Hz to %2 Hz, expected a clear rise" }.arg(soft).arg(hard).toUtf8().constData());
+}
+
+void PianoSynthV2Test::test_brightness_shouldTiltTheStrike()
+{
+    // Brightness has to be audible on the note as it is struck, not only on what is left
+    // ringing afterwards. It used to reach the decay times alone, which left the strike
+    // spectrum identical from one end of the control to the other.
+    const double f0 = noteFrequency(48);
+    const double dark = spectralCentroid(renderNoteWithBrightness(48, 100, 0.4, 0.0f), DefaultSampleRate, f0, 24);
+    const double bright = spectralCentroid(renderNoteWithBrightness(48, 100, 0.4, 1.0f), DefaultSampleRate, f0, 24);
+
+    QVERIFY2(bright > dark * 1.25,
+             QString { "Centroid moved only from %1 Hz to %2 Hz across the whole control" }.arg(dark).arg(bright).toUtf8().constData());
+}
+
+void PianoSynthV2Test::test_brightness_shouldSetHowLongPartialsHold()
+{
+    // And it still decides how long the upper partials hold on, which is the other half of
+    // what makes a piano sound bright or dull.
+    const double f0 = noteFrequency(60);
+    const auto dark = measureSlope(renderNoteWithBrightness(60, 100, 2.5, 0.0f), DefaultSampleRate, f0 * 8.0, 0.3, 2.2);
+    const auto bright = measureSlope(renderNoteWithBrightness(60, 100, 2.5, 1.0f), DefaultSampleRate, f0 * 8.0, 0.3, 2.2);
+    QVERIFY(dark.has_value() && bright.has_value());
+
+    QVERIFY2(*dark < *bright * 2.0,
+             QString { "Eighth partial fell at %1 dB/s dark against %2 dB/s bright" }.arg(*dark).arg(*bright).toUtf8().constData());
 }
 
 void PianoSynthV2Test::test_tuning_shouldMatchNoteFrequency_acrossKeyboard()

@@ -47,9 +47,15 @@ constexpr double SlowComponentAmplitude = 0.42;
 
 // Roughly how much of the fundamental's decay time each partial keeps, as a function of
 // its index. The reference's eighth partial is gone in well under half the time its
-// fundamental takes, and the falloff goes as the square of the index.
-constexpr double PartialDampingMin = 0.005;
-constexpr double PartialDampingRange = 0.04;
+// fundamental takes, and the falloff goes as the square of the index. This is the value
+// fitted to the reference, which Brightness then multiplies either way.
+constexpr double NeutralPartialDamping = 0.025;
+// How far either side of that Brightness reaches, as a factor.
+constexpr double PartialDampingSpan = 4.0;
+// How hard Brightness tilts the strike itself, in powers of the partial's pitch. At full
+// travel this is about nine decibels either way by the eighth partial, which is what makes
+// the control audible on the note rather than only on its tail.
+constexpr double BrightnessTiltDepth = 0.5;
 
 // The damper bites harder the higher the partial, and never more than this many times
 // faster than it does in the bass.
@@ -196,7 +202,13 @@ void ModalPianoString::trigger(uint8_t note, float velocity, const Settings & se
     const double decayScale = 0.35 + static_cast<double>(settings.decay) * 1.3;
     const double fundamentalDecay = std::clamp(
       decayScale * ReferenceDecayTime * std::pow(ReferenceFrequency / f0, DecayPitchExponent), MinDecayTime, MaxDecayTime);
-    const double partialDamping = PartialDampingMin + (1.0 - static_cast<double>(settings.brightness)) * PartialDampingRange;
+    // Brightness is neutral in the middle, so that at the default the bank is exactly what
+    // was fitted to the reference and the control tilts away from it in both directions.
+    // It acts twice: on how much of the strike lands in the upper partials, and on how long
+    // they hold on afterwards. Only the second of those used to be wired up, which left the
+    // control doing nothing at all to the note as it was struck — where brightness is heard.
+    const double brightnessTilt = (static_cast<double>(settings.brightness) - 0.5) * 2.0;
+    const double partialDamping = NeutralPartialDamping * std::pow(PartialDampingSpan, -brightnessTilt);
 
     const double detuneRatio = std::exp2(static_cast<double>(settings.detune) * 2.0 / 1200.0);
     const double fastDecayScale = 1.0 / (1.0 + static_cast<double>(settings.doubleDecay) * 3.0);
@@ -225,7 +237,8 @@ void ModalPianoString::trigger(uint8_t note, float velocity, const Settings & se
         const double hammer = 1.0 / (1.0 + std::pow(frequency / hammerCorner, HammerSlope));
         const double comb = std::abs(std::sin(kk * std::numbers::pi * p));
         const double radiated = frequency / std::hypot(frequency, RadiationCorner);
-        const double amplitude = hammer * comb * radiated * radiated;
+        const double tilt = std::pow(frequency / f0, BrightnessTiltDepth * brightnessTilt);
+        const double amplitude = hammer * comb * radiated * radiated * tilt;
 
         const double decayTime = std::clamp(fundamentalDecay / (1.0 + partialDamping * (kk * kk - 1.0)), MinDecayTime, MaxDecayTime);
 

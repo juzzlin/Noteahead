@@ -13,6 +13,8 @@ New features:
   - Stretch tuning follows the reference's Railsback curve; it ships off
     so that the piano stays in tune with the rest of Noteahead
   - The existing Piano Synth is untouched
+  - Brightness tilts the strike as well as the decay of the upper partials,
+    and is neutral in the middle of its travel
 
 * Add the fade out and tail silence options to the audio export
   - The fade out lands on zero right where the tail silence begins

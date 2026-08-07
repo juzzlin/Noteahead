@@ -34,6 +34,8 @@ private slots:
     void test_serialization_shouldRestoreParameters();
     void test_velocity_shouldFollowSquareLaw();
     void test_velocity_shouldBrightenTheStrike();
+    void test_brightness_shouldTiltTheStrike();
+    void test_brightness_shouldSetHowLongPartialsHold();
     void test_tuning_shouldMatchNoteFrequency_acrossKeyboard();
     void test_tuning_shouldNotDependOnVelocity();
     void test_stretch_shouldSharpenTheTreble_whenEnabled();
