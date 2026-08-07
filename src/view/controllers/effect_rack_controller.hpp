@@ -51,6 +51,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString tubeStageType READ tubeStageType CONSTANT)
     Q_PROPERTY(QString waveDesignerType READ waveDesignerType CONSTANT)
     Q_PROPERTY(QString stereoEnhancerType READ stereoEnhancerType CONSTANT)
+    Q_PROPERTY(QString stereoExciterType READ stereoExciterType CONSTANT)
     Q_PROPERTY(QString driveType READ driveType CONSTANT)
     Q_PROPERTY(QString limiterType READ limiterType CONSTANT)
     Q_PROPERTY(QString compressorType READ compressorType CONSTANT)
@@ -97,6 +98,7 @@ public:
     QString tubeStageType() const;
     QString waveDesignerType() const;
     QString stereoEnhancerType() const;
+    QString stereoExciterType() const;
     QString driveType() const;
     QString limiterType() const;
     QString compressorType() const;
@@ -237,6 +239,14 @@ public:
     Q_INVOKABLE QString stereoEnhancerMixKey() const;
     Q_INVOKABLE QString stereoEnhancerSoloKey() const;
 
+    Q_INVOKABLE QString stereoExciterTuneKey() const;
+    Q_INVOKABLE QString stereoExciterPeakKey() const;
+    Q_INVOKABLE QString stereoExciterZeroFillKey() const;
+    Q_INVOKABLE QString stereoExciterTimbreKey() const;
+    Q_INVOKABLE QString stereoExciterHarmonicsKey() const;
+    Q_INVOKABLE QString stereoExciterMixKey() const;
+    Q_INVOKABLE QString stereoExciterSoloKey() const;
+
     Q_INVOKABLE QString driveModeKey() const;
     Q_INVOKABLE QString driveAmountKey() const;
     Q_INVOKABLE QString driveMixKey() const;
@@ -271,6 +281,7 @@ public:
     Q_INVOKABLE float saturatorSaturationDb(quint32 effectIndex) const;
     Q_INVOKABLE float tubeStageSaturationDb(quint32 effectIndex) const;
     Q_INVOKABLE float waveDesignerShapingDb(quint32 effectIndex) const;
+    Q_INVOKABLE float stereoExciterHarmonicsDb(quint32 effectIndex) const;
     Q_INVOKABLE float lufsMeterMomentary(quint32 effectIndex) const;
     Q_INVOKABLE float lufsMeterShortTerm(quint32 effectIndex) const;
     Q_INVOKABLE float dbtpMeterTruePeakL(quint32 effectIndex) const;

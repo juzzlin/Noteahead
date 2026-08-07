@@ -35,6 +35,7 @@
 #include "../../domain/effects/reverb.hpp"
 #include "../../domain/effects/saturator.hpp"
 #include "../../domain/effects/stereo_enhancer.hpp"
+#include "../../domain/effects/stereo_exciter.hpp"
 #include "../../domain/effects/tube_stage.hpp"
 #include "../../domain/effects/wave_designer.hpp"
 #include "../../domain/utility/dbtp_meter.hpp"
@@ -289,6 +290,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Tube Stage", Constants::RackEffectType::tubeStage().toStdString());
     addEffect("Wave Designer", Constants::RackEffectType::waveDesigner().toStdString());
     addEffect("Stereo Enhancer", Constants::RackEffectType::stereoEnhancer().toStdString());
+    addEffect("Stereo Exciter", Constants::RackEffectType::stereoExciter().toStdString());
 
     return list;
 }
@@ -563,6 +565,14 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                       .arg(static_cast<int>(std::round(bass->get().value() * 100.0f)))
                       .arg(static_cast<int>(std::round(high->get().value() * 100.0f)))
                       .arg(static_cast<int>(std::round(spread->get().value() * 100.0f)));
+                }
+            } else if (type == Constants::RackEffectType::stereoExciter()) {
+                const auto tune = effect->parameter(Constants::NahdXml::xmlKeyTune().toStdString());
+                const auto harmonics = effect->parameter(Constants::NahdXml::xmlKeyHarmonics().toStdString());
+                if (tune && harmonics) {
+                    return QString { "(tune=%1Hz, harmonics=%2%)" }
+                      .arg(static_cast<int>(std::round(ParameterMapper::mapLogFrequency(tune->get().value(), 700.0, 8000.0))))
+                      .arg(static_cast<int>(std::round(harmonics->get().value() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::saturator()) {
                 const auto drive = effect->parameter(Constants::NahdXml::xmlKeyDrive().toStdString());
@@ -1109,6 +1119,46 @@ QString EffectRackController::stereoEnhancerSoloKey() const
     return Constants::NahdXml::xmlKeySolo();
 }
 
+QString EffectRackController::stereoExciterType() const
+{
+    return Constants::RackEffectType::stereoExciter();
+}
+
+QString EffectRackController::stereoExciterTuneKey() const
+{
+    return Constants::NahdXml::xmlKeyTune();
+}
+
+QString EffectRackController::stereoExciterPeakKey() const
+{
+    return Constants::NahdXml::xmlKeyPeak();
+}
+
+QString EffectRackController::stereoExciterZeroFillKey() const
+{
+    return Constants::NahdXml::xmlKeyZeroFill();
+}
+
+QString EffectRackController::stereoExciterTimbreKey() const
+{
+    return Constants::NahdXml::xmlKeyTimbre();
+}
+
+QString EffectRackController::stereoExciterHarmonicsKey() const
+{
+    return Constants::NahdXml::xmlKeyHarmonics();
+}
+
+QString EffectRackController::stereoExciterMixKey() const
+{
+    return Constants::NahdXml::xmlKeyMix();
+}
+
+QString EffectRackController::stereoExciterSoloKey() const
+{
+    return Constants::NahdXml::xmlKeySolo();
+}
+
 QString EffectRackController::tubeStageType() const
 {
     return Constants::RackEffectType::tubeStage();
@@ -1310,6 +1360,19 @@ float EffectRackController::waveDesignerShapingDb(quint32 effectIndex) const
         if (const auto effect = rack->get().effect(effectIndex); effect) {
             if (const auto waveDesigner = std::dynamic_pointer_cast<WaveDesigner>(effect); waveDesigner) {
                 return waveDesigner->shapingDb();
+            }
+        }
+    }
+
+    return 0.0f;
+}
+
+float EffectRackController::stereoExciterHarmonicsDb(quint32 effectIndex) const
+{
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(effectIndex); effect) {
+            if (const auto exciter = std::dynamic_pointer_cast<StereoExciter>(effect); exciter) {
+                return exciter->harmonicsDb();
             }
         }
     }

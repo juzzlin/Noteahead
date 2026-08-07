@@ -216,6 +216,11 @@ QString stereoEnhancer()
     return "stereoEnhancer";
 }
 
+QString stereoExciter()
+{
+    return "stereoExciter";
+}
+
 QString limiter()
 {
     return "limiter";
@@ -1455,6 +1460,26 @@ QString xmlKeyHighGain()
 QString xmlKeyHighFreq()
 {
     return "highFreq";
+}
+
+QString xmlKeyPeak()
+{
+    return "peak";
+}
+
+QString xmlKeyZeroFill()
+{
+    return "zeroFill";
+}
+
+QString xmlKeyTimbre()
+{
+    return "timbre";
+}
+
+QString xmlKeyHarmonics()
+{
+    return "harmonics";
 }
 
 QString xmlKeySolo()

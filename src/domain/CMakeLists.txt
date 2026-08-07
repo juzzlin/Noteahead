@@ -65,6 +65,7 @@ set(HEADER_FILES
     effects/simple_eq.hpp
     effects/vintage_passive_eq.hpp
     effects/stereo_enhancer.hpp
+    effects/stereo_exciter.hpp
     effects/wave_designer.hpp
     midi/midi_address.hpp
     midi/midi_cc_automation.hpp
@@ -182,6 +183,7 @@ set(SOURCE_FILES
     effects/simple_eq.cpp
     effects/vintage_passive_eq.cpp
     effects/stereo_enhancer.cpp
+    effects/stereo_exciter.cpp
     effects/wave_designer.cpp
     midi/midi_address.cpp
     midi/midi_cc_automation.cpp

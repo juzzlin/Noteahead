@@ -49,6 +49,7 @@
 #include "../../domain/effects/reverb.hpp"
 #include "../../domain/effects/simple_eq.hpp"
 #include "../../domain/effects/stereo_enhancer.hpp"
+#include "../../domain/effects/stereo_exciter.hpp"
 #include "../../domain/effects/tube_stage.hpp"
 #include "../../domain/effects/vintage_passive_eq.hpp"
 #include "../../domain/effects/wave_designer.hpp"
@@ -1861,6 +1862,57 @@ void XmlSerializationTest::test_toXmlFromXml_tubeStage_shouldLoadCorrectly()
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyBias()) - 0.31f) < 0.001f);
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyTone()) - 0.64f) < 0.001f);
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyMix()) - 0.85f) < 0.001f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_stereoExciter_shouldLoadCorrectly()
+{
+    EffectFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto exciter = std::make_shared<StereoExciter>();
+    const auto set = [&](const QString & key, float value) {
+        if (auto p = exciter->parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    };
+    set(Constants::NahdXml::xmlKeyTune(), 0.72f);
+    set(Constants::NahdXml::xmlKeyPeak(), 0.44f);
+    set(Constants::NahdXml::xmlKeyZeroFill(), 0.61f);
+    set(Constants::NahdXml::xmlKeyTimbre(), 0.28f);
+    set(Constants::NahdXml::xmlKeyHarmonics(), 0.83f);
+    set(Constants::NahdXml::xmlKeySolo(), 1.0f);
+    deviceServiceOut.sendEffectRack().setEffect(0, exciter);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(effect);
+    const auto restored = std::dynamic_pointer_cast<StereoExciter>(effect);
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), StereoExciter::typeIdString());
+
+    const auto value = [&](const QString & key) {
+        const auto p = restored->parameter(key.toStdString());
+        return p ? p->get().value() : -1.0f;
+    };
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyTune()) - 0.72f) < 0.01f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyPeak()) - 0.44f) < 0.01f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyZeroFill()) - 0.61f) < 0.01f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyTimbre()) - 0.28f) < 0.01f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyHarmonics()) - 0.83f) < 0.01f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeySolo()) - 1.0f) < 0.01f);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_stereoEnhancer_shouldLoadCorrectly()

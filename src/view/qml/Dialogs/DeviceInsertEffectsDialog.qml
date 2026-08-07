@@ -149,6 +149,9 @@ AnimatedDialog {
                         } else if (effectType === effectRackController.stereoEnhancerType) {
                             stereoEnhancerDialog.effectIndex = index;
                             stereoEnhancerDialog.open();
+                        } else if (effectType === effectRackController.stereoExciterType) {
+                            stereoExciterDialog.effectIndex = index;
+                            stereoExciterDialog.open();
                         } else if (effectType === effectRackController.driveType) {
                             driveDialog.effectIndex = index;
                             driveDialog.open();

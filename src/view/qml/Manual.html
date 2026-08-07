@@ -107,11 +107,21 @@
     <li><strong>Equalizers</strong>: <strong>EQ 8-Band Parametric</strong> (Bell, Shelf, Cut and Notch types per band, plus Mid/Side modes), <strong>Vintage Passive EQ</strong> (EQP-1A style, with interacting low Boost/Atten shelves and a high bell), <strong>Air Band EQ</strong> (fixed parallel-summed bands added back to the dry signal) and <strong>Simple EQ</strong> (a single "Sounds Good" knob sweeping a loudness-smile curve).</li>
     <li><strong>Reverbs</strong>: <strong>Reverb</strong> (the FDN reverb described below) and <strong>Endless Reverb</strong> (a large modulated ambient reverb with a Freeze switch for an infinite tail).</li>
     <li><strong>Dynamics</strong>: <strong>Compressor</strong> (with side-chain support), <strong>Auto Ducker</strong> (side-chain driven ducking or boosting), <strong>Limiter</strong> (lookahead brickwall with gain reduction metering), <strong>Clipper</strong> and <strong>Wave Designer</strong> (transient shaper, described below).</li>
-    <li><strong>Saturation</strong>: <strong>Drive</strong> (Soft, Hard, Fold and Dist algorithms), <strong>Saturator</strong> and <strong>Tube Stage</strong> (valve preamp, described below).</li>
+    <li><strong>Saturation</strong>: <strong>Drive</strong> (Soft, Hard, Fold and Dist algorithms), <strong>Saturator</strong>, <strong>Tube Stage</strong> (valve preamp, described below) and <strong>Stereo Exciter</strong> (harmonic generator, described below).</li>
     <li><strong>Modulation & Time</strong>: <strong>Chorus</strong>, <strong>Delay</strong> (Mono, Ping Pong and Tape modes, with BPM sync) and <strong>All-Pass Filter</strong>.</li>
     <li><strong>Stereo</strong>: <strong>Panner</strong>, <strong>Auto Panner</strong> and <strong>Stereo Enhancer</strong> (psychoacoustic EQ, described below).</li>
     <li><strong>Metering & Analysis</strong>: <strong>LUFS Meter</strong>, <strong>dBTP Meter</strong> (true peak) and <strong>RTA</strong> (real-time analyzer). Use these as inserts to watch the signal at any point in the chain.</li>
 </ul>
+
+<h3>Stereo Exciter Parameters</h3>
+<p>An aural exciter, after the X32's, itself after the Aphex Aural Exciter. An equalizer can only turn up what is already there; where a recording has no top end to lift, a shelf has nothing to find. This takes the band above <strong>Tune</strong>, distorts it, and adds the harmonics that produces. Those are higher than anything in the band that made them, so the result reads as air and detail that was never in the signal.</p>
+<ul>
+    <li><strong>Tune</strong>: where the band that feeds the generator starts. <strong>Peak</strong> sharpens the corner, <strong>Zero Fill</strong> mixes in a shallower path below it so the harmonics come from a wider band.</li>
+    <li><strong>Timbre</strong>: left of centre runs odd harmonics, which read as edge and bite; right of centre runs even ones, which read as warmth. It blends rather than switches.</li>
+    <li><strong>Harmonics</strong>: how much of what is generated is added back. <strong>Mix</strong> blends the whole result against the dry signal.</li>
+    <li><strong>Solo Mode</strong>: passes only the harmonics being generated. Worth using: what an exciter adds is easy to overdo precisely because it is hard to hear underneath the signal.</li>
+</ul>
+<p>The shaping runs oversampled, since harmonics of a band that already reaches several kilohertz would otherwise land above Nyquist and fold back down as inharmonic tones.</p>
 
 <h3>Stereo Enhancer Parameters</h3>
 <p>A "psycho EQ" rather than an equalizer, after the X32's, itself after the SPL Vitalizer. Where an equalizer boosts a band by turning it up, this one takes each band out of the signal, works on it, and adds it back.</p>

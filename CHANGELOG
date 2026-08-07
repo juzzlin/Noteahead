@@ -5,6 +5,13 @@ Release date:
 
 New features:
 
+* Add the Stereo Exciter effect
+  - Aural exciter after the X32's, itself after the Aphex: generates
+    harmonics of the band above Tune and adds them back, making top end
+    where an equalizer would have nothing to lift
+  - Timbre runs odd harmonics at one end for edge and even at the other
+    for warmth, and the shaping is oversampled so they do not fold back
+
 * Add the Stereo Enhancer effect
   - Psychoacoustic EQ after the X32's, itself after the SPL Vitalizer: each
     band is taken out, worked on and added back rather than turned up
