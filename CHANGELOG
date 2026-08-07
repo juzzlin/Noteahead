@@ -66,6 +66,15 @@ New features:
 
 Bug fixes:
 
+* Let the Piano's top octaves speak and ring
+  - The hammer pulse was sized as a fraction of the string loop and rounded
+    down, which above the sixth octave left no strike at all: the top notes
+    came in more than 20 dB below the rest of the keyboard
+  - Reading the loop between two samples low-passed it on every lap, silencing
+    the top octave in a fraction of a second however the decay was set
+  - Decay now falls with pitch at the rate a real electric piano does, holding
+    the middle of the keyboard for about fourteen seconds at the longest setting
+
 * Fix a column scrolling into view showing the wrong lines
   - A partial repaint issued after a full one shrank it to a single row,
     so a column revealed by scrolling sideways kept its old lines until

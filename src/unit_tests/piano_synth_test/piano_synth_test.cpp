@@ -449,7 +449,7 @@ void PianoSynthTest::test_velocity_shouldAffectOutputLevel()
 
 void PianoSynthTest::test_tuning_shouldMatchNoteFrequency_acrossKeyboard()
 {
-    for (const int note : { 21, 36, 48, 60, 69, 79, 88, 96 }) {
+    for (const int note : { 21, 36, 48, 60, 69, 79, 88, 96, 103, 108 }) {
         const double expected = noteFrequency(note);
         const auto measured = measurePitch(note);
         QVERIFY2(measured.has_value(),
