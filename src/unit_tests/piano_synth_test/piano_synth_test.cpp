@@ -23,9 +23,11 @@
 #include <QTest>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <numbers>
 #include <optional>
+#include <span>
 #include <vector>
 
 namespace noteahead {
@@ -81,7 +83,7 @@ std::vector<double> renderTone(PianoSynthDevice & piano, uint32_t sampleRate, ui
 
 // Magnitude of the Hann-windowed DFT at an arbitrary frequency, evaluated by rotating
 // a phasor so that the frequency grid can be made as fine as needed.
-double dftMagnitude(const std::vector<double> & samples, double sampleRate, double frequency)
+double dftMagnitude(std::span<const double> samples, double sampleRate, double frequency)
 {
     const double w = 2.0 * std::numbers::pi * frequency / sampleRate;
     const double cosW = std::cos(w);
@@ -106,7 +108,7 @@ double dftMagnitude(const std::vector<double> & samples, double sampleRate, doub
 // Locates the fundamental on a fine grid spanning ±3 % of the expected frequency and
 // refines the winning bin parabolically. Nothing is returned if the peak sits at the
 // edge of the span, since the real fundamental is then somewhere further out.
-std::optional<double> measureFundamental(const std::vector<double> & samples, double sampleRate, double expected)
+std::optional<double> measureFundamental(std::span<const double> samples, double sampleRate, double expected)
 {
     constexpr int steps = 60;
     const double step = expected * 0.0005;
@@ -137,6 +139,157 @@ double centsBetween(double measured, double reference)
 {
     return 1200.0 * std::log2(measured / reference);
 }
+
+double toDb(double linear)
+{
+    return 20.0 * std::log10(std::max(linear, 1e-12));
+}
+
+// One note struck on a clean voice with the unison pair locked together, rendered down to
+// mono. Everything the keyboard survey measures is derived from this.
+std::vector<double> renderNote(int note, uint8_t velocity, double seconds, uint32_t sampleRate)
+{
+    PianoSynthDevice piano { "Test Piano" };
+    piano.setVolume(1.0f);
+    piano.setGain(0.5f);
+    piano.setDecay(1.0f);
+    piano.setStringDetune(0.0f); // Beating between the pair would wander the envelope
+    piano.processMidiNoteOn(static_cast<uint8_t>(note), velocity);
+
+    const auto frames = static_cast<uint32_t>(seconds * sampleRate);
+    return renderTone(piano, sampleRate, 0, frames);
+}
+
+// Amplitude of one partial over time, taken from successive half-overlapping windows.
+std::vector<double> partialEnvelope(const std::vector<double> & mono, double sampleRate, double frequency, double windowSeconds)
+{
+    const auto window = static_cast<size_t>(sampleRate * windowSeconds);
+    const size_t hop = window / 2;
+    std::vector<double> envelope;
+    for (size_t start = 0; start + window <= mono.size(); start += hop) {
+        envelope.push_back(dftMagnitude(std::span { mono }.subspan(start, window), sampleRate, frequency));
+    }
+    return envelope;
+}
+
+// Level over time in short blocks, for attack and tail levels where the whole signal
+// counts rather than one partial.
+std::vector<double> rmsEnvelope(const std::vector<double> & mono, double sampleRate, double blockSeconds)
+{
+    const auto block = static_cast<size_t>(sampleRate * blockSeconds);
+    std::vector<double> envelope;
+    for (size_t start = 0; start + block <= mono.size(); start += block) {
+        envelope.push_back(rmsLevel({ mono.begin() + static_cast<long>(start), mono.begin() + static_cast<long>(start + block) }));
+    }
+    return envelope;
+}
+
+// T60 of the fundamental, from the slope of its decay in dB per second. Fitting the
+// slope rather than timing a drop to a fixed level keeps the reading clear of the fast
+// initial decay that sits on top of the tail, which is what a plain envelope fit gets
+// wrong on this kind of tone.
+std::optional<double> measureT60(const std::vector<double> & mono, double sampleRate, double frequency)
+{
+    constexpr double windowSeconds = 0.05;
+    constexpr double fitSeconds = 1.5;
+    constexpr double floorDb = -45.0;
+
+    const auto envelope = partialEnvelope(mono, sampleRate, frequency, windowSeconds);
+    if (envelope.size() < 8) {
+        return std::nullopt;
+    }
+
+    const double hopSeconds = windowSeconds * 0.5;
+    const auto peak = static_cast<size_t>(std::distance(envelope.begin(), std::max_element(envelope.begin(), envelope.end())));
+    const double peakLevel = envelope[peak];
+    if (peakLevel <= 0.0) {
+        return std::nullopt;
+    }
+
+    double sumT = 0.0, sumY = 0.0, sumTT = 0.0, sumTY = 0.0;
+    size_t count = 0;
+    for (size_t i = peak; i < envelope.size(); i++) {
+        const double t = static_cast<double>(i - peak) * hopSeconds;
+        if (t > fitSeconds) {
+            break;
+        }
+        const double y = toDb(envelope[i] / peakLevel);
+        if (y < floorDb) {
+            break;
+        }
+        sumT += t;
+        sumY += y;
+        sumTT += t * t;
+        sumTY += t * y;
+        count++;
+    }
+    if (count < 4) {
+        return std::nullopt;
+    }
+
+    const double n = static_cast<double>(count);
+    const double denominator = n * sumTT - sumT * sumT;
+    if (denominator == 0.0) {
+        return std::nullopt;
+    }
+    const double slope = (n * sumTY - sumT * sumY) / denominator; // dB per second
+    if (slope >= -1e-6) {
+        return std::nullopt; // Not decaying, so no T60 to speak of
+    }
+    return -60.0 / slope;
+}
+
+struct NoteMeasurement
+{
+    double peakDb {};
+    double attackOverTailDb {};
+    std::optional<double> t60;
+};
+
+NoteMeasurement measureNote(int note, uint8_t velocity = 100, uint32_t sampleRate = 48000)
+{
+    constexpr double seconds = 2.0;
+    const auto mono = renderNote(note, velocity, seconds, sampleRate);
+
+    NoteMeasurement measurement;
+    measurement.peakDb = toDb(peakLevel(mono));
+    measurement.t60 = measureT60(mono, sampleRate, noteFrequency(note));
+
+    // How far the strike stands above what is left ringing half a second later. On the
+    // reference instrument this grows from about 12 dB in the bass to over 40 dB at the
+    // top, where the note is mostly strike and very little tone.
+    const auto blocks = rmsEnvelope(mono, sampleRate, 0.002);
+    const auto tailStart = static_cast<size_t>(0.5 / 0.002);
+    const auto tailEnd = std::min(blocks.size(), static_cast<size_t>(1.0 / 0.002));
+    if (!blocks.empty() && tailEnd > tailStart) {
+        std::vector<double> tail { blocks.begin() + static_cast<long>(tailStart), blocks.begin() + static_cast<long>(tailEnd) };
+        std::sort(tail.begin(), tail.end());
+        const double peak = *std::max_element(blocks.begin(), blocks.end());
+        measurement.attackOverTailDb = toDb(peak) - toDb(tail[tail.size() / 2]);
+    }
+    return measurement;
+}
+
+// Yamaha CP88 electric piano, measured from a recorded sweep of C0-C9 at velocity 100.
+// Levels are relative to the note at MIDI 60 rather than absolute, since only the shape
+// across the keyboard is being matched. See the keyboard survey test for how these are used.
+struct ReferenceNote
+{
+    int note;
+    double relativeLevelDb;
+    double t60;
+    double attackOverTailDb;
+};
+
+constexpr std::array<ReferenceNote, 7> reference { {
+  { 36, 4.1, 30.0, 15.0 },
+  { 48, 2.5, 25.0, 15.0 },
+  { 60, 0.0, 13.6, 11.0 },
+  { 72, -2.6, 8.6, 15.0 },
+  { 84, -0.8, 3.6, 18.0 },
+  { 96, 0.1, 2.3, 39.0 },
+  { 108, -5.8, 1.15, 43.0 },
+} };
 
 // Plays one note on an otherwise clean voice and returns its sounding frequency.
 std::optional<double> measurePitch(int note, uint8_t velocity = 100, uint32_t sampleRate = 44100)
@@ -384,6 +537,36 @@ void PianoSynthTest::test_brightness_shouldStayEffective_whenStruckHard()
 
     QVERIFY2(difference > 1e-4,
              QString { "Brightness 0.5 and 0.9 differ by only %1 at velocity 127" }.arg(difference).toUtf8().constData());
+}
+
+void PianoSynthTest::test_keyboard_shouldSpeak_atEveryRegister()
+{
+    // The top of the keyboard has to make a sound at all before anything can be said about
+    // how it decays: the hammer pulse is sized from the loop length, and a short enough
+    // loop leaves nothing of it.
+    for (const auto & entry : reference) {
+        const auto measurement = measureNote(entry.note);
+        QVERIFY2(measurement.peakDb > -60.0,
+                 QString { "Note %1 peaks at only %2 dB" }.arg(entry.note).arg(measurement.peakDb).toUtf8().constData());
+    }
+}
+
+void PianoSynthTest::test_keyboard_shouldReportMeasurements_againstReference()
+{
+    // Reports rather than asserts: the individual properties are held to the reference by
+    // the tests that follow, and having the whole survey in one table makes it possible to
+    // see at a glance which register a change has moved.
+    qInfo("note | level dB (ref) | T60 s (ref)      | attack over tail dB (ref)");
+
+    const double anchor = measureNote(60).peakDb;
+    for (const auto & entry : reference) {
+        const auto measurement = measureNote(entry.note);
+        const QString t60 = measurement.t60 ? QString::number(measurement.t60.value(), 'f', 2) : QString { "none" };
+        qInfo("%4d | %6.1f (%5.1f) | %8s (%5.2f) | %8.1f (%4.1f)",
+              entry.note, measurement.peakDb - anchor, entry.relativeLevelDb,
+              t60.toUtf8().constData(), entry.t60,
+              measurement.attackOverTailDb, entry.attackOverTailDb);
+    }
 }
 
 } // namespace noteahead

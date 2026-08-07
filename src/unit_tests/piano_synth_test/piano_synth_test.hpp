@@ -37,6 +37,8 @@ private slots:
     void test_tuning_shouldNotDependOnVelocity();
     void test_chord_shouldNotStackHammerStrikes();
     void test_brightness_shouldStayEffective_whenStruckHard();
+    void test_keyboard_shouldSpeak_atEveryRegister();
+    void test_keyboard_shouldReportMeasurements_againstReference();
 };
 
 } // namespace noteahead
