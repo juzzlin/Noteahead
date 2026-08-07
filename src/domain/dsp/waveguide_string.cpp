@@ -162,13 +162,21 @@ size_t WaveguideString::retune()
 // Loop gain that would produce the wanted decay time on its own.
 // Each cycle of N samples multiplies amplitude by the gain.
 // gain^(T60 * freq) = 0.001 → gain = exp(-6.908 / (T60 * freq))
-// T60 scales with sqrt(refFreq/freq) so lower notes sustain much longer than higher ones.
+// T60 falls with pitch, so lower notes sustain much longer than higher ones.
 double WaveguideString::targetGainPerLap() const
 {
-    const double refFreq = 261.63; // C4
-    const double baseT60 = 0.5 + m_decayTime * 9.5;
-    const double T60 = std::clamp(baseT60 * std::sqrt(refFreq / m_frequency), 0.2, 30.0);
+    // How the decay shortens as the pitch rises, and how long the middle of the keyboard
+    // rings at the top of the range, both measured off a Yamaha CP88 electric piano: it
+    // holds about 14 seconds around C4 and a little over one second on its topmost key,
+    // which is a far slower fall than the square root the model used to take, and a far
+    // longer ring than it used to allow anywhere.
+    const double T60 = std::clamp(baseDecayTime() * std::pow(ReferenceFrequency / m_frequency, DecayPitchExponent), 0.2, 30.0);
     return std::exp(-6.908 / (T60 * m_frequency));
+}
+
+double WaveguideString::baseDecayTime() const
+{
+    return 0.5 + m_decayTime * 13.1;
 }
 
 void WaveguideString::updateLoopGain()

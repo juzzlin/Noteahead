@@ -39,6 +39,7 @@ private slots:
     void test_brightness_shouldStayEffective_whenStruckHard();
     void test_keyboard_shouldSpeak_atEveryRegister();
     void test_keyboard_shouldHoldLevel_acrossRegisters();
+    void test_keyboard_shouldFollowReferenceDecay_acrossRegisters();
     void test_keyboard_shouldReportMeasurements_againstReference();
 };
 

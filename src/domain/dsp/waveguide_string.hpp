@@ -61,6 +61,9 @@ private:
     // Share of the per-lap loss allowed by the wanted decay that the loop filter may take,
     // leaving the rest for the loop gain to supply.
     static constexpr double FilterLossShare = 0.5;
+    // Pitch the decay time is quoted at, and the power of the pitch ratio it follows.
+    static constexpr double ReferenceFrequency = 261.63; // C4
+    static constexpr double DecayPitchExponent = 0.78;
     // How far apart in time two strings struck together may have their hammers land.
     static constexpr double StrikeSpreadSeconds = 0.0025;
     // Narrowest the hammer pulse may be shaped, in samples. A raised cosine needs a few
@@ -76,6 +79,8 @@ private:
     size_t retune();
     // Loop gain that would produce the wanted decay time at the current pitch on its own.
     double targetGainPerLap() const;
+    // Decay time the current setting asks for at the reference pitch.
+    double baseDecayTime() const;
     // Sets the loop gain that produces the wanted decay time at the current pitch,
     // allowing for what the loop filter costs on each lap.
     void updateLoopGain();

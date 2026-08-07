@@ -571,6 +571,28 @@ void PianoSynthTest::test_keyboard_shouldHoldLevel_acrossRegisters()
     }
 }
 
+void PianoSynthTest::test_keyboard_shouldFollowReferenceDecay_acrossRegisters()
+{
+    // Measured at the longest decay the control offers, which is where the reference
+    // instrument sits. What matters is that the decay keeps falling with pitch at the rate
+    // a real instrument does rather than collapsing over the top two octaves, so the
+    // tolerance is a ratio and a generous one.
+    for (const auto & entry : reference) {
+        const auto measurement = measureNote(entry.note);
+        QVERIFY2(measurement.t60.has_value(),
+                 QString { "Note %1 does not ring long enough to measure" }.arg(entry.note).toUtf8().constData());
+
+        const double ratio = measurement.t60.value() / entry.t60;
+        QVERIFY2(ratio > 0.5 && ratio < 2.0,
+                 QString { "Note %1 rings for %2 s against %3 s on the reference" }
+                   .arg(entry.note)
+                   .arg(measurement.t60.value())
+                   .arg(entry.t60)
+                   .toUtf8()
+                   .constData());
+    }
+}
+
 void PianoSynthTest::test_keyboard_shouldReportMeasurements_againstReference()
 {
     // Reports rather than asserts: the individual properties are held to the reference by
