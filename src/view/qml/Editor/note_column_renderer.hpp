@@ -108,8 +108,14 @@ private:
     QColor m_textColorGhost { "#444444" };
     QList<QColor> m_automationCurveColors;
     QColor m_automationCurveCenterLineColor { "#808080" };
+    //! Set until the requested full repaint has actually been painted. QQuickPaintedItem keeps a
+    //! single dirty rect, so a partial update issued afterwards would silently shrink it to that row.
+    bool m_fullRepaintPending { true };
 
     void paintAutomationCurves(QPainter * painter, int startRow, int endRow, qreal rowHeight);
+
+    //! Marks the whole column dirty and remembers it until it has been painted.
+    void requestFullRepaint();
 
     //! Repaints only the rows a dataChanged() covers. A cursor move touches one row, so it no
     //! longer costs a repaint and texture upload of the whole column.

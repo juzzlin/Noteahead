@@ -47,12 +47,12 @@ void NoteColumnRenderer::setModel(QAbstractListModel * model)
             connect(m_model, &QAbstractListModel::dataChanged, this, [this](const QModelIndex & topLeft, const QModelIndex & bottomRight) {
                 updateRows(topLeft.row(), bottomRight.row());
             });
-            connect(m_model, &QAbstractListModel::modelReset, this, [this] { update(); });
-            connect(m_model, &QAbstractListModel::rowsInserted, this, [this] { update(); });
-            connect(m_model, &QAbstractListModel::rowsRemoved, this, [this] { update(); });
+            connect(m_model, &QAbstractListModel::modelReset, this, [this] { requestFullRepaint(); });
+            connect(m_model, &QAbstractListModel::rowsInserted, this, [this] { requestFullRepaint(); });
+            connect(m_model, &QAbstractListModel::rowsRemoved, this, [this] { requestFullRepaint(); });
         }
         emit modelChanged();
-        update();
+        requestFullRepaint();
     }
 }
 
@@ -66,7 +66,7 @@ void NoteColumnRenderer::setScrollOffset(double scrollOffset)
     if (!qFuzzyCompare(m_scrollOffset, scrollOffset)) {
         m_scrollOffset = scrollOffset;
         emit scrollOffsetChanged();
-        update();
+        requestFullRepaint();
     }
 }
 
@@ -80,7 +80,7 @@ void NoteColumnRenderer::setVisibleLines(int visibleLines)
     if (m_visibleLines != visibleLines) {
         m_visibleLines = visibleLines;
         emit visibleLinesChanged();
-        update();
+        requestFullRepaint();
     }
 }
 
@@ -94,7 +94,7 @@ void NoteColumnRenderer::setAutomationDisplayMode(int mode)
     if (m_automationDisplayMode != mode) {
         m_automationDisplayMode = mode;
         emit automationDisplayModeChanged();
-        update();
+        requestFullRepaint();
     }
 }
 
@@ -108,7 +108,7 @@ void NoteColumnRenderer::setAutomationCurveThicknessTenths(int tenths)
     if (m_automationCurveThicknessTenths != tenths) {
         m_automationCurveThicknessTenths = tenths;
         emit automationCurveThicknessTenthsChanged();
-        update();
+        requestFullRepaint();
     }
 }
 
@@ -122,7 +122,7 @@ void NoteColumnRenderer::setCursorColor(const QColor & cursorColor)
     if (m_cursorColor != cursorColor) {
         m_cursorColor = cursorColor;
         emit cursorColorChanged();
-        update();
+        requestFullRepaint();
     }
 }
 
@@ -136,7 +136,7 @@ void NoteColumnRenderer::setTextColor(const QColor & textColor)
     if (m_textColor != textColor) {
         m_textColor = textColor;
         emit textColorChanged();
-        update();
+        requestFullRepaint();
     }
 }
 
@@ -150,7 +150,7 @@ void NoteColumnRenderer::setTextColorEmpty(const QColor & textColorEmpty)
     if (m_textColorEmpty != textColorEmpty) {
         m_textColorEmpty = textColorEmpty;
         emit textColorEmptyChanged();
-        update();
+        requestFullRepaint();
     }
 }
 
@@ -164,7 +164,7 @@ void NoteColumnRenderer::setTextColorGhost(const QColor & textColorGhost)
     if (m_textColorGhost != textColorGhost) {
         m_textColorGhost = textColorGhost;
         emit textColorGhostChanged();
-        update();
+        requestFullRepaint();
     }
 }
 
@@ -186,7 +186,7 @@ void NoteColumnRenderer::setAutomationCurveColors(const QVariantList & automatio
     if (m_automationCurveColors != colors) {
         m_automationCurveColors = colors;
         emit automationCurveColorsChanged();
-        update();
+        requestFullRepaint();
     }
 }
 
@@ -200,15 +200,29 @@ void NoteColumnRenderer::setAutomationCurveCenterLineColor(const QColor & automa
     if (m_automationCurveCenterLineColor != automationCurveCenterLineColor) {
         m_automationCurveCenterLineColor = automationCurveCenterLineColor;
         emit automationCurveCenterLineColorChanged();
-        update();
+        requestFullRepaint();
     }
+}
+
+void NoteColumnRenderer::requestFullRepaint()
+{
+    m_fullRepaintPending = true;
+    update();
 }
 
 void NoteColumnRenderer::updateRows(int firstRow, int lastRow)
 {
     // No row geometry to clip against yet: fall back to repainting everything
     if (m_visibleLines <= 0 || height() <= 0.0 || width() <= 0.0) {
-        update();
+        requestFullRepaint();
+        return;
+    }
+
+    // A full repaint is still waiting to be painted. QQuickPaintedItem holds one dirty rect and lets
+    // a later partial update replace it, so narrowing it here would leave the rest of the column
+    // showing what it drew before, e.g. the lines from before a scroll offset change.
+    if (m_fullRepaintPending) {
+        requestFullRepaint();
         return;
     }
 
@@ -282,6 +296,11 @@ void NoteColumnRenderer::paintAutomationCurves(QPainter * painter, int startRow,
 
 void NoteColumnRenderer::paint(QPainter * painter)
 {
+    // Runs in the scene graph's sync phase with the GUI thread blocked, so no locking is needed.
+    // Whatever was pending has been handed to the painter by now: any repaint reaching here while
+    // the flag is set was requested as a full one.
+    m_fullRepaintPending = false;
+
     if (!m_model || m_visibleLines <= 0) {
         return;
     }

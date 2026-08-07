@@ -66,6 +66,11 @@ New features:
 
 Bug fixes:
 
+* Fix a column scrolling into view showing the wrong lines
+  - A partial repaint issued after a full one shrank it to a single row,
+    so a column revealed by scrolling sideways kept its old lines until
+    the next vertical scroll
+
 * Play the Piano in tune across the keyboard
   - Its string loop had to be a whole number of samples long, which the short
     periods of the top octaves cannot round to: C-8 sounded 15 cents out, and
