@@ -31,7 +31,7 @@ Chorus::Chorus()
     addParameter({ Constants::NahdXml::xmlKeyWidth().toStdString(), 1.0f, 0, 1000, 1000, 1, Parameter::Type::Continuous, { "chorusWidth" } });
     addParameter({ Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), 1.0f, 0, 1000, 1000, 1, Parameter::Type::Continuous, { "chorusLpf" } });
     addParameter({ Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.0f, 0, 1000, 0, 1, Parameter::Type::Continuous, { "chorusHpf" } });
-    addParameter({ Constants::NahdXml::xmlKeyMix().toStdString(), 0.5f, 0, 1000, 500, 1, Parameter::Type::Continuous, { "chorusMix" } });
+    addMixParameter(0.5f, MixLaw::DualSlope, 0, 1000, 1, { "chorusMix" });
 
     m_lfoL.setWaveform(Lfo::Waveform::Sine);
     m_lfoR.setWaveform(Lfo::Waveform::Sine);
@@ -118,10 +118,8 @@ void Chorus::processSample(double & left, double & right)
     wetR = m_lpfR.process(wetR);
 
     // Constant-power crossfade keeps the send-mode delta (output - dry) non-negative at mix <= 0.5.
-    const double dryCoeff = std::clamp(2.0 * (1.0 - m_mix), 0.0, 1.0);
-    const double wetCoeff = std::clamp(2.0 * m_mix, 0.0, 1.0);
-    left = dryL * dryCoeff + wetL * wetCoeff;
-    right = dryR * dryCoeff + wetR * wetCoeff;
+    left = wetL;
+    right = wetR;
 
     // Update write position
     m_writePos = (m_writePos + 1) % static_cast<uint32_t>(m_bufferL.size());

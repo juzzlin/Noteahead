@@ -57,7 +57,6 @@ private:
     float m_highFrequency { 0.5f };
     float m_outputDb { 0.0f };
     float m_spread { 0.0f };
-    float m_mix { 1.0f };
 
     //! Band taps, which carry only their own band and are summed back onto the dry signal.
     SvfFilter m_bassTapL;

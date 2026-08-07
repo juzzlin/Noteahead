@@ -75,7 +75,7 @@ StereoEnhancer::StereoEnhancer()
     addParameter(Parameter { Constants::NahdXml::xmlKeyHighFreq().toStdString(), 0.5f, 1500, 16000, 6000, 1, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeyGain().toStdString(), 0.5f, -1200, 1200, 0, 100, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeySpread().toStdString(), 0.0f, 0, 10000, 0, 100, Parameter::Type::Continuous });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyMix().toStdString(), 1.0f, 0, 10000, 10000, 100, Parameter::Type::Continuous });
+    addMixParameter(1.0f);
 
     // Solo passes only what this adds, which is the point of a psycho EQ: what it contributes is
     // hard to judge underneath the signal it is contributing to.
@@ -166,9 +166,8 @@ void StereoEnhancer::processSample(double & left, double & right)
     wetL *= outputLin;
     wetR *= outputLin;
 
-    const double mix = static_cast<double>(m_mix);
-    left = dryL * (1.0 - mix) + wetL * mix;
-    right = dryR * (1.0 - mix) + wetR * mix;
+    left = wetL;
+    right = wetR;
 }
 
 void StereoEnhancer::reset()
@@ -196,7 +195,6 @@ void StereoEnhancer::syncParameters()
     m_highFrequency = value(Constants::NahdXml::xmlKeyHighFreq(), 0.5f);
     m_outputDb = (value(Constants::NahdXml::xmlKeyGain(), 0.5f) - 0.5f) * 2.0f * static_cast<float>(OutputRangeDb);
     m_spread = value(Constants::NahdXml::xmlKeySpread(), 0.0f);
-    m_mix = value(Constants::NahdXml::xmlKeyMix(), 1.0f);
 
     m_coefficientsDirty = true;
 }

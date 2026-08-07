@@ -35,7 +35,7 @@ Reverb::Reverb()
     addParameter({ Constants::NahdXml::xmlKeyWidth().toStdString(), 0.5f, 0, 200, 100, 1, Parameter::Type::Continuous, { "reverbWidth" } });
     addParameter({ Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), 0.85f, 0, 10000, 8500, 100, Parameter::Type::Continuous, { "reverbLpfCutoff" } });
     addParameter({ Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.2f, 0, 10000, 2000, 100, Parameter::Type::Continuous, { "reverbHpfCutoff" } });
-    addParameter({ Constants::NahdXml::xmlKeyMix().toStdString(), 0.0f, 0, 10000, 0, 100, Parameter::Type::Continuous, { "reverbMix" } });
+    addMixParameter(0.0f, MixLaw::Additive, 0, 10000, 100, { "reverbMix" });
 
     addParameter({ Constants::NahdXml::xmlKeyGated().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
     addParameter({ Constants::NahdXml::xmlKeyThreshold().toStdString(), 0.333f, 0, 10000, 3333, 100 });
@@ -147,8 +147,8 @@ void Reverb::processSample(double & left, double & right)
 
     applyGate(dryL, dryR, wetL, wetR);
 
-    left = dryL + wetL * static_cast<double>(m_mix);
-    right = dryR + wetR * static_cast<double>(m_mix);
+    left = wetL;
+    right = wetR;
 }
 
 void Reverb::processBlock(AudioContext & context)

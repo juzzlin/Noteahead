@@ -71,7 +71,7 @@ TubeStage::TubeStage()
     addParameter(Parameter { Constants::NahdXml::xmlKeyDrive().toStdString(), 0.25f, 0, 3600, 900, 100, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeyBias().toStdString(), 0.5f, 0, 10000, 5000, 100, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeyTone().toStdString(), 0.5f, 0, 10000, 5000, 100, Parameter::Type::Continuous });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyMix().toStdString(), 1.0f, 0, 10000, 10000, 100, Parameter::Type::Continuous });
+    addMixParameter(1.0f, MixLaw::Internal);
     addParameter(Parameter { Constants::NahdXml::xmlKeyGain().toStdString(), 0.5f, -1200, 1200, 0, 100, Parameter::Type::Continuous });
 
     syncParameters();

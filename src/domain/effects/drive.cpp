@@ -37,7 +37,7 @@ Drive::Drive()
 {
     addParameter(Parameter { Constants::NahdXml::xmlKeyMode().toStdString(), 0.0f, 0, 3, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDrive().toStdString(), 0.5f, 0, 100, 50, 100, Parameter::Type::Continuous });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyMix().toStdString(), 1.0f, 0, 10000, 10000, 100, Parameter::Type::Continuous });
+    addMixParameter(1.0f, MixLaw::Internal);
     addParameter(Parameter { Constants::NahdXml::xmlKeyGain().toStdString(), 0.5f, -1200, 1200, 0, 100, Parameter::Type::Continuous });
 
     syncParameters();

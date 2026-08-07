@@ -38,6 +38,26 @@ public:
     Effect(Effect &&) = default;
     Effect & operator=(Effect &&) = default;
 
+    //! How an effect's Mix control blends its output against the signal that came in.
+    //!
+    //! Which law applies is a property of the effect, not of the control: a crossfade is right for
+    //! something that replaces the signal, and wrong for a reverb, whose Mix is really a send amount
+    //! and whose dry has to stay whole.
+    enum class MixLaw
+    {
+        //! dry * (1 - mix) + wet * mix. The usual blend for an effect that reshapes the signal.
+        Crossfade,
+        //! dry + wet * mix. The dry stays whole and the wet is added on top of it.
+        Additive,
+        //! Both at full across the middle of the travel, each fading out towards its own end. Gives
+        //! a centre position where nothing is lost from either side.
+        DualSlope,
+        //! The effect blends its own Mix and this class leaves it alone. For an effect that shapes
+        //! at an oversampled rate: its dry path is delayed by the same resampling filters as its
+        //! wet one, and blending an undelayed dry against that would comb filter.
+        Internal
+    };
+
     virtual std::string type() const = 0;
     virtual std::string typeId() const = 0;
 
@@ -76,6 +96,16 @@ protected:
     //! lookahead, side chains, transforms. Loops processSample() unless overridden.
     virtual void processBlock(AudioContext & context);
 
+    //! Registers the Mix control with the shape the effect wants, and declares how it blends. The
+    //! blending itself is done here rather than by the effect.
+    void addMixParameter(float defaultValue, MixLaw law = MixLaw::Crossfade, int xmlMin = 0, int xmlMax = 10000, int xmlScale = 100, LegacyNameList legacyNames = {});
+
+    //! For an effect that registers Mix itself, because its stored shape predates this.
+    void setMixLaw(MixLaw law);
+
+    //! Current Mix, or 1 for an effect that has no Mix control.
+    float mix() const;
+
     //! Registers the Solo control, which passes only what the effect adds to the signal, so that it
     //! can be heard on its own. Effects that have something to add opt in; one that only shapes what
     //! is already there, an equalizer say, has nothing to isolate.
@@ -89,7 +119,10 @@ private:
     //! the effect contributed.
     void applySolo(double dryLeft, double dryRight, double & left, double & right) const;
 
-    bool m_solo { false };
+    //! Blends the effect's output against the dry signal under the effect's own Mix law.
+    void applyMix(double dryLeft, double dryRight, double & left, double & right) const;
+
+    MixLaw m_mixLaw { MixLaw::Crossfade };
     bool m_enabled { true };
     float m_bpm = 120;
     uint8_t m_oversampleFactor { 1 };

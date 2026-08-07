@@ -42,7 +42,7 @@ EndlessReverb::EndlessReverb()
     addParameter({ Constants::NahdXml::xmlKeyWidth().toStdString(), 0.5f, 0, 200, 100, 1 });
     addParameter({ Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), 0.8f, 0, 10000, 8000, 100 });
     addParameter({ Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.2f, 0, 10000, 2000, 100 });
-    addParameter({ Constants::NahdXml::xmlKeyMix().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addMixParameter(0.0f, MixLaw::Additive);
     addParameter({ Constants::NahdXml::xmlKeyFreeze().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
 
     for (auto && delay : m_delays) {
@@ -195,8 +195,8 @@ void EndlessReverb::renderSample(double & left, double & right)
     wetL = mid + side * static_cast<double>(m_width);
     wetR = mid - side * static_cast<double>(m_width);
 
-    left = dryL + wetL * static_cast<double>(m_mix);
-    right = dryR + wetR * static_cast<double>(m_mix);
+    left = wetL;
+    right = wetR;
 }
 
 void EndlessReverb::reset()

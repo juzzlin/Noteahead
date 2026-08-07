@@ -29,6 +29,9 @@ private slots:
     void test_panningEffect_shouldDistributeSignalToChannels();
     void test_lowPassFilterEffect_shouldProcessAudioStablely();
     void test_highPassFilterEffect_shouldProcessAudioStablely();
+    void test_mixLaw_crossfade_shouldBlendDryAgainstWet();
+    void test_mixLaw_additive_shouldKeepTheDryWhole();
+    void test_mixLaw_internal_shouldBeLeftToTheEffect();
     void test_reverb_mix_shouldApplyEffectBasedOnMixLevel();
     void test_reverb_filters_shouldShapeWetSignal();
     void test_reverb_gate_shouldCutTail();

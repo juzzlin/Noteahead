@@ -35,10 +35,10 @@
 #include "reverb.hpp"
 #include "saturator.hpp"
 #include "simple_eq.hpp"
-#include "tube_stage.hpp"
 #include "stereo_enhancer.hpp"
-#include "wave_designer.hpp"
+#include "tube_stage.hpp"
 #include "vintage_passive_eq.hpp"
+#include "wave_designer.hpp"
 
 #include <map>
 

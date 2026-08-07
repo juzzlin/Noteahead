@@ -151,6 +151,87 @@ void EffectsTest::test_highPassFilterEffect_shouldProcessAudioStablely()
     }
 }
 
+namespace {
+
+//! An effect that replaces the signal with a constant, so what the Mix law does with it is obvious.
+class ConstantEffect : public Effect
+{
+public:
+    explicit ConstantEffect(float mixDefault, MixLaw law)
+    {
+        addMixParameter(mixDefault, law);
+    }
+
+    std::string type() const override
+    {
+        return "constant";
+    }
+
+    std::string typeId() const override
+    {
+        return "constant";
+    }
+
+    void setMix(float value)
+    {
+        if (auto parameter = this->parameter(Constants::NahdXml::xmlKeyMix().toStdString()); parameter) {
+            parameter->get().setValue(value);
+        }
+    }
+
+protected:
+    void processSample(double & left, double & right) override
+    {
+        left = 1.0;
+        right = 1.0;
+    }
+};
+
+} // namespace
+
+void EffectsTest::test_mixLaw_crossfade_shouldBlendDryAgainstWet()
+{
+    ConstantEffect effect { 1.0f, Effect::MixLaw::Crossfade };
+    effect.setMix(0.25f);
+
+    double left = 0.4;
+    double right = 0.4;
+    effect.process(left, right);
+
+    // 0.4 * 0.75 + 1.0 * 0.25
+    QVERIFY(std::abs(left - 0.55) < 1.0e-9);
+    QVERIFY(std::abs(right - 0.55) < 1.0e-9);
+}
+
+void EffectsTest::test_mixLaw_additive_shouldKeepTheDryWhole()
+{
+    ConstantEffect effect { 1.0f, Effect::MixLaw::Additive };
+    effect.setMix(0.25f);
+
+    double left = 0.4;
+    double right = 0.4;
+    effect.process(left, right);
+
+    // 0.4 + 1.0 * 0.25: the dry is untouched, which is what a reverb's Mix has to do.
+    QVERIFY(std::abs(left - 0.65) < 1.0e-9);
+    QVERIFY(std::abs(right - 0.65) < 1.0e-9);
+}
+
+void EffectsTest::test_mixLaw_internal_shouldBeLeftToTheEffect()
+{
+    // An effect that shapes at an oversampled rate has to blend its own Mix, against a dry delayed
+    // by the same resampling filters. This class must not blend a second time on top of that.
+    ConstantEffect effect { 1.0f, Effect::MixLaw::Internal };
+    effect.setMix(0.25f);
+
+    double left = 0.4;
+    double right = 0.4;
+    effect.process(left, right);
+
+    QVERIFY(std::abs(left - 1.0) < 1.0e-9);
+    QVERIFY(std::abs(right - 1.0) < 1.0e-9);
+}
+
 void EffectsTest::test_reverb_mix_shouldApplyEffectBasedOnMixLevel()
 {
     Reverb reverb;

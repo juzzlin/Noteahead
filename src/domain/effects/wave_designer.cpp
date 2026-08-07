@@ -86,7 +86,7 @@ WaveDesigner::WaveDesigner()
     addParameter(Parameter { Constants::NahdXml::xmlKeyAttack().toStdString(), 0.5f, -10000, 10000, 0, 100, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeySustain().toStdString(), 0.5f, -10000, 10000, 0, 100, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeyGain().toStdString(), 0.5f, -2400, 2400, 0, 100, Parameter::Type::Continuous });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyMix().toStdString(), 1.0f, 0, 10000, 10000, 100, Parameter::Type::Continuous });
+    addMixParameter(1.0f);
 
     syncParameters();
 }
@@ -154,9 +154,8 @@ void WaveDesigner::processSample(double & left, double & right)
 
     const double gain = static_cast<double>(Utils::Dsp::dbToLinear(static_cast<float>(shapingDb + static_cast<double>(m_gainDb))));
 
-    const double mix = static_cast<double>(m_mix);
-    left = left * (1.0 - mix) + left * gain * mix;
-    right = right * (1.0 - mix) + right * gain * mix;
+    left *= gain;
+    right *= gain;
 
     const double meterReleaseCoefficient = std::exp(-1.0 / (MeterReleaseMs * sampleRate / 1000.0));
     if (std::abs(shapingDb) > std::abs(m_shapingDb)) {
@@ -196,9 +195,6 @@ void WaveDesigner::syncParameters()
     }
     if (const auto parameter = this->parameter(Constants::NahdXml::xmlKeyGain().toStdString()); parameter) {
         m_gainDb = (parameter->get().value() - 0.5f) * 2.0f * static_cast<float>(GainRangeDb);
-    }
-    if (const auto parameter = this->parameter(Constants::NahdXml::xmlKeyMix().toStdString()); parameter) {
-        m_mix = parameter->get().value();
     }
 }
 

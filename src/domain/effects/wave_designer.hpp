@@ -68,7 +68,6 @@ private:
     float m_attack { 0.0f };
     float m_sustain { 0.0f };
     float m_gainDb { 0.0f };
-    float m_mix { 1.0f };
 
     //! Smoothing on the rectified signal, ahead of the followers.
     double m_detector { 0.0 };
