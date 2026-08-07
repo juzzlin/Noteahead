@@ -551,6 +551,26 @@ void PianoSynthTest::test_keyboard_shouldSpeak_atEveryRegister()
     }
 }
 
+void PianoSynthTest::test_keyboard_shouldHoldLevel_acrossRegisters()
+{
+    // The reference instrument stays within a few dB of itself from the third octave to
+    // the seventh and gives up only about 6 dB on the topmost key. The hammer pulse used
+    // to be sized as a fraction of the loop and rounded down to whole samples, which left
+    // the top of the keyboard more than 20 dB down on the rest.
+    const double anchor = measureNote(60).peakDb;
+    for (const auto & entry : reference) {
+        const auto measurement = measureNote(entry.note);
+        const double difference = (measurement.peakDb - anchor) - entry.relativeLevelDb;
+        QVERIFY2(std::abs(difference) < 6.0,
+                 QString { "Note %1 sits %2 dB from the anchor against %3 dB on the reference" }
+                   .arg(entry.note)
+                   .arg(measurement.peakDb - anchor)
+                   .arg(entry.relativeLevelDb)
+                   .toUtf8()
+                   .constData());
+    }
+}
+
 void PianoSynthTest::test_keyboard_shouldReportMeasurements_againstReference()
 {
     // Reports rather than asserts: the individual properties are held to the reference by

@@ -63,6 +63,9 @@ private:
     static constexpr double FilterLossShare = 0.5;
     // How far apart in time two strings struck together may have their hammers land.
     static constexpr double StrikeSpreadSeconds = 0.0025;
+    // Narrowest the hammer pulse may be shaped, in samples. A raised cosine needs a few
+    // samples before it is a pulse at all rather than a single spike.
+    static constexpr size_t MinExcitationWidth = 3;
 
     static double midiNoteToFreq(uint8_t note);
     void buildExcitation(size_t width, float velocity);
@@ -76,6 +79,10 @@ private:
     // Sets the loop gain that produces the wanted decay time at the current pitch,
     // allowing for what the loop filter costs on each lap.
     void updateLoopGain();
+
+    // Scratch space the strike is shaped in, kept between notes so that triggering one
+    // does not have to allocate.
+    std::vector<double> m_excitation;
 
     DelayLine m_delay;
     AllPassChain m_dispersion;

@@ -216,9 +216,17 @@ void WaveguideString::trigger(uint8_t note, float velocity, float brightness, fl
     m_decayTime = static_cast<double>(decayTime);
     const size_t N = retune();
 
-    // Excitation: raised cosine pulse; width ∝ 1/velocity (harder strike = narrower)
-    const size_t width = std::max(size_t { 1 }, N / std::max(size_t { 1 }, static_cast<size_t>(2.0 + static_cast<double>(velocity) * 6.0)));
-    const double amplitude = static_cast<double>(velocity) * 0.5;
+    // Excitation: raised cosine pulse; width ∝ 1/velocity (harder strike = narrower).
+    // The width the strike asks for is a fraction of the loop, which the top of the
+    // keyboard cannot supply: rounded down to whole samples it reached one sample by the
+    // seventh octave, and a raised cosine one sample wide is nothing but its own zero
+    // crossing, so the top octave was left with no hammer at all and spoke only from the
+    // felt noise. Below the floor the pulse is widened and its amplitude taken down to
+    // match, which keeps the energy the strike puts into the loop — and so the level the
+    // note speaks at — the same as the fraction of the loop originally asked for.
+    const double nominalWidth = static_cast<double>(N) / (2.0 + static_cast<double>(velocity) * 6.0);
+    const size_t width = std::max(MinExcitationWidth, static_cast<size_t>(std::lround(nominalWidth)));
+    const double amplitude = static_cast<double>(velocity) * 0.5 * std::sqrt(nominalWidth / static_cast<double>(width));
 
     // Noise burst seeded by note so repeated strikes are consistent but each pitch differs.
     // Decays in ~N/6 samples to model brief hammer-felt impact noise before the tone settles.
@@ -247,21 +255,27 @@ void WaveguideString::trigger(uint8_t note, float velocity, float brightness, fl
     const double strikePhase = std::fmod(static_cast<double>(note) * std::numbers::phi, 1.0);
     const size_t strikeOffset = static_cast<size_t>(strikePhase * static_cast<double>(maxStrikeOffset));
 
-    // Pre-load excitation into the delay buffer so output starts immediately.
-    m_delay.reset();
-    for (size_t i = 0; i < strikeOffset; i++) {
-        m_delay.write(0.0);
+    // Build the strike a lap at a time and let it wrap, so that holding it back can only
+    // move it around the loop and never cut it short. Written straight into the line, a
+    // pulse starting late enough ran out of room before it finished, which cost the note
+    // an arbitrary part of its strike depending on where the offset happened to land.
+    // The half sample in the raised cosine keeps a pulse at the floor width from opening
+    // on its own zero crossing.
+    m_excitation.assign(N, 0.0);
+    for (size_t i = 0; i < width; i++) {
+        const double t = (static_cast<double>(i) + 0.5) / static_cast<double>(width);
+        m_excitation[(strikeOffset + i) % N] += amplitude * 0.5 * (1.0 - std::cos(2.0 * std::numbers::pi * t));
     }
-    for (size_t i = 0; i < N - strikeOffset; i++) {
-        double excite = 0.0;
-        if (i < width) {
-            const double t = static_cast<double>(i) / static_cast<double>(width);
-            excite = amplitude * 0.5 * (1.0 - std::cos(2.0 * std::numbers::pi * t));
-        }
+    for (size_t i = 0; i < N; i++) {
         const double rawNoise = noiseDist(rng) * noiseGain * std::exp(-noiseDecay * static_cast<double>(i));
         noiseLpState = noiseAlpha * noiseLpState + (1.0 - noiseAlpha) * rawNoise;
-        excite += noiseLpState;
-        m_delay.write(excite);
+        m_excitation[(strikeOffset + i) % N] += noiseLpState;
+    }
+
+    // Pre-load excitation into the delay buffer so output starts immediately.
+    m_delay.reset();
+    for (size_t i = 0; i < N; i++) {
+        m_delay.write(m_excitation[i]);
     }
 
     m_damperGain = 1.0;
