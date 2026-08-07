@@ -153,6 +153,11 @@ QString ApplicationService::pianoSynthDeviceName() const
     return Constants::pianoSynthDeviceName();
 }
 
+QString ApplicationService::pianoSynthV2DeviceName() const
+{
+    return Constants::pianoSynthV2DeviceName();
+}
+
 QString ApplicationService::kick808DeviceName() const
 {
     return Constants::kick808DeviceName();

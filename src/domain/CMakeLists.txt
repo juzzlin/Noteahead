@@ -6,6 +6,7 @@ set(HEADER_FILES
     devices/drum_synth_device.hpp
     devices/kick_808_device.hpp
     devices/piano_synth_device.hpp
+    devices/piano_synth_v2_device.hpp
     devices/sampler_device.hpp
     devices/string_ensemble_device.hpp
     devices/sub_mixer_device.hpp
@@ -33,6 +34,7 @@ set(HEADER_FILES
     dsp/high_pass_filter.hpp
     dsp/lfo.hpp
     dsp/low_pass_filter.hpp
+    dsp/modal_piano_string.hpp
     dsp/multi_engine.hpp
     dsp/one_pole_filter.hpp
     dsp/panning.hpp
@@ -121,6 +123,7 @@ set(SOURCE_FILES
     devices/drum_synth_device.cpp
     devices/kick_808_device.cpp
     devices/piano_synth_device.cpp
+    devices/piano_synth_v2_device.cpp
     devices/sampler_device.cpp
     devices/string_ensemble_device.cpp
     devices/string_voice_device.cpp
@@ -149,6 +152,7 @@ set(SOURCE_FILES
     dsp/high_pass_filter.cpp
     dsp/lfo.cpp
     dsp/low_pass_filter.cpp
+    dsp/modal_piano_string.cpp
     dsp/multi_engine.cpp
     dsp/one_pole_filter.cpp
     dsp/panning.cpp

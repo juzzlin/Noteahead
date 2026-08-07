@@ -127,6 +127,11 @@ QString pianoSynthDeviceName()
     return "Noteahead PianoSynth";
 }
 
+QString pianoSynthV2DeviceName()
+{
+    return "Noteahead PianoSynth V2";
+}
+
 QString kick808DeviceName()
 {
     return "Noteahead Kick808";
@@ -2115,6 +2120,21 @@ QString xmlKeyHardness()
 QString xmlKeyStringDetune()
 {
     return "stringDetune";
+}
+
+QString xmlKeyStretch()
+{
+    return "stretch";
+}
+
+QString xmlKeyRichness()
+{
+    return "richness";
+}
+
+QString xmlKeyDoubleDecay()
+{
+    return "doubleDecay";
 }
 
 QString xmlKeyBandCount()

@@ -56,6 +56,7 @@ QString wavetableSynthDeviceName();
 QString bassSynthDeviceName();
 QString drumSynthDeviceName();
 QString pianoSynthDeviceName();
+QString pianoSynthV2DeviceName();
 QString kick808DeviceName();
 QString subMixerDeviceName();
 QString stringVoiceDeviceName();
@@ -589,6 +590,9 @@ QString xmlKeyBrightness();
 QString xmlKeyInharmonicity();
 QString xmlKeyHardness();
 QString xmlKeyStringDetune();
+QString xmlKeyStretch();
+QString xmlKeyRichness();
+QString xmlKeyDoubleDecay();
 
 QString xmlKeyLufsMeter();
 QString xmlKeyDbTpMeter();

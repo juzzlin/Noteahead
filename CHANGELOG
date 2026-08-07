@@ -5,6 +5,15 @@ Release date:
 
 New features:
 
+* Add the Piano Synth V2 device
+  - Voiced against a Yamaha CP88 recording: a bank of resonators, one per
+    partial, so that stiffness, per-partial decay, the two-stage decay of
+    a struck unison and the weakly radiated bass fundamental are each
+    modelled on their own
+  - Stretch tuning follows the reference's Railsback curve; it ships off
+    so that the piano stays in tune with the rest of Noteahead
+  - The existing Piano Synth is untouched
+
 * Add the fade out and tail silence options to the audio export
   - The fade out lands on zero right where the tail silence begins
   - Trimming still fixes the length of the file, so both are carved out
