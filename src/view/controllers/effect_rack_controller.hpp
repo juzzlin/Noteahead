@@ -50,6 +50,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString saturatorType READ saturatorType CONSTANT)
     Q_PROPERTY(QString tubeStageType READ tubeStageType CONSTANT)
     Q_PROPERTY(QString waveDesignerType READ waveDesignerType CONSTANT)
+    Q_PROPERTY(QString stereoEnhancerType READ stereoEnhancerType CONSTANT)
     Q_PROPERTY(QString driveType READ driveType CONSTANT)
     Q_PROPERTY(QString limiterType READ limiterType CONSTANT)
     Q_PROPERTY(QString compressorType READ compressorType CONSTANT)
@@ -95,6 +96,7 @@ public:
     QString saturatorType() const;
     QString tubeStageType() const;
     QString waveDesignerType() const;
+    QString stereoEnhancerType() const;
     QString driveType() const;
     QString limiterType() const;
     QString compressorType() const;
@@ -223,6 +225,16 @@ public:
     Q_INVOKABLE QString waveDesignerSustainKey() const;
     Q_INVOKABLE QString waveDesignerGainKey() const;
     Q_INVOKABLE QString waveDesignerMixKey() const;
+
+    Q_INVOKABLE QString stereoEnhancerBassGainKey() const;
+    Q_INVOKABLE QString stereoEnhancerBassFreqKey() const;
+    Q_INVOKABLE QString stereoEnhancerMidGainKey() const;
+    Q_INVOKABLE QString stereoEnhancerMidQKey() const;
+    Q_INVOKABLE QString stereoEnhancerHighGainKey() const;
+    Q_INVOKABLE QString stereoEnhancerHighFreqKey() const;
+    Q_INVOKABLE QString stereoEnhancerGainKey() const;
+    Q_INVOKABLE QString stereoEnhancerSpreadKey() const;
+    Q_INVOKABLE QString stereoEnhancerMixKey() const;
 
     Q_INVOKABLE QString driveModeKey() const;
     Q_INVOKABLE QString driveAmountKey() const;

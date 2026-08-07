@@ -109,8 +109,18 @@
     <li><strong>Dynamics</strong>: <strong>Compressor</strong> (with side-chain support), <strong>Auto Ducker</strong> (side-chain driven ducking or boosting), <strong>Limiter</strong> (lookahead brickwall with gain reduction metering), <strong>Clipper</strong> and <strong>Wave Designer</strong> (transient shaper, described below).</li>
     <li><strong>Saturation</strong>: <strong>Drive</strong> (Soft, Hard, Fold and Dist algorithms), <strong>Saturator</strong> and <strong>Tube Stage</strong> (valve preamp, described below).</li>
     <li><strong>Modulation & Time</strong>: <strong>Chorus</strong>, <strong>Delay</strong> (Mono, Ping Pong and Tape modes, with BPM sync) and <strong>All-Pass Filter</strong>.</li>
-    <li><strong>Stereo</strong>: <strong>Panner</strong> and <strong>Auto Panner</strong>.</li>
+    <li><strong>Stereo</strong>: <strong>Panner</strong>, <strong>Auto Panner</strong> and <strong>Stereo Enhancer</strong> (psychoacoustic EQ, described below).</li>
     <li><strong>Metering & Analysis</strong>: <strong>LUFS Meter</strong>, <strong>dBTP Meter</strong> (true peak) and <strong>RTA</strong> (real-time analyzer). Use these as inserts to watch the signal at any point in the chain.</li>
+</ul>
+
+<h3>Stereo Enhancer Parameters</h3>
+<p>A "psycho EQ" rather than an equalizer, after the X32's, itself after the SPL Vitalizer. Where an equalizer boosts a band by turning it up, this one takes each band out of the signal, works on it, and adds it back.</p>
+<ul>
+    <li><strong>Bass Gain</strong> and <strong>Bass Freq</strong>: the low band is saturated as it returns, so what comes back is the <em>harmonics</em> of the low end rather than more low end. Those harmonics let a small speaker imply a fundamental it cannot reproduce, at a fraction of the headroom the fundamental would cost.</li>
+    <li><strong>Mid Gain</strong> and <strong>Mid Q</strong>: the midrange is dipped rather than lifted, because pulling the middle back is what opens up the two ends. Q sets how wide the dip is.</li>
+    <li><strong>Hi Gain</strong> and <strong>Hi Freq</strong>: the top band, added back as a band of its own.</li>
+    <li><strong>Spread</strong>: widens what is already off-centre by working on the side signal alone, so a mono source stays mono however far it is turned up.</li>
+    <li><strong>Out Gain</strong> and <strong>Mix</strong>: output trim, and the blend against the dry signal.</li>
 </ul>
 
 <h3>Wave Designer Parameters</h3>

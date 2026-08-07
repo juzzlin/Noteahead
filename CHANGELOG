@@ -5,6 +5,12 @@ Release date:
 
 New features:
 
+* Add the Stereo Enhancer effect
+  - Psychoacoustic EQ after the X32's, itself after the SPL Vitalizer: each
+    band is taken out, worked on and added back rather than turned up
+  - Bass returns as harmonics of the low end, the midrange is dipped to open
+    up the two ends, and Spread widens only what is already off-centre
+
 * Add the Wave Designer effect
   - Transient shaper with Attack for the leading edge of a hit and Sustain
     for the tail behind it, after the X32's, itself after the SPL

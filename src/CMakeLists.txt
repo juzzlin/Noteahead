@@ -102,6 +102,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/PianoSynthDialog.qml
     ${QML_BASE_DIR}/Dialogs/PianoSynthDialog_Global.qml
     ${QML_BASE_DIR}/Dialogs/PianoSynthDialog_String.qml
+    ${QML_BASE_DIR}/Dialogs/StereoEnhancerDialog.qml
     ${QML_BASE_DIR}/Dialogs/StringEnsembleDialog.qml
     ${QML_BASE_DIR}/Dialogs/StringEnsembleDialog_Envelope.qml
     ${QML_BASE_DIR}/Dialogs/StringEnsembleDialog_Global.qml

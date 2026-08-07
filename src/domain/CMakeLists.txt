@@ -64,6 +64,7 @@ set(HEADER_FILES
     effects/tube_stage.hpp
     effects/simple_eq.hpp
     effects/vintage_passive_eq.hpp
+    effects/stereo_enhancer.hpp
     effects/wave_designer.hpp
     midi/midi_address.hpp
     midi/midi_cc_automation.hpp
@@ -180,6 +181,7 @@ set(SOURCE_FILES
     effects/tube_stage.cpp
     effects/simple_eq.cpp
     effects/vintage_passive_eq.cpp
+    effects/stereo_enhancer.cpp
     effects/wave_designer.cpp
     midi/midi_address.cpp
     midi/midi_cc_automation.cpp

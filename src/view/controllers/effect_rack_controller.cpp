@@ -34,6 +34,7 @@
 #include "../../domain/effects/panner.hpp"
 #include "../../domain/effects/reverb.hpp"
 #include "../../domain/effects/saturator.hpp"
+#include "../../domain/effects/stereo_enhancer.hpp"
 #include "../../domain/effects/tube_stage.hpp"
 #include "../../domain/effects/wave_designer.hpp"
 #include "../../domain/utility/dbtp_meter.hpp"
@@ -287,6 +288,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Saturator", Constants::RackEffectType::saturator().toStdString());
     addEffect("Tube Stage", Constants::RackEffectType::tubeStage().toStdString());
     addEffect("Wave Designer", Constants::RackEffectType::waveDesigner().toStdString());
+    addEffect("Stereo Enhancer", Constants::RackEffectType::stereoEnhancer().toStdString());
 
     return list;
 }
@@ -551,6 +553,16 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                     return QString { "(attack=%1, sustain=%2)" }
                       .arg((attack->get().value() - 0.5f) * 2.0f, 0, 'f', 2)
                       .arg((sustain->get().value() - 0.5f) * 2.0f, 0, 'f', 2);
+                }
+            } else if (type == Constants::RackEffectType::stereoEnhancer()) {
+                const auto bass = effect->parameter(Constants::NahdXml::xmlKeyBassGain().toStdString());
+                const auto high = effect->parameter(Constants::NahdXml::xmlKeyHighGain().toStdString());
+                const auto spread = effect->parameter(Constants::NahdXml::xmlKeySpread().toStdString());
+                if (bass && high && spread) {
+                    return QString { "(bass=%1%, hi=%2%, spread=%3%)" }
+                      .arg(static_cast<int>(std::round(bass->get().value() * 100.0f)))
+                      .arg(static_cast<int>(std::round(high->get().value() * 100.0f)))
+                      .arg(static_cast<int>(std::round(spread->get().value() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::saturator()) {
                 const auto drive = effect->parameter(Constants::NahdXml::xmlKeyDrive().toStdString());
@@ -1038,6 +1050,56 @@ QString EffectRackController::waveDesignerGainKey() const
 }
 
 QString EffectRackController::waveDesignerMixKey() const
+{
+    return Constants::NahdXml::xmlKeyMix();
+}
+
+QString EffectRackController::stereoEnhancerType() const
+{
+    return Constants::RackEffectType::stereoEnhancer();
+}
+
+QString EffectRackController::stereoEnhancerBassGainKey() const
+{
+    return Constants::NahdXml::xmlKeyBassGain();
+}
+
+QString EffectRackController::stereoEnhancerBassFreqKey() const
+{
+    return Constants::NahdXml::xmlKeyBassFreq();
+}
+
+QString EffectRackController::stereoEnhancerMidGainKey() const
+{
+    return Constants::NahdXml::xmlKeyMidGain();
+}
+
+QString EffectRackController::stereoEnhancerMidQKey() const
+{
+    return Constants::NahdXml::xmlKeyMidQ();
+}
+
+QString EffectRackController::stereoEnhancerHighGainKey() const
+{
+    return Constants::NahdXml::xmlKeyHighGain();
+}
+
+QString EffectRackController::stereoEnhancerHighFreqKey() const
+{
+    return Constants::NahdXml::xmlKeyHighFreq();
+}
+
+QString EffectRackController::stereoEnhancerGainKey() const
+{
+    return Constants::NahdXml::xmlKeyGain();
+}
+
+QString EffectRackController::stereoEnhancerSpreadKey() const
+{
+    return Constants::NahdXml::xmlKeySpread();
+}
+
+QString EffectRackController::stereoEnhancerMixKey() const
 {
     return Constants::NahdXml::xmlKeyMix();
 }

@@ -36,6 +36,7 @@
 #include "saturator.hpp"
 #include "simple_eq.hpp"
 #include "tube_stage.hpp"
+#include "stereo_enhancer.hpp"
 #include "wave_designer.hpp"
 #include "vintage_passive_eq.hpp"
 
@@ -129,6 +130,8 @@ void EffectFactory::init()
     registerEffect(Constants::RackEffectType::airBandEq().toStdString(), []() { return std::make_shared<AirBandEq>(); });
     registerEffect(Constants::RackEffectType::simpleEq().toStdString(), []() { return std::make_shared<SimpleEq>(); });
     registerEffect(Constants::RackEffectType::tubeStage().toStdString(), []() { return std::make_shared<TubeStage>(); });
+    registerEffect(StereoEnhancer::typeIdString(), []() { return std::make_shared<StereoEnhancer>(); });
+    registerEffect(Constants::RackEffectType::stereoEnhancer().toStdString(), []() { return std::make_shared<StereoEnhancer>(); });
     registerEffect(WaveDesigner::typeIdString(), []() { return std::make_shared<WaveDesigner>(); });
     registerEffect(Constants::RackEffectType::waveDesigner().toStdString(), []() { return std::make_shared<WaveDesigner>(); });
 
@@ -136,6 +139,7 @@ void EffectFactory::init()
     registerLegacyEffect("auto_ducker", []() { return std::make_shared<AutoDucker>(); });
     registerLegacyEffect("tube_stage", []() { return std::make_shared<TubeStage>(); });
     registerLegacyEffect("wave_designer", []() { return std::make_shared<WaveDesigner>(); });
+    registerLegacyEffect("stereo_enhancer", []() { return std::make_shared<StereoEnhancer>(); });
     registerLegacyEffect("auto_panner", []() { return std::make_shared<AutoPanner>(); });
     registerLegacyEffect("endless", []() { return std::make_shared<EndlessReverb>(); });
     registerLegacyEffect("chorus", []() { return std::make_shared<Chorus>(); });

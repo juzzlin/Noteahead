@@ -211,6 +211,11 @@ QString waveDesigner()
     return "waveDesigner";
 }
 
+QString stereoEnhancer()
+{
+    return "stereoEnhancer";
+}
+
 QString limiter()
 {
     return "limiter";
@@ -1420,6 +1425,41 @@ QString xmlKeyBandQ(size_t bandIndex)
 QString xmlKeyAmount()
 {
     return "amount";
+}
+
+QString xmlKeyBassGain()
+{
+    return "bassGain";
+}
+
+QString xmlKeyBassFreq()
+{
+    return "bassFreq";
+}
+
+QString xmlKeyMidGain()
+{
+    return "midGain";
+}
+
+QString xmlKeyMidQ()
+{
+    return "midQ";
+}
+
+QString xmlKeyHighGain()
+{
+    return "highGain";
+}
+
+QString xmlKeyHighFreq()
+{
+    return "highFreq";
+}
+
+QString xmlKeySpread()
+{
+    return "spread";
 }
 
 QString xmlKeyLowFreq()

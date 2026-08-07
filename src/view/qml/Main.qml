@@ -482,6 +482,12 @@ ApplicationWindow {
         width: parent.width * Constants.effectDialogScale
         height: parent.height * Constants.effectDialogScale
     }
+    StereoEnhancerDialog {
+        id: stereoEnhancerDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.effectDialogScale
+        height: parent.height * Constants.effectDialogScale
+    }
     WaveDesignerDialog {
         id: waveDesignerDialog
         anchors.centerIn: parent
