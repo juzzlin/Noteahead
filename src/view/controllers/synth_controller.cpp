@@ -85,7 +85,8 @@ QStringList SynthController::voiceModes() const
 
 QStringList SynthController::octaveNames() const
 {
-    return { "16'", "8'", "4'", "2'" };
+    // Organ footages, so the index is the octave offset from 8' plus two.
+    return { "32'", "16'", "8'", "4'", "2'" };
 }
 
 QStringList SynthController::multiTypeNames() const

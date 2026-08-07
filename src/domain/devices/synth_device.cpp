@@ -114,19 +114,19 @@ SynthDevice::SynthDevice(std::string name)
 
     // Initialize Parameters
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco1Waveform().toStdString(), 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyVco1Octave().toStdString(), 0.0f, -1, 2, 0, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco1Octave().toStdString(), 0.0f, -2, 2, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco1Pitch().toStdString(), 0.5f, -2400, 2400, 0 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco1Shape().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco1Sync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco2Waveform().toStdString(), 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyVco2Octave().toStdString(), 0.0f, -1, 2, 0, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco2Octave().toStdString(), 0.0f, -2, 2, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco2Pitch().toStdString(), 0.5f, -2400, 2400, 0 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco2Shape().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco2Sync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco3Waveform().toStdString(), 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyVco3Octave().toStdString(), 0.0f, -1, 2, 0, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco3Octave().toStdString(), 0.0f, -2, 2, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco3Pitch().toStdString(), 0.5f, -2400, 2400, 0 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco3Shape().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco3Sync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });

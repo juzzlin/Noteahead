@@ -44,8 +44,8 @@ ColumnLayout {
         }
         ComboBox {
             model: synthController.octaveNames
-            currentIndex: synthController.vco1Octave + 1
-            onActivated: i => synthController.vco1Octave = i - 1
+            currentIndex: synthController.vco1Octave + 2
+            onActivated: i => synthController.vco1Octave = i - 2
             Layout.fillWidth: true
         }
     }

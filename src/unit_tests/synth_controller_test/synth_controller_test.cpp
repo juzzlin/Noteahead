@@ -95,6 +95,26 @@ void SynthControllerTest::test_reset_shouldRestoreDefaultValues()
     QCOMPARE(controller.volume(), static_cast<int>(std::round(Constants::faderUnityPosition() * Constants::uiInternalScaling())));
 }
 
+void SynthControllerTest::test_octaveNames()
+{
+    const auto synth = std::make_shared<SynthDevice>("Test Synth");
+    SynthController controller { synth };
+    const auto octaves = controller.octaveNames();
+    QCOMPARE(octaves.size(), 5);
+    // The dialogs index this list by octave + 2, so 8' has to stay in the middle.
+    QCOMPARE(octaves.at(0), QString("32'"));
+    QCOMPARE(octaves.at(1), QString("16'"));
+    QCOMPARE(octaves.at(2), QString("8'"));
+    QCOMPARE(octaves.at(3), QString("4'"));
+    QCOMPARE(octaves.at(4), QString("2'"));
+
+    // And the range the names cover has to be the range the synth actually accepts.
+    controller.setVco1Octave(-2);
+    QCOMPARE(controller.vco1Octave(), -2);
+    controller.setVco1Octave(2);
+    QCOMPARE(controller.vco1Octave(), 2);
+}
+
 void SynthControllerTest::test_voiceModes()
 {
     const auto synth = std::make_shared<SynthDevice>("Test Synth");

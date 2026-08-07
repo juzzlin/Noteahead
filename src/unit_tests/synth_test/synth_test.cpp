@@ -427,6 +427,69 @@ void SynthTest::test_parameterDiscreteFlag_shouldReturnCorrectDiscreteState()
     QVERIFY(!multiShape->get().isDiscrete());
 }
 
+namespace {
+
+//! Zero crossings of the left channel over the given number of blocks, a cheap stand-in for pitch.
+int zeroCrossings(SynthDevice & synth, int blocks)
+{
+    constexpr uint32_t frameCount = 512;
+    double buffer[frameCount * 2] {};
+    AudioContext context { std::span(buffer, frameCount * 2), frameCount, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+
+    int crossings = 0;
+    double previous = 0.0;
+    for (int block = 0; block < blocks; block++) {
+        std::fill(std::begin(buffer), std::end(buffer), 0.0);
+        synth.processAudio(context);
+        for (uint32_t i = 0; i < frameCount; i++) {
+            const double sample = buffer[i * 2];
+            if ((previous < 0.0) != (sample < 0.0)) {
+                crossings++;
+            }
+            previous = sample;
+        }
+    }
+    return crossings;
+}
+
+} // namespace
+
+void SynthTest::test_vcoOctave_32Foot_shouldSoundTwoOctavesBelow8Foot()
+{
+    const auto crossingsAt = [](int octave) {
+        SynthDevice synth { "Test Synth" };
+        // A sine has exactly two zero crossings per cycle. A saw's polyBLEP-smoothed wrap can wobble
+        // across zero more than once, which biases the count at the low end.
+        synth.setVco1Waveform(PolyBlepOscillator::Waveform::Sine);
+        synth.setVco1Octave(octave);
+        synth.processMidiNoteOn(72, 100);
+        zeroCrossings(synth, 10); // Past the attack, so the count is of a steady tone
+        return zeroCrossings(synth, 40);
+    };
+
+    const int at8Foot = crossingsAt(0);
+    const int at32Foot = crossingsAt(-2);
+    QVERIFY(at8Foot > 0);
+    QVERIFY(at32Foot > 0);
+
+    // 32' is two octaves below 8', so the waveform has to come out at a quarter of the rate.
+    const double ratio = static_cast<double>(at8Foot) / at32Foot;
+    QVERIFY2(std::abs(ratio - 4.0) < 0.2, qPrintable(QString { "Rate ratio was %1, expected 4" }.arg(ratio)));
+}
+
+void SynthTest::test_vcoOctave_belowRange_shouldClampTo32Foot()
+{
+    SynthDevice synth { "Test Synth" };
+
+    // 32' is the bottom of the range, and presets are free to ask for more than that.
+    synth.setVco1Octave(-3);
+    QCOMPARE(synth.vco1Octave(), -2);
+    synth.setVco2Octave(-3);
+    QCOMPARE(synth.vco2Octave(), -2);
+    synth.setVco3Octave(-3);
+    QCOMPARE(synth.vco3Octave(), -2);
+}
+
 void SynthTest::test_midiBankAndProgramChange_shouldLoadCorrectPreset()
 {
     SynthDevice synth { "Test Synth" };

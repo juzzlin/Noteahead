@@ -5,6 +5,10 @@ Release date:
 
 New features:
 
+* Add the 32' footage to the Synth's oscillators
+  - All three VCOs now reach two octaves below 8', for sub weight the
+    16' setting could not get down to
+
 * Add the Mono voice mode to the Synth
   - Poly on a single voice: notes glide to the new pitch instead of
     stacking, while every note still gets its own envelope attack

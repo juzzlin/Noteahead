@@ -41,6 +41,8 @@ private slots:
     void test_portamento_shouldGlideFrequency();
     void test_portamentoOff_shouldJumpImmediately();
     void test_parameterDiscreteFlag_shouldReturnCorrectDiscreteState();
+    void test_vcoOctave_32Foot_shouldSoundTwoOctavesBelow8Foot();
+    void test_vcoOctave_belowRange_shouldClampTo32Foot();
     void test_midiBankAndProgramChange_shouldLoadCorrectPreset();
     void test_userPresets_shouldSaveAndLoad();
     void test_userPresetsDiscreteValues_shouldLoadCorrectly();
