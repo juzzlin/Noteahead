@@ -21,6 +21,11 @@
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
 #include <QTest>
+
+#include <algorithm>
+#include <cmath>
+#include <numbers>
+#include <optional>
 #include <vector>
 
 namespace noteahead {
@@ -46,6 +51,98 @@ void renderFrames(PianoSynthDevice & piano, uint32_t frames, uint32_t sampleRate
     std::vector<double> buffer(static_cast<size_t>(frames) * 2, 0.0);
     auto ctx = makeContext(buffer, frames, sampleRate);
     piano.processAudio(ctx);
+}
+
+// Renders the device down to mono, discarding the strike transient so that only the
+// steady part of the tone is left to measure.
+std::vector<double> renderTone(PianoSynthDevice & piano, uint32_t sampleRate, uint32_t skip, uint32_t length)
+{
+    const uint32_t frames = skip + length;
+    std::vector<double> buffer(static_cast<size_t>(frames) * 2, 0.0);
+    auto ctx = makeContext(buffer, frames, sampleRate);
+    piano.processAudio(ctx);
+
+    std::vector<double> mono(length);
+    for (uint32_t i = 0; i < length; i++) {
+        const size_t frame = static_cast<size_t>(skip + i) * 2;
+        mono[i] = buffer[frame] + buffer[frame + 1];
+    }
+    return mono;
+}
+
+// Magnitude of the Hann-windowed DFT at an arbitrary frequency, evaluated by rotating
+// a phasor so that the frequency grid can be made as fine as needed.
+double dftMagnitude(const std::vector<double> & samples, double sampleRate, double frequency)
+{
+    const double w = 2.0 * std::numbers::pi * frequency / sampleRate;
+    const double cosW = std::cos(w);
+    const double sinW = std::sin(w);
+    const double last = static_cast<double>(samples.size() - 1);
+    double phasorRe = 1.0;
+    double phasorIm = 0.0;
+    double re = 0.0;
+    double im = 0.0;
+    for (size_t i = 0; i < samples.size(); i++) {
+        const double window = 0.5 - 0.5 * std::cos(2.0 * std::numbers::pi * static_cast<double>(i) / last);
+        const double value = samples[i] * window;
+        re += value * phasorRe;
+        im -= value * phasorIm;
+        const double nextRe = phasorRe * cosW - phasorIm * sinW;
+        phasorIm = phasorRe * sinW + phasorIm * cosW;
+        phasorRe = nextRe;
+    }
+    return std::hypot(re, im);
+}
+
+// Locates the fundamental on a fine grid spanning ±3 % of the expected frequency and
+// refines the winning bin parabolically. Nothing is returned if the peak sits at the
+// edge of the span, since the real fundamental is then somewhere further out.
+std::optional<double> measureFundamental(const std::vector<double> & samples, double sampleRate, double expected)
+{
+    constexpr int steps = 60;
+    const double step = expected * 0.0005;
+
+    std::vector<double> magnitudes(2 * steps + 1);
+    int best = 0;
+    for (int i = 0; i <= 2 * steps; i++) {
+        magnitudes[i] = dftMagnitude(samples, sampleRate, expected + (i - steps) * step);
+        if (magnitudes[i] > magnitudes[best]) {
+            best = i;
+        }
+    }
+    if (best == 0 || best == 2 * steps) {
+        return std::nullopt;
+    }
+
+    const double denominator = magnitudes[best - 1] - 2.0 * magnitudes[best] + magnitudes[best + 1];
+    const double offset = denominator == 0.0 ? 0.0 : 0.5 * (magnitudes[best - 1] - magnitudes[best + 1]) / denominator;
+    return expected + (best - steps + offset) * step;
+}
+
+double noteFrequency(int note)
+{
+    return 440.0 * std::exp2((note - 69) / 12.0);
+}
+
+double centsBetween(double measured, double reference)
+{
+    return 1200.0 * std::log2(measured / reference);
+}
+
+// Plays one note on an otherwise clean voice and returns its sounding frequency.
+std::optional<double> measurePitch(int note, uint8_t velocity = 100, uint32_t sampleRate = 44100)
+{
+    PianoSynthDevice piano { "Test Piano" };
+    piano.setVolume(1.0f);
+    piano.setGain(0.5f);
+    piano.setDecay(1.0f);
+    piano.setStringDetune(0.0f); // Keep the unison pair together so there is one pitch
+    piano.processMidiNoteOn(static_cast<uint8_t>(note), velocity);
+
+    const double expected = noteFrequency(note);
+    const auto length = static_cast<uint32_t>(std::clamp(40.0 * sampleRate / expected, 8192.0, 32768.0));
+    const auto mono = renderTone(piano, sampleRate, 4096, length);
+    return measureFundamental(mono, sampleRate, expected);
 }
 
 } // namespace
@@ -191,6 +288,42 @@ void PianoSynthTest::test_velocity_shouldAffectOutputLevel()
 
     QVERIFY2(peakHigh > peakLow,
              QString("Velocity did not affect level: low=%1 high=%2").arg(peakLow).arg(peakHigh).toUtf8().constData());
+}
+
+void PianoSynthTest::test_tuning_shouldMatchNoteFrequency_acrossKeyboard()
+{
+    for (const int note : { 21, 36, 48, 60, 69, 79, 88, 96 }) {
+        const double expected = noteFrequency(note);
+        const auto measured = measurePitch(note);
+        QVERIFY2(measured.has_value(),
+                 QString { "Note %1: no fundamental found near %2 Hz" }.arg(note).arg(expected).toUtf8().constData());
+
+        const double cents = centsBetween(measured.value(), expected);
+        QVERIFY2(std::abs(cents) < 3.0,
+                 QString { "Note %1: expected %2 Hz, measured %3 cents off" }
+                   .arg(note)
+                   .arg(expected)
+                   .arg(cents)
+                   .toUtf8()
+                   .constData());
+    }
+}
+
+void PianoSynthTest::test_tuning_shouldNotDependOnVelocity()
+{
+    constexpr int note = 79;
+
+    // Velocity feeds the hammer brightness, which sets the loop filter and hence part of
+    // the loop delay. How hard the key is struck must not change what note comes out.
+    const auto soft = measurePitch(note, 20);
+    const auto hard = measurePitch(note, 127);
+    QVERIFY(soft.has_value());
+    QVERIFY(hard.has_value());
+
+    const double difference = centsBetween(hard.value(), soft.value());
+
+    QVERIFY2(std::abs(difference) < 1.0,
+             QString { "Velocity shifted the pitch by %1 cents" }.arg(difference).toUtf8().constData());
 }
 
 } // namespace noteahead

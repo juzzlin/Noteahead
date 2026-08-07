@@ -24,11 +24,27 @@ void DelayLine::setMaxDelay(size_t maxSamples)
     m_buffer.assign(maxSamples, 0.0);
     m_writePos = 0;
     m_delay = 0;
+    m_fraction = 0.0;
 }
 
 void DelayLine::setDelay(size_t samples)
 {
     m_delay = m_buffer.empty() ? 0 : std::min(samples, m_buffer.size());
+    m_fraction = 0.0;
+}
+
+void DelayLine::setFractionalDelay(double samples)
+{
+    // The interpolating read needs one extra tap behind the integer one, so the
+    // usable range is one sample shorter than the buffer.
+    if (m_buffer.size() < 2) {
+        m_delay = 0;
+        m_fraction = 0.0;
+        return;
+    }
+    const auto clamped = std::clamp(samples, 1.0, static_cast<double>(m_buffer.size() - 1));
+    m_delay = static_cast<size_t>(clamped);
+    m_fraction = clamped - static_cast<double>(m_delay);
 }
 
 void DelayLine::write(double sample)
@@ -44,7 +60,12 @@ double DelayLine::read() const
     if (m_buffer.empty() || m_delay == 0)
         return 0.0;
     const size_t n = m_buffer.size();
-    return m_buffer[(m_writePos + n - m_delay) % n];
+    const double s0 = m_buffer[(m_writePos + n - m_delay) % n];
+    if (m_fraction == 0.0)
+        return s0;
+    // One tap further back; setFractionalDelay guarantees m_delay + 1 <= n.
+    const double s1 = m_buffer[(m_writePos + n - m_delay - 1) % n];
+    return s0 + (s1 - s0) * m_fraction;
 }
 
 void DelayLine::reset()
@@ -56,6 +77,16 @@ void DelayLine::reset()
 size_t DelayLine::delay() const
 {
     return m_delay;
+}
+
+double DelayLine::fraction() const
+{
+    return m_fraction;
+}
+
+size_t DelayLine::capacity() const
+{
+    return m_buffer.size();
 }
 
 } // namespace noteahead

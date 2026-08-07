@@ -22,6 +22,33 @@
 
 namespace noteahead {
 
+namespace {
+
+// Phase delay in samples of the loop filter y[n] = (1-c)*x[n] + c*x[n-1] at angular
+// frequency w. The sounding pitch of a delay loop is set by the phase delay at the
+// fundamental, not by the group delay at DC, and the two diverge enough in the top
+// octaves to be worth several cents.
+double loopFilterPhaseDelay(double c, double w)
+{
+    if (w < 1e-9) {
+        return c;
+    }
+    return std::atan2(c * std::sin(w), (1.0 - c) + c * std::cos(w)) / w;
+}
+
+// Phase delay in samples of one all-pass stage H(z) = (a + z^-1) / (1 + a*z^-1).
+double allPassPhaseDelay(double a, double w)
+{
+    if (w < 1e-9) {
+        return (1.0 - a) / (1.0 + a);
+    }
+    const double sinW = std::sin(w);
+    const double cosW = std::cos(w);
+    return (std::atan2(sinW, a + cosW) - std::atan2(a * sinW, 1.0 + a * cosW)) / w;
+}
+
+} // namespace
+
 double WaveguideString::midiNoteToFreq(uint8_t note)
 {
     return 440.0 * std::exp2((note - 69) / 12.0);
@@ -29,37 +56,66 @@ double WaveguideString::midiNoteToFreq(uint8_t note)
 
 void WaveguideString::setSampleRate(double sampleRate)
 {
+    const bool rateChanged = m_sampleRate != sampleRate;
+
     DspComponent::setSampleRate(sampleRate);
     m_delay.setSampleRate(sampleRate);
     m_dispersion.setSampleRate(sampleRate);
+    ensureBuffer();
+
+    if (rateChanged && m_frequency > 0.0) {
+        // A note struck before the backend reported its rate was tuned against the
+        // default one, so re-derive the loop length instead of leaving it sounding off.
+        retune();
+    }
+}
+
+void WaveguideString::ensureBuffer()
+{
+    // Sized so that even the bottom of the MIDI range fits, and grown only when a
+    // higher rate demands it: shrinking would clear the buffer and cut a ringing
+    // string short, while the spare capacity costs nothing to keep.
+    const auto required = static_cast<size_t>(std::ceil(m_sampleRate / LowestFrequency)) + 2;
+    if (m_delay.capacity() < required) {
+        m_delay.setMaxDelay(required);
+    }
+}
+
+size_t WaveguideString::retune()
+{
+    const double w = 2.0 * std::numbers::pi * m_frequency / m_sampleRate;
+
+    // Everything in the loop contributes to the period, so the delay line only has to
+    // supply what the filters do not. The interpolating read contributes its own
+    // fractional part to within a thousandth of a sample, which is far below audibility.
+    const double loopFilterDelay = loopFilterPhaseDelay(m_loopFilterCoeff, w);
+    const double apDelay = ApStages * allPassPhaseDelay(m_dispersionCoeff, w);
+    m_delay.setFractionalDelay(m_sampleRate / m_frequency - loopFilterDelay - apDelay);
+
+    return m_delay.delay();
 }
 
 void WaveguideString::trigger(uint8_t note, float velocity, float brightness, float inharmonicity, float decayTime, double detuneCents)
 {
-    const double freq = midiNoteToFreq(note) * std::pow(2.0, detuneCents / 1200.0);
+    ensureBuffer();
 
-    // Compute filter parameters first so N can be corrected for loop delay.
-    // Loop filter FIR y[n]=(1-c)*x[n]+c*x[n-1] has group delay ≈ c samples at DC.
+    m_frequency = midiNoteToFreq(note) * std::exp2(detuneCents / 1200.0);
+    const double freq = m_frequency;
+
+    // Compute the filter parameters first so the delay length can be corrected for
+    // the delay they add to the loop.
     m_loopFilterCoeff = static_cast<double>(1.0f - brightness) * 0.5;
     m_loopFilterPrev = 0.0;
 
-    // All-pass chain H(z)=(a+z^-1)/(1+a*z^-1): group delay = (1-a)/(1+a) per stage at DC.
-    constexpr int ApStages = 4;
-    const double apCoeff = static_cast<double>(inharmonicity) * 0.15;
+    m_dispersionCoeff = static_cast<double>(inharmonicity) * 0.15;
     m_dispersion.setStages(ApStages);
-    m_dispersion.setCoefficient(apCoeff);
+    m_dispersion.setCoefficient(m_dispersionCoeff);
     m_dispersion.reset();
 
-    // Subtract the combined filter delay from the delay-line length so the sounding
-    // pitch matches the target frequency.
-    const double loopFilterDelay = m_loopFilterCoeff;
-    const double apDelay = ApStages * (1.0 - apCoeff) / (1.0 + apCoeff);
-    const size_t N = std::clamp(
-      static_cast<size_t>(std::round(m_sampleRate / freq - loopFilterDelay - apDelay)),
-      size_t { 4 }, MaxDelaySamples);
-
-    m_delay.setMaxDelay(N);
-    m_delay.setDelay(N);
+    // The loop length is fractional, so the sounding pitch matches the target exactly
+    // instead of snapping to the nearest whole sample. N below is only the integer part,
+    // used to size the excitation.
+    const size_t N = retune();
 
     // Loop gain derived from desired T60 decay time.
     // Each cycle of N samples multiplies amplitude by loopGain.
@@ -153,9 +209,11 @@ void WaveguideString::reset()
 {
     m_delay.reset();
     m_dispersion.reset();
+    m_frequency = 0.0;
     m_loopGain = 0.0;
     m_loopFilterCoeff = 0.25;
     m_loopFilterPrev = 0.0;
+    m_dispersionCoeff = 0.0;
     m_damperGain = 1.0;
     m_damperDecay = 1.0;
     m_releasing = false;

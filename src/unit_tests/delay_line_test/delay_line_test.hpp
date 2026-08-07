@@ -29,6 +29,11 @@ private slots:
     void test_read_shouldReturnZero_beforeDelayElapsed();
     void test_read_shouldReturnWrittenValue_afterDelaySteps();
     void test_delay_shouldMatchConfiguredLength();
+    void test_setFractionalDelay_shouldSplitIntegerAndFraction();
+    void test_setFractionalDelay_shouldClampToUsableRange();
+    void test_readFractional_shouldInterpolateBetweenTaps();
+    void test_readFractional_shouldMatchIntegerRead_whenFractionIsZero();
+    void test_setDelay_shouldClearAnyPreviousFraction();
     void test_reset_shouldClearBuffer();
 };
 

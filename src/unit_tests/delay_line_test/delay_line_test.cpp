@@ -77,6 +77,71 @@ void DelayLineTest::test_delay_shouldMatchConfiguredLength()
     }
 }
 
+void DelayLineTest::test_setFractionalDelay_shouldSplitIntegerAndFraction()
+{
+    DelayLine dl;
+    dl.setMaxDelay(16);
+    dl.setFractionalDelay(7.25);
+
+    QCOMPARE(dl.delay(), size_t { 7 });
+    QCOMPARE(dl.fraction(), 0.25);
+}
+
+void DelayLineTest::test_setFractionalDelay_shouldClampToUsableRange()
+{
+    DelayLine dl;
+    dl.setMaxDelay(8);
+
+    // The interpolation partner sits one tap behind, so the last slot stays reserved
+    dl.setFractionalDelay(100.0);
+    QCOMPARE(dl.delay(), size_t { 7 });
+    QCOMPARE(dl.fraction(), 0.0);
+}
+
+void DelayLineTest::test_readFractional_shouldInterpolateBetweenTaps()
+{
+    DelayLine dl;
+    constexpr size_t D = 8;
+    dl.setMaxDelay(D);
+    dl.setFractionalDelay(4.5);
+
+    // Ramp so that neighbouring taps differ by exactly one
+    for (size_t i = 0; i < D; i++) {
+        dl.write(static_cast<double>(i + 1));
+    }
+
+    // Taps 4 and 5 writes back hold 5.0 and 4.0, so half way between them is 4.5
+    QCOMPARE(dl.read(), 4.5);
+}
+
+void DelayLineTest::test_readFractional_shouldMatchIntegerRead_whenFractionIsZero()
+{
+    DelayLine integerLine;
+    DelayLine fractionalLine;
+    constexpr size_t D = 6;
+    integerLine.setMaxDelay(16);
+    integerLine.setDelay(D);
+    fractionalLine.setMaxDelay(16);
+    fractionalLine.setFractionalDelay(static_cast<double>(D));
+
+    for (size_t i = 0; i < 16; i++) {
+        const double value = static_cast<double>(i) * 0.5 - 2.0;
+        QCOMPARE(fractionalLine.read(), integerLine.read());
+        integerLine.write(value);
+        fractionalLine.write(value);
+    }
+}
+
+void DelayLineTest::test_setDelay_shouldClearAnyPreviousFraction()
+{
+    DelayLine dl;
+    dl.setMaxDelay(16);
+    dl.setFractionalDelay(5.75);
+    dl.setDelay(5);
+
+    QCOMPARE(dl.fraction(), 0.0);
+}
+
 void DelayLineTest::test_reset_shouldClearBuffer()
 {
     DelayLine dl;

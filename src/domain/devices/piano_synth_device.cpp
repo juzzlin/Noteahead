@@ -177,6 +177,13 @@ void PianoSynthDevice::processAudio(AudioContext & context)
     m_hpfR.setCutoff(static_cast<double>(m_hpfCutoff));
     m_panner.setPan(static_cast<double>(panInternal()));
 
+    // Strings retune themselves when the rate changes, so this must happen once per
+    // buffer and outside the per-sample loop.
+    for (auto & v : m_voices) {
+        v.string.setSampleRate(context.sampleRate);
+        v.string2.setSampleRate(context.sampleRate);
+    }
+
     for (uint32_t i = 0; i < context.frameCount; i++) {
         double outL = 0.0;
         double outR = 0.0;
@@ -186,8 +193,6 @@ void PianoSynthDevice::processAudio(AudioContext & context)
                 continue;
             }
 
-            v.string.setSampleRate(context.sampleRate);
-            v.string2.setSampleRate(context.sampleRate);
             const double s1 = v.string.nextSample();
             const double s2 = v.string2.nextSample();
             const double sample = (s1 + s2) * 0.5 * static_cast<double>(v.velocity) * linearGainInternal();
@@ -308,8 +313,9 @@ void PianoSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
     // Higher notes are naturally brighter; shift brightness by ±0.24 across the keyboard.
     const float noteBrightOffset = (static_cast<float>(note) - 60.0f) / 127.0f * 0.6f;
     const float effectiveBright = std::clamp(m_brightness + velBright + noteBrightOffset, 0.0f, 1.0f);
-    // Detuning in cents for the second string (0–15 cents).
-    const double detuneCents = static_cast<double>(m_stringDetune) * 15.0;
+    // Unison detuning (0–15 cents), split symmetrically so that the pair stays centred
+    // on the nominal pitch instead of drifting sharp as the spread is opened up.
+    const double detuneCents = static_cast<double>(m_stringDetune) * 15.0 * 0.5;
 
     int idx = findVoiceForNote(note);
     if (idx < 0) {
@@ -319,7 +325,7 @@ void PianoSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
     auto & v = m_voices[idx];
     v.string.setSampleRate(sampleRate());
     v.string2.setSampleRate(sampleRate());
-    v.string.trigger(note, vel, effectiveBright, m_inharmonicity, m_decay, 0.0);
+    v.string.trigger(note, vel, effectiveBright, m_inharmonicity, m_decay, -detuneCents);
     v.string2.trigger(note, vel, effectiveBright, m_inharmonicity, m_decay, detuneCents);
     v.note = note;
     v.velocity = vel;

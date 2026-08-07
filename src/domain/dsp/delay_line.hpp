@@ -23,24 +23,31 @@
 
 namespace noteahead {
 
-// Integer-sample ring buffer. Read returns the sample written 'delay' writes ago.
-// Convention: read() is called before write() each step so that delay==capacity
-// gives exactly capacity samples of latency.
+// Ring buffer with optional fractional delay. Read returns the sample written
+// 'delay' writes ago. Convention: read() is called before write() each step so
+// that delay==capacity gives exactly capacity samples of latency.
 class DelayLine : public DspComponent
 {
 public:
     void setMaxDelay(size_t maxSamples);
     void setDelay(size_t samples);
+    // Sets a delay of any length in samples. Reads are linearly interpolated between
+    // the two neighbouring taps, which lets a resonating loop be tuned to an arbitrary
+    // frequency instead of only to the nearest whole sample.
+    void setFractionalDelay(double samples);
     void write(double sample);
     double read() const;
     void reset();
 
     size_t delay() const;
+    double fraction() const;
+    size_t capacity() const;
 
 private:
     std::vector<double> m_buffer;
     size_t m_writePos { 0 };
     size_t m_delay { 0 };
+    double m_fraction { 0.0 };
 };
 
 } // namespace noteahead

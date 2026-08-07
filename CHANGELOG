@@ -66,6 +66,26 @@ New features:
 
 Bug fixes:
 
+* Play the Piano in tune across the keyboard
+  - Its string loop had to be a whole number of samples long, which the short
+    periods of the top octaves cannot round to: C7 sounded some 35 cents out
+  - Hammer brightness feeds that same loop, so the pitch also moved with how
+    hard the key was struck
+  - The loop now takes any length, and the filters inside it are measured at
+    the note's own frequency instead of at DC
+
+* Keep the Piano's bottom octave in tune above 48 kHz
+  - Its delay line stopped at 2048 samples, leaving everything below F#1
+    clamped short and playing sharp at 96 kHz, A0 by most of an octave
+  - Notes struck before the audio backend reports its rate were tuned against
+    the default one and stayed there; they now retune
+
+* Give the Piano's unison pairs something to beat against
+  - Both strings of a pair rounded to the same length, so String Detune did
+    nothing at all until it crossed a whole sample
+  - The pair is detuned symmetrically now, which leaves the note itself where
+    it was as the spread opens up
+
 * Give the Kick808 the pitch sweep a real 808 has
   - Its hits started twice the note and took 130 ms to land, where an RD-8
     starts 5.4x above it and is done in 3, so ours never passed through the

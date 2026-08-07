@@ -33,7 +33,10 @@ namespace noteahead {
 class WaveguideString : public DspComponent
 {
 public:
-    static constexpr size_t MaxDelaySamples = 2048;
+    // Lowest pitch the delay line must be able to hold: MIDI note 0. The buffer is
+    // sized from the sample rate so that the bottom of the MIDI range stays in tune
+    // at every rate rather than hitting a fixed ceiling.
+    static constexpr double LowestFrequency = 8.1757989156437;
 
     void setSampleRate(double sampleRate) override;
 
@@ -47,16 +50,24 @@ public:
 
 private:
     static constexpr double SilenceThreshold = 1e-9;
+    static constexpr int ApStages = 4;
 
     static double midiNoteToFreq(uint8_t note);
     void buildExcitation(size_t width, float velocity);
+    // Grows the delay line if the current sample rate needs more room than it has.
+    void ensureBuffer();
+    // Sets the delay-line length so that the whole loop resonates at m_frequency.
+    // Returns the integer part of that length.
+    size_t retune();
 
     DelayLine m_delay;
     AllPassChain m_dispersion;
 
+    double m_frequency { 0.0 };
     double m_loopGain { 0.0 };
     double m_loopFilterCoeff { 0.25 };
     double m_loopFilterPrev { 0.0 };
+    double m_dispersionCoeff { 0.0 };
 
     double m_damperGain { 1.0 };
     double m_damperDecay { 1.0 };
