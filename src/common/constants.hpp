@@ -152,6 +152,7 @@ QString clipper();
 QString drive();
 QString saturator();
 QString tubeStage();
+QString waveDesigner();
 QString limiter();
 QString endless();
 QString panner();

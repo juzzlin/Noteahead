@@ -35,6 +35,7 @@
 #include "../../domain/effects/reverb.hpp"
 #include "../../domain/effects/saturator.hpp"
 #include "../../domain/effects/tube_stage.hpp"
+#include "../../domain/effects/wave_designer.hpp"
 #include "../../domain/utility/dbtp_meter.hpp"
 #include "../../domain/utility/lufs_meter.hpp"
 #include "../../domain/utility/rta.hpp"
@@ -285,6 +286,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("RTA", Constants::RackEffectType::rta().toStdString());
     addEffect("Saturator", Constants::RackEffectType::saturator().toStdString());
     addEffect("Tube Stage", Constants::RackEffectType::tubeStage().toStdString());
+    addEffect("Wave Designer", Constants::RackEffectType::waveDesigner().toStdString());
 
     return list;
 }
@@ -541,6 +543,14 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                     return QString { "(drive=%1dB, bias=%2%)" }
                       .arg(drive->get().value() * 36.0f, 0, 'f', 1)
                       .arg(static_cast<int>(std::round(bias->get().value() * 100.0f)));
+                }
+            } else if (type == Constants::RackEffectType::waveDesigner()) {
+                const auto attack = effect->parameter(Constants::NahdXml::xmlKeyAttack().toStdString());
+                const auto sustain = effect->parameter(Constants::NahdXml::xmlKeySustain().toStdString());
+                if (attack && sustain) {
+                    return QString { "(attack=%1, sustain=%2)" }
+                      .arg((attack->get().value() - 0.5f) * 2.0f, 0, 'f', 2)
+                      .arg((sustain->get().value() - 0.5f) * 2.0f, 0, 'f', 2);
                 }
             } else if (type == Constants::RackEffectType::saturator()) {
                 const auto drive = effect->parameter(Constants::NahdXml::xmlKeyDrive().toStdString());
@@ -1007,6 +1017,31 @@ QString EffectRackController::saturatorType() const
     return Constants::RackEffectType::saturator();
 }
 
+QString EffectRackController::waveDesignerType() const
+{
+    return Constants::RackEffectType::waveDesigner();
+}
+
+QString EffectRackController::waveDesignerAttackKey() const
+{
+    return Constants::NahdXml::xmlKeyAttack();
+}
+
+QString EffectRackController::waveDesignerSustainKey() const
+{
+    return Constants::NahdXml::xmlKeySustain();
+}
+
+QString EffectRackController::waveDesignerGainKey() const
+{
+    return Constants::NahdXml::xmlKeyGain();
+}
+
+QString EffectRackController::waveDesignerMixKey() const
+{
+    return Constants::NahdXml::xmlKeyMix();
+}
+
 QString EffectRackController::tubeStageType() const
 {
     return Constants::RackEffectType::tubeStage();
@@ -1195,6 +1230,19 @@ float EffectRackController::saturatorSaturationDb(quint32 effectIndex) const
         if (const auto effect = rack->get().effect(effectIndex); effect) {
             if (const auto saturator = std::dynamic_pointer_cast<Saturator>(effect); saturator) {
                 return saturator->saturationDb();
+            }
+        }
+    }
+
+    return 0.0f;
+}
+
+float EffectRackController::waveDesignerShapingDb(quint32 effectIndex) const
+{
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(effectIndex); effect) {
+            if (const auto waveDesigner = std::dynamic_pointer_cast<WaveDesigner>(effect); waveDesigner) {
+                return waveDesigner->shapingDb();
             }
         }
     }

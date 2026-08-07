@@ -106,12 +106,23 @@
 <ul>
     <li><strong>Equalizers</strong>: <strong>EQ 8-Band Parametric</strong> (Bell, Shelf, Cut and Notch types per band, plus Mid/Side modes), <strong>Vintage Passive EQ</strong> (EQP-1A style, with interacting low Boost/Atten shelves and a high bell), <strong>Air Band EQ</strong> (fixed parallel-summed bands added back to the dry signal) and <strong>Simple EQ</strong> (a single "Sounds Good" knob sweeping a loudness-smile curve).</li>
     <li><strong>Reverbs</strong>: <strong>Reverb</strong> (the FDN reverb described below) and <strong>Endless Reverb</strong> (a large modulated ambient reverb with a Freeze switch for an infinite tail).</li>
-    <li><strong>Dynamics</strong>: <strong>Compressor</strong> (with side-chain support), <strong>Auto Ducker</strong> (side-chain driven ducking or boosting), <strong>Limiter</strong> (lookahead brickwall with gain reduction metering) and <strong>Clipper</strong>.</li>
+    <li><strong>Dynamics</strong>: <strong>Compressor</strong> (with side-chain support), <strong>Auto Ducker</strong> (side-chain driven ducking or boosting), <strong>Limiter</strong> (lookahead brickwall with gain reduction metering), <strong>Clipper</strong> and <strong>Wave Designer</strong> (transient shaper, described below).</li>
     <li><strong>Saturation</strong>: <strong>Drive</strong> (Soft, Hard, Fold and Dist algorithms), <strong>Saturator</strong> and <strong>Tube Stage</strong> (valve preamp, described below).</li>
     <li><strong>Modulation & Time</strong>: <strong>Chorus</strong>, <strong>Delay</strong> (Mono, Ping Pong and Tape modes, with BPM sync) and <strong>All-Pass Filter</strong>.</li>
     <li><strong>Stereo</strong>: <strong>Panner</strong> and <strong>Auto Panner</strong>.</li>
     <li><strong>Metering & Analysis</strong>: <strong>LUFS Meter</strong>, <strong>dBTP Meter</strong> (true peak) and <strong>RTA</strong> (real-time analyzer). Use these as inserts to watch the signal at any point in the chain.</li>
 </ul>
+
+<h3>Wave Designer Parameters</h3>
+<p>A transient shaper: <strong>Attack</strong> for the leading edge of a hit, <strong>Sustain</strong> for the tail behind it. Use it to make a snare crack, to tame an over-eager kick, or to shorten a room tail without a gate.</p>
+<p>It is not a compressor. Each control runs two envelope followers over the signal and acts on the difference between them, and that difference only departs from zero while the signal is <em>changing</em>. A hit is therefore shaped by how sharply it rises and how long it takes to fall, never by how loud it is: the same setting works at any level, and a held note comes out untouched.</p>
+<ul>
+    <li><strong>Attack</strong>: positive adds punch to the leading edge, negative tames it. Full range is 15 dB either way.</li>
+    <li><strong>Sustain</strong>: positive holds the tail up, like a compressor letting peaks carry longer; negative shortens it for a more staccato sound.</li>
+    <li><strong>Gain</strong>: output trim, +/-24 dB, to compensate for the level the shaping adds or removes.</li>
+    <li><strong>Mix</strong>: blends the shaped signal against the dry one, for parallel transient shaping.</li>
+</ul>
+<p>The meter shows the gain being applied at any moment, growing upwards when the shaper lifts and downwards when it tames.</p>
 
 <h3>Tube Stage Parameters</h3>
 <p>A valve preamp stage, for warming a signal the way a console's tube channel does. It differs from the Saturator's Tube mode in where the valve <em>sits</em> on its curve rather than in the curve itself.</p>

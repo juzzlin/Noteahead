@@ -206,6 +206,11 @@ QString tubeStage()
     return "tubeStage";
 }
 
+QString waveDesigner()
+{
+    return "waveDesigner";
+}
+
 QString limiter()
 {
     return "limiter";

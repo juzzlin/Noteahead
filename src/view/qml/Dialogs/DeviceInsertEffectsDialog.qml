@@ -143,6 +143,10 @@ AnimatedDialog {
                         } else if (effectType === effectRackController.tubeStageType) {
                             tubeStageDialog.effectIndex = index;
                             tubeStageDialog.open();
+                        } else if (effectType === effectRackController.waveDesignerType) {
+                            waveDesignerDialog.effectIndex = index;
+                            waveDesignerDialog.open();
+
                         } else if (effectType === effectRackController.driveType) {
                             driveDialog.effectIndex = index;
                             driveDialog.open();

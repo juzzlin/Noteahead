@@ -5,6 +5,13 @@ Release date:
 
 New features:
 
+* Add the Wave Designer effect
+  - Transient shaper with Attack for the leading edge of a hit and Sustain
+    for the tail behind it, after the X32's, itself after the SPL
+    Transient Designer
+  - Level independent by construction: it acts on how the signal changes,
+    so a held note passes untouched and one setting works at any level
+
 * Follow the VC340's register structure in the StringVoice
   - Lower carries Male 8' and 4', Upper carries Male 8' and Female 4', with
     the keyboard splitting at C4 as the hardware's does

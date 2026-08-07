@@ -163,6 +163,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/UnsavedChangesDialog.qml
     ${QML_BASE_DIR}/Dialogs/WhatsNewDialog.qml
     ${QML_BASE_DIR}/Dialogs/VintagePassiveEqDialog.qml
+    ${QML_BASE_DIR}/Dialogs/WaveDesignerDialog.qml
     ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog.qml
     ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_AmpEg.qml
     ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Filter.qml
