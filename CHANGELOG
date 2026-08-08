@@ -17,6 +17,11 @@ New features:
     and is neutral in the middle of its travel
   - Reset restores every control to its factory default, leaving the insert
     effects as they are
+  - Retuned against a chromatic sweep of the whole range: stiffness
+    follows the measured U-curve instead of a flat bass
+  - A struck unison's prompt half is drained in a fixed time rather than
+    in proportion to the string's decay, so the treble holds on
+  - Velocity brightens the strike more gently
 
 * Add the fade out and tail silence options to the audio export
   - The fade out lands on zero right where the tail silence begins

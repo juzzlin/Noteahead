@@ -242,10 +242,13 @@ std::optional<double> measureT60(const std::vector<double> & mono, double sample
     return -60.0 / *slope;
 }
 
-// Yamaha CP88, measured from a recorded sweep of C0-C9 at velocity 64 and then 100.
-// Levels are relative to the note at MIDI 60 rather than absolute, since only the shape
-// across the keyboard is being matched. The decay times are of the fundamental over the
-// slow stage, and B is the stiffness coefficient fitted to the note's own partials.
+// Yamaha CP88. Levels and stiffness come from a chromatic sweep of the whole keyboard at
+// velocity 64 and then 100, taken a semitone at a time; the decay times come from an
+// earlier sweep of the octaves, whose notes are held long enough for the slow stage to be
+// fitted at all. Levels are relative to the note at MIDI 60 rather than absolute, since
+// only the shape across the keyboard is being matched, and each is the median of the note
+// and its neighbours: the instrument is sampled in groups of three or four semitones, and
+// within a group the level and the stiffness both step.
 struct ReferenceNote
 {
     int note;
@@ -254,14 +257,15 @@ struct ReferenceNote
     double inharmonicity;
 };
 
-constexpr std::array<ReferenceNote, 7> reference { {
-  { 36, 1.9, 21.9, 4.24e-4 },
-  { 48, 2.4, 25.0, 2.38e-4 },
-  { 60, 0.0, 13.6, 3.47e-4 },
-  { 72, -2.5, 8.6, 8.14e-4 },
-  { 84, -0.7, 3.6, 2.04e-3 },
-  { 96, -1.0, 2.3, 0.0 },
-  { 108, -5.6, 1.15, 0.0 },
+constexpr std::array<ReferenceNote, 8> reference { {
+  { 24, 0.3, 30.0, 4.25e-3 },
+  { 36, 0.8, 21.9, 3.78e-4 },
+  { 48, 2.2, 25.0, 2.41e-4 },
+  { 60, 0.1, 13.6, 3.57e-4 },
+  { 72, -2.1, 8.6, 7.90e-4 },
+  { 84, -0.5, 3.6, 0.0 },
+  { 96, -0.4, 2.3, 0.0 },
+  { 108, -3.2, 1.15, 0.0 },
 } };
 
 // The window the slow stage of the decay is fitted over. High notes are gone before the
@@ -651,7 +655,7 @@ void PianoSynthV2Test::test_partials_shouldDecayFasterThanTheFundamental()
     const auto mono = renderNote(36, 100, 2.6);
 
     const auto fundamental = measureSlope(mono, DefaultSampleRate, f0, 1.0, 2.4);
-    const auto eighth = measureSlope(mono, DefaultSampleRate, f0 * 8.0 * std::sqrt(1.0 + 2.3e-4 * 64.0), 1.0, 2.4);
+    const auto eighth = measureSlope(mono, DefaultSampleRate, f0 * 8.0 * std::sqrt(1.0 + 3.78e-4 * 64.0), 1.0, 2.4);
     QVERIFY(fundamental.has_value() && eighth.has_value());
 
     QVERIFY2(*eighth < *fundamental * 1.8,
@@ -680,13 +684,14 @@ void PianoSynthV2Test::test_decay_shouldRunInTwoStages()
 {
     // Struck together, the strings of a unison lean on the bridge as one and lose their
     // energy quickly; what is left is the out-of-phase motion, and it rings on. The
-    // reference shows the knee clearly, and it is most of what a piano's sustain sounds like.
-    // Measured where the reference shows it most clearly: at MIDI 84 its fundamental falls
-    // at seventeen decibels a second to begin with and at ten a second afterwards.
+    // reference shows the knee clearly, and it is most of what a piano's sustain sounds
+    // like. The prompt stage is brief — the bridge has drained it inside a fifth of a
+    // second at MIDI 84 — so the two windows have to sit either side of that, not
+    // straddle it.
     const double f0 = noteFrequency(84);
     const auto mono = renderNote(84, 100, 2.4);
 
-    const auto early = measureSlope(mono, DefaultSampleRate, f0, 0.08, 0.6);
+    const auto early = measureSlope(mono, DefaultSampleRate, f0, 0.02, 0.18);
     const auto late = measureSlope(mono, DefaultSampleRate, f0, 1.0, 2.2);
     QVERIFY(early.has_value() && late.has_value());
 

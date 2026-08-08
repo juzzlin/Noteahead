@@ -30,20 +30,44 @@ constexpr double SixtyDecibels = 6.907755278982137;
 // Where the hammer's own spectrum turns over at the reference pitch, struck at the
 // reference velocity. Everything above it falls away at the hammer slope, which is what
 // makes a soft strike dull and a hard one bright without touching the string itself.
-constexpr double HammerCornerBase = 380.0;
+constexpr double HammerCornerBase = 275.0;
 // How the corner rises towards the treble, where the hammers are smaller and harder.
 constexpr double HammerCornerPitchExponent = 0.4;
-// Velocity the corner is quoted at, and how hard it follows the strike. Fitted so that
-// the spectral centroid tracks the reference's across the keyboard at both velocities.
-constexpr double ReferenceVelocity = 0.65;
-constexpr double VelocityBrightnessExponent = 1.25;
+// Velocity the corner is quoted at, and how hard it follows the strike. Quoted at
+// velocity 64, which is where the reference survey's spectrum is matched most closely,
+// and the exponent is what carries it up to velocity 100: over the whole keyboard the
+// reference's centroid rises by about a sixth between the two.
+constexpr double ReferenceVelocity = 0.5;
+constexpr double VelocityBrightnessExponent = 0.85;
 
-// Amplitudes of the two components a struck unison splits into. The in-phase one is
-// louder and dies quickly, the out-of-phase one is what is left ringing afterwards. The
-// pair is what produces the reference's two-stage decay, and the slight detune between
-// them is what makes it beat.
-constexpr double FastComponentAmplitude = 0.80;
+// Amplitudes of the two components a struck unison splits into. The in-phase one leans
+// on the bridge as one and is drained promptly; the out-of-phase one is what is left
+// ringing afterwards. The prompt one carries far more of the note at the top of the
+// keyboard than in the middle, which is what the reference's attack-over-tail ratio
+// climbing from some twelve decibels at C4 to forty at C7 is.
+constexpr double PromptComponentAmplitude = 0.10;
+constexpr double PromptAmplitudePitchExponent = 1.6;
+constexpr double MaxPromptAmplitude = 1.2;
 constexpr double SlowComponentAmplitude = 0.42;
+
+// How long the prompt component takes to fall sixty decibels, at the reference pitch.
+// This is a time and not a fraction of the string's own decay: what drains it is the
+// bridge, not the string, so it stays about as brief at the bottom of the keyboard as at
+// the top. Making it a fraction left it alive well into the sustain, which is what used
+// to leave every note above the middle of the keyboard dying twice too fast.
+constexpr double PromptDecayTime = 0.35;
+constexpr double PromptDecayPitchExponent = 0.3;
+
+// The reference holds within a couple of decibels of itself over almost the whole
+// keyboard, and gives way only at the two ends: the bottom octave sits a little under the
+// middle, and the last octave falls away where the strings are too short to carry the
+// strike. Between them the level is flat, so a note must not get quieter for being high.
+constexpr double BassTrimEndNote = 55.0;
+constexpr double BassTrimStartNote = 26.0;
+constexpr double BassTrimDb = 3.0;
+constexpr double TopRolloffStartNote = 93.0;
+constexpr double TopRolloffEndNote = 108.0;
+constexpr double TopRolloffDb = 5.0;
 
 // Roughly how much of the fundamental's decay time each partial keeps, as a function of
 // its index. The reference's eighth partial is gone in well under half the time its
@@ -63,8 +87,9 @@ constexpr double DamperPitchCorner = 300.0;
 constexpr double DamperMaxSpeedup = 4.0;
 
 // Offset from equal temperament, in cents, that stretched octaves produce, sampled across
-// the keyboard. Measured off the reference at the octaves and smoothed through the bass,
-// where a single octave's reading is inside the tuning's own scatter.
+// the keyboard. Re-measured off the chromatic reference survey, which reaches far further
+// into the bass than the octave-by-octave one did: the bottom key is tuned a third of a
+// semitone flat, not the eighth of one a few octaves read as.
 struct RailsbackPoint
 {
     double note;
@@ -72,14 +97,42 @@ struct RailsbackPoint
 };
 
 constexpr std::array<RailsbackPoint, 8> RailsbackCurve { {
-  { 21.0, -8.0 },
-  { 36.0, -6.0 },
-  { 48.0, -2.0 },
+  { 21.0, -34.0 },
+  { 33.0, -11.0 },
+  { 42.0, -4.0 },
   { 60.0, 0.0 },
   { 72.0, 3.0 },
   { 84.0, 5.0 },
   { 96.0, 13.0 },
   { 108.0, 33.0 },
+} };
+
+// Stiffness coefficient B, fitted to the reference an octave-group at a time. The curve
+// is a shallow U: the wound bass strings are thick relative to their length and run
+// strongly inharmonic, the middle of the keyboard is the nearest to a harmonic series,
+// and the treble climbs again as the strings get short. A flat bass, which is what the
+// octave survey read, misses the bottom of the keyboard by a factor of nearly twenty.
+struct InharmonicityPoint
+{
+    double note;
+    double coefficient;
+};
+
+constexpr std::array<InharmonicityPoint, 14> InharmonicityCurve { {
+  { 21.0, 3.5e-3 },
+  { 24.0, 2.2e-3 },
+  { 27.0, 1.05e-3 },
+  { 30.0, 8.8e-4 },
+  { 34.0, 4.4e-4 },
+  { 42.0, 2.6e-4 },
+  { 53.0, 2.25e-4 },
+  { 60.0, 3.5e-4 },
+  { 66.0, 4.7e-4 },
+  { 72.0, 8.5e-4 },
+  { 78.0, 1.5e-3 },
+  { 84.0, 2.6e-3 },
+  { 96.0, 6.5e-3 },
+  { 108.0, 1.6e-2 },
 } };
 
 } // namespace
@@ -91,17 +144,41 @@ double ModalPianoString::midiNoteToFreq(uint8_t note)
 
 double ModalPianoString::inharmonicityCoefficient(uint8_t note)
 {
-    // Fitted to the reference an octave at a time. The wound bass strings all land near
-    // the same value, and from the middle of the keyboard up the coefficient doubles
-    // every eleven or so semitones as the strings get shorter and stiffer relative to
-    // their length.
-    constexpr double BassCoefficient = 2.3e-4;
-    constexpr double DoublingSemitones = 11.7;
-    constexpr double TrebleStart = 48.0;
-    if (note <= TrebleStart) {
-        return BassCoefficient;
+    // Read off the fitted curve, geometrically between its points: the coefficient spans
+    // two orders of magnitude across the keyboard, so it is the ratio between neighbours
+    // and not the difference that has to come out smooth.
+    const double n = static_cast<double>(note);
+    if (n <= InharmonicityCurve.front().note) {
+        return InharmonicityCurve.front().coefficient;
     }
-    return BassCoefficient * std::exp2((static_cast<double>(note) - TrebleStart) / DoublingSemitones);
+    if (n >= InharmonicityCurve.back().note) {
+        return InharmonicityCurve.back().coefficient;
+    }
+    for (size_t i = 1; i < InharmonicityCurve.size(); i++) {
+        if (n <= InharmonicityCurve[i].note) {
+            const auto & lower = InharmonicityCurve[i - 1];
+            const auto & upper = InharmonicityCurve[i];
+            const double t = (n - lower.note) / (upper.note - lower.note);
+            return lower.coefficient * std::pow(upper.coefficient / lower.coefficient, t);
+        }
+    }
+    return InharmonicityCurve.back().coefficient;
+}
+
+double ModalPianoString::keyLevel(uint8_t note)
+{
+    const double n = static_cast<double>(note);
+
+    double db = 0.0;
+    if (n < BassTrimEndNote) {
+        const double t = std::clamp((BassTrimEndNote - n) / (BassTrimEndNote - BassTrimStartNote), 0.0, 1.0);
+        db -= BassTrimDb * t;
+    }
+    if (n > TopRolloffStartNote) {
+        const double t = std::min((n - TopRolloffStartNote) / (TopRolloffEndNote - TopRolloffStartNote), 1.0);
+        db -= TopRolloffDb * t;
+    }
+    return std::pow(10.0, db / 20.0);
 }
 
 double ModalPianoString::railsbackCents(uint8_t note)
@@ -200,8 +277,9 @@ void ModalPianoString::trigger(uint8_t note, float velocity, const Settings & se
     // How long the fundamental takes to fall sixty decibels at this pitch, and how much of
     // that each partial keeps. Both come straight off the reference.
     const double decayScale = 0.35 + static_cast<double>(settings.decay) * 1.3;
-    const double fundamentalDecay = std::clamp(
-      decayScale * ReferenceDecayTime * std::pow(ReferenceFrequency / f0, DecayPitchExponent), MinDecayTime, MaxDecayTime);
+    const double pitchDecay = std::max(
+      ReferenceDecayTime * std::pow(ReferenceFrequency / f0, DecayPitchExponent), MinPitchDecayTime);
+    const double fundamentalDecay = std::clamp(decayScale * pitchDecay, MinDecayTime, MaxDecayTime);
     // Brightness is neutral in the middle, so that at the default the bank is exactly what
     // was fitted to the reference and the control tilts away from it in both directions.
     // It acts twice: on how much of the strike lands in the upper partials, and on how long
@@ -211,7 +289,16 @@ void ModalPianoString::trigger(uint8_t note, float velocity, const Settings & se
     const double partialDamping = NeutralPartialDamping * std::pow(PartialDampingSpan, -brightnessTilt);
 
     const double detuneRatio = std::exp2(static_cast<double>(settings.detune) * 2.0 / 1200.0);
-    const double fastDecayScale = 1.0 / (1.0 + static_cast<double>(settings.doubleDecay) * 3.0);
+
+    // The prompt component: how long the bridge takes to drain the in-phase motion, and
+    // how much of the strike went into it. Both are what the reference's attack sounds
+    // like — a knock over a tail in the treble, barely a knee in the middle.
+    const double promptDecay = std::clamp(
+      PromptDecayTime * std::pow(ReferenceFrequency / f0, PromptDecayPitchExponent)
+        / (0.25 + static_cast<double>(settings.doubleDecay) * 1.5),
+      MinDecayTime, fundamentalDecay);
+    const double promptAmplitude = std::min(
+      PromptComponentAmplitude * std::pow(f0 / ReferenceFrequency, PromptAmplitudePitchExponent), MaxPromptAmplitude);
 
     // Stiffness pushes every partial sharp, the first one included, so a bank built
     // straight from the series sounds sharp of the note asked for — nearly seven cents of
@@ -248,9 +335,9 @@ void ModalPianoString::trigger(uint8_t note, float velocity, const Settings & se
             // motion the bridge barely sees, and it rings on. Two modes with different
             // decay times and a hair of detune between them is that, and it is where the
             // reference's knee and its slow beating both come from.
-            const double fastAmplitude = amplitude * FastComponentAmplitude;
+            const double fastAmplitude = amplitude * promptAmplitude;
             const double slowAmplitude = amplitude * SlowComponentAmplitude;
-            setModePole(m_modes[m_modeCount], frequency * detuneRatio, decayTime * fastDecayScale);
+            setModePole(m_modes[m_modeCount], frequency * detuneRatio, promptDecay);
             m_modes[m_modeCount].y1 = fastAmplitude;
             m_modeCount++;
             setModePole(m_modes[m_modeCount], frequency / detuneRatio, decayTime);
@@ -277,10 +364,11 @@ void ModalPianoString::trigger(uint8_t note, float velocity, const Settings & se
 
     // Normalised on the energy the strike put in, so that a note keeps the same level
     // whether it is carrying fifty partials or two, which is how the reference behaves
-    // across all but its topmost key. Velocity then squares, matching the seven to eight
-    // decibels the reference gains between velocity 64 and 100.
+    // across all but its topmost keys — where the level does fall away, and steeply.
+    // Velocity squares, matching the eight and a half decibels the reference gains
+    // between velocity 64 and 100.
     const double norm = sumOfSquares > 0.0 ? 1.0 / std::sqrt(sumOfSquares) : 0.0;
-    m_gain = norm * vel * vel;
+    m_gain = norm * vel * vel * keyLevel(note);
 
     // A short ramp over the strike, long in the bass and brief at the top, so that the
     // modes do not all land on one sample. It is what an attack time is measured as.

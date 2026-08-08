@@ -95,7 +95,11 @@ private:
     // root a plucked-string model would take.
     static constexpr double ReferenceFrequency = 261.63; // C4
     static constexpr double ReferenceDecayTime = 17.0; // Seconds, at the reference pitch
-    static constexpr double DecayPitchExponent = 0.85;
+    static constexpr double DecayPitchExponent = 1.15;
+    // The pitch law keeps falling past the top of the keyboard, but the reference does
+    // not: its topmost two octaves all ring for about the same couple of seconds. Without
+    // this the top octave dies a second too soon.
+    static constexpr double MinPitchDecayTime = 1.6;
     static constexpr double MinDecayTime = 0.05;
     static constexpr double MaxDecayTime = 40.0;
     // Below this note the strings are single, and above the second one they come in threes.
@@ -117,6 +121,8 @@ private:
     static double midiNoteToFreq(uint8_t note);
     // Stiffness coefficient B of the note's string, from the reference recording.
     static double inharmonicityCoefficient(uint8_t note);
+    // Level of the key relative to the rest of the keyboard, as a linear factor.
+    static double keyLevel(uint8_t note);
     // Offset from equal temperament, in cents, that a tuner's octave stretching produces.
     static double railsbackCents(uint8_t note);
     // Where along the string the hammer lands, as a fraction of its length.
