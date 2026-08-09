@@ -166,210 +166,211 @@ AnimatedDialog {
             GroupBox {
                 title: qsTr("Export Options")
                 Layout.fillWidth: true
-                RowLayout {
+                ColumnLayout {
                     width: parent.width
-                    spacing: 12
+                    spacing: 6
 
-                    // Column 1: Normalize
                     RowLayout {
                         Layout.fillWidth: true
-                        Layout.alignment: Qt.AlignTop
-                        spacing: 6
+                        spacing: 12
 
-                        CheckBox {
-                            id: normalizeCheckBox
-                            text: qsTr("Normalize audio")
-                            checked: renderSettingsModel.normalizeEnabled
-                            onToggled: renderSettingsModel.normalizeEnabled = checked
-                        }
-
-                        Label {
-                            text: qsTr("Target Level:")
-                            enabled: normalizeCheckBox.checked
-                        }
-
-                        SpinBox {
-                            id: normalizeLevelSpinBox
+                        // Column 1: Normalize
+                        RowLayout {
                             Layout.fillWidth: true
-                            enabled: normalizeCheckBox.checked
-                            from: -300
-                            to: 0
-                            stepSize: 1
-                            value: renderSettingsModel.normalizeLevelTenthsDb
-                            editable: true
-                            onValueModified: renderSettingsModel.normalizeLevelTenthsDb = value
-                            textFromValue: function(value, locale) {
-                                return Number(value / 10).toLocaleString(locale, 'f', 1)
+                            Layout.alignment: Qt.AlignTop
+                            spacing: 6
+
+                            CheckBox {
+                                id: normalizeCheckBox
+                                text: qsTr("Normalize audio")
+                                checked: renderSettingsModel.normalizeEnabled
+                                onToggled: renderSettingsModel.normalizeEnabled = checked
                             }
-                            valueFromText: function(text, locale) {
-                                return Number.fromLocaleString(locale, text) * 10
+
+                            Label {
+                                text: qsTr("Target Level:")
+                                enabled: normalizeCheckBox.checked
+                            }
+
+                            SpinBox {
+                                id: normalizeLevelSpinBox
+                                Layout.fillWidth: true
+                                enabled: normalizeCheckBox.checked
+                                from: -300
+                                to: 0
+                                stepSize: 1
+                                value: renderSettingsModel.normalizeLevelTenthsDb
+                                editable: true
+                                onValueModified: renderSettingsModel.normalizeLevelTenthsDb = value
+                                textFromValue: function(value, locale) {
+                                    return Number(value / 10).toLocaleString(locale, 'f', 1)
+                                }
+                                valueFromText: function(text, locale) {
+                                    return Number.fromLocaleString(locale, text) * 10
+                                }
+                            }
+
+                            Label {
+                                text: "dB"
+                                enabled: normalizeCheckBox.checked
                             }
                         }
 
-                        Label {
-                            text: "dB"
-                            enabled: normalizeCheckBox.checked
+                        // Column 2: Trim duration
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignTop
+                            spacing: 6
+
+                            CheckBox {
+                                id: trimCheckBox
+                                text: qsTr("Trim duration")
+                                checked: renderSettingsModel.trimEnabled
+                                onToggled: renderSettingsModel.trimEnabled = checked
+                            }
+
+                            SpinBox {
+                                id: trimMinSpinBox
+                                Layout.fillWidth: true
+                                enabled: trimCheckBox.checked
+                                from: 0
+                                to: 59
+                                value: renderSettingsModel.trimMinutes
+                                editable: true
+                                onValueModified: renderSettingsModel.trimMinutes = value
+                            }
+
+                            Label {
+                                text: qsTr("min")
+                                enabled: trimCheckBox.checked
+                            }
+
+                            SpinBox {
+                                id: trimSecSpinBox
+                                Layout.fillWidth: true
+                                enabled: trimCheckBox.checked
+                                from: 0
+                                to: 59
+                                value: renderSettingsModel.trimSeconds
+                                editable: true
+                                onValueModified: renderSettingsModel.trimSeconds = value
+                            }
+
+                            Label {
+                                text: qsTr("s")
+                                enabled: trimCheckBox.checked
+                            }
+                        }
+
+                        // Column 3: Analyze loudness
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignTop
+                            spacing: 6
+
+                            CheckBox {
+                                id: analyzeCheckBox
+                                text: qsTr("Analyze loudness (LUFS, LRA, dBTP)")
+                                checked: renderSettingsModel.analyzeEnabled
+                                onToggled: renderSettingsModel.analyzeEnabled = checked
+                            }
                         }
                     }
 
-                    // Column 2: Trim duration
                     RowLayout {
                         Layout.fillWidth: true
-                        Layout.alignment: Qt.AlignTop
-                        spacing: 6
+                        spacing: 12
 
-                        CheckBox {
-                            id: trimCheckBox
-                            text: qsTr("Trim duration")
-                            checked: renderSettingsModel.trimEnabled
-                            onToggled: renderSettingsModel.trimEnabled = checked
-                        }
-
-                        SpinBox {
-                            id: trimMinSpinBox
+                        // Column 1: Fade out
+                        RowLayout {
                             Layout.fillWidth: true
-                            enabled: trimCheckBox.checked
-                            from: 0
-                            to: 59
-                            value: renderSettingsModel.trimMinutes
-                            editable: true
-                            onValueModified: renderSettingsModel.trimMinutes = value
+                            Layout.alignment: Qt.AlignTop
+                            spacing: 6
+
+                            CheckBox {
+                                id: fadeOutCheckBox
+                                text: qsTr("Fade out")
+                                checked: renderSettingsModel.fadeOutEnabled
+                                onToggled: renderSettingsModel.fadeOutEnabled = checked
+                            }
+
+                            SpinBox {
+                                id: fadeOutSecSpinBox
+                                Layout.fillWidth: true
+                                enabled: fadeOutCheckBox.checked
+                                from: 0
+                                to: 59
+                                value: renderSettingsModel.fadeOutSeconds
+                                editable: true
+                                onValueModified: renderSettingsModel.fadeOutSeconds = value
+                            }
+
+                            Label {
+                                text: qsTr("s")
+                                enabled: fadeOutCheckBox.checked
+                            }
+
+                            SpinBox {
+                                id: fadeOutTenthsSpinBox
+                                Layout.fillWidth: true
+                                enabled: fadeOutCheckBox.checked
+                                from: 0
+                                to: 9
+                                value: renderSettingsModel.fadeOutTenths
+                                editable: true
+                                onValueModified: renderSettingsModel.fadeOutTenths = value
+                            }
+
+                            Label {
+                                text: qsTr("/10 s")
+                                enabled: fadeOutCheckBox.checked
+                            }
                         }
 
-                        Label {
-                            text: qsTr("min")
-                            enabled: trimCheckBox.checked
-                        }
-
-                        SpinBox {
-                            id: trimSecSpinBox
+                        // Column 2: Silence
+                        RowLayout {
                             Layout.fillWidth: true
-                            enabled: trimCheckBox.checked
-                            from: 0
-                            to: 59
-                            value: renderSettingsModel.trimSeconds
-                            editable: true
-                            onValueModified: renderSettingsModel.trimSeconds = value
-                        }
+                            Layout.alignment: Qt.AlignTop
+                            spacing: 6
 
-                        Label {
-                            text: qsTr("s")
-                            enabled: trimCheckBox.checked
-                        }
-                    }
+                            CheckBox {
+                                id: silenceCheckBox
+                                text: qsTr("Silence")
+                                checked: renderSettingsModel.silenceEnabled
+                                onToggled: renderSettingsModel.silenceEnabled = checked
+                            }
 
-                    // Column 3: Analyze loudness
-                    RowLayout {
-                        Layout.fillWidth: true
-                        Layout.alignment: Qt.AlignTop
-                        spacing: 6
+                            SpinBox {
+                                id: silenceSecSpinBox
+                                Layout.fillWidth: true
+                                enabled: silenceCheckBox.checked
+                                from: 0
+                                to: 59
+                                value: renderSettingsModel.silenceSeconds
+                                editable: true
+                                onValueModified: renderSettingsModel.silenceSeconds = value
+                            }
 
-                        CheckBox {
-                            id: analyzeCheckBox
-                            text: qsTr("Analyze loudness (LUFS, LRA, dBTP)")
-                            checked: renderSettingsModel.analyzeEnabled
-                            onToggled: renderSettingsModel.analyzeEnabled = checked
-                        }
-                    }
-                }
-            }
+                            Label {
+                                text: qsTr("s")
+                                enabled: silenceCheckBox.checked
+                            }
 
-            GroupBox {
-                title: qsTr("Fade & Tail")
-                Layout.fillWidth: true
-                RowLayout {
-                    width: parent.width
-                    spacing: 12
+                            SpinBox {
+                                id: silenceTenthsSpinBox
+                                Layout.fillWidth: true
+                                enabled: silenceCheckBox.checked
+                                from: 0
+                                to: 9
+                                value: renderSettingsModel.silenceTenths
+                                editable: true
+                                onValueModified: renderSettingsModel.silenceTenths = value
+                            }
 
-                    // Column 1: Fade out
-                    RowLayout {
-                        Layout.fillWidth: true
-                        Layout.alignment: Qt.AlignTop
-                        spacing: 6
-
-                        CheckBox {
-                            id: fadeOutCheckBox
-                            text: qsTr("Fade out")
-                            checked: renderSettingsModel.fadeOutEnabled
-                            onToggled: renderSettingsModel.fadeOutEnabled = checked
-                        }
-
-                        SpinBox {
-                            id: fadeOutSecSpinBox
-                            Layout.fillWidth: true
-                            enabled: fadeOutCheckBox.checked
-                            from: 0
-                            to: 59
-                            value: renderSettingsModel.fadeOutSeconds
-                            editable: true
-                            onValueModified: renderSettingsModel.fadeOutSeconds = value
-                        }
-
-                        Label {
-                            text: qsTr("s")
-                            enabled: fadeOutCheckBox.checked
-                        }
-
-                        SpinBox {
-                            id: fadeOutTenthsSpinBox
-                            Layout.fillWidth: true
-                            enabled: fadeOutCheckBox.checked
-                            from: 0
-                            to: 9
-                            value: renderSettingsModel.fadeOutTenths
-                            editable: true
-                            onValueModified: renderSettingsModel.fadeOutTenths = value
-                        }
-
-                        Label {
-                            text: qsTr("/10 s")
-                            enabled: fadeOutCheckBox.checked
-                        }
-                    }
-
-                    // Column 2: Silence
-                    RowLayout {
-                        Layout.fillWidth: true
-                        Layout.alignment: Qt.AlignTop
-                        spacing: 6
-
-                        CheckBox {
-                            id: silenceCheckBox
-                            text: qsTr("Silence")
-                            checked: renderSettingsModel.silenceEnabled
-                            onToggled: renderSettingsModel.silenceEnabled = checked
-                        }
-
-                        SpinBox {
-                            id: silenceSecSpinBox
-                            Layout.fillWidth: true
-                            enabled: silenceCheckBox.checked
-                            from: 0
-                            to: 59
-                            value: renderSettingsModel.silenceSeconds
-                            editable: true
-                            onValueModified: renderSettingsModel.silenceSeconds = value
-                        }
-
-                        Label {
-                            text: qsTr("s")
-                            enabled: silenceCheckBox.checked
-                        }
-
-                        SpinBox {
-                            id: silenceTenthsSpinBox
-                            Layout.fillWidth: true
-                            enabled: silenceCheckBox.checked
-                            from: 0
-                            to: 9
-                            value: renderSettingsModel.silenceTenths
-                            editable: true
-                            onValueModified: renderSettingsModel.silenceTenths = value
-                        }
-
-                        Label {
-                            text: qsTr("/10 s")
-                            enabled: silenceCheckBox.checked
+                            Label {
+                                text: qsTr("/10 s")
+                                enabled: silenceCheckBox.checked
+                            }
                         }
                     }
                 }
