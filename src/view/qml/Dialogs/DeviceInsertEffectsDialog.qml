@@ -140,6 +140,9 @@ AnimatedDialog {
                         } else if (effectType === effectRackController.saturatorType) {
                             saturatorDialog.effectIndex = index;
                             saturatorDialog.open();
+                        } else if (effectType === effectRackController.bassGrinderType) {
+                            bassGrinderDialog.effectIndex = index;
+                            bassGrinderDialog.open();
                         } else if (effectType === effectRackController.tubeStageType) {
                             tubeStageDialog.effectIndex = index;
                             tubeStageDialog.open();

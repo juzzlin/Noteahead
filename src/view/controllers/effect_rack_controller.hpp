@@ -53,6 +53,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString stereoEnhancerType READ stereoEnhancerType CONSTANT)
     Q_PROPERTY(QString stereoExciterType READ stereoExciterType CONSTANT)
     Q_PROPERTY(QString driveType READ driveType CONSTANT)
+    Q_PROPERTY(QString bassGrinderType READ bassGrinderType CONSTANT)
     Q_PROPERTY(QString limiterType READ limiterType CONSTANT)
     Q_PROPERTY(QString compressorType READ compressorType CONSTANT)
     Q_PROPERTY(QString delayType READ delayType CONSTANT)
@@ -100,6 +101,7 @@ public:
     QString stereoEnhancerType() const;
     QString stereoExciterType() const;
     QString driveType() const;
+    QString bassGrinderType() const;
     QString limiterType() const;
     QString compressorType() const;
     QString delayType() const;
@@ -224,6 +226,17 @@ public:
     Q_INVOKABLE QString tubeStageMixKey() const;
     Q_INVOKABLE QString tubeStageGainKey() const;
 
+    Q_INVOKABLE QString bassGrinderDriveKey() const;
+    Q_INVOKABLE QString bassGrinderBlendKey() const;
+    Q_INVOKABLE QString bassGrinderSplitFreqKey() const;
+    Q_INVOKABLE QString bassGrinderColorKey() const;
+    Q_INVOKABLE QString bassGrinderBassGainKey() const;
+    Q_INVOKABLE QString bassGrinderMidGainKey() const;
+    Q_INVOKABLE QString bassGrinderMidFreqKey() const;
+    Q_INVOKABLE QString bassGrinderHighGainKey() const;
+    Q_INVOKABLE QString bassGrinderMixKey() const;
+    Q_INVOKABLE QString bassGrinderGainKey() const;
+
     Q_INVOKABLE QString waveDesignerAttackKey() const;
     Q_INVOKABLE QString waveDesignerSustainKey() const;
     Q_INVOKABLE QString waveDesignerGainKey() const;
@@ -281,6 +294,7 @@ public:
     Q_INVOKABLE float limiterReductionDb(quint32 effectIndex) const;
     Q_INVOKABLE float saturatorSaturationDb(quint32 effectIndex) const;
     Q_INVOKABLE float tubeStageSaturationDb(quint32 effectIndex) const;
+    Q_INVOKABLE float bassGrinderSaturationDb(quint32 effectIndex) const;
     Q_INVOKABLE float waveDesignerShapingDb(quint32 effectIndex) const;
     Q_INVOKABLE float stereoExciterHarmonicsDb(quint32 effectIndex) const;
     Q_INVOKABLE float lufsMeterMomentary(quint32 effectIndex) const;

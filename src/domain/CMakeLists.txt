@@ -50,6 +50,7 @@ set(HEADER_FILES
     effects/all_pass_filter.hpp
     effects/auto_ducker.hpp
     effects/auto_panner.hpp
+    effects/bass_grinder.hpp
     effects/clipper.hpp
     effects/compressor.hpp
     effects/delay.hpp
@@ -169,6 +170,7 @@ set(SOURCE_FILES
     effects/all_pass_filter.cpp
     effects/auto_ducker.cpp
     effects/auto_panner.cpp
+    effects/bass_grinder.cpp
     effects/chorus.cpp
     effects/clipper.cpp
     effects/compressor.cpp

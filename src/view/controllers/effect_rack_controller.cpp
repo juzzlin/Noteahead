@@ -22,6 +22,7 @@
 #include "../../domain/effects/all_pass_filter.hpp"
 #include "../../domain/effects/auto_ducker.hpp"
 #include "../../domain/effects/auto_panner.hpp"
+#include "../../domain/effects/bass_grinder.hpp"
 #include "../../domain/effects/chorus.hpp"
 #include "../../domain/effects/clipper.hpp"
 #include "../../domain/effects/compressor.hpp"
@@ -273,6 +274,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("All-Pass Filter", AllPassFilter::typeIdString());
     addEffect("Auto Ducker", Constants::RackEffectType::autoDucker().toStdString());
     addEffect("Auto Panner", Constants::RackEffectType::autoPanner().toStdString());
+    addEffect("Bass Grinder", Constants::RackEffectType::bassGrinder().toStdString());
     addEffect("Endless Reverb", Constants::RackEffectType::endless().toStdString());
     addEffect("Chorus", Chorus::typeIdString());
     addEffect("Clipper", Constants::RackEffectType::clipper().toStdString());
@@ -562,6 +564,14 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                     return QString { "(pre=%1ms, decay=%2ms)" }
                       .arg(preDelay->get().xmlValue() / preDelay->get().xmlScale())
                       .arg(decay->get().xmlValue() / decay->get().xmlScale());
+                }
+            } else if (type == Constants::RackEffectType::bassGrinder()) {
+                const auto drive = effect->parameter(Constants::NahdXml::xmlKeyDrive().toStdString());
+                const auto blend = effect->parameter(Constants::NahdXml::xmlKeyBlend().toStdString());
+                if (drive && blend) {
+                    return QString { "(drive=%1dB, blend=%2%)" }
+                      .arg(drive->get().value() * 40.0f, 0, 'f', 1)
+                      .arg(static_cast<int>(std::round(blend->get().value() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::tubeStage()) {
                 const auto drive = effect->parameter(Constants::NahdXml::xmlKeyDrive().toStdString());
@@ -927,6 +937,56 @@ QString EffectRackController::tubeStageGainKey() const
     return Constants::NahdXml::xmlKeyGain();
 }
 
+QString EffectRackController::bassGrinderDriveKey() const
+{
+    return Constants::NahdXml::xmlKeyDrive();
+}
+
+QString EffectRackController::bassGrinderBlendKey() const
+{
+    return Constants::NahdXml::xmlKeyBlend();
+}
+
+QString EffectRackController::bassGrinderSplitFreqKey() const
+{
+    return Constants::NahdXml::xmlKeySplitFreq();
+}
+
+QString EffectRackController::bassGrinderColorKey() const
+{
+    return Constants::NahdXml::xmlKeyColor();
+}
+
+QString EffectRackController::bassGrinderBassGainKey() const
+{
+    return Constants::NahdXml::xmlKeyBassGain();
+}
+
+QString EffectRackController::bassGrinderMidGainKey() const
+{
+    return Constants::NahdXml::xmlKeyMidGain();
+}
+
+QString EffectRackController::bassGrinderMidFreqKey() const
+{
+    return Constants::NahdXml::xmlKeyMidFreq();
+}
+
+QString EffectRackController::bassGrinderHighGainKey() const
+{
+    return Constants::NahdXml::xmlKeyHighGain();
+}
+
+QString EffectRackController::bassGrinderMixKey() const
+{
+    return Constants::NahdXml::xmlKeyMix();
+}
+
+QString EffectRackController::bassGrinderGainKey() const
+{
+    return Constants::NahdXml::xmlKeyGain();
+}
+
 QString EffectRackController::driveModeKey() const
 {
     return Constants::NahdXml::xmlKeyMode();
@@ -1197,6 +1257,11 @@ QString EffectRackController::driveType() const
     return Constants::RackEffectType::drive();
 }
 
+QString EffectRackController::bassGrinderType() const
+{
+    return Constants::RackEffectType::bassGrinder();
+}
+
 QString EffectRackController::limiterType() const
 {
     return Constants::RackEffectType::limiter();
@@ -1414,6 +1479,19 @@ float EffectRackController::tubeStageSaturationDb(quint32 effectIndex) const
         if (const auto effect = rack->get().effect(effectIndex); effect) {
             if (const auto tubeStage = std::dynamic_pointer_cast<TubeStage>(effect); tubeStage) {
                 return tubeStage->saturationDb();
+            }
+        }
+    }
+
+    return 0.0f;
+}
+
+float EffectRackController::bassGrinderSaturationDb(quint32 effectIndex) const
+{
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(effectIndex); effect) {
+            if (const auto bassGrinder = std::dynamic_pointer_cast<BassGrinder>(effect); bassGrinder) {
+                return bassGrinder->saturationDb();
             }
         }
     }

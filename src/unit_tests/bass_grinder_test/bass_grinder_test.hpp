@@ -13,25 +13,33 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef EFFECT_OVERSAMPLING_TEST_HPP
-#define EFFECT_OVERSAMPLING_TEST_HPP
+#ifndef BASS_GRINDER_TEST_HPP
+#define BASS_GRINDER_TEST_HPP
 
 #include <QObject>
 
 namespace noteahead {
 
-class EffectOversamplingTest : public QObject
+class BassGrinderTest : public QObject
 {
     Q_OBJECT
 
 private slots:
-    void test_clipper_higherFactor_shouldReduceAliasing();
-    void test_drive_higherFactor_shouldReduceAliasing();
-    void test_saturator_higherFactor_shouldReduceAliasing();
-    void test_bassGrinder_higherFactor_shouldReduceAliasing();
-    void test_drive_factorOne_dryMix_shouldPassThrough();
+    void test_mix_zero_shouldPassSignalThrough();
+    void test_blend_zero_shouldLeaveSignalClean();
+    void test_split_high_shouldLeaveLowBandUndistorted();
+    void test_split_low_shouldDistortTheWholeBand();
+    void test_drive_higher_shouldSaturateMore();
+    void test_clipper_shouldGenerateEvenHarmonics();
+    void test_output_shouldNotDriftToDc();
+    void test_color_on_shouldScoopMids();
+    void test_bassGain_shouldBoostLowEnd();
+    void test_highGain_shouldBoostTopEnd();
+    void test_midFreq_shouldMoveTheBell();
+    void test_gain_shouldScaleOutput();
+    void test_oversampling_shouldSuppressAliasing();
 };
 
 } // namespace noteahead
 
-#endif // EFFECT_OVERSAMPLING_TEST_HPP
+#endif // BASS_GRINDER_TEST_HPP

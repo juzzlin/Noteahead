@@ -5,6 +5,13 @@ Release date:
 
 New features:
 
+* Add the Bass Grinder rack effect
+  - Bass preamp distortion: an asymmetric diode clipper with Blend, a
+    three-band EQ with a sweepable mid, and the Color mid-scoop voicing
+  - Split keeps everything below it out of the clipper, so a kick or a
+    bass keeps its fundamental while the band above it is ground up
+  - Shapes at the oversampled rate, with a saturation meter in the dialog
+
 * Add the Mixer view
 
 * Add the Piano Synth V2 device

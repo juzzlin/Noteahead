@@ -493,6 +493,12 @@ ApplicationWindow {
         width: parent.width * Constants.effectDialogScale
         height: parent.height * Constants.effectDialogScale
     }
+    BassGrinderDialog {
+        id: bassGrinderDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.effectDialogScale
+        height: parent.height * Constants.effectDialogScale
+    }
     TubeStageDialog {
         id: tubeStageDialog
         anchors.centerIn: parent

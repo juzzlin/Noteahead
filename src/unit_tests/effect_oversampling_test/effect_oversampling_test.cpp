@@ -15,6 +15,7 @@
 
 #include "effect_oversampling_test.hpp"
 #include "../../common/constants.hpp"
+#include "../../domain/effects/bass_grinder.hpp"
 #include "../../domain/effects/clipper.hpp"
 #include "../../domain/effects/drive.hpp"
 #include "../../domain/effects/saturator.hpp"
@@ -123,6 +124,22 @@ void EffectOversamplingTest::test_saturator_higherFactor_shouldReduceAliasing()
 
     QVERIFY(mag1 > 0.5);
     QVERIFY(mag4 < 0.6 * mag1);
+}
+
+void EffectOversamplingTest::test_bassGrinder_higherFactor_shouldReduceAliasing()
+{
+    BassGrinder bassGrinder;
+    setParam(bassGrinder, Constants::NahdXml::xmlKeyDrive(), 0.9f);
+    setParam(bassGrinder, Constants::NahdXml::xmlKeyBlend(), 1.0f);
+    setParam(bassGrinder, Constants::NahdXml::xmlKeySplitFreq(), 0.0f); // Split below the band, so everything is clipped
+    setParam(bassGrinder, Constants::NahdXml::xmlKeyMix(), 1.0f);
+    bassGrinder.sync();
+
+    const double mag1 = aliasMagnitude(bassGrinder, 1, 0.3, 0.1, 0.7);
+    const double mag4 = aliasMagnitude(bassGrinder, 4, 0.3, 0.1, 0.7);
+
+    QVERIFY(mag1 > 0.5);
+    QVERIFY(mag4 < 0.25 * mag1);
 }
 
 void EffectOversamplingTest::test_drive_factorOne_dryMix_shouldPassThrough()

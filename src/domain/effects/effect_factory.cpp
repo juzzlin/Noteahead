@@ -23,6 +23,7 @@
 #include "all_pass_filter.hpp"
 #include "auto_ducker.hpp"
 #include "auto_panner.hpp"
+#include "bass_grinder.hpp"
 #include "chorus.hpp"
 #include "clipper.hpp"
 #include "compressor.hpp"
@@ -101,6 +102,7 @@ void EffectFactory::init()
     registerEffect(Compressor::typeIdString(), []() { return std::make_shared<Compressor>(); });
     registerEffect(DbTpMeter::typeIdString(), []() { return std::make_shared<DbTpMeter>(); });
     registerEffect(Delay::typeIdString(), []() { return std::make_shared<Delay>(); });
+    registerEffect(BassGrinder::typeIdString(), []() { return std::make_shared<BassGrinder>(); });
     registerEffect(Drive::typeIdString(), []() { return std::make_shared<Drive>(); });
     registerEffect(Eq8BandParametric::typeIdString(), []() { return std::make_shared<Eq8BandParametric>(); });
     registerEffect(Limiter::typeIdString(), []() { return std::make_shared<Limiter>(); });
@@ -120,6 +122,7 @@ void EffectFactory::init()
     registerEffect(Constants::RackEffectType::clipper().toStdString(), []() { return std::make_shared<Clipper>(); });
     registerEffect(Constants::RackEffectType::compressor().toStdString(), []() { return std::make_shared<Compressor>(); });
     registerEffect(Constants::RackEffectType::delay().toStdString(), []() { return std::make_shared<Delay>(); });
+    registerEffect(Constants::RackEffectType::bassGrinder().toStdString(), []() { return std::make_shared<BassGrinder>(); });
     registerEffect(Constants::RackEffectType::drive().toStdString(), []() { return std::make_shared<Drive>(); });
     registerEffect(Constants::RackEffectType::eq8BandParametric().toStdString(), []() { return std::make_shared<Eq8BandParametric>(); });
     registerEffect(Constants::RackEffectType::limiter().toStdString(), []() { return std::make_shared<Limiter>(); });
@@ -140,6 +143,7 @@ void EffectFactory::init()
 
     // Legacy support
     registerLegacyEffect("auto_ducker", []() { return std::make_shared<AutoDucker>(); });
+    registerLegacyEffect("bass_grinder", []() { return std::make_shared<BassGrinder>(); });
     registerLegacyEffect("tube_stage", []() { return std::make_shared<TubeStage>(); });
     registerLegacyEffect("wave_designer", []() { return std::make_shared<WaveDesigner>(); });
     registerLegacyEffect("stereo_enhancer", []() { return std::make_shared<StereoEnhancer>(); });

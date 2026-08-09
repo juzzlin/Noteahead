@@ -40,6 +40,7 @@
 #include "../../domain/effects/air_band_eq.hpp"
 #include "../../domain/effects/all_pass_filter.hpp"
 #include "../../domain/effects/auto_ducker.hpp"
+#include "../../domain/effects/bass_grinder.hpp"
 #include "../../domain/effects/chorus.hpp"
 #include "../../domain/effects/clipper.hpp"
 #include "../../domain/effects/delay.hpp"
@@ -1917,6 +1918,65 @@ void XmlSerializationTest::test_toXmlFromXml_tubeStage_shouldLoadCorrectly()
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyBias()) - 0.31f) < 0.001f);
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyTone()) - 0.64f) < 0.001f);
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyMix()) - 0.85f) < 0.001f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_bassGrinder_shouldLoadCorrectly()
+{
+    // Effects are rebuilt through EffectFactory, so this also covers the factory registration:
+    // without it the effect would silently vanish from a reloaded project.
+    EffectFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto bassGrinder = std::make_shared<BassGrinder>();
+    const auto set = [&](const QString & key, float value) {
+        if (auto p = bassGrinder->parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    };
+    set(Constants::NahdXml::xmlKeyDrive(), 0.62f);
+    set(Constants::NahdXml::xmlKeyBlend(), 0.44f);
+    set(Constants::NahdXml::xmlKeySplitFreq(), 0.71f);
+    set(Constants::NahdXml::xmlKeyColor(), 1.0f);
+    set(Constants::NahdXml::xmlKeyBassGain(), 0.83f);
+    set(Constants::NahdXml::xmlKeyMidGain(), 0.29f);
+    set(Constants::NahdXml::xmlKeyMidFreq(), 0.37f);
+    set(Constants::NahdXml::xmlKeyHighGain(), 0.66f);
+    set(Constants::NahdXml::xmlKeyMix(), 0.91f);
+    deviceServiceOut.sendEffectRack().setEffect(0, bassGrinder);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(effect);
+    const auto restored = std::dynamic_pointer_cast<BassGrinder>(effect);
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), BassGrinder::typeIdString());
+
+    const auto value = [&](const QString & key) {
+        const auto p = restored->parameter(key.toStdString());
+        return p ? p->get().value() : -1.0f;
+    };
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyDrive()) - 0.62f) < 0.001f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyBlend()) - 0.44f) < 0.001f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeySplitFreq()) - 0.71f) < 0.001f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyColor()) - 1.0f) < 0.001f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyBassGain()) - 0.83f) < 0.001f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyMidGain()) - 0.29f) < 0.001f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyMidFreq()) - 0.37f) < 0.001f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyHighGain()) - 0.66f) < 0.001f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyMix()) - 0.91f) < 0.001f);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_stereoExciter_shouldLoadCorrectly()

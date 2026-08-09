@@ -201,6 +201,11 @@ QString drive()
     return "drive";
 }
 
+QString bassGrinder()
+{
+    return "bassGrinder";
+}
+
 QString saturator()
 {
     return "saturator";
@@ -1317,6 +1322,21 @@ QString xmlKeyBias()
     return "bias";
 }
 
+QString xmlKeyBlend()
+{
+    return "blend";
+}
+
+QString xmlKeySplitFreq()
+{
+    return "splitFreq";
+}
+
+QString xmlKeyColor()
+{
+    return "color";
+}
+
 QString xmlKeySideChainSourceDevice()
 {
     return "sidechainSourceDevice";
@@ -1480,6 +1500,11 @@ QString xmlKeyBassFreq()
 QString xmlKeyMidGain()
 {
     return "midGain";
+}
+
+QString xmlKeyMidFreq()
+{
+    return "midFreq";
 }
 
 QString xmlKeyMidQ()
