@@ -24,6 +24,7 @@ set(MAIN Main.qml)
 set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/${MAIN}
     ${QML_BASE_DIR}/BottomBar.qml
+    ${QML_BASE_DIR}/Components/ClipLed.qml
     ${QML_BASE_DIR}/Components/FilterKnob.qml
     ${QML_BASE_DIR}/Components/Knob.qml
     ${QML_BASE_DIR}/Components/LayoutSeparator.qml
@@ -92,6 +93,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/MidiCcSelector.qml
     ${QML_BASE_DIR}/Dialogs/MidiExportDialog.qml
     ${QML_BASE_DIR}/Dialogs/MidiImportDialog.qml
+    ${QML_BASE_DIR}/Dialogs/MixerDialog.qml
     ${QML_BASE_DIR}/Dialogs/ModulationGroupBox.qml
     ${QML_BASE_DIR}/Dialogs/NoteFrequencyDialog.qml
     ${QML_BASE_DIR}/Dialogs/PannerDialog.qml

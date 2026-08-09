@@ -5,6 +5,11 @@ Release date:
 
 New features:
 
+* Add the Mixer view
+  - One row per device with Gain, Fader and Pan, plus the level meter and
+    clip indicator of the Device Rack
+  - The knobs drive the device's own parameters, so nothing is set twice
+
 * Add the Piano Synth V2 device
   - Voiced against a Yamaha CP88 recording: a bank of resonators, one per
     partial, so that stiffness, per-partial decay, the two-stage decay of

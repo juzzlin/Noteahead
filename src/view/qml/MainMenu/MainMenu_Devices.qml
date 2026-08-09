@@ -24,4 +24,9 @@ Menu {
         text: qsTr("Device rack...")
         onTriggered: applicationService.requestDeviceRackDialog()
     }
+    MenuSeparator {}
+    Action {
+        text: qsTr("Mixer...")
+        onTriggered: UiService.requestMixerDialog()
+    }
 }

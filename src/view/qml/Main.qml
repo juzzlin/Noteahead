@@ -371,6 +371,13 @@ ApplicationWindow {
         }
     }
 
+    MixerDialog {
+        id: mixerDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.largeDialogScale
+        height: parent.height * Constants.largeDialogScale
+    }
+
     MasterEffectsDialog {
         id: masterEffectsDialog
         anchors.centerIn: parent
@@ -803,6 +810,10 @@ ApplicationWindow {
         UiService.deviceRackDialogRequested.connect(() => {
             deviceRackDialog.updateUsage();
             deviceRackDialog.open();
+        });
+        UiService.mixerDialogRequested.connect(() => {
+            deviceRackController.refresh();
+            mixerDialog.open();
         });
         UiService.deviceRackDialogFromTrackSettingsRequested.connect(() => {
             const names = [];

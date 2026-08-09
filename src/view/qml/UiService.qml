@@ -63,6 +63,7 @@ QtObject {
     signal lineAddPitchBendAutomationDialogRequested
     signal lineDelayDialogRequested
     signal manualDialogRequested
+    signal mixerDialogRequested
     signal noteFrequencyDialogRequested
     signal recentFilesDialogRequested
     signal samplerDialogRequested
@@ -153,6 +154,9 @@ QtObject {
     }
     function requestManualDialog(): void {
         manualDialogRequested();
+    }
+    function requestMixerDialog(): void {
+        mixerDialogRequested();
     }
     function requestShortcutsDialog(): void {
         shortcutsDialogRequested();
