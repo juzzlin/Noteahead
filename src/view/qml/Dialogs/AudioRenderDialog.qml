@@ -483,14 +483,14 @@ AnimatedDialog {
                 }
             }
 
-            ProgressBar {
-                Layout.fillWidth: true
-                value: renderService.progress
+            Label {
+                text: renderService.isRendering ? qsTr("Rendering...") : ""
                 visible: renderService.isRendering
             }
 
-            Label {
-                text: renderService.isRendering ? qsTr("Rendering...") : ""
+            ProgressBar {
+                Layout.fillWidth: true
+                value: renderService.progress
                 visible: renderService.isRendering
             }
         }
