@@ -66,6 +66,7 @@ QtObject {
     signal mixerDialogRequested
     signal noteFrequencyDialogRequested
     signal recentFilesDialogRequested
+    signal renderProgressDialogRequested
     signal samplerDialogRequested
     signal selectionAddMidiCcAutomationDialogRequested
     signal selectionAddPitchBendAutomationDialogRequested
@@ -190,6 +191,9 @@ QtObject {
     }
     function requestRecentFilesDialog(): void {
         recentFilesDialogRequested();
+    }
+    function requestRenderProgressDialog(): void {
+        renderProgressDialogRequested();
     }
     function requestDeviceRackDialog(): void {
         deviceRackDialogRequested();

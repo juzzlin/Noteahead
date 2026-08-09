@@ -123,6 +123,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/StringVoiceDialog_Voice.qml
     ${QML_BASE_DIR}/Dialogs/PitchBendAutomationModel.qml
     ${QML_BASE_DIR}/Dialogs/RecentFilesDialog.qml
+    ${QML_BASE_DIR}/Dialogs/RenderProgressDialog.qml
     ${QML_BASE_DIR}/Dialogs/ReverbDialog.qml
     ${QML_BASE_DIR}/Dialogs/RtaDialog.qml
     ${QML_BASE_DIR}/Dialogs/SamplerDialog.qml

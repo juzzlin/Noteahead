@@ -264,6 +264,10 @@ ApplicationWindow {
         width: parent.width * Constants.defaultDialogScale
         height: parent.height * Constants.defaultDialogScale
     }
+    RenderProgressDialog {
+        id: renderProgressDialog
+        anchors.centerIn: parent
+    }
     MidiImportDialog {
         id: midiImportDialog
         anchors.centerIn: parent
@@ -891,6 +895,7 @@ ApplicationWindow {
         UiService.samplerDialogRequested.connect(samplerDialog.open);
         UiService.drumSynthDialogRequested.connect(drumSynthDialog.open);
         UiService.recentFilesDialogRequested.connect(recentFilesDialog.open);
+        UiService.renderProgressDialogRequested.connect(renderProgressDialog.open);
         UiService.deviceDialogRequested.connect(deviceName => {
             if (deviceService.isInternalDevice(deviceName)) {
                 deviceRackController.openDevice(deviceName);

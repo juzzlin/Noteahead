@@ -183,6 +183,10 @@ Bug fixes:
 
 Other:
 
+* Move the render progress into a dialog of its own
+  - The progress bar is no longer hidden below the scrollable settings
+  - Fade & Tail is merged into Export Options to save vertical space
+
 * Show the stereo mode in the EQ 8-Band Parametric rack preview
   - The slot now reads Mid + Side, Mid or Side instead of just Parametric
 

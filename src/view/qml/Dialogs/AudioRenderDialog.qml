@@ -19,6 +19,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal
 import QtQuick.Dialogs
 import QtQuick.Layouts
+import Noteahead 1.0
 import ".."
 
 AnimatedDialog {
@@ -484,16 +485,6 @@ AnimatedDialog {
                 }
             }
 
-            Label {
-                text: renderService.isRendering ? qsTr("Rendering...") : ""
-                visible: renderService.isRendering
-            }
-
-            ProgressBar {
-                Layout.fillWidth: true
-                value: renderService.progress
-                visible: renderService.isRendering
-            }
         }
     }
 
@@ -512,6 +503,7 @@ AnimatedDialog {
                 } else {
                     renderService.renderIndividualTracks(rootItem.outputDirectory);
                 }
+                UiService.requestRenderProgressDialog();
             }
         }
     }
