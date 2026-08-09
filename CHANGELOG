@@ -5,20 +5,21 @@ Release date:
 
 New features:
 
-* Add the Bass Grinder rack effect
-  - Bass preamp distortion: an asymmetric diode clipper with Blend, a
-    three-band EQ with a sweepable mid, and the Color mid-scoop voicing
-  - Split keeps everything below it out of the clipper, so a kick or a
-    bass keeps its fundamental while the band above it is ground up
-  - Shapes at the oversampled rate, with a saturation meter in the dialog
+* Add new rack effects
+  - Bass Grinder
+  - Stereo Enhancer
+  - Stereo Exciter
+  - Tube Stage
+  - Wave Designer
+
+* Add new devices
+  - Piano Synth V2, voiced against a Yamaha CP88 recording: a bank of
+    resonators, one per partial, so that stiffness, per-partial decay, the
+    two-stage decay of a struck unison and the weakly radiated bass
+    fundamental are each modelled on their own
+  - Kick808
 
 * Add the Mixer view
-
-* Add the Piano Synth V2 device
-  - Voiced against a Yamaha CP88 recording: a bank of resonators, one per
-    partial, so that stiffness, per-partial decay, the two-stage decay of
-    a struck unison and the weakly radiated bass fundamental are each
-    modelled on their own
 
 * Add the fade out and tail silence options to the audio export
 
@@ -28,49 +29,35 @@ New features:
 
 * Add the Mono voice mode to the Synth
 
-* Add the Stereo Exciter effect
-
-* Add the Stereo Enhancer effect
-
-* Add the Wave Designer effect
-
 * Follow the VC340's register structure in the StringVoice
   - There is no Female 8' on a VC340, so that register became the upper
     register's Male 8'; older projects find their value there
 
 * Add a Balance section to the StringVoice, below the Strings section
 
-* Add the Tube Stage effect
-
-* Add the Kick808 device
-
 Bug fixes:
+
+* Fix the Piano
+  - Let the top octaves speak and ring
+  - Play in tune across the keyboard
+  - Keep the bottom octave in tune above 48 kHz
+  - Stop the hammer strikes stacking up in a chord
+  - Keep Brightness and Hardness working on hard-struck notes
+  - Give the unison pairs something to beat against
+
+* Fix the StringVoice
+  - Sing the male voice at the vowel a VC340 sings
+  - Make the voice section sing a vowel
 
 * Open the Limiter and RTA editors from a device insert slot
 
 * Remove a DC offset from the Synth's output
 
-* Let the Piano's top octaves speak and ring
-
 * Fix a column scrolling into view showing the wrong lines
-
-* Play the Piano in tune across the keyboard
-
-* Keep the Piano's bottom octave in tune above 48 kHz
-
-* Stop the Piano's hammer strikes stacking up in a chord
-
-* Keep the Piano's Brightness and Hardness working on hard-struck notes
-
-* Give the Piano's unison pairs something to beat against
 
 * Fix crash on cancelling the Sampler dialog during playback
 
-* Sing the male voice at the vowel a VC340 sings
-
 * Stop rewinding from marking the song modified
-
-* Make the StringVoice voice section sing a vowel
 
 Other:
 
