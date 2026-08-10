@@ -17,6 +17,7 @@
 #define PITCH_BEND_AUTOMATION_HPP
 
 #include "../tracker/automation.hpp"
+#include "../tracker/interpolator.hpp"
 #include "../tracker/modulation.hpp"
 
 #include <memory>
@@ -35,10 +36,11 @@ public:
         size_t line1 = 0;
         int value0 = 0; // -100%..+100%
         int value1 = 0; // -100%..+100%
+        Interpolator::CurveType curve = Interpolator::CurveType::Linear;
 
         bool operator==(const InterpolationParameters & other) const
         {
-            return line0 == other.line0 && line1 == other.line1 && value0 == other.value0 && value1 == other.value1;
+            return line0 == other.line0 && line1 == other.line1 && value0 == other.value0 && value1 == other.value1 && curve == other.curve;
         }
 
         bool operator!=(const InterpolationParameters & other) const

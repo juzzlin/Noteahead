@@ -58,6 +58,7 @@
 #include "../../domain/tracker/auto_note_off_offset.hpp"
 #include "../../domain/tracker/column_settings.hpp"
 #include "../../domain/tracker/instrument.hpp"
+#include "../../domain/tracker/interpolator.hpp"
 #include "../../domain/tracker/note_data.hpp"
 #include "../../domain/tracker/song.hpp"
 #include "../../domain/tracker/song_settings.hpp"
@@ -448,6 +449,47 @@ void XmlSerializationTest::test_toXmlFromXml_automationService_midiCc_shouldLoad
     }
 }
 
+void XmlSerializationTest::test_toXmlFromXml_automationService_midiCc_curve_shouldLoadAutomationService()
+{
+    AutomationService automationServiceOut { std::make_shared<PropertyService>() };
+    automationServiceOut.addMidiCcAutomation(0, 0, 0, 64, 0, 8, 0, 100, {}, true, 8, 0);
+    auto automationOut = automationServiceOut.midiCcAutomations().at(0);
+    auto interpolationOut = automationOut.interpolation();
+    interpolationOut.curve = Interpolator::CurveType::EaseInOut;
+    automationOut.setInterpolation(interpolationOut);
+    automationServiceOut.updateMidiCcAutomation(automationOut);
+
+    AutomationService automationServiceIn { std::make_shared<PropertyService>() };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorService, &EditorService::automationSerializationRequested, &automationServiceOut, &AutomationService::serializeToXml);
+    connect(&editorService, &EditorService::automationDeserializationRequested, &automationServiceIn, &AutomationService::deserializeFromXml);
+
+    editorService.fromXml(editorService.toXml());
+
+    QCOMPARE(automationServiceIn.midiCcAutomations().at(0).interpolation().curve, Interpolator::CurveType::EaseInOut);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_automationService_midiCc_linearCurve_shouldNotWriteCurveAttribute()
+{
+    // A linear automation must stay on the pre-curve XML shape, so that projects written before
+    // curves existed keep loading exactly as they did and re-saving them does not add anything
+    AutomationService automationServiceOut { std::make_shared<PropertyService>() };
+    automationServiceOut.addMidiCcAutomation(0, 0, 0, 64, 0, 8, 0, 100, {}, true, 8, 0);
+
+    AutomationService automationServiceIn { std::make_shared<PropertyService>() };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorService, &EditorService::automationSerializationRequested, &automationServiceOut, &AutomationService::serializeToXml);
+    connect(&editorService, &EditorService::automationDeserializationRequested, &automationServiceIn, &AutomationService::deserializeFromXml);
+
+    const auto xml = editorService.toXml();
+    QVERIFY(!xml.contains("curve="));
+
+    // The same XML an older Noteahead would have written loads back as linear
+    editorService.fromXml(xml);
+
+    QCOMPARE(automationServiceIn.midiCcAutomations().at(0).interpolation().curve, Interpolator::CurveType::Linear);
+}
+
 void XmlSerializationTest::test_toXmlFromXml_automationService_midiCc_withModulation_shouldLoadAutomationService()
 {
     AutomationService automationServiceOut { std::make_shared<PropertyService>() };
@@ -483,6 +525,26 @@ void XmlSerializationTest::test_toXmlFromXml_automationService_midiCc_noModulati
     QCOMPARE(automation.modulation().cycles, 0.0f);
     QCOMPARE(automation.modulation().amplitude, 0.0f);
     QCOMPARE(automation.modulation().inverted, false);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_automationService_pitchBend_curve_shouldLoadAutomationService()
+{
+    AutomationService automationServiceOut { std::make_shared<PropertyService>() };
+    automationServiceOut.addPitchBendAutomation(0, 0, 0, 0, 8, -100, 100, {}, true);
+    auto automationOut = automationServiceOut.pitchBendAutomations().at(0);
+    auto interpolationOut = automationOut.interpolation();
+    interpolationOut.curve = Interpolator::CurveType::Exponential;
+    automationOut.setInterpolation(interpolationOut);
+    automationServiceOut.updatePitchBendAutomation(automationOut);
+
+    AutomationService automationServiceIn { std::make_shared<PropertyService>() };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorService, &EditorService::automationSerializationRequested, &automationServiceOut, &AutomationService::serializeToXml);
+    connect(&editorService, &EditorService::automationDeserializationRequested, &automationServiceIn, &AutomationService::deserializeFromXml);
+
+    editorService.fromXml(editorService.toXml());
+
+    QCOMPARE(automationServiceIn.pitchBendAutomations().at(0).interpolation().curve, Interpolator::CurveType::Exponential);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_automationService_pitchBend_shouldLoadAutomationService()

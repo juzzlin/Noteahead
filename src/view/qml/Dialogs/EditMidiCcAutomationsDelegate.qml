@@ -26,6 +26,8 @@ GroupBox {
     title: `Pattern: ${model.pattern}, Track: ${model.track}, Column: ${model.column}`
     //! Value ranges are per port, so every lookup here has to go through the track's instrument.
     readonly property string portName: (track !== undefined) ? editorService.instrumentPortName(track) : ""
+    //! ComboBox shadows the delegate's model with its own, so the line range has to be resolved here
+    readonly property bool hasLineRange: model.line0 !== model.line1
     function initialize(): void {
         if (model && model.controller !== undefined) {
             controllerComboBox.currentIndex = controllerComboBox.indexOfValue(model.controller);
@@ -33,6 +35,7 @@ GroupBox {
             endLineSpinBox.value = model.line1;
             startValueSpinBox.value = model.value0;
             endValueSpinBox.value = model.value1;
+            curveComboBox.currentIndex = model.curve;
             eventsPerBeatSpinBox.value = model.eventsPerBeat;
             lineOffsetSpinBox.value = model.lineOffset;
             modulationTypeComboBox.currentIndex = model.modulationType;
@@ -183,6 +186,27 @@ GroupBox {
                     onToChanged: if (value > to) {
                         value = to;
                         model.value1 = to;
+                    }
+                }
+                Label {
+                    text: qsTr("Curve")
+                    Layout.row: 0
+                    Layout.column: 6
+                    Layout.fillWidth: true
+                }
+                ComboBox {
+                    id: curveComboBox
+                    model: [qsTr("Linear"), qsTr("Exponential"), qsTr("Logarithmic"), qsTr("Ease In"), qsTr("Ease Out"), qsTr("Ease In/Out")]
+                    enabled: rootItem.hasLineRange
+                    Layout.row: 1
+                    Layout.column: 6
+                    Layout.fillWidth: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("The shape of the ramp between the start and end value")
+                    onActivated: function (comboBoxIndex) {
+                        midiCcAutomationsModel.changeCurve(index, comboBoxIndex);
                     }
                 }
             }

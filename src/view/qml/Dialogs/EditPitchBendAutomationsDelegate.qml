@@ -23,6 +23,8 @@ import "../ToolBar"
 GroupBox {
     id: delegateRoot
     title: `Pattern: ${model.pattern}, Track: ${model.track}, Column: ${model.column}`
+    //! ComboBox shadows the delegate's model with its own, so the line range has to be resolved here
+    readonly property bool hasLineRange: model.line0 !== model.line1
 
     function initialize(): void {
         if (model) {
@@ -30,6 +32,7 @@ GroupBox {
             endLineSpinBox.value = model.line1;
             startValueSpinBox.value = model.value0;
             endValueSpinBox.value = model.value1;
+            curveComboBox.currentIndex = model.curve;
             modulationTypeComboBox.currentIndex = model.modulationType;
             modulationCyclesSpinBox.value = model.modulationCycles;
             modulationAmplitudeSpinBox.value = model.modulationAmplitude;
@@ -64,7 +67,7 @@ GroupBox {
             Layout.fillWidth: true
             GridLayout {
                 anchors.fill: parent
-                columns: 4
+                columns: 5
                 Label {
                     text: qsTr("Start line")
                     Layout.row: 0
@@ -149,6 +152,27 @@ GroupBox {
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("The pitch bend value at the end line (-100% to 100%)")
                     onValueModified: model.value1 = value
+                }
+                Label {
+                    text: qsTr("Curve")
+                    Layout.row: 0
+                    Layout.column: 4
+                    Layout.fillWidth: true
+                }
+                ComboBox {
+                    id: curveComboBox
+                    model: [qsTr("Linear"), qsTr("Exponential"), qsTr("Logarithmic"), qsTr("Ease In"), qsTr("Ease Out"), qsTr("Ease In/Out")]
+                    enabled: delegateRoot.hasLineRange
+                    Layout.row: 1
+                    Layout.column: 4
+                    Layout.fillWidth: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("The shape of the ramp between the start and end value")
+                    onActivated: function (comboBoxIndex) {
+                        pitchBendAutomationsModel.changeCurve(index, comboBoxIndex);
+                    }
                 }
             }
         }

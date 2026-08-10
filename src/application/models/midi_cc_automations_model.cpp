@@ -132,6 +132,8 @@ QVariant MidiCcAutomationsModel::data(const QModelIndex & index, int role) const
             return midiCcAutomation.interpolation().value0;
         case DataRole::Value1:
             return midiCcAutomation.interpolation().value1;
+        case DataRole::Curve:
+            return static_cast<int>(midiCcAutomation.interpolation().curve);
         case DataRole::Pattern:
             return static_cast<quint64>(midiCcAutomation.location().pattern());
         case DataRole::Track:
@@ -210,6 +212,14 @@ bool MidiCcAutomationsModel::setData(const QModelIndex & index, const QVariant &
             auto interpolation = midiCcAutomation.interpolation();
             if (const auto newValue1 = static_cast<uint8_t>(value.toUInt()); interpolation.value1 != newValue1) {
                 interpolation.value1 = newValue1;
+                midiCcAutomation.setInterpolation(interpolation);
+                changed = true;
+            }
+        } break;
+        case DataRole::Curve: {
+            auto interpolation = midiCcAutomation.interpolation();
+            if (const auto newCurve = static_cast<Interpolator::CurveType>(value.toInt()); interpolation.curve != newCurve) {
+                interpolation.curve = newCurve;
                 midiCcAutomation.setInterpolation(interpolation);
                 changed = true;
             }
@@ -319,6 +329,7 @@ QHash<int, QByteArray> MidiCcAutomationsModel::roleNames() const
         { static_cast<int>(DataRole::Track), "track" },
         { static_cast<int>(DataRole::Value0), "value0" },
         { static_cast<int>(DataRole::Value1), "value1" },
+        { static_cast<int>(DataRole::Curve), "curve" },
         { static_cast<int>(DataRole::Modulation_Cycles), "modulationCycles" },
         { static_cast<int>(DataRole::Modulation_Amplitude), "modulationAmplitude" },
         { static_cast<int>(DataRole::Modulation_Offset), "modulationOffset" },
@@ -382,6 +393,22 @@ void MidiCcAutomationsModel::changeModulationType(int index, int type)
             m_midiCcAutomationsChanged.insert(midiCcAutomation);
             emit dataChanged(this->index(index), this->index(index), { static_cast<int>(DataRole::Modulation_Type) });
             juzzlin::L(TAG).info() << "MIDI CC automation modulation type changed via invokable: " << midiCcAutomation.toString().toStdString();
+        }
+    }
+}
+
+void MidiCcAutomationsModel::changeCurve(int index, int curve)
+{
+    if (index >= 0 && static_cast<size_t>(index) < m_midiCcAutomations.size()) {
+        auto && midiCcAutomation = m_midiCcAutomations[static_cast<size_t>(index)];
+        auto interpolation = midiCcAutomation.interpolation();
+        if (const auto newCurve = static_cast<Interpolator::CurveType>(curve); interpolation.curve != newCurve) {
+            interpolation.curve = newCurve;
+            midiCcAutomation.setInterpolation(interpolation);
+            m_midiCcAutomationsChanged.erase(midiCcAutomation);
+            m_midiCcAutomationsChanged.insert(midiCcAutomation);
+            emit dataChanged(this->index(index), this->index(index), { static_cast<int>(DataRole::Curve) });
+            juzzlin::L(TAG).info() << "MIDI CC automation curve changed via invokable: " << midiCcAutomation.toString().toStdString();
         }
     }
 }

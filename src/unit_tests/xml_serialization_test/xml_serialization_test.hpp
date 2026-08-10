@@ -39,9 +39,12 @@ private slots:
 
     void test_toXmlFromXml_sideChainService_shouldLoadSideChainService();
 
+    void test_toXmlFromXml_automationService_midiCc_curve_shouldLoadAutomationService();
+    void test_toXmlFromXml_automationService_midiCc_linearCurve_shouldNotWriteCurveAttribute();
     void test_toXmlFromXml_automationService_midiCc_noModulation_shouldLoadAutomationService();
     void test_toXmlFromXml_automationService_midiCc_shouldLoadAutomationService();
     void test_toXmlFromXml_automationService_midiCc_withModulation_shouldLoadAutomationService();
+    void test_toXmlFromXml_automationService_pitchBend_curve_shouldLoadAutomationService();
     void test_toXmlFromXml_automationService_pitchBend_shouldLoadAutomationService();
     void test_toXmlFromXml_automationService_pitchBend_withModulation_shouldLoadAutomationService();
 

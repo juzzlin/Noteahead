@@ -465,7 +465,8 @@ int AutomationService::midiCcValueAt(const MidiCcAutomation & automation, size_t
         static_cast<size_t>(interpolation.line0),
         static_cast<size_t>(interpolation.line1),
         static_cast<double>(interpolation.value0),
-        static_cast<double>(interpolation.value1)
+        static_cast<double>(interpolation.value1),
+        interpolation.curve
     };
     double interpolatedValue = interpolator.getValue(line);
 
@@ -531,7 +532,8 @@ int AutomationService::pitchBendValueAt(const PitchBendAutomation & automation, 
         static_cast<size_t>(interpolation.line0),
         static_cast<size_t>(interpolation.line1),
         static_cast<double>(interpolation.value0),
-        static_cast<double>(interpolation.value1)
+        static_cast<double>(interpolation.value1),
+        interpolation.curve
     };
     double interpolatedValue = interpolator.getValue(line);
 
@@ -592,7 +594,8 @@ AutomationService::EventList AutomationService::renderMidiCcToEventsByColumn(siz
                     static_cast<size_t>(interpolation.line0),
                     static_cast<size_t>(interpolation.line1),
                     static_cast<double>(interpolation.value0),
-                    static_cast<double>(interpolation.value1)
+                    static_cast<double>(interpolation.value1),
+                    interpolation.curve
                 };
 
                 const uint8_t eventsPerBeat = automation.eventsPerBeat() > 0 ? std::min(automation.eventsPerBeat(), static_cast<uint8_t>(linesPerBeat)) : static_cast<uint8_t>(linesPerBeat);
@@ -663,7 +666,8 @@ AutomationService::EventList AutomationService::renderPitchBendToEventsByColumn(
                     static_cast<size_t>(interpolation.line0),
                     static_cast<size_t>(interpolation.line1),
                     static_cast<double>(interpolation.value0),
-                    static_cast<double>(interpolation.value1)
+                    static_cast<double>(interpolation.value1),
+                    interpolation.curve
                 };
                 std::optional<double> prevValue;
                 for (size_t line = interpolation.line0; line <= interpolation.line1; line++) {

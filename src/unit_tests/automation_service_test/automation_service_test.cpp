@@ -567,6 +567,43 @@ void AutomationServiceTest::test_renderToEventsByColumn_shouldRenderToEvents()
     }
 }
 
+void AutomationServiceTest::test_renderToEventsByColumn_curve_shouldFollowCurve()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+
+    const quint64 pattern = 0;
+    const quint64 track = 1;
+    const quint64 column = 2;
+    const quint8 controller = 64;
+    const quint8 line0 = 0;
+    const quint8 line1 = 8;
+    const quint8 value0 = 0;
+    const quint8 value1 = 100;
+    automationService.addMidiCcAutomation(pattern, track, column, controller, line0, line1, value0, value1, {}, true, 8, 0);
+
+    auto automation = automationService.midiCcAutomations().at(0);
+    auto interpolation = automation.interpolation();
+    interpolation.curve = Interpolator::CurveType::Exponential;
+    automation.setInterpolation(interpolation);
+    automationService.updateMidiCcAutomation(automation);
+
+    const auto events = automationService.renderToEventsByColumn(pattern, track, column, 0, 24, 8);
+    const Interpolator interpolator {
+        static_cast<size_t>(line0),
+        static_cast<size_t>(line1),
+        static_cast<double>(value0),
+        static_cast<double>(value1),
+        Interpolator::CurveType::Exponential
+    };
+    QCOMPARE(events.size(), static_cast<size_t>(line1 - line0 + 1));
+    for (size_t line = line0; line <= line1; line++) {
+        const auto i = line - line0;
+        QCOMPARE(events.at(i)->midiCcData()->value(), static_cast<uint8_t>(std::round(interpolator.getValue(line))));
+    }
+    // The midpoint of an exponential ramp sits well below the linear one
+    QCOMPARE(events.at(4)->midiCcData()->value(), 25);
+}
+
 void AutomationServiceTest::test_renderToEventsByColumn_shouldPruneRepeatingEvents()
 {
     AutomationService automationService { std::make_shared<PropertyService>() };

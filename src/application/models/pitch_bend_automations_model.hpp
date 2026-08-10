@@ -42,6 +42,7 @@ public:
         Track,
         Value0,
         Value1,
+        Curve,
         Modulation_Cycles,
         Modulation_Amplitude,
         Modulation_Offset,
@@ -68,6 +69,7 @@ public:
 
     Q_INVOKABLE void applyAll();
     Q_INVOKABLE void changeModulationType(int index, int type);
+    Q_INVOKABLE void changeCurve(int index, int curve);
 
 signals:
     void pitchBendAutomationChanged(const PitchBendAutomation & PitchBendAutomation);

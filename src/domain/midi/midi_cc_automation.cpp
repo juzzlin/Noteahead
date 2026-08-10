@@ -120,7 +120,7 @@ void MidiCcAutomation::setModulation(const ModulationParameters & modulation)
 QString MidiCcAutomation::toString() const
 {
     return QString { "MidiCcAutomation(id=%1, controller=%2, pattern=%3, track=%4, column=%5, "
-                     "line: %6 -> %7, value: %8 -> %9, eventsPerBeat=%10, lineOffset=%11), enabled=%12" }
+                     "line: %6 -> %7, value: %8 -> %9, curve=%10, eventsPerBeat=%11, lineOffset=%12), enabled=%13" }
       .arg(QString::number(id()),
            QString::number(m_controller),
            QString::number(location().pattern()),
@@ -130,6 +130,7 @@ QString MidiCcAutomation::toString() const
            QString::number(m_interpolation.line1),
            QString::number(m_interpolation.value0),
            QString::number(m_interpolation.value1),
+           Interpolator::curveToXmlValue(m_interpolation.curve),
            QString::number(m_eventsPerBeat),
            QString::number(m_lineOffset),
            QString::number(enabled()));
@@ -151,6 +152,9 @@ void MidiCcAutomation::serializeToXml(ProjectWriter & writer) const
     writer.writeAttribute(Constants::NahdXml::xmlKeyLine1(), QString::number(m_interpolation.line1));
     writer.writeAttribute(Constants::NahdXml::xmlKeyValue0(), QString::number(m_interpolation.value0));
     writer.writeAttribute(Constants::NahdXml::xmlKeyValue1(), QString::number(m_interpolation.value1));
+    if (m_interpolation.curve != Interpolator::CurveType::Linear) { // Omitted for the default so that older projects round-trip unchanged
+        writer.writeAttribute(Constants::NahdXml::xmlKeyCurve(), Interpolator::curveToXmlValue(m_interpolation.curve));
+    }
     writer.writeEndElement(); // Interpolation
 
     if (m_modulation.cycles > 0.f || m_modulation.amplitude > 0.f || m_modulation.offset != 0.f) {
@@ -187,6 +191,9 @@ MidiCcAutomation::MidiCcAutomationU MidiCcAutomation::deserializeFromXml(Project
                 interpolationParameters.line1 = reader.attribute(Constants::NahdXml::xmlKeyLine1()).toULongLong();
                 interpolationParameters.value0 = static_cast<quint8>(reader.attribute(Constants::NahdXml::xmlKeyValue0()).toUInt());
                 interpolationParameters.value1 = static_cast<quint8>(reader.attribute(Constants::NahdXml::xmlKeyValue1()).toUInt());
+                if (const auto curve = reader.attribute(Constants::NahdXml::xmlKeyCurve()); curve.isValid()) { // Projects saved before curves default to linear
+                    interpolationParameters.curve = Interpolator::curveFromXmlValue(curve.toString());
+                }
             } else if (!reader.name().compare(Constants::NahdXml::xmlKeyModulation())) {
                 if (const auto type = reader.attribute(Constants::NahdXml::xmlKeyType()); type.isValid()) {
                     if (type.toString() == Constants::NahdXml::xmlValueRandom()) {

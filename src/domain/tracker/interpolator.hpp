@@ -16,6 +16,8 @@
 #ifndef INTERPOLATOR_HPP
 #define INTERPOLATOR_HPP
 
+#include <QString>
+
 #include <cstddef>
 
 namespace noteahead {
@@ -23,9 +25,29 @@ namespace noteahead {
 class Interpolator
 {
 public:
+    //! The shape of the ramp between the start and end value. Serialized by name, so the order is free.
+    enum class CurveType
+    {
+        Linear,
+        Exponential,
+        Logarithmic,
+        EaseIn,
+        EaseOut,
+        EaseInOut
+    };
+
     Interpolator(size_t startLine, size_t endLine, double startValue, double endValue);
+    Interpolator(size_t startLine, size_t endLine, double startValue, double endValue, CurveType curve);
 
     double getValue(size_t line) const;
+
+    CurveType curve() const;
+
+    //! Maps t in [0, 1] to the shaped position on the ramp.
+    static double applyCurve(CurveType curve, double t);
+
+    static QString curveToXmlValue(CurveType curve);
+    static CurveType curveFromXmlValue(QString value);
 
 private:
     size_t m_startLine = 0;
@@ -33,6 +55,8 @@ private:
 
     double m_startValue = 0;
     double m_endValue = 0;
+
+    CurveType m_curve = CurveType::Linear;
 };
 
 } // namespace noteahead

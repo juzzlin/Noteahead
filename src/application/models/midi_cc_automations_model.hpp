@@ -45,6 +45,7 @@ public:
         Track,
         Value0,
         Value1,
+        Curve,
         Modulation_Cycles,
         Modulation_Amplitude,
         Modulation_Offset,
@@ -77,6 +78,7 @@ public:
     Q_INVOKABLE void applyAll();
     Q_INVOKABLE void changeController(int index, quint8 controller);
     Q_INVOKABLE void changeModulationType(int index, int type);
+    Q_INVOKABLE void changeCurve(int index, int curve);
 
 signals:
     void midiCcAutomationChanged(const MidiCcAutomation & midiCcAutomation);

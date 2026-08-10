@@ -86,7 +86,7 @@ void PitchBendAutomation::setModulation(const ModulationParameters & modulation)
 QString PitchBendAutomation::toString() const
 {
     return QString { "PitchBendAutomation(id=%1, pattern=%2, track=%3, column=%4, "
-                     "line: %5 -> %6, value: %7 -> %8), enabled=%9" }
+                     "line: %5 -> %6, value: %7 -> %8, curve=%9), enabled=%10" }
       .arg(QString::number(id()),
            QString::number(location().pattern()),
            QString::number(location().track()),
@@ -95,6 +95,7 @@ QString PitchBendAutomation::toString() const
            QString::number(m_interpolation.line1),
            QString::number(m_interpolation.value0),
            QString::number(m_interpolation.value1),
+           Interpolator::curveToXmlValue(m_interpolation.curve),
            QString::number(enabled()));
 }
 
@@ -111,6 +112,9 @@ void PitchBendAutomation::serializeToXml(ProjectWriter & writer) const
     writer.writeAttribute(Constants::NahdXml::xmlKeyLine1(), QString::number(m_interpolation.line1));
     writer.writeAttribute(Constants::NahdXml::xmlKeyValue0(), QString::number(m_interpolation.value0));
     writer.writeAttribute(Constants::NahdXml::xmlKeyValue1(), QString::number(m_interpolation.value1));
+    if (m_interpolation.curve != Interpolator::CurveType::Linear) { // Omitted for the default so that older projects round-trip unchanged
+        writer.writeAttribute(Constants::NahdXml::xmlKeyCurve(), Interpolator::curveToXmlValue(m_interpolation.curve));
+    }
     writer.writeEndElement(); // Interpolation
 
     if (m_modulation.cycles > 0.f || m_modulation.amplitude > 0.f || m_modulation.offset != 0.f) {
@@ -143,6 +147,9 @@ PitchBendAutomation::PitchBendAutomationU PitchBendAutomation::deserializeFromXm
                 parameters.line1 = reader.attribute(Constants::NahdXml::xmlKeyLine1()).toULongLong();
                 parameters.value0 = reader.attribute(Constants::NahdXml::xmlKeyValue0()).toInt();
                 parameters.value1 = reader.attribute(Constants::NahdXml::xmlKeyValue1()).toInt();
+                if (const auto curve = reader.attribute(Constants::NahdXml::xmlKeyCurve()); curve.isValid()) { // Projects saved before curves default to linear
+                    parameters.curve = Interpolator::curveFromXmlValue(curve.toString());
+                }
             } else if (!reader.name().compare(Constants::NahdXml::xmlKeyModulation())) {
                 if (const auto type = reader.attribute(Constants::NahdXml::xmlKeyType()); type.isValid()) {
                     if (type.toString() == Constants::NahdXml::xmlValueRandom()) {

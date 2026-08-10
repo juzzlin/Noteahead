@@ -725,6 +725,11 @@ QString xmlKeyValue1()
     return "value1";
 }
 
+QString xmlKeyCurve()
+{
+    return "curve";
+}
+
 QString xmlKeyComment()
 {
     return "comment";
@@ -2105,6 +2110,36 @@ QString xmlValueSineWave()
 QString xmlValueRandom()
 {
     return "Random";
+}
+
+QString xmlValueLinear()
+{
+    return "Linear";
+}
+
+QString xmlValueExponential()
+{
+    return "Exponential";
+}
+
+QString xmlValueLogarithmic()
+{
+    return "Logarithmic";
+}
+
+QString xmlValueEaseIn()
+{
+    return "EaseIn";
+}
+
+QString xmlValueEaseOut()
+{
+    return "EaseOut";
+}
+
+QString xmlValueEaseInOut()
+{
+    return "EaseInOut";
 }
 
 QString xmlValueSamplers()

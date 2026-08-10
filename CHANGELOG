@@ -199,6 +199,10 @@ New features:
 * Add a clip LED to every Device Rack row
   - Latches on any full-scale output, clears on click
 
+* Add interpolation curves to MIDI CC and pitch bend automations
+  - Linear, Exponential, Logarithmic, Ease In, Ease Out and Ease In/Out
+  - Selected per automation in the edit dialog; existing automations stay linear
+
 * Draw automations as curves over the tracker lines
   - Each automation on a column gets its own vertical trace, value left to right,
     so a sine modulation reads as a sine
