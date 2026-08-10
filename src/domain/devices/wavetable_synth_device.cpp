@@ -984,6 +984,7 @@ void WavetableSynthDevice::setModSustain(float sustain)
     if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyModSustain().toStdString()); synthParameter) {
         synthParameter->get().setValue(sustain);
         syncParameters();
+        emit dataChanged();
     }
 }
 

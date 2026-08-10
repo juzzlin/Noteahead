@@ -60,6 +60,8 @@ Bug fixes:
 
 * Fix crash on cancelling the Sampler dialog during playback
 
+* Fix the Wavetable Synth's Mod Envelope sustain knob springing back
+
 * Stop rewinding from marking the song modified
 
 * Stop burning CPU on a stopped song

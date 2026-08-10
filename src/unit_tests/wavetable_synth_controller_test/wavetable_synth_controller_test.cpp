@@ -113,6 +113,26 @@ void WavetableSynthControllerTest::test_lfo2_properties_shouldEmitSignals()
     QCOMPARE(spy.count(), 1);
 }
 
+void WavetableSynthControllerTest::test_sustain_properties_shouldEmitSignals()
+{
+    const auto synth = std::make_shared<WavetableSynthDevice>("Test Synth");
+    WavetableSynthController controller { synth };
+
+    const int sustain = 300;
+
+    // Without the signal the knob's binding never sees the new value and the knob springs back to
+    // where it was as soon as it is let go, even though the device did take the value.
+    QSignalSpy ampSpy { &controller, &WavetableSynthController::ampSustainChanged };
+    controller.setAmpSustain(sustain);
+    QCOMPARE(controller.ampSustain(), sustain);
+    QCOMPARE(ampSpy.count(), 1);
+
+    QSignalSpy modSpy { &controller, &WavetableSynthController::modSustainChanged };
+    controller.setModSustain(sustain);
+    QCOMPARE(controller.modSustain(), sustain);
+    QCOMPARE(modSpy.count(), 1);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::WavetableSynthControllerTest)
