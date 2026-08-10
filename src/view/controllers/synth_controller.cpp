@@ -106,7 +106,7 @@ QStringList SynthController::lfoModeNames() const
 
 QStringList SynthController::lfoTargetNames() const
 {
-    return { tr("Pitch"), tr("Shape"), tr("Cutoff"), tr("Volume"), tr("Resonance"), tr("Pan") };
+    return { tr("Pitch"), tr("Shape"), tr("Cutoff"), tr("Volume"), tr("Resonance"), tr("Pan"), tr("Pitch 1"), tr("Pitch 2"), tr("Pitch 3") };
 }
 
 QStringList SynthController::lfo2WaveformNames() const

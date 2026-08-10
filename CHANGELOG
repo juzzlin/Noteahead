@@ -29,6 +29,9 @@ New features:
 
 * Add the Mono voice mode to the Synth
 
+* Add the Pitch 1, Pitch 2 and Pitch 3 LFO targets to the Synth
+  - Both LFOs can now modulate the pitch of a single oscillator
+
 * Follow the VC340's register structure in the StringVoice
   - There is no Female 8' on a VC340, so that register became the upper
     register's Male 8'; older projects find their value there

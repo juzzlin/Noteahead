@@ -131,6 +131,36 @@ void SynthControllerTest::test_voiceModes()
     QCOMPARE(modes.at(5), QString("Mono"));
 }
 
+void SynthControllerTest::test_lfoTargetNames()
+{
+    const auto synth = std::make_shared<SynthDevice>("Test Synth");
+    SynthController controller { synth };
+    const auto targets = controller.lfoTargetNames();
+    QCOMPARE(targets.size(), 9);
+    // The order is the serialized LfoTarget ordinal, so it is append-only: reordering these would
+    // change the LFO destination of every project saved before the change.
+    QCOMPARE(targets.at(0), QString("Pitch"));
+    QCOMPARE(targets.at(1), QString("Shape"));
+    QCOMPARE(targets.at(2), QString("Cutoff"));
+    QCOMPARE(targets.at(3), QString("Volume"));
+    QCOMPARE(targets.at(4), QString("Resonance"));
+    QCOMPARE(targets.at(5), QString("Pan"));
+    QCOMPARE(targets.at(6), QString("Pitch 1"));
+    QCOMPARE(targets.at(7), QString("Pitch 2"));
+    QCOMPARE(targets.at(8), QString("Pitch 3"));
+
+    // LFO 2 offers the same destinations.
+    QCOMPARE(controller.lfo2TargetNames(), targets);
+
+    // And the whole range the names cover has to survive the parameter clamp.
+    for (int target = 0; target < targets.size(); target++) {
+        controller.setLfoTarget(target);
+        QCOMPARE(controller.lfoTarget(), target);
+        controller.setLfo2Target(target);
+        QCOMPARE(controller.lfo2Target(), target);
+    }
+}
+
 void SynthControllerTest::test_scopeActive_shouldFollowShownInstance()
 {
     const auto synthA = std::make_shared<SynthDevice>("Synth A");

@@ -1287,12 +1287,14 @@ void XmlSerializationTest::test_toXmlFromXml_synthDevice_shouldPreserveValuesAnd
     synthOut->setLfoMode(Lfo::Mode::OneShot);
     synthOut->setLfoRate(0.4f);
     synthOut->setLfoInt(0.6f);
-    synthOut->setLfoTarget(SynthDevice::LfoTarget::Cutoff);
+    // The per-oscillator targets are the highest ordinals, so they are what proves the parameter
+    // range is wide enough to store every destination the UI offers.
+    synthOut->setLfoTarget(SynthDevice::LfoTarget::Pitch2);
     synthOut->setLfo2Waveform(Lfo::Waveform::Square);
     synthOut->setLfo2Mode(Lfo::Mode::OneShot);
     synthOut->setLfo2Rate(0.3f);
     synthOut->setLfo2Int(0.7f);
-    synthOut->setLfo2Target(SynthDevice::LfoTarget::Volume);
+    synthOut->setLfo2Target(SynthDevice::LfoTarget::Pitch3);
     deviceServiceOut.setDevice(0, synthOut);
 
     EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
@@ -1329,11 +1331,11 @@ void XmlSerializationTest::test_toXmlFromXml_synthDevice_shouldPreserveValuesAnd
     QCOMPARE(synthIn->lfoWaveform(), Lfo::Waveform::Saw);
     QCOMPARE(synthIn->lfoMode(), Lfo::Mode::OneShot);
     QCOMPARE(synthIn->lfoRate(), 0.4f);
-    QCOMPARE(synthIn->lfoTarget(), SynthDevice::LfoTarget::Cutoff);
+    QCOMPARE(synthIn->lfoTarget(), SynthDevice::LfoTarget::Pitch2);
     QCOMPARE(synthIn->lfo2Waveform(), Lfo::Waveform::Square);
     QCOMPARE(synthIn->lfo2Mode(), Lfo::Mode::OneShot);
     QCOMPARE(synthIn->lfo2Rate(), 0.3f);
-    QCOMPARE(synthIn->lfo2Target(), SynthDevice::LfoTarget::Volume);
+    QCOMPARE(synthIn->lfo2Target(), SynthDevice::LfoTarget::Pitch3);
 
     // Verify discrete flags
     const auto vco1Wave = synthIn->parameter(Constants::NahdXml::xmlKeyVco1Waveform().toStdString());

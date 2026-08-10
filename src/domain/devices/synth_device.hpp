@@ -72,14 +72,22 @@ public:
         Cutoff
     };
 
+    //! Serialized as a raw ordinal, so this is append-only: inserting a value would silently change
+    //! the LFO destination of every project saved before the change.
     enum class LfoTarget
     {
+        //! All VCOs at once.
         Pitch,
         Shape,
         Cutoff,
         Volume,
         Resonance,
-        Pan
+        Pan,
+        //! Single-VCO pitch. Appended after Pan because the ordinal is persisted, so these cannot sit
+        //! next to Pitch where they belong.
+        Pitch1,
+        Pitch2,
+        Pitch3
     };
 
     explicit SynthDevice(std::string name);

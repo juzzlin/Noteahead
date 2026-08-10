@@ -18,6 +18,7 @@ private slots:
     void test_reset_shouldRestoreDefaultValues();
     void test_octaveNames();
     void test_voiceModes();
+    void test_lfoTargetNames();
     void test_scopeActive_shouldFollowShownInstance();
 };
 

@@ -161,13 +161,13 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoMode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete }); // Normal default
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoRate().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoIntensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyLfoTarget().toStdString(), 0.0f, 0, 5, 0, 1, Parameter::Type::Discrete }); // Pitch default
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfoTarget().toStdString(), 0.0f, 0, 8, 0, 1, Parameter::Type::Discrete }); // Pitch default
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Waveform().toStdString(), 1.0f, 0, 4, 1, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Mode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Rate().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Intensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Target().toStdString(), 0.0f, 0, 5, 0, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Target().toStdString(), 0.0f, 0, 8, 0, 1, Parameter::Type::Discrete });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceMode().toStdString(), 0.0f, 0, 5, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceDepth().toStdString(), 0.0f, 0, 10000, 0, 100 });
@@ -887,6 +887,25 @@ SynthDevice::ModulationValues SynthDevice::calculateModulation(Voice & voice) co
     if (m_lfo2Target == LfoTarget::Pitch) {
         mods.vco1PitchMod += lfo2Val;
         mods.vco2PitchMod += lfo2Val;
+        mods.vco3PitchMod += lfo2Val;
+    }
+
+    if (m_lfoTarget == LfoTarget::Pitch1) {
+        mods.vco1PitchMod += lfoVal;
+    }
+    if (m_lfo2Target == LfoTarget::Pitch1) {
+        mods.vco1PitchMod += lfo2Val;
+    }
+    if (m_lfoTarget == LfoTarget::Pitch2) {
+        mods.vco2PitchMod += lfoVal;
+    }
+    if (m_lfo2Target == LfoTarget::Pitch2) {
+        mods.vco2PitchMod += lfo2Val;
+    }
+    if (m_lfoTarget == LfoTarget::Pitch3) {
+        mods.vco3PitchMod += lfoVal;
+    }
+    if (m_lfo2Target == LfoTarget::Pitch3) {
         mods.vco3PitchMod += lfo2Val;
     }
 

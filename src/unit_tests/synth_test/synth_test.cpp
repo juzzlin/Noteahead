@@ -1498,6 +1498,55 @@ void SynthTest::test_lfoTarget_pan_shouldModulatePanning()
     QVERIFY2(diffWithPan > diffNoPan, qPrintable(QString("Pan LFO did not create stereo difference: noPan=%1, withPan=%2").arg(diffNoPan).arg(diffWithPan)));
 }
 
+void SynthTest::test_lfoTarget_perOscillatorPitch_shouldModulateOnlyTargetedVco()
+{
+    // Only VCO 2 is in the mix, so an LFO on Pitch 2 has to be audible while one on Pitch 1 or
+    // Pitch 3 has to leave the output untouched.
+    const auto renderBuffer = [](SynthDevice::LfoTarget target, float lfoInt) {
+        SynthDevice synth { "Test Synth" };
+        synth.setMixVco1(0.0f);
+        synth.setMixVco2(1.0f);
+        synth.setMixVco3(0.0f);
+        synth.setMultiLevel(0.0f);
+        synth.setLpfCutoff(1.0f);
+        synth.setVolume(1.0f);
+        synth.setGain(0.5f);
+        synth.setAmpAttack(0.0f);
+        synth.setAmpSustain(1.0f);
+        synth.setLfoWaveform(Lfo::Waveform::Sine);
+        synth.setLfoRate(0.8f);
+        synth.setLfoInt(lfoInt);
+        synth.setLfoTarget(target);
+
+        synth.processMidiNoteOn(60, 100);
+
+        const int frameCount = 4096;
+        std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+        AudioContext ctx { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
+        synth.processAudio(ctx);
+        return buffer;
+    };
+
+    const auto differs = [](const std::vector<double> & a, const std::vector<double> & b) {
+        for (size_t i = 0; i < a.size(); i++) {
+            if (std::abs(a[i] - b[i]) > 1e-4) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    // Intensity is bipolar around the centre, so 0.5f is the LFO doing nothing at all.
+    const auto reference = renderBuffer(SynthDevice::LfoTarget::Pitch2, 0.5f);
+
+    QVERIFY(differs(reference, renderBuffer(SynthDevice::LfoTarget::Pitch2, 1.0f)));
+    QVERIFY(!differs(reference, renderBuffer(SynthDevice::LfoTarget::Pitch1, 1.0f)));
+    QVERIFY(!differs(reference, renderBuffer(SynthDevice::LfoTarget::Pitch3, 1.0f)));
+
+    // The global Pitch target still reaches VCO 2 as before.
+    QVERIFY(differs(reference, renderBuffer(SynthDevice::LfoTarget::Pitch, 1.0f)));
+}
+
 void SynthTest::test_dualMode_shouldProduceAudioOnNote()
 {
     SynthDevice synth { "Test Synth" };

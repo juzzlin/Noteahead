@@ -75,6 +75,7 @@ private slots:
     void test_lfoTarget_volume_shouldModulateAmplitude();
     void test_lfoTarget_resonance_shouldModulateResonance();
     void test_lfoTarget_pan_shouldModulatePanning();
+    void test_lfoTarget_perOscillatorPitch_shouldModulateOnlyTargetedVco();
 
     void test_dualMode_shouldProduceAudioOnNote();
     void test_dualMode_polyphony_shouldAllowChords();
