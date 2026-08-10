@@ -163,12 +163,17 @@ signals:
 private:
     QString trackNames(const QString & deviceName) const;
 
+    //! Push the current gate onto every device's taps. Needed after any slot change, because a
+    //! freshly created device starts with its meters off regardless of what is on screen.
+    void applyMetersActive();
+
     DeviceServiceS m_deviceService;
     ControllerList m_controllers;
     EditorServiceS m_editorService;
 
     QStringList m_devices;
     int m_revision { 0 };
+    bool m_metersActive { false };
 };
 
 } // namespace noteahead

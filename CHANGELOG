@@ -43,6 +43,9 @@ New features:
 
 Bug fixes:
 
+* Fix the level meters staying dead for a device added or replaced while the
+  Device Rack or Mixer is open
+
 * Fix the Piano
   - Let the top octaves speak and ring
   - Play in tune across the keyboard

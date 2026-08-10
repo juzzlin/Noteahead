@@ -125,6 +125,8 @@ void DeviceRackController::refresh()
         m_devices = m_deviceService->internalDeviceNamesQt();
     }
     endResetModel();
+    // Slots may have gained a device since the gate was last set, and a new device's taps start off.
+    applyMetersActive();
 }
 
 void DeviceRackController::openDevice(const QString & name)
@@ -232,14 +234,23 @@ QVariantList DeviceRackController::deviceMeterLevels(int slotIndex) const
 
 void DeviceRackController::setMetersActive(bool active)
 {
+    m_metersActive = active;
+    applyMetersActive();
+}
+
+void DeviceRackController::applyMetersActive()
+{
+    if (!m_deviceService) {
+        return;
+    }
     for (int slotIndex = 0; slotIndex < deviceCount(); slotIndex++) {
         if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex))) {
-            device->meter().setActive(active);
-            device->loadMeter().setActive(active);
+            device->meter().setActive(m_metersActive);
+            device->loadMeter().setActive(m_metersActive);
         }
     }
     if (const auto engine = m_deviceService->audioEngine()) {
-        engine->loadMeter().setActive(active);
+        engine->loadMeter().setActive(m_metersActive);
     }
 }
 

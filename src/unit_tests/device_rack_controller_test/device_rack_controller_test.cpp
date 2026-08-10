@@ -419,6 +419,31 @@ void DeviceRackControllerTest::test_deviceMeterLevels_shouldReportPreInsertLevel
     QVERIFY(!device->meter().active());
 }
 
+void DeviceRackControllerTest::test_deviceMeterLevels_afterSlotChanged_shouldFollowTheActiveGate()
+{
+    // The gate is set when the rack goes on screen, but a device dropped into a slot afterwards is
+    // born with its taps off, so replacing one used to leave a permanently dead meter.
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    DeviceRackController controller { deviceService, {}, std::make_shared<MockEditorService>() };
+
+    controller.setMetersActive(true);
+    controller.setDevice(0, QString::fromStdString(Kick808Device::typeIdString()));
+    QVERIFY(deviceService->device(0)->meter().active());
+    QVERIFY(deviceService->device(0)->loadMeter().active());
+
+    controller.clearDevice(0);
+    controller.setDevice(0, QString::fromStdString(SynthDevice::typeIdString()));
+    QVERIFY(deviceService->device(0)->meter().active());
+    QVERIFY(deviceService->device(0)->loadMeter().active());
+
+    // Off the screen, a device added into the rack must not silently switch the taps back on.
+    controller.setMetersActive(false);
+    controller.setDevice(1, QString::fromStdString(SynthDevice::typeIdString()));
+    QVERIFY(!deviceService->device(1)->meter().active());
+    QVERIFY(!deviceService->device(1)->loadMeter().active());
+}
+
 namespace {
 //! Emits a constant level so a test can put the engine's device path either side of full scale.
 class ClippingDevice : public MockDevice
