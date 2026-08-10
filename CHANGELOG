@@ -35,6 +35,9 @@ New features:
 
 * Add a Balance section to the StringVoice, below the Strings section
 
+* Add Play, Stop and Rewind to the Song menu
+  - F5, F6 and F8 also work while a dialog is open, unlike the toolbar
+
 Bug fixes:
 
 * Fix the Piano

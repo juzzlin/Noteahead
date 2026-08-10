@@ -21,6 +21,27 @@ import "../Components"
 
 Menu {
     title: qsTr("&Song")
+    // The sequences of these actions are registered as application shortcuts in Main.qml so that they
+    // also work when a modal dialog is open. See ShortcutHintAction.
+    ShortcutHintAction {
+        text: qsTr("Play")
+        shortcutHint: "F5"
+        enabled: !UiService.isPlaying()
+        onTriggered: UiService.requestPlay()
+    }
+    ShortcutHintAction {
+        text: qsTr("Stop")
+        shortcutHint: "F6"
+        enabled: UiService.isPlaying()
+        onTriggered: UiService.requestStop()
+    }
+    ShortcutHintAction {
+        text: qsTr("Rewind")
+        shortcutHint: "F8"
+        enabled: !UiService.isPlaying()
+        onTriggered: UiService.rewindSong()
+    }
+    MenuSeparator {}
     Action {
         text: qsTr("Settings...")
         onTriggered: UiService.requestSongSettingsDialog()

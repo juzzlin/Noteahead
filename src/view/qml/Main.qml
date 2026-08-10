@@ -743,6 +743,28 @@ ApplicationWindow {
         id: contextMenu
         width: parent.width * 0.25
     }
+    // Transport shortcuts. Qt Quick Controls blocks window-context shortcuts while a modal dialog is
+    // open, so these are registered as application shortcuts to keep the transport reachable e.g. when
+    // the Device Rack is open. The matching Song menu entries only display the sequences: registering
+    // them twice would make the shortcut map treat them as ambiguous.
+    Shortcut {
+        sequence: "F5"
+        context: Qt.ApplicationShortcut
+        enabled: !UiService.isPlaying()
+        onActivated: UiService.requestPlay()
+    }
+    Shortcut {
+        sequence: "F6"
+        context: Qt.ApplicationShortcut
+        enabled: UiService.isPlaying()
+        onActivated: UiService.requestStop()
+    }
+    Shortcut {
+        sequence: "F8"
+        context: Qt.ApplicationShortcut
+        enabled: !UiService.isPlaying()
+        onActivated: UiService.rewindSong()
+    }
     function _getWindowTitle(): string {
         const nameAndVersion = `${applicationService.applicationName()} MIDI tracker v${applicationService.applicationVersion()}`;
         const currentFileName = (editorService.currentFileName ? " - " + editorService.currentFileName : "");

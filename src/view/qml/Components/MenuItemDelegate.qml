@@ -32,7 +32,7 @@ MenuItem {
             color: "white"
         }
         Text {
-            text: rootItem?.action?.shortcut || ""
+            text: rootItem?.action?.shortcut || rootItem?.action?.shortcutHint || ""
             anchors.right: parent.right
             color: "white"
         }

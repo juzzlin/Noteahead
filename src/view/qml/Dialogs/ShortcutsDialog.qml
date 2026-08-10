@@ -44,6 +44,18 @@ AnimatedDialog {
             description: qsTr("Toggle play mode")
         },
         {
+            key: qsTr("F5"),
+            description: qsTr("Start playing from the current position")
+        },
+        {
+            key: qsTr("F6"),
+            description: qsTr("Stop playing")
+        },
+        {
+            key: qsTr("F8"),
+            description: qsTr("Rewind to the start of the song and reset track settings")
+        },
+        {
             key: qsTr("INSERT"),
             description: qsTr("Insert empty line and move subsequent lines down")
         },
