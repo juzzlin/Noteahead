@@ -63,6 +63,7 @@ struct EffectProcessContext
     std::vector<std::vector<double>> * sendBusBuffers {};
     std::vector<std::vector<double>> * effectWetBuffers {};
     std::vector<uint8_t> * effectActiveFlags {};
+    std::vector<uint8_t> * sendBusHasSignal {};
     uint32_t frameCount {};
     uint32_t sampleRate {};
     double bpm {};
@@ -194,7 +195,7 @@ void processEffectTask(void * context, size_t taskIndex, size_t /*workerIndex*/)
         return;
     }
 
-    if (!bufferContainsSignal(sendBus, bufferSize) && !effectContext.effectActiveFlags->at(taskIndex)) {
+    if (!effectContext.sendBusHasSignal->at(taskIndex) && !effectContext.effectActiveFlags->at(taskIndex)) {
         std::fill(wetBuffer.begin(), wetBuffer.begin() + bufferSize, 0.0);
         return;
     }
@@ -510,10 +511,23 @@ void AudioEngine::process(AudioContext & context)
             m_deviceDirectOutSnapshot.assign(m_deviceSnapshot.size(), 1);
         }
 
+        // Fanning out costs the same whether or not the workers find anything to do: they are woken
+        // and have to be waited for either way, and the handshake spins on both sides. With at most
+        // one device actually producing audio there is nothing to overlap, so the work is cheaper
+        // done in place. That is also what keeps the workers off the CPU between songs: a stopped
+        // song leaves every device silent, and the callback keeps running to stay ready.
+        size_t activeDeviceCount = 0;
+        for (size_t i = 0; i < m_deviceSnapshot.size(); i++) {
+            if (m_deviceSnapshot[i]->hasActiveAudio() || m_deviceActiveFlags[i]) {
+                activeDeviceCount++;
+            }
+        }
+        const bool fanOutDevices = useWorkers && activeDeviceCount > 1;
+
         // Serial processing uses only lane 0, so clear/sum just that lane then; parallel rendering
         // spreads work across all lanes. The buffers stay allocated at the full lane count either way,
         // so no reallocation happens when switching between real-time playback and rendering.
-        const size_t usedLanes = useWorkers ? m_workBuffers.size() : std::min<size_t>(1, m_workBuffers.size());
+        const size_t usedLanes = fanOutDevices ? m_workBuffers.size() : std::min<size_t>(1, m_workBuffers.size());
 
         for (size_t lane = 0; lane < usedLanes; lane++) {
             auto & workBuffer = m_workBuffers[lane];
@@ -541,7 +555,7 @@ void AudioEngine::process(AudioContext & context)
                 context.bpm,
                 context.oversampleFactor
             };
-            if (useWorkers) {
+            if (fanOutDevices) {
                 m_workerPool->run(layer.size(), &deviceContext, processDeviceTask);
             } else {
                 for (size_t taskIndex = 0; taskIndex < layer.size(); taskIndex++) {
@@ -567,17 +581,32 @@ void AudioEngine::process(AudioContext & context)
     }
 
     if (m_sendEffectRack->enabled() && std::ranges::any_of(effects, [](const auto & effect) { return effect != nullptr; })) {
+        if (m_sendBusHasSignal.size() != sendCount) {
+            m_sendBusHasSignal.assign(sendCount, 0);
+        }
+        // A send whose bus is quiet and whose tail has run out is skipped, so the dispatch counts
+        // only the ones that will really run. A reverb tail keeps its send alive well past the last
+        // note, which is exactly when this matters.
+        size_t activeSendCount = 0;
+        for (size_t i = 0; i < sendCount; i++) {
+            m_sendBusHasSignal[i] = bufferContainsSignal(m_sendBusBuffers[i], bufferSize) ? 1 : 0;
+            if (effects[i] && (m_sendBusHasSignal[i] || m_effectActiveFlags[i])) {
+                activeSendCount++;
+            }
+        }
+
         EffectProcessContext effectContext {
             &effects,
             &m_sendBusBuffers,
             &m_effectWetBuffers,
             &m_effectActiveFlags,
+            &m_sendBusHasSignal,
             context.frameCount,
             context.sampleRate,
             context.bpm,
             context.oversampleFactor
         };
-        if (useWorkers) {
+        if (useWorkers && activeSendCount > 1) {
             m_workerPool->run(sendCount, &effectContext, processEffectTask);
         } else {
             for (size_t taskIndex = 0; taskIndex < sendCount; taskIndex++) {

@@ -28,6 +28,62 @@ namespace noteahead {
 
 Effect::~Effect() = default;
 
+Effect::Effect(const Effect & other)
+  : DspComponent { other }
+  , ParameterContainer { other }
+  , m_dryBuffer { other.m_dryBuffer }
+  , m_mixLaw { other.m_mixLaw }
+  , m_enabled { other.m_enabled }
+  , m_bpm { other.m_bpm }
+  , m_oversampleFactor { other.m_oversampleFactor }
+{
+    resolveSharedParameters();
+}
+
+Effect & Effect::operator=(const Effect & other)
+{
+    if (this != &other) {
+        DspComponent::operator=(other);
+        ParameterContainer::operator=(other);
+        m_dryBuffer = other.m_dryBuffer;
+        m_mixLaw = other.m_mixLaw;
+        m_enabled = other.m_enabled;
+        m_bpm = other.m_bpm;
+        m_oversampleFactor = other.m_oversampleFactor;
+        resolveSharedParameters();
+    }
+    return *this;
+}
+
+Effect::Effect(Effect && other)
+  : DspComponent { std::move(other) }
+  , ParameterContainer { std::move(other) }
+  , m_dryBuffer { std::move(other.m_dryBuffer) }
+  , m_mixLaw { other.m_mixLaw }
+  , m_enabled { other.m_enabled }
+  , m_bpm { other.m_bpm }
+  , m_oversampleFactor { other.m_oversampleFactor }
+{
+    resolveSharedParameters();
+    other.resolveSharedParameters();
+}
+
+Effect & Effect::operator=(Effect && other)
+{
+    if (this != &other) {
+        DspComponent::operator=(std::move(other));
+        ParameterContainer::operator=(std::move(other));
+        m_dryBuffer = std::move(other.m_dryBuffer);
+        m_mixLaw = other.m_mixLaw;
+        m_enabled = other.m_enabled;
+        m_bpm = other.m_bpm;
+        m_oversampleFactor = other.m_oversampleFactor;
+        resolveSharedParameters();
+        other.resolveSharedParameters();
+    }
+    return *this;
+}
+
 Effect::StringList Effect::parameterNames() const
 {
     StringList names;
@@ -39,34 +95,45 @@ Effect::StringList Effect::parameterNames() const
 
 void Effect::process(double & left, double & right)
 {
+    // An effect with neither control registered — a filter, an equalizer — has nothing to apply
+    // around its own work, so it does not pay for the resolving below.
+    if (!m_mixParameter && !m_soloParameter) {
+        processSample(left, right);
+        return;
+    }
+
     const double dryLeft = left;
     const double dryRight = right;
 
     processSample(left, right);
 
-    applyMix(dryLeft, dryRight, left, right);
-    applySolo(dryLeft, dryRight, left, right);
+    applyBlend(blendState(), dryLeft, dryRight, left, right);
 }
 
 void Effect::process(AudioContext & context)
 {
     setOversampleFactor(context.oversampleFactor);
 
-    const bool blends = m_mixLaw != MixLaw::Internal && (mix() < 1.0f || m_mixLaw != MixLaw::Crossfade);
-    if (!solo() && !blends) {
+    const auto blend = blendState();
+    if (!blend.solo && !blend.blends) {
         processBlock(context);
         return;
     }
 
     // Blending and soloing both need the dry signal, and a block-form effect has overwritten it by
-    // the time it returns. The copy is only taken when one of them is actually going to be used.
-    std::vector<double> dry(context.buffer.begin(), context.buffer.begin() + static_cast<ptrdiff_t>(context.frameCount) * 2);
+    // the time it returns. The copy is only taken when one of them is actually going to be used,
+    // into a buffer that is kept between blocks: this runs on the audio thread, which must not
+    // allocate.
+    const auto sampleCount = static_cast<size_t>(context.frameCount) * 2;
+    if (m_dryBuffer.size() < sampleCount) {
+        m_dryBuffer.resize(sampleCount);
+    }
+    std::copy(context.buffer.begin(), context.buffer.begin() + static_cast<ptrdiff_t>(sampleCount), m_dryBuffer.begin());
 
     processBlock(context);
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
-        applyMix(dry[i * 2], dry[i * 2 + 1], context.buffer[i * 2], context.buffer[i * 2 + 1]);
-        applySolo(dry[i * 2], dry[i * 2 + 1], context.buffer[i * 2], context.buffer[i * 2 + 1]);
+        applyBlend(blend, m_dryBuffer[i * 2], m_dryBuffer[i * 2 + 1], context.buffer[i * 2], context.buffer[i * 2 + 1]);
     }
 }
 
@@ -77,78 +144,84 @@ void Effect::processBlock(AudioContext & context)
     }
 }
 
+void Effect::resolveSharedParameters()
+{
+    const auto resolve = [this](const QString & key) -> const Parameter * {
+        const auto parameter = this->parameter(key.toStdString());
+        return parameter ? &parameter->get() : nullptr;
+    };
+    m_mixParameter = resolve(Constants::NahdXml::xmlKeyMix());
+    m_soloParameter = resolve(Constants::NahdXml::xmlKeySolo());
+}
+
 void Effect::addMixParameter(float defaultValue, MixLaw law, int xmlMin, int xmlMax, int xmlScale, LegacyNameList legacyNames)
 {
     addParameter(Parameter { Constants::NahdXml::xmlKeyMix().toStdString(), defaultValue, xmlMin, xmlMax, static_cast<int>(std::lround(static_cast<double>(defaultValue) * xmlScale)), xmlScale, Parameter::Type::Continuous, std::move(legacyNames) });
     m_mixLaw = law;
+    resolveSharedParameters();
 }
 
 void Effect::setMixLaw(MixLaw law)
 {
     m_mixLaw = law;
+    // An effect that registers Mix itself has done so by now, so this is where it becomes reachable.
+    resolveSharedParameters();
 }
 
 float Effect::mix() const
 {
-    if (const auto parameter = this->parameter(Constants::NahdXml::xmlKeyMix().toStdString()); parameter) {
-        return parameter->get().value();
-    }
-    return 1.0f;
+    return m_mixParameter ? m_mixParameter->value() : 1.0f;
 }
 
-void Effect::applyMix(double dryLeft, double dryRight, double & left, double & right) const
+Effect::BlendState Effect::blendState() const
 {
-    const auto parameter = this->parameter(Constants::NahdXml::xmlKeyMix().toStdString());
-    if (!parameter) {
-        return;
+    BlendState blend;
+    blend.law = m_mixLaw;
+    blend.mix = m_mixParameter ? static_cast<double>(m_mixParameter->value()) : 1.0;
+    blend.blends = m_mixParameter && m_mixLaw != MixLaw::Internal && (blend.mix < 1.0 || m_mixLaw != MixLaw::Crossfade);
+    blend.solo = m_soloParameter && m_soloParameter->value() > 0.5f;
+    return blend;
+}
+
+void Effect::applyBlend(const BlendState & blend, double dryLeft, double dryRight, double & left, double & right) const
+{
+    if (blend.blends) {
+        switch (blend.law) {
+        case MixLaw::Crossfade:
+            left = dryLeft * (1.0 - blend.mix) + left * blend.mix;
+            right = dryRight * (1.0 - blend.mix) + right * blend.mix;
+            break;
+        case MixLaw::Additive:
+            left = dryLeft + left * blend.mix;
+            right = dryRight + right * blend.mix;
+            break;
+        case MixLaw::Internal:
+            break;
+        case MixLaw::DualSlope: {
+            const double dryCoefficient = std::clamp(2.0 * (1.0 - blend.mix), 0.0, 1.0);
+            const double wetCoefficient = std::clamp(2.0 * blend.mix, 0.0, 1.0);
+            left = dryLeft * dryCoefficient + left * wetCoefficient;
+            right = dryRight * dryCoefficient + right * wetCoefficient;
+            break;
+        }
+        }
     }
 
-    if (m_mixLaw == MixLaw::Internal) {
-        return;
-    }
-
-    const double mix = static_cast<double>(parameter->get().value());
-
-    switch (m_mixLaw) {
-    case MixLaw::Crossfade:
-        left = dryLeft * (1.0 - mix) + left * mix;
-        right = dryRight * (1.0 - mix) + right * mix;
-        break;
-    case MixLaw::Additive:
-        left = dryLeft + left * mix;
-        right = dryRight + right * mix;
-        break;
-    case MixLaw::Internal:
-        break;
-    case MixLaw::DualSlope: {
-        const double dryCoefficient = std::clamp(2.0 * (1.0 - mix), 0.0, 1.0);
-        const double wetCoefficient = std::clamp(2.0 * mix, 0.0, 1.0);
-        left = dryLeft * dryCoefficient + left * wetCoefficient;
-        right = dryRight * dryCoefficient + right * wetCoefficient;
-        break;
-    }
+    if (blend.solo) {
+        left -= dryLeft;
+        right -= dryRight;
     }
 }
 
 void Effect::addSoloParameter()
 {
     addParameter(Parameter { Constants::NahdXml::xmlKeySolo().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
+    resolveSharedParameters();
 }
 
 bool Effect::solo() const
 {
-    if (const auto parameter = this->parameter(Constants::NahdXml::xmlKeySolo().toStdString()); parameter) {
-        return parameter->get().value() > 0.5f;
-    }
-    return false;
-}
-
-void Effect::applySolo(double dryLeft, double dryRight, double & left, double & right) const
-{
-    if (solo()) {
-        left -= dryLeft;
-        right -= dryRight;
-    }
+    return m_soloParameter && m_soloParameter->value() > 0.5f;
 }
 
 bool Effect::enabled() const

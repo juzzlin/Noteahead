@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <vector>
 
 #include "../dsp/dsp_component.hpp"
 #include "../tracker/parameter_container.hpp"
@@ -33,10 +34,12 @@ public:
     Effect() = default;
     virtual ~Effect() override;
 
-    Effect(const Effect &) = default;
-    Effect & operator=(const Effect &) = default;
-    Effect(Effect &&) = default;
-    Effect & operator=(Effect &&) = default;
+    //! Mix and Solo are held as pointers into this object's own parameter map, so a copy has to
+    //! re-resolve them against the copy's map rather than inherit pointers into the original's.
+    Effect(const Effect & other);
+    Effect & operator=(const Effect & other);
+    Effect(Effect && other);
+    Effect & operator=(Effect && other);
 
     //! How an effect's Mix control blends its output against the signal that came in.
     //!
@@ -115,12 +118,35 @@ protected:
     bool solo() const;
 
 private:
-    //! Replaces the wet signal with the difference between it and the dry one, which is exactly what
-    //! the effect contributed.
-    void applySolo(double dryLeft, double dryRight, double & left, double & right) const;
+    //! Everything the shared controls need for one block, read once instead of once per sample.
+    //! Resolving Mix and Solo means a map lookup keyed by a name that has to be built first, which
+    //! is nothing per block and roughly as much as a reverb costs per sample.
+    struct BlendState
+    {
+        MixLaw law { MixLaw::Crossfade };
+        double mix { 1.0 };
+        //! Whether the Mix law has anything to do at this setting.
+        bool blends { false };
+        bool solo { false };
+    };
 
-    //! Blends the effect's output against the dry signal under the effect's own Mix law.
-    void applyMix(double dryLeft, double dryRight, double & left, double & right) const;
+    BlendState blendState() const;
+
+    //! Blends the effect's output against the dry signal under the effect's own Mix law, then, when
+    //! Solo is engaged, replaces the result with the difference between it and the dry signal, which
+    //! is exactly what the effect contributed.
+    void applyBlend(const BlendState & blend, double dryLeft, double dryRight, double & left, double & right) const;
+
+    //! Points Mix and Solo at their entries in the parameter map, or at nothing when the effect did
+    //! not register them. Map nodes are stable and nothing ever erases a parameter, so the pointers
+    //! stay good for as long as this object does.
+    void resolveSharedParameters();
+
+    const Parameter * m_mixParameter { nullptr };
+    const Parameter * m_soloParameter { nullptr };
+
+    //! Dry copy for block-form blending, kept between blocks so the audio thread does not allocate.
+    std::vector<double> m_dryBuffer;
 
     MixLaw m_mixLaw { MixLaw::Crossfade };
     bool m_enabled { true };

@@ -59,6 +59,10 @@ Bug fixes:
 
 * Stop rewinding from marking the song modified
 
+* Stop burning CPU on a stopped song
+  - The audio workers are no longer woken for a block with nothing in it
+  - An effect reads its Mix and Solo once a block instead of once a sample
+
 Other:
 
 * Move the render progress into a dialog of its own

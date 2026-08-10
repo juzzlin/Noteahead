@@ -32,6 +32,8 @@ private slots:
     void test_mixLaw_crossfade_shouldBlendDryAgainstWet();
     void test_mixLaw_additive_shouldKeepTheDryWhole();
     void test_mixLaw_internal_shouldBeLeftToTheEffect();
+    void test_mixLaw_afterCopy_shouldStillBlend();
+    void test_mixLaw_blockForm_shouldMatchPerSampleForm();
     void test_reverb_mix_shouldApplyEffectBasedOnMixLevel();
     void test_reverb_filters_shouldShapeWetSignal();
     void test_reverb_gate_shouldCutTail();

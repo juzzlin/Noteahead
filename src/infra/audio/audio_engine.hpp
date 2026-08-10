@@ -141,6 +141,9 @@ private:
     std::vector<std::vector<double>> m_sendBusBuffers;
     std::vector<std::vector<double>> m_effectWetBuffers;
     std::vector<uint8_t> m_effectActiveFlags;
+    //! Whether each send bus carries anything this block. Decided once here rather than inside the
+    //! per-effect task, because the dispatch has to know how much work there is before handing it out.
+    std::vector<uint8_t> m_sendBusHasSignal;
     std::vector<std::vector<double>> m_deviceOutputBuffers;
     std::vector<std::span<const double>> m_deviceOutputBufferSpans;
     std::vector<std::vector<size_t>> m_processingLayers;

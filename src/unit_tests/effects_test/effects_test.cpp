@@ -17,6 +17,7 @@
 
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
+#include "../../domain/dsp/audio_context.hpp"
 #include "../../domain/dsp/cascaded_svf.hpp"
 #include "../../domain/dsp/high_pass_filter.hpp"
 #include "../../domain/dsp/low_pass_filter.hpp"
@@ -230,6 +231,58 @@ void EffectsTest::test_mixLaw_internal_shouldBeLeftToTheEffect()
 
     QVERIFY(std::abs(left - 1.0) < 1.0e-9);
     QVERIFY(std::abs(right - 1.0) < 1.0e-9);
+}
+
+void EffectsTest::test_mixLaw_afterCopy_shouldStillBlend()
+{
+    // Mix and Solo are resolved once and held as pointers into the parameter map, so a copy has to
+    // point at its own map rather than at the original's.
+    ConstantEffect original { 1.0f, Effect::MixLaw::Additive };
+    original.setMix(0.25f);
+
+    ConstantEffect copy { original };
+    copy.setMix(0.5f);
+
+    double left = 0.4;
+    double right = 0.4;
+    copy.process(left, right);
+
+    // The copy reads its own Mix, not the one it was copied from.
+    QVERIFY(std::abs(left - 0.9) < 1.0e-9);
+    QVERIFY(std::abs(right - 0.9) < 1.0e-9);
+}
+
+void EffectsTest::test_mixLaw_blockForm_shouldMatchPerSampleForm()
+{
+    constexpr uint32_t frameCount = 64;
+
+    ConstantEffect perSample { 1.0f, Effect::MixLaw::Crossfade };
+    perSample.setMix(0.25f);
+    ConstantEffect block { 1.0f, Effect::MixLaw::Crossfade };
+    block.setMix(0.25f);
+
+    std::vector<double> expected;
+    std::vector<double> buffer;
+    expected.reserve(frameCount * 2);
+    buffer.reserve(frameCount * 2);
+    for (uint32_t i = 0; i < frameCount; i++) {
+        double left = 0.1 * i;
+        double right = -0.1 * i;
+        buffer.push_back(left);
+        buffer.push_back(right);
+        perSample.process(left, right);
+        expected.push_back(left);
+        expected.push_back(right);
+    }
+
+    AudioContext context { std::span(buffer.data(), buffer.size()), frameCount, 48000 };
+    block.process(context);
+
+    // The block form resolves Mix once for the whole block instead of once per sample, which must
+    // not change a sample of what comes out.
+    for (uint32_t i = 0; i < frameCount * 2; i++) {
+        QCOMPARE(buffer.at(i), expected.at(i));
+    }
 }
 
 void EffectsTest::test_reverb_mix_shouldApplyEffectBasedOnMixLevel()
