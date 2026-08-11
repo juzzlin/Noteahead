@@ -26,26 +26,39 @@ namespace noteahead {
 class WavetableOscillator : public DspComponent
 {
 public:
+    //! Time the morph position takes to reach a new target. Long enough to turn the step of a
+    //! sample-and-hold or square LFO into a ramp, short enough that a fast morph still tracks.
+    static constexpr double PositionSmoothingSeconds = 0.002;
+
     void setSampleRate(double sampleRate) override;
     void setFrequency(double frequency);
-    void setPosition(double position); // 0.0 to 1.0
+    void setPosition(double position); // 0.0 to 1.0, approached over PositionSmoothingSeconds
     void setWavetable(Wavetable::WavetableCS wavetable);
+
+    //! Makes the next setPosition() take effect instantly instead of gliding. Meant for a voice
+    //! starting from silence, where there is no previous position worth gliding from.
+    void snapPosition();
 
     double nextSample();
     void sync(double phase);
 
     double frequency() const;
     double position() const;
+    double targetPosition() const;
     double phase() const;
 
 private:
     Wavetable::WavetableCS m_wavetable;
     double m_frequency = 440.0;
     double m_position = 0.0;
+    double m_targetPosition = 0.0;
+    double m_positionCoeff = 1.0;
+    bool m_snapPosition = true;
     double m_phase = 0.0;
     double m_phaseStep = 0.0;
 
     void updatePhaseStep();
+    void updatePositionCoeff();
 };
 
 } // namespace noteahead

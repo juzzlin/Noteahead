@@ -24,6 +24,7 @@ void WavetableOscillator::setSampleRate(double sampleRate)
 {
     DspComponent::setSampleRate(sampleRate);
     updatePhaseStep();
+    updatePositionCoeff();
 }
 
 void WavetableOscillator::setFrequency(double frequency)
@@ -34,7 +35,17 @@ void WavetableOscillator::setFrequency(double frequency)
 
 void WavetableOscillator::setPosition(double position)
 {
-    m_position = std::clamp(position, 0.0, 1.0);
+    m_targetPosition = std::clamp(position, 0.0, 1.0);
+
+    if (m_snapPosition) {
+        m_position = m_targetPosition;
+        m_snapPosition = false;
+    }
+}
+
+void WavetableOscillator::snapPosition()
+{
+    m_snapPosition = true;
 }
 
 void WavetableOscillator::setWavetable(Wavetable::WavetableCS wavetable)
@@ -47,6 +58,11 @@ double WavetableOscillator::nextSample()
     if (!m_wavetable) {
         return 0.0;
     }
+
+    // A step in the morph position steps the output sample with it: the same phase reads a
+    // different waveform, and that jump is an audible click. Gliding the position keeps the
+    // waveform continuous no matter how abruptly the modulation source moves.
+    m_position += (m_targetPosition - m_position) * m_positionCoeff;
 
     const double sample = m_wavetable->getSample(m_phase, m_position, m_frequency, m_sampleRate);
 
@@ -73,6 +89,11 @@ double WavetableOscillator::position() const
     return m_position;
 }
 
+double WavetableOscillator::targetPosition() const
+{
+    return m_targetPosition;
+}
+
 double WavetableOscillator::phase() const
 {
     return m_phase;
@@ -84,6 +105,15 @@ void WavetableOscillator::updatePhaseStep()
         m_phaseStep = m_frequency / m_sampleRate;
     } else {
         m_phaseStep = 0.0;
+    }
+}
+
+void WavetableOscillator::updatePositionCoeff()
+{
+    if (m_sampleRate > 0.0) {
+        m_positionCoeff = 1.0 - std::exp(-1.0 / (PositionSmoothingSeconds * m_sampleRate));
+    } else {
+        m_positionCoeff = 1.0;
     }
 }
 

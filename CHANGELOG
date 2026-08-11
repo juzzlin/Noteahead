@@ -47,6 +47,9 @@ New features:
 
 Bug fixes:
 
+* Fix the clicks from modulating the Wavetable Synth's Pos, most audible with
+  a random or square LFO, by gliding the morph position
+
 * Fix the level meters staying dead for a device added or replaced while the
   Device Rack or Mixer is open
 

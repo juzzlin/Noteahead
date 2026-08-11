@@ -34,6 +34,8 @@ void WavetableSynthDevice::Voice::reset()
     active = false;
     osc1.sync(0.0);
     osc2.sync(0.0);
+    osc1.snapPosition();
+    osc2.snapPosition();
     lpf.reset();
     hpf.reset();
     ampEg.reset();
@@ -58,9 +60,13 @@ void WavetableSynthDevice::Voice::trigger(uint8_t n, double freq, float p, float
 
     // Only sync oscillator phase on a fresh (idle) voice to avoid a pop from a
     // hard phase jump while the voice is still producing audio (retrigger/steal).
+    // The morph position starts where the modulation says for the same reason: a
+    // silent voice has nothing to glide from, a sounding one does.
     if (!active) {
         osc1.sync(startPhase);
         osc2.sync(startPhase);
+        osc1.snapPosition();
+        osc2.snapPosition();
     }
 
     active = true;
