@@ -27,6 +27,8 @@ private slots:
     void test_loudness_sine_shouldMeasureIntegratedLoudness();
     void test_loudness_varying_shouldMeasureLRA();
     void test_loudness_truePeak();
+    void test_loudness_trailingSilence_shouldNotChangeIntegratedLoudness();
+    void test_loudness_trailingSilence_shouldNotChangeThreshold();
 };
 
 } // namespace noteahead

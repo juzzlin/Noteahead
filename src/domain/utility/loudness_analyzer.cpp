@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <numbers>
 
 namespace noteahead {
@@ -138,6 +139,13 @@ LoudnessAnalyzer::Result LoudnessAnalyzer::calculate()
         return static_cast<float>(std::max(static_cast<double>(lufsFloor), -0.691 + 10.0 * std::log10(power)));
     };
 
+    // The same, unclamped. The absolute gate has to be able to tell a block resting at the floor from
+    // one genuinely beneath it; asking toLoudness() would let everything through, silence included,
+    // because it never returns less than the floor it is being compared against.
+    const auto toUngatedLoudness = [](double power) -> double {
+        return power > 0.0 ? -0.691 + 10.0 * std::log10(power) : -std::numeric_limits<double>::infinity();
+    };
+
     // 1. Calculate Integrated Loudness (400 ms blocks, overlapping by 75%)
     // Each 400 ms block is composed of 4 consecutive 100 ms blocks.
     std::vector<double> blockPowers400ms {};
@@ -158,7 +166,7 @@ LoudnessAnalyzer::Result LoudnessAnalyzer::calculate()
     // Absolute Gate (-70 LUFS)
     std::vector<double> absGatedPowers {};
     for (double p : blockPowers400ms) {
-        if (toLoudness(p) >= lufsFloor) {
+        if (toUngatedLoudness(p) >= lufsFloor) {
             absGatedPowers.push_back(p);
         }
     }
@@ -219,7 +227,7 @@ LoudnessAnalyzer::Result LoudnessAnalyzer::calculate()
     // Absolute Gate for LRA (-70 LUFS)
     std::vector<double> lraAbsPowers {};
     for (double p : blockPowersst) {
-        if (toLoudness(p) >= lufsFloor) {
+        if (toUngatedLoudness(p) >= lufsFloor) {
             lraAbsPowers.push_back(p);
         }
     }

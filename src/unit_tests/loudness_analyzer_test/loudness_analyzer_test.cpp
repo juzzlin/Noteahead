@@ -97,6 +97,59 @@ void LoudnessAnalyzerTest::test_loudness_truePeak()
     QVERIFY(result.truePeak < -5.5f);
 }
 
+namespace {
+
+//! Loud passage, then one 14 dB below it, then an optional stretch of digital silence. The quiet
+//! passage sits just under the relative threshold the first two produce, so it is what the gating
+//! has to get right; the silence must have no say in the matter at all.
+LoudnessAnalyzer::Result analyzeWithTail(double silenceSeconds)
+{
+    LoudnessAnalyzer analyzer { sampleRate };
+    feedSine(analyzer, 1000.0, 0.1, 20.0);
+    feedSine(analyzer, 1000.0, 0.02, 20.0);
+    if (silenceSeconds > 0.0) {
+        feedSine(analyzer, 1000.0, 0.0, silenceSeconds);
+    }
+    return analyzer.calculate();
+}
+
+} // namespace
+
+void LoudnessAnalyzerTest::test_loudness_trailingSilence_shouldNotChangeIntegratedLoudness()
+{
+    // Silence is below the absolute gate, so however much of it a song trails off into, the loudness
+    // of the programme material before it must read exactly the same.
+    const auto noTail = analyzeWithTail(0.0);
+    QVERIFY(noTail.integratedLoudness > -21.0f);
+    QVERIFY(noTail.integratedLoudness < -19.0f);
+
+    for (const auto seconds : { 5.0, 20.0, 60.0 }) {
+        const auto withTail = analyzeWithTail(seconds);
+        QVERIFY2(std::abs(withTail.integratedLoudness - noTail.integratedLoudness) < 0.01f,
+                 qPrintable(QString { "%1 s of silence moved the reading from %2 to %3" }
+                              .arg(seconds)
+                              .arg(noTail.integratedLoudness)
+                              .arg(withTail.integratedLoudness)));
+    }
+}
+
+void LoudnessAnalyzerTest::test_loudness_trailingSilence_shouldNotChangeThreshold()
+{
+    // The relative threshold is what the silence used to drag down, letting quiet passages that
+    // belong outside the measurement back into it: 60 s of it used to move this by over 4 LU.
+    const auto noTail = analyzeWithTail(0.0);
+    const auto shortTail = analyzeWithTail(5.0);
+
+    // However much silence follows, the threshold must not move a further step: past the edge every
+    // block is discarded outright, so there is nothing left for a longer tail to change.
+    QCOMPARE(analyzeWithTail(20.0).threshold, shortTail.threshold);
+    QCOMPARE(analyzeWithTail(60.0).threshold, shortTail.threshold);
+
+    // The edge itself does count, since those gating blocks are part programme material, but it is
+    // worth hundredths of a dB rather than the whole tail's worth.
+    QVERIFY(std::abs(shortTail.threshold - noTail.threshold) < 0.1f);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::LoudnessAnalyzerTest)

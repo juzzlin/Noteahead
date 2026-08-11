@@ -53,6 +53,9 @@ Bug fixes:
 * Fix the LUFS Meter and dBTP Meter readings shifting along the effect rack
   row as a value gains or loses a digit
 
+* Fix the loudness reported for an exported song depending on how much
+  silence it trails off into, by up to 3 dB
+
 * Fix the Piano
   - Let the top octaves speak and ring
   - Play in tune across the keyboard
