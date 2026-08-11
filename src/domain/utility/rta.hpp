@@ -63,8 +63,6 @@ private:
     static constexpr double FreqHi = 20000.0;
     static constexpr double CrossoverFreq = 400.0;
 
-    static void fft(double * re, double * im, int N);
-
     void syncParameters();
     void buildWindows();
     void buildBands();

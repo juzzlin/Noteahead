@@ -23,6 +23,7 @@
 #include "../dsp/wavetable_oscillator.hpp"
 #include "device.hpp"
 
+#include <map>
 #include <mutex>
 #include <random>
 #include <vector>
@@ -186,6 +187,11 @@ public:
     void setWavetableIndex(int index);
     std::vector<std::string> wavetableNames() const;
 
+    //! Builds the given set into the shared cache if it isn't there yet. Call this off the audio
+    //! path before selecting a set: the selection itself runs under the device lock, and building
+    //! a set there would hold the audio thread off for as long as it takes.
+    static void prepareWavetable(int index);
+
 private:
     struct Voice
     {
@@ -218,7 +224,6 @@ private:
     size_t m_polyNextVoice { 0 };
     uint64_t m_nextTriggerId { 1 };
 
-    Wavetable::WavetableList m_wavetables;
     int m_wavetableIndex { 0 };
 
     mutable std::mt19937 m_rng { 42 };

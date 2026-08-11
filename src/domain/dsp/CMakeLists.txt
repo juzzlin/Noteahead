@@ -7,6 +7,7 @@ set(DSP_SOURCES
     dsp_component.cpp
     divide_down_generator.cpp
     ensemble_chorus.cpp
+    fft.cpp
     lfo.cpp
     multi_engine.cpp
     one_pole_filter.cpp

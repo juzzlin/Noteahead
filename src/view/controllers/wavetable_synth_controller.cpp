@@ -500,6 +500,8 @@ int WavetableSynthController::wavetableIndex() const
 void WavetableSynthController::setWavetableIndex(int index)
 {
     if (m_synth) {
+        // Build the set here, on the UI thread, before the synth takes its lock to switch to it.
+        WavetableSynthDevice::prepareWavetable(index);
         m_synth->setWavetableIndex(index);
     }
 }

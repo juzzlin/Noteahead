@@ -82,18 +82,34 @@ void WavetableSynthDevice::Voice::release()
     modEg.release();
 }
 
+namespace {
+
+//! Wavetables cost tens of milliseconds to build and several megabytes to hold, so they are built
+//! on first use and then shared by every instance of the device for the rest of the session.
+Wavetable::WavetableCS sharedWavetable(int index)
+{
+    static std::mutex mutex;
+    static std::map<int, Wavetable::WavetableCS> cache;
+
+    const std::lock_guard<std::mutex> lock { mutex };
+    if (const auto iter = cache.find(index); iter != cache.end()) {
+        return iter->second;
+    }
+    return cache.emplace(index, Wavetable::createSet(static_cast<size_t>(index))).first->second;
+}
+
+} // namespace
+
+void WavetableSynthDevice::prepareWavetable(int index)
+{
+    if (index >= 0 && index < static_cast<int>(Wavetable::setNames().size())) {
+        sharedWavetable(index);
+    }
+}
+
 WavetableSynthDevice::WavetableSynthDevice(std::string name)
   : m_name { std::move(name) }
 {
-    static const auto defaultWavetables = []() {
-        std::vector<Wavetable::WavetableS> tables;
-        tables.push_back(Wavetable::createClassicSet());
-        tables.push_back(Wavetable::createSpectralSet());
-        return tables;
-    }();
-
-    m_wavetables = defaultWavetables;
-
     m_voices.resize(MaxVoices);
 
     // Initialize Parameters
@@ -140,7 +156,7 @@ WavetableSynthDevice::WavetableSynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceDepth().toStdString(), 0.1f, 0, 10000, 1000, 100, Parameter::Type::Continuous, { "wavetableSynthVoiceDepth" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyPanSpread().toStdString(), 0.5f, 0, 10000, 5000, 100, Parameter::Type::Continuous, { "wavetableSynthPanSpread" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyPortamento().toStdString(), 0.0f, 0, 10000, 0, 100, Parameter::Type::Continuous, { "wavetableSynthPortamento" } });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyWavetableIndex().toStdString(), 0.0f, 0, static_cast<int>(m_wavetables.size()) - 1, 0, 1, Parameter::Type::Discrete, { "wavetableSynthWavetableIndex" } });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyWavetableIndex().toStdString(), 0.0f, 0, static_cast<int>(Wavetable::setNames().size()) - 1, 0, 1, Parameter::Type::Discrete, { "wavetableSynthWavetableIndex" } });
 
     for (auto && voice : m_voices) {
         voice.lpf.setMode(CascadedSvf::Mode::LowPass);
@@ -627,8 +643,10 @@ void WavetableSynthDevice::syncParameters()
     updateParam(Constants::NahdXml::xmlKeyPortamento(), m_portamento);
     updateDiscreteParam(Constants::NahdXml::xmlKeyWavetableIndex(), m_wavetableIndex);
 
-    m_wavetableIndex = std::clamp(m_wavetableIndex, 0, static_cast<int>(m_wavetables.size()) - 1);
-    const auto currentWavetable = m_wavetables.at(static_cast<size_t>(m_wavetableIndex));
+    // A project saved by a newer build can name a set this one does not have; fall back to the
+    // last one rather than refusing to load.
+    m_wavetableIndex = std::clamp(m_wavetableIndex, 0, static_cast<int>(Wavetable::setNames().size()) - 1);
+    const auto currentWavetable = sharedWavetable(m_wavetableIndex);
 
     const double osc1PitchOffset = ParameterMapper::mapCubicCentered(m_osc1Pitch * 2.0 - 1.0, -1200, 1200);
     m_osc1BasePitchRatio = std::pow(2.0, (m_osc1Octave * 12.0 + osc1PitchOffset / 100.0) / 12.0);
@@ -1218,11 +1236,7 @@ void WavetableSynthDevice::setWavetableIndex(int index)
 std::vector<std::string> WavetableSynthDevice::wavetableNames() const
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
-    std::vector<std::string> names;
-    for (const auto & wt : m_wavetables) {
-        names.push_back(wt->name());
-    }
-    return names;
+    return Wavetable::setNames();
 }
 
 int WavetableSynthDevice::pitchBendRange() const

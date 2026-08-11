@@ -17,6 +17,7 @@
 
 #include "../../common/constants.hpp"
 #include "../dsp/audio_context.hpp"
+#include "../dsp/fft.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -174,44 +175,6 @@ void Rta::buildBands()
     }
 }
 
-// Iterative Cooley-Tukey DIT radix-2 FFT (in-place, N must be a power of 2).
-void Rta::fft(double * re, double * im, int N)
-{
-    for (int i = 1, j = 0; i < N; i++) {
-        int bit = N >> 1;
-        for (; j & bit; bit >>= 1)
-            j ^= bit;
-        j ^= bit;
-        if (i < j) {
-            std::swap(re[i], re[j]);
-            std::swap(im[i], im[j]);
-        }
-    }
-
-    for (int len = 2; len <= N; len <<= 1) {
-        const double ang = -2.0 * std::numbers::pi / len;
-        const double wStepRe = std::cos(ang);
-        const double wStepIm = std::sin(ang);
-        for (int i = 0; i < N; i += len) {
-            double wRe = 1.0;
-            double wIm = 0.0;
-            for (int j = 0; j < len / 2; j++) {
-                const double uRe = re[i + j];
-                const double uIm = im[i + j];
-                const double vRe = re[i + j + len / 2] * wRe - im[i + j + len / 2] * wIm;
-                const double vIm = re[i + j + len / 2] * wIm + im[i + j + len / 2] * wRe;
-                re[i + j] = uRe + vRe;
-                im[i + j] = uIm + vIm;
-                re[i + j + len / 2] = uRe - vRe;
-                im[i + j + len / 2] = uIm - vIm;
-                const double newWRe = wRe * wStepRe - wIm * wStepIm;
-                wIm = wRe * wStepIm + wIm * wStepRe;
-                wRe = newWRe;
-            }
-        }
-    }
-}
-
 void Rta::runSlowAnalysis()
 {
     const int B = static_cast<int>(m_bandBins.size());
@@ -224,7 +187,7 @@ void Rta::runSlowAnalysis()
         m_slowFftRe[i] = m_slowInBuf[i] * m_slowWindow[i];
         m_slowFftIm[i] = 0.0;
     }
-    fft(m_slowFftRe.data(), m_slowFftIm.data(), m_slowFftN);
+    Fft::forward(m_slowFftRe.data(), m_slowFftIm.data(), m_slowFftN);
 
     const double sr = m_sampleRateCached;
     double attackMs = 10.0, releaseMs = 300.0;
@@ -274,7 +237,7 @@ void Rta::runFastAnalysis()
         m_fastFftRe[i] = m_fastInBuf[i] * m_fastWindow[i];
         m_fastFftIm[i] = 0.0;
     }
-    fft(m_fastFftRe.data(), m_fastFftIm.data(), m_fastFftN);
+    Fft::forward(m_fastFftRe.data(), m_fastFftIm.data(), m_fastFftN);
 
     const double sr = m_sampleRateCached;
     double attackMs = 10.0, releaseMs = 300.0;

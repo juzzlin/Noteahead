@@ -2640,6 +2640,47 @@ void XmlSerializationTest::test_wavetableSynth_legacyNames_shouldLoadCorrectly()
     QCOMPARE(synth.lpfCutoff(), 0.3f);
 }
 
+void XmlSerializationTest::test_wavetableSynth_legacyWavetableRange_shouldPreserveSelection()
+{
+    // A project saved when only two sets existed stores the narrower range alongside the value. The
+    // selection is an ordinal into an append-only list, so it has to survive the list growing, and
+    // the stored range must not limit what the device can be switched to afterwards.
+    WavetableSynthDevice synth("TestWavetable");
+
+    QString xml;
+    NahdXmlWriter writer { xml };
+    writer.writeStartElement(Constants::NahdXml::xmlKeyDevice());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), "TestWavetable");
+    writer.writeAttribute(Constants::NahdXml::xmlKeyTypeName(), Constants::NahdXml::xmlValueSynths());
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameters());
+
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), "wavetableSynthWavetableIndex");
+    writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueInt());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), "1"); // Spectral Additive
+    writer.writeAttribute(Constants::NahdXml::xmlKeyMin(), "0");
+    writer.writeAttribute(Constants::NahdXml::xmlKeyMax(), "1"); // The old end of the list
+    writer.writeEndElement();
+
+    writer.writeEndElement(); // Parameters
+    writer.writeEndElement(); // Device
+
+    NahdXmlReader reader { xml };
+    while (!reader.atEnd()) {
+        if (reader.readNextStartElement() && reader.name() == Constants::NahdXml::xmlKeyDevice()) {
+            synth.deserializeFromXml(reader);
+        }
+    }
+
+    QCOMPARE(synth.wavetableIndex(), 1);
+    QCOMPARE(synth.wavetableNames().at(0), std::string { "Classic Morph" });
+    QCOMPARE(synth.wavetableNames().at(1), std::string { "Spectral Additive" });
+
+    // The sets added since must still be reachable on a project saved before they existed.
+    synth.setWavetableIndex(static_cast<int>(synth.wavetableNames().size()) - 1);
+    QCOMPARE(synth.wavetableIndex(), static_cast<int>(synth.wavetableNames().size()) - 1);
+}
+
 void XmlSerializationTest::test_eq8BandParametric_legacyNames_shouldLoadCorrectly()
 {
     Eq8BandParametric effect;

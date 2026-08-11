@@ -31,6 +31,7 @@ set(HEADER_FILES
     dsp/drum/snare_engine.hpp
     dsp/drum/tom_engine.hpp
     dsp/dsp_component.hpp
+    dsp/fft.hpp
     dsp/high_pass_filter.hpp
     dsp/lfo.hpp
     dsp/low_pass_filter.hpp
@@ -150,6 +151,7 @@ set(SOURCE_FILES
     dsp/drum/tom_engine.cpp
     dsp/dsp_component.cpp
     dsp/ensemble_chorus.cpp
+    dsp/fft.cpp
     dsp/high_pass_filter.cpp
     dsp/lfo.cpp
     dsp/low_pass_filter.cpp

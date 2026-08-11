@@ -108,6 +108,7 @@ private slots:
 
     void test_stringVoice_legacyFemale8_shouldLoadAsUpperMale8();
     void test_wavetableSynth_legacyNames_shouldLoadCorrectly();
+    void test_wavetableSynth_legacyWavetableRange_shouldPreserveSelection();
     void test_eq8BandParametric_legacyNames_shouldLoadCorrectly();
     void test_chorus_legacyNames_shouldLoadCorrectly();
     void test_clipper_legacyNames_shouldLoadCorrectly();
