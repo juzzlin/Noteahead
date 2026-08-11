@@ -98,6 +98,14 @@ Wavetable::WavetableCS sharedWavetable(int index)
     return cache.emplace(index, Wavetable::createSet(static_cast<size_t>(index))).first->second;
 }
 
+//! Turns an intensity knob position into the modulation depth it stands for. The taper is the one
+//! the knob reads out with, and the one the Synth applies: fine near the centre, so that a small
+//! reading really is a small amount of modulation.
+double intensityToDepth(float intensity)
+{
+    return ParameterMapper::mapCubicCentered(static_cast<double>(intensity) * 2.0 - 1.0, -1.0, 1.0);
+}
+
 } // namespace
 
 void WavetableSynthDevice::prepareWavetable(int index)
@@ -343,6 +351,7 @@ void WavetableSynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint
 
         if (controller == 1) { // LFO intensity (temporary, not saved to param)
             m_lfoInt = val;
+            m_lfoDepth = intensityToDepth(m_lfoInt);
             changed = true;
         } else if (controller == 7) {
             changed = updateVolumeParameter(faderPositionFromMidiCc(value), false);
@@ -490,9 +499,9 @@ WavetableSynthDevice::ModulationValues WavetableSynthDevice::calculateModulation
 {
     ModulationValues mods = ModulationValues {};
     mods.ampEnvelope = voice.ampEg.nextSample();
-    mods.modEnvelope = voice.modEg.nextSample() * (m_modInt * 2.0 - 1.0);
-    mods.lfoValue = voice.lfo.nextSample() * (m_lfoInt * 2.0 - 1.0);
-    mods.lfo2Value = voice.lfo2.nextSample() * (m_lfo2Int * 2.0 - 1.0);
+    mods.modEnvelope = voice.modEg.nextSample() * m_modDepth;
+    mods.lfoValue = voice.lfo.nextSample() * m_lfoDepth;
+    mods.lfo2Value = voice.lfo2.nextSample() * m_lfo2Depth;
 
     if (m_modTarget == ModTarget::Cutoff) {
         mods.cutoffMod = mods.modEnvelope;
@@ -623,18 +632,21 @@ void WavetableSynthDevice::syncParameters()
     updateParam(Constants::NahdXml::xmlKeyModDecay(), m_modDecay);
     updateParam(Constants::NahdXml::xmlKeyModSustain(), m_modSustain);
     updateParam(Constants::NahdXml::xmlKeyModIntensity(), m_modInt);
+    m_modDepth = intensityToDepth(m_modInt);
     updateDiscreteParam(Constants::NahdXml::xmlKeyModTarget(), m_modTarget);
 
     updateDiscreteParam(Constants::NahdXml::xmlKeyLfoWaveform(), m_lfoWaveform);
     updateDiscreteParam(Constants::NahdXml::xmlKeyLfoMode(), m_lfoMode);
     updateParam(Constants::NahdXml::xmlKeyLfoRate(), m_lfoRate);
     updateParam(Constants::NahdXml::xmlKeyLfoIntensity(), m_lfoInt);
+    m_lfoDepth = intensityToDepth(m_lfoInt);
     updateDiscreteParam(Constants::NahdXml::xmlKeyLfoTarget(), m_lfoTarget);
 
     updateDiscreteParam(Constants::NahdXml::xmlKeyLfo2Waveform(), m_lfo2Waveform);
     updateDiscreteParam(Constants::NahdXml::xmlKeyLfo2Mode(), m_lfo2Mode);
     updateParam(Constants::NahdXml::xmlKeyLfo2Rate(), m_lfo2Rate);
     updateParam(Constants::NahdXml::xmlKeyLfo2Intensity(), m_lfo2Int);
+    m_lfo2Depth = intensityToDepth(m_lfo2Int);
     updateDiscreteParam(Constants::NahdXml::xmlKeyLfo2Target(), m_lfo2Target);
 
     updateDiscreteParam(Constants::NahdXml::xmlKeyVoiceMode(), m_voiceMode);

@@ -51,6 +51,8 @@ private slots:
     void test_lfo2Target_pan_shouldModulatePanning();
 
     void test_voiceMode_unison_shouldMatchPolyLevel();
+
+    void test_lfoIntensity_shouldApplyTheDepthItReadsOut();
 };
 
 } // namespace noteahead

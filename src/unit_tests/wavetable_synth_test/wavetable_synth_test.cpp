@@ -591,6 +591,47 @@ void WavetableSynthTest::test_voiceMode_unison_shouldMatchPolyLevel()
     QVERIFY2(differenceDb > -6.0f, qPrintable(QString { "Unison is %1 dB below poly" }.arg(differenceDb)));
 }
 
+void WavetableSynthTest::test_lfoIntensity_shouldApplyTheDepthItReadsOut()
+{
+    // The Intensity knob reads out through a cubic taper, so the engine has to modulate by the
+    // amount shown rather than by the raw knob position. Aimed at Volume, the depth can be read
+    // straight back off the audio: the envelope runs between 1 + depth and 1 - depth.
+    const auto measuredDepth = [](float knobPosition) {
+        WavetableSynthDevice synth { "Test Synth" };
+        setupBasicSynth(synth);
+        synth.setLpfCutoff(1.0f);
+        synth.setLpfResonance(0.0f);
+        synth.setLfoWaveform(Lfo::Waveform::Sine);
+        synth.setLfoRate(0.9f);
+        synth.setLfoTarget(WavetableSynthDevice::LfoTarget::Volume);
+        synth.setLfoInt(0.5f + knobPosition * 0.5f);
+        const auto buffer = renderBuffer(synth);
+
+        // The carrier is far faster than the LFO, so the loudest sample in a short window tracks
+        // the envelope.
+        constexpr size_t Window = 256;
+        double loudest = 0.0;
+        double quietest = 1.0;
+        for (size_t start = 0; start + Window * 2 <= buffer.size(); start += Window * 2) {
+            double windowPeak = 0.0;
+            for (size_t i = start; i < start + Window * 2; i += 2) {
+                windowPeak = std::max(windowPeak, std::abs(buffer[i]));
+            }
+            loudest = std::max(loudest, windowPeak);
+            quietest = std::min(quietest, windowPeak);
+        }
+
+        return (loudest + quietest) > 0.0 ? (loudest - quietest) / (loudest + quietest) : 0.0;
+    };
+
+    for (const double knobPosition : { 0.3, 0.6, 0.8, 1.0 }) {
+        const auto expected = knobPosition * knobPosition * knobPosition;
+        const auto actual = measuredDepth(static_cast<float>(knobPosition));
+        QVERIFY2(std::abs(actual - expected) < 0.05,
+                 qPrintable(QString { "Knob at %1 reads out %2 but modulates by %3" }.arg(knobPosition).arg(expected).arg(actual)));
+    }
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::WavetableSynthTest)

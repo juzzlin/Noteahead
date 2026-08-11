@@ -258,18 +258,22 @@ private:
     float m_modDecay { 0.1f };
     float m_modSustain { 0.0f };
     float m_modInt { 0.5f };
+    //! m_modInt is the knob position, this is the depth it stands for once tapered.
+    double m_modDepth { 0.0 };
     ModTarget m_modTarget { ModTarget::Cutoff };
 
     Lfo::Waveform m_lfoWaveform { Lfo::Waveform::Triangle };
     Lfo::Mode m_lfoMode { Lfo::Mode::Normal };
     float m_lfoRate { 0.5f };
     float m_lfoInt { 0.5f };
+    double m_lfoDepth { 0.0 };
     LfoTarget m_lfoTarget { LfoTarget::Pitch };
 
     Lfo::Waveform m_lfo2Waveform { Lfo::Waveform::Triangle };
     Lfo::Mode m_lfo2Mode { Lfo::Mode::Normal };
     float m_lfo2Rate { 0.5f };
     float m_lfo2Int { 0.5f };
+    double m_lfo2Depth { 0.0 };
     LfoTarget m_lfo2Target { LfoTarget::Pitch };
 
     VoiceMode m_voiceMode { VoiceMode::Poly };
