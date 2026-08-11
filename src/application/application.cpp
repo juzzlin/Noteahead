@@ -710,6 +710,11 @@ void Application::connectPlayerService()
     connect(m_playerService.get(), &PlayerService::isPlayingChanged, this, [this]() {
         const auto isPlaying = m_playerService->isPlaying();
         m_midiService->setIsPlaying(isPlaying);
+        if (isPlaying) {
+            // Only on the rising edge: an integrated reading is meant to describe one take, so it
+            // starts over with the song rather than carrying whatever was auditioned beforehand.
+            m_deviceService->resetLoudnessMeters();
+        }
         if (m_settingsService->recordingEnabled()) {
             applyAudioRecording(isPlaying, m_playerService->tick());
         }

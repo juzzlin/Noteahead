@@ -21,6 +21,8 @@
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/sub_mixer_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
+#include "../../domain/effects/effect_rack.hpp"
+#include "../../domain/utility/lufs_meter.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
@@ -850,6 +852,25 @@ void DeviceService::reset()
 {
     m_audioEngine->clear();
     emit dataChanged();
+}
+
+void DeviceService::resetLoudnessMeters()
+{
+    const auto resetRack = [](const EffectRack & rack) {
+        for (const auto & effect : rack.effects()) {
+            if (const auto meter = std::dynamic_pointer_cast<LufsMeter>(effect)) {
+                meter->requestReset();
+            }
+        }
+    };
+
+    resetRack(m_audioEngine->sendEffectRack());
+    resetRack(m_audioEngine->insertEffectRack());
+    for (size_t slotIndex = 0; slotIndex < Constants::deviceRackSize(); slotIndex++) {
+        if (const auto device = this->device(slotIndex)) {
+            resetRack(device->insertEffectRack());
+        }
+    }
 }
 
 EffectRack & DeviceService::sendEffectRack()

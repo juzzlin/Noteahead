@@ -123,6 +123,10 @@ public:
 
     void reset();
 
+    //! Clear every LUFS meter in the master racks and in the devices' insert racks, so that an
+    //! integrated reading covers the take about to play rather than everything heard since startup.
+    void resetLoudnessMeters();
+
     EffectRack & sendEffectRack();
     EffectRack & insertEffectRack();
 

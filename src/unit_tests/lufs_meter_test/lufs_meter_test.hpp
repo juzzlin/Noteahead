@@ -30,6 +30,11 @@ private slots:
     void test_lufsMeter_passThrough_shouldNotModifySignal();
     void test_lufsMeter_reset_shouldClearReadings();
     void test_lufsMeter_sampleRateChange_shouldReinitialize();
+    void test_lufsMeter_integrated_steadyTone_shouldMatchOfflineAnalyzer();
+    void test_lufsMeter_integrated_afterSilence_shouldIgnoreTheSilence();
+    void test_lufsMeter_integrated_afterQuietPassage_shouldFollowTheRelativeGate();
+    void test_lufsMeter_integrated_shortAudio_shouldStayAtFloor();
+    void test_lufsMeter_requestReset_shouldClearReadingsAtNextSample();
 };
 
 } // namespace noteahead

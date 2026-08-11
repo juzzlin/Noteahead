@@ -299,6 +299,8 @@ public:
     Q_INVOKABLE float stereoExciterHarmonicsDb(quint32 effectIndex) const;
     Q_INVOKABLE float lufsMeterMomentary(quint32 effectIndex) const;
     Q_INVOKABLE float lufsMeterShortTerm(quint32 effectIndex) const;
+    Q_INVOKABLE float lufsMeterIntegrated(quint32 effectIndex) const;
+    Q_INVOKABLE void resetLufsMeter(quint32 effectIndex);
     Q_INVOKABLE float dbtpMeterTruePeakL(quint32 effectIndex) const;
     Q_INVOKABLE float dbtpMeterTruePeakR(quint32 effectIndex) const;
     Q_INVOKABLE float dbtpMeterTruePeakHoldL(quint32 effectIndex) const;

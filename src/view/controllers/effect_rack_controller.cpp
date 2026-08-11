@@ -59,6 +59,22 @@ namespace noteahead {
 
 static constexpr float dbtpFloor = -70.0f;
 
+namespace {
+
+//! One meter reading for the rack listing, padded so that a value crossing -10 does not shove
+//! everything after it along the row. An ordinary space would not do it: the row is set in a
+//! proportional font, where a space is much narrower than a digit, so a constant character count
+//! still comes out a different width. U+2007 FIGURE SPACE is defined to be exactly as wide as a
+//! digit, which lines the fields up without the row having to become monospaced.
+QString formatMeterReading(float value)
+{
+    static constexpr int fieldWidth = 5; // "-70.0", the widest reading either meter can produce
+    static const QChar figureSpace { 0x2007 };
+    return value <= dbtpFloor ? QString { "-∞" }.rightJustified(fieldWidth, figureSpace) : QString { "%1" }.arg(value, fieldWidth, 'f', 1, figureSpace);
+}
+
+} // namespace
+
 EffectRackController::EffectRackController(DeviceServiceS deviceService, EditorServiceS editorService, QObject * parent)
   : QObject { parent }
   , m_deviceService { std::move(deviceService) }
@@ -518,13 +534,16 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                 }
             } else if (type == Constants::RackEffectType::lufsMeter()) {
                 if (const auto meter = std::dynamic_pointer_cast<LufsMeter>(effect)) {
-                    const auto fmt = [](float v) { return v <= -70.0f ? QString("-∞") : QString("%1").arg(v, 0, 'f', 1); };
-                    return QString { "(M=%1 S=%2 LUFS)" }.arg(fmt(meter->momentaryLufs())).arg(fmt(meter->shortTermLufs()));
+                    return QString { "(M=%1 S=%2 I=%3 LUFS)" }
+                      .arg(formatMeterReading(meter->momentaryLufs()))
+                      .arg(formatMeterReading(meter->shortTermLufs()))
+                      .arg(formatMeterReading(meter->integratedLufs()));
                 }
             } else if (type == Constants::RackEffectType::dbtpMeter()) {
                 if (const auto meter = std::dynamic_pointer_cast<DbTpMeter>(effect)) {
-                    const auto fmt = [](float v) { return v <= -70.0f ? QString("-∞") : QString("%1").arg(v, 0, 'f', 1); };
-                    return QString { "(L=%1 R=%2 dBTP)" }.arg(fmt(meter->truePeakHoldL())).arg(fmt(meter->truePeakHoldR()));
+                    return QString { "(L=%1 R=%2 dBTP)" }
+                      .arg(formatMeterReading(meter->truePeakHoldL()))
+                      .arg(formatMeterReading(meter->truePeakHoldR()));
                 }
             } else if (type == Constants::RackEffectType::eq8BandParametric()) {
                 QString modeName { tr("Mid + Side") };
@@ -1521,6 +1540,29 @@ float EffectRackController::lufsMeterShortTerm(quint32 effectIndex) const
         }
     }
     return -70.0f;
+}
+
+float EffectRackController::lufsMeterIntegrated(quint32 effectIndex) const
+{
+    if (const auto rack = currentRack()) {
+        if (const auto effect = rack->get().effect(effectIndex)) {
+            if (const auto meter = std::dynamic_pointer_cast<LufsMeter>(effect)) {
+                return meter->integratedLufs();
+            }
+        }
+    }
+    return -70.0f;
+}
+
+void EffectRackController::resetLufsMeter(quint32 effectIndex)
+{
+    if (const auto rack = currentRack()) {
+        if (const auto effect = rack->get().effect(effectIndex)) {
+            if (const auto meter = std::dynamic_pointer_cast<LufsMeter>(effect)) {
+                meter->requestReset();
+            }
+        }
+    }
 }
 
 float EffectRackController::dbtpMeterTruePeakL(quint32 effectIndex) const

@@ -19,6 +19,7 @@
 #include "../effects/effect.hpp"
 
 #include <array>
+#include <atomic>
 #include <cstdint>
 
 namespace noteahead {
@@ -38,12 +39,21 @@ public:
 
     float momentaryLufs() const;
     float shortTermLufs() const;
+    //! Gated integrated loudness per ITU-R BS.1770-4, over everything measured since the last reset.
+    float integratedLufs() const;
+
+    //! Clear the meter from another thread. The readings blank immediately; the accumulated state is
+    //! dropped by the audio thread at the next sample, so no state is touched from under it.
+    void requestReset();
 
 private:
     void updateCoefficients();
     double applyKWeightL(double x);
     double applyKWeightR(double x);
     void advanceBlock(double meanPower);
+    void accumulateGatingBlock(double meanPower);
+    void updateIntegrated();
+    static size_t histogramBin(double lufs);
 
     // K-weighting biquad coefficients (stage 1: high-shelf, stage 2: high-pass)
     double m_b0s1 { 1.0 }, m_b1s1 { 0.0 }, m_b2s1 { 0.0 };
@@ -66,8 +76,26 @@ private:
     size_t m_blockWriteIdx { 0 };
     size_t m_blocksValid { 0 };
 
-    float m_momentaryLufs { -70.0f };
-    float m_shortTermLufs { -70.0f };
+    // Integrated loudness. The gated measurement needs every 400-ms gating block the song has ever
+    // produced, which cannot be a growing list on the audio thread, so the blocks go into a fixed
+    // histogram instead: one bin per 0.1 LU. Counts alone would quantise the answer, so each bin also
+    // carries the exact sum of the powers filed under it — only the gate boundary is then quantised,
+    // never the average, which keeps this within a hundredth of a dB of the offline LoudnessAnalyzer.
+    static constexpr double HistogramMinLufs = -70.0;
+    static constexpr double HistogramMaxLufs = 5.0;
+    static constexpr double HistogramBinLu = 0.1;
+    static constexpr size_t NumHistogramBins = 751;
+    std::array<uint32_t, NumHistogramBins> m_gateCounts {};
+    std::array<double, NumHistogramBins> m_gatePowerSums {};
+    //! Running totals over every block past the absolute gate, which set the relative threshold.
+    double m_absGatedPowerSum { 0.0 };
+    uint64_t m_absGatedCount { 0 };
+
+    // Read from the UI thread while the audio thread writes them.
+    std::atomic<float> m_momentaryLufs { -70.0f };
+    std::atomic<float> m_shortTermLufs { -70.0f };
+    std::atomic<float> m_integratedLufs { -70.0f };
+    std::atomic<bool> m_resetRequested { false };
 
     uint32_t m_lastSampleRate { 0 };
 };

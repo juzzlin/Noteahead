@@ -19,6 +19,10 @@ New features:
     fundamental are each modelled on their own
   - Kick808
 
+* Add a live integrated (I) reading to the LUFS Meter
+  - Gated per ITU-R BS.1770-4, updated as the song plays
+  - Starts over automatically when playback starts, or via Reset
+
 * Add the Mixer view
 
 * Add the fade out and tail silence options to the audio export
@@ -45,6 +49,9 @@ Bug fixes:
 
 * Fix the level meters staying dead for a device added or replaced while the
   Device Rack or Mixer is open
+
+* Fix the LUFS Meter and dBTP Meter readings shifting along the effect rack
+  row as a value gains or loses a digit
 
 * Fix the Piano
   - Let the top octaves speak and ring

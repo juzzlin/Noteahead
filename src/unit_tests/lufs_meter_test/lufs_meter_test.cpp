@@ -15,12 +15,14 @@
 
 #include "lufs_meter_test.hpp"
 
+#include "../../domain/utility/loudness_analyzer.hpp"
 #include "../../domain/utility/lufs_meter.hpp"
 
 #include <QTest>
 
 #include <cmath>
 #include <numbers>
+#include <vector>
 
 namespace noteahead {
 
@@ -44,6 +46,29 @@ static void feedSine(LufsMeter & meter, double freq, double amplitude, double se
     for (int i = 0; i < samples; i++) {
         const double s = amplitude * std::sin(2.0 * std::numbers::pi * freq / sampleRate * i);
         double l = s, r = s;
+        meter.process(l, r);
+    }
+}
+
+// Interleaved stereo sine, so that the streaming meter and the offline analyzer can be fed the very
+// same samples rather than two separately generated signals.
+static std::vector<float> makeSine(double freq, double amplitude, double seconds, int phaseOffset = 0)
+{
+    const auto frames = static_cast<size_t>(sampleRate * seconds);
+    std::vector<float> data(frames * 2);
+    for (size_t i = 0; i < frames; i++) {
+        const auto s = static_cast<float>(amplitude * std::sin(2.0 * std::numbers::pi * freq / sampleRate * static_cast<double>(i + phaseOffset)));
+        data[i * 2] = s;
+        data[i * 2 + 1] = s;
+    }
+    return data;
+}
+
+static void feed(LufsMeter & meter, const std::vector<float> & interleaved)
+{
+    for (size_t i = 0; i < interleaved.size(); i += 2) {
+        double l = interleaved[i];
+        double r = interleaved[i + 1];
         meter.process(l, r);
     }
 }
@@ -128,6 +153,105 @@ void LufsMeterTest::test_lufsMeter_sampleRateChange_shouldReinitialize()
 
     // Should now be measuring the quiet signal, not the old loud one
     QVERIFY(meter.momentaryLufs() < -30.0f);
+}
+
+void LufsMeterTest::test_lufsMeter_integrated_steadyTone_shouldMatchOfflineAnalyzer()
+{
+    // LoudnessAnalyzer is the reference: it is what the audio export reports, and it does the gating
+    // offline over the whole signal. The streaming meter has to arrive at the same number from a
+    // histogram, so pin one against the other on identical samples.
+    const auto loud = makeSine(1000.0, 0.1, 5.0);
+    const auto quiet = makeSine(1000.0, 0.03, 5.0);
+
+    LufsMeter meter;
+    meter.setSampleRate(sampleRate);
+    LoudnessAnalyzer analyzer { sampleRate };
+
+    for (const auto & part : { loud, quiet }) {
+        feed(meter, part);
+        analyzer.process(part.data(), part.size());
+    }
+
+    const auto reference = analyzer.calculate().integratedLoudness;
+    QVERIFY(reference > -30.0f);
+    QVERIFY(std::abs(meter.integratedLufs() - reference) < 0.15f);
+}
+
+void LufsMeterTest::test_lufsMeter_integrated_afterSilence_shouldIgnoreTheSilence()
+{
+    LufsMeter meter;
+    meter.setSampleRate(sampleRate);
+
+    feed(meter, makeSine(1000.0, 0.1, 5.0));
+    const auto afterTone = meter.integratedLufs();
+    QVERIFY(afterTone > -24.0f);
+    QVERIFY(afterTone < -18.0f);
+
+    feedSilence(meter, 5.0);
+    const auto afterSilence = meter.integratedLufs();
+
+    // The three gating blocks straddling the tone-to-silence edge are part tone and part silence, so
+    // they are quieter than the tone and do count. That is worth a couple of tenths, no more; an
+    // ungated mean would be somewhere near -25 by now.
+    QVERIFY(std::abs(afterSilence - afterTone) < 0.25f);
+
+    // Past the edge, though, every block is pure silence and the absolute gate discards it outright:
+    // however long it runs, the reading must not move at all.
+    feedSilence(meter, 20.0);
+    QCOMPARE(meter.integratedLufs(), afterSilence);
+
+    // The momentary and short-term windows do follow the silence down, unlike the integrated one.
+    QCOMPARE(meter.momentaryLufs(), lufsFloor);
+}
+
+void LufsMeterTest::test_lufsMeter_integrated_afterQuietPassage_shouldFollowTheRelativeGate()
+{
+    LufsMeter meter;
+    meter.setSampleRate(sampleRate);
+
+    feed(meter, makeSine(1000.0, 0.1, 5.0));
+    const auto afterLoud = meter.integratedLufs();
+
+    // 26 dB down: above the absolute gate, so it is measured, but far enough below the relative
+    // threshold that it must not pull the integrated reading towards it.
+    feed(meter, makeSine(1000.0, 0.005, 5.0));
+
+    QVERIFY(meter.shortTermLufs() < -40.0f);
+    QVERIFY(std::abs(meter.integratedLufs() - afterLoud) < 0.5f);
+}
+
+void LufsMeterTest::test_lufsMeter_integrated_shortAudio_shouldStayAtFloor()
+{
+    LufsMeter meter;
+    meter.setSampleRate(sampleRate);
+
+    // A gating block is 400 ms. Below that there is nothing to gate, so integrated stays unset even
+    // though the momentary reading already has something to show.
+    feed(meter, makeSine(1000.0, 0.1, 0.35));
+
+    QCOMPARE(meter.integratedLufs(), lufsFloor);
+    QVERIFY(meter.momentaryLufs() > lufsFloor);
+}
+
+void LufsMeterTest::test_lufsMeter_requestReset_shouldClearReadingsAtNextSample()
+{
+    LufsMeter meter;
+    meter.setSampleRate(sampleRate);
+
+    feed(meter, makeSine(1000.0, 0.1, 5.0));
+    QVERIFY(meter.integratedLufs() > -24.0f);
+
+    meter.requestReset();
+
+    // The readings blank at once, without waiting for the audio thread to come back round.
+    QCOMPARE(meter.momentaryLufs(), lufsFloor);
+    QCOMPARE(meter.shortTermLufs(), lufsFloor);
+    QCOMPARE(meter.integratedLufs(), lufsFloor);
+
+    // ...and the accumulated state really is gone: what follows measures on its own terms.
+    feed(meter, makeSine(1000.0, 0.01, 5.0));
+
+    QVERIFY(meter.integratedLufs() < -35.0f);
 }
 
 } // namespace noteahead

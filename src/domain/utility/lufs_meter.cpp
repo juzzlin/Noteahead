@@ -19,11 +19,29 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <numbers>
 
 namespace noteahead {
 
 static constexpr float lufsMin = -70.0f;
+
+namespace {
+
+//! BS.1770-4 loudness of a mean power, unclamped, so the absolute gate can tell a block that merely
+//! sits at the floor from one that is genuinely below it.
+double powerToLufs(double power)
+{
+    return power > 0.0 ? -0.691 + 10.0 * std::log10(power) : -std::numeric_limits<double>::infinity();
+}
+
+//! The same, clamped to the floor and narrowed for display.
+float powerToDisplayLufs(double power)
+{
+    return static_cast<float>(std::max(static_cast<double>(lufsMin), powerToLufs(power)));
+}
+
+} // namespace
 
 LufsMeter::LufsMeter()
 {
@@ -113,33 +131,84 @@ void LufsMeter::advanceBlock(double meanPower)
         m_blocksValid++;
     }
 
-    const auto toLufs = [](double power) -> float {
-        if (power < 1.0e-10) {
-            return lufsMin;
-        }
-        return static_cast<float>(std::max(static_cast<double>(lufsMin), -0.691 + 10.0 * std::log10(power)));
-    };
-
     // Momentary: mean of last 4 blocks (400 ms)
     const size_t mBlocks = std::min(m_blocksValid, size_t { 4 });
     double mPower = 0.0;
     for (size_t i = 0; i < mBlocks; i++) {
         mPower += m_blocks[(m_blockWriteIdx + NumBlocks - 1 - i) % NumBlocks];
     }
-    m_momentaryLufs = toLufs(mPower / static_cast<double>(mBlocks));
+    const double momentaryPower = mPower / static_cast<double>(mBlocks);
+    m_momentaryLufs = powerToDisplayLufs(momentaryPower);
 
     // Short-term: mean of all valid blocks (up to 3 seconds)
     double sPower = 0.0;
     for (size_t i = 0; i < m_blocksValid; i++) {
         sPower += m_blocks[i];
     }
-    m_shortTermLufs = toLufs(sPower / static_cast<double>(m_blocksValid));
+    m_shortTermLufs = powerToDisplayLufs(sPower / static_cast<double>(m_blocksValid));
+
+    // A gating block is 400 ms of audio, so the integrated measurement only starts once four 100-ms
+    // blocks exist. From then on every block yields one, which is the 75 % overlap BS.1770-4 asks for,
+    // and it is the momentary power by definition — no need to sum the window twice.
+    if (mBlocks == 4) {
+        accumulateGatingBlock(momentaryPower);
+        updateIntegrated();
+    }
+}
+
+size_t LufsMeter::histogramBin(double lufs)
+{
+    if (!(lufs > HistogramMinLufs)) {
+        return 0;
+    }
+    const auto bin = static_cast<size_t>((std::min(lufs, HistogramMaxLufs) - HistogramMinLufs) / HistogramBinLu);
+    return std::min(bin, NumHistogramBins - 1);
+}
+
+void LufsMeter::accumulateGatingBlock(double meanPower)
+{
+    // Absolute gate: anything below -70 LUFS, digital silence included, plays no part in the
+    // measurement at all — neither in the average nor in the relative threshold it sets.
+    if (const auto loudness = powerToLufs(meanPower); loudness < HistogramMinLufs) {
+        return;
+    }
+    m_absGatedPowerSum += meanPower;
+    m_absGatedCount++;
+    const auto bin = histogramBin(powerToLufs(meanPower));
+    m_gateCounts[bin]++;
+    m_gatePowerSums[bin] += meanPower;
+}
+
+void LufsMeter::updateIntegrated()
+{
+    if (!m_absGatedCount) {
+        m_integratedLufs = lufsMin;
+        return;
+    }
+
+    // Relative gate: 10 LU below the mean of everything that passed the absolute gate.
+    const auto absGatedMean = m_absGatedPowerSum / static_cast<double>(m_absGatedCount);
+    const auto relativeThreshold = powerToLufs(absGatedMean) - 10.0;
+
+    double gatedSum = 0.0;
+    uint64_t gatedCount = 0;
+    for (auto bin = histogramBin(relativeThreshold); bin < NumHistogramBins; bin++) {
+        gatedSum += m_gatePowerSums[bin];
+        gatedCount += m_gateCounts[bin];
+    }
+
+    // Only the bin straddling the threshold is approximate; the mean itself comes from exact sums.
+    m_integratedLufs = powerToDisplayLufs(gatedCount ? gatedSum / static_cast<double>(gatedCount) : absGatedMean);
 }
 
 void LufsMeter::processSample(double & left, double & right)
 {
     if (m_sampleRate <= 0) {
         return;
+    }
+
+    if (m_resetRequested.exchange(false)) {
+        reset();
     }
 
     if (const auto sr = static_cast<uint32_t>(m_sampleRate); sr != m_lastSampleRate) {
@@ -169,8 +238,23 @@ void LufsMeter::reset()
     m_blocks.fill(0.0);
     m_blockWriteIdx = 0;
     m_blocksValid = 0;
+    m_gateCounts.fill(0);
+    m_gatePowerSums.fill(0.0);
+    m_absGatedPowerSum = 0.0;
+    m_absGatedCount = 0;
     m_momentaryLufs = lufsMin;
     m_shortTermLufs = lufsMin;
+    m_integratedLufs = lufsMin;
+}
+
+void LufsMeter::requestReset()
+{
+    // Blank the readings up front so a stopped engine does not leave the previous take's numbers on
+    // screen while it waits for a sample that clears the rest.
+    m_momentaryLufs = lufsMin;
+    m_shortTermLufs = lufsMin;
+    m_integratedLufs = lufsMin;
+    m_resetRequested = true;
 }
 
 void LufsMeter::sync()
@@ -185,6 +269,11 @@ float LufsMeter::momentaryLufs() const
 float LufsMeter::shortTermLufs() const
 {
     return m_shortTermLufs;
+}
+
+float LufsMeter::integratedLufs() const
+{
+    return m_integratedLufs;
 }
 
 } // namespace noteahead

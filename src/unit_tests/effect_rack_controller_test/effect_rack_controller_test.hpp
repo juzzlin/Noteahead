@@ -20,6 +20,8 @@ private slots:
     void test_effectParametersSummary_saturator_shouldReturnFormattedSummary();
     void test_effectParametersSummary_eq8BandParametric_shouldReturnFormattedSummary();
     void test_effectParametersSummary_emptySlot_shouldReturnEmptyString();
+    void test_effectParametersSummary_lufsMeter_shouldPadReadingsToConstantWidth();
+    void test_effectParametersSummary_dbtpMeter_shouldPadReadingsToConstantWidth();
     void test_isEffectEnabled_shouldReturnEnabledState();
     void test_currentRack_drumVoiceSubIndex_shouldTargetVoiceRack();
     void test_revision_shouldIncrementOnPropertySet();

@@ -11,6 +11,8 @@
 #include "../../domain/effects/panner.hpp"
 #include "../../domain/effects/reverb.hpp"
 #include "../../domain/effects/saturator.hpp"
+#include "../../domain/utility/dbtp_meter.hpp"
+#include "../../domain/utility/lufs_meter.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
@@ -20,7 +22,10 @@
 #include <QBuffer>
 #include <QSignalSpy>
 #include <QTest>
+
+#include <cmath>
 #include <memory>
+#include <numbers>
 
 #include "../../domain/devices/device.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
@@ -241,6 +246,83 @@ void EffectRackControllerTest::test_effectParametersSummary_emptySlot_shouldRetu
 
     controller.setIsInsertRack(true);
     QCOMPARE(controller.effectParametersSummary(0), QString { "" });
+}
+
+namespace {
+
+//! Drive a rack effect with a stereo sine of the given amplitude, so its meter settles somewhere
+//! specific and the summary can be read at a known digit count.
+//! The pad character the rack summary lines its numeric fields up with.
+const QChar figureSpace { 0x2007 };
+
+void feedSine(const std::shared_ptr<Effect> & effect, double amplitude, double seconds)
+{
+    static constexpr double sampleRate = 48000.0;
+    effect->setSampleRate(sampleRate);
+    const auto samples = static_cast<int>(sampleRate * seconds);
+    for (int i = 0; i < samples; i++) {
+        double l = amplitude * std::sin(2.0 * std::numbers::pi * 1000.0 / sampleRate * i);
+        double r = l;
+        effect->process(l, r);
+    }
+}
+
+} // namespace
+
+void EffectRackControllerTest::test_effectParametersSummary_lufsMeter_shouldPadReadingsToConstantWidth()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(LufsMeter::typeIdString()));
+    const auto effect = deviceService->insertEffectRack().effect(0);
+    QVERIFY(effect);
+
+    // A reading crossing -10 gains a digit, and without padding everything after it in the row would
+    // shift along. The summary has to keep the same length whatever the meter says.
+    const auto atFloor = controller.effectParametersSummary(0);
+    QCOMPARE(atFloor, QString { "(M=%1-∞ S=%1-∞ I=%1-∞ LUFS)" }.arg(QString { figureSpace }.repeated(3)));
+
+    feedSine(effect, 0.385, 4.0); // ≈ -8 LUFS: one digit before the point, so the field is padded
+    const auto oneDigit = controller.effectParametersSummary(0);
+    QVERIFY(oneDigit.contains(QString { "M=%1-" }.arg(figureSpace)));
+    QCOMPARE(oneDigit.length(), atFloor.length());
+
+    feedSine(effect, 0.1, 4.0); // ≈ -21 LUFS: two digits, filling the field
+    const auto twoDigits = controller.effectParametersSummary(0);
+    QVERIFY(twoDigits.contains("M=-2"));
+    QCOMPARE(twoDigits.length(), atFloor.length());
+}
+
+void EffectRackControllerTest::test_effectParametersSummary_dbtpMeter_shouldPadReadingsToConstantWidth()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(DbTpMeter::typeIdString()));
+    const auto effect = deviceService->insertEffectRack().effect(0);
+    QVERIFY(effect);
+
+    const auto atFloor = controller.effectParametersSummary(0);
+    QCOMPARE(atFloor, QString { "(L=%1-∞ R=%1-∞ dBTP)" }.arg(QString { figureSpace }.repeated(3)));
+
+    feedSine(effect, 0.35, 0.2); // ≈ -9 dBTP: one digit before the point, so the field is padded
+    const auto oneDigit = controller.effectParametersSummary(0);
+    QVERIFY(oneDigit.contains(QString { "L=%1-" }.arg(figureSpace)));
+    QCOMPARE(oneDigit.length(), atFloor.length());
+
+    // A fresh meter, because the peak hold would otherwise keep showing the loud reading.
+    controller.setEffect(0, QString::fromStdString(DbTpMeter::typeIdString()));
+    feedSine(deviceService->insertEffectRack().effect(0), 0.035, 0.2); // ≈ -29 dBTP: two digits
+    const auto twoDigits = controller.effectParametersSummary(0);
+    QVERIFY(twoDigits.contains("L=-2"));
+    QCOMPARE(twoDigits.length(), atFloor.length());
 }
 
 void EffectRackControllerTest::test_isEffectEnabled_shouldReturnEnabledState()
