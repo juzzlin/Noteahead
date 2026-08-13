@@ -106,11 +106,44 @@
 <ul>
     <li><strong>Equalizers</strong>: <strong>EQ 8-Band Parametric</strong> (Bell, Shelf, Cut and Notch types per band, plus Mid/Side modes), <strong>Vintage Passive EQ</strong> (EQP-1A style, with interacting low Boost/Atten shelves and a high bell), <strong>Air Band EQ</strong> (fixed parallel-summed bands added back to the dry signal) and <strong>Simple EQ</strong> (a single "Sounds Good" knob sweeping a loudness-smile curve).</li>
     <li><strong>Reverbs</strong>: <strong>Reverb</strong> (the FDN reverb described below) and <strong>Endless Reverb</strong> (a large modulated ambient reverb with a Freeze switch for an infinite tail).</li>
-    <li><strong>Dynamics</strong>: <strong>Compressor</strong> (with side-chain support), <strong>Auto Ducker</strong> (side-chain driven ducking or boosting), <strong>Limiter</strong> (lookahead brickwall with gain reduction metering), <strong>Clipper</strong> and <strong>Wave Designer</strong> (transient shaper, described below).</li>
-    <li><strong>Saturation</strong>: <strong>Drive</strong> (Soft, Hard, Fold and Dist algorithms), <strong>Saturator</strong>, <strong>Tube Stage</strong> (valve preamp, described below) and <strong>Stereo Exciter</strong> (harmonic generator, described below).</li>
-    <li><strong>Modulation & Time</strong>: <strong>Chorus</strong>, <strong>Delay</strong> (Mono, Ping Pong and Tape modes, with BPM sync) and <strong>All-Pass Filter</strong>.</li>
+    <li><strong>Dynamics</strong>: <strong>Compressor</strong> (with side-chain support), <strong>Multiband Compressor</strong> (three bands split by Linkwitz-Riley crossovers, described below), <strong>Auto Ducker</strong> (side-chain driven ducking or boosting), <strong>Limiter</strong> (lookahead brickwall with gain reduction metering), <strong>Clipper</strong> and <strong>Wave Designer</strong> (transient shaper, described below).</li>
+    <li><strong>Saturation</strong>: <strong>Drive</strong> (Soft, Hard, Fold and Dist algorithms), <strong>Saturator</strong>, <strong>Tube Stage</strong> (valve preamp, described below), <strong>Bass Grinder</strong> (split-band bass preamp distortion, described below) and <strong>Stereo Exciter</strong> (harmonic generator, described below).</li>
+    <li><strong>Filters & Modulation</strong>: <strong>Auto Filter</strong> (swept filter with two LFOs and an envelope follower, described below), <strong>Chorus</strong>, <strong>Delay</strong> (Mono, Ping Pong and Tape modes, with BPM sync) and <strong>All-Pass Filter</strong>.</li>
     <li><strong>Stereo</strong>: <strong>Panner</strong>, <strong>Auto Panner</strong> and <strong>Stereo Enhancer</strong> (psychoacoustic EQ, described below).</li>
-    <li><strong>Metering & Analysis</strong>: <strong>LUFS Meter</strong>, <strong>dBTP Meter</strong> (true peak) and <strong>RTA</strong> (real-time analyzer). Use these as inserts to watch the signal at any point in the chain.</li>
+    <li><strong>Metering & Analysis</strong>: <strong>LUFS Meter</strong> (momentary, short-term and a gated integrated reading that runs as the song plays), <strong>dBTP Meter</strong> (true peak) and <strong>RTA</strong> (real-time analyzer). Use these as inserts to watch the signal at any point in the chain.</li>
+</ul>
+
+<h3>Auto Filter Parameters</h3>
+<p>A filter that sweeps itself, independent of whatever made the sound. The internal devices have their own filters, but those belong to the instrument; this one sits in the rack, so anything routed through it — a sampled loop, a whole Sub Mixer, the master bus — can be swept the same way.</p>
+<ul>
+    <li><strong>Type</strong> and <strong>Slope</strong>: <strong>Low Pass</strong>, <strong>High Pass</strong>, <strong>Band Pass</strong> or <strong>Notch</strong>, at <strong>12</strong> or <strong>24 dB/oct</strong>. Band Pass is normalized, so its resonance narrows the band rather than turning it up.</li>
+    <li><strong>Cutoff</strong> and <strong>Resonance</strong>: where the filter sits before anything modulates it, and how much it emphasizes its corner. Resonance is held short of self-oscillation so that a full-intensity sweep cannot make it scream.</li>
+    <li><strong>Cutoff LFO</strong> and <strong>Resonance LFO</strong>: two independent LFOs with the same shapes and modes as the Synth's — Saw, Triangle, Square, Sine and Random, running free in Hz, locked to the tempo in <strong>Sync</strong> mode, or sweeping once in <strong>One-Shot</strong>.</li>
+    <li><strong>Intensity</strong>: how far each LFO moves its target, from -100 % to +100 % through a cubic taper, so small settings are easy to dial in. Full intensity is five octaves of cutoff travel. Negative simply reverses the direction: where a rising LFO opened the filter, it now closes it.</li>
+    <li><strong>Envelope Follower</strong>: <strong>Amount</strong> opens the filter with the signal's own level, the classic auto-wah, or closes it when turned negative. <strong>Attack</strong> and <strong>Release</strong> set how quickly it follows. The follower and both LFOs sum into the same cutoff, so they stack.</li>
+    <li><strong>Stereo Phase</strong>: offsets the right channel's LFOs from the left channel's, up to half a cycle. The two channels then filter differently, which is genuine decorrelation and widens dramatically — but a mono sum averages the two and the sweep flattens out, so check mono before leaning on it.</li>
+    <li><strong>Gain</strong> and <strong>Mix</strong>: output trim, and the blend against the dry signal for parallel filtering.</li>
+</ul>
+
+<h3>Multiband Compressor Parameters</h3>
+<p>Three compressors on one signal, each working on its own part of the spectrum. Use it where a single compressor cannot win: a loud kick pumping the whole mix down, or a harsh vocal band that needs holding while the body is left alone.</p>
+<ul>
+    <li><strong>Crossovers</strong>: two Linkwitz-Riley crossovers set where Low ends and High begins. They sum back flat, so with every band bypassed the effect is transparent.</li>
+    <li><strong>Per band</strong>: <strong>Threshold</strong>, <strong>Ratio</strong>, <strong>Knee</strong>, <strong>Attack</strong>, <strong>Release</strong> and <strong>Makeup</strong>, plus <strong>Bypass</strong> and <strong>Solo</strong> for setting a band up on its own. Each band has its own gain reduction meter.</li>
+    <li><strong>Side Chain Source</strong>: another device drives the detectors, split by the same crossovers, so the low band keys off the source's low end rather than off everything.</li>
+    <li><strong>Detector</strong> and <strong>Output</strong>: Peak or RMS detection for all three bands, and an output trim.</li>
+</ul>
+<p>There is deliberately no Mix control. The split path is phase-rotated against its own input by the crossovers, so blending it with an untouched dry signal would comb filter rather than soften the compression. Per-band makeup and the output gain cover what Mix would have been reached for.</p>
+
+<h3>Bass Grinder Parameters</h3>
+<p>A bass preamp distortion, for making a kick or a bass beefy and mean at once. The other nonlinear effects shape the full band, which is why none of them can do this: pushing one hard enough to get grind on top also shapes the fundamental, and the weight that made the sound worth distorting goes with it.</p>
+<ul>
+    <li><strong>Split</strong>: takes the low band out of the clipper entirely. The fundamental comes through untouched while everything above it is hammered. At the bottom of its travel the split sits below the audio band and the effect becomes a plain full-band distortion.</li>
+    <li><strong>Blend</strong>: how much of the clipped band replaces the clean one, the way a bass preamp's blend control does.</li>
+    <li><strong>Drive</strong>: level into an asymmetric diode clipper. Its two halves clip at different thresholds, which is what generates the even harmonics that read as weight rather than fizz.</li>
+    <li><strong>Color</strong>: switches in a fixed scooped voicing behind the clipper.</li>
+    <li><strong>Bass</strong>, <strong>Mid</strong>, <strong>Mid Freq</strong> and <strong>Treble</strong>: the preamp's own tone stack, with a sweepable mid.</li>
+    <li><strong>Mix</strong> and <strong>Output</strong>: the blend against the dry signal, and an output trim.</li>
 </ul>
 
 <h3>Stereo Exciter Parameters</h3>
@@ -180,6 +213,7 @@
     <li><strong>Release</strong>: Determines how quickly the compressor returns to unity gain once the signal falls below the threshold (1 to 2000 ms).</li>
     <li><strong>Makeup (dB)</strong>: Compensates for the level loss caused by compression (-12 to +12 dB).</li>
     <li><strong>Lookahead (ms)</strong>: Delays the audio path slightly to allow the detector to "see" incoming peaks before they occur (0 to 10 ms), enabling more precise peak management.</li>
+    <li><strong>Detector</strong>: <strong>Peak</strong> follows the waveform itself and catches every transient; <strong>RMS</strong> averages over a short window and follows perceived loudness instead, which is gentler on material with sharp attacks.</li>
     <li><strong>Reduction Meter</strong>: Provides real-time visual feedback of the current gain reduction in dB.</li>
 </ul>
 
@@ -344,9 +378,8 @@
 <p>The Noteahead Synth is a powerful built-in polyphonic synthesizer (up to 6 voices) designed for classic and modern electronic sounds.</p>
 <ul>
     <li><strong>Selection</strong>: Assign a track to a specific synth by selecting its name (e.g., "Noteahead Synth 1") in the <strong>Track Settings</strong> port list.</li>
-    <li><strong>Oscillators (VCO1 & VCO2)</strong>: Two high-quality oscillators with <strong>Triangle</strong>, <strong>Saw</strong>, and <strong>Square</strong> waveforms. Each oscillator features <strong>Octave</strong>, <strong>Pitch</strong> (fine-tuning), <strong>Shape</strong> (pulse-width or waveform modulation), and <strong>Sync</strong>. VCO2 adds <strong>Cross Mod Depth</strong> for FM-style timbres.</li>
-    <li><strong>Multi Engine</strong>: An additional digital engine providing <strong>Low</strong> and <strong>High</strong> frequency content, <strong>Peak</strong> (peaking filter), and <strong>Decim</strong> (bit-crusher/decimator) textures. It includes its own <strong>Shape</strong> and <strong>Level</strong> controls.</li>
-    <li><strong>Mixer</strong>: Balance the output of VCO1 and VCO2.</li>
+    <li><strong>Oscillators (VCO1, VCO2 & VCO3)</strong>: Three oscillators with <strong>Triangle</strong>, <strong>Saw</strong>, and <strong>Square</strong> waveforms. Each features <strong>Octave</strong> as an organ footage (<strong>32'</strong>, <strong>16'</strong>, <strong>8'</strong>, <strong>4'</strong> or <strong>2'</strong>), <strong>Pitch</strong> (fine-tuning), <strong>Shape</strong> (pulse-width or waveform modulation), <strong>Level</strong>, and <strong>Sync</strong> — VCO2 hard-syncs to VCO1 and VCO3 to VCO2. VCO2 adds <strong>Cross Mod Depth</strong> for FM-style timbres.</li>
+    <li><strong>Multi Engine</strong>: An additional digital engine providing <strong>Low</strong> and <strong>High</strong> frequency content, <strong>Peak</strong> (peaking filter), and <strong>Decim</strong> (bit-crusher/decimator) textures. It includes its own <strong>Shape</strong>, <strong>Key Track</strong> and <strong>Level</strong> controls.</li>
     <li><strong>Filters</strong>:
         <ul>
             <li><strong>LPF Cutoff & Resonance</strong>: A resonant low-pass filter for sculpting the timbre.</li>
@@ -360,11 +393,11 @@
             <li><strong>Mod EG</strong>: An AD (Attack, Decay) envelope with adjustable <strong>Intensity</strong> that can target <strong>Pitch 1</strong>, <strong>Pitch 2</strong>, or <strong>Filter Cutoff</strong>.</li>
         </ul>
     </li>
-    <li><strong>LFO 1 &amp; LFO 2</strong>: Two independent Low-Frequency Oscillators with multiple waveforms and modes (Normal, Fast, 1-Shot, and BPM-synced). Each can target <strong>Pitch</strong>, <strong>Shape</strong>, <strong>Cutoff</strong>, <strong>Volume</strong> (tremolo), <strong>Resonance</strong> or <strong>Pan</strong> (auto-pan). Their modulations stack additively.</li>
+    <li><strong>LFO 1 &amp; LFO 2</strong>: Two independent Low-Frequency Oscillators with multiple waveforms and modes (Normal, 1-Shot and BPM-synced). Each can target <strong>Pitch</strong> (all three oscillators at once), <strong>Shape</strong>, <strong>Cutoff</strong>, <strong>Volume</strong> (tremolo), <strong>Resonance</strong>, <strong>Pan</strong> (auto-pan), or <strong>Pitch 1</strong>, <strong>Pitch 2</strong> and <strong>Pitch 3</strong> to detune a single oscillator against the others. Their modulations stack additively.</li>
     <li><strong>Analog Character</strong>: A <strong>Drift</strong> knob applies a slow per-voice pitch drift (up to &plusmn;5 cents) with an independent rate per voice, for an analog feel.</li>
     <li><strong>Voice / Global</strong>:
         <ul>
-            <li><strong>Voice Mode</strong>: Choose between <strong>Poly</strong> for chords, <strong>Unison</strong> for thick, stacked lead and bass sounds, or <strong>Dual</strong>.</li>
+            <li><strong>Voice Mode</strong>: <strong>Poly</strong> for chords, <strong>Unison</strong>, <strong>Dual</strong>, <strong>Supersaw</strong> and <strong>Drift</strong> for thick, stacked lead and bass sounds, and <strong>Mono</strong> for a single voice that a new note takes over, the way a monosynth plays.</li>
             <li><strong>Portamento</strong>: Smoothly glides between notes.</li>
             <li><strong>Pan Spread</strong>: Spreads voices across the stereo field for a wider sound.</li>
             <li><strong>Gain / Fader / Pan</strong>: Output stage of the device; see <em>Gain Staging</em> above.</li>
@@ -474,6 +507,20 @@
     <li><strong>Global</strong>: LPF/HPF shaping, stereo pan spread, and the usual Gain/Fader/Pan output stage.</li>
 </ul>
 
+<h3>Piano Synth V2</h3>
+<p>A second, larger piano, voiced against a recording of a Yamaha CP88. Where the Piano Synth runs a waveguide — one delay line standing in for the whole string — this one runs a bank of resonators, one per partial, so each partial can be given its own decay and its own place in the harmonic series.</p>
+<p>That is what a real string does and what a single waveguide cannot: high partials die away long before low ones, stiffness pushes each partial progressively sharp of a perfect multiple, a struck unison decays in two stages as the strings fall out of step, and the lowest fundamental is radiated so weakly that the note is carried by its harmonics instead.</p>
+<ul>
+    <li><strong>Hammer Hardness</strong>: how hard the hammer is, from felt to something closer to wood. It sets which partials the strike excites, so it changes the attack rather than simply the level of the top end.</li>
+    <li><strong>Richness</strong>: how many partials are given to the note, trading weight against CPU.</li>
+    <li><strong>Release Time</strong>: how quickly the dampers stop a note when the key is released.</li>
+    <li><strong>Decay</strong> and <strong>Double Decay</strong>: the length of the tail, and how pronounced the two-stage decay of a struck unison is.</li>
+    <li><strong>Brightness</strong>: the balance of the partials, from a mellow upright to a bright grand.</li>
+    <li><strong>Inharmonicity</strong>: string stiffness, which pushes the upper partials sharp. It is what makes a piano sound like a piano rather than like an organ.</li>
+    <li><strong>Unison Detune</strong>: how far the strings of a unison are detuned against each other, which is where the beating and the shimmer come from.</li>
+    <li><strong>Stretch Tuning</strong>: the octave stretch a piano tuner applies to keep the stretched partials in agreement across the keyboard.</li>
+</ul>
+
 <h3>Kick808</h3>
 <p>A TR-808-style bass drum. Where the Drum Synth's kick follows the 909 lineage — a pitch-swept oscillator under an amplitude envelope — this one models the 808's bridged-T network as a high-Q resonator that the trigger pulse rings. That is what gives it the very long, near-pure sub tail, and it means overlapping hits sum into the ringing tail instead of cutting it off.</p>
 <p>It is deliberately a <em>pitched, monophonic</em> instrument rather than a drum machine voice, because the 808 kick is played as a bass line at least as often as it is played as a drum. Notes are one-shot: <strong>Decay</strong> owns the tail and a note off does not cut it, exactly like the hardware. Only <em>Stop all notes</em> chokes a ringing hit.</p>
@@ -516,6 +563,14 @@
     <li><strong>Automation</strong>: Its Volume and Pan can be ridden from a track over MIDI CC, so assign a track to it as you would to an instrument.</li>
 </ul>
 
+<h3>Mixer</h3>
+<p>Opened from <code>Devices => Mixer...</code>, the Mixer shows every device in the rack side by side as channel strips, so a whole mix can be balanced without opening each device in turn.</p>
+<ul>
+    <li><strong>Strips</strong>: each carries the same <strong>Gain</strong>, <strong>Fader</strong> and <strong>Pan</strong> controls as the device's own dialog — Gain trims the device into its insert effects, the Fader balances it, Pan places it — plus its level meter and clip LED. A strip is labelled with the device name and the tracks that play it.</li>
+    <li><strong>Buttons</strong>: <strong>Device</strong> opens the instrument's editor, <strong>Insert FX</strong> its own effect rack, and <strong>Sends</strong> its levels to the master send effects.</li>
+    <li><strong>Clear clips</strong>: resets every latched clip LED at once, so a pass can be checked from a clean slate.</li>
+</ul>
+
 <h2>Synchronization</h2>
 <p>Noteahead can be synchronized with external audio hosts and MIDI hardware. These options are available in <code>Settings => MIDI => Synchronization</code>.</p>
 <ul>
@@ -549,13 +604,23 @@
             <li><strong>Accuracy</strong>: Offline rendering ensures sample-accurate timing and full reproduction of all internal instrument behaviors, including complex automations.</li>
             <li><strong>Render Mode</strong>: <strong>Master Mix</strong> writes the whole mix; <strong>Individual Tracks</strong> writes one file per track that uses an internal device, which is how you get stems for an external DAW.</li>
             <li><strong>Audio Settings</strong>: Format (WAV or FLAC), sample rate, bit depth (16/24/32-bit PCM or 32-bit float, depending on format) and <strong>Quality</strong> (1x, 2x or 4x oversampling).</li>
-            <li><strong>Export Options</strong>: <strong>Normalize audio</strong> to a target level, <strong>Trim duration</strong> to a given length, and <strong>Analyze loudness</strong> to get a LUFS, LRA and dBTP report after the render.</li>
+            <li><strong>Export Options</strong>: <strong>Normalize audio</strong> to a target level, <strong>Trim duration</strong> to a given length, <strong>Fade out</strong> over the last seconds of the render, <strong>Silence</strong> to leave a stretch of digital black after the tail, and <strong>Analyze loudness</strong> to get a LUFS, LRA and dBTP report after the render.</li>
             <li><strong>Metadata</strong>: Title, artist, album, date, genre, track number and comment are stored with the song and written into the exported file.</li>
             <li><strong>Song-Specific</strong>: All of these options are saved with the song, like the tags, so one song can never inherit another's trim length. A new song starts from FLAC, 48 kHz, 24-bit, 4x quality with loudness analysis on.</li>
         </ul>
     </li>
     <li><strong>Delay Calculator</strong>: Quickly find millisecond values for various beat divisions based on the current BPM.</li>
     <li><strong>Note Frequency Calculator</strong>: Reference tool for sound design and tuning.</li>
+    <li><strong>Gain Converter</strong>: Converts decibels to a linear multiplier, for reading gear and plugin documentation that quotes one when Noteahead asks for the other.</li>
 </ul>
+
+<h2>Appearance</h2>
+<p><code>Settings => Theme</code> sets the colors the editor is drawn in.</p>
+<ul>
+    <li><strong>Accent</strong>: the highlight color used across the interface, from dialog headings to the labels above every knob.</li>
+    <li><strong>Cursor</strong>: the color of the editor cursor.</li>
+    <li><strong>Accent blend</strong>: how far the track and automation colors are pulled towards the accent color. 0 % keeps the original palette, 100 % puts every color on the accent hue.</li>
+</ul>
+<p>Under <code>Settings => General</code>: the number of lines visible in the editor, the track header font size, <strong>Pattern Peek</strong>, how automations are drawn (<strong>Tint</strong> or <strong>Curve</strong>, and the curve's line thickness), and the gain staging target the Device Rack meters mark.</p>
 
 <p class="footer">Noteahead is licensed under the GNU GPLv3.</p>

@@ -87,11 +87,15 @@ All Arctic Music Project songs:
 - Sample-Accurate Timing
   - Jitter-free and drift-free internal timing strategy.
 - High-Precision Offline Renderer
-  - Export songs to WAV with sample-accurate timing, preserving all automations and parameters.
+  - Export songs to WAV or FLAC with sample-accurate timing, preserving all automations and parameters. Master mix or per-track stems, up to 4x oversampling, optional normalization, trim, fade out, tail silence and a LUFS/LRA/dBTP loudness report.
 - Native Audio Backend Selector
   - Explicit support for **ALSA**, **PulseAudio**, and **JACK** with optional transport synchronization.
+- Scalable Playback Quality
+  - Oversampling for realtime playback is selectable (1x/2x/4x) independently of the export, and playback can be spread across CPU cores. Offline rendering always uses all cores.
 - Lightweight & Scalable
   - Fully scalable UI with a Debian package size of around 1 MB.
+- Themable UI
+  - Accent and cursor colors, plus an accent blend that pulls the track and automation palette towards the accent hue. Pattern Peek and the automation drawing style (Tint or Curve) are configurable too.
 
 ### Internal Instruments (Virtual Device Rack)
 - Virtual Device Rack
@@ -99,7 +103,7 @@ All Arctic Music Project songs:
   - Per-slot level meter with a gain staging marker, a load readout, and a clip LED that latches on any full-scale output until clicked.
   - Faders run from -inf to +10 dB, with unity three quarters up the throw, on devices and Sampler pads alike.
 - Synth
-  - Polyphonic VA synthesizer (up to 6 voices) with dual oscillators, multi-mode filters, ADSR/Mod EGs, LFO, and built-in Delay.
+  - Polyphonic VA synthesizer (up to 6 voices) with three oscillators at organ footages (32'..2'), a digital Multi engine, multi-mode filters, ADSR/Mod EGs, two LFOs that can modulate a single oscillator's pitch, Poly/Unison/Dual/Supersaw/Drift/Mono voice modes, and a built-in Delay.
 - Wavetable Synth
   - 8-voice wavetable synthesizer with two independent wavetable oscillators (Classic and Spectral sets), noise generator, cascaded LPF/HPF filters, Amp and Mod EGs, LFO, and Poly/Unison voice modes with stereo pan spread. Features 2× oversampling and portamento.
 - Bass Synth
@@ -110,6 +114,8 @@ All Arctic Music Project songs:
   - 16-pad internal sampler with WAV support, dual filters, and per-sample panning/volume.
 - Piano Synth
   - Physically modelled (waveguide) piano with brightness, decay, inharmonicity, LPF/HPF shaping, release, and stereo pan spread.
+- Piano Synth V2
+  - A larger physically modelled piano, voiced against a Yamaha CP88 recording. A bank of resonators, one per partial, so that stiffness, per-partial decay, the two-stage decay of a struck unison and the weakly radiated bass fundamental are each modelled on their own. Hammer Hardness, Richness, Brightness, Inharmonicity, Unison Detune, Double Decay and Stretch Tuning.
 - Kick808
   - TR-808-style bass drum built on a pulse-excited resonator, sweeping from a short click to a long sub boom. Pitched and monophonic, so Key Track and Glide let it play bass lines as well as drums, with Tuning, Tone, Decay, Drive and a pitch envelope.
 - String & Voice
@@ -120,6 +126,8 @@ All Arctic Music Project songs:
   - Groups other devices so a whole set is mixed and processed as one entity, with its own insert effects, Volume, Gain and Pan. Members keep their own reverb sends, Sub Mixers can be nested, and Volume/Pan can be ridden from a track over MIDI CC.
 - Dynamic Routing
   - Per-device Effect Sends for flexible mixing.
+- Mixer View
+  - Every device side by side as channel strips, with the same Gain, Fader and Pan as the device's own dialog, its meter and clip LED, and shortcuts to the device, its insert rack and its sends.
 
 ### Effects Racks
 - Master and Per-Device Effect Racks
@@ -137,7 +145,9 @@ All Arctic Music Project songs:
 - Endless Reverb
   - Large ambient reverb built on an 8-line modulated Householder FDN with input diffusion, plus a Freeze switch for an infinite tail.
 - Compressor
-  - Feed-forward compressor with soft-knee interpolation, lookahead support, and real-time gain reduction metering.
+  - Feed-forward compressor with soft-knee interpolation, lookahead support, Peak/RMS detection, side-chain source selection, and real-time gain reduction metering.
+- Multiband Compressor
+  - Three bands split by Linkwitz-Riley crossovers that sum back flat, with per-band threshold, ratio, knee, attack, release, makeup, bypass, solo and gain reduction metering. The side chain source is split by the same crossovers.
 - Auto Ducker
   - Side-chain driven level rider with Threshold, Knee, Attack, Hold and Release. Amount is signed, so the same effect ducks the signal out of the way or lifts it with the side chain.
 - Limiter
@@ -150,16 +160,26 @@ All Arctic Music Project songs:
   - Valve preamp stage with a Bias control for the operating point, so the same drive can run from nearly symmetric to hard against cutoff, plus Triode/Pentode curves, a tilt Tone control and oversampled shaping.
 - Drive
   - Overdrive with Drive amount, dry/wet Mix and output Gain, in Soft (tanh), Hard (clip), Fold (wavefolder) and Dist algorithms.
+- Bass Grinder
+  - Split-band bass preamp distortion: Split keeps the fundamental out of an asymmetric diode clipper so a kick or a bass stays weighty while the band above it is ground up, with Blend, Drive, a Color voicing and a three-band tone stack.
+- Wave Designer
+  - Transient shaper with Attack and Sustain, level-independent by design, plus Gain, Mix and a gain meter. Not a compressor: it acts on how sharply the signal changes, never on how loud it is.
+- Stereo Exciter
+  - Aural exciter that distorts the band above Tune and adds the harmonics back, for air and detail that was never in the signal. Odd/even Timbre blend, Harmonics, Mix and a Solo mode.
+- Stereo Enhancer
+  - Psychoacoustic "psycho EQ" with saturated bass harmonics, a midrange dip, a top band and a side-only Spread that leaves a mono source mono.
 - Chorus
   - Stereo chorus with rate, depth, delay, width, and LPF/HPF shaping.
 - Delay
   - Studio-standard delay with feedback, tempo sync, and Mono/Ping-Pong/Tape modes.
+- Auto Filter
+  - Cutoff and resonance sweeps that belong to the rack rather than to the instrument. LPF/HPF/BPF/Notch at 12 or 24 dB/oct, two LFOs with the Synth's waveforms and tempo sync (one on the cutoff, one on the resonance), an envelope follower with attack and release, bipolar non-linear intensities, a stereo phase offset for wide sweeps, gain and mix.
 - Panner & Auto Panner
   - Static stereo panning plus an LFO-driven auto panner.
 - All-Pass Filter
   - Multi-stage all-pass filter for phase shaping.
 - Metering & Analysis
-  - LUFS loudness meter, dBTP true-peak meter, and a real-time analyzer (RTA).
+  - LUFS loudness meter with a live gated integrated reading, dBTP true-peak meter, and a real-time analyzer (RTA).
 - Integrated Effects
   - Includes High-Pass/Low-Pass filters and Panning/Volume utilities.
 
@@ -170,6 +190,8 @@ All Arctic Music Project songs:
   - Linear, Sine wave, and Random modulation for MIDI CCs and Pitch Bend.
 - Pattern-Based Sequencing
   - Flexible play order management with independent pattern lengths.
+- Track & Column Management
+  - Move tracks and note columns left or right, wrapping around the ends, and delete a column. Deleting is a soft delete: adding a column back restores the most recently deleted one with its notes, automations and mixer settings, and the columns left behind keep their own.
 - Arpeggiator & Chords
   - Integrated arpeggiator with multiple patterns (Up, Down, Random) and customizable chord offsets.
 - MIDI Side-Chain
@@ -191,7 +213,7 @@ All Arctic Music Project songs:
 - Audio Recorder
   - Direct-to-disk recording from the selected audio source.
 - Calculators
-  - Built-in Delay time and Note frequency calculators.
+  - Built-in Delay time, Note frequency and dB-to-linear Gain converters.
 - Experimental MIDI Import
   - Initial support for importing Standard MIDI Files.
 
@@ -290,7 +312,7 @@ Noteahead ships with a complete user manual, available in the application under 
 
 The manual source lives in [`src/view/qml/Manual.html`](src/view/qml/Manual.html).
 
-A quick keyboard shortcut reference is also available under **Help => Shortcuts...**.
+A quick keyboard shortcut reference is also available under **Help => Shortcuts...**, and **Help => What's New...** shows what changed in the current version.
 
 The section below is only a quick start — the manual is the authoritative reference.
 
@@ -302,7 +324,7 @@ The section below is only a quick start — the manual is the authoritative refe
 **1) Give a track a sound.** Click the settings icon on a track header to open **Track Settings**. A track plays either an external MIDI instrument or one of Noteahead's internal devices:
 
 * **External MIDI**: pick the MIDI output port and channel of your synth or drum machine. Devices are hot-plugged, so they appear as they come online.
-* **Internal device**: click **Device Rack...** in the same dialog (also under **Devices => Device rack...**), press **(+)** on a free slot, pick an instrument from the **Device Gallery** — Synth, Wavetable Synth, Bass Synth, Drum Synth, Sampler, Piano Synth, String & Voice, String Ensemble or Sub Mixer — and then select its internal port (e.g. *Noteahead Synth 1*) back in Track Settings. Nothing external is needed; Noteahead renders these itself.
+* **Internal device**: click **Device Rack...** in the same dialog (also under **Devices => Device rack...**), press **(+)** on a free slot, pick an instrument from the **Device Gallery** — Synth, Wavetable Synth, Bass Synth, Drum Synth, Sampler, Piano Synth, Piano Synth V2, Kick 808, String & Voice, String Ensemble or Sub Mixer — and then select its internal port (e.g. *Noteahead Synth 1*) back in Track Settings. Nothing external is needed; Noteahead renders these itself.
 
 **2) Set up the track.** Click the track name to rename it. `[+]`/`[-]` in the track header adds or removes note columns.
 
@@ -312,7 +334,7 @@ The section below is only a quick start — the manual is the authoritative refe
 
 **5) Build the song.** In the *Pattern* section, the **PAT** spinner selects the pattern being edited (increase it to create a new one) and **LEN** sets its length in lines — each pattern can have its own. Click the pattern name to rename it. In the *Song* section, **POS** selects the position in the play order, **PAT** the pattern assigned to it, and **LEN** the song length. Right-click a position button to mark it as skipped.
 
-**6) Mix.** Each device rack slot has **Insert FX** for its own effect rack, **Sends** for the shared send effects, and a fader with a level meter and clip LED for gain staging. The master rack is under **Effects => Master effect rack...**.
+**6) Mix.** Each device rack slot has **Insert FX** for its own effect rack, **Sends** for the shared send effects, and a fader with a level meter and clip LED for gain staging. **Devices => Mixer...** shows every device side by side as channel strips for balancing the whole thing at once. The master rack is under **Effects => Master effect rack...**.
 
 **7) Export.** **File => Render audio...** renders offline to WAV or FLAC, either as a master mix or as per-track stems, with optional normalization and a loudness report. **File => Export MIDI file...** writes an SMF Type 1 file including automations.
 
@@ -325,7 +347,7 @@ Each note column line has four fields:
 * **Note**: pitch and octave, or `OFF` for a note off event.
 * **Velocity**: `000`..`127`.
 * **Delay**: sub-line timing offset for humanizing.
-* **Pan**: `000`..`127`, sent as MIDI CC #10. Only on the first note column of a track; the others show `---`.
+* **Pan**: `000`..`127`, sent as MIDI CC #10, on any note column and on any line, with or without a note. MIDI CC #10 is channel-wide, so if several columns carry a pan value on the same line their average is what gets sent — for independently panned parts use separate tracks or the Panner rack effect.
 
 ### Context menu
 
