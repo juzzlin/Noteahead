@@ -124,6 +124,12 @@ public:
     Q_INVOKABLE bool canBeSaved() const;
 
     virtual Q_INVOKABLE quint64 columnCount(quint64 trackIndex) const;
+    //! Indices of the columns of a track, in display order. A column's index is its identity: it
+    //! does not change when other columns are deleted or moved, so it is not a position.
+    using ColumnIndexList = QList<quint64>;
+    virtual Q_INVOKABLE ColumnIndexList columnIndices(quint64 trackIndex) const;
+    virtual quint64 columnPositionByIndex(quint64 trackIndex, quint64 columnIndex) const;
+    virtual quint64 columnIndexByPosition(quint64 trackIndex, quint64 columnPosition) const;
     virtual Q_INVOKABLE quint64 lineCount(quint64 patternId) const;
 
     virtual Q_INVOKABLE QString currentFileName() const;
@@ -218,7 +224,12 @@ public:
     virtual Q_INVOKABLE bool requestDigitSetAtCurrentPosition(quint8 digit);
 
     virtual Q_INVOKABLE void requestNewColumn(quint64 trackIndex);
+    //! Deletes the last column of the given track.
     virtual Q_INVOKABLE void requestColumnDeletion(quint64 trackIndex);
+    //! Deletes the column the cursor is on.
+    virtual Q_INVOKABLE void requestCurrentColumnDeletion();
+    virtual Q_INVOKABLE void requestColumnMoveLeft();
+    virtual Q_INVOKABLE void requestColumnMoveRight();
     virtual Q_INVOKABLE void requestNewTrackToRight();
     virtual Q_INVOKABLE void requestNewTrackToLeft();
     virtual Q_INVOKABLE void requestTrackDeletion();
@@ -353,6 +364,7 @@ signals:
 
     void columnAdded(quint64 track);
     void columnDeleted(quint64 track);
+    void columnMoved(quint64 track, quint64 column);
     void columnNameChanged();
 
     void copyManagerStateChanged();
@@ -441,6 +453,8 @@ private:
     void logPosition() const;
 
     void notifyPositionChange(const Position & oldPosition);
+    //! Moves the cursor off a column that has just been deleted.
+    void ensureCursorIsOnLiveColumn(quint64 trackIndex);
 
     QString padVelocityToThreeDigits(QString velocity) const;
 

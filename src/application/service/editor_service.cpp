@@ -658,7 +658,7 @@ EditorService::MidiNoteList EditorService::midiNotesAtPosition(quint64 patternId
         return midiNoteList;
     }
 
-    for (quint64 column = 0; column < m_song->columnCount(trackIndex); column++) {
+    for (auto && column : columnIndices(trackIndex)) {
         if (m_mixerService && !m_mixerService->shouldColumnPlay(trackIndex, column)) {
             continue;
         }
@@ -742,6 +742,28 @@ EditorService::TrackIndexList EditorService::trackIndices() const
     std::ranges::transform(m_song->trackIndices(), std::back_inserter(result),
                            [](std::size_t index) { return static_cast<quint64>(index); });
     return result;
+}
+
+EditorService::ColumnIndexList EditorService::columnIndices(quint64 trackIndex) const
+{
+    EditorService::ColumnIndexList result;
+    try {
+        std::ranges::transform(m_song->columnIndices(trackIndex), std::back_inserter(result),
+                               [](std::size_t index) { return static_cast<quint64>(index); });
+    } catch (...) {
+        juzzlin::L(TAG).warning() << "Cannot get column indices for track, index=" << trackIndex;
+    }
+    return result;
+}
+
+quint64 EditorService::columnPositionByIndex(quint64 trackIndex, quint64 columnIndex) const
+{
+    return m_song->columnPositionByIndex(trackIndex, columnIndex).value_or(0);
+}
+
+quint64 EditorService::columnIndexByPosition(quint64 trackIndex, quint64 columnPosition) const
+{
+    return m_song->columnIndexByPosition(trackIndex, columnPosition).value_or(0);
 }
 
 quint64 EditorService::trackPositionByIndex(quint64 trackIndex) const
@@ -1075,7 +1097,7 @@ bool EditorService::isColumnVisible(quint64 track, quint64 column) const
 
 bool EditorService::isTrackVisible(quint64 track) const
 {
-    for (quint64 column = 0; column < columnCount(track); column++) {
+    for (auto && column : columnIndices(track)) {
         if (isColumnVisible(track, column)) {
             return true;
         }
@@ -1308,12 +1330,69 @@ void EditorService::requestColumnDeletion(quint64 trackIndex)
 
     if (m_song->deleteColumn(trackIndex)) {
         const auto oldPosition = m_state.cursorPosition;
-        if (oldPosition.track == trackIndex && m_state.cursorPosition.column >= m_song->columnCount(trackIndex)) {
-            m_state.cursorPosition.column--;
-        }
+        ensureCursorIsOnLiveColumn(trackIndex);
         notifyPositionChange(oldPosition);
         emit columnDeleted(trackIndex);
         updateScrollBar();
+        setIsModified(true);
+    }
+}
+
+void EditorService::ensureCursorIsOnLiveColumn(quint64 trackIndex)
+{
+    if (m_state.cursorPosition.track == trackIndex && !m_song->columnPositionByIndex(trackIndex, m_state.cursorPosition.column).has_value()) {
+        // The column under the cursor was the one deleted, so fall back to the last one
+        m_state.cursorPosition.column = columnIndexByPosition(trackIndex, m_song->columnCount(trackIndex) - 1);
+    }
+}
+
+void EditorService::requestCurrentColumnDeletion()
+{
+    const auto trackIndex = m_state.cursorPosition.track;
+    const auto columnIndex = m_state.cursorPosition.column;
+    juzzlin::L(TAG).debug() << "Deletion of column " << columnIndex << " requested on track " << trackIndex;
+
+    m_selectionService->clear();
+    m_undoStack->clear();
+
+    if (m_song->deleteColumn(trackIndex, columnIndex)) {
+        const auto oldPosition = m_state.cursorPosition;
+        ensureCursorIsOnLiveColumn(trackIndex);
+        notifyPositionChange(oldPosition);
+        emit columnDeleted(trackIndex);
+        updateScrollBar();
+        setIsModified(true);
+    } else {
+        emit statusTextRequested(tr("Cannot delete the only note column"));
+    }
+}
+
+void EditorService::requestColumnMoveLeft()
+{
+    const auto trackIndex = m_state.cursorPosition.track;
+    const auto columnIndex = m_state.cursorPosition.column;
+    juzzlin::L(TAG).debug() << "Moving column " << columnIndex << " left on track " << trackIndex;
+
+    if (m_song->moveColumnLeft(trackIndex, columnIndex)) {
+        m_selectionService->clear();
+        emit columnMoved(trackIndex, columnIndex);
+        notifyPositionChange(m_state.cursorPosition);
+        ensureFocusedColumnIsVisible();
+        setIsModified(true);
+    }
+}
+
+void EditorService::requestColumnMoveRight()
+{
+    const auto trackIndex = m_state.cursorPosition.track;
+    const auto columnIndex = m_state.cursorPosition.column;
+    juzzlin::L(TAG).debug() << "Moving column " << columnIndex << " right on track " << trackIndex;
+
+    if (m_song->moveColumnRight(trackIndex, columnIndex)) {
+        m_selectionService->clear();
+        emit columnMoved(trackIndex, columnIndex);
+        notifyPositionChange(m_state.cursorPosition);
+        ensureFocusedColumnIsVisible();
         setIsModified(true);
     }
 }
@@ -2198,7 +2277,7 @@ void EditorService::requestLinearVelocityInterpolationOnTrack(quint64 startLine,
     end.line = endLine;
 
     std::map<Position, NoteData> oldNoteDataMap;
-    for (quint64 column = 0; column < columnCount(start.track); ++column) {
+    for (auto && column : columnIndices(start.track)) {
         for (quint64 line = startLine; line <= endLine; ++line) {
             Position pos = start;
             pos.column = column;
@@ -2330,7 +2409,7 @@ void EditorService::requestLinearPanInterpolationOnTrack(quint64 startLine, quin
     end.line = endLine;
 
     std::map<Position, NoteData> oldNoteDataMap;
-    for (quint64 column = 0; column < columnCount(start.track); ++column) {
+    for (auto && column : columnIndices(start.track)) {
         for (quint64 line = startLine; line <= endLine; ++line) {
             Position pos = start;
             pos.column = column;
@@ -2412,7 +2491,7 @@ bool EditorService::requestPosition(quint64 pattern, quint64 track, quint64 colu
         return false;
     }
 
-    if (column >= m_song->columnCount(track)) {
+    if (!m_song->columnPositionByIndex(track, column).has_value()) {
         juzzlin::L(TAG).error() << "Invalid column index: " << column;
         return false;
     }
@@ -2547,7 +2626,7 @@ void EditorService::moveCursorToPrevTrack()
         // Wrap around correctly for negative index
         newTrack = (newTrack % trackCount + trackCount) % trackCount;
         m_state.cursorPosition.track = m_song->trackIndices().at(static_cast<quint64>(newTrack));
-        m_state.cursorPosition.column = m_song->columnCount(m_state.cursorPosition.track) - 1;
+        m_state.cursorPosition.column = columnIndexByPosition(m_state.cursorPosition.track, m_song->columnCount(m_state.cursorPosition.track) - 1);
         m_state.cursorPosition.lineColumn = maxLineColumn();
     }
 }
@@ -2558,7 +2637,7 @@ void EditorService::moveCursorToNextTrack()
         quint64 newTrack = *currentTrack + 1;
         newTrack %= m_song->trackIndices().size();
         m_state.cursorPosition.track = m_song->trackIndices().at(newTrack);
-        m_state.cursorPosition.column = 0;
+        m_state.cursorPosition.column = columnIndexByPosition(m_state.cursorPosition.track, 0);
         m_state.cursorPosition.lineColumn = 0;
     }
 }
@@ -2601,8 +2680,8 @@ void EditorService::requestCursorLeft()
     if (m_state.cursorPosition.lineColumn) {
         m_state.cursorPosition.lineColumn--;
     } else {
-        if (m_state.cursorPosition.column) {
-            m_state.cursorPosition.column--;
+        if (const auto columnPosition = columnPositionByIndex(m_state.cursorPosition.track, m_state.cursorPosition.column); columnPosition) {
+            m_state.cursorPosition.column = columnIndexByPosition(m_state.cursorPosition.track, columnPosition - 1);
             m_state.cursorPosition.lineColumn = maxLineColumn();
         } else {
             moveCursorToPrevTrack();
@@ -2621,8 +2700,8 @@ void EditorService::requestCursorRight()
         m_state.cursorPosition.lineColumn++;
     } else {
         m_state.cursorPosition.lineColumn = 0;
-        if (m_state.cursorPosition.column + 1 < m_song->columnCount(m_state.cursorPosition.track)) {
-            m_state.cursorPosition.column++;
+        if (const auto columnPosition = columnPositionByIndex(m_state.cursorPosition.track, m_state.cursorPosition.column); columnPosition + 1 < m_song->columnCount(m_state.cursorPosition.track)) {
+            m_state.cursorPosition.column = columnIndexByPosition(m_state.cursorPosition.track, columnPosition + 1);
         } else {
             moveCursorToNextTrack();
         }
@@ -2644,8 +2723,8 @@ void EditorService::requestColumnLeft()
 {
     juzzlin::L(TAG).debug() << "Column left requested";
     const auto oldPosition = m_state.cursorPosition;
-    if (oldPosition.column) {
-        m_state.cursorPosition.column--;
+    if (const auto columnPosition = columnPositionByIndex(oldPosition.track, oldPosition.column); columnPosition) {
+        m_state.cursorPosition.column = columnIndexByPosition(oldPosition.track, columnPosition - 1);
         notifyPositionChange(oldPosition);
         ensureFocusedColumnIsVisible();
     }
@@ -2655,8 +2734,8 @@ void EditorService::requestColumnRight(bool isSelecting)
 {
     juzzlin::L(TAG).debug() << "Column right requested";
     const auto oldPosition = m_state.cursorPosition;
-    if (oldPosition.column + 1 < m_song->columnCount(oldPosition.track)) {
-        m_state.cursorPosition.column++;
+    if (const auto columnPosition = columnPositionByIndex(oldPosition.track, oldPosition.column); columnPosition + 1 < m_song->columnCount(oldPosition.track)) {
+        m_state.cursorPosition.column = columnIndexByPosition(oldPosition.track, columnPosition + 1);
     } else if (!isSelecting) {
         moveCursorToNextTrack();
     }
@@ -2685,7 +2764,7 @@ quint64 EditorService::trackWidthInUnits(quint64 trackIndex) const
 
 quint64 EditorService::columnPositionInUnits(quint64 trackIndex, quint64 columnIndex) const
 {
-    return trackPositionInUnits(trackIndex) + columnIndex;
+    return trackPositionInUnits(trackIndex) + columnPositionByIndex(trackIndex, columnIndex);
 }
 
 quint64 EditorService::trackPositionInUnits(quint64 trackIndex) const
@@ -2700,7 +2779,7 @@ quint64 EditorService::trackPositionInUnits(quint64 trackIndex) const
 
 int EditorService::onScreenColumnPositionInUnits(quint64 trackIndex, quint64 columnIndex) const
 {
-    return onScreenTrackPositionInUnits(trackIndex) + static_cast<int>(columnIndex);
+    return onScreenTrackPositionInUnits(trackIndex) + static_cast<int>(columnPositionByIndex(trackIndex, columnIndex));
 }
 
 int EditorService::onScreenTrackPositionInUnits(quint64 trackIndex) const

@@ -290,6 +290,7 @@ FocusScope {
     function _connectSignals() {
         editorService.columnAdded.connect(track => _refreshLayout());
         editorService.columnDeleted.connect(track => _refreshLayout());
+        editorService.columnMoved.connect((track, column) => _refreshLayout());
         editorService.columnNameChanged.connect(_updateColumnHeaders);
         editorService.horizontalScrollChanged.connect(_updateTracksOnHorizontalScroll);
         editorService.songChanged.connect(_changeSong);

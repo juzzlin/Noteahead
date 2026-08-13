@@ -472,7 +472,7 @@ Pattern::EventList Pattern::renderToEvents(AutomationServiceS automationService,
 
     // Automation events from AutomationService
     for (auto && track : m_trackOrder) {
-        for (size_t column = 0; column < track->columnCount(); column++) {
+        for (auto && column : track->columnIndices()) {
             std::ranges::copy(automationService->renderToEventsByColumn(m_index, track->index(), column, startTick, ticksPerLine, linesPerBeat), std::back_inserter(eventList));
         }
     }

@@ -107,6 +107,23 @@ Menu {
     }
     MenuSeparator {}
     Action {
+        text: qsTr("Move column to the left")
+        enabled: !UiService.isPlaying()
+        onTriggered: editorService.requestColumnMoveLeft()
+    }
+    Action {
+        text: qsTr("Move column to the right")
+        enabled: !UiService.isPlaying()
+        onTriggered: editorService.requestColumnMoveRight()
+    }
+    MenuSeparator {}
+    Action {
+        text: qsTr("Delete current column")
+        enabled: !UiService.isPlaying()
+        onTriggered: editorService.requestCurrentColumnDeletion()
+    }
+    MenuSeparator {}
+    Action {
         text: qsTr("Add MIDI CC automation...")
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestColumnAddMidiCcAutomationDialog()

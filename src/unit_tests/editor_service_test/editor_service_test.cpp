@@ -783,6 +783,97 @@ void EditorServiceTest::test_requestColumnDeletion_shouldDeleteColumn()
     QCOMPARE(editorService.columnCount(0), 1);
 }
 
+void EditorServiceTest::test_requestCurrentColumnDeletion_middleColumn_shouldKeepIndicesOfRemainingColumns()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorService.requestNewColumn(0);
+    editorService.requestNewColumn(0);
+    QSignalSpy columnDeletedSpy { &editorService, &EditorService::columnDeleted };
+
+    QVERIFY(editorService.requestPosition(0, 0, 1, 0, 0));
+    editorService.requestCurrentColumnDeletion();
+
+    QCOMPARE(columnDeletedSpy.count(), 1);
+    QCOMPARE(editorService.columnIndices(0), EditorService::ColumnIndexList({ 0, 2 }));
+    // The cursor was on the deleted column, so it falls back to the last one
+    QCOMPARE(editorService.position().column, 2);
+    QVERIFY(editorService.isModified());
+}
+
+void EditorServiceTest::test_requestCurrentColumnDeletion_onlyColumn_shouldFail()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+    QSignalSpy columnDeletedSpy { &editorService, &EditorService::columnDeleted };
+    QSignalSpy statusTextSpy { &editorService, &EditorService::statusTextRequested };
+
+    editorService.requestCurrentColumnDeletion();
+
+    QCOMPARE(columnDeletedSpy.count(), 0);
+    QCOMPARE(statusTextSpy.count(), 1);
+    QCOMPARE(editorService.columnCount(0), 1);
+}
+
+void EditorServiceTest::test_requestColumnMoveLeft_shouldChangeOrderButKeepCursorOnColumn()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorService.requestNewColumn(0);
+    QSignalSpy columnMovedSpy { &editorService, &EditorService::columnMoved };
+
+    QVERIFY(editorService.requestPosition(0, 0, 1, 0, 0));
+    editorService.requestColumnMoveLeft();
+
+    QCOMPARE(columnMovedSpy.count(), 1);
+    QCOMPARE(editorService.columnIndices(0), EditorService::ColumnIndexList({ 1, 0 }));
+    // The cursor stays on the column it moved, which is now the leftmost one
+    QCOMPARE(editorService.position().column, 1);
+    QCOMPARE(editorService.columnPositionByIndex(0, 1), 0);
+}
+
+void EditorServiceTest::test_requestColumnMoveRight_lastColumn_shouldDoNothing()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorService.requestNewColumn(0);
+    QSignalSpy columnMovedSpy { &editorService, &EditorService::columnMoved };
+
+    QVERIFY(editorService.requestPosition(0, 0, 1, 0, 0));
+    editorService.requestColumnMoveRight();
+
+    QCOMPARE(columnMovedSpy.count(), 0);
+    QCOMPARE(editorService.columnIndices(0), EditorService::ColumnIndexList({ 0, 1 }));
+}
+
+void EditorServiceTest::test_cursorNavigation_columnDeleted_shouldSkipDeletedColumn()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorService.requestNewColumn(0);
+    editorService.requestNewColumn(0);
+    QVERIFY(editorService.requestPosition(0, 0, 1, 0, 0));
+    editorService.requestCurrentColumnDeletion();
+
+    // Columns 0 and 2 are left, so moving right off column 0 has to land on column 2
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+    editorService.requestColumnRight(false);
+    QCOMPARE(editorService.position().column, 2);
+
+    editorService.requestColumnLeft();
+    QCOMPARE(editorService.position().column, 0);
+}
+
+void EditorServiceTest::test_columnPositionInUnits_columnMoved_shouldFollowOrder()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorService.requestNewColumn(0);
+    QCOMPARE(editorService.onScreenColumnPositionInUnits(0, 1), 1);
+
+    QVERIFY(editorService.requestPosition(0, 0, 1, 0, 0));
+    editorService.requestColumnMoveLeft();
+
+    // The column keeps its index but is drawn in its new place
+    QCOMPARE(editorService.onScreenColumnPositionInUnits(0, 1), 0);
+    QCOMPARE(editorService.onScreenColumnPositionInUnits(0, 0), 1);
+}
+
 void EditorServiceTest::test_requestNewTrackToRight_shouldAddNewTrack()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };

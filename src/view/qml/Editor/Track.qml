@@ -131,12 +131,6 @@ Rectangle {
     function updateColumnHeaders(): void {
         columnContainer.updateColumnHeaders();
     }
-    function addColumn(): void {
-        columnContainer.addColumn();
-    }
-    function deleteColumn(): void {
-        columnContainer.deleteColumn();
-    }
     function _clearColumns(): void {
         columnContainer.clearColumns();
     }
@@ -165,32 +159,27 @@ Rectangle {
             _noteColumnCount = editorService.columnCount(_index);
             _createNoteColumns();
         }
-        function addColumn(): void {
-            _noteColumnCount = editorService.columnCount(_index);
-            const noteColumn = _createNoteColumn(_noteColumnCount - 1);
-            _noteColumns.push(noteColumn);
-            noteColumn.setPosition(editorService.position);
-            resize(rootItem.width, rootItem.height);
-        }
-        function deleteColumn(): void {
-            _noteColumns[_noteColumns.length - 1].destroy();
-            _noteColumns.pop();
-            _noteColumnCount = editorService.columnCount(_index);
-            resize(rootItem.width, rootItem.height);
+        // A column's index is its identity, not its place on screen: _noteColumns is in display
+        // order, so a column has to be looked up by index rather than indexed into directly
+        function _noteColumnByIndex(columnIndex: int): var {
+            return _noteColumns.find(noteColumn => noteColumn.index() === columnIndex);
         }
         function setColumnMuted(columnIndex: int, muted: bool): void {
-            if (_noteColumns[columnIndex]) {
-                _noteColumns[columnIndex].setMuted(muted);
+            const noteColumn = _noteColumnByIndex(columnIndex);
+            if (noteColumn) {
+                noteColumn.setMuted(muted);
             }
         }
         function setColumnSoloed(columnIndex: int, soloed: bool): void {
-            if (_noteColumns[columnIndex]) {
-                _noteColumns[columnIndex].setSoloed(soloed);
+            const noteColumn = _noteColumnByIndex(columnIndex);
+            if (noteColumn) {
+                noteColumn.setSoloed(soloed);
             }
         }
         function setColumnVelocityScale(columnIndex: int, value: int): void {
-            if (_noteColumns[columnIndex]) {
-                _noteColumns[columnIndex].setVelocityScale(value);
+            const noteColumn = _noteColumnByIndex(columnIndex);
+            if (noteColumn) {
+                noteColumn.setVelocityScale(value);
             }
         }
         function clearMixerSettings(): void {
@@ -225,19 +214,19 @@ Rectangle {
                 noteColumn.setVelocityScale(mixerService.columnVelocityScale(_index, noteColumn.index()));
             });
         }
-        function _noteColumnX(index: int): int {
-            return _noteColumnWidth() * index;
+        function _noteColumnX(columnPosition: int): int {
+            return _noteColumnWidth() * columnPosition;
         }
         function _noteColumnWidth(): int {
             return width / _noteColumnCount;
         }
-        function _createNoteColumn(columnIndex: int): var {
+        function _createNoteColumn(columnIndex: int, columnPosition: int): var {
             const noteColumnWidth = _noteColumnWidth();
             const noteColumnHeight = columnContainer.height;
             const noteColumn = noteColumnComponent.createObject(columnContainer);
             noteColumn.width = noteColumnWidth;
             noteColumn.height = noteColumnHeight;
-            noteColumn.x = _noteColumnX(columnIndex);
+            noteColumn.x = _noteColumnX(columnPosition);
             noteColumn.setLocation(_patternIndex, _index, columnIndex);
             noteColumn.setPositionBar(_positionBar);
             noteColumn.leftClicked.connect((lineIndex, x, y) => {
@@ -272,20 +261,17 @@ Rectangle {
         }
         function _createNoteColumns(): void {
             _noteColumns = [];
-            const noteColumnWidth = _noteColumnWidth();
-            const noteColumnHeight = columnContainer.height;
-            for (let col = 0; col < _noteColumnCount; col++) {
-                const noteColumn = _createNoteColumn(col);
-                _noteColumns.push(noteColumn);
-            }
+            editorService.columnIndices(_index).forEach((columnIndex, columnPosition) => {
+                _noteColumns.push(_createNoteColumn(columnIndex, columnPosition));
+            });
         }
         function resize(width: int, height: int): void {
             columnContainer.width = width;
             columnContainer.height = height;
             const noteColumnWidth = _noteColumnWidth();
             const noteColumnHeight = height;
-            _noteColumns.forEach(noteColumn => {
-                noteColumn.x = _noteColumnX(noteColumn.index());
+            _noteColumns.forEach((noteColumn, columnPosition) => {
+                noteColumn.x = _noteColumnX(columnPosition);
                 noteColumn.resize(noteColumnWidth, noteColumnHeight);
             });
         }

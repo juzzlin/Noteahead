@@ -745,7 +745,7 @@ QString Application::buildAudioFileName() const
             if (m_mixerService->shouldTrackPlay(trackIndex)) {
                 QStringList soloedColumnNames;
                 if (m_mixerService->hasSoloedColumns(trackIndex)) {
-                    for (quint64 columnIndex = 0; columnIndex < m_editorService->columnCount(trackIndex); columnIndex++) {
+                    for (auto && columnIndex : m_editorService->columnIndices(trackIndex)) {
                         if (m_mixerService->isColumnSoloed(trackIndex, columnIndex)) {
                             if (const auto & columnName = m_editorService->columnName(trackIndex, columnIndex); !columnName.isEmpty()) {
                                 soloedColumnNames << columnName;

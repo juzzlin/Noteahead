@@ -60,7 +60,7 @@ NoteDataManipulator::ChangedPositions NoteDataManipulator::interpolateVelocityOn
         const Interpolator interpolator { start.line, end.line, static_cast<double>(startValue), static_cast<double>(endValue) };
         for (auto line = start.line; line <= end.line; line++) {
             auto targetPosition = start;
-            for (size_t column = 0; column < locked->columnCount(targetPosition.track); column++) {
+            for (auto && column : locked->columnIndices(targetPosition.track)) {
                 targetPosition.column = column;
                 targetPosition.line = line;
                 if (const auto noteData = locked->noteDataAtPosition(targetPosition); noteData && noteData->type() == NoteData::Type::NoteOn) {
@@ -106,7 +106,7 @@ NoteDataManipulator::ChangedPositions NoteDataManipulator::interpolatePanOnTrack
         const Interpolator interpolator { start.line, end.line, static_cast<double>(startValue), static_cast<double>(endValue) };
         for (auto line = start.line; line <= end.line; line++) {
             auto targetPosition = start;
-            for (size_t column = 0; column < locked->columnCount(targetPosition.track); column++) {
+            for (auto && column : locked->columnIndices(targetPosition.track)) {
                 targetPosition.column = column;
                 targetPosition.line = line;
                 if (const auto noteData = locked->noteDataAtPosition(targetPosition); noteData) {
