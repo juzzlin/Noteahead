@@ -49,6 +49,12 @@ New features:
 * Add Play, Stop and Rewind to the Song menu
   - F5, F6 and F8 also work while a dialog is open, unlike the toolbar
 
+* Add Delete current column, Move column to the left and Move column to
+  the right to the Column context menu
+  - A deleted column is only hidden: adding a column back restores it
+    with its notes, automations and mixer settings
+  - The remaining columns keep their automations and mixer settings
+
 * Accept pan on every note column instead of only the first one
   - MIDI CC 10 is channel-wide, so values on the same line are averaged
   - Pan interpolation now targets the current column, or all columns on a track
