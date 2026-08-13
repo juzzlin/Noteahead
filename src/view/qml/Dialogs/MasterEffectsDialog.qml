@@ -110,14 +110,56 @@ AnimatedDialog {
                     effectRackController.revision;
                     return effectRackController.effectType(index);
                 }
+
+                Menu {
+                    id: manageMenu
+                    MenuItem {
+                        text: qsTr("Move Up")
+                        enabled: index > 0
+                        onClicked: effectRackController.moveEffectUp(index)
+                    }
+                    MenuItem {
+                        text: qsTr("Move Down")
+                        enabled: index < effectRackController.effectCount - 1
+                        onClicked: effectRackController.moveEffectDown(index)
+                    }
+                    MenuItem {
+                        text: qsTr("Move to Top")
+                        enabled: index > 0
+                        onClicked: effectRackController.moveEffectToTop(index)
+                    }
+                    MenuItem {
+                        text: qsTr("Move to Bottom")
+                        enabled: index < effectRackController.effectCount - 1
+                        onClicked: effectRackController.moveEffectToBottom(index)
+                    }
+                    MenuSeparator {}
+                    MenuItem {
+                        text: qsTr("Export Settings...")
+                        onClicked: UiService.requestExportEffectSettings(index, effectType)
+                    }
+                    MenuItem {
+                        text: qsTr("Import Settings...")
+                        onClicked: UiService.requestImportEffectSettings(index)
+                    }
+                }
                 MouseArea {
                     id: mouseArea
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
+                    // The buttons on the row take the left button themselves, but they do not want
+                    // the right one, so it falls through to here wherever it is pressed on the row
+                    acceptedButtons: Qt.LeftButton | Qt.RightButton
                     onEntered: effectListView.hoveredIndex = index
                     onExited: effectListView.hoveredIndex = -1
-                    onClicked: {
+                    onClicked: mouse => {
+                        if (mouse.button === Qt.RightButton) {
+                            if (effectType !== "") {
+                                manageMenu.popup();
+                            }
+                            return;
+                        }
                         effectListView.hoveredIndex = -1;
                         if (effectType === effectRackController.allPassFilterType) {
                             allPassFilterDialog.effectIndex = index;
@@ -241,43 +283,11 @@ AnimatedDialog {
                         ToolTip.text: qsTr("Enable/disable the effect")
                     }
                     Button {
+                        id: manageButton
                         text: qsTr("Manage")
                         Layout.preferredWidth: 80
                         visible: effectType !== ""
-                        onClicked: manageMenu.open()
-                        Menu {
-                            id: manageMenu
-                            y: parent.height
-                            MenuItem {
-                                text: qsTr("Move Up")
-                                enabled: index > 0
-                                onClicked: effectRackController.moveEffectUp(index)
-                            }
-                            MenuItem {
-                                text: qsTr("Move Down")
-                                enabled: index < effectRackController.effectCount - 1
-                                onClicked: effectRackController.moveEffectDown(index)
-                            }
-                            MenuItem {
-                                text: qsTr("Move to Top")
-                                enabled: index > 0
-                                onClicked: effectRackController.moveEffectToTop(index)
-                            }
-                            MenuItem {
-                                text: qsTr("Move to Bottom")
-                                enabled: index < effectRackController.effectCount - 1
-                                onClicked: effectRackController.moveEffectToBottom(index)
-                            }
-                            MenuSeparator {}
-                            MenuItem {
-                                text: qsTr("Export Settings...")
-                                onClicked: UiService.requestExportEffectSettings(index, effectType)
-                            }
-                            MenuItem {
-                                text: qsTr("Import Settings...")
-                                onClicked: UiService.requestImportEffectSettings(index)
-                            }
-                        }
+                        onClicked: manageMenu.popup(manageButton, 0, manageButton.height)
                     }
                     Button {
                         Layout.preferredWidth: 32

@@ -56,6 +56,10 @@ New features:
   - The remaining columns keep their automations and mixer settings
   - Moving past either end wraps around
 
+* Open the Manage menu by right-clicking a row on the device rack, the
+  master effects and the device insert effects
+  - The menu opens at the cursor, anywhere on the row
+
 * Add Move track to the left and Move track to the right to the Track
   context menu
   - Moving past either end wraps around

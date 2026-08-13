@@ -122,14 +122,34 @@ AnimatedDialog {
                     return deviceRackController.deviceClipped(index);
                 }
 
+                Menu {
+                    id: manageMenu
+                    MenuItem {
+                        text: qsTr("Export Settings...")
+                        onClicked: UiService.requestExportDeviceSettings(index, deviceName, deviceTypeName)
+                    }
+                    MenuItem {
+                        text: qsTr("Import Settings...")
+                        onClicked: UiService.requestImportDeviceSettings(index)
+                    }
+                }
                 MouseArea {
                     id: mouseArea
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
+                    // The buttons on the row take the left button themselves, but they do not want
+                    // the right one, so it falls through to here wherever it is pressed on the row
+                    acceptedButtons: Qt.LeftButton | Qt.RightButton
                     onEntered: deviceListView.hoveredIndex = index
                     onExited: deviceListView.hoveredIndex = -1
-                    onClicked: {
+                    onClicked: mouse => {
+                        if (mouse.button === Qt.RightButton) {
+                            if (deviceType !== "") {
+                                manageMenu.popup();
+                            }
+                            return;
+                        }
                         deviceListView.hoveredIndex = -1;
                         if (deviceType === "") {
                             UiService.requestDeviceGalleryDialog(index);
@@ -223,22 +243,11 @@ AnimatedDialog {
                     }
 
                     Button {
+                        id: manageButton
                         text: qsTr("Manage")
                         Layout.preferredWidth: 80
                         visible: deviceType !== ""
-                        onClicked: manageMenu.open()
-                        Menu {
-                            id: manageMenu
-                            y: parent.height
-                            MenuItem {
-                                text: qsTr("Export Settings...")
-                                onClicked: UiService.requestExportDeviceSettings(index, deviceName, deviceTypeName)
-                            }
-                            MenuItem {
-                                text: qsTr("Import Settings...")
-                                onClicked: UiService.requestImportDeviceSettings(index)
-                            }
-                        }
+                        onClicked: manageMenu.popup(manageButton, 0, manageButton.height)
                     }
 
                     Button {
