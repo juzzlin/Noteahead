@@ -129,13 +129,24 @@ void SynthTest::test_polyphony_shouldActiveMultipleVoices()
 
 void SynthTest::test_presets_shouldLoadCorrectValues()
 {
+    // Read the expected values out of the preset rather than repeating them here. A test that
+    // hardcodes one patch's numbers has to be edited whenever that patch is voiced, and says
+    // nothing about loading itself; this asserts that every value a preset names arrives on the
+    // device, for every preset. The patches themselves are covered by synth_presets_test.
     SynthDevice synth { "Test Synth" };
-    synth.loadPreset(0, 1); // Fat Bass
 
-    QCOMPARE(synth.vco1Waveform(), PolyBlepOscillator::Waveform::Saw);
-    QCOMPARE(synth.mixVco2(), 0.7f);
-    QCOMPARE(synth.lpfCutoff(), 0.25f);
-    QCOMPARE(synth.voiceMode(), SynthDevice::VoiceMode::Unison);
+    int checked = 0;
+    for (int index = 1; index < static_cast<int>(SynthPresets::presets().size()); index++) {
+        const auto & preset = SynthPresets::presets().at(static_cast<size_t>(index));
+        synth.loadPreset(0, index);
+        for (auto && [name, expected] : preset.parameters) {
+            const auto parameter = synth.parameter(name);
+            QVERIFY2(parameter.has_value(), (preset.name + ": " + name).c_str());
+            QVERIFY2(std::abs(parameter->get().value() - expected) < 0.0001f, (preset.name + ": " + name).c_str());
+            checked++;
+        }
+    }
+    QVERIFY(checked > 0);
 }
 
 void SynthTest::test_midiCc_shouldUpdateParameters()
@@ -185,22 +196,32 @@ void SynthTest::test_presetMidiCcReset_shouldRestorePresetValues()
 {
     SynthDevice synth { "Test Synth" };
 
-    // 1. Initial manual state
+    // Any preset that sets a cutoff of its own will do, found rather than named, so that voicing a
+    // patch cannot break this test.
+    int preset = -1;
+    float presetCutoff = 0.0f;
+    for (int index = 1; index < static_cast<int>(SynthPresets::presets().size()); index++) {
+        const auto & parameters = SynthPresets::presets().at(static_cast<size_t>(index)).parameters;
+        if (const auto cutoff = parameters.find("lpfCutoff"); cutoff != parameters.end() && cutoff->second < 0.9f) {
+            preset = index;
+            presetCutoff = cutoff->second;
+            break;
+        }
+    }
+    QVERIFY(preset > 0);
+
     synth.setLpfCutoff(1.0f);
 
-    // 2. Load "Fat Bass" preset (Cutoff = 0.25)
-    synth.loadPreset(0, 1);
-    QCOMPARE(synth.lpfCutoff(), 0.25f);
+    synth.loadPreset(0, preset);
+    QCOMPARE(synth.lpfCutoff(), presetCutoff);
 
-    // 3. Offset via MIDI CC
     synth.processMidiCc(74, 127, 0); // Cutoff to 1.0
     QCOMPARE(synth.lpfCutoff(), 1.0f);
 
-    // 4. Reset All Controllers (CC 121)
-    synth.processMidiCc(121, 0, 0);
+    synth.processMidiCc(121, 0, 0); // Reset All Controllers
 
-    // 5. Should restore to PRESET value (0.25), not initial manual value (1.0)
-    QCOMPARE(synth.lpfCutoff(), 0.25f);
+    // Back to the preset's value, not to the value that was set by hand before it was loaded.
+    QCOMPARE(synth.lpfCutoff(), presetCutoff);
 }
 
 void SynthTest::test_lfoModulation_shouldUpdateInternalState()

@@ -15,152 +15,352 @@
 
 #include "synth_presets.hpp"
 
+#include "../../common/parameter_mapper.hpp"
+
+#include <algorithm>
+#include <cmath>
+
 namespace noteahead {
+
+namespace {
+
+// Every patch below is written in the units it is thought in -- hertz, seconds -- and converted
+// here. The list this replaced was written in raw knob positions, and it is where the two most
+// common faults in it came from: cutoffs set as though the knob were linear in frequency, which
+// left a quarter of the presets filtered down to a few tens of hertz, and modulation targets given
+// by guessed ordinal, which aimed several filter sweeps at the pitch of an oscillator that was not
+// even turned up.
+
+//! Knob position for a filter corner. This is the curve the filter itself runs on --
+//! 20 Hz * (ceiling / 20 Hz) ^ knob -- and not the one the readout uses, which differs at the very
+//! bottom of the travel. The ceiling is 20 kHz at any ordinary sample rate.
+float cutoffKnob(double hz)
+{
+    constexpr double lowest = 20.0;
+    constexpr double ceiling = 20000.0;
+    return static_cast<float>(std::log(std::clamp(hz, lowest, ceiling) / lowest) / std::log(ceiling / lowest));
+}
+
+float attackKnob(double seconds)
+{
+    return static_cast<float>(ParameterMapper::unmapExponential(seconds, 0.000001, 20.0));
+}
+
+float decayKnob(double seconds)
+{
+    return static_cast<float>(ParameterMapper::unmapExponential(seconds, 0.01, 60.0));
+}
+
+float releaseKnob(double seconds)
+{
+    return static_cast<float>(ParameterMapper::unmapExponential(seconds, 0.001, 60.0));
+}
+
+float lfoRateKnob(double hz)
+{
+    return static_cast<float>(ParameterMapper::unmapLfoFrequency(hz, 0.05, 20.0));
+}
+
+//! The intensity knobs are bipolar and their centre is off, so a depth is written as an offset
+//! from the middle rather than as an absolute position. Positive opens, negative closes.
+float intensity(double amount)
+{
+    return static_cast<float>(0.5 + amount * 0.5);
+}
+
+// Oscillator waveforms, as PolyBlepOscillator orders them.
+constexpr float Triangle = 0.0f;
+constexpr float Saw = 1.0f;
+constexpr float Square = 2.0f;
+constexpr float Sine = 3.0f;
+
+// Modulation destinations, by the ordinal each enum actually persists.
+constexpr float ModCutoff = 3.0f;
+constexpr float LfoPitch = 0.0f;
+constexpr float LfoCutoff = 2.0f;
+
+// Voice modes.
+constexpr float Mono = 5.0f;
+
+} // namespace
 
 const std::vector<SynthPreset> & SynthPresets::presets()
 {
-    static const std::vector<SynthPreset> presetList = {
-        // --- BASS (0-19) ---
-        { "Init", {} },
-        { "Fat Bass", { { "vco1Waveform", 1.0f }, { "vco2Waveform", 1.0f }, { "voiceMode", 1.0f }, { "voiceDepth", 0.15f }, { "mixLevel1", 1.0f }, { "mixLevel2", 0.7f }, { "lpfCutoff", 0.25f }, { "lpfResonance", 0.3f }, { "ampDecay", 0.45f }, { "ampSustain", 0.4f }, { "ampRelease", 0.3f } } },
-        { "Sub Bass", { { "vco1Waveform", 0.0f }, { "vco2Waveform", 0.0f }, { "vco2Octave", -1.0f }, { "mixLevel1", 1.0f }, { "mixLevel2", 0.5f }, { "lpfCutoff", 0.15f }, { "ampAttack", 0.05f }, { "ampRelease", 0.4f } } },
-        { "Acid Line", { { "vco1Waveform", 1.0f }, { "lpfCutoff", 0.15f }, { "lpfResonance", 0.85f }, { "modTarget", 2.0f }, { "modIntensity", 0.9f }, { "modAttack", 0.0f }, { "modDecay", 0.42f }, { "ampDecay", 0.45f }, { "ampSustain", 0.0f } } },
-        { "Reese Bass", { { "vco1Waveform", 1.0f }, { "vco2Waveform", 1.0f }, { "voiceMode", 1.0f }, { "voiceDepth", 0.5f }, { "vco2Pitch", 12.0f }, { "lpfCutoff", 0.2f }, { "lfoTarget", 1.0f }, { "lfoIntensity", 0.7f }, { "lfoRate", 0.2f } } },
-        { "Slap Bass", { { "vco1Waveform", 2.0f }, { "vco1Shape", 0.5f }, { "modTarget", 2.0f }, { "modIntensity", 0.8f }, { "modAttack", 0.0f }, { "modDecay", 0.25f }, { "ampAttack", 0.0f }, { "ampDecay", 0.35f }, { "ampSustain", 0.0f } } },
-        { "Analog Moog", { { "vco1Waveform", 1.0f }, { "vco2Waveform", 1.0f }, { "vco2Octave", -1.0f }, { "vco2Pitch", 5.0f }, { "mixLevel1", 0.8f }, { "mixLevel2", 0.6f }, { "lpfCutoff", 0.2f }, { "lpfResonance", 0.2f }, { "ampAttack", 0.02f } } },
-        { "Dark FM Bass", { { "vco1Waveform", 0.0f }, { "vco2Waveform", 1.0f }, { "vco2Sync", 1.0f }, { "vco2Pitch", 1200.0f }, { "modTarget", 1.0f }, { "modIntensity", 0.75f }, { "lpfCutoff", 0.3f }, { "ampDecay", 0.4f } } },
-        { "Driving Bass", { { "vco1Waveform", 1.0f }, { "multiMode", 3.0f }, { "multiLevel", 0.4f }, { "multiShape", 0.2f }, { "lpfCutoff", 0.3f }, { "ampDecay", 0.48f } } },
-        { "Clicky Sub", { { "vco1Waveform", 0.0f }, { "modTarget", 0.0f }, { "modIntensity", 0.7f }, { "modAttack", 0.0f }, { "modDecay", 0.1f }, { "lpfCutoff", 0.1f }, { "ampAttack", 0.0f } } },
-        { "Square Bass", { { "vco1Waveform", 2.0f }, { "vco1Shape", 0.5f }, { "lfoTarget", 2.0f }, { "lfoIntensity", 0.8f }, { "lfoRate", 0.3f }, { "lpfCutoff", 0.3f }, { "ampDecay", 0.45f } } },
-        { "Dirt Bass", { { "vco1Waveform", 1.0f }, { "multiMode", 2.0f }, { "multiLevel", 0.6f }, { "multiShape", 0.4f }, { "lpfCutoff", 0.2f }, { "lpfResonance", 0.4f } } },
-        { "Organ Bass", { { "vco1Waveform", 0.0f }, { "vco2Waveform", 0.0f }, { "vco2Octave", 1.0f }, { "mixLevel1", 1.0f }, { "mixLevel2", 0.4f }, { "lpfCutoff", 0.4f } } },
-        { "Wide Sub", { { "vco1Waveform", 0.0f }, { "voiceMode", 1.0f }, { "voiceDepth", 0.1f }, { "panSpread", 0.8f }, { "lpfCutoff", 0.15f } } },
-        { "Grit Bass", { { "vco1Waveform", 1.0f }, { "vco2Sync", 1.0f }, { "vco2Pitch", 700.0f }, { "lpfCutoff", 0.25f }, { "lpfResonance", 0.5f } } },
-        { "Techno Bass", { { "vco1Waveform", 1.0f }, { "ampDecay", 0.35f }, { "ampSustain", 0.0f }, { "delayType", 2.0f }, { "delayDepth", 0.25f }, { "delayTime", 0.375f } } },
-        { "Soft Moog", { { "vco1Waveform", 1.0f }, { "vco2Waveform", 1.0f }, { "vco2Octave", -1.0f }, { "lpfCutoff", 0.15f }, { "ampAttack", 0.08f }, { "ampRelease", 0.45f } } },
-        { "Deep Sine", { { "vco1Waveform", 0.0f }, { "lpfCutoff", 0.1f }, { "lpfResonance", 0.0f }, { "ampAttack", 0.02f } } },
-        { "Mod Bass", { { "vco1Waveform", 1.0f }, { "lfoTarget", 1.0f }, { "lfoIntensity", 0.85f }, { "lfoRate", 0.6f }, { "lpfCutoff", 0.2f } } },
-        { "Reso Bass", { { "vco1Waveform", 2.0f }, { "multiMode", 2.0f }, { "multiLevel", 0.5f }, { "lpfResonance", 0.9f }, { "lpfCutoff", 0.1f } } },
+    static const std::vector<SynthPreset> presetList = [] {
+        std::vector<SynthPreset> list;
 
-        // --- LEADS (20-39) ---
-        { "Power Lead", { { "vco1Waveform", 1.0f }, { "vco2Waveform", 1.0f }, { "voiceMode", 1.0f }, { "voiceDepth", 0.3f }, { "portamento", 0.15f }, { "lpfCutoff", 0.8f }, { "delayDepth", 0.3f } } },
-        { "Sync Lead", { { "vco1Waveform", 1.0f }, { "vco2Waveform", 1.0f }, { "vco2Sync", 1.0f }, { "modTarget", 1.0f }, { "modIntensity", 0.95f }, { "modAttack", 0.6f }, { "modDecay", 0.45f }, { "lpfCutoff", 0.7f } } },
-        { "Square Lead", { { "vco1Waveform", 2.0f }, { "vco1Shape", 0.5f }, { "portamento", 0.1f }, { "delayType", 2.0f }, { "delayDepth", 0.4f }, { "delayTime", 0.5f } } },
-        { "Tri Lead", { { "vco1Waveform", 0.0f }, { "portamento", 0.25f }, { "gain", 0.7f }, { "lpfCutoff", 0.9f } } },
-        { "Folding Lead", { { "vco1Waveform", 2.0f }, { "lfoTarget", 2.0f }, { "lfoIntensity", 0.9f }, { "lfoRate", 0.4f }, { "hpfCutoff", 0.3f } } },
-        { "Soft Lead", { { "vco1Waveform", 0.0f }, { "vco2Waveform", 0.0f }, { "vco2Pitch", 10.0f }, { "ampAttack", 0.15f }, { "delayDepth", 0.5f } } },
-        { "Screamer", { { "vco1Waveform", 1.0f }, { "vco2Sync", 1.0f }, { "vco2Pitch", 3600.0f }, { "lpfResonance", 0.75f }, { "modTarget", 1.0f }, { "modIntensity", 0.8f } } },
-        { "Detuned Saw", { { "vco1Waveform", 1.0f }, { "voiceMode", 1.0f }, { "voiceDepth", 0.8f }, { "panSpread", 0.6f }, { "lpfCutoff", 0.6f } } },
-        { "Wobble Lead", { { "vco1Waveform", 1.0f }, { "lfoMode", 1.0f }, { "lfoTarget", 1.0f }, { "lfoIntensity", 0.9f }, { "lfoRate", 0.25f }, { "lpfCutoff", 0.3f } } },
-        { "Fifth Lead", { { "vco1Waveform", 1.0f }, { "vco2Waveform", 1.0f }, { "vco2Pitch", 700.0f }, { "mixLevel1", 0.8f }, { "mixLevel2", 0.8f } } },
-        { "Plastic Lead", { { "vco1Waveform", 2.0f }, { "vco1Shape", 0.85f }, { "lpfResonance", 0.6f }, { "ampDecay", 0.35f }, { "ampSustain", 0.2f } } },
-        { "Whistle", { { "vco1Waveform", 0.0f }, { "vco1Octave", 2.0f }, { "lpfResonance", 0.9f }, { "portamento", 0.3f } } },
-        { "Hero Lead", { { "vco1Waveform", 1.0f }, { "voiceMode", 1.0f }, { "voiceDepth", 0.2f }, { "portamento", 0.2f }, { "delayDepth", 0.4f }, { "delayTime", 0.333f } } },
-        { "Buzzy Lead", { { "vco1Waveform", 1.0f }, { "multiMode", 3.0f }, { "multiLevel", 0.7f }, { "multiShape", 0.1f }, { "lpfCutoff", 0.5f } } },
-        { "Ghostly", { { "vco1Waveform", 0.0f }, { "lfoTarget", 0.0f }, { "lfoIntensity", 0.6f }, { "lfoRate", 0.5f }, { "delayDepth", 0.6f }, { "delayFeedback", 0.7f } } },
-        { "Gritty Mono", { { "vco1Waveform", 2.0f }, { "multiMode", 3.0f }, { "multiLevel", 0.5f }, { "portamento", 0.1f }, { "lpfCutoff", 0.4f } } },
-        { "Classic 80s", { { "vco1Waveform", 1.0f }, { "vco2Waveform", 2.0f }, { "vco2Shape", 0.5f }, { "vco2Pitch", 8.0f }, { "lpfCutoff", 0.45f } } },
-        { "Saw Swell", { { "vco1Waveform", 1.0f }, { "ampAttack", 0.6f }, { "lfoTarget", 1.0f }, { "lfoIntensity", 0.8f }, { "lfoRate", 0.1f } } },
-        { "Space Lead", { { "vco1Waveform", 0.0f }, { "vco2Sync", 1.0f }, { "vco2Pitch", 2400.0f }, { "delayDepth", 0.7f }, { "delayType", 3.0f } } },
-        { "Aggro Sync", { { "vco1Waveform", 1.0f }, { "vco2Sync", 1.0f }, { "modTarget", 2.0f }, { "modIntensity", 0.9f }, { "modDecay", 0.35f } } },
+        list.push_back({ "Init", {} });
 
-        // --- PADS (40-59) ---
-        { "Soft Pad", { { "vco1Waveform", 0.0f }, { "vco2Waveform", 0.0f }, { "vco2Pitch", 7.0f }, { "ampAttack", 0.8f }, { "ampRelease", 0.7f }, { "lpfCutoff", 0.45f }, { "panSpread", 0.5f } } },
-        { "Deep Sea", { { "vco1Waveform", 0.0f }, { "vco2Waveform", 0.0f }, { "vco2Octave", -1.0f }, { "lfoTarget", 1.0f }, { "lfoIntensity", 0.4f }, { "lfoRate", 0.05f }, { "lpfCutoff", 0.3f }, { "ampAttack", 0.7f } } },
-        { "Saw Pad", { { "vco1Waveform", 1.0f }, { "vco2Waveform", 1.0f }, { "vco2Pitch", 5.0f }, { "ampAttack", 0.75f }, { "ampRelease", 0.6f }, { "lpfCutoff", 0.25f } } },
-        { "Strings", { { "vco1Waveform", 1.0f }, { "vco2Waveform", 1.0f }, { "vco2Pitch", 8.0f }, { "mixLevel1", 0.8f }, { "mixLevel2", 0.6f }, { "voiceMode", 0.0f }, { "ampAttack", 0.7f }, { "ampRelease", 0.65f }, { "panSpread", 0.9f }, { "lpfCutoff", 0.7f } } },
-        { "Organ Pad", { { "vco1Waveform", 0.0f }, { "vco2Waveform", 0.0f }, { "vco2Octave", 1.0f }, { "ampAttack", 0.65f }, { "ampSustain", 1.0f }, { "lpfCutoff", 0.5f } } },
-        { "Glassy", { { "vco1Waveform", 2.0f }, { "vco1Shape", 0.1f }, { "vco1Octave", 1.0f }, { "ampAttack", 0.6f }, { "delayDepth", 0.5f }, { "hpfCutoff", 0.4f } } },
-        { "Ethereal", { { "vco1Waveform", 2.0f }, { "lfoTarget", 2.0f }, { "lfoIntensity", 0.75f }, { "lfoRate", 0.1f }, { "delayDepth", 0.65f }, { "delayType", 2.0f }, { "ampAttack", 0.8f } } },
-        { "Warmth", { { "vco1Waveform", 1.0f }, { "vco2Waveform", 1.0f }, { "lpfCutoff", 0.35f }, { "ampAttack", 0.75f }, { "ampSustain", 0.9f } } },
-        { "Pulsing", { { "vco1Waveform", 1.0f }, { "lfoMode", 1.0f }, { "lfoTarget", 1.0f }, { "lfoIntensity", 0.85f }, { "lfoRate", 0.25f }, { "ampAttack", 0.6f } } },
-        { "Cloudy", { { "vco1Waveform", 1.0f }, { "voiceMode", 1.0f }, { "voiceDepth", 0.9f }, { "lpfCutoff", 0.4f }, { "ampAttack", 0.85f } } },
-        { "Vocaloid", { { "vco1Waveform", 2.0f }, { "vco1Shape", 0.8f }, { "lpfResonance", 0.85f }, { "lpfCutoff", 0.35f }, { "ampAttack", 0.7f } } },
-        { "Dreamy", { { "vco1Waveform", 0.0f }, { "lfoTarget", 0.0f }, { "lfoIntensity", 0.55f }, { "lfoRate", 0.08f }, { "delayDepth", 0.6f } } },
-        { "Ice Pad", { { "vco1Waveform", 2.0f }, { "vco1Shape", 0.05f }, { "vco1Octave", 2.0f }, { "hpfCutoff", 0.6f }, { "ampAttack", 0.75f } } },
-        { "Aurora", { { "vco1Waveform", 1.0f }, { "lfoTarget", 2.0f }, { "lfoIntensity", 0.65f }, { "lfoRate", 0.05f }, { "panSpread", 0.8f }, { "ampAttack", 0.8f } } },
-        { "Majestic", { { "vco1Waveform", 1.0f }, { "vco1Octave", 1.0f }, { "voiceMode", 1.0f }, { "voiceDepth", 0.3f }, { "ampAttack", 0.75f } } },
-        { "Airy", { { "vco1Waveform", 0.0f }, { "hpfCutoff", 0.7f }, { "ampAttack", 0.8f }, { "delayDepth", 0.4f } } },
-        { "Twilight", { { "vco1Waveform", 1.0f }, { "vco2Waveform", 0.0f }, { "ampAttack", 0.75f }, { "lpfCutoff", 0.25f } } },
-        { "Retro Pad", { { "vco1Waveform", 1.0f }, { "lfoTarget", 1.0f }, { "lfoIntensity", 0.75f }, { "lfoRate", 0.15f }, { "ampAttack", 0.65f }, { "lpfCutoff", 0.35f } } },
-        { "Darkness", { { "vco1Waveform", 1.0f }, { "vco1Octave", -1.0f }, { "lpfCutoff", 0.1f }, { "ampAttack", 0.85f } } },
-        { "Heavenly", { { "vco1Waveform", 0.0f }, { "vco1Octave", 1.0f }, { "ampAttack", 0.8f }, { "delayDepth", 0.65f }, { "delayType", 3.0f } } },
+        // --- Bass ---
 
-        // --- PLUCKS (60-79) ---
-        { "Bright Pluck", { { "vco1Waveform", 2.0f }, { "vco1Shape", 0.5f }, { "modTarget", 2.0f }, { "modIntensity", 0.85f }, { "modDecay", 0.25f }, { "ampSustain", 0.0f }, { "ampDecay", 0.4f }, { "delayDepth", 0.3f } } },
-        { "Bell", { { "vco1Waveform", 0.0f }, { "vco1Octave", 2.0f }, { "vco2Waveform", 2.0f }, { "vco2Octave", 3.0f }, { "mixLevel2", 0.4f }, { "ampSustain", 0.0f }, { "ampDecay", 0.55f }, { "delayDepth", 0.5f } } },
-        { "Short Saw", { { "vco1Waveform", 1.0f }, { "lpfCutoff", 0.3f }, { "ampSustain", 0.0f }, { "ampDecay", 0.35f } } },
-        { "Digital Pluck", { { "vco1Waveform", 2.0f }, { "multiMode", 3.0f }, { "multiLevel", 0.5f }, { "ampSustain", 0.0f }, { "ampDecay", 0.3f } } },
-        { "Woody", { { "vco1Waveform", 2.0f }, { "vco1Shape", 0.5f }, { "lpfCutoff", 0.15f }, { "modTarget", 2.0f }, { "modIntensity", 0.75f }, { "modDecay", 0.2f }, { "ampSustain", 0.0f } } },
-        { "Crystal", { { "vco1Waveform", 0.0f }, { "vco1Octave", 2.0f }, { "lfoTarget", 0.0f }, { "lfoIntensity", 0.6f }, { "delayDepth", 0.45f } } },
-        { "Perc Bass", { { "vco1Waveform", 1.0f }, { "modTarget", 2.0f }, { "modIntensity", 0.8f }, { "modDecay", 0.15f }, { "ampSustain", 0.0f }, { "ampDecay", 0.3f } } },
-        { "Stab", { { "vco1Waveform", 1.0f }, { "vco2Waveform", 1.0f }, { "vco2Pitch", 4.0f }, { "lpfCutoff", 0.45f }, { "ampSustain", 0.0f }, { "ampDecay", 0.45f } } },
-        { "Mallet", { { "vco1Waveform", 0.0f }, { "vco1Octave", 1.0f }, { "multiMode", 2.0f }, { "multiLevel", 0.3f }, { "ampSustain", 0.0f }, { "ampDecay", 0.45f } } },
-        { "Tines", { { "vco1Waveform", 0.0f }, { "vco1Octave", 1.0f }, { "vco2Waveform", 2.0f }, { "vco2Octave", 3.0f }, { "ampSustain", 0.0f }, { "ampDecay", 0.5f } } },
-        { "Koto", { { "vco1Waveform", 1.0f }, { "vco1Shape", 0.9f }, { "lpfCutoff", 0.35f }, { "ampSustain", 0.0f }, { "ampDecay", 0.4f } } },
-        { "Harp", { { "vco1Waveform", 0.0f }, { "vco2Pitch", 12.0f }, { "ampSustain", 0.0f }, { "ampDecay", 0.5f }, { "delayDepth", 0.35f } } },
-        { "Chirp", { { "vco1Waveform", 2.0f }, { "modTarget", 0.0f }, { "modIntensity", 0.9f }, { "modDecay", 0.1f }, { "ampSustain", 0.0f } } },
-        { "Bamboo", { { "vco1Waveform", 0.0f }, { "vco2Waveform", 1.0f }, { "vco2Pitch", 19.0f }, { "ampSustain", 0.0f }, { "ampDecay", 0.35f } } },
-        { "Marimba", { { "vco1Waveform", 0.0f }, { "modTarget", 0.0f }, { "modIntensity", 0.65f }, { "modDecay", 0.15f }, { "ampSustain", 0.0f }, { "ampDecay", 0.45f } } },
-        { "Clav", { { "vco1Waveform", 2.0f }, { "vco1Shape", 0.2f }, { "lpfCutoff", 0.4f }, { "ampSustain", 0.0f }, { "ampDecay", 0.4f } } },
-        { "Plastic Pluck", { { "vco1Waveform", 2.0f }, { "vco1Shape", 0.75f }, { "lpfCutoff", 0.3f }, { "ampSustain", 0.0f }, { "ampDecay", 0.35f } } },
-        { "Square Stab", { { "vco1Waveform", 2.0f }, { "lpfCutoff", 0.45f }, { "ampSustain", 0.0f }, { "ampDecay", 0.25f } } },
-        { "Glocken", { { "vco1Waveform", 0.0f }, { "vco1Octave", 3.0f }, { "ampSustain", 0.0f }, { "ampDecay", 0.6f }, { "delayDepth", 0.45f } } },
-        { "Shorty", { { "vco1Waveform", 1.0f }, { "lpfCutoff", 0.15f }, { "ampSustain", 0.0f }, { "ampDecay", 0.25f } } },
+        list.push_back({ "Fat Saw Bass", {
+                                           { "vco2Waveform", Saw },
+                                           { "vco2Pitch", 0.52f },
+                                           { "mixLevel2", 0.8f },
+                                           { "lpfCutoff", cutoffKnob(900.0) },
+                                           { "lpfResonance", 0.2f },
+                                           { "modTarget", ModCutoff },
+                                           { "modIntensity", intensity(0.45) },
+                                           { "modAttack", attackKnob(0.001) },
+                                           { "modDecay", decayKnob(0.35) },
+                                           { "ampAttack", attackKnob(0.002) },
+                                           { "ampDecay", decayKnob(0.8) },
+                                           { "ampSustain", 0.6f },
+                                           { "ampRelease", releaseKnob(0.15) },
+                                         } });
 
-        // --- KEYS (80-99) ---
-        { "Organ", { { "vco1Waveform", 2.0f }, { "vco1Shape", 0.5f }, { "vco2Waveform", 2.0f }, { "vco2Shape", 0.5f }, { "vco2Octave", 1.0f }, { "ampSustain", 1.0f } } },
-        { "Classic Poly", { { "vco1Waveform", 1.0f }, { "vco2Waveform", 1.0f }, { "vco2Pitch", 5.0f }, { "ampDecay", 0.55f }, { "ampSustain", 0.6f }, { "lpfCutoff", 0.55f } } },
-        { "Rhodesy", { { "vco1Waveform", 0.0f }, { "vco2Waveform", 2.0f }, { "vco2Shape", 0.1f }, { "vco2Octave", 1.0f }, { "ampDecay", 0.65f }, { "lpfCutoff", 0.35f } } },
-        { "Wurly", { { "vco1Waveform", 2.0f }, { "vco1Shape", 0.15f }, { "vco2Waveform", 1.0f }, { "ampDecay", 0.6f }, { "lpfCutoff", 0.3f } } },
-        { "EPiano", { { "vco1Waveform", 0.0f }, { "vco2Waveform", 0.0f }, { "vco2Octave", 1.0f }, { "vco2Pitch", 4.0f }, { "ampDecay", 0.68f }, { "lpfCutoff", 0.45f } } },
-        { "Jazz Organ", { { "vco1Waveform", 0.0f }, { "vco2Waveform", 0.0f }, { "vco2Octave", 2.0f }, { "mixLevel1", 0.8f }, { "mixLevel2", 0.6f }, { "ampSustain", 1.0f } } },
-        { "Church", { { "vco1Waveform", 1.0f }, { "vco2Waveform", 2.0f }, { "vco2Octave", 1.0f }, { "voiceMode", 1.0f }, { "ampAttack", 0.1f }, { "ampSustain", 1.0f } } },
-        { "Digital Key", { { "vco1Waveform", 2.0f }, { "multiMode", 3.0f }, { "multiLevel", 0.4f }, { "delayDepth", 0.35f } } },
-        { "Bright Keys", { { "vco1Waveform", 1.0f }, { "vco2Waveform", 1.0f }, { "vco2Pitch", 12.0f }, { "lpfCutoff", 0.7f }, { "ampDecay", 0.55f } } },
-        { "Mellow Keys", { { "vco1Waveform", 0.0f }, { "lpfCutoff", 0.25f }, { "ampAttack", 0.05f }, { "ampSustain", 0.75f } } },
-        { "Synth Brass", { { "vco1Waveform", 1.0f }, { "vco2Waveform", 1.0f }, { "vco2Pitch", 7.0f }, { "ampAttack", 0.12f }, { "ampSustain", 0.8f }, { "lpfCutoff", 0.35f }, { "modTarget", 2.0f }, { "modIntensity", 0.7f }, { "modAttack", 0.25f } } },
-        { "Brass Swell", { { "vco1Waveform", 1.0f }, { "modTarget", 2.0f }, { "modIntensity", 0.8f }, { "modAttack", 0.45f }, { "modDecay", 0.6f } } },
-        { "Detuned Keys", { { "vco1Waveform", 1.0f }, { "voiceMode", 1.0f }, { "voiceDepth", 0.35f }, { "ampSustain", 0.7f } } },
-        { "Square Keys", { { "vco1Waveform", 2.0f }, { "vco1Shape", 0.35f }, { "lfoTarget", 1.0f }, { "lfoIntensity", 0.75f }, { "lfoRate", 0.5f } } },
-        { "Analog Keys", { { "vco1Waveform", 1.0f }, { "vco2Pitch", 6.0f }, { "lpfCutoff", 0.45f }, { "ampDecay", 0.65f } } },
-        { "Vibe", { { "vco1Waveform", 0.0f }, { "vco1Octave", 1.0f }, { "lpfCutoff", 0.25f }, { "ampDecay", 0.6f } } },
-        { "Gospel", { { "vco1Waveform", 1.0f }, { "vco2Waveform", 1.0f }, { "vco2Octave", -1.0f }, { "ampSustain", 1.0f }, { "mixLevel2", 0.45f } } },
-        { "Funky", { { "vco1Waveform", 2.0f }, { "vco1Shape", 0.65f }, { "lpfResonance", 0.55f }, { "lpfCutoff", 0.55f } } },
-        { "Harpsi", { { "vco1Waveform", 2.0f }, { "vco1Shape", 0.85f }, { "ampSustain", 0.0f }, { "ampDecay", 0.45f } } },
-        { "Boutique", { { "vco1Waveform", 1.0f }, { "vco2Waveform", 1.0f }, { "vco2Pitch", 1200.0f }, { "lpfCutoff", 0.45f } } },
+        list.push_back({ "Sub Bass", {
+                                       { "vco1Waveform", Sine },
+                                       { "vco2Waveform", Triangle },
+                                       { "vco2Octave", -1.0f },
+                                       { "mixLevel2", 0.6f },
+                                       { "lpfCutoff", cutoffKnob(1200.0) },
+                                       { "ampAttack", attackKnob(0.004) },
+                                       { "ampSustain", 1.0f },
+                                       { "ampRelease", releaseKnob(0.12) },
+                                     } });
 
-        // --- FX / TEXTURE (100-119) ---
-        { "Wind", { { "multiMode", 1.0f }, { "multiLevel", 0.8f }, { "multiShape", 0.8f }, { "mixLevel1", 0.0f }, { "lfoTarget", 1.0f }, { "lfoIntensity", 0.85f }, { "lfoRate", 0.1f }, { "lpfCutoff", 0.6f }, { "ampSustain", 1.0f } } },
-        { "Rain", { { "multiMode", 3.0f }, { "multiLevel", 0.6f }, { "multiShape", 0.95f }, { "mixLevel1", 0.0f }, { "hpfCutoff", 0.65f }, { "delayDepth", 0.65f } } },
-        { "Static", { { "multiMode", 3.0f }, { "multiLevel", 0.9f }, { "multiShape", 0.1f }, { "mixLevel1", 0.0f }, { "hpfCutoff", 0.45f } } },
-        { "Engine", { { "vco1Waveform", 1.0f }, { "vco2Sync", 1.0f }, { "vco2Pitch", -2400.0f }, { "lfoTarget", 0.0f }, { "lfoIntensity", 0.75f }, { "lfoRate", 0.35f } } },
-        { "Aliens", { { "vco1Waveform", 0.0f }, { "vco2Sync", 1.0f }, { "lfoTarget", 0.0f }, { "lfoIntensity", 0.95f }, { "lfoRate", 0.65f }, { "delayDepth", 0.75f } } },
-        { "Siren", { { "vco1Waveform", 1.0f }, { "lfoTarget", 0.0f }, { "lfoIntensity", 0.9f }, { "lfoRate", 0.45f }, { "lfoWaveform", 1.0f } } },
-        { "Laser", { { "vco1Waveform", 1.0f }, { "modTarget", 0.0f }, { "modIntensity", 0.1f }, { "modDecay", 0.35f }, { "ampSustain", 0.0f } } },
-        { "UFO", { { "vco1Waveform", 0.0f }, { "vco2Sync", 1.0f }, { "lfoTarget", 1.0f }, { "lfoIntensity", 0.85f }, { "lfoRate", 0.4f }, { "delayDepth", 0.8f } } },
-        { "Rumble", { { "vco1Waveform", 1.0f }, { "vco1Octave", -1.0f }, { "lpfCutoff", 0.08f }, { "voiceMode", 1.0f }, { "voiceDepth", 0.5f } } },
-        { "Birds", { { "vco1Waveform", 0.0f }, { "vco1Octave", 2.0f }, { "lfoTarget", 0.0f }, { "lfoIntensity", 0.9f }, { "lfoRate", 0.8f }, { "lfoWaveform", 2.0f } } },
-        { "Computer", { { "vco1Waveform", 2.0f }, { "vco2Sync", 1.0f }, { "lfoTarget", 0.0f }, { "lfoIntensity", 0.95f }, { "lfoRate", 0.75f }, { "lfoWaveform", 2.0f } } },
-        { "Drone", { { "vco1Waveform", 1.0f }, { "vco2Waveform", 1.0f }, { "vco2Pitch", 3.0f }, { "ampAttack", 0.85f }, { "ampSustain", 1.0f }, { "lpfCutoff", 0.15f } } },
-        { "Sweep FX", { { "multiMode", 3.0f }, { "multiLevel", 0.5f }, { "mixLevel1", 0.0f }, { "lpfCutoff", 0.35f }, { "modTarget", 2.0f }, { "modIntensity", 1.0f }, { "modAttack", 0.85f } } },
-        { "Glitch", { { "multiMode", 3.0f }, { "multiLevel", 0.8f }, { "mixLevel1", 0.0f }, { "lfoTarget", 2.0f }, { "lfoIntensity", 0.95f }, { "lfoRate", 0.85f } } },
-        { "Ocean", { { "multiMode", 1.0f }, { "multiLevel", 0.6f }, { "multiShape", 0.7f }, { "mixLevel1", 0.0f }, { "lfoTarget", 1.0f }, { "lfoIntensity", 0.75f }, { "lfoRate", 0.05f }, { "lpfCutoff", 0.4f } } },
-        { "Alarm", { { "vco1Waveform", 2.0f }, { "lfoTarget", 0.0f }, { "lfoIntensity", 0.85f }, { "lfoRate", 0.65f }, { "lfoWaveform", 1.0f } } },
-        { "Robotic", { { "vco1Waveform", 2.0f }, { "vco2Sync", 1.0f }, { "vco2Pitch", 1200.0f }, { "lpfResonance", 0.65f }, { "lfoTarget", 2.0f } } },
-        { "Falling", { { "vco1Waveform", 1.0f }, { "modTarget", 0.0f }, { "modIntensity", 0.15f }, { "modDecay", 0.65f }, { "ampSustain", 0.0f } } },
-        { "Rising", { { "vco1Waveform", 1.0f }, { "modTarget", 0.0f }, { "modIntensity", 0.85f }, { "modDecay", 0.65f }, { "ampSustain", 0.0f } } },
-        { "Metallic", { { "vco1Waveform", 1.0f }, { "vco2Sync", 1.0f }, { "vco2Pitch", 1400.0f }, { "lpfCutoff", 0.55f } } },
+        // The sweep this is named for: the mod envelope on the cutoff, no sustain, so every note
+        // opens and closes again. The old preset of this name pointed it at VCO3's pitch instead,
+        // with VCO3 turned down, so it did nothing whatsoever.
+        list.push_back({ "Acid Line", {
+                                        { "vco1Waveform", Saw },
+                                        { "lpfCutoff", cutoffKnob(220.0) },
+                                        { "lpfResonance", 0.8f },
+                                        { "modTarget", ModCutoff },
+                                        { "modIntensity", intensity(0.75) },
+                                        { "modAttack", attackKnob(0.001) },
+                                        { "modDecay", decayKnob(0.28) },
+                                        { "modSustain", 0.0f },
+                                        { "voiceMode", Mono },
+                                        { "portamento", 0.12f },
+                                        { "ampAttack", attackKnob(0.001) },
+                                        { "ampDecay", decayKnob(0.6) },
+                                        { "ampSustain", 0.35f },
+                                        { "ampRelease", releaseKnob(0.1) },
+                                      } });
 
-        // --- OTHERS (120-126) ---
-        { "Accordion", { { "vco1Waveform", 1.0f }, { "vco2Waveform", 1.0f }, { "vco2Pitch", 3.0f }, { "ampAttack", 0.1f }, { "lpfCutoff", 0.65f } } },
-        { "Harmonica", { { "vco1Waveform", 2.0f }, { "vco1Shape", 0.45f }, { "lpfCutoff", 0.45f }, { "ampAttack", 0.08f } } },
-        { "Whistle 2", { { "vco1Waveform", 0.0f }, { "vco1Octave", 1.0f }, { "portamento", 0.35f }, { "lpfCutoff", 0.85f } } },
-        { "Bagpipes", { { "vco1Waveform", 1.0f }, { "vco2Waveform", 1.0f }, { "vco2Pitch", 1.5f }, { "voiceMode", 1.0f }, { "ampAttack", 0.15f } } },
-        { "Flute", { { "vco1Waveform", 0.0f }, { "ampAttack", 0.12f }, { "delayDepth", 0.25f }, { "lfoTarget", 0.0f }, { "lfoIntensity", 0.55f } } },
-        { "Oboe", { { "vco1Waveform", 1.0f }, { "vco1Shape", 0.75f }, { "lpfCutoff", 0.35f }, { "ampAttack", 0.1f } } },
-        { "End of Line", { { "vco1Waveform", 2.0f }, { "vco1Shape", 0.95f }, { "lpfCutoff", 0.1f }, { "delayDepth", 0.85f }, { "delayFeedback", 0.85f } } }
-    };
+        list.push_back({ "Reese", {
+                                    { "vco1Waveform", Saw },
+                                    { "vco2Waveform", Saw },
+                                    { "vco2Pitch", 0.53f },
+                                    { "mixLevel2", 1.0f },
+                                    { "lpfCutoff", cutoffKnob(1100.0) },
+                                    { "lfoTarget", LfoCutoff },
+                                    { "lfoRate", lfoRateKnob(0.35) },
+                                    { "lfoIntensity", intensity(0.25) },
+                                    { "ampAttack", attackKnob(0.01) },
+                                    { "ampSustain", 1.0f },
+                                    { "ampRelease", releaseKnob(0.2) },
+                                  } });
+
+        // --- Leads ---
+
+        list.push_back({ "Saw Lead", {
+                                       { "vco1Waveform", Saw },
+                                       { "vco2Waveform", Saw },
+                                       { "vco2Pitch", 0.51f },
+                                       { "mixLevel2", 0.7f },
+                                       { "lpfCutoff", cutoffKnob(6000.0) },
+                                       { "lpfResonance", 0.15f },
+                                       { "voiceMode", Mono },
+                                       { "portamento", 0.1f },
+                                       { "ampAttack", attackKnob(0.005) },
+                                       { "ampSustain", 0.9f },
+                                       { "ampRelease", releaseKnob(0.15) },
+                                     } });
+
+        list.push_back({ "Square Lead", {
+                                          { "vco1Waveform", Square },
+                                          { "vco1Shape", 0.35f },
+                                          { "lpfCutoff", cutoffKnob(5000.0) },
+                                          { "voiceMode", Mono },
+                                          { "portamento", 0.15f },
+                                          { "ampAttack", attackKnob(0.004) },
+                                          { "ampSustain", 0.9f },
+                                          { "ampRelease", releaseKnob(0.2) },
+                                          { "delayMix", 0.3f },
+                                          { "delayTime", 0.5f },
+                                        } });
+
+        list.push_back({ "Sync Lead", {
+                                        { "vco1Waveform", Saw },
+                                        { "vco2Waveform", Saw },
+                                        { "vco2Sync", 1.0f },
+                                        { "vco2Pitch", 0.72f },
+                                        { "mixLevel1", 0.4f },
+                                        { "mixLevel2", 1.0f },
+                                        { "lpfCutoff", cutoffKnob(8000.0) },
+                                        { "modTarget", 1.0f }, // VCO2 pitch: the sweep a sync lead is made of
+                                        { "modIntensity", intensity(0.5) },
+                                        { "modAttack", attackKnob(0.001) },
+                                        { "modDecay", decayKnob(0.5) },
+                                        { "voiceMode", Mono },
+                                        { "ampAttack", attackKnob(0.003) },
+                                        { "ampSustain", 0.85f },
+                                        { "ampRelease", releaseKnob(0.15) },
+                                      } });
+
+        // --- Pads ---
+
+        list.push_back({ "Warm Pad", {
+                                       { "vco1Waveform", Saw },
+                                       { "vco2Waveform", Saw },
+                                       { "vco2Pitch", 0.54f },
+                                       { "mixLevel2", 0.8f },
+                                       { "lpfCutoff", cutoffKnob(1800.0) },
+                                       { "panSpread", 0.8f },
+                                       { "oscillatorDrift", 0.3f },
+                                       { "ampAttack", attackKnob(0.35) },
+                                       { "ampSustain", 1.0f },
+                                       { "ampRelease", releaseKnob(1.5) },
+                                     } });
+
+        list.push_back({ "String Pad", {
+                                         { "vco1Waveform", Saw },
+                                         { "vco2Waveform", Saw },
+                                         { "vco2Pitch", 0.55f },
+                                         { "vco3Waveform", Saw },
+                                         { "vco3Octave", 1.0f },
+                                         { "mixLevel2", 0.8f },
+                                         { "mixLevel3", 0.4f },
+                                         { "lpfCutoff", cutoffKnob(3500.0) },
+                                         { "panSpread", 0.9f },
+                                         { "oscillatorDrift", 0.3f },
+                                         { "ampAttack", attackKnob(0.35) },
+                                         { "ampSustain", 1.0f },
+                                         { "ampRelease", releaseKnob(1.0) },
+                                       } });
+
+        // A pad that moves: the LFO walks the corner slowly up and down, which is the one thing a
+        // sustained patch needs so that a held chord does not stand still.
+        list.push_back({ "Sweep Pad", {
+                                        { "vco1Waveform", Saw },
+                                        { "vco2Waveform", Square },
+                                        { "vco2Pitch", 0.53f },
+                                        { "mixLevel2", 0.6f },
+                                        { "lpfCutoff", cutoffKnob(1200.0) },
+                                        { "lpfResonance", 0.35f },
+                                        { "lfoTarget", LfoCutoff },
+                                        { "lfoRate", lfoRateKnob(0.12) },
+                                        { "lfoIntensity", intensity(0.5) },
+                                        { "panSpread", 0.6f },
+                                        { "ampAttack", attackKnob(0.5) },
+                                        { "ampSustain", 1.0f },
+                                        { "ampRelease", releaseKnob(1.2) },
+                                      } });
+
+        list.push_back({ "Glass Pad", {
+                                        { "vco1Waveform", Sine },
+                                        { "vco2Waveform", Triangle },
+                                        { "vco2Octave", 1.0f },
+                                        { "mixLevel2", 0.7f },
+                                        // Above a middle C's fundamental this stops thinning the sound and starts removing it.
+                                        { "hpfCutoff", cutoffKnob(150.0) },
+                                        { "lpfCutoff", cutoffKnob(9000.0) },
+                                        { "panSpread", 0.8f },
+                                        { "ampAttack", attackKnob(0.45) },
+                                        { "ampSustain", 1.0f },
+                                        { "ampRelease", releaseKnob(1.4) },
+                                        { "delayMix", 0.25f },
+                                      } });
+
+        // --- Keys and plucks ---
+
+        list.push_back({ "Pluck", {
+                                    { "vco1Waveform", Saw },
+                                    { "lpfCutoff", cutoffKnob(500.0) },
+                                    { "lpfResonance", 0.3f },
+                                    { "modTarget", ModCutoff },
+                                    { "modIntensity", intensity(0.7) },
+                                    { "modAttack", attackKnob(0.001) },
+                                    { "modDecay", decayKnob(0.12) },
+                                    { "modSustain", 0.0f },
+                                    { "ampAttack", attackKnob(0.001) },
+                                    { "ampDecay", decayKnob(0.45) },
+                                    { "ampSustain", 0.0f },
+                                    { "ampRelease", releaseKnob(0.25) },
+                                    { "ampCurve", 0.6f },
+                                  } });
+
+        list.push_back({ "Clav", {
+                                   { "vco1Waveform", Square },
+                                   { "vco1Shape", 0.7f },
+                                   { "lpfCutoff", cutoffKnob(2500.0) },
+                                   { "lpfResonance", 0.25f },
+                                   { "hpfCutoff", cutoffKnob(200.0) },
+                                   { "modTarget", ModCutoff },
+                                   { "modIntensity", intensity(0.5) },
+                                   { "modAttack", attackKnob(0.001) },
+                                   { "modDecay", decayKnob(0.08) },
+                                   { "ampAttack", attackKnob(0.001) },
+                                   { "ampDecay", decayKnob(0.3) },
+                                   { "ampSustain", 0.1f },
+                                   { "ampRelease", releaseKnob(0.12) },
+                                   { "ampCurve", 0.6f },
+                                 } });
+
+        list.push_back({ "Organ", {
+                                    { "vco1Waveform", Sine },
+                                    { "vco2Waveform", Sine },
+                                    { "vco2Octave", 1.0f },
+                                    { "vco3Waveform", Sine },
+                                    { "vco3Octave", 2.0f },
+                                    { "mixLevel2", 0.7f },
+                                    { "mixLevel3", 0.4f },
+                                    { "ampAttack", attackKnob(0.005) },
+                                    { "ampSustain", 1.0f },
+                                    { "ampRelease", releaseKnob(0.03) },
+                                  } });
+
+        list.push_back({ "Bell", {
+                                   { "vco1Waveform", Sine },
+                                   { "vco2Waveform", Sine },
+                                   { "vco2Octave", 1.0f },
+                                   { "vco2Pitch", 0.62f },
+                                   { "mixLevel2", 0.5f },
+                                   { "lpfCutoff", cutoffKnob(7000.0) },
+                                   { "ampAttack", attackKnob(0.002) },
+                                   { "ampDecay", decayKnob(2.5) },
+                                   { "ampSustain", 0.0f },
+                                   { "ampRelease", releaseKnob(1.2) },
+                                   { "ampCurve", 0.6f },
+                                 } });
+
+        // --- Texture ---
+
+        list.push_back({ "Wobble", {
+                                     { "vco1Waveform", Saw },
+                                     { "vco2Waveform", Saw },
+                                     { "vco2Pitch", 0.53f },
+                                     { "mixLevel2", 0.9f },
+                                     { "lpfCutoff", cutoffKnob(400.0) },
+                                     { "lpfResonance", 0.6f },
+                                     { "lfoTarget", LfoCutoff },
+                                     { "lfoRate", lfoRateKnob(5.0) },
+                                     { "lfoIntensity", intensity(0.6) },
+                                     { "ampAttack", attackKnob(0.005) },
+                                     { "ampSustain", 1.0f },
+                                     { "ampRelease", releaseKnob(0.2) },
+                                   } });
+
+        list.push_back({ "Vibrato Flute", {
+                                            { "vco1Waveform", Sine },
+                                            { "vco2Waveform", Triangle },
+                                            { "mixLevel2", 0.35f },
+                                            { "lpfCutoff", cutoffKnob(4000.0) },
+                                            { "lfoTarget", LfoPitch },
+                                            { "lfoRate", lfoRateKnob(5.5) },
+                                            { "lfoIntensity", intensity(0.05) },
+                                            { "voiceMode", Mono },
+                                            { "portamento", 0.08f },
+                                            { "ampAttack", attackKnob(0.08) },
+                                            { "ampSustain", 1.0f },
+                                            { "ampRelease", releaseKnob(0.25) },
+                                          } });
+
+        return list;
+    }();
 
     return presetList;
 }
