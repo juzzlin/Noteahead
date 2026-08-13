@@ -97,6 +97,52 @@ void EditorServiceDelayTest::test_requestDigitSetAtCurrentPosition_shouldSetPan_
     QCOMPARE(editorService.panAtCurrentPosition(), 64);
 }
 
+void EditorServiceDelayTest::test_requestDigitSetAtCurrentPosition_secondColumn_shouldSetPan_whenAtPanColumn()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorService.requestNewTrackToRight();
+    editorService.requestNewColumn(0);
+
+    editorService.requestPosition(0, 0, 1, 0, 0);
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 4, 100));
+
+    // Pan is written on every column, not just on the first one
+    QVERIFY(editorService.requestPosition(0, 0, 1, 0, 6));
+    QVERIFY(editorService.isAtPanColumn());
+    QVERIFY(editorService.requestDigitSetAtCurrentPosition(1));
+    QVERIFY(editorService.requestPosition(0, 0, 1, 0, 7));
+    QVERIFY(editorService.requestDigitSetAtCurrentPosition(2));
+    QVERIFY(editorService.requestPosition(0, 0, 1, 0, 8));
+    QVERIFY(editorService.requestDigitSetAtCurrentPosition(5));
+
+    QCOMPARE(editorService.panAtCurrentPosition(), 125);
+}
+
+void EditorServiceDelayTest::test_cursorNavigation_secondColumn_shouldIncludePanColumns()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorService.requestNewTrackToRight();
+    editorService.requestNewColumn(0);
+
+    // The last sub-column of the second column is the last pan digit, not the last delay digit
+    editorService.requestPosition(0, 0, 1, 0, 5);
+    editorService.requestCursorRight();
+    QCOMPARE(editorService.position().column, 1);
+    QCOMPARE(editorService.position().lineColumn, 6);
+    QVERIFY(editorService.isAtPanColumn());
+
+    editorService.requestPosition(0, 0, 1, 0, 8);
+    QVERIFY(editorService.isAtPanColumn());
+    editorService.requestCursorRight();
+    QCOMPARE(editorService.position().column, 0);
+    QCOMPARE(editorService.position().lineColumn, 0);
+
+    // Moving back to the left lands on the second column's last pan digit
+    editorService.requestCursorLeft();
+    QCOMPARE(editorService.position().column, 1);
+    QCOMPARE(editorService.position().lineColumn, 8);
+}
+
 void EditorServiceDelayTest::test_cursorNavigation_shouldIncludeDelayColumns()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
@@ -123,7 +169,7 @@ void EditorServiceDelayTest::test_cursorNavigation_shouldIncludeDelayColumns()
     QCOMPARE(editorService.position().lineColumn, 5);
     QVERIFY(editorService.isAtDelayColumn());
 
-    // Move right to pan columns (column 0 only)
+    // Move right to pan columns
     editorService.requestCursorRight();
     QCOMPARE(editorService.position().lineColumn, 6);
     QVERIFY(editorService.isAtPanColumn());

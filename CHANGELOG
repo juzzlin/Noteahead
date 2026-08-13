@@ -49,6 +49,11 @@ New features:
 * Add Play, Stop and Rewind to the Song menu
   - F5, F6 and F8 also work while a dialog is open, unlike the toolbar
 
+* Accept pan on every note column instead of only the first one
+  - MIDI CC 10 is channel-wide, so values on the same line are averaged
+  - Pan interpolation now targets the current column, or all columns on a track
+  - Pan is sent on the line's own tick, so a delayed note starts already panned
+
 Bug fixes:
 
 * Fix the Wavetable Synth modulating far deeper than its Intensity knobs read

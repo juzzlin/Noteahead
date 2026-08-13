@@ -61,6 +61,12 @@ private slots:
 
     void test_renderToEvents_chordAutomation_shouldRenderChordNotes();
 
+    void test_renderToEvents_panSetOnFirstColumn_shouldRenderPanEvent();
+    void test_renderToEvents_panSetOnSecondColumn_shouldRenderPanEvent();
+    void test_renderToEvents_panSetOnTwoColumns_shouldRenderAveragedPanEvent();
+    void test_renderToEvents_panSetWithoutNote_shouldRenderPanEvent();
+    void test_renderToEvents_panSetOnDelayedNote_shouldRenderPanEventBeforeNote();
+
     void test_renderToEvents_transposeSet_shouldApplyTranspose();
     void test_renderToEvents_columnTransposeSet_shouldApplyTranspose();
     void test_renderToEvents_midiDelaySet_shouldApplyDelay();

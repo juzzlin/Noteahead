@@ -84,7 +84,9 @@ Song::EventList SideChainService::renderToEvents(const Song & song, const Song::
     }
 
     processedEvents.insert(processedEvents.end(), sideChainEvents.begin(), sideChainEvents.end());
-    std::sort(processedEvents.begin(), processedEvents.end(), [](const auto & a, const auto & b) {
+    // Stable on purpose: the order of the events sharing a tick carries meaning, e.g. a pan event
+    // has to stay in front of the note it applies to.
+    std::stable_sort(processedEvents.begin(), processedEvents.end(), [](const auto & a, const auto & b) {
         return a->tick() < b->tick();
     });
 

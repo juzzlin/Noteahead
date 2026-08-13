@@ -88,7 +88,6 @@ NoteDataManipulator::ChangedPositions NoteDataManipulator::interpolatePanOnColum
         const Interpolator interpolator { start.line, end.line, static_cast<double>(startValue), static_cast<double>(endValue) };
         for (auto line = start.line; line <= end.line; line++) {
             auto targetPosition = start;
-            targetPosition.column = 0;
             targetPosition.line = line;
             if (const auto noteData = locked->noteDataAtPosition(targetPosition); noteData) {
                 noteData->setPan(static_cast<uint8_t>(std::clamp(interpolator.getValue(targetPosition.line), 0.0, 127.0)));
@@ -107,11 +106,13 @@ NoteDataManipulator::ChangedPositions NoteDataManipulator::interpolatePanOnTrack
         const Interpolator interpolator { start.line, end.line, static_cast<double>(startValue), static_cast<double>(endValue) };
         for (auto line = start.line; line <= end.line; line++) {
             auto targetPosition = start;
-            targetPosition.column = 0;
-            targetPosition.line = line;
-            if (const auto noteData = locked->noteDataAtPosition(targetPosition); noteData) {
-                noteData->setPan(static_cast<uint8_t>(std::clamp(interpolator.getValue(targetPosition.line), 0.0, 127.0)));
-                changedPositions.push_back(targetPosition);
+            for (size_t column = 0; column < locked->columnCount(targetPosition.track); column++) {
+                targetPosition.column = column;
+                targetPosition.line = line;
+                if (const auto noteData = locked->noteDataAtPosition(targetPosition); noteData) {
+                    noteData->setPan(static_cast<uint8_t>(std::clamp(interpolator.getValue(targetPosition.line), 0.0, 127.0)));
+                    changedPositions.push_back(targetPosition);
+                }
             }
         }
     }

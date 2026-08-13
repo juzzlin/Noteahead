@@ -42,11 +42,6 @@ int NoteColumnModel::rowCount(const QModelIndex & parent) const
     return parent.isValid() ? 0 : static_cast<int>(m_lines.size()) + virtualLineCount;
 }
 
-bool NoteColumnModel::isPanColumn() const
-{
-    return std::get<2>(m_columnAddress) == 0;
-}
-
 QString NoteColumnModel::noDataString() const
 {
     return "---";
@@ -94,10 +89,8 @@ QString NoteColumnModel::displayDelay(const Line & line) const
 
 QString NoteColumnModel::displayPan(const Line & line) const
 {
-    if (isPanColumn()) {
-        if (const auto noteData = line.noteData(); noteData->pan().has_value()) {
-            return QString::number(*noteData->pan()).rightJustified(3, '0', true);
-        }
+    if (const auto noteData = line.noteData(); noteData->pan().has_value()) {
+        return QString::number(*noteData->pan()).rightJustified(3, '0', true);
     }
     return noDataString();
 }

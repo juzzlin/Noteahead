@@ -94,6 +94,10 @@ public:
     static TrackU deserializeFromXml(ProjectReader & reader);
 
 private:
+    //! Pan is a track-level lane: MIDI CC 10 applies to the whole channel, so the values written on
+    //! a line by the individual columns are averaged into a single event.
+    EventList renderPanToEvents(size_t startTick, size_t ticksPerLine) const;
+
     static void deserializeColumns(ProjectReader & reader, Track & track);
 
     void initialize(size_t length, size_t columnCount);

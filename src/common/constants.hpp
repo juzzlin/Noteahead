@@ -17,6 +17,7 @@
 #define CONSTANTS_HPP
 
 #include <chrono>
+#include <cstdint>
 
 #include <QString>
 
@@ -143,6 +144,12 @@ constexpr int faderMaxMidiCcValue()
 }
 
 static_assert(faderMaxMidiCcValue() > 127 && faderMaxMidiCcValue() <= 255, "The fader's CC range has to extend past MIDI 1.0 and still fit in a byte");
+
+//! MIDI CC controller the tracker's pan column writes to.
+constexpr uint8_t panMidiCcController()
+{
+    return 10;
+}
 
 namespace RackEffectType {
 QString reverb();

@@ -87,7 +87,6 @@ public:
     void updateNoteDataAtPosition(quint64 line);
 
 private:
-    bool isPanColumn() const;
     QString displayNote(const Line & line) const;
     QString displayVelocity(const Line & line) const;
     QString displayDelay(const Line & line) const;

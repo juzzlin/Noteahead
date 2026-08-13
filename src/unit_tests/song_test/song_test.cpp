@@ -19,6 +19,8 @@
 #include "../../application/service/automation_service.hpp"
 #include "../../application/service/property_service.hpp"
 #include "../../application/service/side_chain_service.hpp"
+#include "../../common/constants.hpp"
+#include "../../domain/midi/midi_cc_data.hpp"
 #include "../../domain/tracker/auto_note_off_offset.hpp"
 #include "../../domain/tracker/column_settings.hpp"
 #include "../../domain/tracker/event.hpp"
@@ -28,8 +30,10 @@
 
 #include <QTest>
 
+#include <algorithm>
 #include <map>
 #include <set>
+#include <utility>
 #include <vector>
 
 namespace noteahead {
@@ -455,6 +459,101 @@ void SongTest::test_renderToEvents_autoNoteOffOffsetLongerThanNoteGap_shouldNotL
              QString("%1 note-off(s) landed before the note they end, first was note %2").arg(strayNoteOffs.size()).arg(strayNoteOffs.empty() ? 0 : strayNoteOffs.front()).toUtf8().constData());
     QVERIFY2(sounding.empty(),
              QString("%1 note(s) were left hanging, first was note %2").arg(sounding.size()).arg(sounding.empty() ? 0 : *sounding.begin()).toUtf8().constData());
+}
+
+namespace {
+
+//! Pan events the given song renders, as (tick, value) pairs, in list order.
+std::vector<std::pair<size_t, uint8_t>> renderPanEvents(const Song & song)
+{
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
+    std::vector<std::pair<size_t, uint8_t>> panEvents;
+    for (auto && event : events) {
+        if (event->type() == Event::Type::MidiCcData) {
+            if (const auto data = event->midiCcData(); data && data->controller() == Constants::panMidiCcController()) {
+                panEvents.emplace_back(event->tick(), data->value());
+            }
+        }
+    }
+    return panEvents;
+}
+
+} // namespace
+
+void SongTest::test_renderToEvents_panSetOnFirstColumn_shouldRenderPanEvent()
+{
+    Song song;
+    const Position notePosition = { 0, 0, 0, 0, 0 };
+    song.noteDataAtPosition(notePosition)->setAsNoteOn(60, 100);
+    song.noteDataAtPosition(notePosition)->setPan(100);
+
+    const auto panEvents = renderPanEvents(song);
+    QCOMPARE(panEvents.size(), 1);
+    QCOMPARE(panEvents.at(0).first, 0);
+    QCOMPARE(panEvents.at(0).second, 100);
+}
+
+void SongTest::test_renderToEvents_panSetOnSecondColumn_shouldRenderPanEvent()
+{
+    Song song;
+    song.addColumn(0);
+    const Position notePosition = { 0, 0, 1, 0, 0 };
+    song.noteDataAtPosition(notePosition)->setAsNoteOn(60, 100);
+    song.noteDataAtPosition(notePosition)->setPan(100);
+
+    const auto panEvents = renderPanEvents(song);
+    QCOMPARE(panEvents.size(), 1);
+    QCOMPARE(panEvents.at(0).second, 100);
+}
+
+void SongTest::test_renderToEvents_panSetOnTwoColumns_shouldRenderAveragedPanEvent()
+{
+    Song song;
+    song.addColumn(0);
+
+    const Position firstColumnPosition = { 0, 0, 0, 0, 0 };
+    song.noteDataAtPosition(firstColumnPosition)->setAsNoteOn(60, 100);
+    song.noteDataAtPosition(firstColumnPosition)->setPan(0);
+
+    const Position secondColumnPosition = { 0, 0, 1, 0, 0 };
+    song.noteDataAtPosition(secondColumnPosition)->setAsNoteOn(64, 100);
+    song.noteDataAtPosition(secondColumnPosition)->setPan(127);
+
+    // A single averaged event, as MIDI CC 10 applies to the whole channel
+    const auto panEvents = renderPanEvents(song);
+    QCOMPARE(panEvents.size(), 1);
+    QCOMPARE(panEvents.at(0).second, 64); // 127 / 2 rounded to nearest
+}
+
+void SongTest::test_renderToEvents_panSetWithoutNote_shouldRenderPanEvent()
+{
+    Song song;
+    const Position panPosition = { 0, 0, 0, 3, 0 };
+    song.noteDataAtPosition(panPosition)->setPan(20);
+
+    const auto panEvents = renderPanEvents(song);
+    QCOMPARE(panEvents.size(), 1);
+    QCOMPARE(panEvents.at(0).first, 3 * song.ticksPerLine());
+    QCOMPARE(panEvents.at(0).second, 20);
+}
+
+void SongTest::test_renderToEvents_panSetOnDelayedNote_shouldRenderPanEventBeforeNote()
+{
+    Song song;
+    const Position notePosition = { 0, 0, 0, 0, 0 };
+    song.noteDataAtPosition(notePosition)->setAsNoteOn(60, 100);
+    song.noteDataAtPosition(notePosition)->setPan(100);
+    song.noteDataAtPosition(notePosition)->setDelay(3);
+
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
+    const auto pan = std::ranges::find_if(events, [](auto && event) { return event->type() == Event::Type::MidiCcData; });
+    const auto noteOn = std::ranges::find_if(events, [](auto && event) { return event->type() == Event::Type::NoteData && event->noteData()->type() == NoteData::Type::NoteOn; });
+    QVERIFY(pan != events.end());
+    QVERIFY(noteOn != events.end());
+    // The pan is set on the line's own tick so that it is in place before the delayed note
+    QCOMPARE((*pan)->tick(), 0);
+    QCOMPARE((*noteOn)->tick(), 3);
+    QVERIFY(std::distance(events.begin(), pan) < std::distance(events.begin(), noteOn));
 }
 
 void SongTest::test_renderToEvents_playOrderSet_shouldRenderMultiplePatterns()

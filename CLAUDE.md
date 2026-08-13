@@ -55,7 +55,7 @@ The codebase is split into five layers. Logic must never leak upward (domain kno
 
 **Playback**: `PlayerService` calls `Song::renderToEvents()` → flat `EventList` → `PlayerWorker::initialize()` → `PlayerWorker` thread loops over tick-keyed `EventMap` → `MidiService` sends MIDI / `MixerService` drives internal devices.
 
-**Tracker cell display**: Each cell in `NoteColumnModel` renders as a single formatted string via `DataRole::Line`. Sub-column focus is tracked by `DataRole::LineColumn` (0 = note, 1–2 = velocity digits, 3 = delimiter, 4–5 = delay digits). The QML `NoteColumn_LineDelegate` uses pixel-offset rectangles to highlight the focused sub-column.
+**Tracker cell display**: Each cell in `NoteColumnModel` renders as a single formatted string via `DataRole::Line`. Sub-column focus is tracked by `DataRole::LineColumn` (0 = note, 1–3 = velocity digits, 4–5 = delay digits, 6–8 = pan digits; `EditorService::maxLineColumn()` is the last one). The QML `NoteColumn_LineDelegate` uses pixel-offset rectangles to highlight the focused sub-column.
 
 ## XML Serialization
 

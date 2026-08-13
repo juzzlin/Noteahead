@@ -21,8 +21,10 @@
 #include "../../common/xml/project_reader.hpp"
 #include "../../common/xml/project_writer.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../midi/midi_cc_data.hpp"
 #include "column.hpp"
 #include "column_settings.hpp"
+#include "event.hpp"
 #include "instrument.hpp"
 #include "note_data.hpp"
 #include "track.hpp"
@@ -216,9 +218,33 @@ NoteChangeList Track::transposeColumn(const Position & position, int semitones) 
     return m_columns.at(position.column)->transposeColumn(position, semitones);
 }
 
-Track::EventList Track::renderToEvents(size_t startTick, size_t ticksPerLine) const
+Track::EventList Track::renderPanToEvents(size_t startTick, size_t ticksPerLine) const
 {
     Track::EventList eventList;
+    size_t tick = startTick;
+    for (size_t line = 0; line < lineCount(); line++) {
+        size_t sum = 0;
+        size_t count = 0;
+        for (size_t columnIndex = 0; columnIndex < m_virtualColumnCount; columnIndex++) {
+            if (const auto pan = m_columns.at(columnIndex)->pan(line); pan.has_value()) {
+                sum += *pan;
+                count++;
+            }
+        }
+        if (count) {
+            const auto averagePan = static_cast<uint8_t>((sum + count / 2) / count); // Rounded to nearest
+            eventList.push_back(std::make_shared<Event>(tick, MidiCcData { index(), 0, Constants::panMidiCcController(), averagePan }));
+        }
+        tick += ticksPerLine;
+    }
+    return eventList;
+}
+
+Track::EventList Track::renderToEvents(size_t startTick, size_t ticksPerLine) const
+{
+    // The pan events come first on purpose: PlayerWorker dispatches the events of a tick in
+    // insertion order, and a note starting on the same tick has to see the new pan, not the old one.
+    Track::EventList eventList = renderPanToEvents(startTick, ticksPerLine);
     for (size_t columnIndex = 0; columnIndex < m_virtualColumnCount; columnIndex++) {
         const auto column = m_columns.at(columnIndex);
         const auto columnList = column->renderToEvents(startTick, ticksPerLine);

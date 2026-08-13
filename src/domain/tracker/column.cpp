@@ -21,7 +21,6 @@
 #include "../../common/xml/project_reader.hpp"
 #include "../../common/xml/project_writer.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../midi/midi_cc_data.hpp"
 #include "column_settings.hpp"
 #include "event.hpp"
 #include "line.hpp"
@@ -116,6 +115,19 @@ Position Column::prevNoteDataOnSameColumn(const Position & position) const
     return prevNoteDataPosition;
 }
 
+std::optional<uint8_t> Column::pan(size_t line) const
+{
+    if (line >= m_virtualLineCount) {
+        return {};
+    }
+    if (const auto lineObject = m_lines.at(line); lineObject) {
+        if (const auto noteData = lineObject->noteData(); noteData) {
+            return noteData->pan();
+        }
+    }
+    return {};
+}
+
 Column::NoteDataS Column::noteDataAtPosition(const Position & position) const
 {
     return m_lines.at(static_cast<size_t>(position.line))->noteData();
@@ -208,15 +220,9 @@ Column::EventList Column::renderToEvents(size_t startTick, size_t ticksPerLine) 
                     eventList.push_back(std::make_shared<Event>(tick, line->lineEvent()->instrumentSettings()));
                 }
             }
-            if (const auto noteData = line->noteData(); noteData->type() == NoteData::Type::NoteOn) {
-                if (index() == 0 && noteData->pan().has_value()) {
-                    eventList.push_back(std::make_shared<Event>(tick + noteData->delay(), MidiCcData { noteData->track(), noteData->column(), 10, *noteData->pan() }));
-                }
+            // Pan is rendered by the track, which averages it over the columns.
+            if (const auto noteData = line->noteData(); noteData->type() == NoteData::Type::NoteOn || noteData->type() == NoteData::Type::NoteOff) {
                 eventList.push_back(std::make_shared<Event>(tick + noteData->delay(), *noteData));
-            } else if (noteData->type() == NoteData::Type::NoteOff) {
-                eventList.push_back(std::make_shared<Event>(tick + noteData->delay(), *noteData));
-            } else if (noteData->type() == NoteData::Type::None && index() == 0 && noteData->pan().has_value()) {
-                eventList.push_back(std::make_shared<Event>(tick, MidiCcData { noteData->track(), noteData->column(), 10, *noteData->pan() }));
             }
         }
         tick += ticksPerLine;

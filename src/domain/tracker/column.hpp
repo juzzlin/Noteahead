@@ -16,7 +16,9 @@
 #ifndef COLUMN_HPP
 #define COLUMN_HPP
 
+#include <cstdint>
 #include <memory>
+#include <optional>
 #include <vector>
 
 #include "column_settings.hpp"
@@ -53,6 +55,9 @@ public:
 
     Position nextNoteDataOnSameColumn(const Position & position) const;
     Position prevNoteDataOnSameColumn(const Position & position) const;
+
+    //! Pan value written on the given line, if any. The track averages these over its columns.
+    std::optional<uint8_t> pan(size_t line) const;
 
     using NoteDataS = std::shared_ptr<NoteData>;
     NoteDataS noteDataAtPosition(const Position & position) const;

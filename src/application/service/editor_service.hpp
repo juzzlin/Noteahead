@@ -201,6 +201,8 @@ public:
     virtual Q_INVOKABLE bool isAtVelocityColumn() const;
     virtual Q_INVOKABLE bool isAtDelayColumn() const;
     virtual Q_INVOKABLE bool isAtPanColumn() const;
+    //! Index of the last sub-column of a note column: note, velocity, delay, pan.
+    virtual Q_INVOKABLE quint64 maxLineColumn() const;
     virtual Q_INVOKABLE quint8 panAtCurrentPosition() const;
     virtual Q_INVOKABLE bool isColumnVisible(quint64 track, quint64 column) const;
     virtual Q_INVOKABLE bool isTrackVisible(quint64 track) const;
@@ -261,9 +263,9 @@ public:
     //! Performs linear interpolation on velocity on currently selected columns.
     virtual Q_INVOKABLE void requestLinearVelocityInterpolationOnSelection(quint64 startLine, quint64 endLine, quint8 startValue, quint8 endValue, bool usePercentages);
 
-    //! Performs linear interpolation on pan on column 0 of the current track over given lines.
+    //! Performs linear interpolation on pan on current column over given lines.
     virtual Q_INVOKABLE void requestLinearPanInterpolationOnColumn(quint64 startLine, quint64 endLine, quint8 startValue, quint8 endValue);
-    //! Performs linear interpolation on pan on column 0 across tracks over given lines.
+    //! Performs linear interpolation on pan on all columns of the current track over given lines.
     virtual Q_INVOKABLE void requestLinearPanInterpolationOnTrack(quint64 startLine, quint64 endLine, quint8 startValue, quint8 endValue);
 
     virtual Q_INVOKABLE void setDelayOnCurrentLine(quint8 ticks);

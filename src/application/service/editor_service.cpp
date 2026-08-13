@@ -1051,7 +1051,12 @@ bool EditorService::isAtDelayColumn() const
 
 bool EditorService::isAtPanColumn() const
 {
-    return m_state.cursorPosition.column == 0 && m_state.cursorPosition.lineColumn >= 6 && m_state.cursorPosition.lineColumn <= 8;
+    return m_state.cursorPosition.lineColumn >= 6 && m_state.cursorPosition.lineColumn <= 8;
+}
+
+quint64 EditorService::maxLineColumn() const
+{
+    return 8;
 }
 
 quint8 EditorService::panAtCurrentPosition() const
@@ -2280,11 +2285,9 @@ void EditorService::requestLinearVelocityInterpolationOnSelection(quint64 startL
 void EditorService::requestLinearPanInterpolationOnColumn(quint64 startLine, quint64 endLine, quint8 startValue, quint8 endValue)
 {
     auto start = position();
-    start.column = 0;
     start.line = startLine;
 
     auto end = position();
-    end.column = 0;
     end.line = endLine;
 
     std::map<Position, NoteData> oldNoteDataMap;
@@ -2321,19 +2324,20 @@ void EditorService::requestLinearPanInterpolationOnColumn(quint64 startLine, qui
 void EditorService::requestLinearPanInterpolationOnTrack(quint64 startLine, quint64 endLine, quint8 startValue, quint8 endValue)
 {
     auto start = position();
-    start.column = 0;
     start.line = startLine;
 
     auto end = position();
-    end.column = 0;
     end.line = endLine;
 
     std::map<Position, NoteData> oldNoteDataMap;
-    for (quint64 line = startLine; line <= endLine; ++line) {
-        Position pos = start;
-        pos.line = line;
-        if (const auto noteData = m_song->noteDataAtPosition(pos); noteData) {
-            oldNoteDataMap[pos] = *noteData;
+    for (quint64 column = 0; column < columnCount(start.track); ++column) {
+        for (quint64 line = startLine; line <= endLine; ++line) {
+            Position pos = start;
+            pos.column = column;
+            pos.line = line;
+            if (const auto noteData = m_song->noteDataAtPosition(pos); noteData) {
+                oldNoteDataMap[pos] = *noteData;
+            }
         }
     }
 
@@ -2413,8 +2417,7 @@ bool EditorService::requestPosition(quint64 pattern, quint64 track, quint64 colu
         return false;
     }
 
-    const auto maxLineColumn = (column == 0) ? 8u : 5u;
-    if (lineColumn > maxLineColumn) {
+    if (lineColumn > maxLineColumn()) {
         juzzlin::L(TAG).error() << "Invalid line column index: " << lineColumn;
         return false;
     }
@@ -2545,7 +2548,7 @@ void EditorService::moveCursorToPrevTrack()
         newTrack = (newTrack % trackCount + trackCount) % trackCount;
         m_state.cursorPosition.track = m_song->trackIndices().at(static_cast<quint64>(newTrack));
         m_state.cursorPosition.column = m_song->columnCount(m_state.cursorPosition.track) - 1;
-        m_state.cursorPosition.lineColumn = (m_state.cursorPosition.column == 0) ? 8 : 5;
+        m_state.cursorPosition.lineColumn = maxLineColumn();
     }
 }
 
@@ -2600,7 +2603,7 @@ void EditorService::requestCursorLeft()
     } else {
         if (m_state.cursorPosition.column) {
             m_state.cursorPosition.column--;
-            m_state.cursorPosition.lineColumn = (m_state.cursorPosition.column == 0) ? 8 : 5;
+            m_state.cursorPosition.lineColumn = maxLineColumn();
         } else {
             moveCursorToPrevTrack();
         }
@@ -2614,8 +2617,7 @@ void EditorService::requestCursorRight()
     juzzlin::L(TAG).debug() << "Cursor right requested";
     const auto oldPosition = m_state.cursorPosition;
     // Switch line column => switch column => switch track
-    const auto maxLineColumn = (m_state.cursorPosition.column == 0) ? 8u : 5u;
-    if (m_state.cursorPosition.lineColumn < maxLineColumn) {
+    if (m_state.cursorPosition.lineColumn < maxLineColumn()) {
         m_state.cursorPosition.lineColumn++;
     } else {
         m_state.cursorPosition.lineColumn = 0;
