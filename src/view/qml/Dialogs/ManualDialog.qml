@@ -27,8 +27,6 @@ AnimatedDialog {
     visible: false
 
     readonly property string _tag: "ManualDialog"
-    //! Guards the lookup below: the manual is only searched once it has actually been laid out.
-    property bool _contentReady: false
 
     footer: DialogButtonBox {
         Button {
@@ -38,41 +36,27 @@ AnimatedDialog {
         }
     }
 
-    //! Character offset of a heading in the laid-out manual.
+    //! Scrolls to the section carrying the given anchor.
     //!
-    //! Headings are searched in document order and each search starts where the previous heading
-    //! was found, so a title that also occurs in the prose cannot capture a later section.
-    function _headingPosition(anchor: string): int {
-        const contents = manualService.tableOfContents;
-        const plainText = contentText.getText(0, contentText.length);
-        let searchFrom = 0;
-        for (let i = 0; i < contents.length; i++) {
-            const found = plainText.indexOf(contents[i].title, searchFrom);
-            if (found < 0) {
-                continue;
-            }
-            searchFrom = found + contents[i].title.length;
-            if (contents[i].anchor === anchor) {
-                return found;
-            }
-        }
-        return -1;
-    }
-
+    //! Every section is an item of its own, so this is the item's position rather than a guess at
+    //! where a heading's text ended up inside one enormous document.
     function _scrollTo(anchor: string): void {
-        if (!_contentReady) {
-            return;
+        const sections = manualService.sections;
+        for (let i = 0; i < sections.length; i++) {
+            if (sections[i].anchor === anchor) {
+                const item = sectionRepeater.itemAt(i);
+                if (!item) {
+                    return;
+                }
+                // The item's position is inside the column, which sits at the top margin
+                const target = sectionColumn.y + item.y;
+                scrollAnimation.stop();
+                scrollAnimation.to = Math.max(0, Math.min(target, contentFlickable.contentHeight - contentFlickable.height));
+                scrollAnimation.start();
+                return;
+            }
         }
-        const position = _headingPosition(anchor);
-        if (position < 0) {
-            uiLogger.warning(_tag, `No heading found for anchor '${anchor}'`);
-            return;
-        }
-        const target = contentText.positionToRectangle(position).y;
-        const flickable = contentScrollView.contentItem;
-        scrollAnimation.stop();
-        scrollAnimation.to = Math.max(0, Math.min(target, flickable.contentHeight - flickable.height));
-        scrollAnimation.start();
+        uiLogger.warning(_tag, `No section found for anchor '${anchor}'`);
     }
 
     RowLayout {
@@ -129,49 +113,75 @@ AnimatedDialog {
             color: themeService.manualRuleColor
         }
 
-        // ScrollView with a TextArea, rather than a TextEdit inside a hand-rolled Flickable: a
-        // read-only TextEdit still tracks a cursor and forces its Flickable to scroll to it on
-        // every click, which threw the position away and left gaps where it had not rendered.
-        // TextArea cooperates with the ScrollView's flickable instead.
-        ScrollView {
-            id: contentScrollView
+        // One Text per section rather than the whole manual in a single TextArea. A text editor
+        // holding a document this size renders it lazily against the flickable's viewport and keeps
+        // a cursor it insists on scrolling to, which is what left blank space above the text and
+        // threw the scroll position away. A section is an ordinary item: it is laid out once, its
+        // position is known, and there is no cursor to chase.
+        Flickable {
+            id: contentFlickable
             Layout.fillHeight: true
             Layout.fillWidth: true
             clip: true
-            contentWidth: availableWidth // No horizontal scrolling: the text wraps instead
-            ScrollBar.vertical.policy: ScrollBar.AsNeeded
+            boundsBehavior: Flickable.StopAtBounds
+            contentWidth: width // No horizontal scrolling: the text wraps instead
+            contentHeight: sectionColumn.height + 2 * sectionColumn.y
+
+            ScrollBar.vertical: ScrollBar {
+                policy: ScrollBar.AsNeeded
+            }
 
             NumberAnimation {
                 id: scrollAnimation
-                target: contentScrollView.contentItem
+                target: contentFlickable
                 property: "contentY"
                 duration: 200
                 easing.type: Easing.OutCubic
             }
 
-            TextArea {
-                id: contentText
-                readOnly: true
-                selectByMouse: true
-                textFormat: TextEdit.RichText
-                wrapMode: Text.WordWrap
-                color: themeService.noteColumnTextColor
-                text: manualService.html
-                font.pointSize: 12
-                background: null
-                leftPadding: 20
-                rightPadding: 20
-                topPadding: 20
-                bottomPadding: 20
-                onLinkActivated: link => {
-                    // In-document cross references scroll the view; everything else is a real URL
-                    if (link.startsWith("#")) {
-                        rootItem._scrollTo(link.substring(1));
-                    } else {
-                        Qt.openUrlExternally(link);
+            Column {
+                id: sectionColumn
+                x: 20
+                y: 20
+                width: contentFlickable.width - 40
+
+                Repeater {
+                    id: sectionRepeater
+                    model: manualService.sections
+
+                    // Each section is a document of its own, and a document drops the top margin of
+                    // its first block, so the air above a heading has to be real space between the
+                    // items rather than a margin in the stylesheet. A major section gets more of it
+                    // than a sub-heading, which is what makes the hierarchy readable while
+                    // scrolling. The first one needs none: the column already starts below the top.
+                    delegate: Item {
+                        required property var modelData
+                        required property int index
+                        readonly property int topMargin: index === 0 ? 0 : (modelData.level <= 2 ? 28 : 16)
+
+                        width: sectionColumn.width
+                        height: sectionText.height + topMargin
+
+                        Text {
+                            id: sectionText
+                            y: parent.topMargin
+                            width: parent.width
+                            textFormat: Text.RichText
+                            wrapMode: Text.WordWrap
+                            color: themeService.noteColumnTextColor
+                            font.pointSize: 12
+                            text: parent.modelData.html
+                            onLinkActivated: link => {
+                                // In-document cross references scroll the view; everything else is a real URL
+                                if (link.startsWith("#")) {
+                                    rootItem._scrollTo(link.substring(1));
+                                } else {
+                                    Qt.openUrlExternally(link);
+                                }
+                            }
+                        }
                     }
                 }
-                onTextChanged: rootItem._contentReady = text.length > 0
             }
         }
     }

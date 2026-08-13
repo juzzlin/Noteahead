@@ -26,8 +26,8 @@ namespace noteahead {
 
 class ThemeService;
 
-//! Prepares the bundled user manual for display: themes it, gives its headings anchors, and
-//! lists them as a table of contents.
+//! Prepares the bundled user manual for display: cuts it into one themed document per heading and
+//! lists those headings as a table of contents.
 //!
 //! The manual on disk carries no colors of its own, so the look follows the theme rather than
 //! being frozen into the markup.
@@ -35,10 +35,13 @@ class ManualService : public QObject
 {
     Q_OBJECT
 
-    //! The manual with the theme's stylesheet and heading anchors applied. Changes with the theme.
-    Q_PROPERTY(QString html READ html NOTIFY htmlChanged)
     //! One entry per heading: { title, level, anchor }. Levels are 1..3, in document order.
     Q_PROPERTY(QVariantList tableOfContents READ tableOfContents NOTIFY tableOfContentsChanged)
+    //! The manual cut into one themed document per heading: { title, level, anchor, html }, in
+    //! document order and covering the whole manual. The dialog renders one item per section, which
+    //! is what lets it scroll to a section by that item's position instead of by hunting for the
+    //! heading's text in one enormous document.
+    Q_PROPERTY(QVariantList sections READ sections NOTIFY sectionsChanged)
 
 public:
     struct Heading
@@ -48,7 +51,15 @@ public:
         QString anchor;
     };
 
+    struct Section
+    {
+        Heading heading;
+        //! The heading and everything under it, up to the next heading.
+        QString markup;
+    };
+
     using HeadingList = std::vector<Heading>;
+    using SectionList = std::vector<Section>;
     using ThemeServiceS = std::shared_ptr<ThemeService>;
 
     explicit ManualService(ThemeServiceS themeService, QObject * parent = nullptr);
@@ -57,14 +68,15 @@ public:
     //! Reads the manual from the given URL or path. Safe to call again to reload.
     Q_INVOKABLE void load(const QString & source);
 
-    QString html() const;
     QVariantList tableOfContents() const;
+    QVariantList sections() const;
 
     //! Headings in document order. Pure, so it can be exercised without touching the filesystem.
     static HeadingList parseHeadings(const QString & manual);
 
-    //! Puts a named anchor inside every heading, so links of the form "#anchor" have a target.
-    static QString injectAnchors(const QString & manual);
+    //! The manual split at every heading, in document order. Anything before the first heading goes
+    //! to the first section, so the sections concatenate back into the manual exactly.
+    static SectionList parseSections(const QString & manual);
 
     //! The anchor a heading title resolves to. Lowercased, with runs of non-alphanumerics folded
     //! into single dashes.
@@ -74,8 +86,8 @@ public:
     QString styleSheet() const;
 
 signals:
-    void htmlChanged();
     void tableOfContentsChanged();
+    void sectionsChanged();
     //! Reported instead of throwing, so a missing manual degrades to a message in the dialog.
     void loadFailed(QString reason);
 
@@ -83,9 +95,9 @@ private:
     void rebuild();
 
     ThemeServiceS m_themeService;
-    QString m_manual; //!< As read, before theming and anchors
-    QString m_html;
+    QString m_manual; //!< As read, before theming
     HeadingList m_headings;
+    SectionList m_sections;
 };
 
 } // namespace noteahead

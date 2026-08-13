@@ -31,13 +31,16 @@ private slots:
     void test_parseHeadings_entities_shouldBeDecoded();
     void test_parseHeadings_noHeadings_shouldReturnEmpty();
 
-    void test_injectAnchors_markup_shouldAddNamedAnchorsAndKeepTitles();
-    void test_injectAnchors_markup_shouldPreserveEverythingElse();
+    void test_parseSections_markup_shouldSplitAtEveryHeading();
+    void test_parseSections_preamble_shouldGoToTheFirstSection();
+    void test_parseSections_noHeadings_shouldReturnEmpty();
+    void test_bundledManual_sections_shouldCoverTheWholeManual();
+
 
     void test_load_missingFile_shouldEmitLoadFailed();
 
     void test_bundledManual_headings_shouldHaveUniqueTitles();
-    void test_bundledManual_headings_shouldAllBeReachableByAnchor();
+    void test_bundledManual_sections_shouldAllBeReachableByAnchor();
     void test_bundledManual_html_shouldCarryNoHardCodedColors();
 };
 

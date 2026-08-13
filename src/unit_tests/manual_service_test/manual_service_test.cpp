@@ -80,24 +80,53 @@ void ManualServiceTest::test_parseHeadings_noHeadings_shouldReturnEmpty()
     QVERIFY(ManualService::parseHeadings({}).empty());
 }
 
-void ManualServiceTest::test_injectAnchors_markup_shouldAddNamedAnchorsAndKeepTitles()
+void ManualServiceTest::test_parseSections_markup_shouldSplitAtEveryHeading()
 {
-    const QString manual = "<h1>Title</h1><h2>The Toolbar</h2>";
+    const auto sections = ManualService::parseSections("<h1>Title</h1><p>One</p><h2>Second</h2><p>Two</p><h3>Third</h3><p>Three</p>");
 
-    const auto anchored = ManualService::injectAnchors(manual);
-
-    QCOMPARE(anchored, QString { "<h1><a name=\"title\"></a>Title</h1><h2><a name=\"the-toolbar\"></a>The Toolbar</h2>" });
+    QCOMPARE(sections.size(), 3u);
+    QCOMPARE(sections[0].heading.title, QString { "Title" });
+    QCOMPARE(sections[0].markup, QString { "<h1>Title</h1><p>One</p>" });
+    QCOMPARE(sections[1].heading.title, QString { "Second" });
+    QCOMPARE(sections[1].heading.level, 2);
+    QCOMPARE(sections[1].markup, QString { "<h2>Second</h2><p>Two</p>" });
+    QCOMPARE(sections[2].heading.anchor, QString { "third" });
+    QCOMPARE(sections[2].markup, QString { "<h3>Third</h3><p>Three</p>" });
 }
 
-void ManualServiceTest::test_injectAnchors_markup_shouldPreserveEverythingElse()
+void ManualServiceTest::test_parseSections_preamble_shouldGoToTheFirstSection()
 {
-    const QString manual = "<p>Before</p><h2>Section</h2><ul><li>Item</li></ul>";
+    const auto sections = ManualService::parseSections("<p>Before</p><h1>Title</h1><p>After</p>");
 
-    const auto anchored = ManualService::injectAnchors(manual);
+    // Nothing may be dropped: the sections are the whole manual, in order.
+    QCOMPARE(sections.size(), 1u);
+    QCOMPARE(sections[0].markup, QString { "<p>Before</p><h1>Title</h1><p>After</p>" });
+}
 
-    QVERIFY(anchored.contains("<p>Before</p>"));
-    QVERIFY(anchored.contains("<ul><li>Item</li></ul>"));
-    QVERIFY(anchored.contains("<a name=\"section\"></a>"));
+void ManualServiceTest::test_parseSections_noHeadings_shouldReturnEmpty()
+{
+    QVERIFY(ManualService::parseSections("<p>Nothing to see here</p>").empty());
+}
+
+void ManualServiceTest::test_bundledManual_sections_shouldCoverTheWholeManual()
+{
+    const auto manual = bundledManual();
+    QVERIFY(!manual.isEmpty());
+
+    const auto sections = ManualService::parseSections(manual);
+    const auto headings = ManualService::parseHeadings(manual);
+    QCOMPARE(sections.size(), headings.size());
+
+    // The dialog scrolls to a section by the position of the item rendering it, so every table of
+    // contents entry has to have a section of its own, and the sections put back together have to
+    // be the manual again or something would be missing from the page.
+    QString rejoined;
+    for (size_t i = 0; i < sections.size(); i++) {
+        QCOMPARE(sections[i].heading.anchor, headings[i].anchor);
+        QVERIFY2(!sections[i].markup.isEmpty(), qPrintable("Empty section: " + sections[i].heading.title));
+        rejoined += sections[i].markup;
+    }
+    QCOMPARE(rejoined, manual);
 }
 
 void ManualServiceTest::test_load_missingFile_shouldEmitLoadFailed()
@@ -108,7 +137,7 @@ void ManualServiceTest::test_load_missingFile_shouldEmitLoadFailed()
     manualService.load("/nonexistent/manual.html");
 
     QCOMPARE(spy.count(), 1);
-    QVERIFY(manualService.html().isEmpty());
+    QVERIFY(manualService.sections().isEmpty());
 }
 
 void ManualServiceTest::test_bundledManual_headings_shouldHaveUniqueTitles()
@@ -128,20 +157,21 @@ void ManualServiceTest::test_bundledManual_headings_shouldHaveUniqueTitles()
     }
 }
 
-void ManualServiceTest::test_bundledManual_headings_shouldAllBeReachableByAnchor()
+void ManualServiceTest::test_bundledManual_sections_shouldAllBeReachableByAnchor()
 {
     const auto manual = bundledManual();
     QVERIFY(!manual.isEmpty());
 
-    const auto anchored = ManualService::injectAnchors(manual);
-    const auto headings = ManualService::parseHeadings(manual);
+    const auto sections = ManualService::parseSections(manual);
+    QVERIFY(sections.size() > 1);
 
+    // A cross reference of the form "#anchor" is resolved to the section carrying that anchor, so
+    // an empty or repeated anchor would leave a section unreachable.
     QSet<QString> anchors;
-    for (auto && heading : headings) {
-        QVERIFY2(!heading.anchor.isEmpty(), qPrintable("Empty anchor for: " + heading.title));
-        QVERIFY2(!anchors.contains(heading.anchor), qPrintable("Duplicate anchor: " + heading.anchor));
-        anchors.insert(heading.anchor);
-        QVERIFY2(anchored.contains("<a name=\"" + heading.anchor + "\"></a>"), qPrintable("Missing anchor: " + heading.anchor));
+    for (auto && section : sections) {
+        QVERIFY2(!section.heading.anchor.isEmpty(), qPrintable("Empty anchor for: " + section.heading.title));
+        QVERIFY2(!anchors.contains(section.heading.anchor), qPrintable("Duplicate anchor: " + section.heading.anchor));
+        anchors.insert(section.heading.anchor);
     }
 }
 

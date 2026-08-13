@@ -34,10 +34,8 @@ QRegularExpression headingExpression()
     return QRegularExpression { "<h([1-3])>(.*?)</h[1-3]>", QRegularExpression::DotMatchesEverythingOption };
 }
 
-//! Heading text as the reader will see it, with entities resolved.
-//!
-//! The dialog locates a section by searching the rendered document for its title, so a title
-//! holding "&amp;" has to be compared as "&" or that section becomes unreachable.
+//! Heading text as the reader will see it, with entities resolved, which is what the table of
+//! contents lists and what the anchor is derived from.
 QString renderedText(const QString & markup)
 {
     return markup.contains('&') ? QTextDocumentFragment::fromHtml(markup).toPlainText().simplified() : markup.simplified();
@@ -84,25 +82,30 @@ ManualService::HeadingList ManualService::parseHeadings(const QString & manual)
     return headings;
 }
 
-QString ManualService::injectAnchors(const QString & manual)
+ManualService::SectionList ManualService::parseSections(const QString & manual)
 {
-    QString anchored;
-    anchored.reserve(manual.size());
-    qsizetype copiedUpTo = 0;
+    SectionList sections;
     auto iterator = headingExpression().globalMatch(manual);
+    qsizetype sectionStart = -1;
+    Heading heading;
     while (iterator.hasNext()) {
         const auto match = iterator.next();
         const auto title = renderedText(match.captured(2));
         if (title.isEmpty()) {
             continue;
         }
-        const auto level = match.captured(1);
-        anchored += manual.mid(copiedUpTo, match.capturedStart() - copiedUpTo);
-        anchored += QString { "<h%1><a name=\"%2\"></a>%3</h%1>" }.arg(level, anchorFor(title), match.captured(2));
-        copiedUpTo = match.capturedEnd();
+        if (sectionStart >= 0) {
+            sections.push_back({ heading, manual.mid(sectionStart, match.capturedStart() - sectionStart) });
+        }
+        // Whatever precedes the first heading belongs to the first section rather than to nothing,
+        // so that the sections put back together are the manual again.
+        sectionStart = sections.empty() ? 0 : match.capturedStart();
+        heading = { title, match.captured(1).toInt(), anchorFor(title) };
     }
-    anchored += manual.mid(copiedUpTo);
-    return anchored;
+    if (sectionStart >= 0) {
+        sections.push_back({ heading, manual.mid(sectionStart) });
+    }
+    return sections;
 }
 
 QString ManualService::styleSheet() const
@@ -125,7 +128,7 @@ QString ManualService::styleSheet() const
         "  h1 { color: %2; border-bottom: 2px solid %2; }"
         "  h2 { color: %2; border-bottom: 1px solid %3; margin-top: 20px; }"
         "  h3 { color: %1; }"
-        // TextEdit has no linkColor of its own, so cross references are colored here
+        // Text has no linkColor of its own, so cross references are colored here
         "  a { color: %2; }"
         "  li { margin-bottom: 8px; }"
         "  th { color: %1; }"
@@ -155,14 +158,24 @@ void ManualService::load(const QString & source)
 void ManualService::rebuild()
 {
     m_headings = parseHeadings(m_manual);
-    m_html = m_manual.isEmpty() ? QString {} : styleSheet() + injectAnchors(m_manual);
-    emit htmlChanged();
+    m_sections = parseSections(m_manual);
     emit tableOfContentsChanged();
+    emit sectionsChanged();
 }
 
-QString ManualService::html() const
+QVariantList ManualService::sections() const
 {
-    return m_html;
+    // Each section is a document of its own, so each carries the stylesheet.
+    const auto style = styleSheet();
+    QVariantList sections;
+    for (auto && section : m_sections) {
+        sections.append(QVariantMap {
+          { "title", section.heading.title },
+          { "level", section.heading.level },
+          { "anchor", section.heading.anchor },
+          { "html", style + section.markup } });
+    }
+    return sections;
 }
 
 QVariantList ManualService::tableOfContents() const
