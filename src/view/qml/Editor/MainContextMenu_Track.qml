@@ -115,6 +115,17 @@ Menu {
     }
     MenuSeparator {}
     Action {
+        text: qsTr("Move track to the left")
+        enabled: !UiService.isPlaying()
+        onTriggered: editorService.requestTrackMoveLeft()
+    }
+    Action {
+        text: qsTr("Move track to the right")
+        enabled: !UiService.isPlaying()
+        onTriggered: editorService.requestTrackMoveRight()
+    }
+    MenuSeparator {}
+    Action {
         text: qsTr("Delete current track")
         shortcut: "Shift+D"
         enabled: !UiService.isPlaying()

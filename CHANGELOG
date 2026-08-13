@@ -54,6 +54,13 @@ New features:
   - A deleted column is only hidden: adding a column back restores it
     with its notes, automations and mixer settings
   - The remaining columns keep their automations and mixer settings
+  - Moving past either end wraps around
+
+* Add Move track to the left and Move track to the right to the Track
+  context menu
+  - Moving past either end wraps around
+  - A new pattern now copies the track order instead of laying the
+    tracks out by index
 
 * Accept pan on every note column instead of only the first one
   - MIDI CC 10 is channel-wide, so values on the same line are averaged

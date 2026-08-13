@@ -446,6 +446,21 @@ void XmlSerializationTest::test_toXmlFromXml_columnMoved_shouldLoadColumnOrder()
     QCOMPARE(editorServiceIn.song()->columnIndices(0), Song::ColumnIndexList({ 0, 2, 1 }));
 }
 
+void XmlSerializationTest::test_toXmlFromXml_trackMoved_shouldLoadTrackOrder()
+{
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    const auto songOut = editorServiceOut.song();
+    const auto trackIndices = songOut->trackIndices();
+    QVERIFY(songOut->moveTrackLeft(trackIndices.at(2)));
+    QVERIFY(songOut->moveTrackRight(trackIndices.back()));
+
+    const auto xml = editorServiceOut.toXml();
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorServiceIn.fromXml(xml);
+
+    QCOMPARE(editorServiceIn.song()->trackIndices(), songOut->trackIndices());
+}
+
 void XmlSerializationTest::test_toXml_noColumnsDeleted_shouldNotWriteColumnIndices()
 {
     EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };

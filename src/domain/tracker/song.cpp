@@ -436,6 +436,25 @@ bool Song::deleteTrack(size_t trackIndex)
     return false;
 }
 
+bool Song::moveTrackLeft(size_t trackIndex)
+{
+    // Applied over every pattern, as the tracks are the same ones in all of them
+    bool moved = false;
+    std::ranges::for_each(m_patterns, [&](const auto & pattern) {
+        moved = pattern.second->moveTrackLeft(trackIndex) || moved;
+    });
+    return moved;
+}
+
+bool Song::moveTrackRight(size_t trackIndex)
+{
+    bool moved = false;
+    std::ranges::for_each(m_patterns, [&](const auto & pattern) {
+        moved = pattern.second->moveTrackRight(trackIndex) || moved;
+    });
+    return moved;
+}
+
 size_t Song::trackCount() const
 {
     return masterPattern()->trackCount();

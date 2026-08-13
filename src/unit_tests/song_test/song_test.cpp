@@ -1102,17 +1102,111 @@ void SongTest::test_moveColumnLeft_shouldChangeOrderButKeepIndices()
 
     QCOMPARE(song.columnIndices(0), Song::ColumnIndexList({ 0, 2, 1 }));
     QCOMPARE(song.columnPositionByIndex(0, 2), std::optional<size_t> { 1 });
-    QVERIFY(!song.moveColumnLeft(0, 0)); // Already leftmost
 }
 
-void SongTest::test_moveColumnRight_lastColumn_shouldFail()
+void SongTest::test_moveColumnLeft_firstColumn_shouldWrapToLast()
 {
     Song song;
     song.addColumn(0);
+    song.addColumn(0);
 
-    QVERIFY(song.moveColumnRight(0, 0));
-    QCOMPARE(song.columnIndices(0), Song::ColumnIndexList({ 1, 0 }));
-    QVERIFY(!song.moveColumnRight(0, 0)); // Now rightmost
+    QVERIFY(song.moveColumnLeft(0, 0));
+
+    // The others keep their order, only the moved column travels to the other end
+    QCOMPARE(song.columnIndices(0), Song::ColumnIndexList({ 1, 2, 0 }));
+}
+
+void SongTest::test_moveColumnRight_lastColumn_shouldWrapToFirst()
+{
+    Song song;
+    song.addColumn(0);
+    song.addColumn(0);
+
+    QVERIFY(song.moveColumnRight(0, 2));
+
+    QCOMPARE(song.columnIndices(0), Song::ColumnIndexList({ 2, 0, 1 }));
+}
+
+void SongTest::test_moveColumn_onlyColumn_shouldFail()
+{
+    Song song;
+    QCOMPARE(song.columnCount(0), 1);
+    QVERIFY(!song.moveColumnLeft(0, 0));
+    QVERIFY(!song.moveColumnRight(0, 0));
+}
+
+void SongTest::test_moveTrackLeft_shouldChangeOrderButKeepIndices()
+{
+    Song song;
+    const auto trackIndices = song.trackIndices();
+    QVERIFY(trackIndices.size() >= 3);
+
+    QVERIFY(song.moveTrackLeft(trackIndices.at(2)));
+
+    auto expected = trackIndices;
+    std::swap(expected.at(1), expected.at(2));
+    QCOMPARE(song.trackIndices(), expected);
+    QCOMPARE(song.trackPositionByIndex(trackIndices.at(2)), std::optional<size_t> { 1 });
+}
+
+void SongTest::test_moveTrackRight_shouldChangeOrderButKeepIndices()
+{
+    Song song;
+    const auto trackIndices = song.trackIndices();
+
+    QVERIFY(song.moveTrackRight(trackIndices.at(0)));
+
+    auto expected = trackIndices;
+    std::swap(expected.at(0), expected.at(1));
+    QCOMPARE(song.trackIndices(), expected);
+}
+
+void SongTest::test_moveTrackLeft_firstTrack_shouldWrapToLast()
+{
+    Song song;
+    const auto trackIndices = song.trackIndices();
+
+    QVERIFY(song.moveTrackLeft(trackIndices.at(0)));
+
+    Song::TrackIndexList expected { trackIndices.begin() + 1, trackIndices.end() };
+    expected.push_back(trackIndices.at(0));
+    QCOMPARE(song.trackIndices(), expected);
+}
+
+void SongTest::test_moveTrackRight_lastTrack_shouldWrapToFirst()
+{
+    Song song;
+    const auto trackIndices = song.trackIndices();
+
+    QVERIFY(song.moveTrackRight(trackIndices.back()));
+
+    Song::TrackIndexList expected { trackIndices.back() };
+    std::ranges::copy(trackIndices.begin(), trackIndices.end() - 1, std::back_inserter(expected));
+    QCOMPARE(song.trackIndices(), expected);
+}
+
+void SongTest::test_moveTrackLeft_shouldApplyToAllPatterns()
+{
+    Song song;
+    song.createPattern(1);
+    const auto trackIndices = song.trackIndices();
+
+    QVERIFY(song.moveTrackLeft(trackIndices.at(1)));
+
+    QCOMPARE(song.pattern(0)->trackIndices(), song.pattern(1)->trackIndices());
+    QCOMPARE(song.pattern(1)->trackIndices().at(0), trackIndices.at(1));
+}
+
+void SongTest::test_createPattern_trackMoved_shouldCopyTrackOrder()
+{
+    Song song;
+    const auto trackIndices = song.trackIndices();
+    QVERIFY(song.moveTrackLeft(trackIndices.at(2)));
+
+    song.createPattern(1);
+
+    // A new pattern has to lay its tracks out the same way the others do
+    QCOMPARE(song.pattern(1)->trackIndices(), song.pattern(0)->trackIndices());
 }
 
 void SongTest::test_moveColumnLeft_shouldApplyToAllPatterns()

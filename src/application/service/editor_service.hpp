@@ -233,6 +233,8 @@ public:
     virtual Q_INVOKABLE void requestNewTrackToRight();
     virtual Q_INVOKABLE void requestNewTrackToLeft();
     virtual Q_INVOKABLE void requestTrackDeletion();
+    virtual Q_INVOKABLE void requestTrackMoveLeft();
+    virtual Q_INVOKABLE void requestTrackMoveRight();
 
     virtual Q_INVOKABLE void requestNoteInsertionAtCurrentPosition();
     virtual Q_INVOKABLE void requestNoteDeletionAtCurrentPosition(bool shiftNotes);
@@ -426,6 +428,7 @@ signals:
 
     void trackAdded(quint64 trackIndex);
     void trackDeleted(quint64 trackIndex);
+    void trackMoved(quint64 trackIndex);
     void trackNameChanged();
 
 public slots:

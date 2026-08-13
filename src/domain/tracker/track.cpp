@@ -202,8 +202,16 @@ bool Track::deleteColumn(size_t columnIndex)
 
 bool Track::moveColumnLeft(size_t columnIndex)
 {
-    if (const auto columnPosition = columnPositionByIndex(columnIndex); columnPosition.has_value() && *columnPosition) {
-        std::swap(m_columnOrder.at(*columnPosition), m_columnOrder.at(*columnPosition - 1));
+    if (m_columnOrder.size() < 2) {
+        return false;
+    }
+    if (const auto columnPosition = columnPositionByIndex(columnIndex); columnPosition.has_value()) {
+        if (*columnPosition) {
+            std::swap(m_columnOrder.at(*columnPosition), m_columnOrder.at(*columnPosition - 1));
+        } else {
+            // Off the left end: wrap around to the right end, the others keeping their order
+            std::rotate(m_columnOrder.begin(), m_columnOrder.begin() + 1, m_columnOrder.end());
+        }
         return true;
     }
     return false;
@@ -211,8 +219,16 @@ bool Track::moveColumnLeft(size_t columnIndex)
 
 bool Track::moveColumnRight(size_t columnIndex)
 {
-    if (const auto columnPosition = columnPositionByIndex(columnIndex); columnPosition.has_value() && *columnPosition + 1 < m_columnOrder.size()) {
-        std::swap(m_columnOrder.at(*columnPosition), m_columnOrder.at(*columnPosition + 1));
+    if (m_columnOrder.size() < 2) {
+        return false;
+    }
+    if (const auto columnPosition = columnPositionByIndex(columnIndex); columnPosition.has_value()) {
+        if (*columnPosition + 1 < m_columnOrder.size()) {
+            std::swap(m_columnOrder.at(*columnPosition), m_columnOrder.at(*columnPosition + 1));
+        } else {
+            // Off the right end: wrap around to the left end
+            std::rotate(m_columnOrder.rbegin(), m_columnOrder.rbegin() + 1, m_columnOrder.rend());
+        }
         return true;
     }
     return false;

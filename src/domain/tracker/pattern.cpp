@@ -72,7 +72,7 @@ Pattern::PatternConfig Pattern::patternConfig() const
     PatternConfig config;
     config.lineCount = m_trackOrder.at(0)->lineCount();
     for (auto && track : m_trackOrder) {
-        config.trackToColumnIndicesMap[track->index()] = track->columnIndices();
+        config.trackConfigs.push_back({ track->index(), track->columnIndices() });
     }
     return config;
 }
@@ -346,6 +346,40 @@ void Pattern::deleteTrack(size_t trackIndex)
     }
 }
 
+bool Pattern::moveTrackLeft(size_t trackIndex)
+{
+    if (m_trackOrder.size() < 2) {
+        return false;
+    }
+    if (const auto trackPosition = trackPositionByIndex(trackIndex); trackPosition.has_value()) {
+        if (*trackPosition) {
+            std::swap(m_trackOrder.at(*trackPosition), m_trackOrder.at(*trackPosition - 1));
+        } else {
+            // Off the left end: wrap around to the right end, the others keeping their order
+            std::rotate(m_trackOrder.begin(), m_trackOrder.begin() + 1, m_trackOrder.end());
+        }
+        return true;
+    }
+    return false;
+}
+
+bool Pattern::moveTrackRight(size_t trackIndex)
+{
+    if (m_trackOrder.size() < 2) {
+        return false;
+    }
+    if (const auto trackPosition = trackPositionByIndex(trackIndex); trackPosition.has_value()) {
+        if (*trackPosition + 1 < m_trackOrder.size()) {
+            std::swap(m_trackOrder.at(*trackPosition), m_trackOrder.at(*trackPosition + 1));
+        } else {
+            // Off the right end: wrap around to the left end
+            std::rotate(m_trackOrder.rbegin(), m_trackOrder.rbegin() + 1, m_trackOrder.rend());
+        }
+        return true;
+    }
+    return false;
+}
+
 void Pattern::setTrackName(size_t trackIndex, std::string name)
 {
     juzzlin::L(TAG).debug() << "Changing name of track " << trackIndex << " from " << trackName(trackIndex) << " to " << name;
@@ -455,7 +489,7 @@ void Pattern::initialize(size_t lineCount, size_t trackCount)
 
 void Pattern::initialize(const PatternConfig & config)
 {
-    for (auto && [trackIndex, columnIndices] : config.trackToColumnIndicesMap) {
+    for (auto && [trackIndex, columnIndices] : config.trackConfigs) {
         m_trackOrder.push_back(std::make_shared<Track>(trackIndex, "Track " + std::to_string(trackIndex + 1), config.lineCount, columnIndices));
     }
 }

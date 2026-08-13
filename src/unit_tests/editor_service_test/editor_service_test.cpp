@@ -830,17 +830,50 @@ void EditorServiceTest::test_requestColumnMoveLeft_shouldChangeOrderButKeepCurso
     QCOMPARE(editorService.columnPositionByIndex(0, 1), 0);
 }
 
-void EditorServiceTest::test_requestColumnMoveRight_lastColumn_shouldDoNothing()
+void EditorServiceTest::test_requestColumnMoveRight_lastColumn_shouldWrapToFirst()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     editorService.requestNewColumn(0);
+    editorService.requestNewColumn(0);
     QSignalSpy columnMovedSpy { &editorService, &EditorService::columnMoved };
 
-    QVERIFY(editorService.requestPosition(0, 0, 1, 0, 0));
+    QVERIFY(editorService.requestPosition(0, 0, 2, 0, 0));
     editorService.requestColumnMoveRight();
 
-    QCOMPARE(columnMovedSpy.count(), 0);
-    QCOMPARE(editorService.columnIndices(0), EditorService::ColumnIndexList({ 0, 1 }));
+    QCOMPARE(columnMovedSpy.count(), 1);
+    QCOMPARE(editorService.columnIndices(0), EditorService::ColumnIndexList({ 2, 0, 1 }));
+    QCOMPARE(editorService.position().column, 2);
+}
+
+void EditorServiceTest::test_requestTrackMoveLeft_shouldChangeOrderButKeepCursorOnTrack()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    const auto trackIndices = editorService.trackIndices();
+    QSignalSpy trackMovedSpy { &editorService, &EditorService::trackMoved };
+
+    QVERIFY(editorService.requestPosition(0, trackIndices.at(1), 0, 0, 0));
+    editorService.requestTrackMoveLeft();
+
+    QCOMPARE(trackMovedSpy.count(), 1);
+    QCOMPARE(editorService.trackIndices().at(0), trackIndices.at(1));
+    // The cursor stays on the track it moved
+    QCOMPARE(editorService.position().track, trackIndices.at(1));
+    QCOMPARE(editorService.trackPositionByIndex(trackIndices.at(1)), 0);
+    QVERIFY(editorService.isModified());
+}
+
+void EditorServiceTest::test_requestTrackMoveRight_lastTrack_shouldWrapToFirst()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    const auto trackIndices = editorService.trackIndices();
+    QSignalSpy trackMovedSpy { &editorService, &EditorService::trackMoved };
+
+    QVERIFY(editorService.requestPosition(0, trackIndices.back(), 0, 0, 0));
+    editorService.requestTrackMoveRight();
+
+    QCOMPARE(trackMovedSpy.count(), 1);
+    QCOMPARE(editorService.trackIndices().at(0), trackIndices.back());
+    QCOMPARE(editorService.position().track, trackIndices.back());
 }
 
 void EditorServiceTest::test_cursorNavigation_columnDeleted_shouldSkipDeletedColumn()

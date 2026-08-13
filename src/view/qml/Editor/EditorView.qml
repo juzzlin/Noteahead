@@ -296,6 +296,7 @@ FocusScope {
         editorService.songChanged.connect(_changeSong);
         editorService.trackAdded.connect(track => _refreshLayout());
         editorService.trackDeleted.connect(track => _refreshLayout());
+        editorService.trackMoved.connect(track => _refreshLayout());
         editorService.trackNameChanged.connect(_updateTrackHeaders);
         editorService.patternCreated.connect(patternIndex => _refreshLayout());
         editorService.positionChanged.connect((newPosition, oldPosition) => {

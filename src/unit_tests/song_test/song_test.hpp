@@ -85,9 +85,18 @@ private slots:
     void test_addColumn_columnDeleted_shouldRestoreDeletedColumn();
     void test_addColumn_noDeletedColumns_shouldUseSmallestFreeIndex();
     void test_moveColumnLeft_shouldChangeOrderButKeepIndices();
-    void test_moveColumnRight_lastColumn_shouldFail();
+    void test_moveColumnLeft_firstColumn_shouldWrapToLast();
+    void test_moveColumnRight_lastColumn_shouldWrapToFirst();
+    void test_moveColumn_onlyColumn_shouldFail();
     void test_moveColumnLeft_shouldApplyToAllPatterns();
     void test_createPattern_columnDeleted_shouldCopyColumnIndices();
+
+    void test_moveTrackLeft_shouldChangeOrderButKeepIndices();
+    void test_moveTrackRight_shouldChangeOrderButKeepIndices();
+    void test_moveTrackLeft_firstTrack_shouldWrapToLast();
+    void test_moveTrackRight_lastTrack_shouldWrapToFirst();
+    void test_moveTrackLeft_shouldApplyToAllPatterns();
+    void test_createPattern_trackMoved_shouldCopyTrackOrder();
 
     void test_addTrack_shouldUseSmallestFreeId();
     void test_addTrackToLeft_shouldUseSmallestFreeId();

@@ -1451,6 +1451,34 @@ void EditorService::requestTrackDeletion()
     }
 }
 
+void EditorService::requestTrackMoveLeft()
+{
+    const auto trackIndex = m_state.cursorPosition.track;
+    juzzlin::L(TAG).debug() << "Moving track " << trackIndex << " left";
+
+    if (m_song->moveTrackLeft(trackIndex)) {
+        m_selectionService->clear();
+        emit trackMoved(trackIndex);
+        notifyPositionChange(m_state.cursorPosition);
+        ensureFocusedTrackIsVisible();
+        setIsModified(true);
+    }
+}
+
+void EditorService::requestTrackMoveRight()
+{
+    const auto trackIndex = m_state.cursorPosition.track;
+    juzzlin::L(TAG).debug() << "Moving track " << trackIndex << " right";
+
+    if (m_song->moveTrackRight(trackIndex)) {
+        m_selectionService->clear();
+        emit trackMoved(trackIndex);
+        notifyPositionChange(m_state.cursorPosition);
+        ensureFocusedTrackIsVisible();
+        setIsModified(true);
+    }
+}
+
 void EditorService::requestNoteInsertionAtCurrentPosition()
 {
     insertNoteAtPosition(m_state.cursorPosition);

@@ -43,14 +43,21 @@ public:
     Pattern(size_t index, size_t lineCount, size_t trackCount);
 
     using ColumnIndexList = std::vector<size_t>;
-    using TrackToColumnIndices = std::map<size_t, ColumnIndexList>;
+
+    //! A track and its columns, as they are laid out. Both keep their indices and their order over
+    //! the patterns, so this is a list rather than a map: sorting it by index would lose the order.
+    struct TrackConfig
+    {
+        size_t trackIndex = 0;
+
+        ColumnIndexList columnIndices;
+    };
 
     struct PatternConfig
     {
         size_t lineCount = 0;
 
-        //! The columns of a track keep their indices and their order over the patterns.
-        TrackToColumnIndices trackToColumnIndicesMap;
+        std::vector<TrackConfig> trackConfigs;
     };
 
     Pattern(size_t index, const PatternConfig & config);
@@ -97,6 +104,8 @@ public:
     size_t addTrackToRightOf(size_t trackIndex);
     size_t addTrackToLeftOf(size_t trackIndex);
     void deleteTrack(size_t trackIndex);
+    bool moveTrackLeft(size_t trackIndex);
+    bool moveTrackRight(size_t trackIndex);
 
     using InstrumentS = std::shared_ptr<Instrument>;
     InstrumentS instrument(size_t trackIndex) const;
