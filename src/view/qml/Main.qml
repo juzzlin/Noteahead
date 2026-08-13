@@ -469,6 +469,12 @@ ApplicationWindow {
         width: parent.width * Constants.effectDialogScale
         height: parent.height * Constants.effectDialogScale
     }
+    MultibandCompressorDialog {
+        id: multibandCompressorDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
+    }
     AutoDuckerDialog {
         id: autoDuckerDialog
         anchors.centerIn: parent

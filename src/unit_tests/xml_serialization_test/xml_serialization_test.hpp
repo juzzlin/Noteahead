@@ -99,6 +99,7 @@ private slots:
     void test_toXmlFromXml_reverbGate_shouldLoadCorrectly();
     void test_toXmlFromXml_limiterEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_autoDuckerEffect_shouldLoadCorrectly();
+    void test_toXmlFromXml_multibandCompressorEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_lufsMeterEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_dbtpMeterEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_delayEffectRack_shouldLoadCorrectly();

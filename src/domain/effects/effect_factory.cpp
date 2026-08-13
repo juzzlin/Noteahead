@@ -32,6 +32,7 @@
 #include "endless_reverb.hpp"
 #include "eq_8_band_parametric.hpp"
 #include "limiter.hpp"
+#include "multiband_compressor.hpp"
 #include "panner.hpp"
 #include "reverb.hpp"
 #include "saturator.hpp"
@@ -107,6 +108,7 @@ void EffectFactory::init()
     registerEffect(Eq8BandParametric::typeIdString(), []() { return std::make_shared<Eq8BandParametric>(); });
     registerEffect(Limiter::typeIdString(), []() { return std::make_shared<Limiter>(); });
     registerEffect(LufsMeter::typeIdString(), []() { return std::make_shared<LufsMeter>(); });
+    registerEffect(MultibandCompressor::typeIdString(), []() { return std::make_shared<MultibandCompressor>(); });
     registerEffect(Panner::typeIdString(), []() { return std::make_shared<Panner>(); });
     registerEffect(Rta::typeIdString(), []() { return std::make_shared<Rta>(); });
     registerEffect(Reverb::typeIdString(), []() { return std::make_shared<Reverb>(); });
@@ -126,6 +128,7 @@ void EffectFactory::init()
     registerEffect(Constants::RackEffectType::drive().toStdString(), []() { return std::make_shared<Drive>(); });
     registerEffect(Constants::RackEffectType::eq8BandParametric().toStdString(), []() { return std::make_shared<Eq8BandParametric>(); });
     registerEffect(Constants::RackEffectType::limiter().toStdString(), []() { return std::make_shared<Limiter>(); });
+    registerEffect(Constants::RackEffectType::multibandCompressor().toStdString(), []() { return std::make_shared<MultibandCompressor>(); });
     registerEffect(Constants::RackEffectType::panner().toStdString(), []() { return std::make_shared<Panner>(); });
     registerEffect(Constants::RackEffectType::reverb().toStdString(), []() { return std::make_shared<Reverb>(); });
     registerEffect(Constants::RackEffectType::rta().toStdString(), []() { return std::make_shared<Rta>(); });
@@ -143,6 +146,7 @@ void EffectFactory::init()
 
     // Legacy support
     registerLegacyEffect("auto_ducker", []() { return std::make_shared<AutoDucker>(); });
+    registerLegacyEffect("multiband_compressor", []() { return std::make_shared<MultibandCompressor>(); });
     registerLegacyEffect("bass_grinder", []() { return std::make_shared<BassGrinder>(); });
     registerLegacyEffect("tube_stage", []() { return std::make_shared<TubeStage>(); });
     registerLegacyEffect("wave_designer", []() { return std::make_shared<WaveDesigner>(); });

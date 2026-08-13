@@ -154,6 +154,7 @@ constexpr uint8_t panMidiCcController()
 namespace RackEffectType {
 QString reverb();
 QString compressor();
+QString multibandCompressor();
 QString delay();
 QString chorus();
 QString clipper();
@@ -467,6 +468,15 @@ QString xmlKeyBandType(size_t bandIndex);
 QString xmlKeyBandFreq(size_t bandIndex);
 QString xmlKeyBandGain(size_t bandIndex);
 QString xmlKeyBandQ(size_t bandIndex);
+QString xmlKeyBandThreshold(size_t bandIndex);
+QString xmlKeyBandRatio(size_t bandIndex);
+QString xmlKeyBandKnee(size_t bandIndex);
+QString xmlKeyBandAttack(size_t bandIndex);
+QString xmlKeyBandRelease(size_t bandIndex);
+QString xmlKeyBandMakeup(size_t bandIndex);
+QString xmlKeyBandBypass(size_t bandIndex);
+QString xmlKeyBandSolo(size_t bandIndex);
+QString xmlKeyCrossoverFreq(size_t crossoverIndex);
 
 QString xmlKeyAmount();
 QString xmlKeyBassGain();

@@ -9,6 +9,11 @@ New features:
   - Pulse Width, Vocal Formant, Resonant Sweep and Organ Drawbar
   - Wavetables are now built on first use instead of at startup
 
+* Add the Multiband Compressor rack effect
+  - Three bands split by Linkwitz-Riley crossovers that sum back flat
+  - Per-band threshold, ratio, knee, attack, release, makeup, bypass and solo
+  - Side chain source device, split by the same crossovers
+
 * Add new rack effects
   - Bass Grinder
   - Stereo Enhancer

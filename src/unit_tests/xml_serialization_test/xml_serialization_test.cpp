@@ -49,6 +49,7 @@
 #include "../../domain/effects/endless_reverb.hpp"
 #include "../../domain/effects/eq_8_band_parametric.hpp"
 #include "../../domain/effects/limiter.hpp"
+#include "../../domain/effects/multiband_compressor.hpp"
 #include "../../domain/effects/reverb.hpp"
 #include "../../domain/effects/simple_eq.hpp"
 #include "../../domain/effects/stereo_enhancer.hpp"
@@ -76,6 +77,8 @@
 #include <QSignalSpy>
 #include <QTemporaryFile>
 #include <QTest>
+
+#include <cmath>
 
 namespace noteahead {
 
@@ -2406,6 +2409,94 @@ void XmlSerializationTest::test_toXmlFromXml_autoDuckerEffect_shouldLoadCorrectl
     if (auto p = restored->parameter(Constants::NahdXml::xmlKeyHold().toStdString()); p) {
         QCOMPARE(p->get().value(), 0.4f);
     }
+    QCOMPARE(restored->sidechainSourceDeviceIndex(), std::optional<size_t> { 2 });
+}
+
+void XmlSerializationTest::test_toXmlFromXml_multibandCompressorEffect_shouldLoadCorrectly()
+{
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto multibandCompressor = std::make_shared<MultibandCompressor>();
+    if (auto p = multibandCompressor->parameter(Constants::NahdXml::xmlKeyCrossoverFreq(0).toStdString()); p) {
+        p->get().setValue(0.25f);
+    }
+    if (auto p = multibandCompressor->parameter(Constants::NahdXml::xmlKeyCrossoverFreq(1).toStdString()); p) {
+        p->get().setValue(0.8f);
+    }
+    // One of each per-band parameter, on a different band each time, so a key built with the wrong
+    // band index cannot pass unnoticed.
+    if (auto p = multibandCompressor->parameter(Constants::NahdXml::xmlKeyBandThreshold(0).toStdString()); p) {
+        p->get().setValue(0.5f);
+    }
+    if (auto p = multibandCompressor->parameter(Constants::NahdXml::xmlKeyBandRatio(1).toStdString()); p) {
+        p->get().setValue(0.75f);
+    }
+    if (auto p = multibandCompressor->parameter(Constants::NahdXml::xmlKeyBandKnee(2).toStdString()); p) {
+        p->get().setValue(0.4f);
+    }
+    if (auto p = multibandCompressor->parameter(Constants::NahdXml::xmlKeyBandAttack(0).toStdString()); p) {
+        p->get().setValue(0.3f);
+    }
+    if (auto p = multibandCompressor->parameter(Constants::NahdXml::xmlKeyBandRelease(1).toStdString()); p) {
+        p->get().setValue(0.7f);
+    }
+    if (auto p = multibandCompressor->parameter(Constants::NahdXml::xmlKeyBandMakeup(2).toStdString()); p) {
+        p->get().setValue(0.6f);
+    }
+    if (auto p = multibandCompressor->parameter(Constants::NahdXml::xmlKeyBandBypass(1).toStdString()); p) {
+        p->get().setValue(1.0f);
+    }
+    if (auto p = multibandCompressor->parameter(Constants::NahdXml::xmlKeyBandSolo(2).toStdString()); p) {
+        p->get().setValue(1.0f);
+    }
+    if (auto p = multibandCompressor->parameter(Constants::NahdXml::xmlKeyMode().toStdString()); p) {
+        p->get().setValue(1.0f);
+    }
+    if (auto p = multibandCompressor->parameter(Constants::NahdXml::xmlKeySideChainSourceDevice().toStdString()); p) {
+        p->get().setValue(2.0f);
+    }
+    deviceServiceOut.sendEffectRack().setEffect(0, multibandCompressor);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(effect);
+    QCOMPARE(effect->typeId(), MultibandCompressor::typeIdString());
+    const auto restored = std::dynamic_pointer_cast<MultibandCompressor>(effect);
+    QVERIFY(restored);
+
+    const auto compareParameter = [&restored](const QString & key, float expected) {
+        const auto p = restored->parameter(key.toStdString());
+        QVERIFY(p.has_value());
+        QVERIFY(std::abs(p->get().value() - expected) < 1.0e-3f);
+    };
+
+    compareParameter(Constants::NahdXml::xmlKeyCrossoverFreq(0), 0.25f);
+    compareParameter(Constants::NahdXml::xmlKeyCrossoverFreq(1), 0.8f);
+    compareParameter(Constants::NahdXml::xmlKeyBandThreshold(0), 0.5f);
+    compareParameter(Constants::NahdXml::xmlKeyBandRatio(1), 0.75f);
+    compareParameter(Constants::NahdXml::xmlKeyBandKnee(2), 0.4f);
+    compareParameter(Constants::NahdXml::xmlKeyBandAttack(0), 0.3f);
+    compareParameter(Constants::NahdXml::xmlKeyBandRelease(1), 0.7f);
+    compareParameter(Constants::NahdXml::xmlKeyBandMakeup(2), 0.6f);
+    compareParameter(Constants::NahdXml::xmlKeyBandBypass(1), 1.0f);
+    compareParameter(Constants::NahdXml::xmlKeyBandSolo(2), 1.0f);
+
+    // The bands that were left alone must come back at their defaults rather than at a neighbour's value.
+    compareParameter(Constants::NahdXml::xmlKeyBandBypass(0), 0.0f);
+    compareParameter(Constants::NahdXml::xmlKeyBandSolo(0), 0.0f);
+
     QCOMPARE(restored->sidechainSourceDeviceIndex(), std::optional<size_t> { 2 });
 }
 

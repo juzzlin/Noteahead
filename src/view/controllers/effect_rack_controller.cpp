@@ -32,6 +32,7 @@
 #include "../../domain/effects/effect_rack.hpp"
 #include "../../domain/effects/eq_8_band_parametric.hpp"
 #include "../../domain/effects/limiter.hpp"
+#include "../../domain/effects/multiband_compressor.hpp"
 #include "../../domain/effects/panner.hpp"
 #include "../../domain/effects/reverb.hpp"
 #include "../../domain/effects/saturator.hpp"
@@ -303,6 +304,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Air Band EQ", Constants::RackEffectType::airBandEq().toStdString());
     addEffect("Simple EQ", Constants::RackEffectType::simpleEq().toStdString());
     addEffect("Limiter", Constants::RackEffectType::limiter().toStdString());
+    addEffect("Multiband Compressor", Constants::RackEffectType::multibandCompressor().toStdString());
     addEffect("LUFS Meter", LufsMeter::typeIdString());
     addEffect("Panner", Constants::RackEffectType::panner().toStdString());
     addEffect("Reverb", Constants::RackEffectType::reverb().toStdString());
@@ -498,6 +500,28 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                       .arg(modeName)
                       .arg(attackMs, 0, 'f', 1)
                       .arg(ratioValue, 0, 'g', 3)
+                      .arg(scName);
+                }
+            } else if (type == Constants::RackEffectType::multibandCompressor()) {
+                const auto lowerCrossover { effect->parameter(Constants::NahdXml::xmlKeyCrossoverFreq(0).toStdString()) };
+                const auto upperCrossover { effect->parameter(Constants::NahdXml::xmlKeyCrossoverFreq(1).toStdString()) };
+                if (lowerCrossover && upperCrossover) {
+                    QString scName { tr("None") };
+                    if (const auto sourceIndex { effect->sidechainSourceDeviceIndex() }; sourceIndex) {
+                        if (const auto sourceDevice { m_deviceService->device(*sourceIndex) }) {
+                            scName = QString::fromStdString(sourceDevice->name());
+                        }
+                    }
+                    QString modeName { tr("Peak") };
+                    if (const auto mode { effect->parameter(Constants::NahdXml::xmlKeyMode().toStdString()) }; mode) {
+                        if (mode->get().value() > 0.5f) {
+                            modeName = tr("RMS");
+                        }
+                    }
+                    return QString { "(%1, %2/%3Hz, sidechain=%4)" }
+                      .arg(modeName)
+                      .arg(static_cast<int>(std::round(ParameterMapper::mapLogFrequency(lowerCrossover->get().value(), 20.0, 20000.0))))
+                      .arg(static_cast<int>(std::round(ParameterMapper::mapLogFrequency(upperCrossover->get().value(), 20.0, 20000.0))))
                       .arg(scName);
                 }
             } else if (type == Constants::RackEffectType::autoDucker()) {
@@ -1051,6 +1075,66 @@ QString EffectRackController::eq8BandParametricStereoModeKey() const
     return Constants::NahdXml::xmlKeyStereoMode();
 }
 
+QString EffectRackController::multibandCompressorCrossoverFreqKey(quint32 crossoverIndex) const
+{
+    return Constants::NahdXml::xmlKeyCrossoverFreq(crossoverIndex);
+}
+
+QString EffectRackController::multibandCompressorThresholdKey(quint32 bandIndex) const
+{
+    return Constants::NahdXml::xmlKeyBandThreshold(bandIndex);
+}
+
+QString EffectRackController::multibandCompressorRatioKey(quint32 bandIndex) const
+{
+    return Constants::NahdXml::xmlKeyBandRatio(bandIndex);
+}
+
+QString EffectRackController::multibandCompressorKneeKey(quint32 bandIndex) const
+{
+    return Constants::NahdXml::xmlKeyBandKnee(bandIndex);
+}
+
+QString EffectRackController::multibandCompressorAttackKey(quint32 bandIndex) const
+{
+    return Constants::NahdXml::xmlKeyBandAttack(bandIndex);
+}
+
+QString EffectRackController::multibandCompressorReleaseKey(quint32 bandIndex) const
+{
+    return Constants::NahdXml::xmlKeyBandRelease(bandIndex);
+}
+
+QString EffectRackController::multibandCompressorMakeupKey(quint32 bandIndex) const
+{
+    return Constants::NahdXml::xmlKeyBandMakeup(bandIndex);
+}
+
+QString EffectRackController::multibandCompressorBypassKey(quint32 bandIndex) const
+{
+    return Constants::NahdXml::xmlKeyBandBypass(bandIndex);
+}
+
+QString EffectRackController::multibandCompressorSoloKey(quint32 bandIndex) const
+{
+    return Constants::NahdXml::xmlKeyBandSolo(bandIndex);
+}
+
+QString EffectRackController::multibandCompressorModeKey() const
+{
+    return Constants::NahdXml::xmlKeyMode();
+}
+
+QString EffectRackController::multibandCompressorGainKey() const
+{
+    return Constants::NahdXml::xmlKeyGain();
+}
+
+QString EffectRackController::multibandCompressorSideChainSourceDeviceKey() const
+{
+    return Constants::NahdXml::xmlKeySideChainSourceDevice();
+}
+
 QString EffectRackController::vintagePassiveEqLowFreqKey() const
 {
     return Constants::NahdXml::xmlKeyLowFreq();
@@ -1301,6 +1385,11 @@ QString EffectRackController::autoDuckerType() const
     return Constants::RackEffectType::autoDucker();
 }
 
+QString EffectRackController::multibandCompressorType() const
+{
+    return Constants::RackEffectType::multibandCompressor();
+}
+
 QString EffectRackController::delayType() const
 {
     return Constants::RackEffectType::delay();
@@ -1407,6 +1496,19 @@ float EffectRackController::compressorReductionDb(quint32 effectIndex) const
         if (const auto effect = rack->get().effect(effectIndex)) {
             if (const auto compressor = std::dynamic_pointer_cast<Compressor>(effect)) {
                 return compressor->reductionDb();
+            }
+        }
+    }
+
+    return 0.0f;
+}
+
+float EffectRackController::multibandCompressorBandReductionDb(quint32 effectIndex, quint32 bandIndex) const
+{
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(effectIndex); effect) {
+            if (const auto compressor = std::dynamic_pointer_cast<MultibandCompressor>(effect); compressor) {
+                return compressor->bandReductionDb(bandIndex);
             }
         }
     }

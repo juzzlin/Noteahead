@@ -56,6 +56,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString bassGrinderType READ bassGrinderType CONSTANT)
     Q_PROPERTY(QString limiterType READ limiterType CONSTANT)
     Q_PROPERTY(QString compressorType READ compressorType CONSTANT)
+    Q_PROPERTY(QString multibandCompressorType READ multibandCompressorType CONSTANT)
     Q_PROPERTY(QString delayType READ delayType CONSTANT)
     Q_PROPERTY(QString eq8BandParametricType READ eq8BandParametricType CONSTANT)
     Q_PROPERTY(QString vintagePassiveEqType READ vintagePassiveEqType CONSTANT)
@@ -104,6 +105,7 @@ public:
     QString bassGrinderType() const;
     QString limiterType() const;
     QString compressorType() const;
+    QString multibandCompressorType() const;
     QString delayType() const;
     QString chorusType() const;
     QString eq8BandParametricType() const;
@@ -177,6 +179,19 @@ public:
     Q_INVOKABLE QString compressorLookaheadKey() const;
     Q_INVOKABLE QString compressorSideChainSourceDeviceKey() const;
     Q_INVOKABLE QString compressorSideChainLpfKey() const;
+
+    Q_INVOKABLE QString multibandCompressorCrossoverFreqKey(quint32 crossoverIndex) const;
+    Q_INVOKABLE QString multibandCompressorThresholdKey(quint32 bandIndex) const;
+    Q_INVOKABLE QString multibandCompressorRatioKey(quint32 bandIndex) const;
+    Q_INVOKABLE QString multibandCompressorKneeKey(quint32 bandIndex) const;
+    Q_INVOKABLE QString multibandCompressorAttackKey(quint32 bandIndex) const;
+    Q_INVOKABLE QString multibandCompressorReleaseKey(quint32 bandIndex) const;
+    Q_INVOKABLE QString multibandCompressorMakeupKey(quint32 bandIndex) const;
+    Q_INVOKABLE QString multibandCompressorBypassKey(quint32 bandIndex) const;
+    Q_INVOKABLE QString multibandCompressorSoloKey(quint32 bandIndex) const;
+    Q_INVOKABLE QString multibandCompressorModeKey() const;
+    Q_INVOKABLE QString multibandCompressorGainKey() const;
+    Q_INVOKABLE QString multibandCompressorSideChainSourceDeviceKey() const;
 
     Q_INVOKABLE QString autoDuckerThresholdKey() const;
     Q_INVOKABLE QString autoDuckerAmountKey() const;
@@ -289,6 +304,7 @@ public:
     Q_INVOKABLE QString simpleEqAmountKey() const;
 
     Q_INVOKABLE float compressorReductionDb(quint32 effectIndex) const;
+    Q_INVOKABLE float multibandCompressorBandReductionDb(quint32 effectIndex, quint32 bandIndex) const;
     Q_INVOKABLE float autoDuckerGainDb(quint32 effectIndex) const;
     Q_INVOKABLE float clipperReductionDb(quint32 effectIndex) const;
     Q_INVOKABLE float limiterReductionDb(quint32 effectIndex) const;

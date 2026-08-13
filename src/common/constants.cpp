@@ -181,6 +181,11 @@ QString compressor()
     return "compressor";
 }
 
+QString multibandCompressor()
+{
+    return "multibandcompressor";
+}
+
 QString delay()
 {
     return "delay";
@@ -1490,6 +1495,51 @@ QString xmlKeyBandGain(size_t bandIndex)
 QString xmlKeyBandQ(size_t bandIndex)
 {
     return QString { "band%1Q" }.arg(bandIndex + 1);
+}
+
+QString xmlKeyBandThreshold(size_t bandIndex)
+{
+    return QString { "band%1Threshold" }.arg(bandIndex + 1);
+}
+
+QString xmlKeyBandRatio(size_t bandIndex)
+{
+    return QString { "band%1Ratio" }.arg(bandIndex + 1);
+}
+
+QString xmlKeyBandKnee(size_t bandIndex)
+{
+    return QString { "band%1Knee" }.arg(bandIndex + 1);
+}
+
+QString xmlKeyBandAttack(size_t bandIndex)
+{
+    return QString { "band%1Attack" }.arg(bandIndex + 1);
+}
+
+QString xmlKeyBandRelease(size_t bandIndex)
+{
+    return QString { "band%1Release" }.arg(bandIndex + 1);
+}
+
+QString xmlKeyBandMakeup(size_t bandIndex)
+{
+    return QString { "band%1Makeup" }.arg(bandIndex + 1);
+}
+
+QString xmlKeyBandBypass(size_t bandIndex)
+{
+    return QString { "band%1Bypass" }.arg(bandIndex + 1);
+}
+
+QString xmlKeyBandSolo(size_t bandIndex)
+{
+    return QString { "band%1Solo" }.arg(bandIndex + 1);
+}
+
+QString xmlKeyCrossoverFreq(size_t crossoverIndex)
+{
+    return QString { "crossover%1Freq" }.arg(crossoverIndex + 1);
 }
 
 QString xmlKeyAmount()

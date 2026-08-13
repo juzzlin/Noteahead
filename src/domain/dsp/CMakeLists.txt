@@ -2,6 +2,7 @@ set(DSP_SOURCES
     adsr_envelope.cpp
     base_rate_source.cpp
     cascaded_svf.cpp
+    compressor_core.cpp
     dc_blocker.cpp
     diode_ladder_filter.cpp
     dsp_component.cpp
@@ -9,6 +10,7 @@ set(DSP_SOURCES
     ensemble_chorus.cpp
     fft.cpp
     lfo.cpp
+    linkwitz_riley_crossover.cpp
     multi_engine.cpp
     one_pole_filter.cpp
     phaser.cpp

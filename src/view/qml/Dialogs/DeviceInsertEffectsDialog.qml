@@ -206,6 +206,9 @@ AnimatedDialog {
                         } else if (effectType === effectRackController.compressorType) {
                             compressorDialog.effectIndex = index;
                             compressorDialog.open();
+                        } else if (effectType === effectRackController.multibandCompressorType) {
+                            multibandCompressorDialog.effectIndex = index;
+                            multibandCompressorDialog.open();
                         } else if (effectType === effectRackController.autoDuckerType) {
                             autoDuckerDialog.effectIndex = index;
                             autoDuckerDialog.open();

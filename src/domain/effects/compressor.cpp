@@ -21,13 +21,8 @@
 #include "../../common/utils.hpp"
 
 #include <algorithm>
-#include <cmath>
 
 namespace noteahead {
-
-//! Averaging time of the RMS detector. Short enough to still catch syllables, long enough to
-//! ignore individual peaks the way an RMS-sensing compressor is expected to.
-static constexpr double rmsWindowMs = 10.0;
 
 Compressor::Compressor()
 {
@@ -65,12 +60,8 @@ void Compressor::processSample(double & left, double & right)
     }
 
     updateBuffers();
-    updateCoefficients();
 
-    const double detectorDb = calculateDetectorLevelDb(left, right);
-    const double gainReductionDb = calculateGainReductionDb(detectorDb);
-
-    updateEnvelope(gainReductionDb);
+    m_core.processGainDb(left, right);
     applyGain(left, right);
 }
 
@@ -81,7 +72,6 @@ void Compressor::processBlock(AudioContext & context)
     }
 
     updateBuffers();
-    updateCoefficients();
 
     const bool hasSidechain = m_sidechainSourceDevice && *m_sidechainSourceDevice < context.deviceOutputBuffers.size();
     const auto sidechainBuffer = hasSidechain ? context.deviceOutputBuffers[*m_sidechainSourceDevice] : std::span<const double> {};
@@ -100,16 +90,15 @@ void Compressor::processBlock(AudioContext & context)
             detectorR = m_sideChainLpfR.process(detectorR);
         }
 
-        const double detectorDb = calculateDetectorLevelDb(detectorL, detectorR);
-        const double gainReductionDb = calculateGainReductionDb(detectorDb);
-
-        updateEnvelope(gainReductionDb);
+        m_core.processGainDb(detectorL, detectorR);
         applyGain(context.buffer[i * 2], context.buffer[i * 2 + 1]);
     }
 }
 
 void Compressor::updateBuffers()
 {
+    m_core.setSampleRate(m_sampleRate);
+
     if (static_cast<uint32_t>(m_sampleRate) != m_lastSampleRate || m_shouldUpdateBuffers || m_delayBufferL.empty()) {
         syncParameters();
         const uint32_t lookaheadSamples = static_cast<uint32_t>(m_lookaheadMs * m_sampleRate / 1000.0f);
@@ -129,70 +118,6 @@ void Compressor::updateBuffers()
     }
 }
 
-void Compressor::updateCoefficients()
-{
-    if (m_sampleRate > 0) {
-        m_attackCoeff = std::exp(-1.0 / (static_cast<double>(m_attackMs) * m_sampleRate / 1000.0));
-        m_releaseCoeff = std::exp(-1.0 / (static_cast<double>(m_releaseMs) * m_sampleRate / 1000.0));
-        m_rmsCoeff = std::exp(-1.0 / (rmsWindowMs * m_sampleRate / 1000.0));
-    }
-}
-
-double Compressor::calculateDetectorLevelDb(double left, double right)
-{
-    if (m_detectorMode == DetectorMode::Rms) {
-        const double meanSquare = (left * left + right * right) * 0.5;
-        m_rmsSquare = m_rmsCoeff * m_rmsSquare + (1.0 - m_rmsCoeff) * meanSquare;
-        // Denormal protection
-        if (m_rmsSquare < 1.0e-30) {
-            m_rmsSquare = 0.0;
-        }
-        return Utils::Dsp::linearToDb(static_cast<float>(std::sqrt(m_rmsSquare)));
-    }
-
-    const double detector = std::max(std::abs(left), std::abs(right));
-    return Utils::Dsp::linearToDb(static_cast<float>(detector)); // Assuming linearToDb can handle float
-}
-
-double Compressor::calculateGainReductionDb(double detectorDb) const
-{
-    double targetDb = detectorDb;
-    const double threshold = static_cast<double>(m_threshold);
-    const double knee = static_cast<double>(m_knee);
-    const double ratio = static_cast<double>(m_ratio);
-
-    if (knee > 0.001) {
-        if (detectorDb > threshold + knee / 2.0) {
-            targetDb = threshold + (detectorDb - threshold) / ratio;
-        } else if (detectorDb > threshold - knee / 2.0) {
-            const double diff = detectorDb - threshold + knee / 2.0;
-            targetDb = detectorDb + (1.0 / ratio - 1.0) * diff * diff / (2.0 * knee);
-        }
-    } else {
-        if (detectorDb > threshold) {
-            targetDb = threshold + (detectorDb - threshold) / ratio;
-        }
-    }
-
-    return targetDb - detectorDb;
-}
-
-void Compressor::updateEnvelope(double gainReductionDb)
-{
-    if (gainReductionDb < m_envelopeDb) {
-        m_envelopeDb = m_attackCoeff * m_envelopeDb + (1.0 - m_attackCoeff) * gainReductionDb;
-    } else {
-        m_envelopeDb = m_releaseCoeff * m_envelopeDb + (1.0 - m_releaseCoeff) * gainReductionDb;
-    }
-
-    // Denormal protection
-    if (std::abs(m_envelopeDb) < 1.0e-15) {
-        m_envelopeDb = 0.0;
-    }
-
-    m_reductionDb = m_envelopeDb;
-}
-
 void Compressor::applyGain(double & left, double & right)
 {
     if (m_delayBufferL.empty()) {
@@ -203,12 +128,12 @@ void Compressor::applyGain(double & left, double & right)
     m_delayBufferR[m_writePos] = right;
 
     const uint32_t readPos = (m_writePos + m_delayBufferL.size() - m_delaySamples) % m_delayBufferL.size();
-    double outL = m_delayBufferL[readPos];
-    double outR = m_delayBufferR[readPos];
+    const double outL = m_delayBufferL[readPos];
+    const double outR = m_delayBufferR[readPos];
 
     m_writePos = (m_writePos + 1) % m_delayBufferL.size();
 
-    const double totalGainDb = m_envelopeDb + static_cast<double>(m_makeup);
+    const double totalGainDb = m_core.reductionDb() + static_cast<double>(m_makeup);
     const double totalGain = Utils::Dsp::dbToLinear(static_cast<float>(totalGainDb));
 
     left = outL * totalGain;
@@ -217,9 +142,7 @@ void Compressor::applyGain(double & left, double & right)
 
 void Compressor::reset()
 {
-    m_envelopeDb = 0.0;
-    m_reductionDb = 0.0;
-    m_rmsSquare = 0.0;
+    m_core.reset();
     std::fill(m_delayBufferL.begin(), m_delayBufferL.end(), 0.0);
     std::fill(m_delayBufferR.begin(), m_delayBufferR.end(), 0.0);
     m_writePos = 0;
@@ -234,25 +157,25 @@ void Compressor::sync()
 
 float Compressor::reductionDb() const
 {
-    return static_cast<float>(m_reductionDb);
+    return static_cast<float>(m_core.reductionDb());
 }
 
 void Compressor::syncParameters()
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()); p) {
-        m_threshold = -60.0f + p->get().value() * 60.0f;
+        m_core.setThresholdDb(-60.0 + static_cast<double>(p->get().value()) * 60.0);
     }
     if (const auto p = parameter(Constants::NahdXml::xmlKeyRatio().toStdString()); p) {
-        m_ratio = 1.0f + p->get().value() * 19.0f;
+        m_core.setRatio(1.0 + static_cast<double>(p->get().value()) * 19.0);
     }
     if (const auto p = parameter(Constants::NahdXml::xmlKeyAttack().toStdString()); p) {
-        m_attackMs = static_cast<float>(ParameterMapper::mapExponential(p->get().value(), 0.1, 500.0));
+        m_core.setAttackMs(ParameterMapper::mapExponential(p->get().value(), 0.1, 500.0));
     }
     if (const auto p = parameter(Constants::NahdXml::xmlKeyRelease().toStdString()); p) {
-        m_releaseMs = static_cast<float>(ParameterMapper::mapExponential(p->get().value(), 1.0, 2000.0));
+        m_core.setReleaseMs(ParameterMapper::mapExponential(p->get().value(), 1.0, 2000.0));
     }
     if (const auto p = parameter(Constants::NahdXml::xmlKeyKnee().toStdString()); p) {
-        m_knee = p->get().value() * 24.0f;
+        m_core.setKneeDb(static_cast<double>(p->get().value()) * 24.0);
     }
     if (const auto p = parameter(Constants::NahdXml::xmlKeyMakeup().toStdString()); p) {
         m_makeup = -12.0f + p->get().value() * 24.0f;
@@ -275,11 +198,7 @@ void Compressor::syncParameters()
         m_sideChainLpfR.setCutoff(m_sideChainLpfCutoff);
     }
     if (const auto p = parameter(Constants::NahdXml::xmlKeyMode().toStdString()); p) {
-        const auto mode = p->get().value() > 0.5f ? DetectorMode::Rms : DetectorMode::Peak;
-        if (mode != m_detectorMode) {
-            m_rmsSquare = 0.0;
-        }
-        m_detectorMode = mode;
+        m_core.setDetectorMode(p->get().value() > 0.5f ? DetectorMode::Rms : DetectorMode::Peak);
     }
 }
 

@@ -17,6 +17,7 @@ set(HEADER_FILES
     dsp/all_pass_chain.hpp
     dsp/base_rate_source.hpp
     dsp/cascaded_svf.hpp
+    dsp/compressor_core.hpp
     dsp/dc_blocker.hpp
     dsp/delay_line.hpp
     dsp/divide_down_generator.hpp
@@ -34,6 +35,7 @@ set(HEADER_FILES
     dsp/fft.hpp
     dsp/high_pass_filter.hpp
     dsp/lfo.hpp
+    dsp/linkwitz_riley_crossover.hpp
     dsp/low_pass_filter.hpp
     dsp/modal_piano_string.hpp
     dsp/multi_engine.hpp
@@ -62,6 +64,7 @@ set(HEADER_FILES
     effects/endless_reverb.hpp
     effects/eq_8_band_parametric.hpp
     effects/limiter.hpp
+    effects/multiband_compressor.hpp
     effects/panner.hpp
     effects/reverb.hpp
     effects/saturator.hpp
@@ -137,6 +140,7 @@ set(SOURCE_FILES
     dsp/all_pass_chain.cpp
     dsp/base_rate_source.cpp
     dsp/cascaded_svf.cpp
+    dsp/compressor_core.cpp
     dsp/dc_blocker.cpp
     dsp/delay_line.cpp
     dsp/diode_ladder_filter.cpp
@@ -154,6 +158,7 @@ set(SOURCE_FILES
     dsp/fft.cpp
     dsp/high_pass_filter.cpp
     dsp/lfo.cpp
+    dsp/linkwitz_riley_crossover.cpp
     dsp/low_pass_filter.cpp
     dsp/modal_piano_string.cpp
     dsp/multi_engine.cpp
@@ -184,6 +189,7 @@ set(SOURCE_FILES
     effects/endless_reverb.cpp
     effects/eq_8_band_parametric.cpp
     effects/limiter.cpp
+    effects/multiband_compressor.cpp
     effects/panner.cpp
     effects/reverb.cpp
     effects/saturator.cpp

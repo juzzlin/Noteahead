@@ -97,6 +97,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/MidiImportDialog.qml
     ${QML_BASE_DIR}/Dialogs/MixerDialog.qml
     ${QML_BASE_DIR}/Dialogs/ModulationGroupBox.qml
+    ${QML_BASE_DIR}/Dialogs/MultibandCompressorDialog.qml
     ${QML_BASE_DIR}/Dialogs/NoteFrequencyDialog.qml
     ${QML_BASE_DIR}/Dialogs/PannerDialog.qml
     ${QML_BASE_DIR}/Dialogs/Kick808Dialog.qml

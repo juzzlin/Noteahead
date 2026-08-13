@@ -17,6 +17,7 @@
 #define COMPRESSOR_HPP
 
 #include "../dsp/cascaded_svf.hpp"
+#include "../dsp/compressor_core.hpp"
 #include "effect.hpp"
 
 #include <cstdint>
@@ -27,11 +28,7 @@ namespace noteahead {
 class Compressor : public Effect
 {
 public:
-    enum class DetectorMode
-    {
-        Peak,
-        Rms
-    };
+    using DetectorMode = CompressorCore::DetectorMode;
 
     Compressor();
 
@@ -50,35 +47,18 @@ public:
 
 private:
     void updateBuffers();
-    void updateCoefficients();
-    double calculateDetectorLevelDb(double left, double right);
-    double calculateGainReductionDb(double detectorDb) const;
-    void updateEnvelope(double gainReductionDb);
     void applyGain(double & left, double & right);
     void syncParameters();
 
-    float m_threshold { -20.0f };
-    float m_ratio { 4.0f };
-    float m_attackMs { 10.0f };
-    float m_releaseMs { 100.0f };
-    float m_knee { 0.0f };
+    CompressorCore m_core;
+
     float m_makeup { 0.0f };
     float m_lookaheadMs { 0.0f };
     float m_sideChainLpfCutoff { 1.0f };
-    DetectorMode m_detectorMode { DetectorMode::Peak };
     std::optional<size_t> m_sidechainSourceDevice;
 
     CascadedSvf m_sideChainLpfL;
     CascadedSvf m_sideChainLpfR;
-
-    double m_attackCoeff { 0.0 };
-    double m_releaseCoeff { 0.0 };
-    double m_rmsCoeff { 0.0 };
-
-    double m_rmsSquare { 0.0 };
-
-    double m_envelopeDb { 0.0 };
-    double m_reductionDb { 0.0 };
 
     std::vector<double> m_delayBufferL;
     std::vector<double> m_delayBufferR;
