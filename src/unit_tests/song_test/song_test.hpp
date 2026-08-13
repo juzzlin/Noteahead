@@ -80,6 +80,8 @@ private slots:
     void test_deleteColumn_middleColumn_shouldApplyToAllPatterns();
     void test_deleteColumn_onlyColumn_shouldFail();
     void test_deleteColumn_deletedColumn_shouldNotRender();
+    void test_renderToEvents_middleColumnDeleted_shouldRenderRemainingColumns();
+    void test_renderToEvents_middleColumnDeleted_columnDelaySet_shouldApplyDelay();
     void test_addColumn_columnDeleted_shouldRestoreDeletedColumn();
     void test_addColumn_noDeletedColumns_shouldUseSmallestFreeIndex();
     void test_moveColumnLeft_shouldChangeOrderButKeepIndices();

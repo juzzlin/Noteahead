@@ -876,8 +876,7 @@ Song::EventList Song::applyInstrumentsOnEvents(EventListCR events) const
         if (const auto instrument = this->instrument(trackIndex); instrument) {
             delayOffset = std::min(delayOffset, instrument->settings().timing.delay);
         }
-        const auto numColumns = columnCount(trackIndex);
-        for (size_t columnIndex = 0; columnIndex < numColumns; ++columnIndex) {
+        for (auto && columnIndex : columnIndices(trackIndex)) {
             if (const auto colSettings = columnSettings(trackIndex, columnIndex)) {
                 delayOffset = std::min(delayOffset, colSettings->delay);
             }

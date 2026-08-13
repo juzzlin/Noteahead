@@ -43,20 +43,20 @@ void MixerService::invertMutedColumns(quint64 trackIndex, quint64 columnIndex)
 {
     juzzlin::L(TAG).info() << "Inverting muted columns on track " << trackIndex;
 
-    emit columnCountOfTrackRequested(trackIndex);
+    emit columnIndicesOfTrackRequested(trackIndex);
 
     if (!isColumnMuted(trackIndex, columnIndex)) {
         if (!hasMutedColumns(trackIndex)) {
-            for (quint64 targetColumnIndex = 0; targetColumnIndex < m_columnCountMap[trackIndex]; targetColumnIndex++) {
+            for (auto && targetColumnIndex : m_columnIndexMap[trackIndex]) {
                 muteColumn(trackIndex, targetColumnIndex, columnIndex != targetColumnIndex);
             }
         } else {
-            for (quint64 targetColumnIndex = 0; targetColumnIndex < m_columnCountMap[trackIndex]; targetColumnIndex++) {
+            for (auto && targetColumnIndex : m_columnIndexMap[trackIndex]) {
                 muteColumn(trackIndex, targetColumnIndex, false);
             }
         }
     } else {
-        for (quint64 targetColumnIndex = 0; targetColumnIndex < m_columnCountMap[trackIndex]; targetColumnIndex++) {
+        for (auto && targetColumnIndex : m_columnIndexMap[trackIndex]) {
             muteColumn(trackIndex, targetColumnIndex, columnIndex != targetColumnIndex);
         }
     }
@@ -66,20 +66,20 @@ void MixerService::invertSoloedColumns(quint64 trackIndex, quint64 columnIndex)
 {
     juzzlin::L(TAG).info() << "Inverting soloed columns on track " << trackIndex;
 
-    emit columnCountOfTrackRequested(trackIndex);
+    emit columnIndicesOfTrackRequested(trackIndex);
 
     if (!isColumnSoloed(trackIndex, columnIndex)) {
         if (!hasSoloedColumns(trackIndex)) {
-            for (quint64 targetColumnIndex = 0; targetColumnIndex < m_columnCountMap[trackIndex]; targetColumnIndex++) {
+            for (auto && targetColumnIndex : m_columnIndexMap[trackIndex]) {
                 soloColumn(trackIndex, targetColumnIndex, columnIndex != targetColumnIndex);
             }
         } else {
-            for (quint64 targetColumnIndex = 0; targetColumnIndex < m_columnCountMap[trackIndex]; targetColumnIndex++) {
+            for (auto && targetColumnIndex : m_columnIndexMap[trackIndex]) {
                 soloColumn(trackIndex, targetColumnIndex, false);
             }
         }
     } else {
-        for (quint64 targetColumnIndex = 0; targetColumnIndex < m_columnCountMap[trackIndex]; targetColumnIndex++) {
+        for (auto && targetColumnIndex : m_columnIndexMap[trackIndex]) {
             soloColumn(trackIndex, targetColumnIndex, columnIndex != targetColumnIndex);
         }
     }
@@ -156,7 +156,7 @@ bool MixerService::hasTrack(quint64 trackIndex) const
 
 bool MixerService::hasColumn(quint64 trackIndex, quint64 columnindex) const
 {
-    return m_columnCountMap.contains(trackIndex) && columnindex < m_columnCountMap.at(trackIndex);
+    return m_columnIndexMap.contains(trackIndex) && std::ranges::find(m_columnIndexMap.at(trackIndex), columnindex) != m_columnIndexMap.at(trackIndex).end();
 }
 
 void MixerService::muteTrack(quint64 trackIndex, bool mute)
@@ -352,9 +352,9 @@ void MixerService::popState()
     update();
 }
 
-void MixerService::setColumnCount(quint64 trackIndex, quint64 count)
+void MixerService::setColumnIndices(quint64 trackIndex, ColumnIndexList indices)
 {
-    m_columnCountMap[trackIndex] = count;
+    m_columnIndexMap[trackIndex] = std::move(indices);
 }
 
 void MixerService::setTrackIndices(TrackIndexList indices)
@@ -429,7 +429,7 @@ void MixerService::updateTrackAndColumnConfiguration()
     emit trackIndicesRequested();
     const auto trackIndexList = m_trackIndexList;
     for (auto && trackIndex : trackIndexList) {
-        emit columnCountOfTrackRequested(trackIndex);
+        emit columnIndicesOfTrackRequested(trackIndex);
     }
 }
 

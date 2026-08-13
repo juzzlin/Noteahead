@@ -1023,6 +1023,52 @@ void SongTest::test_deleteColumn_deletedColumn_shouldNotRender()
     QCOMPARE(events.size(), 2); // Start and end of song only
 }
 
+void SongTest::test_renderToEvents_middleColumnDeleted_shouldRenderRemainingColumns()
+{
+    Song song;
+    song.addColumn(0);
+    song.addColumn(0);
+    const Position lastColumnPosition = { 0, 0, 2, 0, 0 };
+    song.noteDataAtPosition(lastColumnPosition)->setAsNoteOn(60, 100);
+
+    QVERIFY(song.deleteColumn(0, 1));
+
+    // Everything that walks the columns of a track has to walk their indices, not 0..count-1:
+    // column 1 is gone while column 2 is still there
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
+    QCOMPARE(events.size(), 4); // Start of song, note on, note off, end of song
+}
+
+void SongTest::test_renderToEvents_middleColumnDeleted_columnDelaySet_shouldApplyDelay()
+{
+    Song song;
+    song.setBeatsPerMinute(120);
+    song.setLinesPerBeat(8);
+    song.addColumn(0);
+    song.addColumn(0);
+
+    const auto instrument = std::make_shared<Instrument>("DelayedInstrument");
+    song.setInstrument(0, instrument);
+
+    auto columnSettings = std::make_shared<ColumnSettings>();
+    columnSettings->delay = 32ms;
+    song.setColumnSettings(0, 2, columnSettings);
+
+    const Position lastColumnPosition = { 0, 0, 2, 0, 0 };
+    // Set through the song so that the note data gets stamped with the column it lands on
+    NoteData noteData;
+    noteData.setAsNoteOn(60, 100);
+    song.setNoteDataAtPosition(noteData, lastColumnPosition);
+
+    QVERIFY(song.deleteColumn(0, 1));
+
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
+    const auto noteOn = std::ranges::find_if(events, [](auto && event) { return event->type() == Event::Type::NoteData && event->noteData()->type() == NoteData::Type::NoteOn; });
+    QVERIFY(noteOn != events.end());
+    const double msPerTick = 60000.0 / static_cast<double>(song.beatsPerMinute() * song.linesPerBeat() * song.ticksPerLine());
+    QCOMPARE((*noteOn)->tick(), static_cast<size_t>(std::round(static_cast<double>(columnSettings->delay.count()) / msPerTick)));
+}
+
 void SongTest::test_addColumn_columnDeleted_shouldRestoreDeletedColumn()
 {
     Song song;

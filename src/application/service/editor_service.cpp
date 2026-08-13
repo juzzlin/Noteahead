@@ -862,7 +862,13 @@ void EditorService::setInstrument(quint64 trackIndex, InstrumentS instrument)
 
 EditorService::ColumnSettingsS EditorService::columnSettings(quint64 trackIndex, quint64 columnIndex) const
 {
-    return m_song->columnSettings(trackIndex, columnIndex);
+    // The view can still be holding the index of a column that was just deleted
+    try {
+        return m_song->columnSettings(trackIndex, columnIndex);
+    } catch (...) {
+        juzzlin::L(TAG).warning() << "Cannot get settings for column, trackIndex=" << trackIndex << ", columnIndex=" << columnIndex;
+        return {};
+    }
 }
 
 void EditorService::setColumnSettings(quint64 trackIndex, quint64 columnIndex, ColumnSettingsS settings)
@@ -1635,9 +1641,8 @@ void EditorService::requestNoteOffAtTrackFirstLine()
     juzzlin::L(TAG).info() << "Requesting Note OFF at track first line";
     NoteEditCommand::ChangeList changes;
     const auto trk = currentTrack();
-    const auto numColumns = columnCount(trk);
 
-    for (quint64 col = 0; col < numColumns; col++) {
+    for (auto && col : columnIndices(trk)) {
         Position pos { m_state.cursorPosition };
         pos.column = col;
         pos.line = 0;
@@ -1663,11 +1668,8 @@ void EditorService::requestNoteOffAtPatternFirstLine()
 {
     juzzlin::L(TAG).info() << "Requesting Note OFF at pattern first line";
     NoteEditCommand::ChangeList changes;
-    const auto numTracks = trackCount();
-
-    for (quint64 trk = 0; trk < numTracks; trk++) {
-        const auto numColumns = columnCount(trk);
-        for (quint64 col = 0; col < numColumns; col++) {
+    for (auto && trk : trackIndices()) {
+        for (auto && col : columnIndices(trk)) {
             Position pos { m_state.cursorPosition };
             pos.track = trk;
             pos.column = col;

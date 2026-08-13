@@ -678,8 +678,9 @@ void Application::connectMixerService()
     connect(m_mixerService.get(), &MixerService::configurationChanged, this, [this]() {
         m_editorService->setIsModified(true);
     });
-    connect(m_mixerService.get(), &MixerService::columnCountOfTrackRequested, this, [this](size_t trackIndex) {
-        m_mixerService->setColumnCount(trackIndex, m_editorService->columnCount(trackIndex));
+    connect(m_mixerService.get(), &MixerService::columnIndicesOfTrackRequested, this, [this](size_t trackIndex) {
+        const auto columnIndices = m_editorService->columnIndices(trackIndex);
+        m_mixerService->setColumnIndices(trackIndex, { columnIndices.begin(), columnIndices.end() });
     });
     connect(m_mixerService.get(), &MixerService::trackIndicesRequested, this, [this] {
         m_mixerService->setTrackIndices(m_editorService->trackIndices());

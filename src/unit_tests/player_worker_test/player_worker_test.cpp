@@ -82,7 +82,7 @@ void PlayerWorkerTest::test_mixerChange_shouldStopNotes()
 
     // Configure Mixer: Track 0 enabled
     mixerService->setTrackIndices({ 0 });
-    mixerService->setColumnCount(0, 1);
+    mixerService->setColumnIndices(0, { 0 });
 
     // Create Instrument
     const auto instrument { std::make_shared<Instrument>("TestPort") };
@@ -121,7 +121,7 @@ void PlayerWorkerTest::test_columnMuteBehavior_shouldNotStopAllNotes()
 
     // Configure Mixer: Track 0 has 3 columns. Column 1 is muted.
     mixerService->setTrackIndices({ 0 });
-    mixerService->setColumnCount(0, 3);
+    mixerService->setColumnIndices(0, { 0, 1, 2 });
     mixerService->muteColumn(0, 1, true);
 
     // Verify Mixer state
@@ -168,7 +168,7 @@ void PlayerWorkerTest::test_trackMuteBehavior_shouldStopAllNotes()
 
     // Configure Mixer: Track 0 is muted.
     mixerService->setTrackIndices({ 0 });
-    mixerService->setColumnCount(0, 3);
+    mixerService->setColumnIndices(0, { 0, 1, 2 });
     mixerService->muteTrack(0, true);
 
     QVERIFY(mixerService->shouldTrackPlay(0) == false);
@@ -198,7 +198,7 @@ void PlayerWorkerTest::test_columnMute_shouldStopActiveNote()
     TestablePlayerWorker worker { midiService, mixerService, nullptr };
 
     mixerService->setTrackIndices({ 0 });
-    mixerService->setColumnCount(0, 2);
+    mixerService->setColumnIndices(0, { 0, 1 });
 
     auto instrument { std::make_shared<Instrument>("TestPort") };
     instrument->setMidiAddress(MidiAddress { "TestPort", 0 });
@@ -234,7 +234,7 @@ void PlayerWorkerTest::test_playback_shouldSendMidiEvents()
 
     // Configure Mixer: Track 0 enabled
     mixerService->setTrackIndices({ 0 });
-    mixerService->setColumnCount(0, 1);
+    mixerService->setColumnIndices(0, { 0 });
 
     // Create Instrument
     const auto instrument { std::make_shared<Instrument>("TestPort") };

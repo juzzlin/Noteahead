@@ -50,9 +50,9 @@ void MixerServiceTest::test_invertMutedColumns_shouldInvertMutedColumns()
         mixerService.setTrackIndices({ 0 });
     });
 
-    connect(&mixerService, &MixerService::columnCountOfTrackRequested, this, [&](auto trackIndex) {
+    connect(&mixerService, &MixerService::columnIndicesOfTrackRequested, this, [&](auto trackIndex) {
         QCOMPARE(trackIndex, 0);
-        mixerService.setColumnCount(0, 3);
+        mixerService.setColumnIndices(0, { 0, 1, 2 });
     });
 
     mixerService.muteColumn(0, 0, true);
@@ -69,6 +69,26 @@ void MixerServiceTest::test_invertMutedColumns_shouldInvertMutedColumns()
 
     QVERIFY(!mixerService.isColumnMuted(0, 0));
     QVERIFY(!mixerService.isColumnMuted(0, 1));
+    QVERIFY(!mixerService.isColumnMuted(0, 2));
+}
+
+void MixerServiceTest::test_invertMutedColumns_columnDeleted_shouldInvertRemainingColumns()
+{
+    MixerService mixerService;
+
+    connect(&mixerService, &MixerService::trackIndicesRequested, this, [&] {
+        mixerService.setTrackIndices({ 0 });
+    });
+
+    // Column 1 was deleted, so the track has columns 0 and 2
+    connect(&mixerService, &MixerService::columnIndicesOfTrackRequested, this, [&](auto trackIndex) {
+        QCOMPARE(trackIndex, 0);
+        mixerService.setColumnIndices(0, { 0, 2 });
+    });
+
+    mixerService.invertMutedColumns(0, 2);
+
+    QVERIFY(mixerService.isColumnMuted(0, 0));
     QVERIFY(!mixerService.isColumnMuted(0, 2));
 }
 
@@ -98,9 +118,9 @@ void MixerServiceTest::test_invertSoloedColumns_shouldInvertSoloedColumns()
         mixerService.setTrackIndices({ 0 });
     });
 
-    connect(&mixerService, &MixerService::columnCountOfTrackRequested, this, [&](auto trackIndex) {
+    connect(&mixerService, &MixerService::columnIndicesOfTrackRequested, this, [&](auto trackIndex) {
         QCOMPARE(trackIndex, 0);
-        mixerService.setColumnCount(0, 3);
+        mixerService.setColumnIndices(0, { 0, 1, 2 });
     });
 
     mixerService.soloColumn(0, 0, true);

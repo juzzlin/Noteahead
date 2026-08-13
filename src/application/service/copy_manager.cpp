@@ -76,8 +76,7 @@ CopyManager::PositionList CopyManager::pushSourceTrack(const Pattern & pattern, 
     juzzlin::L(TAG).debug() << "Pushing data of pattern " << pattern.index();
     const auto lineCount = pattern.lineCount();
     juzzlin::L(TAG).info() << "Pushing data of track " << trackIndex;
-    const auto columnCount = pattern.columnCount(trackIndex);
-    for (size_t columnIndex = 0; columnIndex < columnCount; columnIndex++) {
+    for (auto && columnIndex : pattern.columnIndices(trackIndex)) {
         juzzlin::L(TAG).debug() << "Pushing data of column " << columnIndex;
         for (size_t lineIndex = 0; lineIndex < lineCount; lineIndex++) {
             juzzlin::L(TAG).debug() << "Pushing data of line " << lineIndex;
@@ -122,8 +121,7 @@ CopyManager::PositionList CopyManager::pushSourcePattern(const Pattern & pattern
     m_sourceLineCount = lineCount;
     for (size_t trackIndex : pattern.trackIndices()) {
         juzzlin::L(TAG).debug() << "Pushing data of track " << trackIndex;
-        const auto columnCount = pattern.columnCount(trackIndex);
-        for (size_t columnIndex = 0; columnIndex < columnCount; columnIndex++) {
+        for (auto && columnIndex : pattern.columnIndices(trackIndex)) {
             juzzlin::L(TAG).debug() << "Pushing data of column " << columnIndex;
             for (size_t lineIndex = 0; lineIndex < lineCount; lineIndex++) {
                 juzzlin::L(TAG).debug() << "Pushing data of line " << lineIndex;

@@ -65,7 +65,8 @@ public:
     void pushState();
     void popState();
 
-    void setColumnCount(quint64 trackIndex, quint64 count);
+    using ColumnIndexList = std::vector<quint64>;
+    void setColumnIndices(quint64 trackIndex, ColumnIndexList indices);
     using TrackIndexList = std::vector<quint64>;
     void setTrackIndices(TrackIndexList indices);
 
@@ -78,7 +79,7 @@ signals:
     void columnMuted(quint64 trackIndex, quint64 columnIndex, bool muted);
     void columnSoloed(quint64 trackIndex, quint64 columnIndex, bool soloed);
     void columnVelocityScaleChanged(quint64 trackIndex, quint64 columnIndex, quint8 velocityScale);
-    void columnCountOfTrackRequested(quint64 trackIndex);
+    void columnIndicesOfTrackRequested(quint64 trackIndex);
 
     void trackMuted(quint64 trackIndex, bool muted);
     void trackSoloed(quint64 trackIndex, bool soloed);
@@ -123,8 +124,10 @@ private:
 
     std::vector<State> m_stateStack;
 
-    using ColumnCountMap = std::map<quint64, quint64>;
-    ColumnCountMap m_columnCountMap;
+    //! The columns of a track by index, in order. Indices are identities: after a column is
+    //! deleted they are no longer 0..count-1.
+    using ColumnIndexMap = std::map<quint64, ColumnIndexList>;
+    ColumnIndexMap m_columnIndexMap;
     TrackIndexList m_trackIndexList;
 
     mutable std::mutex m_muteSoloMutex;

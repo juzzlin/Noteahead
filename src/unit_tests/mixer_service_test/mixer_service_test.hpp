@@ -27,6 +27,7 @@ class MixerServiceTest : public QObject
 private slots:
     void test_muteColumn_shouldSetColumnMuted();
     void test_invertMutedColumns_shouldInvertMutedColumns();
+    void test_invertMutedColumns_columnDeleted_shouldInvertRemainingColumns();
     void test_soloColumn_shouldSetColumnSoloed();
     void test_invertSoloedColumns_shouldInvertSoloedColumns();
 

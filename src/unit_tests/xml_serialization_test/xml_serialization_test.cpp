@@ -413,6 +413,9 @@ void XmlSerializationTest::test_toXmlFromXml_columnDeleted_shouldLoadColumnIndic
     songOut->noteDataAtPosition(lastColumnPosition)->setAsNoteOn(64, 100);
     QVERIFY(songOut->deleteColumn(0, 1));
 
+    // Rendering for playback walks every column of the track and used to trip over the gap
+    songOut->renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
+
     const auto xml = editorServiceOut.toXml();
     EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     editorServiceIn.fromXml(xml);
@@ -420,6 +423,7 @@ void XmlSerializationTest::test_toXmlFromXml_columnDeleted_shouldLoadColumnIndic
 
     QCOMPARE(songIn->columnIndices(0), Song::ColumnIndexList({ 0, 2 }));
     QCOMPARE(songIn->noteDataAtPosition(lastColumnPosition)->note(), std::optional<uint8_t> { 64 });
+    songIn->renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
 
     // The soft delete survives the save: adding a column back brings its data with it
     songIn->addColumn(0);
@@ -691,8 +695,8 @@ void XmlSerializationTest::test_toXmlFromXml_mixerService_shouldLoadMixerService
     connect(&mixerServiceOut, &MixerService::trackIndicesRequested, this, [&]() {
         mixerServiceOut.setTrackIndices({ 0, 1, 2, 3, 4 });
     });
-    connect(&mixerServiceOut, &MixerService::columnCountOfTrackRequested, this, [&](auto && trackIndex) {
-        mixerServiceOut.setColumnCount(trackIndex, 3);
+    connect(&mixerServiceOut, &MixerService::columnIndicesOfTrackRequested, this, [&](auto && trackIndex) {
+        mixerServiceOut.setColumnIndices(trackIndex, { 0, 1, 2 });
     });
 
     MixerService mixerServiceIn;
