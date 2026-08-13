@@ -575,8 +575,6 @@ void SynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
                     changed = true;
                 }
             }
-        } else if (controller == static_cast<uint8_t>(Controller::BankSelectMSB)) {
-            m_currentBank = std::clamp(static_cast<int>(value), 0, 1); // 0: Factory, 1: User
         } else {
             const float val = static_cast<float>(value) / 127.0f;
             if (controller == static_cast<uint8_t>(Controller::ModulationWheelMSB)) { // LFO intensity (temporary, not saved to param)
@@ -1327,35 +1325,24 @@ void SynthDevice::processMidiProgramChange(uint8_t program, uint8_t)
 {
     // Transport traffic: a program change in a song may move the whole panel, but the patch the
     // user saved has to still be there when playback stops.
-    applyPreset(m_currentBank, program, false);
+    applyPreset(program, false);
 }
 
-void SynthDevice::loadPreset(int bank, int index)
+void SynthDevice::loadPreset(int index)
 {
-    applyPreset(bank, index, true);
+    applyPreset(index, true);
 }
 
-void SynthDevice::applyPreset(int bank, int index, bool authored)
+void SynthDevice::applyPreset(int index, bool authored)
 {
     {
         const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
-        const std::map<std::string, float> * values = nullptr;
-        if (bank == 0) {
-            const auto & presets = SynthPresets::presets();
-            if (index < 0 || index >= static_cast<int>(presets.size())) {
-                return;
-            }
-            values = &presets[index].parameters;
-        } else if (bank == 1) {
-            if (const auto it = m_userPresets.find(index); it != m_userPresets.end()) {
-                values = &it->second.parameters;
-            } else {
-                return;
-            }
-        } else {
+        const auto & presets = SynthPresets::presets();
+        if (index < 0 || index >= static_cast<int>(presets.size())) {
             return;
         }
+        const std::map<std::string, float> * values = &presets[index].parameters;
 
         // A preset is the whole panel, so everything it does not name goes back to its default
         // first -- on the same layer the preset itself is about to be written to.
@@ -1384,14 +1371,6 @@ void SynthDevice::applyPreset(int bank, int index, bool authored)
         emit dataChanged();
     } else {
         emit parametersChanged();
-    }
-}
-
-void SynthDevice::setUserPresets(const UserPresets & presets)
-{
-    {
-        const std::lock_guard<std::recursive_mutex> lock(mutex());
-        m_userPresets = presets;
     }
 }
 

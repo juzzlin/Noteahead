@@ -124,9 +124,7 @@ class SynthController : public DeviceController
     Q_PROPERTY(int panSpread READ panSpread WRITE setPanSpread NOTIFY panSpreadChanged)
     Q_PROPERTY(int pitchBendRange READ pitchBendRange WRITE setPitchBendRange NOTIFY pitchBendRangeChanged)
     Q_PROPERTY(QStringList presetNames READ presetNames CONSTANT)
-    Q_PROPERTY(int currentBank READ currentBank WRITE setCurrentBank NOTIFY currentBankChanged)
     Q_PROPERTY(int currentPresetIndex READ currentPresetIndex WRITE setCurrentPresetIndex NOTIFY currentPresetIndexChanged)
-    Q_PROPERTY(QStringList userPresetNames READ userPresetNames NOTIFY userPresetNamesChanged)
 
     // Oscillator drift
     Q_PROPERTY(int oscillatorDrift READ oscillatorDrift WRITE setOscillatorDrift NOTIFY oscillatorDriftChanged)
@@ -295,11 +293,8 @@ public:
     void setPitchBendRange(int r);
 
     QStringList presetNames() const;
-    int currentBank() const;
-    void setCurrentBank(int bank);
     int currentPresetIndex() const;
     void setCurrentPresetIndex(int index);
-    QStringList userPresetNames() const;
 
     int oscillatorDrift() const;
     void setOscillatorDrift(int drift);
@@ -329,17 +324,13 @@ public:
     Q_INVOKABLE void initialize();
     Q_INVOKABLE void requestSettings() override;
     Q_INVOKABLE void loadPreset(int index);
-    Q_INVOKABLE void saveUserPreset(QString name);
 
 signals:
     //! Emitted when the UI language changed and the translated lists must be re-read.
     void translationsChanged();
 
     void synthChanged();
-    void currentBankChanged();
     void currentPresetIndexChanged();
-    void userPresetNamesChanged();
-    void userPresetSaved(int index, const noteahead::SynthPreset & preset);
     void vco1WaveformChanged();
     void vco1OctaveChanged();
     void vco1PitchChanged();
@@ -411,14 +402,11 @@ signals:
 public:
     void setSynth(std::shared_ptr<SynthDevice> synth);
     void setDeviceService(std::shared_ptr<DeviceService> deviceService);
-    void setUserPresets(const UserPresets & presets);
 
 private:
     std::shared_ptr<SynthDevice> m_synth;
     std::shared_ptr<DeviceService> m_deviceService;
-    int m_currentBank = 0;
     int m_currentPresetIndex = 0;
-    UserPresets m_userPresets;
 };
 
 } // namespace noteahead

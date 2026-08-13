@@ -32,10 +32,6 @@ SynthController::SynthController(std::shared_ptr<SynthDevice> synth, QObject * p
   , m_synth { std::move(synth) }
 {
     connectDeviceSignals();
-
-    for (int i = 0; i < 128; ++i) {
-        m_userPresets[i] = SynthPresets::initPreset();
-    }
 }
 
 SynthController::~SynthController() = default;
@@ -765,20 +761,6 @@ QStringList SynthController::presetNames() const
     return names;
 }
 
-int SynthController::currentBank() const
-{
-    return m_currentBank;
-}
-
-void SynthController::setCurrentBank(int bank)
-{
-    if (m_currentBank != bank) {
-        m_currentBank = bank;
-        emit currentBankChanged();
-        setCurrentPresetIndex(0);
-    }
-}
-
 int SynthController::currentPresetIndex() const
 {
     return m_currentPresetIndex;
@@ -790,23 +772,6 @@ void SynthController::setCurrentPresetIndex(int index)
         m_currentPresetIndex = index;
         emit currentPresetIndexChanged();
     }
-}
-
-QStringList SynthController::userPresetNames() const
-{
-    QStringList names;
-    for (int i = 0; i < 128; ++i) {
-        names << QString { "%1: %2" }
-                   .arg(i, 3, 10, QChar { '0' })
-                   .arg(QString::fromStdString(m_userPresets.at(i).name));
-    }
-    return names;
-}
-
-void SynthController::setUserPresets(const UserPresets & presets)
-{
-    m_userPresets = presets;
-    emit userPresetNamesChanged();
 }
 
 // Oscillator drift
@@ -1037,22 +1002,11 @@ void SynthController::requestSettings()
 void SynthController::loadPreset(int index)
 {
     if (m_synth) {
-        m_synth->loadPreset(m_currentBank, index);
+        // The controller owns which preset is showing, so that the dialog only has to ask for one
+        // to be loaded. Left to the caller, the combo box reads back its old value and snaps back.
+        setCurrentPresetIndex(index);
+        m_synth->loadPreset(index);
         requestSettings();
-    }
-}
-
-void SynthController::saveUserPreset(QString name)
-{
-    if (m_synth && m_deviceService) {
-        SynthPreset preset;
-        preset.name = name.toStdString();
-        // Authored values: a preset saved while a song plays is the patch the user made, not the
-        // one the automation happens to be holding.
-        for (const auto & [paramName, parameter] : m_synth->parameters()) {
-            preset.parameters[paramName] = parameter.authoredValue();
-        }
-        m_deviceService->saveSynthUserPreset(m_currentPresetIndex, preset);
     }
 }
 

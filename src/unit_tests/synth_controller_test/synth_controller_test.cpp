@@ -5,6 +5,7 @@
 #include "../../common/constants.hpp"
 #include "../../domain/devices/device.hpp"
 #include "../../domain/devices/synth_device.hpp"
+#include "../../domain/devices/synth_presets.hpp"
 #include "../../view/controllers/synth_controller.hpp"
 
 #include <QSignalSpy>
@@ -262,6 +263,18 @@ void SynthControllerTest::test_scopeActive_shouldFollowShownInstance()
     // Hiding the scope stops all capture.
     controller.setScopeActive(false);
     QVERIFY(!synthB->scope().active());
+}
+
+void SynthControllerTest::test_loadPreset_shouldShowTheLoadedPreset()
+{
+    const auto synth = std::make_shared<SynthDevice>("Test Synth");
+    SynthController controller { synth };
+
+    // The dialog binds the combo box to this and asks only for a load, so a load that does not move
+    // it leaves the box reading its previous entry.
+    controller.loadPreset(2);
+    QCOMPARE(controller.currentPresetIndex(), 2);
+    QCOMPARE(controller.presetNames().size(), static_cast<int>(SynthPresets::presets().size()));
 }
 
 } // namespace noteahead

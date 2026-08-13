@@ -314,8 +314,7 @@ public:
     void setFeedbackHpf(float cutoff);
 
     //! Loads a preset as the user's own choice: it becomes the patch, and it is what gets saved.
-    void loadPreset(int bank, int index);
-    void setUserPresets(const UserPresets & presets);
+    void loadPreset(int index);
 
 private:
     //! Everything a note-on hands to a voice. Passed whole so the deferred path below can hold on to
@@ -482,8 +481,6 @@ private:
     bool m_delaySync { false };
     float m_delaySyncDivision { 0.25f };
 
-    int m_currentBank = 0;
-    UserPresets m_userPresets;
 
     //! Oversampling factor of the block being rendered, so voices can compensate their noise.
     uint8_t m_oversampleFactor { 1 };
@@ -511,7 +508,7 @@ private:
     double midiNoteToFreq(uint8_t note) const;
     //! \param authored Whether the preset is the user's choice or a program change from a song.
     //! A program change writes the live layer only, so stopping playback brings the patch back.
-    void applyPreset(int bank, int index, bool authored);
+    void applyPreset(int index, bool authored);
 
     void syncParameters() override;
 

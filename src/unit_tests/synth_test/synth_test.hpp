@@ -43,9 +43,7 @@ private slots:
     void test_parameterDiscreteFlag_shouldReturnCorrectDiscreteState();
     void test_vcoOctave_32Foot_shouldSoundTwoOctavesBelow8Foot();
     void test_vcoOctave_belowRange_shouldClampTo32Foot();
-    void test_midiBankAndProgramChange_shouldLoadCorrectPreset();
-    void test_userPresets_shouldSaveAndLoad();
-    void test_userPresetsDiscreteValues_shouldLoadCorrectly();
+    void test_midiProgramChange_shouldLoadCorrectPreset();
     void test_projectLoadPhaseSync_shouldLoadCorrectly();
     void test_serialization_shouldSaveAndLoadGain();
     void test_serialization_shouldSaveAndLoadPitchBendRange();

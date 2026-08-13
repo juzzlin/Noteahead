@@ -37,22 +37,8 @@ AnimatedDialog {
         radius: 2
     }
 
-    property bool isSaving: false
-
     onAboutToShow: () => {
-        isSaving = false;
         synthController.requestSettings();
-    }
-
-    StringInputDialog {
-        id: presetNameDialog
-        onAccepted: {
-            synthController.saveUserPreset(text);
-            isSaving = false;
-        }
-        onRejected: {
-            isSaving = false;
-        }
     }
 
     footer: DialogButtonBox {
@@ -67,11 +53,9 @@ AnimatedDialog {
             DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
         }
         onAccepted: () => {
-            isSaving = false;
             synthController.accept();
         }
         onRejected: () => {
-            isSaving = false;
             synthController.reject();
         }
     }
@@ -82,10 +66,6 @@ AnimatedDialog {
         spacing: 10
 
         SynthDialog_Presets {
-            isSaving: root.isSaving
-            presetNameDialog: presetNameDialog
-            onIsSavingChanged: root.isSaving = isSaving
-            visible: false
         }
 
         RowLayout {

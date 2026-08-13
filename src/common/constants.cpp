@@ -2315,11 +2315,6 @@ QString xmlKeyMixLevel3()
     return "mixLevel3";
 }
 
-QString xmlKeyUserPresets()
-{
-    return "UserPresets";
-}
-
 QString xmlKeyPreset()
 {
     return "Preset";

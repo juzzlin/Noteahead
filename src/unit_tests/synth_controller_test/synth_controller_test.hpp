@@ -13,6 +13,7 @@ class SynthControllerTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_loadPreset_shouldShowTheLoadedPreset();
     void test_sampleRateChange_shouldUpdateHzValues();
     void test_properties_shouldUpdateDeviceAndEmitSignals();
     void test_reset_shouldRestoreDefaultValues();

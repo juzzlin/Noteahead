@@ -50,9 +50,6 @@ DeviceService::DeviceService(AudioEngineS audioEngine, DataServiceS dataService,
   , m_internalDevicePortPrefix { Constants::internalDevicePortPrefix() }
 {
     m_deviceCache.resize(Constants::deviceRackSize());
-    for (int i = 0; i < 128; i++) {
-        m_synthUserPresets[i] = SynthPresets::initPreset();
-    }
 }
 
 DeviceService::~DeviceService() = default;
@@ -525,29 +522,6 @@ QStringList DeviceService::devicesByCategory(const QString & category) const
     return devices;
 }
 
-void DeviceService::setSynthUserPresets(const UserPresets & presets)
-{
-    m_synthUserPresets = presets;
-    for (const auto & name : internalDeviceNames()) {
-        if (const auto synth = std::dynamic_pointer_cast<SynthDevice>(device(name))) {
-            synth->setUserPresets(m_synthUserPresets);
-        }
-    }
-    emit synthUserPresetsChanged(m_synthUserPresets);
-}
-
-UserPresets DeviceService::synthUserPresets() const
-{
-    return m_synthUserPresets;
-}
-
-void DeviceService::saveSynthUserPreset(int index, const SynthPreset & preset)
-{
-    m_synthUserPresets[index] = preset;
-    setSynthUserPresets(m_synthUserPresets);
-    emit dataChanged();
-}
-
 void DeviceService::setProjectPath(const std::string & projectPath)
 {
     m_projectPath = projectPath;
@@ -630,75 +604,12 @@ void DeviceService::serializeMasterEffects(ProjectWriter & writer) const
     writer.writeEndElement(); // MasterEffects
 }
 
-void DeviceService::serializePresetParameter(ProjectWriter & writer, const std::string & paramName, float value, const std::shared_ptr<SynthDevice> & synth) const
-{
-    writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
-    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), QString::fromStdString(paramName));
-
-    const auto p = synth ? synth->parameter(paramName) : std::nullopt;
-    if (!p) {
-        writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(static_cast<double>(value)));
-    } else if (p->get().type() == Parameter::Type::Continuous) {
-        writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueFloat());
-        writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(Parameter::internalToXmlValue(value, p->get().xmlMin(), p->get().xmlMax())));
-        writer.writeAttribute(Constants::NahdXml::xmlKeyMin(), QString::number(p->get().xmlMin()));
-        writer.writeAttribute(Constants::NahdXml::xmlKeyMax(), QString::number(p->get().xmlMax()));
-        writer.writeAttribute(Constants::NahdXml::xmlKeyDefault(), QString::number(p->get().xmlDefault()));
-        writer.writeAttribute(Constants::NahdXml::xmlKeyScale(), QString::number(p->get().xmlScale()));
-    } else if (p->get().type() == Parameter::Type::Discrete) {
-        writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueInt());
-        writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(static_cast<int>(std::round(value))));
-    } else if (p->get().type() == Parameter::Type::Boolean) {
-        writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueBool());
-        writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), value > 0.5f ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
-    }
-
-    writer.writeEndElement(); // Parameter
-}
-
-void DeviceService::serializePreset(ProjectWriter & writer, int index, const SynthPreset & preset, const std::shared_ptr<SynthDevice> & synth) const
-{
-    if (preset.parameters.empty()) {
-        return;
-    }
-
-    writer.writeStartElement(Constants::NahdXml::xmlKeyPreset());
-    writer.writeAttribute(Constants::NahdXml::xmlKeyIndex(), QString::number(index));
-    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), QString::fromStdString(preset.name));
-    for (auto && [paramName, value] : preset.parameters) {
-        serializePresetParameter(writer, paramName, value, synth);
-    }
-    writer.writeEndElement(); // Preset
-}
-
-void DeviceService::serializeUserPresets(ProjectWriter & writer) const
-{
-    if (m_synthUserPresets.empty()) {
-        return;
-    }
-
-    const auto synth = findFirstSynthDevice();
-    const auto typeId = synth ? QString::fromStdString(synth->typeId()) : "";
-
-    writer.writeStartElement(Constants::NahdXml::xmlKeyUserPresets());
-    if (!typeId.isEmpty()) {
-        writer.writeAttribute(Constants::NahdXml::xmlKeyTypeId(), typeId);
-    }
-
-    for (auto && [index, preset] : m_synthUserPresets) {
-        serializePreset(writer, index, preset, synth);
-    }
-
-    writer.writeEndElement(); // UserPresets
-}
-
 void DeviceService::serializeToXml(ProjectWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyDevices());
 
     serializeDevices(writer);
     serializeMasterEffects(writer);
-    serializeUserPresets(writer);
 
     writer.writeEndElement(); // Devices
 }
@@ -802,57 +713,6 @@ float DeviceService::legacyPresetParameterValue(ProjectReader & reader, const st
     return Parameter::xmlValueToInternal(intValue, xmlMin, xmlMax);
 }
 
-void DeviceService::deserializePresetParameter(ProjectReader & reader, SynthPreset & preset) const
-{
-    const auto paramName = Utils::Xml::readStringAttribute(reader, Constants::NahdXml::xmlKeyName()).value_or("").toStdString();
-    if (!paramName.empty()) {
-        const auto valueType = reader.attribute(Constants::NahdXml::xmlKeyParameterValueType()).toString();
-        const auto xmlValue = reader.attribute(Constants::NahdXml::xmlKeyValue()).toString();
-
-        if (valueType == Constants::NahdXml::xmlValueInt()) {
-            preset.parameters[paramName] = static_cast<float>(xmlValue.toInt());
-        } else if (valueType == Constants::NahdXml::xmlValueBool()) {
-            preset.parameters[paramName] = (xmlValue == Constants::NahdXml::xmlValueTrue() || xmlValue == "1") ? 1.0f : 0.0f;
-        } else if (valueType == Constants::NahdXml::xmlValueFloat()) {
-            const auto xmlMin = reader.attribute(Constants::NahdXml::xmlKeyMin()).toInt();
-            const auto xmlMax = reader.attribute(Constants::NahdXml::xmlKeyMax()).toInt();
-            preset.parameters[paramName] = Parameter::xmlValueToInternal(xmlValue.toInt(), xmlMin, xmlMax);
-        } else {
-            // Fallback for older files
-            preset.parameters[paramName] = legacyPresetParameterValue(reader, paramName, xmlValue);
-        }
-    }
-    reader.skipCurrentElement();
-}
-
-SynthPreset DeviceService::deserializePreset(ProjectReader & reader) const
-{
-    const auto presetName = Utils::Xml::readStringAttribute(reader, Constants::NahdXml::xmlKeyName()).value_or("Init");
-    SynthPreset preset { presetName.toStdString(), {} };
-
-    while (reader.readNextStartElement()) {
-        if (reader.name() == Constants::NahdXml::xmlKeyParameter()) {
-            deserializePresetParameter(reader, preset);
-        } else {
-            reader.skipCurrentElement();
-        }
-    }
-    return preset;
-}
-
-void DeviceService::deserializeUserPresets(ProjectReader & reader)
-{
-    while (reader.readNextStartElement()) {
-        if (reader.name() == Constants::NahdXml::xmlKeyPreset()) {
-            const auto index = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyIndex()).value_or(0);
-            m_synthUserPresets[index] = deserializePreset(reader);
-        } else {
-            reader.skipCurrentElement();
-        }
-    }
-    setSynthUserPresets(m_synthUserPresets);
-}
-
 void DeviceService::deserializeFromXml(ProjectReader & reader)
 {
     while (reader.readNextStartElement()) {
@@ -862,8 +722,6 @@ void DeviceService::deserializeFromXml(ProjectReader & reader)
             // Handled via generic Device element if present in slot
         } else if (reader.name() == Constants::NahdXml::xmlKeyMasterEffects()) {
             deserializeMasterEffects(reader);
-        } else if (reader.name() == Constants::NahdXml::xmlKeyUserPresets()) {
-            deserializeUserPresets(reader);
         } else {
             reader.skipCurrentElement();
         }

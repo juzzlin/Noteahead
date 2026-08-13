@@ -682,7 +682,6 @@ QString xmlKeyMixLevel1();
 QString xmlKeyMixLevel2();
 QString xmlKeyMixLevel3();
 
-QString xmlKeyUserPresets();
 QString xmlKeyPreset();
 QString xmlKeyTypeId();
 

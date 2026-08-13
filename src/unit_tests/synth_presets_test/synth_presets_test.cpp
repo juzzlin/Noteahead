@@ -80,7 +80,7 @@ double peak(const std::vector<double> & samples)
 double auditionChord(int index)
 {
     SynthDevice synth { "Test Synth" };
-    synth.loadPreset(0, index);
+    synth.loadPreset(index);
     for (const uint8_t note : { 48, 60, 64, 67 }) {
         synth.processMidiNoteOn(note, 110);
     }
@@ -90,7 +90,7 @@ double auditionChord(int index)
 double auditionSingleNote(int index)
 {
     SynthDevice synth { "Test Synth" };
-    synth.loadPreset(0, index);
+    synth.loadPreset(index);
     synth.processMidiNoteOn(60, 110);
     return peak(render(synth));
 }
@@ -204,7 +204,7 @@ void SynthPresetsTest::test_preset_shouldReplaceTheWholePanel()
     synth.setLpfResonance(0.8f);
     synth.setPortamento(0.7f);
 
-    synth.loadPreset(0, 0); // Init
+    synth.loadPreset(0); // Init
 
     QCOMPARE(synth.lpfResonance(), 0.0f);
     QCOMPARE(synth.portamento(), 0.0f);
@@ -216,10 +216,10 @@ void SynthPresetsTest::test_preset_outOfRange_shouldChangeNothing()
     SynthDevice synth { "Test Synth" };
     synth.setLpfResonance(0.6f);
 
-    synth.loadPreset(0, -1);
+    synth.loadPreset(-1);
     QCOMPARE(synth.lpfResonance(), 0.6f);
 
-    synth.loadPreset(0, static_cast<int>(SynthPresets::presets().size()));
+    synth.loadPreset(static_cast<int>(SynthPresets::presets().size()));
     QCOMPARE(synth.lpfResonance(), 0.6f);
 }
 

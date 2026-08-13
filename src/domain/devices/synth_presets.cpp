@@ -365,9 +365,4 @@ const std::vector<SynthPreset> & SynthPresets::presets()
     return presetList;
 }
 
-SynthPreset SynthPresets::initPreset()
-{
-    return { "Init", {} };
-}
-
 } // namespace noteahead

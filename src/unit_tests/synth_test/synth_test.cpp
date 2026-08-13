@@ -138,7 +138,7 @@ void SynthTest::test_presets_shouldLoadCorrectValues()
     int checked = 0;
     for (int index = 1; index < static_cast<int>(SynthPresets::presets().size()); index++) {
         const auto & preset = SynthPresets::presets().at(static_cast<size_t>(index));
-        synth.loadPreset(0, index);
+        synth.loadPreset(index);
         for (auto && [name, expected] : preset.parameters) {
             const auto parameter = synth.parameter(name);
             QVERIFY2(parameter.has_value(), (preset.name + ": " + name).c_str());
@@ -212,7 +212,7 @@ void SynthTest::test_presetMidiCcReset_shouldRestorePresetValues()
 
     synth.setLpfCutoff(1.0f);
 
-    synth.loadPreset(0, preset);
+    synth.loadPreset(preset);
     QCOMPARE(synth.lpfCutoff(), presetCutoff);
 
     synth.processMidiCc(74, 127, 0); // Cutoff to 1.0
@@ -570,93 +570,31 @@ void SynthTest::test_vcoOctave_belowRange_shouldClampTo32Foot()
     QCOMPARE(synth.vco3Octave(), -2);
 }
 
-void SynthTest::test_midiBankAndProgramChange_shouldLoadCorrectPreset()
+void SynthTest::test_midiProgramChange_shouldLoadCorrectPreset()
 {
     SynthDevice synth { "Test Synth" };
 
-    // Set some user presets
-    UserPresets userPresets;
-    const SynthPreset up1 { "User 1", { { Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), 0.123f } } };
-    userPresets[5] = up1;
-    synth.setUserPresets(userPresets);
-
-    // Switch to User Bank (Bank Select MSB = 1)
-    synth.processMidiCc(0, 1, 0);
-    // Change to Program 5
-    synth.processMidiProgramChange(5, 0);
-
-    QCOMPARE(synth.lpfCutoff(), 0.123f);
-
-    // Switch to Factory Bank (Bank Select MSB = 0)
-    synth.processMidiCc(0, 0, 0);
-    // Change to Program 0 (Factory Init/first preset)
-    synth.processMidiProgramChange(0, 0);
-
-    const auto & factoryPresets = SynthPresets::presets();
-    if (!factoryPresets.empty()) {
-        const auto expectedCutoff = factoryPresets[0].parameters.count(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()) ? factoryPresets[0].parameters.at(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()) : 1.0f; // Default 1.0
-        QCOMPARE(synth.lpfCutoff(), expectedCutoff);
+    // Any preset with a cutoff of its own, found rather than named, so voicing a patch cannot
+    // break this. There is one bank now, so a program number is a preset index.
+    const auto & presets = SynthPresets::presets();
+    int program = -1;
+    float expected = 0.0f;
+    for (int index = 1; index < static_cast<int>(presets.size()); index++) {
+        const auto & parameters = presets.at(static_cast<size_t>(index)).parameters;
+        if (const auto cutoff = parameters.find(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); cutoff != parameters.end()) {
+            program = index;
+            expected = cutoff->second;
+            break;
+        }
     }
-}
+    QVERIFY(program > 0);
 
-void SynthTest::test_userPresets_shouldSaveAndLoad()
-{
-    SynthDevice synth { "Test Synth" };
+    synth.processMidiProgramChange(static_cast<uint8_t>(program), 0);
+    QCOMPARE(synth.lpfCutoff(), expected);
 
-    UserPresets userPresets;
-    for (int i = 0; i < 128; i++)
-        userPresets[i] = SynthPresets::initPreset();
-
-    const SynthPreset myPreset { "My Bass", { { Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), 0.42f } } };
-    userPresets[10] = myPreset;
-
-    synth.setUserPresets(userPresets);
-    synth.loadPreset(1, 10);
-
-    QCOMPARE(synth.lpfCutoff(), 0.42f);
-}
-
-void SynthTest::test_userPresetsDiscreteValues_shouldLoadCorrectly()
-{
-    SynthDevice synth { "Test Synth" };
-
-    UserPresets userPresets;
-    const std::string vco1WaveformKey = Constants::NahdXml::xmlKeyVco1Waveform().toStdString();
-
-    // Logical values for discrete parameters:
-    // Waveform (0..3): Tri=0.0, Saw=1.0, Square=2.0, Sine=3.0
-    // DelayType (0..3): Stereo=0.0, Mono=1.0, PingPong=2.0, Tape=3.0
-
-    const SynthPreset sawPreset { "Saw", { { vco1WaveformKey, 1.0f } } };
-    const SynthPreset pulsePreset { "Square", { { vco1WaveformKey, 2.0f } } };
-    const SynthPreset pingPongPreset { "PingPong", { { Constants::NahdXml::xmlKeyDelayType().toStdString(), 2.0f } } };
-
-    userPresets[0] = sawPreset;
-    userPresets[1] = pulsePreset;
-    userPresets[2] = pingPongPreset;
-
-    synth.setUserPresets(userPresets);
-
-    // Load Saw
-    synth.loadPreset(1, 0);
-    QCOMPARE(synth.vco1Waveform(), PolyBlepOscillator::Waveform::Saw);
-
-    // Load Square
-    synth.loadPreset(1, 1);
-    QCOMPARE(synth.vco1Waveform(), PolyBlepOscillator::Waveform::Square);
-
-    // Load PingPong
-    synth.loadPreset(1, 2);
-    QCOMPARE(synth.delayType(), Delay::Type::PingPong);
-
-    // Test Phase Sync (vco1Sync)
-    const std::string vco1SyncKey = Constants::NahdXml::xmlKeyVco1Sync().toStdString();
-    const SynthPreset syncPreset { "Sync", { { vco1SyncKey, 1.0f } } };
-    userPresets[3] = syncPreset;
-    synth.setUserPresets(userPresets);
-
-    synth.loadPreset(1, 3);
-    QCOMPARE(synth.vco1Sync(), true);
+    // Program 0 is the init patch, which names nothing, so the cutoff goes back to its default.
+    synth.processMidiProgramChange(0, 0);
+    QCOMPARE(synth.lpfCutoff(), 1.0f);
 }
 
 void SynthTest::test_projectLoadPhaseSync_shouldLoadCorrectly()
@@ -746,7 +684,7 @@ void SynthTest::test_midiCcResetPanAndVolume_shouldRestoreManualValues()
     QCOMPARE(synth.gain(), 0.6f);
 
     // 5. Test with preset load
-    synth.loadPreset(0, 1); // This should update manual fallback values
+    synth.loadPreset(1); // This should update manual fallback values
     const float presetVolume = synth.volume();
     const float presetPan = synth.pan();
     const float presetGain = synth.gain();

@@ -41,6 +41,13 @@ Bug fixes:
 
 Other:
 
+* Replace the Synth's presets with a curated set
+  - Eighteen patches in place of 127, a quarter of which were inaudible
+  - The preset selector is shown again, without the bank and save controls
+
+* Drop the Synth's user presets
+  - Existing projects still load; any slots saved in them are discarded
+
 7.4.0
 =====
 

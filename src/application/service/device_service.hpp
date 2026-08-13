@@ -139,9 +139,6 @@ public:
     Q_INVOKABLE virtual QStringList categories() const;
     Q_INVOKABLE virtual QStringList devicesByCategory(const QString & category) const;
 
-    void setSynthUserPresets(const UserPresets & presets);
-    UserPresets synthUserPresets() const;
-    void saveSynthUserPreset(int index, const SynthPreset & preset);
 
     void setProjectPath(const std::string & projectPath);
 
@@ -186,7 +183,6 @@ public:
 
 signals:
     void dataChanged();
-    void synthUserPresetsChanged(const UserPresets & presets);
 
 private:
     bool importDeviceSettingsFromXml(int slotIndex, const QString & xml);
@@ -216,17 +212,11 @@ private:
     void serializeMasterEffects(ProjectWriter & writer) const;
     void serializeSendEffects(ProjectWriter & writer) const;
     void serializeReverbSends(ProjectWriter & writer) const;
-    void serializeUserPresets(ProjectWriter & writer) const;
-    void serializePreset(ProjectWriter & writer, int index, const SynthPreset & preset, const std::shared_ptr<SynthDevice> & synth) const;
-    void serializePresetParameter(ProjectWriter & writer, const std::string & paramName, float value, const std::shared_ptr<SynthDevice> & synth) const;
 
     void deserializeDevice(ProjectReader & reader);
     void deserializeMasterEffects(ProjectReader & reader);
     void deserializeSendEffects(ProjectReader & reader);
     void deserializeEffectSend(ProjectReader & reader);
-    void deserializeUserPresets(ProjectReader & reader);
-    SynthPreset deserializePreset(ProjectReader & reader) const;
-    void deserializePresetParameter(ProjectReader & reader, SynthPreset & preset) const;
     float legacyPresetParameterValue(ProjectReader & reader, const std::string & paramName, const QString & xmlValue) const;
 
     AudioEngineS m_audioEngine;
@@ -248,7 +238,6 @@ private:
     //! Held rather than fetched per note: Constants::internalDevicePortPrefix() returns by value,
     //! and building that QString is exactly the kind of work this path exists to avoid.
     const QString m_internalDevicePortPrefix;
-    UserPresets m_synthUserPresets;
     std::string m_projectPath;
     SamplerAudioFileReaderFactory m_samplerAudioFileReaderFactory;
 };
