@@ -50,6 +50,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/LoudnessReportDialog.qml
     ${QML_BASE_DIR}/Dialogs/AudioRenderDialog.qml
     ${QML_BASE_DIR}/Dialogs/AutoDuckerDialog.qml
+    ${QML_BASE_DIR}/Dialogs/AutoFilterDialog.qml
     ${QML_BASE_DIR}/Dialogs/AutoPannerDialog.qml
     ${QML_BASE_DIR}/Dialogs/BassGrinderDialog.qml
     ${QML_BASE_DIR}/Dialogs/BassSynthDialog.qml

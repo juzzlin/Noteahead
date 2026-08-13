@@ -40,6 +40,8 @@ double KnobController::map(double value, const QString & type, double min, doubl
         return ParameterMapper::mapCubicCentered(value * 2.0 - 1.0, min, max);
     if (type == "logFrequency")
         return ParameterMapper::mapLogFrequency(value, min, max);
+    if (type == "lfoFrequency")
+        return ParameterMapper::mapLfoFrequency(value, min, max);
     if (type == "decibel")
         return ParameterMapper::mapDecibel(value, (max - min) / 2.0);
     if (type == "fader")
@@ -60,6 +62,8 @@ double KnobController::unmap(double mappedValue, const QString & type, double mi
         return (ParameterMapper::unmapCubicCentered(mappedValue, min, max) + 1.0) / 2.0;
     if (type == "logFrequency")
         return ParameterMapper::unmapLogFrequency(mappedValue, min, max);
+    if (type == "lfoFrequency")
+        return ParameterMapper::unmapLfoFrequency(mappedValue, min, max);
     if (type == "decibel")
         return ParameterMapper::unmapDecibel(mappedValue, (max - min) / 2.0);
     if (type == "fader")

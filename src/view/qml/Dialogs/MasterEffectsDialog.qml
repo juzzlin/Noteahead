@@ -227,6 +227,9 @@ AnimatedDialog {
                         } else if (effectType === effectRackController.autoPannerType) {
                             autoPannerDialog.effectIndex = index;
                             autoPannerDialog.open();
+                        } else if (effectType === effectRackController.autoFilterType) {
+                            autoFilterDialog.effectIndex = index;
+                            autoFilterDialog.open();
                         } else if (effectType === effectRackController.chorusType) {
                             chorusDialog.effectIndex = index;
                             chorusDialog.open();

@@ -9,6 +9,13 @@ New features:
   - Pulse Width, Vocal Formant, Resonant Sweep and Organ Drawbar
   - Wavetables are now built on first use instead of at startup
 
+* Add the Auto Filter rack effect
+  - LPF, HPF, BPF and Notch at 12 or 24 dB/oct
+  - Two LFOs with Synth's waveform and sync options: one on the cutoff, one
+    on the resonance
+  - Envelope follower on the cutoff, with attack and release
+  - Bipolar intensities, stereo phase offset, output gain and mix
+
 * Add the Multiband Compressor rack effect
   - Three bands split by Linkwitz-Riley crossovers that sum back flat
   - Per-band threshold, ratio, knee, attack, release, makeup, bypass and solo

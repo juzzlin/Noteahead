@@ -66,6 +66,11 @@ void Lfo::setPhase(double phase)
     }
 }
 
+double Lfo::phase() const
+{
+    return m_phase;
+}
+
 void Lfo::reset()
 {
     m_phase = 0.0;

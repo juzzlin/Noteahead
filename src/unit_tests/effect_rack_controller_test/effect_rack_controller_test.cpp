@@ -2,6 +2,7 @@
 #include "../../application/service/device_service.hpp"
 #include "../../application/service/editor_service.hpp"
 #include "../../common/constants.hpp"
+#include "../../domain/effects/auto_filter.hpp"
 #include "../../domain/effects/auto_panner.hpp"
 #include "../../domain/effects/clipper.hpp"
 #include "../../domain/effects/compressor.hpp"
@@ -170,6 +171,27 @@ void EffectRackControllerTest::test_effectParametersSummary_autoPanner_shouldRet
     // Default auto panner: rate 1.00Hz, intensity 100%
     const auto summary = controller.effectParametersSummary(0);
     QCOMPARE(summary, QString { "(rate=1.00Hz, int=100%)" });
+}
+
+void EffectRackControllerTest::test_effectParametersSummary_autoFilter_shouldReturnFormattedSummary()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(AutoFilter::typeIdString()));
+
+    // Default auto filter: low pass at 2.5 kHz swept once a second at a quarter of the range
+    const auto summary = controller.effectParametersSummary(0);
+    QCOMPARE(summary, QString { "(LPF, 2.5kHz, rate=1.00Hz, int=25%)" });
+
+    controller.setParameterValue(0, controller.autoFilterFilterTypeKey(), 1.0f);
+    controller.setParameterValue(0, controller.autoFilterLfoModeKey(), static_cast<float>(Lfo::Mode::BPM));
+    controller.setParameterValue(0, controller.autoFilterLfoRateKey(), 0.25f);
+    const auto syncedSummary = controller.effectParametersSummary(0);
+    QCOMPARE(syncedSummary, QString { "(HPF, 2.5kHz, rate=1/4, int=25%)" });
 }
 
 void EffectRackControllerTest::test_effectParametersSummary_panner_shouldReturnFormattedSummary()

@@ -51,6 +51,7 @@ public:
     void setWaveform(Waveform waveform);
     void setMode(Mode mode);
     void setPhase(double phase);
+    double phase() const;
     void trigger();
     double nextSample();
     void reset();

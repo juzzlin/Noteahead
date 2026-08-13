@@ -52,6 +52,7 @@ set(HEADER_FILES
     effects/air_band_eq.hpp
     effects/all_pass_filter.hpp
     effects/auto_ducker.hpp
+    effects/auto_filter.hpp
     effects/auto_panner.hpp
     effects/bass_grinder.hpp
     effects/clipper.hpp
@@ -176,6 +177,7 @@ set(SOURCE_FILES
     effects/air_band_eq.cpp
     effects/all_pass_filter.cpp
     effects/auto_ducker.cpp
+    effects/auto_filter.cpp
     effects/auto_panner.cpp
     effects/bass_grinder.cpp
     effects/chorus.cpp

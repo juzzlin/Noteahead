@@ -41,6 +41,7 @@
 #include "../../domain/effects/air_band_eq.hpp"
 #include "../../domain/effects/all_pass_filter.hpp"
 #include "../../domain/effects/auto_ducker.hpp"
+#include "../../domain/effects/auto_filter.hpp"
 #include "../../domain/effects/bass_grinder.hpp"
 #include "../../domain/effects/chorus.hpp"
 #include "../../domain/effects/clipper.hpp"
@@ -2410,6 +2411,66 @@ void XmlSerializationTest::test_toXmlFromXml_autoDuckerEffect_shouldLoadCorrectl
         QCOMPARE(p->get().value(), 0.4f);
     }
     QCOMPARE(restored->sidechainSourceDeviceIndex(), std::optional<size_t> { 2 });
+}
+
+void XmlSerializationTest::test_toXmlFromXml_autoFilterEffect_shouldLoadCorrectly()
+{
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto autoFilter = std::make_shared<AutoFilter>();
+    // A different value for every parameter, so that two keys pointing at the same entry cannot
+    // pass unnoticed. The discrete ones hold their setting itself rather than a position.
+    const std::vector<std::pair<QString, float>> values {
+        { Constants::NahdXml::xmlKeyFilterType(), 2.0f },
+        { Constants::NahdXml::xmlKeyFilterSlope(), 0.0f },
+        { Constants::NahdXml::xmlKeyCutoff(), 0.42f },
+        { Constants::NahdXml::xmlKeyResonance(), 0.66f },
+        { Constants::NahdXml::xmlKeyLfoWaveform(), 3.0f },
+        { Constants::NahdXml::xmlKeyLfoMode(), 1.0f },
+        { Constants::NahdXml::xmlKeyLfoRate(), 0.25f },
+        { Constants::NahdXml::xmlKeyLfoIntensity(), 0.9f },
+        { Constants::NahdXml::xmlKeyLfo2Waveform(), 4.0f },
+        { Constants::NahdXml::xmlKeyLfo2Mode(), 2.0f },
+        { Constants::NahdXml::xmlKeyLfo2Rate(), 0.75f },
+        { Constants::NahdXml::xmlKeyLfo2Intensity(), 0.2f },
+        { Constants::NahdXml::xmlKeyStereoPhase(), 0.5f },
+        { Constants::NahdXml::xmlKeyEnvMod(), 0.8f },
+        { Constants::NahdXml::xmlKeyAttack(), 0.35f },
+        { Constants::NahdXml::xmlKeyRelease(), 0.45f },
+        { Constants::NahdXml::xmlKeyGain(), 0.55f },
+        { Constants::NahdXml::xmlKeyMix(), 0.85f },
+    };
+    for (auto && [key, value] : values) {
+        if (auto p = autoFilter->parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    }
+    deviceServiceOut.sendEffectRack().setEffect(0, autoFilter);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(effect);
+    QCOMPARE(effect->typeId(), AutoFilter::typeIdString());
+    const auto restored = std::dynamic_pointer_cast<AutoFilter>(effect);
+    QVERIFY(restored);
+
+    for (auto && [key, value] : values) {
+        const auto p = restored->parameter(key.toStdString());
+        QVERIFY(p.has_value());
+        QVERIFY(std::abs(p->get().value() - value) < 1.0e-3f);
+    }
 }
 
 void XmlSerializationTest::test_toXmlFromXml_multibandCompressorEffect_shouldLoadCorrectly()

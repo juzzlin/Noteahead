@@ -65,6 +65,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString pannerType READ pannerType CONSTANT)
     Q_PROPERTY(QString autoPannerType READ autoPannerType CONSTANT)
     Q_PROPERTY(QString autoDuckerType READ autoDuckerType CONSTANT)
+    Q_PROPERTY(QString autoFilterType READ autoFilterType CONSTANT)
     Q_PROPERTY(QString reverbType READ reverbType CONSTANT)
     Q_PROPERTY(QString endlessType READ endlessType CONSTANT)
 
@@ -91,6 +92,7 @@ public:
 
     QString allPassFilterType() const;
     QString autoDuckerType() const;
+    QString autoFilterType() const;
     QString autoPannerType() const;
     QString dbtpMeterType() const;
     QString lufsMeterType() const;
@@ -179,6 +181,27 @@ public:
     Q_INVOKABLE QString compressorLookaheadKey() const;
     Q_INVOKABLE QString compressorSideChainSourceDeviceKey() const;
     Q_INVOKABLE QString compressorSideChainLpfKey() const;
+
+    Q_INVOKABLE QString autoFilterFilterTypeKey() const;
+    Q_INVOKABLE QString autoFilterFilterSlopeKey() const;
+    Q_INVOKABLE QString autoFilterCutoffKey() const;
+    Q_INVOKABLE QString autoFilterResonanceKey() const;
+    Q_INVOKABLE QString autoFilterLfoWaveformKey() const;
+    Q_INVOKABLE QString autoFilterLfoModeKey() const;
+    Q_INVOKABLE QString autoFilterLfoRateKey() const;
+    Q_INVOKABLE QString autoFilterLfoIntensityKey() const;
+    Q_INVOKABLE QString autoFilterLfo2WaveformKey() const;
+    Q_INVOKABLE QString autoFilterLfo2ModeKey() const;
+    Q_INVOKABLE QString autoFilterLfo2RateKey() const;
+    Q_INVOKABLE QString autoFilterLfo2IntensityKey() const;
+    Q_INVOKABLE QString autoFilterStereoPhaseKey() const;
+    Q_INVOKABLE QString autoFilterEnvModKey() const;
+    Q_INVOKABLE QString autoFilterEnvAttackKey() const;
+    Q_INVOKABLE QString autoFilterEnvReleaseKey() const;
+    Q_INVOKABLE QString autoFilterGainKey() const;
+    Q_INVOKABLE QString autoFilterMixKey() const;
+    Q_INVOKABLE QStringList autoFilterWaveformNames() const;
+    Q_INVOKABLE QStringList autoFilterLfoModeNames() const;
 
     Q_INVOKABLE QString multibandCompressorCrossoverFreqKey(quint32 crossoverIndex) const;
     Q_INVOKABLE QString multibandCompressorThresholdKey(quint32 bandIndex) const;

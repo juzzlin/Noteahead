@@ -19,8 +19,10 @@
 #include "../../common/parameter_mapper.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
+#include "../../domain/dsp/lfo.hpp"
 #include "../../domain/effects/all_pass_filter.hpp"
 #include "../../domain/effects/auto_ducker.hpp"
+#include "../../domain/effects/auto_filter.hpp"
 #include "../../domain/effects/auto_panner.hpp"
 #include "../../domain/effects/bass_grinder.hpp"
 #include "../../domain/effects/chorus.hpp"
@@ -72,6 +74,12 @@ QString formatMeterReading(float value)
     static constexpr int fieldWidth = 5; // "-70.0", the widest reading either meter can produce
     static const QChar figureSpace { 0x2007 };
     return value <= dbtpFloor ? QString { "-∞" }.rightJustified(fieldWidth, figureSpace) : QString { "%1" }.arg(value, fieldWidth, 'f', 1, figureSpace);
+}
+
+//! A cutoff for the rack listing, in the unit that keeps it to four characters.
+QString formatFrequency(double hz)
+{
+    return hz >= 1000.0 ? QString { "%1kHz" }.arg(hz / 1000.0, 0, 'f', 1) : QString { "%1Hz" }.arg(hz, 0, 'f', 0);
 }
 
 } // namespace
@@ -290,6 +298,7 @@ QVariantList EffectRackController::availableEffects() const
 
     addEffect("All-Pass Filter", AllPassFilter::typeIdString());
     addEffect("Auto Ducker", Constants::RackEffectType::autoDucker().toStdString());
+    addEffect("Auto Filter", Constants::RackEffectType::autoFilter().toStdString());
     addEffect("Auto Panner", Constants::RackEffectType::autoPanner().toStdString());
     addEffect("Bass Grinder", Constants::RackEffectType::bassGrinder().toStdString());
     addEffect("Endless Reverb", Constants::RackEffectType::endless().toStdString());
@@ -456,6 +465,29 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                     return QString { "(rate=%1, int=%2%)" }
                       .arg(rateStr)
                       .arg(static_cast<int>(std::round(intensity->get().value() * 100.0f)));
+                }
+            } else if (type == Constants::RackEffectType::autoFilter()) {
+                const auto filterType = effect->parameter(Constants::NahdXml::xmlKeyFilterType().toStdString());
+                const auto cutoff = effect->parameter(Constants::NahdXml::xmlKeyCutoff().toStdString());
+                const auto mode = effect->parameter(Constants::NahdXml::xmlKeyLfoMode().toStdString());
+                const auto rate = effect->parameter(Constants::NahdXml::xmlKeyLfoRate().toStdString());
+                const auto intensity = effect->parameter(Constants::NahdXml::xmlKeyLfoIntensity().toStdString());
+                if (filterType && cutoff && mode && rate && intensity) {
+                    const QStringList typeNames { "LPF", "HPF", "BPF", "Notch" };
+                    QString rateStr;
+                    if (static_cast<Lfo::Mode>(mode->get().xmlValue()) == Lfo::Mode::BPM) {
+                        KnobController knobController;
+                        rateStr = knobController.syncLabel(knobController.syncIndex(rate->get().value() * Constants::uiInternalScaling()));
+                    } else {
+                        rateStr = QString { "%1Hz" }.arg(ParameterMapper::mapLfoFrequency(rate->get().value(), 0.05, 20.0), 0, 'f', 2);
+                    }
+                    // The intensity readout carries the same cubic taper as the knob it came from.
+                    const auto intensityPercent = ParameterMapper::mapCubicCentered((intensity->get().value() - 0.5f) * 2.0f, -100.0, 100.0);
+                    return QString { "(%1, %2, rate=%3, int=%4%)" }
+                      .arg(typeNames.value(std::clamp(filterType->get().xmlValue(), 0, 3)))
+                      .arg(formatFrequency(ParameterMapper::mapExponential(cutoff->get().value(), 20.0, 20000.0)))
+                      .arg(rateStr)
+                      .arg(static_cast<int>(std::round(intensityPercent)));
                 }
             } else if (type == Constants::RackEffectType::chorus()) {
                 const auto rate = effect->parameter(Constants::NahdXml::xmlKeyRate().toStdString());
@@ -1075,6 +1107,111 @@ QString EffectRackController::eq8BandParametricStereoModeKey() const
     return Constants::NahdXml::xmlKeyStereoMode();
 }
 
+QString EffectRackController::autoFilterFilterTypeKey() const
+{
+    return Constants::NahdXml::xmlKeyFilterType();
+}
+
+QString EffectRackController::autoFilterFilterSlopeKey() const
+{
+    return Constants::NahdXml::xmlKeyFilterSlope();
+}
+
+QString EffectRackController::autoFilterCutoffKey() const
+{
+    return Constants::NahdXml::xmlKeyCutoff();
+}
+
+QString EffectRackController::autoFilterResonanceKey() const
+{
+    return Constants::NahdXml::xmlKeyResonance();
+}
+
+QString EffectRackController::autoFilterLfoWaveformKey() const
+{
+    return Constants::NahdXml::xmlKeyLfoWaveform();
+}
+
+QString EffectRackController::autoFilterLfoModeKey() const
+{
+    return Constants::NahdXml::xmlKeyLfoMode();
+}
+
+QString EffectRackController::autoFilterLfoRateKey() const
+{
+    return Constants::NahdXml::xmlKeyLfoRate();
+}
+
+QString EffectRackController::autoFilterLfoIntensityKey() const
+{
+    return Constants::NahdXml::xmlKeyLfoIntensity();
+}
+
+QString EffectRackController::autoFilterLfo2WaveformKey() const
+{
+    return Constants::NahdXml::xmlKeyLfo2Waveform();
+}
+
+QString EffectRackController::autoFilterLfo2ModeKey() const
+{
+    return Constants::NahdXml::xmlKeyLfo2Mode();
+}
+
+QString EffectRackController::autoFilterLfo2RateKey() const
+{
+    return Constants::NahdXml::xmlKeyLfo2Rate();
+}
+
+QString EffectRackController::autoFilterLfo2IntensityKey() const
+{
+    return Constants::NahdXml::xmlKeyLfo2Intensity();
+}
+
+QString EffectRackController::autoFilterStereoPhaseKey() const
+{
+    return Constants::NahdXml::xmlKeyStereoPhase();
+}
+
+QString EffectRackController::autoFilterEnvModKey() const
+{
+    return Constants::NahdXml::xmlKeyEnvMod();
+}
+
+QString EffectRackController::autoFilterEnvAttackKey() const
+{
+    return Constants::NahdXml::xmlKeyAttack();
+}
+
+QString EffectRackController::autoFilterEnvReleaseKey() const
+{
+    return Constants::NahdXml::xmlKeyRelease();
+}
+
+QString EffectRackController::autoFilterGainKey() const
+{
+    return Constants::NahdXml::xmlKeyGain();
+}
+
+QString EffectRackController::autoFilterMixKey() const
+{
+    return Constants::NahdXml::xmlKeyMix();
+}
+
+QStringList EffectRackController::autoFilterWaveformNames() const
+{
+    QStringList names;
+    for (auto && name : Lfo::waveformNames()) {
+        names.append(QString::fromStdString(name));
+    }
+    return names;
+}
+
+QStringList EffectRackController::autoFilterLfoModeNames() const
+{
+    // Ordered by Lfo::Mode, which the parameter stores as its ordinal.
+    return { tr("Normal"), tr("Sync"), tr("One-Shot") };
+}
+
 QString EffectRackController::multibandCompressorCrossoverFreqKey(quint32 crossoverIndex) const
 {
     return Constants::NahdXml::xmlKeyCrossoverFreq(crossoverIndex);
@@ -1383,6 +1520,11 @@ QString EffectRackController::compressorType() const
 QString EffectRackController::autoDuckerType() const
 {
     return Constants::RackEffectType::autoDucker();
+}
+
+QString EffectRackController::autoFilterType() const
+{
+    return Constants::RackEffectType::autoFilter();
 }
 
 QString EffectRackController::multibandCompressorType() const

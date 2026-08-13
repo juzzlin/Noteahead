@@ -261,6 +261,11 @@ QString autoDucker()
     return "autoducker";
 }
 
+QString autoFilter()
+{
+    return "autofilter";
+}
+
 QString eq8BandParametric()
 {
     return "eq8bandparametric";
@@ -1262,6 +1267,11 @@ QString xmlKeyStereoMode()
     return "stereoMode";
 }
 
+QString xmlKeyStereoPhase()
+{
+    return "stereoPhase";
+}
+
 QString xmlKeyRate()
 {
     return "rate";
@@ -1385,6 +1395,16 @@ QString xmlKeyPitchBendRange()
 QString xmlKeyResonance()
 {
     return "resonance";
+}
+
+QString xmlKeyFilterType()
+{
+    return "filterType";
+}
+
+QString xmlKeyFilterSlope()
+{
+    return "filterSlope";
 }
 
 QString xmlKeyKeyTrack()

@@ -445,6 +445,14 @@ ApplicationWindow {
         width: parent.width * Constants.effectDialogScale
         height: parent.height * Constants.effectDialogScale
     }
+    AutoFilterDialog {
+        id: autoFilterDialog
+        anchors.centerIn: parent
+        // Four sections of controls rather than the row or two the other effect dialogs hold, so it
+        // is sized like the rack dialogs instead.
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
+    }
     AllPassFilterDialog {
         id: allPassFilterDialog
         anchors.centerIn: parent
