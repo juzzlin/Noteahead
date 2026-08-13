@@ -38,16 +38,34 @@ class ColumnSettings;
 class Track : public MixerUnit
 {
 public:
+    using ColumnIndexList = std::vector<size_t>;
+
     Track(size_t index, std::string name, size_t length, size_t columnCount);
+    //! Builds the columns with the given indices, in the given order. Used when a pattern is copied.
+    Track(size_t index, std::string name, size_t length, const ColumnIndexList & columnIndices);
 
     using ColumnS = std::shared_ptr<Column>;
 
+    //! Restores the most recently deleted column, or creates a new one if none were deleted.
     void addColumn();
+    //! Soft-deletes the last column. Fails on the only remaining column.
     bool deleteColumn();
+    //! Soft-deletes the given column: it keeps its data and its index, and only leaves the order.
+    bool deleteColumn(size_t columnIndex);
+    bool moveColumnLeft(size_t columnIndex);
+    bool moveColumnRight(size_t columnIndex);
     void setColumn(ColumnS column);
     std::string columnName(size_t columnIndex) const;
     void setColumnName(size_t columnIndex, std::string name);
     std::optional<size_t> columnByName(std::string_view name) const;
+
+    bool hasColumn(size_t columnIndex) const;
+    //! Indices of the live columns, in display order.
+    ColumnIndexList columnIndices() const;
+    std::optional<size_t> columnPositionByIndex(size_t columnIndex) const;
+    std::optional<size_t> columnIndexByPosition(size_t columnPosition) const;
+    //! Indices of the soft-deleted columns, oldest first.
+    ColumnIndexList deletedColumnIndices() const;
 
     size_t lineCount() const;
     void setLineCount(size_t lineCount);
@@ -101,10 +119,20 @@ private:
     static void deserializeColumns(ProjectReader & reader, Track & track);
 
     void initialize(size_t length, size_t columnCount);
+    //! Rebuilds the order out of empty columns carrying the given indices. For deserialization only.
+    void resetColumnOrder(const ColumnIndexList & columnIndices, size_t length);
 
-    std::vector<ColumnS> m_columns;
+    ColumnS columnByIndex(size_t columnIndex) const;
+    ColumnS columnByIndexThrow(size_t columnIndex) const;
+    size_t nextFreeColumnIndex() const;
 
-    size_t m_virtualColumnCount = 0;
+    //! Live columns, in display order. A column's index is its identity and does not change: the
+    //! automations, the mixer settings and the note data all refer to a column by it.
+    std::vector<ColumnS> m_columnOrder;
+
+    //! Soft-deleted columns, most recently deleted last. Deleting a column only moves it here, so
+    //! that adding a column back restores its data and everything bound to its index.
+    std::vector<ColumnS> m_deletedColumns;
 
     InstrumentS m_instrument;
 };

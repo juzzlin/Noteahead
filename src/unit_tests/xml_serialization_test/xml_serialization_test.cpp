@@ -15,6 +15,7 @@
 
 #include "xml_serialization_test.hpp"
 
+#include "../../application/position.hpp"
 #include "../../application/service/application_service.hpp"
 #include "../../application/service/audio_service.hpp"
 #include "../../application/service/automation_service.hpp"
@@ -398,6 +399,69 @@ void XmlSerializationTest::test_toXmlFromXml_columnSettings_shouldSaveAndLoad()
     QCOMPARE(settingsIn->chordAutomationSettings.arpeggiator.enabled, settingsOut->chordAutomationSettings.arpeggiator.enabled);
     QCOMPARE(settingsIn->chordAutomationSettings.arpeggiator.pattern, settingsOut->chordAutomationSettings.arpeggiator.pattern);
     QCOMPARE(settingsIn->chordAutomationSettings.arpeggiator.eventsPerBeat, settingsOut->chordAutomationSettings.arpeggiator.eventsPerBeat);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_columnDeleted_shouldLoadColumnIndices()
+{
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    const auto songOut = editorServiceOut.song();
+    songOut->addColumn(0);
+    songOut->addColumn(0);
+    const Position deletedColumnPosition = { 0, 0, 1, 0, 0 };
+    songOut->noteDataAtPosition(deletedColumnPosition)->setAsNoteOn(60, 100);
+    const Position lastColumnPosition = { 0, 0, 2, 0, 0 };
+    songOut->noteDataAtPosition(lastColumnPosition)->setAsNoteOn(64, 100);
+    QVERIFY(songOut->deleteColumn(0, 1));
+
+    const auto xml = editorServiceOut.toXml();
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorServiceIn.fromXml(xml);
+    const auto songIn = editorServiceIn.song();
+
+    QCOMPARE(songIn->columnIndices(0), Song::ColumnIndexList({ 0, 2 }));
+    QCOMPARE(songIn->noteDataAtPosition(lastColumnPosition)->note(), std::optional<uint8_t> { 64 });
+
+    // The soft delete survives the save: adding a column back brings its data with it
+    songIn->addColumn(0);
+    QCOMPARE(songIn->columnIndices(0), Song::ColumnIndexList({ 0, 2, 1 }));
+    QCOMPARE(songIn->noteDataAtPosition(deletedColumnPosition)->note(), std::optional<uint8_t> { 60 });
+}
+
+void XmlSerializationTest::test_toXmlFromXml_columnMoved_shouldLoadColumnOrder()
+{
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    const auto songOut = editorServiceOut.song();
+    songOut->addColumn(0);
+    songOut->addColumn(0);
+    QVERIFY(songOut->moveColumnLeft(0, 2));
+
+    const auto xml = editorServiceOut.toXml();
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorServiceIn.fromXml(xml);
+
+    QCOMPARE(editorServiceIn.song()->columnIndices(0), Song::ColumnIndexList({ 0, 2, 1 }));
+}
+
+void XmlSerializationTest::test_toXml_noColumnsDeleted_shouldNotWriteColumnIndices()
+{
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorServiceOut.song()->addColumn(0);
+
+    // A project with the plain column order has to serialize exactly as it did before the attribute existed
+    QVERIFY(!editorServiceOut.toXml().contains(Constants::NahdXml::xmlKeyColumnIndices()));
+}
+
+void XmlSerializationTest::test_fromXml_legacyNoColumnIndices_shouldLoadConsecutiveIndices()
+{
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorServiceOut.song()->addColumn(0);
+    editorServiceOut.song()->addColumn(0);
+
+    const auto xml = editorServiceOut.toXml();
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorServiceIn.fromXml(xml);
+
+    QCOMPARE(editorServiceIn.song()->columnIndices(0), Song::ColumnIndexList({ 0, 1, 2 }));
 }
 
 void XmlSerializationTest::test_toXmlFromXml_automationService_midiCc_shouldLoadAutomationService()

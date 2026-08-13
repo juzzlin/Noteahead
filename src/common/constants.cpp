@@ -374,6 +374,11 @@ QString xmlKeyColumnCount()
     return "columnCount";
 }
 
+QString xmlKeyColumnIndices()
+{
+    return "columnIndices";
+}
+
 QString xmlKeyColumnSettings()
 {
     return "ColumnSettings";

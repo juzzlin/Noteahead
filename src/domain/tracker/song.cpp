@@ -253,6 +253,51 @@ bool Song::deleteColumn(size_t trackIndex)
     return false;
 }
 
+bool Song::deleteColumn(size_t trackIndex, size_t columnIndex)
+{
+    // Applied over every pattern, as the columns of a track are the same ones in all of them
+    if (columnCount(trackIndex) > 1) {
+        std::ranges::for_each(m_patterns, [=](const auto & pattern) {
+            pattern.second->deleteColumn(trackIndex, columnIndex);
+        });
+        return true;
+    }
+    return false;
+}
+
+bool Song::moveColumnLeft(size_t trackIndex, size_t columnIndex)
+{
+    bool moved = false;
+    std::ranges::for_each(m_patterns, [&](const auto & pattern) {
+        moved = pattern.second->moveColumnLeft(trackIndex, columnIndex) || moved;
+    });
+    return moved;
+}
+
+bool Song::moveColumnRight(size_t trackIndex, size_t columnIndex)
+{
+    bool moved = false;
+    std::ranges::for_each(m_patterns, [&](const auto & pattern) {
+        moved = pattern.second->moveColumnRight(trackIndex, columnIndex) || moved;
+    });
+    return moved;
+}
+
+Song::ColumnIndexList Song::columnIndices(size_t trackIndex) const
+{
+    return !m_patterns.empty() ? masterPattern()->columnIndices(trackIndex) : ColumnIndexList { 0 };
+}
+
+std::optional<size_t> Song::columnPositionByIndex(size_t trackIndex, size_t columnIndex) const
+{
+    return !m_patterns.empty() ? masterPattern()->columnPositionByIndex(trackIndex, columnIndex) : std::optional<size_t> {};
+}
+
+std::optional<size_t> Song::columnIndexByPosition(size_t trackIndex, size_t columnPosition) const
+{
+    return !m_patterns.empty() ? masterPattern()->columnIndexByPosition(trackIndex, columnPosition) : std::optional<size_t> {};
+}
+
 size_t Song::columnCount(size_t trackIndex) const
 {
     return !m_patterns.empty() ? masterPattern()->columnCount(trackIndex) : 1;

@@ -30,6 +30,7 @@
 #include "track.hpp"
 
 #include <algorithm>
+#include <ranges>
 
 namespace noteahead {
 
@@ -41,13 +42,94 @@ Track::Track(size_t index, std::string name, size_t length, size_t columnCount)
     initialize(length, columnCount);
 }
 
+Track::Track(size_t index, std::string name, size_t length, const ColumnIndexList & columnIndices)
+  : MixerUnit { index, name }
+{
+    resetColumnOrder(columnIndices, length);
+}
+
 void Track::initialize(size_t length, size_t columnCount)
 {
-    m_columns.clear();
+    ColumnIndexList columnIndices;
     for (size_t column = 0; column < columnCount; column++) {
-        m_columns.push_back(std::make_shared<Column>(column, length));
+        columnIndices.push_back(column);
     }
-    m_virtualColumnCount = m_columns.size();
+    resetColumnOrder(columnIndices, length);
+}
+
+void Track::resetColumnOrder(const ColumnIndexList & columnIndices, size_t length)
+{
+    m_columnOrder.clear();
+    for (auto && columnIndex : columnIndices) {
+        m_columnOrder.push_back(std::make_shared<Column>(columnIndex, length));
+    }
+}
+
+Track::ColumnS Track::columnByIndex(size_t columnIndex) const
+{
+    if (const auto it = std::ranges::find_if(m_columnOrder, [columnIndex](auto && column) { return column->index() == columnIndex; }); it != m_columnOrder.end()) {
+        return *it;
+    } else {
+        return nullptr;
+    }
+}
+
+Track::ColumnS Track::columnByIndexThrow(size_t columnIndex) const
+{
+    if (const auto column = columnByIndex(columnIndex); column) {
+        return column;
+    } else {
+        juzzlin::L(TAG).error() << "Invalid column index: " << columnIndex;
+        throw std::runtime_error("Invalid column index: " + std::to_string(columnIndex));
+    }
+}
+
+size_t Track::nextFreeColumnIndex() const
+{
+    auto indices = columnIndices();
+    std::ranges::copy(deletedColumnIndices(), std::back_inserter(indices));
+    std::ranges::sort(indices);
+    size_t expectedIndex = 0;
+    for (auto && index : indices) {
+        if (index != expectedIndex) {
+            return expectedIndex;
+        }
+        expectedIndex++;
+    }
+    return expectedIndex;
+}
+
+bool Track::hasColumn(size_t columnIndex) const
+{
+    return columnByIndex(columnIndex) != nullptr;
+}
+
+Track::ColumnIndexList Track::columnIndices() const
+{
+    ColumnIndexList indices;
+    std::ranges::transform(m_columnOrder, std::back_inserter(indices), [](auto && column) { return column->index(); });
+    return indices;
+}
+
+Track::ColumnIndexList Track::deletedColumnIndices() const
+{
+    ColumnIndexList indices;
+    std::ranges::transform(m_deletedColumns, std::back_inserter(indices), [](auto && column) { return column->index(); });
+    return indices;
+}
+
+std::optional<size_t> Track::columnPositionByIndex(size_t columnIndex) const
+{
+    if (const auto it = std::ranges::find_if(m_columnOrder, [columnIndex](auto && column) { return column->index() == columnIndex; }); it != m_columnOrder.end()) {
+        return static_cast<size_t>(std::distance(m_columnOrder.begin(), it));
+    } else {
+        return {};
+    }
+}
+
+std::optional<size_t> Track::columnIndexByPosition(size_t columnPosition) const
+{
+    return columnPosition < m_columnOrder.size() ? std::optional<size_t> { m_columnOrder.at(columnPosition)->index() } : std::optional<size_t> {};
 }
 
 Track::InstrumentS Track::instrument() const
@@ -62,17 +144,17 @@ void Track::setInstrument(InstrumentS instrument)
 
 Track::ColumnSettingsS Track::columnSettings(size_t columnIndex) const
 {
-    return m_columns.at(columnIndex)->settings();
+    return columnByIndexThrow(columnIndex)->settings();
 }
 
 void Track::setColumnSettings(size_t columnIndex, ColumnSettingsS settings)
 {
-    m_columns.at(columnIndex)->setSettings(settings);
+    columnByIndexThrow(columnIndex)->setSettings(settings);
 }
 
 Track::InstrumentSettingsS Track::instrumentSettingsAtPosition(const Position & position) const
 {
-    return m_columns.at(position.column)->instrumentSettings(position);
+    return columnByIndexThrow(position.column)->instrumentSettings(position);
 }
 
 void Track::setInstrumentSettingsAtPosition(const Position & position, InstrumentSettingsS instrumentSettings)
@@ -80,24 +162,57 @@ void Track::setInstrumentSettingsAtPosition(const Position & position, Instrumen
     if (instrumentSettings) {
         instrumentSettings->setTrack(index());
     }
-    m_columns.at(position.column)->setInstrumentSettings(position, instrumentSettings);
+    columnByIndexThrow(position.column)->setInstrumentSettings(position, instrumentSettings);
 }
 
 void Track::addColumn()
 {
-    if (m_virtualColumnCount < m_columns.size()) {
-        m_virtualColumnCount++;
+    if (!m_deletedColumns.empty()) {
+        m_columnOrder.push_back(m_deletedColumns.back());
+        m_deletedColumns.pop_back();
+        juzzlin::L(TAG).debug() << "Restored column with index " << m_columnOrder.back()->index();
     } else {
-        const auto length = m_columns.back()->lineCount();
-        m_columns.push_back(std::make_shared<Column>(m_columns.size(), length));
-        m_virtualColumnCount = m_columns.size();
+        const auto newIndex = nextFreeColumnIndex();
+        m_columnOrder.push_back(std::make_shared<Column>(newIndex, lineCount()));
+        juzzlin::L(TAG).debug() << "Added column with index " << newIndex;
     }
 }
 
 bool Track::deleteColumn()
 {
-    if (m_virtualColumnCount > 1) {
-        m_virtualColumnCount--;
+    return !m_columnOrder.empty() && deleteColumn(m_columnOrder.back()->index());
+}
+
+bool Track::deleteColumn(size_t columnIndex)
+{
+    if (m_columnOrder.size() < 2) {
+        return false;
+    }
+
+    if (const auto columnPosition = columnPositionByIndex(columnIndex); columnPosition.has_value()) {
+        juzzlin::L(TAG).debug() << "Deleting column with index " << columnIndex << " at position " << *columnPosition;
+        m_deletedColumns.push_back(m_columnOrder.at(*columnPosition));
+        m_columnOrder.erase(m_columnOrder.begin() + static_cast<long>(*columnPosition));
+        return true;
+    } else {
+        juzzlin::L(TAG).error() << "Invalid column index: " << columnIndex;
+        return false;
+    }
+}
+
+bool Track::moveColumnLeft(size_t columnIndex)
+{
+    if (const auto columnPosition = columnPositionByIndex(columnIndex); columnPosition.has_value() && *columnPosition) {
+        std::swap(m_columnOrder.at(*columnPosition), m_columnOrder.at(*columnPosition - 1));
+        return true;
+    }
+    return false;
+}
+
+bool Track::moveColumnRight(size_t columnIndex)
+{
+    if (const auto columnPosition = columnPositionByIndex(columnIndex); columnPosition.has_value() && *columnPosition + 1 < m_columnOrder.size()) {
+        std::swap(m_columnOrder.at(*columnPosition), m_columnOrder.at(*columnPosition + 1));
         return true;
     }
     return false;
@@ -105,80 +220,94 @@ bool Track::deleteColumn()
 
 void Track::setColumn(ColumnS column)
 {
-    m_columns.at(column->index()) = column;
+    if (const auto columnPosition = columnPositionByIndex(column->index()); columnPosition.has_value()) {
+        m_columnOrder.at(*columnPosition) = column;
+    } else if (const auto it = std::ranges::find_if(m_deletedColumns, [&column](auto && deleted) { return deleted->index() == column->index(); }); it != m_deletedColumns.end()) {
+        *it = column;
+    } else {
+        // A column the order does not know about was deleted before the project was saved
+        m_deletedColumns.push_back(column);
+    }
 }
 
 std::string Track::columnName(size_t columnIndex) const
 {
-    return m_columns.at(columnIndex)->name();
+    return columnByIndexThrow(columnIndex)->name();
 }
 
 void Track::setColumnName(size_t columnIndex, std::string name)
 {
-    m_columns.at(columnIndex)->setName(name);
+    columnByIndexThrow(columnIndex)->setName(name);
 }
 
 std::optional<size_t> Track::columnByName(std::string_view name) const
 {
-    const auto column = std::ranges::find_if(m_columns, [=](auto && column) { return column->name() == name; });
-    return column != m_columns.end() ? (*column)->index() : std::optional<size_t> {};
+    const auto column = std::ranges::find_if(m_columnOrder, [=](auto && column) { return column->name() == name; });
+    return column != m_columnOrder.end() ? (*column)->index() : std::optional<size_t> {};
 }
 
 size_t Track::columnCount() const
 {
-    return m_virtualColumnCount;
+    return m_columnOrder.size();
 }
 
 size_t Track::lineCount() const
 {
-    return m_columns.at(0)->lineCount();
+    return m_columnOrder.at(0)->lineCount();
 }
 
 void Track::setLineCount(size_t lineCount)
 {
-    for (auto && column : m_columns) {
+    // The deleted columns are kept in sync so that restoring one gives a column of the right length
+    for (auto && column : m_columnOrder) {
+        column->setLineCount(lineCount);
+    }
+    for (auto && column : m_deletedColumns) {
         column->setLineCount(lineCount);
     }
 }
 
 Track::LineList Track::lines(const Position & position) const
 {
-    return m_columns.at(position.column)->lines();
+    return columnByIndexThrow(position.column)->lines();
 }
 
 bool Track::hasData() const
 {
-    return std::ranges::any_of(m_columns, [this](auto && column) {
-        return column->index() < m_virtualColumnCount && column->hasData();
+    return std::ranges::any_of(m_columnOrder, [](auto && column) {
+        return column->hasData();
     });
 }
 
 bool Track::hasData(size_t column) const
 {
-    return m_columns.at(column)->hasData();
+    const auto columnObject = columnByIndex(column);
+    return columnObject && columnObject->hasData();
 }
 
 bool Track::hasPosition(const Position & position) const
 {
-    if (position.track == index() && position.column < m_columns.size()) {
-        return m_columns.at(position.column)->hasPosition(position);
+    if (position.track == index()) {
+        if (const auto column = columnByIndex(position.column); column) {
+            return column->hasPosition(position);
+        }
     }
     return false;
 }
 
 Position Track::nextNoteDataOnSameColumn(const Position & position) const
 {
-    return m_columns.at(position.column)->nextNoteDataOnSameColumn(position);
+    return columnByIndexThrow(position.column)->nextNoteDataOnSameColumn(position);
 }
 
 Position Track::prevNoteDataOnSameColumn(const Position & position) const
 {
-    return m_columns.at(position.column)->prevNoteDataOnSameColumn(position);
+    return columnByIndexThrow(position.column)->prevNoteDataOnSameColumn(position);
 }
 
 Track::NoteDataS Track::noteDataAtPosition(const Position & position) const
 {
-    return m_columns.at(position.column)->noteDataAtPosition(position);
+    return columnByIndexThrow(position.column)->noteDataAtPosition(position);
 }
 
 void Track::setNoteDataAtPosition(const NoteData & noteData, const Position & position)
@@ -186,25 +315,25 @@ void Track::setNoteDataAtPosition(const NoteData & noteData, const Position & po
     juzzlin::L(TAG).debug() << "Set note data at position: " << noteData.toString() << " @ " << position.toString();
     auto newNoteData = noteData;
     newNoteData.setTrack(index());
-    m_columns.at(position.column)->setNoteDataAtPosition(newNoteData, position);
+    columnByIndexThrow(position.column)->setNoteDataAtPosition(newNoteData, position);
 }
 
 Track::PositionList Track::deleteNoteDataAtPosition(const Position & position)
 {
     juzzlin::L(TAG).debug() << "Delete note data at position: " << position.toString();
-    return m_columns.at(position.column)->deleteNoteDataAtPosition(position);
+    return columnByIndexThrow(position.column)->deleteNoteDataAtPosition(position);
 }
 
 Track::PositionList Track::insertNoteDataAtPosition(const NoteData & noteData, const Position & position)
 {
     juzzlin::L(TAG).debug() << "Insert note data at position: " << noteData.toString() << " @ " << position.toString();
-    return m_columns.at(position.column)->insertNoteDataAtPosition(noteData, position);
+    return columnByIndexThrow(position.column)->insertNoteDataAtPosition(noteData, position);
 }
 
 NoteChangeList Track::transposeTrack(const Position & position, int semitones) const
 {
     NoteChangeList changes;
-    for (auto && column : m_columns) {
+    for (auto && column : m_columnOrder) {
         auto columnPosition = position;
         columnPosition.column = column->index();
         auto columnChanges = column->transposeColumn(columnPosition, semitones);
@@ -215,7 +344,7 @@ NoteChangeList Track::transposeTrack(const Position & position, int semitones) c
 
 NoteChangeList Track::transposeColumn(const Position & position, int semitones) const
 {
-    return m_columns.at(position.column)->transposeColumn(position, semitones);
+    return columnByIndexThrow(position.column)->transposeColumn(position, semitones);
 }
 
 Track::EventList Track::renderPanToEvents(size_t startTick, size_t ticksPerLine) const
@@ -225,8 +354,8 @@ Track::EventList Track::renderPanToEvents(size_t startTick, size_t ticksPerLine)
     for (size_t line = 0; line < lineCount(); line++) {
         size_t sum = 0;
         size_t count = 0;
-        for (size_t columnIndex = 0; columnIndex < m_virtualColumnCount; columnIndex++) {
-            if (const auto pan = m_columns.at(columnIndex)->pan(line); pan.has_value()) {
+        for (auto && column : m_columnOrder) {
+            if (const auto pan = column->pan(line); pan.has_value()) {
                 sum += *pan;
                 count++;
             }
@@ -245,8 +374,7 @@ Track::EventList Track::renderToEvents(size_t startTick, size_t ticksPerLine) co
     // The pan events come first on purpose: PlayerWorker dispatches the events of a tick in
     // insertion order, and a note starting on the same tick has to see the new pan, not the old one.
     Track::EventList eventList = renderPanToEvents(startTick, ticksPerLine);
-    for (size_t columnIndex = 0; columnIndex < m_virtualColumnCount; columnIndex++) {
-        const auto column = m_columns.at(columnIndex);
+    for (auto && column : m_columnOrder) {
         const auto columnList = column->renderToEvents(startTick, ticksPerLine);
         std::ranges::copy(columnList, std::back_inserter(eventList));
     }
@@ -262,14 +390,27 @@ void Track::serializeToXml(ProjectWriter & writer) const
     writer.writeAttribute("lineCount", QString::number(lineCount()));
     writer.writeAttribute("columnCount", QString::number(columnCount()));
 
+    // Only a track with deleted or reordered columns needs its indices spelled out, so that a
+    // project that has neither serializes exactly as it always did
+    const auto columnIndices = this->columnIndices();
+    if (!std::ranges::equal(columnIndices, std::views::iota(size_t { 0 }, columnCount()))) {
+        QStringList indexStrings;
+        std::ranges::transform(columnIndices, std::back_inserter(indexStrings), [](auto && columnIndex) { return QString::number(columnIndex); });
+        writer.writeAttribute(Constants::NahdXml::xmlKeyColumnIndices(), indexStrings.join(","));
+    }
+
     if (m_instrument) {
         m_instrument->serializeToXml(writer);
     }
 
-    if (hasData()) {
+    // The deleted columns are written out too: a soft delete must not lose data at save time. They
+    // are the ones whose index the columnIndices attribute does not list.
+    auto columnsToWrite = m_columnOrder;
+    std::ranges::copy(m_deletedColumns, std::back_inserter(columnsToWrite));
+    if (std::ranges::any_of(columnsToWrite, [](auto && column) { return column->hasData(); })) {
         writer.writeStartElement("Columns");
-        for (size_t columnIndex = 0; columnIndex < m_virtualColumnCount; columnIndex++) {
-            if (const auto column = m_columns.at(columnIndex); column && column->hasData()) {
+        for (auto && column : columnsToWrite) {
+            if (column && column->hasData()) {
                 column->serializeToXml(writer);
             }
         }
@@ -287,6 +428,14 @@ Track::TrackU Track::deserializeFromXml(ProjectReader & reader)
     const auto columnCount = *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyColumnCount());
     const auto lineCount = *Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyLineCount());
     auto track = std::make_unique<Track>(index, name.toStdString(), lineCount, columnCount);
+    // Absent on a project that never had a column deleted or moved, where the order is 0..columnCount-1
+    if (const auto columnIndices = Utils::Xml::readStringAttribute(reader, Constants::NahdXml::xmlKeyColumnIndices(), false); columnIndices.has_value()) {
+        ColumnIndexList indices;
+        for (auto && indexString : columnIndices->split(",", Qt::SkipEmptyParts)) {
+            indices.push_back(indexString.toULongLong());
+        }
+        track->resetColumnOrder(indices, lineCount);
+    }
     while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyTrack()))) {
         juzzlin::L(TAG).trace() << "Track: Current element: " << reader.name().toString().toStdString();
         if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyColumns())) {

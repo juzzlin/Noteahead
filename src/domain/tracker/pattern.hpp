@@ -42,13 +42,15 @@ class Pattern
 public:
     Pattern(size_t index, size_t lineCount, size_t trackCount);
 
-    using TrackToColumnCount = std::map<size_t, size_t>;
+    using ColumnIndexList = std::vector<size_t>;
+    using TrackToColumnIndices = std::map<size_t, ColumnIndexList>;
 
     struct PatternConfig
     {
         size_t lineCount = 0;
 
-        TrackToColumnCount trackToColumnCountMap;
+        //! The columns of a track keep their indices and their order over the patterns.
+        TrackToColumnIndices trackToColumnIndicesMap;
     };
 
     Pattern(size_t index, const PatternConfig & config);
@@ -57,7 +59,13 @@ public:
 
     void addColumn(size_t trackIndex);
     bool deleteColumn(size_t trackIndex);
+    bool deleteColumn(size_t trackIndex, size_t columnIndex);
+    bool moveColumnLeft(size_t trackIndex, size_t columnIndex);
+    bool moveColumnRight(size_t trackIndex, size_t columnIndex);
     size_t columnCount(size_t trackIndex) const;
+    ColumnIndexList columnIndices(size_t trackIndex) const;
+    std::optional<size_t> columnPositionByIndex(size_t trackIndex, size_t columnIndex) const;
+    std::optional<size_t> columnIndexByPosition(size_t trackIndex, size_t columnPosition) const;
 
     size_t lineCount() const;
     void setLineCount(size_t lineCount);

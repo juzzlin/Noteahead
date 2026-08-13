@@ -966,6 +966,134 @@ void SongTest::test_renderToEvents_syncedNoteOffOffsetSet_shouldApplyCorrectOffs
     QCOMPARE(noteOn->tick() - noteOff->tick(), song.ticksPerLine());
 }
 
+void SongTest::test_deleteColumn_middleColumn_shouldKeepIndicesOfRemainingColumns()
+{
+    Song song;
+    song.addColumn(0);
+    song.addColumn(0);
+    QCOMPARE(song.columnIndices(0), Song::ColumnIndexList({ 0, 1, 2 }));
+
+    const Position lastColumnPosition = { 0, 0, 2, 0, 0 };
+    song.noteDataAtPosition(lastColumnPosition)->setAsNoteOn(60, 100);
+
+    QVERIFY(song.deleteColumn(0, 1));
+
+    // The remaining columns keep their indices: the automations and the mixer settings refer to them
+    QCOMPARE(song.columnIndices(0), Song::ColumnIndexList({ 0, 2 }));
+    QCOMPARE(song.columnCount(0), 2);
+    QCOMPARE(song.columnPositionByIndex(0, 2), std::optional<size_t> { 1 });
+    QCOMPARE(song.columnIndexByPosition(0, 1), std::optional<size_t> { 2 });
+    QCOMPARE(song.noteDataAtPosition(lastColumnPosition)->note(), std::optional<uint8_t> { 60 });
+}
+
+void SongTest::test_deleteColumn_middleColumn_shouldApplyToAllPatterns()
+{
+    Song song;
+    song.addColumn(0);
+    song.addColumn(0);
+    song.createPattern(1);
+
+    QVERIFY(song.deleteColumn(0, 1));
+
+    QCOMPARE(song.columnCount(0, 0), 2);
+    QCOMPARE(song.columnCount(1, 0), 2);
+}
+
+void SongTest::test_deleteColumn_onlyColumn_shouldFail()
+{
+    Song song;
+    QCOMPARE(song.columnCount(0), 1);
+    QVERIFY(!song.deleteColumn(0, 0));
+    QCOMPARE(song.columnCount(0), 1);
+}
+
+void SongTest::test_deleteColumn_deletedColumn_shouldNotRender()
+{
+    Song song;
+    song.addColumn(0);
+    const Position secondColumnPosition = { 0, 0, 1, 0, 0 };
+    song.noteDataAtPosition(secondColumnPosition)->setAsNoteOn(60, 100);
+    QVERIFY(song.hasData());
+
+    QVERIFY(song.deleteColumn(0, 1));
+
+    // The data is kept, but a deleted column is not part of the song any more
+    QVERIFY(!song.hasData());
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
+    QCOMPARE(events.size(), 2); // Start and end of song only
+}
+
+void SongTest::test_addColumn_columnDeleted_shouldRestoreDeletedColumn()
+{
+    Song song;
+    song.addColumn(0);
+    const Position secondColumnPosition = { 0, 0, 1, 0, 0 };
+    song.noteDataAtPosition(secondColumnPosition)->setAsNoteOn(60, 100);
+
+    QVERIFY(song.deleteColumn(0, 1));
+    song.addColumn(0);
+
+    // A soft delete: the column comes back with its index and its data
+    QCOMPARE(song.columnIndices(0), Song::ColumnIndexList({ 0, 1 }));
+    QCOMPARE(song.noteDataAtPosition(secondColumnPosition)->note(), std::optional<uint8_t> { 60 });
+}
+
+void SongTest::test_addColumn_noDeletedColumns_shouldUseSmallestFreeIndex()
+{
+    Song song;
+    song.addColumn(0);
+    song.addColumn(0);
+    QCOMPARE(song.columnIndices(0), Song::ColumnIndexList({ 0, 1, 2 }));
+}
+
+void SongTest::test_moveColumnLeft_shouldChangeOrderButKeepIndices()
+{
+    Song song;
+    song.addColumn(0);
+    song.addColumn(0);
+
+    QVERIFY(song.moveColumnLeft(0, 2));
+
+    QCOMPARE(song.columnIndices(0), Song::ColumnIndexList({ 0, 2, 1 }));
+    QCOMPARE(song.columnPositionByIndex(0, 2), std::optional<size_t> { 1 });
+    QVERIFY(!song.moveColumnLeft(0, 0)); // Already leftmost
+}
+
+void SongTest::test_moveColumnRight_lastColumn_shouldFail()
+{
+    Song song;
+    song.addColumn(0);
+
+    QVERIFY(song.moveColumnRight(0, 0));
+    QCOMPARE(song.columnIndices(0), Song::ColumnIndexList({ 1, 0 }));
+    QVERIFY(!song.moveColumnRight(0, 0)); // Now rightmost
+}
+
+void SongTest::test_moveColumnLeft_shouldApplyToAllPatterns()
+{
+    Song song;
+    song.addColumn(0);
+    song.createPattern(1);
+
+    QVERIFY(song.moveColumnLeft(0, 1));
+
+    QCOMPARE(song.pattern(0)->columnIndices(0), Song::ColumnIndexList({ 1, 0 }));
+    QCOMPARE(song.pattern(1)->columnIndices(0), Song::ColumnIndexList({ 1, 0 }));
+}
+
+void SongTest::test_createPattern_columnDeleted_shouldCopyColumnIndices()
+{
+    Song song;
+    song.addColumn(0);
+    song.addColumn(0);
+    QVERIFY(song.deleteColumn(0, 1));
+
+    song.createPattern(1);
+
+    // A new pattern has to agree with the others on which columns a track has
+    QCOMPARE(song.pattern(1)->columnIndices(0), Song::ColumnIndexList({ 0, 2 }));
+}
+
 void SongTest::test_addTrack_shouldUseSmallestFreeId()
 {
     Song song;

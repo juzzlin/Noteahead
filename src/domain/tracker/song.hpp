@@ -100,7 +100,14 @@ public:
 
     void addColumn(size_t trackIndex);
     bool deleteColumn(size_t trackIndex);
+    bool deleteColumn(size_t trackIndex, size_t columnIndex);
+    bool moveColumnLeft(size_t trackIndex, size_t columnIndex);
+    bool moveColumnRight(size_t trackIndex, size_t columnIndex);
     size_t columnCount(size_t trackIndex) const;
+    using ColumnIndexList = std::vector<size_t>;
+    ColumnIndexList columnIndices(size_t trackIndex) const;
+    std::optional<size_t> columnPositionByIndex(size_t trackIndex, size_t columnIndex) const;
+    std::optional<size_t> columnIndexByPosition(size_t trackIndex, size_t columnPosition) const;
     //! For testing purposes as column counts should be consistent over patterns.
     size_t columnCount(size_t patternIndex, size_t trackIndex) const;
 

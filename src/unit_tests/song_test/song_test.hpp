@@ -76,6 +76,17 @@ private slots:
     void test_renderToEvents_customNoteOffOffsetSet_shouldApplyCorrectOffset();
     void test_renderToEvents_syncedNoteOffOffsetSet_shouldApplyCorrectOffset();
 
+    void test_deleteColumn_middleColumn_shouldKeepIndicesOfRemainingColumns();
+    void test_deleteColumn_middleColumn_shouldApplyToAllPatterns();
+    void test_deleteColumn_onlyColumn_shouldFail();
+    void test_deleteColumn_deletedColumn_shouldNotRender();
+    void test_addColumn_columnDeleted_shouldRestoreDeletedColumn();
+    void test_addColumn_noDeletedColumns_shouldUseSmallestFreeIndex();
+    void test_moveColumnLeft_shouldChangeOrderButKeepIndices();
+    void test_moveColumnRight_lastColumn_shouldFail();
+    void test_moveColumnLeft_shouldApplyToAllPatterns();
+    void test_createPattern_columnDeleted_shouldCopyColumnIndices();
+
     void test_addTrack_shouldUseSmallestFreeId();
     void test_addTrackToLeft_shouldUseSmallestFreeId();
     void test_trackByName_shouldReturnTrack();

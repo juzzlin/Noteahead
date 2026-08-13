@@ -204,6 +204,8 @@ QString xmlKeyGroup();
 QString xmlKeyColumn();
 QString xmlKeyColumns();
 QString xmlKeyColumnCount();
+//! Live column indices in order. Written only when they are not the plain 0..columnCount-1.
+QString xmlKeyColumnIndices();
 QString xmlKeyColumnSettings();
 
 QString xmlKeyChordNote1Offset();

@@ -57,10 +57,10 @@ void Pattern::copySettingsFrom(const Pattern & other)
         if (auto myTrack = trackByIndex(track->index()); myTrack) {
             myTrack->setName(track->name());
             myTrack->setInstrument(track->instrument());
-            for (size_t column = 0; column < track->columnCount(); ++column) {
-                if (column < myTrack->columnCount()) {
-                    myTrack->setColumnName(column, track->columnName(column));
-                    myTrack->setColumnSettings(column, track->columnSettings(column));
+            for (auto && columnIndex : track->columnIndices()) {
+                if (myTrack->hasColumn(columnIndex)) {
+                    myTrack->setColumnName(columnIndex, track->columnName(columnIndex));
+                    myTrack->setColumnSettings(columnIndex, track->columnSettings(columnIndex));
                 }
             }
         }
@@ -72,7 +72,7 @@ Pattern::PatternConfig Pattern::patternConfig() const
     PatternConfig config;
     config.lineCount = m_trackOrder.at(0)->lineCount();
     for (auto && track : m_trackOrder) {
-        config.trackToColumnCountMap[track->index()] = track->columnCount();
+        config.trackToColumnIndicesMap[track->index()] = track->columnIndices();
     }
     return config;
 }
@@ -92,9 +92,39 @@ bool Pattern::deleteColumn(size_t trackIndex)
     return trackByIndexThrow(trackIndex)->deleteColumn();
 }
 
+bool Pattern::deleteColumn(size_t trackIndex, size_t columnIndex)
+{
+    return trackByIndexThrow(trackIndex)->deleteColumn(columnIndex);
+}
+
+bool Pattern::moveColumnLeft(size_t trackIndex, size_t columnIndex)
+{
+    return trackByIndexThrow(trackIndex)->moveColumnLeft(columnIndex);
+}
+
+bool Pattern::moveColumnRight(size_t trackIndex, size_t columnIndex)
+{
+    return trackByIndexThrow(trackIndex)->moveColumnRight(columnIndex);
+}
+
 size_t Pattern::columnCount(size_t trackIndex) const
 {
     return trackByIndexThrow(trackIndex)->columnCount();
+}
+
+Pattern::ColumnIndexList Pattern::columnIndices(size_t trackIndex) const
+{
+    return trackByIndexThrow(trackIndex)->columnIndices();
+}
+
+std::optional<size_t> Pattern::columnPositionByIndex(size_t trackIndex, size_t columnIndex) const
+{
+    return trackByIndexThrow(trackIndex)->columnPositionByIndex(columnIndex);
+}
+
+std::optional<size_t> Pattern::columnIndexByPosition(size_t trackIndex, size_t columnPosition) const
+{
+    return trackByIndexThrow(trackIndex)->columnIndexByPosition(columnPosition);
 }
 
 size_t Pattern::lineCount() const
@@ -425,12 +455,8 @@ void Pattern::initialize(size_t lineCount, size_t trackCount)
 
 void Pattern::initialize(const PatternConfig & config)
 {
-    for (auto && [trackIndex, columnCount] : config.trackToColumnCountMap) {
-        const auto newTrack = std::make_shared<Track>(trackIndex, "Track " + std::to_string(trackIndex + 1), config.lineCount, 1);
-        m_trackOrder.push_back(newTrack);
-        while (newTrack->columnCount() < columnCount) {
-            newTrack->addColumn();
-        }
+    for (auto && [trackIndex, columnIndices] : config.trackToColumnIndicesMap) {
+        m_trackOrder.push_back(std::make_shared<Track>(trackIndex, "Track " + std::to_string(trackIndex + 1), config.lineCount, columnIndices));
     }
 }
 
