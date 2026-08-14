@@ -197,7 +197,7 @@ void FmDrumsTest::test_automatableParameters_shouldOfferEveryContinuousControl()
     for (auto && entry : device.automatableParameters()) {
         automatable.insert(entry.key);
         // Every drum's own, and the device's channel strip besides
-        const bool channelStrip = entry.key == Constants::NahdXml::xmlKeyFader().toStdString() || entry.key == Constants::NahdXml::xmlKeyGain().toStdString() || entry.key == Constants::NahdXml::xmlKeyPan().toStdString();
+        const bool channelStrip = entry.key == Constants::NahdXml::xmlKeyFader().toStdString() || entry.key == Constants::NahdXml::xmlKeyGain().toStdString() || entry.key == Constants::NahdXml::xmlKeyPan().toStdString() || entry.key == Constants::NahdXml::xmlKeyStereoWidth().toStdString();
         QVERIFY2(!entry.groupName.empty() || channelStrip, entry.key.c_str());
     }
 

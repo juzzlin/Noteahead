@@ -160,6 +160,41 @@ are in `CONTRIBUTING.md`; this is why it is built the way it is.
   mixer, the meters, the MIDI mappings and the sends each have a controller of their own, so
   `EffectRackController` and `DeviceRackController` keep only the rack.
 
+## Stereo width
+
+Every device has a Width next to Pan, on the Mixer rows and on a Sub Mixer. It narrows the device
+from 100 % down to mono.
+
+- **It narrows towards the pan position, not the centre.** Most devices apply pan inside
+  themselves, some per voice, so the engine only ever sees a signal that is already panned. Plain
+  mid/side width would pull that back to the middle: a hard-left sound at 0 % would come out of
+  the centre. `PanAwareWidth` folds the signal along the direction of the constant-power pan law
+  instead, so 0 % is mono where the device is panned, and at centre pan it is exactly mid/side
+  width.
+- **The engine applies it, straight after the device renders.** That is before the insert rack,
+  next to where the devices apply pan, which is also where the WING has it. Both send taps and the
+  inserts get the narrowed signal, and a stereo insert such as a chorus can widen it again. The
+  Panner insert has a width of its own for narrowing what the inserts produce.
+- **100 % leaves the signal untouched, bit for bit.** The stage is skipped there, so a project
+  saved before Width existed renders exactly as it did. A change of width is ramped over one
+  buffer, so moving the knob does not click.
+- **The knob stops at 100 %; widening is left to effects.** The formula keeps working past 100 %,
+  but there it only boosts whatever lies across the pan direction: mid/side widening at centre
+  pan, and nothing at all for a mono source or one panned hard, which is what many devices
+  put out. Widening that is worth having has to make width the source does not have, or spread
+  it with care, so it belongs to the inserts:
+  - **Stereo Widener** splits the signal into three bands and widens each on its own terms, so the
+    low end can stay narrow while the top is spread.
+  - **Dimension** makes a side signal out of the centre, from two copies detuned a few cents apart,
+    so it widens a mono source too.
+  - **Doubler** adds a copy a few milliseconds late, like a second take, without detuning.
+- **Widening on the strip later means a new key.** A parameter is loaded relative to the `min`
+  and `max` saved next to it, so `value="10000" max="10000"` is the top of the range whatever that
+  range is. Extending `stereoWidth` past 10000 would make every saved 100 % load as the new top.
+  The new range has to go under a new key, with `stereoWidth` as its legacy name and a converter
+  that scales the old value onto it.
+- **Right-click puts the knob in the middle, 50 %,** like every other knob.
+
 ## Drums
 
 What the drum devices share, and why. Drum Synth V2, 909 and 808 and FM Drums are `DrumPadDevice`s

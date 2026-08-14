@@ -5752,6 +5752,37 @@
     </message>
 </context>
 <context>
+    <name>Kick808Dialog_Envelope</name>
+    <message>
+        <source>Amp Envelope</source>
+        <translation type="unfinished">音量包络</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation type="unfinished">起音</translation>
+    </message>
+    <message>
+        <source>Hold</source>
+        <translation type="unfinished">保持</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation type="unfinished">衰减</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation type="unfinished">延持</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation type="unfinished">释音</translation>
+    </message>
+    <message>
+        <source>Curve</source>
+        <translation type="unfinished">曲线</translation>
+    </message>
+</context>
+<context>
     <name>Kick808Dialog_Global</name>
     <message>
         <source>Global</source>
@@ -5826,6 +5857,33 @@
     <message>
         <source>Glide</source>
         <translation>滑音</translation>
+    </message>
+</context>
+<context>
+    <name>Kick808Dialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation type="unfinished">预设：</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation type="unfinished">保存</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation type="unfinished">将当前设置保存为自定义预设</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished">删除</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation type="unfinished">删除所选的自定义预设</translation>
+    </message>
+    <message>
+        <source>The TR-808 bass drum, with Drive and pitch controls added</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7959,8 +8017,16 @@
         <translation>声像</translation>
     </message>
     <message>
+        <source>Width</source>
+        <translation>宽度</translation>
+    </message>
+    <message>
         <source>IN meters the level Gain is set against. OUT is the loudness the device finally contributes: to place one device 2 dB under another, aim for an integrated reading 2 LU lower.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Width narrows it towards mono where it is placed.</source>
+        <translation>Width 将其向单声道收窄，保持在其声像位置。</translation>
     </message>
     <message>
         <source>Insert FX</source>
@@ -11304,6 +11370,14 @@
         <source>Pass only what the effect changes, without the input</source>
         <translation>只输出效果改变的部分，不含输入</translation>
     </message>
+    <message>
+        <source>HPF</source>
+        <translation type="unfinished">HPF</translation>
+    </message>
+    <message>
+        <source>LPF</source>
+        <translation type="unfinished">LPF</translation>
+    </message>
 </context>
 <context>
     <name>RtaDialog</name>
@@ -14388,6 +14462,10 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>Pan</source>
         <translation>声像</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation>宽度</translation>
     </message>
     <message>
         <source>Devices checked here are mixed as one group and no longer reach the master on their own. Effects on this Sub Mixer apply to the whole group. Their reverb sends keep working.</source>

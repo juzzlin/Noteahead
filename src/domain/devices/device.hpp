@@ -19,6 +19,7 @@
 #include <QObject>
 
 #include "../dsp/audio_context.hpp"
+#include "../dsp/pan_aware_width.hpp"
 #include "../effects/effect_rack.hpp"
 #include "../midi/midi_mapping.hpp"
 #include "../tracker/parameter_automation_target.hpp"
@@ -511,6 +512,14 @@ public:
     //! run in, so an automated fade can never change how hard the inserts are driven.
     void applyExpression(AudioContext & context) const;
 
+    //! Narrows the device's output towards its pan position, in place over the whole buffer.
+    //!
+    //! In the engine rather than in each device for the reason pan is in each device: pan is folded
+    //! into voices in some of them, so width has to work on the panned result. The engine calls it
+    //! straight after rendering, next to where the devices apply pan, so both send taps and the
+    //! inserts see the same image. At 100 % it does nothing.
+    void applyWidth(AudioContext & context);
+
     //! CC 11 as an internal device exposes it. MIDI's own name for a percentage of CC 7.
     static MidiCcController expressionMidiCcController();
 
@@ -519,6 +528,10 @@ public:
 
     float pan() const;
     virtual void setPan(float pan);
+
+    //! Stereo width, 0..1: full by default, mono at the pan position at 0.
+    float width() const;
+    void setWidth(float value);
 
     float reverbSend(size_t index) const;
     virtual void setReverbSend(size_t index, float send);
@@ -642,6 +655,9 @@ private:
     float m_expression { 1.0f };
     float m_gain { 0.5f };
     float m_pan { 0.5f };
+    float m_width { 1.0f };
+    //! Audio thread only: the ramp state of applyWidth().
+    PanAwareWidth m_widthStage;
     std::vector<float> m_reverbSends;
     float m_linearGain { 1.0f };
 

@@ -38,6 +38,9 @@ private slots:
     void test_expression_midiCc_shouldNotReachTheDevice();
     void test_expression_clearAutomation_shouldRestoreTheAuthoredValue();
     void test_expression_absentFromXml_shouldLoadAsUnity();
+    void test_applyWidth_full_shouldLeaveBufferUntouched();
+    void test_applyWidth_zero_shouldBeMonoAtThePanPosition();
+    void test_width_absentFromXml_shouldLoadAsFull();
     void test_sendTap_preFader_shouldIgnoreFader();
     void test_sendTap_postFader_shouldFollowFader();
     void test_settings_shouldRoundTripThroughXml();

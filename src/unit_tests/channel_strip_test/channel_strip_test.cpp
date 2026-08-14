@@ -28,6 +28,7 @@
 
 #include <cmath>
 #include <memory>
+#include <numbers>
 #include <vector>
 
 namespace noteahead {
@@ -429,6 +430,81 @@ void ChannelStripTest::test_expression_absentFromXml_shouldLoadAsUnity()
     QCOMPARE(device.expression(), 1.0f);
 }
 
+void ChannelStripTest::test_applyWidth_full_shouldLeaveBufferUntouched()
+{
+    // The default, and what every project saved before Width existed loads with.
+    auto device = makeDevice(Constants::faderUnityPosition());
+    device->setPan(0.3f);
+    QCOMPARE(device->width(), 1.0f);
+    for (int i = 0; i < WarmUpBuffers; i++) {
+        renderRaw(*device);
+    }
+
+    std::vector<double> samples(static_cast<size_t>(FrameCount) * 2, 0.0);
+    AudioContext context { std::span(samples.data(), samples.size()), FrameCount, SampleRate };
+    device->processAudio(context);
+    const auto dry = samples;
+    QVERIFY(peakLevel(dry) > 0.0);
+    device->applyWidth(context);
+
+    QCOMPARE(samples, dry);
+}
+
+void ChannelStripTest::test_applyWidth_zero_shouldBeMonoAtThePanPosition()
+{
+    constexpr float pan = 0.2f;
+    auto device = makeDevice(Constants::faderUnityPosition());
+    device->setPan(pan);
+    device->setWidth(0.0f);
+    for (int i = 0; i < WarmUpBuffers; i++) {
+        renderRaw(*device);
+    }
+
+    std::vector<double> samples(static_cast<size_t>(FrameCount) * 2, 0.0);
+    AudioContext context { std::span(samples.data(), samples.size()), FrameCount, SampleRate };
+    device->processAudio(context);
+    device->applyWidth(context);
+
+    QVERIFY(peakLevel(samples) > 0.0);
+    // Every frame lies along the pan direction: left and right in the ratio of the pan law's gains
+    const double angle = static_cast<double>(pan) * std::numbers::pi * 0.5;
+    for (uint32_t i = 0; i < FrameCount; i++) {
+        QVERIFY(std::abs(samples[i * 2] * std::sin(angle) - samples[i * 2 + 1] * std::cos(angle)) < 1.0e-12);
+    }
+}
+
+void ChannelStripTest::test_width_absentFromXml_shouldLoadAsFull()
+{
+    // A project written before Width existed carries no such key, and has to sound the same.
+    QByteArray data;
+    QBuffer buffer { &data };
+    buffer.open(QIODevice::WriteOnly);
+
+    {
+        NahdXmlWriter writer { buffer };
+        DeviceUnderTest device { "Fixture" };
+        device.setWidth(0.25f);
+        device.serializeToXml(writer);
+    }
+    buffer.close();
+
+    const auto marker = QString { "name=\"%1\"" }.arg(Constants::NahdXml::xmlKeyStereoWidth()).toUtf8();
+    const auto at = data.indexOf(marker);
+    QVERIFY2(at >= 0, "stereoWidth was never written");
+    const auto start = data.lastIndexOf('<', at);
+    const auto end = data.indexOf('>', at);
+    data.remove(start, end - start + 1);
+
+    QBuffer input { &data };
+    input.open(QIODevice::ReadOnly);
+    NahdXmlReader reader { input };
+    DeviceUnderTest device { "Restored" };
+    QVERIFY(reader.readNextStartElement());
+    device.deserializeFromXml(reader);
+
+    QCOMPARE(device.width(), 1.0f);
+}
+
 void ChannelStripTest::test_sendTap_preFader_shouldIgnoreFader()
 {
     const auto renderAtVolume = [](float volume) {
@@ -474,6 +550,7 @@ void ChannelStripTest::test_settings_shouldRoundTripThroughXml()
         DeviceUnderTest device { "Fixture" };
         device.setFaderPosition(Device::FaderPosition::PostInserts);
         device.setSendTap(Device::SendTap::PreFader);
+        device.setWidth(0.4f);
         device.serializeToXml(writer);
     }
 
@@ -487,6 +564,7 @@ void ChannelStripTest::test_settings_shouldRoundTripThroughXml()
 
     QCOMPARE(static_cast<int>(device.faderPosition()), static_cast<int>(Device::FaderPosition::PostInserts));
     QCOMPARE(static_cast<int>(device.sendTap()), static_cast<int>(Device::SendTap::PreFader));
+    QCOMPARE(device.width(), 0.4f);
 }
 
 void ChannelStripTest::test_settings_absentFromXml_shouldLoadAsLegacy()

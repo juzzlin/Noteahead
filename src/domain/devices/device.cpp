@@ -63,6 +63,8 @@ Device::Device()
     addParameter(Parameter { Constants::NahdXml::xmlKeyExpression().toStdString(), 1.0f, 0, 10000, 10000, 100, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeyGain().toStdString(), 0.5f, -3000, 3000, 0, 100, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeyPan().toStdString(), 0.5f, 0, 10000, 5000, 100 });
+    // Full width by default, so a project saved before this existed loads and sounds exactly as it did
+    addParameter(Parameter { Constants::NahdXml::xmlKeyStereoWidth().toStdString(), 1.0f, 0, 10000, 10000, 100, Parameter::Type::Continuous });
 
     // Defaults reproduce the chain as it was before the channel strip existed, so a project saved
     // back then — which carries neither key — loads and sounds exactly as it did.
@@ -76,6 +78,7 @@ Device::Device()
     setParameterDisplay(C::xmlKeyFader().toStdString(), { .mapping = Display::Mapping::Fader, .unit = "dB", .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Fader") });
     setParameterDisplay(C::xmlKeyGain().toStdString(), { .mapping = Display::Mapping::Bipolar, .unit = "dB", .min = -30.0, .max = 30.0, .rest = Display::Rest::Centre, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Gain") });
     setParameterDisplay(C::xmlKeyPan().toStdString(), { .mapping = Display::Mapping::Pan, .unit = "%", .min = -100.0, .max = 100.0, .rest = Display::Rest::Centre, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Pan") });
+    setParameterDisplay(C::xmlKeyStereoWidth().toStdString(), { .mapping = Display::Mapping::Linear, .unit = "%", .min = 0.0, .max = 100.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Width") });
 
     m_volume = Constants::faderUnityPosition();
 
@@ -609,6 +612,19 @@ void Device::setPan(float pan)
     }
 }
 
+float Device::width() const
+{
+    std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    // As set rather than as playing, like pan()
+    const auto p = parameter(Constants::NahdXml::xmlKeyStereoWidth().toStdString());
+    return p ? p->get().shownValue() : m_width;
+}
+
+void Device::setWidth(float value)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyStereoWidth().toStdString(), value);
+}
+
 float Device::reverbSend(size_t index) const
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
@@ -755,6 +771,9 @@ void Device::syncParameters()
     if (auto p = parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p) {
         m_pan = p->get().value();
     }
+    if (auto p = parameter(Constants::NahdXml::xmlKeyStereoWidth().toStdString()); p) {
+        m_width = p->get().value();
+    }
     if (auto p = parameter(Constants::NahdXml::xmlKeyFaderPosition().toStdString()); p) {
         m_faderPosition = p->get().xmlValue() ? FaderPosition::PostInserts : FaderPosition::PreInserts;
     }
@@ -830,6 +849,7 @@ void Device::resetAudio()
         m_modulatorMidiValues.clear();
     }
     m_insertEffectRack.reset();
+    m_widthStage.reset();
     resetDeviceAudio();
 }
 
@@ -1108,6 +1128,18 @@ void Device::applyExpression(AudioContext & context) const
     }
 }
 
+void Device::applyWidth(AudioContext & context)
+{
+    double width {};
+    double pan {};
+    {
+        const std::lock_guard<std::recursive_mutex> lock { m_mutex };
+        width = static_cast<double>(m_width);
+        pan = static_cast<double>(m_pan);
+    }
+    m_widthStage.process(context.buffer, context.frameCount, width, pan);
+}
+
 Device::FaderPosition Device::faderPosition() const
 {
     const std::lock_guard<std::recursive_mutex> lock { m_mutex };
@@ -1187,6 +1219,7 @@ void Device::adoptChannelStripFrom(const Device & other)
     setVolume(other.volume());
     setGain(other.gain());
     setPan(other.pan());
+    setWidth(other.width());
     setFaderPosition(other.faderPosition());
     setSendTap(other.sendTap());
 

@@ -17,6 +17,8 @@ New features:
 
 * Recent projects can be filtered, and Edit > Audio recording (Ctrl+Shift+R) toggles recording
 
+* Mixer: a Width knob next to Pan narrows a device towards mono where it is panned
+
 Bug fixes:
 
 * Fix GitHub Issue #78: Crash when lines per beat is below 4

@@ -52,6 +52,8 @@ public:
     Q_INVOKABLE void setDeviceGain(int slotIndex, int value);
     Q_INVOKABLE int devicePan(int slotIndex) const;
     Q_INVOKABLE void setDevicePan(int slotIndex, int value);
+    Q_INVOKABLE int deviceWidth(int slotIndex) const;
+    Q_INVOKABLE void setDeviceWidth(int slotIndex, int value);
     //! Device::FaderPosition and Device::SendTap as ints, for the Device Settings dialog.
     Q_INVOKABLE int deviceFaderPosition(int slotIndex) const;
     Q_INVOKABLE void setDeviceFaderPosition(int slotIndex, int value);

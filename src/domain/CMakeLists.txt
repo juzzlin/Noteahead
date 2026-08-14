@@ -66,6 +66,7 @@ set(HEADER_FILES
     dsp/one_pole_filter.hpp
     dsp/opto_compressor_core.hpp
     dsp/ota_ladder_filter.hpp
+    dsp/pan_aware_width.hpp
     dsp/panning.hpp
     dsp/ensemble_phaser.hpp
     dsp/piano_soundboard.hpp
@@ -222,6 +223,7 @@ set(SOURCE_FILES
     dsp/one_pole_filter.cpp
     dsp/opto_compressor_core.cpp
     dsp/ota_ladder_filter.cpp
+    dsp/pan_aware_width.cpp
     dsp/panning.cpp
     dsp/ensemble_phaser.cpp
     dsp/piano_soundboard.cpp

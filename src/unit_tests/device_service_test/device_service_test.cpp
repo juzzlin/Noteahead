@@ -426,6 +426,7 @@ void DeviceServiceTest::test_replaceDevice_shouldKeepChannelStrip()
     synth->setVolume(0.6f);
     synth->setGain(0.4f);
     synth->setPan(0.3f);
+    synth->setWidth(0.6f);
     synth->setFaderPosition(Device::FaderPosition::PostInserts);
     synth->setSendTap(Device::SendTap::PreFader);
     synth->setReverbSend(2, 0.5f);
@@ -446,6 +447,7 @@ void DeviceServiceTest::test_replaceDevice_shouldKeepChannelStrip()
     QCOMPARE(replacement->volume(), 0.6f);
     QCOMPARE(replacement->gain(), 0.4f);
     QCOMPARE(replacement->pan(), 0.3f);
+    QCOMPARE(replacement->width(), 0.6f);
     QCOMPARE(replacement->faderPosition(), Device::FaderPosition::PostInserts);
     QCOMPARE(replacement->sendTap(), Device::SendTap::PreFader);
     QCOMPARE(replacement->reverbSend(2), 0.5f);

@@ -2665,7 +2665,7 @@ void SamplerTest::test_automatableParameters_loadedPad_shouldBeListedUnderItsKey
     }
     // Pad 60's, and the device's own channel strip, which belongs to no pad
     QVERIFY(std::ranges::all_of(list, [](auto && entry) {
-        const bool channelStrip = entry.key == Constants::NahdXml::xmlKeyFader().toStdString() || entry.key == Constants::NahdXml::xmlKeyGain().toStdString() || entry.key == Constants::NahdXml::xmlKeyPan().toStdString();
+        const bool channelStrip = entry.key == Constants::NahdXml::xmlKeyFader().toStdString() || entry.key == Constants::NahdXml::xmlKeyGain().toStdString() || entry.key == Constants::NahdXml::xmlKeyPan().toStdString() || entry.key == Constants::NahdXml::xmlKeyStereoWidth().toStdString();
         return entry.groupNote == std::optional<uint8_t> { 60 } || (!entry.groupNote && channelStrip);
     }));
 }

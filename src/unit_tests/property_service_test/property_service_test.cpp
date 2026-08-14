@@ -345,18 +345,19 @@ void PropertyServiceTest::test_automationTargets_deviceWithoutDescriptions_shoul
     const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     PropertyService propertyService;
     propertyService.setDeviceService(deviceService);
-    // A sub-mixer has nothing of its own to ride, but it has the fader, gain and pan every device has
+    // A sub-mixer has nothing of its own to ride, but it has the fader, gain, pan and width every device has
     deviceService->setDevice(0, std::make_shared<SubMixerDevice>("Sub Mixer"));
 
     const auto targets = propertyService.automationTargets();
     QCOMPARE(targets.size(), 1);
     const auto parameters = targets.at(0).toMap()["parameters"].toList();
-    QCOMPARE(parameters.size(), 3);
+    QCOMPARE(parameters.size(), 4);
     const auto fader = parameterOf(targets.at(0).toMap(), Constants::NahdXml::xmlKeyFader());
     QCOMPARE(fader["unit"].toString(), QString { "dB" });
     QCOMPARE(fader["mapping"].toString(), QString { "fader" });
     QVERIFY(!parameterOf(targets.at(0).toMap(), Constants::NahdXml::xmlKeyGain()).isEmpty());
     QVERIFY(!parameterOf(targets.at(0).toMap(), Constants::NahdXml::xmlKeyPan()).isEmpty());
+    QVERIFY(!parameterOf(targets.at(0).toMap(), Constants::NahdXml::xmlKeyStereoWidth()).isEmpty());
 }
 
 void PropertyServiceTest::test_automationParameter_device_shouldFindIt()

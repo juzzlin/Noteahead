@@ -5753,6 +5753,37 @@
     </message>
 </context>
 <context>
+    <name>Kick808Dialog_Envelope</name>
+    <message>
+        <source>Amp Envelope</source>
+        <translation type="unfinished">Inviluppo di ampiezza</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation type="unfinished">Attacco</translation>
+    </message>
+    <message>
+        <source>Hold</source>
+        <translation type="unfinished">Tenuta</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation type="unfinished">Decadimento</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation type="unfinished">Sostegno</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation type="unfinished">Rilascio</translation>
+    </message>
+    <message>
+        <source>Curve</source>
+        <translation type="unfinished">Curva</translation>
+    </message>
+</context>
+<context>
     <name>Kick808Dialog_Global</name>
     <message>
         <source>Global</source>
@@ -5827,6 +5858,33 @@
     <message>
         <source>Glide</source>
         <translation>Glide</translation>
+    </message>
+</context>
+<context>
+    <name>Kick808Dialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation type="unfinished">Preset:</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation type="unfinished">Salva</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation type="unfinished">Salva le impostazioni attuali come preset personale</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished">Elimina</translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation type="unfinished">Elimina il preset personale selezionato</translation>
+    </message>
+    <message>
+        <source>The TR-808 bass drum, with Drive and pitch controls added</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7960,8 +8018,16 @@
         <translation>Panning</translation>
     </message>
     <message>
+        <source>Width</source>
+        <translation>Larghezza</translation>
+    </message>
+    <message>
         <source>IN meters the level Gain is set against. OUT is the loudness the device finally contributes: to place one device 2 dB under another, aim for an integrated reading 2 LU lower.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Width narrows it towards mono where it is placed.</source>
+        <translation>Width lo restringe verso il mono, nel punto in cui è collocato.</translation>
     </message>
     <message>
         <source>Insert FX</source>
@@ -11305,6 +11371,14 @@
         <source>Pass only what the effect changes, without the input</source>
         <translation>Lascia passare solo ciò che l’effetto cambia, senza l’ingresso</translation>
     </message>
+    <message>
+        <source>HPF</source>
+        <translation type="unfinished">HPF</translation>
+    </message>
+    <message>
+        <source>LPF</source>
+        <translation type="unfinished">LPF</translation>
+    </message>
 </context>
 <context>
     <name>RtaDialog</name>
@@ -14390,6 +14464,10 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
     <message>
         <source>Pan</source>
         <translation>Panning</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation>Larghezza</translation>
     </message>
     <message>
         <source>Devices checked here are mixed as one group and no longer reach the master on their own. Effects on this Sub Mixer apply to the whole group. Their reverb sends keep working.</source>
