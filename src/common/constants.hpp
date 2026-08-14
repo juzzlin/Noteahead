@@ -647,6 +647,8 @@ QString xmlKeyStereoMode();
 QString xmlKeyLinearPhase();
 QString xmlKeyAutoGain();
 QString xmlKeyStereoPhase();
+//! Every device's stereo width. Not "width", which Noise FX already uses for a parameter of its own.
+QString xmlKeyStereoWidth();
 QString xmlKeyBaseRate();
 QString xmlKeyRate();
 QString xmlKeyPhrase();

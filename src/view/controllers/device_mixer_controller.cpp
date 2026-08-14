@@ -76,6 +76,21 @@ void DeviceMixerController::setDevicePan(int slotIndex, int value)
     }
 }
 
+int DeviceMixerController::deviceWidth(int slotIndex) const
+{
+    const auto device = m_deviceService->device(static_cast<size_t>(slotIndex));
+    // Full width, which is also the sane answer for an absent device.
+    return static_cast<int>(std::round((device ? device->width() : 1.0f) * Constants::uiInternalScaling()));
+}
+
+void DeviceMixerController::setDeviceWidth(int slotIndex, int value)
+{
+    if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex))) {
+        device->setWidth(static_cast<float>(value) / Constants::uiInternalScaling());
+        m_editorService->setIsModified(true);
+    }
+}
+
 int DeviceMixerController::deviceFaderPosition(int slotIndex) const
 {
     const auto device = m_deviceService->device(static_cast<size_t>(slotIndex));

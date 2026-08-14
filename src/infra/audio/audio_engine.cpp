@@ -180,6 +180,9 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
 
     device->renderBlock(audioContext);
 
+    // Next to where the devices apply pan, so the inserts and both send taps hear the same image
+    device->applyWidth(audioContext);
+
     // Level tap for gain staging: post-gain and pre-insert, the level the Gain knob is set against.
     device->meter().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
 

@@ -240,7 +240,7 @@ AnimatedDialog {
                                 mapping: "decibel"
                                 mapMin: -30
                                 mapMax: 30
-                                Layout.preferredWidth: 130
+                                Layout.preferredWidth: 105
                                 Layout.maximumWidth: 200
                                 value: {
                                     deviceRackController.revision;
@@ -252,7 +252,7 @@ AnimatedDialog {
                             Knob {
                                 label: qsTr("Fader")
                                 mapping: "fader"
-                                Layout.preferredWidth: 130
+                                Layout.preferredWidth: 105
                                 Layout.maximumWidth: 200
                                 value: {
                                     deviceRackController.revision;
@@ -264,13 +264,24 @@ AnimatedDialog {
                             Knob {
                                 label: qsTr("Pan")
                                 mapping: "pan"
-                                Layout.preferredWidth: 130
+                                Layout.preferredWidth: 105
                                 Layout.maximumWidth: 200
                                 value: {
                                     deviceRackController.revision;
                                     return deviceMixerController.devicePan(index);
                                 }
                                 onMoved: v => deviceMixerController.setDevicePan(index, v)
+                            }
+
+                            Knob {
+                                label: qsTr("Width")
+                                Layout.preferredWidth: 105
+                                Layout.maximumWidth: 200
+                                value: {
+                                    deviceRackController.revision;
+                                    return deviceMixerController.deviceWidth(index);
+                                }
+                                onMoved: v => deviceMixerController.setDeviceWidth(index, v)
                             }
 
                             // Vertical Separator
@@ -371,7 +382,7 @@ AnimatedDialog {
         }
 
         Text {
-            text: qsTr("These are the very same controls as in each device's own dialog: Gain trims the device into its insert effects, the Fader balances it, Pan places it.") + " " + qsTr("IN meters the level Gain is set against. OUT is the loudness the device finally contributes: to place one device 2 dB under another, aim for an integrated reading 2 LU lower.")
+            text: qsTr("These are the very same controls as in each device's own dialog: Gain trims the device into its insert effects, the Fader balances it, Pan places it.") + " " + qsTr("Width narrows it towards mono where it is placed.") + " " + qsTr("IN meters the level Gain is set against. OUT is the loudness the device finally contributes: to place one device 2 dB under another, aim for an integrated reading 2 LU lower.")
             color: Theme.textSecondary
             font.italic: true
             font.pointSize: 11

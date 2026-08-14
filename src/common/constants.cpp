@@ -1842,6 +1842,11 @@ QString xmlKeyStereoPhase()
     return "stereoPhase";
 }
 
+QString xmlKeyStereoWidth()
+{
+    return "stereoWidth";
+}
+
 QString xmlKeyPhrase()
 {
     return "phrase";

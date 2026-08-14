@@ -207,6 +207,16 @@ AnimatedDialog {
                 }
                 onMoved: v => deviceMixerController.setDevicePan(root.slotIndex, v)
             }
+
+            Knob {
+                label: qsTr("Width")
+                Layout.fillWidth: true
+                value: {
+                    deviceRackController.revision;
+                    return deviceMixerController.deviceWidth(root.slotIndex);
+                }
+                onMoved: v => deviceMixerController.setDeviceWidth(root.slotIndex, v)
+            }
         }
 
         Text {
