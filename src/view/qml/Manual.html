@@ -108,7 +108,7 @@
     <li><strong>Reverbs</strong>: <strong>Reverb</strong> (the FDN reverb described below) and <strong>Endless Reverb</strong> (a large modulated ambient reverb with a Freeze switch for an infinite tail).</li>
     <li><strong>Dynamics</strong>: <strong>Compressor</strong> (with side-chain support), <strong>Multiband Compressor</strong> (three bands split by Linkwitz-Riley crossovers, described below), <strong>Auto Ducker</strong> (side-chain driven ducking or boosting), <strong>Limiter</strong> (lookahead brickwall with gain reduction metering), <strong>Clipper</strong> and <strong>Wave Designer</strong> (transient shaper, described below).</li>
     <li><strong>Saturation</strong>: <strong>Drive</strong> (Soft, Hard, Fold and Dist algorithms), <strong>Saturator</strong>, <strong>Tube Stage</strong> (valve preamp, described below), <strong>Bass Grinder</strong> (split-band bass preamp distortion, described below) and <strong>Stereo Exciter</strong> (harmonic generator, described below).</li>
-    <li><strong>Filters & Modulation</strong>: <strong>Auto Filter</strong> (swept filter with two LFOs and an envelope follower, described below), <strong>Chorus</strong>, <strong>Delay</strong> (Mono, Ping Pong and Tape modes, with BPM sync) and <strong>All-Pass Filter</strong>.</li>
+    <li><strong>Filters & Modulation</strong>: <strong>Auto Filter</strong> (swept filter with two LFOs and an envelope follower, described below), <strong>Phaser</strong> (swept all-pass cascade, described below), <strong>Chorus</strong>, <strong>Delay</strong> (Mono, Ping Pong and Tape modes, with BPM sync) and <strong>All-Pass Filter</strong>.</li>
     <li><strong>Stereo</strong>: <strong>Panner</strong>, <strong>Auto Panner</strong> and <strong>Stereo Enhancer</strong> (psychoacoustic EQ, described below).</li>
     <li><strong>Metering & Analysis</strong>: <strong>LUFS Meter</strong> (momentary, short-term and a gated integrated reading that runs as the song plays), <strong>dBTP Meter</strong> (true peak) and <strong>RTA</strong> (real-time analyzer). Use these as inserts to watch the signal at any point in the chain.</li>
 </ul>
@@ -123,6 +123,19 @@
     <li><strong>Envelope Follower</strong>: <strong>Amount</strong> opens the filter with the signal's own level, the classic auto-wah, or closes it when turned negative. <strong>Attack</strong> and <strong>Release</strong> set how quickly it follows. The follower and both LFOs sum into the same cutoff, so they stack.</li>
     <li><strong>Stereo Phase</strong>: offsets the right channel's LFOs from the left channel's, up to half a cycle. The two channels then filter differently, which is genuine decorrelation and widens dramatically — but a mono sum averages the two and the sweep flattens out, so check mono before leaning on it.</li>
     <li><strong>Gain</strong> and <strong>Mix</strong>: output trim, and the blend against the dry signal for parallel filtering.</li>
+</ul>
+
+<h3>Phaser Parameters</h3>
+<p>An all-pass section passes every frequency at full level and only shifts its phase, by an amount that depends on the frequency. Summed back with the dry signal, the frequencies that come out half a cycle late cancel and the rest do not, so a cascade of them writes a comb of notches into the spectrum. Sweeping the cascade moves the notches, and that movement is the effect: nothing is being filtered out so much as repeatedly cancelled and released.</p>
+<p>This is what separates it from the Chorus and from a flanger. A delay-based effect combs at harmonically spaced notches, hundreds of them, because the comb comes from a fixed time offset. Here each notch belongs to one pair of all-pass sections, and they are not harmonically related — which is why a phaser sounds hollow and vocal where a flanger sounds like a jet.</p>
+<ul>
+    <li><strong>Stages</strong>: 2 to 12 all-pass sections. Every pair puts one notch into the spectrum, so this is literally how many notches there are: 4 stages is the classic two-notch sweep, 12 is thick and resonant.</li>
+    <li><strong>Center</strong> and <strong>Depth</strong>: where the sweep sits, and how far either side of it the notches travel — up to three octaves at full depth.</li>
+    <li><strong>Feedback</strong>: returns the cascade's output to its input, which sharpens the peaks between the notches. Its sign matters as much as its amount: the two polarities cancel at different frequencies and voice the effect quite differently, so try both.</li>
+    <li><strong>Waveform</strong>, <strong>Mode</strong> and <strong>Rate</strong>: the sweep's LFO, with the same shapes and modes as the Synth's — free-running in Hz, locked to the tempo in <strong>Sync</strong>, or sweeping once in <strong>One-Shot</strong>.</li>
+    <li><strong>Rate Divider</strong>: divides whatever the Rate works out to, by any whole number up to 64. It applies in both modes, which is what makes the very slow sweeps a phaser is often wanted for reachable: a free-running sweep can be stretched over minutes, and a tempo-locked one over several bars, which is a division the sync slider has no name for.</li>
+    <li><strong>Stereo Phase</strong>: offsets the right channel's sweep from the left channel's. It starts at 90 degrees, the quadrature offset a stereo phaser is normally built with; 0 makes it mono and 180 opposes the channels completely.</li>
+    <li><strong>Gain</strong> and <strong>Mix</strong>: output trim, and the blend against the dry signal. The notches are deepest at 50 %, where the dry and the swept signal meet at equal amounts — turn Mix up beyond that and the cancellation gets shallower rather than stronger.</li>
 </ul>
 
 <h3>Multiband Compressor Parameters</h3>

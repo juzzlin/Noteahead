@@ -35,6 +35,7 @@
 #include "limiter.hpp"
 #include "multiband_compressor.hpp"
 #include "panner.hpp"
+#include "phaser.hpp"
 #include "reverb.hpp"
 #include "saturator.hpp"
 #include "simple_eq.hpp"
@@ -112,6 +113,7 @@ void EffectFactory::init()
     registerEffect(LufsMeter::typeIdString(), []() { return std::make_shared<LufsMeter>(); });
     registerEffect(MultibandCompressor::typeIdString(), []() { return std::make_shared<MultibandCompressor>(); });
     registerEffect(Panner::typeIdString(), []() { return std::make_shared<Panner>(); });
+    registerEffect(Phaser::typeIdString(), []() { return std::make_shared<Phaser>(); });
     registerEffect(Rta::typeIdString(), []() { return std::make_shared<Rta>(); });
     registerEffect(Reverb::typeIdString(), []() { return std::make_shared<Reverb>(); });
     registerEffect(Saturator::typeIdString(), []() { return std::make_shared<Saturator>(); });
@@ -133,6 +135,7 @@ void EffectFactory::init()
     registerEffect(Constants::RackEffectType::limiter().toStdString(), []() { return std::make_shared<Limiter>(); });
     registerEffect(Constants::RackEffectType::multibandCompressor().toStdString(), []() { return std::make_shared<MultibandCompressor>(); });
     registerEffect(Constants::RackEffectType::panner().toStdString(), []() { return std::make_shared<Panner>(); });
+    registerEffect(Constants::RackEffectType::phaser().toStdString(), []() { return std::make_shared<Phaser>(); });
     registerEffect(Constants::RackEffectType::reverb().toStdString(), []() { return std::make_shared<Reverb>(); });
     registerEffect(Constants::RackEffectType::rta().toStdString(), []() { return std::make_shared<Rta>(); });
     registerEffect(Constants::RackEffectType::saturator().toStdString(), []() { return std::make_shared<Saturator>(); });
@@ -165,6 +168,7 @@ void EffectFactory::init()
     registerLegacyEffect("eq_8_band_parametric", []() { return std::make_shared<Eq8BandParametric>(); });
     registerLegacyEffect("limiter", []() { return std::make_shared<Limiter>(); });
     registerLegacyEffect("panner", []() { return std::make_shared<Panner>(); });
+    registerLegacyEffect("phaser", []() { return std::make_shared<Phaser>(); });
     registerLegacyEffect("reverb", []() { return std::make_shared<Reverb>(); });
     registerLegacyEffect("vintage_passive_eq", []() { return std::make_shared<VintagePassiveEq>(); });
     registerLegacyEffect("air_band_eq", []() { return std::make_shared<AirBandEq>(); });

@@ -445,6 +445,12 @@ ApplicationWindow {
         width: parent.width * Constants.effectDialogScale
         height: parent.height * Constants.effectDialogScale
     }
+    PhaserDialog {
+        id: phaserDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.effectDialogScale
+        height: parent.height * Constants.effectDialogScale
+    }
     AutoFilterDialog {
         id: autoFilterDialog
         anchors.centerIn: parent

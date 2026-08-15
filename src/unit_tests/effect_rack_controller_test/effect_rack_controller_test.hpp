@@ -16,6 +16,7 @@ private slots:
     void test_effectParametersSummary_compressor_shouldReturnFormattedSummary();
     void test_effectParametersSummary_autoPanner_shouldReturnFormattedSummary();
     void test_effectParametersSummary_autoFilter_shouldReturnFormattedSummary();
+    void test_effectParametersSummary_phaser_shouldReturnFormattedSummary();
     void test_effectParametersSummary_panner_shouldReturnFormattedSummary();
     void test_effectParametersSummary_clipper_shouldReturnFormattedSummary();
     void test_effectParametersSummary_saturator_shouldReturnFormattedSummary();

@@ -20,7 +20,7 @@
 #include "../dsp/cascaded_svf.hpp"
 #include "../dsp/divide_down_generator.hpp"
 #include "../dsp/ensemble_chorus.hpp"
-#include "../dsp/phaser.hpp"
+#include "../dsp/ensemble_phaser.hpp"
 #include "../dsp/svf_filter.hpp"
 #include "../dsp/true_stereo_panner.hpp"
 #include "device.hpp"
@@ -168,7 +168,7 @@ private:
     uint32_t m_tailFrames { 0 };
 
     EnsembleChorus m_ensemble;
-    Phaser m_phaser;
+    EnsemblePhaser m_phaser;
     TrueStereoPanner m_panner;
     CascadedSvf m_lpfL;
     CascadedSvf m_lpfR;

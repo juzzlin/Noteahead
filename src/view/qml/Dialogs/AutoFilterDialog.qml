@@ -170,7 +170,7 @@ AnimatedDialog {
 
                 ComboBoxColumn {
                     label: qsTr("Waveform")
-                    model: effectRackController.autoFilterWaveformNames()
+                    model: effectRackController.lfoWaveformNames()
                     currentIndex: Math.round(root.parameterValue(effectRackController.autoFilterLfoWaveformKey()))
                     onActivated: index => root.setParameterValue(effectRackController.autoFilterLfoWaveformKey(), index)
                     Layout.fillWidth: true
@@ -178,7 +178,7 @@ AnimatedDialog {
 
                 ComboBoxColumn {
                     label: qsTr("Mode")
-                    model: effectRackController.autoFilterLfoModeNames()
+                    model: effectRackController.lfoModeNames()
                     currentIndex: Math.round(root.parameterValue(effectRackController.autoFilterLfoModeKey()))
                     onActivated: index => root.setParameterValue(effectRackController.autoFilterLfoModeKey(), index)
                     Layout.fillWidth: true
@@ -211,7 +211,7 @@ AnimatedDialog {
 
                 ComboBoxColumn {
                     label: qsTr("Waveform")
-                    model: effectRackController.autoFilterWaveformNames()
+                    model: effectRackController.lfoWaveformNames()
                     currentIndex: Math.round(root.parameterValue(effectRackController.autoFilterLfo2WaveformKey()))
                     onActivated: index => root.setParameterValue(effectRackController.autoFilterLfo2WaveformKey(), index)
                     Layout.fillWidth: true
@@ -219,7 +219,7 @@ AnimatedDialog {
 
                 ComboBoxColumn {
                     label: qsTr("Mode")
-                    model: effectRackController.autoFilterLfoModeNames()
+                    model: effectRackController.lfoModeNames()
                     currentIndex: Math.round(root.parameterValue(effectRackController.autoFilterLfo2ModeKey()))
                     onActivated: index => root.setParameterValue(effectRackController.autoFilterLfo2ModeKey(), index)
                     Layout.fillWidth: true

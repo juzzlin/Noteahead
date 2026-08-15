@@ -51,6 +51,7 @@
 #include "../../domain/effects/eq_8_band_parametric.hpp"
 #include "../../domain/effects/limiter.hpp"
 #include "../../domain/effects/multiband_compressor.hpp"
+#include "../../domain/effects/phaser.hpp"
 #include "../../domain/effects/reverb.hpp"
 #include "../../domain/effects/simple_eq.hpp"
 #include "../../domain/effects/stereo_enhancer.hpp"
@@ -2464,6 +2465,57 @@ void XmlSerializationTest::test_toXmlFromXml_autoFilterEffect_shouldLoadCorrectl
     QVERIFY(effect);
     QCOMPARE(effect->typeId(), AutoFilter::typeIdString());
     const auto restored = std::dynamic_pointer_cast<AutoFilter>(effect);
+    QVERIFY(restored);
+
+    for (auto && [key, value] : values) {
+        const auto p = restored->parameter(key.toStdString());
+        QVERIFY(p.has_value());
+        QVERIFY(std::abs(p->get().value() - value) < 1.0e-3f);
+    }
+}
+
+void XmlSerializationTest::test_toXmlFromXml_phaserEffect_shouldLoadCorrectly()
+{
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto phaser = std::make_shared<Phaser>();
+    const std::vector<std::pair<QString, float>> values {
+        { Constants::NahdXml::xmlKeyStages(), 10.0f },
+        { Constants::NahdXml::xmlKeyFrequency(), 0.31f },
+        { Constants::NahdXml::xmlKeyDepth(), 0.62f },
+        { Constants::NahdXml::xmlKeyFeedback(), 0.8f },
+        { Constants::NahdXml::xmlKeyLfoWaveform(), 2.0f },
+        { Constants::NahdXml::xmlKeyLfoMode(), 1.0f },
+        { Constants::NahdXml::xmlKeyLfoRate(), 0.4f },
+        { Constants::NahdXml::xmlKeyRateDivider(), 7.0f },
+        { Constants::NahdXml::xmlKeyStereoPhase(), 0.25f },
+        { Constants::NahdXml::xmlKeyGain(), 0.6f },
+        { Constants::NahdXml::xmlKeyMix(), 0.35f },
+    };
+    for (auto && [key, value] : values) {
+        if (auto p = phaser->parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    }
+    deviceServiceOut.sendEffectRack().setEffect(0, phaser);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(effect);
+    QCOMPARE(effect->typeId(), Phaser::typeIdString());
+    const auto restored = std::dynamic_pointer_cast<Phaser>(effect);
     QVERIFY(restored);
 
     for (auto && [key, value] : values) {

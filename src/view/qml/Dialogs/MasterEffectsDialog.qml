@@ -230,6 +230,9 @@ AnimatedDialog {
                         } else if (effectType === effectRackController.autoFilterType) {
                             autoFilterDialog.effectIndex = index;
                             autoFilterDialog.open();
+                        } else if (effectType === effectRackController.phaserType) {
+                            phaserDialog.effectIndex = index;
+                            phaserDialog.open();
                         } else if (effectType === effectRackController.chorusType) {
                             chorusDialog.effectIndex = index;
                             chorusDialog.open();

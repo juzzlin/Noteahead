@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "phaser.hpp"
+#include "ensemble_phaser.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -35,7 +35,7 @@ constexpr double MaxFeedback { 0.7 };
 
 } // namespace
 
-Phaser::Phaser()
+EnsemblePhaser::EnsemblePhaser()
 {
     m_lfoLeft.setWaveform(Lfo::Waveform::Sine);
     m_lfoRight.setWaveform(Lfo::Waveform::Sine);
@@ -49,7 +49,7 @@ Phaser::Phaser()
     setRate(m_rate);
 }
 
-void Phaser::setSampleRate(double sampleRate)
+void EnsemblePhaser::setSampleRate(double sampleRate)
 {
     if (std::abs(m_sampleRate - sampleRate) < 0.1) {
         return;
@@ -59,17 +59,17 @@ void Phaser::setSampleRate(double sampleRate)
     m_lfoRight.setSampleRate(sampleRate);
 }
 
-void Phaser::setEnabled(bool enabled)
+void EnsemblePhaser::setEnabled(bool enabled)
 {
     m_enabled = enabled;
 }
 
-bool Phaser::enabled() const
+bool EnsemblePhaser::enabled() const
 {
     return m_enabled;
 }
 
-void Phaser::setRate(double rate)
+void EnsemblePhaser::setRate(double rate)
 {
     m_rate = std::clamp(rate, 0.0, 1.0);
     const double rateHz = MinRateHz * std::pow(MaxRateHz / MinRateHz, m_rate);
@@ -77,22 +77,22 @@ void Phaser::setRate(double rate)
     m_lfoRight.setFrequency(rateHz);
 }
 
-double Phaser::rate() const
+double EnsemblePhaser::rate() const
 {
     return m_rate;
 }
 
-void Phaser::setColor(double color)
+void EnsemblePhaser::setColor(double color)
 {
     m_color = std::clamp(color, 0.0, 1.0);
 }
 
-double Phaser::color() const
+double EnsemblePhaser::color() const
 {
     return m_color;
 }
 
-double Phaser::coefficientForFrequency(double frequency) const
+double EnsemblePhaser::coefficientForFrequency(double frequency) const
 {
     if (m_sampleRate <= 0.0) {
         return 0.0;
@@ -102,7 +102,7 @@ double Phaser::coefficientForFrequency(double frequency) const
     return (tangent - 1.0) / (tangent + 1.0);
 }
 
-double Phaser::Channel::process(double input, double coefficient, double feedback)
+double EnsemblePhaser::Channel::process(double input, double coefficient, double feedback)
 {
     double sample = input + feedbackSample * feedback;
 
@@ -119,14 +119,14 @@ double Phaser::Channel::process(double input, double coefficient, double feedbac
     return sample;
 }
 
-void Phaser::Channel::reset()
+void EnsemblePhaser::Channel::reset()
 {
     x1.fill(0.0);
     y1.fill(0.0);
     feedbackSample = 0.0;
 }
 
-void Phaser::process(double & left, double & right)
+void EnsemblePhaser::process(double & left, double & right)
 {
     if (m_sampleRate <= 0.0) {
         return;
@@ -152,7 +152,7 @@ void Phaser::process(double & left, double & right)
     }
 }
 
-void Phaser::reset()
+void EnsemblePhaser::reset()
 {
     m_left.reset();
     m_right.reset();

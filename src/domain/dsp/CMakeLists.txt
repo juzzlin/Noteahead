@@ -13,7 +13,7 @@ set(DSP_SOURCES
     linkwitz_riley_crossover.cpp
     multi_engine.cpp
     one_pole_filter.cpp
-    phaser.cpp
+    ensemble_phaser.cpp
     poly_blep_oscillator.cpp
     svf_filter.cpp
     wavetable.cpp

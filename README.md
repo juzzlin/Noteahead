@@ -174,6 +174,8 @@ All Arctic Music Project songs:
   - Studio-standard delay with feedback, tempo sync, and Mono/Ping-Pong/Tape modes.
 - Auto Filter
   - Cutoff and resonance sweeps that belong to the rack rather than to the instrument. LPF/HPF/BPF/Notch at 12 or 24 dB/oct, two LFOs with the Synth's waveforms and tempo sync (one on the cutoff, one on the resonance), an envelope follower with attack and release, bipolar non-linear intensities, a stereo phase offset for wide sweeps, gain and mix.
+- Phaser
+  - 2 to 12 all-pass stages, one notch per pair, swept by an LFO with the Synth's waveforms and tempo sync. Centre frequency, Depth, bipolar Feedback, a stereo phase offset defaulting to quadrature, gain and mix, plus a Rate Divider (1 to 64) for sweeps lasting minutes or several bars.
 - Panner & Auto Panner
   - Static stereo panning plus an LFO-driven auto panner.
 - All-Pass Filter

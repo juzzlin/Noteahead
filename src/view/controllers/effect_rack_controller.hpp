@@ -66,6 +66,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString autoPannerType READ autoPannerType CONSTANT)
     Q_PROPERTY(QString autoDuckerType READ autoDuckerType CONSTANT)
     Q_PROPERTY(QString autoFilterType READ autoFilterType CONSTANT)
+    Q_PROPERTY(QString phaserType READ phaserType CONSTANT)
     Q_PROPERTY(QString reverbType READ reverbType CONSTANT)
     Q_PROPERTY(QString endlessType READ endlessType CONSTANT)
 
@@ -93,6 +94,7 @@ public:
     QString allPassFilterType() const;
     QString autoDuckerType() const;
     QString autoFilterType() const;
+    QString phaserType() const;
     QString autoPannerType() const;
     QString dbtpMeterType() const;
     QString lufsMeterType() const;
@@ -200,8 +202,23 @@ public:
     Q_INVOKABLE QString autoFilterEnvReleaseKey() const;
     Q_INVOKABLE QString autoFilterGainKey() const;
     Q_INVOKABLE QString autoFilterMixKey() const;
-    Q_INVOKABLE QStringList autoFilterWaveformNames() const;
-    Q_INVOKABLE QStringList autoFilterLfoModeNames() const;
+    Q_INVOKABLE QString phaserStagesKey() const;
+    Q_INVOKABLE QString phaserFrequencyKey() const;
+    Q_INVOKABLE QString phaserDepthKey() const;
+    Q_INVOKABLE QString phaserFeedbackKey() const;
+    Q_INVOKABLE QString phaserLfoWaveformKey() const;
+    Q_INVOKABLE QString phaserLfoModeKey() const;
+    Q_INVOKABLE QString phaserLfoRateKey() const;
+    Q_INVOKABLE QString phaserRateDividerKey() const;
+    Q_INVOKABLE QString phaserStereoPhaseKey() const;
+    Q_INVOKABLE QString phaserGainKey() const;
+    Q_INVOKABLE QString phaserMixKey() const;
+    Q_INVOKABLE int phaserMaxStages() const;
+    Q_INVOKABLE int phaserMaxRateDivider() const;
+
+    //! Shared by every effect whose LFO follows the Synth's shapes and modes.
+    Q_INVOKABLE QStringList lfoWaveformNames() const;
+    Q_INVOKABLE QStringList lfoModeNames() const;
 
     Q_INVOKABLE QString multibandCompressorCrossoverFreqKey(quint32 crossoverIndex) const;
     Q_INVOKABLE QString multibandCompressorThresholdKey(quint32 bandIndex) const;

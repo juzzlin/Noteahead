@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef PHASER_HPP
-#define PHASER_HPP
+#ifndef ENSEMBLE_PHASER_HPP
+#define ENSEMBLE_PHASER_HPP
 
 #include "dsp_component.hpp"
 #include "lfo.hpp"
@@ -32,12 +32,12 @@ namespace noteahead {
 //!
 //! Two controls, matching the hardware panel: Rate is the sweep speed, Color trades notch depth and
 //! feedback together (a single "how phasey" knob rather than separate depth and resonance).
-class Phaser : public DspComponent
+class EnsemblePhaser : public DspComponent
 {
 public:
     static constexpr int StageCount { 6 };
 
-    Phaser();
+    EnsemblePhaser();
 
     void setSampleRate(double sampleRate) override;
 
@@ -84,4 +84,4 @@ private:
 
 } // namespace noteahead
 
-#endif // PHASER_HPP
+#endif // ENSEMBLE_PHASER_HPP

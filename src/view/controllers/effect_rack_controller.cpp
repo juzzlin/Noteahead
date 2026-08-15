@@ -36,6 +36,7 @@
 #include "../../domain/effects/limiter.hpp"
 #include "../../domain/effects/multiband_compressor.hpp"
 #include "../../domain/effects/panner.hpp"
+#include "../../domain/effects/phaser.hpp"
 #include "../../domain/effects/reverb.hpp"
 #include "../../domain/effects/saturator.hpp"
 #include "../../domain/effects/stereo_enhancer.hpp"
@@ -316,6 +317,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Multiband Compressor", Constants::RackEffectType::multibandCompressor().toStdString());
     addEffect("LUFS Meter", LufsMeter::typeIdString());
     addEffect("Panner", Constants::RackEffectType::panner().toStdString());
+    addEffect("Phaser", Constants::RackEffectType::phaser().toStdString());
     addEffect("Reverb", Constants::RackEffectType::reverb().toStdString());
     addEffect("RTA", Constants::RackEffectType::rta().toStdString());
     addEffect("Saturator", Constants::RackEffectType::saturator().toStdString());
@@ -488,6 +490,32 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                       .arg(formatFrequency(ParameterMapper::mapExponential(cutoff->get().value(), 20.0, 20000.0)))
                       .arg(rateStr)
                       .arg(static_cast<int>(std::round(intensityPercent)));
+                }
+            } else if (type == Constants::RackEffectType::phaser()) {
+                const auto stages = effect->parameter(Constants::NahdXml::xmlKeyStages().toStdString());
+                const auto mode = effect->parameter(Constants::NahdXml::xmlKeyLfoMode().toStdString());
+                const auto rate = effect->parameter(Constants::NahdXml::xmlKeyLfoRate().toStdString());
+                const auto feedback = effect->parameter(Constants::NahdXml::xmlKeyFeedback().toStdString());
+                const auto divider = effect->parameter(Constants::NahdXml::xmlKeyRateDivider().toStdString());
+                if (stages && mode && rate && feedback && divider) {
+                    const auto rateDivider = std::max(1, divider->get().xmlValue());
+                    QString rateStr;
+                    if (static_cast<Lfo::Mode>(mode->get().xmlValue()) == Lfo::Mode::BPM) {
+                        KnobController knobController;
+                        // A division cannot be divided into a division that has a name, so the
+                        // divider is reported as itself.
+                        rateStr = knobController.syncLabel(knobController.syncIndex(rate->get().value() * Constants::uiInternalScaling()));
+                        if (rateDivider > 1) {
+                            rateStr += QString { "/%1" }.arg(rateDivider);
+                        }
+                    } else {
+                        rateStr = QString { "%1Hz" }.arg(ParameterMapper::mapLfoFrequency(rate->get().value(), 0.05, 20.0) / rateDivider, 0, 'f', 2);
+                    }
+                    const auto feedbackPercent = ParameterMapper::mapCubicCentered((feedback->get().value() - 0.5f) * 2.0f, -100.0, 100.0);
+                    return QString { "(%1 stages, rate=%2, fb=%3%)" }
+                      .arg(stages->get().xmlValue())
+                      .arg(rateStr)
+                      .arg(static_cast<int>(std::round(feedbackPercent)));
                 }
             } else if (type == Constants::RackEffectType::chorus()) {
                 const auto rate = effect->parameter(Constants::NahdXml::xmlKeyRate().toStdString());
@@ -1197,7 +1225,72 @@ QString EffectRackController::autoFilterMixKey() const
     return Constants::NahdXml::xmlKeyMix();
 }
 
-QStringList EffectRackController::autoFilterWaveformNames() const
+QString EffectRackController::phaserStagesKey() const
+{
+    return Constants::NahdXml::xmlKeyStages();
+}
+
+QString EffectRackController::phaserFrequencyKey() const
+{
+    return Constants::NahdXml::xmlKeyFrequency();
+}
+
+QString EffectRackController::phaserDepthKey() const
+{
+    return Constants::NahdXml::xmlKeyDepth();
+}
+
+QString EffectRackController::phaserFeedbackKey() const
+{
+    return Constants::NahdXml::xmlKeyFeedback();
+}
+
+QString EffectRackController::phaserLfoWaveformKey() const
+{
+    return Constants::NahdXml::xmlKeyLfoWaveform();
+}
+
+QString EffectRackController::phaserLfoModeKey() const
+{
+    return Constants::NahdXml::xmlKeyLfoMode();
+}
+
+QString EffectRackController::phaserLfoRateKey() const
+{
+    return Constants::NahdXml::xmlKeyLfoRate();
+}
+
+QString EffectRackController::phaserRateDividerKey() const
+{
+    return Constants::NahdXml::xmlKeyRateDivider();
+}
+
+QString EffectRackController::phaserStereoPhaseKey() const
+{
+    return Constants::NahdXml::xmlKeyStereoPhase();
+}
+
+QString EffectRackController::phaserGainKey() const
+{
+    return Constants::NahdXml::xmlKeyGain();
+}
+
+QString EffectRackController::phaserMixKey() const
+{
+    return Constants::NahdXml::xmlKeyMix();
+}
+
+int EffectRackController::phaserMaxStages() const
+{
+    return Phaser::maxStages();
+}
+
+int EffectRackController::phaserMaxRateDivider() const
+{
+    return Phaser::maxRateDivider();
+}
+
+QStringList EffectRackController::lfoWaveformNames() const
 {
     QStringList names;
     for (auto && name : Lfo::waveformNames()) {
@@ -1206,7 +1299,7 @@ QStringList EffectRackController::autoFilterWaveformNames() const
     return names;
 }
 
-QStringList EffectRackController::autoFilterLfoModeNames() const
+QStringList EffectRackController::lfoModeNames() const
 {
     // Ordered by Lfo::Mode, which the parameter stores as its ordinal.
     return { tr("Normal"), tr("Sync"), tr("One-Shot") };
@@ -1525,6 +1618,11 @@ QString EffectRackController::autoDuckerType() const
 QString EffectRackController::autoFilterType() const
 {
     return Constants::RackEffectType::autoFilter();
+}
+
+QString EffectRackController::phaserType() const
+{
+    return Constants::RackEffectType::phaser();
 }
 
 QString EffectRackController::multibandCompressorType() const

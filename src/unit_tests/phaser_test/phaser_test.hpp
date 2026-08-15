@@ -25,12 +25,24 @@ class PhaserTest : public QObject
     Q_OBJECT
 
 private slots:
-    void test_process_disabled_shouldPassThrough();
-    void test_process_enabled_shouldAlterSignal();
-    void test_process_enabled_shouldSweepOverTime();
-    void test_process_enabled_shouldSeparateChannels();
-    void test_process_maximumColor_shouldStayStable();
-    void test_reset_shouldClearState();
+    void test_process_fullWet_shouldPassEverythingAtUnity();
+    void test_process_mixedWithDry_shouldNotchTheSpectrum();
+    void test_process_moreStages_shouldNotchMoreDeeply();
+
+    void test_depth_zero_shouldHoldTheNotchesStill();
+    void test_depth_full_shouldSweepTheNotches();
+    void test_lfo_bpmMode_shouldFollowTempo();
+    void test_rateDivider_shouldSlowTheSweep();
+    void test_rateDivider_bpmMode_shouldSlowTheSweep();
+
+    void test_feedback_full_shouldStayFinite();
+    void test_feedback_polarity_shouldChangeTheVoicing();
+
+    void test_stereoPhase_quadrature_shouldOffsetChannels();
+    void test_stereoPhase_zero_shouldKeepChannelsIdentical();
+
+    void test_reset_shouldRestartDeterministically();
+    void test_mix_zero_shouldPassThroughDry();
 };
 
 } // namespace noteahead

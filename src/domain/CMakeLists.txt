@@ -41,7 +41,7 @@ set(HEADER_FILES
     dsp/multi_engine.hpp
     dsp/one_pole_filter.hpp
     dsp/panning.hpp
-    dsp/phaser.hpp
+    dsp/ensemble_phaser.hpp
     dsp/poly_blep_oscillator.hpp
     dsp/svf_filter.hpp
     dsp/true_stereo_panner.hpp
@@ -67,6 +67,7 @@ set(HEADER_FILES
     effects/limiter.hpp
     effects/multiband_compressor.hpp
     effects/panner.hpp
+    effects/phaser.hpp
     effects/reverb.hpp
     effects/saturator.hpp
     effects/tube_stage.hpp
@@ -165,7 +166,7 @@ set(SOURCE_FILES
     dsp/multi_engine.cpp
     dsp/one_pole_filter.cpp
     dsp/panning.cpp
-    dsp/phaser.cpp
+    dsp/ensemble_phaser.cpp
     dsp/poly_blep_oscillator.cpp
     dsp/svf_filter.cpp
     dsp/true_stereo_panner.cpp
@@ -193,6 +194,7 @@ set(SOURCE_FILES
     effects/limiter.cpp
     effects/multiband_compressor.cpp
     effects/panner.cpp
+    effects/phaser.cpp
     effects/reverb.cpp
     effects/saturator.cpp
     effects/tube_stage.cpp

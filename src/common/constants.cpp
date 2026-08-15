@@ -266,6 +266,11 @@ QString autoFilter()
     return "autofilter";
 }
 
+QString phaser()
+{
+    return "phaser";
+}
+
 QString eq8BandParametric()
 {
     return "eq8bandparametric";
@@ -1280,6 +1285,16 @@ QString xmlKeyRate()
 QString xmlKeyDepth()
 {
     return "depth";
+}
+
+QString xmlKeyFeedback()
+{
+    return "feedback";
+}
+
+QString xmlKeyRateDivider()
+{
+    return "rateDivider";
 }
 
 QString xmlKeyWidth()

@@ -101,6 +101,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/MultibandCompressorDialog.qml
     ${QML_BASE_DIR}/Dialogs/NoteFrequencyDialog.qml
     ${QML_BASE_DIR}/Dialogs/PannerDialog.qml
+    ${QML_BASE_DIR}/Dialogs/PhaserDialog.qml
     ${QML_BASE_DIR}/Dialogs/Kick808Dialog.qml
     ${QML_BASE_DIR}/Dialogs/Kick808Dialog_Global.qml
     ${QML_BASE_DIR}/Dialogs/Kick808Dialog_Kick.qml

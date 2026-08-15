@@ -10,6 +10,7 @@
 #include "../../domain/effects/effect_rack.hpp"
 #include "../../domain/effects/eq_8_band_parametric.hpp"
 #include "../../domain/effects/panner.hpp"
+#include "../../domain/effects/phaser.hpp"
 #include "../../domain/effects/reverb.hpp"
 #include "../../domain/effects/saturator.hpp"
 #include "../../domain/utility/dbtp_meter.hpp"
@@ -192,6 +193,21 @@ void EffectRackControllerTest::test_effectParametersSummary_autoFilter_shouldRet
     controller.setParameterValue(0, controller.autoFilterLfoRateKey(), 0.25f);
     const auto syncedSummary = controller.effectParametersSummary(0);
     QCOMPARE(syncedSummary, QString { "(HPF, 2.5kHz, rate=1/4, int=25%)" });
+}
+
+void EffectRackControllerTest::test_effectParametersSummary_phaser_shouldReturnFormattedSummary()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(Phaser::typeIdString()));
+
+    // Default phaser: six stages swept once a second, with no feedback
+    const auto summary = controller.effectParametersSummary(0);
+    QCOMPARE(summary, QString { "(6 stages, rate=1.00Hz, fb=0%)" });
 }
 
 void EffectRackControllerTest::test_effectParametersSummary_panner_shouldReturnFormattedSummary()

@@ -94,6 +94,10 @@ QString KnobController::format(double value, const QString & type, const QString
 
     const double mappedValue = map(value, type, min, max);
 
+    // A count is a count: no decimal, and no unit to trail it.
+    if (type == "integer") {
+        return QString { "%1" }.arg(std::llround(mappedValue));
+    }
     if (type == "intensity" || type == "cubicCentered" || type == "bipolar") {
         return bipolarToString(mappedValue, suffix, min, max);
     }
