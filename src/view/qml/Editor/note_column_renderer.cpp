@@ -238,6 +238,26 @@ void NoteColumnRenderer::updateRows(int firstRow, int lastRow)
     update(QRectF(0.0, top, width(), bottom - top).toAlignedRect());
 }
 
+std::vector<std::pair<size_t, size_t>> NoteColumnRenderer::valueRuns(const std::vector<std::optional<double>> & values)
+{
+    std::vector<std::pair<size_t, size_t>> runs;
+    std::optional<size_t> first;
+    for (size_t i = 0; i < values.size(); i++) {
+        if (values.at(i).has_value()) {
+            if (!first.has_value()) {
+                first = i;
+            }
+        } else if (first.has_value()) {
+            runs.push_back({ *first, i - 1 });
+            first.reset();
+        }
+    }
+    if (first.has_value()) {
+        runs.push_back({ *first, values.size() - 1 });
+    }
+    return runs;
+}
+
 void NoteColumnRenderer::paintAutomationCurves(QPainter * painter, int startRow, int endRow, qreal rowHeight)
 {
     const auto model = qobject_cast<NoteColumnModel *>(m_model.data());
@@ -277,17 +297,22 @@ void NoteColumnRenderer::paintAutomationCurves(QPainter * painter, int startRow,
         color.setAlphaF(0.75);
         painter->setPen(QPen { color, static_cast<double>(m_automationCurveThicknessTenths) / 10.0 });
 
-        // Broken into runs, so a gap where the automation does not reach is a gap on screen too
-        QPolygonF run;
-        for (size_t i = 0; i < curve.values.size(); i++) {
-            if (const auto & value = curve.values.at(i); value.has_value()) {
-                run.append(QPointF(valueX(*value), rowY(startRow + static_cast<int>(i))));
-            } else if (!run.isEmpty()) {
-                painter->drawPolyline(run);
-                run.clear();
+        for (auto && [first, last] : valueRuns(curve.values)) {
+            // A run of one has no segment to draw, so a polyline would paint nothing at all. Mark it
+            // with a dash across its own line instead: tied to the row height so it scales with zoom.
+            if (first == last) {
+                const qreal tickWidth = std::min(usableWidth, rowHeight * 0.8);
+                const qreal centerX = valueX(*curve.values.at(first));
+                const qreal y = rowY(startRow + static_cast<int>(first));
+                const qreal left = std::max(margin, centerX - tickWidth / 2.0);
+                const qreal right = std::min(margin + usableWidth, centerX + tickWidth / 2.0);
+                painter->drawLine(QPointF(left, y), QPointF(right, y));
+                continue;
             }
-        }
-        if (!run.isEmpty()) {
+            QPolygonF run;
+            for (size_t i = first; i <= last; i++) {
+                run.append(QPointF(valueX(*curve.values.at(i)), rowY(startRow + static_cast<int>(i))));
+            }
             painter->drawPolyline(run);
         }
     }

@@ -1,5 +1,5 @@
 // This file is part of Noteahead.
-// Copyright (C) 2025 Jussi Lind <jussi.lind@iki.fi>
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
 //
 // Noteahead is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,36 +13,30 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef NOTE_COLUMN_MODEL_TEST_HPP
-#define NOTE_COLUMN_MODEL_TEST_HPP
+#ifndef NOTE_COLUMN_RENDERER_TEST_HPP
+#define NOTE_COLUMN_RENDERER_TEST_HPP
 
 #include <QObject>
 
 namespace noteahead {
 
-class NoteColumnModelTest : public QObject
+class NoteColumnRendererTest : public QObject
 {
     Q_OBJECT
 
 private slots:
-    void initTestCase();
-    void cleanupTestCase();
+    void test_valueRuns_allUnset_shouldFindNothing();
+    void test_valueRuns_allSet_shouldFindOneRun();
+    void test_valueRuns_singleValue_shouldFindRunOfOne();
+    void test_valueRuns_singleValueAtStart_shouldFindRunOfOne();
+    void test_valueRuns_singleValueAtEnd_shouldFindRunOfOne();
+    void test_valueRuns_gap_shouldSplitIntoRuns();
+    void test_valueRuns_empty_shouldFindNothing();
 
-    void test_rowCount_shouldReturnCorrectValue();
-
-    void test_data_shouldReturnCorrectValues();
-    void test_data_LineRole_shouldReturnCorrectValue();
-    void test_data_GhostRow_shouldReturnNeighborLines();
-
-    void test_updateNoteDataAtPosition_shouldEmitDataChangedWithCorrectRoles();
-
-    void test_setLineFocused_shouldUpdateData();
-
-    void test_updateIndexHighlights_shouldEmitDataChangedWithCorrectRange();
-
-    void test_automationCurves_singleLineAutomation_shouldSetOneValue();
+    void test_paint_singleLineAutomation_shouldDrawMarkOnItsRow();
+    void test_paint_multiLineAutomation_shouldDrawTrace();
 };
 
 } // namespace noteahead
 
-#endif // NOTE_COLUMN_MODEL_TEST_HPP
+#endif // NOTE_COLUMN_RENDERER_TEST_HPP

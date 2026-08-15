@@ -32,6 +32,8 @@
 #include <QTemporaryDir>
 #include <QTest>
 
+#include <algorithm>
+
 namespace noteahead {
 
 namespace {
@@ -266,6 +268,41 @@ void NoteColumnModelTest::test_updateIndexHighlights_shouldEmitDataChangedWithCo
     const int barLine = static_cast<int>(editorService->positionBarLine());
     QCOMPARE(topLeft.row(), barLine);
     QCOMPARE(bottomRight.row(), barLine + lineCount - 1);
+}
+
+void NoteColumnModelTest::test_automationCurves_singleLineAutomation_shouldSetOneValue()
+{
+    const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    const auto selectionService { std::make_shared<SelectionService>() };
+    const auto settingsService { std::make_shared<SettingsService>() };
+    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
+    const auto utilService { std::make_shared<UtilService>() };
+    const auto helper { std::make_shared<NoteColumnLineContainerHelper>(automationService, editorService, selectionService, settingsService, utilService) };
+
+    NoteColumnModel model { { 0, 0, 0 }, editorService, helper, settingsService };
+
+    const int lineCount = 10;
+    NoteColumnModel::LineList lines;
+    for (int i = 0; i < lineCount; ++i) {
+        lines.push_back(std::make_shared<Line>(static_cast<size_t>(i)));
+    }
+    model.setColumnData(lines);
+
+    // An automation that starts and ends on the same line still has to reach the renderer: it is the
+    // only value it will ever get, and the renderer draws it as a mark rather than as a polyline.
+    const int automationLine = 4;
+    automationService->addMidiCcAutomation(0, 0, 0, 64, automationLine, automationLine, 0, 127, {}, true, 8, 0);
+
+    const int startRow = 0, endRow = 20;
+    const auto curves = model.automationCurves(startRow, endRow);
+
+    QCOMPARE(curves.size(), size_t { 1 });
+    const auto & values = curves.at(0).values;
+    QCOMPARE(std::ranges::count_if(values, [](auto && value) { return value.has_value(); }), 1);
+
+    // Row space, not line space: the model shifts the lines down by the position bar
+    const auto barLine = static_cast<int>(editorService->positionBarLine());
+    QVERIFY(values.at(static_cast<size_t>(automationLine + barLine)).has_value());
 }
 
 } // namespace noteahead

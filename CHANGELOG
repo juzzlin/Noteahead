@@ -3,6 +3,12 @@ x.y.z
 
 Release date:
 
+Bug fixes:
+
+* Fix automations spanning a single line not being drawn at all
+  - Also fixes a longer automation vanishing when scrolled so that
+    only its first or last line is visible
+
 New features:
 
 * Add curve selection to the automation add dialogs

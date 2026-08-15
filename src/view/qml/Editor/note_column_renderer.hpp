@@ -22,6 +22,10 @@
 #include <QQuickPaintedItem>
 #include <QVariantList>
 
+#include <optional>
+#include <utility>
+#include <vector>
+
 class QAbstractListModel;
 
 namespace noteahead {
@@ -47,6 +51,14 @@ class NoteColumnRenderer : public QQuickPaintedItem
 
 public:
     explicit NoteColumnRenderer(QQuickItem * parent = nullptr);
+
+    //! Contiguous spans of set values as inclusive [first, last] index pairs. A gap where the
+    //! automation does not reach breaks the span, so it becomes a gap on screen too.
+    //!
+    //! A span of one is what a single-line automation collapses to, and also what a longer one
+    //! clips to when only its first or last row is on screen. Those cannot be drawn as a polyline,
+    //! which is why the runs are named here rather than being drawn as they are found.
+    static std::vector<std::pair<size_t, size_t>> valueRuns(const std::vector<std::optional<double>> & values);
 
     QAbstractListModel * model() const;
     void setModel(QAbstractListModel * model);
