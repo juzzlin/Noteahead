@@ -5,6 +5,12 @@ Release date:
 
 New features:
 
+* Add pad-specific MIDI CCs to the Sampler
+  - Each of the 16 pads has its own Pan, Volume, LPF and HPF CC
+  - Works whether or not pads are mapped to MIDI channels
+  - Fixes pad CCs in channel mode overriding the device-wide pan
+    and cutoff instead of combining with them
+
 * Add column insertion to the column context menu
   - Insert a new column to the left / right of the current one
 

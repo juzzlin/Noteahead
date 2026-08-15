@@ -20,6 +20,7 @@
 #include "../../domain/effects/effect_rack.hpp"
 #include "../../domain/effects/reverb.hpp"
 #include "../../infra/audio/backend/audio_file_reader.hpp"
+#include "../../infra/midi/midi_cc_mapping.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
@@ -471,6 +472,208 @@ void SamplerTest::test_midiCcReset_shouldResetInternalValues()
     sampler.processMidiCc(10, 0, 24);
     sampler.processMidiCc(121, 127, 24);
     QVERIFY(qFuzzyCompare(sampler.samplePan(60), 0.75f));
+}
+
+void SamplerTest::test_availableMidiCcControllers_shouldListGlobalsAndAllPads()
+{
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+
+    const auto controllers = sampler.availableMidiCcControllers();
+
+    // Fader + Pan + LPF + HPF + (16 pads * 4 CCs per pad)
+    QCOMPARE(controllers.size(), size_t { 4 + SamplerDevice::padCount * 4 });
+
+    // An unknown number yields a default-constructed entry, which fails the comparisons below
+    const auto byNumber = [&controllers](int number) -> MidiCcController {
+        const auto it = std::ranges::find(controllers, static_cast<uint8_t>(number), &MidiCcController::number);
+        return it != controllers.end() ? *it : MidiCcController {};
+    };
+
+    QCOMPARE(byNumber(SamplerDevice::padPanCcStart).name, std::string { "Pad 1 Pan" });
+    QCOMPARE(byNumber(SamplerDevice::padCutoffCcStart + 15).name, std::string { "Pad 16 LPF" });
+    QCOMPARE(byNumber(SamplerDevice::padHpfCutoffCcStart + 15).name, std::string { "Pad 16 HPF" });
+
+    // The pad fader reaches past unity, so it must advertise the extended range and not MIDI 1.0's
+    const auto padVolume = byNumber(SamplerDevice::padVolumeCcStart);
+    QCOMPARE(padVolume.name, std::string { "Pad 1 Volume" });
+    QCOMPARE(padVolume.maxValue, Constants::faderMaxMidiCcValue());
+
+    // The note rides along for the presentation layer to name; device-wide CCs drive no single note
+    QCOMPARE(byNumber(SamplerDevice::padPanCcStart).note, std::optional<uint8_t> { SamplerDevice::padStartNote });
+    QCOMPARE(byNumber(SamplerDevice::padPanCcStart + 15).note, std::optional<uint8_t> { SamplerDevice::padStartNote + 15 });
+    QCOMPARE(byNumber(static_cast<int>(MidiCcMapping::Controller::PanMSB)).note, std::optional<uint8_t> {});
+}
+
+void SamplerTest::test_availableMidiCcControllers_chromaticMode_shouldFollowTheOctaveRoots()
+{
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    sampler.setChromaticMode(true);
+
+    const auto controllers = sampler.availableMidiCcControllers();
+    const auto byNumber = [&controllers](int number) -> MidiCcController {
+        const auto it = std::ranges::find(controllers, static_cast<uint8_t>(number), &MidiCcController::number);
+        return it != controllers.end() ? *it : MidiCcController {};
+    };
+
+    QCOMPARE(byNumber(SamplerDevice::padPanCcStart).note, std::optional<uint8_t> { 0 });
+    QCOMPARE(byNumber(SamplerDevice::padPanCcStart + 2).note, std::optional<uint8_t> { 24 });
+    // Pad 12 would be note 132: past the end of the keyboard, so it has no note to name
+    QCOMPARE(byNumber(SamplerDevice::padPanCcStart + 11).note, std::optional<uint8_t> {});
+}
+
+void SamplerTest::test_processMidiCc_padPan_shouldAffectOnlyThatPad()
+{
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    sampler.loadSample(SamplerDevice::padStartNote, "pad1.wav");
+    sampler.loadSample(SamplerDevice::padStartNote + 1, "pad2.wav");
+
+    sampler.processMidiCc(SamplerDevice::padPanCcStart, 0, 0);
+
+    QVERIFY(qFuzzyIsNull(sampler.samplePan(SamplerDevice::padStartNote)));
+    QVERIFY(qFuzzyCompare(sampler.samplePan(SamplerDevice::padStartNote + 1), 0.5f));
+
+    sampler.processMidiCc(SamplerDevice::padPanCcStart + 1, 127, 0);
+
+    QVERIFY(qFuzzyIsNull(sampler.samplePan(SamplerDevice::padStartNote)));
+    QVERIFY(qFuzzyCompare(sampler.samplePan(SamplerDevice::padStartNote + 1), 1.0f));
+}
+
+void SamplerTest::test_processMidiCc_padVolume_shouldUseFaderRange()
+{
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    sampler.loadSample(SamplerDevice::padStartNote, "test.wav");
+
+    // 127 still means unity, exactly as it did before the fader gained its boost range
+    sampler.processMidiCc(SamplerDevice::padVolumeCcStart, 127, 0);
+    QCOMPARE(sampler.sampleVolume(SamplerDevice::padStartNote), Constants::faderUnityPosition());
+
+    // Only the values above it reach into the boost range
+    sampler.processMidiCc(SamplerDevice::padVolumeCcStart, static_cast<uint8_t>(Constants::faderMaxMidiCcValue()), 0);
+    QCOMPARE(sampler.sampleVolume(SamplerDevice::padStartNote), 1.0f);
+}
+
+void SamplerTest::test_processMidiCc_padCutoffAndHpfCutoff_shouldReachThePad()
+{
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    sampler.loadSample(SamplerDevice::padStartNote + 2, "test.wav");
+
+    sampler.processMidiCc(SamplerDevice::padCutoffCcStart + 2, 0, 0);
+    sampler.processMidiCc(SamplerDevice::padHpfCutoffCcStart + 2, 127, 0);
+
+    QVERIFY(qFuzzyIsNull(sampler.sampleCutoff(SamplerDevice::padStartNote + 2)));
+    QVERIFY(qFuzzyCompare(sampler.sampleHpfCutoff(SamplerDevice::padStartNote + 2), 1.0f));
+}
+
+void SamplerTest::test_processMidiCc_padPan_shouldUpdateActiveVoice()
+{
+    // Pad values ride the voices already playing, which is the whole point of automating them: a pad
+    // holding a long sample has to follow the CC instead of waiting for the next note.
+    auto mockReader = std::make_unique<MockAudioFileReader>();
+    mockReader->setForceChannels(1);
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::move(mockReader) };
+    sampler.loadSample(SamplerDevice::padStartNote, "test.wav");
+    sampler.processMidiNoteOn(SamplerDevice::padStartNote, 127);
+
+    std::vector<double> buffer(4, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), 2, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+    sampler.processAudio(context);
+    QVERIFY(std::abs(buffer[0] - buffer[1]) < 1e-10); // Centred to begin with
+
+    sampler.processMidiCc(SamplerDevice::padPanCcStart, 0, 0); // Hard left
+
+    std::ranges::fill(buffer, 0.0);
+    sampler.processAudio(context);
+    QVERIFY(buffer[0] > buffer[1]);
+    QVERIFY(std::abs(buffer[1]) < 1e-10);
+}
+
+void SamplerTest::test_processMidiCc_padCc_channelModeEnabled_shouldStillApply()
+{
+    // The per-pad CCs are disjoint from the controllers channel mode reads, so they address the pad
+    // by CC number no matter which channel they arrive on.
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    sampler.setChannelMode(true);
+    sampler.loadSample(SamplerDevice::padStartNote, "pad1.wav");
+    sampler.loadSample(SamplerDevice::padStartNote + 5, "pad6.wav");
+
+    sampler.processMidiCc(SamplerDevice::padPanCcStart, 0, 5);
+
+    QVERIFY(qFuzzyIsNull(sampler.samplePan(SamplerDevice::padStartNote)));
+    QVERIFY(qFuzzyCompare(sampler.samplePan(SamplerDevice::padStartNote + 5), 0.5f));
+}
+
+void SamplerTest::test_processMidiCc_padCc_chromaticMode_shouldTargetOctaveRoot()
+{
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    sampler.setChromaticMode(true);
+    sampler.loadSample(24, "test.wav"); // C2, the root of pad 3
+
+    sampler.processMidiCc(SamplerDevice::padPanCcStart + 2, 0, 0);
+
+    QVERIFY(qFuzzyIsNull(sampler.samplePan(24)));
+}
+
+void SamplerTest::test_processMidiCc_padCc_chromaticModeOutOfRange_shouldBeIgnored()
+{
+    // The chromatic layout runs off the end of the sample array on the topmost pads: pad 12 would be
+    // note 132. Those CCs have nothing to address and must not touch anything.
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    sampler.setChromaticMode(true);
+    sampler.loadSample(0, "test.wav");
+
+    sampler.processMidiCc(SamplerDevice::padPanCcStart + 11, 0, 0);
+
+    QVERIFY(qFuzzyCompare(sampler.samplePan(0), 0.5f));
+}
+
+void SamplerTest::test_processMidiCc_padPan_shouldNotDisturbDeviceWidePan()
+{
+    // A pad's pan is combined with the device-wide pan, so automating the pad must leave the device
+    // one alone: setting a pad's pan over MIDI has to sound exactly like setting it from the dialog.
+    const auto render = [](bool overMidi) {
+        auto mockReader = std::make_unique<MockAudioFileReader>();
+        mockReader->setForceChannels(1);
+        SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::move(mockReader) };
+        sampler.loadSample(SamplerDevice::padStartNote, "test.wav");
+        sampler.setPan(0.75f);
+        sampler.processMidiNoteOn(SamplerDevice::padStartNote, 127);
+
+        if (overMidi) {
+            sampler.processMidiCc(SamplerDevice::padPanCcStart, 32, 0);
+        } else {
+            sampler.setSamplePan(SamplerDevice::padStartNote, 32.0f / 127.0f);
+        }
+
+        std::vector<double> buffer(4, 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), 2, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+        sampler.processAudio(context);
+        return buffer;
+    };
+
+    const auto viaMidi = render(true);
+    const auto viaSetter = render(false);
+
+    QCOMPARE(viaMidi.size(), viaSetter.size());
+    for (size_t i = 0; i < viaMidi.size(); i++) {
+        QVERIFY(std::abs(viaMidi.at(i) - viaSetter.at(i)) < 1e-10);
+    }
+}
+
+void SamplerTest::test_midiCcReset_padCc_shouldRestoreManualValues()
+{
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    sampler.loadSample(SamplerDevice::padStartNote, "test.wav");
+    sampler.setSamplePan(SamplerDevice::padStartNote, 0.25f);
+    sampler.setSampleCutoff(SamplerDevice::padStartNote, 0.4f);
+
+    sampler.processMidiCc(SamplerDevice::padPanCcStart, 127, 0);
+    sampler.processMidiCc(SamplerDevice::padCutoffCcStart, 0, 0);
+    QVERIFY(qFuzzyCompare(sampler.samplePan(SamplerDevice::padStartNote), 1.0f));
+
+    sampler.processMidiCc(121, 127, 0); // Reset All Controllers
+
+    QVERIFY(qFuzzyCompare(sampler.samplePan(SamplerDevice::padStartNote), 0.25f));
+    QVERIFY(qFuzzyCompare(sampler.sampleCutoff(SamplerDevice::padStartNote), 0.4f));
 }
 
 void SamplerTest::test_startOffset_shouldShiftPlaybackStart()

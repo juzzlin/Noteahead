@@ -27,7 +27,7 @@ SamplerPadModel::SamplerPadModel(SamplerDevice::SamplerDeviceS sampler, QObject 
     if (m_sampler) {
         connect(m_sampler.get(), &SamplerDevice::dataChanged, this, [this]() {
             // Toggling chromatic mode remaps every pad's note and range, so refresh all roles.
-            emit dataChanged(index(0), index(PadCount - 1), { Note, NoteName, RangeLabel, FilePath, IsLoaded });
+            emit dataChanged(index(0), index(SamplerDevice::padCount - 1), { Note, NoteName, RangeLabel, FilePath, IsLoaded });
         });
     }
 }
@@ -46,7 +46,7 @@ void SamplerPadModel::setSampler(SamplerDevice::SamplerDeviceS sampler)
     if (m_sampler) {
         connect(m_sampler.get(), &SamplerDevice::dataChanged, this, [this]() {
             // Toggling chromatic mode remaps every pad's note and range, so refresh all roles.
-            emit dataChanged(index(0), index(PadCount - 1), { Note, NoteName, RangeLabel, FilePath, IsLoaded });
+            emit dataChanged(index(0), index(SamplerDevice::padCount - 1), { Note, NoteName, RangeLabel, FilePath, IsLoaded });
         });
     }
     endResetModel();
@@ -57,17 +57,13 @@ int SamplerPadModel::rowCount(const QModelIndex & parent) const
     if (parent.isValid()) {
         return 0;
     }
-    return PadCount;
+    return SamplerDevice::padCount;
 }
 
-// Mirrors SamplerController::noteForPad; see the addressing table there for how the drum and chromatic
-// layouts share the per-note sample array.
 int SamplerPadModel::noteForPad(int padIndex) const
 {
-    if (m_sampler && m_sampler->chromaticMode()) {
-        return padIndex * 12; // Each pad is an octave; its root is the C of that octave.
-    }
-    return StartNote + padIndex;
+    // Without a device there is nothing to be in chromatic mode, so the drum layout is the sane default.
+    return m_sampler ? m_sampler->noteForPad(padIndex) : SamplerDevice::padStartNote + padIndex;
 }
 
 QString SamplerPadModel::chromaticRangeLabel(int padIndex) const
@@ -145,7 +141,7 @@ QHash<int, QByteArray> SamplerPadModel::roleNames() const
 
 void SamplerPadModel::updatePad(int padIndex)
 {
-    if (padIndex < 0 || padIndex >= PadCount) {
+    if (padIndex < 0 || padIndex >= SamplerDevice::padCount) {
         return;
     }
     const auto idx = index(padIndex);

@@ -236,20 +236,11 @@ void SamplerController::setChromaticMode(bool enabled)
     }
 }
 
-// Maps a pad index to a MIDI note. The two modes address the same shared per-note sample array with
-// different layouts, so samples for both modes coexist and are all serialized; the modes are not meant to
-// be used simultaneously. The layouts overlap only at notes 36 and 48:
-//
-//   Mode        Pad -> MIDI note   Notes used
-//   ---------   ----------------   -----------------------------------
-//   Drum        36 + pad           36..51
-//   Chromatic   12 * pad           0, 12, 24, 36, 48, 60, ... (octave C roots)
+// Maps a pad index to a MIDI note. See SamplerDevice::noteForPad() for the two layouts.
 int SamplerController::noteForPad(int padIndex) const
 {
-    if (m_sampler && m_sampler->chromaticMode()) {
-        return padIndex * 12; // Each pad is an octave; its root is the C of that octave.
-    }
-    return 36 + padIndex;
+    // Without a device there is nothing to be in chromatic mode, so the drum layout is the sane default.
+    return m_sampler ? m_sampler->noteForPad(padIndex) : SamplerDevice::padStartNote + padIndex;
 }
 
 bool SamplerController::embedWaveData() const

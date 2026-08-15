@@ -69,7 +69,7 @@ ColumnLayout {
         ToolTip.delay: Constants.toolTipDelay
         ToolTip.timeout: Constants.toolTipTimeout
         ToolTip.visible: hovered
-        ToolTip.text: qsTr("When enabled, MIDI CCs on channel 1 affect pad 1, channel 2 affects pad 2, and so on. Note playing is unaffected.")
+        ToolTip.text: qsTr("When enabled, MIDI CCs on channel 1 affect pad 1, channel 2 affects pad 2, and so on. Note playing is unaffected. Each pad also has its own Pan, Volume, LPF and HPF CCs that work regardless of this setting.")
     }
 
     CheckBox {

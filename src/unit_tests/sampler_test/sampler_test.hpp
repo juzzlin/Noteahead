@@ -57,6 +57,18 @@ private slots:
     void test_chromaticMode_shouldRoundTripThroughXml();
     void test_midiCcReset_shouldResetInternalValues();
 
+    void test_availableMidiCcControllers_shouldListGlobalsAndAllPads();
+    void test_availableMidiCcControllers_chromaticMode_shouldFollowTheOctaveRoots();
+    void test_processMidiCc_padPan_shouldAffectOnlyThatPad();
+    void test_processMidiCc_padVolume_shouldUseFaderRange();
+    void test_processMidiCc_padCutoffAndHpfCutoff_shouldReachThePad();
+    void test_processMidiCc_padPan_shouldUpdateActiveVoice();
+    void test_processMidiCc_padCc_channelModeEnabled_shouldStillApply();
+    void test_processMidiCc_padCc_chromaticMode_shouldTargetOctaveRoot();
+    void test_processMidiCc_padCc_chromaticModeOutOfRange_shouldBeIgnored();
+    void test_processMidiCc_padPan_shouldNotDisturbDeviceWidePan();
+    void test_midiCcReset_padCc_shouldRestoreManualValues();
+
     void test_startOffset_shouldShiftPlaybackStart();
     void test_reset_shouldResetParametersAndPads();
     void test_processAudio_shouldProduceOutput();

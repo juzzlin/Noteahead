@@ -18,9 +18,12 @@
 #include "../../common/constants.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../infra/midi/midi_cc_mapping.hpp"
+#include "../note_converter.hpp"
 #include "device_service.hpp"
 
 #include <QVariantMap>
+
+#include <optional>
 
 namespace noteahead {
 
@@ -50,7 +53,7 @@ QVariantList PropertyService::getAvailableMidiControllers(const QString & portNa
     using namespace MidiCcMapping;
     QVariantList list;
 
-    const auto addController = [&](uint8_t i, const QString & customName = {}, int minValue = midi1MinValue, int maxValue = midi1MaxValue) {
+    const auto addController = [&](uint8_t i, const QString & customName = {}, int minValue = midi1MinValue, int maxValue = midi1MaxValue, std::optional<uint8_t> note = std::nullopt) {
         QString name;
         if (!customName.isEmpty()) {
             name = QString { "%1: %2" }.arg(i).arg(customName);
@@ -61,6 +64,10 @@ QVariantList PropertyService::getAvailableMidiControllers(const QString & portNa
             } else {
                 name = QString { "%1: %2" }.arg(i).arg(name);
             }
+        }
+        // A controller that drives one key or pad names its note, so the list reads against the tracker
+        if (note.has_value()) {
+            name += QString { " (%1)" }.arg(QString::fromStdString(NoteConverter::midiToString(note.value())));
         }
         list.append(QVariantMap {
           { "number", i },
@@ -73,7 +80,7 @@ QVariantList PropertyService::getAvailableMidiControllers(const QString & portNa
         if (auto dev = ds->device(portName.toStdString())) {
             // An internal device answers for its own ranges rather than being held to MIDI 1.0
             for (auto && controller : dev->availableMidiCcControllers()) {
-                addController(controller.number, QString::fromStdString(controller.name), controller.minValue, controller.maxValue);
+                addController(controller.number, QString::fromStdString(controller.name), controller.minValue, controller.maxValue, controller.note);
             }
             return list;
         }

@@ -28,6 +28,7 @@
 #include <array>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -41,7 +42,19 @@ class SamplerDevice : public Device
 public:
     using SamplerDeviceS = std::shared_ptr<SamplerDevice>;
     static constexpr size_t maxSamples = 128;
+    static constexpr int padCount = 16;
+    static constexpr uint8_t padStartNote = 36;
     using AudioFileReaderU = std::unique_ptr<AudioFileReader>;
+
+    //! First MIDI CC of each per-pad parameter block: the CC for a pad is the block start plus the pad
+    //! index, so the blocks span 16..31, 32..47, 48..63 and 102..117.
+    //!
+    //! 32..47 are the LSB counterparts of controllers 0..15, which this device never reads, and none of
+    //! the blocks touch the device-wide CCs (7 Fader, 10 Pan, 74 LPF, 81 HPF, 121 Reset).
+    static constexpr uint8_t padPanCcStart = 16;
+    static constexpr uint8_t padVolumeCcStart = 32;
+    static constexpr uint8_t padCutoffCcStart = 48;
+    static constexpr uint8_t padHpfCutoffCcStart = 102;
 
     explicit SamplerDevice(std::string name, AudioFileReaderU audioFileReader = nullptr);
     ~SamplerDevice() override;
@@ -129,6 +142,19 @@ public:
     bool chromaticMode() const;
     void setChromaticMode(bool enabled);
 
+    //! Maps a pad index to a MIDI note. The two modes address the same shared per-note sample array with
+    //! different layouts, so samples for both modes coexist and are all serialized; the modes are not meant
+    //! to be used simultaneously. The layouts overlap only at notes 36 and 48:
+    //!
+    //!   Mode        Pad -> MIDI note   Notes used
+    //!   ---------   ----------------   -----------------------------------
+    //!   Drum        36 + pad           36..51
+    //!   Chromatic   12 * pad           0, 12, 24, 36, 48, 60, ... (octave C roots)
+    //!
+    //! The chromatic layout runs past the end of the sample array on the topmost pads, so the note is
+    //! returned unclamped: callers that index the array have to check it against maxSamples.
+    int noteForPad(int padIndex) const;
+
     // Resolves the sample that covers the given note in chromatic mode and, via rootNote, the octave root it
     // is pitched from. Returns nullptr if no sample is set. The lowest set root extends down and the highest
     // set root extends up, so a single set sample covers the whole range.
@@ -162,6 +188,21 @@ public:
 private:
     struct Voice;
     void updateVoiceEffects(Voice & voice);
+
+    //! The pad a per-pad MIDI CC addresses, plus the parameter it drives and the already-mapped value.
+    struct PadCcTarget
+    {
+        int padIndex = 0;
+        std::string parameterName;
+        float value = 0.0f;
+    };
+
+    //! Resolves a controller number against the per-pad CC blocks. Nothing when it falls outside them.
+    std::optional<PadCcTarget> padCcTarget(uint8_t controller, uint8_t value) const;
+
+    //! Writes an automated value into one pad's parameter and refreshes the voices playing that pad.
+    //! The pad's manual value is deliberately left alone, so the reset paths can still restore it.
+    bool updatePadParameter(int note, const std::string & parameterName, float value);
 
     //! Copy of the given sample that shares nothing mutable with it: the pad settings and the insert
     //! rack are duplicated, only the immutable sample data is shared.

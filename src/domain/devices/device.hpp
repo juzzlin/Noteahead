@@ -28,6 +28,7 @@
 
 #include <cstdint>
 #include <mutex>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -46,6 +47,9 @@ struct MidiCcController
     std::string name;
     int minValue { 0 };
     int maxValue { 127 };
+    //! MIDI note this controller belongs to, when it drives one key or pad rather than the whole
+    //! device. Naming the note is left to the presentation layer, which is where note names live.
+    std::optional<uint8_t> note {};
 };
 
 class Device : public QObject, public ParameterContainer

@@ -28,6 +28,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <format>
 #include <iomanip>
 #include <stdexcept>
 
@@ -122,12 +123,101 @@ std::string SamplerDevice::typeId() const
 std::vector<MidiCcController> SamplerDevice::availableMidiCcControllers() const
 {
     using namespace MidiCcMapping;
-    return {
+    std::vector<MidiCcController> list {
         faderMidiCcController(),
         { static_cast<uint8_t>(Controller::PanMSB), "Pan" },
         { static_cast<uint8_t>(Controller::SoundController5), "LPF" },
         { static_cast<uint8_t>(Controller::GeneralPurpose6), "HPF" }
     };
+
+    // Pads are named by index rather than by note, because the index is what stays put when chromatic
+    // mode remaps the notes. The note rides along separately for the presentation layer to name.
+    for (int pad { 0 }; pad < padCount; pad++) {
+        const int note = noteForPad(pad);
+        // Chromatic mode runs the topmost pads past the end of the keyboard: those address nothing
+        const std::optional<uint8_t> padNote = note < static_cast<int>(maxSamples)
+          ? std::optional<uint8_t> { static_cast<uint8_t>(note) }
+          : std::nullopt;
+        const auto padController = [pad, padNote](int number, const std::string & parameterName, int maxValue = 127) {
+            return MidiCcController { static_cast<uint8_t>(number), std::format("Pad {} {}", pad + 1, parameterName), 0, maxValue, padNote };
+        };
+        list.push_back(padController(padPanCcStart + pad, "Pan"));
+        // The pad fader reaches past unity just like the device-wide one, so it needs the same range.
+        list.push_back(padController(padVolumeCcStart + pad, "Volume", Constants::faderMaxMidiCcValue()));
+        list.push_back(padController(padCutoffCcStart + pad, "LPF"));
+        list.push_back(padController(padHpfCutoffCcStart + pad, "HPF"));
+    }
+
+    return list;
+}
+
+int SamplerDevice::noteForPad(int padIndex) const
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+
+    if (m_chromaticMode) {
+        return padIndex * 12; // Each pad is an octave; its root is the C of that octave.
+    }
+    return padStartNote + padIndex;
+}
+
+std::optional<SamplerDevice::PadCcTarget> SamplerDevice::padCcTarget(uint8_t controller, uint8_t value) const
+{
+    const auto inBlock = [controller](uint8_t start) {
+        return controller >= start && controller < start + padCount;
+    };
+
+    const float mapped = static_cast<float>(value) / 127.0f;
+
+    if (inBlock(padPanCcStart)) {
+        return PadCcTarget { controller - padPanCcStart, Constants::NahdXml::xmlKeyPan().toStdString(), mapped };
+    }
+    if (inBlock(padVolumeCcStart)) {
+        return PadCcTarget { controller - padVolumeCcStart, Constants::NahdXml::xmlKeyFader().toStdString(), faderPositionFromMidiCc(value) };
+    }
+    if (inBlock(padCutoffCcStart)) {
+        return PadCcTarget { controller - padCutoffCcStart, Constants::NahdXml::xmlKeyCutoff().toStdString(), mapped };
+    }
+    if (inBlock(padHpfCutoffCcStart)) {
+        return PadCcTarget { controller - padHpfCutoffCcStart, Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), mapped };
+    }
+
+    return std::nullopt;
+}
+
+bool SamplerDevice::updatePadParameter(int note, const std::string & parameterName, float value)
+{
+    if (note < 0 || note >= static_cast<int>(maxSamples) || !m_samples.at(static_cast<size_t>(note))) {
+        return false;
+    }
+
+    auto & sample = *m_samples.at(static_cast<size_t>(note));
+
+    if (parameterName == Constants::NahdXml::xmlKeyPan().toStdString()) {
+        sample.pan = value;
+    } else if (parameterName == Constants::NahdXml::xmlKeyFader().toStdString()) {
+        sample.volume = value;
+    } else if (parameterName == Constants::NahdXml::xmlKeyCutoff().toStdString()) {
+        sample.cutoff = value;
+    } else if (parameterName == Constants::NahdXml::xmlKeyHpfCutoff().toStdString()) {
+        sample.hpfCutoff = value;
+    } else {
+        return false;
+    }
+
+    if (auto p = sample.parameter(parameterName); p) {
+        p->get().setValue(value);
+    }
+
+    // Only the pad's own value changed. updateVoiceEffects() combines it with the device-wide pan and
+    // cutoff held in the voice, which have to be left as they are or the pad value lands twice.
+    for (auto && voice : m_voices) {
+        if (voice.active && voice.sample == &sample) {
+            updateVoiceEffects(voice);
+        }
+    }
+
+    return true;
 }
 
 void SamplerDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
@@ -242,41 +332,23 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
                 }
             }
             changed = true;
+        } else if (const auto target = padCcTarget(controller, value); target) {
+            // The per-pad CC blocks are disjoint from every controller the modes below read, so they
+            // address a pad the same way whether or not channel mode is on.
+            changed |= updatePadParameter(noteForPad(target->padIndex), target->parameterName, target->value);
         } else if (m_channelMode) {
-            // channel is 0-indexed (0-15)
-            const size_t note = 36 + channel;
-            if (note < maxSamples && m_samples.at(note)) {
-                const float val = static_cast<float>(value) / 127.0f;
-                if (controller == static_cast<uint8_t>(Controller::PanMSB)) { // Panning
-                    m_samples.at(note)->pan = val;
-                    if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p)
-                        p->get().setValue(val);
-                } else if (controller == static_cast<uint8_t>(Controller::ChannelVolumeMSB)) { // Volume
-                    m_samples.at(note)->volume = faderPositionFromMidiCc(value);
-                    if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyFader().toStdString()); p)
-                        p->get().setValue(m_samples.at(note)->volume);
-                } else if (controller == static_cast<uint8_t>(Controller::SoundController5)) { // Cutoff (LPF)
-                    m_samples.at(note)->cutoff = val;
-                    if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyCutoff().toStdString()); p)
-                        p->get().setValue(val);
-                } else if (controller == static_cast<uint8_t>(Controller::GeneralPurpose6)) { // General Purpose 6 (HPF)
-                    m_samples.at(note)->hpfCutoff = val;
-                    if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p)
-                        p->get().setValue(val);
-                }
-                // Update active voices for this specific note
-                for (auto && voice : m_voices) {
-                    if (voice.active && voice.note == note) {
-                        if (controller == static_cast<uint8_t>(Controller::PanMSB)) {
-                            voice.pan = m_samples.at(note)->pan;
-                        } else if (controller == static_cast<uint8_t>(Controller::SoundController5)) {
-                            voice.cutoff = m_samples.at(note)->cutoff;
-                        } else if (controller == static_cast<uint8_t>(Controller::GeneralPurpose6)) {
-                            voice.hpfCutoff = m_samples.at(note)->hpfCutoff;
-                        }
-                        updateVoiceEffects(voice);
-                    }
-                }
+            // channel is 0-indexed (0-15). Unlike the per-pad CCs above this keeps the drum layout even
+            // in chromatic mode, which is how the mode has always addressed its pads.
+            const int note = padStartNote + channel;
+            const float val = static_cast<float>(value) / 127.0f;
+            if (controller == static_cast<uint8_t>(Controller::PanMSB)) { // Panning
+                changed |= updatePadParameter(note, Constants::NahdXml::xmlKeyPan().toStdString(), val);
+            } else if (controller == static_cast<uint8_t>(Controller::ChannelVolumeMSB)) { // Volume
+                changed |= updatePadParameter(note, Constants::NahdXml::xmlKeyFader().toStdString(), faderPositionFromMidiCc(value));
+            } else if (controller == static_cast<uint8_t>(Controller::SoundController5)) { // Cutoff (LPF)
+                changed |= updatePadParameter(note, Constants::NahdXml::xmlKeyCutoff().toStdString(), val);
+            } else if (controller == static_cast<uint8_t>(Controller::GeneralPurpose6)) { // General Purpose 6 (HPF)
+                changed |= updatePadParameter(note, Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), val);
             }
         } else {
             if (controller == static_cast<uint8_t>(Controller::PanMSB)) { // Panning
