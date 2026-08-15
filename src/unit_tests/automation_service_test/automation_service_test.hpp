@@ -38,6 +38,10 @@ private slots:
     void test_automationCurves_midiCc_shouldFollowInterpolation();
     void test_automationCurves_outsideRange_shouldLeaveLinesUnset();
     void test_automationCurves_sineModulation_shouldOscillate();
+
+    void test_setMidiCcAutomationCurve_shouldChangeTheRamp();
+    void test_setPitchBendAutomationCurve_shouldChangeTheRamp();
+    void test_setAutomationCurve_unknownId_shouldDoNothing();
     void test_automationCurves_severalAutomations_shouldStayApart();
     void test_automationWeight_pitchBendUp_shouldCalculateCorrectWeight();
     void test_automationWeight_pitchBendDown_shouldCalculateCorrectWeight();

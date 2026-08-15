@@ -194,17 +194,12 @@ GroupBox {
                     Layout.column: 6
                     Layout.fillWidth: true
                 }
-                ComboBox {
+                InterpolationCurveComboBox {
                     id: curveComboBox
-                    model: [qsTr("Linear"), qsTr("Exponential"), qsTr("Logarithmic"), qsTr("Ease In"), qsTr("Ease Out"), qsTr("Ease In/Out")]
                     enabled: rootItem.hasLineRange
                     Layout.row: 1
                     Layout.column: 6
                     Layout.fillWidth: true
-                    ToolTip.delay: Constants.toolTipDelay
-                    ToolTip.timeout: Constants.toolTipTimeout
-                    ToolTip.visible: hovered
-                    ToolTip.text: qsTr("The shape of the ramp between the start and end value")
                     onActivated: function (comboBoxIndex) {
                         midiCcAutomationsModel.changeCurve(index, comboBoxIndex);
                     }

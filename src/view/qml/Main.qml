@@ -708,6 +708,7 @@ ApplicationWindow {
         onAccepted: {
             const position = editorService.position;
             const automationId = automationService.addMidiCcAutomation(position.pattern, position.track, position.column, addMidiCcAutomationDialog.controller(), addMidiCcAutomationDialog.startLine(), addMidiCcAutomationDialog.endLine(), addMidiCcAutomationDialog.startValue(), addMidiCcAutomationDialog.endValue(), addMidiCcAutomationDialog.comment(), true, addMidiCcAutomationDialog.eventsPerBeat(), addMidiCcAutomationDialog.lineOffset());
+            automationService.setMidiCcAutomationCurve(automationId, addMidiCcAutomationDialog.curve());
             if (addMidiCcAutomationDialog.cycles() > 0 || addMidiCcAutomationDialog.amplitude() > 0 || addMidiCcAutomationDialog.offset() !== 0) {
                 automationService.addMidiCcModulation(automationId, addMidiCcAutomationDialog.modulationType(), addMidiCcAutomationDialog.cycles(), addMidiCcAutomationDialog.amplitude(), addMidiCcAutomationDialog.offset(), addMidiCcAutomationDialog.inverted());
             }
@@ -729,6 +730,7 @@ ApplicationWindow {
         onAccepted: {
             const position = editorService.position;
             const automationId = automationService.addPitchBendAutomation(position.pattern, position.track, position.column, startLine(), endLine(), startValue(), endValue(), comment());
+            automationService.setPitchBendAutomationCurve(automationId, addPitchBendAutomationDialog.curve());
             if (addPitchBendAutomationDialog.cycles() > 0 || addPitchBendAutomationDialog.amplitude() > 0 || addPitchBendAutomationDialog.offset() !== 0) {
                 automationService.addPitchBendModulation(automationId, addPitchBendAutomationDialog.modulationType(), addPitchBendAutomationDialog.cycles(), addPitchBendAutomationDialog.amplitude(), addPitchBendAutomationDialog.offset(), addPitchBendAutomationDialog.inverted());
             }
@@ -1036,6 +1038,7 @@ ApplicationWindow {
             addMidiCcAutomationDialog.setStartValue(100);
             addMidiCcAutomationDialog.setEndValue(0);
             addMidiCcAutomationDialog.setComment("");
+            addMidiCcAutomationDialog.setCurve(0);
             addMidiCcAutomationDialog.resetModulations();
             addMidiCcAutomationDialog.resetOutput();
             addMidiCcAutomationDialog.open();
@@ -1049,6 +1052,7 @@ ApplicationWindow {
             addMidiCcAutomationDialog.setStartValue(0);
             addMidiCcAutomationDialog.setEndValue(100);
             addMidiCcAutomationDialog.setComment("");
+            addMidiCcAutomationDialog.setCurve(0);
             addMidiCcAutomationDialog.resetModulations();
             addMidiCcAutomationDialog.resetOutput();
             addMidiCcAutomationDialog.open();
@@ -1062,6 +1066,7 @@ ApplicationWindow {
             addMidiCcAutomationDialog.setStartValue(0);
             addMidiCcAutomationDialog.setEndValue(100);
             addMidiCcAutomationDialog.setComment("");
+            addMidiCcAutomationDialog.setCurve(0);
             addMidiCcAutomationDialog.resetModulations();
             addMidiCcAutomationDialog.resetOutput();
             addMidiCcAutomationDialog.open();
@@ -1107,6 +1112,8 @@ ApplicationWindow {
             addPitchBendAutomationDialog.setStartValue(0);
             addPitchBendAutomationDialog.setEndValue(100);
             addPitchBendAutomationDialog.setComment("");
+            addPitchBendAutomationDialog.setCurve(0);
+            addPitchBendAutomationDialog.resetModulations();
             addPitchBendAutomationDialog.open();
         });
         UiService.columnAddPitchBendAutomationDialogRequested.connect(() => {
@@ -1116,6 +1123,8 @@ ApplicationWindow {
             addPitchBendAutomationDialog.setStartValue(0);
             addPitchBendAutomationDialog.setEndValue(100);
             addPitchBendAutomationDialog.setComment("");
+            addPitchBendAutomationDialog.setCurve(0);
+            addPitchBendAutomationDialog.resetModulations();
             addPitchBendAutomationDialog.open();
         });
         UiService.selectionAddPitchBendAutomationDialogRequested.connect(() => {
@@ -1125,6 +1134,8 @@ ApplicationWindow {
             addPitchBendAutomationDialog.setStartValue(0);
             addPitchBendAutomationDialog.setEndValue(100);
             addPitchBendAutomationDialog.setComment("");
+            addPitchBendAutomationDialog.setCurve(0);
+            addPitchBendAutomationDialog.resetModulations();
             addPitchBendAutomationDialog.open();
         });
         UiService.editPitchBendAutomationsDialogRequested.connect(() => {

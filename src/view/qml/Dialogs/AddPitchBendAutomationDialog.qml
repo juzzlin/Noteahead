@@ -50,6 +50,15 @@ AnimatedDialog {
     function setEndLine(value) {
         model.setEndLine(value);
     }
+    function curve(): int {
+        return model.curve();
+    }
+    function setCurve(curve: int): void {
+        model.setCurve(curve);
+    }
+    function resetModulations(): void {
+        model.resetModulations();
+    }
     function modulationType() {
         return model.modulationType();
     }

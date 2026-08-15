@@ -630,6 +630,56 @@ void AutomationServiceTest::test_renderToEventsByColumn_disableAutomation_should
     QVERIFY(automationService.renderToEventsByColumn(0, 0, 0, 0, 24, 8).empty());
 }
 
+void AutomationServiceTest::test_setMidiCcAutomationCurve_shouldChangeTheRamp()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+
+    const quint64 pattern = 0, track = 1, column = 2;
+    const auto id = automationService.addMidiCcAutomation(pattern, track, column, 64, 0, 16, 0, 127, {}, true, 8, 0);
+
+    // Linear to begin with: the automation is born on the default curve, whatever the add call omits
+    QVERIFY(std::fabs(*automationService.automationCurves(pattern, track, column, 0, 16).at(0).values.at(8) - 0.5) < 0.01);
+
+    automationService.setMidiCcAutomationCurve(id, static_cast<int>(Interpolator::CurveType::Exponential));
+
+    // An exponential ramp is below the linear one at the midpoint, and still pinned at both ends
+    const auto values = automationService.automationCurves(pattern, track, column, 0, 16).at(0).values;
+    QVERIFY2(*values.at(8) < 0.4, qPrintable(QString { "Midpoint %1" }.arg(*values.at(8))));
+    QVERIFY(std::fabs(*values.at(0) - 0.0) < 0.01);
+    QVERIFY(std::fabs(*values.at(16) - 1.0) < 0.01);
+}
+
+void AutomationServiceTest::test_setPitchBendAutomationCurve_shouldChangeTheRamp()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+
+    const quint64 pattern = 0, track = 1, column = 2;
+    const auto id = automationService.addPitchBendAutomation(pattern, track, column, 0, 16, -100, 100, {}, true);
+
+    QVERIFY(std::fabs(*automationService.automationCurves(pattern, track, column, 0, 16).at(0).values.at(8) - 0.5) < 0.01);
+
+    automationService.setPitchBendAutomationCurve(id, static_cast<int>(Interpolator::CurveType::Exponential));
+
+    const auto values = automationService.automationCurves(pattern, track, column, 0, 16).at(0).values;
+    QVERIFY2(*values.at(8) < 0.4, qPrintable(QString { "Midpoint %1" }.arg(*values.at(8))));
+    QVERIFY(std::fabs(*values.at(0) - 0.0) < 0.01);
+    QVERIFY(std::fabs(*values.at(16) - 1.0) < 0.01);
+}
+
+void AutomationServiceTest::test_setAutomationCurve_unknownId_shouldDoNothing()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+
+    const quint64 pattern = 0, track = 1, column = 2;
+    automationService.addMidiCcAutomation(pattern, track, column, 64, 0, 16, 0, 127, {}, true, 8, 0);
+
+    automationService.setMidiCcAutomationCurve(12345, static_cast<int>(Interpolator::CurveType::Exponential));
+    automationService.setPitchBendAutomationCurve(12345, static_cast<int>(Interpolator::CurveType::Exponential));
+
+    // Still linear: an id that matches nothing must not fall through onto some other automation
+    QVERIFY(std::fabs(*automationService.automationCurves(pattern, track, column, 0, 16).at(0).values.at(8) - 0.5) < 0.01);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::AutomationServiceTest)

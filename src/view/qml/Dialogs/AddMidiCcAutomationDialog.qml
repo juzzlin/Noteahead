@@ -74,6 +74,13 @@ AnimatedDialog {
         model.setLineOffset(value);
     }
 
+    function curve(): int {
+        return model.curve();
+    }
+    function setCurve(curve: int): void {
+        model.setCurve(curve);
+    }
+
     function modulationType(): int {
         return model.modulationType();
     }

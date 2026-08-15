@@ -118,6 +118,38 @@ void AutomationService::addPitchBendModulation(quint64 automationId, int type, q
     }
 }
 
+void AutomationService::setMidiCcAutomationCurve(quint64 automationId, int curve)
+{
+    if (const auto iter = std::ranges::find_if(m_automations.midiCc, [&](auto && existingAutomation) {
+            return automationId == existingAutomation.id();
+        });
+        iter != m_automations.midiCc.end()) {
+        auto interpolation = iter->interpolation();
+        interpolation.curve = static_cast<Interpolator::CurveType>(curve);
+        iter->setInterpolation(interpolation);
+        notifyChangedLines(*iter);
+        juzzlin::L(TAG).info() << "MIDI CC automation curve set on automation id " << automationId;
+    } else {
+        juzzlin::L(TAG).error() << "No such automation id to set curve on: " << automationId;
+    }
+}
+
+void AutomationService::setPitchBendAutomationCurve(quint64 automationId, int curve)
+{
+    if (const auto iter = std::ranges::find_if(m_automations.pitchBend, [&](auto && existingAutomation) {
+            return automationId == existingAutomation.id();
+        });
+        iter != m_automations.pitchBend.end()) {
+        auto interpolation = iter->interpolation();
+        interpolation.curve = static_cast<Interpolator::CurveType>(curve);
+        iter->setInterpolation(interpolation);
+        notifyChangedLines(*iter);
+        juzzlin::L(TAG).info() << "Pitch Bend automation curve set on automation id " << automationId;
+    } else {
+        juzzlin::L(TAG).error() << "No such automation id to set curve on: " << automationId;
+    }
+}
+
 void AutomationService::deleteMidiCcAutomation(const MidiCcAutomation & automationToDelete)
 {
     if (const auto iter = std::ranges::find_if(m_automations.midiCc, [&](auto && existingAutomation) {

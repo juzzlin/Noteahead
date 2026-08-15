@@ -5,6 +5,10 @@ Release date:
 
 New features:
 
+* Add curve selection to the automation add dialogs
+  - MIDI CC and pitch bend automations can now be given an
+    interpolation curve when created, not only when edited
+
 * Add pad-specific MIDI CCs to the Sampler
   - Each of the 16 pads has its own Pan, Volume, LPF and HPF CC
   - Works whether or not pads are mapped to MIDI channels

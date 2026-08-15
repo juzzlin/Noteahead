@@ -63,6 +63,12 @@ Item {
     function setLineOffset(value: int): void {
         lineOffsetSpinBox.value = value;
     }
+    function curve(): int {
+        return curveComboBox.currentIndex;
+    }
+    function setCurve(curve: int): void {
+        curveComboBox.currentIndex = curve;
+    }
 
     function resetModulations(): void {
         setModulationType(0);
@@ -217,6 +223,18 @@ Item {
                     }
                     Layout.row: 1
                     Layout.column: 3
+                    Layout.fillWidth: true
+                }
+                Label {
+                    text: qsTr("Curve")
+                    Layout.row: 0
+                    Layout.column: 4
+                }
+                InterpolationCurveComboBox {
+                    id: curveComboBox
+                    enabled: startLine() !== endLine()
+                    Layout.row: 1
+                    Layout.column: 4
                     Layout.fillWidth: true
                 }
             }

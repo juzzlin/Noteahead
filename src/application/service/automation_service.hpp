@@ -67,6 +67,9 @@ public:
     quint64 addMidiCcAutomation(const MidiCcAutomation & automation);
     void addMidiCcAutomationWithId(const MidiCcAutomation & automation);
     Q_INVOKABLE void addMidiCcModulation(quint64 automationId, int type, quint64 cycles, float amplitude, float offset, bool inverted);
+    //! Sets the interpolation curve of an automation that already exists, so the add dialogs can pick
+    //! one without every add overload having to carry it. \param curve An Interpolator::CurveType.
+    Q_INVOKABLE void setMidiCcAutomationCurve(quint64 automationId, int curve);
 
     //! Adds automation for MIDI pitch bend.
     //! \param value0 Start value from -100% to +100%.
@@ -76,6 +79,8 @@ public:
     quint64 addPitchBendAutomation(const PitchBendAutomation & automation);
     void addPitchBendAutomationWithId(const PitchBendAutomation & automation);
     Q_INVOKABLE void addPitchBendModulation(quint64 automationId, int type, quint64 cycles, float amplitude, float offset, bool inverted);
+    //! \see setMidiCcAutomationCurve
+    Q_INVOKABLE void setPitchBendAutomationCurve(quint64 automationId, int curve);
     Q_INVOKABLE bool hasAutomations(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
     Q_INVOKABLE double automationWeight(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
 
