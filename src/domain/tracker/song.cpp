@@ -242,6 +242,26 @@ void Song::addColumn(size_t trackIndex)
     });
 }
 
+bool Song::addColumnToLeftOf(size_t trackIndex, size_t columnIndex)
+{
+    // Applied over every pattern, as the columns of a track are the same ones in all of them
+    bool added = false;
+    std::ranges::for_each(m_patterns, [=, &added](const auto & pattern) {
+        added = pattern.second->addColumnToLeftOf(trackIndex, columnIndex) || added;
+    });
+    return added;
+}
+
+bool Song::addColumnToRightOf(size_t trackIndex, size_t columnIndex)
+{
+    // Applied over every pattern, as the columns of a track are the same ones in all of them
+    bool added = false;
+    std::ranges::for_each(m_patterns, [=, &added](const auto & pattern) {
+        added = pattern.second->addColumnToRightOf(trackIndex, columnIndex) || added;
+    });
+    return added;
+}
+
 bool Song::deleteColumn(size_t trackIndex)
 {
     if (columnCount(trackIndex) > 1) {

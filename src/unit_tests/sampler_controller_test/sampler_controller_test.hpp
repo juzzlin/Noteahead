@@ -17,6 +17,9 @@ private slots:
     void test_properties_shouldUpdateDeviceAndEmitSignals();
     void test_reset_shouldRestoreDefaultValues();
     void test_setSampler_shouldRefreshGlobalSwitchesToReflectNewInstance();
+    void test_loadedPads_shouldListOnlyLoadedPads();
+    void test_copyPad_shouldCopyPadToTarget();
+    void test_copyPad_samePad_shouldDoNothing();
 };
 
 } // namespace noteahead

@@ -48,6 +48,10 @@ public:
 
     //! Restores the most recently deleted column, or creates a new one if none were deleted.
     void addColumn();
+    //! Adds a column just before the given one. Fails on an unknown column index.
+    bool addColumnToLeftOf(size_t columnIndex);
+    //! Adds a column just after the given one. Fails on an unknown column index.
+    bool addColumnToRightOf(size_t columnIndex);
     //! Soft-deletes the last column. Fails on the only remaining column.
     bool deleteColumn();
     //! Soft-deletes the given column: it keeps its data and its index, and only leaves the order.
@@ -125,6 +129,8 @@ private:
     ColumnS columnByIndex(size_t columnIndex) const;
     ColumnS columnByIndexThrow(size_t columnIndex) const;
     size_t nextFreeColumnIndex() const;
+    //! The most recently deleted column, or a brand new one if none were deleted.
+    ColumnS createOrRestoreColumn();
 
     //! Live columns, in display order. A column's index is its identity and does not change: the
     //! automations, the mixer settings and the note data all refer to a column by it.

@@ -1,9 +1,12 @@
 #include "sampler_controller.hpp"
 #include "../../application/models/sampler/sampler_pad_model.hpp"
+#include "../../application/note_converter.hpp"
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
 #include "../../common/waveform_generator.hpp"
 #include "../../domain/devices/sampler_device.hpp"
+
+#include <QFileInfo>
 
 namespace noteahead {
 
@@ -331,6 +334,40 @@ void SamplerController::clearSample(int padIndex)
     const int note = noteForPad(padIndex);
     m_sampler->clearSample(static_cast<uint8_t>(note));
     m_padModel->updatePad(padIndex);
+}
+
+void SamplerController::copyPad(int sourcePad, int targetPad)
+{
+    if (!m_sampler || sourcePad == targetPad) {
+        return;
+    }
+    // The device's dataChanged is wired to requestSettings(), which re-reads the whole selected pad,
+    // so the pad settings of a copy landing under the cursor refresh on their own.
+    m_sampler->copySample(static_cast<uint8_t>(noteForPad(sourcePad)), static_cast<uint8_t>(noteForPad(targetPad)));
+    m_padModel->updatePad(targetPad);
+}
+
+QVariantList SamplerController::loadedPads() const
+{
+    QVariantList list;
+    if (!m_sampler) {
+        return list;
+    }
+    for (int padIndex = 0; padIndex < m_padModel->rowCount(); padIndex++) {
+        const auto note = noteForPad(padIndex);
+        if (note >= static_cast<int>(SamplerDevice::maxSamples)) {
+            continue;
+        }
+        if (const auto sample = m_sampler->sample(static_cast<uint8_t>(note)); sample) {
+            QVariantMap map;
+            map["padIndex"] = padIndex;
+            map["note"] = note;
+            map["noteName"] = QString::fromStdString(NoteConverter::midiToString(static_cast<uint8_t>(note)));
+            map["fileName"] = QFileInfo { QString::fromStdString(sample->filePath) }.fileName();
+            list.append(map);
+        }
+    }
+    return list;
 }
 
 void SamplerController::playSample(int padIndex, double velocity)

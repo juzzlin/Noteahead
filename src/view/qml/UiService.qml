@@ -32,6 +32,7 @@ QtObject {
     signal deviceGalleryDialogRequested(int slotIndex)
     signal copyDeviceDialogRequested(int slotIndex)
     signal copyEffectDialogRequested(int slotIndex)
+    signal copyPadDialogRequested(int padIndex)
     signal deviceInsertEffectsDialogRequested(string deviceName)
     signal deviceSubEffectsDialogRequested(string deviceName, int subIndex, string subLabel)
     signal deviceRackDialogFromTrackSettingsRequested
@@ -182,6 +183,9 @@ QtObject {
     }
     function requestCopyEffectDialog(slotIndex: int): void {
         copyEffectDialogRequested(slotIndex);
+    }
+    function requestCopyPadDialog(padIndex: int): void {
+        copyPadDialogRequested(padIndex);
     }
     function requestGainConverterDialog(): void {
         gainConverterDialogRequested();

@@ -599,6 +599,42 @@ void SamplerDevice::loadSample(uint8_t note, const std::string & filePath)
     emit dataChanged();
 }
 
+std::unique_ptr<SamplerDevice::Sample> SamplerDevice::cloneSample(const Sample & source) const
+{
+    // The sample data is immutable, so the clone shares the buffer instead of re-reading the file.
+    auto clone = std::make_unique<Sample>(source);
+    // The implicit copy shares the source's insert rack, which would leave the two samples running
+    // through one stateful chain. Give the clone a rack of its own.
+    if (source.effectRack) {
+        clone->effectRack = std::make_shared<EffectRack>();
+        clone->effectRack->copyFrom(*source.effectRack);
+    }
+    return clone;
+}
+
+void SamplerDevice::copySample(uint8_t sourceNote, uint8_t targetNote)
+{
+    if (sourceNote >= maxSamples || targetNote >= maxSamples || sourceNote == targetNote) {
+        return;
+    }
+
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        const auto & source = m_samples.at(sourceNote);
+        if (!source) {
+            return;
+        }
+
+        auto copy = cloneSample(*source);
+
+        stopVoicesUsing(m_samples.at(targetNote).get());
+        m_samples.at(targetNote) = std::move(copy);
+        juzzlin::L(TAG).info() << "Copied the sample of note " << static_cast<int>(sourceNote) << " to note " << static_cast<int>(targetNote);
+    }
+
+    emit dataChanged();
+}
+
 void SamplerDevice::clearSample(uint8_t note)
 {
     if (note >= maxSamples) {
@@ -1101,11 +1137,7 @@ void SamplerDevice::saveState()
 {
     std::lock_guard<std::recursive_mutex> lock { mutex() };
     for (size_t i = 0; i < maxSamples; i++) {
-        if (m_samples.at(i)) {
-            m_savedSamples.at(i) = std::make_unique<Sample>(*m_samples.at(i));
-        } else {
-            m_savedSamples.at(i) = nullptr;
-        }
+        m_savedSamples.at(i) = m_samples.at(i) ? cloneSample(*m_samples.at(i)) : nullptr;
     }
 }
 

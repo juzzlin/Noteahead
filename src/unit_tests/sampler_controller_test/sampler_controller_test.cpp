@@ -4,12 +4,76 @@
 #include "sampler_controller_test.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/devices/sampler_device.hpp"
+#include "../../infra/audio/backend/audio_file_reader.hpp"
 #include "../../view/controllers/sampler_controller.hpp"
 
 #include <QSignalSpy>
 #include <QTest>
 
+#include <algorithm>
+#include <cmath>
+
 namespace noteahead {
+
+//! Serves a constant one-second buffer so that pads can be loaded without touching the file system.
+class MockAudioFileReader : public AudioFileReader
+{
+public:
+    bool open(const std::string &, Mode, Info & info) override
+    {
+        info = this->info();
+        return true;
+    }
+
+    void close() override
+    {
+    }
+
+    void setTag(TagType, const std::string &) override
+    {
+    }
+
+    int64_t readFloat(std::span<float> data) override
+    {
+        std::fill(data.begin(), data.end(), 1.0f);
+        return data.size();
+    }
+
+    int64_t readDouble(std::span<double> data) override
+    {
+        return data.size();
+    }
+
+    int64_t readInt(std::span<int32_t> data) override
+    {
+        return data.size();
+    }
+
+    int64_t writeFloat(std::span<const float> data) override
+    {
+        return data.size();
+    }
+
+    int64_t writeInt(std::span<const int32_t> data) override
+    {
+        return data.size();
+    }
+
+    bool seek(int64_t, int) override
+    {
+        return true;
+    }
+
+    bool isOpen() const override
+    {
+        return true;
+    }
+
+    Info info() const override
+    {
+        return { 1024, static_cast<int>(Constants::defaultSampleRate()), 2, 0 };
+    }
+};
 
 void SamplerControllerTest::test_sampleRateChange_shouldUpdateHzValues()
 {
@@ -97,6 +161,58 @@ void SamplerControllerTest::test_setSampler_shouldRefreshGlobalSwitchesToReflect
     QCOMPARE(channelSpy.count(), 1);
     QCOMPARE(embedSpy.count(), 1);
     QVERIFY(!controller.chromaticMode());
+}
+
+void SamplerControllerTest::test_loadedPads_shouldListOnlyLoadedPads()
+{
+    const auto sampler = std::make_shared<SamplerDevice>("Test Sampler", std::make_unique<MockAudioFileReader>());
+    SamplerController controller { sampler };
+
+    QVERIFY(controller.loadedPads().isEmpty());
+
+    controller.loadSample(0, "/samples/kick.wav"); // Pad 0 is note 36 in drum mode
+    controller.loadSample(2, "/samples/hat.wav");
+
+    const auto pads = controller.loadedPads();
+    QCOMPARE(pads.size(), 2);
+    QCOMPARE(pads.at(0).toMap()["padIndex"].toInt(), 0);
+    QCOMPARE(pads.at(0).toMap()["note"].toInt(), 36);
+    QCOMPARE(pads.at(0).toMap()["fileName"].toString(), QString { "kick.wav" });
+    QCOMPARE(pads.at(1).toMap()["padIndex"].toInt(), 2);
+    QCOMPARE(pads.at(1).toMap()["fileName"].toString(), QString { "hat.wav" });
+}
+
+void SamplerControllerTest::test_copyPad_shouldCopyPadToTarget()
+{
+    const auto sampler = std::make_shared<SamplerDevice>("Test Sampler", std::make_unique<MockAudioFileReader>());
+    SamplerController controller { sampler };
+
+    controller.loadSample(0, "/samples/kick.wav");
+    controller.setSelectedPad(0);
+    controller.setSelectedPadCutoff(0.4);
+    controller.setSelectedPad(5);
+    QSignalSpy cutoffSpy { &controller, &SamplerController::selectedPadCutoffChanged };
+
+    controller.copyPad(0, 5);
+
+    QVERIFY(sampler->sample(41)); // Pad 5 is note 41 in drum mode
+    // The cutoff is stored as a float, hence the tolerance
+    QVERIFY(std::abs(controller.selectedPadCutoff() - 0.4) < 1e-6);
+    // The copy landed on the selected pad, so the pad settings are re-read
+    QCOMPARE(cutoffSpy.count(), 1);
+}
+
+void SamplerControllerTest::test_copyPad_samePad_shouldDoNothing()
+{
+    const auto sampler = std::make_shared<SamplerDevice>("Test Sampler", std::make_unique<MockAudioFileReader>());
+    SamplerController controller { sampler };
+
+    controller.loadSample(0, "/samples/kick.wav");
+    const auto data = sampler->sample(36)->data;
+
+    controller.copyPad(0, 0);
+
+    QCOMPARE(sampler->sample(36)->data, data);
 }
 
 } // namespace noteahead

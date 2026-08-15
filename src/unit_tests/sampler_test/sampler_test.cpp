@@ -16,6 +16,9 @@
 #include "sampler_test.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/devices/sampler_device.hpp"
+#include "../../domain/effects/effect_factory.hpp"
+#include "../../domain/effects/effect_rack.hpp"
+#include "../../domain/effects/reverb.hpp"
 #include "../../infra/audio/backend/audio_file_reader.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
@@ -99,6 +102,12 @@ private:
 
 void SamplerTest::initTestCase()
 {
+    EffectFactory::init(); // Cloning a pad's insert rack builds the effects through the factory
+}
+
+void SamplerTest::cleanupTestCase()
+{
+    EffectFactory::clear();
 }
 
 void SamplerTest::test_initialState_shouldBeCorrect()
@@ -116,6 +125,96 @@ void SamplerTest::test_loadAndClearSample_shouldUpdateModel()
     QVERIFY(sampler.sample(60));
     sampler.clearSample(60);
     QVERIFY(!sampler.sample(60));
+}
+
+void SamplerTest::test_copySample_shouldCopySampleAndSettings()
+{
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    sampler.loadSample(60, "test.wav");
+    sampler.setSamplePan(60, 0.25f);
+    sampler.setSampleVolume(60, 0.75f);
+    sampler.setSampleCutoff(60, 0.4f);
+    sampler.setSampleHpfCutoff(60, 0.1f);
+    sampler.setSampleStartOffset(60, 0.5);
+
+    sampler.copySample(60, 62);
+
+    QVERIFY(sampler.sample(62));
+    QCOMPARE(sampler.sample(62)->filePath, sampler.sample(60)->filePath);
+    // The sample data is immutable, so the copy shares the buffer instead of re-reading the file
+    QCOMPARE(sampler.sample(62)->data, sampler.sample(60)->data);
+    QCOMPARE(sampler.samplePan(62), 0.25f);
+    QCOMPARE(sampler.sampleVolume(62), 0.75f);
+    QCOMPARE(sampler.sampleCutoff(62), 0.4f);
+    QCOMPARE(sampler.sampleHpfCutoff(62), 0.1f);
+    // The offset is stored as a float parameter, hence the tolerance
+    QVERIFY(std::abs(sampler.sampleStartOffset(62) - 0.5) < 1e-6);
+    // The source is left untouched
+    QCOMPARE(sampler.samplePan(60), 0.25f);
+}
+
+void SamplerTest::test_copySample_shouldGiveTargetIndependentEffectRack()
+{
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    sampler.loadSample(60, "test.wav");
+    const auto reverb = std::make_shared<Reverb>();
+    reverb->setSize(0.8f);
+    sampler.sampleEffectRack(60).setEffect(0, reverb);
+
+    sampler.copySample(60, 62);
+
+    auto & targetRack = sampler.sampleEffectRack(62);
+    QVERIFY(&targetRack != &sampler.sampleEffectRack(60));
+    const auto copy = std::dynamic_pointer_cast<Reverb>(targetRack.effect(0));
+    QVERIFY(copy != nullptr);
+    QCOMPARE(copy->size(), 0.8f);
+    // Editing the copied rack must not reach back into the source pad
+    copy->setSize(0.2f);
+    QCOMPARE(reverb->size(), 0.8f);
+}
+
+void SamplerTest::test_copySample_emptySource_shouldNotTouchTarget()
+{
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    sampler.loadSample(62, "test.wav");
+
+    sampler.copySample(60, 62); // Pad 60 is empty
+
+    QVERIFY(sampler.sample(62));
+}
+
+void SamplerTest::test_copySample_sameNote_shouldDoNothing()
+{
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    sampler.loadSample(60, "test.wav");
+    const auto data = sampler.sample(60)->data;
+
+    sampler.copySample(60, 60);
+
+    QCOMPARE(sampler.sample(60)->data, data);
+}
+
+void SamplerTest::test_restoreState_shouldRestorePerPadEffects()
+{
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    sampler.loadSample(60, "test.wav");
+    const auto reverb = std::make_shared<Reverb>();
+    reverb->setSize(0.8f);
+    sampler.sampleEffectRack(60).setEffect(0, reverb);
+
+    sampler.saveState();
+
+    // Everything the dialog can do to a pad's insert rack: re-tune an effect, and add another one
+    reverb->setSize(0.1f);
+    sampler.sampleEffectRack(60).setEffect(1, std::make_shared<Reverb>());
+
+    sampler.restoreState();
+
+    auto & restoredRack = sampler.sampleEffectRack(60);
+    const auto restored = std::dynamic_pointer_cast<Reverb>(restoredRack.effect(0));
+    QVERIFY(restored != nullptr);
+    QCOMPARE(restored->size(), 0.8f);
+    QVERIFY(!restoredRack.effect(1));
 }
 
 void SamplerTest::test_midiNoteOn_shouldPlaySample()

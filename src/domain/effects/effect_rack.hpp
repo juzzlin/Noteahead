@@ -79,8 +79,15 @@ public:
     //! source slot is empty or source and target are the same slot.
     bool copyEffect(size_t sourceIndex, size_t targetIndex);
 
+    //! Replace this rack's contents with in-memory clones of another rack's effects. The two racks
+    //! stay independent afterwards: nothing is shared, not even the effect state.
+    void copyFrom(const EffectRack & other);
+
 private:
     void markChanged();
+
+    //! Builds an independent copy of the given effect, parameters and enabled state included.
+    EffectS cloneEffect(const EffectS & source) const;
 
     std::vector<EffectS> m_effects;
     std::atomic<uint64_t> m_version { 0 };

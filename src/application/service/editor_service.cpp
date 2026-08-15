@@ -1327,6 +1327,38 @@ void EditorService::requestNewColumn(quint64 trackIndex)
     setIsModified(true);
 }
 
+void EditorService::requestNewColumnToLeft()
+{
+    const auto trackIndex = m_state.cursorPosition.track;
+    const auto columnIndex = m_state.cursorPosition.column;
+    juzzlin::L(TAG).debug() << "New column requested to the left of column " << columnIndex << " on track " << trackIndex;
+
+    m_undoStack->clear();
+
+    if (m_song->addColumnToLeftOf(trackIndex, columnIndex)) {
+        emit columnAdded(trackIndex);
+        updateScrollBar();
+        notifyPositionChange(m_state.cursorPosition); // Re-focuses the previous column
+        setIsModified(true);
+    }
+}
+
+void EditorService::requestNewColumnToRight()
+{
+    const auto trackIndex = m_state.cursorPosition.track;
+    const auto columnIndex = m_state.cursorPosition.column;
+    juzzlin::L(TAG).debug() << "New column requested to the right of column " << columnIndex << " on track " << trackIndex;
+
+    m_undoStack->clear();
+
+    if (m_song->addColumnToRightOf(trackIndex, columnIndex)) {
+        emit columnAdded(trackIndex);
+        updateScrollBar();
+        notifyPositionChange(m_state.cursorPosition); // Re-focuses the previous column
+        setIsModified(true);
+    }
+}
+
 void EditorService::requestColumnDeletion(quint64 trackIndex)
 {
     juzzlin::L(TAG).debug() << "Column deletion requested on track " << trackIndex;

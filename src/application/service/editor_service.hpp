@@ -224,6 +224,10 @@ public:
     virtual Q_INVOKABLE bool requestDigitSetAtCurrentPosition(quint8 digit);
 
     virtual Q_INVOKABLE void requestNewColumn(quint64 trackIndex);
+    //! Adds a column just before the one the cursor is on.
+    virtual Q_INVOKABLE void requestNewColumnToLeft();
+    //! Adds a column just after the one the cursor is on.
+    virtual Q_INVOKABLE void requestNewColumnToRight();
     //! Deletes the last column of the given track.
     virtual Q_INVOKABLE void requestColumnDeletion(quint64 trackIndex);
     //! Deletes the column the cursor is on.

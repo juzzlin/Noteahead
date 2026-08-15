@@ -5,6 +5,17 @@ Release date:
 
 New features:
 
+* Add column insertion to the column context menu
+  - Insert a new column to the left / right of the current one
+
+* Fix Sampler dialog cancel not undoing per-pad insert effect edits
+
+* Add a context menu to Sampler pads
+  - Right-click now offers Clear and Copy from pad instead of
+    clearing the pad outright
+  - Copying brings the sample, the pad settings and the per-pad
+    insert effects
+
 * Add new wavetables to the Wavetable Synth
   - Pulse Width, Vocal Formant, Resonant Sweep and Organ Drawbar
   - Wavetables are now built on first use instead of at startup

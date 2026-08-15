@@ -154,6 +154,12 @@ ApplicationWindow {
         width: parent.width * Constants.defaultDialogScale
         height: parent.height * Constants.defaultDialogScale
     }
+    CopyPadDialog {
+        id: copyPadDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
+    }
     FileDialog {
         id: saveAsDialog
         currentFolder: StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
@@ -1170,6 +1176,10 @@ ApplicationWindow {
         UiService.copyEffectDialogRequested.connect(slotIndex => {
             copyEffectDialog.slotIndex = slotIndex;
             copyEffectDialog.open();
+        });
+        UiService.copyPadDialogRequested.connect(padIndex => {
+            copyPadDialog.padIndex = padIndex;
+            copyPadDialog.open();
         });
         UiService.gainConverterDialogRequested.connect(() => {
             gainConverterDialog.open();

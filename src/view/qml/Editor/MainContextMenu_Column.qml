@@ -107,6 +107,17 @@ Menu {
     }
     MenuSeparator {}
     Action {
+        text: qsTr("Insert a new column to the left")
+        enabled: !UiService.isPlaying()
+        onTriggered: editorService.requestNewColumnToLeft()
+    }
+    Action {
+        text: qsTr("Insert a new column to the right")
+        enabled: !UiService.isPlaying()
+        onTriggered: editorService.requestNewColumnToRight()
+    }
+    MenuSeparator {}
+    Action {
         text: qsTr("Move column to the left")
         enabled: !UiService.isPlaying()
         onTriggered: editorService.requestColumnMoveLeft()

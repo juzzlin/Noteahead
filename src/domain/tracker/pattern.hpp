@@ -65,6 +65,8 @@ public:
     size_t index() const;
 
     void addColumn(size_t trackIndex);
+    bool addColumnToLeftOf(size_t trackIndex, size_t columnIndex);
+    bool addColumnToRightOf(size_t trackIndex, size_t columnIndex);
     bool deleteColumn(size_t trackIndex);
     bool deleteColumn(size_t trackIndex, size_t columnIndex);
     bool moveColumnLeft(size_t trackIndex, size_t columnIndex);

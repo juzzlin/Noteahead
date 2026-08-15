@@ -26,10 +26,18 @@ class SamplerTest : public QObject
 
 private slots:
     void initTestCase();
+    void cleanupTestCase();
 
     void test_initialState_shouldBeCorrect();
 
     void test_loadAndClearSample_shouldUpdateModel();
+
+    void test_copySample_shouldCopySampleAndSettings();
+    void test_copySample_shouldGiveTargetIndependentEffectRack();
+    void test_copySample_emptySource_shouldNotTouchTarget();
+    void test_copySample_sameNote_shouldDoNothing();
+
+    void test_restoreState_shouldRestorePerPadEffects();
 
     void test_midiNoteOn_shouldPlaySample();
     void test_midiAllNotesOff_shouldStopAllVoices();

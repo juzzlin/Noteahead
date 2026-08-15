@@ -34,6 +34,7 @@ private slots:
     void test_toXmlFromXml_columnSettings_shouldSaveAndLoad();
     void test_toXmlFromXml_columnDeleted_shouldLoadColumnIndices();
     void test_toXmlFromXml_columnMoved_shouldLoadColumnOrder();
+    void test_toXmlFromXml_columnInserted_shouldLoadColumnOrder();
     void test_toXmlFromXml_trackMoved_shouldLoadTrackOrder();
     void test_toXml_noColumnsDeleted_shouldNotWriteColumnIndices();
     void test_fromXml_legacyNoColumnIndices_shouldLoadConsecutiveIndices();

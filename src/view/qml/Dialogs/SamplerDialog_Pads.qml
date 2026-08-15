@@ -16,6 +16,7 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
+import QtQuick.Controls.Universal 2.15
 import Noteahead 1.0
 
 GridView {
@@ -120,10 +121,28 @@ GridView {
 
                 onClicked: mouse => {
                     if (mouse.button === Qt.RightButton) {
-                        if (isLoaded) {
-                            samplerController.clearSample(index);
-                        }
+                        padMenu.popup();
                     }
+                }
+            }
+
+            Menu {
+                id: padMenu
+                // The menu is a popup of its own, so the pad it acts on is captured here rather than
+                // read off the delegate's model context from inside the items.
+                readonly property int padIndex: index
+                readonly property bool padIsLoaded: isLoaded
+                // A popup does not inherit the theme of the dialog the pads live in either
+                Universal.theme: Universal.Dark
+                Universal.accent: themeService.accentColor
+                MenuItem {
+                    text: qsTr("Clear")
+                    enabled: padMenu.padIsLoaded
+                    onTriggered: samplerController.clearSample(padMenu.padIndex)
+                }
+                MenuItem {
+                    text: qsTr("Copy from pad...")
+                    onTriggered: UiService.requestCopyPadDialog(padMenu.padIndex)
                 }
             }
         }

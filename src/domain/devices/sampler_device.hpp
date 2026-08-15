@@ -96,6 +96,9 @@ public:
     };
 
     void loadSample(uint8_t note, const std::string & filePath);
+    //! Duplicates the sample of sourceNote onto targetNote: the sample data, the pad settings and an
+    //! independent clone of the per-pad insert rack. Does nothing if the source pad is empty.
+    void copySample(uint8_t sourceNote, uint8_t targetNote);
     void clearSample(uint8_t note);
     const Sample * sample(uint8_t note) const;
     std::string absoluteFilePath(uint8_t note) const;
@@ -159,6 +162,10 @@ public:
 private:
     struct Voice;
     void updateVoiceEffects(Voice & voice);
+
+    //! Copy of the given sample that shares nothing mutable with it: the pad settings and the insert
+    //! rack are duplicated, only the immutable sample data is shared.
+    std::unique_ptr<Sample> cloneSample(const Sample & source) const;
 
     //! Silences every voice playing through a sample that is about to be replaced or destroyed,
     //! or through any sample at all when given nothing.

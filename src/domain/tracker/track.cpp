@@ -165,16 +165,49 @@ void Track::setInstrumentSettingsAtPosition(const Position & position, Instrumen
     columnByIndexThrow(position.column)->setInstrumentSettings(position, instrumentSettings);
 }
 
-void Track::addColumn()
+Track::ColumnS Track::createOrRestoreColumn()
 {
     if (!m_deletedColumns.empty()) {
-        m_columnOrder.push_back(m_deletedColumns.back());
+        const auto restored = m_deletedColumns.back();
         m_deletedColumns.pop_back();
-        juzzlin::L(TAG).debug() << "Restored column with index " << m_columnOrder.back()->index();
+        juzzlin::L(TAG).debug() << "Restored column with index " << restored->index();
+        return restored;
     } else {
         const auto newIndex = nextFreeColumnIndex();
-        m_columnOrder.push_back(std::make_shared<Column>(newIndex, lineCount()));
-        juzzlin::L(TAG).debug() << "Added column with index " << newIndex;
+        juzzlin::L(TAG).debug() << "Created column with index " << newIndex;
+        return std::make_shared<Column>(newIndex, lineCount());
+    }
+}
+
+void Track::addColumn()
+{
+    m_columnOrder.push_back(createOrRestoreColumn());
+    juzzlin::L(TAG).debug() << "Added column with index " << m_columnOrder.back()->index();
+}
+
+bool Track::addColumnToLeftOf(size_t columnIndex)
+{
+    if (const auto columnPosition = columnPositionByIndex(columnIndex); columnPosition.has_value()) {
+        const auto column = createOrRestoreColumn();
+        m_columnOrder.insert(m_columnOrder.begin() + static_cast<long>(*columnPosition), column);
+        juzzlin::L(TAG).debug() << "Added column with index " << column->index() << " to the left of position " << *columnPosition;
+        return true;
+    } else {
+        juzzlin::L(TAG).error() << "Invalid column index: " << columnIndex;
+        return false;
+    }
+}
+
+bool Track::addColumnToRightOf(size_t columnIndex)
+{
+    if (const auto columnPosition = columnPositionByIndex(columnIndex); columnPosition.has_value()) {
+        const auto column = createOrRestoreColumn();
+        m_columnOrder.insert(m_columnOrder.begin() + static_cast<long>(*columnPosition) + 1, column);
+        juzzlin::L(TAG).debug() << "Added column with index " << column->index() << " to the right of position " << *columnPosition;
+        return true;
+    } else {
+        juzzlin::L(TAG).error() << "Invalid column index: " << columnIndex;
+        return false;
     }
 }
 

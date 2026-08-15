@@ -443,6 +443,41 @@ void EffectRackTest::test_copyEffect_sameSlot_shouldFail()
     QVERIFY(!rack.copyEffect(0, 0));
 }
 
+void EffectRackTest::test_copyFrom_shouldCloneEffectsIndependently()
+{
+    EffectRack source;
+    const auto reverb = std::make_shared<Reverb>();
+    reverb->setSize(0.85f);
+    source.setEffect(1, reverb);
+
+    EffectRack target;
+    target.setEffect(0, std::make_shared<Reverb>()); // Replaced by the copy
+    target.copyFrom(source);
+
+    QVERIFY(!target.effect(0)); // The target's own effect was replaced by the empty source slot
+    const auto copy = std::dynamic_pointer_cast<Reverb>(target.effect(1));
+    QVERIFY(copy != nullptr);
+    QCOMPARE(copy->size(), 0.85f);
+    QVERIFY(copy != reverb);
+
+    // The two racks stay independent: the clone can be re-tuned without touching the source.
+    copy->setSize(0.25f);
+    QCOMPARE(reverb->size(), 0.85f);
+}
+
+void EffectRackTest::test_copyFrom_emptySource_shouldClearTarget()
+{
+    EffectRack source;
+    EffectRack target;
+    target.setEffect(0, std::make_shared<Reverb>());
+
+    target.copyFrom(source);
+
+    QVERIFY(!target.hasEffects());
+    // The rack keeps its fixed slot count so that setEffect() still works on it
+    QCOMPARE(target.effectCount(), Constants::effectRackSize());
+}
+
 void EffectRackTest::test_swapEffects_shouldSwapTwoSlots()
 {
     EffectRack rack;

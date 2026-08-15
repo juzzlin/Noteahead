@@ -68,6 +68,9 @@ private slots:
     void test_requestColumnDeletion_shouldDeleteColumn();
     void test_requestCurrentColumnDeletion_middleColumn_shouldKeepIndicesOfRemainingColumns();
     void test_requestCurrentColumnDeletion_onlyColumn_shouldFail();
+    void test_requestNewColumnToLeft_shouldInsertColumnBeforeCursorColumn();
+    void test_requestNewColumnToRight_shouldInsertColumnAfterCursorColumn();
+    void test_requestNewColumnToLeft_shouldAddColumnToEveryPattern();
     void test_requestColumnMoveLeft_shouldChangeOrderButKeepCursorOnColumn();
     void test_requestColumnMoveRight_lastColumn_shouldWrapToFirst();
     void test_requestTrackMoveLeft_shouldChangeOrderButKeepCursorOnTrack();

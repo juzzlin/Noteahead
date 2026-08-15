@@ -379,17 +379,11 @@ bool EffectRack::importEffectSettings(size_t index, ProjectReader & reader)
     return false;
 }
 
-bool EffectRack::copyEffect(size_t sourceIndex, size_t targetIndex)
+EffectRack::EffectS EffectRack::cloneEffect(const EffectS & source) const
 {
-    const std::lock_guard<std::recursive_mutex> lock { m_mutex };
-    if (sourceIndex == targetIndex || sourceIndex >= m_effects.size() || !m_effects[sourceIndex]) {
-        return false;
-    }
-
-    const auto & source = m_effects[sourceIndex];
     auto clone = EffectFactory::createEffect(source->typeId(), source->type());
     if (!clone) {
-        return false;
+        return nullptr;
     }
 
     clone->setEnabled(source->enabled());
@@ -400,6 +394,21 @@ bool EffectRack::copyEffect(size_t sourceIndex, size_t targetIndex)
     }
     clone->sync();
 
+    return clone;
+}
+
+bool EffectRack::copyEffect(size_t sourceIndex, size_t targetIndex)
+{
+    const std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    if (sourceIndex == targetIndex || sourceIndex >= m_effects.size() || !m_effects[sourceIndex]) {
+        return false;
+    }
+
+    auto clone = cloneEffect(m_effects[sourceIndex]);
+    if (!clone) {
+        return false;
+    }
+
     if (targetIndex >= m_effects.size()) {
         m_effects.resize(targetIndex + 1, nullptr);
     }
@@ -407,6 +416,30 @@ bool EffectRack::copyEffect(size_t sourceIndex, size_t targetIndex)
     markChanged();
 
     return true;
+}
+
+void EffectRack::copyFrom(const EffectRack & other)
+{
+    if (&other == this) {
+        return;
+    }
+
+    const auto sourceEffects = other.effects();
+
+    const std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    // The slot count is fixed by the constructor and setEffect() refuses to grow it, so empty the
+    // slots in place rather than rebuilding the vector out of the source
+    std::fill(m_effects.begin(), m_effects.end(), nullptr);
+    if (sourceEffects.size() > m_effects.size()) {
+        m_effects.resize(sourceEffects.size(), nullptr);
+    }
+    for (size_t i = 0; i < sourceEffects.size(); i++) {
+        if (sourceEffects[i]) {
+            m_effects[i] = cloneEffect(sourceEffects[i]);
+        }
+    }
+    setEnabled(other.enabled());
+    markChanged();
 }
 
 } // namespace noteahead

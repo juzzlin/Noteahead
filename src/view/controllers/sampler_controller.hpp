@@ -97,6 +97,10 @@ public:
     void reject() override;
 
     Q_INVOKABLE void loadSample(int padIndex, const QString & filePath);
+    //! Duplicates sourcePad onto targetPad: sample, pad settings and per-pad insert effects.
+    Q_INVOKABLE void copyPad(int sourcePad, int targetPad);
+    //! One entry per loaded pad, with padIndex, note, noteName and fileName. Feeds CopyPadDialog.
+    Q_INVOKABLE QVariantList loadedPads() const;
     Q_INVOKABLE void clearSample(int padIndex);
     Q_INVOKABLE void playSample(int padIndex, double velocity = 1.0);
     Q_INVOKABLE void stopSample(int padIndex);

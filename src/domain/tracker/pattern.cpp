@@ -87,6 +87,16 @@ void Pattern::addColumn(size_t trackIndex)
     trackByIndexThrow(trackIndex)->addColumn();
 }
 
+bool Pattern::addColumnToLeftOf(size_t trackIndex, size_t columnIndex)
+{
+    return trackByIndexThrow(trackIndex)->addColumnToLeftOf(columnIndex);
+}
+
+bool Pattern::addColumnToRightOf(size_t trackIndex, size_t columnIndex)
+{
+    return trackByIndexThrow(trackIndex)->addColumnToRightOf(columnIndex);
+}
+
 bool Pattern::deleteColumn(size_t trackIndex)
 {
     return trackByIndexThrow(trackIndex)->deleteColumn();

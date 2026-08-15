@@ -43,6 +43,8 @@ private slots:
     void test_copyEffect_shouldDuplicateIntoTargetSlot();
     void test_copyEffect_emptySource_shouldFail();
     void test_copyEffect_sameSlot_shouldFail();
+    void test_copyFrom_shouldCloneEffectsIndependently();
+    void test_copyFrom_emptySource_shouldClearTarget();
     void test_swapEffects_shouldSwapTwoSlots();
     void test_swapEffects_outOfBounds_shouldDoNothing();
     void test_moveEffect_upwards_shouldShiftSlotsInBetweenDown();
