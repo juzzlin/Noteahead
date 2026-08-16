@@ -11,6 +11,10 @@ Bug fixes:
 
 New features:
 
+* Add typing exact values to knobs
+  - Double-click the readout above a knob to type a value
+  - Units are understood: -3 dB, 250 ms, 1.5 kHz, L50, Bypass
+
 * Add fine and coarse mouse wheel steps to knobs
   - Ctrl + wheel steps ten times finer, Shift + wheel five times coarser
 

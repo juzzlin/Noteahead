@@ -17,10 +17,77 @@
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
 
+#include <QRegularExpression>
+
+#include <algorithm>
 #include <cmath>
+#include <optional>
 #include <vector>
 
 namespace noteahead {
+
+namespace {
+
+struct ParsedInput
+{
+    double number = 0;
+    QString unit;
+};
+
+//! Splits "-6.0 dB" into -6.0 and "db". Composite readouts such as "50.0% / -6.0 dB" stop at the
+//! slash, so the first half is read and the string a knob displays is always parseable as-is.
+std::optional<ParsedInput> splitNumberAndUnit(const QString & text)
+{
+    static const QRegularExpression pattern { R"(^([+-]?(?:\d+(?:\.\d*)?|\.\d+))\s*([^/]*))" };
+    const QString normalized = QString { text }.trimmed().replace(',', '.');
+    if (const auto match = pattern.match(normalized); match.hasMatch()) {
+        bool ok = false;
+        const double number = match.captured(1).toDouble(&ok);
+        if (ok) {
+            return ParsedInput { number, match.captured(2).trimmed().toLower() };
+        }
+    }
+    return std::nullopt;
+}
+
+//! Reads a typed gain, accepting decibels, percentages and "-inf". A bare number means decibels
+//! only where the readout shows nothing else; where a percentage leads the readout, it wins.
+std::optional<double> parseLinearGain(const QString & text, bool bareIsDecibel)
+{
+    if (const auto input = splitNumberAndUnit(text); input) {
+        if (input->unit.contains("db") || (input->unit.isEmpty() && bareIsDecibel)) {
+            return std::pow(10.0, input->number / 20.0);
+        }
+        return input->number / 100.0;
+    }
+    // Silence carries no number at all, only a name
+    if (text.toLower().contains("inf") && text.trimmed().startsWith('-')) {
+        return 0.0;
+    }
+    return std::nullopt;
+}
+
+//! Seconds per typed time unit, or nothing when the unit is not a time unit at all.
+std::optional<double> unitToSeconds(const QString & unit)
+{
+    if (unit == "s") {
+        return 1.0;
+    }
+    if (unit == "ms") {
+        return 0.001;
+    }
+    if (unit == "us" || unit == "µs" || unit == "μs") {
+        return 0.000001;
+    }
+    return std::nullopt;
+}
+
+double clampToPosition(double value)
+{
+    return std::clamp(value, 0.0, 1.0);
+}
+
+} // namespace
 
 static const std::vector<double> syncDivisions = { 1.0, 0.75, 0.5, 0.375, 1.0 / 3.0, 0.25, 0.1875, 1.0 / 6.0, 0.125, 0.09375, 1.0 / 12.0, 0.0625, 0.046875, 1.0 / 24.0, 0.03125, 0.015625 };
 static const std::vector<QString> syncLabels = { "1/1", "3/4", "1/2", "3/8", "1/3", "1/4", "3/16", "1/6", "1/8", "3/32", "1/12", "1/16", "3/64", "1/24", "1/32", "1/64" };
@@ -122,6 +189,90 @@ QString KnobController::format(double value, const QString & type, const QString
 
     // Default to time-like formatting
     return timeToString(mappedValue, suffix);
+}
+
+QVariant KnobController::parse(const QString & text, const QString & type, const QString & suffix, double min, double max) const
+{
+    const QString trimmed = text.trimmed();
+    const QString lowered = trimmed.toLower();
+
+    if (type == "pan") {
+        if (lowered == "c" || lowered == "center" || lowered == tr("Center").toLower()) {
+            return clampToPosition(0.5);
+        }
+        // A side may lead the input ("L30") as well as trail it ("30% L"), so look at both ends.
+        const bool leadsLeft = lowered.startsWith("l");
+        const bool leadsRight = lowered.startsWith("r");
+        const auto input = splitNumberAndUnit(leadsLeft || leadsRight ? trimmed.mid(1) : trimmed);
+        if (!input) {
+            return {};
+        }
+        double percentage = input->number;
+        if (leadsLeft || input->unit.contains('l')) {
+            percentage = -std::abs(percentage);
+        } else if (leadsRight || input->unit.contains('r')) {
+            percentage = std::abs(percentage);
+        }
+        return clampToPosition(0.5 + percentage / 200.0);
+    }
+
+    if (type == "volume" || type == "fader") {
+        const auto gain = parseLinearGain(trimmed, false);
+        if (!gain) {
+            return {};
+        }
+        return clampToPosition(type == "fader" ? ParameterMapper::unmapFader(*gain) : *gain);
+    }
+
+    if (type == "decibel") {
+        const auto gain = parseLinearGain(trimmed, true);
+        if (!gain) {
+            return {};
+        }
+        return clampToPosition(ParameterMapper::unmapDecibel(*gain, (max - min) / 2.0));
+    }
+
+    if (type == "logFrequency" || type == "frequency") {
+        if (lowered == "bypass" || lowered == tr("Bypass").toLower()) {
+            return clampToPosition(1.0);
+        }
+        const auto input = splitNumberAndUnit(trimmed);
+        if (!input) {
+            return {};
+        }
+        if (input->unit.startsWith('%')) {
+            return clampToPosition(input->number / 100.0);
+        }
+        const double hz = input->number * (input->unit.startsWith('k') ? 1000.0 : 1.0);
+        return clampToPosition(unmap(hz, type, min, max));
+    }
+
+    const auto input = splitNumberAndUnit(trimmed);
+    if (!input) {
+        return {};
+    }
+
+    // The bipolar family and integers read out the mapped value directly, unit and all.
+    if (type == "integer" || type == "intensity" || type == "cubicCentered" || type == "bipolar") {
+        return clampToPosition(unmap(input->number, type, min, max));
+    }
+
+    // A percentage readout reports the knob's own position and ignores the mapping.
+    if (suffix == "%") {
+        return clampToPosition(input->number / 100.0);
+    }
+
+    double mappedValue = input->number;
+    if (suffix == "dB" && min == 0 && max == Constants::uiInternalScaling()) {
+        // Legacy: the readout is -30..30 dB across a 0..1000 value
+        mappedValue = (input->number / 60.0 + 0.5) * Constants::uiInternalScaling();
+    } else if (suffix == "s" || suffix == "ms") {
+        // Time readouts scale themselves between μs, ms and s, so honour the unit that was typed
+        const double seconds = input->number * unitToSeconds(input->unit).value_or(suffix == "s" ? 1.0 : 0.001);
+        mappedValue = (suffix == "s") ? seconds : seconds * 1000.0;
+    }
+
+    return clampToPosition(unmap(mappedValue, type, min, max));
 }
 
 QString KnobController::bipolarToString(double value, const QString & suffix, double /*from*/, double /*to*/) const

@@ -20,6 +20,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QVariant>
 
 namespace noteahead {
 
@@ -32,6 +33,10 @@ public:
     Q_INVOKABLE double map(double value, const QString & type, double min, double max) const;
     Q_INVOKABLE double unmap(double mappedValue, const QString & type, double min, double max) const;
     Q_INVOKABLE QString format(double mappedValue, const QString & type, const QString & suffix, double min = 0, double max = 1) const;
+
+    //! The inverse of format(): turns a typed readout back into a normalized 0..1 knob position.
+    //! Returns an invalid QVariant (undefined in QML) when the text carries no number.
+    Q_INVOKABLE QVariant parse(const QString & text, const QString & type, const QString & suffix, double min = 0, double max = 1) const;
 
     Q_INVOKABLE QString bipolarToString(double value, const QString & suffix, double from, double to) const;
 

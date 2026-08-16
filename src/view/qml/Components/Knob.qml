@@ -37,21 +37,70 @@ ColumnLayout {
     // Ctrl buys the precision back, Shift trades it away for speed.
     property real fineWheelFactor: 0.1
     property real coarseWheelFactor: 5
+    readonly property string displayValue: knobController.format((knobRoot.value - knobRoot.from) / (knobRoot.to - knobRoot.from), knobRoot.mapping, knobRoot.suffix, knobRoot.mapMin, knobRoot.mapMax)
     signal moved(real val)
+
+    // Dragging a short knob cannot land on an exact value, so the readout doubles as an input field
+    function commitTypedValue(text) {
+        const position = knobController.parse(text, knobRoot.mapping, knobRoot.suffix, knobRoot.mapMin, knobRoot.mapMax);
+        if (position !== undefined) {
+            knobRoot.moved(knobRoot.from + position * (knobRoot.to - knobRoot.from));
+        }
+    }
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
 
     spacing: 2
     Label {
-        text: {
-            let modelNorm = (knobRoot.value - knobRoot.from) / (knobRoot.to - knobRoot.from);
-            let displayValue = knobController.format(modelNorm, knobRoot.mapping, knobRoot.suffix, knobRoot.mapMin, knobRoot.mapMax);
-            return `${knobRoot.label} (${displayValue})`;
-        }
+        id: valueLabel
+        text: `${knobRoot.label} (${knobRoot.displayValue})`
         font.pixelSize: 11
         color: themeService.accentColor
         Layout.alignment: Qt.AlignHCenter
+
+        MouseArea {
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.IBeamCursor
+            onDoubleClicked: valueEditor.open()
+            ToolTip.visible: containsMouse && !valueEditor.visible
+            ToolTip.delay: 1000
+            ToolTip.text: qsTr("Double-click to type an exact value")
+        }
+
+        Popup {
+            id: valueEditor
+            x: (valueLabel.width - width) / 2
+            y: 0
+            width: Math.max(knobRoot.width, 140)
+            padding: 2
+            focus: true
+            closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+            Universal.theme: Universal.Dark
+            Universal.accent: themeService.accentColor
+
+            onOpened: {
+                valueField.text = knobRoot.displayValue;
+                valueField.selectAll();
+                valueField.forceActiveFocus();
+            }
+
+            contentItem: TextField {
+                id: valueField
+                horizontalAlignment: Text.AlignHCenter
+                selectByMouse: true
+                // Accepting the text as it was offered means nothing moved, which matters for the
+                // readouts that show two numbers: re-reading one of them would nudge the other
+                onAccepted: {
+                    if (text !== knobRoot.displayValue) {
+                        knobRoot.commitTypedValue(text);
+                    }
+                    valueEditor.close();
+                }
+            }
+        }
     }
     Slider {
         id: slider

@@ -36,6 +36,9 @@ private slots:
     void test_decibelMultiplierToString_shouldFormatDecibelStrings();
     void test_valueToString_shouldFormatUnitStrings();
     void test_format_shouldHandleMappingAndUnits();
+    void test_parse_shouldReadTypedUnits();
+    void test_parse_shouldRoundTripFormattedStrings();
+    void test_parse_shouldRejectTextWithoutANumber();
     void test_bipolarMapping_shouldReadZeroAtTheCentre();
     void test_frequencyToString_shouldFormatFrequencyStrings();
     void test_syncLogic_shouldHandleSyncValuesAndLabels();

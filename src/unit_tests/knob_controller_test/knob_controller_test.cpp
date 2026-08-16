@@ -19,6 +19,8 @@
 
 #include <QTest>
 
+#include <vector>
+
 namespace noteahead {
 
 void KnobControllerTest::test_intensityMapping_shouldMapValuesCorrectly()
@@ -169,6 +171,95 @@ void KnobControllerTest::test_format_shouldHandleMappingAndUnits()
     // Test exponential mapping for Q (reproduce integer formatting issue)
     double normVal = controller.unmap(1.234, "exponential", 0.1, 10.0);
     QCOMPARE(controller.format(normVal, "exponential", "", 0.1, 10.0), QString { "1.23" });
+}
+
+void KnobControllerTest::test_parse_shouldReadTypedUnits()
+{
+    KnobController controller;
+
+    // A threshold knob reads out in dB directly
+    QCOMPARE(controller.parse("-3 dB", "linear", "dB", -60.0, 0.0).toDouble(), 57.0 / 60.0);
+    QCOMPARE(controller.parse("-3", "linear", "dB", -60.0, 0.0).toDouble(), 57.0 / 60.0);
+
+    // A decimal comma is what a Finnish keyboard offers on the numpad
+    QCOMPARE(controller.parse("-6,0 dB", "linear", "dB", -60.0, 0.0).toDouble(), 54.0 / 60.0);
+
+    // Time knobs scale themselves between μs, ms and s, so the typed unit has to be honoured
+    QCOMPARE(controller.parse("250 ms", "linear", "ms", 0.0, 1000.0).toDouble(), 0.25);
+    QCOMPARE(controller.parse("0.25 s", "linear", "ms", 0.0, 1000.0).toDouble(), 0.25);
+    QCOMPARE(controller.parse("250", "linear", "ms", 0.0, 1000.0).toDouble(), 0.25);
+
+    // Frequencies may be typed in kHz
+    QCOMPARE(controller.parse("1.5 kHz", "logFrequency", "%", 20.0, 20000.0).toDouble(),
+             controller.unmap(1500.0, "logFrequency", 20.0, 20000.0));
+    QCOMPARE(controller.parse("Bypass", "logFrequency", "%", 20.0, 20000.0).toDouble(), 1.0);
+
+    // Pan takes a side from either end of the input
+    QCOMPARE(controller.parse("Center", "pan", "%", 0.0, 1.0).toDouble(), 0.5);
+    QCOMPARE(controller.parse("L50", "pan", "%", 0.0, 1.0).toDouble(), 0.25);
+    QCOMPARE(controller.parse("50.0% R", "pan", "%", 0.0, 1.0).toDouble(), 0.75);
+
+    // A fader is typed in dB or in percent, and silence is a legal thing to ask for
+    QCOMPARE(controller.parse("0 dB", "fader", "", 0.0, 1.0).toDouble(), controller.unmap(1.0, "fader", 0.0, 1.0));
+    QCOMPARE(controller.parse("-inf dB", "fader", "", 0.0, 1.0).toDouble(), 0.0);
+
+    // Out-of-range input lands on the end of the travel rather than off it
+    QCOMPARE(controller.parse("+100 dB", "linear", "dB", -60.0, 0.0).toDouble(), 1.0);
+    QCOMPARE(controller.parse("-999 dB", "linear", "dB", -60.0, 0.0).toDouble(), 0.0);
+}
+
+void KnobControllerTest::test_parse_shouldRoundTripFormattedStrings()
+{
+    KnobController controller;
+
+    // Whatever a knob displays must read back as the position it was formatted from, so that the
+    // string in the editor always means what it says. Composite readouts such as "33.3% / -9.5 dB"
+    // are compared up to the slash: the trailing half is derived from a value the leading half has
+    // already rounded, so it can land a tenth away and no parser can recover it.
+    struct Case
+    {
+        QString type;
+        QString suffix;
+        double min = 0;
+        double max = 1;
+    };
+
+    const std::vector<Case> cases = {
+        { "linear", "dB", -60.0, 0.0 },
+        { "linear", "%", 0.0, 1000.0 },
+        { "linear", ":1", 1.0, 20.0 },
+        { "exponential", "ms", 0.1, 500.0 },
+        { "exponential", "", 0.1, 10.0 },
+        { "cubic", "ms", 1.0, 10001.0 },
+        { "logFrequency", "%", 20.0, 20000.0 },
+        { "decibel", "", 0.0, 24.0 },
+        { "bipolar", "%", -100.0, 100.0 },
+        { "intensity", "%", 0.0, 1000.0 },
+        { "integer", "", 1.0, 16.0 },
+        { "pan", "%", 0.0, 1.0 },
+        { "fader", "", 0.0, 1.0 },
+        { "volume", "", 0.0, 1.0 }
+    };
+
+    for (auto && testCase : cases) {
+        for (double position : { 0.0, 0.25, 0.5, 0.75, 1.0 }) {
+            const QString formatted = controller.format(position, testCase.type, testCase.suffix, testCase.min, testCase.max);
+            const QVariant parsed = controller.parse(formatted, testCase.type, testCase.suffix, testCase.min, testCase.max);
+            QVERIFY2(parsed.isValid(), qPrintable(QString { "%1 '%2'" }.arg(testCase.type).arg(formatted)));
+            const QString reformatted = controller.format(parsed.toDouble(), testCase.type, testCase.suffix, testCase.min, testCase.max);
+            QCOMPARE(reformatted.section('/', 0, 0), formatted.section('/', 0, 0));
+        }
+    }
+}
+
+void KnobControllerTest::test_parse_shouldRejectTextWithoutANumber()
+{
+    KnobController controller;
+
+    QVERIFY(!controller.parse("", "linear", "dB", -60.0, 0.0).isValid());
+    QVERIFY(!controller.parse("nonsense", "linear", "dB", -60.0, 0.0).isValid());
+    QVERIFY(!controller.parse("dB", "linear", "dB", -60.0, 0.0).isValid());
+    QVERIFY(!controller.parse("inf dB", "fader", "", 0.0, 1.0).isValid());
 }
 
 void KnobControllerTest::test_bipolarMapping_shouldReadZeroAtTheCentre()
