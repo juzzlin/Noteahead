@@ -28,8 +28,11 @@
 #include "device_service.hpp"
 #include "mixer_service.hpp"
 
+#include <QDateTime>
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
+#include <QTextStream>
 #include <QUuid>
 #include <algorithm>
 #include <cmath>
@@ -257,7 +260,10 @@ void RenderWorker::render(const QString & fileName,
 
         QString report = "";
         if (analyze) {
-            report = runLoudnessAnalysis(fileName, sampleRate);
+            const auto result = runLoudnessAnalysis(fileName, sampleRate);
+            report = formatReportHtml(result);
+            writeAnalysisFile(fileName, formatReportText(result, fileName, sampleRate));
+            report += QString { "<br/>Saved to: %1" }.arg(QFileInfo { analysisFilePath(fileName) }.fileName());
         }
 
         m_audioEngine->reset();
@@ -379,7 +385,7 @@ void RenderWorker::writeFinalFile(const QString & tempPath,
     QFile::remove(tempPath);
 }
 
-QString RenderWorker::runLoudnessAnalysis(const QString & finalPath, quint32 sampleRate)
+LoudnessAnalyzer::Result RenderWorker::runLoudnessAnalysis(const QString & finalPath, quint32 sampleRate)
 {
     juzzlin::L(TAG).info() << "Running loudness/peak analysis on final file...";
     auto reader = m_audioFileReaderFactory ? m_audioFileReaderFactory() : std::make_unique<SndFileReader>();
@@ -397,7 +403,16 @@ QString RenderWorker::runLoudnessAnalysis(const QString & finalPath, quint32 sam
     }
     reader->close();
 
-    const auto result = analyzer.calculate();
+    return analyzer.calculate();
+}
+
+QString RenderWorker::analysisFilePath(const QString & renderedPath)
+{
+    return renderedPath + ".loudness.txt";
+}
+
+QString RenderWorker::formatReportHtml(const LoudnessAnalyzer::Result & result)
+{
     QString report = QString("<table width='100%' cellpadding='5' cellspacing='0'>"
                              "<tr>"
                              "<td bgcolor='#2c2c2c'><b>Parameter</b></td><td align='right' bgcolor='#2c2c2c'><b>Value</b></td>"
@@ -423,6 +438,42 @@ QString RenderWorker::runLoudnessAnalysis(const QString & finalPath, quint32 sam
     juzzlin::L(TAG).info() << "Analysis completed:\n"
                            << report.toStdString();
     return report;
+}
+
+QString RenderWorker::formatReportText(const LoudnessAnalyzer::Result & result, const QString & renderedPath, quint32 sampleRate)
+{
+    const auto label = [](const QString & text, const QString & value) {
+        return QString { "%1%2\n" }.arg(text, -22).arg(value);
+    };
+    const auto number = [](float value, const QString & unit) {
+        // Written the same way the report dialog writes it, so the file and the dialog agree
+        return QString { "%1 %2" }.arg(value, 0, 'f', 1).arg(unit);
+    };
+
+    QString report = "Noteahead loudness analysis\n\n";
+    report += label("File:", QFileInfo { renderedPath }.fileName());
+    report += label("Date:", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
+    report += label("Sample rate:", QString { "%1 Hz" }.arg(sampleRate));
+    report += "\n";
+    report += label("Integrated loudness:", number(result.integratedLoudness, "LUFS"));
+    report += label("True peak:", number(result.truePeak, "dBTP"));
+    report += label("Loudness range (LRA):", number(result.loudnessRange, "LU"));
+    report += label("Threshold:", number(result.threshold, "LUFS"));
+    return report;
+}
+
+void RenderWorker::writeAnalysisFile(const QString & renderedPath, const QString & report)
+{
+    const auto path = analysisFilePath(renderedPath);
+    QFile file { path };
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        juzzlin::L(TAG).error() << "Failed to write the analysis file: " << path.toStdString();
+        return;
+    }
+    QTextStream stream { &file };
+    stream << report;
+    file.close();
+    juzzlin::L(TAG).info() << "Analysis written to " << path.toStdString();
 }
 
 } // namespace noteahead

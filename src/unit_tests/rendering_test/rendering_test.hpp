@@ -27,6 +27,9 @@ private slots:
     void test_render_silence_withoutTrim_shouldExtendFile();
     void test_render_fadeOut_shouldRampDownToZero();
     void test_render_shouldNormalizeAudio();
+
+    void test_render_analysis_shouldWriteReportBesideTheRenderedFile();
+    void test_render_analysisDisabled_shouldWriteNoReport();
 };
 
 } // namespace noteahead

@@ -24,6 +24,9 @@
 #include "../../domain/tracker/pattern.hpp"
 #include "../../domain/tracker/song.hpp"
 
+#include <QFile>
+#include <QFileInfo>
+#include <QTemporaryDir>
 #include <QTest>
 
 #include <cmath>
@@ -845,6 +848,86 @@ void RenderingTest::test_render_shouldNormalizeAudio()
     const float expectedPeak = std::pow(10.0f, targetDb / 20.0f);
     QVERIFY(maxAmp > expectedPeak - 0.05f);
     QVERIFY(maxAmp < expectedPeak + 0.05f);
+}
+
+namespace {
+
+//! Renders one note to the given path, with the loudness analysis on or off.
+void renderWithAnalysis(const QString & path, bool analyze)
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto mixerService = std::make_shared<MixerService>();
+
+    const auto synth = std::make_shared<SynthDevice>("Noteahead Synth");
+    synth->setLpfCutoff(1.0f);
+    synth->setGain(0.5f);
+    synth->setVolume(1.0f);
+    deviceService->setDevice(0, synth);
+
+    RenderWorker worker { audioEngine, deviceService, mixerService };
+
+    MockRenderIo::Registry registry;
+    std::mutex registryMutex;
+    worker.setAudioFileReaderFactory([&]() {
+        return std::make_unique<MockRenderIo>(&registry, &registryMutex);
+    });
+
+    RenderWorker::EventList events;
+    const auto instrument = std::make_shared<Instrument>("Noteahead Internal Device 1");
+    NoteData noteData { 0, 0 };
+    noteData.setAsNoteOn(60, 100);
+    const auto event = std::make_shared<Event>(0, noteData);
+    event->setInstrument(instrument);
+    events.push_back(event);
+
+    RenderWorker::Timing timing;
+    timing.beatsPerMinute = 120;
+    timing.linesPerBeat = 4;
+    timing.ticksPerLine = 6;
+
+    RenderOptions options;
+    options.analyze = analyze;
+    worker.render(path, events, timing, 48, 44100, options);
+}
+
+} // namespace
+
+void RenderingTest::test_render_analysis_shouldWriteReportBesideTheRenderedFile()
+{
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const auto path = directory.filePath("song.flac");
+
+    renderWithAnalysis(path, true);
+
+    // The whole rendered name plus the suffix, so a WAV and a FLAC of the same song keep their own
+    const QFile report { path + ".loudness.txt" };
+    QVERIFY(QFileInfo::exists(report.fileName()));
+
+    QFile openedReport { report.fileName() };
+    QVERIFY(openedReport.open(QIODevice::ReadOnly | QIODevice::Text));
+    const auto text = QString::fromUtf8(openedReport.readAll());
+
+    QVERIFY(text.contains("song.flac"));
+    QVERIFY(text.contains("Integrated loudness:"));
+    QVERIFY(text.contains("True peak:"));
+    QVERIFY(text.contains("Loudness range (LRA):"));
+    QVERIFY(text.contains("Threshold:"));
+    QVERIFY(text.contains("LUFS"));
+    QVERIFY(text.contains("dBTP"));
+}
+
+void RenderingTest::test_render_analysisDisabled_shouldWriteNoReport()
+{
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const auto path = directory.filePath("song.flac");
+
+    // Without an analysis there is nothing to report, so nothing may be left beside the audio
+    renderWithAnalysis(path, false);
+
+    QVERIFY(!QFileInfo::exists(path + ".loudness.txt"));
 }
 
 } // namespace noteahead

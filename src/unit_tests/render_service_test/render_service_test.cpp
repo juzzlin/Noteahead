@@ -118,6 +118,13 @@ void RenderServiceTest::test_renderIndividualTracks_shouldSkipNonInternalInstrum
     files.removeAll(".");
     files.removeAll("..");
 
+    // Each rendered file is accompanied by its loudness report
+    QStringList reports = files.filter(".loudness.txt");
+    QCOMPARE(reports.size(), 2);
+    for (const auto & report : reports) {
+        files.removeAll(report);
+    }
+
     QCOMPARE(files.size(), 2);
 
     auto containsGlob = [](const QStringList & list, const QString & pattern) {

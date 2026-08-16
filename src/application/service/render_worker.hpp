@@ -18,6 +18,7 @@
 
 #include "../../common/audio_backend.hpp"
 #include "../../domain/tracker/song.hpp"
+#include "../../domain/utility/loudness_analyzer.hpp"
 
 #include <functional>
 #include <map>
@@ -57,6 +58,8 @@ struct RenderOptions
     bool silence = false;
     int silenceSeconds = 0;
     int silenceTenths = 0;
+    //! Analyzes the rendered file for loudness, which is both reported back and written next to it
+    //! as "<rendered file name>.loudness.txt".
     bool analyze = false;
     quint8 oversampleFactor = 2;
 };
@@ -104,7 +107,22 @@ private:
     void handleEvent(const Event & event);
     double runNormalizationScan(const QString & tempPath);
     void writeFinalFile(const QString & tempPath, const QString & finalPath, double gain, quint32 sampleRate, quint32 recordingBufferSize, noteahead::BitDepth bitDepth, noteahead::AudioFormat format, const std::map<noteahead::AudioFileReader::TagType, std::string> & tags);
-    QString runLoudnessAnalysis(const QString & finalPath, quint32 sampleRate);
+    LoudnessAnalyzer::Result runLoudnessAnalysis(const QString & finalPath, quint32 sampleRate);
+
+    //! Path of the report written beside a rendered file: its whole name plus ".loudness.txt", so
+    //! that rendering the same song to both WAV and FLAC cannot have one report overwrite the other.
+    static QString analysisFilePath(const QString & renderedPath);
+
+    //! The analysis as the report dialog shows it. Both formatters read the same result, so the file
+    //! and the dialog cannot end up disagreeing.
+    static QString formatReportHtml(const LoudnessAnalyzer::Result & result);
+
+    //! The analysis as it is written to disk.
+    static QString formatReportText(const LoudnessAnalyzer::Result & result, const QString & renderedPath, quint32 sampleRate);
+
+    //! Writes the report beside the rendered file. Failing to write it is logged and swallowed: the
+    //! audio is what the user asked for, and it is already on disk by this point.
+    static void writeAnalysisFile(const QString & renderedPath, const QString & report);
 
     AudioEngineS m_audioEngine;
     DeviceServiceS m_deviceService;

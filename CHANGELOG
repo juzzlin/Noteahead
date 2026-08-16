@@ -11,6 +11,10 @@ Bug fixes:
 
 New features:
 
+* Save the loudness analysis as a text file when rendering
+  - Written beside the rendered file as <rendered file>.loudness.txt
+  - One report per file when rendering individual tracks
+
 * Add curve selection to the automation add dialogs
   - MIDI CC and pitch bend automations can now be given an
     interpolation curve when created, not only when edited
