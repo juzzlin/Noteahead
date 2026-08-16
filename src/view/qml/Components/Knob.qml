@@ -106,7 +106,11 @@ ColumnLayout {
         id: slider
         from: knobRoot.sliderFrom
         to: knobRoot.sliderTo
-        stepSize: 0
+        // Arrow keys step by stepSize, and Qt's fallback of 0.1 is a tenth of a decibel on a knob
+        // that reads out in decibels but a ten-thousandth of the travel on one that runs 0..1000.
+        // A share of the range steps the same everywhere. Dragging is unaffected: snapMode is
+        // NoSnap, so stepSize only reaches the keyboard.
+        stepSize: (knobRoot.sliderTo - knobRoot.sliderFrom) / 1000
         value: knobRoot.value
         Layout.fillWidth: true
         

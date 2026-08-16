@@ -11,6 +11,9 @@ Bug fixes:
 
 New features:
 
+* Fix arrow keys barely moving most knobs
+  - A focused knob now steps by a thousandth of its range either way
+
 * Add typing exact values to knobs
   - Double-click the readout above a knob to type a value
   - Units are understood: -3 dB, 250 ms, 1.5 kHz, L50, Bypass
