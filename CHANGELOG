@@ -11,6 +11,9 @@ Bug fixes:
 
 New features:
 
+* Add fine and coarse mouse wheel steps to knobs
+  - Ctrl + wheel steps ten times finer, Shift + wheel five times coarser
+
 * Save the loudness analysis as a text file when rendering
   - Written beside the rendered file as <rendered file>.loudness.txt
   - One report per file when rendering individual tracks

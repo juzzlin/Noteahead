@@ -33,6 +33,10 @@ ColumnLayout {
     property real sliderFrom: from
     property real sliderTo: to
     property alias stepSize: slider.stepSize
+    // Wheel steps are 1 % of the range, which is coarser than a pixel of drag on a narrow knob.
+    // Ctrl buys the precision back, Shift trades it away for speed.
+    property real fineWheelFactor: 0.1
+    property real coarseWheelFactor: 5
     signal moved(real val)
 
     Universal.theme: Universal.Dark
@@ -70,7 +74,8 @@ ColumnLayout {
 
         WheelHandler {
             onWheel: (wheel) => {
-                const delta = (wheel.angleDelta.y / 12000.0) * (slider.to - slider.from);
+                const factor = (wheel.modifiers & Qt.ControlModifier) ? knobRoot.fineWheelFactor : ((wheel.modifiers & Qt.ShiftModifier) ? knobRoot.coarseWheelFactor : 1);
+                const delta = (wheel.angleDelta.y / 12000.0) * (slider.to - slider.from) * factor;
                 const nextV = Math.max(slider.from, Math.min(slider.to, slider.value + delta));
                 knobRoot.moved(nextV);
             }
