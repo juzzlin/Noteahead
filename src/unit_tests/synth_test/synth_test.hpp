@@ -104,6 +104,10 @@ private slots:
 
     void test_modEg_defaultSustain_shouldReturnToStart();
     void test_modEg_sustain_shouldHoldTheModulation();
+
+    void test_phaseSync_repeatedNote_shouldRestartTheSameWaveform();
+    void test_phaseSync_repeatedNote_shouldFadeOutBeforeRestarting();
+    void test_phaseSyncOff_repeatedNote_shouldNotFadeOut();
 };
 
 } // namespace noteahead

@@ -44,61 +44,71 @@ void SynthDevice::Voice::reset()
     lfo2.reset();
     unisonDamp.reset();
     glideFrequency = 0.0;
+    cancelPendingTrigger();
     active = false;
 }
 
-void SynthDevice::Voice::trigger(uint8_t n, double freq, float p, float v, bool phaseSync, uint64_t tid)
+void SynthDevice::Voice::triggerSynced(const Trigger & trigger)
 {
-    note = n;
-    triggerId = tid;
-    frequency = freq;
-    if (glideFrequency == 0.0) {
-        glideFrequency = freq;
+    // Nothing to fade out of the way: a pluck whose previous note has already decayed starts on the
+    // sample it arrived on, and only a voice with something left to lose waits.
+    if (active && !ampEg.isSilent()) {
+        pendingTrigger = trigger;
+        return;
     }
-    pan = p;
-    velocity = v;
+
+    applyTrigger(trigger, Phases { 0.0, 0.0, 0.0 }, true);
+}
+
+void SynthDevice::Voice::triggerFree(const Trigger & trigger, double randomPhase)
+{
+    const auto phases = active
+      ? std::nullopt
+      : std::optional<Phases> { Phases { randomPhase, std::fmod(randomPhase + 0.33, 1.0), std::fmod(randomPhase + 0.66, 1.0) } };
+
+    applyTrigger(trigger, phases, false);
+}
+
+void SynthDevice::Voice::applyTrigger(const Trigger & trigger, std::optional<Phases> phases, bool restartEnvelopes)
+{
+    note = trigger.note;
+    triggerId = trigger.triggerId;
+    frequency = trigger.frequency;
+    pan = trigger.pan;
+    velocity = trigger.velocity;
+
+    // The zero case is the very first note the voice ever plays, which has nowhere to glide from.
+    if (trigger.resetGlide || glideFrequency == 0.0) {
+        glideFrequency = trigger.frequency;
+    }
 
     lfo.reset();
     lfo2.reset();
 
-    // Only sync oscillator phase on a fresh (idle) voice to avoid a pop from a
-    // hard phase jump while the voice is still producing audio (retrigger/steal).
-    if (phaseSync && !active) {
-        vco1.sync(0.0);
-        vco2.sync(0.0);
-        vco3.sync(0.0);
+    if (phases) {
+        vco1.sync(phases->at(0));
+        vco2.sync(phases->at(1));
+        vco3.sync(phases->at(2));
+    }
+
+    // Restarting from zero is what gives a repeated note its own attack. Carrying on from where the
+    // envelope stood leaves the second note of a pair with no transient at all.
+    if (restartEnvelopes) {
+        ampEg.reset();
+        modEg.reset();
     }
 
     active = true;
+    pendingTrigger.reset();
+    declickGain = 1.0;
     ampEg.trigger();
     modEg.trigger();
 }
 
-void SynthDevice::Voice::triggerRandomized(uint8_t n, double freq, float p, float v, double randomPhase, uint64_t tid)
+void SynthDevice::Voice::cancelPendingTrigger()
 {
-    note = n;
-    triggerId = tid;
-    frequency = freq;
-    if (glideFrequency == 0.0) {
-        glideFrequency = freq;
-    }
-    pan = p;
-    velocity = v;
-
-    lfo.reset();
-    lfo2.reset();
-
-    // Only sync oscillator phase on a fresh (idle) voice to avoid a pop from a
-    // hard phase jump while the voice is still producing audio (retrigger/steal).
-    if (!active) {
-        vco1.sync(randomPhase);
-        vco2.sync(std::fmod(randomPhase + 0.33, 1.0));
-        vco3.sync(std::fmod(randomPhase + 0.66, 1.0));
-    }
-
-    active = true;
-    ampEg.trigger();
-    modEg.trigger();
+    pendingTrigger.reset();
+    declickGain = 1.0;
 }
 
 void SynthDevice::Voice::release()
@@ -301,6 +311,11 @@ using Utils::Dsp::supersawMaxDetuneSemitones;
 using Utils::Dsp::supersawOffsets;
 using Utils::Dsp::supersawSideGain;
 
+//! How long a voice takes to fade out before a synced note resets its phase and envelopes. Long
+//! enough to take the click off the note it interrupts, short enough that the millisecond it costs
+//! that note's start sits far below anything the ear reads as timing.
+constexpr double declickSeconds { 0.001 };
+
 } // namespace
 
 double SynthDevice::voiceDetuneSemitones(size_t index) const
@@ -394,8 +409,19 @@ void SynthDevice::renderVoice(Voice & voice, AudioContext & context, uint8_t ove
         voice.unisonDamp.calculate(dampingHz, oversampledRate);
     }
 
+    const double declickStep = 1.0 / std::max(1.0, declickSeconds * oversampledRate);
+
     for (uint32_t i = 0; i < context.frameCount; i++) {
         for (uint8_t os = 0; os < oversampleFactor; os++) {
+            // Ahead of the sample, so the note that is waiting lands on a voice already at zero
+            // rather than one with a sample of the interrupted note still to emit.
+            if (voice.pendingTrigger) {
+                voice.declickGain -= declickStep;
+                if (voice.declickGain <= 0.0) {
+                    voice.applyTrigger(*voice.pendingTrigger, Voice::Phases { 0.0, 0.0, 0.0 }, true);
+                }
+            }
+
             voice.glideFrequency += (voice.frequency - voice.glideFrequency) * portamentoCoeff;
 
             const ModulationValues mods = calculateModulation(voice);
@@ -404,7 +430,7 @@ void SynthDevice::renderVoice(Voice & voice, AudioContext & context, uint8_t ove
                 voice.unisonDamp.process(static_cast<double>(voiceSample));
                 voiceSample = static_cast<float>(voice.unisonDamp.lowPass());
             }
-            const float finalHighRateSample = voiceSample * gain;
+            const float finalHighRateSample = voiceSample * gain * static_cast<float>(voice.declickGain);
 
             const float voicePan = std::clamp(panInternal() + voice.pan - 0.5f + static_cast<float>(mods.panMod) * 0.5f, 0.0f, 1.0f);
             const double panAngle = static_cast<double>(voicePan) * std::numbers::pi * 0.5;
@@ -416,7 +442,8 @@ void SynthDevice::renderVoice(Voice & voice, AudioContext & context, uint8_t ove
         }
     }
 
-    if (voice.ampEg.isSilent()) {
+    // A voice with a note waiting on it is not free, however silent the interrupted note has gone.
+    if (voice.ampEg.isSilent() && !voice.pendingTrigger) {
         voice.active = false;
     }
 }
@@ -575,6 +602,9 @@ void SynthDevice::processMidiAllNotesOff()
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     for (auto && voice : m_voices) {
+        // A note still waiting out its declick has not sounded yet and must not start now: this is
+        // the one place that can reach it before the fade does.
+        voice.cancelPendingTrigger();
         if (voice.active) {
             voice.release();
         }
@@ -688,35 +718,15 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
         }
 
         if (bestVoice) {
-            // Reset glide if portamento is off
-            if (m_portamento <= 0.001f) {
-                m_voices.at(bestVoice.value()).glideFrequency = freq;
-            }
-
-            const float pan = voiceSpreadPan(bestVoice.value());
-
-            if (m_vco1Sync) {
-                m_voices.at(bestVoice.value()).trigger(note, freq, pan, finalVel, true, m_nextTriggerId++);
-            } else {
-                m_voices.at(bestVoice.value()).triggerRandomized(note, freq, pan, finalVel, m_phaseDist(m_rng), m_nextTriggerId++);
-            }
+            const Trigger trigger { note, m_nextTriggerId++, freq, voiceSpreadPan(bestVoice.value()), finalVel, m_portamento <= 0.001f };
+            startVoice(m_voices.at(bestVoice.value()), trigger);
         }
     } else if (isStacked(m_voiceMode)) {
         const uint64_t tid { m_nextTriggerId++ };
         for (size_t i = 0; i < MaxVoices; i++) {
             const double voiceFreq = freq * std::pow(2.0, voiceDetuneSemitones(i) / 12.0);
-
-            if (m_portamento <= 0.001f) {
-                m_voices.at(i).glideFrequency = voiceFreq;
-            }
-
-            const float pan = voiceSpreadPan(i);
-
-            if (m_vco1Sync) {
-                m_voices.at(i).trigger(note, voiceFreq, pan, finalVel, true, tid);
-            } else {
-                m_voices.at(i).triggerRandomized(note, voiceFreq, pan, finalVel, m_phaseDist(m_rng), tid);
-            }
+            const Trigger trigger { note, tid, voiceFreq, voiceSpreadPan(i), finalVel, m_portamento <= 0.001f };
+            startVoice(m_voices.at(i), trigger);
         }
     } else {
         // Dual: pair voices (0,1), (2,3), (4,5) — each pair plays one note with two detuned sub-voices
@@ -764,21 +774,12 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
             const double freq0 = freq * std::pow(2.0, -detuneAmount / 12.0);
             const double freq1 = freq * std::pow(2.0, detuneAmount / 12.0);
 
-            if (m_portamento <= 0.001f) {
-                m_voices.at(v0).glideFrequency = freq0;
-                m_voices.at(v1).glideFrequency = freq1;
-            }
-
             const float pan0 = 0.5f - m_panSpread * 0.5f;
             const float pan1 = 0.5f + m_panSpread * 0.5f;
+            const bool resetGlide = m_portamento <= 0.001f;
 
-            if (m_vco1Sync) {
-                m_voices.at(v0).trigger(note, freq0, pan0, finalVel, true, tid);
-                m_voices.at(v1).trigger(note, freq1, pan1, finalVel, true, tid);
-            } else {
-                m_voices.at(v0).triggerRandomized(note, freq0, pan0, finalVel, m_phaseDist(m_rng), tid);
-                m_voices.at(v1).triggerRandomized(note, freq1, pan1, finalVel, m_phaseDist(m_rng), tid);
-            }
+            startVoice(m_voices.at(v0), Trigger { note, tid, freq0, pan0, finalVel, resetGlide });
+            startVoice(m_voices.at(v1), Trigger { note, tid, freq1, pan1, finalVel, resetGlide });
         }
     }
 }
@@ -797,17 +798,20 @@ void SynthDevice::handleMonoNoteOn(uint8_t note, double frequency, float velocit
     const float pan = voiceSpreadPan(m_monoPanSlot.value_or(0));
 
     // Every note gets its own attack — the envelopes retrigger even mid-glide, which is what keeps a
-    // mono line articulate. Only the pitch is continuous: the glide frequency is left where the last
-    // note put it, so the oscillators travel to the new note rather than jumping, and their phase is
-    // carried over by the triggers below, which only re-sync a voice that had fallen silent.
-    if (m_portamento <= 0.001f) {
-        voice.glideFrequency = frequency;
-    }
+    // mono line articulate. With Phase Sync off the pitch is the only thing that carries over: the
+    // glide frequency is left where the last note put it, so the oscillators travel to the new note
+    // rather than jumping, and their phase runs on undisturbed. Phase Sync trades that continuity
+    // for an identical start to every note, which is the point of the switch; the glide is unharmed
+    // either way.
+    startVoice(voice, Trigger { note, m_nextTriggerId++, frequency, pan, velocity, m_portamento <= 0.001f });
+}
 
+void SynthDevice::startVoice(Voice & voice, const Trigger & trigger)
+{
     if (m_vco1Sync) {
-        voice.trigger(note, frequency, pan, velocity, true, m_nextTriggerId++);
+        voice.triggerSynced(trigger);
     } else {
-        voice.triggerRandomized(note, frequency, pan, velocity, m_phaseDist(m_rng), m_nextTriggerId++);
+        voice.triggerFree(trigger, m_phaseDist(m_rng));
     }
 }
 

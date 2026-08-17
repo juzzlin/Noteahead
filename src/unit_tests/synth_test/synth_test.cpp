@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <cmath>
 #include <map>
+#include <optional>
 #include <vector>
 
 namespace noteahead {
@@ -2129,6 +2130,128 @@ void SynthTest::test_modEg_sustain_shouldHoldTheModulation()
     // note is held. Without it the sweep collapses back, which made "sweep somewhere and stay"
     // impossible.
     QVERIFY2(withSustain > withoutSustain * 2.0, qPrintable(QString { "sustained %1 vs %2" }.arg(withSustain).arg(withoutSustain)));
+}
+
+namespace {
+
+constexpr uint32_t retriggerSampleRate { 48000 };
+constexpr int retriggerFrameCount { 512 };
+
+//! Leaves the synth with nothing in its output but VCO1, at a steady level, so the samples that come
+//! out of it are the oscillator's waveform and the retrigger tests can compare them directly.
+void setUpRetriggerSynth(SynthDevice & synth, bool phaseSync)
+{
+    synth.setVco1Waveform(PolyBlepOscillator::Waveform::Sine);
+    synth.setVco1Sync(phaseSync);
+    synth.setMixVco1(1.0f);
+    synth.setMixVco2(0.0f);
+    synth.setMixVco3(0.0f);
+    synth.setMultiLevel(0.0f);
+    synth.setLpfCutoff(1.0f);
+    synth.setHpfCutoff(0.0f);
+    synth.setDelayMix(0.0f);
+    synth.setPanSpread(0.0f);
+    synth.setAmpAttack(0.0f);
+    // A decaying note rather than a held one: a steady tone repeats itself every period, so any
+    // offset a period apart would look like a restart whether the phase was reset or not. Falling
+    // level makes the start of a note something only a real restart can reproduce.
+    synth.setAmpDecay(0.126f); // ~30 ms
+    synth.setAmpSustain(0.0f);
+    synth.setLfoInt(0.5f); // Centred, so the LFO adds nothing
+}
+
+std::vector<double> renderNote(SynthDevice & synth, uint8_t note)
+{
+    std::vector<double> buffer(static_cast<size_t>(retriggerFrameCount) * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(retriggerFrameCount), retriggerSampleRate };
+    synth.processMidiNoteOn(note, 127);
+    synth.processAudio(context);
+
+    std::vector<double> left;
+    left.reserve(static_cast<size_t>(retriggerFrameCount));
+    for (size_t i = 0; i < buffer.size(); i += 2) {
+        left.push_back(buffer[i]);
+    }
+    return left;
+}
+
+double peakOf(const std::vector<double> & samples)
+{
+    double peak = 0.0;
+    for (auto && sample : samples) {
+        peak = std::max(peak, std::abs(sample));
+    }
+    return peak;
+}
+
+//! How far into the second note the first note's waveform starts over, or nothing if it never does.
+//! A voice that restarted from a known phase repeats the shape it produced the first time; one left
+//! running carries on from wherever it happened to be.
+std::optional<size_t> restartOffset(const std::vector<double> & first, const std::vector<double> & second, double tolerance)
+{
+    constexpr size_t compared { 64 };
+    //! Wide enough to catch a restart that never came, narrow enough that it stays inside the decay
+    //! the comparison relies on.
+    constexpr size_t searched { 128 };
+    for (size_t offset = 0; offset < searched; offset++) {
+        double worst = 0.0;
+        for (size_t i = 0; i < compared; i++) {
+            worst = std::max(worst, std::abs(second.at(offset + i) - first.at(i)));
+        }
+        if (worst < tolerance) {
+            return offset;
+        }
+    }
+    return std::nullopt;
+}
+
+} // namespace
+
+void SynthTest::test_phaseSync_repeatedNote_shouldRestartTheSameWaveform()
+{
+    // The switch used to reset the phase only on a voice that had gone fully silent, and the poly
+    // allocator hands a repeated note straight back to the voice already playing it — so the one
+    // case a tracker produces constantly was the case that never synced.
+    SynthDevice synth { "Test Synth" };
+    setUpRetriggerSynth(synth, true);
+    const auto first = renderNote(synth, 69);
+    const auto second = renderNote(synth, 69);
+
+    // Not exact: the voice restarts on an oversampled sample, which lands the output waveform up to
+    // half a sample away from where the first note put it, and the DC blocker is at a different
+    // point in its own settling. Both are far below the level a missing restart would differ by.
+    const auto offset = restartOffset(first, second, peakOf(first) * 0.1);
+    QVERIFY2(offset.has_value(), "the repeated note did not restart the waveform");
+}
+
+void SynthTest::test_phaseSync_repeatedNote_shouldFadeOutBeforeRestarting()
+{
+    // Resetting the phase and the envelopes under a voice that is still at full level is a step
+    // discontinuity, which is a click. The voice has to reach zero before the new note takes over.
+    SynthDevice synth { "Test Synth" };
+    setUpRetriggerSynth(synth, true);
+    const auto first = renderNote(synth, 69);
+    const auto second = renderNote(synth, 69);
+    const double peak = peakOf(first);
+
+    const auto offset = restartOffset(first, second, peak * 0.1);
+    QVERIFY(offset.has_value());
+    QVERIFY2(offset.value() > 0, "the note took over with no fade at all");
+    QVERIFY2(std::abs(second.at(offset.value() - 1)) < peak * 0.1,
+             qPrintable(QString { "handover at %1 of peak %2" }.arg(second.at(offset.value() - 1)).arg(peak)));
+}
+
+void SynthTest::test_phaseSyncOff_repeatedNote_shouldNotFadeOut()
+{
+    // Phase Sync off leaves the oscillators running, so there is nothing to fade out of the way and
+    // the repeated note must not lose any level on its way in.
+    SynthDevice synth { "Test Synth" };
+    setUpRetriggerSynth(synth, false);
+    renderNote(synth, 69);
+    const auto second = renderNote(synth, 69);
+
+    const std::vector<double> handover { second.begin(), second.begin() + 64 };
+    QVERIFY(peakOf(handover) > peakOf(second) * 0.5);
 }
 
 } // namespace noteahead

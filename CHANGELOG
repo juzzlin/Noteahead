@@ -140,6 +140,12 @@ New features:
 
 Bug fixes:
 
+* Fix the Synth's Phase Sync firing only on some notes
+  - It skipped any voice that was still sounding, which is every repeated
+    note in Poly and every note at all in the stacked voice modes
+  - A synced note now also restarts its own attack, after a millisecond
+    fade that keeps the interrupted note from clicking
+
 * Fix Cancel not cancelling anything in the device dialogs
   - Cancel now puts back the settings the device had when the dialog opened
   - Escape and a click outside still close the dialog keeping the edits

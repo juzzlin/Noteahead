@@ -28,6 +28,7 @@
 #include "device.hpp"
 #include "synth_presets.hpp"
 
+#include <array>
 #include <mutex>
 #include <optional>
 #include <random>
@@ -286,8 +287,25 @@ public:
     void setUserPresets(const UserPresets & presets);
 
 private:
+    //! Everything a note-on hands to a voice. Passed whole so the deferred path below can hold on to
+    //! it for a millisecond and apply exactly what the immediate path would have.
+    struct Trigger
+    {
+        uint8_t note { 0 };
+        uint64_t triggerId { 0 };
+        double frequency { 0.0 };
+        float pan { 0.5f };
+        float velocity { 1.0f };
+        //! Whether the oscillators jump to the new pitch or glide to it from wherever the last note
+        //! left them.
+        bool resetGlide { true };
+    };
+
     struct Voice
     {
+        //! Starting phase of each oscillator, in VCO order.
+        using Phases = std::array<double, 3>;
+
         PolyBlepOscillator vco1;
         PolyBlepOscillator vco2;
         PolyBlepOscillator vco3;
@@ -311,9 +329,28 @@ private:
         //! Rolls the top off the outer voices of a stacked mode, where the beating is roughest.
         OnePoleFilter unisonDamp;
 
+        //! A note waiting for the voice to fade out before it resets anything under it. Set only by
+        //! the synced path, and only when there is something to fade.
+        std::optional<Trigger> pendingTrigger;
+        //! Level of that fade, 1 down to 0 while a pending trigger waits.
+        double declickGain { 1.0 };
+
         void reset();
-        void trigger(uint8_t note, double freq, float pan, float velocity, bool phaseSync, uint64_t triggerId);
-        void triggerRandomized(uint8_t note, double freq, float pan, float velocity, double randomPhase, uint64_t triggerId);
+
+        //! Phase Sync on: the note starts from a known oscillator phase and its own attack, every
+        //! time. A voice that is still sounding is faded out first and the note applied at the
+        //! bottom of that fade — resetting phase and envelopes under a signal that is not at zero is
+        //! a click, and skipping the reset on such voices is what made the sync fire on some notes
+        //! and not on others.
+        void triggerSynced(const Trigger & trigger);
+
+        //! Phase Sync off: a voice that had fallen silent starts from a random phase so a stack does
+        //! not stand still, and one that is still producing audio is left running and simply
+        //! re-attacked from where it is.
+        void triggerFree(const Trigger & trigger, double randomPhase);
+
+        void applyTrigger(const Trigger & trigger, std::optional<Phases> phases, bool restartEnvelopes);
+        void cancelPendingTrigger();
         void release();
     };
 
@@ -430,6 +467,8 @@ private:
     double m_vco3BasePitchRatio { 1.0 };
 
     void handleNoteOn(uint8_t note, uint8_t velocity);
+    //! Starts a note on the given voice through whichever path the Phase Sync switch selects.
+    void startVoice(Voice & voice, const Trigger & trigger);
     //! Mono voice allocation: one voice, envelopes retriggered per note, pitch and phase carried over.
     void handleMonoNoteOn(uint8_t note, double frequency, float velocity);
     void handleNoteOff(uint8_t note);
