@@ -47,9 +47,7 @@ DrumSynthDevice::DrumSynthDevice(std::string name)
         addVoiceParameters(i);
     }
 
-    setManualPan(panInternal());
-    setManualVolume(volumeInternal());
-    setManualGain(gainInternal());
+    DrumSynthDevice::syncManualValues();
 
     DrumSynthDevice::syncParameters();
 }

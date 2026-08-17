@@ -306,9 +306,7 @@ void PianoSynthV2Device::deserializeFromXml(ProjectReader & reader)
         }
 
         syncParameters();
-        setManualPan(panInternal());
-        setManualVolume(volumeInternal());
-        setManualGain(gainInternal());
+        syncManualValues();
     }
     emit dataChanged();
 }

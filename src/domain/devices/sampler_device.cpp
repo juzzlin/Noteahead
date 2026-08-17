@@ -64,9 +64,7 @@ SamplerDevice::SamplerDevice(std::string name, AudioFileReaderU audioFileReader)
         sample = nullptr;
     }
 
-    setManualPan(panInternal());
-    setManualVolume(volumeInternal());
-    setManualGain(gainInternal());
+    SamplerDevice::syncManualValues();
     SamplerDevice::syncParameters();
 }
 
@@ -1194,12 +1192,7 @@ void SamplerDevice::deserializeFromXml(ProjectReader & reader)
         // Sync global fields
         syncParameters();
 
-        // Update manual fallback values for MIDI CC reset
-        setManualPan(panInternal());
-        setManualVolume(volumeInternal());
-        setManualGain(gainInternal());
-        m_manualGlobalCutoff = m_globalCutoff;
-        m_manualGlobalHpfCutoff = m_globalHpfCutoff;
+        syncManualValues();
     }
 
     emit dataChanged();
@@ -1208,6 +1201,7 @@ void SamplerDevice::deserializeFromXml(ProjectReader & reader)
 void SamplerDevice::saveState()
 {
     std::lock_guard<std::recursive_mutex> lock { mutex() };
+    Device::saveState();
     for (size_t i = 0; i < maxSamples; i++) {
         m_savedSamples.at(i) = m_samples.at(i) ? cloneSample(*m_samples.at(i)) : nullptr;
     }
@@ -1225,7 +1219,15 @@ void SamplerDevice::restoreState()
             m_savedSamples.at(i) = nullptr;
         }
     }
-    emit dataChanged();
+    // Emits dataChanged() of its own, which is what tells the open dialog to re-read everything
+    Device::restoreState();
+}
+
+void SamplerDevice::syncManualValues()
+{
+    Device::syncManualValues();
+    m_manualGlobalCutoff = m_globalCutoff;
+    m_manualGlobalHpfCutoff = m_globalHpfCutoff;
 }
 
 void SamplerDevice::setProjectPath(const std::string & projectPath)

@@ -70,6 +70,24 @@ void ParameterContainer::reset()
     }
 }
 
+ParameterContainer::ParameterSnapshot ParameterContainer::parameterSnapshot() const
+{
+    ParameterSnapshot snapshot;
+    for (const auto & [name, p] : m_parameters) {
+        snapshot.emplace(name, p.value());
+    }
+    return snapshot;
+}
+
+void ParameterContainer::restoreParameterSnapshot(const ParameterSnapshot & snapshot)
+{
+    for (const auto & [name, value] : snapshot) {
+        if (auto p = parameter(name); p) {
+            p->get().setValue(value);
+        }
+    }
+}
+
 void ParameterContainer::serializeParametersToXml(ProjectWriter & writer) const
 {
     for (const auto & [name, p] : m_parameters) {

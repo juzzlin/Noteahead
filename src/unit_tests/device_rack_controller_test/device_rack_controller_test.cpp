@@ -710,6 +710,29 @@ void DeviceRackControllerTest::test_populatedDevices_shouldReturnOnlyFilledSlots
     QCOMPARE(populated.at(1).toMap()["slotIndex"].toInt(), 2);
 }
 
+void DeviceRackControllerTest::test_openDevice_shouldSnapshotStateForCancel()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<MockEditorService>();
+
+    const auto synth = std::make_shared<SynthDevice>("TestSynth");
+    deviceService->setDevice(0, synth);
+    synth->setLpfCutoff(0.4f);
+
+    const auto synthController = std::make_shared<SynthController>(nullptr);
+    DeviceRackController controller { deviceService, { synthController }, editorService };
+
+    // Opening the dialog is what has to leave the device restorable, so that a Cancel further on
+    // has something to put back
+    controller.openDevice(0);
+
+    synth->setLpfCutoff(0.9f);
+    synthController->reject();
+
+    QCOMPARE(synth->lpfCutoff(), 0.4f);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::DeviceRackControllerTest)

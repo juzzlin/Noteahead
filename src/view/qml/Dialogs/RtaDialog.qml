@@ -20,10 +20,8 @@ import QtQuick.Layouts 1.15
 import Noteahead 1.0
 import "../Components"
 
-AnimatedDialog {
+EffectDialog {
     id: root
-
-    property int effectIndex: -1
 
     title: "<strong>" + qsTr("RTA — Slot %1").arg(effectIndex + 1) + "</strong>"
     modal: true
@@ -210,12 +208,6 @@ AnimatedDialog {
             }
 
             Item { Layout.fillWidth: true }
-
-            Button {
-                text: qsTr("Close")
-                onClicked: root.close()
-                Universal.theme: Universal.Dark
-            }
         }
     }
 }

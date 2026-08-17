@@ -613,6 +613,71 @@ void EffectRackControllerTest::test_copyEffect_shouldDuplicateAndNotify()
     QCOMPARE(controller.parameterValue(2, controller.reverbSizeKey()), 0.42f);
 }
 
+void EffectRackControllerTest::test_revertEffect_shouldRestoreSnapshotAndNotify()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+    controller.setParameterValue(0, controller.reverbSizeKey(), 0.42f);
+
+    controller.snapshotEffect(0);
+
+    controller.setParameterValue(0, controller.reverbSizeKey(), 0.9f);
+    controller.setIsEffectEnabled(0, false);
+    QCOMPARE(controller.parameterValue(0, controller.reverbSizeKey()), 0.9f);
+
+    QSignalSpy revisionSpy { &controller, &EffectRackController::revisionChanged };
+    QSignalSpy parameterSpy { &controller, &EffectRackController::parameterChanged };
+    controller.revertEffect(0);
+
+    QCOMPARE(controller.parameterValue(0, controller.reverbSizeKey()), 0.42f);
+    QVERIFY(controller.isEffectEnabled(0));
+    QCOMPARE(revisionSpy.count(), 1);
+    // An empty parameter name is how the dialog is told to re-read all of them
+    QCOMPARE(parameterSpy.count(), 1);
+    QCOMPARE(parameterSpy.at(0).at(1).toString(), QString {});
+}
+
+void EffectRackControllerTest::test_revertEffect_withoutSnapshot_shouldKeepEdits()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+    controller.setParameterValue(0, controller.reverbSizeKey(), 0.7f);
+
+    controller.revertEffect(0);
+
+    QCOMPARE(controller.parameterValue(0, controller.reverbSizeKey()), 0.7f);
+}
+
+void EffectRackControllerTest::test_revertEffect_otherSlot_shouldKeepEdits()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+    controller.setEffect(1, QString::fromStdString(Reverb::typeIdString()));
+
+    controller.snapshotEffect(0);
+    controller.setParameterValue(1, controller.reverbSizeKey(), 0.33f);
+
+    // The snapshot belongs to slot 0, so slot 1 must be left alone
+    controller.revertEffect(1);
+
+    QCOMPARE(controller.parameterValue(1, controller.reverbSizeKey()), 0.33f);
+}
+
 void EffectRackControllerTest::test_populatedEffects_shouldReturnOnlyFilledSlots()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();

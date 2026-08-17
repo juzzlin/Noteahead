@@ -98,6 +98,7 @@ public:
 
 protected:
     void syncParameters() override;
+    void syncManualValues() override;
 
 private:
     struct Voice

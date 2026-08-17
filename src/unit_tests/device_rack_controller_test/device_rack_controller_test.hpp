@@ -47,6 +47,7 @@ private slots:
     void test_confirmImportSettings_shouldImportAndNotify();
     void test_copyDevice_shouldDuplicateAndNotify();
     void test_populatedDevices_shouldReturnOnlyFilledSlots();
+    void test_openDevice_shouldSnapshotStateForCancel();
 };
 
 } // namespace noteahead

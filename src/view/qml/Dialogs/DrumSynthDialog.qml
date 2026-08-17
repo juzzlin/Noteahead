@@ -45,6 +45,13 @@ AnimatedDialog {
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
         }
+        Button {
+            text: qsTr("Cancel")
+            implicitWidth: Constants.defaultButtonWidth
+            DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
+        }
+        onAccepted: () => drumSynthController.accept()
+        onRejected: () => drumSynthController.reject()
     }
 
     ColumnLayout {

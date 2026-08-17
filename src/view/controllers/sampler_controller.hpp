@@ -94,7 +94,6 @@ public:
 
     Q_INVOKABLE void initialize();
     Q_INVOKABLE void requestSettings() override;
-    void reject() override;
 
     Q_INVOKABLE void loadSample(int padIndex, const QString & filePath);
     //! Duplicates sourcePad onto targetPad: sample, pad settings and per-pad insert effects.

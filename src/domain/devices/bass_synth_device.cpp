@@ -386,12 +386,7 @@ void BassSynthDevice::deserializeFromXml(ProjectReader & reader)
 
         syncParameters();
 
-        // Update manual fallback values for MIDI CC reset
-        setManualPan(panInternal());
-        setManualVolume(volumeInternal());
-        setManualGain(gainInternal());
-        m_manualLpfCutoff = m_lpfCutoff;
-        m_manualHpfCutoff = m_hpfCutoff;
+        syncManualValues();
     }
     emit dataChanged();
 }
@@ -447,6 +442,13 @@ void BassSynthDevice::handleNoteOff(uint8_t note)
 double BassSynthDevice::midiNoteToFreq(uint8_t note) const
 {
     return 440.0 * std::pow(2.0, (note - 69) / 12.0);
+}
+
+void BassSynthDevice::syncManualValues()
+{
+    Device::syncManualValues();
+    m_manualLpfCutoff = m_lpfCutoff;
+    m_manualHpfCutoff = m_hpfCutoff;
 }
 
 void BassSynthDevice::syncParameters()

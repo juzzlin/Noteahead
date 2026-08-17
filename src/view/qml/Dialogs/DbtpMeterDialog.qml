@@ -19,9 +19,8 @@ import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts 1.15
 import Noteahead 1.0
 
-AnimatedDialog {
+EffectDialog {
     id: root
-    property int effectIndex: -1
     title: "<strong>" + qsTr("dBTP Meter (Slot %1)").arg(effectIndex + 1) + "</strong>"
     modal: true
     focus: true
@@ -35,14 +34,6 @@ AnimatedDialog {
         color: "#1e1e1e"
         border.color: "#333"
         radius: 2
-    }
-
-    footer: DialogButtonBox {
-        Button {
-            text: qsTr("Close")
-            implicitWidth: Constants.defaultButtonWidth
-            DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
-        }
     }
 
     property real currentL: -70.0

@@ -146,10 +146,15 @@ void DeviceController::reset()
 
 void DeviceController::accept()
 {
+    // Nothing to commit: the edits have been live in the device all along. Only Cancel does work.
 }
 
 void DeviceController::reject()
 {
+    if (auto dev = device(); dev) {
+        dev->restoreState();
+    }
+    requestSettings();
 }
 
 void DeviceController::playNote(int note, double velocity)

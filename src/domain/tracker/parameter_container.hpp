@@ -33,6 +33,8 @@ class ParameterContainer
 public:
     using ParameterOpt = std::optional<std::reference_wrapper<Parameter>>;
     using ConstParameterOpt = std::optional<std::reference_wrapper<const Parameter>>;
+    //! Every parameter's value by name. What a dialog's Cancel puts back.
+    using ParameterSnapshot = std::map<std::string, float>;
 
     ParameterContainer() = default;
     virtual ~ParameterContainer();
@@ -51,6 +53,10 @@ public:
     const std::map<std::string, Parameter> & parameters() const;
 
     virtual void reset();
+
+    ParameterSnapshot parameterSnapshot() const;
+    //! Names the container no longer knows are ignored, so a snapshot never resurrects a parameter.
+    void restoreParameterSnapshot(const ParameterSnapshot & snapshot);
 
     virtual void serializeParametersToXml(ProjectWriter & writer) const;
     virtual void deserializeParametersFromXml(ProjectReader & reader);

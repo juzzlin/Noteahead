@@ -198,12 +198,7 @@ SynthDevice::SynthDevice(std::string name)
         m_voices[i].driftPhase = static_cast<double>(i) / MaxVoices;
     }
 
-    setManualPan(panInternal());
-    setManualVolume(volumeInternal());
-    setManualGain(gainInternal());
-    m_manualLpfCutoff = m_lpfCutoff;
-    m_manualLpfResonance = m_lpfResonance;
-    m_manualHpfCutoff = m_hpfCutoff;
+    SynthDevice::syncManualValues();
 
     SynthDevice::syncParameters();
 }
@@ -1012,6 +1007,14 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
     return filtered * static_cast<float>(mods.ampEnvelope) * ampMod;
 }
 
+void SynthDevice::syncManualValues()
+{
+    Device::syncManualValues();
+    m_manualLpfCutoff = m_lpfCutoff;
+    m_manualLpfResonance = m_lpfResonance;
+    m_manualHpfCutoff = m_hpfCutoff;
+}
+
 void SynthDevice::syncParameters()
 {
     Device::syncParameters();
@@ -1260,13 +1263,7 @@ void SynthDevice::deserializeFromXml(ProjectReader & reader)
 
         syncParameters();
 
-        // Update manual fallback values for MIDI CC reset
-        setManualPan(panInternal());
-        setManualVolume(volumeInternal());
-        setManualGain(gainInternal());
-        m_manualLpfCutoff = m_lpfCutoff;
-        m_manualLpfResonance = m_lpfResonance;
-        m_manualHpfCutoff = m_hpfCutoff;
+        syncManualValues();
     }
     emit dataChanged();
 }
@@ -1315,13 +1312,7 @@ void SynthDevice::loadPreset(int bank, int index)
 
         syncParameters();
 
-        // Update manual fallback values for MIDI CC reset to match the new preset
-        setManualPan(panInternal());
-        setManualVolume(volumeInternal());
-        setManualGain(gainInternal());
-        m_manualLpfCutoff = m_lpfCutoff;
-        m_manualLpfResonance = m_lpfResonance;
-        m_manualHpfCutoff = m_hpfCutoff;
+        syncManualValues();
     }
 
     emit dataChanged();

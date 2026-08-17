@@ -435,6 +435,7 @@ private:
     void handleNoteOff(uint8_t note);
     double midiNoteToFreq(uint8_t note) const;
     void syncParameters() override;
+    void syncManualValues() override;
 
     struct ModulationValues
     {

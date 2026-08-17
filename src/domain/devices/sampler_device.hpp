@@ -182,8 +182,9 @@ public:
     using PathResolver = std::function<QString(const QString &)>;
     void setPathResolver(PathResolver resolver);
 
-    void saveState();
-    void restoreState();
+    //! Snapshots the pads' samples on top of the parameters the base class remembers.
+    void saveState() override;
+    void restoreState() override;
 
 private:
     struct Voice;
@@ -215,6 +216,7 @@ private:
     //! has to outlive every voice reading it. Call this under the lock, before the sample goes.
     void stopVoicesUsing(const Sample * sample);
     void syncParameters() override;
+    void syncManualValues() override;
 
     struct Voice
     {

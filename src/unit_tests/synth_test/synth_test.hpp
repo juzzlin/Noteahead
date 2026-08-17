@@ -71,6 +71,8 @@ private slots:
 
     void test_midiCcResonance_shouldUpdateParameter();
     void test_midiCcResonanceReset_shouldRestoreManualValue();
+    void test_saveState_restore_shouldRestoreParameters();
+    void test_saveState_restore_shouldRestoreManualValues();
     void test_midiCcModWheel_shouldOverrideLfoIntensity();
     void test_midiCcModWheelReset_shouldRestoreLfoIntensity();
     void test_lfoTarget_volume_shouldModulateAmplitude();

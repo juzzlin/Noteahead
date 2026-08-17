@@ -20,9 +20,8 @@ import QtQuick.Layouts 1.15
 import Noteahead 1.0
 import "../Components"
 
-AnimatedDialog {
+EffectDialog {
     id: root
-    property int effectIndex: -1
     property var bandReductionDb: [0.0, 0.0, 0.0]
     title: "<strong>" + qsTr("Multiband Compressor (Slot %1)").arg(effectIndex + 1) + "</strong>"
     modal: true
@@ -35,14 +34,6 @@ AnimatedDialog {
         color: "#1e1e1e"
         border.color: "#333"
         radius: 2
-    }
-
-    footer: DialogButtonBox {
-        Button {
-            text: qsTr("Close")
-            implicitWidth: Constants.defaultButtonWidth
-            DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
-        }
     }
 
     ColumnLayout {

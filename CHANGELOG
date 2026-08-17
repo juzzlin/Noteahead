@@ -5,6 +5,10 @@ Release date:
 
 Bug fixes:
 
+* Fix Cancel not cancelling anything in the device dialogs
+  - Cancel now puts back the settings the device had when the dialog opened
+  - Escape and a click outside still close the dialog keeping the edits
+
 * Fix the mouse wheel doing nothing on knobs in device and effect dialogs
   - Only dialogs opened straight from a menu, like the Mixer, worked before
   - A dialog now drops its modality while another dialog covers it
@@ -20,6 +24,10 @@ Bug fixes:
     only its first or last line is visible
 
 New features:
+
+* Add Ok and Cancel to the rack effect dialogs
+  - Cancel puts back the settings the effect had when the dialog opened
+  - Replaces the Close button, which always kept the edits
 
 * Add Pitch Bend Range to the Bass Synth
   - Adjustable from 0 to 24 semitones, like in the Synth

@@ -140,6 +140,9 @@ void DeviceRackController::openDevice(const QString & name)
         }
         for (const auto & controller : m_controllers) {
             if (controller->setDevice(device)) {
+                // Every device dialog is opened from here, so this is the one place that has to
+                // remember what its Cancel button puts back.
+                device->saveState();
                 if (const auto typeId = device->typeId(); typeId == SamplerDevice::typeIdString()) {
                     emit samplerDialogRequested();
                 } else if (typeId == SynthDevice::typeIdString()) {

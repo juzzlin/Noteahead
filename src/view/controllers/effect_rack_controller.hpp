@@ -18,6 +18,7 @@
 
 #include "../../application/service/device_service.hpp"
 #include "../../application/service/editor_service.hpp"
+#include "../../domain/tracker/parameter_container.hpp"
 
 #include <QObject>
 #include <QUrl>
@@ -124,6 +125,11 @@ public:
     Q_INVOKABLE QString effectDisplayName(const QString & typeId) const;
     Q_INVOKABLE float parameterValue(quint32 effectIndex, const QString & paramName) const;
     Q_INVOKABLE void setParameterValue(quint32 effectIndex, const QString & paramName, float value);
+
+    //! Remembers an effect's settings as its dialog opens, so that the dialog's Cancel button can
+    //! put them back. Only one effect dialog is ever open, so one snapshot is enough.
+    Q_INVOKABLE void snapshotEffect(int effectIndex);
+    Q_INVOKABLE void revertEffect(int effectIndex);
 
     Q_INVOKABLE void setEffect(int slotIndex, const QString & typeId);
     Q_INVOKABLE void clearEffect(int slotIndex);
@@ -395,6 +401,15 @@ private:
         QString typeName;
     };
 
+    //! An effect's settings as they were when its dialog opened. Nothing when no dialog is open or
+    //! when the slot the snapshot was taken from no longer holds the same effect.
+    struct EffectSnapshot
+    {
+        int effectIndex = -1;
+        ParameterContainer::ParameterSnapshot parameters;
+        bool enabled = true;
+    };
+
     EffectTypeInfo peekEffectTypeInfo(const QUrl & fileUrl) const;
     std::optional<std::reference_wrapper<EffectRack>> currentRack() const;
 
@@ -404,6 +419,7 @@ private:
     int m_revision = 0;
     bool m_isInsertRack = false;
     int m_targetSubIndex = -1;
+    std::optional<EffectSnapshot> m_snapshot;
 };
 
 } // namespace noteahead

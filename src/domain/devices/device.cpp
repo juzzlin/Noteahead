@@ -353,6 +353,33 @@ void Device::resetAudio()
     m_insertEffectRack.reset();
 }
 
+void Device::saveState()
+{
+    std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    m_savedParameters = parameterSnapshot();
+}
+
+void Device::restoreState()
+{
+    {
+        std::lock_guard<std::recursive_mutex> lock { m_mutex };
+        restoreParameterSnapshot(m_savedParameters);
+        syncParameters();
+        syncManualValues();
+    }
+    emit dataChanged();
+}
+
+void Device::syncManualValues()
+{
+    setManualVolume(volumeInternal());
+    setManualGain(gainInternal());
+    setManualPan(panInternal());
+    for (size_t i = 0; i < m_reverbSends.size(); i++) {
+        setManualReverbSend(i, reverbSendInternal(i));
+    }
+}
+
 void Device::processInsertEffects(AudioContext & context)
 {
     m_insertEffectRack.processInPlace(context);

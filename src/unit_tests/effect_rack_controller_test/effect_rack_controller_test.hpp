@@ -33,6 +33,9 @@ private slots:
     void test_importEffectSettings_differentType_shouldEmitConfirmationWithMismatch();
     void test_confirmImportEffectSettings_shouldImportAndNotify();
     void test_copyEffect_shouldDuplicateAndNotify();
+    void test_revertEffect_shouldRestoreSnapshotAndNotify();
+    void test_revertEffect_withoutSnapshot_shouldKeepEdits();
+    void test_revertEffect_otherSlot_shouldKeepEdits();
     void test_populatedEffects_shouldReturnOnlyFilledSlots();
 };
 

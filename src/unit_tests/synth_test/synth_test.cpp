@@ -289,6 +289,44 @@ void SynthTest::test_reset_shouldRestoreDefaults()
     QCOMPARE(synth.lpfCutoff(), 1.0f);
 }
 
+void SynthTest::test_saveState_restore_shouldRestoreParameters()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setMixVco2(0.9f);
+    synth.setLpfCutoff(0.4f);
+    synth.setPan(0.2f);
+
+    synth.saveState();
+
+    synth.setMixVco2(0.1f);
+    synth.setLpfCutoff(0.8f);
+    synth.setPan(0.7f);
+
+    synth.restoreState();
+
+    // Both the parameter and the value syncParameters() mirrors it into have to come back
+    QCOMPARE(synth.mixVco2(), 0.9f);
+    QCOMPARE(synth.lpfCutoff(), 0.4f);
+    QCOMPARE(synth.pan(), 0.2f);
+}
+
+void SynthTest::test_saveState_restore_shouldRestoreManualValues()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setLpfResonance(0.3f);
+
+    synth.saveState();
+    synth.setLpfResonance(0.8f);
+    synth.restoreState();
+
+    // A CC that overrides the resonance and then resets must fall back to the restored value,
+    // not to the one the cancelled edit left behind
+    synth.processMidiCc(71, 127, 0);
+    QCOMPARE(synth.lpfResonance(), 1.0f);
+    synth.processMidiCc(121, 0, 0);
+    QCOMPARE(synth.lpfResonance(), 0.3f);
+}
+
 void SynthTest::test_portamento_shouldGlideFrequency()
 {
     SynthDevice synth { "Test Synth" };

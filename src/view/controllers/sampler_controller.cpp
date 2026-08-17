@@ -268,9 +268,6 @@ QVariantList SamplerController::getWaveformData(int numPoints)
 
 void SamplerController::initialize()
 {
-    if (m_sampler) {
-        m_sampler->saveState();
-    }
     requestSettings();
 }
 
@@ -295,13 +292,6 @@ void SamplerController::requestSettings()
     emit channelModeChanged();
     emit embedWaveDataChanged();
     emit sampleRateChanged();
-}
-
-void SamplerController::reject()
-{
-    if (m_sampler) {
-        m_sampler->restoreState();
-    }
 }
 
 void SamplerController::loadSample(int padIndex, const QString & filePath)

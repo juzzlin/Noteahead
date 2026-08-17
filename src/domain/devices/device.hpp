@@ -162,6 +162,11 @@ public:
     virtual void reset() override;
     virtual void resetAudio();
 
+    //! Remembers the current settings so restoreState() can put them back. Taken when a device
+    //! dialog opens; its Cancel button is what calls restoreState().
+    virtual void saveState();
+    virtual void restoreState();
+
     uint32_t sampleRate() const;
     void setSampleRate(uint32_t sampleRate);
 
@@ -210,6 +215,11 @@ protected:
 
     virtual void syncParameters();
 
+    //! Re-seeds the fallback values an incoming MIDI CC resets to from the current parameters.
+    //! Called wherever the parameters are replaced wholesale rather than moved one at a time, so
+    //! that a reset can never fall back to a value that is no longer on the panel.
+    virtual void syncManualValues();
+
     void setContinuousParameterValue(const std::string & key, float value);
     void setDiscreteParameterValue(const std::string & key, int value);
 
@@ -244,6 +254,9 @@ private:
     float m_pan { 0.5f };
     std::vector<float> m_reverbSends;
     float m_linearGain { 1.0f };
+
+    //! Settings as they were when a device dialog opened; restoreState() puts these back.
+    ParameterSnapshot m_savedParameters;
 
     // Manual settings for CC reset
     float m_manualVolume { 1.0f };

@@ -2056,6 +2056,35 @@ void EffectRackController::applyReverbPreset(quint32 effectIndex, quint32 preset
     }
 }
 
+void EffectRackController::snapshotEffect(int effectIndex)
+{
+    m_snapshot.reset();
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex)); effect) {
+            m_snapshot = EffectSnapshot { effectIndex, effect->parameterSnapshot(), effect->enabled() };
+        }
+    }
+}
+
+void EffectRackController::revertEffect(int effectIndex)
+{
+    if (!m_snapshot || m_snapshot->effectIndex != effectIndex) {
+        return;
+    }
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex)); effect) {
+            effect->restoreParameterSnapshot(m_snapshot->parameters);
+            effect->setEnabled(m_snapshot->enabled);
+            effect->sync();
+            m_editorService->setIsModified(true);
+            m_revision++;
+            emit revisionChanged();
+            emit parameterChanged(static_cast<quint32>(effectIndex), ""); // Notify all parameters changed
+        }
+    }
+    m_snapshot.reset();
+}
+
 void EffectRackController::exportEffectSettings(int index, const QUrl & fileUrl)
 {
     auto filePath = fileUrl.toLocalFile();
