@@ -33,6 +33,7 @@ AnimatedDialog {
     footer: DialogButtonBox {
         Button {
             text: qsTr("Yes")
+            implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
             onClicked: {
                 uiLogger.info(rootItem._tag, "Deletion confirmed");
@@ -41,6 +42,7 @@ AnimatedDialog {
         }
         Button {
             text: qsTr("No")
+            implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
             onClicked: {
                 uiLogger.info(rootItem._tag, "Deletion rejected");

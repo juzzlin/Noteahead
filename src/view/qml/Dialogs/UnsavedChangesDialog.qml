@@ -17,6 +17,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Dialogs
+import ".."
 
 AnimatedDialog {
     id: rootItem
@@ -26,6 +27,7 @@ AnimatedDialog {
     footer: DialogButtonBox {
         Button {
             text: qsTr("Yes")
+            implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
             onClicked: {
                 uiLogger.info(_tag, "Unsaved changes accepted");
@@ -35,6 +37,7 @@ AnimatedDialog {
         }
         Button {
             text: qsTr("Close without saving")
+            implicitWidth: Math.max(Constants.defaultButtonWidth, implicitContentWidth + leftPadding + rightPadding)
             DialogButtonBox.buttonRole: DialogButtonBox.NoRole
             onClicked: {
                 uiLogger.info(_tag, "Unsaved changes discarded");
@@ -44,6 +47,7 @@ AnimatedDialog {
         }
         Button {
             text: qsTr("Cancel")
+            implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
             onClicked: {
                 uiLogger.info(_tag, "Unsaved changes rejected");

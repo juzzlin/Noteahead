@@ -42,6 +42,7 @@ AnimatedDialog {
     footer: DialogButtonBox {
         Button {
             text: qsTr("Ok")
+            implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
             onClicked: {
                 saveSettings();
@@ -50,6 +51,7 @@ AnimatedDialog {
         }
         Button {
             text: qsTr("Cancel")
+            implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
             onClicked: rootItem.rejected()
         }

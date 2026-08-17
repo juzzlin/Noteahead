@@ -51,6 +51,18 @@ Dialog {
         restoreMode: Binding.RestoreBindingOrValue
     }
 
+    // A DialogButtonBox left at the default alignment of 0 stretches its buttons across the whole
+    // footer, so the very same button reads as defaultButtonWidth in a dialog sized by its content
+    // and as a slab half the dialog wide in one with a fixed width. Pinning the alignment here
+    // gives every footer in the application the same buttons, without each dialog having to say so.
+    Binding {
+        target: root.footer
+        property: "alignment"
+        value: Qt.AlignRight
+        when: root.footer !== null
+        restoreMode: Binding.RestoreNone
+    }
+
     enter: Transition {
         NumberAnimation {
             property: "opacity"

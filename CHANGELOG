@@ -9,6 +9,9 @@ Bug fixes:
   - Cancel now puts back the settings the device had when the dialog opened
   - Escape and a click outside still close the dialog keeping the edits
 
+* Fix dialog buttons being stretched across the whole footer
+  - Ok and Cancel now keep their own width and sit at the right in every dialog
+
 * Fix the mouse wheel doing nothing on knobs in device and effect dialogs
   - Only dialogs opened straight from a menu, like the Mixer, worked before
   - A dialog now drops its modality while another dialog covers it

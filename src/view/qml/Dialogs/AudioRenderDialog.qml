@@ -491,11 +491,13 @@ AnimatedDialog {
     footer: DialogButtonBox {
         Button {
             text: qsTr("Cancel")
+            implicitWidth: Constants.defaultButtonWidth
             onClicked: rootItem.reject()
             enabled: !renderService.isRendering
         }
         Button {
             text: qsTr("Render")
+            implicitWidth: Constants.defaultButtonWidth
             enabled: !renderService.isRendering && (masterMixRadioButton.checked ? rootItem.outputFileName !== "" : rootItem.outputDirectory !== "")
             onClicked: {
                 if (masterMixRadioButton.checked) {

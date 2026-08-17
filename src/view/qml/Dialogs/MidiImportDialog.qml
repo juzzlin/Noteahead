@@ -169,10 +169,12 @@ AnimatedDialog {
     footer: DialogButtonBox {
         Button {
             text: qsTr("Cancel")
+            implicitWidth: Constants.defaultButtonWidth
             onClicked: rootItem.reject()
         }
         Button {
             text: qsTr("Import")
+            implicitWidth: Constants.defaultButtonWidth
             enabled: rootItem.inputFileName
             onClicked: {
                 const path = rootItem.inputFileName.toString();

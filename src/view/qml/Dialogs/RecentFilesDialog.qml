@@ -72,6 +72,7 @@ AnimatedDialog {
     footer: DialogButtonBox {
         Button {
             text: qsTr("Cancel")
+            implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout

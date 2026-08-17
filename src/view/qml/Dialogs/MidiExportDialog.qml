@@ -137,10 +137,12 @@ AnimatedDialog {
     footer: DialogButtonBox {
         Button {
             text: qsTr("Cancel")
+            implicitWidth: Constants.defaultButtonWidth
             onClicked: rootItem.reject()
         }
         Button {
             text: qsTr("Export")
+            implicitWidth: Constants.defaultButtonWidth
             enabled: rootItem.outputFileName
             onClicked: {
                 applicationService.exportMidiFile(rootItem.outputFileName, startPositionSpinBox.value, endPositionSpinBox.value, exportBankCheckBox.checked, exportProgramChangeCheckBox.checked, exportMidiCcCheckBox.checked, exportPitchBendCheckBox.checked, forceDrumChannel10CheckBox.checked, autoAssignChannelsCheckBox.checked);
