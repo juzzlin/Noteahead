@@ -3,29 +3,6 @@ x.y.z
 
 Release date:
 
-Bug fixes:
-
-* Fix Cancel not cancelling anything in the device dialogs
-  - Cancel now puts back the settings the device had when the dialog opened
-  - Escape and a click outside still close the dialog keeping the edits
-
-* Fix dialog buttons being stretched across the whole footer
-  - Ok and Cancel now keep their own width and sit at the right in every dialog
-
-* Fix the mouse wheel doing nothing on knobs in device and effect dialogs
-  - Only dialogs opened straight from a menu, like the Mixer, worked before
-  - A dialog now drops its modality while another dialog covers it
-
-* Fix the Wavetable Synth's Pitch Bend Range not being saved
-  - The setting was lost on reload and always came back as 2 semitones
-
-* Fix the Wavetable Synth's last three LFO targets doing nothing
-  - Volume, Resonance and Pan can now be selected for both LFOs
-
-* Fix automations spanning a single line not being drawn at all
-  - Also fixes a longer automation vanishing when scrolled so that
-    only its first or last line is visible
-
 New features:
 
 * Add Ok and Cancel to the rack effect dialogs
@@ -162,6 +139,27 @@ New features:
   - Pan is sent on the line's own tick, so a delayed note starts already panned
 
 Bug fixes:
+
+* Fix Cancel not cancelling anything in the device dialogs
+  - Cancel now puts back the settings the device had when the dialog opened
+  - Escape and a click outside still close the dialog keeping the edits
+
+* Fix dialog buttons being stretched across the whole footer
+  - Ok and Cancel now keep their own width and sit at the right in every dialog
+
+* Fix the mouse wheel doing nothing on knobs in device and effect dialogs
+  - Only dialogs opened straight from a menu, like the Mixer, worked before
+  - A dialog now drops its modality while another dialog covers it
+
+* Fix the Wavetable Synth's Pitch Bend Range not being saved
+  - The setting was lost on reload and always came back as 2 semitones
+
+* Fix the Wavetable Synth's last three LFO targets doing nothing
+  - Volume, Resonance and Pan can now be selected for both LFOs
+
+* Fix automations spanning a single line not being drawn at all
+  - Also fixes a longer automation vanishing when scrolled so that
+    only its first or last line is visible
 
 * Fix the Wavetable Synth modulating far deeper than its Intensity knobs read
   out, which made subtle LFO and Mod Envelope settings impossible
