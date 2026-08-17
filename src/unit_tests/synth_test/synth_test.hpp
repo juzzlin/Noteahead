@@ -108,6 +108,9 @@ private slots:
     void test_phaseSync_repeatedNote_shouldRestartTheSameWaveform();
     void test_phaseSync_repeatedNote_shouldFadeOutBeforeRestarting();
     void test_phaseSyncOff_repeatedNote_shouldNotFadeOut();
+    void test_ampCurve_shouldSteepenTheAudibleDecay();
+    void test_ampCurve_serialization_shouldPreserveState();
+    void test_modCurve_serialization_shouldPreserveState();
 };
 
 } // namespace noteahead

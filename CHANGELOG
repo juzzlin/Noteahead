@@ -5,6 +5,11 @@ Release date:
 
 New features:
 
+* Add Curve to the Synth's Amp EG and Mod EG
+  - Bends the envelope segments from straight lines into the analog shape,
+    which is what a pluck or a pizzicato needs
+  - Existing projects keep their straight lines: the knob defaults to zero
+
 * Add Ok and Cancel to the rack effect dialogs
   - Cancel puts back the settings the effect had when the dialog opened
   - Replaces the Close button, which always kept the edits

@@ -1857,6 +1857,11 @@ QString xmlKeyAmpVelocitySensitivity()
     return "ampVelocitySensitivity";
 }
 
+QString xmlKeyAmpCurve()
+{
+    return "ampCurve";
+}
+
 QString xmlKeyModAttack()
 {
     return "modAttack";
@@ -1880,6 +1885,11 @@ QString xmlKeyModIntensity()
 QString xmlKeyModTarget()
 {
     return "modTarget";
+}
+
+QString xmlKeyModCurve()
+{
+    return "modCurve";
 }
 
 QString xmlKeyLfoWaveform()

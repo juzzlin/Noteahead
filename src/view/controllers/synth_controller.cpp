@@ -430,6 +430,18 @@ void SynthController::setAmpVelocitySensitivity(int sensitivity)
     }
 }
 
+int SynthController::ampCurve() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->ampCurve() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setAmpCurve(int curve)
+{
+    if (m_synth) {
+        m_synth->setAmpCurve(static_cast<float>(curve) / Constants::uiInternalScaling());
+    }
+}
+
 // Mod EG
 int SynthController::modAttack() const
 {
@@ -493,6 +505,18 @@ void SynthController::setModTarget(int t)
 {
     if (m_synth) {
         m_synth->setModTarget(static_cast<SynthDevice::ModTarget>(t));
+    }
+}
+
+int SynthController::modCurve() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->modCurve() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setModCurve(int curve)
+{
+    if (m_synth) {
+        m_synth->setModCurve(static_cast<float>(curve) / Constants::uiInternalScaling());
     }
 }
 
@@ -923,12 +947,14 @@ void SynthController::requestSettings()
     emit ampSustainChanged();
     emit ampReleaseChanged();
     emit ampVelocitySensitivityChanged();
+    emit ampCurveChanged();
 
     emit modAttackChanged();
     emit modDecayChanged();
     emit modSustainChanged();
     emit modIntChanged();
     emit modTargetChanged();
+    emit modCurveChanged();
 
     emit lfoWaveformChanged();
     emit lfoModeChanged();

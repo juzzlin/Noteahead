@@ -70,6 +70,12 @@ ColumnLayout {
         Layout.fillWidth: true
     }
     Knob {
+        label: qsTr("Curve")
+        value: synthController.modCurve
+        onMoved: v => synthController.modCurve = v
+        Layout.fillWidth: true
+    }
+    Knob {
         label: qsTr("Intensity")
         mapping: "cubicCentered"
         mapMin: -100

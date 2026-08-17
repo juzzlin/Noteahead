@@ -72,6 +72,12 @@ ColumnLayout {
         Layout.fillWidth: true
     }
     Knob {
+        label: qsTr("Curve")
+        value: synthController.ampCurve
+        onMoved: v => synthController.ampCurve = v
+        Layout.fillWidth: true
+    }
+    Knob {
         label: qsTr("Vel Sens")
         value: synthController.ampVelocitySensitivity
         onMoved: v => synthController.ampVelocitySensitivity = v

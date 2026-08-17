@@ -552,12 +552,14 @@ QString xmlKeyAmpDecay();
 QString xmlKeyAmpSustain();
 QString xmlKeyAmpRelease();
 QString xmlKeyAmpVelocitySensitivity();
+QString xmlKeyAmpCurve();
 
 QString xmlKeyModAttack();
 QString xmlKeyModDecay();
 QString xmlKeyModIntensity();
 QString xmlKeyModSustain();
 QString xmlKeyModTarget();
+QString xmlKeyModCurve();
 
 QString xmlKeyLfoWaveform();
 QString xmlKeyLfoMode();

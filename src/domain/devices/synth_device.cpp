@@ -160,12 +160,16 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyAmpSustain().toStdString(), 1.0f, 0, 10000, 10000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyAmpRelease().toStdString(), 0.48f, 0, 10000, 4800, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyAmpVelocitySensitivity().toStdString(), 0.5f, 0, 10000, 10000, 100 });
+    // Zero is the straight-line envelope this synth has always had, so a project saved before the
+    // knob existed loads with exactly the shape it was written with.
+    addParameter(Parameter { Constants::NahdXml::xmlKeyAmpCurve().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyModAttack().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyModDecay().toStdString(), 0.34f, 0, 10000, 3400, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyModSustain().toStdString(), 0.0f, 0, 10000, 0, 100 }); // AD by default
     addParameter(Parameter { Constants::NahdXml::xmlKeyModIntensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyModTarget().toStdString(), 3.0f, 0, 3, 3, 1, Parameter::Type::Discrete }); // Cutoff default
+    addParameter(Parameter { Constants::NahdXml::xmlKeyModCurve().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoWaveform().toStdString(), 1.0f, 0, 4, 1, 1, Parameter::Type::Discrete }); // Tri default
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoMode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete }); // Normal default
@@ -1099,6 +1103,8 @@ void SynthDevice::syncParameters()
         m_ampRelease = p->get().value();
     if (const auto p = parameter(Constants::NahdXml::xmlKeyAmpVelocitySensitivity().toStdString()); p)
         m_ampVelocitySensitivity = p->get().value();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyAmpCurve().toStdString()); p)
+        m_ampCurve = p->get().value();
 
     if (const auto p = parameter(Constants::NahdXml::xmlKeyModAttack().toStdString()); p)
         m_modAttack = p->get().value();
@@ -1111,6 +1117,8 @@ void SynthDevice::syncParameters()
         m_modInt = ParameterMapper::mapCubicCentered((p->get().value() - 0.5f) * 2.0f, -1.0, 1.0);
     if (const auto p = parameter(Constants::NahdXml::xmlKeyModTarget().toStdString()); p)
         m_modTarget = static_cast<ModTarget>(p->get().xmlValue());
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyModCurve().toStdString()); p)
+        m_modCurve = p->get().value();
 
     if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoWaveform().toStdString()); p)
         m_lfoWaveform = static_cast<Lfo::Waveform>(p->get().xmlValue());
@@ -1211,6 +1219,7 @@ void SynthDevice::syncParameters()
         voice.ampEg.setDecayTime(ParameterMapper::mapExponential(m_ampDecay, 0.01, 60.0));
         voice.ampEg.setSustainLevel(m_ampSustain);
         voice.ampEg.setReleaseTime(ParameterMapper::mapExponential(m_ampRelease, 0.001, 60.0));
+        voice.ampEg.setCurve(m_ampCurve);
         voice.modEg.setAttackTime(ParameterMapper::mapExponential(m_modAttack, 0.000001, 20.0));
         voice.modEg.setDecayTime(ParameterMapper::mapExponential(m_modDecay, 0.01, 60.0));
         // Zero leaves it AD: the sweep returns to where it started. Anything above holds the
@@ -1218,6 +1227,7 @@ void SynthDevice::syncParameters()
         // new place and stay.
         voice.modEg.setSustainLevel(m_modSustain);
         voice.modEg.setReleaseTime(ParameterMapper::mapExponential(m_modDecay, 0.01, 60.0));
+        voice.modEg.setCurve(m_modCurve);
     }
 }
 
@@ -1619,6 +1629,16 @@ void SynthDevice::setAmpVelocitySensitivity(float sensitivity)
     setContinuousParameterValue(Constants::NahdXml::xmlKeyAmpVelocitySensitivity().toStdString(), sensitivity);
 }
 
+float SynthDevice::ampCurve() const
+{
+    return m_ampCurve;
+}
+
+void SynthDevice::setAmpCurve(float curve)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyAmpCurve().toStdString(), curve);
+}
+
 // Mod EG
 float SynthDevice::modAttack() const
 {
@@ -1668,6 +1688,16 @@ SynthDevice::ModTarget SynthDevice::modTarget() const
 void SynthDevice::setModTarget(ModTarget target)
 {
     setDiscreteParameterValue(Constants::NahdXml::xmlKeyModTarget().toStdString(), static_cast<int>(target));
+}
+
+float SynthDevice::modCurve() const
+{
+    return m_modCurve;
+}
+
+void SynthDevice::setModCurve(float curve)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyModCurve().toStdString(), curve);
 }
 
 // Lfo

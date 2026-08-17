@@ -74,6 +74,20 @@ void SynthControllerTest::test_properties_shouldUpdateDeviceAndEmitSignals()
         QCOMPARE(controller.lpfCutoff(), 600);
     }
 
+    // Envelopes
+    {
+        QSignalSpy spy { &controller, &SynthController::ampCurveChanged };
+        controller.setAmpCurve(700);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.ampCurve(), 700);
+    }
+    {
+        QSignalSpy spy { &controller, &SynthController::modCurveChanged };
+        controller.setModCurve(350);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.modCurve(), 350);
+    }
+
     // LFO
     {
         QSignalSpy spy { &controller, &SynthController::lfoRateChanged };

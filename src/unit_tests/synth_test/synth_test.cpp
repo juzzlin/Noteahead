@@ -2254,6 +2254,83 @@ void SynthTest::test_phaseSyncOff_repeatedNote_shouldNotFadeOut()
     QVERIFY(peakOf(handover) > peakOf(second) * 0.5);
 }
 
+void SynthTest::test_ampCurve_shouldSteepenTheAudibleDecay()
+{
+    // Straight through the whole chain: the knob has to reach the voices, not just the parameter.
+    // Halfway through a decay to silence a straight line is still at half level, 6 dB down, which is
+    // what makes a pluck sound like a fade. The curve puts it some 20 dB further down.
+    auto halfwayPeak = [](float curve) {
+        SynthDevice synth { "Test Synth" };
+        setUpRetriggerSynth(synth, false);
+        synth.setAmpDecay(0.345f); // ~200 ms
+        synth.setAmpCurve(curve);
+
+        std::vector<double> buffer(static_cast<size_t>(retriggerFrameCount) * 2, 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(retriggerFrameCount), retriggerSampleRate };
+        synth.processMidiNoteOn(69, 127);
+
+        // Nine blocks of 512 frames at 48 kHz is 96 ms, so the tenth straddles the halfway point.
+        for (int block = 0; block < 9; block++) {
+            std::fill(buffer.begin(), buffer.end(), 0.0);
+            synth.processAudio(context);
+        }
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        synth.processAudio(context);
+
+        return peakOf(buffer);
+    };
+
+    const double linear = halfwayPeak(0.0f);
+    const double curved = halfwayPeak(1.0f);
+
+    QVERIFY(linear > 0.0);
+    QVERIFY2(curved * 5.0 < linear, qPrintable(QString { "curved %1 vs linear %2" }.arg(curved).arg(linear)));
+}
+
+void SynthTest::test_ampCurve_serialization_shouldPreserveState()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        QCOMPARE(synth.ampCurve(), 0.0f); // Straight lines, as before the knob existed
+        synth.setAmpCurve(0.7f);
+        NahdXmlWriter writer { data };
+        synth.serializeToXml(writer);
+    }
+
+    {
+        SynthDevice synth { "Test Synth" };
+        NahdXmlReader reader { data };
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        synth.deserializeFromXml(reader);
+        QCOMPARE(synth.ampCurve(), 0.7f);
+    }
+}
+
+void SynthTest::test_modCurve_serialization_shouldPreserveState()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        QCOMPARE(synth.modCurve(), 0.0f);
+        synth.setModCurve(0.4f);
+        NahdXmlWriter writer { data };
+        synth.serializeToXml(writer);
+    }
+
+    {
+        SynthDevice synth { "Test Synth" };
+        NahdXmlReader reader { data };
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        synth.deserializeFromXml(reader);
+        QCOMPARE(synth.modCurve(), 0.4f);
+    }
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SynthTest)

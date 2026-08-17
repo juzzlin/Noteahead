@@ -86,6 +86,7 @@ class SynthController : public DeviceController
     Q_PROPERTY(int ampSustain READ ampSustain WRITE setAmpSustain NOTIFY ampSustainChanged)
     Q_PROPERTY(int ampRelease READ ampRelease WRITE setAmpRelease NOTIFY ampReleaseChanged)
     Q_PROPERTY(int ampVelocitySensitivity READ ampVelocitySensitivity WRITE setAmpVelocitySensitivity NOTIFY ampVelocitySensitivityChanged)
+    Q_PROPERTY(int ampCurve READ ampCurve WRITE setAmpCurve NOTIFY ampCurveChanged)
 
     // Mod EG
     Q_PROPERTY(int modAttack READ modAttack WRITE setModAttack NOTIFY modAttackChanged)
@@ -93,6 +94,7 @@ class SynthController : public DeviceController
     Q_PROPERTY(int modSustain READ modSustain WRITE setModSustain NOTIFY modSustainChanged)
     Q_PROPERTY(int modInt READ modInt WRITE setModInt NOTIFY modIntChanged)
     Q_PROPERTY(int modTarget READ modTarget WRITE setModTarget NOTIFY modTargetChanged)
+    Q_PROPERTY(int modCurve READ modCurve WRITE setModCurve NOTIFY modCurveChanged)
 
     // Lfo
     Q_PROPERTY(int lfoWaveform READ lfoWaveform WRITE setLfoWaveform NOTIFY lfoWaveformChanged)
@@ -225,6 +227,8 @@ public:
     void setAmpRelease(int r);
     int ampVelocitySensitivity() const;
     void setAmpVelocitySensitivity(int sensitivity);
+    int ampCurve() const;
+    void setAmpCurve(int curve);
 
     int modAttack() const;
     void setModAttack(int a);
@@ -236,6 +240,8 @@ public:
     void setModInt(int i);
     int modTarget() const;
     void setModTarget(int t);
+    int modCurve() const;
+    void setModCurve(int curve);
 
     int lfoWaveform() const;
     void setLfoWaveform(int wave);
@@ -344,11 +350,13 @@ signals:
     void ampSustainChanged();
     void ampReleaseChanged();
     void ampVelocitySensitivityChanged();
+    void ampCurveChanged();
     void modAttackChanged();
     void modDecayChanged();
     void modSustainChanged();
     void modIntChanged();
     void modTargetChanged();
+    void modCurveChanged();
     void lfoWaveformChanged();
     void lfoModeChanged();
     void lfoRateChanged();

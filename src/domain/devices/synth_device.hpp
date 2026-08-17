@@ -201,6 +201,8 @@ public:
     void setAmpRelease(float r);
     float ampVelocitySensitivity() const;
     void setAmpVelocitySensitivity(float sensitivity);
+    float ampCurve() const;
+    void setAmpCurve(float curve);
 
     // Mod EG
     float modAttack() const;
@@ -213,6 +215,8 @@ public:
     void setModInt(float intensity);
     ModTarget modTarget() const;
     void setModTarget(ModTarget target);
+    float modCurve() const;
+    void setModCurve(float curve);
 
     // Lfo
     Lfo::Waveform lfoWaveform() const;
@@ -402,12 +406,14 @@ private:
     float m_ampSustain { 1.0f };
     float m_ampRelease { 0.2f };
     float m_ampVelocitySensitivity { 1.0f };
+    float m_ampCurve { 0.0f };
 
     float m_modAttack { 0.1f };
     float m_modDecay { 0.2f };
     float m_modSustain { 0.0f };
     float m_modInt { 0.0f };
     ModTarget m_modTarget { ModTarget::Cutoff };
+    float m_modCurve { 0.0f };
 
     Lfo::Waveform m_lfoWaveform { Lfo::Waveform::Triangle };
     Lfo::Mode m_lfoMode { Lfo::Mode::Normal };
