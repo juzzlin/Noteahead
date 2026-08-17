@@ -55,6 +55,7 @@ class WavetableSynthController : public DeviceController
     Q_PROPERTY(int ampDecay READ ampDecay WRITE setAmpDecay NOTIFY ampDecayChanged)
     Q_PROPERTY(int ampSustain READ ampSustain WRITE setAmpSustain NOTIFY ampSustainChanged)
     Q_PROPERTY(int ampRelease READ ampRelease WRITE setAmpRelease NOTIFY ampReleaseChanged)
+    Q_PROPERTY(int ampCurve READ ampCurve WRITE setAmpCurve NOTIFY ampCurveChanged)
 
     // Mod EG
     Q_PROPERTY(int modAttack READ modAttack WRITE setModAttack NOTIFY modAttackChanged)
@@ -62,6 +63,7 @@ class WavetableSynthController : public DeviceController
     Q_PROPERTY(int modSustain READ modSustain WRITE setModSustain NOTIFY modSustainChanged)
     Q_PROPERTY(int modInt READ modInt WRITE setModInt NOTIFY modIntChanged)
     Q_PROPERTY(int modTarget READ modTarget WRITE setModTarget NOTIFY modTargetChanged)
+    Q_PROPERTY(int modCurve READ modCurve WRITE setModCurve NOTIFY modCurveChanged)
 
     // LFO 1
     Q_PROPERTY(int lfoWaveform READ lfoWaveform WRITE setLfoWaveform NOTIFY lfoWaveformChanged)
@@ -143,6 +145,8 @@ public:
     void setAmpSustain(int s);
     int ampRelease() const;
     void setAmpRelease(int r);
+    int ampCurve() const;
+    void setAmpCurve(int curve);
 
     // Mod EG
     int modAttack() const;
@@ -155,6 +159,8 @@ public:
     void setModInt(int i);
     int modTarget() const;
     void setModTarget(int t);
+    int modCurve() const;
+    void setModCurve(int curve);
 
     // LFO 1
     int lfoWaveform() const;
@@ -226,11 +232,13 @@ signals:
     void ampDecayChanged();
     void ampSustainChanged();
     void ampReleaseChanged();
+    void ampCurveChanged();
     void modAttackChanged();
     void modDecayChanged();
     void modSustainChanged();
     void modIntChanged();
     void modTargetChanged();
+    void modCurveChanged();
     void lfoWaveformChanged();
     void lfoModeChanged();
     void lfoRateChanged();

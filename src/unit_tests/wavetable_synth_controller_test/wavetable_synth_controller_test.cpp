@@ -176,6 +176,24 @@ void WavetableSynthControllerTest::test_sustain_properties_shouldEmitSignals()
     QCOMPARE(modSpy.count(), 1);
 }
 
+void WavetableSynthControllerTest::test_curve_properties_shouldEmitSignals()
+{
+    const auto synth = std::make_shared<WavetableSynthDevice>("Test Synth");
+    WavetableSynthController controller { synth };
+
+    const int curve = 700;
+
+    QSignalSpy ampSpy { &controller, &WavetableSynthController::ampCurveChanged };
+    controller.setAmpCurve(curve);
+    QCOMPARE(controller.ampCurve(), curve);
+    QCOMPARE(ampSpy.count(), 1);
+
+    QSignalSpy modSpy { &controller, &WavetableSynthController::modCurveChanged };
+    controller.setModCurve(curve);
+    QCOMPARE(controller.modCurve(), curve);
+    QCOMPARE(modSpy.count(), 1);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::WavetableSynthControllerTest)

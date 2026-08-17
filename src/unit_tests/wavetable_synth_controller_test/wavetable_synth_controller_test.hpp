@@ -37,6 +37,7 @@ private slots:
     void test_lfo2_properties_shouldEmitSignals();
 
     void test_sustain_properties_shouldEmitSignals();
+    void test_curve_properties_shouldEmitSignals();
 };
 
 } // namespace noteahead

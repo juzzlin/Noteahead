@@ -61,6 +61,12 @@ ColumnLayout {
         Layout.fillWidth: true
     }
     Knob {
+        label: qsTr("Curve")
+        value: wavetableSynthController.modCurve
+        onMoved: v => wavetableSynthController.modCurve = v
+        Layout.fillWidth: true
+    }
+    Knob {
         label: qsTr("Intensity")
         mapping: "cubicCentered"
         mapMin: -100

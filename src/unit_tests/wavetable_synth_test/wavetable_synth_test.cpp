@@ -803,6 +803,59 @@ void WavetableSynthTest::test_lfoIntensity_shouldApplyTheDepthItReadsOut()
     }
 }
 
+void WavetableSynthTest::test_ampCurve_shouldSteepenTheAudibleDecay()
+{
+    // Straight through the whole chain: the knob has to reach the voices, not just the parameter.
+    // Halfway through a decay to silence a straight line is still at half level, 6 dB down, which is
+    // what makes a pluck sound like a fade. The curve puts it some 20 dB further down.
+    const auto halfwayPeak = [](float curve) {
+        WavetableSynthDevice synth { "Test Synth" };
+        setupBasicSynth(synth);
+        synth.setLpfCutoff(1.0f);
+        synth.setLpfResonance(0.0f);
+        synth.setAmpSustain(0.0f);
+        // 4096 frames at 44.1 kHz is 93 ms, so a 190 ms decay is a little past its halfway point by
+        // the end of the buffer the shared helper renders.
+        synth.setAmpDecay(0.43f);
+        synth.setAmpCurve(curve);
+
+        const auto buffer = renderBuffer(synth);
+        double peak = 0.0;
+        for (size_t i = buffer.size() / 2; i < buffer.size(); i += 2) {
+            peak = std::max(peak, std::abs(buffer[i]));
+        }
+        return peak;
+    };
+
+    const double linear = halfwayPeak(0.0f);
+    const double curved = halfwayPeak(1.0f);
+
+    QVERIFY(linear > 0.0);
+    QVERIFY2(curved * 5.0 < linear, qPrintable(QString { "curved %1 vs linear %2" }.arg(curved).arg(linear)));
+}
+
+void WavetableSynthTest::test_curve_serialization_shouldPreserveState()
+{
+    WavetableSynthDevice synth1 { "Test Synth 1" };
+    QCOMPARE(synth1.ampCurve(), 0.0f); // Straight lines, as before the knob existed
+    QCOMPARE(synth1.modCurve(), 0.0f);
+    synth1.setAmpCurve(0.7f);
+    synth1.setModCurve(0.4f);
+
+    QString xml;
+    NahdXmlWriter writer { xml };
+    synth1.serializeToXml(writer);
+
+    WavetableSynthDevice synth2 { "Test Synth 2" };
+    NahdXmlReader reader { xml };
+    if (reader.readNextStartElement()) {
+        synth2.deserializeFromXml(reader);
+    }
+
+    QCOMPARE(synth2.ampCurve(), 0.7f);
+    QCOMPARE(synth2.modCurve(), 0.4f);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::WavetableSynthTest)

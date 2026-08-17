@@ -163,12 +163,16 @@ WavetableSynthDevice::WavetableSynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyAmpDecay().toStdString(), 0.2f, 0, 10000, 2000, 100, Parameter::Type::Continuous, { "wavetableSynthAmpDecay" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyAmpSustain().toStdString(), 1.0f, 0, 10000, 10000, 100, Parameter::Type::Continuous, { "wavetableSynthAmpSustain" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyAmpRelease().toStdString(), 0.2f, 0, 10000, 2000, 100, Parameter::Type::Continuous, { "wavetableSynthAmpRelease" } });
+    // Zero is the straight-line envelope this synth has always had, so a project saved before the
+    // knob existed loads with exactly the shape it was written with.
+    addParameter(Parameter { Constants::NahdXml::xmlKeyAmpCurve().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyModAttack().toStdString(), 0.1f, 0, 10000, 1000, 100, Parameter::Type::Continuous, { "wavetableSynthModAttack" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyModDecay().toStdString(), 0.2f, 0, 10000, 2000, 100, Parameter::Type::Continuous, { "wavetableSynthModDecay" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyModSustain().toStdString(), 0.0f, 0, 10000, 0, 100 }); // AD by default
     addParameter(Parameter { Constants::NahdXml::xmlKeyModIntensity().toStdString(), 0.5f, 0, 10000, 5000, 100, Parameter::Type::Continuous, { "wavetableSynthModIntensity" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyModTarget().toStdString(), 0.0f, 0, 4, 0, 1, Parameter::Type::Discrete, { "wavetableSynthModTarget" } });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyModCurve().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoWaveform().toStdString(), 1.0f, 0, 4, 1, 1, Parameter::Type::Discrete, { "wavetableSynthLfoWaveform" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoMode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete, { "wavetableSynthLfoMode" } });
@@ -868,6 +872,7 @@ void WavetableSynthDevice::syncParameters()
     updateParam(Constants::NahdXml::xmlKeyAmpDecay(), m_ampDecay);
     updateParam(Constants::NahdXml::xmlKeyAmpSustain(), m_ampSustain);
     updateParam(Constants::NahdXml::xmlKeyAmpRelease(), m_ampRelease);
+    updateParam(Constants::NahdXml::xmlKeyAmpCurve(), m_ampCurve);
 
     updateParam(Constants::NahdXml::xmlKeyModAttack(), m_modAttack);
     updateParam(Constants::NahdXml::xmlKeyModDecay(), m_modDecay);
@@ -875,6 +880,7 @@ void WavetableSynthDevice::syncParameters()
     updateParam(Constants::NahdXml::xmlKeyModIntensity(), m_modInt);
     m_modDepth = intensityToDepth(m_modInt);
     updateDiscreteParam(Constants::NahdXml::xmlKeyModTarget(), m_modTarget);
+    updateParam(Constants::NahdXml::xmlKeyModCurve(), m_modCurve);
 
     updateDiscreteParam(Constants::NahdXml::xmlKeyLfoWaveform(), m_lfoWaveform);
     updateDiscreteParam(Constants::NahdXml::xmlKeyLfoMode(), m_lfoMode);
@@ -932,6 +938,7 @@ void WavetableSynthDevice::syncParameters()
         voice.ampEg.setDecayTime(ParameterMapper::mapExponential(m_ampDecay, 0.01, 10.0));
         voice.ampEg.setSustainLevel(m_ampSustain);
         voice.ampEg.setReleaseTime(ParameterMapper::mapExponential(m_ampRelease, 0.01, 10.0));
+        voice.ampEg.setCurve(m_ampCurve);
 
         voice.modEg.setAttackTime(ParameterMapper::mapExponential(m_modAttack, 0.001, 10.0));
         voice.modEg.setDecayTime(ParameterMapper::mapExponential(m_modDecay, 0.01, 10.0));
@@ -939,6 +946,7 @@ void WavetableSynthDevice::syncParameters()
         // modulation there for as long as the note is held.
         voice.modEg.setSustainLevel(m_modSustain);
         voice.modEg.setReleaseTime(ParameterMapper::mapExponential(m_modDecay, 0.01, 10.0));
+        voice.modEg.setCurve(m_modCurve);
     }
 }
 
@@ -1218,6 +1226,20 @@ void WavetableSynthDevice::setAmpRelease(float r)
     }
 }
 
+float WavetableSynthDevice::ampCurve() const
+{
+    return m_ampCurve;
+}
+
+void WavetableSynthDevice::setAmpCurve(float curve)
+{
+    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyAmpCurve().toStdString()); synthParameter) {
+        synthParameter->get().setValue(curve);
+        syncParameters();
+        emit dataChanged();
+    }
+}
+
 // Mod EG
 float WavetableSynthDevice::modAttack() const
 {
@@ -1284,6 +1306,20 @@ void WavetableSynthDevice::setModTarget(ModTarget target)
 {
     if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyModTarget().toStdString()); synthParameter) {
         synthParameter->get().setFromXml(static_cast<int>(target));
+        syncParameters();
+        emit dataChanged();
+    }
+}
+
+float WavetableSynthDevice::modCurve() const
+{
+    return m_modCurve;
+}
+
+void WavetableSynthDevice::setModCurve(float curve)
+{
+    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyModCurve().toStdString()); synthParameter) {
+        synthParameter->get().setValue(curve);
         syncParameters();
         emit dataChanged();
     }

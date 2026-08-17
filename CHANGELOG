@@ -5,7 +5,7 @@ Release date:
 
 New features:
 
-* Add Curve to the Synth's Amp EG and Mod EG
+* Add Curve to the Amp EG and Mod EG of the Synth and the Wavetable Synth
   - Bends the envelope segments from straight lines into the analog shape,
     which is what a pluck or a pizzicato needs
   - Existing projects keep their straight lines: the knob defaults to zero

@@ -70,4 +70,10 @@ ColumnLayout {
         onMoved: v => wavetableSynthController.ampRelease = v
         Layout.fillWidth: true
     }
+    Knob {
+        label: qsTr("Curve")
+        value: wavetableSynthController.ampCurve
+        onMoved: v => wavetableSynthController.ampCurve = v
+        Layout.fillWidth: true
+    }
 }

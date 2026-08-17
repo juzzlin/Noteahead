@@ -169,6 +169,8 @@ public:
     void setAmpSustain(float s);
     float ampRelease() const;
     void setAmpRelease(float r);
+    float ampCurve() const;
+    void setAmpCurve(float curve);
 
     // Mod EG
     float modAttack() const;
@@ -181,6 +183,8 @@ public:
     void setModInt(float intensity);
     ModTarget modTarget() const;
     void setModTarget(ModTarget target);
+    float modCurve() const;
+    void setModCurve(float curve);
 
     // LFO 1
     Lfo::Waveform lfoWaveform() const;
@@ -286,6 +290,7 @@ private:
     float m_ampDecay { 0.1f };
     float m_ampSustain { 1.0f };
     float m_ampRelease { 0.1f };
+    float m_ampCurve { 0.0f };
 
     float m_modAttack { 0.01f };
     float m_modDecay { 0.1f };
@@ -294,6 +299,7 @@ private:
     //! m_modInt is the knob position, this is the depth it stands for once tapered.
     double m_modDepth { 0.0 };
     ModTarget m_modTarget { ModTarget::Cutoff };
+    float m_modCurve { 0.0f };
 
     Lfo::Waveform m_lfoWaveform { Lfo::Waveform::Triangle };
     Lfo::Mode m_lfoMode { Lfo::Mode::Normal };
