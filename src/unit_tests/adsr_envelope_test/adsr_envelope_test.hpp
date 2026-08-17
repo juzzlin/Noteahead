@@ -30,6 +30,13 @@ private slots:
     void test_isSilent_zeroSustain_shouldEndWithoutRelease();
     void test_isSilent_nonZeroSustain_shouldHoldUntilReleased();
     void test_isSilent_afterRelease_shouldBeTrue();
+
+    void test_curve_zeroDecay_shouldStayLinear();
+    void test_curve_zeroRelease_shouldStayLinear();
+    void test_curve_halfDecay_shouldMatchPluckShape();
+    void test_curve_fullDecay_shouldFallFasterThanLinear();
+    void test_curve_fullDecay_shouldReachSustainAtSameTime();
+    void test_curve_fullAttack_shouldRiseFasterThanLinear();
 };
 
 } // namespace noteahead
