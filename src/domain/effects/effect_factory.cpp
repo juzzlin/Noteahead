@@ -19,6 +19,7 @@
 #include "../utility/dbtp_meter.hpp"
 #include "../utility/lufs_meter.hpp"
 #include "../utility/rta.hpp"
+#include "../utility/stereo_field_meter.hpp"
 #include "air_band_eq.hpp"
 #include "all_pass_filter.hpp"
 #include "auto_ducker.hpp"
@@ -116,6 +117,7 @@ void EffectFactory::init()
     registerEffect(Panner::typeIdString(), []() { return std::make_shared<Panner>(); });
     registerEffect(Phaser::typeIdString(), []() { return std::make_shared<Phaser>(); });
     registerEffect(Rta::typeIdString(), []() { return std::make_shared<Rta>(); });
+    registerEffect(StereoFieldMeter::typeIdString(), []() { return std::make_shared<StereoFieldMeter>(); });
     registerEffect(Reverb::typeIdString(), []() { return std::make_shared<Reverb>(); });
     registerEffect(Saturator::typeIdString(), []() { return std::make_shared<Saturator>(); });
     registerEffect(TubeStage::typeIdString(), []() { return std::make_shared<TubeStage>(); });
@@ -139,6 +141,7 @@ void EffectFactory::init()
     registerEffect(Constants::RackEffectType::phaser().toStdString(), []() { return std::make_shared<Phaser>(); });
     registerEffect(Constants::RackEffectType::reverb().toStdString(), []() { return std::make_shared<Reverb>(); });
     registerEffect(Constants::RackEffectType::rta().toStdString(), []() { return std::make_shared<Rta>(); });
+    registerEffect(Constants::RackEffectType::stereoFieldMeter().toStdString(), []() { return std::make_shared<StereoFieldMeter>(); });
     registerEffect(Constants::RackEffectType::saturator().toStdString(), []() { return std::make_shared<Saturator>(); });
     registerEffect(Constants::RackEffectType::vintagePassiveEq().toStdString(), []() { return std::make_shared<VintagePassiveEq>(); });
     registerEffect(Constants::RackEffectType::airBandEq().toStdString(), []() { return std::make_shared<AirBandEq>(); });
@@ -158,6 +161,7 @@ void EffectFactory::init()
     registerLegacyEffect("auto_filter", []() { return std::make_shared<AutoFilter>(); });
     registerLegacyEffect("multiband_compressor", []() { return std::make_shared<MultibandCompressor>(); });
     registerLegacyEffect("stereo_widener", []() { return std::make_shared<StereoWidener>(); });
+    registerLegacyEffect("stereo_field_meter", []() { return std::make_shared<StereoFieldMeter>(); });
     registerLegacyEffect("multibandStereoWidth", []() { return std::make_shared<StereoWidener>(); });
     registerLegacyEffect("multiband_stereo_width", []() { return std::make_shared<StereoWidener>(); });
     registerLegacyEffect("bass_grinder", []() { return std::make_shared<BassGrinder>(); });

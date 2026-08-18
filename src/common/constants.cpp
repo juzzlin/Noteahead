@@ -256,6 +256,11 @@ QString stereoWidener()
     return "stereoWidener";
 }
 
+QString stereoFieldMeter()
+{
+    return "stereoFieldMeter";
+}
+
 QString limiter()
 {
     return "limiter";
@@ -2355,6 +2360,16 @@ QString xmlKeyPinkNoiseLevel()
 QString xmlKeySpeed()
 {
     return "speed";
+}
+
+QString xmlKeyZoom()
+{
+    return "zoom";
+}
+
+QString xmlKeyShowGuides()
+{
+    return "showGuides";
 }
 
 QString xmlKeyFftRate()

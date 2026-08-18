@@ -174,6 +174,7 @@ QString waveDesigner();
 QString stereoEnhancer();
 QString stereoExciter();
 QString stereoWidener();
+QString stereoFieldMeter();
 QString limiter();
 QString endless();
 QString panner();
@@ -648,6 +649,8 @@ QString xmlKeyDbRange();
 QString xmlKeyShowPinkNoise();
 QString xmlKeyPinkNoiseLevel();
 QString xmlKeySpeed();
+QString xmlKeyZoom();
+QString xmlKeyShowGuides();
 QString xmlKeyFftRate();
 
 QString embeddedDataPathPrefix();

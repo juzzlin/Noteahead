@@ -55,6 +55,7 @@
 #include "../view/controllers/wavetable_synth_controller.hpp"
 #include "../view/qml/Components/oscilloscope_renderer.hpp"
 #include "../view/qml/Dialogs/rta_renderer.hpp"
+#include "../view/qml/Dialogs/stereo_field_renderer.hpp"
 #include "../view/qml/Editor/line_number_renderer.hpp"
 #include "../view/qml/Editor/note_column_renderer.hpp"
 #include "models/audio_settings_model.hpp"
@@ -223,6 +224,7 @@ void Application::registerTypes()
     qmlRegisterType<NoteColumnLineContainerHelper>("Noteahead", majorVersion, minorVersion, "NoteColumnLineContainerHelper");
     qmlRegisterType<NoteColumnRenderer>("Noteahead", majorVersion, minorVersion, "NoteColumnRenderer");
     qmlRegisterType<RtaRenderer>("Noteahead", majorVersion, minorVersion, "RtaRenderer");
+    qmlRegisterType<StereoFieldRenderer>("Noteahead", majorVersion, minorVersion, "StereoFieldRenderer");
     qmlRegisterType<OscilloscopeRenderer>("Noteahead", majorVersion, minorVersion, "OscilloscopeRenderer");
     qmlRegisterType<PitchBendAutomationsModel>("Noteahead", majorVersion, minorVersion, "PitchBendAutomationsModel");
     qmlRegisterType<PropertyService>("Noteahead", majorVersion, minorVersion, "PropertyService");

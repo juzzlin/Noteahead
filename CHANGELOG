@@ -5,6 +5,15 @@ Release date:
 
 New features:
 
+* Add the Stereo Field Meter rack effect
+  - A goniometer drawn over marked mono, side and channel axes, with
+    amplitude rings to read distance from the centre by
+  - Correlation broadband and per band, so a mix that will not survive
+    mono says where it is failing, plus mid and side levels and balance
+  - Names the field Mono, Narrow, Medium, Wide, Very Wide or Phase Risk,
+    latched so the word does not chatter on a boundary
+  - Costs nothing while its dialog is closed
+
 * Add the Stereo Widener rack effect
   - Widens or narrows the low, mid and high bands on their own terms, so the
     top can be opened up without the bottom smearing

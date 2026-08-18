@@ -120,6 +120,7 @@ set(HEADER_FILES
     utility/loudness_analyzer.hpp
     utility/lufs_meter.hpp
     utility/rta.hpp
+    utility/stereo_field_meter.hpp
 )
 
 set(SOURCE_FILES
@@ -245,6 +246,7 @@ set(SOURCE_FILES
     utility/loudness_analyzer.cpp
     utility/lufs_meter.cpp
     utility/rta.cpp
+    utility/stereo_field_meter.cpp
 )
 
 add_library(${DomainLibName} STATIC ${HEADER_FILES} ${SOURCE_FILES})

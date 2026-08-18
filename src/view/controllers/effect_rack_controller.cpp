@@ -47,6 +47,7 @@
 #include "../../domain/utility/dbtp_meter.hpp"
 #include "../../domain/utility/lufs_meter.hpp"
 #include "../../domain/utility/rta.hpp"
+#include "../../domain/utility/stereo_field_meter.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 #include "knob_controller.hpp"
@@ -327,6 +328,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Stereo Enhancer", Constants::RackEffectType::stereoEnhancer().toStdString());
     addEffect("Stereo Exciter", Constants::RackEffectType::stereoExciter().toStdString());
     addEffect("Stereo Widener", Constants::RackEffectType::stereoWidener().toStdString());
+    addEffect("Stereo Field Meter", Constants::RackEffectType::stereoFieldMeter().toStdString());
 
     return list;
 }
@@ -585,6 +587,13 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                       .arg(static_cast<int>(std::round(ParameterMapper::mapLogFrequency(lowerCrossover->get().value(), 20.0, 20000.0))))
                       .arg(static_cast<int>(std::round(ParameterMapper::mapLogFrequency(upperCrossover->get().value(), 20.0, 20000.0))))
                       .arg(scName);
+                }
+            } else if (type == Constants::RackEffectType::stereoFieldMeter()) {
+                if (const auto meter { std::dynamic_pointer_cast<StereoFieldMeter>(effect) }; meter) {
+                    const auto reading = meter->reading();
+                    return QString { "(corr=%1, side=%2dB)" }
+                      .arg(reading.correlation, 0, 'f', 2)
+                      .arg(reading.sideDb, 0, 'f', 1);
                 }
             } else if (type == Constants::RackEffectType::stereoWidener()) {
                 const auto lowWidth { effect->parameter(Constants::NahdXml::xmlKeyBandWidth(0).toStdString()) };
@@ -1417,6 +1426,73 @@ QString EffectRackController::stereoWidenerGainKey() const
     return Constants::NahdXml::xmlKeyGain();
 }
 
+QString EffectRackController::stereoFieldMeterSpeedKey() const
+{
+    return Constants::NahdXml::xmlKeySpeed();
+}
+
+QString EffectRackController::stereoFieldMeterZoomKey() const
+{
+    return Constants::NahdXml::xmlKeyZoom();
+}
+
+QString EffectRackController::stereoFieldMeterShowGuidesKey() const
+{
+    return Constants::NahdXml::xmlKeyShowGuides();
+}
+
+QVariantList EffectRackController::stereoFieldMeterPoints(quint32 effectIndex, int maxPoints) const
+{
+    QVariantList list;
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(effectIndex); effect) {
+            if (const auto meter = std::dynamic_pointer_cast<StereoFieldMeter>(effect); meter) {
+                const auto snapshot = meter->trace(static_cast<size_t>(std::max(maxPoints, 0)));
+                const auto count = std::min(snapshot.left.size(), snapshot.right.size());
+                list.reserve(static_cast<qsizetype>(count * 2));
+                for (size_t i = 0; i < count; i++) {
+                    list.append(snapshot.left[i]);
+                    list.append(snapshot.right[i]);
+                }
+            }
+        }
+    }
+    return list;
+}
+
+QVariantMap EffectRackController::stereoFieldMeterReading(quint32 effectIndex) const
+{
+    QVariantMap map;
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(effectIndex); effect) {
+            if (const auto meter = std::dynamic_pointer_cast<StereoFieldMeter>(effect); meter) {
+                const auto reading = meter->reading();
+                QVariantList bands;
+                for (const float value : reading.bandCorrelation) {
+                    bands.append(value);
+                }
+                map["correlation"] = reading.correlation;
+                map["bandCorrelations"] = bands;
+                map["midDb"] = reading.midDb;
+                map["sideDb"] = reading.sideDb;
+                map["balance"] = reading.balance;
+            }
+        }
+    }
+    return map;
+}
+
+void EffectRackController::stereoFieldMeterSetActive(quint32 effectIndex, bool active)
+{
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(effectIndex); effect) {
+            if (const auto meter = std::dynamic_pointer_cast<StereoFieldMeter>(effect); meter) {
+                meter->setAnalysisEnabled(active);
+            }
+        }
+    }
+}
+
 QString EffectRackController::vintagePassiveEqLowFreqKey() const
 {
     return Constants::NahdXml::xmlKeyLowFreq();
@@ -1685,6 +1761,11 @@ QString EffectRackController::multibandCompressorType() const
 QString EffectRackController::stereoWidenerType() const
 {
     return Constants::RackEffectType::stereoWidener();
+}
+
+QString EffectRackController::stereoFieldMeterType() const
+{
+    return Constants::RackEffectType::stereoFieldMeter();
 }
 
 QString EffectRackController::delayType() const

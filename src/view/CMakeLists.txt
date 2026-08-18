@@ -14,6 +14,7 @@ set(HEADER_FILES
     controllers/wavetable_synth_controller.hpp
     qml/Components/oscilloscope_renderer.hpp
     qml/Dialogs/rta_renderer.hpp
+    qml/Dialogs/stereo_field_renderer.hpp
     qml/Editor/line_number_renderer.hpp
     qml/Editor/note_column_renderer.hpp
 )
@@ -35,6 +36,7 @@ set(SOURCE_FILES
     controllers/wavetable_synth_controller.cpp
     qml/Components/oscilloscope_renderer.cpp
     qml/Dialogs/rta_renderer.cpp
+    qml/Dialogs/stereo_field_renderer.cpp
     qml/Editor/line_number_renderer.cpp
     qml/Editor/note_column_renderer.cpp
 )

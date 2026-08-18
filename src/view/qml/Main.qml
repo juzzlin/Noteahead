@@ -511,6 +511,12 @@ ApplicationWindow {
         width: parent.width * Constants.defaultDialogScale
         height: parent.height * Constants.defaultDialogScale
     }
+    StereoFieldMeterDialog {
+        id: stereoFieldMeterDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
+    }
     StereoExciterDialog {
         id: stereoExciterDialog
         anchors.centerIn: parent

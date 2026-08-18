@@ -116,6 +116,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/PianoSynthV2Dialog_Global.qml
     ${QML_BASE_DIR}/Dialogs/PianoSynthV2Dialog_Hammer.qml
     ${QML_BASE_DIR}/Dialogs/PianoSynthV2Dialog_String.qml
+    ${QML_BASE_DIR}/Dialogs/StereoFieldMeterDialog.qml
     ${QML_BASE_DIR}/Dialogs/StereoEnhancerDialog.qml
     ${QML_BASE_DIR}/Dialogs/StereoExciterDialog.qml
     ${QML_BASE_DIR}/Dialogs/StereoWidenerDialog.qml

@@ -59,6 +59,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString compressorType READ compressorType CONSTANT)
     Q_PROPERTY(QString multibandCompressorType READ multibandCompressorType CONSTANT)
     Q_PROPERTY(QString stereoWidenerType READ stereoWidenerType CONSTANT)
+    Q_PROPERTY(QString stereoFieldMeterType READ stereoFieldMeterType CONSTANT)
     Q_PROPERTY(QString delayType READ delayType CONSTANT)
     Q_PROPERTY(QString eq8BandParametricType READ eq8BandParametricType CONSTANT)
     Q_PROPERTY(QString vintagePassiveEqType READ vintagePassiveEqType CONSTANT)
@@ -113,6 +114,7 @@ public:
     QString compressorType() const;
     QString multibandCompressorType() const;
     QString stereoWidenerType() const;
+    QString stereoFieldMeterType() const;
     QString delayType() const;
     QString chorusType() const;
     QString eq8BandParametricType() const;
@@ -247,6 +249,15 @@ public:
     Q_INVOKABLE QString stereoWidenerMonoBassKey() const;
     Q_INVOKABLE QString stereoWidenerMonoFreqKey() const;
     Q_INVOKABLE QString stereoWidenerGainKey() const;
+
+    Q_INVOKABLE QString stereoFieldMeterSpeedKey() const;
+    Q_INVOKABLE QString stereoFieldMeterZoomKey() const;
+    Q_INVOKABLE QString stereoFieldMeterShowGuidesKey() const;
+    //! Recent sample pairs for the goniometer, flat: [l0, r0, l1, r1, ...].
+    Q_INVOKABLE QVariantList stereoFieldMeterPoints(quint32 effectIndex, int maxPoints) const;
+    //! Correlation, per-band correlation, mid and side levels and balance, taken together.
+    Q_INVOKABLE QVariantMap stereoFieldMeterReading(quint32 effectIndex) const;
+    Q_INVOKABLE void stereoFieldMeterSetActive(quint32 effectIndex, bool active);
 
     Q_INVOKABLE QString autoDuckerThresholdKey() const;
     Q_INVOKABLE QString autoDuckerAmountKey() const;

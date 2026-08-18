@@ -70,6 +70,7 @@
 #include "../../domain/tracker/track.hpp"
 #include "../../domain/utility/dbtp_meter.hpp"
 #include "../../domain/utility/lufs_meter.hpp"
+#include "../../domain/utility/stereo_field_meter.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/audio/backend/audio_file_reader.hpp"
 #include "../../infra/data_service.hpp"
@@ -2694,6 +2695,51 @@ void XmlSerializationTest::test_toXmlFromXml_stereoWidenerEffect_shouldLoadCorre
     // The bands that were left alone must come back at their defaults rather than at a neighbour's value.
     compareParameter(Constants::NahdXml::xmlKeyBandSolo(0), 0.0f);
     compareParameter(Constants::NahdXml::xmlKeyBandSolo(2), 0.0f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_stereoFieldMeterEffect_shouldLoadCorrectly()
+{
+    EffectFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto meter = std::make_shared<StereoFieldMeter>();
+    const auto set = [&](const QString & key, float value) {
+        if (auto p = meter->parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    };
+    set(Constants::NahdXml::xmlKeySpeed(), 2.0f);
+    set(Constants::NahdXml::xmlKeyZoom(), 0.72f);
+    set(Constants::NahdXml::xmlKeyShowGuides(), 0.0f);
+    deviceServiceOut.sendEffectRack().setEffect(0, meter);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(effect);
+    const auto restored = std::dynamic_pointer_cast<StereoFieldMeter>(effect);
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), StereoFieldMeter::typeIdString());
+
+    const auto value = [&](const QString & key) {
+        const auto p = restored->parameter(key.toStdString());
+        return p ? p->get().value() : -1.0f;
+    };
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeySpeed()) - 2.0f) < 0.01f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyZoom()) - 0.72f) < 0.01f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyShowGuides())) < 0.01f);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_lufsMeterEffect_shouldLoadCorrectly()
