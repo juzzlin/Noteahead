@@ -36,7 +36,6 @@ private slots:
     void test_parseSections_noHeadings_shouldReturnEmpty();
     void test_bundledManual_sections_shouldCoverTheWholeManual();
 
-
     void test_load_missingFile_shouldEmitLoadFailed();
 
     void test_bundledManual_headings_shouldHaveUniqueTitles();
