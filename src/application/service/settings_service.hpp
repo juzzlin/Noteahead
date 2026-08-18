@@ -31,6 +31,7 @@ class SettingsService : public QObject
     Q_PROPERTY(bool uiUpdatesDisabledDuringPlayback READ uiUpdatesDisabledDuringPlayback WRITE setUiUpdatesDisabledDuringPlayback NOTIFY uiUpdatesDisabledDuringPlaybackChanged)
     Q_PROPERTY(int visibleLines READ visibleLines WRITE setVisibleLines NOTIFY visibleLinesChanged)
     Q_PROPERTY(int trackHeaderFontSize READ trackHeaderFontSize WRITE setTrackHeaderFontSize NOTIFY trackHeaderFontSizeChanged)
+    Q_PROPERTY(bool autoTrackCount READ autoTrackCount WRITE setAutoTrackCount NOTIFY autoTrackCountChanged)
     Q_PROPERTY(bool recordingEnabled READ recordingEnabled WRITE setRecordingEnabled NOTIFY recordingEnabledChanged)
     Q_PROPERTY(int audioBackend READ audioBackend WRITE setAudioBackend NOTIFY audioBackendChanged)
     Q_PROPERTY(bool multiThreadedPlaybackEnabled READ multiThreadedPlaybackEnabled WRITE setMultiThreadedPlaybackEnabled NOTIFY multiThreadedPlaybackEnabledChanged)
@@ -76,6 +77,9 @@ public:
 
     virtual Q_INVOKABLE int trackHeaderFontSize() const;
     virtual Q_INVOKABLE void setTrackHeaderFontSize(int trackHeaderFontSize);
+
+    virtual Q_INVOKABLE bool autoTrackCount() const;
+    virtual Q_INVOKABLE void setAutoTrackCount(bool autoTrackCount);
 
     virtual Q_INVOKABLE bool recordingEnabled() const;
     virtual Q_INVOKABLE void setRecordingEnabled(bool enabled);
@@ -134,6 +138,7 @@ signals:
 
     void visibleLinesChanged();
     void trackHeaderFontSizeChanged();
+    void autoTrackCountChanged();
     void recordingEnabledChanged();
     void audioBackendChanged();
     void multiThreadedPlaybackEnabledChanged();
@@ -161,6 +166,7 @@ private:
     int m_velocity;
     int m_visibleLines;
     int m_trackHeaderFontSize;
+    bool m_autoTrackCount;
 
     bool m_recordingEnabled;
     int m_audioBackend;

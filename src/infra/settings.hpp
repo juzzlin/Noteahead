@@ -58,6 +58,10 @@ void setVelocity(int velocity);
 int visibleLines(int defaultVisibleLines);
 void setVisibleLines(int visibleLines);
 
+bool autoTrackCount();
+void setAutoTrackCount(bool autoTrackCount);
+
+
 int trackHeaderFontSize(int defaultTrackHeaderFontSize);
 void setTrackHeaderFontSize(int trackHeaderFontSize);
 

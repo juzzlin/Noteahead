@@ -33,6 +33,7 @@ SettingsService::SettingsService()
   , m_velocity { Settings::velocity(100) }
   , m_visibleLines { Settings::visibleLines(32) }
   , m_trackHeaderFontSize { Settings::trackHeaderFontSize(20) }
+  , m_autoTrackCount { Settings::autoTrackCount() }
   , m_recordingEnabled { Settings::recordingEnabled() }
   , m_audioBackend { static_cast<int>(Settings::audioBackend()) }
   , m_audioBufferSize { Settings::audioBufferSize() }
@@ -163,6 +164,20 @@ void SettingsService::setTrackHeaderFontSize(int trackHeaderFontSize)
         m_trackHeaderFontSize = trackHeaderFontSize;
         Settings::setTrackHeaderFontSize(trackHeaderFontSize);
         emit trackHeaderFontSizeChanged();
+    }
+}
+
+bool SettingsService::autoTrackCount() const
+{
+    return m_autoTrackCount;
+}
+
+void SettingsService::setAutoTrackCount(bool enabled)
+{
+    if (m_autoTrackCount != enabled) {
+        m_autoTrackCount = enabled;
+        Settings::setAutoTrackCount(enabled);
+        emit autoTrackCountChanged();
     }
 }
 

@@ -134,8 +134,12 @@ FocusScope {
     // The track area is what the columns actually share, so a narrow window shows fewer of them
     // instead of squeezing all six into headers too small to read.
     function _updateVisibleUnitCount() {
-        const fitting = Math.floor(trackArea.width / Constants.minUnitWidth);
-        editorService.setVisibleUnitCount(Math.max(Constants.minVisibleUnitCount, Math.min(Constants.maxVisibleUnitCount, fitting)));
+        if (settingsService.autoTrackCount) {
+            const fitting = Math.floor(trackArea.width / Constants.minUnitWidth);
+            editorService.setVisibleUnitCount(Math.max(Constants.minVisibleUnitCount, Math.min(Constants.maxVisibleUnitCount, fitting)));
+        } else {
+            editorService.setVisibleUnitCount(Constants.maxVisibleUnitCount);
+        }
     }
     function _setTrackDimensions(track) {
         const unitWidth = trackArea.width / editorService.visibleUnitCount();
@@ -347,6 +351,10 @@ FocusScope {
         mixerService.cleared.connect(_clearMixerSettings);
         UiService.deleteUnusedPatternsConfirmed.connect(deleteUnusedPatterns);
         mouseHandler.editorFocusRequested.connect(forceActiveFocus);
+        settingsService.autoTrackCountChanged.connect(() => {
+            _updateVisibleUnitCount();
+            _updateAllTrackDimensions();
+        });
     }
     function _lineNumberColumnHeight() {
         return trackArea.height - Constants.trackHeaderHeight - Constants.columnHeaderHeight;

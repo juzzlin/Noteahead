@@ -58,6 +58,7 @@ const auto velocityKey = "velocity";
 
 const auto trackHeaderFontSizeKey = "trackHeaderFontSize";
 const auto uiUpdatesDisabledDuringPlaybackKey = "uiUpdatesDisabledDuringPlayback";
+const auto autoTrackCountKey = "autoTrackCount";
 const auto visibleLinesKey = "visibleLines";
 const auto windowSizeKey = "size";
 
@@ -256,6 +257,23 @@ void setVisibleLines(int visibleLines)
     QSettings settings;
     settings.beginGroup(settingsGroupEditor);
     settings.setValue(visibleLinesKey, visibleLines);
+    settings.endGroup();
+}
+
+bool autoTrackCount()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    const auto enabled = settings.value(autoTrackCountKey, true).toBool();
+    settings.endGroup();
+    return enabled;
+}
+
+void setAutoTrackCount(bool enabled)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    settings.setValue(autoTrackCountKey, enabled);
     settings.endGroup();
 }
 
