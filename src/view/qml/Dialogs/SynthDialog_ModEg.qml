@@ -35,14 +35,6 @@ ColumnLayout {
         Layout.topMargin: 10
     }
 
-    RowLayout {
-        ComboBox {
-            model: synthController.modTargetNames
-            currentIndex: synthController.modTarget
-            onActivated: i => synthController.modTarget = i
-            Layout.fillWidth: true
-        }
-    }
     Knob {
         label: qsTr("Attack")
         mapping: "exponential"
@@ -82,6 +74,12 @@ ColumnLayout {
         mapMax: 100
         value: synthController.modInt
         onMoved: v => synthController.modInt = v
+        Layout.fillWidth: true
+    }
+    ComboBox {
+        model: synthController.modTargetNames
+        currentIndex: synthController.modTarget
+        onActivated: i => synthController.modTarget = i
         Layout.fillWidth: true
     }
 }
