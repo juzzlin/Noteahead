@@ -106,6 +106,9 @@ EffectDialog {
 
             Knob {
                 label: qsTr("Width")
+                mapping: "percentage"
+                mapMin: 0
+                mapMax: 200
                 from: 0
                 to: 2 * Constants.uiInternalScaling
                 value: {
