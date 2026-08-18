@@ -25,6 +25,7 @@
 #include "../../application/service/selection_service.hpp"
 #include "../../application/service/settings_service.hpp"
 #include "../../application/service/side_chain_service.hpp"
+#include "../../common/constants.hpp"
 #include "../../domain/tracker/column_settings.hpp"
 #include "../../domain/tracker/instrument.hpp"
 #include "../../domain/tracker/note_data.hpp"
@@ -1084,6 +1085,78 @@ void EditorServiceTest::test_requestTrackDeletion_lastTrack_shouldDeleteTrack()
     QCOMPARE(editorService.position().lineColumn, 0);
     QCOMPARE(scrollBarSizeChangedSpy.count(), 1);
     QCOMPARE(scrollBarStepSizeChangedSpy.count(), 1);
+}
+
+void EditorServiceTest::test_requestTrackDeletion_fewVisibleUnits_shouldKeepMinimumTrackCount()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    const auto initialTrackCount = editorService.trackCount();
+    QVERIFY(initialTrackCount > Constants::minTrackCount());
+
+    // How many tracks happen to fit on screen must not decide how many the song may have
+    editorService.setVisibleUnitCount(Constants::minVisibleUnitCount());
+
+    QVERIFY(editorService.requestPosition(0, editorService.trackIndices().at(0), 0, 0, 0));
+    while (editorService.trackCount() > Constants::minTrackCount()) {
+        editorService.requestTrackDeletion(); // Moves the cursor to a remaining track itself
+    }
+
+    QSignalSpy trackDeletedSpy { &editorService, &EditorService::trackDeleted };
+    editorService.requestTrackDeletion();
+
+    QCOMPARE(editorService.trackCount(), Constants::minTrackCount());
+    QCOMPARE(trackDeletedSpy.count(), 0);
+}
+
+void EditorServiceTest::test_setVisibleUnitCount_belowMinimum_shouldClampToMinimum()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    QCOMPARE(editorService.visibleUnitCount(), Constants::defaultVisibleUnitCount());
+
+    editorService.setVisibleUnitCount(0);
+
+    QCOMPARE(editorService.visibleUnitCount(), Constants::minVisibleUnitCount());
+}
+
+void EditorServiceTest::test_setVisibleUnitCount_shouldUpdateScrollBarAndLayout()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    QSignalSpy horizontalScrollChangedSpy { &editorService, &EditorService::horizontalScrollChanged };
+    QSignalSpy scrollBarSizeChangedSpy { &editorService, &EditorService::scrollBarHandleSizeChanged };
+    QSignalSpy scrollBarStepSizeChangedSpy { &editorService, &EditorService::scrollBarStepSizeChanged };
+
+    editorService.setVisibleUnitCount(4);
+
+    QCOMPARE(editorService.visibleUnitCount(), 4);
+    QCOMPARE(horizontalScrollChangedSpy.count(), 1);
+    QCOMPARE(scrollBarSizeChangedSpy.count(), 1);
+    QCOMPARE(scrollBarStepSizeChangedSpy.count(), 1);
+
+    editorService.setVisibleUnitCount(4); // Same count, nothing to do
+
+    QCOMPARE(horizontalScrollChangedSpy.count(), 1);
+    QCOMPARE(scrollBarSizeChangedSpy.count(), 1);
+}
+
+void EditorServiceTest::test_setVisibleUnitCount_allUnitsVisible_shouldResetScrollPosition()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorService.requestHorizontalScrollBarPositionChange(1);
+    QVERIFY(editorService.horizontalScrollPosition() > 0);
+
+    editorService.setVisibleUnitCount(editorService.totalUnitCount());
+
+    QCOMPARE(editorService.horizontalScrollPosition(), 0);
+}
+
+void EditorServiceTest::test_scrollBarStepSize_allUnitsVisible_shouldNotDivideByZero()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+
+    editorService.setVisibleUnitCount(editorService.totalUnitCount());
+
+    QCOMPARE(editorService.scrollBarStepSize(), 1.0);
+    QCOMPARE(editorService.scrollBarHandleSize(), 1.0);
 }
 
 void EditorServiceTest::test_requestNoteDeletionAtCurrentPosition_shouldDeleteNoteData()

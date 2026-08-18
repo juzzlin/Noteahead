@@ -16,6 +16,7 @@
 #ifndef EDITOR_SERVICE_HPP
 #define EDITOR_SERVICE_HPP
 
+#include "../../common/constants.hpp"
 #include "../position.hpp"
 #include "copy_manager.hpp"
 
@@ -301,6 +302,7 @@ public:
     virtual Q_INVOKABLE quint64 horizontalScrollPosition() const;
     virtual Q_INVOKABLE quint64 trackWidthInUnits(quint64 trackIndex) const;
     virtual Q_INVOKABLE quint64 visibleUnitCount() const;
+    virtual Q_INVOKABLE void setVisibleUnitCount(quint64 visibleUnitCount);
     virtual Q_INVOKABLE quint64 totalUnitCount() const;
     quint64 columnPositionInUnits(quint64 trackIndex, quint64 columnIndex) const;
     quint64 trackPositionInUnits(quint64 trackIndex) const;
@@ -513,6 +515,7 @@ private:
         QString duration;
 
         quint64 horizontalScrollPosition = 0;
+        quint64 visibleUnitCount = Constants::defaultVisibleUnitCount();
         quint64 songPosition = 0;
 
         CopyManager copyManager;

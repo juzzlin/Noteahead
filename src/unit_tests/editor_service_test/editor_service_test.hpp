@@ -83,6 +83,12 @@ private slots:
     void test_requestTrackDeletion_firstTrack_shouldDeleteTrack();
 
     void test_requestTrackDeletion_lastTrack_shouldDeleteTrack();
+    void test_requestTrackDeletion_fewVisibleUnits_shouldKeepMinimumTrackCount();
+
+    void test_setVisibleUnitCount_belowMinimum_shouldClampToMinimum();
+    void test_setVisibleUnitCount_shouldUpdateScrollBarAndLayout();
+    void test_setVisibleUnitCount_allUnitsVisible_shouldResetScrollPosition();
+    void test_scrollBarStepSize_allUnitsVisible_shouldNotDivideByZero();
 
     void test_requestNoteDeletionAtCurrentPosition_shouldDeleteNoteData();
     void test_requestNoteDeletionAtCurrentPosition_shouldDeleteNoteData_shouldShiftNotes();

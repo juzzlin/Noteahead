@@ -25,6 +25,15 @@ QtObject {
     readonly property int minWindowWidth: 1024
     readonly property int minWindowHeight: 768
 
+    // The editor fits as many note columns side by side as it can give this much width to, and
+    // never more than the six it has always shown. Below it the track headers get cramped.
+    readonly property int minUnitWidth: 280
+    readonly property int maxVisibleUnitCount: 6
+    readonly property int minVisibleUnitCount: 2
+
+    // Anything shorter and the 88 keys are not worth clicking
+    readonly property int minKeyboardHeight: 60
+
     readonly property int lineNumberColumnWidth: 50
     readonly property int mainToolBarButtonSize: 32
     readonly property int defaultButtonWidth: 100

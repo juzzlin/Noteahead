@@ -15,6 +15,7 @@
 
 #include "editor_service.hpp"
 
+#include <algorithm>
 #include <cmath>
 
 #include "../../common/constants.hpp"
@@ -1463,7 +1464,7 @@ void EditorService::requestTrackDeletion()
 
     m_selectionService->clear();
 
-    if (trackCount() > visibleUnitCount()) {
+    if (trackCount() > Constants::minTrackCount()) {
         const auto trackToDelete = position().track;
         const auto oldPosition = m_state.cursorPosition;
         if (m_song->isFirstTrack(trackToDelete)) {
@@ -1479,7 +1480,7 @@ void EditorService::requestTrackDeletion()
             setIsModified(true);
         }
     } else {
-        emit statusTextRequested(tr("Cannot have less than ") + QString::number(visibleUnitCount()) + " tracks");
+        emit statusTextRequested(tr("Cannot have less than ") + QString::number(Constants::minTrackCount()) + " tracks");
     }
 }
 
@@ -2654,7 +2655,32 @@ void EditorService::setLinesPerBeat(quint64 linesPerBeat)
 
 quint64 EditorService::visibleUnitCount() const
 {
-    return 6;
+    return m_state.visibleUnitCount;
+}
+
+void EditorService::setVisibleUnitCount(quint64 visibleUnitCount)
+{
+    const auto clamped = std::max(Constants::minVisibleUnitCount(), visibleUnitCount);
+    if (m_state.visibleUnitCount == clamped) {
+        return;
+    }
+
+    m_state.visibleUnitCount = clamped;
+
+    // Fewer units on screen can leave the view scrolled past the last one
+    const auto oldScrollPosition = m_state.horizontalScrollPosition;
+    if (clamped < totalUnitCount()) {
+        m_state.horizontalScrollPosition = std::min(m_state.horizontalScrollPosition, totalUnitCount() - clamped);
+    } else {
+        m_state.horizontalScrollPosition = 0;
+    }
+
+    updateScrollBar();
+    emit horizontalScrollChanged(); // Re-lays out the tracks on the new unit width
+
+    if (m_state.horizontalScrollPosition != oldScrollPosition) {
+        notifyPositionChange(m_state.cursorPosition);
+    }
 }
 
 quint64 EditorService::horizontalScrollPosition() const
@@ -2861,6 +2887,11 @@ void EditorService::requestHorizontalScrollBarPositionChange(double scrollBarPos
 
 double EditorService::scrollBarStepSize() const
 {
+    // Everything fits: one step covers the whole range, and nothing divides by zero
+    if (totalUnitCount() <= visibleUnitCount()) {
+        return 1.0;
+    }
+
     return 1.0 / static_cast<double>(totalUnitCount() - visibleUnitCount());
 }
 

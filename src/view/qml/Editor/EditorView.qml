@@ -113,6 +113,7 @@ FocusScope {
     function resize(width, height) {
         rootItem.width = width;
         rootItem.height = height;
+        _updateVisibleUnitCount();
         _updateCurrentTrackDimensions();
         _updateLineColumns();
         resizeTimer.restart();
@@ -129,6 +130,12 @@ FocusScope {
             _activePattern.destroy();
             _activePattern = null;
         }
+    }
+    // The track area is what the columns actually share, so a narrow window shows fewer of them
+    // instead of squeezing all six into headers too small to read.
+    function _updateVisibleUnitCount() {
+        const fitting = Math.floor(trackArea.width / Constants.minUnitWidth);
+        editorService.setVisibleUnitCount(Math.max(Constants.minVisibleUnitCount, Math.min(Constants.maxVisibleUnitCount, fitting)));
     }
     function _setTrackDimensions(track) {
         const unitWidth = trackArea.width / editorService.visibleUnitCount();

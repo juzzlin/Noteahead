@@ -101,7 +101,7 @@ Rectangle {
             font.pixelSize: settingsService.trackHeaderFontSize
             font.family: "sans"
             height: parent.height
-            width: parent.width - muteSoloButtons.width - velocityScaleWidget.width - columnSettingsButton.width
+            width: Math.max(0, parent.width - muteSoloButtons.width - velocityScaleWidget.width - columnSettingsButton.width)
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
             padding: 0  // Remove default padding

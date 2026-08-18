@@ -156,7 +156,9 @@ Rectangle {
             font.pixelSize: settingsService.trackHeaderFontSize
             font.family: "sans"
             height: parent.height
-            width: parent.width - trackSettingsButton.width - directDeviceButton.width - trackHeaderColumnButtons.width - muteSoloButtons.width - velocityScaleWidget.width
+            // The buttons keep their size, so on a narrow track the name is what gives way. Without
+            // the clamp the width goes negative and the field is laid out on top of them.
+            width: Math.max(0, parent.width - trackSettingsButton.width - directDeviceButton.width - trackHeaderColumnButtons.width - muteSoloButtons.width - velocityScaleWidget.width)
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
             padding: 0  // Remove default padding

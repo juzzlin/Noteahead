@@ -45,6 +45,14 @@ QString webSiteUrl();
 size_t defaultPatternLineCount();
 size_t defaultTrackCount();
 
+// How many note columns the editor shows side by side at most. Narrow editors show fewer,
+// down to minVisibleUnitCount(), so that the track headers stay readable.
+quint64 defaultVisibleUnitCount();
+quint64 minVisibleUnitCount();
+
+// A song always keeps at least this many tracks, regardless of how many of them fit on screen.
+quint64 minTrackCount();
+
 size_t deviceRackSize();
 size_t effectRackSize();
 

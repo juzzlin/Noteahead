@@ -87,6 +87,21 @@ size_t defaultTrackCount()
     return 8;
 }
 
+quint64 defaultVisibleUnitCount()
+{
+    return 6;
+}
+
+quint64 minVisibleUnitCount()
+{
+    return 2;
+}
+
+quint64 minTrackCount()
+{
+    return 6;
+}
+
 size_t deviceRackSize()
 {
     return 16;
