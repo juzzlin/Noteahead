@@ -156,7 +156,9 @@ Bug fixes:
   - Escape and a click outside still close the dialog keeping the edits
 
 * Fix dialog buttons being stretched across the whole footer
-  - Ok and Cancel now keep their own width and sit at the right in every dialog
+  - Ok and Cancel now keep their own width and sit at the right
+  - Device and effect dialogs keep the full-width buttons, so that Cancel and
+    its lost edits are harder to hit by accident
 
 * Fix the mouse wheel doing nothing on knobs in device and effect dialogs
   - Only dialogs opened straight from a menu, like the Mixer, worked before

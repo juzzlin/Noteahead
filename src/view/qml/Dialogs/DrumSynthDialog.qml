@@ -39,6 +39,10 @@ AnimatedDialog {
         radius: 2
     }
 
+    // Cancel here throws away every edit made in the dialog, so the buttons take the whole
+    // footer width instead of sitting side by side in the corner
+    stretchFooterButtons: true
+
     footer: DialogButtonBox {
         Button {
             text: qsTr("Ok")
