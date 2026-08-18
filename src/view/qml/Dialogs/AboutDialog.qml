@@ -22,7 +22,7 @@ import ".."
 
 AnimatedDialog {
     id: rootItem
-    title: `${qsTr("About ")} ${applicationService.applicationName()} ${qsTr("MIDI tracker v")}${applicationService.applicationVersion()}`
+    title: `${qsTr("About ")} ${applicationService.applicationName()} ${applicationService.applicationVersion()}`
     modal: true
     footer: DialogButtonBox {
         Button {
@@ -70,7 +70,7 @@ AnimatedDialog {
             }
             Label {
                 id: support_Text
-                text: `${qsTr("Support this project by listening music created with Noteahead:")} <a href="https://www.arcticmusicproject.com">https://www.arcticmusicproject.com</a>.<br/>${qsTr("Spotify playlist:")} <a href="https://open.spotify.com/playlist/5yyhZlUsetq5C9NgPhAMQK">https://open.spotify.com/playlist/5yyhZlUsetq5C9NgPhAMQK</a>`
+                text: `${qsTr("Support this project by listening music created with Noteahead:")} <a href="https://www.arcticmusicproject.com">https://www.arcticmusicproject.com</a>.`
                 onLinkActivated: link => Qt.openUrlExternally(link)
                 wrapMode: Text.WordWrap
                 Layout.preferredWidth: 350
