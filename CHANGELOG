@@ -153,6 +153,9 @@ New features:
 
 Bug fixes:
 
+* Fix the Settings dialog overflowing on small displays
+  - Every tab now scrolls when its content is taller than the dialog
+
 * Fix the Synth's Phase Sync firing only on some notes
   - It skipped any voice that was still sounding, which is every repeated
     note in Poly and every note at all in the stacked voice modes

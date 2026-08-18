@@ -23,6 +23,7 @@ import "../Components"
 
 GroupBox {
     title: qsTr("Theme")
+    width: parent.width
     label: Label {
         text: parent.title
         color: themeService.mainMenuTextColor
@@ -30,7 +31,7 @@ GroupBox {
     }
 
     ColumnLayout {
-        anchors.fill: parent
+        width: parent.width
         spacing: 10
 
         GroupBox {
@@ -154,10 +155,6 @@ GroupBox {
                     }
                 }
             }
-        }
-
-        Item {
-            Layout.fillHeight: true
         }
     }
 

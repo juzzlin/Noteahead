@@ -43,24 +43,54 @@ AnimatedDialog {
         spacing: 10
         StackLayout {
             id: mainLayout
-            height: parent.height - tabBar.height
+            height: parent.height - tabBar.height - parent.spacing
             width: parent.width
             currentIndex: tabBar.currentIndex
-            SettingsDialog_GeneralSettings {
-                height: parent.height
-                width: parent.width
+            ScrollView {
+                id: generalScrollView
+                clip: true
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                rightPadding: 10
+                // Content taller than the view scrolls; shorter content still gets the whole page,
+                // so the group frame keeps filling the dialog like it did before it could scroll.
+                SettingsDialog_GeneralSettings {
+                    width: generalScrollView.availableWidth
+                    height: Math.max(implicitHeight, generalScrollView.availableHeight)
+                }
             }
-            SettingsDialog_MidiSettings {
-                height: parent.height
-                width: parent.width
+            ScrollView {
+                id: midiScrollView
+                clip: true
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                rightPadding: 10
+                SettingsDialog_MidiSettings {
+                    width: midiScrollView.availableWidth
+                    height: Math.max(implicitHeight, midiScrollView.availableHeight)
+                }
             }
-            SettingsDialog_AudioSettings {
-                height: parent.height
-                width: parent.width
+            ScrollView {
+                id: audioScrollView
+                clip: true
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                rightPadding: 10
+                SettingsDialog_AudioSettings {
+                    width: audioScrollView.availableWidth
+                    height: Math.max(implicitHeight, audioScrollView.availableHeight)
+                }
             }
-            SettingsDialog_ThemeSettings {
-                height: parent.height
-                width: parent.width
+            ScrollView {
+                id: themeScrollView
+                clip: true
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                rightPadding: 10
+                SettingsDialog_ThemeSettings {
+                    width: themeScrollView.availableWidth
+                    height: Math.max(implicitHeight, themeScrollView.availableHeight)
+                }
             }
         }
         TabBar {

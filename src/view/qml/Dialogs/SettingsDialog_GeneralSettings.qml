@@ -21,8 +21,9 @@ import ".."
 
 GroupBox {
     title: qsTr("General")
+    width: parent.width
     ColumnLayout {
-        anchors.fill: parent
+        width: parent.width
         spacing: 10
 
         GroupBox {
@@ -220,10 +221,6 @@ GroupBox {
                     ToolTip.text: qsTr("Reduces CPU usage by disabling UI updates (except time) during playback")
                 }
             }
-        }
-
-        Item {
-            Layout.fillHeight: true
         }
     }
 }

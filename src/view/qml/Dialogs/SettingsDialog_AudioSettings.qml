@@ -22,8 +22,9 @@ import "../Components"
 
 GroupBox {
     title: qsTr("Audio")
+    width: parent.width
     ColumnLayout {
-        anchors.fill: parent
+        width: parent.width
         spacing: 10
         enabled: !UiService.isPlaying()
         opacity: enabled ? 1.0 : 0.5
@@ -32,7 +33,7 @@ GroupBox {
             title: qsTr("General")
             Layout.fillWidth: true
             ColumnLayout {
-                anchors.fill: parent
+                width: parent.width
                 spacing: 10
                 RowLayout {
                     spacing: 10
@@ -109,7 +110,7 @@ GroupBox {
             title: qsTr("Input")
             Layout.fillWidth: true
             ColumnLayout {
-                anchors.fill: parent
+                width: parent.width
                 spacing: 10
                 CheckBox {
                     id: enableAudioRecordingCheckbox
@@ -197,7 +198,7 @@ GroupBox {
             title: qsTr("Output")
             Layout.fillWidth: true
             GridLayout {
-                anchors.fill: parent
+                width: parent.width
                 columns: 3
                 Label {
                     text: qsTr("Device:")

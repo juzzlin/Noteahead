@@ -20,16 +20,14 @@ import QtQuick.Layouts
 import ".."
 
 GroupBox {
-    height: parent.height
     width: parent.width
     title: qsTr("MIDI")
     ColumnLayout {
-        anchors.fill: parent
+        width: parent.width
         spacing: 10
         GroupBox {
             title: qsTr("Controller")
             Layout.fillWidth: true
-            Layout.fillHeight: true
             GridLayout {
                 columns: 9
                 rows: 3
@@ -92,7 +90,6 @@ GroupBox {
         GroupBox {
             title: qsTr("Synchronization")
             Layout.fillWidth: true
-            Layout.fillHeight: true
             GridLayout {
                 columns: 9
                 rows: 3
@@ -153,7 +150,6 @@ GroupBox {
         GroupBox {
             title: qsTr("Miscellaneous")
             Layout.fillWidth: true
-            Layout.fillHeight: true
             GridLayout {
                 columns: 9
                 rows: 2
