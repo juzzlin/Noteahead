@@ -113,9 +113,11 @@ double KnobController::map(double value, const QString & type, double min, doubl
         return ParameterMapper::mapDecibel(value, (max - min) / 2.0);
     if (type == "fader")
         return ParameterMapper::mapFader(value);
-    // "bipolar" is linear too: it differs only in how it reads out, which format() handles. A
-    // control centred on zero cannot use the plain percentage readout, which ignores the range and
-    // shows the knob's own position: neutral would read 50 % and nothing would ever read negative.
+    // "bipolar" and "percentage" are linear too: they differ only in how they read out, which
+    // format() handles. Neither can use the plain percentage readout, which ignores the range and
+    // shows the knob's own position: a control centred on zero would read 50 % at neutral and never
+    // read negative, and one running past 100 % would report full travel as 100 % however far it
+    // actually goes.
     return min + (value * (max - min)); // linear
 }
 
@@ -167,6 +169,11 @@ QString KnobController::format(double value, const QString & type, const QString
     }
     if (type == "intensity" || type == "cubicCentered" || type == "bipolar") {
         return bipolarToString(mappedValue, suffix, min, max);
+    }
+    // A percentage that means the number rather than the position: a width control runs to 200 %,
+    // and renormalising it onto the travel would flatten it back onto 0 - 100 %.
+    if (type == "percentage") {
+        return QString { "%1%" }.arg(mappedValue, 0, 'f', 1);
     }
     if (type == "logFrequency" || type == "frequency") {
         const double linearValue = value * Constants::uiInternalScaling();
@@ -252,8 +259,8 @@ QVariant KnobController::parse(const QString & text, const QString & type, const
         return {};
     }
 
-    // The bipolar family and integers read out the mapped value directly, unit and all.
-    if (type == "integer" || type == "intensity" || type == "cubicCentered" || type == "bipolar") {
+    // The bipolar family, percentages and integers read out the mapped value directly, unit and all.
+    if (type == "integer" || type == "intensity" || type == "cubicCentered" || type == "bipolar" || type == "percentage") {
         return clampToPosition(unmap(input->number, type, min, max));
     }
 

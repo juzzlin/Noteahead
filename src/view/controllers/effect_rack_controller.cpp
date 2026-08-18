@@ -41,6 +41,7 @@
 #include "../../domain/effects/saturator.hpp"
 #include "../../domain/effects/stereo_enhancer.hpp"
 #include "../../domain/effects/stereo_exciter.hpp"
+#include "../../domain/effects/stereo_widener.hpp"
 #include "../../domain/effects/tube_stage.hpp"
 #include "../../domain/effects/wave_designer.hpp"
 #include "../../domain/utility/dbtp_meter.hpp"
@@ -325,6 +326,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Wave Designer", Constants::RackEffectType::waveDesigner().toStdString());
     addEffect("Stereo Enhancer", Constants::RackEffectType::stereoEnhancer().toStdString());
     addEffect("Stereo Exciter", Constants::RackEffectType::stereoExciter().toStdString());
+    addEffect("Stereo Widener", Constants::RackEffectType::stereoWidener().toStdString());
 
     return list;
 }
@@ -583,6 +585,26 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                       .arg(static_cast<int>(std::round(ParameterMapper::mapLogFrequency(lowerCrossover->get().value(), 20.0, 20000.0))))
                       .arg(static_cast<int>(std::round(ParameterMapper::mapLogFrequency(upperCrossover->get().value(), 20.0, 20000.0))))
                       .arg(scName);
+                }
+            } else if (type == Constants::RackEffectType::stereoWidener()) {
+                const auto lowWidth { effect->parameter(Constants::NahdXml::xmlKeyBandWidth(0).toStdString()) };
+                const auto midWidth { effect->parameter(Constants::NahdXml::xmlKeyBandWidth(1).toStdString()) };
+                const auto highWidth { effect->parameter(Constants::NahdXml::xmlKeyBandWidth(2).toStdString()) };
+                if (lowWidth && midWidth && highWidth) {
+                    QString monoName { tr("off") };
+                    if (const auto monoBass { effect->parameter(Constants::NahdXml::xmlKeyMonoBass().toStdString()) }; monoBass && monoBass->get().value() > 0.5f) {
+                        if (const auto monoFreq { effect->parameter(Constants::NahdXml::xmlKeyMonoFreq().toStdString()) }; monoFreq) {
+                            monoName = QString { "<%1Hz" }.arg(static_cast<int>(std::round(ParameterMapper::mapLogFrequency(monoFreq->get().value(), 20.0, 300.0))));
+                        }
+                    }
+                    const auto widthPercent = [](const auto & parameter) {
+                        return static_cast<int>(std::round(parameter->get().value() * 200.0f));
+                    };
+                    return QString { "(lo=%1%, mid=%2%, hi=%3%, mono=%4)" }
+                      .arg(widthPercent(lowWidth))
+                      .arg(widthPercent(midWidth))
+                      .arg(widthPercent(highWidth))
+                      .arg(monoName);
                 }
             } else if (type == Constants::RackEffectType::autoDucker()) {
                 const auto amount { effect->parameter(Constants::NahdXml::xmlKeyAmount().toStdString()) };
@@ -1365,6 +1387,36 @@ QString EffectRackController::multibandCompressorSideChainSourceDeviceKey() cons
     return Constants::NahdXml::xmlKeySideChainSourceDevice();
 }
 
+QString EffectRackController::stereoWidenerCrossoverFreqKey(quint32 crossoverIndex) const
+{
+    return Constants::NahdXml::xmlKeyCrossoverFreq(crossoverIndex);
+}
+
+QString EffectRackController::stereoWidenerWidthKey(quint32 bandIndex) const
+{
+    return Constants::NahdXml::xmlKeyBandWidth(bandIndex);
+}
+
+QString EffectRackController::stereoWidenerSoloKey(quint32 bandIndex) const
+{
+    return Constants::NahdXml::xmlKeyBandSolo(bandIndex);
+}
+
+QString EffectRackController::stereoWidenerMonoBassKey() const
+{
+    return Constants::NahdXml::xmlKeyMonoBass();
+}
+
+QString EffectRackController::stereoWidenerMonoFreqKey() const
+{
+    return Constants::NahdXml::xmlKeyMonoFreq();
+}
+
+QString EffectRackController::stereoWidenerGainKey() const
+{
+    return Constants::NahdXml::xmlKeyGain();
+}
+
 QString EffectRackController::vintagePassiveEqLowFreqKey() const
 {
     return Constants::NahdXml::xmlKeyLowFreq();
@@ -1630,6 +1682,11 @@ QString EffectRackController::multibandCompressorType() const
     return Constants::RackEffectType::multibandCompressor();
 }
 
+QString EffectRackController::stereoWidenerType() const
+{
+    return Constants::RackEffectType::stereoWidener();
+}
+
 QString EffectRackController::delayType() const
 {
     return Constants::RackEffectType::delay();
@@ -1754,6 +1811,20 @@ float EffectRackController::multibandCompressorBandReductionDb(quint32 effectInd
     }
 
     return 0.0f;
+}
+
+float EffectRackController::stereoWidenerBandCorrelation(quint32 effectIndex, quint32 bandIndex) const
+{
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(effectIndex); effect) {
+            if (const auto width = std::dynamic_pointer_cast<StereoWidener>(effect); width) {
+                return width->bandCorrelation(bandIndex);
+            }
+        }
+    }
+
+    // Nothing to read is reported as centred, which is where the meter rests.
+    return 1.0f;
 }
 
 float EffectRackController::clipperReductionDb(quint32 effectIndex) const

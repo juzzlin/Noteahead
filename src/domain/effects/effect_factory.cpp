@@ -41,6 +41,7 @@
 #include "simple_eq.hpp"
 #include "stereo_enhancer.hpp"
 #include "stereo_exciter.hpp"
+#include "stereo_widener.hpp"
 #include "tube_stage.hpp"
 #include "vintage_passive_eq.hpp"
 #include "wave_designer.hpp"
@@ -147,6 +148,8 @@ void EffectFactory::init()
     registerEffect(Constants::RackEffectType::stereoEnhancer().toStdString(), []() { return std::make_shared<StereoEnhancer>(); });
     registerEffect(StereoExciter::typeIdString(), []() { return std::make_shared<StereoExciter>(); });
     registerEffect(Constants::RackEffectType::stereoExciter().toStdString(), []() { return std::make_shared<StereoExciter>(); });
+    registerEffect(StereoWidener::typeIdString(), []() { return std::make_shared<StereoWidener>(); });
+    registerEffect(Constants::RackEffectType::stereoWidener().toStdString(), []() { return std::make_shared<StereoWidener>(); });
     registerEffect(WaveDesigner::typeIdString(), []() { return std::make_shared<WaveDesigner>(); });
     registerEffect(Constants::RackEffectType::waveDesigner().toStdString(), []() { return std::make_shared<WaveDesigner>(); });
 
@@ -154,6 +157,9 @@ void EffectFactory::init()
     registerLegacyEffect("auto_ducker", []() { return std::make_shared<AutoDucker>(); });
     registerLegacyEffect("auto_filter", []() { return std::make_shared<AutoFilter>(); });
     registerLegacyEffect("multiband_compressor", []() { return std::make_shared<MultibandCompressor>(); });
+    registerLegacyEffect("stereo_widener", []() { return std::make_shared<StereoWidener>(); });
+    registerLegacyEffect("multibandStereoWidth", []() { return std::make_shared<StereoWidener>(); });
+    registerLegacyEffect("multiband_stereo_width", []() { return std::make_shared<StereoWidener>(); });
     registerLegacyEffect("bass_grinder", []() { return std::make_shared<BassGrinder>(); });
     registerLegacyEffect("tube_stage", []() { return std::make_shared<TubeStage>(); });
     registerLegacyEffect("wave_designer", []() { return std::make_shared<WaveDesigner>(); });

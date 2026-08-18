@@ -56,6 +56,7 @@
 #include "../../domain/effects/simple_eq.hpp"
 #include "../../domain/effects/stereo_enhancer.hpp"
 #include "../../domain/effects/stereo_exciter.hpp"
+#include "../../domain/effects/stereo_widener.hpp"
 #include "../../domain/effects/tube_stage.hpp"
 #include "../../domain/effects/vintage_passive_eq.hpp"
 #include "../../domain/effects/wave_designer.hpp"
@@ -2630,6 +2631,69 @@ void XmlSerializationTest::test_toXmlFromXml_multibandCompressorEffect_shouldLoa
     compareParameter(Constants::NahdXml::xmlKeyBandSolo(0), 0.0f);
 
     QCOMPARE(restored->sidechainSourceDeviceIndex(), std::optional<size_t> { 2 });
+}
+
+void XmlSerializationTest::test_toXmlFromXml_stereoWidenerEffect_shouldLoadCorrectly()
+{
+    EffectFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto stereoWidth = std::make_shared<StereoWidener>();
+    const auto set = [&](const QString & key, float value) {
+        if (auto p = stereoWidth->parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    };
+    set(Constants::NahdXml::xmlKeyCrossoverFreq(0), 0.3f);
+    set(Constants::NahdXml::xmlKeyCrossoverFreq(1), 0.85f);
+    set(Constants::NahdXml::xmlKeyBandWidth(0), 0.0f);
+    set(Constants::NahdXml::xmlKeyBandWidth(1), 0.55f);
+    set(Constants::NahdXml::xmlKeyBandWidth(2), 0.9f);
+    set(Constants::NahdXml::xmlKeyBandSolo(1), 1.0f);
+    set(Constants::NahdXml::xmlKeyMonoBass(), 1.0f);
+    set(Constants::NahdXml::xmlKeyMonoFreq(), 0.42f);
+    set(Constants::NahdXml::xmlKeyGain(), 0.7f);
+    deviceServiceOut.sendEffectRack().setEffect(0, stereoWidth);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(effect);
+    const auto restored = std::dynamic_pointer_cast<StereoWidener>(effect);
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), StereoWidener::typeIdString());
+
+    const auto compareParameter = [&restored](const QString & key, float expected) {
+        const auto p = restored->parameter(key.toStdString());
+        QVERIFY(p.has_value());
+        QVERIFY(std::abs(p->get().value() - expected) < 0.01f);
+    };
+
+    compareParameter(Constants::NahdXml::xmlKeyCrossoverFreq(0), 0.3f);
+    compareParameter(Constants::NahdXml::xmlKeyCrossoverFreq(1), 0.85f);
+    compareParameter(Constants::NahdXml::xmlKeyBandWidth(0), 0.0f);
+    compareParameter(Constants::NahdXml::xmlKeyBandWidth(1), 0.55f);
+    compareParameter(Constants::NahdXml::xmlKeyBandWidth(2), 0.9f);
+    compareParameter(Constants::NahdXml::xmlKeyBandSolo(1), 1.0f);
+    compareParameter(Constants::NahdXml::xmlKeyMonoBass(), 1.0f);
+    compareParameter(Constants::NahdXml::xmlKeyMonoFreq(), 0.42f);
+    compareParameter(Constants::NahdXml::xmlKeyGain(), 0.7f);
+
+    // The bands that were left alone must come back at their defaults rather than at a neighbour's value.
+    compareParameter(Constants::NahdXml::xmlKeyBandSolo(0), 0.0f);
+    compareParameter(Constants::NahdXml::xmlKeyBandSolo(2), 0.0f);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_lufsMeterEffect_shouldLoadCorrectly()

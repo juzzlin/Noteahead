@@ -234,6 +234,7 @@ void KnobControllerTest::test_parse_shouldRoundTripFormattedStrings()
         { "logFrequency", "%", 20.0, 20000.0 },
         { "decibel", "", 0.0, 24.0 },
         { "bipolar", "%", -100.0, 100.0 },
+        { "percentage", "%", 0.0, 200.0 },
         { "intensity", "%", 0.0, 1000.0 },
         { "integer", "", 1.0, 16.0 },
         { "pan", "%", 0.0, 1.0 },
@@ -280,6 +281,29 @@ void KnobControllerTest::test_bipolarMapping_shouldReadZeroAtTheCentre()
     // The mapping itself stays linear, so the knob's travel is even.
     QCOMPARE(controller.map(0.5, "bipolar", -100.0, 100.0), 0.0);
     QCOMPARE(controller.map(0.25, "bipolar", -100.0, 100.0), -50.0);
+}
+
+void KnobControllerTest::test_percentageMapping_shouldReadPastFullScale()
+{
+    KnobController controller;
+
+    // The plain percentage readout reports the knob's own position and ignores the range, so a
+    // control that runs to 200 % showed full travel as 100 %. That is what the Stereo Widener's
+    // Width knobs showed.
+    QCOMPARE(controller.format(0.0, "percentage", "%", 0.0, 200.0), QString { "0.0%" });
+    QCOMPARE(controller.format(0.5, "percentage", "%", 0.0, 200.0), QString { "100.0%" });
+    QCOMPARE(controller.format(0.75, "percentage", "%", 0.0, 200.0), QString { "150.0%" });
+    QCOMPARE(controller.format(1.0, "percentage", "%", 0.0, 200.0), QString { "200.0%" });
+
+    // What it reads out is what can be typed back into it, with or without the unit.
+    QCOMPARE(controller.parse("150.0%", "percentage", "%", 0.0, 200.0).toDouble(), 0.75);
+    QCOMPARE(controller.parse("100", "percentage", "%", 0.0, 200.0).toDouble(), 0.5);
+
+    // Out-of-range input lands on the end of the travel rather than off it.
+    QCOMPARE(controller.parse("500%", "percentage", "%", 0.0, 200.0).toDouble(), 1.0);
+
+    // The mapping itself stays linear, so the knob's travel is even.
+    QCOMPARE(controller.map(0.5, "percentage", 0.0, 200.0), 100.0);
 }
 
 void KnobControllerTest::test_frequencyToString_shouldFormatFrequencyStrings()

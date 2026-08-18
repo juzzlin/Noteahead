@@ -118,6 +118,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/PianoSynthV2Dialog_String.qml
     ${QML_BASE_DIR}/Dialogs/StereoEnhancerDialog.qml
     ${QML_BASE_DIR}/Dialogs/StereoExciterDialog.qml
+    ${QML_BASE_DIR}/Dialogs/StereoWidenerDialog.qml
     ${QML_BASE_DIR}/Dialogs/StringEnsembleDialog.qml
     ${QML_BASE_DIR}/Dialogs/StringEnsembleDialog_Envelope.qml
     ${QML_BASE_DIR}/Dialogs/StringEnsembleDialog_Global.qml

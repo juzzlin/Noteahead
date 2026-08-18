@@ -58,6 +58,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString limiterType READ limiterType CONSTANT)
     Q_PROPERTY(QString compressorType READ compressorType CONSTANT)
     Q_PROPERTY(QString multibandCompressorType READ multibandCompressorType CONSTANT)
+    Q_PROPERTY(QString stereoWidenerType READ stereoWidenerType CONSTANT)
     Q_PROPERTY(QString delayType READ delayType CONSTANT)
     Q_PROPERTY(QString eq8BandParametricType READ eq8BandParametricType CONSTANT)
     Q_PROPERTY(QString vintagePassiveEqType READ vintagePassiveEqType CONSTANT)
@@ -111,6 +112,7 @@ public:
     QString limiterType() const;
     QString compressorType() const;
     QString multibandCompressorType() const;
+    QString stereoWidenerType() const;
     QString delayType() const;
     QString chorusType() const;
     QString eq8BandParametricType() const;
@@ -239,6 +241,13 @@ public:
     Q_INVOKABLE QString multibandCompressorGainKey() const;
     Q_INVOKABLE QString multibandCompressorSideChainSourceDeviceKey() const;
 
+    Q_INVOKABLE QString stereoWidenerCrossoverFreqKey(quint32 crossoverIndex) const;
+    Q_INVOKABLE QString stereoWidenerWidthKey(quint32 bandIndex) const;
+    Q_INVOKABLE QString stereoWidenerSoloKey(quint32 bandIndex) const;
+    Q_INVOKABLE QString stereoWidenerMonoBassKey() const;
+    Q_INVOKABLE QString stereoWidenerMonoFreqKey() const;
+    Q_INVOKABLE QString stereoWidenerGainKey() const;
+
     Q_INVOKABLE QString autoDuckerThresholdKey() const;
     Q_INVOKABLE QString autoDuckerAmountKey() const;
     Q_INVOKABLE QString autoDuckerKneeKey() const;
@@ -351,6 +360,7 @@ public:
 
     Q_INVOKABLE float compressorReductionDb(quint32 effectIndex) const;
     Q_INVOKABLE float multibandCompressorBandReductionDb(quint32 effectIndex, quint32 bandIndex) const;
+    Q_INVOKABLE float stereoWidenerBandCorrelation(quint32 effectIndex, quint32 bandIndex) const;
     Q_INVOKABLE float autoDuckerGainDb(quint32 effectIndex) const;
     Q_INVOKABLE float clipperReductionDb(quint32 effectIndex) const;
     Q_INVOKABLE float limiterReductionDb(quint32 effectIndex) const;

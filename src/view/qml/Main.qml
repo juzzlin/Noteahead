@@ -537,6 +537,12 @@ ApplicationWindow {
         width: parent.width * Constants.effectDialogScale
         height: parent.height * Constants.effectDialogScale
     }
+    StereoWidenerDialog {
+        id: stereoWidenerDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
+    }
     StereoExciterDialog {
         id: stereoExciterDialog
         anchors.centerIn: parent

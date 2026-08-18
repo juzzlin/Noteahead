@@ -185,6 +185,9 @@ AnimatedDialog {
                         } else if (effectType === effectRackController.waveDesignerType) {
                             waveDesignerDialog.effectIndex = index;
                             waveDesignerDialog.open();
+                        } else if (effectType === effectRackController.stereoWidenerType) {
+                            stereoWidenerDialog.effectIndex = index;
+                            stereoWidenerDialog.open();
                         } else if (effectType === effectRackController.stereoEnhancerType) {
                             stereoEnhancerDialog.effectIndex = index;
                             stereoEnhancerDialog.open();

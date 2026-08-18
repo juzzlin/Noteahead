@@ -236,6 +236,11 @@ QString stereoExciter()
     return "stereoExciter";
 }
 
+QString stereoWidener()
+{
+    return "stereoWidener";
+}
+
 QString limiter()
 {
     return "limiter";
@@ -1572,6 +1577,11 @@ QString xmlKeyBandSolo(size_t bandIndex)
     return QString { "band%1Solo" }.arg(bandIndex + 1);
 }
 
+QString xmlKeyBandWidth(size_t bandIndex)
+{
+    return QString { "band%1Width" }.arg(bandIndex + 1);
+}
+
 QString xmlKeyCrossoverFreq(size_t crossoverIndex)
 {
     return QString { "crossover%1Freq" }.arg(crossoverIndex + 1);
@@ -1645,6 +1655,16 @@ QString xmlKeySolo()
 QString xmlKeySpread()
 {
     return "spread";
+}
+
+QString xmlKeyMonoBass()
+{
+    return "monoBass";
+}
+
+QString xmlKeyMonoFreq()
+{
+    return "monoFreq";
 }
 
 QString xmlKeyLowFreq()

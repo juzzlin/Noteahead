@@ -5,6 +5,14 @@ Release date:
 
 New features:
 
+* Add the Stereo Widener rack effect
+  - Widens or narrows the low, mid and high bands on their own terms, so the
+    top can be opened up without the bottom smearing
+  - 0% is mono, 100% leaves the band alone and 200% is as wide as it goes
+  - Mono Bass centres everything below its corner, after the bands, whatever
+    their width controls did
+  - A correlation meter per band shows what the width control actually did
+
 * Add Curve to the Amp EG and Mod EG of the Synth and the Wavetable Synth
   - Bends the envelope segments from straight lines into the analog shape,
     which is what a pluck or a pizzicato needs
