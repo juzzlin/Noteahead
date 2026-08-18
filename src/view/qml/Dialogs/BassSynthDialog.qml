@@ -25,8 +25,8 @@ AnimatedDialog {
     title: applicationService.bassSynthDeviceName
     modal: true
     focus: true
-    width: 900
-    height: 700
+    width: parent ? parent.width * Constants.largeDialogScale : 900
+    height: parent ? parent.height * Constants.largeDialogScale : 700
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
@@ -76,16 +76,17 @@ AnimatedDialog {
             spacing: 20
 
             // Fixed Sidebar: Global settings
-            ColumnLayout {
+            ScrollView {
+                id: globalScrollView
                 Layout.preferredWidth: 200
                 Layout.fillHeight: true
-                Layout.alignment: Qt.AlignTop
-                
+                clip: true
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+
                 BassSynthDialog_Global {
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignTop
+                    width: globalScrollView.availableWidth
                 }
-                Item { Layout.fillHeight: true } // Spacer
             }
 
             // Vertical Separator
@@ -97,12 +98,15 @@ AnimatedDialog {
 
             // Synthesis Area
             ScrollView {
+                id: synthesisScrollView
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 clip: true
-                
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+
                 ColumnLayout {
-                    width: parent.width - 20
+                    width: synthesisScrollView.availableWidth
                     spacing: 20
 
                     BassSynthDialog_Oscillator {

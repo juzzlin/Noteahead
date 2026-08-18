@@ -25,9 +25,8 @@ AnimatedDialog {
     title: applicationService.synthDeviceName
     modal: true
     focus: true
-    width: 1000
-    height: 850
-    clip: true
+    width: parent ? parent.width * Constants.largeDialogScale : 1000
+    height: parent ? parent.height * Constants.largeDialogScale : 850
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
@@ -105,18 +104,17 @@ AnimatedDialog {
             readonly property real moduleWidth: (synthAreaWidth - (20 * 2) - 30) / 3 // 20=spacing, 30=scroll padding
 
             // Fixed Sidebar: Global settings
-            ColumnLayout {
+            ScrollView {
+                id: globalScrollView
                 Layout.preferredWidth: mainRow.sidebarWidth
                 Layout.fillHeight: true
-                Layout.alignment: Qt.AlignTop
+                clip: true
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
                 SynthDialog_Global {
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignTop
+                    width: globalScrollView.availableWidth
                 }
-                Item {
-                    Layout.fillHeight: true
-                } // Spacer
             }
 
             // Vertical Separator

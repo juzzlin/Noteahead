@@ -25,8 +25,8 @@ AnimatedDialog {
     title: applicationService.drumSynthDeviceName
     modal: true
     focus: true
-    width: 800
-    height: 700
+    width: parent ? parent.width * Constants.largeDialogScale : 800
+    height: parent ? parent.height * Constants.largeDialogScale : 700
 
     readonly property var voiceNames: ["Kick", "Snare", "CHH", "Clap", "OHH", "Lo Tom", "Mid Tom", "Hi Tom", "Crash", "Ride", "Rev Crash"]
 
@@ -63,191 +63,208 @@ AnimatedDialog {
         anchors.margins: 15
         spacing: 15
 
-        // Global Controls
-        GroupBox {
-            title: qsTr("Global")
-            Layout.fillWidth: true
-            RowLayout {
-                spacing: 20
-                Knob {
-                    label: qsTr("Gain")
-                    mapping: "decibel"
-                    mapMin: -30
-                    mapMax: 30
-                    value: drumSynthController.gain
-                    onMoved: (val) => drumSynthController.gain = val
-                }
-                Knob {
-                    label: qsTr("Fader")
-                    mapping: "fader"
-                    value: drumSynthController.volume
-                    onMoved: (val) => drumSynthController.volume = val
-                }
-                Knob {
-                    label: qsTr("Pan")
-                    mapping: "pan"
-                    value: drumSynthController.pan
-                    onMoved: (val) => drumSynthController.pan = val
-                }
-            }
-        }
-
-        // Voice Grid
-        GroupBox {
-            title: qsTr("Voices")
+        // Everything above the keyboard scrolls together, so a short dialog shortens this area
+        // instead of pushing the keyboard out of the dialog
+        ScrollView {
+            id: contentScrollView
             Layout.fillWidth: true
             Layout.fillHeight: true
-            
-            GridLayout {
-                columns: 4
-                anchors.fill: parent
-                rowSpacing: 10
-                columnSpacing: 10
+            clip: true
+            ScrollBar.vertical.policy: ScrollBar.AsNeeded
+            ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
-                Repeater {
-                    model: root.voiceNames
-                    delegate: Button {
-                        text: modelData
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 50
-                        highlighted: drumSynthController.selectedVoice === index
-                        onClicked: {
-                            drumSynthController.selectedVoice = index
-                            drumSynthController.playVoice(index)
+            ColumnLayout {
+                width: contentScrollView.availableWidth
+                spacing: 15
+
+                // Global Controls
+                GroupBox {
+                    title: qsTr("Global")
+                    Layout.fillWidth: true
+                    RowLayout {
+                        spacing: 20
+                        Knob {
+                            label: qsTr("Gain")
+                            mapping: "decibel"
+                            mapMin: -30
+                            mapMax: 30
+                            value: drumSynthController.gain
+                            onMoved: (val) => drumSynthController.gain = val
                         }
-
-                        Button {
-                            text: qsTr("FX")
-                            anchors.top: parent.top
-                            anchors.right: parent.right
-                            anchors.margins: 3
-                            implicitWidth: 30
-                            implicitHeight: 20
-                            padding: 0
-                            font.pointSize: 8
-                            z: 10
-                            onClicked: UiService.requestDeviceSubEffectsDialog(drumSynthController.deviceName(), index, root.voiceNames[index])
-                            ToolTip.delay: Constants.toolTipDelay
-                            ToolTip.visible: hovered
-                            ToolTip.text: qsTr("Insert effects for this voice")
+                        Knob {
+                            label: qsTr("Fader")
+                            mapping: "fader"
+                            value: drumSynthController.volume
+                            onMoved: (val) => drumSynthController.volume = val
+                        }
+                        Knob {
+                            label: qsTr("Pan")
+                            mapping: "pan"
+                            value: drumSynthController.pan
+                            onMoved: (val) => drumSynthController.pan = val
                         }
                     }
                 }
-            }
-        }
 
-        // Voice Settings
-        GroupBox {
-            title: qsTr("Voice Settings") + " (" + root.voiceNames[drumSynthController.selectedVoice] + ")"
-            Layout.fillWidth: true
-            Layout.preferredHeight: 150
+                // Voice Grid
+                GroupBox {
+                    title: qsTr("Voices")
+                    Layout.fillWidth: true
             
-            ScrollView {
-                anchors.fill: parent
-                contentWidth: settingsRow.implicitWidth
-                clip: true
+                    GridLayout {
+                        columns: 4
+                        width: parent.width
+                        rowSpacing: 10
+                        columnSpacing: 10
 
-                RowLayout {
-                    id: settingsRow
-                    spacing: 15
+                        Repeater {
+                            model: root.voiceNames
+                            delegate: Button {
+                                text: modelData
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 50
+                                highlighted: drumSynthController.selectedVoice === index
+                                onClicked: {
+                                    drumSynthController.selectedVoice = index
+                                    drumSynthController.playVoice(index)
+                                }
 
-                    Knob {
-                        label: qsTr("Level")
-                        mapping: "volume"
-                        value: drumSynthController.voiceLevel
-                        onMoved: (val) => drumSynthController.voiceLevel = val
+                                Button {
+                                    text: qsTr("FX")
+                                    anchors.top: parent.top
+                                    anchors.right: parent.right
+                                    anchors.margins: 3
+                                    implicitWidth: 30
+                                    implicitHeight: 20
+                                    padding: 0
+                                    font.pointSize: 8
+                                    z: 10
+                                    onClicked: UiService.requestDeviceSubEffectsDialog(drumSynthController.deviceName(), index, root.voiceNames[index])
+                                    ToolTip.delay: Constants.toolTipDelay
+                                    ToolTip.visible: hovered
+                                    ToolTip.text: qsTr("Insert effects for this voice")
+                                }
+                            }
+                        }
                     }
-                    Knob {
-                        label: qsTr("Pan")
-                        mapping: "pan"
-                        value: drumSynthController.voicePan
-                        onMoved: (val) => drumSynthController.voicePan = val
-                    }
-                    FilterKnob {
-                        label: qsTr("LPF")
-                        controller: drumSynthController
-                        value: drumSynthController.voiceLpfCutoff
-                        onMoved: (val) => drumSynthController.voiceLpfCutoff = val
-                    }
-                    FilterKnob {
-                        label: qsTr("HPF")
-                        controller: drumSynthController
-                        isHpf: true
-                        value: drumSynthController.voiceHpfCutoff
-                        onMoved: (val) => drumSynthController.voiceHpfCutoff = val
-                    }
-                    Knob {
-                        label: qsTr("Tune")
-                        value: drumSynthController.voiceTune
-                        onMoved: (val) => drumSynthController.voiceTune = val
-                    }
-                    Knob {
-                        label: qsTr("Decay")
-                        value: drumSynthController.voiceDecay
-                        onMoved: (val) => drumSynthController.voiceDecay = val
-                    }
+                }
 
-                    // Voice Specific
-                    Knob {
-                        visible: drumSynthController.isKick
-                        label: qsTr("Attack")
-                        mapping: "cubic"
-                        value: drumSynthController.kickAttack
-                        onMoved: (val) => drumSynthController.kickAttack = val
-                    }
-                    Knob {
-                        visible: drumSynthController.isKick
-                        label: qsTr("C.Tune")
-                        value: drumSynthController.kickClickTune
-                        onMoved: (val) => drumSynthController.kickClickTune = val
-                    }
-                    Knob {
-                        visible: drumSynthController.isKick
-                        label: qsTr("P.Depth")
-                        value: drumSynthController.kickPitchDepth
-                        onMoved: (val) => drumSynthController.kickPitchDepth = val
-                    }
-                    Knob {
-                        visible: drumSynthController.isKick
-                        label: qsTr("P.Decay")
-                        value: drumSynthController.kickPitchDecay
-                        onMoved: (val) => drumSynthController.kickPitchDecay = val
-                    }
-                    Knob {
-                        visible: drumSynthController.isSnare
-                        label: qsTr("Snappy")
-                        value: drumSynthController.snareSnappy
-                        onMoved: (val) => drumSynthController.snareSnappy = val
-                    }
-                    Knob {
-                        visible: drumSynthController.isSnare
-                        label: qsTr("Tone")
-                        value: drumSynthController.snareTone
-                        onMoved: (val) => drumSynthController.snareTone = val
-                    }
-                    Knob {
-                        visible: drumSynthController.isTom
-                        label: qsTr("P.Depth")
-                        value: drumSynthController.tomPitchDepth
-                        onMoved: (val) => drumSynthController.tomPitchDepth = val
-                    }
-                    Knob {
-                        visible: drumSynthController.isTom
-                        label: qsTr("P.Decay")
-                        value: drumSynthController.tomPitchDecay
-                        onMoved: (val) => drumSynthController.tomPitchDecay = val
-                    }
-                    Knob {
-                        visible: drumSynthController.hasAttack && !drumSynthController.isKick
-                        label: qsTr("Attack")
-                        value: drumSynthController.voiceAttack
-                        onMoved: (val) => drumSynthController.voiceAttack = val
-                    }
-                    Knob {
-                        visible: drumSynthController.hasResonance
-                        label: qsTr("Reso")
-                        value: drumSynthController.voiceResonance
-                        onMoved: (val) => drumSynthController.voiceResonance = val
+                // Voice Settings
+                GroupBox {
+                    title: qsTr("Voice Settings") + " (" + root.voiceNames[drumSynthController.selectedVoice] + ")"
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 150
+            
+                    ScrollView {
+                        anchors.fill: parent
+                        contentWidth: settingsRow.implicitWidth
+                        clip: true
+                        ScrollBar.horizontal.policy: ScrollBar.AsNeeded
+                        ScrollBar.vertical.policy: ScrollBar.AlwaysOff
+
+                        RowLayout {
+                            id: settingsRow
+                            spacing: 15
+
+                            Knob {
+                                label: qsTr("Level")
+                                mapping: "volume"
+                                value: drumSynthController.voiceLevel
+                                onMoved: (val) => drumSynthController.voiceLevel = val
+                            }
+                            Knob {
+                                label: qsTr("Pan")
+                                mapping: "pan"
+                                value: drumSynthController.voicePan
+                                onMoved: (val) => drumSynthController.voicePan = val
+                            }
+                            FilterKnob {
+                                label: qsTr("LPF")
+                                controller: drumSynthController
+                                value: drumSynthController.voiceLpfCutoff
+                                onMoved: (val) => drumSynthController.voiceLpfCutoff = val
+                            }
+                            FilterKnob {
+                                label: qsTr("HPF")
+                                controller: drumSynthController
+                                isHpf: true
+                                value: drumSynthController.voiceHpfCutoff
+                                onMoved: (val) => drumSynthController.voiceHpfCutoff = val
+                            }
+                            Knob {
+                                label: qsTr("Tune")
+                                value: drumSynthController.voiceTune
+                                onMoved: (val) => drumSynthController.voiceTune = val
+                            }
+                            Knob {
+                                label: qsTr("Decay")
+                                value: drumSynthController.voiceDecay
+                                onMoved: (val) => drumSynthController.voiceDecay = val
+                            }
+
+                            // Voice Specific
+                            Knob {
+                                visible: drumSynthController.isKick
+                                label: qsTr("Attack")
+                                mapping: "cubic"
+                                value: drumSynthController.kickAttack
+                                onMoved: (val) => drumSynthController.kickAttack = val
+                            }
+                            Knob {
+                                visible: drumSynthController.isKick
+                                label: qsTr("C.Tune")
+                                value: drumSynthController.kickClickTune
+                                onMoved: (val) => drumSynthController.kickClickTune = val
+                            }
+                            Knob {
+                                visible: drumSynthController.isKick
+                                label: qsTr("P.Depth")
+                                value: drumSynthController.kickPitchDepth
+                                onMoved: (val) => drumSynthController.kickPitchDepth = val
+                            }
+                            Knob {
+                                visible: drumSynthController.isKick
+                                label: qsTr("P.Decay")
+                                value: drumSynthController.kickPitchDecay
+                                onMoved: (val) => drumSynthController.kickPitchDecay = val
+                            }
+                            Knob {
+                                visible: drumSynthController.isSnare
+                                label: qsTr("Snappy")
+                                value: drumSynthController.snareSnappy
+                                onMoved: (val) => drumSynthController.snareSnappy = val
+                            }
+                            Knob {
+                                visible: drumSynthController.isSnare
+                                label: qsTr("Tone")
+                                value: drumSynthController.snareTone
+                                onMoved: (val) => drumSynthController.snareTone = val
+                            }
+                            Knob {
+                                visible: drumSynthController.isTom
+                                label: qsTr("P.Depth")
+                                value: drumSynthController.tomPitchDepth
+                                onMoved: (val) => drumSynthController.tomPitchDepth = val
+                            }
+                            Knob {
+                                visible: drumSynthController.isTom
+                                label: qsTr("P.Decay")
+                                value: drumSynthController.tomPitchDecay
+                                onMoved: (val) => drumSynthController.tomPitchDecay = val
+                            }
+                            Knob {
+                                visible: drumSynthController.hasAttack && !drumSynthController.isKick
+                                label: qsTr("Attack")
+                                value: drumSynthController.voiceAttack
+                                onMoved: (val) => drumSynthController.voiceAttack = val
+                            }
+                            Knob {
+                                visible: drumSynthController.hasResonance
+                                label: qsTr("Reso")
+                                value: drumSynthController.voiceResonance
+                                onMoved: (val) => drumSynthController.voiceResonance = val
+                            }
+                        }
                     }
                 }
             }

@@ -25,8 +25,8 @@ AnimatedDialog {
     title: applicationService.kick808DeviceName
     modal: true
     focus: true
-    width: 800
-    height: 640
+    width: parent ? parent.width * Constants.largeDialogScale : 800
+    height: parent ? parent.height * Constants.largeDialogScale : 640
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
@@ -75,16 +75,17 @@ AnimatedDialog {
             spacing: 20
 
             // Fixed sidebar: global settings
-            ColumnLayout {
+            ScrollView {
+                id: globalScrollView
                 Layout.preferredWidth: 200
                 Layout.fillHeight: true
-                Layout.alignment: Qt.AlignTop
+                clip: true
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
                 Kick808Dialog_Global {
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignTop
+                    width: globalScrollView.availableWidth
                 }
-                Item { Layout.fillHeight: true }
             }
 
             // Vertical separator
@@ -95,16 +96,17 @@ AnimatedDialog {
             }
 
             // Kick section
-            ColumnLayout {
+            ScrollView {
+                id: kickScrollView
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                Layout.alignment: Qt.AlignTop
+                clip: true
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
                 Kick808Dialog_Kick {
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignTop
+                    width: kickScrollView.availableWidth
                 }
-                Item { Layout.fillHeight: true }
             }
 
             // Vertical separator
@@ -115,16 +117,17 @@ AnimatedDialog {
             }
 
             // Pitch section
-            ColumnLayout {
+            ScrollView {
+                id: pitchScrollView
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                Layout.alignment: Qt.AlignTop
+                clip: true
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
                 Kick808Dialog_Pitch {
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignTop
+                    width: pitchScrollView.availableWidth
                 }
-                Item { Layout.fillHeight: true }
             }
         }
 

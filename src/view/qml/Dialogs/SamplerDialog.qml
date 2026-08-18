@@ -27,7 +27,8 @@ AnimatedDialog {
     title: "<strong>" + applicationService.samplerDeviceName + "</strong>"
     modal: true
     focus: true
-    clip: true
+    width: parent ? parent.width * Constants.largeDialogScale : 1000
+    height: parent ? parent.height * Constants.largeDialogScale : 700
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor

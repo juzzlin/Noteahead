@@ -25,9 +25,8 @@ AnimatedDialog {
     title: applicationService.stringVoiceDeviceName
     modal: true
     focus: true
-    width: 1400
-    height: 700
-    clip: true
+    width: parent ? parent.width * Constants.largeDialogScale : 1400
+    height: parent ? parent.height * Constants.largeDialogScale : 700
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor

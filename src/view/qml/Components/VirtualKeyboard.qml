@@ -16,11 +16,20 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
+import Noteahead 1.0
 
 Item {
     id: rootItem
-    width: 1600
-    height: width * 0.1
+
+    // The keys are drawn from the width alone, so the height is whatever keeps the 88 keys in
+    // proportion. Declaring it as an implicit size, and as a layout minimum, is what stops a
+    // ColumnLayout from taking the space a too-short dialog is missing out of the keyboard: the
+    // scrollable module areas around it give way instead.
+    implicitWidth: 1600
+    implicitHeight: Math.max(Constants.minKeyboardHeight, width * 0.1)
+    height: implicitHeight
+    Layout.minimumHeight: implicitHeight
+    Layout.preferredHeight: implicitHeight
 
     signal noteOnRequested(int note)
     signal noteOffRequested(int note)

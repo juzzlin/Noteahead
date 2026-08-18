@@ -25,9 +25,8 @@ AnimatedDialog {
     title: applicationService.wavetableSynthDeviceName
     modal: true
     focus: true
-    width: 900
-    height: 700
-    clip: true
+    width: parent ? parent.width * Constants.largeDialogScale : 900
+    height: parent ? parent.height * Constants.largeDialogScale : 700
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
 
@@ -79,17 +78,16 @@ AnimatedDialog {
             readonly property real synthAreaWidth: width - sidebarWidth - separator.width - 20
             readonly property real moduleWidth: (synthAreaWidth - (20 * 2) - 30) / 3
 
-            ColumnLayout {
+            ScrollView {
+                id: globalScrollView
                 Layout.preferredWidth: mainRow.sidebarWidth
                 Layout.fillHeight: true
-                Layout.alignment: Qt.AlignTop
+                clip: true
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
                 WavetableSynthDialog_Global {
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignTop
-                }
-                Item {
-                    Layout.fillHeight: true
+                    width: globalScrollView.availableWidth
                 }
             }
 
