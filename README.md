@@ -2,9 +2,9 @@
 
 ![Build Status](https://github.com/juzzlin/Noteahead/actions/workflows/ci.yml/badge.svg)
 
-Noteahead is a lightweight, pattern-based MIDI sequencer and "half-daw" for Linux, designed for musicians who prefer the tracker workflow but want a modern, self-contained production environment.
+Noteahead is a pattern-based MIDI sequencer and music production environment for Linux, built around the tracker workflow: fast, keyboard-driven editing with the whole song in front of you.
 
-While it excels as a dedicated MIDI "brain" for external synthesizers and drum machines, Noteahead now features a powerful suite of internal instruments, a studio-quality virtual rack for mixing, and high-precision rendering capabilities.
+It is also a complete studio. Ten internal instruments, a virtual device rack with per-device insert effects and sends, a mixer view, 28 rack effects and analyzers, and a sample-accurate offline renderer take a song from the first note to a finished master without ever leaving the application. Point it outwards instead and it drives a room full of MIDI hardware with the same precision — or does both at once, in the same song.
 
 Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It builds with CMake and uses CTest + Qt Test framework for unit tests.
 
@@ -37,15 +37,23 @@ Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It bui
 </table>
 
 ##
-## Who is it for?
+## What you can do with it
 
-While many musicians rely on complex DAWs, Noteahead is for Linux musicians who enjoy the precision and keyboard-driven workflow of trackers but want something more integrated than a simple MIDI sequencer. It is the perfect middle ground—a "half-daw" that can act as the central brain of a MIDI setup or as a standalone production tool using its built-in software synths and effects.
+**Produce entire songs in the box.** Ten internal instruments cover a lot of ground: a six-voice virtual analog Synth, an eight-voice Wavetable Synth, an acid Bass Synth, an eleven-voice Drum Synth, a 16-pad Sampler, two physically modelled pianos, a TR-808-style Kick808, and two vintage string machines after the VP-330/VC340 and the Solina. Each one sits in a slot of the Virtual Device Rack with its own insert effects, sends, fader, level meter and clip LED.
 
-Whether you are sequencing external vintage gear via USB-MIDI or building entire tracks in the box, Noteahead offers a clear interface with studio-quality features like 8-band parametric EQ, feedback delay network reverbs, and a high-precision offline renderer.
+**Mix and master without leaving the application.** All 28 rack effects and analyzers are available both on the master bus and as per-device inserts: four EQs including an 8-band parametric with Mid/Side, two reverbs, single-band and multiband compression, a lookahead limiter, transient shaping, saturation and tube stages, modulation, an auto filter and a phaser — plus LUFS, true-peak and RTA metering to tell you where you stand. The Mixer view puts every device side by side as channel strips.
 
-My own setup runs Noteahead on Ubuntu 24.04 LTS with all gear connected via USB-MIDI hubs. Synths are routed to an external digital mixer connected to the PC via USB. I record with Noteahead and master in Audacity using LSP (mostly) plugins. I have already produced several songs with it, available on SoundCloud, YouTube Music, and Spotify (see links below).
+**Sequence external gear.** Noteahead began as a MIDI brain and is still a very good one. Ports are hot-plugged, every track routes to its own port and channel, and CC and pitch bend automation, an arpeggiator, chords, step recording and MIDI side-chaining are all there. Internal and external instruments live happily in the same song.
 
-I now also write songs with the internal instruments only. It has been a huge effort to make this possible.
+**Finish and ship.** The offline renderer writes a master mix or per-track stems to WAV or FLAC with sample-accurate timing, up to 4x oversampling, optional normalization, trim, fade out and tail silence, and a LUFS/LRA/dBTP loudness report. Songs export as SMF Type 1 too, automations included.
+
+### Who it is for
+
+If you already think in patterns and rows rather than in a piano roll, you will be at home in minutes. If you own hardware synths and want a precise, reliable Linux sequencer to drive them, that is exactly where Noteahead started. And if you want neither — just to write music on Linux with open source software and a plain-text project format you can keep in Git — it does that too.
+
+My own setup runs Noteahead on Ubuntu 24.04 LTS with all gear connected via USB-MIDI hubs. Synths are routed to an external digital mixer connected to the PC via USB.
+
+However, these days I write complete songs with nothing but Noteahead's own instruments, which the demos below are there to prove.
 
 ##
 ## Example Tracks
