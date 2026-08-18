@@ -23,7 +23,6 @@ AnimatedDialog {
     id: gainConverterDialog
     title: qsTr("Gain Converter (dB => linear)")
     modal: true
-    clip: true
     footer: DialogButtonBox {
         Button {
             text: qsTr("Ok")

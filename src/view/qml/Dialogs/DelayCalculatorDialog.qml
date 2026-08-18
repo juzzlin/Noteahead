@@ -23,7 +23,6 @@ AnimatedDialog {
     id: delayCalculatorDialog
     title: qsTr("Delay Time Calculator")
     modal: true
-    clip: true
     footer: DialogButtonBox {
         Button {
             text: qsTr("Ok")

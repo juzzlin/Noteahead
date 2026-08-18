@@ -156,6 +156,20 @@ Bug fixes:
 * Fix the Settings dialog overflowing on small displays
   - Every tab now scrolls when its content is taller than the dialog
 
+* Fix the keyboard being cut off or missing in the device dialogs
+  - The keyboard now keeps its height and the module areas scroll instead
+  - Applies to the Synth, Wavetable Synth, Bass Synth, Drum Synth, both Piano
+    Synths, the Kick 808 and both string devices
+
+* Fix the number of visible tracks not following the editor width
+  - A narrow editor now shows fewer, wider columns instead of six cramped ones
+  - Six stays the maximum, so nothing changes on a wide screen
+
+* Fix the rack dialogs being smaller than the Mixer
+  - The Device Rack, Master Effects, Insert Effects, Effect Sends and Sub Mixer
+    dialogs now use the same size as the Mixer
+  - Rack rows shorten the device name instead of running over the buttons
+
 * Fix the Synth's Phase Sync firing only on some notes
   - It skipped any voice that was still sounding, which is every repeated
     note in Poly and every note at all in the stacked voice modes

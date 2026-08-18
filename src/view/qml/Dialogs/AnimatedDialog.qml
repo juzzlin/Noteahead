@@ -31,6 +31,11 @@ Dialog {
     // so that nothing looks different while the modality is off.
     dim: true
 
+    // A dialog can end up shorter than its content on a small display. Clipping keeps such a case
+    // a cut inside the dialog rather than controls painted over the window around it -- the
+    // scrollable content areas are what should give way, and this is the net under them.
+    clip: true
+
     // A plain onVisibleChanged would be replaced by any dialog that declares one of its own
     Connections {
         target: root

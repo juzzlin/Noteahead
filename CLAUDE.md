@@ -70,7 +70,7 @@ The codebase is split into five layers. Logic must never leak upward (domain kno
 3. Add `xmlKey<Name>()` constant(s) to `Constants::NahdXml` in `src/common/constants.hpp/.cpp`. Add the effect type string to `Constants::RackEffectType`. Reuse existing generic keys where they fit — e.g. `xmlKeyBandGain(i)`, `xmlKeyGain()`.
 4. Register the effect in `EffectFactory::init()` in `src/domain/effects/effect_factory.cpp`: by `typeIdString()`, by type string, and a `registerLegacyEffect()` snake_case alias.
 5. Add `Q_PROPERTY` type string, `Q_INVOKABLE` parameter-key methods, an `addEffect(...)` line in `availableEffects()`, and an `effectParametersSummary()` branch to `EffectRackController`.
-6. Add `src/view/qml/Dialogs/<Name>Dialog.qml`, register it in `QML_SOURCE_FILES` in `src/CMakeLists.txt` (alphabetical), instantiate it in `Main.qml`, and add the click handler to **both** `MasterEffectsDialog.qml` and `DeviceInsertEffectsDialog.qml`.
+6. Add `src/view/qml/Dialogs/<Name>Dialog.qml` following the *Dialog sizing* rules below, register it in `QML_SOURCE_FILES` in `src/CMakeLists.txt` (alphabetical), instantiate it in `Main.qml`, and add the click handler to **both** `MasterEffectsDialog.qml` and `DeviceInsertEffectsDialog.qml`.
 7. Add `src/unit_tests/<name>_test/` with its own `CMakeLists.txt`, plus `add_subdirectory` in `src/unit_tests/CMakeLists.txt`.
 8. Add a round-trip case to `xml_serialization_test` and a `CHANGELOG` entry under *New features*.
 
@@ -83,7 +83,7 @@ The codebase is split into five layers. Logic must never leak upward (domain kno
 5. Add `src/view/controllers/<name>_controller.hpp/.cpp` (one `Q_PROPERTY` per parameter; `int` scaled by `Constants::uiInternalScaling()` for continuous, `bool` for switches) and both files to `src/view/CMakeLists.txt`.
 6. In `DeviceRackController`: add a `<name>DialogRequested` signal, a branch in `openDevice()`, and an `addDevice(...)` line in `availableDevices()` — which feeds `DeviceGalleryDialog.qml` and is asserted by `device_rack_controller_test`.
 7. In `Application`: add the controller member, add it to the `DeviceRackController` controller vector, `qmlRegisterType` it, and expose it as a context property. Add a `<name>DeviceName` property to `ApplicationService` for the dialog title.
-8. Add `src/view/qml/Dialogs/<Name>Dialog.qml` plus its section files, register them in `QML_SOURCE_FILES` in `src/CMakeLists.txt` (alphabetical), instantiate the dialog in `Main.qml` and connect the request signal in the same `Component.onCompleted` block.
+8. Add `src/view/qml/Dialogs/<Name>Dialog.qml` plus its section files, following the *Dialog sizing* rules below, register them in `QML_SOURCE_FILES` in `src/CMakeLists.txt` (alphabetical), instantiate the dialog in `Main.qml` and connect the request signal in the same `Component.onCompleted` block.
 9. Add `src/unit_tests/<name>_test/` with its own `CMakeLists.txt`, plus `add_subdirectory` in `src/unit_tests/CMakeLists.txt`.
 10. Add a project-level round-trip case to `xml_serialization_test` (it covers the factory registration too) and a `CHANGELOG` entry under *New features*.
 
@@ -117,6 +117,15 @@ All dialogs follow the same pattern:
 4. `UiService` exposes `Q_INVOKABLE` request methods called from controllers or other QML.
 
 Never open a dialog directly from a controller — always route through `UiService`.
+
+### Dialog sizing
+
+The application runs at 1024x768 at the smallest (`Constants.minWindowWidth/minWindowHeight`), so a dialog must fit that. Rules:
+
+- Size the dialog in **its own file**, as a fraction of the window: `width: parent ? parent.width * Constants.largeDialogScale : <design width>`. Never repeat the size in `Main.qml` — the instantiation there only sets `anchors.centerIn`.
+- Put anything that can grow taller than the dialog in a `ScrollView` (`clip: true`, `ScrollBar.vertical.policy: AsNeeded`, `ScrollBar.horizontal.policy: AlwaysOff`), and size its content by `width: <view>.availableWidth`.
+- A child that must keep its size inside a layout has to say so: without `Layout.minimumHeight` the layout takes the whole deficit of a short dialog out of it. `VirtualKeyboard` declares its own.
+- `AnimatedDialog` sets `clip: true` for everyone, so anything still too big is cut inside the dialog instead of painted over the window. Don't repeat it per dialog.
 
 ## Thread Safety
 
