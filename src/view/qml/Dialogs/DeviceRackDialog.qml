@@ -168,7 +168,11 @@ AnimatedDialog {
                         color: "white"
                         font.pointSize: 13
                         font.bold: deviceListView.hoveredIndex === index && root.activeFocus
+                        // The buttons and meters on the row have fixed widths, so the name is what
+                        // gives way on a narrow rack instead of running over them
                         Layout.fillWidth: true
+                        Layout.minimumWidth: 0
+                        elide: Text.ElideRight
                         visible: deviceType !== ""
                     }
                     

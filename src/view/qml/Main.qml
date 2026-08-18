@@ -297,62 +297,42 @@ ApplicationWindow {
     SamplerDialog {
         id: samplerDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.largeDialogScale
-        height: parent.height * Constants.largeDialogScale
     }
     SynthDialog {
         id: synthDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.largeDialogScale
-        height: parent.height * Constants.largeDialogScale
     }
     WavetableSynthDialog {
         id: wavetableSynthDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.largeDialogScale
-        height: parent.height * Constants.largeDialogScale
     }
     BassSynthDialog {
         id: bassSynthDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.largeDialogScale
-        height: parent.height * Constants.largeDialogScale
     }
     DrumSynthDialog {
         id: drumSynthDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.largeDialogScale
-        height: parent.height * Constants.largeDialogScale
     }
     PianoSynthDialog {
         id: pianoSynthDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.largeDialogScale
-        height: parent.height * Constants.largeDialogScale
     }
     PianoSynthV2Dialog {
         id: pianoSynthV2Dialog
         anchors.centerIn: parent
-        width: parent.width * Constants.largeDialogScale
-        height: parent.height * Constants.largeDialogScale
     }
     Kick808Dialog {
         id: kick808Dialog
         anchors.centerIn: parent
-        width: parent.width * Constants.largeDialogScale
-        height: parent.height * Constants.largeDialogScale
     }
     StringVoiceDialog {
         id: stringVoiceDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.largeDialogScale
-        height: parent.height * Constants.largeDialogScale
     }
     StringEnsembleDialog {
         id: stringEnsembleDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.largeDialogScale
-        height: parent.height * Constants.largeDialogScale
     }
     DeviceSettingsDialog {
         id: deviceSettingsDialog
@@ -361,8 +341,6 @@ ApplicationWindow {
     DeviceRackDialog {
         id: deviceRackDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
         onClosed: {
             if (_deviceNamesBeforeRackOpen === null) {
                 return;
@@ -384,36 +362,26 @@ ApplicationWindow {
     MixerDialog {
         id: mixerDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.largeDialogScale
-        height: parent.height * Constants.largeDialogScale
     }
 
     MasterEffectsDialog {
         id: masterEffectsDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
     }
 
     DeviceInsertEffectsDialog {
         id: deviceInsertEffectsDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
     }
 
     SubMixerDialog {
         id: subMixerDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.largeDialogScale
-        height: parent.height * Constants.largeDialogScale
     }
 
     EffectSendsDialog {
         id: effectSendsDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.defaultDialogScale
-        height: parent.height * Constants.defaultDialogScale
     }
     ReverbDialog {
         id: reverbDialog

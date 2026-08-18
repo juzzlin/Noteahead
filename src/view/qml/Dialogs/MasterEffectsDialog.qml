@@ -270,7 +270,11 @@ AnimatedDialog {
                         color: "white"
                         font.pointSize: 13
                         font.bold: effectListView.hoveredIndex === index && root.activeFocus
+                        // The controls on the row have fixed widths, so the summary is what gives
+                        // way on a narrow rack instead of running over them
                         Layout.fillWidth: true
+                        Layout.minimumWidth: 0
+                        elide: Text.ElideRight
                         visible: effectType !== ""
                     }
                     Image {

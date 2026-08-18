@@ -26,8 +26,8 @@ AnimatedDialog {
     title: "<strong>" + qsTr("Effect Sends: ") + deviceName + "</strong>"
     modal: true
     focus: true
-    width: parent ? parent.width * Constants.defaultDialogScale : 600
-    height: parent ? parent.height * Constants.defaultDialogScale : 500
+    width: parent ? parent.width * Constants.largeDialogScale : 600
+    height: parent ? parent.height * Constants.largeDialogScale : 500
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor

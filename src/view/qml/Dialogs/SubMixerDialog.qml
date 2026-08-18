@@ -28,6 +28,8 @@ AnimatedDialog {
     title: "<strong>" + qsTr("Sub Mixer (Slot %1)").arg(slotIndex + 1) + "</strong>"
     modal: true
     focus: true
+    width: parent ? parent.width * Constants.largeDialogScale : 900
+    height: parent ? parent.height * Constants.largeDialogScale : 640
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
