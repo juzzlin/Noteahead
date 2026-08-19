@@ -15,6 +15,7 @@
 
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Controls.Universal 2.15
 
 // Qt's own AbstractButton press/release detection intermittently drops clicks on some Qt 6.10
 // installs while the audio engine is running; a plain MouseArea's simpler grab never does, which is
@@ -23,8 +24,30 @@ import QtQuick.Controls 2.15
 // press before Button's own handling ever sees it, so this never double-fires.
 Button {
     id: root
+    // Since the overlay eats the press before Button's own handling ever sees it, `pressed` (and so
+    // the default `down`) never goes true on its own -- rebinding `down` to the overlay's own pressed
+    // state is what gets the style's normal pressed-color feedback back. `hovered` has no equivalent
+    // override (it is read-only), so the background below reads the overlay's containsMouse directly
+    // instead of relying on the Control's own -- apparently also overlay-blocked -- hover tracking.
+    down: mouseArea.pressed
+    background: Rectangle {
+        implicitWidth: 32
+        implicitHeight: 32
+        visible: !root.flat || root.down || root.checked || root.highlighted
+        color: root.down ? root.Universal.baseMediumLowColor : root.enabled && (root.highlighted || root.checked) ? root.Universal.accent : root.Universal.baseLowColor
+        Rectangle {
+            anchors.fill: parent
+            color: "transparent"
+            visible: root.enabled && mouseArea.containsMouse
+            border.width: 2
+            border.color: root.Universal.baseMediumLowColor
+        }
+    }
     MouseArea {
+        id: mouseArea
         anchors.fill: parent
+        hoverEnabled: true
+        cursorShape: Qt.PointingHandCursor
         onClicked: root.clicked()
     }
 }
