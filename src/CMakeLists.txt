@@ -274,7 +274,7 @@ qt_add_qml_module(${BINARY_NAME}
     VERSION 1.0
     URI ${URI}
     QML_FILES ${QML_SOURCE_FILES}
-    RESOURCES ${PNG_SOURCE_FILES} ${HTML_SOURCE_FILES} ${CHANGELOG_FILE}
+    RESOURCES ${PNG_SOURCE_FILES} ${HTML_SOURCE_FILES}
 )
 
 set(ApplicationLibName "ApplicationLib")
@@ -288,6 +288,20 @@ add_subdirectory(common)
 add_subdirectory(domain)
 add_subdirectory(infra)
 add_subdirectory(view)
+
+# Not a QML module resource, deliberately. The QML module's resource prefix is Qt's to choose and it
+# has changed under us: everything in it sat at :/${URI}/... up to Qt 6.4 and at :/qt/qml/${URI}/...
+# from 6.5 on. The QML files and the graphics do not care, because QML addresses them relatively,
+# but the CHANGELOG is opened from C++ by absolute path and so broke on whichever Qt the path was
+# not written for. Giving it its own resource with a prefix we choose puts it at :/CHANGELOG on
+# every version.
+#
+# It hangs off ApplicationLib rather than the executable so that it lives with the code that reads
+# it, and so the unit tests linking that library can check it is really there.
+qt_add_resources(${ApplicationLibName} "changelog"
+    PREFIX "/"
+    FILES ${CHANGELOG_FILE}
+)
 
 target_include_directories(${BINARY_NAME} PRIVATE contrib/SimpleLogger/src)
 target_include_directories(${BINARY_NAME} PRIVATE contrib/Argengine/src)

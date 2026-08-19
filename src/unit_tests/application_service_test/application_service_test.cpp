@@ -151,6 +151,20 @@ void ApplicationServiceTest::test_applicationProperties_shouldMatchConstants()
     QCOMPARE(service.webSiteUrl(), Constants::webSiteUrl());
 }
 
+void ApplicationServiceTest::test_changeLog_shouldOpenTheBundledResource()
+{
+    // The resource path is the part that has broken twice, and the parsing tests below cannot see
+    // it because they run on string literals. The QML module's own prefix is Qt's to choose and it
+    // moved in 6.5, so the CHANGELOG carries a prefix of its own; this is what checks it is really
+    // where the code goes looking.
+    ApplicationService service;
+
+    const auto changeLog = service.changeLog();
+
+    QVERIFY2(!changeLog.isEmpty(), "The bundled CHANGELOG resource did not open");
+    QVERIFY2(changeLog.contains("====="), "The bundled CHANGELOG does not look like a CHANGELOG");
+}
+
 void ApplicationServiceTest::test_stripUnreleasedSection_shouldStartAtTheFirstRelease()
 {
     const QString changeLog {
