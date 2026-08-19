@@ -7,6 +7,8 @@ New features:
 
 Bug fixes:
 
+* Accept Enter in AudioRenderDialog's widgets
+
 Other:
 
 7.0.0

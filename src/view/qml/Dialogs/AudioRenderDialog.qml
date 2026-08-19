@@ -90,7 +90,8 @@ AnimatedDialog {
                             currentIndex: renderSettingsModel.format
                             onActivated: {
                                 renderSettingsModel.format = index;
-                                if (!rootItem.customFileName) rootItem.outputFileName = renderService.defaultRenderFileName;
+                                if (!rootItem.customFileName)
+                                    rootItem.outputFileName = renderService.defaultRenderFileName;
                             }
                         }
                     }
@@ -110,7 +111,8 @@ AnimatedDialog {
                             currentIndex: model.indexOf(renderSettingsModel.sampleRate)
                             onActivated: {
                                 renderSettingsModel.sampleRate = model[index];
-                                if (!rootItem.customFileName) rootItem.outputFileName = renderService.defaultRenderFileName;
+                                if (!rootItem.customFileName)
+                                    rootItem.outputFileName = renderService.defaultRenderFileName;
                             }
                         }
                     }
@@ -129,18 +131,37 @@ AnimatedDialog {
                             textRole: "text"
                             valueRole: "value"
                             model: renderSettingsModel.format === 1 ? [
-                                { text: qsTr("16-bit PCM"), value: 0 },
-                                { text: qsTr("24-bit PCM"), value: 1 }
+                                {
+                                    text: qsTr("16-bit PCM"),
+                                    value: 0
+                                },
+                                {
+                                    text: qsTr("24-bit PCM"),
+                                    value: 1
+                                }
                             ] : [
-                                { text: qsTr("16-bit PCM"), value: 0 },
-                                { text: qsTr("24-bit PCM"), value: 1 },
-                                { text: qsTr("32-bit PCM"), value: 2 },
-                                { text: qsTr("32-bit Float"), value: 3 }
+                                {
+                                    text: qsTr("16-bit PCM"),
+                                    value: 0
+                                },
+                                {
+                                    text: qsTr("24-bit PCM"),
+                                    value: 1
+                                },
+                                {
+                                    text: qsTr("32-bit PCM"),
+                                    value: 2
+                                },
+                                {
+                                    text: qsTr("32-bit Float"),
+                                    value: 3
+                                }
                             ]
                             currentIndex: renderSettingsModel.bitDepth
                             onActivated: {
                                 renderSettingsModel.bitDepth = valueAt(index);
-                                if (!rootItem.customFileName) rootItem.outputFileName = renderService.defaultRenderFileName;
+                                if (!rootItem.customFileName)
+                                    rootItem.outputFileName = renderService.defaultRenderFileName;
                             }
                         }
                     }
@@ -204,11 +225,12 @@ AnimatedDialog {
                                 value: renderSettingsModel.normalizeLevelTenthsDb
                                 editable: true
                                 onValueModified: renderSettingsModel.normalizeLevelTenthsDb = value
-                                textFromValue: function(value, locale) {
-                                    return Number(value / 10).toLocaleString(locale, 'f', 1)
+                                Keys.onReturnPressed: focus = false
+                                textFromValue: function (value, locale) {
+                                    return Number(value / 10).toLocaleString(locale, 'f', 1);
                                 }
-                                valueFromText: function(text, locale) {
-                                    return Number.fromLocaleString(locale, text) * 10
+                                valueFromText: function (text, locale) {
+                                    return Number.fromLocaleString(locale, text) * 10;
                                 }
                             }
 
@@ -240,6 +262,7 @@ AnimatedDialog {
                                 value: renderSettingsModel.trimMinutes
                                 editable: true
                                 onValueModified: renderSettingsModel.trimMinutes = value
+                                Keys.onReturnPressed: focus = false
                             }
 
                             Label {
@@ -256,6 +279,7 @@ AnimatedDialog {
                                 value: renderSettingsModel.trimSeconds
                                 editable: true
                                 onValueModified: renderSettingsModel.trimSeconds = value
+                                Keys.onReturnPressed: focus = false
                             }
 
                             Label {
@@ -305,6 +329,7 @@ AnimatedDialog {
                                 value: renderSettingsModel.fadeOutSeconds
                                 editable: true
                                 onValueModified: renderSettingsModel.fadeOutSeconds = value
+                                Keys.onReturnPressed: focus = false
                             }
 
                             Label {
@@ -321,6 +346,7 @@ AnimatedDialog {
                                 value: renderSettingsModel.fadeOutTenths
                                 editable: true
                                 onValueModified: renderSettingsModel.fadeOutTenths = value
+                                Keys.onReturnPressed: focus = false
                             }
 
                             Label {
@@ -351,6 +377,7 @@ AnimatedDialog {
                                 value: renderSettingsModel.silenceSeconds
                                 editable: true
                                 onValueModified: renderSettingsModel.silenceSeconds = value
+                                Keys.onReturnPressed: focus = false
                             }
 
                             Label {
@@ -367,6 +394,7 @@ AnimatedDialog {
                                 value: renderSettingsModel.silenceTenths
                                 editable: true
                                 onValueModified: renderSettingsModel.silenceTenths = value
+                                Keys.onReturnPressed: focus = false
                             }
 
                             Label {
@@ -387,54 +415,75 @@ AnimatedDialog {
                     columnSpacing: 12
                     width: parent.width
 
-                    Label { text: qsTr("Title") }
+                    Label {
+                        text: qsTr("Title")
+                    }
                     TextField {
                         Layout.fillWidth: true
                         text: editorService.songMetadataTitle
                         onTextEdited: editorService.songMetadataTitle = text
+                        Keys.onReturnPressed: focus = false
                     }
 
-                    Label { text: qsTr("Artist") }
+                    Label {
+                        text: qsTr("Artist")
+                    }
                     TextField {
                         Layout.fillWidth: true
                         text: editorService.songMetadataArtist
                         onTextEdited: editorService.songMetadataArtist = text
+                        Keys.onReturnPressed: focus = false
                     }
 
-                    Label { text: qsTr("Album") }
+                    Label {
+                        text: qsTr("Album")
+                    }
                     TextField {
                         Layout.fillWidth: true
                         text: editorService.songMetadataAlbum
                         onTextEdited: editorService.songMetadataAlbum = text
+                        Keys.onReturnPressed: focus = false
                     }
 
-                    Label { text: qsTr("Date") }
+                    Label {
+                        text: qsTr("Date")
+                    }
                     TextField {
                         Layout.fillWidth: true
                         text: editorService.songMetadataDate
                         onTextEdited: editorService.songMetadataDate = text
+                        Keys.onReturnPressed: focus = false
                     }
 
-                    Label { text: qsTr("Genre") }
+                    Label {
+                        text: qsTr("Genre")
+                    }
                     TextField {
                         Layout.fillWidth: true
                         text: editorService.songMetadataGenre
                         onTextEdited: editorService.songMetadataGenre = text
+                        Keys.onReturnPressed: focus = false
                     }
 
-                    Label { text: qsTr("Track Number") }
+                    Label {
+                        text: qsTr("Track Number")
+                    }
                     TextField {
                         Layout.fillWidth: true
                         text: editorService.songMetadataTrackNumber
                         onTextEdited: editorService.songMetadataTrackNumber = text
+                        Keys.onReturnPressed: focus = false
                     }
 
-                    Label { text: qsTr("Comment") }
+                    Label {
+                        text: qsTr("Comment")
+                    }
                     TextField {
                         Layout.fillWidth: true
                         Layout.columnSpan: 5
                         text: editorService.songMetadataComment
                         onTextEdited: editorService.songMetadataComment = text
+                        Keys.onReturnPressed: focus = false
                     }
                 }
             }
@@ -455,6 +504,7 @@ AnimatedDialog {
                             rootItem.outputFileName = text;
                             rootItem.customFileName = true;
                         }
+                        Keys.onReturnPressed: focus = false
                     }
                     AppButton {
                         text: qsTr("Browse...")
@@ -478,6 +528,7 @@ AnimatedDialog {
                         onTextEdited: {
                             rootItem.outputDirectory = text;
                         }
+                        Keys.onReturnPressed: focus = false
                     }
                     AppButton {
                         text: qsTr("Browse...")
@@ -485,7 +536,6 @@ AnimatedDialog {
                     }
                 }
             }
-
         }
     }
 
