@@ -505,6 +505,12 @@ ApplicationWindow {
         width: parent.width * Constants.effectDialogScale
         height: parent.height * Constants.effectDialogScale
     }
+    EarlyReflectionsDialog {
+        id: earlyReflectionsDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
+    }
     DimensionDialog {
         id: dimensionDialog
         anchors.centerIn: parent

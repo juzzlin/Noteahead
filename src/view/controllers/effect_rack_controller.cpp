@@ -30,8 +30,8 @@
 #include "../../domain/effects/compressor.hpp"
 #include "../../domain/effects/delay.hpp"
 #include "../../domain/effects/dimension.hpp"
-#include "../../domain/effects/early_reflections.hpp"
 #include "../../domain/effects/drive.hpp"
+#include "../../domain/effects/early_reflections.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/effect_rack.hpp"
 #include "../../domain/effects/eq_8_band_parametric.hpp"
@@ -1461,6 +1461,11 @@ QString EffectRackController::earlyReflectionsPreDelayKey() const
 QString EffectRackController::earlyReflectionsDampingKey() const
 {
     return Constants::NahdXml::xmlKeyDamping();
+}
+
+QString EffectRackController::earlyReflectionsDiffusionKey() const
+{
+    return Constants::NahdXml::xmlKeyDiffusion();
 }
 
 QString EffectRackController::earlyReflectionsWidthKey() const

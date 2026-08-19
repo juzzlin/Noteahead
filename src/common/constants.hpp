@@ -455,6 +455,7 @@ QString xmlKeySplitFreq();
 QString xmlKeyColor();
 QString xmlKeySize();
 QString xmlKeyDamping();
+QString xmlKeyDiffusion();
 QString xmlKeyPreDelay();
 QString xmlKeyVoiceDepth();
 QString xmlKeyPortamento();

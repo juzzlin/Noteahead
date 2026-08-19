@@ -1437,6 +1437,11 @@ QString xmlKeyDamping()
     return "damping";
 }
 
+QString xmlKeyDiffusion()
+{
+    return "diffusion";
+}
+
 QString xmlKeyPreDelay()
 {
     return "preDelay";

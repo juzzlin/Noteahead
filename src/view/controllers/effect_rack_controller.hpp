@@ -257,6 +257,7 @@ public:
     Q_INVOKABLE QString earlyReflectionsSizeKey() const;
     Q_INVOKABLE QString earlyReflectionsPreDelayKey() const;
     Q_INVOKABLE QString earlyReflectionsDampingKey() const;
+    Q_INVOKABLE QString earlyReflectionsDiffusionKey() const;
     Q_INVOKABLE QString earlyReflectionsWidthKey() const;
     Q_INVOKABLE QString earlyReflectionsLowCutKey() const;
     Q_INVOKABLE QString earlyReflectionsMixKey() const;

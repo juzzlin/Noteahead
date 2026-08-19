@@ -5,6 +5,21 @@ Release date:
 
 New features:
 
+* Fix the Early Reflections sounding metallic rather than spacious
+  - Its taps were near-evenly spaced, which is a comb filter: it put a
+    resonance every 180 Hz and sang on anything sustained
+  - New tap pattern with gaps varying nearly ten to one, sixteen per
+    channel instead of twelve
+  - Add Diffusion, which scatters the taps into a continuous cloud
+    instead of a handful of separate echoes
+
+* Add the Early Reflections rack effect
+  - The reflections that arrive before a reverb becomes a wash, which is
+    what places a sound at a distance rather than in a large room
+  - Twelve taps per channel at unrelated spacings, at different times on
+    the left and the right, so the pattern itself carries the image
+  - No feedback anywhere: it stops rather than tails
+
 * Add the Dimension rack effect
   - Builds width out of the centre of the mix, by detuning one copy of it
     a few cents up and another the same few cents down
