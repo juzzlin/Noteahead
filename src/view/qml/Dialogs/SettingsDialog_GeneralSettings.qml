@@ -18,6 +18,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts
 import ".."
+import "../Components"
 
 GroupBox {
     title: qsTr("General")
@@ -157,25 +158,28 @@ GroupBox {
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Width of a drawn automation curve, in pixels")
                 }
+                LayoutSeparator {
+                    Layout.row: 5
+                }
                 Label {
-                    text: qsTr("Auto Track Count:")
+                    text: qsTr("Adaptive Track Count:")
                     Layout.column: 0
                     Layout.columnSpan: 2
-                    Layout.row: 5
+                    Layout.row: 6
                     Layout.fillWidth: true
                 }
                 CheckBox {
                     id: autoTrackCountCheckBox
                     Layout.column: 4
                     Layout.columnSpan: 5
-                    Layout.row: 5
+                    Layout.row: 6
                     Layout.fillWidth: true
                     checked: settingsService.autoTrackCount
                     onCheckedChanged: settingsService.setAutoTrackCount(checked)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Automatically adjust the number of visible tracks based on window width")
+                    ToolTip.text: qsTr("Automatically adjust the number of visible tracks/units based on window width")
                 }
             }
         }
