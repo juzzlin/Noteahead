@@ -29,6 +29,7 @@
 #include "../../domain/effects/clipper.hpp"
 #include "../../domain/effects/compressor.hpp"
 #include "../../domain/effects/delay.hpp"
+#include "../../domain/effects/dimension.hpp"
 #include "../../domain/effects/drive.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/effect_rack.hpp"
@@ -310,6 +311,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Compressor", Constants::RackEffectType::compressor().toStdString());
     addEffect("dBTP Meter", DbTpMeter::typeIdString());
     addEffect("Delay", Constants::RackEffectType::delay().toStdString());
+    addEffect("Dimension", Constants::RackEffectType::dimension().toStdString());
     addEffect("Drive", Constants::RackEffectType::drive().toStdString());
     addEffect("EQ 8-Band Parametric", Constants::RackEffectType::eq8BandParametric().toStdString());
     addEffect("Vintage Passive EQ", Constants::RackEffectType::vintagePassiveEq().toStdString());
@@ -587,6 +589,14 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                       .arg(static_cast<int>(std::round(ParameterMapper::mapLogFrequency(lowerCrossover->get().value(), 20.0, 20000.0))))
                       .arg(static_cast<int>(std::round(ParameterMapper::mapLogFrequency(upperCrossover->get().value(), 20.0, 20000.0))))
                       .arg(scName);
+                }
+            } else if (type == Constants::RackEffectType::dimension()) {
+                const auto detune { effect->parameter(Constants::NahdXml::xmlKeyDetune().toStdString()) };
+                const auto amount { effect->parameter(Constants::NahdXml::xmlKeyAmount().toStdString()) };
+                if (detune && amount) {
+                    return QString { "(detune=%1c, amount=%2%)" }
+                      .arg(detune->get().value() * 25.0f, 0, 'f', 1)
+                      .arg(static_cast<int>(std::round(amount->get().value() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::stereoFieldMeter()) {
                 if (const auto meter { std::dynamic_pointer_cast<StereoFieldMeter>(effect) }; meter) {
@@ -1426,6 +1436,26 @@ QString EffectRackController::stereoWidenerGainKey() const
     return Constants::NahdXml::xmlKeyGain();
 }
 
+QString EffectRackController::dimensionDetuneKey() const
+{
+    return Constants::NahdXml::xmlKeyDetune();
+}
+
+QString EffectRackController::dimensionAmountKey() const
+{
+    return Constants::NahdXml::xmlKeyAmount();
+}
+
+QString EffectRackController::dimensionLowCutKey() const
+{
+    return Constants::NahdXml::xmlKeyHpfCutoff();
+}
+
+QString EffectRackController::dimensionSoloKey() const
+{
+    return Constants::NahdXml::xmlKeySolo();
+}
+
 QString EffectRackController::stereoFieldMeterSpeedKey() const
 {
     return Constants::NahdXml::xmlKeySpeed();
@@ -1766,6 +1796,11 @@ QString EffectRackController::stereoWidenerType() const
 QString EffectRackController::stereoFieldMeterType() const
 {
     return Constants::RackEffectType::stereoFieldMeter();
+}
+
+QString EffectRackController::dimensionType() const
+{
+    return Constants::RackEffectType::dimension();
 }
 
 QString EffectRackController::delayType() const

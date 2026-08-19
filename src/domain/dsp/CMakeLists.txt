@@ -10,6 +10,7 @@ set(DSP_SOURCES
     ensemble_chorus.cpp
     fft.cpp
     lfo.cpp
+    micro_pitch_shifter.cpp
     linkwitz_riley_crossover.cpp
     multi_engine.cpp
     one_pole_filter.cpp

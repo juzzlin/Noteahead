@@ -30,6 +30,7 @@
 #include "clipper.hpp"
 #include "compressor.hpp"
 #include "delay.hpp"
+#include "dimension.hpp"
 #include "drive.hpp"
 #include "endless_reverb.hpp"
 #include "eq_8_band_parametric.hpp"
@@ -108,6 +109,7 @@ void EffectFactory::init()
     registerEffect(Compressor::typeIdString(), []() { return std::make_shared<Compressor>(); });
     registerEffect(DbTpMeter::typeIdString(), []() { return std::make_shared<DbTpMeter>(); });
     registerEffect(Delay::typeIdString(), []() { return std::make_shared<Delay>(); });
+    registerEffect(Dimension::typeIdString(), []() { return std::make_shared<Dimension>(); });
     registerEffect(BassGrinder::typeIdString(), []() { return std::make_shared<BassGrinder>(); });
     registerEffect(Drive::typeIdString(), []() { return std::make_shared<Drive>(); });
     registerEffect(Eq8BandParametric::typeIdString(), []() { return std::make_shared<Eq8BandParametric>(); });
@@ -132,6 +134,7 @@ void EffectFactory::init()
     registerEffect(Constants::RackEffectType::clipper().toStdString(), []() { return std::make_shared<Clipper>(); });
     registerEffect(Constants::RackEffectType::compressor().toStdString(), []() { return std::make_shared<Compressor>(); });
     registerEffect(Constants::RackEffectType::delay().toStdString(), []() { return std::make_shared<Delay>(); });
+    registerEffect(Constants::RackEffectType::dimension().toStdString(), []() { return std::make_shared<Dimension>(); });
     registerEffect(Constants::RackEffectType::bassGrinder().toStdString(), []() { return std::make_shared<BassGrinder>(); });
     registerEffect(Constants::RackEffectType::drive().toStdString(), []() { return std::make_shared<Drive>(); });
     registerEffect(Constants::RackEffectType::eq8BandParametric().toStdString(), []() { return std::make_shared<Eq8BandParametric>(); });

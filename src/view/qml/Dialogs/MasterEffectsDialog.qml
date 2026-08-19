@@ -188,6 +188,9 @@ AnimatedDialog {
                         } else if (effectType === effectRackController.stereoFieldMeterType) {
                             stereoFieldMeterDialog.effectIndex = index;
                             stereoFieldMeterDialog.open();
+                        } else if (effectType === effectRackController.dimensionType) {
+                            dimensionDialog.effectIndex = index;
+                            dimensionDialog.open();
                         } else if (effectType === effectRackController.stereoWidenerType) {
                             stereoWidenerDialog.effectIndex = index;
                             stereoWidenerDialog.open();

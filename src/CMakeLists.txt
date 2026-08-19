@@ -76,6 +76,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/DeviceInsertEffectsDialog.qml
     ${QML_BASE_DIR}/Dialogs/DeviceRackDialog.qml
     ${QML_BASE_DIR}/Dialogs/DeviceSettingsDialog.qml
+    ${QML_BASE_DIR}/Dialogs/DimensionDialog.qml
     ${QML_BASE_DIR}/Dialogs/DriveDialog.qml
     ${QML_BASE_DIR}/Dialogs/DrumSynthDialog.qml
     ${QML_BASE_DIR}/Dialogs/EditMidiCcAutomationsDelegate.qml

@@ -5,6 +5,13 @@ Release date:
 
 New features:
 
+* Add the Dimension rack effect
+  - Builds width out of the centre of the mix, by detuning one copy of it
+    a few cents up and another the same few cents down
+  - What it adds appears only in the side signal, so folding the output
+    down to mono returns exactly what went in, at any setting
+  - Low Cut keeps the bottom out of the widening
+
 * Add the Stereo Field Meter rack effect
   - A goniometer drawn over marked mono, side and channel axes, with
     amplitude rings to read distance from the centre by

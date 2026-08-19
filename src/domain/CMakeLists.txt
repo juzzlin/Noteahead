@@ -35,6 +35,7 @@ set(HEADER_FILES
     dsp/fft.hpp
     dsp/high_pass_filter.hpp
     dsp/lfo.hpp
+    dsp/micro_pitch_shifter.hpp
     dsp/linkwitz_riley_crossover.hpp
     dsp/low_pass_filter.hpp
     dsp/modal_piano_string.hpp
@@ -58,6 +59,7 @@ set(HEADER_FILES
     effects/clipper.hpp
     effects/compressor.hpp
     effects/delay.hpp
+    effects/dimension.hpp
     effects/drive.hpp
     effects/effect.hpp
     effects/effect_factory.hpp
@@ -162,6 +164,7 @@ set(SOURCE_FILES
     dsp/fft.cpp
     dsp/high_pass_filter.cpp
     dsp/lfo.cpp
+    dsp/micro_pitch_shifter.cpp
     dsp/linkwitz_riley_crossover.cpp
     dsp/low_pass_filter.cpp
     dsp/modal_piano_string.cpp
@@ -187,6 +190,7 @@ set(SOURCE_FILES
     effects/clipper.cpp
     effects/compressor.cpp
     effects/delay.cpp
+    effects/dimension.cpp
     effects/drive.cpp
     effects/effect.cpp
     effects/effect_factory.cpp

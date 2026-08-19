@@ -46,6 +46,7 @@
 #include "../../domain/effects/chorus.hpp"
 #include "../../domain/effects/clipper.hpp"
 #include "../../domain/effects/delay.hpp"
+#include "../../domain/effects/dimension.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/endless_reverb.hpp"
 #include "../../domain/effects/eq_8_band_parametric.hpp"
@@ -2695,6 +2696,53 @@ void XmlSerializationTest::test_toXmlFromXml_stereoWidenerEffect_shouldLoadCorre
     // The bands that were left alone must come back at their defaults rather than at a neighbour's value.
     compareParameter(Constants::NahdXml::xmlKeyBandSolo(0), 0.0f);
     compareParameter(Constants::NahdXml::xmlKeyBandSolo(2), 0.0f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_dimensionEffect_shouldLoadCorrectly()
+{
+    EffectFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto dimension = std::make_shared<Dimension>();
+    const auto set = [&](const QString & key, float value) {
+        if (auto p = dimension->parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    };
+    set(Constants::NahdXml::xmlKeyDetune(), 0.44f);
+    set(Constants::NahdXml::xmlKeyAmount(), 0.66f);
+    set(Constants::NahdXml::xmlKeyHpfCutoff(), 0.81f);
+    set(Constants::NahdXml::xmlKeySolo(), 1.0f);
+    deviceServiceOut.sendEffectRack().setEffect(0, dimension);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(effect);
+    const auto restored = std::dynamic_pointer_cast<Dimension>(effect);
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), Dimension::typeIdString());
+
+    const auto value = [&](const QString & key) {
+        const auto p = restored->parameter(key.toStdString());
+        return p ? p->get().value() : -1.0f;
+    };
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyDetune()) - 0.44f) < 0.01f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyAmount()) - 0.66f) < 0.01f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyHpfCutoff()) - 0.81f) < 0.01f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeySolo()) - 1.0f) < 0.01f);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_stereoFieldMeterEffect_shouldLoadCorrectly()

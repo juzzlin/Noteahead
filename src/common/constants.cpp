@@ -206,6 +206,11 @@ QString delay()
     return "delay";
 }
 
+QString dimension()
+{
+    return "dimension";
+}
+
 QString chorus()
 {
     return "chorus";
@@ -1310,6 +1315,11 @@ QString xmlKeyRate()
 QString xmlKeyDepth()
 {
     return "depth";
+}
+
+QString xmlKeyDetune()
+{
+    return "detune";
 }
 
 QString xmlKeyFeedback()
