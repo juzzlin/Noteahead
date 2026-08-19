@@ -23,7 +23,8 @@ import "../Components"
 
 GroupBox {
     title: qsTr("Theme")
-    width: parent.width
+    anchors.left: parent.left
+                anchors.right: parent.right
     label: Label {
         text: parent.title
         color: themeService.mainMenuTextColor
@@ -31,7 +32,8 @@ GroupBox {
     }
 
     ColumnLayout {
-        width: parent.width
+        anchors.left: parent.left
+                anchors.right: parent.right
         spacing: 10
 
         GroupBox {
@@ -45,7 +47,8 @@ GroupBox {
 
             ColumnLayout {
                 spacing: 10
-                width: parent.width
+                anchors.left: parent.left
+                anchors.right: parent.right
 
                 // The group is already titled "Colors", so the labels only need to name the target.
                 // Equal preferred widths split the row into even cells, and centering the swatch in

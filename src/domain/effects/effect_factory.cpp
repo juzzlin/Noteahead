@@ -31,6 +31,7 @@
 #include "compressor.hpp"
 #include "delay.hpp"
 #include "dimension.hpp"
+#include "early_reflections.hpp"
 #include "drive.hpp"
 #include "endless_reverb.hpp"
 #include "eq_8_band_parametric.hpp"
@@ -112,6 +113,7 @@ void EffectFactory::init()
     registerEffect(Dimension::typeIdString(), []() { return std::make_shared<Dimension>(); });
     registerEffect(BassGrinder::typeIdString(), []() { return std::make_shared<BassGrinder>(); });
     registerEffect(Drive::typeIdString(), []() { return std::make_shared<Drive>(); });
+    registerEffect(EarlyReflections::typeIdString(), []() { return std::make_shared<EarlyReflections>(); });
     registerEffect(Eq8BandParametric::typeIdString(), []() { return std::make_shared<Eq8BandParametric>(); });
     registerEffect(Limiter::typeIdString(), []() { return std::make_shared<Limiter>(); });
     registerEffect(LufsMeter::typeIdString(), []() { return std::make_shared<LufsMeter>(); });
@@ -137,6 +139,7 @@ void EffectFactory::init()
     registerEffect(Constants::RackEffectType::dimension().toStdString(), []() { return std::make_shared<Dimension>(); });
     registerEffect(Constants::RackEffectType::bassGrinder().toStdString(), []() { return std::make_shared<BassGrinder>(); });
     registerEffect(Constants::RackEffectType::drive().toStdString(), []() { return std::make_shared<Drive>(); });
+    registerEffect(Constants::RackEffectType::earlyReflections().toStdString(), []() { return std::make_shared<EarlyReflections>(); });
     registerEffect(Constants::RackEffectType::eq8BandParametric().toStdString(), []() { return std::make_shared<Eq8BandParametric>(); });
     registerEffect(Constants::RackEffectType::limiter().toStdString(), []() { return std::make_shared<Limiter>(); });
     registerEffect(Constants::RackEffectType::multibandCompressor().toStdString(), []() { return std::make_shared<MultibandCompressor>(); });
@@ -165,6 +168,7 @@ void EffectFactory::init()
     registerLegacyEffect("multiband_compressor", []() { return std::make_shared<MultibandCompressor>(); });
     registerLegacyEffect("stereo_widener", []() { return std::make_shared<StereoWidener>(); });
     registerLegacyEffect("stereo_field_meter", []() { return std::make_shared<StereoFieldMeter>(); });
+    registerLegacyEffect("early_reflections", []() { return std::make_shared<EarlyReflections>(); });
     registerLegacyEffect("multibandStereoWidth", []() { return std::make_shared<StereoWidener>(); });
     registerLegacyEffect("multiband_stereo_width", []() { return std::make_shared<StereoWidener>(); });
     registerLegacyEffect("bass_grinder", []() { return std::make_shared<BassGrinder>(); });

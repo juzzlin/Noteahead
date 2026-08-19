@@ -23,7 +23,8 @@ GroupBox {
     title: qsTr("General")
     width: parent.width
     ColumnLayout {
-        width: parent.width
+        anchors.left: parent.left
+        anchors.right: parent.right
         spacing: 10
 
         GroupBox {
@@ -32,7 +33,8 @@ GroupBox {
             GridLayout {
                 columns: 9
                 rows: 6
-                width: parent.width
+                anchors.left: parent.left
+                anchors.right: parent.right
                 Label {
                     text: qsTr("Number of lines visible:")
                     Layout.column: 0
@@ -184,7 +186,8 @@ GroupBox {
             GridLayout {
                 columns: 9
                 rows: 1
-                width: parent.width
+                anchors.left: parent.left
+                anchors.right: parent.right
                 Label {
                     text: qsTr("Gain staging target (dBFS):")
                     Layout.column: 0
@@ -219,7 +222,8 @@ GroupBox {
             GridLayout {
                 columns: 9
                 rows: 1
-                width: parent.width
+                anchors.left: parent.left
+                anchors.right: parent.right
                 Label {
                     text: qsTr("Disable UI updates during playback:")
                     Layout.column: 0

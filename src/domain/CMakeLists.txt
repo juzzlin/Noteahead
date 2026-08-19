@@ -60,6 +60,7 @@ set(HEADER_FILES
     effects/compressor.hpp
     effects/delay.hpp
     effects/dimension.hpp
+    effects/early_reflections.hpp
     effects/drive.hpp
     effects/effect.hpp
     effects/effect_factory.hpp
@@ -191,6 +192,7 @@ set(SOURCE_FILES
     effects/compressor.cpp
     effects/delay.cpp
     effects/dimension.cpp
+    effects/early_reflections.cpp
     effects/drive.cpp
     effects/effect.cpp
     effects/effect_factory.cpp

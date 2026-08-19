@@ -62,6 +62,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString stereoFieldMeterType READ stereoFieldMeterType CONSTANT)
     Q_PROPERTY(QString delayType READ delayType CONSTANT)
     Q_PROPERTY(QString dimensionType READ dimensionType CONSTANT)
+    Q_PROPERTY(QString earlyReflectionsType READ earlyReflectionsType CONSTANT)
     Q_PROPERTY(QString eq8BandParametricType READ eq8BandParametricType CONSTANT)
     Q_PROPERTY(QString vintagePassiveEqType READ vintagePassiveEqType CONSTANT)
     Q_PROPERTY(QString airBandEqType READ airBandEqType CONSTANT)
@@ -118,6 +119,7 @@ public:
     QString stereoFieldMeterType() const;
     QString delayType() const;
     QString dimensionType() const;
+    QString earlyReflectionsType() const;
     QString chorusType() const;
     QString eq8BandParametricType() const;
     QString vintagePassiveEqType() const;
@@ -251,6 +253,14 @@ public:
     Q_INVOKABLE QString stereoWidenerMonoBassKey() const;
     Q_INVOKABLE QString stereoWidenerMonoFreqKey() const;
     Q_INVOKABLE QString stereoWidenerGainKey() const;
+
+    Q_INVOKABLE QString earlyReflectionsSizeKey() const;
+    Q_INVOKABLE QString earlyReflectionsPreDelayKey() const;
+    Q_INVOKABLE QString earlyReflectionsDampingKey() const;
+    Q_INVOKABLE QString earlyReflectionsWidthKey() const;
+    Q_INVOKABLE QString earlyReflectionsLowCutKey() const;
+    Q_INVOKABLE QString earlyReflectionsMixKey() const;
+    Q_INVOKABLE QString earlyReflectionsSoloKey() const;
 
     Q_INVOKABLE QString dimensionDetuneKey() const;
     Q_INVOKABLE QString dimensionAmountKey() const;

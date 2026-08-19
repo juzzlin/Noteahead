@@ -211,6 +211,11 @@ QString dimension()
     return "dimension";
 }
 
+QString earlyReflections()
+{
+    return "earlyReflections";
+}
+
 QString chorus()
 {
     return "chorus";

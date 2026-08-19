@@ -20,10 +20,12 @@ import QtQuick.Layouts
 import ".."
 
 GroupBox {
-    width: parent.width
+    anchors.left: parent.left
+                anchors.right: parent.right
     title: qsTr("MIDI")
     ColumnLayout {
-        width: parent.width
+        anchors.left: parent.left
+                anchors.right: parent.right
         spacing: 10
         GroupBox {
             title: qsTr("Controller")
@@ -31,7 +33,8 @@ GroupBox {
             GridLayout {
                 columns: 9
                 rows: 3
-                width: parent.width
+                anchors.left: parent.left
+                anchors.right: parent.right
                 Label {
                     text: qsTr("Port:")
                     Layout.column: 0
@@ -93,7 +96,8 @@ GroupBox {
             GridLayout {
                 columns: 9
                 rows: 3
-                width: parent.width
+                anchors.left: parent.left
+                anchors.right: parent.right
                 RowLayout {
                     Layout.column: 0
                     Layout.columnSpan: 9
@@ -153,7 +157,8 @@ GroupBox {
             GridLayout {
                 columns: 9
                 rows: 2
-                width: parent.width
+                anchors.left: parent.left
+                anchors.right: parent.right
                 Label {
                     text: qsTr("Default auto note-off offset (ms):")
                     Layout.column: 0

@@ -30,6 +30,7 @@
 #include "../../domain/effects/compressor.hpp"
 #include "../../domain/effects/delay.hpp"
 #include "../../domain/effects/dimension.hpp"
+#include "../../domain/effects/early_reflections.hpp"
 #include "../../domain/effects/drive.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/effect_rack.hpp"
@@ -312,6 +313,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("dBTP Meter", DbTpMeter::typeIdString());
     addEffect("Delay", Constants::RackEffectType::delay().toStdString());
     addEffect("Dimension", Constants::RackEffectType::dimension().toStdString());
+    addEffect("Early Reflections", Constants::RackEffectType::earlyReflections().toStdString());
     addEffect("Drive", Constants::RackEffectType::drive().toStdString());
     addEffect("EQ 8-Band Parametric", Constants::RackEffectType::eq8BandParametric().toStdString());
     addEffect("Vintage Passive EQ", Constants::RackEffectType::vintagePassiveEq().toStdString());
@@ -589,6 +591,16 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                       .arg(static_cast<int>(std::round(ParameterMapper::mapLogFrequency(lowerCrossover->get().value(), 20.0, 20000.0))))
                       .arg(static_cast<int>(std::round(ParameterMapper::mapLogFrequency(upperCrossover->get().value(), 20.0, 20000.0))))
                       .arg(scName);
+                }
+            } else if (type == Constants::RackEffectType::earlyReflections()) {
+                const auto size { effect->parameter(Constants::NahdXml::xmlKeySize().toStdString()) };
+                const auto preDelay { effect->parameter(Constants::NahdXml::xmlKeyPreDelay().toStdString()) };
+                const auto mix { effect->parameter(Constants::NahdXml::xmlKeyMix().toStdString()) };
+                if (size && preDelay && mix) {
+                    return QString { "(size=%1%, pre=%2ms, mix=%3%)" }
+                      .arg(static_cast<int>(std::round(size->get().value() * 100.0f)))
+                      .arg(static_cast<int>(std::round(preDelay->get().value() * 100.0f)))
+                      .arg(static_cast<int>(std::round(mix->get().value() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::dimension()) {
                 const auto detune { effect->parameter(Constants::NahdXml::xmlKeyDetune().toStdString()) };
@@ -1436,6 +1448,41 @@ QString EffectRackController::stereoWidenerGainKey() const
     return Constants::NahdXml::xmlKeyGain();
 }
 
+QString EffectRackController::earlyReflectionsSizeKey() const
+{
+    return Constants::NahdXml::xmlKeySize();
+}
+
+QString EffectRackController::earlyReflectionsPreDelayKey() const
+{
+    return Constants::NahdXml::xmlKeyPreDelay();
+}
+
+QString EffectRackController::earlyReflectionsDampingKey() const
+{
+    return Constants::NahdXml::xmlKeyDamping();
+}
+
+QString EffectRackController::earlyReflectionsWidthKey() const
+{
+    return Constants::NahdXml::xmlKeyWidth();
+}
+
+QString EffectRackController::earlyReflectionsLowCutKey() const
+{
+    return Constants::NahdXml::xmlKeyHpfCutoff();
+}
+
+QString EffectRackController::earlyReflectionsMixKey() const
+{
+    return Constants::NahdXml::xmlKeyMix();
+}
+
+QString EffectRackController::earlyReflectionsSoloKey() const
+{
+    return Constants::NahdXml::xmlKeySolo();
+}
+
 QString EffectRackController::dimensionDetuneKey() const
 {
     return Constants::NahdXml::xmlKeyDetune();
@@ -1801,6 +1848,11 @@ QString EffectRackController::stereoFieldMeterType() const
 QString EffectRackController::dimensionType() const
 {
     return Constants::RackEffectType::dimension();
+}
+
+QString EffectRackController::earlyReflectionsType() const
+{
+    return Constants::RackEffectType::earlyReflections();
 }
 
 QString EffectRackController::delayType() const
