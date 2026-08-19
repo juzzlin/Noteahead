@@ -71,14 +71,17 @@ AnimatedDialog {
             Layout.fillWidth: true
             spacing: 10
 
+            // Named for the rack it will actually hit. It applies to whichever tab is selected, and
+            // that selector is at the bottom of the dialog, so an unqualified "Enabled" beside a
+            // title reading "Master Effect Rack" invites bypassing the wrong one.
             Switch {
-                text: qsTr("Enabled")
+                text: tabBar.currentIndex === 0 ? qsTr("Insert Effects Enabled") : qsTr("Send Effects Enabled")
                 checked: effectRackController.rackEnabled
                 onToggled: effectRackController.rackEnabled = checked
                 ToolTip.delay: Constants.toolTipDelay
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered
-                ToolTip.text: qsTr("Enable or bypass this whole effect rack. Useful e.g. to switch off effects when rendering individual tracks.")
+                ToolTip.text: tabBar.currentIndex === 0 ? qsTr("Enable or bypass the master insert chain. The send effects have their own switch on the other tab.") : qsTr("Enable or bypass every send effect. The master insert chain has its own switch on the other tab.")
             }
 
             Label {
