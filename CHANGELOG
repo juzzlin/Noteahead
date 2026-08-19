@@ -7,24 +7,14 @@ New features:
 
 Bug fixes:
 
-* Fix the black bar between the main menu and the toolbar
-  - The toolbar was offset by the menu bar's height inside a content area
-    that already begins below the menu bar, leaving a gap of exactly that
-    height with the window's background showing through
-
 Other:
-
-* Give every dialog the same footer buttons
-  - The buttons share the footer width, but never take more than half of
-    it, so a lone Close is no longer a slab across a wide dialog
-  - Replaces the per-dialog switch that decided this one dialog at a time
 
 7.0.0
 =====
 
 Release date:
 
-Wed, 19 Aug 2026 14:36:24 +0300
+Wed, 19 Aug 2026 21:27:02 +0300
 
 New features:
 
@@ -42,7 +32,7 @@ New features:
   - Bass Grinder, Stereo Enhancer, Stereo Exciter, Tube Stage, Wave Designer
 
 * Add new devices
-  - Piano Synth V2, voiced against a Yamaha CP88 recording: a bank of
+  - Piano Synth V2, voiced against a Yamaha CP80 recording: a bank of
     resonators, one per partial
   - Kick808
 
@@ -230,6 +220,10 @@ Other:
 * Lay the StringVoice dialog out in five equal columns
 
 * Group the device actions of a track under a Device sub-menu
+
+* Document the new effects in the built-in manual
+  - Stereo Widener, Dimension, Stereo Field Meter and Early Reflections
+    were missing from the effect list and had no parameter sections
 
 6.0.0
 =====
