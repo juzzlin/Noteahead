@@ -105,12 +105,12 @@
 <h3>Available Effects</h3>
 <ul>
     <li><strong>Equalizers</strong>: <strong>EQ 8-Band Parametric</strong> (Bell, Shelf, Cut and Notch types per band, plus Mid/Side modes), <strong>Vintage Passive EQ</strong> (EQP-1A style, with interacting low Boost/Atten shelves and a high bell), <strong>Air Band EQ</strong> (fixed parallel-summed bands added back to the dry signal) and <strong>Simple EQ</strong> (a single "Sounds Good" knob sweeping a loudness-smile curve).</li>
-    <li><strong>Reverbs</strong>: <strong>Reverb</strong> (the FDN reverb described below) and <strong>Endless Reverb</strong> (a large modulated ambient reverb with a Freeze switch for an infinite tail).</li>
+    <li><strong>Reverbs</strong>: <strong>Reverb</strong> (the FDN reverb described below), <strong>Endless Reverb</strong> (a large modulated ambient reverb with a Freeze switch for an infinite tail) and <strong>Early Reflections</strong> (the room a sound is in, without a tail, described below).</li>
     <li><strong>Dynamics</strong>: <strong>Compressor</strong> (with side-chain support), <strong>Multiband Compressor</strong> (three bands split by Linkwitz-Riley crossovers, described below), <strong>Auto Ducker</strong> (side-chain driven ducking or boosting), <strong>Limiter</strong> (lookahead brickwall with gain reduction metering), <strong>Clipper</strong> and <strong>Wave Designer</strong> (transient shaper, described below).</li>
     <li><strong>Saturation</strong>: <strong>Drive</strong> (Soft, Hard, Fold and Dist algorithms), <strong>Saturator</strong>, <strong>Tube Stage</strong> (valve preamp, described below), <strong>Bass Grinder</strong> (split-band bass preamp distortion, described below) and <strong>Stereo Exciter</strong> (harmonic generator, described below).</li>
     <li><strong>Filters & Modulation</strong>: <strong>Auto Filter</strong> (swept filter with two LFOs and an envelope follower, described below), <strong>Phaser</strong> (swept all-pass cascade, described below), <strong>Chorus</strong>, <strong>Delay</strong> (Mono, Ping Pong and Tape modes, with BPM sync) and <strong>All-Pass Filter</strong>.</li>
-    <li><strong>Stereo</strong>: <strong>Panner</strong>, <strong>Auto Panner</strong> and <strong>Stereo Enhancer</strong> (psychoacoustic EQ, described below).</li>
-    <li><strong>Metering & Analysis</strong>: <strong>LUFS Meter</strong> (momentary, short-term and a gated integrated reading that runs as the song plays), <strong>dBTP Meter</strong> (true peak) and <strong>RTA</strong> (real-time analyzer). Use these as inserts to watch the signal at any point in the chain.</li>
+    <li><strong>Stereo</strong>: <strong>Panner</strong>, <strong>Auto Panner</strong>, <strong>Stereo Enhancer</strong> (psychoacoustic EQ, described below), <strong>Stereo Widener</strong> (width per band, described below) and <strong>Dimension</strong> (builds width out of a mono source, described below).</li>
+    <li><strong>Metering & Analysis</strong>: <strong>LUFS Meter</strong> (momentary, short-term and a gated integrated reading that runs as the song plays), <strong>dBTP Meter</strong> (true peak), <strong>RTA</strong> (real-time analyzer) and <strong>Stereo Field Meter</strong> (goniometer and correlation, described below). Use these as inserts to watch the signal at any point in the chain.</li>
 </ul>
 
 <h3>Auto Filter Parameters</h3>
@@ -180,6 +180,40 @@
     <li><strong>Solo Mode</strong>: passes only what the enhancer adds, so it can be heard on its own. What a psycho EQ contributes is hard to judge underneath the signal it is contributing to.</li>
 </ul>
 
+<h3>Stereo Widener Parameters</h3>
+<p>Width, but per band. A single width control has to be set for whichever part of the spectrum matters most and is wrong everywhere else: widening that helps the top usually hurts the bottom, where the energy is and the localisation is not. Splitting the signal by two Linkwitz-Riley crossovers first is what lets the top be opened up while the bottom is left alone or pulled together.</p>
+<ul>
+    <li><strong>Low/Mid</strong> and <strong>Mid/High</strong>: where the three bands are divided.</li>
+    <li><strong>Width</strong>, per band: 0% sums the band to mono, 100% leaves it alone and 200% doubles its side signal. Width works on the side signal, so a band that arrives mono stays mono however far it is turned up.</li>
+    <li><strong>Solo</strong>, per band: hear one band on its own.</li>
+    <li><strong>Mono Bass</strong> and <strong>Mono Below</strong>: centres everything below the corner. This is a separate stage after the bands rather than one of them, so it holds whatever the low band's width control did.</li>
+    <li><strong>Output</strong>: trim, since widening changes the peak level.</li>
+    <li><strong>Correlation</strong>, per band: what the width control actually did. 1 is mono, 0 is fully decorrelated, and anything sustained below 0 will cancel when the mix is summed to mono.</li>
+</ul>
+<p>There is deliberately no Mix control: the split path is phase-rotated against its own input by the crossovers, so blending it with an untouched dry signal would comb filter rather than soften the widening.</p>
+
+<h3>Dimension Parameters</h3>
+<p>Makes width where there is none. A width control can only spread what is already off-centre, so given a mono synth or a close-miked part it does nothing. This takes the centre of the mix itself, detunes one copy a few cents up and another the same few cents down, and adds the difference between them as side.</p>
+<ul>
+    <li><strong>Detune</strong>: how far apart the two copies are, in cents. A few cents reads as one source made larger; past about fifteen it starts to read as two, which is a chorus rather than a widening.</li>
+    <li><strong>Amount</strong>: how much of the generated side signal is added.</li>
+    <li><strong>Low Cut</strong>: keeps the bottom out of it. Spreading low frequencies spends headroom on something the ear cannot place anyway.</li>
+    <li><strong>Solo</strong>: passes only the side signal being built.</li>
+</ul>
+<p>Working on the <em>difference</em> between the two copies is what makes this free: they appear in the side signal with opposite signs and nowhere else, so summing the output back to mono returns exactly the centre that came in. No setting of any control here can cost a mono listener anything, which is the opposite of how width is usually bought.</p>
+
+<h3>Stereo Field Meter</h3>
+<p>A passthrough meter for everything about a mix that a level meter cannot show: how wide it is, how much of it survives a fold-down to mono, and where in the spectrum the width actually lives. Width is routinely set by ear alone, and the ear is the wrong instrument for it -- what collapses in mono is whatever is out of phase between the channels, and nothing about that is audible until it is gone.</p>
+<ul>
+    <li><strong>Goniometer</strong>: the field itself, rotated so a pair in phase runs straight up. The wedges either side of the horizontal axis are where material approaching pure side ends up, which is what cancels in mono.</li>
+    <li><strong>Correlation</strong>: 1 is mono, 0 is fully decorrelated, below 0 cancels when summed. Named in a word above the readings: Mono, Narrow, Medium, Wide, Very Wide or Phase Risk.</li>
+    <li><strong>Low</strong>, <strong>Mid</strong> and <strong>High</strong>: the same reading per band, since a mix is usually only in trouble at one end of the spectrum -- most often the bottom, where width costs the most and buys the least.</li>
+    <li><strong>Mid</strong> and <strong>Side</strong> levels: how much of the signal is actually off-centre, which is what decides whether width is worth spending headroom on at all.</li>
+    <li><strong>Speed</strong>: how long the readings average over. Fast follows a phrase, Slow follows a mix.</li>
+    <li><strong>Zoom</strong> and <strong>Guides</strong>: scale of the trace, and whether the axes, amplitude rings and scales are drawn.</li>
+</ul>
+<p>Analysis is gated on the dialog being open, so a meter left in a rack costs nothing.</p>
+
 <h3>Wave Designer Parameters</h3>
 <p>A transient shaper: <strong>Attack</strong> for the leading edge of a hit, <strong>Sustain</strong> for the tail behind it. Use it to make a snare crack, to tame an over-eager kick, or to shorten a room tail without a gate.</p>
 <p>It is not a compressor. Each control runs two envelope followers over the signal and acts on the difference between them, and that difference only departs from zero while the signal is <em>changing</em>. A hit is therefore shaped by how sharply it rises and how long it takes to fall, never by how loud it is: the same setting works at any level, and a held note comes out untouched.</p>
@@ -215,6 +249,19 @@
     <li><strong>Width</strong>: Adjusts the stereo spread of the reverb output. 100% is standard stereo, while higher values expand the side signal for an ultra-wide effect.</li>
     <li><strong>Mix</strong>: Controls the wet/dry balance of the effect within its dedicated send bus.</li>
 </ul>
+
+<h3>Early Reflections Parameters</h3>
+<p>Puts a sound in a room without putting a tail on it. Depth and width are separate axes and a reverb only really addresses one of them: what tells the ear how far away something is is not how long the tail is but what arrives in the first eighty milliseconds. A long tail turned down low is a poor substitute, because it fills the gaps between notes rather than placing the notes themselves -- which is why more reverb so often buys atmosphere without buying distance.</p>
+<ul>
+    <li><strong>Size</strong>: how far the reflection pattern is spread, from a small room to a hall.</li>
+    <li><strong>Pre-Delay</strong>: how long the first reflection is held off. This is what separates a source from the room it is in; without it the two arrive together and the source sounds glued to the wall.</li>
+    <li><strong>Damping</strong>: absorption, applied per reflection rather than to their sum. A reflection arriving late has bounced off more surfaces and pushed through more air, so it comes back darker -- losing the top with distance is one of the cues the effect exists to provide.</li>
+    <li><strong>Diffusion</strong>: scatters the reflections into a continuous cloud. Sixteen discrete arrivals is a fraction of what a room returns, and too sparse to hear as a space rather than as an effect.</li>
+    <li><strong>Width</strong>: how far the pattern is spread across the stereo field. The two channels are given different arrival times to begin with, so the pattern carries an image of its own.</li>
+    <li><strong>Low Cut</strong>: keeps the reflections out of the bottom, where they only muddy what is already there.</li>
+    <li><strong>Mix</strong> and <strong>Solo</strong>: the blend against the dry signal, and hearing the room without the source that caused it. On a send bus, set Mix to 100%: the send already returns only what the effect added, so Mix acts as the return level there.</li>
+</ul>
+<p>Use it on a send, with the send amount as the distance control: more send is further back. One instance shared by everything is what sells the illusion, since a coherent room is a single room.</p>
 
 <h3>Compressor Parameters</h3>
 <p>The Compressor is a versatile dynamic processor used to control the signal's dynamic range. It uses a high-quality feed-forward algorithm with optional lookahead.</p>
