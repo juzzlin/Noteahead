@@ -1118,6 +1118,18 @@ void EditorServiceTest::test_setVisibleUnitCount_belowMinimum_shouldClampToMinim
     QCOMPARE(editorService.visibleUnitCount(), Constants::minVisibleUnitCount());
 }
 
+void EditorServiceTest::test_setVisibleUnitCount_aboveTheDefault_shouldBeAccepted()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+
+    // A wide editor fits more columns than the six a fixed one shows, so nothing here may cap it.
+    // What the editor is willing to show is the caller's business: it stops at what the song has.
+    const auto wanted = Constants::defaultVisibleUnitCount() + 6;
+    editorService.setVisibleUnitCount(wanted);
+
+    QCOMPARE(editorService.visibleUnitCount(), wanted);
+}
+
 void EditorServiceTest::test_setVisibleUnitCount_shouldUpdateScrollBarAndLayout()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };

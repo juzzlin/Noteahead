@@ -132,13 +132,16 @@ FocusScope {
         }
     }
     // The track area is what the columns actually share, so a narrow window shows fewer of them
-    // instead of squeezing all six into headers too small to read.
+    // instead of squeezing them into headers too small to read, and a wide one shows more. What
+    // caps it is the song rather than a fixed number: columns past the last one would be empty
+    // space, and minUnitWidth already stops the ones that are shown from getting cramped.
     function _updateVisibleUnitCount() {
         if (settingsService.autoTrackCount) {
             const fitting = Math.floor(trackArea.width / Constants.minUnitWidth);
-            editorService.setVisibleUnitCount(Math.max(Constants.minVisibleUnitCount, Math.min(Constants.maxVisibleUnitCount, fitting)));
+            const available = editorService.totalUnitCount();
+            editorService.setVisibleUnitCount(Math.max(Constants.minVisibleUnitCount, Math.min(available, fitting)));
         } else {
-            editorService.setVisibleUnitCount(Constants.maxVisibleUnitCount);
+            editorService.setVisibleUnitCount(Constants.defaultVisibleUnitCount);
         }
     }
     function _setTrackDimensions(track) {
@@ -287,6 +290,9 @@ FocusScope {
     }
     function _refreshLayout() {
         uiLogger.debug(_tag, "Refreshing layout..");
+        // Adding or removing a column changes how many there are to fit, so the count is worked out
+        // again before the pattern is laid out against it.
+        _updateVisibleUnitCount();
         noteColumnModelHandler.clear();
         const pattern = _currentPattern();
         _refreshPattern(pattern);

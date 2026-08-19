@@ -5,6 +5,13 @@ Release date:
 
 New features:
 
+* Show more than six tracks side by side on a wide window
+  - The fitting editor stopped at six however much room there was; it now
+    fits as many columns as the width allows
+  - What caps it is the song's own column count, since anything past the
+    last one would only be empty space
+  - Adding or removing a column re-fits the view
+
 * Fix the top tenth of the Endless Reverb's Damping doing nothing
   - Its value was clamped at 0.9 before reaching the filter, so the last
     stretch of the knob's travel changed nothing at all

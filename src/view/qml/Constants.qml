@@ -25,10 +25,12 @@ QtObject {
     readonly property int minWindowWidth: 1024
     readonly property int minWindowHeight: 768
 
-    // The editor fits as many note columns side by side as it can give this much width to, and
-    // never more than the six it has always shown. Below it the track headers get cramped.
+    // The editor fits as many note columns side by side as it can give this much width to. Below
+    // minUnitWidth the track headers get cramped, so a narrow window shows fewer and a wide one
+    // shows more; the ceiling is whatever the song actually has. defaultVisibleUnitCount is what a
+    // fixed, non-fitting editor shows.
     readonly property int minUnitWidth: 280
-    readonly property int maxVisibleUnitCount: 6
+    readonly property int defaultVisibleUnitCount: 6
     readonly property int minVisibleUnitCount: 2
 
     // Anything shorter and the 88 keys are not worth clicking

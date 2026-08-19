@@ -86,6 +86,7 @@ private slots:
     void test_requestTrackDeletion_fewVisibleUnits_shouldKeepMinimumTrackCount();
 
     void test_setVisibleUnitCount_belowMinimum_shouldClampToMinimum();
+    void test_setVisibleUnitCount_aboveTheDefault_shouldBeAccepted();
     void test_setVisibleUnitCount_shouldUpdateScrollBarAndLayout();
     void test_setVisibleUnitCount_allUnitsVisible_shouldResetScrollPosition();
     void test_scrollBarStepSize_allUnitsVisible_shouldNotDivideByZero();
