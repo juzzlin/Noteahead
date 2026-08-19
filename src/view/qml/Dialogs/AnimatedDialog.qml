@@ -56,19 +56,21 @@ Dialog {
         restoreMode: Binding.RestoreBindingOrValue
     }
 
-    // Device and effect dialogs keep the full-width footer buttons: their Cancel puts back every
-    // setting the dialog opened with, and a button the whole dialog is wide is far harder to hit
-    // by accident than a small one next to Ok.
-    property bool stretchFooterButtons: false
-
-    // A DialogButtonBox left at the default alignment of 0 stretches its buttons across the whole
-    // footer, so the very same button reads as defaultButtonWidth in a dialog sized by its content
-    // and as a slab half the dialog wide in one with a fixed width. Pinning the alignment here
-    // gives every footer in the application the same buttons, without each dialog having to say so.
+    // Alignment 0 is what makes a DialogButtonBox share its width out among its buttons rather than
+    // leave them at their implicit size in a corner. Pinned here so every footer in the application
+    // gets the same buttons, without each dialog having to ask.
     Binding {
         target: root.footer
         property: "alignment"
-        value: root.stretchFooterButtons ? 0 : Qt.AlignRight
+        value: 0
+        when: root.footer !== null
+        restoreMode: Binding.RestoreNone
+    }
+
+    Binding {
+        target: root.footer
+        property: "leftPadding"
+        value: root.footer.count === 1 ? Math.max(root.footer.rightPadding, root.footer.width * 0.75 - root.footer.rightPadding) : root.footer.rightPadding
         when: root.footer !== null
         restoreMode: Binding.RestoreNone
     }

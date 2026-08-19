@@ -14,10 +14,10 @@ Bug fixes:
 
 Other:
 
-* Widen the dialog buttons in the track, column, rack and mixer dialogs
-  - The Track Settings, Column Settings, Device Rack, Master Effects,
-    Insert Effects, Effect Sends, Sub Mixer and Mixer footers now match
-    the device and effect dialogs
+* Give every dialog the same footer buttons
+  - The buttons share the footer width, but never take more than half of
+    it, so a lone Close is no longer a slab across a wide dialog
+  - Replaces the per-dialog switch that decided this one dialog at a time
 
 7.0.0
 =====

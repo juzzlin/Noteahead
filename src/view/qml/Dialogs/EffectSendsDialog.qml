@@ -43,9 +43,6 @@ AnimatedDialog {
         radius: 2
     }
 
-    // Wide like the device, effect and settings dialogs these open alongside
-    stretchFooterButtons: true
-
     footer: DialogButtonBox {
         AppButton {
             text: qsTr("Close")

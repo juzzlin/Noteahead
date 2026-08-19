@@ -36,10 +36,6 @@ AnimatedDialog {
         }
     }
 
-    // Cancel here throws away every edit made in the dialog, so the buttons take the whole
-    // footer width instead of sitting side by side in the corner
-    stretchFooterButtons: true
-
     // The handlers belong to the button box rather than to the dialog: only the Cancel button is
     // meant to revert, and Escape reaches Dialog.reject() without ever passing through the box.
     footer: DialogButtonBox {
