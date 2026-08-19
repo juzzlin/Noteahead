@@ -36,10 +36,9 @@ AnimatedDialog {
 
     Rectangle {
         anchors.fill: parent
-        color: "white"
-        // Light theme so the scroll bar is drawn for a light background rather than the dark one
-        // the rest of the application uses
-        Universal.theme: Universal.Light
+        color: "#2a2a2a"
+        // Dark like the rest of the application, so the scroll bar is drawn for a dark background
+        Universal.theme: Universal.Dark
 
         Flickable {
             id: scrollView
@@ -58,7 +57,7 @@ AnimatedDialog {
                 font.family: "Monospace"
                 font.pointSize: 10
                 wrapMode: Text.WordWrap
-                color: "black"
+                color: "#dcdcdc"
                 leftPadding: 20
                 rightPadding: 20
                 topPadding: 20
