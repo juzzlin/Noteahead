@@ -5,166 +5,106 @@ Release date:
 
 New features:
 
-* Show more than six tracks side by side on a wide window
-  - The fitting editor stopped at six however much room there was; it now
-    fits as many columns as the width allows
-  - What caps it is the song's own column count, since anything past the
-    last one would only be empty space
-  - Adding or removing a column re-fits the view
+Bug fixes:
 
-* Fix the top tenth of the Endless Reverb's Damping doing nothing
-  - Its value was clamped at 0.9 before reaching the filter, so the last
-    stretch of the knob's travel changed nothing at all
-  - Damping now maps to a corner frequency, as it does in the Reverb and
-    the Early Reflections, which also spaces it evenly across the travel
-  - Existing projects will sound slightly different at any non-zero
-    Damping
+Other:
 
-* Fix the Early Reflections sounding metallic rather than spacious
-  - Its taps were near-evenly spaced, which is a comb filter: it put a
-    resonance every 180 Hz and sang on anything sustained
-  - New tap pattern with gaps varying nearly ten to one, sixteen per
-    channel instead of twelve
-  - Add Diffusion, which scatters the taps into a continuous cloud
-    instead of a handful of separate echoes
+7.0.0
+=====
 
-* Add the Early Reflections rack effect
-  - The reflections that arrive before a reverb becomes a wash, which is
-    what places a sound at a distance rather than in a large room
-  - Twelve taps per channel at unrelated spacings, at different times on
-    the left and the right, so the pattern itself carries the image
-  - No feedback anywhere: it stops rather than tails
+Release date:
 
-* Add the Dimension rack effect
-  - Builds width out of the centre of the mix, by detuning one copy of it
-    a few cents up and another the same few cents down
-  - What it adds appears only in the side signal, so folding the output
-    down to mono returns exactly what went in, at any setting
-  - Low Cut keeps the bottom out of the widening
+Wed, 19 Aug 2026 14:36:24 +0300
 
-* Add the Stereo Field Meter rack effect
-  - A goniometer drawn over marked mono, side and channel axes, with
-    amplitude rings to read distance from the centre by
-  - Correlation broadband and per band, so a mix that will not survive
-    mono says where it is failing, plus mid and side levels and balance
-  - Names the field Mono, Narrow, Medium, Wide, Very Wide or Phase Risk,
-    latched so the word does not chatter on a boundary
-  - Costs nothing while its dialog is closed
+New features:
 
-* Add the Stereo Widener rack effect
-  - Widens or narrows the low, mid and high bands on their own terms, so the
-    top can be opened up without the bottom smearing
-  - 0% is mono, 100% leaves the band alone and 200% is as wide as it goes
-  - Mono Bass centres everything below its corner, after the bands, whatever
-    their width controls did
-  - A correlation meter per band shows what the width control actually did
+* Add the Mixer view
 
-* Add Curve to the Amp EG and Mod EG of the Synth and the Wavetable Synth
-  - Bends the envelope segments from straight lines into the analog shape,
-    which is what a pluck or a pizzicato needs
-  - Existing projects keep their straight lines: the knob defaults to zero
+* Add new rack effects
+  - Stereo Widener: width per band, so the top can be opened up while the
+    bottom is pulled together or centred outright
+  - Stereo Field Meter: a goniometer with correlation broadband and per
+    band, mid and side levels and balance
+  - Dimension: builds width out of the centre of the mix, and no setting
+    of it can cost a mono listener anything
+  - Early Reflections: the room a sound is in, without a tail
+  - Multiband Compressor, Phaser, Auto Filter
+  - Bass Grinder, Stereo Enhancer, Stereo Exciter, Tube Stage, Wave Designer
 
-* Add Ok and Cancel to the rack effect dialogs
-  - Cancel puts back the settings the effect had when the dialog opened
-  - Replaces the Close button, which always kept the edits
-
-* Add Pitch Bend Range to the Bass Synth
-  - Adjustable from 0 to 24 semitones, like in the Synth
-  - Existing projects keep the previous fixed range of 2 semitones
+* Add new devices
+  - Piano Synth V2, voiced against a Yamaha CP88 recording: a bank of
+    resonators, one per partial
+  - Kick808
 
 * Add Dual, Supersaw, Drift and Mono voice modes to the Wavetable Synth
-  - The same modes the Synth has, with the same detune and level curves
   - Existing projects keep their voice mode: the ordinals are unchanged
-
-* Fix arrow keys barely moving most knobs
-  - A focused knob now steps by a thousandth of its range either way
-
-* Add typing exact values to knobs
-  - Double-click the readout above a knob to type a value
-  - Units are understood: -3 dB, 250 ms, 1.5 kHz, L50, Bypass
-
-* Add fine and coarse mouse wheel steps to knobs
-  - Ctrl + wheel steps ten times finer, Shift + wheel five times coarser
-
-* Save the loudness analysis as a text file when rendering
-  - Written beside the rendered file as <rendered file>.loudness.txt
-  - One report per file when rendering individual tracks
-
-* Add curve selection to the automation add dialogs
-  - MIDI CC and pitch bend automations can now be given an
-    interpolation curve when created, not only when edited
-
-* Add pad-specific MIDI CCs to the Sampler
-  - Each of the 16 pads has its own Pan, Volume, LPF and HPF CC
-  - Works whether or not pads are mapped to MIDI channels
-  - Fixes pad CCs in channel mode overriding the device-wide pan
-    and cutoff instead of combining with them
-
-* Add column insertion to the column context menu
-  - Insert a new column to the left / right of the current one
-
-* Fix Sampler dialog cancel not undoing per-pad insert effect edits
-
-* Add a context menu to Sampler pads
-  - Right-click now offers Clear and Copy from pad instead of
-    clearing the pad outright
-  - Copying brings the sample, the pad settings and the per-pad
-    insert effects
 
 * Add new wavetables to the Wavetable Synth
   - Pulse Width, Vocal Formant, Resonant Sweep and Organ Drawbar
   - Wavetables are now built on first use instead of at startup
 
-* Add the Phaser rack effect
-  - 2 to 12 all-pass stages, one notch per pair
-  - Centre, Depth and bipolar Feedback, swept by an LFO with Synth's
-    waveform and sync options
-  - Stereo phase offset, defaulting to the classic quadrature
-  - Rate Divider dividing the Rate by 1 to 64, in both modes, for sweeps
-    that take minutes or several bars
+* Add Curve to the Amp EG and Mod EG of the Synth and the Wavetable Synth
+  - Bends the envelope segments into the analog shape a pluck needs
+  - Existing projects keep their straight lines: the knob defaults to zero
 
-* Add the Auto Filter rack effect
-  - LPF, HPF, BPF and Notch at 12 or 24 dB/oct
-  - Two LFOs with Synth's waveform and sync options: one on the cutoff, one
-    on the resonance
-  - Envelope follower on the cutoff, with attack and release
-  - Bipolar intensities, stereo phase offset, output gain and mix
+* Add the Mono voice mode, the 32' footage and the Pitch 1, Pitch 2 and
+  Pitch 3 LFO targets to the Synth
 
-* Add the Multiband Compressor rack effect
-  - Three bands split by Linkwitz-Riley crossovers that sum back flat
-  - Per-band threshold, ratio, knee, attack, release, makeup, bypass and solo
-  - Side chain source device, split by the same crossovers
-
-* Add new rack effects
-  - Bass Grinder
-  - Stereo Enhancer
-  - Stereo Exciter
-  - Tube Stage
-  - Wave Designer
-
-* Add new devices
-  - Piano Synth V2, voiced against a Yamaha CP88 recording: a bank of
-    resonators, one per partial, so that stiffness, per-partial decay, the
-    two-stage decay of a struck unison and the weakly radiated bass
-    fundamental are each modelled on their own
-  - Kick808
-
-* Add a live integrated (I) reading to the LUFS Meter
-  - Gated per ITU-R BS.1770-4, updated as the song plays
-  - Starts over automatically when playback starts, or via Reset
-
-* Add the Mixer view
-
-* Add the fade out and tail silence options to the audio export
+* Add Pitch Bend Range to the Bass Synth
+  - Existing projects keep the previous fixed range of 2 semitones
 
 * Add the RMS detector mode to the Compressor
 
-* Add the 32' footage to the Synth's oscillators
+* Add a live integrated (I) reading to the LUFS Meter
+  - Gated per ITU-R BS.1770-4, updated as the song plays
 
-* Add the Mono voice mode to the Synth
+* Add typing exact values and finer wheel steps to knobs
+  - Double-click the readout to type a value; units are understood, as in
+    -3 dB, 250 ms, 1.5 kHz, L50 or Bypass
+  - Ctrl + wheel steps ten times finer, Shift + wheel five times coarser
 
-* Add the Pitch 1, Pitch 2 and Pitch 3 LFO targets to the Synth
-  - Both LFOs can now modulate the pitch of a single oscillator
+* Add Ok and Cancel to the rack effect dialogs
+  - Cancel puts back the settings the effect had when the dialog opened
+
+* Fit the visible track count to the editor width
+  - A narrow editor shows fewer, wider columns instead of six cramped ones,
+    and a wide one shows more than six
+
+* Add Delete current column, Move column to the left and Move column to
+  the right to the Column context menu
+  - A deleted column is only hidden: adding a column back restores it with
+    its notes, automations and mixer settings
+  - Moving past either end wraps around
+
+* Add column insertion to the column context menu
+
+* Add Move track to the left and Move track to the right to the Track
+  context menu
+  - A new pattern now copies the track order instead of laying the tracks
+    out by index
+
+* Add Play, Stop and Rewind to the Song menu
+  - F5, F6 and F8 also work while a dialog is open, unlike the toolbar
+
+* Add pad-specific MIDI CCs to the Sampler
+  - Each of the 16 pads has its own Pan, Volume, LPF and HPF CC
+  - Fixes pad CCs in channel mode overriding the device-wide pan and
+    cutoff instead of combining with them
+
+* Add a context menu to Sampler pads
+  - Right-click offers Clear and Copy from pad, which brings the sample,
+    the pad settings and the per-pad insert effects
+
+* Add curve selection to the automation add dialogs
+
+* Accept pan on every note column instead of only the first one
+  - MIDI CC 10 is channel-wide, so values on the same line are averaged
+  - Pan is sent on the line's own tick, so a delayed note starts panned
+
+* Save the loudness analysis as a text file when rendering
+  - Written beside the rendered file as <rendered file>.loudness.txt
+
+* Add the fade out and tail silence options to the audio export
 
 * Follow the VC340's register structure in the StringVoice
   - There is no Female 8' on a VC340, so that register became the upper
@@ -172,93 +112,19 @@ New features:
 
 * Add a Balance section to the StringVoice, below the Strings section
 
-* Add Play, Stop and Rewind to the Song menu
-  - F5, F6 and F8 also work while a dialog is open, unlike the toolbar
-
-* Add Delete current column, Move column to the left and Move column to
-  the right to the Column context menu
-  - A deleted column is only hidden: adding a column back restores it
-    with its notes, automations and mixer settings
-  - The remaining columns keep their automations and mixer settings
-  - Moving past either end wraps around
-
 * Open the Manage menu by right-clicking a row on the device rack, the
   master effects and the device insert effects
-  - The menu opens at the cursor, anywhere on the row
 
-* Add Move track to the left and Move track to the right to the Track
-  context menu
-  - Moving past either end wraps around
-  - A new pattern now copies the track order instead of laying the
-    tracks out by index
-
-* Accept pan on every note column instead of only the first one
-  - MIDI CC 10 is channel-wide, so values on the same line are averaged
-  - Pan interpolation now targets the current column, or all columns on a track
-  - Pan is sent on the line's own tick, so a delayed note starts already panned
+* Open the Limiter and RTA editors from a device insert slot
 
 Bug fixes:
 
-* Fix the Settings dialog overflowing on small displays
-  - Every tab now scrolls when its content is taller than the dialog
-
-* Fix the keyboard being cut off or missing in the device dialogs
-  - The keyboard now keeps its height and the module areas scroll instead
-  - Applies to the Synth, Wavetable Synth, Bass Synth, Drum Synth, both Piano
-    Synths, the Kick 808 and both string devices
-
-* Fix the number of visible tracks not following the editor width
-  - A narrow editor now shows fewer, wider columns instead of six cramped ones
-  - Six stays the maximum, so nothing changes on a wide screen
-
-* Fix the rack dialogs being smaller than the Mixer
-  - The Device Rack, Master Effects, Insert Effects, Effect Sends and Sub Mixer
-    dialogs now use the same size as the Mixer
-  - Rack rows shorten the device name instead of running over the buttons
-
-* Fix the Synth's Phase Sync firing only on some notes
-  - It skipped any voice that was still sounding, which is every repeated
-    note in Poly and every note at all in the stacked voice modes
-  - A synced note now also restarts its own attack, after a millisecond
-    fade that keeps the interrupted note from clicking
-
-* Fix Cancel not cancelling anything in the device dialogs
-  - Cancel now puts back the settings the device had when the dialog opened
-  - Escape and a click outside still close the dialog keeping the edits
-
-* Fix dialog buttons being stretched across the whole footer
-  - Ok and Cancel now keep their own width and sit at the right
-  - Device and effect dialogs keep the full-width buttons, so that Cancel and
-    its lost edits are harder to hit by accident
-
-* Fix the mouse wheel doing nothing on knobs in device and effect dialogs
-  - Only dialogs opened straight from a menu, like the Mixer, worked before
-  - A dialog now drops its modality while another dialog covers it
-
-* Fix the Wavetable Synth's Pitch Bend Range not being saved
-  - The setting was lost on reload and always came back as 2 semitones
-
-* Fix the Wavetable Synth's last three LFO targets doing nothing
-  - Volume, Resonance and Pan can now be selected for both LFOs
-
-* Fix automations spanning a single line not being drawn at all
-  - Also fixes a longer automation vanishing when scrolled so that
-    only its first or last line is visible
-
-* Fix the Wavetable Synth modulating far deeper than its Intensity knobs read
-  out, which made subtle LFO and Mod Envelope settings impossible
-
-* Fix the clicks from modulating the Wavetable Synth's Pos, most audible with
-  a random or square LFO, by gliding the morph position
-
-* Fix the level meters staying dead for a device added or replaced while the
-  Device Rack or Mixer is open
-
-* Fix the LUFS Meter and dBTP Meter readings shifting along the effect rack
-  row as a value gains or loses a digit
-
-* Fix the loudness reported for an exported song depending on how much
-  silence it trails off into, by up to 3 dB
+* Fix the top tenth of the Endless Reverb's Damping doing nothing
+  - Its value was clamped before reaching the filter, so the last stretch
+    of the knob changed nothing
+  - Damping now maps to a corner frequency, as it does in the other
+    reverbs, so existing projects sound slightly different at any
+    non-zero Damping
 
 * Fix the Piano
   - Let the top octaves speak and ring
@@ -272,15 +138,66 @@ Bug fixes:
   - Sing the male voice at the vowel a VC340 sings
   - Make the voice section sing a vowel
 
-* Open the Limiter and RTA editors from a device insert slot
+* Fix the Synth's Phase Sync firing only on some notes
+  - It skipped any voice that was still sounding, which is every repeated
+    note in Poly and every note at all in the stacked voice modes
+
+* Fix the Wavetable Synth modulating far deeper than its Intensity knobs
+  read out, which made subtle LFO and Mod Envelope settings impossible
+
+* Fix the Wavetable Synth's last three LFO targets doing nothing
+  - Volume, Resonance and Pan can now be selected for both LFOs
+
+* Fix the Wavetable Synth's Pitch Bend Range not being saved
+
+* Fix the Wavetable Synth's Mod Envelope sustain knob springing back
+
+* Fix the clicks from modulating the Wavetable Synth's Pos, most audible
+  with a random or square LFO, by gliding the morph position
 
 * Remove a DC offset from the Synth's output
 
+* Fix Cancel not cancelling anything in the device dialogs
+  - Cancel now puts back the settings the device had when the dialog opened
+  - Escape and a click outside still close the dialog keeping the edits
+
+* Fix Sampler dialog cancel not undoing per-pad insert effect edits
+
+* Fix the mouse wheel doing nothing on knobs in device and effect dialogs
+  - A dialog now drops its modality while another dialog covers it
+
+* Fix arrow keys barely moving most knobs
+  - A focused knob now steps by a thousandth of its range either way
+
+* Fix the Settings dialog overflowing on small displays
+  - Every tab now scrolls when its content is taller than the dialog
+
+* Fix the keyboard being cut off or missing in the device dialogs
+  - The keyboard keeps its height and the module areas scroll instead
+
+* Fix the rack dialogs being smaller than the Mixer
+  - Rack rows shorten the device name instead of running over the buttons
+
+* Fix dialog buttons being stretched across the whole footer
+  - Device and effect dialogs keep the full-width buttons, so that Cancel
+    and its lost edits are harder to hit by accident
+
+* Fix automations spanning a single line not being drawn at all
+  - Also fixes a longer automation vanishing when scrolled so that only
+    its first or last line is visible
+
 * Fix a column scrolling into view showing the wrong lines
 
-* Fix crash on cancelling the Sampler dialog during playback
+* Fix the level meters staying dead for a device added or replaced while
+  the Device Rack or Mixer is open
 
-* Fix the Wavetable Synth's Mod Envelope sustain knob springing back
+* Fix the LUFS Meter and dBTP Meter readings shifting along the effect
+  rack row as a value gains or loses a digit
+
+* Fix the loudness reported for an exported song depending on how much
+  silence it trails off into, by up to 3 dB
+
+* Fix crash on cancelling the Sampler dialog during playback
 
 * Stop rewinding from marking the song modified
 
@@ -293,17 +210,14 @@ Other:
 * Move the render progress into a dialog of its own
 
 * Show the stereo mode in the EQ 8-Band Parametric rack preview
-  - The slot now reads Mid + Side, Mid or Side instead of just Parametric
 
 * Show the detector mode in the Compressor rack preview
-  - The slot now starts with Peak or RMS
 
 * Give the virtual keyboard a more instrument-like look
   - Shaded keys with rounded fronts, gloss and a shadow under the black
     keys, and a felt strip along the back in the accent colour
 
 * Lay the StringVoice dialog out in five equal columns
-  - Balance and the Vocoder move into a column of their own
 
 * Group the device actions of a track under a Device sub-menu
 
