@@ -43,12 +43,12 @@ AnimatedDialog {
     stretchFooterButtons: true
 
     footer: DialogButtonBox {
-        Button {
+        AppButton {
             text: qsTr("Ok")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
         }
-        Button {
+        AppButton {
             text: qsTr("Cancel")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.RejectRole

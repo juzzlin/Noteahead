@@ -20,6 +20,7 @@ import QtQuick.Controls.Universal
 import QtQuick.Dialogs
 import QtQuick.Layouts
 import ".."
+import "../Components"
 
 AnimatedDialog {
     id: rootItem
@@ -50,7 +51,7 @@ AnimatedDialog {
                     placeholderText: qsTr("Select output file")
                     text: rootItem.outputFileName
                 }
-                Button {
+                AppButton {
                     text: qsTr("Browse...")
                     onClicked: midiExportFileNameDialog.open()
                 }
@@ -135,12 +136,12 @@ AnimatedDialog {
         }
     }
     footer: DialogButtonBox {
-        Button {
+        AppButton {
             text: qsTr("Cancel")
             implicitWidth: Constants.defaultButtonWidth
             onClicked: rootItem.reject()
         }
-        Button {
+        AppButton {
             text: qsTr("Export")
             implicitWidth: Constants.defaultButtonWidth
             enabled: rootItem.outputFileName

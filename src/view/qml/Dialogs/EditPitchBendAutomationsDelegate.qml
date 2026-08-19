@@ -19,6 +19,7 @@ import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts
 import ".."
 import "../ToolBar"
+import "../Components"
 
 GroupBox {
     id: delegateRoot
@@ -278,7 +279,7 @@ GroupBox {
                 }
             }
         }
-        Button {
+        AppButton {
             id: deleteButton
             Layout.row: 0
             Layout.rowSpan: 2

@@ -44,12 +44,12 @@ AnimatedDialog {
     stretchFooterButtons: true
 
     footer: DialogButtonBox {
-        Button {
+        AppButton {
             text: qsTr("Ok")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
         }
-        Button {
+        AppButton {
             text: qsTr("Cancel")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
@@ -119,7 +119,7 @@ AnimatedDialog {
 
                         Repeater {
                             model: root.voiceNames
-                            delegate: Button {
+                            delegate: AppButton {
                                 text: modelData
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 50
@@ -129,7 +129,7 @@ AnimatedDialog {
                                     drumSynthController.playVoice(index)
                                 }
 
-                                Button {
+                                AppButton {
                                     text: qsTr("FX")
                                     anchors.top: parent.top
                                     anchors.right: parent.right

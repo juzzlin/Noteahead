@@ -19,13 +19,14 @@ import QtQuick.Controls.Universal 2.15
 import QtQuick.Dialogs
 import QtQuick.Layouts
 import ".."
+import "../Components"
 
 AnimatedDialog {
     id: rootItem
     title: `${qsTr("About ")} ${applicationService.applicationName()} ${applicationService.applicationVersion()}`
     modal: true
     footer: DialogButtonBox {
-        Button {
+        AppButton {
             text: qsTr("Ok")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole

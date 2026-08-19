@@ -18,6 +18,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts 1.15
 import Noteahead 1.0
+import "../Components"
 
 AnimatedDialog {
     id: root
@@ -45,7 +46,7 @@ AnimatedDialog {
     }
 
     footer: DialogButtonBox {
-        Button {
+        AppButton {
             text: qsTr("Close")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole

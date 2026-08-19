@@ -28,7 +28,7 @@ AnimatedDialog {
     // An explicit button box rather than standardButtons, which stretches a lone button over the
     // whole dialog width.
     footer: DialogButtonBox {
-        Button {
+        AppButton {
             text: qsTr("Ok")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole

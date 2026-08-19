@@ -18,6 +18,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts 1.15
 import Noteahead 1.0
+import "../Components"
 
 AnimatedDialog {
     id: root
@@ -39,7 +40,7 @@ AnimatedDialog {
     }
 
     footer: DialogButtonBox {
-        Button {
+        AppButton {
             text: qsTr("Import Device...")
             implicitWidth: Constants.defaultButtonWidth
             visible: root.slotIndex !== -1
@@ -49,7 +50,7 @@ AnimatedDialog {
                 UiService.requestImportDeviceSettings(root.slotIndex);
             }
         }
-        Button {
+        AppButton {
             text: qsTr("Copy Device...")
             implicitWidth: Constants.defaultButtonWidth
             visible: root.slotIndex !== -1
@@ -59,7 +60,7 @@ AnimatedDialog {
                 UiService.requestCopyDeviceDialog(root.slotIndex);
             }
         }
-        Button {
+        AppButton {
             text: qsTr("Close")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
@@ -117,7 +118,7 @@ AnimatedDialog {
             }
         }
 
-        Button {
+        AppButton {
             text: qsTr("Clear Slot")
             Layout.fillWidth: true
             visible: root.slotIndex !== -1 && deviceRackController.deviceType(root.slotIndex) !== ""

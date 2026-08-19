@@ -89,7 +89,7 @@ ColumnLayout {
                     }
                     onCurrentTextChanged: trackSettingsModel.portName = currentText
                 }
-                Button {
+                AppButton {
                     text: qsTr("Device Rack...")
                     Layout.column: 7
                     Layout.columnSpan: 2

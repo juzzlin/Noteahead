@@ -21,6 +21,7 @@ import QtQuick.Dialogs
 import QtQuick.Layouts
 import Noteahead 1.0
 import ".."
+import "../Components"
 
 AnimatedDialog {
     id: rootItem
@@ -455,7 +456,7 @@ AnimatedDialog {
                             rootItem.customFileName = true;
                         }
                     }
-                    Button {
+                    AppButton {
                         text: qsTr("Browse...")
                         onClicked: audioRenderFileNameDialog.open()
                     }
@@ -478,7 +479,7 @@ AnimatedDialog {
                             rootItem.outputDirectory = text;
                         }
                     }
-                    Button {
+                    AppButton {
                         text: qsTr("Browse...")
                         onClicked: audioRenderDirectoryDialog.open()
                     }
@@ -489,13 +490,13 @@ AnimatedDialog {
     }
 
     footer: DialogButtonBox {
-        Button {
+        AppButton {
             text: qsTr("Cancel")
             implicitWidth: Constants.defaultButtonWidth
             onClicked: rootItem.reject()
             enabled: !renderService.isRendering
         }
-        Button {
+        AppButton {
             text: qsTr("Render")
             implicitWidth: Constants.defaultButtonWidth
             enabled: !renderService.isRendering && (masterMixRadioButton.checked ? rootItem.outputFileName !== "" : rootItem.outputDirectory !== "")

@@ -19,6 +19,7 @@ import QtQuick.Controls.Universal 2.15
 import QtQuick.Dialogs
 import QtQuick.Layouts
 import Noteahead 1.0
+import "../Components"
 
 AnimatedDialog {
     id: rootItem
@@ -74,7 +75,7 @@ AnimatedDialog {
                     placeholderText: qsTr("Select MIDI file to import")
                     text: rootItem.inputFileName
                 }
-                Button {
+                AppButton {
                     text: qsTr("Browse...")
                     onClicked: fileDialog.open()
                 }
@@ -167,12 +168,12 @@ AnimatedDialog {
     }
 
     footer: DialogButtonBox {
-        Button {
+        AppButton {
             text: qsTr("Cancel")
             implicitWidth: Constants.defaultButtonWidth
             onClicked: rootItem.reject()
         }
-        Button {
+        AppButton {
             text: qsTr("Import")
             implicitWidth: Constants.defaultButtonWidth
             enabled: rootItem.inputFileName

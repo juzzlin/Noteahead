@@ -18,13 +18,14 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts 1.15
 import ".."
+import "../Components"
 
 AnimatedDialog {
     id: delayCalculatorDialog
     title: qsTr("Delay Time Calculator")
     modal: true
     footer: DialogButtonBox {
-        Button {
+        AppButton {
             text: qsTr("Ok")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole

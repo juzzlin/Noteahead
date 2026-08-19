@@ -17,6 +17,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import Noteahead 1.0
+import "../Components"
 
 // Base for every rack effect's parameter dialog: the slot it edits, and the Ok/Cancel pair that
 // makes an edit stick or puts back what the effect held when the dialog opened.
@@ -47,12 +48,12 @@ AnimatedDialog {
         Universal.theme: Universal.Dark
         Universal.accent: themeService.accentColor
 
-        Button {
+        AppButton {
             text: qsTr("Ok")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
         }
-        Button {
+        AppButton {
             text: qsTr("Cancel")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.RejectRole

@@ -18,6 +18,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts 1.15
 import Noteahead 1.0
+import "../Components"
 
 AnimatedDialog {
     id: root
@@ -25,12 +26,12 @@ AnimatedDialog {
     property alias message: messageLabel.text
     property string acceptButtonText: qsTr("Ok")
     footer: DialogButtonBox {
-        Button {
+        AppButton {
             text: root.acceptButtonText
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
         }
-        Button {
+        AppButton {
             text: qsTr("Cancel")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.RejectRole

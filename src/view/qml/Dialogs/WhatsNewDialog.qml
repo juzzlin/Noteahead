@@ -18,6 +18,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import Noteahead 1.0
 import ".."
+import "../Components"
 
 AnimatedDialog {
     id: rootItem
@@ -26,7 +27,7 @@ AnimatedDialog {
     visible: false
 
     footer: DialogButtonBox {
-        Button {
+        AppButton {
             text: qsTr("Ok")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole

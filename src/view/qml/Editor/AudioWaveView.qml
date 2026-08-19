@@ -60,6 +60,7 @@ Rectangle {
 
     Menu {
         id: contextMenu
+        delegate: MenuItemDelegate {}
         MenuItem {
             text: qsTr("Open location...")
             enabled: audioService.latestRecordingFileName && !audioService.isRecording

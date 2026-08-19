@@ -17,6 +17,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import ".."
+import "../Components"
 
 AnimatedDialog {
     id: rootItem
@@ -31,7 +32,7 @@ AnimatedDialog {
     }
 
     footer: DialogButtonBox {
-        Button {
+        AppButton {
             text: qsTr("Yes")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
@@ -40,7 +41,7 @@ AnimatedDialog {
                 rootItem.accept();
             }
         }
-        Button {
+        AppButton {
             text: qsTr("No")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.RejectRole

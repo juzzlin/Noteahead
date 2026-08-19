@@ -18,6 +18,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts 1.15
 import ".."
+import "../Components"
 
 AnimatedDialog {
     id: rootItem
@@ -70,7 +71,7 @@ AnimatedDialog {
         }
     }
     footer: DialogButtonBox {
-        Button {
+        AppButton {
             text: qsTr("Cancel")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.RejectRole

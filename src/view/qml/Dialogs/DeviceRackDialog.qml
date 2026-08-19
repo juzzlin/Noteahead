@@ -45,7 +45,7 @@ AnimatedDialog {
     }
 
     footer: DialogButtonBox {
-        Button {
+        AppButton {
             text: qsTr("Close")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
@@ -124,6 +124,7 @@ AnimatedDialog {
 
                 Menu {
                     id: manageMenu
+                    delegate: MenuItemDelegate {}
                     MenuItem {
                         text: qsTr("Export Settings...")
                         onClicked: UiService.requestExportDeviceSettings(index, deviceName, deviceTypeName)
@@ -225,28 +226,28 @@ AnimatedDialog {
                         visible: deviceType !== ""
                     }
 
-                    Button {
+                    AppButton {
                         text: qsTr("Insert FX")
                         onClicked: UiService.requestDeviceInsertEffectsDialog(deviceName)
                         Layout.preferredWidth: 80
                         visible: deviceType !== ""
                     }
 
-                    Button {
+                    AppButton {
                         text: qsTr("Sends")
                         onClicked: UiService.requestEffectSendsDialog(deviceName)
                         Layout.preferredWidth: 80
                         visible: deviceType !== ""
                     }
 
-                    Button {
+                    AppButton {
                         text: qsTr("Settings")
                         onClicked: UiService.requestDeviceSettingsDialog(deviceName)
                         Layout.preferredWidth: 80
                         visible: deviceType !== ""
                     }
 
-                    Button {
+                    AppButton {
                         id: manageButton
                         text: qsTr("Manage")
                         Layout.preferredWidth: 80
@@ -254,7 +255,7 @@ AnimatedDialog {
                         onClicked: manageMenu.popup(manageButton, 0, manageButton.height)
                     }
 
-                    Button {
+                    AppButton {
                         Layout.preferredWidth: 32
                         Layout.preferredHeight: 32
                         visible: deviceType !== ""

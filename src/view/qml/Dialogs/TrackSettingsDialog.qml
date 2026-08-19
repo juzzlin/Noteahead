@@ -46,7 +46,7 @@ AnimatedDialog {
         trackSettingsModel.save();
     }
     footer: DialogButtonBox {
-        Button {
+        AppButton {
             text: qsTr("Ok")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
@@ -58,7 +58,7 @@ AnimatedDialog {
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Save current settings")
         }
-        Button {
+        AppButton {
             text: qsTr("Cancel")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.RejectRole

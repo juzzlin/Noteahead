@@ -367,7 +367,7 @@ GroupBox {
                 }
             }
         }
-        Button {
+        AppButton {
             id: deleteButton
             Layout.row: 0
             Layout.rowSpan: 2

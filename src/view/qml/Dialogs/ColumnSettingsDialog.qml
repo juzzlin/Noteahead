@@ -40,7 +40,7 @@ AnimatedDialog {
         columnSettingsModel.requestData();
     }
     footer: DialogButtonBox {
-        Button {
+        AppButton {
             text: qsTr("Ok")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
@@ -49,7 +49,7 @@ AnimatedDialog {
                 rootItem.accepted();
             }
         }
-        Button {
+        AppButton {
             text: qsTr("Cancel")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.RejectRole

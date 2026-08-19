@@ -18,6 +18,7 @@ import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import Noteahead 1.0
+import "../Components"
 
 ColumnLayout {
     spacing: 15
@@ -43,7 +44,7 @@ ColumnLayout {
             Layout.fillWidth: true
             horizontalAlignment: Text.AlignHCenter
         }
-        Button {
+        AppButton {
             id: resetBtn
             text: qsTr("Reset")
             implicitWidth: Constants.defaultButtonWidth

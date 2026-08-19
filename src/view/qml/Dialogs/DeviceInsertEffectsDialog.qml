@@ -61,7 +61,7 @@ AnimatedDialog {
     }
 
     footer: DialogButtonBox {
-        Button {
+        AppButton {
             text: qsTr("Close")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
@@ -119,6 +119,7 @@ AnimatedDialog {
 
                 Menu {
                     id: manageMenu
+                    delegate: MenuItemDelegate {}
                     MenuItem {
                         text: qsTr("Move Up")
                         enabled: index > 0
@@ -313,14 +314,14 @@ AnimatedDialog {
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.text: qsTr("Enable/disable the effect")
                     }
-                    Button {
+                    AppButton {
                         id: manageButton
                         text: qsTr("Manage")
                         Layout.preferredWidth: 80
                         visible: effectType !== ""
                         onClicked: manageMenu.popup(manageButton, 0, manageButton.height)
                     }
-                    Button {
+                    AppButton {
                         Layout.preferredWidth: 32
                         Layout.preferredHeight: 32
                         visible: effectType !== ""

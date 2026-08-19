@@ -17,6 +17,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import ".."
+import "../Components"
 
 Menu {
     title: qsTr("&Effects")
@@ -24,4 +25,5 @@ Menu {
         text: qsTr("Master effect rack...")
         onTriggered: applicationService.requestMasterEffectsDialog()
     }
+    delegate: MenuItemDelegate {}
 }

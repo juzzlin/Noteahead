@@ -24,6 +24,7 @@ set(MAIN Main.qml)
 set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/${MAIN}
     ${QML_BASE_DIR}/BottomBar.qml
+    ${QML_BASE_DIR}/Components/AppButton.qml
     ${QML_BASE_DIR}/Components/ClipLed.qml
     ${QML_BASE_DIR}/Components/FilterKnob.qml
     ${QML_BASE_DIR}/Components/Knob.qml

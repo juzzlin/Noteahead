@@ -187,7 +187,7 @@ GroupBox {
                             }
                         }
                     }
-                    Button {
+                    AppButton {
                         text: qsTr("Refresh")
                         enabled: settingsService.audioBackend !== 3
                         onClicked: audioSettingsModel.refreshInputDevices()
@@ -233,7 +233,7 @@ GroupBox {
                         }
                     }
                 }
-                Button {
+                AppButton {
                     text: qsTr("Refresh")
                     enabled: settingsService.audioBackend !== 3
                     onClicked: audioSettingsModel.refreshOutputDevices()

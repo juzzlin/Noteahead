@@ -191,7 +191,7 @@ ColumnLayout {
             Flow {
                 Layout.fillWidth: true
                 spacing: 4
-                Button {
+                AppButton {
                     text: qsTr("Major")
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Major chord (0, 4, 7)")
@@ -201,7 +201,7 @@ ColumnLayout {
                         columnSettingsModel.chordNote3Offset = 0;
                     }
                 }
-                Button {
+                AppButton {
                     text: qsTr("Minor")
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Minor chord (0, 3, 7)")
@@ -211,7 +211,7 @@ ColumnLayout {
                         columnSettingsModel.chordNote3Offset = 0;
                     }
                 }
-                Button {
+                AppButton {
                     text: qsTr("Dom7")
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Dominant 7th chord (0, 4, 7, 10)")
@@ -221,7 +221,7 @@ ColumnLayout {
                         columnSettingsModel.chordNote3Offset = 10;
                     }
                 }
-                Button {
+                AppButton {
                     text: qsTr("Maj7")
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Major 7th chord (0, 4, 7, 11)")
@@ -231,7 +231,7 @@ ColumnLayout {
                         columnSettingsModel.chordNote3Offset = 11;
                     }
                 }
-                Button {
+                AppButton {
                     text: qsTr("Min7")
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Minor 7th chord (0, 3, 7, 10)")
@@ -241,7 +241,7 @@ ColumnLayout {
                         columnSettingsModel.chordNote3Offset = 10;
                     }
                 }
-                Button {
+                AppButton {
                     text: qsTr("Sus4")
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Suspended 4th chord (0, 5, 7)")
@@ -251,7 +251,7 @@ ColumnLayout {
                         columnSettingsModel.chordNote3Offset = 0;
                     }
                 }
-                Button {
+                AppButton {
                     text: qsTr("Dim")
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Diminished chord (0, 3, 6)")
@@ -261,7 +261,7 @@ ColumnLayout {
                         columnSettingsModel.chordNote3Offset = 0;
                     }
                 }
-                Button {
+                AppButton {
                     text: qsTr("Reset")
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Reset chord automation settings")

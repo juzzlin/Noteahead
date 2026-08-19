@@ -37,4 +37,25 @@ MenuItem {
             color: "white"
         }
     }
+    // Same fix as AppButton: MenuItem's own click detection can drop clicks while the audio engine
+    // is running, so a plain MouseArea takes over. A submenu item still has to open on hover/click
+    // through the built-in handling instead, so it is left alone here. Re-emitting clicked() alone
+    // is not enough here: an Action-backed item only runs its onTriggered through action.trigger(),
+    // a plain item is wired to either onClicked or onTriggered depending on the menu, and the menu
+    // isn't guaranteed to close itself off a synthetic signal -- so all of it is done by hand.
+    MouseArea {
+        anchors.fill: parent
+        enabled: !rootItem.subMenu
+        onClicked: {
+            if (rootItem.action) {
+                rootItem.action.trigger(rootItem);
+            } else {
+                rootItem.clicked();
+                rootItem.triggered();
+            }
+            if (rootItem.menu) {
+                rootItem.menu.close();
+            }
+        }
+    }
 }

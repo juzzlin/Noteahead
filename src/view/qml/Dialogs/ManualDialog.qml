@@ -19,6 +19,7 @@ import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts
 import Noteahead 1.0
 import ".."
+import "../Components"
 
 AnimatedDialog {
     id: rootItem
@@ -29,7 +30,7 @@ AnimatedDialog {
     readonly property string _tag: "ManualDialog"
 
     footer: DialogButtonBox {
-        Button {
+        AppButton {
             text: qsTr("Ok")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole

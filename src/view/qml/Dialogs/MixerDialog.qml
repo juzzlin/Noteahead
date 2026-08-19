@@ -49,7 +49,7 @@ AnimatedDialog {
     }
 
     footer: DialogButtonBox {
-        Button {
+        AppButton {
             text: qsTr("Close")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
@@ -226,19 +226,19 @@ AnimatedDialog {
                                 }
                             }
 
-                            Button {
+                            AppButton {
                                 text: qsTr("Device")
                                 Layout.preferredWidth: 80
                                 onClicked: deviceRackController.openDevice(index)
                             }
 
-                            Button {
+                            AppButton {
                                 text: qsTr("Insert FX")
                                 Layout.preferredWidth: 80
                                 onClicked: UiService.requestDeviceInsertEffectsDialog(strip.deviceName)
                             }
 
-                            Button {
+                            AppButton {
                                 text: qsTr("Sends")
                                 Layout.preferredWidth: 80
                                 onClicked: UiService.requestEffectSendsDialog(strip.deviceName)
@@ -253,7 +253,7 @@ AnimatedDialog {
             Layout.fillWidth: true
             spacing: 16
 
-            Button {
+            AppButton {
                 text: qsTr("Clear clips")
                 implicitWidth: Constants.defaultButtonWidth
                 onClicked: {

@@ -18,6 +18,7 @@ import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import Noteahead 1.0
+import "../Components"
 
 GridView {
     id: padGrid
@@ -72,7 +73,7 @@ GridView {
                 }
             }
 
-            Button {
+            AppButton {
                 text: qsTr("FX")
                 visible: isLoaded
                 anchors.top: parent.top
@@ -135,6 +136,7 @@ GridView {
                 // A popup does not inherit the theme of the dialog the pads live in either
                 Universal.theme: Universal.Dark
                 Universal.accent: themeService.accentColor
+                delegate: MenuItemDelegate {}
                 MenuItem {
                     text: qsTr("Clear")
                     enabled: padMenu.padIsLoaded

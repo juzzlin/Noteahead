@@ -115,7 +115,7 @@ RowLayout {
         }
     }
 
-    Button {
+    AppButton {
         text: qsTr("Save")
         highlighted: isSaving
         onClicked: {
@@ -125,7 +125,7 @@ RowLayout {
         }
     }
 
-    Button {
+    AppButton {
         text: qsTr("Reset")
         onClicked: {
             root.isSaving = false;

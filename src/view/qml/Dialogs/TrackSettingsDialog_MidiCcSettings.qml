@@ -18,6 +18,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts
 import ".."
+import "../Components"
 
 GroupBox {
     title: qsTr("MIDI CC Settings")
@@ -55,7 +56,7 @@ GroupBox {
                 }
             }
         }
-        Button {
+        AppButton {
             text: qsTr("Add MIDI CC Setting")
             Layout.alignment: Qt.AlignRight
             onClicked: addMidiCcSettingDialog.open()

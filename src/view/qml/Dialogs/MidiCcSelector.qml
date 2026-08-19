@@ -92,7 +92,7 @@ RowLayout {
         onValueModified: settingsChanged()
         Keys.onReturnPressed: focus = false
     }
-    Button {
+    AppButton {
         text: "✕"
         onClicked: removeRequested()
         visible: showRemoveButton

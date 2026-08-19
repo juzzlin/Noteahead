@@ -47,7 +47,7 @@ AnimatedDialog {
     onOpened: reload()
 
     footer: DialogButtonBox {
-        Button {
+        AppButton {
             text: qsTr("Close")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
@@ -145,7 +145,7 @@ AnimatedDialog {
                         elide: Text.ElideRight
                     }
 
-                    Button {
+                    AppButton {
                         text: qsTr("Sends")
                         onClicked: UiService.requestEffectSendsDialog(modelData.name)
                         Layout.preferredWidth: 80

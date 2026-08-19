@@ -15,20 +15,16 @@
 
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import QtQuick.Controls.Universal 2.15
-import ".."
-import "../Components"
 
-Menu {
-    title: qsTr("&Devices")
-    Action {
-        text: qsTr("Device rack...")
-        onTriggered: applicationService.requestDeviceRackDialog()
+// Qt's own AbstractButton press/release detection intermittently drops clicks on some Qt 6.10
+// installs while the audio engine is running; a plain MouseArea's simpler grab never does, which is
+// why ToolBarButtonBase already rolls its own. Drop-in replacement for Button wherever the control
+// has to stay clickable during playback -- the overlaid MouseArea sits on top and consumes the
+// press before Button's own handling ever sees it, so this never double-fires.
+Button {
+    id: root
+    MouseArea {
+        anchors.fill: parent
+        onClicked: root.clicked()
     }
-    MenuSeparator {}
-    Action {
-        text: qsTr("Mixer...")
-        onTriggered: UiService.requestMixerDialog()
-    }
-    delegate: MenuItemDelegate {}
 }

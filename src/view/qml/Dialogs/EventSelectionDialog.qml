@@ -19,6 +19,7 @@ import QtQuick.Controls.Universal 2.15
 import QtQuick.Dialogs
 import QtQuick.Layouts
 import ".."
+import "../Components"
 
 AnimatedDialog {
     id: rootItem
@@ -36,7 +37,7 @@ AnimatedDialog {
         eventSelectionModel.requestData();
     }
     footer: DialogButtonBox {
-        Button {
+        AppButton {
             text: qsTr("Ok")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
@@ -49,7 +50,7 @@ AnimatedDialog {
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Save current settings")
         }
-        Button {
+        AppButton {
             text: qsTr("Cancel")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
