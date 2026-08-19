@@ -76,16 +76,13 @@ EffectDialog {
                 Knob {
                     label: qsTr("Pre-Delay")
                     suffix: "ms"
-                    mapping: "percentage"
-                    mapMin: 0
-                    mapMax: 100
                     from: 0
-                    to: 1000
+                    to: 100
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.earlyReflectionsPreDelayKey()) * 1000;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.earlyReflectionsPreDelayKey()) * 100;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.earlyReflectionsPreDelayKey(), v / 1000)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.earlyReflectionsPreDelayKey(), v / 100)
                 }
 
                 Knob {
@@ -115,7 +112,7 @@ EffectDialog {
                 Knob {
                     label: qsTr("Width")
                     suffix: "%"
-                    mapping: "percentage"
+                    mapping: "value"
                     mapMin: 0
                     mapMax: 200
                     from: 0

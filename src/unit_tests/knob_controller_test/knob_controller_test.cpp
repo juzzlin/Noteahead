@@ -234,7 +234,8 @@ void KnobControllerTest::test_parse_shouldRoundTripFormattedStrings()
         { "logFrequency", "%", 20.0, 20000.0 },
         { "decibel", "", 0.0, 24.0 },
         { "bipolar", "%", -100.0, 100.0 },
-        { "percentage", "%", 0.0, 200.0 },
+        { "value", "%", 0.0, 200.0 },
+        { "value", "ms", 0.0, 100.0 },
         { "intensity", "%", 0.0, 1000.0 },
         { "integer", "", 1.0, 16.0 },
         { "pan", "%", 0.0, 1.0 },
@@ -283,27 +284,45 @@ void KnobControllerTest::test_bipolarMapping_shouldReadZeroAtTheCentre()
     QCOMPARE(controller.map(0.25, "bipolar", -100.0, 100.0), -50.0);
 }
 
-void KnobControllerTest::test_percentageMapping_shouldReadPastFullScale()
+void KnobControllerTest::test_valueMapping_shouldReadPastFullScale()
 {
     KnobController controller;
 
     // The plain percentage readout reports the knob's own position and ignores the range, so a
     // control that runs to 200 % showed full travel as 100 %. That is what the Stereo Widener's
     // Width knobs showed.
-    QCOMPARE(controller.format(0.0, "percentage", "%", 0.0, 200.0), QString { "0.0%" });
-    QCOMPARE(controller.format(0.5, "percentage", "%", 0.0, 200.0), QString { "100.0%" });
-    QCOMPARE(controller.format(0.75, "percentage", "%", 0.0, 200.0), QString { "150.0%" });
-    QCOMPARE(controller.format(1.0, "percentage", "%", 0.0, 200.0), QString { "200.0%" });
+    QCOMPARE(controller.format(0.0, "value", "%", 0.0, 200.0), QString { "0.0%" });
+    QCOMPARE(controller.format(0.5, "value", "%", 0.0, 200.0), QString { "100.0%" });
+    QCOMPARE(controller.format(0.75, "value", "%", 0.0, 200.0), QString { "150.0%" });
+    QCOMPARE(controller.format(1.0, "value", "%", 0.0, 200.0), QString { "200.0%" });
 
     // What it reads out is what can be typed back into it, with or without the unit.
-    QCOMPARE(controller.parse("150.0%", "percentage", "%", 0.0, 200.0).toDouble(), 0.75);
-    QCOMPARE(controller.parse("100", "percentage", "%", 0.0, 200.0).toDouble(), 0.5);
+    QCOMPARE(controller.parse("150.0%", "value", "%", 0.0, 200.0).toDouble(), 0.75);
+    QCOMPARE(controller.parse("100", "value", "%", 0.0, 200.0).toDouble(), 0.5);
 
     // Out-of-range input lands on the end of the travel rather than off it.
-    QCOMPARE(controller.parse("500%", "percentage", "%", 0.0, 200.0).toDouble(), 1.0);
+    QCOMPARE(controller.parse("500%", "value", "%", 0.0, 200.0).toDouble(), 1.0);
 
     // The mapping itself stays linear, so the knob's travel is even.
-    QCOMPARE(controller.map(0.5, "percentage", 0.0, 200.0), 100.0);
+    QCOMPARE(controller.map(0.5, "value", 0.0, 200.0), 100.0);
+}
+
+void KnobControllerTest::test_valueMapping_shouldHonourTheUnit()
+{
+    KnobController controller;
+
+    // The mapping is not only for percentages: anything whose number means more than the knob's
+    // position uses it, and the unit has to survive. A pre-delay reading out in per cent, and a
+    // detune reading out in per cent instead of cents, is what this is here to stop.
+    QCOMPARE(controller.format(0.5, "value", "ms", 0.0, 100.0), QString { "50.0 ms" });
+    QCOMPARE(controller.format(0.5, "value", "c", 0.0, 25.0), QString { "12.5 c" });
+
+    // No unit, no trailing space.
+    QCOMPARE(controller.format(0.5, "value", "", 0.0, 10.0), QString { "5.0" });
+
+    // And each reads back as the position it was formatted from.
+    QCOMPARE(controller.parse("50.0 ms", "value", "ms", 0.0, 100.0).toDouble(), 0.5);
+    QCOMPARE(controller.parse("12.5 c", "value", "c", 0.0, 25.0).toDouble(), 0.5);
 }
 
 void KnobControllerTest::test_frequencyToString_shouldFormatFrequencyStrings()

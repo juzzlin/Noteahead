@@ -196,7 +196,7 @@ EffectDialog {
             Knob {
                 label: qsTr("Width")
                 suffix: "%"
-                mapping: "percentage"
+                mapping: "value"
                 from: 0
                 to: 200
                 value: {

@@ -40,7 +40,8 @@ private slots:
     void test_parse_shouldRoundTripFormattedStrings();
     void test_parse_shouldRejectTextWithoutANumber();
     void test_bipolarMapping_shouldReadZeroAtTheCentre();
-    void test_percentageMapping_shouldReadPastFullScale();
+    void test_valueMapping_shouldReadPastFullScale();
+    void test_valueMapping_shouldHonourTheUnit();
     void test_frequencyToString_shouldFormatFrequencyStrings();
     void test_syncLogic_shouldHandleSyncValuesAndLabels();
 };

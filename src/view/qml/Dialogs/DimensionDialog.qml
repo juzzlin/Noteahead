@@ -62,7 +62,7 @@ EffectDialog {
                 Knob {
                     label: qsTr("Detune")
                     suffix: "c"
-                    mapping: "percentage"
+                    mapping: "value"
                     mapMin: 0
                     mapMax: 25
                     from: 0
