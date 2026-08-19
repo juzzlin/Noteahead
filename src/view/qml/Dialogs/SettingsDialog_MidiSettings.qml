@@ -20,8 +20,10 @@ import QtQuick.Layouts
 import ".."
 
 GroupBox {
-    anchors.left: parent.left
-                anchors.right: parent.right
+    // A width bound through anchors here fights the explicit width the owning ScrollView assigns
+    // to this instance while its StackLayout page is inactive (Settings dialog, MIDI/Audio/Theme
+    // tabs) -- a plain width binding, like General's, does not.
+    width: parent.width
     title: qsTr("MIDI")
     ColumnLayout {
         anchors.left: parent.left

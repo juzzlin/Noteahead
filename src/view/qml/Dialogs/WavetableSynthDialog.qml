@@ -74,8 +74,12 @@ AnimatedDialog {
             Layout.fillHeight: true
             spacing: 0
 
-            readonly property real sidebarWidth: width * 0.18
-            readonly property real synthAreaWidth: width - sidebarWidth - separator.width - 20
+            // Bound off the enclosing ColumnLayout's width rather than mainRow's own: mainRow's
+            // width is itself derived from its children's preferred widths, which these properties
+            // feed, so a self-reference here is what triggered Qt Quick Layouts' recursive-rearrange
+            // guard -- see SynthDialog.qml, which has the identical structure.
+            readonly property real sidebarWidth: parent.width * 0.18
+            readonly property real synthAreaWidth: parent.width - sidebarWidth - separator.width - 20
             readonly property real moduleWidth: (synthAreaWidth - (20 * 2) - 30) / 3
 
             ScrollView {

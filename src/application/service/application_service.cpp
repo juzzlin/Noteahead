@@ -82,7 +82,7 @@ QString ApplicationService::changeLog() const
 {
     // Read once: the file is bundled, so it cannot change under a running application
     static const QString changeLog = [] {
-        QFile file { ":/noteahead/CHANGELOG" };
+        QFile file { ":/qt/qml/noteahead/CHANGELOG" };
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
             juzzlin::L(TAG).error() << "Couldn't open the bundled CHANGELOG";
             return QString {};

@@ -22,8 +22,10 @@ import "../Components"
 
 GroupBox {
     title: qsTr("Audio")
-    anchors.left: parent.left
-                anchors.right: parent.right
+    // A width bound through anchors here fights the explicit width the owning ScrollView assigns
+    // to this instance while its StackLayout page is inactive (Settings dialog, MIDI/Audio/Theme
+    // tabs) -- a plain width binding, like General's, does not.
+    width: parent.width
     ColumnLayout {
         anchors.left: parent.left
                 anchors.right: parent.right
