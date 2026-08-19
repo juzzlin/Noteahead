@@ -270,7 +270,7 @@ NoteMeasurement measureNote(int note, uint8_t velocity = 100, uint32_t sampleRat
     return measurement;
 }
 
-// Yamaha CP88 electric piano, measured from a recorded sweep of C0-C9 at velocity 100.
+// Yamaha CP80 electric grand, measured from a recorded sweep of C0-C9 at velocity 100.
 // Levels are relative to the note at MIDI 60 rather than absolute, since only the shape
 // across the keyboard is being matched. See the keyboard survey test for how these are used.
 struct ReferenceNote
