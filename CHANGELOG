@@ -7,6 +7,11 @@ New features:
 
 Bug fixes:
 
+* Fix the black bar between the main menu and the toolbar
+  - The toolbar was offset by the menu bar's height inside a content area
+    that already begins below the menu bar, leaving a gap of exactly that
+    height with the window's background showing through
+
 Other:
 
 * Widen the dialog buttons in the track, column, rack and mixer dialogs

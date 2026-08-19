@@ -44,10 +44,9 @@ ApplicationWindow {
     Universal.theme: Universal.Dark
     MainToolBar {
         id: mainToolBar
-        // menuBar is reparented into the window's own internal item tree, not a plain child, so an
-        // anchor to it (which requires a parent/sibling relationship) warns on newer Qt Quick -- a
-        // plain binding has no such requirement, same as BottomBar's height above.
-        y: menuBar.height
+        // No offset: a window's children live in its contentItem, which already begins below the
+        // menu bar. Pushing the toolbar down by the menu bar's height again left a gap of exactly
+        // that height between the two, showing the window's own background through it.
         anchors.left: parent.left
         anchors.right: parent.right
     }
