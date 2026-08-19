@@ -41,7 +41,7 @@ AnimatedDialog {
 
     footer: DialogButtonBox {
         AppButton {
-            text: qsTr("Import Device...")
+            text: qsTr("Import...")
             implicitWidth: Constants.defaultButtonWidth
             visible: root.slotIndex !== -1
             DialogButtonBox.buttonRole: DialogButtonBox.ActionRole
@@ -51,7 +51,7 @@ AnimatedDialog {
             }
         }
         AppButton {
-            text: qsTr("Copy Device...")
+            text: qsTr("Copy...")
             implicitWidth: Constants.defaultButtonWidth
             visible: root.slotIndex !== -1
             DialogButtonBox.buttonRole: DialogButtonBox.ActionRole
