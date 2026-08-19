@@ -532,6 +532,34 @@ void SideChainAudioTest::test_audioEngine_sendEffectRackDisabled_shouldStopTheSe
     QVERIFY2(std::abs(buffer[0] - 1.0) < 1e-6, qPrintable(QString { "disabled rack still returned %1" }.arg(buffer[0])));
 }
 
+void SideChainAudioTest::test_audioEngine_sendEffectDisabled_shouldReturnNothing()
+{
+    // Disabling one effect has to silence it the way disabling the whole rack does. Insert racks
+    // get this from EffectRack, which skips disabled effects; the send path runs each effect
+    // directly and so has to honour the flag itself.
+    AudioEngine engine;
+    const auto device = std::make_shared<MockDevice>("Source");
+    device->setGenerateSignal(true); // Emits 1.0
+    device->setReverbSend(0, 1.0f);
+    engine.setDevice(0, device);
+
+    const auto volume = std::make_shared<Volume>();
+    volume->setVolume(0.5f);
+    engine.sendEffectRack().setEffect(0, volume);
+
+    std::vector<double> buffer(128, 0.0);
+    AudioContext context { std::span(buffer.data(), 128), 64, 44100 };
+
+    engine.process(context);
+    QVERIFY2(std::abs(buffer[0] - 0.5) < 1e-6, "the send effect was not applied to begin with");
+
+    volume->setEnabled(false);
+    std::fill(buffer.begin(), buffer.end(), 0.0);
+    engine.process(context);
+
+    QVERIFY2(std::abs(buffer[0] - 1.0) < 1e-6, qPrintable(QString { "disabled effect still returned %1" }.arg(buffer[0])));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SideChainAudioTest)

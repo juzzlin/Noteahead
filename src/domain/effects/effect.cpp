@@ -95,6 +95,10 @@ Effect::StringList Effect::parameterNames() const
 
 void Effect::process(double & left, double & right)
 {
+    if (!m_enabled) {
+        return;
+    }
+
     // An effect with neither control registered — a filter, an equalizer — has nothing to apply
     // around its own work, so it does not pay for the resolving below.
     if (!m_mixParameter && !m_soloParameter) {
@@ -112,6 +116,13 @@ void Effect::process(double & left, double & right)
 
 void Effect::process(AudioContext & context)
 {
+    // Disabled means silent, whoever is calling. The racks skip disabled effects before they get
+    // here, but the send buses run each effect directly, so the flag has to be honoured at the
+    // effect itself or it is honoured only on some paths.
+    if (!m_enabled) {
+        return;
+    }
+
     setOversampleFactor(context.oversampleFactor);
 
     const auto blend = blendState();
