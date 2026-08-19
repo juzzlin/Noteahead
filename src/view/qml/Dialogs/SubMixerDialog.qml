@@ -46,6 +46,9 @@ AnimatedDialog {
 
     onOpened: reload()
 
+    // Wide like the device, effect and settings dialogs these open alongside
+    stretchFooterButtons: true
+
     footer: DialogButtonBox {
         AppButton {
             text: qsTr("Close")

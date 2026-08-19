@@ -9,6 +9,11 @@ Bug fixes:
 
 Other:
 
+* Widen the dialog buttons in the track, column, rack and mixer dialogs
+  - The Track Settings, Column Settings, Device Rack, Master Effects,
+    Insert Effects, Effect Sends, Sub Mixer and Mixer footers now match
+    the device and effect dialogs
+
 7.0.0
 =====
 

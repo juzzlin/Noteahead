@@ -39,6 +39,10 @@ AnimatedDialog {
         columnSettingsModel.columnIndex = columnIndex;
         columnSettingsModel.requestData();
     }
+    // Cancel here throws away every edit made in the dialog, so the buttons take the whole
+    // footer width instead of sitting side by side in the corner
+    stretchFooterButtons: true
+
     footer: DialogButtonBox {
         AppButton {
             text: qsTr("Ok")
