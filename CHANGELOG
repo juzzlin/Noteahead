@@ -5,6 +5,14 @@ Release date:
 
 New features:
 
+* Fix the top tenth of the Endless Reverb's Damping doing nothing
+  - Its value was clamped at 0.9 before reaching the filter, so the last
+    stretch of the knob's travel changed nothing at all
+  - Damping now maps to a corner frequency, as it does in the Reverb and
+    the Early Reflections, which also spaces it evenly across the travel
+  - Existing projects will sound slightly different at any non-zero
+    Damping
+
 * Fix the Early Reflections sounding metallic rather than spacious
   - Its taps were near-evenly spaced, which is a comb filter: it put a
     resonance every 180 Hz and sang on anything sustained

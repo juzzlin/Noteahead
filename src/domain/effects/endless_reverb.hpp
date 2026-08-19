@@ -52,6 +52,7 @@ private:
 
     float m_size { 0.7f };
     float m_feedback { 0.85f };
+    //! The one-pole coefficient the Damping control maps to, not the control's own position.
     float m_damping { 0.3f };
     float m_preDelayMs { 20.0f };
     float m_modDepth { 0.4f };

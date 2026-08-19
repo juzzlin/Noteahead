@@ -16,6 +16,7 @@
 #include "endless_reverb.hpp"
 
 #include "../../common/constants.hpp"
+#include "../../common/parameter_mapper.hpp"
 #include "../dsp/audio_context.hpp"
 
 #include <cmath>
@@ -29,6 +30,11 @@ constexpr double twoPi = 2.0 * std::numbers::pi;
 constexpr std::array<double, 8> baseLengths = { 1277.0, 1493.0, 1723.0, 1999.0, 2293.0, 2551.0, 2879.0, 3253.0 };
 constexpr std::array<double, 8> inputGains = { 0.82, -0.74, 0.68, -0.61, 0.56, -0.51, 0.47, -0.43 };
 constexpr std::array<double, 4> diffuserLengths = { 210.0, 158.0, 561.0, 410.0 };
+
+//! What Damping sweeps, as a corner frequency. Wide open at the bottom of the travel and down into
+//! the lower midrange at the top.
+constexpr double minDampingHz = 700.0;
+constexpr double maxDampingHz = 20000.0;
 } // namespace
 
 EndlessReverb::EndlessReverb()
@@ -232,7 +238,15 @@ void EndlessReverb::syncParameters()
         m_feedback = 0.7f + std::clamp(p->get().value(), 0.0f, 1.0f) * 0.295f; // 0.7 .. 0.995
     }
     if (const auto p = parameter(Constants::NahdXml::xmlKeyDamping().toStdString()); p) {
-        m_damping = std::clamp(p->get().value(), 0.0f, 0.9f);
+        // Taken through a corner frequency rather than fed straight into the filter coefficient. A
+        // one pole only darkens audibly as its coefficient approaches one, so the direct mapping
+        // spent the whole lower half of the travel on a six per cent change in decay time and
+        // crammed everything audible into the top. This is also how Reverb and Early Reflections
+        // map their own damping, so the three now behave alike.
+        const double sampleRate = m_sampleRate > 0 ? m_sampleRate : 44100.0;
+        const double position = 1.0 - std::clamp(static_cast<double>(p->get().value()), 0.0, 1.0);
+        const double corner = std::min(ParameterMapper::mapLogFrequency(position, minDampingHz, maxDampingHz), sampleRate * 0.49);
+        m_damping = static_cast<float>(std::exp(-twoPi * corner / sampleRate));
     }
     if (const auto p = parameter(Constants::NahdXml::xmlKeyPreDelay().toStdString()); p) {
         m_preDelayMs = p->get().value() * 500.0f;
