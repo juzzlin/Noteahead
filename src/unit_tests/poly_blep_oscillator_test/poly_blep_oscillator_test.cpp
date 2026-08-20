@@ -17,7 +17,9 @@
 #include "../../domain/dsp/poly_blep_oscillator.hpp"
 
 #include <QTest>
+#include <algorithm>
 #include <cmath>
+#include <vector>
 
 namespace noteahead {
 
@@ -59,41 +61,92 @@ void PolyBlepOscillatorTest::test_nextSample_square_shouldReturnExpectedValues()
 {
     PolyBlepOscillator osc;
     osc.setSampleRate(44100.0);
-    osc.setFrequency(441.0);
+    osc.setFrequency(441.0); // 100 samples per cycle
     osc.setWaveform(PolyBlepOscillator::Waveform::Square);
 
-    // Initial phase 0.0, pw 0.5
-    // t=0, value = 1.0 (since 0 < 0.5)
-    // polyBlep(0) = -1.0
-    // polyBlep(fmod(0+0.5, 1.0)) = polyBlep(0.5) = 0
-    // value = 1.0 - (2*0.5 - 1) - 1.0 + 0 = 0.0
-    QCOMPARE(osc.nextSample(), 0.0);
-
-    // At t=0.25
-    for (int i = 0; i < 24; i++) {
-        osc.nextSample();
+    // The pulse is not an ideal one: it comes out of a stage with a finite bandwidth and an AC
+    // coupling, so the corners are rounded and the flat parts sag towards zero. Exact sample values
+    // would only restate those two filters, so what is checked here is the shape they leave: the
+    // wave sits at the rails between the edges, and crosses zero where the edges are.
+    std::vector<double> cycle;
+    for (int i = 0; i < 200; i++) {
+        const double sample = osc.nextSample();
+        if (i >= 100) { // Second cycle: the first is the coupling settling
+            cycle.push_back(sample);
+        }
     }
-    // value = 1.0 - 0 - 0 + 0 = 1.0
-    QCOMPARE(osc.nextSample(), 1.0);
 
-    // At t=0.5
-    // value = -1.0 (since 0.5 >= 0.5)
-    // polyBlep(0.5) is correction for step at t=0.5
-    // Actually polyBlep is only non-zero near 0 and 1.
-    // In Square wave:
-    // value -= (2.0 * pw - 1.0); // 0
-    // value += polyBlep(t);
-    // value -= polyBlep(std::fmod(t + (1.0 - pw), 1.0));
+    // Mid-way through each half, well clear of both edges
+    QVERIFY(cycle.at(25) > 0.9);
+    QVERIFY(cycle.at(75) < -0.9);
 
-    // At t=0.5:
-    // value = -1.0
-    // polyBlep(0.5) = 0
-    // fmod(0.5 + 0.5, 1.0) = 0
-    // value = -1.0 + 0 - (-1.0) = 0.0
-    for (int i = 0; i < 24; i++) {
-        osc.nextSample();
+    // The edges take several samples to cross rather than stepping across in one. An ideal square
+    // moves the whole 2.0 between two samples; this one takes about four to get there.
+    double maxStep = 0.0;
+    for (size_t i = 1; i < cycle.size(); i++) {
+        maxStep = std::max(maxStep, std::abs(cycle.at(i) - cycle.at(i - 1)));
     }
-    QCOMPARE(osc.nextSample(), 0.0);
+    QVERIFY(maxStep > 0.1); // ...but it is still an edge, not a sine
+    QVERIFY(maxStep < 1.2);
+
+    // Nothing runs away past the rails
+    for (const double sample : cycle) {
+        QVERIFY(std::abs(sample) < 1.1);
+    }
+}
+
+void PolyBlepOscillatorTest::test_square_flatPartsShouldSagTowardsZero()
+{
+    // The dip along the top of the wave, which is the coupling letting the level fall away while
+    // nothing is driving it. Without it the tops are flat and the wave looks drawn rather than
+    // measured.
+    PolyBlepOscillator osc;
+    osc.setSampleRate(44100.0);
+    osc.setFrequency(110.0); // 401 samples per cycle: a long flat part to sag along
+    osc.setWaveform(PolyBlepOscillator::Waveform::Square);
+
+    std::vector<double> cycle;
+    for (int i = 0; i < 4000; i++) {
+        const double sample = osc.nextSample();
+        if (i >= 3600) {
+            cycle.push_back(sample);
+        }
+    }
+
+    // Along one flat part, away from either edge
+    const double early = cycle.at(40);
+    const double late = cycle.at(160);
+    QVERIFY(early > 0.0);
+    QVERIFY(late > 0.0);
+    QVERIFY(late < early); // ...and it has fallen on the way
+}
+
+void PolyBlepOscillatorTest::test_square_shapeShouldNotChangeTheLevel()
+{
+    // Shape is a timbre control. A pulse swings between the same two rails whatever its duty, so
+    // without normalisation a thin one stands nearly twice as far from zero as a half-duty one and
+    // arrives at the filter some 5 dB hotter -- which is what made a thin pulse piercing.
+    const auto peak = [](double shape) {
+        PolyBlepOscillator osc;
+        osc.setSampleRate(44100.0);
+        osc.setFrequency(220.0);
+        osc.setWaveform(PolyBlepOscillator::Waveform::Square);
+        osc.setShape(shape);
+        double result = 0.0;
+        for (int i = 0; i < 4000; i++) {
+            const double sample = osc.nextSample();
+            if (i >= 2000) {
+                result = std::max(result, std::abs(sample));
+            }
+        }
+        return result;
+    };
+
+    const double wide = peak(0.0);
+    const double narrow = peak(1.0);
+
+    QVERIFY(wide > 0.9 && wide < 1.15);
+    QVERIFY(narrow > 0.4 && narrow <= wide);
 }
 
 void PolyBlepOscillatorTest::test_nextSample_triangle_shouldReturnExpectedValues()

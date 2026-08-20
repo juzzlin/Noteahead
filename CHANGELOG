@@ -12,6 +12,9 @@ New features:
 
 Bug fixes:
 
+* Make the square wave analog: AC coupling, finite edge rate and a level
+  that no longer jumps as Shape narrows the pulse
+
 * Apply track settings' MIDI CC to internal devices
 
 * Keep automated values out of the saved device parameters

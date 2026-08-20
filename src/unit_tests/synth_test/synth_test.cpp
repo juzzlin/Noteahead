@@ -850,7 +850,8 @@ void SynthTest::test_pulseWidth_shouldUpdateDutyCycle()
     // DC offset should be near zero
     QVERIFY(std::abs(sum / frameCount) < 0.05);
 
-    // Shape 1.0 -> very narrow pulse (0.5%)
+    // Shape 1.0 -> the narrowest pulse the control reaches, 5 % of the cycle. It used to go to
+    // 0.5 %, which at this note is about a sample wide and is a click rather than a tone.
     synth.setVco1Shape(1.0f);
     std::fill(buffer.begin(), buffer.end(), 0.0f);
     synth.processAudio(context);
@@ -862,8 +863,8 @@ void SynthTest::test_pulseWidth_shouldUpdateDutyCycle()
             positiveSamples++;
         sum += buffer[i];
     }
-    // With 0.5% duty cycle, very few should be positive
-    QVERIFY(positiveSamples < 50);
+    // With a 5 % duty cycle, a twentieth of the window and no more
+    QVERIFY(positiveSamples > 10 && positiveSamples < 120);
     // DC offset should still be near zero
     QVERIFY(std::abs(sum / frameCount) < 0.05);
 }

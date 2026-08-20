@@ -27,6 +27,8 @@ class PolyBlepOscillatorTest : public QObject
 private slots:
     void test_nextSample_saw_shouldReturnExpectedValues();
     void test_nextSample_square_shouldReturnExpectedValues();
+    void test_square_flatPartsShouldSagTowardsZero();
+    void test_square_shapeShouldNotChangeTheLevel();
     void test_nextSample_triangle_shouldReturnExpectedValues();
     void test_nextSample_triangle_fold_shouldReturnExpectedValues();
     void test_nextSample_sine_shouldReturnExpectedValues();

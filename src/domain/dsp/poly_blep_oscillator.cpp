@@ -17,6 +17,24 @@
 
 #include <algorithm>
 #include <cmath>
+#include <numbers>
+
+namespace {
+
+//! Narrowest duty the Shape control reaches. Below roughly this the pulse stops being a tone with a
+//! character and starts being a click: at 0.5 %, where this control used to end up, a 220 Hz pulse
+//! is about one sample wide at 48 kHz.
+constexpr double MinPulseWidth = 0.05;
+
+//! Corner of the coupling that removes the pulse's offset. Low enough to leave the fundamental
+//! alone, high enough that the sag is visible along the top of the wave the way it is on a scope
+//! looking at an analog synth.
+constexpr double PulseCouplingHz = 5.0;
+
+//! Bandwidth of the stage the pulse comes out of, as a corner. This is what rounds the corners.
+constexpr double PulseEdgeHz = 8000.0;
+
+} // namespace
 
 namespace noteahead {
 
@@ -70,12 +88,24 @@ double PolyBlepOscillator::nextSample()
     } else if (m_waveform == Waveform::Square) {
         double pw = m_pulseWidth;
         if (m_shape > 0.0) {
-            pw = 0.5 * (1.0 - m_shape * 0.99);
+            pw = MinPulseWidth + (0.5 - MinPulseWidth) * (1.0 - m_shape);
         }
         value = (t < pw) ? 1.0 : -1.0;
+        // The offset a duty other than half carries is taken off here, exactly, rather than left
+        // for the coupling below to remove. The coupling would get there in the end, but only over
+        // its own time constant, and a note would start with that decaying offset under it. The sag
+        // the coupling gives the wave does not depend on the offset being there.
         value -= (2.0 * pw - 1.0);
         value += polyBlep(t);
         value -= polyBlep(std::fmod(t + (1.0 - pw), 1.0));
+        value = analogPulse(value);
+
+        // A pulse swings between the same two rails whatever its duty, so once the offset is gone
+        // the shorter side of the wave is left standing further from zero than the longer one --
+        // at a tenth of a cycle, nearly twice as far. Scaling by the taller side keeps Shape a
+        // timbre control rather than a volume one, and stops a thin pulse arriving at the filter
+        // some 5 dB hotter than the saw next to it.
+        value *= 0.5 / std::max(pw, 1.0 - pw);
     } else if (m_waveform == Waveform::Triangle) {
         value = (t < 0.5) ? (4.0 * t - 1.0) : (3.0 - 4.0 * t);
         if (m_shape > 0.0) {
@@ -112,9 +142,29 @@ double PolyBlepOscillator::nextSample()
     return value;
 }
 
+double PolyBlepOscillator::analogPulse(double value)
+{
+    const double sampleRate = m_sampleRate > 0.0 ? m_sampleRate : 48000.0;
+
+    m_pulseCoupling.calculate(PulseCouplingHz, sampleRate);
+    m_pulseCoupling.process(value);
+    const double coupled = m_pulseCoupling.highPass();
+
+    m_pulseEdge.calculate(PulseEdgeHz, sampleRate);
+    m_pulseEdge.process(coupled);
+    return m_pulseEdge.lowPass();
+}
+
 void PolyBlepOscillator::sync(double phase)
 {
     m_phase = phase;
+}
+
+void PolyBlepOscillator::reset()
+{
+    m_phase = 0.0;
+    m_pulseCoupling.reset();
+    m_pulseEdge.reset();
 }
 
 double PolyBlepOscillator::frequency() const

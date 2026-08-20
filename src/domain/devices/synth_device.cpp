@@ -33,9 +33,9 @@ namespace noteahead {
 void SynthDevice::Voice::reset()
 {
     active = false;
-    vco1.sync(0.0);
-    vco2.sync(0.0);
-    vco3.sync(0.0);
+    vco1.reset();
+    vco2.reset();
+    vco3.reset();
     lpf.reset();
     hpf.reset();
     ampEg.reset();

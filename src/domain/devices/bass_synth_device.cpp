@@ -31,6 +31,10 @@ namespace noteahead {
 void BassSynthDevice::Voice::reset()
 {
     active = false;
+    // The sub is a pulse, so its stage carries filter state of its own. Clearing the phase alone
+    // would leave a reset voice starting from wherever the last note left that state.
+    vco.reset();
+    sub.reset();
     lpf.reset();
     hpf.reset();
     filterEg.reset();
