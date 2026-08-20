@@ -61,8 +61,13 @@ public:
     Q_INVOKABLE void setScopeActive(bool active);
     //! Returns [leftSamples, rightSamples] as nested lists of floats in output amplitude units,
     //! decimated to at most maxPoints per channel. Empty when no device is set.
-    Q_INVOKABLE QVariantList scopeSamples(int maxPoints) const;
+    //! \param cycles When positive, the scope returns that many periods of the pitch it hears
+    //! rather than a fixed window, so the trace stands still as notes change.
+    Q_INVOKABLE QVariantList scopeSamples(int maxPoints, int cycles = 0) const;
     Q_INVOKABLE int scopeSampleRate() const;
+
+    //! Pitch the scope's last cycle-locked read found, in Hz, or 0 when there was none to find.
+    Q_INVOKABLE double scopeFrequency() const;
 
     Q_INVOKABLE virtual void reset();
     Q_INVOKABLE virtual void requestSettings() = 0;

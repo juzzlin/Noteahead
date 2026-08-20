@@ -15,6 +15,9 @@
 
 #include "oscilloscope_renderer.hpp"
 
+#include <algorithm>
+#include <cmath>
+
 #include <QPainter>
 #include <QPainterPath>
 #include <QPen>
@@ -36,8 +39,19 @@ QVariantList OscilloscopeRenderer::samples() const
 void OscilloscopeRenderer::setSamples(const QVariantList & samples)
 {
     m_samples = samples;
+
+    m_peak = 0.0;
+    for (const auto & sample : m_samples) {
+        m_peak = std::max(m_peak, std::abs(sample.toReal()));
+    }
+
     emit samplesChanged();
     update();
+}
+
+qreal OscilloscopeRenderer::peak() const
+{
+    return m_peak;
 }
 
 QColor OscilloscopeRenderer::accentColor() const

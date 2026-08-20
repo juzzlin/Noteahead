@@ -109,6 +109,82 @@ void AudioScopeTest::test_snapshot_stereo_shouldReturnBothChannels()
     QVERIFY(peakR > 0.35f && peakR < 0.45f);
 }
 
+void AudioScopeTest::test_snapshot_cycleLocked_shouldShowRequestedCycles()
+{
+    AudioScope scope;
+    scope.setActive(true);
+
+    constexpr double period = 109.0; // Not a round number of samples, and not a divisor of the ring
+    writeSines(scope, 0.8f, 0.8f, period, 8192, 48000);
+
+    // Two periods across the width, whatever the note is: the trace then stands still instead of
+    // stretching and sliding as the pitch changes.
+    const auto snapshot = scope.snapshot(512, 2);
+
+    // Two periods of this note are fewer samples than the display asked for, and the scope hands
+    // back the samples it has rather than padding them out to the request.
+    QCOMPARE(static_cast<int>(snapshot.left.size()), static_cast<int>(std::llround(period * 2)));
+
+    // A sine crossing zero upwards twice has been through exactly two cycles.
+    int risingCrossings = 0;
+    for (size_t i = 1; i < snapshot.left.size(); i++) {
+        if (snapshot.left.at(i - 1) <= 0.0f && snapshot.left.at(i) > 0.0f) {
+            risingCrossings++;
+        }
+    }
+    QCOMPARE(risingCrossings, 2);
+}
+
+void AudioScopeTest::test_snapshot_cycleLocked_shouldFollowThePitch()
+{
+    AudioScope scope;
+    scope.setActive(true);
+
+    writeSines(scope, 0.8f, 0.8f, 109.0, 8192, 48000);
+    scope.snapshot(512, 2);
+    const double low = scope.lastDetectedFrequency();
+
+    writeSines(scope, 0.8f, 0.8f, 55.0, 8192, 48000);
+    scope.snapshot(512, 2);
+    const double high = scope.lastDetectedFrequency();
+
+    QVERIFY(std::abs(low - 48000.0 / 109.0) < 5.0);
+    QVERIFY(std::abs(high - 48000.0 / 55.0) < 10.0);
+}
+
+void AudioScopeTest::test_snapshot_cycleLocked_noPitch_shouldFallBack()
+{
+    AudioScope scope;
+    scope.setActive(true);
+
+    // Noise has no period to lock to. Locking to one anyway would leave the trace sliding about,
+    // so the scope has to fall back to its fixed window and say it found nothing.
+    std::vector<double> buffer(8192 * 2, 0.0);
+    uint32_t state = 12345;
+    for (size_t i = 0; i < buffer.size(); i++) {
+        state = state * 1103515245u + 12345u;
+        buffer[i] = static_cast<double>(static_cast<int32_t>(state >> 8)) / 8388608.0 - 1.0;
+    }
+    scope.write(buffer.data(), 8192, 48000);
+
+    const auto snapshot = scope.snapshot(512, 2);
+
+    QCOMPARE(static_cast<int>(snapshot.left.size()), 512);
+    QCOMPARE(scope.lastDetectedFrequency(), 0.0);
+}
+
+void AudioScopeTest::test_snapshot_withoutCycles_shouldNotReportAPitch()
+{
+    AudioScope scope;
+    scope.setActive(true);
+    writeSines(scope, 0.8f, 0.8f, 109.0, 8192, 48000);
+
+    // The search only runs when the lock asks for it, so an unlocked scope costs what it always did.
+    scope.snapshot(512);
+
+    QCOMPARE(scope.lastDetectedFrequency(), 0.0);
+}
+
 void AudioScopeTest::test_concurrentWriteAndSnapshot_shouldStayResponsive()
 {
     AudioScope scope;

@@ -5,6 +5,8 @@ Release date:
 
 New features:
 
+* Add cycle locking and auto zoom to the oscilloscope
+
 * Add the Analog Fuzz rack effect
   - A fuzz stage played through the filter it overdrives, so the resonance
     gives way under drive instead of screaming

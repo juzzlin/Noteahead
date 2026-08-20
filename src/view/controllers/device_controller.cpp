@@ -109,11 +109,11 @@ void DeviceController::applyScopeActive()
     m_scopeDevice = m_scopeActive ? current : DeviceS {};
 }
 
-QVariantList DeviceController::scopeSamples(int maxPoints) const
+QVariantList DeviceController::scopeSamples(int maxPoints, int cycles) const
 {
     QVariantList result;
     if (const auto dev = device(); dev) {
-        const auto snapshot = dev->scope().snapshot(static_cast<size_t>(std::max(0, maxPoints)));
+        const auto snapshot = dev->scope().snapshot(static_cast<size_t>(std::max(0, maxPoints)), cycles);
         const auto toList = [](const std::vector<float> & samples) {
             QVariantList list;
             list.reserve(static_cast<int>(samples.size()));
@@ -126,6 +126,14 @@ QVariantList DeviceController::scopeSamples(int maxPoints) const
         result.append(QVariant { toList(snapshot.right) });
     }
     return result;
+}
+
+double DeviceController::scopeFrequency() const
+{
+    if (const auto dev = device(); dev) {
+        return dev->scope().lastDetectedFrequency();
+    }
+    return 0.0;
 }
 
 int DeviceController::scopeSampleRate() const

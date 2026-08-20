@@ -31,6 +31,10 @@ class OscilloscopeRenderer : public QQuickPaintedItem
     Q_PROPERTY(QColor accentColor READ accentColor WRITE setAccentColor NOTIFY accentColorChanged)
     Q_PROPERTY(qreal gain READ gain WRITE setGain NOTIFY gainChanged)
     Q_PROPERTY(bool showGrid READ showGrid WRITE setShowGrid NOTIFY showGridChanged)
+    //! Largest absolute sample in the current trace, before gain. Read by the host to work out one
+    //! vertical scale for both channels: scaling them separately would move the two traces by
+    //! different amounts and the stereo picture would be a lie.
+    Q_PROPERTY(qreal peak READ peak NOTIFY samplesChanged)
 
 public:
     explicit OscilloscopeRenderer(QQuickItem * parent = nullptr);
@@ -47,6 +51,8 @@ public:
     bool showGrid() const;
     void setShowGrid(bool show);
 
+    qreal peak() const;
+
     void paint(QPainter * painter) override;
 
 signals:
@@ -60,6 +66,7 @@ private:
     QColor m_accentColor { 0, 180, 255 };
     qreal m_gain = 1.0;
     bool m_showGrid = true;
+    qreal m_peak = 0.0;
 };
 
 } // namespace noteahead

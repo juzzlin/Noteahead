@@ -19,6 +19,7 @@
 #include <atomic>
 #include <cstdint>
 #include <mutex>
+#include <optional>
 #include <vector>
 
 namespace noteahead {
@@ -52,7 +53,17 @@ public:
     //! UI-thread: return the latest window of both channels aligned to a rising zero-crossing of
     //! the left channel, decimated to at most maxPoints samples per channel (<= 0 means none).
     //! Values are raw output amplitudes.
-    Snapshot snapshot(size_t maxPoints) const;
+    //!
+    //! \param cycles When positive, the window is that many periods of whatever pitch the left
+    //! channel is holding, so the trace stands still and shows the same number of cycles whatever
+    //! note is played. Falls back to the fixed window when no pitch can be found -- on noise, on a
+    //! chord, or on silence -- since a period that is not there cannot be locked to.
+    Snapshot snapshot(size_t maxPoints, int cycles = 0) const;
+
+    //! Pitch the last cycle-locked snapshot() found, in Hz, or 0 when it found none. A plain read
+    //! of what that call already worked out: searching for the period again here would double the
+    //! cost of the one genuinely expensive thing the scope does.
+    double lastDetectedFrequency() const;
 
     uint32_t sampleRate() const;
 
@@ -62,6 +73,11 @@ private:
 
     std::atomic<bool> m_active { false };
     std::atomic<uint32_t> m_sampleRate { 0 };
+    //! Period in samples the last locked snapshot found, 0 for none.
+    mutable std::atomic<double> m_lastPeriod { 0.0 };
+
+    //! Chronological copy of the left ring, newest last, plus the period search over it.
+    static std::optional<double> findPeriod(const std::vector<float> & linear, uint32_t sampleRate);
 
     mutable std::mutex m_mutex;
     std::vector<float> m_ringL;
