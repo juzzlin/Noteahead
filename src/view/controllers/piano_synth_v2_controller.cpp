@@ -141,6 +141,18 @@ void PianoSynthV2Controller::setDoubleDecay(int value)
     }
 }
 
+int PianoSynthV2Controller::attack() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->attack() * Constants::uiInternalScaling())) : 0;
+}
+
+void PianoSynthV2Controller::setAttack(int value)
+{
+    if (m_device) {
+        m_device->setAttack(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
 int PianoSynthV2Controller::lpfCutoff() const
 {
     return m_device ? static_cast<int>(std::round(m_device->lpfCutoff() * Constants::uiInternalScaling())) : 0;
@@ -199,6 +211,7 @@ void PianoSynthV2Controller::requestSettings()
     emit stretchChanged();
     emit richnessChanged();
     emit doubleDecayChanged();
+    emit attackChanged();
     emit lpfCutoffChanged();
     emit hpfCutoffChanged();
     emit releaseTimeChanged();

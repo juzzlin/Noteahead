@@ -55,6 +55,7 @@ PianoSynthV2Device::PianoSynthV2Device(std::string name)
     addParameter(Parameter(Constants::NahdXml::xmlKeyStretch().toStdString(), 0.0f, 0, 10000, 0, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyRichness().toStdString(), 0.7f, 0, 10000, 7000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyDoubleDecay().toStdString(), 0.5f, 0, 10000, 5000, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyAttack().toStdString(), 0.5f, 0, 10000, 5000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), 1.0f, 0, 10000, 10000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.0f, 0, 10000, 0, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyReleaseTime().toStdString(), 0.15f, 0, 10000, 1500, 100));
@@ -317,7 +318,8 @@ ModalPianoString::Settings PianoSynthV2Device::stringSettings() const
         m_stringDetune,
         m_stretch,
         m_richness,
-        m_doubleDecay
+        m_doubleDecay,
+        m_attack
     };
 }
 
@@ -412,6 +414,9 @@ void PianoSynthV2Device::syncParameters()
     if (const auto p = parameter(Constants::NahdXml::xmlKeyDoubleDecay().toStdString()); p) {
         m_doubleDecay = p->get().value();
     }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyAttack().toStdString()); p) {
+        m_attack = p->get().value();
+    }
     if (const auto p = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); p) {
         m_lpfCutoff = p->get().value();
     }
@@ -504,6 +509,16 @@ float PianoSynthV2Device::doubleDecay() const
 void PianoSynthV2Device::setDoubleDecay(float doubleDecay)
 {
     setContinuousParameterValue(Constants::NahdXml::xmlKeyDoubleDecay().toStdString(), doubleDecay);
+}
+
+float PianoSynthV2Device::attack() const
+{
+    return m_attack;
+}
+
+void PianoSynthV2Device::setAttack(float attack)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyAttack().toStdString(), attack);
 }
 
 float PianoSynthV2Device::lpfCutoff() const

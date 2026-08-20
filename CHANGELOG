@@ -5,6 +5,8 @@ Release date:
 
 New features:
 
+* Add an Attack control to Piano Synth V2
+
 * Add a Roundness control to the synth's oscillators, setting how gently a
   pulse's edges cross
 
@@ -16,6 +18,9 @@ New features:
   - Drive, Fuzz, Bias, Cutoff, Resonance, Mix and Output
 
 Bug fixes:
+
+* Fix Piano Synth V2 losing the strike on very short notes: the damper
+  landed before the note had developed
 
 * Widen Drive, Saturator and Tube Stage so they reach their own knees on
   the level a device puts out. Saved projects keep their gain

@@ -49,6 +49,10 @@ public:
         float stretch { 0.0f }; // How much of the Railsback curve to apply
         float richness { 0.6f }; // Upper bound on the partial count
         float doubleDecay { 0.5f }; // How much faster the in-phase component decays
+        // Scales the ramp the strike opens with. Half is the ramp the model was fitted with, so a
+        // patch that leaves it alone is unchanged; below that the note arrives more abruptly, above
+        // it the hammer is felt rather than heard.
+        float attack { 0.5f };
     };
 
     // Partials of the note itself, before the unison pairs are added. The reference has
@@ -131,6 +135,10 @@ private:
     // Sets a mode's coefficients from its pitch and decay time.
     void setModePole(Mode & mode, double frequency, double decayTime) const;
 
+    // Shortens every mode's decay to what the damper allows. Called once the damper has had time
+    // to land, which is not the moment the key was let go.
+    void applyDamper(float releaseTime);
+
     std::array<Mode, MaxModes> m_modes;
     int m_modeCount { 0 };
 
@@ -142,6 +150,13 @@ private:
     // arrive on one sample. Its length is what the attack time is measured as.
     double m_attackPhase { 0.0 };
     double m_attackStep { 0.0 };
+
+    // A damper has mass, and its felt has to travel and then absorb: it cannot stop a string that
+    // has not finished its first cycles. Letting it land the instant the key came up truncated the
+    // strike itself -- at a five millisecond note in the bass it cost 5 dB of peak and 22 dB of
+    // energy, which is the difference between a staccato note and nothing much at all.
+    int m_damperCountdown { 0 };
+    float m_pendingReleaseTime { 0.0f };
 
     int m_pruneCounter { 0 };
     double m_energy { 0.0 };

@@ -390,6 +390,85 @@ std::optional<double> measurePitch(int note, uint8_t velocity = 100, float stret
 
 } // namespace
 
+namespace {
+
+//! Peak of the whole note, struck at the given pitch and released after holdMs.
+double peakOfHeldNote(uint8_t note, double holdMs, float attack = 0.5f)
+{
+    PianoSynthV2Device synth { "Test" };
+    synth.setSampleRate(DefaultSampleRate);
+    synth.setAttack(attack);
+    synth.processMidiNoteOn(note, 110);
+
+    constexpr uint32_t block = 256;
+    const auto blocks = static_cast<uint32_t>(2.0 * DefaultSampleRate / block);
+    const auto releaseBlock = static_cast<uint32_t>(holdMs / 1000.0 * DefaultSampleRate / block);
+
+    double peak = 0.0;
+    for (uint32_t b = 0; b < blocks; b++) {
+        if (b == releaseBlock) {
+            synth.processMidiNoteOff(note);
+        }
+        std::vector<double> buffer(block * 2, 0.0);
+        auto context = makeContext(buffer, block, DefaultSampleRate);
+        synth.processAudio(context);
+        peak = std::max(peak, peakLevel(buffer));
+    }
+    return peak;
+}
+
+} // namespace
+
+void PianoSynthV2Test::test_shortNote_shouldNotLoseTheStrike()
+{
+    // A damper cannot stop a string that has not finished its first cycles, and letting it land the
+    // instant the key came up took the strike with it: a five millisecond note in the bass came out
+    // 5 dB below the same note held, which is most of what a staccato passage is made of.
+    const double shortNote = peakOfHeldNote(36, 5.0);
+    const double heldNote = peakOfHeldNote(36, 2000.0);
+
+    QVERIFY(heldNote > 0.0);
+    QVERIFY(shortNote > heldNote * 0.9);
+}
+
+void PianoSynthV2Test::test_attack_shouldShapeTheOnset()
+{
+    // The control lengthens the ramp the strike opens with. A longer ramp spreads the same energy
+    // over more time, so the note's peak comes down; that is the audible difference between a
+    // hammer heard and a hammer felt.
+    // The onset, as the level reached in the first ten milliseconds. A soft attack spreads the
+    // strike over long enough that this window is nearly empty; a hard one fills it at once.
+    const auto onsetLevel = [](float attack) {
+        PianoSynthV2Device synth { "Test" };
+        synth.setSampleRate(DefaultSampleRate);
+        synth.setAttack(attack);
+        synth.processMidiNoteOn(60, 110);
+        std::vector<double> buffer(480 * 2, 0.0);
+        auto context = makeContext(buffer, 480, DefaultSampleRate);
+        synth.processAudio(context);
+        return peakLevel(buffer);
+    };
+
+    const double sharp = onsetLevel(0.0f);
+    const double fitted = onsetLevel(0.5f);
+    const double soft = onsetLevel(1.0f);
+
+    QVERIFY(sharp > 0.0);
+    QVERIFY(fitted <= sharp);
+    QVERIFY(soft < fitted * 0.25);
+
+    // ...and it shapes rather than attenuates: what the note reaches in the end is its own.
+    QVERIFY(peakOfHeldNote(60, 2000.0, 1.0f) > peakOfHeldNote(60, 2000.0, 0.0f) * 0.9);
+}
+
+void PianoSynthV2Test::test_attack_default_shouldBeNeutral()
+{
+    // Half way is the ramp the bank was fitted with, so a patch that never touches the control is
+    // exactly what it was before the control existed.
+    PianoSynthV2Device synth { "Test" };
+    QCOMPARE(synth.attack(), 0.5f);
+}
+
 void PianoSynthV2Test::test_midiNoteOn_shouldActivateAudio()
 {
     PianoSynthV2Device piano { "Test Piano" };
@@ -484,6 +563,7 @@ void PianoSynthV2Test::test_serialization_shouldRestoreParameters()
     piano.setStretch(0.7f);
     piano.setRichness(0.9f);
     piano.setDoubleDecay(0.25f);
+    piano.setAttack(0.85f);
 
     QString xml;
     NahdXmlWriter writer { xml };
@@ -501,6 +581,7 @@ void PianoSynthV2Test::test_serialization_shouldRestoreParameters()
     QCOMPARE(piano2.stretch(), piano.stretch());
     QCOMPARE(piano2.richness(), piano.richness());
     QCOMPARE(piano2.doubleDecay(), piano.doubleDecay());
+    QCOMPARE(piano2.attack(), piano.attack());
 }
 
 void PianoSynthV2Test::test_reset_shouldRestoreFactoryDefaults()

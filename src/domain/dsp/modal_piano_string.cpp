@@ -83,6 +83,21 @@ constexpr double BrightnessTiltDepth = 0.5;
 
 // The damper bites harder the higher the partial, and never more than this many times
 // faster than it does in the bass.
+//! Range of the Attack control, as octaves of ramp length either side of the fitted one. The fitted
+//! ramp is only a few milliseconds, so a narrow span moves nothing a listener would notice: this
+//! reaches from a hard click at one end to a distinctly felt onset of some fifty milliseconds at
+//! the other, with the fitted ramp in the middle.
+constexpr double AttackScaleSpan = 8.0;
+
+//! Longest the damper will wait for a strike to finish developing. Without a bound, a soft attack
+//! would keep a staccato note ringing for as long as its own onset lasts.
+constexpr double MaxDamperWaitSeconds = 0.04;
+
+//! How long the damper takes to land after the key comes up. A real one has to travel and then
+//! bed in, and in the bass it is heavier and slower still; what matters here is only that it is
+//! never instant, because instant takes the strike with it.
+constexpr double DamperEngagementSeconds = 0.018;
+
 constexpr double DamperPitchCorner = 300.0;
 constexpr double DamperMaxSpeedup = 4.0;
 
@@ -372,7 +387,9 @@ void ModalPianoString::trigger(uint8_t note, float velocity, const Settings & se
 
     // A short ramp over the strike, long in the bass and brief at the top, so that the
     // modes do not all land on one sample. It is what an attack time is measured as.
-    const double attackSeconds = (0.0005 + 0.0035 * std::pow(ReferenceFrequency / std::max(f0, 20.0), 0.6)) * (1.3 - 0.5 * vel);
+    // Centred on 1, so the middle of the control is the ramp the bank was fitted with.
+    const double attackScale = std::exp2((static_cast<double>(settings.attack) - 0.5) * AttackScaleSpan);
+    const double attackSeconds = (0.0005 + 0.0035 * std::pow(ReferenceFrequency / std::max(f0, 20.0), 0.6)) * (1.3 - 0.5 * vel) * attackScale;
     m_attackPhase = 0.0;
     m_attackStep = 1.0 / std::max(1.0, attackSeconds * m_sampleRate);
 
@@ -391,6 +408,19 @@ void ModalPianoString::release(float releaseTime)
 
     m_releasing = true;
 
+    // The damper is scheduled rather than applied. It has to land no sooner than the strike has
+    // finished developing, or it takes the note's own attack away with it: the ramp at the start of
+    // a bass note is the best part of ten milliseconds on its own.
+    const int engagement = static_cast<int>(DamperEngagementSeconds * m_sampleRate);
+    const int remainingAttack = m_attackStep > 0.0 && m_attackPhase < 1.0
+      ? static_cast<int>(std::ceil((1.0 - m_attackPhase) / m_attackStep))
+      : 0;
+    m_damperCountdown = std::max(engagement, std::min(remainingAttack, static_cast<int>(MaxDamperWaitSeconds * m_sampleRate)));
+    m_pendingReleaseTime = releaseTime;
+}
+
+void ModalPianoString::applyDamper(float releaseTime)
+{
     const double damperDecay = std::max(0.03 + static_cast<double>(releaseTime) * 1.5, MinDecayTime);
     for (int i = 0; i < m_modeCount; i++) {
         Mode & mode = m_modes[i];
@@ -413,6 +443,10 @@ double ModalPianoString::nextSample()
 {
     if (!isActive()) {
         return 0.0;
+    }
+
+    if (m_damperCountdown > 0 && --m_damperCountdown == 0) {
+        applyDamper(m_pendingReleaseTime);
     }
 
     double out = 0.0;
@@ -477,6 +511,8 @@ void ModalPianoString::reset()
     m_gain = 0.0;
     m_attackPhase = 1.0;
     m_attackStep = 0.0;
+    m_damperCountdown = 0;
+    m_pendingReleaseTime = 0.0f;
     m_releasing = false;
     m_pruneCounter = 0;
     m_energy = 0.0;

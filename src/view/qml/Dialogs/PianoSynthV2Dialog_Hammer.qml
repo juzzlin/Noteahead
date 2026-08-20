@@ -42,6 +42,14 @@ ColumnLayout {
         Layout.fillWidth: true
     }
     Knob {
+        // The ramp the strike opens with. Centre is the one the model was fitted to; below it the
+        // note arrives more abruptly, above it the hammer is felt rather than heard.
+        label: qsTr("Attack")
+        value: pianoSynthV2Controller.attack
+        onMoved: v => pianoSynthV2Controller.attack = v
+        Layout.fillWidth: true
+    }
+    Knob {
         label: qsTr("Richness")
         value: pianoSynthV2Controller.richness
         onMoved: v => pianoSynthV2Controller.richness = v

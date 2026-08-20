@@ -74,6 +74,10 @@ public:
     void setRichness(float richness);
     float doubleDecay() const;
     void setDoubleDecay(float doubleDecay);
+
+    //! Scales the ramp the strike opens with, half being the one the model was fitted with.
+    float attack() const;
+    void setAttack(float attack);
     float lpfCutoff() const;
     void setLpfCutoff(float cutoff);
     float hpfCutoff() const;
@@ -122,6 +126,7 @@ private:
     float m_stretch { 0.0f };
     float m_richness { 0.7f };
     float m_doubleDecay { 0.5f };
+    float m_attack { 0.5f };
     float m_lpfCutoff { 1.0f };
     float m_hpfCutoff { 0.0f };
     float m_releaseTime { 0.15f };

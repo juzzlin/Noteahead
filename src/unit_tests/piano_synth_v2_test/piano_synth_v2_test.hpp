@@ -25,6 +25,9 @@ class PianoSynthV2Test : public QObject
     Q_OBJECT
 
 private slots:
+    void test_shortNote_shouldNotLoseTheStrike();
+    void test_attack_shouldShapeTheOnset();
+    void test_attack_default_shouldBeNeutral();
     void test_midiNoteOn_shouldActivateAudio();
     void test_midiNoteOff_shouldDecayToSilence();
     void test_polyphony_shouldSupportMultipleSimultaneousNotes();
