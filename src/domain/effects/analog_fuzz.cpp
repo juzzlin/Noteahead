@@ -173,6 +173,11 @@ void AnalogFuzz::processSample(double & left, double & right)
     m_filterR.setResonance(static_cast<double>(m_resonance));
     m_filterL.setSaturation(FilterHeadroom);
     m_filterR.setSaturation(FilterHeadroom);
+    // The loop runs once per oversampled step, so each step gets its share of the squash: without
+    // this the effect compresses harder the more it is oversampled, and a render stops matching
+    // what was played.
+    m_filterL.setSaturationPerStep(1.0 / factor);
+    m_filterR.setSaturationPerStep(1.0 / factor);
     const double filterDrive = FilterDriveFloor * std::pow(driveLin, FilterDriveExponent);
     // Drive is a character control, so most of the gain it adds is taken back out here rather than
     // left for the Output trim to chase.

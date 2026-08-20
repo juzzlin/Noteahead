@@ -54,6 +54,16 @@ public:
     //! signal and this is an ordinary SVF.
     void setSaturation(double drive);
 
+    //! How much of the squash to apply on each step, as a fraction.
+    //!
+    //! tanh is not idempotent: applying it twice is not applying it once, so a filter running at
+    //! four times the rate squashes its states four times as often and compresses that much harder.
+    //! That made an effect sound different at one oversampling factor than at another -- a render
+    //! at 4x came out over a decibel below the same song playing at 2x. Callers that oversample
+    //! pass the reciprocal of their factor here, which keeps the saturation per unit of time, and
+    //! therefore the sound, the same at any rate.
+    void setSaturationPerStep(double fraction);
+
     void setSampleRate(double sampleRate) override;
 
     //! One sample through the filter. Returns the low-pass tap, which is the one an overdriven VCF
@@ -73,6 +83,7 @@ private:
     double m_cutoff { 1000.0 };
     double m_resonance { 0.0 };
     double m_saturation { 1.0 };
+    double m_saturationPerStep { 1.0 };
 
     double m_lastCutoff { -1.0 };
     double m_lastResonance { -1.0 };

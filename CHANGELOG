@@ -19,6 +19,9 @@ New features:
 
 Bug fixes:
 
+* Fix Analog Fuzz sounding different at different oversampling factors,
+  which made a render quieter than the playback it came from
+
 * Fix Piano Synth V2 losing the strike on very short notes: the damper
   landed before the note had developed
 

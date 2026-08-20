@@ -25,6 +25,7 @@ class AnalogFuzzTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_oversampling_shouldNotChangeTheLevel();
     void test_mixZero_shouldPassSignalThrough();
     void test_drive_higher_shouldSaturateMore();
     void test_moderateDrive_shouldAudiblyDistort();

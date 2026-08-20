@@ -161,6 +161,27 @@ double inharmonicEnergy(const std::vector<double> & samples)
 
 } // namespace
 
+void AnalogFuzzTest::test_oversampling_shouldNotChangeTheLevel()
+{
+    // Playback and rendering do not use the same oversampling factor -- 2x against 4x by default --
+    // so an effect that sounds different at one factor than at another makes an export stop
+    // matching what was played. This one did: tanh is not idempotent, and squashing the filter's
+    // states once per sample squashed them four times as often at 4x, which took over a decibel off
+    // anything running through it.
+    const auto level = [](uint8_t factor) {
+        AnalogFuzz effect;
+        setParameter(effect, Constants::NahdXml::xmlKeyDrive(), 0.5f);
+        setParameter(effect, Constants::NahdXml::xmlKeyResonance(), 0.6f);
+        effect.setOversampleFactor(factor);
+        return rmsLevel(renderSine(effect, 440.0, 0.05));
+    };
+
+    const double atTwo = level(2);
+    QVERIFY(atTwo > 0.0);
+    QVERIFY(std::abs(level(1) / atTwo - 1.0) < 0.02);
+    QVERIFY(std::abs(level(4) / atTwo - 1.0) < 0.02);
+}
+
 void AnalogFuzzTest::test_mixZero_shouldPassSignalThrough()
 {
     AnalogFuzz effect;

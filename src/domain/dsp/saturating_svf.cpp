@@ -52,6 +52,11 @@ void SaturatingSvf::setSaturation(double drive)
     m_saturation = std::max(0.0, drive);
 }
 
+void SaturatingSvf::setSaturationPerStep(double fraction)
+{
+    m_saturationPerStep = std::clamp(fraction, 0.0, 1.0);
+}
+
 void SaturatingSvf::setSampleRate(double sampleRate)
 {
     DspComponent::setSampleRate(sampleRate);
@@ -99,8 +104,10 @@ double SaturatingSvf::process(double input)
     // coming back round through the poles -- follows from these two lines.
     if (m_saturation > MinSaturation) {
         const double scale = 1.0 / m_saturation;
-        s1 = std::tanh(s1 * m_saturation) * scale;
-        s2 = std::tanh(s2 * m_saturation) * scale;
+        // Only a share of the way towards the squashed value on each step, so that running four
+        // times as often does not squash four times as hard. See setSaturationPerStep().
+        s1 += (std::tanh(s1 * m_saturation) * scale - s1) * m_saturationPerStep;
+        s2 += (std::tanh(s2 * m_saturation) * scale - s2) * m_saturationPerStep;
     }
 
     m_ic1eq = s1;
