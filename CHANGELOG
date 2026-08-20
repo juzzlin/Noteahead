@@ -17,6 +17,9 @@ Bug fixes:
 * Widen Drive, Saturator and Tube Stage so they reach their own knees on
   the level a device puts out. Saved projects keep their gain
 
+* Fix the shaped saw aliasing: the anti-aliasing correction was sized for
+  the unshaped waveform
+
 * Make the square wave analog: AC coupling, finite edge rate and a level
   that no longer jumps as Shape narrows the pulse
 

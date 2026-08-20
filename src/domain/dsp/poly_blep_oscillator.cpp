@@ -84,7 +84,12 @@ double PolyBlepOscillator::nextSample()
             // Basic saw shaping: mix in a bit of folding
             value = (1.0 - m_shape) * value + m_shape * std::sin(std::numbers::pi * value);
         }
-        value -= polyBlep(t);
+        // The correction has to match the step it is cancelling, and shaping changes that step. A
+        // raw saw jumps 2 at the wrap; the shaper sends both ends of the ramp through sin(pi * v),
+        // which is zero at either end, so what is left of the jump is 2 * (1 - shape). Correcting
+        // an unshaped jump on a shaped wave over-corrects, and the over-correction aliases: at
+        // 880 Hz with the shaper most of the way up it measured sixteen times the unshaped wave.
+        value -= polyBlep(t) * (1.0 - static_cast<double>(m_shape));
     } else if (m_waveform == Waveform::Square) {
         double pw = m_pulseWidth;
         if (m_shape > 0.0) {

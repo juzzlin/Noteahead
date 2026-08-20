@@ -19,9 +19,78 @@
 #include <QTest>
 #include <algorithm>
 #include <cmath>
+#include <numbers>
 #include <vector>
 
 namespace noteahead {
+
+namespace {
+
+//! Energy sitting on anything that is not a harmonic of the note. Above Nyquist a harmonic either
+//! was filtered away or folded back to some unrelated frequency, and it is that folded rubbish this
+//! measures. The frequency is chosen so a period is not a whole number of samples: otherwise a
+//! folded harmonic lands on another harmonic's bin and is counted as signal.
+double aliasingRatio(PolyBlepOscillator::Waveform waveform, double frequency, double sampleRate, double shape)
+{
+    constexpr int periods = 97;
+
+    PolyBlepOscillator osc;
+    osc.setSampleRate(sampleRate);
+    osc.setFrequency(frequency);
+    osc.setWaveform(waveform);
+    osc.setShape(shape);
+
+    const auto total = static_cast<size_t>(std::round(static_cast<double>(periods) * sampleRate / frequency));
+    for (size_t i = 0; i < total; i++) {
+        osc.nextSample(); // Warm-up: the pulse stage's coupling settles from silence
+    }
+    std::vector<double> samples;
+    samples.reserve(total);
+    for (size_t i = 0; i < total; i++) {
+        samples.push_back(osc.nextSample());
+    }
+
+    const auto n = static_cast<double>(samples.size());
+    const auto magnitude = [&](int harmonic) {
+        const double bin = static_cast<double>(harmonic * periods);
+        double re = 0.0;
+        double im = 0.0;
+        for (size_t i = 0; i < samples.size(); i++) {
+            const double angle = 2.0 * std::numbers::pi * bin * static_cast<double>(i) / n;
+            re += samples[i] * std::cos(angle);
+            im += samples[i] * std::sin(angle);
+        }
+        return 2.0 * std::hypot(re, im) / n;
+    };
+
+    double total2 = 0.0;
+    for (const double sample : samples) {
+        total2 += sample * sample;
+    }
+    double harmonics = 0.0;
+    for (int harmonic = 1; static_cast<double>(harmonic * periods) < n * 0.5; harmonic++) {
+        const double m = magnitude(harmonic);
+        harmonics += m * m * 0.5 * n;
+    }
+    return total2 > 0.0 ? std::max(0.0, total2 - harmonics) / total2 : 0.0;
+}
+
+} // namespace
+
+void PolyBlepOscillatorTest::test_shapedSaw_shouldNotAliasMoreThanThePlainOne()
+{
+    // Shaping bends both ends of the ramp towards zero, so the step left at the wrap is smaller
+    // than the one the correction is sized for. Correcting the full step on a shaped wave
+    // over-corrects, and the over-correction folds back into the band: at 880 Hz with the shaper
+    // most of the way up this measured sixteen times the aliasing of the plain saw.
+    const double plain = aliasingRatio(PolyBlepOscillator::Waveform::Saw, 880.0, 48000.0, 0.0);
+    const double shaped = aliasingRatio(PolyBlepOscillator::Waveform::Saw, 880.0, 48000.0, 0.9);
+
+    QVERIFY(shaped <= plain);
+
+    // Fully shaped the wave is a sine, which has no discontinuity to correct at all
+    QVERIFY(aliasingRatio(PolyBlepOscillator::Waveform::Saw, 880.0, 48000.0, 1.0) < plain * 0.1);
+}
 
 void PolyBlepOscillatorTest::test_nextSample_saw_shouldReturnExpectedValues()
 {
