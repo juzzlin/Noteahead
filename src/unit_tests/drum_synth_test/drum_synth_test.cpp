@@ -15,6 +15,7 @@
 
 #include "drum_synth_test.hpp"
 #include "../../common/constants.hpp"
+#include "../../domain/devices/drum_synth_constants.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/dsp/drum/clap_engine.hpp"
 #include "../../domain/dsp/drum/crash_engine.hpp"
@@ -276,39 +277,75 @@ void DrumSynthTest::test_drumSynthDevice_xmlSerialization_shouldRestoreParameter
         QCOMPARE(p->get().value(), 0.25f);
 }
 
+void DrumSynthTest::test_processMidiCc_shouldNotChangeAuthoredVoiceValue()
+{
+    // Automating a voice used to write the value the project saves, so a song that was playing
+    // when it was saved took its automation with it.
+    DrumSynthDevice device { "Test" };
+    const auto key = DrumSynth::voiceId(static_cast<int>(DrumSynth::VoiceIndex::Kick)) + "_" + Constants::NahdXml::xmlKeyHpfCutoff().toStdString();
+    device.updateVoiceParameter(0, Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.25f);
+
+    device.processMidiCc(16, 127, 0); // Kick HPF
+
+    const auto parameter = device.parameter(key);
+    QVERIFY(parameter.has_value());
+    QCOMPARE(parameter->get().value(), 1.0f);
+    QCOMPARE(parameter->get().authoredValue(), 0.25f);
+}
+
+void DrumSynthTest::test_resetAllControllers_shouldRestoreAuthoredVoiceValue()
+{
+    // The voice parameters had no restore path at all: they stayed wherever automation left them.
+    DrumSynthDevice device { "Test" };
+    const auto key = DrumSynth::voiceId(static_cast<int>(DrumSynth::VoiceIndex::Kick)) + "_" + Constants::NahdXml::xmlKeyHpfCutoff().toStdString();
+    device.updateVoiceParameter(0, Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.25f);
+    device.processMidiCc(16, 127, 0);
+
+    device.processMidiCc(121, 127, 0); // Reset All Controllers
+
+    QCOMPARE(device.parameter(key)->get().value(), 0.25f);
+
+    // And the transport's own way in gets to the same place
+    device.processMidiCc(16, 127, 0);
+    device.clearAutomation();
+    QCOMPARE(device.parameter(key)->get().value(), 0.25f);
+}
+
 void DrumSynthTest::test_processMidiCc_shouldUpdateVoicePanLpfHpf()
 {
     DrumSynthDevice device("Test");
 
+    // A voice keys its parameters by name -- "Kick_pan", not "Voice0_pan". Looking them up by index
+    // found nothing, and every assertion behind that lookup was skipped instead of failing.
+    const auto voiceParameter = [&device](int voiceIndex, const QString & key) {
+        const auto parameter = device.parameter(DrumSynth::voiceId(voiceIndex) + "_" + key.toStdString());
+        Q_ASSERT(parameter.has_value());
+        return parameter->get().value();
+    };
+
     // Kick (Voice 0) Pan (CC 14)
     device.processMidiCc(14, 127, 0);
-    if (auto p = device.parameter("Voice0_" + Constants::NahdXml::xmlKeyPan().toStdString()); p)
-        QCOMPARE(p->get().value(), 1.0f);
+    QCOMPARE(voiceParameter(0, Constants::NahdXml::xmlKeyPan()), 1.0f);
 
     // Kick (Voice 0) LPF (CC 15)
     device.processMidiCc(15, 64, 0);
-    if (auto p = device.parameter("Voice0_" + Constants::NahdXml::xmlKeyCutoff().toStdString()); p)
-        QVERIFY(std::abs(p->get().value() - 0.5f) < 0.01f);
+    QVERIFY(std::abs(voiceParameter(0, Constants::NahdXml::xmlKeyCutoff()) - 0.5f) < 0.01f);
 
     // Kick (Voice 0) HPF (CC 16)
     device.processMidiCc(16, 0, 0);
-    if (auto p = device.parameter("Voice0_" + Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p)
-        QCOMPARE(p->get().value(), 0.0f);
+    QCOMPARE(voiceParameter(0, Constants::NahdXml::xmlKeyHpfCutoff()), 0.0f);
 
     // Low Tom (Voice 5) HPF (CC 14 + 5*3 + 2 = CC 31)
     device.processMidiCc(31, 127, 0);
-    if (auto p = device.parameter("Voice5_" + Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p)
-        QCOMPARE(p->get().value(), 1.0f);
+    QCOMPARE(voiceParameter(5, Constants::NahdXml::xmlKeyHpfCutoff()), 1.0f);
 
     // Mid Tom (Voice 6) Pan (CC 102)
     device.processMidiCc(102, 127, 0);
-    if (auto p = device.parameter("Voice6_" + Constants::NahdXml::xmlKeyPan().toStdString()); p)
-        QCOMPARE(p->get().value(), 1.0f);
+    QCOMPARE(voiceParameter(6, Constants::NahdXml::xmlKeyPan()), 1.0f);
 
     // Reverse Crash (Voice 10) HPF (CC 102 + 4*3 + 2 = CC 116)
     device.processMidiCc(116, 127, 0);
-    if (auto p = device.parameter("Voice10_" + Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p)
-        QCOMPARE(p->get().value(), 1.0f);
+    QCOMPARE(voiceParameter(10, Constants::NahdXml::xmlKeyHpfCutoff()), 1.0f);
 }
 
 void DrumSynthTest::test_drumSynthDevice_toms_shouldHaveDifferentDefaultTunes()

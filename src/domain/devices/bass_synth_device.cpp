@@ -162,18 +162,7 @@ void BassSynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
         std::lock_guard<std::recursive_mutex> lock { mutex() };
 
         if (controller == static_cast<uint8_t>(Controller::ResetAllControllers)) {
-            m_lpfCutoff = m_manualLpfCutoff;
-            m_hpfCutoff = m_manualHpfCutoff;
-
-            if (auto p = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); p)
-                p->get().setValue(m_lpfCutoff);
-            if (auto p = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p)
-                p->get().setValue(m_hpfCutoff);
-
-            updatePanParameter(manualPanInternal(), false);
-            updateVolumeParameter(manualVolumeInternal(), false);
-            updateGainParameter(manualGainInternal(), false);
-            changed = true;
+            changed |= clearAutomationInternal();
         } else {
             const float val = static_cast<float>(value) / 127.0f;
 
@@ -184,14 +173,14 @@ void BassSynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
             } else if (controller == static_cast<uint8_t>(Controller::SoundController5)) { // Cutoff
                 m_lpfCutoff = val;
                 if (auto p = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); p) {
-                    p->get().setValue(val);
+                    p->get().setAutomationValue(val);
                     syncParameters();
                     changed = true;
                 }
             } else if (controller == static_cast<uint8_t>(Controller::GeneralPurpose6)) { // HPF Cutoff
                 m_hpfCutoff = val;
                 if (auto p = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) {
-                    p->get().setValue(val);
+                    p->get().setAutomationValue(val);
                     syncParameters();
                     changed = true;
                 }
@@ -385,8 +374,6 @@ void BassSynthDevice::deserializeFromXml(ProjectReader & reader)
         }
 
         syncParameters();
-
-        syncManualValues();
     }
     emit dataChanged();
 }
@@ -442,13 +429,6 @@ void BassSynthDevice::handleNoteOff(uint8_t note)
 double BassSynthDevice::midiNoteToFreq(uint8_t note) const
 {
     return 440.0 * std::pow(2.0, (note - 69) / 12.0);
-}
-
-void BassSynthDevice::syncManualValues()
-{
-    Device::syncManualValues();
-    m_manualLpfCutoff = m_lpfCutoff;
-    m_manualHpfCutoff = m_hpfCutoff;
 }
 
 void BassSynthDevice::syncParameters()
@@ -554,7 +534,6 @@ void BassSynthDevice::setLpfCutoff(float cutoff)
         std::lock_guard<std::recursive_mutex> lock { mutex() };
         if (auto p = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); p) {
             p->get().setValue(cutoff);
-            m_manualLpfCutoff = p->get().value();
             syncParameters();
             changed = true;
         }
@@ -585,7 +564,6 @@ void BassSynthDevice::setHpfCutoff(float cutoff)
         std::lock_guard<std::recursive_mutex> lock { mutex() };
         if (auto p = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) {
             p->get().setValue(cutoff);
-            m_manualHpfCutoff = p->get().value();
             syncParameters();
             changed = true;
         }

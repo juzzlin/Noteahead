@@ -48,19 +48,51 @@ const LegacyValueConverter & Parameter::legacyValueConverter() const
     return m_legacyValueConverter;
 }
 
+float Parameter::clampToRange(float val) const
+{
+    if (m_type == Type::Discrete) {
+        return std::clamp(val, static_cast<float>(std::min(m_xmlMin, m_xmlMax)), static_cast<float>(std::max(m_xmlMin, m_xmlMax)));
+    }
+    if (m_type == Type::Boolean) {
+        return val > 0.5f ? 1.0f : 0.0f;
+    }
+    return std::clamp(val, 0.0f, 1.0f);
+}
+
 float Parameter::value() const
 {
     return m_value;
 }
 
+float Parameter::authoredValue() const
+{
+    return m_authoredValue;
+}
+
+bool Parameter::isAutomated() const
+{
+    return m_automated;
+}
+
 void Parameter::setValue(float val)
 {
-    if (m_type == Type::Discrete) {
-        m_value = std::clamp(val, static_cast<float>(std::min(m_xmlMin, m_xmlMax)), static_cast<float>(std::max(m_xmlMin, m_xmlMax)));
-    } else if (m_type == Type::Boolean) {
-        m_value = val > 0.5f ? 1.0f : 0.0f;
-    } else {
-        m_value = std::clamp(val, 0.0f, 1.0f);
+    m_value = clampToRange(val);
+    m_authoredValue = m_value;
+    // Whatever automation had written here is gone: the user just said what this value is.
+    m_automated = false;
+}
+
+void Parameter::setAutomationValue(float val)
+{
+    m_value = clampToRange(val);
+    m_automated = true;
+}
+
+void Parameter::clearAutomation()
+{
+    if (m_automated) {
+        m_value = m_authoredValue;
+        m_automated = false;
     }
 }
 
@@ -71,12 +103,22 @@ bool Parameter::update(float val)
     return std::abs(m_value - oldValue) > 0.0001f;
 }
 
-int Parameter::xmlValue() const
+int Parameter::xmlValueOf(float value) const
 {
     if (m_type == Type::Discrete || m_type == Type::Boolean) {
-        return static_cast<int>(std::round(m_value));
+        return static_cast<int>(std::round(value));
     }
-    return internalToXmlValue(m_value, m_xmlMin, m_xmlMax);
+    return internalToXmlValue(value, m_xmlMin, m_xmlMax);
+}
+
+int Parameter::xmlValue() const
+{
+    return xmlValueOf(m_value);
+}
+
+int Parameter::xmlAuthoredValue() const
+{
+    return xmlValueOf(m_authoredValue);
 }
 
 int Parameter::xmlMin() const
@@ -92,6 +134,14 @@ int Parameter::xmlMax() const
 int Parameter::xmlDefault() const
 {
     return m_xmlDefault;
+}
+
+float Parameter::defaultValue() const
+{
+    if (m_type == Type::Discrete || m_type == Type::Boolean) {
+        return clampToRange(static_cast<float>(m_xmlDefault));
+    }
+    return xmlValueToInternal(m_xmlDefault, m_xmlMin, m_xmlMax);
 }
 
 int Parameter::xmlScale() const
@@ -123,6 +173,9 @@ void Parameter::setFromXml(int xmlVal, std::optional<int> xmlMin, std::optional<
     } else {
         m_value = xmlValueToInternal(xmlVal, min, max);
     }
+    // Loading a project authors every value it carries.
+    m_authoredValue = m_value;
+    m_automated = false;
 }
 
 void Parameter::reset()

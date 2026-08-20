@@ -47,6 +47,8 @@ private slots:
     void test_drumSynthDevice_midiNoteOn_shouldTriggerVoice();
     void test_drumSynthDevice_xmlSerialization_shouldRestoreParameters();
     void test_processMidiCc_shouldUpdateVoicePanLpfHpf();
+    void test_processMidiCc_shouldNotChangeAuthoredVoiceValue();
+    void test_resetAllControllers_shouldRestoreAuthoredVoiceValue();
     void test_drumSynthDevice_toms_shouldHaveDifferentDefaultTunes();
     void test_tomEngine_tunes_shouldSoundDifferent();
 };

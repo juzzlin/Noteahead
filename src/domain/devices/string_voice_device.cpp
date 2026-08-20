@@ -291,10 +291,7 @@ void StringVoiceDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t
         const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
         if (controller == static_cast<uint8_t>(Controller::ResetAllControllers)) {
-            updatePanParameter(manualPanInternal(), false);
-            updateVolumeParameter(manualVolumeInternal(), false);
-            updateGainParameter(manualGainInternal(), false);
-            changed = true;
+            changed |= clearAutomationInternal();
         } else {
             const float val { static_cast<float>(value) / 127.0f };
             if (controller == static_cast<uint8_t>(Controller::ChannelVolumeMSB)) {
@@ -600,7 +597,6 @@ void StringVoiceDevice::deserializeFromXml(ProjectReader & reader)
         }
 
         syncParameters();
-        syncManualValues();
     }
     emit dataChanged();
 }

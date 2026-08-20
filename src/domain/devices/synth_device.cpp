@@ -212,8 +212,6 @@ SynthDevice::SynthDevice(std::string name)
         m_voices[i].driftPhase = static_cast<double>(i) / MaxVoices;
     }
 
-    SynthDevice::syncManualValues();
-
     SynthDevice::syncParameters();
 }
 
@@ -542,25 +540,15 @@ void SynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
         if (controller == static_cast<uint8_t>(Controller::ResetAllControllers)) {
-            m_lpfCutoff = m_manualLpfCutoff;
-            m_lpfResonance = m_manualLpfResonance;
-            m_hpfCutoff = m_manualHpfCutoff;
-            if (const auto p = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); p) {
-                p->get().setValue(m_lpfCutoff);
-            }
-            if (const auto p = parameter(Constants::NahdXml::xmlKeyLpfResonance().toStdString()); p) {
-                p->get().setValue(m_lpfResonance);
-            }
-            if (const auto p = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) {
-                p->get().setValue(m_hpfCutoff);
-            }
+            changed |= clearAutomationInternal();
+            // The LFO intensity rides on the modulation wheel and never reaches a parameter, so it
+            // has to be put back from the one it belongs to by hand.
             if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoIntensity().toStdString()); p) {
-                m_lfoInt = ParameterMapper::mapCubicCentered((p->get().value() - 0.5f) * 2.0f, -1.0, 1.0);
+                if (const auto restored = static_cast<float>(ParameterMapper::mapCubicCentered((p->get().value() - 0.5f) * 2.0f, -1.0, 1.0)); std::abs(restored - m_lfoInt) > 0.0001f) {
+                    m_lfoInt = restored;
+                    changed = true;
+                }
             }
-            updatePanParameter(manualPanInternal(), false);
-            updateVolumeParameter(manualVolumeInternal(), false);
-            updateGainParameter(manualGainInternal(), false);
-            changed = true;
         } else if (controller == static_cast<uint8_t>(Controller::BankSelectMSB)) {
             m_currentBank = std::clamp(static_cast<int>(value), 0, 1); // 0: Factory, 1: User
         } else {
@@ -575,21 +563,21 @@ void SynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
             } else if (controller == static_cast<uint8_t>(Controller::SoundController2)) { // Resonance
                 m_lpfResonance = val;
                 if (const auto p = parameter(Constants::NahdXml::xmlKeyLpfResonance().toStdString()); p) {
-                    p->get().setValue(val);
+                    p->get().setAutomationValue(val);
                     syncParameters();
                     changed = true;
                 }
             } else if (controller == static_cast<uint8_t>(Controller::SoundController5)) { // Cutoff
                 m_lpfCutoff = val;
                 if (const auto p = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); p) {
-                    p->get().setValue(val);
+                    p->get().setAutomationValue(val);
                     syncParameters();
                     changed = true;
                 }
             } else if (controller == static_cast<uint8_t>(Controller::GeneralPurpose6)) { // HPF Cutoff
                 m_hpfCutoff = val;
                 if (const auto p = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) {
-                    p->get().setValue(val);
+                    p->get().setAutomationValue(val);
                     syncParameters();
                     changed = true;
                 }
@@ -1015,14 +1003,6 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
     return filtered * static_cast<float>(mods.ampEnvelope) * ampMod;
 }
 
-void SynthDevice::syncManualValues()
-{
-    Device::syncManualValues();
-    m_manualLpfCutoff = m_lpfCutoff;
-    m_manualLpfResonance = m_lpfResonance;
-    m_manualHpfCutoff = m_hpfCutoff;
-}
-
 void SynthDevice::syncParameters()
 {
     Device::syncParameters();
@@ -1276,8 +1256,6 @@ void SynthDevice::deserializeFromXml(ProjectReader & reader)
         }
 
         syncParameters();
-
-        syncManualValues();
     }
     emit dataChanged();
 }
@@ -1290,46 +1268,66 @@ void SynthDevice::processMidiPitchBend(uint16_t value, uint8_t)
 
 void SynthDevice::processMidiProgramChange(uint8_t program, uint8_t)
 {
-    loadPreset(m_currentBank, program);
+    // Transport traffic: a program change in a song may move the whole panel, but the patch the
+    // user saved has to still be there when playback stops.
+    applyPreset(m_currentBank, program, false);
 }
 
 void SynthDevice::loadPreset(int bank, int index)
 {
+    applyPreset(bank, index, true);
+}
+
+void SynthDevice::applyPreset(int bank, int index, bool authored)
+{
     {
         const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
+        const std::map<std::string, float> * values = nullptr;
         if (bank == 0) {
             const auto & presets = SynthPresets::presets();
             if (index < 0 || index >= static_cast<int>(presets.size())) {
                 return;
             }
-            reset();
-            for (auto && [name, val] : presets[index].parameters) {
-                if (const auto p = parameter(name); p) {
-                    p->get().setValue(val);
-                }
-            }
+            values = &presets[index].parameters;
         } else if (bank == 1) {
-            if (m_userPresets.find(index) == m_userPresets.end()) {
+            if (const auto it = m_userPresets.find(index); it != m_userPresets.end()) {
+                values = &it->second.parameters;
+            } else {
                 return;
-            }
-            const auto & preset = m_userPresets.at(index);
-            reset();
-            for (auto && [name, val] : preset.parameters) {
-                if (const auto p = parameter(name); p) {
-                    p->get().setValue(val);
-                }
             }
         } else {
             return;
         }
 
-        syncParameters();
+        // A preset is the whole panel, so everything it does not name goes back to its default
+        // first -- on the same layer the preset itself is about to be written to.
+        if (authored) {
+            reset();
+        } else {
+            for (auto && [name, p] : parameters()) {
+                p.setAutomationValue(p.defaultValue());
+            }
+        }
 
-        syncManualValues();
+        for (auto && [name, val] : *values) {
+            if (const auto p = parameter(name); p) {
+                if (authored) {
+                    p->get().setValue(val);
+                } else {
+                    p->get().setAutomationValue(val);
+                }
+            }
+        }
+
+        syncParameters();
     }
 
-    emit dataChanged();
+    if (authored) {
+        emit dataChanged();
+    } else {
+        emit parametersChanged();
+    }
 }
 
 void SynthDevice::setUserPresets(const UserPresets & presets)
@@ -1517,7 +1515,6 @@ void SynthDevice::setLpfCutoff(float cutoff)
         std::lock_guard<std::recursive_mutex> lock { mutex() };
         if (const auto p = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); p) {
             p->get().setValue(cutoff);
-            m_manualLpfCutoff = p->get().value();
             syncParameters();
             changed = true;
         }
@@ -1538,7 +1535,6 @@ void SynthDevice::setLpfResonance(float resonance)
         std::lock_guard<std::recursive_mutex> lock { mutex() };
         if (const auto p = parameter(Constants::NahdXml::xmlKeyLpfResonance().toStdString()); p) {
             p->get().setValue(resonance);
-            m_manualLpfResonance = p->get().value();
             syncParameters();
             changed = true;
         }
@@ -1559,7 +1555,6 @@ void SynthDevice::setHpfCutoff(float cutoff)
         std::lock_guard<std::recursive_mutex> lock { mutex() };
         if (const auto p = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) {
             p->get().setValue(cutoff);
-            m_manualHpfCutoff = p->get().value();
             syncParameters();
             changed = true;
         }

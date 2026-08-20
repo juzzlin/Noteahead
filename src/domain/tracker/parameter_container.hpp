@@ -33,7 +33,8 @@ class ParameterContainer
 public:
     using ParameterOpt = std::optional<std::reference_wrapper<Parameter>>;
     using ConstParameterOpt = std::optional<std::reference_wrapper<const Parameter>>;
-    //! Every parameter's value by name. What a dialog's Cancel puts back.
+    //! Every parameter's authored value by name. What a dialog's Cancel puts back -- authored, so
+    //! that opening a dialog while a song plays cannot bake the automation into the project.
     using ParameterSnapshot = std::map<std::string, float>;
 
     ParameterContainer() = default;
@@ -53,6 +54,15 @@ public:
     const std::map<std::string, Parameter> & parameters() const;
 
     virtual void reset();
+
+    //! Puts every automated parameter back to its authored value.
+    //!
+    //! Automation writes only the live layer, so this is what the transport calls when it stops:
+    //! the sound and the knobs return to the patch the user wrote, and nothing of what was played
+    //! back is left in the project.
+    void clearAutomation();
+    //! Whether any parameter is currently driven by automation.
+    bool isAutomated() const;
 
     ParameterSnapshot parameterSnapshot() const;
     //! Names the container no longer knows are ignored, so a snapshot never resurrects a parameter.

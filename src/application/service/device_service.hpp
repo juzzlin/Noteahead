@@ -63,6 +63,14 @@ public:
     void processMidiAllNotesOff(const QString & portName);
     void processMidiAllNotesOff();
 
+    //! Hands every device back its authored values after playback.
+    //!
+    //! MIDI CC -- from automations, from a controller, from a track's instrument settings -- writes
+    //! only the live layer of a parameter, so this is what makes the panels and the sound return to
+    //! the patch once the transport stops. Devices also do it themselves on CC 121; this is the
+    //! sweep for everything the message never reached.
+    void clearAutomation();
+
     using InternalDeviceNames = std::vector<std::string>;
     virtual InternalDeviceNames internalDeviceNames() const;
 

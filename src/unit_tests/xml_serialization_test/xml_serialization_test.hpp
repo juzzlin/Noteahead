@@ -79,6 +79,7 @@ private slots:
     void test_toXmlFromXml_drumSynthDevice_voiceEffectRack_shouldRoundTrip();
     void test_toXmlFromXml_samplerDevice_relativePath_shouldLoadCorrectly();
     void test_toXmlFromXml_samplerDevice_saveAs_shouldPreserveEmbeddedData();
+    void test_toXml_whileAutomated_shouldSaveAuthoredValues();
     void test_toXmlFromXml_synthDevice_shouldPreserveValuesAndDiscreteFlags();
     void test_toXmlFromXml_synthUserPresets_shouldSaveAndLoad();
     void test_toXmlFromXml_synthUserPresets_discreteValues_shouldSaveAndLoad();

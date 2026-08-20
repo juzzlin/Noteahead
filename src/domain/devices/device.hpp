@@ -163,9 +163,17 @@ public:
     virtual void resetAudio();
 
     //! Remembers the current settings so restoreState() can put them back. Taken when a device
-    //! dialog opens; its Cancel button is what calls restoreState().
+    //! dialog opens; its Cancel button is what calls restoreState(). Authored values only, so that
+    //! opening a dialog over a playing song cannot bake its automation into the project.
     virtual void saveState();
     virtual void restoreState();
+
+    //! Puts every automated parameter back to the value the user authored, and re-syncs the DSP.
+    //!
+    //! MIDI CC writes only the live layer, so this is how the transport hands the device back after
+    //! playback: the sound and the knobs return to the patch, and nothing that was played is left
+    //! behind to be saved.
+    void clearAutomation();
 
     uint32_t sampleRate() const;
     void setSampleRate(uint32_t sampleRate);
@@ -215,18 +223,21 @@ protected:
 
     virtual void syncParameters();
 
-    //! Re-seeds the fallback values an incoming MIDI CC resets to from the current parameters.
-    //! Called wherever the parameters are replaced wholesale rather than moved one at a time, so
-    //! that a reset can never fall back to a value that is no longer on the panel.
-    virtual void syncManualValues();
+    //! Clears automation without emitting, for callers that already hold the device mutex -- the
+    //! MIDI CC handlers, which report the change themselves once the lock is gone. Returns whether
+    //! anything actually moved. Devices with transient state of their own extend this.
+    virtual bool clearAutomationInternal();
 
     void setContinuousParameterValue(const std::string & key, float value);
     void setDiscreteParameterValue(const std::string & key, int value);
 
-    bool updateVolumeParameter(float volume, bool updateManual);
-    bool updateGainParameter(float gain, bool updateManual);
-    bool updatePanParameter(float pan, bool updateManual);
-    bool updateReverbSendParameter(size_t index, float send, bool updateManual);
+    //! \param authored Whether the value is the user's (writes the document) or automation's
+    //! (live only). Everything the transport generates passes false.
+    bool updateVolumeParameter(float volume, bool authored);
+    bool updateGainParameter(float gain, bool authored);
+    bool updatePanParameter(float pan, bool authored);
+    //! Reverb sends are not parameters and nothing automates them, so they have no live layer.
+    bool updateReverbSendParameter(size_t index, float send);
 
     std::recursive_mutex & mutex() const;
 
@@ -235,14 +246,6 @@ protected:
     float panInternal() const;
     float reverbSendInternal(size_t index) const;
     float linearGainInternal() const;
-    float manualVolumeInternal() const;
-    float manualGainInternal() const;
-    float manualPanInternal() const;
-    float manualReverbSendInternal(size_t index) const;
-    void setManualVolume(float volume);
-    void setManualGain(float gain);
-    void setManualPan(float pan);
-    void setManualReverbSend(size_t index, float send);
 
 private:
     size_t m_id { 0 };
@@ -259,10 +262,6 @@ private:
     ParameterSnapshot m_savedParameters;
 
     // Manual settings for CC reset
-    float m_manualVolume { 1.0f };
-    float m_manualGain { 0.5f };
-    float m_manualPan { 0.5f };
-    std::vector<float> m_manualReverbSends;
     FaderPosition m_faderPosition { FaderPosition::PreInserts };
     SendTap m_sendTap { SendTap::PostFader };
     EffectRack m_insertEffectRack;

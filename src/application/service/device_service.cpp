@@ -285,6 +285,15 @@ void DeviceService::processMidiAllNotesOff()
     }
 }
 
+void DeviceService::clearAutomation()
+{
+    for (const auto & name : internalDeviceNames()) {
+        if (const auto dev = device(name)) {
+            dev->clearAutomation();
+        }
+    }
+}
+
 DeviceService::InternalDeviceNames DeviceService::internalDeviceNames() const
 {
     return m_audioEngine->deviceNames();

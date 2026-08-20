@@ -803,6 +803,32 @@ void WavetableSynthTest::test_lfoIntensity_shouldApplyTheDepthItReadsOut()
     }
 }
 
+void WavetableSynthTest::test_midiCc_shouldNotChangeAuthoredValue()
+{
+    WavetableSynthDevice device { "Test" };
+    device.setLpfCutoff(0.25f);
+
+    device.processMidiCc(74, 127, 0); // Cutoff
+
+    QVERIFY(std::abs(device.lpfCutoff() - 1.0f) < 0.01f);
+    const auto parameter = device.parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString());
+    QVERIFY(parameter.has_value());
+    QCOMPARE(parameter->get().authoredValue(), 0.25f);
+}
+
+void WavetableSynthTest::test_resetAllControllers_shouldRestoreAuthoredValue()
+{
+    // This device had no Reset All Controllers branch at all, so nothing it was automated with
+    // ever came back.
+    WavetableSynthDevice device { "Test" };
+    device.setLpfCutoff(0.25f);
+    device.processMidiCc(74, 127, 0);
+
+    device.processMidiCc(121, 127, 0);
+
+    QVERIFY(std::abs(device.lpfCutoff() - 0.25f) < 0.01f);
+}
+
 void WavetableSynthTest::test_ampCurve_shouldSteepenTheAudibleDecay()
 {
     // Straight through the whole chain: the knob has to reach the voices, not just the parameter.

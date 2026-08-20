@@ -26,6 +26,7 @@
 
 #include <QFile>
 #include <QFileInfo>
+#include <QSignalSpy>
 #include <QTemporaryDir>
 #include <QTest>
 
@@ -571,11 +572,18 @@ void RenderingTest::test_render_midiSideChain_shouldProcessEventWhenSourceTrackI
     timing.linesPerBeat = 4;
     timing.ticksPerLine = 6;
 
+    // Nothing else in this render moves a parameter, so an emission proves the CC arrived
+    QSignalSpy parameterSpy { synth1.get(), &Device::parametersChanged };
+
     // Process only first tick where CC is expected
     worker.render("dummy.wav", events, timing, 1, 44100);
 
-    // Verify cutoff was updated to 1.0f (from CC 127)
-    QCOMPARE(synth1->lpfCutoff(), 1.0f);
+    // The CC reached the device and drove its cutoff
+    QVERIFY(parameterSpy.count() > 0);
+
+    // ...and the render handed the patch back on the way out. Automation writes only the live layer,
+    // so exporting a song can never leave the automated value behind as the one that gets saved.
+    QCOMPARE(synth1->lpfCutoff(), 0.5f);
 }
 
 void RenderingTest::test_render_pitchBend_shouldProcessEvent()

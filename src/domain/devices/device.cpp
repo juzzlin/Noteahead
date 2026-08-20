@@ -58,10 +58,8 @@ Device::Device()
     addParameter(Parameter { Constants::NahdXml::xmlKeySendTap().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
 
     m_volume = Constants::faderUnityPosition();
-    m_manualVolume = m_volume;
 
     m_reverbSends.resize(Constants::effectRackSize(), 0.0f);
-    m_manualReverbSends.resize(Constants::effectRackSize(), 0.0f);
 }
 
 size_t Device::id() const
@@ -213,7 +211,7 @@ float Device::reverbSend(size_t index) const
 
 void Device::setReverbSend(size_t index, float send)
 {
-    if (updateReverbSendParameter(index, send, true)) {
+    if (updateReverbSendParameter(index, send)) {
         emit dataChanged();
     }
 }
@@ -224,14 +222,15 @@ size_t Device::reverbSendCount() const
     return m_reverbSends.size();
 }
 
-bool Device::updateVolumeParameter(float volume, bool updateManual)
+bool Device::updateVolumeParameter(float volume, bool authored)
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
     if (auto p = parameter(Constants::NahdXml::xmlKeyFader().toStdString()); p) {
         const float oldVal = p->get().value();
-        p->get().setValue(volume);
-        if (updateManual) {
-            m_manualVolume = p->get().value();
+        if (authored) {
+            p->get().setValue(volume);
+        } else {
+            p->get().setAutomationValue(volume);
         }
         syncParameters();
         return !qFuzzyCompare(p->get().value(), oldVal);
@@ -239,14 +238,15 @@ bool Device::updateVolumeParameter(float volume, bool updateManual)
     return false;
 }
 
-bool Device::updateGainParameter(float gain, bool updateManual)
+bool Device::updateGainParameter(float gain, bool authored)
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
     if (auto p = parameter(Constants::NahdXml::xmlKeyGain().toStdString()); p) {
         const float oldVal = p->get().value();
-        p->get().setValue(gain);
-        if (updateManual) {
-            m_manualGain = p->get().value();
+        if (authored) {
+            p->get().setValue(gain);
+        } else {
+            p->get().setAutomationValue(gain);
         }
         syncParameters();
         return !qFuzzyCompare(p->get().value(), oldVal);
@@ -254,14 +254,15 @@ bool Device::updateGainParameter(float gain, bool updateManual)
     return false;
 }
 
-bool Device::updatePanParameter(float pan, bool updateManual)
+bool Device::updatePanParameter(float pan, bool authored)
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
     if (auto p = parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p) {
         const float oldVal = p->get().value();
-        p->get().setValue(pan);
-        if (updateManual) {
-            m_manualPan = p->get().value();
+        if (authored) {
+            p->get().setValue(pan);
+        } else {
+            p->get().setAutomationValue(pan);
         }
         syncParameters();
         return !qFuzzyCompare(p->get().value(), oldVal);
@@ -269,18 +270,14 @@ bool Device::updatePanParameter(float pan, bool updateManual)
     return false;
 }
 
-bool Device::updateReverbSendParameter(size_t index, float send, bool updateManual)
+bool Device::updateReverbSendParameter(size_t index, float send)
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
 
+    // Reverb sends are not parameters and nothing automates them, so there is no live layer here.
     if (index < m_reverbSends.size()) {
         const float oldVal = m_reverbSends[index];
         m_reverbSends[index] = send;
-        if (updateManual) {
-            if (index < m_manualReverbSends.size()) {
-                m_manualReverbSends[index] = send;
-            }
-        }
         return !qFuzzyCompare(m_reverbSends[index], oldVal);
     }
     return false;
@@ -365,19 +362,32 @@ void Device::restoreState()
         std::lock_guard<std::recursive_mutex> lock { m_mutex };
         restoreParameterSnapshot(m_savedParameters);
         syncParameters();
-        syncManualValues();
     }
     emit dataChanged();
 }
 
-void Device::syncManualValues()
+void Device::clearAutomation()
 {
-    setManualVolume(volumeInternal());
-    setManualGain(gainInternal());
-    setManualPan(panInternal());
-    for (size_t i = 0; i < m_reverbSends.size(); i++) {
-        setManualReverbSend(i, reverbSendInternal(i));
+    bool changed = false;
+    {
+        std::lock_guard<std::recursive_mutex> lock { m_mutex };
+        changed = clearAutomationInternal();
     }
+    // Never emitted under the lock: the receivers read back from the audio engine, whose callback
+    // holds the engine mutex and then waits for this one.
+    if (changed) {
+        emit parametersChanged();
+    }
+}
+
+bool Device::clearAutomationInternal()
+{
+    if (!isAutomated()) {
+        return false;
+    }
+    ParameterContainer::clearAutomation();
+    syncParameters();
+    return true;
 }
 
 void Device::processInsertEffects(AudioContext & context)
@@ -501,60 +511,12 @@ float Device::linearGainInternal() const
     return m_linearGain;
 }
 
-float Device::manualVolumeInternal() const
-{
-    return m_manualVolume;
-}
-
-float Device::manualGainInternal() const
-{
-    return m_manualGain;
-}
-
-float Device::manualPanInternal() const
-{
-    return m_manualPan;
-}
-
 float Device::reverbSendInternal(size_t index) const
 {
     if (index < m_reverbSends.size()) {
         return m_reverbSends[index];
     }
     return 0.0f;
-}
-
-float Device::manualReverbSendInternal(size_t index) const
-{
-    if (index < m_manualReverbSends.size()) {
-        return m_manualReverbSends[index];
-    }
-    return 0.0f;
-}
-
-void Device::setManualVolume(float volume)
-{
-    m_manualVolume = volume;
-}
-
-void Device::setManualGain(float gain)
-{
-    m_manualGain = gain;
-}
-
-void Device::setManualPan(float pan)
-{
-    m_manualPan = pan;
-}
-
-void Device::setManualReverbSend(size_t index, float send)
-{
-    if (index < m_manualReverbSends.size()) {
-        m_manualReverbSends[index] = send;
-    } else {
-        m_manualReverbSends.resize(index + 1, 0.0f);
-        m_manualReverbSends[index] = send;
-    }
 }
 
 void Device::serializeAttributesToXml(ProjectWriter & writer) const

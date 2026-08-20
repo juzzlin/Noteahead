@@ -64,6 +64,9 @@ private slots:
 
     void test_lfoIntensity_shouldApplyTheDepthItReadsOut();
 
+    void test_midiCc_shouldNotChangeAuthoredValue();
+    void test_resetAllControllers_shouldRestoreAuthoredValue();
+
     void test_ampCurve_shouldSteepenTheAudibleDecay();
     void test_curve_serialization_shouldPreserveState();
 };

@@ -15,6 +15,7 @@
 
 #include "kick_808_test.hpp"
 
+#include "../../common/constants.hpp"
 #include "../../domain/devices/kick_808_device.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
@@ -474,6 +475,31 @@ void Kick808Test::test_hpfCutoff_closed_shouldAttenuateOutput()
 
     QVERIFY2(closedPeak < openPeak * 0.5,
              QString("Closed HPF (%1) did not attenuate against open (%2)").arg(closedPeak).arg(openPeak).toUtf8().constData());
+}
+
+void Kick808Test::test_midiCc_shouldNotChangeAuthoredValue()
+{
+    Kick808Device kick { "Test Kick" };
+    kick.setDecay(0.25f);
+
+    kick.processMidiCc(72, 127, 0); // Decay
+
+    const auto parameter = kick.parameter(Constants::NahdXml::xmlKeyDecay().toStdString());
+    QVERIFY(parameter.has_value());
+    QCOMPARE(parameter->get().value(), 1.0f);
+    QCOMPARE(parameter->get().authoredValue(), 0.25f);
+}
+
+void Kick808Test::test_resetAllControllers_shouldRestoreAuthoredValue()
+{
+    // The table-driven knobs had no restore path: only fader, pan and gain came back.
+    Kick808Device kick { "Test Kick" };
+    kick.setDecay(0.25f);
+    kick.processMidiCc(72, 127, 0);
+
+    kick.processMidiCc(121, 127, 0); // Reset All Controllers
+
+    QVERIFY(std::abs(kick.decay() - 0.25f) < 0.01f);
 }
 
 void Kick808Test::test_midiCc_shouldReachEveryParameter()

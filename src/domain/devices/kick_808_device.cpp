@@ -147,10 +147,7 @@ void Kick808Device::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
         std::lock_guard<std::recursive_mutex> lock { mutex() };
 
         if (controller == static_cast<uint8_t>(Controller::ResetAllControllers)) {
-            updatePanParameter(manualPanInternal(), false);
-            updateVolumeParameter(manualVolumeInternal(), false);
-            updateGainParameter(manualGainInternal(), false);
-            changed = true;
+            changed |= clearAutomationInternal();
         } else {
             const float val = static_cast<float>(value) / 127.0f;
 
@@ -162,7 +159,7 @@ void Kick808Device::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
                 const auto & parameters = ccParameters();
                 if (const auto it = std::ranges::find(parameters, controller, &CcParameter::controller); it != parameters.end()) {
                     if (const auto p = parameter(it->key); p) {
-                        p->get().setValue(it->isSwitch ? (value >= 64 ? 1.0f : 0.0f) : val);
+                        p->get().setAutomationValue(it->isSwitch ? (value >= 64 ? 1.0f : 0.0f) : val);
                         syncParameters();
                         changed = true;
                     }
@@ -277,7 +274,6 @@ void Kick808Device::deserializeFromXml(ProjectReader & reader)
         }
 
         syncParameters();
-        syncManualValues();
     }
     emit dataChanged();
 }

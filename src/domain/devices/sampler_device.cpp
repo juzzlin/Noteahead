@@ -45,7 +45,6 @@ SamplerDevice::Sample::Sample()
     addParameter(Parameter { Constants::NahdXml::xmlKeyPan().toStdString(), 0.5f, -10000, 10000, 0, 100 });
     addParameter(Device::faderParameter());
     volume = Constants::faderUnityPosition();
-    manualVolume = volume;
     addParameter(Parameter { Constants::NahdXml::xmlKeyCutoff().toStdString(), 1.0f, 0, 10000, 10000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyStartOffset().toStdString(), 0.0f, 0, 60000, 0, 1 });
@@ -64,7 +63,6 @@ SamplerDevice::SamplerDevice(std::string name, AudioFileReaderU audioFileReader)
         sample = nullptr;
     }
 
-    SamplerDevice::syncManualValues();
     SamplerDevice::syncParameters();
 }
 
@@ -203,8 +201,9 @@ bool SamplerDevice::updatePadParameter(int note, const std::string & parameterNa
         return false;
     }
 
+    // MIDI CC only: the pad dialog writes its parameters straight, so this never authors a value.
     if (auto p = sample.parameter(parameterName); p) {
-        p->get().setValue(value);
+        p->get().setAutomationValue(value);
     }
 
     // Only the pad's own value changed. updateVoiceEffects() combines it with the device-wide pan and
@@ -297,39 +296,7 @@ void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t cha
         std::lock_guard<std::recursive_mutex> lock { mutex() };
 
         if (controller == static_cast<uint8_t>(Controller::ResetAllControllers)) {
-            updatePanParameter(manualPanInternal(), false);
-            updateVolumeParameter(manualVolumeInternal(), false);
-            updateGainParameter(manualGainInternal(), false);
-            m_globalCutoff = m_manualGlobalCutoff;
-            m_globalHpfCutoff = m_manualGlobalHpfCutoff;
-
-            for (auto && sample : m_samples) {
-                if (sample) {
-                    sample->pan = sample->manualPan;
-                    sample->volume = sample->manualVolume;
-                    sample->cutoff = sample->manualCutoff;
-                    sample->hpfCutoff = sample->manualHpfCutoff;
-
-                    if (auto p = sample->parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p)
-                        p->get().setValue(sample->pan);
-                    if (auto p = sample->parameter(Constants::NahdXml::xmlKeyFader().toStdString()); p)
-                        p->get().setValue(sample->volume);
-                    if (auto p = sample->parameter(Constants::NahdXml::xmlKeyCutoff().toStdString()); p)
-                        p->get().setValue(sample->cutoff);
-                    if (auto p = sample->parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p)
-                        p->get().setValue(sample->hpfCutoff);
-                }
-            }
-
-            for (auto && voice : m_voices) {
-                if (voice.active && voice.sample) {
-                    voice.pan = panInternal();
-                    voice.cutoff = m_globalCutoff;
-                    voice.hpfCutoff = m_globalHpfCutoff;
-                    updateVoiceEffects(voice);
-                }
-            }
-            changed = true;
+            changed |= clearAutomationInternal();
         } else if (const auto target = padCcTarget(controller, value); target) {
             // The per-pad CC blocks are disjoint from every controller the modes below read, so they
             // address a pad the same way whether or not channel mode is on.
@@ -401,39 +368,7 @@ void SamplerDevice::processMidiAllNotesOff()
             voice.active = false;
         }
 
-        updatePanParameter(manualPanInternal(), false);
-        updateVolumeParameter(manualVolumeInternal(), false);
-        updateGainParameter(manualGainInternal(), false);
-        m_globalCutoff = m_manualGlobalCutoff;
-        m_globalHpfCutoff = m_manualGlobalHpfCutoff;
-
-        for (auto && sample : m_samples) {
-            if (sample) {
-                sample->pan = sample->manualPan;
-                sample->volume = sample->manualVolume;
-                sample->cutoff = sample->manualCutoff;
-                sample->hpfCutoff = sample->manualHpfCutoff;
-
-                if (auto p = sample->parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p)
-                    p->get().setValue(sample->pan);
-                if (auto p = sample->parameter(Constants::NahdXml::xmlKeyFader().toStdString()); p)
-                    p->get().setValue(sample->volume);
-                if (auto p = sample->parameter(Constants::NahdXml::xmlKeyCutoff().toStdString()); p)
-                    p->get().setValue(sample->cutoff);
-                if (auto p = sample->parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p)
-                    p->get().setValue(sample->hpfCutoff);
-            }
-        }
-
-        // Update active voices to reflect the reset values
-        for (auto && voice : m_voices) {
-            if (voice.active && voice.sample) {
-                voice.pan = panInternal();
-                voice.cutoff = m_globalCutoff;
-                voice.hpfCutoff = m_globalHpfCutoff;
-                updateVoiceEffects(voice);
-            }
-        }
+        clearAutomationInternal();
     }
 
     // Transport traffic, not an edit: this runs on every stop, so routing it through dataChanged()
@@ -588,8 +523,8 @@ void SamplerDevice::reset()
         }
         m_globalCutoff = 1.0f;
         m_globalHpfCutoff = 0.0f;
-        m_manualGlobalCutoff = 1.0f;
-        m_manualGlobalHpfCutoff = 0.0f;
+        m_authoredGlobalCutoff = 1.0f;
+        m_authoredGlobalHpfCutoff = 0.0f;
         resetAudio();
         syncParameters();
     }
@@ -763,7 +698,6 @@ void SamplerDevice::setSamplePan(uint8_t note, float pan)
             if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p) {
                 p->get().setValue(pan);
                 m_samples.at(note)->pan = p->get().value();
-                m_samples.at(note)->manualPan = m_samples.at(note)->pan;
             }
             for (auto && voice : m_voices) {
                 if (voice.active && voice.note == note) {
@@ -799,7 +733,6 @@ void SamplerDevice::setSampleVolume(uint8_t note, float volume)
             if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyFader().toStdString()); p) {
                 p->get().setValue(volume);
                 m_samples.at(note)->volume = p->get().value();
-                m_samples.at(note)->manualVolume = m_samples.at(note)->volume;
             }
             for (auto && voice : m_voices) {
                 if (voice.active && voice.note == note) {
@@ -835,7 +768,6 @@ void SamplerDevice::setSampleCutoff(uint8_t note, float cutoff)
             if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyCutoff().toStdString()); p) {
                 p->get().setValue(cutoff);
                 m_samples.at(note)->cutoff = p->get().value();
-                m_samples.at(note)->manualCutoff = m_samples.at(note)->cutoff;
             }
             for (auto && voice : m_voices) {
                 if (voice.active && voice.note == note) {
@@ -871,7 +803,6 @@ void SamplerDevice::setSampleHpfCutoff(uint8_t note, float cutoff)
             if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p) {
                 p->get().setValue(cutoff);
                 m_samples.at(note)->hpfCutoff = p->get().value();
-                m_samples.at(note)->manualHpfCutoff = m_samples.at(note)->hpfCutoff;
             }
             for (auto && voice : m_voices) {
                 if (voice.active && voice.note == note) {
@@ -1168,11 +1099,6 @@ void SamplerDevice::deserializeFromXml(ProjectReader & reader)
                                 s->hpfCutoff = p->get().value();
                             if (auto p = s->parameter(Constants::NahdXml::xmlKeyStartOffset().toStdString()); p)
                                 s->startOffset = static_cast<double>(p->get().value()) * 60.0;
-
-                            s->manualPan = s->pan;
-                            s->manualVolume = s->volume;
-                            s->manualCutoff = s->cutoff;
-                            s->manualHpfCutoff = s->hpfCutoff;
                         }
                     }
                     if (reader.isStartElement() && reader.name() == Constants::NahdXml::xmlKeySample()) {
@@ -1191,8 +1117,6 @@ void SamplerDevice::deserializeFromXml(ProjectReader & reader)
         std::lock_guard<std::recursive_mutex> lock { mutex() };
         // Sync global fields
         syncParameters();
-
-        syncManualValues();
     }
 
     emit dataChanged();
@@ -1223,11 +1147,50 @@ void SamplerDevice::restoreState()
     Device::restoreState();
 }
 
-void SamplerDevice::syncManualValues()
+void SamplerDevice::syncSampleFields(Sample & sample)
 {
-    Device::syncManualValues();
-    m_manualGlobalCutoff = m_globalCutoff;
-    m_manualGlobalHpfCutoff = m_globalHpfCutoff;
+    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p)
+        sample.pan = p->get().value();
+    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyFader().toStdString()); p)
+        sample.volume = p->get().value();
+    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyCutoff().toStdString()); p)
+        sample.cutoff = p->get().value();
+    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p)
+        sample.hpfCutoff = p->get().value();
+}
+
+bool SamplerDevice::clearAutomationInternal()
+{
+    bool changed = Device::clearAutomationInternal();
+
+    for (auto && sample : m_samples) {
+        if (sample && sample->isAutomated()) {
+            sample->clearAutomation();
+            syncSampleFields(*sample);
+            changed = true;
+        }
+    }
+
+    // The global cutoffs ride MIDI CC without ever reaching a parameter, so they keep a pair of
+    // their own. Nothing but CC writes them, which makes the defaults their authored values.
+    if (std::abs(m_globalCutoff - m_authoredGlobalCutoff) > 0.0001f || std::abs(m_globalHpfCutoff - m_authoredGlobalHpfCutoff) > 0.0001f) {
+        m_globalCutoff = m_authoredGlobalCutoff;
+        m_globalHpfCutoff = m_authoredGlobalHpfCutoff;
+        changed = true;
+    }
+
+    if (changed) {
+        for (auto && voice : m_voices) {
+            if (voice.active && voice.sample) {
+                voice.pan = panInternal();
+                voice.cutoff = m_globalCutoff;
+                voice.hpfCutoff = m_globalHpfCutoff;
+                updateVoiceEffects(voice);
+            }
+        }
+    }
+
+    return changed;
 }
 
 void SamplerDevice::setProjectPath(const std::string & projectPath)

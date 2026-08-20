@@ -29,6 +29,7 @@
 #include "../../application/service/side_chain_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/devices/device_factory.hpp"
+#include "../../domain/devices/drum_synth_constants.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/kick_808_device.hpp"
 #include "../../domain/devices/piano_synth_v2_device.hpp"
@@ -1365,6 +1366,51 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_saveAs_shouldPreserve
     // Cleanup
     QFile::remove(QString::fromStdString(absolutePath));
     QDir().rmdir(QFileInfo(QString::fromStdString(absolutePath)).absolutePath());
+}
+
+void XmlSerializationTest::test_toXml_whileAutomated_shouldSaveAuthoredValues()
+{
+    // Saving while a song plays is a normal thing to do -- it sounds good, so it gets saved. What
+    // the automation happens to be doing at that moment is not part of the patch and must not end
+    // up in the file.
+    const auto deviceName = "Noteahead Internal Device 1";
+
+    DeviceService deviceServiceOut { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+    const auto synthOut = std::make_shared<SynthDevice>(deviceName);
+    synthOut->setLpfCutoff(0.3f);
+    synthOut->setPan(0.25f);
+    deviceServiceOut.setDevice(0, synthOut);
+
+    const auto kickHpfKey = DrumSynth::voiceId(static_cast<int>(DrumSynth::VoiceIndex::Kick)) + "_" + Constants::NahdXml::xmlKeyHpfCutoff().toStdString();
+    const auto drumOut = std::make_shared<DrumSynthDevice>("Noteahead Internal Device 2");
+    drumOut->updateVoiceParameter(0, Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.25f);
+    deviceServiceOut.setDevice(1, drumOut);
+
+    // Automation runs over all of them
+    synthOut->processMidiCc(74, 127, 0); // Cutoff
+    synthOut->processMidiCc(10, 127, 0); // Pan
+    drumOut->processMidiCc(16, 127, 0); // Kick HPF
+    QCOMPARE(synthOut->lpfCutoff(), 1.0f);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto deviceServiceIn = std::make_shared<DeviceService>(std::make_shared<AudioEngine>(), std::make_shared<DataService>());
+    const auto synthIn = std::make_shared<SynthDevice>(deviceName);
+    deviceServiceIn->setDevice(0, synthIn);
+    const auto drumIn = std::make_shared<DrumSynthDevice>("Noteahead Internal Device 2");
+    deviceServiceIn->setDevice(1, drumIn);
+
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, deviceServiceIn.get(), &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    QCOMPARE(synthIn->lpfCutoff(), 0.3f);
+    QCOMPARE(synthIn->pan(), 0.25f);
+    QCOMPARE(drumIn->parameter(kickHpfKey)->get().value(), 0.25f);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_synthDevice_shouldPreserveValuesAndDiscreteFlags()

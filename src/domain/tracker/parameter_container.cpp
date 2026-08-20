@@ -20,6 +20,8 @@
 #include "../../common/xml/project_writer.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 
+#include <algorithm>
+
 #include <iomanip>
 
 #include <QVariant>
@@ -70,11 +72,25 @@ void ParameterContainer::reset()
     }
 }
 
+void ParameterContainer::clearAutomation()
+{
+    for (auto && [name, p] : m_parameters) {
+        p.clearAutomation();
+    }
+}
+
+bool ParameterContainer::isAutomated() const
+{
+    return std::ranges::any_of(m_parameters, [](const auto & entry) {
+        return entry.second.isAutomated();
+    });
+}
+
 ParameterContainer::ParameterSnapshot ParameterContainer::parameterSnapshot() const
 {
     ParameterSnapshot snapshot;
     for (const auto & [name, p] : m_parameters) {
-        snapshot.emplace(name, p.value());
+        snapshot.emplace(name, p.authoredValue());
     }
     return snapshot;
 }
@@ -96,17 +112,17 @@ void ParameterContainer::serializeParametersToXml(ProjectWriter & writer) const
 
         if (p.type() == Parameter::Type::Continuous) {
             writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueFloat());
-            writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(p.xmlValue()));
+            writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(p.xmlAuthoredValue()));
             writer.writeAttribute(Constants::NahdXml::xmlKeyMin(), QString::number(p.xmlMin()));
             writer.writeAttribute(Constants::NahdXml::xmlKeyMax(), QString::number(p.xmlMax()));
             writer.writeAttribute(Constants::NahdXml::xmlKeyDefault(), QString::number(p.xmlDefault()));
             writer.writeAttribute(Constants::NahdXml::xmlKeyScale(), QString::number(p.xmlScale()));
         } else if (p.type() == Parameter::Type::Discrete) {
             writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueInt());
-            writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(p.xmlValue()));
+            writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(p.xmlAuthoredValue()));
         } else if (p.type() == Parameter::Type::Boolean) {
             writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueBool());
-            writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), p.value() > 0.5f ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
+            writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), p.authoredValue() > 0.5f ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
         }
 
         writer.writeEndElement();

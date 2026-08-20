@@ -9,6 +9,10 @@ Bug fixes:
 
 * Apply track settings' MIDI CC to internal devices
 
+* Keep automated values out of the saved device parameters
+
+* Restore Drum Synth, Kick 808 and Wavetable Synth after playback
+
 * Fix Drum Synth marking the project modified on voice MIDI CC
 
 * Accept Enter in AudioRenderDialog's widgets

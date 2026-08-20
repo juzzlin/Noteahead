@@ -126,11 +126,8 @@ void PianoSynthV2Device::processMidiCc(uint8_t controller, uint8_t value, uint8_
         std::lock_guard<std::recursive_mutex> lock { mutex() };
 
         if (controller == static_cast<uint8_t>(Controller::ResetAllControllers)) {
-            updatePanParameter(manualPanInternal(), false);
-            updateVolumeParameter(manualVolumeInternal(), false);
-            updateGainParameter(manualGainInternal(), false);
+            changed |= clearAutomationInternal();
             m_sustainPedal = false;
-            changed = true;
         } else {
             const float val = static_cast<float>(value) / 127.0f;
 
@@ -306,7 +303,6 @@ void PianoSynthV2Device::deserializeFromXml(ProjectReader & reader)
         }
 
         syncParameters();
-        syncManualValues();
     }
     emit dataChanged();
 }

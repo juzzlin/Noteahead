@@ -806,6 +806,22 @@ void SamplerTest::test_projectLoadMidiCcResetGlobal_shouldRestoreLoadedValues()
     }
 }
 
+void SamplerTest::test_padMidiCc_shouldNotChangeAuthoredValue()
+{
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    const uint8_t note = SamplerDevice::padStartNote;
+    sampler.loadSample(note, "test.wav");
+    sampler.setSamplePan(note, 0.25f);
+
+    // Pad 0 pan
+    sampler.processMidiCc(SamplerDevice::padPanCcStart, 127, 0);
+    QCOMPARE(sampler.samplePan(note), 1.0f);
+
+    sampler.clearAutomation();
+
+    QCOMPARE(sampler.samplePan(note), 0.25f);
+}
+
 void SamplerTest::test_loadSample_relativePath_shouldWorkWithProjectPath()
 {
     SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };

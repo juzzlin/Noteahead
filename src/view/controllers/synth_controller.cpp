@@ -1004,8 +1004,10 @@ void SynthController::saveUserPreset(QString name)
     if (m_synth && m_deviceService) {
         SynthPreset preset;
         preset.name = name.toStdString();
+        // Authored values: a preset saved while a song plays is the patch the user made, not the
+        // one the automation happens to be holding.
         for (const auto & [paramName, parameter] : m_synth->parameters()) {
-            preset.parameters[paramName] = parameter.value();
+            preset.parameters[paramName] = parameter.authoredValue();
         }
         m_deviceService->saveSynthUserPreset(m_currentPresetIndex, preset);
     }

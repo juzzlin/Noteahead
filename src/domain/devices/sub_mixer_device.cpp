@@ -101,9 +101,7 @@ void SubMixerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
 
         if (controller == static_cast<uint8_t>(Controller::ResetAllControllers)) {
             // Back to whatever the knobs were set to by hand, discarding what CC rode them to.
-            changed |= updateVolumeParameter(manualVolumeInternal(), false);
-            changed |= updatePanParameter(manualPanInternal(), false);
-            changed |= updateGainParameter(manualGainInternal(), false);
+            changed |= clearAutomationInternal();
         } else {
             const auto val = static_cast<float>(value) / 127.0f;
             if (controller == static_cast<uint8_t>(Controller::ChannelVolumeMSB)) {

@@ -197,6 +197,38 @@ void DeviceServiceTest::test_midiCc_drumSynthVoice_shouldNotEmitDataChanged()
     QVERIFY(structuralSpy.count() > 0);
 }
 
+void DeviceServiceTest::test_clearAutomation_shouldRestoreEveryDevice()
+{
+    // The sweep the transport runs when playback stops. Devices also restore themselves on CC 121,
+    // but only where that message goes; this is what covers the rest.
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    DeviceService deviceService { audioEngine, std::make_shared<DataService>() };
+
+    const auto synth = std::make_shared<SynthDevice>("Synth 1");
+    synth->setLpfCutoff(0.25f);
+    deviceService.setDevice(0, synth);
+
+    const auto drum = std::make_shared<DrumSynthDevice>("Drum Synth 1");
+    const auto kickHpfKey = DrumSynth::voiceId(static_cast<int>(DrumSynth::VoiceIndex::Kick)) + "_" + Constants::NahdXml::xmlKeyHpfCutoff().toStdString();
+    drum->updateVoiceParameter(static_cast<int>(DrumSynth::VoiceIndex::Kick), Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.25f);
+    deviceService.setDevice(1, drum);
+
+    synth->processMidiCc(74, 127, 0);
+    drum->processMidiCc(16, 127, 0);
+    QCOMPARE(synth->lpfCutoff(), 1.0f);
+    QCOMPARE(drum->parameter(kickHpfKey)->get().value(), 1.0f);
+
+    QSignalSpy structuralSpy { &deviceService, &DeviceService::dataChanged };
+
+    deviceService.clearAutomation();
+
+    QCOMPARE(synth->lpfCutoff(), 0.25f);
+    QCOMPARE(drum->parameter(kickHpfKey)->get().value(), 0.25f);
+
+    // Handing values back is not an edit: it undoes what playback did, it does not change the song.
+    QCOMPARE(structuralSpy.count(), 0);
+}
+
 void DeviceServiceTest::test_allNotesOff_sampler_shouldNotEmitDataChanged()
 {
     // The Sampler is the one that restores its manual values on all-notes-off, and it was the one

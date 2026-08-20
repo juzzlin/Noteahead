@@ -267,12 +267,17 @@ void RenderWorker::render(const QString & fileName,
         }
 
         m_audioEngine->reset();
+        // A render drives the devices with the song's automation exactly as playback does, so it
+        // has to hand them back the same way. Otherwise exporting a song would leave the panels
+        // wherever the last rendered tick put them.
+        m_deviceService->clearAutomation();
         m_audioEngine->setIsExclusive(false);
         m_isRendering = false;
         juzzlin::L(TAG).info() << "Render finished successfully";
         emit finished(true, report);
     } catch (const std::exception & e) {
         m_audioEngine->reset();
+        m_deviceService->clearAutomation();
         m_audioEngine->setIsExclusive(false);
         m_isRendering = false;
         juzzlin::L(TAG).error() << "Render failed: " << e.what();

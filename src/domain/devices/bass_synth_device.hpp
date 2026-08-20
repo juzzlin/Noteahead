@@ -98,7 +98,6 @@ public:
 
 protected:
     void syncParameters() override;
-    void syncManualValues() override;
 
 private:
     struct Voice
@@ -160,8 +159,6 @@ private:
     int m_pitchBendRange { 2 };
 
     // Manual settings for CC reset
-    float m_manualLpfCutoff { 0.5f };
-    float m_manualHpfCutoff { 0.0f };
 
     void handleNoteOn(uint8_t note, uint8_t velocity);
     void handleNoteOff(uint8_t note);

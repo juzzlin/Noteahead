@@ -98,11 +98,6 @@ public:
         float hpfCutoff = 0.0f;
         double startOffset = 0.0;
 
-        float manualPan = 0.5f;
-        float manualVolume = 1.0f;
-        float manualCutoff = 1.0f;
-        float manualHpfCutoff = 0.0f;
-
         // Per-pad insert effect rack. Shared so Sample stays copyable (saveState/restoreState deep-copy)
         // and so every voice/note playing this sample runs through the same stateful effect chain.
         std::shared_ptr<EffectRack> effectRack;
@@ -201,8 +196,12 @@ private:
     //! Resolves a controller number against the per-pad CC blocks. Nothing when it falls outside them.
     std::optional<PadCcTarget> padCcTarget(uint8_t controller, uint8_t value) const;
 
-    //! Writes an automated value into one pad's parameter and refreshes the voices playing that pad.
-    //! The pad's manual value is deliberately left alone, so the reset paths can still restore it.
+    //! Copies a pad's parameters into the plain fields the voices read.
+    void syncSampleFields(Sample & sample);
+
+    //! Writes an automated value into one pad's parameter and refreshes the voices playing that
+    //! pad. The authored value is left alone, which is what clearAutomationInternal() restores.
+
     bool updatePadParameter(int note, const std::string & parameterName, float value);
 
     //! Copy of the given sample that shares nothing mutable with it: the pad settings and the insert
@@ -216,7 +215,7 @@ private:
     //! has to outlive every voice reading it. Call this under the lock, before the sample goes.
     void stopVoicesUsing(const Sample * sample);
     void syncParameters() override;
-    void syncManualValues() override;
+    bool clearAutomationInternal() override;
 
     struct Voice
     {
@@ -254,8 +253,8 @@ private:
     std::string m_name;
     float m_globalCutoff = 1.0f;
     float m_globalHpfCutoff = 0.0f;
-    float m_manualGlobalCutoff = 1.0f;
-    float m_manualGlobalHpfCutoff = 0.0f;
+    float m_authoredGlobalCutoff = 1.0f;
+    float m_authoredGlobalHpfCutoff = 0.0f;
     bool m_channelMode = false;
     bool m_chromaticMode = false;
     bool m_embedWaveData = false;

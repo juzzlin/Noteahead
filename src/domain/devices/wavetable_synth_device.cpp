@@ -485,13 +485,26 @@ void WavetableSynthDevice::processMidiNoteOff(uint8_t note)
 
 void WavetableSynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
 {
+    using namespace MidiCcMapping;
+
     const float val = static_cast<float>(value) / 127.0f;
     bool changed = false;
 
     {
         const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
-        if (controller == 1) { // LFO intensity (temporary, not saved to param)
+        if (controller == static_cast<uint8_t>(Controller::ResetAllControllers)) {
+            changed |= clearAutomationInternal();
+            // The LFO intensity rides on the modulation wheel and never reaches a parameter, so it
+            // has to be put back from the one it belongs to by hand.
+            if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoIntensity().toStdString()); p) {
+                if (const auto restored = p->get().value(); std::abs(restored - m_lfoInt) > 0.0001f) {
+                    m_lfoInt = restored;
+                    m_lfoDepth = intensityToDepth(m_lfoInt);
+                    changed = true;
+                }
+            }
+        } else if (controller == 1) { // LFO intensity (temporary, not saved to param)
             m_lfoInt = val;
             m_lfoDepth = intensityToDepth(m_lfoInt);
             changed = true;
@@ -502,21 +515,21 @@ void WavetableSynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint
         } else if (controller == 74) {
             m_lpfCutoff = val;
             if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); synthParameter) {
-                synthParameter->get().setValue(val);
+                synthParameter->get().setAutomationValue(val);
                 syncParameters();
                 changed = true;
             }
         } else if (controller == 71) {
             m_lpfResonance = val;
             if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLpfResonance().toStdString()); synthParameter) {
-                synthParameter->get().setValue(val);
+                synthParameter->get().setAutomationValue(val);
                 syncParameters();
                 changed = true;
             }
         } else if (controller == 81) {
             m_hpfCutoff = val;
             if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); synthParameter) {
-                synthParameter->get().setValue(val);
+                synthParameter->get().setAutomationValue(val);
                 syncParameters();
                 changed = true;
             }

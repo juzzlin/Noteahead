@@ -46,6 +46,8 @@ private slots:
     void test_lpfCutoff_closed_shouldAttenuateOutput();
     void test_hpfCutoff_closed_shouldAttenuateOutput();
     void test_midiCc_shouldReachEveryParameter();
+    void test_midiCc_shouldNotChangeAuthoredValue();
+    void test_resetAllControllers_shouldRestoreAuthoredValue();
     void test_drive_full_shouldLeaveHeadroom();
     void test_serialization_shouldRestoreParameters();
 };

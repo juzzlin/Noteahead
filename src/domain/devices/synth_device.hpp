@@ -287,6 +287,7 @@ public:
     float delayFeedbackHpf() const;
     void setFeedbackHpf(float cutoff);
 
+    //! Loads a preset as the user's own choice: it becomes the patch, and it is what gets saved.
     void loadPreset(int bank, int index);
     void setUserPresets(const UserPresets & presets);
 
@@ -436,9 +437,6 @@ private:
     uint16_t m_pitchBend { 8192 };
 
     // Manual settings for CC reset
-    float m_manualLpfCutoff { 1.0f };
-    float m_manualLpfResonance { 0.0f };
-    float m_manualHpfCutoff { 0.0f };
 
     float m_oscillatorDrift { 0.0f };
     float m_crossModDepth { 0.0f };
@@ -479,8 +477,11 @@ private:
     void handleMonoNoteOn(uint8_t note, double frequency, float velocity);
     void handleNoteOff(uint8_t note);
     double midiNoteToFreq(uint8_t note) const;
+    //! \param authored Whether the preset is the user's choice or a program change from a song.
+    //! A program change writes the live layer only, so stopping playback brings the patch back.
+    void applyPreset(int bank, int index, bool authored);
+
     void syncParameters() override;
-    void syncManualValues() override;
 
     struct ModulationValues
     {

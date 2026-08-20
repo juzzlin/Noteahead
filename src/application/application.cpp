@@ -717,6 +717,10 @@ void Application::connectPlayerService()
             // Only on the rising edge: an integrated reading is meant to describe one take, so it
             // starts over with the song rather than carrying whatever was auditioned beforehand.
             m_deviceService->resetLoudnessMeters();
+        } else {
+            // Playback is over, so nothing it wrote may outlive it: the devices go back to the
+            // values the user set, and a save from here on stores those.
+            m_deviceService->clearAutomation();
         }
         if (m_settingsService->recordingEnabled()) {
             applyAudioRecording(isPlaying, m_playerService->tick());

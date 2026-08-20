@@ -47,8 +47,6 @@ DrumSynthDevice::DrumSynthDevice(std::string name)
         addVoiceParameters(i);
     }
 
-    DrumSynthDevice::syncManualValues();
-
     DrumSynthDevice::syncParameters();
 }
 
@@ -152,10 +150,7 @@ void DrumSynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t /
         const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
         if (controller == static_cast<uint8_t>(Controller::ResetAllControllers)) {
-            updatePanParameter(manualPanInternal(), false);
-            updateVolumeParameter(manualVolumeInternal(), false);
-            updateGainParameter(manualGainInternal(), false);
-            changed = true;
+            changed |= clearAutomationInternal();
         } else {
             const float val { static_cast<float>(value) / 127.0f };
 
@@ -167,20 +162,20 @@ void DrumSynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t /
                 const int voiceIndex { (controller - CcStartRange1) / 3 };
                 const int paramType { (controller - CcStartRange1) % 3 };
                 if (paramType == 0)
-                    changed |= setVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyPan().toStdString(), val);
+                    changed |= automateVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyPan().toStdString(), val);
                 else if (paramType == 1)
-                    changed |= setVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyCutoff().toStdString(), val);
+                    changed |= automateVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyCutoff().toStdString(), val);
                 else if (paramType == 2)
-                    changed |= setVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), val);
+                    changed |= automateVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), val);
             } else if (controller >= CcStartRange2 && controller < CcStartRange2 + (NumVoicesRange2 * 3)) {
                 const int voiceIndex { NumVoicesRange1 + (controller - CcStartRange2) / 3 };
                 const int paramType { (controller - CcStartRange2) % 3 };
                 if (paramType == 0)
-                    changed |= setVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyPan().toStdString(), val);
+                    changed |= automateVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyPan().toStdString(), val);
                 else if (paramType == 1)
-                    changed |= setVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyCutoff().toStdString(), val);
+                    changed |= automateVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyCutoff().toStdString(), val);
                 else if (paramType == 2)
-                    changed |= setVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), val);
+                    changed |= automateVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), val);
             }
         }
     }
@@ -688,20 +683,29 @@ void DrumSynthDevice::syncCymbalParameters(int index, const std::string & prefix
     }
 }
 
-bool DrumSynthDevice::setVoiceParameter(int voiceIndex, const std::string & paramName, float value)
+bool DrumSynthDevice::writeVoiceParameter(int voiceIndex, const std::string & paramName, float value, bool authored)
 {
     const std::string prefix { voiceId(voiceIndex) + "_" };
     if (auto p = parameter(prefix + paramName); p) {
-        p->get().setValue(value);
+        if (authored) {
+            p->get().setValue(value);
+        } else {
+            p->get().setAutomationValue(value);
+        }
         syncVoiceParameters(voiceIndex);
         return true;
     }
     return false;
 }
 
+bool DrumSynthDevice::automateVoiceParameter(int voiceIndex, const std::string & paramName, float value)
+{
+    return writeVoiceParameter(voiceIndex, paramName, value, false);
+}
+
 bool DrumSynthDevice::updateVoiceParameter(int voiceIndex, const std::string & paramName, float value)
 {
-    if (setVoiceParameter(voiceIndex, paramName, value)) {
+    if (writeVoiceParameter(voiceIndex, paramName, value, true)) {
         emit dataChanged();
         return true;
     }
