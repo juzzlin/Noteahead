@@ -37,9 +37,11 @@ constexpr int Periods = 64;
 
 void setParameter(TubeStage & effect, const QString & key, float value)
 {
-    if (auto p = effect.parameter(key.toStdString()); p) {
-        p->get().update(value);
-    }
+    // Not a silent no-op on an unknown key: a parameter that has been renamed would otherwise
+    // leave every test that sets it asserting against the default and still passing.
+    const auto p = effect.parameter(key.toStdString());
+    Q_ASSERT(p.has_value());
+    p->get().update(value);
     effect.sync();
 }
 
@@ -129,7 +131,7 @@ double inharmonicEnergy(const std::vector<double> & samples)
 void TubeStageTest::test_mixZero_shouldPassSignalThrough()
 {
     TubeStage effect;
-    setParameter(effect, Constants::NahdXml::xmlKeyDrive(), 0.9f);
+    setParameter(effect, Constants::NahdXml::xmlKeyDriveDb(), 0.9f);
     setParameter(effect, Constants::NahdXml::xmlKeyMix(), 0.0f);
 
     double left = 0.5;
@@ -145,7 +147,7 @@ void TubeStageTest::test_triode_shouldGenerateEvenHarmonics()
 {
     TubeStage effect;
     setParameter(effect, Constants::NahdXml::xmlKeyMode(), 0.0f); // Triode
-    setParameter(effect, Constants::NahdXml::xmlKeyDrive(), 0.5f);
+    setParameter(effect, Constants::NahdXml::xmlKeyDriveDb(), 0.5f);
 
     const auto samples = renderSine(effect, 500.0, 0.5);
     const double second = harmonicMagnitude(samples, 2);
@@ -162,7 +164,7 @@ void TubeStageTest::test_pentode_centredBias_shouldFavourOddHarmonics()
     TubeStage effect;
     setParameter(effect, Constants::NahdXml::xmlKeyMode(), 1.0f); // Pentode
     setParameter(effect, Constants::NahdXml::xmlKeyBias(), 0.5f);
-    setParameter(effect, Constants::NahdXml::xmlKeyDrive(), 0.5f);
+    setParameter(effect, Constants::NahdXml::xmlKeyDriveDb(), 0.5f);
 
     const auto samples = renderSine(effect, 500.0, 0.5);
     const double second = harmonicMagnitude(samples, 2);
@@ -179,7 +181,7 @@ void TubeStageTest::test_bias_offCentre_shouldIncreaseEvenHarmonics()
     const auto secondHarmonicAtBias = [](float bias) {
         TubeStage effect;
         setParameter(effect, Constants::NahdXml::xmlKeyMode(), 1.0f); // Pentode, symmetric at centre
-        setParameter(effect, Constants::NahdXml::xmlKeyDrive(), 0.5f);
+        setParameter(effect, Constants::NahdXml::xmlKeyDriveDb(), 0.5f);
         setParameter(effect, Constants::NahdXml::xmlKeyBias(), bias);
         return harmonicMagnitude(renderSine(effect, 500.0, 0.5), 2);
     };
@@ -196,7 +198,7 @@ void TubeStageTest::test_bias_offCentre_shouldIncreaseEvenHarmonics()
 void TubeStageTest::test_output_shouldNotDriftToDc()
 {
     TubeStage effect;
-    setParameter(effect, Constants::NahdXml::xmlKeyDrive(), 0.8f);
+    setParameter(effect, Constants::NahdXml::xmlKeyDriveDb(), 0.8f);
     setParameter(effect, Constants::NahdXml::xmlKeyBias(), 0.95f);
 
     const auto samples = renderSine(effect, 500.0, 0.7);
@@ -211,7 +213,7 @@ void TubeStageTest::test_tone_shouldTiltTheSpectrum()
 {
     const auto gainAt = [](double frequency, float tone) {
         TubeStage effect;
-        setParameter(effect, Constants::NahdXml::xmlKeyDrive(), 0.0f);
+        setParameter(effect, Constants::NahdXml::xmlKeyDriveDb(), 0.0f);
         setParameter(effect, Constants::NahdXml::xmlKeyTone(), tone);
         // Small signal, so the valve stays near linear and only the tilt is being measured.
         return harmonicMagnitude(renderSine(effect, frequency, 0.05), 1) / 0.05;
@@ -233,7 +235,7 @@ void TubeStageTest::test_drive_higher_shouldSaturateMore()
 {
     const auto saturationAtDrive = [](float drive) {
         TubeStage effect;
-        setParameter(effect, Constants::NahdXml::xmlKeyDrive(), drive);
+        setParameter(effect, Constants::NahdXml::xmlKeyDriveDb(), drive);
         renderSine(effect, 500.0, 0.5);
         return effect.saturationDb();
     };
@@ -252,7 +254,7 @@ void TubeStageTest::test_gain_shouldScaleOutput()
 {
     const auto peakAtGain = [](float gain) {
         TubeStage effect;
-        setParameter(effect, Constants::NahdXml::xmlKeyDrive(), 0.3f);
+        setParameter(effect, Constants::NahdXml::xmlKeyDriveDb(), 0.3f);
         setParameter(effect, Constants::NahdXml::xmlKeyGain(), gain);
         return peakLevel(renderSine(effect, 500.0, 0.4));
     };
@@ -266,7 +268,7 @@ void TubeStageTest::test_oversampling_shouldSuppressAliasing()
     const auto aliasingAtFactor = [](uint8_t factor) {
         TubeStage effect;
         effect.setOversampleFactor(factor);
-        setParameter(effect, Constants::NahdXml::xmlKeyDrive(), 1.0f);
+        setParameter(effect, Constants::NahdXml::xmlKeyDriveDb(), 1.0f);
         // High enough that the harmonics a hard-driven valve generates run past Nyquist.
         return inharmonicEnergy(renderSine(effect, 4100.0, 0.8));
     };

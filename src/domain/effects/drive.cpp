@@ -24,6 +24,14 @@
 
 namespace noteahead {
 
+namespace {
+
+//! Drive range in dB at the top of the control. Wide enough to reach the shaper's knee on the
+//! -26 dBFS a device in this rack puts out, which 20 dB was not.
+constexpr double MaxDriveDb = 40.0;
+
+} // namespace
+
 struct Drive::Oversampling
 {
     Upsampler upsamplerL;
@@ -36,7 +44,17 @@ Drive::Drive()
   : m_oversampling { std::make_unique<Oversampling>() }
 {
     addParameter(Parameter { Constants::NahdXml::xmlKeyMode().toStdString(), 0.0f, 0, 3, 0, 1, Parameter::Type::Discrete });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyDrive().toStdString(), 0.5f, 0, 100, 50, 100, Parameter::Type::Continuous });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyDriveDb().toStdString(), 0.37f, 0, static_cast<int>(MaxDriveDb * 100), 1480, 100, Parameter::Type::Continuous, { Constants::NahdXml::xmlKeyDrive().toStdString() },
+                             // The control used to run 1x to 10x, linearly in gain. That is 20 dB,
+                             // and a device in this rack puts out around -26 dBFS, so at the top of
+                             // its travel it could not reach its own knee: full drive measured
+                             // 1.8 % THD on a real signal. The range is now 40 dB and linear in dB.
+                             // A saved position is converted to the gain it used to mean, so a
+                             // project made before this sounds exactly as it did.
+                             [](float legacyPosition) {
+                                 const double legacyGain = 1.0 + static_cast<double>(legacyPosition) * 9.0;
+                                 return static_cast<float>(Utils::Dsp::linearToDb(static_cast<float>(legacyGain)) / MaxDriveDb);
+                             } });
     addMixParameter(1.0f, MixLaw::Internal);
     addParameter(Parameter { Constants::NahdXml::xmlKeyGain().toStdString(), 0.5f, -1200, 1200, 0, 100, Parameter::Type::Continuous });
 
@@ -92,7 +110,7 @@ float Drive::processOversampled(Upsampler & upsampler, Decimator & decimator, fl
 
 void Drive::processSample(double & left, double & right)
 {
-    const double driveGain = 1.0 + static_cast<double>(m_drive) * 9.0; // 1x .. 10x
+    const double driveGain = static_cast<double>(Utils::Dsp::dbToLinear(static_cast<float>(static_cast<double>(m_drive) * MaxDriveDb)));
     const double mix = static_cast<double>(m_mix);
     const double outputLin = static_cast<double>(Utils::Dsp::dbToLinear(m_outputDb));
     const uint8_t factor = clampOversampleFactor(oversampleFactor());
@@ -133,7 +151,7 @@ void Drive::syncParameters()
           : mode == 3                               ? Mode::Dist
                                                     : Mode::Soft;
     }
-    if (const auto p = parameter(Constants::NahdXml::xmlKeyDrive().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyDriveDb().toStdString()); p) {
         m_drive = p->get().value();
     }
     if (const auto p = parameter(Constants::NahdXml::xmlKeyMix().toStdString()); p) {

@@ -42,6 +42,8 @@
 #include "../../domain/effects/air_band_eq.hpp"
 #include "../../domain/effects/all_pass_filter.hpp"
 #include "../../domain/effects/analog_fuzz.hpp"
+#include "../../domain/effects/saturator.hpp"
+#include "../../domain/effects/drive.hpp"
 #include "../../domain/effects/auto_ducker.hpp"
 #include "../../domain/effects/auto_filter.hpp"
 #include "../../domain/effects/bass_grinder.hpp"
@@ -2099,7 +2101,7 @@ void XmlSerializationTest::test_toXmlFromXml_tubeStage_shouldLoadCorrectly()
     if (auto p = tubeStage->parameter(Constants::NahdXml::xmlKeyMode().toStdString()); p) {
         p->get().setValue(1.0f);
     }
-    if (auto p = tubeStage->parameter(Constants::NahdXml::xmlKeyDrive().toStdString()); p) {
+    if (auto p = tubeStage->parameter(Constants::NahdXml::xmlKeyDriveDb().toStdString()); p) {
         p->get().setValue(0.72f);
     }
     if (auto p = tubeStage->parameter(Constants::NahdXml::xmlKeyBias().toStdString()); p) {
@@ -2136,7 +2138,7 @@ void XmlSerializationTest::test_toXmlFromXml_tubeStage_shouldLoadCorrectly()
         return p ? p->get().value() : -1.0f;
     };
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyMode()) - 1.0f) < 0.001f);
-    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyDrive()) - 0.72f) < 0.001f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyDriveDb()) - 0.72f) < 0.001f);
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyBias()) - 0.31f) < 0.001f);
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyTone()) - 0.64f) < 0.001f);
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyMix()) - 0.85f) < 0.001f);
@@ -3333,6 +3335,76 @@ void XmlSerializationTest::test_eq8BandParametric_legacyNames_shouldLoadCorrectl
     if (auto p = effect.parameter(Constants::NahdXml::xmlKeyBandFreq(1).toStdString()); p) {
         QCOMPARE(p->get().value(), 0.5f);
     }
+}
+
+namespace {
+
+//! Writes one parameter as an older Noteahead wrote it: the stored value, and the range it was
+//! stored against. The range matters -- it is what the loader reconstructs the position from before
+//! the legacy converter maps that position into the new range.
+QString legacyParameterXml(const QString & name, const QString & value, const QString & min, const QString & max)
+{
+    QString xml;
+    NahdXmlWriter writer { xml };
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameters());
+    writer.writeStartElement(Constants::NahdXml::xmlKeyParameter());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyName(), name);
+    writer.writeAttribute(Constants::NahdXml::xmlKeyParameterValueType(), Constants::NahdXml::xmlValueFloat());
+    writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), value);
+    writer.writeAttribute(Constants::NahdXml::xmlKeyMin(), min);
+    writer.writeAttribute(Constants::NahdXml::xmlKeyMax(), max);
+    writer.writeEndElement();
+    writer.writeEndElement();
+    return xml;
+}
+
+void loadParameters(Effect & effect, const QString & xml)
+{
+    NahdXmlReader reader { xml };
+    if (reader.readNextStartElement()) {
+        effect.deserializeParametersFromXml(reader);
+    }
+}
+
+} // namespace
+
+void XmlSerializationTest::test_drive_legacyDrive_shouldKeepItsGain()
+{
+    // The control was 1x to 10x, linear in gain, and is now 40 dB linear in dB. A project saved
+    // against the old one has to come out at the gain it had, not at the same knob position.
+    Drive effect;
+    loadParameters(effect, legacyParameterXml(Constants::NahdXml::xmlKeyDrive(), "50", "0", "100"));
+
+    const auto p = effect.parameter(Constants::NahdXml::xmlKeyDriveDb().toStdString());
+    QVERIFY(p.has_value());
+
+    // Half travel used to mean 1 + 0.5 * 9 = 5.5x, which is 14.8 dB.
+    const double restoredDb = static_cast<double>(p->get().value()) * 40.0;
+    QVERIFY(std::abs(restoredDb - 20.0 * std::log10(5.5)) < 0.05);
+}
+
+void XmlSerializationTest::test_saturator_legacyDrive_shouldKeepItsGain()
+{
+    Saturator effect;
+    loadParameters(effect, legacyParameterXml(Constants::NahdXml::xmlKeyDrive(), "600", "0", "2400"));
+
+    const auto p = effect.parameter(Constants::NahdXml::xmlKeyDriveDb().toStdString());
+    QVERIFY(p.has_value());
+
+    // A quarter of the old 24 dB range is 6 dB, and 6 dB it must stay.
+    QVERIFY(std::abs(static_cast<double>(p->get().value()) * 40.0 - 6.0) < 0.01);
+}
+
+void XmlSerializationTest::test_tubeStage_legacyDrive_shouldKeepItsGain()
+{
+    TubeStage effect;
+    loadParameters(effect, legacyParameterXml(Constants::NahdXml::xmlKeyDrive(), "900", "0", "3600"));
+
+    const auto p = effect.parameter(Constants::NahdXml::xmlKeyDriveDb().toStdString());
+    QVERIFY(p.has_value());
+
+    // A quarter of the old 36 dB range is 9 dB.
+    QVERIFY(std::abs(static_cast<double>(p->get().value()) * 48.0 - 9.0) < 0.01);
 }
 
 void XmlSerializationTest::test_chorus_legacyNames_shouldLoadCorrectly()

@@ -740,11 +740,11 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                       .arg(static_cast<int>(std::round(fuzz->get().value() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::tubeStage()) {
-                const auto drive = effect->parameter(Constants::NahdXml::xmlKeyDrive().toStdString());
+                const auto drive = effect->parameter(Constants::NahdXml::xmlKeyDriveDb().toStdString());
                 const auto bias = effect->parameter(Constants::NahdXml::xmlKeyBias().toStdString());
                 if (drive && bias) {
                     return QString { "(drive=%1dB, bias=%2%)" }
-                      .arg(drive->get().value() * 36.0f, 0, 'f', 1)
+                      .arg(drive->get().value() * 48.0f, 0, 'f', 1)
                       .arg(static_cast<int>(std::round(bias->get().value() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::waveDesigner()) {
@@ -774,19 +774,19 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                       .arg(static_cast<int>(std::round(harmonics->get().value() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::saturator()) {
-                const auto drive = effect->parameter(Constants::NahdXml::xmlKeyDrive().toStdString());
+                const auto drive = effect->parameter(Constants::NahdXml::xmlKeyDriveDb().toStdString());
                 const auto mix = effect->parameter(Constants::NahdXml::xmlKeyMix().toStdString());
                 if (drive && mix) {
                     return QString { "(drive=%1dB, mix=%2%)" }
-                      .arg(drive->get().value() * 24.0f, 0, 'f', 1)
+                      .arg(drive->get().value() * 40.0f, 0, 'f', 1)
                       .arg(static_cast<int>(std::round(mix->get().value() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::drive()) {
-                const auto drive = effect->parameter(Constants::NahdXml::xmlKeyDrive().toStdString());
+                const auto drive = effect->parameter(Constants::NahdXml::xmlKeyDriveDb().toStdString());
                 const auto mix = effect->parameter(Constants::NahdXml::xmlKeyMix().toStdString());
                 if (drive && mix) {
-                    return QString { "(drive=%1%, mix=%2%)" }
-                      .arg(static_cast<int>(std::round(drive->get().value() * 100.0f)))
+                    return QString { "(drive=%1dB, mix=%2%)" }
+                      .arg(drive->get().value() * 40.0f, 0, 'f', 1)
                       .arg(static_cast<int>(std::round(mix->get().value() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::endless()) {
@@ -1055,7 +1055,7 @@ QString EffectRackController::saturatorModeKey() const
 
 QString EffectRackController::saturatorDriveKey() const
 {
-    return Constants::NahdXml::xmlKeyDrive();
+    return Constants::NahdXml::xmlKeyDriveDb();
 }
 
 QString EffectRackController::saturatorToneKey() const
@@ -1115,7 +1115,7 @@ QString EffectRackController::tubeStageModeKey() const
 
 QString EffectRackController::tubeStageDriveKey() const
 {
-    return Constants::NahdXml::xmlKeyDrive();
+    return Constants::NahdXml::xmlKeyDriveDb();
 }
 
 QString EffectRackController::tubeStageBiasKey() const
@@ -1195,7 +1195,7 @@ QString EffectRackController::driveModeKey() const
 
 QString EffectRackController::driveAmountKey() const
 {
-    return Constants::NahdXml::xmlKeyDrive();
+    return Constants::NahdXml::xmlKeyDriveDb();
 }
 
 QString EffectRackController::driveMixKey() const

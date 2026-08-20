@@ -450,6 +450,7 @@ QString xmlKeyFreeze();
 QString xmlKeyGated();
 QString xmlKeyHold();
 QString xmlKeyDrive();
+QString xmlKeyDriveDb();
 QString xmlKeyFuzz();
 QString xmlKeyBias();
 QString xmlKeyBlend();

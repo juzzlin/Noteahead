@@ -14,6 +14,9 @@ New features:
 
 Bug fixes:
 
+* Widen Drive, Saturator and Tube Stage so they reach their own knees on
+  the level a device puts out. Saved projects keep their gain
+
 * Make the square wave analog: AC coupling, finite edge rate and a level
   that no longer jumps as Shape narrows the pulse
 

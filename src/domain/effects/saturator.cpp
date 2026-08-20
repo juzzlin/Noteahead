@@ -24,6 +24,15 @@
 
 namespace noteahead {
 
+namespace {
+
+//! Drive range in dB at the top of the control, and the range it used to have. The old one is kept
+//! so a project saved against it can be converted rather than reinterpreted.
+constexpr double MaxDriveDb = 40.0;
+constexpr double LegacyMaxDriveDb = 24.0;
+
+} // namespace
+
 struct Saturator::Oversampling
 {
     Upsampler upsamplerL;
@@ -36,7 +45,14 @@ Saturator::Saturator()
   : m_oversampling { std::make_unique<Oversampling>() }
 {
     addParameter(Parameter { Constants::NahdXml::xmlKeyMode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyDrive().toStdString(), 0.25f, 0, 2400, 600, 100, Parameter::Type::Continuous });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyDriveDb().toStdString(), 0.15f, 0, static_cast<int>(MaxDriveDb * 100), 600, 100, Parameter::Type::Continuous, { Constants::NahdXml::xmlKeyDrive().toStdString() },
+                             // 24 dB was not enough to reach the knee on the -26 dBFS a device in
+                             // this rack puts out: full drive measured 4.2 % THD on a real signal.
+                             // A position saved against the old range is converted to the dB it
+                             // used to mean, so an existing project sounds exactly as it did.
+                             [](float legacyPosition) {
+                                 return static_cast<float>(static_cast<double>(legacyPosition) * LegacyMaxDriveDb / MaxDriveDb);
+                             } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyTone().toStdString(), 1.0f, 0, 100, 100, 100, Parameter::Type::Continuous });
     addMixParameter(1.0f, MixLaw::Internal);
     addParameter(Parameter { Constants::NahdXml::xmlKeyGain().toStdString(), 0.5f, -1200, 1200, 0, 100, Parameter::Type::Continuous });
@@ -180,8 +196,8 @@ void Saturator::syncParameters()
         m_mode = mode == 1 ? Mode::Tube : mode == 2 ? Mode::Diode
                                                     : Mode::Tape;
     }
-    if (const auto p = parameter(Constants::NahdXml::xmlKeyDrive().toStdString()); p) {
-        m_driveDb = p->get().value() * 24.0f;
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyDriveDb().toStdString()); p) {
+        m_driveDb = static_cast<float>(p->get().value() * MaxDriveDb);
     }
     if (const auto p = parameter(Constants::NahdXml::xmlKeyTone().toStdString()); p) {
         m_tone = p->get().value();

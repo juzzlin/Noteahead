@@ -1324,6 +1324,7 @@ void EffectsTest::test_clipperEffect_shouldClipSignal()
     }
 }
 
+
 void EffectsTest::test_saturatorEffect_shouldShapeSignalPerMode()
 {
     Saturator effect;
@@ -1334,7 +1335,7 @@ void EffectsTest::test_saturatorEffect_shouldShapeSignalPerMode()
         if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyMode().toStdString()); p) {
             p->get().setValue(0.0f); // Tape
         }
-        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyDrive().toStdString()); p) {
+        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyDriveDb().toStdString()); p) {
             p->get().setValue(0.0f); // 0dB
         }
         if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyTone().toStdString()); p) {
@@ -1362,7 +1363,7 @@ void EffectsTest::test_saturatorEffect_shouldShapeSignalPerMode()
         if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyMode().toStdString()); p) {
             p->get().setValue(2.0f); // Diode
         }
-        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyDrive().toStdString()); p) {
+        if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyDriveDb().toStdString()); p) {
             p->get().setValue(1.0f); // +24dB
         }
         if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyTone().toStdString()); p) {
@@ -1390,7 +1391,7 @@ void EffectsTest::test_saturatorEffect_shouldRespectMix()
     Saturator effect;
     effect.reset();
 
-    if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyDrive().toStdString()); p) {
+    if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyDriveDb().toStdString()); p) {
         p->get().setValue(1.0f); // Heavy drive so wet/dry clearly differ
     }
     if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyMix().toStdString()); p) {
@@ -1417,7 +1418,7 @@ void EffectsTest::test_saturatorEffect_shouldReportSaturationMeter()
     if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyMode().toStdString()); p) {
         p->get().setValue(2.0f); // Diode
     }
-    if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyDrive().toStdString()); p) {
+    if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyDriveDb().toStdString()); p) {
         p->get().setValue(1.0f); // +24dB, drives well past the shaping knee
     }
     if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyMix().toStdString()); p) {

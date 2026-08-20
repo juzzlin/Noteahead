@@ -84,12 +84,12 @@ EffectDialog {
                         label: qsTr("Drive")
                         suffix: "dB"
                         from: 0
-                        to: 36
+                        to: 48
                         value: {
                             effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.tubeStageDriveKey()) * 36;
+                            return effectRackController.parameterValue(root.effectIndex, effectRackController.tubeStageDriveKey()) * 48;
                         }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.tubeStageDriveKey(), v / 36)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.tubeStageDriveKey(), v / 48)
                         Layout.fillWidth: true
                     }
 

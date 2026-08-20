@@ -385,7 +385,7 @@ void EffectRackTest::test_exportImportEffectSettings_drive_shouldRoundTrip()
     EffectRack rack;
     const auto drive = std::make_shared<Drive>();
     drive->parameter(Constants::NahdXml::xmlKeyMode().toStdString())->get().update(2.0f); // Fold
-    drive->parameter(Constants::NahdXml::xmlKeyDrive().toStdString())->get().update(0.7f);
+    drive->parameter(Constants::NahdXml::xmlKeyDriveDb().toStdString())->get().update(0.7f);
     drive->parameter(Constants::NahdXml::xmlKeyMix().toStdString())->get().update(0.4f);
     drive->parameter(Constants::NahdXml::xmlKeyGain().toStdString())->get().update(0.6f);
     rack.setEffect(0, drive);
@@ -401,7 +401,7 @@ void EffectRackTest::test_exportImportEffectSettings_drive_shouldRoundTrip()
     const auto drive2 = std::dynamic_pointer_cast<Drive>(rack2.effect(1));
     QVERIFY(drive2 != nullptr);
     QCOMPARE(drive2->parameter(Constants::NahdXml::xmlKeyMode().toStdString())->get().value(), 2.0f);
-    QCOMPARE(drive2->parameter(Constants::NahdXml::xmlKeyDrive().toStdString())->get().value(), 0.7f);
+    QCOMPARE(drive2->parameter(Constants::NahdXml::xmlKeyDriveDb().toStdString())->get().value(), 0.7f);
     QCOMPARE(drive2->parameter(Constants::NahdXml::xmlKeyMix().toStdString())->get().value(), 0.4f);
     QCOMPARE(drive2->parameter(Constants::NahdXml::xmlKeyGain().toStdString())->get().value(), 0.6f);
 }

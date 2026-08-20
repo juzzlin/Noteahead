@@ -26,9 +26,11 @@ namespace noteahead {
 namespace {
 void setParameter(Drive & effect, const QString & key, float value)
 {
-    if (auto p = effect.parameter(key.toStdString()); p) {
-        p->get().update(value);
-    }
+    // Not a silent no-op on an unknown key: a parameter that has been renamed would otherwise
+    // leave every test that sets it asserting against the default and still passing.
+    const auto p = effect.parameter(key.toStdString());
+    Q_ASSERT(p.has_value());
+    p->get().update(value);
     effect.sync();
 }
 } // namespace
@@ -36,7 +38,7 @@ void setParameter(Drive & effect, const QString & key, float value)
 void DriveTest::test_mixZero_shouldPassSignalThrough()
 {
     Drive effect;
-    setParameter(effect, Constants::NahdXml::xmlKeyDrive(), 0.8f);
+    setParameter(effect, Constants::NahdXml::xmlKeyDriveDb(), 0.8f);
     setParameter(effect, Constants::NahdXml::xmlKeyMix(), 0.0f);
 
     double l = 0.5;
@@ -51,7 +53,7 @@ void DriveTest::test_mixZero_shouldPassSignalThrough()
 void DriveTest::test_mixFull_shouldShapeSignal()
 {
     Drive effect;
-    setParameter(effect, Constants::NahdXml::xmlKeyDrive(), 0.5f);
+    setParameter(effect, Constants::NahdXml::xmlKeyDriveDb(), 0.5f);
     setParameter(effect, Constants::NahdXml::xmlKeyMix(), 1.0f);
 
     double l = 0.5;
@@ -66,11 +68,11 @@ void DriveTest::test_mixFull_shouldShapeSignal()
 void DriveTest::test_higherDrive_shouldSaturateMore()
 {
     Drive low;
-    setParameter(low, Constants::NahdXml::xmlKeyDrive(), 0.1f);
+    setParameter(low, Constants::NahdXml::xmlKeyDriveDb(), 0.1f);
     setParameter(low, Constants::NahdXml::xmlKeyMix(), 1.0f);
 
     Drive high;
-    setParameter(high, Constants::NahdXml::xmlKeyDrive(), 0.9f);
+    setParameter(high, Constants::NahdXml::xmlKeyDriveDb(), 0.9f);
     setParameter(high, Constants::NahdXml::xmlKeyMix(), 1.0f);
 
     double lowL = 0.5, lowR = 0.5;
@@ -86,7 +88,7 @@ void DriveTest::test_hardMode_shouldClipToUnity()
 {
     Drive effect;
     setParameter(effect, Constants::NahdXml::xmlKeyMode(), 1.0f); // Hard
-    setParameter(effect, Constants::NahdXml::xmlKeyDrive(), 1.0f);
+    setParameter(effect, Constants::NahdXml::xmlKeyDriveDb(), 1.0f);
     setParameter(effect, Constants::NahdXml::xmlKeyMix(), 1.0f);
 
     double l = 0.8;
@@ -102,7 +104,7 @@ void DriveTest::test_foldMode_shouldStayWithinUnity()
 {
     Drive effect;
     setParameter(effect, Constants::NahdXml::xmlKeyMode(), 2.0f); // Fold
-    setParameter(effect, Constants::NahdXml::xmlKeyDrive(), 1.0f);
+    setParameter(effect, Constants::NahdXml::xmlKeyDriveDb(), 1.0f);
     setParameter(effect, Constants::NahdXml::xmlKeyMix(), 1.0f);
 
     for (double input = -1.0; input <= 1.0; input += 0.1) {
@@ -117,7 +119,7 @@ void DriveTest::test_distMode_shouldShapeAsymmetrically()
 {
     Drive effect;
     setParameter(effect, Constants::NahdXml::xmlKeyMode(), 3.0f); // Dist
-    setParameter(effect, Constants::NahdXml::xmlKeyDrive(), 0.5f);
+    setParameter(effect, Constants::NahdXml::xmlKeyDriveDb(), 0.5f);
     setParameter(effect, Constants::NahdXml::xmlKeyMix(), 1.0f);
 
     double posL = 0.5, posR = 0.5;

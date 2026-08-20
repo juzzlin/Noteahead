@@ -73,14 +73,14 @@ EffectDialog {
                 Layout.row: 0
                 Layout.column: 0
                 label: qsTr("Drive")
-                suffix: "%"
+                suffix: "dB"
                 from: 0
-                to: 100
+                to: 40
                 value: {
                     effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.driveAmountKey()) * 100;
+                    return effectRackController.parameterValue(root.effectIndex, effectRackController.driveAmountKey()) * 40;
                 }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.driveAmountKey(), v / 100)
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.driveAmountKey(), v / 40)
                 Layout.fillWidth: true
             }
 

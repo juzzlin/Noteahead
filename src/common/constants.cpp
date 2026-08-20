@@ -1402,6 +1402,11 @@ QString xmlKeyDrive()
     return "drive";
 }
 
+QString xmlKeyDriveDb()
+{
+    return "driveDb";
+}
+
 QString xmlKeyFuzz()
 {
     return "fuzz";

@@ -27,8 +27,12 @@ namespace noteahead {
 
 namespace {
 
-//! Drive range in dB at the top of the control.
-constexpr double MaxDriveDb = 36.0;
+//! Drive range in dB at the top of the control, and the range it used to have. A device in this
+//! rack puts out around -26 dBFS, and against that the old range needed three quarters of the
+//! travel before the valve did anything. The old range is kept so a project saved against it can be
+//! converted rather than reinterpreted.
+constexpr double MaxDriveDb = 48.0;
+constexpr double LegacyMaxDriveDb = 36.0;
 
 //! Output trim range either side of unity, in dB.
 constexpr double OutputRangeDb = 12.0;
@@ -68,7 +72,10 @@ TubeStage::TubeStage()
   : m_oversampling { std::make_unique<Oversampling>() }
 {
     addParameter(Parameter { Constants::NahdXml::xmlKeyMode().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyDrive().toStdString(), 0.25f, 0, 3600, 900, 100, Parameter::Type::Continuous });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyDriveDb().toStdString(), 0.1875f, 0, static_cast<int>(MaxDriveDb * 100), 900, 100, Parameter::Type::Continuous, { Constants::NahdXml::xmlKeyDrive().toStdString() },
+                             [](float legacyPosition) {
+                                 return static_cast<float>(static_cast<double>(legacyPosition) * LegacyMaxDriveDb / MaxDriveDb);
+                             } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyBias().toStdString(), 0.5f, 0, 10000, 5000, 100, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeyTone().toStdString(), 0.5f, 0, 10000, 5000, 100, Parameter::Type::Continuous });
     addMixParameter(1.0f, MixLaw::Internal);
@@ -219,7 +226,7 @@ void TubeStage::syncParameters()
     if (const auto p = parameter(Constants::NahdXml::xmlKeyMode().toStdString()); p) {
         m_mode = static_cast<int>(p->get().value()) == 1 ? Mode::Pentode : Mode::Triode;
     }
-    if (const auto p = parameter(Constants::NahdXml::xmlKeyDrive().toStdString()); p) {
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyDriveDb().toStdString()); p) {
         m_driveDb = static_cast<float>(p->get().value() * MaxDriveDb);
     }
     if (const auto p = parameter(Constants::NahdXml::xmlKeyBias().toStdString()); p) {

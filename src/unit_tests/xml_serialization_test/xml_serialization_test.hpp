@@ -125,6 +125,9 @@ private slots:
     void test_wavetableSynth_legacyNames_shouldLoadCorrectly();
     void test_wavetableSynth_legacyWavetableRange_shouldPreserveSelection();
     void test_eq8BandParametric_legacyNames_shouldLoadCorrectly();
+    void test_drive_legacyDrive_shouldKeepItsGain();
+    void test_saturator_legacyDrive_shouldKeepItsGain();
+    void test_tubeStage_legacyDrive_shouldKeepItsGain();
     void test_chorus_legacyNames_shouldLoadCorrectly();
     void test_clipper_legacyNames_shouldLoadCorrectly();
     void test_reverb_legacyNames_shouldLoadCorrectly();
