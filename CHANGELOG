@@ -7,6 +7,10 @@ New features:
 
 Bug fixes:
 
+* Apply track settings' MIDI CC to internal devices
+
+* Fix Drum Synth marking the project modified on voice MIDI CC
+
 * Accept Enter in AudioRenderDialog's widgets
 
 Other:

@@ -109,6 +109,15 @@ protected:
     MidiService(DeviceServiceS deviceService, QObject * parent, bool initializeRealWorkers);
 
 private:
+    //! Applies an instrument request to an internal device.
+    //!
+    //! Internal devices have no MIDI port to open, so the request cannot go through MidiWorkerOut.
+    //! It is unrolled into the same messages the wire would carry instead, so that track settings
+    //! reach a virtual instrument exactly like they reach external gear.
+    void handleInternalDeviceInstrumentRequest(const InstrumentRequest & instrumentRequest);
+    void applyPatchToInternalDevice(const Instrument & instrument);
+    void applyMidiCcSettingsToInternalDevice(const Instrument & instrument);
+
     void initializeWorkers();
     void initializeInputWorker();
     void initializeOutputWorker();

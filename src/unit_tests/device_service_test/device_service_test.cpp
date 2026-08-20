@@ -18,6 +18,8 @@
 #include "../../application/service/device_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/devices/device_factory.hpp"
+#include "../../domain/devices/drum_synth_constants.hpp"
+#include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/effects/effect_factory.hpp"
@@ -167,6 +169,31 @@ void DeviceServiceTest::test_midiCc_shouldNotEmitDataChanged()
 
     // A real edit still has to reach the rest of the application
     device->setVolume(0.1f);
+    QVERIFY(structuralSpy.count() > 0);
+}
+
+void DeviceServiceTest::test_midiCc_drumSynthVoice_shouldNotEmitDataChanged()
+{
+    // A voice CC used to announce a project edit. Besides marking the song modified on plain
+    // automation traffic, it did so while holding the device mutex: the receivers read back from
+    // the audio engine, whose callback holds the engine mutex and then waits for this very device
+    // mutex, so applying track settings during playback deadlocked the two threads.
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    DeviceService deviceService { audioEngine, std::make_shared<DataService>() };
+    const auto device = std::make_shared<DrumSynthDevice>("Drum Synth 1");
+    deviceService.setDevice(0, device);
+
+    QSignalSpy structuralSpy { &deviceService, &DeviceService::dataChanged };
+    QSignalSpy parameterSpy { device.get(), &Device::parametersChanged };
+
+    // Kick HPF cutoff
+    device->processMidiCc(DrumSynth::CcStartRange1 + 2, 64, 0);
+
+    QCOMPARE(structuralSpy.count(), 0);
+    QCOMPARE(parameterSpy.count(), 1);
+
+    // The dialog's own writes are edits and still have to say so
+    device->updateVoiceParameter(static_cast<int>(DrumSynth::VoiceIndex::Kick), Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.25f);
     QVERIFY(structuralSpy.count() > 0);
 }
 

@@ -74,12 +74,21 @@ public:
     // Per-voice insert effect rack.
     EffectRack & voiceEffectRack(int index);
 
+    //! Writes a voice parameter and announces a project edit. For the dialog, which is exactly
+    //! that. MIDI CC must use setVoiceParameter() instead -- see processMidiCc().
     bool updateVoiceParameter(int voiceIndex, const std::string & paramName, float value);
 
 protected:
     void syncParameters() override;
 
 private:
+    //! Writes a voice parameter without emitting anything.
+    //!
+    //! The caller holds the device mutex while MIDI CC is handled, and the audio callback takes the
+    //! engine mutex before that same device mutex. Emitting dataChanged() from under the lock lets
+    //! its receivers walk back into the engine, and the two lock orders meet in a deadlock.
+    bool setVoiceParameter(int voiceIndex, const std::string & paramName, float value);
+
     struct Voice
     {
         std::unique_ptr<DrumEngine> engine;

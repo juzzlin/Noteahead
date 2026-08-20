@@ -144,6 +144,9 @@ void DrumSynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t /
 {
     using namespace MidiCcMapping;
 
+    // Nothing here may emit while the lock is held: dataChanged() receivers read back from the
+    // audio engine, whose callback takes the engine mutex before this one. parametersChanged() is
+    // emitted below, once the lock is gone, and is what the dialog follows anyway.
     bool changed { false };
     {
         const std::lock_guard<std::recursive_mutex> lock { mutex() };
@@ -164,20 +167,20 @@ void DrumSynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t /
                 const int voiceIndex { (controller - CcStartRange1) / 3 };
                 const int paramType { (controller - CcStartRange1) % 3 };
                 if (paramType == 0)
-                    changed |= updateVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyPan().toStdString(), val);
+                    changed |= setVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyPan().toStdString(), val);
                 else if (paramType == 1)
-                    changed |= updateVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyCutoff().toStdString(), val);
+                    changed |= setVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyCutoff().toStdString(), val);
                 else if (paramType == 2)
-                    changed |= updateVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), val);
+                    changed |= setVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), val);
             } else if (controller >= CcStartRange2 && controller < CcStartRange2 + (NumVoicesRange2 * 3)) {
                 const int voiceIndex { NumVoicesRange1 + (controller - CcStartRange2) / 3 };
                 const int paramType { (controller - CcStartRange2) % 3 };
                 if (paramType == 0)
-                    changed |= updateVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyPan().toStdString(), val);
+                    changed |= setVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyPan().toStdString(), val);
                 else if (paramType == 1)
-                    changed |= updateVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyCutoff().toStdString(), val);
+                    changed |= setVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyCutoff().toStdString(), val);
                 else if (paramType == 2)
-                    changed |= updateVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), val);
+                    changed |= setVoiceParameter(voiceIndex, Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), val);
             }
         }
     }
@@ -685,12 +688,20 @@ void DrumSynthDevice::syncCymbalParameters(int index, const std::string & prefix
     }
 }
 
-bool DrumSynthDevice::updateVoiceParameter(int voiceIndex, const std::string & paramName, float value)
+bool DrumSynthDevice::setVoiceParameter(int voiceIndex, const std::string & paramName, float value)
 {
     const std::string prefix { voiceId(voiceIndex) + "_" };
     if (auto p = parameter(prefix + paramName); p) {
         p->get().setValue(value);
         syncVoiceParameters(voiceIndex);
+        return true;
+    }
+    return false;
+}
+
+bool DrumSynthDevice::updateVoiceParameter(int voiceIndex, const std::string & paramName, float value)
+{
+    if (setVoiceParameter(voiceIndex, paramName, value)) {
         emit dataChanged();
         return true;
     }
