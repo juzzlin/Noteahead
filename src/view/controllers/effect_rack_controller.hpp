@@ -54,6 +54,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString stereoEnhancerType READ stereoEnhancerType CONSTANT)
     Q_PROPERTY(QString stereoExciterType READ stereoExciterType CONSTANT)
     Q_PROPERTY(QString driveType READ driveType CONSTANT)
+    Q_PROPERTY(QString analogFuzzType READ analogFuzzType CONSTANT)
     Q_PROPERTY(QString bassGrinderType READ bassGrinderType CONSTANT)
     Q_PROPERTY(QString limiterType READ limiterType CONSTANT)
     Q_PROPERTY(QString compressorType READ compressorType CONSTANT)
@@ -111,6 +112,7 @@ public:
     QString stereoEnhancerType() const;
     QString stereoExciterType() const;
     QString driveType() const;
+    QString analogFuzzType() const;
     QString bassGrinderType() const;
     QString limiterType() const;
     QString compressorType() const;
@@ -325,6 +327,14 @@ public:
     Q_INVOKABLE QString tubeStageMixKey() const;
     Q_INVOKABLE QString tubeStageGainKey() const;
 
+    Q_INVOKABLE QString analogFuzzDriveKey() const;
+    Q_INVOKABLE QString analogFuzzFuzzKey() const;
+    Q_INVOKABLE QString analogFuzzBiasKey() const;
+    Q_INVOKABLE QString analogFuzzCutoffKey() const;
+    Q_INVOKABLE QString analogFuzzResonanceKey() const;
+    Q_INVOKABLE QString analogFuzzMixKey() const;
+    Q_INVOKABLE QString analogFuzzGainKey() const;
+
     Q_INVOKABLE QString bassGrinderDriveKey() const;
     Q_INVOKABLE QString bassGrinderBlendKey() const;
     Q_INVOKABLE QString bassGrinderSplitFreqKey() const;
@@ -395,6 +405,7 @@ public:
     Q_INVOKABLE float limiterReductionDb(quint32 effectIndex) const;
     Q_INVOKABLE float saturatorSaturationDb(quint32 effectIndex) const;
     Q_INVOKABLE float tubeStageSaturationDb(quint32 effectIndex) const;
+    Q_INVOKABLE float analogFuzzSaturationDb(quint32 effectIndex) const;
     Q_INVOKABLE float bassGrinderSaturationDb(quint32 effectIndex) const;
     Q_INVOKABLE float waveDesignerShapingDb(quint32 effectIndex) const;
     Q_INVOKABLE float stereoExciterHarmonicsDb(quint32 effectIndex) const;

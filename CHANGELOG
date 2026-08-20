@@ -5,6 +5,11 @@ Release date:
 
 New features:
 
+* Add the Analog Fuzz rack effect
+  - A fuzz stage played through the filter it overdrives, so the resonance
+    gives way under drive instead of screaming
+  - Drive, Fuzz, Bias, Cutoff, Resonance, Mix and Output
+
 Bug fixes:
 
 * Apply track settings' MIDI CC to internal devices

@@ -489,6 +489,10 @@ ApplicationWindow {
         width: parent.width * Constants.effectDialogScale
         height: parent.height * Constants.effectDialogScale
     }
+    AnalogFuzzDialog {
+        id: analogFuzzDialog
+        anchors.centerIn: parent
+    }
     BassGrinderDialog {
         id: bassGrinderDialog
         anchors.centerIn: parent

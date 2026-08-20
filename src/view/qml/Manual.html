@@ -107,7 +107,7 @@
     <li><strong>Equalizers</strong>: <strong>EQ 8-Band Parametric</strong> (Bell, Shelf, Cut and Notch types per band, plus Mid/Side modes), <strong>Vintage Passive EQ</strong> (EQP-1A style, with interacting low Boost/Atten shelves and a high bell), <strong>Air Band EQ</strong> (fixed parallel-summed bands added back to the dry signal) and <strong>Simple EQ</strong> (a single "Sounds Good" knob sweeping a loudness-smile curve).</li>
     <li><strong>Reverbs</strong>: <strong>Reverb</strong> (the FDN reverb described below), <strong>Endless Reverb</strong> (a large modulated ambient reverb with a Freeze switch for an infinite tail) and <strong>Early Reflections</strong> (the room a sound is in, without a tail, described below).</li>
     <li><strong>Dynamics</strong>: <strong>Compressor</strong> (with side-chain support), <strong>Multiband Compressor</strong> (three bands split by Linkwitz-Riley crossovers, described below), <strong>Auto Ducker</strong> (side-chain driven ducking or boosting), <strong>Limiter</strong> (lookahead brickwall with gain reduction metering), <strong>Clipper</strong> and <strong>Wave Designer</strong> (transient shaper, described below).</li>
-    <li><strong>Saturation</strong>: <strong>Drive</strong> (Soft, Hard, Fold and Dist algorithms), <strong>Saturator</strong>, <strong>Tube Stage</strong> (valve preamp, described below), <strong>Bass Grinder</strong> (split-band bass preamp distortion, described below) and <strong>Stereo Exciter</strong> (harmonic generator, described below).</li>
+    <li><strong>Saturation</strong>: <strong>Drive</strong> (Soft, Hard, Fold and Dist algorithms), <strong>Saturator</strong>, <strong>Tube Stage</strong> (valve preamp, described below), <strong>Analog Fuzz</strong> (a synth's drive knob: a fuzz stage played through the filter it overdrives, described below), <strong>Bass Grinder</strong> (split-band bass preamp distortion, described below) and <strong>Stereo Exciter</strong> (harmonic generator, described below).</li>
     <li><strong>Filters & Modulation</strong>: <strong>Auto Filter</strong> (swept filter with two LFOs and an envelope follower, described below), <strong>Phaser</strong> (swept all-pass cascade, described below), <strong>Chorus</strong>, <strong>Delay</strong> (Mono, Ping Pong and Tape modes, with BPM sync) and <strong>All-Pass Filter</strong>.</li>
     <li><strong>Stereo</strong>: <strong>Panner</strong>, <strong>Auto Panner</strong>, <strong>Stereo Enhancer</strong> (psychoacoustic EQ, described below), <strong>Stereo Widener</strong> (width per band, described below) and <strong>Dimension</strong> (builds width out of a mono source, described below).</li>
     <li><strong>Metering & Analysis</strong>: <strong>LUFS Meter</strong> (momentary, short-term and a gated integrated reading that runs as the song plays), <strong>dBTP Meter</strong> (true peak), <strong>RTA</strong> (real-time analyzer) and <strong>Stereo Field Meter</strong> (goniometer and correlation, described below). Use these as inserts to watch the signal at any point in the chain.</li>
@@ -237,6 +237,23 @@
     <li><strong>Output</strong>: Trim either side of unity, since drive changes the level.</li>
 </ul>
 <p>The shaping runs oversampled, so the harmonics it generates fold above Nyquist and are filtered out rather than aliasing back down into the audible band, and the DC offset an asymmetric curve leaves behind is blocked before it reaches the rest of the rack.</p>
+
+<h3>Analog Fuzz Parameters</h3>
+<p>An analog synth's drive knob, rather than a pedal in front of one. On a monosynth the distortion is not a box ahead of the filter: it is a stage pushing the VCF itself past what it can take, and the filter that rounds the result off is the same one whose resonance is being fed by it. Analog Fuzz is built that way round, so it does two things the other saturation effects cannot.</p>
+<ul>
+    <li><strong>The resonance gives way under drive.</strong> The peak is bounded by the same ceiling the harmonics are, so pushing Drive squashes it instead of making it scream, and backing off opens it again. A distortion chained into Auto Filter keeps its peak at full height however hard the input is pushed.</li>
+    <li><strong>The harmonics come out filtered rather than laid on top</strong>, because they are generated inside the loop and pass the poles on the way round. That is what keeps it warm instead of fizzy.</li>
+</ul>
+<ul>
+    <li><strong>Drive</strong>: Level into the fuzz stage, up to 42 dB, and with it how hard the filter behind it is being run. The stage clips at -12 dBFS rather than at full scale, which is where the devices in this rack actually sit, so it is doing something well before the control is at the top. A quiet source gets louder as Drive comes up; one already into the knee only compresses further.</li>
+    <li><strong>Fuzz</strong>: The shape of the stage's knee. Down low it is a soft, valve-like curve; up high it stays linear almost to the ceiling and then breaks at once, which is the square-ish clipping a fuzz circuit does.</li>
+    <li><strong>Bias</strong>: Where on that curve the signal sits. Centred is odd harmonics and a hollow, woody tone; away from centre the even ones come up; far enough out the stage starves and gates, the way a fuzz on a dying battery does.</li>
+    <li><strong>Cutoff</strong>: Corner of the filter being overdriven, 60 Hz to 12 kHz. Two poles, 12 dB per octave, the same slope a monosynth's filter runs.</li>
+    <li><strong>Resonance</strong>: How much the corner is lifted, before the drive has its say on it.</li>
+    <li><strong>Mix</strong>: Dry/wet, for parallel fuzz.</li>
+    <li><strong>Output</strong>: Trim either side of unity.</li>
+</ul>
+<p>For a lead in the style of an analog monosynth: Drive around two thirds, Fuzz low to middling, Bias just off centre, and the Cutoff somewhere above the fundamental with the Resonance high enough to hear it sing before the Drive folds it down. The stage and the filter both run oversampled, so the harmonics fold above Nyquist and are filtered out rather than aliasing back into the band, and the DC an off-centre Bias leaves behind is blocked before it reaches the rest of the rack.</p>
 
 <h3>Reverb Parameters</h3>
 <p>Noteahead features a studio-quality <strong>Feedback Delay Network (FDN)</strong> reverb, designed for lush tails and natural-sounding high-frequency absorption.</p>

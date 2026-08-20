@@ -21,6 +21,7 @@
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/dsp/lfo.hpp"
 #include "../../domain/effects/all_pass_filter.hpp"
+#include "../../domain/effects/analog_fuzz.hpp"
 #include "../../domain/effects/auto_ducker.hpp"
 #include "../../domain/effects/auto_filter.hpp"
 #include "../../domain/effects/auto_panner.hpp"
@@ -302,6 +303,7 @@ QVariantList EffectRackController::availableEffects() const
     };
 
     addEffect("All-Pass Filter", AllPassFilter::typeIdString());
+    addEffect("Analog Fuzz", Constants::RackEffectType::analogFuzz().toStdString());
     addEffect("Auto Ducker", Constants::RackEffectType::autoDucker().toStdString());
     addEffect("Auto Filter", Constants::RackEffectType::autoFilter().toStdString());
     addEffect("Auto Panner", Constants::RackEffectType::autoPanner().toStdString());
@@ -729,6 +731,14 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                       .arg(drive->get().value() * 40.0f, 0, 'f', 1)
                       .arg(static_cast<int>(std::round(blend->get().value() * 100.0f)));
                 }
+            } else if (type == Constants::RackEffectType::analogFuzz()) {
+                const auto drive = effect->parameter(Constants::NahdXml::xmlKeyDrive().toStdString());
+                const auto fuzz = effect->parameter(Constants::NahdXml::xmlKeyFuzz().toStdString());
+                if (drive && fuzz) {
+                    return QString { "(drive=%1dB, fuzz=%2%)" }
+                      .arg(drive->get().value() * 42.0f, 0, 'f', 1)
+                      .arg(static_cast<int>(std::round(fuzz->get().value() * 100.0f)));
+                }
             } else if (type == Constants::RackEffectType::tubeStage()) {
                 const auto drive = effect->parameter(Constants::NahdXml::xmlKeyDrive().toStdString());
                 const auto bias = effect->parameter(Constants::NahdXml::xmlKeyBias().toStdString());
@@ -1059,6 +1069,41 @@ QString EffectRackController::saturatorMixKey() const
 }
 
 QString EffectRackController::saturatorGainKey() const
+{
+    return Constants::NahdXml::xmlKeyGain();
+}
+
+QString EffectRackController::analogFuzzDriveKey() const
+{
+    return Constants::NahdXml::xmlKeyDrive();
+}
+
+QString EffectRackController::analogFuzzFuzzKey() const
+{
+    return Constants::NahdXml::xmlKeyFuzz();
+}
+
+QString EffectRackController::analogFuzzBiasKey() const
+{
+    return Constants::NahdXml::xmlKeyBias();
+}
+
+QString EffectRackController::analogFuzzCutoffKey() const
+{
+    return Constants::NahdXml::xmlKeyCutoff();
+}
+
+QString EffectRackController::analogFuzzResonanceKey() const
+{
+    return Constants::NahdXml::xmlKeyResonance();
+}
+
+QString EffectRackController::analogFuzzMixKey() const
+{
+    return Constants::NahdXml::xmlKeyMix();
+}
+
+QString EffectRackController::analogFuzzGainKey() const
 {
     return Constants::NahdXml::xmlKeyGain();
 }
@@ -1790,6 +1835,11 @@ QString EffectRackController::stereoExciterSoloKey() const
     return Constants::NahdXml::xmlKeySolo();
 }
 
+QString EffectRackController::analogFuzzType() const
+{
+    return Constants::RackEffectType::analogFuzz();
+}
+
 QString EffectRackController::tubeStageType() const
 {
     return Constants::RackEffectType::tubeStage();
@@ -2071,6 +2121,19 @@ float EffectRackController::stereoExciterHarmonicsDb(quint32 effectIndex) const
         if (const auto effect = rack->get().effect(effectIndex); effect) {
             if (const auto exciter = std::dynamic_pointer_cast<StereoExciter>(effect); exciter) {
                 return exciter->harmonicsDb();
+            }
+        }
+    }
+
+    return 0.0f;
+}
+
+float EffectRackController::analogFuzzSaturationDb(quint32 effectIndex) const
+{
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(effectIndex); effect) {
+            if (const auto analogFuzz = std::dynamic_pointer_cast<AnalogFuzz>(effect); analogFuzz) {
+                return analogFuzz->saturationDb();
             }
         }
     }

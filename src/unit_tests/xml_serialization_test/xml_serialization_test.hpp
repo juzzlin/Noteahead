@@ -104,6 +104,7 @@ private slots:
     void test_toXmlFromXml_multibandCompressorEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_stereoWidenerEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_stereoFieldMeterEffect_shouldLoadCorrectly();
+    void test_toXmlFromXml_analogFuzzEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_dimensionEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_earlyReflectionsEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_autoFilterEffect_shouldLoadCorrectly();

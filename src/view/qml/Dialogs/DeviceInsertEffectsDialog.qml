@@ -183,6 +183,9 @@ AnimatedDialog {
                         } else if (effectType === effectRackController.saturatorType) {
                             saturatorDialog.effectIndex = index;
                             saturatorDialog.open();
+                        } else if (effectType === effectRackController.analogFuzzType) {
+                            analogFuzzDialog.effectIndex = index;
+                            analogFuzzDialog.open();
                         } else if (effectType === effectRackController.bassGrinderType) {
                             bassGrinderDialog.effectIndex = index;
                             bassGrinderDialog.open();

@@ -231,6 +231,11 @@ QString drive()
     return "drive";
 }
 
+QString analogFuzz()
+{
+    return "analogFuzz";
+}
+
 QString bassGrinder()
 {
     return "bassGrinder";
@@ -1395,6 +1400,11 @@ QString xmlKeyHold()
 QString xmlKeyDrive()
 {
     return "drive";
+}
+
+QString xmlKeyFuzz()
+{
+    return "fuzz";
 }
 
 QString xmlKeyBias()

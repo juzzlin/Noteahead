@@ -44,6 +44,7 @@ set(HEADER_FILES
     dsp/panning.hpp
     dsp/ensemble_phaser.hpp
     dsp/poly_blep_oscillator.hpp
+    dsp/saturating_svf.hpp
     dsp/svf_filter.hpp
     dsp/true_stereo_panner.hpp
     dsp/upsampler.hpp
@@ -52,6 +53,7 @@ set(HEADER_FILES
     dsp/wavetable_oscillator.hpp
     effects/air_band_eq.hpp
     effects/all_pass_filter.hpp
+    effects/analog_fuzz.hpp
     effects/auto_ducker.hpp
     effects/auto_filter.hpp
     effects/auto_panner.hpp
@@ -174,6 +176,7 @@ set(SOURCE_FILES
     dsp/panning.cpp
     dsp/ensemble_phaser.cpp
     dsp/poly_blep_oscillator.cpp
+    dsp/saturating_svf.cpp
     dsp/svf_filter.cpp
     dsp/true_stereo_panner.cpp
     dsp/upsampler.cpp
@@ -183,6 +186,7 @@ set(SOURCE_FILES
     dsp/wavetable_oscillator.cpp
     effects/air_band_eq.cpp
     effects/all_pass_filter.cpp
+    effects/analog_fuzz.cpp
     effects/auto_ducker.cpp
     effects/auto_filter.cpp
     effects/auto_panner.cpp

@@ -16,6 +16,7 @@ set(DSP_SOURCES
     one_pole_filter.cpp
     ensemble_phaser.cpp
     poly_blep_oscillator.cpp
+    saturating_svf.cpp
     svf_filter.cpp
     wavetable.cpp
     wavetable_oscillator.cpp

@@ -41,6 +41,7 @@
 #include "../../domain/devices/wavetable_synth_device.hpp"
 #include "../../domain/effects/air_band_eq.hpp"
 #include "../../domain/effects/all_pass_filter.hpp"
+#include "../../domain/effects/analog_fuzz.hpp"
 #include "../../domain/effects/auto_ducker.hpp"
 #include "../../domain/effects/auto_filter.hpp"
 #include "../../domain/effects/bass_grinder.hpp"
@@ -2796,6 +2797,57 @@ void XmlSerializationTest::test_toXmlFromXml_earlyReflectionsEffect_shouldLoadCo
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyHpfCutoff()) - 0.45f) < 0.01f);
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyDiffusion()) - 0.58f) < 0.01f);
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyMix()) - 0.35f) < 0.01f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_analogFuzzEffect_shouldLoadCorrectly()
+{
+    EffectFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto analogFuzz = std::make_shared<AnalogFuzz>();
+    const auto set = [&](const QString & key, float value) {
+        if (auto p = analogFuzz->parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    };
+    set(Constants::NahdXml::xmlKeyDrive(), 0.72f);
+    set(Constants::NahdXml::xmlKeyFuzz(), 0.31f);
+    set(Constants::NahdXml::xmlKeyBias(), 0.66f);
+    set(Constants::NahdXml::xmlKeyCutoff(), 0.44f);
+    set(Constants::NahdXml::xmlKeyResonance(), 0.88f);
+    set(Constants::NahdXml::xmlKeyMix(), 0.55f);
+    deviceServiceOut.sendEffectRack().setEffect(0, analogFuzz);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(effect);
+    const auto restored = std::dynamic_pointer_cast<AnalogFuzz>(effect);
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), AnalogFuzz::typeIdString());
+
+    const auto value = [&](const QString & key) {
+        const auto p = restored->parameter(key.toStdString());
+        return p ? p->get().value() : -1.0f;
+    };
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyDrive()) - 0.72f) < 0.01f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyFuzz()) - 0.31f) < 0.01f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyBias()) - 0.66f) < 0.01f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyCutoff()) - 0.44f) < 0.01f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyResonance()) - 0.88f) < 0.01f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyMix()) - 0.55f) < 0.01f);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_dimensionEffect_shouldLoadCorrectly()
