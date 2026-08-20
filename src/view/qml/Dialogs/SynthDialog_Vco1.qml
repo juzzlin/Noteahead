@@ -66,6 +66,13 @@ ColumnLayout {
         Layout.fillWidth: true
     }
     Knob {
+        // Only the pulse has edges to round; a saw's ramp is the waveform itself.
+        label: qsTr("Roundness")
+        value: synthController.vco1Roundness
+        onMoved: v => synthController.vco1Roundness = v
+        Layout.fillWidth: true
+    }
+    Knob {
         label: qsTr("Level")
         value: synthController.mixVco1
         onMoved: v => synthController.mixVco1 = v

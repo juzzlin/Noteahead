@@ -127,18 +127,21 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco1Octave().toStdString(), 0.0f, -2, 2, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco1Pitch().toStdString(), 0.5f, -2400, 2400, 0 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco1Shape().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco1Roundness().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco1Sync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco2Waveform().toStdString(), 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco2Octave().toStdString(), 0.0f, -2, 2, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco2Pitch().toStdString(), 0.5f, -2400, 2400, 0 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco2Shape().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco2Roundness().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco2Sync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco3Waveform().toStdString(), 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco3Octave().toStdString(), 0.0f, -2, 2, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco3Pitch().toStdString(), 0.5f, -2400, 2400, 0 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco3Shape().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco3Roundness().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco3Sync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyMultiMode().toStdString(), 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete }); // Low default
@@ -469,8 +472,11 @@ void SynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversampledRate,
     voice.vco2.setWaveform(m_vco2Waveform);
     voice.vco3.setWaveform(m_vco3Waveform);
     voice.vco1.setShape(m_vco1Shape);
+    voice.vco1.setRoundness(m_vco1Roundness);
     voice.vco2.setShape(m_vco2Shape);
+    voice.vco2.setRoundness(m_vco2Roundness);
     voice.vco3.setShape(m_vco3Shape);
+    voice.vco3.setRoundness(m_vco3Roundness);
     voice.multi.setType(m_multiType);
     voice.multi.setShape(m_multiShape);
     voice.multi.setKeyTrack(m_multiKeyTrack);
@@ -1014,6 +1020,8 @@ void SynthDevice::syncParameters()
         m_vco1Pitch = p->get().value();
     if (const auto p = parameter(Constants::NahdXml::xmlKeyVco1Shape().toStdString()); p)
         m_vco1Shape = p->get().value();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVco1Roundness().toStdString()); p)
+        m_vco1Roundness = p->get().value();
     if (const auto p = parameter(Constants::NahdXml::xmlKeyVco1Sync().toStdString()); p)
         m_vco1Sync = p->get().value() > 0.5f;
 
@@ -1028,6 +1036,8 @@ void SynthDevice::syncParameters()
         m_vco2Pitch = p->get().value();
     if (const auto p = parameter(Constants::NahdXml::xmlKeyVco2Shape().toStdString()); p)
         m_vco2Shape = p->get().value();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVco2Roundness().toStdString()); p)
+        m_vco2Roundness = p->get().value();
     if (const auto p = parameter(Constants::NahdXml::xmlKeyVco2Sync().toStdString()); p)
         m_vco2Sync = p->get().value() > 0.5f;
 
@@ -1042,6 +1052,8 @@ void SynthDevice::syncParameters()
         m_vco3Pitch = p->get().value();
     if (const auto p = parameter(Constants::NahdXml::xmlKeyVco3Shape().toStdString()); p)
         m_vco3Shape = p->get().value();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVco3Roundness().toStdString()); p)
+        m_vco3Roundness = p->get().value();
     if (const auto p = parameter(Constants::NahdXml::xmlKeyVco3Sync().toStdString()); p)
         m_vco3Sync = p->get().value() > 0.5f;
 
@@ -1379,6 +1391,16 @@ void SynthDevice::setVco1Shape(float shape)
     setContinuousParameterValue(Constants::NahdXml::xmlKeyVco1Shape().toStdString(), shape);
 }
 
+float SynthDevice::vco1Roundness() const
+{
+    return m_vco1Roundness;
+}
+
+void SynthDevice::setVco1Roundness(float roundness)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVco1Roundness().toStdString(), roundness);
+}
+
 bool SynthDevice::vco1Sync() const
 {
     return m_vco1Sync;
@@ -1428,6 +1450,16 @@ float SynthDevice::vco2Shape() const
 void SynthDevice::setVco2Shape(float shape)
 {
     setContinuousParameterValue(Constants::NahdXml::xmlKeyVco2Shape().toStdString(), shape);
+}
+
+float SynthDevice::vco2Roundness() const
+{
+    return m_vco2Roundness;
+}
+
+void SynthDevice::setVco2Roundness(float roundness)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVco2Roundness().toStdString(), roundness);
 }
 
 bool SynthDevice::vco2Sync() const
@@ -2004,6 +2036,16 @@ float SynthDevice::vco3Shape() const
 void SynthDevice::setVco3Shape(float shape)
 {
     setContinuousParameterValue(Constants::NahdXml::xmlKeyVco3Shape().toStdString(), shape);
+}
+
+float SynthDevice::vco3Roundness() const
+{
+    return m_vco3Roundness;
+}
+
+void SynthDevice::setVco3Roundness(float roundness)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVco3Roundness().toStdString(), roundness);
 }
 
 bool SynthDevice::vco3Sync() const

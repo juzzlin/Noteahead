@@ -164,6 +164,84 @@ void PolyBlepOscillatorTest::test_nextSample_square_shouldReturnExpectedValues()
     }
 }
 
+namespace {
+
+//! 10 % to 90 % of the swing on a rising edge, in microseconds. How long the wave takes to get from
+//! one rail to the other is what "round" means here, and it is a property of the stage rather than
+//! of the note: an analog oscillator's edge takes the same time whatever it is playing.
+double edgeRiseMicroseconds(double roundness, double frequency, double sampleRate)
+{
+    PolyBlepOscillator osc;
+    osc.setSampleRate(sampleRate);
+    osc.setFrequency(frequency);
+    osc.setWaveform(PolyBlepOscillator::Waveform::Square);
+    osc.setRoundness(roundness);
+
+    const auto period = static_cast<size_t>(sampleRate / frequency);
+    std::vector<double> samples;
+    for (size_t i = 0; i < period * 12; i++) {
+        samples.push_back(osc.nextSample()); // Settle the coupling before measuring
+    }
+
+    const size_t start = period * 10;
+    double low = 1.0e9;
+    double high = -1.0e9;
+    for (size_t i = start; i < start + period; i++) {
+        low = std::min(low, samples.at(i));
+        high = std::max(high, samples.at(i));
+    }
+    const double tenPercent = low + 0.1 * (high - low);
+    const double ninetyPercent = low + 0.9 * (high - low);
+
+    size_t atTen = 0;
+    size_t atNinety = 0;
+    for (size_t i = start; i < start + period; i++) {
+        if (!atTen && samples.at(i) > tenPercent && samples.at(i - 1) <= tenPercent) {
+            atTen = i;
+        }
+        if (atTen && !atNinety && samples.at(i) > ninetyPercent) {
+            atNinety = i;
+            break;
+        }
+    }
+    return atNinety > atTen ? static_cast<double>(atNinety - atTen) / sampleRate * 1.0e6 : 0.0;
+}
+
+} // namespace
+
+void PolyBlepOscillatorTest::test_roundness_shouldSetTheEdgeRate()
+{
+    // Turning it up has to lengthen the edge, and the range has to be worth having.
+    const double sharp = edgeRiseMicroseconds(0.0, 440.0, 192000.0);
+    const double middle = edgeRiseMicroseconds(0.5, 440.0, 192000.0);
+    const double round = edgeRiseMicroseconds(1.0, 440.0, 192000.0);
+
+    QVERIFY(sharp > 0.0);
+    QVERIFY(middle > sharp * 2.0);
+    QVERIFY(round > middle * 2.0);
+}
+
+void PolyBlepOscillatorTest::test_roundness_default_shouldKeepTheOldEdgeRate()
+{
+    // Half way is what the pulse has always had. A patch that never touches this control has to
+    // sound exactly as it did, so the default is not a taste: it is a fixed point.
+    PolyBlepOscillator osc;
+    QCOMPARE(osc.roundness(), 0.5);
+
+    // The 8 kHz corner the stage used to be fixed at, as a rise time
+    QVERIFY(std::abs(edgeRiseMicroseconds(0.5, 440.0, 192000.0) - 46.9) < 6.0);
+}
+
+void PolyBlepOscillatorTest::test_roundness_shouldNotDependOnTheNote()
+{
+    // A fixed bandwidth means a fixed edge time. It is the same edge on every note, which is why a
+    // high note looks trapezoidal and a low one square.
+    const double low = edgeRiseMicroseconds(0.75, 220.0, 192000.0);
+    const double high = edgeRiseMicroseconds(0.75, 1760.0, 192000.0);
+
+    QVERIFY(std::abs(low - high) < low * 0.2);
+}
+
 void PolyBlepOscillatorTest::test_square_flatPartsShouldSagTowardsZero()
 {
     // The dip along the top of the wave, which is the coupling letting the level fall away while

@@ -1792,6 +1792,11 @@ QString xmlKeyVco1Shape()
     return "vco1Shape";
 }
 
+QString xmlKeyVco1Roundness()
+{
+    return "vco1Roundness";
+}
+
 QString xmlKeyVco1Sync()
 {
     return "vco1Sync";
@@ -1817,6 +1822,11 @@ QString xmlKeyVco2Shape()
     return "vco2Shape";
 }
 
+QString xmlKeyVco2Roundness()
+{
+    return "vco2Roundness";
+}
+
 QString xmlKeyVco2Sync()
 {
     return "vco2Sync";
@@ -1840,6 +1850,11 @@ QString xmlKeyVco3Pitch()
 QString xmlKeyVco3Shape()
 {
     return "vco3Shape";
+}
+
+QString xmlKeyVco3Roundness()
+{
+    return "vco3Roundness";
 }
 
 QString xmlKeyVco3Sync()

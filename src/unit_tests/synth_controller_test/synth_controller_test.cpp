@@ -65,6 +65,27 @@ void SynthControllerTest::test_properties_shouldUpdateDeviceAndEmitSignals()
         QCOMPARE(spy.count(), 1);
         QCOMPARE(controller.vco1Octave(), 1);
     }
+    // A knob's value binding only re-reads when its NOTIFY fires, and dragging a Slider whose value
+    // is bound re-applies that binding: a property that changes the device but never announces it
+    // leaves the handle springing straight back to where it started.
+    {
+        QSignalSpy spy { &controller, &SynthController::vco1RoundnessChanged };
+        controller.setVco1Roundness(750);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.vco1Roundness(), 750);
+    }
+    {
+        QSignalSpy spy { &controller, &SynthController::vco2RoundnessChanged };
+        controller.setVco2Roundness(250);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.vco2Roundness(), 250);
+    }
+    {
+        QSignalSpy spy { &controller, &SynthController::vco3RoundnessChanged };
+        controller.setVco3Roundness(1000);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(controller.vco3Roundness(), 1000);
+    }
 
     // Filter
     {

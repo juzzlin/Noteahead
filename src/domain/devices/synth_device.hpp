@@ -135,6 +135,10 @@ public:
     void setVco1Pitch(float pitch);
     float vco1Shape() const;
     void setVco1Shape(float shape);
+
+    //! How gently this oscillator's pulse edges cross, 0.5 being the bandwidth it has always had.
+    float vco1Roundness() const;
+    void setVco1Roundness(float roundness);
     bool vco1Sync() const;
     void setVco1Sync(bool sync);
 
@@ -147,6 +151,10 @@ public:
     void setVco2Pitch(float pitch);
     float vco2Shape() const;
     void setVco2Shape(float shape);
+
+    //! How gently this oscillator's pulse edges cross, 0.5 being the bandwidth it has always had.
+    float vco2Roundness() const;
+    void setVco2Roundness(float roundness);
     bool vco2Sync() const;
     void setVco2Sync(bool sync);
 
@@ -159,6 +167,10 @@ public:
     void setVco3Pitch(float pitch);
     float vco3Shape() const;
     void setVco3Shape(float shape);
+
+    //! How gently this oscillator's pulse edges cross, 0.5 being the bandwidth it has always had.
+    float vco3Roundness() const;
+    void setVco3Roundness(float roundness);
     bool vco3Sync() const;
     void setVco3Sync(bool sync);
 
@@ -374,18 +386,21 @@ private:
     int m_vco1Octave { 0 };
     float m_vco1Pitch { 0.5f };
     float m_vco1Shape { 0.0f };
+    float m_vco1Roundness { 0.5f };
     bool m_vco1Sync { false };
 
     PolyBlepOscillator::Waveform m_vco2Waveform { PolyBlepOscillator::Waveform::Saw };
     int m_vco2Octave { 0 };
     float m_vco2Pitch { 0.5f };
     float m_vco2Shape { 0.0f };
+    float m_vco2Roundness { 0.5f };
     bool m_vco2Sync { false };
 
     PolyBlepOscillator::Waveform m_vco3Waveform { PolyBlepOscillator::Waveform::Saw };
     int m_vco3Octave { 0 };
     float m_vco3Pitch { 0.5f };
     float m_vco3Shape { 0.0f };
+    float m_vco3Roundness { 0.5f };
     bool m_vco3Sync { false };
 
     MultiEngine::Type m_multiType { MultiEngine::Type::Low };

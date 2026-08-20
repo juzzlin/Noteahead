@@ -5,6 +5,9 @@ Release date:
 
 New features:
 
+* Add a Roundness control to the synth's oscillators, setting how gently a
+  pulse's edges cross
+
 * Add cycle locking and auto zoom to the oscilloscope
 
 * Add the Analog Fuzz rack effect

@@ -47,6 +47,7 @@ class SynthController : public DeviceController
     Q_PROPERTY(int vco1Octave READ vco1Octave WRITE setVco1Octave NOTIFY vco1OctaveChanged)
     Q_PROPERTY(int vco1Pitch READ vco1Pitch WRITE setVco1Pitch NOTIFY vco1PitchChanged)
     Q_PROPERTY(int vco1Shape READ vco1Shape WRITE setVco1Shape NOTIFY vco1ShapeChanged)
+    Q_PROPERTY(int vco1Roundness READ vco1Roundness WRITE setVco1Roundness NOTIFY vco1RoundnessChanged)
     Q_PROPERTY(bool vco1Sync READ vco1Sync WRITE setVco1Sync NOTIFY vco1SyncChanged)
 
     // VCO2
@@ -54,6 +55,7 @@ class SynthController : public DeviceController
     Q_PROPERTY(int vco2Octave READ vco2Octave WRITE setVco2Octave NOTIFY vco2OctaveChanged)
     Q_PROPERTY(int vco2Pitch READ vco2Pitch WRITE setVco2Pitch NOTIFY vco2PitchChanged)
     Q_PROPERTY(int vco2Shape READ vco2Shape WRITE setVco2Shape NOTIFY vco2ShapeChanged)
+    Q_PROPERTY(int vco2Roundness READ vco2Roundness WRITE setVco2Roundness NOTIFY vco2RoundnessChanged)
     Q_PROPERTY(bool vco2Sync READ vco2Sync WRITE setVco2Sync NOTIFY vco2SyncChanged)
 
     // VCO3
@@ -61,6 +63,7 @@ class SynthController : public DeviceController
     Q_PROPERTY(int vco3Octave READ vco3Octave WRITE setVco3Octave NOTIFY vco3OctaveChanged)
     Q_PROPERTY(int vco3Pitch READ vco3Pitch WRITE setVco3Pitch NOTIFY vco3PitchChanged)
     Q_PROPERTY(int vco3Shape READ vco3Shape WRITE setVco3Shape NOTIFY vco3ShapeChanged)
+    Q_PROPERTY(int vco3Roundness READ vco3Roundness WRITE setVco3Roundness NOTIFY vco3RoundnessChanged)
     Q_PROPERTY(bool vco3Sync READ vco3Sync WRITE setVco3Sync NOTIFY vco3SyncChanged)
 
     // Multi Engine
@@ -167,6 +170,8 @@ public:
     void setVco1Pitch(int p);
     int vco1Shape() const;
     void setVco1Shape(int s);
+    int vco1Roundness() const;
+    void setVco1Roundness(int r);
     bool vco1Sync() const;
     void setVco1Sync(bool s);
 
@@ -178,6 +183,8 @@ public:
     void setVco2Pitch(int p);
     int vco2Shape() const;
     void setVco2Shape(int s);
+    int vco2Roundness() const;
+    void setVco2Roundness(int r);
     bool vco2Sync() const;
     void setVco2Sync(bool s);
 
@@ -189,6 +196,8 @@ public:
     void setVco3Pitch(int p);
     int vco3Shape() const;
     void setVco3Shape(int s);
+    int vco3Roundness() const;
+    void setVco3Roundness(int r);
     bool vco3Sync() const;
     void setVco3Sync(bool s);
 
@@ -323,16 +332,19 @@ signals:
     void vco1OctaveChanged();
     void vco1PitchChanged();
     void vco1ShapeChanged();
+    void vco1RoundnessChanged();
     void vco1SyncChanged();
     void vco2WaveformChanged();
     void vco2OctaveChanged();
     void vco2PitchChanged();
     void vco2ShapeChanged();
+    void vco2RoundnessChanged();
     void vco2SyncChanged();
     void vco3WaveformChanged();
     void vco3OctaveChanged();
     void vco3PitchChanged();
     void vco3ShapeChanged();
+    void vco3RoundnessChanged();
     void vco3SyncChanged();
     void multiTypeChanged();
     void multiShapeChanged();

@@ -173,6 +173,18 @@ void SynthController::setVco1Shape(int s)
     }
 }
 
+int SynthController::vco1Roundness() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->vco1Roundness() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setVco1Roundness(int r)
+{
+    if (m_synth) {
+        m_synth->setVco1Roundness(static_cast<float>(r) / Constants::uiInternalScaling());
+    }
+}
+
 bool SynthController::vco1Sync() const
 {
     return m_synth ? m_synth->vco1Sync() : false;
@@ -231,6 +243,18 @@ void SynthController::setVco2Shape(int s)
 {
     if (m_synth) {
         m_synth->setVco2Shape(static_cast<float>(s) / Constants::uiInternalScaling());
+    }
+}
+
+int SynthController::vco2Roundness() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->vco2Roundness() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setVco2Roundness(int r)
+{
+    if (m_synth) {
+        m_synth->setVco2Roundness(static_cast<float>(r) / Constants::uiInternalScaling());
     }
 }
 
@@ -914,18 +938,21 @@ void SynthController::requestSettings()
     emit vco1OctaveChanged();
     emit vco1PitchChanged();
     emit vco1ShapeChanged();
+    emit vco1RoundnessChanged();
     emit vco1SyncChanged();
 
     emit vco2WaveformChanged();
     emit vco2OctaveChanged();
     emit vco2PitchChanged();
     emit vco2ShapeChanged();
+    emit vco2RoundnessChanged();
     emit vco2SyncChanged();
 
     emit vco3WaveformChanged();
     emit vco3OctaveChanged();
     emit vco3PitchChanged();
     emit vco3ShapeChanged();
+    emit vco3RoundnessChanged();
     emit vco3SyncChanged();
 
     emit multiTypeChanged();
@@ -1080,6 +1107,18 @@ void SynthController::setVco3Shape(int s)
 {
     if (m_synth) {
         m_synth->setVco3Shape(static_cast<float>(s) / Constants::uiInternalScaling());
+    }
+}
+
+int SynthController::vco3Roundness() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->vco3Roundness() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setVco3Roundness(int r)
+{
+    if (m_synth) {
+        m_synth->setVco3Roundness(static_cast<float>(r) / Constants::uiInternalScaling());
     }
 }
 

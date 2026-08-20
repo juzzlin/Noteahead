@@ -535,6 +535,7 @@ QString xmlKeyVco1Waveform();
 QString xmlKeyVco1Octave();
 QString xmlKeyVco1Pitch();
 QString xmlKeyVco1Shape();
+QString xmlKeyVco1Roundness();
 QString xmlKeyVco1Sync();
 QString xmlKeySideChainSourceDevice();
 QString xmlKeySideChainLpf();
@@ -543,12 +544,14 @@ QString xmlKeyVco2Waveform();
 QString xmlKeyVco2Octave();
 QString xmlKeyVco2Pitch();
 QString xmlKeyVco2Shape();
+QString xmlKeyVco2Roundness();
 QString xmlKeyVco2Sync();
 
 QString xmlKeyVco3Waveform();
 QString xmlKeyVco3Octave();
 QString xmlKeyVco3Pitch();
 QString xmlKeyVco3Shape();
+QString xmlKeyVco3Roundness();
 QString xmlKeyVco3Sync();
 
 QString xmlKeyOsc1Pos();

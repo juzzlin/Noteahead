@@ -238,6 +238,15 @@
 </ul>
 <p>The shaping runs oversampled, so the harmonics it generates fold above Nyquist and are filtered out rather than aliasing back down into the audible band, and the DC offset an asymmetric curve leaves behind is blocked before it reaches the rest of the rack.</p>
 
+<h3>Oscillator Roundness</h3>
+<p>A pulse leaves an analog oscillator through a stage of finite bandwidth, so its edges take a fixed time to cross from one rail to the other however high the note is. That is why a low square looks square on a scope and a high one looks trapezoidal, and it is a large part of why an analog square sounds warmer than a drawn one. <strong>Roundness</strong>, next to Shape in each VCO, sets that time.</p>
+<ul>
+    <li><strong>0</strong>: about 10 microseconds, which is as sharp as the stage goes and reads as no rounding at all.</li>
+    <li><strong>0.5</strong>: about 47 microseconds. This is the bandwidth the pulse has always had, so a patch that leaves the control alone sounds exactly as it did.</li>
+    <li><strong>1</strong>: about 167 microseconds -- a quarter of a cycle at 1.8 kHz, so a decidedly soft pulse up high while a bass note still looks square.</li>
+</ul>
+<p>Only the pulse has edges to round. A saw's ramp is the waveform itself, and rolling its top off would be an equalizer rather than a character control, so the saw is left alone.</p>
+
 <h3>Analog Fuzz Parameters</h3>
 <p>An analog synth's drive knob, rather than a pedal in front of one. On a monosynth the distortion is not a box ahead of the filter: it is a stage pushing the VCF itself past what it can take, and the filter that rounds the result off is the same one whose resonance is being fed by it. Analog Fuzz is built that way round, so it does two things the other saturation effects cannot.</p>
 <ul>

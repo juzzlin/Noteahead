@@ -43,6 +43,14 @@ public:
     void setPulseWidth(double pw); // 0.0 to 1.0
     void setShape(double shape); // 0.0 to 1.0
 
+    //! How gently the pulse's edges get from one rail to the other, 0 for the fastest the stage can
+    //! manage and 1 for the softest. Half way is the bandwidth the pulse has always had, so a patch
+    //! that never touches this sounds exactly as it did.
+    //!
+    //! Only the pulse has edges to round: a saw's ramp is the waveform, and rolling its top off
+    //! would be an equalizer rather than a character control.
+    void setRoundness(double roundness); // 0.0 to 1.0
+
     double nextSample();
     void sync(double phase);
 
@@ -55,6 +63,7 @@ public:
     Waveform waveform() const;
     double pulseWidth() const;
     double shape() const;
+    double roundness() const;
     double phase() const;
 
 private:
@@ -62,6 +71,7 @@ private:
     Waveform m_waveform { Waveform::Saw };
     double m_pulseWidth { 0.5 };
     double m_shape { 0.0 };
+    double m_roundness { 0.5 };
     double m_phase { 0.0 };
     double m_phaseStep { 0.0 };
 

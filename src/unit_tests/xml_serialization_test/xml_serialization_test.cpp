@@ -1381,6 +1381,8 @@ void XmlSerializationTest::test_toXml_whileAutomated_shouldSaveAuthoredValues()
     DeviceService deviceServiceOut { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
     const auto synthOut = std::make_shared<SynthDevice>(deviceName);
     synthOut->setLpfCutoff(0.3f);
+    synthOut->setVco1Roundness(0.8f);
+    synthOut->setVco2Roundness(0.2f);
     synthOut->setPan(0.25f);
     deviceServiceOut.setDevice(0, synthOut);
 
@@ -1412,6 +1414,8 @@ void XmlSerializationTest::test_toXml_whileAutomated_shouldSaveAuthoredValues()
     editorServiceIn.fromXml(xml);
 
     QCOMPARE(synthIn->lpfCutoff(), 0.3f);
+    QCOMPARE(synthIn->vco1Roundness(), 0.8f);
+    QCOMPARE(synthIn->vco2Roundness(), 0.2f);
     QCOMPARE(synthIn->pan(), 0.25f);
     QCOMPARE(drumIn->parameter(kickHpfKey)->get().value(), 0.25f);
 }

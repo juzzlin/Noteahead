@@ -15,6 +15,8 @@
 
 #include "poly_blep_oscillator.hpp"
 
+#include "../../common/parameter_mapper.hpp"
+
 #include <algorithm>
 #include <cmath>
 #include <numbers>
@@ -31,8 +33,14 @@ constexpr double MinPulseWidth = 0.05;
 //! looking at an analog synth.
 constexpr double PulseCouplingHz = 5.0;
 
-//! Bandwidth of the stage the pulse comes out of, as a corner. This is what rounds the corners.
-constexpr double PulseEdgeHz = 8000.0;
+//! Bandwidth of the stage the pulse comes out of, as a corner: what rounds the edges. The
+//! Roundness control runs between these, logarithmically, and its centre lands on the 8 kHz the
+//! pulse has always had -- so half way is no change at all to an existing patch.
+//!
+//! The sharp end is above anything the audio band can resolve, so it reads as no rounding; the soft
+//! end takes the edges to about a fortieth of a millisecond, which is a decidedly rounded pulse.
+constexpr double SharpestEdgeHz = 32000.0;
+constexpr double RoundestEdgeHz = 2000.0;
 
 } // namespace
 
@@ -71,6 +79,11 @@ void PolyBlepOscillator::setPulseWidth(double pw)
 void PolyBlepOscillator::setShape(double shape)
 {
     m_shape = std::clamp(shape, 0.0, 1.0);
+}
+
+void PolyBlepOscillator::setRoundness(double roundness)
+{
+    m_roundness = std::clamp(roundness, 0.0, 1.0);
 }
 
 double PolyBlepOscillator::nextSample()
@@ -155,7 +168,9 @@ double PolyBlepOscillator::analogPulse(double value)
     m_pulseCoupling.process(value);
     const double coupled = m_pulseCoupling.highPass();
 
-    m_pulseEdge.calculate(PulseEdgeHz, sampleRate);
+    // Inverted, so that turning the control up rounds the wave rather than sharpening it.
+    const double edgeHz = ParameterMapper::mapLogFrequency(1.0 - m_roundness, RoundestEdgeHz, SharpestEdgeHz);
+    m_pulseEdge.calculate(edgeHz, sampleRate);
     m_pulseEdge.process(coupled);
     return m_pulseEdge.lowPass();
 }
@@ -190,6 +205,11 @@ double PolyBlepOscillator::pulseWidth() const
 double PolyBlepOscillator::shape() const
 {
     return m_shape;
+}
+
+double PolyBlepOscillator::roundness() const
+{
+    return m_roundness;
 }
 
 double PolyBlepOscillator::phase() const
