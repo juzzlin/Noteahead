@@ -106,12 +106,21 @@ void RenderWorker::render(const QString & fileName,
         recorder.start(renderPath.toStdString(), sampleRate, channelCount, recordingBufferSize, actualBitDepth);
 
         m_audioEngine->setBpm(static_cast<float>(timing.beatsPerMinute));
+
+        // A render has to be a function of the project and nothing else: the same song must come out
+        // the same whatever the session did beforehand. Three things go into that, in this order.
+        //
+        // Notes first, so nothing is left ringing into the first tick.
         m_deviceService->processMidiAllNotesOff();
+        // Then whatever MIDI CC left behind -- an automation from an earlier playback, a knob moved
+        // on a controller, a track's own settings from a previous take. Every parameter goes back
+        // to the value the project holds, which is the only state a render may start from.
+        m_deviceService->clearAutomation();
+        // And the audio itself: filters, delay lines, reverb tails.
         m_audioEngine->reset();
 
-        // Every track's instrument settings, before the first tick. Playback applies these when the
-        // song is rewound; without the same thing here an export could differ from what was just
-        // heard, because the devices would still be holding whatever the session had left them at.
+        // Now the song's own instrument settings, which are part of the project rather than of the
+        // session. Playback applies these when the song is rewound; a render always does.
         // The events carry the instruments, so no extra plumbing is needed to find them.
         std::set<const Instrument *> applied;
         for (auto && event : events) {

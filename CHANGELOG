@@ -19,6 +19,9 @@ New features:
 
 Bug fixes:
 
+* Start a render from a clean state: what a session had left in a device
+  no longer carries into the export
+
 * Fix Analog Fuzz sounding different at different oversampling factors,
   which made a render quieter than the playback it came from
 

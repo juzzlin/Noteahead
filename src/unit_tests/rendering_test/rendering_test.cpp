@@ -8,6 +8,7 @@
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/string_voice_device.hpp"
+#include "../../domain/devices/sub_mixer_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/midi/pitch_bend_data.hpp"
@@ -502,6 +503,75 @@ void RenderingTest::test_render_shouldClampSignal()
         }
     }
     QVERIFY2(foundLargeSignal, "Should have found large samples from simultaneous drum hits");
+}
+
+void RenderingTest::test_render_shouldNotDependOnSessionState()
+{
+    // A render is a function of the project and nothing else. Whatever the session did first --
+    // an automation left mid-sweep, a controller knob moved, a take stopped half way -- the same
+    // song has to come out the same. It did not: the devices kept whatever MIDI CC had last put
+    // them at, and the export drifted with the session.
+    const auto renderWith = [](bool polluteFirst) {
+        const auto audioEngine = std::make_shared<AudioEngine>();
+        const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+        const auto mixerService = std::make_shared<MixerService>();
+
+        const auto synth = std::make_shared<SynthDevice>("Lead");
+        synth->setVco1Sync(true); // Phase randomisation off, so two renders are comparable at all
+        synth->setLpfCutoff(0.6f);
+        synth->setMixVco1(1.0f);
+        synth->setVolume(1.0f);
+        synth->setGain(0.5f);
+        deviceService->setDevice(0, synth);
+
+        // The lead is summed through a SubMixer. A SubMixer plays no notes, so no instrument points
+        // at it and it never receives the reset that goes out with a track's settings: whatever
+        // automation last left on its fader is still there when the render starts. That is the hole
+        // this test is about, and a device the song plays through directly would not show it.
+        const auto subMixer = std::make_shared<SubMixerDevice>("Bus");
+        deviceService->setDevice(1, subMixer);
+        const bool routed = deviceService->addSubMixerMember(1, 0);
+        Q_ASSERT(routed);
+        Q_UNUSED(routed);
+
+        if (polluteFirst) {
+            // What an earlier playback would have left behind: the bus faded out and never restored.
+            subMixer->processMidiCc(7, 0, 0);
+        }
+
+        RenderWorker worker { audioEngine, deviceService, mixerService };
+        MockRenderIo::Registry registry;
+        std::mutex registryMutex;
+        worker.setAudioFileReaderFactory([&]() { return std::make_unique<MockRenderIo>(&registry, &registryMutex); });
+
+        RenderWorker::EventList events;
+        const auto instrument = std::make_shared<Instrument>(Constants::internalDevicePortPrefix() + " 1");
+        NoteData noteData { 0, 0 };
+        noteData.setAsNoteOn(60, 100);
+        const auto event = std::make_shared<Event>(0, noteData);
+        event->setInstrument(instrument);
+        events.push_back(event);
+
+        RenderWorker::Timing timing;
+        timing.beatsPerMinute = 120;
+        timing.linesPerBeat = 4;
+        timing.ticksPerLine = 6;
+
+        worker.render("dummy.wav", events, timing, 24, 48000);
+        return registry["dummy.wav"].data;
+    };
+
+    const auto clean = renderWith(false);
+    const auto afterAutomation = renderWith(true);
+
+    QVERIFY(!clean.empty());
+    QCOMPARE(afterAutomation.size(), clean.size());
+
+    double difference = 0.0;
+    for (size_t i = 0; i < clean.size(); i++) {
+        difference = std::max(difference, std::abs(static_cast<double>(clean.at(i) - afterAutomation.at(i))));
+    }
+    QVERIFY2(difference < 1.0e-6, QString("Renders differed by %1").arg(difference).toUtf8().constData());
 }
 
 void RenderingTest::test_render_shouldApplyTrackInstrumentSettings()

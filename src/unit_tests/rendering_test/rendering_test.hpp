@@ -20,6 +20,7 @@ private slots:
     void test_renderDrumSynth_shouldPreserveParameters();
     void test_render_shouldNotCrashWithNullInstrumentEvents();
     void test_render_shouldClampSignal();
+    void test_render_shouldNotDependOnSessionState();
     void test_render_shouldApplyTrackInstrumentSettings();
     void test_render_midiSideChain_shouldProcessEventWhenSourceTrackIsMuted();
     void test_render_pitchBend_shouldProcessEvent();
