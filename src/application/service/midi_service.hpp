@@ -115,8 +115,6 @@ private:
     //! It is unrolled into the same messages the wire would carry instead, so that track settings
     //! reach a virtual instrument exactly like they reach external gear.
     void handleInternalDeviceInstrumentRequest(const InstrumentRequest & instrumentRequest);
-    void applyPatchToInternalDevice(const Instrument & instrument);
-    void applyMidiCcSettingsToInternalDevice(const Instrument & instrument);
 
     void initializeWorkers();
     void initializeInputWorker();

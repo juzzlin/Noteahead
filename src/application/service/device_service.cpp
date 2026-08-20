@@ -22,9 +22,11 @@
 #include "../../domain/devices/sub_mixer_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/effects/effect_rack.hpp"
+#include "../../domain/tracker/instrument.hpp"
 #include "../../domain/utility/lufs_meter.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
+#include "../../infra/midi/midi_cc_mapping.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
@@ -283,6 +285,37 @@ void DeviceService::processMidiAllNotesOff()
             dev->processMidiAllNotesOff();
         }
     }
+}
+
+void DeviceService::applyInstrumentPatch(const Instrument & instrument)
+{
+    const auto portName = instrument.midiAddress().portName();
+    if (!isInternalDevice(portName) || !instrument.settings().patch.has_value()) {
+        return;
+    }
+    processMidiProgramChange(portName, *instrument.settings().patch, instrument.midiAddress().channel());
+}
+
+void DeviceService::applyInstrumentMidiCcSettings(const Instrument & instrument)
+{
+    const auto portName = instrument.midiAddress().portName();
+    if (!isInternalDevice(portName)) {
+        return;
+    }
+
+    const auto channel = instrument.midiAddress().channel();
+    processMidiCc(portName, static_cast<uint8_t>(MidiCcMapping::Controller::ResetAllControllers), 127, channel);
+    for (auto && midiCcSetting : instrument.settings().midiCcSettings) {
+        if (midiCcSetting.enabled()) {
+            processMidiCc(portName, static_cast<uint8_t>(midiCcSetting.controller()), static_cast<uint8_t>(midiCcSetting.value()), channel);
+        }
+    }
+}
+
+void DeviceService::applyInstrumentSettings(const Instrument & instrument)
+{
+    applyInstrumentPatch(instrument);
+    applyInstrumentMidiCcSettings(instrument);
 }
 
 void DeviceService::clearAutomation()

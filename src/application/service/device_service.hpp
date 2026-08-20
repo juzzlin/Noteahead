@@ -34,6 +34,7 @@ namespace noteahead {
 class AudioEngine;
 class AudioFileReader;
 class DataService;
+class Instrument;
 class ProjectReader;
 class ProjectWriter;
 class SynthDevice;
@@ -62,6 +63,21 @@ public:
     void processMidiProgramChange(const QString & portName, uint8_t program, uint8_t channel);
     void processMidiAllNotesOff(const QString & portName);
     void processMidiAllNotesOff();
+
+    //! Applies an instrument's patch to the internal device it plays through, as a program change.
+    //! Bank select is left out on purpose: an internal device has no banks to select from.
+    void applyInstrumentPatch(const Instrument & instrument);
+
+    //! Applies an instrument's MIDI CC settings, preceded by a reset so a controller dropped from
+    //! the settings stops affecting the device rather than lingering at its last value.
+    //!
+    //! Kept apart from the patch because the reset is not free: it drops whatever automation is in
+    //! effect, which is right when the settings are being applied and wrong for a bare patch change.
+    void applyInstrumentMidiCcSettings(const Instrument & instrument);
+
+    //! Both of the above, in the order the wire would carry them. What a render applies before its
+    //! first tick, so that an export starts from the same place playback does.
+    void applyInstrumentSettings(const Instrument & instrument);
 
     //! Hands every device back its authored values after playback.
     //!

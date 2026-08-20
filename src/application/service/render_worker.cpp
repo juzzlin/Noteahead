@@ -37,6 +37,7 @@
 #include <algorithm>
 #include <cmath>
 #include <numbers>
+#include <set>
 
 namespace noteahead {
 
@@ -107,6 +108,17 @@ void RenderWorker::render(const QString & fileName,
         m_audioEngine->setBpm(static_cast<float>(timing.beatsPerMinute));
         m_deviceService->processMidiAllNotesOff();
         m_audioEngine->reset();
+
+        // Every track's instrument settings, before the first tick. Playback applies these when the
+        // song is rewound; without the same thing here an export could differ from what was just
+        // heard, because the devices would still be holding whatever the session had left them at.
+        // The events carry the instruments, so no extra plumbing is needed to find them.
+        std::set<const Instrument *> applied;
+        for (auto && event : events) {
+            if (auto && instrument = event->instrument(); instrument && applied.insert(instrument.get()).second) {
+                m_deviceService->applyInstrumentSettings(*instrument);
+            }
+        }
 
         const double secondsPerTick = 60.0 / (static_cast<double>(timing.beatsPerMinute * timing.linesPerBeat * timing.ticksPerLine));
         const double samplesPerTick = secondsPerTick * sampleRate;

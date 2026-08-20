@@ -20,6 +20,8 @@ Bug fixes:
 * Fix the shaped saw aliasing: the anti-aliasing correction was sized for
   the unshaped waveform
 
+* Apply track instrument settings when rendering, as playback does
+
 * Make the square wave analog: AC coupling, finite edge rate and a level
   that no longer jumps as Shape narrows the pulse
 

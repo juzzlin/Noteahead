@@ -143,41 +143,20 @@ void MidiService::handleInternalDeviceInstrumentRequest(const InstrumentRequest 
 {
     juzzlin::L(TAG).info() << "Applying instrument on internal device: " << instrumentRequest.instrument().toString().toStdString();
 
+    // What an instrument's settings mean for an internal device is DeviceService's to define, so
+    // that a render applies them the same way playback does rather than growing its own version.
     switch (instrumentRequest.type()) {
     case InstrumentRequest::Type::ApplyAll:
-        applyPatchToInternalDevice(instrumentRequest.instrument());
-        applyMidiCcSettingsToInternalDevice(instrumentRequest.instrument());
+        m_deviceService->applyInstrumentSettings(instrumentRequest.instrument());
         break;
     case InstrumentRequest::Type::ApplyPatch:
-        applyPatchToInternalDevice(instrumentRequest.instrument());
+        m_deviceService->applyInstrumentPatch(instrumentRequest.instrument());
         break;
     case InstrumentRequest::Type::ApplyMidiCc:
-        applyMidiCcSettingsToInternalDevice(instrumentRequest.instrument());
+        m_deviceService->applyInstrumentMidiCcSettings(instrumentRequest.instrument());
         break;
     case InstrumentRequest::Type::None:
         break;
-    }
-}
-
-void MidiService::applyPatchToInternalDevice(const Instrument & instrument)
-{
-    // Bank select is left out on purpose: an internal device has no banks to select from.
-    if (instrument.settings().patch.has_value()) {
-        m_deviceService->processMidiProgramChange(instrument.midiAddress().portName(), *instrument.settings().patch, instrument.midiAddress().channel());
-    }
-}
-
-void MidiService::applyMidiCcSettingsToInternalDevice(const Instrument & instrument)
-{
-    const auto portName = instrument.midiAddress().portName();
-    const auto channel = instrument.midiAddress().channel();
-    // Same order as on the wire: reset first, so that a controller dropped from the settings stops
-    // affecting the device instead of lingering at its last value.
-    m_deviceService->processMidiCc(portName, static_cast<uint8_t>(MidiCcMapping::Controller::ResetAllControllers), 127, channel);
-    for (auto && midiCcSetting : instrument.settings().midiCcSettings) {
-        if (midiCcSetting.enabled()) {
-            m_deviceService->processMidiCc(portName, static_cast<uint8_t>(midiCcSetting.controller()), static_cast<uint8_t>(midiCcSetting.value()), channel);
-        }
     }
 }
 

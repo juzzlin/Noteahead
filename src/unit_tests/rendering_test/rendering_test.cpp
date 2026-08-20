@@ -504,6 +504,56 @@ void RenderingTest::test_render_shouldClampSignal()
     QVERIFY2(foundLargeSignal, "Should have found large samples from simultaneous drum hits");
 }
 
+void RenderingTest::test_render_shouldApplyTrackInstrumentSettings()
+{
+    // A render used to start from whatever the session had left the devices holding: the track's
+    // own MIDI CC settings, which playback applies on every rewind, never reached it. An export
+    // could then differ from what had just been heard.
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto mixerService = std::make_shared<MixerService>();
+    const auto propertyService = std::make_shared<PropertyService>();
+    const auto automationService = std::make_shared<AutomationService>(propertyService);
+    const auto sideChainService = std::make_shared<SideChainService>();
+
+    const auto synth = std::make_shared<SynthDevice>("Rendered Synth");
+    synth->setLpfCutoff(0.25f);
+    deviceService->setDevice(0, synth);
+
+    auto song = std::make_shared<Song>();
+    song->initialize();
+
+    const auto instrument = std::make_shared<Instrument>(Constants::internalDevicePortPrefix() + " 1");
+    InstrumentSettings settings;
+    settings.midiCcSettings.push_back({ true, 74, 127 }); // Cutoff wide open
+    instrument->setSettings(settings);
+    song->setInstrument(0, instrument);
+
+    NoteData note { 0, 0 };
+    note.setAsNoteOn(60, 100);
+    song->pattern(song->patternAtSongPosition(0))->setNoteDataAtPosition(note, { 0, 0, 0, 0, 0 });
+
+    const auto events = song->renderToEvents(automationService, sideChainService, 0);
+
+    RenderWorker worker(audioEngine, deviceService, mixerService);
+    worker.setAudioFileReaderFactory([]() { return std::make_unique<MockRenderIo>(); });
+
+    RenderWorker::Timing timing;
+    timing.beatsPerMinute = 120;
+    timing.linesPerBeat = 4;
+    timing.ticksPerLine = 6;
+
+    QSignalSpy parameterSpy { synth.get(), &Device::parametersChanged };
+
+    worker.render("dummy.wav", events, timing, 1, 44100);
+
+    // The settings reached the device...
+    QVERIFY(parameterSpy.count() > 0);
+
+    // ...and the render handed the patch back on the way out, as it does for automation.
+    QCOMPARE(synth->lpfCutoff(), 0.25f);
+}
+
 void RenderingTest::test_render_midiSideChain_shouldProcessEventWhenSourceTrackIsMuted()
 {
     auto audioEngine = std::make_shared<AudioEngine>();
