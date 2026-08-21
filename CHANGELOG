@@ -8,6 +8,7 @@ New features:
 * Add song metadata: title, composer, artist and more, editable from Song > Metadata
   - The audio export tags are now separate and fall back on the song's metadata
     when left empty
+  - The window title shows the song's title when it has one
 
 * Add an Attack control to Piano Synth V2
 

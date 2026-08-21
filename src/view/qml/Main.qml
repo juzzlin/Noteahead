@@ -796,10 +796,11 @@ ApplicationWindow {
         onActivated: UiService.rewindSong()
     }
     function _getWindowTitle(): string {
-        const nameAndVersion = `${applicationService.applicationName()} MIDI tracker v${applicationService.applicationVersion()}`;
+        const nameAndVersion = `${applicationService.applicationName()} v${applicationService.applicationVersion()}`;
+        const songTitle = (editorService.songMetadataTitle ? " - " + editorService.songMetadataTitle : "");
         const currentFileName = (editorService.currentFileName ? " - " + editorService.currentFileName : "");
         const modifiedIndicator = (editorService.isModified ? " (*)" : "");
-        return `${nameAndVersion}${currentFileName}${modifiedIndicator}`;
+        return `${nameAndVersion}${songTitle}${currentFileName}${modifiedIndicator}`;
     }
     function _setWindowSizeAndPosition(): void {
         const defaultWindowScale = Constants.defaultWindowScale;
