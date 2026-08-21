@@ -1,11 +1,13 @@
 <?xml version="1.0"?>
-<Project fileFormatVersion="1.0" applicationName="Noteahead" applicationVersion="7.0.0" createdDate="2026-08-21T23:12:22.117">
+<Project fileFormatVersion="1.0" applicationName="Noteahead" applicationVersion="7.0.0" createdDate="2026-08-21T23:30:23.146">
  <Song beatsPerMinute="120" linesPerBeat="8">
   <Metadata>
    <Tags>
     <Tag name="Artist" value="Jussi Lind"/>
+    <Tag name="Composer" value="Jussi Lind"/>
+    <Tag name="Genre" value="Demo"/>
     <Tag name="Title" value="Noteahead Example Song 1"/>
-    <Tag name="comment" value="Composed by Jussi Lind &lt;jussi.lind@iki.fi&gt;"/>
+    <Tag name="comment" value="This is not a **real** song, just a demo that shows how to use built-in devices, effect racks, and some MIDI CC automations."/>
    </Tags>
    <RenderSettings format="1" sampleRate="48000" bitDepth="1" oversampleFactor="4" normalizeEnabled="false" normalizeLevelTenthsDb="-10" trimEnabled="false" trimMinutes="0" trimSeconds="32" fadeOutEnabled="false" fadeOutSeconds="0" fadeOutTenths="0" silenceEnabled="false" silenceSeconds="0" silenceTenths="0" analyzeEnabled="true"/>
   </Metadata>
