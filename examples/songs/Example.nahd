@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<Project fileFormatVersion="1.0" applicationName="Noteahead" applicationVersion="7.0.0" createdDate="2026-08-19T23:14:07.365">
+<Project fileFormatVersion="1.0" applicationName="Noteahead" applicationVersion="7.0.0" createdDate="2026-08-21T23:12:22.117">
  <Song beatsPerMinute="120" linesPerBeat="8">
   <Metadata>
    <Tags>
@@ -68,9 +68,9 @@
      <Parameter name="HighTom_tune" valueType="float" value="8000" min="0" max="10000" default="8000" scale="100"/>
      <Parameter name="Kick_attack" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
      <Parameter name="Kick_clickTune" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
-     <Parameter name="Kick_cutoff" valueType="float" value="4567" min="0" max="10000" default="10000" scale="100"/>
+     <Parameter name="Kick_cutoff" valueType="float" value="10000" min="0" max="10000" default="10000" scale="100"/>
      <Parameter name="Kick_decay" valueType="float" value="2600" min="0" max="10000" default="5000" scale="100"/>
-     <Parameter name="Kick_hpfCutoff" valueType="float" value="10000" min="0" max="10000" default="0" scale="100"/>
+     <Parameter name="Kick_hpfCutoff" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
      <Parameter name="Kick_level" valueType="float" value="8000" min="0" max="10000" default="8000" scale="100"/>
      <Parameter name="Kick_pan" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
      <Parameter name="Kick_pitchDecay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
@@ -199,6 +199,7 @@
    <Device slot="2" name="Noteahead Internal Device 3" typeName="Noteahead PianoSynth V2" category="Synths" typeId="245d8c24-d3ad-43e2-94d6-e3f90c67ab02">
     <InsertEffects enabled="true"/>
     <Parameters>
+     <Parameter name="attack" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
      <Parameter name="brightness" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
      <Parameter name="decay" valueType="float" value="2370" min="0" max="10000" default="5000" scale="100"/>
      <Parameter name="doubleDecay" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
@@ -275,16 +276,19 @@
      <Parameter name="sendTap" valueType="int" value="0"/>
      <Parameter name="vco1Octave" valueType="int" value="0"/>
      <Parameter name="vco1Pitch" valueType="float" value="0" min="-2400" max="2400" default="0" scale="1"/>
+     <Parameter name="vco1Roundness" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
      <Parameter name="vco1Shape" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
      <Parameter name="vco1Sync" valueType="bool" value="false"/>
      <Parameter name="vco1Waveform" valueType="int" value="1"/>
      <Parameter name="vco2Octave" valueType="int" value="0"/>
      <Parameter name="vco2Pitch" valueType="float" value="0" min="-2400" max="2400" default="0" scale="1"/>
+     <Parameter name="vco2Roundness" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
      <Parameter name="vco2Shape" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
      <Parameter name="vco2Sync" valueType="bool" value="false"/>
      <Parameter name="vco2Waveform" valueType="int" value="1"/>
      <Parameter name="vco3Octave" valueType="int" value="0"/>
      <Parameter name="vco3Pitch" valueType="float" value="0" min="-2400" max="2400" default="0" scale="1"/>
+     <Parameter name="vco3Roundness" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
      <Parameter name="vco3Shape" valueType="float" value="0" min="0" max="10000" default="0" scale="100"/>
      <Parameter name="vco3Sync" valueType="bool" value="false"/>
      <Parameter name="vco3Waveform" valueType="int" value="1"/>
@@ -295,7 +299,7 @@
    <MasterEffects>
     <InsertEffects enabled="true">
      <Effect slot="0" typeId="2f4a6c8e-1b3d-4f5a-9c7e-0d2b4e6f8a1c" type="saturator" enabled="true">
-      <Parameter name="drive" valueType="float" value="101" min="0" max="2400" default="600" scale="100"/>
+      <Parameter name="driveDb" valueType="float" value="101" min="0" max="4000" default="600" scale="100"/>
       <Parameter name="gain" valueType="float" value="0" min="-1200" max="1200" default="0" scale="100"/>
       <Parameter name="mix" valueType="float" value="5000" min="0" max="10000" default="100" scale="100"/>
       <Parameter name="mode" valueType="int" value="0"/>
@@ -424,15 +428,29 @@
    </MasterEffects>
    <UserPresets typeId="26f5a47e-4786-11f1-92b0-0b3f3bef9f74"/>
   </Devices>
-  <SideChain/>
+  <SideChain>
+   <SideChainSettings track="2" enabled="false" sourceTrack="0" sourceColumn="0" lookahead="50" release="50">
+    <Target enabled="true" controller="7" targetValue="113" releaseValue="127"/>
+   </SideChainSettings>
+   <SideChainSettings track="5" enabled="true" sourceTrack="0" sourceColumn="0" lookahead="0" release="0">
+    <Target enabled="true" controller="7" targetValue="50" releaseValue="50"/>
+   </SideChainSettings>
+   <SideChainSettings track="8" enabled="false" sourceTrack="0" sourceColumn="0" lookahead="50" release="50">
+    <Target enabled="true" controller="7" targetValue="127" releaseValue="113"/>
+   </SideChainSettings>
+   <SideChainSettings track="10" enabled="true" sourceTrack="0" sourceColumn="0" lookahead="0" release="0">
+    <Target enabled="true" controller="39" targetValue="113" releaseValue="127"/>
+   </SideChainSettings>
+   <SideChainSettings track="11" enabled="false" sourceTrack="0" sourceColumn="0" lookahead="50" release="50">
+    <Target enabled="false" controller="7" targetValue="113" releaseValue="127"/>
+   </SideChainSettings>
+  </SideChain>
   <Patterns>
    <Pattern index="0" name="Example 1.1" lineCount="128" trackCount="6">
     <Tracks>
      <Track index="0" name="Drums" lineCount="128" columnCount="4">
       <Instrument portName="Noteahead Internal Device 1" channel="0" group="0">
-       <InstrumentSettings bankEnabled="false" transpose="0" drumTrack="true" sendMidiClock="false" sendTransport="false" delay="0" velocityJitter="0" velocityKeyTrack="0" velocityKeyTrackOffset="0">
-        <MidiCcSetting enabled="true" controller="16" value="0"/>
-       </InstrumentSettings>
+       <InstrumentSettings bankEnabled="false" transpose="0" drumTrack="true" sendMidiClock="false" sendTransport="false" delay="0" velocityJitter="0" velocityKeyTrack="0" velocityKeyTrackOffset="0"/>
       </Instrument>
       <Columns>
        <Column index="0" name="Kick" lineCount="128">
