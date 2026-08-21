@@ -33,6 +33,12 @@ QtObject {
     readonly property int defaultVisibleUnitCount: 6
     readonly property int minVisibleUnitCount: 2
 
+    // The bottom bar is split in two when not playing: persistent guidance on the left, transient
+    // notifications on the right. The separator is a hairline, not a wall.
+    readonly property double bottomBarTipAreaRatio: 0.5
+    readonly property double bottomBarSeparatorOpacity: 0.15
+    readonly property int bottomBarTextMargin: 10
+
     // Anything shorter and the 88 keys are not worth clicking
     readonly property int minKeyboardHeight: 60
 

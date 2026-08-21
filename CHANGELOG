@@ -14,6 +14,9 @@ New features:
 
 * Add a built-in example song, openable from File > Open example song
 
+* Split the bottom bar into a tip area and a notification area, so keyboard guidance
+  stays visible instead of being flushed by MIDI port messages
+
 * Add an Attack control to Piano Synth V2
 
 * Add a Roundness control to the synth's oscillators, setting how gently a
