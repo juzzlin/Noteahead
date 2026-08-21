@@ -65,7 +65,13 @@ void Metadata::removeTag(const std::string & name)
 
 void Metadata::setExportTag(const std::string & name, const std::string & value)
 {
-    m_exportTags[name] = value;
+    // Clearing an override removes it rather than storing an empty string, so that the project
+    // file of a song whose override was taken back looks like one that never had it.
+    if (value.empty()) {
+        m_exportTags.erase(name);
+    } else {
+        m_exportTags[name] = value;
+    }
 }
 
 void Metadata::removeExportTag(const std::string & name)
@@ -76,12 +82,11 @@ void Metadata::removeExportTag(const std::string & name)
 Metadata::TagMap Metadata::effectiveExportTags() const
 {
     // Start from the song's own metadata so that a song that has never been exported still tags
-    // its files sensibly, then let anything explicitly set for the export win.
+    // its files sensibly, then let anything explicitly set for the export win. setExportTag() keeps
+    // empty values out of m_exportTags, so nothing here can shadow a song tag with a blank.
     auto effective = m_tags;
     for (const auto & [name, value] : m_exportTags) {
-        if (!value.empty()) {
-            effective[name] = value;
-        }
+        effective[name] = value;
     }
     std::erase_if(effective, [](const auto & tag) { return tag.second.empty(); });
     return effective;

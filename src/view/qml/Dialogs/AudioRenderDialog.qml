@@ -424,6 +424,10 @@ AnimatedDialog {
                         placeholderText: editorService.songMetadataTitle
                         onTextEdited: editorService.exportMetadataTitle = text
                         Keys.onReturnPressed: focus = false
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Written into the rendered audio file. Leave empty to use the song's own value from Song > Metadata, shown greyed out.")
                     }
 
                     Label {
@@ -435,6 +439,10 @@ AnimatedDialog {
                         placeholderText: editorService.songMetadataArtist
                         onTextEdited: editorService.exportMetadataArtist = text
                         Keys.onReturnPressed: focus = false
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Written into the rendered audio file. Leave empty to use the song's own value from Song > Metadata, shown greyed out.")
                     }
 
                     Label {
@@ -446,6 +454,10 @@ AnimatedDialog {
                         placeholderText: editorService.songMetadataAlbum
                         onTextEdited: editorService.exportMetadataAlbum = text
                         Keys.onReturnPressed: focus = false
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Written into the rendered audio file. Leave empty to use the song's own value from Song > Metadata, shown greyed out.")
                     }
 
                     Label {
@@ -457,6 +469,10 @@ AnimatedDialog {
                         placeholderText: editorService.songMetadataDate
                         onTextEdited: editorService.exportMetadataDate = text
                         Keys.onReturnPressed: focus = false
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Written into the rendered audio file. Leave empty to use the song's own value from Song > Metadata, shown greyed out.")
                     }
 
                     Label {
@@ -468,6 +484,10 @@ AnimatedDialog {
                         placeholderText: editorService.songMetadataGenre
                         onTextEdited: editorService.exportMetadataGenre = text
                         Keys.onReturnPressed: focus = false
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Written into the rendered audio file. Leave empty to use the song's own value from Song > Metadata, shown greyed out.")
                     }
 
                     Label {
@@ -479,6 +499,10 @@ AnimatedDialog {
                         placeholderText: editorService.songMetadataTrackNumber
                         onTextEdited: editorService.exportMetadataTrackNumber = text
                         Keys.onReturnPressed: focus = false
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Written into the rendered audio file. Leave empty to use the song's own value from Song > Metadata, shown greyed out.")
                     }
 
                     Label {
@@ -491,6 +515,18 @@ AnimatedDialog {
                         placeholderText: editorService.songMetadataComment
                         onTextEdited: editorService.exportMetadataComment = text
                         Keys.onReturnPressed: focus = false
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Written into the rendered audio file. Leave empty to use the song's own value from Song > Metadata, shown greyed out.")
+                    }
+
+                    Label {
+                        Layout.columnSpan: 6
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        color: themeService.accentColor
+                        text: qsTr("These tag the rendered audio file. An empty field uses the song's own value from Song > Metadata, shown greyed out.")
                     }
                 }
             }

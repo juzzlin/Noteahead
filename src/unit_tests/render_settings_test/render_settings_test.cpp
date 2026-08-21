@@ -184,6 +184,22 @@ void RenderSettingsTest::test_exportTags_serialization_shouldRoundTrip()
     QCOMPARE(restored.effectiveExportTags().at(Constants::NahdXml::xmlKeyComposer().toStdString()), std::string { "A composer" });
 }
 
+void RenderSettingsTest::test_exportTags_cleared_shouldLeaveNoTrace()
+{
+    Metadata metadata;
+    metadata.setTag(Constants::NahdXml::xmlKeyDate().toStdString(), "2026-08-21");
+    metadata.setExportTag(Constants::NahdXml::xmlKeyDate().toStdString(), "1999");
+
+    // Taking the override back in the render dialog, by clearing the field.
+    metadata.setExportTag(Constants::NahdXml::xmlKeyDate().toStdString(), "");
+
+    QVERIFY(metadata.exportTags().empty());
+    QCOMPARE(metadata.effectiveExportTags().at(Constants::NahdXml::xmlKeyDate().toStdString()), std::string { "2026-08-21" });
+    // And the file looks like one that never had an override at all.
+    const auto data = serialize(metadata);
+    QVERIFY(!data.contains("<" + Constants::NahdXml::xmlKeyExportTags().toUtf8()));
+}
+
 void RenderSettingsTest::test_notes_empty_shouldNotBeSerialized()
 {
     Metadata metadata;

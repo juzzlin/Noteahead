@@ -33,6 +33,7 @@ private slots:
     void test_exportTags_set_shouldOverrideSongTags();
     void test_exportTags_empty_shouldNotBeSerialized();
     void test_exportTags_serialization_shouldRoundTrip();
+    void test_exportTags_cleared_shouldLeaveNoTrace();
     void test_notes_empty_shouldNotBeSerialized();
     void test_notes_multiLine_shouldRoundTrip();
     void test_notes_xmlHostileCharacters_shouldRoundTrip();
