@@ -43,6 +43,7 @@ const auto jackBpmSyncEnabledKey = "jackBpmSyncEnabled";
 const auto midiSyncEnabledKey = "midiSyncEnabled";
 const auto waveViewEnabledKey = "waveViewEnabled";
 const auto patternPeekEnabledKey = "patternPeekEnabled";
+const auto tipsEnabledKey = "tipsEnabled";
 
 const auto midiExportForceDrumChannel10Key = "midiExportForceDrumChannel10";
 const auto midiExportAutoAssignChannelsKey = "midiExportAutoAssignChannels";
@@ -429,6 +430,23 @@ void setPatternPeekEnabled(bool enabled)
     QSettings settings;
     settings.beginGroup(settingsGroupEditor);
     settings.setValue(patternPeekEnabledKey, enabled);
+    settings.endGroup();
+}
+
+bool tipsEnabled()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    const auto enabled = settings.value(tipsEnabledKey, true).toBool();
+    settings.endGroup();
+    return enabled;
+}
+
+void setTipsEnabled(bool enabled)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    settings.setValue(tipsEnabledKey, enabled);
     settings.endGroup();
 }
 

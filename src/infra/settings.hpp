@@ -61,7 +61,6 @@ void setVisibleLines(int visibleLines);
 bool autoTrackCount();
 void setAutoTrackCount(bool autoTrackCount);
 
-
 int trackHeaderFontSize(int defaultTrackHeaderFontSize);
 void setTrackHeaderFontSize(int trackHeaderFontSize);
 
@@ -88,6 +87,9 @@ void setWaveViewEnabled(bool enabled);
 
 bool patternPeekEnabled();
 void setPatternPeekEnabled(bool enabled);
+
+bool tipsEnabled();
+void setTipsEnabled(bool enabled);
 
 bool midiExportForceDrumChannel10();
 void setMidiExportForceDrumChannel10(bool enabled);

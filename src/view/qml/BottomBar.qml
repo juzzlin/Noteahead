@@ -68,8 +68,10 @@ Rectangle {
             anchors.left: parent.left
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-            width: parent.width * Constants.bottomBarTipAreaRatio
-            visible: !UiService.isPlaying()
+            // Width and visibility off the same condition, so that switching tips off collapses
+            // the region and lets the notification area fill the bar without a second code path.
+            width: visible ? parent.width * Constants.bottomBarTipAreaRatio : 0
+            visible: settingsService.tipsEnabled && !UiService.isPlaying()
             Label {
                 id: tipText
                 anchors.fill: parent

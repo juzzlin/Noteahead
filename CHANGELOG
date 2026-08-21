@@ -16,6 +16,7 @@ New features:
 
 * Split the bottom bar into a tip area and a notification area, so keyboard guidance
   stays visible instead of being flushed by MIDI port messages
+  - The tips can be turned off in Settings, giving notifications the whole bar
 
 * Add an Attack control to Piano Synth V2
 

@@ -45,6 +45,7 @@ SettingsService::SettingsService()
   , m_midiSyncEnabled { Settings::midiSyncEnabled() }
   , m_waveViewEnabled { Settings::waveViewEnabled() }
   , m_patternPeekEnabled { Settings::patternPeekEnabled() }
+  , m_tipsEnabled { Settings::tipsEnabled() }
   , m_midiExportForceDrumChannel10 { Settings::midiExportForceDrumChannel10() }
   , m_midiExportAutoAssignChannels { Settings::midiExportAutoAssignChannels() }
   , m_playbackOversampleFactor { Settings::playbackOversampleFactor() }
@@ -290,6 +291,20 @@ void SettingsService::setPatternPeekEnabled(bool enabled)
         m_patternPeekEnabled = enabled;
         Settings::setPatternPeekEnabled(enabled);
         emit patternPeekEnabledChanged();
+    }
+}
+
+bool SettingsService::tipsEnabled() const
+{
+    return m_tipsEnabled;
+}
+
+void SettingsService::setTipsEnabled(bool enabled)
+{
+    if (m_tipsEnabled != enabled) {
+        m_tipsEnabled = enabled;
+        Settings::setTipsEnabled(enabled);
+        emit tipsEnabledChanged();
     }
 }
 

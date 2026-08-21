@@ -32,6 +32,10 @@ private slots:
     void test_patternPeekEnabled_sameValue_shouldNotEmitSignal();
     void test_patternPeekEnabled_externalChange_shouldNotAffectCachedValue();
 
+    void test_tipsEnabled_unset_shouldDefaultToEnabled();
+    void test_tipsEnabled_setter_shouldUpdateGetterAndEmitSignal();
+    void test_tipsEnabled_shouldPersistAcrossInstances();
+
     void test_getters_shouldBeServedFromMembers();
 
     void test_step_unset_shouldReturnDefault();

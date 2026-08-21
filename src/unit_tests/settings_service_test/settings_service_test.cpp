@@ -90,6 +90,37 @@ void SettingsServiceTest::test_patternPeekEnabled_externalChange_shouldNotAffect
     QCOMPARE(settingsService.patternPeekEnabled(), true);
 }
 
+void SettingsServiceTest::test_tipsEnabled_unset_shouldDefaultToEnabled()
+{
+    // The bottom bar tips are what a new user learns the keyboard from, so they are on until
+    // deliberately turned off.
+    QSettings {}.clear();
+
+    QCOMPARE(SettingsService {}.tipsEnabled(), true);
+}
+
+void SettingsServiceTest::test_tipsEnabled_setter_shouldUpdateGetterAndEmitSignal()
+{
+    SettingsService settingsService;
+    settingsService.setTipsEnabled(true);
+
+    QSignalSpy spy { &settingsService, &SettingsService::tipsEnabledChanged };
+    settingsService.setTipsEnabled(false);
+
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(settingsService.tipsEnabled(), false);
+
+    settingsService.setTipsEnabled(false);
+    QCOMPARE(spy.count(), 1);
+}
+
+void SettingsServiceTest::test_tipsEnabled_shouldPersistAcrossInstances()
+{
+    SettingsService {}.setTipsEnabled(false);
+
+    QCOMPARE(SettingsService {}.tipsEnabled(), false);
+}
+
 void SettingsServiceTest::test_getters_shouldBeServedFromMembers()
 {
     SettingsService settingsService;

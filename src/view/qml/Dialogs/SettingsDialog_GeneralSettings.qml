@@ -33,7 +33,7 @@ GroupBox {
             Layout.fillWidth: true
             GridLayout {
                 columns: 9
-                rows: 6
+                rows: 7
                 anchors.left: parent.left
                 anchors.right: parent.right
                 Label {
@@ -180,6 +180,26 @@ GroupBox {
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Automatically adjust the number of visible tracks/units based on window width")
+                }
+                Label {
+                    text: qsTr("Bottom Bar Tips:")
+                    Layout.column: 0
+                    Layout.columnSpan: 2
+                    Layout.row: 7
+                    Layout.fillWidth: true
+                }
+                CheckBox {
+                    id: tipsCheckBox
+                    Layout.column: 4
+                    Layout.columnSpan: 5
+                    Layout.row: 7
+                    Layout.fillWidth: true
+                    checked: settingsService.tipsEnabled
+                    onCheckedChanged: settingsService.setTipsEnabled(checked)
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Show keyboard tips in the left half of the bottom bar. When off, notifications use the whole bar")
                 }
             }
         }

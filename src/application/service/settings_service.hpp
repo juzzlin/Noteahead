@@ -40,6 +40,7 @@ class SettingsService : public QObject
     Q_PROPERTY(bool midiSyncEnabled READ midiSyncEnabled WRITE setMidiSyncEnabled NOTIFY midiSyncEnabledChanged)
     Q_PROPERTY(bool waveViewEnabled READ waveViewEnabled WRITE setWaveViewEnabled NOTIFY waveViewEnabledChanged)
     Q_PROPERTY(bool patternPeekEnabled READ patternPeekEnabled WRITE setPatternPeekEnabled NOTIFY patternPeekEnabledChanged)
+    Q_PROPERTY(bool tipsEnabled READ tipsEnabled WRITE setTipsEnabled NOTIFY tipsEnabledChanged)
     Q_PROPERTY(bool midiExportForceDrumChannel10 READ midiExportForceDrumChannel10 WRITE setMidiExportForceDrumChannel10 NOTIFY midiExportForceDrumChannel10Changed)
     Q_PROPERTY(bool midiExportAutoAssignChannels READ midiExportAutoAssignChannels WRITE setMidiExportAutoAssignChannels NOTIFY midiExportAutoAssignChannelsChanged)
     Q_PROPERTY(int playbackOversampleFactor READ playbackOversampleFactor WRITE setPlaybackOversampleFactor NOTIFY playbackOversampleFactorChanged)
@@ -105,6 +106,9 @@ public:
     virtual Q_INVOKABLE bool patternPeekEnabled() const;
     virtual Q_INVOKABLE void setPatternPeekEnabled(bool enabled);
 
+    virtual Q_INVOKABLE bool tipsEnabled() const;
+    virtual Q_INVOKABLE void setTipsEnabled(bool enabled);
+
     virtual Q_INVOKABLE bool midiExportForceDrumChannel10() const;
     virtual Q_INVOKABLE void setMidiExportForceDrumChannel10(bool enabled);
 
@@ -147,6 +151,7 @@ signals:
     void midiSyncEnabledChanged();
     void waveViewEnabledChanged();
     void patternPeekEnabledChanged();
+    void tipsEnabledChanged();
     void midiExportForceDrumChannel10Changed();
     void midiExportAutoAssignChannelsChanged();
     void playbackOversampleFactorChanged();
@@ -180,6 +185,7 @@ private:
     bool m_midiSyncEnabled;
     bool m_waveViewEnabled;
     bool m_patternPeekEnabled;
+    bool m_tipsEnabled;
 
     bool m_midiExportForceDrumChannel10;
     bool m_midiExportAutoAssignChannels;
