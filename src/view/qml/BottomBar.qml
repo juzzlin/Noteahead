@@ -81,9 +81,13 @@ Rectangle {
                 textFormat: Text.RichText
                 color: "white"
                 elide: Text.ElideRight
-                horizontalAlignment: Text.AlignLeft
+                horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
-                font.pixelSize: rootItem.height * 0.5
+                // Shrink to fit before eliding: half of a 1024 px window is not much, and a tip
+                // cut off mid-sentence teaches nothing.
+                font.pixelSize: rootItem.height * Constants.bottomBarFontScale
+                minimumPixelSize: Constants.bottomBarMinFontSize
+                fontSizeMode: Text.HorizontalFit
             }
         }
         Rectangle {
@@ -112,9 +116,11 @@ Rectangle {
                 text: rootItem._statusText
                 color: "white"
                 elide: Text.ElideRight
-                horizontalAlignment: Text.AlignRight
+                horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
-                font.pixelSize: rootItem.height * 0.5
+                font.pixelSize: rootItem.height * Constants.bottomBarFontScale
+                minimumPixelSize: Constants.bottomBarMinFontSize
+                fontSizeMode: Text.HorizontalFit
                 opacity: 1
                 // Messages emitted while playing are deliberately drained unseen: the visualizer
                 // covers this area, and holding them back would build a backlog that dumps all at

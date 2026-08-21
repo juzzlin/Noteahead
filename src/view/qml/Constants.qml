@@ -38,6 +38,9 @@ QtObject {
     readonly property double bottomBarTipAreaRatio: 0.5
     readonly property double bottomBarSeparatorOpacity: 0.15
     readonly property int bottomBarTextMargin: 10
+    // Both halves shrink their text to fit before eliding, down to this floor.
+    readonly property double bottomBarFontScale: 0.5
+    readonly property int bottomBarMinFontSize: 9
 
     // Anything shorter and the 88 keys are not worth clicking
     readonly property int minKeyboardHeight: 60
