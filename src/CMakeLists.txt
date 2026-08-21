@@ -246,9 +246,14 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/ToolBar/PlayerControls.qml
     ${QML_BASE_DIR}/ToolBar/Separator.qml
     ${QML_BASE_DIR}/ToolBar/ToolBarButtonBase.qml
-    ${QML_BASE_DIR}/TipService.qml
     ${QML_BASE_DIR}/UiService.qml
 )
+
+# pragma Singleton in the QML file is not enough on its own: without this property the type is
+# registered as an ordinary component, and every call on it fails at runtime with "is not a
+# function". UiService and Constants predate this and are declared the same way for consistency.
+set_source_files_properties(
+    PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
 
 set(HTML_SOURCE_FILES ${QML_BASE_DIR}/Manual.html)
 

@@ -91,6 +91,7 @@
 #include "service/settings_service.hpp"
 #include "service/side_chain_service.hpp"
 #include "service/theme_service.hpp"
+#include "service/tip_service.hpp"
 #include "service/util_service.hpp"
 #include "state_machine.hpp"
 #include "ui_logger.hpp"
@@ -117,6 +118,7 @@ Application::Application(int & argc, char ** argv)
   , m_applicationService { std::make_shared<ApplicationService>() }
   , m_settingsService { std::make_shared<SettingsService>() }
   , m_themeService { std::make_shared<ThemeService>() }
+  , m_tipService { std::make_shared<TipService>() }
   , m_manualService { std::make_shared<ManualService>(m_themeService) }
   , m_selectionService { std::make_shared<SelectionService>() }
   , m_utilService { std::make_shared<UtilService>() }
@@ -293,6 +295,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("selectionService", m_selectionService.get());
     m_engine->rootContext()->setContextProperty("settingsService", m_settingsService.get());
     m_engine->rootContext()->setContextProperty("themeService", m_themeService.get());
+    m_engine->rootContext()->setContextProperty("tipService", m_tipService.get());
     m_engine->rootContext()->setContextProperty("manualService", m_manualService.get());
     m_engine->rootContext()->setContextProperty("sideChainService", m_sideChainService.get());
     m_engine->rootContext()->setContextProperty("trackSettingsModel", m_trackSettingsModel.get());
@@ -436,6 +439,9 @@ void Application::connectJackService()
 
 void Application::connectApplicationService()
 {
+    connect(m_applicationService.get(), &ApplicationService::editModeChanged, m_tipService.get(), &TipService::setEditMode);
+    m_tipService->setEditMode(m_applicationService->editMode());
+
     connect(m_applicationService.get(), &ApplicationService::applyAllTrackSettingsRequested, this, &Application::applyAllInstruments);
     connect(m_applicationService.get(), &ApplicationService::liveNoteOnAtCurrentPositionRequested, [this](std::shared_ptr<Instrument> instrument) {
         if (const auto noteData = m_editorService->song()->noteDataAtPosition(m_editorService->position()); noteData && noteData->note().has_value() && instrument) {

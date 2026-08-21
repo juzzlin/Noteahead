@@ -77,7 +77,7 @@ Rectangle {
                 anchors.fill: parent
                 anchors.leftMargin: Constants.bottomBarTextMargin
                 anchors.rightMargin: Constants.bottomBarTextMargin
-                text: TipService.currentTip
+                text: tipService.currentTip
                 textFormat: Text.RichText
                 color: "white"
                 elide: Text.ElideRight

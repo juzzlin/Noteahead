@@ -81,6 +81,7 @@ class SettingsService;
 class SideChainService;
 class SynthController;
 class ThemeService;
+class TipService;
 class TrackSettingsModel;
 class UiLogger;
 class UtilService;
@@ -147,6 +148,7 @@ private:
 
     std::shared_ptr<SettingsService> m_settingsService;
     std::shared_ptr<ThemeService> m_themeService;
+    std::shared_ptr<TipService> m_tipService;
     std::shared_ptr<ManualService> m_manualService;
 
     std::shared_ptr<SelectionService> m_selectionService;
