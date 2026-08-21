@@ -36,9 +36,14 @@ Menu {
         text: qsTr("Recent files...")
         onTriggered: UiService.requestRecentFilesDialog()
     }
-    Action {
-        text: qsTr("Open example song")
-        onTriggered: applicationService.requestOpenExample()
+    MenuSeparator {}
+    Menu {
+        title: qsTr("Examples")
+        Action {
+            text: qsTr("Example Song 1")
+            onTriggered: applicationService.requestOpenExample()
+        }
+        delegate: MenuItemDelegate {}
     }
     MenuSeparator {}
     Action {
