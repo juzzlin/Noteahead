@@ -20,27 +20,38 @@ import ".."
 import "../Components"
 
 Menu {
+    id: rootItem
     title: qsTr("&File")
+    // Anything that replaces the current song is disabled while playing. The player worker runs in
+    // its own thread against the events and instruments of the song being replaced, so swapping it
+    // out mid-playback leaves notes hanging on devices that have already been reset. Saving and
+    // exporting stay available: they read the song rather than replace it.
+    readonly property bool _canReplaceSong: !UiService.isPlaying()
     Action {
         text: qsTr("New...")
         shortcut: "Ctrl+N"
+        enabled: rootItem._canReplaceSong
         onTriggered: applicationService.requestNewProject()
     }
     MenuSeparator {}
     Action {
         text: qsTr("Open...")
         shortcut: "Ctrl+O"
+        enabled: rootItem._canReplaceSong
         onTriggered: applicationService.requestOpenProject()
     }
     Action {
         text: qsTr("Recent files...")
+        enabled: rootItem._canReplaceSong
         onTriggered: UiService.requestRecentFilesDialog()
     }
     MenuSeparator {}
     Menu {
         title: qsTr("Examples")
+        enabled: rootItem._canReplaceSong
         Action {
             text: qsTr("Example Song 1")
+            enabled: rootItem._canReplaceSong
             onTriggered: applicationService.requestOpenExample()
         }
         delegate: MenuItemDelegate {}
@@ -70,6 +81,7 @@ Menu {
     Action {
         text: qsTr("Import MIDI file...")
         shortcut: "Ctrl+I"
+        enabled: rootItem._canReplaceSong
         onTriggered: applicationService.requestMidiImportDialog()
     }
     MenuSeparator {}

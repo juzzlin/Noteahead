@@ -34,6 +34,9 @@ New features:
 
 Bug fixes:
 
+* Disable New, Open, Recent files, Examples and MIDI import while playing: replacing
+  the song under a running playback left notes hanging on devices already reset
+
 * Start a render from a clean state: what a session had left in a device
   no longer carries into the export
 
