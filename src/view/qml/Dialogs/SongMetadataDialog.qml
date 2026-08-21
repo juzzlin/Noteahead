@@ -93,11 +93,10 @@ AnimatedDialog {
                     Label {
                         text: qsTr("Date")
                     }
-                    TextField {
+                    DateField {
                         Layout.fillWidth: true
                         text: editorService.songMetadataDate
-                        onTextEdited: editorService.songMetadataDate = text
-                        Keys.onReturnPressed: focus = false
+                        onEdited: text => editorService.songMetadataDate = text
                     }
                     Label {
                         text: qsTr("Genre")

@@ -5,14 +5,16 @@ Release date:
 
 New features:
 
-* Add song metadata: title, composer, artist and more, editable from Song > Metadata
+* Add song metadata: title, composer, artist, date, genre and comment, editable
+  from Song > Metadata
+  - The date can be picked from a calendar
   - The audio export tags are now separate and fall back on the song's metadata
     when left empty
   - The window title shows the song's title when it has one
 
 * Add song notes: free-form text saved inside the project file, from Song > Notes
 
-* Add a built-in example song, openable from File > Open example song
+* Add a built-in example song, openable from File > Examples
 
 * Split the bottom bar into a tip area and a notification area, so keyboard guidance
   stays visible instead of being flushed by MIDI port messages
