@@ -65,12 +65,24 @@ class EditorService : public QObject
     Q_PROPERTY(QString duration READ duration NOTIFY durationChanged)
 
     Q_PROPERTY(QString songMetadataTitle READ songMetadataTitle WRITE setSongMetadataTitle NOTIFY songMetadataChanged)
+    Q_PROPERTY(QString songMetadataComposer READ songMetadataComposer WRITE setSongMetadataComposer NOTIFY songMetadataChanged)
     Q_PROPERTY(QString songMetadataArtist READ songMetadataArtist WRITE setSongMetadataArtist NOTIFY songMetadataChanged)
     Q_PROPERTY(QString songMetadataAlbum READ songMetadataAlbum WRITE setSongMetadataAlbum NOTIFY songMetadataChanged)
     Q_PROPERTY(QString songMetadataDate READ songMetadataDate WRITE setSongMetadataDate NOTIFY songMetadataChanged)
     Q_PROPERTY(QString songMetadataComment READ songMetadataComment WRITE setSongMetadataComment NOTIFY songMetadataChanged)
     Q_PROPERTY(QString songMetadataGenre READ songMetadataGenre WRITE setSongMetadataGenre NOTIFY songMetadataChanged)
     Q_PROPERTY(QString songMetadataTrackNumber READ songMetadataTrackNumber WRITE setSongMetadataTrackNumber NOTIFY songMetadataChanged)
+
+    // The tags written into a rendered audio file. Separate from the song's own metadata above:
+    // these are empty by default and fall back on it, so the export dialog can show the song's
+    // values as placeholders and only store what the user deliberately types over.
+    Q_PROPERTY(QString exportMetadataTitle READ exportMetadataTitle WRITE setExportMetadataTitle NOTIFY exportMetadataChanged)
+    Q_PROPERTY(QString exportMetadataArtist READ exportMetadataArtist WRITE setExportMetadataArtist NOTIFY exportMetadataChanged)
+    Q_PROPERTY(QString exportMetadataAlbum READ exportMetadataAlbum WRITE setExportMetadataAlbum NOTIFY exportMetadataChanged)
+    Q_PROPERTY(QString exportMetadataDate READ exportMetadataDate WRITE setExportMetadataDate NOTIFY exportMetadataChanged)
+    Q_PROPERTY(QString exportMetadataComment READ exportMetadataComment WRITE setExportMetadataComment NOTIFY exportMetadataChanged)
+    Q_PROPERTY(QString exportMetadataGenre READ exportMetadataGenre WRITE setExportMetadataGenre NOTIFY exportMetadataChanged)
+    Q_PROPERTY(QString exportMetadataTrackNumber READ exportMetadataTrackNumber WRITE setExportMetadataTrackNumber NOTIFY exportMetadataChanged)
 
     Q_PROPERTY(bool hasColumnToPaste READ hasColumnToPaste NOTIFY copyManagerStateChanged)
     Q_PROPERTY(bool hasTrackToPaste READ hasTrackToPaste NOTIFY copyManagerStateChanged)
@@ -144,6 +156,8 @@ public:
 
     virtual Q_INVOKABLE QString songMetadataTitle() const;
     virtual Q_INVOKABLE void setSongMetadataTitle(const QString & title);
+    virtual Q_INVOKABLE QString songMetadataComposer() const;
+    virtual Q_INVOKABLE void setSongMetadataComposer(const QString & composer);
     virtual Q_INVOKABLE QString songMetadataArtist() const;
     virtual Q_INVOKABLE void setSongMetadataArtist(const QString & artist);
     virtual Q_INVOKABLE QString songMetadataAlbum() const;
@@ -156,6 +170,21 @@ public:
     virtual Q_INVOKABLE void setSongMetadataGenre(const QString & genre);
     virtual Q_INVOKABLE QString songMetadataTrackNumber() const;
     virtual Q_INVOKABLE void setSongMetadataTrackNumber(const QString & trackNumber);
+
+    virtual Q_INVOKABLE QString exportMetadataTitle() const;
+    virtual Q_INVOKABLE void setExportMetadataTitle(const QString & title);
+    virtual Q_INVOKABLE QString exportMetadataArtist() const;
+    virtual Q_INVOKABLE void setExportMetadataArtist(const QString & artist);
+    virtual Q_INVOKABLE QString exportMetadataAlbum() const;
+    virtual Q_INVOKABLE void setExportMetadataAlbum(const QString & album);
+    virtual Q_INVOKABLE QString exportMetadataDate() const;
+    virtual Q_INVOKABLE void setExportMetadataDate(const QString & date);
+    virtual Q_INVOKABLE QString exportMetadataComment() const;
+    virtual Q_INVOKABLE void setExportMetadataComment(const QString & comment);
+    virtual Q_INVOKABLE QString exportMetadataGenre() const;
+    virtual Q_INVOKABLE void setExportMetadataGenre(const QString & genre);
+    virtual Q_INVOKABLE QString exportMetadataTrackNumber() const;
+    virtual Q_INVOKABLE void setExportMetadataTrackNumber(const QString & trackNumber);
 
     virtual Q_INVOKABLE quint64 minLineCount() const;
     virtual Q_INVOKABLE quint64 maxLineCount() const;
@@ -388,6 +417,8 @@ signals:
     void durationChanged();
     void songMetadataChanged();
 
+    void exportMetadataChanged();
+
     void horizontalScrollChanged();
 
     void aboutToInitialize();
@@ -495,6 +526,9 @@ private:
 
     QString getTag(const QString & key) const;
     void setTag(const QString & key, const QString & value);
+
+    QString getExportTag(const QString & key) const;
+    void setExportTag(const QString & key, const QString & value);
 
     SongS m_song;
     std::unique_ptr<UndoStack> m_undoStack;

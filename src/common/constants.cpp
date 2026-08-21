@@ -795,6 +795,16 @@ QString xmlKeyComment()
     return "comment";
 }
 
+QString xmlKeyComposer()
+{
+    return "Composer";
+}
+
+QString xmlKeyExportTags()
+{
+    return "ExportTags";
+}
+
 QString xmlKeyMetadata()
 {
     return "Metadata";

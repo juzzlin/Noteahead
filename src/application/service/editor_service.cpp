@@ -486,11 +486,10 @@ quint64 EditorService::currentLineCount() const
 
 QString EditorService::getTag(const QString & key) const
 {
-    auto it = m_song->metadata().tags().find(key.toStdString());
-    if (it != m_song->metadata().tags().end()) {
+    if (const auto it = m_song->metadata().tags().find(key.toStdString()); it != m_song->metadata().tags().end()) {
         return QString::fromStdString(it->second);
     }
-    return QString();
+    return {};
 }
 
 void EditorService::setTag(const QString & key, const QString & value)
@@ -508,6 +507,16 @@ QString EditorService::songMetadataTitle() const
 void EditorService::setSongMetadataTitle(const QString & title)
 {
     setTag(Constants::NahdXml::xmlKeyTitle(), title);
+}
+
+QString EditorService::songMetadataComposer() const
+{
+    return getTag(Constants::NahdXml::xmlKeyComposer());
+}
+
+void EditorService::setSongMetadataComposer(const QString & composer)
+{
+    setTag(Constants::NahdXml::xmlKeyComposer(), composer);
 }
 
 QString EditorService::songMetadataArtist() const
@@ -568,6 +577,91 @@ QString EditorService::songMetadataTrackNumber() const
 void EditorService::setSongMetadataTrackNumber(const QString & trackNumber)
 {
     setTag(Constants::NahdXml::xmlKeyTrackNumber(), trackNumber);
+}
+
+QString EditorService::getExportTag(const QString & key) const
+{
+    if (const auto it = m_song->metadata().exportTags().find(key.toStdString()); it != m_song->metadata().exportTags().end()) {
+        return QString::fromStdString(it->second);
+    }
+    return {};
+}
+
+void EditorService::setExportTag(const QString & key, const QString & value)
+{
+    m_song->metadata().setExportTag(key.toStdString(), value.toStdString());
+    emit exportMetadataChanged();
+    setIsModified(true);
+}
+
+QString EditorService::exportMetadataTitle() const
+{
+    return getExportTag(Constants::NahdXml::xmlKeyTitle());
+}
+
+void EditorService::setExportMetadataTitle(const QString & title)
+{
+    setExportTag(Constants::NahdXml::xmlKeyTitle(), title);
+}
+
+QString EditorService::exportMetadataArtist() const
+{
+    return getExportTag(Constants::NahdXml::xmlKeyArtist());
+}
+
+void EditorService::setExportMetadataArtist(const QString & artist)
+{
+    setExportTag(Constants::NahdXml::xmlKeyArtist(), artist);
+}
+
+QString EditorService::exportMetadataAlbum() const
+{
+    return getExportTag(Constants::NahdXml::xmlKeyAlbum());
+}
+
+void EditorService::setExportMetadataAlbum(const QString & album)
+{
+    setExportTag(Constants::NahdXml::xmlKeyAlbum(), album);
+}
+
+QString EditorService::exportMetadataDate() const
+{
+    return getExportTag(Constants::NahdXml::xmlKeyDate());
+}
+
+void EditorService::setExportMetadataDate(const QString & date)
+{
+    setExportTag(Constants::NahdXml::xmlKeyDate(), date);
+}
+
+QString EditorService::exportMetadataComment() const
+{
+    return getExportTag(Constants::NahdXml::xmlKeyComment());
+}
+
+void EditorService::setExportMetadataComment(const QString & comment)
+{
+    setExportTag(Constants::NahdXml::xmlKeyComment(), comment);
+}
+
+QString EditorService::exportMetadataGenre() const
+{
+    return getExportTag(Constants::NahdXml::xmlKeyGenre());
+}
+
+void EditorService::setExportMetadataGenre(const QString & genre)
+{
+    setExportTag(Constants::NahdXml::xmlKeyGenre(), genre);
+}
+
+QString EditorService::exportMetadataTrackNumber() const
+{
+    return getExportTag(Constants::NahdXml::xmlKeyTrackNumber());
+}
+
+void EditorService::setExportMetadataTrackNumber(const QString & trackNumber)
+{
+    setExportTag(Constants::NahdXml::xmlKeyTrackNumber(), trackNumber);
 }
 
 void EditorService::clampCursorLine(quint64 oldLineCount, quint64 newLineCount)

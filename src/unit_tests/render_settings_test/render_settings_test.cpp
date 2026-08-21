@@ -126,6 +126,64 @@ void RenderSettingsTest::test_serialization_shouldRoundTripThroughMetadata()
     QCOMPARE(restored.tags().at(Constants::NahdXml::xmlKeyTitle().toStdString()), std::string { "A song" });
 }
 
+void RenderSettingsTest::test_exportTags_unset_shouldFallBackOnSongTags()
+{
+    Metadata metadata;
+    metadata.setTag(Constants::NahdXml::xmlKeyTitle().toStdString(), "A song");
+    metadata.setTag(Constants::NahdXml::xmlKeyArtist().toStdString(), "An artist");
+
+    // Nothing set for the export: the audio file gets the song's own metadata. This is what makes
+    // the split invisible to a project that predates it.
+    const auto effective = metadata.effectiveExportTags();
+    QCOMPARE(effective.at(Constants::NahdXml::xmlKeyTitle().toStdString()), std::string { "A song" });
+    QCOMPARE(effective.at(Constants::NahdXml::xmlKeyArtist().toStdString()), std::string { "An artist" });
+}
+
+void RenderSettingsTest::test_exportTags_set_shouldOverrideSongTags()
+{
+    Metadata metadata;
+    metadata.setTag(Constants::NahdXml::xmlKeyTitle().toStdString(), "A song");
+    metadata.setTag(Constants::NahdXml::xmlKeyArtist().toStdString(), "An artist");
+    metadata.setExportTag(Constants::NahdXml::xmlKeyTitle().toStdString(), "A different title");
+    // An export tag explicitly emptied must not shadow the song's, or clearing the field in the
+    // render dialog would silently drop the tag instead of returning to the fallback.
+    metadata.setExportTag(Constants::NahdXml::xmlKeyArtist().toStdString(), "");
+    metadata.setExportTag(Constants::NahdXml::xmlKeyAlbum().toStdString(), "An album");
+
+    const auto effective = metadata.effectiveExportTags();
+    QCOMPARE(effective.at(Constants::NahdXml::xmlKeyTitle().toStdString()), std::string { "A different title" });
+    QCOMPARE(effective.at(Constants::NahdXml::xmlKeyArtist().toStdString()), std::string { "An artist" });
+    QCOMPARE(effective.at(Constants::NahdXml::xmlKeyAlbum().toStdString()), std::string { "An album" });
+}
+
+void RenderSettingsTest::test_exportTags_empty_shouldNotBeSerialized()
+{
+    Metadata metadata;
+    metadata.setTag(Constants::NahdXml::xmlKeyTitle().toStdString(), "A song");
+
+    // A project that never touches the export tags must serialize exactly as it did before they
+    // existed.
+    const auto data = serialize(metadata);
+    QVERIFY(!data.contains("<" + Constants::NahdXml::xmlKeyExportTags().toUtf8()));
+}
+
+void RenderSettingsTest::test_exportTags_serialization_shouldRoundTrip()
+{
+    Metadata metadata;
+    metadata.setTag(Constants::NahdXml::xmlKeyTitle().toStdString(), "A song");
+    metadata.setTag(Constants::NahdXml::xmlKeyComposer().toStdString(), "A composer");
+    metadata.setExportTag(Constants::NahdXml::xmlKeyTitle().toStdString(), "A different title");
+
+    auto data = serialize(metadata);
+    const auto restored = deserialize(data);
+
+    QCOMPARE(restored.tags().at(Constants::NahdXml::xmlKeyTitle().toStdString()), std::string { "A song" });
+    QCOMPARE(restored.tags().at(Constants::NahdXml::xmlKeyComposer().toStdString()), std::string { "A composer" });
+    QCOMPARE(restored.exportTags().at(Constants::NahdXml::xmlKeyTitle().toStdString()), std::string { "A different title" });
+    QCOMPARE(restored.effectiveExportTags().at(Constants::NahdXml::xmlKeyTitle().toStdString()), std::string { "A different title" });
+    QCOMPARE(restored.effectiveExportTags().at(Constants::NahdXml::xmlKeyComposer().toStdString()), std::string { "A composer" });
+}
+
 void RenderSettingsTest::test_serialization_commaDecimalLocale_shouldRoundTrip()
 {
     // The reason every value here is an integer. Under a locale that writes decimals with a comma,

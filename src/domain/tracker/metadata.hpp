@@ -31,7 +31,15 @@ class Metadata
 public:
     Metadata() = default;
 
-    const std::map<std::string, std::string> & tags() const;
+    using TagMap = std::map<std::string, std::string>;
+
+    //! What the song is: title, composer, artist and so on. Edited in the song metadata dialog.
+    const TagMap & tags() const;
+
+    //! What the rendered audio file should claim. Separate from the song's own metadata so that
+    //! a file can be tagged differently from the piece, and empty by default: an unset export tag
+    //! falls back on the song's, which is what effectiveExportTags() resolves.
+    const TagMap & exportTags() const;
 
     //! How this song renders to audio. Kept here so that everything about a song that is not notes
     //! travels together, and so that Song needs no separate member for it.
@@ -39,13 +47,22 @@ public:
     RenderSettings & renderSettings();
     void setTag(const std::string & name, const std::string & value);
     void removeTag(const std::string & name);
+
+    void setExportTag(const std::string & name, const std::string & value);
+    void removeExportTag(const std::string & name);
+
+    //! The export tag where one is set, the song's own tag otherwise. This is what reaches the
+    //! audio file, and the only place the fallback rule lives.
+    TagMap effectiveExportTags() const;
+
     void clear();
 
     void serializeToXml(ProjectWriter & writer) const;
     void deserializeFromXml(ProjectReader & reader);
 
 private:
-    std::map<std::string, std::string> m_tags;
+    TagMap m_tags;
+    TagMap m_exportTags;
     RenderSettings m_renderSettings;
 };
 

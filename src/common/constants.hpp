@@ -309,6 +309,8 @@ QString xmlKeyValue0();
 QString xmlKeyValue1();
 QString xmlKeyCurve();
 QString xmlKeyComment();
+QString xmlKeyComposer();
+QString xmlKeyExportTags();
 QString xmlKeyMetadata();
 QString xmlKeyRenderSettings();
 QString xmlKeySongSettings();

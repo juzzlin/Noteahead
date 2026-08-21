@@ -583,6 +583,10 @@ ApplicationWindow {
         width: parent.width * Constants.defaultDialogScale
         height: parent.height * Constants.defaultDialogScale
     }
+    SongMetadataDialog {
+        id: songMetadataDialog
+        anchors.centerIn: parent
+    }
     SongSettingsDialog {
         id: songSettingsDialog
         anchors.centerIn: parent
@@ -965,6 +969,10 @@ ApplicationWindow {
         UiService.songSettingsDialogRequested.connect(() => {
             songSettingsDialog.initialize();
             songSettingsDialog.open();
+        });
+        UiService.songMetadataDialogRequested.connect(() => {
+            songMetadataDialog.initialize();
+            songMetadataDialog.open();
         });
         UiService.columnSettingsDialogRequested.connect((trackIndex, columnIndex) => {
             midiCcAutomationsModel.linesPerBeat = editorService.linesPerBeat;

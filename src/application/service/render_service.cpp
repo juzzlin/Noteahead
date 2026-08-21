@@ -275,7 +275,7 @@ void RenderService::startNextRender()
 
     const std::map<AudioFileReader::TagType, std::string> tags = [&song]() {
         std::map<AudioFileReader::TagType, std::string> t;
-        for (const auto & [key, value] : song->metadata().tags()) {
+        for (const auto & [key, value] : song->metadata().effectiveExportTags()) {
             if (key == Constants::NahdXml::xmlKeyTitle().toStdString())
                 t[AudioFileReader::TagType::Title] = value;
             else if (key == Constants::NahdXml::xmlKeyArtist().toStdString())

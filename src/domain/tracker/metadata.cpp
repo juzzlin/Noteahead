@@ -23,9 +23,14 @@
 
 namespace noteahead {
 
-const std::map<std::string, std::string> & Metadata::tags() const
+const Metadata::TagMap & Metadata::tags() const
 {
     return m_tags;
+}
+
+const Metadata::TagMap & Metadata::exportTags() const
+{
+    return m_exportTags;
 }
 
 const RenderSettings & Metadata::renderSettings() const
@@ -48,26 +53,80 @@ void Metadata::removeTag(const std::string & name)
     m_tags.erase(name);
 }
 
+void Metadata::setExportTag(const std::string & name, const std::string & value)
+{
+    m_exportTags[name] = value;
+}
+
+void Metadata::removeExportTag(const std::string & name)
+{
+    m_exportTags.erase(name);
+}
+
+Metadata::TagMap Metadata::effectiveExportTags() const
+{
+    // Start from the song's own metadata so that a song that has never been exported still tags
+    // its files sensibly, then let anything explicitly set for the export win.
+    auto effective = m_tags;
+    for (const auto & [name, value] : m_exportTags) {
+        if (!value.empty()) {
+            effective[name] = value;
+        }
+    }
+    std::erase_if(effective, [](const auto & tag) { return tag.second.empty(); });
+    return effective;
+}
+
 void Metadata::clear()
 {
     m_tags.clear();
+    m_exportTags.clear();
     m_renderSettings = RenderSettings {};
 }
+
+namespace {
+
+//! Writes a <Tags>/<ExportTags> block, or nothing at all when there is nothing to write, so that
+//! a project without export tags serializes exactly as it did before they existed.
+void writeTags(ProjectWriter & writer, const QString & elementName, const Metadata::TagMap & tags)
+{
+    if (tags.empty()) {
+        return;
+    }
+
+    writer.writeStartElement(elementName);
+    for (const auto & [name, value] : tags) {
+        writer.writeStartElement(Constants::NahdXml::xmlKeyTag());
+        writer.writeAttribute(Constants::NahdXml::xmlKeyName(), QString::fromStdString(name));
+        writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::fromStdString(value));
+        writer.writeEndElement(); // Tag
+    }
+    writer.writeEndElement();
+}
+
+//! Reads the <Tag> children of the currently open element into the given map.
+void readTags(ProjectReader & reader, const QString & elementName, Metadata::TagMap & tags)
+{
+    while (!(reader.isEndElement() && !reader.name().compare(elementName))) {
+        if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyTag())) {
+            const auto name = reader.attribute(Constants::NahdXml::xmlKeyName()).toString().toStdString();
+            const auto value = reader.attribute(Constants::NahdXml::xmlKeyValue()).toString().toStdString();
+            if (!name.empty()) {
+                tags[name] = value;
+            }
+        }
+        reader.readNext();
+    }
+}
+
+} // namespace
 
 void Metadata::serializeToXml(ProjectWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyMetadata());
 
-    if (!m_tags.empty()) {
-        writer.writeStartElement(Constants::NahdXml::xmlKeyTags());
-        for (const auto & [name, value] : m_tags) {
-            writer.writeStartElement(Constants::NahdXml::xmlKeyTag());
-            writer.writeAttribute(Constants::NahdXml::xmlKeyName(), QString::fromStdString(name));
-            writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::fromStdString(value));
-            writer.writeEndElement(); // Tag
-        }
-        writer.writeEndElement(); // Tags
-    }
+    writeTags(writer, Constants::NahdXml::xmlKeyTags(), m_tags);
+    writeTags(writer, Constants::NahdXml::xmlKeyExportTags(), m_exportTags);
 
     m_renderSettings.serializeToXml(writer);
 
@@ -83,17 +142,9 @@ void Metadata::deserializeFromXml(ProjectReader & reader)
         if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyRenderSettings())) {
             m_renderSettings.deserializeFromXml(reader);
         } else if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyTags())) {
-            // Read Tags
-            while (!(reader.isEndElement() && !reader.name().compare(Constants::NahdXml::xmlKeyTags()))) {
-                if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyTag())) {
-                    const auto name = reader.attribute(Constants::NahdXml::xmlKeyName()).toString().toStdString();
-                    const auto value = reader.attribute(Constants::NahdXml::xmlKeyValue()).toString().toStdString();
-                    if (!name.empty()) {
-                        setTag(name, value);
-                    }
-                }
-                reader.readNext();
-            }
+            readTags(reader, Constants::NahdXml::xmlKeyTags(), m_tags);
+        } else if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyExportTags())) {
+            readTags(reader, Constants::NahdXml::xmlKeyExportTags(), m_exportTags);
         }
         reader.readNext();
     }

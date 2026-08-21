@@ -43,6 +43,10 @@ Menu {
     }
     MenuSeparator {}
     Action {
+        text: qsTr("Metadata...")
+        onTriggered: UiService.requestSongMetadataDialog()
+    }
+    Action {
         text: qsTr("Settings...")
         onTriggered: UiService.requestSongSettingsDialog()
     }

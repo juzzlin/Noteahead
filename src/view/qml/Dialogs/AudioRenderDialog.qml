@@ -420,8 +420,9 @@ AnimatedDialog {
                     }
                     TextField {
                         Layout.fillWidth: true
-                        text: editorService.songMetadataTitle
-                        onTextEdited: editorService.songMetadataTitle = text
+                        text: editorService.exportMetadataTitle
+                        placeholderText: editorService.songMetadataTitle
+                        onTextEdited: editorService.exportMetadataTitle = text
                         Keys.onReturnPressed: focus = false
                     }
 
@@ -430,8 +431,9 @@ AnimatedDialog {
                     }
                     TextField {
                         Layout.fillWidth: true
-                        text: editorService.songMetadataArtist
-                        onTextEdited: editorService.songMetadataArtist = text
+                        text: editorService.exportMetadataArtist
+                        placeholderText: editorService.songMetadataArtist
+                        onTextEdited: editorService.exportMetadataArtist = text
                         Keys.onReturnPressed: focus = false
                     }
 
@@ -440,8 +442,9 @@ AnimatedDialog {
                     }
                     TextField {
                         Layout.fillWidth: true
-                        text: editorService.songMetadataAlbum
-                        onTextEdited: editorService.songMetadataAlbum = text
+                        text: editorService.exportMetadataAlbum
+                        placeholderText: editorService.songMetadataAlbum
+                        onTextEdited: editorService.exportMetadataAlbum = text
                         Keys.onReturnPressed: focus = false
                     }
 
@@ -450,8 +453,9 @@ AnimatedDialog {
                     }
                     TextField {
                         Layout.fillWidth: true
-                        text: editorService.songMetadataDate
-                        onTextEdited: editorService.songMetadataDate = text
+                        text: editorService.exportMetadataDate
+                        placeholderText: editorService.songMetadataDate
+                        onTextEdited: editorService.exportMetadataDate = text
                         Keys.onReturnPressed: focus = false
                     }
 
@@ -460,8 +464,9 @@ AnimatedDialog {
                     }
                     TextField {
                         Layout.fillWidth: true
-                        text: editorService.songMetadataGenre
-                        onTextEdited: editorService.songMetadataGenre = text
+                        text: editorService.exportMetadataGenre
+                        placeholderText: editorService.songMetadataGenre
+                        onTextEdited: editorService.exportMetadataGenre = text
                         Keys.onReturnPressed: focus = false
                     }
 
@@ -470,8 +475,9 @@ AnimatedDialog {
                     }
                     TextField {
                         Layout.fillWidth: true
-                        text: editorService.songMetadataTrackNumber
-                        onTextEdited: editorService.songMetadataTrackNumber = text
+                        text: editorService.exportMetadataTrackNumber
+                        placeholderText: editorService.songMetadataTrackNumber
+                        onTextEdited: editorService.exportMetadataTrackNumber = text
                         Keys.onReturnPressed: focus = false
                     }
 
@@ -481,8 +487,9 @@ AnimatedDialog {
                     TextField {
                         Layout.fillWidth: true
                         Layout.columnSpan: 5
-                        text: editorService.songMetadataComment
-                        onTextEdited: editorService.songMetadataComment = text
+                        text: editorService.exportMetadataComment
+                        placeholderText: editorService.songMetadataComment
+                        onTextEdited: editorService.exportMetadataComment = text
                         Keys.onReturnPressed: focus = false
                     }
                 }

@@ -5,6 +5,10 @@ Release date:
 
 New features:
 
+* Add song metadata: title, composer, artist and more, editable from Song > Metadata
+  - The audio export tags are now separate and fall back on the song's metadata
+    when left empty
+
 * Add an Attack control to Piano Synth V2
 
 * Add a Roundness control to the synth's oscillators, setting how gently a
