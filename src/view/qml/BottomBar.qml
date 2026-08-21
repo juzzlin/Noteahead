@@ -29,7 +29,6 @@ Rectangle {
     property var _statusQueue: []
     property bool _isDisplaying: false
     property string _tag: "BottomBar"
-    readonly property string _tipText: qsTr("Press <b>ESC</b> to edit, <b>SPACE</b> to play, letter keys are notes")
     function setStatusText(text: string): void {
         uiLogger.debug(_tag, `Pushing new text '${text}'`);
         _statusQueue.push(text);
@@ -76,7 +75,7 @@ Rectangle {
                 anchors.fill: parent
                 anchors.leftMargin: Constants.bottomBarTextMargin
                 anchors.rightMargin: Constants.bottomBarTextMargin
-                text: rootItem._tipText
+                text: TipService.currentTip
                 textFormat: Text.RichText
                 color: "white"
                 elide: Text.ElideRight

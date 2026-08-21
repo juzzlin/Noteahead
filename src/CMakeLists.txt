@@ -246,6 +246,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/ToolBar/PlayerControls.qml
     ${QML_BASE_DIR}/ToolBar/Separator.qml
     ${QML_BASE_DIR}/ToolBar/ToolBarButtonBase.qml
+    ${QML_BASE_DIR}/TipService.qml
     ${QML_BASE_DIR}/UiService.qml
 )
 
