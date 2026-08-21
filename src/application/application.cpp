@@ -971,6 +971,16 @@ void Application::applyState(StateMachine::State state)
         m_trackSettingsModel->reset();
         m_editorService->initialize();
         break;
+    case StateMachine::State::OpenExample:
+        try {
+            m_automationService->clear();
+            m_trackSettingsModel->reset();
+            m_editorService->loadExample();
+            m_stateMachine->calculateState(StateMachine::Action::ProjectOpened);
+        } catch (...) {
+            m_stateMachine->calculateState(StateMachine::Action::OpeningProjectFailed);
+        }
+        break;
     case StateMachine::State::OpenRecent:
         try {
             const auto filePath = m_recentFilesManager->selectedFile();

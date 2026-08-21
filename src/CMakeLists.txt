@@ -256,6 +256,11 @@ set(HTML_SOURCE_FILES ${QML_BASE_DIR}/Manual.html)
 set(CHANGELOG_FILE ${CMAKE_SOURCE_DIR}/CHANGELOG)
 set_source_files_properties(${CHANGELOG_FILE} PROPERTIES QT_RESOURCE_ALIAS CHANGELOG)
 
+# The example song, embedded so that it is always available from the File menu. Aliased for the
+# same reason as the CHANGELOG: it is opened from C++ by absolute resource path.
+set(EXAMPLE_SONG_FILE ${CMAKE_SOURCE_DIR}/examples/songs/Example.nahd)
+set_source_files_properties(${EXAMPLE_SONG_FILE} PROPERTIES QT_RESOURCE_ALIAS examples/Example.nahd)
+
 set(PNG_SOURCE_FILES
     ${QML_BASE_DIR}/Graphics/add_box.png
     ${QML_BASE_DIR}/Graphics/alert.png
@@ -304,6 +309,12 @@ add_subdirectory(view)
 qt_add_resources(${ApplicationLibName} "changelog"
     PREFIX "/"
     FILES ${CHANGELOG_FILE}
+)
+
+# Same reasoning as the CHANGELOG above: a prefix we choose, hanging off the library that reads it.
+qt_add_resources(${ApplicationLibName} "examples"
+    PREFIX "/"
+    FILES ${EXAMPLE_SONG_FILE}
 )
 
 target_include_directories(${BINARY_NAME} PRIVATE contrib/SimpleLogger/src)

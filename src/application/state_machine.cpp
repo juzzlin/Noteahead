@@ -77,6 +77,9 @@ void StateMachine::calculateState(StateMachine::Action action)
         case QuitType::OpenRecent:
             m_state = State::OpenRecent;
             break;
+        case QuitType::OpenExample:
+            m_state = State::OpenExample;
+            break;
         default:
             m_state = State::Edit;
             break;
@@ -93,6 +96,15 @@ void StateMachine::calculateState(StateMachine::Action action)
     case Action::UnsavedChangesDialogCanceled:
         m_quitType = QuitType::None;
         m_state = State::Edit;
+        break;
+
+    case Action::OpenExampleRequested:
+        m_quitType = QuitType::OpenExample;
+        if (m_editorService->isModified()) {
+            m_state = State::ShowUnsavedChangesDialog;
+        } else {
+            m_state = State::OpenExample;
+        }
         break;
 
     case Action::OpenProjectRequested:
@@ -155,6 +167,7 @@ QString StateMachine::stateToString(State state)
         { State::Exit, "Exit" },
         { State::Init, "Init" },
         { State::InitializeNewProject, "InitializeNewProject" },
+        { State::OpenExample, "OpenExample" },
         { State::OpenRecent, "OpenRecent" },
         { State::Save, "Save" },
         { State::ShowRecentFilesDialog, "ShowRecentFilesDialog" },

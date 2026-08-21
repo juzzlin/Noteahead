@@ -41,6 +41,7 @@ public:
         Exit,
         Init,
         InitializeNewProject,
+        OpenExample,
         OpenRecent,
         Save,
         ShowRecentFilesDialog,
@@ -61,6 +62,7 @@ public:
         UnsavedChangesDialogAccepted,
         UnsavedChangesDialogCanceled,
         UnsavedChangesDialogDiscarded,
+        OpenExampleRequested,
         OpenProjectRequested,
         OpeningProjectCanceled,
         OpeningProjectFailed,
@@ -83,6 +85,7 @@ public:
         None,
         New,
         Open,
+        OpenExample,
         OpenRecent,
         Close
     };

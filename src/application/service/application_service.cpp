@@ -240,6 +240,12 @@ void ApplicationService::requestOpenProject()
     m_stateMachine->calculateState(StateMachine::Action::OpenProjectRequested);
 }
 
+void ApplicationService::requestOpenExample()
+{
+    juzzlin::L(TAG).info() << "'Open example song' requested";
+    m_stateMachine->calculateState(StateMachine::Action::OpenExampleRequested);
+}
+
 void ApplicationService::requestQuit()
 {
     juzzlin::L(TAG).info() << "Quit requested";

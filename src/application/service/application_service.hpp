@@ -127,6 +127,7 @@ public:
 
     Q_INVOKABLE void requestNewProject();
     Q_INVOKABLE void requestOpenProject();
+    Q_INVOKABLE void requestOpenExample();
     Q_INVOKABLE void requestQuit();
 
     Q_INVOKABLE void requestRecentFilesDialog();

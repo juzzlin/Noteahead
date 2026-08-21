@@ -322,6 +322,29 @@ void EditorService::load(QString fileName)
     }
 }
 
+void EditorService::loadExample()
+{
+    const auto resourcePath = Constants::exampleSongPath();
+    QFile file { resourcePath };
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        throw std::runtime_error("Failed to open the example song: " + resourcePath.toStdString());
+    }
+
+    fromXml(file.readAll());
+
+    // Deliberately no setFileName() and no projectPathChanged(): the song stays unnamed. QFile
+    // reports a resource path as existing, so leaving it as the file name would let canBeSaved()
+    // send Save straight into a file that cannot be written.
+    m_song->setFileName({});
+    setIsModified(false);
+
+    const auto message = tr("Example song loaded");
+    juzzlin::L(TAG).info() << message.toStdString();
+    emit statusTextRequested(message);
+    emit canBeSavedChanged();
+    emit currentFileNameChanged();
+}
+
 QString EditorService::toXml()
 {
     QString xml;

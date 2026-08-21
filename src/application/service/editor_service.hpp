@@ -130,6 +130,11 @@ public:
     }
 
     void load(QString fileName);
+
+    //! Loads the embedded example song as an unnamed project: it has no file of its own to be
+    //! saved back to, so Save has to fall through to Save As rather than trying to write into a
+    //! read-only resource.
+    void loadExample();
     void save();
     void saveAs(QString fileName);
     void saveAsTemplate(QString fileName);

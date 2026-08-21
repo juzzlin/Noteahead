@@ -22,6 +22,11 @@ QString applicationName()
     return "Noteahead";
 }
 
+QString exampleSongPath()
+{
+    return ":/examples/Example.nahd";
+}
+
 QString applicationVersion()
 {
     return VERSION;

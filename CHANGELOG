@@ -12,6 +12,8 @@ New features:
 
 * Add song notes: free-form text saved inside the project file, from Song > Notes
 
+* Add a built-in example song, openable from File > Open example song
+
 * Add an Attack control to Piano Synth V2
 
 * Add a Roundness control to the synth's oscillators, setting how gently a

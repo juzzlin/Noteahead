@@ -26,6 +26,9 @@ namespace noteahead::Constants {
 using namespace std::chrono_literals;
 
 QString applicationName();
+
+//! Resource path of the example song embedded in the binary.
+QString exampleSongPath();
 QString applicationVersion();
 
 QString copyright();
