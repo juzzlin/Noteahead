@@ -52,10 +52,9 @@ div.header-downloads {
 
 div.image-container {
     position: relative;
-    display: flex;
-    justify-content: center;
     width: 100%;
-    height: auto;
+    /* Tallest screenshot's ratio, so a shot never resizes the page as it fades in. */
+    aspect-ratio: 1841 / 1260;
     margin-top: 25px;
 }
 
@@ -63,12 +62,19 @@ div.features {
     margin-top: 25px;
 }
 
+p.tagline {
+    font-weight: 400;
+    line-height: 1.6;
+    margin-top: 25px;
+    margin-bottom: 0;
+}
+
 img#animation-image-1, img#animation-image-2  {
     position: absolute;
-    top: 0;
-    left: 0;
+    inset: 0;
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: contain;
 }
 
 img#animation-image-1 {
@@ -79,13 +85,6 @@ img#animation-image-1 {
 img#animation-image-2 {
     z-index: 10000;
     opacity: 1;
-}
-
-img#animation-image-dummy {
-    opacity: 0;
-    display: inline-block;
-    width: 100%;
-    height: auto;
 }
 
 img.fade-in {
