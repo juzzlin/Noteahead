@@ -587,6 +587,10 @@ ApplicationWindow {
         id: songMetadataDialog
         anchors.centerIn: parent
     }
+    SongNotesDialog {
+        id: songNotesDialog
+        anchors.centerIn: parent
+    }
     SongSettingsDialog {
         id: songSettingsDialog
         anchors.centerIn: parent
@@ -974,6 +978,10 @@ ApplicationWindow {
         UiService.songMetadataDialogRequested.connect(() => {
             songMetadataDialog.initialize();
             songMetadataDialog.open();
+        });
+        UiService.songNotesDialogRequested.connect(() => {
+            songNotesDialog.initialize();
+            songNotesDialog.open();
         });
         UiService.columnSettingsDialogRequested.connect((trackIndex, columnIndex) => {
             midiCcAutomationsModel.linesPerBeat = editorService.linesPerBeat;

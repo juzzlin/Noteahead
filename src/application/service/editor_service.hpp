@@ -76,6 +76,10 @@ class EditorService : public QObject
     // The tags written into a rendered audio file. Separate from the song's own metadata above:
     // these are empty by default and fall back on it, so the export dialog can show the song's
     // values as placeholders and only store what the user deliberately types over.
+    // A notifier of its own rather than songMetadataChanged: a TextArea bound to a property that
+    // every metadata edit notifies would be reset under the user's cursor.
+    Q_PROPERTY(QString songNotes READ songNotes WRITE setSongNotes NOTIFY songNotesChanged)
+
     Q_PROPERTY(QString exportMetadataTitle READ exportMetadataTitle WRITE setExportMetadataTitle NOTIFY exportMetadataChanged)
     Q_PROPERTY(QString exportMetadataArtist READ exportMetadataArtist WRITE setExportMetadataArtist NOTIFY exportMetadataChanged)
     Q_PROPERTY(QString exportMetadataAlbum READ exportMetadataAlbum WRITE setExportMetadataAlbum NOTIFY exportMetadataChanged)
@@ -170,6 +174,9 @@ public:
     virtual Q_INVOKABLE void setSongMetadataGenre(const QString & genre);
     virtual Q_INVOKABLE QString songMetadataTrackNumber() const;
     virtual Q_INVOKABLE void setSongMetadataTrackNumber(const QString & trackNumber);
+
+    virtual Q_INVOKABLE QString songNotes() const;
+    virtual Q_INVOKABLE void setSongNotes(const QString & notes);
 
     virtual Q_INVOKABLE QString exportMetadataTitle() const;
     virtual Q_INVOKABLE void setExportMetadataTitle(const QString & title);
@@ -418,6 +425,8 @@ signals:
     void songMetadataChanged();
 
     void exportMetadataChanged();
+
+    void songNotesChanged();
 
     void horizontalScrollChanged();
 

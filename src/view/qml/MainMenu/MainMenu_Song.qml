@@ -47,6 +47,10 @@ Menu {
         onTriggered: UiService.requestSongMetadataDialog()
     }
     Action {
+        text: qsTr("Notes...")
+        onTriggered: UiService.requestSongNotesDialog()
+    }
+    Action {
         text: qsTr("Settings...")
         onTriggered: UiService.requestSongSettingsDialog()
     }

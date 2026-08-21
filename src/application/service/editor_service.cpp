@@ -579,6 +579,20 @@ void EditorService::setSongMetadataTrackNumber(const QString & trackNumber)
     setTag(Constants::NahdXml::xmlKeyTrackNumber(), trackNumber);
 }
 
+QString EditorService::songNotes() const
+{
+    return QString::fromStdString(m_song->metadata().notes());
+}
+
+void EditorService::setSongNotes(const QString & notes)
+{
+    if (m_song->metadata().notes() != notes.toStdString()) {
+        m_song->metadata().setNotes(notes.toStdString());
+        emit songNotesChanged();
+        setIsModified(true);
+    }
+}
+
 QString EditorService::getExportTag(const QString & key) const
 {
     if (const auto it = m_song->metadata().exportTags().find(key.toStdString()); it != m_song->metadata().exportTags().end()) {

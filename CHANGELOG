@@ -10,6 +10,8 @@ New features:
     when left empty
   - The window title shows the song's title when it has one
 
+* Add song notes: free-form text saved inside the project file, from Song > Notes
+
 * Add an Attack control to Piano Synth V2
 
 * Add a Roundness control to the synth's oscillators, setting how gently a

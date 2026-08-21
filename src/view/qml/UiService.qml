@@ -74,6 +74,7 @@ QtObject {
     signal selectionVelocityInterpolationDialogRequested
     signal settingsDialogRequested
     signal songMetadataDialogRequested
+    signal songNotesDialogRequested
     signal songSettingsDialogRequested
     signal shortcutsDialogRequested
     signal whatsNewDialogRequested
@@ -250,6 +251,9 @@ QtObject {
     }
     function requestSongMetadataDialog(): void {
         songMetadataDialogRequested();
+    }
+    function requestSongNotesDialog(): void {
+        songNotesDialogRequested();
     }
     function requestColumnSettingsDialog(trackIndex, columnIndex): void {
         columnSettingsDialogRequested(trackIndex, columnIndex);

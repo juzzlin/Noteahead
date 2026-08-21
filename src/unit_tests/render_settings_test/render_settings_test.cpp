@@ -184,6 +184,57 @@ void RenderSettingsTest::test_exportTags_serialization_shouldRoundTrip()
     QCOMPARE(restored.effectiveExportTags().at(Constants::NahdXml::xmlKeyComposer().toStdString()), std::string { "A composer" });
 }
 
+void RenderSettingsTest::test_notes_empty_shouldNotBeSerialized()
+{
+    Metadata metadata;
+    metadata.setTag(Constants::NahdXml::xmlKeyTitle().toStdString(), "A song");
+
+    const auto data = serialize(metadata);
+    QVERIFY(!data.contains("<" + Constants::NahdXml::xmlKeyNotes().toUtf8()));
+}
+
+void RenderSettingsTest::test_notes_multiLine_shouldRoundTrip()
+{
+    // The reason notes are element text and not a tag attribute: newlines have to survive, and
+    // auto-formatting must not indent them into something else.
+    const std::string notes = "Bassline needs a rewrite in pattern 4.\n\nAsk about the outro.\n  Indented line.";
+    Metadata metadata;
+    metadata.setNotes(notes);
+
+    auto data = serialize(metadata);
+    const auto restored = deserialize(data);
+
+    QCOMPARE(restored.notes(), notes);
+}
+
+void RenderSettingsTest::test_notes_xmlHostileCharacters_shouldRoundTrip()
+{
+    const std::string notes = R"(Fix <Track 3> & the "pad" -- it's 100% too loud)";
+    Metadata metadata;
+    metadata.setNotes(notes);
+
+    auto data = serialize(metadata);
+    const auto restored = deserialize(data);
+
+    QCOMPARE(restored.notes(), notes);
+}
+
+void RenderSettingsTest::test_clear_shouldResetEverything()
+{
+    Metadata metadata;
+    metadata.setTag(Constants::NahdXml::xmlKeyTitle().toStdString(), "A song");
+    metadata.setExportTag(Constants::NahdXml::xmlKeyTitle().toStdString(), "A different title");
+    metadata.setNotes("Some notes");
+    metadata.renderSettings().setSampleRate(96000);
+
+    metadata.clear();
+
+    QVERIFY(metadata.tags().empty());
+    QVERIFY(metadata.exportTags().empty());
+    QVERIFY(metadata.notes().empty());
+    QCOMPARE(metadata.renderSettings().sampleRate(), RenderSettings {}.sampleRate());
+}
+
 void RenderSettingsTest::test_serialization_commaDecimalLocale_shouldRoundTrip()
 {
     // The reason every value here is an integer. Under a locale that writes decimals with a comma,

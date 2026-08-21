@@ -41,6 +41,11 @@ public:
     //! falls back on the song's, which is what effectiveExportTags() resolves.
     const TagMap & exportTags() const;
 
+    //! Free-form text the user keeps with the song. Multi-line, so it is serialized as element
+    //! text rather than as a tag, and it never reaches an audio file.
+    const std::string & notes() const;
+    void setNotes(const std::string & notes);
+
     //! How this song renders to audio. Kept here so that everything about a song that is not notes
     //! travels together, and so that Song needs no separate member for it.
     const RenderSettings & renderSettings() const;
@@ -63,6 +68,7 @@ public:
 private:
     TagMap m_tags;
     TagMap m_exportTags;
+    std::string m_notes;
     RenderSettings m_renderSettings;
 };
 

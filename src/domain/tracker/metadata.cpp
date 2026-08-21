@@ -33,6 +33,16 @@ const Metadata::TagMap & Metadata::exportTags() const
     return m_exportTags;
 }
 
+const std::string & Metadata::notes() const
+{
+    return m_notes;
+}
+
+void Metadata::setNotes(const std::string & notes)
+{
+    m_notes = notes;
+}
+
 const RenderSettings & Metadata::renderSettings() const
 {
     return m_renderSettings;
@@ -81,6 +91,7 @@ void Metadata::clear()
 {
     m_tags.clear();
     m_exportTags.clear();
+    m_notes.clear();
     m_renderSettings = RenderSettings {};
 }
 
@@ -128,6 +139,13 @@ void Metadata::serializeToXml(ProjectWriter & writer) const
     writeTags(writer, Constants::NahdXml::xmlKeyTags(), m_tags);
     writeTags(writer, Constants::NahdXml::xmlKeyExportTags(), m_exportTags);
 
+    // Omitted entirely when empty, so a project without notes serializes as it always did.
+    if (!m_notes.empty()) {
+        writer.writeStartElement(Constants::NahdXml::xmlKeyNotes());
+        writer.writeCharacters(QString::fromStdString(m_notes));
+        writer.writeEndElement(); // Notes
+    }
+
     m_renderSettings.serializeToXml(writer);
 
     writer.writeEndElement(); // Metadata
@@ -145,6 +163,11 @@ void Metadata::deserializeFromXml(ProjectReader & reader)
             readTags(reader, Constants::NahdXml::xmlKeyTags(), m_tags);
         } else if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyExportTags())) {
             readTags(reader, Constants::NahdXml::xmlKeyExportTags(), m_exportTags);
+        } else if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyNotes())) {
+            // Element text rather than an attribute, so that newlines survive verbatim.
+            // readElementText() leaves the reader on </Notes>, which the readNext() below steps
+            // past like any other token.
+            m_notes = reader.readElementText().toStdString();
         }
         reader.readNext();
     }

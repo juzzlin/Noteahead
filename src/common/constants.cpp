@@ -805,6 +805,11 @@ QString xmlKeyExportTags()
     return "ExportTags";
 }
 
+QString xmlKeyNotes()
+{
+    return "Notes";
+}
+
 QString xmlKeyMetadata()
 {
     return "Metadata";

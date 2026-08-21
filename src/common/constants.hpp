@@ -312,6 +312,7 @@ QString xmlKeyComment();
 QString xmlKeyComposer();
 QString xmlKeyExportTags();
 QString xmlKeyMetadata();
+QString xmlKeyNotes();
 QString xmlKeyRenderSettings();
 QString xmlKeySongSettings();
 QString xmlKeyFormat();
