@@ -9,7 +9,7 @@ It is also a complete studio. Ten internal instruments, a virtual device rack wi
 Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It builds with CMake and uses CTest + Qt Test framework for unit tests.
 
 <table>
-  <tr><td colspan="4"><img src="/screenshots/3.1.0/Noteahead.png" width="100%"></td></tr>
+  <tr><td colspan="4"><img src="/screenshots/7.0.0/Noteahead.png" width="100%"></td></tr>
   <tr>
     <td><img src="/screenshots/3.1.0/Synth.png" width="100%"></td>
     <td><img src="/screenshots/3.1.0/BassSynth.png" width="100%"></td>
@@ -25,7 +25,7 @@ Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It bui
   <tr>
     <td><img src="/screenshots/6.0.0/DeviceRack.png" width="100%"></td>
     <td><img src="/screenshots/3.1.0/EffectRack.png" width="100%"></td>
-    <td><img src="/screenshots/0.6.0/Noteahead_1.png" width="100%"></td>
+    <td><img src="/screenshots/7.0.0/Mixer.png" width="100%"></td>
     <td><img src="/screenshots/0.6.0/Noteahead_3.png" width="100%"></td>
   </tr>
   <tr>
