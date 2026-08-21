@@ -69,6 +69,8 @@ Bug fixes:
 
 Other:
 
+* Drop the Flatpak build: the manifest and the Flatter workflow are gone
+
 7.0.0
 =====
 

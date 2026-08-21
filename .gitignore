@@ -34,11 +34,6 @@
 build*
 *.user
 
-# Flatpak
-.flatpak
-.flatpak-builder
-build-dir
-
 # VS Code
 .vscode
 
