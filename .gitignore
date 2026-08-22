@@ -31,8 +31,13 @@
 *.out
 *.app
 
-build*
+/build*
 *.user
+
+# AppImage
+AppDir
+.appimage-tools
+*.AppImage
 
 # VS Code
 .vscode

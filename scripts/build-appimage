@@ -1,0 +1,193 @@
+#!/bin/bash
+
+# Builds a self-contained AppImage of Noteahead.
+# Must be run in the project root.
+#
+# The AppImage is built against the distribution's own Qt on purpose. The
+# official upstream Qt binaries for 6.8 and 6.9 are themselves built on Ubuntu
+# 24.04 with glibc 2.39, so reaching for a newer Qt would raise the AppImage's
+# glibc floor rather than lower it.
+
+set -e
+
+BUILD_DIR=${BUILD_DIR:-build-appimage}
+APPDIR=${APPDIR:-AppDir}
+TOOLS_DIR=${TOOLS_DIR:-.appimage-tools}
+export ARCH=${ARCH:-$(uname -m)}
+
+if [[ ! -f CMakeLists.txt ]]; then
+    echo "$0: must be run in the project root"
+    exit 1
+fi
+
+VERSION_MAJOR=$(sed -n 's/^set(VERSION_MAJOR \([0-9]*\))/\1/p' CMakeLists.txt)
+VERSION_MINOR=$(sed -n 's/^set(VERSION_MINOR \([0-9]*\))/\1/p' CMakeLists.txt)
+VERSION_PATCH=$(sed -n 's/^set(VERSION_PATCH \([0-9]*\))/\1/p' CMakeLists.txt)
+VERSION="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}"
+APPIMAGE="Noteahead-${VERSION}-${ARCH}.AppImage"
+
+# Libraries that must come from the host rather than from the AppImage. A JACK
+# client library has to match the server it talks to, so the bundled copy is
+# only ever a fallback for hosts that have no JACK at all -- without it the
+# binary would not even load there, JACK being linked directly.
+FALLBACK_LIBRARIES=(
+    libjack.so.0
+)
+
+# The GLib family is versioned as one unit and its util-linux dependencies come
+# with it (gio -> mount -> blkid -> uuid). Bundling any of them next to newer
+# host libraries that link GLib breaks those with unresolved symbols, so the
+# host's copies must be used throughout.
+SYSTEM_LIBRARIES=(
+    libglib-2.0.so.0
+    libgio-2.0.so.0
+    libgobject-2.0.so.0
+    libgmodule-2.0.so.0
+    libgthread-2.0.so.0
+    libmount.so.1
+    libblkid.so.1
+    libuuid.so.1
+)
+
+# Plugins that the Qt import scanner does not find on its own.
+ADDITIONAL_QT_PLUGINS=(
+    platformthemes/libqgtk3.so
+    wayland-decoration-client
+    wayland-graphics-integration-client
+    wayland-shell-integration
+)
+
+echo "Building Noteahead ${VERSION} AppImage for ${ARCH} .."
+
+##############################################################################
+# Fetch the AppImage tooling
+##############################################################################
+
+mkdir -p "${TOOLS_DIR}"
+TOOLS_DIR=$(cd "${TOOLS_DIR}" && pwd)
+
+for tool in linuxdeploy linuxdeploy-plugin-qt appimagetool; do
+    if [[ ! -x "${TOOLS_DIR}/${tool}" ]]; then
+        case ${tool} in
+            appimagetool) repo="AppImage/appimagetool" ;;
+            *)            repo="linuxdeploy/${tool}" ;;
+        esac
+        echo "Downloading ${tool} .."
+        curl -sSfL -o "${TOOLS_DIR}/${tool}" \
+            "https://github.com/${repo}/releases/download/continuous/${tool}-${ARCH}.AppImage"
+        chmod +x "${TOOLS_DIR}/${tool}"
+    fi
+done
+
+# --appimage-extract-and-run keeps the tools working in containers without FUSE.
+linuxdeploy() { "${TOOLS_DIR}/linuxdeploy" --appimage-extract-and-run "$@"; }
+appimagetool() { "${TOOLS_DIR}/appimagetool" --appimage-extract-and-run "$@"; }
+
+##############################################################################
+# Build and install into the AppDir
+##############################################################################
+
+cmake -B "${BUILD_DIR}" -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF
+cmake --build "${BUILD_DIR}"
+
+rm -rf "${APPDIR}"
+cmake --install "${BUILD_DIR}" --prefix "${APPDIR}/usr"
+
+##############################################################################
+# Bundle the dependencies
+##############################################################################
+
+QMAKE=${QMAKE:-$(command -v qmake6 || command -v qmake || true)}
+if [[ -z ${QMAKE} ]]; then
+    echo "$0: cannot find qmake6, install qt6-base-dev"
+    exit 1
+fi
+export QMAKE
+QT_PLUGIN_DIR=$("${QMAKE}" -query QT_INSTALL_PLUGINS)
+
+# The QML lives in the binary's resources, so the import scanner has to be
+# pointed at the sources instead.
+export QML_SOURCES_PATHS="${PWD}/src/view/qml"
+export PATH="${TOOLS_DIR}:${PATH}"
+
+# Wayland is worth having but not worth failing over: without qt6-wayland the
+# AppImage still runs everywhere through XWayland.
+EXTRA_PLATFORM_PLUGINS="libqoffscreen.so"
+if [[ -f "${QT_PLUGIN_DIR}/platforms/libqwayland.so" ]]; then
+    EXTRA_PLATFORM_PLUGINS="${EXTRA_PLATFORM_PLUGINS};libqwayland.so"
+else
+    echo "Warning: qt6-wayland is not installed, the AppImage will be X11 only."
+fi
+export EXTRA_PLATFORM_PLUGINS
+
+linuxdeploy \
+    --appdir "${APPDIR}" \
+    --desktop-file "${APPDIR}/usr/share/applications/noteahead.desktop" \
+    --icon-file "${APPDIR}/usr/share/icons/hicolor/256x256/apps/noteahead.png" \
+    --plugin qt
+
+for plugin in "${ADDITIONAL_QT_PLUGINS[@]}"; do
+    if [[ -e "${QT_PLUGIN_DIR}/${plugin}" ]]; then
+        mkdir -p "${APPDIR}/usr/plugins/$(dirname "${plugin}")"
+        cp -Lr "${QT_PLUGIN_DIR}/${plugin}" "${APPDIR}/usr/plugins/${plugin}"
+    else
+        echo "Warning: Qt plugin ${plugin} not found, skipping."
+    fi
+done
+
+for library in "${SYSTEM_LIBRARIES[@]}"; do
+    rm -f "${APPDIR}/usr/lib/${library}"
+done
+
+for library in "${FALLBACK_LIBRARIES[@]}"; do
+    path=$(ldconfig -p | sed -n "s/^[[:space:]]*${library} .* => //p" | head -1)
+    if [[ -z ${path} ]]; then
+        echo "$0: cannot find ${library} to bundle as a fallback"
+        exit 1
+    fi
+    mkdir -p "${APPDIR}/fallback/${library}"
+    cp -L "${path}" "${APPDIR}/fallback/${library}/${library}"
+    rm -f "${APPDIR}/usr/lib/${library}"
+done
+
+##############################################################################
+# Entry point
+##############################################################################
+
+rm -f "${APPDIR}/AppRun"
+cat > "${APPDIR}/AppRun" <<'APPRUN'
+#!/bin/sh
+HERE="$(dirname "$(readlink -f "$0")")"
+export APPDIR="${APPDIR:-$HERE}"
+
+# Fallback libraries are bundled but deliberately kept off the library path, so
+# that the host's own copy wins whenever it has one. We only step in when the
+# host has none at all, which would otherwise stop the binary from loading. The
+# bundled lib directory goes on the path alongside them: a fallback carries no
+# RUNPATH of its own and its dependencies may be missing from the host too --
+# JACK needs libdb, which Fedora no longer ships.
+fallback_paths=""
+for dir in "$HERE"/fallback/*; do
+    [ -d "$dir" ] || continue
+    lib="$(basename "$dir")"
+    if ! ldconfig -p 2>/dev/null | grep -q "^[[:space:]]*${lib} "; then
+        fallback_paths="${fallback_paths}${dir}:"
+    fi
+done
+if [ -n "$fallback_paths" ]; then
+    LD_LIBRARY_PATH="${fallback_paths}${HERE}/usr/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+    export LD_LIBRARY_PATH
+fi
+
+exec "$HERE/usr/bin/noteahead" "$@"
+APPRUN
+chmod +x "${APPDIR}/AppRun"
+
+##############################################################################
+# Pack it
+##############################################################################
+
+rm -f "${APPIMAGE}"
+appimagetool --no-appstream "${APPDIR}" "${APPIMAGE}"
+
+echo "Created ${APPIMAGE}"

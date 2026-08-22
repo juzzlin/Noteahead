@@ -270,6 +270,17 @@ Currently Debian packages for Ubuntu 24.04 LTS and Ubuntu 26.04 LTS are provided
 
     $ sudo apt install ./noteahead-0.1.0-ubuntu-24.04_amd64.deb
 
+On other distributions, use the AppImage. It carries its own Qt and needs nothing installed
+beyond the graphics and audio libraries a desktop already has. JACK is optional: a copy is
+bundled and used only if the system has none, so the system's own JACK is always preferred
+when it is there.
+
+    $ chmod +x Noteahead-7.0.0-x86_64.AppImage
+    $ ./Noteahead-7.0.0-x86_64.AppImage
+
+It requires glibc 2.38 or newer, which covers Ubuntu 24.04, Debian 13 and Fedora 39 onwards.
+To build one yourself, run `./scripts/build-appimage` in the project root.
+
 ##
 ## Build instructions
 
