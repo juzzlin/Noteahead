@@ -5,6 +5,19 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+7.1.0
+=====
+
+Release date:
+
+Sat, 22 Aug 2026 22:02:37 +0300
+
+New features:
+
 * Add song metadata: title, composer, artist, date, genre and comment, editable
   from Song > Metadata
   - The date can be picked from a calendar
