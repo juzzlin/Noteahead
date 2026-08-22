@@ -18,6 +18,7 @@
 #include "../../common/constants.hpp"
 #include "../../domain/devices/fm_synth_device.hpp"
 #include "../../domain/devices/fm_synth_presets.hpp"
+#include "../../domain/dsp/lfo.hpp"
 #include "../../view/controllers/fm_operator_controller.hpp"
 #include "../../view/controllers/fm_synth_controller.hpp"
 
@@ -408,6 +409,24 @@ void FmSynthControllerTest::test_operatorWaveformNames_shouldCoverEveryWaveform(
 
     QCOMPARE(controller.operatorWaveformNames().size(), static_cast<int>(FmOperator::WaveformCount));
     QCOMPARE(controller.operatorWaveformNames().at(0), QString { "Sine" });
+}
+
+void FmSynthControllerTest::test_lfoRateDivider_shouldReachTheDevice()
+{
+    const auto synth = std::make_shared<FmSynthDevice>("Divider");
+    FmSynthController controller { synth };
+    QCOMPARE(controller.maxLfoRateDivider(), Lfo::MaxRateDivider);
+
+    QSignalSpy spy { &controller, &FmSynthController::lfoRateDividerChanged };
+    controller.setLfoRateDivider(8);
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(controller.lfoRateDivider(), 8);
+    QCOMPARE(synth->lfoRateDivider(), 8);
+
+    QSignalSpy spy2 { &controller, &FmSynthController::lfo2RateDividerChanged };
+    controller.setLfo2RateDivider(64);
+    QCOMPARE(spy2.count(), 1);
+    QCOMPARE(synth->lfo2RateDivider(), 64);
 }
 
 } // namespace noteahead

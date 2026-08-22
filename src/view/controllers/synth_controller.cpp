@@ -1079,6 +1079,35 @@ void SynthController::setLfo2Fade(int fade)
     }
 }
 
+int SynthController::lfoRateDivider() const
+{
+    return m_synth ? m_synth->lfoRateDivider() : 1;
+}
+
+void SynthController::setLfoRateDivider(int divider)
+{
+    if (m_synth) {
+        m_synth->setLfoRateDivider(divider);
+    }
+}
+
+int SynthController::lfo2RateDivider() const
+{
+    return m_synth ? m_synth->lfo2RateDivider() : 1;
+}
+
+void SynthController::setLfo2RateDivider(int divider)
+{
+    if (m_synth) {
+        m_synth->setLfo2RateDivider(divider);
+    }
+}
+
+int SynthController::maxLfoRateDivider() const
+{
+    return Lfo::MaxRateDivider;
+}
+
 void SynthController::setLfo2Target(int target)
 {
     if (m_synth) {
@@ -1427,6 +1456,8 @@ void SynthController::requestSettings()
     emit lfo2TargetChanged();
     emit lfo2DelayChanged();
     emit lfo2FadeChanged();
+    emit lfoRateDividerChanged();
+    emit lfo2RateDividerChanged();
 
     emit voiceModeChanged();
     emit voiceDepthChanged();

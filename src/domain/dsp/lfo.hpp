@@ -58,6 +58,11 @@ public:
     //! Time the output takes to reach full depth once the delay has elapsed, in seconds. Zero, the
     //! default, hands over the full depth at once.
     void setFadeTime(double seconds);
+    //! Slows the LFO by a whole factor after the rate is worked out, in either mode: a tempo-locked
+    //! sweep stretched over several bars, or a free-running one over minutes. One, the default,
+    //! leaves the rate as it is.
+    void setRateDivider(int divider);
+    static constexpr int MaxRateDivider { 64 };
 
     void setPhase(double phase);
     double phase() const;
@@ -68,6 +73,7 @@ public:
 
 private:
     double m_frequency { 1.0 };
+    int m_rateDivider { 1 };
 
     Waveform m_waveform { Waveform::Triangle };
     Mode m_mode { Mode::Normal };

@@ -46,6 +46,12 @@ void Lfo::setFrequency(double bpm, double syncRate)
     setFrequency((bpm / 60.0) * (0.25 / std::max(0.0001, syncRate)));
 }
 
+void Lfo::setRateDivider(int divider)
+{
+    m_rateDivider = std::clamp(divider, 1, MaxRateDivider);
+    updatePhaseStep();
+}
+
 void Lfo::setWaveform(Waveform waveform)
 {
     m_waveform = waveform;
@@ -157,7 +163,7 @@ double Lfo::nextSample()
 
 void Lfo::updatePhaseStep()
 {
-    m_phaseStep = m_frequency / m_sampleRate;
+    m_phaseStep = m_frequency / static_cast<double>(m_rateDivider) / m_sampleRate;
 }
 
 void Lfo::updateEnvelopeTimes()

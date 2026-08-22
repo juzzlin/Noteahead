@@ -7,6 +7,7 @@
 #include "../../domain/devices/device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/synth_presets.hpp"
+#include "../../domain/dsp/lfo.hpp"
 #include "../../view/controllers/synth_controller.hpp"
 
 #include <QMetaProperty>
@@ -464,6 +465,24 @@ void SynthControllerTest::test_deleteCurrentUserPreset_shouldDropItFromTheList()
     // the list that is left rather than one past its end.
     QCOMPARE(controller.currentPresetIndex(), factoryCount - 1);
     QVERIFY(!controller.currentPresetIsUserPreset());
+}
+
+void SynthControllerTest::test_lfoRateDivider_shouldReachTheDevice()
+{
+    const auto synth = std::make_shared<SynthDevice>("Divider");
+    SynthController controller { synth };
+    QCOMPARE(controller.maxLfoRateDivider(), Lfo::MaxRateDivider);
+
+    QSignalSpy spy { &controller, &SynthController::lfoRateDividerChanged };
+    controller.setLfoRateDivider(8);
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(controller.lfoRateDivider(), 8);
+    QCOMPARE(synth->lfoRateDivider(), 8);
+
+    QSignalSpy spy2 { &controller, &SynthController::lfo2RateDividerChanged };
+    controller.setLfo2RateDivider(64);
+    QCOMPARE(spy2.count(), 1);
+    QCOMPARE(synth->lfo2RateDivider(), 64);
 }
 
 } // namespace noteahead

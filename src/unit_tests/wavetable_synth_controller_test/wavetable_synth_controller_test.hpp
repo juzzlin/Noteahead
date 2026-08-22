@@ -25,6 +25,7 @@ class WavetableSynthControllerTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_lfoRateDivider_shouldReachTheDevice();
     void test_properties_shouldUpdateDevice();
     void test_deviceChange_shouldRefreshProperties();
     void test_reset_shouldRestoreDefaultValues();

@@ -64,6 +64,19 @@ ColumnLayout {
         Layout.fillWidth: true
         visible: wavetableSynthController.lfoMode === 1
     }
+    Knob {
+        label: qsTr("Rate Divider")
+        mapping: "integer"
+        suffix: ""
+        from: 1
+        to: wavetableSynthController.maxLfoRateDivider
+        stepSize: 1
+        value: wavetableSynthController.lfoRateDivider
+        onMoved: v => wavetableSynthController.lfoRateDivider = Math.round(v)
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.").arg(wavetableSynthController.maxLfoRateDivider)
+        Layout.fillWidth: true
+    }
 
     Knob {
         label: qsTr("Intensity")

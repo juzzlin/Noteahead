@@ -64,6 +64,19 @@ ColumnLayout {
         Layout.fillWidth: true
         visible: fmSynthController.lfoMode === 1
     }
+    Knob {
+        label: qsTr("Rate Divider")
+        mapping: "integer"
+        suffix: ""
+        from: 1
+        to: fmSynthController.maxLfoRateDivider
+        stepSize: 1
+        value: fmSynthController.lfoRateDivider
+        onMoved: v => fmSynthController.lfoRateDivider = Math.round(v)
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.").arg(fmSynthController.maxLfoRateDivider)
+        Layout.fillWidth: true
+    }
 
     Knob {
         label: qsTr("Intensity")

@@ -205,6 +205,8 @@ void FmSynthController::requestSettings()
     emit lfo2TargetChanged();
     emit lfo2DelayChanged();
     emit lfo2FadeChanged();
+    emit lfoRateDividerChanged();
+    emit lfo2RateDividerChanged();
     emit voiceModeChanged();
     emit voiceDepthChanged();
     emit phaseRandomnessChanged();
@@ -627,6 +629,35 @@ void FmSynthController::setLfo2Fade(int value)
     if (m_synth) {
         m_synth->setLfo2Fade(static_cast<float>(value) / Constants::uiInternalScaling());
     }
+}
+
+int FmSynthController::lfoRateDivider() const
+{
+    return m_synth ? m_synth->lfoRateDivider() : 1;
+}
+
+void FmSynthController::setLfoRateDivider(int divider)
+{
+    if (m_synth) {
+        m_synth->setLfoRateDivider(divider);
+    }
+}
+
+int FmSynthController::lfo2RateDivider() const
+{
+    return m_synth ? m_synth->lfo2RateDivider() : 1;
+}
+
+void FmSynthController::setLfo2RateDivider(int divider)
+{
+    if (m_synth) {
+        m_synth->setLfo2RateDivider(divider);
+    }
+}
+
+int FmSynthController::maxLfoRateDivider() const
+{
+    return Lfo::MaxRateDivider;
 }
 
 void FmSynthController::setLfo2Target(int value)

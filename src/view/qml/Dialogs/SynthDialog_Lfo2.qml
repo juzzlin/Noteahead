@@ -72,6 +72,19 @@ ColumnLayout {
         visible: synthController.lfo2Mode === 1
     }
     Knob {
+        label: qsTr("Rate Divider")
+        mapping: "integer"
+        suffix: ""
+        from: 1
+        to: synthController.maxLfoRateDivider
+        stepSize: 1
+        value: synthController.lfo2RateDivider
+        onMoved: v => synthController.lfo2RateDivider = Math.round(v)
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.").arg(synthController.maxLfoRateDivider)
+        Layout.fillWidth: true
+    }
+    Knob {
         label: qsTr("Intensity")
         mapping: "cubicCentered"
         mapMin: -100

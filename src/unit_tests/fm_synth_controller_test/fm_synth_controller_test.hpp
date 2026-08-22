@@ -25,6 +25,7 @@ class FmSynthControllerTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_lfoRateDivider_shouldReachTheDevice();
     void test_properties_shouldUpdateDevice();
     void test_properties_shouldEmitSignals();
     void test_everyContinuousProperty_shouldRoundTripThroughTheDevice();

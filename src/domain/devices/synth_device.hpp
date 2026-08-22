@@ -354,6 +354,11 @@ public:
     void setLfo2Delay(float delay);
     float lfo2Fade() const;
     void setLfo2Fade(float fade);
+    //! How many times slower than its Rate each LFO runs, 1 to Lfo::MaxRateDivider.
+    int lfoRateDivider() const;
+    void setLfoRateDivider(int divider);
+    int lfo2RateDivider() const;
+    void setLfo2RateDivider(int divider);
 
     // Voice / Global
     VoiceMode voiceMode() const;
@@ -596,6 +601,8 @@ private:
     LfoTarget m_lfo2Target { LfoTarget::Pitch };
     float m_lfo2Delay { 0.0f };
     float m_lfo2Fade { 0.0f };
+    int m_lfoRateDivider { 1 };
+    int m_lfo2RateDivider { 1 };
 
     VoiceMode m_voiceMode { VoiceMode::Poly };
     uint64_t m_nextTriggerId { 1 };

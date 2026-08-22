@@ -752,6 +752,8 @@ QString xmlKeyLfo2Intensity();
 QString xmlKeyLfo2Target();
 QString xmlKeyLfo2Delay();
 QString xmlKeyLfo2Fade();
+QString xmlKeyLfoRateDivider();
+QString xmlKeyLfo2RateDivider();
 QString xmlKeyWavetableIndex();
 
 //! FM operator parameters. @p operatorIndex is zero based; the keys count from one, the way the

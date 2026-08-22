@@ -16,8 +16,10 @@
 #include "wavetable_synth_test.hpp"
 
 #include "../../common/constants.hpp"
+#include "../../common/parameter_mapper.hpp"
 #include "../../common/utils.hpp"
 #include "../../domain/devices/wavetable_synth_device.hpp"
+#include "../../domain/dsp/lfo.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
@@ -1298,6 +1300,113 @@ void WavetableSynthTest::test_phaseRandomness_partial_shouldRenderTheSameEveryTi
     for (int i = 0; i < 4; i++) {
         QCOMPARE(largestDifference(attackOf(*a, 64), attackOf(*b, 64)), 0.0);
     }
+}
+
+namespace {
+
+//! Clear direction changes of the level, in 20 ms windows over 0.3 s of a held note with LFO 1 at
+//! 8 Hz on Volume: several at full speed, and next to none once the divider slows it to a crawl.
+//! Windows that long average the waveform out, and the threshold ignores what beating is left.
+int tremoloTurns(WavetableSynthDevice & synth, int divider)
+{
+    synth.setAmpAttack(0.0f);
+    synth.setAmpSustain(1.0f);
+    synth.setLfoTarget(WavetableSynthDevice::LfoTarget::Volume);
+    synth.setLfoMode(Lfo::Mode::Normal);
+    synth.setLfoRate(static_cast<float>(ParameterMapper::unmapLfoFrequency(8.0, 0.05, 20.0)));
+    synth.setLfoInt(1.0f);
+    synth.setLfoRateDivider(divider);
+    const auto rate = static_cast<uint32_t>(Constants::defaultSampleRate());
+    const auto frames = static_cast<uint32_t>(rate * 4 / 10);
+    std::vector<double> buffer(static_cast<size_t>(frames) * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), frames, rate };
+    synth.processMidiNoteOn(64, 100);
+    synth.processAudio(context);
+
+    const size_t window = rate / 50;
+    std::vector<double> levels;
+    for (size_t start = rate / 10; start + window <= frames; start += window) {
+        double power = 0.0;
+        for (size_t i = start; i < start + window; i++) {
+            power += buffer[i * 2] * buffer[i * 2];
+        }
+        levels.push_back(power / static_cast<double>(window));
+    }
+    int turns = 0;
+    int direction = 0;
+    for (size_t i = 1; i < levels.size(); i++) {
+        const double change = levels[i] - levels[i - 1];
+        if (std::abs(change) < 0.2 * std::max(levels[i], levels[i - 1])) {
+            continue;
+        }
+        const int next = change > 0 ? 1 : -1;
+        if (direction != 0 && next != direction) {
+            turns++;
+        }
+        direction = next;
+    }
+    return turns;
+}
+
+} // namespace
+
+void WavetableSynthTest::test_lfoRateDivider_default_shouldBeOne()
+{
+    WavetableSynthDevice synth { "Divider" };
+    QCOMPARE(synth.lfoRateDivider(), 1);
+    QCOMPARE(synth.lfo2RateDivider(), 1);
+}
+
+void WavetableSynthTest::test_lfoRateDivider_shouldRoundTrip()
+{
+    WavetableSynthDevice out { "Divider" };
+    out.setLfoRateDivider(8);
+    out.setLfo2RateDivider(64);
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        out.serializeToXml(writer);
+    }
+    NahdXmlReader reader { xml };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+    WavetableSynthDevice in { "Divider" };
+    in.deserializeFromXml(reader);
+    QCOMPARE(in.lfoRateDivider(), 8);
+    QCOMPARE(in.lfo2RateDivider(), 64);
+}
+
+void WavetableSynthTest::test_lfoRateDivider_projectWithoutIt_shouldLoadOne()
+{
+    WavetableSynthDevice out { "Divider" };
+    out.setLfoRateDivider(8);
+    out.setLfo2RateDivider(8);
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        out.serializeToXml(writer);
+    }
+    // As a project saved before the control existed has it
+    xml.remove(QRegularExpression { R"(<Parameter name="lfo2?RateDivider"[^>]*/>)" });
+    QVERIFY(!xml.contains("RateDivider"));
+    NahdXmlReader reader { xml };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+    WavetableSynthDevice in { "Divider" };
+    in.deserializeFromXml(reader);
+    QCOMPARE(in.lfoRateDivider(), 1);
+    QCOMPARE(in.lfo2RateDivider(), 1);
+}
+
+void WavetableSynthTest::test_lfoRateDivider_shouldSlowTheVoicesLfo()
+{
+    // Reaches the LFO of every voice, not just the parameter
+    WavetableSynthDevice fast { "Fast" };
+    WavetableSynthDevice slow { "Slow" };
+    const int fastTurns = tremoloTurns(fast, 1);
+    const int slowTurns = tremoloTurns(slow, Lfo::MaxRateDivider);
+    QVERIFY2(fastTurns >= 3, qPrintable(QString::number(fastTurns)));
+    QVERIFY2(slowTurns <= 1, qPrintable(QString::number(slowTurns)));
 }
 
 } // namespace noteahead

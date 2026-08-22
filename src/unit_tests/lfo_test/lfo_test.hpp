@@ -25,6 +25,9 @@ class LfoTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_rateDivider_eight_shouldSlowTheCycleEightTimes();
+    void test_rateDivider_tempoSynced_shouldStretchOverBars();
+    void test_rateDivider_outOfRange_shouldBeClamped();
     void test_waveformNames_shouldContainFiveEntries();
 
     void test_sineWaveform_shouldOutputZeroAtPhaseZero();

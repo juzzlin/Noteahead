@@ -2485,6 +2485,16 @@ QString xmlKeyLfo2Fade()
     return "lfo2Fade";
 }
 
+QString xmlKeyLfoRateDivider()
+{
+    return "lfoRateDivider";
+}
+
+QString xmlKeyLfo2RateDivider()
+{
+    return "lfo2RateDivider";
+}
+
 QString xmlKeyWavetableIndex()
 {
     return "wavetableIndex";

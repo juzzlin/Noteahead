@@ -67,6 +67,9 @@ class FmSynthController : public DeviceController
     Q_PROPERTY(int lfo2Target READ lfo2Target WRITE setLfo2Target NOTIFY lfo2TargetChanged)
     Q_PROPERTY(int lfo2Delay READ lfo2Delay WRITE setLfo2Delay NOTIFY lfo2DelayChanged)
     Q_PROPERTY(int lfo2Fade READ lfo2Fade WRITE setLfo2Fade NOTIFY lfo2FadeChanged)
+    Q_PROPERTY(int lfoRateDivider READ lfoRateDivider WRITE setLfoRateDivider NOTIFY lfoRateDividerChanged)
+    Q_PROPERTY(int lfo2RateDivider READ lfo2RateDivider WRITE setLfo2RateDivider NOTIFY lfo2RateDividerChanged)
+    Q_PROPERTY(int maxLfoRateDivider READ maxLfoRateDivider CONSTANT)
     Q_PROPERTY(int voiceMode READ voiceMode WRITE setVoiceMode NOTIFY voiceModeChanged)
     Q_PROPERTY(int voiceDepth READ voiceDepth WRITE setVoiceDepth NOTIFY voiceDepthChanged)
     Q_PROPERTY(int phaseRandomness READ phaseRandomness WRITE setPhaseRandomness NOTIFY phaseRandomnessChanged)
@@ -173,6 +176,11 @@ public:
     void setLfo2Delay(int value);
     int lfo2Fade() const;
     void setLfo2Fade(int value);
+    int lfoRateDivider() const;
+    void setLfoRateDivider(int divider);
+    int lfo2RateDivider() const;
+    void setLfo2RateDivider(int divider);
+    int maxLfoRateDivider() const;
     int voiceMode() const;
     void setVoiceMode(int value);
     int voiceDepth() const;
@@ -272,6 +280,8 @@ signals:
     void lfo2TargetChanged();
     void lfo2DelayChanged();
     void lfo2FadeChanged();
+    void lfoRateDividerChanged();
+    void lfo2RateDividerChanged();
     void voiceModeChanged();
     void voiceDepthChanged();
     void phaseRandomnessChanged();

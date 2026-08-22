@@ -19,6 +19,7 @@
 
 #include <QTest>
 #include <algorithm>
+#include <cmath>
 #include <vector>
 
 namespace noteahead {
@@ -527,6 +528,53 @@ void LfoTest::test_fadeTime_shouldStartWhereTheDelayEnds()
     QCOMPARE(leadingSilence(samples), size_t { 101 });
     QVERIFY(std::abs(samples.at(150) - 0.5) < 1e-9);
     QVERIFY(std::abs(samples.at(200) - 1.0) < 1e-9);
+}
+
+namespace {
+
+//! How far round its cycle the LFO gets in @p samples.
+double phaseAfter(Lfo & lfo, int samples)
+{
+    lfo.reset();
+    for (int i = 0; i < samples; i++) {
+        lfo.nextSample();
+    }
+    return lfo.phase();
+}
+
+} // namespace
+
+void LfoTest::test_rateDivider_eight_shouldSlowTheCycleEightTimes()
+{
+    Lfo lfo;
+    lfo.setSampleRate(48000.0);
+    lfo.setFrequency(4.0);
+    // An eighth of a second at 4 Hz is half a cycle; divided by eight, a sixteenth
+    QVERIFY(std::abs(phaseAfter(lfo, 6000) - 0.5) < 1.0e-9);
+    lfo.setRateDivider(8);
+    QVERIFY(std::abs(phaseAfter(lfo, 6000) - 0.0625) < 1.0e-9);
+}
+
+void LfoTest::test_rateDivider_tempoSynced_shouldStretchOverBars()
+{
+    // A whole note at 120 BPM is two seconds; divided by four, a cycle takes four bars
+    Lfo lfo;
+    lfo.setSampleRate(48000.0);
+    lfo.setMode(Lfo::Mode::BPM);
+    lfo.setFrequency(120.0, 1.0);
+    lfo.setRateDivider(4);
+    QVERIFY(std::abs(phaseAfter(lfo, 48000) - 0.125) < 1.0e-9);
+}
+
+void LfoTest::test_rateDivider_outOfRange_shouldBeClamped()
+{
+    Lfo lfo;
+    lfo.setSampleRate(48000.0);
+    lfo.setFrequency(4.0);
+    lfo.setRateDivider(0);
+    QVERIFY(std::abs(phaseAfter(lfo, 6000) - 0.5) < 1.0e-9);
+    lfo.setRateDivider(1000);
+    QVERIFY(std::abs(phaseAfter(lfo, 6000) - 0.5 / Lfo::MaxRateDivider) < 1.0e-9);
 }
 
 } // namespace noteahead

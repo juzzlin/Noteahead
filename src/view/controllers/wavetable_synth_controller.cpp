@@ -518,6 +518,35 @@ void WavetableSynthController::setLfo2Fade(int fade)
     }
 }
 
+int WavetableSynthController::lfoRateDivider() const
+{
+    return m_synth ? m_synth->lfoRateDivider() : 1;
+}
+
+void WavetableSynthController::setLfoRateDivider(int divider)
+{
+    if (m_synth) {
+        m_synth->setLfoRateDivider(divider);
+    }
+}
+
+int WavetableSynthController::lfo2RateDivider() const
+{
+    return m_synth ? m_synth->lfo2RateDivider() : 1;
+}
+
+void WavetableSynthController::setLfo2RateDivider(int divider)
+{
+    if (m_synth) {
+        m_synth->setLfo2RateDivider(divider);
+    }
+}
+
+int WavetableSynthController::maxLfoRateDivider() const
+{
+    return Lfo::MaxRateDivider;
+}
+
 int WavetableSynthController::lfo2Target() const
 {
     return m_synth ? static_cast<int>(m_synth->lfo2Target()) : 0;
@@ -727,6 +756,8 @@ void WavetableSynthController::requestSettings()
     emit lfo2TargetChanged();
     emit lfo2DelayChanged();
     emit lfo2FadeChanged();
+    emit lfoRateDividerChanged();
+    emit lfo2RateDividerChanged();
 
     emit voiceModeChanged();
     emit voiceDepthChanged();

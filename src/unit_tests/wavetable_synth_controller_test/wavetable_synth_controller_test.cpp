@@ -17,6 +17,7 @@
 
 #include "../../common/constants.hpp"
 #include "../../domain/devices/wavetable_synth_device.hpp"
+#include "../../domain/dsp/lfo.hpp"
 #include "../../view/controllers/wavetable_synth_controller.hpp"
 
 #include <QSignalSpy>
@@ -213,6 +214,24 @@ void WavetableSynthControllerTest::test_curve_properties_shouldEmitSignals()
     controller.setModCurve(curve);
     QCOMPARE(controller.modCurve(), curve);
     QCOMPARE(modSpy.count(), 1);
+}
+
+void WavetableSynthControllerTest::test_lfoRateDivider_shouldReachTheDevice()
+{
+    const auto synth = std::make_shared<WavetableSynthDevice>("Divider");
+    WavetableSynthController controller { synth };
+    QCOMPARE(controller.maxLfoRateDivider(), Lfo::MaxRateDivider);
+
+    QSignalSpy spy { &controller, &WavetableSynthController::lfoRateDividerChanged };
+    controller.setLfoRateDivider(8);
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(controller.lfoRateDivider(), 8);
+    QCOMPARE(synth->lfoRateDivider(), 8);
+
+    QSignalSpy spy2 { &controller, &WavetableSynthController::lfo2RateDividerChanged };
+    controller.setLfo2RateDivider(64);
+    QCOMPARE(spy2.count(), 1);
+    QCOMPARE(synth->lfo2RateDivider(), 64);
 }
 
 } // namespace noteahead

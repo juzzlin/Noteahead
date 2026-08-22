@@ -225,6 +225,9 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Target().toStdString(), 0.0f, 0, 18, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Delay().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Fade().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    // One: the rate as it always was
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfoRateDivider().toStdString(), 1.0f, 1, Lfo::MaxRateDivider, 1, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2RateDivider().toStdString(), 1.0f, 1, Lfo::MaxRateDivider, 1, 1, Parameter::Type::Discrete });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceMode().toStdString(), 0.0f, 0, 5, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceDepth().toStdString(), 0.0f, 0, 10000, 0, 100 });
@@ -1579,6 +1582,10 @@ void SynthDevice::syncParameters()
         m_lfo2Delay = p->get().value();
     if (const auto p = parameter(Constants::NahdXml::xmlKeyLfo2Fade().toStdString()); p)
         m_lfo2Fade = p->get().value();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoRateDivider().toStdString()); p)
+        m_lfoRateDivider = std::clamp(p->get().xmlValue(), 1, Lfo::MaxRateDivider);
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyLfo2RateDivider().toStdString()); p)
+        m_lfo2RateDivider = std::clamp(p->get().xmlValue(), 1, Lfo::MaxRateDivider);
 
     if (const auto p = parameter(Constants::NahdXml::xmlKeyVoiceMode().toStdString()); p)
         m_voiceMode = static_cast<VoiceMode>(p->get().xmlValue());
@@ -1649,6 +1656,7 @@ void SynthDevice::syncParameters()
         voice.lfo.setFrequency(freq);
         voice.lfo.setDelayTime(ParameterMapper::mapCubic(m_lfoDelay, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
         voice.lfo.setFadeTime(ParameterMapper::mapCubic(m_lfoFade, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
+        voice.lfo.setRateDivider(m_lfoRateDivider);
 
         voice.lfo2.setWaveform(m_lfo2Waveform);
         voice.lfo2.setMode(m_lfo2Mode);
@@ -1662,6 +1670,7 @@ void SynthDevice::syncParameters()
         voice.lfo2.setFrequency(freq2);
         voice.lfo2.setDelayTime(ParameterMapper::mapCubic(m_lfo2Delay, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
         voice.lfo2.setFadeTime(ParameterMapper::mapCubic(m_lfo2Fade, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
+        voice.lfo2.setRateDivider(m_lfo2RateDivider);
 
         voice.ampEg.setAttackTime(ParameterMapper::mapExponential(m_ampAttack, 0.000001, 20.0));
         voice.ampEg.setDecayTime(ParameterMapper::mapExponential(m_ampDecay, 0.01, 60.0));
@@ -2374,6 +2383,26 @@ float SynthDevice::lfo2Fade() const
 void SynthDevice::setLfo2Fade(float fade)
 {
     setContinuousParameterValue(Constants::NahdXml::xmlKeyLfo2Fade().toStdString(), fade);
+}
+
+int SynthDevice::lfoRateDivider() const
+{
+    return m_lfoRateDivider;
+}
+
+void SynthDevice::setLfoRateDivider(int divider)
+{
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyLfoRateDivider().toStdString(), std::clamp(divider, 1, Lfo::MaxRateDivider));
+}
+
+int SynthDevice::lfo2RateDivider() const
+{
+    return m_lfo2RateDivider;
+}
+
+void SynthDevice::setLfo2RateDivider(int divider)
+{
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyLfo2RateDivider().toStdString(), std::clamp(divider, 1, Lfo::MaxRateDivider));
 }
 
 // Voice / Global

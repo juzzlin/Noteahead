@@ -11,6 +11,7 @@ New features:
 
 * Synth, Wavetable Synth and FM Synth
   - Phase Randomness: 0% starts every note of a unison stack equally loud
+  - LFO Rate Divider, for sweeps over many bars or minutes
 
 * Assign a device to a track from its header icon or its right-click menu
 

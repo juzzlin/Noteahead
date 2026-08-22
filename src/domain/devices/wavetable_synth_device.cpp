@@ -196,6 +196,9 @@ WavetableSynthDevice::WavetableSynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Target().toStdString(), 0.0f, 0, 6, 0, 1, Parameter::Type::Discrete, { "wavetableSynthLfo2Target" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Delay().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Fade().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    // One: the rate as it always was
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfoRateDivider().toStdString(), 1.0f, 1, Lfo::MaxRateDivider, 1, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2RateDivider().toStdString(), 1.0f, 1, Lfo::MaxRateDivider, 1, 1, Parameter::Type::Discrete });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceMode().toStdString(), 0.0f, 0, 5, 0, 1, Parameter::Type::Discrete, { "wavetableSynthVoiceMode" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceDepth().toStdString(), 0.1f, 0, 10000, 1000, 100, Parameter::Type::Continuous, { "wavetableSynthVoiceDepth" } });
@@ -278,6 +281,7 @@ void WavetableSynthDevice::processAudio(AudioContext & context)
         }
         voice.lfo.setDelayTime(ParameterMapper::mapCubic(m_lfoDelay, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
         voice.lfo.setFadeTime(ParameterMapper::mapCubic(m_lfoFade, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
+        voice.lfo.setRateDivider(m_lfoRateDivider);
 
         voice.lfo2.setWaveform(m_lfo2Waveform);
         voice.lfo2.setMode(m_lfo2Mode);
@@ -288,6 +292,7 @@ void WavetableSynthDevice::processAudio(AudioContext & context)
         }
         voice.lfo2.setDelayTime(ParameterMapper::mapCubic(m_lfo2Delay, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
         voice.lfo2.setFadeTime(ParameterMapper::mapCubic(m_lfo2Fade, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
+        voice.lfo2.setRateDivider(m_lfo2RateDivider);
 
         if (voice.active) {
             renderVoice(voice, context, oversampleFactor, oversampledRate, portamentoCoeff, pbRatio, index);
@@ -973,6 +978,10 @@ void WavetableSynthDevice::syncParameters()
     updateDiscreteParam(Constants::NahdXml::xmlKeyLfo2Target(), m_lfo2Target);
     updateParam(Constants::NahdXml::xmlKeyLfo2Delay(), m_lfo2Delay);
     updateParam(Constants::NahdXml::xmlKeyLfo2Fade(), m_lfo2Fade);
+    updateDiscreteParam(Constants::NahdXml::xmlKeyLfoRateDivider(), m_lfoRateDivider);
+    updateDiscreteParam(Constants::NahdXml::xmlKeyLfo2RateDivider(), m_lfo2RateDivider);
+    m_lfoRateDivider = std::clamp(m_lfoRateDivider, 1, Lfo::MaxRateDivider);
+    m_lfo2RateDivider = std::clamp(m_lfo2RateDivider, 1, Lfo::MaxRateDivider);
 
     updateDiscreteParam(Constants::NahdXml::xmlKeyVoiceMode(), m_voiceMode);
     updateParam(Constants::NahdXml::xmlKeyVoiceDepth(), m_voiceDepth);
@@ -1007,6 +1016,7 @@ void WavetableSynthDevice::syncParameters()
         }
         voice.lfo.setDelayTime(ParameterMapper::mapCubic(m_lfoDelay, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
         voice.lfo.setFadeTime(ParameterMapper::mapCubic(m_lfoFade, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
+        voice.lfo.setRateDivider(m_lfoRateDivider);
 
         voice.lfo2.setWaveform(m_lfo2Waveform);
         voice.lfo2.setMode(m_lfo2Mode);
@@ -1017,6 +1027,7 @@ void WavetableSynthDevice::syncParameters()
         }
         voice.lfo2.setDelayTime(ParameterMapper::mapCubic(m_lfo2Delay, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
         voice.lfo2.setFadeTime(ParameterMapper::mapCubic(m_lfo2Fade, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
+        voice.lfo2.setRateDivider(m_lfo2RateDivider);
 
         voice.ampEg.setAttackTime(ParameterMapper::mapExponential(m_ampAttack, 0.001, 10.0));
         voice.ampEg.setDecayTime(ParameterMapper::mapExponential(m_ampDecay, 0.01, 10.0));
@@ -1596,6 +1607,26 @@ void WavetableSynthDevice::setLfo2Fade(float fade)
         syncParameters();
         emit dataChanged();
     }
+}
+
+int WavetableSynthDevice::lfoRateDivider() const
+{
+    return m_lfoRateDivider;
+}
+
+void WavetableSynthDevice::setLfoRateDivider(int divider)
+{
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyLfoRateDivider().toStdString(), std::clamp(divider, 1, Lfo::MaxRateDivider));
+}
+
+int WavetableSynthDevice::lfo2RateDivider() const
+{
+    return m_lfo2RateDivider;
+}
+
+void WavetableSynthDevice::setLfo2RateDivider(int divider)
+{
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyLfo2RateDivider().toStdString(), std::clamp(divider, 1, Lfo::MaxRateDivider));
 }
 
 void WavetableSynthDevice::setLfo2Target(LfoTarget target)
