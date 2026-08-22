@@ -150,6 +150,17 @@ void SynthControllerTest::test_octaveNames()
     QCOMPARE(controller.vco1Octave(), 2);
 }
 
+void SynthControllerTest::test_squareWaveformIndex_shouldMatchWaveformNames()
+{
+    const auto synth = std::make_shared<SynthDevice>("Test Synth");
+    SynthController controller { synth };
+
+    // The dialogs disable Roundness on everything but the pulse by comparing the VCO's waveform
+    // against this index, so it has to keep pointing at the pulse in the list they show.
+    const auto index = controller.squareWaveformIndex();
+    QCOMPARE(controller.vcoWaveformNames().at(index), QString("Square"));
+}
+
 void SynthControllerTest::test_voiceModes()
 {
     const auto synth = std::make_shared<SynthDevice>("Test Synth");

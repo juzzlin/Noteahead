@@ -42,6 +42,10 @@ class SynthController : public DeviceController
     Q_PROPERTY(QStringList lfo2ModeNames READ lfo2ModeNames CONSTANT)
     Q_PROPERTY(QStringList lfo2TargetNames READ lfo2TargetNames CONSTANT)
 
+    //! Index of the pulse in vcoWaveformNames, so QML can tell whether a VCO is on the one waveform
+    //! Roundness applies to without hardcoding the enum's ordinal.
+    Q_PROPERTY(int squareWaveformIndex READ squareWaveformIndex CONSTANT)
+
     // VCO1
     Q_PROPERTY(int vco1Waveform READ vco1Waveform WRITE setVco1Waveform NOTIFY vco1WaveformChanged)
     Q_PROPERTY(int vco1Octave READ vco1Octave WRITE setVco1Octave NOTIFY vco1OctaveChanged)
@@ -151,6 +155,7 @@ public:
 
     // Accessors
     QStringList vcoWaveformNames() const;
+    int squareWaveformIndex() const;
     QStringList lfoWaveformNames() const;
     QStringList voiceModes() const;
     QStringList octaveNames() const;

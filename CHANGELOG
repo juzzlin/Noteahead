@@ -7,6 +7,9 @@ New features:
 
 Bug fixes:
 
+* Disable the synth's Roundness knob on every waveform but the pulse, which is
+  the only one it affects
+
 Other:
 
 7.1.0

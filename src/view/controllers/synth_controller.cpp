@@ -20,6 +20,7 @@
 #include "../../common/utils.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/synth_presets.hpp"
+#include "../../domain/dsp/poly_blep_oscillator.hpp"
 
 #include <QDebug>
 #include <cmath>
@@ -65,6 +66,11 @@ QStringList SynthController::vcoWaveformNames() const
         list << QString::fromStdString(name);
     }
     return list;
+}
+
+int SynthController::squareWaveformIndex() const
+{
+    return static_cast<int>(PolyBlepOscillator::Waveform::Square);
 }
 
 QStringList SynthController::lfoWaveformNames() const
