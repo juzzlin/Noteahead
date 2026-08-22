@@ -69,5 +69,18 @@ pipeline {
                 }
             }
         }
+        stage('AppImage') {
+            // Runs on the host agent rather than in a Docker agent: the script
+            // starts a container of its own, so that the same command builds the
+            // same AppImage here and on a developer's machine.
+            steps {
+                sh "./scripts/build-appimage-docker"
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'Noteahead-*.AppImage', fingerprint: true
+                }
+            }
+        }
     }
 }

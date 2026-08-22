@@ -279,7 +279,11 @@ when it is there.
     $ ./Noteahead-7.0.0-x86_64.AppImage
 
 It requires glibc 2.38 or newer, which covers Ubuntu 24.04, Debian 13 and Fedora 39 onwards.
-To build one yourself, run `./scripts/build-appimage` in the project root.
+
+To build one yourself, run `./scripts/build-appimage-docker` in the project root. It builds in an
+Ubuntu 24.04 container, so the AppImage stays portable whatever the host happens to be. There is
+also `./scripts/build-appimage`, which builds directly on the host: quicker to iterate on, but the
+result only runs on hosts at least as new as the one that built it.
 
 ##
 ## Build instructions

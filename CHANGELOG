@@ -72,7 +72,8 @@ Other:
 * Drop the Flatpak build: the manifest and the Flatter workflow are gone
 
 * Add an AppImage, so the other distributions are covered as well as Ubuntu
-  - Built by scripts/build-appimage and by a workflow of its own
+  - Built by scripts/build-appimage-docker in a container, so that the result
+    does not depend on the host distribution
   - Bundles JACK as a fallback only, so the system's own JACK is preferred
 
 7.0.0

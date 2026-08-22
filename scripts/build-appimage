@@ -73,19 +73,46 @@ for tool in linuxdeploy linuxdeploy-plugin-qt appimagetool; do
             *)            repo="linuxdeploy/${tool}" ;;
         esac
         echo "Downloading ${tool} .."
-        curl -sSfL -o "${TOOLS_DIR}/${tool}" \
+        curl -sSfL -o "${TOOLS_DIR}/${tool}.AppImage" \
             "https://github.com/${repo}/releases/download/continuous/${tool}-${ARCH}.AppImage"
+        chmod +x "${TOOLS_DIR}/${tool}.AppImage"
+
+        # Unpacked rather than kept as an AppImage. linuxdeploy starts its Qt
+        # plugin itself and has no way to pass --appimage-extract-and-run on to
+        # it, so the plugin would mount itself through FUSE -- which a container
+        # does not have. Unpacked tools need no FUSE from anyone.
+        rm -rf "${TOOLS_DIR}/${tool}.AppDir"
+        (cd "${TOOLS_DIR}" && ./"${tool}.AppImage" --appimage-extract > /dev/null && mv squashfs-root "${tool}.AppDir")
+        rm -f "${TOOLS_DIR}/${tool}.AppImage"
+
+        # The wrapper resolves its own directory rather than baking one in, so
+        # that a cached ${TOOLS_DIR} still works when the tree is mounted
+        # somewhere else inside a container.
+        cat > "${TOOLS_DIR}/${tool}" <<WRAPPER
+#!/bin/sh
+HERE="\$(dirname "\$(readlink -f "\$0")")"
+exec "\${HERE}/${tool}.AppDir/AppRun" "\$@"
+WRAPPER
         chmod +x "${TOOLS_DIR}/${tool}"
     fi
 done
 
-# --appimage-extract-and-run keeps the tools working in containers without FUSE.
-linuxdeploy() { "${TOOLS_DIR}/linuxdeploy" --appimage-extract-and-run "$@"; }
-appimagetool() { "${TOOLS_DIR}/appimagetool" --appimage-extract-and-run "$@"; }
+export PATH="${TOOLS_DIR}:${PATH}"
 
 ##############################################################################
 # Build and install into the AppDir
 ##############################################################################
+
+# A CMake cache records absolute paths, so a build directory configured on the
+# host is unusable from inside a container and the other way round. The same
+# working tree is used for both, so start over instead of failing.
+if [[ -f "${BUILD_DIR}/CMakeCache.txt" ]]; then
+    cached_source=$(sed -n 's/^CMAKE_HOME_DIRECTORY:INTERNAL=//p' "${BUILD_DIR}/CMakeCache.txt")
+    if [[ ${cached_source} != "${PWD}" ]]; then
+        echo "Discarding ${BUILD_DIR}, configured for ${cached_source} .."
+        rm -rf "${BUILD_DIR}"
+    fi
+fi
 
 cmake -B "${BUILD_DIR}" -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF
 cmake --build "${BUILD_DIR}"
@@ -108,15 +135,18 @@ QT_PLUGIN_DIR=$("${QMAKE}" -query QT_INSTALL_PLUGINS)
 # The QML lives in the binary's resources, so the import scanner has to be
 # pointed at the sources instead.
 export QML_SOURCES_PATHS="${PWD}/src/view/qml"
-export PATH="${TOOLS_DIR}:${PATH}"
 
 # Wayland is worth having but not worth failing over: without qt6-wayland the
 # AppImage still runs everywhere through XWayland.
+# Upstream Qt builds one libqwayland.so, Debian splits it into an EGL and a
+# generic plugin, so take whatever is actually there.
 EXTRA_PLATFORM_PLUGINS="libqoffscreen.so"
-if [[ -f "${QT_PLUGIN_DIR}/platforms/libqwayland.so" ]]; then
-    EXTRA_PLATFORM_PLUGINS="${EXTRA_PLATFORM_PLUGINS};libqwayland.so"
-else
-    echo "Warning: qt6-wayland is not installed, the AppImage will be X11 only."
+wayland_plugins=$(cd "${QT_PLUGIN_DIR}/platforms" 2> /dev/null && ls libqwayland*.so 2> /dev/null || true)
+for plugin in ${wayland_plugins}; do
+    EXTRA_PLATFORM_PLUGINS="${EXTRA_PLATFORM_PLUGINS};${plugin}"
+done
+if [[ -z ${wayland_plugins} ]]; then
+    echo "Warning: no Wayland platform plugin found, the AppImage will be X11 only."
 fi
 export EXTRA_PLATFORM_PLUGINS
 
