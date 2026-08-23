@@ -8,6 +8,7 @@ set(HEADER_FILES
     controllers/kick_808_controller.hpp
     controllers/piano_synth_controller.hpp
     controllers/piano_synth_v2_controller.hpp
+    controllers/piano_synth_v3_controller.hpp
     controllers/sampler_controller.hpp
     controllers/string_ensemble_controller.hpp
     controllers/synth_controller.hpp
@@ -29,6 +30,7 @@ set(SOURCE_FILES
     controllers/kick_808_controller.cpp
     controllers/piano_synth_controller.cpp
     controllers/piano_synth_v2_controller.cpp
+    controllers/piano_synth_v3_controller.cpp
     controllers/sampler_controller.cpp
     controllers/string_ensemble_controller.cpp
     controllers/string_voice_controller.cpp

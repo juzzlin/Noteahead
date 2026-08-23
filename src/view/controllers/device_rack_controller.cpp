@@ -24,6 +24,7 @@
 #include "../../domain/devices/kick_808_device.hpp"
 #include "../../domain/devices/piano_synth_device.hpp"
 #include "../../domain/devices/piano_synth_v2_device.hpp"
+#include "../../domain/devices/piano_synth_v3_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/string_ensemble_device.hpp"
 #include "../../domain/devices/string_voice_device.hpp"
@@ -157,6 +158,8 @@ void DeviceRackController::openDevice(const QString & name)
                     emit pianoSynthDialogRequested();
                 } else if (typeId == PianoSynthV2Device::typeIdString()) {
                     emit pianoSynthV2DialogRequested();
+                } else if (typeId == PianoSynthV3Device::typeIdString()) {
+                    emit pianoSynthV3DialogRequested();
                 } else if (typeId == Kick808Device::typeIdString()) {
                     emit kick808DialogRequested();
                 } else if (typeId == StringVoiceDevice::typeIdString()) {
@@ -430,6 +433,7 @@ QVariantList DeviceRackController::availableDevices() const
     addDevice("Drum Synth", QString::fromStdString(DrumSynthDevice::typeIdString()));
     addDevice("Piano Synth", QString::fromStdString(PianoSynthDevice::typeIdString()));
     addDevice("Piano Synth V2", QString::fromStdString(PianoSynthV2Device::typeIdString()));
+    addDevice("Piano Synth V3", QString::fromStdString(PianoSynthV3Device::typeIdString()));
     addDevice("Kick 808", QString::fromStdString(Kick808Device::typeIdString()));
     addDevice("String & Voice", QString::fromStdString(StringVoiceDevice::typeIdString()));
     addDevice("String Ensemble", QString::fromStdString(StringEnsembleDevice::typeIdString()));
@@ -606,6 +610,16 @@ void DeviceRackController::addPianoSynthV2()
     for (int i = 0; i < deviceCount(); i++) {
         if (!m_deviceService->device(static_cast<size_t>(i))) {
             setDevice(i, QString::fromStdString(PianoSynthV2Device::typeIdString()));
+            return;
+        }
+    }
+}
+
+void DeviceRackController::addPianoSynthV3()
+{
+    for (int i = 0; i < deviceCount(); i++) {
+        if (!m_deviceService->device(static_cast<size_t>(i))) {
+            setDevice(i, QString::fromStdString(PianoSynthV3Device::typeIdString()));
             return;
         }
     }

@@ -627,6 +627,15 @@
     <li><strong>Stretch Tuning</strong>: the octave stretch a piano tuner applies to keep the stretched partials in agreement across the keyboard.</li>
 </ul>
 
+<h3>Piano Synth V3</h3>
+<p>The same modal engine as Piano Synth V2, with three things corrected against the reference recording. It is a separate instrument rather than a change to V2 because the corrections move the sound, and a song written against V2 has to keep playing V2.</p>
+<ul>
+    <li><strong>The pickup keeps its sign.</strong> A CP80 has no soundboard: it is a rigid harp with a piezo under each string, and a piezo at a rigid termination senses force, whose partials alternate in sign. The comb the strike position cuts into the series keeps its sign too, instead of being taken through an absolute value. Neither changes any partial's level — what changes is the phases they arrive in, which is what the strike itself is made of.</li>
+    <li><strong>A partial standing in for a pair carries the pair's weight.</strong> Below the crossover a unison is modelled as two resonators, a prompt one and a slow one; above it, one resonator stands in for both. It used to be emitted at full amplitude, which stepped the series by about six decibels in the middle of the harmonic series, where the ear is most attentive to it.</li>
+    <li><strong>The strings come in twos, never threes</strong>, and single stringing reaches up to F#1. A CP80 is bichord over its whole compass; the earlier bound came from a grand piano.</li>
+</ul>
+<p>The controls are V2's, and mean the same things.</p>
+
 <h3>Kick808</h3>
 <p>A TR-808-style bass drum. Where the Drum Synth's kick follows the 909 lineage — a pitch-swept oscillator under an amplitude envelope — this one models the 808's bridged-T network as a high-Q resonator that the trigger pulse rings. That is what gives it the very long, near-pure sub tail, and it means overlapping hits sum into the ringing tail instead of cutting it off.</p>
 <p>It is deliberately a <em>pitched, monophonic</em> instrument rather than a drum machine voice, because the 808 kick is played as a bass line at least as often as it is played as a drum. Notes are one-shot: <strong>Decay</strong> owns the tail and a note off does not cut it, exactly like the hardware. Only <em>Stop all notes</em> chokes a ringing hit.</p>

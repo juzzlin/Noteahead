@@ -19,6 +19,7 @@
 #include "kick_808_device.hpp"
 #include "piano_synth_device.hpp"
 #include "piano_synth_v2_device.hpp"
+#include "piano_synth_v3_device.hpp"
 #include "sampler_device.hpp"
 #include "string_ensemble_device.hpp"
 #include "string_voice_device.hpp"
@@ -53,6 +54,9 @@ void DeviceFactory::init()
     });
     registerDevice(PianoSynthV2Device::typeIdString(), [](const std::string & name) {
         return std::make_shared<PianoSynthV2Device>(name);
+    });
+    registerDevice(PianoSynthV3Device::typeIdString(), [](const std::string & name) {
+        return std::make_shared<PianoSynthV3Device>(name);
     });
     registerDevice(SubMixerDevice::typeIdString(), [](const std::string & name) {
         return std::make_shared<SubMixerDevice>(name);

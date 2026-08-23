@@ -33,6 +33,7 @@
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/kick_808_device.hpp"
 #include "../../domain/devices/piano_synth_v2_device.hpp"
+#include "../../domain/devices/piano_synth_v3_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/string_ensemble_device.hpp"
 #include "../../domain/devices/string_voice_device.hpp"
@@ -2024,6 +2025,60 @@ void XmlSerializationTest::test_toXmlFromXml_pianoSynthV2Device_shouldLoadCorrec
     const auto restored = std::dynamic_pointer_cast<PianoSynthV2Device>(deviceServiceIn.device(size_t { 1 }));
     QVERIFY(restored);
     QCOMPARE(restored->typeId(), PianoSynthV2Device::typeIdString());
+
+    QVERIFY(std::abs(restored->brightness() - 0.62f) < 0.001f);
+    QVERIFY(std::abs(restored->decay() - 0.28f) < 0.001f);
+    QVERIFY(std::abs(restored->inharmonicity() - 0.81f) < 0.001f);
+    QVERIFY(std::abs(restored->hammerHardness() - 0.34f) < 0.001f);
+    QVERIFY(std::abs(restored->stringDetune() - 0.19f) < 0.001f);
+    QVERIFY(std::abs(restored->stretch() - 0.55f) < 0.001f);
+    QVERIFY(std::abs(restored->richness() - 0.88f) < 0.001f);
+    QVERIFY(std::abs(restored->doubleDecay() - 0.41f) < 0.001f);
+    QVERIFY(std::abs(restored->lpfCutoff() - 0.73f) < 0.001f);
+    QVERIFY(std::abs(restored->hpfCutoff() - 0.12f) < 0.001f);
+    QVERIFY(std::abs(restored->releaseTime() - 0.26f) < 0.001f);
+    QVERIFY(std::abs(restored->stereoWidth() - 0.37f) < 0.001f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_pianoSynthV3Device_shouldLoadCorrectly()
+{
+    // Devices are rebuilt through DeviceFactory, so this also covers the factory registration:
+    // without it the device would silently vanish from a reloaded project.
+    DeviceFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto piano = std::make_shared<PianoSynthV3Device>("PianoSynthV3");
+    piano->setBrightness(0.62f);
+    piano->setDecay(0.28f);
+    piano->setInharmonicity(0.81f);
+    piano->setHammerHardness(0.34f);
+    piano->setStringDetune(0.19f);
+    piano->setStretch(0.55f);
+    piano->setRichness(0.88f);
+    piano->setDoubleDecay(0.41f);
+    piano->setLpfCutoff(0.73f);
+    piano->setHpfCutoff(0.12f);
+    piano->setReleaseTime(0.26f);
+    piano->setStereoWidth(0.37f);
+    deviceServiceOut.setDevice(1, piano);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto restored = std::dynamic_pointer_cast<PianoSynthV3Device>(deviceServiceIn.device(size_t { 1 }));
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), PianoSynthV3Device::typeIdString());
 
     QVERIFY(std::abs(restored->brightness() - 0.62f) < 0.001f);
     QVERIFY(std::abs(restored->decay() - 0.28f) < 0.001f);

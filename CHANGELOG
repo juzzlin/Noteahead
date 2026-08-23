@@ -5,6 +5,16 @@ Release date:
 
 New features:
 
+* Add Piano Synth V3, a corrected revision of the CP80 model
+  - The pickup's sign is kept: a piezo at a rigid termination senses force, whose
+    partials alternate in sign, and the strike comb keeps its sign too. Levels are
+    untouched; what changes is the shape of the strike
+  - A partial standing in for a unison pair now carries the pair's weight, removing
+    a six decibel step in the middle of the series
+  - The strings come in twos, never threes, and single stringing reaches to F#1:
+    a CP80 is bichord over its whole compass
+  - A separate device, so songs written against V2 keep playing V2
+
 * Add the Gain rack effect: a plain +/-24 dB trim with a latching clip indicator,
   for staging level without the colour a limiter or a drive brings
 

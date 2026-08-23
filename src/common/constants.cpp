@@ -152,6 +152,11 @@ QString pianoSynthV2DeviceName()
     return "Noteahead PianoSynth V2";
 }
 
+QString pianoSynthV3DeviceName()
+{
+    return "Noteahead PianoSynth V3";
+}
+
 QString kick808DeviceName()
 {
     return "Noteahead Kick808";

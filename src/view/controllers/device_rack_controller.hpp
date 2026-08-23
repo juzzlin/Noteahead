@@ -137,6 +137,7 @@ public:
     Q_INVOKABLE void addDrumSynth();
     Q_INVOKABLE void addPianoSynth();
     Q_INVOKABLE void addPianoSynthV2();
+    Q_INVOKABLE void addPianoSynthV3();
     Q_INVOKABLE void addKick808();
     Q_INVOKABLE void addStringVoice();
     Q_INVOKABLE void addSubMixer();
@@ -153,6 +154,7 @@ signals:
     void drumSynthDialogRequested();
     void pianoSynthDialogRequested();
     void pianoSynthV2DialogRequested();
+    void pianoSynthV3DialogRequested();
     void kick808DialogRequested();
     void stringVoiceDialogRequested();
     void stringEnsembleDialogRequested();
