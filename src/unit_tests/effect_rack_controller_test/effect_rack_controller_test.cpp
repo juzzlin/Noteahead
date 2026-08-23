@@ -695,6 +695,27 @@ void EffectRackControllerTest::test_populatedEffects_shouldReturnOnlyFilledSlots
     QCOMPARE(populated.at(1).toMap()["slotIndex"].toInt(), 2);
 }
 
+void EffectRackControllerTest::test_availableEffects_shouldBeSortedByName()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+
+    // The gallery is one flat list in this order, and it had silently drifted out of alphabetical
+    // as effects were added over time. Sorting is done in availableEffects(); this is what keeps it
+    // true for whatever gets added next.
+    const auto effects = controller.availableEffects();
+    QVERIFY(effects.size() > 1);
+
+    for (qsizetype i = 1; i < effects.size(); i++) {
+        const auto previous = effects.at(i - 1).toMap()["name"].toString();
+        const auto current = effects.at(i).toMap()["name"].toString();
+        QVERIFY2(QString::compare(previous, current, Qt::CaseInsensitive) < 0,
+                 qPrintable(QString { "\"%1\" is listed before \"%2\"" }.arg(previous, current)));
+    }
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::EffectRackControllerTest)

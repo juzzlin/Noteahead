@@ -65,6 +65,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <ranges>
 
 namespace noteahead {
 
@@ -339,6 +340,14 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Stereo Exciter", Constants::RackEffectType::stereoExciter().toStdString());
     addEffect("Stereo Widener", Constants::RackEffectType::stereoWidener().toStdString());
     addEffect("Stereo Field Meter", Constants::RackEffectType::stereoFieldMeter().toStdString());
+
+    // Sorted here rather than by hand at the call sites above: the gallery is one flat list, so the
+    // order it is built in is the order the user reads, and a list kept alphabetical by convention
+    // alone drifts every time an effect is added. Case-insensitive so that "dBTP Meter" lands with
+    // the D's rather than after every capital.
+    std::ranges::sort(list, [](const QVariant & a, const QVariant & b) {
+        return QString::compare(a.toMap()["name"].toString(), b.toMap()["name"].toString(), Qt::CaseInsensitive) < 0;
+    });
 
     return list;
 }
