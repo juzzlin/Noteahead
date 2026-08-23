@@ -74,6 +74,11 @@ public:
         // patch that leaves it alone is unchanged; below that the note arrives more abruptly, above
         // it the hammer is felt rather than heard.
         float attack { 0.5f };
+        // How much of the strike's level follows velocity. One is the whole range, which is what
+        // the reference was measured at; nothing holds every note at its loudest. Only the level
+        // is blended -- the hammer still hardens with velocity, so a note played softly stays
+        // soft in tone while coming up in level, which is the point of the control.
+        float velocitySensitivity { 1.0f };
     };
 
     // Partials of the note itself, before the unison pairs are added. The reference has

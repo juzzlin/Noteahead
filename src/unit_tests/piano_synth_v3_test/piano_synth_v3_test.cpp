@@ -929,6 +929,66 @@ double partialMagnitude(const std::vector<double> & buffer, uint8_t note, int pa
 
 } // namespace
 
+void PianoSynthV3Test::test_velocitySensitivity_shouldFlattenTheLevelWithoutTouchingTone()
+{
+    constexpr uint8_t note = 84;
+    constexpr int sampleCount = 24000;
+
+    const auto peakAt = [](float velocity, float sensitivity) {
+        ModalPianoStringV3::Settings settings;
+        settings.velocitySensitivity = sensitivity;
+        ModalPianoStringV3 string;
+        string.setSampleRate(TestSampleRate);
+        string.trigger(note, velocity, settings);
+        double peak = 0.0;
+        for (int i = 0; i < sampleCount; i++) {
+            peak = std::max(peak, std::abs(string.nextSample()));
+        }
+        return peak;
+    };
+
+    // Full sensitivity is the reference's own law: half velocity is a quarter of the level, the
+    // eight and a half decibels the survey measured between velocity 64 and 100.
+    const double fullSoft = peakAt(0.5f, 1.0f);
+    const double fullHard = peakAt(1.0f, 1.0f);
+    QVERIFY2(std::abs(fullHard / fullSoft - 4.0) < 0.4,
+             qPrintable(QString { "Expected a factor of four, got %1" }.arg(fullHard / fullSoft)));
+
+    // Turning it down lifts the soft strike toward the loud one.
+    const double halfSoft = peakAt(0.5f, 0.5f);
+    QVERIFY2(halfSoft > fullSoft * 1.5,
+             qPrintable(QString { "Soft strike only moved from %1 to %2" }.arg(fullSoft).arg(halfSoft)));
+
+    // At nothing, velocity stops setting the level. Not to the last decimal: the hammer still
+    // hardens with velocity, and a different spectrum peaks a little differently even at the same
+    // gain -- under a decibel here, against the twelve that full sensitivity spans.
+    const double flatRatio = peakAt(0.2f, 0.0f) / peakAt(1.0f, 0.0f);
+    QVERIFY2(std::abs(flatRatio - 1.0) < 0.15,
+             qPrintable(QString { "Level still followed velocity: %1" }.arg(flatRatio)));
+
+    // And the loud end is left where it was, so the control cannot make a patch louder than the
+    // instrument's own top.
+    QVERIFY2(std::abs(peakAt(1.0f, 0.0f) / fullHard - 1.0) < 0.02,
+             qPrintable(QString { "Full velocity moved by %1" }.arg(peakAt(1.0f, 0.0f) / fullHard)));
+
+    // The tone still follows the hammer, not the blend: a soft strike stays soft in colour even
+    // when it has been brought up in level. Measured as the ninth partial against the first.
+    const auto brightness = [](float velocity, float sensitivity) {
+        ModalPianoStringV3::Settings settings;
+        settings.velocitySensitivity = sensitivity;
+        ModalPianoStringV3 string;
+        string.setSampleRate(TestSampleRate);
+        string.trigger(note, velocity, settings);
+        std::vector<double> buffer(static_cast<size_t>(sampleCount), 0.0);
+        for (int i = 0; i < sampleCount; i++) {
+            buffer[static_cast<size_t>(i)] = string.nextSample();
+        }
+        return partialMagnitude(buffer, note, 9) / partialMagnitude(buffer, note, 1);
+    };
+    QVERIFY2(std::abs(brightness(0.5f, 0.0f) / brightness(0.5f, 1.0f) - 1.0) < 0.05,
+             qPrintable(QString { "Tone moved with the blend: %1" }.arg(brightness(0.5f, 0.0f) / brightness(0.5f, 1.0f))));
+}
+
 void PianoSynthV3Test::test_pickupSign_shouldChangePhasesWithoutChangingLevel()
 {
     // MIDI 24 is single-strung in both revisions, so neither the bichord bound nor the

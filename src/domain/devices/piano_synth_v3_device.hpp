@@ -82,6 +82,10 @@ public:
     //! Scales the ramp the strike opens with, half being the one the model was fitted with.
     float attack() const;
     void setAttack(float attack);
+
+    //! How much of the strike's level follows velocity, one being the reference's own law.
+    float velocitySensitivity() const;
+    void setVelocitySensitivity(float sensitivity);
     float lpfCutoff() const;
     void setLpfCutoff(float cutoff);
     float hpfCutoff() const;
@@ -131,6 +135,7 @@ private:
     float m_richness { 0.7f };
     float m_doubleDecay { 0.5f };
     float m_attack { 0.5f };
+    float m_velocitySensitivity { 1.0f };
     float m_lpfCutoff { 1.0f };
     float m_hpfCutoff { 0.0f };
     float m_releaseTime { 0.15f };

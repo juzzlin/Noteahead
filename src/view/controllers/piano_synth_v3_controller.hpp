@@ -36,6 +36,7 @@ class PianoSynthV3Controller : public DeviceController
     Q_PROPERTY(int richness READ richness WRITE setRichness NOTIFY richnessChanged)
     Q_PROPERTY(int doubleDecay READ doubleDecay WRITE setDoubleDecay NOTIFY doubleDecayChanged)
     Q_PROPERTY(int attack READ attack WRITE setAttack NOTIFY attackChanged)
+    Q_PROPERTY(int velocitySensitivity READ velocitySensitivity WRITE setVelocitySensitivity NOTIFY velocitySensitivityChanged)
     Q_PROPERTY(int lpfCutoff READ lpfCutoff WRITE setLpfCutoff NOTIFY lpfCutoffChanged)
     Q_PROPERTY(int hpfCutoff READ hpfCutoff WRITE setHpfCutoff NOTIFY hpfCutoffChanged)
     Q_PROPERTY(int releaseTime READ releaseTime WRITE setReleaseTime NOTIFY releaseTimeChanged)
@@ -64,6 +65,8 @@ public:
     void setRichness(int value);
     int doubleDecay() const;
     int attack() const;
+    int velocitySensitivity() const;
+    void setVelocitySensitivity(int value);
     void setDoubleDecay(int value);
     void setAttack(int value);
     int lpfCutoff() const;
@@ -88,6 +91,7 @@ signals:
     void richnessChanged();
     void doubleDecayChanged();
     void attackChanged();
+    void velocitySensitivityChanged();
     void lpfCutoffChanged();
     void hpfCutoffChanged();
     void releaseTimeChanged();

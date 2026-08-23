@@ -395,7 +395,12 @@ void ModalPianoStringV3::trigger(uint8_t note, float velocity, const Settings & 
     // Velocity squares, matching the eight and a half decibels the reference gains
     // between velocity 64 and 100.
     const double norm = sumOfSquares > 0.0 ? 1.0 / std::sqrt(sumOfSquares) : 0.0;
-    m_gain = norm * vel * vel * keyLevel(note);
+    // Velocity is squared because the reference gains eight and a half decibels between 64 and
+    // 100, and it is blended toward unity first so the player can flatten that. The blend is on
+    // the level alone: hammerCorner above still reads the velocity as struck.
+    const double sensitivity = std::clamp(static_cast<double>(settings.velocitySensitivity), 0.0, 1.0);
+    const double levelVel = (1.0 - sensitivity) + sensitivity * vel;
+    m_gain = norm * levelVel * levelVel * keyLevel(note);
 
     // A short ramp over the strike, long in the bass and brief at the top, so that the
     // modes do not all land on one sample. It is what an attack time is measured as.

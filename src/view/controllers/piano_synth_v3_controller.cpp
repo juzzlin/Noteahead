@@ -153,6 +153,18 @@ void PianoSynthV3Controller::setAttack(int value)
     }
 }
 
+int PianoSynthV3Controller::velocitySensitivity() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->velocitySensitivity() * Constants::uiInternalScaling())) : 0;
+}
+
+void PianoSynthV3Controller::setVelocitySensitivity(int value)
+{
+    if (m_device) {
+        m_device->setVelocitySensitivity(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
 int PianoSynthV3Controller::lpfCutoff() const
 {
     return m_device ? static_cast<int>(std::round(m_device->lpfCutoff() * Constants::uiInternalScaling())) : 0;
@@ -212,6 +224,7 @@ void PianoSynthV3Controller::requestSettings()
     emit richnessChanged();
     emit doubleDecayChanged();
     emit attackChanged();
+    emit velocitySensitivityChanged();
     emit lpfCutoffChanged();
     emit hpfCutoffChanged();
     emit releaseTimeChanged();

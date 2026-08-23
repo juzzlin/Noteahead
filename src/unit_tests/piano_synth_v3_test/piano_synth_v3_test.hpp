@@ -40,6 +40,7 @@ private slots:
 
     // The three corrections V3 exists for. Each is written against V2's behaviour, so each
     // fails if the V3 string is ever made to behave like the older one again.
+    void test_velocitySensitivity_shouldFlattenTheLevelWithoutTouchingTone();
     void test_pickupSign_shouldChangePhasesWithoutChangingLevel();
     void test_bichord_shouldLeaveTheLowBassSingleStrung();
     void test_unisonStandIn_shouldNotStepTheSpectrum();

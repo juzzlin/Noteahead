@@ -50,6 +50,15 @@ ColumnLayout {
         Layout.fillWidth: true
     }
     Knob {
+        // Full is the reference's own law, where the level follows velocity squared. Turning it
+        // down lifts the softer strikes toward the loud ones without touching their tone, which
+        // is what makes the top of the keyboard playable without hammering it.
+        label: qsTr("Velocity Sensitivity")
+        value: pianoSynthV3Controller.velocitySensitivity
+        onMoved: v => pianoSynthV3Controller.velocitySensitivity = v
+        Layout.fillWidth: true
+    }
+    Knob {
         label: qsTr("Richness")
         value: pianoSynthV3Controller.richness
         onMoved: v => pianoSynthV3Controller.richness = v
