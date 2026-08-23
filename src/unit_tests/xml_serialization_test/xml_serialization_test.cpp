@@ -42,8 +42,6 @@
 #include "../../domain/effects/air_band_eq.hpp"
 #include "../../domain/effects/all_pass_filter.hpp"
 #include "../../domain/effects/analog_fuzz.hpp"
-#include "../../domain/effects/saturator.hpp"
-#include "../../domain/effects/drive.hpp"
 #include "../../domain/effects/auto_ducker.hpp"
 #include "../../domain/effects/auto_filter.hpp"
 #include "../../domain/effects/bass_grinder.hpp"
@@ -51,14 +49,17 @@
 #include "../../domain/effects/clipper.hpp"
 #include "../../domain/effects/delay.hpp"
 #include "../../domain/effects/dimension.hpp"
+#include "../../domain/effects/drive.hpp"
 #include "../../domain/effects/early_reflections.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/endless_reverb.hpp"
 #include "../../domain/effects/eq_8_band_parametric.hpp"
 #include "../../domain/effects/limiter.hpp"
+#include "../../domain/effects/monitor.hpp"
 #include "../../domain/effects/multiband_compressor.hpp"
 #include "../../domain/effects/phaser.hpp"
 #include "../../domain/effects/reverb.hpp"
+#include "../../domain/effects/saturator.hpp"
 #include "../../domain/effects/simple_eq.hpp"
 #include "../../domain/effects/stereo_enhancer.hpp"
 #include "../../domain/effects/stereo_exciter.hpp"
@@ -2854,6 +2855,42 @@ void XmlSerializationTest::test_toXmlFromXml_analogFuzzEffect_shouldLoadCorrectl
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyCutoff()) - 0.44f) < 0.01f);
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyResonance()) - 0.88f) < 0.01f);
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyMix()) - 0.55f) < 0.01f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_monitorEffect_shouldLoadCorrectly()
+{
+    EffectFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto monitor = std::make_shared<Monitor>();
+    if (auto p = monitor->parameter(Constants::NahdXml::xmlKeyMode().toStdString()); p) {
+        p->get().setValue(static_cast<float>(Monitor::Mode::Side));
+    }
+    // The insert rack, because that is the only place a Monitor does anything: a send is parallel,
+    // and folding a parallel bus to mono says nothing about the mix.
+    deviceServiceOut.insertEffectRack().setEffect(0, monitor);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.insertEffectRack().effect(0);
+    QVERIFY(effect);
+    const auto restored = std::dynamic_pointer_cast<Monitor>(effect);
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), Monitor::typeIdString());
+    // Deserialization syncs the effect, so the mode is in effect and not just stored.
+    QCOMPARE(restored->mode(), Monitor::Mode::Side);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_dimensionEffect_shouldLoadCorrectly()

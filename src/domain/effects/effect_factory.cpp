@@ -37,6 +37,7 @@
 #include "endless_reverb.hpp"
 #include "eq_8_band_parametric.hpp"
 #include "limiter.hpp"
+#include "monitor.hpp"
 #include "multiband_compressor.hpp"
 #include "panner.hpp"
 #include "phaser.hpp"
@@ -119,6 +120,7 @@ void EffectFactory::init()
     registerEffect(Eq8BandParametric::typeIdString(), []() { return std::make_shared<Eq8BandParametric>(); });
     registerEffect(Limiter::typeIdString(), []() { return std::make_shared<Limiter>(); });
     registerEffect(LufsMeter::typeIdString(), []() { return std::make_shared<LufsMeter>(); });
+    registerEffect(Monitor::typeIdString(), []() { return std::make_shared<Monitor>(); });
     registerEffect(MultibandCompressor::typeIdString(), []() { return std::make_shared<MultibandCompressor>(); });
     registerEffect(Panner::typeIdString(), []() { return std::make_shared<Panner>(); });
     registerEffect(Phaser::typeIdString(), []() { return std::make_shared<Phaser>(); });
@@ -145,6 +147,7 @@ void EffectFactory::init()
     registerEffect(Constants::RackEffectType::earlyReflections().toStdString(), []() { return std::make_shared<EarlyReflections>(); });
     registerEffect(Constants::RackEffectType::eq8BandParametric().toStdString(), []() { return std::make_shared<Eq8BandParametric>(); });
     registerEffect(Constants::RackEffectType::limiter().toStdString(), []() { return std::make_shared<Limiter>(); });
+    registerEffect(Constants::RackEffectType::monitor().toStdString(), []() { return std::make_shared<Monitor>(); });
     registerEffect(Constants::RackEffectType::multibandCompressor().toStdString(), []() { return std::make_shared<MultibandCompressor>(); });
     registerEffect(Constants::RackEffectType::panner().toStdString(), []() { return std::make_shared<Panner>(); });
     registerEffect(Constants::RackEffectType::phaser().toStdString(), []() { return std::make_shared<Phaser>(); });
@@ -188,6 +191,7 @@ void EffectFactory::init()
     registerLegacyEffect("delay", []() { return std::make_shared<Delay>(); });
     registerLegacyEffect("eq_8_band_parametric", []() { return std::make_shared<Eq8BandParametric>(); });
     registerLegacyEffect("limiter", []() { return std::make_shared<Limiter>(); });
+    registerLegacyEffect("monitor", []() { return std::make_shared<Monitor>(); });
     registerLegacyEffect("panner", []() { return std::make_shared<Panner>(); });
     registerLegacyEffect("phaser", []() { return std::make_shared<Phaser>(); });
     registerLegacyEffect("reverb", []() { return std::make_shared<Reverb>(); });

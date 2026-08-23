@@ -55,6 +55,7 @@ struct DeviceProcessContext
     uint32_t bufferSize {};
     double bpm {};
     uint8_t oversampleFactor {};
+    bool offline {};
 };
 
 struct EffectProcessContext
@@ -68,6 +69,7 @@ struct EffectProcessContext
     uint32_t sampleRate {};
     double bpm {};
     uint8_t oversampleFactor {};
+    bool offline {};
 };
 
 bool bufferContainsSignal(const std::vector<double> & buffer, uint32_t bufferSize)
@@ -105,7 +107,7 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
         return;
     }
 
-    AudioContext audioContext { std::span(workBuffer.deviceBuffer.data(), deviceContext.bufferSize), deviceContext.frameCount, deviceContext.sampleRate, deviceContext.bpm, deviceContext.deviceOutputBuffers, deviceContext.oversampleFactor };
+    AudioContext audioContext { std::span(workBuffer.deviceBuffer.data(), deviceContext.bufferSize), deviceContext.frameCount, deviceContext.sampleRate, deviceContext.bpm, deviceContext.deviceOutputBuffers, deviceContext.oversampleFactor, deviceContext.offline };
 
     // Cheap enough to read unconditionally; the meter itself is a no-op while nothing is displayed.
     const auto processingStarted = std::chrono::steady_clock::now();
@@ -205,7 +207,7 @@ void processEffectTask(void * context, size_t taskIndex, size_t /*workerIndex*/)
     // Copy dry signal to wet buffer for in-place processing
     std::copy(sendBus.begin(), sendBus.begin() + bufferSize, wetBuffer.begin());
 
-    AudioContext context_obj { std::span(wetBuffer.data(), bufferSize), effectContext.frameCount, effectContext.sampleRate, effectContext.bpm, {}, effectContext.oversampleFactor };
+    AudioContext context_obj { std::span(wetBuffer.data(), bufferSize), effectContext.frameCount, effectContext.sampleRate, effectContext.bpm, {}, effectContext.oversampleFactor, effectContext.offline };
     effect->process(context_obj);
 
     bool hasWetSignal = false;
@@ -553,7 +555,8 @@ void AudioEngine::process(AudioContext & context)
                 context.sampleRate,
                 bufferSize,
                 context.bpm,
-                context.oversampleFactor
+                context.oversampleFactor,
+                context.offline
             };
             if (fanOutDevices) {
                 m_workerPool->run(layer.size(), &deviceContext, processDeviceTask);
@@ -604,7 +607,8 @@ void AudioEngine::process(AudioContext & context)
             context.frameCount,
             context.sampleRate,
             context.bpm,
-            context.oversampleFactor
+            context.oversampleFactor,
+            context.offline
         };
         if (useWorkers && activeSendCount > 1) {
             m_workerPool->run(sendCount, &effectContext, processEffectTask);

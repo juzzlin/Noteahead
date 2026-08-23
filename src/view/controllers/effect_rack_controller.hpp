@@ -57,6 +57,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString analogFuzzType READ analogFuzzType CONSTANT)
     Q_PROPERTY(QString bassGrinderType READ bassGrinderType CONSTANT)
     Q_PROPERTY(QString limiterType READ limiterType CONSTANT)
+    Q_PROPERTY(QString monitorType READ monitorType CONSTANT)
     Q_PROPERTY(QString compressorType READ compressorType CONSTANT)
     Q_PROPERTY(QString multibandCompressorType READ multibandCompressorType CONSTANT)
     Q_PROPERTY(QString stereoWidenerType READ stereoWidenerType CONSTANT)
@@ -115,6 +116,7 @@ public:
     QString analogFuzzType() const;
     QString bassGrinderType() const;
     QString limiterType() const;
+    QString monitorType() const;
     QString compressorType() const;
     QString multibandCompressorType() const;
     QString stereoWidenerType() const;
@@ -301,6 +303,8 @@ public:
     Q_INVOKABLE QString limiterReleaseKey() const;
     Q_INVOKABLE QString limiterLookaheadKey() const;
     Q_INVOKABLE QString limiterBoostKey() const;
+
+    Q_INVOKABLE QString monitorModeKey() const;
 
     Q_INVOKABLE QString endlessSizeKey() const;
     Q_INVOKABLE QString endlessFeedbackKey() const;

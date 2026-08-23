@@ -197,6 +197,7 @@ QString allPassFilter();
 QString lufsMeter();
 QString dbtpMeter();
 QString rta();
+QString monitor();
 } // namespace RackEffectType
 
 namespace NahdXml {

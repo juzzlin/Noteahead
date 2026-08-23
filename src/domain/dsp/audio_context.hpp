@@ -38,6 +38,11 @@ struct AudioContext
     //! higher rate. Lower for realtime playback to save CPU, higher for offline export. Default 2
     //! preserves the historical fixed 2x behaviour.
     uint8_t oversampleFactor { 2 };
+    //! Whether this block is being rendered offline rather than heard. Set by the offline export and
+    //! carried into every derived context, so that an effect which only makes sense while listening --
+    //! Monitor -- can take itself out of the signal path of an export without anything having to
+    //! remember to reach it.
+    bool offline { false };
 };
 
 } // namespace noteahead

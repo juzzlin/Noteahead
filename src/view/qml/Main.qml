@@ -493,6 +493,10 @@ ApplicationWindow {
         id: analogFuzzDialog
         anchors.centerIn: parent
     }
+    MonitorDialog {
+        id: monitorDialog
+        anchors.centerIn: parent
+    }
     BassGrinderDialog {
         id: bassGrinderDialog
         anchors.centerIn: parent

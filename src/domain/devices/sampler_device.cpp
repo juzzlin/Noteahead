@@ -488,7 +488,7 @@ void SamplerDevice::processAudio(AudioContext & context)
         auto & [sample, padBuffer] = m_padBuffers[k];
         auto & rack = *sample->effectRack;
         rack.setBpm(static_cast<float>(context.bpm));
-        AudioContext padContext { std::span<double>(padBuffer.data(), bufferSize), context.frameCount, context.sampleRate, context.bpm, {}, context.oversampleFactor };
+        AudioContext padContext { std::span<double>(padBuffer.data(), bufferSize), context.frameCount, context.sampleRate, context.bpm, {}, context.oversampleFactor, context.offline };
         rack.processInPlace(padContext);
         for (uint32_t i = 0; i < bufferSize; i++) {
             buffer[i] += padBuffer[i] * gain;

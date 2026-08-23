@@ -211,6 +211,11 @@ QString delay()
     return "delay";
 }
 
+QString monitor()
+{
+    return "monitor";
+}
+
 QString dimension()
 {
     return "dimension";

@@ -70,6 +70,7 @@ set(HEADER_FILES
     effects/endless_reverb.hpp
     effects/eq_8_band_parametric.hpp
     effects/limiter.hpp
+    effects/monitor.hpp
     effects/multiband_compressor.hpp
     effects/panner.hpp
     effects/phaser.hpp
@@ -204,6 +205,7 @@ set(SOURCE_FILES
     effects/endless_reverb.cpp
     effects/eq_8_band_parametric.cpp
     effects/limiter.cpp
+    effects/monitor.cpp
     effects/multiband_compressor.cpp
     effects/panner.cpp
     effects/phaser.cpp

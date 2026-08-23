@@ -37,6 +37,7 @@
 #include "../../domain/effects/effect_rack.hpp"
 #include "../../domain/effects/eq_8_band_parametric.hpp"
 #include "../../domain/effects/limiter.hpp"
+#include "../../domain/effects/monitor.hpp"
 #include "../../domain/effects/multiband_compressor.hpp"
 #include "../../domain/effects/panner.hpp"
 #include "../../domain/effects/phaser.hpp"
@@ -322,6 +323,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Air Band EQ", Constants::RackEffectType::airBandEq().toStdString());
     addEffect("Simple EQ", Constants::RackEffectType::simpleEq().toStdString());
     addEffect("Limiter", Constants::RackEffectType::limiter().toStdString());
+    addEffect("Monitor", Constants::RackEffectType::monitor().toStdString());
     addEffect("Multiband Compressor", Constants::RackEffectType::multibandCompressor().toStdString());
     addEffect("LUFS Meter", LufsMeter::typeIdString());
     addEffect("Panner", Constants::RackEffectType::panner().toStdString());
@@ -547,6 +549,24 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                     return QString { "(ceil=%1dB, boost=%2)" }
                       .arg(ceiling->get().xmlValue() / 100.0f, 0, 'f', 1)
                       .arg(boost->get().value() > 0.5f ? tr("on") : tr("off"));
+                }
+            } else if (type == Constants::RackEffectType::monitor()) {
+                // Named in full and in capitals: a monitor left folded is the one setting in the rack
+                // that quietly misrepresents everything downstream of it, so it has to be readable
+                // without opening anything.
+                if (const auto mode = effect->parameter(Constants::NahdXml::xmlKeyMode().toStdString()); mode) {
+                    switch (static_cast<Monitor::Mode>(mode->get().xmlValue())) {
+                    case Monitor::Mode::Stereo:
+                        return QString { "(%1)" }.arg(tr("STEREO"));
+                    case Monitor::Mode::Mono:
+                        return QString { "(%1)" }.arg(tr("MONO"));
+                    case Monitor::Mode::Left:
+                        return QString { "(%1)" }.arg(tr("LEFT"));
+                    case Monitor::Mode::Right:
+                        return QString { "(%1)" }.arg(tr("RIGHT"));
+                    case Monitor::Mode::Side:
+                        return QString { "(%1)" }.arg(tr("SIDE"));
+                    }
                 }
             } else if (type == Constants::RackEffectType::compressor()) {
                 const auto attack { effect->parameter(Constants::NahdXml::xmlKeyAttack().toStdString()) };
@@ -1046,6 +1066,11 @@ QString EffectRackController::limiterLookaheadKey() const
 QString EffectRackController::limiterBoostKey() const
 {
     return Constants::NahdXml::xmlKeyBoost();
+}
+
+QString EffectRackController::monitorModeKey() const
+{
+    return Constants::NahdXml::xmlKeyMode();
 }
 
 QString EffectRackController::saturatorModeKey() const
@@ -1858,6 +1883,11 @@ QString EffectRackController::bassGrinderType() const
 QString EffectRackController::limiterType() const
 {
     return Constants::RackEffectType::limiter();
+}
+
+QString EffectRackController::monitorType() const
+{
+    return Constants::RackEffectType::monitor();
 }
 
 QString EffectRackController::chorusType() const

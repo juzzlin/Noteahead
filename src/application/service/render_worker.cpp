@@ -210,6 +210,7 @@ void RenderWorker::render(const QString & fileName,
                 std::fill(audioBuffer.begin(), audioBuffer.begin() + totalSamples, 0.0);
                 AudioContext audioContext { std::span(audioBuffer.data(), totalSamples), framesToProcess, sampleRate };
                 audioContext.oversampleFactor = options.oversampleFactor;
+                audioContext.offline = true;
                 m_audioEngine->process(audioContext);
 
                 convertAndPush(totalSamples, totalFramesWritten);
@@ -240,6 +241,7 @@ void RenderWorker::render(const QString & fileName,
             std::fill(audioBuffer.begin(), audioBuffer.begin() + totalSamples, 0.0);
             AudioContext audioContext { std::span(audioBuffer.data(), totalSamples), finalFrames, sampleRate };
             audioContext.oversampleFactor = options.oversampleFactor;
+            audioContext.offline = true;
             m_audioEngine->process(audioContext);
 
             convertAndPush(totalSamples, totalFramesWritten);

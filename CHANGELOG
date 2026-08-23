@@ -5,6 +5,11 @@ Release date:
 
 New features:
 
+* Add the Monitor rack effect
+  - Stereo, Mono, Left, Right and Side fold-downs for checking a mix by ear,
+    insertable anywhere an insert rack is
+  - Monitoring only: the selected mode is left out of an audio render
+
 Bug fixes:
 
 * Disable the synth's Roundness knob on every waveform but the pulse, which is
