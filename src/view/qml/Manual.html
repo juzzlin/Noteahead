@@ -106,7 +106,7 @@
 <ul>
     <li><strong>Equalizers</strong>: <strong>EQ 8-Band Parametric</strong> (Bell, Shelf, Cut and Notch types per band, plus Mid/Side modes), <strong>Vintage Passive EQ</strong> (EQP-1A style, with interacting low Boost/Atten shelves and a high bell), <strong>Air Band EQ</strong> (fixed parallel-summed bands added back to the dry signal) and <strong>Simple EQ</strong> (a single "Sounds Good" knob sweeping a loudness-smile curve).</li>
     <li><strong>Reverbs</strong>: <strong>Reverb</strong> (the FDN reverb described below), <strong>Endless Reverb</strong> (a large modulated ambient reverb with a Freeze switch for an infinite tail) and <strong>Early Reflections</strong> (the room a sound is in, without a tail, described below).</li>
-    <li><strong>Dynamics</strong>: <strong>Compressor</strong> (with side-chain support), <strong>Multiband Compressor</strong> (three bands split by Linkwitz-Riley crossovers, described below), <strong>Auto Ducker</strong> (side-chain driven ducking or boosting), <strong>Limiter</strong> (lookahead brickwall with gain reduction metering), <strong>Clipper</strong> and <strong>Wave Designer</strong> (transient shaper, described below).</li>
+    <li><strong>Dynamics</strong>: <strong>Compressor</strong> (with side-chain support), <strong>Multiband Compressor</strong> (three bands split by Linkwitz-Riley crossovers, described below), <strong>Auto Ducker</strong> (side-chain driven ducking or boosting), <strong>Limiter</strong> (lookahead brickwall with gain reduction metering), <strong>Gain</strong> (a plain +/-24 dB trim with a clip indicator, described below), <strong>Clipper</strong> and <strong>Wave Designer</strong> (transient shaper, described below).</li>
     <li><strong>Saturation</strong>: <strong>Drive</strong> (Soft, Hard, Fold and Dist algorithms), <strong>Saturator</strong>, <strong>Tube Stage</strong> (valve preamp, described below), <strong>Analog Fuzz</strong> (a synth's drive knob: a fuzz stage played through the filter it overdrives, described below), <strong>Bass Grinder</strong> (split-band bass preamp distortion, described below) and <strong>Stereo Exciter</strong> (harmonic generator, described below).</li>
     <li><strong>Filters & Modulation</strong>: <strong>Auto Filter</strong> (swept filter with two LFOs and an envelope follower, described below), <strong>Phaser</strong> (swept all-pass cascade, described below), <strong>Chorus</strong>, <strong>Delay</strong> (Mono, Ping Pong and Tape modes, with BPM sync) and <strong>All-Pass Filter</strong>.</li>
     <li><strong>Stereo</strong>: <strong>Panner</strong>, <strong>Auto Panner</strong>, <strong>Stereo Enhancer</strong> (psychoacoustic EQ, described below), <strong>Stereo Widener</strong> (width per band, described below) and <strong>Dimension</strong> (builds width out of a mono source, described below).</li>
@@ -213,6 +213,15 @@
     <li><strong>Zoom</strong> and <strong>Guides</strong>: scale of the trace, and whether the axes, amplitude rings and scales are drawn.</li>
 </ul>
 <p>Analysis is gated on the dialog being open, so a meter left in a rack costs nothing.</p>
+
+<h3>Gain Parameters</h3>
+<p>A level trim and nothing else. Every other way of changing level in the rack also changes the sound -- a limiter is dynamics, a drive or a saturator is distortion -- so this is the one to reach for when the only thing wanted is more or less of it: staging the sum into the master chain, or matching two devices before they hit a bus compressor.</p>
+<ul>
+    <li><strong>Gain</strong>: +/-24 dB, centred on unity. A Gain dropped into a rack is inaudible until it is moved.</li>
+    <li><strong>Clip</strong>: lights when a sample reaches full scale <em>after</em> the trim, so it reports what this control did rather than what reached it. Click the light to clear it. It stays lit until you do, so a single overshoot while you were looking elsewhere cannot go unnoticed.</li>
+</ul>
+<p>Nothing is truncated at the Gain itself, only at the final output: the chain runs in double throughout. The light is therefore a warning rather than a report of damage -- bring the level back down before the end of the chain and nothing is lost; leave it over and the output will clip.</p>
+<p>Note that making a finished mix louder is a limiter's job, not this one's: a trim that boosts has no way to catch what it pushes past full scale.</p>
 
 <h3>Monitor</h3>
 <p>The listening half of what the Stereo Field Meter measures. The meter tells you a mix is at risk in mono; this lets you hear it, by folding the signal down where it is inserted. Put it last in the master rack to check the whole mix, or on a single device to find which part is causing the trouble.</p>

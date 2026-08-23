@@ -58,6 +58,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString bassGrinderType READ bassGrinderType CONSTANT)
     Q_PROPERTY(QString limiterType READ limiterType CONSTANT)
     Q_PROPERTY(QString monitorType READ monitorType CONSTANT)
+    Q_PROPERTY(QString gainType READ gainType CONSTANT)
     Q_PROPERTY(QString compressorType READ compressorType CONSTANT)
     Q_PROPERTY(QString multibandCompressorType READ multibandCompressorType CONSTANT)
     Q_PROPERTY(QString stereoWidenerType READ stereoWidenerType CONSTANT)
@@ -117,6 +118,7 @@ public:
     QString bassGrinderType() const;
     QString limiterType() const;
     QString monitorType() const;
+    QString gainType() const;
     QString compressorType() const;
     QString multibandCompressorType() const;
     QString stereoWidenerType() const;
@@ -305,6 +307,11 @@ public:
     Q_INVOKABLE QString limiterBoostKey() const;
 
     Q_INVOKABLE QString monitorModeKey() const;
+
+    Q_INVOKABLE QString gainGainKey() const;
+    //! Whether the Gain in this slot has seen a full-scale sample since it was last cleared.
+    Q_INVOKABLE bool gainClipped(quint32 effectIndex) const;
+    Q_INVOKABLE void clearGainClip(quint32 effectIndex);
 
     Q_INVOKABLE QString endlessSizeKey() const;
     Q_INVOKABLE QString endlessFeedbackKey() const;

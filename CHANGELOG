@@ -5,6 +5,9 @@ Release date:
 
 New features:
 
+* Add the Gain rack effect: a plain +/-24 dB trim with a latching clip indicator,
+  for staging level without the colour a limiter or a drive brings
+
 * Add the Monitor rack effect
   - Stereo, Mono, Left, Right and Side fold-downs for checking a mix by ear,
     insertable anywhere an insert rack is

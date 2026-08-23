@@ -198,6 +198,7 @@ QString lufsMeter();
 QString dbtpMeter();
 QString rta();
 QString monitor();
+QString gain();
 } // namespace RackEffectType
 
 namespace NahdXml {

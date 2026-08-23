@@ -216,6 +216,11 @@ QString monitor()
     return "monitor";
 }
 
+QString gain()
+{
+    return "gain";
+}
+
 QString dimension()
 {
     return "dimension";

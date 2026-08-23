@@ -186,6 +186,9 @@ AnimatedDialog {
                         } else if (effectType === effectRackController.monitorType) {
                             monitorDialog.effectIndex = index;
                             monitorDialog.open();
+                        } else if (effectType === effectRackController.gainType) {
+                            gainDialog.effectIndex = index;
+                            gainDialog.open();
                         } else if (effectType === effectRackController.bassGrinderType) {
                             bassGrinderDialog.effectIndex = index;
                             bassGrinderDialog.open();

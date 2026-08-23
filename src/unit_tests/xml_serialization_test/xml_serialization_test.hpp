@@ -105,6 +105,7 @@ private slots:
     void test_toXmlFromXml_stereoWidenerEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_stereoFieldMeterEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_analogFuzzEffect_shouldLoadCorrectly();
+    void test_toXmlFromXml_gainEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_monitorEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_dimensionEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_earlyReflectionsEffect_shouldLoadCorrectly();

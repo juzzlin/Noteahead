@@ -497,6 +497,10 @@ ApplicationWindow {
         id: monitorDialog
         anchors.centerIn: parent
     }
+    GainDialog {
+        id: gainDialog
+        anchors.centerIn: parent
+    }
     BassGrinderDialog {
         id: bassGrinderDialog
         anchors.centerIn: parent

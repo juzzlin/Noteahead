@@ -69,6 +69,7 @@ set(HEADER_FILES
     effects/effect_rack.hpp
     effects/endless_reverb.hpp
     effects/eq_8_band_parametric.hpp
+    effects/gain.hpp
     effects/limiter.hpp
     effects/monitor.hpp
     effects/multiband_compressor.hpp
@@ -204,6 +205,7 @@ set(SOURCE_FILES
     effects/effect_rack.cpp
     effects/endless_reverb.cpp
     effects/eq_8_band_parametric.cpp
+    effects/gain.cpp
     effects/limiter.cpp
     effects/monitor.cpp
     effects/multiband_compressor.cpp

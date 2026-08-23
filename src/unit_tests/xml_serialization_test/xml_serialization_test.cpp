@@ -54,6 +54,7 @@
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/endless_reverb.hpp"
 #include "../../domain/effects/eq_8_band_parametric.hpp"
+#include "../../domain/effects/gain.hpp"
 #include "../../domain/effects/limiter.hpp"
 #include "../../domain/effects/monitor.hpp"
 #include "../../domain/effects/multiband_compressor.hpp"
@@ -2855,6 +2856,39 @@ void XmlSerializationTest::test_toXmlFromXml_analogFuzzEffect_shouldLoadCorrectl
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyCutoff()) - 0.44f) < 0.01f);
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyResonance()) - 0.88f) < 0.01f);
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyMix()) - 0.55f) < 0.01f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_gainEffect_shouldLoadCorrectly()
+{
+    EffectFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto gain = std::make_shared<Gain>();
+    if (auto p = gain->parameter(Constants::NahdXml::xmlKeyGain().toStdString()); p) {
+        p->get().setValue(-6.0f / 48.0f + 0.5f);
+    }
+    deviceServiceOut.insertEffectRack().setEffect(0, gain);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.insertEffectRack().effect(0);
+    QVERIFY(effect);
+    const auto restored = std::dynamic_pointer_cast<Gain>(effect);
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), Gain::typeIdString());
+    QVERIFY(std::abs(restored->gainDb() + 6.0f) < 0.05f);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_monitorEffect_shouldLoadCorrectly()

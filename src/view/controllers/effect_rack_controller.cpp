@@ -36,6 +36,7 @@
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/effect_rack.hpp"
 #include "../../domain/effects/eq_8_band_parametric.hpp"
+#include "../../domain/effects/gain.hpp"
 #include "../../domain/effects/limiter.hpp"
 #include "../../domain/effects/monitor.hpp"
 #include "../../domain/effects/multiband_compressor.hpp"
@@ -323,6 +324,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Air Band EQ", Constants::RackEffectType::airBandEq().toStdString());
     addEffect("Simple EQ", Constants::RackEffectType::simpleEq().toStdString());
     addEffect("Limiter", Constants::RackEffectType::limiter().toStdString());
+    addEffect("Gain", Constants::RackEffectType::gain().toStdString());
     addEffect("Monitor", Constants::RackEffectType::monitor().toStdString());
     addEffect("Multiband Compressor", Constants::RackEffectType::multibandCompressor().toStdString());
     addEffect("LUFS Meter", LufsMeter::typeIdString());
@@ -549,6 +551,10 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                     return QString { "(ceil=%1dB, boost=%2)" }
                       .arg(ceiling->get().xmlValue() / 100.0f, 0, 'f', 1)
                       .arg(boost->get().value() > 0.5f ? tr("on") : tr("off"));
+                }
+            } else if (type == Constants::RackEffectType::gain()) {
+                if (const auto gain = std::dynamic_pointer_cast<Gain>(effect); gain) {
+                    return QString { "(%1%2dB)" }.arg(gain->gainDb() >= 0.0f ? "+" : "").arg(gain->gainDb(), 0, 'f', 1);
                 }
             } else if (type == Constants::RackEffectType::monitor()) {
                 // Named in full and in capitals: a monitor left folded is the one setting in the rack
@@ -1071,6 +1077,34 @@ QString EffectRackController::limiterBoostKey() const
 QString EffectRackController::monitorModeKey() const
 {
     return Constants::NahdXml::xmlKeyMode();
+}
+
+QString EffectRackController::gainGainKey() const
+{
+    return Constants::NahdXml::xmlKeyGain();
+}
+
+bool EffectRackController::gainClipped(quint32 effectIndex) const
+{
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex)); effect) {
+            if (const auto gain = std::dynamic_pointer_cast<Gain>(effect); gain) {
+                return gain->clipDetector().clipped();
+            }
+        }
+    }
+    return false;
+}
+
+void EffectRackController::clearGainClip(quint32 effectIndex)
+{
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex)); effect) {
+            if (const auto gain = std::dynamic_pointer_cast<Gain>(effect); gain) {
+                gain->clipDetector().clear();
+            }
+        }
+    }
 }
 
 QString EffectRackController::saturatorModeKey() const
@@ -1888,6 +1922,11 @@ QString EffectRackController::limiterType() const
 QString EffectRackController::monitorType() const
 {
     return Constants::RackEffectType::monitor();
+}
+
+QString EffectRackController::gainType() const
+{
+    return Constants::RackEffectType::gain();
 }
 
 QString EffectRackController::chorusType() const
