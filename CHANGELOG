@@ -15,6 +15,11 @@ New features:
 
 Bug fixes:
 
+* Fix the selection covering the wrong columns after a column was inserted or
+  deleted: a column's index is its identity, not its place on screen, so the
+  selection now spans the columns actually dragged across
+  - Velocity interpolation over a selection was reaching the wrong columns too
+
 * Sort the effects gallery alphabetically: the list had drifted out of order as
   effects were added over the years
 

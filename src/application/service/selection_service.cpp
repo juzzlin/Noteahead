@@ -17,6 +17,9 @@
 
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 
+#include <algorithm>
+#include <utility>
+
 namespace noteahead {
 
 static const auto TAG = "SelectionService";
@@ -60,6 +63,41 @@ size_t SelectionService::track() const
     return m_startPosition.has_value() ? m_startPosition->track : 0;
 }
 
+void SelectionService::setColumnOrderResolver(ColumnOrderResolver resolver)
+{
+    m_columnOrderResolver = std::move(resolver);
+}
+
+SelectionService::ColumnIndexList SelectionService::selectedColumns(size_t trackIndex, size_t startColumn, size_t endColumn) const
+{
+    if (m_columnOrderResolver) {
+        if (const auto order = m_columnOrderResolver(trackIndex); !order.empty()) {
+            const auto startPosition = std::ranges::find(order, startColumn);
+            const auto endPosition = std::ranges::find(order, endColumn);
+            if (startPosition != order.end() && endPosition != order.end()) {
+                const auto first = std::min(startPosition, endPosition);
+                const auto last = std::max(startPosition, endPosition);
+                return { first, last + 1 };
+            }
+        }
+    }
+
+    // No order to go by: the indices are the only one there is.
+    ColumnIndexList columns;
+    for (size_t column = std::min(startColumn, endColumn); column <= std::max(startColumn, endColumn); column++) {
+        columns.push_back(column);
+    }
+    return columns;
+}
+
+SelectionService::ColumnIndexList SelectionService::selectedColumns() const
+{
+    if (!isValidSelection()) {
+        return {};
+    }
+    return selectedColumns(m_startPosition->track, m_startPosition->column, m_endPosition->column);
+}
+
 SelectionService::PositionList SelectionService::selectedPositions() const
 {
     PositionList positions;
@@ -67,7 +105,7 @@ SelectionService::PositionList SelectionService::selectedPositions() const
     if (isValidSelection()) {
         auto start = *m_startPosition;
         auto end = *m_endPosition;
-        for (size_t column = std::min(start.column, end.column); column <= std::max(start.column, end.column); column++) {
+        for (auto && column : selectedColumns(start.track, start.column, end.column)) {
             for (size_t line = std::min(start.line, end.line); line <= std::max(start.line, end.line); line++) {
                 positions.push_back({ start.pattern, start.track, column, line, start.lineColumn });
             }

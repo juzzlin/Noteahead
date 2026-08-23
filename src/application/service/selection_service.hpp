@@ -18,7 +18,9 @@
 
 #include <QObject>
 
+#include <functional>
 #include <optional>
+#include <vector>
 
 #include "../position.hpp"
 
@@ -52,12 +54,36 @@ public:
     using PositionList = std::vector<Position>;
     PositionList selectedPositions() const;
 
+    using ColumnIndexList = std::vector<size_t>;
+    //! Gives back a track's column indices in the order they are drawn.
+    using ColumnOrderResolver = std::function<ColumnIndexList(size_t trackIndex)>;
+
+    //! Teaches the selection what the columns' order on screen is.
+    //!
+    //! A column's index is its identity, not its place: inserting one gives it the next free index
+    //! wherever it lands, so after an insert the indices no longer run left to right. A selection
+    //! spans what the user dragged across, which is a range of places, and without this there is no
+    //! way to tell which indices those places hold.
+    //!
+    //! Unset -- and for a track the resolver does not know -- the indices are taken as the order,
+    //! which is what they are until something is inserted or deleted.
+    void setColumnOrderResolver(ColumnOrderResolver resolver);
+
+    //! The selected columns' indices, left to right on screen. What anything walking a selection
+    //! across columns has to iterate: the indices themselves are not a range and cannot be counted
+    //! through once a column has been inserted or deleted.
+    Q_INVOKABLE ColumnIndexList selectedColumns() const;
+
 signals:
     void isValidSelectionChanged();
     void selectionCleared(const Position & startPosition, const Position & endPosition);
     void selectionChanged(const Position & startPosition, const Position & endPosition);
 
 private:
+    //! The indices between the two ends of the selection, in display order, both ends included.
+    ColumnIndexList selectedColumns(size_t trackIndex, size_t startColumn, size_t endColumn) const;
+
+    ColumnOrderResolver m_columnOrderResolver;
     std::optional<Position> m_startPosition;
     std::optional<Position> m_endPosition;
 };

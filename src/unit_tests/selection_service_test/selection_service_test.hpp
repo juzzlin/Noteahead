@@ -28,6 +28,8 @@ private slots:
     void test_selectedPositions_shouldReturnEmptyIfInvalid();
     void test_selectedPositions_shouldReturnCorrectRange();
     void test_selectedPositions_reversed_shouldReturnCorrectRange();
+    void test_selectedPositions_reorderedColumns_shouldFollowDisplayOrder();
+    void test_selectedPositions_noResolver_shouldFallBackOnIndexOrder();
 
     void test_isValidSelection_shouldReturnFalseForIncompleteSelection();
     void test_isValidSelection_shouldReturnTrueForValidSelection();

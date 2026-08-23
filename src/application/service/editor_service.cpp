@@ -75,6 +75,18 @@ EditorService::EditorService(SelectionServiceS selectionService, SettingsService
     initialize();
     m_undoStack->setCanUndoChangedCallback([this] { emit canUndoChanged(); });
     m_undoStack->setCanRedoChangedCallback([this] { emit canRedoChanged(); });
+
+    // The selection spans places on screen, and only the song knows which index sits in which place.
+    // Read through the song on every call so that it stays right when a new one is loaded. Cleared
+    // in the destructor, because the selection service can be shared and outlive this.
+    if (m_selectionService) {
+        m_selectionService->setColumnOrderResolver([this](size_t trackIndex) {
+            SelectionService::ColumnIndexList order;
+            const auto indices = columnIndices(static_cast<quint64>(trackIndex));
+            std::ranges::transform(indices, std::back_inserter(order), [](quint64 index) { return static_cast<size_t>(index); });
+            return order;
+        });
+    }
 }
 
 void EditorService::initialize()
@@ -2508,7 +2520,11 @@ void EditorService::requestLinearVelocityInterpolationOnSelection(quint64 startL
 {
     if (m_selectionService->isValidSelection()) {
         std::map<Position, NoteData> oldNoteDataMap;
-        for (auto column = m_selectionService->minColumn(); column <= m_selectionService->maxColumn(); column++) {
+        // The selected columns rather than a count from the lowest index to the highest: an index is
+        // a column's identity, so after an insert they no longer run left to right and counting
+        // through them would reach columns the selection never covered.
+        const auto selectedColumns = m_selectionService->selectedColumns();
+        for (auto && column : selectedColumns) {
             auto start = position();
             start.column = column;
             for (quint64 line = startLine; line <= endLine; ++line) {
@@ -2522,7 +2538,7 @@ void EditorService::requestLinearVelocityInterpolationOnSelection(quint64 startL
 
         NoteEditCommand::ChangeList changes;
 
-        for (auto column = m_selectionService->minColumn(); column <= m_selectionService->maxColumn(); column++) {
+        for (auto && column : selectedColumns) {
 
             auto start = position();
             start.column = column;
@@ -3186,6 +3202,11 @@ quint64 EditorService::totalTicks() const
     return 0;
 }
 
-EditorService::~EditorService() = default;
+EditorService::~EditorService()
+{
+    if (m_selectionService) {
+        m_selectionService->setColumnOrderResolver({});
+    }
+}
 
 } // namespace noteahead

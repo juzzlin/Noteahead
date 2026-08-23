@@ -194,6 +194,39 @@ void EditorServiceTest::test_removePatternFromMiddle_shouldNotRemoveLastPattern(
     QCOMPARE(editorService.patternAtSongPosition(1), 2);
 }
 
+void EditorServiceTest::test_selection_afterColumnInsert_shouldFollowDisplayOrder()
+{
+    // The reported bug, against a real song rather than a stand-in order: insert a column and the
+    // selection rectangle stops matching the columns dragged across.
+    const auto selectionService = std::make_shared<SelectionService>();
+    EditorService editorService { selectionService, std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+
+    editorService.requestNewColumn(0);
+    editorService.requestNewColumn(0);
+    QCOMPARE(editorService.columnCount(0), static_cast<quint64>(3));
+
+    // A new column on the left of the track. It takes the next free index and lands at the front,
+    // so the indices stop running left to right.
+    editorService.requestPosition(0, 0, 0, 0, 0);
+    editorService.requestNewColumnToLeft();
+
+    const auto order = editorService.columnIndices(0);
+    QCOMPARE(order.size(), 4);
+
+    // Drag across the first three columns on screen.
+    selectionService->requestSelectionStart(0, 0, static_cast<size_t>(order.at(0)), 0);
+    selectionService->requestSelectionEnd(0, 0, static_cast<size_t>(order.at(2)), 0);
+
+    for (int i = 0; i < 3; i++) {
+        QVERIFY2(selectionService->isSelected(0, 0, static_cast<size_t>(order.at(i)), 0),
+                 qPrintable(QString { "Column at display position %1 (index %2) is not selected" }.arg(i).arg(order.at(i))));
+    }
+
+    // And the fourth, which the drag never reached, must stay out of it.
+    QVERIFY2(!selectionService->isSelected(0, 0, static_cast<size_t>(order.at(3)), 0),
+             qPrintable(QString { "Column at display position 3 (index %1) should not be selected" }.arg(order.at(3))));
+}
+
 void EditorServiceTest::test_columnCutPaste_equalSizes_shouldCopyColumn()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
