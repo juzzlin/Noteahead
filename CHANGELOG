@@ -15,6 +15,9 @@ New features:
 
 Bug fixes:
 
+* Give the internal Volume component its own type ID: it shared the Panner's, so a
+  serialized Volume would have come back as a Panner
+
 * Disable the synth's Roundness knob on every waveform but the pulse, which is
   the only one it affects
 

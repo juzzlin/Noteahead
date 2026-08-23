@@ -30,7 +30,7 @@ void Volume::processSample(double & left, double & right)
 
 std::string Volume::typeIdString()
 {
-    return "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a";
+    return "36b7f768-e420-446f-af25-0c4bd33e89c8";
 }
 
 std::string Volume::type() const

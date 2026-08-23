@@ -19,6 +19,7 @@
 #include "../../domain/effects/drive.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/effect_rack.hpp"
+#include "../../domain/effects/gain.hpp"
 #include "../../domain/effects/reverb.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
@@ -114,8 +115,13 @@ void EffectRackTest::test_rackEnabled_shouldBypassWholeRack()
 void EffectRackTest::test_rackEnabled_serialization_shouldRoundTrip()
 {
     // A disabled rack round-trips as disabled.
+    //
+    // Deliberately a registered effect: deserializing goes through EffectFactory, so an effect the
+    // factory does not know comes back as nothing and the assertion below would be about the
+    // factory rather than about the rack.
+    EffectFactory::init();
     EffectRack rack;
-    rack.setEffect(0, std::make_shared<Volume>());
+    rack.setEffect(0, std::make_shared<Gain>());
     rack.setEnabled(false);
 
     QString xml;
