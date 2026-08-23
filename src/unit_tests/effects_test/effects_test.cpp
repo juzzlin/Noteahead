@@ -1324,7 +1324,6 @@ void EffectsTest::test_clipperEffect_shouldClipSignal()
     }
 }
 
-
 void EffectsTest::test_saturatorEffect_shouldShapeSignalPerMode()
 {
     Saturator effect;

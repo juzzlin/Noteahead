@@ -72,10 +72,9 @@ TubeStage::TubeStage()
   : m_oversampling { std::make_unique<Oversampling>() }
 {
     addParameter(Parameter { Constants::NahdXml::xmlKeyMode().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyDriveDb().toStdString(), 0.1875f, 0, static_cast<int>(MaxDriveDb * 100), 900, 100, Parameter::Type::Continuous, { Constants::NahdXml::xmlKeyDrive().toStdString() },
-                             [](float legacyPosition) {
-                                 return static_cast<float>(static_cast<double>(legacyPosition) * LegacyMaxDriveDb / MaxDriveDb);
-                             } });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyDriveDb().toStdString(), 0.1875f, 0, static_cast<int>(MaxDriveDb * 100), 900, 100, Parameter::Type::Continuous, { Constants::NahdXml::xmlKeyDrive().toStdString() }, [](float legacyPosition) {
+                                return static_cast<float>(static_cast<double>(legacyPosition) * LegacyMaxDriveDb / MaxDriveDb);
+                            } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyBias().toStdString(), 0.5f, 0, 10000, 5000, 100, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeyTone().toStdString(), 0.5f, 0, 10000, 5000, 100, Parameter::Type::Continuous });
     addMixParameter(1.0f, MixLaw::Internal);
