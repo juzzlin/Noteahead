@@ -284,6 +284,11 @@ public:
 
     virtual Q_INVOKABLE void requestNoteInsertionAtCurrentPosition();
     virtual Q_INVOKABLE void requestNoteDeletionAtCurrentPosition(bool shiftNotes);
+    //! Takes the pan off the note under the cursor, rather than writing a value to it.
+    //!
+    //! Pan is optional in a note: with none set the note leaves the column's pan where it was, and
+    //! that state had no way of being got back to once a value had been typed.
+    virtual Q_INVOKABLE bool requestPanClearAtCurrentPosition();
     virtual Q_INVOKABLE bool requestNoteOnAtCurrentPosition(quint8 key, quint8 octave, quint8 velocity);
     virtual Q_INVOKABLE bool requestNoteOffAtCurrentPosition();
     virtual Q_INVOKABLE void requestNoteOffAtColumnFirstLine();
@@ -326,6 +331,8 @@ public:
     virtual Q_INVOKABLE void requestLinearPanInterpolationOnColumn(quint64 startLine, quint64 endLine, quint8 startValue, quint8 endValue);
     //! Performs linear interpolation on pan on all columns of the current track over given lines.
     virtual Q_INVOKABLE void requestLinearPanInterpolationOnTrack(quint64 startLine, quint64 endLine, quint8 startValue, quint8 endValue);
+    //! Performs linear interpolation on pan over the selection's columns and the given lines.
+    virtual Q_INVOKABLE void requestLinearPanInterpolationOnSelection(quint64 startLine, quint64 endLine, quint8 startValue, quint8 endValue);
 
     virtual Q_INVOKABLE void setDelayOnCurrentLine(quint8 ticks);
     virtual Q_INVOKABLE quint8 delayAtCurrentPosition() const;

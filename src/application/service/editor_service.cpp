@@ -1442,6 +1442,30 @@ bool EditorService::setPanAtCurrentPosition(uint8_t digit)
     return false;
 }
 
+bool EditorService::requestPanClearAtCurrentPosition()
+{
+    juzzlin::L(TAG).debug() << "Pan clear requested at position " << m_state.cursorPosition.toString();
+
+    const auto noteData = m_song->noteDataAtPosition(m_state.cursorPosition);
+    if (!noteData || !noteData->pan().has_value()) {
+        return false;
+    }
+
+    // Cleared rather than set to centre. Pan is optional in the note, and a note carrying no pan
+    // leaves whatever the column was already doing alone -- writing 64 would override it with a
+    // centre the player never asked for, which is the whole difference this makes.
+    NoteEditCommand::ChangeList changes;
+    auto newNoteData = *noteData;
+    newNoteData.clearPan();
+    changes.emplace_back(m_state.cursorPosition, *noteData, newNoteData);
+
+    m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
+        emit noteDataAtPositionChanged(pos);
+        setIsModified(true); }, [this](const Position & pos) { requestPosition(pos); }));
+
+    return true;
+}
+
 bool EditorService::requestDigitSetAtCurrentPosition(uint8_t digit)
 {
     juzzlin::L(TAG).debug() << "Digit set requested at position " << m_state.cursorPosition.toString() << ": " << static_cast<int>(digit);
@@ -2549,6 +2573,61 @@ void EditorService::requestLinearVelocityInterpolationOnSelection(quint64 startL
             end.line = endLine;
 
             if (const auto changedPositions = NoteDataManipulator::interpolateVelocityOnColumn(m_song, start, end, startValue, endValue, usePercentages); !changedPositions.empty()) {
+                for (auto && position : changedPositions) {
+                    if (oldNoteDataMap.count(position)) {
+                        if (const auto newNoteData = m_song->noteDataAtPosition(position); newNoteData) {
+                            changes.emplace_back(position, oldNoteDataMap.at(position), *newNoteData);
+                        }
+                    }
+                }
+            }
+        }
+
+        for (const auto & [pos, oldData, newData] : changes) {
+            m_song->setNoteDataAtPosition(oldData, pos);
+        }
+
+        if (!changes.empty()) {
+            m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
+                emit noteDataAtPositionChanged(pos);
+                setIsModified(true); }, [this](const Position & pos) { requestPosition(pos); }));
+        }
+    }
+}
+
+void EditorService::requestLinearPanInterpolationOnSelection(quint64 startLine, quint64 endLine, quint8 startValue, quint8 endValue)
+{
+    if (m_selectionService->isValidSelection()) {
+        std::map<Position, NoteData> oldNoteDataMap;
+        // The selected columns rather than a count from the lowest index to the highest: an index is
+        // a column's identity, so after an insert they no longer run left to right and counting
+        // through them would reach columns the selection never covered.
+        const auto selectedColumns = m_selectionService->selectedColumns();
+        for (auto && column : selectedColumns) {
+            auto start = position();
+            start.column = column;
+            for (quint64 line = startLine; line <= endLine; ++line) {
+                Position pos = start;
+                pos.line = line;
+                if (const auto noteData = m_song->noteDataAtPosition(pos); noteData && noteData->type() == NoteData::Type::NoteOn) {
+                    oldNoteDataMap[pos] = *noteData;
+                }
+            }
+        }
+
+        NoteEditCommand::ChangeList changes;
+
+        for (auto && column : selectedColumns) {
+
+            auto start = position();
+            start.column = column;
+            start.line = startLine;
+
+            auto end = position();
+            end.column = column;
+            end.line = endLine;
+
+            if (const auto changedPositions = NoteDataManipulator::interpolatePanOnColumn(m_song, start, end, startValue, endValue); !changedPositions.empty()) {
                 for (auto && position : changedPositions) {
                     if (oldNoteDataMap.count(position)) {
                         if (const auto newNoteData = m_song->noteDataAtPosition(position); newNoteData) {

@@ -207,7 +207,13 @@ void KeyboardService::handleDelete()
         if (m_editorService->isAtNoteColumn()) {
             m_editorService->requestNoteDeletionAtCurrentPosition(false);
             m_editorService->requestScroll(m_settingsService->step());
-        } else if (m_editorService->isAtVelocityColumn() || m_editorService->isAtDelayColumn() || m_editorService->isAtPanColumn()) {
+        } else if (m_editorService->isAtPanColumn()) {
+            // Pan is cleared, not zeroed: zero is hard left, which is a value like any other, and
+            // the note would go on overriding the column's pan with it.
+            if (m_editorService->requestPanClearAtCurrentPosition()) {
+                m_editorService->requestScroll(m_settingsService->step());
+            }
+        } else if (m_editorService->isAtVelocityColumn() || m_editorService->isAtDelayColumn()) {
             if (m_editorService->requestDigitSetAtCurrentPosition(0)) {
                 m_editorService->requestScroll(m_settingsService->step());
             }

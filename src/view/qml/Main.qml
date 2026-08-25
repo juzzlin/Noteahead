@@ -722,6 +722,24 @@ ApplicationWindow {
             editorService.requestLinearPanInterpolationOnColumn(startLine(), endLine(), startValue(), endValue());
         }
     }
+    InterpolationDialog {
+        id: selectionPanInterpolationDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
+        showPercentages: false
+        onAccepted: {
+            editorService.requestLinearPanInterpolationOnSelection(startLine(), endLine(), startValue(), endValue());
+        }
+    }
+    InterpolationDialog {
+        id: trackPanInterpolationDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
+        showPercentages: false
+        onAccepted: {
+            editorService.requestLinearPanInterpolationOnTrack(startLine(), endLine(), startValue(), endValue());
+        }
+    }
     AddMidiCcAutomationDialog {
         id: addMidiCcAutomationDialog
         portName: editorService.instrumentPortName(editorService.position.track)
@@ -1066,6 +1084,22 @@ ApplicationWindow {
             columnPanInterpolationDialog.setStartValue(64);
             columnPanInterpolationDialog.setEndValue(64);
             columnPanInterpolationDialog.open();
+        });
+        UiService.selectionPanInterpolationDialogRequested.connect(() => {
+            selectionPanInterpolationDialog.setTitle(qsTr("Interpolate pan"));
+            selectionPanInterpolationDialog.setStartLine(selectionService.minLine());
+            selectionPanInterpolationDialog.setEndLine(selectionService.maxLine());
+            selectionPanInterpolationDialog.setStartValue(64);
+            selectionPanInterpolationDialog.setEndValue(64);
+            selectionPanInterpolationDialog.open();
+        });
+        UiService.trackPanInterpolationDialogRequested.connect(() => {
+            trackPanInterpolationDialog.setTitle(qsTr("Interpolate pan"));
+            trackPanInterpolationDialog.setStartLine(0);
+            trackPanInterpolationDialog.setEndLine(editorService.currentLineCount - 1);
+            trackPanInterpolationDialog.setStartValue(64);
+            trackPanInterpolationDialog.setEndValue(64);
+            trackPanInterpolationDialog.open();
         });
         UiService.lineDelayDialogRequested.connect(() => {
             lineDelayDialog.setValue(editorService.delayAtCurrentPosition());

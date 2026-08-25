@@ -5,6 +5,16 @@ Release date:
 
 New features:
 
+* Add Interpolate pan to a selection, and to a track
+  - Selection > Interpolate pan matches Interpolate velocity, and the track menu
+    now reaches the pan interpolation that was already implemented but had no way
+    of being asked for
+
+* Let a pan value be taken off a note again
+  - Delete on the pan column clears the pan rather than writing 0, which is hard
+    left and went on overriding the column's own pan. A note carrying no pan
+    leaves the column where it was
+
 * Give the synth's filter sweep somewhere to go
   - HPF Cutoff is now an LFO and Mod EG target, so the high pass can be swept
     alongside the low pass. Moving both is what carries a band up through the

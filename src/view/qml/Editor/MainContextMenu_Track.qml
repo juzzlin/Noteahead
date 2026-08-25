@@ -101,6 +101,11 @@ Menu {
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestTrackVelocityInterpolationDialog()
     }
+    Action {
+        text: qsTr("Interpolate pan...")
+        enabled: !UiService.isPlaying()
+        onTriggered: UiService.requestTrackPanInterpolationDialog()
+    }
     MenuSeparator {}
     Action {
         text: qsTr("Insert a new track to the left")

@@ -168,9 +168,20 @@ public:
         return true;
     }
 
+    bool requestPanClearAtCurrentPosition() override
+    {
+        m_panCleared = true;
+        return true;
+    }
+
     std::optional<quint8> digitSet() const
     {
         return m_digitSet;
+    }
+
+    bool panCleared() const
+    {
+        return m_panCleared;
     }
 
     bool noteOffRequested() const
@@ -190,6 +201,7 @@ private:
     bool m_isAtDelayColumn = false;
     bool m_isAtPanColumn = false;
     std::optional<quint8> m_digitSet;
+    bool m_panCleared = false;
     bool m_noteOffRequested = false;
 };
 
@@ -460,8 +472,11 @@ void KeyboardServiceTest::test_handleKeyPressed_Delete_shouldClearPan_whenAtPanC
 
     QVERIFY(keyboardService.handleKeyPressed(Qt::Key_Delete, Qt::NoModifier, false));
 
-    QVERIFY(editorService->digitSet().has_value());
-    QCOMPARE(*editorService->digitSet(), quint8 { 0 });
+    // Cleared, not zeroed. Zero is hard left: a value like any other, which the note would go on
+    // imposing on the column. Only clearing gives back "this note says nothing about pan", which is
+    // what the name of this test asked for all along.
+    QVERIFY2(editorService->panCleared(), "Delete on the pan column did not clear the pan");
+    QVERIFY2(!editorService->digitSet().has_value(), "Delete on the pan column wrote a digit instead of clearing");
 }
 
 void KeyboardServiceTest::test_handleKeyPressed_Note_shouldIgnoreRepeatDuringPlayback()

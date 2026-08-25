@@ -83,6 +83,8 @@ QtObject {
     signal trackVelocityInterpolationDialogRequested
     signal trackVelocityScaleDialogRequested(int trackIndex)
     signal columnPanInterpolationDialogRequested
+    signal selectionPanInterpolationDialogRequested
+    signal trackPanInterpolationDialogRequested
     property int _activeOctave: keyboardService.activeOctave
     on_ActiveOctaveChanged: activeOctaveChanged(_activeOctave)
     readonly property string _tag: "UiService"
@@ -288,6 +290,16 @@ QtObject {
     function requestColumnPanInterpolationDialog(): void {
         if (!isPlaying()) {
             columnPanInterpolationDialogRequested();
+        }
+    }
+    function requestSelectionPanInterpolationDialog(): void {
+        if (!isPlaying()) {
+            selectionPanInterpolationDialogRequested();
+        }
+    }
+    function requestTrackPanInterpolationDialog(): void {
+        if (!isPlaying()) {
+            trackPanInterpolationDialogRequested();
         }
     }
     function requestSelectionVelocityInterpolationDialog(): void {
