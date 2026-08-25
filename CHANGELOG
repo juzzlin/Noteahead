@@ -14,9 +14,10 @@ New features:
   - The strings come in twos, never threes, and single stringing reaches to F#1:
     a CP80 is bichord over its whole compass
   - A separate device, so songs written against V2 keep playing V2
-  - A Velocity Sensitivity control: full is the reference's own velocity-squared
-    law, lower lifts the softer strikes toward the loud ones without changing
-    their tone, so the top of the keyboard is playable without hammering it
+  - A Velocity Sensitivity control, defaulting to half: full is the reference's own
+    velocity-squared law, lower lifts the softer strikes toward the loud ones
+    without changing their tone, so the top of the keyboard is playable without
+    hammering it
 
 * Add the Gain rack effect: a plain +/-24 dB trim with a latching clip indicator,
   for staging level without the colour a limiter or a drive brings

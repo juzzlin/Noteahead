@@ -165,6 +165,19 @@ std::vector<double> renderNote(int note, uint8_t velocity, double seconds, uint3
     return renderTone(piano, sampleRate, 0, frames);
 }
 
+std::vector<double> renderNoteWithSensitivity(int note, uint8_t velocity, double seconds, float sensitivity)
+{
+    PianoSynthV3Device piano { "Test Piano" };
+    piano.setVolume(1.0f);
+    piano.setGain(0.5f);
+    piano.setStringDetune(0.0f);
+    piano.setVelocitySensitivity(sensitivity);
+    piano.processMidiNoteOn(static_cast<uint8_t>(note), velocity);
+
+    const auto frames = static_cast<uint32_t>(seconds * DefaultSampleRate);
+    return renderTone(piano, DefaultSampleRate, 0, frames);
+}
+
 std::vector<double> renderNoteWithBrightness(int note, uint8_t velocity, double seconds, float brightness)
 {
     PianoSynthV3Device piano { "Test Piano" };
@@ -624,12 +637,32 @@ void PianoSynthV3Test::test_velocity_shouldFollowSquareLaw()
 {
     // The reference gains seven to eight decibels between velocity 64 and 100, which is
     // amplitude going as the square of velocity rather than in step with it.
-    const double soft = toDb(peakLevel(renderNote(60, 64, 0.3)));
-    const double hard = toDb(peakLevel(renderNote(60, 100, 0.3)));
+    //
+    // Asked for explicitly: V3 ships at half sensitivity, because the measured law is right about
+    // the instrument and hard to play. The law still has to be there underneath, which is what
+    // this checks; the default is pinned separately below.
+    const double soft = toDb(peakLevel(renderNoteWithSensitivity(60, 64, 0.3, 1.0f)));
+    const double hard = toDb(peakLevel(renderNoteWithSensitivity(60, 100, 0.3, 1.0f)));
     const double gained = hard - soft;
 
     QVERIFY2(gained > 5.5 && gained < 10.0,
              QString { "Velocity 64 to 100 gained %1 dB, expected seven to eight" }.arg(gained).toUtf8().constData());
+}
+
+void PianoSynthV3Test::test_velocitySensitivity_default_shouldBeHalf()
+{
+    // The shipped default. Half of the reference's law, so velocity 64 to 100 gains around half
+    // as many decibels -- enough dynamic range to play with, without the top of the keyboard
+    // needing to be hammered.
+    PianoSynthV3Device piano { "Test Piano" };
+    QCOMPARE(piano.velocitySensitivity(), 0.5f);
+
+    const double soft = toDb(peakLevel(renderNote(60, 64, 0.3)));
+    const double hard = toDb(peakLevel(renderNote(60, 100, 0.3)));
+    const double gained = hard - soft;
+
+    QVERIFY2(gained > 3.0 && gained < 6.0,
+             QString { "Velocity 64 to 100 gained %1 dB at the default, expected four to five" }.arg(gained).toUtf8().constData());
 }
 
 void PianoSynthV3Test::test_velocity_shouldBrightenTheStrike()

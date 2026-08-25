@@ -83,7 +83,8 @@ public:
     float attack() const;
     void setAttack(float attack);
 
-    //! How much of the strike's level follows velocity, one being the reference's own law.
+    //! How much of the strike's level follows velocity, one being the reference's own law and
+    //! half the default, which is what makes the top of the keyboard playable.
     float velocitySensitivity() const;
     void setVelocitySensitivity(float sensitivity);
     float lpfCutoff() const;
@@ -135,7 +136,7 @@ private:
     float m_richness { 0.7f };
     float m_doubleDecay { 0.5f };
     float m_attack { 0.5f };
-    float m_velocitySensitivity { 1.0f };
+    float m_velocitySensitivity { 0.5f };
     float m_lpfCutoff { 1.0f };
     float m_hpfCutoff { 0.0f };
     float m_releaseTime { 0.15f };

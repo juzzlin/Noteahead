@@ -56,7 +56,7 @@ PianoSynthV3Device::PianoSynthV3Device(std::string name)
     addParameter(Parameter(Constants::NahdXml::xmlKeyRichness().toStdString(), 0.7f, 0, 10000, 7000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyDoubleDecay().toStdString(), 0.5f, 0, 10000, 5000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyAttack().toStdString(), 0.5f, 0, 10000, 5000, 100));
-    addParameter(Parameter(Constants::NahdXml::xmlKeyAmpVelocitySensitivity().toStdString(), 1.0f, 0, 10000, 10000, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyAmpVelocitySensitivity().toStdString(), 0.5f, 0, 10000, 5000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), 1.0f, 0, 10000, 10000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.0f, 0, 10000, 0, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyReleaseTime().toStdString(), 0.15f, 0, 10000, 1500, 100));

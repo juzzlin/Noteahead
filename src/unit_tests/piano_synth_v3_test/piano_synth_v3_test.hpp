@@ -37,6 +37,7 @@ private slots:
     void test_serialization_shouldRestoreParameters();
     void test_reset_shouldRestoreFactoryDefaults();
     void test_velocity_shouldFollowSquareLaw();
+    void test_velocitySensitivity_default_shouldBeHalf();
 
     // The three corrections V3 exists for. Each is written against V2's behaviour, so each
     // fails if the V3 string is ever made to behave like the older one again.

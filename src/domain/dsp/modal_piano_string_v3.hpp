@@ -78,7 +78,12 @@ public:
         // the reference was measured at; nothing holds every note at its loudest. Only the level
         // is blended -- the hammer still hardens with velocity, so a note played softly stays
         // soft in tone while coming up in level, which is the point of the control.
-        float velocitySensitivity { 1.0f };
+        //
+        // Half by default rather than the reference's own law. The measured law is right about the
+        // instrument and hard to play: a treble note rings a second or two against the bass's
+        // seventeen, so at equal peak the ear hears it as much the quieter and asks to be played
+        // harder. Half keeps most of the dynamic range and takes that away.
+        float velocitySensitivity { 0.5f };
     };
 
     // Partials of the note itself, before the unison pairs are added. The reference has
