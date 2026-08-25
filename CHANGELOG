@@ -5,6 +5,14 @@ Release date:
 
 New features:
 
+* Give the synth's filter sweep somewhere to go
+  - HPF Cutoff is now an LFO and Mod EG target, so the high pass can be swept
+    alongside the low pass. Moving both is what carries a band up through the
+    spectrum instead of only opening the top of one, which is what a sweep needs
+  - The Mod EG reaches the same destinations as the LFOs: Pitch, Shape, Volume,
+    Resonance and Pan on top of what it had
+  - Both target lists are append-only, so existing projects keep their routing
+
 * Add Song > Overview: a signal-flow map of the project
   - Every device with its insert chain drawn in the order the engine actually runs
     it, so a device whose fader sits after its inserts reads differently from one

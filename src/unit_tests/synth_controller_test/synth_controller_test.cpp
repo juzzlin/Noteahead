@@ -161,6 +161,36 @@ void SynthControllerTest::test_squareWaveformIndex_shouldMatchWaveformNames()
     QCOMPARE(controller.vcoWaveformNames().at(index), QString("Square"));
 }
 
+void SynthControllerTest::test_modTargetNames()
+{
+    const auto synth = std::make_shared<SynthDevice>("Test Synth");
+    SynthController controller { synth };
+    const auto targets = controller.modTargetNames();
+    QCOMPARE(targets.size(), 10);
+
+    // The first four are what the Mod EG has always offered, and a project saved before the rest
+    // were added stores one of these ordinals. They must not move.
+    QCOMPARE(targets.at(0), QString("Pitch 1"));
+    QCOMPARE(targets.at(1), QString("Pitch 2"));
+    QCOMPARE(targets.at(2), QString("Pitch 3"));
+    QCOMPARE(targets.at(3), QString("Cutoff"));
+
+    // Appended to bring the Mod EG up to the LFOs' destinations.
+    QCOMPARE(targets.at(4), QString("Pitch"));
+    QCOMPARE(targets.at(5), QString("Shape"));
+    QCOMPARE(targets.at(6), QString("Volume"));
+    QCOMPARE(targets.at(7), QString("Resonance"));
+    QCOMPARE(targets.at(8), QString("Pan"));
+    QCOMPARE(targets.at(9), QString("HPF Cutoff"));
+
+    // And every one of them has to survive the parameter's clamp, which is the other half of
+    // widening an enum: the range the value is stored in has to grow with it.
+    for (int target = 0; target < targets.size(); target++) {
+        controller.setModTarget(target);
+        QCOMPARE(controller.modTarget(), target);
+    }
+}
+
 void SynthControllerTest::test_voiceModes()
 {
     const auto synth = std::make_shared<SynthDevice>("Test Synth");
@@ -182,7 +212,7 @@ void SynthControllerTest::test_lfoTargetNames()
     const auto synth = std::make_shared<SynthDevice>("Test Synth");
     SynthController controller { synth };
     const auto targets = controller.lfoTargetNames();
-    QCOMPARE(targets.size(), 9);
+    QCOMPARE(targets.size(), 10);
     // The order is the serialized LfoTarget ordinal, so it is append-only: reordering these would
     // change the LFO destination of every project saved before the change.
     QCOMPARE(targets.at(0), QString("Pitch"));
@@ -194,6 +224,8 @@ void SynthControllerTest::test_lfoTargetNames()
     QCOMPARE(targets.at(6), QString("Pitch 1"));
     QCOMPARE(targets.at(7), QString("Pitch 2"));
     QCOMPARE(targets.at(8), QString("Pitch 3"));
+    // Appended, not inserted: everything above keeps the ordinal it had.
+    QCOMPARE(targets.at(9), QString("HPF Cutoff"));
 
     // LFO 2 offers the same destinations.
     QCOMPARE(controller.lfo2TargetNames(), targets);

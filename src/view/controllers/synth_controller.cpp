@@ -102,7 +102,10 @@ QStringList SynthController::multiTypeNames() const
 
 QStringList SynthController::modTargetNames() const
 {
-    return { tr("Pitch 1"), tr("Pitch 2"), tr("Pitch 3"), tr("Cutoff") };
+    // In ordinal order, not in a sensible reading order: a ComboBox's index is the value that gets
+    // written to the project, so the list has to follow SynthDevice::ModTarget exactly.
+    return { tr("Pitch 1"), tr("Pitch 2"), tr("Pitch 3"), tr("Cutoff"),
+             tr("Pitch"), tr("Shape"), tr("Volume"), tr("Resonance"), tr("Pan"), tr("HPF Cutoff") };
 }
 
 QStringList SynthController::lfoModeNames() const
@@ -112,7 +115,9 @@ QStringList SynthController::lfoModeNames() const
 
 QStringList SynthController::lfoTargetNames() const
 {
-    return { tr("Pitch"), tr("Shape"), tr("Cutoff"), tr("Volume"), tr("Resonance"), tr("Pan"), tr("Pitch 1"), tr("Pitch 2"), tr("Pitch 3") };
+    // Ordinal order again, which is why the single-VCO pitches trail the list. See LfoTarget.
+    return { tr("Pitch"), tr("Shape"), tr("Cutoff"), tr("Volume"), tr("Resonance"), tr("Pan"),
+             tr("Pitch 1"), tr("Pitch 2"), tr("Pitch 3"), tr("HPF Cutoff") };
 }
 
 QStringList SynthController::lfo2WaveformNames() const

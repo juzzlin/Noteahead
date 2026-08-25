@@ -65,12 +65,23 @@ public:
     //! Voice modes that spend every voice on a single note.
     static bool isStacked(VoiceMode mode);
 
+    //! Serialized as a raw ordinal, exactly like LfoTarget below, so this is append-only too:
+    //! inserting a value would silently repoint the Mod EG of every project saved before the
+    //! change. The order below is therefore the order things were added in rather than the order
+    //! they belong in.
     enum class ModTarget
     {
         Pitch1,
         Pitch2,
         Pitch3,
-        Cutoff
+        Cutoff,
+        //! Appended to bring the Mod EG up to the same destinations the LFOs reach.
+        Pitch,
+        Shape,
+        Volume,
+        Resonance,
+        Pan,
+        HpfCutoff
     };
 
     //! Serialized as a raw ordinal, so this is append-only: inserting a value would silently change
@@ -88,7 +99,10 @@ public:
         //! next to Pitch where they belong.
         Pitch1,
         Pitch2,
-        Pitch3
+        Pitch3,
+        //! Sweeping the high pass alongside the low pass is what moves a band through the spectrum
+        //! rather than merely opening one end of it.
+        HpfCutoff
     };
 
     explicit SynthDevice(std::string name);
@@ -504,6 +518,7 @@ private:
         double modEnvelope { 0.0 };
         double lfoValue { 0.0 };
         double cutoffMod { 0.0 };
+        double hpfCutoffMod { 0.0 };
         double shapeMod { 0.0 };
         double vco1PitchMod { 0.0 };
         double vco2PitchMod { 0.0 };

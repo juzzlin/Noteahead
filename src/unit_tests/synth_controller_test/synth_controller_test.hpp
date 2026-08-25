@@ -20,6 +20,7 @@ private slots:
     void test_squareWaveformIndex_shouldMatchWaveformNames();
     void test_voiceModes();
     void test_lfoTargetNames();
+    void test_modTargetNames();
     void test_scopeActive_shouldFollowShownInstance();
 };
 

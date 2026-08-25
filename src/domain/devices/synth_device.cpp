@@ -171,20 +171,20 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyModDecay().toStdString(), 0.34f, 0, 10000, 3400, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyModSustain().toStdString(), 0.0f, 0, 10000, 0, 100 }); // AD by default
     addParameter(Parameter { Constants::NahdXml::xmlKeyModIntensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyModTarget().toStdString(), 3.0f, 0, 3, 3, 1, Parameter::Type::Discrete }); // Cutoff default
+    addParameter(Parameter { Constants::NahdXml::xmlKeyModTarget().toStdString(), 3.0f, 0, 9, 3, 1, Parameter::Type::Discrete }); // Cutoff default
     addParameter(Parameter { Constants::NahdXml::xmlKeyModCurve().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoWaveform().toStdString(), 1.0f, 0, 4, 1, 1, Parameter::Type::Discrete }); // Tri default
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoMode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete }); // Normal default
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoRate().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoIntensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyLfoTarget().toStdString(), 0.0f, 0, 8, 0, 1, Parameter::Type::Discrete }); // Pitch default
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfoTarget().toStdString(), 0.0f, 0, 9, 0, 1, Parameter::Type::Discrete }); // Pitch default
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Waveform().toStdString(), 1.0f, 0, 4, 1, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Mode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Rate().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Intensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Target().toStdString(), 0.0f, 0, 8, 0, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Target().toStdString(), 0.0f, 0, 9, 0, 1, Parameter::Type::Discrete });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceMode().toStdString(), 0.0f, 0, 5, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceDepth().toStdString(), 0.0f, 0, 10000, 0, 100 });
@@ -843,7 +843,20 @@ SynthDevice::ModulationValues SynthDevice::calculateModulation(Voice & voice) co
         mods.cutoffMod += lfo2Val;
     }
 
-    mods.shapeMod = (m_lfoTarget == LfoTarget::Shape) ? lfoVal : 0.0;
+    // The high pass, which used to be the one filter corner nothing could reach. Moving it with the
+    // low pass is what carries a band up through the spectrum instead of just opening the top.
+    mods.hpfCutoffMod = (m_modTarget == ModTarget::HpfCutoff) ? modEnv : 0.0;
+    if (m_lfoTarget == LfoTarget::HpfCutoff) {
+        mods.hpfCutoffMod += lfoVal;
+    }
+    if (m_lfo2Target == LfoTarget::HpfCutoff) {
+        mods.hpfCutoffMod += lfo2Val;
+    }
+
+    mods.shapeMod = (m_modTarget == ModTarget::Shape) ? modEnv : 0.0;
+    if (m_lfoTarget == LfoTarget::Shape) {
+        mods.shapeMod += lfoVal;
+    }
     if (m_lfo2Target == LfoTarget::Shape) {
         mods.shapeMod += lfo2Val;
     }
@@ -851,6 +864,11 @@ SynthDevice::ModulationValues SynthDevice::calculateModulation(Voice & voice) co
     mods.vco1PitchMod = (m_modTarget == ModTarget::Pitch1) ? modEnv : 0.0;
     mods.vco2PitchMod = (m_modTarget == ModTarget::Pitch2) ? modEnv : 0.0;
     mods.vco3PitchMod = (m_modTarget == ModTarget::Pitch3) ? modEnv : 0.0;
+    if (m_modTarget == ModTarget::Pitch) {
+        mods.vco1PitchMod += modEnv;
+        mods.vco2PitchMod += modEnv;
+        mods.vco3PitchMod += modEnv;
+    }
 
     if (m_lfoTarget == LfoTarget::Pitch) {
         mods.vco1PitchMod += lfoVal;
@@ -882,20 +900,25 @@ SynthDevice::ModulationValues SynthDevice::calculateModulation(Voice & voice) co
         mods.vco3PitchMod += lfo2Val;
     }
 
+    mods.volumeMod = (m_modTarget == ModTarget::Volume) ? modEnv : 0.0;
     if (m_lfoTarget == LfoTarget::Volume) {
-        mods.volumeMod = lfoVal;
+        mods.volumeMod += lfoVal;
     }
     if (m_lfo2Target == LfoTarget::Volume) {
         mods.volumeMod += lfo2Val;
     }
+
+    mods.resonanceMod = (m_modTarget == ModTarget::Resonance) ? modEnv : 0.0;
     if (m_lfoTarget == LfoTarget::Resonance) {
-        mods.resonanceMod = lfoVal;
+        mods.resonanceMod += lfoVal;
     }
     if (m_lfo2Target == LfoTarget::Resonance) {
         mods.resonanceMod += lfo2Val;
     }
+
+    mods.panMod = (m_modTarget == ModTarget::Pan) ? modEnv : 0.0;
     if (m_lfoTarget == LfoTarget::Pan) {
-        mods.panMod = lfoVal;
+        mods.panMod += lfoVal;
     }
     if (m_lfo2Target == LfoTarget::Pan) {
         mods.panMod += lfo2Val;
@@ -1002,7 +1025,7 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
 
     voice.lpf.setCutoff(std::clamp(m_lpfCutoff + cutoffMod, 0.0, 1.0));
     voice.lpf.setResonance(std::clamp(m_lpfResonance + static_cast<float>(mods.resonanceMod), 0.0f, 1.0f));
-    voice.hpf.setCutoff(m_hpfCutoff);
+    voice.hpf.setCutoff(std::clamp(m_hpfCutoff + mods.hpfCutoffMod, 0.0, 1.0));
 
     const float filtered = voice.hpf.process(voice.lpf.process(static_cast<float>(mixHeadroom)));
     const float ampMod = static_cast<float>(std::max(0.0, 1.0 + mods.volumeMod));
