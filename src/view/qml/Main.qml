@@ -603,6 +603,10 @@ ApplicationWindow {
         id: songNotesDialog
         anchors.centerIn: parent
     }
+    SongOverviewDialog {
+        id: songOverviewDialog
+        anchors.centerIn: parent
+    }
     SongSettingsDialog {
         id: songSettingsDialog
         anchors.centerIn: parent
@@ -995,6 +999,16 @@ ApplicationWindow {
         UiService.songNotesDialogRequested.connect(() => {
             songNotesDialog.initialize();
             songNotesDialog.open();
+        });
+        UiService.songOverviewDialogRequested.connect(songOverviewDialog.open);
+        // The map opens the editors that already exist rather than carrying its own.
+        songOverviewController.deviceOpenRequested.connect(slotIndex => {
+            songOverviewDialog.close();
+            deviceRackController.openDevice(slotIndex);
+        });
+        songOverviewController.masterEffectsOpenRequested.connect(() => {
+            songOverviewDialog.close();
+            applicationService.requestMasterEffectsDialog();
         });
         UiService.columnSettingsDialogRequested.connect((trackIndex, columnIndex) => {
             midiCcAutomationsModel.linesPerBeat = editorService.linesPerBeat;

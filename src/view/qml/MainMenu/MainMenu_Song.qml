@@ -54,5 +54,10 @@ Menu {
         text: qsTr("Settings...")
         onTriggered: UiService.requestSongSettingsDialog()
     }
+    MenuSeparator {}
+    Action {
+        text: qsTr("Overview...")
+        onTriggered: UiService.requestSongOverviewDialog()
+    }
     delegate: MenuItemDelegate {}
 }

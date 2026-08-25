@@ -5,6 +5,15 @@ Release date:
 
 New features:
 
+* Add Song > Overview: a signal-flow map of the project
+  - Every device with its insert chain drawn in the order the engine actually runs
+    it, so a device whose fader sits after its inserts reads differently from one
+    whose fader comes first
+  - Sends leave from the tap they are taken at, labelled pre- or post-fader
+  - A device claimed by a Sub Mixer is shown routed through it, with its sends
+    still live, which is what the engine does
+  - Click a box to open its editor
+
 * Add Piano Synth V3, a corrected revision of the CP80 model
   - The pickup's sign is kept: a piezo at a rigid termination senses force, whose
     partials alternate in sign, and the strike comb keeps its sign too. Levels are

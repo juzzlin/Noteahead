@@ -51,12 +51,14 @@
 #include "../view/controllers/piano_synth_v2_controller.hpp"
 #include "../view/controllers/piano_synth_v3_controller.hpp"
 #include "../view/controllers/sampler_controller.hpp"
+#include "../view/controllers/song_overview_controller.hpp"
 #include "../view/controllers/string_ensemble_controller.hpp"
 #include "../view/controllers/string_voice_controller.hpp"
 #include "../view/controllers/synth_controller.hpp"
 #include "../view/controllers/wavetable_synth_controller.hpp"
 #include "../view/qml/Components/oscilloscope_renderer.hpp"
 #include "../view/qml/Dialogs/rta_renderer.hpp"
+#include "../view/qml/Dialogs/song_overview_renderer.hpp"
 #include "../view/qml/Dialogs/stereo_field_renderer.hpp"
 #include "../view/qml/Editor/line_number_renderer.hpp"
 #include "../view/qml/Editor/note_column_renderer.hpp"
@@ -92,6 +94,7 @@
 #include "service/selection_service.hpp"
 #include "service/settings_service.hpp"
 #include "service/side_chain_service.hpp"
+#include "service/song_overview_service.hpp"
 #include "service/theme_service.hpp"
 #include "service/tip_service.hpp"
 #include "service/util_service.hpp"
@@ -142,6 +145,8 @@ Application::Application(int & argc, char ** argv)
   , m_stringVoiceController { std::make_shared<StringVoiceController>(std::make_shared<StringVoiceDevice>("Default StringVoice")) }
   , m_stringEnsembleController { std::make_shared<StringEnsembleController>(std::make_shared<StringEnsembleDevice>("Default StringEnsemble")) }
   , m_effectRackController { std::make_shared<EffectRackController>(m_deviceService, m_editorService) }
+  , m_songOverviewService { std::make_shared<SongOverviewService>(m_deviceService, m_editorService) }
+  , m_songOverviewController { std::make_shared<SongOverviewController>(m_songOverviewService, m_effectRackController) }
   , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, std::vector<DeviceController::DeviceControllerS> { m_samplerController, m_synthController, m_wavetableSynthController, m_bassSynthController, m_drumSynthController, m_pianoSynthController, m_pianoSynthV2Controller, m_pianoSynthV3Controller, m_kick808Controller, m_stringVoiceController, m_stringEnsembleController }, m_editorService) }
   , m_knobController { std::make_shared<KnobController>() }
   , m_jackService { std::make_shared<JackService>(m_settingsService, m_audioEngine) }
@@ -230,6 +235,7 @@ void Application::registerTypes()
     qmlRegisterType<NoteColumnRenderer>("Noteahead", majorVersion, minorVersion, "NoteColumnRenderer");
     qmlRegisterType<RtaRenderer>("Noteahead", majorVersion, minorVersion, "RtaRenderer");
     qmlRegisterType<StereoFieldRenderer>("Noteahead", majorVersion, minorVersion, "StereoFieldRenderer");
+    qmlRegisterType<SongOverviewRenderer>("Noteahead", majorVersion, minorVersion, "SongOverviewRenderer");
     qmlRegisterType<OscilloscopeRenderer>("Noteahead", majorVersion, minorVersion, "OscilloscopeRenderer");
     qmlRegisterType<PitchBendAutomationsModel>("Noteahead", majorVersion, minorVersion, "PitchBendAutomationsModel");
     qmlRegisterType<PropertyService>("Noteahead", majorVersion, minorVersion, "PropertyService");
@@ -280,6 +286,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("stringVoiceController", m_stringVoiceController.get());
     m_engine->rootContext()->setContextProperty("stringEnsembleController", m_stringEnsembleController.get());
     m_engine->rootContext()->setContextProperty("effectRackController", m_effectRackController.get());
+    m_engine->rootContext()->setContextProperty("songOverviewController", m_songOverviewController.get());
     m_engine->rootContext()->setContextProperty("selectionService", m_selectionService.get());
     m_engine->rootContext()->setContextProperty("eventSelectionModel", m_eventSelectionModel.get());
     m_engine->rootContext()->setContextProperty("midiCcAutomationsModel", m_midiCcAutomationsModel.get());

@@ -165,6 +165,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/SideChainTargetDelegate.qml
     ${QML_BASE_DIR}/Dialogs/SongMetadataDialog.qml
     ${QML_BASE_DIR}/Dialogs/SongNotesDialog.qml
+    ${QML_BASE_DIR}/Dialogs/SongOverviewDialog.qml
     ${QML_BASE_DIR}/Dialogs/SongSettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/StringInputDialog.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog.qml

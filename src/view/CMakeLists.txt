@@ -11,10 +11,12 @@ set(HEADER_FILES
     controllers/piano_synth_v3_controller.hpp
     controllers/sampler_controller.hpp
     controllers/string_ensemble_controller.hpp
+    controllers/song_overview_controller.hpp
     controllers/synth_controller.hpp
     controllers/wavetable_synth_controller.hpp
     qml/Components/oscilloscope_renderer.hpp
     qml/Dialogs/rta_renderer.hpp
+    qml/Dialogs/song_overview_renderer.hpp
     qml/Dialogs/stereo_field_renderer.hpp
     qml/Editor/line_number_renderer.hpp
     qml/Editor/note_column_renderer.hpp
@@ -34,10 +36,12 @@ set(SOURCE_FILES
     controllers/sampler_controller.cpp
     controllers/string_ensemble_controller.cpp
     controllers/string_voice_controller.cpp
+    controllers/song_overview_controller.cpp
     controllers/synth_controller.cpp
     controllers/wavetable_synth_controller.cpp
     qml/Components/oscilloscope_renderer.cpp
     qml/Dialogs/rta_renderer.cpp
+    qml/Dialogs/song_overview_renderer.cpp
     qml/Dialogs/stereo_field_renderer.cpp
     qml/Editor/line_number_renderer.cpp
     qml/Editor/note_column_renderer.cpp

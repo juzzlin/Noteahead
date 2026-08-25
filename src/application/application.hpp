@@ -49,6 +49,8 @@ class DrumSynthController;
 class Kick808Controller;
 class PianoSynthController;
 class PianoSynthV2Controller;
+class SongOverviewController;
+class SongOverviewService;
 class PianoSynthV3Controller;
 class StringEnsembleController;
 class StringVoiceController;
@@ -175,6 +177,8 @@ private:
     std::shared_ptr<StringVoiceController> m_stringVoiceController;
     std::shared_ptr<StringEnsembleController> m_stringEnsembleController;
     std::shared_ptr<EffectRackController> m_effectRackController;
+    std::shared_ptr<SongOverviewService> m_songOverviewService;
+    std::shared_ptr<SongOverviewController> m_songOverviewController;
     std::shared_ptr<DeviceRackController> m_deviceRackController;
     std::shared_ptr<KnobController> m_knobController;
 

@@ -202,6 +202,15 @@
 </ul>
 <p>Working on the <em>difference</em> between the two copies is what makes this free: they appear in the side signal with opposite signs and nowhere else, so summing the output back to mono returns exactly the centre that came in. No setting of any control here can cost a mono listener anything, which is the opposite of how width is usually bought.</p>
 
+<h3>Song Overview</h3>
+<p>A map of the project's signal flow, from <strong>Song &gt; Overview</strong>. Every populated device slot is drawn with its insert chain, its sends, and where it goes: straight to the master, or through the Sub Mixer that claimed it.</p>
+<p>The point of it is that the chain is drawn <em>as the engine runs it</em>, and that order is not fixed. A device's <strong>Fader Position</strong> decides whether the fader comes before or after its insert rack, so a map that drew one order for everything would misreport half the setting it exists to show. Two things worth knowing, both visible here and hard to see anywhere else:</p>
+<ul>
+    <li><strong>"Pre-fader" means different things depending on where the fader is.</strong> The send is captured immediately before the fader either way — but with the fader ahead of the inserts, a pre-fader send has not been through them, and with the fader behind them, it has. Same setting, different signal.</li>
+    <li><strong>A Sub Mixer member keeps its sends.</strong> Its own path to the master is switched off, because it is heard through the group instead, but a send bus is a parallel tap: nothing is counted twice, and the device keeps whatever amount it was given.</li>
+</ul>
+<p>The level meter's tap is drawn where it really is, post-gain and pre-insert, which is why it does not move when the fader does. Clicking a box opens that device's own editor.</p>
+
 <h3>Stereo Field Meter</h3>
 <p>A passthrough meter for everything about a mix that a level meter cannot show: how wide it is, how much of it survives a fold-down to mono, and where in the spectrum the width actually lives. Width is routinely set by ear alone, and the ear is the wrong instrument for it -- what collapses in mono is whatever is out of phase between the channels, and nothing about that is audible until it is gone.</p>
 <ul>

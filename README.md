@@ -34,6 +34,7 @@ Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It bui
     <td><img src="/screenshots/6.0.0/PatternPeek.png" width="100%"></td>
     <td><img src="/screenshots/6.0.0/Theme.png" width="100%"></td>
   </tr>
+  <tr><td colspan="4"><img src="/screenshots/7.2.0/Overview.png" width="100%"></td></tr>
 </table>
 
 ##
@@ -136,6 +137,8 @@ All Arctic Music Project songs:
   - Per-device Effect Sends for flexible mixing.
 - Mixer View
   - Every device side by side as channel strips, with the same Gain, Fader and Pan as the device's own dialog, its meter and clip LED, and shortcuts to the device, its insert rack and its sends.
+- Song Overview
+  - A signal-flow map of the whole project, drawn as the engine actually runs it. Each device's chain is laid out in its real order, so a device whose fader sits after its inserts reads differently from one whose fader comes first, and sends leave from the tap they are taken at, labelled pre- or post-fader. Hovering a device lights its whole route to the master and dims the rest; clicking a box opens that device's editor.
 
 ### Effects Racks
 - Master and Per-Device Effect Racks
