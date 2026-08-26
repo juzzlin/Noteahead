@@ -36,6 +36,12 @@ public:
     float process(float input);
     void reset();
 
+    //! Cutoff at or past which the undriven ladder is "off" and the signal passes through
+    //! untouched, the resonance below which that applies, and the width of the crossfade into it.
+    static constexpr double BypassThresholdCutoff { 0.999 };
+    static constexpr double BypassMaxResonance { 0.001 };
+    static constexpr double BypassBlendWidth { 0.009 };
+
 private:
     double m_cutoff { 1.0 };
     double m_resonance { 0.0 };

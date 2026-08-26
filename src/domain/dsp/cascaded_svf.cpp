@@ -43,13 +43,6 @@ void CascadedSvf::setOrder(int order)
 
 double CascadedSvf::process(double input)
 {
-    if (m_mode == Mode::LowPass && m_cutoff >= 0.999) {
-        return input;
-    }
-    if (m_mode == Mode::HighPass && m_cutoff <= 0.001) {
-        return input;
-    }
-
     // Zero-Delay Feedback State Variable Filter
     // Stable for all frequencies up to Nyquist
     if (std::abs(m_cutoff - m_lastCutoff) > 0.000001 || std::abs(m_resonance - m_lastResonance) > 0.000001 || std::abs(m_sampleRate - m_lastSampleRate) > 0.1) {
@@ -75,7 +68,29 @@ double CascadedSvf::process(double input)
         return 0.0;
     }
 
-    return out;
+    // At the far end of its range the filter is "off" and hands the signal straight through, which
+    // is what a patch parked there expects -- a default high pass must not quietly become a 20 Hz
+    // four-pole and thin out the bass. Two things are needed to make that safe under a sweep.
+    //
+    // The filter above still ran, even while the output is dry. Skipping it would leave s1 and s2
+    // holding whatever they held when the cutoff last reached the end, so a sweep coming back would
+    // re-enter with state from tens of milliseconds ago and step the output.
+    //
+    // And the handover itself is blended rather than switched: at the threshold the filter is not
+    // quite an identity -- a four-pole high pass at 20 Hz still turns a 220 Hz tone by about 20
+    // degrees -- so swapping dry for filtered in one sample is its own discontinuity. Crossfading
+    // over a narrow band either side keeps the endpoints exact and the sweep continuous.
+    const double filteredWeight = [this] {
+        if (m_mode == Mode::LowPass) {
+            return std::clamp((BypassThresholdLowPass - m_cutoff) / BypassBlendWidth, 0.0, 1.0);
+        }
+        if (m_mode == Mode::HighPass) {
+            return std::clamp((m_cutoff - BypassThresholdHighPass) / BypassBlendWidth, 0.0, 1.0);
+        }
+        return 1.0;
+    }();
+
+    return input + (out - input) * filteredWeight;
 }
 
 void CascadedSvf::reset()

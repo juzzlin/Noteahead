@@ -38,10 +38,6 @@ void DiodeLadderFilter::setDrive(double drive)
 
 float DiodeLadderFilter::process(float input)
 {
-    if (m_cutoff >= 0.999 && m_resonance <= 0.001) {
-        return input;
-    }
-
     updateCoefficients();
 
     const double drive = 1.0 + m_drive * 3.0;
@@ -83,7 +79,17 @@ float DiodeLadderFilter::process(float input)
         return 0.0f;
     }
 
-    return static_cast<float>(lp4);
+    // Wide open and undriven, the ladder is "off" and hands the signal straight through, which is
+    // what a patch parked there expects. The stages above still ran: skipping them would freeze
+    // s1..s4 at whatever they held when the cutoff last reached the top, so a sweep coming back
+    // down would re-enter with stale state and step the output. The handover is crossfaded over a
+    // narrow band for the same reason it is in CascadedSvf -- at the threshold the ladder is not
+    // quite an identity, so swapping dry for filtered in one sample is its own discontinuity.
+    if (m_resonance > BypassMaxResonance) {
+        return static_cast<float>(lp4);
+    }
+    const double filteredWeight = std::clamp((BypassThresholdCutoff - m_cutoff) / BypassBlendWidth, 0.0, 1.0);
+    return static_cast<float>(static_cast<double>(input) + (lp4 - static_cast<double>(input)) * filteredWeight);
 }
 
 void DiodeLadderFilter::reset()

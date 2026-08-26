@@ -56,6 +56,15 @@ New features:
 
 Bug fixes:
 
+* Fix the clicks a swept filter left on every note: a filter parked at the end of
+  its range passes the signal through, but it was being skipped rather than kept
+  running, so a sweep coming back re-entered it with state from tens of
+  milliseconds earlier and stepped the output
+  - The handover is crossfaded now, so the moment the sweep crosses the threshold
+    is continuous instead of a switch
+  - A filter left parked still passes the signal through untouched, so a patch
+    that never sweeps sounds as it did
+
 * Fix the selection covering the wrong columns after a column was inserted or
   deleted: a column's index is its identity, not its place on screen, so the
   selection now spans the columns actually dragged across

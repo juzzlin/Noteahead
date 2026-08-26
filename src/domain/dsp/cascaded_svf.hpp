@@ -41,6 +41,13 @@ public:
     double process(double input);
     void reset();
 
+    //! Cutoff at or past which the filter is "off" and the signal passes through untouched, and the
+    //! width of the crossfade that leads into it. Wide enough that the blend is inaudible, narrow
+    //! enough that it costs nothing musically.
+    static constexpr double BypassThresholdLowPass { 0.999 };
+    static constexpr double BypassThresholdHighPass { 0.001 };
+    static constexpr double BypassBlendWidth { 0.009 };
+
 private:
     double m_cutoff { 1.0 };
     double m_resonance { 0.0 };
