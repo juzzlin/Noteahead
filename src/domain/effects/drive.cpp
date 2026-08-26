@@ -103,7 +103,7 @@ float Drive::processOversampled(Upsampler & upsampler, Decimator & decimator, fl
         const double wet = shape(dry * driveGain);
         // Reconstruct the dry/wet blend at the high rate so the dry path shares the resampler latency
         // and stays aligned with the shaped signal (no comb filtering at partial mix).
-        high[k] = static_cast<float>(dry * (1.0 - mix) + wet * mix);
+        high[k] = static_cast<float>(blendWetPart(dry, wet, mix));
     }
     return decimator.process(high.data(), factor);
 }
@@ -121,13 +121,13 @@ void Drive::processSample(double & left, double & right)
     if (factor == 1 || mix <= 0.0) {
         const double wetL = shape(dryL * driveGain);
         const double wetR = shape(dryR * driveGain);
-        left = (dryL * (1.0 - mix) + wetL * mix) * outputLin;
-        right = (dryR * (1.0 - mix) + wetR * mix) * outputLin;
+        left = blendWet(dryL, wetL, mix, outputLin);
+        right = blendWet(dryR, wetR, mix, outputLin);
         return;
     }
 
-    left = static_cast<double>(processOversampled(m_oversampling->upsamplerL, m_oversampling->decimatorL, static_cast<float>(dryL), driveGain, mix, factor)) * outputLin;
-    right = static_cast<double>(processOversampled(m_oversampling->upsamplerR, m_oversampling->decimatorR, static_cast<float>(dryR), driveGain, mix, factor)) * outputLin;
+    left = completeBlend(dryL, static_cast<double>(processOversampled(m_oversampling->upsamplerL, m_oversampling->decimatorL, static_cast<float>(dryL), driveGain, mix, factor)), outputLin);
+    right = completeBlend(dryR, static_cast<double>(processOversampled(m_oversampling->upsamplerR, m_oversampling->decimatorR, static_cast<float>(dryR), driveGain, mix, factor)), outputLin);
 }
 
 void Drive::reset()

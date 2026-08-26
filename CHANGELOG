@@ -66,6 +66,19 @@ Bug fixes:
     lower the feedback. This includes the synth's own delay, which is the same
     effect
 
+* Stop send effects from cancelling the source: a send bus returns what the effect
+  added, measured as the difference against the signal it was handed, and an effect
+  whose Mix fades the dry out turned that difference into an inverted copy of the
+  source. Delay and Chorus had it worst, their wet already being at full halfway up
+  the control, so the whole top half of the travel only thinned what it was sent
+  - On a send every Mix law now blends additively: the dry passes through whole and
+    the wet is added on top, so the entire travel adds effect
+  - Fixed for Delay, Chorus, Auto Filter, Phaser, Stereo Enhancer, Stereo Exciter,
+    Wave Designer, Analog Fuzz, Bass Grinder, Drive, Saturator and Tube Stage
+  - Output gain no longer reaches the dry on a send either, which had been leaving a
+    scaled copy of the source in the return at any Mix, including none
+  - Insert racks are unchanged
+
 * Give Dual mode's Voice Depth something to hear: the pair opened to only 20 cents
   at full depth, a fifth of what every other detuned mode reaches, so the knob had
   nowhere to go

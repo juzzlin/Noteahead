@@ -203,6 +203,9 @@ void processEffectTask(void * context, size_t taskIndex, size_t /*workerIndex*/)
     }
 
     effect->setSampleRate(effectContext.sampleRate);
+    // This is a send bus, so the effect has to keep the dry whole: the return below is the
+    // difference against what the bus handed over.
+    effect->setSendMode(true);
 
     // Copy dry signal to wet buffer for in-place processing
     std::copy(sendBus.begin(), sendBus.begin() + bufferSize, wetBuffer.begin());

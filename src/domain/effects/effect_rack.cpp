@@ -142,6 +142,8 @@ void EffectRack::process(AudioContext & outputContext, const double * sendBus, s
 
     effect->setSampleRate(outputContext.sampleRate);
     effect->setOversampleFactor(outputContext.oversampleFactor);
+    // Same contract as the engine's send path below: only the difference is mixed into the output.
+    effect->setSendMode(true);
     effect->sync();
 
     // Call block-based process if available (via default implementation or override)
@@ -173,6 +175,8 @@ void EffectRack::processInPlace(AudioContext & context)
             continue;
 
         effect->setSampleRate(context.sampleRate);
+        // An insert rack: the effect owns the whole signal, dry included.
+        effect->setSendMode(false);
         effect->process(context);
     }
 }

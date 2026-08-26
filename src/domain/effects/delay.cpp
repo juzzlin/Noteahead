@@ -230,6 +230,15 @@ void Delay::applyMix(double & left, double & right, double outL, double outR) co
         return;
     }
 
+    // On a send bus the dry has to survive whole, so that the difference the bus takes back is the
+    // echoes alone. The wet then spans the whole control instead of reaching its maximum halfway up
+    // it, which is what left the top half of the travel doing nothing but cancelling the source.
+    if (sendMode()) {
+        left += outL * m_mix;
+        right += outR * m_mix;
+        return;
+    }
+
     // Mix: Use a unity-dry crossfade strategy (0% to 50% Dry is 100%, Wet fades in)
     const double dry = std::clamp(2.0 * (1.0 - m_mix), 0.0, 1.0);
     const double wet = std::clamp(2.0 * m_mix, 0.0, 1.0);

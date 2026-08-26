@@ -80,6 +80,21 @@ public:
     bool enabled() const;
     void setEnabled(bool enabled);
 
+    //! Whether this effect is running on a send bus rather than as an insert.
+    //!
+    //! A send bus returns what the effect added, worked out as the difference between what came
+    //! back and the signal the bus handed over. That only holds if the dry survives the effect
+    //! whole: a Mix law that fades the dry out turns the difference into an inverted copy of the
+    //! source, which cancels it in the master mix instead of adding wet to it. In send mode every
+    //! Mix law therefore blends additively -- the dry is passed through untouched and the wet is
+    //! added on top -- so the whole travel of the control adds effect rather than removing source.
+    //!
+    //! Set per block by whichever path is processing the effect, so an effect moved between a send
+    //! rack and an insert rack is right on the next block either way. Not a setting: never
+    //! serialized, and not carried across a copy.
+    void setSendMode(bool enabled);
+    bool sendMode() const;
+
     virtual void reset() override;
     virtual void sync();
     virtual void setBpm(float bpm);
@@ -117,6 +132,24 @@ protected:
     //! Whether Solo is registered and engaged.
     bool solo() const;
 
+    //! The wet-carrying half of the blend, for an effect that shapes rather than adds and so
+    //! blends under MixLaw::Internal. A plain crossfade as an insert; in send mode the wet alone,
+    //! the dry being put back by completeBlend() once the output gain is known.
+    //!
+    //! Splitting it in two is what lets an effect blend inside its oversampled section, where the
+    //! dry has to share the resampler's latency with the wet, and still hand a send bus the dry it
+    //! started with. Returning a resampled copy of the dry instead would leave the difference the
+    //! bus takes carrying a comb-filtered residual of the source.
+    double blendWetPart(double dry, double wet, double mix) const;
+
+    //! Applies the effect's output gain to a blend from blendWetPart(), putting the untouched dry
+    //! back when in send mode. Output gain belongs to the wet path there: applying it to the dry as
+    //! well would leave a scaled copy of the source in the difference the bus takes, at any Mix.
+    double completeBlend(double dry, double blendedPart, double outputGain) const;
+
+    //! blendWetPart() and completeBlend() in one, for an effect that blends at the base rate.
+    double blendWet(double dry, double wet, double mix, double outputGain = 1.0) const;
+
 private:
     //! Everything the shared controls need for one block, read once instead of once per sample.
     //! Resolving Mix and Solo means a map lookup keyed by a name that has to be built first, which
@@ -128,6 +161,8 @@ private:
         //! Whether the Mix law has anything to do at this setting.
         bool blends { false };
         bool solo { false };
+        //! Collapses every law to Additive. See setSendMode().
+        bool sendMode { false };
     };
 
     BlendState blendState() const;
@@ -150,6 +185,7 @@ private:
 
     MixLaw m_mixLaw { MixLaw::Crossfade };
     bool m_enabled { true };
+    bool m_sendMode { false };
     float m_bpm = 120;
     uint8_t m_oversampleFactor { 1 };
 };

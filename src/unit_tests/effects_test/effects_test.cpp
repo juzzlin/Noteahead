@@ -26,6 +26,7 @@
 #include "../../domain/effects/chorus.hpp"
 #include "../../domain/effects/clipper.hpp"
 #include "../../domain/effects/delay.hpp"
+#include "../../domain/effects/drive.hpp"
 #include "../../domain/effects/endless_reverb.hpp"
 #include "../../domain/effects/eq_8_band_parametric.hpp"
 #include "../../domain/effects/limiter.hpp"
@@ -160,6 +161,7 @@ public:
     explicit ConstantEffect(float mixDefault, MixLaw law)
     {
         addMixParameter(mixDefault, law);
+        addSoloParameter();
     }
 
     std::string type() const override
@@ -176,6 +178,13 @@ public:
     {
         if (auto parameter = this->parameter(Constants::NahdXml::xmlKeyMix().toStdString()); parameter) {
             parameter->get().setValue(value);
+        }
+    }
+
+    void setSolo(bool value)
+    {
+        if (auto parameter = this->parameter(Constants::NahdXml::xmlKeySolo().toStdString()); parameter) {
+            parameter->get().setValue(value ? 1.0f : 0.0f);
         }
     }
 
@@ -827,6 +836,98 @@ void EffectsTest::test_delayEffect_shouldProcessTapeMode()
     QVERIFY(foundEcho);
 }
 
+void EffectsTest::test_sendMode_everyLaw_shouldKeepTheDryWhole()
+{
+    // A send bus returns the difference between what came back and what it handed over, so a law
+    // that fades the dry out would have that subtracted from the master mix. In send mode they all
+    // blend additively instead, and all land on the same answer.
+    for (const auto law : { Effect::MixLaw::Crossfade, Effect::MixLaw::Additive, Effect::MixLaw::DualSlope }) {
+        ConstantEffect effect { 1.0f, law };
+        effect.setMix(0.25f);
+        effect.setSendMode(true);
+
+        double left = 0.4;
+        double right = 0.4;
+        effect.process(left, right);
+
+        // 0.4 + 1.0 * 0.25, whichever law is in force.
+        QVERIFY(std::abs(left - 0.65) < 1.0e-9);
+        QVERIFY(std::abs(right - 0.65) < 1.0e-9);
+        // Which leaves the difference the bus takes as the wet alone.
+        QVERIFY(std::abs((left - 0.4) - 0.25) < 1.0e-9);
+    }
+}
+
+void EffectsTest::test_sendMode_crossfadeAtFullMix_shouldKeepTheDryWhole()
+{
+    // The case that has no blending to do as an insert -- a crossfade at full Mix is already all
+    // wet -- and so used to reach a send bus with the dry missing.
+    ConstantEffect effect { 1.0f, Effect::MixLaw::Crossfade };
+    effect.setMix(1.0f);
+
+    double insertLeft = 0.4;
+    double insertRight = 0.4;
+    effect.process(insertLeft, insertRight);
+    QVERIFY(std::abs(insertLeft - 1.0) < 1.0e-9);
+
+    effect.setSendMode(true);
+    double sendLeft = 0.4;
+    double sendRight = 0.4;
+    effect.process(sendLeft, sendRight);
+
+    QVERIFY(std::abs(sendLeft - 1.4) < 1.0e-9);
+    QVERIFY(std::abs(sendRight - 1.4) < 1.0e-9);
+}
+
+void EffectsTest::test_sendMode_solo_shouldNotSubtractTheDryTwice()
+{
+    // Solo passes only what the effect added, which is what the send bus is already doing by taking
+    // the difference. Honouring it here as well would take the dry off twice.
+    ConstantEffect effect { 1.0f, Effect::MixLaw::Additive };
+    effect.setMix(0.25f);
+    effect.setSolo(true);
+    effect.setSendMode(true);
+
+    double left = 0.4;
+    double right = 0.4;
+    effect.process(left, right);
+
+    QVERIFY(std::abs(left - 0.65) < 1.0e-9);
+    QVERIFY(std::abs(right - 0.65) < 1.0e-9);
+}
+
+void EffectsTest::test_sendMode_outputGain_shouldNotReachTheDry()
+{
+    // Output gain belongs to the wet path. Applied to the dry as well, it left a scaled copy of the
+    // source in the difference the bus takes, at any Mix at all -- including none.
+    Drive effect;
+    effect.setSampleRate(44100.0);
+    const auto set = [&effect](const QString & key, float value) {
+        const auto p = effect.parameter(key.toStdString());
+        QVERIFY(p.has_value());
+        p->get().update(value);
+        effect.sync();
+    };
+    set(Constants::NahdXml::xmlKeyMix(), 0.0f);
+    set(Constants::NahdXml::xmlKeyGain(), 1.0f); // +12 dB
+
+    effect.setSendMode(true);
+    double left = 0.4;
+    double right = 0.4;
+    effect.process(left, right);
+
+    // Nothing added at Mix 0, so the bus gets silence rather than a boosted copy of the source.
+    QVERIFY(std::abs(left - 0.4) < 1.0e-9);
+    QVERIFY(std::abs(right - 0.4) < 1.0e-9);
+
+    // As an insert the output gain still applies to everything, which is what it is there for.
+    effect.setSendMode(false);
+    left = 0.4;
+    right = 0.4;
+    effect.process(left, right);
+    QVERIFY(left > 1.5);
+}
+
 void EffectsTest::test_delayEffect_feedback_shouldNotScaleTheFirstEcho()
 {
     // Feedback governs how much comes round again, not how much gets in. The first echo is the
@@ -858,6 +959,60 @@ void EffectsTest::test_delayEffect_feedback_shouldNotScaleTheFirstEcho()
         QVERIFY(std::abs(left - 1.0) < 1.0e-3);
         QVERIFY(std::abs(right - 1.0) < 1.0e-3);
     }
+}
+
+void EffectsTest::test_delayEffect_sendMode_shouldGiveTheWholeMixTravelToTheWet()
+{
+    const float sampleRate = 44100.0f;
+    const int delaySamples = static_cast<int>(0.1f * sampleRate);
+
+    // The echo at the given Mix, plus the dry as it came back on the way past.
+    const auto run = [&](float mix, bool sendMode, double & dryOut) {
+        Delay effect;
+        effect.setSampleRate(sampleRate);
+        effect.setMix(mix);
+        effect.setFeedback(0.0f);
+        effect.setTime(0.1f);
+        effect.setSync(false);
+        effect.setSendMode(sendMode);
+
+        double left = 1.0;
+        double right = 1.0;
+        effect.process(left, right);
+        dryOut = left;
+
+        for (int i = 0; i + 1 < delaySamples; i++) {
+            double l = 0.0;
+            double r = 0.0;
+            effect.process(l, r);
+        }
+        left = 0.0;
+        right = 0.0;
+        effect.process(left, right);
+        return left;
+    };
+
+    double dry = 0.0;
+
+    // On a send the dry comes back whole at every setting, so the bus returns the echo alone, and
+    // the echo follows Mix the whole way up instead of stopping halfway.
+    const auto sendHalf = run(0.5f, true, dry);
+    QVERIFY(std::abs(dry - 1.0) < 1.0e-9);
+    QVERIFY(std::abs(sendHalf - 0.5) < 1.0e-3);
+
+    const auto sendFull = run(1.0f, true, dry);
+    QVERIFY(std::abs(dry - 1.0) < 1.0e-9);
+    QVERIFY(std::abs(sendFull - 1.0) < 1.0e-3);
+
+    // As an insert the unity-dry crossfade is unchanged: the wet is already at full halfway up, and
+    // the rest of the travel fades the dry out.
+    const auto insertHalf = run(0.5f, false, dry);
+    QVERIFY(std::abs(dry - 1.0) < 1.0e-9);
+    QVERIFY(std::abs(insertHalf - 1.0) < 1.0e-3);
+
+    const auto insertFull = run(1.0f, false, dry);
+    QVERIFY(std::abs(dry) < 1.0e-9);
+    QVERIFY(std::abs(insertFull - 1.0) < 1.0e-3);
 }
 
 void EffectsTest::test_delayEffect_shouldSyncParameters()

@@ -269,8 +269,8 @@ void BassGrinder::processSample(double & left, double & right)
         m_saturationDb = 0.0;
     }
 
-    left = (dryL * (1.0 - mix) + wetL * mix) * outputLin;
-    right = (dryR * (1.0 - mix) + wetR * mix) * outputLin;
+    left = blendWet(dryL, wetL, mix, outputLin);
+    right = blendWet(dryR, wetR, mix, outputLin);
 }
 
 void BassGrinder::updateToneStack()

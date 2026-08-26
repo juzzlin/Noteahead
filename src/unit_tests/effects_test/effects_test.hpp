@@ -46,7 +46,12 @@ private slots:
     void test_delayEffect_shouldProcessMonoMode();
     void test_delayEffect_shouldProcessPingPongMode();
     void test_delayEffect_shouldProcessTapeMode();
+    void test_sendMode_everyLaw_shouldKeepTheDryWhole();
+    void test_sendMode_crossfadeAtFullMix_shouldKeepTheDryWhole();
+    void test_sendMode_solo_shouldNotSubtractTheDryTwice();
+    void test_sendMode_outputGain_shouldNotReachTheDry();
     void test_delayEffect_feedback_shouldNotScaleTheFirstEcho();
+    void test_delayEffect_sendMode_shouldGiveTheWholeMixTravelToTheWet();
     void test_delayEffect_shouldSyncParameters();
     void test_delayEffect_typeParameter_shouldSelectPingPong();
     void test_limiterEffect_shouldLimitPeaksToCeiling();

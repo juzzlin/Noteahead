@@ -122,8 +122,8 @@ void Saturator::processSample(double & left, double & right)
         peakPost = std::max(std::abs(wetL), std::abs(wetR));
         wetL = m_toneFilterL.process(wetL);
         wetR = m_toneFilterR.process(wetR);
-        outL = dryL * (1.0 - mix) + wetL * mix;
-        outR = dryR * (1.0 - mix) + wetR * mix;
+        outL = blendWetPart(dryL, wetL, mix);
+        outR = blendWetPart(dryR, wetR, mix);
     } else {
         std::array<float, 4> highL {};
         std::array<float, 4> highR {};
@@ -140,8 +140,8 @@ void Saturator::processSample(double & left, double & right)
             peakPost = std::max(peakPost, std::max(std::abs(wetL), std::abs(wetR)));
             wetL = m_toneFilterL.process(wetL);
             wetR = m_toneFilterR.process(wetR);
-            highL[k] = static_cast<float>(dryHiL * (1.0 - mix) + wetL * mix);
-            highR[k] = static_cast<float>(dryHiR * (1.0 - mix) + wetR * mix);
+            highL[k] = static_cast<float>(blendWetPart(dryHiL, wetL, mix));
+            highR[k] = static_cast<float>(blendWetPart(dryHiR, wetR, mix));
         }
         outL = static_cast<double>(m_oversampling->decimatorL.process(highL.data(), factor));
         outR = static_cast<double>(m_oversampling->decimatorR.process(highR.data(), factor));
@@ -164,8 +164,8 @@ void Saturator::processSample(double & left, double & right)
         m_saturationDb = 0.0;
     }
 
-    left = outL * outputLin;
-    right = outR * outputLin;
+    left = completeBlend(dryL, outL, outputLin);
+    right = completeBlend(dryR, outR, outputLin);
 }
 
 void Saturator::reset()

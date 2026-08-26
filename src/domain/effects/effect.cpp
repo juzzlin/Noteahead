@@ -189,14 +189,24 @@ Effect::BlendState Effect::blendState() const
     BlendState blend;
     blend.law = m_mixLaw;
     blend.mix = m_mixParameter ? static_cast<double>(m_mixParameter->value()) : 1.0;
-    blend.blends = m_mixParameter && m_mixLaw != MixLaw::Internal && (blend.mix < 1.0 || m_mixLaw != MixLaw::Crossfade);
-    blend.solo = m_soloParameter && m_soloParameter->value() > 0.5f;
+    blend.sendMode = m_sendMode;
+    // A crossfade at full Mix normally has nothing to do, the wet being the whole output already.
+    // On a send bus it does: the dry has to be put back so that the difference the bus takes is the
+    // wet rather than the wet minus the source.
+    blend.blends = m_mixParameter && m_mixLaw != MixLaw::Internal && (m_sendMode || blend.mix < 1.0 || m_mixLaw != MixLaw::Crossfade);
+    // Solo passes only what the effect added, which is what a send bus already does by taking the
+    // difference. Honouring it here as well would subtract the dry twice.
+    blend.solo = !m_sendMode && m_soloParameter && m_soloParameter->value() > 0.5f;
     return blend;
 }
 
 void Effect::applyBlend(const BlendState & blend, double dryLeft, double dryRight, double & left, double & right) const
 {
-    if (blend.blends) {
+    if (blend.blends && blend.sendMode) {
+        // Every law collapses to Additive on a send bus. See setSendMode().
+        left = dryLeft + left * blend.mix;
+        right = dryRight + right * blend.mix;
+    } else if (blend.blends) {
         switch (blend.law) {
         case MixLaw::Crossfade:
             left = dryLeft * (1.0 - blend.mix) + left * blend.mix;
@@ -222,6 +232,37 @@ void Effect::applyBlend(const BlendState & blend, double dryLeft, double dryRigh
         left -= dryLeft;
         right -= dryRight;
     }
+}
+
+void Effect::setSendMode(bool enabled)
+{
+    m_sendMode = enabled;
+}
+
+bool Effect::sendMode() const
+{
+    return m_sendMode;
+}
+
+double Effect::blendWetPart(double dry, double wet, double mix) const
+{
+    if (m_sendMode) {
+        return wet * mix;
+    }
+    return dry * (1.0 - mix) + wet * mix;
+}
+
+double Effect::completeBlend(double dry, double blendedPart, double outputGain) const
+{
+    if (m_sendMode) {
+        return dry + blendedPart * outputGain;
+    }
+    return blendedPart * outputGain;
+}
+
+double Effect::blendWet(double dry, double wet, double mix, double outputGain) const
+{
+    return completeBlend(dry, blendWetPart(dry, wet, mix), outputGain);
 }
 
 void Effect::addSoloParameter()
