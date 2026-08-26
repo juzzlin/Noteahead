@@ -722,6 +722,11 @@ void WavetableSynthTest::test_voiceMode_dual_shouldDetuneVoicePairs()
     QVERIFY(detunes.at(0) < 0.0);
     QVERIFY(detunes.at(1) > 0.0);
     QVERIFY(std::abs(detunes.at(0) + detunes.at(1)) < 1.0e-9);
+
+    // And it opens to the full width of a detuned stack, not a fraction of it, so the depth knob
+    // means the same spread here as it does in unison and supersaw.
+    QVERIFY(std::abs(detunes.at(0) + Utils::Dsp::voiceSpreadMaxSemitones) < 1.0e-9);
+    QVERIFY(std::abs(detunes.at(1) - Utils::Dsp::voiceSpreadMaxSemitones) < 1.0e-9);
 }
 
 void WavetableSynthTest::test_voiceMode_mono_overlappingNotes_shouldUseOneVoice()

@@ -322,9 +322,9 @@ namespace {
 
 using Utils::Dsp::driftModeMaxCents;
 using Utils::Dsp::supersawCentreGain;
-using Utils::Dsp::supersawMaxDetuneSemitones;
 using Utils::Dsp::supersawOffsets;
 using Utils::Dsp::supersawSideGain;
+using Utils::Dsp::voiceSpreadMaxSemitones;
 
 //! How long a voice takes to fade out before a synced note resets its phase and envelopes. Long
 //! enough to take the click off the note it interrupts, short enough that the millisecond it costs
@@ -336,18 +336,23 @@ constexpr double declickSeconds { 0.001 };
 double SynthDevice::voiceDetuneSemitones(size_t index) const
 {
     switch (m_voiceMode) {
-    case VoiceMode::Unison:
-        return (static_cast<double>(index) - (MaxVoices - 1) / 2.0) * std::pow(m_voiceDepth, 1.5) * 0.2;
+    case VoiceMode::Unison: {
+        // Index normalized to -1..1 across the stack, so the end voices land on the shared spread and
+        // the rest divide it evenly.
+        constexpr double half = (MaxVoices - 1) / 2.0;
+        return (static_cast<double>(index) - half) / half * std::pow(m_voiceDepth, 1.5) * voiceSpreadMaxSemitones;
+    }
     case VoiceMode::Supersaw:
         // Normalized so the outermost voice lands on the stated spread; what matters is the spacing.
-        return supersawOffsets.at(index) / std::abs(supersawOffsets.front()) * supersawMaxDetuneSemitones * std::pow(m_voiceDepth, 1.5);
+        return supersawOffsets.at(index) / std::abs(supersawOffsets.front()) * voiceSpreadMaxSemitones * std::pow(m_voiceDepth, 1.5);
     case VoiceMode::Drift:
         // Nothing fixed: the wander applied per sample in generateVoiceSample is the whole detune.
         return 0.0;
     case VoiceMode::Dual: {
-        constexpr double dualDetuneScale = 0.1;
+        // The pair sits at the two ends of the same spread a unison stack opens up, which is what
+        // makes dual read as unison with two voices rather than as a poly patch with half the notes.
         const double detuneSign = (index % 2 == 0) ? -1.0 : 1.0;
-        return detuneSign * std::pow(m_voiceDepth, 1.5) * dualDetuneScale;
+        return detuneSign * std::pow(m_voiceDepth, 1.5) * voiceSpreadMaxSemitones;
     }
     case VoiceMode::Poly:
     case VoiceMode::Mono:
@@ -492,18 +497,18 @@ void SynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversampledRate,
     voice.multi.setKeyTrack(m_multiKeyTrack);
     voice.multi.setNote(voice.note);
 
-    if (isStacked(m_voiceMode)) {
+    // The detune has to follow the depth knob while a note sounds, not only at the note on.
+    if (isStacked(m_voiceMode) || m_voiceMode == VoiceMode::Dual) {
         voice.frequency = midiNoteToFreq(voice.note) * std::pow(2.0, voiceDetuneSemitones(index) / 12.0);
-    } else if (m_voiceMode == VoiceMode::Dual) {
-        voice.frequency = midiNoteToFreq(voice.note) * std::pow(2.0, voiceDetuneSemitones(index) / 12.0);
-        const float side = (index % 2 == 0) ? -1.0f : 1.0f;
-        voice.pan = 0.5f + (side * m_panSpread * 0.5f);
-        return;
     }
 
     // Mono always sounds the same voice, so its position comes from the slot the note was given
-    // rather than the voice index, which would pin every note to the same side of the field.
-    voice.pan = voiceSpreadPan(m_voiceMode == VoiceMode::Mono ? m_monoPanSlot.value_or(0) : index);
+    // rather than the voice index, which would pin every note to the same side of the field. Dual
+    // takes the outermost pair of slots for every pair of voices, so both halves of a note are hard
+    // against the edges of the spread whichever pair the note was given.
+    voice.pan = voiceSpreadPan(m_voiceMode == VoiceMode::Mono     ? m_monoPanSlot.value_or(0)
+                                 : m_voiceMode == VoiceMode::Dual ? index % 2
+                                                                  : index);
 }
 
 void SynthDevice::applyGlobalEffects(AudioContext & context)
@@ -779,13 +784,13 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
             const size_t v1 = v0 + 1;
             const uint64_t tid = m_nextTriggerId++;
 
-            constexpr double dualDetuneScale = 0.1;
-            const double detuneAmount = std::pow(m_voiceDepth, 1.5) * dualDetuneScale;
-            const double freq0 = freq * std::pow(2.0, -detuneAmount / 12.0);
-            const double freq1 = freq * std::pow(2.0, detuneAmount / 12.0);
+            // v0 is always even and v1 always odd, so the detune and the pan follow the voice index
+            // exactly as they do in updateVoiceParameters and the two paths cannot drift apart.
+            const double freq0 = freq * std::pow(2.0, voiceDetuneSemitones(v0) / 12.0);
+            const double freq1 = freq * std::pow(2.0, voiceDetuneSemitones(v1) / 12.0);
 
-            const float pan0 = 0.5f - m_panSpread * 0.5f;
-            const float pan1 = 0.5f + m_panSpread * 0.5f;
+            const float pan0 = voiceSpreadPan(v0 % 2);
+            const float pan1 = voiceSpreadPan(v1 % 2);
             const bool resetGlide = m_portamento <= 0.001f;
 
             startVoice(m_voices.at(v0), Trigger { note, tid, freq0, pan0, finalVel, resetGlide });

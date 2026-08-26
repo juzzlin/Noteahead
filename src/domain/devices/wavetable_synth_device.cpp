@@ -31,10 +31,6 @@ namespace noteahead {
 
 namespace {
 
-//! Detune of a dual pair, in semitones, at full depth. Narrow on purpose: dual is a chorus width,
-//! not an interval.
-constexpr double DualDetuneScale = 0.1;
-
 //! Voice @p index mapped into the supersaw table, which is one entry shorter than the voice pool.
 //! Only a voice left over from another mode can land outside it, and it is on its way out anyway.
 size_t supersawIndex(size_t index)
@@ -333,13 +329,15 @@ double WavetableSynthDevice::voiceDetuneSemitones(size_t index) const
     case VoiceMode::Supersaw:
         // Normalized so the outermost voice lands on the stated spread; what matters is the spacing.
         return Utils::Dsp::supersawOffsets.at(supersawIndex(index)) / std::abs(Utils::Dsp::supersawOffsets.front())
-          * Utils::Dsp::supersawMaxDetuneSemitones * std::pow(m_voiceDepth, 1.5);
+          * Utils::Dsp::voiceSpreadMaxSemitones * std::pow(m_voiceDepth, 1.5);
     case VoiceMode::Drift:
         // Nothing fixed: the wander applied per sample in generateVoiceSample is the whole detune.
         return 0.0;
     case VoiceMode::Dual: {
+        // The pair sits at the two ends of the same spread a unison stack opens up, which is what
+        // makes dual read as unison with two voices rather than as a poly patch with half the notes.
         const double detuneSign = (index % 2 == 0) ? -1.0 : 1.0;
-        return detuneSign * std::pow(m_voiceDepth, 1.5) * DualDetuneScale;
+        return detuneSign * std::pow(m_voiceDepth, 1.5) * Utils::Dsp::voiceSpreadMaxSemitones;
     }
     case VoiceMode::Poly:
     case VoiceMode::Mono:

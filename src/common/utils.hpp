@@ -76,8 +76,11 @@ float voiceStackGain(int voicesPerNote);
 //! device with fewer than seven voices drops outer saws and keeps the centre.
 inline constexpr std::array<double, 7> supersawOffsets { -0.11002313, -0.06288439, -0.01952356, 0.0, 0.01991221, 0.06216538, 0.10745242 };
 
-//! Widest detune of the outermost voice, in semitones, at full depth.
-inline constexpr double supersawMaxDetuneSemitones = 0.5;
+//! How far the outermost voice of a detuned stack sits from pitch, in semitones, at full depth.
+//! Shared by every mode that spreads voices in pitch — the outer saws of a supersaw, the end voices
+//! of a unison stack and both halves of a dual pair all land here, so the depth knob means the same
+//! width whichever mode it is turned in.
+inline constexpr double voiceSpreadMaxSemitones = 0.5;
 
 //! Widest wander of a Drift voice, in cents, at full depth. Deliberately narrower than the supersaw
 //! spread: the movement is what thickens the sound there, not the interval.

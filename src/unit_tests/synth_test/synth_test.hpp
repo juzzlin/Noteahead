@@ -88,6 +88,8 @@ private slots:
     void test_dualMode_portamentoOff_shouldJumpImmediately();
     void test_dualMode_liveDepth_shouldUpdateFrequency();
     void test_dualMode_serialization_shouldPreserveState();
+    void test_dualMode_depth_shouldMatchUnisonOuterSpread();
+    void test_dualMode_noteOn_shouldMatchLiveDetune();
 
     void test_voiceMode_unison_shouldMatchPolyLevel();
     void test_voiceMode_dual_shouldMatchPolyLevel();

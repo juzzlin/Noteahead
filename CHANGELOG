@@ -56,6 +56,12 @@ New features:
 
 Bug fixes:
 
+* Give Dual mode's Voice Depth something to hear: the pair opened to only 20 cents
+  at full depth, a fifth of what every other detuned mode reaches, so the knob had
+  nowhere to go
+  - Both halves now land on the ends of the same spread Unison opens up, 100 cents
+    apart at full depth. Fixed in the wavetable synth too
+
 * Fix the clicks a swept filter left on every note: a filter parked at the end of
   its range passes the signal through, but it was being skipped rather than kept
   running, so a sweep coming back re-entered it with state from tens of

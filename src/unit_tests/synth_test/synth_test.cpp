@@ -2071,6 +2071,49 @@ void SynthTest::test_voiceMode_mono_overlappingNote_shouldKeepPanPosition()
     QVERIFY2(secondLeft > secondRight, "Overlapping note moved to the next pan slot");
 }
 
+void SynthTest::test_dualMode_depth_shouldMatchUnisonOuterSpread()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Dual);
+    synth.setVoiceDepth(1.0f);
+    const auto dualDetunes = voiceDetunes(synth, 60);
+
+    SynthDevice unison { "Test Synth" };
+    unison.setVoiceMode(SynthDevice::VoiceMode::Unison);
+    unison.setVoiceDepth(1.0f);
+    auto unisonDetunes = voiceDetunes(unison, 60);
+    std::ranges::sort(unisonDetunes);
+
+    // A dual pair opens to the whole width a unison stack reaches rather than a fraction of it: both
+    // halves land exactly on the unison stack's end voices, which is what gives the depth knob the
+    // same meaning in either mode.
+    QVERIFY(std::abs(dualDetunes.at(0) + Utils::Dsp::voiceSpreadMaxSemitones) < 1.0e-9);
+    QVERIFY(std::abs(dualDetunes.at(1) - Utils::Dsp::voiceSpreadMaxSemitones) < 1.0e-9);
+    QVERIFY(std::abs(dualDetunes.at(0) - unisonDetunes.front()) < 1.0e-9);
+    QVERIFY(std::abs(dualDetunes.at(1) - unisonDetunes.back()) < 1.0e-9);
+}
+
+void SynthTest::test_dualMode_noteOn_shouldMatchLiveDetune()
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setVoiceMode(SynthDevice::VoiceMode::Dual);
+    synth.setVoiceDepth(0.6f);
+    synth.setPortamento(0.0f);
+
+    synth.processMidiNoteOn(60, 100);
+    const double noteOn0 = synth.voiceGlideFrequency(0);
+    const double noteOn1 = synth.voiceGlideFrequency(1);
+
+    // The per-block update recomputes the detune from scratch. It has to arrive at what the note-on
+    // set, or the pitch steps the moment the first block is rendered.
+    double output[256] {};
+    AudioContext context { std::span(output, 256), 128, 44100 };
+    synth.processAudio(context);
+
+    QVERIFY(std::abs(synth.voiceGlideFrequency(0) - noteOn0) < 1.0e-9);
+    QVERIFY(std::abs(synth.voiceGlideFrequency(1) - noteOn1) < 1.0e-9);
+}
+
 void SynthTest::test_voiceMode_dual_shouldMatchPolyLevel()
 {
     const auto polyPeak = notePeak(SynthDevice::VoiceMode::Poly);
