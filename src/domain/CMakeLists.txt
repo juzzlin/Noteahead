@@ -10,6 +10,7 @@ set(HEADER_FILES
     devices/piano_synth_v3_device.hpp
     devices/sampler_device.hpp
     devices/string_ensemble_device.hpp
+    devices/string_voice_v2_device.hpp
     devices/sub_mixer_device.hpp
     devices/synth_device.hpp
     devices/synth_presets.hpp
@@ -146,6 +147,7 @@ set(SOURCE_FILES
     devices/sampler_device.cpp
     devices/string_ensemble_device.cpp
     devices/string_voice_device.cpp
+    devices/string_voice_v2_device.cpp
     devices/sub_mixer_device.cpp
     devices/synth_device.cpp
     devices/synth_presets.cpp

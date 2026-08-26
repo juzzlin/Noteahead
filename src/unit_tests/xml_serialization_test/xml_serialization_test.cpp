@@ -37,6 +37,7 @@
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/string_ensemble_device.hpp"
 #include "../../domain/devices/string_voice_device.hpp"
+#include "../../domain/devices/string_voice_v2_device.hpp"
 #include "../../domain/devices/sub_mixer_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/wavetable_synth_device.hpp"
@@ -3345,6 +3346,37 @@ void XmlSerializationTest::test_stringVoice_legacyFemale8_shouldLoadAsUpperMale8
     }
 
     QCOMPARE(device.voiceUpperMale8(), 0.7f);
+}
+
+void XmlSerializationTest::test_stringVoiceV2_shouldRoundTripThroughTheFactory()
+{
+    // Covers the factory registration as well as the parameters: a V2 device has to come back as a
+    // V2 device and not as the V1 it was copied from.
+    StringVoiceV2Device device { "Test StringVoiceV2" };
+    device.setStringsUpper(false);
+    device.setStringsLower(true);
+    device.setStringsTone(0.25f);
+    device.setStringsBalance(0.4f);
+
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        device.serializeToXml(writer);
+    }
+
+    NahdXmlReader reader { xml };
+    QVERIFY(reader.readNextStartElement());
+    QCOMPARE(reader.name(), Constants::NahdXml::xmlKeyDevice());
+
+    StringVoiceV2Device restored { "Restored" };
+    restored.deserializeFromXml(reader);
+
+    QCOMPARE(restored.stringsUpper(), false);
+    QCOMPARE(restored.stringsLower(), true);
+    QCOMPARE(restored.stringsTone(), 0.25f);
+    QCOMPARE(restored.stringsBalance(), 0.4f);
+    QCOMPARE(restored.typeId(), StringVoiceV2Device::typeIdString());
+    QVERIFY(restored.typeId() != StringVoiceDevice::typeIdString());
 }
 
 void XmlSerializationTest::test_wavetableSynth_legacyNames_shouldLoadCorrectly()

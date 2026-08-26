@@ -157,6 +157,7 @@ signals:
     void pianoSynthV3DialogRequested();
     void kick808DialogRequested();
     void stringVoiceDialogRequested();
+    void stringVoiceV2DialogRequested();
     void stringEnsembleDialogRequested();
     void deviceSettingsDialogRequested(QString deviceName);
     void subMixerDialogRequested(int slotIndex);

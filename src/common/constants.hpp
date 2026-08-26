@@ -73,6 +73,7 @@ QString pianoSynthV3DeviceName();
 QString kick808DeviceName();
 QString subMixerDeviceName();
 QString stringVoiceDeviceName();
+QString stringVoiceV2DeviceName();
 QString stringEnsembleDeviceName();
 
 QString internalDevicePortPrefix();
@@ -695,6 +696,9 @@ QString xmlValueDrums();
 QString xmlKeyStringsBalance();
 QString xmlKeyStringsLevel8();
 QString xmlKeyStringsLevel4();
+QString xmlKeyStringsUpper();
+QString xmlKeyStringsLower();
+QString xmlKeyStringsTone();
 QString xmlKeyStringsAttack();
 QString xmlKeyStringsRelease();
 QString xmlKeyVoiceMale8();

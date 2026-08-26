@@ -54,6 +54,7 @@ class SongOverviewService;
 class PianoSynthV3Controller;
 class StringEnsembleController;
 class StringVoiceController;
+class StringVoiceV2Controller;
 class EditorService;
 class EffectRackController;
 class EventSelectionModel;
@@ -175,6 +176,7 @@ private:
     std::shared_ptr<PianoSynthV3Controller> m_pianoSynthV3Controller;
     std::shared_ptr<Kick808Controller> m_kick808Controller;
     std::shared_ptr<StringVoiceController> m_stringVoiceController;
+    std::shared_ptr<StringVoiceV2Controller> m_stringVoiceV2Controller;
     std::shared_ptr<StringEnsembleController> m_stringEnsembleController;
     std::shared_ptr<EffectRackController> m_effectRackController;
     std::shared_ptr<SongOverviewService> m_songOverviewService;

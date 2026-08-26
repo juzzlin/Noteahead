@@ -336,6 +336,10 @@ ApplicationWindow {
         id: stringVoiceDialog
         anchors.centerIn: parent
     }
+    StringVoiceV2Dialog {
+        id: stringVoiceV2Dialog
+        anchors.centerIn: parent
+    }
     StringEnsembleDialog {
         id: stringEnsembleDialog
         anchors.centerIn: parent
@@ -875,6 +879,7 @@ ApplicationWindow {
         deviceRackController.pianoSynthV3DialogRequested.connect(pianoSynthV3Dialog.open);
         deviceRackController.kick808DialogRequested.connect(kick808Dialog.open);
         deviceRackController.stringVoiceDialogRequested.connect(stringVoiceDialog.open);
+        deviceRackController.stringVoiceV2DialogRequested.connect(stringVoiceV2Dialog.open);
         deviceRackController.stringEnsembleDialogRequested.connect(stringEnsembleDialog.open);
         deviceRackController.subMixerDialogRequested.connect(slotIndex => {
             subMixerDialog.slotIndex = slotIndex;

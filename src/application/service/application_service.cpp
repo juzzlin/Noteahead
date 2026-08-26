@@ -173,6 +173,11 @@ QString ApplicationService::stringVoiceDeviceName() const
     return Constants::stringVoiceDeviceName();
 }
 
+QString ApplicationService::stringVoiceV2DeviceName() const
+{
+    return Constants::stringVoiceV2DeviceName();
+}
+
 QString ApplicationService::stringEnsembleDeviceName() const
 {
     return Constants::stringEnsembleDeviceName();

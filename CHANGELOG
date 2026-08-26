@@ -5,6 +5,19 @@ Release date:
 
 New features:
 
+* Add the String & Voice V2 device
+  - Its Strings section has the switches the hardware has, Upper and Lower, saying
+    which half of the split it sounds on, with Balance setting how loud. The 8' and
+    4' levels V1 carries are not something a VC340 has: a recording of one confirms
+    it, every note's harmonics landing on a single fixed-frequency curve with no
+    octave register anywhere in it
+  - Adds a Tone control over the Strings section, fitted to that recording. At the
+    middle of its travel, where the hardware's was measured, the two agree within
+    about 1 dB from 1 to 8 kHz
+  - The strings source is a saw with its fundamental lifted about 6 dB, which is
+    where the hardware's sits
+  - V1 is untouched, so existing songs sound exactly as they did
+
 * Add Interpolate pan to a selection, and to a track
   - Selection > Interpolate pan matches Interpolate velocity, and the track menu
     now reaches the pan interpolation that was already implemented but had no way

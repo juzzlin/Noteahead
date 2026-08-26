@@ -11,6 +11,7 @@ set(HEADER_FILES
     controllers/piano_synth_v3_controller.hpp
     controllers/sampler_controller.hpp
     controllers/string_ensemble_controller.hpp
+    controllers/string_voice_v2_controller.hpp
     controllers/song_overview_controller.hpp
     controllers/synth_controller.hpp
     controllers/wavetable_synth_controller.hpp
@@ -36,6 +37,7 @@ set(SOURCE_FILES
     controllers/sampler_controller.cpp
     controllers/string_ensemble_controller.cpp
     controllers/string_voice_controller.cpp
+    controllers/string_voice_v2_controller.cpp
     controllers/song_overview_controller.cpp
     controllers/synth_controller.cpp
     controllers/wavetable_synth_controller.cpp

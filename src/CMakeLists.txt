@@ -136,12 +136,19 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/StringEnsembleDialog_Global.qml
     ${QML_BASE_DIR}/Dialogs/StringEnsembleDialog_Registers.qml
     ${QML_BASE_DIR}/Dialogs/StringVoiceDialog.qml
+    ${QML_BASE_DIR}/Dialogs/StringVoiceV2Dialog.qml
     ${QML_BASE_DIR}/Dialogs/StringVoiceDialog_Balance.qml
+    ${QML_BASE_DIR}/Dialogs/StringVoiceV2Dialog_Balance.qml
     ${QML_BASE_DIR}/Dialogs/StringVoiceDialog_Ensemble.qml
+    ${QML_BASE_DIR}/Dialogs/StringVoiceV2Dialog_Ensemble.qml
     ${QML_BASE_DIR}/Dialogs/StringVoiceDialog_Global.qml
+    ${QML_BASE_DIR}/Dialogs/StringVoiceV2Dialog_Global.qml
     ${QML_BASE_DIR}/Dialogs/StringVoiceDialog_Strings.qml
+    ${QML_BASE_DIR}/Dialogs/StringVoiceV2Dialog_Strings.qml
     ${QML_BASE_DIR}/Dialogs/StringVoiceDialog_Vocoder.qml
+    ${QML_BASE_DIR}/Dialogs/StringVoiceV2Dialog_Vocoder.qml
     ${QML_BASE_DIR}/Dialogs/StringVoiceDialog_Voice.qml
+    ${QML_BASE_DIR}/Dialogs/StringVoiceV2Dialog_Voice.qml
     ${QML_BASE_DIR}/Dialogs/PitchBendAutomationModel.qml
     ${QML_BASE_DIR}/Dialogs/RecentFilesDialog.qml
     ${QML_BASE_DIR}/Dialogs/RenderProgressDialog.qml

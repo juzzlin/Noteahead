@@ -172,6 +172,11 @@ QString stringVoiceDeviceName()
     return "Noteahead String & Voice";
 }
 
+QString stringVoiceV2DeviceName()
+{
+    return "Noteahead String & Voice V2";
+}
+
 QString stringEnsembleDeviceName()
 {
     return "Noteahead String Ensemble";
@@ -2485,6 +2490,21 @@ QString xmlKeyVoiceUpperMale8()
 QString xmlKeyStringsLevel4()
 {
     return "stringsLevel4";
+}
+
+QString xmlKeyStringsUpper()
+{
+    return "stringsUpper";
+}
+
+QString xmlKeyStringsLower()
+{
+    return "stringsLower";
+}
+
+QString xmlKeyStringsTone()
+{
+    return "stringsTone";
 }
 
 QString xmlKeyStringsAttack()
