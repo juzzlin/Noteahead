@@ -263,7 +263,10 @@ private:
 
     int m_wavetableIndex { 0 };
 
-    mutable std::mt19937 m_rng { 42 };
+    //! Fixed so a render is reproducible: re-seeded in resetAudio(), which every render
+    //! start runs, rather than carrying state over from earlier playback.
+    static constexpr uint32_t RngSeed { 2002 };
+    mutable std::mt19937 m_rng { RngSeed };
     mutable std::uniform_real_distribution<float> m_noiseDist { -1.0f, 1.0f };
     mutable std::uniform_real_distribution<double> m_phaseDist { 0.0, 1.0 };
 

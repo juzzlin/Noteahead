@@ -65,6 +65,14 @@ Bug fixes:
   - A filter left parked still passes the signal through untouched, so a patch
     that never sweeps sounds as it did
 
+* Make an audio render reproducible: the same project rendered twice now gives the
+  same file
+  - Every generator is re-seeded and every free-running oscillator put back to its
+    starting phase when a render begins, instead of carrying on from wherever the
+    session's earlier playback left them
+  - Devices are summed in a fixed order while rendering; which worker happened to
+    pick one up was changing the result, float addition not being associative
+
 * Fix the selection covering the wrong columns after a column was inserted or
   deleted: a column's index is its identity, not its place on screen, so the
   selection now spans the columns actually dragged across

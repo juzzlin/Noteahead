@@ -123,6 +123,7 @@ bool SnareEngine::isActive() const
 
 void SnareEngine::reset()
 {
+    m_rng.seed(RngSeed);
     m_active = false;
     m_stopping = false;
     m_ampEnv = 0.0f;

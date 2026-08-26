@@ -206,16 +206,26 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayFeedbackLpf().toStdString(), 1.0f, 0, 10000, 10000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayFeedbackHpf().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
-    // Prime-ratio drift rates so each voice drifts independently without coherent beating
+    for (auto && voice : m_voices) {
+        voice.lpf.setMode(CascadedSvf::Mode::LowPass);
+        voice.hpf.setMode(CascadedSvf::Mode::HighPass);
+    }
+    initializeVoiceDrift();
+
+    SynthDevice::syncParameters();
+}
+
+void SynthDevice::initializeVoiceDrift()
+{
+    // Prime-ratio drift rates so each voice drifts independently without coherent beating, and a
+    // spread of starting phases so they do not all begin together. The phase free-runs from here,
+    // so resetAudio() puts it back: a render that inherited the phase left by earlier playback
+    // would detune its notes differently every time.
     static constexpr std::array<double, MaxVoices> driftRates = { 0.10, 0.17, 0.23, 0.29, 0.37, 0.43 };
     for (size_t i = 0; i < m_voices.size(); i++) {
-        m_voices[i].lpf.setMode(CascadedSvf::Mode::LowPass);
-        m_voices[i].hpf.setMode(CascadedSvf::Mode::HighPass);
         m_voices[i].driftRate = driftRates[i];
         m_voices[i].driftPhase = static_cast<double>(i) / MaxVoices;
     }
-
-    SynthDevice::syncParameters();
 }
 
 SynthDevice::~SynthDevice() = default;
@@ -626,6 +636,8 @@ void SynthDevice::reset()
 void SynthDevice::resetAudio()
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    m_rng.seed(RngSeed);
+    initializeVoiceDrift();
     for (auto && voice : m_voices) {
         voice.reset();
     }

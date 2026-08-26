@@ -28,6 +28,9 @@
 #include <cmath>
 #include <map>
 #include <optional>
+#include <ranges>
+#include <string>
+#include <utility>
 #include <vector>
 
 namespace noteahead {
@@ -2330,6 +2333,52 @@ void SynthTest::test_modCurve_serialization_shouldPreserveState()
         synth.deserializeFromXml(reader);
         QCOMPARE(synth.modCurve(), 0.4f);
     }
+}
+
+// A render has to be a function of the project and nothing else. Oscillator drift and initial
+// phases are drawn from the device's own generator, so unless resetAudio() re-seeds it, the same
+// notes come out differently depending on what the session played beforehand -- which is exactly
+// what made two renders of the same song differ.
+void SynthTest::test_resetAudio_afterOtherNotes_shouldRenderIdenticalAudio()
+{
+    const auto renderSequence = [](SynthDevice & synth) {
+        std::vector<double> rendered;
+        const std::vector<uint8_t> notes { 62, 64, 60 };
+        for (auto && note : notes) {
+            synth.processMidiNoteOn(note, 100);
+            for (int block = 0; block < 8; block++) {
+                std::vector<double> buffer(256 * 2, 0.0);
+                AudioContext context { std::span(buffer.data(), buffer.size()), 256, 48000 };
+                synth.processAudio(context);
+                rendered.insert(rendered.end(), buffer.begin(), buffer.end());
+            }
+            synth.processMidiNoteOff(note);
+        }
+        return rendered;
+    };
+
+    SynthDevice synth { "Test Synth" };
+    synth.setOscillatorDrift(0.5f); // Drift draws from the generator, so the seed has to matter.
+
+    synth.resetAudio();
+    const auto first = renderSequence(synth);
+
+    // Whatever the session does in between must leave no trace on the next render.
+    synth.processMidiNoteOn(71, 64);
+    for (int block = 0; block < 16; block++) {
+        std::vector<double> buffer(256 * 2, 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), 256, 48000 };
+        synth.processAudio(context);
+    }
+    synth.processMidiNoteOff(71);
+
+    synth.resetAudio();
+    const auto second = renderSequence(synth);
+
+    QCOMPARE(first.size(), second.size());
+    QVERIFY(!first.empty());
+    QVERIFY(std::ranges::any_of(first, [](double sample) { return std::abs(sample) > 1.0e-6; }));
+    QCOMPARE(first, second);
 }
 
 } // namespace noteahead

@@ -19,6 +19,7 @@
 #include "../base_rate_source.hpp"
 #include "../cascaded_svf.hpp"
 #include "drum_engine.hpp"
+#include <cstdint>
 #include <random>
 #include <vector>
 
@@ -48,7 +49,10 @@ private:
     float m_decay { 0.5f };
     float m_velocity { 1.0f };
 
-    std::mt19937 m_rng;
+    //! Fixed so a render is reproducible: the engine is re-seeded in reset(), which
+    //! every render start runs, rather than carrying state over from earlier playback.
+    static constexpr uint32_t RngSeed { 1002 };
+    std::mt19937 m_rng { RngSeed };
     std::uniform_real_distribution<float> m_dist { -1.0f, 1.0f };
     //! Noise is drawn at the base rate and interpolated up, so what reaches the engine's
     //! saturation and filters is the same waveform at every oversampling factor.

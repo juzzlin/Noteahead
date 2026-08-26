@@ -115,6 +115,7 @@ bool ClapEngine::isActive() const
 
 void ClapEngine::reset()
 {
+    m_rng.seed(RngSeed);
     m_active = false;
     m_stopping = false;
     m_sampleCount = 0;

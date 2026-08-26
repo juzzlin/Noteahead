@@ -106,6 +106,7 @@ bool RideEngine::isActive() const
 
 void RideEngine::reset()
 {
+    m_rng.seed(RngSeed);
     m_active = false;
     m_stopping = false;
     m_ampEnv = 0.0f;

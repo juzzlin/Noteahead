@@ -17,6 +17,7 @@
 
 #include "../../application/position.hpp"
 #include "../../application/service/copy_manager.hpp"
+#include "../../application/service/random_service.hpp"
 #include "../../application/service/side_chain_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
@@ -1177,6 +1178,12 @@ Song::EventList Song::renderToEvents(AutomationServiceS automationService, SideC
 
 Song::EventList Song::renderToEvents(AutomationServiceS automationService, SideChainServiceS sideChainService, size_t startPosition, size_t endPosition) const
 {
+    // Velocity jitter draws from the shared generator, which lives for the whole process. Without
+    // this the same song rendered twice in one session gets different velocities, because the
+    // generator carries on from wherever earlier playback left it. Every path that turns a song
+    // into events comes through here, so this is the one place that has to do it.
+    RandomService::reseed();
+
     auto eventList = applyInstrumentsOnEvents(renderContent(automationService, sideChainService, startPosition, endPosition));
     juzzlin::L(TAG).info() << "Rendered event list size: " << eventList.size();
     return eventList;

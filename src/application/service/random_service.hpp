@@ -16,6 +16,7 @@
 #ifndef RANDOM_SERVICE_HPP
 #define RANDOM_SERVICE_HPP
 
+#include <cstdint>
 #include <random>
 
 namespace noteahead::RandomService {
@@ -23,6 +24,14 @@ namespace noteahead::RandomService {
 using Generator = std::mt19937;
 using GeneratorR = Generator &;
 GeneratorR generator();
+
+//! Seed the shared generator carries by default, and what reseed() restores it to.
+inline constexpr uint32_t DefaultSeed { 0 };
+
+//! Returns the shared generator to a known state. The generator lives for the whole process, so
+//! without this a render inherits whatever position earlier playback and renders left it in, and
+//! two renders of the same project differ. Render and playback start both call it.
+void reseed(uint32_t seed = DefaultSeed);
 } // namespace noteahead::RandomService
 
 #endif // RANDOM_SERVICE_HPP

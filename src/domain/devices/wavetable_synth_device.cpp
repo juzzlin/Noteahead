@@ -574,6 +574,7 @@ void WavetableSynthDevice::reset()
 void WavetableSynthDevice::resetAudio()
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    m_rng.seed(RngSeed);
     for (auto && voice : m_voices) {
         voice.reset();
     }

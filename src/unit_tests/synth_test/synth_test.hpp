@@ -69,6 +69,8 @@ private slots:
 
     void test_dcOffset_syncWithCrossMod_shouldStayNearZero();
 
+    void test_resetAudio_afterOtherNotes_shouldRenderIdenticalAudio();
+
     void test_midiCcResonance_shouldUpdateParameter();
     void test_midiCcResonanceReset_shouldRestoreManualValue();
     void test_saveState_restore_shouldRestoreParameters();

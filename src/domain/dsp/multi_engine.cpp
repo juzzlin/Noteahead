@@ -24,8 +24,7 @@
 namespace noteahead {
 
 MultiEngine::MultiEngine()
-  : m_rng(0)
-  , m_dist(-1.0f, 1.0f)
+  : m_dist(-1.0f, 1.0f)
 {
 }
 
@@ -54,6 +53,7 @@ void MultiEngine::setNote(uint8_t note)
 
 void MultiEngine::reset()
 {
+    m_rng.seed(RngSeed);
     m_s1 = 0.0;
     m_s2 = 0.0;
     m_phase = 0.0;

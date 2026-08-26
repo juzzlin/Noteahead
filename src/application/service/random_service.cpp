@@ -19,8 +19,13 @@ namespace noteahead {
 
 RandomService::GeneratorR RandomService::generator()
 {
-    static Generator gen { 0 }; // fixed seed for determinism
+    static Generator gen { DefaultSeed };
     return gen;
+}
+
+void RandomService::reseed(uint32_t seed)
+{
+    generator().seed(seed);
 }
 
 } // namespace noteahead

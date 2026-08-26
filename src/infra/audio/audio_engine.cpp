@@ -458,7 +458,8 @@ void AudioEngine::process(AudioContext & context)
         detectCallbackScheduling();
     }
 
-    // Offline rendering always fans out: it has no deadline and only gains from the throughput.
+    // Offline rendering fans out its send effects: it has no deadline and only gains from the
+    // throughput. Its devices deliberately do not -- see fanOutDevices below.
     // Real-time playback does so only when asked to, when the workers hold real-time scheduling,
     // and when the thread driving playback is itself real-time. That last condition matters as much
     // as the others: real-time workers above an ordinary callback thread preempt the very thread
@@ -524,7 +525,14 @@ void AudioEngine::process(AudioContext & context)
                 activeDeviceCount++;
             }
         }
-        const bool fanOutDevices = useWorkers && activeDeviceCount > 1;
+        // Devices are summed per worker lane, and which lane a device lands in is decided by
+        // whichever worker wins the task queue -- so the grouping of the sum changes run to run.
+        // Float addition is not associative, so that alone makes a render irreproducible. Offline
+        // therefore runs the devices in order on one lane: a render has no deadline, and the
+        // throughput is worth less than being able to render the same song twice and get the same
+        // file. Send effects are unaffected -- each writes its own task-indexed buffer -- so they
+        // still fan out below.
+        const bool fanOutDevices = useWorkers && activeDeviceCount > 1 && !context.offline;
 
         // Serial processing uses only lane 0, so clear/sum just that lane then; parallel rendering
         // spreads work across all lanes. The buffers stay allocated at the full lane count either way,

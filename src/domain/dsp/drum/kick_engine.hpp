@@ -18,6 +18,7 @@
 
 #include "../cascaded_svf.hpp"
 #include "drum_engine.hpp"
+#include <cstdint>
 #include <random>
 
 namespace noteahead {
@@ -68,7 +69,10 @@ private:
     double m_lastSampleRate { 0.0 };
     bool m_stopping { false };
 
-    std::mt19937 m_rng;
+    //! Fixed so a render is reproducible: the engine is re-seeded in reset(), which
+    //! every render start runs, rather than carrying state over from earlier playback.
+    static constexpr uint32_t RngSeed { 1003 };
+    std::mt19937 m_rng { RngSeed };
     std::uniform_real_distribution<float> m_dist { -1.0f, 1.0f };
     CascadedSvf m_noiseFilter;
 };

@@ -111,6 +111,7 @@ bool KickEngine::isActive() const
 
 void KickEngine::reset()
 {
+    m_rng.seed(RngSeed);
     m_active = false;
     m_stopping = false;
     m_ampEnv = 0.0f;

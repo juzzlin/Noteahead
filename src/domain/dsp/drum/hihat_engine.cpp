@@ -132,6 +132,7 @@ bool HiHatEngine::isActive() const
 
 void HiHatEngine::reset()
 {
+    m_rng.seed(RngSeed);
     m_active = false;
     m_choking = false;
     m_ampEnv = 0.0f;

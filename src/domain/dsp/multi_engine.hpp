@@ -53,7 +53,10 @@ private:
     float m_keyTrack { 0.0f };
     uint8_t m_note { 60 };
 
-    std::mt19937 m_rng;
+    //! Fixed so a render is reproducible: the engine is re-seeded in reset(), which
+    //! every render start runs, rather than carrying state over from earlier playback.
+    static constexpr uint32_t RngSeed { 1007 };
+    std::mt19937 m_rng { RngSeed };
     std::uniform_real_distribution<float> m_dist;
 
     // Filter states
