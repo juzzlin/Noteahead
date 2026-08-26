@@ -916,15 +916,6 @@ std::vector<double> renderStrike(uint8_t note, int sampleCount)
     return out;
 }
 
-double rms(const std::vector<double> & buffer)
-{
-    double sum = 0.0;
-    for (const double v : buffer) {
-        sum += v * v;
-    }
-    return std::sqrt(sum / static_cast<double>(buffer.size()));
-}
-
 //! Single-bin DFT magnitude at a normalised frequency, in cycles per sample.
 double goertzel(const std::vector<double> & signal, double frequency)
 {
