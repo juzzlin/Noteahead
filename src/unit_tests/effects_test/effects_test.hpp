@@ -46,6 +46,7 @@ private slots:
     void test_delayEffect_shouldProcessMonoMode();
     void test_delayEffect_shouldProcessPingPongMode();
     void test_delayEffect_shouldProcessTapeMode();
+    void test_delayEffect_feedback_shouldNotScaleTheFirstEcho();
     void test_delayEffect_shouldSyncParameters();
     void test_delayEffect_typeParameter_shouldSelectPingPong();
     void test_limiterEffect_shouldLimitPeaksToCeiling();

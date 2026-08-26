@@ -56,6 +56,16 @@ New features:
 
 Bug fixes:
 
+* Let the delay be as loud as it is long: feedback was scaling the signal on its
+  way into the delay line as well as round it, so the first echo arrived at
+  feedback times the input. At the default 0.3 the delay started 10 dB down, and a
+  loud single repeat could not be set at all
+  - Feedback now governs only what comes round again, so the first echo arrives at
+    the level it went in at and each one after it is a further feedback down
+  - Existing projects will hear their delays louder and fuller, the more so the
+    lower the feedback. This includes the synth's own delay, which is the same
+    effect
+
 * Give Dual mode's Voice Depth something to hear: the pair opened to only 20 cents
   at full depth, a fifth of what every other detuned mode reaches, so the knob had
   nowhere to go

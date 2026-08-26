@@ -114,29 +114,32 @@ void Delay::updateWriteBuffer(double inputL, double inputR, double fbL, double f
     double writeL = inputL;
     double writeR = inputR;
 
+    // Feedback scales the recirculated signal only. Scaling the input along with it, as this used
+    // to, put the first echo at feedback times the input instead of at the input: the delay was
+    // quietest exactly where it was shortest, and a loud single repeat could not be set at all.
     if (m_type == Type::PingPong) {
         // Ping-Pong: Depth controls stereo width/bounce amount.
         const double inL = inputL + inputR * (1.0 - m_depth);
         const double inR = inputR * (1.0 - m_depth);
-        writeL = inL + fbR;
-        writeR = inR + fbL;
+        writeL = inL + fbR * m_feedback;
+        writeR = inR + fbL * m_feedback;
     } else if (m_type == Type::Mono) {
         // Sum input and feedback to mono delay line
         const double monoInput = (inputL + inputR) * 0.5;
         const double monoFb = (fbL + fbR) * 0.5;
-        writeL = writeR = monoInput + monoFb;
+        writeL = writeR = monoInput + monoFb * m_feedback;
         outL = outR = (outL + outR) * 0.5;
     } else {
         // Normal Stereo
-        writeL = inputL + fbL;
-        writeR = inputR + fbR;
+        writeL = inputL + fbL * m_feedback;
+        writeR = inputR + fbR * m_feedback;
     }
 
     applyTapeSaturation(writeL, writeR);
     applyFeedbackFilters(writeL, writeR);
 
-    m_bufferL[m_writePos] = writeL * m_feedback;
-    m_bufferR[m_writePos] = writeR * m_feedback;
+    m_bufferL[m_writePos] = writeL;
+    m_bufferR[m_writePos] = writeR;
 
     m_writePos = (m_writePos + 1) % bufSize;
 }

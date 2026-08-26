@@ -494,12 +494,25 @@ void EffectsTest::test_delayEffect_shouldProduceDelayedSignal()
         effect.process(l, r);
     }
 
-    // Now with feedback 0.0, the output should still be silence
+    // Feedback governs the recirculated signal only, so even at 0 the input still makes it into the
+    // delay line once and comes back at the level it went in at.
     left = 0.0;
     right = 0.0;
     effect.process(left, right);
-    QCOMPARE(left, 0.0f);
-    QCOMPARE(right, 0.0f);
+    QVERIFY(std::abs(left - 1.0f) < 1.0e-3f);
+    QVERIFY(std::abs(right - 1.0f) < 1.0e-3f);
+
+    // And that single repeat is all there is: nothing recirculates at feedback 0.
+    for (int i = 0; i + 1 < delaySamples; i++) {
+        double l = 0.0;
+        double r = 0.0;
+        effect.process(l, r);
+    }
+    left = 0.0;
+    right = 0.0;
+    effect.process(left, right);
+    QVERIFY(std::abs(left) < 1.0e-3f);
+    QVERIFY(std::abs(right) < 1.0e-3f);
 
     // Now re-feed with feedback 1.0 to test delayed signal
     effect.reset();
@@ -573,8 +586,8 @@ void EffectsTest::test_delayEffect_shouldMaintainFeedbackLoop()
     left = 0.0;
     right = 0.0;
     effect.process(left, right);
-    // 1st echo should be 0.5 (1.0 * feedback)
-    QVERIFY(std::abs(left - 0.5f) < 1.0e-3f);
+    // 1st echo is the input itself: feedback has not been round the loop yet.
+    QVERIFY(std::abs(left - 1.0f) < 1.0e-3f);
 
     // Wait for 2nd echo
     for (int i = 0; i + 1 < delaySamples; i++) {
@@ -585,8 +598,8 @@ void EffectsTest::test_delayEffect_shouldMaintainFeedbackLoop()
     left = 0.0;
     right = 0.0;
     effect.process(left, right);
-    // 2nd echo should be 0.25 (0.5 * feedback)
-    QVERIFY(std::abs(left - 0.25f) < 1.0e-3f);
+    // 2nd echo is one pass round the loop: 1.0 * feedback.
+    QVERIFY(std::abs(left - 0.5f) < 1.0e-3f);
 
     // Wait for 3rd echo
     for (int i = 0; i + 1 < delaySamples; i++) {
@@ -598,7 +611,7 @@ void EffectsTest::test_delayEffect_shouldMaintainFeedbackLoop()
     right = 0.0;
     effect.process(left, right);
     // 3rd echo should be 0.125 (0.5 * 0.5 * 0.5)
-    QVERIFY(std::abs(left - 0.125f) < 1.0e-3f);
+    QVERIFY(std::abs(left - 0.25f) < 1.0e-3f);
 }
 
 void EffectsTest::test_delayEffect_shouldMaintainStereoFeedback()
@@ -812,6 +825,39 @@ void EffectsTest::test_delayEffect_shouldProcessTapeMode()
     }
 
     QVERIFY(foundEcho);
+}
+
+void EffectsTest::test_delayEffect_feedback_shouldNotScaleTheFirstEcho()
+{
+    // Feedback governs how much comes round again, not how much gets in. The first echo is the
+    // input, whatever feedback is set to.
+    const float sampleRate = 44100.0f;
+    const int delaySamples = static_cast<int>(0.1f * sampleRate);
+
+    for (const float feedback : { 0.25f, 0.75f }) {
+        Delay effect;
+        effect.setSampleRate(sampleRate);
+        effect.setMix(1.0f);
+        effect.setFeedback(feedback);
+        effect.setTime(0.1f);
+        effect.setSync(false);
+
+        double left = 1.0;
+        double right = 1.0;
+        effect.process(left, right);
+
+        for (int i = 0; i + 1 < delaySamples; i++) {
+            double l = 0.0;
+            double r = 0.0;
+            effect.process(l, r);
+        }
+        left = 0.0;
+        right = 0.0;
+        effect.process(left, right);
+
+        QVERIFY(std::abs(left - 1.0) < 1.0e-3);
+        QVERIFY(std::abs(right - 1.0) < 1.0e-3);
+    }
 }
 
 void EffectsTest::test_delayEffect_shouldSyncParameters()
