@@ -98,6 +98,18 @@ int StringVoiceV2Controller::stringsTone() const
     return m_device ? static_cast<int>(std::round(m_device->stringsTone() * Constants::uiInternalScaling())) : 0;
 }
 
+int StringVoiceV2Controller::velocitySensitivity() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->velocitySensitivity() * Constants::uiInternalScaling())) : 0;
+}
+
+void StringVoiceV2Controller::setVelocitySensitivity(int value)
+{
+    if (m_device) {
+        m_device->setVelocitySensitivity(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
 void StringVoiceV2Controller::setStringsTone(int value)
 {
     if (m_device) {
@@ -328,6 +340,7 @@ void StringVoiceV2Controller::requestSettings()
     emit stringsUpperChanged();
     emit stringsLowerChanged();
     emit stringsToneChanged();
+    emit velocitySensitivityChanged();
     emit stringsAttackChanged();
     emit stringsReleaseChanged();
     emit voiceMale8Changed();

@@ -16,6 +16,12 @@ New features:
     about 1 dB from 1 to 8 kHz
   - The strings source is a saw with its fundamental lifted about 6 dB, which is
     where the hardware's sits
+  - Adds a Velocity Sensitivity control, half by default, over both sections at
+    once, as the hardware has one keyboard
+  - Voices are summed rather than scaled by how many are sounding. V1 divides every
+    voice by the square root of the voice count, which holds the total steady but
+    ties each note's level to how many others are held: releasing two notes of a
+    chord lifts the one still down by about 5 dB
   - V1 is untouched, so existing songs sound exactly as they did
 
 * Add Interpolate pan to a selection, and to a track

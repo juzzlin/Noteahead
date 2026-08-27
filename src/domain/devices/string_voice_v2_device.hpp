@@ -79,6 +79,9 @@ public:
     float stringsTone() const;
     void setStringsTone(float val);
 
+    float velocitySensitivity() const;
+    void setVelocitySensitivity(float val);
+
     float stringsAttack() const;
     void setStringsAttack(float val);
 
@@ -191,6 +194,10 @@ private:
     bool m_stringsLower { true };
     //! Middle by default, which is where the tone network was measured.
     float m_stringsTone { 0.5f };
+
+    //! Shared by both sections, as the hardware's keyboard is. Half by default: the sections keep
+    //! some life from how hard a key is struck without going silent under a light one.
+    float m_velocitySensitivity { 0.5f };
     float m_stringsAttack { 50.0f };
     float m_stringsRelease { 800.0f };
 

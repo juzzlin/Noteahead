@@ -44,6 +44,8 @@ private slots:
     void test_formants_female_shouldNotNotchBetweenPeaks();
     void test_voiceStealing_shouldRemainStableWhenOversubscribed();
     void test_hpfAndLpf_shouldAttenuateSignal();
+    void test_polyphony_shouldNotRescaleHeldNotes();
+    void test_velocitySensitivity_shouldScaleBothSections();
     void test_panSpread_shouldCreateStereoSeparation();
 };
 

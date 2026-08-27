@@ -211,6 +211,15 @@ AnimatedDialog {
                             Layout.topMargin: 8
                         }
 
+                        StringVoiceV2Dialog_Velocity {
+                            Layout.fillWidth: true
+                        }
+
+                        LayoutSeparator {
+                            Layout.fillWidth: true
+                            Layout.topMargin: 8
+                        }
+
                         StringVoiceV2Dialog_Vocoder {
                             Layout.fillWidth: true
                         }

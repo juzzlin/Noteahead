@@ -33,6 +33,7 @@ class StringVoiceV2Controller : public DeviceController
     Q_PROPERTY(bool stringsUpper READ stringsUpper WRITE setStringsUpper NOTIFY stringsUpperChanged)
     Q_PROPERTY(bool stringsLower READ stringsLower WRITE setStringsLower NOTIFY stringsLowerChanged)
     Q_PROPERTY(int stringsTone READ stringsTone WRITE setStringsTone NOTIFY stringsToneChanged)
+    Q_PROPERTY(int velocitySensitivity READ velocitySensitivity WRITE setVelocitySensitivity NOTIFY velocitySensitivityChanged)
     Q_PROPERTY(int stringsAttack READ stringsAttack WRITE setStringsAttack NOTIFY stringsAttackChanged)
     Q_PROPERTY(int stringsRelease READ stringsRelease WRITE setStringsRelease NOTIFY stringsReleaseChanged)
 
@@ -78,6 +79,9 @@ public:
 
     int stringsTone() const;
     void setStringsTone(int value);
+
+    int velocitySensitivity() const;
+    void setVelocitySensitivity(int value);
 
     int stringsAttack() const;
     void setStringsAttack(int value);
@@ -142,6 +146,7 @@ signals:
     void stringsUpperChanged();
     void stringsLowerChanged();
     void stringsToneChanged();
+    void velocitySensitivityChanged();
     void stringsAttackChanged();
     void stringsReleaseChanged();
     void voiceMale8Changed();

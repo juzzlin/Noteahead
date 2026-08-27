@@ -244,6 +244,7 @@ void StringVoiceV2Test::test_serialization_shouldRestoreParameters()
         dev.setStringsUpper(false);
         dev.setStringsLower(true);
         dev.setStringsTone(0.3f);
+        dev.setVelocitySensitivity(0.8f);
         dev.setVoiceMale4(0.3f);
         dev.setVoiceUpperMale8(0.7f);
         dev.setEnsembleEnabled(false);
@@ -273,6 +274,7 @@ void StringVoiceV2Test::test_serialization_shouldRestoreParameters()
         QCOMPARE(dev.stringsUpper(), false);
         QCOMPARE(dev.stringsLower(), true);
         QCOMPARE(dev.stringsTone(), 0.3f);
+        QCOMPARE(dev.velocitySensitivity(), 0.8f);
         QCOMPARE(dev.voiceMale4(), 0.3f);
         QCOMPARE(dev.voiceUpperMale8(), 0.7f);
         QCOMPARE(dev.ensembleEnabled(), false);
@@ -704,6 +706,97 @@ void StringVoiceV2Test::test_hpfAndLpf_shouldAttenuateSignal()
     openHpfDev.setHpfCutoff(1.0f);
     openHpfDev.processMidiNoteOn(69, 100);
     QVERIFY(renderRms(openHpfDev) < openRms * 0.5);
+}
+
+void StringVoiceV2Test::test_polyphony_shouldNotRescaleHeldNotes()
+{
+    // Voices are summed, as a divide-down string machine sums its keys. Scaling each by 1/sqrt(n)
+    // would hold the total steady but tie every note's level to how many others happen to be down,
+    // so releasing two notes of a chord would audibly lift the one still held.
+    const auto render = [](std::initializer_list<uint8_t> notes) {
+        StringVoiceV2Device dev { "Polyphony" };
+        dev.setSampleRate(44100);
+        dev.setStringsUpper(true);
+        dev.setStringsLower(true);
+        dev.setStringsAttack(0.0f);
+        dev.setVoiceMale8(0.0f);
+        dev.setVoiceMale4(0.0f);
+        dev.setVoiceUpperMale8(0.0f);
+        dev.setVoiceFemale4(0.0f);
+        dev.setEnsembleEnabled(false);
+        dev.setVibratoDepth(0.0f);
+        for (const auto note : notes) {
+            dev.processMidiNoteOn(note, 100);
+        }
+        std::vector<double> settle(4096 * 2, 0.0);
+        auto settleCtx = makeContext(settle, 4096);
+        dev.processAudio(settleCtx);
+        std::vector<double> buffer(4096 * 2, 0.0);
+        auto ctx = makeContext(buffer, 4096);
+        dev.processAudio(ctx);
+        return std::pair { rmsLevel(buffer), peakLevel(buffer) };
+    };
+
+    const auto [soloRms, soloPeak] = render({ 48 });
+    const auto [chordRms, chordPeak] = render({ 48, 51, 55 });
+    Q_UNUSED(soloPeak)
+    Q_UNUSED(chordPeak)
+
+    // Three uncorrelated voices sum to about sqrt(3) of one. Rescaling by voice count would land
+    // near 1.0 instead, which is what this catches.
+    const double ratio { chordRms / soloRms };
+    QVERIFY2(ratio > 1.6, qPrintable(QString { "A three-note chord was only %1x a single note" }.arg(ratio)));
+
+    // And the summing has to stay well clear of the safety soft-clip, which is what let the
+    // per-voice compensation go in the first place.
+    const auto [sixRms, sixPeak] = render({ 48, 51, 55, 60, 63, 67 });
+    Q_UNUSED(sixRms)
+    QVERIFY2(sixPeak < 0.6, qPrintable(QString { "A six-note chord peaked at %1" }.arg(sixPeak)));
+}
+
+void StringVoiceV2Test::test_velocitySensitivity_shouldScaleBothSections()
+{
+    // One control over both sections, as the hardware has one keyboard. At 0 the sections ignore
+    // how hard a key was struck; at 1 they follow it the whole way.
+    const auto render = [](float sensitivity, uint8_t velocity, bool strings) {
+        StringVoiceV2Device dev { "Velocity" };
+        dev.setSampleRate(44100);
+        dev.setVelocitySensitivity(sensitivity);
+        dev.setStringsUpper(strings);
+        dev.setStringsLower(strings);
+        dev.setStringsAttack(0.0f);
+        dev.setVoiceMale8(strings ? 0.0f : 1.0f);
+        dev.setVoiceMale4(0.0f);
+        dev.setVoiceUpperMale8(0.0f);
+        dev.setVoiceFemale4(0.0f);
+        dev.setVoiceAttack(0.0f);
+        dev.setEnsembleEnabled(false);
+        dev.setVibratoDepth(0.0f);
+        dev.processMidiNoteOn(48, velocity);
+        std::vector<double> settle(4096 * 2, 0.0);
+        auto settleCtx = makeContext(settle, 4096);
+        dev.processAudio(settleCtx);
+        std::vector<double> buffer(4096 * 2, 0.0);
+        auto ctx = makeContext(buffer, 4096);
+        dev.processAudio(ctx);
+        return rmsLevel(buffer);
+    };
+
+    for (const bool strings : { true, false }) {
+        // Ignored entirely at 0.
+        const double flatSoft { render(0.0f, 20, strings) };
+        const double flatHard { render(0.0f, 127, strings) };
+        QVERIFY2(std::abs(flatSoft - flatHard) < flatHard * 0.02, "Sensitivity at 0 still followed velocity");
+
+        // Followed the whole way at 1: velocity 20 of 127 is about a sixth of the level.
+        const double fullSoft { render(1.0f, 20, strings) };
+        const double fullHard { render(1.0f, 127, strings) };
+        QVERIFY2(fullSoft < fullHard * 0.3, "Sensitivity at 1 barely followed velocity");
+
+        // And halfway between at the default.
+        const double halfSoft { render(0.5f, 20, strings) };
+        QVERIFY2(halfSoft > fullSoft && halfSoft < flatSoft, "The default did not sit between the two");
+    }
 }
 
 void StringVoiceV2Test::test_panSpread_shouldCreateStereoSeparation()

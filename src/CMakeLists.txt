@@ -146,6 +146,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/StringVoiceDialog_Strings.qml
     ${QML_BASE_DIR}/Dialogs/StringVoiceV2Dialog_Strings.qml
     ${QML_BASE_DIR}/Dialogs/StringVoiceDialog_Vocoder.qml
+    ${QML_BASE_DIR}/Dialogs/StringVoiceV2Dialog_Velocity.qml
     ${QML_BASE_DIR}/Dialogs/StringVoiceV2Dialog_Vocoder.qml
     ${QML_BASE_DIR}/Dialogs/StringVoiceDialog_Voice.qml
     ${QML_BASE_DIR}/Dialogs/StringVoiceV2Dialog_Voice.qml

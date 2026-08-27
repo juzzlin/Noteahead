@@ -93,6 +93,7 @@ StringVoiceV2Device::StringVoiceV2Device(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyStringsUpper().toStdString(), 1.0f, 0, 1, 1, 1, Parameter::Type::Boolean });
     addParameter(Parameter { Constants::NahdXml::xmlKeyStringsLower().toStdString(), 1.0f, 0, 1, 1, 1, Parameter::Type::Boolean });
     addParameter(Parameter { Constants::NahdXml::xmlKeyStringsTone().toStdString(), 0.5f, 0, 100, 50, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVelocitySensitivity().toStdString(), 0.5f, 0, 100, 50, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyStringsAttack().toStdString(), 0.2f, 0, 100, 20, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyStringsRelease().toStdString(), 0.4f, 0, 100, 40, 100 });
 
@@ -397,12 +398,11 @@ void StringVoiceV2Device::processAudio(AudioContext & context)
 
     m_vocoder.setSampleRate(sRate);
 
-    // Equal-power headroom compensation: without this, stacking more than a
-    // couple of sustained notes clips the summed output (each voice was
-    // previously mixed at a fixed level regardless of how many others were
-    // also sounding).
-    const int activeVoiceCount { static_cast<int>(std::ranges::count_if(m_voices, [](const auto & voice) { return voice.active; })) };
-    const double polyphonyGain { 1.0 / std::sqrt(static_cast<double>(std::max(1, activeVoiceCount))) };
+    // No headroom compensation by voice count, deliberately. Scaling every voice by 1/sqrt(n)
+    // keeps the total steady but makes each note's level depend on how many others happen to be
+    // held, so releasing two notes of a chord audibly lifts the one still down. A divide-down
+    // string machine simply sums its keys, and the peaks that leaves -- around 0.3 for a six-note
+    // chord -- sit far enough below the safety soft-clip to need no correcting.
 
     constexpr double pwmRateHz { 0.13 }; // slow, subtle pulse-width drift for a less static choir tone
 
@@ -492,7 +492,9 @@ void StringVoiceV2Device::processAudio(AudioContext & context)
             const double vocSample8 { v.voiceOsc8.nextSample() };
             const double vocSample4 { v.voiceOsc4.nextSample() };
 
-            const double voiceGain { static_cast<double>(v.velocity) * linearGainInternal() * 0.25 * polyphonyGain };
+            // Sensitivity at 0 ignores how hard the key was struck, at 1 follows it the whole way.
+            const double velocityLevel { 1.0 - m_velocitySensitivity + m_velocitySensitivity * static_cast<double>(v.velocity) };
+            const double voiceGain { velocityLevel * linearGainInternal() * 0.25 };
 
             // Which half of the split a note falls in decides both sections, as on the hardware.
             const bool upper { v.note >= SplitNote };
@@ -708,6 +710,16 @@ void StringVoiceV2Device::setStringsLower(bool val)
 float StringVoiceV2Device::stringsTone() const
 {
     return m_stringsTone;
+}
+
+float StringVoiceV2Device::velocitySensitivity() const
+{
+    return m_velocitySensitivity;
+}
+
+void StringVoiceV2Device::setVelocitySensitivity(float val)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVelocitySensitivity().toStdString(), val);
 }
 
 void StringVoiceV2Device::setStringsTone(float val)
@@ -926,6 +938,9 @@ void StringVoiceV2Device::syncParameters()
     }
     if (const auto p = parameter(Constants::NahdXml::xmlKeyStringsTone().toStdString()); p) {
         m_stringsTone = p->get().value();
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVelocitySensitivity().toStdString()); p) {
+        m_velocitySensitivity = p->get().value();
     }
     if (const auto p = parameter(Constants::NahdXml::xmlKeyStringsAttack().toStdString()); p) {
         m_stringsAttack = p->get().value();
