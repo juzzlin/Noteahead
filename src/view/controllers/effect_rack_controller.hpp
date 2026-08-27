@@ -159,6 +159,17 @@ public:
     Q_INVOKABLE void copyEffect(int sourceSlot, int targetSlot);
     Q_INVOKABLE QVariantList populatedEffects() const;
 
+    //! Every rack that could be copied into the one currently targeted, the target itself left out.
+    //!
+    //! An entry carries "deviceName" and "isInsertRack", which is how copyRackFrom() addresses a
+    //! rack: an empty device name is the master, where the flag picks the insert or the send rack.
+    //! Sampler pad and Drum Synth voice racks are not offered -- a device has dozens of them, and
+    //! the whole-device rack is what one wants to reuse.
+    Q_INVOKABLE QVariantList availableRackSources() const;
+    //! Replace the targeted rack with clones of another rack's effects. Returns false when either
+    //! rack is missing or the two are the same rack.
+    Q_INVOKABLE bool copyRackFrom(const QString & sourceDeviceName, bool sourceIsInsertRack);
+
     Q_INVOKABLE void exportSettings(const QUrl & fileUrl);
     bool exportSettings(ProjectWriter & writer) const;
 
@@ -472,7 +483,11 @@ private:
     };
 
     EffectTypeInfo peekEffectTypeInfo(const QUrl & fileUrl) const;
-    std::optional<std::reference_wrapper<EffectRack>> currentRack() const;
+    using EffectRackOpt = std::optional<std::reference_wrapper<EffectRack>>;
+    //! The rack an address points at. An empty device name is the master, where isInsertRack picks
+    //! the insert or the send rack; subIndex >= 0 is a Sampler pad or a Drum Synth voice.
+    EffectRackOpt rackAt(const QString & deviceName, bool isInsertRack, int subIndex) const;
+    EffectRackOpt currentRack() const;
 
     DeviceServiceS m_deviceService;
     EditorServiceS m_editorService;

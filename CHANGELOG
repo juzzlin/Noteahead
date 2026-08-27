@@ -10,9 +10,11 @@ New features:
     takes over the old one's insert effects, sends, fader, gain, pan, fader
     position and send tap, and keeps the slot's place in a Sub Mixer
 
-* Export and import whole effect racks
+* Export, import and copy whole effect racks
   - The Insert Effects and Master Effect Rack dialogs write and read a whole rack
     as a .nahdrack file. A single effect keeps its own .nahdeff
+  - Copy Rack... takes the whole chain from another device or from either master
+    rack, bypass state included
 
 * Add the String & Voice V2 device
   - Its Strings section has the switches the hardware has, Upper and Lower, saying

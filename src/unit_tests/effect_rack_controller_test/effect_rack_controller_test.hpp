@@ -34,6 +34,9 @@ private slots:
     void test_importEffectSettings_differentType_shouldEmitConfirmationWithMismatch();
     void test_confirmImportEffectSettings_shouldImportAndNotify();
     void test_copyEffect_shouldDuplicateAndNotify();
+    void test_copyRackFrom_device_shouldReplaceTargetRackAndNotify();
+    void test_copyRackFrom_sameRack_shouldFail();
+    void test_availableRackSources_shouldLeaveOutTheTargetRack();
     void test_revertEffect_shouldRestoreSnapshotAndNotify();
     void test_revertEffect_withoutSnapshot_shouldKeepEdits();
     void test_revertEffect_otherSlot_shouldKeepEdits();

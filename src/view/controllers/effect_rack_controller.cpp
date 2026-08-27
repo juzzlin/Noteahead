@@ -165,22 +165,22 @@ void EffectRackController::setTargetSubIndex(int index)
     emit effectCountChanged();
 }
 
-std::optional<std::reference_wrapper<EffectRack>> EffectRackController::currentRack() const
+EffectRackController::EffectRackOpt EffectRackController::rackAt(const QString & deviceName, bool isInsertRack, int subIndex) const
 {
-    if (m_targetDeviceName.isEmpty()) {
-        if (m_isInsertRack) {
+    if (deviceName.isEmpty()) {
+        if (isInsertRack) {
             return std::ref(m_deviceService->insertEffectRack());
         } else {
             return std::ref(m_deviceService->sendEffectRack());
         }
     } else {
-        if (const auto device = m_deviceService->device(m_targetDeviceName.toStdString()); device) {
-            if (m_targetSubIndex >= 0) {
+        if (const auto device = m_deviceService->device(deviceName.toStdString()); device) {
+            if (subIndex >= 0) {
                 if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(device)) {
-                    return std::ref(sampler->sampleEffectRack(static_cast<uint8_t>(m_targetSubIndex)));
+                    return std::ref(sampler->sampleEffectRack(static_cast<uint8_t>(subIndex)));
                 }
                 if (const auto drum = std::dynamic_pointer_cast<DrumSynthDevice>(device)) {
-                    return std::ref(drum->voiceEffectRack(m_targetSubIndex));
+                    return std::ref(drum->voiceEffectRack(subIndex));
                 }
                 return std::nullopt;
             }
@@ -188,6 +188,11 @@ std::optional<std::reference_wrapper<EffectRack>> EffectRackController::currentR
         }
     }
     return std::nullopt;
+}
+
+EffectRackController::EffectRackOpt EffectRackController::currentRack() const
+{
+    return rackAt(m_targetDeviceName, m_isInsertRack, m_targetSubIndex);
 }
 
 float EffectRackController::parameterValue(quint32 effectIndex, const QString & paramName) const
@@ -361,6 +366,65 @@ void EffectRackController::copyEffect(int sourceSlot, int targetSlot)
             emit revisionChanged();
         }
     }
+}
+
+QVariantList EffectRackController::availableRackSources() const
+{
+    QVariantList list;
+
+    const auto rackEntry = [this](const QString & deviceName, bool isInsertRack, const QString & name, const QString & description) {
+        QVariantMap map;
+        map["deviceName"] = deviceName;
+        map["isInsertRack"] = isInsertRack;
+        map["name"] = name;
+        map["description"] = description;
+        const auto rack = rackAt(deviceName, isInsertRack, -1);
+        const auto effects = rack ? rack->get().effects() : std::vector<EffectRack::EffectS> {};
+        map["effectCount"] = static_cast<int>(std::ranges::count_if(effects, [](const auto & effect) { return effect != nullptr; }));
+        return map;
+    };
+
+    // The rack being copied into is not a source for itself. Only whole-device racks and the two
+    // master racks are addressable here, so a pad or voice rack is never the target of this check.
+    const auto isTarget = [this](const QString & deviceName, bool isInsertRack) {
+        return m_targetSubIndex < 0 && m_targetDeviceName == deviceName && (!deviceName.isEmpty() || m_isInsertRack == isInsertRack);
+    };
+
+    if (!isTarget({}, true)) {
+        list.append(rackEntry({}, true, tr("Master Insert Effects"), {}));
+    }
+    if (!isTarget({}, false)) {
+        list.append(rackEntry({}, false, tr("Master Send Effects"), {}));
+    }
+
+    for (size_t slotIndex = 0; slotIndex < Constants::deviceRackSize(); slotIndex++) {
+        if (const auto device = m_deviceService->device(slotIndex); device) {
+            const auto deviceName = QString::fromStdString(device->name());
+            if (!isTarget(deviceName, true)) {
+                list.append(rackEntry(deviceName, true, deviceName, QString::fromStdString(device->typeName())));
+            }
+        }
+    }
+
+    return list;
+}
+
+bool EffectRackController::copyRackFrom(const QString & sourceDeviceName, bool sourceIsInsertRack)
+{
+    const auto target = currentRack();
+    const auto source = rackAt(sourceDeviceName, sourceIsInsertRack, -1);
+    if (!target || !source || &target->get() == &source->get()) {
+        return false;
+    }
+
+    target->get().copyFrom(source->get());
+    m_editorService->setIsModified(true);
+    m_revision++;
+    emit revisionChanged();
+    emit effectCountChanged();
+    // copyFrom() brings the source's bypass state along with its effects.
+    emit rackEnabledChanged();
+    return true;
 }
 
 QVariantList EffectRackController::populatedEffects() const

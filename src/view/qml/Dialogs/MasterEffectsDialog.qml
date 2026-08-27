@@ -68,6 +68,12 @@ AnimatedDialog {
             onClicked: UiService.requestImportEffectRack()
         }
         AppButton {
+            text: qsTr("Copy Rack...")
+            implicitWidth: Constants.defaultButtonWidth
+            DialogButtonBox.buttonRole: DialogButtonBox.ActionRole
+            onClicked: UiService.requestCopyEffectRackDialog(tabBar.currentIndex === 0 ? qsTr("Master Insert Effects") : qsTr("Master Send Effects"))
+        }
+        AppButton {
             text: qsTr("Close")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole

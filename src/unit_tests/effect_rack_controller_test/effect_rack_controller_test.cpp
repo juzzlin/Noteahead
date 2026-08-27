@@ -613,6 +613,91 @@ void EffectRackControllerTest::test_copyEffect_shouldDuplicateAndNotify()
     QCOMPARE(controller.parameterValue(2, controller.reverbSizeKey()), 0.42f);
 }
 
+void EffectRackControllerTest::test_copyRackFrom_device_shouldReplaceTargetRackAndNotify()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    const auto device = std::make_shared<MockDevice>("Mock Device");
+    deviceService->setDevice(0, device);
+    EffectRackController controller { deviceService, editorService };
+
+    // Build the source on the device, and something else on the master rack it will replace.
+    controller.setIsInsertRack(true);
+    controller.setTargetDeviceName("Mock Device");
+    controller.setEffect(1, QString::fromStdString(Reverb::typeIdString()));
+    controller.setParameterValue(1, controller.reverbSizeKey(), 0.42f);
+
+    controller.setTargetDeviceName({});
+    controller.setEffect(0, QString::fromStdString(Compressor::typeIdString()));
+
+    QSignalSpy revisionSpy { &controller, &EffectRackController::revisionChanged };
+    QVERIFY(controller.copyRackFrom("Mock Device", true));
+
+    QVERIFY(revisionSpy.count() > 0);
+    QVERIFY(editorService->isModified());
+    QCOMPARE(controller.effectType(0), QString {});
+    QCOMPARE(controller.effectType(1), controller.reverbType());
+    QCOMPARE(controller.parameterValue(1, controller.reverbSizeKey()), 0.42f);
+
+    // The copy is independent: editing it does not reach into the rack it came from.
+    controller.setParameterValue(1, controller.reverbSizeKey(), 0.1f);
+    controller.setTargetDeviceName("Mock Device");
+    QCOMPARE(controller.parameterValue(1, controller.reverbSizeKey()), 0.42f);
+}
+
+void EffectRackControllerTest::test_copyRackFrom_sameRack_shouldFail()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+
+    QVERIFY(!controller.copyRackFrom({}, true));
+    QCOMPARE(controller.effectType(0), controller.reverbType());
+}
+
+void EffectRackControllerTest::test_availableRackSources_shouldLeaveOutTheTargetRack()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    deviceService->setDevice(0, std::make_shared<MockDevice>("Mock Device"));
+    EffectRackController controller { deviceService, editorService };
+
+    const auto names = [](const QVariantList & sources) {
+        QStringList list;
+        for (const auto & source : sources) {
+            list.append(source.toMap()["name"].toString());
+        }
+        return list;
+    };
+
+    // Targeting the master insert rack: the master send rack and the device's rack are left.
+    controller.setTargetDeviceName({});
+    controller.setIsInsertRack(true);
+    auto sources = controller.availableRackSources();
+    QCOMPARE(sources.size(), 2);
+    QVERIFY(!names(sources).contains("Master Insert Effects"));
+    QVERIFY(names(sources).contains("Mock Device"));
+
+    // Targeting the device's rack: both master racks are left.
+    controller.setTargetDeviceName("Mock Device");
+    sources = controller.availableRackSources();
+    QCOMPARE(sources.size(), 2);
+    QVERIFY(!names(sources).contains("Mock Device"));
+
+    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+    controller.setTargetDeviceName({});
+    for (const auto & source : controller.availableRackSources()) {
+        const auto map = source.toMap();
+        QCOMPARE(map["effectCount"].toInt(), map["name"].toString() == "Mock Device" ? 1 : 0);
+    }
+}
+
 void EffectRackControllerTest::test_revertEffect_shouldRestoreSnapshotAndNotify()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();

@@ -71,6 +71,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/ConfirmationDialog.qml
     ${QML_BASE_DIR}/Dialogs/CopyDeviceDialog.qml
     ${QML_BASE_DIR}/Dialogs/CopyEffectDialog.qml
+    ${QML_BASE_DIR}/Dialogs/CopyEffectRackDialog.qml
     ${QML_BASE_DIR}/Dialogs/CopyPadDialog.qml
     ${QML_BASE_DIR}/Dialogs/DelayCalculatorDialog.qml
     ${QML_BASE_DIR}/Dialogs/DelayDialog.qml

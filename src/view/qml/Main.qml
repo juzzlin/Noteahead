@@ -156,6 +156,10 @@ ApplicationWindow {
         width: parent.width * Constants.defaultDialogScale
         height: parent.height * Constants.defaultDialogScale
     }
+    CopyEffectRackDialog {
+        id: copyEffectRackDialog
+        anchors.centerIn: parent
+    }
     CopyPadDialog {
         id: copyPadDialog
         anchors.centerIn: parent
@@ -1298,6 +1302,10 @@ ApplicationWindow {
         UiService.copyEffectDialogRequested.connect(slotIndex => {
             copyEffectDialog.slotIndex = slotIndex;
             copyEffectDialog.open();
+        });
+        UiService.copyEffectRackDialogRequested.connect(targetName => {
+            copyEffectRackDialog.targetName = targetName;
+            copyEffectRackDialog.open();
         });
         UiService.copyPadDialogRequested.connect(padIndex => {
             copyPadDialog.padIndex = padIndex;
