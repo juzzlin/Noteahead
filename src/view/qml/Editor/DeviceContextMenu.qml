@@ -55,6 +55,16 @@ Menu {
         title: qsTr("Manage")
         width: rootItem.width
         MenuItem {
+            text: qsTr("Change Device...")
+            onTriggered: {
+                const slot = rootItem.deviceSlot();
+                if (slot >= 0) {
+                    UiService.requestDeviceGalleryDialog(slot);
+                }
+            }
+        }
+        MenuSeparator {}
+        MenuItem {
             text: qsTr("Export Settings...")
             onTriggered: {
                 const slot = rootItem.deviceSlot();
