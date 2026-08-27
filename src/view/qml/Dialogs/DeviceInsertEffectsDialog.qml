@@ -62,6 +62,18 @@ AnimatedDialog {
 
     footer: DialogButtonBox {
         AppButton {
+            text: qsTr("Export Rack...")
+            implicitWidth: Constants.defaultButtonWidth
+            DialogButtonBox.buttonRole: DialogButtonBox.ActionRole
+            onClicked: UiService.requestExportEffectRack(root.subIndex >= 0 ? qsTr("%1 %2").arg(root.deviceName).arg(root.subLabel) : root.deviceName)
+        }
+        AppButton {
+            text: qsTr("Import Rack...")
+            implicitWidth: Constants.defaultButtonWidth
+            DialogButtonBox.buttonRole: DialogButtonBox.ActionRole
+            onClicked: UiService.requestImportEffectRack()
+        }
+        AppButton {
             text: qsTr("Close")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole

@@ -38,6 +38,10 @@ QString license();
 QString fileFormatVersion();
 QString fileFormatExtension();
 QString deviceSettingsExtension();
+//! Extension of a single exported rack effect.
+QString effectSettingsExtension();
+//! Extension of a whole exported effect rack. Kept apart from a single effect's so that the two
+//! kinds of file cannot be handed to each other's importer, which would silently do nothing.
 QString effectRackSettingsExtension();
 QString midiFileExtension();
 

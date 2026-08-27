@@ -30,6 +30,12 @@ AnimatedDialog {
 
     property int slotIndex: -1
 
+    // Read when the dialog opens rather than bound: picking a device replaces the slot's device,
+    // which would otherwise re-evaluate the name under the label that is naming what is going.
+    property string replacedDeviceTypeName: ""
+
+    onOpened: replacedDeviceTypeName = root.slotIndex !== -1 ? deviceRackController.deviceTypeName(root.slotIndex) : ""
+
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
 
@@ -80,6 +86,16 @@ AnimatedDialog {
             Layout.alignment: Qt.AlignHCenter
         }
 
+        Label {
+            text: qsTr("Replacing %1 — insert effects, sends and mixer settings are kept.").arg(root.replacedDeviceTypeName)
+            color: "#aaa"
+            font.pointSize: 12
+            visible: root.replacedDeviceTypeName !== ""
+            Layout.fillWidth: true
+            horizontalAlignment: Text.AlignHCenter
+            wrapMode: Text.WordWrap
+        }
+
         ListView {
             id: deviceListView
             model: deviceRackController.availableDevices()
@@ -104,7 +120,7 @@ AnimatedDialog {
                     onExited: deviceListView.hoveredIndex = -1
                     onClicked: {
                         deviceListView.hoveredIndex = -1;
-                        deviceRackController.setDevice(root.slotIndex, modelData.typeId);
+                        deviceRackController.replaceDevice(root.slotIndex, modelData.typeId);
                         root.accept();
                     }
                 }

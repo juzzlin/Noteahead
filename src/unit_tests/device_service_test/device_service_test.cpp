@@ -21,8 +21,10 @@
 #include "../../domain/devices/drum_synth_constants.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
+#include "../../domain/devices/sub_mixer_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/effects/effect_factory.hpp"
+#include "../../domain/effects/gain.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
@@ -355,6 +357,80 @@ void DeviceServiceTest::test_importDeviceSettings_emptySlot_shouldCreateDeviceFr
     const auto synth = std::dynamic_pointer_cast<SynthDevice>(service.device(0));
     QVERIFY(synth);
     QCOMPARE(synth->volume(), 0.75f);
+}
+
+void DeviceServiceTest::test_replaceDevice_shouldKeepChannelStrip()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto dataService = std::make_shared<DataService>();
+    DeviceService service { audioEngine, dataService };
+
+    const auto synth = DeviceFactory::createDevice(SynthDevice::typeIdString(), "TestSynth");
+    service.setDevice(0, synth);
+
+    const auto gain = EffectFactory::createEffect(Gain::typeIdString());
+    QVERIFY(gain);
+    gain->parameter(Constants::NahdXml::xmlKeyGain().toStdString())->get().setValue(0.75f);
+    synth->insertEffectRack().setEffect(1, gain);
+    synth->setVolume(0.6f);
+    synth->setGain(0.4f);
+    synth->setPan(0.3f);
+    synth->setFaderPosition(Device::FaderPosition::PostInserts);
+    synth->setSendTap(Device::SendTap::PreFader);
+    synth->setReverbSend(2, 0.5f);
+
+    service.replaceDevice(0, DeviceFactory::createDevice(SamplerDevice::typeIdString(), "TestSynth"));
+
+    const auto replacement = service.device(0);
+    QVERIFY(replacement);
+    QCOMPARE(replacement->typeId(), SamplerDevice::typeIdString());
+
+    const auto adopted = replacement->insertEffectRack().effect(1);
+    QVERIFY(adopted);
+    QCOMPARE(adopted->typeId(), Gain::typeIdString());
+    QCOMPARE(adopted->parameter(Constants::NahdXml::xmlKeyGain().toStdString())->get().value(), 0.75f);
+    // A clone, so editing the new rack cannot reach into the old device's.
+    QVERIFY(adopted != gain);
+
+    QCOMPARE(replacement->volume(), 0.6f);
+    QCOMPARE(replacement->gain(), 0.4f);
+    QCOMPARE(replacement->pan(), 0.3f);
+    QCOMPARE(replacement->faderPosition(), Device::FaderPosition::PostInserts);
+    QCOMPARE(replacement->sendTap(), Device::SendTap::PreFader);
+    QCOMPARE(replacement->reverbSend(2), 0.5f);
+    QCOMPARE(replacement->reverbSend(0), 0.0f);
+}
+
+void DeviceServiceTest::test_replaceDevice_emptySlot_shouldJustSetTheDevice()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto dataService = std::make_shared<DataService>();
+    DeviceService service { audioEngine, dataService };
+
+    QVERIFY(!service.device(0));
+
+    service.replaceDevice(0, DeviceFactory::createDevice(SynthDevice::typeIdString(), "TestSynth"));
+
+    const auto device = service.device(0);
+    QVERIFY(device);
+    QCOMPARE(device->typeId(), SynthDevice::typeIdString());
+    QCOMPARE(device->volume(), Constants::faderUnityPosition());
+}
+
+void DeviceServiceTest::test_replaceDevice_subMixerMember_shouldKeepMembership()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto dataService = std::make_shared<DataService>();
+    DeviceService service { audioEngine, dataService };
+
+    service.setDevice(0, DeviceFactory::createDevice(SubMixerDevice::typeIdString(), "TestSubMixer"));
+    service.setDevice(1, DeviceFactory::createDevice(SynthDevice::typeIdString(), "TestSynth"));
+    QVERIFY(service.addSubMixerMember(0, 1));
+
+    // The slot never falls empty, so nothing prunes the membership out from under the SubMixer.
+    service.replaceDevice(1, DeviceFactory::createDevice(SamplerDevice::typeIdString(), "TestSynth"));
+
+    QCOMPARE(service.subMixerOwningSlot(1), 0);
 }
 
 void DeviceServiceTest::test_copyDevice_shouldDuplicateParametersIntoTargetSlot()

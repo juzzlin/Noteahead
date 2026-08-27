@@ -98,6 +98,11 @@ QString ApplicationService::deviceSettingsExtension() const
     return Constants::deviceSettingsExtension();
 }
 
+QString ApplicationService::effectSettingsExtension() const
+{
+    return Constants::effectSettingsExtension();
+}
+
 QString ApplicationService::effectRackSettingsExtension() const
 {
     return Constants::effectRackSettingsExtension();
@@ -511,6 +516,12 @@ QString ApplicationService::defaultEffectFileName(const QString & effectType) co
 {
     const auto date = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
     return QString { "%1-%2" }.arg(effectType, date);
+}
+
+QString ApplicationService::defaultEffectRackFileName(const QString & rackName) const
+{
+    const auto date = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
+    return QString { "%1-%2" }.arg(rackName, date);
 }
 
 QUrl ApplicationService::fromLocalFile(const QString & localPath) const

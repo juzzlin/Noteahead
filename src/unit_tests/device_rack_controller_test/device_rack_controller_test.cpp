@@ -28,6 +28,7 @@
 #include "../../domain/devices/sub_mixer_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/effects/effect_factory.hpp"
+#include "../../domain/effects/gain.hpp"
 #include "../../domain/utility/level_meter.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
@@ -308,6 +309,36 @@ void DeviceRackControllerTest::test_setDevice_shouldAddDeviceAndNotify()
     QVERIFY(editorService->isModified());
     QVERIFY(deviceService->device(0) != nullptr);
     QCOMPARE(QString::fromStdString(deviceService->device(0)->typeId()), typeId);
+}
+
+void DeviceRackControllerTest::test_replaceDevice_shouldKeepInsertEffectsAndNotify()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<MockEditorService>();
+
+    const auto synth = DeviceFactory::createDevice(SynthDevice::typeIdString(), "TestSynth");
+    synth->insertEffectRack().setEffect(0, EffectFactory::createEffect(Gain::typeIdString()));
+    synth->setReverbSend(1, 0.25f);
+    deviceService->setDevice(0, synth);
+
+    DeviceRackController controller { deviceService, {}, editorService };
+    QSignalSpy revisionSpy { &controller, &DeviceRackController::revisionChanged };
+
+    const auto typeId = QString::fromStdString(SamplerDevice::typeIdString());
+    controller.replaceDevice(0, typeId);
+
+    QVERIFY(revisionSpy.count() > 0);
+    QVERIFY(editorService->isModified());
+
+    const auto replacement = deviceService->device(0);
+    QVERIFY(replacement);
+    QCOMPARE(QString::fromStdString(replacement->typeId()), typeId);
+    // The slot keeps its canonical name, so the tracks pointing at it still find their device.
+    QCOMPARE(QString::fromStdString(replacement->name()), Constants::internalDevicePortPrefix() + " 1");
+    QVERIFY(replacement->insertEffectRack().effect(0));
+    QCOMPARE(replacement->insertEffectRack().effect(0)->typeId(), Gain::typeIdString());
+    QCOMPARE(replacement->reverbSend(1), 0.25f);
 }
 
 void DeviceRackControllerTest::test_clearDevice_shouldRemoveDeviceAndNotify()

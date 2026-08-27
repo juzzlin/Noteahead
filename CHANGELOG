@@ -5,6 +5,15 @@ Release date:
 
 New features:
 
+* Change the device in a slot without losing the mix around it
+  - The Device Rack's Manage menu has a Change Device... item. The new instrument
+    takes over the old one's insert effects, sends, fader, gain, pan, fader
+    position and send tap, and keeps the slot's place in a Sub Mixer
+
+* Export and import whole effect racks
+  - The Insert Effects and Master Effect Rack dialogs write and read a whole rack
+    as a .nahdrack file. A single effect keeps its own .nahdeff
+
 * Add the String & Voice V2 device
   - Its Strings section has the switches the hardware has, Upper and Lower, saying
     which half of the split it sounds on, with Balance setting how loud. The 8' and

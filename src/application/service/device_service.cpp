@@ -69,6 +69,14 @@ void DeviceService::setDevice(size_t slotIndex, DeviceS device)
     emit dataChanged();
 }
 
+void DeviceService::replaceDevice(size_t slotIndex, DeviceS device)
+{
+    if (const auto previous = this->device(slotIndex); previous && device) {
+        device->adoptChannelStripFrom(*previous);
+    }
+    setDevice(slotIndex, std::move(device));
+}
+
 void DeviceService::clearDevice(size_t slotIndex)
 {
     m_audioEngine->clearDevice(slotIndex);

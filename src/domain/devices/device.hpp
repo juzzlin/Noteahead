@@ -134,6 +134,14 @@ public:
     EffectRack & insertEffectRack();
     const EffectRack & insertEffectRack() const;
 
+    //! Takes over another device's channel strip: insert effects, sends, fader, gain, pan, fader
+    //! position and send tap. Everything on a slot that is not the instrument itself.
+    //!
+    //! What makes swapping the instrument in a slot keep the mix around it. Lives here rather than
+    //! in the service because none of it belongs to a concrete device type, so any device can
+    //! adopt the strip of any other.
+    void adoptChannelStripFrom(const Device & other);
+
     //! Oscilloscope tap for this device's output. Capture is gated by AudioScope::setActive().
     AudioScope & scope();
 

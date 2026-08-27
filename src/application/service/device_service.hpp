@@ -51,6 +51,12 @@ public:
 
     using DeviceS = std::shared_ptr<Device>;
     void setDevice(size_t slotIndex, DeviceS device);
+    //! Swaps the instrument in a slot while keeping everything the slot carries around it: the
+    //! insert effects, the sends and the mixer settings, all adopted from the outgoing device.
+    //!
+    //! The slot never falls empty, so SubMixer membership -- which is by slot index -- survives on
+    //! both sides. Falls back to a plain setDevice() when the slot was empty to begin with.
+    void replaceDevice(size_t slotIndex, DeviceS device);
     void clearDevice(size_t slotIndex);
     virtual DeviceS device(size_t slotIndex) const;
     virtual DeviceS device(const std::string & name) const;

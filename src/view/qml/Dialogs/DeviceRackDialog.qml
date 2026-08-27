@@ -126,6 +126,10 @@ AnimatedDialog {
                     id: manageMenu
                     delegate: MenuItemDelegate {}
                     MenuItem {
+                        text: qsTr("Change Device...")
+                        onClicked: UiService.requestDeviceGalleryDialog(index)
+                    }
+                    MenuItem {
                         text: qsTr("Export Settings...")
                         onClicked: UiService.requestExportDeviceSettings(index, deviceName, deviceTypeName)
                     }

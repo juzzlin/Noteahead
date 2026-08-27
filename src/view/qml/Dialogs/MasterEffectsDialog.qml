@@ -56,6 +56,18 @@ AnimatedDialog {
 
     footer: DialogButtonBox {
         AppButton {
+            text: qsTr("Export Rack...")
+            implicitWidth: Constants.defaultButtonWidth
+            DialogButtonBox.buttonRole: DialogButtonBox.ActionRole
+            onClicked: UiService.requestExportEffectRack(tabBar.currentIndex === 0 ? qsTr("Master Insert Effects") : qsTr("Master Send Effects"))
+        }
+        AppButton {
+            text: qsTr("Import Rack...")
+            implicitWidth: Constants.defaultButtonWidth
+            DialogButtonBox.buttonRole: DialogButtonBox.ActionRole
+            onClicked: UiService.requestImportEffectRack()
+        }
+        AppButton {
             text: qsTr("Close")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole

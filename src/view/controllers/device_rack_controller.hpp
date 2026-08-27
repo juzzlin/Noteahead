@@ -68,6 +68,9 @@ public:
     Q_INVOKABLE void requestDeviceSettingsDialog(const QString & deviceName);
 
     Q_INVOKABLE void setDevice(int slotIndex, const QString & typeId);
+    //! Puts a new device in the slot but keeps the channel strip the old one had. What the Device
+    //! Gallery calls, so that changing the instrument does not take the mix around it along.
+    Q_INVOKABLE void replaceDevice(int slotIndex, const QString & typeId);
     Q_INVOKABLE void clearDevice(int slotIndex);
 
     Q_INVOKABLE void exportSettings(int index, const QUrl & fileUrl);

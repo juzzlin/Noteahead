@@ -456,6 +456,31 @@ const EffectRack & Device::insertEffectRack() const
     return m_insertEffectRack;
 }
 
+void Device::adoptChannelStripFrom(const Device & other)
+{
+    if (&other == this) {
+        return;
+    }
+
+    m_insertEffectRack.copyFrom(other.insertEffectRack());
+
+    // Through the virtual setters, so that a device folding pan or gain into its voices picks the
+    // values up rather than only storing them.
+    setVolume(other.volume());
+    setGain(other.gain());
+    setPan(other.pan());
+    setFaderPosition(other.faderPosition());
+    setSendTap(other.sendTap());
+
+    // The send count is fixed by the constructor and identical for every device, but take the
+    // smaller of the two anyway so this can never write past either end.
+    for (size_t i = 0; i < std::min(reverbSendCount(), other.reverbSendCount()); i++) {
+        setReverbSend(i, other.reverbSend(i));
+    }
+
+    emit dataChanged();
+}
+
 AudioScope & Device::scope()
 {
     return m_scope;

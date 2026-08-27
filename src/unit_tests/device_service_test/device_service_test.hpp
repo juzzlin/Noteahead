@@ -36,6 +36,9 @@ private slots:
     void test_importDeviceSettings_shouldRestoreParameters();
     void test_importDeviceSettings_shouldReplaceDeviceIfTypeDiffers();
     void test_importDeviceSettings_emptySlot_shouldCreateDeviceFromFile();
+    void test_replaceDevice_shouldKeepChannelStrip();
+    void test_replaceDevice_emptySlot_shouldJustSetTheDevice();
+    void test_replaceDevice_subMixerMember_shouldKeepMembership();
     void test_copyDevice_shouldDuplicateParametersIntoTargetSlot();
     void test_copyDevice_differentType_shouldReplaceTargetDevice();
     void test_copyDevice_emptySource_shouldFail();

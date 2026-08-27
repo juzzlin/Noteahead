@@ -2473,8 +2473,8 @@ void EffectRackController::revertEffect(int effectIndex)
 void EffectRackController::exportEffectSettings(int index, const QUrl & fileUrl)
 {
     auto filePath = fileUrl.toLocalFile();
-    if (!filePath.endsWith(Constants::effectRackSettingsExtension())) {
-        filePath += Constants::effectRackSettingsExtension();
+    if (!filePath.endsWith(Constants::effectSettingsExtension())) {
+        filePath += Constants::effectSettingsExtension();
     }
     QFile file { filePath };
     if (!file.open(QIODevice::WriteOnly)) {
@@ -2585,8 +2585,10 @@ void EffectRackController::importSettings(const QUrl & fileUrl)
     }
     NahdXmlReader reader { file };
     if (importSettings(reader)) {
+        m_editorService->setIsModified(true);
         m_revision++;
         emit revisionChanged();
+        emit effectCountChanged();
     }
 }
 

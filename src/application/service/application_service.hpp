@@ -62,6 +62,7 @@ public:
     Q_INVOKABLE QString applicationVersion() const;
     Q_INVOKABLE QString copyright() const;
     Q_INVOKABLE QString deviceSettingsExtension() const;
+    Q_INVOKABLE QString effectSettingsExtension() const;
     Q_INVOKABLE QString effectRackSettingsExtension() const;
     Q_INVOKABLE QString fileFormatExtension() const;
     Q_INVOKABLE QString midiFileExtension() const;
@@ -103,6 +104,7 @@ public:
 
     Q_INVOKABLE QString defaultDeviceFileName(const QString & deviceName) const;
     Q_INVOKABLE QString defaultEffectFileName(const QString & effectType) const;
+    Q_INVOKABLE QString defaultEffectRackFileName(const QString & rackName) const;
 
     Q_INVOKABLE QUrl fromLocalFile(const QString & localPath) const;
 

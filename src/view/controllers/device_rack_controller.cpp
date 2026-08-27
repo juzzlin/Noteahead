@@ -318,6 +318,17 @@ void DeviceRackController::setDevice(int slotIndex, const QString & typeId)
     }
 }
 
+void DeviceRackController::replaceDevice(int slotIndex, const QString & typeId)
+{
+    const auto name = Constants::internalDevicePortPrefix().toStdString() + " " + std::to_string(slotIndex + 1);
+    if (const auto device = DeviceFactory::createDevice(typeId.toStdString(), name); device) {
+        m_deviceService->replaceDevice(static_cast<size_t>(slotIndex), std::move(device));
+        m_editorService->setIsModified(true);
+        m_revision++;
+        emit revisionChanged();
+    }
+}
+
 void DeviceRackController::clearDevice(int slotIndex)
 {
     m_deviceService->clearDevice(static_cast<size_t>(slotIndex));

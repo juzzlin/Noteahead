@@ -225,7 +225,7 @@ ApplicationWindow {
         title: qsTr("Export Effect Settings")
         fileMode: FileDialog.SaveFile
         currentFolder: applicationService.lastEffectExportDirectory() !== "" ? applicationService.fromLocalFile(applicationService.lastEffectExportDirectory()) : StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
-        nameFilters: [qsTr("Noteahead Effect Settings (%1)").arg("*"+applicationService.effectRackSettingsExtension())]
+        nameFilters: [qsTr("Noteahead Effect Settings (%1)").arg("*"+applicationService.effectSettingsExtension())]
         property int slotIndex: -1
         onAccepted: {
             applicationService.setLastEffectExportDirectory(exportEffectSettingsDialog.selectedFile);
@@ -237,11 +237,33 @@ ApplicationWindow {
         title: qsTr("Import Effect Settings")
         fileMode: FileDialog.OpenFile
         currentFolder: applicationService.lastEffectImportDirectory() !== "" ? applicationService.fromLocalFile(applicationService.lastEffectImportDirectory()) : StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
-        nameFilters: [qsTr("Noteahead Effect Settings (%1)").arg("*"+applicationService.effectRackSettingsExtension())]
+        nameFilters: [qsTr("Noteahead Effect Settings (%1)").arg("*"+applicationService.effectSettingsExtension())]
         property int slotIndex: -1
         onAccepted: {
             applicationService.setLastEffectImportDirectory(importEffectSettingsDialog.selectedFile);
             effectRackController.importEffectSettings(slotIndex, importEffectSettingsDialog.selectedFile);
+        }
+    }
+    FileDialog {
+        id: exportEffectRackDialog
+        title: qsTr("Export Effect Rack")
+        fileMode: FileDialog.SaveFile
+        currentFolder: applicationService.lastEffectExportDirectory() !== "" ? applicationService.fromLocalFile(applicationService.lastEffectExportDirectory()) : StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
+        nameFilters: [qsTr("Noteahead Effect Rack (%1)").arg("*" + applicationService.effectRackSettingsExtension())]
+        onAccepted: {
+            applicationService.setLastEffectExportDirectory(exportEffectRackDialog.selectedFile);
+            effectRackController.exportSettings(exportEffectRackDialog.selectedFile);
+        }
+    }
+    FileDialog {
+        id: importEffectRackDialog
+        title: qsTr("Import Effect Rack")
+        fileMode: FileDialog.OpenFile
+        currentFolder: applicationService.lastEffectImportDirectory() !== "" ? applicationService.fromLocalFile(applicationService.lastEffectImportDirectory()) : StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
+        nameFilters: [qsTr("Noteahead Effect Rack (%1)").arg("*" + applicationService.effectRackSettingsExtension())]
+        onAccepted: {
+            applicationService.setLastEffectImportDirectory(importEffectRackDialog.selectedFile);
+            effectRackController.importSettings(importEffectRackDialog.selectedFile);
         }
     }
     ConfirmationDialog {
@@ -966,13 +988,21 @@ ApplicationWindow {
         });
         UiService.exportEffectSettingsRequested.connect((slotIndex, effectType) => {
             exportEffectSettingsDialog.slotIndex = slotIndex;
-            const filename = applicationService.defaultEffectFileName(effectType) + applicationService.effectRackSettingsExtension();
+            const filename = applicationService.defaultEffectFileName(effectType) + applicationService.effectSettingsExtension();
             exportEffectSettingsDialog.currentFile = exportEffectSettingsDialog.currentFolder + "/" + filename;
             exportEffectSettingsDialog.open();
         });
         UiService.importEffectSettingsRequested.connect(slotIndex => {
             importEffectSettingsDialog.slotIndex = slotIndex;
             importEffectSettingsDialog.open();
+        });
+        UiService.exportEffectRackRequested.connect(rackName => {
+            const filename = applicationService.defaultEffectRackFileName(rackName) + applicationService.effectRackSettingsExtension();
+            exportEffectRackDialog.currentFile = exportEffectRackDialog.currentFolder + "/" + filename;
+            exportEffectRackDialog.open();
+        });
+        UiService.importEffectRackRequested.connect(() => {
+            importEffectRackDialog.open();
         });
         UiService.importEffectSettingsConfirmationRequested.connect((slotIndex, fileUrl, currentType, importedType, typeMismatch) => {
             if (typeMismatch) {

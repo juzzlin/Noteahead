@@ -41,6 +41,8 @@ QtObject {
     signal importDeviceSettingsRequested(int slotIndex)
     signal exportEffectSettingsRequested(int slotIndex, string effectType)
     signal importEffectSettingsRequested(int slotIndex)
+    signal exportEffectRackRequested(string rackName)
+    signal importEffectRackRequested
     signal importEffectSettingsConfirmationRequested(int slotIndex, url fileUrl, string currentType, string importedType, bool typeMismatch)
     signal importDeviceSettingsConfirmationRequested(int slotIndex, url fileUrl, string currentTypeName, string importedTypeName, bool typeMismatch)
     signal drumSynthDialogRequested
@@ -221,6 +223,12 @@ QtObject {
     }
     function requestImportEffectSettings(slotIndex: int): void {
         importEffectSettingsRequested(slotIndex);
+    }
+    function requestExportEffectRack(rackName: string): void {
+        exportEffectRackRequested(rackName);
+    }
+    function requestImportEffectRack(): void {
+        importEffectRackRequested();
     }
     function requestImportEffectSettingsConfirmation(slotIndex: int, fileUrl: url, currentType: string, importedType: string, typeMismatch: bool): void {
         importEffectSettingsConfirmationRequested(slotIndex, fileUrl, currentType, importedType, typeMismatch);
