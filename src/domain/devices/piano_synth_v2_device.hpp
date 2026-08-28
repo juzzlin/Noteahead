@@ -27,7 +27,7 @@
 
 namespace noteahead {
 
-// Acoustic piano voiced against a Yamaha CP80 recording, built on a bank of resonators
+// Acoustic piano voiced against a Yamaha CP-80 recording, built on a bank of resonators
 // rather than a string loop. See ModalPianoString for why.
 class PianoSynthV2Device : public Device
 {

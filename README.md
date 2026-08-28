@@ -127,11 +127,15 @@ All Arctic Music Project songs:
 - Piano Synth
   - Physically modelled (waveguide) piano with brightness, decay, inharmonicity, LPF/HPF shaping, release, and stereo pan spread.
 - Piano Synth V2
-  - A larger physically modelled piano, voiced against a Yamaha CP88 recording. A bank of resonators, one per partial, so that stiffness, per-partial decay, the two-stage decay of a struck unison and the weakly radiated bass fundamental are each modelled on their own. Hammer Hardness, Richness, Brightness, Inharmonicity, Unison Detune, Double Decay and Stretch Tuning.
+  - A larger physically modelled piano, voiced against a Yamaha CP-80 recording. A bank of resonators, one per partial, so that stiffness, per-partial decay, the two-stage decay of a struck unison and the weakly radiated bass fundamental are each modelled on their own. Hammer Hardness, Richness, Brightness, Inharmonicity, Unison Detune, Double Decay and Stretch Tuning.
+- Piano Synth V3
+  - A corrected revision of the CP-80 model, kept as a separate device so songs written against V2 keep playing V2. The piezo pickup's alternating sign is preserved through the strike comb, a partial standing in for a unison pair carries the pair's weight, and the stringing is bichord over the whole compass, as a CP-80 is. Adds Velocity Sensitivity, defaulting to half, which lifts softer strikes toward the loud ones without changing their tone.
 - Kick808
   - TR-808-style bass drum built on a pulse-excited resonator, sweeping from a short click to a long sub boom. Pitched and monophonic, so Key Track and Glide let it play bass lines as well as drums, with Tuning, Tone, Decay, Drive and a pitch envelope.
 - String & Voice
   - Vintage string/choir ensemble inspired by the Roland VP-330 / Behringer VC340, with strings and voice registers, BBD ensemble chorus, and a sidechain vocoder.
+- String & Voice V2
+  - The same ensemble rebuilt against a recording of the hardware. The Strings section carries the Upper and Lower switches the hardware has, saying which half of the split it sounds on, with Balance for how loud, and a Tone control fitted to that recording instead of V1's 8'/4' levels, which a VC340 does not have. Voices are summed rather than scaled by how many are sounding, so releasing part of a chord no longer lifts the notes still held, and a Velocity Sensitivity control spans both sections at once. V1 is untouched.
 - String Ensemble
   - Divide-down string machine in the Solina tradition: twelve master oscillators tapped at 16'/8'/4' by every key, so octaves stay phase-locked and polyphony is unlimited. Bass section (Contrabass, Cello) below the split with its own Volume Bass, upper section (Horn, Viola, Trumpet, Violin) above it, plus Crescendo/Sustain Length, ensemble chorus and a swept phaser.
 - Speech
@@ -357,7 +361,7 @@ The section below is only a quick start — the manual is the authoritative refe
 **1) Give a track a sound.** Click the settings icon on a track header to open **Track Settings**. A track plays either an external MIDI instrument or one of Noteahead's internal devices:
 
 * **External MIDI**: pick the MIDI output port and channel of your synth or drum machine. Devices are hot-plugged, so they appear as they come online.
-* **Internal device**: click **Device Rack...** in the same dialog (also under **Devices => Device rack...**), press **(+)** on a free slot, pick an instrument from the **Device Gallery** — Synth, Wavetable Synth, Bass Synth, Drum Synth, Sampler, Piano Synth, Piano Synth V2, Kick 808, String & Voice, String Ensemble, Speech or Sub Mixer — and then select its internal port (e.g. *Noteahead Synth 1*) back in Track Settings. Nothing external is needed; Noteahead renders these itself.
+* **Internal device**: click **Device Rack...** in the same dialog (also under **Devices => Device rack...**), press **(+)** on a free slot, pick an instrument from the **Device Gallery** — Synth, Wavetable Synth, Bass Synth, Drum Synth, Sampler, Piano Synth, Piano Synth V2, Piano Synth V3, Kick 808, String & Voice, String & Voice V2, String Ensemble, Speech or Sub Mixer — and then select its internal port (e.g. *Noteahead Synth 1*) back in Track Settings. Nothing external is needed; Noteahead renders these itself.
 
 **2) Set up the track.** Click the track name to rename it. `[+]`/`[-]` in the track header adds or removes note columns.
 

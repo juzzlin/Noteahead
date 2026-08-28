@@ -166,7 +166,7 @@ size_t WaveguideString::retune()
 double WaveguideString::targetGainPerLap() const
 {
     // How the decay shortens as the pitch rises, and how long the middle of the keyboard
-    // rings at the top of the range, both measured off a Yamaha CP80 electric grand: it
+    // rings at the top of the range, both measured off a Yamaha CP-80 electric grand: it
     // holds about 14 seconds around C4 and a little over one second on its topmost key,
     // which is a far slower fall than the square root the model used to take, and a far
     // longer ring than it used to allow anywhere.

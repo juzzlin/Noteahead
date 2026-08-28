@@ -71,14 +71,14 @@ New features:
     still live, which is what the engine does
   - Click a box to open its editor
 
-* Add Piano Synth V3, a corrected revision of the CP80 model
+* Add Piano Synth V3, a corrected revision of the CP-80 model
   - The pickup's sign is kept: a piezo at a rigid termination senses force, whose
     partials alternate in sign, and the strike comb keeps its sign too. Levels are
     untouched; what changes is the shape of the strike
   - A partial standing in for a unison pair now carries the pair's weight, removing
     a six decibel step in the middle of the series
   - The strings come in twos, never threes, and single stringing reaches to F#1:
-    a CP80 is bichord over its whole compass
+    a CP-80 is bichord over its whole compass
   - A separate device, so songs written against V2 keep playing V2
   - A Velocity Sensitivity control, defaulting to half: full is the reference's own
     velocity-squared law, lower lifts the softer strikes toward the loud ones
@@ -260,7 +260,7 @@ New features:
   - Bass Grinder, Stereo Enhancer, Stereo Exciter, Tube Stage, Wave Designer
 
 * Add new devices
-  - Piano Synth V2, voiced against a Yamaha CP80 recording: a bank of
+  - Piano Synth V2, voiced against a Yamaha CP-80 recording: a bank of
     resonators, one per partial
   - Kick808
 

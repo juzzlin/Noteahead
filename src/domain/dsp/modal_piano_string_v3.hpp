@@ -33,7 +33,7 @@ namespace noteahead {
 //
 // What changed:
 //
-//  - The pickup's sign is kept. A CP80 has no soundboard: it is a rigid harp with a piezo
+//  - The pickup's sign is kept. A CP-80 has no soundboard: it is a rigid harp with a piezo
 //    under each string, and a piezo at a rigid termination senses force, whose partials
 //    alternate in sign as (-1)^n. The strike comb keeps its own sign too, instead of being
 //    taken through fabs(). Neither changes any partial's level -- only the phases they
@@ -45,7 +45,7 @@ namespace noteahead {
 //    middle of the series.
 //
 //  - The strings come in twos, never threes, and the single-strung range reaches to F#1.
-//    A CP80 is bichord; the earlier bound at MIDI 28 came from a grand.
+//    A CP-80 is bichord; the earlier bound at MIDI 28 came from a grand.
 //
 // A waveguide loop is cheaper but it decides all of those together, through one loop
 // filter, which is why it cannot follow a real piano: the reference recording's partials
@@ -137,7 +137,7 @@ private:
     static constexpr double MinPitchDecayTime = 1.6;
     static constexpr double MinDecayTime = 0.05;
     static constexpr double MaxDecayTime = 40.0;
-    // Below this note the strings are single, and at or above it they come in twos. A CP80 is
+    // Below this note the strings are single, and at or above it they come in twos. A CP-80 is
     // bichord over its whole compass -- it never reaches three -- and F#1 is the last note it
     // strings singly. A single string has nothing to beat or trade energy with, so it does
     // not split.

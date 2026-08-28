@@ -257,7 +257,7 @@ std::optional<double> measureT60(const std::vector<double> & mono, double sample
     return -60.0 / *slope;
 }
 
-// Yamaha CP80. Levels and stiffness come from a chromatic sweep of the whole keyboard at
+// Yamaha CP-80. Levels and stiffness come from a chromatic sweep of the whole keyboard at
 // velocity 64 and then 100, taken a semitone at a time; the decay times come from an
 // earlier sweep of the octaves, whose notes are held long enough for the slow stage to be
 // fitted at all. Levels are relative to the note at MIDI 60 rather than absolute, since
@@ -1056,7 +1056,7 @@ void PianoSynthV3Test::test_pickupSign_shouldChangePhasesWithoutChangingLevel()
 
 void PianoSynthV3Test::test_bichord_shouldLeaveTheLowBassSingleStrung()
 {
-    // A CP80 strings singly up to F#1. MIDI 36 sits inside the range V2 split in two and V3
+    // A CP-80 strings singly up to F#1. MIDI 36 sits inside the range V2 split in two and V3
     // does not, so V3 lays down one mode per partial where V2 laid down two.
     constexpr uint8_t note = 36;
 
