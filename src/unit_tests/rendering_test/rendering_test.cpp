@@ -4,12 +4,22 @@
 #include "../../application/service/mixer_service.hpp"
 #include "../../application/service/render_worker.hpp"
 #include "../../common/constants.hpp"
+#include "../../domain/devices/bass_synth_device.hpp"
 #include "../../domain/devices/device_factory.hpp"
+#include "../../domain/devices/drum_synth_constants.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
+#include "../../domain/devices/kick_808_device.hpp"
+#include "../../domain/devices/piano_synth_device.hpp"
+#include "../../domain/devices/piano_synth_v2_device.hpp"
+#include "../../domain/devices/piano_synth_v3_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
+#include "../../domain/devices/speech_device.hpp"
+#include "../../domain/devices/string_ensemble_device.hpp"
 #include "../../domain/devices/string_voice_device.hpp"
+#include "../../domain/devices/string_voice_v2_device.hpp"
 #include "../../domain/devices/sub_mixer_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
+#include "../../domain/devices/wavetable_synth_device.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/midi/pitch_bend_data.hpp"
 #include "../../domain/tracker/event.hpp"
@@ -256,31 +266,32 @@ void RenderingTest::test_renderSynth_shouldPreserveParameters()
     QCOMPARE(synth->gain(), 0.75f);
 }
 
-void RenderingTest::test_renderSynth_shouldNotBeSilent()
+namespace {
+
+//! Renders one note on one device and returns the peak amplitude of the result.
+//!
+//! Shared by the coverage test below so that adding an instrument to it costs a row rather than
+//! fifty lines, which is what the two hand-written copies this replaced had grown into.
+float renderSingleNotePeak(std::shared_ptr<Device> device, uint8_t note)
 {
     auto audioEngine = std::make_shared<AudioEngine>();
     auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     auto mixerService = std::make_shared<MixerService>();
-
-    auto synth = std::make_shared<SynthDevice>("Noteahead Synth");
-    synth->setLpfCutoff(1.0f);
-    synth->setGain(0.5f); // 0 dB
-    synth->setVolume(1.0f);
-    deviceService->setDevice(0, synth);
+    deviceService->setDevice(0, std::move(device));
 
     RenderWorker worker(audioEngine, deviceService, mixerService);
 
-    MockRenderIo * mockIoPtr = nullptr;
+    MockRenderIo * mockIo = nullptr;
     worker.setAudioFileReaderFactory([&]() {
         auto io = std::make_unique<MockRenderIo>();
-        mockIoPtr = io.get();
+        mockIo = io.get();
         return io;
     });
 
     RenderWorker::EventList events;
     auto instrument = std::make_shared<Instrument>("Noteahead Internal Device 1");
     NoteData noteData { 0, 0 };
-    noteData.setAsNoteOn(60, 100);
+    noteData.setAsNoteOn(note, 100);
     auto event = std::make_shared<Event>(0, noteData);
     event->setInstrument(instrument);
     events.push_back(event);
@@ -292,75 +303,63 @@ void RenderingTest::test_renderSynth_shouldNotBeSilent()
 
     worker.render("dummy.wav", events, timing, 48, 44100);
 
-    QVERIFY(mockIoPtr != nullptr);
-    const auto & audioData = mockIoPtr->data();
-
-    bool hasSound = false;
-    float maxAmp = 0.0f;
-    for (float s : audioData) {
-        maxAmp = std::max(maxAmp, std::abs(s));
-        if (std::abs(s) > 0.001f) {
-            hasSound = true;
-            break;
-        }
+    if (!mockIo) {
+        return 0.0f;
     }
 
-    if (!hasSound) {
-        qDebug() << "Max amplitude detected:" << maxAmp;
+    float peak = 0.0f;
+    for (float sample : mockIo->data()) {
+        peak = std::max(peak, std::abs(sample));
     }
-    QVERIFY(hasSound);
+    return peak;
 }
 
-void RenderingTest::test_renderStringVoice_shouldNotBeSilent()
+} // namespace
+
+void RenderingTest::test_render_everyInstrument_shouldNotBeSilent_data()
 {
-    auto audioEngine = std::make_shared<AudioEngine>();
-    auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
-    auto mixerService = std::make_shared<MixerService>();
+    QTest::addColumn<QString>("typeId");
+    QTest::addColumn<int>("note");
 
-    auto stringVoice = std::make_shared<StringVoiceDevice>("Noteahead String & Voice");
-    deviceService->setDevice(0, stringVoice);
+    // Every internal instrument, so that one which renders silent -- or which never reaches the
+    // render path at all, having been left out of the device factory -- is caught here rather than
+    // in a finished export.
+    //
+    // Two devices are deliberately absent. The Sampler has nothing to play until a sample is loaded,
+    // and the Sub Mixer is not an instrument at all: it sums other devices' outputs and has no voice
+    // of its own.
+    const auto addInstrument = [](const char * name, const std::string & typeId, int note = 60) {
+        QTest::newRow(name) << QString::fromStdString(typeId) << note;
+    };
 
-    RenderWorker worker(audioEngine, deviceService, mixerService);
+    addInstrument("Synth", SynthDevice::typeIdString());
+    addInstrument("Wavetable Synth", WavetableSynthDevice::typeIdString());
+    addInstrument("Bass Synth", BassSynthDevice::typeIdString());
+    addInstrument("Piano Synth", PianoSynthDevice::typeIdString());
+    addInstrument("Piano Synth V2", PianoSynthV2Device::typeIdString());
+    addInstrument("Piano Synth V3", PianoSynthV3Device::typeIdString());
+    addInstrument("String & Voice", StringVoiceDevice::typeIdString());
+    addInstrument("String & Voice V2", StringVoiceV2Device::typeIdString());
+    addInstrument("String Ensemble", StringEnsembleDevice::typeIdString());
+    addInstrument("Speech", SpeechDevice::typeIdString());
+    addInstrument("Kick 808", Kick808Device::typeIdString());
 
-    MockRenderIo * mockIoPtr = nullptr;
-    worker.setAudioFileReaderFactory([&]() {
-        auto io = std::make_unique<MockRenderIo>();
-        mockIoPtr = io.get();
-        return io;
-    });
+    // The drum machine is a kit rather than a keyboard: only the notes its pads are mapped to make
+    // any sound, and 60 is not one of them.
+    addInstrument("Drum Synth", DrumSynthDevice::typeIdString(), static_cast<int>(DrumSynth::MidiNote::Kick));
+}
 
-    RenderWorker::EventList events;
-    auto instrument = std::make_shared<Instrument>("Noteahead Internal Device 1");
-    NoteData noteData { 0, 0 };
-    noteData.setAsNoteOn(60, 100);
-    auto event = std::make_shared<Event>(0, noteData);
-    event->setInstrument(instrument);
-    events.push_back(event);
+void RenderingTest::test_render_everyInstrument_shouldNotBeSilent()
+{
+    QFETCH(QString, typeId);
+    QFETCH(int, note);
 
-    RenderWorker::Timing timing;
-    timing.beatsPerMinute = 120;
-    timing.linesPerBeat = 4;
-    timing.ticksPerLine = 6;
+    DeviceFactory::init();
+    const auto device = DeviceFactory::createDevice(typeId.toStdString(), "Noteahead Internal Device 1");
+    QVERIFY2(device, qPrintable(typeId));
 
-    worker.render("dummy.wav", events, timing, 48, 44100);
-
-    QVERIFY(mockIoPtr != nullptr);
-    const auto & audioData = mockIoPtr->data();
-
-    bool hasSound = false;
-    float maxAmp = 0.0f;
-    for (float s : audioData) {
-        maxAmp = std::max(maxAmp, std::abs(s));
-        if (std::abs(s) > 0.001f) {
-            hasSound = true;
-            break;
-        }
-    }
-
-    if (!hasSound) {
-        qDebug() << "Max amplitude detected:" << maxAmp;
-    }
-    QVERIFY(hasSound);
+    const float peak = renderSingleNotePeak(device, static_cast<uint8_t>(note));
+    QVERIFY2(peak > 0.001f, qPrintable(QString { "peak %1" }.arg(peak)));
 }
 
 void RenderingTest::test_renderSampler_shouldPreserveParameters()

@@ -14,8 +14,8 @@ private slots:
     void cleanupTestCase();
 
     void test_renderSynth_shouldPreserveParameters();
-    void test_renderSynth_shouldNotBeSilent();
-    void test_renderStringVoice_shouldNotBeSilent();
+    void test_render_everyInstrument_shouldNotBeSilent_data();
+    void test_render_everyInstrument_shouldNotBeSilent();
     void test_renderSampler_shouldPreserveParameters();
     void test_renderDrumSynth_shouldPreserveParameters();
     void test_render_shouldNotCrashWithNullInstrumentEvents();
