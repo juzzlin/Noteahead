@@ -48,7 +48,7 @@ AnimatedDialog {
         Universal.theme: Universal.Dark
         Universal.accent: themeService.accentColor
         AppButton {
-            text: qsTr("Close")
+            text: qsTr("Ok")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
         }

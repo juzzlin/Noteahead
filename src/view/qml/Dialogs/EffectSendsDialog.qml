@@ -45,7 +45,7 @@ AnimatedDialog {
 
     footer: DialogButtonBox {
         AppButton {
-            text: qsTr("Close")
+            text: qsTr("Ok")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
         }
@@ -98,8 +98,10 @@ AnimatedDialog {
                     }
                 }
             }
-            
-            Item { Layout.fillHeight: true }
+
+            Item {
+                Layout.fillHeight: true
+            }
         }
     }
 }
