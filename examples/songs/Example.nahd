@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<Project fileFormatVersion="1.0" applicationName="Noteahead" applicationVersion="7.1.0" createdDate="2026-08-28T16:24:25.045">
+<Project fileFormatVersion="1.0" applicationName="Noteahead" applicationVersion="7.1.0" createdDate="2026-08-28T22:11:41.287">
  <Song beatsPerMinute="120" linesPerBeat="8">
   <Metadata>
    <Tags>
@@ -15,7 +15,7 @@
   <PlayOrder>
    <Position index="0" pattern="0"/>
    <Position index="1" pattern="1"/>
-   <Position index="2" pattern="1"/>
+   <Position index="2" pattern="4"/>
    <Position index="3" pattern="2"/>
    <Position index="4" pattern="3"/>
   </PlayOrder>
@@ -1235,12 +1235,263 @@
      <Track index="5" name="Track 6" lineCount="32" columnCount="1"/>
     </Tracks>
    </Pattern>
-   <Pattern index="4" name="" lineCount="128" trackCount="6">
+   <Pattern index="4" name="Example 1.4" lineCount="128" trackCount="6">
     <Tracks>
-     <Track index="0" name="Track 1" lineCount="128" columnCount="4"/>
-     <Track index="1" name="Track 2" lineCount="128" columnCount="1"/>
-     <Track index="2" name="Track 3" lineCount="128" columnCount="3"/>
-     <Track index="3" name="Track 4" lineCount="128" columnCount="1"/>
+     <Track index="0" name="Track 1" lineCount="128" columnCount="4">
+      <Columns>
+       <Column index="0" name="" lineCount="128">
+        <Lines>
+         <Line index="0">
+          <NoteData type="noteOn" note="36" velocity="100"/>
+         </Line>
+         <Line index="8">
+          <NoteData type="noteOn" note="36" velocity="100"/>
+         </Line>
+         <Line index="16">
+          <NoteData type="noteOn" note="36" velocity="100"/>
+         </Line>
+         <Line index="24">
+          <NoteData type="noteOn" note="36" velocity="100"/>
+         </Line>
+         <Line index="32">
+          <NoteData type="noteOn" note="36" velocity="100"/>
+         </Line>
+         <Line index="40">
+          <NoteData type="noteOn" note="36" velocity="100"/>
+         </Line>
+         <Line index="48">
+          <NoteData type="noteOn" note="36" velocity="100"/>
+         </Line>
+         <Line index="56">
+          <NoteData type="noteOn" note="36" velocity="100"/>
+         </Line>
+         <Line index="64">
+          <NoteData type="noteOn" note="36" velocity="100"/>
+         </Line>
+         <Line index="72">
+          <NoteData type="noteOn" note="36" velocity="100"/>
+         </Line>
+         <Line index="80">
+          <NoteData type="noteOn" note="36" velocity="100"/>
+         </Line>
+         <Line index="88">
+          <NoteData type="noteOn" note="36" velocity="100"/>
+         </Line>
+         <Line index="96">
+          <NoteData type="noteOn" note="36" velocity="100"/>
+         </Line>
+         <Line index="104">
+          <NoteData type="noteOn" note="36" velocity="100"/>
+         </Line>
+         <Line index="112">
+          <NoteData type="noteOn" note="36" velocity="100"/>
+         </Line>
+         <Line index="120">
+          <NoteData type="noteOn" note="36" velocity="100"/>
+         </Line>
+         <Line index="126">
+          <NoteData type="noteOn" note="36" velocity="50"/>
+         </Line>
+        </Lines>
+       </Column>
+       <Column index="2" name="" lineCount="128">
+        <Lines>
+         <Line index="8">
+          <NoteData type="noteOn" note="39" velocity="100"/>
+         </Line>
+         <Line index="24">
+          <NoteData type="noteOn" note="39" velocity="100"/>
+         </Line>
+         <Line index="40">
+          <NoteData type="noteOn" note="39" velocity="100"/>
+         </Line>
+         <Line index="56">
+          <NoteData type="noteOn" note="39" velocity="100"/>
+         </Line>
+         <Line index="72">
+          <NoteData type="noteOn" note="39" velocity="100"/>
+         </Line>
+         <Line index="88">
+          <NoteData type="noteOn" note="39" velocity="100"/>
+         </Line>
+         <Line index="104">
+          <NoteData type="noteOn" note="39" velocity="100"/>
+         </Line>
+         <Line index="120">
+          <NoteData type="noteOn" note="39" velocity="100"/>
+         </Line>
+        </Lines>
+       </Column>
+       <Column index="3" name="" lineCount="128">
+        <Lines>
+         <Line index="4">
+          <NoteData type="noteOn" note="42" velocity="100"/>
+         </Line>
+         <Line index="12">
+          <NoteData type="noteOn" note="42" velocity="100"/>
+         </Line>
+         <Line index="20">
+          <NoteData type="noteOn" note="42" velocity="100"/>
+         </Line>
+         <Line index="28">
+          <NoteData type="noteOn" note="42" velocity="100"/>
+         </Line>
+         <Line index="36">
+          <NoteData type="noteOn" note="42" velocity="100"/>
+         </Line>
+         <Line index="44">
+          <NoteData type="noteOn" note="42" velocity="100"/>
+         </Line>
+         <Line index="52">
+          <NoteData type="noteOn" note="42" velocity="100"/>
+         </Line>
+         <Line index="60">
+          <NoteData type="noteOn" note="42" velocity="100"/>
+         </Line>
+         <Line index="68">
+          <NoteData type="noteOn" note="42" velocity="100"/>
+         </Line>
+         <Line index="76">
+          <NoteData type="noteOn" note="42" velocity="100"/>
+         </Line>
+         <Line index="84">
+          <NoteData type="noteOn" note="42" velocity="100"/>
+         </Line>
+         <Line index="92">
+          <NoteData type="noteOn" note="42" velocity="100"/>
+         </Line>
+         <Line index="100">
+          <NoteData type="noteOn" note="42" velocity="100"/>
+         </Line>
+         <Line index="108">
+          <NoteData type="noteOn" note="42" velocity="100"/>
+         </Line>
+         <Line index="116">
+          <NoteData type="noteOn" note="42" velocity="100"/>
+         </Line>
+         <Line index="124">
+          <NoteData type="noteOn" note="42" velocity="100"/>
+         </Line>
+        </Lines>
+       </Column>
+      </Columns>
+     </Track>
+     <Track index="1" name="Track 2" lineCount="128" columnCount="1">
+      <Columns>
+       <Column index="0" name="" lineCount="128">
+        <Lines>
+         <Line index="4">
+          <NoteData type="noteOn" note="36" velocity="100"/>
+         </Line>
+         <Line index="12">
+          <NoteData type="noteOn" note="36" velocity="100"/>
+         </Line>
+         <Line index="20">
+          <NoteData type="noteOn" note="36" velocity="100"/>
+         </Line>
+         <Line index="28">
+          <NoteData type="noteOn" note="36" velocity="100"/>
+         </Line>
+         <Line index="36">
+          <NoteData type="noteOn" note="36" velocity="100"/>
+         </Line>
+         <Line index="44">
+          <NoteData type="noteOn" note="36" velocity="100"/>
+         </Line>
+         <Line index="52">
+          <NoteData type="noteOn" note="36" velocity="100"/>
+         </Line>
+         <Line index="60">
+          <NoteData type="noteOn" note="36" velocity="100"/>
+         </Line>
+         <Line index="68">
+          <NoteData type="noteOn" note="32" velocity="100"/>
+         </Line>
+         <Line index="76">
+          <NoteData type="noteOn" note="32" velocity="100"/>
+         </Line>
+         <Line index="84">
+          <NoteData type="noteOn" note="32" velocity="100"/>
+         </Line>
+         <Line index="92">
+          <NoteData type="noteOn" note="32" velocity="100"/>
+         </Line>
+         <Line index="100">
+          <NoteData type="noteOn" note="34" velocity="100"/>
+         </Line>
+         <Line index="108">
+          <NoteData type="noteOn" note="34" velocity="100"/>
+         </Line>
+         <Line index="116">
+          <NoteData type="noteOn" note="34" velocity="100"/>
+         </Line>
+         <Line index="124">
+          <NoteData type="noteOn" note="34" velocity="100"/>
+         </Line>
+        </Lines>
+       </Column>
+      </Columns>
+     </Track>
+     <Track index="2" name="Track 3" lineCount="128" columnCount="3">
+      <Columns>
+       <Column index="0" name="" lineCount="128">
+        <Lines>
+         <Line index="0">
+          <NoteData type="noteOn" note="48" velocity="100"/>
+         </Line>
+        </Lines>
+       </Column>
+       <Column index="1" name="" lineCount="128">
+        <Lines>
+         <Line index="64">
+          <NoteData type="noteOn" note="56" velocity="100"/>
+         </Line>
+         <Line index="96">
+          <NoteData type="noteOn" note="58" velocity="100"/>
+         </Line>
+        </Lines>
+       </Column>
+       <Column index="2" name="" lineCount="128">
+        <Lines>
+         <Line index="40">
+          <NoteData type="noteOn" note="72" velocity="100"/>
+         </Line>
+         <Line index="44">
+          <NoteData type="noteOn" note="74" velocity="100"/>
+         </Line>
+         <Line index="48">
+          <NoteData type="noteOn" note="75" velocity="100"/>
+         </Line>
+         <Line index="54">
+          <NoteData type="noteOn" note="74" velocity="100"/>
+         </Line>
+         <Line index="60">
+          <NoteData type="noteOn" note="72" velocity="100"/>
+         </Line>
+         <Line index="64">
+          <NoteData type="noteOn" note="68" velocity="100"/>
+         </Line>
+         <Line index="96">
+          <NoteData type="noteOn" note="70" velocity="100"/>
+         </Line>
+        </Lines>
+       </Column>
+      </Columns>
+     </Track>
+     <Track index="3" name="Track 4" lineCount="128" columnCount="1">
+      <Columns>
+       <Column index="0" name="" lineCount="128">
+        <Lines>
+         <Line index="0">
+          <NoteData type="noteOn" note="48" velocity="100"/>
+         </Line>
+         <Line index="64">
+          <NoteData type="noteOff"/>
+         </Line>
+        </Lines>
+       </Column>
+      </Columns>
+     </Track>
      <Track index="4" name="Track 5" lineCount="128" columnCount="1"/>
      <Track index="5" name="Track 6" lineCount="128" columnCount="1"/>
     </Tracks>
