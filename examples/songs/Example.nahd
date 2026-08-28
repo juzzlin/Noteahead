@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<Project fileFormatVersion="1.0" applicationName="Noteahead" applicationVersion="7.0.0" createdDate="2026-08-21T23:30:23.146">
+<Project fileFormatVersion="1.0" applicationName="Noteahead" applicationVersion="7.1.0" createdDate="2026-08-28T16:24:25.045">
  <Song beatsPerMinute="120" linesPerBeat="8">
   <Metadata>
    <Tags>
@@ -171,6 +171,34 @@
        </Effect>
       </InsertEffects>
      </Voice>
+     <Voice index="2">
+      <InsertEffects enabled="true">
+       <Effect slot="2" typeId="6d1590ab-62e9-4141-aa19-a4015c038046" type="earlyReflections" enabled="true">
+        <Parameter name="damping" valueType="float" value="4000" min="0" max="10000" default="4000" scale="100"/>
+        <Parameter name="diffusion" valueType="float" value="7000" min="0" max="10000" default="7000" scale="100"/>
+        <Parameter name="hpfCutoff" valueType="float" value="320" min="20" max="500" default="150" scale="1"/>
+        <Parameter name="mix" valueType="float" value="580" min="0" max="10000" default="0" scale="100"/>
+        <Parameter name="preDelay" valueType="float" value="0" min="0" max="100" default="12" scale="1"/>
+        <Parameter name="size" valueType="float" value="4000" min="0" max="10000" default="4000" scale="100"/>
+        <Parameter name="solo" valueType="bool" value="false"/>
+        <Parameter name="width" valueType="float" value="100" min="0" max="200" default="100" scale="1"/>
+       </Effect>
+      </InsertEffects>
+     </Voice>
+     <Voice index="3">
+      <InsertEffects enabled="true">
+       <Effect slot="2" typeId="6d1590ab-62e9-4141-aa19-a4015c038046" type="earlyReflections" enabled="true">
+        <Parameter name="damping" valueType="float" value="4000" min="0" max="10000" default="4000" scale="100"/>
+        <Parameter name="diffusion" valueType="float" value="7000" min="0" max="10000" default="7000" scale="100"/>
+        <Parameter name="hpfCutoff" valueType="float" value="320" min="20" max="500" default="150" scale="1"/>
+        <Parameter name="mix" valueType="float" value="930" min="0" max="10000" default="0" scale="100"/>
+        <Parameter name="preDelay" valueType="float" value="21" min="0" max="100" default="12" scale="1"/>
+        <Parameter name="size" valueType="float" value="4000" min="0" max="10000" default="4000" scale="100"/>
+        <Parameter name="solo" valueType="bool" value="false"/>
+        <Parameter name="width" valueType="float" value="100" min="0" max="200" default="100" scale="1"/>
+       </Effect>
+      </InsertEffects>
+     </Voice>
     </Voices>
    </Device>
    <Device slot="1" name="Noteahead Internal Device 2" typeName="Noteahead BassSynth" category="Synths" typeId="7d9c1e4b-2f3a-4b5c-8d6e-9f0a1b2c3d4e">
@@ -199,7 +227,54 @@
     </Parameters>
    </Device>
    <Device slot="2" name="Noteahead Internal Device 3" typeName="Noteahead PianoSynth V2" category="Synths" typeId="245d8c24-d3ad-43e2-94d6-e3f90c67ab02">
-    <InsertEffects enabled="true"/>
+    <InsertEffects enabled="true">
+     <Effect slot="1" typeId="b2e1f3a4-c5d6-4e7f-8a9b-0c1d2e3f4a5b" type="eq8bandparametric" enabled="true">
+      <Parameter name="band1Freq" valueType="float" value="10010" min="20" max="20000" default="1000" scale="100"/>
+      <Parameter name="band1Gain" valueType="float" value="0" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band1Q" valueType="float" value="51" min="1" max="100" default="10" scale="10"/>
+      <Parameter name="band1Type" valueType="int" value="0"/>
+      <Parameter name="band2Freq" valueType="float" value="10010" min="20" max="20000" default="1000" scale="100"/>
+      <Parameter name="band2Gain" valueType="float" value="0" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band2Q" valueType="float" value="51" min="1" max="100" default="10" scale="10"/>
+      <Parameter name="band2Type" valueType="int" value="0"/>
+      <Parameter name="band3Freq" valueType="float" value="10010" min="20" max="20000" default="1000" scale="100"/>
+      <Parameter name="band3Gain" valueType="float" value="0" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band3Q" valueType="float" value="51" min="1" max="100" default="10" scale="10"/>
+      <Parameter name="band3Type" valueType="int" value="0"/>
+      <Parameter name="band4Freq" valueType="float" value="10010" min="20" max="20000" default="1000" scale="100"/>
+      <Parameter name="band4Gain" valueType="float" value="0" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band4Q" valueType="float" value="51" min="1" max="100" default="10" scale="10"/>
+      <Parameter name="band4Type" valueType="int" value="0"/>
+      <Parameter name="band5Freq" valueType="float" value="10010" min="20" max="20000" default="1000" scale="100"/>
+      <Parameter name="band5Gain" valueType="float" value="0" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band5Q" valueType="float" value="51" min="1" max="100" default="10" scale="10"/>
+      <Parameter name="band5Type" valueType="int" value="0"/>
+      <Parameter name="band6Freq" valueType="float" value="15365" min="20" max="20000" default="1000" scale="100"/>
+      <Parameter name="band6Gain" valueType="float" value="312" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band6Q" valueType="float" value="51" min="1" max="100" default="10" scale="10"/>
+      <Parameter name="band6Type" valueType="int" value="1"/>
+      <Parameter name="band7Freq" valueType="float" value="10010" min="20" max="20000" default="1000" scale="100"/>
+      <Parameter name="band7Gain" valueType="float" value="0" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band7Q" valueType="float" value="51" min="1" max="100" default="10" scale="10"/>
+      <Parameter name="band7Type" valueType="int" value="0"/>
+      <Parameter name="band8Freq" valueType="float" value="10010" min="20" max="20000" default="1000" scale="100"/>
+      <Parameter name="band8Gain" valueType="float" value="0" min="-2400" max="2400" default="0" scale="100"/>
+      <Parameter name="band8Q" valueType="float" value="51" min="1" max="100" default="10" scale="10"/>
+      <Parameter name="band8Type" valueType="int" value="0"/>
+      <Parameter name="stereoMode" valueType="int" value="0"/>
+     </Effect>
+     <Effect slot="2" typeId="7c2e3d0a-4f6b-4b2a-8c1d-1a2b3c4d5e6f" type="delay" enabled="true">
+      <Parameter name="delayDepth" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
+      <Parameter name="delayFeedback" valueType="float" value="6920" min="0" max="10000" default="3000" scale="100"/>
+      <Parameter name="delayFeedbackHpf" valueType="float" value="4010" min="0" max="10000" default="0" scale="100"/>
+      <Parameter name="delayFeedbackLpf" valueType="float" value="8000" min="0" max="10000" default="10000" scale="100"/>
+      <Parameter name="delayMix" valueType="float" value="3450" min="0" max="10000" default="0" scale="100"/>
+      <Parameter name="delaySync" valueType="bool" value="true"/>
+      <Parameter name="delaySyncDivision" valueType="float" value="2500" min="0" max="10000" default="2500" scale="100"/>
+      <Parameter name="delayTime" valueType="float" value="5000" min="0" max="10000" default="500" scale="1"/>
+      <Parameter name="delayType" valueType="int" value="0"/>
+     </Effect>
+    </InsertEffects>
     <Parameters>
      <Parameter name="attack" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
      <Parameter name="brightness" valueType="float" value="5000" min="0" max="10000" default="5000" scale="100"/>
@@ -425,7 +500,29 @@
       <Parameter name="size" valueType="float" value="7000" min="0" max="10000" default="7000" scale="100"/>
       <Parameter name="width" valueType="float" value="100" min="0" max="200" default="100" scale="1"/>
      </Effect>
+     <Effect slot="3" typeId="6d1590ab-62e9-4141-aa19-a4015c038046" type="earlyReflections" enabled="true">
+      <Parameter name="damping" valueType="float" value="4000" min="0" max="10000" default="4000" scale="100"/>
+      <Parameter name="diffusion" valueType="float" value="7000" min="0" max="10000" default="7000" scale="100"/>
+      <Parameter name="hpfCutoff" valueType="float" value="320" min="20" max="500" default="150" scale="1"/>
+      <Parameter name="mix" valueType="float" value="10000" min="0" max="10000" default="0" scale="100"/>
+      <Parameter name="preDelay" valueType="float" value="0" min="0" max="100" default="12" scale="1"/>
+      <Parameter name="size" valueType="float" value="4000" min="0" max="10000" default="4000" scale="100"/>
+      <Parameter name="solo" valueType="bool" value="false"/>
+      <Parameter name="width" valueType="float" value="100" min="0" max="200" default="100" scale="1"/>
+     </Effect>
+     <Effect slot="4" typeId="6d1590ab-62e9-4141-aa19-a4015c038046" type="earlyReflections" enabled="true">
+      <Parameter name="damping" valueType="float" value="4000" min="0" max="10000" default="4000" scale="100"/>
+      <Parameter name="diffusion" valueType="float" value="7000" min="0" max="10000" default="7000" scale="100"/>
+      <Parameter name="hpfCutoff" valueType="float" value="320" min="20" max="500" default="150" scale="1"/>
+      <Parameter name="mix" valueType="float" value="10000" min="0" max="10000" default="0" scale="100"/>
+      <Parameter name="preDelay" valueType="float" value="29" min="0" max="100" default="12" scale="1"/>
+      <Parameter name="size" valueType="float" value="4000" min="0" max="10000" default="4000" scale="100"/>
+      <Parameter name="solo" valueType="bool" value="false"/>
+      <Parameter name="width" valueType="float" value="100" min="0" max="200" default="100" scale="1"/>
+     </Effect>
+     <Send deviceSlot="2" effectSlot="4" value="0.094"/>
      <Send deviceSlot="3" effectSlot="1" value="0.204"/>
+     <Send deviceSlot="3" effectSlot="3" value="0.104"/>
     </SendEffects>
    </MasterEffects>
    <UserPresets typeId="26f5a47e-4786-11f1-92b0-0b3f3bef9f74"/>
@@ -697,6 +794,9 @@
          <Line index="120">
           <NoteData type="noteOn" note="36" velocity="100"/>
          </Line>
+         <Line index="126">
+          <NoteData type="noteOn" note="36" velocity="50"/>
+         </Line>
         </Lines>
        </Column>
        <Column index="2" name="" lineCount="128">
@@ -895,7 +995,7 @@
      <Track index="5" name="Track 6" lineCount="128" columnCount="1"/>
     </Tracks>
    </Pattern>
-   <Pattern index="2" name="" lineCount="128" trackCount="6">
+   <Pattern index="2" name="Filter sweeps" lineCount="128" trackCount="6">
     <Tracks>
      <Track index="0" name="Track 1" lineCount="128" columnCount="4">
       <Columns>
