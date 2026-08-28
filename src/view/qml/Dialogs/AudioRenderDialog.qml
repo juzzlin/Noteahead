@@ -88,7 +88,7 @@ AnimatedDialog {
                             Layout.fillWidth: true
                             model: [qsTr("WAV"), qsTr("FLAC")]
                             currentIndex: renderSettingsModel.format
-                            onActivated: {
+                            onActivated: index => {
                                 renderSettingsModel.format = index;
                                 if (!rootItem.customFileName)
                                     rootItem.outputFileName = renderService.defaultRenderFileName;
@@ -109,7 +109,7 @@ AnimatedDialog {
                             Layout.fillWidth: true
                             model: [44100, 48000, 88200, 96000, 176400, 192000]
                             currentIndex: model.indexOf(renderSettingsModel.sampleRate)
-                            onActivated: {
+                            onActivated: index => {
                                 renderSettingsModel.sampleRate = model[index];
                                 if (!rootItem.customFileName)
                                     rootItem.outputFileName = renderService.defaultRenderFileName;
@@ -158,7 +158,7 @@ AnimatedDialog {
                                 }
                             ]
                             currentIndex: renderSettingsModel.bitDepth
-                            onActivated: {
+                            onActivated: index => {
                                 renderSettingsModel.bitDepth = valueAt(index);
                                 if (!rootItem.customFileName)
                                     rootItem.outputFileName = renderService.defaultRenderFileName;
