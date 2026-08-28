@@ -157,6 +157,10 @@ Bug fixes:
 
 Other:
 
+* Call the control that scales a note's level by how hard it is struck "Velocity
+  Sensitivity" on every device. The Synth said "Vel Sens", String Ensemble and
+  String & Voice V2 just "Velocity" and "Sensitivity"
+
 7.1.0
 =====
 

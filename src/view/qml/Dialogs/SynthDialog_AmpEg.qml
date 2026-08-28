@@ -78,7 +78,7 @@ ColumnLayout {
         Layout.fillWidth: true
     }
     Knob {
-        label: qsTr("Vel Sens")
+        label: qsTr("Velocity Sensitivity")
         value: synthController.ampVelocitySensitivity
         onMoved: v => synthController.ampVelocitySensitivity = v
         Layout.fillWidth: true

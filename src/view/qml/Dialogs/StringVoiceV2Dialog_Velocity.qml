@@ -46,7 +46,7 @@ ColumnLayout {
     }
 
     Knob {
-        label: qsTr("Sensitivity")
+        label: qsTr("Velocity Sensitivity")
         value: stringVoiceV2Controller.velocitySensitivity
         onMoved: v => stringVoiceV2Controller.velocitySensitivity = v
         Layout.fillWidth: true

@@ -49,7 +49,7 @@ ColumnLayout {
         Layout.fillWidth: true
     }
     Knob {
-        label: qsTr("Velocity")
+        label: qsTr("Velocity Sensitivity")
         value: stringEnsembleController.velocitySensitivity
         onMoved: v => stringEnsembleController.velocitySensitivity = v
         Layout.fillWidth: true
