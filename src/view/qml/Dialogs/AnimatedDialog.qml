@@ -31,6 +31,12 @@ Dialog {
     // so that nothing looks different while the modality is off.
     dim: true
 
+    // Main.qml declares the dark theme for the whole window but no accent, so a dialog that does
+    // not declare one of its own falls back to the Universal style's own blue -- most visibly on
+    // the accent outline of the button that accepts the dialog. Declared here for the same reason
+    // the footer metrics below are: every dialog wants it, and there are forty-odd of them.
+    Universal.accent: themeService.accentColor
+
     // A dialog can end up shorter than its content on a small display. Clipping keeps such a case
     // a cut inside the dialog rather than controls painted over the window around it -- the
     // scrollable content areas are what should give way, and this is the net under them.
