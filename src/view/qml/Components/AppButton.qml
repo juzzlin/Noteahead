@@ -30,11 +30,26 @@ Button {
     // override (it is read-only), so the background below reads the overlay's containsMouse directly
     // instead of relying on the Control's own -- apparently also overlay-blocked -- hover tracking.
     down: mouseArea.pressed
+    // The button that commits a dialog carries a thin accent outline, so the one to press is
+    // findable at a glance. Taken from the button's own role rather than set per dialog: every
+    // dialog in the application already declares which of its buttons accepts, and there are
+    // forty-odd of them.
+    //
+    // Safe on a button that is not in a DialogButtonBox: the attached role defaults to InvalidRole.
+    readonly property bool acceptsDialog: DialogButtonBox.buttonRole === DialogButtonBox.AcceptRole
     background: Rectangle {
         implicitWidth: 32
         implicitHeight: 32
         visible: !root.flat || root.down || root.checked || root.highlighted
         color: root.down ? root.Universal.baseMediumLowColor : root.enabled && (root.highlighted || root.checked) ? root.Universal.accent : root.Universal.baseLowColor
+        Rectangle {
+            anchors.fill: parent
+            color: "transparent"
+            visible: root.enabled && root.acceptsDialog && !root.down
+            border.width: 1
+            border.color: root.Universal.accent
+        }
+        // Drawn after the accent outline so hovering still reads as hovering.
         Rectangle {
             anchors.fill: parent
             color: "transparent"
