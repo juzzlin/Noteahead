@@ -80,7 +80,7 @@ AnimatedDialog {
             onClicked: UiService.requestCopyEffectRackDialog(root.subIndex >= 0 ? qsTr("%1 %2").arg(root.deviceName).arg(root.subLabel) : root.deviceName)
         }
         AppButton {
-            text: qsTr("Close")
+            text: qsTr("Ok")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
         }
@@ -305,7 +305,8 @@ AnimatedDialog {
                         text: {
                             effectRackController.revision;
                             root.meterPoll;
-                            if (effectType === "") return "";
+                            if (effectType === "")
+                                return "";
                             const name = effectRackController.effectDisplayName(effectType);
                             const summary = effectRackController.effectParametersSummary(index);
                             return qsTr("Slot %1: %2 %3").arg(index + 1).arg(name).arg(summary);

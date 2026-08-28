@@ -46,7 +46,7 @@ AnimatedDialog {
 
     footer: DialogButtonBox {
         AppButton {
-            text: qsTr("Close")
+            text: qsTr("Ok")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
         }
@@ -168,7 +168,7 @@ AnimatedDialog {
                     anchors.fill: parent
                     anchors.margins: 15
                     spacing: 10
-                    
+
                     Text {
                         text: deviceType === "" ? "" : qsTr("Slot %1: %2 (%3)").arg(index + 1).arg(deviceName).arg(deviceTypeName)
                         color: "white"
@@ -181,7 +181,7 @@ AnimatedDialog {
                         elide: Text.ElideRight
                         visible: deviceType !== ""
                     }
-                    
+
                     Text {
                         text: trackNames
                         color: "#aaa"
