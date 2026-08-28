@@ -13,6 +13,7 @@ set(HEADER_FILES
     controllers/string_ensemble_controller.hpp
     controllers/string_voice_v2_controller.hpp
     controllers/song_overview_controller.hpp
+    controllers/speech_controller.hpp
     controllers/synth_controller.hpp
     controllers/wavetable_synth_controller.hpp
     qml/Components/oscilloscope_renderer.hpp
@@ -39,6 +40,7 @@ set(SOURCE_FILES
     controllers/string_voice_controller.cpp
     controllers/string_voice_v2_controller.cpp
     controllers/song_overview_controller.cpp
+    controllers/speech_controller.cpp
     controllers/synth_controller.cpp
     controllers/wavetable_synth_controller.cpp
     qml/Components/oscilloscope_renderer.cpp

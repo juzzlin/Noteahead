@@ -162,6 +162,7 @@ signals:
     void stringVoiceDialogRequested();
     void stringVoiceV2DialogRequested();
     void stringEnsembleDialogRequested();
+    void speechDialogRequested();
     void deviceSettingsDialogRequested(QString deviceName);
     void subMixerDialogRequested(int slotIndex);
     void effectSendsDialogRequested(const QString & deviceName);

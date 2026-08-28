@@ -21,6 +21,9 @@ import Noteahead 1.0
 
 ColumnLayout {
     id: knobRoot
+    HoverHandler {
+        id: knobHoverHandler
+    }
     property string label: ""
     property real value: 0
     property real from: 0
@@ -35,6 +38,9 @@ ColumnLayout {
     property alias stepSize: slider.stepSize
     // Wheel steps are 1 % of the range, which is coarser than a pixel of drag on a narrow knob.
     // Ctrl buys the precision back, Shift trades it away for speed.
+    //! Whether the pointer is over the knob, so a caller can hang a ToolTip on it. The root is a
+    //! layout rather than a Control, so there is no hovered property to inherit.
+    property alias hovered: knobHoverHandler.hovered
     property real fineWheelFactor: 0.1
     property real coarseWheelFactor: 5
     readonly property string displayValue: knobController.format((knobRoot.value - knobRoot.from) / (knobRoot.to - knobRoot.from), knobRoot.mapping, knobRoot.suffix, knobRoot.mapMin, knobRoot.mapMax)

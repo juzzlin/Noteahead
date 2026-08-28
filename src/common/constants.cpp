@@ -187,6 +187,11 @@ QString stringEnsembleDeviceName()
     return "Noteahead String Ensemble";
 }
 
+QString speechDeviceName()
+{
+    return "Noteahead Speech";
+}
+
 QString internalDevicePortPrefix()
 {
     return "Noteahead Internal Device";
@@ -1360,6 +1365,66 @@ QString xmlKeyStereoMode()
 QString xmlKeyStereoPhase()
 {
     return "stereoPhase";
+}
+
+QString xmlKeyPhrase()
+{
+    return "phrase";
+}
+
+QString xmlKeyGlide()
+{
+    return "glide";
+}
+
+QString xmlKeyFormantShift()
+{
+    return "formantShift";
+}
+
+QString xmlKeyBreathiness()
+{
+    return "breathiness";
+}
+
+QString xmlKeyConsonantLevel()
+{
+    return "consonantLevel";
+}
+
+QString xmlKeySibilance()
+{
+    return "sibilance";
+}
+
+QString xmlKeyVoiceType()
+{
+    return "voiceType";
+}
+
+QString xmlKeyIntonation()
+{
+    return "intonation";
+}
+
+QString xmlKeyTriggerMode()
+{
+    return "triggerMode";
+}
+
+QString xmlKeySyncMode()
+{
+    return "syncMode";
+}
+
+QString xmlKeySyncLength()
+{
+    return "syncLength";
+}
+
+QString xmlKeySyncDivision()
+{
+    return "syncDivision";
 }
 
 QString xmlKeyRate()

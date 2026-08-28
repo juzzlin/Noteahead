@@ -5,6 +5,15 @@ Release date:
 
 New features:
 
+* Add the Speech device
+  - Formant speech synthesizer that says a typed phrase, pitched to the notes
+    played. English text is read by a letter-to-sound rule set with stress;
+    slashes take literal phonemes and an apostrophe marks a stressed syllable
+  - A note speaks either the whole phrase or the next syllable, running free, fit
+    to a length or one syllable per division
+  - Male and female voice types, with Formant Shift, Glide, Sibilance,
+    Breathiness, Intonation and Velocity Sensitivity
+
 * Change the device in a slot without losing the mix around it
   - The Device Rack's Manage menu has a Change Device... item. The new instrument
     takes over the old one's insert effects, sends, fader, gain, pan, fader

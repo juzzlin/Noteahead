@@ -11,6 +11,7 @@ set(HEADER_FILES
     devices/sampler_device.hpp
     devices/string_ensemble_device.hpp
     devices/string_voice_v2_device.hpp
+    devices/speech_device.hpp
     devices/sub_mixer_device.hpp
     devices/synth_device.hpp
     devices/synth_presets.hpp
@@ -48,6 +49,10 @@ set(HEADER_FILES
     dsp/ensemble_phaser.hpp
     dsp/poly_blep_oscillator.hpp
     dsp/saturating_svf.hpp
+    dsp/speech/formant_voice.hpp
+    dsp/speech/phoneme.hpp
+    dsp/speech/speech_sequencer.hpp
+    dsp/speech/text_to_phonemes.hpp
     dsp/svf_filter.hpp
     dsp/true_stereo_panner.hpp
     dsp/upsampler.hpp
@@ -148,6 +153,7 @@ set(SOURCE_FILES
     devices/string_ensemble_device.cpp
     devices/string_voice_device.cpp
     devices/string_voice_v2_device.cpp
+    devices/speech_device.cpp
     devices/sub_mixer_device.cpp
     devices/synth_device.cpp
     devices/synth_presets.cpp
@@ -185,6 +191,10 @@ set(SOURCE_FILES
     dsp/ensemble_phaser.cpp
     dsp/poly_blep_oscillator.cpp
     dsp/saturating_svf.cpp
+    dsp/speech/formant_voice.cpp
+    dsp/speech/phoneme_table.cpp
+    dsp/speech/speech_sequencer.cpp
+    dsp/speech/text_to_phonemes.cpp
     dsp/svf_filter.cpp
     dsp/true_stereo_panner.cpp
     dsp/upsampler.cpp

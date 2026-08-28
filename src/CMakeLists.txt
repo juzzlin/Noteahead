@@ -136,6 +136,11 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/StringEnsembleDialog_Envelope.qml
     ${QML_BASE_DIR}/Dialogs/StringEnsembleDialog_Global.qml
     ${QML_BASE_DIR}/Dialogs/StringEnsembleDialog_Registers.qml
+    ${QML_BASE_DIR}/Dialogs/SpeechDialog.qml
+    ${QML_BASE_DIR}/Dialogs/SpeechDialog_Global.qml
+    ${QML_BASE_DIR}/Dialogs/SpeechDialog_Phrase.qml
+    ${QML_BASE_DIR}/Dialogs/SpeechDialog_Timing.qml
+    ${QML_BASE_DIR}/Dialogs/SpeechDialog_Voice.qml
     ${QML_BASE_DIR}/Dialogs/StringVoiceDialog.qml
     ${QML_BASE_DIR}/Dialogs/StringVoiceV2Dialog.qml
     ${QML_BASE_DIR}/Dialogs/StringVoiceDialog_Balance.qml

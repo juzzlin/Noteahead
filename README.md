@@ -34,6 +34,7 @@ Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It bui
     <td><img src="/screenshots/6.0.0/PatternPeek.png" width="100%"></td>
     <td><img src="/screenshots/6.0.0/Theme.png" width="100%"></td>
   </tr>
+  <tr><td colspan="4"><img src="/screenshots/7.2.0/Speech.png" width="100%"></td></tr>
   <tr><td colspan="4"><img src="/screenshots/7.2.0/Overview.png" width="100%"></td></tr>
 </table>
 
@@ -131,6 +132,8 @@ All Arctic Music Project songs:
   - Vintage string/choir ensemble inspired by the Roland VP-330 / Behringer VC340, with strings and voice registers, BBD ensemble chorus, and a sidechain vocoder.
 - String Ensemble
   - Divide-down string machine in the Solina tradition: twelve master oscillators tapped at 16'/8'/4' by every key, so octaves stay phase-locked and polyphony is unlimited. Bass section (Contrabass, Cello) below the split with its own Volume Bass, upper section (Horn, Viola, Trumpet, Violin) above it, plus Crescendo/Sustain Length, ensemble chorus and a swept phaser.
+- Speech
+  - Formant speech synthesizer that says a typed phrase, pitched to the notes played. English text is read by a letter-to-sound rule set with stress; anything between slashes is taken as literal phonemes, and an apostrophe marks the stressed syllable. Trigger a whole phrase from one note or a syllable per note, free-running or locked to the tempo. Male and female voice types, with Formant Shift, Glide, Sibilance, Breathiness and Intonation.
 - Sub Mixer
   - Groups other devices so a whole set is mixed and processed as one entity, with its own insert effects, Volume, Gain and Pan. Members keep their own reverb sends, Sub Mixers can be nested, and Volume/Pan can be ridden from a track over MIDI CC.
 - Dynamic Routing
@@ -352,7 +355,7 @@ The section below is only a quick start — the manual is the authoritative refe
 **1) Give a track a sound.** Click the settings icon on a track header to open **Track Settings**. A track plays either an external MIDI instrument or one of Noteahead's internal devices:
 
 * **External MIDI**: pick the MIDI output port and channel of your synth or drum machine. Devices are hot-plugged, so they appear as they come online.
-* **Internal device**: click **Device Rack...** in the same dialog (also under **Devices => Device rack...**), press **(+)** on a free slot, pick an instrument from the **Device Gallery** — Synth, Wavetable Synth, Bass Synth, Drum Synth, Sampler, Piano Synth, Piano Synth V2, Kick 808, String & Voice, String Ensemble or Sub Mixer — and then select its internal port (e.g. *Noteahead Synth 1*) back in Track Settings. Nothing external is needed; Noteahead renders these itself.
+* **Internal device**: click **Device Rack...** in the same dialog (also under **Devices => Device rack...**), press **(+)** on a free slot, pick an instrument from the **Device Gallery** — Synth, Wavetable Synth, Bass Synth, Drum Synth, Sampler, Piano Synth, Piano Synth V2, Kick 808, String & Voice, String Ensemble, Speech or Sub Mixer — and then select its internal port (e.g. *Noteahead Synth 1*) back in Track Settings. Nothing external is needed; Noteahead renders these itself.
 
 **2) Set up the track.** Click the track name to rename it. `[+]`/`[-]` in the track header adds or removes note columns.
 

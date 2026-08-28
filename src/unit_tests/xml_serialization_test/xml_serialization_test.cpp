@@ -35,6 +35,7 @@
 #include "../../domain/devices/piano_synth_v2_device.hpp"
 #include "../../domain/devices/piano_synth_v3_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
+#include "../../domain/devices/speech_device.hpp"
 #include "../../domain/devices/string_ensemble_device.hpp"
 #include "../../domain/devices/string_voice_device.hpp"
 #include "../../domain/devices/string_voice_v2_device.hpp"
@@ -1985,6 +1986,77 @@ void XmlSerializationTest::test_toXmlFromXml_stringEnsembleDevice_shouldLoadCorr
     // The channel strip settings live on the Device base class, so this covers them for every device.
     QCOMPARE(static_cast<int>(restored->faderPosition()), static_cast<int>(Device::FaderPosition::PostInserts));
     QCOMPARE(static_cast<int>(restored->sendTap()), static_cast<int>(Device::SendTap::PreFader));
+}
+
+void XmlSerializationTest::test_toXmlFromXml_speechDevice_shouldLoadCorrectly()
+{
+    // Devices are rebuilt through DeviceFactory, so this also covers the factory registration:
+    // without it the device would silently vanish from a reloaded project.
+    DeviceFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto speech = std::make_shared<SpeechDevice>("Speech");
+    // Punctuation, an escape and an ampersand: the phrase is written as an XML attribute, so it is
+    // the one setting on any device that can carry characters the format itself cares about.
+    speech->setPhrase("hello, /w er l d/ & goodbye");
+    speech->setRate(0.75f);
+    speech->setGlide(0.2f);
+    speech->setFormantShift(0.65f);
+    speech->setBreathiness(0.3f);
+    speech->setConsonantLevel(0.8f);
+    speech->setIntonation(0.55f);
+    speech->setVibratoRate(0.45f);
+    speech->setVibratoDepth(0.25f);
+    speech->setTriggerMode(1);
+    speech->setSyncMode(2);
+    speech->setSyncLength(12);
+    speech->setSyncDivision(3);
+    speech->setSibilance(0.42f);
+    speech->setVoiceType(1);
+    speech->setVelocitySensitivity(0.65f);
+    speech->setFaderPosition(Device::FaderPosition::PostInserts);
+    deviceServiceOut.setDevice(1, speech);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto restored = std::dynamic_pointer_cast<SpeechDevice>(deviceServiceIn.device(size_t { 1 }));
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), SpeechDevice::typeIdString());
+
+    QCOMPARE(restored->phrase(), std::string { "hello, /w er l d/ & goodbye" });
+    // The phrase has to be recompiled on load, not merely stored, or the device restores silent.
+    QVERIFY(!restored->phrasePhonemes().empty());
+    QCOMPARE(restored->phrasePhonemes(), speech->phrasePhonemes());
+
+    QVERIFY(std::abs(restored->rate() - 0.75f) < 0.001f);
+    QVERIFY(std::abs(restored->glide() - 0.2f) < 0.001f);
+    QVERIFY(std::abs(restored->formantShift() - 0.65f) < 0.001f);
+    QVERIFY(std::abs(restored->breathiness() - 0.3f) < 0.001f);
+    QVERIFY(std::abs(restored->consonantLevel() - 0.8f) < 0.001f);
+    QVERIFY(std::abs(restored->intonation() - 0.55f) < 0.001f);
+    QVERIFY(std::abs(restored->vibratoRate() - 0.45f) < 0.001f);
+    QVERIFY(std::abs(restored->vibratoDepth() - 0.25f) < 0.001f);
+    QCOMPARE(restored->triggerMode(), 1);
+    QCOMPARE(restored->syncMode(), 2);
+    QCOMPARE(restored->syncLength(), 12);
+    QCOMPARE(restored->syncDivision(), 3);
+    QVERIFY(std::abs(restored->sibilance() - 0.42f) < 0.001f);
+    QCOMPARE(restored->voiceType(), 1);
+    QVERIFY(std::abs(restored->velocitySensitivity() - 0.65f) < 0.001f);
+
+    QCOMPARE(static_cast<int>(restored->faderPosition()), static_cast<int>(Device::FaderPosition::PostInserts));
 }
 
 void XmlSerializationTest::test_toXmlFromXml_pianoSynthV2Device_shouldLoadCorrectly()

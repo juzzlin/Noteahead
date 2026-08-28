@@ -28,6 +28,10 @@ set(DSP_SOURCES
     drum/ride_engine.cpp
     drum/snare_engine.cpp
     drum/tom_engine.cpp
+    speech/formant_voice.cpp
+    speech/phoneme_table.cpp
+    speech/speech_sequencer.cpp
+    speech/text_to_phonemes.cpp
 )
 
 add_library(Dsp STATIC ${DSP_SOURCES})
