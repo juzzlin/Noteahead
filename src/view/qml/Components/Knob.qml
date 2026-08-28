@@ -63,7 +63,13 @@ ColumnLayout {
         text: `${knobRoot.label} (${knobRoot.displayValue})`
         font.pixelSize: 11
         color: themeService.accentColor
-        Layout.alignment: Qt.AlignHCenter
+        // A long name must not widen the knob's column, so the label takes the width the layout
+        // gives it and is cut in the middle rather than at the end: the head of the name and the
+        // value in brackets are the two parts worth keeping.
+        elide: Text.ElideMiddle
+        horizontalAlignment: Text.AlignHCenter
+        Layout.fillWidth: true
+        Layout.preferredWidth: 0
 
         MouseArea {
             anchors.fill: parent
@@ -72,7 +78,8 @@ ColumnLayout {
             onDoubleClicked: valueEditor.open()
             ToolTip.visible: containsMouse && !valueEditor.visible
             ToolTip.delay: 1000
-            ToolTip.text: qsTr("Double-click to type an exact value")
+            // Once the label is cut there is nowhere else to read the full name
+            ToolTip.text: valueLabel.truncated ? knobRoot.label + " - " + qsTr("Double-click to type an exact value") : qsTr("Double-click to type an exact value")
         }
 
         Popup {

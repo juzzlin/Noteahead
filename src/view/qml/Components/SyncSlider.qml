@@ -33,7 +33,12 @@ ColumnLayout {
         text: `${knobRoot.label} (${knobController.syncLabel(knobController.syncIndex(knobRoot.value))})`
         font.pixelSize: 11
         color: themeService.accentColor
-        Layout.alignment: Qt.AlignHCenter
+        // Cut in the middle rather than at the end, as in Knob: the head of the name and the
+        // synced division in brackets are the two parts worth keeping.
+        elide: Text.ElideMiddle
+        horizontalAlignment: Text.AlignHCenter
+        Layout.fillWidth: true
+        Layout.preferredWidth: 0
     }
 
     Slider {
