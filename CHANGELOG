@@ -5,6 +5,19 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+7.2.0
+=====
+
+Release date:
+
+Sat, 29 Aug 2026 13:16:15 +0300
+
+New features:
+
 * Add the Speech device
   - Formant speech synthesizer that says a typed phrase, pitched to the notes
     played. English text is read by a letter-to-sound rule set with stress;
