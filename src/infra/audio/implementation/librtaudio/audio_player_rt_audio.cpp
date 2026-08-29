@@ -37,7 +37,7 @@ int AudioPlayerRtAudio::playCallback(void * outputBuffer, void *,
     const auto self = static_cast<AudioPlayerRtAudio *>(userData);
 
     if (status) {
-        juzzlin::L(TAG).error() << "Stream under/overflow detected!";
+        self->m_xrunCount.fetch_add(1, std::memory_order_relaxed);
     }
 
     if (!outputBuffer) {
@@ -215,6 +215,9 @@ void AudioPlayerRtAudio::stop()
     m_streamer.stop();
 
     if (wasRunning) {
+        if (const auto xruns = m_xrunCount.exchange(0); xruns) {
+            juzzlin::L(TAG).warning() << "Stream under/overflows detected during playback: " << xruns;
+        }
         juzzlin::L(TAG).info() << "Playback stopped";
     }
 }

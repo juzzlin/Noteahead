@@ -56,6 +56,7 @@ private slots:
     void test_delayEffect_typeParameter_shouldSelectPingPong();
     void test_limiterEffect_shouldLimitPeaksToCeiling();
     void test_limiterEffect_shouldBoostToCeiling();
+    void test_limiterEffect_slidingWindow_shouldTrackPeaksAcrossWraps();
     void test_endlessReverb_shouldProduceStableWetTail();
     void test_endlessReverb_mixZero_shouldPassDrySignal();
     void test_endlessReverb_freeze_shouldSustainTail();

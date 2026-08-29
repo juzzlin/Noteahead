@@ -15,6 +15,7 @@
 
 #include "effect_rack_test.hpp"
 #include "../../common/constants.hpp"
+#include "../../domain/dsp/audio_context.hpp"
 #include "../../domain/dsp/volume.hpp"
 #include "../../domain/effects/drive.hpp"
 #include "../../domain/effects/effect_factory.hpp"
@@ -155,6 +156,28 @@ void EffectRackTest::test_rackEnabled_serialization_shouldRoundTrip()
         }
     }
     QVERIFY(legacy.enabled());
+}
+
+void EffectRackTest::test_setEffect_install_shouldSyncParameters()
+{
+    // Installing an effect syncs it. Several effects read their parameters only when told to, and
+    // not all of them do so in their constructor, so without this a freshly added effect would run
+    // on its member defaults until the first knob was moved. The per-sample device paths -- the
+    // Drum Synth's per-voice racks -- rely on this, because they never sync during processing.
+    const auto gain = std::make_shared<Gain>();
+    const auto parameter = gain->parameter(Constants::NahdXml::xmlKeyGain().toStdString());
+    QVERIFY(parameter.has_value());
+    parameter->get().setValue(1.0f); // Full boost, well away from the unity the member defaults to.
+
+    EffectRack rack;
+    rack.setEffect(0, gain);
+
+    std::vector<double> buffer(8, 0.5);
+    AudioContext context { std::span(buffer.data(), buffer.size()), 4, 48000 };
+    rack.processInPlace(context);
+
+    // Unsynced, the effect would still be at unity and the buffer would come back untouched.
+    QVERIFY(buffer[0] > 0.5);
 }
 
 void EffectRackTest::test_process_shouldProcessAudio()

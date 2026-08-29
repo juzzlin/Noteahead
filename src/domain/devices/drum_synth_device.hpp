@@ -118,6 +118,12 @@ private:
     //! audio thread. It only ever grows.
     std::vector<float> m_oversampledBuffer;
 
+    //! Per-voice snapshot of the enabled insert-rack effects, rebuilt every block but kept between
+    //! blocks so that refilling it costs nothing: this runs on the audio thread, which must not
+    //! allocate. m_rackEffectScratch is the staging the rack is read into.
+    std::array<std::vector<EffectRack::EffectS>, DrumSynth::NumVoices> m_voiceRackEffects;
+    std::vector<EffectRack::EffectS> m_rackEffectScratch;
+
     Decimator m_downsamplerL;
     Decimator m_downsamplerR;
 

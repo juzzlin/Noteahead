@@ -60,12 +60,20 @@ public:
             return false;
         }
 
-        // Copy data
-        for (size_t i = 0; i < count; ++i) {
-            m_buffer[(head + i) % capacity] = data[i];
+        // Copied as the (at most) two contiguous runs the wrap splits it into, rather than one
+        // element at a time: the per-element form costs an integer division per sample, and this
+        // is the producer side, which runs in the audio callback.
+        const size_t firstChunk = std::min(count, capacity - head);
+        std::copy_n(data, firstChunk, m_buffer.begin() + static_cast<ptrdiff_t>(head));
+        if (count > firstChunk) {
+            std::copy_n(data + firstChunk, count - firstChunk, m_buffer.begin());
         }
 
-        m_head.store((head + count) % capacity, std::memory_order_release);
+        size_t newHead = head + count;
+        if (newHead >= capacity) {
+            newHead -= capacity;
+        }
+        m_head.store(newHead, std::memory_order_release);
         return true;
     }
 
@@ -88,11 +96,17 @@ public:
 
         const size_t toRead = std::min(available, count);
 
-        for (size_t i = 0; i < toRead; ++i) {
-            data[i] = m_buffer[(tail + i) % capacity];
+        const size_t firstChunk = std::min(toRead, capacity - tail);
+        std::copy_n(m_buffer.begin() + static_cast<ptrdiff_t>(tail), firstChunk, data);
+        if (toRead > firstChunk) {
+            std::copy_n(m_buffer.begin(), toRead - firstChunk, data + firstChunk);
         }
 
-        m_tail.store((tail + toRead) % capacity, std::memory_order_release);
+        size_t newTail = tail + toRead;
+        if (newTail >= capacity) {
+            newTail -= capacity;
+        }
+        m_tail.store(newTail, std::memory_order_release);
 
         return toRead;
     }

@@ -168,6 +168,8 @@ void Rta::buildBands()
 
     const int actualB = static_cast<int>(m_bandBins.size());
     m_smoothedPow.assign(actualB, 0.0);
+    // Grown here rather than in the analysis passes, which run on the audio thread.
+    m_bandUpdates.reserve(actualB);
     {
         const std::lock_guard<std::mutex> lock { m_bandMutex };
         m_bandDb.assign(actualB, -100.0f);
@@ -201,7 +203,8 @@ void Rta::runSlowAnalysis()
     const double attackCoeff = std::exp(-static_cast<double>(SlowHopSize) / (sr * attackMs / 1000.0));
     const double releaseCoeff = std::exp(-static_cast<double>(SlowHopSize) / (sr * releaseMs / 1000.0));
 
-    std::vector<std::pair<int, float>> updates;
+    auto & updates = m_bandUpdates;
+    updates.clear();
     for (int b = 0; b < B; b++) {
         if (m_bandFast[b]) {
             continue;
@@ -253,7 +256,8 @@ void Rta::runFastAnalysis()
     const double attackCoeff = std::exp(-static_cast<double>(m_fastHopSize) / (sr * attackMs / 1000.0));
     const double releaseCoeff = std::exp(-static_cast<double>(m_fastHopSize) / (sr * (releaseMs + windowDeltaMs) / 1000.0));
 
-    std::vector<std::pair<int, float>> updates;
+    auto & updates = m_bandUpdates;
+    updates.clear();
     for (int b = 0; b < B; b++) {
         if (!m_bandFast[b]) {
             continue;

@@ -7,7 +7,15 @@ New features:
 
 Bug fixes:
 
+* Sync an effect when it is added to a rack, not only when a knob is moved
+
 Other:
+
+* Stop allocating memory on the audio thread
+  - The playback and recording callbacks, the Drum Synth's per-voice inserts,
+    the Limiter's lookahead, the RTA and the String & Voice devices all
+    allocated per block; the whole audio path is now allocation-free
+  - Count stream under/overflows instead of logging them from the callback
 
 7.2.0
 =====

@@ -210,15 +210,21 @@ void DrumSynthDevice::processAudio(AudioContext & context)
     // Snapshot each voice's insert-rack effects for per-sample processing at the oversampled rate. The
     // rack is inserted after the fixed per-voice DSP chain and runs sample-by-sample like the other voice
     // effects, so time-based effects stay correct (their times derive from the oversampled sample rate).
-    std::array<std::vector<EffectRack::EffectS>, NumVoices> voiceRackEffects;
+    //
+    // No sync() here: every path that changes a parameter already syncs (the controller on a knob
+    // move, deserialization on load, EffectRack::setEffect when the effect is added), and syncing
+    // per block would resolve each parameter key on the audio thread, which allocates.
     for (int v = 0; v < NumVoices; v++) {
+        m_voiceRackEffects.at(v).clear();
         if (m_voices.at(v).effectRack.hasEffects()) {
-            for (auto & effect : m_voices.at(v).effectRack.effects()) {
-                if (effect && effect->enabled()) {
+            m_voices.at(v).effectRack.effects(m_rackEffectScratch);
+            for (auto & effect : m_rackEffectScratch) {
+                if (effect->enabled()) {
                     effect->setSampleRate(oversampledRate);
+                    // The per-voice racks are not reached by Device::setBpm, which only walks the
+                    // device's own insert rack, so this is the only place they learn the tempo.
                     effect->setBpm(static_cast<float>(context.bpm));
-                    effect->sync();
-                    voiceRackEffects.at(v).push_back(effect);
+                    m_voiceRackEffects.at(v).push_back(effect);
                 }
             }
         }
@@ -249,7 +255,7 @@ void DrumSynthDevice::processAudio(AudioContext & context)
                     voice.volumeEffect->process(l, r);
                     voice.panningEffect->process(l, r);
 
-                    for (auto & effect : voiceRackEffects.at(v)) {
+                    for (auto & effect : m_voiceRackEffects.at(v)) {
                         effect->process(l, r);
                     }
 

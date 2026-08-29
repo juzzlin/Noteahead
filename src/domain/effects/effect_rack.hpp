@@ -45,6 +45,9 @@ public:
     void removeEffect(size_t index);
     EffectS effect(size_t index) const;
     std::vector<EffectS> effects() const;
+    //! Allocation-free variant: fills out (cleared first) with the non-null effects. Used on the
+    //! audio thread where allocating every callback must be avoided.
+    void effects(std::vector<EffectS> & out) const;
     size_t effectCount() const;
     bool hasEffects() const;
 

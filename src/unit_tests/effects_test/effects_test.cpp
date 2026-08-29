@@ -37,6 +37,7 @@
 
 #include <cmath>
 #include <numbers>
+#include <random>
 
 namespace noteahead {
 
@@ -1146,6 +1147,37 @@ void EffectsTest::test_limiterEffect_shouldLimitPeaksToCeiling()
         QVERIFY(effect.reductionDb() > -13.0f);
         // Output limited to the -12dB threshold (below the ceiling, so no boost make-up).
         QVERIFY(std::abs(std::abs(left) - Utils::Dsp::dbToLinear(-12.0f)) < 1e-2);
+    }
+}
+
+void EffectsTest::test_limiterEffect_slidingWindow_shouldTrackPeaksAcrossWraps()
+{
+    // The sliding-window peak maximum behind the lookahead is a monotonic deque held in a fixed
+    // ring. This drives it far past a single wrap of that ring, with a signal that makes the window
+    // both fill and drain, so that a mistracked front or back shows up as a peak getting through.
+    Limiter effect;
+    effect.setSampleRate(44100.0);
+
+    const double ceilingLin = Utils::Dsp::dbToLinear(-0.3f);
+    std::mt19937 rng { 12345 };
+    std::uniform_real_distribution<double> dist { 0.0, 1.0 };
+
+    for (int i = 0; i < 200000; i++) {
+        // Long quiet stretches drain the window; isolated full-scale spikes are what a stale window
+        // maximum would let past, and the runs of noise in between keep it partly filled.
+        double sample = 0.0;
+        if (i % 997 == 0) {
+            sample = 1.0;
+        } else if ((i / 500) % 3) {
+            sample = dist(rng);
+        }
+
+        double left = sample;
+        double right = -sample;
+        effect.process(left, right);
+
+        QVERIFY(std::abs(left) <= ceilingLin + 1e-6);
+        QVERIFY(std::abs(right) <= ceilingLin + 1e-6);
     }
 }
 

@@ -35,7 +35,7 @@ int AudioRecorderRtAudio::recordCallback(void *, void * inputBuffer,
     const auto self = static_cast<AudioRecorderRtAudio *>(userData);
 
     if (status) {
-        juzzlin::L(TAG).error() << "Stream under/overflow detected!";
+        self->m_xrunCount.fetch_add(1, std::memory_order_relaxed);
     }
 
     if (!inputBuffer || !self->m_running) {
@@ -46,7 +46,7 @@ int AudioRecorderRtAudio::recordCallback(void *, void * inputBuffer,
     const size_t totalSamples = frameCount * self->m_channels;
 
     if (!self->m_recorder.push(in, totalSamples)) {
-        juzzlin::L(TAG).error() << "Ring buffer overflow! Data lost.";
+        self->m_overflowCount.fetch_add(1, std::memory_order_relaxed);
     }
 
     return 0;
@@ -179,6 +179,12 @@ void AudioRecorderRtAudio::stop()
     m_recorder.stop();
 
     if (wasRunning) {
+        if (const auto xruns = m_xrunCount.exchange(0); xruns) {
+            juzzlin::L(TAG).warning() << "Stream under/overflows detected during recording: " << xruns;
+        }
+        if (const auto overflows = m_overflowCount.exchange(0); overflows) {
+            juzzlin::L(TAG).error() << "Ring buffer overflows, data lost: " << overflows;
+        }
         juzzlin::L(TAG).info() << "Recording stopped";
     }
 }

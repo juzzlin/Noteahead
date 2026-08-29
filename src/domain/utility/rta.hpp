@@ -94,6 +94,11 @@ private:
     std::vector<bool> m_bandFast;
     std::vector<std::pair<float, float>> m_bandLogX;
 
+    //! Staging for the band levels an analysis pass produced, so that m_bandMutex is only held for
+    //! the copy into m_bandDb. Reused between passes: this runs on the audio thread, which must not
+    //! allocate. Sized by buildBands().
+    std::vector<std::pair<int, float>> m_bandUpdates;
+
     // Shared between audio and UI thread (protected by m_bandMutex):
     mutable std::mutex m_bandMutex;
     std::vector<float> m_bandDb;

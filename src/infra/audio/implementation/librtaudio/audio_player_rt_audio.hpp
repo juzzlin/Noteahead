@@ -56,6 +56,10 @@ private:
     RtAudio m_rtAudio;
 
     std::atomic_bool m_running = false;
+    //! Counted rather than logged where it happens: the callback is the audio thread, and logging
+    //! there takes the logger's lock and formats a stream, which is what turns one late block into
+    //! several. Reported when the stream stops.
+    std::atomic<uint64_t> m_xrunCount { 0 };
     std::atomic<uint32_t> m_outputDeviceId = 0;
 
     AudioFileStreamer m_streamer;

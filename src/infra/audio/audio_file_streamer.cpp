@@ -101,10 +101,12 @@ size_t AudioFileStreamer::pop(float * data, size_t count)
 
 size_t AudioFileStreamer::pop(int32_t * data, size_t count)
 {
-    std::vector<float> floatBuffer(count);
-    const size_t read { pop(floatBuffer.data(), count) };
+    if (m_conversionBuffer.size() < count) {
+        m_conversionBuffer.resize(count);
+    }
+    const size_t read { pop(m_conversionBuffer.data(), count) };
     for (size_t i { 0 }; i < read; ++i) {
-        data[i] = static_cast<int32_t>(std::clamp(floatBuffer[i], -1.0f, 1.0f) * 2147483647.0f);
+        data[i] = static_cast<int32_t>(std::clamp(m_conversionBuffer[i], -1.0f, 1.0f) * 2147483647.0f);
     }
     return read;
 }

@@ -39,6 +39,13 @@ void EffectRack::setEffect(size_t index, EffectS effect)
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
     if (index < m_effects.size()) {
+        // An effect entering a rack is synced here, once. Several effects read their parameters
+        // only when told to, and not every one of them does so in its constructor, so without this
+        // a freshly added effect would run on its member defaults until the first knob was moved.
+        // Loading goes through deserializeEffect(), which has already synced by this point.
+        if (effect) {
+            effect->sync();
+        }
         m_effects[index] = std::move(effect);
         markChanged();
     }
@@ -112,6 +119,17 @@ std::vector<EffectRack::EffectS> EffectRack::effects() const
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
     return m_effects;
+}
+
+void EffectRack::effects(std::vector<EffectS> & out) const
+{
+    std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    out.clear();
+    for (const auto & effect : m_effects) {
+        if (effect) {
+            out.push_back(effect);
+        }
+    }
 }
 
 size_t EffectRack::effectCount() const

@@ -19,7 +19,6 @@
 #include "effect.hpp"
 
 #include <cstdint>
-#include <deque>
 #include <vector>
 
 namespace noteahead {
@@ -60,7 +59,22 @@ private:
     std::vector<double> m_delayBufferL;
     std::vector<double> m_delayBufferR;
     std::vector<double> m_peakBuffer;
-    std::deque<uint32_t> m_maxIndices; // Monotonic decreasing deque for the sliding-window peak maximum.
+    // Monotonic decreasing deque for the sliding-window peak maximum, as a fixed-capacity ring.
+    // A std::deque frees a node on pop_front and allocates one on push_back as the window crosses
+    // its chunk boundaries, which here would mean allocating on the audio thread while limiting.
+    // The window holds at most one entry per delay-buffer slot, so m_peakBuffer's size is capacity.
+    std::vector<uint32_t> m_maxIndices;
+    uint32_t m_maxHead { 0 };
+    uint32_t m_maxCount { 0 };
+
+    void maxIndicesClear();
+    bool maxIndicesEmpty() const;
+    uint32_t maxIndicesFront() const;
+    uint32_t maxIndicesBack() const;
+    void maxIndicesPopFront();
+    void maxIndicesPopBack();
+    void maxIndicesPushBack(uint32_t value);
+
     uint32_t m_writePos { 0 };
     uint32_t m_delaySamples { 0 };
 

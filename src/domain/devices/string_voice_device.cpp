@@ -27,6 +27,7 @@
 #include <cmath>
 #include <limits>
 #include <numbers>
+#include <string>
 
 namespace noteahead {
 
@@ -794,7 +795,10 @@ void StringVoiceDevice::setVocoderSidechain(int val)
 
 std::optional<size_t> StringVoiceDevice::vocoderSidechainIndex() const
 {
-    if (const auto p = parameter(Constants::NahdXml::xmlKeyVocoderSidechain().toStdString()); p) {
+    // Resolved once: this is read every block on the audio thread, and building the key would
+    // allocate both a QString and a std::string each time.
+    static const std::string key = Constants::NahdXml::xmlKeyVocoderSidechain().toStdString();
+    if (const auto p = parameter(key); p) {
         const int val { p->get().xmlValue() };
         if (val >= 0) {
             return static_cast<size_t>(val);

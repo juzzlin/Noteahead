@@ -51,6 +51,9 @@ private:
     void diskReadLoop();
 
     RingBuffer<float> m_ringBuffer {};
+    //! Conversion scratch for the int32 overload. That overload is called from the audio callback,
+    //! which must not allocate, and only from there, so a plain member buffer is enough.
+    std::vector<float> m_conversionBuffer {};
     std::thread m_diskReadThread {};
     std::atomic<bool> m_stopThread { false };
     std::mutex m_diskReadMutex {};

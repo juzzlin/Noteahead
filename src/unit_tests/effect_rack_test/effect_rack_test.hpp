@@ -32,6 +32,7 @@ private slots:
     void test_rackEnabled_shouldBypassWholeRack();
     void test_rackEnabled_serialization_shouldRoundTrip();
     void test_process_shouldProcessAudio();
+    void test_setEffect_install_shouldSyncParameters();
     void test_processInPlace_shouldApplyEffectToBuffer();
     void test_serialization_shouldSerializeAndDeserializeEffects();
     void test_enabled_flag_shouldControlProcessing();

@@ -71,7 +71,8 @@ void Limiter::updateBuffers()
             m_delayBufferL.assign(bufferSize, 0.0);
             m_delayBufferR.assign(bufferSize, 0.0);
             m_peakBuffer.assign(bufferSize, 0.0);
-            m_maxIndices.clear();
+            m_maxIndices.assign(bufferSize, 0);
+            maxIndicesClear();
             m_writePos = 0;
         }
         m_delaySamples = lookaheadSamples;
@@ -107,20 +108,20 @@ void Limiter::applyLimiter(double & left, double & right)
 
     // Maintain a sliding-window maximum of the peak over the whole lookahead buffer using a monotonic
     // decreasing deque. The slot at m_writePos currently holds the sample that is leaving the window.
-    if (!m_maxIndices.empty() && m_maxIndices.front() == m_writePos) {
-        m_maxIndices.pop_front();
+    if (!maxIndicesEmpty() && maxIndicesFront() == m_writePos) {
+        maxIndicesPopFront();
     }
-    while (!m_maxIndices.empty() && m_peakBuffer[m_maxIndices.back()] <= peak) {
-        m_maxIndices.pop_back();
+    while (!maxIndicesEmpty() && m_peakBuffer[maxIndicesBack()] <= peak) {
+        maxIndicesPopBack();
     }
     m_peakBuffer[m_writePos] = peak;
     m_delayBufferL[m_writePos] = left;
     m_delayBufferR[m_writePos] = right;
-    m_maxIndices.push_back(m_writePos);
+    maxIndicesPushBack(m_writePos);
 
     // The gain is derived from the loudest sample within the lookahead window, so full reduction is reached
     // before the peak reaches the output (instant attack); the gain only eases back up via the release.
-    const double windowMax = m_peakBuffer[m_maxIndices.front()];
+    const double windowMax = m_peakBuffer[maxIndicesFront()];
     const double targetGain = windowMax > targetLevel ? targetLevel / windowMax : 1.0;
     if (targetGain < m_envGain) {
         m_envGain = targetGain;
@@ -154,7 +155,7 @@ void Limiter::reset()
     std::fill(m_delayBufferL.begin(), m_delayBufferL.end(), 0.0);
     std::fill(m_delayBufferR.begin(), m_delayBufferR.end(), 0.0);
     std::fill(m_peakBuffer.begin(), m_peakBuffer.end(), 0.0);
-    m_maxIndices.clear();
+    maxIndicesClear();
     m_writePos = 0;
 }
 
@@ -200,6 +201,60 @@ std::string Limiter::type() const
 std::string Limiter::typeId() const
 {
     return typeIdString();
+}
+
+void Limiter::maxIndicesClear()
+{
+    m_maxHead = 0;
+    m_maxCount = 0;
+}
+
+bool Limiter::maxIndicesEmpty() const
+{
+    return !m_maxCount;
+}
+
+uint32_t Limiter::maxIndicesFront() const
+{
+    return m_maxIndices[m_maxHead];
+}
+
+uint32_t Limiter::maxIndicesBack() const
+{
+    const uint32_t capacity = static_cast<uint32_t>(m_maxIndices.size());
+    uint32_t index = m_maxHead + m_maxCount - 1;
+    if (index >= capacity) {
+        index -= capacity;
+    }
+    return m_maxIndices[index];
+}
+
+void Limiter::maxIndicesPopFront()
+{
+    m_maxHead++;
+    if (m_maxHead >= m_maxIndices.size()) {
+        m_maxHead = 0;
+    }
+    m_maxCount--;
+}
+
+void Limiter::maxIndicesPopBack()
+{
+    m_maxCount--;
+}
+
+void Limiter::maxIndicesPushBack(uint32_t value)
+{
+    const uint32_t capacity = static_cast<uint32_t>(m_maxIndices.size());
+    if (!capacity || m_maxCount >= capacity) {
+        return;
+    }
+    uint32_t index = m_maxHead + m_maxCount;
+    if (index >= capacity) {
+        index -= capacity;
+    }
+    m_maxIndices[index] = value;
+    m_maxCount++;
 }
 
 } // namespace noteahead

@@ -108,11 +108,13 @@ bool AudioFileRecorder::push(const float * data, size_t count)
 
 bool AudioFileRecorder::push(const int32_t * data, size_t count)
 {
-    std::vector<float> floatBuffer(count);
-    for (size_t i = 0; i < count; i++) {
-        floatBuffer[i] = static_cast<float>(data[i]) / 2147483647.0f;
+    if (m_conversionBuffer.size() < count) {
+        m_conversionBuffer.resize(count);
     }
-    return m_ringBuffer.push(floatBuffer.data(), count);
+    for (size_t i = 0; i < count; i++) {
+        m_conversionBuffer[i] = static_cast<float>(data[i]) / 2147483647.0f;
+    }
+    return m_ringBuffer.push(m_conversionBuffer.data(), count);
 }
 
 void AudioFileRecorder::diskWriteLoop()
