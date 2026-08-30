@@ -37,97 +37,105 @@ EffectDialog {
         radius: 2
     }
 
-    ColumnLayout {
+    ScrollView {
+        id: dialogScrollView
         anchors.fill: parent
         anchors.margins: 20
-        spacing: 20
+        clip: true
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-        GridLayout {
-            columns: 4
-            columnSpacing: 30
-            rowSpacing: 20
-            Layout.fillWidth: true
+        ColumnLayout {
+            width: dialogScrollView.availableWidth
+            spacing: 20
 
-            Knob {
-                label: qsTr("Rate")
-                suffix: "Hz"
-                mapping: "exponential"
-                mapMin: 0.1
-                mapMax: 10.0
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.chorusRateKey()) * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.chorusRateKey(), v / Constants.uiInternalScaling)
+            GridLayout {
+                columns: 4
+                columnSpacing: 30
+                rowSpacing: 20
                 Layout.fillWidth: true
+
+                Knob {
+                    label: qsTr("Rate")
+                    suffix: "Hz"
+                    mapping: "exponential"
+                    mapMin: 0.1
+                    mapMax: 10.0
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.chorusRateKey()) * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.chorusRateKey(), v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
+
+                Knob {
+                    label: qsTr("Depth")
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.chorusDepthKey()) * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.chorusDepthKey(), v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
+
+                Knob {
+                    label: qsTr("Delay")
+                    suffix: "ms"
+                    mapping: "linear"
+                    mapMin: 1.0
+                    mapMax: 50.0
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.chorusDelayKey()) * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.chorusDelayKey(), v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
+
+                Knob {
+                    label: qsTr("Width")
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.chorusWidthKey()) * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.chorusWidthKey(), v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
+
+                FilterKnob {
+                    label: qsTr("LPF")
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.chorusLpfKey()) * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.chorusLpfKey(), v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
+
+                FilterKnob {
+                    label: qsTr("HPF")
+                    isHpf: true
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.chorusHpfKey()) * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.chorusHpfKey(), v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
+
+                Knob {
+                    label: qsTr("Mix")
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.chorusMixKey()) * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.chorusMixKey(), v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
             }
 
-            Knob {
-                label: qsTr("Depth")
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.chorusDepthKey()) * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.chorusDepthKey(), v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
-            }
-
-            Knob {
-                label: qsTr("Delay")
-                suffix: "ms"
-                mapping: "linear"
-                mapMin: 1.0
-                mapMax: 50.0
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.chorusDelayKey()) * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.chorusDelayKey(), v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
-            }
-
-            Knob {
-                label: qsTr("Width")
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.chorusWidthKey()) * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.chorusWidthKey(), v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
-            }
-
-            FilterKnob {
-                label: qsTr("LPF")
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.chorusLpfKey()) * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.chorusLpfKey(), v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
-            }
-
-            FilterKnob {
-                label: qsTr("HPF")
-                isHpf: true
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.chorusHpfKey()) * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.chorusHpfKey(), v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
-            }
-
-            Knob {
-                label: qsTr("Mix")
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.chorusMixKey()) * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.chorusMixKey(), v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
-            }
+            Item { Layout.fillHeight: true }
         }
-
-        Item { Layout.fillHeight: true }
     }
 }

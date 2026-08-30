@@ -37,86 +37,94 @@ EffectDialog {
         radius: 2
     }
 
-    ColumnLayout {
+    ScrollView {
+        id: dialogScrollView
         anchors.fill: parent
         anchors.margins: 20
-        spacing: 20
+        clip: true
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-        RowLayout {
+        ColumnLayout {
+            width: dialogScrollView.availableWidth
             spacing: 20
-            Layout.fillWidth: true
 
-            Label {
-                text: qsTr("Algorithm")
-                font.bold: true
-            }
-
-            ComboBox {
-                model: [qsTr("Soft"), qsTr("Hard"), qsTr("Fold"), qsTr("Dist")]
-                currentIndex: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.driveModeKey());
-                }
-                onActivated: i => effectRackController.setParameterValue(root.effectIndex, effectRackController.driveModeKey(), i)
+            RowLayout {
+                spacing: 20
                 Layout.fillWidth: true
-            }
-        }
 
-        GridLayout {
-            columns: 2
-            columnSpacing: 30
-            rowSpacing: 20
-            Layout.fillWidth: true
-            Layout.alignment: Qt.AlignTop
-
-            Knob {
-                Layout.row: 0
-                Layout.column: 0
-                label: qsTr("Drive")
-                suffix: "dB"
-                from: 0
-                to: 40
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.driveAmountKey()) * 40;
+                Label {
+                    text: qsTr("Algorithm")
+                    font.bold: true
                 }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.driveAmountKey(), v / 40)
-                Layout.fillWidth: true
-            }
 
-            Knob {
-                Layout.row: 0
-                Layout.column: 1
-                label: qsTr("Mix")
-                suffix: "%"
-                from: 0
-                to: 100
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.driveMixKey()) * 100;
+                ComboBox {
+                    model: [qsTr("Soft"), qsTr("Hard"), qsTr("Fold"), qsTr("Dist")]
+                    currentIndex: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.driveModeKey());
+                    }
+                    onActivated: i => effectRackController.setParameterValue(root.effectIndex, effectRackController.driveModeKey(), i)
+                    Layout.fillWidth: true
                 }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.driveMixKey(), v / 100)
-                Layout.fillWidth: true
             }
 
-            Knob {
-                Layout.row: 1
-                Layout.column: 0
-                label: qsTr("Output")
-                suffix: "dB"
-                from: -12
-                to: 12
-                value: {
-                    effectRackController.revision;
-                    return -12 + effectRackController.parameterValue(root.effectIndex, effectRackController.driveGainKey()) * 24;
+            GridLayout {
+                columns: 2
+                columnSpacing: 30
+                rowSpacing: 20
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignTop
+
+                Knob {
+                    Layout.row: 0
+                    Layout.column: 0
+                    label: qsTr("Drive")
+                    suffix: "dB"
+                    from: 0
+                    to: 40
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.driveAmountKey()) * 40;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.driveAmountKey(), v / 40)
+                    Layout.fillWidth: true
                 }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.driveGainKey(), (v + 12) / 24)
-                Layout.fillWidth: true
-            }
-        }
 
-        Item {
-            Layout.fillHeight: true
+                Knob {
+                    Layout.row: 0
+                    Layout.column: 1
+                    label: qsTr("Mix")
+                    suffix: "%"
+                    from: 0
+                    to: 100
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.driveMixKey()) * 100;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.driveMixKey(), v / 100)
+                    Layout.fillWidth: true
+                }
+
+                Knob {
+                    Layout.row: 1
+                    Layout.column: 0
+                    label: qsTr("Output")
+                    suffix: "dB"
+                    from: -12
+                    to: 12
+                    value: {
+                        effectRackController.revision;
+                        return -12 + effectRackController.parameterValue(root.effectIndex, effectRackController.driveGainKey()) * 24;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.driveGainKey(), (v + 12) / 24)
+                    Layout.fillWidth: true
+                }
+            }
+
+            Item {
+                Layout.fillHeight: true
+            }
         }
     }
 }

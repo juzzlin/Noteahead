@@ -37,149 +37,157 @@ EffectDialog {
         radius: 2
     }
 
-    ColumnLayout {
+    ScrollView {
+        id: dialogScrollView
         anchors.fill: parent
         anchors.margins: 20
-        spacing: 16
+        clip: true
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-        GridLayout {
-            columns: 4
-            columnSpacing: 24
-            rowSpacing: 20
-            Layout.fillWidth: true
+        ColumnLayout {
+            width: dialogScrollView.availableWidth
+            spacing: 16
 
-            Knob {
-                label: qsTr("Size")
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessSizeKey()) * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessSizeKey(), v / Constants.uiInternalScaling)
+            GridLayout {
+                columns: 4
+                columnSpacing: 24
+                rowSpacing: 20
                 Layout.fillWidth: true
-            }
 
-            Knob {
-                label: qsTr("Feedback")
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessFeedbackKey()) * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessFeedbackKey(), v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
-            }
-
-            Knob {
-                label: qsTr("Pre-Delay")
-                suffix: "ms"
-                from: 0
-                to: 500
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessPreDelayKey()) * 500;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessPreDelayKey(), v / 500)
-                Layout.fillWidth: true
-            }
-
-            Knob {
-                label: qsTr("Damping")
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessDampingKey()) * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessDampingKey(), v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
-            }
-
-            Knob {
-                label: qsTr("Mod Depth")
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessModDepthKey()) * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessModDepthKey(), v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
-            }
-
-            Knob {
-                label: qsTr("Mod Rate")
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessModRateKey()) * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessModRateKey(), v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
-            }
-
-            Knob {
-                label: qsTr("Width")
-                mapping: "value"
-                from: 0
-                to: 200
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessWidthKey()) * 200;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessWidthKey(), v / 200)
-                Layout.fillWidth: true
-            }
-
-            Knob {
-                label: qsTr("Mix")
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessMixKey()) * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessMixKey(), v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
-            }
-
-            FilterKnob {
-                label: qsTr("LPF")
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessLpfCutoffKey()) * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessLpfCutoffKey(), v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
-            }
-
-            FilterKnob {
-                label: qsTr("HPF")
-                isHpf: true
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessHpfCutoffKey()) * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessHpfCutoffKey(), v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
-            }
-
-            RowLayout {
-                Layout.columnSpan: 2
-                Layout.fillWidth: true
-                spacing: 10
-                Label {
-                    text: qsTr("Freeze")
-                    font.bold: true
-                }
-                Switch {
-                    checked: {
+                Knob {
+                    label: qsTr("Size")
+                    value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessFreezeKey()) > 0.5;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessSizeKey()) * Constants.uiInternalScaling;
                     }
-                    onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessFreezeKey(), checked ? 1 : 0)
-                }
-                Label {
-                    text: qsTr("Sustain the tail infinitely")
-                    color: "#aaa"
-                    font.italic: true
-                    font.pointSize: 10
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessSizeKey(), v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
-            }
-        }
 
-        Item { Layout.fillHeight: true }
+                Knob {
+                    label: qsTr("Feedback")
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessFeedbackKey()) * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessFeedbackKey(), v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
+
+                Knob {
+                    label: qsTr("Pre-Delay")
+                    suffix: "ms"
+                    from: 0
+                    to: 500
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessPreDelayKey()) * 500;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessPreDelayKey(), v / 500)
+                    Layout.fillWidth: true
+                }
+
+                Knob {
+                    label: qsTr("Damping")
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessDampingKey()) * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessDampingKey(), v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
+
+                Knob {
+                    label: qsTr("Mod Depth")
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessModDepthKey()) * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessModDepthKey(), v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
+
+                Knob {
+                    label: qsTr("Mod Rate")
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessModRateKey()) * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessModRateKey(), v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
+
+                Knob {
+                    label: qsTr("Width")
+                    mapping: "value"
+                    from: 0
+                    to: 200
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessWidthKey()) * 200;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessWidthKey(), v / 200)
+                    Layout.fillWidth: true
+                }
+
+                Knob {
+                    label: qsTr("Mix")
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessMixKey()) * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessMixKey(), v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
+
+                FilterKnob {
+                    label: qsTr("LPF")
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessLpfCutoffKey()) * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessLpfCutoffKey(), v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
+
+                FilterKnob {
+                    label: qsTr("HPF")
+                    isHpf: true
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessHpfCutoffKey()) * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessHpfCutoffKey(), v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
+
+                RowLayout {
+                    Layout.columnSpan: 2
+                    Layout.fillWidth: true
+                    spacing: 10
+                    Label {
+                        text: qsTr("Freeze")
+                        font.bold: true
+                    }
+                    Switch {
+                        checked: {
+                            effectRackController.revision;
+                            return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessFreezeKey()) > 0.5;
+                        }
+                        onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessFreezeKey(), checked ? 1 : 0)
+                    }
+                    Label {
+                        text: qsTr("Sustain the tail infinitely")
+                        color: "#aaa"
+                        font.italic: true
+                        font.pointSize: 10
+                        Layout.fillWidth: true
+                    }
+                }
+            }
+
+            Item { Layout.fillHeight: true }
+        }
     }
 }

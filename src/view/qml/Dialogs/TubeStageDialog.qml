@@ -37,181 +37,187 @@ EffectDialog {
         radius: 2
     }
 
-    ColumnLayout {
+    ScrollView {
+        id: dialogScrollView
         anchors.fill: parent
-        anchors.margins: 20
-        spacing: 20
+        anchors.margins: 2
+        clip: true
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-        RowLayout {
+        ColumnLayout {
+            width: dialogScrollView.availableWidth
             spacing: 20
-            Layout.fillWidth: true
-            Layout.fillHeight: true
 
-            ColumnLayout {
+            RowLayout {
                 spacing: 20
                 Layout.fillWidth: true
-                Layout.alignment: Qt.AlignTop
+                Layout.fillHeight: true
 
-                RowLayout {
+                ColumnLayout {
                     spacing: 20
                     Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignTop
+
+                    RowLayout {
+                        spacing: 20
+                        Layout.fillWidth: true
+
+                        Label {
+                            text: qsTr("Valve")
+                            font.bold: true
+                        }
+
+                        ComboBox {
+                            model: [qsTr("Triode"), qsTr("Pentode")]
+                            currentIndex: {
+                                effectRackController.revision;
+                                return effectRackController.parameterValue(root.effectIndex, effectRackController.tubeStageModeKey());
+                            }
+                            onActivated: i => effectRackController.setParameterValue(root.effectIndex, effectRackController.tubeStageModeKey(), i)
+                            Layout.fillWidth: true
+                        }
+                    }
+
+                    GridLayout {
+                        columns: 2
+                        columnSpacing: 30
+                        rowSpacing: 20
+                        Layout.fillWidth: true
+
+                        Knob {
+                            Layout.row: 0
+                            Layout.column: 0
+                            label: qsTr("Drive")
+                            suffix: "dB"
+                            from: 0
+                            to: 48
+                            value: {
+                                effectRackController.revision;
+                                return effectRackController.parameterValue(root.effectIndex, effectRackController.tubeStageDriveKey()) * 48;
+                            }
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.tubeStageDriveKey(), v / 48)
+                            Layout.fillWidth: true
+                        }
+
+                        Knob {
+                            Layout.row: 0
+                            Layout.column: 1
+                            label: qsTr("Bias")
+                            suffix: "%"
+                            from: 0
+                            to: 100
+                            value: {
+                                effectRackController.revision;
+                                return effectRackController.parameterValue(root.effectIndex, effectRackController.tubeStageBiasKey()) * 100;
+                            }
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.tubeStageBiasKey(), v / 100)
+                            Layout.fillWidth: true
+                        }
+
+                        Knob {
+                            Layout.row: 1
+                            Layout.column: 0
+                            label: qsTr("Tone")
+                            suffix: "%"
+                            from: 0
+                            to: 100
+                            value: {
+                                effectRackController.revision;
+                                return effectRackController.parameterValue(root.effectIndex, effectRackController.tubeStageToneKey()) * 100;
+                            }
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.tubeStageToneKey(), v / 100)
+                            Layout.fillWidth: true
+                        }
+
+                        Knob {
+                            Layout.row: 1
+                            Layout.column: 1
+                            label: qsTr("Mix")
+                            suffix: "%"
+                            from: 0
+                            to: 100
+                            value: {
+                                effectRackController.revision;
+                                return effectRackController.parameterValue(root.effectIndex, effectRackController.tubeStageMixKey()) * 100;
+                            }
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.tubeStageMixKey(), v / 100)
+                            Layout.fillWidth: true
+                        }
+
+                        Knob {
+                            Layout.row: 2
+                            Layout.column: 0
+                            label: qsTr("Output")
+                            suffix: "dB"
+                            from: -12
+                            to: 12
+                            value: {
+                                effectRackController.revision;
+                                return -12 + effectRackController.parameterValue(root.effectIndex, effectRackController.tubeStageGainKey()) * 24;
+                            }
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.tubeStageGainKey(), (v + 12) / 24)
+                            Layout.fillWidth: true
+                        }
+                    }
 
                     Label {
-                        text: qsTr("Valve")
+                        text: qsTr("Bias sets where the valve idles on its curve. Away from centre the two halves of the waveform are shaped differently, which is what generates the even harmonics a valve is wanted for.")
+                        font.pixelSize: 11
+                        color: "#999"
+                        wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
+                        // Wrapping text must not drive the column's width, or the dialog reflows.
+                        Layout.preferredWidth: 0
+                    }
+                }
+
+                // Saturation meter
+                ColumnLayout {
+                    spacing: 5
+                    Layout.alignment: Qt.AlignTop
+                    Label {
+                        text: qsTr("Saturation")
                         font.bold: true
+                        Layout.alignment: Qt.AlignHCenter
                     }
-
-                    ComboBox {
-                        model: [qsTr("Triode"), qsTr("Pentode")]
-                        currentIndex: {
-                            effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.tubeStageModeKey());
-                        }
-                        onActivated: i => effectRackController.setParameterValue(root.effectIndex, effectRackController.tubeStageModeKey(), i)
-                        Layout.fillWidth: true
-                    }
-                }
-
-                GridLayout {
-                    columns: 2
-                    columnSpacing: 30
-                    rowSpacing: 20
-                    Layout.fillWidth: true
-
-                    Knob {
-                        Layout.row: 0
-                        Layout.column: 0
-                        label: qsTr("Drive")
-                        suffix: "dB"
-                        from: 0
-                        to: 48
-                        value: {
-                            effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.tubeStageDriveKey()) * 48;
-                        }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.tubeStageDriveKey(), v / 48)
-                        Layout.fillWidth: true
-                    }
-
-                    Knob {
-                        Layout.row: 0
-                        Layout.column: 1
-                        label: qsTr("Bias")
-                        suffix: "%"
-                        from: 0
-                        to: 100
-                        value: {
-                            effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.tubeStageBiasKey()) * 100;
-                        }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.tubeStageBiasKey(), v / 100)
-                        Layout.fillWidth: true
-                    }
-
-                    Knob {
-                        Layout.row: 1
-                        Layout.column: 0
-                        label: qsTr("Tone")
-                        suffix: "%"
-                        from: 0
-                        to: 100
-                        value: {
-                            effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.tubeStageToneKey()) * 100;
-                        }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.tubeStageToneKey(), v / 100)
-                        Layout.fillWidth: true
-                    }
-
-                    Knob {
-                        Layout.row: 1
-                        Layout.column: 1
-                        label: qsTr("Mix")
-                        suffix: "%"
-                        from: 0
-                        to: 100
-                        value: {
-                            effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.tubeStageMixKey()) * 100;
-                        }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.tubeStageMixKey(), v / 100)
-                        Layout.fillWidth: true
-                    }
-
-                    Knob {
-                        Layout.row: 2
-                        Layout.column: 0
-                        label: qsTr("Output")
-                        suffix: "dB"
-                        from: -12
-                        to: 12
-                        value: {
-                            effectRackController.revision;
-                            return -12 + effectRackController.parameterValue(root.effectIndex, effectRackController.tubeStageGainKey()) * 24;
-                        }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.tubeStageGainKey(), (v + 12) / 24)
-                        Layout.fillWidth: true
-                    }
-                }
-
-                Label {
-                    text: qsTr("Bias sets where the valve idles on its curve. Away from centre the two halves of the waveform are shaped differently, which is what generates the even harmonics a valve is wanted for.")
-                    font.pixelSize: 11
-                    color: "#999"
-                    wrapMode: Text.WordWrap
-                    Layout.fillWidth: true
-                    // Wrapping text must not drive the column's width, or the dialog reflows.
-                    Layout.preferredWidth: 0
-                }
-            }
-
-            // Saturation meter
-            ColumnLayout {
-                spacing: 5
-                Layout.alignment: Qt.AlignTop
-                Label {
-                    text: qsTr("Saturation")
-                    font.bold: true
-                    Layout.alignment: Qt.AlignHCenter
-                }
-                Rectangle {
-                    width: 30
-                    height: 200
-                    color: "#111"
-                    border.color: "#333"
-                    Layout.alignment: Qt.AlignHCenter
-
                     Rectangle {
-                        anchors.top: parent.top
-                        anchors.topMargin: 2
-                        width: parent.width - 4
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        height: Math.min(parent.height - 4, (Math.abs(root.currentSaturationDb) / 30.0) * (parent.height - 4))
-                        color: themeService.accentColor
-                    }
+                        width: 30
+                        height: 200
+                        color: "#111"
+                        border.color: "#333"
+                        Layout.alignment: Qt.AlignHCenter
 
-                    // Tick marks
-                    Item {
-                        anchors.fill: parent
-                        anchors.margins: 2
-                        Repeater {
-                            model: 7 // 0, -5, -10, -15, -20, -25, -30
-                            Rectangle {
-                                width: parent.width
-                                height: 1
-                                color: "#555"
-                                opacity: 0.5
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                y: (index / 6) * parent.height
+                        Rectangle {
+                            anchors.top: parent.top
+                            anchors.topMargin: 2
+                            width: parent.width - 4
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            height: Math.min(parent.height - 4, (Math.abs(root.currentSaturationDb) / 30.0) * (parent.height - 4))
+                            color: themeService.accentColor
+                        }
+
+                        // Tick marks
+                        Item {
+                            Repeater {
+                                model: 7 // 0, -5, -10, -15, -20, -25, -30
+                                Rectangle {
+                                    width: parent.width
+                                    height: 1
+                                    color: "#555"
+                                    opacity: 0.5
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    y: (index / 6) * parent.height
+                                }
                             }
                         }
                     }
-                }
-                Label {
-                    text: root.currentSaturationDb.toFixed(1) + " dB"
-                    color: themeService.accentColor
-                    font.family: "Monospace"
-                    Layout.alignment: Qt.AlignHCenter
+                    Label {
+                        text: root.currentSaturationDb.toFixed(1) + " dB"
+                        color: themeService.accentColor
+                        font.family: "Monospace"
+                        Layout.alignment: Qt.AlignHCenter
+                    }
                 }
             }
         }

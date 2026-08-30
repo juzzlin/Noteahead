@@ -35,104 +35,112 @@ EffectDialog {
         radius: 2
     }
 
-    RowLayout {
+    ScrollView {
+        id: dialogScrollView
         anchors.fill: parent
         anchors.margins: 20
-        spacing: 30
+        clip: true
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-        // The air band is a boost-only tap summed alongside the band passes, so raising it lifts the
-        // overall level as well. That interaction is intentional; the Output trim below offsets it.
-        ColumnLayout {
-            Layout.alignment: Qt.AlignTop
-            spacing: 15
+        RowLayout {
+            width: dialogScrollView.availableWidth
+            spacing: 30
 
-            Label {
-                text: "<strong>" + qsTr("Air Band") + "</strong>"
-                font.pointSize: 12
-                color: themeService.accentColor
-                Layout.alignment: Qt.AlignHCenter
-            }
-
-            LabeledCombo {
-                label: qsTr("Freq")
-                model: [qsTr("Off"), "2.5 kHz", "5 kHz", "10 kHz", "20 kHz", "40 kHz"]
-                paramKey: effectRackController.airBandEqAirFreqKey()
-            }
-
-            Knob {
-                label: qsTr("Air Gain")
-                suffix: ""
-                isInteger: false
-                from: 0
-                to: 5
-                Layout.fillWidth: true
-                Layout.minimumWidth: 120
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.airBandEqAirGainKey()) * 5;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.airBandEqAirGainKey(), v / 5)
-            }
-        }
-
-        Rectangle {
-            Layout.fillHeight: true
-            Layout.preferredWidth: 1
-            color: "#333"
-        }
-
-        // The five band passes are summed in parallel with the dry signal, so they interact: pulling
-        // them all down by the same amount lowers the whole curve without changing its shape.
-        ColumnLayout {
-            Layout.alignment: Qt.AlignTop
-            Layout.fillWidth: true
-            spacing: 15
-
-            Label {
-                text: "<strong>" + qsTr("Band Passes") + "</strong>"
-                font.pointSize: 12
-                color: themeService.accentColor
-                Layout.alignment: Qt.AlignHCenter
-            }
-
-            RowLayout {
+            // The air band is a boost-only tap summed alongside the band passes, so raising it lifts the
+            // overall level as well. That interaction is intentional; the Output trim below offsets it.
+            ColumnLayout {
+                Layout.alignment: Qt.AlignTop
                 spacing: 15
-                Layout.fillWidth: true
 
-                BandKnob {
-                    label: qsTr("Sub")
-                    bandIndex: 0
+                Label {
+                    text: "<strong>" + qsTr("Air Band") + "</strong>"
+                    font.pointSize: 12
+                    color: themeService.accentColor
+                    Layout.alignment: Qt.AlignHCenter
                 }
-                BandKnob {
-                    label: "40 Hz"
-                    bandIndex: 1
+
+                LabeledCombo {
+                    label: qsTr("Freq")
+                    model: [qsTr("Off"), "2.5 kHz", "5 kHz", "10 kHz", "20 kHz", "40 kHz"]
+                    paramKey: effectRackController.airBandEqAirFreqKey()
                 }
-                BandKnob {
-                    label: "160 Hz"
-                    bandIndex: 2
-                }
-                BandKnob {
-                    label: "650 Hz"
-                    bandIndex: 3
-                }
-                BandKnob {
-                    label: "2.5 kHz"
-                    bandIndex: 4
+
+                Knob {
+                    label: qsTr("Air Gain")
+                    suffix: ""
+                    isInteger: false
+                    from: 0
+                    to: 5
+                    Layout.fillWidth: true
+                    Layout.minimumWidth: 120
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.airBandEqAirGainKey()) * 5;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.airBandEqAirGainKey(), v / 5)
                 }
             }
 
-            Knob {
-                label: qsTr("Output")
-                suffix: "dB"
-                isInteger: false
-                from: -12
-                to: 12
+            Rectangle {
+                Layout.fillHeight: true
+                Layout.preferredWidth: 1
+                color: "#333"
+            }
+
+            // The five band passes are summed in parallel with the dry signal, so they interact: pulling
+            // them all down by the same amount lowers the whole curve without changing its shape.
+            ColumnLayout {
+                Layout.alignment: Qt.AlignTop
                 Layout.fillWidth: true
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.airBandEqOutputGainKey()) * 24 - 12;
+                spacing: 15
+
+                Label {
+                    text: "<strong>" + qsTr("Band Passes") + "</strong>"
+                    font.pointSize: 12
+                    color: themeService.accentColor
+                    Layout.alignment: Qt.AlignHCenter
                 }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.airBandEqOutputGainKey(), (v + 12) / 24)
+
+                RowLayout {
+                    spacing: 15
+                    Layout.fillWidth: true
+
+                    BandKnob {
+                        label: qsTr("Sub")
+                        bandIndex: 0
+                    }
+                    BandKnob {
+                        label: "40 Hz"
+                        bandIndex: 1
+                    }
+                    BandKnob {
+                        label: "160 Hz"
+                        bandIndex: 2
+                    }
+                    BandKnob {
+                        label: "650 Hz"
+                        bandIndex: 3
+                    }
+                    BandKnob {
+                        label: "2.5 kHz"
+                        bandIndex: 4
+                    }
+                }
+
+                Knob {
+                    label: qsTr("Output")
+                    suffix: "dB"
+                    isInteger: false
+                    from: -12
+                    to: 12
+                    Layout.fillWidth: true
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.airBandEqOutputGainKey()) * 24 - 12;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.airBandEqOutputGainKey(), (v + 12) / 24)
+                }
             }
         }
     }

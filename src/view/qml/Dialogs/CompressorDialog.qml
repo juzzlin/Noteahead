@@ -25,8 +25,8 @@ EffectDialog {
     title: "<strong>" + qsTr("Compressor Parameters (Slot %1)").arg(effectIndex + 1) + "</strong>"
     modal: true
     focus: true
-    width: parent ? parent.width * Constants.largeDialogScale : 650
-    height: parent ? parent.height * Constants.largeDialogScale : 550
+    width: 650
+    height: 550
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor

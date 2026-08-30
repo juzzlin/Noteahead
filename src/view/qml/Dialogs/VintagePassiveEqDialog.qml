@@ -35,133 +35,141 @@ EffectDialog {
         radius: 2
     }
 
-    RowLayout {
+    ScrollView {
+        id: dialogScrollView
         anchors.fill: parent
         anchors.margins: 20
-        spacing: 30
+        clip: true
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-        // Low-frequency section: shared frequency selector with independent boost and attenuation.
-        ColumnLayout {
-            Layout.alignment: Qt.AlignTop
-            Layout.fillWidth: true
-            spacing: 15
+        RowLayout {
+            width: dialogScrollView.availableWidth
+            spacing: 30
 
-            Label {
-                text: "<strong>" + qsTr("Low Frequency") + "</strong>"
-                font.pointSize: 12
-                color: themeService.accentColor
-                Layout.alignment: Qt.AlignHCenter
-            }
-
-            LabeledCombo {
-                label: qsTr("Freq")
-                model: ["20 Hz", "30 Hz", "60 Hz", "100 Hz"]
-                paramKey: effectRackController.vintagePassiveEqLowFreqKey()
-            }
-
-            RowLayout {
+            // Low-frequency section: shared frequency selector with independent boost and attenuation.
+            ColumnLayout {
+                Layout.alignment: Qt.AlignTop
+                Layout.fillWidth: true
                 spacing: 15
-                Layout.alignment: Qt.AlignHCenter
 
-                Knob {
-                    label: qsTr("Boost")
-                    suffix: "dB"
-                    from: 0
-                    to: 14
-                    value: {
-                        effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.vintagePassiveEqLowBoostKey()) * 14;
-                    }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.vintagePassiveEqLowBoostKey(), v / 14)
+                Label {
+                    text: "<strong>" + qsTr("Low Frequency") + "</strong>"
+                    font.pointSize: 12
+                    color: themeService.accentColor
+                    Layout.alignment: Qt.AlignHCenter
                 }
+
+                LabeledCombo {
+                    label: qsTr("Freq")
+                    model: ["20 Hz", "30 Hz", "60 Hz", "100 Hz"]
+                    paramKey: effectRackController.vintagePassiveEqLowFreqKey()
+                }
+
+                RowLayout {
+                    spacing: 15
+                    Layout.alignment: Qt.AlignHCenter
+
+                    Knob {
+                        label: qsTr("Boost")
+                        suffix: "dB"
+                        from: 0
+                        to: 14
+                        value: {
+                            effectRackController.revision;
+                            return effectRackController.parameterValue(root.effectIndex, effectRackController.vintagePassiveEqLowBoostKey()) * 14;
+                        }
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.vintagePassiveEqLowBoostKey(), v / 14)
+                    }
+                    Knob {
+                        label: qsTr("Atten")
+                        suffix: "dB"
+                        from: 0
+                        to: 14
+                        value: {
+                            effectRackController.revision;
+                            return effectRackController.parameterValue(root.effectIndex, effectRackController.vintagePassiveEqLowAttenKey()) * 14;
+                        }
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.vintagePassiveEqLowAttenKey(), v / 14)
+                    }
+                }
+            }
+
+            Rectangle {
+                Layout.fillHeight: true
+                Layout.preferredWidth: 1
+                color: "#333"
+            }
+
+            // High-frequency section: a bell boost with a bandwidth control plus a separate shelf attenuator.
+            ColumnLayout {
+                Layout.alignment: Qt.AlignTop
+                Layout.fillWidth: true
+                spacing: 15
+
+                Label {
+                    text: "<strong>" + qsTr("High Frequency") + "</strong>"
+                    font.pointSize: 12
+                    color: themeService.accentColor
+                    Layout.alignment: Qt.AlignHCenter
+                }
+
+                LabeledCombo {
+                    label: qsTr("Boost Freq")
+                    model: ["3 kHz", "4 kHz", "5 kHz", "8 kHz", "10 kHz", "12 kHz", "16 kHz"]
+                    paramKey: effectRackController.vintagePassiveEqHighBoostFreqKey()
+                }
+
+                RowLayout {
+                    spacing: 15
+                    Layout.alignment: Qt.AlignHCenter
+
+                    Knob {
+                        label: qsTr("Boost")
+                        suffix: "dB"
+                        from: 0
+                        to: 18
+                        value: {
+                            effectRackController.revision;
+                            return effectRackController.parameterValue(root.effectIndex, effectRackController.vintagePassiveEqHighBoostKey()) * 18;
+                        }
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.vintagePassiveEqHighBoostKey(), v / 18)
+                    }
+                    Knob {
+                        label: qsTr("Bandwidth")
+                        suffix: "Q"
+                        mapping: "exponential"
+                        isInteger: false
+                        mapMin: 0.3
+                        mapMax: 3.0
+                        from: 0
+                        to: 1000
+                        value: {
+                            effectRackController.revision;
+                            return effectRackController.parameterValue(root.effectIndex, effectRackController.vintagePassiveEqBandwidthKey()) * 1000;
+                        }
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.vintagePassiveEqBandwidthKey(), v / 1000)
+                    }
+                }
+
+                LabeledCombo {
+                    label: qsTr("Atten Freq")
+                    model: ["5 kHz", "10 kHz", "20 kHz"]
+                    paramKey: effectRackController.vintagePassiveEqHighAttenFreqKey()
+                }
+
                 Knob {
                     label: qsTr("Atten")
                     suffix: "dB"
                     from: 0
-                    to: 14
-                    value: {
-                        effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.vintagePassiveEqLowAttenKey()) * 14;
-                    }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.vintagePassiveEqLowAttenKey(), v / 14)
-                }
-            }
-        }
-
-        Rectangle {
-            Layout.fillHeight: true
-            Layout.preferredWidth: 1
-            color: "#333"
-        }
-
-        // High-frequency section: a bell boost with a bandwidth control plus a separate shelf attenuator.
-        ColumnLayout {
-            Layout.alignment: Qt.AlignTop
-            Layout.fillWidth: true
-            spacing: 15
-
-            Label {
-                text: "<strong>" + qsTr("High Frequency") + "</strong>"
-                font.pointSize: 12
-                color: themeService.accentColor
-                Layout.alignment: Qt.AlignHCenter
-            }
-
-            LabeledCombo {
-                label: qsTr("Boost Freq")
-                model: ["3 kHz", "4 kHz", "5 kHz", "8 kHz", "10 kHz", "12 kHz", "16 kHz"]
-                paramKey: effectRackController.vintagePassiveEqHighBoostFreqKey()
-            }
-
-            RowLayout {
-                spacing: 15
-                Layout.alignment: Qt.AlignHCenter
-
-                Knob {
-                    label: qsTr("Boost")
-                    suffix: "dB"
-                    from: 0
                     to: 18
+                    Layout.alignment: Qt.AlignHCenter
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.vintagePassiveEqHighBoostKey()) * 18;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.vintagePassiveEqHighAttenKey()) * 18;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.vintagePassiveEqHighBoostKey(), v / 18)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.vintagePassiveEqHighAttenKey(), v / 18)
                 }
-                Knob {
-                    label: qsTr("Bandwidth")
-                    suffix: "Q"
-                    mapping: "exponential"
-                    isInteger: false
-                    mapMin: 0.3
-                    mapMax: 3.0
-                    from: 0
-                    to: 1000
-                    value: {
-                        effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, effectRackController.vintagePassiveEqBandwidthKey()) * 1000;
-                    }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.vintagePassiveEqBandwidthKey(), v / 1000)
-                }
-            }
-
-            LabeledCombo {
-                label: qsTr("Atten Freq")
-                model: ["5 kHz", "10 kHz", "20 kHz"]
-                paramKey: effectRackController.vintagePassiveEqHighAttenFreqKey()
-            }
-
-            Knob {
-                label: qsTr("Atten")
-                suffix: "dB"
-                from: 0
-                to: 18
-                Layout.alignment: Qt.AlignHCenter
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.vintagePassiveEqHighAttenKey()) * 18;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.vintagePassiveEqHighAttenKey(), v / 18)
             }
         }
     }

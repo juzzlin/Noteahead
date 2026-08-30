@@ -426,26 +426,26 @@ ApplicationWindow {
     ReverbDialog {
         id: reverbDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.effectDialogScale
-        height: parent.height * Constants.effectDialogScale
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
     }
     EndlessReverbDialog {
         id: endlessReverbDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.effectDialogScale
-        height: parent.height * Constants.effectDialogScale
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
     }
     RtaDialog {
         id: rtaDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.largeDialogScale
-        height: parent.height * Constants.largeDialogScale
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
     }
     ChorusDialog {
         id: chorusDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.effectDialogScale
-        height: parent.height * Constants.effectDialogScale
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
     }
     PannerDialog {
         id: pannerDialog
@@ -456,14 +456,14 @@ ApplicationWindow {
     AutoPannerDialog {
         id: autoPannerDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.effectDialogScale
-        height: parent.height * Constants.effectDialogScale
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
     }
     PhaserDialog {
         id: phaserDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.effectDialogScale
-        height: parent.height * Constants.effectDialogScale
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
     }
     AutoFilterDialog {
         id: autoFilterDialog
@@ -476,8 +476,8 @@ ApplicationWindow {
     AllPassFilterDialog {
         id: allPassFilterDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.effectDialogScale
-        height: parent.height * Constants.effectDialogScale
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
     }
     LufsMeterDialog {
         id: lufsMeterDialog
@@ -494,8 +494,8 @@ ApplicationWindow {
     CompressorDialog {
         id: compressorDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.effectDialogScale
-        height: parent.height * Constants.effectDialogScale
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
     }
     MultibandCompressorDialog {
         id: multibandCompressorDialog
@@ -506,14 +506,14 @@ ApplicationWindow {
     AutoDuckerDialog {
         id: autoDuckerDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.effectDialogScale
-        height: parent.height * Constants.effectDialogScale
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
     }
     DelayDialog {
         id: delayDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.effectDialogScale
-        height: parent.height * Constants.effectDialogScale
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
     }
     ClipperDialog {
         id: clipperDialog
@@ -542,20 +542,20 @@ ApplicationWindow {
     BassGrinderDialog {
         id: bassGrinderDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.effectDialogScale
-        height: parent.height * Constants.effectDialogScale
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
     }
     TubeStageDialog {
         id: tubeStageDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.effectDialogScale
-        height: parent.height * Constants.effectDialogScale
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
     }
     StereoEnhancerDialog {
         id: stereoEnhancerDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.effectDialogScale
-        height: parent.height * Constants.effectDialogScale
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
     }
     EarlyReflectionsDialog {
         id: earlyReflectionsDialog
@@ -584,20 +584,20 @@ ApplicationWindow {
     StereoExciterDialog {
         id: stereoExciterDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.effectDialogScale
-        height: parent.height * Constants.effectDialogScale
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
     }
     WaveDesignerDialog {
         id: waveDesignerDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.effectDialogScale
-        height: parent.height * Constants.effectDialogScale
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
     }
     DriveDialog {
         id: driveDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.effectDialogScale
-        height: parent.height * Constants.effectDialogScale
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
     }
     LimiterDialog {
         id: limiterDialog

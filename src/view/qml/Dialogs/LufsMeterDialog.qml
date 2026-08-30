@@ -75,110 +75,117 @@ EffectDialog {
         }
     }
 
-    ColumnLayout {
+    ScrollView {
+        id: dialogScrollView
         anchors.fill: parent
         anchors.margins: 20
-        spacing: 16
+        clip: true
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-        RowLayout {
-            spacing: 20
-            Layout.alignment: Qt.AlignHCenter
+        ColumnLayout {
+            width: dialogScrollView.availableWidth
+            spacing: 16
 
-            Repeater {
-                model: root.meters
+            RowLayout {
+                spacing: 20
+                Layout.alignment: Qt.AlignHCenter
 
-                ColumnLayout {
-                    // Bound rather than read once, so the bar follows the poll timer below.
-                    readonly property real value: root.meterValue(index)
-                    spacing: 6
-                    Layout.alignment: Qt.AlignTop
+                Repeater {
+                    model: root.meters
 
-                    Label {
-                        text: modelData.caption
-                        font.bold: true
-                        font.pointSize: 11
-                        Layout.alignment: Qt.AlignHCenter
-                    }
-                    Label {
-                        text: modelData.window
-                        color: "#888"
-                        font.pointSize: 8
-                        Layout.alignment: Qt.AlignHCenter
-                    }
+                    ColumnLayout {
+                        // Bound rather than read once, so the bar follows the poll timer below.
+                        readonly property real value: root.meterValue(index)
+                        spacing: 6
+                        Layout.alignment: Qt.AlignTop
 
-                    Rectangle {
-                        width: 50
-                        height: 280
-                        color: "#111"
-                        border.color: "#333"
-                        Layout.alignment: Qt.AlignHCenter
+                        Label {
+                            text: modelData.caption
+                            font.bold: true
+                            font.pointSize: 11
+                            Layout.alignment: Qt.AlignHCenter
+                        }
+                        Label {
+                            text: modelData.window
+                            color: "#888"
+                            font.pointSize: 8
+                            Layout.alignment: Qt.AlignHCenter
+                        }
 
-                        // Scale tick marks and labels
-                        Item {
-                            anchors.fill: parent
-                            Repeater {
-                                model: [0, -6, -12, -18, -24, -36, -48, -60]
-                                Rectangle {
-                                    property real frac: root.lufsToFraction(modelData)
-                                    width: parent.width
-                                    height: 1
-                                    color: "#555"
-                                    opacity: 0.6
-                                    y: (1.0 - frac) * (parent.height - 4) + 2
-                                    Label {
-                                        text: modelData === 0 ? "0" : modelData.toString()
-                                        color: "#777"
-                                        font.pointSize: 7
-                                        anchors.right: parent.right
-                                        anchors.rightMargin: 2
-                                        anchors.bottom: parent.top
+                        Rectangle {
+                            width: 50
+                            height: 280
+                            color: "#111"
+                            border.color: "#333"
+                            Layout.alignment: Qt.AlignHCenter
+
+                            // Scale tick marks and labels
+                            Item {
+                                Repeater {
+                                    model: [0, -6, -12, -18, -24, -36, -48, -60]
+                                    Rectangle {
+                                        property real frac: root.lufsToFraction(modelData)
+                                        width: parent.width
+                                        height: 1
+                                        color: "#555"
+                                        opacity: 0.6
+                                        y: (1.0 - frac) * (parent.height - 4) + 2
+                                        Label {
+                                            text: modelData === 0 ? "0" : modelData.toString()
+                                            color: "#777"
+                                            font.pointSize: 7
+                                            anchors.right: parent.right
+                                            anchors.rightMargin: 2
+                                            anchors.bottom: parent.top
+                                        }
                                     }
                                 }
                             }
+
+                            // Fill bar (grows upward from bottom)
+                            Rectangle {
+                                anchors.bottom: parent.bottom
+                                anchors.bottomMargin: 2
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                width: parent.width - 8
+                                height: root.lufsToFraction(value) * (parent.height - 4)
+                                color: root.lufsColor(value)
+                                Behavior on height { SmoothedAnimation { velocity: modelData.velocity } }
+                            }
                         }
 
-                        // Fill bar (grows upward from bottom)
-                        Rectangle {
-                            anchors.bottom: parent.bottom
-                            anchors.bottomMargin: 2
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            width: parent.width - 8
-                            height: root.lufsToFraction(value) * (parent.height - 4)
+                        Label {
+                            text: value <= -60 ? "−∞" : value.toFixed(1)
                             color: root.lufsColor(value)
-                            Behavior on height { SmoothedAnimation { velocity: modelData.velocity } }
+                            font.family: "Monospace"
+                            font.pointSize: 10
+                            Layout.alignment: Qt.AlignHCenter
                         }
-                    }
-
-                    Label {
-                        text: value <= -60 ? "−∞" : value.toFixed(1)
-                        color: root.lufsColor(value)
-                        font.family: "Monospace"
-                        font.pointSize: 10
-                        Layout.alignment: Qt.AlignHCenter
-                    }
-                    Label {
-                        text: qsTr("LUFS")
-                        color: "#888"
-                        font.pointSize: 8
-                        Layout.alignment: Qt.AlignHCenter
+                        Label {
+                            text: qsTr("LUFS")
+                            color: "#888"
+                            font.pointSize: 8
+                            Layout.alignment: Qt.AlignHCenter
+                        }
                     }
                 }
             }
-        }
 
-        AppButton {
-            text: qsTr("Reset")
-            implicitWidth: Constants.defaultButtonWidth
-            Layout.alignment: Qt.AlignHCenter
-            onClicked: {
-                effectRackController.resetLufsMeter(root.effectIndex);
-                root.currentMomentary = -70.0;
-                root.currentShortTerm = -70.0;
-                root.currentIntegrated = -70.0;
+            AppButton {
+                text: qsTr("Reset")
+                implicitWidth: Constants.defaultButtonWidth
+                Layout.alignment: Qt.AlignHCenter
+                onClicked: {
+                    effectRackController.resetLufsMeter(root.effectIndex);
+                    root.currentMomentary = -70.0;
+                    root.currentShortTerm = -70.0;
+                    root.currentIntegrated = -70.0;
+                }
+                ToolTip.visible: hovered
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.text: qsTr("Start the integrated measurement over. Happens automatically when the song starts playing.")
             }
-            ToolTip.visible: hovered
-            ToolTip.delay: Constants.toolTipDelay
-            ToolTip.text: qsTr("Start the integrated measurement over. Happens automatically when the song starts playing.")
         }
     }
 

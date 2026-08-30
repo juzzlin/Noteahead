@@ -37,117 +37,123 @@ EffectDialog {
         radius: 2
     }
 
-    ColumnLayout {
+    ScrollView {
+        id: dialogScrollView
         anchors.fill: parent
-        anchors.margins: 20
-        spacing: 20
+        anchors.margins: 2
+        clip: true
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-        RowLayout {
+        ColumnLayout {
+            width: dialogScrollView.availableWidth
             spacing: 20
-            Layout.fillWidth: true
-            Layout.fillHeight: true
 
-            ColumnLayout {
+            RowLayout {
                 spacing: 20
                 Layout.fillWidth: true
-                Layout.alignment: Qt.AlignTop
+                Layout.fillHeight: true
 
-                RowLayout {
+                ColumnLayout {
                     spacing: 20
                     Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignTop
 
-                    Label {
-                        text: qsTr("Mode")
-                        font.bold: true
+                    RowLayout {
+                        spacing: 20
+                        Layout.fillWidth: true
+
+                        Label {
+                            text: qsTr("Mode")
+                            font.bold: true
+                        }
+
+                        ComboBox {
+                            model: [qsTr("Hard"), qsTr("Soft (Tanh)")]
+                            currentIndex: {
+                                effectRackController.revision;
+                                return effectRackController.parameterValue(root.effectIndex, effectRackController.clipperModeKey());
+                            }
+                            onActivated: i => effectRackController.setParameterValue(root.effectIndex, effectRackController.clipperModeKey(), i)
+                            Layout.fillWidth: true
+                        }
                     }
 
-                    ComboBox {
-                        model: [qsTr("Hard"), qsTr("Soft (Tanh)")]
-                        currentIndex: {
+                    Knob {
+                        label: qsTr("Threshold")
+                        suffix: "dB"
+                        from: -24
+                        to: 0
+                        value: {
                             effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.clipperModeKey());
+                            return -24 + effectRackController.parameterValue(root.effectIndex, effectRackController.clipperThresholdKey()) * 24;
                         }
-                        onActivated: i => effectRackController.setParameterValue(root.effectIndex, effectRackController.clipperModeKey(), i)
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.clipperThresholdKey(), (v + 24) / 24)
+                        Layout.fillWidth: true
+                    }
+
+                    Knob {
+                        label: qsTr("Gain")
+                        suffix: "dB"
+                        from: -24
+                        to: 24
+                        value: {
+                            effectRackController.revision;
+                            return -24 + effectRackController.parameterValue(root.effectIndex, effectRackController.clipperGainKey()) * 48;
+                        }
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.clipperGainKey(), (v + 24) / 48)
                         Layout.fillWidth: true
                     }
                 }
 
-                Knob {
-                    label: qsTr("Threshold")
-                    suffix: "dB"
-                    from: -24
-                    to: 0
-                    value: {
-                        effectRackController.revision;
-                        return -24 + effectRackController.parameterValue(root.effectIndex, effectRackController.clipperThresholdKey()) * 24;
+                // Gain Reduction Meter
+                ColumnLayout {
+                    spacing: 5
+                    Layout.alignment: Qt.AlignTop
+                    Label {
+                        text: qsTr("Reduction")
+                        font.bold: true
+                        Layout.alignment: Qt.AlignHCenter
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.clipperThresholdKey(), (v + 24) / 24)
-                    Layout.fillWidth: true
-                }
-
-                Knob {
-                    label: qsTr("Gain")
-                    suffix: "dB"
-                    from: -24
-                    to: 24
-                    value: {
-                        effectRackController.revision;
-                        return -24 + effectRackController.parameterValue(root.effectIndex, effectRackController.clipperGainKey()) * 48;
-                    }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.clipperGainKey(), (v + 24) / 48)
-                    Layout.fillWidth: true
-                }
-            }
-
-            // Gain Reduction Meter
-            ColumnLayout {
-                spacing: 5
-                Layout.alignment: Qt.AlignTop
-                Label {
-                    text: qsTr("Reduction")
-                    font.bold: true
-                    Layout.alignment: Qt.AlignHCenter
-                }
-                Rectangle {
-                    id: meterContainer
-                    width: 30
-                    height: 200
-                    color: "#111"
-                    border.color: "#333"
-                    Layout.alignment: Qt.AlignHCenter
-                    
                     Rectangle {
-                        id: meterFill
-                        anchors.top: parent.top
-                        anchors.topMargin: 2
-                        width: parent.width - 4
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        height: Math.min(parent.height - 4, (Math.abs(root.currentReductionDb) / 30.0) * (parent.height - 4))
-                        color: themeService.accentColor
-                    }
+                        id: meterContainer
+                        width: 30
+                        height: 200
+                        color: "#111"
+                        border.color: "#333"
+                        Layout.alignment: Qt.AlignHCenter
+                    
+                        Rectangle {
+                            id: meterFill
+                            anchors.top: parent.top
+                            anchors.topMargin: 2
+                            width: parent.width - 4
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            height: Math.min(parent.height - 4, (Math.abs(root.currentReductionDb) / 30.0) * (parent.height - 4))
+                            color: themeService.accentColor
+                        }
 
-                    // Tick marks
-                    Item {
-                        anchors.fill: parent
-                        anchors.margins: 2
-                        Repeater {
-                            model: 7 // 0, -5, -10, -15, -20, -25, -30
-                            Rectangle {
-                                width: parent.width
-                                height: 1
-                                color: "#555"
-                                opacity: 0.5
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                y: (index / 6) * parent.height
+                        // Tick marks
+                        Item {
+                            Repeater {
+                                model: 7 // 0, -5, -10, -15, -20, -25, -30
+                                Rectangle {
+                                    width: parent.width
+                                    height: 1
+                                    color: "#555"
+                                    opacity: 0.5
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    y: (index / 6) * parent.height
+                                }
                             }
                         }
                     }
-                }
-                Label {
-                    text: root.currentReductionDb.toFixed(1) + " dB"
-                    color: themeService.accentColor
-                    font.family: "Monospace"
-                    Layout.alignment: Qt.AlignHCenter
+                    Label {
+                        text: root.currentReductionDb.toFixed(1) + " dB"
+                        color: themeService.accentColor
+                        font.family: "Monospace"
+                        Layout.alignment: Qt.AlignHCenter
+                    }
                 }
             }
         }

@@ -28,6 +28,7 @@ EffectDialog {
     focus: true
     width: 700
     height: 480
+    padding: 10
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
@@ -73,10 +74,11 @@ EffectDialog {
         return ranges[Math.max(0, Math.min(3, idx))];
     }
 
+    // No anchors here: a Control sizes its own contentItem, and anchoring it to the dialog makes
+    // this layout cover the header and footer as well, which puts the controls row below the
+    // visible content area. The inset the anchors used to provide is the padding above.
     contentItem: ColumnLayout {
         spacing: 8
-        anchors.fill: parent
-        anchors.margins: 10
 
         RtaRenderer {
             id: renderer

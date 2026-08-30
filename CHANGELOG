@@ -11,11 +11,17 @@ New features:
 
 Bug fixes:
 
+* Make the effect dialogs scroll when their content does not fit
+
+* Fix the RTA dialog laying its controls outside the visible area
+
 * Keep the project's creation date instead of restamping it on every save
 
 * Sync an effect when it is added to a rack, not only when a knob is moved
 
 Other:
+
+* Enlarge the small effect dialogs to the size the EQs use
 
 * Stop allocating memory on the audio thread
   - The playback and recording callbacks, the Drum Synth's per-voice inserts,

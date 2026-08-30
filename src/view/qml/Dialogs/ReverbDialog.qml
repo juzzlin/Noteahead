@@ -37,212 +37,220 @@ EffectDialog {
         radius: 2
     }
 
-    ColumnLayout {
+    ScrollView {
+        id: dialogScrollView
         anchors.fill: parent
         anchors.margins: 20
-        spacing: 20
+        clip: true
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-        RowLayout {
-            spacing: 10
-            Label { text: qsTr("Preset:") }
-            ComboBox {
-                model: effectRackController.reverbPresets()
-                onActivated: index => effectRackController.applyReverbPreset(root.effectIndex, index)
-                Layout.fillWidth: true
+        ColumnLayout {
+            width: dialogScrollView.availableWidth
+            spacing: 20
+
+            RowLayout {
+                spacing: 10
+                Label { text: qsTr("Preset:") }
+                ComboBox {
+                    model: effectRackController.reverbPresets()
+                    onActivated: index => effectRackController.applyReverbPreset(root.effectIndex, index)
+                    Layout.fillWidth: true
+                }
             }
+
+            GridLayout {
+                columns: 4
+                columnSpacing: 30
+                rowSpacing: 20
+                Layout.fillWidth: true
+
+                Knob {
+                    label: qsTr("Size")
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbSizeKey()) * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbSizeKey(), v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
+
+                Knob {
+                    label: qsTr("Decay")
+                    suffix: "ms"
+                    from: 0
+                    to: 10000
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbDecayKey()) * 10000;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbDecayKey(), v / 10000)
+                    Layout.fillWidth: true
+                }
+
+                Knob {
+                    label: qsTr("Damping")
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbDampingKey()) * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbDampingKey(), v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
+
+                Knob {
+                    label: qsTr("Pre-Delay")
+                    suffix: "ms"
+                    from: 0
+                    to: 500
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbPreDelayKey()) * 500;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbPreDelayKey(), v / 500)
+                    Layout.fillWidth: true
+                }
+
+                Knob {
+                    label: qsTr("Width")
+                    mapping: "value"
+                    mapMin: 0
+                    mapMax: 200
+                    from: 0
+                    to: 2 * Constants.uiInternalScaling
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbWidthKey()) * 2 * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbWidthKey(), v / (2 * Constants.uiInternalScaling))
+                    Layout.fillWidth: true
+                }
+
+                Knob {
+                    label: qsTr("Mix")
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbMixKey()) * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbMixKey(), v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
+
+                FilterKnob {
+                    label: qsTr("LPF")
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbLpfCutoffKey()) * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbLpfCutoffKey(), v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
+
+                FilterKnob {
+                    label: qsTr("HPF")
+                    isHpf: true
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbHpfCutoffKey()) * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbHpfCutoffKey(), v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
+            }
+
+            RowLayout {
+                spacing: 10
+                Layout.fillWidth: true
+                Label {
+                    text: qsTr("Gate")
+                    font.bold: true
+                }
+                Switch {
+                    id: gatedSwitch
+                    text: qsTr("Gated")
+                    checked: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbGatedKey()) > 0.5;
+                    }
+                    onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbGatedKey(), checked ? 1 : 0)
+                }
+                Label {
+                    text: qsTr("Chop the reverb tail with a noise gate keyed off the dry input")
+                    color: "#aaa"
+                    font.italic: true
+                    font.pointSize: 10
+                    Layout.fillWidth: true
+                }
+            }
+
+            GridLayout {
+                columns: 4
+                columnSpacing: 30
+                rowSpacing: 20
+                Layout.fillWidth: true
+                enabled: gatedSwitch.checked
+
+                Knob {
+                    label: qsTr("Threshold")
+                    suffix: "dB"
+                    from: -60
+                    to: 0
+                    value: {
+                        effectRackController.revision;
+                        return -60 + effectRackController.parameterValue(root.effectIndex, effectRackController.reverbGateThresholdKey()) * 60;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbGateThresholdKey(), (v + 60) / 60)
+                    Layout.fillWidth: true
+                }
+
+                Knob {
+                    label: qsTr("Attack")
+                    suffix: "ms"
+                    mapping: "exponential"
+                    mapMin: 0.1
+                    mapMax: 100
+                    from: 0
+                    to: Constants.uiInternalScaling
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbGateAttackKey()) * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbGateAttackKey(), v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
+
+                Knob {
+                    label: qsTr("Hold")
+                    suffix: "ms"
+                    from: 0
+                    to: 1000
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbGateHoldKey()) * 1000;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbGateHoldKey(), v / 1000)
+                    Layout.fillWidth: true
+                }
+
+                Knob {
+                    label: qsTr("Release")
+                    suffix: "ms"
+                    mapping: "exponential"
+                    mapMin: 1.0
+                    mapMax: 2000
+                    from: 0
+                    to: Constants.uiInternalScaling
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbGateReleaseKey()) * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbGateReleaseKey(), v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
+            }
+
+            Item { Layout.fillHeight: true }
         }
-
-        GridLayout {
-            columns: 4
-            columnSpacing: 30
-            rowSpacing: 20
-            Layout.fillWidth: true
-
-            Knob {
-                label: qsTr("Size")
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbSizeKey()) * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbSizeKey(), v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
-            }
-
-            Knob {
-                label: qsTr("Decay")
-                suffix: "ms"
-                from: 0
-                to: 10000
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbDecayKey()) * 10000;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbDecayKey(), v / 10000)
-                Layout.fillWidth: true
-            }
-
-            Knob {
-                label: qsTr("Damping")
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbDampingKey()) * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbDampingKey(), v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
-            }
-
-            Knob {
-                label: qsTr("Pre-Delay")
-                suffix: "ms"
-                from: 0
-                to: 500
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbPreDelayKey()) * 500;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbPreDelayKey(), v / 500)
-                Layout.fillWidth: true
-            }
-
-            Knob {
-                label: qsTr("Width")
-                mapping: "value"
-                mapMin: 0
-                mapMax: 200
-                from: 0
-                to: 2 * Constants.uiInternalScaling
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbWidthKey()) * 2 * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbWidthKey(), v / (2 * Constants.uiInternalScaling))
-                Layout.fillWidth: true
-            }
-
-            Knob {
-                label: qsTr("Mix")
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbMixKey()) * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbMixKey(), v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
-            }
-
-            FilterKnob {
-                label: qsTr("LPF")
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbLpfCutoffKey()) * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbLpfCutoffKey(), v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
-            }
-
-            FilterKnob {
-                label: qsTr("HPF")
-                isHpf: true
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbHpfCutoffKey()) * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbHpfCutoffKey(), v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
-            }
-        }
-
-        RowLayout {
-            spacing: 10
-            Layout.fillWidth: true
-            Label {
-                text: qsTr("Gate")
-                font.bold: true
-            }
-            Switch {
-                id: gatedSwitch
-                text: qsTr("Gated")
-                checked: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbGatedKey()) > 0.5;
-                }
-                onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbGatedKey(), checked ? 1 : 0)
-            }
-            Label {
-                text: qsTr("Chop the reverb tail with a noise gate keyed off the dry input")
-                color: "#aaa"
-                font.italic: true
-                font.pointSize: 10
-                Layout.fillWidth: true
-            }
-        }
-
-        GridLayout {
-            columns: 4
-            columnSpacing: 30
-            rowSpacing: 20
-            Layout.fillWidth: true
-            enabled: gatedSwitch.checked
-
-            Knob {
-                label: qsTr("Threshold")
-                suffix: "dB"
-                from: -60
-                to: 0
-                value: {
-                    effectRackController.revision;
-                    return -60 + effectRackController.parameterValue(root.effectIndex, effectRackController.reverbGateThresholdKey()) * 60;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbGateThresholdKey(), (v + 60) / 60)
-                Layout.fillWidth: true
-            }
-
-            Knob {
-                label: qsTr("Attack")
-                suffix: "ms"
-                mapping: "exponential"
-                mapMin: 0.1
-                mapMax: 100
-                from: 0
-                to: Constants.uiInternalScaling
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbGateAttackKey()) * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbGateAttackKey(), v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
-            }
-
-            Knob {
-                label: qsTr("Hold")
-                suffix: "ms"
-                from: 0
-                to: 1000
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbGateHoldKey()) * 1000;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbGateHoldKey(), v / 1000)
-                Layout.fillWidth: true
-            }
-
-            Knob {
-                label: qsTr("Release")
-                suffix: "ms"
-                mapping: "exponential"
-                mapMin: 1.0
-                mapMax: 2000
-                from: 0
-                to: Constants.uiInternalScaling
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbGateReleaseKey()) * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbGateReleaseKey(), v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
-            }
-        }
-
-        Item { Layout.fillHeight: true }
     }
 
     Connections {

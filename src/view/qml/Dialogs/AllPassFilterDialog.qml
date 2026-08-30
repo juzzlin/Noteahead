@@ -37,70 +37,78 @@ EffectDialog {
         radius: 2
     }
 
-    ColumnLayout {
+    ScrollView {
+        id: dialogScrollView
         anchors.fill: parent
         anchors.margins: 20
-        spacing: 20
+        clip: true
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-        Knob {
-            label: qsTr("Frequency")
-            mapping: "logFrequency"
-            mapMin: 20
-            mapMax: 20000
-            value: {
-                effectRackController.revision;
-                return effectRackController.parameterValue(root.effectIndex, effectRackController.allPassFilterFrequencyKey()) * Constants.uiInternalScaling;
+        ColumnLayout {
+            width: dialogScrollView.availableWidth
+            spacing: 20
+
+            Knob {
+                label: qsTr("Frequency")
+                mapping: "logFrequency"
+                mapMin: 20
+                mapMax: 20000
+                value: {
+                    effectRackController.revision;
+                    return effectRackController.parameterValue(root.effectIndex, effectRackController.allPassFilterFrequencyKey()) * Constants.uiInternalScaling;
+                }
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.allPassFilterFrequencyKey(), v / Constants.uiInternalScaling)
+                Layout.fillWidth: true
+
+                HoverHandler { id: freqHover }
+                ToolTip {
+                    visible: freqHover.hovered
+                    delay: Constants.toolTipDelay
+                    text: qsTr("Center frequency of the phase rotation. Does not filter any frequencies — only shifts phase relationships around this point. Set near the fundamental of the source (e.g. 60–100 Hz for kick drum).")
+                }
             }
-            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.allPassFilterFrequencyKey(), v / Constants.uiInternalScaling)
-            Layout.fillWidth: true
 
-            HoverHandler { id: freqHover }
-            ToolTip {
-                visible: freqHover.hovered
-                delay: Constants.toolTipDelay
-                text: qsTr("Center frequency of the phase rotation. Does not filter any frequencies — only shifts phase relationships around this point. Set near the fundamental of the source (e.g. 60–100 Hz for kick drum).")
+            Knob {
+                label: qsTr("Q")
+                suffix: ""
+                from: 0.1
+                to: 10.0
+                isInteger: false
+                value: {
+                    effectRackController.revision;
+                    return 0.1 + effectRackController.parameterValue(root.effectIndex, effectRackController.allPassFilterQKey()) * 9.9;
+                }
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.allPassFilterQKey(), (v - 0.1) / 9.9)
+                Layout.fillWidth: true
+
+                HoverHandler { id: qHover }
+                ToolTip {
+                    visible: qHover.hovered
+                    delay: Constants.toolTipDelay
+                    text: qsTr("Bandwidth of the phase rotation. Lower Q = broader effect across more frequencies. Higher Q = more focused rotation around the center frequency. 0.707 is the Butterworth (maximally flat) response.")
+                }
             }
-        }
 
-        Knob {
-            label: qsTr("Q")
-            suffix: ""
-            from: 0.1
-            to: 10.0
-            isInteger: false
-            value: {
-                effectRackController.revision;
-                return 0.1 + effectRackController.parameterValue(root.effectIndex, effectRackController.allPassFilterQKey()) * 9.9;
-            }
-            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.allPassFilterQKey(), (v - 0.1) / 9.9)
-            Layout.fillWidth: true
+            Knob {
+                label: qsTr("Stages")
+                suffix: ""
+                from: 1
+                to: 4
+                stepSize: 1
+                value: {
+                    effectRackController.revision;
+                    return effectRackController.parameterValue(root.effectIndex, effectRackController.allPassFilterStagesKey());
+                }
+                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.allPassFilterStagesKey(), Math.round(v))
+                Layout.fillWidth: true
 
-            HoverHandler { id: qHover }
-            ToolTip {
-                visible: qHover.hovered
-                delay: Constants.toolTipDelay
-                text: qsTr("Bandwidth of the phase rotation. Lower Q = broader effect across more frequencies. Higher Q = more focused rotation around the center frequency. 0.707 is the Butterworth (maximally flat) response.")
-            }
-        }
-
-        Knob {
-            label: qsTr("Stages")
-            suffix: ""
-            from: 1
-            to: 4
-            stepSize: 1
-            value: {
-                effectRackController.revision;
-                return effectRackController.parameterValue(root.effectIndex, effectRackController.allPassFilterStagesKey());
-            }
-            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.allPassFilterStagesKey(), Math.round(v))
-            Layout.fillWidth: true
-
-            HoverHandler { id: stagesHover }
-            ToolTip {
-                visible: stagesHover.hovered
-                delay: Constants.toolTipDelay
-                text: qsTr("Number of cascaded all-pass filter stages. More stages = greater total phase rotation = stronger tightening effect. Start with 1–2 and increase to taste.")
+                HoverHandler { id: stagesHover }
+                ToolTip {
+                    visible: stagesHover.hovered
+                    delay: Constants.toolTipDelay
+                    text: qsTr("Number of cascaded all-pass filter stages. More stages = greater total phase rotation = stronger tightening effect. Start with 1–2 and increase to taste.")
+                }
             }
         }
     }

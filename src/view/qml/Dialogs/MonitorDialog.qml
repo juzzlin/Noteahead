@@ -45,84 +45,92 @@ EffectDialog {
         radius: 2
     }
 
-    ColumnLayout {
+    ScrollView {
+        id: dialogScrollView
         anchors.fill: parent
         anchors.margins: 20
-        spacing: 16
+        clip: true
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 8
+        ColumnLayout {
+            width: dialogScrollView.availableWidth
+            spacing: 16
 
-            Repeater {
-                model: [
-                    {
-                        "label": qsTr("Stereo"),
-                        "mode": 0
-                    },
-                    {
-                        "label": qsTr("Mono"),
-                        "mode": 1
-                    },
-                    {
-                        "label": qsTr("Left"),
-                        "mode": 2
-                    },
-                    {
-                        "label": qsTr("Right"),
-                        "mode": 3
-                    },
-                    {
-                        "label": qsTr("Side"),
-                        "mode": 4
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 8
+
+                Repeater {
+                    model: [
+                        {
+                            "label": qsTr("Stereo"),
+                            "mode": 0
+                        },
+                        {
+                            "label": qsTr("Mono"),
+                            "mode": 1
+                        },
+                        {
+                            "label": qsTr("Left"),
+                            "mode": 2
+                        },
+                        {
+                            "label": qsTr("Right"),
+                            "mode": 3
+                        },
+                        {
+                            "label": qsTr("Side"),
+                            "mode": 4
+                        }
+                    ]
+                    // Deliberately not checkable and not in a ButtonGroup: AppButton's overlaid MouseArea
+                    // eats the press that AbstractButton would have toggled itself on, and a monitor is
+                    // switched while the engine is running, which is exactly the case AppButton exists for.
+                    // Binding `highlighted` instead keeps the lit state a read of the parameter.
+                    delegate: AppButton {
+                        required property var modelData
+                        text: modelData.label
+                        highlighted: root.mode === modelData.mode
+                        Layout.fillWidth: true
+                        onClicked: effectRackController.setParameterValue(root.effectIndex, effectRackController.monitorModeKey(), modelData.mode)
                     }
-                ]
-                // Deliberately not checkable and not in a ButtonGroup: AppButton's overlaid MouseArea
-                // eats the press that AbstractButton would have toggled itself on, and a monitor is
-                // switched while the engine is running, which is exactly the case AppButton exists for.
-                // Binding `highlighted` instead keeps the lit state a read of the parameter.
-                delegate: AppButton {
-                    required property var modelData
-                    text: modelData.label
-                    highlighted: root.mode === modelData.mode
-                    Layout.fillWidth: true
-                    onClicked: effectRackController.setParameterValue(root.effectIndex, effectRackController.monitorModeKey(), modelData.mode)
                 }
             }
-        }
 
-        Label {
-            text: {
-                switch (root.mode) {
-                case 1:
-                    return qsTr("Both channels summed at half: what a mono system hears. Parts that lean on stereo width thin out or disappear here.");
-                case 2:
-                    return qsTr("The left channel on both sides.");
-                case 3:
-                    return qsTr("The right channel on both sides.");
-                case 4:
-                    return qsTr("The difference between the channels: exactly the part that mono summing throws away. Near-silence means nothing is lost.");
-                default:
-                    return qsTr("The mix as it is, untouched.");
+            Label {
+                text: {
+                    switch (root.mode) {
+                    case 1:
+                        return qsTr("Both channels summed at half: what a mono system hears. Parts that lean on stereo width thin out or disappear here.");
+                    case 2:
+                        return qsTr("The left channel on both sides.");
+                    case 3:
+                        return qsTr("The right channel on both sides.");
+                    case 4:
+                        return qsTr("The difference between the channels: exactly the part that mono summing throws away. Near-silence means nothing is lost.");
+                    default:
+                        return qsTr("The mix as it is, untouched.");
+                    }
                 }
+                wrapMode: Text.WordWrap
+                color: "#aaaaaa"
+                font.pixelSize: 12
+                Layout.fillWidth: true
             }
-            wrapMode: Text.WordWrap
-            color: "#aaaaaa"
-            font.pixelSize: 12
-            Layout.fillWidth: true
-        }
 
-        Label {
-            text: qsTr("Monitoring only: whatever is selected here is left out of an audio render.")
-            wrapMode: Text.WordWrap
-            color: themeService.accentColor
-            font.pixelSize: 12
-            font.italic: true
-            Layout.fillWidth: true
-        }
+            Label {
+                text: qsTr("Monitoring only: whatever is selected here is left out of an audio render.")
+                wrapMode: Text.WordWrap
+                color: themeService.accentColor
+                font.pixelSize: 12
+                font.italic: true
+                Layout.fillWidth: true
+            }
 
-        Item {
-            Layout.fillHeight: true
+            Item {
+                Layout.fillHeight: true
+            }
         }
     }
 }

@@ -37,40 +37,48 @@ EffectDialog {
         radius: 2
     }
 
-    ColumnLayout {
+    ScrollView {
+        id: dialogScrollView
         anchors.fill: parent
         anchors.margins: 20
-        spacing: 20
+        clip: true
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-        GridLayout {
-            columns: 2
-            columnSpacing: 30
-            rowSpacing: 20
-            Layout.fillWidth: true
+        ColumnLayout {
+            width: dialogScrollView.availableWidth
+            spacing: 20
 
-            Knob {
-                label: qsTr("Pan")
-                mapping: "pan"
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, "pan") * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, "pan", v / Constants.uiInternalScaling)
+            GridLayout {
+                columns: 2
+                columnSpacing: 30
+                rowSpacing: 20
                 Layout.fillWidth: true
-            }
 
-            Knob {
-                label: qsTr("Width")
-                mapping: "width"
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, "width") * Constants.uiInternalScaling;
+                Knob {
+                    label: qsTr("Pan")
+                    mapping: "pan"
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, "pan") * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, "pan", v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
                 }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, "width", v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
+
+                Knob {
+                    label: qsTr("Width")
+                    mapping: "width"
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, "width") * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, "width", v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
             }
-        }
         
-        Item { Layout.fillHeight: true }
+            Item { Layout.fillHeight: true }
+        }
     }
 }

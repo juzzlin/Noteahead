@@ -38,141 +38,149 @@ EffectDialog {
         radius: 2
     }
 
-    ColumnLayout {
+    ScrollView {
+        id: dialogScrollView
         anchors.fill: parent
         anchors.margins: 20
-        spacing: 20
+        clip: true
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-        GridLayout {
-            columns: 2
-            columnSpacing: 30
-            rowSpacing: 20
-            Layout.fillWidth: true
+        ColumnLayout {
+            width: dialogScrollView.availableWidth
+            spacing: 20
 
-            ColumnLayout {
-                spacing: 5
-                Label {
-                    text: qsTr("Type")
-                    font.bold: true
+            GridLayout {
+                columns: 2
+                columnSpacing: 30
+                rowSpacing: 20
+                Layout.fillWidth: true
+
+                ColumnLayout {
+                    spacing: 5
+                    Label {
+                        text: qsTr("Type")
+                        font.bold: true
+                    }
+                    ComboBox {
+                        model: ["Stereo", "Mono", "PingPong", "Tape"]
+                        currentIndex: {
+                            effectRackController.revision;
+                            // delayType is a discrete parameter whose value is the raw enum index (0..3).
+                            return Math.round(effectRackController.parameterValue(root.effectIndex, "delayType"));
+                        }
+                        onActivated: index => effectRackController.setParameterValue(root.effectIndex, "delayType", index)
+                        Layout.fillWidth: true
+                    }
                 }
-                ComboBox {
-                    model: ["Stereo", "Mono", "PingPong", "Tape"]
+
+                ColumnLayout {
+                    spacing: 5
+                    Label {
+                        text: qsTr("Sync")
+                        font.bold: true
+                    }
+                    CheckBox {
+                        text: qsTr("Enable BPM Sync")
+                        checked: {
+                            effectRackController.revision;
+                            return effectRackController.parameterValue(root.effectIndex, "delaySync") > 0.5;
+                        }
+                        onToggled: effectRackController.setParameterValue(root.effectIndex, "delaySync", checked ? 1.0 : 0.0)
+                        Layout.fillWidth: true
+                    }
+                }
+
+                StackLayout {
+                    Layout.columnSpan: 2
+                    Layout.fillWidth: true
                     currentIndex: {
                         effectRackController.revision;
-                        // delayType is a discrete parameter whose value is the raw enum index (0..3).
-                        return Math.round(effectRackController.parameterValue(root.effectIndex, "delayType"));
+                        return effectRackController.parameterValue(root.effectIndex, "delaySync") > 0.5 ? 0 : 1;
                     }
-                    onActivated: index => effectRackController.setParameterValue(root.effectIndex, "delayType", index)
-                    Layout.fillWidth: true
-                }
-            }
 
-            ColumnLayout {
-                spacing: 5
-                Label {
-                    text: qsTr("Sync")
-                    font.bold: true
-                }
-                CheckBox {
-                    text: qsTr("Enable BPM Sync")
-                    checked: {
-                        effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, "delaySync") > 0.5;
+                    SyncSlider {
+                        label: qsTr("Time (Sync)")
+                        value: {
+                            effectRackController.revision;
+                            return effectRackController.parameterValue(root.effectIndex, "delaySyncDivision") * Constants.uiInternalScaling;
+                        }
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, "delaySyncDivision", v / Constants.uiInternalScaling)
+                        Layout.fillWidth: true
                     }
-                    onToggled: effectRackController.setParameterValue(root.effectIndex, "delaySync", checked ? 1.0 : 0.0)
-                    Layout.fillWidth: true
-                }
-            }
 
-            StackLayout {
-                Layout.columnSpan: 2
-                Layout.fillWidth: true
-                currentIndex: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, "delaySync") > 0.5 ? 0 : 1;
+                    Knob {
+                        label: qsTr("Time")
+                        suffix: "ms"
+                        mapping: "cubic"
+                        mapMin: 1
+                        mapMax: 10000
+                        // 'to' intentionally left at the default uiInternalScaling so the slider domain matches
+                        // the value domain below (parameterValue * uiInternalScaling). The cubic 1..10000 ms
+                        // display range comes from mapMin/mapMax, not from 'to'.
+                        value: {
+                            effectRackController.revision;
+                            return effectRackController.parameterValue(root.effectIndex, "delayTime") * Constants.uiInternalScaling;
+                        }
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, "delayTime", v / Constants.uiInternalScaling)
+                        Layout.fillWidth: true
+                    }
                 }
 
-                SyncSlider {
-                    label: qsTr("Time (Sync)")
+                Knob {
+                    label: qsTr("Feedback")
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, "delaySyncDivision") * Constants.uiInternalScaling;
+                        return effectRackController.parameterValue(root.effectIndex, "delayFeedback") * Constants.uiInternalScaling;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, "delaySyncDivision", v / Constants.uiInternalScaling)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, "delayFeedback", v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
                 Knob {
-                    label: qsTr("Time")
-                    suffix: "ms"
-                    mapping: "cubic"
-                    mapMin: 1
-                    mapMax: 10000
-                    // 'to' intentionally left at the default uiInternalScaling so the slider domain matches
-                    // the value domain below (parameterValue * uiInternalScaling). The cubic 1..10000 ms
-                    // display range comes from mapMin/mapMax, not from 'to'.
+                    label: qsTr("Depth")
                     value: {
                         effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, "delayTime") * Constants.uiInternalScaling;
+                        return effectRackController.parameterValue(root.effectIndex, "delayDepth") * Constants.uiInternalScaling;
                     }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, "delayTime", v / Constants.uiInternalScaling)
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, "delayDepth", v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
+
+                FilterKnob {
+                    label: qsTr("LPF")
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, "delayFeedbackLpf") * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, "delayFeedbackLpf", v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
+
+                FilterKnob {
+                    label: qsTr("HPF")
+                    isHpf: true
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, "delayFeedbackHpf") * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, "delayFeedbackHpf", v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
+
+                Knob {
+                    label: qsTr("Mix")
+                    Layout.columnSpan: 2
+                    Layout.fillWidth: true
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, "delayMix") * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, "delayMix", v / Constants.uiInternalScaling)
+                }
             }
 
-            Knob {
-                label: qsTr("Feedback")
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, "delayFeedback") * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, "delayFeedback", v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
-            }
-
-            Knob {
-                label: qsTr("Depth")
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, "delayDepth") * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, "delayDepth", v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
-            }
-
-            FilterKnob {
-                label: qsTr("LPF")
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, "delayFeedbackLpf") * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, "delayFeedbackLpf", v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
-            }
-
-            FilterKnob {
-                label: qsTr("HPF")
-                isHpf: true
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, "delayFeedbackHpf") * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, "delayFeedbackHpf", v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
-            }
-
-            Knob {
-                label: qsTr("Mix")
-                Layout.columnSpan: 2
-                Layout.fillWidth: true
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, "delayMix") * Constants.uiInternalScaling;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, "delayMix", v / Constants.uiInternalScaling)
-            }
+            Item { Layout.fillHeight: true }
         }
-
-        Item { Layout.fillHeight: true }
     }
 }

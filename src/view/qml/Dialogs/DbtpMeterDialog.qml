@@ -145,25 +145,33 @@ EffectDialog {
         }
     }
 
-    ColumnLayout {
+    ScrollView {
+        id: dialogScrollView
         anchors.fill: parent
         anchors.margins: 20
-        spacing: 16
+        clip: true
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-        RowLayout {
-            spacing: 20
-            Layout.alignment: Qt.AlignHCenter
+        ColumnLayout {
+            width: dialogScrollView.availableWidth
+            spacing: 16
 
-            ChannelMeter {
-                label: qsTr("L")
-                level: root.currentL
-                hold: root.holdL
-            }
+            RowLayout {
+                spacing: 20
+                Layout.alignment: Qt.AlignHCenter
 
-            ChannelMeter {
-                label: qsTr("R")
-                level: root.currentR
-                hold: root.holdR
+                ChannelMeter {
+                    label: qsTr("L")
+                    level: root.currentL
+                    hold: root.holdL
+                }
+
+                ChannelMeter {
+                    label: qsTr("R")
+                    level: root.currentR
+                    hold: root.holdR
+                }
             }
         }
     }

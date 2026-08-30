@@ -37,158 +37,164 @@ EffectDialog {
         radius: 2
     }
 
-    ColumnLayout {
+    ScrollView {
+        id: dialogScrollView
         anchors.fill: parent
-        anchors.margins: 20
-        spacing: 20
+        anchors.margins: 2
+        clip: true
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-        RowLayout {
+        ColumnLayout {
+            width: dialogScrollView.availableWidth
             spacing: 20
-            Layout.fillWidth: true
-            Layout.fillHeight: true
 
-            ColumnLayout {
+            RowLayout {
                 spacing: 20
                 Layout.fillWidth: true
-                Layout.alignment: Qt.AlignTop
+                Layout.fillHeight: true
 
-                RowLayout {
+                ColumnLayout {
                     spacing: 20
                     Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignTop
 
+                    RowLayout {
+                        spacing: 20
+                        Layout.fillWidth: true
+
+                        Label {
+                            text: qsTr("Type")
+                            font.bold: true
+                        }
+
+                        ComboBox {
+                            model: [qsTr("Tape"), qsTr("Tube"), qsTr("Diode")]
+                            currentIndex: {
+                                effectRackController.revision;
+                                return effectRackController.parameterValue(root.effectIndex, effectRackController.saturatorModeKey());
+                            }
+                            onActivated: i => effectRackController.setParameterValue(root.effectIndex, effectRackController.saturatorModeKey(), i)
+                            Layout.fillWidth: true
+                        }
+                    }
+
+                    GridLayout {
+                        columns: 2
+                        columnSpacing: 30
+                        rowSpacing: 20
+                        Layout.fillWidth: true
+
+                        Knob {
+                            Layout.row: 0
+                            Layout.column: 0
+                            label: qsTr("Drive")
+                            suffix: "dB"
+                            from: 0
+                            to: 40
+                            value: {
+                                effectRackController.revision;
+                                return effectRackController.parameterValue(root.effectIndex, effectRackController.saturatorDriveKey()) * 40;
+                            }
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.saturatorDriveKey(), v / 40)
+                            Layout.fillWidth: true
+                        }
+
+                        Knob {
+                            Layout.row: 0
+                            Layout.column: 1
+                            label: qsTr("Tone")
+                            suffix: "%"
+                            from: 0
+                            to: 100
+                            value: {
+                                effectRackController.revision;
+                                return effectRackController.parameterValue(root.effectIndex, effectRackController.saturatorToneKey()) * 100;
+                            }
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.saturatorToneKey(), v / 100)
+                            Layout.fillWidth: true
+                        }
+
+                        Knob {
+                            Layout.row: 1
+                            Layout.column: 0
+                            label: qsTr("Mix")
+                            suffix: "%"
+                            from: 0
+                            to: 100
+                            value: {
+                                effectRackController.revision;
+                                return effectRackController.parameterValue(root.effectIndex, effectRackController.saturatorMixKey()) * 100;
+                            }
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.saturatorMixKey(), v / 100)
+                            Layout.fillWidth: true
+                        }
+
+                        Knob {
+                            Layout.row: 1
+                            Layout.column: 1
+                            label: qsTr("Output")
+                            suffix: "dB"
+                            from: -12
+                            to: 12
+                            value: {
+                                effectRackController.revision;
+                                return -12 + effectRackController.parameterValue(root.effectIndex, effectRackController.saturatorGainKey()) * 24;
+                            }
+                            onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.saturatorGainKey(), (v + 12) / 24)
+                            Layout.fillWidth: true
+                        }
+                    }
+                }
+
+                // Saturation Meter
+                ColumnLayout {
+                    spacing: 5
+                    Layout.alignment: Qt.AlignTop
                     Label {
-                        text: qsTr("Type")
+                        text: qsTr("Saturation")
                         font.bold: true
+                        Layout.alignment: Qt.AlignHCenter
                     }
-
-                    ComboBox {
-                        model: [qsTr("Tape"), qsTr("Tube"), qsTr("Diode")]
-                        currentIndex: {
-                            effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.saturatorModeKey());
-                        }
-                        onActivated: i => effectRackController.setParameterValue(root.effectIndex, effectRackController.saturatorModeKey(), i)
-                        Layout.fillWidth: true
-                    }
-                }
-
-                GridLayout {
-                    columns: 2
-                    columnSpacing: 30
-                    rowSpacing: 20
-                    Layout.fillWidth: true
-
-                    Knob {
-                        Layout.row: 0
-                        Layout.column: 0
-                        label: qsTr("Drive")
-                        suffix: "dB"
-                        from: 0
-                        to: 40
-                        value: {
-                            effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.saturatorDriveKey()) * 40;
-                        }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.saturatorDriveKey(), v / 40)
-                        Layout.fillWidth: true
-                    }
-
-                    Knob {
-                        Layout.row: 0
-                        Layout.column: 1
-                        label: qsTr("Tone")
-                        suffix: "%"
-                        from: 0
-                        to: 100
-                        value: {
-                            effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.saturatorToneKey()) * 100;
-                        }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.saturatorToneKey(), v / 100)
-                        Layout.fillWidth: true
-                    }
-
-                    Knob {
-                        Layout.row: 1
-                        Layout.column: 0
-                        label: qsTr("Mix")
-                        suffix: "%"
-                        from: 0
-                        to: 100
-                        value: {
-                            effectRackController.revision;
-                            return effectRackController.parameterValue(root.effectIndex, effectRackController.saturatorMixKey()) * 100;
-                        }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.saturatorMixKey(), v / 100)
-                        Layout.fillWidth: true
-                    }
-
-                    Knob {
-                        Layout.row: 1
-                        Layout.column: 1
-                        label: qsTr("Output")
-                        suffix: "dB"
-                        from: -12
-                        to: 12
-                        value: {
-                            effectRackController.revision;
-                            return -12 + effectRackController.parameterValue(root.effectIndex, effectRackController.saturatorGainKey()) * 24;
-                        }
-                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.saturatorGainKey(), (v + 12) / 24)
-                        Layout.fillWidth: true
-                    }
-                }
-            }
-
-            // Saturation Meter
-            ColumnLayout {
-                spacing: 5
-                Layout.alignment: Qt.AlignTop
-                Label {
-                    text: qsTr("Saturation")
-                    font.bold: true
-                    Layout.alignment: Qt.AlignHCenter
-                }
-                Rectangle {
-                    id: meterContainer
-                    width: 30
-                    height: 200
-                    color: "#111"
-                    border.color: "#333"
-                    Layout.alignment: Qt.AlignHCenter
-
                     Rectangle {
-                        id: meterFill
-                        anchors.top: parent.top
-                        anchors.topMargin: 2
-                        width: parent.width - 4
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        height: Math.min(parent.height - 4, (Math.abs(root.currentSaturationDb) / 30.0) * (parent.height - 4))
-                        color: themeService.accentColor
-                    }
+                        id: meterContainer
+                        width: 30
+                        height: 200
+                        color: "#111"
+                        border.color: "#333"
+                        Layout.alignment: Qt.AlignHCenter
 
-                    // Tick marks
-                    Item {
-                        anchors.fill: parent
-                        anchors.margins: 2
-                        Repeater {
-                            model: 7 // 0, -5, -10, -15, -20, -25, -30
-                            Rectangle {
-                                width: parent.width
-                                height: 1
-                                color: "#555"
-                                opacity: 0.5
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                y: (index / 6) * parent.height
+                        Rectangle {
+                            id: meterFill
+                            anchors.top: parent.top
+                            anchors.topMargin: 2
+                            width: parent.width - 4
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            height: Math.min(parent.height - 4, (Math.abs(root.currentSaturationDb) / 30.0) * (parent.height - 4))
+                            color: themeService.accentColor
+                        }
+
+                        // Tick marks
+                        Item {
+                            Repeater {
+                                model: 7 // 0, -5, -10, -15, -20, -25, -30
+                                Rectangle {
+                                    width: parent.width
+                                    height: 1
+                                    color: "#555"
+                                    opacity: 0.5
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    y: (index / 6) * parent.height
+                                }
                             }
                         }
                     }
-                }
-                Label {
-                    text: root.currentSaturationDb.toFixed(1) + " dB"
-                    color: themeService.accentColor
-                    font.family: "Monospace"
-                    Layout.alignment: Qt.AlignHCenter
+                    Label {
+                        text: root.currentSaturationDb.toFixed(1) + " dB"
+                        color: themeService.accentColor
+                        font.family: "Monospace"
+                        Layout.alignment: Qt.AlignHCenter
+                    }
                 }
             }
         }

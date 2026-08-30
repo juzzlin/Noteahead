@@ -39,69 +39,77 @@ EffectDialog {
         radius: 2
     }
 
-    ColumnLayout {
+    ScrollView {
+        id: dialogScrollView
         anchors.fill: parent
         anchors.margins: 20
-        spacing: 16
+        clip: true
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 20
+        ColumnLayout {
+            width: dialogScrollView.availableWidth
+            spacing: 16
 
-            Knob {
-                label: qsTr("Gain")
-                suffix: "dB"
-                from: -24
-                to: 24
-                value: {
-                    effectRackController.revision;
-                    return (effectRackController.parameterValue(root.effectIndex, effectRackController.gainGainKey()) - 0.5) * 48;
-                }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.gainGainKey(), v / 48 + 0.5)
+            RowLayout {
                 Layout.fillWidth: true
-            }
+                spacing: 20
 
-            ColumnLayout {
-                spacing: 4
-                Layout.alignment: Qt.AlignVCenter
-
-                Label {
-                    text: qsTr("Clip")
-                    font.pixelSize: 11
-                    color: themeService.accentColor
-                    Layout.alignment: Qt.AlignHCenter
+                Knob {
+                    label: qsTr("Gain")
+                    suffix: "dB"
+                    from: -24
+                    to: 24
+                    value: {
+                        effectRackController.revision;
+                        return (effectRackController.parameterValue(root.effectIndex, effectRackController.gainGainKey()) - 0.5) * 48;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.gainGainKey(), v / 48 + 0.5)
+                    Layout.fillWidth: true
                 }
 
-                ClipLed {
-                    clipped: root.clipped
-                    Layout.alignment: Qt.AlignHCenter
-                    onClicked: {
-                        effectRackController.clearGainClip(root.effectIndex);
-                        root.clipped = false;
+                ColumnLayout {
+                    spacing: 4
+                    Layout.alignment: Qt.AlignVCenter
+
+                    Label {
+                        text: qsTr("Clip")
+                        font.pixelSize: 11
+                        color: themeService.accentColor
+                        Layout.alignment: Qt.AlignHCenter
+                    }
+
+                    ClipLed {
+                        clipped: root.clipped
+                        Layout.alignment: Qt.AlignHCenter
+                        onClicked: {
+                            effectRackController.clearGainClip(root.effectIndex);
+                            root.clipped = false;
+                        }
                     }
                 }
             }
-        }
 
-        Label {
-            text: qsTr("The clip light comes on when the trim pushes the signal to full scale. Click the light to clear it.")
-            wrapMode: Text.WordWrap
-            color: "#aaaaaa"
-            font.pixelSize: 12
-            Layout.fillWidth: true
-        }
+            Label {
+                text: qsTr("The clip light comes on when the trim pushes the signal to full scale. Click the light to clear it.")
+                wrapMode: Text.WordWrap
+                color: "#aaaaaa"
+                font.pixelSize: 12
+                Layout.fillWidth: true
+            }
 
-        Label {
-            text: qsTr("To make a finished mix louder, reach for the Limiter instead: it catches what a boost pushes past full scale, which a plain trim cannot.")
-            wrapMode: Text.WordWrap
-            color: themeService.accentColor
-            font.pixelSize: 12
-            font.italic: true
-            Layout.fillWidth: true
-        }
+            Label {
+                text: qsTr("To make a finished mix louder, reach for the Limiter instead: it catches what a boost pushes past full scale, which a plain trim cannot.")
+                wrapMode: Text.WordWrap
+                color: themeService.accentColor
+                font.pixelSize: 12
+                font.italic: true
+                Layout.fillWidth: true
+            }
 
-        Item {
-            Layout.fillHeight: true
+            Item {
+                Layout.fillHeight: true
+            }
         }
     }
 

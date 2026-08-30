@@ -38,96 +38,104 @@ EffectDialog {
         radius: 2
     }
 
-    ColumnLayout {
+    ScrollView {
+        id: dialogScrollView
         anchors.fill: parent
         anchors.margins: 20
-        spacing: 20
+        clip: true
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-        GridLayout {
-            columns: 2
-            columnSpacing: 30
-            rowSpacing: 20
-            Layout.fillWidth: true
+        ColumnLayout {
+            width: dialogScrollView.availableWidth
+            spacing: 20
 
-            ColumnLayout {
-                spacing: 5
-                Label {
-                    text: qsTr("Waveform")
-                    font.bold: true
-                }
-                ComboBox {
-                    model: [qsTr("Saw"), qsTr("Triangle"), qsTr("Square"), qsTr("Sine")]
-                    currentIndex: {
-                        effectRackController.revision;
-                        return Math.round(effectRackController.parameterValue(root.effectIndex, "waveform") * 3);
+            GridLayout {
+                columns: 2
+                columnSpacing: 30
+                rowSpacing: 20
+                Layout.fillWidth: true
+
+                ColumnLayout {
+                    spacing: 5
+                    Label {
+                        text: qsTr("Waveform")
+                        font.bold: true
                     }
-                    onActivated: index => effectRackController.setParameterValue(root.effectIndex, "waveform", index / 3.0)
+                    ComboBox {
+                        model: [qsTr("Saw"), qsTr("Triangle"), qsTr("Square"), qsTr("Sine")]
+                        currentIndex: {
+                            effectRackController.revision;
+                            return Math.round(effectRackController.parameterValue(root.effectIndex, "waveform") * 3);
+                        }
+                        onActivated: index => effectRackController.setParameterValue(root.effectIndex, "waveform", index / 3.0)
+                        Layout.fillWidth: true
+                    }
+                }
+
+                Knob {
+                    label: qsTr("Intensity")
+                    suffix: "%"
+                    value: {
+                        effectRackController.revision;
+                        return effectRackController.parameterValue(root.effectIndex, "intensity") * Constants.uiInternalScaling;
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, "intensity", v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
-            }
 
-            Knob {
-                label: qsTr("Intensity")
-                suffix: "%"
-                value: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, "intensity") * Constants.uiInternalScaling;
+                ColumnLayout {
+                    spacing: 5
+                    Layout.alignment: Qt.AlignTop
+                    Label {
+                        text: qsTr("Rate Mode")
+                        font.bold: true
+                    }
+                    ComboBox {
+                        model: [qsTr("Hz"), qsTr("Sync")]
+                        currentIndex: {
+                            effectRackController.revision;
+                            return effectRackController.parameterValue(root.effectIndex, "sync") > 0.5 ? 1 : 0;
+                        }
+                        onActivated: index => effectRackController.setParameterValue(root.effectIndex, "sync", index)
+                        Layout.fillWidth: true
+                    }
                 }
-                onMoved: v => effectRackController.setParameterValue(root.effectIndex, "intensity", v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
-            }
 
-            ColumnLayout {
-                spacing: 5
-                Layout.alignment: Qt.AlignTop
-                Label {
-                    text: qsTr("Rate Mode")
-                    font.bold: true
-                }
-                ComboBox {
-                    model: [qsTr("Hz"), qsTr("Sync")]
+                StackLayout {
                     currentIndex: {
                         effectRackController.revision;
                         return effectRackController.parameterValue(root.effectIndex, "sync") > 0.5 ? 1 : 0;
                     }
-                    onActivated: index => effectRackController.setParameterValue(root.effectIndex, "sync", index)
-                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignTop
+
+                    Knob {
+                        label: qsTr("Rate")
+                        suffix: "Hz"
+                        mapping: "exponential"
+                        mapMin: 0.05
+                        mapMax: 20.0
+                        value: {
+                            effectRackController.revision;
+                            return effectRackController.parameterValue(root.effectIndex, "rate") * Constants.uiInternalScaling;
+                        }
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, "rate", v / Constants.uiInternalScaling)
+                        Layout.fillWidth: true
+                    }
+
+                    SyncSlider {
+                        label: qsTr("Sync")
+                        value: {
+                            effectRackController.revision;
+                            return effectRackController.parameterValue(root.effectIndex, "delaySyncDivision") * Constants.uiInternalScaling;
+                        }
+                        onMoved: v => effectRackController.setParameterValue(root.effectIndex, "delaySyncDivision", v / Constants.uiInternalScaling)
+                        Layout.fillWidth: true
+                    }
                 }
             }
 
-            StackLayout {
-                currentIndex: {
-                    effectRackController.revision;
-                    return effectRackController.parameterValue(root.effectIndex, "sync") > 0.5 ? 1 : 0;
-                }
-                Layout.alignment: Qt.AlignTop
-
-                Knob {
-                    label: qsTr("Rate")
-                    suffix: "Hz"
-                    mapping: "exponential"
-                    mapMin: 0.05
-                    mapMax: 20.0
-                    value: {
-                        effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, "rate") * Constants.uiInternalScaling;
-                    }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, "rate", v / Constants.uiInternalScaling)
-                    Layout.fillWidth: true
-                }
-
-                SyncSlider {
-                    label: qsTr("Sync")
-                    value: {
-                        effectRackController.revision;
-                        return effectRackController.parameterValue(root.effectIndex, "delaySyncDivision") * Constants.uiInternalScaling;
-                    }
-                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, "delaySyncDivision", v / Constants.uiInternalScaling)
-                    Layout.fillWidth: true
-                }
-            }
+            Item { Layout.fillHeight: true }
         }
-
-        Item { Layout.fillHeight: true }
     }
 }

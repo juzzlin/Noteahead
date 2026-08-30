@@ -74,183 +74,191 @@ EffectDialog {
         }
     }
 
-    ColumnLayout {
+    ScrollView {
+        id: dialogScrollView
         anchors.fill: parent
         anchors.margins: 20
-        spacing: 10
+        clip: true
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-        SectionLabel {
-            text: qsTr("Cascade")
-        }
+        ColumnLayout {
+            width: dialogScrollView.availableWidth
+            spacing: 10
 
-        RowLayout {
-            spacing: 20
-            Layout.fillWidth: true
+            SectionLabel {
+                text: qsTr("Cascade")
+            }
 
-            ComboBoxColumn {
-                label: qsTr("Stages")
-                // Even counts only: one notch takes a pair of all-pass sections
-                model: {
-                    const stages = [];
-                    for (let i = 2; i <= effectRackController.phaserMaxStages(); i += 2) {
-                        stages.push(qsTr("%1 stages").arg(i));
+            RowLayout {
+                spacing: 20
+                Layout.fillWidth: true
+
+                ComboBoxColumn {
+                    label: qsTr("Stages")
+                    // Even counts only: one notch takes a pair of all-pass sections
+                    model: {
+                        const stages = [];
+                        for (let i = 2; i <= effectRackController.phaserMaxStages(); i += 2) {
+                            stages.push(qsTr("%1 stages").arg(i));
+                        }
+                        return stages;
                     }
-                    return stages;
+                    currentIndex: Math.round(root.parameterValue(effectRackController.phaserStagesKey()) / 2) - 1
+                    onActivated: index => root.setParameterValue(effectRackController.phaserStagesKey(), (index + 1) * 2)
+                    Layout.fillWidth: true
                 }
-                currentIndex: Math.round(root.parameterValue(effectRackController.phaserStagesKey()) / 2) - 1
-                onActivated: index => root.setParameterValue(effectRackController.phaserStagesKey(), (index + 1) * 2)
-                Layout.fillWidth: true
+
+                Knob {
+                    label: qsTr("Center")
+                    suffix: "Hz"
+                    mapping: "exponential"
+                    mapMin: 50
+                    mapMax: 8000
+                    value: root.parameterValue(effectRackController.phaserFrequencyKey()) * Constants.uiInternalScaling
+                    onMoved: v => root.setParameterValue(effectRackController.phaserFrequencyKey(), v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
+
+                Knob {
+                    label: qsTr("Depth")
+                    suffix: "%"
+                    value: root.parameterValue(effectRackController.phaserDepthKey()) * Constants.uiInternalScaling
+                    onMoved: v => root.setParameterValue(effectRackController.phaserDepthKey(), v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
+
+                Knob {
+                    label: qsTr("Feedback")
+                    mapping: "cubicCentered"
+                    mapMin: -100
+                    mapMax: 100
+                    value: root.parameterValue(effectRackController.phaserFeedbackKey()) * Constants.uiInternalScaling
+                    onMoved: v => root.setParameterValue(effectRackController.phaserFeedbackKey(), v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
             }
 
-            Knob {
-                label: qsTr("Center")
-                suffix: "Hz"
-                mapping: "exponential"
-                mapMin: 50
-                mapMax: 8000
-                value: root.parameterValue(effectRackController.phaserFrequencyKey()) * Constants.uiInternalScaling
-                onMoved: v => root.setParameterValue(effectRackController.phaserFrequencyKey(), v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
+            SectionLabel {
+                text: qsTr("Sweep")
             }
 
-            Knob {
-                label: qsTr("Depth")
-                suffix: "%"
-                value: root.parameterValue(effectRackController.phaserDepthKey()) * Constants.uiInternalScaling
-                onMoved: v => root.setParameterValue(effectRackController.phaserDepthKey(), v / Constants.uiInternalScaling)
+            RowLayout {
+                spacing: 20
                 Layout.fillWidth: true
+
+                ComboBoxColumn {
+                    label: qsTr("Waveform")
+                    model: effectRackController.lfoWaveformNames()
+                    currentIndex: Math.round(root.parameterValue(effectRackController.phaserLfoWaveformKey()))
+                    onActivated: index => root.setParameterValue(effectRackController.phaserLfoWaveformKey(), index)
+                    Layout.fillWidth: true
+                }
+
+                ComboBoxColumn {
+                    label: qsTr("Mode")
+                    model: effectRackController.lfoModeNames()
+                    currentIndex: Math.round(root.parameterValue(effectRackController.phaserLfoModeKey()))
+                    onActivated: index => root.setParameterValue(effectRackController.phaserLfoModeKey(), index)
+                    Layout.fillWidth: true
+                }
+
+                StackLayout {
+                    // Only the BPM mode counts in divisions; Normal and One-Shot both run in Hz.
+                    currentIndex: Math.round(root.parameterValue(effectRackController.phaserLfoModeKey())) === 1 ? 1 : 0
+                    Layout.fillWidth: true
+
+                    Knob {
+                        label: qsTr("Rate")
+                        suffix: "Hz"
+                        mapping: "lfoFrequency"
+                        value: root.parameterValue(effectRackController.phaserLfoRateKey()) * Constants.uiInternalScaling
+                        onMoved: v => root.setParameterValue(effectRackController.phaserLfoRateKey(), v / Constants.uiInternalScaling)
+                        Layout.fillWidth: true
+                    }
+
+                    SyncSlider {
+                        label: qsTr("Rate")
+                        value: root.parameterValue(effectRackController.phaserLfoRateKey()) * Constants.uiInternalScaling
+                        onMoved: v => root.setParameterValue(effectRackController.phaserLfoRateKey(), v / Constants.uiInternalScaling)
+                        Layout.fillWidth: true
+                    }
+                }
+
+                Knob {
+                    label: qsTr("Rate Divider")
+                    mapping: "integer"
+                    suffix: ""
+                    from: 1
+                    to: effectRackController.phaserMaxRateDivider()
+                    stepSize: 1
+                    value: Math.max(1, root.parameterValue(effectRackController.phaserRateDividerKey()))
+                    onMoved: v => root.setParameterValue(effectRackController.phaserRateDividerKey(), Math.round(v))
+                    Layout.fillWidth: true
+                }
+
+                Knob {
+                    label: qsTr("Stereo Phase")
+                    suffix: "°"
+                    mapMin: 0
+                    mapMax: 180
+                    value: root.parameterValue(effectRackController.phaserStereoPhaseKey()) * Constants.uiInternalScaling
+                    onMoved: v => root.setParameterValue(effectRackController.phaserStereoPhaseKey(), v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
             }
 
-            Knob {
-                label: qsTr("Feedback")
-                mapping: "cubicCentered"
-                mapMin: -100
-                mapMax: 100
-                value: root.parameterValue(effectRackController.phaserFeedbackKey()) * Constants.uiInternalScaling
-                onMoved: v => root.setParameterValue(effectRackController.phaserFeedbackKey(), v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
-            }
-        }
-
-        SectionLabel {
-            text: qsTr("Sweep")
-        }
-
-        RowLayout {
-            spacing: 20
-            Layout.fillWidth: true
-
-            ComboBoxColumn {
-                label: qsTr("Waveform")
-                model: effectRackController.lfoWaveformNames()
-                currentIndex: Math.round(root.parameterValue(effectRackController.phaserLfoWaveformKey()))
-                onActivated: index => root.setParameterValue(effectRackController.phaserLfoWaveformKey(), index)
-                Layout.fillWidth: true
+            SectionLabel {
+                text: qsTr("Output")
             }
 
-            ComboBoxColumn {
-                label: qsTr("Mode")
-                model: effectRackController.lfoModeNames()
-                currentIndex: Math.round(root.parameterValue(effectRackController.phaserLfoModeKey()))
-                onActivated: index => root.setParameterValue(effectRackController.phaserLfoModeKey(), index)
-                Layout.fillWidth: true
-            }
-
-            StackLayout {
-                // Only the BPM mode counts in divisions; Normal and One-Shot both run in Hz.
-                currentIndex: Math.round(root.parameterValue(effectRackController.phaserLfoModeKey())) === 1 ? 1 : 0
+            RowLayout {
+                spacing: 20
                 Layout.fillWidth: true
 
                 Knob {
-                    label: qsTr("Rate")
-                    suffix: "Hz"
-                    mapping: "lfoFrequency"
-                    value: root.parameterValue(effectRackController.phaserLfoRateKey()) * Constants.uiInternalScaling
-                    onMoved: v => root.setParameterValue(effectRackController.phaserLfoRateKey(), v / Constants.uiInternalScaling)
+                    label: qsTr("Gain")
+                    suffix: "dB"
+                    mapMin: -12
+                    mapMax: 12
+                    value: root.parameterValue(effectRackController.phaserGainKey()) * Constants.uiInternalScaling
+                    onMoved: v => root.setParameterValue(effectRackController.phaserGainKey(), v / Constants.uiInternalScaling)
                     Layout.fillWidth: true
                 }
 
-                SyncSlider {
-                    label: qsTr("Rate")
-                    value: root.parameterValue(effectRackController.phaserLfoRateKey()) * Constants.uiInternalScaling
-                    onMoved: v => root.setParameterValue(effectRackController.phaserLfoRateKey(), v / Constants.uiInternalScaling)
+                Knob {
+                    label: qsTr("Mix")
+                    suffix: "%"
+                    value: root.parameterValue(effectRackController.phaserMixKey()) * Constants.uiInternalScaling
+                    onMoved: v => root.setParameterValue(effectRackController.phaserMixKey(), v / Constants.uiInternalScaling)
+                    Layout.fillWidth: true
+                }
+
+                Item {
                     Layout.fillWidth: true
                 }
             }
 
-            Knob {
-                label: qsTr("Rate Divider")
-                mapping: "integer"
-                suffix: ""
-                from: 1
-                to: effectRackController.phaserMaxRateDivider()
-                stepSize: 1
-                value: Math.max(1, root.parameterValue(effectRackController.phaserRateDividerKey()))
-                onMoved: v => root.setParameterValue(effectRackController.phaserRateDividerKey(), Math.round(v))
+            Label {
+                text: qsTr("Rate Divider divides the Rate by anything from 1 to %1, in both modes: a tempo-locked sweep can be stretched over several bars, and a free-running one over minutes.").arg(effectRackController.phaserMaxRateDivider())
+                wrapMode: Text.WordWrap
+                font.pixelSize: 11
+                color: "#aaa"
                 Layout.fillWidth: true
             }
 
-            Knob {
-                label: qsTr("Stereo Phase")
-                suffix: "°"
-                mapMin: 0
-                mapMax: 180
-                value: root.parameterValue(effectRackController.phaserStereoPhaseKey()) * Constants.uiInternalScaling
-                onMoved: v => root.setParameterValue(effectRackController.phaserStereoPhaseKey(), v / Constants.uiInternalScaling)
+            Label {
+                text: qsTr("The notches are deepest at 50 % Mix, where the dry and the swept signal meet at equal amounts. Feedback sharpens the peaks between them, and its two polarities cancel at different frequencies.")
+                wrapMode: Text.WordWrap
+                font.pixelSize: 11
+                color: "#aaa"
                 Layout.fillWidth: true
-            }
-        }
-
-        SectionLabel {
-            text: qsTr("Output")
-        }
-
-        RowLayout {
-            spacing: 20
-            Layout.fillWidth: true
-
-            Knob {
-                label: qsTr("Gain")
-                suffix: "dB"
-                mapMin: -12
-                mapMax: 12
-                value: root.parameterValue(effectRackController.phaserGainKey()) * Constants.uiInternalScaling
-                onMoved: v => root.setParameterValue(effectRackController.phaserGainKey(), v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
-            }
-
-            Knob {
-                label: qsTr("Mix")
-                suffix: "%"
-                value: root.parameterValue(effectRackController.phaserMixKey()) * Constants.uiInternalScaling
-                onMoved: v => root.setParameterValue(effectRackController.phaserMixKey(), v / Constants.uiInternalScaling)
-                Layout.fillWidth: true
+                Layout.topMargin: 10
             }
 
             Item {
-                Layout.fillWidth: true
+                Layout.fillHeight: true
             }
-        }
-
-        Label {
-            text: qsTr("Rate Divider divides the Rate by anything from 1 to %1, in both modes: a tempo-locked sweep can be stretched over several bars, and a free-running one over minutes.").arg(effectRackController.phaserMaxRateDivider())
-            wrapMode: Text.WordWrap
-            font.pixelSize: 11
-            color: "#aaa"
-            Layout.fillWidth: true
-        }
-
-        Label {
-            text: qsTr("The notches are deepest at 50 % Mix, where the dry and the swept signal meet at equal amounts. Feedback sharpens the peaks between them, and its two polarities cancel at different frequencies.")
-            wrapMode: Text.WordWrap
-            font.pixelSize: 11
-            color: "#aaa"
-            Layout.fillWidth: true
-            Layout.topMargin: 10
-        }
-
-        Item {
-            Layout.fillHeight: true
         }
     }
 }
