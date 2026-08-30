@@ -142,6 +142,8 @@ private slots:
     void test_midiNotesAtPosition_shouldReturnCorrectNotes();
     void test_setSongLength_clampingPosition_shouldClampCorrectly();
     void test_fromXml_songWithoutTrackIndexZero_shouldNotThrow();
+    void test_createdDate_reSave_shouldKeepTheOriginalDate();
+    void test_createdDate_newSong_shouldStampOnFirstSave();
 };
 
 } // namespace noteahead

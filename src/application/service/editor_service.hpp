@@ -508,7 +508,7 @@ private:
     void deleteNoteDataAtPosition(const Position & position, bool shiftNotes);
     void insertNoteAtPosition(const Position & position);
 
-    SongS deserializeProject(ProjectReader & reader);
+    SongS deserializeProject(ProjectReader & reader, QString & createdDate);
     void doVersionCheck(QString fileFormatVersion);
 
     void logPosition() const;
@@ -564,7 +564,6 @@ private:
     {
         Position cursorPosition;
 
-        QString createdDate;
         QString currentPatternTime;
         QString currentTime;
         QString duration;
@@ -579,6 +578,12 @@ private:
     };
 
     State m_state;
+
+    //! When the project was first created, as read from the file it was loaded from. Deliberately
+    //! not part of State: State is the transient editor state and is reset whenever the song
+    //! changes, which would lose the date and make the next save stamp the project as new.
+    //! Empty for a song that has never been saved; toXml() stamps it then, once.
+    QString m_createdDate;
 };
 
 } // namespace noteahead

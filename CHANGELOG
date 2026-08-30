@@ -7,6 +7,8 @@ New features:
 
 Bug fixes:
 
+* Keep the project's creation date instead of restamping it on every save
+
 * Sync an effect when it is added to a rack, not only when a knob is moved
 
 Other:

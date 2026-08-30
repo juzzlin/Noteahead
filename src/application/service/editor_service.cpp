@@ -134,6 +134,9 @@ EditorService::SongS EditorService::song() const
 void EditorService::setSong(SongS song)
 {
     m_state = State {};
+    // A song arriving here is a new one as far as the editor is concerned; a loaded project sets
+    // its own creation date afterwards, in fromXml().
+    m_createdDate.clear();
 
     m_song = song;
 
@@ -234,7 +237,7 @@ void EditorService::doVersionCheck(QString fileFormatVersion)
     }
 }
 
-EditorService::SongS EditorService::deserializeProject(ProjectReader & reader)
+EditorService::SongS EditorService::deserializeProject(ProjectReader & reader, QString & createdDate)
 {
     try {
         juzzlin::L(TAG).info() << "Reading project started";
@@ -244,8 +247,8 @@ EditorService::SongS EditorService::deserializeProject(ProjectReader & reader)
         juzzlin::L(TAG).info() << "Creator application name: " << applicationName.toStdString();
         const auto applicationVersion = reader.attribute(Constants::NahdXml::xmlKeyApplicationVersion()).toString();
         juzzlin::L(TAG).info() << "Creator application version: " << applicationVersion.toStdString();
-        m_state.createdDate = reader.attribute(Constants::NahdXml::xmlKeyCreatedDate()).toString();
-        juzzlin::L(TAG).info() << "Created date: " << m_state.createdDate.toStdString();
+        createdDate = reader.attribute(Constants::NahdXml::xmlKeyCreatedDate()).toString();
+        juzzlin::L(TAG).info() << "Created date: " << createdDate.toStdString();
         const auto mixerDeserializationCallback = [this](ProjectReader & reader) {
             emit mixerDeserializationRequested(reader);
         };
@@ -289,8 +292,13 @@ void EditorService::fromXml(QString xml)
     while (!(reader.atEnd())) {
         juzzlin::L(TAG).trace() << "Current element: " << reader.name().toString().toStdString();
         if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyProject())) {
-            if (const auto song = deserializeProject(reader); song) {
+            QString createdDate;
+            if (const auto song = deserializeProject(reader, createdDate); song) {
+                // setSong() resets the transient editor state, so the date the project was created
+                // is carried over the top of it. Without this the project would be stamped as
+                // created today on the next save, every time it was opened.
                 setSong(song);
+                m_createdDate = createdDate;
             }
         }
         reader.readNext();
@@ -371,10 +379,12 @@ QString EditorService::toXml()
     writer.writeAttribute(Constants::NahdXml::xmlKeyFileFormatVersion(), Constants::fileFormatVersion());
     writer.writeAttribute(Constants::NahdXml::xmlKeyApplicationName(), Constants::applicationName());
     writer.writeAttribute(Constants::NahdXml::xmlKeyApplicationVersion(), Constants::applicationVersion());
-    if (m_state.createdDate.isEmpty()) {
-        m_state.createdDate = QDateTime::currentDateTime().toString(Qt::DateFormat::ISODateWithMs);
+    // Stamped once, when a project that has never been saved is written for the first time. A
+    // project that already carries a creation date keeps it for the rest of its life.
+    if (m_createdDate.isEmpty()) {
+        m_createdDate = QDateTime::currentDateTime().toString(Qt::DateFormat::ISODateWithMs);
     }
-    writer.writeAttribute(Constants::NahdXml::xmlKeyCreatedDate(), m_state.createdDate);
+    writer.writeAttribute(Constants::NahdXml::xmlKeyCreatedDate(), m_createdDate);
     const auto mixerSerializationCallback = [this](ProjectWriter & writer) {
         emit mixerSerializationRequested(writer);
     };

@@ -36,6 +36,7 @@
 #include "../../infra/data_service.hpp"
 #include "../../infra/settings.hpp"
 
+#include <QRegularExpression>
 #include <QSignalSpy>
 #include <QTest>
 
@@ -2162,6 +2163,49 @@ void EditorServiceTest::test_setSongLength_clampingPosition_shouldClampCorrectly
     QCOMPARE(editorService.songLength(), 2);
     // The song position should be clamped to 1.
     QCOMPARE(editorService.songPosition(), 1);
+}
+
+void EditorServiceTest::test_createdDate_reSave_shouldKeepTheOriginalDate()
+{
+    // The creation date says when the project was first created and must survive being opened and
+    // saved again. It used to be held in the editor state, which setSong() resets on load, so every
+    // open-and-save cycle stamped the project as created today.
+    const auto makeService = [] {
+        return EditorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    };
+    const auto createdDateOf = [](const QString & xml) {
+        const QRegularExpression re { R"re(createdDate="([^"]*)")re" };
+        return re.match(xml).captured(1);
+    };
+
+    auto editorServiceOut = makeService();
+    const auto originalXml = editorServiceOut.toXml();
+    const auto originalDate = createdDateOf(originalXml);
+    QVERIFY(!originalDate.isEmpty());
+
+    // Open it and save it again, twice, as a user reworking a song over several sessions would.
+    auto editorService = makeService();
+    editorService.fromXml(originalXml);
+    const auto reSavedXml = editorService.toXml();
+    QCOMPARE(createdDateOf(reSavedXml), originalDate);
+
+    editorService.fromXml(reSavedXml);
+    QCOMPARE(createdDateOf(editorService.toXml()), originalDate);
+}
+
+void EditorServiceTest::test_createdDate_newSong_shouldStampOnFirstSave()
+{
+    // A new song started after a project was open must not inherit that project's creation date.
+    const QRegularExpression re { R"re(createdDate="([^"]*)")re" };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+
+    auto loadedXml = editorService.toXml();
+    loadedXml.replace(re.match(loadedXml).captured(0), R"re(createdDate="2020-01-01T00:00:00.000")re");
+    editorService.fromXml(loadedXml);
+    QCOMPARE(re.match(editorService.toXml()).captured(1), QString { "2020-01-01T00:00:00.000" });
+
+    editorService.initialize();
+    QVERIFY(re.match(editorService.toXml()).captured(1) != QString { "2020-01-01T00:00:00.000" });
 }
 
 void EditorServiceTest::test_fromXml_songWithoutTrackIndexZero_shouldNotThrow()
