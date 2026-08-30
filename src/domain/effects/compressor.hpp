@@ -21,6 +21,7 @@
 #include "effect.hpp"
 
 #include <cstdint>
+#include <string>
 #include <vector>
 
 namespace noteahead {
@@ -30,7 +31,31 @@ class Compressor : public Effect
 public:
     using DetectorMode = CompressorCore::DetectorMode;
 
+    //! Starting points calibrated against Noteahead's own signal levels rather than ported from
+    //! elsewhere: its devices run quiet and span some 20 dB between them, so thresholds taken from
+    //! general practice either do nothing or clamp down hard. Each is set against the material it
+    //! is named for. See applyPreset().
+    enum class Preset
+    {
+        Glue,
+        DrumBus,
+        PunchyDrums,
+        Piano,
+        Vocal,
+        Bass,
+        Pump,
+        Brickwall
+    };
+
     Compressor();
+
+    //! Writes the preset over this compressor's parameters. Routing -- the sidechain source -- is
+    //! left alone: it is the user's patching, not part of the sound the preset describes.
+    void applyPreset(Preset preset);
+
+    static std::string presetToString(Preset preset);
+    static Preset stringToPreset(const std::string & presetName);
+    static std::vector<std::string> presetNames();
 
     static std::string typeIdString();
     std::string type() const override;

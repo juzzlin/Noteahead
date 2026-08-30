@@ -2505,6 +2505,33 @@ void EffectRackController::applyReverbPreset(quint32 effectIndex, quint32 preset
     }
 }
 
+QStringList EffectRackController::compressorPresets() const
+{
+    QStringList presets;
+    for (const auto & name : Compressor::presetNames()) {
+        presets.append(QString::fromStdString(name));
+    }
+    return presets;
+}
+
+void EffectRackController::applyCompressorPreset(quint32 effectIndex, quint32 presetIndex)
+{
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(effectIndex); effect) {
+            if (const auto compressor = std::dynamic_pointer_cast<Compressor>(effect); compressor) {
+                const auto presetNames = Compressor::presetNames();
+                if (presetIndex < presetNames.size()) {
+                    compressor->applyPreset(Compressor::stringToPreset(presetNames[static_cast<size_t>(presetIndex)]));
+                    m_editorService->setIsModified(true);
+                    m_revision++;
+                    emit revisionChanged();
+                    emit parameterChanged(effectIndex, ""); // Notify all parameters changed
+                }
+            }
+        }
+    }
+}
+
 void EffectRackController::snapshotEffect(int effectIndex)
 {
     m_snapshot.reset();

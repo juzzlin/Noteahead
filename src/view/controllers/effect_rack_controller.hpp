@@ -453,6 +453,9 @@ public:
     Q_INVOKABLE QStringList reverbPresets() const;
     Q_INVOKABLE void applyReverbPreset(quint32 effectIndex, quint32 presetIndex);
 
+    Q_INVOKABLE QStringList compressorPresets() const;
+    Q_INVOKABLE void applyCompressorPreset(quint32 effectIndex, quint32 presetIndex);
+
     Q_INVOKABLE float deviceSend(const QString & deviceName, quint32 effectIndex) const;
     Q_INVOKABLE void setDeviceSend(const QString & deviceName, quint32 effectIndex, float send);
 

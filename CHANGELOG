@@ -5,6 +5,10 @@ Release date:
 
 New features:
 
+* Add presets to the Compressor
+  - Glue, Drum Bus, Punchy Drums, Piano, Vocal, Bass, Pump and Brickwall
+  - Calibrated against Noteahead's own signal levels
+
 Bug fixes:
 
 * Keep the project's creation date instead of restamping it on every save

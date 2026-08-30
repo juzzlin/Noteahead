@@ -202,6 +202,124 @@ void Compressor::syncParameters()
     }
 }
 
+namespace {
+
+//! A preset in the units it is reasoned about, rather than in the normalized 0-1 the parameters
+//! store. applyPreset() does the conversion, so the table below stays readable and reviewable.
+struct PresetValues
+{
+    float thresholdDb;
+    float ratio;
+    float attackMs;
+    float releaseMs;
+    float kneeDb;
+    float makeupDb;
+    float lookaheadMs;
+    bool rms;
+};
+
+PresetValues presetValues(Compressor::Preset preset)
+{
+    switch (preset) {
+    // Mix-bus glue. The release is short for a bus on purpose: at 140 BPM a four-on-the-floor kick
+    // lands every 428 ms, and a release of a few hundred milliseconds is still recovering when the
+    // next one arrives, which takes the front off it.
+    case Compressor::Preset::Glue:
+        return { -22.0f, 2.0f, 30.0f, 120.0f, 6.0f, 2.0f, 0.0f, true };
+    case Compressor::Preset::DrumBus:
+        return { -20.0f, 4.0f, 10.0f, 100.0f, 3.0f, 3.0f, 0.0f, false };
+    // The slow attack is the point: it lets the stick through before the body is caught.
+    case Compressor::Preset::PunchyDrums:
+        return { -22.0f, 4.0f, 30.0f, 80.0f, 0.0f, 4.0f, 0.0f, false };
+    case Compressor::Preset::Piano:
+        return { -22.0f, 3.0f, 20.0f, 150.0f, 6.0f, 3.0f, 0.0f, true };
+    case Compressor::Preset::Vocal:
+        return { -20.0f, 3.0f, 5.0f, 150.0f, 6.0f, 4.0f, 0.0f, true };
+    // Threshold well above the others: the bass devices run some 10 dB hotter than the rest.
+    case Compressor::Preset::Bass:
+        return { -16.0f, 4.0f, 15.0f, 100.0f, 3.0f, 4.0f, 0.0f, false };
+    case Compressor::Preset::Pump:
+        return { -24.0f, 8.0f, 0.5f, 180.0f, 0.0f, 5.0f, 0.0f, false };
+    // Lookahead so the ceiling holds on transients the attack alone would miss.
+    case Compressor::Preset::Brickwall:
+        return { -6.0f, 20.0f, 0.1f, 50.0f, 0.0f, 0.0f, 5.0f, false };
+    }
+    return { -22.0f, 2.0f, 30.0f, 120.0f, 6.0f, 2.0f, 0.0f, true };
+}
+
+} // namespace
+
+void Compressor::applyPreset(Preset preset)
+{
+    const auto values = presetValues(preset);
+
+    // The inverses of the mappings in syncParameters().
+    const auto set = [this](const QString & key, float value) {
+        if (const auto p = parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    };
+
+    set(Constants::NahdXml::xmlKeyThreshold(), (values.thresholdDb + 60.0f) / 60.0f);
+    set(Constants::NahdXml::xmlKeyRatio(), (values.ratio - 1.0f) / 19.0f);
+    set(Constants::NahdXml::xmlKeyAttack(), static_cast<float>(ParameterMapper::unmapExponential(values.attackMs, 0.1, 500.0)));
+    set(Constants::NahdXml::xmlKeyRelease(), static_cast<float>(ParameterMapper::unmapExponential(values.releaseMs, 1.0, 2000.0)));
+    set(Constants::NahdXml::xmlKeyKnee(), values.kneeDb / 24.0f);
+    set(Constants::NahdXml::xmlKeyMakeup(), (values.makeupDb + 12.0f) / 24.0f);
+    set(Constants::NahdXml::xmlKeyLookahead(), values.lookaheadMs / 10.0f);
+    set(Constants::NahdXml::xmlKeyMode(), values.rms ? 1.0f : 0.0f);
+
+    m_shouldSyncParameters = true;
+    m_shouldUpdateBuffers = true;
+}
+
+std::string Compressor::presetToString(Preset preset)
+{
+    switch (preset) {
+    case Preset::Glue:
+        return "Glue";
+    case Preset::DrumBus:
+        return "Drum Bus";
+    case Preset::PunchyDrums:
+        return "Punchy Drums";
+    case Preset::Piano:
+        return "Piano";
+    case Preset::Vocal:
+        return "Vocal";
+    case Preset::Bass:
+        return "Bass";
+    case Preset::Pump:
+        return "Pump";
+    case Preset::Brickwall:
+        return "Brickwall";
+    }
+    return "Glue";
+}
+
+Compressor::Preset Compressor::stringToPreset(const std::string & presetName)
+{
+    if (presetName == "Drum Bus")
+        return Preset::DrumBus;
+    if (presetName == "Punchy Drums")
+        return Preset::PunchyDrums;
+    if (presetName == "Piano")
+        return Preset::Piano;
+    if (presetName == "Vocal")
+        return Preset::Vocal;
+    if (presetName == "Bass")
+        return Preset::Bass;
+    if (presetName == "Pump")
+        return Preset::Pump;
+    if (presetName == "Brickwall")
+        return Preset::Brickwall;
+    return Preset::Glue;
+}
+
+std::vector<std::string> Compressor::presetNames()
+{
+    return { "Glue", "Drum Bus", "Punchy Drums", "Piano", "Vocal", "Bass", "Pump", "Brickwall" };
+}
+
 std::string Compressor::typeIdString()
 {
     return "7a2b3c4d-5e6f-4a8b-9c0d-1e2f3a4b5c6d";

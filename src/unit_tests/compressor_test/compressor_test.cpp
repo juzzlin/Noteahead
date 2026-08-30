@@ -57,6 +57,78 @@ double feed(Compressor & effect, double level, int frameCount)
 
 } // namespace
 
+void CompressorTest::test_presets_shouldMapToTheirAuthoredValues()
+{
+    // The presets are authored in dB and milliseconds and stored normalized, so the conversion is
+    // what can silently drift. Glue is checked end to end; the rest only have to stay in range.
+    Compressor effect;
+    effect.setSampleRate(sampleRate);
+    effect.applyPreset(Compressor::Preset::Glue);
+
+    const auto valueOf = [&](const QString & key) {
+        const auto p = effect.parameter(key.toStdString());
+        return p ? p->get().value() : -1.0f;
+    };
+
+    // -22dB over the -60..0dB range.
+    QVERIFY(std::abs(valueOf(Constants::NahdXml::xmlKeyThreshold()) - 38.0f / 60.0f) < 1e-5f);
+    // 2:1 over the 1..20 range.
+    QVERIFY(std::abs(valueOf(Constants::NahdXml::xmlKeyRatio()) - 1.0f / 19.0f) < 1e-5f);
+    // 30ms and 120ms through the exponential maps they are read back with.
+    QVERIFY(std::abs(ParameterMapper::mapExponential(valueOf(Constants::NahdXml::xmlKeyAttack()), 0.1, 500.0) - 30.0) < 0.01);
+    QVERIFY(std::abs(ParameterMapper::mapExponential(valueOf(Constants::NahdXml::xmlKeyRelease()), 1.0, 2000.0) - 120.0) < 0.01);
+    // 6dB knee, +2dB makeup, RMS detection.
+    QVERIFY(std::abs(valueOf(Constants::NahdXml::xmlKeyKnee()) - 0.25f) < 1e-5f);
+    QVERIFY(std::abs(valueOf(Constants::NahdXml::xmlKeyMakeup()) - 14.0f / 24.0f) < 1e-5f);
+    QCOMPARE(valueOf(Constants::NahdXml::xmlKeyMode()), 1.0f);
+
+    // Every preset has to land inside the parameter ranges, or it would be silently clamped.
+    for (const auto & name : Compressor::presetNames()) {
+        Compressor other;
+        other.setSampleRate(sampleRate);
+        other.applyPreset(Compressor::stringToPreset(name));
+        for (const auto & key : { Constants::NahdXml::xmlKeyThreshold(), Constants::NahdXml::xmlKeyRatio(),
+                                  Constants::NahdXml::xmlKeyAttack(), Constants::NahdXml::xmlKeyRelease(),
+                                  Constants::NahdXml::xmlKeyKnee(), Constants::NahdXml::xmlKeyMakeup(),
+                                  Constants::NahdXml::xmlKeyLookahead() }) {
+            const auto p = other.parameter(key.toStdString());
+            QVERIFY(p.has_value());
+            QVERIFY(p->get().value() >= 0.0f);
+            QVERIFY(p->get().value() <= 1.0f);
+        }
+    }
+}
+
+void CompressorTest::test_presets_glue_shouldReduceGentlyAtProgramLevel()
+{
+    // Glue is calibrated against Noteahead's own levels: a master bus sits around -17dB on the
+    // detector, and the preset is meant to take 2-3dB off that -- enough to hear, not enough to
+    // squash. A threshold ported from a tool with hotter signals would do nothing here.
+    Compressor effect;
+    effect.setSampleRate(sampleRate);
+    effect.applyPreset(Compressor::Preset::Glue);
+
+    feed(effect, Utils::Dsp::dbToLinear(-17.0f), 20000);
+    QVERIFY(effect.reductionDb() < -1.5f);
+    QVERIFY(effect.reductionDb() > -4.0f);
+
+    // And it has to leave quiet passages alone, or it is not glue but levelling.
+    Compressor quiet;
+    quiet.setSampleRate(sampleRate);
+    quiet.applyPreset(Compressor::Preset::Glue);
+    feed(quiet, Utils::Dsp::dbToLinear(-30.0f), 20000);
+    QVERIFY(quiet.reductionDb() > -0.5f);
+}
+
+void CompressorTest::test_presets_names_shouldRoundTrip()
+{
+    const auto names = Compressor::presetNames();
+    QCOMPARE(names.size(), static_cast<size_t>(8));
+    for (const auto & name : names) {
+        QCOMPARE(Compressor::presetToString(Compressor::stringToPreset(name)), name);
+    }
+}
+
 void CompressorTest::test_gain_belowThreshold_shouldPassThroughUnchanged()
 {
     Compressor effect;

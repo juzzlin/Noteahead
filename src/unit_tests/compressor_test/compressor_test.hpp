@@ -37,6 +37,9 @@ private slots:
     void test_release_afterSignalStops_shouldReturnTowardsUnity();
 
     void test_lookahead_shouldDelayOutputButNotDetection();
+    void test_presets_shouldMapToTheirAuthoredValues();
+    void test_presets_glue_shouldReduceGentlyAtProgramLevel();
+    void test_presets_names_shouldRoundTrip();
 
     void test_detectorMode_default_shouldBePeak();
     void test_detectorMode_rms_shouldIgnoreShortTransients();
