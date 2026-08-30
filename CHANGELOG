@@ -5,6 +5,19 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+7.2.1
+=====
+
+Release date:
+
+Sun, 30 Aug 2026 23:38:39 +0300
+
+New features:
+
 * Add presets to the Compressor
   - Glue, Drum Bus, Punchy Drums, Piano, Vocal, Bass, Pump and Brickwall
   - Calibrated against Noteahead's own signal levels
