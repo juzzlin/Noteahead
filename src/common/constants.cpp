@@ -15,6 +15,8 @@
 
 #include "constants.hpp"
 
+#include <map>
+
 namespace noteahead::Constants {
 
 QString applicationName()
@@ -209,6 +211,45 @@ double defaultSampleRate()
 {
     return 48000.0;
 }
+
+namespace Language {
+
+QStringList supportedLanguages()
+{
+    return { "fi", "de", "es", "fr", "it", "nl", "pl", "pt_BR", "zh_CN" };
+}
+
+QString nativeLanguageName(const QString & language)
+{
+    static const std::map<QString, QString> nativeNames {
+        { "de", QString::fromUtf8("Deutsch") },
+        { "en", QString::fromUtf8("English") },
+        { "es", QString::fromUtf8("Espa\u00f1ol") },
+        { "fi", QString::fromUtf8("Suomi") },
+        { "fr", QString::fromUtf8("Fran\u00e7ais") },
+        { "it", QString::fromUtf8("Italiano") },
+        { "nl", QString::fromUtf8("Nederlands") },
+        { "pl", QString::fromUtf8("Polski") },
+        { "pt_BR", QString::fromUtf8("Portugu\u00eas (Brasil)") },
+        { "zh_CN", QString::fromUtf8("\u7b80\u4f53\u4e2d\u6587") }
+    };
+    if (const auto it = nativeNames.find(language); it != nativeNames.end()) {
+        return it->second;
+    }
+    return language;
+}
+
+QString translationsResourceBase()
+{
+    return ":/translations/noteahead_";
+}
+
+QString sourceLanguage()
+{
+    return "en";
+}
+
+} // namespace Language
 
 namespace RackEffectType {
 QString reverb()

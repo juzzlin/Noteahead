@@ -53,6 +53,7 @@ const auto settingsGroupEditor = "Editor";
 const auto settingsGroupMainWindow = "MainWindow";
 const auto settingsGroupMidi = "Midi";
 const auto settingsGroupTheme = "Theme";
+const auto settingsGroupLanguage = "Language";
 
 const auto stepKey = "step";
 const auto velocityKey = "velocity";
@@ -66,6 +67,8 @@ const auto windowSizeKey = "size";
 const auto accentColorKey = "accentColor";
 const auto cursorColorKey = "cursorColor";
 const auto paletteAccentBlendKey = "paletteAccentBlend";
+
+const auto userLanguageKey = "userLanguage";
 
 AudioBackend audioBackend()
 {
@@ -651,6 +654,23 @@ void setPaletteAccentBlend(int paletteAccentBlend)
     QSettings settings;
     settings.beginGroup(settingsGroupTheme);
     settings.setValue(paletteAccentBlendKey, paletteAccentBlend);
+    settings.endGroup();
+}
+
+QString userLanguage(QString defaultUserLanguage)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupLanguage);
+    const auto language = settings.value(userLanguageKey, defaultUserLanguage).toString();
+    settings.endGroup();
+    return language;
+}
+
+void setUserLanguage(QString userLanguage)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupLanguage);
+    settings.setValue(userLanguageKey, userLanguage);
     settings.endGroup();
 }
 

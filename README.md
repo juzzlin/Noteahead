@@ -309,13 +309,20 @@ Noteahead is currently being developed on Ubuntu 24.04 LTS and on Ubuntu 26.04 L
 
 Packages needed for building:
 
-    $ sudo apt install build-essential cmake pkg-config ninja-build qt6-base-dev qt6-declarative-dev qt6-tools-dev librtmidi-dev librtaudio-dev libsndfile-dev libjack-jackd2-dev
+    $ sudo apt install build-essential cmake pkg-config ninja-build qt6-base-dev qt6-declarative-dev qt6-tools-dev qt6-l10n-tools librtmidi-dev librtaudio-dev libsndfile-dev libjack-jackd2-dev
 
 **Note**: As we are in the middle of the PipeWire transition, the Jack development files might not be needed.
 
 Additional packages needed to run:
 
     $ sudo apt install qml6-module-qtcore qml6-module-qtqml qml6-module-qtqml-workerscript qml6-module-qtquick qml6-module-qtquick-controls qml6-module-qtquick-dialogs qml6-module-qtquick-layouts qml6-module-qtquick-templates qml6-module-qtquick-window
+
+Noteahead's own translations are compiled into the binary, but the strings Qt itself supplies
+(standard dialog buttons and the like) come from Qt's translation catalogues:
+
+    $ sudo apt install qt6-translations-l10n
+
+Without it the application is still fully translated; only those Qt-supplied strings stay in English.
 
 ###
 ### Build and run on CLI
@@ -336,6 +343,33 @@ Optionally install locally:
 ### Run unit tests on CLI
 
     $ ctest
+
+###
+### Updating translations
+
+The translation sources live in `src/translations` as one `.ts` file per language. They are checked
+in, and only `lrelease` runs during a normal build, so nothing regenerates them by accident.
+
+After adding or changing a translatable string, rescan the sources:
+
+    $ ninja update_translations
+
+That runs `lupdate` over `src/application`, `src/common`, `src/domain`, `src/infra` and `src/view`,
+picking up both `tr()` in C++ and `qsTr()` in QML. It writes without location comments on purpose:
+line numbers shift on unrelated edits and turn every translation merge into a conflict.
+
+The target uses the `lupdate` belonging to the Qt this project is configured against, not whatever
+is first on `PATH`. On a system with `qtchooser` the one on `PATH` is Qt 5's, whose QML parser
+silently drops strings from files it cannot parse.
+
+Translate the `.ts` files with Qt Linguist:
+
+    $ sudo apt install qt6-l10n-tools linguist-qt6
+
+    $ linguist src/translations/noteahead_fi.ts
+
+To add a language, add its `.ts` to the `TS` list in `src/CMakeLists.txt` and its locale name to
+`Constants::Language::supportedLanguages()`. `language_service_test` fails if the two disagree.
 
 ###
 ### Create a Debian package

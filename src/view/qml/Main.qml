@@ -845,6 +845,9 @@ ApplicationWindow {
         id: contextMenu
         width: parent.width * 0.25
     }
+    LanguageMenu {
+        id: languageMenu
+    }
     // Transport shortcuts. Qt Quick Controls blocks window-context shortcuts while a modal dialog is
     // open, so these are registered as application shortcuts to keep the transport reachable e.g. when
     // the Device Rack is open. The matching Song menu entries only display the sequences: registering
@@ -1330,6 +1333,12 @@ ApplicationWindow {
             contextMenu.x = x;
             contextMenu.y = y;
             contextMenu.open();
+        });
+        UiService.languageMenuRequested.connect((x, y) => {
+            // Right-aligned to the selector that asked for it, so the menu stays inside the window.
+            languageMenu.x = x - languageMenu.width;
+            languageMenu.y = y;
+            languageMenu.open();
         });
         UiService.deleteUnusedPatternsRequested.connect(() => {
             deleteUnusedPatternsDialog.open();

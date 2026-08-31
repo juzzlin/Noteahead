@@ -63,6 +63,7 @@ class Instrument;
 class JackService;
 class KeyboardService;
 class KnobController;
+class LanguageService;
 class ManualService;
 class MidiCcAutomationsModel;
 class MidiExporter;
@@ -137,6 +138,9 @@ private:
     void initializeApplicationEngine();
     int initializeTracker();
 
+    //! Re-runs everything that renders a translated string after the UI language changed.
+    void retranslateUi();
+
     void registerTypes();
     void setContextProperties();
 
@@ -152,6 +156,7 @@ private:
     std::shared_ptr<ApplicationService> m_applicationService;
 
     std::shared_ptr<SettingsService> m_settingsService;
+    std::shared_ptr<LanguageService> m_languageService;
     std::shared_ptr<ThemeService> m_themeService;
     std::shared_ptr<TipService> m_tipService;
     std::shared_ptr<ManualService> m_manualService;

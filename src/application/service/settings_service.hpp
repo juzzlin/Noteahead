@@ -50,6 +50,8 @@ class SettingsService : public QObject
     Q_PROPERTY(int automationDisplayMode READ automationDisplayMode WRITE setAutomationDisplayMode NOTIFY automationDisplayModeChanged)
     //! Width of a drawn automation curve, in tenths of a pixel.
     Q_PROPERTY(int automationCurveThicknessTenths READ automationCurveThicknessTenths WRITE setAutomationCurveThicknessTenths NOTIFY automationCurveThicknessTenthsChanged)
+    //! Language the user picked, as a Qt locale name. Empty means the system's UI languages decide.
+    Q_PROPERTY(QString userLanguage READ userLanguage WRITE setUserLanguage NOTIFY userLanguageChanged)
 
 public:
     SettingsService();
@@ -136,6 +138,9 @@ public:
     virtual Q_INVOKABLE int automationCurveThicknessTenths() const;
     virtual Q_INVOKABLE void setAutomationCurveThicknessTenths(int tenths);
 
+    virtual Q_INVOKABLE QString userLanguage() const;
+    virtual Q_INVOKABLE void setUserLanguage(QString userLanguage);
+
 signals:
     void controllerPortChanged();
     void uiUpdatesDisabledDuringPlaybackChanged();
@@ -158,6 +163,7 @@ signals:
     void gainStagingTargetDbChanged();
     void automationDisplayModeChanged();
     void automationCurveThicknessTenthsChanged();
+    void userLanguageChanged();
 
 private:
     int m_autoNoteOffOffset;
@@ -194,6 +200,8 @@ private:
     int m_gainStagingTargetDb;
     int m_automationDisplayMode;
     int m_automationCurveThicknessTenths;
+
+    QString m_userLanguage;
 };
 
 } // namespace noteahead

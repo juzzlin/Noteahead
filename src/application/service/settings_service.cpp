@@ -52,6 +52,7 @@ SettingsService::SettingsService()
   , m_gainStagingTargetDb { Settings::gainStagingTargetDb(Constants::defaultGainStagingTargetDb()) }
   , m_automationDisplayMode { Settings::automationDisplayMode(Constants::defaultAutomationDisplayMode()) }
   , m_automationCurveThicknessTenths { Settings::automationCurveThicknessTenths(Constants::defaultAutomationCurveThicknessTenths()) }
+  , m_userLanguage { Settings::userLanguage({}) }
 {
     // An invalid size means nothing has been stored yet, in which case the caller's default wins
     if (const auto storedWindowSize = Settings::windowSize(QSize {}); storedWindowSize.isValid()) {
@@ -428,6 +429,20 @@ void SettingsService::setAutomationCurveThicknessTenths(int tenths)
         m_automationCurveThicknessTenths = tenths;
         Settings::setAutomationCurveThicknessTenths(tenths);
         emit automationCurveThicknessTenthsChanged();
+    }
+}
+
+QString SettingsService::userLanguage() const
+{
+    return m_userLanguage;
+}
+
+void SettingsService::setUserLanguage(QString userLanguage)
+{
+    if (m_userLanguage != userLanguage) {
+        m_userLanguage = userLanguage;
+        Settings::setUserLanguage(userLanguage);
+        emit userLanguageChanged();
     }
 }
 

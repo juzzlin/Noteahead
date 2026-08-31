@@ -32,15 +32,15 @@ class SynthController : public DeviceController
 
     Q_PROPERTY(QStringList vcoWaveformNames READ vcoWaveformNames CONSTANT)
     Q_PROPERTY(QStringList lfoWaveformNames READ lfoWaveformNames CONSTANT)
-    Q_PROPERTY(QStringList voiceModes READ voiceModes CONSTANT)
+    Q_PROPERTY(QStringList voiceModes READ voiceModes NOTIFY translationsChanged)
     Q_PROPERTY(QStringList octaveNames READ octaveNames CONSTANT)
-    Q_PROPERTY(QStringList multiTypeNames READ multiTypeNames CONSTANT)
-    Q_PROPERTY(QStringList modTargetNames READ modTargetNames CONSTANT)
-    Q_PROPERTY(QStringList lfoModeNames READ lfoModeNames CONSTANT)
-    Q_PROPERTY(QStringList lfoTargetNames READ lfoTargetNames CONSTANT)
+    Q_PROPERTY(QStringList multiTypeNames READ multiTypeNames NOTIFY translationsChanged)
+    Q_PROPERTY(QStringList modTargetNames READ modTargetNames NOTIFY translationsChanged)
+    Q_PROPERTY(QStringList lfoModeNames READ lfoModeNames NOTIFY translationsChanged)
+    Q_PROPERTY(QStringList lfoTargetNames READ lfoTargetNames NOTIFY translationsChanged)
     Q_PROPERTY(QStringList lfo2WaveformNames READ lfo2WaveformNames CONSTANT)
-    Q_PROPERTY(QStringList lfo2ModeNames READ lfo2ModeNames CONSTANT)
-    Q_PROPERTY(QStringList lfo2TargetNames READ lfo2TargetNames CONSTANT)
+    Q_PROPERTY(QStringList lfo2ModeNames READ lfo2ModeNames NOTIFY translationsChanged)
+    Q_PROPERTY(QStringList lfo2TargetNames READ lfo2TargetNames NOTIFY translationsChanged)
 
     //! Index of the pulse in vcoWaveformNames, so QML can tell whether a VCO is on the one waveform
     //! Roundness applies to without hardcoding the enum's ordinal.
@@ -148,6 +148,10 @@ class SynthController : public DeviceController
 public:
     explicit SynthController(std::shared_ptr<SynthDevice> synth, QObject * parent = nullptr);
     ~SynthController() override;
+
+    //! Re-emits the notifications for everything holding translated strings. The lists below are
+    //! built with tr() and QML binds them once, so a language change is invisible without this.
+    void retranslate();
 
     DeviceS device() const override;
     bool setDevice(DeviceS device) override;
@@ -328,6 +332,9 @@ public:
     Q_INVOKABLE void saveUserPreset(QString name);
 
 signals:
+    //! Emitted when the UI language changed and the translated lists must be re-read.
+    void translationsChanged();
+
     void synthChanged();
     void currentBankChanged();
     void currentPresetIndexChanged();

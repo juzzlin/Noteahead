@@ -23,7 +23,10 @@ import "../Components"
 
 AnimatedDialog {
     id: rootItem
-    title: `${qsTr("About ")} ${applicationService.applicationName()} ${applicationService.applicationVersion()}`
+    // One format string rather than a prefix concatenated onto the name: languages differ in what
+    // has to sit between "about" and a product name. Finnish needs a case-marked noun, French a
+    // preposition, Italian another one; a bare prefix cannot express any of them.
+    title: qsTr("About %1 %2").arg(applicationService.applicationName()).arg(applicationService.applicationVersion())
     modal: true
     footer: DialogButtonBox {
         AppButton {
@@ -44,7 +47,7 @@ AnimatedDialog {
         }
         ColumnLayout {
             Label {
-                text: `${qsTr("Licensed under")} ${applicationService.license()}`
+                text: qsTr("Licensed under") + " " + applicationService.license()
             }
             Label {
                 text: " "
@@ -57,7 +60,7 @@ AnimatedDialog {
             }
             Label {
                 id: link_Text
-                text: `${qsTr("Project website:")} <a href="${applicationService.webSiteUrl()}">${applicationService.webSiteUrl()}</a>`
+                text: qsTr("Project website:") + " <a href=\"" + applicationService.webSiteUrl() + "\">" + applicationService.webSiteUrl() + "</a>"
                 onLinkActivated: link => Qt.openUrlExternally(link)
                 MouseArea {
                     id: mouseArea
@@ -71,7 +74,7 @@ AnimatedDialog {
             }
             Label {
                 id: support_Text
-                text: `${qsTr("Support this project by listening music created with Noteahead:")} <a href="https://www.arcticmusicproject.com">https://www.arcticmusicproject.com</a>.`
+                text: qsTr("Support this project by listening music created with Noteahead:") + " <a href=\"https://www.arcticmusicproject.com\">https://www.arcticmusicproject.com</a>."
                 onLinkActivated: link => Qt.openUrlExternally(link)
                 wrapMode: Text.WordWrap
                 Layout.preferredWidth: 350

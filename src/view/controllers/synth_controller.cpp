@@ -82,6 +82,11 @@ QStringList SynthController::lfoWaveformNames() const
     return list;
 }
 
+void SynthController::retranslate()
+{
+    emit translationsChanged();
+}
+
 QStringList SynthController::voiceModes() const
 {
     // Order is the persisted VoiceMode ordinal, so Mono trails the stacked modes rather than sitting

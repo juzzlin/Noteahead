@@ -55,6 +55,9 @@ ColumnLayout {
         ComboBox {
             id: sideChainCombo
             model: {
+                // A JS block is not a translation binding, so a language change does not re-evaluate it
+                // on its own. Reading the active language makes the dependency explicit.
+                languageService.activeLanguage;
                 var items = [qsTr("None")];
                 for (var i = 0; i < deviceRackController.deviceCount; i++) {
                     items.push(qsTr("Device %1").arg(i + 1));

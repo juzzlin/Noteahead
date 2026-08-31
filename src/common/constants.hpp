@@ -20,6 +20,7 @@
 #include <cstdint>
 
 #include <QString>
+#include <QStringList>
 
 namespace noteahead::Constants {
 
@@ -168,6 +169,25 @@ constexpr uint8_t panMidiCcController()
 {
     return 10;
 }
+
+namespace Language {
+
+//! Qt locale names of the languages shipped with the application, in the order the selector lists
+//! them. Must stay in sync with the TS list in src/CMakeLists.txt: a name here without a matching
+//! .qm resource leaves the selector offering a language that silently does nothing.
+QStringList supportedLanguages();
+
+//! The language's name in that language itself, as language menus conventionally show it. Not
+//! translated: a reader looking for their own language recognises it in its own spelling.
+QString nativeLanguageName(const QString & language);
+
+//! Resource path prefix the application's own .qm files are embedded under, sans language suffix.
+QString translationsResourceBase();
+
+//! Language used by the untranslated source strings, and the fallback when nothing else matches.
+QString sourceLanguage();
+
+} // namespace Language
 
 namespace RackEffectType {
 QString reverb();

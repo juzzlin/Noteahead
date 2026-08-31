@@ -43,6 +43,9 @@ public:
 public slots:
     void setEditMode(bool editMode);
 
+    //! Re-emits currentTipChanged() so the bar re-reads the tip in the new language.
+    void retranslate();
+
 signals:
     void currentTipChanged();
 

@@ -87,6 +87,27 @@ The codebase is split into five layers. Logic must never leak upward (domain kno
 9. Add `src/unit_tests/<name>_test/` with its own `CMakeLists.txt`, plus `add_subdirectory` in `src/unit_tests/CMakeLists.txt`.
 10. Add a project-level round-trip case to `xml_serialization_test` (it covers the factory registration too) and a `CHANGELOG` entry under *New features*.
 
+## Translations
+
+- Translation sources live in `src/translations/noteahead_<locale>.ts`, one per language, checked in.
+- Only `lrelease` runs at build time; the `.qm` files are embedded at `:/translations/`. Regenerate
+  the sources deliberately with `ninja update_translations`, never as part of a normal build.
+- `lupdate` must be the Qt 6 one. On a system with `qtchooser` the `lupdate` on `PATH` is Qt 5's,
+  whose QML parser drops strings from files it cannot parse. The CMake target resolves it from the
+  `Qt6::lupdate` imported target for this reason.
+- Always generate with `-locations none -no-ui-lines -no-obsolete`. Location comments make
+  translation merges conflict on every unrelated edit.
+- Every user-facing string must be wrapped in `qsTr()` in QML or `tr()` in C++. Never put `qsTr()`
+  inside a template literal: Qt 6.4's parser does not extract from those. Use `+` concatenation.
+- Adding a language means adding its `.ts` to the `TS` list in `src/CMakeLists.txt` **and** its
+  locale to `Constants::Language::supportedLanguages()`. `language_service_test` fails otherwise.
+- `QQmlApplicationEngine::retranslate()` only refreshes pure translation bindings. A `model: { ... }`
+  JS block containing `qsTr()` must read `languageService.activeLanguage` to declare the dependency,
+  and translated strings built in C++ need their notify signal re-emitted from
+  `Application::retranslateUi()`.
+- Do not translate unit strings (`"0 ms"`, `"12 dB/oct"`), pan sides (`" L"`, `" R"`) or device and
+  effect names. Audio jargon conventionally stays in English even in localized DAWs.
+
 ## Coding Standards
 
 - C++20; all code in the `noteahead` namespace.

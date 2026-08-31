@@ -17,12 +17,29 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 
-MenuBar {
-    MainMenu_File {}
-    MainMenu_Edit {}
-    MainMenu_Song {}
-    MainMenu_Devices {}
-    MainMenu_Effects {}
-    MainMenu_Tools {}
-    MainMenu_Help {}
+// Wraps the MenuBar rather than being one, so that the language selector can sit at the right-hand
+// end of the same bar. ApplicationWindow.menuBar accepts any Item, and the height is taken from the
+// MenuBar so that everything sizing itself off menuBar.height still gets the bar's own height.
+Item {
+    id: rootItem
+    implicitHeight: menuBar.implicitHeight
+    MenuBar {
+        id: menuBar
+        // Fills the bar so its background paints the full width; the menus themselves are
+        // left-aligned, which leaves the right-hand end free for the selector drawn on top.
+        anchors.fill: parent
+        MainMenu_File {}
+        MainMenu_Edit {}
+        MainMenu_Song {}
+        MainMenu_Devices {}
+        MainMenu_Effects {}
+        MainMenu_Tools {}
+        MainMenu_Help {}
+    }
+    LanguageSelector {
+        id: languageSelector
+        anchors.right: parent.right
+        anchors.verticalCenter: parent.verticalCenter
+        z: 1
+    }
 }

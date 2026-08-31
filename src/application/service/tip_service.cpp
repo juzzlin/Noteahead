@@ -40,4 +40,9 @@ void TipService::setEditMode(bool editMode)
     }
 }
 
+void TipService::retranslate()
+{
+    emit currentTipChanged();
+}
+
 } // namespace noteahead

@@ -25,6 +25,7 @@ QtObject {
     signal columnVelocityInterpolationDialogRequested
     signal columnVelocityScaleDialogRequested(int trackIndex, int columnIndex)
     signal contextMenuRequested(int globalX, int globalY)
+    signal languageMenuRequested(int globalX, int globalY)
     signal delayCalculatorDialogRequested
     signal deleteUnusedPatternsConfirmed
     signal deleteUnusedPatternsRequested
@@ -407,6 +408,9 @@ QtObject {
     }
     function requestContextMenu(globalX: int, globalY: int): void {
         contextMenuRequested(globalX, globalY);
+    }
+    function requestLanguageMenu(globalX: int, globalY: int): void {
+        languageMenuRequested(globalX, globalY);
     }
     function rewindSong(): void {
         editorService.resetSongPosition();

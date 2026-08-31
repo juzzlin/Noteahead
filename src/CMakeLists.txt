@@ -4,6 +4,30 @@ add_subdirectory(contrib/Argengine EXCLUDE_FROM_ALL)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
+set(NOTEAHEAD_SRC_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+
+# Translation files in src/translations (without .ts). Must stay in sync with
+# Constants::Language::supportedLanguages(): a language listed there without a catalogue here
+# leaves the selector offering a language that silently does nothing. language_service_test
+# asserts the two agree.
+set(TS noteahead_de noteahead_es noteahead_fi noteahead_fr noteahead_it noteahead_nl noteahead_pl noteahead_pt_BR noteahead_zh_CN)
+set(TS_FILES)
+foreach(TS_FILE ${TS})
+    list(APPEND TS_FILES ${NOTEAHEAD_SRC_ROOT}/translations/${TS_FILE}.ts)
+endforeach()
+
+# lupdate scans whole directories rather than a source list: the QML files, where nearly all of the
+# strings are, appear in no C++ source variable, and the C++ sources themselves are declared in the
+# per-directory CMakeLists rather than in one list this file could reuse. Naming the five source
+# directories also keeps contrib/ and unit_tests/ out of the catalogues.
+set(LUPDATE_SOURCES
+    ${NOTEAHEAD_SRC_ROOT}/application
+    ${NOTEAHEAD_SRC_ROOT}/common
+    ${NOTEAHEAD_SRC_ROOT}/domain
+    ${NOTEAHEAD_SRC_ROOT}/infra
+    ${NOTEAHEAD_SRC_ROOT}/view
+)
+
 # These are needed only for the IDE
 set(HEADER_FILES)
 
@@ -250,6 +274,8 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Editor/TrackHeader_ColumnButtons.qml
     ${QML_BASE_DIR}/Editor/VelocityScale.qml
     ${QML_BASE_DIR}/Editor/VolumeMeter.qml
+    ${QML_BASE_DIR}/MainMenu/LanguageMenu.qml
+    ${QML_BASE_DIR}/MainMenu/LanguageSelector.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu_Devices.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu_Edit.qml
@@ -344,6 +370,47 @@ qt_add_resources(${ApplicationLibName} "examples"
     PREFIX "/"
     FILES ${EXAMPLE_SONG_FILE}
 )
+
+# Compile the catalogues and embed them, so that a language is never missing at runtime because of
+# how the application was installed. LanguageService loads them from :/translations/.
+#
+# Only lrelease runs here. lupdate is deliberately not part of any build: regenerating the .ts files
+# is a decision, not a side effect of compiling, and the 'update_translations' target below is how
+# it is made.
+qt_add_translation(QM_FILES ${TS_FILES})
+foreach(QM_FILE ${QM_FILES})
+    get_filename_component(QM_FILE_NAME ${QM_FILE} NAME)
+    set_source_files_properties(${QM_FILE} PROPERTIES QT_RESOURCE_ALIAS translations/${QM_FILE_NAME})
+endforeach()
+qt_add_resources(${ApplicationLibName} "translations"
+    PREFIX "/"
+    FILES ${QM_FILES}
+)
+
+# Specify the path to lupdate executable.
+#
+# The hint matters: a bare find_program picks whatever 'lupdate' is on PATH, and on a system with
+# qtchooser that is Qt 5's, whose QML parser silently drops hundreds of strings from files it cannot
+# parse. The Qt 6 tools are also not on PATH at all in the build images. Taking the directory from
+# the imported target pins both cases to the Qt 6 binary this project is built against.
+set(LUPDATE_COMMAND "lupdate")
+get_target_property(LUPDATE_QT_LOCATION Qt6::lupdate IMPORTED_LOCATION)
+get_filename_component(LUPDATE_QT_DIR "${LUPDATE_QT_LOCATION}" DIRECTORY)
+find_program(LUPDATE_EXECUTABLE ${LUPDATE_COMMAND} HINTS ${LUPDATE_QT_DIR})
+if(NOT LUPDATE_EXECUTABLE)
+    message(WARNING "${LUPDATE_COMMAND} not found. The 'update_translations' target will not be available.")
+else()
+    add_custom_target(update_translations)
+    foreach(TS_FILE ${TS_FILES})
+        get_filename_component(TS_FILE_NAME ${TS_FILE} NAME)
+        add_custom_command(
+            TARGET update_translations POST_BUILD
+            COMMAND ${LUPDATE_EXECUTABLE} -locations none -no-ui-lines -no-obsolete
+            ARGS ${LUPDATE_SOURCES} -ts ${TS_FILE}
+            COMMENT "Updating translation source ${TS_FILE_NAME}"
+        )
+    endforeach()
+endif()
 
 target_include_directories(${BINARY_NAME} PRIVATE contrib/SimpleLogger/src)
 target_include_directories(${BINARY_NAME} PRIVATE contrib/Argengine/src)

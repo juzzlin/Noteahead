@@ -98,6 +98,9 @@ EffectDialog {
                     label: qsTr("Stages")
                     // Even counts only: one notch takes a pair of all-pass sections
                     model: {
+                        // A JS block is not a translation binding, so a language change does not re-evaluate it
+                        // on its own. Reading the active language makes the dependency explicit.
+                        languageService.activeLanguage;
                         const stages = [];
                         for (let i = 2; i <= effectRackController.phaserMaxStages(); i += 2) {
                             stages.push(qsTr("%1 stages").arg(i));

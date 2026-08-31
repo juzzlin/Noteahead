@@ -87,6 +87,7 @@
 #include "service/editor_service.hpp"
 #include "service/jack_service.hpp"
 #include "service/keyboard_service.hpp"
+#include "service/language_service.hpp"
 #include "service/manual_service.hpp"
 #include "service/midi_service.hpp"
 #include "service/mixer_service.hpp"
@@ -126,6 +127,7 @@ Application::Application(int & argc, char ** argv)
   , m_application { std::make_unique<QGuiApplication>(argc, argv) }
   , m_applicationService { std::make_shared<ApplicationService>() }
   , m_settingsService { std::make_shared<SettingsService>() }
+  , m_languageService { std::make_shared<LanguageService>(m_settingsService) }
   , m_themeService { std::make_shared<ThemeService>() }
   , m_tipService { std::make_shared<TipService>() }
   , m_manualService { std::make_shared<ManualService>(m_themeService) }
@@ -230,6 +232,7 @@ void Application::registerTypes()
     qmlRegisterType<EditorService>("Noteahead", majorVersion, minorVersion, "EditorService");
     qmlRegisterType<EventSelectionModel>("Noteahead", majorVersion, minorVersion, "EventSelectionModel");
     qmlRegisterType<KeyboardService>("Noteahead", majorVersion, minorVersion, "KeyboardService");
+    qmlRegisterType<LanguageService>("Noteahead", majorVersion, minorVersion, "LanguageService");
     qmlRegisterType<EffectRackController>("Noteahead", majorVersion, minorVersion, "EffectRackController");
     qmlRegisterType<LineNumberRenderer>("Noteahead", majorVersion, minorVersion, "LineNumberRenderer");
     qmlRegisterType<MidiCcAutomationsModel>("Noteahead", majorVersion, minorVersion, "MidiCcAutomationsModel");
@@ -301,6 +304,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("eventSelectionModel", m_eventSelectionModel.get());
     m_engine->rootContext()->setContextProperty("midiCcAutomationsModel", m_midiCcAutomationsModel.get());
     m_engine->rootContext()->setContextProperty("keyboardService", m_keyboardService.get());
+    m_engine->rootContext()->setContextProperty("languageService", m_languageService.get());
     m_engine->rootContext()->setContextProperty("knobController", m_knobController.get());
     m_engine->rootContext()->setContextProperty("midiService", m_midiService.get());
     m_engine->rootContext()->setContextProperty("midiSettingsModel", m_midiSettingsModel.get());
@@ -362,6 +366,8 @@ void Application::handleCommandLineArguments(int & argc, char ** argv)
             throw std::runtime_error { std::string { "Invalid audio backend: " } + value };
         } }, false, "Force the audio backend: [alsa, pulse, jack]");
 
+    ae.addOption({ "--lang" }, [this](const std::string & value) { m_languageService->setCommandLineLanguage(QString::fromStdString(value)); }, false, "Force the UI language, e.g. 'fi'. Overrides the language chosen in the UI.");
+
     ae.setPositionalArgumentCallback([this](const std::vector<std::string> & args) {
         if (!args.empty()) {
             const QString path = QString::fromStdString(args.front());
@@ -374,6 +380,10 @@ void Application::handleCommandLineArguments(int & argc, char ** argv)
 
 void Application::connectServices()
 {
+    connect(m_languageService.get(), &LanguageService::activeLanguageChanged, this, [this]() {
+        retranslateUi();
+    });
+
     connectApplicationService();
     connectDeviceService();
 
@@ -900,8 +910,25 @@ int Application::initialize()
     return initializeTracker();
 }
 
+void Application::retranslateUi()
+{
+    // Re-evaluates every QML binding that goes through qsTr, which is nearly all of the UI.
+    m_engine->retranslate();
+
+    // What retranslate() cannot reach: strings built in C++ and handed to QML through properties
+    // that it has no reason to re-read on its own.
+    m_synthController->retranslate();
+    m_wavetableSynthController->retranslate();
+    m_effectRackController->retranslate();
+    m_tipService->retranslate();
+}
+
 void Application::initializeApplicationEngine()
 {
+    // Before the engine loads, so that the first strings QML evaluates are already translated and
+    // no retranslate pass is needed to get the initial UI right.
+    m_languageService->initializeTranslations(*m_application);
+
     setContextProperties();
 
     const auto entryPoint = QML_ROOT_DIR + QString { "/" } + QML_ENTRY_POINT;

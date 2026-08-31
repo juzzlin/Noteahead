@@ -544,6 +544,11 @@ QStringList WavetableSynthController::wavetableNames() const
     return names;
 }
 
+void WavetableSynthController::retranslate()
+{
+    emit translationsChanged();
+}
+
 QStringList WavetableSynthController::voiceModes() const
 {
     // Order is the persisted VoiceMode ordinal, so Mono trails the stacked modes rather than sitting

@@ -28,7 +28,10 @@ set(QML_RUNTIME_PACKAGES
     qml6-module-qtquick-templates
     qml6-module-qtquick-window
 )
-set(CPACK_DEBIAN_PACKAGE_DEPENDS ${QML_RUNTIME_PACKAGES})
+# Noteahead's own catalogues are embedded in the binary; this is for the strings Qt itself supplies,
+# which live in Qt's catalogues and would otherwise stay English in an otherwise translated UI.
+set(QT_TRANSLATION_PACKAGES qt6-translations-l10n)
+set(CPACK_DEBIAN_PACKAGE_DEPENDS ${QML_RUNTIME_PACKAGES} ${QT_TRANSLATION_PACKAGES})
 set(CPACK_DEBIAN_PACKAGE_VERSION ${APPLICATION_VERSION})
 set(CPACK_PACKAGING_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 

@@ -86,6 +86,11 @@ public:
     int effectCount() const;
     int revision() const;
 
+    //! Bumps the revision so the dialogs re-read their summaries after a language change. The
+    //! parameter summaries and the master rack labels are built with tr() at call time, so nothing
+    //! else is needed to pick the new language up.
+    void retranslate();
+
     QString targetDeviceName() const;
     void setTargetDeviceName(const QString & name);
 

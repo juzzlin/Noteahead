@@ -120,6 +120,12 @@ int EffectRackController::revision() const
     return m_revision;
 }
 
+void EffectRackController::retranslate()
+{
+    m_revision++;
+    emit revisionChanged();
+}
+
 QString EffectRackController::targetDeviceName() const
 {
     return m_targetDeviceName;

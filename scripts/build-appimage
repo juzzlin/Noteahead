@@ -156,6 +156,20 @@ linuxdeploy \
     --icon-file "${APPDIR}/usr/share/icons/hicolor/256x256/apps/noteahead.png" \
     --plugin qt
 
+# Qt's own translations, for the strings Qt itself supplies (standard dialog buttons and the like).
+# Noteahead's catalogues are embedded in the binary and need no deployment, but these live outside
+# it, and linuxdeploy's Qt plugin does not bring them along. The qt.conf it writes sets Prefix to
+# usr/, and Qt's default Translations path is 'translations' relative to that.
+QT_TRANSLATIONS_DIR=$("${QMAKE}" -query QT_INSTALL_TRANSLATIONS)
+if compgen -G "${QT_TRANSLATIONS_DIR}/qtbase_*.qm" > /dev/null; then
+    mkdir -p "${APPDIR}/usr/translations"
+    cp -L "${QT_TRANSLATIONS_DIR}"/qtbase_*.qm "${APPDIR}/usr/translations/"
+    echo "Bundled $(ls "${APPDIR}/usr/translations" | wc -l) Qt translation catalogues."
+else
+    echo "Warning: no Qt translations found in ${QT_TRANSLATIONS_DIR}, install qt6-translations-l10n."
+    echo "         Qt-supplied strings will stay in English in the AppImage."
+fi
+
 for plugin in "${ADDITIONAL_QT_PLUGINS[@]}"; do
     if [[ -e "${QT_PLUGIN_DIR}/${plugin}" ]]; then
         mkdir -p "${APPDIR}/usr/plugins/$(dirname "${plugin}")"
