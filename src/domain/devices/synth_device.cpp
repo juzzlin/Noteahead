@@ -66,7 +66,12 @@ void SynthDevice::Voice::triggerFree(const Trigger & trigger, double randomPhase
       ? std::nullopt
       : std::optional<Phases> { Phases { randomPhase, std::fmod(randomPhase + 0.33, 1.0), std::fmod(randomPhase + 0.66, 1.0) } };
 
-    applyTrigger(trigger, phases, false);
+    // Envelopes restart on the same condition as the phases: a voice that is not already sounding
+    // is starting a note from nothing and must start its envelopes from nothing too. A voice is
+    // retired on its amp envelope alone, so its mod envelope stops being advanced wherever it had
+    // got to -- and carrying that into the next note made every other note sweep from the wrong
+    // place. Only a voice still sounding keeps its envelopes, which is what legato needs.
+    applyTrigger(trigger, phases, !active);
 }
 
 void SynthDevice::Voice::applyTrigger(const Trigger & trigger, std::optional<Phases> phases, bool restartEnvelopes)

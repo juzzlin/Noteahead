@@ -29,6 +29,23 @@
 
 namespace noteahead {
 
+namespace {
+
+//! Reaches the protected setter that syncs the whole parameter set, which is how a loaded patch
+//! takes effect on a device. A test is not a project, so it needs a way in.
+class PatchableWavetableSynth : public WavetableSynthDevice
+{
+public:
+    using WavetableSynthDevice::WavetableSynthDevice;
+
+    void applyPatch()
+    {
+        updatePanParameter(0.5f, true);
+    }
+};
+
+} // namespace
+
 void WavetableSynthTest::test_name_shouldReturnCorrectName()
 {
     const std::string name = "Test Synth";
@@ -885,6 +902,111 @@ void WavetableSynthTest::test_curve_serialization_shouldPreserveState()
 
     QCOMPARE(synth2.ampCurve(), 0.7f);
     QCOMPARE(synth2.modCurve(), 0.4f);
+}
+
+void WavetableSynthTest::test_repeatedNote_afterVoiceRetired_shouldSweepTheSameWay()
+{
+    // A voice is retired on its amp envelope alone, so its mod envelope stops being advanced
+    // wherever it had got to. Re-triggering without resetting it makes a recycled voice start its
+    // filter sweep part way up, which is audible as some notes sounding brighter than the rest.
+    //
+    // The patch is the shape that exposes it. The amp envelope ends the moment the key is released,
+    // so the voice retires at once, while the mod envelope is both slow to rise and slow to fall:
+    // it is still high at that moment, and an attack that begins from a level it should have left
+    // behind is both shorter and starts higher than the one a fresh voice gets.
+    constexpr uint32_t sampleRate = 44100;
+    constexpr uint32_t block = 512;
+    PatchableWavetableSynth synth { "Test" };
+
+    const auto set = [&synth](const QString & key, float value) {
+        const auto parameter = synth.parameter(key.toStdString());
+        QVERIFY2(parameter.has_value(), qPrintable("No such parameter: " + key));
+        parameter->get().setValue(value);
+    };
+    set(Constants::NahdXml::xmlKeyOsc1Pos(), 1.0f); // a harmonically rich frame: the filter has something to remove
+    set(Constants::NahdXml::xmlKeyAmpAttack(), 0.0f);
+    set(Constants::NahdXml::xmlKeyAmpSustain(), 1.0f);
+    set(Constants::NahdXml::xmlKeyAmpRelease(), 0.0f); // retires the voice the moment the key lifts
+    set(Constants::NahdXml::xmlKeyModAttack(), 0.675f); // ~0.5 s, long enough to still be rising
+    set(Constants::NahdXml::xmlKeyModDecay(), 1.0f); // also the mod release: holds its level
+    set(Constants::NahdXml::xmlKeyModIntensity(), 1.0f); // fully positive: the envelope opens the filter
+    set(Constants::NahdXml::xmlKeyLpfCutoff(), 0.15f); // starts dark, so the sweep has somewhere to go
+    synth.applyPatch();
+
+    const auto playNote = [&] {
+        std::vector<double> captured;
+        synth.processMidiNoteOn(48, 100);
+        for (int i = 0; i < 30; i++) {
+            std::vector<double> buffer(block * 2, 0.0);
+            AudioContext context { std::span<double> { buffer.data(), buffer.size() }, block, sampleRate };
+            context.oversampleFactor = 1;
+            synth.processAudio(context);
+            captured.insert(captured.end(), buffer.begin(), buffer.end());
+        }
+        synth.processMidiNoteOff(48);
+        for (int i = 0; i < 10; i++) {
+            std::vector<double> buffer(block * 2, 0.0);
+            AudioContext context { std::span<double> { buffer.data(), buffer.size() }, block, sampleRate };
+            context.oversampleFactor = 1;
+            synth.processAudio(context);
+        }
+        return captured;
+    };
+
+    // Idle voices are handed out round-robin, so every voice gets a turn before the first one comes
+    // back. That last note is the one carrying the previous note's leftovers.
+    std::vector<std::vector<double>> notes;
+    for (int i = 0; i < WavetableSynthDevice::MaxVoices + 1; i++) {
+        notes.push_back(playNote());
+    }
+    const auto & onAFreshVoice = notes.front();
+    const auto & onARecycledVoice = notes.back();
+    QCOMPARE(onAFreshVoice.size(), onARecycledVoice.size());
+
+    // Oscillator phase is randomised per note, so samples cannot be compared directly. The ratio
+    // between the energy of the first difference and the energy of the signal does track the
+    // filter: differencing tilts the spectrum up, so the brighter the note the larger the ratio,
+    // whatever its phase or level.
+    const auto brightness = [](const std::vector<double> & audio) {
+        constexpr size_t window = 2048;
+        std::vector<double> ratios;
+        for (size_t i = 0; i + window * 2 <= audio.size(); i += window * 2) {
+            double signalEnergy = 0.0;
+            double differenceEnergy = 0.0;
+            for (size_t k = 2; k < window * 2; k += 2) {
+                const double sample = audio[i + k];
+                const double difference = sample - audio[i + k - 2];
+                signalEnergy += sample * sample;
+                differenceEnergy += difference * difference;
+            }
+            ratios.push_back(signalEnergy > 0.0 ? std::sqrt(differenceEnergy / signalEnergy) : 0.0);
+        }
+        return ratios;
+    };
+
+    const auto freshSweep = brightness(onAFreshVoice);
+    const auto recycledSweep = brightness(onARecycledVoice);
+    QCOMPARE(freshSweep.size(), recycledSweep.size());
+
+    // The first window is the trigger transient. The filter is at its darkest there, so the ratio
+    // is formed from almost no high-frequency energy and the randomised phase alone moves it; the
+    // sweep is measured by everything after it.
+    constexpr size_t firstComparableWindow = 1;
+    QVERIFY(freshSweep.size() > firstComparableWindow);
+
+    double reference = 0.0;
+    for (auto ratio : freshSweep) {
+        reference = std::max(reference, ratio);
+    }
+    QVERIFY2(reference > 0.0, "the patch produced no audio to compare");
+
+    double worst = 0.0;
+    for (size_t i = firstComparableWindow; i < freshSweep.size(); i++) {
+        worst = std::max(worst, std::abs(freshSweep[i] - recycledSweep[i]) / reference);
+    }
+    // A stale mod envelope puts this above 1.0; a voice that starts its sweep from nothing stays
+    // far below 0.1.
+    QVERIFY2(worst < 0.25, qPrintable(QString { "the recycled voice swept differently: %1 of a fresh voice's brightness" }.arg(worst)));
 }
 
 } // namespace noteahead

@@ -80,6 +80,11 @@ void WavetableSynthDevice::Voice::trigger(uint8_t n, double freq, float p, float
         osc2.sync(startPhase);
         osc1.snapPosition();
         osc2.snapPosition();
+        // For the same reason, and on the same condition, the envelopes start from nothing. A voice
+        // is retired on its amp envelope alone, so its mod envelope stops being advanced wherever it
+        // had got to; carrying that into the next note makes the note sweep from the wrong place.
+        ampEg.reset();
+        modEg.reset();
     }
 
     active = true;

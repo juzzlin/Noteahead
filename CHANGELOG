@@ -12,6 +12,9 @@ New features:
 
 Bug fixes:
 
+* Fix some notes starting their filter sweep part way up
+  - Affected the Synth and the Wavetable Synth
+
 * Center the effect rack dialog titles
 
 * Fix a binding loop in the Delete Unused Patterns dialog

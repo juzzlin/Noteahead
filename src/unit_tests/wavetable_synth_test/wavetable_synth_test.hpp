@@ -69,6 +69,7 @@ private slots:
 
     void test_ampCurve_shouldSteepenTheAudibleDecay();
     void test_curve_serialization_shouldPreserveState();
+    void test_repeatedNote_afterVoiceRetired_shouldSweepTheSameWay();
 };
 
 } // namespace noteahead

@@ -115,6 +115,7 @@ private slots:
     void test_ampCurve_shouldSteepenTheAudibleDecay();
     void test_ampCurve_serialization_shouldPreserveState();
     void test_modCurve_serialization_shouldPreserveState();
+    void test_repeatedNote_afterVoiceRetired_shouldSweepTheSameWay();
 };
 
 } // namespace noteahead
