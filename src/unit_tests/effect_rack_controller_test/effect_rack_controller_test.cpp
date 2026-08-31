@@ -8,6 +8,7 @@
 #include "../../domain/effects/compressor.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/effect_rack.hpp"
+#include "../../domain/effects/endless_reverb.hpp"
 #include "../../domain/effects/eq_8_band_parametric.hpp"
 #include "../../domain/effects/panner.hpp"
 #include "../../domain/effects/phaser.hpp"
@@ -125,6 +126,26 @@ void EffectRackControllerTest::test_effectParametersSummary_reverb_shouldReturnF
 
     const auto summary2 = controller.effectParametersSummary(0);
     QCOMPARE(summary2, QString { "(pre=50ms, decay=3000ms)" });
+}
+
+void EffectRackControllerTest::test_effectParametersSummary_endlessReverb_shouldReportPreDelay()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(EndlessReverb::typeIdString()));
+
+    // Defaults: pre-delay 20ms, size 70%, not frozen
+    const auto summary = controller.effectParametersSummary(0);
+    QCOMPARE(summary, QString { "(pre=20ms, size=70%, freeze=off)" });
+
+    controller.setParameterValue(0, controller.endlessPreDelayKey(), 50.0f / 500.0f); // 50ms
+
+    const auto summary2 = controller.effectParametersSummary(0);
+    QCOMPARE(summary2, QString { "(pre=50ms, size=70%, freeze=off)" });
 }
 
 void EffectRackControllerTest::test_effectParametersSummary_compressor_shouldReturnFormattedSummary()

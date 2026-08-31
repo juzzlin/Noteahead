@@ -13,6 +13,7 @@ private slots:
     void initTestCase();
     void cleanupTestCase();
     void test_effectParametersSummary_reverb_shouldReturnFormattedSummary();
+    void test_effectParametersSummary_endlessReverb_shouldReportPreDelay();
     void test_effectParametersSummary_compressor_shouldReturnFormattedSummary();
     void test_effectParametersSummary_autoPanner_shouldReturnFormattedSummary();
     void test_effectParametersSummary_autoFilter_shouldReturnFormattedSummary();
