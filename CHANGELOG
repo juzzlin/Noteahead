@@ -5,7 +5,16 @@ Release date:
 
 New features:
 
+* Add UI translations
+  - Finnish, German, Spanish, French, Italian, Dutch, Polish, Brazilian Portuguese and Simplified Chinese
+  - Language selectable from the top-right of the menu bar or with --lang
+  - Takes effect immediately, no restart needed
+
 Bug fixes:
+
+* Center the effect rack dialog titles
+
+* Fix a binding loop in the Delete Unused Patterns dialog
 
 Other:
 

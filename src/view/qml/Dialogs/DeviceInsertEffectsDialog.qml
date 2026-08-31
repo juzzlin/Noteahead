@@ -96,6 +96,7 @@ AnimatedDialog {
             spacing: 10
 
             Switch {
+                id: rackEnabledSwitch
                 text: qsTr("Enabled")
                 checked: effectRackController.rackEnabled
                 onToggled: effectRackController.rackEnabled = checked
@@ -112,6 +113,13 @@ AnimatedDialog {
                 color: "white"
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
+            }
+
+            // Mirrors the switch on the other side so the title centres on the dialog rather than
+            // on the strip left over beside it. Bound to the switch's width rather than a fixed
+            // size, because that width changes with the length of its translated label.
+            Item {
+                Layout.preferredWidth: rackEnabledSwitch.width
             }
         }
 
