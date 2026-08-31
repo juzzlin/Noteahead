@@ -3092,6 +3092,10 @@
         <source>Edit Pitch Bend automations...</source>
         <translation>Modifier les automations de Pitch Bend...</translation>
     </message>
+    <message>
+        <source>Pattern</source>
+        <translation>Motif</translation>
+    </message>
 </context>
 <context>
     <name>MainContextMenu_Selection</name>
@@ -4159,6 +4163,10 @@
     <message>
         <source>Tip: Kick fundamentals often sit around E1–G1 (≈41–49 Hz). Sub bass commonly spans C1–G2 (≈33–98 Hz).</source>
         <translation>Astuce : les fondamentaux de grosse caisse se situent souvent autour de mi1–sol1 (≈41–49 Hz). Le sub-bass couvre généralement do1–sol2 (≈33–98 Hz).</translation>
+    </message>
+    <message>
+        <source>Equal Temperament Note Frequencies (A4 = %1 Hz) - C0...B8</source>
+        <translation>Fréquences des notes en tempérament égal (La4 = %1 Hz) - Do0...Si8</translation>
     </message>
 </context>
 <context>

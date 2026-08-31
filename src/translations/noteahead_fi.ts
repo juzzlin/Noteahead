@@ -3092,6 +3092,10 @@
         <source>Edit Pitch Bend automations...</source>
         <translation>Muokkaa Pitch Bend -automaatioita...</translation>
     </message>
+    <message>
+        <source>Pattern</source>
+        <translation>Kuvio</translation>
+    </message>
 </context>
 <context>
     <name>MainContextMenu_Selection</name>
@@ -4159,6 +4163,10 @@
     <message>
         <source>Tip: Kick fundamentals often sit around E1–G1 (≈41–49 Hz). Sub bass commonly spans C1–G2 (≈33–98 Hz).</source>
         <translation>Vinkki: basarin perustaajuudet ovat usein E1–G1 (≈41–49 Hz). Subbasso kattaa yleensä C1–G2 (≈33–98 Hz).</translation>
+    </message>
+    <message>
+        <source>Equal Temperament Note Frequencies (A4 = %1 Hz) - C0...B8</source>
+        <translation>Tasavireiset nuottitaajuudet (A4 = %1 Hz) - C0...B8</translation>
     </message>
 </context>
 <context>

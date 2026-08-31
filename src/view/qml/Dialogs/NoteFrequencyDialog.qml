@@ -60,7 +60,7 @@ AnimatedDialog {
         spacing: 8
 
         Label {
-            text: "Equal Temperament Note Frequencies (A4 = " + rootItem.referenceFrequency + " Hz) - C0...B8"
+            text: qsTr("Equal Temperament Note Frequencies (A4 = %1 Hz) - C0...B8").arg(rootItem.referenceFrequency)
             font.pixelSize: 18
             horizontalAlignment: Text.AlignHCenter
             Layout.fillWidth: true

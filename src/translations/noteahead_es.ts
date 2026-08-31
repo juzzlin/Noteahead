@@ -3092,6 +3092,10 @@
         <source>Edit Pitch Bend automations...</source>
         <translation>Editar automatizaciones de Pitch Bend...</translation>
     </message>
+    <message>
+        <source>Pattern</source>
+        <translation>Patrón</translation>
+    </message>
 </context>
 <context>
     <name>MainContextMenu_Selection</name>
@@ -4159,6 +4163,10 @@
     <message>
         <source>Tip: Kick fundamentals often sit around E1–G1 (≈41–49 Hz). Sub bass commonly spans C1–G2 (≈33–98 Hz).</source>
         <translation>Consejo: los fundamentales del bombo suelen situarse en torno a mi1–sol1 (≈41–49 Hz). El sub bajo abarca normalmente do1–sol2 (≈33–98 Hz).</translation>
+    </message>
+    <message>
+        <source>Equal Temperament Note Frequencies (A4 = %1 Hz) - C0...B8</source>
+        <translation>Frecuencias de notas en temperamento igual (La4 = %1 Hz) - Do0...Si8</translation>
     </message>
 </context>
 <context>

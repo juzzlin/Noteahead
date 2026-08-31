@@ -19,7 +19,7 @@ import ".."
 import "../Components"
 
 Menu {
-    title: "Pattern"
+    title: qsTr("Pattern")
     width: rootItem.width
     Action {
         text: qsTr("Cut")

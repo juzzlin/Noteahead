@@ -3091,6 +3091,10 @@
         <source>Edit Pitch Bend automations...</source>
         <translation>编辑弯音自动化...</translation>
     </message>
+    <message>
+        <source>Pattern</source>
+        <translation>模式</translation>
+    </message>
 </context>
 <context>
     <name>MainContextMenu_Selection</name>
@@ -4158,6 +4162,10 @@
     <message>
         <source>Tip: Kick fundamentals often sit around E1–G1 (≈41–49 Hz). Sub bass commonly spans C1–G2 (≈33–98 Hz).</source>
         <translation>提示：底鼓基频通常在 E1–G1（≈41–49 Hz）附近。超低音一般覆盖 C1–G2（≈33–98 Hz）。</translation>
+    </message>
+    <message>
+        <source>Equal Temperament Note Frequencies (A4 = %1 Hz) - C0...B8</source>
+        <translation>十二平均律音符频率（A4 = %1 Hz）- C0...B8</translation>
     </message>
 </context>
 <context>

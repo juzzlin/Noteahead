@@ -3092,6 +3092,10 @@
         <source>Edit Pitch Bend automations...</source>
         <translation>Editar automações de Pitch Bend...</translation>
     </message>
+    <message>
+        <source>Pattern</source>
+        <translation>Padrão</translation>
+    </message>
 </context>
 <context>
     <name>MainContextMenu_Selection</name>
@@ -4159,6 +4163,10 @@
     <message>
         <source>Tip: Kick fundamentals often sit around E1–G1 (≈41–49 Hz). Sub bass commonly spans C1–G2 (≈33–98 Hz).</source>
         <translation>Dica: as fundamentais do bumbo costumam ficar em torno de mi1–sol1 (≈41–49 Hz). O sub-grave normalmente vai de dó1 a sol2 (≈33–98 Hz).</translation>
+    </message>
+    <message>
+        <source>Equal Temperament Note Frequencies (A4 = %1 Hz) - C0...B8</source>
+        <translation>Frequências das notas em temperamento igual (Lá4 = %1 Hz) - Dó0...Si8</translation>
     </message>
 </context>
 <context>
