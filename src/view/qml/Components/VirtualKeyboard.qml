@@ -270,7 +270,13 @@ Item {
         Rectangle {
             id: felt
             width: parent.width
-            height: rootItem.feltHeight
+            // Starts a pixel above the keyboard and is that much taller. The keys are rounded, so
+            // they are drawn as antialiased geometry and cover a fractional top row whenever the
+            // dialog lands on a half pixel; the felt has no radius and snaps to whole pixels, so it
+            // could start a row below them and leave their top edge showing as a hairline above the
+            // felt. The overlap falls in the margin above the keyboard and is not otherwise visible.
+            y: -1
+            height: rootItem.feltHeight + 1
             z: 3
             gradient: Gradient {
                 GradientStop {
@@ -288,7 +294,8 @@ Item {
         Rectangle {
             width: parent.width
             height: rootItem.feltHeight * 1.6
-            y: felt.height
+            // The felt's real bottom edge, not its height: it starts a pixel above the keyboard.
+            y: felt.y + felt.height
             z: 3
             gradient: Gradient {
                 GradientStop {
