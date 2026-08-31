@@ -23,11 +23,17 @@ AnimatedDialog {
     id: rootItem
     title: qsTr("Delete unused patterns")
     modal: true
+    // Sized here rather than in Main.qml, per the dialog sizing rules. Without an explicit width the
+    // dialog took its width from the wrapping label, whose own width came back from the dialog: a
+    // binding loop that only showed itself once a language change forced the text to be laid out
+    // again.
+    width: parent ? parent.width * Constants.defaultDialogScale : 600
     readonly property string _tag: "DeleteUnusedPatternsDialog"
 
     Label {
+        // Anchored, not bound to parent.width, so the size flows one way only.
+        anchors.fill: parent
         text: qsTr("Are you sure you want to delete all patterns that are not used in the play order?")
-        width: parent.width
         wrapMode: Label.WordWrap
     }
 
