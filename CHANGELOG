@@ -5,6 +5,10 @@ Release date:
 
 New features:
 
+* Add Fast Render to the render dialog
+  - Renders the devices on all cores instead of one, about 3x faster here
+  - Off by default: it is not deterministic, so two renders differ in the last bits
+
 * Add UI translations
   - Finnish, German, Spanish, French, Italian, Dutch, Polish, Brazilian Portuguese and Simplified Chinese
   - Language selectable from the top-right of the menu bar or with --lang

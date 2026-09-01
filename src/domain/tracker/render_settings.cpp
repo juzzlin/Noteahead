@@ -184,6 +184,16 @@ void RenderSettings::setAnalyzeEnabled(bool enabled)
     m_analyzeEnabled = enabled;
 }
 
+bool RenderSettings::fastRender() const
+{
+    return m_fastRender;
+}
+
+void RenderSettings::setFastRender(bool fast)
+{
+    m_fastRender = fast;
+}
+
 void RenderSettings::serializeToXml(ProjectWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeyRenderSettings());
@@ -192,6 +202,7 @@ void RenderSettings::serializeToXml(ProjectWriter & writer) const
     writer.writeAttribute(Constants::NahdXml::xmlKeySampleRate(), QString::number(m_sampleRate));
     writer.writeAttribute(Constants::NahdXml::xmlKeyBitDepth(), QString::number(m_bitDepth));
     writer.writeAttribute(Constants::NahdXml::xmlKeyOversampleFactor(), QString::number(m_oversampleFactor));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyFastRender(), m_fastRender ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
     writer.writeAttribute(Constants::NahdXml::xmlKeyNormalizeEnabled(), m_normalizeEnabled ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
     writer.writeAttribute(Constants::NahdXml::xmlKeyNormalizeLevelTenthsDb(), QString::number(m_normalizeLevelTenthsDb));
     writer.writeAttribute(Constants::NahdXml::xmlKeyTrimEnabled(), m_trimEnabled ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
@@ -223,6 +234,9 @@ void RenderSettings::deserializeFromXml(ProjectReader & reader)
     m_sampleRate = integer(Constants::NahdXml::xmlKeySampleRate(), m_sampleRate);
     m_bitDepth = integer(Constants::NahdXml::xmlKeyBitDepth(), m_bitDepth);
     m_oversampleFactor = integer(Constants::NahdXml::xmlKeyOversampleFactor(), m_oversampleFactor);
+    // Absent from projects written before the setting existed, and the fallback is off: those were
+    // rendered serially, so that is what they keep doing.
+    m_fastRender = boolean(Constants::NahdXml::xmlKeyFastRender(), m_fastRender);
     m_normalizeEnabled = boolean(Constants::NahdXml::xmlKeyNormalizeEnabled(), m_normalizeEnabled);
     m_normalizeLevelTenthsDb = integer(Constants::NahdXml::xmlKeyNormalizeLevelTenthsDb(), m_normalizeLevelTenthsDb);
     m_trimEnabled = boolean(Constants::NahdXml::xmlKeyTrimEnabled(), m_trimEnabled);

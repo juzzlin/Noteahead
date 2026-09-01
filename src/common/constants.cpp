@@ -978,6 +978,11 @@ QString xmlKeySilenceTenths()
     return "silenceTenths";
 }
 
+QString xmlKeyFastRender()
+{
+    return "fastRender";
+}
+
 QString xmlKeyAnalyzeEnabled()
 {
     return "analyzeEnabled";

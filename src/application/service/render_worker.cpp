@@ -90,6 +90,7 @@ void RenderWorker::render(const QString & fileName,
 
     // Isolate engine from real-time process
     m_audioEngine->setIsExclusive(true);
+    m_audioEngine->setFastRender(options.fastRender);
 
     try {
         std::map<quint64, std::vector<EventS>> eventMap {};
@@ -322,6 +323,7 @@ void RenderWorker::render(const QString & fileName,
         // has to hand them back the same way. Otherwise exporting a song would leave the panels
         // wherever the last rendered tick put them.
         m_deviceService->clearAutomation();
+        m_audioEngine->setFastRender(false);
         m_audioEngine->setIsExclusive(false);
         m_isRendering = false;
         juzzlin::L(TAG).info() << "Render finished successfully";
@@ -329,6 +331,7 @@ void RenderWorker::render(const QString & fileName,
     } catch (const std::exception & e) {
         m_audioEngine->reset();
         m_deviceService->clearAutomation();
+        m_audioEngine->setFastRender(false);
         m_audioEngine->setIsExclusive(false);
         m_isRendering = false;
         juzzlin::L(TAG).error() << "Render failed: " << e.what();

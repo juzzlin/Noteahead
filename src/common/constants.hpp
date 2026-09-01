@@ -363,6 +363,7 @@ QString xmlKeySilenceEnabled();
 QString xmlKeySilenceSeconds();
 QString xmlKeySilenceTenths();
 QString xmlKeyAnalyzeEnabled();
+QString xmlKeyFastRender();
 QString xmlKeyTags();
 QString xmlKeyTag();
 QString xmlKeyTitle();

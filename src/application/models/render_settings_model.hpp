@@ -54,6 +54,7 @@ class RenderSettingsModel : public QObject
     Q_PROPERTY(int silenceSeconds READ silenceSeconds WRITE setSilenceSeconds NOTIFY changed)
     Q_PROPERTY(int silenceTenths READ silenceTenths WRITE setSilenceTenths NOTIFY changed)
     Q_PROPERTY(bool analyzeEnabled READ analyzeEnabled WRITE setAnalyzeEnabled NOTIFY changed)
+    Q_PROPERTY(bool fastRender READ fastRender WRITE setFastRender NOTIFY changed)
 
 public:
     using EditorServiceS = std::shared_ptr<EditorService>;
@@ -108,6 +109,9 @@ public:
 
     bool analyzeEnabled() const;
     void setAnalyzeEnabled(bool enabled);
+
+    bool fastRender() const;
+    void setFastRender(bool fast);
 
 signals:
     //! One signal for the lot: the dialog reads all of them together and there is nothing to gain

@@ -49,6 +49,14 @@ public:
     int oversampleFactor() const;
     void setOversampleFactor(int factor);
 
+    //! Whether the render may spread the devices across the worker threads. Devices are summed per
+    //! worker lane and which lane a device lands in is decided by whichever worker wins the task
+    //! queue, so parallel rendering regroups the sum -- and float addition is not associative. The
+    //! same song then renders to a file that differs in the last bits from one run to the next.
+    //! Defaults to false, which is how rendering has always behaved.
+    bool fastRender() const;
+    void setFastRender(bool fast);
+
     bool normalizeEnabled() const;
     void setNormalizeEnabled(bool enabled);
 
@@ -100,6 +108,7 @@ private:
     int m_sampleRate = 48000;
     int m_bitDepth = 1; // BitDepth::PCM_24
     int m_oversampleFactor = 4;
+    bool m_fastRender = false;
     bool m_normalizeEnabled = false;
     int m_normalizeLevelTenthsDb = -10;
     bool m_trimEnabled = false;

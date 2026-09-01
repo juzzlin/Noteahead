@@ -220,4 +220,14 @@ void RenderSettingsModel::setAnalyzeEnabled(bool enabled)
     apply([&](RenderSettings & settings) { settings.setAnalyzeEnabled(enabled); });
 }
 
+bool RenderSettingsModel::fastRender() const
+{
+    return read(m_editorService, [](const RenderSettings & s) { return s.fastRender(); });
+}
+
+void RenderSettingsModel::setFastRender(bool fast)
+{
+    apply([&](RenderSettings & settings) { settings.setFastRender(fast); });
+}
+
 } // namespace noteahead

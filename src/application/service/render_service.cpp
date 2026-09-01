@@ -269,6 +269,7 @@ void RenderService::startNextRender()
         options.silenceSeconds = renderSettings.silenceSeconds();
         options.silenceTenths = renderSettings.silenceTenths();
         options.analyze = renderSettings.analyzeEnabled();
+        options.fastRender = renderSettings.fastRender();
         options.oversampleFactor = static_cast<quint8>(renderSettings.oversampleFactor());
         return options;
     }();

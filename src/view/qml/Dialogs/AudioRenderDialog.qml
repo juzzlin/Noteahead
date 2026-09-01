@@ -183,6 +183,18 @@ AnimatedDialog {
                             onActivated: index => renderSettingsModel.oversampleFactor = factors[index]
                         }
                     }
+
+                    CheckBox {
+                        id: fastRenderCheckBox
+                        Layout.alignment: Qt.AlignTop
+                        text: qsTr("Fast render")
+                        checked: renderSettingsModel.fastRender
+                        onToggled: renderSettingsModel.fastRender = checked
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Renders the devices on all cores instead of one. Much faster, but not deterministic: the same song renders to a file that differs in the last bits every time. Leave this off when you need two renders to be identical.")
+                    }
                 }
             }
 

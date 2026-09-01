@@ -546,11 +546,12 @@ void AudioEngine::process(AudioContext & context)
         // Devices are summed per worker lane, and which lane a device lands in is decided by
         // whichever worker wins the task queue -- so the grouping of the sum changes run to run.
         // Float addition is not associative, so that alone makes a render irreproducible. Offline
-        // therefore runs the devices in order on one lane: a render has no deadline, and the
-        // throughput is worth less than being able to render the same song twice and get the same
-        // file. Send effects are unaffected -- each writes its own task-indexed buffer -- so they
-        // still fan out below.
-        const bool fanOutDevices = useWorkers && activeDeviceCount > 1 && !context.offline;
+        // therefore runs the devices in order on one lane by default: a render has no deadline, and
+        // the throughput is worth less than being able to render the same song twice and get the
+        // same file. Fast Render trades that back for the worker threads, for anyone who would
+        // rather have the speed. Send effects are unaffected either way -- each writes its own
+        // task-indexed buffer -- so they still fan out below.
+        const bool fanOutDevices = useWorkers && activeDeviceCount > 1 && (!context.offline || m_fastRender.load());
 
         // Serial processing uses only lane 0, so clear/sum just that lane then; parallel rendering
         // spreads work across all lanes. The buffers stay allocated at the full lane count either way,
@@ -828,6 +829,16 @@ void AudioEngine::setPlaybackOversampleFactor(uint8_t factor)
 uint8_t AudioEngine::playbackOversampleFactor() const
 {
     return m_playbackOversampleFactor;
+}
+
+void AudioEngine::setFastRender(bool enabled)
+{
+    m_fastRender = enabled;
+}
+
+bool AudioEngine::fastRender() const
+{
+    return m_fastRender;
 }
 
 void AudioEngine::ensureWorkBuffers(size_t laneCount, size_t sendCount, uint32_t bufferSize)

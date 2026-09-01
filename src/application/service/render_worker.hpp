@@ -61,6 +61,9 @@ struct RenderOptions
     //! Analyzes the rendered file for loudness, which is both reported back and written next to it
     //! as "<rendered file name>.loudness.txt".
     bool analyze = false;
+    //! Lets the engine spread the devices over the worker threads, at the cost of a render that is
+    //! no longer bit-identical from one run to the next. See RenderSettings::fastRender().
+    bool fastRender = false;
     quint8 oversampleFactor = 2;
 };
 

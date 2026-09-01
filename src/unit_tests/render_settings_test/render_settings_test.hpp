@@ -29,6 +29,7 @@ private slots:
     void test_serialization_shouldRoundTripThroughMetadata();
     void test_serialization_commaDecimalLocale_shouldRoundTrip();
     void test_metadataWithoutRenderSettings_shouldKeepDefaults();
+    void test_renderSettingsWithoutFastRender_shouldStayReproducible();
     void test_exportTags_unset_shouldFallBackOnSongTags();
     void test_exportTags_set_shouldOverrideSongTags();
     void test_exportTags_empty_shouldNotBeSerialized();

@@ -49,6 +49,7 @@ void populate(RenderSettings & settings)
     settings.setSilenceSeconds(2);
     settings.setSilenceTenths(3);
     settings.setAnalyzeEnabled(false);
+    settings.setFastRender(true);
 }
 
 void verify(const RenderSettings & settings)
@@ -69,6 +70,7 @@ void verify(const RenderSettings & settings)
     QCOMPARE(settings.silenceSeconds(), 2);
     QCOMPARE(settings.silenceTenths(), 3);
     QCOMPARE(settings.analyzeEnabled(), false);
+    QCOMPARE(settings.fastRender(), true);
 }
 
 QByteArray serialize(const Metadata & metadata)
@@ -111,6 +113,7 @@ void RenderSettingsTest::test_defaults_shouldBeTheOnesANewSongStartsFrom()
     QCOMPARE(settings.trimEnabled(), false);
     QCOMPARE(settings.fadeOutEnabled(), false);
     QCOMPARE(settings.silenceEnabled(), false);
+    QCOMPARE(settings.fastRender(), false);
 }
 
 void RenderSettingsTest::test_serialization_shouldRoundTripThroughMetadata()
@@ -302,6 +305,32 @@ void RenderSettingsTest::test_metadataWithoutRenderSettings_shouldKeepDefaults()
     QCOMPARE(restored.renderSettings().sampleRate(), 48000);
     QCOMPARE(restored.renderSettings().bitDepth(), static_cast<int>(BitDepth::PCM_24));
     QCOMPARE(restored.renderSettings().oversampleFactor(), 4);
+    QCOMPARE(restored.renderSettings().fastRender(), false);
+}
+
+void RenderSettingsTest::test_renderSettingsWithoutFastRender_shouldStayReproducible()
+{
+    // A project from before Fast Render existed: the element is there but the attribute is not.
+    // Those were all rendered serially, so that is what they have to keep doing -- opening one and
+    // exporting it again must not quietly switch it to a render that cannot be reproduced.
+    QByteArray data;
+    QBuffer buffer { &data };
+    buffer.open(QIODevice::WriteOnly);
+    {
+        NahdXmlWriter writer { buffer };
+        Metadata metadata;
+        metadata.renderSettings().setFastRender(true);
+        metadata.serializeToXml(writer);
+    }
+    buffer.close();
+
+    const auto attribute = Constants::NahdXml::xmlKeyFastRender().toUtf8() + "=\"" + Constants::NahdXml::xmlValueTrue().toUtf8() + "\"";
+    const auto start = data.indexOf(attribute);
+    QVERIFY(start >= 0);
+    data.remove(start, attribute.size());
+    QVERIFY(!data.contains(Constants::NahdXml::xmlKeyFastRender().toUtf8()));
+
+    QCOMPARE(deserialize(data).renderSettings().fastRender(), false);
 }
 
 } // namespace noteahead

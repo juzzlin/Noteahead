@@ -104,6 +104,13 @@ public:
     void setPlaybackOversampleFactor(uint8_t factor);
     uint8_t playbackOversampleFactor() const;
 
+    //! Lets an offline render spread its devices over the worker threads. Off by default, because
+    //! the lane a device lands in decides how its output is grouped into the sum and float addition
+    //! is not associative: the same song then renders to a file that differs in the last bits from
+    //! one run to the next. Real-time playback is unaffected -- it always fans out when it can.
+    void setFastRender(bool enabled);
+    bool fastRender() const;
+
     EffectRack & sendEffectRack();
     EffectRack & insertEffectRack();
 
@@ -160,6 +167,7 @@ private:
     std::atomic<int> m_callbackPriority { 0 };
     LoadMeter m_loadMeter;
     std::atomic<uint8_t> m_playbackOversampleFactor { 2 };
+    std::atomic<bool> m_fastRender { false };
 };
 
 } // namespace noteahead
