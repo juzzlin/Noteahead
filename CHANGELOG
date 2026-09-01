@@ -12,6 +12,10 @@ New features:
 
 Bug fixes:
 
+* Fix a ducker or side-chained compressor pumping the wrong amount after a rest
+  - Its gain reduction froze while the device it sits on was silent
+  - The amount depended on the buffer size, so a render and live play disagreed
+
 * Fix some notes starting their filter sweep part way up
   - Affected the Synth and the Wavetable Synth
 

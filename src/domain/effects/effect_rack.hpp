@@ -63,6 +63,10 @@ public:
 
     void process(AudioContext & outputContext, const double * sendBus, size_t effectIndex);
     void processInPlace(AudioContext & context);
+    //! Whether every enabled effect in the rack is back at rest. The engine uses this to decide
+    //! that a silent device really can stop being processed.
+    bool isSettled() const;
+
     std::vector<size_t> sidechainDependencies() const;
     //! Allocation-free variant: fills out (cleared first) with the sidechain source device indices.
     //! Used on the audio thread where allocating every callback must be avoided.

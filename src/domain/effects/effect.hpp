@@ -100,6 +100,15 @@ public:
     virtual void setBpm(float bpm);
     float bpm() const;
 
+    //! Whether the effect is back at rest, i.e. it would do nothing to a silent input. The engine
+    //! stops processing a device once it has gone silent, which freezes the state of its whole
+    //! insert rack. That is harmless for anything driven by the device's own signal, but a gain
+    //! envelope following a detector -- a ducker, a compressor -- has somewhere to go on its own,
+    //! and freezing it half way leaves the next note starting on stale gain reduction. Such an
+    //! effect reports itself unsettled until its envelope has released, and the engine keeps the
+    //! device running until then. True unless overridden: most effects have nothing to settle.
+    virtual bool isSettled() const;
+
     //! Internal oversampling factor (1, 2 or 4) for nonlinear effects that render their shaping stage
     //! at a higher rate to suppress aliasing. Pushed per block from the AudioContext; 1 (no
     //! oversampling) unless set, so linear effects and direct per-sample use are unaffected.

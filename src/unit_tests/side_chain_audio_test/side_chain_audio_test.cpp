@@ -18,6 +18,7 @@
 #include "../../common/constants.hpp"
 #include "../../domain/devices/device.hpp"
 #include "../../domain/dsp/volume.hpp"
+#include "../../domain/effects/auto_ducker.hpp"
 #include "../../domain/effects/compressor.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
@@ -443,6 +444,59 @@ void SideChainAudioTest::test_compressorEffect_sideChainLpf_serialization_should
         QVERIFY(p.has_value());
         QCOMPARE(p->get().value(), expectedCutoff);
     }
+}
+
+void SideChainAudioTest::test_audioEngine_silentDeviceWithEngagedDucker_shouldKeepProcessingUntilItReleases()
+{
+    // The engine stops processing a device that has gone silent, which freezes its whole insert
+    // rack. A ducker follows another device rather than its own input, so freezing it leaves the
+    // gain reduction stuck wherever the last processed block left it, and the device's next note
+    // starts on that stale amount instead of on what the detector says. How far off it lands
+    // depends on the block size, so a render and real-time playback disagree about it.
+    AudioEngine engine;
+    const auto source = std::make_shared<MockDevice>("Source");
+    const auto target = std::make_shared<MockDevice>("Target");
+    source->setGenerateSignal(true);
+    target->setGenerateSignal(true);
+
+    const auto ducker = std::make_shared<AutoDucker>();
+    const auto setParam = [&](const QString & key, float value) {
+        if (const auto p = ducker->parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    };
+    setParam(Constants::NahdXml::xmlKeyAttack(), 0.0f); // Fastest
+    setParam(Constants::NahdXml::xmlKeyRelease(), 0.0f); // 1 ms, so a few buffers are plenty
+    setParam(Constants::NahdXml::xmlKeyHold(), 0.0f);
+    setParam(Constants::NahdXml::xmlKeySideChainSourceDevice(), 0.0f);
+    ducker->sync();
+    target->insertEffectRack().setEffect(0, ducker);
+
+    engine.setDevice(0, source);
+    engine.setDevice(1, target);
+
+    std::vector<double> buffer(128, 0.0);
+    AudioContext context { std::span(buffer.data(), 128), 64, 44100 };
+
+    // The source is loud, so the ducker engages.
+    for (int i = 0; i < 20; i++) {
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        engine.process(context);
+    }
+    QVERIFY2(ducker->gainDb() < -1.0f, qPrintable(QString::number(ducker->gainDb())));
+
+    // The target's note ends and the detector falls quiet with it. The ducker now has a release to
+    // run through, and the engine has to keep the device processing for as long as that takes.
+    target->setGenerateSignal(false);
+    target->setHasActiveAudio(false);
+    source->setGenerateSignal(false);
+
+    for (int i = 0; i < 200; i++) {
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        engine.process(context);
+    }
+
+    QVERIFY2(ducker->gainDb() > -0.1f, qPrintable(QString { "the ducker froze at %1 dB" }.arg(ducker->gainDb())));
 }
 
 void SideChainAudioTest::test_audioEngine_serialAndExclusive_shouldProduceIdenticalOutput()

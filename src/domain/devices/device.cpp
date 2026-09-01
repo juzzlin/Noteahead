@@ -390,6 +390,11 @@ bool Device::clearAutomationInternal()
     return true;
 }
 
+bool Device::insertEffectsSettled() const
+{
+    return m_insertEffectRack.isSettled();
+}
+
 void Device::processInsertEffects(AudioContext & context)
 {
     m_insertEffectRack.processInPlace(context);

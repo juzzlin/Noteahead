@@ -148,6 +148,11 @@ void Effect::process(AudioContext & context)
     }
 }
 
+bool Effect::isSettled() const
+{
+    return true;
+}
+
 void Effect::processBlock(AudioContext & context)
 {
     for (uint32_t i = 0; i < context.frameCount; i++) {

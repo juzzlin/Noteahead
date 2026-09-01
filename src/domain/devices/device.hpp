@@ -134,6 +134,10 @@ public:
     EffectRack & insertEffectRack();
     const EffectRack & insertEffectRack() const;
 
+    //! Whether the insert rack has nothing left to release. A device that has gone silent is only
+    //! safe to stop processing once this holds: see Effect::isSettled().
+    bool insertEffectsSettled() const;
+
     //! Takes over another device's channel strip: insert effects, sends, fader, gain, pan, fader
     //! position and send tap. Everything on a slot that is not the instrument itself.
     //!

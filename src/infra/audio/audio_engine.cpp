@@ -93,7 +93,16 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
     const double bufferSeconds = static_cast<double>(deviceContext.frameCount) / deviceContext.sampleRate;
 
     std::fill(workBuffer.deviceBuffer.begin(), workBuffer.deviceBuffer.begin() + deviceContext.bufferSize, 0.0);
-    if (!device->hasActiveAudio() && !deviceContext.deviceActiveFlags->at(deviceSnapshotIndex)) {
+
+    // Going silent is not on its own enough to stop processing a device: an insert whose gain
+    // envelope follows a detector -- a ducker, a side-chained compressor -- would then freeze
+    // wherever the last block left it, and the device's next note would start on that stale amount
+    // of gain reduction instead of on what the detector says. How far off it lands depends on where
+    // the freeze fell on the detector's decay, which depends on the block size, which is why a
+    // render (one tick per block) and real-time playback (a whole audio buffer per block) disagree
+    // about it. Such an insert reports itself unsettled until it has released, and the device keeps
+    // running until then; everything else settles immediately and is skipped exactly as before.
+    if (!device->hasActiveAudio() && !deviceContext.deviceActiveFlags->at(deviceSnapshotIndex) && device->insertEffectsSettled()) {
         if (deviceContext.deviceOutputBuffersMutable) {
             const auto slotIndex = deviceContext.slotSnapshot->at(deviceSnapshotIndex);
             auto & outputBuffer = deviceContext.deviceOutputBuffersMutable->at(slotIndex);

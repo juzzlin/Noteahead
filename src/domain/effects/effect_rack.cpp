@@ -199,6 +199,14 @@ void EffectRack::processInPlace(AudioContext & context)
     }
 }
 
+bool EffectRack::isSettled() const
+{
+    std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    return std::ranges::all_of(m_effects, [](const auto & effect) {
+        return !effect || !effect->enabled() || effect->isSettled();
+    });
+}
+
 std::vector<size_t> EffectRack::sidechainDependencies() const
 {
     std::vector<size_t> dependencies;

@@ -175,6 +175,13 @@ void AutoDucker::sync()
     m_shouldSyncParameters = true;
 }
 
+bool AutoDucker::isSettled() const
+{
+    // At zero the ducker is transparent, so a silent device carrying it can safely stop being
+    // processed: there is no gain reduction left to release.
+    return std::abs(m_envelopeDb) < 0.001;
+}
+
 float AutoDucker::gainDb() const
 {
     return static_cast<float>(m_envelopeDb);

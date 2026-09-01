@@ -30,6 +30,7 @@ private slots:
     void test_audioEngine_rebuildProcessingGraph_shouldCorrectlySortDependentDevices();
     void test_audioEngine_process_runtimeSidechainChange_shouldRebuildGraph();
     void test_audioEngine_rebuildProcessingGraph_shouldHandleCircularDependencyGracefully();
+    void test_audioEngine_silentDeviceWithEngagedDucker_shouldKeepProcessingUntilItReleases();
     void test_audioEngine_serialAndExclusive_shouldProduceIdenticalOutput();
     void test_audioEngine_sendEffectAddedAfterProcess_shouldBeApplied();
     void test_audioEngine_sendEffectRackDisabled_shouldStopTheSendEffects();

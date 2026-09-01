@@ -21,6 +21,7 @@
 #include "../../common/utils.hpp"
 
 #include <algorithm>
+#include <cmath>
 
 namespace noteahead {
 
@@ -158,6 +159,13 @@ void Compressor::sync()
 float Compressor::reductionDb() const
 {
     return static_cast<float>(m_core.reductionDb());
+}
+
+bool Compressor::isSettled() const
+{
+    // Same reasoning as AutoDucker: with no reduction left to release there is nothing the frozen
+    // envelope of a skipped device could get wrong.
+    return std::abs(m_core.reductionDb()) < 0.001;
 }
 
 void Compressor::syncParameters()

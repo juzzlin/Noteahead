@@ -40,6 +40,7 @@ public:
     void processBlock(AudioContext & context) override;
     void reset() override;
     void sync() override;
+    bool isSettled() const override;
 
     std::optional<size_t> sidechainSourceDeviceIndex() const override;
 
