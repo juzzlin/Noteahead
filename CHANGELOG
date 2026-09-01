@@ -29,6 +29,9 @@ Bug fixes:
 
 Other:
 
+* Render event-free ticks as one block instead of one block each
+  - Offline blocks are now the size of an audio buffer rather than a single tick
+
 * Move the Mixer's Clear clips button to the dialog buttons
   - Its label no longer runs out of the button in translations
 

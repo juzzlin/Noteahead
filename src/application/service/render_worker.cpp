@@ -43,6 +43,15 @@ namespace noteahead {
 
 static const auto TAG = "RenderWorker";
 
+namespace {
+
+//! How long a block the render aims for when it can join event-free ticks together. Chosen to sit
+//! in the same range as a real-time audio buffer: large enough that the per-block costs stop
+//! dominating, small enough to keep the progress reporting and the trim clamp responsive.
+constexpr double targetRenderBlockFrames { 2048.0 };
+
+} // namespace
+
 RenderWorker::RenderWorker(AudioEngineS audioEngine, DeviceServiceS deviceService, MixerServiceS mixerService, QObject * parent)
   : QObject { parent }
   , m_audioEngine { std::move(audioEngine) }
@@ -183,7 +192,16 @@ void RenderWorker::render(const QString & fileName,
             }
         };
 
-        for (quint64 tick = 0; tick <= maxTick; tick++) {
+        // A tick is a very short block -- 93 frames at 148 BPM -- and driving the engine one tick at a
+        // time makes every per-block cost fall due five times more often than it does at a real-time
+        // buffer size. Ticks that carry no events are indistinguishable from each other, so they are
+        // run as one block instead. Events still land on the tick they were written on: only stretches
+        // with nothing happening in them are joined, and with 24 ticks to a line most of them qualify.
+        const quint64 maxTicksPerBlock = std::max<quint64>(1, static_cast<quint64>(targetRenderBlockFrames / samplesPerTick));
+
+        quint64 tick = 0;
+        quint64 lastReportedProgressTick = 0;
+        while (tick <= maxTick) {
             if (hasFixedLength && totalFramesWritten >= audioEndFrames) {
                 break;
             }
@@ -194,7 +212,14 @@ void RenderWorker::render(const QString & fileName,
                 }
             }
 
-            sampleCounter += samplesPerTick;
+            // How far the next event is, capped so one quiet stretch cannot become a single huge
+            // block: the progress reporting and the trim clamp both want to be checked regularly.
+            quint64 tickSpan = 1;
+            while (tick + tickSpan <= maxTick && tickSpan < maxTicksPerBlock && !eventMap.contains(tick + tickSpan)) {
+                tickSpan++;
+            }
+
+            sampleCounter += samplesPerTick * static_cast<double>(tickSpan);
             quint32 framesToProcess = static_cast<quint32>(sampleCounter);
             if (hasFixedLength && totalFramesWritten + framesToProcess > audioEndFrames) {
                 framesToProcess = static_cast<quint32>(audioEndFrames - totalFramesWritten);
@@ -219,9 +244,12 @@ void RenderWorker::render(const QString & fileName,
                 sampleCounter -= static_cast<double>(framesToProcess);
             }
 
-            if (tick % 100 == 0) {
+            if (tick - lastReportedProgressTick >= 100) {
+                lastReportedProgressTick = tick;
                 emit progressChanged(static_cast<double>(tick) / static_cast<double>(maxTick));
             }
+
+            tick += tickSpan;
         }
 
         // Process any remaining sub-sample (round to nearest)

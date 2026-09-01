@@ -316,6 +316,64 @@ float renderSingleNotePeak(std::shared_ptr<Device> device, uint8_t note)
 
 } // namespace
 
+void RenderingTest::test_render_lateNote_shouldStartOnItsOwnTick()
+{
+    // Event-free ticks are rendered as one block rather than one block each, so the note has to
+    // land on the tick it was written on and not on the start of the block that swallowed it.
+    auto audioEngine = std::make_shared<AudioEngine>();
+    auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    auto mixerService = std::make_shared<MixerService>();
+    deviceService->setDevice(0, std::make_shared<SynthDevice>("Noteahead Internal Device 1"));
+
+    RenderWorker worker(audioEngine, deviceService, mixerService);
+    // The registry outlives the reader, which the recorder owns and destroys inside render().
+    MockRenderIo::Registry registry;
+    std::mutex registryMutex;
+    worker.setAudioFileReaderFactory([&]() { return std::make_unique<MockRenderIo>(&registry, &registryMutex); });
+
+    // Far enough in that the run-up is many blocks long however the ticks are grouped.
+    const quint64 noteTick = 300;
+
+    RenderWorker::EventList events;
+    auto instrument = std::make_shared<Instrument>("Noteahead Internal Device 1");
+    NoteData noteData { 0, 0 };
+    noteData.setAsNoteOn(60, 100);
+    auto event = std::make_shared<Event>(noteTick, noteData);
+    event->setInstrument(instrument);
+    events.push_back(event);
+
+    // Real tracker timing: a tick is ~93 frames, so a block spans a couple of dozen of them and
+    // a note allowed to drift to a block boundary would land audibly late.
+    RenderWorker::Timing timing;
+    timing.beatsPerMinute = 148;
+    timing.linesPerBeat = 8;
+    timing.ticksPerLine = 24;
+
+    const uint32_t sampleRate = 44100;
+    worker.render("dummy.wav", events, timing, noteTick + 200, sampleRate);
+
+    const auto & rendered = registry["dummy.wav"].data;
+    QVERIFY(!rendered.empty());
+    const double samplesPerTick = 60.0 * sampleRate / (timing.beatsPerMinute * timing.linesPerBeat * timing.ticksPerLine);
+    const auto expectedFrame = static_cast<size_t>(static_cast<double>(noteTick) * samplesPerTick);
+
+    const auto firstSoundingFrame = [&] {
+        for (size_t frame = 0; frame * 2 + 1 < rendered.size(); frame++) {
+            if (std::abs(rendered[frame * 2]) > 1.0e-6f || std::abs(rendered[frame * 2 + 1]) > 1.0e-6f) {
+                return frame;
+            }
+        }
+        return rendered.size();
+    }();
+
+    QVERIFY2(firstSoundingFrame != rendered.size(), "the render was silent");
+    // One tick of slack: which side of a tick boundary the fractional sample counter lands on is
+    // not the point, being blocks early or late is.
+    const auto slack = static_cast<size_t>(samplesPerTick);
+    QVERIFY2(firstSoundingFrame + slack >= expectedFrame && firstSoundingFrame <= expectedFrame + slack,
+             qPrintable(QString { "note started at frame %1, expected %2" }.arg(firstSoundingFrame).arg(expectedFrame)));
+}
+
 void RenderingTest::test_render_everyInstrument_shouldNotBeSilent_data()
 {
     QTest::addColumn<QString>("typeId");

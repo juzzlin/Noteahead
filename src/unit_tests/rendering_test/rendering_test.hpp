@@ -14,6 +14,7 @@ private slots:
     void cleanupTestCase();
 
     void test_renderSynth_shouldPreserveParameters();
+    void test_render_lateNote_shouldStartOnItsOwnTick();
     void test_render_everyInstrument_shouldNotBeSilent_data();
     void test_render_everyInstrument_shouldNotBeSilent();
     void test_renderSampler_shouldPreserveParameters();
