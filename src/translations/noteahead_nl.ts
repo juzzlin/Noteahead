@@ -1525,6 +1525,26 @@
         <source>To assign an internal device to a track, select its name from the port list in the Track Settings dialog.</source>
         <translation>Om een intern apparaat aan een track toe te wijzen, kies je de naam ervan in de poortlijst in het venster Trackinstellingen.</translation>
     </message>
+    <message>
+        <source>Insert effects of this device</source>
+        <translation>Insert-effecten van dit apparaat</translation>
+    </message>
+    <message>
+        <source>Send levels of this device to the master send effects</source>
+        <translation>Send-niveaus van dit apparaat naar de master-send-effecten</translation>
+    </message>
+    <message>
+        <source>Name and MIDI settings of this device</source>
+        <translation>Naam en MIDI-instellingen van dit apparaat</translation>
+    </message>
+    <message>
+        <source>Change the device, or export and import its settings</source>
+        <translation>Wissel het apparaat, of exporteer en importeer de instellingen</translation>
+    </message>
+    <message>
+        <source>Remove the device from this slot</source>
+        <translation>Verwijder het apparaat uit dit slot</translation>
+    </message>
 </context>
 <context>
     <name>DeviceSettingsDialog</name>
@@ -3909,6 +3929,22 @@
     <message>
         <source>These are the very same controls as in each device&apos;s own dialog: Gain trims the device into its insert effects, the Fader balances it, Pan places it.</source>
         <translation>Dit zijn precies dezelfde regelaars als in het eigen venster van elk apparaat: Gain stemt het apparaat af op zijn insert-effecten, de fader balanceert het, Pan plaatst het.</translation>
+    </message>
+    <message>
+        <source>Reset every clip indicator in the mixer</source>
+        <translation>Reset alle clip-indicatoren in de mixer</translation>
+    </message>
+    <message>
+        <source>Open the device dialog</source>
+        <translation>Open het apparaatvenster</translation>
+    </message>
+    <message>
+        <source>Insert effects of this device</source>
+        <translation>Insert-effecten van dit apparaat</translation>
+    </message>
+    <message>
+        <source>Send levels of this device to the master send effects</source>
+        <translation>Send-niveaus van dit apparaat naar de master-send-effecten</translation>
     </message>
 </context>
 <context>
@@ -6862,6 +6898,10 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     <message>
         <source>Devices checked here are mixed as one group and no longer reach the master on their own. Effects on this Sub Mixer apply to the whole group. Their reverb sends keep working.</source>
         <translation>Hier aangevinkte apparaten worden als één groep gemixt en bereiken de master niet meer afzonderlijk. Effecten op deze submixer gelden voor de hele groep. Hun reverb-sends blijven werken.</translation>
+    </message>
+    <message>
+        <source>Send levels of this device to the master send effects</source>
+        <translation>Send-niveaus van dit apparaat naar de master-send-effecten</translation>
     </message>
 </context>
 <context>

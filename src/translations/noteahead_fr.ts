@@ -1525,6 +1525,26 @@
         <source>To assign an internal device to a track, select its name from the port list in the Track Settings dialog.</source>
         <translation>Pour assigner un appareil interne à une piste, choisissez son nom dans la liste des ports de la fenêtre Paramètres de piste.</translation>
     </message>
+    <message>
+        <source>Insert effects of this device</source>
+        <translation>Effets d&apos;insert de cet appareil</translation>
+    </message>
+    <message>
+        <source>Send levels of this device to the master send effects</source>
+        <translation>Niveaux de départ de cet appareil vers les effets de départ master</translation>
+    </message>
+    <message>
+        <source>Name and MIDI settings of this device</source>
+        <translation>Nom et réglages MIDI de cet appareil</translation>
+    </message>
+    <message>
+        <source>Change the device, or export and import its settings</source>
+        <translation>Changer l&apos;appareil, ou exporter et importer ses réglages</translation>
+    </message>
+    <message>
+        <source>Remove the device from this slot</source>
+        <translation>Retirer l&apos;appareil de cet emplacement</translation>
+    </message>
 </context>
 <context>
     <name>DeviceSettingsDialog</name>
@@ -3909,6 +3929,22 @@
     <message>
         <source>These are the very same controls as in each device&apos;s own dialog: Gain trims the device into its insert effects, the Fader balances it, Pan places it.</source>
         <translation>Ce sont exactement les mêmes commandes que dans la fenêtre propre à chaque appareil : Gain ajuste le niveau vers les effets d&apos;insert, le fader équilibre, Pan positionne.</translation>
+    </message>
+    <message>
+        <source>Reset every clip indicator in the mixer</source>
+        <translation>Réinitialiser tous les témoins d&apos;écrêtage du mixeur</translation>
+    </message>
+    <message>
+        <source>Open the device dialog</source>
+        <translation>Ouvrir la fenêtre de l&apos;appareil</translation>
+    </message>
+    <message>
+        <source>Insert effects of this device</source>
+        <translation>Effets d&apos;insert de cet appareil</translation>
+    </message>
+    <message>
+        <source>Send levels of this device to the master send effects</source>
+        <translation>Niveaux de départ de cet appareil vers les effets de départ master</translation>
     </message>
 </context>
 <context>
@@ -6862,6 +6898,10 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
     <message>
         <source>Devices checked here are mixed as one group and no longer reach the master on their own. Effects on this Sub Mixer apply to the whole group. Their reverb sends keep working.</source>
         <translation>Les appareils cochés ici sont mixés en un seul groupe et n&apos;atteignent plus le master individuellement. Les effets de ce sous-mixeur s&apos;appliquent à tout le groupe. Leurs départs de réverbération continuent de fonctionner.</translation>
+    </message>
+    <message>
+        <source>Send levels of this device to the master send effects</source>
+        <translation>Niveaux de départ de cet appareil vers les effets de départ master</translation>
     </message>
 </context>
 <context>

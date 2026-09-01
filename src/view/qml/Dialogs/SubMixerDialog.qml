@@ -147,6 +147,7 @@ AnimatedDialog {
 
                     AppButton {
                         text: qsTr("Sends")
+                        toolTipText: qsTr("Send levels of this device to the master send effects")
                         onClicked: UiService.requestEffectSendsDialog(modelData.name)
                         Layout.preferredWidth: 80
                     }

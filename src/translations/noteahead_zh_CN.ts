@@ -1524,6 +1524,26 @@
         <source>To assign an internal device to a track, select its name from the port list in the Track Settings dialog.</source>
         <translation>要为轨道分配内部设备，请在轨道设置对话框的端口列表中选择其名称。</translation>
     </message>
+    <message>
+        <source>Insert effects of this device</source>
+        <translation>此设备的插入效果</translation>
+    </message>
+    <message>
+        <source>Send levels of this device to the master send effects</source>
+        <translation>此设备发送到主发送效果的电平</translation>
+    </message>
+    <message>
+        <source>Name and MIDI settings of this device</source>
+        <translation>此设备的名称和 MIDI 设置</translation>
+    </message>
+    <message>
+        <source>Change the device, or export and import its settings</source>
+        <translation>更换设备，或导出和导入其设置</translation>
+    </message>
+    <message>
+        <source>Remove the device from this slot</source>
+        <translation>从此插槽移除设备</translation>
+    </message>
 </context>
 <context>
     <name>DeviceSettingsDialog</name>
@@ -3908,6 +3928,22 @@
     <message>
         <source>These are the very same controls as in each device&apos;s own dialog: Gain trims the device into its insert effects, the Fader balances it, Pan places it.</source>
         <translation>这些与每个设备自身对话框中的控件完全相同：Gain 将设备调入其插入效果，推子做平衡，Pan 决定声像位置。</translation>
+    </message>
+    <message>
+        <source>Reset every clip indicator in the mixer</source>
+        <translation>清除混音器中的所有削波指示</translation>
+    </message>
+    <message>
+        <source>Open the device dialog</source>
+        <translation>打开设备窗口</translation>
+    </message>
+    <message>
+        <source>Insert effects of this device</source>
+        <translation>此设备的插入效果</translation>
+    </message>
+    <message>
+        <source>Send levels of this device to the master send effects</source>
+        <translation>此设备发送到主发送效果的电平</translation>
     </message>
 </context>
 <context>
@@ -6861,6 +6897,10 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>Devices checked here are mixed as one group and no longer reach the master on their own. Effects on this Sub Mixer apply to the whole group. Their reverb sends keep working.</source>
         <translation>此处勾选的设备将作为一组混合，不再单独送入主输出。此子混音器上的效果作用于整组。它们的混响发送仍然有效。</translation>
+    </message>
+    <message>
+        <source>Send levels of this device to the master send effects</source>
+        <translation>此设备发送到主发送效果的电平</translation>
     </message>
 </context>
 <context>

@@ -229,18 +229,21 @@ AnimatedDialog {
                             AppButton {
                                 text: qsTr("Device")
                                 Layout.preferredWidth: 80
+                                toolTipText: qsTr("Open the device dialog")
                                 onClicked: deviceRackController.openDevice(index)
                             }
 
                             AppButton {
                                 text: qsTr("Insert FX")
                                 Layout.preferredWidth: 80
+                                toolTipText: qsTr("Insert effects of this device")
                                 onClicked: UiService.requestDeviceInsertEffectsDialog(strip.deviceName)
                             }
 
                             AppButton {
                                 text: qsTr("Sends")
                                 Layout.preferredWidth: 80
+                                toolTipText: qsTr("Send levels of this device to the master send effects")
                                 onClicked: UiService.requestEffectSendsDialog(strip.deviceName)
                             }
                         }

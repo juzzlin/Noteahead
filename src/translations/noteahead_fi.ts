@@ -1525,6 +1525,26 @@
         <source>To assign an internal device to a track, select its name from the port list in the Track Settings dialog.</source>
         <translation>Määrittääksesi sisäisen laitteen raidalle valitse sen nimi porttilistalta raidan asetusikkunassa.</translation>
     </message>
+    <message>
+        <source>Insert effects of this device</source>
+        <translation>Tämän laitteen insert-efektit</translation>
+    </message>
+    <message>
+        <source>Send levels of this device to the master send effects</source>
+        <translation>Tämän laitteen lähtötasot masterin lähtöefekteihin</translation>
+    </message>
+    <message>
+        <source>Name and MIDI settings of this device</source>
+        <translation>Tämän laitteen nimi- ja MIDI-asetukset</translation>
+    </message>
+    <message>
+        <source>Change the device, or export and import its settings</source>
+        <translation>Vaihda laite tai vie ja tuo sen asetukset</translation>
+    </message>
+    <message>
+        <source>Remove the device from this slot</source>
+        <translation>Poista laite tästä paikasta</translation>
+    </message>
 </context>
 <context>
     <name>DeviceSettingsDialog</name>
@@ -3909,6 +3929,22 @@
     <message>
         <source>These are the very same controls as in each device&apos;s own dialog: Gain trims the device into its insert effects, the Fader balances it, Pan places it.</source>
         <translation>Nämä ovat täsmälleen samat säätimet kuin kunkin laitteen omassa ikkunassa: Gain sovittaa laitteen sen insert-efekteihin, liuku tasapainottaa sen ja Pan sijoittaa sen.</translation>
+    </message>
+    <message>
+        <source>Reset every clip indicator in the mixer</source>
+        <translation>Nollaa mikserin kaikki leikkausvalot</translation>
+    </message>
+    <message>
+        <source>Open the device dialog</source>
+        <translation>Avaa laitteen ikkuna</translation>
+    </message>
+    <message>
+        <source>Insert effects of this device</source>
+        <translation>Tämän laitteen insert-efektit</translation>
+    </message>
+    <message>
+        <source>Send levels of this device to the master send effects</source>
+        <translation>Tämän laitteen lähtötasot masterin lähtöefekteihin</translation>
     </message>
 </context>
 <context>
@@ -6862,6 +6898,10 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     <message>
         <source>Devices checked here are mixed as one group and no longer reach the master on their own. Effects on this Sub Mixer apply to the whole group. Their reverb sends keep working.</source>
         <translation>Tässä valitut laitteet miksataan yhtenä ryhmänä eivätkä ne enää yllä masteriin omillaan. Tämän alimikserin efektit vaikuttavat koko ryhmään. Niiden kaikulähdöt toimivat edelleen.</translation>
+    </message>
+    <message>
+        <source>Send levels of this device to the master send effects</source>
+        <translation>Tämän laitteen lähtötasot masterin lähtöefekteihin</translation>
     </message>
 </context>
 <context>

@@ -1525,6 +1525,26 @@
         <source>To assign an internal device to a track, select its name from the port list in the Track Settings dialog.</source>
         <translation>Para atribuir um dispositivo interno a uma faixa, selecione o nome dele na lista de portas da janela de configurações da faixa.</translation>
     </message>
+    <message>
+        <source>Insert effects of this device</source>
+        <translation>Efeitos de inserção deste dispositivo</translation>
+    </message>
+    <message>
+        <source>Send levels of this device to the master send effects</source>
+        <translation>Níveis de envio deste dispositivo para os efeitos de envio master</translation>
+    </message>
+    <message>
+        <source>Name and MIDI settings of this device</source>
+        <translation>Nome e configurações MIDI deste dispositivo</translation>
+    </message>
+    <message>
+        <source>Change the device, or export and import its settings</source>
+        <translation>Trocar o dispositivo, ou exportar e importar suas configurações</translation>
+    </message>
+    <message>
+        <source>Remove the device from this slot</source>
+        <translation>Remover o dispositivo deste slot</translation>
+    </message>
 </context>
 <context>
     <name>DeviceSettingsDialog</name>
@@ -3909,6 +3929,22 @@
     <message>
         <source>These are the very same controls as in each device&apos;s own dialog: Gain trims the device into its insert effects, the Fader balances it, Pan places it.</source>
         <translation>Estes são exatamente os mesmos controles da janela própria de cada dispositivo: o Gain ajusta o dispositivo para os seus efeitos de inserção, o fader o equilibra e o Pan o posiciona.</translation>
+    </message>
+    <message>
+        <source>Reset every clip indicator in the mixer</source>
+        <translation>Zera todos os indicadores de clipping do mixer</translation>
+    </message>
+    <message>
+        <source>Open the device dialog</source>
+        <translation>Abrir a janela do dispositivo</translation>
+    </message>
+    <message>
+        <source>Insert effects of this device</source>
+        <translation>Efeitos de inserção deste dispositivo</translation>
+    </message>
+    <message>
+        <source>Send levels of this device to the master send effects</source>
+        <translation>Níveis de envio deste dispositivo para os efeitos de envio master</translation>
     </message>
 </context>
 <context>
@@ -6862,6 +6898,10 @@ Um apóstrofo marca a sílaba tônica: A&apos;merica</translation>
     <message>
         <source>Devices checked here are mixed as one group and no longer reach the master on their own. Effects on this Sub Mixer apply to the whole group. Their reverb sends keep working.</source>
         <translation>Os dispositivos marcados aqui são mixados como um grupo e já não chegam ao master sozinhos. Os efeitos deste submixer se aplicam a todo o grupo. Os envios de reverb deles continuam funcionando.</translation>
+    </message>
+    <message>
+        <source>Send levels of this device to the master send effects</source>
+        <translation>Níveis de envio deste dispositivo para os efeitos de envio master</translation>
     </message>
 </context>
 <context>

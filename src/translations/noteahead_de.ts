@@ -1525,6 +1525,26 @@
         <source>To assign an internal device to a track, select its name from the port list in the Track Settings dialog.</source>
         <translation>Um einer Spur ein internes Gerät zuzuweisen, wähle dessen Namen in der Portliste im Dialog Spureinstellungen.</translation>
     </message>
+    <message>
+        <source>Insert effects of this device</source>
+        <translation>Insert-Effekte dieses Geräts</translation>
+    </message>
+    <message>
+        <source>Send levels of this device to the master send effects</source>
+        <translation>Send-Pegel dieses Geräts zu den Master-Send-Effekten</translation>
+    </message>
+    <message>
+        <source>Name and MIDI settings of this device</source>
+        <translation>Name und MIDI-Einstellungen dieses Geräts</translation>
+    </message>
+    <message>
+        <source>Change the device, or export and import its settings</source>
+        <translation>Gerät wechseln oder seine Einstellungen exportieren und importieren</translation>
+    </message>
+    <message>
+        <source>Remove the device from this slot</source>
+        <translation>Gerät aus diesem Slot entfernen</translation>
+    </message>
 </context>
 <context>
     <name>DeviceSettingsDialog</name>
@@ -3909,6 +3929,22 @@
     <message>
         <source>These are the very same controls as in each device&apos;s own dialog: Gain trims the device into its insert effects, the Fader balances it, Pan places it.</source>
         <translation>Dies sind genau dieselben Regler wie im eigenen Dialog jedes Geräts: Gain pegelt das Gerät in seine Insert-Effekte, der Fader balanciert es, Pan platziert es.</translation>
+    </message>
+    <message>
+        <source>Reset every clip indicator in the mixer</source>
+        <translation>Alle Clip-Anzeigen im Mixer zurücksetzen</translation>
+    </message>
+    <message>
+        <source>Open the device dialog</source>
+        <translation>Gerätedialog öffnen</translation>
+    </message>
+    <message>
+        <source>Insert effects of this device</source>
+        <translation>Insert-Effekte dieses Geräts</translation>
+    </message>
+    <message>
+        <source>Send levels of this device to the master send effects</source>
+        <translation>Send-Pegel dieses Geräts zu den Master-Send-Effekten</translation>
     </message>
 </context>
 <context>
@@ -6862,6 +6898,10 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
     <message>
         <source>Devices checked here are mixed as one group and no longer reach the master on their own. Effects on this Sub Mixer apply to the whole group. Their reverb sends keep working.</source>
         <translation>Hier angehakte Geräte werden als eine Gruppe gemischt und erreichen den Master nicht mehr einzeln. Effekte auf diesem Sub-Mixer gelten für die ganze Gruppe. Ihre Hall-Sends funktionieren weiterhin.</translation>
+    </message>
+    <message>
+        <source>Send levels of this device to the master send effects</source>
+        <translation>Send-Pegel dieses Geräts zu den Master-Send-Effekten</translation>
     </message>
 </context>
 <context>

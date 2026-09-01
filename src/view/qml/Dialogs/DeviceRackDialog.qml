@@ -233,6 +233,7 @@ AnimatedDialog {
 
                     AppButton {
                         text: qsTr("Insert FX")
+                        toolTipText: qsTr("Insert effects of this device")
                         onClicked: UiService.requestDeviceInsertEffectsDialog(deviceName)
                         Layout.preferredWidth: 80
                         visible: deviceType !== ""
@@ -240,6 +241,7 @@ AnimatedDialog {
 
                     AppButton {
                         text: qsTr("Sends")
+                        toolTipText: qsTr("Send levels of this device to the master send effects")
                         onClicked: UiService.requestEffectSendsDialog(deviceName)
                         Layout.preferredWidth: 80
                         visible: deviceType !== ""
@@ -247,6 +249,7 @@ AnimatedDialog {
 
                     AppButton {
                         text: qsTr("Settings")
+                        toolTipText: qsTr("Name and MIDI settings of this device")
                         onClicked: UiService.requestDeviceSettingsDialog(deviceName)
                         Layout.preferredWidth: 80
                         visible: deviceType !== ""
@@ -257,6 +260,7 @@ AnimatedDialog {
                         text: qsTr("Manage")
                         Layout.preferredWidth: 80
                         visible: deviceType !== ""
+                        toolTipText: qsTr("Change the device, or export and import its settings")
                         onClicked: manageMenu.popup(manageButton, 0, manageButton.height)
                     }
 
@@ -266,6 +270,7 @@ AnimatedDialog {
                         visible: deviceType !== ""
                         flat: true
                         padding: 0
+                        toolTipText: qsTr("Remove the device from this slot")
                         Image {
                             source: "../Graphics/delete.png"
                             anchors.fill: parent

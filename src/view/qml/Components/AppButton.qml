@@ -16,6 +16,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
+import Noteahead 1.0
 
 // Qt's own AbstractButton press/release detection intermittently drops clicks on some Qt 6.10
 // installs while the audio engine is running; a plain MouseArea's simpler grab never does, which is
@@ -37,6 +38,15 @@ Button {
     //
     // Safe on a button that is not in a DialogButtonBox: the attached role defaults to InvalidRole.
     readonly property bool acceptsDialog: DialogButtonBox.buttonRole === DialogButtonBox.AcceptRole
+    // A label that fits in English is routinely half again as long once translated -- "Insert FX"
+    // becomes "Insert-efektit" in Finnish -- and the buttons packed onto a mixer or rack row have
+    // no width to give. Setting this is what makes the whole label readable on hover; the tooltip
+    // is wired here rather than per button so a row costs one line each.
+    property string toolTipText: ""
+    ToolTip.delay: Constants.toolTipDelay
+    ToolTip.timeout: Constants.toolTipTimeout
+    ToolTip.visible: root.toolTipText !== "" && root.hovered
+    ToolTip.text: root.toolTipText
     background: Rectangle {
         implicitWidth: 32
         implicitHeight: 32
