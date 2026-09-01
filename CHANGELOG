@@ -12,6 +12,10 @@ New features:
 
 Bug fixes:
 
+* Stop the engine allocating on the audio thread when the block size changes
+  - The device output buffers were resized exactly instead of to a high-water mark
+  - Hit every block of a render, and any backend that varies its buffer size
+
 * Fix a ducker or side-chained compressor pumping the wrong amount after a rest
   - Its gain reduction froze while the device it sits on was silent
   - The amount depended on the buffer size, so a render and live play disagreed

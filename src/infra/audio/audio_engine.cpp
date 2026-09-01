@@ -243,9 +243,15 @@ void AudioEngine::ensureDeviceOutputBuffers(uint32_t bufferSize)
         m_deviceOutputBufferSpans.resize(deviceCount);
     }
 
+    // Grown to a high-water mark and never shrunk, like every other buffer here. Sizing exactly to
+    // the block would reallocate -- on the audio thread -- every time the frame count moved, which
+    // an offline render does on every single block: the fractional tick makes it alternate between
+    // two values. Backends that hand out a varying block size do the same to real-time playback.
+    // Nothing reads past the span, and a device either overwrites its buffer or has it zero-filled
+    // by the skip path, so no consumer can see what is left beyond the current block.
     for (size_t i = 0; i < deviceCount; i++) {
-        if (m_deviceOutputBuffers[i].size() != bufferSize) {
-            m_deviceOutputBuffers[i].assign(bufferSize, 0.0);
+        if (m_deviceOutputBuffers[i].size() < bufferSize) {
+            m_deviceOutputBuffers[i].resize(bufferSize, 0.0);
         }
         m_deviceOutputBufferSpans[i] = std::span<const double> { m_deviceOutputBuffers[i].data(), bufferSize };
     }
