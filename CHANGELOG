@@ -5,6 +5,10 @@ Release date:
 
 New features:
 
+* Add Change File to the Sampler's pad menu
+  - Replaces the sample on a loaded pad, which until now meant clearing it first
+  - The pad keeps its insert effects and its settings
+
 * Add Fast Render to the render dialog
   - Renders the devices on all cores instead of one, about 3x faster here
   - Off by default: it is not deterministic, so two renders differ in the last bits

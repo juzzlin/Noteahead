@@ -32,6 +32,9 @@ private slots:
 
     void test_loadAndClearSample_shouldUpdateModel();
 
+    void test_loadSample_ontoLoadedPad_shouldKeepItsSettingsAndEffects();
+    void test_loadSample_ontoEmptyPad_shouldStartFromTheDefaults();
+    void test_loadSample_shorterFile_shouldPullTheStartOffsetInside();
     void test_copySample_shouldCopySampleAndSettings();
     void test_copySample_shouldGiveTargetIndependentEffectRack();
     void test_copySample_emptySource_shouldNotTouchTarget();

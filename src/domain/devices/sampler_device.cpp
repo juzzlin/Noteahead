@@ -593,10 +593,32 @@ void SamplerDevice::loadSample(uint8_t note, const std::string & filePath)
 
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        // Preserve the pad's insert rack across sample reloads (e.g. re-recording onto the same pad).
-        if (const auto & existing = m_samples.at(note); existing && existing->effectRack) {
+        // A pad that already holds something keeps everything but the audio: its insert rack, and
+        // the settings it was dialled in with. Putting a different file on a pad is a substitution,
+        // not a fresh start -- re-recording onto it, and Change File, both mean "this pad, that
+        // sound". Loading onto an empty pad has nothing to carry and starts from the defaults.
+        if (auto & existing = m_samples.at(note); existing) {
+            static_cast<ParameterContainer &>(*sample) = static_cast<const ParameterContainer &>(*existing);
+            sample->pan = existing->pan;
+            sample->volume = existing->volume;
+            sample->cutoff = existing->cutoff;
+            sample->hpfCutoff = existing->hpfCutoff;
+            sample->startOffset = existing->startOffset;
             sample->effectRack = std::move(existing->effectRack);
         }
+
+        // The start offset is the one setting that is about the file rather than the pad, so a
+        // shorter replacement has to pull it back inside the sample instead of starting past its end.
+        if (sample->data && sample->channels > 0 && sample->sampleRate > 0) {
+            const auto duration = static_cast<double>(sample->data->size() / static_cast<size_t>(sample->channels)) / static_cast<double>(sample->sampleRate);
+            if (sample->startOffset > duration) {
+                sample->startOffset = duration;
+                if (auto p = sample->parameter(Constants::NahdXml::xmlKeyStartOffset().toStdString()); p) {
+                    p->get().setValue(static_cast<float>(duration / 60.0));
+                }
+            }
+        }
+
         stopVoicesUsing(m_samples.at(note).get());
         m_samples.at(note) = std::move(sample);
     }

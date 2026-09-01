@@ -138,6 +138,17 @@ GridView {
                 Universal.accent: themeService.accentColor
                 delegate: MenuItemDelegate {}
                 MenuItem {
+                    text: qsTr("Change File...")
+                    enabled: padMenu.padIsLoaded
+                    onTriggered: {
+                        if (padGrid.fileDialog) {
+                            padGrid.fileDialog.padToAssign = padMenu.padIndex;
+                            padGrid.fileDialog.open();
+                        }
+                    }
+                }
+                MenuSeparator {}
+                MenuItem {
                     text: qsTr("Clear")
                     enabled: padMenu.padIsLoaded
                     onTriggered: samplerController.clearSample(padMenu.padIndex)

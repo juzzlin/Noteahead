@@ -89,7 +89,7 @@ public:
 
     Info info() const override
     {
-        return { 1024, static_cast<int>(Constants::defaultSampleRate()), m_channels, 0 };
+        return { m_frames, static_cast<int>(Constants::defaultSampleRate()), m_channels, 0 };
     }
 
     void setForceChannels(int channels)
@@ -97,8 +97,16 @@ public:
         m_channels = channels;
     }
 
+    //! Lets a test hand out a shorter file on the next open, which is the only way to tell a
+    //! replacement sample apart from the one it replaces.
+    void setFrames(int64_t frames)
+    {
+        m_frames = frames;
+    }
+
 private:
     int m_channels = 2;
+    int64_t m_frames = 1024;
 };
 
 void SamplerTest::initTestCase()
@@ -126,6 +134,67 @@ void SamplerTest::test_loadAndClearSample_shouldUpdateModel()
     QVERIFY(sampler.sample(60));
     sampler.clearSample(60);
     QVERIFY(!sampler.sample(60));
+}
+
+void SamplerTest::test_loadSample_ontoLoadedPad_shouldKeepItsSettingsAndEffects()
+{
+    // Changing the file on a pad is a substitution, not a fresh start: the rack and everything the
+    // pad was dialled in with belong to the pad rather than to the file that was on it.
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    sampler.loadSample(60, "first.wav");
+    sampler.setSamplePan(60, 0.25f);
+    sampler.setSampleVolume(60, 0.75f);
+    sampler.setSampleCutoff(60, 0.4f);
+    sampler.setSampleHpfCutoff(60, 0.1f);
+    const auto reverb = std::make_shared<Reverb>();
+    reverb->setSize(0.8f);
+    sampler.sampleEffectRack(60).setEffect(0, reverb);
+
+    sampler.loadSample(60, "second.wav");
+
+    QVERIFY(sampler.sample(60));
+    QVERIFY(sampler.sample(60)->filePath.find("second.wav") != std::string::npos);
+    QCOMPARE(sampler.samplePan(60), 0.25f);
+    QCOMPARE(sampler.sampleVolume(60), 0.75f);
+    QCOMPARE(sampler.sampleCutoff(60), 0.4f);
+    QCOMPARE(sampler.sampleHpfCutoff(60), 0.1f);
+    const auto kept = std::dynamic_pointer_cast<Reverb>(sampler.sampleEffectRack(60).effect(0));
+    QVERIFY(kept != nullptr);
+    QCOMPARE(kept->size(), 0.8f);
+}
+
+void SamplerTest::test_loadSample_ontoEmptyPad_shouldStartFromTheDefaults()
+{
+    // Nothing to carry over, so a fresh pad must not inherit whatever a neighbour was set to.
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    sampler.loadSample(60, "first.wav");
+    sampler.setSamplePan(60, 0.25f);
+
+    sampler.loadSample(62, "second.wav");
+
+    QCOMPARE(sampler.samplePan(62), 0.5f);
+}
+
+void SamplerTest::test_loadSample_shorterFile_shouldPullTheStartOffsetInside()
+{
+    // The start offset is the one setting that is about the file. Carrying it past the end of a
+    // shorter replacement would leave the pad silent with no visible reason why.
+    auto reader = std::make_unique<MockAudioFileReader>();
+    auto * mock = reader.get();
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::move(reader) };
+    sampler.loadSample(60, "long.wav");
+    const auto duration = sampler.sampleDuration(60);
+    QVERIFY(duration > 0.0);
+    sampler.setSampleStartOffset(60, duration);
+    QVERIFY(std::abs(sampler.sampleStartOffset(60) - duration) < 1e-6);
+
+    mock->setFrames(256);
+    sampler.loadSample(60, "short.wav");
+
+    const auto shorterDuration = sampler.sampleDuration(60);
+    QVERIFY2(shorterDuration < duration, "the replacement was not actually shorter");
+    QVERIFY2(sampler.sampleStartOffset(60) <= shorterDuration + 1e-6,
+             qPrintable(QString { "offset %1 is past the end of a %2 s sample" }.arg(sampler.sampleStartOffset(60)).arg(shorterDuration)));
 }
 
 void SamplerTest::test_copySample_shouldCopySampleAndSettings()
