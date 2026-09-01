@@ -346,6 +346,14 @@
         <source>Rendering failed: </source>
         <translation>Renderöinti epäonnistui: </translation>
     </message>
+    <message>
+        <source>Fast render</source>
+        <translation>Nopea renderöinti</translation>
+    </message>
+    <message>
+        <source>Renders the devices on all cores instead of one. Much faster, but not deterministic: the same song renders to a file that differs in the last bits every time. Leave this off when you need two renders to be identical.</source>
+        <translation>Renderöi laitteet kaikilla ytimillä yhden sijaan. Paljon nopeampi mutta ei deterministinen: sama kappale renderöityy joka kerta tiedostoksi, joka poikkeaa viimeisiltä biteiltään. Jätä pois päältä, kun kahden renderöinnin on oltava identtiset.</translation>
+    </message>
 </context>
 <context>
     <name>AudioWaveView</name>
@@ -4932,6 +4940,10 @@
     <message>
         <source>Copy from pad...</source>
         <translation>Kopioi padista...</translation>
+    </message>
+    <message>
+        <source>Change File...</source>
+        <translation>Vaihda tiedosto...</translation>
     </message>
 </context>
 <context>

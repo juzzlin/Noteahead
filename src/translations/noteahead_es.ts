@@ -346,6 +346,14 @@
         <source>Rendering failed: </source>
         <translation>Error al renderizar: </translation>
     </message>
+    <message>
+        <source>Fast render</source>
+        <translation>Renderizado rápido</translation>
+    </message>
+    <message>
+        <source>Renders the devices on all cores instead of one. Much faster, but not deterministic: the same song renders to a file that differs in the last bits every time. Leave this off when you need two renders to be identical.</source>
+        <translation>Renderiza los dispositivos en todos los núcleos en lugar de uno. Mucho más rápido, pero no determinista: la misma canción produce cada vez un archivo que difiere en los últimos bits. Déjalo desactivado cuando necesites que dos renderizados sean idénticos.</translation>
+    </message>
 </context>
 <context>
     <name>AudioWaveView</name>
@@ -4932,6 +4940,10 @@
     <message>
         <source>Copy from pad...</source>
         <translation>Copiar desde el pad...</translation>
+    </message>
+    <message>
+        <source>Change File...</source>
+        <translation>Cambiar archivo...</translation>
     </message>
 </context>
 <context>

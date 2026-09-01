@@ -346,6 +346,14 @@
         <source>Rendering failed: </source>
         <translation>渲染失败：</translation>
     </message>
+    <message>
+        <source>Fast render</source>
+        <translation>快速渲染</translation>
+    </message>
+    <message>
+        <source>Renders the devices on all cores instead of one. Much faster, but not deterministic: the same song renders to a file that differs in the last bits every time. Leave this off when you need two renders to be identical.</source>
+        <translation>在所有内核上渲染设备，而不是只用一个。速度快得多，但不具确定性：同一首乐曲每次生成的文件在最后几位上都会有差异。当两次渲染必须完全一致时，请不要启用。</translation>
+    </message>
 </context>
 <context>
     <name>AudioWaveView</name>
@@ -4931,6 +4939,10 @@
     <message>
         <source>Copy from pad...</source>
         <translation>从打击垫复制...</translation>
+    </message>
+    <message>
+        <source>Change File...</source>
+        <translation>更换文件...</translation>
     </message>
 </context>
 <context>
