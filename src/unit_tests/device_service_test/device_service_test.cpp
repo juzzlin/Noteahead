@@ -30,6 +30,11 @@
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
+#include <atomic>
+#include <condition_variable>
+#include <mutex>
+#include <thread>
+
 #include <QBuffer>
 #include <QFile>
 #include <QSignalSpy>
@@ -715,6 +720,150 @@ void DeviceServiceTest::test_masterRackEnabled_shouldSaveAndLoadCorrectly()
 
     QVERIFY(!service2.insertEffectRack().enabled());
     QVERIFY(!service2.sendEffectRack().enabled());
+}
+
+namespace {
+
+//! Parks inside processAudio() until released, so a test can hold the engine in its callback -- and
+//! with it AudioEngine's mutex -- for as long as it needs to.
+class BlockingDevice : public Device
+{
+public:
+    std::string name() const override
+    {
+        return "Noteahead Internal Device 1";
+    }
+
+    std::string category() const override
+    {
+        return "Test";
+    }
+
+    std::string typeName() const override
+    {
+        return "Blocking";
+    }
+
+    std::string typeId() const override
+    {
+        return "blocking";
+    }
+
+    void processMidiNoteOn(uint8_t note, uint8_t velocity) override
+    {
+        m_note = note;
+        m_velocity = velocity;
+        m_noteCount++;
+    }
+
+    void processMidiNoteOff(uint8_t) override
+    {
+    }
+
+    void processMidiCc(uint8_t, uint8_t, uint8_t) override
+    {
+    }
+
+    void processMidiAllNotesOff() override
+    {
+    }
+
+    void processAudio(AudioContext &) override
+    {
+        std::unique_lock<std::mutex> lock { m_mutex };
+        m_isProcessing = true;
+        m_entered.notify_all();
+        m_released.wait(lock, [this] { return m_release; });
+    }
+
+    //! Blocks until the device is inside processAudio(), which is when the engine holds its mutex.
+    void waitUntilProcessing()
+    {
+        std::unique_lock<std::mutex> lock { m_mutex };
+        m_entered.wait(lock, [this] { return m_isProcessing; });
+    }
+
+    void release()
+    {
+        {
+            std::lock_guard<std::mutex> lock { m_mutex };
+            m_release = true;
+        }
+        m_released.notify_all();
+    }
+
+    int noteCount() const
+    {
+        return m_noteCount;
+    }
+
+    uint8_t note() const
+    {
+        return m_note;
+    }
+
+    uint8_t velocity() const
+    {
+        return m_velocity;
+    }
+
+private:
+    std::mutex m_mutex;
+    std::condition_variable m_entered;
+    std::condition_variable m_released;
+    bool m_isProcessing = false;
+    bool m_release = false;
+    std::atomic_int m_noteCount { 0 };
+    std::atomic<uint8_t> m_note { 0 };
+    std::atomic<uint8_t> m_velocity { 0 };
+};
+
+} // namespace
+
+void DeviceServiceTest::test_device_bySlotAndByName_shouldResolveWithoutTheEngine()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    DeviceService service { audioEngine, std::make_shared<DataService>() };
+
+    const auto device = std::make_shared<SynthDevice>("Noteahead Internal Device 3");
+    service.setDevice(2, device);
+
+    QCOMPARE(service.device(2), device);
+    QCOMPARE(service.device("Noteahead Internal Device 3"), device);
+    QVERIFY(!service.device(3));
+
+    service.clearDevice(2);
+
+    QVERIFY(!service.device(2));
+    QVERIFY(!service.device("Noteahead Internal Device 3"));
+}
+
+void DeviceServiceTest::test_processMidiNoteOn_whileEngineIsProcessing_shouldNotBlock()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    DeviceService service { audioEngine, std::make_shared<DataService>() };
+
+    const auto device = std::make_shared<BlockingDevice>();
+    service.setDevice(0, device);
+
+    std::vector<double> buffer(256, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), 128, 48000 };
+
+    // The engine now sits in the callback holding its mutex, exactly as it does for the whole of a
+    // real audio buffer.
+    std::thread engineThread { [&] { audioEngine->process(context); } };
+    device->waitUntilProcessing();
+
+    // Resolving the device used to go through AudioEngine::device(), which wants that same mutex,
+    // so this call would not return until the callback had finished. It has to arrive now.
+    service.processMidiNoteOn(QString::fromStdString(device->name()), 64, 100);
+
+    QCOMPARE(device->noteCount(), 1);
+    QCOMPARE(device->note(), 64);
+    QCOMPARE(device->velocity(), 100);
+
+    device->release();
+    engineThread.join();
 }
 
 } // namespace noteahead

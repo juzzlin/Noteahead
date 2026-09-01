@@ -47,7 +47,9 @@ DeviceService::DeviceService(AudioEngineS audioEngine, DataServiceS dataService,
   : QObject { parent }
   , m_audioEngine { std::move(audioEngine) }
   , m_dataService { std::move(dataService) }
+  , m_internalDevicePortPrefix { Constants::internalDevicePortPrefix() }
 {
+    m_deviceCache.resize(Constants::deviceRackSize());
     for (int i = 0; i < 128; i++) {
         m_synthUserPresets[i] = SynthPresets::initPreset();
     }
@@ -65,6 +67,7 @@ void DeviceService::setDevice(size_t slotIndex, DeviceS device)
             return m_dataService->resolvePath(path);
         });
     }
+    cacheDevice(slotIndex, device);
     m_audioEngine->setDevice(slotIndex, std::move(device));
     emit dataChanged();
 }
@@ -79,6 +82,7 @@ void DeviceService::replaceDevice(size_t slotIndex, DeviceS device)
 
 void DeviceService::clearDevice(size_t slotIndex)
 {
+    cacheDevice(slotIndex, nullptr);
     m_audioEngine->clearDevice(slotIndex);
     pruneSubMixerMembers();
     emit dataChanged();
@@ -229,59 +233,105 @@ int DeviceService::subMixerOwningSlot(int memberSlot) const
     return -1;
 }
 
+void DeviceService::cacheDevice(size_t slotIndex, DeviceS device)
+{
+    std::lock_guard<std::mutex> lock { m_deviceCacheMutex };
+    if (slotIndex < m_deviceCache.size()) {
+        m_deviceCache.at(slotIndex) = std::move(device);
+    }
+}
+
+void DeviceService::clearDeviceCache()
+{
+    std::lock_guard<std::mutex> lock { m_deviceCacheMutex };
+    std::ranges::fill(m_deviceCache, nullptr);
+}
+
+std::optional<size_t> DeviceService::slotFromPortName(const QString & portName) const
+{
+    if (!portName.startsWith(m_internalDevicePortPrefix)) {
+        return std::nullopt;
+    }
+    // "<prefix> <n>", with the slot numbered from one on the wire and from zero in the rack.
+    bool converted = false;
+    const auto slot = QStringView { portName }.mid(m_internalDevicePortPrefix.length() + 1).toUInt(&converted);
+    if (!converted || !slot) {
+        return std::nullopt;
+    }
+    return static_cast<size_t>(slot - 1);
+}
+
+DeviceService::DeviceS DeviceService::deviceForPort(const QString & portName) const
+{
+    if (const auto slotIndex = slotFromPortName(portName); slotIndex.has_value()) {
+        return device(*slotIndex);
+    }
+    return device(portName.toStdString());
+}
+
 DeviceService::DeviceS DeviceService::device(size_t slotIndex) const
 {
-    return m_audioEngine->device(slotIndex);
+    std::lock_guard<std::mutex> lock { m_deviceCacheMutex };
+    return slotIndex < m_deviceCache.size() ? m_deviceCache.at(slotIndex) : nullptr;
 }
 
 DeviceService::DeviceS DeviceService::device(const std::string & name) const
 {
-    return m_audioEngine->device(name);
+    if (const auto slotIndex = slotFromPortName(QString::fromStdString(name)); slotIndex.has_value()) {
+        return device(*slotIndex);
+    }
+
+    // A device renamed away from the slot pattern is still addressable by the name it carries.
+    std::lock_guard<std::mutex> lock { m_deviceCacheMutex };
+    const auto it = std::ranges::find_if(m_deviceCache, [&name](const auto & device) {
+        return device && device->name() == name;
+    });
+    return it != m_deviceCache.end() ? *it : nullptr;
 }
 
 bool DeviceService::isInternalDevice(const QString & portName) const
 {
-    return portName.startsWith(Constants::internalDevicePortPrefix());
+    return portName.startsWith(m_internalDevicePortPrefix);
 }
 
 void DeviceService::processMidiNoteOn(const QString & portName, uint8_t note, uint8_t velocity)
 {
-    if (const auto dev = device(portName.toStdString()); dev) {
+    if (const auto dev = deviceForPort(portName); dev) {
         dev->processMidiNoteOn(note, velocity);
     }
 }
 
 void DeviceService::processMidiNoteOff(const QString & portName, uint8_t note)
 {
-    if (const auto dev = device(portName.toStdString()); dev) {
+    if (const auto dev = deviceForPort(portName); dev) {
         dev->processMidiNoteOff(note);
     }
 }
 
 void DeviceService::processMidiCc(const QString & portName, uint8_t controller, uint8_t value, uint8_t channel)
 {
-    if (const auto dev = device(portName.toStdString()); dev) {
+    if (const auto dev = deviceForPort(portName); dev) {
         dev->processMidiCc(controller, value, channel);
     }
 }
 
 void DeviceService::processMidiPitchBend(const QString & portName, uint16_t value, uint8_t channel)
 {
-    if (const auto dev = device(portName.toStdString()); dev) {
+    if (const auto dev = deviceForPort(portName); dev) {
         dev->processMidiPitchBend(value, channel);
     }
 }
 
 void DeviceService::processMidiProgramChange(const QString & portName, uint8_t program, uint8_t channel)
 {
-    if (const auto dev = device(portName.toStdString()); dev) {
+    if (const auto dev = deviceForPort(portName); dev) {
         dev->processMidiProgramChange(program, channel);
     }
 }
 
 void DeviceService::processMidiAllNotesOff(const QString & portName)
 {
-    if (const auto dev = device(portName.toStdString()); dev) {
+    if (const auto dev = deviceForPort(portName); dev) {
         dev->processMidiAllNotesOff();
     }
 }
@@ -900,6 +950,7 @@ bool DeviceService::importDeviceSettings(int slotIndex, ProjectReader & reader)
 
 void DeviceService::reset()
 {
+    clearDeviceCache();
     m_audioEngine->clear();
     emit dataChanged();
 }

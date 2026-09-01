@@ -20,6 +20,10 @@ New features:
 
 Bug fixes:
 
+* Stop notes waiting for the audio callback to finish
+  - Sending one looked the device up under the mutex the callback holds all block
+  - Delayed every note by up to a whole buffer, heard as timing jitter
+
 * Write the rendered file in one pass unless normalizing
   - Analyzing loudness no longer costs an extra full write, read and encode
   - Renders that neither normalize nor analyze now keep their format and tags

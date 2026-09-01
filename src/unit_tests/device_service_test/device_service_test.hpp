@@ -49,6 +49,9 @@ private slots:
     void test_peekDeviceTypeInfo_nonexistentFile_shouldReturnEmpty();
     void test_reverbSends_shouldSaveAndLoadCorrectly();
     void test_masterRackEnabled_shouldSaveAndLoadCorrectly();
+
+    void test_device_bySlotAndByName_shouldResolveWithoutTheEngine();
+    void test_processMidiNoteOn_whileEngineIsProcessing_shouldNotBlock();
 };
 
 } // namespace noteahead

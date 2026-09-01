@@ -27,7 +27,10 @@
 
 #include <functional>
 #include <memory>
+#include <mutex>
+#include <optional>
 #include <string>
+#include <vector>
 
 namespace noteahead {
 
@@ -177,6 +180,15 @@ private:
 
     DeviceService::DeviceS getDevice(std::string name, std::string typeId);
 
+    //! Slot a MIDI port name addresses, or nothing when the name is not "<prefix> <n>".
+    std::optional<size_t> slotFromPortName(const QString & portName) const;
+
+    //! The device a MIDI port addresses, resolved from the cache below.
+    DeviceS deviceForPort(const QString & portName) const;
+
+    void cacheDevice(size_t slotIndex, DeviceS device);
+    void clearDeviceCache();
+
     std::shared_ptr<SynthDevice> findFirstSynthDevice() const;
 
     void serializeDevices(ProjectWriter & writer) const;
@@ -198,6 +210,23 @@ private:
 
     AudioEngineS m_audioEngine;
     DataServiceS m_dataService;
+
+    //! The devices by slot, kept in step with the engine's own map.
+    //!
+    //! The playback thread resolves a device for every note it sends, and AudioEngine::device()
+    //! takes the very mutex that AudioEngine::process() holds for the whole audio callback. That
+    //! made every note wait for however much of the current buffer was left to compute -- up to a
+    //! whole burst of them on a backend that delivers callbacks back to back -- which is heard as
+    //! timing jitter even with the CPU nowhere near saturated. The cache is written only when a
+    //! slot changes, and its lock is never held across audio work.
+    //!
+    //! DeviceService is the only writer of the engine's device map, so the two cannot drift.
+    mutable std::mutex m_deviceCacheMutex;
+    std::vector<DeviceS> m_deviceCache;
+
+    //! Held rather than fetched per note: Constants::internalDevicePortPrefix() returns by value,
+    //! and building that QString is exactly the kind of work this path exists to avoid.
+    const QString m_internalDevicePortPrefix;
     UserPresets m_synthUserPresets;
     std::string m_projectPath;
     SamplerAudioFileReaderFactory m_samplerAudioFileReaderFactory;
