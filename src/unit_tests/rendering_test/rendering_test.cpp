@@ -67,6 +67,7 @@ public:
     {
         std::vector<float> data;
         Info info;
+        std::map<TagType, std::string> tags;
     };
 
     using Registry = std::map<std::string, FileEntry>;
@@ -112,8 +113,12 @@ public:
 
     void setTag(TagType type, const std::string & value) override
     {
-        (void)type;
-        (void)value;
+        if (m_registry) {
+            std::lock_guard<std::mutex> lock(*m_registryMutex);
+            (*m_registry)[m_filePath].tags[type] = value;
+            return;
+        }
+        m_tags[type] = value;
     }
 
     int64_t readFloat(std::span<float> data) override
@@ -227,6 +232,7 @@ private:
     Info m_info;
     std::string m_filePath;
     std::vector<float> m_data;
+    std::map<TagType, std::string> m_tags;
     size_t m_readPos = 0;
     std::mutex m_mutex;
     Registry * m_registry = nullptr;
@@ -1101,6 +1107,60 @@ void RenderingTest::test_render_analysis_shouldWriteReportBesideTheRenderedFile(
     QVERIFY(text.contains("Threshold:"));
     QVERIFY(text.contains("LUFS"));
     QVERIFY(text.contains("dBTP"));
+}
+
+void RenderingTest::test_render_analyzeWithoutNormalize_shouldWriteTheFinalFileInOnePass()
+{
+    // Normalizing is what needs a scratch file: the gain is not known until the whole song has been
+    // scanned. Analyzing reads the finished file instead, so an analyze-only render has to go
+    // straight to it -- and still carry the tags the second pass used to write.
+    auto audioEngine = std::make_shared<AudioEngine>();
+    auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    auto mixerService = std::make_shared<MixerService>();
+    deviceService->setDevice(0, std::make_shared<SynthDevice>("Noteahead Internal Device 1"));
+
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const auto path = directory.filePath("song.flac");
+
+    RenderWorker worker(audioEngine, deviceService, mixerService);
+    MockRenderIo::Registry registry;
+    std::mutex registryMutex;
+    worker.setAudioFileReaderFactory([&]() { return std::make_unique<MockRenderIo>(&registry, &registryMutex); });
+
+    RenderWorker::EventList events;
+    auto instrument = std::make_shared<Instrument>("Noteahead Internal Device 1");
+    NoteData noteData { 0, 0 };
+    noteData.setAsNoteOn(60, 100);
+    auto event = std::make_shared<Event>(0, noteData);
+    event->setInstrument(instrument);
+    events.push_back(event);
+
+    RenderWorker::Timing timing;
+    timing.beatsPerMinute = 120;
+    timing.linesPerBeat = 4;
+    timing.ticksPerLine = 6;
+
+    RenderOptions options;
+    options.analyze = true;
+    options.normalize = false;
+
+    const std::map<AudioFileReader::TagType, std::string> tags {
+        { AudioFileReader::TagType::Title, "A song" },
+        { AudioFileReader::TagType::Artist, "An artist" }
+    };
+
+    worker.render(path, events, timing, 48, 44100, options, tags);
+
+    // One pass: the only file written is the one asked for, with no scratch WAV beside it.
+    QCOMPARE(registry.size(), size_t { 1 });
+    QVERIFY(registry.contains(path.toStdString()));
+    QVERIFY(registry.begin()->first.find("noteahead_temp_render") == std::string::npos);
+
+    const auto & written = registry[path.toStdString()];
+    QVERIFY(!written.data.empty());
+    QCOMPARE(written.tags.at(AudioFileReader::TagType::Title), std::string { "A song" });
+    QCOMPARE(written.tags.at(AudioFileReader::TagType::Artist), std::string { "An artist" });
 }
 
 void RenderingTest::test_render_analysisDisabled_shouldWriteNoReport()

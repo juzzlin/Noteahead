@@ -98,11 +98,15 @@ void RenderWorker::render(const QString & fileName,
             eventMap[event->tick()].push_back(event);
         }
 
-        // Setup rendering path and bit depth based on two-pass options
+        // Normalizing is what needs two passes: the gain cannot be applied until the whole song has
+        // been scanned for its peak, so the first pass goes to a float scratch file and the second
+        // one applies the gain and encodes. Analyzing needs no such thing -- it reads the finished
+        // file -- so an analyze-only render writes that file directly and skips a full write, a
+        // full read and a full encode.
         QString renderPath = fileName;
         QString tempPath = "";
         BitDepth actualBitDepth = bitDepth;
-        if (normalize || analyze) {
+        if (normalize) {
             tempPath = QString { "%1/noteahead_temp_render_%2.wav" }
                          .arg(QDir::tempPath())
                          .arg(QUuid::createUuid().toString(QUuid::WithoutBraces));
@@ -113,7 +117,15 @@ void RenderWorker::render(const QString & fileName,
         AudioFileRecorder recorder { m_audioFileReaderFactory ? m_audioFileReaderFactory() : nullptr };
         const quint32 channelCount = 2;
         const size_t recordingBufferSize = static_cast<size_t>(sampleRate) * channelCount * 10; // 10 seconds buffer
-        recorder.start(renderPath.toStdString(), sampleRate, channelCount, recordingBufferSize, actualBitDepth);
+        // The scratch file is a WAV whatever the export format is; the final file is not. Tags go on
+        // whichever of the two is the one being kept, which without a second pass is this one.
+        recorder.start(renderPath.toStdString(), sampleRate, channelCount, recordingBufferSize, actualBitDepth,
+                       tempPath.isEmpty() ? format : AudioFormat::Wav);
+        if (tempPath.isEmpty()) {
+            for (const auto & [type, value] : tags) {
+                recorder.setTag(type, value);
+            }
+        }
 
         m_audioEngine->setBpm(static_cast<float>(timing.beatsPerMinute));
 

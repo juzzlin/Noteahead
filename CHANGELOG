@@ -16,6 +16,10 @@ New features:
 
 Bug fixes:
 
+* Write the rendered file in one pass unless normalizing
+  - Analyzing loudness no longer costs an extra full write, read and encode
+  - Renders that neither normalize nor analyze now keep their format and tags
+
 * Stop the engine allocating on the audio thread when the block size changes
   - The device output buffers were resized exactly instead of to a high-water mark
   - Hit every block of a render, and any backend that varies its buffer size

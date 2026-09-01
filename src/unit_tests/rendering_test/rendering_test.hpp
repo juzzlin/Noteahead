@@ -32,6 +32,7 @@ private slots:
     void test_render_shouldNormalizeAudio();
 
     void test_render_analysis_shouldWriteReportBesideTheRenderedFile();
+    void test_render_analyzeWithoutNormalize_shouldWriteTheFinalFileInOnePass();
     void test_render_analysisDisabled_shouldWriteNoReport();
 };
 
