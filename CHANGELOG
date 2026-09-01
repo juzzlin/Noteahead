@@ -25,6 +25,9 @@ Bug fixes:
 
 Other:
 
+* Move the Mixer's Clear clips button to the dialog buttons
+  - Its label no longer runs out of the button in translations
+
 * Add tooltips to the Mixer, Device Rack and Sub Mixer row buttons
 
 * Show pre-delay in the Endless Reverb's rack summary

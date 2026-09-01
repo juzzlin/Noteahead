@@ -50,6 +50,20 @@ AnimatedDialog {
 
     footer: DialogButtonBox {
         AppButton {
+            text: qsTr("Clear clips")
+            // The one button in the dialog whose label runs past the standard width in most
+            // translations, so it takes whatever its own text needs and the standard width is
+            // only the floor. ActionRole keeps the dialog open, which is the point of a button
+            // that resets the meters while they are being watched.
+            implicitWidth: Math.max(Constants.defaultButtonWidth, implicitContentWidth + leftPadding + rightPadding)
+            DialogButtonBox.buttonRole: DialogButtonBox.ActionRole
+            toolTipText: qsTr("Reset every clip indicator in the mixer")
+            onClicked: {
+                deviceRackController.clearAllDeviceClips();
+                mainLayout.meterTick++;
+            }
+        }
+        AppButton {
             text: qsTr("Ok")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
@@ -252,27 +266,13 @@ AnimatedDialog {
             }
         }
 
-        RowLayout {
+        Text {
+            text: qsTr("These are the very same controls as in each device's own dialog: Gain trims the device into its insert effects, the Fader balances it, Pan places it.")
+            color: "#aaa"
+            font.italic: true
+            font.pointSize: 11
             Layout.fillWidth: true
-            spacing: 16
-
-            AppButton {
-                text: qsTr("Clear clips")
-                implicitWidth: Constants.defaultButtonWidth
-                onClicked: {
-                    deviceRackController.clearAllDeviceClips();
-                    mainLayout.meterTick++;
-                }
-            }
-
-            Text {
-                text: qsTr("These are the very same controls as in each device's own dialog: Gain trims the device into its insert effects, the Fader balances it, Pan places it.")
-                color: "#aaa"
-                font.italic: true
-                font.pointSize: 11
-                Layout.fillWidth: true
-                wrapMode: Text.WordWrap
-            }
+            wrapMode: Text.WordWrap
         }
     }
 }
