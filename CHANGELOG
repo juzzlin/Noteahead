@@ -5,6 +5,19 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+7.3.0
+=====
+
+Release date:
+
+Wed, 02 Sep 2026 19:01:10 +0300
+
+New features:
+
 * Add Change File to the Sampler's pad menu
   - Replaces the sample on a loaded pad, which until now meant clearing it first
   - The pad keeps its insert effects and its settings
