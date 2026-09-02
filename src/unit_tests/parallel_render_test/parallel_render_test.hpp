@@ -28,6 +28,9 @@ private slots:
     void test_realDevices_serialAndThreaded_shouldMatch();
     void test_subMixerAndSends_serialAndThreaded_shouldMatch();
     void test_threadedRender_repeated_shouldBeDeterministic();
+
+    // TEMPORARY measurement slot: not an assertion, see NOTEAHEAD_LOAD_PROBE_SONG.
+    void test_songLoad_realTimeBuffers_shouldReportTiming();
 };
 
 } // namespace noteahead
