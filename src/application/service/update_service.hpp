@@ -66,6 +66,11 @@ public:
     //! Stops telling the user about the version on offer.
     Q_INVOKABLE void dismiss();
 
+    //! Takes @p version as this application's, so that the latest release can be offered as newer.
+    //! For testing the notice: every check then asks again, offers even a dismissed version and
+    //! writes nothing to the settings, which the next real run reads.
+    void pretendToBe(QString version);
+
 signals:
     void availableVersionChanged();
     void checkingChanged();
@@ -88,6 +93,7 @@ private:
     QString m_availableVersion;
     QString m_availableUrl;
     bool m_checking { false };
+    bool m_pretending { false };
     //! Whether the user is waiting on the request under way, and so has to hear how it went.
     bool m_requestedByUser { false };
 };

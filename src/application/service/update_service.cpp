@@ -64,6 +64,11 @@ bool UpdateService::checking() const
 
 void UpdateService::checkAtStartup()
 {
+    // Asked for on the command line, which is asking for the network as well
+    if (m_pretending) {
+        request(false);
+        return;
+    }
     if (!m_settingsService || !m_settingsService->checkForNewVersions()) {
         juzzlin::L(TAG).info() << "Checking for new versions is turned off";
         return;
@@ -91,10 +96,17 @@ void UpdateService::dismiss()
     if (m_availableVersion.isEmpty()) {
         return;
     }
-    if (m_settingsService) {
+    if (m_settingsService && !m_pretending) {
         m_settingsService->setSkippedVersion(m_availableVersion);
     }
     setAvailable({}, {});
+}
+
+void UpdateService::pretendToBe(QString version)
+{
+    juzzlin::L(TAG).info() << "Pretending to be version " << version.toStdString();
+    m_currentVersion = std::move(version);
+    m_pretending = true;
 }
 
 void UpdateService::request(bool requestedByUser)
@@ -112,7 +124,7 @@ void UpdateService::onLatestReleaseFound(QString version, QString url)
     const bool requestedByUser = m_requestedByUser;
     m_requestedByUser = false;
     setChecking(false);
-    if (m_settingsService) {
+    if (m_settingsService && !m_pretending) {
         m_settingsService->setLastVersionCheck(m_clock());
         m_settingsService->setLatestKnownVersion(version);
     }
@@ -139,7 +151,7 @@ void UpdateService::offer(QString version, QString url, bool requestedByUser)
         return;
     }
     // A dismissed version is not brought up again on its own, only when the user asks
-    if (!requestedByUser && m_settingsService && m_settingsService->skippedVersion() == version) {
+    if (!requestedByUser && !m_pretending && m_settingsService && m_settingsService->skippedVersion() == version) {
         return;
     }
     setAvailable(version, url);
