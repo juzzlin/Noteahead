@@ -332,9 +332,16 @@ set(PNG_SOURCE_FILES
     ${QML_BASE_DIR}/Graphics/stop.png
 )
 
+# NO_IMPORT_SCAN: Qt runs qmlimportscanner at finalization to statically link the QML plugins an
+# application imports. That is only meaningful against a static Qt. Against the shared Qt every
+# distribution ships, the plugins are dlopened at runtime out of the qml/ directory and nothing is
+# ever linked -- and since Qt 6.8 defaults QT_SKIP_AUTO_PLUGIN_INCLUSION to ON, the Qt6::<name>plugin
+# targets the scan looks for are not even created, so it warns once per QML module we import. Skipping
+# the scan drops the warnings and the scanner run with it.
 qt_add_qml_module(${BINARY_NAME}
     VERSION 1.0
     URI ${URI}
+    NO_IMPORT_SCAN
     QML_FILES ${QML_SOURCE_FILES}
     RESOURCES ${PNG_SOURCE_FILES} ${HTML_SOURCE_FILES}
 )
