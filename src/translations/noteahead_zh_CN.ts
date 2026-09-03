@@ -4973,7 +4973,7 @@
         <translation>重复打击垫的范围，直到音符被释放。音量包络决定循环的打击垫何时静音。</translation>
     </message>
     <message>
-        <source>Choke:</source>
+        <source>Choke Group:</source>
         <translation>闭合组：</translation>
     </message>
     <message>

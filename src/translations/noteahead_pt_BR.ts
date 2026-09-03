@@ -4974,8 +4974,8 @@
         <translation>Repete o intervalo do pad até a nota ser solta. O envelope de amplitude decide quando um pad em loop silencia.</translation>
     </message>
     <message>
-        <source>Choke:</source>
-        <translation>Choke:</translation>
+        <source>Choke Group:</source>
+        <translation>Grupo de choke:</translation>
     </message>
     <message>
         <source>Triggering this pad silences the other pads sharing its group, the way a closed hi-hat cuts an open one. Zero puts the pad in no group.</source>

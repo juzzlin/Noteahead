@@ -4974,8 +4974,8 @@
         <translation>Wiederholt den Bereich des Pads, bis die Note losgelassen wird. Die Amp-Hüllkurve bestimmt, wann ein geloopte Pad verstummt.</translation>
     </message>
     <message>
-        <source>Choke:</source>
-        <translation>Choke:</translation>
+        <source>Choke Group:</source>
+        <translation>Choke-Gruppe:</translation>
     </message>
     <message>
         <source>Triggering this pad silences the other pads sharing its group, the way a closed hi-hat cuts an open one. Zero puts the pad in no group.</source>

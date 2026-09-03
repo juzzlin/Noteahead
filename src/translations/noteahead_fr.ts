@@ -4908,7 +4908,7 @@
     <name>SamplerDialog_PadAmpEg</name>
     <message>
         <source>Pad Amp Envelope</source>
-        <translation>Enveloppe d'amplitude du pad</translation>
+        <translation>Enveloppe d&apos;amplitude du pad</translation>
     </message>
     <message>
         <source>Attack</source>
@@ -4974,8 +4974,8 @@
         <translation>Répète la plage du pad jusqu’au relâchement de la note. L’enveloppe d’amplitude décide quand un pad en boucle se tait.</translation>
     </message>
     <message>
-        <source>Choke:</source>
-        <translation>Choke :</translation>
+        <source>Choke Group:</source>
+        <translation>Groupe de choke :</translation>
     </message>
     <message>
         <source>Triggering this pad silences the other pads sharing its group, the way a closed hi-hat cuts an open one. Zero puts the pad in no group.</source>

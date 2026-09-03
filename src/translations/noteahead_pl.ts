@@ -4975,8 +4975,8 @@
         <translation>Powtarza zakres padu do zwolnienia nuty. Obwiednia amplitudy decyduje, kiedy zapętlony pad milknie.</translation>
     </message>
     <message>
-        <source>Choke:</source>
-        <translation>Choke:</translation>
+        <source>Choke Group:</source>
+        <translation>Grupa choke:</translation>
     </message>
     <message>
         <source>Triggering this pad silences the other pads sharing its group, the way a closed hi-hat cuts an open one. Zero puts the pad in no group.</source>

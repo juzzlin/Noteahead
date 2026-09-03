@@ -18,11 +18,9 @@ import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 import Noteahead 1.0
 
-// Sits under the waveform rather than in the pad settings column: these two trim the picture directly
-// above them, and a pair of them will not fit in a quarter-width column at the minimum window size.
-RowLayout {
+ColumnLayout {
     Layout.fillWidth: true
-    spacing: 20
+    spacing: 15
 
     ColumnLayout {
         Layout.fillWidth: true

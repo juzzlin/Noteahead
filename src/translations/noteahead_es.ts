@@ -4974,8 +4974,8 @@
         <translation>Repite el rango del pad hasta que se suelta la nota. La envolvente de amplitud decide cuándo enmudece un pad en bucle.</translation>
     </message>
     <message>
-        <source>Choke:</source>
-        <translation>Choke:</translation>
+        <source>Choke Group:</source>
+        <translation>Grupo de choke:</translation>
     </message>
     <message>
         <source>Triggering this pad silences the other pads sharing its group, the way a closed hi-hat cuts an open one. Zero puts the pad in no group.</source>

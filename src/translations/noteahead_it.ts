@@ -4974,8 +4974,8 @@
         <translation>Ripete l’intervallo del pad finché la nota non viene rilasciata. L’inviluppo di ampiezza decide quando un pad in loop si azzittisce.</translation>
     </message>
     <message>
-        <source>Choke:</source>
-        <translation>Choke:</translation>
+        <source>Choke Group:</source>
+        <translation>Gruppo di choke:</translation>
     </message>
     <message>
         <source>Triggering this pad silences the other pads sharing its group, the way a closed hi-hat cuts an open one. Zero puts the pad in no group.</source>
