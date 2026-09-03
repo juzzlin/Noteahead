@@ -72,27 +72,32 @@ ColumnLayout {
         }
     }
 
-    Knob {
-        label: qsTr("Tune")
-        mapping: "bipolar"
-        mapMin: -24
-        mapMax: 24
-        suffix: " st"
-        value: samplerController.selectedPadTune * Constants.uiInternalScaling
-        onMoved: v => {
-            samplerController.selectedPadTune = v / Constants.uiInternalScaling;
+    RowLayout {
+        Layout.fillWidth: true
+        spacing: 10
+        Knob {
+            label: qsTr("Tune")
+            mapping: "bipolar"
+            mapMin: -24
+            mapMax: 24
+            suffix: " st"
+            Layout.fillWidth: true
+            value: samplerController.selectedPadTune * Constants.uiInternalScaling
+            onMoved: v => {
+                samplerController.selectedPadTune = v / Constants.uiInternalScaling;
+            }
         }
-    }
-
-    Knob {
-        label: qsTr("Fine Tune")
-        mapping: "bipolar"
-        mapMin: -100
-        mapMax: 100
-        suffix: " ct"
-        value: samplerController.selectedPadDetune * Constants.uiInternalScaling
-        onMoved: v => {
-            samplerController.selectedPadDetune = v / Constants.uiInternalScaling;
+        Knob {
+            label: qsTr("Fine Tune")
+            mapping: "bipolar"
+            mapMin: -100
+            mapMax: 100
+            suffix: " ct"
+            Layout.fillWidth: true
+            value: samplerController.selectedPadDetune * Constants.uiInternalScaling
+            onMoved: v => {
+                samplerController.selectedPadDetune = v / Constants.uiInternalScaling;
+            }
         }
     }
 
@@ -100,40 +105,43 @@ ColumnLayout {
         Layout.fillWidth: true
     }
 
-    CheckBox {
-        id: reverseCheckBox
-        text: qsTr("Reverse")
+    RowLayout {
         Layout.fillWidth: true
-        checked: samplerController.selectedPadReverse
-        onToggled: samplerController.selectedPadReverse = checked
-        contentItem: Label {
-            text: reverseCheckBox.text
-            color: "white"
-            verticalAlignment: Text.AlignVCenter
-            leftPadding: reverseCheckBox.indicator.width + reverseCheckBox.spacing
+        spacing: 10
+        CheckBox {
+            id: reverseCheckBox
+            text: qsTr("Reverse")
+            Layout.fillWidth: true
+            checked: samplerController.selectedPadReverse
+            onToggled: samplerController.selectedPadReverse = checked
+            contentItem: Label {
+                text: reverseCheckBox.text
+                color: "white"
+                verticalAlignment: Text.AlignVCenter
+                leftPadding: reverseCheckBox.indicator.width + reverseCheckBox.spacing
+            }
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Plays the pad backwards. The offsets follow the reversed waveform.")
         }
-        ToolTip.delay: Constants.toolTipDelay
-        ToolTip.timeout: Constants.toolTipTimeout
-        ToolTip.visible: hovered
-        ToolTip.text: qsTr("Plays the pad backwards. The offsets follow the reversed waveform.")
-    }
-
-    CheckBox {
-        id: loopCheckBox
-        text: qsTr("Loop")
-        Layout.fillWidth: true
-        checked: samplerController.selectedPadLoop
-        onToggled: samplerController.selectedPadLoop = checked
-        contentItem: Label {
-            text: loopCheckBox.text
-            color: "white"
-            verticalAlignment: Text.AlignVCenter
-            leftPadding: loopCheckBox.indicator.width + loopCheckBox.spacing
+        CheckBox {
+            id: loopCheckBox
+            text: qsTr("Loop")
+            Layout.fillWidth: true
+            checked: samplerController.selectedPadLoop
+            onToggled: samplerController.selectedPadLoop = checked
+            contentItem: Label {
+                text: loopCheckBox.text
+                color: "white"
+                verticalAlignment: Text.AlignVCenter
+                leftPadding: loopCheckBox.indicator.width + loopCheckBox.spacing
+            }
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Repeats the pad's range until the note is released. The amp envelope decides when a looping pad falls silent.")
         }
-        ToolTip.delay: Constants.toolTipDelay
-        ToolTip.timeout: Constants.toolTipTimeout
-        ToolTip.visible: hovered
-        ToolTip.text: qsTr("Repeats the pad's range until the note is released. The amp envelope decides when a looping pad falls silent.")
     }
 
     ColumnLayout {

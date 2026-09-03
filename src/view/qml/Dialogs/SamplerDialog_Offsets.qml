@@ -18,9 +18,9 @@ import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 import Noteahead 1.0
 
-ColumnLayout {
+RowLayout {
     Layout.fillWidth: true
-    spacing: 15
+    spacing: 10
 
     ColumnLayout {
         Layout.fillWidth: true
