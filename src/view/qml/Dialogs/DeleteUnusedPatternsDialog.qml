@@ -23,11 +23,15 @@ AnimatedDialog {
     id: rootItem
     title: qsTr("Delete unused patterns")
     modal: true
-    // Sized here rather than in Main.qml, per the dialog sizing rules. Without an explicit width the
-    // dialog took its width from the wrapping label, whose own width came back from the dialog: a
-    // binding loop that only showed itself once a language change forced the text to be laid out
-    // again.
-    width: parent ? parent.width * Constants.defaultDialogScale : 600
+    // A flat width rather than a fraction of the window, which is the usual idiom here. This dialog was
+    // the only one taking a width from its parent while leaving its height to the content, and that
+    // pair loops through the popup's own geometry: Qt reports it against implicitHeight at startup,
+    // before the dialog is ever opened. Either half on its own is harmless -- the dialogs that set both
+    // a width and a height are fine with parent, and so is a width that does not come from parent.
+    //
+    // One sentence and two buttons do not need a height of their own, nor seven tenths of the window,
+    // so the width is the half that gives way.
+    width: 600
     readonly property string _tag: "DeleteUnusedPatternsDialog"
 
     Label {
