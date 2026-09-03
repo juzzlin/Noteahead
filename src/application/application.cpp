@@ -348,12 +348,18 @@ void Application::handleCommandLineArguments(int & argc, char ** argv)
         std::exit(EXIT_SUCCESS); }, false, "Print the version and exit.");
 
     ae.addOption({ "--window-size" }, [this](const std::string & value) {
-        const auto valueString = QString::fromStdString(value);
-        if (const auto splitString = valueString.split("x"); splitString.size() == 2) {
-            m_settingsService->setWindowSize({ std::stoi(splitString.at(0).toStdString()), std::stoi(splitString.at(1).toStdString()) });
-        } else {
-            throw std::runtime_error { std::string { "Invalid syntax for size: " } + value};
-        } }, false, "Force the window size, e.g. '1920x1080'.");
+        // The size is written straight to the settings the next run reads, so anything that is not a
+        // pair of positive numbers has to be refused here rather than stored. std::stoi would throw its
+        // own "stoi" at the user, and zero or negative parsed cleanly and stuck.
+        const auto parts = QString::fromStdString(value).split("x", Qt::SkipEmptyParts);
+        bool widthOk {};
+        bool heightOk {};
+        const int width = parts.size() == 2 ? parts.at(0).toInt(&widthOk) : 0;
+        const int height = parts.size() == 2 ? parts.at(1).toInt(&heightOk) : 0;
+        if (!widthOk || !heightOk || width <= 0 || height <= 0) {
+            throw std::runtime_error { "Invalid window size: '" + value + "'. Expected two positive numbers, e.g. '1920x1080'." };
+        }
+        m_settingsService->setWindowSize({ width, height }); }, false, "Force the window size, e.g. '1920x1080'. Anything smaller than 1024x768 opens at 1024x768.");
 
     ae.addOption({ "--audio" }, [this](const std::string & value) {
         if (value == "alsa") {

@@ -25,6 +25,10 @@ New features:
 
 Bug fixes:
 
+* Validate the --window-size argument
+  - A malformed size reported "stoi" instead of saying what was wrong
+  - A zero or negative size was accepted and saved over the stored one
+
 Other:
 
 7.3.0
