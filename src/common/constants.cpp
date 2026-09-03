@@ -2358,6 +2358,16 @@ QString xmlKeyReverse()
     return "reverse";
 }
 
+QString xmlKeyLoop()
+{
+    return "loop";
+}
+
+QString xmlKeyChokeGroup()
+{
+    return "chokeGroup";
+}
+
 QString xmlKeyData()
 {
     return "Data";

@@ -56,6 +56,8 @@ SamplerDevice::Sample::Sample()
     addParameter(Parameter { Constants::NahdXml::xmlKeySustain().toStdString(), 1.0f, 0, 10000, 10000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyReleaseTime().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyReverse().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLoop().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyChokeGroup().toStdString(), 0.0f, 0, maxChokeGroup, 0, 1, Parameter::Type::Discrete });
 }
 
 namespace {
@@ -82,6 +84,10 @@ double releaseSeconds(float release)
 {
     return ParameterMapper::mapExponential(static_cast<double>(release), MinEnvelopeSeconds, MaxEnvelopeSeconds);
 }
+
+//! How long a choked voice takes to fall silent. Long enough not to click, short enough that the pad
+//! taking over is not audibly sharing the bar with the one it cut.
+constexpr double ChokeFadeSeconds { 0.005 };
 
 //! Range of the coarse tuning knob, in whole semitones either way.
 constexpr int TuneSemitoneRange { 24 };
@@ -119,8 +125,16 @@ std::optional<SamplerDevice::PlayRange> SamplerDevice::playRange(const Sample & 
 
     const double lastFrame = static_cast<double>(totalFrames - 1);
     const double rate = static_cast<double>(sample.sampleRate);
-    const double first = std::clamp(sample.startOffset * rate, 0.0, lastFrame);
-    const double last = sample.endOffset ? std::clamp(*sample.endOffset * rate, 0.0, lastFrame) : lastFrame;
+    double first = std::clamp(sample.startOffset * rate, 0.0, lastFrame);
+    double last = sample.endOffset ? std::clamp(*sample.endOffset * rate, 0.0, lastFrame) : lastFrame;
+
+    // A loop wraps on whole frames. The offsets are kept as normalised floats, which lands them up to
+    // a fraction of a frame either side of where they were dialled in -- enough for the seam check to
+    // miss and let the loop read the frame past its own end on every wrap.
+    if (sample.loop) {
+        first = std::floor(first);
+        last = std::floor(last);
+    }
 
     // A range that ends where it starts, or before it, has nothing to play.
     if (last <= first) {
@@ -139,6 +153,34 @@ void SamplerDevice::updateVoiceEnvelope(Voice & voice)
     voice.ampEg.setDecayTime(decaySeconds(voice.sample->decay));
     voice.ampEg.setSustainLevel(static_cast<double>(voice.sample->sustain));
     voice.ampEg.setReleaseTime(releaseSeconds(voice.sample->release));
+}
+
+void SamplerDevice::wrapPosition(Voice & voice, const PlayRange & range)
+{
+    // The loop is half-open. The frame at the far end is where the loop comes back round to, not
+    // material the loop plays, so the length is the plain distance between the two ends and a position
+    // that reaches the end has already wrapped.
+    //
+    // fmod rather than a subtraction: a pad tuned two octaves up steps four frames at a time, and a
+    // short loop can be jumped clean over.
+    const double length = range.last - range.first;
+    if (voice.position >= range.last) {
+        voice.position = range.first + std::fmod(voice.position - range.first, length);
+    } else if (voice.position < range.first) {
+        voice.position = range.last - std::fmod(range.last - voice.position, length);
+    }
+}
+
+void SamplerDevice::chokeVoicesOf(const Sample & trigger)
+{
+    if (trigger.chokeGroup <= 0) {
+        return;
+    }
+    for (auto && voice : m_voices) {
+        if (voice.active && voice.sample && voice.sample != &trigger && voice.sample->chokeGroup == trigger.chokeGroup) {
+            voice.choking = true;
+        }
+    }
 }
 
 SamplerDevice::SamplerDevice(std::string name, AudioFileReaderU audioFileReader)
@@ -349,6 +391,8 @@ void SamplerDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
         return;
     }
 
+    chokeVoicesOf(*sample);
+
     // Find an inactive voice
     for (auto && voice : m_voices) {
         if (!voice.active) {
@@ -372,6 +416,8 @@ void SamplerDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
             updateVoiceEnvelope(voice);
             voice.ampEg.trigger();
 
+            voice.choking = false;
+            voice.chokeGain = 1.0f;
             voice.active = true;
             return;
         }
@@ -548,8 +594,16 @@ void SamplerDevice::processAudio(AudioContext & context)
         const double rateScale = static_cast<double>(voice.sample->sampleRate) / static_cast<double>(context.sampleRate);
         const double pitchScale = rateScale * voice.pitchRatio * tuneRatio(*voice.sample)
           * (voice.sample->reverse ? -1.0 : 1.0);
+        const bool loops = voice.sample->loop;
+        const float chokeStep = static_cast<float>(1.0 / (ChokeFadeSeconds * context.sampleRate));
 
         for (uint32_t i = 0; i < context.frameCount; i++) {
+            // Wrapped before the frame is read rather than after it is stepped, so that a loop pulled
+            // shorter while it is sounding takes the voice with it instead of running it off the end.
+            if (loops) {
+                wrapPosition(voice, *range);
+            }
+
             const double currentPos = voice.position;
 
             if (currentPos < range->first || currentPos > range->last) {
@@ -559,8 +613,12 @@ void SamplerDevice::processAudio(AudioContext & context)
 
             const size_t index = static_cast<size_t>(currentPos);
             const float fract = static_cast<float>(currentPos - index);
-            // The final frame has no successor to interpolate towards, so it interpolates towards itself.
-            const size_t next = std::min(index + 1, lastFrame);
+            // A loop interpolates its last frame towards the frame it wraps round to, not towards the
+            // one that follows it in the file: reading across the seam is what makes a loop buzz at its
+            // own rate. Without a loop the final frame has no successor and interpolates towards itself.
+            const size_t next = (loops && static_cast<double>(index + 1) >= range->last)
+              ? static_cast<size_t>(range->first)
+              : std::min(index + 1, lastFrame);
 
             double left = 0.0;
             double right = 0.0;
@@ -586,13 +644,21 @@ void SamplerDevice::processAudio(AudioContext & context)
             left *= envelope;
             right *= envelope;
 
+            if (voice.choking) {
+                left *= static_cast<double>(voice.chokeGain);
+                right *= static_cast<double>(voice.chokeGain);
+                voice.chokeGain -= chokeStep;
+            }
+
             target[i * 2] += left * voiceGain;
             target[i * 2 + 1] += right * voiceGain;
 
             // A percussive envelope parks at a zero sustain rather than going idle, so a voice held by a
-            // pattern that never releases it would otherwise render silence at full cost forever.
-            if (voice.ampEg.isSilent()) {
+            // pattern that never releases it would otherwise render silence at full cost forever. A
+            // looping voice never runs off its range, so this and the choke are all that can end it.
+            if (voice.ampEg.isSilent() || (voice.choking && voice.chokeGain <= 0.0f)) {
                 voice.active = false;
+                voice.choking = false;
                 break;
             }
 
@@ -654,6 +720,7 @@ void SamplerDevice::stopVoicesUsing(const Sample * sample)
     for (auto && voice : m_voices) {
         if (voice.sample && (!sample || voice.sample == sample)) {
             voice.active = false;
+            voice.choking = false;
             voice.sample = nullptr;
         }
     }
@@ -1086,6 +1153,34 @@ void SamplerDevice::setSampleReverse(uint8_t note, bool reverse)
     setPadValue(note, Constants::NahdXml::xmlKeyReverse().toStdString(), reverse ? 1.0f : 0.0f);
 }
 
+bool SamplerDevice::sampleLoop(uint8_t note) const
+{
+    std::lock_guard<std::recursive_mutex> lock { mutex() };
+    if (note >= maxSamples || !m_samples.at(note)) {
+        return false;
+    }
+    return m_samples.at(note)->loop;
+}
+
+void SamplerDevice::setSampleLoop(uint8_t note, bool loop)
+{
+    setPadValue(note, Constants::NahdXml::xmlKeyLoop().toStdString(), loop ? 1.0f : 0.0f);
+}
+
+int SamplerDevice::sampleChokeGroup(uint8_t note) const
+{
+    std::lock_guard<std::recursive_mutex> lock { mutex() };
+    if (note >= maxSamples || !m_samples.at(note)) {
+        return 0;
+    }
+    return m_samples.at(note)->chokeGroup;
+}
+
+void SamplerDevice::setSampleChokeGroup(uint8_t note, int group)
+{
+    setPadValue(note, Constants::NahdXml::xmlKeyChokeGroup().toStdString(), static_cast<float>(std::clamp(group, 0, maxChokeGroup)));
+}
+
 double SamplerDevice::sampleDuration(uint8_t note) const
 {
     std::lock_guard<std::recursive_mutex> lock { mutex() };
@@ -1448,6 +1543,10 @@ void SamplerDevice::syncSampleFields(Sample & sample)
         sample.release = p->get().value();
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyReverse().toStdString()); p)
         sample.reverse = p->get().value() > 0.5f;
+    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyLoop().toStdString()); p)
+        sample.loop = p->get().value() > 0.5f;
+    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyChokeGroup().toStdString()); p)
+        sample.chokeGroup = static_cast<int>(std::lround(p->get().value()));
 }
 
 bool SamplerDevice::clearAutomationInternal()

@@ -677,6 +677,8 @@ QString xmlKeyEmbedWaveData();
 QString xmlKeyStartOffset();
 QString xmlKeyEndOffset();
 QString xmlKeyReverse();
+QString xmlKeyLoop();
+QString xmlKeyChokeGroup();
 
 QString xmlKeyData();
 

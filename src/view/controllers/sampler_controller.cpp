@@ -91,6 +91,8 @@ void SamplerController::setSelectedPad(int selectedPad)
         emit selectedPadSustainChanged();
         emit selectedPadReleaseChanged();
         emit selectedPadReverseChanged();
+        emit selectedPadLoopChanged();
+        emit selectedPadChokeGroupChanged();
         emit selectedPadDurationChanged();
     }
 }
@@ -375,6 +377,36 @@ void SamplerController::setSelectedPadReverse(bool reverse)
     }
 }
 
+bool SamplerController::selectedPadLoop() const
+{
+    const auto note = selectedNote();
+    return note && m_sampler->sampleLoop(*note);
+}
+
+void SamplerController::setSelectedPadLoop(bool loop)
+{
+    const auto note = selectedNote();
+    if (note && m_sampler->sampleLoop(*note) != loop) {
+        m_sampler->setSampleLoop(*note, loop);
+        emit selectedPadLoopChanged();
+    }
+}
+
+int SamplerController::selectedPadChokeGroup() const
+{
+    const auto note = selectedNote();
+    return note ? m_sampler->sampleChokeGroup(*note) : 0;
+}
+
+void SamplerController::setSelectedPadChokeGroup(int group)
+{
+    const auto note = selectedNote();
+    if (note && m_sampler->sampleChokeGroup(*note) != group) {
+        m_sampler->setSampleChokeGroup(*note, group);
+        emit selectedPadChokeGroupChanged();
+    }
+}
+
 double SamplerController::selectedPadDuration() const
 {
     if (!m_sampler || m_selectedPad < 0) {
@@ -471,6 +503,8 @@ void SamplerController::requestSettings()
         emit selectedPadSustainChanged();
         emit selectedPadReleaseChanged();
         emit selectedPadReverseChanged();
+        emit selectedPadLoopChanged();
+        emit selectedPadChokeGroupChanged();
         emit selectedPadDurationChanged();
     }
     emit volumeChanged();

@@ -90,7 +90,19 @@ private slots:
     void test_ampEnvelope_noteOff_shouldReleaseRatherThanCutOff();
     void test_ampEnvelope_attack_shouldRampTheSampleIn();
 
+    void test_loop_shouldWrapWithinTheRange();
+    void test_loop_disabled_shouldStopAtTheEndOfTheRange();
+    void test_loop_shouldNotInterpolateAcrossTheSeam();
+    void test_loop_reverse_shouldWrapBackToTheEnd();
+    void test_loop_noteOff_shouldEndTheVoiceThroughTheRelease();
+
+    void test_chokeGroup_shouldSilenceOtherPadsInTheSameGroup();
+    void test_chokeGroup_zero_shouldChokeNothing();
+    void test_chokeGroup_differentGroups_shouldNotInterfere();
+    void test_chokeGroup_shouldNotChokeTheTriggeringPad();
+
     void test_copySample_shouldCopyTuningTrimAndEnvelope();
+    void test_copySample_shouldCopyLoopAndChokeGroup();
     void test_reset_shouldResetParametersAndPads();
     void test_processAudio_shouldProduceOutput();
     void test_serialization_shouldSaveAndLoadGain();

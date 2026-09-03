@@ -123,4 +123,47 @@ ColumnLayout {
         ToolTip.visible: hovered
         ToolTip.text: qsTr("Plays the pad backwards, from the end of its range to the start.")
     }
+
+    CheckBox {
+        id: loopCheckBox
+        text: qsTr("Loop")
+        Layout.fillWidth: true
+        checked: samplerController.selectedPadLoop
+        onToggled: samplerController.selectedPadLoop = checked
+        contentItem: Label {
+            text: loopCheckBox.text
+            color: "white"
+            verticalAlignment: Text.AlignVCenter
+            leftPadding: loopCheckBox.indicator.width + loopCheckBox.spacing
+        }
+        ToolTip.delay: Constants.toolTipDelay
+        ToolTip.timeout: Constants.toolTipTimeout
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Repeats the pad's range until the note is released. The amp envelope decides when a looping pad falls silent.")
+    }
+
+    ColumnLayout {
+        Layout.fillWidth: true
+        Label {
+            text: qsTr("Choke Group:")
+            color: "white"
+        }
+        SpinBox {
+            id: chokeGroupSpinBox
+            Layout.fillWidth: true
+            from: 0
+            to: 8
+            value: samplerController.selectedPadChokeGroup
+            editable: true
+            onValueModified: samplerController.selectedPadChokeGroup = value
+            Keys.onReturnPressed: {
+                value = valueFromText(contentItem.text, locale);
+                samplerController.selectedPadChokeGroup = value;
+            }
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Triggering this pad silences the other pads sharing its group, the way a closed hi-hat cuts an open one. Zero puts the pad in no group.")
+        }
+    }
 }

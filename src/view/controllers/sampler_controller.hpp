@@ -51,6 +51,8 @@ class SamplerController : public DeviceController
     Q_PROPERTY(double selectedPadSustain READ selectedPadSustain WRITE setSelectedPadSustain NOTIFY selectedPadSustainChanged)
     Q_PROPERTY(double selectedPadRelease READ selectedPadRelease WRITE setSelectedPadRelease NOTIFY selectedPadReleaseChanged)
     Q_PROPERTY(bool selectedPadReverse READ selectedPadReverse WRITE setSelectedPadReverse NOTIFY selectedPadReverseChanged)
+    Q_PROPERTY(bool selectedPadLoop READ selectedPadLoop WRITE setSelectedPadLoop NOTIFY selectedPadLoopChanged)
+    Q_PROPERTY(int selectedPadChokeGroup READ selectedPadChokeGroup WRITE setSelectedPadChokeGroup NOTIFY selectedPadChokeGroupChanged)
     Q_PROPERTY(double selectedPadDuration READ selectedPadDuration NOTIFY selectedPadDurationChanged)
     Q_PROPERTY(bool channelMode READ channelMode WRITE setChannelMode NOTIFY channelModeChanged)
     Q_PROPERTY(bool chromaticMode READ chromaticMode WRITE setChromaticMode NOTIFY chromaticModeChanged)
@@ -120,6 +122,12 @@ public:
     bool selectedPadReverse() const;
     void setSelectedPadReverse(bool reverse);
 
+    bool selectedPadLoop() const;
+    void setSelectedPadLoop(bool loop);
+
+    int selectedPadChokeGroup() const;
+    void setSelectedPadChokeGroup(int group);
+
     double selectedPadDuration() const;
 
     bool channelMode() const;
@@ -163,6 +171,8 @@ signals:
     void selectedPadSustainChanged();
     void selectedPadReleaseChanged();
     void selectedPadReverseChanged();
+    void selectedPadLoopChanged();
+    void selectedPadChokeGroupChanged();
     void selectedPadDurationChanged();
     void channelModeChanged();
     void chromaticModeChanged();

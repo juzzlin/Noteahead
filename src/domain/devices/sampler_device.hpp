@@ -113,6 +113,12 @@ public:
         float release = 0.0f;
         //! Plays the range from its end backwards. The range itself does not move.
         bool reverse = false;
+        //! Wraps playback inside the range instead of stopping at its far end. A looping voice is ended
+        //! by its amp envelope alone, so a pad that loops on a full sustain holds until its note-off.
+        bool loop = false;
+        //! Choke group, or zero for none. Triggering a pad silences the sounding voices of the *other*
+        //! pads sharing its group, which is how a closed hi-hat cuts off an open one.
+        int chokeGroup = 0;
 
         // Per-pad insert effect rack. Shared so Sample stays copyable (saveState/restoreState deep-copy)
         // and so every voice/note playing this sample runs through the same stateful effect chain.
@@ -166,6 +172,15 @@ public:
 
     bool sampleReverse(uint8_t note) const;
     void setSampleReverse(uint8_t note, bool reverse);
+
+    bool sampleLoop(uint8_t note) const;
+    void setSampleLoop(uint8_t note, bool loop);
+
+    //! Zero when the pad is in no choke group. Groups run 1..maxChokeGroup.
+    int sampleChokeGroup(uint8_t note) const;
+    void setSampleChokeGroup(uint8_t note, int group);
+
+    static constexpr int maxChokeGroup = 8;
 
     //! Whole semitones the pad's coarse tuning transposes by, -24..24.
     static int tuneSemitones(float tune);
@@ -295,6 +310,12 @@ private:
 
         AdsrEnvelope ampEg;
 
+        //! Fade applied on top of the envelope when another pad in the same choke group takes over. A
+        //! choke has to be quick whatever the pad's release is dialled to, so it rides its own ramp
+        //! rather than the envelope's.
+        bool choking = false;
+        float chokeGain = 1.0f;
+
         bool active = false;
     };
 
@@ -314,6 +335,14 @@ private:
     //! Pushes the pad's envelope settings into a voice. Called at note-on and whenever a knob moves, so
     //! a held note follows the envelope being dialled in.
     static void updateVoiceEnvelope(Voice & voice);
+
+    //! Starts the choke fade on every sounding voice of the other pads sharing the triggered pad's
+    //! group. A pad never chokes itself: one sample covers many notes in chromatic mode, and cutting
+    //! them would quietly make a grouped pad monophonic.
+    void chokeVoicesOf(const Sample & trigger);
+
+    //! Wraps a looping voice's position back inside the range it just ran out of.
+    static void wrapPosition(Voice & voice, const PlayRange & range);
 
     std::array<std::unique_ptr<Sample>, maxSamples> m_samples;
     std::array<std::unique_ptr<Sample>, maxSamples> m_savedSamples;

@@ -53,7 +53,11 @@ public:
 
     int64_t readFloat(std::span<float> data) override
     {
-        if (m_ramp) {
+        if (m_step >= 0) {
+            for (size_t i = 0; i < data.size(); i++) {
+                data[i] = static_cast<int64_t>(i) < m_step ? 0.0f : 1000.0f;
+            }
+        } else if (m_ramp) {
             // A constant sample reads the same in both directions, so the tests that care which way
             // playback runs need something that does not.
             for (size_t i = 0; i < data.size(); i++) {
@@ -119,10 +123,18 @@ public:
         m_ramp = ramp;
     }
 
+    //! Silence up to the given frame and a loud constant from there on. A loop ending at that frame
+    //! plays pure silence, so anything the device reads past the loop end is impossible to miss.
+    void setStepAt(int64_t frame)
+    {
+        m_step = frame;
+    }
+
 private:
     int m_channels = 2;
     int64_t m_frames = 1024;
     bool m_ramp = false;
+    int64_t m_step = -1;
 };
 
 namespace {
@@ -994,6 +1006,179 @@ void SamplerTest::test_ampEnvelope_attack_shouldRampTheSampleIn()
     // A ten second attack has barely started after a millisecond and a half.
     QVERIFY2(buffer[0] < expected * 0.01, "the attack did not ramp the sample in");
     QVERIFY2(buffer[buffer.size() - 2] > buffer[0], "the attack is not rising");
+}
+
+void SamplerTest::test_loop_shouldWrapWithinTheRange()
+{
+    const auto sampler = makeMonoSampler(true);
+    sampler->setSampleEndOffset(60, 0.1); // 4410 frames of the 44100 the pad holds
+    sampler->setSampleLoop(60, true);
+    sampler->processMidiNoteOn(60, 127);
+
+    // Nearly twice around the loop. Without wrapping the voice would have run out long ago.
+    render(*sampler, 8000);
+
+    QVERIFY2(!sampler->isFinished(60), "the looping voice ended at the end of its range");
+    const auto frame = sampler->playbackPosition(60) * Constants::defaultSampleRate();
+    QVERIFY2(frame >= 0.0 && frame <= 4410.0,
+             qPrintable(QString { "position %1 is outside the loop" }.arg(frame)));
+}
+
+void SamplerTest::test_loop_shouldNotInterpolateAcrossTheSeam()
+{
+    // The frame after the loop end is not the frame the loop wraps to, and interpolating towards it
+    // drags material from outside the loop into every wrap -- a buzz at the loop's own rate.
+    //
+    // The sample is silent up to frame 441 and very loud from there on, and the loop ends exactly at
+    // 441. Everything the loop plays is therefore silence, and reading one frame too far is not a
+    // subtle error but a full-scale spike.
+    constexpr int64_t stepFrame = 441;
+    auto reader = std::make_unique<MockAudioFileReader>();
+    reader->setForceChannels(1);
+    reader->setFrames(static_cast<int64_t>(Constants::defaultSampleRate()));
+    reader->setStepAt(stepFrame);
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::move(reader) };
+    sampler.loadSample(60, "step.wav");
+
+    sampler.setSampleEndOffset(60, static_cast<double>(stepFrame) / Constants::defaultSampleRate());
+    sampler.setSampleLoop(60, true);
+    // Detuned so the read position lands between frames; on whole frames the seam never shows.
+    sampler.setSampleDetune(60, 0.75f);
+
+    sampler.processMidiNoteOn(60, 127);
+    const auto buffer = render(sampler, 4410); // Ten times round the loop
+
+    double peak = 0.0;
+    for (const double v : buffer) {
+        peak = std::max(peak, std::abs(v));
+    }
+    QVERIFY2(peak < 1.0, qPrintable(QString { "peak %1 -- the loop read past its own end" }.arg(peak)));
+}
+
+void SamplerTest::test_loop_disabled_shouldStopAtTheEndOfTheRange()
+{
+    const auto sampler = makeMonoSampler(true);
+    sampler->setSampleEndOffset(60, 0.1);
+    sampler->processMidiNoteOn(60, 127);
+
+    render(*sampler, 8000);
+
+    QVERIFY(sampler->isFinished(60));
+}
+
+void SamplerTest::test_loop_reverse_shouldWrapBackToTheEnd()
+{
+    const auto sampler = makeMonoSampler(true);
+    sampler->setSampleEndOffset(60, 0.1);
+    sampler->setSampleLoop(60, true);
+    sampler->setSampleReverse(60, true);
+    sampler->processMidiNoteOn(60, 127);
+
+    // Started at frame 4410 and walked back past zero, so it has to have come round to the top.
+    render(*sampler, 8000);
+
+    QVERIFY(!sampler->isFinished(60));
+    const auto frame = sampler->playbackPosition(60) * Constants::defaultSampleRate();
+    QVERIFY2(frame >= 0.0 && frame <= 4410.0,
+             qPrintable(QString { "position %1 is outside the loop" }.arg(frame)));
+}
+
+void SamplerTest::test_loop_noteOff_shouldEndTheVoiceThroughTheRelease()
+{
+    // A looping voice never runs off its range, so the amp envelope is the only thing left that can
+    // end it. If that ever stops holding, a looping pad pins a voice for the rest of the song.
+    const auto sampler = makeMonoSampler();
+    sampler->setSampleEndOffset(60, 0.1);
+    sampler->setSampleLoop(60, true);
+    sampler->processMidiNoteOn(60, 127);
+
+    render(*sampler, 8000);
+    QVERIFY(!sampler->isFinished(60));
+
+    sampler->processMidiNoteOff(60);
+    render(*sampler, 1024); // The default release is a few milliseconds
+
+    QVERIFY(sampler->isFinished(60));
+}
+
+void SamplerTest::test_chokeGroup_shouldSilenceOtherPadsInTheSameGroup()
+{
+    const auto sampler = makeMonoSampler();
+    sampler->loadSample(62, "other.wav");
+    sampler->setSampleChokeGroup(60, 1);
+    sampler->setSampleChokeGroup(62, 1);
+    QCOMPARE(sampler->sampleChokeGroup(60), 1);
+
+    sampler->processMidiNoteOn(60, 127);
+    render(*sampler, 256);
+    QVERIFY(!sampler->isFinished(60));
+
+    sampler->processMidiNoteOn(62, 127);
+    render(*sampler, 1024); // Long enough for the choke fade to run out
+
+    QVERIFY2(sampler->isFinished(60), "the open pad was not choked");
+    QVERIFY2(!sampler->isFinished(62), "the pad doing the choking stopped too");
+}
+
+void SamplerTest::test_chokeGroup_zero_shouldChokeNothing()
+{
+    const auto sampler = makeMonoSampler();
+    sampler->loadSample(62, "other.wav");
+    QCOMPARE(sampler->sampleChokeGroup(60), 0);
+
+    sampler->processMidiNoteOn(60, 127);
+    sampler->processMidiNoteOn(62, 127);
+    render(*sampler, 1024);
+
+    QVERIFY(!sampler->isFinished(60));
+    QVERIFY(!sampler->isFinished(62));
+}
+
+void SamplerTest::test_chokeGroup_differentGroups_shouldNotInterfere()
+{
+    const auto sampler = makeMonoSampler();
+    sampler->loadSample(62, "other.wav");
+    sampler->setSampleChokeGroup(60, 1);
+    sampler->setSampleChokeGroup(62, 2);
+
+    sampler->processMidiNoteOn(60, 127);
+    sampler->processMidiNoteOn(62, 127);
+    render(*sampler, 1024);
+
+    QVERIFY(!sampler->isFinished(60));
+    QVERIFY(!sampler->isFinished(62));
+}
+
+void SamplerTest::test_chokeGroup_shouldNotChokeTheTriggeringPad()
+{
+    // One sample covers a whole octave in chromatic mode. Letting a pad choke itself would quietly
+    // make any grouped pad monophonic across its own range.
+    const auto sampler = makeMonoSampler();
+    sampler->setChromaticMode(true);
+    sampler->clearSample(60);
+    sampler->loadSample(0, "root.wav");
+    sampler->setSampleChokeGroup(0, 1);
+
+    sampler->processMidiNoteOn(3, 127);
+    render(*sampler, 256);
+    sampler->processMidiNoteOn(7, 127);
+    render(*sampler, 1024);
+
+    QVERIFY2(!sampler->isFinished(3), "the pad choked its own earlier note");
+    QVERIFY(!sampler->isFinished(7));
+}
+
+void SamplerTest::test_copySample_shouldCopyLoopAndChokeGroup()
+{
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    sampler.loadSample(60, "test.wav");
+    sampler.setSampleLoop(60, true);
+    sampler.setSampleChokeGroup(60, 3);
+
+    sampler.copySample(60, 62);
+
+    QCOMPARE(sampler.sampleLoop(62), true);
+    QCOMPARE(sampler.sampleChokeGroup(62), 3);
 }
 
 void SamplerTest::test_copySample_shouldCopyTuningTrimAndEnvelope()

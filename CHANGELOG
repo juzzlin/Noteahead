@@ -15,6 +15,14 @@ New features:
   - The end offset trims the pad the way the start offset already did
   - Reverse plays the trimmed range backwards
 
+* Add looping to the Sampler's pads
+  - Repeats the pad's range until the note is released
+  - Works with reverse, and wraps on whole frames so the loop does not buzz
+
+* Add choke groups to the Sampler's pads
+  - Triggering a pad silences the other pads sharing its group
+  - Eight groups, the way a closed hi-hat cuts off an open one
+
 Bug fixes:
 
 Other:
