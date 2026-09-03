@@ -73,6 +73,24 @@ private slots:
     void test_midiCcReset_padCc_shouldRestoreManualValues();
 
     void test_startOffset_shouldShiftPlaybackStart();
+    void test_endOffset_unset_shouldPlayToTheEndOfTheSample();
+    void test_endOffset_set_shouldStopPlaybackThere();
+    void test_endOffset_beforeStartOffset_shouldPlayNothing();
+    void test_loadSample_shorterFile_shouldPullTheEndOffsetInside();
+
+    void test_tune_coarse_shouldSnapToWholeSemitones();
+    void test_tune_octaveUp_shouldDoublePlaybackRate();
+    void test_tune_fine_shouldDetuneWithinASemitone();
+
+    void test_reverse_shouldPlayFromTheEndOfTheRange();
+    void test_reverse_withEndOffset_shouldStartFromTheTrimmedEnd();
+
+    void test_ampEnvelope_defaults_shouldNotAttenuateTheSample();
+    void test_ampEnvelope_zeroSustain_shouldDropTheVoiceWithoutANoteOff();
+    void test_ampEnvelope_noteOff_shouldReleaseRatherThanCutOff();
+    void test_ampEnvelope_attack_shouldRampTheSampleIn();
+
+    void test_copySample_shouldCopyTuningTrimAndEnvelope();
     void test_reset_shouldResetParametersAndPads();
     void test_processAudio_shouldProduceOutput();
     void test_serialization_shouldSaveAndLoadGain();

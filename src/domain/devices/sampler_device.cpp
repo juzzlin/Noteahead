@@ -48,6 +48,97 @@ SamplerDevice::Sample::Sample()
     addParameter(Parameter { Constants::NahdXml::xmlKeyCutoff().toStdString(), 1.0f, 0, 10000, 10000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyStartOffset().toStdString(), 0.0f, 0, 60000, 0, 1 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyEndOffset().toStdString(), 0.0f, 0, 60000, 0, 1 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyTune().toStdString(), 0.5f, 0, 10000, 5000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyDetune().toStdString(), 0.5f, 0, 10000, 5000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyAttack().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyDecay().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeySustain().toStdString(), 1.0f, 0, 10000, 10000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyReleaseTime().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyReverse().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
+}
+
+namespace {
+
+//! Seconds each envelope segment takes at the given knob position.
+//!
+//! Attack starts at nothing, so a pad that never touches it triggers at full level on its first frame
+//! the way it always has. The other two bottom out at the de-click fade the pads used to apply on
+//! note-off, which is the shortest release worth having.
+constexpr double MinEnvelopeSeconds { 0.005 };
+constexpr double MaxEnvelopeSeconds { 10.0 };
+
+double attackSeconds(float attack)
+{
+    return attack <= 0.0f ? 0.0 : ParameterMapper::mapExponential(static_cast<double>(attack), MinEnvelopeSeconds, MaxEnvelopeSeconds);
+}
+
+double decaySeconds(float decay)
+{
+    return ParameterMapper::mapExponential(static_cast<double>(decay), MinEnvelopeSeconds, MaxEnvelopeSeconds);
+}
+
+double releaseSeconds(float release)
+{
+    return ParameterMapper::mapExponential(static_cast<double>(release), MinEnvelopeSeconds, MaxEnvelopeSeconds);
+}
+
+//! Range of the coarse tuning knob, in whole semitones either way.
+constexpr int TuneSemitoneRange { 24 };
+//! Range of the fine tuning knob, in cents either way.
+constexpr double DetuneCentRange { 100.0 };
+
+} // namespace
+
+int SamplerDevice::tuneSemitones(float tune)
+{
+    return static_cast<int>(std::lround((static_cast<double>(tune) - 0.5) * 2.0 * TuneSemitoneRange));
+}
+
+double SamplerDevice::detuneCents(float detune)
+{
+    return (static_cast<double>(detune) - 0.5) * 2.0 * DetuneCentRange;
+}
+
+double SamplerDevice::tuneRatio(const Sample & sample)
+{
+    const double semitones = static_cast<double>(tuneSemitones(sample.tune)) + detuneCents(sample.detune) / 100.0;
+    return std::pow(2.0, semitones / 12.0);
+}
+
+std::optional<SamplerDevice::PlayRange> SamplerDevice::playRange(const Sample & sample)
+{
+    if (!sample.data || sample.channels <= 0 || sample.sampleRate <= 0) {
+        return std::nullopt;
+    }
+
+    const size_t totalFrames = sample.data->size() / static_cast<size_t>(sample.channels);
+    if (totalFrames < 2) {
+        return std::nullopt;
+    }
+
+    const double lastFrame = static_cast<double>(totalFrames - 1);
+    const double rate = static_cast<double>(sample.sampleRate);
+    const double first = std::clamp(sample.startOffset * rate, 0.0, lastFrame);
+    const double last = sample.endOffset ? std::clamp(*sample.endOffset * rate, 0.0, lastFrame) : lastFrame;
+
+    // A range that ends where it starts, or before it, has nothing to play.
+    if (last <= first) {
+        return std::nullopt;
+    }
+
+    return PlayRange { first, last };
+}
+
+void SamplerDevice::updateVoiceEnvelope(Voice & voice)
+{
+    if (!voice.sample) {
+        return;
+    }
+    voice.ampEg.setAttackTime(attackSeconds(voice.sample->attack));
+    voice.ampEg.setDecayTime(decaySeconds(voice.sample->decay));
+    voice.ampEg.setSustainLevel(static_cast<double>(voice.sample->sustain));
+    voice.ampEg.setReleaseTime(releaseSeconds(voice.sample->release));
 }
 
 SamplerDevice::SamplerDevice(std::string name, AudioFileReaderU audioFileReader)
@@ -252,13 +343,20 @@ void SamplerDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
         }
     }
 
+    // A pad trimmed down to nothing, or too short to interpolate across, has nothing to trigger.
+    const auto range = playRange(*sample);
+    if (!range) {
+        return;
+    }
+
     // Find an inactive voice
     for (auto && voice : m_voices) {
         if (!voice.active) {
             voice.note = note;
             voice.sample = sample;
             voice.pitchRatio = pitchRatio;
-            voice.position = voice.sample->startOffset * voice.sample->sampleRate;
+            // Reverse plays the same range, from the far end of it.
+            voice.position = sample->reverse ? range->last : range->first;
             voice.velocity = static_cast<float>(velocity) / 127.0f;
             voice.pan = panInternal();
             voice.cutoff = m_globalCutoff;
@@ -269,8 +367,11 @@ void SamplerDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
 
             updateVoiceEffects(voice);
 
-            voice.releasing = false;
-            voice.releaseGain = 1.0f;
+            voice.ampEg.setSampleRate(static_cast<double>(sampleRate()));
+            voice.ampEg.reset();
+            updateVoiceEnvelope(voice);
+            voice.ampEg.trigger();
+
             voice.active = true;
             return;
         }
@@ -282,7 +383,7 @@ void SamplerDevice::processMidiNoteOff(uint8_t note)
     std::lock_guard<std::recursive_mutex> lock { mutex() };
     for (auto && voice : m_voices) {
         if (voice.active && voice.note == note) {
-            voice.releasing = true;
+            voice.ampEg.release();
         }
     }
 }
@@ -413,7 +514,6 @@ void SamplerDevice::processAudio(AudioContext & context)
         return slot.second;
     };
 
-    const float fadeStep = 1.0f / 256.0f;
     const double gain = static_cast<double>(linearGainInternal());
 
     for (auto && voice : m_voices) {
@@ -421,9 +521,20 @@ void SamplerDevice::processAudio(AudioContext & context)
             continue;
         }
 
+        // Read afresh every callback rather than latched at note-on, so trimming or tuning a pad in the
+        // dialog is audible on the note that is already sounding.
+        const auto range = playRange(*voice.sample);
+        if (!range) {
+            voice.active = false;
+            continue;
+        }
+
         for (auto && effect : voice.effects) {
             effect->setSampleRate(context.sampleRate);
         }
+
+        voice.ampEg.setSampleRate(context.sampleRate);
+        updateVoiceEnvelope(voice);
 
         // Rack pads accumulate dry (unity gain) into their own buffer; device gain is applied when the
         // processed pad buffer is folded into the main output. Rack-less pads take the direct fast path.
@@ -433,30 +544,36 @@ void SamplerDevice::processAudio(AudioContext & context)
 
         const auto & sampleData { *voice.sample->data };
         const int channels = voice.sample->channels;
-        const double pitchScale = static_cast<double>(voice.sample->sampleRate) / static_cast<double>(context.sampleRate) * voice.pitchRatio;
+        const size_t lastFrame = sampleData.size() / static_cast<size_t>(channels) - 1;
+        const double rateScale = static_cast<double>(voice.sample->sampleRate) / static_cast<double>(context.sampleRate);
+        const double pitchScale = rateScale * voice.pitchRatio * tuneRatio(*voice.sample)
+          * (voice.sample->reverse ? -1.0 : 1.0);
 
         for (uint32_t i = 0; i < context.frameCount; i++) {
             const double currentPos = voice.position;
-            const size_t index = static_cast<size_t>(currentPos);
-            const float fract = static_cast<float>(currentPos - index);
 
-            if ((index + 1) * static_cast<size_t>(channels) >= sampleData.size()) {
+            if (currentPos < range->first || currentPos > range->last) {
                 voice.active = false;
                 break;
             }
+
+            const size_t index = static_cast<size_t>(currentPos);
+            const float fract = static_cast<float>(currentPos - index);
+            // The final frame has no successor to interpolate towards, so it interpolates towards itself.
+            const size_t next = std::min(index + 1, lastFrame);
 
             double left = 0.0;
             double right = 0.0;
 
             if (channels == 1) {
                 const double s0 = static_cast<double>(sampleData.at(index));
-                const double s1 = static_cast<double>(sampleData.at(index + 1));
+                const double s1 = static_cast<double>(sampleData.at(next));
                 left = right = s0 + (s1 - s0) * fract;
             } else if (channels == 2) {
                 const double l0 = static_cast<double>(sampleData.at(index * 2));
-                const double l1 = static_cast<double>(sampleData.at((index + 1) * 2));
+                const double l1 = static_cast<double>(sampleData.at(next * 2));
                 const double r0 = static_cast<double>(sampleData.at(index * 2 + 1));
-                const double r1 = static_cast<double>(sampleData.at((index + 1) * 2 + 1));
+                const double r1 = static_cast<double>(sampleData.at(next * 2 + 1));
                 left = l0 + (l1 - l0) * fract;
                 right = r0 + (r1 - r0) * fract;
             }
@@ -465,19 +582,19 @@ void SamplerDevice::processAudio(AudioContext & context)
                 effect->process(left, right);
             }
 
-            if (voice.releasing) {
-                left *= static_cast<double>(voice.releaseGain);
-                right *= static_cast<double>(voice.releaseGain);
-                voice.releaseGain -= fadeStep;
-                if (voice.releaseGain <= 0.0f) {
-                    voice.active = false;
-                    voice.releasing = false;
-                    break;
-                }
-            }
+            const double envelope = voice.ampEg.nextSample();
+            left *= envelope;
+            right *= envelope;
 
             target[i * 2] += left * voiceGain;
             target[i * 2 + 1] += right * voiceGain;
+
+            // A percussive envelope parks at a zero sustain rather than going idle, so a voice held by a
+            // pattern that never releases it would otherwise render silence at full cost forever.
+            if (voice.ampEg.isSilent()) {
+                voice.active = false;
+                break;
+            }
 
             voice.position += pitchScale;
         }
@@ -537,7 +654,6 @@ void SamplerDevice::stopVoicesUsing(const Sample * sample)
     for (auto && voice : m_voices) {
         if (voice.sample && (!sample || voice.sample == sample)) {
             voice.active = false;
-            voice.releasing = false;
             voice.sample = nullptr;
         }
     }
@@ -599,24 +715,26 @@ void SamplerDevice::loadSample(uint8_t note, const std::string & filePath)
         // sound". Loading onto an empty pad has nothing to carry and starts from the defaults.
         if (auto & existing = m_samples.at(note); existing) {
             static_cast<ParameterContainer &>(*sample) = static_cast<const ParameterContainer &>(*existing);
-            sample->pan = existing->pan;
-            sample->volume = existing->volume;
-            sample->cutoff = existing->cutoff;
-            sample->hpfCutoff = existing->hpfCutoff;
-            sample->startOffset = existing->startOffset;
+            syncSampleFields(*sample);
             sample->effectRack = std::move(existing->effectRack);
         }
 
-        // The start offset is the one setting that is about the file rather than the pad, so a
-        // shorter replacement has to pull it back inside the sample instead of starting past its end.
+        // The two offsets are the settings that are about the file rather than the pad, so a shorter
+        // replacement has to pull them back inside the sample instead of pointing past its end.
         if (sample->data && sample->channels > 0 && sample->sampleRate > 0) {
             const auto duration = static_cast<double>(sample->data->size() / static_cast<size_t>(sample->channels)) / static_cast<double>(sample->sampleRate);
-            if (sample->startOffset > duration) {
-                sample->startOffset = duration;
-                if (auto p = sample->parameter(Constants::NahdXml::xmlKeyStartOffset().toStdString()); p) {
-                    p->get().setValue(static_cast<float>(duration / 60.0));
+            const auto clampOffset = [&sample, duration](const QString & key, double offset) {
+                if (auto p = sample->parameter(key.toStdString()); p) {
+                    p->get().setValue(static_cast<float>(std::min(offset, duration) / 60.0));
                 }
+            };
+            if (sample->startOffset > duration) {
+                clampOffset(Constants::NahdXml::xmlKeyStartOffset(), sample->startOffset);
             }
+            if (sample->endOffset && *sample->endOffset > duration) {
+                clampOffset(Constants::NahdXml::xmlKeyEndOffset(), *sample->endOffset);
+            }
+            syncSampleFields(*sample);
         }
 
         stopVoicesUsing(m_samples.at(note).get());
@@ -865,6 +983,109 @@ void SamplerDevice::setSampleStartOffset(uint8_t note, double offset)
     emit dataChanged();
 }
 
+std::optional<double> SamplerDevice::sampleEndOffset(uint8_t note) const
+{
+    std::lock_guard<std::recursive_mutex> lock { mutex() };
+    if (note >= maxSamples || !m_samples.at(note)) {
+        return std::nullopt;
+    }
+    return m_samples.at(note)->endOffset;
+}
+
+void SamplerDevice::setSampleEndOffset(uint8_t note, std::optional<double> offset)
+{
+    if (note >= maxSamples) {
+        return;
+    }
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (m_samples.at(note)) {
+            if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyEndOffset().toStdString()); p) {
+                p->get().setValue(static_cast<float>(offset.value_or(0.0) / 60.0));
+                m_samples.at(note)->endOffset = endOffsetOf(p->get().value());
+            }
+        }
+    }
+    emit dataChanged();
+}
+
+float SamplerDevice::sampleTune(uint8_t note) const
+{
+    return padValue(note, Constants::NahdXml::xmlKeyTune().toStdString(), 0.5f);
+}
+
+void SamplerDevice::setSampleTune(uint8_t note, float tune)
+{
+    // Coarse tuning moves in whole semitones, so snap the position to one: the knob then reads out the
+    // semitone it will actually play rather than the place the pointer happened to land.
+    const float snapped = 0.5f + static_cast<float>(tuneSemitones(tune)) / (2.0f * TuneSemitoneRange);
+    setPadValue(note, Constants::NahdXml::xmlKeyTune().toStdString(), snapped);
+}
+
+float SamplerDevice::sampleDetune(uint8_t note) const
+{
+    return padValue(note, Constants::NahdXml::xmlKeyDetune().toStdString(), 0.5f);
+}
+
+void SamplerDevice::setSampleDetune(uint8_t note, float detune)
+{
+    setPadValue(note, Constants::NahdXml::xmlKeyDetune().toStdString(), detune);
+}
+
+float SamplerDevice::sampleAttack(uint8_t note) const
+{
+    return padValue(note, Constants::NahdXml::xmlKeyAttack().toStdString(), 0.0f);
+}
+
+void SamplerDevice::setSampleAttack(uint8_t note, float attack)
+{
+    setPadValue(note, Constants::NahdXml::xmlKeyAttack().toStdString(), attack);
+}
+
+float SamplerDevice::sampleDecay(uint8_t note) const
+{
+    return padValue(note, Constants::NahdXml::xmlKeyDecay().toStdString(), 0.0f);
+}
+
+void SamplerDevice::setSampleDecay(uint8_t note, float decay)
+{
+    setPadValue(note, Constants::NahdXml::xmlKeyDecay().toStdString(), decay);
+}
+
+float SamplerDevice::sampleSustain(uint8_t note) const
+{
+    return padValue(note, Constants::NahdXml::xmlKeySustain().toStdString(), 1.0f);
+}
+
+void SamplerDevice::setSampleSustain(uint8_t note, float sustain)
+{
+    setPadValue(note, Constants::NahdXml::xmlKeySustain().toStdString(), sustain);
+}
+
+float SamplerDevice::sampleRelease(uint8_t note) const
+{
+    return padValue(note, Constants::NahdXml::xmlKeyReleaseTime().toStdString(), 0.0f);
+}
+
+void SamplerDevice::setSampleRelease(uint8_t note, float release)
+{
+    setPadValue(note, Constants::NahdXml::xmlKeyReleaseTime().toStdString(), release);
+}
+
+bool SamplerDevice::sampleReverse(uint8_t note) const
+{
+    std::lock_guard<std::recursive_mutex> lock { mutex() };
+    if (note >= maxSamples || !m_samples.at(note)) {
+        return false;
+    }
+    return m_samples.at(note)->reverse;
+}
+
+void SamplerDevice::setSampleReverse(uint8_t note, bool reverse)
+{
+    setPadValue(note, Constants::NahdXml::xmlKeyReverse().toStdString(), reverse ? 1.0f : 0.0f);
+}
+
 double SamplerDevice::sampleDuration(uint8_t note) const
 {
     std::lock_guard<std::recursive_mutex> lock { mutex() };
@@ -1111,16 +1332,7 @@ void SamplerDevice::deserializeFromXml(ProjectReader & reader)
                                 }
                             }
                             // Sync internal fields from parameters
-                            if (auto p = s->parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p)
-                                s->pan = p->get().value();
-                            if (auto p = s->parameter(Constants::NahdXml::xmlKeyFader().toStdString()); p)
-                                s->volume = p->get().value();
-                            if (auto p = s->parameter(Constants::NahdXml::xmlKeyCutoff().toStdString()); p)
-                                s->cutoff = p->get().value();
-                            if (auto p = s->parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p)
-                                s->hpfCutoff = p->get().value();
-                            if (auto p = s->parameter(Constants::NahdXml::xmlKeyStartOffset().toStdString()); p)
-                                s->startOffset = static_cast<double>(p->get().value()) * 60.0;
+                            syncSampleFields(*s);
                         }
                     }
                     if (reader.isStartElement() && reader.name() == Constants::NahdXml::xmlKeySample()) {
@@ -1169,6 +1381,45 @@ void SamplerDevice::restoreState()
     Device::restoreState();
 }
 
+std::optional<double> SamplerDevice::endOffsetOf(float parameterValue)
+{
+    const double seconds = static_cast<double>(parameterValue) * 60.0;
+    return seconds > 0.0 ? std::optional<double> { seconds } : std::nullopt;
+}
+
+float SamplerDevice::padValue(uint8_t note, const std::string & parameterName, float fallback) const
+{
+    std::lock_guard<std::recursive_mutex> lock { mutex() };
+    if (note >= maxSamples || !m_samples.at(note)) {
+        return fallback;
+    }
+    if (auto p = m_samples.at(note)->parameter(parameterName); p) {
+        return p->get().value();
+    }
+    return fallback;
+}
+
+void SamplerDevice::setPadValue(uint8_t note, const std::string & parameterName, float value)
+{
+    if (note >= maxSamples) {
+        return;
+    }
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        auto & slot = m_samples.at(note);
+        if (!slot) {
+            return;
+        }
+        if (auto p = slot->parameter(parameterName); p) {
+            p->get().setValue(value);
+        }
+        // Tuning, trimming, reversing and the envelope are all read off the pad by the voices on every
+        // callback, so syncing the pad's own fields is the whole of the update.
+        syncSampleFields(*slot);
+    }
+    emit dataChanged();
+}
+
 void SamplerDevice::syncSampleFields(Sample & sample)
 {
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p)
@@ -1179,6 +1430,24 @@ void SamplerDevice::syncSampleFields(Sample & sample)
         sample.cutoff = p->get().value();
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p)
         sample.hpfCutoff = p->get().value();
+    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyStartOffset().toStdString()); p)
+        sample.startOffset = static_cast<double>(p->get().value()) * 60.0;
+    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyEndOffset().toStdString()); p)
+        sample.endOffset = endOffsetOf(p->get().value());
+    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyTune().toStdString()); p)
+        sample.tune = p->get().value();
+    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyDetune().toStdString()); p)
+        sample.detune = p->get().value();
+    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyAttack().toStdString()); p)
+        sample.attack = p->get().value();
+    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyDecay().toStdString()); p)
+        sample.decay = p->get().value();
+    if (auto p = sample.parameter(Constants::NahdXml::xmlKeySustain().toStdString()); p)
+        sample.sustain = p->get().value();
+    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyReleaseTime().toStdString()); p)
+        sample.release = p->get().value();
+    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyReverse().toStdString()); p)
+        sample.reverse = p->get().value() > 0.5f;
 }
 
 bool SamplerDevice::clearAutomationInternal()

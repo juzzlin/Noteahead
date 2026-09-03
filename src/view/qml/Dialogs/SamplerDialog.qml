@@ -112,13 +112,19 @@ AnimatedDialog {
 
                 SamplerDialog_PadSettings {
                     Layout.fillWidth: true
-                    Layout.preferredWidth: parent.width * 0.25
+                    Layout.preferredWidth: parent.width * 0.22
+                    Layout.alignment: Qt.AlignTop
+                }
+
+                SamplerDialog_PadAmpEg {
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: parent.width * 0.22
                     Layout.alignment: Qt.AlignTop
                 }
 
                 SamplerDialog_Global {
                     Layout.fillWidth: true
-                    Layout.preferredWidth: parent.width * 0.25
+                    Layout.preferredWidth: parent.width * 0.22
                     Layout.alignment: Qt.AlignTop
                 }
 

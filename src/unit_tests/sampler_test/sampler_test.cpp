@@ -53,7 +53,15 @@ public:
 
     int64_t readFloat(std::span<float> data) override
     {
-        std::fill(data.begin(), data.end(), 1.0f);
+        if (m_ramp) {
+            // A constant sample reads the same in both directions, so the tests that care which way
+            // playback runs need something that does not.
+            for (size_t i = 0; i < data.size(); i++) {
+                data[i] = static_cast<float>(i);
+            }
+        } else {
+            std::fill(data.begin(), data.end(), 1.0f);
+        }
         return data.size();
     }
 
@@ -104,10 +112,44 @@ public:
         m_frames = frames;
     }
 
+    //! Fills the sample with its own frame index instead of a constant, so a test can tell which frame
+    //! the device is reading.
+    void setRamp(bool ramp)
+    {
+        m_ramp = ramp;
+    }
+
 private:
     int m_channels = 2;
     int64_t m_frames = 1024;
+    bool m_ramp = false;
 };
+
+namespace {
+
+//! A mono sampler holding one second of the given content on note 60, which is long enough for the
+//! trimming and envelope tests to run past the times they set without running out of sample.
+std::unique_ptr<SamplerDevice> makeMonoSampler(bool ramp = false)
+{
+    auto reader = std::make_unique<MockAudioFileReader>();
+    reader->setForceChannels(1);
+    reader->setFrames(static_cast<int64_t>(Constants::defaultSampleRate()));
+    reader->setRamp(ramp);
+    auto sampler = std::make_unique<SamplerDevice>(Constants::samplerDeviceName().toStdString(), std::move(reader));
+    sampler->loadSample(60, "test.wav");
+    return sampler;
+}
+
+//! Runs frameCount frames through the device and hands back the interleaved output.
+std::vector<double> render(SamplerDevice & sampler, uint32_t frameCount)
+{
+    std::vector<double> buffer(frameCount * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), frameCount, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+    sampler.processAudio(context);
+    return buffer;
+}
+
+} // namespace
 
 void SamplerTest::initTestCase()
 {
@@ -751,6 +793,233 @@ void SamplerTest::test_startOffset_shouldShiftPlaybackStart()
     sampler.loadSample(60, "test.wav");
     sampler.setSampleStartOffset(60, 0.01);
     QVERIFY(std::abs(sampler.sampleStartOffset(60) - 0.01) < 0.0001);
+}
+
+void SamplerTest::test_endOffset_unset_shouldPlayToTheEndOfTheSample()
+{
+    // The default has to be what the pads did before the setting existed, or every project saved by an
+    // older build would start truncating itself.
+    const auto sampler = makeMonoSampler();
+    QVERIFY(!sampler->sampleEndOffset(60).has_value());
+
+    sampler->processMidiNoteOn(60, 127);
+    // Half a second in, a sample a second long is still going.
+    render(*sampler, static_cast<uint32_t>(Constants::defaultSampleRate()) / 2);
+    QVERIFY(!sampler->isFinished(60));
+}
+
+void SamplerTest::test_endOffset_set_shouldStopPlaybackThere()
+{
+    const auto sampler = makeMonoSampler();
+    sampler->setSampleEndOffset(60, 0.1);
+    QVERIFY(sampler->sampleEndOffset(60).has_value());
+    QVERIFY(std::abs(*sampler->sampleEndOffset(60) - 0.1) < 0.001);
+
+    sampler->processMidiNoteOn(60, 127);
+    // Just short of the trim the voice is still sounding...
+    render(*sampler, static_cast<uint32_t>(Constants::defaultSampleRate() * 0.09));
+    QVERIFY(!sampler->isFinished(60));
+    // ...and past it, it is gone, well before the end of the second the sample actually holds.
+    render(*sampler, static_cast<uint32_t>(Constants::defaultSampleRate() * 0.02));
+    QVERIFY(sampler->isFinished(60));
+}
+
+void SamplerTest::test_endOffset_beforeStartOffset_shouldPlayNothing()
+{
+    const auto sampler = makeMonoSampler();
+    sampler->setSampleStartOffset(60, 0.5);
+    sampler->setSampleEndOffset(60, 0.2);
+
+    sampler->processMidiNoteOn(60, 127);
+    QVERIFY(sampler->isFinished(60));
+
+    const auto buffer = render(*sampler, 16);
+    QVERIFY(std::all_of(buffer.begin(), buffer.end(), [](double v) { return v == 0.0; }));
+}
+
+void SamplerTest::test_loadSample_shorterFile_shouldPullTheEndOffsetInside()
+{
+    // Same reasoning as the start offset: an end left past the end of a shorter replacement would trim
+    // nothing, silently changing what the pad does when the file behind it is swapped.
+    auto reader = std::make_unique<MockAudioFileReader>();
+    auto * mock = reader.get();
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::move(reader) };
+    mock->setFrames(static_cast<int64_t>(Constants::defaultSampleRate()));
+    sampler.loadSample(60, "long.wav");
+    const auto duration = sampler.sampleDuration(60);
+    sampler.setSampleEndOffset(60, duration);
+
+    mock->setFrames(256);
+    sampler.loadSample(60, "short.wav");
+
+    const auto shorterDuration = sampler.sampleDuration(60);
+    QVERIFY2(shorterDuration < duration, "the replacement was not actually shorter");
+    QVERIFY(sampler.sampleEndOffset(60).has_value());
+    QVERIFY2(*sampler.sampleEndOffset(60) <= shorterDuration + 1e-6,
+             qPrintable(QString { "end %1 is past the end of a %2 s sample" }.arg(*sampler.sampleEndOffset(60)).arg(shorterDuration)));
+}
+
+void SamplerTest::test_tune_coarse_shouldSnapToWholeSemitones()
+{
+    const auto sampler = makeMonoSampler();
+    QCOMPARE(SamplerDevice::tuneSemitones(sampler->sampleTune(60)), 0);
+
+    // A position three and a bit semitones up is three semitones up, and reads back as exactly that
+    // rather than as the place the knob was let go of.
+    sampler->setSampleTune(60, 0.5f + 3.4f / 48.0f);
+    QCOMPARE(SamplerDevice::tuneSemitones(sampler->sampleTune(60)), 3);
+    QVERIFY(std::abs(sampler->sampleTune(60) - (0.5f + 3.0f / 48.0f)) < 1e-4f);
+
+    // The ends of the travel are the full two octaves either way.
+    sampler->setSampleTune(60, 0.0f);
+    QCOMPARE(SamplerDevice::tuneSemitones(sampler->sampleTune(60)), -24);
+    sampler->setSampleTune(60, 1.0f);
+    QCOMPARE(SamplerDevice::tuneSemitones(sampler->sampleTune(60)), 24);
+}
+
+void SamplerTest::test_tune_octaveUp_shouldDoublePlaybackRate()
+{
+    const auto untuned = makeMonoSampler();
+    untuned->processMidiNoteOn(60, 127);
+    render(*untuned, 512);
+    const auto plainPosition = untuned->playbackPosition(60);
+    QVERIFY(plainPosition > 0.0);
+
+    const auto tuned = makeMonoSampler();
+    tuned->setSampleTune(60, 0.75f); // +12 semitones, so twice the rate
+    QCOMPARE(SamplerDevice::tuneSemitones(tuned->sampleTune(60)), 12);
+    tuned->processMidiNoteOn(60, 127);
+    render(*tuned, 512);
+
+    QVERIFY2(std::abs(tuned->playbackPosition(60) - plainPosition * 2.0) < plainPosition * 0.01,
+             qPrintable(QString { "expected %1, got %2" }.arg(plainPosition * 2.0).arg(tuned->playbackPosition(60))));
+}
+
+void SamplerTest::test_tune_fine_shouldDetuneWithinASemitone()
+{
+    const auto sampler = makeMonoSampler();
+    QCOMPARE(SamplerDevice::detuneCents(sampler->sampleDetune(60)), 0.0);
+
+    sampler->setSampleDetune(60, 1.0f);
+    QVERIFY(std::abs(SamplerDevice::detuneCents(sampler->sampleDetune(60)) - 100.0) < 0.5);
+
+    // A hundred cents up is a semitone up, whichever control it was dialled in on.
+    const auto semitone = std::pow(2.0, 1.0 / 12.0);
+    QVERIFY(std::abs(SamplerDevice::tuneRatio(*sampler->sample(60)) - semitone) < 1e-3);
+}
+
+void SamplerTest::test_reverse_shouldPlayFromTheEndOfTheRange()
+{
+    const auto sampler = makeMonoSampler(true);
+    sampler->setSampleReverse(60, true);
+    QVERIFY(sampler->sampleReverse(60));
+
+    sampler->processMidiNoteOn(60, 127);
+    const auto buffer = render(*sampler, 16);
+
+    // The ramp counts up with the frame index, so playing backwards starts near the top of it and the
+    // output falls away from there.
+    QVERIFY2(buffer[0] > buffer[2], "the output is not running backwards through the sample");
+    QVERIFY(buffer[0] > static_cast<double>(Constants::defaultSampleRate()) * 0.5);
+    // And the position walks back towards the start rather than away from it.
+    QVERIFY(sampler->playbackPosition(60) < 1.0);
+    QVERIFY(sampler->playbackPosition(60) > 0.9);
+}
+
+void SamplerTest::test_reverse_withEndOffset_shouldStartFromTheTrimmedEnd()
+{
+    const auto sampler = makeMonoSampler(true);
+    sampler->setSampleReverse(60, true);
+    sampler->setSampleEndOffset(60, 0.25);
+
+    sampler->processMidiNoteOn(60, 127);
+    render(*sampler, 16);
+
+    // A quarter of a second into a one second sample, not the end of the file.
+    QVERIFY2(std::abs(sampler->playbackPosition(60) - 0.25) < 0.01,
+             qPrintable(QString { "started at %1" }.arg(sampler->playbackPosition(60))));
+}
+
+void SamplerTest::test_ampEnvelope_defaults_shouldNotAttenuateTheSample()
+{
+    // The envelope defaults have to leave the pads exactly as they were, so a project made before it
+    // existed plays back unchanged rather than merely close.
+    const auto sampler = makeMonoSampler();
+    sampler->processMidiNoteOn(60, 127);
+    const auto buffer = render(*sampler, 64);
+
+    const auto expected = std::cos(std::numbers::pi * 0.25);
+    for (size_t i = 0; i < buffer.size(); i++) {
+        QVERIFY2(std::abs(buffer[i] - expected) < 1e-10,
+                 qPrintable(QString { "frame %1 is %2, not %3" }.arg(i).arg(buffer[i]).arg(expected)));
+    }
+}
+
+void SamplerTest::test_ampEnvelope_zeroSustain_shouldDropTheVoiceWithoutANoteOff()
+{
+    // A percussive envelope parks at its zero sustain rather than going idle. A voice that waited for a
+    // note-off would render silence at full cost for the rest of the pattern.
+    const auto sampler = makeMonoSampler();
+    sampler->setSampleSustain(60, 0.0f);
+    sampler->processMidiNoteOn(60, 127);
+    QVERIFY(!sampler->isFinished(60));
+
+    render(*sampler, 4096);
+    QVERIFY(sampler->isFinished(60));
+}
+
+void SamplerTest::test_ampEnvelope_noteOff_shouldReleaseRatherThanCutOff()
+{
+    const auto sampler = makeMonoSampler();
+    sampler->setSampleRelease(60, 0.5f); // Well over a second, so the release is still running at the end
+    sampler->processMidiNoteOn(60, 127);
+    render(*sampler, 64);
+    sampler->processMidiNoteOff(60);
+
+    const auto buffer = render(*sampler, 64);
+    QVERIFY2(!sampler->isFinished(60), "the voice was cut off instead of released");
+    // Still sounding, and on its way down rather than held.
+    QVERIFY(std::abs(buffer[0]) > 0.0);
+    QVERIFY2(std::abs(buffer[buffer.size() - 2]) < std::abs(buffer[0]), "the release is not falling");
+}
+
+void SamplerTest::test_ampEnvelope_attack_shouldRampTheSampleIn()
+{
+    const auto sampler = makeMonoSampler();
+    sampler->setSampleAttack(60, 1.0f); // The top of the travel, ten seconds
+    sampler->processMidiNoteOn(60, 127);
+
+    const auto buffer = render(*sampler, 64);
+    const auto expected = std::cos(std::numbers::pi * 0.25);
+    // A ten second attack has barely started after a millisecond and a half.
+    QVERIFY2(buffer[0] < expected * 0.01, "the attack did not ramp the sample in");
+    QVERIFY2(buffer[buffer.size() - 2] > buffer[0], "the attack is not rising");
+}
+
+void SamplerTest::test_copySample_shouldCopyTuningTrimAndEnvelope()
+{
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    sampler.loadSample(60, "test.wav");
+    sampler.setSampleTune(60, 0.75f);
+    sampler.setSampleDetune(60, 0.25f);
+    sampler.setSampleAttack(60, 0.2f);
+    sampler.setSampleDecay(60, 0.3f);
+    sampler.setSampleSustain(60, 0.4f);
+    sampler.setSampleRelease(60, 0.6f);
+    sampler.setSampleReverse(60, true);
+    sampler.setSampleEndOffset(60, 0.01);
+
+    sampler.copySample(60, 62);
+
+    QCOMPARE(SamplerDevice::tuneSemitones(sampler.sampleTune(62)), SamplerDevice::tuneSemitones(sampler.sampleTune(60)));
+    QCOMPARE(sampler.sampleDetune(62), sampler.sampleDetune(60));
+    QCOMPARE(sampler.sampleAttack(62), sampler.sampleAttack(60));
+    QCOMPARE(sampler.sampleDecay(62), sampler.sampleDecay(60));
+    QCOMPARE(sampler.sampleSustain(62), sampler.sampleSustain(60));
+    QCOMPARE(sampler.sampleRelease(62), sampler.sampleRelease(60));
+    QCOMPARE(sampler.sampleReverse(62), true);
+    QVERIFY(sampler.sampleEndOffset(62).has_value());
+    QVERIFY(std::abs(*sampler.sampleEndOffset(62) - *sampler.sampleEndOffset(60)) < 1e-6);
 }
 
 void SamplerTest::test_reset_shouldResetParametersAndPads()

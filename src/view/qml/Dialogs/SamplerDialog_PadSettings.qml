@@ -72,7 +72,55 @@ ColumnLayout {
         }
     }
 
+    // Tune Knob
+    Knob {
+        label: qsTr("Tune")
+        mapping: "bipolar"
+        mapMin: -24
+        mapMax: 24
+        suffix: " st"
+        value: samplerController.selectedPadTune * Constants.uiInternalScaling
+        onMoved: v => {
+            samplerController.selectedPadTune = v / Constants.uiInternalScaling;
+        }
+    }
+
+    // Fine Tune Knob
+    Knob {
+        label: qsTr("Fine Tune")
+        mapping: "bipolar"
+        mapMin: -100
+        mapMax: 100
+        suffix: " ct"
+        value: samplerController.selectedPadDetune * Constants.uiInternalScaling
+        onMoved: v => {
+            samplerController.selectedPadDetune = v / Constants.uiInternalScaling;
+        }
+    }
+
     SamplerDialog_Offset {
         Layout.fillWidth: true
+    }
+
+    SamplerDialog_EndOffset {
+        Layout.fillWidth: true
+    }
+
+    CheckBox {
+        id: reverseCheckBox
+        text: qsTr("Reverse")
+        Layout.fillWidth: true
+        checked: samplerController.selectedPadReverse
+        onToggled: samplerController.selectedPadReverse = checked
+        contentItem: Label {
+            text: reverseCheckBox.text
+            color: "white"
+            verticalAlignment: Text.AlignVCenter
+            leftPadding: reverseCheckBox.indicator.width + reverseCheckBox.spacing
+        }
+        ToolTip.delay: Constants.toolTipDelay
+        ToolTip.timeout: Constants.toolTipTimeout
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Plays the pad backwards, from the end of its range to the start.")
     }
 }

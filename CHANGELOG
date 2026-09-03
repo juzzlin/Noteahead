@@ -5,6 +5,16 @@ Release date:
 
 New features:
 
+* Add per-pad tuning to the Sampler
+  - Coarse in whole semitones, two octaves either way, plus fine tuning in cents
+
+* Add a per-pad amp envelope to the Sampler
+  - Attack, decay, sustain and release, on top of the pad's own filters
+
+* Add an end offset and reverse playback to the Sampler's pads
+  - The end offset trims the pad the way the start offset already did
+  - Reverse plays the trimmed range backwards
+
 Bug fixes:
 
 Other:

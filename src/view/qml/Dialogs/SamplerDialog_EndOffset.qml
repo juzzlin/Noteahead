@@ -1,0 +1,75 @@
+// This file is part of Noteahead.
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
+//
+// Noteahead is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// Noteahead is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
+
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
+import QtQuick.Controls 2.15
+import Noteahead 1.0
+
+ColumnLayout {
+    Layout.fillWidth: true
+    CheckBox {
+        id: endOffsetCheckBox
+        text: qsTr("End Offset:")
+        checked: samplerController.selectedPadEndOffsetEnabled
+        onToggled: samplerController.selectedPadEndOffsetEnabled = checked
+        contentItem: Label {
+            text: endOffsetCheckBox.text
+            color: "white"
+            verticalAlignment: Text.AlignVCenter
+            leftPadding: endOffsetCheckBox.indicator.width + endOffsetCheckBox.spacing
+        }
+        ToolTip.delay: Constants.toolTipDelay
+        ToolTip.timeout: Constants.toolTipTimeout
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("When disabled, the pad plays to the end of its sample.")
+    }
+    RowLayout {
+        Layout.fillWidth: true
+        enabled: samplerController.selectedPadEndOffsetEnabled
+        SpinBox {
+            Layout.fillWidth: true
+            from: 0
+            to: 3600
+            value: samplerController.selectedPadEndOffsetSeconds
+            editable: true
+            onValueModified: samplerController.selectedPadEndOffsetSeconds = value
+            Keys.onReturnPressed: {
+                value = valueFromText(contentItem.text, locale);
+                samplerController.selectedPadEndOffsetSeconds = value;
+            }
+        }
+        Label {
+            text: "s"
+            color: "white"
+        }
+        SpinBox {
+            Layout.fillWidth: true
+            from: 0
+            to: 999
+            value: samplerController.selectedPadEndOffsetMilliseconds
+            editable: true
+            onValueModified: samplerController.selectedPadEndOffsetMilliseconds = value
+            Keys.onReturnPressed: {
+                value = valueFromText(contentItem.text, locale);
+                samplerController.selectedPadEndOffsetMilliseconds = value;
+            }
+        }
+        Label {
+            text: "ms"
+            color: "white"
+        }
+    }
+}

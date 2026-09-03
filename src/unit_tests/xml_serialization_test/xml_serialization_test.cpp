@@ -1197,6 +1197,61 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_shouldLoadSamplerDevi
     QCOMPARE(samplerIn->sampleCutoff(60), 0.4f);
 }
 
+void XmlSerializationTest::test_toXmlFromXml_samplerDevice_padTuningTrimAndEnvelope_shouldRoundTrip()
+{
+    const std::string fileName = "test.wav";
+    const auto samplerName = "Noteahead Internal Device 1";
+
+    DeviceService deviceServiceOut { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+    const auto samplerOut = std::make_shared<SamplerDevice>(samplerName, std::make_unique<MockAudioFileReader>());
+    samplerOut->loadSample(60, fileName);
+    samplerOut->setSampleTune(60, 0.75f);
+    samplerOut->setSampleDetune(60, 0.25f);
+    samplerOut->setSampleAttack(60, 0.2f);
+    samplerOut->setSampleDecay(60, 0.3f);
+    samplerOut->setSampleSustain(60, 0.4f);
+    samplerOut->setSampleRelease(60, 0.6f);
+    samplerOut->setSampleReverse(60, true);
+    samplerOut->setSampleEndOffset(60, 0.01);
+    // The pad next door keeps the defaults, so the round trip also covers the case that has to keep
+    // playing the way it did before any of these settings existed.
+    samplerOut->loadSample(62, fileName);
+    deviceServiceOut.setDevice(0, samplerOut);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto deviceServiceIn = std::make_shared<DeviceService>(std::make_shared<AudioEngine>(), std::make_shared<DataService>());
+    const auto samplerIn = std::make_shared<SamplerDevice>(samplerName, std::make_unique<MockAudioFileReader>());
+    deviceServiceIn->setDevice(0, samplerIn);
+
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, deviceServiceIn.get(), &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    QCOMPARE(SamplerDevice::tuneSemitones(samplerIn->sampleTune(60)), 12);
+    QVERIFY(std::abs(SamplerDevice::detuneCents(samplerIn->sampleDetune(60)) + 50.0) < 0.5);
+    QVERIFY(std::abs(samplerIn->sampleAttack(60) - 0.2f) < 0.001f);
+    QVERIFY(std::abs(samplerIn->sampleDecay(60) - 0.3f) < 0.001f);
+    QVERIFY(std::abs(samplerIn->sampleSustain(60) - 0.4f) < 0.001f);
+    QVERIFY(std::abs(samplerIn->sampleRelease(60) - 0.6f) < 0.001f);
+    QCOMPARE(samplerIn->sampleReverse(60), true);
+    QVERIFY(samplerIn->sampleEndOffset(60).has_value());
+    QVERIFY(std::abs(*samplerIn->sampleEndOffset(60) - 0.01) < 0.001);
+
+    // An untouched pad comes back untouched: unity tuning, no trim, no reverse, full sustain.
+    QCOMPARE(SamplerDevice::tuneSemitones(samplerIn->sampleTune(62)), 0);
+    QCOMPARE(samplerIn->sampleDetune(62), 0.5f);
+    QCOMPARE(samplerIn->sampleAttack(62), 0.0f);
+    QCOMPARE(samplerIn->sampleSustain(62), 1.0f);
+    QCOMPARE(samplerIn->sampleRelease(62), 0.0f);
+    QCOMPARE(samplerIn->sampleReverse(62), false);
+    QVERIFY(!samplerIn->sampleEndOffset(62).has_value());
+}
+
 void XmlSerializationTest::test_toXmlFromXml_samplerDevice_padEffectRack_shouldRoundTrip()
 {
     const std::string fileName = "test.wav";

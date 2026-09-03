@@ -186,9 +186,11 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/ReverbDialog.qml
     ${QML_BASE_DIR}/Dialogs/RtaDialog.qml
     ${QML_BASE_DIR}/Dialogs/SamplerDialog.qml
+    ${QML_BASE_DIR}/Dialogs/SamplerDialog_EndOffset.qml
     ${QML_BASE_DIR}/Dialogs/SamplerDialog_Global.qml
     ${QML_BASE_DIR}/Dialogs/SamplerDialog_Header.qml
     ${QML_BASE_DIR}/Dialogs/SamplerDialog_Offset.qml
+    ${QML_BASE_DIR}/Dialogs/SamplerDialog_PadAmpEg.qml
     ${QML_BASE_DIR}/Dialogs/SamplerDialog_PadSettings.qml
     ${QML_BASE_DIR}/Dialogs/SamplerDialog_Pads.qml
     ${QML_BASE_DIR}/Dialogs/SamplerDialog_WaveformView.qml

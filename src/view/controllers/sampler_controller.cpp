@@ -8,6 +8,8 @@
 
 #include <QFileInfo>
 
+#include <cmath>
+
 namespace noteahead {
 
 SamplerController::SamplerController(SamplerDevice::SamplerDeviceS sampler, QObject * parent)
@@ -81,6 +83,14 @@ void SamplerController::setSelectedPad(int selectedPad)
         emit selectedPadCutoffChanged();
         emit selectedPadHpfCutoffChanged();
         emit selectedPadStartOffsetChanged();
+        emit selectedPadEndOffsetChanged();
+        emit selectedPadTuneChanged();
+        emit selectedPadDetuneChanged();
+        emit selectedPadAttackChanged();
+        emit selectedPadDecayChanged();
+        emit selectedPadSustainChanged();
+        emit selectedPadReleaseChanged();
+        emit selectedPadReverseChanged();
         emit selectedPadDurationChanged();
     }
 }
@@ -196,6 +206,175 @@ void SamplerController::setSelectedPadStartOffsetMilliseconds(int milliseconds)
     }
 }
 
+std::optional<uint8_t> SamplerController::selectedNote() const
+{
+    if (!m_sampler || m_selectedPad < 0) {
+        return std::nullopt;
+    }
+    return static_cast<uint8_t>(noteForPad(m_selectedPad));
+}
+
+bool SamplerController::selectedPadEndOffsetEnabled() const
+{
+    const auto note = selectedNote();
+    return note && m_sampler->sampleEndOffset(*note).has_value();
+}
+
+void SamplerController::setSelectedPadEndOffsetEnabled(bool enabled)
+{
+    const auto note = selectedNote();
+    if (!note) {
+        return;
+    }
+    if (enabled == m_sampler->sampleEndOffset(*note).has_value()) {
+        return;
+    }
+    // Switching the trim on with nothing set yet would leave it at second zero, which plays nothing.
+    // The end of the sample is the only sensible place to start dragging it back from.
+    m_sampler->setSampleEndOffset(*note, enabled ? std::optional<double> { m_sampler->sampleDuration(*note) } : std::nullopt);
+    emit selectedPadEndOffsetChanged();
+}
+
+int SamplerController::selectedPadEndOffsetSeconds() const
+{
+    const auto note = selectedNote();
+    if (!note) {
+        return 0;
+    }
+    return static_cast<int>(std::floor(m_sampler->sampleEndOffset(*note).value_or(0.0)));
+}
+
+void SamplerController::setSelectedPadEndOffsetSeconds(int seconds)
+{
+    const auto note = selectedNote();
+    if (!note) {
+        return;
+    }
+    const double current = m_sampler->sampleEndOffset(*note).value_or(0.0);
+    m_sampler->setSampleEndOffset(*note, static_cast<double>(seconds) + (current - std::floor(current)));
+    emit selectedPadEndOffsetChanged();
+}
+
+int SamplerController::selectedPadEndOffsetMilliseconds() const
+{
+    const auto note = selectedNote();
+    if (!note) {
+        return 0;
+    }
+    const double offset = m_sampler->sampleEndOffset(*note).value_or(0.0);
+    return static_cast<int>(std::round((offset - std::floor(offset)) * 1000.0));
+}
+
+void SamplerController::setSelectedPadEndOffsetMilliseconds(int milliseconds)
+{
+    const auto note = selectedNote();
+    if (!note) {
+        return;
+    }
+    const double current = m_sampler->sampleEndOffset(*note).value_or(0.0);
+    m_sampler->setSampleEndOffset(*note, std::floor(current) + static_cast<double>(milliseconds) / 1000.0);
+    emit selectedPadEndOffsetChanged();
+}
+
+double SamplerController::selectedPadTune() const
+{
+    const auto note = selectedNote();
+    return note ? static_cast<double>(m_sampler->sampleTune(*note)) : 0.5;
+}
+
+void SamplerController::setSelectedPadTune(double tune)
+{
+    if (const auto note = selectedNote(); note) {
+        m_sampler->setSampleTune(*note, static_cast<float>(tune));
+        emit selectedPadTuneChanged();
+    }
+}
+
+double SamplerController::selectedPadDetune() const
+{
+    const auto note = selectedNote();
+    return note ? static_cast<double>(m_sampler->sampleDetune(*note)) : 0.5;
+}
+
+void SamplerController::setSelectedPadDetune(double detune)
+{
+    if (const auto note = selectedNote(); note) {
+        m_sampler->setSampleDetune(*note, static_cast<float>(detune));
+        emit selectedPadDetuneChanged();
+    }
+}
+
+double SamplerController::selectedPadAttack() const
+{
+    const auto note = selectedNote();
+    return note ? static_cast<double>(m_sampler->sampleAttack(*note)) : 0.0;
+}
+
+void SamplerController::setSelectedPadAttack(double attack)
+{
+    if (const auto note = selectedNote(); note) {
+        m_sampler->setSampleAttack(*note, static_cast<float>(attack));
+        emit selectedPadAttackChanged();
+    }
+}
+
+double SamplerController::selectedPadDecay() const
+{
+    const auto note = selectedNote();
+    return note ? static_cast<double>(m_sampler->sampleDecay(*note)) : 0.0;
+}
+
+void SamplerController::setSelectedPadDecay(double decay)
+{
+    if (const auto note = selectedNote(); note) {
+        m_sampler->setSampleDecay(*note, static_cast<float>(decay));
+        emit selectedPadDecayChanged();
+    }
+}
+
+double SamplerController::selectedPadSustain() const
+{
+    const auto note = selectedNote();
+    return note ? static_cast<double>(m_sampler->sampleSustain(*note)) : 1.0;
+}
+
+void SamplerController::setSelectedPadSustain(double sustain)
+{
+    if (const auto note = selectedNote(); note) {
+        m_sampler->setSampleSustain(*note, static_cast<float>(sustain));
+        emit selectedPadSustainChanged();
+    }
+}
+
+double SamplerController::selectedPadRelease() const
+{
+    const auto note = selectedNote();
+    return note ? static_cast<double>(m_sampler->sampleRelease(*note)) : 0.0;
+}
+
+void SamplerController::setSelectedPadRelease(double release)
+{
+    if (const auto note = selectedNote(); note) {
+        m_sampler->setSampleRelease(*note, static_cast<float>(release));
+        emit selectedPadReleaseChanged();
+    }
+}
+
+bool SamplerController::selectedPadReverse() const
+{
+    const auto note = selectedNote();
+    return note && m_sampler->sampleReverse(*note);
+}
+
+void SamplerController::setSelectedPadReverse(bool reverse)
+{
+    const auto note = selectedNote();
+    if (note && m_sampler->sampleReverse(*note) != reverse) {
+        m_sampler->setSampleReverse(*note, reverse);
+        emit selectedPadReverseChanged();
+    }
+}
+
 double SamplerController::selectedPadDuration() const
 {
     if (!m_sampler || m_selectedPad < 0) {
@@ -284,6 +463,14 @@ void SamplerController::requestSettings()
         emit selectedPadCutoffChanged();
         emit selectedPadHpfCutoffChanged();
         emit selectedPadStartOffsetChanged();
+        emit selectedPadEndOffsetChanged();
+        emit selectedPadTuneChanged();
+        emit selectedPadDetuneChanged();
+        emit selectedPadAttackChanged();
+        emit selectedPadDecayChanged();
+        emit selectedPadSustainChanged();
+        emit selectedPadReleaseChanged();
+        emit selectedPadReverseChanged();
         emit selectedPadDurationChanged();
     }
     emit volumeChanged();

@@ -2348,6 +2348,16 @@ QString xmlKeyStartOffset()
     return "startOffset";
 }
 
+QString xmlKeyEndOffset()
+{
+    return "endOffset";
+}
+
+QString xmlKeyReverse()
+{
+    return "reverse";
+}
+
 QString xmlKeyData()
 {
     return "Data";

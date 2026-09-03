@@ -17,6 +17,7 @@
 #define SAMPLER_DEVICE_HPP
 
 #include "../../infra/audio/backend/audio_file_reader.hpp"
+#include "../dsp/adsr_envelope.hpp"
 #include "../dsp/high_pass_filter.hpp"
 #include "../dsp/low_pass_filter.hpp"
 #include "../dsp/panning.hpp"
@@ -97,6 +98,21 @@ public:
         float cutoff = 1.0f;
         float hpfCutoff = 0.0f;
         double startOffset = 0.0;
+        //! Where playback stops. Nothing means the end of the file, which is what every pad did before
+        //! the setting existed; the parameter behind it stores that as a plain zero.
+        std::optional<double> endOffset;
+        //! Coarse and fine tuning, both centred at 0.5: 0.5 is unity, so an untouched pad plays at the
+        //! rate it was recorded at. Mapped by tuneSemitones() and detuneCents().
+        float tune = 0.5f;
+        float detune = 0.5f;
+        //! Amp envelope, 0..1 each. The defaults reproduce the fixed de-click fade the pads had before
+        //! the envelope existed: instant attack, full sustain, a release of a few milliseconds.
+        float attack = 0.0f;
+        float decay = 0.0f;
+        float sustain = 1.0f;
+        float release = 0.0f;
+        //! Plays the range from its end backwards. The range itself does not move.
+        bool reverse = false;
 
         // Per-pad insert effect rack. Shared so Sample stays copyable (saveState/restoreState deep-copy)
         // and so every voice/note playing this sample runs through the same stateful effect chain.
@@ -125,6 +141,38 @@ public:
 
     double sampleStartOffset(uint8_t note) const;
     void setSampleStartOffset(uint8_t note, double offset);
+
+    //! Nothing while the pad plays to the end of its file. Setting zero puts it back there.
+    std::optional<double> sampleEndOffset(uint8_t note) const;
+    void setSampleEndOffset(uint8_t note, std::optional<double> offset);
+
+    float sampleTune(uint8_t note) const;
+    void setSampleTune(uint8_t note, float tune);
+
+    float sampleDetune(uint8_t note) const;
+    void setSampleDetune(uint8_t note, float detune);
+
+    float sampleAttack(uint8_t note) const;
+    void setSampleAttack(uint8_t note, float attack);
+
+    float sampleDecay(uint8_t note) const;
+    void setSampleDecay(uint8_t note, float decay);
+
+    float sampleSustain(uint8_t note) const;
+    void setSampleSustain(uint8_t note, float sustain);
+
+    float sampleRelease(uint8_t note) const;
+    void setSampleRelease(uint8_t note, float release);
+
+    bool sampleReverse(uint8_t note) const;
+    void setSampleReverse(uint8_t note, bool reverse);
+
+    //! Whole semitones the pad's coarse tuning transposes by, -24..24.
+    static int tuneSemitones(float tune);
+    //! Cents the pad's fine tuning detunes by, -100..100.
+    static double detuneCents(float detune);
+    //! Playback rate multiplier of the pad's two tuning controls together.
+    static double tuneRatio(const Sample & sample);
 
     double sampleDuration(uint8_t note) const;
 
@@ -197,7 +245,16 @@ private:
     std::optional<PadCcTarget> padCcTarget(uint8_t controller, uint8_t value) const;
 
     //! Copies a pad's parameters into the plain fields the voices read.
-    void syncSampleFields(Sample & sample);
+    static void syncSampleFields(Sample & sample);
+
+    //! The end-offset parameter reads as seconds, except that a plain zero is how "no end offset at
+    //! all" is stored: an end at second zero would play nothing, so the value is free to mean this.
+    static std::optional<double> endOffsetOf(float parameterValue);
+
+    //! Reads and writes one of a pad's parameters by name, for the settings the voices pick up from the
+    //! pad on their own rather than through a baked effect object.
+    float padValue(uint8_t note, const std::string & parameterName, float fallback) const;
+    void setPadValue(uint8_t note, const std::string & parameterName, float value);
 
     //! Writes an automated value into one pad's parameter and refreshes the voices playing that
     //! pad. The authored value is left alone, which is what clearAutomationInternal() restores.
@@ -236,10 +293,27 @@ private:
         std::shared_ptr<Panning> panningEffect;
         std::vector<std::shared_ptr<Effect>> effects;
 
+        AdsrEnvelope ampEg;
+
         bool active = false;
-        bool releasing = false;
-        float releaseGain = 1.0f;
     };
+
+    //! The frames a voice plays between, both inside the sample. Reading them from the pad on every
+    //! callback rather than latching them at note-on is what lets the dialog audition a trim while the
+    //! sound it is trimming is still playing.
+    struct PlayRange
+    {
+        double first = 0.0;
+        double last = 0.0;
+    };
+
+    //! Nothing when the sample is too short to interpolate across, which is also the case that used to
+    //! fall out of the old bounds check on the first frame.
+    static std::optional<PlayRange> playRange(const Sample & sample);
+
+    //! Pushes the pad's envelope settings into a voice. Called at note-on and whenever a knob moves, so
+    //! a held note follows the envelope being dialled in.
+    static void updateVoiceEnvelope(Voice & voice);
 
     std::array<std::unique_ptr<Sample>, maxSamples> m_samples;
     std::array<std::unique_ptr<Sample>, maxSamples> m_savedSamples;

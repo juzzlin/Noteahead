@@ -675,6 +675,8 @@ QString xmlKeyChannelMode();
 QString xmlKeyChromaticMode();
 QString xmlKeyEmbedWaveData();
 QString xmlKeyStartOffset();
+QString xmlKeyEndOffset();
+QString xmlKeyReverse();
 
 QString xmlKeyData();
 
