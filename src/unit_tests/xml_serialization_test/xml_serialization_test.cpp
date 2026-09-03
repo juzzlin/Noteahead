@@ -1275,8 +1275,7 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_padTuningTrimAndEnvel
     QVERIFY(std::abs(samplerIn->sampleSustain(60) - 0.4f) < 0.001f);
     QVERIFY(std::abs(samplerIn->sampleRelease(60) - 0.6f) < 0.001f);
     QCOMPARE(samplerIn->sampleReverse(60), true);
-    QVERIFY(samplerIn->sampleEndOffset(60).has_value());
-    QVERIFY(std::abs(*samplerIn->sampleEndOffset(60) - 0.01) < 0.001);
+    QVERIFY(std::abs(samplerIn->sampleEndOffset(60) - 0.01) < 0.001);
 
     // An untouched pad comes back untouched: unity tuning, no trim, no reverse, full sustain.
     QCOMPARE(SamplerDevice::tuneSemitones(samplerIn->sampleTune(62)), 0);
@@ -1285,7 +1284,7 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_padTuningTrimAndEnvel
     QCOMPARE(samplerIn->sampleSustain(62), 1.0f);
     QCOMPARE(samplerIn->sampleRelease(62), 0.0f);
     QCOMPARE(samplerIn->sampleReverse(62), false);
-    QVERIFY(!samplerIn->sampleEndOffset(62).has_value());
+    QCOMPARE(samplerIn->sampleEndOffset(62), 0.0);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_samplerDevice_padEffectRack_shouldRoundTrip()

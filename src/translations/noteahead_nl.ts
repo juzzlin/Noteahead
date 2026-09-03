@@ -4899,10 +4899,6 @@
         <source>End Offset:</source>
         <translation>Eindverschuiving:</translation>
     </message>
-    <message>
-        <source>When disabled, the pad plays to the end of its sample.</source>
-        <translation>Als dit uit staat, speelt de pad tot het einde van zijn sample.</translation>
-    </message>
 </context>
 <context>
     <name>SamplerDialog_PadAmpEg</name>

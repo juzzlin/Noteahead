@@ -4899,10 +4899,6 @@
         <source>End Offset:</source>
         <translation>Endversatz:</translation>
     </message>
-    <message>
-        <source>When disabled, the pad plays to the end of its sample.</source>
-        <translation>Ist dies deaktiviert, spielt das Pad bis zum Ende seines Samples.</translation>
-    </message>
 </context>
 <context>
     <name>SamplerDialog_PadAmpEg</name>

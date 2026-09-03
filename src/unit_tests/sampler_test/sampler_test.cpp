@@ -259,7 +259,7 @@ void SamplerTest::test_copySample_shouldCopySampleAndSettings()
     sampler.setSampleVolume(60, 0.75f);
     sampler.setSampleCutoff(60, 0.4f);
     sampler.setSampleHpfCutoff(60, 0.1f);
-    sampler.setSampleStartOffset(60, 0.5);
+    sampler.setSampleStartOffset(60, 0.01); // Inside the sample: an offset past its end is clamped away
 
     sampler.copySample(60, 62);
 
@@ -272,7 +272,7 @@ void SamplerTest::test_copySample_shouldCopySampleAndSettings()
     QCOMPARE(sampler.sampleCutoff(62), 0.4f);
     QCOMPARE(sampler.sampleHpfCutoff(62), 0.1f);
     // The offset is stored as a float parameter, hence the tolerance
-    QVERIFY(std::abs(sampler.sampleStartOffset(62) - 0.5) < 1e-6);
+    QVERIFY(std::abs(sampler.sampleStartOffset(62) - 0.01) < 1e-6);
     // The source is left untouched
     QCOMPARE(sampler.samplePan(60), 0.25f);
 }
@@ -807,12 +807,11 @@ void SamplerTest::test_startOffset_shouldShiftPlaybackStart()
     QVERIFY(std::abs(sampler.sampleStartOffset(60) - 0.01) < 0.0001);
 }
 
-void SamplerTest::test_endOffset_unset_shouldPlayToTheEndOfTheSample()
+void SamplerTest::test_endOffset_zero_shouldPlayToTheEndOfTheSample()
 {
-    // The default has to be what the pads did before the setting existed, or every project saved by an
-    // older build would start truncating itself.
+    // Zero is no trim at all, which is both the default and the only way to clear the setting.
     const auto sampler = makeMonoSampler();
-    QVERIFY(!sampler->sampleEndOffset(60).has_value());
+    QCOMPARE(sampler->sampleEndOffset(60), 0.0);
 
     sampler->processMidiNoteOn(60, 127);
     // Half a second in, a sample a second long is still going.
@@ -820,15 +819,33 @@ void SamplerTest::test_endOffset_unset_shouldPlayToTheEndOfTheSample()
     QVERIFY(!sampler->isFinished(60));
 }
 
-void SamplerTest::test_endOffset_set_shouldStopPlaybackThere()
+void SamplerTest::test_offsets_pastTheEndOfTheSample_shouldBeClamped()
 {
+    // Neither trim can take off more than the sample holds. Left unchecked they park at a value the pad
+    // can never reach, which reads as a pad that has silently stopped working.
     const auto sampler = makeMonoSampler();
-    sampler->setSampleEndOffset(60, 0.1);
-    QVERIFY(sampler->sampleEndOffset(60).has_value());
-    QVERIFY(std::abs(*sampler->sampleEndOffset(60) - 0.1) < 0.001);
+    const auto duration = sampler->sampleDuration(60);
+
+    sampler->setSampleStartOffset(60, duration * 10.0);
+    QVERIFY(sampler->sampleStartOffset(60) <= duration + 1e-6);
+
+    sampler->setSampleEndOffset(60, duration * 10.0);
+    QVERIFY(sampler->sampleEndOffset(60) <= duration + 1e-6);
+
+    // And neither goes negative.
+    sampler->setSampleEndOffset(60, -1.0);
+    QCOMPARE(sampler->sampleEndOffset(60), 0.0);
+}
+
+void SamplerTest::test_endOffset_shouldTrimThatMuchOffTheEnd()
+{
+    // The offset counts back from the end, so 0.9 s off a one second pad leaves a tenth of a second.
+    const auto sampler = makeMonoSampler();
+    sampler->setSampleEndOffset(60, 0.9);
+    QVERIFY(std::abs(sampler->sampleEndOffset(60) - 0.9) < 0.001);
 
     sampler->processMidiNoteOn(60, 127);
-    // Just short of the trim the voice is still sounding...
+    // Just short of what is left, the voice is still sounding...
     render(*sampler, static_cast<uint32_t>(Constants::defaultSampleRate() * 0.09));
     QVERIFY(!sampler->isFinished(60));
     // ...and past it, it is gone, well before the end of the second the sample actually holds.
@@ -840,7 +857,7 @@ void SamplerTest::test_endOffset_beforeStartOffset_shouldPlayNothing()
 {
     const auto sampler = makeMonoSampler();
     sampler->setSampleStartOffset(60, 0.5);
-    sampler->setSampleEndOffset(60, 0.2);
+    sampler->setSampleEndOffset(60, 0.6); // The two trims overlap, leaving nothing between them
 
     sampler->processMidiNoteOn(60, 127);
     QVERIFY(sampler->isFinished(60));
@@ -866,9 +883,8 @@ void SamplerTest::test_loadSample_shorterFile_shouldPullTheEndOffsetInside()
 
     const auto shorterDuration = sampler.sampleDuration(60);
     QVERIFY2(shorterDuration < duration, "the replacement was not actually shorter");
-    QVERIFY(sampler.sampleEndOffset(60).has_value());
-    QVERIFY2(*sampler.sampleEndOffset(60) <= shorterDuration + 1e-6,
-             qPrintable(QString { "end %1 is past the end of a %2 s sample" }.arg(*sampler.sampleEndOffset(60)).arg(shorterDuration)));
+    QVERIFY2(sampler.sampleEndOffset(60) <= shorterDuration + 1e-6,
+             qPrintable(QString { "a %1 s trim is more than the %2 s sample holds" }.arg(sampler.sampleEndOffset(60)).arg(shorterDuration)));
 }
 
 void SamplerTest::test_tune_coarse_shouldSnapToWholeSemitones()
@@ -963,12 +979,15 @@ void SamplerTest::test_reverse_endOffset_shouldTrimWhatIsHeardLast()
     sampler->processMidiNoteOn(60, 127);
     render(*sampler, 16);
 
-    // Playing back to front still begins at the end of the file: the end offset says where it stops.
+    // Playing back to front still begins at the end of the file: the end offset trims the far end,
+    // which here is the head of the file.
     QVERIFY2(sampler->playbackPosition(60) > 0.99,
              qPrintable(QString { "started at %1" }.arg(sampler->playbackPosition(60))));
 
-    // A quarter of a second of material, then it is done, rather than the whole second.
-    render(*sampler, static_cast<uint32_t>(Constants::defaultSampleRate() * 0.3));
+    // Three quarters of a second of material rather than the whole second.
+    render(*sampler, static_cast<uint32_t>(Constants::defaultSampleRate() * 0.7));
+    QVERIFY(!sampler->isFinished(60));
+    render(*sampler, static_cast<uint32_t>(Constants::defaultSampleRate() * 0.1));
     QVERIFY(sampler->isFinished(60));
 }
 
@@ -1031,7 +1050,7 @@ void SamplerTest::test_ampEnvelope_attack_shouldRampTheSampleIn()
 void SamplerTest::test_loop_shouldWrapWithinTheRange()
 {
     const auto sampler = makeMonoSampler(true);
-    sampler->setSampleEndOffset(60, 0.1); // 4410 frames of the 44100 the pad holds
+    sampler->setSampleEndOffset(60, 0.9); // leaves 4410 frames of the 44100 the pad holds
     sampler->setSampleLoop(60, true);
     sampler->processMidiNoteOn(60, 127);
 
@@ -1060,7 +1079,8 @@ void SamplerTest::test_loop_shouldNotInterpolateAcrossTheSeam()
     SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::move(reader) };
     sampler.loadSample(60, "step.wav");
 
-    sampler.setSampleEndOffset(60, static_cast<double>(stepFrame) / Constants::defaultSampleRate());
+    // Trimmed back to the step, so everything the loop plays is the silence in front of it.
+    sampler.setSampleEndOffset(60, (Constants::defaultSampleRate() - static_cast<double>(stepFrame)) / Constants::defaultSampleRate());
     sampler.setSampleLoop(60, true);
     // Detuned so the read position lands between frames; on whole frames the seam never shows.
     sampler.setSampleDetune(60, 0.75f);
@@ -1078,7 +1098,7 @@ void SamplerTest::test_loop_shouldNotInterpolateAcrossTheSeam()
 void SamplerTest::test_loop_disabled_shouldStopAtTheEndOfTheRange()
 {
     const auto sampler = makeMonoSampler(true);
-    sampler->setSampleEndOffset(60, 0.1);
+    sampler->setSampleEndOffset(60, 0.9);
     sampler->processMidiNoteOn(60, 127);
 
     render(*sampler, 8000);
@@ -1089,7 +1109,7 @@ void SamplerTest::test_loop_disabled_shouldStopAtTheEndOfTheRange()
 void SamplerTest::test_loop_reverse_shouldWrapBackToTheEnd()
 {
     const auto sampler = makeMonoSampler(true);
-    sampler->setSampleEndOffset(60, 0.1);
+    sampler->setSampleEndOffset(60, 0.9);
     sampler->setSampleLoop(60, true);
     sampler->setSampleReverse(60, true);
     sampler->processMidiNoteOn(60, 127);
@@ -1110,7 +1130,7 @@ void SamplerTest::test_loop_noteOff_shouldEndTheVoiceThroughTheRelease()
     // A looping voice never runs off its range, so the amp envelope is the only thing left that can
     // end it. If that ever stops holding, a looping pad pins a voice for the rest of the song.
     const auto sampler = makeMonoSampler();
-    sampler->setSampleEndOffset(60, 0.1);
+    sampler->setSampleEndOffset(60, 0.9);
     sampler->setSampleLoop(60, true);
     sampler->processMidiNoteOn(60, 127);
 
@@ -1225,8 +1245,7 @@ void SamplerTest::test_copySample_shouldCopyTuningTrimAndEnvelope()
     QCOMPARE(sampler.sampleSustain(62), sampler.sampleSustain(60));
     QCOMPARE(sampler.sampleRelease(62), sampler.sampleRelease(60));
     QCOMPARE(sampler.sampleReverse(62), true);
-    QVERIFY(sampler.sampleEndOffset(62).has_value());
-    QVERIFY(std::abs(*sampler.sampleEndOffset(62) - *sampler.sampleEndOffset(60)) < 1e-6);
+    QVERIFY(std::abs(sampler.sampleEndOffset(62) - sampler.sampleEndOffset(60)) < 1e-6);
 }
 
 void SamplerTest::test_reset_shouldResetParametersAndPads()

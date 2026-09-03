@@ -98,9 +98,10 @@ public:
         float cutoff = 1.0f;
         float hpfCutoff = 0.0f;
         double startOffset = 0.0;
-        //! Where playback stops. Nothing means the end of the file, which is what every pad did before
-        //! the setting existed; the parameter behind it stores that as a plain zero.
-        std::optional<double> endOffset;
+        //! Seconds trimmed off the end, counted back from it, so zero is no trim at all and is what
+        //! every pad did before the setting existed. The start offset is its mirror image, counted in
+        //! from the beginning.
+        double endOffset = 0.0;
         //! Coarse and fine tuning, both centred at 0.5: 0.5 is unity, so an untouched pad plays at the
         //! rate it was recorded at. Mapped by tuneSemitones() and detuneCents().
         float tune = 0.5f;
@@ -148,9 +149,9 @@ public:
     double sampleStartOffset(uint8_t note) const;
     void setSampleStartOffset(uint8_t note, double offset);
 
-    //! Nothing while the pad plays to the end of its file. Setting zero puts it back there.
-    std::optional<double> sampleEndOffset(uint8_t note) const;
-    void setSampleEndOffset(uint8_t note, std::optional<double> offset);
+    //! Seconds trimmed off the end. Zero plays the pad to the end of its sample.
+    double sampleEndOffset(uint8_t note) const;
+    void setSampleEndOffset(uint8_t note, double offset);
 
     float sampleTune(uint8_t note) const;
     void setSampleTune(uint8_t note, float tune);
@@ -262,9 +263,11 @@ private:
     //! Copies a pad's parameters into the plain fields the voices read.
     static void syncSampleFields(Sample & sample);
 
-    //! The end-offset parameter reads as seconds, except that a plain zero is how "no end offset at
-    //! all" is stored: an end at second zero would play nothing, so the value is free to mean this.
-    static std::optional<double> endOffsetOf(float parameterValue);
+    //! Writes one of the two trims, clamped to the sample it trims.
+    void setOffsetParameter(uint8_t note, const std::string & parameterName, double offset);
+
+    //! Seconds of audio a sample holds, or zero when it holds none.
+    static double sampleDurationOf(const Sample & sample);
 
     //! Reads and writes one of a pad's parameters by name, for the settings the voices pick up from the
     //! pad on their own rather than through a baked effect object.

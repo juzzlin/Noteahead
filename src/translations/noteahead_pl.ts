@@ -4900,10 +4900,6 @@
         <source>End Offset:</source>
         <translation>Przesunięcie końcowe:</translation>
     </message>
-    <message>
-        <source>When disabled, the pad plays to the end of its sample.</source>
-        <translation>Gdy wyłączone, pad gra do końca swojej próbki.</translation>
-    </message>
 </context>
 <context>
     <name>SamplerDialog_PadAmpEg</name>

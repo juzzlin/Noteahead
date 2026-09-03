@@ -41,7 +41,6 @@ class SamplerController : public DeviceController
     Q_PROPERTY(double selectedPadHpfCutoff READ selectedPadHpfCutoff WRITE setSelectedPadHpfCutoff NOTIFY selectedPadHpfCutoffChanged)
     Q_PROPERTY(int selectedPadStartOffsetSeconds READ selectedPadStartOffsetSeconds WRITE setSelectedPadStartOffsetSeconds NOTIFY selectedPadStartOffsetChanged)
     Q_PROPERTY(int selectedPadStartOffsetMilliseconds READ selectedPadStartOffsetMilliseconds WRITE setSelectedPadStartOffsetMilliseconds NOTIFY selectedPadStartOffsetChanged)
-    Q_PROPERTY(bool selectedPadEndOffsetEnabled READ selectedPadEndOffsetEnabled WRITE setSelectedPadEndOffsetEnabled NOTIFY selectedPadEndOffsetChanged)
     Q_PROPERTY(int selectedPadEndOffsetSeconds READ selectedPadEndOffsetSeconds WRITE setSelectedPadEndOffsetSeconds NOTIFY selectedPadEndOffsetChanged)
     Q_PROPERTY(int selectedPadEndOffsetMilliseconds READ selectedPadEndOffsetMilliseconds WRITE setSelectedPadEndOffsetMilliseconds NOTIFY selectedPadEndOffsetChanged)
     Q_PROPERTY(double selectedPadTune READ selectedPadTune WRITE setSelectedPadTune NOTIFY selectedPadTuneChanged)
@@ -91,9 +90,6 @@ public:
 
     int selectedPadStartOffsetMilliseconds() const;
     void setSelectedPadStartOffsetMilliseconds(int milliseconds);
-
-    bool selectedPadEndOffsetEnabled() const;
-    void setSelectedPadEndOffsetEnabled(bool enabled);
 
     int selectedPadEndOffsetSeconds() const;
     void setSelectedPadEndOffsetSeconds(int seconds);

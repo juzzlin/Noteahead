@@ -4899,10 +4899,6 @@
         <source>End Offset:</source>
         <translation>Desplazamiento final:</translation>
     </message>
-    <message>
-        <source>When disabled, the pad plays to the end of its sample.</source>
-        <translation>Si está desactivado, el pad se reproduce hasta el final de su muestra.</translation>
-    </message>
 </context>
 <context>
     <name>SamplerDialog_PadAmpEg</name>

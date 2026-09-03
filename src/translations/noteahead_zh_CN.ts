@@ -4898,10 +4898,6 @@
         <source>End Offset:</source>
         <translation>结束偏移：</translation>
     </message>
-    <message>
-        <source>When disabled, the pad plays to the end of its sample.</source>
-        <translation>关闭时，打击垫会播放到采样的末尾。</translation>
-    </message>
 </context>
 <context>
     <name>SamplerDialog_PadAmpEg</name>

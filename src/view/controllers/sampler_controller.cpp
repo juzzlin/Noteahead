@@ -221,34 +221,13 @@ std::optional<uint8_t> SamplerController::selectedNote() const
     return static_cast<uint8_t>(noteForPad(m_selectedPad));
 }
 
-bool SamplerController::selectedPadEndOffsetEnabled() const
-{
-    const auto note = selectedNote();
-    return note && m_sampler->sampleEndOffset(*note).has_value();
-}
-
-void SamplerController::setSelectedPadEndOffsetEnabled(bool enabled)
-{
-    const auto note = selectedNote();
-    if (!note) {
-        return;
-    }
-    if (enabled == m_sampler->sampleEndOffset(*note).has_value()) {
-        return;
-    }
-    // Switching the trim on with nothing set yet would leave it at second zero, which plays nothing.
-    // The end of the sample is the only sensible place to start dragging it back from.
-    m_sampler->setSampleEndOffset(*note, enabled ? std::optional<double> { m_sampler->sampleDuration(*note) } : std::nullopt);
-    emit selectedPadEndOffsetChanged();
-}
-
 int SamplerController::selectedPadEndOffsetSeconds() const
 {
     const auto note = selectedNote();
     if (!note) {
         return 0;
     }
-    return static_cast<int>(std::floor(m_sampler->sampleEndOffset(*note).value_or(0.0)));
+    return static_cast<int>(std::floor(m_sampler->sampleEndOffset(*note)));
 }
 
 void SamplerController::setSelectedPadEndOffsetSeconds(int seconds)
@@ -257,7 +236,7 @@ void SamplerController::setSelectedPadEndOffsetSeconds(int seconds)
     if (!note) {
         return;
     }
-    const double current = m_sampler->sampleEndOffset(*note).value_or(0.0);
+    const double current = m_sampler->sampleEndOffset(*note);
     m_sampler->setSampleEndOffset(*note, static_cast<double>(seconds) + (current - std::floor(current)));
     emit selectedPadEndOffsetChanged();
 }
@@ -268,7 +247,7 @@ int SamplerController::selectedPadEndOffsetMilliseconds() const
     if (!note) {
         return 0;
     }
-    const double offset = m_sampler->sampleEndOffset(*note).value_or(0.0);
+    const double offset = m_sampler->sampleEndOffset(*note);
     return static_cast<int>(std::round((offset - std::floor(offset)) * 1000.0));
 }
 
@@ -278,7 +257,7 @@ void SamplerController::setSelectedPadEndOffsetMilliseconds(int milliseconds)
     if (!note) {
         return;
     }
-    const double current = m_sampler->sampleEndOffset(*note).value_or(0.0);
+    const double current = m_sampler->sampleEndOffset(*note);
     m_sampler->setSampleEndOffset(*note, std::floor(current) + static_cast<double>(milliseconds) / 1000.0);
     emit selectedPadEndOffsetChanged();
 }

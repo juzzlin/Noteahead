@@ -67,25 +67,12 @@ RowLayout {
 
     ColumnLayout {
         Layout.fillWidth: true
-        CheckBox {
-            id: endOffsetCheckBox
+        Label {
             text: qsTr("End Offset:")
-            checked: samplerController.selectedPadEndOffsetEnabled
-            onToggled: samplerController.selectedPadEndOffsetEnabled = checked
-            contentItem: Label {
-                text: endOffsetCheckBox.text
-                color: "white"
-                verticalAlignment: Text.AlignVCenter
-                leftPadding: endOffsetCheckBox.indicator.width + endOffsetCheckBox.spacing
-            }
-            ToolTip.delay: Constants.toolTipDelay
-            ToolTip.timeout: Constants.toolTipTimeout
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("When disabled, the pad plays to the end of its sample.")
+            color: "white"
         }
         RowLayout {
             Layout.fillWidth: true
-            enabled: samplerController.selectedPadEndOffsetEnabled
             SpinBox {
                 Layout.fillWidth: true
                 from: 0

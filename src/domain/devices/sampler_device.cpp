@@ -125,17 +125,14 @@ std::optional<SamplerDevice::PlayRange> SamplerDevice::playRange(const Sample & 
 
     const double lastFrame = static_cast<double>(totalFrames - 1);
     const double rate = static_cast<double>(sample.sampleRate);
-    double first = std::clamp(sample.startOffset * rate, 0.0, lastFrame);
-    double last = sample.endOffset ? std::clamp(*sample.endOffset * rate, 0.0, lastFrame) : lastFrame;
 
-    // A reversed pad is trimmed against the waveform as it is heard, which is the file back to front:
-    // the start offset cuts what sounds first, and that is the tail of the file. Mirror the pair back
-    // onto the file's own timeline, where the voice reads them. An untrimmed pad mirrors onto itself.
-    if (sample.reverse) {
-        const double trimmedFront = lastFrame - last;
-        last = lastFrame - first;
-        first = trimmedFront;
-    }
+    // Both offsets are trims counted in from their own end of the waveform, so either one at zero
+    // takes nothing off. A reversed pad is heard back to front, which means the start offset cuts into
+    // the tail of the file and the end offset into its head: the two simply swap ends.
+    const double startTrim = std::clamp(sample.startOffset * rate, 0.0, lastFrame);
+    const double endTrim = std::clamp(sample.endOffset * rate, 0.0, lastFrame);
+    double first = sample.reverse ? endTrim : startTrim;
+    double last = lastFrame - (sample.reverse ? startTrim : endTrim);
 
     // A loop wraps on whole frames. The offsets are kept as normalised floats, which lands them up to
     // a fraction of a frame either side of where they were dialled in -- enough for the seam check to
@@ -797,19 +794,16 @@ void SamplerDevice::loadSample(uint8_t note, const std::string & filePath)
 
         // The two offsets are the settings that are about the file rather than the pad, so a shorter
         // replacement has to pull them back inside the sample instead of pointing past its end.
-        if (sample->data && sample->channels > 0 && sample->sampleRate > 0) {
-            const auto duration = static_cast<double>(sample->data->size() / static_cast<size_t>(sample->channels)) / static_cast<double>(sample->sampleRate);
+        if (const auto duration = sampleDurationOf(*sample); duration > 0.0) {
             const auto clampOffset = [&sample, duration](const QString & key, double offset) {
-                if (auto p = sample->parameter(key.toStdString()); p) {
-                    p->get().setValue(static_cast<float>(std::min(offset, duration) / 60.0));
+                if (offset > duration) {
+                    if (auto p = sample->parameter(key.toStdString()); p) {
+                        p->get().setValue(static_cast<float>(duration / 60.0));
+                    }
                 }
             };
-            if (sample->startOffset > duration) {
-                clampOffset(Constants::NahdXml::xmlKeyStartOffset(), sample->startOffset);
-            }
-            if (sample->endOffset && *sample->endOffset > duration) {
-                clampOffset(Constants::NahdXml::xmlKeyEndOffset(), *sample->endOffset);
-            }
+            clampOffset(Constants::NahdXml::xmlKeyStartOffset(), sample->startOffset);
+            clampOffset(Constants::NahdXml::xmlKeyEndOffset(), sample->endOffset);
             syncSampleFields(*sample);
         }
 
@@ -1044,45 +1038,51 @@ double SamplerDevice::sampleStartOffset(uint8_t note) const
 
 void SamplerDevice::setSampleStartOffset(uint8_t note, double offset)
 {
+    setOffsetParameter(note, Constants::NahdXml::xmlKeyStartOffset().toStdString(), offset);
+}
+
+void SamplerDevice::setOffsetParameter(uint8_t note, const std::string & parameterName, double offset)
+{
     if (note >= maxSamples) {
         return;
     }
     {
         std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (m_samples.at(note)) {
-            if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyStartOffset().toStdString()); p) {
-                p->get().setValue(static_cast<float>(offset / 60.0));
-                m_samples.at(note)->startOffset = static_cast<double>(p->get().value()) * 60.0;
-            }
+        auto & slot = m_samples.at(note);
+        if (!slot) {
+            return;
         }
+        // Neither trim can reach past the end of the sample it is trimming. The pair can still meet in
+        // the middle, which playRange() reads as a pad with nothing left to play.
+        const double duration = sampleDurationOf(*slot);
+        if (auto p = slot->parameter(parameterName); p) {
+            p->get().setValue(static_cast<float>(std::clamp(offset, 0.0, duration) / 60.0));
+        }
+        syncSampleFields(*slot);
     }
     emit dataChanged();
 }
 
-std::optional<double> SamplerDevice::sampleEndOffset(uint8_t note) const
+double SamplerDevice::sampleDurationOf(const Sample & sample)
+{
+    if (!sample.data || sample.channels <= 0 || sample.sampleRate <= 0) {
+        return 0.0;
+    }
+    return static_cast<double>(sample.data->size() / static_cast<size_t>(sample.channels)) / static_cast<double>(sample.sampleRate);
+}
+
+double SamplerDevice::sampleEndOffset(uint8_t note) const
 {
     std::lock_guard<std::recursive_mutex> lock { mutex() };
     if (note >= maxSamples || !m_samples.at(note)) {
-        return std::nullopt;
+        return 0.0;
     }
     return m_samples.at(note)->endOffset;
 }
 
-void SamplerDevice::setSampleEndOffset(uint8_t note, std::optional<double> offset)
+void SamplerDevice::setSampleEndOffset(uint8_t note, double offset)
 {
-    if (note >= maxSamples) {
-        return;
-    }
-    {
-        std::lock_guard<std::recursive_mutex> lock { mutex() };
-        if (m_samples.at(note)) {
-            if (auto p = m_samples.at(note)->parameter(Constants::NahdXml::xmlKeyEndOffset().toStdString()); p) {
-                p->get().setValue(static_cast<float>(offset.value_or(0.0) / 60.0));
-                m_samples.at(note)->endOffset = endOffsetOf(p->get().value());
-            }
-        }
-    }
-    emit dataChanged();
+    setOffsetParameter(note, Constants::NahdXml::xmlKeyEndOffset().toStdString(), offset);
 }
 
 float SamplerDevice::sampleTune(uint8_t note) const
@@ -1485,12 +1485,6 @@ void SamplerDevice::restoreState()
     Device::restoreState();
 }
 
-std::optional<double> SamplerDevice::endOffsetOf(float parameterValue)
-{
-    const double seconds = static_cast<double>(parameterValue) * 60.0;
-    return seconds > 0.0 ? std::optional<double> { seconds } : std::nullopt;
-}
-
 float SamplerDevice::padValue(uint8_t note, const std::string & parameterName, float fallback) const
 {
     std::lock_guard<std::recursive_mutex> lock { mutex() };
@@ -1537,7 +1531,7 @@ void SamplerDevice::syncSampleFields(Sample & sample)
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyStartOffset().toStdString()); p)
         sample.startOffset = static_cast<double>(p->get().value()) * 60.0;
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyEndOffset().toStdString()); p)
-        sample.endOffset = endOffsetOf(p->get().value());
+        sample.endOffset = static_cast<double>(p->get().value()) * 60.0;
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyTune().toStdString()); p)
         sample.tune = p->get().value();
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyDetune().toStdString()); p)

@@ -42,8 +42,9 @@ WaveformView {
         return 0.0;
     }
     endOffset: {
-        if (samplerController.selectedPadEndOffsetEnabled && samplerController.selectedPadDuration > 0) {
-            return (samplerController.selectedPadEndOffsetSeconds + samplerController.selectedPadEndOffsetMilliseconds / 1000.0) / samplerController.selectedPadDuration;
+        if (samplerController.selectedPadDuration > 0) {
+            const trim = samplerController.selectedPadEndOffsetSeconds + samplerController.selectedPadEndOffsetMilliseconds / 1000.0;
+            return 1.0 - trim / samplerController.selectedPadDuration;
         }
         return 1.0;
     }

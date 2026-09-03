@@ -73,8 +73,9 @@ private slots:
     void test_midiCcReset_padCc_shouldRestoreManualValues();
 
     void test_startOffset_shouldShiftPlaybackStart();
-    void test_endOffset_unset_shouldPlayToTheEndOfTheSample();
-    void test_endOffset_set_shouldStopPlaybackThere();
+    void test_endOffset_zero_shouldPlayToTheEndOfTheSample();
+    void test_offsets_pastTheEndOfTheSample_shouldBeClamped();
+    void test_endOffset_shouldTrimThatMuchOffTheEnd();
     void test_endOffset_beforeStartOffset_shouldPlayNothing();
     void test_loadSample_shorterFile_shouldPullTheEndOffsetInside();
 
