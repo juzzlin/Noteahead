@@ -44,6 +44,10 @@ private slots:
     void test_checkNow_turnedOff_shouldStillRequestAndReport();
     void test_checkNow_failure_shouldReport();
     void test_checkAtStartup_failure_shouldStayQuiet();
+
+    void test_checkAtStartup_pretending_shouldRequestDespiteRecentCheck();
+    void test_checkAtStartup_pretending_shouldOfferSkippedVersion();
+    void test_pretending_shouldWriteNoSettings();
 };
 
 } // namespace noteahead

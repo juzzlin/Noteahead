@@ -308,6 +308,45 @@ void UpdateServiceTest::test_checkAtStartup_failure_shouldStayQuiet()
     QVERIFY(!fixture.service.checking());
 }
 
+void UpdateServiceTest::test_checkAtStartup_pretending_shouldRequestDespiteRecentCheck()
+{
+    Fixture fixture;
+    fixture.settings->enabled = false;
+    fixture.settings->lastCheck = Now.addSecs(-3600);
+    fixture.settings->knownVersion = "12.1.1";
+    fixture.service.pretendToBe("1.0.0");
+
+    fixture.service.checkAtStartup();
+
+    QCOMPARE(fixture.checker->requests, 1);
+}
+
+void UpdateServiceTest::test_checkAtStartup_pretending_shouldOfferSkippedVersion()
+{
+    Fixture fixture;
+    fixture.settings->skipped = "12.1.1";
+    fixture.service.pretendToBe("1.0.0");
+
+    fixture.service.checkAtStartup();
+    emit fixture.checker->latestReleaseFound("12.1.1", {});
+
+    QCOMPARE(fixture.service.availableVersion(), QString { "12.1.1" });
+}
+
+void UpdateServiceTest::test_pretending_shouldWriteNoSettings()
+{
+    Fixture fixture;
+    fixture.service.pretendToBe("1.0.0");
+
+    fixture.service.checkAtStartup();
+    emit fixture.checker->latestReleaseFound("12.1.1", {});
+    fixture.service.dismiss();
+
+    QVERIFY(!fixture.settings->lastCheck.isValid());
+    QVERIFY(fixture.settings->knownVersion.isEmpty());
+    QVERIFY(fixture.settings->skipped.isEmpty());
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::UpdateServiceTest)

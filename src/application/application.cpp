@@ -17,6 +17,7 @@
 
 #include "../common/audio_backend.hpp"
 #include "../common/constants.hpp"
+#include "../common/semantic_version.hpp"
 #include "../common/utils.hpp"
 #include "../common/xml/project_writer.hpp"
 #include "../contrib/Argengine/src/argengine.hpp"
@@ -439,6 +440,12 @@ void Application::handleCommandLineArguments(int & argc, char ** argv)
         } }, false, "Force the audio backend: [alsa, pulse, jack]");
 
     ae.addOption({ "--lang" }, [this](const std::string & value) { m_languageService->setCommandLineLanguage(QString::fromStdString(value)); }, false, "Force the UI language, e.g. 'fi'. Overrides the language chosen in the UI.");
+
+    ae.addOption({ "--pretend-version" }, [this](const std::string & value) {
+        if (!SemanticVersion::parse(value)) {
+            throw std::runtime_error { "Invalid version: '" + value + "'. Expected major.minor.patch, e.g. '1.0.0'." };
+        }
+        m_updateService->pretendToBe(QString::fromStdString(value)); }, false, "Pretend to be this version, so that the check for a new version finds the latest release newer. For testing the notice.");
 
     ae.addOption({ "--screenshots" }, [this](const std::string & value) { m_applicationService->setScreenshotDirectory(QString::fromStdString(value)); }, false, "Open the example, save the main view and every dialog as PNGs into the given directory, and quit. For reviewing UI changes.");
 
