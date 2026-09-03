@@ -31,8 +31,10 @@ AnimatedDialog {
     readonly property string _tag: "DeleteUnusedPatternsDialog"
 
     Label {
-        // Anchored, not bound to parent.width, so the size flows one way only.
-        anchors.fill: parent
+        // Width from the dialog, height from the text, so the size flows one way only. Filling the
+        // parent instead makes the dialog's implicitHeight depend on the very item it is sizing, which
+        // Qt reports as a binding loop on implicitHeight the first time the dialog is laid out.
+        width: rootItem.availableWidth
         text: qsTr("Are you sure you want to delete all patterns that are not used in the play order?")
         wrapMode: Label.WordWrap
     }
