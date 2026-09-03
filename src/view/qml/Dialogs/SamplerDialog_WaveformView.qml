@@ -41,6 +41,12 @@ WaveformView {
         }
         return 0.0;
     }
+    endOffset: {
+        if (samplerController.selectedPadEndOffsetEnabled && samplerController.selectedPadDuration > 0) {
+            return (samplerController.selectedPadEndOffsetSeconds + samplerController.selectedPadEndOffsetMilliseconds / 1000.0) / samplerController.selectedPadDuration;
+        }
+        return 1.0;
+    }
     showPlayhead: fileName !== ""
 
     Timer {
@@ -64,6 +70,10 @@ WaveformView {
     Connections {
         target: samplerController
         function onSelectedPadChanged() {
+            waveform.updateWaveform();
+        }
+        // Reversing a pad flips the waveform it is drawn from, so the picture has to be rebuilt.
+        function onSelectedPadReverseChanged() {
             waveform.updateWaveform();
         }
     }

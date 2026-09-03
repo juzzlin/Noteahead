@@ -4889,10 +4889,41 @@
     </message>
 </context>
 <context>
-    <name>SamplerDialog_Offset</name>
+    <name>SamplerDialog_Offsets</name>
     <message>
         <source>Start Offset:</source>
         <translation>起始偏移：</translation>
+    </message>
+    <message>
+        <source>End Offset:</source>
+        <translation>结束偏移：</translation>
+    </message>
+    <message>
+        <source>When disabled, the pad plays to the end of its sample.</source>
+        <translation>关闭时，打击垫会播放到采样的末尾。</translation>
+    </message>
+</context>
+<context>
+    <name>SamplerDialog_PadAmpEg</name>
+    <message>
+        <source>Pad Amp Envelope</source>
+        <translation>打击垫音量包络</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>起音</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>衰减</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation>延持</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>释音</translation>
     </message>
 </context>
 <context>
@@ -4916,6 +4947,38 @@
     <message>
         <source>HPF Cutoff</source>
         <translation>高通截止频率</translation>
+    </message>
+    <message>
+        <source>Tune</source>
+        <translation>调音</translation>
+    </message>
+    <message>
+        <source>Fine Tune</source>
+        <translation>微调</translation>
+    </message>
+    <message>
+        <source>Reverse</source>
+        <translation>反向</translation>
+    </message>
+    <message>
+        <source>Plays the pad backwards. The offsets follow the reversed waveform.</source>
+        <translation>倒放打击垫。偏移量跟随反转后的波形。</translation>
+    </message>
+    <message>
+        <source>Loop</source>
+        <translation>循环</translation>
+    </message>
+    <message>
+        <source>Repeats the pad&apos;s range until the note is released. The amp envelope decides when a looping pad falls silent.</source>
+        <translation>重复打击垫的范围，直到音符被释放。音量包络决定循环的打击垫何时静音。</translation>
+    </message>
+    <message>
+        <source>Choke:</source>
+        <translation>闭合组：</translation>
+    </message>
+    <message>
+        <source>Triggering this pad silences the other pads sharing its group, the way a closed hi-hat cuts an open one. Zero puts the pad in no group.</source>
+        <translation>触发此打击垫会让同组的其他打击垫静音，就像闭合踩镲切断开放踩镲一样。零表示不属于任何组。</translation>
     </message>
 </context>
 <context>

@@ -83,7 +83,8 @@ private slots:
     void test_tune_fine_shouldDetuneWithinASemitone();
 
     void test_reverse_shouldPlayFromTheEndOfTheRange();
-    void test_reverse_withEndOffset_shouldStartFromTheTrimmedEnd();
+    void test_reverse_startOffset_shouldTrimWhatIsHeardFirst();
+    void test_reverse_endOffset_shouldTrimWhatIsHeardLast();
 
     void test_ampEnvelope_defaults_shouldNotAttenuateTheSample();
     void test_ampEnvelope_zeroSustain_shouldDropTheVoiceWithoutANoteOff();

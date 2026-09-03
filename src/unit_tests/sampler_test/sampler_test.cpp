@@ -938,7 +938,23 @@ void SamplerTest::test_reverse_shouldPlayFromTheEndOfTheRange()
     QVERIFY(sampler->playbackPosition(60) > 0.9);
 }
 
-void SamplerTest::test_reverse_withEndOffset_shouldStartFromTheTrimmedEnd()
+void SamplerTest::test_reverse_startOffset_shouldTrimWhatIsHeardFirst()
+{
+    // The offsets are read against the waveform as it sounds, which for a reversed pad is the file back
+    // to front. Trimming the start therefore cuts into the tail of the file.
+    const auto sampler = makeMonoSampler(true);
+    sampler->setSampleReverse(60, true);
+    sampler->setSampleStartOffset(60, 0.25);
+
+    sampler->processMidiNoteOn(60, 127);
+    render(*sampler, 16);
+
+    // A quarter of a second in from the end of a one second sample, not from its beginning.
+    QVERIFY2(std::abs(sampler->playbackPosition(60) - 0.75) < 0.01,
+             qPrintable(QString { "started at %1" }.arg(sampler->playbackPosition(60))));
+}
+
+void SamplerTest::test_reverse_endOffset_shouldTrimWhatIsHeardLast()
 {
     const auto sampler = makeMonoSampler(true);
     sampler->setSampleReverse(60, true);
@@ -947,9 +963,13 @@ void SamplerTest::test_reverse_withEndOffset_shouldStartFromTheTrimmedEnd()
     sampler->processMidiNoteOn(60, 127);
     render(*sampler, 16);
 
-    // A quarter of a second into a one second sample, not the end of the file.
-    QVERIFY2(std::abs(sampler->playbackPosition(60) - 0.25) < 0.01,
+    // Playing back to front still begins at the end of the file: the end offset says where it stops.
+    QVERIFY2(sampler->playbackPosition(60) > 0.99,
              qPrintable(QString { "started at %1" }.arg(sampler->playbackPosition(60))));
+
+    // A quarter of a second of material, then it is done, rather than the whole second.
+    render(*sampler, static_cast<uint32_t>(Constants::defaultSampleRate() * 0.3));
+    QVERIFY(sampler->isFinished(60));
 }
 
 void SamplerTest::test_ampEnvelope_defaults_shouldNotAttenuateTheSample()
@@ -1074,12 +1094,14 @@ void SamplerTest::test_loop_reverse_shouldWrapBackToTheEnd()
     sampler->setSampleReverse(60, true);
     sampler->processMidiNoteOn(60, 127);
 
-    // Started at frame 4410 and walked back past zero, so it has to have come round to the top.
+    // Reversed, the loop is the last 4410 frames of the file. It starts at the very end and walks back
+    // past the loop start, so it has to have come round to the top again.
     render(*sampler, 8000);
 
     QVERIFY(!sampler->isFinished(60));
     const auto frame = sampler->playbackPosition(60) * Constants::defaultSampleRate();
-    QVERIFY2(frame >= 0.0 && frame <= 4410.0,
+    const auto loopStart = Constants::defaultSampleRate() - 1.0 - 4410.0;
+    QVERIFY2(frame >= loopStart && frame <= Constants::defaultSampleRate(),
              qPrintable(QString { "position %1 is outside the loop" }.arg(frame)));
 }
 

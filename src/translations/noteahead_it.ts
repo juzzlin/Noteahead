@@ -4890,10 +4890,41 @@
     </message>
 </context>
 <context>
-    <name>SamplerDialog_Offset</name>
+    <name>SamplerDialog_Offsets</name>
     <message>
         <source>Start Offset:</source>
         <translation>Offset iniziale:</translation>
+    </message>
+    <message>
+        <source>End Offset:</source>
+        <translation>Offset finale:</translation>
+    </message>
+    <message>
+        <source>When disabled, the pad plays to the end of its sample.</source>
+        <translation>Se disattivato, il pad suona fino alla fine del suo campione.</translation>
+    </message>
+</context>
+<context>
+    <name>SamplerDialog_PadAmpEg</name>
+    <message>
+        <source>Pad Amp Envelope</source>
+        <translation>Inviluppo di ampiezza del pad</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>Attacco</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>Decadimento</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation>Sostegno</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Rilascio</translation>
     </message>
 </context>
 <context>
@@ -4917,6 +4948,38 @@
     <message>
         <source>HPF Cutoff</source>
         <translation>Taglio HPF</translation>
+    </message>
+    <message>
+        <source>Tune</source>
+        <translation>Accordatura</translation>
+    </message>
+    <message>
+        <source>Fine Tune</source>
+        <translation>Accordatura fine</translation>
+    </message>
+    <message>
+        <source>Reverse</source>
+        <translation>Inverti</translation>
+    </message>
+    <message>
+        <source>Plays the pad backwards. The offsets follow the reversed waveform.</source>
+        <translation>Riproduce il pad al contrario. Gli offset seguono la forma d’onda invertita.</translation>
+    </message>
+    <message>
+        <source>Loop</source>
+        <translation>Loop</translation>
+    </message>
+    <message>
+        <source>Repeats the pad&apos;s range until the note is released. The amp envelope decides when a looping pad falls silent.</source>
+        <translation>Ripete l’intervallo del pad finché la nota non viene rilasciata. L’inviluppo di ampiezza decide quando un pad in loop si azzittisce.</translation>
+    </message>
+    <message>
+        <source>Choke:</source>
+        <translation>Choke:</translation>
+    </message>
+    <message>
+        <source>Triggering this pad silences the other pads sharing its group, the way a closed hi-hat cuts an open one. Zero puts the pad in no group.</source>
+        <translation>Suonare questo pad zittisce gli altri pad del suo gruppo, come un hi-hat chiuso taglia uno aperto. Zero lascia il pad senza gruppo.</translation>
     </message>
 </context>
 <context>

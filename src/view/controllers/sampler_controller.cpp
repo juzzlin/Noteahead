@@ -8,6 +8,7 @@
 
 #include <QFileInfo>
 
+#include <algorithm>
 #include <cmath>
 
 namespace noteahead {
@@ -99,10 +100,14 @@ void SamplerController::setSelectedPad(int selectedPad)
 
 double SamplerController::playbackPosition() const
 {
-    if (!m_sampler || m_selectedPad < 0) {
+    const auto note = selectedNote();
+    if (!note) {
         return 0.0;
     }
-    return m_sampler->playbackPosition(static_cast<uint8_t>(noteForPad(m_selectedPad)));
+    const auto position = m_sampler->playbackPosition(*note);
+    // The view draws a reversed pad back to front, so the playhead has to be mirrored with it or it
+    // would run the wrong way across the waveform the user is looking at.
+    return m_sampler->sampleReverse(*note) ? 1.0 - position : position;
 }
 
 bool SamplerController::isFinished() const
@@ -474,7 +479,13 @@ QVariantList SamplerController::getWaveformData(int numPoints)
     }
     const int note = noteForPad(m_selectedPad);
     const auto filePath = QString::fromStdString(m_sampler->absoluteFilePath(static_cast<uint8_t>(note)));
-    return WaveformGenerator::getWaveformData(filePath, numPoints);
+    auto data = WaveformGenerator::getWaveformData(filePath, numPoints);
+    // A reversed pad is drawn back to front, so that the offsets, which are read against the waveform
+    // as it sounds, line up with the parts of it they actually trim.
+    if (m_sampler->sampleReverse(static_cast<uint8_t>(note))) {
+        std::reverse(data.begin(), data.end());
+    }
+    return data;
 }
 
 void SamplerController::initialize()

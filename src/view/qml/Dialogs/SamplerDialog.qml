@@ -92,6 +92,10 @@ AnimatedDialog {
             samplerDialogVisible: root.visible
         }
 
+        SamplerDialog_Offsets {
+            Layout.fillWidth: true
+        }
+
         ScrollView {
             id: bottomScrollView
             Layout.fillWidth: true
@@ -112,13 +116,13 @@ AnimatedDialog {
 
                 SamplerDialog_PadSettings {
                     Layout.fillWidth: true
-                    Layout.preferredWidth: parent.width * 0.22
+                    Layout.preferredWidth: parent.width * 0.34
                     Layout.alignment: Qt.AlignTop
                 }
 
                 SamplerDialog_PadAmpEg {
                     Layout.fillWidth: true
-                    Layout.preferredWidth: parent.width * 0.22
+                    Layout.preferredWidth: parent.width * 0.16
                     Layout.alignment: Qt.AlignTop
                 }
 

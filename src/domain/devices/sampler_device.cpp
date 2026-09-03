@@ -128,6 +128,15 @@ std::optional<SamplerDevice::PlayRange> SamplerDevice::playRange(const Sample & 
     double first = std::clamp(sample.startOffset * rate, 0.0, lastFrame);
     double last = sample.endOffset ? std::clamp(*sample.endOffset * rate, 0.0, lastFrame) : lastFrame;
 
+    // A reversed pad is trimmed against the waveform as it is heard, which is the file back to front:
+    // the start offset cuts what sounds first, and that is the tail of the file. Mirror the pair back
+    // onto the file's own timeline, where the voice reads them. An untrimmed pad mirrors onto itself.
+    if (sample.reverse) {
+        const double trimmedFront = lastFrame - last;
+        last = lastFrame - first;
+        first = trimmedFront;
+    }
+
     // A loop wraps on whole frames. The offsets are kept as normalised floats, which lands them up to
     // a fraction of a frame either side of where they were dialled in -- enough for the seam check to
     // miss and let the loop read the frame past its own end on every wrap.

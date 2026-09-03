@@ -30,6 +30,9 @@ Rectangle {
     property double playbackPosition: 0.0
     property double startOffset: 0.0
     onStartOffsetChanged: canvas.requestPaint()
+    //! Where playback stops, as a fraction of the file. One means it runs to the end.
+    property double endOffset: 1.0
+    onEndOffsetChanged: canvas.requestPaint()
     property bool showPlayhead: false
     property string fileName: ""
     property alias accentColor: canvas.accentColor
@@ -84,6 +87,13 @@ Rectangle {
                 ctx.fillStyle = accentColor;
                 ctx.globalAlpha = 0.3;
                 ctx.fillRect(0, 0, Math.min(width, rootItem.startOffset * width), height);
+                ctx.globalAlpha = 1.0;
+            }
+            if (rootItem.endOffset < 1.0) {
+                const trimStart = Math.max(0, rootItem.endOffset * width);
+                ctx.fillStyle = accentColor;
+                ctx.globalAlpha = 0.3;
+                ctx.fillRect(trimStart, 0, width - trimStart, height);
                 ctx.globalAlpha = 1.0;
             }
         }

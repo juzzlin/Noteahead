@@ -4890,10 +4890,41 @@
     </message>
 </context>
 <context>
-    <name>SamplerDialog_Offset</name>
+    <name>SamplerDialog_Offsets</name>
     <message>
         <source>Start Offset:</source>
         <translation>Aloitussiirtymä:</translation>
+    </message>
+    <message>
+        <source>End Offset:</source>
+        <translation>Lopetussiirtymä:</translation>
+    </message>
+    <message>
+        <source>When disabled, the pad plays to the end of its sample.</source>
+        <translation>Kun tämä ei ole käytössä, pad soittaa näytteensä loppuun asti.</translation>
+    </message>
+</context>
+<context>
+    <name>SamplerDialog_PadAmpEg</name>
+    <message>
+        <source>Pad Amp Envelope</source>
+        <translation>Padin amplitudiverhokäyrä</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>Attack</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>Decay</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation>Sustain</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Release</translation>
     </message>
 </context>
 <context>
@@ -4917,6 +4948,38 @@
     <message>
         <source>HPF Cutoff</source>
         <translation>HPF cutoff</translation>
+    </message>
+    <message>
+        <source>Tune</source>
+        <translation>Viritys</translation>
+    </message>
+    <message>
+        <source>Fine Tune</source>
+        <translation>Hienoviritys</translation>
+    </message>
+    <message>
+        <source>Reverse</source>
+        <translation>Käänteinen</translation>
+    </message>
+    <message>
+        <source>Plays the pad backwards. The offsets follow the reversed waveform.</source>
+        <translation>Soittaa padin takaperin. Siirtymät seuraavat käännettyä aaltomuotoa.</translation>
+    </message>
+    <message>
+        <source>Loop</source>
+        <translation>Silmukka</translation>
+    </message>
+    <message>
+        <source>Repeats the pad&apos;s range until the note is released. The amp envelope decides when a looping pad falls silent.</source>
+        <translation>Toistaa padin aluetta, kunnes nuotti vapautetaan. Amplitudiverhokäyrä ratkaisee, milloin silmukoiva pad vaimenee.</translation>
+    </message>
+    <message>
+        <source>Choke:</source>
+        <translation>Choke:</translation>
+    </message>
+    <message>
+        <source>Triggering this pad silences the other pads sharing its group, the way a closed hi-hat cuts an open one. Zero puts the pad in no group.</source>
+        <translation>Tämän padin soittaminen vaimentaa muut saman ryhmän padit, kuten suljettu hi-hat katkaisee avoimen. Nolla jättää padin ilman ryhmää.</translation>
     </message>
 </context>
 <context>
