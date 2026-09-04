@@ -60,35 +60,23 @@ My own setup runs Noteahead on Ubuntu 24.04 LTS with all gear connected via USB-
 However, these days I write complete songs with nothing but Noteahead's own instruments, which the demos below are there to prove.
 
 ##
-## Example Tracks
+## Example Tracks and Videos
 
-Some example tracks sequenced and recorded with Noteahead (usually mastered in Audacity).
+Demo and tutorial videos:
+
+- [Simple beat creation in Noteahead with the internal Drum Synth](https://www.youtube.com/watch?v=kQ8nfE7uGGs)
 
 A short synth demo:
 
 - [Noteahead Synth Demo 1: I So Threw Up That Day (SoundCloud)](https://soundcloud.com/arctic-music-project/noteahead-synth-demo-1)
 
-Songs with Noteahead's built-in synths and drums only:
+Full songs with Noteahead's built-in synths and drums only:
 
 - [Arctic Music Project - Halla Once More (SoundCloud)](https://soundcloud.com/arctic-music-project/halla-once-more)
 - [Arctic Music Project - Fairytale (SoundCloud)](https://soundcloud.com/arctic-music-project/fairytale)
-- [Arctic Music Project - Massive (SoundCloud)](https://soundcloud.com/arctic-music-project/massive)
+- [Arctic Music Project - Massive (Spotify)](https://open.spotify.com/track/2whivQNa9qIfSSLSuYgUFf)
 
-Noteahead with hardware synths:
-
-- [Arctic Music Project - Raindrops (SoundCloud)](https://soundcloud.com/arctic-music-project/raindrops)
-- [Arctic Music Project - My Real Name (Spotify)](https://open.spotify.com/track/2WN79Gzazaq0xtji9t0ORI)
-- [Arctic Music Project - Epic Success (Epic Piano Remix) (Spotify)](https://open.spotify.com/track/62R7Qb53DbrAatjN6wmzmE)
-- [Arctic Music Project - Incredible Times (Spotify)](https://open.spotify.com/track/5mnyB4BaIhdKecEkendF6E)
-- [Arctic Music Project - Your Love (Spotify)](https://open.spotify.com/track/1s2hw68GyPfwUfOOkuaGLn)
-- [Arctic Music Project - Black Winter (Spotify)](https://open.spotify.com/track/6Au6bJkAxJ5nUYQnoOp9WW)
-- [Arctic Music Project - Pointless (YouTube)](https://www.youtube.com/watch?v=xXXgGbOZIV0)
-- [Arctic Music Project - Pointless (SoundCloud)](https://soundcloud.com/arctic-music-project/pointless)
-- [Arctic Music Project - Why (SoundCloud)](https://soundcloud.com/arctic-music-project/why)
-- [Arctic Music Project - 0035AM (Spotify)](https://open.spotify.com/track/4yUJmFjBmUhOTyl8oXu1yU)
-- [J.L.P - This Planet (Spotify)](https://open.spotify.com/track/5LV4oR82Ak4uA0kkKB6McX)
-
-All Arctic Music Project songs:
+All **Arctic Music Project** songs (sequenced or completely produced with Noteahead):
 
 - [Arctic Music Project](https://www.arcticmusicproject.com)
 
