@@ -344,6 +344,49 @@ void ScheduledEventTest::test_engine_scheduledNote_shouldStartOnItsOwnFrame()
     QCOMPARE(firstFrameOf(stream, 60), 512 + 300);
 }
 
+void ScheduledEventTest::test_frameAnchor_beforeAnythingRendered_shouldSayItIsNotRunning()
+{
+    // Nothing can be placed in a stream that is not moving, and whoever schedules has to be able to
+    // tell, so that it can fall back to the clock on the wall instead of stalling.
+    const AudioEngine engine;
+    QVERIFY(!engine.frameAnchor().running);
+}
+
+void ScheduledEventTest::test_frameAnchor_shouldTurnATimeIntoAFrame()
+{
+    AudioEngine engine;
+    std::vector<double> buffer(512 * 2, 0.0);
+
+    const auto renderOne = [&] {
+        AudioContext context;
+        context.buffer = std::span<double> { buffer };
+        context.frameCount = 512;
+        context.sampleRate = SampleRate;
+        engine.process(context);
+    };
+
+    renderOne();
+    const auto first = engine.frameAnchor();
+    QVERIFY(first.running);
+    QCOMPARE(first.sampleRate, SampleRate);
+
+    renderOne();
+    const auto second = engine.frameAnchor();
+
+    // One block on, so the anchor has moved a block's worth of frames and a block's worth of time.
+    QCOMPARE(second.frame - first.frame, uint64_t { 512 });
+    QVERIFY(second.nanoseconds >= first.nanoseconds);
+
+    // What the player will do with it: a time turned into the frame it falls on.
+    const auto frameAt = [&](int64_t nanoseconds) {
+        const auto anchor = engine.frameAnchor();
+        const double seconds = static_cast<double>(nanoseconds - anchor.nanoseconds) / 1e9;
+        return anchor.frame + static_cast<int64_t>(seconds * anchor.sampleRate);
+    };
+    QCOMPARE(frameAt(second.nanoseconds), static_cast<int64_t>(second.frame));
+    QCOMPARE(frameAt(second.nanoseconds + 1000000000LL / 100), static_cast<int64_t>(second.frame) + SampleRate / 100);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::ScheduledEventTest)

@@ -18,6 +18,7 @@
 
 #include "../../domain/devices/device.hpp"
 
+#include <atomic>
 #include <cstdint>
 #include <limits>
 #include <map>
@@ -68,6 +69,25 @@ public:
     //! Free-running and never reset: whoever schedules against it anchors on what it reads when
     //! playback starts, so all it has to be is monotonic. Read off the audio thread, so atomic.
     uint64_t framesRendered() const;
+
+    //! What frame the engine was on and when, so that a time can be turned into a frame.
+    //!
+    //! The player knows when a tick is due but not where that falls in the stream. Published once
+    //! per block from the audio thread and read from the player's, torn reads guarded by the
+    //! sequence number rather than by a lock the audio thread would have to take.
+    struct FrameAnchor
+    {
+        uint64_t frame {};
+        //! steady_clock nanoseconds at which that frame's block was handed to the devices.
+        int64_t nanoseconds {};
+        //! Frames per second the stream is actually running at.
+        uint32_t sampleRate {};
+        //! Whether the engine is rendering at all. A stalled stream cannot place anything, and
+        //! whoever is scheduling has to fall back to the clock on the wall.
+        bool running {};
+    };
+
+    FrameAnchor frameAnchor() const;
 
     void reset();
     void clear();
@@ -166,6 +186,10 @@ private:
     std::vector<size_t> m_prevGraphSignature;
     mutable std::mutex m_mutex;
     std::atomic<uint64_t> m_framesRendered { 0 };
+    //! Even means settled, odd means being written. The audio thread bumps it either side of the
+    //! anchor, so a reader that sees the same even value twice knows it read one whole anchor.
+    std::atomic<uint32_t> m_frameAnchorSequence { 0 };
+    FrameAnchor m_frameAnchor;
     std::atomic<bool> m_isExclusive { false };
     std::atomic<bool> m_playbackThreadingEnabled { false };
     //! Scheduling of the thread that drives playback, sampled once from process(). Threading

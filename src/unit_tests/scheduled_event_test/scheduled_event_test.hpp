@@ -35,6 +35,8 @@ private slots:
     void test_clearScheduledEvents_shouldDropEverythingQueued();
     void test_framesRendered_shouldAdvanceByEveryBlock();
     void test_engine_scheduledNote_shouldStartOnItsOwnFrame();
+    void test_frameAnchor_shouldTurnATimeIntoAFrame();
+    void test_frameAnchor_beforeAnythingRendered_shouldSayItIsNotRunning();
 };
 
 } // namespace noteahead

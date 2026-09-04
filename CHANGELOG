@@ -64,6 +64,8 @@ Bug fixes:
   - The engine breaks a block wherever an event falls, so a note no
     longer waits for the next block boundary
   - A device holding an event is no longer skipped for being silent
+  - The engine publishes where it is in the stream and when, so a tick's
+    time can be turned into the frame it falls on
   - Nothing schedules yet; the player still dispatches as it did
 
 Other:

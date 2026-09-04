@@ -679,6 +679,32 @@ void AudioEngine::process(AudioContext & context)
                          static_cast<double>(context.frameCount) / context.sampleRate);
 
     m_framesRendered.store(context.startFrame + context.frameCount, std::memory_order_release);
+
+    // Published last, so that a reader which gets a settled anchor is looking at a block that has
+    // been rendered rather than one that is still being written into.
+    m_frameAnchorSequence.fetch_add(1, std::memory_order_release);
+    m_frameAnchor.frame = context.startFrame;
+    m_frameAnchor.nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(callbackStarted.time_since_epoch()).count();
+    m_frameAnchor.sampleRate = context.sampleRate;
+    m_frameAnchor.running = true;
+    m_frameAnchorSequence.fetch_add(1, std::memory_order_release);
+}
+
+AudioEngine::FrameAnchor AudioEngine::frameAnchor() const
+{
+    // Two reads around the same even sequence number, so the anchor never comes back half from one
+    // block and half from the next. The audio thread is never made to wait for this.
+    for (int attempt = 0; attempt < 8; attempt++) {
+        const auto before = m_frameAnchorSequence.load(std::memory_order_acquire);
+        if (before % 2) {
+            continue; // Mid-write
+        }
+        const FrameAnchor anchor = m_frameAnchor;
+        if (m_frameAnchorSequence.load(std::memory_order_acquire) == before) {
+            return anchor;
+        }
+    }
+    return {};
 }
 
 uint64_t AudioEngine::framesRendered() const
