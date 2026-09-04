@@ -107,6 +107,9 @@ public:
     uint8_t note() const;
     // How many modes are still being computed. Falls as the note decays.
     int activeModeCount() const;
+    // Mean square of the recent output. What a device with no free voice left needs in
+    // order to cut the string that has least to lose rather than whichever came next.
+    double energy() const;
 
     // The topmost notes of a piano have no dampers, so lifting the key there does nothing.
     static constexpr uint8_t LowestUndampedNote = 93;

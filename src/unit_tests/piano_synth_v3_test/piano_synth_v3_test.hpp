@@ -60,6 +60,10 @@ private slots:
     void test_keyboard_shouldHoldLevel_acrossRegisters();
     void test_keyboard_shouldFollowReferenceDecay_acrossRegisters();
     void test_keyboard_shouldReportMeasurements_againstReference();
+    void test_restrike_shouldNotStepTheOutput();
+    void test_restrike_shouldDampThePreviousString();
+    void test_restrike_underSustainPedal_shouldLayerRatherThanDamp();
+    void test_voiceStealing_shouldTakeTheQuietestVoice();
 };
 
 } // namespace noteahead

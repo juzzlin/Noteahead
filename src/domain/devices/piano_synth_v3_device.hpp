@@ -108,12 +108,14 @@ private:
         uint8_t note { 0 };
         bool active { false };
         bool pendingRelease { false };
+        //! Set once the key it was struck for has been struck again. The string is left to
+        //! ring itself out, but it no longer answers to that key.
+        bool retired { false };
 
         void reset();
     };
 
     std::array<Voice, MaxVoices> m_voices;
-    int m_nextVoiceToSteal { 0 };
     bool m_sustainPedal { false };
 
     DcBlocker m_dcBlockerL;

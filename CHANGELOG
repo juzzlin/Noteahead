@@ -45,6 +45,13 @@ Bug fixes:
 * Fix the Sampler's offsets at whole seconds
   - Some read back a second short, with a thousand milliseconds beside them
 
+* Stop Piano Synth V3 clicking when a key is struck over its own decay
+  - The restrike zeroed the sounding string instead of damping it
+  - A restrike under the sustain pedal now layers, as the instrument does
+
+* Steal the quietest Piano Synth V3 voice once all sixteen are sounding
+  - Round-robin cut the loudest note as readily as the faintest
+
 Other:
 
 7.3.0

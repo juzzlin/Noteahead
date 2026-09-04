@@ -1112,6 +1112,190 @@ void PianoSynthV3Test::test_unisonStandIn_shouldNotStepTheSpectrum()
     }
 }
 
+namespace {
+
+//! Renders the device down to mono, one block at a time, so that notes can be struck between
+//! blocks and the whole passage is left in one buffer to measure.
+class Recorder
+{
+public:
+    explicit Recorder(PianoSynthV3Device & piano, uint32_t sampleRate = DefaultSampleRate)
+      : m_piano { piano }
+      , m_sampleRate { sampleRate }
+    {
+    }
+
+    void render(double seconds)
+    {
+        const auto frames = static_cast<uint32_t>(seconds * m_sampleRate);
+        std::vector<double> buffer(static_cast<size_t>(frames) * 2, 0.0);
+        auto ctx = makeContext(buffer, frames, m_sampleRate);
+        m_piano.processAudio(ctx);
+        for (uint32_t i = 0; i < frames; i++) {
+            m_mono.push_back(buffer[static_cast<size_t>(i) * 2] + buffer[static_cast<size_t>(i) * 2 + 1]);
+        }
+    }
+
+    size_t position() const
+    {
+        return m_mono.size();
+    }
+
+    const std::vector<double> & mono() const
+    {
+        return m_mono;
+    }
+
+    //! Largest sample-to-sample step over a span, which is what a click is.
+    double largestStep(size_t from, size_t to) const
+    {
+        double step = 0.0;
+        for (size_t i = from; i + 1 < std::min(to, m_mono.size()); i++) {
+            step = std::max(step, std::abs(m_mono[i + 1] - m_mono[i]));
+        }
+        return step;
+    }
+
+    double peak(size_t from, size_t to) const
+    {
+        double peak = 0.0;
+        for (size_t i = from; i < std::min(to, m_mono.size()); i++) {
+            peak = std::max(peak, std::abs(m_mono[i]));
+        }
+        return peak;
+    }
+
+private:
+    PianoSynthV3Device & m_piano;
+    uint32_t m_sampleRate;
+    std::vector<double> m_mono;
+};
+
+void configureTestPiano(PianoSynthV3Device & piano)
+{
+    piano.setVolume(1.0f);
+    piano.setGain(0.5f);
+}
+
+} // namespace
+
+void PianoSynthV3Test::test_restrike_shouldNotStepTheOutput()
+{
+    // The figure that found this: a key struck again over its own long decay, which is what an
+    // arpeggio written without note-offs does. Striking the sounding voice again used to zero
+    // its resonators mid-cycle, and the step that left in the output is heard as a click.
+    constexpr uint8_t note = 56;
+    constexpr double gap = 0.845;
+
+    PianoSynthV3Device piano { "Test Piano" };
+    configureTestPiano(piano);
+    Recorder recorder { piano };
+
+    piano.processMidiNoteOn(note, 90);
+    recorder.render(gap);
+    const auto restrike = recorder.position();
+    piano.processMidiNoteOn(note, 86);
+    recorder.render(0.05);
+
+    // What the ringing string was already stepping by, sampled just before the restrike.
+    const double ringing = recorder.largestStep(restrike - 2000, restrike - 200);
+    const double atRestrike = recorder.largestStep(restrike - 4, restrike + 8);
+
+    QVERIFY2(recorder.peak(restrike - 200, restrike) > 0.1,
+             "The string was not still sounding, so the restrike proves nothing");
+    QVERIFY2(atRestrike < ringing * 1.5,
+             qPrintable(QString { "The restrike stepped the output by %1 against the %2 the string was already moving by" }
+                          .arg(atRestrike)
+                          .arg(ringing)));
+}
+
+void PianoSynthV3Test::test_restrike_shouldDampThePreviousString()
+{
+    // The retired string has to be damped and not merely left alone: eight restrikes of one key
+    // with the pedal up must not stack eight strings on top of each other.
+    constexpr uint8_t note = 56;
+
+    PianoSynthV3Device piano { "Test Piano" };
+    configureTestPiano(piano);
+    Recorder recorder { piano };
+
+    piano.processMidiNoteOn(note, 100);
+    recorder.render(0.4);
+    const double first = recorder.peak(0, recorder.position());
+
+    double last = 0.0;
+    for (int i = 0; i < 7; i++) {
+        const auto from = recorder.position();
+        piano.processMidiNoteOn(note, 100);
+        recorder.render(0.4);
+        last = recorder.peak(from, recorder.position());
+    }
+
+    QVERIFY2(last < first * 1.6,
+             qPrintable(QString { "The eighth restrike peaked at %1 against the first strike's %2" }.arg(last).arg(first)));
+}
+
+void PianoSynthV3Test::test_restrike_underSustainPedal_shouldLayerRatherThanDamp()
+{
+    // With the pedal down the damper never reaches the string, so a restrike lays a second
+    // string over the first instead of replacing it.
+    constexpr uint8_t note = 56;
+
+    const auto restrikeLevel = [](bool pedal) {
+        PianoSynthV3Device piano { "Test Piano" };
+        configureTestPiano(piano);
+        Recorder recorder { piano };
+        piano.processMidiCc(64, pedal ? 127 : 0, 0);
+        piano.processMidiNoteOn(note, 100);
+        recorder.render(0.4);
+        const auto restrike = recorder.position();
+        piano.processMidiNoteOn(note, 100);
+        recorder.render(0.6);
+        // Far enough past the restrike that the damper has had time to take the first string
+        // away, if it was ever going to.
+        return recorder.peak(restrike + static_cast<size_t>(0.4 * DefaultSampleRate), recorder.position());
+    };
+
+    const double layered = restrikeLevel(true);
+    const double damped = restrikeLevel(false);
+
+    QVERIFY2(layered > damped * 1.2,
+             qPrintable(QString { "The pedal held restrike came out at %1 against the damped %2" }.arg(layered).arg(damped)));
+}
+
+void PianoSynthV3Test::test_voiceStealing_shouldTakeTheQuietestVoice()
+{
+    // Sixteen voices with the loudest note in the one a round-robin cursor would reach for
+    // first. The seventeenth strike has to take one of the faint ones instead.
+    constexpr uint8_t loudNote = 60;
+    constexpr double window = 0.4;
+
+    PianoSynthV3Device piano { "Test Piano" };
+    configureTestPiano(piano);
+    piano.setStringDetune(0.0f); // Beating between the pair would wander the measured level
+    Recorder recorder { piano };
+
+    piano.processMidiNoteOn(loudNote, 127);
+    recorder.render(0.3);
+    for (uint8_t note = 72; note < 87; note++) {
+        piano.processMidiNoteOn(note, 20);
+    }
+    recorder.render(window);
+    const auto before = recorder.position();
+
+    // Struck high enough that nothing it brings lands anywhere near the note being watched.
+    piano.processMidiNoteOn(96, 100);
+    recorder.render(window);
+
+    const auto samples = std::span { recorder.mono() };
+    const auto frames = static_cast<size_t>(window * DefaultSampleRate);
+    const double sounding = dftMagnitude(samples.subspan(before - frames, frames), DefaultSampleRate, noteFrequency(loudNote));
+    const double survived = dftMagnitude(samples.subspan(before, frames), DefaultSampleRate, noteFrequency(loudNote));
+
+    QVERIFY2(survived > sounding * 0.5,
+             qPrintable(QString { "The loudest voice fell from %1 to %2 when the bank ran out" }.arg(sounding).arg(survived)));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::PianoSynthV3Test)

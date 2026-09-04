@@ -519,6 +519,11 @@ int ModalPianoStringV3::activeModeCount() const
     return m_modeCount;
 }
 
+double ModalPianoStringV3::energy() const
+{
+    return m_energy;
+}
+
 void ModalPianoStringV3::reset()
 {
     for (int i = 0; i < m_modeCount; i++) {

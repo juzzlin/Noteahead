@@ -42,6 +42,7 @@ void PianoSynthV3Device::Voice::reset()
     string.reset();
     active = false;
     pendingRelease = false;
+    retired = false;
 }
 
 PianoSynthV3Device::PianoSynthV3Device(std::string name)
@@ -202,11 +203,7 @@ void PianoSynthV3Device::processAudio(AudioContext & context)
             }
 
             const double sample = v.string.nextSample() * gain;
-
-            if (!v.string.isActive()) {
-                v.active = false;
-                continue;
-            }
+            v.active = v.string.isActive();
 
             double voiceL = 0.0;
             double voiceR = 0.0;
@@ -254,7 +251,6 @@ void PianoSynthV3Device::resetAudio()
         v.reset();
     }
     m_sustainPedal = false;
-    m_nextVoiceToSteal = 0;
     m_dcBlockerL.reset();
     m_dcBlockerR.reset();
     m_lpfL.reset();
@@ -327,23 +323,38 @@ ModalPianoStringV3::Settings PianoSynthV3Device::stringSettings() const
 
 void PianoSynthV3Device::handleNoteOn(uint8_t note, uint8_t velocity)
 {
-    int idx = findVoiceForNote(note);
-    if (idx < 0) {
-        idx = allocateVoice();
+    // A key struck again while its own string is still sounding is not that string starting
+    // over: the damper comes down and the hammer strikes what is left of it. Striking the
+    // voice again zeroed its resonators mid-cycle, which is a step in the output and is heard
+    // as a click -- an arpeggio that restrikes the same note over a long decay clicks on
+    // every repeat. The sounding string is handed over to a damper of its own instead, and
+    // the strike goes to a voice of its own.
+    if (const int sounding = findVoiceForNote(note); sounding >= 0) {
+        auto & previous = m_voices[sounding];
+        previous.retired = true;
+        if (m_sustainPedal) {
+            // The pedal holds the damper off the string, so a restrike under it layers
+            // rather than damps, exactly as the instrument does. It goes down with the rest
+            // once the pedal is lifted.
+            previous.pendingRelease = true;
+        } else {
+            releaseVoice(previous);
+        }
     }
 
-    auto & v = m_voices[idx];
+    auto & v = m_voices[allocateVoice()];
     v.string.setSampleRate(sampleRate());
     v.string.trigger(note, static_cast<float>(velocity) / 127.0f, stringSettings());
     v.note = note;
     v.active = true;
     v.pendingRelease = false;
+    v.retired = false;
 }
 
 void PianoSynthV3Device::handleNoteOff(uint8_t note)
 {
     for (auto & v : m_voices) {
-        if (v.active && v.note == note) {
+        if (v.active && !v.retired && v.note == note) {
             if (m_sustainPedal) {
                 v.pendingRelease = true;
             } else {
@@ -362,7 +373,7 @@ void PianoSynthV3Device::releaseVoice(Voice & voice) const
 int PianoSynthV3Device::findVoiceForNote(uint8_t note) const
 {
     for (int i = 0; i < MaxVoices; i++) {
-        if (m_voices[i].active && m_voices[i].note == note) {
+        if (m_voices[i].active && !m_voices[i].retired && m_voices[i].note == note) {
             return i;
         }
     }
@@ -376,9 +387,16 @@ int PianoSynthV3Device::allocateVoice()
             return i;
         }
     }
-    const int v = m_nextVoiceToSteal;
-    m_nextVoiceToSteal = (m_nextVoiceToSteal + 1) % MaxVoices;
-    return v;
+    // Nothing free, so something has to be cut short. Round-robin took whichever voice came
+    // next, which is as likely to be the loudest note sounding as the faintest; the quietest
+    // is the one whose loss is covered by the strike that is taking its place.
+    int quietest = 0;
+    for (int i = 1; i < MaxVoices; i++) {
+        if (m_voices[i].string.energy() < m_voices[quietest].string.energy()) {
+            quietest = i;
+        }
+    }
+    return quietest;
 }
 
 float PianoSynthV3Device::noteToPan(uint8_t note) const
