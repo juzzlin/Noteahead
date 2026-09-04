@@ -81,11 +81,19 @@ public:
     virtual Q_INVOKABLE void stopAllNotes();
     using MidiCcDataCR = const MidiCcData &;
     Q_INVOKABLE void sendCcData(InstrumentW instrument, MidiCcDataCR data);
+    //! Controller moves go the same way as the notes.
+    //!
+    //! Not merely for their own accuracy: a value written on the same line as a note has to reach
+    //! the device on the same frame as that note. Left immediate while the notes ran ahead, it would
+    //! arrive a whole lookahead before the note it belongs to, which is worse than either being late.
+    void sendCcDataAt(InstrumentW instrument, MidiCcDataCR data, std::chrono::steady_clock::time_point when);
     Q_INVOKABLE void sendClock(InstrumentW instrument);
     Q_INVOKABLE void sendStart(InstrumentW instrument);
     Q_INVOKABLE void sendStop(InstrumentW instrument);
     using PitchBendDataCR = const PitchBendData &;
     Q_INVOKABLE void sendPitchBendData(InstrumentW instrument, PitchBendDataCR data);
+    //! Bend moves go the same way as the notes. See sendCcDataAt.
+    void sendPitchBendDataAt(InstrumentW instrument, PitchBendDataCR data, std::chrono::steady_clock::time_point when);
 
 public slots:
     void handleInstrumentRequest(const InstrumentRequest & instrumentRequest);

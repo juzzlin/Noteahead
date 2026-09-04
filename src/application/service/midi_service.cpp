@@ -246,6 +246,34 @@ void MidiService::stopNoteAt(InstrumentW instrument, MidiNoteDataCR data, std::c
     stopNote(instrument, data);
 }
 
+void MidiService::sendCcDataAt(InstrumentW instrument, MidiCcDataCR data, std::chrono::steady_clock::time_point when)
+{
+    if (const auto instr = instrument.lock(); instr && m_deviceService) {
+        const auto portName = instr->midiAddress().portName();
+        if (m_deviceService->isInternalDevice(portName)) {
+            if (const auto frame = m_deviceService->frameForTime(when); frame) {
+                m_deviceService->scheduleMidiCc(portName, data.controller(), data.value(), instr->midiAddress().channel(), *frame);
+                return;
+            }
+        }
+    }
+    sendCcData(instrument, data);
+}
+
+void MidiService::sendPitchBendDataAt(InstrumentW instrument, PitchBendDataCR data, std::chrono::steady_clock::time_point when)
+{
+    if (const auto instr = instrument.lock(); instr && m_deviceService) {
+        const auto portName = instr->midiAddress().portName();
+        if (m_deviceService->isInternalDevice(portName)) {
+            if (const auto frame = m_deviceService->frameForTime(when); frame) {
+                m_deviceService->scheduleMidiPitchBend(portName, (static_cast<uint16_t>(data.msb()) << 7) | data.lsb(), instr->midiAddress().channel(), *frame);
+                return;
+            }
+        }
+    }
+    sendPitchBendData(instrument, data);
+}
+
 void MidiService::stopNote(InstrumentW instrument, MidiNoteDataCR data)
 {
     if (const auto instr = instrument.lock()) {

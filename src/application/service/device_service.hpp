@@ -84,6 +84,8 @@ public:
 
     void scheduleMidiNoteOn(const QString & portName, uint8_t note, uint8_t velocity, uint64_t frame);
     void scheduleMidiNoteOff(const QString & portName, uint8_t note, uint64_t frame);
+    void scheduleMidiCc(const QString & portName, uint8_t controller, uint8_t value, uint8_t channel, uint64_t frame);
+    void scheduleMidiPitchBend(const QString & portName, uint16_t value, uint8_t channel, uint64_t frame);
     //! Drops what every device is still holding, so a stop leaves nothing queued to sound later.
     void clearScheduledEvents();
     void processMidiCc(const QString & portName, uint8_t controller, uint8_t value, uint8_t channel);

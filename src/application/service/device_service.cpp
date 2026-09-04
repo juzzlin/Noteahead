@@ -363,6 +363,31 @@ void DeviceService::scheduleMidiNoteOff(const QString & portName, uint8_t note, 
     }
 }
 
+void DeviceService::scheduleMidiCc(const QString & portName, uint8_t controller, uint8_t value, uint8_t channel, uint64_t frame)
+{
+    if (const auto dev = deviceForPort(portName); dev) {
+        Device::ScheduledEvent event;
+        event.type = Device::ScheduledEvent::Type::Cc;
+        event.frame = frame;
+        event.controller = controller;
+        event.velocity = value;
+        event.channel = channel;
+        dev->scheduleMidiEvent(event);
+    }
+}
+
+void DeviceService::scheduleMidiPitchBend(const QString & portName, uint16_t value, uint8_t channel, uint64_t frame)
+{
+    if (const auto dev = deviceForPort(portName); dev) {
+        Device::ScheduledEvent event;
+        event.type = Device::ScheduledEvent::Type::PitchBend;
+        event.frame = frame;
+        event.value = value;
+        event.channel = channel;
+        dev->scheduleMidiEvent(event);
+    }
+}
+
 void DeviceService::clearScheduledEvents()
 {
     const std::lock_guard<std::mutex> lock { m_deviceCacheMutex };

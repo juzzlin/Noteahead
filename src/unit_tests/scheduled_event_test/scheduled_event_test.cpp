@@ -387,6 +387,34 @@ void ScheduledEventTest::test_frameAnchor_shouldTurnATimeIntoAFrame()
     QCOMPARE(frameAt(second.nanoseconds + 1000000000LL / 100), static_cast<int64_t>(second.frame) + SampleRate / 100);
 }
 
+void ScheduledEventTest::test_renderBlock_ccOnANotesFrame_shouldArriveWithTheNote()
+{
+    // Written on the same line, so they have to reach the device together. What makes this worth a
+    // test is the failure it guards: notes running ahead while controller moves stayed immediate
+    // would put the value a whole lookahead in front of the note it was written for.
+    MarkerDevice device;
+
+    Device::ScheduledEvent cc;
+    cc.type = Device::ScheduledEvent::Type::Cc;
+    cc.frame = 300;
+    cc.controller = 74;
+    cc.velocity = 99;
+    device.scheduleMidiEvent(cc);
+    device.scheduleMidiEvent(noteOnAt(300, 60));
+
+    // A block that ends before them leaves both waiting, rather than letting one through.
+    renderBlock(device, 0, 256);
+    QCOMPARE(device.ccLog().size(), size_t { 0 });
+    QCOMPARE(device.scheduledEventCount(), size_t { 2 });
+
+    const auto left = renderBlock(device, 256, 256);
+
+    QCOMPARE(device.ccLog().size(), size_t { 1 });
+    QCOMPARE(device.ccLog().at(0).first, uint8_t { 74 });
+    QCOMPARE(device.ccLog().at(0).second, uint8_t { 99 });
+    QCOMPARE(firstFrameOf(left, 60), 300 - 256);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::ScheduledEventTest)

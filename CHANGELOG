@@ -74,6 +74,8 @@ Bug fixes:
     out of a port keeps the timing it had
   - How far ahead comes from what the backend is doing, so the buffer
     size no longer has to be guessed at
+  - Controller and bend moves go the same way, so a value written on a
+    note's own line still reaches the device with it
 
 Other:
 

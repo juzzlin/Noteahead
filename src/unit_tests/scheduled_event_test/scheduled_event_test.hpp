@@ -37,6 +37,7 @@ private slots:
     void test_engine_scheduledNote_shouldStartOnItsOwnFrame();
     void test_frameAnchor_shouldTurnATimeIntoAFrame();
     void test_frameAnchor_beforeAnythingRendered_shouldSayItIsNotRunning();
+    void test_renderBlock_ccOnANotesFrame_shouldArriveWithTheNote();
 };
 
 } // namespace noteahead

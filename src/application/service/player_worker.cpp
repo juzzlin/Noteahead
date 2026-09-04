@@ -174,7 +174,11 @@ void PlayerWorker::handleEvent(const Event & event, std::optional<std::chrono::s
             }
         } else if constexpr (std::is_same_v<T, MidiCcData>) {
             if (event.instrument()) {
-                m_midiService->sendCcData(event.instrument(), data);
+                if (when) {
+                    m_midiService->sendCcDataAt(event.instrument(), data, *when);
+                } else {
+                    m_midiService->sendCcData(event.instrument(), data);
+                }
             }
         } else if constexpr (std::is_same_v<T, Event::MidiClockOut>) {
             if (auto && instrument = event.instrument(); instrument && instrument->settings().timing.sendMidiClock.has_value() && *instrument->settings().timing.sendMidiClock) {
@@ -192,7 +196,11 @@ void PlayerWorker::handleEvent(const Event & event, std::optional<std::chrono::s
             }
         } else if constexpr (std::is_same_v<T, PitchBendData>) {
             if (event.instrument()) {
-                m_midiService->sendPitchBendData(event.instrument(), data);
+                if (when) {
+                    m_midiService->sendPitchBendDataAt(event.instrument(), data, *when);
+                } else {
+                    m_midiService->sendPitchBendData(event.instrument(), data);
+                }
             }
         } else if constexpr (std::is_same_v<T, Event::InstrumentSettingsS>) {
             if (data) {
