@@ -37,7 +37,13 @@ fi
 CHANGELOG="CHANGELOG"
 if [[ -f $CHANGELOG ]]; then
     echo "Updating ${CHANGELOG} .."
-    RFC_DATE=$(./scripts/rfc2822Time)
+    # Checked, unlike every other step here: an empty date used to be substituted in happily and
+    # the release went out with a blank "Release date:" that nothing complained about.
+    RFC_DATE=$(./scripts/rfc2822Time) || exit 1
+    if [[ -z $RFC_DATE ]]; then
+        echo "Error: ./scripts/rfc2822Time produced no date."
+        exit 1
+    fi
     VERSION="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}"
 
     # Replace first x.y.z with version
