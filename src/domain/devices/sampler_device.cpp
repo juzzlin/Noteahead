@@ -57,6 +57,7 @@ SamplerDevice::Sample::Sample()
     addParameter(Parameter { Constants::NahdXml::xmlKeyReleaseTime().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyReverse().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLoop().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLoopStart().toStdString(), 0.0f, 0, 60000, 0, 1 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyChokeGroup().toStdString(), 0.0f, 0, maxChokeGroup, 0, 1, Parameter::Type::Discrete });
 }
 
@@ -70,21 +71,6 @@ namespace {
 constexpr double MinEnvelopeSeconds { 0.005 };
 constexpr double MaxEnvelopeSeconds { 10.0 };
 
-double attackSeconds(float attack)
-{
-    return attack <= 0.0f ? 0.0 : ParameterMapper::mapExponential(static_cast<double>(attack), MinEnvelopeSeconds, MaxEnvelopeSeconds);
-}
-
-double decaySeconds(float decay)
-{
-    return ParameterMapper::mapExponential(static_cast<double>(decay), MinEnvelopeSeconds, MaxEnvelopeSeconds);
-}
-
-double releaseSeconds(float release)
-{
-    return ParameterMapper::mapExponential(static_cast<double>(release), MinEnvelopeSeconds, MaxEnvelopeSeconds);
-}
-
 //! How long a choked voice takes to fall silent. Long enough not to click, short enough that the pad
 //! taking over is not audibly sharing the bar with the one it cut.
 constexpr double ChokeFadeSeconds { 0.005 };
@@ -95,6 +81,21 @@ constexpr int TuneSemitoneRange { 24 };
 constexpr double DetuneCentRange { 100.0 };
 
 } // namespace
+
+double SamplerDevice::attackSeconds(float attack)
+{
+    return attack <= 0.0f ? 0.0 : ParameterMapper::mapExponential(static_cast<double>(attack), MinEnvelopeSeconds, MaxEnvelopeSeconds);
+}
+
+double SamplerDevice::decaySeconds(float decay)
+{
+    return ParameterMapper::mapExponential(static_cast<double>(decay), MinEnvelopeSeconds, MaxEnvelopeSeconds);
+}
+
+double SamplerDevice::releaseSeconds(float release)
+{
+    return ParameterMapper::mapExponential(static_cast<double>(release), MinEnvelopeSeconds, MaxEnvelopeSeconds);
+}
 
 int SamplerDevice::tuneSemitones(float tune)
 {
@@ -147,7 +148,21 @@ std::optional<SamplerDevice::PlayRange> SamplerDevice::playRange(const Sample & 
         return std::nullopt;
     }
 
-    return PlayRange { first, last };
+    // The loop point is counted in from the end the pad starts playing from, which is the far end of
+    // the range when it plays reversed. Keeping at least a frame of loop leaves a pad whose loop point
+    // sits on the very end of its range something to repeat instead of falling silent on the first wrap.
+    double loopFirst = first;
+    double loopLast = last;
+    if (sample.loop && sample.loopStart > 0.0) {
+        const double loopTrim = std::floor(std::clamp(sample.loopStart * rate, 0.0, last - first - 1.0));
+        if (sample.reverse) {
+            loopLast = last - loopTrim;
+        } else {
+            loopFirst = first + loopTrim;
+        }
+    }
+
+    return PlayRange { first, last, loopFirst, loopLast };
 }
 
 void SamplerDevice::updateVoiceEnvelope(Voice & voice)
@@ -167,13 +182,24 @@ void SamplerDevice::wrapPosition(Voice & voice, const PlayRange & range)
     // material the loop plays, so the length is the plain distance between the two ends and a position
     // that reaches the end has already wrapped.
     //
+    // The wrap is triggered by the range and lands inside the loop, which is what lets a pad whose loop
+    // point sits inside its range play the head once and then repeat only the tail.
+    //
     // fmod rather than a subtraction: a pad tuned two octaves up steps four frames at a time, and a
     // short loop can be jumped clean over.
-    const double length = range.last - range.first;
-    if (voice.position >= range.last) {
-        voice.position = range.first + std::fmod(voice.position - range.first, length);
-    } else if (voice.position < range.first) {
-        voice.position = range.last - std::fmod(range.last - voice.position, length);
+    const double length = range.loopLast - range.loopFirst;
+    if (length <= 0.0) {
+        return;
+    }
+    // Which end the voice can run off is decided by the direction it plays in, not by where it
+    // happens to be. A reversed voice starts on the far end of its range, and testing that end would
+    // read it as having already run past it and wrap it away before it has played a single frame.
+    if (voice.sample->reverse) {
+        if (voice.position < range.first) {
+            voice.position = range.loopLast - std::fmod(range.loopLast - voice.position, length);
+        }
+    } else if (voice.position >= range.last) {
+        voice.position = range.loopFirst + std::fmod(voice.position - range.loopFirst, length);
     }
 }
 
@@ -623,7 +649,7 @@ void SamplerDevice::processAudio(AudioContext & context)
             // one that follows it in the file: reading across the seam is what makes a loop buzz at its
             // own rate. Without a loop the final frame has no successor and interpolates towards itself.
             const size_t next = (loops && static_cast<double>(index + 1) >= range->last)
-              ? static_cast<size_t>(range->first)
+              ? static_cast<size_t>(range->loopFirst)
               : std::min(index + 1, lastFrame);
 
             double left = 0.0;
@@ -804,6 +830,7 @@ void SamplerDevice::loadSample(uint8_t note, const std::string & filePath)
             };
             clampOffset(Constants::NahdXml::xmlKeyStartOffset(), sample->startOffset);
             clampOffset(Constants::NahdXml::xmlKeyEndOffset(), sample->endOffset);
+            clampOffset(Constants::NahdXml::xmlKeyLoopStart(), sample->loopStart);
             syncSampleFields(*sample);
         }
 
@@ -1083,6 +1110,20 @@ double SamplerDevice::sampleEndOffset(uint8_t note) const
 void SamplerDevice::setSampleEndOffset(uint8_t note, double offset)
 {
     setOffsetParameter(note, Constants::NahdXml::xmlKeyEndOffset().toStdString(), offset);
+}
+
+double SamplerDevice::sampleLoopStart(uint8_t note) const
+{
+    std::lock_guard<std::recursive_mutex> lock { mutex() };
+    if (note >= maxSamples || !m_samples.at(note)) {
+        return 0.0;
+    }
+    return m_samples.at(note)->loopStart;
+}
+
+void SamplerDevice::setSampleLoopStart(uint8_t note, double offset)
+{
+    setOffsetParameter(note, Constants::NahdXml::xmlKeyLoopStart().toStdString(), offset);
 }
 
 float SamplerDevice::sampleTune(uint8_t note) const
@@ -1548,6 +1589,8 @@ void SamplerDevice::syncSampleFields(Sample & sample)
         sample.reverse = p->get().value() > 0.5f;
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyLoop().toStdString()); p)
         sample.loop = p->get().value() > 0.5f;
+    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyLoopStart().toStdString()); p)
+        sample.loopStart = static_cast<double>(p->get().value()) * 60.0;
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyChokeGroup().toStdString()); p)
         sample.chokeGroup = static_cast<int>(std::lround(p->get().value()));
 }

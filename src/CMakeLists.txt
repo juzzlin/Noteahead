@@ -188,6 +188,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/SamplerDialog.qml
     ${QML_BASE_DIR}/Dialogs/SamplerDialog_Global.qml
     ${QML_BASE_DIR}/Dialogs/SamplerDialog_Header.qml
+    ${QML_BASE_DIR}/Dialogs/SamplerDialog_OffsetField.qml
     ${QML_BASE_DIR}/Dialogs/SamplerDialog_Offsets.qml
     ${QML_BASE_DIR}/Dialogs/SamplerDialog_PadAmpEg.qml
     ${QML_BASE_DIR}/Dialogs/SamplerDialog_PadSettings.qml

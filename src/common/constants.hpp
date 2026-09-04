@@ -678,6 +678,7 @@ QString xmlKeyStartOffset();
 QString xmlKeyEndOffset();
 QString xmlKeyReverse();
 QString xmlKeyLoop();
+QString xmlKeyLoopStart();
 QString xmlKeyChokeGroup();
 
 QString xmlKeyData();

@@ -144,6 +144,18 @@ ColumnLayout {
         }
     }
 
+    SamplerDialog_OffsetField {
+        Layout.fillWidth: true
+        enabled: samplerController.selectedPadLoop
+        opacity: enabled ? 1.0 : 0.5
+        label: qsTr("Loop Start:")
+        toolTip: qsTr("Where the loop comes back round to, counted in from the beginning of the pad's range. Zero repeats the whole range; more than that plays the range once and then repeats only its tail.")
+        seconds: samplerController.selectedPadLoopStartSeconds
+        milliseconds: samplerController.selectedPadLoopStartMilliseconds
+        onSecondsModified: value => samplerController.selectedPadLoopStartSeconds = value
+        onMillisecondsModified: value => samplerController.selectedPadLoopStartMilliseconds = value
+    }
+
     ColumnLayout {
         Layout.fillWidth: true
         Label {

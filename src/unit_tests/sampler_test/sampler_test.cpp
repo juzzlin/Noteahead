@@ -28,6 +28,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <numbers>
 
 namespace noteahead {
@@ -1125,6 +1126,76 @@ void SamplerTest::test_loop_reverse_shouldWrapBackToTheEnd()
              qPrintable(QString { "position %1 is outside the loop" }.arg(frame)));
 }
 
+void SamplerTest::test_loop_loopStart_shouldWrapToTheLoopPoint()
+{
+    // The loop point moves the near end of the loop without moving the range: the pad plays its head
+    // once and then repeats only what follows the point.
+    const auto sampler = makeMonoSampler(true);
+    sampler->setSampleEndOffset(60, 0.9); // leaves 4410 frames of the 44100 the pad holds
+    sampler->setSampleLoop(60, true);
+    sampler->setSampleLoopStart(60, 0.05); // 2205 frames in from the beginning of the range
+    sampler->processMidiNoteOn(60, 127);
+
+    // Far enough past the end of the range that a loop wrapping to the start of it would be back in
+    // the head by now.
+    render(*sampler, 5000);
+
+    QVERIFY(!sampler->isFinished(60));
+    const auto frame = sampler->playbackPosition(60) * Constants::defaultSampleRate();
+    QVERIFY2(frame >= 2205.0 && frame <= 4410.0,
+             qPrintable(QString { "position %1 is outside the loop" }.arg(frame)));
+}
+
+void SamplerTest::test_loop_loopStart_reverse_shouldWrapToTheLoopPointFromTheEnd()
+{
+    // Reversed, the pad starts from the far end of the range, so the loop point is counted in from
+    // there and the loop is the stretch below it.
+    const auto sampler = makeMonoSampler(true);
+    sampler->setSampleEndOffset(60, 0.9); // reversed, the range is the last 4410 frames of the file
+    sampler->setSampleLoop(60, true);
+    sampler->setSampleReverse(60, true);
+    sampler->setSampleLoopStart(60, 0.05);
+    sampler->processMidiNoteOn(60, 127);
+
+    render(*sampler, 5000);
+
+    QVERIFY(!sampler->isFinished(60));
+    const auto frame = sampler->playbackPosition(60) * Constants::defaultSampleRate();
+    const auto rangeFirst = 0.9 * Constants::defaultSampleRate();
+    const auto loopLast = Constants::defaultSampleRate() - 1.0 - 2205.0;
+    QVERIFY2(frame >= rangeFirst && frame <= loopLast,
+             qPrintable(QString { "position %1 is outside the loop" }.arg(frame)));
+}
+
+void SamplerTest::test_loop_loopStart_shouldPlayTheHeadOfTheRangeOnlyOnce()
+{
+    // Silent up to frame 441 and loud from there on, with the loop point past the step: the silence is
+    // the head of the range, so it is heard on the way in and never again.
+    constexpr int64_t stepFrame = 441;
+    auto reader = std::make_unique<MockAudioFileReader>();
+    reader->setForceChannels(1);
+    reader->setFrames(static_cast<int64_t>(Constants::defaultSampleRate()));
+    reader->setStepAt(stepFrame);
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::move(reader) };
+    sampler.loadSample(60, "step.wav");
+
+    sampler.setSampleLoop(60, true);
+    sampler.setSampleLoopStart(60, 0.02); // 882 frames in, well past the step
+    sampler.processMidiNoteOn(60, 127);
+
+    const auto sampleRate = static_cast<uint32_t>(Constants::defaultSampleRate());
+    const auto first = render(sampler, sampleRate);
+    QVERIFY2(std::abs(first[0]) == 0.0, "the head of the range was not played on the way in");
+
+    // Everything from here on comes from inside the loop, which holds nothing but the loud part.
+    const auto second = render(sampler, sampleRate);
+    double quietest = std::numeric_limits<double>::max();
+    for (size_t i = 0; i < second.size(); i += 2) {
+        quietest = std::min(quietest, std::abs(second[i]));
+    }
+    QVERIFY2(quietest > 0.0, "the loop wrapped past the loop point and played the head again");
+}
+
 void SamplerTest::test_loop_noteOff_shouldEndTheVoiceThroughTheRelease()
 {
     // A looping voice never runs off its range, so the amp envelope is the only thing left that can
@@ -1215,11 +1286,13 @@ void SamplerTest::test_copySample_shouldCopyLoopAndChokeGroup()
     SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
     sampler.loadSample(60, "test.wav");
     sampler.setSampleLoop(60, true);
+    sampler.setSampleLoopStart(60, 0.005);
     sampler.setSampleChokeGroup(60, 3);
 
     sampler.copySample(60, 62);
 
     QCOMPARE(sampler.sampleLoop(62), true);
+    QVERIFY(std::abs(sampler.sampleLoopStart(62) - 0.005) < 0.001);
     QCOMPARE(sampler.sampleChokeGroup(62), 3);
 }
 

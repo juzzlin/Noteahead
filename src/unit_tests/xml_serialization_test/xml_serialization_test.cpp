@@ -1206,6 +1206,7 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_padLoopAndChokeGroup_
     const auto samplerOut = std::make_shared<SamplerDevice>(samplerName, std::make_unique<MockAudioFileReader>());
     samplerOut->loadSample(60, fileName);
     samplerOut->setSampleLoop(60, true);
+    samplerOut->setSampleLoopStart(60, 0.01);
     samplerOut->setSampleChokeGroup(60, 5);
     samplerOut->loadSample(62, fileName);
     deviceServiceOut.setDevice(0, samplerOut);
@@ -1225,11 +1226,13 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_padLoopAndChokeGroup_
     editorServiceIn.fromXml(xml);
 
     QCOMPARE(samplerIn->sampleLoop(60), true);
+    QVERIFY(std::abs(samplerIn->sampleLoopStart(60) - 0.01) < 0.001);
     QCOMPARE(samplerIn->sampleChokeGroup(60), 5);
 
-    // An untouched pad neither loops nor belongs to a group, which is how every pad saved before these
-    // settings existed has to come back.
+    // An untouched pad neither loops nor belongs to a group, and loops its whole range when it does,
+    // which is how every pad saved before these settings existed has to come back.
     QCOMPARE(samplerIn->sampleLoop(62), false);
+    QCOMPARE(samplerIn->sampleLoopStart(62), 0.0);
     QCOMPARE(samplerIn->sampleChokeGroup(62), 0);
 }
 

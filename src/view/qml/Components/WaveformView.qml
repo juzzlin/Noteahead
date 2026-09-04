@@ -37,10 +37,59 @@ Rectangle {
     property string fileName: ""
     property alias accentColor: canvas.accentColor
 
+    //! Where a looping range comes back round to, as a fraction of the file. Negative hides the marker.
+    property double loopPosition: -1.0
+    onLoopPositionChanged: canvas.requestPaint()
+
+    //! Amplitude envelope drawn over the waveform, in the seconds the envelope actually runs for. The
+    //! view needs the file's own length to put those seconds on the same axis as the waveform.
+    property bool showEnvelope: false
+    property double duration: 0.0
+    property double envelopeAttack: 0.0
+    property double envelopeDecay: 0.0
+    property double envelopeSustain: 1.0
+    property double envelopeRelease: 0.0
+    onShowEnvelopeChanged: canvas.requestPaint()
+    onDurationChanged: canvas.requestPaint()
+    onEnvelopeAttackChanged: canvas.requestPaint()
+    onEnvelopeDecayChanged: canvas.requestPaint()
+    onEnvelopeSustainChanged: canvas.requestPaint()
+    onEnvelopeReleaseChanged: canvas.requestPaint()
+
     signal seekRequested(double position)
 
     function requestPaint() {
         canvas.requestPaint();
+    }
+
+    //! The amp envelope as [x, level] points across the pad's range: attack and decay run from where
+    //! the range starts, the sustain holds to where it ends and the release falls from there, which is
+    //! where a pad held to the end of its range would be released. A segment that would run past the
+    //! end of the range is cut there, at the level it had reached, so a long attack on a short sample
+    //! shows how little of the envelope the pad ever plays.
+    function envelopePoints(x0, x1, pixelsPerSecond) {
+        const points = [[x0, 0]];
+        let x = x0;
+        let level = 0;
+        const segment = (seconds, target) => {
+            const end = x + seconds * pixelsPerSecond;
+            if (end >= x1) {
+                level += (target - level) * (end > x ? (x1 - x) / (end - x) : 1);
+                x = x1;
+                points.push([x, level]);
+                return false;
+            }
+            x = end;
+            level = target;
+            points.push([x, level]);
+            return true;
+        };
+        if (segment(rootItem.envelopeAttack, 1) && segment(rootItem.envelopeDecay, rootItem.envelopeSustain)) {
+            level = rootItem.envelopeSustain;
+            points.push([x1, level]);
+        }
+        points.push([x1 + rootItem.envelopeRelease * pixelsPerSecond, 0]);
+        return points;
     }
 
     Canvas {
@@ -95,6 +144,56 @@ Rectangle {
                 ctx.globalAlpha = 0.3;
                 ctx.fillRect(trimStart, 0, width - trimStart, height);
                 ctx.globalAlpha = 1.0;
+            }
+
+            const rangeStart = Math.max(0, rootItem.startOffset * width);
+            const rangeEnd = Math.min(width, rootItem.endOffset * width);
+
+            // The envelope rides on the same amplitude scale as the waveform, mirrored around the
+            // centre line so it reads as the shape the sample is played through.
+            if (rootItem.showEnvelope && rootItem.duration > 0 && rangeEnd > rangeStart) {
+                const points = rootItem.envelopePoints(rangeStart, rangeEnd, width / rootItem.duration);
+                ctx.strokeStyle = "white";
+                ctx.lineWidth = 1;
+                // Held back a little: on a pad with no envelope dialled in the shape is a plain box,
+                // and at full strength it reads as a second border around the waveform.
+                ctx.globalAlpha = 0.6;
+                for (const side of [-1, 1]) {
+                    ctx.beginPath();
+                    for (let i = 0; i < points.length; i++) {
+                        const y = midY + side * points[i][1] * height * 0.45;
+                        if (i === 0) {
+                            ctx.moveTo(points[i][0], y);
+                        } else {
+                            ctx.lineTo(points[i][0], y);
+                        }
+                    }
+                    ctx.stroke();
+                }
+                ctx.globalAlpha = 1.0;
+            }
+
+            // The loop marker points into the stretch that repeats, which runs from it to the end of
+            // the range.
+            if (rootItem.loopPosition >= 0) {
+                const loopX = rootItem.loopPosition * width;
+                // Dashed, so that it is not mistaken for the playhead, which is the other white
+                // vertical on the picture.
+                ctx.strokeStyle = "white";
+                ctx.lineWidth = 1;
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.moveTo(loopX, 0);
+                ctx.lineTo(loopX, height);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.fillStyle = "white";
+                ctx.beginPath();
+                ctx.moveTo(loopX, 0);
+                ctx.lineTo(loopX + 10, 0);
+                ctx.lineTo(loopX, 10);
+                ctx.closePath();
+                ctx.fill();
             }
         }
     }

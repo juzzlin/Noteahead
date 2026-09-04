@@ -50,6 +50,21 @@ WaveformView {
     }
     showPlayhead: fileName !== ""
 
+    loopPosition: {
+        if (!samplerController.selectedPadLoop || samplerController.selectedPadDuration <= 0) {
+            return -1.0;
+        }
+        const loopStart = samplerController.selectedPadLoopStartSeconds + samplerController.selectedPadLoopStartMilliseconds / 1000.0;
+        return Math.min(endOffset, startOffset + loopStart / samplerController.selectedPadDuration);
+    }
+
+    showEnvelope: fileName !== ""
+    duration: samplerController.selectedPadDuration
+    envelopeAttack: samplerController.selectedPadAttackSeconds
+    envelopeDecay: samplerController.selectedPadDecaySeconds
+    envelopeSustain: samplerController.selectedPadSustain
+    envelopeRelease: samplerController.selectedPadReleaseSeconds
+
     Timer {
         interval: 20
         running: samplerDialogVisible && waveform.fileName !== ""

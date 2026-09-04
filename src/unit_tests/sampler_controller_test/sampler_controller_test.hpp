@@ -15,6 +15,7 @@ class SamplerControllerTest : public QObject
 private slots:
     void test_sampleRateChange_shouldUpdateHzValues();
     void test_properties_shouldUpdateDeviceAndEmitSignals();
+    void test_selectedPadLoopStart_secondsAndMilliseconds_shouldCombineIntoOneOffset();
     void test_reset_shouldRestoreDefaultValues();
     void test_setSampler_shouldRefreshGlobalSwitchesToReflectNewInstance();
     void test_loadedPads_shouldListOnlyLoadedPads();

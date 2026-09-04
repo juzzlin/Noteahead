@@ -22,89 +22,23 @@ RowLayout {
     Layout.fillWidth: true
     spacing: 10
 
-    ColumnLayout {
+    SamplerDialog_OffsetField {
         Layout.fillWidth: true
-        Label {
-            text: qsTr("Start Offset:")
-            color: "white"
-        }
-        RowLayout {
-            Layout.fillWidth: true
-            SpinBox {
-                Layout.fillWidth: true
-                from: 0
-                to: 3600
-                value: samplerController.selectedPadStartOffsetSeconds
-                editable: true
-                onValueModified: samplerController.selectedPadStartOffsetSeconds = value
-                Keys.onReturnPressed: {
-                    value = valueFromText(contentItem.text, locale);
-                    samplerController.selectedPadStartOffsetSeconds = value;
-                }
-            }
-            Label {
-                text: "s"
-                color: "white"
-            }
-            SpinBox {
-                Layout.fillWidth: true
-                from: 0
-                to: 999
-                value: samplerController.selectedPadStartOffsetMilliseconds
-                editable: true
-                onValueModified: samplerController.selectedPadStartOffsetMilliseconds = value
-                Keys.onReturnPressed: {
-                    value = valueFromText(contentItem.text, locale);
-                    samplerController.selectedPadStartOffsetMilliseconds = value;
-                }
-            }
-            Label {
-                text: "ms"
-                color: "white"
-            }
-        }
+        label: qsTr("Start Offset:")
+        toolTip: qsTr("Seconds skipped at the beginning of the sample.")
+        seconds: samplerController.selectedPadStartOffsetSeconds
+        milliseconds: samplerController.selectedPadStartOffsetMilliseconds
+        onSecondsModified: value => samplerController.selectedPadStartOffsetSeconds = value
+        onMillisecondsModified: value => samplerController.selectedPadStartOffsetMilliseconds = value
     }
 
-    ColumnLayout {
+    SamplerDialog_OffsetField {
         Layout.fillWidth: true
-        Label {
-            text: qsTr("End Offset:")
-            color: "white"
-        }
-        RowLayout {
-            Layout.fillWidth: true
-            SpinBox {
-                Layout.fillWidth: true
-                from: 0
-                to: 3600
-                value: samplerController.selectedPadEndOffsetSeconds
-                editable: true
-                onValueModified: samplerController.selectedPadEndOffsetSeconds = value
-                Keys.onReturnPressed: {
-                    value = valueFromText(contentItem.text, locale);
-                    samplerController.selectedPadEndOffsetSeconds = value;
-                }
-            }
-            Label {
-                text: "s"
-                color: "white"
-            }
-            SpinBox {
-                Layout.fillWidth: true
-                from: 0
-                to: 999
-                value: samplerController.selectedPadEndOffsetMilliseconds
-                editable: true
-                onValueModified: samplerController.selectedPadEndOffsetMilliseconds = value
-                Keys.onReturnPressed: {
-                    value = valueFromText(contentItem.text, locale);
-                    samplerController.selectedPadEndOffsetMilliseconds = value;
-                }
-            }
-            Label {
-                text: "ms"
-                color: "white"
-            }
-        }
+        label: qsTr("End Offset:")
+        toolTip: qsTr("Seconds trimmed off the end of the sample.")
+        seconds: samplerController.selectedPadEndOffsetSeconds
+        milliseconds: samplerController.selectedPadEndOffsetMilliseconds
+        onSecondsModified: value => samplerController.selectedPadEndOffsetSeconds = value
+        onMillisecondsModified: value => samplerController.selectedPadEndOffsetMilliseconds = value
     }
 }

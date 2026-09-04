@@ -2363,6 +2363,11 @@ QString xmlKeyLoop()
     return "loop";
 }
 
+QString xmlKeyLoopStart()
+{
+    return "loopStart";
+}
+
 QString xmlKeyChokeGroup()
 {
     return "chokeGroup";

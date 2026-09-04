@@ -96,6 +96,9 @@ private slots:
     void test_loop_disabled_shouldStopAtTheEndOfTheRange();
     void test_loop_shouldNotInterpolateAcrossTheSeam();
     void test_loop_reverse_shouldWrapBackToTheEnd();
+    void test_loop_loopStart_shouldWrapToTheLoopPoint();
+    void test_loop_loopStart_reverse_shouldWrapToTheLoopPointFromTheEnd();
+    void test_loop_loopStart_shouldPlayTheHeadOfTheRangeOnlyOnce();
     void test_loop_noteOff_shouldEndTheVoiceThroughTheRelease();
 
     void test_chokeGroup_shouldSilenceOtherPadsInTheSameGroup();

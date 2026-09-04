@@ -19,6 +19,12 @@ New features:
   - Repeats the pad's range until the note is released
   - Works with reverse, and wraps on whole frames so the loop does not buzz
 
+* Add a loop point to the Sampler's pads
+  - The pad plays its range once and then repeats only what follows the point
+
+* Draw the pad's amp envelope over the Sampler's waveform
+  - White lines over the range, the release included
+
 * Add choke groups to the Sampler's pads
   - Triggering a pad silences the other pads sharing its group
   - Eight groups, the way a closed hi-hat cuts off an open one

@@ -43,12 +43,17 @@ class SamplerController : public DeviceController
     Q_PROPERTY(int selectedPadStartOffsetMilliseconds READ selectedPadStartOffsetMilliseconds WRITE setSelectedPadStartOffsetMilliseconds NOTIFY selectedPadStartOffsetChanged)
     Q_PROPERTY(int selectedPadEndOffsetSeconds READ selectedPadEndOffsetSeconds WRITE setSelectedPadEndOffsetSeconds NOTIFY selectedPadEndOffsetChanged)
     Q_PROPERTY(int selectedPadEndOffsetMilliseconds READ selectedPadEndOffsetMilliseconds WRITE setSelectedPadEndOffsetMilliseconds NOTIFY selectedPadEndOffsetChanged)
+    Q_PROPERTY(int selectedPadLoopStartSeconds READ selectedPadLoopStartSeconds WRITE setSelectedPadLoopStartSeconds NOTIFY selectedPadLoopStartChanged)
+    Q_PROPERTY(int selectedPadLoopStartMilliseconds READ selectedPadLoopStartMilliseconds WRITE setSelectedPadLoopStartMilliseconds NOTIFY selectedPadLoopStartChanged)
     Q_PROPERTY(double selectedPadTune READ selectedPadTune WRITE setSelectedPadTune NOTIFY selectedPadTuneChanged)
     Q_PROPERTY(double selectedPadDetune READ selectedPadDetune WRITE setSelectedPadDetune NOTIFY selectedPadDetuneChanged)
     Q_PROPERTY(double selectedPadAttack READ selectedPadAttack WRITE setSelectedPadAttack NOTIFY selectedPadAttackChanged)
     Q_PROPERTY(double selectedPadDecay READ selectedPadDecay WRITE setSelectedPadDecay NOTIFY selectedPadDecayChanged)
     Q_PROPERTY(double selectedPadSustain READ selectedPadSustain WRITE setSelectedPadSustain NOTIFY selectedPadSustainChanged)
     Q_PROPERTY(double selectedPadRelease READ selectedPadRelease WRITE setSelectedPadRelease NOTIFY selectedPadReleaseChanged)
+    Q_PROPERTY(double selectedPadAttackSeconds READ selectedPadAttackSeconds NOTIFY selectedPadAttackChanged)
+    Q_PROPERTY(double selectedPadDecaySeconds READ selectedPadDecaySeconds NOTIFY selectedPadDecayChanged)
+    Q_PROPERTY(double selectedPadReleaseSeconds READ selectedPadReleaseSeconds NOTIFY selectedPadReleaseChanged)
     Q_PROPERTY(bool selectedPadReverse READ selectedPadReverse WRITE setSelectedPadReverse NOTIFY selectedPadReverseChanged)
     Q_PROPERTY(bool selectedPadLoop READ selectedPadLoop WRITE setSelectedPadLoop NOTIFY selectedPadLoopChanged)
     Q_PROPERTY(int selectedPadChokeGroup READ selectedPadChokeGroup WRITE setSelectedPadChokeGroup NOTIFY selectedPadChokeGroupChanged)
@@ -97,6 +102,12 @@ public:
     int selectedPadEndOffsetMilliseconds() const;
     void setSelectedPadEndOffsetMilliseconds(int milliseconds);
 
+    int selectedPadLoopStartSeconds() const;
+    void setSelectedPadLoopStartSeconds(int seconds);
+
+    int selectedPadLoopStartMilliseconds() const;
+    void setSelectedPadLoopStartMilliseconds(int milliseconds);
+
     double selectedPadTune() const;
     void setSelectedPadTune(double tune);
 
@@ -114,6 +125,12 @@ public:
 
     double selectedPadRelease() const;
     void setSelectedPadRelease(double release);
+
+    //! The amp envelope's segment times in seconds, as the voices run them. The waveform view draws
+    //! the envelope on the same time axis as the sample, so it needs the times, not the positions.
+    double selectedPadAttackSeconds() const;
+    double selectedPadDecaySeconds() const;
+    double selectedPadReleaseSeconds() const;
 
     bool selectedPadReverse() const;
     void setSelectedPadReverse(bool reverse);
@@ -160,6 +177,7 @@ signals:
     void selectedPadHpfCutoffChanged();
     void selectedPadStartOffsetChanged();
     void selectedPadEndOffsetChanged();
+    void selectedPadLoopStartChanged();
     void selectedPadTuneChanged();
     void selectedPadDetuneChanged();
     void selectedPadAttackChanged();

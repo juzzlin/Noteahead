@@ -117,6 +117,11 @@ public:
         //! Wraps playback inside the range instead of stopping at its far end. A looping voice is ended
         //! by its amp envelope alone, so a pad that loops on a full sustain holds until its note-off.
         bool loop = false;
+        //! Where the loop comes back round to, in seconds counted in from the beginning of the range in
+        //! the direction the pad plays. Zero loops the whole range, which is what looping pads did
+        //! before the loop point existed; anything more plays the range once and then repeats only its
+        //! tail, the way a sustain loop skips a sampled attack.
+        double loopStart = 0.0;
         //! Choke group, or zero for none. Triggering a pad silences the sounding voices of the *other*
         //! pads sharing its group, which is how a closed hi-hat cuts off an open one.
         int chokeGroup = 0;
@@ -153,6 +158,10 @@ public:
     double sampleEndOffset(uint8_t note) const;
     void setSampleEndOffset(uint8_t note, double offset);
 
+    //! Seconds into the range the loop returns to. Zero loops the whole range.
+    double sampleLoopStart(uint8_t note) const;
+    void setSampleLoopStart(uint8_t note, double offset);
+
     float sampleTune(uint8_t note) const;
     void setSampleTune(uint8_t note, float tune);
 
@@ -182,6 +191,12 @@ public:
     void setSampleChokeGroup(uint8_t note, int group);
 
     static constexpr int maxChokeGroup = 8;
+
+    //! Seconds each amp-envelope segment takes at the given knob position. The dialog draws the
+    //! envelope over the waveform from these, so it reads the same times the voices run on.
+    static double attackSeconds(float attack);
+    static double decaySeconds(float decay);
+    static double releaseSeconds(float release);
 
     //! Whole semitones the pad's coarse tuning transposes by, -24..24.
     static int tuneSemitones(float tune);
@@ -329,6 +344,11 @@ private:
     {
         double first = 0.0;
         double last = 0.0;
+        //! The stretch a looping voice wraps inside, which is the range itself until a loop point moves
+        //! its near end in. Both ends are file frames, like the range's own, so the direction the pad
+        //! plays in decides which of them the loop point moved.
+        double loopFirst = 0.0;
+        double loopLast = 0.0;
     };
 
     //! Nothing when the sample is too short to interpolate across, which is also the case that used to

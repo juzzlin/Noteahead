@@ -71,8 +71,17 @@ public:
 
     Info info() const override
     {
-        return { 1024, static_cast<int>(Constants::defaultSampleRate()), 2, 0 };
+        return { m_frames, static_cast<int>(Constants::defaultSampleRate()), 2, 0 };
     }
+
+    //! Lets a test hand out a longer file, which the offsets need in order not to clamp away.
+    void setFrames(int64_t frames)
+    {
+        m_frames = frames;
+    }
+
+private:
+    int64_t m_frames = 1024;
 };
 
 void SamplerControllerTest::test_sampleRateChange_shouldUpdateHzValues()
@@ -124,6 +133,26 @@ void SamplerControllerTest::test_properties_shouldUpdateDeviceAndEmitSignals()
         QCOMPARE(spy.count(), 1);
         QCOMPARE(controller.selectedPad(), 2);
     }
+}
+
+void SamplerControllerTest::test_selectedPadLoopStart_secondsAndMilliseconds_shouldCombineIntoOneOffset()
+{
+    // The two spin boxes edit halves of one offset, so writing either has to keep the other half.
+    auto reader = std::make_unique<MockAudioFileReader>();
+    reader->setFrames(static_cast<int64_t>(Constants::defaultSampleRate()) * 4);
+    const auto sampler = std::make_shared<SamplerDevice>("Test Sampler", std::move(reader));
+    SamplerController controller { sampler };
+    controller.setSelectedPad(0);
+    controller.loadSample(0, "test.wav");
+
+    QSignalSpy spy { &controller, &SamplerController::selectedPadLoopStartChanged };
+    controller.setSelectedPadLoopStartSeconds(2);
+    controller.setSelectedPadLoopStartMilliseconds(250);
+
+    QVERIFY(spy.count() >= 2);
+    QCOMPARE(controller.selectedPadLoopStartSeconds(), 2);
+    QCOMPARE(controller.selectedPadLoopStartMilliseconds(), 250);
+    QVERIFY(std::abs(sampler->sampleLoopStart(SamplerDevice::padStartNote) - 2.25) < 0.001);
 }
 
 void SamplerControllerTest::test_reset_shouldRestoreDefaultValues()
