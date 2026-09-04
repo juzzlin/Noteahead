@@ -5,6 +5,19 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+7.4.0
+=====
+
+Release date:
+
+Fri, 04 Sep 2026 18:36:50 +0300
+
+New features:
+
 * Add per-pad tuning to the Sampler
   - Coarse in whole semitones, two octaves either way, plus fine tuning in cents
 
