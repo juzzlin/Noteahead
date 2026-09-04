@@ -89,6 +89,13 @@ double defaultSampleRate();
 //! step below it, so they can never preempt the thread that is waiting for them.
 int audioCallbackRealTimePriority();
 
+//! Variable the PulseAudio protocol reads the stream's target latency from.
+QString pulseLatencyEnvironmentVariable();
+
+//! How many buffers' worth of latency the PulseAudio stream asks for, matching the number of
+//! buffers the stream itself is opened with.
+int pulseLatencyBufferCount();
+
 constexpr float minEffectLevel()
 {
     return 0.001f;

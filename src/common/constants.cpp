@@ -207,6 +207,16 @@ int audioCallbackRealTimePriority()
     return 10;
 }
 
+QString pulseLatencyEnvironmentVariable()
+{
+    return "PULSE_LATENCY_MSEC";
+}
+
+int pulseLatencyBufferCount()
+{
+    return 2;
+}
+
 double defaultSampleRate()
 {
     return 48000.0;

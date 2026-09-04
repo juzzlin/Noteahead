@@ -21,6 +21,7 @@
 #include "../../audio_engine.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 
 namespace noteahead {
@@ -120,8 +121,36 @@ AudioPlayerRtAudio::~AudioPlayerRtAudio()
     AudioPlayerRtAudio::stop();
 }
 
+void AudioPlayerRtAudio::requestPulseLatency(uint32_t sampleRate, uint32_t bufferSize)
+{
+    if (m_rtAudio.getCurrentApi() != RtAudio::LINUX_PULSE || !sampleRate || !bufferSize) {
+        return;
+    }
+
+    const auto variable = Constants::pulseLatencyEnvironmentVariable().toUtf8();
+    if (!m_pulseLatencyRequested && qEnvironmentVariableIsSet(variable.constData())) {
+        return; // Somebody outside has said what they want, and that wins
+    }
+
+    // How often the callback is woken is what decides when a note can start: a device applies an
+    // event to the voice it is asked for, and the next buffer rendered is the first that carries
+    // it. RtAudio asks PulseAudio for a buffer size but never for a latency, so the stream is left
+    // with whatever the server is running at -- on a PipeWire desktop that is the graph's quantum,
+    // up to 2048 frames, and the callback then arrives four buffers at a time with 42 ms of silence
+    // in between. Every note in that window waits for the next burst. Asking for the latency the
+    // buffer size implies puts the wakeups back on the buffer instead.
+    const auto milliseconds = std::max(1, static_cast<int>(std::ceil(static_cast<double>(bufferSize) * Constants::pulseLatencyBufferCount() * 1000.0 / sampleRate)));
+    qputenv(variable.constData(), QByteArray::number(milliseconds));
+    m_pulseLatencyRequested = true;
+
+    juzzlin::L(TAG).info() << "Requesting a PulseAudio latency of " << milliseconds << " ms for "
+                           << bufferSize << " frames at " << sampleRate << " Hz";
+}
+
 uint32_t AudioPlayerRtAudio::initializeSoundStream(uint32_t deviceId, uint32_t channelCount, uint32_t sampleRate, uint32_t bufferSize)
 {
+    requestPulseLatency(sampleRate, bufferSize);
+
     RtAudio::StreamParameters streamParameters;
     streamParameters.deviceId = deviceId;
     streamParameters.nChannels = channelCount;

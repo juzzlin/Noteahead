@@ -55,6 +55,11 @@ Bug fixes:
 * Stop sending note-offs for notes that never played
   - A muted or unsoloed track logged "No port found" once per note
 
+* Ask PulseAudio for the latency the audio buffer size implies
+  - The stream took the server's own, on PipeWire up to 2048 frames
+  - The callback then came four buffers at a time, and notes landed on
+    the 42 ms burst instead of the buffer
+
 Other:
 
 7.3.0

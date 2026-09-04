@@ -51,7 +51,15 @@ private:
                             uint32_t frameCount, double streamTime,
                             RtAudioStreamStatus status, void * userData);
 
+    //! Tells PulseAudio how often this stream needs to be served, which RtAudio never does. Must
+    //! run before the stream is opened, as the protocol reads it when the stream is created.
+    void requestPulseLatency(uint32_t sampleRate, uint32_t bufferSize);
+
     uint32_t initializeSoundStream(uint32_t deviceId, uint32_t channelCount, uint32_t sampleRate, uint32_t bufferSize);
+
+    //! Whether the latency in the environment is one we put there, so that reopening the stream at
+    //! a different buffer size replaces it while a value from outside is still left alone.
+    bool m_pulseLatencyRequested = false;
 
     RtAudio m_rtAudio;
 
