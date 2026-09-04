@@ -18,9 +18,10 @@ import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 import Noteahead 1.0
 
-RowLayout {
+ColumnLayout {
     Layout.fillWidth: true
-    spacing: 10
+    Layout.alignment: Qt.AlignTop
+    spacing: 15
 
     SamplerDialog_OffsetField {
         Layout.fillWidth: true

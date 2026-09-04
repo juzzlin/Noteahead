@@ -155,6 +155,58 @@ void SamplerControllerTest::test_selectedPadLoopStart_secondsAndMilliseconds_sho
     QVERIFY(std::abs(sampler->sampleLoopStart(SamplerDevice::padStartNote) - 2.25) < 0.001);
 }
 
+void SamplerControllerTest::test_selectedPadStartOffset_wholeSecond_shouldReadBackWhole()
+{
+    // An offset is stored as a fraction of a minute in a float, which lands a hair either side of the
+    // second it was set to. Seventeen lands under, and split by flooring it read as sixteen seconds
+    // and a thousand milliseconds.
+    auto reader = std::make_unique<MockAudioFileReader>();
+    reader->setFrames(static_cast<int64_t>(Constants::defaultSampleRate()) * 20);
+    const auto sampler = std::make_shared<SamplerDevice>("Test Sampler", std::move(reader));
+    SamplerController controller { sampler };
+    controller.setSelectedPad(0);
+    controller.loadSample(0, "test.wav");
+
+    controller.setSelectedPadStartOffsetSeconds(17);
+
+    QCOMPARE(controller.selectedPadStartOffsetSeconds(), 17);
+    QCOMPARE(controller.selectedPadStartOffsetMilliseconds(), 0);
+}
+
+void SamplerControllerTest::test_selectedPadLoop_enabled_shouldDropTheLoopPointInTheMiddleOfTheRange()
+{
+    // Four seconds trimmed by a second at each end leaves a two second range, so the point lands one
+    // second in from where the range begins.
+    auto reader = std::make_unique<MockAudioFileReader>();
+    reader->setFrames(static_cast<int64_t>(Constants::defaultSampleRate()) * 4);
+    const auto sampler = std::make_shared<SamplerDevice>("Test Sampler", std::move(reader));
+    SamplerController controller { sampler };
+    controller.setSelectedPad(0);
+    controller.loadSample(0, "test.wav");
+    controller.setSelectedPadStartOffsetSeconds(1);
+    controller.setSelectedPadEndOffsetSeconds(1);
+
+    controller.setSelectedPadLoop(true);
+
+    QCOMPARE(controller.selectedPadLoopStartSeconds(), 1);
+    QCOMPARE(controller.selectedPadLoopStartMilliseconds(), 0);
+}
+
+void SamplerControllerTest::test_selectedPadLoop_enabled_shouldKeepALoopPointThePadAlreadyHas()
+{
+    auto reader = std::make_unique<MockAudioFileReader>();
+    reader->setFrames(static_cast<int64_t>(Constants::defaultSampleRate()) * 4);
+    const auto sampler = std::make_shared<SamplerDevice>("Test Sampler", std::move(reader));
+    SamplerController controller { sampler };
+    controller.setSelectedPad(0);
+    controller.loadSample(0, "test.wav");
+    controller.setSelectedPadLoopStartSeconds(3);
+
+    controller.setSelectedPadLoop(true);
+
+    QCOMPARE(controller.selectedPadLoopStartSeconds(), 3);
+}
+
 void SamplerControllerTest::test_reset_shouldRestoreDefaultValues()
 {
     const auto sampler = std::make_shared<SamplerDevice>("Test Sampler");

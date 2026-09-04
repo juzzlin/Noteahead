@@ -56,6 +56,13 @@ Rectangle {
     onEnvelopeSustainChanged: canvas.requestPaint()
     onEnvelopeReleaseChanged: canvas.requestPaint()
 
+    //! Draws the start, the end and the loop point as handles the mouse can drag. The view reports
+    //! where a handle was dragged as a fraction of the file and leaves the writing to its owner.
+    property bool draggableMarkers: false
+    signal startOffsetMoved(double newPosition)
+    signal endOffsetMoved(double newPosition)
+    signal loopPositionMoved(double newPosition)
+
     signal seekRequested(double position)
 
     function requestPaint() {
@@ -172,29 +179,41 @@ Rectangle {
                 }
                 ctx.globalAlpha = 1.0;
             }
+        }
+    }
 
-            // The loop marker points into the stretch that repeats, which runs from it to the end of
-            // the range.
-            if (rootItem.loopPosition >= 0) {
-                const loopX = rootItem.loopPosition * width;
-                // Dashed, so that it is not mistaken for the playhead, which is the other white
-                // vertical on the picture.
-                ctx.strokeStyle = "white";
-                ctx.lineWidth = 1;
-                ctx.setLineDash([4, 4]);
-                ctx.beginPath();
-                ctx.moveTo(loopX, 0);
-                ctx.lineTo(loopX, height);
-                ctx.stroke();
-                ctx.setLineDash([]);
-                ctx.fillStyle = "white";
-                ctx.beginPath();
-                ctx.moveTo(loopX, 0);
-                ctx.lineTo(loopX + 10, 0);
-                ctx.lineTo(loopX, 10);
-                ctx.closePath();
-                ctx.fill();
-            }
+    //! The markers sit on the same strip the canvas paints, so a marker's own fraction of the strip
+    //! is the fraction of the file it stands on.
+    Item {
+        id: markerTrack
+        anchors.fill: parent
+        anchors.margins: 6
+        visible: rootItem.draggableMarkers
+        // Above the seek area at the bottom of the file, which would otherwise swallow the drags.
+        z: 1
+
+        WaveformMarker {
+            position: rootItem.startOffset
+            maximumPosition: rootItem.endOffset
+            onMoved: newPosition => rootItem.startOffsetMoved(newPosition)
+        }
+
+        WaveformMarker {
+            position: rootItem.endOffset
+            minimumPosition: rootItem.startOffset
+            direction: -1
+            onMoved: newPosition => rootItem.endOffsetMoved(newPosition)
+        }
+
+        // Dashed, so that the loop point is taken neither for one of the trims nor for the playhead
+        // running past it.
+        WaveformMarker {
+            position: rootItem.loopPosition
+            minimumPosition: rootItem.startOffset
+            maximumPosition: rootItem.endOffset
+            dashed: true
+            visible: rootItem.loopPosition >= 0
+            onMoved: newPosition => rootItem.loopPositionMoved(newPosition)
         }
     }
 

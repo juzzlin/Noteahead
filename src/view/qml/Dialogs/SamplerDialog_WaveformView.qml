@@ -65,6 +65,16 @@ WaveformView {
     envelopeSustain: samplerController.selectedPadSustain
     envelopeRelease: samplerController.selectedPadReleaseSeconds
 
+    // An empty pad has nothing to trim, so it gets no handles either.
+    draggableMarkers: fileName !== ""
+
+    onStartOffsetMoved: newPosition => waveform.writeStartOffset(newPosition * samplerController.selectedPadDuration)
+    // The end offset is a trim counted back from the end of the file, not a position in it.
+    onEndOffsetMoved: newPosition => waveform.writeEndOffset((1.0 - newPosition) * samplerController.selectedPadDuration)
+    // The loop point is counted in from the beginning of the range, which is where the start offset
+    // left it.
+    onLoopPositionMoved: newPosition => waveform.writeLoopStart((newPosition - waveform.startOffset) * samplerController.selectedPadDuration)
+
     Timer {
         interval: 20
         running: samplerDialogVisible && waveform.fileName !== ""
@@ -74,11 +84,49 @@ WaveformView {
         }
     }
 
+    //! The offsets are two properties, a whole second and a millisecond, and rounding to whole
+    //! milliseconds before splitting keeps the two halves from disagreeing at the seam.
+    function splitSeconds(seconds) {
+        const milliseconds = Math.max(0, Math.round(seconds * 1000));
+        return [Math.floor(milliseconds / 1000), milliseconds % 1000];
+    }
+
+    function writeStartOffset(seconds) {
+        const parts = splitSeconds(seconds);
+        samplerController.selectedPadStartOffsetSeconds = parts[0];
+        samplerController.selectedPadStartOffsetMilliseconds = parts[1];
+    }
+
+    function writeEndOffset(seconds) {
+        const parts = splitSeconds(seconds);
+        samplerController.selectedPadEndOffsetSeconds = parts[0];
+        samplerController.selectedPadEndOffsetMilliseconds = parts[1];
+    }
+
+    function writeLoopStart(seconds) {
+        const parts = splitSeconds(seconds);
+        samplerController.selectedPadLoopStartSeconds = parts[0];
+        samplerController.selectedPadLoopStartMilliseconds = parts[1];
+    }
+
+    //! What the picture is drawn from. Everything else about a pad -- its trims, its envelope, the
+    //! loop point -- is drawn on top of the picture rather than into it.
+    property string waveformSource: ""
+
     function updateWaveform() {
-        if (width > 0) {
-            const data = samplerController.getWaveformData(width - 12);
-            currentWaveformData = data || [];
+        if (width <= 0) {
+            return;
         }
+        // Rebuilding the picture means reading the file again, and the pad emits its dataChanged for
+        // every knob and every dragged marker. Only the things the picture is made of are a reason to.
+        const source = [samplerController.selectedPad, waveform.fileName, samplerController.selectedPadDuration, samplerController.selectedPadReverse, Math.round(width)].join("/");
+        if (source === waveformSource) {
+            return;
+        }
+        const data = samplerController.getWaveformData(width - 12);
+        currentWaveformData = data || [];
+        // A picture that could not be read is not one to remember: the next attempt has to try again.
+        waveformSource = currentWaveformData.length ? source : "";
     }
 
     onWidthChanged: updateWaveform()

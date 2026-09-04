@@ -16,6 +16,9 @@ private slots:
     void test_sampleRateChange_shouldUpdateHzValues();
     void test_properties_shouldUpdateDeviceAndEmitSignals();
     void test_selectedPadLoopStart_secondsAndMilliseconds_shouldCombineIntoOneOffset();
+    void test_selectedPadStartOffset_wholeSecond_shouldReadBackWhole();
+    void test_selectedPadLoop_enabled_shouldDropTheLoopPointInTheMiddleOfTheRange();
+    void test_selectedPadLoop_enabled_shouldKeepALoopPointThePadAlreadyHas();
     void test_reset_shouldRestoreDefaultValues();
     void test_setSampler_shouldRefreshGlobalSwitchesToReflectNewInstance();
     void test_loadedPads_shouldListOnlyLoadedPads();

@@ -101,10 +101,6 @@ ColumnLayout {
         }
     }
 
-    SamplerDialog_Offsets {
-        Layout.fillWidth: true
-    }
-
     RowLayout {
         Layout.fillWidth: true
         spacing: 10

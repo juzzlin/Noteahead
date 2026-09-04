@@ -21,9 +21,13 @@ New features:
 
 * Add a loop point to the Sampler's pads
   - The pad plays its range once and then repeats only what follows the point
+  - Turning looping on drops the point in the middle of the range
 
 * Draw the pad's amp envelope over the Sampler's waveform
   - White lines over the range, the release included
+
+* Drag the Sampler's start, end and loop markers on the waveform
+  - Each has a handle, and neither trim can be dragged past the other
 
 * Add choke groups to the Sampler's pads
   - Triggering a pad silences the other pads sharing its group
@@ -34,6 +38,12 @@ Bug fixes:
 * Validate the --window-size argument
   - A malformed size reported "stoi" instead of saying what was wrong
   - A zero or negative size was accepted and saved over the stored one
+
+* Stop rebuilding the Sampler's waveform for every pad setting
+  - The sample file was read again on every knob move
+
+* Fix the Sampler's offsets at whole seconds
+  - Some read back a second short, with a thousand milliseconds beside them
 
 Other:
 

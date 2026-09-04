@@ -76,4 +76,10 @@ ColumnLayout {
             samplerController.selectedPadRelease = v / Constants.uiInternalScaling;
         }
     }
+
+    // The offsets sit here rather than among the pad settings for the width: a second and a
+    // millisecond box side by side need a column to themselves.
+    SamplerDialog_Offsets {
+        Layout.fillWidth: true
+    }
 }

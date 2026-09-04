@@ -194,6 +194,15 @@ signals:
     void samplerChanged();
 
 private:
+    //! One offset as the whole-second and millisecond halves the dialog's two spin boxes edit.
+    struct OffsetParts
+    {
+        int seconds = 0;
+        int milliseconds = 0;
+    };
+
+    static OffsetParts splitSeconds(double seconds);
+
     int noteForPad(int padIndex) const;
 
     //! The note of the selected pad, or nothing when no pad is selected.
