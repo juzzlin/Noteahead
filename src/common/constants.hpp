@@ -89,6 +89,14 @@ double defaultSampleRate();
 //! step below it, so they can never preempt the thread that is waiting for them.
 int audioCallbackRealTimePriority();
 
+//! How far ahead of a tick's own moment the player dispatches it, in milliseconds.
+//!
+//! An event can only be placed in audio that has not been rendered yet, and the engine renders
+//! ahead of what is being heard by however much the backend has buffered. Dispatching this early
+//! leaves room for it. Too small is not a failure: the event is applied at the first frame left,
+//! which is exactly what happened before any of this existed.
+int playbackScheduleLookaheadMs();
+
 //! Variable the PulseAudio protocol reads the stream's target latency from.
 QString pulseLatencyEnvironmentVariable();
 

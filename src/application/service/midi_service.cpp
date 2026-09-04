@@ -198,6 +198,49 @@ void MidiService::playNote(InstrumentW instrument, MidiNoteDataCR data)
     }
 }
 
+bool MidiService::isInternalInstrument(InstrumentW instrument) const
+{
+    if (const auto instr = instrument.lock(); instr && m_deviceService) {
+        return m_deviceService->isInternalDevice(instr->midiAddress().portName());
+    }
+    return false;
+}
+
+void MidiService::clearScheduledEvents()
+{
+    if (m_deviceService) {
+        m_deviceService->clearScheduledEvents();
+    }
+}
+
+void MidiService::playNoteAt(InstrumentW instrument, MidiNoteDataCR data, std::chrono::steady_clock::time_point when)
+{
+    if (const auto instr = instrument.lock(); instr && m_deviceService) {
+        const auto portName = instr->midiAddress().portName();
+        if (m_deviceService->isInternalDevice(portName)) {
+            if (const auto frame = m_deviceService->frameForTime(when); frame) {
+                m_deviceService->scheduleMidiNoteOn(portName, data.note(), data.velocity(), *frame);
+                return;
+            }
+        }
+    }
+    playNote(instrument, data);
+}
+
+void MidiService::stopNoteAt(InstrumentW instrument, MidiNoteDataCR data, std::chrono::steady_clock::time_point when)
+{
+    if (const auto instr = instrument.lock(); instr && m_deviceService) {
+        const auto portName = instr->midiAddress().portName();
+        if (m_deviceService->isInternalDevice(portName)) {
+            if (const auto frame = m_deviceService->frameForTime(when); frame) {
+                m_deviceService->scheduleMidiNoteOff(portName, data.note(), *frame);
+                return;
+            }
+        }
+    }
+    stopNote(instrument, data);
+}
+
 void MidiService::stopNote(InstrumentW instrument, MidiNoteDataCR data)
 {
     if (const auto instr = instrument.lock()) {

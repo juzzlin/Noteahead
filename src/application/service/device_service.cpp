@@ -301,6 +301,58 @@ void DeviceService::processMidiNoteOn(const QString & portName, uint8_t note, ui
     }
 }
 
+std::optional<uint64_t> DeviceService::frameForTime(std::chrono::steady_clock::time_point time) const
+{
+    if (!m_audioEngine) {
+        return std::nullopt;
+    }
+    const auto anchor = m_audioEngine->frameAnchor();
+    if (!anchor.running || !anchor.sampleRate) {
+        return std::nullopt;
+    }
+
+    const auto nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(time.time_since_epoch()).count();
+    const double seconds = static_cast<double>(nanoseconds - anchor.nanoseconds) / 1e9;
+    const auto offset = static_cast<int64_t>(seconds * anchor.sampleRate);
+    if (const auto frame = static_cast<int64_t>(anchor.frame) + offset; frame > 0) {
+        return static_cast<uint64_t>(frame);
+    }
+    return std::nullopt;
+}
+
+void DeviceService::scheduleMidiNoteOn(const QString & portName, uint8_t note, uint8_t velocity, uint64_t frame)
+{
+    if (const auto dev = deviceForPort(portName); dev) {
+        Device::ScheduledEvent event;
+        event.type = Device::ScheduledEvent::Type::NoteOn;
+        event.frame = frame;
+        event.note = note;
+        event.velocity = velocity;
+        dev->scheduleMidiEvent(event);
+    }
+}
+
+void DeviceService::scheduleMidiNoteOff(const QString & portName, uint8_t note, uint64_t frame)
+{
+    if (const auto dev = deviceForPort(portName); dev) {
+        Device::ScheduledEvent event;
+        event.type = Device::ScheduledEvent::Type::NoteOff;
+        event.frame = frame;
+        event.note = note;
+        dev->scheduleMidiEvent(event);
+    }
+}
+
+void DeviceService::clearScheduledEvents()
+{
+    const std::lock_guard<std::mutex> lock { m_deviceCacheMutex };
+    for (auto && device : m_deviceCache) {
+        if (device) {
+            device->clearScheduledEvents();
+        }
+    }
+}
+
 void DeviceService::processMidiNoteOff(const QString & portName, uint8_t note)
 {
     if (const auto dev = deviceForPort(portName); dev) {

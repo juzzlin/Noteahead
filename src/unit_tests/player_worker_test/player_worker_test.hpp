@@ -32,6 +32,8 @@ private slots:
     void test_columnMute_shouldStopActiveNote();
     void test_noteOff_soloedElsewhere_shouldNotBeSent();
     void test_noteOff_mutedWhileSounding_shouldBeSentOnce();
+    void test_lookahead_externalInstruments_shouldStayZero();
+    void test_lookahead_internalInstruments_shouldRunAhead();
 };
 
 } // namespace noteahead

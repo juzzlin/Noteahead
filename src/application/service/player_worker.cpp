@@ -60,6 +60,16 @@ void PlayerWorker::initialize(const EventList & events, const Timing & timing)
             }
         }
 
+        // Only a song played entirely by internal devices runs ahead. See m_scheduleLookahead.
+        const bool everythingInternal = !m_allInstruments.empty()
+          && std::all_of(m_allInstruments.begin(), m_allInstruments.end(),
+                         [this](auto && instrument) { return m_midiService->isInternalInstrument(instrument); });
+        m_scheduleLookahead = everythingInternal
+          ? std::chrono::duration_cast<std::chrono::steady_clock::duration>(std::chrono::milliseconds { Constants::playbackScheduleLookaheadMs() })
+          : std::chrono::steady_clock::duration::zero();
+        juzzlin::L(TAG).info() << "Schedule lookahead: "
+                               << std::chrono::duration_cast<std::chrono::milliseconds>(m_scheduleLookahead).count() << " ms";
+
     } else {
         juzzlin::L(TAG).error() << "Cannot initialize, because still playing!";
     }
@@ -103,6 +113,14 @@ void PlayerWorker::stop()
 
     stopAllNotes();
     stopTransport();
+    if (m_midiService) {
+        m_midiService->clearScheduledEvents();
+    }
+}
+
+std::chrono::steady_clock::duration PlayerWorker::scheduleLookahead() const
+{
+    return m_scheduleLookahead;
 }
 
 bool PlayerWorker::shouldEventPlay(size_t track, size_t column) const
@@ -110,7 +128,7 @@ bool PlayerWorker::shouldEventPlay(size_t track, size_t column) const
     return m_mixerService->shouldColumnPlay(track, column);
 }
 
-void PlayerWorker::handleEvent(const Event & event)
+void PlayerWorker::handleEvent(const Event & event, std::optional<std::chrono::steady_clock::time_point> when)
 {
     event.visit([&](auto && data) {
         using T = std::decay_t<decltype(data)>;
@@ -126,12 +144,20 @@ void PlayerWorker::handleEvent(const Event & event)
                         return an.track == data.track() && an.column == data.column() && an.note == *data.note();
                     });
                     if (sounding) {
-                        m_midiService->stopNote(instrument, { *data.note(), 0 });
+                        if (when) {
+                            m_midiService->stopNoteAt(instrument, { *data.note(), 0 }, *when);
+                        } else {
+                            m_midiService->stopNote(instrument, { *data.note(), 0 });
+                        }
                     }
                 } else if (data.type() == NoteData::Type::NoteOn && data.note().has_value()) {
                     if (shouldEventPlay(data.track(), data.column())) {
                         const auto effectiveVelocity = m_mixerService->effectiveVelocity(data.track(), data.column(), data.velocity());
-                        m_midiService->playNote(instrument, { *data.note(), effectiveVelocity });
+                        if (when) {
+                            m_midiService->playNoteAt(instrument, { *data.note(), effectiveVelocity }, *when);
+                        } else {
+                            m_midiService->playNote(instrument, { *data.note(), effectiveVelocity });
+                        }
                         m_activeNotes[instrument].push_back({ data.track(), data.column(), *data.note() });
                     }
                 }
@@ -208,6 +234,26 @@ void PlayerWorker::processEvents()
 
     const auto startTime = std::chrono::steady_clock::now();
 
+    // The whole tick timeline is pushed a lookahead into the future, and the loop then waits until a
+    // lookahead before each tick. The waiting is therefore exactly what it always was, and every
+    // tick -- the first included -- names a moment that has yet to be rendered. Playback starts that
+    // much later, which at a few tens of milliseconds nobody can hear.
+    const auto timelineStart = startTime + m_scheduleLookahead;
+
+    const auto timeForTickOffset = [&](quint64 offset) {
+        if (m_jackBpmSyncEnabled) {
+            const double currentBpm = m_jackService->bpm();
+            const double jackSampleRate = m_jackService->sampleRate();
+            const double framesPerTick = (jackSampleRate * 60.0) / (currentBpm * m_timing.linesPerBeat * m_timing.ticksPerLine);
+            const auto framesToWait = static_cast<long long>(static_cast<double>(offset) * framesPerTick);
+            // We sync Noteahead's steady_clock timeline to JACK's sample clock
+            return timelineStart + std::chrono::duration_cast<std::chrono::steady_clock::duration>(std::chrono::duration<double>(framesToWait / jackSampleRate));
+        }
+        const double tickDurationS = 60.0 / (static_cast<double>(m_timing.beatsPerMinute * m_timing.linesPerBeat * m_timing.ticksPerLine));
+        const auto tickDuration = std::chrono::duration<double> { tickDurationS };
+        return timelineStart + std::chrono::duration_cast<std::chrono::steady_clock::duration>(offset * tickDuration);
+    };
+
     auto tick = minTick;
     while (m_isPlaying && (tick <= maxTick || m_isLooping)) {
         const auto effectiveTick = this->effectiveTick(tick, minTick, maxTick);
@@ -215,8 +261,13 @@ void PlayerWorker::processEvents()
             emit tickUpdated(static_cast<quint64>(effectiveTick));
         }
         if (auto && eventsAtTick = m_eventMap.find(effectiveTick); eventsAtTick != m_eventMap.end()) {
+            // The moment this tick is actually due, which is a lookahead from now. Passed on only
+            // when the song is running ahead; otherwise the events go out the way they always did.
+            const auto due = m_scheduleLookahead.count()
+              ? std::optional { timeForTickOffset(tick - minTick) }
+              : std::nullopt;
             for (auto && event : eventsAtTick->second) {
-                handleEvent(*event);
+                handleEvent(*event, due);
             }
         }
 
@@ -241,22 +292,9 @@ void PlayerWorker::processEvents()
             step = 1;
         }
 
-        // Calculate next tick's start time
-        std::chrono::steady_clock::time_point nextTickTime;
-        if (m_jackBpmSyncEnabled) {
-            const double currentBpm = m_jackService->bpm();
-            const double jackSampleRate = m_jackService->sampleRate();
-            const double framesPerTick = (jackSampleRate * 60.0) / (currentBpm * m_timing.linesPerBeat * m_timing.ticksPerLine);
-            const double tickOffset = static_cast<double>(tick - minTick + step);
-            const auto framesToWait = static_cast<long long>(tickOffset * framesPerTick);
-
-            // We sync Noteahead's steady_clock timeline to JACK's sample clock
-            nextTickTime = startTime + std::chrono::duration_cast<std::chrono::steady_clock::duration>(std::chrono::duration<double>(framesToWait / jackSampleRate));
-        } else {
-            const double tickDurationS = 60.0 / (static_cast<double>(m_timing.beatsPerMinute * m_timing.linesPerBeat * m_timing.ticksPerLine));
-            const auto tickDuration = std::chrono::duration<double> { tickDurationS };
-            nextTickTime = startTime + std::chrono::duration_cast<std::chrono::steady_clock::duration>((tick - minTick + step) * tickDuration);
-        }
+        // When the next tick is due, less the lookahead the timeline was pushed forward by: what is
+        // waited for is the same moment as before any of this.
+        const auto nextTickTime = timeForTickOffset(tick - minTick + step) - m_scheduleLookahead;
 
         std::unique_lock<std::mutex> lock { m_mutex };
 

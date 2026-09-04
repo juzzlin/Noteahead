@@ -19,6 +19,7 @@
 #include <QObject>
 #include <QThread>
 
+#include <chrono>
 #include <memory>
 
 #include "../instrument_request.hpp"
@@ -57,6 +58,20 @@ public:
     using MidiNoteDataCR = const MidiNoteData &;
     virtual Q_INVOKABLE void playNote(InstrumentW instrument, MidiNoteDataCR data);
     virtual Q_INVOKABLE void stopNote(InstrumentW instrument, MidiNoteDataCR data);
+
+    //! Whether this instrument is played by one of the internal devices rather than out of a port.
+    virtual bool isInternalInstrument(InstrumentW instrument) const;
+
+    //! Drops what the internal devices are still holding, so a stop leaves nothing to sound later.
+    void clearScheduledEvents();
+
+    //! Plays a note at the moment it is written for, rather than whenever the next block starts.
+    //!
+    //! Only an internal device can be told this, and only while the engine is rendering; everything
+    //! else falls through to playNote and goes out the way it always did. Deliberately not virtual:
+    //! it delegates to the virtual pair, so anything watching those still sees every note.
+    void playNoteAt(InstrumentW instrument, MidiNoteDataCR data, std::chrono::steady_clock::time_point when);
+    void stopNoteAt(InstrumentW instrument, MidiNoteDataCR data, std::chrono::steady_clock::time_point when);
     virtual Q_INVOKABLE void stopAllNotes(InstrumentW instrument);
     virtual Q_INVOKABLE void stopAllNotes();
     using MidiCcDataCR = const MidiCcData &;

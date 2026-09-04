@@ -18,6 +18,7 @@
 #include "../../application/service/midi_service.hpp"
 #include "../../application/service/mixer_service.hpp"
 #include "../../application/service/player_worker.hpp"
+#include "../../common/constants.hpp"
 #include "../../domain/midi/midi_note_data.hpp"
 #include "../../domain/tracker/event.hpp"
 #include "../../domain/tracker/instrument.hpp"
@@ -42,6 +43,11 @@ public:
     void callCheckMixerState()
     {
         checkMixerState();
+    }
+
+    std::chrono::steady_clock::duration lookahead() const
+    {
+        return scheduleLookahead();
     }
 };
 
@@ -71,6 +77,13 @@ public:
     void stopNote(InstrumentW, MidiNoteDataCR) override
     {
         stopNoteCallCount++;
+    }
+
+    bool internal = false;
+
+    bool isInternalInstrument(InstrumentW) const override
+    {
+        return internal;
     }
 };
 
@@ -330,6 +343,54 @@ void PlayerWorkerTest::test_noteOff_mutedWhileSounding_shouldBeSentOnce()
     offEvent.setInstrument(instrument);
     worker.test_handleEvent(offEvent);
     QCOMPARE(midiService->stopNoteCallCount, 1);
+}
+
+void PlayerWorkerTest::test_lookahead_externalInstruments_shouldStayZero()
+{
+    // A song played out of a port keeps the timing it always had. Running ahead would only put the
+    // hardware in front of everything else, since the port is written from this thread either way.
+    const auto midiService { std::make_shared<MockMidiService>() };
+    const auto mixerService { std::make_shared<MixerService>() };
+    TestablePlayerWorker worker { midiService, mixerService, nullptr };
+
+    mixerService->setTrackIndices({ 0 });
+    mixerService->setColumnIndices(0, { 0 });
+
+    const auto instrument { std::make_shared<Instrument>("HardwarePort") };
+    instrument->setMidiAddress(MidiAddress { "HardwarePort", 0 });
+
+    NoteData noteData { 0, 0 };
+    noteData.setAsNoteOn(60, 100);
+    const auto event { std::make_shared<Event>(0, noteData) };
+    event->setInstrument(instrument);
+
+    worker.initialize({ event }, PlayerWorker::Timing { 120, 4, 6 });
+
+    QCOMPARE(worker.lookahead(), std::chrono::steady_clock::duration::zero());
+}
+
+void PlayerWorkerTest::test_lookahead_internalInstruments_shouldRunAhead()
+{
+    const auto midiService { std::make_shared<MockMidiService>() };
+    midiService->internal = true;
+    const auto mixerService { std::make_shared<MixerService>() };
+    TestablePlayerWorker worker { midiService, mixerService, nullptr };
+
+    mixerService->setTrackIndices({ 0 });
+    mixerService->setColumnIndices(0, { 0 });
+
+    const auto instrument { std::make_shared<Instrument>("Noteahead Internal Device 1") };
+    instrument->setMidiAddress(MidiAddress { "Noteahead Internal Device 1", 0 });
+
+    NoteData noteData { 0, 0 };
+    noteData.setAsNoteOn(60, 100);
+    const auto event { std::make_shared<Event>(0, noteData) };
+    event->setInstrument(instrument);
+
+    worker.initialize({ event }, PlayerWorker::Timing { 120, 4, 6 });
+
+    QCOMPARE(std::chrono::duration_cast<std::chrono::milliseconds>(worker.lookahead()).count(),
+             static_cast<long long>(Constants::playbackScheduleLookaheadMs()));
 }
 
 } // namespace noteahead

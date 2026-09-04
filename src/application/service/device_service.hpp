@@ -25,6 +25,7 @@
 #include <QStringList>
 #include <QVariantList>
 
+#include <chrono>
 #include <functional>
 #include <memory>
 #include <mutex>
@@ -67,6 +68,18 @@ public:
     Q_INVOKABLE virtual bool isInternalDevice(const QString & portName) const;
     void processMidiNoteOn(const QString & portName, uint8_t note, uint8_t velocity);
     void processMidiNoteOff(const QString & portName, uint8_t note);
+
+    //! Frame the given moment falls on, or nothing while the engine is not rendering.
+    //!
+    //! Nothing can be placed in a stream that is not moving, and the caller has to be able to tell
+    //! so that it can send the event the immediate way instead of holding it for a frame that will
+    //! never be reached.
+    std::optional<uint64_t> frameForTime(std::chrono::steady_clock::time_point time) const;
+
+    void scheduleMidiNoteOn(const QString & portName, uint8_t note, uint8_t velocity, uint64_t frame);
+    void scheduleMidiNoteOff(const QString & portName, uint8_t note, uint64_t frame);
+    //! Drops what every device is still holding, so a stop leaves nothing queued to sound later.
+    void clearScheduledEvents();
     void processMidiCc(const QString & portName, uint8_t controller, uint8_t value, uint8_t channel);
     void processMidiPitchBend(const QString & portName, uint16_t value, uint8_t channel);
     void processMidiProgramChange(const QString & portName, uint8_t program, uint8_t channel);

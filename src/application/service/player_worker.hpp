@@ -17,11 +17,13 @@
 #define PLAYER_WORKER_HPP
 
 #include <QObject>
+#include <chrono>
 #include <condition_variable>
 #include <cstddef>
 #include <map>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <set>
 #include <vector>
 
@@ -97,6 +99,15 @@ private:
     using InstrumentS = std::shared_ptr<Instrument>;
     std::set<InstrumentS> m_allInstruments;
 
+    //! How far ahead of its own moment a tick is dispatched, so that an internal device can be given
+    //! the frame the note belongs on instead of taking whichever block starts next.
+    //!
+    //! Zero unless every instrument in the song is an internal device. A song that plays anything
+    //! out of a port keeps the timing it always had: the port is written from this thread and is
+    //! already accurate to the tick, and running ahead without holding those messages back for the
+    //! same span would only put the hardware in front of everything else.
+    std::chrono::steady_clock::duration m_scheduleLookahead { std::chrono::steady_clock::duration::zero() };
+
     struct ActiveNote
     {
         size_t track;
@@ -118,8 +129,10 @@ private slots:
 
 protected:
     void checkMixerState();
-    virtual void handleEvent(const Event & event);
+    void handleEvent(const Event & event, std::optional<std::chrono::steady_clock::time_point> when = std::nullopt);
     virtual bool shouldEventPlay(size_t track, size_t column) const;
+    //! How far ahead of itself the song is being played. See m_scheduleLookahead.
+    std::chrono::steady_clock::duration scheduleLookahead() const;
 };
 
 } // namespace noteahead

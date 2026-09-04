@@ -66,7 +66,12 @@ Bug fixes:
   - A device holding an event is no longer skipped for being silent
   - The engine publishes where it is in the stream and when, so a tick's
     time can be turned into the frame it falls on
-  - Nothing schedules yet; the player still dispatches as it did
+
+* Play internal synths on the frame the note was written for
+  - The player runs a little ahead of itself and names the moment, so a
+    note no longer waits for whichever block starts next
+  - Only for songs played entirely by internal devices; anything going
+    out of a port keeps the timing it had
 
 Other:
 
