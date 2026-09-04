@@ -62,6 +62,13 @@ public:
 
     void process(AudioContext & context);
 
+    //! Frames the engine has rendered since it was created, which is the timeline a scheduled event
+    //! names its frame on.
+    //!
+    //! Free-running and never reset: whoever schedules against it anchors on what it reads when
+    //! playback starts, so all it has to be is monotonic. Read off the audio thread, so atomic.
+    uint64_t framesRendered() const;
+
     void reset();
     void clear();
 
@@ -158,6 +165,7 @@ private:
     std::vector<size_t> m_graphSignature;
     std::vector<size_t> m_prevGraphSignature;
     mutable std::mutex m_mutex;
+    std::atomic<uint64_t> m_framesRendered { 0 };
     std::atomic<bool> m_isExclusive { false };
     std::atomic<bool> m_playbackThreadingEnabled { false };
     //! Scheduling of the thread that drives playback, sampled once from process(). Threading

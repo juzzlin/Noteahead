@@ -56,6 +56,9 @@ struct DeviceProcessContext
     double bpm {};
     uint8_t oversampleFactor {};
     bool offline {};
+    //! Where this block starts on the engine's timeline. Last, like AudioContext's own, because the
+    //! context is built positionally.
+    uint64_t startFrame {};
 };
 
 struct EffectProcessContext
@@ -102,7 +105,10 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
     // render (one tick per block) and real-time playback (a whole audio buffer per block) disagree
     // about it. Such an insert reports itself unsettled until it has released, and the device keeps
     // running until then; everything else settles immediately and is skipped exactly as before.
-    if (!device->hasActiveAudio() && !deviceContext.deviceActiveFlags->at(deviceSnapshotIndex) && device->insertEffectsSettled()) {
+    // A device holding a scheduled event is not idle even while it is silent: the note has not been
+    // applied yet, so hasActiveAudio() cannot know about it, and skipping the block would drop the
+    // note rather than save the work.
+    if (!device->hasActiveAudio() && !device->hasScheduledEvents() && !deviceContext.deviceActiveFlags->at(deviceSnapshotIndex) && device->insertEffectsSettled()) {
         if (deviceContext.deviceOutputBuffersMutable) {
             const auto slotIndex = deviceContext.slotSnapshot->at(deviceSnapshotIndex);
             auto & outputBuffer = deviceContext.deviceOutputBuffersMutable->at(slotIndex);
@@ -116,7 +122,7 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
         return;
     }
 
-    AudioContext audioContext { std::span(workBuffer.deviceBuffer.data(), deviceContext.bufferSize), deviceContext.frameCount, deviceContext.sampleRate, deviceContext.bpm, deviceContext.deviceOutputBuffers, deviceContext.oversampleFactor, deviceContext.offline };
+    AudioContext audioContext { std::span(workBuffer.deviceBuffer.data(), deviceContext.bufferSize), deviceContext.frameCount, deviceContext.sampleRate, deviceContext.bpm, deviceContext.deviceOutputBuffers, deviceContext.oversampleFactor, deviceContext.offline, deviceContext.startFrame };
 
     // Cheap enough to read unconditionally; the meter itself is a no-op while nothing is displayed.
     const auto processingStarted = std::chrono::steady_clock::now();
@@ -462,6 +468,11 @@ void AudioEngine::process(AudioContext & context)
     if (!bufferSize) {
         return;
     }
+
+    // Stamped before anything renders and advanced once at the end, so every device in this block
+    // sees the same start and a scheduled event lands on the frame it names no matter which lane
+    // picked the device up.
+    context.startFrame = m_framesRendered.load(std::memory_order_relaxed);
     // Refresh the cached send-effects snapshot only when the rack actually changed, so the common
     // case avoids copying the vector (and bumping shared_ptr refcounts) under a lock every callback.
     if (const auto version = m_sendEffectRack->version(); version != m_sendEffectsVersion) {
@@ -583,7 +594,8 @@ void AudioEngine::process(AudioContext & context)
                 bufferSize,
                 context.bpm,
                 context.oversampleFactor,
-                context.offline
+                context.offline,
+                context.startFrame
             };
             if (fanOutDevices) {
                 m_workerPool->run(layer.size(), &deviceContext, processDeviceTask);
@@ -665,6 +677,13 @@ void AudioEngine::process(AudioContext & context)
     // those separately.
     m_loadMeter.addBlock(std::chrono::steady_clock::now() - callbackStarted,
                          static_cast<double>(context.frameCount) / context.sampleRate);
+
+    m_framesRendered.store(context.startFrame + context.frameCount, std::memory_order_release);
+}
+
+uint64_t AudioEngine::framesRendered() const
+{
+    return m_framesRendered.load(std::memory_order_acquire);
 }
 
 LoadMeter & AudioEngine::loadMeter()

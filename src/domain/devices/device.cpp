@@ -488,6 +488,12 @@ size_t Device::scheduledEventCount() const
     return m_scheduledEvents.size();
 }
 
+bool Device::hasScheduledEvents() const
+{
+    const std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    return !m_scheduledEvents.empty();
+}
+
 void Device::processInsertEffects(AudioContext & context)
 {
     m_insertEffectRack.processInPlace(context);

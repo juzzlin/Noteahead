@@ -33,6 +33,8 @@ private slots:
     void test_renderBlock_shouldNotQuantiseToTheBlock_acrossABurst();
     void test_scheduledEvents_shouldBeApplied_inTheOrderQueued();
     void test_clearScheduledEvents_shouldDropEverythingQueued();
+    void test_framesRendered_shouldAdvanceByEveryBlock();
+    void test_engine_scheduledNote_shouldStartOnItsOwnFrame();
 };
 
 } // namespace noteahead

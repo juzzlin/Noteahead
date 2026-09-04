@@ -63,6 +63,7 @@ Bug fixes:
 * Give devices a MIDI event queue that carries the frame to play on
   - The engine breaks a block wherever an event falls, so a note no
     longer waits for the next block boundary
+  - A device holding an event is no longer skipped for being silent
   - Nothing schedules yet; the player still dispatches as it did
 
 Other:

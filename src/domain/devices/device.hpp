@@ -152,6 +152,10 @@ public:
 
     size_t scheduledEventCount() const;
 
+    //! Whether anything is queued. What tells the engine that a device which is silent now is not
+    //! finished: skipping it would drop the note it is holding rather than merely save the work.
+    bool hasScheduledEvents() const;
+
     virtual void processAudio(AudioContext & context) = 0;
 
     //! Renders one block, breaking it wherever an event was scheduled.

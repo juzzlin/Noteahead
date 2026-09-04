@@ -16,6 +16,7 @@
 #include "scheduled_event_test.hpp"
 
 #include "../../domain/devices/device.hpp"
+#include "../../infra/audio/audio_engine.hpp"
 
 #include <QTest>
 
@@ -293,6 +294,54 @@ void ScheduledEventTest::test_clearScheduledEvents_shouldDropEverythingQueued()
     const auto left = renderBlock(device, 0, 512);
     QCOMPARE(firstFrameOf(left, 60), -1);
     QCOMPARE(device.pieces().size(), size_t { 1 });
+}
+
+void ScheduledEventTest::test_framesRendered_shouldAdvanceByEveryBlock()
+{
+    AudioEngine engine;
+    const auto before = engine.framesRendered();
+
+    std::vector<double> buffer(512 * 2, 0.0);
+    for (uint32_t block = 0; block < 3; block++) {
+        AudioContext context;
+        context.buffer = std::span<double> { buffer };
+        context.frameCount = 512;
+        context.sampleRate = SampleRate;
+        engine.process(context);
+        // The engine stamps the block it is about to render, so the context comes back saying where
+        // it started rather than where it ended.
+        QCOMPARE(context.startFrame, before + block * 512);
+    }
+
+    QCOMPARE(engine.framesRendered(), before + 3 * 512);
+}
+
+void ScheduledEventTest::test_engine_scheduledNote_shouldStartOnItsOwnFrame()
+{
+    // The same thing end to end: the engine stamps the block, the device breaks it, and the note
+    // comes out on the frame it was scheduled for rather than at the block boundary.
+    AudioEngine engine;
+    const auto device = std::make_shared<MarkerDevice>();
+    engine.setDevice(0, device);
+
+    const auto anchor = engine.framesRendered();
+    device->scheduleMidiEvent(noteOnAt(anchor + 512 + 300, 60));
+
+    std::vector<double> stream;
+    std::vector<double> buffer(512 * 2, 0.0);
+    for (uint32_t block = 0; block < 2; block++) {
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        AudioContext context;
+        context.buffer = std::span<double> { buffer };
+        context.frameCount = 512;
+        context.sampleRate = SampleRate;
+        engine.process(context);
+        for (uint32_t i = 0; i < 512; i++) {
+            stream.push_back(buffer[i * 2]);
+        }
+    }
+
+    QCOMPARE(firstFrameOf(stream, 60), 512 + 300);
 }
 
 } // namespace noteahead
