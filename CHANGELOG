@@ -52,6 +52,9 @@ Bug fixes:
 * Steal the quietest Piano Synth V3 voice once all sixteen are sounding
   - Round-robin cut the loudest note as readily as the faintest
 
+* Stop sending note-offs for notes that never played
+  - A muted or unsoloed track logged "No port found" once per note
+
 Other:
 
 7.3.0

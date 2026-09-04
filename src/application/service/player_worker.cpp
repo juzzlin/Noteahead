@@ -117,11 +117,17 @@ void PlayerWorker::handleEvent(const Event & event)
         if constexpr (std::is_same_v<T, NoteData>) {
             if (auto && instrument = event.instrument(); instrument) {
                 if (data.type() == NoteData::Type::NoteOff) {
-                    m_midiService->stopNote(instrument, { *data.note(), 0 });
+                    // Only what was started is stopped. A column that is muted or left out of the
+                    // solo group never had its note-on sent, and one muted while sounding was
+                    // already stopped by checkMixerState(), so a note-off here would reach for a
+                    // port the song may not even be playing to -- once per note, for every note.
                     auto & notes = m_activeNotes[instrument];
-                    std::erase_if(notes, [&](const ActiveNote & an) {
+                    const auto sounding = std::erase_if(notes, [&](const ActiveNote & an) {
                         return an.track == data.track() && an.column == data.column() && an.note == *data.note();
                     });
+                    if (sounding) {
+                        m_midiService->stopNote(instrument, { *data.note(), 0 });
+                    }
                 } else if (data.type() == NoteData::Type::NoteOn && data.note().has_value()) {
                     if (shouldEventPlay(data.track(), data.column())) {
                         const auto effectiveVelocity = m_mixerService->effectiveVelocity(data.track(), data.column(), data.velocity());

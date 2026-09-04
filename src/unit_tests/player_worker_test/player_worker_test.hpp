@@ -30,6 +30,8 @@ private slots:
     void test_playback_shouldSendMidiEvents();
     void test_mixerChange_shouldStopNotes();
     void test_columnMute_shouldStopActiveNote();
+    void test_noteOff_soloedElsewhere_shouldNotBeSent();
+    void test_noteOff_mutedWhileSounding_shouldBeSentOnce();
 };
 
 } // namespace noteahead

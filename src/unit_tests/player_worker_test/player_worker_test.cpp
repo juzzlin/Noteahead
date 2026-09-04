@@ -151,13 +151,14 @@ void PlayerWorkerTest::test_columnMuteBehavior_shouldNotStopAllNotes()
     // 2. stopAllNotes should NOT be called
     QCOMPARE(midiService->stopAllNotesCallCount, 0);
 
-    // Test Note Off (should always be processed)
+    // 3. The note-off is not sent either: nothing was started on the muted column, so
+    // stopping it would only be a message to a port the song is not playing to.
     NoteData noteData2 { 0, 1 };
     noteData2.setAsNoteOff(60);
     Event event2 { 0, noteData2 };
     event2.setInstrument(instrument);
     worker.test_handleEvent(event2);
-    QCOMPARE(midiService->stopNoteCallCount, 1);
+    QCOMPARE(midiService->stopNoteCallCount, 0);
 }
 
 void PlayerWorkerTest::test_trackMuteBehavior_shouldStopAllNotes()
@@ -257,6 +258,77 @@ void PlayerWorkerTest::test_playback_shouldSendMidiEvents()
     worker.test_handleEvent(eventOn);
     QCOMPARE(midiService->playNoteCallCount, 1);
     worker.test_handleEvent(eventOff);
+    QCOMPARE(midiService->stopNoteCallCount, 1);
+}
+
+void PlayerWorkerTest::test_noteOff_soloedElsewhere_shouldNotBeSent()
+{
+    // The case this was written for: one track soloed, and the rest addressing gear that is
+    // not connected. Their note-ons were already held back; their note-offs went out anyway,
+    // and each one reached the backend for a port that is not there.
+    const auto midiService { std::make_shared<MockMidiService>() };
+    const auto mixerService { std::make_shared<MixerService>() };
+    TestablePlayerWorker worker { midiService, mixerService, nullptr };
+
+    mixerService->setTrackIndices({ 0, 1 });
+    mixerService->setColumnIndices(0, { 0 });
+    mixerService->setColumnIndices(1, { 0 });
+    mixerService->soloTrack(1, true);
+
+    QVERIFY(!mixerService->shouldColumnPlay(0, 0));
+
+    const auto instrument { std::make_shared<Instrument>("MissingPort") };
+    instrument->setMidiAddress(MidiAddress { "MissingPort", 0 });
+
+    for (const uint8_t note : { 60, 62, 64 }) {
+        NoteData on { 0, 0 };
+        on.setAsNoteOn(note, 100);
+        Event onEvent { 0, on };
+        onEvent.setInstrument(instrument);
+        worker.test_handleEvent(onEvent);
+
+        NoteData off { 0, 0 };
+        off.setAsNoteOff(note);
+        Event offEvent { 1, off };
+        offEvent.setInstrument(instrument);
+        worker.test_handleEvent(offEvent);
+    }
+
+    QCOMPARE(midiService->playNoteCallCount, 0);
+    QCOMPARE(midiService->stopNoteCallCount, 0);
+}
+
+void PlayerWorkerTest::test_noteOff_mutedWhileSounding_shouldBeSentOnce()
+{
+    // A note that was already sounding when its column was muted still has to be stopped, and
+    // stopped exactly once: checkMixerState() takes it, and the note-off that follows must not
+    // send a second one.
+    const auto midiService { std::make_shared<MockMidiService>() };
+    const auto mixerService { std::make_shared<MixerService>() };
+    TestablePlayerWorker worker { midiService, mixerService, nullptr };
+
+    mixerService->setTrackIndices({ 0 });
+    mixerService->setColumnIndices(0, { 0 });
+
+    const auto instrument { std::make_shared<Instrument>("TestPort") };
+    instrument->setMidiAddress(MidiAddress { "TestPort", 0 });
+
+    NoteData on { 0, 0 };
+    on.setAsNoteOn(60, 100);
+    Event onEvent { 0, on };
+    onEvent.setInstrument(instrument);
+    worker.test_handleEvent(onEvent);
+    QCOMPARE(midiService->playNoteCallCount, 1);
+
+    mixerService->muteColumn(0, 0, true);
+    worker.callCheckMixerState();
+    QCOMPARE(midiService->stopNoteCallCount, 1);
+
+    NoteData off { 0, 0 };
+    off.setAsNoteOff(60);
+    Event offEvent { 1, off };
+    offEvent.setInstrument(instrument);
+    worker.test_handleEvent(offEvent);
     QCOMPARE(midiService->stopNoteCallCount, 1);
 }
 
