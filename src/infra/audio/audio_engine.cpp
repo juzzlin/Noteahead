@@ -682,10 +682,21 @@ void AudioEngine::process(AudioContext & context)
 
     // Published last, so that a reader which gets a settled anchor is looking at a block that has
     // been rendered rather than one that is still being written into.
+    const auto nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(callbackStarted.time_since_epoch()).count();
+    if (m_previousBlockNanoseconds) {
+        // Decayed rather than held forever, so that a backend which stops bursting is believed
+        // again within a second or so instead of being punished for what it used to do.
+        const auto gap = nanoseconds - m_previousBlockNanoseconds;
+        m_maxBlockGapNanoseconds = std::max(gap, m_maxBlockGapNanoseconds - m_maxBlockGapNanoseconds / 64);
+    }
+    m_previousBlockNanoseconds = nanoseconds;
+
     m_frameAnchorSequence.fetch_add(1, std::memory_order_release);
     m_frameAnchor.frame = context.startFrame;
-    m_frameAnchor.nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(callbackStarted.time_since_epoch()).count();
+    m_frameAnchor.nanoseconds = nanoseconds;
     m_frameAnchor.sampleRate = context.sampleRate;
+    m_frameAnchor.blockFrames = context.frameCount;
+    m_frameAnchor.maxBlockGapNanoseconds = m_maxBlockGapNanoseconds;
     m_frameAnchor.running = true;
     m_frameAnchorSequence.fetch_add(1, std::memory_order_release);
 }

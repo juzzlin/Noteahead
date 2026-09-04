@@ -76,6 +76,12 @@ public:
     //! never be reached.
     std::optional<uint64_t> frameForTime(std::chrono::steady_clock::time_point time) const;
 
+    //! How far ahead of a note's own moment it has to be handed over to land on its frame.
+    //!
+    //! Nothing here is guessed: it comes from what the backend is actually doing. Nothing is
+    //! returned while the engine is not rendering, since there is then no timeline to be early on.
+    std::optional<std::chrono::steady_clock::duration> scheduleLookahead() const;
+
     void scheduleMidiNoteOn(const QString & portName, uint8_t note, uint8_t velocity, uint64_t frame);
     void scheduleMidiNoteOff(const QString & portName, uint8_t note, uint64_t frame);
     //! Drops what every device is still holding, so a stop leaves nothing queued to sound later.

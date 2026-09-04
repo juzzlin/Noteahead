@@ -206,6 +206,11 @@ bool MidiService::isInternalInstrument(InstrumentW instrument) const
     return false;
 }
 
+std::optional<std::chrono::steady_clock::duration> MidiService::scheduleLookahead() const
+{
+    return m_deviceService ? m_deviceService->scheduleLookahead() : std::nullopt;
+}
+
 void MidiService::clearScheduledEvents()
 {
     if (m_deviceService) {

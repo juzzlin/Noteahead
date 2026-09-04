@@ -82,6 +82,12 @@ public:
         int64_t nanoseconds {};
         //! Frames per second the stream is actually running at.
         uint32_t sampleRate {};
+        //! Frames in that block, i.e. the buffer size the backend is actually handing over.
+        uint32_t blockFrames {};
+        //! Longest recent gap between two blocks, which is how far apart the engine's chances to
+        //! start a note are. A backend that hands over a burst of buffers and then sleeps has a gap
+        //! far larger than one block, and that is what anything scheduling has to stay ahead of.
+        int64_t maxBlockGapNanoseconds {};
         //! Whether the engine is rendering at all. A stalled stream cannot place anything, and
         //! whoever is scheduling has to fall back to the clock on the wall.
         bool running {};
@@ -190,6 +196,8 @@ private:
     //! anchor, so a reader that sees the same even value twice knows it read one whole anchor.
     std::atomic<uint32_t> m_frameAnchorSequence { 0 };
     FrameAnchor m_frameAnchor;
+    int64_t m_previousBlockNanoseconds { 0 };
+    int64_t m_maxBlockGapNanoseconds { 0 };
     std::atomic<bool> m_isExclusive { false };
     std::atomic<bool> m_playbackThreadingEnabled { false };
     //! Scheduling of the thread that drives playback, sampled once from process(). Threading

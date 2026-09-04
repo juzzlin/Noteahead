@@ -320,6 +320,26 @@ std::optional<uint64_t> DeviceService::frameForTime(std::chrono::steady_clock::t
     return std::nullopt;
 }
 
+std::optional<std::chrono::steady_clock::duration> DeviceService::scheduleLookahead() const
+{
+    if (!m_audioEngine) {
+        return std::nullopt;
+    }
+    const auto anchor = m_audioEngine->frameAnchor();
+    if (!anchor.running || !anchor.sampleRate || !anchor.blockFrames) {
+        return std::nullopt;
+    }
+
+    // Two things have to be cleared. How far apart the engine's chances to start a note are, which
+    // is the gap between blocks and is a whole burst on a backend that delivers them together; and
+    // how much audio the backend is holding, which the stream is asked to keep at two blocks. The
+    // larger wins, and a margin on top covers the jitter in getting here at all.
+    const auto blockNanoseconds = static_cast<int64_t>(1e9 * anchor.blockFrames / anchor.sampleRate);
+    const auto needed = std::max(anchor.maxBlockGapNanoseconds, blockNanoseconds * Constants::pulseLatencyBufferCount());
+    const auto margin = static_cast<int64_t>(Constants::playbackScheduleMarginMs()) * 1000000;
+    return std::chrono::duration_cast<std::chrono::steady_clock::duration>(std::chrono::nanoseconds { needed + margin });
+}
+
 void DeviceService::scheduleMidiNoteOn(const QString & portName, uint8_t note, uint8_t velocity, uint64_t frame)
 {
     if (const auto dev = deviceForPort(portName); dev) {

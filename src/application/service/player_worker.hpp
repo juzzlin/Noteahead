@@ -107,6 +107,9 @@ private:
     //! already accurate to the tick, and running ahead without holding those messages back for the
     //! same span would only put the hardware in front of everything else.
     std::chrono::steady_clock::duration m_scheduleLookahead { std::chrono::steady_clock::duration::zero() };
+    //! Whether every instrument in the song is played by an internal device, which is what decides
+    //! whether the song runs ahead at all.
+    bool m_everythingInternal { false };
 
     struct ActiveNote
     {
@@ -133,6 +136,8 @@ protected:
     virtual bool shouldEventPlay(size_t track, size_t column) const;
     //! How far ahead of itself the song is being played. See m_scheduleLookahead.
     std::chrono::steady_clock::duration scheduleLookahead() const;
+    //! Settles how far ahead this song runs, from what the backend is actually doing.
+    void resolveScheduleLookahead();
 };
 
 } // namespace noteahead

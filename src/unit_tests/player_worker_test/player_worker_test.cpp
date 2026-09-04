@@ -49,6 +49,11 @@ public:
     {
         return scheduleLookahead();
     }
+
+    void callResolveLookahead()
+    {
+        resolveScheduleLookahead();
+    }
 };
 
 // Mock MidiService to capture calls
@@ -84,6 +89,13 @@ public:
     bool isInternalInstrument(InstrumentW) const override
     {
         return internal;
+    }
+
+    std::optional<std::chrono::steady_clock::duration> lookahead;
+
+    std::optional<std::chrono::steady_clock::duration> scheduleLookahead() const override
+    {
+        return lookahead;
     }
 };
 
@@ -373,6 +385,36 @@ void PlayerWorkerTest::test_lookahead_internalInstruments_shouldRunAhead()
 {
     const auto midiService { std::make_shared<MockMidiService>() };
     midiService->internal = true;
+    midiService->lookahead = std::chrono::milliseconds { 31 };
+    const auto mixerService { std::make_shared<MixerService>() };
+    TestablePlayerWorker worker { midiService, mixerService, nullptr };
+
+    mixerService->setTrackIndices({ 0 });
+    mixerService->setColumnIndices(0, { 0 });
+
+    const auto instrument { std::make_shared<Instrument>("Noteahead Internal Device 1") };
+    instrument->setMidiAddress(MidiAddress { "Noteahead Internal Device 1", 0 });
+
+    NoteData noteData { 0, 0 };
+    noteData.setAsNoteOn(60, 100);
+    const auto event { std::make_shared<Event>(0, noteData) };
+    event->setInstrument(instrument);
+
+    // Only known once the song is running: the lookahead comes from what the backend is doing.
+    worker.initialize({ event }, PlayerWorker::Timing { 120, 4, 6 });
+    QCOMPARE(worker.lookahead(), std::chrono::steady_clock::duration::zero());
+
+    worker.callResolveLookahead();
+    QCOMPARE(std::chrono::duration_cast<std::chrono::milliseconds>(worker.lookahead()).count(), 31LL);
+}
+
+void PlayerWorkerTest::test_lookahead_engineCannotSay_shouldNotRunAhead()
+{
+    // A stream that is not rendering has no timeline to be early on, so the song plays the way it
+    // always did rather than holding notes back for a frame that will never come.
+    const auto midiService { std::make_shared<MockMidiService>() };
+    midiService->internal = true;
+    midiService->lookahead = std::nullopt;
     const auto mixerService { std::make_shared<MixerService>() };
     TestablePlayerWorker worker { midiService, mixerService, nullptr };
 
@@ -388,9 +430,9 @@ void PlayerWorkerTest::test_lookahead_internalInstruments_shouldRunAhead()
     event->setInstrument(instrument);
 
     worker.initialize({ event }, PlayerWorker::Timing { 120, 4, 6 });
+    worker.callResolveLookahead();
 
-    QCOMPARE(std::chrono::duration_cast<std::chrono::milliseconds>(worker.lookahead()).count(),
-             static_cast<long long>(Constants::playbackScheduleLookaheadMs()));
+    QCOMPARE(worker.lookahead(), std::chrono::steady_clock::duration::zero());
 }
 
 } // namespace noteahead

@@ -72,6 +72,8 @@ Bug fixes:
     note no longer waits for whichever block starts next
   - Only for songs played entirely by internal devices; anything going
     out of a port keeps the timing it had
+  - How far ahead comes from what the backend is doing, so the buffer
+    size no longer has to be guessed at
 
 Other:
 

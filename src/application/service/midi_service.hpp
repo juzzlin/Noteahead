@@ -21,6 +21,7 @@
 
 #include <chrono>
 #include <memory>
+#include <optional>
 
 #include "../instrument_request.hpp"
 
@@ -61,6 +62,10 @@ public:
 
     //! Whether this instrument is played by one of the internal devices rather than out of a port.
     virtual bool isInternalInstrument(InstrumentW instrument) const;
+
+    //! How far ahead a note has to be handed over to land on its frame, or nothing when the engine
+    //! cannot say. Virtual so a test can state it outright.
+    virtual std::optional<std::chrono::steady_clock::duration> scheduleLookahead() const;
 
     //! Drops what the internal devices are still holding, so a stop leaves nothing to sound later.
     void clearScheduledEvents();

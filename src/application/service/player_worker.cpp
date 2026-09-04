@@ -61,14 +61,9 @@ void PlayerWorker::initialize(const EventList & events, const Timing & timing)
         }
 
         // Only a song played entirely by internal devices runs ahead. See m_scheduleLookahead.
-        const bool everythingInternal = !m_allInstruments.empty()
+        m_everythingInternal = !m_allInstruments.empty()
           && std::all_of(m_allInstruments.begin(), m_allInstruments.end(),
                          [this](auto && instrument) { return m_midiService->isInternalInstrument(instrument); });
-        m_scheduleLookahead = everythingInternal
-          ? std::chrono::duration_cast<std::chrono::steady_clock::duration>(std::chrono::milliseconds { Constants::playbackScheduleLookaheadMs() })
-          : std::chrono::steady_clock::duration::zero();
-        juzzlin::L(TAG).info() << "Schedule lookahead: "
-                               << std::chrono::duration_cast<std::chrono::milliseconds>(m_scheduleLookahead).count() << " ms";
 
     } else {
         juzzlin::L(TAG).error() << "Cannot initialize, because still playing!";
@@ -121,6 +116,21 @@ void PlayerWorker::stop()
 std::chrono::steady_clock::duration PlayerWorker::scheduleLookahead() const
 {
     return m_scheduleLookahead;
+}
+
+void PlayerWorker::resolveScheduleLookahead()
+{
+    // Settled here rather than at load: it comes from what the backend is doing, and the stream has
+    // to have rendered something before it can say. Held for the whole song, since the timeline is
+    // anchored on it and moving it mid-song would shift every tick that follows.
+    m_scheduleLookahead = std::chrono::steady_clock::duration::zero();
+    if (m_everythingInternal && m_midiService) {
+        if (const auto lookahead = m_midiService->scheduleLookahead(); lookahead) {
+            m_scheduleLookahead = *lookahead;
+        }
+    }
+    juzzlin::L(TAG).info() << "Schedule lookahead: "
+                           << std::chrono::duration_cast<std::chrono::milliseconds>(m_scheduleLookahead).count() << " ms";
 }
 
 bool PlayerWorker::shouldEventPlay(size_t track, size_t column) const
@@ -231,6 +241,8 @@ void PlayerWorker::processEvents()
     juzzlin::L(TAG).debug() << "Beats per min: " << m_timing.beatsPerMinute;
     juzzlin::L(TAG).debug() << "Lines per beat: " << m_timing.linesPerBeat;
     juzzlin::L(TAG).debug() << "Ticks per line: " << m_timing.ticksPerLine;
+
+    resolveScheduleLookahead();
 
     const auto startTime = std::chrono::steady_clock::now();
 

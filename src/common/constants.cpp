@@ -207,11 +207,11 @@ int audioCallbackRealTimePriority()
     return 10;
 }
 
-int playbackScheduleLookaheadMs()
+int playbackScheduleMarginMs()
 {
-    // Two of the largest buffers a backend is likely to hand over, which covers a server that wakes
-    // once per 2048 frames as well as one that wakes per buffer.
-    return 40;
+    // Enough to absorb an ordinary thread being late to its own wake-up, without adding latency
+    // worth noticing to a song that has to hold its MIDI back by the same span.
+    return 10;
 }
 
 QString pulseLatencyEnvironmentVariable()
