@@ -395,6 +395,99 @@ bool Device::insertEffectsSettled() const
     return m_insertEffectRack.isSettled();
 }
 
+void Device::renderBlock(AudioContext & context)
+{
+    uint32_t rendered = 0;
+    const uint64_t blockEnd = context.startFrame + context.frameCount;
+
+    while (rendered < context.frameCount) {
+        const uint64_t at = context.startFrame + rendered;
+        applyScheduledEvents(at);
+
+        // Where the next event falls, and so where this piece has to stop. Looking from the frame
+        // after this one, since whatever was due at `at` has just been applied.
+        const auto next = nextScheduledEventFrame(at + 1, blockEnd);
+        const uint32_t until = next ? static_cast<uint32_t>(*next - context.startFrame) : context.frameCount;
+
+        AudioContext piece = context;
+        piece.buffer = context.buffer.subspan(static_cast<size_t>(rendered) * 2, static_cast<size_t>(until - rendered) * 2);
+        piece.frameCount = until - rendered;
+        piece.startFrame = at;
+        processAudio(piece);
+
+        rendered = until;
+    }
+}
+
+void Device::scheduleMidiEvent(const ScheduledEvent & event)
+{
+    const std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    m_scheduledEvents.push_back(event);
+}
+
+void Device::applyScheduledEvents(uint64_t frame)
+{
+    const std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    if (m_scheduledEvents.empty()) {
+        return;
+    }
+
+    // The queue is filled in time order, so everything due sits at the front and the rest keeps its
+    // order. The events are applied through the immediate entry points, which is what makes this
+    // work for every device without any of them having to know the frame exists.
+    auto due = m_scheduledEvents.begin();
+    while (due != m_scheduledEvents.end() && due->frame <= frame) {
+        switch (due->type) {
+        case ScheduledEvent::Type::NoteOn:
+            processMidiNoteOn(due->note, due->velocity);
+            break;
+        case ScheduledEvent::Type::NoteOff:
+            processMidiNoteOff(due->note);
+            break;
+        case ScheduledEvent::Type::Cc:
+            processMidiCc(due->controller, due->velocity, due->channel);
+            break;
+        case ScheduledEvent::Type::PitchBend:
+            processMidiPitchBend(due->value, due->channel);
+            break;
+        case ScheduledEvent::Type::ProgramChange:
+            processMidiProgramChange(due->programme, due->channel);
+            break;
+        case ScheduledEvent::Type::AllNotesOff:
+            processMidiAllNotesOff();
+            break;
+        }
+        due++;
+    }
+    m_scheduledEvents.erase(m_scheduledEvents.begin(), due);
+}
+
+std::optional<uint64_t> Device::nextScheduledEventFrame(uint64_t from, uint64_t to) const
+{
+    const std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    for (auto && event : m_scheduledEvents) {
+        if (event.frame >= to) {
+            break; // Time order, so nothing behind this one can fall inside the block either
+        }
+        if (event.frame >= from) {
+            return event.frame;
+        }
+    }
+    return std::nullopt;
+}
+
+void Device::clearScheduledEvents()
+{
+    const std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    m_scheduledEvents.clear();
+}
+
+size_t Device::scheduledEventCount() const
+{
+    const std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    return m_scheduledEvents.size();
+}
+
 void Device::processInsertEffects(AudioContext & context)
 {
     m_insertEffectRack.processInPlace(context);

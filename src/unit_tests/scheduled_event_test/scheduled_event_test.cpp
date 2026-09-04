@@ -1,0 +1,300 @@
+// This file is part of Noteahead.
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
+//
+// Noteahead is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// Noteahead is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
+
+#include "scheduled_event_test.hpp"
+
+#include "../../domain/devices/device.hpp"
+
+#include <QTest>
+
+#include <span>
+#include <vector>
+
+namespace noteahead {
+
+namespace {
+
+constexpr uint32_t SampleRate = 48000;
+
+//! The smallest device that can show which frame a note started on: it writes the note number into
+//! every frame it renders while a note is held, and silence otherwise. Whatever it fills the buffer
+//! with is therefore a direct picture of when it was told.
+class MarkerDevice : public Device
+{
+public:
+    std::string name() const override
+    {
+        return "Marker";
+    }
+
+    std::string category() const override
+    {
+        return "Test";
+    }
+
+    std::string typeName() const override
+    {
+        return "Marker";
+    }
+
+    std::string typeId() const override
+    {
+        return "marker";
+    }
+
+    void processMidiNoteOn(uint8_t note, uint8_t) override
+    {
+        m_note = note;
+    }
+
+    void processMidiNoteOff(uint8_t) override
+    {
+        m_note = 0;
+    }
+
+    void processMidiCc(uint8_t controller, uint8_t value, uint8_t) override
+    {
+        m_ccLog.push_back({ controller, value });
+    }
+
+    void processMidiAllNotesOff() override
+    {
+        m_note = 0;
+    }
+
+    void processAudio(AudioContext & context) override
+    {
+        m_pieces.push_back({ context.startFrame, context.frameCount });
+        for (uint32_t i = 0; i < context.frameCount; i++) {
+            context.buffer[i * 2] = m_note;
+            context.buffer[i * 2 + 1] = m_note;
+        }
+    }
+
+    bool hasActiveAudio() const override
+    {
+        return m_note != 0;
+    }
+
+    void reset() override
+    {
+        m_note = 0;
+    }
+
+    void resetAudio() override
+    {
+        m_note = 0;
+    }
+
+    void serializeToXml(ProjectWriter &) const override
+    {
+    }
+
+    void deserializeFromXml(ProjectReader &) override
+    {
+    }
+
+    struct Piece
+    {
+        uint64_t startFrame {};
+        uint32_t frameCount {};
+    };
+
+    const std::vector<Piece> & pieces() const
+    {
+        return m_pieces;
+    }
+
+    const std::vector<std::pair<uint8_t, uint8_t>> & ccLog() const
+    {
+        return m_ccLog;
+    }
+
+private:
+    uint8_t m_note { 0 };
+    std::vector<Piece> m_pieces;
+    std::vector<std::pair<uint8_t, uint8_t>> m_ccLog;
+};
+
+Device::ScheduledEvent noteOnAt(uint64_t frame, uint8_t note)
+{
+    Device::ScheduledEvent event;
+    event.type = Device::ScheduledEvent::Type::NoteOn;
+    event.frame = frame;
+    event.note = note;
+    event.velocity = 100;
+    return event;
+}
+
+//! Renders one block and hands back the left channel, one value per frame.
+std::vector<double> renderBlock(MarkerDevice & device, uint64_t startFrame, uint32_t frameCount)
+{
+    std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+    AudioContext context;
+    context.buffer = std::span<double> { buffer };
+    context.frameCount = frameCount;
+    context.sampleRate = SampleRate;
+    context.startFrame = startFrame;
+    device.renderBlock(context);
+
+    std::vector<double> left(frameCount);
+    for (uint32_t i = 0; i < frameCount; i++) {
+        left[i] = buffer[i * 2];
+    }
+    return left;
+}
+
+//! First frame carrying the given note.
+int firstFrameOf(const std::vector<double> & left, uint8_t note)
+{
+    for (size_t i = 0; i < left.size(); i++) {
+        if (static_cast<uint8_t>(left[i]) == note) {
+            return static_cast<int>(i);
+        }
+    }
+    return -1;
+}
+
+} // namespace
+
+void ScheduledEventTest::test_renderBlock_withoutEvents_shouldRenderOnePiece()
+{
+    MarkerDevice device;
+    renderBlock(device, 0, 512);
+
+    QCOMPARE(device.pieces().size(), size_t { 1 });
+    QCOMPARE(device.pieces().at(0).frameCount, uint32_t { 512 });
+    QCOMPARE(device.pieces().at(0).startFrame, uint64_t { 0 });
+}
+
+void ScheduledEventTest::test_renderBlock_scheduledNote_shouldStartOnItsOwnFrame()
+{
+    MarkerDevice device;
+    device.scheduleMidiEvent(noteOnAt(137, 60));
+
+    const auto left = renderBlock(device, 0, 512);
+
+    QCOMPARE(firstFrameOf(left, 60), 137);
+    QCOMPARE(device.pieces().size(), size_t { 2 });
+    QCOMPARE(device.pieces().at(0).frameCount, uint32_t { 137 });
+    QCOMPARE(device.pieces().at(1).startFrame, uint64_t { 137 });
+}
+
+void ScheduledEventTest::test_renderBlock_severalEvents_shouldStartEachOnItsOwnFrame()
+{
+    MarkerDevice device;
+    device.scheduleMidiEvent(noteOnAt(10, 60));
+    device.scheduleMidiEvent(noteOnAt(200, 62));
+    device.scheduleMidiEvent(noteOnAt(511, 64));
+
+    const auto left = renderBlock(device, 0, 512);
+
+    QCOMPARE(firstFrameOf(left, 60), 10);
+    QCOMPARE(firstFrameOf(left, 62), 200);
+    QCOMPARE(firstFrameOf(left, 64), 511);
+    QCOMPARE(device.pieces().size(), size_t { 4 });
+}
+
+void ScheduledEventTest::test_renderBlock_eventInThePast_shouldStartAtTheBlockStart()
+{
+    // Nothing can be placed in audio that has already gone out, so an event whose frame has been
+    // rendered past is played at the first frame left rather than dropped.
+    MarkerDevice device;
+    device.scheduleMidiEvent(noteOnAt(50, 60));
+
+    const auto left = renderBlock(device, 512, 512);
+
+    QCOMPARE(firstFrameOf(left, 60), 0);
+    QCOMPARE(device.scheduledEventCount(), size_t { 0 });
+}
+
+void ScheduledEventTest::test_renderBlock_eventBeyondTheBlock_shouldWait()
+{
+    MarkerDevice device;
+    device.scheduleMidiEvent(noteOnAt(600, 60));
+
+    const auto left = renderBlock(device, 0, 512);
+
+    QCOMPARE(firstFrameOf(left, 60), -1);
+    QCOMPARE(device.pieces().size(), size_t { 1 });
+    QCOMPARE(device.scheduledEventCount(), size_t { 1 });
+
+    const auto next = renderBlock(device, 512, 512);
+    QCOMPARE(firstFrameOf(next, 60), 88);
+}
+
+void ScheduledEventTest::test_renderBlock_shouldNotQuantiseToTheBlock_acrossABurst()
+{
+    // The case the whole thing exists for. Four 512-frame blocks are rendered back to back, the way
+    // a server that hands over a burst of buffers asks for them, with notes falling at frames that
+    // are nowhere near a block boundary. Every one has to keep its own frame.
+    MarkerDevice device;
+    constexpr uint32_t blockSize = 512;
+    const std::vector<uint64_t> frames { 100, 700, 1300, 1900 };
+    for (size_t i = 0; i < frames.size(); i++) {
+        device.scheduleMidiEvent(noteOnAt(frames.at(i), static_cast<uint8_t>(60 + i)));
+    }
+
+    std::vector<double> stream;
+    for (uint32_t block = 0; block < 4; block++) {
+        const auto left = renderBlock(device, block * blockSize, blockSize);
+        stream.insert(stream.end(), left.begin(), left.end());
+    }
+
+    for (size_t i = 0; i < frames.size(); i++) {
+        QCOMPARE(firstFrameOf(stream, static_cast<uint8_t>(60 + i)), static_cast<int>(frames.at(i)));
+    }
+}
+
+void ScheduledEventTest::test_scheduledEvents_shouldBeApplied_inTheOrderQueued()
+{
+    MarkerDevice device;
+    for (uint8_t i = 0; i < 4; i++) {
+        Device::ScheduledEvent event;
+        event.type = Device::ScheduledEvent::Type::Cc;
+        event.frame = 64;
+        event.controller = 74;
+        event.velocity = static_cast<uint8_t>(10 + i);
+        device.scheduleMidiEvent(event);
+    }
+
+    renderBlock(device, 0, 512);
+
+    QCOMPARE(device.ccLog().size(), size_t { 4 });
+    for (uint8_t i = 0; i < 4; i++) {
+        QCOMPARE(device.ccLog().at(i).second, static_cast<uint8_t>(10 + i));
+    }
+    // All at one frame, so the block is split once and not four times.
+    QCOMPARE(device.pieces().size(), size_t { 2 });
+}
+
+void ScheduledEventTest::test_clearScheduledEvents_shouldDropEverythingQueued()
+{
+    MarkerDevice device;
+    device.scheduleMidiEvent(noteOnAt(100, 60));
+    device.scheduleMidiEvent(noteOnAt(200, 62));
+    QCOMPARE(device.scheduledEventCount(), size_t { 2 });
+
+    device.clearScheduledEvents();
+    QCOMPARE(device.scheduledEventCount(), size_t { 0 });
+
+    const auto left = renderBlock(device, 0, 512);
+    QCOMPARE(firstFrameOf(left, 60), -1);
+    QCOMPARE(device.pieces().size(), size_t { 1 });
+}
+
+} // namespace noteahead
+
+QTEST_GUILESS_MAIN(noteahead::ScheduledEventTest)

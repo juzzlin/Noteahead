@@ -103,7 +103,65 @@ public:
 
     virtual void processMidiAllNotesOff() = 0;
 
+    //! A MIDI event held back until the frame it was written for.
+    //!
+    //! The processMidi* entry points above take effect wherever the next block happens to start,
+    //! which is only as accurate as the audio callback's wakeups: under a server that hands over
+    //! several buffers at a time, every event in between lands on the same frame. An event queued
+    //! here carries its own position instead, and the engine breaks the block at it.
+    struct ScheduledEvent
+    {
+        enum class Type
+        {
+            NoteOn,
+            NoteOff,
+            Cc,
+            PitchBend,
+            ProgramChange,
+            AllNotesOff
+        };
+
+        Type type {};
+        //! Position on the engine's stream timeline, in frames.
+        uint64_t frame {};
+        //! Pitch bend amount. Unused by every other type.
+        uint16_t value {};
+        uint8_t note {};
+        uint8_t velocity {};
+        uint8_t controller {};
+        uint8_t programme {};
+        uint8_t channel {};
+    };
+
+    //! Queues an event to take effect at its own frame. Called off the audio thread.
+    void scheduleMidiEvent(const ScheduledEvent & event);
+
+    //! Applies everything queued at or before the given frame, in the order it was queued.
+    //!
+    //! At or before, rather than at: an event whose frame has already been rendered past is played
+    //! late rather than dropped, which is what the immediate entry points do anyway and is always
+    //! better than losing a note.
+    void applyScheduledEvents(uint64_t frame);
+
+    //! Frame of the first event queued within [from, to), so the engine knows where to break the
+    //! block. Nothing is returned when the rest of the block is clear.
+    std::optional<uint64_t> nextScheduledEventFrame(uint64_t from, uint64_t to) const;
+
+    //! Drops everything queued, for a stop or a device reset.
+    void clearScheduledEvents();
+
+    size_t scheduledEventCount() const;
+
     virtual void processAudio(AudioContext & context) = 0;
+
+    //! Renders one block, breaking it wherever an event was scheduled.
+    //!
+    //! A device applies an event to its voices the moment it is handed one, so whatever it is asked
+    //! to render next is the first audio that can carry it. Rendering the block in one piece
+    //! therefore rounds every event down to the block boundary; rendering the piece that ends where
+    //! the event falls puts the event on its own frame. A block with nothing scheduled in it is one
+    //! piece, exactly as before.
+    void renderBlock(AudioContext & context);
     void processInsertEffects(AudioContext & context);
     //! Applies the fader in place over the whole buffer.
     //!
@@ -281,6 +339,8 @@ private:
     LevelMeter m_meter;
     LoadMeter m_loadMeter;
     ClipDetector m_clipDetector;
+
+    std::vector<ScheduledEvent> m_scheduledEvents;
 
     mutable std::recursive_mutex m_mutex;
 };

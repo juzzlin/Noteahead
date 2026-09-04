@@ -121,7 +121,7 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
     // Cheap enough to read unconditionally; the meter itself is a no-op while nothing is displayed.
     const auto processingStarted = std::chrono::steady_clock::now();
 
-    device->processAudio(audioContext);
+    device->renderBlock(audioContext);
 
     // Level tap for gain staging: post-gain and pre-insert, the level the Gain knob is set against.
     device->meter().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);

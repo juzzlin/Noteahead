@@ -43,6 +43,15 @@ struct AudioContext
     //! Monitor -- can take itself out of the signal path of an export without anything having to
     //! remember to reach it.
     bool offline { false };
+    //! Where this block starts on the engine's stream timeline, in frames since the stream opened.
+    //!
+    //! What lets an event be placed at the frame it was written for rather than at whichever block
+    //! boundary happens to come next: the engine breaks a block at each scheduled event and hands
+    //! the pieces over with this moved along, so a device needs to know nothing about it.
+    //!
+    //! Last on purpose: the engine builds its context positionally, so a field added before one of
+    //! those would silently take another's argument.
+    uint64_t startFrame { 0 };
 };
 
 } // namespace noteahead
