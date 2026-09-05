@@ -90,8 +90,6 @@ Bug fixes:
   - Controller and bend moves go the same way, so a value written on a
     note's own line still reaches the device with it
 
-Other:
-
 7.3.0
 =====
 
