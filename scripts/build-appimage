@@ -170,13 +170,39 @@ else
     echo "         Qt-supplied strings will stay in English in the AppImage."
 fi
 
+COPIED_QT_PLUGINS=()
 for plugin in "${ADDITIONAL_QT_PLUGINS[@]}"; do
     if [[ -e "${QT_PLUGIN_DIR}/${plugin}" ]]; then
         mkdir -p "${APPDIR}/usr/plugins/$(dirname "${plugin}")"
         cp -Lr "${QT_PLUGIN_DIR}/${plugin}" "${APPDIR}/usr/plugins/${plugin}"
+        COPIED_QT_PLUGINS+=("${APPDIR}/usr/plugins/${plugin}")
     else
         echo "Warning: Qt plugin ${plugin} not found, skipping."
     fi
+done
+
+# linuxdeploy rewrites the runpath of everything it deploys itself. The plugins above are copied in
+# behind its back and get none at all, so they cannot see the Qt libraries sitting right there in
+# usr/lib. Nothing complained for as long as the machine running the AppImage happened to have its
+# own Qt to fall back on; on one without, the Wayland EGL integration failed to load and Qt Quick
+# was then left with no GL context and aborted at startup.
+#
+# Every plugin sits one directory below usr/plugins, so usr/lib is two up -- the same runpath
+# linuxdeploy writes. patchelf comes out of linuxdeploy's own AppDir, so this needs nothing
+# installed that the build did not already fetch.
+PATCHELF="${TOOLS_DIR}/linuxdeploy.AppDir/usr/bin/patchelf"
+if [[ ! -x ${PATCHELF} ]]; then
+    PATCHELF=$(command -v patchelf || true)
+fi
+if [[ -z ${PATCHELF} ]]; then
+    echo "$0: cannot find patchelf to set the plugin runpaths"
+    exit 1
+fi
+
+for plugin in "${COPIED_QT_PLUGINS[@]}"; do
+    while IFS= read -r -d '' library; do
+        "${PATCHELF}" --set-rpath '$ORIGIN/../../lib:$ORIGIN' "${library}" || exit 1
+    done < <(find "${plugin}" -name '*.so' -type f -print0)
 done
 
 for library in "${SYSTEM_LIBRARIES[@]}"; do

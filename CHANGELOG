@@ -7,6 +7,11 @@ New features:
 
 Bug fixes:
 
+* Fix the AppImage failing to start on a Wayland session
+  - The Wayland plugins were copied in without a runpath, so they could
+    not see the Qt libraries bundled beside them
+  - Only a host with its own Qt to fall back on ever started
+
 Other:
 
 7.4.0
