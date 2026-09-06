@@ -306,6 +306,7 @@ AutomationService::AutomationCurveList AutomationService::automationCurves(quint
             }
         }
         if (any) {
+            curve.indexInPattern = curves.size();
             curves.push_back(std::move(curve));
         }
     };

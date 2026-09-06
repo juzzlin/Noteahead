@@ -816,6 +816,17 @@ ApplicationWindow {
             bottomBar.setStatusText(qsTr("Pitch Bend automation added"));
         }
     }
+    CopyAutomationDialog {
+        id: copyAutomationDialog
+        anchors.centerIn: parent
+        onAutomationSelected: values => {
+            if (isPitchBend) {
+                addPitchBendAutomationDialog.applyValues(values);
+            } else {
+                addMidiCcAutomationDialog.applyValues(values);
+            }
+        }
+    }
     EditPitchBendAutomationsDialog {
         id: editPitchBendAutomationsDialog
         anchors.centerIn: parent
@@ -1198,6 +1209,11 @@ ApplicationWindow {
             addMidiCcAutomationDialog.resetModulations();
             addMidiCcAutomationDialog.resetOutput();
             addMidiCcAutomationDialog.open();
+        });
+        UiService.copyAutomationDialogRequested.connect(isPitchBend => {
+            copyAutomationDialog.isPitchBend = isPitchBend;
+            copyAutomationDialog.setTitle(isPitchBend ? qsTr("Copy Pitch Bend automation") : qsTr("Copy MIDI CC automation"));
+            copyAutomationDialog.open();
         });
         UiService.editMidiCcAutomationsDialogRequested.connect(() => {
             midiCcAutomationsModel.linesPerBeat = editorService.linesPerBeat;

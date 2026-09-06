@@ -41,6 +41,7 @@ private slots:
     void test_updateIndexHighlights_shouldEmitDataChangedWithCorrectRange();
 
     void test_automationCurves_singleLineAutomation_shouldSetOneValue();
+    void test_automationCurves_ghostRows_shouldDrawTheNeighborPatterns();
 };
 
 } // namespace noteahead

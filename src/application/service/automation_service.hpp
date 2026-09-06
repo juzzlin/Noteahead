@@ -91,6 +91,13 @@ public:
     {
         quint64 id { 0 };
         bool isPitchBend { false };
+        //! Set by whoever asked, not here: a curve is a ghost by virtue of being drawn in a pattern
+        //! peek rather than by anything about the automation itself.
+        bool isGhost { false };
+        //! Where this automation sits among the ones its own pattern has on the column. What the
+        //! renderer picks a color by, so a pattern looks the same whether it is the one being
+        //! edited or one peeked at from its neighbor.
+        size_t indexInPattern { 0 };
         std::vector<std::optional<double>> values;
     };
 

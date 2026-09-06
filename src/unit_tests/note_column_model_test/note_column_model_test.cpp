@@ -305,6 +305,52 @@ void NoteColumnModelTest::test_automationCurves_singleLineAutomation_shouldSetOn
     QVERIFY(values.at(static_cast<size_t>(automationLine + barLine)).has_value());
 }
 
+void NoteColumnModelTest::test_automationCurves_ghostRows_shouldDrawTheNeighborPatterns()
+{
+    // The offset areas peek at the play order neighbors, and an automation belongs to a pattern as
+    // much as its notes do. They used to show the notes and drop the curves, because the curves were
+    // clamped to the pattern being edited.
+    const auto automationService { std::make_shared<AutomationService>(std::make_shared<PropertyService>()) };
+    const auto selectionService { std::make_shared<SelectionService>() };
+    const auto settingsService { std::make_shared<SettingsService>() };
+    const auto editorService { std::make_shared<EditorService>(selectionService, settingsService, std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>()) };
+    const auto utilService { std::make_shared<UtilService>() };
+    const auto helper { std::make_shared<NoteColumnLineContainerHelper>(automationService, editorService, selectionService, settingsService, utilService) };
+
+    NoteColumnModel model { { 1, 0, 0 }, editorService, helper, settingsService };
+
+    const auto barLine = static_cast<int>(editorService->positionBarLine());
+    QVERIFY(barLine >= 2);
+
+    const int lineCount = 4;
+    const int neighborLineCount = 4;
+    NoteColumnModel::LineList lines;
+    NoteColumnModel::LineList neighborLines;
+    for (int i = 0; i < lineCount; i++) {
+        lines.push_back(std::make_shared<Line>(static_cast<size_t>(i)));
+    }
+    for (int i = 0; i < neighborLineCount; i++) {
+        neighborLines.push_back(std::make_shared<Line>(static_cast<size_t>(i)));
+    }
+    model.setColumnData(lines);
+    model.setGhostData(neighborLines, neighborLines, 0, 2);
+
+    // One automation on each pattern: the last line of the one above, the first of the one below.
+    automationService->addMidiCcAutomation(0, 0, 0, 64, neighborLineCount - 1, neighborLineCount - 1, 0, 127, {}, true, 8, 0);
+    automationService->addMidiCcAutomation(2, 0, 0, 64, 0, 0, 0, 127, {}, true, 8, 0);
+
+    const int startRow = 0;
+    const int endRow = barLine + lineCount + 4;
+    const auto curves = model.automationCurves(startRow, endRow);
+
+    QCOMPARE(curves.size(), size_t { 2 });
+    QVERIFY(std::ranges::all_of(curves, [](auto && curve) { return curve.isGhost; }));
+
+    // The row above line 0 is the neighbor's last line, and the row below the last line its first
+    QVERIFY(curves.at(0).values.at(static_cast<size_t>(barLine - 1)).has_value());
+    QVERIFY(curves.at(1).values.at(static_cast<size_t>(barLine + lineCount)).has_value());
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::NoteColumnModelTest)

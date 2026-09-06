@@ -16,6 +16,7 @@
 #ifndef NOTE_COLUMN_MODEL_HPP
 #define NOTE_COLUMN_MODEL_HPP
 
+#include <optional>
 #include <tuple>
 #include <unordered_set>
 
@@ -67,14 +68,20 @@ public:
     using LineList = std::vector<LineS>;
     using LineListCR = const LineList &;
     void setColumnData(LineListCR lines);
-    void setGhostData(LineListCR previousLines, LineListCR nextLines);
+    //! The ghost rows drawn in the offset areas, and the patterns they come from.
+    //!
+    //! The pattern indices are what lets the offset areas carry their neighbor's automation as well
+    //! as its notes; nothing else about a ghost row needs them.
+    using PatternIndex = std::optional<quint64>;
+    void setGhostData(LineListCR previousLines, LineListCR nextLines, PatternIndex previousPattern = std::nullopt, PatternIndex nextPattern = std::nullopt);
     void setColumnAddress(const ColumnAddress & columnAddress);
 
     //! Automation traces for a range of *rows*, for the renderer to draw over this column.
     //!
     //! Takes rows rather than lines because the two are not the same: rows are shifted by the
     //! position bar and the offset areas hold ghost or empty rows that belong to no line at all.
-    //! The returned values are aligned to the row range, with the rows outside the pattern unset.
+    //! The returned values are aligned to the row range, with the rows carrying no line left unset.
+    //! The offset areas contribute the neighboring patterns' own curves, marked as ghosts.
     AutomationService::AutomationCurveList automationCurves(int startRow, int endRow) const;
     void clear();
 
@@ -112,6 +119,8 @@ private:
     LineList m_lines;
     LineList m_previousLines; //!< Tail of the previous play order neighbor, drawn as a ghost in the top offset area
     LineList m_nextLines; //!< Head of the next play order neighbor, drawn as a ghost in the bottom offset area
+    PatternIndex m_previousPattern; //!< Pattern m_previousLines came from, for its automation
+    PatternIndex m_nextPattern; //!< Pattern m_nextLines came from, for its automation
     std::unordered_map<quint64, quint64> m_focusedLines;
 };
 

@@ -18,12 +18,34 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Dialogs
 import QtQuick.Layouts
+import Noteahead 1.0
+import "../Components"
 
 AnimatedDialog {
     id: rootItem
     modal: true
-    standardButtons: Dialog.Ok | Dialog.Cancel
     property string portName: ""
+    footer: DialogButtonBox {
+        AppButton {
+            text: qsTr("Copy automation...")
+            implicitWidth: Constants.defaultButtonWidth
+            // An action rather than an accept: the picker fills these fields in and the form stays
+            // open on top of it, so nothing is written until Ok.
+            DialogButtonBox.buttonRole: DialogButtonBox.ActionRole
+            onClicked: UiService.requestCopyAutomationDialog(false)
+            toolTipText: qsTr("Fill these fields from an automation that already exists")
+        }
+        AppButton {
+            text: qsTr("Cancel")
+            implicitWidth: Constants.defaultButtonWidth
+            DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
+        }
+        AppButton {
+            text: qsTr("Ok")
+            implicitWidth: Constants.defaultButtonWidth
+            DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
+        }
+    }
     function setTitle(text: var): void {
         title = `<strong>${text}</strong>`;
     }
@@ -91,17 +113,48 @@ AnimatedDialog {
     function cycles(): int {
         return model.cycles();
     }
+    function setCycles(value: int): void {
+        model.setCycles(value);
+    }
     function amplitude(): int {
         return model.amplitude();
+    }
+    function setAmplitude(value: int): void {
+        model.setAmplitude(value);
     }
     function offset(): int {
         return model.offset();
     }
+    function setOffset(value: int): void {
+        model.setOffset(value);
+    }
     function inverted(): bool {
         return model.inverted();
     }
+    function setInverted(value: bool): void {
+        model.setInverted(value);
+    }
     function resetModulations(): void {
         model.resetModulations();
+    }
+
+    //! Fills every field from an automation that already exists. Its location is deliberately left
+    //! out: the new automation belongs where the form was opened, not where the copied one lives.
+    function applyValues(values: var): void {
+        setController(values.controller);
+        setStartLine(values.line0);
+        setEndLine(values.line1);
+        setStartValue(values.value0);
+        setEndValue(values.value1);
+        setCurve(values.curve);
+        setEventsPerBeat(values.eventsPerBeat);
+        setLineOffset(values.lineOffset);
+        setModulationType(values.modulationType);
+        setCycles(values.modulationCycles);
+        setAmplitude(values.modulationAmplitude);
+        setOffset(values.modulationOffset);
+        setInverted(values.modulationInverted);
+        setComment(values.comment);
     }
     function resetOutput(): void {
         model.resetOutput();

@@ -108,26 +108,49 @@ AutomationService::AutomationCurveList NoteColumnModel::automationCurves(int sta
 
     const auto positionBarLine = static_cast<int>(m_editorService->positionBarLine());
     const auto lineCount = static_cast<int>(m_lines.size());
-    // Rows outside the pattern's own lines are the ghost/offset areas, which carry no automation
-    const int firstLine = std::max(0, startRow - positionBarLine);
-    const int lastLine = std::min(lineCount - 1, endRow - positionBarLine);
-    if (lastLine < firstLine) {
-        return {};
-    }
-
-    const auto [pattern, track, column] = m_columnAddress;
-    auto curves = m_helper->automationService()->automationCurves(pattern, track, column, static_cast<quint64>(firstLine), static_cast<quint64>(lastLine));
-
-    // Shift back into row space, so the renderer can index straight by row
     const auto rowCount = static_cast<size_t>(endRow - startRow + 1);
-    const auto leadingRows = static_cast<size_t>(firstLine + positionBarLine - startRow);
-    for (auto & curve : curves) {
-        std::vector<std::optional<double>> aligned(rowCount);
-        for (size_t i = 0; i < curve.values.size() && leadingRows + i < rowCount; i++) {
-            aligned[leadingRows + i] = curve.values[i];
+    const auto [pattern, track, column] = m_columnAddress;
+    const auto & automationService = *m_helper->automationService();
+
+    AutomationService::AutomationCurveList curves;
+
+    //! Curves of one pattern, shifted from its own line numbers into the row space the renderer
+    //! indexes by. rowOfLine0 is where that pattern's line 0 falls, which is negative for the
+    //! neighbor above: only the tail of it reaches into the offset area.
+    const auto collect = [&](quint64 sourcePattern, int rowOfLine0, int sourceLineCount, bool isGhost) {
+        const int firstLine = std::max(0, startRow - rowOfLine0);
+        const int lastLine = std::min(sourceLineCount - 1, endRow - rowOfLine0);
+        if (sourceLineCount <= 0 || lastLine < firstLine) {
+            return;
         }
-        curve.values = std::move(aligned);
+        auto sourceCurves = automationService.automationCurves(sourcePattern, track, column, static_cast<quint64>(firstLine), static_cast<quint64>(lastLine));
+        const auto leadingRows = static_cast<size_t>(firstLine + rowOfLine0 - startRow);
+        for (auto & curve : sourceCurves) {
+            std::vector<std::optional<double>> aligned(rowCount);
+            for (size_t i = 0; i < curve.values.size() && leadingRows + i < rowCount; i++) {
+                aligned[leadingRows + i] = curve.values[i];
+            }
+            curve.values = std::move(aligned);
+            curve.isGhost = isGhost;
+            curves.push_back(std::move(curve));
+        }
+    };
+
+    // The offset areas are not empty: they show the play order neighbors as ghosts, and an automation
+    // is as much a part of a pattern as its notes are. The row mapping is the one data() uses -- the
+    // top area shows the tail of the previous pattern, so its line 0 sits that many rows above the
+    // position bar, and the bottom area shows the head of the next one.
+    const auto previousLineCount = static_cast<int>(m_previousLines.size());
+    if (m_previousPattern.has_value()) {
+        collect(*m_previousPattern, positionBarLine - previousLineCount, previousLineCount, true);
     }
+
+    collect(pattern, positionBarLine, lineCount, false);
+
+    if (m_nextPattern.has_value()) {
+        collect(*m_nextPattern, positionBarLine + lineCount, static_cast<int>(m_nextLines.size()), true);
+    }
+
     return curves;
 }
 
@@ -275,11 +298,13 @@ void NoteColumnModel::setColumnData(LineListCR lines)
     endResetModel();
 }
 
-void NoteColumnModel::setGhostData(LineListCR previousLines, LineListCR nextLines)
+void NoteColumnModel::setGhostData(LineListCR previousLines, LineListCR nextLines, PatternIndex previousPattern, PatternIndex nextPattern)
 {
     beginResetModel();
     m_previousLines = previousLines;
     m_nextLines = nextLines;
+    m_previousPattern = previousPattern;
+    m_nextPattern = nextPattern;
     endResetModel();
 }
 
@@ -294,6 +319,8 @@ void NoteColumnModel::clear()
     m_lines.clear();
     m_previousLines.clear();
     m_nextLines.clear();
+    m_previousPattern.reset();
+    m_nextPattern.reset();
     m_focusedLines.clear();
     endResetModel();
 }

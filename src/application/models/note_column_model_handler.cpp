@@ -76,16 +76,25 @@ void NoteColumnModelHandler::applyGhostData(NoteColumnModelP model, const Column
     const auto [pattern, track, column] = address;
     const auto songPosition = m_editorService->songPosition();
     const auto songLength = m_editorService->songLength();
-    const auto ghostLines = [this, track, column](std::optional<quint64> neighborPosition) {
+
+    // The neighbor's pattern index rides along with its lines: the offset areas draw its automation
+    // as well as its notes, and resolving the index is what this already does to fetch the lines.
+    struct Ghost
+    {
+        EditorService::LineList lines;
+        NoteColumnModel::PatternIndex pattern;
+    };
+
+    const auto ghost = [this, track, column](std::optional<quint64> neighborPosition) {
         if (!m_settingsService->patternPeekEnabled() || !neighborPosition.has_value()) {
-            return EditorService::LineList {};
+            return Ghost {};
         }
         const auto pattern = m_editorService->patternAtSongPosition(*neighborPosition);
-        return m_editorService->columnData({ pattern, track, column });
+        return Ghost { m_editorService->columnData({ pattern, track, column }), pattern };
     };
-    model->setGhostData(
-      ghostLines(neighborSongPosition(songPosition, -1, songLength)),
-      ghostLines(neighborSongPosition(songPosition, 1, songLength)));
+    const auto previous = ghost(neighborSongPosition(songPosition, -1, songLength));
+    const auto next = ghost(neighborSongPosition(songPosition, 1, songLength));
+    model->setGhostData(previous.lines, next.lines, previous.pattern, next.pattern);
 }
 
 void NoteColumnModelHandler::updateGhostData()

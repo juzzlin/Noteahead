@@ -291,10 +291,11 @@ void NoteColumnRenderer::paintAutomationCurves(QPainter * painter, int startRow,
     }
 
     painter->setRenderHint(QPainter::Antialiasing, true);
-    for (size_t curveIndex = 0; curveIndex < curves.size(); curveIndex++) {
-        const auto & curve = curves.at(curveIndex);
-        QColor color = palette.at(static_cast<int>(curveIndex % static_cast<size_t>(palette.size())));
-        color.setAlphaF(0.75);
+    for (const auto & curve : curves) {
+        QColor color = palette.at(static_cast<int>(curve.indexInPattern % static_cast<size_t>(palette.size())));
+        // A curve from the offset areas belongs to a neighboring pattern, and reads as context the
+        // way the ghost rows under it do rather than competing with the pattern being edited.
+        color.setAlphaF(curve.isGhost ? 0.3 : 0.75);
         painter->setPen(QPen { color, static_cast<double>(m_automationCurveThicknessTenths) / 10.0 });
 
         for (auto && [first, last] : valueRuns(curve.values)) {

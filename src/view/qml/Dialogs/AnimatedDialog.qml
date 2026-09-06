@@ -17,6 +17,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import Noteahead 1.0
+import "../Components"
 
 // Dialog with a shared open/close transition used as the base for all Noteahead dialogs.
 // Opens with a subtle scale-up fade-in and closes with a scale-down fade-out.
@@ -60,6 +61,21 @@ Dialog {
         value: false
         when: root.visible && UiService.topDialog !== root
         restoreMode: Binding.RestoreBindingOrValue
+    }
+
+    // AppButton is what draws the accent outline on the button that accepts a dialog, and it reads
+    // the role off the button box itself. A dialog that builds its own footer therefore gets the
+    // outline for free, while one that only sets standardButtons used to get the Universal style's
+    // own plain delegates and no outline at all -- the automation dialogs among them. Handing the
+    // box an AppButton delegate gives those the same buttons as everyone else, along with the click
+    // handling AppButton exists for. A dialog declaring its own footer still overrides this.
+    footer: DialogButtonBox {
+        // Nothing to show for a dialog that has neither standardButtons nor a footer of its own,
+        // and an empty box would still take up its own height.
+        visible: count > 0
+        delegate: AppButton {
+            implicitWidth: Constants.defaultButtonWidth
+        }
     }
 
     // Alignment 0 is what makes a DialogButtonBox share its width out among its buttons rather than
