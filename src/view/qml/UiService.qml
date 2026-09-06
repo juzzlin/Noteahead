@@ -31,7 +31,7 @@ QtObject {
     signal deleteUnusedPatternsRequested
     signal deviceDialogRequested(string deviceName)
     signal deviceGalleryDialogRequested(int slotIndex)
-    signal copyAutomationDialogRequested(bool isPitchBend)
+    signal copyAutomationDialogRequested(bool isPitchBend, int targetRow)
     signal copyDeviceDialogRequested(int slotIndex)
     signal copyEffectDialogRequested(int slotIndex)
     signal copyEffectRackDialogRequested(string targetName)
@@ -339,10 +339,13 @@ QtObject {
             selectionAddMidiCcAutomationDialogRequested();
         }
     }
-    // No isPlaying() guard: this opens on top of an Add automation form that is already open, and
-    // refusing it there would leave the form waiting for a picker that never comes.
-    function requestCopyAutomationDialog(isPitchBend: bool): void {
-        copyAutomationDialogRequested(isPitchBend);
+    // No isPlaying() guard: this opens on top of an automation dialog that is already open, and
+    // refusing it there would leave that dialog waiting for a picker that never comes.
+    //
+    // targetRow is the row of the edit dialog being filled, or -1 for the add form, which has no row
+    // of its own until it is accepted.
+    function requestCopyAutomationDialog(isPitchBend: bool, targetRow: int): void {
+        copyAutomationDialogRequested(isPitchBend, targetRow);
     }
     function requestEditMidiCcAutomationsDialog(): void {
         if (!isPlaying()) {

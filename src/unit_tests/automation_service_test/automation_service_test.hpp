@@ -58,6 +58,9 @@ private slots:
     void test_renderToEventsByColumn_curve_shouldFollowCurve();
     void test_renderToEventsByColumn_shouldPruneRepeatingEvents();
     void test_renderToEventsByColumn_disableAutomation_shouldNotRenderEvents();
+
+    void test_midiCcAutomationsAsVariantList_shouldCarryEveryParameter();
+    void test_pitchBendAutomationsAsVariantList_shouldCarryEveryParameter();
 };
 
 } // namespace noteahead

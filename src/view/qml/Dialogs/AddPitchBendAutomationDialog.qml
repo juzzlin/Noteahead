@@ -31,7 +31,7 @@ AnimatedDialog {
             // An action rather than an accept: the picker fills these fields in and the form stays
             // open on top of it, so nothing is written until Ok.
             DialogButtonBox.buttonRole: DialogButtonBox.ActionRole
-            onClicked: UiService.requestCopyAutomationDialog(true)
+            onClicked: UiService.requestCopyAutomationDialog(true, -1)
             toolTipText: qsTr("Fill these fields from an automation that already exists")
         }
         AppButton {

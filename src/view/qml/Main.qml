@@ -819,11 +819,20 @@ ApplicationWindow {
     CopyAutomationDialog {
         id: copyAutomationDialog
         anchors.centerIn: parent
+        // Row -1 is the add form, which has no row of its own yet; anything else is a row of the
+        // edit dialog, written through its model rather than reached as a delegate.
+        property int targetRow: -1
         onAutomationSelected: values => {
-            if (isPitchBend) {
-                addPitchBendAutomationDialog.applyValues(values);
+            if (targetRow < 0) {
+                if (isPitchBend) {
+                    addPitchBendAutomationDialog.applyValues(values);
+                } else {
+                    addMidiCcAutomationDialog.applyValues(values);
+                }
+            } else if (isPitchBend) {
+                pitchBendAutomationsModel.applyValues(targetRow, values);
             } else {
-                addMidiCcAutomationDialog.applyValues(values);
+                midiCcAutomationsModel.applyValues(targetRow, values);
             }
         }
     }
@@ -1210,8 +1219,9 @@ ApplicationWindow {
             addMidiCcAutomationDialog.resetOutput();
             addMidiCcAutomationDialog.open();
         });
-        UiService.copyAutomationDialogRequested.connect(isPitchBend => {
+        UiService.copyAutomationDialogRequested.connect((isPitchBend, targetRow) => {
             copyAutomationDialog.isPitchBend = isPitchBend;
+            copyAutomationDialog.targetRow = targetRow;
             copyAutomationDialog.setTitle(isPitchBend ? qsTr("Copy Pitch Bend automation") : qsTr("Copy MIDI CC automation"));
             copyAutomationDialog.open();
         });

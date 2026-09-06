@@ -680,6 +680,70 @@ void AutomationServiceTest::test_setAutomationCurve_unknownId_shouldDoNothing()
     QVERIFY(std::fabs(*automationService.automationCurves(pattern, track, column, 0, 16).at(0).values.at(8) - 0.5) < 0.01);
 }
 
+void AutomationServiceTest::test_midiCcAutomationsAsVariantList_shouldCarryEveryParameter()
+{
+    // What the copy dialog reads. Everything the add form and the edit model apply has to be in it,
+    // or copying an automation would quietly drop whichever parameter was left out.
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    const auto id = automationService.addMidiCcAutomation(3, 2, 1, 74, 4, 12, 0, 100, "Sweep", true, 4, 2);
+    automationService.setMidiCcAutomationCurve(id, static_cast<int>(Interpolator::CurveType::Exponential));
+    automationService.addMidiCcModulation(id, 1, 3, 50.0f, -10.0f, true);
+
+    const auto list = automationService.midiCcAutomationsAsVariantList();
+    QCOMPARE(list.size(), 1);
+    const auto entry = list.at(0).toMap();
+
+    QCOMPARE(entry.value("pattern").toUInt(), 3u);
+    QCOMPARE(entry.value("track").toUInt(), 2u);
+    QCOMPARE(entry.value("column").toUInt(), 1u);
+    QCOMPARE(entry.value("controller").toInt(), 74);
+    QCOMPARE(entry.value("line0").toUInt(), 4u);
+    QCOMPARE(entry.value("line1").toUInt(), 12u);
+    QCOMPARE(entry.value("value0").toInt(), 0);
+    QCOMPARE(entry.value("value1").toInt(), 100);
+    QCOMPARE(entry.value("curve").toInt(), static_cast<int>(Interpolator::CurveType::Exponential));
+    QCOMPARE(entry.value("eventsPerBeat").toInt(), 4);
+    QCOMPARE(entry.value("lineOffset").toInt(), 2);
+    QCOMPARE(entry.value("modulationType").toInt(), 1);
+    QCOMPARE(entry.value("modulationCycles").toInt(), 3);
+    QCOMPARE(entry.value("modulationAmplitude").toFloat(), 50.0f);
+    QCOMPARE(entry.value("modulationOffset").toFloat(), -10.0f);
+    QCOMPARE(entry.value("modulationInverted").toBool(), true);
+    QCOMPARE(entry.value("comment").toString(), QString { "Sweep" });
+}
+
+void AutomationServiceTest::test_pitchBendAutomationsAsVariantList_shouldCarryEveryParameter()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    const auto id = automationService.addPitchBendAutomation(3, 2, 1, 4, 12, -100, 100, "Dive", true);
+    automationService.setPitchBendAutomationCurve(id, static_cast<int>(Interpolator::CurveType::Logarithmic));
+    automationService.addPitchBendModulation(id, 1, 3, 50.0f, -10.0f, true);
+
+    const auto list = automationService.pitchBendAutomationsAsVariantList();
+    QCOMPARE(list.size(), 1);
+    const auto entry = list.at(0).toMap();
+
+    QCOMPARE(entry.value("pattern").toUInt(), 3u);
+    QCOMPARE(entry.value("track").toUInt(), 2u);
+    QCOMPARE(entry.value("column").toUInt(), 1u);
+    QCOMPARE(entry.value("line0").toUInt(), 4u);
+    QCOMPARE(entry.value("line1").toUInt(), 12u);
+    QCOMPARE(entry.value("value0").toInt(), -100);
+    QCOMPARE(entry.value("value1").toInt(), 100);
+    QCOMPARE(entry.value("curve").toInt(), static_cast<int>(Interpolator::CurveType::Logarithmic));
+    QCOMPARE(entry.value("modulationType").toInt(), 1);
+    QCOMPARE(entry.value("modulationCycles").toInt(), 3);
+    QCOMPARE(entry.value("modulationAmplitude").toFloat(), 50.0f);
+    QCOMPARE(entry.value("modulationOffset").toFloat(), -10.0f);
+    QCOMPARE(entry.value("modulationInverted").toBool(), true);
+    QCOMPARE(entry.value("comment").toString(), QString { "Dive" });
+
+    // Pitch bend has no controller and no per-beat output settings, so none are offered
+    QVERIFY(!entry.contains("controller"));
+    QVERIFY(!entry.contains("eventsPerBeat"));
+    QVERIFY(!entry.contains("lineOffset"));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::AutomationServiceTest)

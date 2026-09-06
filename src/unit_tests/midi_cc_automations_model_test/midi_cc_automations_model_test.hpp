@@ -36,6 +36,8 @@ private slots:
     void test_removeAt_shouldRemoveAutomationData();
     void test_changeModulationType_shouldUpdateModulationType();
     void test_changeController_shouldUpdateController();
+
+    void test_applyValues_shouldReplaceParametersButNotLocationOrEnabled();
 };
 
 } // namespace noteahead

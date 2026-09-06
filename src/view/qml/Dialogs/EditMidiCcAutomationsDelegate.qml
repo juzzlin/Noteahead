@@ -28,6 +28,18 @@ GroupBox {
     readonly property string portName: (track !== undefined) ? editorService.instrumentPortName(track) : ""
     //! ComboBox shadows the delegate's model with its own, so the line range has to be resolved here
     readonly property bool hasLineRange: model.line0 !== model.line1
+    // Copying replaces this automation wholesale, and the controls below are set once on creation
+    // rather than bound to the model, so they have to be re-read or the row would go on showing what
+    // it was replaced from. A dedicated signal rather than dataChanged: that fires on every keystroke
+    // of an ordinary edit, and re-reading the controls under the one being typed into is not wanted.
+    Connections {
+        target: midiCcAutomationsModel
+        function onAutomationReplaced(replacedIndex: int): void {
+            if (replacedIndex === index) {
+                rootItem.initialize();
+            }
+        }
+    }
     function initialize(): void {
         if (model && model.controller !== undefined) {
             controllerComboBox.currentIndex = controllerComboBox.indexOfValue(model.controller);
@@ -43,6 +55,7 @@ GroupBox {
             modulationAmplitudeSpinBox.value = model.modulationAmplitude;
             modulationOffsetSpinBox.value = model.modulationOffset;
             modulationInvertedCheckBox.checked = model.modulationInverted;
+            commentEdit.text = model.comment;
         } else {
             // Fallback if model.controller is undefined (should not happen in practice if model is valid)
             controllerComboBox.currentIndex = 0;
@@ -368,9 +381,20 @@ GroupBox {
             }
         }
         AppButton {
-            id: deleteButton
+            id: copyButton
+            text: qsTr("Copy...")
             Layout.row: 0
-            Layout.rowSpan: 2
+            Layout.column: 9
+            Layout.fillWidth: true
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Replace this automation with the settings of another one")
+            onClicked: UiService.requestCopyAutomationDialog(false, index)
+        }
+        AppButton {
+            id: deleteButton
+            Layout.row: 1
             Layout.column: 9
             Layout.fillWidth: true
             ToolTip.delay: Constants.toolTipDelay

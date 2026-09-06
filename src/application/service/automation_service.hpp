@@ -17,6 +17,7 @@
 #define AUTOMATION_SERVICE_HPP
 
 #include <QObject>
+#include <QVariantList>
 
 #include <functional>
 #include <memory>
@@ -81,6 +82,17 @@ public:
     Q_INVOKABLE void addPitchBendModulation(quint64 automationId, int type, quint64 cycles, float amplitude, float offset, bool inverted);
     //! \see setMidiCcAutomationCurve
     Q_INVOKABLE void setPitchBendAutomationCurve(quint64 automationId, int curve);
+    //! Every automation of the song, flattened into what QML can read straight off a plain list.
+    //!
+    //! Deliberately not routed through MidiCcAutomationsModel: that model is what the edit dialogs
+    //! hold, and a second reader re-scoping it would pull the list out from under an edit in
+    //! progress. A snapshot has no such tie, and copying from an automation never writes to it.
+    //!
+    //! Location keys are included for naming the row; a copy leaves them behind, since the automation
+    //! being written belongs where its own form was opened.
+    Q_INVOKABLE QVariantList midiCcAutomationsAsVariantList() const;
+    Q_INVOKABLE QVariantList pitchBendAutomationsAsVariantList() const;
+
     Q_INVOKABLE bool hasAutomations(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
     Q_INVOKABLE double automationWeight(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
 

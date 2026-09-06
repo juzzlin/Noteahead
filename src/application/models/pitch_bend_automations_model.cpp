@@ -323,6 +323,38 @@ void PitchBendAutomationsModel::applyAll()
     m_pitchBendAutomationsDeleted.clear();
 }
 
+void PitchBendAutomationsModel::applyValues(int index, const QVariantMap & values)
+{
+    if (index < 0 || static_cast<size_t>(index) >= m_pitchBendAutomations.size()) {
+        return;
+    }
+
+    // Routed through setData() rather than written here, so the per-role rules stay in one place.
+    // Pitch bend has no controller and no per-beat output settings, so there are none to carry.
+    static const std::vector<std::pair<QString, DataRole>> fields {
+        { "line0", DataRole::Line0 },
+        { "line1", DataRole::Line1 },
+        { "value0", DataRole::Value0 },
+        { "value1", DataRole::Value1 },
+        { "curve", DataRole::Curve },
+        { "modulationType", DataRole::Modulation_Type },
+        { "modulationCycles", DataRole::Modulation_Cycles },
+        { "modulationAmplitude", DataRole::Modulation_Amplitude },
+        { "modulationOffset", DataRole::Modulation_Offset },
+        { "modulationInverted", DataRole::Modulation_Inverted },
+        { "comment", DataRole::Comment }
+    };
+
+    const auto modelIndex = this->index(index);
+    for (auto && [key, role] : fields) {
+        if (const auto value = values.find(key); value != values.end()) {
+            setData(modelIndex, *value, static_cast<int>(role));
+        }
+    }
+
+    emit automationReplaced(index);
+}
+
 void PitchBendAutomationsModel::changeModulationType(int index, int type)
 {
     if (index >= 0 && static_cast<size_t>(index) < m_pitchBendAutomations.size()) {

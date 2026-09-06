@@ -336,6 +336,44 @@ void MidiCcAutomationsModelTest::test_changeController_shouldUpdateController()
     QCOMPARE(updatedAutomation->controller(), 10);
 }
 
+void MidiCcAutomationsModelTest::test_applyValues_shouldReplaceParametersButNotLocationOrEnabled()
+{
+    using Role = MidiCcAutomationsModel::DataRole;
+
+    // Copying onto an automation changes what it does, not where it lives: an automation copied over
+    // would otherwise jump to the column it was copied from.
+    const AutomationLocation location { 1, 2, 3 };
+    const MidiCcAutomation::InterpolationParameters interpolation { 11, 22, 33, 44 };
+    MidiCcAutomationsModel model;
+    model.setMidiCcAutomations({ MidiCcAutomation { 42, location, 7, interpolation, "Old comment" } });
+    const auto index = model.index(0);
+    QVERIFY(model.setData(index, false, static_cast<int>(Role::Enabled)));
+
+    QSignalSpy replacedSpy { &model, &MidiCcAutomationsModel::automationReplaced };
+
+    model.applyValues(0, QVariantMap { { "controller", 99 }, { "line0", 5 }, { "line1", 55 }, { "value0", 1 }, { "value1", 127 }, { "curve", static_cast<int>(Interpolator::CurveType::Exponential) }, { "lineOffset", 3 }, { "modulationType", 1 }, { "modulationCycles", 4 }, { "comment", "New comment" } });
+
+    QCOMPARE(model.data(index, static_cast<int>(Role::Controller)).toInt(), 99);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Line0)).toUInt(), 5u);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Line1)).toUInt(), 55u);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Value0)).toInt(), 1);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Value1)).toInt(), 127);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Curve)).toInt(), static_cast<int>(Interpolator::CurveType::Exponential));
+    QCOMPARE(model.data(index, static_cast<int>(Role::LineOffset)).toUInt(), 3u);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Type)).toInt(), 1);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Cycles)).toUInt(), 4u);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Comment)).toString(), QString { "New comment" });
+
+    QCOMPARE(model.data(index, static_cast<int>(Role::Pattern)).toUInt(), 1u);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Track)).toUInt(), 2u);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Column)).toUInt(), 3u);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Enabled)).toBool(), false);
+
+    // The edit delegate re-reads its controls off this, having set them once rather than bound them
+    QCOMPARE(replacedSpy.count(), 1);
+    QCOMPARE(replacedSpy.at(0).at(0).toInt(), 0);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::MidiCcAutomationsModelTest)

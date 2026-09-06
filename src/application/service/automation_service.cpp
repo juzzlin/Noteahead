@@ -426,6 +426,56 @@ AutomationService::MidiCcAutomationList AutomationService::midiCcAutomations() c
     return m_automations.midiCc;
 }
 
+namespace {
+
+//! The keys every automation shares, which is everything but the controller and the output settings
+//! only MIDI CC has.
+QVariantMap commonAutomationVariants(const Automation & automation, const auto & interpolation, const ModulationParameters & modulation)
+{
+    return {
+        { "pattern", static_cast<quint64>(automation.location().pattern()) },
+        { "track", static_cast<quint64>(automation.location().track()) },
+        { "column", static_cast<quint64>(automation.location().column()) },
+        { "line0", static_cast<quint64>(interpolation.line0) },
+        { "line1", static_cast<quint64>(interpolation.line1) },
+        { "value0", static_cast<int>(interpolation.value0) },
+        { "value1", static_cast<int>(interpolation.value1) },
+        { "curve", static_cast<int>(interpolation.curve) },
+        { "modulationType", static_cast<int>(modulation.type) },
+        { "modulationCycles", modulation.cycles },
+        { "modulationAmplitude", modulation.amplitude },
+        { "modulationOffset", modulation.offset },
+        { "modulationInverted", modulation.inverted },
+        { "comment", automation.comment() }
+    };
+}
+
+} // namespace
+
+QVariantList AutomationService::midiCcAutomationsAsVariantList() const
+{
+    QVariantList list;
+    for (auto && automation : m_automations.midiCc) {
+        auto entry = commonAutomationVariants(automation, automation.interpolation(), automation.modulation());
+        entry["controller"] = static_cast<int>(automation.controller());
+        // The stored value, where zero means "one event per line". Both the add form and the edit
+        // model map that against the song's own lines per beat, and neither is reachable here.
+        entry["eventsPerBeat"] = static_cast<int>(automation.eventsPerBeat());
+        entry["lineOffset"] = static_cast<int>(automation.lineOffset());
+        list.append(entry);
+    }
+    return list;
+}
+
+QVariantList AutomationService::pitchBendAutomationsAsVariantList() const
+{
+    QVariantList list;
+    for (auto && automation : m_automations.pitchBend) {
+        list.append(commonAutomationVariants(automation, automation.interpolation(), automation.modulation()));
+    }
+    return list;
+}
+
 AutomationService::PitchBendAutomationList AutomationService::pitchBendAutomationsByLine(quint64 pattern, quint64 track, quint64 column, quint64 line) const
 {
     PitchBendAutomationList automations;

@@ -295,6 +295,41 @@ void PitchBendAutomationsModelTest::test_changeModulationType_shouldUpdateModula
     QCOMPARE(static_cast<int>(updatedAutomation->modulation().type), 1);
 }
 
+void PitchBendAutomationsModelTest::test_applyValues_shouldReplaceParametersButNotLocationOrEnabled()
+{
+    using Role = PitchBendAutomationsModel::DataRole;
+
+    // Copying onto an automation changes what it does, not where it lives: an automation copied over
+    // would otherwise jump to the column it was copied from.
+    const AutomationLocation location { 1, 2, 3 };
+    const PitchBendAutomation::InterpolationParameters interpolation { 11, 22, -50, 50 };
+    PitchBendAutomationsModel model;
+    model.setPitchBendAutomations({ PitchBendAutomation { 42, location, interpolation, "Old comment" } });
+    const auto index = model.index(0);
+    QVERIFY(model.setData(index, false, static_cast<int>(Role::Enabled)));
+
+    QSignalSpy replacedSpy { &model, &PitchBendAutomationsModel::automationReplaced };
+
+    model.applyValues(0, QVariantMap { { "line0", 5 }, { "line1", 55 }, { "value0", -100 }, { "value1", 100 }, { "curve", static_cast<int>(Interpolator::CurveType::Exponential) }, { "modulationType", 1 }, { "modulationCycles", 4 }, { "comment", "New comment" } });
+
+    QCOMPARE(model.data(index, static_cast<int>(Role::Line0)).toUInt(), 5u);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Line1)).toUInt(), 55u);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Value0)).toInt(), -100);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Value1)).toInt(), 100);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Curve)).toInt(), static_cast<int>(Interpolator::CurveType::Exponential));
+    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Type)).toInt(), 1);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Modulation_Cycles)).toUInt(), 4u);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Comment)).toString(), QString { "New comment" });
+
+    QCOMPARE(model.data(index, static_cast<int>(Role::Pattern)).toUInt(), 1u);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Track)).toUInt(), 2u);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Column)).toUInt(), 3u);
+    QCOMPARE(model.data(index, static_cast<int>(Role::Enabled)).toBool(), false);
+
+    QCOMPARE(replacedSpy.count(), 1);
+    QCOMPARE(replacedSpy.at(0).at(0).toInt(), 0);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::PitchBendAutomationsModelTest)

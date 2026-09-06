@@ -32,29 +32,28 @@ AnimatedDialog {
     // to do that clicking the row has not already done.
     standardButtons: Dialog.Cancel
 
-    //! Which kind of automation to list. The two are separate models with their own parameters, and
-    //! the form that opened this one already knows which it is.
+    //! Which kind of automation to list. The two carry different parameters, and whatever opened
+    //! this dialog already knows which of them it is filling.
     property bool isPitchBend: false
 
     // A pure binding rather than a qsTr() down in the delegate's lookup below, which is a JS block
     // and so would keep whatever it was first evaluated in when the language changes.
     readonly property string pitchBendLabel: qsTr("Pitch Bend")
 
-    //! The parameters of the picked automation, for the form to apply. Its location is left out:
-    //! the new automation belongs where the form was opened.
+    //! The parameters of the picked automation, for the caller to apply. It carries the location
+    //! keys too, but nothing applies those: an automation stays where it already is.
     signal automationSelected(var values)
 
     function setTitle(text: string): void {
         title = `<strong>${text}</strong>`;
     }
 
-    onOpened: {
-        if (isPitchBend) {
-            pitchBendAutomationsModel.requestPitchBendAutomations();
-        } else {
-            midiCcAutomationsModel.requestMidiCcAutomations();
-        }
-    }
+    //! The song's automations, snapshotted when the dialog opens. A plain list rather than the edit
+    //! dialogs' own model, which this one can be opened on top of: re-scoping that model would pull
+    //! the list out from under the edit it was opened from.
+    property var automations: []
+
+    onOpened: automations = isPitchBend ? automationService.pitchBendAutomationsAsVariantList() : automationService.midiCcAutomationsAsVariantList()
 
     // The curve names live in InterpolationCurveComboBox and nowhere else. One hidden instance reads
     // them here rather than a second copy that could drift out of step with Interpolator::CurveType,
@@ -78,7 +77,7 @@ AnimatedDialog {
 
         ListView {
             id: automationList
-            model: rootItem.isPitchBend ? pitchBendAutomationsModel : midiCcAutomationsModel
+            model: rootItem.automations
             property int hoveredIndex: -1
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -100,7 +99,7 @@ AnimatedDialog {
 
                 // Value ranges and controller names are per port, so the name has to be looked up
                 // through the automation's own track rather than the one the form sits on.
-                readonly property string portName: editorService.instrumentPortName(model.track)
+                readonly property string portName: editorService.instrumentPortName(modelData.track)
                 readonly property string controllerName: rootItem.isPitchBend ? rootItem.pitchBendLabel : row.midiCcName
                 readonly property string midiCcName: {
                     if (rootItem.isPitchBend) {
@@ -108,11 +107,11 @@ AnimatedDialog {
                     }
                     const controllers = propertyService.getAvailableMidiControllers(row.portName);
                     for (let i = 0; i < controllers.length; i++) {
-                        if (controllers[i].number === model.controller) {
+                        if (controllers[i].number === modelData.controller) {
                             return controllers[i].name;
                         }
                     }
-                    return String(model.controller);
+                    return String(modelData.controller);
                 }
                 readonly property color textColor: automationList.hoveredIndex === index ? themeService.accentTextColor : "white"
 
@@ -125,7 +124,7 @@ AnimatedDialog {
                         Layout.fillWidth: true
                         spacing: 10
                         Text {
-                            text: qsTr("Pattern %1, track %2 (%3), column %4").arg(model.pattern).arg(model.track).arg(editorService.trackName(model.track)).arg(model.column)
+                            text: qsTr("Pattern %1, track %2 (%3), column %4").arg(modelData.pattern).arg(modelData.track).arg(editorService.trackName(modelData.track)).arg(modelData.column)
                             color: row.textColor
                             elide: Text.ElideRight
                             Layout.fillWidth: true
@@ -140,12 +139,12 @@ AnimatedDialog {
                         Layout.fillWidth: true
                         spacing: 10
                         Text {
-                            text: qsTr("Lines %1-%2, values %3-%4, %5").arg(model.line0).arg(model.line1).arg(model.value0).arg(model.value1).arg(curveNames.model[model.curve])
+                            text: qsTr("Lines %1-%2, values %3-%4, %5").arg(modelData.line0).arg(modelData.line1).arg(modelData.value0).arg(modelData.value1).arg(curveNames.model[modelData.curve])
                             color: row.textColor
                             font.pointSize: 9
                         }
                         Text {
-                            text: model.comment
+                            text: modelData.comment
                             color: row.textColor
                             font.pointSize: 9
                             font.italic: true
@@ -164,24 +163,9 @@ AnimatedDialog {
                     onExited: automationList.hoveredIndex = -1
                     onClicked: {
                         automationList.hoveredIndex = -1;
-                        // Built here rather than read back through the model afterwards: the roles
-                        // are only in scope inside the delegate.
-                        rootItem.automationSelected({
-                            "controller": rootItem.isPitchBend ? 0 : model.controller,
-                            "line0": model.line0,
-                            "line1": model.line1,
-                            "value0": model.value0,
-                            "value1": model.value1,
-                            "curve": model.curve,
-                            "eventsPerBeat": rootItem.isPitchBend ? 0 : model.eventsPerBeat,
-                            "lineOffset": rootItem.isPitchBend ? 0 : model.lineOffset,
-                            "modulationType": model.modulationType,
-                            "modulationCycles": model.modulationCycles,
-                            "modulationAmplitude": model.modulationAmplitude,
-                            "modulationOffset": model.modulationOffset,
-                            "modulationInverted": model.modulationInverted,
-                            "comment": model.comment
-                        });
+                        // The snapshot entry is already the shape the forms apply, location keys and
+                        // all; those are simply not read.
+                        rootItem.automationSelected(modelData);
                         rootItem.close();
                     }
                 }

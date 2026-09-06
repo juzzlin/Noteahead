@@ -367,6 +367,41 @@ void MidiCcAutomationsModel::applyAll()
     m_midiCcAutomationsDeleted.clear();
 }
 
+void MidiCcAutomationsModel::applyValues(int index, const QVariantMap & values)
+{
+    if (index < 0 || static_cast<size_t>(index) >= m_midiCcAutomations.size()) {
+        return;
+    }
+
+    // Routed through setData() rather than written here: the per-role rules -- the events-per-beat
+    // mapping in particular -- belong there, and a second copy of them would drift.
+    static const std::vector<std::pair<QString, DataRole>> fields {
+        { "controller", DataRole::Controller },
+        { "line0", DataRole::Line0 },
+        { "line1", DataRole::Line1 },
+        { "value0", DataRole::Value0 },
+        { "value1", DataRole::Value1 },
+        { "curve", DataRole::Curve },
+        { "eventsPerBeat", DataRole::EventsPerBeat },
+        { "lineOffset", DataRole::LineOffset },
+        { "modulationType", DataRole::Modulation_Type },
+        { "modulationCycles", DataRole::Modulation_Cycles },
+        { "modulationAmplitude", DataRole::Modulation_Amplitude },
+        { "modulationOffset", DataRole::Modulation_Offset },
+        { "modulationInverted", DataRole::Modulation_Inverted },
+        { "comment", DataRole::Comment }
+    };
+
+    const auto modelIndex = this->index(index);
+    for (auto && [key, role] : fields) {
+        if (const auto value = values.find(key); value != values.end()) {
+            setData(modelIndex, *value, static_cast<int>(role));
+        }
+    }
+
+    emit automationReplaced(index);
+}
+
 void MidiCcAutomationsModel::changeController(int index, quint8 controller)
 {
     if (index >= 0 && static_cast<size_t>(index) < m_midiCcAutomations.size()) {

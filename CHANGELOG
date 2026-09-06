@@ -5,9 +5,10 @@ Release date:
 
 New features:
 
-* Copy an automation into the Add automation dialog
-  - A picker lists the automations already in the song and fills the form
-    from the one clicked, for MIDI CC and Pitch Bend alike
+* Copy the settings of an automation onto another
+  - A picker lists the automations already in the song, and fills either
+    the Add automation form or a row of the Edit automations dialog from
+    the one clicked, for MIDI CC and Pitch Bend alike
 
 * Add a four-operator FM synth
   - Eight algorithms, eight operator waveforms and feedback

@@ -19,6 +19,7 @@
 #include "../../domain/midi/pitch_bend_automation.hpp"
 
 #include <QAbstractListModel>
+#include <QVariantMap>
 
 #include <set>
 #include <vector>
@@ -71,10 +72,20 @@ public:
     Q_INVOKABLE void changeModulationType(int index, int type);
     Q_INVOKABLE void changeCurve(int index, int curve);
 
+    //! Overwrites the automation at the given row with the parameters of another one.
+    //!
+    //! Everything but the location and the enabled flag: a copy changes what an automation does, not
+    //! where it lives or whether it is switched on. Keys missing from the map are left alone.
+    Q_INVOKABLE void applyValues(int index, const QVariantMap & values);
+
 signals:
     void pitchBendAutomationChanged(const PitchBendAutomation & PitchBendAutomation);
     void pitchBendAutomationDeleted(const PitchBendAutomation & PitchBendAutomation);
     void pitchBendAutomationsRequested();
+    //! One row was replaced wholesale by applyValues(). The edit delegates set their controls once
+    //! rather than binding them, so they need telling; dataChanged() cannot serve, as it also fires
+    //! on every keystroke of an ordinary edit.
+    void automationReplaced(int index);
 
 private:
     PitchBendAutomationList filteredPitchBendAutomations(const PitchBendAutomationList & PitchBendAutomations) const;

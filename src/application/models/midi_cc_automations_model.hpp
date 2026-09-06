@@ -19,6 +19,7 @@
 #include "../../domain/midi/midi_cc_automation.hpp"
 
 #include <QAbstractListModel>
+#include <QVariantMap>
 
 #include <set>
 #include <vector>
@@ -80,11 +81,21 @@ public:
     Q_INVOKABLE void changeModulationType(int index, int type);
     Q_INVOKABLE void changeCurve(int index, int curve);
 
+    //! Overwrites the automation at the given row with the parameters of another one.
+    //!
+    //! Everything but the location and the enabled flag: a copy changes what an automation does, not
+    //! where it lives or whether it is switched on. Keys missing from the map are left alone.
+    Q_INVOKABLE void applyValues(int index, const QVariantMap & values);
+
 signals:
     void midiCcAutomationChanged(const MidiCcAutomation & midiCcAutomation);
     void midiCcAutomationDeleted(const MidiCcAutomation & midiCcAutomation);
     void midiCcAutomationsRequested();
     void linesPerBeatChanged();
+    //! One row was replaced wholesale by applyValues(). The edit delegates set their controls once
+    //! rather than binding them, so they need telling; dataChanged() cannot serve, as it also fires
+    //! on every keystroke of an ordinary edit.
+    void automationReplaced(int index);
 
 private:
     MidiCcAutomationList filteredMidiCcAutomations(const MidiCcAutomationList & midiCcAutomations) const;

@@ -35,6 +35,8 @@ private slots:
     void test_setData_shouldHandleNegativeValues();
     void test_removeAt_shouldRemoveAutomationData();
     void test_changeModulationType_shouldUpdateModulationType();
+
+    void test_applyValues_shouldReplaceParametersButNotLocationOrEnabled();
 };
 
 } // namespace noteahead
