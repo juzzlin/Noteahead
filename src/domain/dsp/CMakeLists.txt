@@ -9,6 +9,7 @@ set(DSP_SOURCES
     divide_down_generator.cpp
     ensemble_chorus.cpp
     fft.cpp
+    fm_operator.cpp
     lfo.cpp
     micro_pitch_shifter.cpp
     linkwitz_riley_crossover.cpp

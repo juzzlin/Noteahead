@@ -139,6 +139,11 @@ QString wavetableSynthDeviceName()
     return "Noteahead WavetableSynth";
 }
 
+QString fmSynthDeviceName()
+{
+    return "Noteahead FmSynth";
+}
+
 QString bassSynthDeviceName()
 {
     return "Noteahead BassSynth";
@@ -2208,6 +2213,56 @@ QString xmlKeyLfo2Target()
 QString xmlKeyWavetableIndex()
 {
     return "wavetableIndex";
+}
+
+QString xmlKeyOperatorWaveform(size_t operatorIndex)
+{
+    return QString { "op%1Waveform" }.arg(operatorIndex + 1);
+}
+
+QString xmlKeyOperatorRatio(size_t operatorIndex)
+{
+    return QString { "op%1Ratio" }.arg(operatorIndex + 1);
+}
+
+QString xmlKeyOperatorDetune(size_t operatorIndex)
+{
+    return QString { "op%1Detune" }.arg(operatorIndex + 1);
+}
+
+QString xmlKeyOperatorLevel(size_t operatorIndex)
+{
+    return QString { "op%1Level" }.arg(operatorIndex + 1);
+}
+
+QString xmlKeyOperatorVelocitySensitivity(size_t operatorIndex)
+{
+    return QString { "op%1VelocitySensitivity" }.arg(operatorIndex + 1);
+}
+
+QString xmlKeyOperatorKeyScale(size_t operatorIndex)
+{
+    return QString { "op%1KeyScale" }.arg(operatorIndex + 1);
+}
+
+QString xmlKeyOperatorAttack(size_t operatorIndex)
+{
+    return QString { "op%1Attack" }.arg(operatorIndex + 1);
+}
+
+QString xmlKeyOperatorDecay(size_t operatorIndex)
+{
+    return QString { "op%1Decay" }.arg(operatorIndex + 1);
+}
+
+QString xmlKeyOperatorSustain(size_t operatorIndex)
+{
+    return QString { "op%1Sustain" }.arg(operatorIndex + 1);
+}
+
+QString xmlKeyAlgorithm()
+{
+    return "algorithm";
 }
 
 QString xmlKeyVoiceMode()

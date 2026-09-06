@@ -92,6 +92,7 @@ class TrackSettingsModel;
 class UiLogger;
 class UtilService;
 class WavetableSynthController;
+class FmSynthController;
 
 class Application : public QObject
 {
@@ -175,6 +176,7 @@ private:
     std::shared_ptr<SamplerController> m_samplerController;
     std::shared_ptr<SynthController> m_synthController;
     std::shared_ptr<WavetableSynthController> m_wavetableSynthController;
+    std::shared_ptr<FmSynthController> m_fmSynthController;
     std::shared_ptr<BassSynthController> m_bassSynthController;
     std::shared_ptr<DrumSynthController> m_drumSynthController;
     std::shared_ptr<PianoSynthController> m_pianoSynthController;

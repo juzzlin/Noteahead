@@ -120,6 +120,18 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/Eq8BandParametricDialog.qml
     ${QML_BASE_DIR}/Dialogs/ErrorDialog.qml
     ${QML_BASE_DIR}/Dialogs/EventSelectionDialog.qml
+    ${QML_BASE_DIR}/Dialogs/FmSynthDialog.qml
+    ${QML_BASE_DIR}/Dialogs/FmSynthDialog_Algorithm.qml
+    ${QML_BASE_DIR}/Dialogs/FmSynthDialog_AmpEg.qml
+    ${QML_BASE_DIR}/Dialogs/FmSynthDialog_Filter.qml
+    ${QML_BASE_DIR}/Dialogs/FmSynthDialog_Global.qml
+    ${QML_BASE_DIR}/Dialogs/FmSynthDialog_Lfo1.qml
+    ${QML_BASE_DIR}/Dialogs/FmSynthDialog_Lfo2.qml
+    ${QML_BASE_DIR}/Dialogs/FmSynthDialog_ModEg.qml
+    ${QML_BASE_DIR}/Dialogs/FmSynthDialog_Operator.qml
+    ${QML_BASE_DIR}/Dialogs/FmSynthDialog_Tab1.qml
+    ${QML_BASE_DIR}/Dialogs/FmSynthDialog_Tab2.qml
+    ${QML_BASE_DIR}/Dialogs/FmSynthDialog_Tab3.qml
     ${QML_BASE_DIR}/Dialogs/GainConverterDialog.qml
     ${QML_BASE_DIR}/Dialogs/GainDialog.qml
     ${QML_BASE_DIR}/Dialogs/IntegerInputDialog.qml

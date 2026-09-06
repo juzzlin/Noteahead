@@ -81,6 +81,7 @@ QString stringVoiceDeviceName();
 QString stringVoiceV2DeviceName();
 QString stringEnsembleDeviceName();
 QString speechDeviceName();
+QString fmSynthDeviceName();
 
 QString internalDevicePortPrefix();
 double defaultSampleRate();
@@ -658,6 +659,20 @@ QString xmlKeyLfo2Rate();
 QString xmlKeyLfo2Intensity();
 QString xmlKeyLfo2Target();
 QString xmlKeyWavetableIndex();
+
+//! FM operator parameters. @p operatorIndex is zero based; the keys count from one, the way the
+//! operators are numbered everywhere a user sees them.
+QString xmlKeyOperatorWaveform(size_t operatorIndex);
+QString xmlKeyOperatorRatio(size_t operatorIndex);
+QString xmlKeyOperatorDetune(size_t operatorIndex);
+QString xmlKeyOperatorLevel(size_t operatorIndex);
+QString xmlKeyOperatorVelocitySensitivity(size_t operatorIndex);
+QString xmlKeyOperatorKeyScale(size_t operatorIndex);
+QString xmlKeyOperatorAttack(size_t operatorIndex);
+QString xmlKeyOperatorDecay(size_t operatorIndex);
+QString xmlKeyOperatorSustain(size_t operatorIndex);
+
+QString xmlKeyAlgorithm();
 
 QString xmlKeyMultiMode();
 QString xmlKeyMultiShape();

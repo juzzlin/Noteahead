@@ -34,6 +34,7 @@
 #include "../domain/devices/string_voice_device.hpp"
 #include "../domain/devices/string_voice_v2_device.hpp"
 #include "../domain/devices/synth_device.hpp"
+#include "../domain/devices/fm_synth_device.hpp"
 #include "../domain/devices/wavetable_synth_device.hpp"
 #include "../domain/effects/effect_factory.hpp"
 #include "../domain/midi/midi_note_data.hpp"
@@ -59,6 +60,7 @@
 #include "../view/controllers/string_voice_controller.hpp"
 #include "../view/controllers/string_voice_v2_controller.hpp"
 #include "../view/controllers/synth_controller.hpp"
+#include "../view/controllers/fm_synth_controller.hpp"
 #include "../view/controllers/wavetable_synth_controller.hpp"
 #include "../view/qml/Components/oscilloscope_renderer.hpp"
 #include "../view/qml/Dialogs/rta_renderer.hpp"
@@ -142,6 +144,7 @@ Application::Application(int & argc, char ** argv)
   , m_samplerController { std::make_shared<SamplerController>(std::make_shared<SamplerDevice>("Default Sampler")) }
   , m_synthController { std::make_shared<SynthController>(std::make_shared<SynthDevice>("Default Synth")) }
   , m_wavetableSynthController { std::make_shared<WavetableSynthController>(std::make_shared<WavetableSynthDevice>("Default WavetableSynth")) }
+  , m_fmSynthController { std::make_shared<FmSynthController>(std::make_shared<FmSynthDevice>("Default FmSynth")) }
   , m_bassSynthController { std::make_shared<BassSynthController>(std::make_shared<BassSynthDevice>("Default BassSynth")) }
   , m_drumSynthController { std::make_shared<DrumSynthController>(m_deviceService) }
   , m_pianoSynthController { std::make_shared<PianoSynthController>(std::make_shared<PianoSynthDevice>("Default PianoSynth")) }
@@ -155,7 +158,7 @@ Application::Application(int & argc, char ** argv)
   , m_effectRackController { std::make_shared<EffectRackController>(m_deviceService, m_editorService) }
   , m_songOverviewService { std::make_shared<SongOverviewService>(m_deviceService, m_editorService) }
   , m_songOverviewController { std::make_shared<SongOverviewController>(m_songOverviewService, m_effectRackController) }
-  , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, std::vector<DeviceController::DeviceControllerS> { m_samplerController, m_synthController, m_wavetableSynthController, m_bassSynthController, m_drumSynthController, m_pianoSynthController, m_pianoSynthV2Controller, m_pianoSynthV3Controller, m_kick808Controller, m_stringVoiceController, m_stringVoiceV2Controller, m_stringEnsembleController, m_speechController }, m_editorService) }
+  , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, std::vector<DeviceController::DeviceControllerS> { m_samplerController, m_synthController, m_wavetableSynthController, m_fmSynthController, m_bassSynthController, m_drumSynthController, m_pianoSynthController, m_pianoSynthV2Controller, m_pianoSynthV3Controller, m_kick808Controller, m_stringVoiceController, m_stringVoiceV2Controller, m_stringEnsembleController, m_speechController }, m_editorService) }
   , m_knobController { std::make_shared<KnobController>() }
   , m_jackService { std::make_shared<JackService>(m_settingsService, m_audioEngine) }
   , m_audioService { std::make_shared<AudioService>(m_settingsService, m_jackService, m_audioEngine) }
@@ -264,6 +267,7 @@ void Application::registerTypes()
     qmlRegisterType<StringEnsembleController>("Noteahead", majorVersion, minorVersion, "StringEnsembleController");
     qmlRegisterType<SynthController>("Noteahead", majorVersion, minorVersion, "SynthController");
     qmlRegisterType<WavetableSynthController>("Noteahead", majorVersion, minorVersion, "WavetableSynthController");
+    qmlRegisterType<FmSynthController>("Noteahead", majorVersion, minorVersion, "FmSynthController");
     qmlRegisterType<SelectionService>("Noteahead", majorVersion, minorVersion, "SelectionService");
     qmlRegisterType<SettingsService>("Noteahead", majorVersion, minorVersion, "SettingsService");
     qmlRegisterType<SideChainService>("Noteahead", majorVersion, minorVersion, "SideChainService");
@@ -288,6 +292,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("samplerController", m_samplerController.get());
     m_engine->rootContext()->setContextProperty("synthController", m_synthController.get());
     m_engine->rootContext()->setContextProperty("wavetableSynthController", m_wavetableSynthController.get());
+    m_engine->rootContext()->setContextProperty("fmSynthController", m_fmSynthController.get());
     m_engine->rootContext()->setContextProperty("bassSynthController", m_bassSynthController.get());
     m_engine->rootContext()->setContextProperty("drumSynthController", m_drumSynthController.get());
     m_engine->rootContext()->setContextProperty("pianoSynthController", m_pianoSynthController.get());
@@ -426,6 +431,10 @@ void Application::connectDeviceService()
         emit m_applicationService->wavetableSynthDialogRequested();
     });
 
+    connect(m_deviceRackController.get(), &DeviceRackController::fmSynthDialogRequested, m_applicationService.get(), [this]() {
+        emit m_applicationService->fmSynthDialogRequested();
+    });
+
     connect(m_editorService.get(), &EditorService::devicesSerializationRequested, m_deviceService.get(), &DeviceService::serializeToXml);
     connect(m_editorService.get(), &EditorService::devicesDeserializationRequested, m_deviceService.get(), &DeviceService::deserializeFromXml);
     connect(m_editorService.get(), &EditorService::dataSerializationRequested, this, [this](ProjectWriter & writer) {
@@ -436,6 +445,7 @@ void Application::connectDeviceService()
 
     m_synthController->setDeviceService(m_deviceService);
     m_wavetableSynthController->setDeviceService(m_deviceService);
+    m_fmSynthController->setDeviceService(m_deviceService);
     connect(m_deviceService.get(), &DeviceService::synthUserPresetsChanged, m_synthController.get(), &SynthController::setUserPresets);
 
     connect(m_deviceService.get(), &DeviceService::dataChanged, this, [this]() {
@@ -925,6 +935,7 @@ void Application::retranslateUi()
     // that it has no reason to re-read on its own.
     m_synthController->retranslate();
     m_wavetableSynthController->retranslate();
+    m_fmSynthController->retranslate();
     m_effectRackController->retranslate();
     m_tipService->retranslate();
 }

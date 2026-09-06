@@ -16,6 +16,7 @@
 #include "bass_synth_device.hpp"
 #include "device_factory.hpp"
 #include "drum_synth_device.hpp"
+#include "fm_synth_device.hpp"
 #include "kick_808_device.hpp"
 #include "piano_synth_device.hpp"
 #include "piano_synth_v2_device.hpp"
@@ -38,6 +39,9 @@ void DeviceFactory::init()
     });
     registerDevice(DrumSynthDevice::typeIdString(), [](const std::string & name) {
         return std::make_shared<DrumSynthDevice>(name);
+    });
+    registerDevice(FmSynthDevice::typeIdString(), [](const std::string & name) {
+        return std::make_shared<FmSynthDevice>(name);
     });
     registerDevice(Kick808Device::typeIdString(), [](const std::string & name) {
         return std::make_shared<Kick808Device>(name);

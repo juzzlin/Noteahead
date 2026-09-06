@@ -5,6 +5,11 @@ Release date:
 
 New features:
 
+* Add a four-operator FM synth
+  - Eight algorithms, eight operator waveforms and feedback
+  - Per-operator ratio, detune, velocity sensitivity and key scaling
+  - The dialog draws the routing of the selected algorithm
+
 Bug fixes:
 
 * Fix the AppImage failing to start on a Wayland session

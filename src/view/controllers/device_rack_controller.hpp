@@ -153,6 +153,7 @@ signals:
     void samplerDialogRequested();
     void synthDialogRequested();
     void wavetableSynthDialogRequested();
+    void fmSynthDialogRequested();
     void bassSynthDialogRequested();
     void drumSynthDialogRequested();
     void pianoSynthDialogRequested();

@@ -334,6 +334,10 @@ ApplicationWindow {
         id: wavetableSynthDialog
         anchors.centerIn: parent
     }
+    FmSynthDialog {
+        id: fmSynthDialog
+        anchors.centerIn: parent
+    }
     BassSynthDialog {
         id: bassSynthDialog
         anchors.centerIn: parent
@@ -922,6 +926,7 @@ ApplicationWindow {
         deviceRackController.samplerDialogRequested.connect(samplerDialog.open);
         deviceRackController.synthDialogRequested.connect(synthDialog.open);
         deviceRackController.wavetableSynthDialogRequested.connect(wavetableSynthDialog.open);
+        deviceRackController.fmSynthDialogRequested.connect(fmSynthDialog.open);
         deviceRackController.importSettingsConfirmationRequested.connect(UiService.requestImportDeviceSettingsConfirmation);
         effectRackController.importEffectSettingsConfirmationRequested.connect(UiService.requestImportEffectSettingsConfirmation);
     }

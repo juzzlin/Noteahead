@@ -21,6 +21,7 @@
 #include "../../domain/devices/bass_synth_device.hpp"
 #include "../../domain/devices/device_factory.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
+#include "../../domain/devices/fm_synth_device.hpp"
 #include "../../domain/devices/kick_808_device.hpp"
 #include "../../domain/devices/piano_synth_device.hpp"
 #include "../../domain/devices/piano_synth_v2_device.hpp"
@@ -152,6 +153,8 @@ void DeviceRackController::openDevice(const QString & name)
                     emit synthDialogRequested();
                 } else if (typeId == WavetableSynthDevice::typeIdString()) {
                     emit wavetableSynthDialogRequested();
+                } else if (typeId == FmSynthDevice::typeIdString()) {
+                    emit fmSynthDialogRequested();
                 } else if (typeId == BassSynthDevice::typeIdString()) {
                     emit bassSynthDialogRequested();
                 } else if (typeId == DrumSynthDevice::typeIdString()) {
@@ -446,6 +449,7 @@ QVariantList DeviceRackController::availableDevices() const
     addDevice("Sampler", QString::fromStdString(SamplerDevice::typeIdString()));
     addDevice("Synth", QString::fromStdString(SynthDevice::typeIdString()));
     addDevice("Wavetable Synth", QString::fromStdString(WavetableSynthDevice::typeIdString()));
+    addDevice("FM Synth", QString::fromStdString(FmSynthDevice::typeIdString()));
     addDevice("Bass Synth", QString::fromStdString(BassSynthDevice::typeIdString()));
     addDevice("Drum Synth", QString::fromStdString(DrumSynthDevice::typeIdString()));
     addDevice("Piano Synth", QString::fromStdString(PianoSynthDevice::typeIdString()));

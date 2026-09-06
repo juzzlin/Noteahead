@@ -43,6 +43,7 @@ class ApplicationService : public QObject
     Q_PROPERTY(QString samplerDeviceName READ samplerDeviceName CONSTANT)
     Q_PROPERTY(QString synthDeviceName READ synthDeviceName CONSTANT)
     Q_PROPERTY(QString wavetableSynthDeviceName READ wavetableSynthDeviceName CONSTANT)
+    Q_PROPERTY(QString fmSynthDeviceName READ fmSynthDeviceName CONSTANT)
     Q_PROPERTY(QString bassSynthDeviceName READ bassSynthDeviceName CONSTANT)
     Q_PROPERTY(QString drumSynthDeviceName READ drumSynthDeviceName CONSTANT)
     Q_PROPERTY(QString pianoSynthDeviceName READ pianoSynthDeviceName CONSTANT)
@@ -81,6 +82,7 @@ public:
     Q_INVOKABLE QString samplerDeviceName() const;
     Q_INVOKABLE QString synthDeviceName() const;
     Q_INVOKABLE QString wavetableSynthDeviceName() const;
+    Q_INVOKABLE QString fmSynthDeviceName() const;
     Q_INVOKABLE QString bassSynthDeviceName() const;
     Q_INVOKABLE QString drumSynthDeviceName() const;
     Q_INVOKABLE QString pianoSynthDeviceName() const;
@@ -143,6 +145,7 @@ public:
     Q_INVOKABLE void requestMasterEffectsDialog();
     Q_INVOKABLE void requestDrumSynthDialog();
     Q_INVOKABLE void requestWavetableSynthDialog();
+    Q_INVOKABLE void requestFmSynthDialog();
     Q_INVOKABLE void requestSaveProject();
     Q_INVOKABLE void requestSaveProjectAs();
     Q_INVOKABLE void requestSaveProjectAsTemplate();
@@ -211,6 +214,7 @@ signals:
     void samplerDialogRequested();
     void synthDialogRequested();
     void wavetableSynthDialogRequested();
+    void fmSynthDialogRequested();
     void drumSynthDialogRequested();
 
     void saveAsDialogRequested();

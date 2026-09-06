@@ -4,6 +4,7 @@ set(HEADER_FILES
     devices/device_factory.hpp
     devices/drum_synth_constants.hpp
     devices/drum_synth_device.hpp
+    devices/fm_synth_device.hpp
     devices/kick_808_device.hpp
     devices/piano_synth_device.hpp
     devices/piano_synth_v2_device.hpp
@@ -36,6 +37,7 @@ set(HEADER_FILES
     dsp/drum/tom_engine.hpp
     dsp/dsp_component.hpp
     dsp/fft.hpp
+    dsp/fm_operator.hpp
     dsp/high_pass_filter.hpp
     dsp/lfo.hpp
     dsp/micro_pitch_shifter.hpp
@@ -145,6 +147,7 @@ set(SOURCE_FILES
     devices/device_registration.cpp
     devices/drum_synth_constants.cpp
     devices/drum_synth_device.cpp
+    devices/fm_synth_device.cpp
     devices/kick_808_device.cpp
     devices/piano_synth_device.cpp
     devices/piano_synth_v2_device.cpp
@@ -178,6 +181,7 @@ set(SOURCE_FILES
     dsp/dsp_component.cpp
     dsp/ensemble_chorus.cpp
     dsp/fft.cpp
+    dsp/fm_operator.cpp
     dsp/high_pass_filter.cpp
     dsp/lfo.cpp
     dsp/micro_pitch_shifter.cpp

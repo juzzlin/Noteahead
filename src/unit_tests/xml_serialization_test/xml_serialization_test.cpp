@@ -31,6 +31,7 @@
 #include "../../domain/devices/device_factory.hpp"
 #include "../../domain/devices/drum_synth_constants.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
+#include "../../domain/devices/fm_synth_device.hpp"
 #include "../../domain/devices/kick_808_device.hpp"
 #include "../../domain/devices/piano_synth_v2_device.hpp"
 #include "../../domain/devices/piano_synth_v3_device.hpp"
@@ -2019,6 +2020,91 @@ void XmlSerializationTest::test_toXmlFromXml_subMixerDevice_shouldLoadCorrectly(
 
     QVERIFY(std::abs(restored->volume() - 0.8f) < 0.001f);
     QVERIFY(std::abs(restored->pan() - 0.3f) < 0.001f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_fmSynthDevice_shouldLoadCorrectly()
+{
+    // Devices are rebuilt through DeviceFactory, so this also covers the factory registration:
+    // without it the device would silently vanish from a reloaded project.
+    DeviceFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto fmSynth = std::make_shared<FmSynthDevice>("FmSynth");
+    fmSynth->setAlgorithm(5);
+    fmSynth->setFeedback(0.6f);
+
+    // Every operator gets its own values, so a routing slip between them cannot pass unnoticed.
+    for (size_t i = 0; i < FmSynthDevice::OperatorCount; i++) {
+        fmSynth->setOperatorWaveform(i, static_cast<FmOperator::Waveform>(i + 1));
+        fmSynth->setOperatorRatio(i, static_cast<int>(i) * 3 + 2);
+        fmSynth->setOperatorDetune(i, 0.4f + 0.05f * static_cast<float>(i));
+        fmSynth->setOperatorLevel(i, 0.2f + 0.1f * static_cast<float>(i));
+        fmSynth->setOperatorVelocitySensitivity(i, 0.1f * static_cast<float>(i + 1));
+        fmSynth->setOperatorKeyScale(i, 0.15f * static_cast<float>(i + 1));
+        fmSynth->setOperatorAttack(i, 0.05f * static_cast<float>(i + 1));
+        fmSynth->setOperatorDecay(i, 0.11f * static_cast<float>(i + 1));
+        fmSynth->setOperatorSustain(i, 0.9f - 0.1f * static_cast<float>(i));
+    }
+
+    fmSynth->setLpfCutoff(0.55f);
+    fmSynth->setLpfResonance(0.35f);
+    fmSynth->setHpfCutoff(0.15f);
+    fmSynth->setAmpVelocitySensitivity(0.65f);
+    fmSynth->setModTarget(FmSynthDevice::ModTarget::Feedback);
+    fmSynth->setLfoTarget(FmSynthDevice::LfoTarget::ModIndex);
+    fmSynth->setLfo2Target(FmSynthDevice::LfoTarget::Pan);
+    fmSynth->setVoiceMode(FmSynthDevice::VoiceMode::Drift);
+    fmSynth->setVoiceDepth(0.44f);
+    fmSynth->setPanSpread(0.66f);
+    fmSynth->setPortamento(0.22f);
+    fmSynth->setPitchBendRange(7);
+    deviceServiceOut.setDevice(1, fmSynth);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto restored = std::dynamic_pointer_cast<FmSynthDevice>(deviceServiceIn.device(size_t { 1 }));
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), FmSynthDevice::typeIdString());
+
+    QCOMPARE(restored->algorithm(), 5);
+    QVERIFY(std::abs(restored->feedback() - 0.6f) < 0.001f);
+
+    for (size_t i = 0; i < FmSynthDevice::OperatorCount; i++) {
+        QCOMPARE(restored->operatorWaveform(i), static_cast<FmOperator::Waveform>(i + 1));
+        QCOMPARE(restored->operatorRatio(i), static_cast<int>(i) * 3 + 2);
+        QVERIFY(std::abs(restored->operatorDetune(i) - (0.4f + 0.05f * static_cast<float>(i))) < 0.001f);
+        QVERIFY(std::abs(restored->operatorLevel(i) - (0.2f + 0.1f * static_cast<float>(i))) < 0.001f);
+        QVERIFY(std::abs(restored->operatorVelocitySensitivity(i) - 0.1f * static_cast<float>(i + 1)) < 0.001f);
+        QVERIFY(std::abs(restored->operatorKeyScale(i) - 0.15f * static_cast<float>(i + 1)) < 0.001f);
+        QVERIFY(std::abs(restored->operatorAttack(i) - 0.05f * static_cast<float>(i + 1)) < 0.001f);
+        QVERIFY(std::abs(restored->operatorDecay(i) - 0.11f * static_cast<float>(i + 1)) < 0.001f);
+        QVERIFY(std::abs(restored->operatorSustain(i) - (0.9f - 0.1f * static_cast<float>(i))) < 0.001f);
+    }
+
+    QVERIFY(std::abs(restored->lpfCutoff() - 0.55f) < 0.001f);
+    QVERIFY(std::abs(restored->lpfResonance() - 0.35f) < 0.001f);
+    QVERIFY(std::abs(restored->hpfCutoff() - 0.15f) < 0.001f);
+    QVERIFY(std::abs(restored->ampVelocitySensitivity() - 0.65f) < 0.001f);
+    QCOMPARE(restored->modTarget(), FmSynthDevice::ModTarget::Feedback);
+    QCOMPARE(restored->lfoTarget(), FmSynthDevice::LfoTarget::ModIndex);
+    QCOMPARE(restored->lfo2Target(), FmSynthDevice::LfoTarget::Pan);
+    QCOMPARE(restored->voiceMode(), FmSynthDevice::VoiceMode::Drift);
+    QVERIFY(std::abs(restored->voiceDepth() - 0.44f) < 0.001f);
+    QVERIFY(std::abs(restored->panSpread() - 0.66f) < 0.001f);
+    QVERIFY(std::abs(restored->portamento() - 0.22f) < 0.001f);
+    QCOMPARE(restored->pitchBendRange(), 7);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_stringEnsembleDevice_shouldLoadCorrectly()
