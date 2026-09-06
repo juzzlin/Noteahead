@@ -248,6 +248,13 @@ public:
     float gain() const;
     void setGain(float gain) override;
 
+    //! Where the pad addressed by @p note is in its sample, 0..1, and whether anything of it is still
+    //! sounding.
+    //!
+    //! Both are asked by pad, so they look for a voice reading that pad's sample rather than one
+    //! carrying that note. In chromatic mode the two are not the same: a pad is addressed by the root
+    //! of its octave, while its voices carry whichever note of that octave was played, and matching on
+    //! the note would find nothing unless the root itself happened to be the note played.
     double playbackPosition(uint8_t note) const;
     bool isFinished(uint8_t note) const;
 
@@ -354,6 +361,10 @@ private:
     //! Nothing when the sample is too short to interpolate across, which is also the case that used to
     //! fall out of the old bounds check on the first frame.
     static std::optional<PlayRange> playRange(const Sample & sample);
+
+    //! The sample loaded on the pad addressed by @p note, or nothing when the pad is empty or the note
+    //! is past the end of the keyboard, which the topmost chromatic pads are.
+    const Sample * padSample(uint8_t note) const;
 
     //! Pushes the pad's envelope settings into a voice. Called at note-on and whenever a knob moves, so
     //! a held note follows the envelope being dialled in.

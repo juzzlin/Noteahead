@@ -587,6 +587,43 @@ void SamplerTest::test_chromaticMode_shouldRoundTripThroughXml()
     }
 }
 
+//! A chromatic sampler with one octave-root sample, long enough that a note pitched up an octave
+//! still has sample left after the frames the tests render.
+std::unique_ptr<SamplerDevice> makeChromaticSampler()
+{
+    auto reader = std::make_unique<MockAudioFileReader>();
+    reader->setForceChannels(1);
+    reader->setFrames(static_cast<int64_t>(Constants::defaultSampleRate()));
+    auto sampler = std::make_unique<SamplerDevice>(Constants::samplerDeviceName().toStdString(), std::move(reader));
+    sampler->setChromaticMode(true);
+    sampler->loadSample(36, "test.wav"); // C3 root, covering the whole octave above it
+    return sampler;
+}
+
+void SamplerTest::test_chromaticMode_playbackPosition_shouldFollowAPitchedNote()
+{
+    // The pad is addressed by the root of its octave, but its voice carries the note actually played.
+    // Reading the position by note would find nothing here, which is what left the waveform view's
+    // playhead standing still in chromatic mode.
+    const auto sampler = makeChromaticSampler();
+    sampler->processMidiNoteOn(40, 100); // E3, pitched up from the C3 root
+    render(*sampler, 128);
+
+    QVERIFY(sampler->playbackPosition(36) > 0.0);
+}
+
+void SamplerTest::test_chromaticMode_isFinished_shouldFollowAPitchedNote()
+{
+    const auto sampler = makeChromaticSampler();
+    QVERIFY(sampler->isFinished(36));
+
+    sampler->processMidiNoteOn(40, 100);
+    QVERIFY(!sampler->isFinished(36));
+
+    sampler->processMidiAllNotesOff();
+    QVERIFY(sampler->isFinished(36));
+}
+
 void SamplerTest::test_midiCcReset_shouldResetInternalValues()
 {
     SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
@@ -1273,12 +1310,15 @@ void SamplerTest::test_chokeGroup_shouldNotChokeTheTriggeringPad()
     sampler->setSampleChokeGroup(0, 1);
 
     sampler->processMidiNoteOn(3, 127);
-    render(*sampler, 256);
+    const auto one = render(*sampler, 256);
     sampler->processMidiNoteOn(7, 127);
-    render(*sampler, 1024);
+    const auto both = render(*sampler, 1024);
 
-    QVERIFY2(!sampler->isFinished(3), "the pad choked its own earlier note");
-    QVERIFY(!sampler->isFinished(7));
+    // Both notes read the same pad, so isFinished() cannot tell them apart. The pad is a constant,
+    // though, so two voices sounding is twice the level of one, and a pad that choked itself would
+    // be back down at a single voice by the end of the block.
+    QVERIFY(std::abs(one.back()) > 0.0);
+    QVERIFY2(std::abs(both.back()) > std::abs(one.back()) * 1.5, "the pad choked its own earlier note");
 }
 
 void SamplerTest::test_copySample_shouldCopyLoopAndChokeGroup()
@@ -1471,6 +1511,38 @@ void SamplerTest::test_loadSample_relativePath_shouldWorkWithProjectPath()
 
     const auto expectedPath { QDir { QString::fromStdString(projectPath) }.absoluteFilePath(QString::fromStdString(relativePath)).toStdString() };
     QCOMPARE(sampler.absoluteFilePath(60), expectedPath);
+}
+
+void SamplerTest::test_processMidiNoteOn_retrigger_shouldFadeTheSoundingVoiceOut()
+{
+    // Retriggering a note used to drop the sounding voice where it stood, which steps the output from
+    // whatever its waveform was to nothing: a click on every repeated note. The old voice has to keep
+    // sounding into a fade instead.
+    //
+    // The pad is silence followed by a constant, so a voice that has just started is silent and one
+    // that has played past the step is not. Everything heard right after the retrigger is therefore
+    // the old voice fading out, and used to be nothing at all.
+    const int64_t stepFrame = 4800;
+    auto reader = std::make_unique<MockAudioFileReader>();
+    reader->setForceChannels(1);
+    reader->setFrames(static_cast<int64_t>(Constants::defaultSampleRate()));
+    reader->setStepAt(stepFrame);
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::move(reader) };
+    sampler.loadSample(60, "step.wav");
+
+    sampler.processMidiNoteOn(60, 127);
+    const auto sounding = render(sampler, static_cast<uint32_t>(stepFrame) + 512);
+    QVERIFY(std::abs(sounding.back()) > 0.0);
+
+    sampler.processMidiNoteOn(60, 127);
+    const auto fading = render(sampler, 32);
+    QVERIFY(std::abs(fading.front()) > 0.0);
+    QVERIFY(std::abs(fading.back()) < std::abs(fading.front()));
+
+    // And the fade ends: the new voice is still in the pad's silence, so once the old one is gone
+    // there is nothing left to hear.
+    const auto faded = render(sampler, 1024);
+    QVERIFY(qFuzzyIsNull(faded.back()));
 }
 
 } // namespace noteahead

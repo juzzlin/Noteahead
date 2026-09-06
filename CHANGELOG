@@ -12,6 +12,14 @@ New features:
 
 Bug fixes:
 
+* Fix the Sampler clicking on a repeated note
+  - A retrigger dropped the sounding voice where it stood instead of
+    fading it out
+
+* Fix the Sampler's playhead standing still in chromatic mode
+  - A pad is addressed by its octave root, but its voices carry the note
+    played
+
 * Fix the AppImage failing to start on a Wayland session
   - The Wayland plugins were copied in without a runpath, so they could
     not see the Qt libraries bundled beside them

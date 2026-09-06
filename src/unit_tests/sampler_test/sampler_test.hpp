@@ -58,6 +58,8 @@ private slots:
     void test_chromaticMode_multipleSamples_shouldSelectCoveringSample();
     void test_chromaticMode_pitch_shouldMatchSemitoneRatio();
     void test_chromaticMode_shouldRoundTripThroughXml();
+    void test_chromaticMode_playbackPosition_shouldFollowAPitchedNote();
+    void test_chromaticMode_isFinished_shouldFollowAPitchedNote();
     void test_midiCcReset_shouldResetInternalValues();
 
     void test_availableMidiCcControllers_shouldListGlobalsAndAllPads();
@@ -116,6 +118,7 @@ private slots:
     void test_padMidiCc_shouldNotChangeAuthoredValue();
     void test_loadSample_relativePath_shouldWorkWithProjectPath();
     void test_processAudio_reusesBuffersWithoutLeaking();
+    void test_processMidiNoteOn_retrigger_shouldFadeTheSoundingVoiceOut();
 };
 
 } // namespace noteahead

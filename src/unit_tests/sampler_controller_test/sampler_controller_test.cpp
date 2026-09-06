@@ -12,6 +12,8 @@
 
 #include <algorithm>
 #include <cmath>
+#include <span>
+#include <vector>
 
 namespace noteahead {
 
@@ -294,6 +296,30 @@ void SamplerControllerTest::test_copyPad_samePad_shouldDoNothing()
     controller.copyPad(0, 0);
 
     QCOMPARE(sampler->sample(36)->data, data);
+}
+
+void SamplerControllerTest::test_playbackPosition_chromaticMode_shouldFollowAPitchedNote()
+{
+    // The dialog asks for the selected pad, which in chromatic mode is the root of an octave, while
+    // the note actually playing is somewhere inside that octave. The playhead stood still because
+    // the two were compared to each other.
+    auto reader = std::make_unique<MockAudioFileReader>();
+    reader->setFrames(static_cast<int64_t>(Constants::defaultSampleRate()));
+    const auto sampler = std::make_shared<SamplerDevice>("Test Sampler", std::move(reader));
+    sampler->setChromaticMode(true);
+    SamplerController controller { sampler };
+
+    controller.loadSample(3, "/samples/bass.wav"); // Pad 3 is the C3 root in chromatic mode
+    controller.setSelectedPad(3);
+    QVERIFY(controller.isFinished());
+
+    sampler->processMidiNoteOn(40, 100); // E3, pitched up from that root
+    std::vector<double> buffer(256 * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), 256, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+    sampler->processAudio(context);
+
+    QVERIFY(!controller.isFinished());
+    QVERIFY(controller.playbackPosition() > 0.0);
 }
 
 } // namespace noteahead

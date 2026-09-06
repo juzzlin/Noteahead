@@ -24,6 +24,7 @@ private slots:
     void test_loadedPads_shouldListOnlyLoadedPads();
     void test_copyPad_shouldCopyPadToTarget();
     void test_copyPad_samePad_shouldDoNothing();
+    void test_playbackPosition_chromaticMode_shouldFollowAPitchedNote();
 };
 
 } // namespace noteahead

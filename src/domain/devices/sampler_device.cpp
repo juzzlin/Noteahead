@@ -408,12 +408,14 @@ void SamplerDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
         return;
     }
 
-    // Stop any existing voices playing the same note (monophonic per note for now)
-    // For de-clicking, we immediately stop it and let the new one start
-    // A better way would be to let it finish its fade, but we need to find a free voice instead.
+    // A note is monophonic, so retriggering it takes the sounding voice off it. Dropping that voice
+    // where it stands is a step from wherever its waveform was to nothing, which clicks on anything
+    // that has not already decayed away -- a bass line repeating a note every couple of lines does
+    // it on every note. It rides the choke fade out instead, and the new voice takes a slot of its
+    // own; the pool is deep enough that the few milliseconds of overlap cost nothing.
     for (auto && voice : m_voices) {
         if (voice.active && voice.note == note) {
-            voice.active = false;
+            voice.choking = true;
         }
     }
 
@@ -1364,11 +1366,20 @@ std::map<QString, QString> SamplerDevice::getFilesToEmbed() const
     return files;
 }
 
+const SamplerDevice::Sample * SamplerDevice::padSample(uint8_t note) const
+{
+    return note < maxSamples ? m_samples.at(note).get() : nullptr;
+}
+
 double SamplerDevice::playbackPosition(uint8_t note) const
 {
     std::lock_guard<std::recursive_mutex> lock { mutex() };
+    const auto sample = padSample(note);
+    if (!sample) {
+        return 0.0;
+    }
     for (auto const & voice : m_voices) {
-        if (voice.active && voice.note == note && voice.sample && voice.sample->data) {
+        if (voice.active && voice.sample == sample && voice.sample->data) {
             const size_t totalFrames = voice.sample->data->size() / static_cast<size_t>(voice.sample->channels);
             if (totalFrames > 0) {
                 return voice.position / static_cast<double>(totalFrames);
@@ -1381,8 +1392,12 @@ double SamplerDevice::playbackPosition(uint8_t note) const
 bool SamplerDevice::isFinished(uint8_t note) const
 {
     std::lock_guard<std::recursive_mutex> lock { mutex() };
+    const auto sample = padSample(note);
+    if (!sample) {
+        return true;
+    }
     for (auto const & voice : m_voices) {
-        if (voice.active && voice.note == note) {
+        if (voice.active && voice.sample == sample) {
             return false;
         }
     }
