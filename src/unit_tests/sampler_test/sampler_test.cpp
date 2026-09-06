@@ -1545,6 +1545,39 @@ void SamplerTest::test_processMidiNoteOn_retrigger_shouldFadeTheSoundingVoiceOut
     QVERIFY(qFuzzyIsNull(faded.back()));
 }
 
+void SamplerTest::test_processMidiNoteOn_retrigger_fullVoicePool_shouldStillSound()
+{
+    // Fading the old voice instead of dropping it means the slot is not free again until the fade
+    // ends, so on a full pool the retrigger found nowhere to go and the hit fell silent -- the note
+    // it was replacing having been sent into the fade already. A fast fill has to keep every hit, so
+    // a voice on its way out is taken back rather than waited for.
+    //
+    // One chromatic pad covers every note, so the pool can be filled with notes that are all still
+    // sounding, and the pad being a constant makes the output count them.
+    auto reader = std::make_unique<MockAudioFileReader>();
+    reader->setForceChannels(1);
+    reader->setFrames(static_cast<int64_t>(Constants::defaultSampleRate()));
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::move(reader) };
+    sampler.setChromaticMode(true);
+    sampler.loadSample(0, "pad.wav");
+
+    sampler.processMidiNoteOn(0, 127);
+    const auto oneVoice = std::abs(render(sampler, 8).front());
+    QVERIFY(oneVoice > 0.0);
+
+    for (uint8_t note = 1; note < 32; note++) {
+        sampler.processMidiNoteOn(note, 127);
+        render(sampler, 4);
+    }
+    const auto full = std::abs(render(sampler, 4).front());
+    QVERIFY2(full > oneVoice * 31.5, "the pool did not fill");
+
+    sampler.processMidiNoteOn(5, 127);
+    render(sampler, 2048); // Past the choke fade, so only what actually sounds is left
+
+    QVERIFY2(std::abs(render(sampler, 4).front()) > oneVoice * 31.5, "the retriggered hit was dropped");
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SamplerTest)

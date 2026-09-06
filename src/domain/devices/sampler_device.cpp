@@ -427,35 +427,49 @@ void SamplerDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
 
     chokeVoicesOf(*sample);
 
-    // Find an inactive voice
-    for (auto && voice : m_voices) {
-        if (!voice.active) {
-            voice.note = note;
-            voice.sample = sample;
-            voice.pitchRatio = pitchRatio;
-            // Reverse plays the same range, from the far end of it.
-            voice.position = sample->reverse ? range->last : range->first;
-            voice.velocity = static_cast<float>(velocity) / 127.0f;
-            voice.pan = panInternal();
-            voice.cutoff = m_globalCutoff;
-            voice.hpfCutoff = m_globalHpfCutoff;
-            for (auto && effect : voice.effects) {
-                effect->reset();
-            }
-
-            updateVoiceEffects(voice);
-
-            voice.ampEg.setSampleRate(static_cast<double>(sampleRate()));
-            voice.ampEg.reset();
-            updateVoiceEnvelope(voice);
-            voice.ampEg.trigger();
-
-            voice.choking = false;
-            voice.chokeGain = 1.0f;
-            voice.active = true;
-            return;
+    // A free slot if there is one, and otherwise the voice furthest through a choke fade. The
+    // fallback is what keeps a fast fill intact: the retrigger above has just put this note's own
+    // voice into a fade, so on a full pool there is always a candidate here, and taking it back is
+    // exactly what the old hard cut did -- only now as the last resort rather than the first move.
+    // Without it a hit on a busy pool is dropped and takes the note it was replacing with it.
+    Voice * target = nullptr;
+    for (auto && candidate : m_voices) {
+        if (!candidate.active) {
+            target = &candidate;
+            break;
+        }
+        if (candidate.choking && (!target || candidate.chokeGain < target->chokeGain)) {
+            target = &candidate;
         }
     }
+    if (!target) {
+        return;
+    }
+
+    auto & voice = *target;
+    voice.note = note;
+    voice.sample = sample;
+    voice.pitchRatio = pitchRatio;
+    // Reverse plays the same range, from the far end of it.
+    voice.position = sample->reverse ? range->last : range->first;
+    voice.velocity = static_cast<float>(velocity) / 127.0f;
+    voice.pan = panInternal();
+    voice.cutoff = m_globalCutoff;
+    voice.hpfCutoff = m_globalHpfCutoff;
+    for (auto && effect : voice.effects) {
+        effect->reset();
+    }
+
+    updateVoiceEffects(voice);
+
+    voice.ampEg.setSampleRate(static_cast<double>(sampleRate()));
+    voice.ampEg.reset();
+    updateVoiceEnvelope(voice);
+    voice.ampEg.trigger();
+
+    voice.choking = false;
+    voice.chokeGain = 1.0f;
+    voice.active = true;
 }
 
 void SamplerDevice::processMidiNoteOff(uint8_t note)

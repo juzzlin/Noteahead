@@ -119,6 +119,7 @@ private slots:
     void test_loadSample_relativePath_shouldWorkWithProjectPath();
     void test_processAudio_reusesBuffersWithoutLeaking();
     void test_processMidiNoteOn_retrigger_shouldFadeTheSoundingVoiceOut();
+    void test_processMidiNoteOn_retrigger_fullVoicePool_shouldStillSound();
 };
 
 } // namespace noteahead
