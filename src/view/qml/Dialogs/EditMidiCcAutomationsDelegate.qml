@@ -383,8 +383,8 @@ GroupBox {
         AppButton {
             id: copyButton
             text: qsTr("Copy...")
-            Layout.row: 0
-            Layout.column: 9
+            Layout.row: 1
+            Layout.column: 0
             Layout.fillWidth: true
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
@@ -394,7 +394,8 @@ GroupBox {
         }
         AppButton {
             id: deleteButton
-            Layout.row: 1
+            Layout.row: 0
+            Layout.rowSpan: 2
             Layout.column: 9
             Layout.fillWidth: true
             ToolTip.delay: Constants.toolTipDelay
