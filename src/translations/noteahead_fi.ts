@@ -2013,6 +2013,14 @@
         <translation>Käännä modulaation vaihe</translation>
     </message>
     <message>
+        <source>Copy...</source>
+        <translation>Kopioi...</translation>
+    </message>
+    <message>
+        <source>Replace this automation with the settings of another one</source>
+        <translation>Korvaa tämä automaatio toisen asetuksilla</translation>
+    </message>
+    <message>
         <source>Delete this automation</source>
         <translation>Poista tämä automaatio</translation>
     </message>
@@ -2133,6 +2141,14 @@
     <message>
         <source>Invert the phase of the modulation</source>
         <translation>Käännä modulaation vaihe</translation>
+    </message>
+    <message>
+        <source>Copy...</source>
+        <translation>Kopioi...</translation>
+    </message>
+    <message>
+        <source>Replace this automation with the settings of another one</source>
+        <translation>Korvaa tämä automaatio toisen asetuksilla</translation>
     </message>
     <message>
         <source>Delete this automation</source>

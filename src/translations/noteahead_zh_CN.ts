@@ -2012,6 +2012,14 @@
         <translation>反转调制的相位</translation>
     </message>
     <message>
+        <source>Copy...</source>
+        <translation type="unfinished">复制...</translation>
+    </message>
+    <message>
+        <source>Replace this automation with the settings of another one</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Delete this automation</source>
         <translation>删除此自动化</translation>
     </message>
@@ -2132,6 +2140,14 @@
     <message>
         <source>Invert the phase of the modulation</source>
         <translation>反转调制的相位</translation>
+    </message>
+    <message>
+        <source>Copy...</source>
+        <translation type="unfinished">复制...</translation>
+    </message>
+    <message>
+        <source>Replace this automation with the settings of another one</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Delete this automation</source>

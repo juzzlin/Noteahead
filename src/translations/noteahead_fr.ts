@@ -2013,6 +2013,14 @@
         <translation>Inverser la phase de la modulation</translation>
     </message>
     <message>
+        <source>Copy...</source>
+        <translation type="unfinished">Copier...</translation>
+    </message>
+    <message>
+        <source>Replace this automation with the settings of another one</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Delete this automation</source>
         <translation>Supprimer cette automation</translation>
     </message>
@@ -2133,6 +2141,14 @@
     <message>
         <source>Invert the phase of the modulation</source>
         <translation>Inverser la phase de la modulation</translation>
+    </message>
+    <message>
+        <source>Copy...</source>
+        <translation type="unfinished">Copier...</translation>
+    </message>
+    <message>
+        <source>Replace this automation with the settings of another one</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Delete this automation</source>

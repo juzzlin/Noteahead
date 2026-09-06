@@ -2013,6 +2013,14 @@
         <translation>De fase van de modulatie omkeren</translation>
     </message>
     <message>
+        <source>Copy...</source>
+        <translation type="unfinished">Kopiëren...</translation>
+    </message>
+    <message>
+        <source>Replace this automation with the settings of another one</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Delete this automation</source>
         <translation>Deze automatisering verwijderen</translation>
     </message>
@@ -2133,6 +2141,14 @@
     <message>
         <source>Invert the phase of the modulation</source>
         <translation>De fase van de modulatie omkeren</translation>
+    </message>
+    <message>
+        <source>Copy...</source>
+        <translation type="unfinished">Kopiëren...</translation>
+    </message>
+    <message>
+        <source>Replace this automation with the settings of another one</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Delete this automation</source>
