@@ -25,6 +25,25 @@
     </message>
 </context>
 <context>
+    <name>AddMidiCcAutomationDialog</name>
+    <message>
+        <source>Copy automation...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill these fields from an automation that already exists</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">取消</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation type="unfinished">确定</translation>
+    </message>
+</context>
+<context>
     <name>AddMidiCcSettingDialog</name>
     <message>
         <source>Add MIDI CC Setting</source>
@@ -37,6 +56,25 @@
     <message>
         <source>Value:</source>
         <translation>值：</translation>
+    </message>
+</context>
+<context>
+    <name>AddPitchBendAutomationDialog</name>
+    <message>
+        <source>Copy automation...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill these fields from an automation that already exists</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">取消</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation type="unfinished">确定</translation>
     </message>
 </context>
 <context>
@@ -1110,6 +1148,25 @@
     <message>
         <source>Cancel</source>
         <translation>取消</translation>
+    </message>
+</context>
+<context>
+    <name>CopyAutomationDialog</name>
+    <message>
+        <source>Pitch Bend</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No automations to copy.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern %1, track %2 (%3), column %4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lines %1-%2, values %3-%4, %5</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2465,6 +2522,241 @@
     </message>
 </context>
 <context>
+    <name>FmSynthDialog</name>
+    <message>
+        <source>Ok</source>
+        <translation type="unfinished">确定</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">取消</translation>
+    </message>
+    <message>
+        <source>Operators</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter / Envelopes</source>
+        <translation type="unfinished">滤波器 / 包络</translation>
+    </message>
+    <message>
+        <source>LFOs</source>
+        <translation type="unfinished">LFO</translation>
+    </message>
+</context>
+<context>
+    <name>FmSynthDialog_Algorithm</name>
+    <message>
+        <source>Algorithm</source>
+        <translation type="unfinished">算法</translation>
+    </message>
+    <message>
+        <source>Feedback</source>
+        <translation type="unfinished">反馈</translation>
+    </message>
+    <message>
+        <source>Feedback is on operator</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FmSynthDialog_AmpEg</name>
+    <message>
+        <source>Amp EG</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation type="unfinished">起音</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation type="unfinished">衰减</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation type="unfinished">延持</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation type="unfinished">释音</translation>
+    </message>
+    <message>
+        <source>Curve</source>
+        <translation type="unfinished">曲线</translation>
+    </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation type="unfinished">力度灵敏度</translation>
+    </message>
+</context>
+<context>
+    <name>FmSynthDialog_Filter</name>
+    <message>
+        <source>Filter</source>
+        <translation type="unfinished">滤波器</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation type="unfinished">低通截止频率</translation>
+    </message>
+    <message>
+        <source>Resonance</source>
+        <translation type="unfinished">共振</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation type="unfinished">高通截止频率</translation>
+    </message>
+</context>
+<context>
+    <name>FmSynthDialog_Global</name>
+    <message>
+        <source>Voice / Global</source>
+        <translation type="unfinished">声部 / 全局</translation>
+    </message>
+    <message>
+        <source>Voice Depth</source>
+        <translation type="unfinished">声部深度</translation>
+    </message>
+    <message>
+        <source>Portamento</source>
+        <translation type="unfinished">滑音</translation>
+    </message>
+    <message>
+        <source>Pan Spread</source>
+        <translation type="unfinished">声像扩散</translation>
+    </message>
+    <message>
+        <source>Pitch Bend Range</source>
+        <translation type="unfinished">弯音范围</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation type="unfinished">增益</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation type="unfinished">推子</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation type="unfinished">声像</translation>
+    </message>
+</context>
+<context>
+    <name>FmSynthDialog_Lfo1</name>
+    <message>
+        <source>LFO 1</source>
+        <translation type="unfinished">LFO 1</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation type="unfinished">速率</translation>
+    </message>
+    <message>
+        <source>Intensity</source>
+        <translation type="unfinished">强度</translation>
+    </message>
+</context>
+<context>
+    <name>FmSynthDialog_Lfo2</name>
+    <message>
+        <source>LFO 2</source>
+        <translation type="unfinished">LFO 2</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation type="unfinished">速率</translation>
+    </message>
+    <message>
+        <source>Intensity</source>
+        <translation type="unfinished">强度</translation>
+    </message>
+</context>
+<context>
+    <name>FmSynthDialog_ModEg</name>
+    <message>
+        <source>Mod EG</source>
+        <translation type="unfinished">Mod EG</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation type="unfinished">起音</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation type="unfinished">衰减</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation type="unfinished">延持</translation>
+    </message>
+    <message>
+        <source>Intensity</source>
+        <translation type="unfinished">强度</translation>
+    </message>
+    <message>
+        <source>Curve</source>
+        <translation type="unfinished">曲线</translation>
+    </message>
+</context>
+<context>
+    <name>FmSynthDialog_Operator</name>
+    <message>
+        <source>Carrier</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Modulator</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Modulated by</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not modulated</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ratio</source>
+        <translation type="unfinished">压缩比</translation>
+    </message>
+    <message>
+        <source>Detune</source>
+        <translation type="unfinished">失谐</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation type="unfinished">电平</translation>
+    </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation type="unfinished">力度灵敏度</translation>
+    </message>
+    <message>
+        <source>Key Scale</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Envelope</source>
+        <translation type="unfinished">包络</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation type="unfinished">起音</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation type="unfinished">衰减</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation type="unfinished">延持</translation>
+    </message>
+</context>
+<context>
     <name>GainConverterDialog</name>
     <message>
         <source>Gain Converter (dB =&gt; linear)</source>
@@ -2866,6 +3158,14 @@
     <message>
         <source>Add MIDI CC automation</source>
         <translation>添加 MIDI CC 自动化</translation>
+    </message>
+    <message>
+        <source>Copy Pitch Bend automation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy MIDI CC automation</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Edit MIDI CC automations</source>
@@ -4895,8 +5195,16 @@
         <translation>起始偏移：</translation>
     </message>
     <message>
+        <source>Seconds skipped at the beginning of the sample.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>End Offset:</source>
         <translation>结束偏移：</translation>
+    </message>
+    <message>
+        <source>Seconds trimmed off the end of the sample.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4967,6 +5275,14 @@
     <message>
         <source>Repeats the pad&apos;s range until the note is released. The amp envelope decides when a looping pad falls silent.</source>
         <translation>重复打击垫的范围，直到音符被释放。音量包络决定循环的打击垫何时静音。</translation>
+    </message>
+    <message>
+        <source>Loop Start:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Where the loop comes back round to, counted in from the beginning of the pad&apos;s range. Zero repeats the whole range; more than that plays the range once and then repeats only its tail.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Choke Group:</source>
@@ -8216,6 +8532,80 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>One-Shot</source>
         <translation>单次</translation>
+    </message>
+</context>
+<context>
+    <name>noteahead::FmOperatorController</name>
+    <message>
+        <source>Operator</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>noteahead::FmSynthController</name>
+    <message>
+        <source>Poly</source>
+        <translation type="unfinished">复音</translation>
+    </message>
+    <message>
+        <source>Unison</source>
+        <translation type="unfinished">齐奏</translation>
+    </message>
+    <message>
+        <source>Dual</source>
+        <translation type="unfinished">双层</translation>
+    </message>
+    <message>
+        <source>Supersaw</source>
+        <translation type="unfinished">Supersaw</translation>
+    </message>
+    <message>
+        <source>Drift</source>
+        <translation type="unfinished">漂移</translation>
+    </message>
+    <message>
+        <source>Mono</source>
+        <translation type="unfinished">单声道</translation>
+    </message>
+    <message>
+        <source>Cutoff</source>
+        <translation type="unfinished">截止频率</translation>
+    </message>
+    <message>
+        <source>Pitch</source>
+        <translation type="unfinished">音高</translation>
+    </message>
+    <message>
+        <source>Mod Index</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Feedback</source>
+        <translation type="unfinished">反馈</translation>
+    </message>
+    <message>
+        <source>Normal</source>
+        <translation type="unfinished">正常</translation>
+    </message>
+    <message>
+        <source>BPM</source>
+        <translation type="unfinished">BPM</translation>
+    </message>
+    <message>
+        <source>1-Shot</source>
+        <translation type="unfinished">单次</translation>
+    </message>
+    <message>
+        <source>Volume</source>
+        <translation type="unfinished">音量</translation>
+    </message>
+    <message>
+        <source>Resonance</source>
+        <translation type="unfinished">共振</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation type="unfinished">声像</translation>
     </message>
 </context>
 <context>

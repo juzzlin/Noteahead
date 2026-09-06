@@ -25,6 +25,25 @@
     </message>
 </context>
 <context>
+    <name>AddMidiCcAutomationDialog</name>
+    <message>
+        <source>Copy automation...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill these fields from an automation that already exists</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Annuleren</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation type="unfinished">OK</translation>
+    </message>
+</context>
+<context>
     <name>AddMidiCcSettingDialog</name>
     <message>
         <source>Add MIDI CC Setting</source>
@@ -37,6 +56,25 @@
     <message>
         <source>Value:</source>
         <translation>Waarde:</translation>
+    </message>
+</context>
+<context>
+    <name>AddPitchBendAutomationDialog</name>
+    <message>
+        <source>Copy automation...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill these fields from an automation that already exists</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Annuleren</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation type="unfinished">OK</translation>
     </message>
 </context>
 <context>
@@ -1110,6 +1148,25 @@
     <message>
         <source>Cancel</source>
         <translation>Annuleren</translation>
+    </message>
+</context>
+<context>
+    <name>CopyAutomationDialog</name>
+    <message>
+        <source>Pitch Bend</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No automations to copy.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern %1, track %2 (%3), column %4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lines %1-%2, values %3-%4, %5</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2466,6 +2523,241 @@
     </message>
 </context>
 <context>
+    <name>FmSynthDialog</name>
+    <message>
+        <source>Ok</source>
+        <translation type="unfinished">OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Annuleren</translation>
+    </message>
+    <message>
+        <source>Operators</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter / Envelopes</source>
+        <translation type="unfinished">Filter / enveloppen</translation>
+    </message>
+    <message>
+        <source>LFOs</source>
+        <translation type="unfinished">LFO&apos;s</translation>
+    </message>
+</context>
+<context>
+    <name>FmSynthDialog_Algorithm</name>
+    <message>
+        <source>Algorithm</source>
+        <translation type="unfinished">Algoritme</translation>
+    </message>
+    <message>
+        <source>Feedback</source>
+        <translation type="unfinished">Feedback</translation>
+    </message>
+    <message>
+        <source>Feedback is on operator</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FmSynthDialog_AmpEg</name>
+    <message>
+        <source>Amp EG</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation type="unfinished">Attack</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation type="unfinished">Decay</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation type="unfinished">Sustain</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation type="unfinished">Release</translation>
+    </message>
+    <message>
+        <source>Curve</source>
+        <translation type="unfinished">Curve</translation>
+    </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation type="unfinished">Velocity-gevoeligheid</translation>
+    </message>
+</context>
+<context>
+    <name>FmSynthDialog_Filter</name>
+    <message>
+        <source>Filter</source>
+        <translation type="unfinished">Filter</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation type="unfinished">LPF-cutoff</translation>
+    </message>
+    <message>
+        <source>Resonance</source>
+        <translation type="unfinished">Resonantie</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation type="unfinished">HPF-cutoff</translation>
+    </message>
+</context>
+<context>
+    <name>FmSynthDialog_Global</name>
+    <message>
+        <source>Voice / Global</source>
+        <translation type="unfinished">Stem / globaal</translation>
+    </message>
+    <message>
+        <source>Voice Depth</source>
+        <translation type="unfinished">Stemdiepte</translation>
+    </message>
+    <message>
+        <source>Portamento</source>
+        <translation type="unfinished">Portamento</translation>
+    </message>
+    <message>
+        <source>Pan Spread</source>
+        <translation type="unfinished">Panning-spreiding</translation>
+    </message>
+    <message>
+        <source>Pitch Bend Range</source>
+        <translation type="unfinished">Pitch bend-bereik</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation type="unfinished">Gain</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation type="unfinished">Fader</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation type="unfinished">Panning</translation>
+    </message>
+</context>
+<context>
+    <name>FmSynthDialog_Lfo1</name>
+    <message>
+        <source>LFO 1</source>
+        <translation type="unfinished">LFO 1</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation type="unfinished">Snelheid</translation>
+    </message>
+    <message>
+        <source>Intensity</source>
+        <translation type="unfinished">Intensiteit</translation>
+    </message>
+</context>
+<context>
+    <name>FmSynthDialog_Lfo2</name>
+    <message>
+        <source>LFO 2</source>
+        <translation type="unfinished">LFO 2</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation type="unfinished">Snelheid</translation>
+    </message>
+    <message>
+        <source>Intensity</source>
+        <translation type="unfinished">Intensiteit</translation>
+    </message>
+</context>
+<context>
+    <name>FmSynthDialog_ModEg</name>
+    <message>
+        <source>Mod EG</source>
+        <translation type="unfinished">Mod EG</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation type="unfinished">Attack</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation type="unfinished">Decay</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation type="unfinished">Sustain</translation>
+    </message>
+    <message>
+        <source>Intensity</source>
+        <translation type="unfinished">Intensiteit</translation>
+    </message>
+    <message>
+        <source>Curve</source>
+        <translation type="unfinished">Curve</translation>
+    </message>
+</context>
+<context>
+    <name>FmSynthDialog_Operator</name>
+    <message>
+        <source>Carrier</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Modulator</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Modulated by</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not modulated</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ratio</source>
+        <translation type="unfinished">Ratio</translation>
+    </message>
+    <message>
+        <source>Detune</source>
+        <translation type="unfinished">Ontstemming</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation type="unfinished">Niveau</translation>
+    </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation type="unfinished">Velocity-gevoeligheid</translation>
+    </message>
+    <message>
+        <source>Key Scale</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Envelope</source>
+        <translation type="unfinished">Envelop</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation type="unfinished">Attack</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation type="unfinished">Decay</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation type="unfinished">Sustain</translation>
+    </message>
+</context>
+<context>
     <name>GainConverterDialog</name>
     <message>
         <source>Gain Converter (dB =&gt; linear)</source>
@@ -2867,6 +3159,14 @@
     <message>
         <source>Add MIDI CC automation</source>
         <translation>MIDI CC-automatisering toevoegen</translation>
+    </message>
+    <message>
+        <source>Copy Pitch Bend automation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy MIDI CC automation</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Edit MIDI CC automations</source>
@@ -4896,8 +5196,16 @@
         <translation>Beginverschuiving:</translation>
     </message>
     <message>
+        <source>Seconds skipped at the beginning of the sample.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>End Offset:</source>
         <translation>Eindverschuiving:</translation>
+    </message>
+    <message>
+        <source>Seconds trimmed off the end of the sample.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4968,6 +5276,14 @@
     <message>
         <source>Repeats the pad&apos;s range until the note is released. The amp envelope decides when a looping pad falls silent.</source>
         <translation>Herhaalt het bereik van de pad totdat de noot wordt losgelaten. De amp-envelop bepaalt wanneer een lussende pad verstomt.</translation>
+    </message>
+    <message>
+        <source>Loop Start:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Where the loop comes back round to, counted in from the beginning of the pad&apos;s range. Zero repeats the whole range; more than that plays the range once and then repeats only its tail.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Choke Group:</source>
@@ -8217,6 +8533,80 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     <message>
         <source>One-Shot</source>
         <translation>One-shot</translation>
+    </message>
+</context>
+<context>
+    <name>noteahead::FmOperatorController</name>
+    <message>
+        <source>Operator</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>noteahead::FmSynthController</name>
+    <message>
+        <source>Poly</source>
+        <translation type="unfinished">Poly</translation>
+    </message>
+    <message>
+        <source>Unison</source>
+        <translation type="unfinished">Unisono</translation>
+    </message>
+    <message>
+        <source>Dual</source>
+        <translation type="unfinished">Duaal</translation>
+    </message>
+    <message>
+        <source>Supersaw</source>
+        <translation type="unfinished">Supersaw</translation>
+    </message>
+    <message>
+        <source>Drift</source>
+        <translation type="unfinished">Drift</translation>
+    </message>
+    <message>
+        <source>Mono</source>
+        <translation type="unfinished">Mono</translation>
+    </message>
+    <message>
+        <source>Cutoff</source>
+        <translation type="unfinished">Cutoff</translation>
+    </message>
+    <message>
+        <source>Pitch</source>
+        <translation type="unfinished">Toonhoogte</translation>
+    </message>
+    <message>
+        <source>Mod Index</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Feedback</source>
+        <translation type="unfinished">Feedback</translation>
+    </message>
+    <message>
+        <source>Normal</source>
+        <translation type="unfinished">Normaal</translation>
+    </message>
+    <message>
+        <source>BPM</source>
+        <translation type="unfinished">BPM</translation>
+    </message>
+    <message>
+        <source>1-Shot</source>
+        <translation type="unfinished">One-shot</translation>
+    </message>
+    <message>
+        <source>Volume</source>
+        <translation type="unfinished">Volume</translation>
+    </message>
+    <message>
+        <source>Resonance</source>
+        <translation type="unfinished">Resonantie</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation type="unfinished">Panning</translation>
     </message>
 </context>
 <context>
