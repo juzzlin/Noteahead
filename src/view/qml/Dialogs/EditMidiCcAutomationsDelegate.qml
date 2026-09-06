@@ -380,39 +380,6 @@ GroupBox {
                 }
             }
         }
-        AppButton {
-            id: copyButton
-            text: qsTr("Copy...")
-            Layout.row: 1
-            Layout.column: 0
-            Layout.fillWidth: true
-            ToolTip.delay: Constants.toolTipDelay
-            ToolTip.timeout: Constants.toolTipTimeout
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("Replace this automation with the settings of another one")
-            onClicked: UiService.requestCopyAutomationDialog(false, index)
-        }
-        AppButton {
-            id: deleteButton
-            Layout.row: 0
-            Layout.rowSpan: 2
-            Layout.column: 9
-            Layout.fillWidth: true
-            ToolTip.delay: Constants.toolTipDelay
-            ToolTip.timeout: Constants.toolTipTimeout
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("Delete this automation")
-            Image {
-                id: backgroundImage
-                source: "../Graphics/delete.png"
-                sourceSize: Qt.size(parent.width, parent.height)
-                width: parent.width
-                height: parent.height
-                anchors.centerIn: parent
-                fillMode: Image.PreserveAspectFit
-            }
-            onClicked: midiCcAutomationsModel.removeAt(index)
-        }
         TextField {
             id: commentEdit
             readOnly: false
@@ -428,6 +395,47 @@ GroupBox {
             ToolTip.text: qsTr("Optional comment for this automation")
             onTextChanged: model.comment = text
             Component.onCompleted: text = model.comment
+        }
+        // Under the comment field and exactly as wide as it, the two sharing that width evenly. The
+        // grid's own columns are sized by the groups above, so the even split comes from a row of its
+        // own rather than from a column span.
+        RowLayout {
+            Layout.row: 3
+            Layout.column: 1
+            Layout.columnSpan: 8
+            Layout.fillWidth: true
+            spacing: 10
+            AppButton {
+                id: copyButton
+                text: qsTr("Copy...")
+                Layout.fillWidth: true
+                // An even split has to be asked for: fillWidth shares out what is left over from each
+                // item's own implicit width, and a labelled button starts wider than an icon.
+                Layout.preferredWidth: 0
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Replace this automation with the settings of another one")
+                onClicked: UiService.requestCopyAutomationDialog(false, index)
+            }
+            AppButton {
+                id: deleteButton
+                Layout.fillWidth: true
+                Layout.preferredWidth: 0
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Delete this automation")
+                Image {
+                    id: backgroundImage
+                    source: "../Graphics/delete.png"
+                    sourceSize: Qt.size(parent.height, parent.height)
+                    height: parent.height
+                    anchors.centerIn: parent
+                    fillMode: Image.PreserveAspectFit
+                }
+                onClicked: midiCcAutomationsModel.removeAt(index)
+            }
         }
     }
     // Ensure initial value is set on component creation
