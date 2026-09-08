@@ -26,23 +26,35 @@ ScrollView {
 
     property real moduleWidth: 0
 
-    RowLayout {
+    ColumnLayout {
         width: tab.availableWidth
         spacing: 20
 
-        FmSynthDialog_Lfo1 {
-            Layout.preferredWidth: tab.moduleWidth
+        RowLayout {
+            spacing: 20
             Layout.fillWidth: true
-            Layout.alignment: Qt.AlignTop
+
+            FmSynthDialog_Lfo1 {
+                Layout.preferredWidth: tab.moduleWidth
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignTop
+            }
+            FmSynthDialog_Lfo2 {
+                Layout.preferredWidth: tab.moduleWidth
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignTop
+            }
         }
-        FmSynthDialog_Lfo2 {
-            Layout.preferredWidth: tab.moduleWidth
+
+        RowLayout {
+            spacing: 20
             Layout.fillWidth: true
-            Layout.alignment: Qt.AlignTop
-        }
-        Item {
-            Layout.preferredWidth: tab.moduleWidth
-            Layout.fillWidth: true
+
+            FmSynthDialog_Delay {
+                Layout.preferredWidth: tab.moduleWidth * 2 + 20
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignTop
+            }
         }
     }
 }

@@ -45,10 +45,5 @@ ScrollView {
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignTop
         }
-        FmSynthDialog_Delay {
-            Layout.preferredWidth: tab.moduleWidth
-            Layout.fillWidth: true
-            Layout.alignment: Qt.AlignTop
-        }
     }
 }

@@ -15,7 +15,8 @@ New features:
   - Per-operator ratio, detune, velocity sensitivity and key scaling
   - The dialog draws the routing of the selected algorithm
   - Sixteen factory presets, plus a button that assembles a patch at random
-  - A built-in delay, and a numbered preset list, both as on the Synth
+  - A built-in delay on an LFO / Effects tab, and a numbered preset list,
+    both as on the Synth
 
 Bug fixes:
 
