@@ -159,7 +159,7 @@ std::string SpeechDevice::defaultPhrase()
     return "hello world";
 }
 
-std::vector<MidiCcController> SpeechDevice::availableMidiCcControllers() const
+std::vector<MidiCcController> SpeechDevice::deviceMidiCcControllers() const
 {
     using namespace MidiCcMapping;
     return {
@@ -255,7 +255,7 @@ void SpeechDevice::processMidiNoteOff(uint8_t note)
     handleNoteOff(note);
 }
 
-void SpeechDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t channel)
+void SpeechDevice::processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t channel)
 {
     Q_UNUSED(channel);
     using namespace MidiCcMapping;

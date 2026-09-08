@@ -57,11 +57,11 @@ public:
 
     //! Volume and Pan, so the group can be ridden from a track the way any device can.
     //! Notes are ignored: there is nothing here to play.
-    std::vector<MidiCcController> availableMidiCcControllers() const override;
+    std::vector<MidiCcController> deviceMidiCcControllers() const override;
 
     void processMidiNoteOn(uint8_t note, uint8_t velocity) override;
     void processMidiNoteOff(uint8_t note) override;
-    void processMidiCc(uint8_t controller, uint8_t value, uint8_t channel) override;
+    void processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t channel) override;
     void processMidiAllNotesOff() override;
 
     void processAudio(AudioContext & context) override;

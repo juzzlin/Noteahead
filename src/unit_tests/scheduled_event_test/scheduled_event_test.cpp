@@ -65,7 +65,7 @@ public:
         m_note = 0;
     }
 
-    void processMidiCc(uint8_t controller, uint8_t value, uint8_t) override
+    void processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t) override
     {
         m_ccLog.push_back({ controller, value });
     }

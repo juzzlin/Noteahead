@@ -157,7 +157,7 @@ std::string StringVoiceDevice::typeId() const
     return typeIdString();
 }
 
-std::vector<MidiCcController> StringVoiceDevice::availableMidiCcControllers() const
+std::vector<MidiCcController> StringVoiceDevice::deviceMidiCcControllers() const
 {
     using namespace MidiCcMapping;
     return {
@@ -283,7 +283,7 @@ void StringVoiceDevice::processMidiNoteOff(uint8_t note)
     }
 }
 
-void StringVoiceDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
+void StringVoiceDevice::processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t)
 {
     using namespace MidiCcMapping;
 

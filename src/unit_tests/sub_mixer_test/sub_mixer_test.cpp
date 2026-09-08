@@ -80,7 +80,7 @@ public:
     {
     }
 
-    void processMidiCc(uint8_t, uint8_t, uint8_t) override
+    void processDeviceMidiCc(uint8_t, uint8_t, uint8_t) override
     {
     }
 
@@ -426,9 +426,10 @@ void SubMixerTest::test_midiCc_availableControllers_shouldOfferVolumeAndPan()
 {
     const auto controllers = makeSubMixer("Sub")->availableMidiCcControllers();
 
-    QCOMPARE(controllers.size(), size_t { 2 });
+    QCOMPARE(controllers.size(), size_t { 3 });
     QCOMPARE(controllers[0].number, uint8_t { 7 });
     QCOMPARE(controllers[1].number, uint8_t { 10 });
+    QCOMPARE(controllers[2].number, uint8_t { 11 });
 }
 
 } // namespace noteahead

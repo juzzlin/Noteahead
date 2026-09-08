@@ -82,7 +82,7 @@ void SubMixerDevice::processMidiNoteOff(uint8_t)
 {
 }
 
-std::vector<MidiCcController> SubMixerDevice::availableMidiCcControllers() const
+std::vector<MidiCcController> SubMixerDevice::deviceMidiCcControllers() const
 {
     using namespace MidiCcMapping;
     return {
@@ -91,7 +91,7 @@ std::vector<MidiCcController> SubMixerDevice::availableMidiCcControllers() const
     };
 }
 
-void SubMixerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
+void SubMixerDevice::processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t)
 {
     using namespace MidiCcMapping;
 

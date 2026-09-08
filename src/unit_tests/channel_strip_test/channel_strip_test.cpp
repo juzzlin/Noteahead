@@ -19,6 +19,7 @@
 #include "../../common/parameter_mapper.hpp"
 #include "../../domain/devices/string_ensemble_device.hpp"
 #include "../../domain/effects/effect.hpp"
+#include "../../infra/midi/midi_cc_mapping.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
@@ -124,6 +125,7 @@ std::vector<double> renderThroughStrip(Device & device)
         device.processInsertEffects(context);
         device.applyFader(context);
     }
+    device.applyExpression(context);
     return samples;
 }
 
@@ -266,6 +268,165 @@ void ChannelStripTest::test_faderPosition_postInserts_shouldNotChangeInsertInput
 
     QVERIFY(peakLevel(loud) > 0.0);
     QCOMPARE(loud, quiet);
+}
+
+void ChannelStripTest::test_applyExpression_shouldScaleTheWholeBuffer()
+{
+    constexpr float expression = 0.25f;
+    auto device = makeDevice(Constants::faderUnityPosition());
+    device->setExpression(expression);
+    for (int i = 0; i < WarmUpBuffers; i++) {
+        renderRaw(*device);
+    }
+
+    std::vector<double> samples(static_cast<size_t>(FrameCount) * 2, 0.0);
+    AudioContext context { std::span(samples.data(), samples.size()), FrameCount, SampleRate };
+    device->processAudio(context);
+    const auto dry = samples;
+    device->applyExpression(context);
+
+    QVERIFY(peakLevel(dry) > 0.0);
+    // A plain amplitude multiplier: no taper of its own, because the fader has none below unity.
+    for (size_t i = 0; i < samples.size(); i++) {
+        QVERIFY(std::abs(samples[i] - dry[i] * static_cast<double>(expression)) < 1.0e-12);
+    }
+}
+
+void ChannelStripTest::test_applyExpression_unityShouldLeaveBufferUntouched()
+{
+    // The default, and what every project saved before Expression existed loads with.
+    auto device = makeDevice(Constants::faderUnityPosition());
+    QCOMPARE(device->expression(), 1.0f);
+    for (int i = 0; i < WarmUpBuffers; i++) {
+        renderRaw(*device);
+    }
+
+    std::vector<double> samples(static_cast<size_t>(FrameCount) * 2, 0.0);
+    AudioContext context { std::span(samples.data(), samples.size()), FrameCount, SampleRate };
+    device->processAudio(context);
+    const auto dry = samples;
+    QVERIFY(peakLevel(dry) > 0.0);
+    device->applyExpression(context);
+
+    QCOMPARE(samples, dry);
+}
+
+void ChannelStripTest::test_expression_shouldNotChangeInsertInput()
+{
+    // The reason Expression exists rather than automating the fader: with the default fader
+    // position the fader feeds the inserts, so riding it changes how hard a clipper is driven and
+    // the shape of what comes out. Expression runs after the inserts, so it can only scale.
+    const auto renderWithExpression = [](float expression) {
+        auto device = makeDevice(Constants::faderUnityPosition());
+        device->insertEffectRack().setEffect(0, std::make_shared<ClippingEffect>());
+        device->setExpression(expression);
+        return renderThroughStrip(*device);
+    };
+    const auto renderWithFader = [](float volume) {
+        auto device = makeDevice(volume);
+        device->insertEffectRack().setEffect(0, std::make_shared<ClippingEffect>());
+        return renderThroughStrip(*device);
+    };
+
+    const auto full = renderWithExpression(1.0f);
+    const auto halved = renderWithExpression(0.5f);
+    QVERIFY(peakLevel(full) > 0.0);
+    for (size_t i = 0; i < full.size(); i++) {
+        QVERIFY(std::abs(halved[i] - full[i] * 0.5) < 1.0e-12);
+    }
+
+    // The same cut on the fader does not scale: the clipper sees a different signal entirely.
+    const auto halvedByFader = renderWithFader(Constants::faderUnityPosition() * 0.5f);
+    double worst = 0.0;
+    for (size_t i = 0; i < full.size(); i++) {
+        worst = std::max(worst, std::abs(halvedByFader[i] - full[i] * 0.5));
+    }
+    QVERIFY(worst > 1.0e-6);
+}
+
+void ChannelStripTest::test_expression_midiCc_shouldMoveExpressionOnly()
+{
+    DeviceUnderTest device { "Fixture" };
+    const auto volume = device.volume();
+    const auto pan = device.pan();
+
+    device.processMidiCc(static_cast<uint8_t>(MidiCcMapping::Controller::ExpressionControllerMSB), 64, 0);
+
+    QVERIFY(std::abs(device.expression() - 64.0f / 127.0f) < 0.001f);
+    QCOMPARE(device.volume(), volume);
+    QCOMPARE(device.pan(), pan);
+}
+
+void ChannelStripTest::test_expression_midiCc_shouldNotReachTheDevice()
+{
+    // Device takes CC 11 itself, so a device cannot lose Expression by not implementing it -- and
+    // cannot see the CC either.
+    class SpyingDevice : public DeviceUnderTest
+    {
+    public:
+        using DeviceUnderTest::DeviceUnderTest;
+        std::vector<uint8_t> seen;
+
+    protected:
+        void processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t channel) override
+        {
+            seen.push_back(controller);
+            DeviceUnderTest::processDeviceMidiCc(controller, value, channel);
+        }
+    };
+
+    SpyingDevice device { "Fixture" };
+    device.processMidiCc(static_cast<uint8_t>(MidiCcMapping::Controller::ExpressionControllerMSB), 0, 0);
+    device.processMidiCc(static_cast<uint8_t>(MidiCcMapping::Controller::PanMSB), 0, 0);
+
+    QCOMPARE(device.seen.size(), size_t { 1 });
+    QCOMPARE(device.seen.front(), static_cast<uint8_t>(MidiCcMapping::Controller::PanMSB));
+}
+
+void ChannelStripTest::test_expression_clearAutomation_shouldRestoreTheAuthoredValue()
+{
+    // Automation writes the live layer only, so a song that plays a fade must not rewrite the patch
+    // it is playing: what the transport clears on stop is what the user set, unchanged.
+    DeviceUnderTest device { "Fixture" };
+    device.setExpression(0.75f);
+    device.processMidiCc(static_cast<uint8_t>(MidiCcMapping::Controller::ExpressionControllerMSB), 0, 0);
+    QVERIFY(std::abs(device.expression()) < 0.001f);
+
+    device.clearAutomation();
+
+    QVERIFY(std::abs(device.expression() - 0.75f) < 0.001f);
+}
+
+void ChannelStripTest::test_expression_absentFromXml_shouldLoadAsUnity()
+{
+    // A project written before Expression existed carries no such key, and has to sound the same.
+    QByteArray data;
+    QBuffer buffer { &data };
+    buffer.open(QIODevice::WriteOnly);
+
+    {
+        NahdXmlWriter writer { buffer };
+        DeviceUnderTest device { "Fixture" };
+        device.setExpression(0.25f);
+        device.serializeToXml(writer);
+    }
+    buffer.close();
+
+    const auto marker = QString { "name=\"%1\"" }.arg(Constants::NahdXml::xmlKeyExpression()).toUtf8();
+    const auto at = data.indexOf(marker);
+    QVERIFY2(at >= 0, "expression was never written");
+    const auto start = data.lastIndexOf('<', at);
+    const auto end = data.indexOf('>', at);
+    data.remove(start, end - start + 1);
+
+    QBuffer input { &data };
+    input.open(QIODevice::ReadOnly);
+    NahdXmlReader reader { input };
+    DeviceUnderTest device { "Restored" };
+    QVERIFY(reader.readNextStartElement());
+    device.deserializeFromXml(reader);
+
+    QCOMPARE(device.expression(), 1.0f);
 }
 
 void ChannelStripTest::test_sendTap_preFader_shouldIgnoreFader()

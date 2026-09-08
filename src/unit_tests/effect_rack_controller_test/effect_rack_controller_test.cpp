@@ -71,7 +71,7 @@ public:
     {
     }
 
-    void processMidiCc(uint8_t, uint8_t, uint8_t) override
+    void processDeviceMidiCc(uint8_t, uint8_t, uint8_t) override
     {
     }
 

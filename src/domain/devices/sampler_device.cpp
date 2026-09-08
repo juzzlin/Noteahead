@@ -281,7 +281,7 @@ std::string SamplerDevice::typeId() const
     return typeIdString();
 }
 
-std::vector<MidiCcController> SamplerDevice::availableMidiCcControllers() const
+std::vector<MidiCcController> SamplerDevice::deviceMidiCcControllers() const
 {
     using namespace MidiCcMapping;
     std::vector<MidiCcController> list {
@@ -482,7 +482,7 @@ void SamplerDevice::processMidiNoteOff(uint8_t note)
     }
 }
 
-void SamplerDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t channel)
+void SamplerDevice::processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t channel)
 {
     using namespace MidiCcMapping;
 

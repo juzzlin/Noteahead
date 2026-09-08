@@ -261,7 +261,7 @@ std::string FmSynthDevice::typeId() const
     return typeIdString();
 }
 
-std::vector<MidiCcController> FmSynthDevice::availableMidiCcControllers() const
+std::vector<MidiCcController> FmSynthDevice::deviceMidiCcControllers() const
 {
     return {
         MidiCcController { 1, "LFO Int" },
@@ -639,7 +639,7 @@ void FmSynthDevice::processMidiNoteOff(uint8_t note)
     handleNoteOff(note);
 }
 
-void FmSynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
+void FmSynthDevice::processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t)
 {
     using namespace MidiCcMapping;
 

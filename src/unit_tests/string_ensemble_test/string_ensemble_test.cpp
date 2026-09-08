@@ -380,9 +380,11 @@ void StringEnsembleTest::test_midiCc_shouldUpdateVolumeAndPan()
     device.setSampleRate(SampleRate);
 
     const auto controllers = device.availableMidiCcControllers();
-    QCOMPARE(controllers.size(), size_t { 2 });
+    QCOMPARE(controllers.size(), size_t { 3 });
     QCOMPARE(controllers.at(0).name, std::string { "Fader" });
     QCOMPARE(controllers.at(1).name, std::string { "Pan" });
+    // Appended by Device to everyone's list, so it is last whatever the device itself offers
+    QCOMPARE(controllers.at(2).name, std::string { "Expression" });
 
     device.processMidiCc(controllers.at(0).number, 64, 0);
     QVERIFY(std::abs(device.volume() - Device::faderPositionFromMidiCc(64)) < 0.001f);

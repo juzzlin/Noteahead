@@ -43,13 +43,13 @@ public:
     std::string typeName() const override;
     std::string typeId() const override;
 
-    std::vector<MidiCcController> availableMidiCcControllers() const override;
+    std::vector<MidiCcController> deviceMidiCcControllers() const override;
 
     static std::string typeIdString();
 
     void processMidiNoteOn(uint8_t note, uint8_t velocity) override;
     void processMidiNoteOff(uint8_t note) override;
-    void processMidiCc(uint8_t controller, uint8_t value, uint8_t channel) override;
+    void processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t channel) override;
     void processMidiAllNotesOff() override;
 
     void processAudio(AudioContext & context) override;

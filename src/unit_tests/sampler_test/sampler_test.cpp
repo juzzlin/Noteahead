@@ -641,8 +641,8 @@ void SamplerTest::test_availableMidiCcControllers_shouldListGlobalsAndAllPads()
 
     const auto controllers = sampler.availableMidiCcControllers();
 
-    // Fader + Pan + LPF + HPF + (16 pads * 4 CCs per pad)
-    QCOMPARE(controllers.size(), size_t { 4 + SamplerDevice::padCount * 4 });
+    // Fader + Pan + LPF + HPF + Expression + (16 pads * 4 CCs per pad)
+    QCOMPARE(controllers.size(), size_t { 5 + SamplerDevice::padCount * 4 });
 
     // An unknown number yields a default-constructed entry, which fails the comparisons below
     const auto byNumber = [&controllers](int number) -> MidiCcController {

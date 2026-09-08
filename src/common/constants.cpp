@@ -1275,6 +1275,11 @@ QString xmlKeyFader()
     return "fader";
 }
 
+QString xmlKeyExpression()
+{
+    return "expression";
+}
+
 QString xmlKeyGain()
 {
     return "gain";

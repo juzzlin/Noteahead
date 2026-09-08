@@ -49,6 +49,8 @@ Parameter Device::faderParameter()
 Device::Device()
 {
     addParameter(faderParameter());
+    // Unity by default, so a project saved before this existed loads and sounds exactly as it did.
+    addParameter(Parameter { Constants::NahdXml::xmlKeyExpression().toStdString(), 1.0f, 0, 10000, 10000, 100, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeyGain().toStdString(), 0.5f, -3000, 3000, 0, 100, Parameter::Type::Continuous });
     addParameter(Parameter { Constants::NahdXml::xmlKeyPan().toStdString(), 0.5f, 0, 10000, 5000, 100 });
 
@@ -72,9 +74,27 @@ void Device::setId(size_t id)
     m_id = id;
 }
 
-std::vector<MidiCcController> Device::availableMidiCcControllers() const
+std::vector<MidiCcController> Device::deviceMidiCcControllers() const
 {
     return {};
+}
+
+std::vector<MidiCcController> Device::availableMidiCcControllers() const
+{
+    auto controllers = deviceMidiCcControllers();
+    controllers.push_back(expressionMidiCcController());
+    return controllers;
+}
+
+void Device::processMidiCc(uint8_t controller, uint8_t value, uint8_t channel)
+{
+    if (controller == static_cast<uint8_t>(MidiCcMapping::Controller::ExpressionControllerMSB)) {
+        if (updateExpressionParameter(static_cast<float>(value) / 127.0f, false)) {
+            emit parametersChanged();
+        }
+        return;
+    }
+    processDeviceMidiCc(controller, value, channel);
 }
 
 void Device::serializeToXml(ProjectWriter & writer) const
@@ -174,6 +194,26 @@ MidiCcController Device::faderMidiCcController()
     return { static_cast<uint8_t>(MidiCcMapping::Controller::ChannelVolumeMSB), "Fader", 0, Constants::faderMaxMidiCcValue() };
 }
 
+float Device::expression() const
+{
+    std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    return m_expression;
+}
+
+void Device::setExpression(float expression)
+{
+    if (updateExpressionParameter(expression, true)) {
+        emit dataChanged();
+    }
+}
+
+MidiCcController Device::expressionMidiCcController()
+{
+    // Plain MIDI 1.0 range: unlike the fader, expression only ever attenuates what the fader lets
+    // through, so there is nothing above 127 for it to reach.
+    return { static_cast<uint8_t>(MidiCcMapping::Controller::ExpressionControllerMSB), "Expression" };
+}
+
 float Device::gain() const
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
@@ -238,6 +278,22 @@ bool Device::updateVolumeParameter(float volume, bool authored)
     return false;
 }
 
+bool Device::updateExpressionParameter(float expression, bool authored)
+{
+    std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    if (auto p = parameter(Constants::NahdXml::xmlKeyExpression().toStdString()); p) {
+        const float oldVal = p->get().value();
+        if (authored) {
+            p->get().setValue(expression);
+        } else {
+            p->get().setAutomationValue(expression);
+        }
+        syncParameters();
+        return !qFuzzyCompare(p->get().value(), oldVal);
+    }
+    return false;
+}
+
 bool Device::updateGainParameter(float gain, bool authored)
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
@@ -287,6 +343,9 @@ void Device::syncParameters()
 {
     if (auto p = parameter(Constants::NahdXml::xmlKeyFader().toStdString()); p) {
         m_volume = p->get().value();
+    }
+    if (auto p = parameter(Constants::NahdXml::xmlKeyExpression().toStdString()); p) {
+        m_expression = p->get().value();
     }
     if (auto p = parameter(Constants::NahdXml::xmlKeyGain().toStdString()); p) {
         m_gain = p->get().value();
@@ -510,6 +569,20 @@ void Device::applyFader(AudioContext & context) const
     const uint32_t sampleCount = context.frameCount * 2;
     for (uint32_t i = 0; i < sampleCount; i++) {
         context.buffer[i] *= volume;
+    }
+}
+
+void Device::applyExpression(AudioContext & context) const
+{
+    double expression {};
+    {
+        const std::lock_guard<std::recursive_mutex> lock { m_mutex };
+        expression = static_cast<double>(m_expression);
+    }
+
+    const uint32_t sampleCount = context.frameCount * 2;
+    for (uint32_t i = 0; i < sampleCount; i++) {
+        context.buffer[i] *= expression;
     }
 }
 

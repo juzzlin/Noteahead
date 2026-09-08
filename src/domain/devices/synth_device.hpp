@@ -113,13 +113,13 @@ public:
     std::string typeName() const override;
     std::string typeId() const override;
 
-    std::vector<MidiCcController> availableMidiCcControllers() const override;
+    std::vector<MidiCcController> deviceMidiCcControllers() const override;
 
     static std::string typeIdString();
 
     void processMidiNoteOn(uint8_t note, uint8_t velocity) override;
     void processMidiNoteOff(uint8_t note) override;
-    void processMidiCc(uint8_t controller, uint8_t value, uint8_t channel) override;
+    void processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t channel) override;
     void processMidiPitchBend(uint16_t value, uint8_t channel) override;
     void processMidiProgramChange(uint8_t program, uint8_t channel) override;
     void processMidiAllNotesOff() override;
@@ -480,7 +480,6 @@ private:
     float m_delayMix { 0.0f };
     bool m_delaySync { false };
     float m_delaySyncDivision { 0.25f };
-
 
     //! Oversampling factor of the block being rendered, so voices can compensate their noise.
     uint8_t m_oversampleFactor { 1 };

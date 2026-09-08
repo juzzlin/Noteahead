@@ -75,7 +75,7 @@ std::string DrumSynthDevice::typeId() const
     return typeIdString();
 }
 
-std::vector<MidiCcController> DrumSynthDevice::availableMidiCcControllers() const
+std::vector<MidiCcController> DrumSynthDevice::deviceMidiCcControllers() const
 {
     using namespace MidiCcMapping;
     std::vector<MidiCcController> list;
@@ -138,7 +138,7 @@ void DrumSynthDevice::processMidiNoteOff(uint8_t note)
     }
 }
 
-void DrumSynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t /*channel*/)
+void DrumSynthDevice::processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t /*channel*/)
 {
     using namespace MidiCcMapping;
 

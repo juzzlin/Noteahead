@@ -1920,6 +1920,7 @@ void XmlSerializationTest::test_toXmlFromXml_subMixerDevice_shouldLoadCorrectly(
     auto subMixer = std::make_shared<SubMixerDevice>("SubMixer");
     subMixer->setMembers({ 2, 5, 7 });
     subMixer->setVolume(0.8f);
+    subMixer->setExpression(0.4f);
     subMixer->setPan(0.3f);
     deviceServiceOut.setDevice(1, subMixer);
 
@@ -1946,6 +1947,7 @@ void XmlSerializationTest::test_toXmlFromXml_subMixerDevice_shouldLoadCorrectly(
     QCOMPARE(members[2], size_t { 7 });
 
     QVERIFY(std::abs(restored->volume() - 0.8f) < 0.001f);
+    QVERIFY(std::abs(restored->expression() - 0.4f) < 0.001f);
     QVERIFY(std::abs(restored->pan() - 0.3f) < 0.001f);
 }
 

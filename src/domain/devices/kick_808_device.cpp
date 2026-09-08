@@ -28,7 +28,7 @@ namespace {
 
 //! Every knob on the panel is reachable over MIDI CC, so a whole kick can be automated from a note
 //! column. Keeping the controller numbers, the labels and the parameter keys in one table stops the
-//! dispatch below from drifting away from what availableMidiCcControllers() advertises.
+//! dispatch below from drifting away from what deviceMidiCcControllers() advertises.
 struct CcParameter
 {
     uint8_t controller {};
@@ -106,7 +106,7 @@ std::string Kick808Device::typeId() const
     return typeIdString();
 }
 
-std::vector<MidiCcController> Kick808Device::availableMidiCcControllers() const
+std::vector<MidiCcController> Kick808Device::deviceMidiCcControllers() const
 {
     using namespace MidiCcMapping;
     std::vector<MidiCcController> controllers {
@@ -138,7 +138,7 @@ void Kick808Device::processMidiNoteOff(uint8_t)
     // One-shot by design: the tail is owned by Decay, not by note length.
 }
 
-void Kick808Device::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
+void Kick808Device::processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t)
 {
     using namespace MidiCcMapping;
 

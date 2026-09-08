@@ -76,7 +76,7 @@ The codebase is split into five layers. Logic must never leak upward (domain kno
 
 ## Adding a New Device (checklist)
 
-1. Create `src/domain/devices/<name>_device.hpp/.cpp` inheriting from `Device`. Implement `name()`, `category()`, `typeName()`, `typeId()`, `typeIdString()` (static), the `processMidi*` methods, `processAudio(AudioContext &)`, `hasActiveAudio()`, `reset()`/`resetAudio()`, `serializeToXml()`/`deserializeFromXml()` and `syncParameters()`. Register `Parameter` objects in the constructor. `PianoSynthDevice` is the smallest complete template.
+1. Create `src/domain/devices/<name>_device.hpp/.cpp` inheriting from `Device`. Implement `name()`, `category()`, `typeName()`, `typeId()`, `typeIdString()` (static), the `processMidi*` methods (MIDI CC arrives through `processDeviceMidiCc()`, not `processMidiCc()`, which `Device` owns so that no device can miss the CCs every device has; advertise the device's own CCs from `deviceMidiCcControllers()`), `processAudio(AudioContext &)`, `hasActiveAudio()`, `reset()`/`resetAudio()`, `serializeToXml()`/`deserializeFromXml()` and `syncParameters()`. Register `Parameter` objects in the constructor. `PianoSynthDevice` is the smallest complete template.
 2. Add both files to `HEADER_FILES` and `SOURCE_FILES` in `src/domain/CMakeLists.txt` (alphabetical). New `dsp/` sources go in **both** `src/domain/CMakeLists.txt` and `src/domain/dsp/CMakeLists.txt`.
 3. Add `<name>DeviceName()` and any new `Constants::NahdXml` keys to `src/common/constants.hpp/.cpp`. Reuse existing generic keys where they fit.
 4. Register the device in `DeviceFactory::init()` in `src/domain/devices/device_registration.cpp`.

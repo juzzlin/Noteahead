@@ -81,7 +81,7 @@ std::string PianoSynthDevice::typeId() const
     return typeIdString();
 }
 
-std::vector<MidiCcController> PianoSynthDevice::availableMidiCcControllers() const
+std::vector<MidiCcController> PianoSynthDevice::deviceMidiCcControllers() const
 {
     using namespace MidiCcMapping;
     return {
@@ -103,7 +103,7 @@ void PianoSynthDevice::processMidiNoteOff(uint8_t note)
     handleNoteOff(note);
 }
 
-void PianoSynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
+void PianoSynthDevice::processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t)
 {
     using namespace MidiCcMapping;
 

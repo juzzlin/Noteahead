@@ -229,7 +229,7 @@ std::string WavetableSynthDevice::typeId() const
     return typeIdString();
 }
 
-std::vector<MidiCcController> WavetableSynthDevice::availableMidiCcControllers() const
+std::vector<MidiCcController> WavetableSynthDevice::deviceMidiCcControllers() const
 {
     return {
         MidiCcController { 1, "LFO Int" },
@@ -486,7 +486,7 @@ void WavetableSynthDevice::processMidiNoteOff(uint8_t note)
     handleNoteOff(note);
 }
 
-void WavetableSynthDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
+void WavetableSynthDevice::processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t)
 {
     using namespace MidiCcMapping;
 

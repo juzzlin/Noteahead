@@ -138,7 +138,7 @@ std::string StringEnsembleDevice::typeId() const
     return typeIdString();
 }
 
-std::vector<MidiCcController> StringEnsembleDevice::availableMidiCcControllers() const
+std::vector<MidiCcController> StringEnsembleDevice::deviceMidiCcControllers() const
 {
     using namespace MidiCcMapping;
     return {
@@ -179,7 +179,7 @@ void StringEnsembleDevice::releaseKey(uint8_t note)
     }
 }
 
-void StringEnsembleDevice::processMidiCc(uint8_t controller, uint8_t value, uint8_t)
+void StringEnsembleDevice::processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t)
 {
     using namespace MidiCcMapping;
 

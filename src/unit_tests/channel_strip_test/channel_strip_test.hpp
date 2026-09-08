@@ -31,6 +31,13 @@ private slots:
     void test_faderPosition_nonLinearInsert_shouldDifferBetweenOrderings();
     void test_faderPosition_linearInsert_shouldAgreeBetweenOrderings();
     void test_faderPosition_postInserts_shouldNotChangeInsertInput();
+    void test_applyExpression_shouldScaleTheWholeBuffer();
+    void test_applyExpression_unityShouldLeaveBufferUntouched();
+    void test_expression_shouldNotChangeInsertInput();
+    void test_expression_midiCc_shouldMoveExpressionOnly();
+    void test_expression_midiCc_shouldNotReachTheDevice();
+    void test_expression_clearAutomation_shouldRestoreTheAuthoredValue();
+    void test_expression_absentFromXml_shouldLoadAsUnity();
     void test_sendTap_preFader_shouldIgnoreFader();
     void test_sendTap_postFader_shouldFollowFader();
     void test_settings_shouldRoundTripThroughXml();

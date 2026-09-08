@@ -448,6 +448,7 @@ QString xmlKeyValue();
 QString xmlKeyVelocity();
 QString xmlKeyVolume();
 QString xmlKeyFader();
+QString xmlKeyExpression();
 QString xmlKeyGain();
 
 QString xmlKeyProject();

@@ -418,7 +418,7 @@
 <h3>MIDI CC & Pitch Bend Automation</h3>
 <ul>
     <li><strong>Add Automation</strong>: Select a range of lines, right-click, and choose "Add MIDI CC Automation" or "Add Pitch Bend Automation".</li>
-    <li><strong>Interpolation & Modulation</strong>: Choose <strong>Linear</strong> for steady changes, or add <strong>Modulation</strong> (Sine Wave or Random) for organic, oscillating, or experimental movements.</li>
+    <li><strong>Interpolation & Modulation</strong>: Choose the <strong>interpolation curve</strong> the values follow between the two ends of the range — <strong>Linear</strong> for a steady change, <strong>Exponential</strong> or <strong>Ease In</strong> to start slowly and finish fast, <strong>Logarithmic</strong> or <strong>Ease Out</strong> for the other way round, and <strong>Ease In/Out</strong> to soften both ends. Add <strong>Modulation</strong> (Sine Wave or Random) on top for organic, oscillating, or experimental movements.</li>
 </ul>
 
 <h3>MIDI Side-chain</h3>
@@ -458,6 +458,13 @@
     <li><strong>Send tap - Post-fader</strong> (default): sends follow the fader, so pulling a device down takes its reverb with it and the wet/dry ratio stays put.</li>
     <li><strong>Send tap - Pre-fader</strong>: sends keep their level whatever the fader does, so the device gets wetter as you pull it down.</li>
 </ul>
+
+<h4>Automating a device's volume: Expression</h4>
+<p>Every internal device has a third volume stage, <strong>Expression</strong> on <strong>MIDI CC 11</strong>. It has no knob: it is there to be automated. It scales whatever the device finally hands over, from silence at CC 0 up to the full level the Fader lets through at CC 127, and it starts at CC 127 — so a project that never touches it sounds exactly as it always did.</p>
+<p>Automate Expression rather than the Fader. The Fader is on CC 7, and a curve drawn on it writes <em>absolute</em> fader positions: once the automation is there, moving the fader has no effect during playback, because the next automation event overwrites it. The automation, not the fader, then decides the level, and re-balancing a track means redrawing every curve. Expression is a multiplier on top of the fader instead, so the two compose — pull the fader down afterwards and the whole automated shape comes down with it.</p>
+<p>Expression is also the last thing in the chain, applied after both the fader and the insert effects whichever way round <strong>Fader position</strong> puts them. An automated fade therefore never changes how hard a compressor or a clipper in the insert rack is driven, which automating the fader does whenever the fader sits before the inserts. A <strong>pre-fader</strong> send ignores Expression, exactly as it ignores the fader; a post-fader send follows it.</p>
+<p>Expression is a plain multiplier on the amplitude, with no curve of its own: CC 64 is half the level, or about -6 dB, whatever the fader happens to sit at. That is also what the lower part of the fader's throw does, so Expression at CC 64 and the fader at half throw come to the same thing. The shape of a fade is not the parameter's business but the automation's — pick it with the <strong>interpolation curve</strong>, where <strong>Exponential</strong> gives a fade that hangs on much longer than <strong>Linear</strong> does.</p>
+<p>One thing to know about fading all the way to silence: a MIDI CC value is a whole number from 0 to 127, so the steps near the bottom are large ones. CC 127 down to 126 is less than a tenth of a decibel, but CC 2 down to 1 is a full 6 dB, and everything below about -32 dB is covered by the four values 3, 2, 1 and 0. A long fade that ends on CC 0 can therefore step audibly in its last moments. Which curve you pick decides how much of the fade is spent down there: <strong>Logarithmic</strong> and <strong>Ease Out</strong> drop away early and then crawl through the quiet end, which is where the stepping is heard, while <strong>Exponential</strong> holds the level up and passes through it quickly. If you hear it, end the fade on a low value instead of on zero and let a Note OFF finish the job. The fader has always behaved this way under CC 7; Expression is no different.</p>
 
 <h3>Sampler</h3>
 <p>The Sampler is a versatile internal instrument for triggering audio samples.</p>

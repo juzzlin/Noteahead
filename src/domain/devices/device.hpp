@@ -84,14 +84,19 @@ public:
     virtual std::string typeName() const = 0;
     virtual std::string typeId() const = 0;
 
-    virtual std::vector<MidiCcController> availableMidiCcControllers() const;
+    //! Everything the automation editor can drive on this device: what the device itself offers,
+    //! plus the Expression control every device has. Not virtual -- a device that overrode this
+    //! could drop Expression by forgetting it; deviceMidiCcControllers() is what devices fill in.
+    std::vector<MidiCcController> availableMidiCcControllers() const;
 
     size_t id() const;
     void setId(size_t id);
 
     virtual void processMidiNoteOn(uint8_t note, uint8_t velocity) = 0;
     virtual void processMidiNoteOff(uint8_t note) = 0;
-    virtual void processMidiCc(uint8_t controller, uint8_t value, uint8_t channel) = 0;
+    //! Takes Expression itself and hands everything else to the device. Not virtual for the same
+    //! reason as the list above: no device can miss the control by not implementing it.
+    void processMidiCc(uint8_t controller, uint8_t value, uint8_t channel);
 
     virtual void processMidiPitchBend(uint16_t /*value*/, uint8_t /*channel*/)
     {
@@ -271,6 +276,23 @@ public:
     //! CC 7 as an internal device exposes it, carrying the extended value range.
     static MidiCcController faderMidiCcController();
 
+    //! Scales whatever the device finally hands over, 0..1, unity by default.
+    //!
+    //! The automatable volume. The fader is the trim the user sets and leaves alone; this is what a
+    //! curve rides, so the two compose -- moving the fader afterwards scales the whole automated
+    //! shape with it instead of being overwritten by the next automation event.
+    float expression() const;
+    virtual void setExpression(float expression);
+
+    //! Applies the expression in place over the whole buffer.
+    //!
+    //! The engine calls this after both the fader and the insert rack, whichever order those two
+    //! run in, so an automated fade can never change how hard the inserts are driven.
+    void applyExpression(AudioContext & context) const;
+
+    //! CC 11 as an internal device exposes it. MIDI's own name for a percentage of CC 7.
+    static MidiCcController expressionMidiCcController();
+
     float gain() const;
     virtual void setGain(float gain);
 
@@ -292,6 +314,11 @@ signals:
     void sampleRateChanged();
 
 protected:
+    //! The CCs this device offers, without the ones every device has. Empty unless overridden.
+    virtual std::vector<MidiCcController> deviceMidiCcControllers() const;
+    //! Everything processMidiCc() did not handle itself.
+    virtual void processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t channel) = 0;
+
     void serializeAttributesToXml(ProjectWriter & writer) const;
     void deserializeAttributesFromXml(ProjectReader & reader);
 
@@ -308,6 +335,7 @@ protected:
     //! \param authored Whether the value is the user's (writes the document) or automation's
     //! (live only). Everything the transport generates passes false.
     bool updateVolumeParameter(float volume, bool authored);
+    bool updateExpressionParameter(float expression, bool authored);
     bool updateGainParameter(float gain, bool authored);
     bool updatePanParameter(float pan, bool authored);
     //! Reverb sends are not parameters and nothing automates them, so they have no live layer.
@@ -327,6 +355,9 @@ private:
 
     //! Fader position, seeded to unity in the constructor.
     float m_volume { 1.0f };
+    //! Linear amplitude, not a position: mapFader() is position/unity below unity, so the fader's
+    //! own taper under unity already is linear amplitude and there is nothing to map here.
+    float m_expression { 1.0f };
     float m_gain { 0.5f };
     float m_pan { 0.5f };
     std::vector<float> m_reverbSends;

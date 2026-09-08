@@ -152,6 +152,11 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
         device->applyFader(audioContext);
     }
 
+    // The automatable volume, and the last thing that touches the signal. After the inserts either
+    // way, so riding it cannot change how hard they are driven -- which is the whole reason it is a
+    // separate control from the fader rather than a second way to move the same one.
+    device->applyExpression(audioContext);
+
     device->loadMeter().addBlock(std::chrono::steady_clock::now() - processingStarted, bufferSeconds);
 
     // Feed this device's final output to its oscilloscope tap (no-op unless a scope is active).

@@ -5,6 +5,12 @@ Release date:
 
 New features:
 
+* Give every device an automatable Expression control on MIDI CC 11
+  - Scales what the device hands over, so the Fader stays the trim and
+    moving it scales the whole automated curve with it
+  - Applied after the insert effects, so an automated fade cannot change
+    how hard they are driven
+
 * Copy the settings of an automation onto another
   - A picker lists the automations already in the song, and fills either
     the Add automation form or a row of the Edit automations dialog from
