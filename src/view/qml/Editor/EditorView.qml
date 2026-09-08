@@ -264,7 +264,13 @@ FocusScope {
         }
     }
     function _updateFocus(newPosition, oldPosition) {
-        rootItem.focus = true;
+        // Playback moves the cursor on every line, and taking the keyboard back on each of those
+        // pulls the active focus out of whatever is open on top of the editor: a knob's value field
+        // loses it again as fast as it is given, so an exact value cannot be typed while the song
+        // plays. Only the editing path has any reason to want the focus back here.
+        if (!UiService.isPlaying()) {
+            rootItem.focus = true;
+        }
         _setTrackUnfocused(oldPosition);
         _setTrackFocused(newPosition);
     }

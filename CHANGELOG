@@ -20,6 +20,10 @@ New features:
 
 Bug fixes:
 
+* Let a knob's value be typed while the song plays
+  - Playback took the keyboard back to the editor on every line, so the
+    value field lost the focus as fast as it got it
+
 * Show automation curves in the pattern peek
   - The offset areas drew the neighbouring pattern's notes but not its
     MIDI CC or Pitch Bend curves
