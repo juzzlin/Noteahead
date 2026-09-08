@@ -36,6 +36,9 @@ class ThemeService : public QObject
     //! percentage. 0 is the original fixed palette, 100 puts every entry on the accent hue.
     Q_PROPERTY(int paletteAccentBlend READ paletteAccentBlend WRITE setPaletteAccentBlend NOTIFY paletteAccentBlendChanged)
 
+    //! How the tracker's per-column volume meters are drawn. See Constants::VolumeMeterStyle.
+    Q_PROPERTY(int volumeMeterStyle READ volumeMeterStyle WRITE setVolumeMeterStyle NOTIFY volumeMeterStyleChanged)
+
     Q_PROPERTY(QColor lineNumberColumnBackgroundColor READ lineNumberColumnBackgroundColor CONSTANT)
     Q_PROPERTY(QColor lineNumberColumnBorderColor READ lineNumberColumnBorderColor CONSTANT)
     Q_PROPERTY(QColor lineNumberColumnCellBackgroundColor READ lineNumberColumnCellBackgroundColor CONSTANT)
@@ -93,6 +96,9 @@ public:
     int paletteAccentBlend() const;
     void setPaletteAccentBlend(int paletteAccentBlend);
 
+    int volumeMeterStyle() const;
+    void setVolumeMeterStyle(int style);
+
     static int defaultPaletteAccentBlend();
 
     //! Returns a legible text color (near-black or white) for the given background,
@@ -138,6 +144,7 @@ signals:
     void accentColorChanged();
     void cursorColorChanged();
     void paletteAccentBlendChanged();
+    void volumeMeterStyleChanged();
     void automationCurveColorsChanged();
     void trackHeaderTextColorsChanged();
 
@@ -156,6 +163,7 @@ private:
     QColor m_accentColor;
     QColor m_cursorColor;
     int m_paletteAccentBlend;
+    int m_volumeMeterStyle;
 };
 
 } // namespace noteahead

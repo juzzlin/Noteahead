@@ -37,6 +37,10 @@ private slots:
     void test_paletteAccentBlend_outOfRange_shouldBeClamped();
     void test_paletteAccentBlend_setter_shouldPersistAcrossInstances();
 
+    void test_volumeMeterStyle_unset_shouldDefaultToGradient();
+    void test_volumeMeterStyle_setter_shouldUpdateGetterAndEmitSignal();
+    void test_volumeMeterStyle_setter_shouldPersistAcrossInstances();
+
     void test_trackHeaderTextColors_zeroBlend_shouldReturnTheOriginalPalette();
     void test_trackHeaderTextColors_fullBlend_shouldShareTheAccentHue();
     void test_trackHeaderTextColors_blended_shouldBeUnique();

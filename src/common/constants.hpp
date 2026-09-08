@@ -150,6 +150,21 @@ constexpr int defaultAutomationDisplayMode()
     return static_cast<int>(AutomationDisplayMode::Curve);
 }
 
+//! How the per-column volume meter is drawn in the tracker.
+//!
+//! Gradient is the continuous red/yellow/green bar; Lines is a ladder of thin accent-coloured
+//! rungs in the same footprint.
+enum class VolumeMeterStyle
+{
+    Gradient = 0,
+    Lines = 1
+};
+
+constexpr int defaultVolumeMeterStyle()
+{
+    return static_cast<int>(VolumeMeterStyle::Gradient);
+}
+
 //! Width of an automation curve in the tracker, in tenths of a pixel. Stored as tenths because the
 //! useful range is finer than a whole pixel, matching how the render settings store their level.
 constexpr int defaultAutomationCurveThicknessTenths()

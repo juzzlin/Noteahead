@@ -292,6 +292,8 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Editor/TrackHeader_ColumnButtons.qml
     ${QML_BASE_DIR}/Editor/VelocityScale.qml
     ${QML_BASE_DIR}/Editor/VolumeMeter.qml
+    ${QML_BASE_DIR}/Editor/VolumeMeter_GradientBar.qml
+    ${QML_BASE_DIR}/Editor/VolumeMeter_StackedLines.qml
     ${QML_BASE_DIR}/MainMenu/LanguageMenu.qml
     ${QML_BASE_DIR}/MainMenu/LanguageSelector.qml
     ${QML_BASE_DIR}/MainMenu/MainMenu.qml

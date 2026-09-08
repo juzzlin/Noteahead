@@ -5,6 +5,10 @@ Release date:
 
 New features:
 
+* Add a second style for the tracker's volume meters
+  - A ladder of thin lines in the accent colour, next to the original
+    gradient bar, picked from Settings
+
 * Give every device an automatable Expression control on MIDI CC 11
   - Scales what the device hands over, so the Fader stays the trim and
     moving it scales the whole automated curve with it

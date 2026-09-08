@@ -15,6 +15,7 @@
 
 #include "theme_service.hpp"
 
+#include "../../common/constants.hpp"
 #include "../../infra/settings.hpp"
 
 #include <algorithm>
@@ -94,6 +95,7 @@ ThemeService::ThemeService()
   : m_accentColor { Settings::accentColor(QColor { "orange" }) }
   , m_cursorColor { Settings::cursorColor(defaultCursorColor()) }
   , m_paletteAccentBlend { Settings::paletteAccentBlend(defaultPaletteAccentBlend()) }
+  , m_volumeMeterStyle { Settings::volumeMeterStyle(Constants::defaultVolumeMeterStyle()) }
 {
 }
 
@@ -134,6 +136,20 @@ void ThemeService::setPaletteAccentBlend(int paletteAccentBlend)
         emit paletteAccentBlendChanged();
         emit trackHeaderTextColorsChanged();
         emit automationCurveColorsChanged();
+    }
+}
+
+int ThemeService::volumeMeterStyle() const
+{
+    return m_volumeMeterStyle;
+}
+
+void ThemeService::setVolumeMeterStyle(int style)
+{
+    if (m_volumeMeterStyle != style) {
+        m_volumeMeterStyle = style;
+        Settings::setVolumeMeterStyle(m_volumeMeterStyle);
+        emit volumeMeterStyleChanged();
     }
 }
 

@@ -151,6 +151,37 @@ GroupBox {
                 }
             }
         }
+
+        GroupBox {
+            title: qsTr("Volume Meter")
+            Layout.fillWidth: true
+
+            // The meter either keeps its own fixed gradient or joins the accent color.
+            RowLayout {
+                spacing: 10
+                anchors.left: parent.left
+                anchors.right: parent.right
+
+                Label {
+                    text: qsTr("Style:")
+                    color: themeService.mainMenuTextColor
+                }
+                ComboBox {
+                    id: volumeMeterStyleComboBox
+                    Layout.fillWidth: true
+                    model: [qsTr("Gradient"), qsTr("Lines")]
+                    currentIndex: themeService.volumeMeterStyle
+                    onActivated: i => themeService.volumeMeterStyle = i
+                    // Same look as the slider above, which sets both of these itself
+                    Universal.theme: Universal.Dark
+                    Universal.accent: themeService.accentColor
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Gradient draws the volume of a played line as one bar under a red-yellow-green gradient. Lines draws it as a ladder of thin lines in the accent color.")
+                }
+            }
+        }
     }
 
     ColorDialog {

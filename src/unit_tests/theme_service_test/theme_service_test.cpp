@@ -16,6 +16,7 @@
 #include "theme_service_test.hpp"
 
 #include "../../application/service/theme_service.hpp"
+#include "../../common/constants.hpp"
 
 #include <QSet>
 #include <QSettings>
@@ -151,6 +152,40 @@ void ThemeServiceTest::test_paletteAccentBlend_setter_shouldPersistAcrossInstanc
     ThemeService reloaded;
 
     QCOMPARE(reloaded.paletteAccentBlend(), 35);
+}
+
+void ThemeServiceTest::test_volumeMeterStyle_unset_shouldDefaultToGradient()
+{
+    ThemeService themeService;
+
+    QCOMPARE(themeService.volumeMeterStyle(), static_cast<int>(Constants::VolumeMeterStyle::Gradient));
+}
+
+void ThemeServiceTest::test_volumeMeterStyle_setter_shouldUpdateGetterAndEmitSignal()
+{
+    ThemeService themeService;
+    QSignalSpy spy { &themeService, &ThemeService::volumeMeterStyleChanged };
+
+    themeService.setVolumeMeterStyle(static_cast<int>(Constants::VolumeMeterStyle::Lines));
+
+    QCOMPARE(themeService.volumeMeterStyle(), static_cast<int>(Constants::VolumeMeterStyle::Lines));
+    QCOMPARE(spy.count(), 1);
+
+    themeService.setVolumeMeterStyle(static_cast<int>(Constants::VolumeMeterStyle::Lines));
+
+    QCOMPARE(spy.count(), 1);
+}
+
+void ThemeServiceTest::test_volumeMeterStyle_setter_shouldPersistAcrossInstances()
+{
+    {
+        ThemeService themeService;
+        themeService.setVolumeMeterStyle(static_cast<int>(Constants::VolumeMeterStyle::Lines));
+    }
+
+    ThemeService reloaded;
+
+    QCOMPARE(reloaded.volumeMeterStyle(), static_cast<int>(Constants::VolumeMeterStyle::Lines));
 }
 
 void ThemeServiceTest::test_trackHeaderTextColors_zeroBlend_shouldReturnTheOriginalPalette()

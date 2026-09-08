@@ -67,6 +67,7 @@ const auto windowSizeKey = "size";
 const auto accentColorKey = "accentColor";
 const auto cursorColorKey = "cursorColor";
 const auto paletteAccentBlendKey = "paletteAccentBlend";
+const auto volumeMeterStyleKey = "volumeMeterStyle";
 
 const auto userLanguageKey = "userLanguage";
 
@@ -654,6 +655,23 @@ void setPaletteAccentBlend(int paletteAccentBlend)
     QSettings settings;
     settings.beginGroup(settingsGroupTheme);
     settings.setValue(paletteAccentBlendKey, paletteAccentBlend);
+    settings.endGroup();
+}
+
+int volumeMeterStyle(int defaultVolumeMeterStyle)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupTheme);
+    const auto style = settings.value(volumeMeterStyleKey, defaultVolumeMeterStyle).toInt();
+    settings.endGroup();
+    return style;
+}
+
+void setVolumeMeterStyle(int style)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupTheme);
+    settings.setValue(volumeMeterStyleKey, style);
     settings.endGroup();
 }
 

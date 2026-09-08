@@ -15,6 +15,8 @@
 
 import QtQuick 2.15
 
+// The per-column volume meter: owns the level and its falling animation, and loads the style the
+// user picked. Only the chosen style exists, so the one not in use costs nothing.
 Item {
     id: rootItem
     property real _volume: 0.0 // Normalized volume (0.0 to 1.0)
@@ -22,49 +24,23 @@ Item {
     property real _timeStep: 0.0
     readonly property real _maxHeight: 0.8
     readonly property real _fallingScale: 0.001
-    Item {
-        id: levelIndicatorGradientClip
-        width: parent.width * 0.2
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: parent.bottom
-        height: parent.height * _animatedVolume * _maxHeight
-        clip: true
-        Rectangle {
-            id: levelIndicatorGradient
-            width: parent.width
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottom: parent.bottom
-            height: rootItem.height * _maxHeight
-            gradient: Gradient {
-                GradientStop {
-                    position: 0.0
-                    color: "red"
-                }
-                GradientStop {
-                    position: 0.5
-                    color: "yellow"
-                }
-                GradientStop {
-                    position: 1.0
-                    color: "green"
-                }
-            }
+    Loader {
+        anchors.fill: parent
+        // Constants::VolumeMeterStyle::Lines
+        sourceComponent: themeService.volumeMeterStyle === 1 ? stackedLinesComponent : gradientBarComponent
+    }
+    Component {
+        id: gradientBarComponent
+        VolumeMeter_GradientBar {
+            level: rootItem._animatedVolume
+            maxHeight: rootItem._maxHeight
         }
-        Rectangle {
-            id: leftShadow
-            width: levelIndicatorGradient.width * 0.2
-            height: levelIndicatorGradient.height
-            anchors.left: levelIndicatorGradient.left
-            opacity: 0.25
-            color: "white"
-        }
-        Rectangle {
-            id: rightShadow
-            width: leftShadow.width
-            height: leftShadow.height
-            anchors.right: levelIndicatorGradient.right
-            opacity: leftShadow.opacity
-            color: "black"
+    }
+    Component {
+        id: stackedLinesComponent
+        VolumeMeter_StackedLines {
+            level: rootItem._animatedVolume
+            maxHeight: rootItem._maxHeight
         }
     }
     Timer {
