@@ -41,6 +41,14 @@ Rectangle {
     function patternIndex(): int {
         return _patternIndex;
     }
+    //! The index of the column under a scene x coordinate, clamped to the track's own columns.
+    //!
+    //! A press grabs the mouse for the column it happened in, so a drag that leaves that column
+    //! keeps reporting it and the position is the only thing left to go by. Clamping means a drag
+    //! that runs past the edge of the track selects up to the edge instead of falling off it.
+    function columnIndexAt(sceneX: real): int {
+        return columnContainer.columnIndexAt(sceneX);
+    }
     function setLocation(patternIndex: int, trackIndex: int): void {
         _patternIndex = patternIndex;
         _index = trackIndex;
@@ -214,6 +222,14 @@ Rectangle {
                 noteColumn.setVelocityScale(mixerService.columnVelocityScale(_index, noteColumn.index()));
             });
         }
+        function columnIndexAt(sceneX: real): int {
+            if (!_noteColumns.length) {
+                return 0;
+            }
+            const localX = columnContainer.mapFromItem(null, sceneX, 0).x;
+            const columnPosition = Math.max(0, Math.min(_noteColumns.length - 1, Math.floor(localX / _noteColumnWidth())));
+            return _noteColumns[columnPosition].index();
+        }
         function _noteColumnX(columnPosition: int): int {
             return _noteColumnWidth() * columnPosition;
         }
@@ -231,7 +247,7 @@ Rectangle {
             noteColumn.setPositionBar(_positionBar);
             noteColumn.leftClicked.connect((lineIndex, x, y) => {
                 uiLogger.debug(_tag, `Track ${rootItem._index} left clicked`);
-                rootItem.leftClicked(noteColumn.index(), lineIndex, x + rootItem.x, y + rootItem.y);
+                rootItem.leftClicked(noteColumn.index(), lineIndex, x, y);
             });
             noteColumn.rightClicked.connect((lineIndex, x, y) => {
                 uiLogger.debug(_tag, `Track ${rootItem._index} right clicked`);
