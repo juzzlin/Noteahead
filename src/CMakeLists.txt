@@ -51,6 +51,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Components/AppButton.qml
     ${QML_BASE_DIR}/Components/ClipLed.qml
     ${QML_BASE_DIR}/Components/DateField.qml
+    ${QML_BASE_DIR}/Components/DeviceMenuButton.qml
     ${QML_BASE_DIR}/Components/FilterKnob.qml
     ${QML_BASE_DIR}/Components/Knob.qml
     ${QML_BASE_DIR}/Components/LayoutSeparator.qml

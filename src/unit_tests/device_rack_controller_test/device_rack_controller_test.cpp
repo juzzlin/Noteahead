@@ -40,7 +40,9 @@
 
 #include <QBuffer>
 #include <QSignalSpy>
+#include <QTemporaryDir>
 #include <QTest>
+#include <QUrl>
 
 namespace noteahead {
 
@@ -704,6 +706,58 @@ void DeviceRackControllerTest::test_confirmImportSettings_shouldImportAndNotify(
     buffer.close();
 
     QCOMPARE(synth->volume(), 0.42f);
+}
+
+void DeviceRackControllerTest::test_confirmImportSettings_sameType_shouldReportTheImportedSlot()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<MockEditorService>();
+
+    const auto synth = std::dynamic_pointer_cast<SynthDevice>(DeviceFactory::createDevice(SynthDevice::typeIdString(), "TestSynth"));
+    synth->setVolume(0.42f);
+    deviceService->setDevice(1, synth);
+
+    DeviceRackController controller { deviceService, {}, editorService };
+    QTemporaryDir directory;
+    const auto filePath = directory.filePath("device" + Constants::deviceSettingsExtension());
+    controller.exportSettings(1, QUrl::fromLocalFile(filePath));
+
+    synth->setVolume(1.0f);
+
+    // A dialog open on the slot has to know the values under it changed: the device object is the
+    // one it is already showing, so nothing else tells it.
+    QSignalSpy spy { &controller, &DeviceRackController::deviceSettingsImported };
+    controller.confirmImportSettings(1, QUrl::fromLocalFile(filePath));
+
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).at(0).toInt(), 1);
+    QCOMPARE(deviceService->device(1), synth);
+    QCOMPARE(synth->volume(), 0.42f);
+}
+
+void DeviceRackControllerTest::test_confirmImportSettings_differentType_shouldReportTheReplacedSlot()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<MockEditorService>();
+
+    deviceService->setDevice(0, DeviceFactory::createDevice(SynthDevice::typeIdString(), "TestSynth"));
+
+    DeviceRackController controller { deviceService, {}, editorService };
+    QTemporaryDir directory;
+    const auto filePath = directory.filePath("device" + Constants::deviceSettingsExtension());
+    controller.exportSettings(0, QUrl::fromLocalFile(filePath));
+
+    deviceService->setDevice(0, DeviceFactory::createDevice(BassSynthDevice::typeIdString(), "TestBassSynth"));
+
+    QSignalSpy spy { &controller, &DeviceRackController::deviceSettingsImported };
+    controller.confirmImportSettings(0, QUrl::fromLocalFile(filePath));
+
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).at(0).toInt(), 0);
+    // The slot holds a different device now, which is what a dialog open on it has to notice
+    QCOMPARE(deviceService->device(0)->typeId(), SynthDevice::typeIdString());
 }
 
 void DeviceRackControllerTest::test_copyDevice_shouldDuplicateAndNotify()

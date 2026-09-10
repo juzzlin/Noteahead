@@ -5,6 +5,11 @@ Release date:
 
 New features:
 
+* Reach a device's rack actions from inside its own dialog
+  - A Device menu in the button row opens Settings, Insert FX and Sends,
+    and imports or exports the device's settings
+  - Importing a file of another type hands over to that device's dialog
+
 * Add a second style for the tracker's volume meters
   - A ladder of thin lines in the accent colour, next to the original
     gradient bar, picked from Settings

@@ -368,6 +368,7 @@ void DeviceRackController::confirmImportSettings(int index, const QUrl & fileUrl
         m_editorService->setIsModified(true);
         m_revision++;
         emit revisionChanged();
+        emit deviceSettingsImported(index);
     }
 }
 

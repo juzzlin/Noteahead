@@ -150,6 +150,9 @@ signals:
     void deviceCountChanged();
     void revisionChanged();
     void importSettingsConfirmationRequested(int slotIndex, QUrl fileUrl, QString currentTypeName, QString importedTypeName, bool typeMismatch);
+    //! A device dialog open on the slot is bound to the device object that was there before the
+    //! import, which a file of a different type replaces outright, so it has to react to this.
+    void deviceSettingsImported(int slotIndex);
     void samplerDialogRequested();
     void synthDialogRequested();
     void wavetableSynthDialogRequested();

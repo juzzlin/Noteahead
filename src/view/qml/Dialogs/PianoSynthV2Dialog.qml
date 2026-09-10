@@ -42,6 +42,12 @@ AnimatedDialog {
     }
 
     footer: DialogButtonBox {
+        DeviceMenuButton {
+            controller: pianoSynthV2Controller
+            hostDialog: root
+            // Reset role: the leftmost group of the box, and like Action it leaves the dialog open
+            DialogButtonBox.buttonRole: DialogButtonBox.ResetRole
+        }
         AppButton {
             text: qsTr("Reset")
             implicitWidth: Constants.defaultButtonWidth

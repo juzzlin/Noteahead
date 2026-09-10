@@ -39,6 +39,12 @@ AnimatedDialog {
     }
 
     footer: DialogButtonBox {
+        DeviceMenuButton {
+            controller: samplerController
+            hostDialog: root
+            // Reset role: the leftmost group of the box, and like Action it leaves the dialog open
+            DialogButtonBox.buttonRole: DialogButtonBox.ResetRole
+        }
         AppButton {
             text: qsTr("Ok")
             implicitWidth: Constants.defaultButtonWidth
