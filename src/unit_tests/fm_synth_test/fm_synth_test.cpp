@@ -532,6 +532,57 @@ void FmSynthTest::test_pitchBend_shouldChangeTheOutput()
     QVERIFY(renderMono(bent, 2) != renderMono(*plain, 2));
 }
 
+void FmSynthTest::test_midiCcModWheel_atRest_shouldLeaveThePatchAlone()
+{
+    // The wheel is neutral at zero, like the Synth's: resting it must sound exactly like a patch
+    // that never saw the wheel, and only pushing it up may add modulation. The intensity knob is
+    // the bipolar one, and the wheel never touches it.
+    const auto renderWithWheel = [](int wheel) {
+        FmSynthDevice synth { "Test FM" };
+        synth.setLfoRate(0.8f);
+        synth.setLfoTarget(FmSynthDevice::LfoTarget::Pitch);
+        if (wheel >= 0) {
+            synth.processMidiCc(1, static_cast<uint8_t>(wheel), 0);
+        }
+        synth.processMidiNoteOn(NoteA4, 127);
+        return renderMono(synth, 4);
+    };
+
+    const auto untouched = renderWithWheel(-1);
+    const auto atRest = renderWithWheel(0);
+    const auto pushedUp = renderWithWheel(127);
+
+    QCOMPARE(atRest, untouched);
+    QVERIFY(pushedUp != untouched);
+}
+
+void FmSynthTest::test_midiCcModWheel_shouldNotMoveTheIntensityKnob()
+{
+    FmSynthDevice synth { "Test FM" };
+    synth.setLfoInt(0.75f);
+
+    synth.processMidiCc(1, 127, 0);
+
+    QCOMPARE(synth.lfoInt(), 0.75f);
+}
+
+void FmSynthTest::test_resetAllControllers_shouldTakeBackTheModWheel()
+{
+    const auto renderAfter = [](bool wheelThenReset) {
+        FmSynthDevice synth { "Test FM" };
+        synth.setLfoRate(0.8f);
+        synth.setLfoTarget(FmSynthDevice::LfoTarget::Pitch);
+        if (wheelThenReset) {
+            synth.processMidiCc(1, 127, 0);
+            synth.processMidiCc(121, 0, 0);
+        }
+        synth.processMidiNoteOn(NoteA4, 127);
+        return renderMono(synth, 4);
+    };
+
+    QCOMPARE(renderAfter(true), renderAfter(false));
+}
+
 void FmSynthTest::test_delay_atZeroMix_shouldLeaveNothingBehind()
 {
     // The mix defaults to zero, so a patch that says nothing about the delay stays dry -- every

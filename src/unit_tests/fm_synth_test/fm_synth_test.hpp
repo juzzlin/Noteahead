@@ -60,6 +60,10 @@ private slots:
     void test_allNotesOff_shouldReleaseEveryVoice();
     void test_polyphony_shouldPlayEveryVoice();
     void test_pitchBend_shouldChangeTheOutput();
+    void test_midiCcModWheel_atRest_shouldLeaveThePatchAlone();
+    void test_midiCcModWheel_shouldNotMoveTheIntensityKnob();
+    void test_resetAllControllers_shouldTakeBackTheModWheel();
+
     void test_delay_atZeroMix_shouldLeaveNothingBehind();
     void test_delay_shouldRepeatAfterTheNoteStops();
     void test_voiceMode_unison_shouldDetuneTheStack();
