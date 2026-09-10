@@ -5,6 +5,19 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+7.5.0
+=====
+
+Release date:
+
+Thu, 10 Sep 2026 19:16:22 +0300
+
+New features:
+
 * Reach a device's rack actions from inside its own dialog
   - A Device menu in the button row opens Settings, Insert FX and Sends,
     and imports or exports the device's settings
