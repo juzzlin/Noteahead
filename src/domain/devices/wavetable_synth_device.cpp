@@ -498,18 +498,19 @@ void WavetableSynthDevice::processDeviceMidiCc(uint8_t controller, uint8_t value
 
         if (controller == static_cast<uint8_t>(Controller::ResetAllControllers)) {
             changed |= clearAutomationInternal();
-            // The LFO intensity rides on the modulation wheel and never reaches a parameter, so it
-            // has to be put back from the one it belongs to by hand.
+            // The LFO depth rides on the modulation wheel and never reaches a parameter, so it has
+            // to be put back from the one it belongs to by hand.
             if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoIntensity().toStdString()); p) {
-                if (const auto restored = p->get().value(); std::abs(restored - m_lfoInt) > 0.0001f) {
-                    m_lfoInt = restored;
-                    m_lfoDepth = intensityToDepth(m_lfoInt);
+                if (const auto restored = intensityToDepth(p->get().value()); std::abs(restored - m_lfoDepth) > 0.0001) {
+                    m_lfoDepth = restored;
                     changed = true;
                 }
             }
         } else if (controller == 1) { // LFO intensity (temporary, not saved to param)
-            m_lfoInt = val;
-            m_lfoDepth = intensityToDepth(m_lfoInt);
+            // The wheel rests at zero and only adds modulation as it is pushed up, the way it does
+            // on the Synth: the intensity knob is the one that is bipolar. It sets the depth alone,
+            // so the knob in the dialog stays where the patch left it.
+            m_lfoDepth = static_cast<double>(val);
             changed = true;
         } else if (controller == 7) {
             changed = updateVolumeParameter(faderPositionFromMidiCc(value), false);

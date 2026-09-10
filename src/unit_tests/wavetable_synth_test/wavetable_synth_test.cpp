@@ -400,16 +400,15 @@ void WavetableSynthTest::test_lfo2Waveform_random_serialization_shouldPreserveSt
     QCOMPARE(synth2.lfo2Waveform(), Lfo::Waveform::Random);
 }
 
-void WavetableSynthTest::test_midiCcModWheel_shouldOverrideLfoIntensity()
+void WavetableSynthTest::test_midiCcModWheel_shouldNotMoveTheIntensityKnob()
 {
+    // The wheel drives the LFO depth alone: the knob keeps the value the patch gave it.
     WavetableSynthDevice synth { "Test Synth" };
-    synth.setLfoInt(0.5f); // zero intensity (midpoint)
+    synth.setLfoInt(0.75f);
 
     synth.processMidiCc(1, 127, 0);
-    QCOMPARE(synth.lfoInt(), 1.0f);
 
-    synth.processMidiCc(1, 0, 0);
-    QCOMPARE(synth.lfoInt(), 0.0f);
+    QCOMPARE(synth.lfoInt(), 0.75f);
 }
 
 static void setupBasicSynth(WavetableSynthDevice & synth)
@@ -434,6 +433,44 @@ static std::vector<double> renderBuffer(WavetableSynthDevice & synth)
     AudioContext ctx { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
     synth.processAudio(ctx);
     return buffer;
+}
+
+void WavetableSynthTest::test_midiCcModWheel_atRest_shouldLeaveThePatchAlone()
+{
+    // The wheel is neutral at zero, like the Synth's: resting it must sound exactly like a patch
+    // that never saw the wheel, and only pushing it up may add modulation.
+    const auto renderWithWheel = [](int wheel) {
+        WavetableSynthDevice synth { "Test Synth" };
+        setupBasicSynth(synth);
+        synth.setLfoTarget(WavetableSynthDevice::LfoTarget::Volume);
+        if (wheel >= 0) {
+            synth.processMidiCc(1, static_cast<uint8_t>(wheel), 0);
+        }
+        return renderBuffer(synth);
+    };
+
+    const auto untouched = renderWithWheel(-1);
+    const auto atRest = renderWithWheel(0);
+    const auto pushedUp = renderWithWheel(127);
+
+    QCOMPARE(atRest, untouched);
+    QVERIFY(pushedUp != untouched);
+}
+
+void WavetableSynthTest::test_resetAllControllers_shouldTakeBackTheModWheel()
+{
+    const auto renderAfter = [](bool wheelThenReset) {
+        WavetableSynthDevice synth { "Test Synth" };
+        setupBasicSynth(synth);
+        synth.setLfoTarget(WavetableSynthDevice::LfoTarget::Volume);
+        if (wheelThenReset) {
+            synth.processMidiCc(1, 127, 0);
+            synth.processMidiCc(121, 0, 0);
+        }
+        return renderBuffer(synth);
+    };
+
+    QCOMPARE(renderAfter(true), renderAfter(false));
 }
 
 void WavetableSynthTest::test_lfoTarget_volume_shouldModulateAmplitude()

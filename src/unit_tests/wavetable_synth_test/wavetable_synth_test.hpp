@@ -42,7 +42,9 @@ private slots:
     void test_lfoWaveform_random_serialization_shouldPreserveState();
     void test_lfo2Waveform_random_serialization_shouldPreserveState();
 
-    void test_midiCcModWheel_shouldOverrideLfoIntensity();
+    void test_midiCcModWheel_shouldNotMoveTheIntensityKnob();
+    void test_midiCcModWheel_atRest_shouldLeaveThePatchAlone();
+    void test_resetAllControllers_shouldTakeBackTheModWheel();
     void test_lfoTarget_volume_shouldModulateAmplitude();
     void test_lfoTarget_resonance_shouldModulateResonance();
     void test_lfoTarget_pan_shouldModulatePanning();
