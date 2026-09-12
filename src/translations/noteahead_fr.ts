@@ -2858,8 +2858,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Save preset...</source>
-        <translation type="unfinished"></translation>
+        <source>Save</source>
+        <translation type="unfinished">Enregistrer</translation>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
@@ -7932,8 +7932,8 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
 <context>
     <name>SynthDialog_Presets</name>
     <message>
-        <source>Save preset...</source>
-        <translation type="unfinished"></translation>
+        <source>Save</source>
+        <translation type="unfinished">Enregistrer</translation>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>

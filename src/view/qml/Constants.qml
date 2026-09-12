@@ -21,6 +21,12 @@ QtObject {
     readonly property double defaultWindowScale: 0.8
     readonly property double defaultDialogScale: 0.7
     readonly property double effectDialogScale: 0.5
+
+    // The standard size of a small dialog -- a name prompt, a confirmation. Flat rather than a
+    // fraction of the window because the height of one of these comes from its content, and a
+    // dialog that binds its width to the parent while leaving its height to the content loops on
+    // implicitHeight. Matches a small effect dialog at the smallest window the application runs at.
+    readonly property int smallDialogWidth: 512
     readonly property double largeDialogScale: 0.85
     readonly property int minWindowWidth: 1024
     readonly property int minWindowHeight: 768

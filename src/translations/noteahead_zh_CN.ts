@@ -2857,8 +2857,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Save preset...</source>
-        <translation type="unfinished"></translation>
+        <source>Save</source>
+        <translation type="unfinished">保存</translation>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
@@ -7931,8 +7931,8 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
 <context>
     <name>SynthDialog_Presets</name>
     <message>
-        <source>Save preset...</source>
-        <translation type="unfinished"></translation>
+        <source>Save</source>
+        <translation type="unfinished">保存</translation>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>

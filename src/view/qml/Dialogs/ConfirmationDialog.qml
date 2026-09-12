@@ -23,6 +23,7 @@ import "../Components"
 AnimatedDialog {
     id: root
     modal: true
+    width: Constants.smallDialogWidth
     property alias message: messageLabel.text
     property string acceptButtonText: qsTr("Ok")
     footer: DialogButtonBox {
@@ -37,19 +38,22 @@ AnimatedDialog {
             DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
         }
     }
-    RowLayout {
-        anchors.fill: parent
-        anchors.margins: 20
+    // The content item itself rather than a child filling it: a filling child contributes no
+    // implicit size, which left every confirmation collapsed to the height of its own buttons.
+    contentItem: RowLayout {
         spacing: 20
         Image {
             Layout.preferredWidth: 48
             Layout.preferredHeight: 48
+            Layout.alignment: Qt.AlignVCenter
             sourceSize: Qt.size(48, 48)
             source: "../Graphics/alert.png"
         }
         Label {
             id: messageLabel
             Layout.fillWidth: true
+            Layout.minimumHeight: 48
+            verticalAlignment: Text.AlignVCenter
             wrapMode: Text.Wrap
             color: "white"
         }

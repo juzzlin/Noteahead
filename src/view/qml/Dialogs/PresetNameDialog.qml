@@ -27,7 +27,7 @@ AnimatedDialog {
     modal: true
     standardButtons: Dialog.Ok | Dialog.Cancel
     title: "<strong>" + qsTr("Save Preset") + "</strong>"
-    width: parent ? parent.width * Constants.defaultDialogScale : 400
+    width: Constants.smallDialogWidth
 
     //! The controller that will be asked to save. Set by whoever opens the dialog.
     property var targetController: null

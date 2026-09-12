@@ -2858,8 +2858,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Save preset...</source>
-        <translation type="unfinished"></translation>
+        <source>Save</source>
+        <translation type="unfinished">Guardar</translation>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
@@ -7932,8 +7932,8 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
 <context>
     <name>SynthDialog_Presets</name>
     <message>
-        <source>Save preset...</source>
-        <translation type="unfinished"></translation>
+        <source>Save</source>
+        <translation type="unfinished">Guardar</translation>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>

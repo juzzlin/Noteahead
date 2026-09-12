@@ -46,7 +46,7 @@ RowLayout {
     }
 
     AppButton {
-        text: qsTr("Save preset...")
+        text: qsTr("Save")
         toolTipText: qsTr("Save the current settings as a preset of your own")
         implicitWidth: Constants.defaultButtonWidth
         onClicked: UiService.requestPresetName(synthController, "")
