@@ -82,6 +82,11 @@ Bug fixes:
 
 Other:
 
+* Document the Air Band EQ in the built-in manual
+  - Its knobs read out in panel units rather than decibels, and the decibels
+    they map to are asymmetric; both are now written down
+  - The effect sections of the rack chapter are in alphabetical order
+
 * The Sampler embeds its samples by default
   - A new project carries its samples, so moving or sharing it cannot leave
     the pads pointing at files that are no longer there

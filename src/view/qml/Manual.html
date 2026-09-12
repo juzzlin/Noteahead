@@ -113,6 +113,47 @@
     <li><strong>Metering & Analysis</strong>: <strong>LUFS Meter</strong> (momentary, short-term and a gated integrated reading that runs as the song plays), <strong>dBTP Meter</strong> (true peak), <strong>RTA</strong> (real-time analyzer), <strong>Stereo Field Meter</strong> (goniometer and correlation, described below) and <strong>Monitor</strong> (mono and single-channel fold-downs for checking a mix by ear, described below). Use these as inserts to watch the signal at any point in the chain.</li>
 </ul>
 
+<h3>Air Band EQ Parameters</h3>
+<p>A fixed-frequency program equalizer in the tradition of the 500-series air band units. What separates it from an ordinary EQ is the topology: the bands are not cascaded shaping filters but <em>parallel taps</em>, each fed the dry signal and summed back into a dry path that is never itself touched. Everything else about the effect follows from that one decision, the unusual ranges on its panel included.</p>
+<ul>
+    <li><strong>Band Passes</strong>: five knobs at fixed centres — <strong>Sub</strong> (10 Hz), <strong>40 Hz</strong>, <strong>160 Hz</strong>, <strong>650 Hz</strong> and <strong>2.5 kHz</strong>. The first four are bells; 2.5 kHz is a shelf. Each reads out in <strong>panel units from -5 to +5</strong> rather than in decibels, centred at 0 for flat, because the decibels they map to are not symmetrical: <strong>+5 is +15 dB, but -5 is only -4.5 dB</strong>. A tap can add without limit, yet it can never subtract more than the dry signal it was derived from, so the cut side runs out of room long before the boost side does.</li>
+    <li><strong>Bandwidth</strong>: not on the panel. The bell centres sit two octaves apart and each tap is fixed at a two-octave -3 dB bandwidth, so neighbouring bands overlap. That overlap is the point: pulling all five knobs down by the same amount lowers the whole curve without reshaping it, which is how the hardware's own documentation says to offset the gain the air band adds.</li>
+    <li><strong>Air Band Freq</strong>: the air tap's corner — <strong>Off</strong>, <strong>2.5 kHz</strong>, <strong>5 kHz</strong>, <strong>10 kHz</strong>, <strong>20 kHz</strong> or <strong>40 kHz</strong>, at 10 kHz by default. Summing a first-order tap into a dry path gives a skirt of roughly <strong>2 dB/octave</strong>, far gentler than the filter order suggests, so the corner brightens octaves below itself rather than behaving like a shelf. That is why the 40 kHz position audibly does something at an ordinary sample rate.</li>
+    <li><strong>Air Gain</strong>: how much of that tap is added, in <strong>panel units from 0 to 5</strong>, mapping to <strong>0 to +20 dB</strong>. Boost only, because the tap is only ever added: there is no cut side to it.</li>
+    <li><strong>Output</strong>: output trim, <strong>-12 to +12 dB</strong>. This one has no counterpart on the hardware, which expects the five band knobs to be pulled down by hand to offset what the air band added. That is still possible here, but tedious as the only option.</li>
+</ul>
+<p>Both channels are processed identically, as dual mono, matching the single-channel original.</p>
+
+<h3>Analog Fuzz Parameters</h3>
+<p>An analog synth's drive knob, rather than a pedal in front of one. On a monosynth the distortion is not a box ahead of the filter: it is a stage pushing the VCF itself past what it can take, and the filter that rounds the result off is the same one whose resonance is being fed by it. Analog Fuzz is built that way round, so it does two things the other saturation effects cannot.</p>
+<ul>
+    <li><strong>The resonance gives way under drive.</strong> The peak is bounded by the same ceiling the harmonics are, so pushing Drive squashes it instead of making it scream, and backing off opens it again. A distortion chained into Auto Filter keeps its peak at full height however hard the input is pushed.</li>
+    <li><strong>The harmonics come out filtered rather than laid on top</strong>, because they are generated inside the loop and pass the poles on the way round. That is what keeps it warm instead of fizzy.</li>
+</ul>
+<ul>
+    <li><strong>Drive</strong>: Level into the fuzz stage, up to 42 dB, and with it how hard the filter behind it is being run. The stage clips at -12 dBFS rather than at full scale, which is where the devices in this rack actually sit, so it is doing something well before the control is at the top. A quiet source gets louder as Drive comes up; one already into the knee only compresses further.</li>
+    <li><strong>Fuzz</strong>: The shape of the stage's knee. Down low it is a soft, valve-like curve; up high it stays linear almost to the ceiling and then breaks at once, which is the square-ish clipping a fuzz circuit does.</li>
+    <li><strong>Bias</strong>: Where on that curve the signal sits. Centred is odd harmonics and a hollow, woody tone; away from centre the even ones come up; far enough out the stage starves and gates, the way a fuzz on a dying battery does.</li>
+    <li><strong>Cutoff</strong>: Corner of the filter being overdriven, 60 Hz to 12 kHz. Two poles, 12 dB per octave, the same slope a monosynth's filter runs.</li>
+    <li><strong>Resonance</strong>: How much the corner is lifted, before the drive has its say on it.</li>
+    <li><strong>Mix</strong>: Dry/wet, for parallel fuzz.</li>
+    <li><strong>Output</strong>: Trim either side of unity.</li>
+</ul>
+<p>For a lead in the style of an analog monosynth: Drive around two thirds, Fuzz low to middling, Bias just off centre, and the Cutoff somewhere above the fundamental with the Resonance high enough to hear it sing before the Drive folds it down. The stage and the filter both run oversampled, so the harmonics fold above Nyquist and are filtered out rather than aliasing back into the band, and the DC an off-centre Bias leaves behind is blocked before it reaches the rest of the rack.</p>
+
+<h3>Auto Ducker Parameters</h3>
+<p>The Auto Ducker rides the level of the signal it sits on according to what a side chain source is doing. Point it at the kick to pump a pad, or at the lead to pull a bed out of the way. With no side chain source selected it listens to its own input.</p>
+<ul>
+    <li><strong>Threshold (dB)</strong>: The side chain level at which the ducker starts to engage (-60 to 0 dB).</li>
+    <li><strong>Amount (dB)</strong>: The gain applied once the side chain is fully above the threshold (-24 to +24 dB). Negative values duck the signal, positive values lift it.</li>
+    <li><strong>Knee (dB)</strong>: The range above the threshold over which the amount fades in (0 to 24 dB). A zero knee switches to the full amount at the threshold.</li>
+    <li><strong>Attack</strong>: How quickly the gain moves towards the amount as the side chain engages (0.1 to 500 ms).</li>
+    <li><strong>Release</strong>: How quickly the gain returns once the side chain falls back (1 to 2000 ms).</li>
+    <li><strong>Hold (ms)</strong>: Keeps the gain where it is before the release starts (0 to 500 ms), so a busy side chain does not chatter.</li>
+    <li><strong>Side Chain Source</strong>: The device the detector listens to, with an LPF for keying off the low end only.</li>
+    <li><strong>Gain Meter</strong>: Shows the gain currently applied, downwards while ducking and upwards while boosting.</li>
+</ul>
+
 <h3>Auto Filter Parameters</h3>
 <p>A filter that sweeps itself, independent of whatever made the sound. The internal devices have their own filters, but those belong to the instrument; this one sits in the rack, so anything routed through it — a sampled loop, a whole Sub Mixer, the master bus — can be swept the same way.</p>
 <ul>
@@ -125,29 +166,6 @@
     <li><strong>Gain</strong> and <strong>Mix</strong>: output trim, and the blend against the dry signal for parallel filtering.</li>
 </ul>
 
-<h3>Phaser Parameters</h3>
-<p>An all-pass section passes every frequency at full level and only shifts its phase, by an amount that depends on the frequency. Summed back with the dry signal, the frequencies that come out half a cycle late cancel and the rest do not, so a cascade of them writes a comb of notches into the spectrum. Sweeping the cascade moves the notches, and that movement is the effect: nothing is being filtered out so much as repeatedly cancelled and released.</p>
-<p>This is what separates it from the Chorus and from a flanger. A delay-based effect combs at harmonically spaced notches, hundreds of them, because the comb comes from a fixed time offset. Here each notch belongs to one pair of all-pass sections, and they are not harmonically related — which is why a phaser sounds hollow and vocal where a flanger sounds like a jet.</p>
-<ul>
-    <li><strong>Stages</strong>: 2 to 12 all-pass sections. Every pair puts one notch into the spectrum, so this is literally how many notches there are: 4 stages is the classic two-notch sweep, 12 is thick and resonant.</li>
-    <li><strong>Center</strong> and <strong>Depth</strong>: where the sweep sits, and how far either side of it the notches travel — up to three octaves at full depth.</li>
-    <li><strong>Feedback</strong>: returns the cascade's output to its input, which sharpens the peaks between the notches. Its sign matters as much as its amount: the two polarities cancel at different frequencies and voice the effect quite differently, so try both.</li>
-    <li><strong>Waveform</strong>, <strong>Mode</strong> and <strong>Rate</strong>: the sweep's LFO, with the same shapes and modes as the Synth's — free-running in Hz, locked to the tempo in <strong>Sync</strong>, or sweeping once in <strong>One-Shot</strong>.</li>
-    <li><strong>Rate Divider</strong>: divides whatever the Rate works out to, by any whole number up to 64. It applies in both modes, which is what makes the very slow sweeps a phaser is often wanted for reachable: a free-running sweep can be stretched over minutes, and a tempo-locked one over several bars, which is a division the sync slider has no name for.</li>
-    <li><strong>Stereo Phase</strong>: offsets the right channel's sweep from the left channel's. It starts at 90 degrees, the quadrature offset a stereo phaser is normally built with; 0 makes it mono and 180 opposes the channels completely.</li>
-    <li><strong>Gain</strong> and <strong>Mix</strong>: output trim, and the blend against the dry signal. The notches are deepest at 50 %, where the dry and the swept signal meet at equal amounts — turn Mix up beyond that and the cancellation gets shallower rather than stronger.</li>
-</ul>
-
-<h3>Multiband Compressor Parameters</h3>
-<p>Three compressors on one signal, each working on its own part of the spectrum. Use it where a single compressor cannot win: a loud kick pumping the whole mix down, or a harsh vocal band that needs holding while the body is left alone.</p>
-<ul>
-    <li><strong>Crossovers</strong>: two Linkwitz-Riley crossovers set where Low ends and High begins. They sum back flat, so with every band bypassed the effect is transparent.</li>
-    <li><strong>Per band</strong>: <strong>Threshold</strong>, <strong>Ratio</strong>, <strong>Knee</strong>, <strong>Attack</strong>, <strong>Release</strong> and <strong>Makeup</strong>, plus <strong>Bypass</strong> and <strong>Solo</strong> for setting a band up on its own. Each band has its own gain reduction meter.</li>
-    <li><strong>Side Chain Source</strong>: another device drives the detectors, split by the same crossovers, so the low band keys off the source's low end rather than off everything.</li>
-    <li><strong>Detector</strong> and <strong>Output</strong>: Peak or RMS detection for all three bands, and an output trim.</li>
-</ul>
-<p>There is deliberately no Mix control. The split path is phase-rotated against its own input by the crossovers, so blending it with an untouched dry signal would comb filter rather than soften the compression. Per-band makeup and the output gain cover what Mix would have been reached for.</p>
-
 <h3>Bass Grinder Parameters</h3>
 <p>A bass preamp distortion, for making a kick or a bass beefy and mean at once. The other nonlinear effects shape the full band, which is why none of them can do this: pushing one hard enough to get grind on top also shapes the fundamental, and the weight that made the sound worth distorting goes with it.</p>
 <ul>
@@ -159,38 +177,19 @@
     <li><strong>Mix</strong> and <strong>Output</strong>: the blend against the dry signal, and an output trim.</li>
 </ul>
 
-<h3>Stereo Exciter Parameters</h3>
-<p>An aural exciter, after the X32's, itself after the Aphex Aural Exciter. An equalizer can only turn up what is already there; where a recording has no top end to lift, a shelf has nothing to find. This takes the band above <strong>Tune</strong>, distorts it, and adds the harmonics that produces. Those are higher than anything in the band that made them, so the result reads as air and detail that was never in the signal.</p>
+<h3>Compressor Parameters</h3>
+<p>The Compressor is a versatile dynamic processor used to control the signal's dynamic range. It uses a high-quality feed-forward algorithm with optional lookahead.</p>
 <ul>
-    <li><strong>Tune</strong>: where the band that feeds the generator starts. <strong>Peak</strong> sharpens the corner, <strong>Zero Fill</strong> mixes in a shallower path below it so the harmonics come from a wider band.</li>
-    <li><strong>Timbre</strong>: left of centre runs odd harmonics, which read as edge and bite; right of centre runs even ones, which read as warmth. It blends rather than switches.</li>
-    <li><strong>Harmonics</strong>: how much of what is generated is added back. <strong>Mix</strong> blends the whole result against the dry signal.</li>
-    <li><strong>Solo Mode</strong>: passes only the harmonics being generated. Worth using: what an exciter adds is easy to overdo precisely because it is hard to hear underneath the signal.</li>
+    <li><strong>Threshold (dB)</strong>: The level above which compression starts to occur (-60 to 0 dB).</li>
+    <li><strong>Ratio</strong>: Determines the amount of gain reduction applied once the signal exceeds the threshold (1:1 to 20:1).</li>
+    <li><strong>Knee (dB)</strong>: Adjusts how the compressor transitions from uncompressed to compressed state (0 to 24 dB). A hard knee (0 dB) starts compressing immediately at the threshold, while a soft knee provides a smoother transition.</li>
+    <li><strong>Attack</strong>: Sets how quickly the compressor responds to signals exceeding the threshold (0.1 to 500 ms).</li>
+    <li><strong>Release</strong>: Determines how quickly the compressor returns to unity gain once the signal falls below the threshold (1 to 2000 ms).</li>
+    <li><strong>Makeup (dB)</strong>: Compensates for the level loss caused by compression (-12 to +12 dB).</li>
+    <li><strong>Lookahead (ms)</strong>: Delays the audio path slightly to allow the detector to "see" incoming peaks before they occur (0 to 10 ms), enabling more precise peak management.</li>
+    <li><strong>Detector</strong>: <strong>Peak</strong> follows the waveform itself and catches every transient; <strong>RMS</strong> averages over a short window and follows perceived loudness instead, which is gentler on material with sharp attacks.</li>
+    <li><strong>Reduction Meter</strong>: Provides real-time visual feedback of the current gain reduction in dB.</li>
 </ul>
-<p>The shaping runs oversampled, since harmonics of a band that already reaches several kilohertz would otherwise land above Nyquist and fold back down as inharmonic tones.</p>
-
-<h3>Stereo Enhancer Parameters</h3>
-<p>A "psycho EQ" rather than an equalizer, after the X32's, itself after the SPL Vitalizer. Where an equalizer boosts a band by turning it up, this one takes each band out of the signal, works on it, and adds it back.</p>
-<ul>
-    <li><strong>Bass Gain</strong> and <strong>Bass Freq</strong>: the low band is saturated as it returns, so what comes back is the <em>harmonics</em> of the low end rather than more low end. Those harmonics let a small speaker imply a fundamental it cannot reproduce, at a fraction of the headroom the fundamental would cost.</li>
-    <li><strong>Mid Gain</strong> and <strong>Mid Q</strong>: the midrange is dipped rather than lifted, because pulling the middle back is what opens up the two ends. Q sets how wide the dip is.</li>
-    <li><strong>Hi Gain</strong> and <strong>Hi Freq</strong>: the top band, added back as a band of its own.</li>
-    <li><strong>Spread</strong>: widens what is already off-centre by working on the side signal alone, so a mono source stays mono however far it is turned up.</li>
-    <li><strong>Out Gain</strong> and <strong>Mix</strong>: output trim, and the blend against the dry signal.</li>
-    <li><strong>Solo Mode</strong>: passes only what the enhancer adds, so it can be heard on its own. What a psycho EQ contributes is hard to judge underneath the signal it is contributing to.</li>
-</ul>
-
-<h3>Stereo Widener Parameters</h3>
-<p>Width, but per band. A single width control has to be set for whichever part of the spectrum matters most and is wrong everywhere else: widening that helps the top usually hurts the bottom, where the energy is and the localisation is not. Splitting the signal by two Linkwitz-Riley crossovers first is what lets the top be opened up while the bottom is left alone or pulled together.</p>
-<ul>
-    <li><strong>Low/Mid</strong> and <strong>Mid/High</strong>: where the three bands are divided.</li>
-    <li><strong>Width</strong>, per band: 0% sums the band to mono, 100% leaves it alone and 200% doubles its side signal. Width works on the side signal, so a band that arrives mono stays mono however far it is turned up.</li>
-    <li><strong>Solo</strong>, per band: hear one band on its own.</li>
-    <li><strong>Mono Bass</strong> and <strong>Mono Below</strong>: centres everything below the corner. This is a separate stage after the bands rather than one of them, so it holds whatever the low band's width control did.</li>
-    <li><strong>Output</strong>: trim, since widening changes the peak level.</li>
-    <li><strong>Correlation</strong>, per band: what the width control actually did. 1 is mono, 0 is fully decorrelated, and anything sustained below 0 will cancel when the mix is summed to mono.</li>
-</ul>
-<p>There is deliberately no Mix control: the split path is phase-rotated against its own input by the crossovers, so blending it with an untouched dry signal would comb filter rather than soften the widening.</p>
 
 <h3>Dimension Parameters</h3>
 <p>Makes width where there is none. A width control can only spread what is already off-centre, so given a mono synth or a close-miked part it does nothing. This takes the centre of the mix itself, detunes one copy a few cents up and another the same few cents down, and adds the difference between them as side.</p>
@@ -202,26 +201,18 @@
 </ul>
 <p>Working on the <em>difference</em> between the two copies is what makes this free: they appear in the side signal with opposite signs and nowhere else, so summing the output back to mono returns exactly the centre that came in. No setting of any control here can cost a mono listener anything, which is the opposite of how width is usually bought.</p>
 
-<h3>Song Overview</h3>
-<p>A map of the project's signal flow, from <strong>Song &gt; Overview</strong>. Every populated device slot is drawn with its insert chain, its sends, and where it goes: straight to the master, or through the Sub Mixer that claimed it.</p>
-<p>The point of it is that the chain is drawn <em>as the engine runs it</em>, and that order is not fixed. A device's <strong>Fader Position</strong> decides whether the fader comes before or after its insert rack, so a map that drew one order for everything would misreport half the setting it exists to show. Two things worth knowing, both visible here and hard to see anywhere else:</p>
+<h3>Early Reflections Parameters</h3>
+<p>Puts a sound in a room without putting a tail on it. Depth and width are separate axes and a reverb only really addresses one of them: what tells the ear how far away something is is not how long the tail is but what arrives in the first eighty milliseconds. A long tail turned down low is a poor substitute, because it fills the gaps between notes rather than placing the notes themselves -- which is why more reverb so often buys atmosphere without buying distance.</p>
 <ul>
-    <li><strong>"Pre-fader" means different things depending on where the fader is.</strong> The send is captured immediately before the fader either way — but with the fader ahead of the inserts, a pre-fader send has not been through them, and with the fader behind them, it has. Same setting, different signal.</li>
-    <li><strong>A Sub Mixer member keeps its sends.</strong> Its own path to the master is switched off, because it is heard through the group instead, but a send bus is a parallel tap: nothing is counted twice, and the device keeps whatever amount it was given.</li>
+    <li><strong>Size</strong>: how far the reflection pattern is spread, from a small room to a hall.</li>
+    <li><strong>Pre-Delay</strong>: how long the first reflection is held off. This is what separates a source from the room it is in; without it the two arrive together and the source sounds glued to the wall.</li>
+    <li><strong>Damping</strong>: absorption, applied per reflection rather than to their sum. A reflection arriving late has bounced off more surfaces and pushed through more air, so it comes back darker -- losing the top with distance is one of the cues the effect exists to provide.</li>
+    <li><strong>Diffusion</strong>: scatters the reflections into a continuous cloud. Sixteen discrete arrivals is a fraction of what a room returns, and too sparse to hear as a space rather than as an effect.</li>
+    <li><strong>Width</strong>: how far the pattern is spread across the stereo field. The two channels are given different arrival times to begin with, so the pattern carries an image of its own.</li>
+    <li><strong>Low Cut</strong>: keeps the reflections out of the bottom, where they only muddy what is already there.</li>
+    <li><strong>Mix</strong> and <strong>Solo</strong>: the blend against the dry signal, and hearing the room without the source that caused it. On a send bus, set Mix to 100%: the send already returns only what the effect added, so Mix acts as the return level there.</li>
 </ul>
-<p>The level meter's tap is drawn where it really is, post-gain and pre-insert, which is why it does not move when the fader does. Clicking a box opens that device's own editor.</p>
-
-<h3>Stereo Field Meter</h3>
-<p>A passthrough meter for everything about a mix that a level meter cannot show: how wide it is, how much of it survives a fold-down to mono, and where in the spectrum the width actually lives. Width is routinely set by ear alone, and the ear is the wrong instrument for it -- what collapses in mono is whatever is out of phase between the channels, and nothing about that is audible until it is gone.</p>
-<ul>
-    <li><strong>Goniometer</strong>: the field itself, rotated so a pair in phase runs straight up. The wedges either side of the horizontal axis are where material approaching pure side ends up, which is what cancels in mono.</li>
-    <li><strong>Correlation</strong>: 1 is mono, 0 is fully decorrelated, below 0 cancels when summed. Named in a word above the readings: Mono, Narrow, Medium, Wide, Very Wide or Phase Risk.</li>
-    <li><strong>Low</strong>, <strong>Mid</strong> and <strong>High</strong>: the same reading per band, since a mix is usually only in trouble at one end of the spectrum -- most often the bottom, where width costs the most and buys the least.</li>
-    <li><strong>Mid</strong> and <strong>Side</strong> levels: how much of the signal is actually off-centre, which is what decides whether width is worth spending headroom on at all.</li>
-    <li><strong>Speed</strong>: how long the readings average over. Fast follows a phrase, Slow follows a mix.</li>
-    <li><strong>Zoom</strong> and <strong>Guides</strong>: scale of the trace, and whether the axes, amplitude rings and scales are drawn.</li>
-</ul>
-<p>Analysis is gated on the dialog being open, so a meter left in a rack costs nothing.</p>
+<p>Use it on a send, with the send amount as the distance control: more send is further back. One instance shared by everything is what sells the illusion, since a coherent room is a single room.</p>
 
 <h3>Gain Parameters</h3>
 <p>A level trim and nothing else. Every other way of changing level in the rack also changes the sound -- a limiter is dynamics, a drive or a saturator is distortion -- so this is the one to reach for when the only thing wanted is more or less of it: staging the sum into the master chain, or matching two devices before they hit a bus compressor.</p>
@@ -243,16 +234,85 @@
 <p>There is no Mix and no output trim on purpose: half of a mono check is not a thing worth hearing, and a control that could scale the comparison would make it a worse reference.</p>
 <p>Monitoring only: whatever mode is selected is left out of an audio render, so a check left on Mono cannot print into an exported file.</p>
 
-<h3>Wave Designer Parameters</h3>
-<p>A transient shaper: <strong>Attack</strong> for the leading edge of a hit, <strong>Sustain</strong> for the tail behind it. Use it to make a snare crack, to tame an over-eager kick, or to shorten a room tail without a gate.</p>
-<p>It is not a compressor. Each control runs two envelope followers over the signal and acts on the difference between them, and that difference only departs from zero while the signal is <em>changing</em>. A hit is therefore shaped by how sharply it rises and how long it takes to fall, never by how loud it is: the same setting works at any level, and a held note comes out untouched.</p>
+<h3>Multiband Compressor Parameters</h3>
+<p>Three compressors on one signal, each working on its own part of the spectrum. Use it where a single compressor cannot win: a loud kick pumping the whole mix down, or a harsh vocal band that needs holding while the body is left alone.</p>
 <ul>
-    <li><strong>Attack</strong>: positive adds punch to the leading edge, negative tames it. Full range is 15 dB either way.</li>
-    <li><strong>Sustain</strong>: positive holds the tail up, like a compressor letting peaks carry longer; negative shortens it for a more staccato sound.</li>
-    <li><strong>Gain</strong>: output trim, +/-24 dB, to compensate for the level the shaping adds or removes.</li>
-    <li><strong>Mix</strong>: blends the shaped signal against the dry one, for parallel transient shaping.</li>
+    <li><strong>Crossovers</strong>: two Linkwitz-Riley crossovers set where Low ends and High begins. They sum back flat, so with every band bypassed the effect is transparent.</li>
+    <li><strong>Per band</strong>: <strong>Threshold</strong>, <strong>Ratio</strong>, <strong>Knee</strong>, <strong>Attack</strong>, <strong>Release</strong> and <strong>Makeup</strong>, plus <strong>Bypass</strong> and <strong>Solo</strong> for setting a band up on its own. Each band has its own gain reduction meter.</li>
+    <li><strong>Side Chain Source</strong>: another device drives the detectors, split by the same crossovers, so the low band keys off the source's low end rather than off everything.</li>
+    <li><strong>Detector</strong> and <strong>Output</strong>: Peak or RMS detection for all three bands, and an output trim.</li>
 </ul>
-<p>The meter shows the gain being applied at any moment, growing upwards when the shaper lifts and downwards when it tames.</p>
+<p>There is deliberately no Mix control. The split path is phase-rotated against its own input by the crossovers, so blending it with an untouched dry signal would comb filter rather than soften the compression. Per-band makeup and the output gain cover what Mix would have been reached for.</p>
+
+<h3>Phaser Parameters</h3>
+<p>An all-pass section passes every frequency at full level and only shifts its phase, by an amount that depends on the frequency. Summed back with the dry signal, the frequencies that come out half a cycle late cancel and the rest do not, so a cascade of them writes a comb of notches into the spectrum. Sweeping the cascade moves the notches, and that movement is the effect: nothing is being filtered out so much as repeatedly cancelled and released.</p>
+<p>This is what separates it from the Chorus and from a flanger. A delay-based effect combs at harmonically spaced notches, hundreds of them, because the comb comes from a fixed time offset. Here each notch belongs to one pair of all-pass sections, and they are not harmonically related — which is why a phaser sounds hollow and vocal where a flanger sounds like a jet.</p>
+<ul>
+    <li><strong>Stages</strong>: 2 to 12 all-pass sections. Every pair puts one notch into the spectrum, so this is literally how many notches there are: 4 stages is the classic two-notch sweep, 12 is thick and resonant.</li>
+    <li><strong>Center</strong> and <strong>Depth</strong>: where the sweep sits, and how far either side of it the notches travel — up to three octaves at full depth.</li>
+    <li><strong>Feedback</strong>: returns the cascade's output to its input, which sharpens the peaks between the notches. Its sign matters as much as its amount: the two polarities cancel at different frequencies and voice the effect quite differently, so try both.</li>
+    <li><strong>Waveform</strong>, <strong>Mode</strong> and <strong>Rate</strong>: the sweep's LFO, with the same shapes and modes as the Synth's — free-running in Hz, locked to the tempo in <strong>Sync</strong>, or sweeping once in <strong>One-Shot</strong>.</li>
+    <li><strong>Rate Divider</strong>: divides whatever the Rate works out to, by any whole number up to 64. It applies in both modes, which is what makes the very slow sweeps a phaser is often wanted for reachable: a free-running sweep can be stretched over minutes, and a tempo-locked one over several bars, which is a division the sync slider has no name for.</li>
+    <li><strong>Stereo Phase</strong>: offsets the right channel's sweep from the left channel's. It starts at 90 degrees, the quadrature offset a stereo phaser is normally built with; 0 makes it mono and 180 opposes the channels completely.</li>
+    <li><strong>Gain</strong> and <strong>Mix</strong>: output trim, and the blend against the dry signal. The notches are deepest at 50 %, where the dry and the swept signal meet at equal amounts — turn Mix up beyond that and the cancellation gets shallower rather than stronger.</li>
+</ul>
+
+<h3>Reverb Parameters</h3>
+<p>Noteahead features a studio-quality <strong>Feedback Delay Network (FDN)</strong> reverb, designed for lush tails and natural-sounding high-frequency absorption.</p>
+<ul>
+    <li><strong>Preset Selection</strong>: Choose from 8 professional presets (e.g., Hall, Cathedral, Plate) using the ComboBox at the top. This will automatically adjust all parameters for the selected acoustic space.</li>
+    <li><strong>Size</strong>: Controls the overall dimensions of the simulated room. Larger sizes result in more complex reflections.</li>
+    <li><strong>Decay (ms)</strong>: The time it takes for the reverb tail to fade away (0 to 10,000 ms).</li>
+    <li><strong>Damping</strong>: Controls high-frequency absorption. Higher values result in a darker, warmer reverb sound as reflections lose high-frequency energy more quickly.</li>
+    <li><strong>Pre-Delay (ms)</strong>: The time gap between the dry signal and the start of the reverb (0 to 500 ms). This helps maintain clarity by separating the direct sound from the reverberation.</li>
+    <li><strong>Width</strong>: Adjusts the stereo spread of the reverb output. 100% is standard stereo, while higher values expand the side signal for an ultra-wide effect.</li>
+    <li><strong>Mix</strong>: Controls the wet/dry balance of the effect within its dedicated send bus.</li>
+</ul>
+
+<h3>Stereo Enhancer Parameters</h3>
+<p>A "psycho EQ" rather than an equalizer, after the X32's, itself after the SPL Vitalizer. Where an equalizer boosts a band by turning it up, this one takes each band out of the signal, works on it, and adds it back.</p>
+<ul>
+    <li><strong>Bass Gain</strong> and <strong>Bass Freq</strong>: the low band is saturated as it returns, so what comes back is the <em>harmonics</em> of the low end rather than more low end. Those harmonics let a small speaker imply a fundamental it cannot reproduce, at a fraction of the headroom the fundamental would cost.</li>
+    <li><strong>Mid Gain</strong> and <strong>Mid Q</strong>: the midrange is dipped rather than lifted, because pulling the middle back is what opens up the two ends. Q sets how wide the dip is.</li>
+    <li><strong>Hi Gain</strong> and <strong>Hi Freq</strong>: the top band, added back as a band of its own.</li>
+    <li><strong>Spread</strong>: widens what is already off-centre by working on the side signal alone, so a mono source stays mono however far it is turned up.</li>
+    <li><strong>Out Gain</strong> and <strong>Mix</strong>: output trim, and the blend against the dry signal.</li>
+    <li><strong>Solo Mode</strong>: passes only what the enhancer adds, so it can be heard on its own. What a psycho EQ contributes is hard to judge underneath the signal it is contributing to.</li>
+</ul>
+
+<h3>Stereo Exciter Parameters</h3>
+<p>An aural exciter, after the X32's, itself after the Aphex Aural Exciter. An equalizer can only turn up what is already there; where a recording has no top end to lift, a shelf has nothing to find. This takes the band above <strong>Tune</strong>, distorts it, and adds the harmonics that produces. Those are higher than anything in the band that made them, so the result reads as air and detail that was never in the signal.</p>
+<ul>
+    <li><strong>Tune</strong>: where the band that feeds the generator starts. <strong>Peak</strong> sharpens the corner, <strong>Zero Fill</strong> mixes in a shallower path below it so the harmonics come from a wider band.</li>
+    <li><strong>Timbre</strong>: left of centre runs odd harmonics, which read as edge and bite; right of centre runs even ones, which read as warmth. It blends rather than switches.</li>
+    <li><strong>Harmonics</strong>: how much of what is generated is added back. <strong>Mix</strong> blends the whole result against the dry signal.</li>
+    <li><strong>Solo Mode</strong>: passes only the harmonics being generated. Worth using: what an exciter adds is easy to overdo precisely because it is hard to hear underneath the signal.</li>
+</ul>
+<p>The shaping runs oversampled, since harmonics of a band that already reaches several kilohertz would otherwise land above Nyquist and fold back down as inharmonic tones.</p>
+
+<h3>Stereo Field Meter</h3>
+<p>A passthrough meter for everything about a mix that a level meter cannot show: how wide it is, how much of it survives a fold-down to mono, and where in the spectrum the width actually lives. Width is routinely set by ear alone, and the ear is the wrong instrument for it -- what collapses in mono is whatever is out of phase between the channels, and nothing about that is audible until it is gone.</p>
+<ul>
+    <li><strong>Goniometer</strong>: the field itself, rotated so a pair in phase runs straight up. The wedges either side of the horizontal axis are where material approaching pure side ends up, which is what cancels in mono.</li>
+    <li><strong>Correlation</strong>: 1 is mono, 0 is fully decorrelated, below 0 cancels when summed. Named in a word above the readings: Mono, Narrow, Medium, Wide, Very Wide or Phase Risk.</li>
+    <li><strong>Low</strong>, <strong>Mid</strong> and <strong>High</strong>: the same reading per band, since a mix is usually only in trouble at one end of the spectrum -- most often the bottom, where width costs the most and buys the least.</li>
+    <li><strong>Mid</strong> and <strong>Side</strong> levels: how much of the signal is actually off-centre, which is what decides whether width is worth spending headroom on at all.</li>
+    <li><strong>Speed</strong>: how long the readings average over. Fast follows a phrase, Slow follows a mix.</li>
+    <li><strong>Zoom</strong> and <strong>Guides</strong>: scale of the trace, and whether the axes, amplitude rings and scales are drawn.</li>
+</ul>
+<p>Analysis is gated on the dialog being open, so a meter left in a rack costs nothing.</p>
+
+<h3>Stereo Widener Parameters</h3>
+<p>Width, but per band. A single width control has to be set for whichever part of the spectrum matters most and is wrong everywhere else: widening that helps the top usually hurts the bottom, where the energy is and the localisation is not. Splitting the signal by two Linkwitz-Riley crossovers first is what lets the top be opened up while the bottom is left alone or pulled together.</p>
+<ul>
+    <li><strong>Low/Mid</strong> and <strong>Mid/High</strong>: where the three bands are divided.</li>
+    <li><strong>Width</strong>, per band: 0% sums the band to mono, 100% leaves it alone and 200% doubles its side signal. Width works on the side signal, so a band that arrives mono stays mono however far it is turned up.</li>
+    <li><strong>Solo</strong>, per band: hear one band on its own.</li>
+    <li><strong>Mono Bass</strong> and <strong>Mono Below</strong>: centres everything below the corner. This is a separate stage after the bands rather than one of them, so it holds whatever the low band's width control did.</li>
+    <li><strong>Output</strong>: trim, since widening changes the peak level.</li>
+    <li><strong>Correlation</strong>, per band: what the width control actually did. 1 is mono, 0 is fully decorrelated, and anything sustained below 0 will cancel when the mix is summed to mono.</li>
+</ul>
+<p>There is deliberately no Mix control: the split path is phase-rotated against its own input by the crossovers, so blending it with an untouched dry signal would comb filter rather than soften the widening.</p>
 
 <h3>Tube Stage Parameters</h3>
 <p>A valve preamp stage, for warming a signal the way a console's tube channel does. It differs from the Saturator's Tube mode in where the valve <em>sits</em> on its curve rather than in the curve itself.</p>
@@ -267,6 +327,26 @@
 </ul>
 <p>The shaping runs oversampled, so the harmonics it generates fold above Nyquist and are filtered out rather than aliasing back down into the audible band, and the DC offset an asymmetric curve leaves behind is blocked before it reaches the rest of the rack.</p>
 
+<h3>Wave Designer Parameters</h3>
+<p>A transient shaper: <strong>Attack</strong> for the leading edge of a hit, <strong>Sustain</strong> for the tail behind it. Use it to make a snare crack, to tame an over-eager kick, or to shorten a room tail without a gate.</p>
+<p>It is not a compressor. Each control runs two envelope followers over the signal and acts on the difference between them, and that difference only departs from zero while the signal is <em>changing</em>. A hit is therefore shaped by how sharply it rises and how long it takes to fall, never by how loud it is: the same setting works at any level, and a held note comes out untouched.</p>
+<ul>
+    <li><strong>Attack</strong>: positive adds punch to the leading edge, negative tames it. Full range is 15 dB either way.</li>
+    <li><strong>Sustain</strong>: positive holds the tail up, like a compressor letting peaks carry longer; negative shortens it for a more staccato sound.</li>
+    <li><strong>Gain</strong>: output trim, +/-24 dB, to compensate for the level the shaping adds or removes.</li>
+    <li><strong>Mix</strong>: blends the shaped signal against the dry one, for parallel transient shaping.</li>
+</ul>
+<p>The meter shows the gain being applied at any moment, growing upwards when the shaper lifts and downwards when it tames.</p>
+
+<h3>Song Overview</h3>
+<p>A map of the project's signal flow, from <strong>Song &gt; Overview</strong>. Every populated device slot is drawn with its insert chain, its sends, and where it goes: straight to the master, or through the Sub Mixer that claimed it.</p>
+<p>The point of it is that the chain is drawn <em>as the engine runs it</em>, and that order is not fixed. A device's <strong>Fader Position</strong> decides whether the fader comes before or after its insert rack, so a map that drew one order for everything would misreport half the setting it exists to show. Two things worth knowing, both visible here and hard to see anywhere else:</p>
+<ul>
+    <li><strong>"Pre-fader" means different things depending on where the fader is.</strong> The send is captured immediately before the fader either way — but with the fader ahead of the inserts, a pre-fader send has not been through them, and with the fader behind them, it has. Same setting, different signal.</li>
+    <li><strong>A Sub Mixer member keeps its sends.</strong> Its own path to the master is switched off, because it is heard through the group instead, but a send bus is a parallel tap: nothing is counted twice, and the device keeps whatever amount it was given.</li>
+</ul>
+<p>The level meter's tap is drawn where it really is, post-gain and pre-insert, which is why it does not move when the fader does. Clicking a box opens that device's own editor.</p>
+
 <h3>Oscillator Roundness</h3>
 <p>A pulse leaves an analog oscillator through a stage of finite bandwidth, so its edges take a fixed time to cross from one rail to the other however high the note is. That is why a low square looks square on a scope and a high one looks trapezoidal, and it is a large part of why an analog square sounds warmer than a drawn one. <strong>Roundness</strong>, next to Shape in each VCO, sets that time.</p>
 <ul>
@@ -275,75 +355,6 @@
     <li><strong>1</strong>: about 167 microseconds -- a quarter of a cycle at 1.8 kHz, so a decidedly soft pulse up high while a bass note still looks square.</li>
 </ul>
 <p>Only the pulse has edges to round. A saw's ramp is the waveform itself, and rolling its top off would be an equalizer rather than a character control, so the saw is left alone.</p>
-
-<h3>Analog Fuzz Parameters</h3>
-<p>An analog synth's drive knob, rather than a pedal in front of one. On a monosynth the distortion is not a box ahead of the filter: it is a stage pushing the VCF itself past what it can take, and the filter that rounds the result off is the same one whose resonance is being fed by it. Analog Fuzz is built that way round, so it does two things the other saturation effects cannot.</p>
-<ul>
-    <li><strong>The resonance gives way under drive.</strong> The peak is bounded by the same ceiling the harmonics are, so pushing Drive squashes it instead of making it scream, and backing off opens it again. A distortion chained into Auto Filter keeps its peak at full height however hard the input is pushed.</li>
-    <li><strong>The harmonics come out filtered rather than laid on top</strong>, because they are generated inside the loop and pass the poles on the way round. That is what keeps it warm instead of fizzy.</li>
-</ul>
-<ul>
-    <li><strong>Drive</strong>: Level into the fuzz stage, up to 42 dB, and with it how hard the filter behind it is being run. The stage clips at -12 dBFS rather than at full scale, which is where the devices in this rack actually sit, so it is doing something well before the control is at the top. A quiet source gets louder as Drive comes up; one already into the knee only compresses further.</li>
-    <li><strong>Fuzz</strong>: The shape of the stage's knee. Down low it is a soft, valve-like curve; up high it stays linear almost to the ceiling and then breaks at once, which is the square-ish clipping a fuzz circuit does.</li>
-    <li><strong>Bias</strong>: Where on that curve the signal sits. Centred is odd harmonics and a hollow, woody tone; away from centre the even ones come up; far enough out the stage starves and gates, the way a fuzz on a dying battery does.</li>
-    <li><strong>Cutoff</strong>: Corner of the filter being overdriven, 60 Hz to 12 kHz. Two poles, 12 dB per octave, the same slope a monosynth's filter runs.</li>
-    <li><strong>Resonance</strong>: How much the corner is lifted, before the drive has its say on it.</li>
-    <li><strong>Mix</strong>: Dry/wet, for parallel fuzz.</li>
-    <li><strong>Output</strong>: Trim either side of unity.</li>
-</ul>
-<p>For a lead in the style of an analog monosynth: Drive around two thirds, Fuzz low to middling, Bias just off centre, and the Cutoff somewhere above the fundamental with the Resonance high enough to hear it sing before the Drive folds it down. The stage and the filter both run oversampled, so the harmonics fold above Nyquist and are filtered out rather than aliasing back into the band, and the DC an off-centre Bias leaves behind is blocked before it reaches the rest of the rack.</p>
-
-<h3>Reverb Parameters</h3>
-<p>Noteahead features a studio-quality <strong>Feedback Delay Network (FDN)</strong> reverb, designed for lush tails and natural-sounding high-frequency absorption.</p>
-<ul>
-    <li><strong>Preset Selection</strong>: Choose from 8 professional presets (e.g., Hall, Cathedral, Plate) using the ComboBox at the top. This will automatically adjust all parameters for the selected acoustic space.</li>
-    <li><strong>Size</strong>: Controls the overall dimensions of the simulated room. Larger sizes result in more complex reflections.</li>
-    <li><strong>Decay (ms)</strong>: The time it takes for the reverb tail to fade away (0 to 10,000 ms).</li>
-    <li><strong>Damping</strong>: Controls high-frequency absorption. Higher values result in a darker, warmer reverb sound as reflections lose high-frequency energy more quickly.</li>
-    <li><strong>Pre-Delay (ms)</strong>: The time gap between the dry signal and the start of the reverb (0 to 500 ms). This helps maintain clarity by separating the direct sound from the reverberation.</li>
-    <li><strong>Width</strong>: Adjusts the stereo spread of the reverb output. 100% is standard stereo, while higher values expand the side signal for an ultra-wide effect.</li>
-    <li><strong>Mix</strong>: Controls the wet/dry balance of the effect within its dedicated send bus.</li>
-</ul>
-
-<h3>Early Reflections Parameters</h3>
-<p>Puts a sound in a room without putting a tail on it. Depth and width are separate axes and a reverb only really addresses one of them: what tells the ear how far away something is is not how long the tail is but what arrives in the first eighty milliseconds. A long tail turned down low is a poor substitute, because it fills the gaps between notes rather than placing the notes themselves -- which is why more reverb so often buys atmosphere without buying distance.</p>
-<ul>
-    <li><strong>Size</strong>: how far the reflection pattern is spread, from a small room to a hall.</li>
-    <li><strong>Pre-Delay</strong>: how long the first reflection is held off. This is what separates a source from the room it is in; without it the two arrive together and the source sounds glued to the wall.</li>
-    <li><strong>Damping</strong>: absorption, applied per reflection rather than to their sum. A reflection arriving late has bounced off more surfaces and pushed through more air, so it comes back darker -- losing the top with distance is one of the cues the effect exists to provide.</li>
-    <li><strong>Diffusion</strong>: scatters the reflections into a continuous cloud. Sixteen discrete arrivals is a fraction of what a room returns, and too sparse to hear as a space rather than as an effect.</li>
-    <li><strong>Width</strong>: how far the pattern is spread across the stereo field. The two channels are given different arrival times to begin with, so the pattern carries an image of its own.</li>
-    <li><strong>Low Cut</strong>: keeps the reflections out of the bottom, where they only muddy what is already there.</li>
-    <li><strong>Mix</strong> and <strong>Solo</strong>: the blend against the dry signal, and hearing the room without the source that caused it. On a send bus, set Mix to 100%: the send already returns only what the effect added, so Mix acts as the return level there.</li>
-</ul>
-<p>Use it on a send, with the send amount as the distance control: more send is further back. One instance shared by everything is what sells the illusion, since a coherent room is a single room.</p>
-
-<h3>Compressor Parameters</h3>
-<p>The Compressor is a versatile dynamic processor used to control the signal's dynamic range. It uses a high-quality feed-forward algorithm with optional lookahead.</p>
-<ul>
-    <li><strong>Threshold (dB)</strong>: The level above which compression starts to occur (-60 to 0 dB).</li>
-    <li><strong>Ratio</strong>: Determines the amount of gain reduction applied once the signal exceeds the threshold (1:1 to 20:1).</li>
-    <li><strong>Knee (dB)</strong>: Adjusts how the compressor transitions from uncompressed to compressed state (0 to 24 dB). A hard knee (0 dB) starts compressing immediately at the threshold, while a soft knee provides a smoother transition.</li>
-    <li><strong>Attack</strong>: Sets how quickly the compressor responds to signals exceeding the threshold (0.1 to 500 ms).</li>
-    <li><strong>Release</strong>: Determines how quickly the compressor returns to unity gain once the signal falls below the threshold (1 to 2000 ms).</li>
-    <li><strong>Makeup (dB)</strong>: Compensates for the level loss caused by compression (-12 to +12 dB).</li>
-    <li><strong>Lookahead (ms)</strong>: Delays the audio path slightly to allow the detector to "see" incoming peaks before they occur (0 to 10 ms), enabling more precise peak management.</li>
-    <li><strong>Detector</strong>: <strong>Peak</strong> follows the waveform itself and catches every transient; <strong>RMS</strong> averages over a short window and follows perceived loudness instead, which is gentler on material with sharp attacks.</li>
-    <li><strong>Reduction Meter</strong>: Provides real-time visual feedback of the current gain reduction in dB.</li>
-</ul>
-
-<h3>Auto Ducker Parameters</h3>
-<p>The Auto Ducker rides the level of the signal it sits on according to what a side chain source is doing. Point it at the kick to pump a pad, or at the lead to pull a bed out of the way. With no side chain source selected it listens to its own input.</p>
-<ul>
-    <li><strong>Threshold (dB)</strong>: The side chain level at which the ducker starts to engage (-60 to 0 dB).</li>
-    <li><strong>Amount (dB)</strong>: The gain applied once the side chain is fully above the threshold (-24 to +24 dB). Negative values duck the signal, positive values lift it.</li>
-    <li><strong>Knee (dB)</strong>: The range above the threshold over which the amount fades in (0 to 24 dB). A zero knee switches to the full amount at the threshold.</li>
-    <li><strong>Attack</strong>: How quickly the gain moves towards the amount as the side chain engages (0.1 to 500 ms).</li>
-    <li><strong>Release</strong>: How quickly the gain returns once the side chain falls back (1 to 2000 ms).</li>
-    <li><strong>Hold (ms)</strong>: Keeps the gain where it is before the release starts (0 to 500 ms), so a busy side chain does not chatter.</li>
-    <li><strong>Side Chain Source</strong>: The device the detector listens to, with an LPF for keying off the low end only.</li>
-    <li><strong>Gain Meter</strong>: Shows the gain currently applied, downwards while ducking and upwards while boosting.</li>
-</ul>
 
 <h3>Send Routing</h3>
 <p>Instead of having fixed effect chains, Noteahead uses a flexible <strong>Send Bus</strong> architecture. This allows you to route varying amounts of each instrument's signal to any of the master effects.</p>
