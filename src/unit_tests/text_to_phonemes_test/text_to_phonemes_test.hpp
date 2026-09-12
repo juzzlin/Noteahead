@@ -51,6 +51,11 @@ private slots:
     void test_textToPhonemes_sentenceInitialA_beforeAnotherLetter_shouldBeSpelled();
     void test_textToPhonemes_letterNames_shouldNamePhonemesTheVoiceKnows();
 
+    void test_textToPhonemes_numbers_shouldReadCorrectly_data();
+    void test_textToPhonemes_numbers_shouldReadCorrectly();
+    void test_textToPhonemes_eroEnding_shouldNotClaimALongerWord_data();
+    void test_textToPhonemes_eroEnding_shouldNotClaimALongerWord();
+
     void test_textToPhonemes_affricates_shouldExpandToAStopAndAFricative();
 
     void test_textToPhonemes_doubledConsonant_shouldBeSpokenOnce_data();

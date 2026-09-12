@@ -482,6 +482,9 @@ constexpr LetterRule Rules[] {
     { "", "ERI", "#", "IY R IY" },
     { "", "ERI", "", "EH R IH" },
     { "#:", "ER", "#", "ER" },
+    // "zero" and "hero" say /ɪ/ where the rule below says /ɛ/. Word-final "-ero" is what tells them
+    // apart from "ferocious", whose O carries on into another syllable and which does say /ɛ/.
+    { "", "ER", "O ", "IH R" },
     { "", "ER", "#", "EH R" },
     { "", "ER", "", "ER" },
     { " ", "EVEN", "", "IY V EH N" },
@@ -523,6 +526,9 @@ constexpr LetterRule Rules[] {
     { "#", "GH", "", "" },
     { "", "G", "", "G" },
 
+    // Word-final "-RED" drops its vowel, which left the singular as "hundrd". The plural already
+    // reads correctly, so only the end of a word is claimed here.
+    { " ", "HUNDRED", " ", "HH AH N D R AX D" },
     { " ", "HAV", "", "HH AE V" },
     { " ", "HERE", "", "HH IY R" },
     { " ", "HOUR", "", "AW ER" },
@@ -581,6 +587,9 @@ constexpr LetterRule Rules[] {
     { "", "NG", "", "NG" },
     { "", "NK", "", "NG K" },
     { " ", "NOW", " ", "N AW" },
+    // "nine" is read correctly on its own and not once anything follows it: "nineteen" came out
+    // "nin-ee-teen" and "ninety" "nin-uh-ty". Claimed as a stem, so both are carried.
+    { " ", "NINE", "", "N AY N" },
     { "", "N", "", "N" },
 
     { "", "OF", " ", "AH V" },
@@ -588,6 +597,9 @@ constexpr LetterRule Rules[] {
     { "#:", "OR", " ", "ER" },
     { "#:", "ORS", " ", "ER Z" },
     { "", "OR", "", "AO R" },
+    // The digit nought is said "oh" when a number is read out a figure at a time, which is most
+    // of what this device is asked to do with numbers. Bounded both sides so "Ohio" is untouched.
+    { " ", "OH", " ", "OW" },
     { " ", "ONE", "", "W AH N" },
     { "", "OW", "", "OW" },
     { " ", "OVER", "", "OW V ER" },
@@ -646,6 +658,10 @@ constexpr LetterRule Rules[] {
     { "", "R", "", "R" },
 
     { "", "SH", "", "SH" },
+    // Spelled out because the E rules read the E of "-EN" as a suffix E and say /iː/, which made
+    // "seven" into "see-vun". Written as a stem rather than a whole word so that "seventeen" and
+    // "seventy" are carried with it.
+    { "", "SEVEN", "", "S EH V AX N" },
     { "#", "SION", "", "ZH AH N" },
     { "", "SOME", "", "S AH M" },
     { "#", "SUR", "#", "ZH ER" },
