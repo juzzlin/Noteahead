@@ -50,6 +50,8 @@ private slots:
     void test_sequencer_setCursor_shouldPlaceTheNextTrigger();
     void test_sequencer_lineMode_heldNote_shouldNotSustain();
 
+    void test_device_utteranceEnd_shouldNotCollapseToSilence_data();
+    void test_device_utteranceEnd_shouldNotCollapseToSilence();
     void test_device_noteOn_shouldProduceAudio();
     void test_device_loudness_shouldMatchTheRestOfTheRack();
     void test_device_velocitySensitivity_shouldScaleTheLevel_data();

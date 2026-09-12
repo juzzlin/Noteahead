@@ -554,7 +554,6 @@ void SpeechDevice::processAudio(AudioContext & context)
     for (uint32_t i = 0; i < context.frameCount; i++) {
         const auto * spec = m_sequencer.phoneme();
 
-        double sample = 0.0;
         if (spec) {
             m_voice.setPhoneme(*spec, m_sequencer.nextPhoneme(), m_sequencer.phonemeSeconds());
             m_voice.setPhonemeProgress(m_sequencer.progress());
@@ -566,15 +565,25 @@ void SpeechDevice::processAudio(AudioContext & context)
 
             const double vibrato = m_vibrato.nextSample() * static_cast<double>(m_vibratoDepth) * VibratoDepthSemitones;
             m_voice.setFrequency(std::exp2(m_pitch) * nextFlutter(context.sampleRate) * std::pow(2.0, vibrato / 12.0));
-
-            sample = m_voice.nextSample();
-            m_sequencer.advance();
         }
 
         // The fade covers the end of an utterance and every cut-off, so the phrase running out is
         // not a step to zero.
         m_fade += ((spec ? 1.0 : 0.0) - m_fade) * m_fadeCoefficient;
+
+        // The voice goes on being rendered while the fade is still open, and that is the whole of
+        // what makes the fade work. Zeroing the sample the moment the sequencer went quiet and then
+        // multiplying it by the fade faded silence: the output stepped from wherever the waveform
+        // happened to be straight to nothing, measured at a fifth of full scale in a single sample
+        // at the end of a syllable, and a step is heard as a click however short the fade after it.
+        // The voice still holds the phoneme it was last given, so what the fade closes over now is
+        // that phoneme ringing down -- which is what a released note sounds like.
+        double sample = (spec || m_fade > FadeFloor) ? m_voice.nextSample() : 0.0;
         sample *= m_fade * gain;
+
+        if (spec) {
+            m_sequencer.advance();
+        }
 
         double outL = sample;
         double outR = sample;
@@ -593,7 +602,7 @@ void SpeechDevice::processAudio(AudioContext & context)
 bool SpeechDevice::hasActiveAudio() const
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
-    return m_sequencer.isActive() || m_fade > 0.0001;
+    return m_sequencer.isActive() || m_fade > FadeFloor;
 }
 
 void SpeechDevice::reset()

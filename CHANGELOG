@@ -66,6 +66,13 @@ New features:
 
 Bug fixes:
 
+* Speech clicks when a note is let go of
+  - The fade that covers the end of a phrase was applied to a sample already
+    forced to zero, so it faded silence and covered nothing
+  - The waveform stopped wherever it was, a fifth of full scale in one sample
+    at the end of a syllable
+  - Affects old projects too, which is the point of fixing it
+
 * Export metadata follows the song that is open
   - Opening another song left the previous song's album, artist and notes in
     the audio render dialog, over the new song's own values
