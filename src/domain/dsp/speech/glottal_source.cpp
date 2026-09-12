@@ -49,6 +49,10 @@ constexpr double ReferenceFrequency = 220.0;
 constexpr double MinFrequencyScale = 0.25;
 constexpr double MaxFrequencyScale = 4.0;
 
+//! Seconds the pitch's part of the excitation scale takes to arrive. Long enough that a note-on
+//! cannot step it audibly, short enough to be over before the first syllable is.
+constexpr double FrequencyScaleGlideTime = 0.010;
+
 } // namespace
 
 GlottalSource::GlottalSource()
@@ -61,6 +65,7 @@ void GlottalSource::setSampleRate(double sampleRate)
 {
     DspComponent::setSampleRate(sampleRate);
     m_saw.setSampleRate(sampleRate);
+    m_frequencyScaleCoefficient = sampleRate > 0.0 ? 1.0 - std::exp(-1.0 / (FrequencyScaleGlideTime * sampleRate)) : 1.0;
     updatePhaseStep();
 }
 
@@ -91,7 +96,10 @@ void GlottalSource::setSpeedQuotient(double speedQuotient)
 
 void GlottalSource::updateFrequencyScale()
 {
-    m_frequencyScale = std::clamp(ReferenceFrequency / m_frequency, MinFrequencyScale, MaxFrequencyScale);
+    m_frequencyScaleTarget = std::clamp(ReferenceFrequency / m_frequency, MinFrequencyScale, MaxFrequencyScale);
+    if (!m_started) {
+        m_frequencyScale = m_frequencyScaleTarget;
+    }
 }
 
 void GlottalSource::updateShapeNorms()
@@ -160,6 +168,10 @@ double GlottalSource::nextSample()
         return m_saw.nextSample();
     }
 
+    m_started = true;
+
+    m_frequencyScale += (m_frequencyScaleTarget - m_frequencyScale) * m_frequencyScaleCoefficient;
+
     // The flow *is* how far open the folds are, so the two are one evaluation: the aspiration
     // wants it before the shimmer, which is a property of the pulse rather than of the gap.
     const double opening = rosenberg(m_phase);
@@ -189,6 +201,11 @@ void GlottalSource::reset()
     m_periodScale = 1.0;
     m_amplitude = 1.0;
     m_openness = 1.0;
+    // Straight to the target rather than glided: there is nothing to glide from when the voice has
+    // been silent, and starting the glide at the last note's value is how the first pulse of a new
+    // phrase would come out at the wrong level.
+    m_frequencyScale = m_frequencyScaleTarget;
+    m_started = false;
     m_rng.seed(0x51EEC4);
 }
 
