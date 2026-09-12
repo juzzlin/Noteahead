@@ -43,6 +43,17 @@ private slots:
 
     void test_textToPhonemes_affricates_shouldExpandToAStopAndAFricative();
 
+    void test_textToPhonemes_doubledConsonant_shouldBeSpokenOnce_data();
+    void test_textToPhonemes_doubledConsonant_shouldBeSpokenOnce();
+    void test_textToPhonemes_doubledConsonant_acrossWords_shouldBeSpokenTwice();
+
+    void test_textToPhonemes_unstressedVowel_shouldReduceToASchwa_data();
+    void test_textToPhonemes_unstressedVowel_shouldReduceToASchwa();
+    void test_textToPhonemes_unstressedVowel_shouldKeepItsQuality_data();
+    void test_textToPhonemes_unstressedVowel_shouldKeepItsQuality();
+    void test_textToPhonemes_singleSyllableWord_shouldNotReduce();
+    void test_textToPhonemes_stressMark_shouldMoveTheReduction();
+
     void test_textToPhonemes_escape_shouldBypassTheRules();
     void test_textToPhonemes_escape_shouldAcceptLowercaseAndOddSpacing();
     void test_textToPhonemes_escape_shouldIgnoreUnknownNames();

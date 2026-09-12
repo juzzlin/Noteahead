@@ -24,6 +24,7 @@
 #include "../dsp/true_stereo_panner.hpp"
 #include "device.hpp"
 
+#include <array>
 #include <string>
 
 namespace noteahead {
@@ -123,8 +124,11 @@ private:
     void handleNoteOn(uint8_t note, uint8_t velocity);
     void handleNoteOff(uint8_t note);
     void compilePhrase();
-    //! Fundamental for the note being spoken, with the intonation contour and vibrato on it.
+    //! Fundamental the contour asks for: the note, the declination and the stress accent. What the
+    //! voice is actually given is this smoothed and fluttered.
     double currentFrequency() const;
+    //! The flutter's multiplier on the fundamental, advancing its phases by one frame.
+    double nextFlutter(double sampleRate);
 
     //! Semitones the contour falls across an utterance at full intonation.
     //!
@@ -136,6 +140,35 @@ private:
     //! Seconds the output takes to fade when an utterance ends or is cut off. Without it the end of
     //! a phrase is a step to zero, which clicks.
     static constexpr double OutputFadeTime = 0.006;
+
+    //! Seconds the fundamental takes to cover most of the way to the pitch the contour asks for.
+    //!
+    //! The contour is a staircase: whether a phoneme is stressed is a flag on the phoneme, so the
+    //! accent switches on and off at phoneme boundaries with nothing in between. Measured on "the
+    //! quick brown fox jumps over the lazy dog" that is a step of 1.2 semitones, down and up again,
+    //! four times in the last second of the phrase -- and a tone jumped up and down several times a
+    //! second is a yodel, not an accent. A real pitch accent is a rise and a fall spanning a couple
+    //! of hundred milliseconds around the stressed vowel, so smoothing the staircase is most of the
+    //! way to having one: at this time constant a step is 95% covered in about 135 ms, and a short
+    //! unstressed syllable between two accents never reaches the bottom, which is also true of
+    //! speech.
+    //!
+    //! Not applied to a note change. A new note is the melody the user wrote and has to land on
+    //! pitch; it is the accent inside an utterance that has to move rather than jump.
+    static constexpr double PitchGlideTime = 0.045;
+
+    //! Flutter: a slow, irregular wander of the fundamental that every real voice has and no
+    //! oscillator does.
+    //!
+    //! Three sinusoids at rates with no common period, which is Klatt's trick and the reason it
+    //! works: any single rate is heard as vibrato, and vibrato is a thing a singer does on purpose.
+    //! Summed, these never repeat, so what is left is an instability rather than a modulation.
+    //!
+    //! Always on, and not a control. It is a property of a voice in the way that the glottal tilt
+    //! is, rather than something a user sets -- and at this depth, under a tenth of a semitone, the
+    //! only thing there would be to hear is its absence.
+    static constexpr double FlutterRates[] { 12.7, 7.1, 4.7 };
+    static constexpr double FlutterDepth = 0.004;
 
     std::string m_name;
     std::string m_phrase;
@@ -156,6 +189,13 @@ private:
     bool m_noteHeld { false };
     double m_velocity { 1.0 };
 
+    //! Where the fundamental is now, in log2 Hz, as opposed to where the contour wants it. Log
+    //! rather than linear because a semitone has to take the same time to cross wherever it is.
+    //! Negative until a note has set it, which is how a note-on knows to land rather than glide.
+    double m_pitch { -1.0 };
+    double m_pitchCoefficient { 1.0 };
+    std::array<double, std::size(FlutterRates)> m_flutterPhases {};
+
     double m_fade { 0.0 };
     double m_fadeCoefficient { 0.0 };
 
@@ -169,7 +209,7 @@ private:
     float m_velocitySensitivity { 0.5f };
     float m_intonation { 0.4f };
     float m_vibratoRate { 0.3f };
-    float m_vibratoDepth { 0.15f };
+    float m_vibratoDepth { 0.0f };
     float m_lpfCutoff { 1.0f };
     float m_hpfCutoff { 0.0f };
     float m_triggerMode { 0.0f };

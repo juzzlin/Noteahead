@@ -734,7 +734,62 @@ void appendPhonemes(std::string_view names, PhonemeEventList & events, bool word
     }
 }
 
-//! Runs one word, already uppercased and padded with a space either side, through the rules.
+//! Collapses a run of the same phoneme within one word down to a single one.
+//!
+//! English spells a great many words with a doubled consonant and says one: "better" is /bEtr/, not
+//! /bEt-tr/. The rules read a letter at a time and so read both, and two plosives in a row is not a
+//! long one -- each gets its own closure and its own burst, so "better" came out with an audible
+//! stammer in the middle of it. A tenth of the words in a 64k dictionary emit a doubled phoneme this
+//! way, which makes it the single most common thing the rules get wrong.
+//!
+//! Applied to the rules' output only. The /.../ escape exists so a user can spell a word out, and
+//! a user who writes two of something means two.
+void collapseGeminates(PhonemeEventList & events, size_t firstEvent)
+{
+    if (events.size() <= firstEvent + 1) {
+        return;
+    }
+    const auto begin = events.begin() + static_cast<ptrdiff_t>(firstEvent);
+    const auto end = std::unique(begin, events.end(), [](const PhonemeEvent & a, const PhonemeEvent & b) {
+        return a.spec == b.spec;
+    });
+    events.erase(end, events.end());
+}
+
+//! The vowel an unstressed syllable says in place of this one, or the same vowel when it does not
+//! reduce.
+//!
+//! English is stress-timed, and what that costs the weak syllables is not only length: their vowels
+//! collapse towards the centre of the mouth. "abandon" is not /æ-bæn-dɒn/ said quickly, it is
+//! /ə-bæn-dən/ -- the unstressed vowels are a different vowel, not a shorter one. Reading them at
+//! full value is the single most common thing separating this from a dictionary transcription:
+//! measured over 64k words, a third of them had the right consonants and the wrong vowels, and
+//! nearly all of that was this.
+//!
+//! It also carries most of the rhythm. The schwa's own entry is short and quiet where the full
+//! vowels are long and loud, so reducing a syllable shortens and softens it by the same act -- which
+//! is what a stressed syllable needs to stand against.
+//!
+//! Only the lax monophthongs reduce. A diphthong is a movement and keeps it wherever it sits --
+//! "window" does not become "wində" -- and IH, IY, UW and ER are either already central or carry
+//! endings that hold their quality: reducing IH would take the /ɪ/ out of every "-ing" in the
+//! language.
+//!
+//! Nor does a vowel standing before R. What follows R is not a schwa but the r-coloured vowel the
+//! table spells ER, and collapsing the two loses the R entirely: "ordain" came out "udain".
+const PhonemeSpec * reducedVowel(const PhonemeSpec & spec, const PhonemeSpec * next)
+{
+    if (next && next->name == "R") {
+        return &spec;
+    }
+    static constexpr std::string_view Reducing[] { "AE", "AA", "AO", "AH", "EH", "UH" };
+    if (std::ranges::find(Reducing, spec.name) == std::ranges::end(Reducing)) {
+        return &spec;
+    }
+    const auto * schwa = speechPhoneme("AX");
+    return schwa ? schwa : &spec;
+}
+
 //! Marks the stressed syllable of the word occupying events from @p firstEvent onwards, and gives
 //! the syllables the lengths that stress implies.
 void markWordStress(PhonemeEventList & events, size_t firstEvent, size_t lastEvent, std::string_view word, std::optional<size_t> explicitStress)
@@ -764,6 +819,9 @@ void markWordStress(PhonemeEventList & events, size_t firstEvent, size_t lastEve
         }
         const bool isStressed = started && syllable == stressed;
         events[i].stressed = isStressed;
+        if (!isStressed && events[i].spec->type == PhonemeType::Vowel) {
+            events[i].spec = reducedVowel(*events[i].spec, i + 1 < lastEvent ? events[i + 1].spec : nullptr);
+        }
         // A word of one syllable has nothing to alternate with, so it is left at its natural length.
         //
         // Only the vowel is stretched. Stress lengthening in speech falls almost entirely on the
@@ -776,6 +834,8 @@ void markWordStress(PhonemeEventList & events, size_t firstEvent, size_t lastEve
     }
 }
 
+//! Runs one word, already uppercased and padded with a space either side, through the rules.
+//!
 //! Returns whether the word was read as a reduced function word rather than through the rules.
 bool appendWord(std::string_view padded, PhonemeEventList & events)
 {
@@ -811,6 +871,8 @@ bool appendWord(std::string_view padded, PhonemeEventList & events)
         appendPhonemes(matched->phonemes, events, false);
         pos += matched->focus.size();
     }
+
+    collapseGeminates(events, firstEvent);
 
     if (events.size() > firstEvent) {
         events[firstEvent].wordStart = true;
@@ -992,6 +1054,10 @@ constexpr std::string_view AntepenultimateSuffixes[] {
 //! reliable part of this -- "reverence" and "substitute" are stressed on the very syllable this
 //! rule moves away from -- but dropping the rule costs 8 points of accuracy, so they earn their
 //! place even wrong as often as they are.
+//! How much of a word has to follow the prefix before it counts as one is a threshold worth leaving
+//! alone: at three letters it reads "extra" as EX plus a root and stresses the wrong syllable, but
+//! raising it to four to fix that word costs 0.8 points of stress accuracy measured over 56k
+//! polysyllables, and five costs 3.6. The stress mark is the per-word fix.
 constexpr std::string_view UnstressedPrefixes[] {
     "TRANS", "INTER", "UNDER", "SUPER", "OVER", "ANTI", "AUTO", "DIS", "CON", "COM", "PRE",
     "PRO", "SUB", "MIS", "DE", "RE", "UN", "IN", "IM", "EX", "EN", "EM", "BE", "AD", "OB",

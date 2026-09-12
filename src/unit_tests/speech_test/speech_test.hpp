@@ -49,6 +49,10 @@ private slots:
     void test_device_tuning_shouldBeExact_data();
     void test_device_tuning_shouldBeExact();
     void test_device_stressedSyllable_shouldTakeAPitchAccent();
+    void test_device_stressedSyllable_shouldBeReachedGradually();
+    void test_device_noteOn_shouldLandOnThePitchAtOnce();
+    void test_device_flutter_shouldKeepTheFundamentalMoving();
+    void test_device_vibratoDepth_shouldDefaultToOff();
     void test_device_voiceType_shouldRaiseTheFormants();
     void test_device_formantShift_shouldBeNeutralAtHalfTravel();
 

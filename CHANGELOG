@@ -27,6 +27,27 @@ New features:
 
 Bug fixes:
 
+* Speech reduces its unstressed vowels
+  - Every syllable was said at full value, which gives a sentence the weight
+    of a list of syllables read out one at a time
+  - The weak syllables now centre on a schwa, as English says them, and the
+    apostrophe stress mark settles a word's vowels along with its rhythm
+
+* Speech says a doubled consonant once
+  - "better" and "happy" were read a letter at a time, so both letters were
+    spoken: two closures and two bursts, which is a stammer mid-word
+  - A tenth of ordinary English words were affected
+
+* Speech no longer warbles on a stressed syllable
+  - The pitch accent stepped a semitone or more between one phoneme and the
+    next; it now moves the way a voice does
+  - Vibrato is off by default, and a slow irregular flutter takes its place
+  - Existing projects keep the vibrato they were saved with
+
+* Speech honours its Sibilance default
+  - The control was registered twice and kept the wrong one, so fricatives
+    ran brighter and louder than the panel said
+
 * A device this version does not know is no longer lost on save
   - Opening a project made with a newer version, or with a device this build
     lacks, left that slot empty and deleted it from the file on the next save

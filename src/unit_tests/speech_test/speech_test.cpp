@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <cmath>
 #include <map>
+#include <ranges>
 #include <string>
 #include <vector>
 
@@ -594,6 +595,112 @@ void SpeechTest::test_device_stressedSyllable_shouldTakeAPitchAccent()
     QVERIFY2(strong > weak, qPrintable(QString::number(weak) + " -> " + QString::number(strong)));
 }
 
+void SpeechTest::test_device_stressedSyllable_shouldBeReachedGradually()
+{
+    // "MO-ney", whose every phoneme is voiced, so the fundamental can be tracked right through it
+    // without a stop's silence or a fricative's noise breaking the measurement. The stress is on the
+    // first syllable, so the contour asks for the accent and then drops it.
+    SpeechDevice device { "Speech" };
+    device.setPhrase("money");
+    device.setIntonation(1.0f);
+    device.setRate(0.0f);
+    device.processMidiNoteOn(48, 100);
+
+    std::vector<double> rendered;
+    while (device.hasActiveAudio() && rendered.size() < static_cast<size_t>(SampleRate * 8)) {
+        const auto block = renderDevice(device, 1024);
+        rendered.insert(rendered.end(), block.begin(), block.end());
+    }
+
+    const size_t frames = rendered.size() / 2;
+    const auto hop = static_cast<size_t>(SampleRate * 0.020);
+    const auto window = static_cast<size_t>(SampleRate * 0.060);
+
+    std::vector<double> track;
+    for (size_t from = 0; from + window < frames; from += hop) {
+        const double f0 = preciseFundamental(std::vector<double>(rendered.begin() + static_cast<long>(from * 2),
+                                                                 rendered.begin() + static_cast<long>((from + window) * 2)));
+        // A nasal's murmur sits near the fundamental and an autocorrelation will now and then lock
+        // an octave off it. A contour never moves that far, so anything out here is the measurement
+        // failing rather than the pitch.
+        if (f0 > 0.0 && std::abs(1200.0 * std::log2(f0 / 130.8128)) < 700.0) {
+            track.push_back(f0);
+        }
+    }
+    QVERIFY(track.size() > 8);
+
+    double largestStep = 0.0;
+    for (size_t i = 1; i < track.size(); i++) {
+        largestStep = std::max(largestStep, std::abs(1200.0 * std::log2(track[i] / track[i - 1])));
+    }
+    const auto [low, high] = std::ranges::minmax(track);
+    const double range = 1200.0 * std::log2(high / low);
+
+    // The accent has to be there to be gradual about: at full intonation it is three semitones, on
+    // top of the two the phrase falls by as it goes.
+    QVERIFY2(range > 350.0, qPrintable(QString::number(range, 'f', 1) + " cents of range"));
+
+    // And no 20 ms of it may cover the whole accent. Measured, the step is 300 cents without the
+    // glide and under 100 with it, so this sits between the two rather than at either.
+    QVERIFY2(largestStep < 150.0, qPrintable(QString::number(largestStep, 'f', 1) + " cents in one step, over a range of " + QString::number(range, 'f', 1)));
+}
+
+void SpeechTest::test_device_noteOn_shouldLandOnThePitchAtOnce()
+{
+    // The accent glides, but a note does not: a note is the melody the user wrote, and a melody
+    // whose every note slides in from the one before it is out of tune for as long as the slide
+    // lasts. Measured over the first 43 ms, which is inside the glide's own time constant.
+    SpeechDevice device { "Speech" };
+    device.setPhrase("/aa/");
+    device.setIntonation(0.0f);
+    device.setTriggerMode(static_cast<int>(SpeechSequencer::TriggerMode::Step));
+    device.setSyncMode(static_cast<int>(SpeechSequencer::SyncMode::Free));
+
+    // An octave below first, so a glide from the previous note would be audible in the measurement.
+    device.processMidiNoteOn(48, 100);
+    renderDevice(device, 8192);
+    device.processMidiNoteOn(60, 100);
+
+    const double measured = preciseFundamental(renderDevice(device, 2048));
+    const double cents = 1200.0 * std::log2(measured / 261.6256);
+    QVERIFY2(std::abs(cents) < 20.0, qPrintable(QString::number(cents, 'f', 1) + " cents at " + QString::number(measured, 'f', 2) + " Hz"));
+}
+
+void SpeechTest::test_device_flutter_shouldKeepTheFundamentalMoving()
+{
+    // Every real voice wanders; an oscillator does not, and a fundamental held to the sample is most
+    // of what makes one sound synthetic. The flutter is three sinusoids at rates with no common
+    // period, so what it adds is an instability rather than a modulation -- which is why this
+    // asserts both halves: it has to move, and it has to move too little to be heard as vibrato.
+    SpeechDevice device { "Speech" };
+    device.setPhrase("/aa/");
+    device.setIntonation(0.0f);
+    device.setTriggerMode(static_cast<int>(SpeechSequencer::TriggerMode::Step));
+    device.setSyncMode(static_cast<int>(SpeechSequencer::SyncMode::Free));
+    device.processMidiNoteOn(60, 100);
+    renderDevice(device, 8192); // Let the level arrive before measuring.
+
+    std::vector<double> measured;
+    for (int window = 0; window < 12; window++) {
+        measured.push_back(preciseFundamental(renderDevice(device, 4096)));
+    }
+
+    const auto [low, high] = std::ranges::minmax(measured);
+    QVERIFY(low > 0.0);
+    const double cents = 1200.0 * std::log2(high / low);
+    QVERIFY2(cents > 1.0, qPrintable(QString::number(cents, 'f', 2) + " cents of flutter"));
+    QVERIFY2(cents < 20.0, qPrintable(QString::number(cents, 'f', 2) + " cents of flutter"));
+}
+
+void SpeechTest::test_device_vibratoDepth_shouldDefaultToOff()
+{
+    // A speaking voice has no vibrato: it is a thing a singer does on purpose, and a regular
+    // modulation on top of a contour that already moves reads as a warble rather than as a voice.
+    // The flutter is what a voice has instead, and it is not a control.
+    SpeechDevice device { "Speech" };
+    QCOMPARE(device.vibratoDepth(), 0.0f);
+}
+
 void SpeechTest::test_device_tuning_shouldBeExact_data()
 {
     QTest::addColumn<int>("note");
@@ -681,7 +788,7 @@ void SpeechTest::test_device_phrase_shouldCompileOnAssignment()
 
     device.setPhrase("noteahead");
     QCOMPARE(device.phrase(), std::string { "noteahead" });
-    QCOMPARE(device.phrasePhonemes(), std::string { "N OW T IY HH EH D" });
+    QCOMPARE(device.phrasePhonemes(), std::string { "N OW T IY HH AX D" });
     QVERIFY(device.syllableCount() > 0);
 }
 

@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <numbers>
 
 namespace noteahead {
 
@@ -102,13 +103,12 @@ SpeechDevice::SpeechDevice(std::string name)
     addParameter(Parameter(Constants::NahdXml::xmlKeyFormantShift().toStdString(), 0.5f, 0, 10000, 5000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyBreathiness().toStdString(), 0.1f, 0, 10000, 1000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyConsonantLevel().toStdString(), 0.5f, 0, 10000, 5000, 100));
-    addParameter(Parameter(Constants::NahdXml::xmlKeySibilance().toStdString(), 0.4f, 0, 10000, 4000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeySibilance().toStdString(), 0.31f, 0, 10000, 3100, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyVoiceType().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete));
     addParameter(Parameter(Constants::NahdXml::xmlKeyVelocitySensitivity().toStdString(), 0.5f, 0, 10000, 5000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyIntonation().toStdString(), 0.4f, 0, 10000, 4000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyVibratoRate().toStdString(), 0.3f, 0, 10000, 3000, 100));
-    addParameter(Parameter(Constants::NahdXml::xmlKeyVibratoDepth().toStdString(), 0.15f, 0, 10000, 1500, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyVibratoDepth().toStdString(), 0.0f, 0, 10000, 0, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), 1.0f, 0, 10000, 10000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.0f, 0, 10000, 0, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyTriggerMode().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete));
@@ -217,6 +217,7 @@ void SpeechDevice::handleNoteOn(uint8_t note, uint8_t velocity)
 {
     m_note = note;
     m_velocity = std::clamp(static_cast<double>(velocity) / 127.0, 0.0, 1.0);
+    m_pitch = -1.0;
 
     // A note arriving while one is already speaking re-pitches rather than restarts, in Phrase mode:
     // that is what makes a held phrase singable across a melody. In Step mode every note is meant to
@@ -357,6 +358,19 @@ void SpeechDevice::syncParameters()
     m_voice.setSibilance(static_cast<double>(m_sibilance));
 }
 
+double SpeechDevice::nextFlutter(double sampleRate)
+{
+    double sum = 0.0;
+    for (size_t i = 0; i < m_flutterPhases.size(); i++) {
+        m_flutterPhases[i] += FlutterRates[i] / sampleRate;
+        // Wrapped rather than left to run, or the phase loses its precision over a long render and
+        // the flutter quietly turns into a frequency offset.
+        m_flutterPhases[i] -= std::floor(m_flutterPhases[i]);
+        sum += std::sin(2.0 * std::numbers::pi * m_flutterPhases[i]);
+    }
+    return 1.0 + FlutterDepth * sum / static_cast<double>(m_flutterPhases.size());
+}
+
 double SpeechDevice::currentFrequency() const
 {
     double frequency = noteToFrequency(m_note);
@@ -398,6 +412,7 @@ void SpeechDevice::processAudio(AudioContext & context)
     m_panner.setPan(static_cast<double>(panInternal()));
 
     m_fadeCoefficient = 1.0 - std::exp(-1.0 / (OutputFadeTime * context.sampleRate));
+    m_pitchCoefficient = 1.0 - std::exp(-1.0 / (PitchGlideTime * context.sampleRate));
 
     // At zero the velocity is ignored and every note speaks at full level, at one it scales the
     // level outright. Half way is the default because a spoken phrase carries a lot of its meaning
@@ -414,8 +429,13 @@ void SpeechDevice::processAudio(AudioContext & context)
             m_voice.setPhoneme(*spec, m_sequencer.nextPhoneme(), m_sequencer.phonemeSeconds());
             m_voice.setPhonemeProgress(m_sequencer.progress());
 
+            // The contour is smoothed, the modulation is not: smoothing the flutter and the vibrato
+            // as well would be filtering the very thing they are there to add.
+            const double asked = std::log2(currentFrequency());
+            m_pitch = m_pitch < 0.0 ? asked : m_pitch + (asked - m_pitch) * m_pitchCoefficient;
+
             const double vibrato = m_vibrato.nextSample() * static_cast<double>(m_vibratoDepth) * VibratoDepthSemitones;
-            m_voice.setFrequency(currentFrequency() * std::pow(2.0, vibrato / 12.0));
+            m_voice.setFrequency(std::exp2(m_pitch) * nextFlutter(context.sampleRate) * std::pow(2.0, vibrato / 12.0));
 
             sample = m_voice.nextSample();
             m_sequencer.advance();
@@ -473,6 +493,8 @@ void SpeechDevice::resetAudio()
     m_dcBlockerR.reset();
     m_noteHeld = false;
     m_fade = 0.0;
+    m_pitch = -1.0;
+    m_flutterPhases = {};
 }
 
 float SpeechDevice::rate() const

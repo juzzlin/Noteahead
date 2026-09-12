@@ -33,7 +33,8 @@ struct PhonemeEvent
     //! First phoneme of a word.
     bool wordStart;
     //! Whether this phoneme belongs to the word's stressed syllable. English is stress-timed, so
-    //! this is what the rhythm is built on: the strong syllable runs longer and takes a pitch accent.
+    //! this is what the rhythm is built on: the strong syllable runs longer, takes a pitch accent,
+    //! and is the only one that keeps its vowel.
     bool stressed { false };
     //! Multiplier on the phoneme's natural duration, carrying what this knows about prosody: the
     //! stressed syllable is long, unstressed ones are short, function words are weak, and the last
@@ -60,11 +61,16 @@ using PhonemeEventList = std::vector<PhonemeEvent>;
 //! Stress is placed by rule, and the rules are right about four times in five. An apostrophe before
 //! a syllable overrides them, which is the notation a dictionary uses:
 //!
-//!     A'merica           ->   AH  M EH R IH K AH   with the stress on "me"
+//!     A'merica           ->   AX M EH R IH K AX   with the stress on "me"
 //!
 //! It is still an apostrophe in a contraction. The two are told apart by what follows: a contraction
 //! ends the word right after it, in one of a closed set of endings, and a stress mark is followed by
 //! a syllable.
+//!
+//! The mark settles the vowels as well as the rhythm, because the syllables the stress does not fall
+//! on have their vowels reduced to a schwa -- "a'bandon" is AX B AE N D AX N where "abandon" is
+//! AE B AX N D AX N. Which is to say that a word the rules stress wrongly is now wrong in a way a
+//! listener hears, and the mark is what fixes it.
 //!
 //! That escape is not a fallback for a weak rule set, it is the point. No rule set gets every
 //! English word right, and a user who can hear that a word came out wrong needs a way to fix that
