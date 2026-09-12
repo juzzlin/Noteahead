@@ -702,6 +702,73 @@ void SpeechTest::test_sequencer_lineMode_heldNote_shouldNotSustain()
     QVERIFY(!sequencer.isActive());
 }
 
+void SpeechTest::test_device_utteranceEnd_shouldNotCollapseToSilence_data()
+{
+    QTest::addColumn<int>("engine");
+    QTest::addColumn<int>("mode");
+
+    for (int engine = 0; engine <= 1; engine++) {
+        for (int mode = 0; mode <= 2; mode++) {
+            QTest::newRow(qPrintable(QString("%1 engine, mode %2").arg(engine == 0 ? "legacy" : "modern").arg(mode)))
+              << engine << mode;
+        }
+    }
+}
+
+void SpeechTest::test_device_utteranceEnd_shouldNotCollapseToSilence()
+{
+    QFETCH(int, engine);
+    QFETCH(int, mode);
+
+    // The output fade exists so that a phrase running out, or a note being let go of, is not a step
+    // to zero. It used to be multiplied into a sample that had already been forced to zero the
+    // moment the sequencer went quiet, so it faded silence and covered nothing: the waveform stopped
+    // wherever it happened to be -- measured at a fifth of full scale in one sample at the end of a
+    // syllable -- and a step is a click however short the fade after it is.
+    //
+    // Stated as a collapse rather than as a step size, because a step is also what a loud waveform
+    // does at its steepest and the two are only told apart by what follows: a waveform goes on, and
+    // a cut does not.
+    SpeechDevice device { "Speech" };
+    device.setVoiceEngine(engine);
+    device.setTriggerMode(mode);
+    device.processMidiNoteOn(48, 100);
+
+    std::vector<double> mono;
+    for (int i = 0; i < 20; i++) {
+        const auto rendered = renderDevice(device, 512);
+        for (size_t k = 0; k < rendered.size(); k += 2) {
+            mono.push_back(rendered[k]);
+        }
+    }
+    device.processMidiNoteOff(48);
+    while (device.hasActiveAudio() && mono.size() < static_cast<size_t>(SampleRate * 8)) {
+        const auto rendered = renderDevice(device, 512);
+        for (size_t k = 0; k < rendered.size(); k += 2) {
+            mono.push_back(rendered[k]);
+        }
+    }
+
+    double peak = 0.0;
+    for (auto && sample : mono) {
+        peak = std::max(peak, std::abs(sample));
+    }
+    QVERIFY(peak > 0.001);
+
+    constexpr size_t after = 32;
+    for (size_t i = 0; i + after < mono.size(); i++) {
+        if (std::abs(mono[i]) < peak * 0.05) {
+            continue;
+        }
+        double loudest = 0.0;
+        for (size_t k = i + 1; k <= i + after; k++) {
+            loudest = std::max(loudest, std::abs(mono[k]));
+        }
+        QVERIFY2(loudest > std::abs(mono[i]) * 0.05,
+                 qPrintable(QString("collapsed from %1 to %2 at frame %3").arg(mono[i]).arg(loudest).arg(i)));
+    }
+}
+
 void SpeechTest::test_device_noteOn_shouldProduceAudio()
 {
     SpeechDevice device { "Speech" };

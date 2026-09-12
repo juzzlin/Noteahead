@@ -159,6 +159,14 @@ private:
     //! a phrase is a step to zero, which clicks.
     static constexpr double OutputFadeTime = 0.006;
 
+    //! How far the fade has to have closed before the voice stops being rendered at all.
+    //!
+    //! The same figure decides when the device reports itself silent, and it has to: rendering a
+    //! tail the mixer has already stopped asking for would lose the end of it, and reporting silence
+    //! while a tail is still being rendered would cut it off -- which is the step the fade exists to
+    //! prevent.
+    static constexpr double FadeFloor = 0.0001;
+
     //! Seconds the fundamental takes to cover most of the way to the pitch the contour asks for.
     //!
     //! The contour is a staircase: whether a phoneme is stressed is a flag on the phoneme, so the
