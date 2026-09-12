@@ -106,9 +106,9 @@ private:
     //! the part of the excitation scale the open quotient decides. Both derive in closed form, so the
     //! shape can change without nextSample() ever integrating anything.
     void updateShapeNorms();
-    //! Recomputes the part of the excitation scale the pitch decides. Kept apart from the shape's
-    //! because the caller sets the frequency once a frame -- the intonation contour and the vibrato
-    //! both move it -- and the shape only when a control is touched.
+    //! Recomputes where the part of the excitation scale the pitch decides is heading. Kept apart
+    //! from the shape's because the caller sets the frequency once a frame -- the intonation contour
+    //! and the vibrato both move it -- and the shape only when a control is touched.
     void updateFrequencyScale();
 
     PolyBlepOscillator m_saw;
@@ -141,7 +141,23 @@ private:
     //! than an area. Normalising the pulse's energy instead made the spread worse, because a short
     //! pulse carries its energy higher up and so loses less of it to the tilt that follows.
     double m_shapeScale { 1.0 };
+    //! The pitch's part of the excitation scale, and where it is heading.
+    //!
+    //! Glided rather than applied outright, because it is a gain on the pulse and the pitch does not
+    //! only drift: a note-on sets it immediately, so a jump of an octave stepped the source by 6 dB
+    //! between one sample and the next, in the middle of a pulse. That is a click, and it is what
+    //! playing the device from a keyboard sounded like. Nothing is lost by gliding it -- it corrects
+    //! for where a pulse's harmonics sit against a filter corner, which is not a thing that has to
+    //! be right within a millisecond of the note starting.
     double m_frequencyScale { 1.0 };
+    double m_frequencyScaleTarget { 1.0 };
+    double m_frequencyScaleCoefficient { 1.0 };
+    //! Whether a sample has been produced since the last reset.
+    //!
+    //! What tells a pitch that is *changing* from one that is merely being chosen. There is nothing
+    //! to glide from before the first pulse, and gliding anyway would start a phrase at the level the
+    //! previous one ended on.
+    bool m_started { false };
 
     //! Seeded rather than random-seeded, so a render of the same project twice is the same file.
     std::mt19937 m_rng { 0x51EEC4 };

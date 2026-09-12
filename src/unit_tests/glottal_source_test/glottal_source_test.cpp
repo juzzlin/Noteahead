@@ -327,6 +327,45 @@ void GlottalSourceTest::test_sawModel_openness_shouldBeFlat()
     }
 }
 
+void GlottalSourceTest::test_frequencyScale_shouldNotStepOnAPitchJump()
+{
+    // The pulse is scaled against the pitch, and the caller sets the pitch every frame -- a note-on
+    // sets it outright. Applied as it comes, an octave jump would move that scale by 6 dB between
+    // one sample and the next, in the middle of a pulse, which is a gain step and so a click.
+    auto source = makeSource();
+    render(source, PeriodFrames * 4);
+
+    const double before = source.nextSample();
+    source.setFrequency(Frequency * 4.0);
+    const double after = source.nextSample();
+
+    // The waveform is free to move -- the pitch really did change -- but not by a multiple of what
+    // it was doing before.
+    auto steady = makeSource();
+    const auto reference = render(steady, PeriodFrames * 4);
+    double typical = 0.0;
+    for (size_t i = 1; i < reference.size(); i++) {
+        typical = std::max(typical, std::abs(reference[i] - reference[i - 1]));
+    }
+    QVERIFY2(std::abs(after - before) < typical * 4.0,
+             qPrintable(QString("step %1 against a largest steady step of %2").arg(std::abs(after - before)).arg(typical)));
+}
+
+void GlottalSourceTest::test_frequencyScale_shouldNotGlideIntoTheFirstPulse()
+{
+    // There is nothing to glide from before the first pulse. Gliding anyway would start a phrase at
+    // whatever level the one before it ended on, which is the opposite of the problem being solved.
+    auto glided = makeSource();
+    glided.setFrequency(Frequency * 3.0);
+
+    auto direct = makeSource();
+    direct.setFrequency(Frequency * 3.0);
+    direct.reset();
+    direct.setFrequency(Frequency * 3.0);
+
+    QCOMPARE(render(glided, PeriodFrames * 2), render(direct, PeriodFrames * 2));
+}
+
 void GlottalSourceTest::test_reset_shouldRepeatTheSameOutput()
 {
     // The jitter is drawn from a seeded generator so that rendering a project twice gives the same

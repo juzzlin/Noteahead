@@ -25,6 +25,7 @@
 #include <QTest>
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <map>
 #include <ranges>

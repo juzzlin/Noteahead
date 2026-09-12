@@ -45,6 +45,9 @@ private slots:
     void test_sawModel_shouldMatchThePlainOscillator();
     void test_sawModel_openness_shouldBeFlat();
 
+    void test_frequencyScale_shouldNotStepOnAPitchJump();
+    void test_frequencyScale_shouldNotGlideIntoTheFirstPulse();
+
     void test_reset_shouldRepeatTheSameOutput();
 };
 
