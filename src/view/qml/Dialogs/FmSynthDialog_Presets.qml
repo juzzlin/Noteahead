@@ -39,6 +39,9 @@ RowLayout {
         model: fmSynthController.presetNames
         currentIndex: fmSynthController.currentPresetIndex
         onActivated: index => fmSynthController.loadPreset(index)
+        // A ComboBox writes its own currentIndex when the model changes, which breaks the binding
+        // above. Without this a preset just saved would not show as the one selected.
+        onModelChanged: currentIndex = Qt.binding(() => fmSynthController.currentPresetIndex)
         Layout.preferredWidth: 220
     }
 
@@ -46,6 +49,22 @@ RowLayout {
         text: qsTr("Randomize")
         implicitWidth: Constants.defaultButtonWidth
         onClicked: fmSynthController.randomizePatch()
+    }
+
+    AppButton {
+        text: qsTr("Save preset...")
+        toolTipText: qsTr("Save the current settings as a preset of your own")
+        implicitWidth: Constants.defaultButtonWidth
+        onClicked: UiService.requestPresetName(fmSynthController, "")
+    }
+
+    AppButton {
+        text: qsTr("Delete")
+        toolTipText: qsTr("Delete the selected preset of your own")
+        implicitWidth: Constants.defaultButtonWidth
+        // Only the user's own presets are theirs to delete
+        enabled: fmSynthController.currentPresetIsUserPreset
+        onClicked: UiService.requestPresetDeleteConfirmation(fmSynthController, fmSynthController.currentUserPresetName())
     }
 
     Label {

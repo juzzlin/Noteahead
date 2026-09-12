@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
 //
 #include "synth_controller_test.hpp"
+#include "../../application/service/preset_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/devices/device.hpp"
 #include "../../domain/devices/synth_device.hpp"
@@ -9,6 +10,7 @@
 #include "../../view/controllers/synth_controller.hpp"
 
 #include <QSignalSpy>
+#include <QTemporaryDir>
 #include <QTest>
 
 namespace noteahead {
@@ -275,6 +277,106 @@ void SynthControllerTest::test_loadPreset_shouldShowTheLoadedPreset()
     controller.loadPreset(2);
     QCOMPARE(controller.currentPresetIndex(), 2);
     QCOMPARE(controller.presetNames().size(), static_cast<int>(SynthPresets::presets().size()));
+}
+
+void SynthControllerTest::test_presetNames_withUserPresets_shouldContinueTheFactoryNumbering()
+{
+    QTemporaryDir root;
+    const auto presetService = std::make_shared<PresetService>(root.path());
+    const auto synth = std::make_shared<SynthDevice>("Test Synth");
+    SynthController controller { synth };
+    controller.setPresetService(presetService);
+
+    const auto factoryCount = static_cast<int>(SynthPresets::presets().size());
+    QCOMPARE(controller.presetNames().size(), factoryCount);
+
+    QVERIFY(controller.saveUserPreset("My Lead"));
+
+    const auto names = controller.presetNames();
+    QCOMPARE(names.size(), factoryCount + 1);
+    // The user's own sit at the end of the factory numbering rather than starting one of their own,
+    // and are marked so that the two can still be told apart.
+    QCOMPARE(names.last(), QString { "%1: My Lead%2" }.arg(factoryCount, 3, 10, QChar { '0' }).arg(Constants::userPresetMarker()));
+}
+
+void SynthControllerTest::test_loadPreset_userPreset_shouldApplyTheStoredPatch()
+{
+    QTemporaryDir root;
+    const auto presetService = std::make_shared<PresetService>(root.path());
+    const auto synth = std::make_shared<SynthDevice>("Test Synth");
+    SynthController controller { synth };
+    controller.setPresetService(presetService);
+
+    synth->setLpfCutoff(0.75f);
+    QVERIFY(controller.saveUserPreset("My Lead"));
+
+    const auto factoryCount = static_cast<int>(SynthPresets::presets().size());
+
+    // A factory preset in between, so that what the user preset restores cannot be what was already
+    // in the device
+    controller.loadPreset(0);
+    QVERIFY(std::abs(synth->lpfCutoff() - 0.75f) > 0.001f);
+
+    controller.loadPreset(factoryCount);
+    QCOMPARE(controller.currentPresetIndex(), factoryCount);
+    QVERIFY(controller.currentPresetIsUserPreset());
+    QCOMPARE(controller.currentUserPresetName(), QString { "My Lead" });
+    QVERIFY(std::abs(synth->lpfCutoff() - 0.75f) < 0.001f);
+}
+
+void SynthControllerTest::test_saveUserPreset_shouldSelectWhatWasJustSaved()
+{
+    QTemporaryDir root;
+    const auto presetService = std::make_shared<PresetService>(root.path());
+    const auto synth = std::make_shared<SynthDevice>("Test Synth");
+    SynthController controller { synth };
+    controller.setPresetService(presetService);
+
+    QSignalSpy spy { &controller, &SynthController::presetNamesChanged };
+
+    QVERIFY(controller.saveUserPreset("Zither"));
+    QVERIFY(controller.saveUserPreset("Apex"));
+
+    QCOMPARE(spy.count(), 2);
+    // Sorted by name, so the one just saved is not the last one -- the selection has to follow the
+    // preset rather than the end of the list.
+    QCOMPARE(controller.currentPresetIndex(), static_cast<int>(SynthPresets::presets().size()));
+    QCOMPARE(controller.currentUserPresetName(), QString { "Apex" });
+}
+
+void SynthControllerTest::test_deleteCurrentUserPreset_factoryPreset_shouldDeleteNothing()
+{
+    QTemporaryDir root;
+    const auto presetService = std::make_shared<PresetService>(root.path());
+    const auto synth = std::make_shared<SynthDevice>("Test Synth");
+    SynthController controller { synth };
+    controller.setPresetService(presetService);
+
+    QVERIFY(controller.saveUserPreset("My Lead"));
+
+    controller.loadPreset(0);
+    QVERIFY(!controller.currentPresetIsUserPreset());
+    QVERIFY(!controller.deleteCurrentUserPreset());
+    QCOMPARE(controller.presetNames().size(), static_cast<int>(SynthPresets::presets().size()) + 1);
+}
+
+void SynthControllerTest::test_deleteCurrentUserPreset_shouldDropItFromTheList()
+{
+    QTemporaryDir root;
+    const auto presetService = std::make_shared<PresetService>(root.path());
+    const auto synth = std::make_shared<SynthDevice>("Test Synth");
+    SynthController controller { synth };
+    controller.setPresetService(presetService);
+
+    QVERIFY(controller.saveUserPreset("My Lead"));
+    QVERIFY(controller.deleteCurrentUserPreset());
+
+    const auto factoryCount = static_cast<int>(SynthPresets::presets().size());
+    QCOMPARE(controller.presetNames().size(), factoryCount);
+    // The selection was on the deleted preset, which was also the last entry: it must land inside
+    // the list that is left rather than one past its end.
+    QCOMPARE(controller.currentPresetIndex(), factoryCount - 1);
+    QVERIFY(!controller.currentPresetIsUserPreset());
 }
 
 } // namespace noteahead

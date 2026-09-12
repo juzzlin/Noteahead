@@ -260,6 +260,14 @@ public:
     virtual void serializeToXml(ProjectWriter & writer) const;
     virtual void deserializeFromXml(ProjectReader & reader);
 
+    //! Applies a user preset's parameters, with @p reader sitting on the preset's <Parameters>
+    //! element.
+    //!
+    //! A preset is the whole panel: everything it does not name goes back to its default first,
+    //! which is what a factory preset does too. Nothing outside the parameters is touched, so a
+    //! preset can never carry a port, a channel or a name from whoever saved it.
+    void applyPresetParametersFromXml(ProjectReader & reader);
+
     //! The fader parameter shared by every device and by the Sampler's pads. Public so the pads,
     //! which are not Devices, get the same taper and the same legacy conversion.
     static Parameter faderParameter();

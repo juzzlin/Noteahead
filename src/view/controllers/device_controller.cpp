@@ -15,6 +15,7 @@
 
 #include "device_controller.hpp"
 
+#include "../../application/service/preset_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
 #include "../../domain/devices/device.hpp"
@@ -28,6 +29,155 @@ namespace noteahead {
 DeviceController::DeviceController(QObject * parent)
   : QObject { parent }
 {
+}
+
+void DeviceController::setPresetService(PresetServiceS presetService)
+{
+    m_presetService = std::move(presetService);
+    emit presetNamesChanged();
+}
+
+QStringList DeviceController::factoryPresetNames() const
+{
+    return {};
+}
+
+void DeviceController::loadFactoryPreset(int)
+{
+}
+
+QString DeviceController::deviceTypeId() const
+{
+    const auto dev = device();
+    return dev ? QString::fromStdString(dev->typeId()) : QString {};
+}
+
+QStringList DeviceController::userPresetNames() const
+{
+    if (const auto typeId = deviceTypeId(); m_presetService && !typeId.isEmpty()) {
+        return m_presetService->userPresetNames(typeId);
+    }
+    return {};
+}
+
+QStringList DeviceController::presetNames() const
+{
+    QStringList names;
+    const auto append = [&names](const QString & name, bool isUserPreset) {
+        // The number is the position in this very list, so that what the dropdown shows and what
+        // loadPreset() is given are the same thing however many presets the user has added.
+        names.append(QString { "%1: %2%3" }
+                       .arg(names.size(), 3, 10, QChar { '0' })
+                       .arg(name)
+                       .arg(isUserPreset ? Constants::userPresetMarker() : QString {}));
+    };
+    for (const auto & name : factoryPresetNames()) {
+        append(name, false);
+    }
+    for (const auto & name : userPresetNames()) {
+        append(name, true);
+    }
+    return names;
+}
+
+int DeviceController::currentPresetIndex() const
+{
+    return m_currentPresetIndex;
+}
+
+void DeviceController::setCurrentPresetIndex(int index)
+{
+    if (m_currentPresetIndex != index) {
+        m_currentPresetIndex = index;
+        emit currentPresetIndexChanged();
+    }
+}
+
+bool DeviceController::currentPresetIsUserPreset() const
+{
+    const auto userIndex = m_currentPresetIndex - static_cast<int>(factoryPresetNames().size());
+    return userIndex >= 0 && userIndex < static_cast<int>(userPresetNames().size());
+}
+
+QString DeviceController::currentUserPresetName() const
+{
+    if (!currentPresetIsUserPreset()) {
+        return {};
+    }
+    return userPresetNames().at(m_currentPresetIndex - static_cast<int>(factoryPresetNames().size()));
+}
+
+void DeviceController::loadPreset(int index)
+{
+    // The controller owns which preset is showing, so that the dialog only has to ask for one to be
+    // loaded. Left to the caller, the combo box reads back its old value and snaps back.
+    setCurrentPresetIndex(index);
+
+    const auto factoryCount = static_cast<int>(factoryPresetNames().size());
+    if (index < factoryCount) {
+        loadFactoryPreset(index);
+        return;
+    }
+
+    const auto names = userPresetNames();
+    if (const auto userIndex = index - factoryCount; userIndex < static_cast<int>(names.size())) {
+        if (const auto dev = device(); dev && m_presetService) {
+            m_presetService->applyUserPreset(deviceTypeId(), names.at(userIndex), *dev);
+            requestSettings();
+        }
+    }
+}
+
+bool DeviceController::userPresetExists(const QString & presetName) const
+{
+    const auto typeId = deviceTypeId();
+    return m_presetService && !typeId.isEmpty() && m_presetService->userPresetExists(typeId, presetName);
+}
+
+bool DeviceController::saveUserPreset(const QString & presetName)
+{
+    const auto dev = device();
+    const auto typeId = deviceTypeId();
+    if (!dev || !m_presetService || typeId.isEmpty()) {
+        return false;
+    }
+
+    if (!m_presetService->saveUserPreset(typeId, presetName, *dev)) {
+        return false;
+    }
+
+    emit presetNamesChanged();
+
+    // Show what was just saved as the selected preset: the user named this patch, so the dropdown
+    // has to agree that this is the patch they are on.
+    if (const auto index = userPresetNames().indexOf(presetName); index >= 0) {
+        setCurrentPresetIndex(static_cast<int>(factoryPresetNames().size()) + index);
+    }
+
+    return true;
+}
+
+bool DeviceController::deleteCurrentUserPreset()
+{
+    if (!currentPresetIsUserPreset() || !m_presetService) {
+        return false;
+    }
+
+    const auto factoryCount = static_cast<int>(factoryPresetNames().size());
+    if (!m_presetService->deleteUserPreset(deviceTypeId(), userPresetNames().at(m_currentPresetIndex - factoryCount))) {
+        return false;
+    }
+
+    emit presetNamesChanged();
+
+    // The list just got shorter under the selection. Landing on the preset that took the deleted
+    // one's place keeps the dropdown from pointing past the end of itself. Emitted even when the
+    // index itself does not move, because whether it names a user preset just changed.
+    const auto presetCount = factoryCount + static_cast<int>(userPresetNames().size());
+    m_currentPresetIndex = std::clamp(m_currentPresetIndex, 0, std::max(0, presetCount - 1));
+    emit currentPresetIndexChanged();
+
+    return true;
 }
 
 int DeviceController::volume() const

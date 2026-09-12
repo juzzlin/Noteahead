@@ -17,12 +17,14 @@
 #define DEVICE_CONTROLLER_HPP
 
 #include <QObject>
+#include <QStringList>
 #include <QVariantList>
 #include <memory>
 
 namespace noteahead {
 
 class Device;
+class PresetService;
 
 class DeviceController : public QObject
 {
@@ -32,16 +34,22 @@ class DeviceController : public QObject
     Q_PROPERTY(int gain READ gain WRITE setGain NOTIFY gainChanged)
     Q_PROPERTY(int pan READ pan WRITE setPan NOTIFY panChanged)
     Q_PROPERTY(uint32_t sampleRate READ sampleRate NOTIFY sampleRateChanged)
+    Q_PROPERTY(QStringList presetNames READ presetNames NOTIFY presetNamesChanged)
+    Q_PROPERTY(int currentPresetIndex READ currentPresetIndex WRITE setCurrentPresetIndex NOTIFY currentPresetIndexChanged)
+    Q_PROPERTY(bool currentPresetIsUserPreset READ currentPresetIsUserPreset NOTIFY currentPresetIndexChanged)
 
 public:
     using DeviceS = std::shared_ptr<Device>;
     using DeviceControllerS = std::shared_ptr<DeviceController>;
+    using PresetServiceS = std::shared_ptr<PresetService>;
 
     explicit DeviceController(QObject * parent = nullptr);
     ~DeviceController() override = default;
 
     virtual DeviceS device() const = 0;
     virtual bool setDevice(DeviceS device) = 0;
+
+    void setPresetService(PresetServiceS presetService);
 
     int volume() const;
     void setVolume(int value);
@@ -69,6 +77,32 @@ public:
     //! Pitch the scope's last cycle-locked read found, in Hz, or 0 when there was none to find.
     Q_INVOKABLE double scopeFrequency() const;
 
+    //! The device's built-in patches. A device without any leaves this alone and still gets the
+    //! user's own presets, which is the whole reason the list lives here rather than in the two
+    //! controllers that happen to ship factory patches today.
+    virtual QStringList factoryPresetNames() const;
+    virtual void loadFactoryPreset(int index);
+
+    //! The factory patches followed by the user's own, numbered continuously. A user preset is
+    //! marked, so that the two are told apart without being separated.
+    QStringList presetNames() const;
+    int currentPresetIndex() const;
+    void setCurrentPresetIndex(int index);
+    bool currentPresetIsUserPreset() const;
+    //! The selected user preset's name without the numbering the dropdown adds, or empty when the
+    //! selected preset is a factory one. What a confirmation has to quote back at the user.
+    Q_INVOKABLE QString currentUserPresetName() const;
+
+    //! Loads the preset at @p index of presetNames(), factory or user alike.
+    Q_INVOKABLE void loadPreset(int index);
+
+    //! Whether saving under @p presetName would replace a preset the user already has.
+    Q_INVOKABLE bool userPresetExists(const QString & presetName) const;
+    //! Stores the device's current parameters under @p presetName and shows the result as selected.
+    Q_INVOKABLE bool saveUserPreset(const QString & presetName);
+    //! Deletes the selected preset. A no-op unless the selected one is the user's own.
+    Q_INVOKABLE bool deleteCurrentUserPreset();
+
     Q_INVOKABLE virtual void reset();
     Q_INVOKABLE virtual void requestSettings() = 0;
     Q_INVOKABLE virtual void accept();
@@ -82,6 +116,8 @@ signals:
     void gainChanged();
     void panChanged();
     void sampleRateChanged();
+    void presetNamesChanged();
+    void currentPresetIndexChanged();
 
 protected:
     void connectDeviceSignals();
@@ -91,6 +127,12 @@ protected:
     void applyScopeActive();
 
 private:
+    //! The user's presets for the device's type, or an empty list when no store is set.
+    QStringList userPresetNames() const;
+    QString deviceTypeId() const;
+
+    PresetServiceS m_presetService;
+    int m_currentPresetIndex = 0;
     bool m_scopeActive = false;
     std::weak_ptr<Device> m_scopeDevice;
 };

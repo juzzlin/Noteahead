@@ -54,6 +54,10 @@ public:
     explicit DeviceRackController(DeviceServiceS deviceService, ControllerList controllers, EditorServiceS editorService, QObject * parent = nullptr);
     ~DeviceRackController() override;
 
+    //! Hands the user's preset store to every device controller. Done here rather than one line per
+    //! controller in Application, so that a device added later cannot be left out of it.
+    void setPresetService(DeviceController::PresetServiceS presetService);
+
     int rowCount(const QModelIndex & parent = QModelIndex()) const override;
     QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;

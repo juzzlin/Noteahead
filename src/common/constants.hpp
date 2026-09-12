@@ -44,11 +44,23 @@ QString effectSettingsExtension();
 //! Extension of a whole exported effect rack. Kept apart from a single effect's so that the two
 //! kinds of file cannot be handed to each other's importer, which would silently do nothing.
 QString effectRackSettingsExtension();
+//! Extension of a single user preset: a device's or effect's parameters under a name of the
+//! user's own. Kept apart from the settings extensions above, which carry a whole device or
+//! effect rather than only what a preset is allowed to write.
+QString presetFileExtension();
 QString midiFileExtension();
 
 QString qSettingsCompanyName();
 QString qSettingSoftwareName();
 QString webSiteUrl();
+
+//! Directory holding the user's own presets, under the application's configuration directory. One
+//! subdirectory per device or effect type, so that no type can ever be offered another's presets.
+QString userPresetDirectoryName();
+
+//! Appended to a user preset's name in a preset dropdown. The user's own patches sit in the same
+//! numbering as the factory ones, so this is what tells the two apart.
+QString userPresetMarker();
 
 size_t defaultPatternLineCount();
 size_t defaultTrackCount();

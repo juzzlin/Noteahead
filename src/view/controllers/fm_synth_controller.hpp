@@ -81,8 +81,6 @@ class FmSynthController : public DeviceController
     //! follow whichever device it is pointed at.
     Q_PROPERTY(QVariantList operators READ operators CONSTANT)
 
-    Q_PROPERTY(QStringList presetNames READ presetNames CONSTANT)
-    Q_PROPERTY(int currentPresetIndex READ currentPresetIndex WRITE setCurrentPresetIndex NOTIFY currentPresetIndexChanged)
     Q_PROPERTY(QStringList algorithmNames READ algorithmNames CONSTANT)
     Q_PROPERTY(QStringList operatorWaveformNames READ operatorWaveformNames CONSTANT)
     Q_PROPERTY(QStringList ratioNames READ ratioNames CONSTANT)
@@ -188,9 +186,9 @@ public:
 
     QVariantList operators() const;
 
-    QStringList presetNames() const;
-    int currentPresetIndex() const;
-    void setCurrentPresetIndex(int index);
+    QStringList factoryPresetNames() const override;
+    void loadFactoryPreset(int index) override;
+
     QStringList algorithmNames() const;
     QStringList operatorWaveformNames() const;
     QStringList ratioNames() const;
@@ -199,8 +197,6 @@ public:
     QStringList lfoWaveformNames() const;
     QStringList lfoModeNames() const;
     QStringList lfoTargetNames() const;
-
-    Q_INVOKABLE void loadPreset(int index);
 
     //! Fills the whole panel with a patch assembled at random. FM is not a synth anyone dials in
     //! blind, so this is a first-class way of finding sounds rather than a toy.
@@ -221,7 +217,6 @@ signals:
     void delayFeedbackLpfChanged();
     void delayFeedbackHpfChanged();
     void delaySyncChanged();
-    void currentPresetIndexChanged();
 
     void algorithmChanged();
     void feedbackChanged();
@@ -260,7 +255,6 @@ private:
     std::shared_ptr<FmSynthDevice> m_synth;
     std::shared_ptr<DeviceService> m_deviceService;
     std::vector<FmOperatorController *> m_operators;
-    int m_currentPresetIndex { 0 };
 
     void connectDeviceSignals();
 };

@@ -143,6 +143,17 @@ void Device::deserializeFromXml(ProjectReader & reader)
     emit dataChanged();
 }
 
+void Device::applyPresetParametersFromXml(ProjectReader & reader)
+{
+    {
+        std::lock_guard<std::recursive_mutex> lock { m_mutex };
+        reset();
+        deserializeParametersFromXml(reader);
+        syncParameters();
+    }
+    emit dataChanged();
+}
+
 uint32_t Device::sampleRate() const
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };

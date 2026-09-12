@@ -77,36 +77,18 @@ QVariantList FmSynthController::operators() const
     return list;
 }
 
-QStringList FmSynthController::presetNames() const
+QStringList FmSynthController::factoryPresetNames() const
 {
-    // Numbered the way the Synth numbers its own, so the two dialogs read alike.
     QStringList list;
-    const auto & presets = FmSynthPresets::presets();
-    for (size_t i = 0; i < presets.size(); i++) {
-        list << QString { "%1: %2" }
-                  .arg(static_cast<int>(i), 3, 10, QChar { '0' })
-                  .arg(QString::fromStdString(presets.at(i).name));
+    for (const auto & preset : FmSynthPresets::presets()) {
+        list << QString::fromStdString(preset.name);
     }
     return list;
 }
 
-int FmSynthController::currentPresetIndex() const
-{
-    return m_currentPresetIndex;
-}
-
-void FmSynthController::setCurrentPresetIndex(int index)
-{
-    if (m_currentPresetIndex != index) {
-        m_currentPresetIndex = index;
-        emit currentPresetIndexChanged();
-    }
-}
-
-void FmSynthController::loadPreset(int index)
+void FmSynthController::loadFactoryPreset(int index)
 {
     if (m_synth) {
-        setCurrentPresetIndex(index);
         m_synth->loadPreset(index);
         requestSettings();
     }

@@ -69,6 +69,11 @@ QString effectRackSettingsExtension()
     return ".nahdrack";
 }
 
+QString presetFileExtension()
+{
+    return ".nahdpre";
+}
+
 QString midiFileExtension()
 {
     return ".mid";
@@ -87,6 +92,16 @@ QString webSiteUrl()
 QString qSettingSoftwareName()
 {
     return applicationName();
+}
+
+QString userPresetDirectoryName()
+{
+    return "presets";
+}
+
+QString userPresetMarker()
+{
+    return " *";
 }
 
 size_t defaultPatternLineCount()

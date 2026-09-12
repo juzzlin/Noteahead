@@ -72,6 +72,8 @@ QtObject {
     signal manualDialogRequested
     signal mixerDialogRequested
     signal noteFrequencyDialogRequested
+    signal presetNameRequested(var controller, string currentName)
+    signal presetDeleteConfirmationRequested(var controller, string presetName)
     signal recentFilesDialogRequested
     signal renderProgressDialogRequested
     signal samplerDialogRequested
@@ -218,6 +220,14 @@ QtObject {
     }
     function requestDeviceRackDialogFromTrackSettings(): void {
         deviceRackDialogFromTrackSettingsRequested();
+    }
+    //! Asks for the name a preset is to be saved under. The controller travels with the request so
+    //! that one dialog serves every device without knowing anything about which one it is serving.
+    function requestPresetName(controller, currentName: string): void {
+        presetNameRequested(controller, currentName);
+    }
+    function requestPresetDeleteConfirmation(controller, presetName: string): void {
+        presetDeleteConfirmationRequested(controller, presetName);
     }
     function requestExportDeviceSettings(slotIndex: int, deviceName: string, deviceTypeName: string): void {
         exportDeviceSettingsRequested(slotIndex, deviceName, deviceTypeName);

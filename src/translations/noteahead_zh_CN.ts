@@ -2857,6 +2857,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Save preset...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Four operators, eight algorithms</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3217,6 +3233,22 @@
         <translation>效果类型不匹配</translation>
     </message>
     <message>
+        <source>A preset named &apos;%1&apos; already exists. Replace it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace Preset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete Preset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Assign Instrument Port</source>
         <translation>分配乐器端口</translation>
     </message>
@@ -3235,6 +3267,10 @@
     <message>
         <source>Pitch Bend automation added</source>
         <translation>已添加弯音自动化</translation>
+    </message>
+    <message>
+        <source>Delete the preset &apos;%1&apos;?</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The file contains settings for &apos;%1&apos; but the current effect is &apos;%2&apos;. Replace it anyway?</source>
@@ -5063,6 +5099,17 @@
     <message>
         <source>Start playing from the current position</source>
         <translation>从当前位置开始播放</translation>
+    </message>
+</context>
+<context>
+    <name>PresetNameDialog</name>
+    <message>
+        <source>Save Preset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Preset name:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7883,6 +7930,22 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
 </context>
 <context>
     <name>SynthDialog_Presets</name>
+    <message>
+        <source>Save preset...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>A general purpose 6-voice synthesizer</source>
         <translation>通用 6 声部合成器</translation>

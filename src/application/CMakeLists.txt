@@ -41,6 +41,7 @@ set(HEADER_FILES
     service/mixer_service.hpp
     service/player_service.hpp
     service/player_worker.hpp
+    service/preset_service.hpp
     service/property_service.hpp
     service/random_service.hpp
     service/recent_files_manager.hpp
@@ -99,6 +100,7 @@ set(SOURCE_FILES
     service/mixer_service.cpp
     service/player_service.cpp
     service/player_worker.cpp
+    service/preset_service.cpp
     service/property_service.cpp
     service/random_service.cpp
     service/recent_files_manager.cpp

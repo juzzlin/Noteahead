@@ -2858,6 +2858,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Save preset...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Four operators, eight algorithms</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3218,6 +3234,22 @@
         <translation>Tipo di effetto non corrispondente</translation>
     </message>
     <message>
+        <source>A preset named &apos;%1&apos; already exists. Replace it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace Preset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete Preset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Assign Instrument Port</source>
         <translation>Assegna la porta dello strumento</translation>
     </message>
@@ -3236,6 +3268,10 @@
     <message>
         <source>Pitch Bend automation added</source>
         <translation>Automazione Pitch Bend aggiunta</translation>
+    </message>
+    <message>
+        <source>Delete the preset &apos;%1&apos;?</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The file contains settings for &apos;%1&apos; but the current effect is &apos;%2&apos;. Replace it anyway?</source>
@@ -5064,6 +5100,17 @@
     <message>
         <source>Start playing from the current position</source>
         <translation>Inizia la riproduzione dalla posizione corrente</translation>
+    </message>
+</context>
+<context>
+    <name>PresetNameDialog</name>
+    <message>
+        <source>Save Preset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Preset name:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7884,6 +7931,22 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
 </context>
 <context>
     <name>SynthDialog_Presets</name>
+    <message>
+        <source>Save preset...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>A general purpose 6-voice synthesizer</source>
         <translation>Un sintetizzatore a 6 voci per uso generale</translation>

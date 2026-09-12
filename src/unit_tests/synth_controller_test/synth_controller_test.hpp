@@ -14,6 +14,11 @@ class SynthControllerTest : public QObject
 
 private slots:
     void test_loadPreset_shouldShowTheLoadedPreset();
+    void test_presetNames_withUserPresets_shouldContinueTheFactoryNumbering();
+    void test_loadPreset_userPreset_shouldApplyTheStoredPatch();
+    void test_saveUserPreset_shouldSelectWhatWasJustSaved();
+    void test_deleteCurrentUserPreset_factoryPreset_shouldDeleteNothing();
+    void test_deleteCurrentUserPreset_shouldDropItFromTheList();
     void test_sampleRateChange_shouldUpdateHzValues();
     void test_properties_shouldUpdateDeviceAndEmitSignals();
     void test_reset_shouldRestoreDefaultValues();

@@ -39,7 +39,26 @@ RowLayout {
         model: synthController.presetNames
         currentIndex: synthController.currentPresetIndex
         onActivated: index => synthController.loadPreset(index)
+        // A ComboBox writes its own currentIndex when the model changes, which breaks the binding
+        // above. Without this a preset just saved would not show as the one selected.
+        onModelChanged: currentIndex = Qt.binding(() => synthController.currentPresetIndex)
         Layout.preferredWidth: 220
+    }
+
+    AppButton {
+        text: qsTr("Save preset...")
+        toolTipText: qsTr("Save the current settings as a preset of your own")
+        implicitWidth: Constants.defaultButtonWidth
+        onClicked: UiService.requestPresetName(synthController, "")
+    }
+
+    AppButton {
+        text: qsTr("Delete")
+        toolTipText: qsTr("Delete the selected preset of your own")
+        implicitWidth: Constants.defaultButtonWidth
+        // Only the user's own presets are theirs to delete
+        enabled: synthController.currentPresetIsUserPreset
+        onClicked: UiService.requestPresetDeleteConfirmation(synthController, synthController.currentUserPresetName())
     }
 
     Label {

@@ -96,6 +96,7 @@
 #include "service/midi_service.hpp"
 #include "service/mixer_service.hpp"
 #include "service/player_service.hpp"
+#include "service/preset_service.hpp"
 #include "service/property_service.hpp"
 #include "service/recent_files_manager.hpp"
 #include "service/render_service.hpp"
@@ -143,6 +144,7 @@ Application::Application(int & argc, char ** argv)
   , m_editorService { std::make_shared<EditorService>(m_selectionService, m_settingsService, m_automationService, m_dataService) }
   , m_audioEngine { std::make_shared<AudioEngine>() }
   , m_deviceService { std::make_shared<DeviceService>(m_audioEngine, m_dataService) }
+  , m_presetService { std::make_shared<PresetService>() }
   , m_samplerController { std::make_shared<SamplerController>(std::make_shared<SamplerDevice>("Default Sampler")) }
   , m_synthController { std::make_shared<SynthController>(std::make_shared<SynthDevice>("Default Synth")) }
   , m_wavetableSynthController { std::make_shared<WavetableSynthController>(std::make_shared<WavetableSynthDevice>("Default WavetableSynth")) }
@@ -451,6 +453,8 @@ void Application::connectDeviceService()
     m_synthController->setDeviceService(m_deviceService);
     m_wavetableSynthController->setDeviceService(m_deviceService);
     m_fmSynthController->setDeviceService(m_deviceService);
+
+    m_deviceRackController->setPresetService(m_presetService);
 
     connect(m_deviceService.get(), &DeviceService::dataChanged, this, [this]() {
         m_editorService->setIsModified(true);

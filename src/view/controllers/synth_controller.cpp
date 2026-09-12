@@ -749,29 +749,13 @@ void SynthController::setPitchBendRange(int r)
     }
 }
 
-QStringList SynthController::presetNames() const
+QStringList SynthController::factoryPresetNames() const
 {
     QStringList names;
-    const auto & presetList = SynthPresets::presets();
-    for (size_t i = 0; i < presetList.size(); ++i) {
-        names.append(QString { "%1: %2" }
-                       .arg(static_cast<int>(i), 3, 10, QChar { '0' })
-                       .arg(QString::fromStdString(presetList.at(i).name)));
+    for (const auto & preset : SynthPresets::presets()) {
+        names.append(QString::fromStdString(preset.name));
     }
     return names;
-}
-
-int SynthController::currentPresetIndex() const
-{
-    return m_currentPresetIndex;
-}
-
-void SynthController::setCurrentPresetIndex(int index)
-{
-    if (m_currentPresetIndex != index) {
-        m_currentPresetIndex = index;
-        emit currentPresetIndexChanged();
-    }
 }
 
 // Oscillator drift
@@ -999,12 +983,9 @@ void SynthController::requestSettings()
     emit delayFeedbackHpfChanged();
 }
 
-void SynthController::loadPreset(int index)
+void SynthController::loadFactoryPreset(int index)
 {
     if (m_synth) {
-        // The controller owns which preset is showing, so that the dialog only has to ask for one
-        // to be loaded. Left to the caller, the combo box reads back its old value and snaps back.
-        setCurrentPresetIndex(index);
         m_synth->loadPreset(index);
         requestSettings();
     }

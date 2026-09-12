@@ -70,6 +70,13 @@ DeviceRackController::DeviceRackController(DeviceServiceS deviceService, Control
 
 DeviceRackController::~DeviceRackController() = default;
 
+void DeviceRackController::setPresetService(DeviceController::PresetServiceS presetService)
+{
+    for (auto && controller : m_controllers) {
+        controller->setPresetService(presetService);
+    }
+}
+
 int DeviceRackController::rowCount(const QModelIndex & parent) const
 {
     if (parent.isValid()) {

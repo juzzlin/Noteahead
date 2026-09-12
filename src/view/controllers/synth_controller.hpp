@@ -123,8 +123,6 @@ class SynthController : public DeviceController
     Q_PROPERTY(int portamento READ portamento WRITE setPortamento NOTIFY portamentoChanged)
     Q_PROPERTY(int panSpread READ panSpread WRITE setPanSpread NOTIFY panSpreadChanged)
     Q_PROPERTY(int pitchBendRange READ pitchBendRange WRITE setPitchBendRange NOTIFY pitchBendRangeChanged)
-    Q_PROPERTY(QStringList presetNames READ presetNames CONSTANT)
-    Q_PROPERTY(int currentPresetIndex READ currentPresetIndex WRITE setCurrentPresetIndex NOTIFY currentPresetIndexChanged)
 
     // Oscillator drift
     Q_PROPERTY(int oscillatorDrift READ oscillatorDrift WRITE setOscillatorDrift NOTIFY oscillatorDriftChanged)
@@ -292,9 +290,8 @@ public:
     int pitchBendRange() const;
     void setPitchBendRange(int r);
 
-    QStringList presetNames() const;
-    int currentPresetIndex() const;
-    void setCurrentPresetIndex(int index);
+    QStringList factoryPresetNames() const override;
+    void loadFactoryPreset(int index) override;
 
     int oscillatorDrift() const;
     void setOscillatorDrift(int drift);
@@ -323,14 +320,12 @@ public:
 
     Q_INVOKABLE void initialize();
     Q_INVOKABLE void requestSettings() override;
-    Q_INVOKABLE void loadPreset(int index);
 
 signals:
     //! Emitted when the UI language changed and the translated lists must be re-read.
     void translationsChanged();
 
     void synthChanged();
-    void currentPresetIndexChanged();
     void vco1WaveformChanged();
     void vco1OctaveChanged();
     void vco1PitchChanged();
@@ -406,7 +401,6 @@ public:
 private:
     std::shared_ptr<SynthDevice> m_synth;
     std::shared_ptr<DeviceService> m_deviceService;
-    int m_currentPresetIndex = 0;
 };
 
 } // namespace noteahead

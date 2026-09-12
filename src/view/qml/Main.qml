@@ -279,6 +279,40 @@ ApplicationWindow {
         property url fileUrl
         onAccepted: effectRackController.confirmImportEffectSettings(slotIndex, fileUrl)
     }
+    PresetNameDialog {
+        id: presetNameDialog
+        anchors.centerIn: parent
+        onAccepted: {
+            const name = presetName();
+            // Asked before saving rather than after, because the save itself is what would destroy
+            // the patch already stored under that name.
+            if (targetController.userPresetExists(name)) {
+                presetOverwriteConfirmationDialog.targetController = targetController;
+                presetOverwriteConfirmationDialog.presetName = name;
+                presetOverwriteConfirmationDialog.message = qsTr("A preset named '%1' already exists. Replace it?").arg(name);
+                presetOverwriteConfirmationDialog.open();
+            } else {
+                targetController.saveUserPreset(name);
+            }
+        }
+    }
+    ConfirmationDialog {
+        id: presetOverwriteConfirmationDialog
+        anchors.centerIn: parent
+        title: "<strong>" + qsTr("Replace Preset") + "</strong>"
+        acceptButtonText: qsTr("Replace")
+        property var targetController: null
+        property string presetName
+        onAccepted: targetController.saveUserPreset(presetName)
+    }
+    ConfirmationDialog {
+        id: presetDeleteConfirmationDialog
+        anchors.centerIn: parent
+        title: "<strong>" + qsTr("Delete Preset") + "</strong>"
+        acceptButtonText: qsTr("Delete")
+        property var targetController: null
+        onAccepted: targetController.deleteCurrentUserPreset()
+    }
     ConfirmationDialog {
         id: portAutoAssignDialog
         anchors.centerIn: parent
@@ -1035,6 +1069,16 @@ ApplicationWindow {
             deviceInsertEffectsDialog.open();
         });
 
+        UiService.presetNameRequested.connect((controller, currentName) => {
+            presetNameDialog.targetController = controller;
+            presetNameDialog.setPresetName(currentName);
+            presetNameDialog.open();
+        });
+        UiService.presetDeleteConfirmationRequested.connect((controller, presetName) => {
+            presetDeleteConfirmationDialog.targetController = controller;
+            presetDeleteConfirmationDialog.message = qsTr("Delete the preset '%1'?").arg(presetName);
+            presetDeleteConfirmationDialog.open();
+        });
         UiService.exportDeviceSettingsRequested.connect((slotIndex, deviceName, deviceTypeName) => {
             exportDeviceSettingsDialog.slotIndex = slotIndex;
             const filename = applicationService.defaultDeviceFileName(deviceTypeName) + applicationService.deviceSettingsExtension();

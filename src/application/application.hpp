@@ -44,6 +44,7 @@ class ColumnSettingsModel;
 class DataService;
 class DeviceRackController;
 class DeviceService;
+class PresetService;
 class BassSynthController;
 class DrumSynthController;
 class Kick808Controller;
@@ -174,6 +175,7 @@ private:
 
     std::shared_ptr<AudioEngine> m_audioEngine;
     std::shared_ptr<DeviceService> m_deviceService;
+    std::shared_ptr<PresetService> m_presetService;
     std::shared_ptr<SamplerController> m_samplerController;
     std::shared_ptr<SynthController> m_synthController;
     std::shared_ptr<WavetableSynthController> m_wavetableSynthController;
