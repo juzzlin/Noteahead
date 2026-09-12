@@ -7374,6 +7374,226 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     </message>
 </context>
 <context>
+    <name>StringVoiceV3Dialog</name>
+    <message>
+        <source>Ok</source>
+        <translation type="unfinished">OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Peruuta</translation>
+    </message>
+</context>
+<context>
+    <name>StringVoiceV3Dialog_Balance</name>
+    <message>
+        <source>Balance</source>
+        <translation type="unfinished">Balanssi</translation>
+    </message>
+    <message>
+        <source>One level per section, so the two can be balanced without re-tuning each footage.</source>
+        <translation type="unfinished">Yksi taso osaa kohden, jotta nämä kaksi voi tasapainottaa virittämättä jokaista jalkalukua uudelleen.</translation>
+    </message>
+    <message>
+        <source>Human Voice</source>
+        <translation type="unfinished">Ihmisääni</translation>
+    </message>
+    <message>
+        <source>Strings</source>
+        <translation type="unfinished">Jouset</translation>
+    </message>
+</context>
+<context>
+    <name>StringVoiceV3Dialog_Ensemble</name>
+    <message>
+        <source>Ensemble Chorus</source>
+        <translation type="unfinished">Ensemble-kuoro</translation>
+    </message>
+    <message>
+        <source>Enable Ensemble</source>
+        <translation type="unfinished">Ota ensemble käyttöön</translation>
+    </message>
+    <message>
+        <source>Applies to the Voice section only, as on the hardware. The Strings have a chorus of their own that is always on.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Voice section only. The Strings have their own, always on.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mode:</source>
+        <translation type="unfinished">Tila:</translation>
+    </message>
+    <message>
+        <source>Chorus I</source>
+        <translation type="unfinished">Chorus I</translation>
+    </message>
+    <message>
+        <source>Chorus II</source>
+        <translation type="unfinished">Chorus II</translation>
+    </message>
+    <message>
+        <source>Chorus I + II</source>
+        <translation type="unfinished">Chorus I + II</translation>
+    </message>
+    <message>
+        <source>Vibrato</source>
+        <translation type="unfinished">Vibrato</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation type="unfinished">Nopeus</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation type="unfinished">Syvyys</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">Delay</translation>
+    </message>
+</context>
+<context>
+    <name>StringVoiceV3Dialog_Global</name>
+    <message>
+        <source>Global</source>
+        <translation type="unfinished">Yleiset</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation type="unfinished">Vahvistus</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation type="unfinished">Liuku</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation type="unfinished">Panorointi</translation>
+    </message>
+    <message>
+        <source>Pan Spread</source>
+        <translation type="unfinished">Panoroinnin levitys</translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation type="unfinished">Suodin</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation type="unfinished">LPF cutoff</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation type="unfinished">HPF cutoff</translation>
+    </message>
+</context>
+<context>
+    <name>StringVoiceV3Dialog_Strings</name>
+    <message>
+        <source>Strings Section</source>
+        <translation type="unfinished">Jousiosa</translation>
+    </message>
+    <message>
+        <source>Upper</source>
+        <translation type="unfinished">Ylä</translation>
+    </message>
+    <message>
+        <source>Lower</source>
+        <translation type="unfinished">Ala</translation>
+    </message>
+    <message>
+        <source>Tone</source>
+        <translation type="unfinished">Sävy</translation>
+    </message>
+    <message>
+        <source>Attack Time</source>
+        <translation type="unfinished">Attack-aika</translation>
+    </message>
+    <message>
+        <source>Release Time</source>
+        <translation type="unfinished">Release-aika</translation>
+    </message>
+</context>
+<context>
+    <name>StringVoiceV3Dialog_Velocity</name>
+    <message>
+        <source>Velocity</source>
+        <translation type="unfinished">Voimakkuus</translation>
+    </message>
+    <message>
+        <source>How far both sections follow how hard a key is struck. Fully down they ignore it.</source>
+        <translation type="unfinished">Kuinka paljon molemmat osat seuraavat koskettimen iskuvoimaa. Täysin alhaalla ne jättävät sen huomiotta.</translation>
+    </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation type="unfinished">Voimakkuusherkkyys</translation>
+    </message>
+</context>
+<context>
+    <name>StringVoiceV3Dialog_Vocoder</name>
+    <message>
+        <source>Vocoder</source>
+        <translation type="unfinished">Vokooderi</translation>
+    </message>
+    <message>
+        <source>Enable Vocoder</source>
+        <translation type="unfinished">Ota vokooderi käyttöön</translation>
+    </message>
+    <message>
+        <source>Modulator:</source>
+        <translation type="unfinished">Modulaattori:</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation type="unfinished">Ei mitään</translation>
+    </message>
+    <message>
+        <source>Device %1</source>
+        <translation type="unfinished">Laite %1</translation>
+    </message>
+</context>
+<context>
+    <name>StringVoiceV3Dialog_Voice</name>
+    <message>
+        <source>Voice Section</source>
+        <translation type="unfinished">Ääniosa</translation>
+    </message>
+    <message>
+        <source>Lower (below C4)</source>
+        <translation type="unfinished">Ala (alle C4)</translation>
+    </message>
+    <message>
+        <source>Male 8&apos;</source>
+        <translation type="unfinished">Mies 8&apos;</translation>
+    </message>
+    <message>
+        <source>Male 4&apos;</source>
+        <translation type="unfinished">Mies 4&apos;</translation>
+    </message>
+    <message>
+        <source>Upper (C4 and above)</source>
+        <translation type="unfinished">Ylä (C4 ja ylöspäin)</translation>
+    </message>
+    <message>
+        <source>Female 4&apos;</source>
+        <translation type="unfinished">Nainen 4&apos;</translation>
+    </message>
+    <message>
+        <source>The female voice sounds only above the split, an octave up, as on the hardware.</source>
+        <translation type="unfinished">Naisääni soi vain jakokohdan yläpuolella, oktaavia ylempänä, kuten laitteessa.</translation>
+    </message>
+    <message>
+        <source>Attack Time</source>
+        <translation type="unfinished">Attack-aika</translation>
+    </message>
+    <message>
+        <source>Release Time</source>
+        <translation type="unfinished">Release-aika</translation>
+    </message>
+</context>
+<context>
     <name>SubMixerDialog</name>
     <message>
         <source>Sub Mixer (Slot %1)</source>

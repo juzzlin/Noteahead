@@ -7374,6 +7374,226 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     </message>
 </context>
 <context>
+    <name>StringVoiceV3Dialog</name>
+    <message>
+        <source>Ok</source>
+        <translation type="unfinished">Aceptar</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Cancelar</translation>
+    </message>
+</context>
+<context>
+    <name>StringVoiceV3Dialog_Balance</name>
+    <message>
+        <source>Balance</source>
+        <translation type="unfinished">Balance</translation>
+    </message>
+    <message>
+        <source>One level per section, so the two can be balanced without re-tuning each footage.</source>
+        <translation type="unfinished">Un nivel por sección, para poder equilibrar ambas sin volver a ajustar cada pie.</translation>
+    </message>
+    <message>
+        <source>Human Voice</source>
+        <translation type="unfinished">Voz humana</translation>
+    </message>
+    <message>
+        <source>Strings</source>
+        <translation type="unfinished">Cuerdas</translation>
+    </message>
+</context>
+<context>
+    <name>StringVoiceV3Dialog_Ensemble</name>
+    <message>
+        <source>Ensemble Chorus</source>
+        <translation type="unfinished">Chorus de ensemble</translation>
+    </message>
+    <message>
+        <source>Enable Ensemble</source>
+        <translation type="unfinished">Activar el ensemble</translation>
+    </message>
+    <message>
+        <source>Applies to the Voice section only, as on the hardware. The Strings have a chorus of their own that is always on.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Voice section only. The Strings have their own, always on.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mode:</source>
+        <translation type="unfinished">Modo:</translation>
+    </message>
+    <message>
+        <source>Chorus I</source>
+        <translation type="unfinished">Chorus I</translation>
+    </message>
+    <message>
+        <source>Chorus II</source>
+        <translation type="unfinished">Chorus II</translation>
+    </message>
+    <message>
+        <source>Chorus I + II</source>
+        <translation type="unfinished">Chorus I + II</translation>
+    </message>
+    <message>
+        <source>Vibrato</source>
+        <translation type="unfinished">Vibrato</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation type="unfinished">Velocidad</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation type="unfinished">Profundidad</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">Retardo</translation>
+    </message>
+</context>
+<context>
+    <name>StringVoiceV3Dialog_Global</name>
+    <message>
+        <source>Global</source>
+        <translation type="unfinished">Global</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation type="unfinished">Ganancia</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation type="unfinished">Fader</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation type="unfinished">Paneo</translation>
+    </message>
+    <message>
+        <source>Pan Spread</source>
+        <translation type="unfinished">Dispersión del paneo</translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation type="unfinished">Filtro</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation type="unfinished">Corte del LPF</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation type="unfinished">Corte del HPF</translation>
+    </message>
+</context>
+<context>
+    <name>StringVoiceV3Dialog_Strings</name>
+    <message>
+        <source>Strings Section</source>
+        <translation type="unfinished">Sección de cuerdas</translation>
+    </message>
+    <message>
+        <source>Upper</source>
+        <translation type="unfinished">Superior</translation>
+    </message>
+    <message>
+        <source>Lower</source>
+        <translation type="unfinished">Inferior</translation>
+    </message>
+    <message>
+        <source>Tone</source>
+        <translation type="unfinished">Tono</translation>
+    </message>
+    <message>
+        <source>Attack Time</source>
+        <translation type="unfinished">Tiempo de ataque</translation>
+    </message>
+    <message>
+        <source>Release Time</source>
+        <translation type="unfinished">Tiempo de liberación</translation>
+    </message>
+</context>
+<context>
+    <name>StringVoiceV3Dialog_Velocity</name>
+    <message>
+        <source>Velocity</source>
+        <translation type="unfinished">Velocidad</translation>
+    </message>
+    <message>
+        <source>How far both sections follow how hard a key is struck. Fully down they ignore it.</source>
+        <translation type="unfinished">Hasta qué punto ambas secciones siguen la fuerza con que se pulsa una tecla. Al mínimo la ignoran.</translation>
+    </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation type="unfinished">Sensibilidad a la velocidad</translation>
+    </message>
+</context>
+<context>
+    <name>StringVoiceV3Dialog_Vocoder</name>
+    <message>
+        <source>Vocoder</source>
+        <translation type="unfinished">Vocoder</translation>
+    </message>
+    <message>
+        <source>Enable Vocoder</source>
+        <translation type="unfinished">Activar el vocoder</translation>
+    </message>
+    <message>
+        <source>Modulator:</source>
+        <translation type="unfinished">Modulador:</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation type="unfinished">Ninguno</translation>
+    </message>
+    <message>
+        <source>Device %1</source>
+        <translation type="unfinished">Dispositivo %1</translation>
+    </message>
+</context>
+<context>
+    <name>StringVoiceV3Dialog_Voice</name>
+    <message>
+        <source>Voice Section</source>
+        <translation type="unfinished">Sección de voz</translation>
+    </message>
+    <message>
+        <source>Lower (below C4)</source>
+        <translation type="unfinished">Inferior (por debajo de do4)</translation>
+    </message>
+    <message>
+        <source>Male 8&apos;</source>
+        <translation type="unfinished">Masculina 8&apos;</translation>
+    </message>
+    <message>
+        <source>Male 4&apos;</source>
+        <translation type="unfinished">Masculina 4&apos;</translation>
+    </message>
+    <message>
+        <source>Upper (C4 and above)</source>
+        <translation type="unfinished">Superior (do4 y por encima)</translation>
+    </message>
+    <message>
+        <source>Female 4&apos;</source>
+        <translation type="unfinished">Femenina 4&apos;</translation>
+    </message>
+    <message>
+        <source>The female voice sounds only above the split, an octave up, as on the hardware.</source>
+        <translation type="unfinished">La voz femenina suena solo por encima del punto de división, una octava más arriba, igual que en el hardware.</translation>
+    </message>
+    <message>
+        <source>Attack Time</source>
+        <translation type="unfinished">Tiempo de ataque</translation>
+    </message>
+    <message>
+        <source>Release Time</source>
+        <translation type="unfinished">Tiempo de liberación</translation>
+    </message>
+</context>
+<context>
     <name>SubMixerDialog</name>
     <message>
         <source>Sub Mixer (Slot %1)</source>

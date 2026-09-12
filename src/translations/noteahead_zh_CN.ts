@@ -7373,6 +7373,226 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
 </context>
 <context>
+    <name>StringVoiceV3Dialog</name>
+    <message>
+        <source>Ok</source>
+        <translation type="unfinished">确定</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">取消</translation>
+    </message>
+</context>
+<context>
+    <name>StringVoiceV3Dialog_Balance</name>
+    <message>
+        <source>Balance</source>
+        <translation type="unfinished">平衡</translation>
+    </message>
+    <message>
+        <source>One level per section, so the two can be balanced without re-tuning each footage.</source>
+        <translation type="unfinished">每个部分一个电平，这样无需重新调整每个音栓脚长即可平衡两者。</translation>
+    </message>
+    <message>
+        <source>Human Voice</source>
+        <translation type="unfinished">人声</translation>
+    </message>
+    <message>
+        <source>Strings</source>
+        <translation type="unfinished">弦乐</translation>
+    </message>
+</context>
+<context>
+    <name>StringVoiceV3Dialog_Ensemble</name>
+    <message>
+        <source>Ensemble Chorus</source>
+        <translation type="unfinished">合奏合唱</translation>
+    </message>
+    <message>
+        <source>Enable Ensemble</source>
+        <translation type="unfinished">启用合奏</translation>
+    </message>
+    <message>
+        <source>Applies to the Voice section only, as on the hardware. The Strings have a chorus of their own that is always on.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Voice section only. The Strings have their own, always on.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mode:</source>
+        <translation type="unfinished">模式：</translation>
+    </message>
+    <message>
+        <source>Chorus I</source>
+        <translation type="unfinished">Chorus I</translation>
+    </message>
+    <message>
+        <source>Chorus II</source>
+        <translation type="unfinished">Chorus II</translation>
+    </message>
+    <message>
+        <source>Chorus I + II</source>
+        <translation type="unfinished">Chorus I + II</translation>
+    </message>
+    <message>
+        <source>Vibrato</source>
+        <translation type="unfinished">颤音</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation type="unfinished">速率</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation type="unfinished">深度</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">延迟</translation>
+    </message>
+</context>
+<context>
+    <name>StringVoiceV3Dialog_Global</name>
+    <message>
+        <source>Global</source>
+        <translation type="unfinished">全局</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation type="unfinished">增益</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation type="unfinished">推子</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation type="unfinished">声像</translation>
+    </message>
+    <message>
+        <source>Pan Spread</source>
+        <translation type="unfinished">声像扩散</translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation type="unfinished">滤波器</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation type="unfinished">低通截止频率</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation type="unfinished">高通截止频率</translation>
+    </message>
+</context>
+<context>
+    <name>StringVoiceV3Dialog_Strings</name>
+    <message>
+        <source>Strings Section</source>
+        <translation type="unfinished">弦乐部</translation>
+    </message>
+    <message>
+        <source>Upper</source>
+        <translation type="unfinished">上</translation>
+    </message>
+    <message>
+        <source>Lower</source>
+        <translation type="unfinished">下</translation>
+    </message>
+    <message>
+        <source>Tone</source>
+        <translation type="unfinished">音色</translation>
+    </message>
+    <message>
+        <source>Attack Time</source>
+        <translation type="unfinished">起音时间</translation>
+    </message>
+    <message>
+        <source>Release Time</source>
+        <translation type="unfinished">释音时间</translation>
+    </message>
+</context>
+<context>
+    <name>StringVoiceV3Dialog_Velocity</name>
+    <message>
+        <source>Velocity</source>
+        <translation type="unfinished">力度</translation>
+    </message>
+    <message>
+        <source>How far both sections follow how hard a key is struck. Fully down they ignore it.</source>
+        <translation type="unfinished">两个部分跟随按键力度的程度。调至最低时将忽略力度。</translation>
+    </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation type="unfinished">力度灵敏度</translation>
+    </message>
+</context>
+<context>
+    <name>StringVoiceV3Dialog_Vocoder</name>
+    <message>
+        <source>Vocoder</source>
+        <translation type="unfinished">声码器</translation>
+    </message>
+    <message>
+        <source>Enable Vocoder</source>
+        <translation type="unfinished">启用声码器</translation>
+    </message>
+    <message>
+        <source>Modulator:</source>
+        <translation type="unfinished">调制源：</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation type="unfinished">无</translation>
+    </message>
+    <message>
+        <source>Device %1</source>
+        <translation type="unfinished">设备 %1</translation>
+    </message>
+</context>
+<context>
+    <name>StringVoiceV3Dialog_Voice</name>
+    <message>
+        <source>Voice Section</source>
+        <translation type="unfinished">人声部分</translation>
+    </message>
+    <message>
+        <source>Lower (below C4)</source>
+        <translation type="unfinished">下部（C4 以下）</translation>
+    </message>
+    <message>
+        <source>Male 8&apos;</source>
+        <translation type="unfinished">男声 8&apos;</translation>
+    </message>
+    <message>
+        <source>Male 4&apos;</source>
+        <translation type="unfinished">男声 4&apos;</translation>
+    </message>
+    <message>
+        <source>Upper (C4 and above)</source>
+        <translation type="unfinished">上部（C4 及以上）</translation>
+    </message>
+    <message>
+        <source>Female 4&apos;</source>
+        <translation type="unfinished">女声 4&apos;</translation>
+    </message>
+    <message>
+        <source>The female voice sounds only above the split, an octave up, as on the hardware.</source>
+        <translation type="unfinished">女声仅在分割点以上发声，高一个八度，与硬件一致。</translation>
+    </message>
+    <message>
+        <source>Attack Time</source>
+        <translation type="unfinished">起音时间</translation>
+    </message>
+    <message>
+        <source>Release Time</source>
+        <translation type="unfinished">释音时间</translation>
+    </message>
+</context>
+<context>
     <name>SubMixerDialog</name>
     <message>
         <source>Sub Mixer (Slot %1)</source>
