@@ -44,6 +44,18 @@ private slots:
     void test_revertEffect_withoutSnapshot_shouldKeepEdits();
     void test_revertEffect_otherSlot_shouldKeepEdits();
     void test_populatedEffects_shouldReturnOnlyFilledSlots();
+
+    void test_effectPresetNames_eq8_shouldOfferItsFactoryPresets();
+    void test_effectPresetNames_effectWithoutPresets_shouldBeEmpty();
+    void test_effectPresetNames_emptySlot_shouldBeEmpty();
+    void test_loadEffectPreset_shouldApplyItAndNotify();
+    void test_loadEffectPreset_shouldNotBeMarkedAsAUserPreset();
+    void test_snapshotEffect_shouldSelectTheFirstPreset();
+    void test_saveEffectUserPreset_shouldOfferItAndSelectIt();
+    void test_saveEffectUserPreset_shouldRoundTripThroughTheStore();
+    void test_deleteCurrentEffectUserPreset_shouldRemoveItAndClampTheSelection();
+    void test_deleteCurrentEffectUserPreset_factoryPreset_shouldFail();
+    void test_effectUserPresets_shouldNotLeakBetweenEffectTypes();
 };
 
 } // namespace noteahead

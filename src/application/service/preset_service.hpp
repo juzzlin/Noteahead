@@ -20,10 +20,14 @@
 #include <QString>
 #include <QStringList>
 
+#include <functional>
+
 namespace noteahead {
 
 class Device;
+class Effect;
 class ParameterContainer;
+class ProjectReader;
 
 //! The user's own presets, stored as one file per preset under the configuration directory.
 //!
@@ -61,6 +65,11 @@ public:
     //! back to its default, exactly as a factory preset does.
     bool applyUserPreset(const QString & typeId, const QString & presetName, Device & device);
 
+    //! The same for an effect. Two overloads rather than one taking a common base: the reset a
+    //! preset begins with means different things to the two, and neither shares an interface with
+    //! the other beyond the parameters themselves.
+    bool applyUserPreset(const QString & typeId, const QString & presetName, Effect & effect);
+
     bool deleteUserPreset(const QString & typeId, const QString & presetName);
 
 signals:
@@ -74,6 +83,10 @@ private:
 
     //! The display name stored in @p filePath, or empty when the file is not a preset of @p typeId.
     QString presetNameOfFile(const QString & filePath, const QString & typeId) const;
+
+    //! Opens the preset, walks to its <Parameters> element and hands the reader to @p apply.
+    using PresetApplier = std::function<void(ProjectReader &)>;
+    bool readUserPreset(const QString & typeId, const QString & presetName, const PresetApplier & apply);
 
     QString m_rootDirectory;
 };

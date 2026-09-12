@@ -455,6 +455,7 @@ void Application::connectDeviceService()
     m_fmSynthController->setDeviceService(m_deviceService);
 
     m_deviceRackController->setPresetService(m_presetService);
+    m_effectRackController->setPresetService(m_presetService);
 
     connect(m_deviceService.get(), &DeviceService::dataChanged, this, [this]() {
         m_editorService->setIsModified(true);

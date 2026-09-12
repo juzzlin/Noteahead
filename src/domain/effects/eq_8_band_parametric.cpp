@@ -18,6 +18,7 @@
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
 #include "../dsp/audio_context.hpp"
+#include "eq_8_band_parametric_presets.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -133,6 +134,11 @@ void Eq8BandParametric::syncParameters()
     if (const auto p = parameter(Constants::NahdXml::xmlKeyStereoMode().toStdString()); p) {
         m_stereoMode = static_cast<StereoMode>(std::clamp(static_cast<int>(std::round(p->get().value())), 0, 2));
     }
+}
+
+const EffectPresetList & Eq8BandParametric::factoryPresets() const
+{
+    return Eq8BandParametricPresets::presets();
 }
 
 std::string Eq8BandParametric::typeIdString()

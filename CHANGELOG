@@ -5,6 +5,15 @@ Release date:
 
 New features:
 
+* Presets for the EQ 8-Band Parametric
+  - Seventeen starting points, one per source: master bus, vocal, guitar,
+    kicks, snare, cymbals, piano, strings, pads and the synths
+  - Save stores the panel under a name of your own, next to the built-in
+    ones in the same dropdown, marked with a *
+  - Flat bypasses every band and is the way back from any other preset
+  - Effects share the preset store with the devices, so any effect can be
+    given presets from here on
+
 * Vibrato that arrives after the note
   - Delay holds an LFO back before it engages, and Fade eases it up to full
     depth instead of switching it on

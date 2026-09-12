@@ -29,6 +29,7 @@
 
 namespace noteahead {
 
+class PresetService;
 class ProjectReader;
 class ProjectWriter;
 
@@ -82,6 +83,9 @@ public:
     using DeviceServiceS = std::shared_ptr<DeviceService>;
     using EditorServiceS = std::shared_ptr<EditorService>;
     explicit EffectRackController(DeviceServiceS deviceService, EditorServiceS editorService, QObject * parent = nullptr);
+
+    using PresetServiceS = std::shared_ptr<PresetService>;
+    void setPresetService(PresetServiceS presetService);
 
     int effectCount() const;
 
@@ -460,6 +464,27 @@ public:
     Q_INVOKABLE QString rtaFftRateKey() const;
     Q_INVOKABLE void rtaSetActive(quint32 effectIndex, bool active);
 
+    //! The effect's built-in patches followed by the user's own, numbered continuously and with a
+    //! user preset marked, exactly as a device's preset dropdown is built. Empty when the effect
+    //! ships no patches and the user has saved none, which is how a dialog knows to hide the row.
+    Q_INVOKABLE QStringList effectPresetNames(quint32 effectIndex) const;
+    //! Which entry of that list is showing. Reset to the first whenever a dialog opens, since an
+    //! effect carries no memory of the preset it was last loaded from.
+    Q_INVOKABLE int currentEffectPresetIndex(quint32 effectIndex) const;
+    //! Loads the preset at @p presetIndex of effectPresetNames(), built-in or user alike.
+    Q_INVOKABLE void loadEffectPreset(quint32 effectIndex, int presetIndex);
+    //! Whether the showing entry is one of the user's own, i.e. theirs to delete.
+    Q_INVOKABLE bool currentEffectPresetIsUserPreset(quint32 effectIndex) const;
+    //! The showing user preset's name without the numbering, or empty when a built-in one is
+    //! showing. What a delete confirmation has to quote back.
+    Q_INVOKABLE QString currentEffectUserPresetName(quint32 effectIndex) const;
+    //! Whether saving under @p presetName would replace a preset the user already has.
+    Q_INVOKABLE bool effectUserPresetExists(quint32 effectIndex, const QString & presetName) const;
+    //! Stores the effect's current parameters under @p presetName and shows it as selected.
+    Q_INVOKABLE bool saveEffectUserPreset(quint32 effectIndex, const QString & presetName);
+    //! Deletes the showing preset. A no-op unless the showing one is the user's own.
+    Q_INVOKABLE bool deleteCurrentEffectUserPreset(quint32 effectIndex);
+
     Q_INVOKABLE QStringList reverbPresets() const;
     Q_INVOKABLE void applyReverbPreset(quint32 effectIndex, quint32 presetIndex);
 
@@ -477,6 +502,8 @@ signals:
     void targetSubIndexChanged();
     void rackEnabledChanged();
     void parameterChanged(quint32 effectIndex, const QString & paramName);
+    //! The preset list or the selection of @p effectIndex changed.
+    void effectPresetsChanged(quint32 effectIndex);
     void importEffectSettingsConfirmationRequested(int slotIndex, QUrl fileUrl, QString currentType, QString importedType, bool typeMismatch);
 
 private:
@@ -495,6 +522,12 @@ private:
         bool enabled = true;
     };
 
+    //! Type id of the effect in @p effectIndex, or empty when the slot is empty. What the preset
+    //! store is keyed by, so presets of one effect type are never offered for another.
+    QString effectTypeId(quint32 effectIndex) const;
+    QStringList effectUserPresetNames(quint32 effectIndex) const;
+    int effectFactoryPresetCount(quint32 effectIndex) const;
+
     EffectTypeInfo peekEffectTypeInfo(const QUrl & fileUrl) const;
     using EffectRackOpt = std::optional<std::reference_wrapper<EffectRack>>;
     //! The rack an address points at. An empty device name is the master, where isInsertRack picks
@@ -509,6 +542,15 @@ private:
     bool m_isInsertRack = false;
     int m_targetSubIndex = -1;
     std::optional<EffectSnapshot> m_snapshot;
+
+    //! Which preset the open dialog is showing. One is enough for the same reason one snapshot is:
+    //! only one effect dialog is ever open. Held per slot rather than on the effect because an
+    //! effect edited after loading a preset is no longer that preset, and nothing should pretend it
+    //! carries the name.
+    int m_presetEffectIndex = -1;
+    int m_presetIndex = 0;
+
+    PresetServiceS m_presetService;
 };
 
 } // namespace noteahead

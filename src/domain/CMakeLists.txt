@@ -78,9 +78,11 @@ set(HEADER_FILES
     effects/drive.hpp
     effects/effect.hpp
     effects/effect_factory.hpp
+    effects/effect_presets.hpp
     effects/effect_rack.hpp
     effects/endless_reverb.hpp
     effects/eq_8_band_parametric.hpp
+    effects/eq_8_band_parametric_presets.hpp
     effects/gain.hpp
     effects/limiter.hpp
     effects/monitor.hpp
@@ -229,6 +231,7 @@ set(SOURCE_FILES
     effects/effect_rack.cpp
     effects/endless_reverb.cpp
     effects/eq_8_band_parametric.cpp
+    effects/eq_8_band_parametric_presets.cpp
     effects/gain.cpp
     effects/limiter.cpp
     effects/monitor.cpp

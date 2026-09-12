@@ -15,6 +15,7 @@
 
 #include "effect_rack_controller.hpp"
 
+#include "../../application/service/preset_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
@@ -2505,6 +2506,174 @@ void EffectRackController::rtaSetActive(quint32 effectIndex, bool active)
     }
 }
 
+void EffectRackController::setPresetService(PresetServiceS presetService)
+{
+    m_presetService = std::move(presetService);
+}
+
+QString EffectRackController::effectTypeId(quint32 effectIndex) const
+{
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex)); effect) {
+            return QString::fromStdString(effect->typeId());
+        }
+    }
+    return {};
+}
+
+int EffectRackController::effectFactoryPresetCount(quint32 effectIndex) const
+{
+    if (const auto rack = currentRack(); rack) {
+        if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex)); effect) {
+            return static_cast<int>(effect->factoryPresets().size());
+        }
+    }
+    return 0;
+}
+
+QStringList EffectRackController::effectUserPresetNames(quint32 effectIndex) const
+{
+    if (const auto typeId = effectTypeId(effectIndex); m_presetService && !typeId.isEmpty()) {
+        return m_presetService->userPresetNames(typeId);
+    }
+    return {};
+}
+
+QStringList EffectRackController::effectPresetNames(quint32 effectIndex) const
+{
+    const auto rack = currentRack();
+    if (!rack) {
+        return {};
+    }
+    const auto effect = rack->get().effect(static_cast<size_t>(effectIndex));
+    if (!effect) {
+        return {};
+    }
+
+    QStringList names;
+    const auto append = [&names](const QString & name, bool isUserPreset) {
+        // The number is the position in this very list, so what the dropdown shows and what
+        // loadEffectPreset() is given stay the same however many presets the user has added.
+        names.append(QString { "%1: %2%3" }
+                       .arg(names.size(), 3, 10, QChar { '0' })
+                       .arg(name)
+                       .arg(isUserPreset ? Constants::userPresetMarker() : QString {}));
+    };
+    for (const auto & preset : effect->factoryPresets()) {
+        append(QString::fromStdString(preset.name), false);
+    }
+    for (const auto & name : effectUserPresetNames(effectIndex)) {
+        append(name, true);
+    }
+    return names;
+}
+
+int EffectRackController::currentEffectPresetIndex(quint32 effectIndex) const
+{
+    return m_presetEffectIndex == static_cast<int>(effectIndex) ? m_presetIndex : 0;
+}
+
+bool EffectRackController::currentEffectPresetIsUserPreset(quint32 effectIndex) const
+{
+    const auto userIndex = currentEffectPresetIndex(effectIndex) - effectFactoryPresetCount(effectIndex);
+    return userIndex >= 0 && userIndex < static_cast<int>(effectUserPresetNames(effectIndex).size());
+}
+
+QString EffectRackController::currentEffectUserPresetName(quint32 effectIndex) const
+{
+    if (!currentEffectPresetIsUserPreset(effectIndex)) {
+        return {};
+    }
+    return effectUserPresetNames(effectIndex).at(currentEffectPresetIndex(effectIndex) - effectFactoryPresetCount(effectIndex));
+}
+
+void EffectRackController::loadEffectPreset(quint32 effectIndex, int presetIndex)
+{
+    const auto rack = currentRack();
+    if (!rack) {
+        return;
+    }
+    const auto effect = rack->get().effect(static_cast<size_t>(effectIndex));
+    if (!effect) {
+        return;
+    }
+
+    // The controller owns which preset is showing, so the dialog only has to ask for one to be
+    // loaded. Left to the dialog, the combo box reads back its old value and snaps back.
+    m_presetEffectIndex = static_cast<int>(effectIndex);
+    m_presetIndex = presetIndex;
+
+    const auto factoryCount = effectFactoryPresetCount(effectIndex);
+    if (presetIndex < factoryCount) {
+        effect->applyFactoryPreset(static_cast<size_t>(presetIndex));
+    } else if (const auto names = effectUserPresetNames(effectIndex); m_presetService) {
+        if (const auto userIndex = presetIndex - factoryCount; userIndex < static_cast<int>(names.size())) {
+            m_presetService->applyUserPreset(effectTypeId(effectIndex), names.at(userIndex), *effect);
+        }
+    }
+
+    m_editorService->setIsModified(true);
+    m_revision++;
+    emit revisionChanged();
+    emit effectPresetsChanged(effectIndex);
+    // Every parameter at once rather than one by one: a preset writes the whole panel.
+    emit parameterChanged(effectIndex, "");
+}
+
+bool EffectRackController::effectUserPresetExists(quint32 effectIndex, const QString & presetName) const
+{
+    const auto typeId = effectTypeId(effectIndex);
+    return m_presetService && !typeId.isEmpty() && m_presetService->userPresetExists(typeId, presetName);
+}
+
+bool EffectRackController::saveEffectUserPreset(quint32 effectIndex, const QString & presetName)
+{
+    const auto rack = currentRack();
+    if (!rack || !m_presetService) {
+        return false;
+    }
+    const auto effect = rack->get().effect(static_cast<size_t>(effectIndex));
+    const auto typeId = effectTypeId(effectIndex);
+    if (!effect || typeId.isEmpty()) {
+        return false;
+    }
+
+    if (!m_presetService->saveUserPreset(typeId, presetName, *effect)) {
+        return false;
+    }
+
+    // Show what was just saved as the selected preset: the user named this patch, so the dropdown
+    // has to agree that this is the patch they are on.
+    if (const auto index = effectUserPresetNames(effectIndex).indexOf(presetName); index >= 0) {
+        m_presetEffectIndex = static_cast<int>(effectIndex);
+        m_presetIndex = effectFactoryPresetCount(effectIndex) + static_cast<int>(index);
+    }
+
+    emit effectPresetsChanged(effectIndex);
+
+    return true;
+}
+
+bool EffectRackController::deleteCurrentEffectUserPreset(quint32 effectIndex)
+{
+    if (!currentEffectPresetIsUserPreset(effectIndex) || !m_presetService) {
+        return false;
+    }
+
+    if (!m_presetService->deleteUserPreset(effectTypeId(effectIndex), currentEffectUserPresetName(effectIndex))) {
+        return false;
+    }
+
+    // The list just got shorter under the selection. Landing on the preset that took the deleted
+    // one's place keeps the dropdown from pointing past the end of itself.
+    const auto presetCount = effectFactoryPresetCount(effectIndex) + static_cast<int>(effectUserPresetNames(effectIndex).size());
+    m_presetIndex = std::clamp(m_presetIndex, 0, std::max(0, presetCount - 1));
+
+    emit effectPresetsChanged(effectIndex);
+
+    return true;
+}
+
 QStringList EffectRackController::reverbPresets() const
 {
     QStringList presets;
@@ -2561,6 +2730,12 @@ void EffectRackController::applyCompressorPreset(quint32 effectIndex, quint32 pr
 
 void EffectRackController::snapshotEffect(int effectIndex)
 {
+    // An effect carries no memory of which preset it was loaded from, and after any edit it is no
+    // longer that preset anyway, so a dialog opens on the first entry rather than on a stale name.
+    m_presetEffectIndex = effectIndex;
+    m_presetIndex = 0;
+    emit effectPresetsChanged(static_cast<quint32>(effectIndex));
+
     m_snapshot.reset();
     if (const auto rack = currentRack(); rack) {
         if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex)); effect) {

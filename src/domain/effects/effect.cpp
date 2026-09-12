@@ -19,6 +19,7 @@
 
 #include <vector>
 
+#include "../../common/xml/project_reader.hpp"
 #include "../dsp/audio_context.hpp"
 
 #include <algorithm>
@@ -293,6 +294,44 @@ void Effect::setEnabled(bool enabled)
 
 void Effect::reset()
 {
+}
+
+const EffectPresetList & Effect::factoryPresets() const
+{
+    static const EffectPresetList none;
+    return none;
+}
+
+bool Effect::applyFactoryPreset(size_t index)
+{
+    const auto & presets = factoryPresets();
+    if (index >= presets.size()) {
+        return false;
+    }
+
+    resetParametersToDefaults();
+
+    for (const auto & [name, value] : presets.at(index).parameters) {
+        if (const auto p = parameter(name); p) {
+            p->get().setValue(value);
+        }
+    }
+
+    sync();
+
+    return true;
+}
+
+void Effect::applyPresetParametersFromXml(ProjectReader & reader)
+{
+    resetParametersToDefaults();
+    deserializeParametersFromXml(reader);
+    sync();
+}
+
+void Effect::resetParametersToDefaults()
+{
+    ParameterContainer::reset();
 }
 
 void Effect::sync()

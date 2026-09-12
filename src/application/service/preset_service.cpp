@@ -18,6 +18,7 @@
 #include "../../common/constants.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/devices/device.hpp"
+#include "../../domain/effects/effect.hpp"
 #include "../../domain/tracker/parameter_container.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
@@ -171,6 +172,20 @@ bool PresetService::saveUserPreset(const QString & typeId, const QString & prese
 
 bool PresetService::applyUserPreset(const QString & typeId, const QString & presetName, Device & device)
 {
+    return readUserPreset(typeId, presetName, [&device](ProjectReader & reader) {
+        device.applyPresetParametersFromXml(reader);
+    });
+}
+
+bool PresetService::applyUserPreset(const QString & typeId, const QString & presetName, Effect & effect)
+{
+    return readUserPreset(typeId, presetName, [&effect](ProjectReader & reader) {
+        effect.applyPresetParametersFromXml(reader);
+    });
+}
+
+bool PresetService::readUserPreset(const QString & typeId, const QString & presetName, const PresetApplier & apply)
+{
     const auto filePath = presetFilePath(typeId, presetName);
     QFile file { filePath };
     if (!file.open(QIODevice::ReadOnly)) {
@@ -190,7 +205,7 @@ bool PresetService::applyUserPreset(const QString & typeId, const QString & pres
         }
         while (reader.readNextStartElement()) {
             if (reader.name() == Constants::NahdXml::xmlKeyParameters()) {
-                device.applyPresetParametersFromXml(reader);
+                apply(reader);
                 return true;
             }
             reader.skipCurrentElement();

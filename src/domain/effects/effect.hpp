@@ -23,10 +23,12 @@
 
 #include "../dsp/dsp_component.hpp"
 #include "../tracker/parameter_container.hpp"
+#include "effect_presets.hpp"
 
 namespace noteahead {
 
 struct AudioContext;
+class ProjectReader;
 
 class Effect : public DspComponent, public ParameterContainer
 {
@@ -97,6 +99,19 @@ public:
 
     virtual void reset() override;
     virtual void sync();
+
+    //! The effect's built-in patches, in the order they are offered. Empty unless the effect ships
+    //! any, so the preset row shows up only where there is something in it.
+    virtual const EffectPresetList & factoryPresets() const;
+
+    //! Applies the built-in patch at @p index. Returns false when there is no such patch.
+    bool applyFactoryPreset(size_t index);
+
+    //! Applies a stored preset, with @p reader sitting on the preset's <Parameters> element.
+    //!
+    //! Nothing outside the parameters is touched, so a preset can never carry an effect's slot,
+    //! its enabled state or its send mode from whoever saved it.
+    void applyPresetParametersFromXml(ProjectReader & reader);
     virtual void setBpm(float bpm);
     float bpm() const;
 
@@ -116,6 +131,15 @@ public:
     uint8_t oversampleFactor() const;
 
 protected:
+    //! Puts every parameter back to its default, which is what makes a preset the whole panel
+    //! rather than a set of edits to whatever was there before.
+    //!
+    //! Calls ParameterContainer::reset() by name rather than the virtual reset(): an effect
+    //! overrides reset() to clear its DSP state, and Effect's own override does nothing at all, so
+    //! a virtual call would leave every parameter the preset does not name wherever the previous
+    //! patch had put it.
+    void resetParametersToDefaults();
+
     //! The effect's own work on one frame.
     virtual void processSample(double & left, double & right) = 0;
 

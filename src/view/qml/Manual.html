@@ -101,6 +101,7 @@
     <li><strong>Multiple Instances</strong>: You can add multiple independent effect instances. For example, you can have several <strong>FDN Reverbs</strong> with different acoustic settings.</li>
     <li><strong>Removal</strong>: Click the <strong>trash can icon</strong> on an active slot to remove the effect from the rack.</li>
 </ul>
+<p><strong>Presets.</strong> An effect that ships built-in patches shows a <strong>Preset</strong> row above its panel, with the built-in patches and your own in the same numbered dropdown; your own are marked with a <code>*</code>. <strong>Save</strong> stores the panel under a name of your own and <strong>Delete</strong> removes one of yours, the built-in ones being not yours to delete. A preset is the whole panel: everything it does not name goes back to its default when it loads, so one preset can never leave a trace of the one before it. Nothing outside the parameters travels with it — not the slot, not the enable switch — and presets are stored per effect type, so one effect never offers you another's. They live in <code>~/.config/Noteahead/presets</code>, one file each, and can be copied between machines. An effect with no built-in patches and none of yours saved shows no row at all.</p>
 
 <h3>Available Effects</h3>
 <ul>
@@ -213,6 +214,17 @@
     <li><strong>Mix</strong> and <strong>Solo</strong>: the blend against the dry signal, and hearing the room without the source that caused it. On a send bus, set Mix to 100%: the send already returns only what the effect added, so Mix acts as the return level there.</li>
 </ul>
 <p>Use it on a send, with the send amount as the distance control: more send is further back. One instance shared by everything is what sells the illusion, since a coherent room is a single room.</p>
+
+<h3>EQ 8-Band Parametric Parameters</h3>
+<p>Eight independent bands, each of which can be any shape, at any frequency, with any width. Every band is a second-order section, so a cut or a pass rolls off at <strong>12 dB/octave</strong>. A steeper one is a second band at the same frequency: two of them give 24 dB/octave, three give 36, at the cost of a band each. Set both to a Q of 0.707 and the corner ends up 6 dB down rather than 3; a maximally flat pair wants 0.54 and 1.31.</p>
+<ul>
+    <li><strong>Type</strong>: <strong>Bypass</strong>, <strong>Bell</strong>, <strong>Low Shelf</strong>, <strong>High Shelf</strong>, <strong>Low Cut</strong>, <strong>High Cut</strong> or <strong>Notch</strong>. Bypass costs nothing, so a band left unused is genuinely out of the path.</li>
+    <li><strong>Freq</strong>: the band's centre or corner, <strong>20 Hz to 20 kHz</strong> on a logarithmic knob, so the travel is spread evenly across the octaves rather than bunched at the top.</li>
+    <li><strong>Gain</strong>: <strong>-24 to +24 dB</strong>, linear, centred at 0 for flat. Ignored by Low Cut, High Cut and Notch, which have no gain of their own.</li>
+    <li><strong>Q</strong>: <strong>0.1 to 10</strong> on an exponential knob. On a bell this is width: a one-octave bell — the usual starting width for a corrective move — is Q of about <strong>1.41</strong>, not the 1.0 the phrase invites. On a cut or a pass it is the resonance at the corner, where 0.707 is flat.</li>
+    <li><strong>Stereo Mode</strong>: <strong>Mid + Side</strong> processes both, which is the same as working on left and right independently; <strong>Mid</strong> shapes only the centre and lets the sides through untouched; <strong>Side</strong> does the opposite. Cutting the low end of the sides alone, with Side, is how a wide mix is given a mono bottom without narrowing anything above it.</li>
+</ul>
+<p>The built-in presets are starting points for one source each, not finished curves: every move in them is a few decibels, which is the range in which an EQ decision is still reversible by ear. Sources that want a defined bottom rather than a deeper one get a single 12 dB/octave high pass — 30 Hz on the master bus and on bass instruments, 80 Hz on a snare or a guitar, 100 Hz on a vocal, 150 Hz on cymbals, where there is nothing below but spill. None of them spends more than one band on it, so a preset always leaves most of the EQ free for the moves it is a starting point for. <strong>Flat</strong> bypasses every band and is the way back from any of the others.</p>
 
 <h3>Gain Parameters</h3>
 <p>A level trim and nothing else. Every other way of changing level in the rack also changes the sound -- a limiter is dynamics, a drive or a saturator is distortion -- so this is the one to reach for when the only thing wanted is more or less of it: staging the sum into the master chain, or matching two devices before they hit a bus compressor.</p>

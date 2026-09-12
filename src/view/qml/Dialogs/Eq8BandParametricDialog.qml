@@ -40,6 +40,10 @@ EffectDialog {
         anchors.margins: 20
         spacing: 20
 
+        EffectPresetRow {
+            effectIndex: root.effectIndex
+        }
+
         RowLayout {
             spacing: 15
             Layout.fillWidth: true

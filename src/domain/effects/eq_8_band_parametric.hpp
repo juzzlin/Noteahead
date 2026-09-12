@@ -37,6 +37,7 @@ public:
     void processBlock(AudioContext & context) override;
     void reset() override;
     void sync() override;
+    const EffectPresetList & factoryPresets() const override;
 
     enum class StereoMode
     {

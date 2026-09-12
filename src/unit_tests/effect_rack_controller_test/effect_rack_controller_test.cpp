@@ -1,6 +1,7 @@
 #include "effect_rack_controller_test.hpp"
 #include "../../application/service/device_service.hpp"
 #include "../../application/service/editor_service.hpp"
+#include "../../application/service/preset_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/effects/auto_filter.hpp"
 #include "../../domain/effects/auto_panner.hpp"
@@ -11,6 +12,7 @@
 #include "../../domain/effects/effect_rack.hpp"
 #include "../../domain/effects/endless_reverb.hpp"
 #include "../../domain/effects/eq_8_band_parametric.hpp"
+#include "../../domain/effects/eq_8_band_parametric_presets.hpp"
 #include "../../domain/effects/panner.hpp"
 #include "../../domain/effects/phaser.hpp"
 #include "../../domain/effects/reverb.hpp"
@@ -25,6 +27,7 @@
 
 #include <QBuffer>
 #include <QSignalSpy>
+#include <QTemporaryDir>
 #include <QTest>
 
 #include <cmath>
@@ -783,6 +786,191 @@ void EffectRackControllerTest::test_revertEffect_otherSlot_shouldKeepEdits()
     controller.revertEffect(1);
 
     QCOMPARE(controller.parameterValue(1, controller.reverbSizeKey()), 0.33f);
+}
+
+namespace {
+
+//! A controller on an insert rack with one EQ 8-Band Parametric in slot 0, and a preset store in a
+//! directory of the test's own so that nothing is read from or written to the user's real presets.
+struct PresetFixture
+{
+    std::shared_ptr<AudioEngine> audioEngine { std::make_shared<AudioEngine>() };
+    std::shared_ptr<DeviceService> deviceService { std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>()) };
+    std::shared_ptr<EditorService> editorService { std::make_shared<EditorService>() };
+    QTemporaryDir presetRoot;
+    std::shared_ptr<PresetService> presetService { std::make_shared<PresetService>(presetRoot.path()) };
+    EffectRackController controller { deviceService, editorService };
+
+    explicit PresetFixture(const std::string & typeId = Eq8BandParametric::typeIdString())
+    {
+        controller.setPresetService(presetService);
+        controller.setIsInsertRack(true);
+        controller.setEffect(0, QString::fromStdString(typeId));
+        controller.snapshotEffect(0);
+    }
+
+    int factoryCount() const
+    {
+        return static_cast<int>(Eq8BandParametricPresets::presets().size());
+    }
+
+    //! Position of the named factory preset in the dropdown.
+    int factoryIndexOf(const std::string & name) const
+    {
+        const auto & presets = Eq8BandParametricPresets::presets();
+        return static_cast<int>(std::distance(presets.begin(), std::ranges::find_if(presets, [&](const EffectPreset & p) {
+                                                  return p.name == name;
+                                              })));
+    }
+};
+
+} // namespace
+
+void EffectRackControllerTest::test_effectPresetNames_eq8_shouldOfferItsFactoryPresets()
+{
+    PresetFixture f;
+
+    const auto names = f.controller.effectPresetNames(0);
+    QCOMPARE(names.size(), f.factoryCount());
+    // Numbered by position in this very list, so what the dropdown shows and what loadEffectPreset()
+    // is given cannot drift apart.
+    QVERIFY2(names.at(0).endsWith("Flat"), qPrintable(names.at(0)));
+    QVERIFY(names.at(0).startsWith("000: "));
+    for (const auto & name : names) {
+        QVERIFY2(!name.endsWith(Constants::userPresetMarker()), qPrintable(name));
+    }
+}
+
+void EffectRackControllerTest::test_effectPresetNames_effectWithoutPresets_shouldBeEmpty()
+{
+    // The row hides itself on an empty list, which is how an effect with no patches gets no row.
+    PresetFixture f { Phaser::typeIdString() };
+    QVERIFY(f.controller.effectPresetNames(0).isEmpty());
+}
+
+void EffectRackControllerTest::test_effectPresetNames_emptySlot_shouldBeEmpty()
+{
+    PresetFixture f;
+    QVERIFY(f.controller.effectPresetNames(1).isEmpty());
+}
+
+void EffectRackControllerTest::test_loadEffectPreset_shouldApplyItAndNotify()
+{
+    PresetFixture f;
+
+    QSignalSpy revisionSpy { &f.controller, &EffectRackController::revisionChanged };
+    QSignalSpy parameterSpy { &f.controller, &EffectRackController::parameterChanged };
+    QSignalSpy presetSpy { &f.controller, &EffectRackController::effectPresetsChanged };
+
+    f.controller.loadEffectPreset(0, f.factoryIndexOf("Lead Vocal"));
+
+    // Band 1 of Lead Vocal is the lower half of its 100 Hz high pass; LowCut is ordinal 4.
+    QCOMPARE(f.controller.parameterValue(0, Constants::NahdXml::xmlKeyBandType(0)), 4.0f);
+    QCOMPARE(f.controller.currentEffectPresetIndex(0), f.factoryIndexOf("Lead Vocal"));
+    QCOMPARE(revisionSpy.count(), 1);
+    QCOMPARE(presetSpy.count(), 1);
+    // An empty parameter name is how the dialog is told to re-read all of them, which a preset needs
+    QCOMPARE(parameterSpy.count(), 1);
+    QCOMPARE(parameterSpy.at(0).at(1).toString(), QString {});
+}
+
+void EffectRackControllerTest::test_loadEffectPreset_shouldNotBeMarkedAsAUserPreset()
+{
+    PresetFixture f;
+    f.controller.loadEffectPreset(0, f.factoryIndexOf("Snare Drum"));
+
+    QVERIFY(!f.controller.currentEffectPresetIsUserPreset(0));
+    QVERIFY(f.controller.currentEffectUserPresetName(0).isEmpty());
+    QVERIFY(!f.controller.deleteCurrentEffectUserPreset(0));
+}
+
+void EffectRackControllerTest::test_snapshotEffect_shouldSelectTheFirstPreset()
+{
+    // An effect carries no memory of the preset it was loaded from, so a dialog opening on the name
+    // of whatever was picked last time would be showing something untrue.
+    PresetFixture f;
+    f.controller.loadEffectPreset(0, f.factoryIndexOf("Piano"));
+    QVERIFY(f.controller.currentEffectPresetIndex(0) != 0);
+
+    QSignalSpy presetSpy { &f.controller, &EffectRackController::effectPresetsChanged };
+    f.controller.snapshotEffect(0);
+
+    QCOMPARE(f.controller.currentEffectPresetIndex(0), 0);
+    QCOMPARE(presetSpy.count(), 1);
+}
+
+void EffectRackControllerTest::test_saveEffectUserPreset_shouldOfferItAndSelectIt()
+{
+    PresetFixture f;
+    f.controller.setParameterValue(0, Constants::NahdXml::xmlKeyBandGain(0), 0.8f);
+
+    QVERIFY(!f.controller.effectUserPresetExists(0, "My Curve"));
+    QVERIFY(f.controller.saveEffectUserPreset(0, "My Curve"));
+    QVERIFY(f.controller.effectUserPresetExists(0, "My Curve"));
+
+    const auto names = f.controller.effectPresetNames(0);
+    QCOMPARE(names.size(), f.factoryCount() + 1);
+    QVERIFY2(names.last().endsWith("My Curve" + Constants::userPresetMarker()), qPrintable(names.last()));
+
+    // The user named this patch, so the dropdown has to agree that this is the patch they are on
+    QCOMPARE(f.controller.currentEffectPresetIndex(0), f.factoryCount());
+    QVERIFY(f.controller.currentEffectPresetIsUserPreset(0));
+    QCOMPARE(f.controller.currentEffectUserPresetName(0), QString { "My Curve" });
+}
+
+void EffectRackControllerTest::test_saveEffectUserPreset_shouldRoundTripThroughTheStore()
+{
+    PresetFixture f;
+    f.controller.setParameterValue(0, Constants::NahdXml::xmlKeyBandType(0), 1.0f);
+    f.controller.setParameterValue(0, Constants::NahdXml::xmlKeyBandGain(0), 0.8f);
+    QVERIFY(f.controller.saveEffectUserPreset(0, "My Curve"));
+
+    // Away from the saved patch, then back to it through the store rather than from memory.
+    f.controller.loadEffectPreset(0, f.factoryIndexOf("Flat"));
+    QCOMPARE(f.controller.parameterValue(0, Constants::NahdXml::xmlKeyBandType(0)), 0.0f);
+
+    f.controller.loadEffectPreset(0, f.factoryCount());
+
+    QCOMPARE(f.controller.parameterValue(0, Constants::NahdXml::xmlKeyBandType(0)), 1.0f);
+    QVERIFY(std::abs(f.controller.parameterValue(0, Constants::NahdXml::xmlKeyBandGain(0)) - 0.8f) < 0.001f);
+}
+
+void EffectRackControllerTest::test_deleteCurrentEffectUserPreset_shouldRemoveItAndClampTheSelection()
+{
+    PresetFixture f;
+    QVERIFY(f.controller.saveEffectUserPreset(0, "My Curve"));
+    QCOMPARE(f.controller.currentEffectPresetIndex(0), f.factoryCount());
+
+    QSignalSpy presetSpy { &f.controller, &EffectRackController::effectPresetsChanged };
+    QVERIFY(f.controller.deleteCurrentEffectUserPreset(0));
+
+    QCOMPARE(f.controller.effectPresetNames(0).size(), f.factoryCount());
+    QVERIFY(!f.controller.effectUserPresetExists(0, "My Curve"));
+    // The list just got shorter under the selection, which must not be left pointing past its end
+    QCOMPARE(f.controller.currentEffectPresetIndex(0), f.factoryCount() - 1);
+    QCOMPARE(presetSpy.count(), 1);
+}
+
+void EffectRackControllerTest::test_deleteCurrentEffectUserPreset_factoryPreset_shouldFail()
+{
+    PresetFixture f;
+    QVERIFY(f.controller.saveEffectUserPreset(0, "My Curve"));
+    f.controller.loadEffectPreset(0, f.factoryIndexOf("Flat"));
+
+    QVERIFY(!f.controller.deleteCurrentEffectUserPreset(0));
+    QVERIFY(f.controller.effectUserPresetExists(0, "My Curve"));
+}
+
+void EffectRackControllerTest::test_effectUserPresets_shouldNotLeakBetweenEffectTypes()
+{
+    // Presets are keyed by effect type id, so one effect's dropdown must never show a patch that
+    // would do nothing if picked.
+    PresetFixture f;
+    QVERIFY(f.controller.saveEffectUserPreset(0, "My Curve"));
+
+    f.controller.setEffect(1, QString::fromStdString(Phaser::typeIdString()));
+    QVERIFY(f.controller.effectPresetNames(1).isEmpty());
+    QVERIFY(!f.controller.effectUserPresetExists(1, "My Curve"));
 }
 
 void EffectRackControllerTest::test_populatedEffects_shouldReturnOnlyFilledSlots()
