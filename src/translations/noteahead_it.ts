@@ -1468,6 +1468,14 @@
         <translation>%1 %2</translation>
     </message>
     <message>
+        <source>Send Chain: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send Chain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Import Rack...</source>
         <translation>Importa rack...</translation>
     </message>
@@ -1534,6 +1542,37 @@
     <message>
         <source>Insert effects are processed in order. Dry/Wet mix is handled by each effect.</source>
         <translation>Gli effetti insert vengono elaborati in ordine. Ogni effetto gestisce il proprio rapporto dry/wet.</translation>
+    </message>
+</context>
+<context>
+    <name>DeviceMenuButton</name>
+    <message>
+        <source>Device...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Settings, effects and patch files of this device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Settings...</source>
+        <translation type="unfinished">Impostazioni...</translation>
+    </message>
+    <message>
+        <source>Insert FX...</source>
+        <translation type="unfinished">Effetti insert...</translation>
+    </message>
+    <message>
+        <source>Sends...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import Settings...</source>
+        <translation type="unfinished">Importa impostazioni...</translation>
+    </message>
+    <message>
+        <source>Export Settings...</source>
+        <translation type="unfinished">Esporta impostazioni...</translation>
     </message>
 </context>
 <context>
@@ -2557,8 +2596,8 @@
         <translation type="unfinished">Filtro / inviluppi</translation>
     </message>
     <message>
-        <source>LFOs</source>
-        <translation type="unfinished">LFO</translation>
+        <source>LFO / Effects</source>
+        <translation type="unfinished">LFO / effetti</translation>
     </message>
 </context>
 <context>
@@ -2605,6 +2644,41 @@
     <message>
         <source>Velocity Sensitivity</source>
         <translation type="unfinished">Sensibilità alla velocity</translation>
+    </message>
+</context>
+<context>
+    <name>FmSynthDialog_Delay</name>
+    <message>
+        <source>Delay Effect</source>
+        <translation type="unfinished">Effetto delay</translation>
+    </message>
+    <message>
+        <source>Sync</source>
+        <translation type="unfinished">Sync</translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation type="unfinished">Tempo</translation>
+    </message>
+    <message>
+        <source>Feedback</source>
+        <translation type="unfinished">Feedback</translation>
+    </message>
+    <message>
+        <source>LPF</source>
+        <translation type="unfinished">LPF</translation>
+    </message>
+    <message>
+        <source>HPF</source>
+        <translation type="unfinished">HPF</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation type="unfinished">Profondità</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation type="unfinished">Mix</translation>
     </message>
 </context>
 <context>
@@ -2771,6 +2845,21 @@
     <message>
         <source>Sustain</source>
         <translation type="unfinished">Sostegno</translation>
+    </message>
+</context>
+<context>
+    <name>FmSynthDialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation type="unfinished">Preset:</translation>
+    </message>
+    <message>
+        <source>Randomize</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Four operators, eight algorithms</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3939,6 +4028,14 @@
     <message>
         <source>Enable/disable the effect</source>
         <translation>Attiva o disattiva l&apos;effetto</translation>
+    </message>
+    <message>
+        <source>Chain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add effects after this send, to shape what it returns. The send itself stays the one that keeps the dry signal out of the return.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Manage</source>
@@ -5753,6 +5850,26 @@ I file audio compariranno accanto al file di progetto corrente.</translation>
         <translation>%1 %</translation>
     </message>
     <message>
+        <source>Volume Meter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Style:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gradient</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lines</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gradient draws the volume of a played line as one bar under a red-yellow-green gradient. Lines draws it as a ladder of thin lines in the accent color.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Select Accent Color</source>
         <translation>Scegli il colore d&apos;accento</translation>
     </message>
@@ -7548,40 +7665,12 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
 <context>
     <name>SynthDialog_Presets</name>
     <message>
-        <source>Select slot to save preset...</source>
-        <translation>Scegli lo slot in cui salvare il preset...</translation>
-    </message>
-    <message>
         <source>A general purpose 6-voice synthesizer</source>
         <translation>Un sintetizzatore a 6 voci per uso generale</translation>
     </message>
     <message>
-        <source>Bank:</source>
-        <translation>Banco:</translation>
-    </message>
-    <message>
-        <source>Factory</source>
-        <translation>Fabbrica</translation>
-    </message>
-    <message>
-        <source>User</source>
-        <translation>Utente</translation>
-    </message>
-    <message>
         <source>Preset:</source>
         <translation>Preset:</translation>
-    </message>
-    <message>
-        <source>Save User Preset</source>
-        <translation>Salva preset utente</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>Salva</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Reimposta</translation>
     </message>
 </context>
 <context>

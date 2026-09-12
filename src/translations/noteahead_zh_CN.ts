@@ -1467,6 +1467,14 @@
         <translation>%1 %2</translation>
     </message>
     <message>
+        <source>Send Chain: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send Chain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Import Rack...</source>
         <translation>导入机架...</translation>
     </message>
@@ -1533,6 +1541,37 @@
     <message>
         <source>Insert effects are processed in order. Dry/Wet mix is handled by each effect.</source>
         <translation>插入效果按顺序处理。干湿比例由每个效果器各自控制。</translation>
+    </message>
+</context>
+<context>
+    <name>DeviceMenuButton</name>
+    <message>
+        <source>Device...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Settings, effects and patch files of this device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Settings...</source>
+        <translation type="unfinished">设置...</translation>
+    </message>
+    <message>
+        <source>Insert FX...</source>
+        <translation type="unfinished">插入效果...</translation>
+    </message>
+    <message>
+        <source>Sends...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import Settings...</source>
+        <translation type="unfinished">导入设置...</translation>
+    </message>
+    <message>
+        <source>Export Settings...</source>
+        <translation type="unfinished">导出设置...</translation>
     </message>
 </context>
 <context>
@@ -2556,8 +2595,8 @@
         <translation type="unfinished">滤波器 / 包络</translation>
     </message>
     <message>
-        <source>LFOs</source>
-        <translation type="unfinished">LFO</translation>
+        <source>LFO / Effects</source>
+        <translation type="unfinished">LFO / 效果</translation>
     </message>
 </context>
 <context>
@@ -2604,6 +2643,41 @@
     <message>
         <source>Velocity Sensitivity</source>
         <translation type="unfinished">力度灵敏度</translation>
+    </message>
+</context>
+<context>
+    <name>FmSynthDialog_Delay</name>
+    <message>
+        <source>Delay Effect</source>
+        <translation type="unfinished">延迟效果</translation>
+    </message>
+    <message>
+        <source>Sync</source>
+        <translation type="unfinished">同步</translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation type="unfinished">时间</translation>
+    </message>
+    <message>
+        <source>Feedback</source>
+        <translation type="unfinished">反馈</translation>
+    </message>
+    <message>
+        <source>LPF</source>
+        <translation type="unfinished">LPF</translation>
+    </message>
+    <message>
+        <source>HPF</source>
+        <translation type="unfinished">HPF</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation type="unfinished">深度</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation type="unfinished">混合</translation>
     </message>
 </context>
 <context>
@@ -2770,6 +2844,21 @@
     <message>
         <source>Sustain</source>
         <translation type="unfinished">延持</translation>
+    </message>
+</context>
+<context>
+    <name>FmSynthDialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation type="unfinished">预设：</translation>
+    </message>
+    <message>
+        <source>Randomize</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Four operators, eight algorithms</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3938,6 +4027,14 @@
     <message>
         <source>Enable/disable the effect</source>
         <translation>启用或禁用效果</translation>
+    </message>
+    <message>
+        <source>Chain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add effects after this send, to shape what it returns. The send itself stays the one that keeps the dry signal out of the return.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Manage</source>
@@ -5752,6 +5849,26 @@ Audio files will appear next to the current project file.</source>
         <translation>%1 %</translation>
     </message>
     <message>
+        <source>Volume Meter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Style:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gradient</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lines</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gradient draws the volume of a played line as one bar under a red-yellow-green gradient. Lines draws it as a ladder of thin lines in the accent color.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Select Accent Color</source>
         <translation>选择强调色</translation>
     </message>
@@ -7547,40 +7664,12 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
 <context>
     <name>SynthDialog_Presets</name>
     <message>
-        <source>Select slot to save preset...</source>
-        <translation>选择保存预设的插槽...</translation>
-    </message>
-    <message>
         <source>A general purpose 6-voice synthesizer</source>
         <translation>通用 6 声部合成器</translation>
     </message>
     <message>
-        <source>Bank:</source>
-        <translation>音色库：</translation>
-    </message>
-    <message>
-        <source>Factory</source>
-        <translation>出厂</translation>
-    </message>
-    <message>
-        <source>User</source>
-        <translation>用户</translation>
-    </message>
-    <message>
         <source>Preset:</source>
         <translation>预设：</translation>
-    </message>
-    <message>
-        <source>Save User Preset</source>
-        <translation>保存用户预设</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>保存</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>重置</translation>
     </message>
 </context>
 <context>
