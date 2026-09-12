@@ -2361,6 +2361,37 @@ void XmlSerializationTest::test_fromXml_speechDevice_withoutVoiceEngine_shouldSt
     QCOMPARE(restored.voiceEngine(), 0);
 }
 
+void XmlSerializationTest::test_fromXml_speechDevice_shouldNotSignalWhileHoldingTheLock()
+{
+    // deserializeFromXml() holds the device mutex for the whole read and emits dataChanged() once,
+    // after letting go of it. That ordering is not a nicety: the signal reaches MidiService, whose
+    // handler enumerates the MIDI ports and so goes out to the worker thread, and emitting it from
+    // under the lock stopped projects loading at all.
+    //
+    // Forcing the legacy voice engine on the way in was doing exactly that, by going through
+    // setDiscreteParameterValue(), which emits. Counting the signal is what notices if a later
+    // change reaches for one of those setters again -- the deadlock itself is a question of thread
+    // timing and will not reproduce in a test, but the extra emit that causes it will.
+    DeviceFactory::init();
+
+    SpeechDevice speech { "Speech" };
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        speech.serializeToXml(writer);
+    }
+
+    NahdXmlReader reader { xml };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+
+    SpeechDevice restored { "Speech" };
+    QSignalSpy spy { &restored, &Device::dataChanged };
+    restored.deserializeFromXml(reader);
+
+    QCOMPARE(spy.count(), 1);
+}
+
 void XmlSerializationTest::test_toXmlFromXml_pianoSynthV2Device_shouldLoadCorrectly()
 {
     // Devices are rebuilt through DeviceFactory, so this also covers the factory registration:

@@ -872,7 +872,16 @@ void SpeechDevice::deserializeFromXml(ProjectReader & reader)
         // an absent parameter keeps whatever the container already holds. Every project written
         // before the Rosenberg source existed carries no voiceEngine, so this is what makes those
         // load as the voice they were saved with; one written since carries it and overwrites this.
-        setDiscreteParameterValue(Constants::NahdXml::xmlKeyVoiceEngine().toStdString(), static_cast<int>(VoiceEngine::Legacy));
+        //
+        // Written straight into the parameter rather than through setDiscreteParameterValue(), which
+        // emits dataChanged(). That signal must not be emitted from here: this whole block holds the
+        // device mutex, which is exactly why the emit at the end of this function sits outside it.
+        // Under the lock it reaches MidiService, whose handler goes out to the MIDI worker thread,
+        // and the project stopped loading at all. syncParameters() at the end of this function is
+        // what carries the value into the member, so nothing else is needed here.
+        if (const auto engine = parameter(Constants::NahdXml::xmlKeyVoiceEngine().toStdString()); engine) {
+            engine->get().setFromXml(static_cast<int>(VoiceEngine::Legacy));
+        }
 
         deserializeAttributesFromXml(reader);
 
