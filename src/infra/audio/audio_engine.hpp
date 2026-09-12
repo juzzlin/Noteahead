@@ -147,6 +147,16 @@ public:
     EffectRack & sendEffectRack();
     EffectRack & insertEffectRack();
 
+    //! The chain of effects a send bus runs after its own effect, so that what a send returns can be
+    //! shaped further: an EQ on a reverb, a compressor on a delay.
+    //!
+    //! A bus's effect list is its effect in sendEffectRack() followed by this rack. The first
+    //! enabled effect of that list runs in send mode, i.e. only what it adds is returned to the
+    //! master; every later one runs as an insert on that return. See processEffectTask().
+    EffectRack & sendChainRack(size_t busIndex);
+    const EffectRack & sendChainRack(size_t busIndex) const;
+    size_t sendChainRackCount() const;
+
 private:
     void ensureWorkBuffers(size_t laneCount, size_t sendCount, uint32_t bufferSize);
     void ensureEffectWetBuffers(size_t effectCount, uint32_t bufferSize);
@@ -163,14 +173,34 @@ private:
     //! steady state so it is safe to call every audio callback.
     bool processingGraphChanged();
 
+    //! Refreshes the cached snapshot of every send chain whose rack has changed. Called under
+    //! m_mutex at the top of process(), so the audio work below never touches a rack's own lock.
+    void refreshSendChainSnapshots();
+
     std::map<size_t, DeviceS> m_devices;
     std::unique_ptr<EffectRack> m_sendEffectRack;
     std::unique_ptr<EffectRack> m_insertEffectRack;
+    //! One chain per send bus, indexed like m_sendEffectRack's slots. Always sized to the send rack,
+    //! so a bus always has a chain to address even while it is empty.
+    std::vector<std::unique_ptr<EffectRack>> m_sendChainRacks;
 
     // Cached snapshot of the send effect rack, refreshed only when the rack changes so that process()
     // does not copy the effect vector (and bump shared_ptr refcounts) on every audio callback.
     std::vector<std::shared_ptr<Effect>> m_sendEffectsSnapshot;
     uint64_t m_sendEffectsVersion = std::numeric_limits<uint64_t>::max();
+
+    // The same treatment for the chains, one snapshot per bus. A chain is read on the audio thread
+    // once per block and EffectRack guards itself with a mutex, so going through the rack there
+    // would put a lock on the send path -- see the jitter notes in DeviceService.
+    //
+    // Null slots are dropped but disabled effects are kept: Effect's enabled flag is live and does
+    // not bump the rack's version, so filtering on it here would freeze whatever it read last.
+    // Effect::process() honours the flag itself, and the send-mode rule reads it per block.
+    std::vector<std::vector<std::shared_ptr<Effect>>> m_sendChainSnapshots;
+    std::vector<uint64_t> m_sendChainVersions;
+    //! Last seen bypass state per chain. Bypassing a rack leaves its contents alone and so does not
+    //! bump its version, so the snapshot above would not otherwise be refreshed for it.
+    std::vector<uint8_t> m_sendChainEnabled;
     std::unique_ptr<RealTimeWorkerPool> m_workerPool;
     std::vector<AudioEngineWorkBuffer> m_workBuffers;
     std::vector<DeviceS> m_deviceSnapshot;

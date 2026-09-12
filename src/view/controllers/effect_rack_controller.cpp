@@ -115,6 +115,15 @@ int EffectRackController::effectCount() const
     return 0;
 }
 
+int EffectRackController::sendChainEffectCount(int busIndex) const
+{
+    if (busIndex < 0 || static_cast<size_t>(busIndex) >= m_deviceService->sendChainRackCount()) {
+        return 0;
+    }
+    const auto effects = m_deviceService->sendChainRack(static_cast<size_t>(busIndex)).effects();
+    return static_cast<int>(std::ranges::count_if(effects, [](const auto & effect) { return effect != nullptr; }));
+}
+
 int EffectRackController::revision() const
 {
     return m_revision;
@@ -176,6 +185,14 @@ EffectRackController::EffectRackOpt EffectRackController::rackAt(const QString &
     if (deviceName.isEmpty()) {
         if (isInsertRack) {
             return std::ref(m_deviceService->insertEffectRack());
+        } else if (subIndex >= 0) {
+            // On the master send rack a sub-index is a send bus, and addresses the chain of effects
+            // that bus runs after its own -- the same shape as a Sampler pad or a Drum Synth voice
+            // below, so everything downstream of here works on a chain without knowing about them.
+            if (static_cast<size_t>(subIndex) >= m_deviceService->sendChainRackCount()) {
+                return std::nullopt;
+            }
+            return std::ref(m_deviceService->sendChainRack(static_cast<size_t>(subIndex)));
         } else {
             return std::ref(m_deviceService->sendEffectRack());
         }

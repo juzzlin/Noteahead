@@ -13,25 +13,29 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef EXAMPLE_SONG_TEST_HPP
-#define EXAMPLE_SONG_TEST_HPP
+#ifndef SEND_EFFECT_CHAIN_TEST_HPP
+#define SEND_EFFECT_CHAIN_TEST_HPP
 
 #include <QObject>
 
 namespace noteahead {
 
-class ExampleSongTest : public QObject
+class SendEffectChainTest : public QObject
 {
     Q_OBJECT
 
 private slots:
-    void test_exampleSong_shouldBeEmbeddedInTheBinary();
-    void test_exampleSong_shouldLoadWithTheCurrentFormat();
-    void test_exampleSong_shouldStayUnnamedSoThatSaveCannotOverwriteIt();
-    void test_exampleSong_shouldCarryMetadata();
-    void test_exampleSong_resaved_shouldNotGainSendChains();
+    void test_sendChain_empty_shouldMatchTheSendEffectAlone();
+    void test_sendChain_withEffect_shouldShapeWhatTheSendReturns();
+    void test_sendChain_withoutSendEffect_shouldNotDoubleTheDry();
+    void test_sendChain_withDisabledSendEffect_shouldTakeOverTheSendRole();
+    void test_sendChain_disabledRack_shouldMatchTheSendEffectAlone();
+    void test_sendChain_disabledEffect_shouldBeSkipped();
+    void test_sendChain_addedAfterProcess_shouldBeApplied();
+    void test_sendChain_sendRackBypassed_shouldStopToo();
+    void test_sendChain_ordering_shouldRunInSlotOrder();
 };
 
 } // namespace noteahead
 
-#endif // EXAMPLE_SONG_TEST_HPP
+#endif // SEND_EFFECT_CHAIN_TEST_HPP

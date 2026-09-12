@@ -84,6 +84,9 @@ private slots:
     void test_toXml_whileAutomated_shouldSaveAuthoredValues();
     void test_toXmlFromXml_synthDevice_shouldPreserveValuesAndDiscreteFlags();
     void test_toXmlFromXml_masterSendEffects_shouldLoadCorrectly();
+    void test_toXmlFromXml_sendChains_shouldLoadCorrectly();
+    void test_toXmlFromXml_sendChains_none_shouldNotBeWritten();
+    void test_toXmlFromXml_sendChains_legacyProjectWithoutThem_shouldLoadWithEmptyChains();
     void test_toXmlFromXml_chorusEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_endlessReverbEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_vintagePassiveEqEffect_shouldLoadCorrectly();

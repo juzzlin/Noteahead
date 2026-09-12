@@ -4,6 +4,7 @@
 #include "../../common/constants.hpp"
 #include "../../domain/effects/auto_filter.hpp"
 #include "../../domain/effects/auto_panner.hpp"
+#include "../../domain/effects/chorus.hpp"
 #include "../../domain/effects/clipper.hpp"
 #include "../../domain/effects/compressor.hpp"
 #include "../../domain/effects/effect_factory.hpp"
@@ -820,6 +821,54 @@ void EffectRackControllerTest::test_availableEffects_shouldBeSortedByName()
         QVERIFY2(QString::compare(previous, current, Qt::CaseInsensitive) < 0,
                  qPrintable(QString { "\"%1\" is listed before \"%2\"" }.arg(previous, current)));
     }
+}
+
+void EffectRackControllerTest::test_targetSubIndex_masterSendRack_shouldAddressTheBusChain()
+{
+    // On the master send side a sub-index means a send bus, and points the controller at that bus's
+    // chain -- the same shape a Sampler pad or a Drum Synth voice already uses. Without a sub-index
+    // it still has to be the send rack itself.
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+
+    controller.setTargetDeviceName({});
+    controller.setIsInsertRack(false);
+
+    controller.setTargetSubIndex(-1);
+    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+    QVERIFY(deviceService->sendEffectRack().effect(0));
+    QVERIFY(!deviceService->sendChainRack(0).hasEffects());
+
+    controller.setTargetSubIndex(0);
+    controller.setEffect(0, QString::fromStdString(Chorus::typeIdString()));
+    QVERIFY(deviceService->sendChainRack(0).effect(0));
+    QCOMPARE(deviceService->sendChainRack(0).effect(0)->typeId(), Chorus::typeIdString());
+    // The bus's own effect is untouched by an edit to its chain.
+    QCOMPARE(deviceService->sendEffectRack().effect(0)->typeId(), Reverb::typeIdString());
+
+    // A bus that does not exist addresses nothing rather than the send rack.
+    controller.setTargetSubIndex(static_cast<int>(deviceService->sendChainRackCount()));
+    QCOMPARE(controller.effectCount(), 0);
+}
+
+void EffectRackControllerTest::test_sendChainEffectCount_shouldCountTheChainOfTheGivenBus()
+{
+    // Drives the count the master rack's send rows show, so it addresses a bus directly rather than
+    // through whatever the controller happens to be pointed at.
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+
+    QCOMPARE(controller.sendChainEffectCount(0), 0);
+
+    deviceService->sendChainRack(1).setEffect(0, EffectFactory::createEffect(Chorus::typeIdString(), {}));
+    deviceService->sendChainRack(1).setEffect(3, EffectFactory::createEffect(Reverb::typeIdString(), {}));
+
+    QCOMPARE(controller.sendChainEffectCount(1), 2);
+    QCOMPARE(controller.sendChainEffectCount(0), 0);
+    QCOMPARE(controller.sendChainEffectCount(-1), 0);
+    QCOMPARE(controller.sendChainEffectCount(static_cast<int>(deviceService->sendChainRackCount())), 0);
 }
 
 } // namespace noteahead

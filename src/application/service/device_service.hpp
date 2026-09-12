@@ -139,7 +139,6 @@ public:
     Q_INVOKABLE virtual QStringList categories() const;
     Q_INVOKABLE virtual QStringList devicesByCategory(const QString & category) const;
 
-
     void setProjectPath(const std::string & projectPath);
 
     void serializeToXml(ProjectWriter & writer) const;
@@ -181,6 +180,10 @@ public:
     EffectRack & sendEffectRack();
     EffectRack & insertEffectRack();
 
+    //! The effects a send bus runs after its own effect. See AudioEngine::sendChainRack().
+    EffectRack & sendChainRack(size_t busIndex);
+    size_t sendChainRackCount() const;
+
 signals:
     void dataChanged();
 
@@ -211,11 +214,13 @@ private:
     void serializeDevices(ProjectWriter & writer) const;
     void serializeMasterEffects(ProjectWriter & writer) const;
     void serializeSendEffects(ProjectWriter & writer) const;
+    void serializeSendChains(ProjectWriter & writer) const;
     void serializeReverbSends(ProjectWriter & writer) const;
 
     void deserializeDevice(ProjectReader & reader);
     void deserializeMasterEffects(ProjectReader & reader);
     void deserializeSendEffects(ProjectReader & reader);
+    void deserializeSendChains(ProjectReader & reader);
     void deserializeEffectSend(ProjectReader & reader);
     float legacyPresetParameterValue(ProjectReader & reader, const std::string & paramName, const QString & xmlValue) const;
 

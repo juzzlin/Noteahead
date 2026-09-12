@@ -583,11 +583,49 @@ void DeviceService::serializeReverbSends(ProjectWriter & writer) const
     }
 }
 
+void DeviceService::serializeSendChains(ProjectWriter & writer) const
+{
+    const auto chainCount = m_audioEngine->sendChainRackCount();
+    const auto anyChain = [&] {
+        for (size_t busIndex = 0; busIndex < chainCount; busIndex++) {
+            if (m_audioEngine->sendChainRack(busIndex).hasEffects()) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    // Written only when there is something to write, so that a song with no chains -- which is every
+    // song saved before they existed -- serializes to exactly the file it did before.
+    if (!anyChain()) {
+        return;
+    }
+
+    writer.writeStartElement(Constants::NahdXml::xmlKeySendChains());
+    for (size_t busIndex = 0; busIndex < chainCount; busIndex++) {
+        const auto & chain = m_audioEngine->sendChainRack(busIndex);
+        if (!chain.hasEffects()) {
+            continue;
+        }
+        writer.writeStartElement(Constants::NahdXml::xmlKeySendChain());
+        writer.writeAttribute(Constants::NahdXml::xmlKeyIndex(), QString::number(busIndex));
+        // No enabled attribute, deliberately: no rack in the project format persists its bypass --
+        // not the master racks, not a device's inserts -- and a chain that alone remembered it would
+        // be the odd one out. The reader defaults to enabled either way.
+        writer.writeStartElement(Constants::NahdXml::xmlKeyInsertEffects());
+        chain.serializeEffectsToXml(writer);
+        writer.writeEndElement(); // InsertEffects
+        writer.writeEndElement(); // SendChain
+    }
+    writer.writeEndElement(); // SendChains
+}
+
 void DeviceService::serializeSendEffects(ProjectWriter & writer) const
 {
     writer.writeStartElement(Constants::NahdXml::xmlKeySendEffects());
     m_audioEngine->sendEffectRack().serializeEffectsToXml(writer);
     serializeReverbSends(writer);
+    serializeSendChains(writer);
     writer.writeEndElement(); // SendEffects
 }
 
@@ -655,9 +693,33 @@ void DeviceService::deserializeEffectSend(ProjectReader & reader)
     reader.skipCurrentElement();
 }
 
+void DeviceService::deserializeSendChains(ProjectReader & reader)
+{
+    while (reader.readNextStartElement()) {
+        if (reader.name() == Constants::NahdXml::xmlKeySendChain()) {
+            const auto index = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyIndex(), false);
+            while (reader.readNextStartElement()) {
+                if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects() && index.has_value() && index.value() >= 0 && static_cast<size_t>(index.value()) < m_audioEngine->sendChainRackCount()) {
+                    m_audioEngine->sendChainRack(static_cast<size_t>(index.value())).deserializeEffectsFromXml(reader);
+                } else {
+                    reader.skipCurrentElement();
+                }
+            }
+        } else {
+            reader.skipCurrentElement();
+        }
+    }
+}
+
 void DeviceService::deserializeSendEffects(ProjectReader & reader)
 {
     m_audioEngine->sendEffectRack().clear();
+    // Every chain is emptied first, so that loading a song that has none leaves nothing behind from
+    // whatever was open before it.
+    for (size_t busIndex = 0; busIndex < m_audioEngine->sendChainRackCount(); busIndex++) {
+        m_audioEngine->sendChainRack(busIndex).clear();
+        m_audioEngine->sendChainRack(busIndex).setEnabled(true);
+    }
     // Rack-level enabled flag from the <SendEffects> element (defaults to enabled for older projects).
     m_audioEngine->sendEffectRack().setEnabled(reader.attribute(Constants::NahdXml::xmlKeyEnabled()).toString() != Constants::NahdXml::xmlValueFalse());
     while (reader.readNextStartElement()) {
@@ -665,6 +727,8 @@ void DeviceService::deserializeSendEffects(ProjectReader & reader)
             m_audioEngine->sendEffectRack().deserializeEffect(reader);
         } else if (reader.name() == Constants::NahdXml::xmlKeySend()) {
             deserializeEffectSend(reader);
+        } else if (reader.name() == Constants::NahdXml::xmlKeySendChains()) {
+            deserializeSendChains(reader);
         } else {
             reader.skipCurrentElement();
         }
@@ -922,6 +986,9 @@ void DeviceService::resetLoudnessMeters()
 
     resetRack(m_audioEngine->sendEffectRack());
     resetRack(m_audioEngine->insertEffectRack());
+    for (size_t busIndex = 0; busIndex < m_audioEngine->sendChainRackCount(); busIndex++) {
+        resetRack(m_audioEngine->sendChainRack(busIndex));
+    }
     for (size_t slotIndex = 0; slotIndex < Constants::deviceRackSize(); slotIndex++) {
         if (const auto device = this->device(slotIndex)) {
             resetRack(device->insertEffectRack());
@@ -932,6 +999,16 @@ void DeviceService::resetLoudnessMeters()
 EffectRack & DeviceService::sendEffectRack()
 {
     return m_audioEngine->sendEffectRack();
+}
+
+EffectRack & DeviceService::sendChainRack(size_t busIndex)
+{
+    return m_audioEngine->sendChainRack(busIndex);
+}
+
+size_t DeviceService::sendChainRackCount() const
+{
+    return m_audioEngine->sendChainRackCount();
 }
 
 EffectRack & DeviceService::insertEffectRack()

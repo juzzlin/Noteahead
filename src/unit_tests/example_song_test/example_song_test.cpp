@@ -16,11 +16,13 @@
 #include "example_song_test.hpp"
 
 #include "../../application/service/automation_service.hpp"
+#include "../../application/service/device_service.hpp"
 #include "../../application/service/editor_service.hpp"
 #include "../../application/service/property_service.hpp"
 #include "../../application/service/selection_service.hpp"
 #include "../../application/service/settings_service.hpp"
 #include "../../common/constants.hpp"
+#include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
 
 #include <QFile>
@@ -77,6 +79,21 @@ void ExampleSongTest::test_exampleSong_shouldCarryMetadata()
 
     // It is the shipped demonstration of the metadata feature, and the window title shows it.
     QVERIFY(!editorService.songMetadataTitle().isEmpty());
+}
+
+void ExampleSongTest::test_exampleSong_resaved_shouldNotGainSendChains()
+{
+    // Send chains are written only when a bus actually has one, so a project that predates them --
+    // the example being the one such file the tests can reach -- has to save back without gaining
+    // the element. Opening and saving an old song must not rewrite its file.
+    auto editorService = makeEditorService();
+    const auto deviceService = std::make_shared<DeviceService>(std::make_shared<AudioEngine>(), std::make_shared<DataService>());
+    connect(&editorService, &EditorService::devicesSerializationRequested, deviceService.get(), &DeviceService::serializeToXml);
+    connect(&editorService, &EditorService::devicesDeserializationRequested, deviceService.get(), &DeviceService::deserializeFromXml);
+
+    editorService.loadExample();
+
+    QVERIFY(!editorService.toXml().contains(Constants::NahdXml::xmlKeySendChains()));
 }
 
 } // namespace noteahead

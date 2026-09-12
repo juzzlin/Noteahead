@@ -408,6 +408,12 @@ ApplicationWindow {
         anchors.centerIn: parent
     }
 
+    // Shared by every rack dialog, so that the mapping from an effect type to its dialog lives in
+    // one place. Declared beside the effect dialogs below, whose ids it resolves.
+    EffectDialogLauncher {
+        id: effectDialogLauncher
+    }
+
     MasterEffectsDialog {
         id: masterEffectsDialog
         anchors.centerIn: parent
@@ -1001,15 +1007,26 @@ ApplicationWindow {
             deviceSettingsDialog.open();
         });
         UiService.deviceInsertEffectsDialogRequested.connect(deviceName => {
+            deviceInsertEffectsDialog.isInsertRack = true;
             deviceInsertEffectsDialog.deviceName = deviceName;
             deviceInsertEffectsDialog.subIndex = -1;
             deviceInsertEffectsDialog.subLabel = "";
             deviceInsertEffectsDialog.open();
         });
         UiService.deviceSubEffectsDialogRequested.connect((deviceName, subIndex, subLabel) => {
+            deviceInsertEffectsDialog.isInsertRack = true;
             deviceInsertEffectsDialog.deviceName = deviceName;
             deviceInsertEffectsDialog.subIndex = subIndex;
             deviceInsertEffectsDialog.subLabel = subLabel;
+            deviceInsertEffectsDialog.open();
+        });
+        // A send bus's chain is an insert rack on what that bus returns, so it is the same dialog
+        // with no device behind it and the bus index as the sub-index.
+        UiService.sendChainEffectsDialogRequested.connect((busIndex, busLabel) => {
+            deviceInsertEffectsDialog.isInsertRack = false;
+            deviceInsertEffectsDialog.deviceName = "";
+            deviceInsertEffectsDialog.subIndex = busIndex;
+            deviceInsertEffectsDialog.subLabel = busLabel;
             deviceInsertEffectsDialog.open();
         });
 

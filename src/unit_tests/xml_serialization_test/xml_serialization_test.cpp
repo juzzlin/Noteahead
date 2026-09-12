@@ -1694,6 +1694,94 @@ void XmlSerializationTest::test_toXmlFromXml_masterSendEffects_shouldLoadCorrect
     QCOMPARE(restoredReverb->hpfCutoff(), 0.28f);
 }
 
+void XmlSerializationTest::test_toXmlFromXml_sendChains_shouldLoadCorrectly()
+{
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    // A reverb on send bus 0, with an EQ after it -- the case the chains exist for.
+    auto reverb = std::make_shared<Reverb>();
+    reverb->setDecay(0.75f);
+    deviceServiceOut.sendEffectRack().setEffect(0, reverb);
+    auto chorus = std::make_shared<Chorus>();
+    chorus->setWidth(0.42f);
+    deviceServiceOut.sendChainRack(0).setEffect(1, chorus);
+    // A second bus, to prove the chains are kept apart rather than pooled.
+    auto tail = std::make_shared<Reverb>();
+    tail->setDecay(0.33f);
+    deviceServiceOut.sendChainRack(2).setEffect(0, tail);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    QVERIFY(deviceServiceIn.sendEffectRack().effect(0));
+
+    // The slot within the chain is kept, not just the order.
+    const auto restoredChorus = std::dynamic_pointer_cast<Chorus>(deviceServiceIn.sendChainRack(0).effect(1));
+    QVERIFY(restoredChorus);
+    QCOMPARE(restoredChorus->width(), 0.42f);
+    QVERIFY(!deviceServiceIn.sendChainRack(0).effect(0));
+
+    const auto restoredTail = std::dynamic_pointer_cast<Reverb>(deviceServiceIn.sendChainRack(2).effect(0));
+    QVERIFY(restoredTail);
+    QCOMPARE(restoredTail->decay(), 0.33f);
+
+    QVERIFY(!deviceServiceIn.sendChainRack(1).hasEffects());
+}
+
+void XmlSerializationTest::test_toXmlFromXml_sendChains_none_shouldNotBeWritten()
+{
+    // A song with no chains has to serialize to the file it would have before chains existed, so
+    // that saving an old project does not rewrite it.
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+    deviceServiceOut.sendEffectRack().setEffect(0, std::make_shared<Reverb>());
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    QVERIFY(!editorServiceOut.toXml().contains(Constants::NahdXml::xmlKeySendChains()));
+
+    // And the moment one is filled, it is.
+    deviceServiceOut.sendChainRack(0).setEffect(0, std::make_shared<Chorus>());
+    QVERIFY(editorServiceOut.toXml().contains(Constants::NahdXml::xmlKeySendChains()));
+}
+
+void XmlSerializationTest::test_toXmlFromXml_sendChains_legacyProjectWithoutThem_shouldLoadWithEmptyChains()
+{
+    // Loading a project that predates the chains must leave them empty -- including when something
+    // with chains was open beforehand, which is what makes this more than the round-trip above.
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+    deviceServiceOut.sendEffectRack().setEffect(0, std::make_shared<Reverb>());
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+    const auto chainlessXml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    deviceServiceIn.sendChainRack(0).setEffect(0, std::make_shared<Chorus>());
+    deviceServiceIn.sendChainRack(0).setEnabled(false);
+
+    editorServiceIn.fromXml(chainlessXml);
+
+    QVERIFY(!deviceServiceIn.sendChainRack(0).hasEffects());
+    QVERIFY(deviceServiceIn.sendChainRack(0).enabled());
+}
+
 void XmlSerializationTest::test_toXmlFromXml_chorusEffect_shouldLoadCorrectly()
 {
     const auto engineOut = std::make_shared<AudioEngine>();

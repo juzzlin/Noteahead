@@ -26,6 +26,7 @@
 #include <chrono>
 #include <cmath>
 #include <pthread.h>
+#include <ranges>
 
 namespace noteahead {
 
@@ -64,6 +65,9 @@ struct DeviceProcessContext
 struct EffectProcessContext
 {
     std::vector<EffectRack::EffectS> * effects {};
+    //! Per bus, the effects to run after that bus's own effect. Empty for a bus with no chain, which
+    //! is every bus in a project that predates them.
+    std::vector<std::vector<EffectRack::EffectS>> * sendChains {};
     std::vector<std::vector<double>> * sendBusBuffers {};
     std::vector<std::vector<double>> * effectWetBuffers {};
     std::vector<uint8_t> * effectActiveFlags {};
@@ -74,6 +78,10 @@ struct EffectProcessContext
     uint8_t oversampleFactor {};
     bool offline {};
 };
+
+//! Stands in for the chain of a bus that has none. A send rack grows a slot for whatever index a
+//! project names, so it can outrun the fixed set of chains and leave a bus with no chain to point at.
+const std::vector<EffectRack::EffectS> noSendChain;
 
 bool bufferContainsSignal(const std::vector<double> & buffer, uint32_t bufferSize)
 {
@@ -203,15 +211,31 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
     }
 }
 
+//! Runs one send bus: its own effect, then the chain of effects that shape what it returns.
+//!
+//! A bus's effect list is its effect in the send rack followed by its chain. The first *enabled*
+//! effect of that list runs in send mode, so that only what it adds reaches the master and the dry
+//! keeps its own path; everything after it is an insert on that return. Stating it that way rather
+//! than "the send rack's effect is the send-mode one" is what keeps a chain hanging off an empty --
+//! or bypassed -- send slot from returning a second copy of the dry: whatever runs first is the one
+//! whose contribution is taken as the difference, wherever it sits.
+//!
+//! With an empty chain this is exactly what it has always been: copy the bus, run the effect in send
+//! mode, subtract the bus.
 void processEffectTask(void * context, size_t taskIndex, size_t /*workerIndex*/)
 {
     auto & effectContext = *static_cast<EffectProcessContext *>(context);
     auto & effect = effectContext.effects->at(taskIndex);
+    const auto & chain = (effectContext.sendChains && taskIndex < effectContext.sendChains->size()) ? effectContext.sendChains->at(taskIndex) : noSendChain;
     const auto & sendBus = effectContext.sendBusBuffers->at(taskIndex);
     auto & wetBuffer = effectContext.effectWetBuffers->at(taskIndex);
     const auto bufferSize = effectContext.frameCount * 2;
 
-    if (!effect) {
+    const auto isRunnable = [](const EffectRack::EffectS & candidate) {
+        return candidate && candidate->enabled();
+    };
+
+    if (!isRunnable(effect) && std::ranges::none_of(chain, isRunnable)) {
         std::fill(wetBuffer.begin(), wetBuffer.begin() + bufferSize, 0.0);
         effectContext.effectActiveFlags->at(taskIndex) = 0;
         return;
@@ -222,26 +246,35 @@ void processEffectTask(void * context, size_t taskIndex, size_t /*workerIndex*/)
         return;
     }
 
-    effect->setSampleRate(effectContext.sampleRate);
-    // This is a send bus, so the effect has to keep the dry whole: the return below is the
-    // difference against what the bus handed over.
-    effect->setSendMode(true);
-
     // Copy dry signal to wet buffer for in-place processing
     std::copy(sendBus.begin(), sendBus.begin() + bufferSize, wetBuffer.begin());
 
     AudioContext context_obj { std::span(wetBuffer.data(), bufferSize), effectContext.frameCount, effectContext.sampleRate, effectContext.bpm, {}, effectContext.oversampleFactor, effectContext.offline };
-    effect->process(context_obj);
 
-    bool hasWetSignal = false;
-    for (uint32_t i = 0; i < bufferSize; i++) {
-        wetBuffer[i] -= sendBus[i];
-        if (std::abs(wetBuffer[i]) > 1.0e-12) {
-            hasWetSignal = true;
+    bool dryStillIn = true;
+    const auto runEffect = [&](const EffectRack::EffectS & current) {
+        if (!isRunnable(current)) {
+            return;
         }
+        current->setSampleRate(effectContext.sampleRate);
+        // Only the first one keeps the dry whole for the difference to be taken against; by the time
+        // the rest run there is no dry left in the buffer for them to preserve.
+        current->setSendMode(dryStillIn);
+        current->process(context_obj);
+        if (dryStillIn) {
+            for (uint32_t i = 0; i < bufferSize; i++) {
+                wetBuffer[i] -= sendBus[i];
+            }
+            dryStillIn = false;
+        }
+    };
+
+    runEffect(effect);
+    for (const auto & chained : chain) {
+        runEffect(chained);
     }
 
-    effectContext.effectActiveFlags->at(taskIndex) = hasWetSignal ? 1 : 0;
+    effectContext.effectActiveFlags->at(taskIndex) = bufferContainsSignal(wetBuffer, bufferSize) ? 1 : 0;
 }
 
 } // namespace
@@ -381,6 +414,16 @@ AudioEngine::AudioEngine()
   , m_insertEffectRack { std::make_unique<EffectRack>() }
   , m_workerPool { std::make_unique<RealTimeWorkerPool>() }
 {
+    // One chain per send bus, built up front so that every bus has a chain to address whether or not
+    // anything is ever put in it. An empty rack costs a vector of null pointers.
+    m_sendChainRacks.reserve(m_sendEffectRack->effectCount());
+    for (size_t i = 0; i < m_sendEffectRack->effectCount(); i++) {
+        m_sendChainRacks.push_back(std::make_unique<EffectRack>());
+    }
+    m_sendChainSnapshots.resize(m_sendChainRacks.size());
+    m_sendChainVersions.assign(m_sendChainRacks.size(), std::numeric_limits<uint64_t>::max());
+    m_sendChainEnabled.assign(m_sendChainRacks.size(), 1);
+
     enableHardwareDenormalProtection();
 }
 
@@ -391,9 +434,47 @@ EffectRack & AudioEngine::sendEffectRack()
     return *m_sendEffectRack;
 }
 
+EffectRack & AudioEngine::sendChainRack(size_t busIndex)
+{
+    return *m_sendChainRacks.at(busIndex);
+}
+
+const EffectRack & AudioEngine::sendChainRack(size_t busIndex) const
+{
+    return *m_sendChainRacks.at(busIndex);
+}
+
+size_t AudioEngine::sendChainRackCount() const
+{
+    return m_sendChainRacks.size();
+}
+
 EffectRack & AudioEngine::insertEffectRack()
 {
     return *m_insertEffectRack;
+}
+
+void AudioEngine::refreshSendChainSnapshots()
+{
+    for (size_t i = 0; i < m_sendChainRacks.size(); i++) {
+        auto & rack = *m_sendChainRacks[i];
+        const auto version = rack.version();
+        const auto enabled = rack.enabled();
+        // Bypassing a rack does not change its contents and so does not bump its version, which is
+        // why the flag is tracked beside it rather than folded into the comparison.
+        if (version == m_sendChainVersions[i] && enabled == (m_sendChainEnabled[i] != 0)) {
+            continue;
+        }
+        // A bypassed chain reads as an empty one, which is what leaves the send returning its own
+        // effect alone. effects() clears the target and drops the empty slots for us.
+        if (enabled) {
+            rack.effects(m_sendChainSnapshots[i]);
+        } else {
+            m_sendChainSnapshots[i].clear();
+        }
+        m_sendChainVersions[i] = version;
+        m_sendChainEnabled[i] = enabled ? 1 : 0;
+    }
 }
 
 void AudioEngine::setDevice(size_t slotIndex, DeviceS device)
@@ -456,6 +537,9 @@ void AudioEngine::setBpm(float bpm)
     std::lock_guard<std::mutex> lock { m_mutex };
     m_sendEffectRack->setBpm(bpm);
     m_insertEffectRack->setBpm(bpm);
+    for (auto & chain : m_sendChainRacks) {
+        chain->setBpm(bpm);
+    }
     for (auto const & [index, device] : m_devices) {
         if (device) {
             device->setBpm(bpm);
@@ -484,6 +568,7 @@ void AudioEngine::process(AudioContext & context)
         m_sendEffectsSnapshot = m_sendEffectRack->effects();
         m_sendEffectsVersion = version;
     }
+    refreshSendChainSnapshots();
     auto & effects = m_sendEffectsSnapshot;
     const size_t sendCount = effects.size();
     const size_t laneCount = m_workerPool->laneCount();
@@ -627,7 +712,13 @@ void AudioEngine::process(AudioContext & context)
         }
     }
 
-    if (m_sendEffectRack->enabled() && std::ranges::any_of(effects, [](const auto & effect) { return effect != nullptr; })) {
+    // A bus is worth running when it has an effect of its own or a chain to put the bus through.
+    // Bypassing the send rack takes the chains with it: they are the tail of its buses, not racks of
+    // their own, so leaving them running would turn the bypass into a way of hearing them alone.
+    const auto busHasWork = [this, &effects](size_t busIndex) {
+        return effects[busIndex] != nullptr || (busIndex < m_sendChainSnapshots.size() && !m_sendChainSnapshots[busIndex].empty());
+    };
+    if (m_sendEffectRack->enabled() && std::ranges::any_of(std::views::iota(size_t { 0 }, sendCount), busHasWork)) {
         if (m_sendBusHasSignal.size() != sendCount) {
             m_sendBusHasSignal.assign(sendCount, 0);
         }
@@ -637,13 +728,14 @@ void AudioEngine::process(AudioContext & context)
         size_t activeSendCount = 0;
         for (size_t i = 0; i < sendCount; i++) {
             m_sendBusHasSignal[i] = bufferContainsSignal(m_sendBusBuffers[i], bufferSize) ? 1 : 0;
-            if (effects[i] && (m_sendBusHasSignal[i] || m_effectActiveFlags[i])) {
+            if (busHasWork(i) && (m_sendBusHasSignal[i] || m_effectActiveFlags[i])) {
                 activeSendCount++;
             }
         }
 
         EffectProcessContext effectContext {
             &effects,
+            &m_sendChainSnapshots,
             &m_sendBusBuffers,
             &m_effectWetBuffers,
             &m_effectActiveFlags,
@@ -748,6 +840,9 @@ void AudioEngine::reset()
     }
     m_sendEffectRack->reset();
     m_insertEffectRack->reset();
+    for (auto & chain : m_sendChainRacks) {
+        chain->reset();
+    }
 
     std::fill(m_deviceActiveFlags.begin(), m_deviceActiveFlags.end(), 0);
     std::fill(m_effectActiveFlags.begin(), m_effectActiveFlags.end(), 0);
@@ -771,6 +866,11 @@ void AudioEngine::clear()
     }
     for (size_t i = 0; i < m_insertEffectRack->effectCount(); i++) {
         m_insertEffectRack->setEffect(i, nullptr);
+    }
+    for (auto & chain : m_sendChainRacks) {
+        chain->reset();
+        chain->clear();
+        chain->setEnabled(true);
     }
 
     std::fill(m_deviceActiveFlags.begin(), m_deviceActiveFlags.end(), 0);

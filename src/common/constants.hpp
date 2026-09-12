@@ -349,6 +349,8 @@ QString xmlKeyMixer();
 QString xmlKeyMasterEffects();
 QString xmlKeyInsertEffects();
 QString xmlKeySendEffects();
+QString xmlKeySendChains();
+QString xmlKeySendChain();
 QString xmlKeyEffect();
 QString xmlKeySend();
 QString xmlKeyDeviceSlot();

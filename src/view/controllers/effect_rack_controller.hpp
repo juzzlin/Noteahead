@@ -84,6 +84,11 @@ public:
     explicit EffectRackController(DeviceServiceS deviceService, EditorServiceS editorService, QObject * parent = nullptr);
 
     int effectCount() const;
+
+    //! How many effects the given send bus runs after its own. Drives the count the master rack's
+    //! send rows show, so it addresses a bus directly rather than going through the current target.
+    Q_INVOKABLE int sendChainEffectCount(int busIndex) const;
+
     int revision() const;
 
     //! Bumps the revision so the dialogs re-read their summaries after a language change. The

@@ -5,6 +5,13 @@ Release date:
 
 New features:
 
+* Chain effects after a send effect
+  - A Chain button on each row of the Send Effects tab opens a rack that
+    runs on what that send returns, so a reverb can be EQ'd or a delay
+    compressed without the dry signal going through it
+  - The first effect of a bus is the one that keeps the dry out of the
+    return, whether it sits in the send slot or in the chain
+
 Bug fixes:
 
 Other:

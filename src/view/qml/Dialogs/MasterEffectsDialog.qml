@@ -46,6 +46,10 @@ AnimatedDialog {
             effectRackController.isInsertRack = false;
         }
         effectRackController.targetDeviceName = "";
+        // Back to the racks themselves rather than a bus's chain, which is what a sub-index means
+        // on the send side. Closing the chain dialog clears it too, so this only matters if the
+        // dialog is reopened after something else has left one set.
+        effectRackController.targetSubIndex = -1;
     }
 
     background: Rectangle {
@@ -139,6 +143,12 @@ AnimatedDialog {
                     effectRackController.revision;
                     return effectRackController.effectType(index);
                 }
+                // Only a send bus has a chain: an insert rack is already a chain of its own.
+                readonly property bool hasChain: tabBar.currentIndex === 1 && effectType !== ""
+                readonly property int chainedCount: {
+                    effectRackController.revision;
+                    return hasChain ? effectRackController.sendChainEffectCount(index) : 0;
+                }
 
                 Menu {
                     id: manageMenu
@@ -191,116 +201,7 @@ AnimatedDialog {
                             return;
                         }
                         effectListView.hoveredIndex = -1;
-                        if (effectType === effectRackController.allPassFilterType) {
-                            allPassFilterDialog.effectIndex = index;
-                            allPassFilterDialog.open();
-                        } else if (effectType === effectRackController.lufsMeterType) {
-                            lufsMeterDialog.effectIndex = index;
-                            lufsMeterDialog.open();
-                        } else if (effectType === effectRackController.dbtpMeterType) {
-                            dbtpMeterDialog.effectIndex = index;
-                            dbtpMeterDialog.open();
-                        } else if (effectType === effectRackController.clipperType) {
-                            clipperDialog.effectIndex = index;
-                            clipperDialog.open();
-                        } else if (effectType === effectRackController.saturatorType) {
-                            saturatorDialog.effectIndex = index;
-                            saturatorDialog.open();
-                        } else if (effectType === effectRackController.analogFuzzType) {
-                            analogFuzzDialog.effectIndex = index;
-                            analogFuzzDialog.open();
-                        } else if (effectType === effectRackController.monitorType) {
-                            monitorDialog.effectIndex = index;
-                            monitorDialog.open();
-                        } else if (effectType === effectRackController.gainType) {
-                            gainDialog.effectIndex = index;
-                            gainDialog.open();
-                        } else if (effectType === effectRackController.bassGrinderType) {
-                            bassGrinderDialog.effectIndex = index;
-                            bassGrinderDialog.open();
-                        } else if (effectType === effectRackController.tubeStageType) {
-                            tubeStageDialog.effectIndex = index;
-                            tubeStageDialog.open();
-                        } else if (effectType === effectRackController.waveDesignerType) {
-                            waveDesignerDialog.effectIndex = index;
-                            waveDesignerDialog.open();
-                        } else if (effectType === effectRackController.stereoFieldMeterType) {
-                            stereoFieldMeterDialog.effectIndex = index;
-                            stereoFieldMeterDialog.open();
-                        } else if (effectType === effectRackController.earlyReflectionsType) {
-                            earlyReflectionsDialog.effectIndex = index;
-                            earlyReflectionsDialog.open();
-                        } else if (effectType === effectRackController.dimensionType) {
-                            dimensionDialog.effectIndex = index;
-                            dimensionDialog.open();
-                        } else if (effectType === effectRackController.stereoWidenerType) {
-                            stereoWidenerDialog.effectIndex = index;
-                            stereoWidenerDialog.open();
-                        } else if (effectType === effectRackController.stereoEnhancerType) {
-                            stereoEnhancerDialog.effectIndex = index;
-                            stereoEnhancerDialog.open();
-                        } else if (effectType === effectRackController.stereoExciterType) {
-                            stereoExciterDialog.effectIndex = index;
-                            stereoExciterDialog.open();
-                        } else if (effectType === effectRackController.driveType) {
-                            driveDialog.effectIndex = index;
-                            driveDialog.open();
-                        } else if (effectType === effectRackController.limiterType) {
-                            limiterDialog.effectIndex = index;
-                            limiterDialog.open();
-                        } else if (effectType === effectRackController.compressorType) {
-                            compressorDialog.effectIndex = index;
-                            compressorDialog.open();
-                        } else if (effectType === effectRackController.multibandCompressorType) {
-                            multibandCompressorDialog.effectIndex = index;
-                            multibandCompressorDialog.open();
-                        } else if (effectType === effectRackController.autoDuckerType) {
-                            autoDuckerDialog.effectIndex = index;
-                            autoDuckerDialog.open();
-                        } else if (effectType === effectRackController.delayType) {
-                            delayDialog.effectIndex = index;
-                            delayDialog.open();
-                        } else if (effectType === effectRackController.eq8BandParametricType) {
-                            eq8BandParametricDialog.effectIndex = index;
-                            eq8BandParametricDialog.open();
-                        } else if (effectType === effectRackController.vintagePassiveEqType) {
-                            vintagePassiveEqDialog.effectIndex = index;
-                            vintagePassiveEqDialog.open();
-                        } else if (effectType === effectRackController.airBandEqType) {
-                            airBandEqDialog.effectIndex = index;
-                            airBandEqDialog.open();
-                        } else if (effectType === effectRackController.simpleEqType) {
-                            simpleEqDialog.effectIndex = index;
-                            simpleEqDialog.open();
-                        } else if (effectType === effectRackController.pannerType) {
-                            pannerDialog.effectIndex = index;
-                            pannerDialog.open();
-                        } else if (effectType === effectRackController.autoPannerType) {
-                            autoPannerDialog.effectIndex = index;
-                            autoPannerDialog.open();
-                        } else if (effectType === effectRackController.autoFilterType) {
-                            autoFilterDialog.effectIndex = index;
-                            autoFilterDialog.open();
-                        } else if (effectType === effectRackController.phaserType) {
-                            phaserDialog.effectIndex = index;
-                            phaserDialog.open();
-                        } else if (effectType === effectRackController.chorusType) {
-                            chorusDialog.effectIndex = index;
-                            chorusDialog.open();
-                        } else if (effectType === effectRackController.reverbType) {
-                            reverbDialog.effectIndex = index;
-                            reverbDialog.open();
-                        } else if (effectType === effectRackController.endlessType) {
-                            endlessReverbDialog.effectIndex = index;
-                            endlessReverbDialog.open();
-                        } else if (effectType === effectRackController.rtaType) {
-                            rtaDialog.effectIndex = index;
-                            rtaDialog.open();
-                        } else if (effectType === "") {
-                            UiService.requestEffectsGalleryDialog(index);
-                        } else {
-                            UiService.requestEffectsGalleryDialog(index);
-                        }
+                        effectDialogLauncher.open(effectType, index);
                     }
                 }
                 RowLayout {
@@ -314,7 +215,10 @@ AnimatedDialog {
                                 return "";
                             const name = effectRackController.effectDisplayName(effectType);
                             const summary = effectRackController.effectParametersSummary(index);
-                            return qsTr("Slot %1: %2 %3").arg(index + 1).arg(name).arg(summary);
+                            const row = qsTr("Slot %1: %2 %3").arg(index + 1).arg(name).arg(summary);
+                            // Not translated: an arrow and a count, the way the parameter summaries
+                            // beside it carry their units.
+                            return chainedCount > 0 ? row + "  → " + chainedCount : row;
                         }
                         color: "white"
                         font.pointSize: 13
@@ -346,6 +250,16 @@ AnimatedDialog {
                         ToolTip.visible: hovered
                         ToolTip.delay: Constants.toolTipDelay
                         ToolTip.text: qsTr("Enable/disable the effect")
+                    }
+                    AppButton {
+                        text: qsTr("Chain")
+                        Layout.preferredWidth: 80
+                        visible: hasChain
+                        onClicked: UiService.requestSendChainEffectsDialog(index, effectRackController.effectDisplayName(effectType))
+                        ToolTip.visible: hovered
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.text: qsTr("Add effects after this send, to shape what it returns. The send itself stays the one that keeps the dry signal out of the return.")
                     }
                     AppButton {
                         id: manageButton
@@ -384,6 +298,7 @@ AnimatedDialog {
                 onClicked: {
                     effectRackController.isInsertRack = true;
                     effectRackController.targetDeviceName = "";
+                    effectRackController.targetSubIndex = -1;
                 }
             }
             TabButton {
@@ -391,6 +306,7 @@ AnimatedDialog {
                 onClicked: {
                     effectRackController.isInsertRack = false;
                     effectRackController.targetDeviceName = "";
+                    effectRackController.targetSubIndex = -1;
                 }
             }
         }

@@ -38,6 +38,7 @@ QtObject {
     signal copyPadDialogRequested(int padIndex)
     signal deviceInsertEffectsDialogRequested(string deviceName)
     signal deviceSubEffectsDialogRequested(string deviceName, int subIndex, string subLabel)
+    signal sendChainEffectsDialogRequested(int busIndex, string busLabel)
     signal deviceRackDialogFromTrackSettingsRequested
     signal deviceRackDialogRequested
     signal exportDeviceSettingsRequested(int slotIndex, string deviceName, string deviceTypeName)
@@ -253,6 +254,9 @@ QtObject {
     }
     function requestDeviceSubEffectsDialog(deviceName: string, subIndex: int, subLabel: string): void {
         deviceSubEffectsDialogRequested(deviceName, subIndex, subLabel);
+    }
+    function requestSendChainEffectsDialog(busIndex: int, busLabel: string): void {
+        sendChainEffectsDialogRequested(busIndex, busLabel);
     }
     function requestDrumSynthDialog(): void {
         drumSynthDialogRequested();

@@ -793,6 +793,16 @@ QString xmlKeySendEffects()
     return "SendEffects";
 }
 
+QString xmlKeySendChains()
+{
+    return "SendChains";
+}
+
+QString xmlKeySendChain()
+{
+    return "SendChain";
+}
+
 QString xmlKeyEffect()
 {
     return "Effect";
