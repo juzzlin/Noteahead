@@ -56,6 +56,7 @@ class SpeechController;
 class StringEnsembleController;
 class StringVoiceController;
 class StringVoiceV2Controller;
+class StringVoiceV3Controller;
 class EditorService;
 class EffectRackController;
 class EventSelectionModel;
@@ -185,6 +186,7 @@ private:
     std::shared_ptr<Kick808Controller> m_kick808Controller;
     std::shared_ptr<StringVoiceController> m_stringVoiceController;
     std::shared_ptr<StringVoiceV2Controller> m_stringVoiceV2Controller;
+    std::shared_ptr<StringVoiceV3Controller> m_stringVoiceV3Controller;
     std::shared_ptr<StringEnsembleController> m_stringEnsembleController;
     std::shared_ptr<SpeechController> m_speechController;
     std::shared_ptr<EffectRackController> m_effectRackController;

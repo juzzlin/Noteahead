@@ -374,6 +374,10 @@ ApplicationWindow {
         id: stringVoiceV2Dialog
         anchors.centerIn: parent
     }
+    StringVoiceV3Dialog {
+        id: stringVoiceV3Dialog
+        anchors.centerIn: parent
+    }
     StringEnsembleDialog {
         id: stringEnsembleDialog
         anchors.centerIn: parent
@@ -944,6 +948,7 @@ ApplicationWindow {
         deviceRackController.kick808DialogRequested.connect(kick808Dialog.open);
         deviceRackController.stringVoiceDialogRequested.connect(stringVoiceDialog.open);
         deviceRackController.stringVoiceV2DialogRequested.connect(stringVoiceV2Dialog.open);
+        deviceRackController.stringVoiceV3DialogRequested.connect(stringVoiceV3Dialog.open);
         deviceRackController.stringEnsembleDialogRequested.connect(stringEnsembleDialog.open);
         deviceRackController.subMixerDialogRequested.connect(slotIndex => {
             subMixerDialog.slotIndex = slotIndex;

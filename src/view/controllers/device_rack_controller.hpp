@@ -165,6 +165,7 @@ signals:
     void kick808DialogRequested();
     void stringVoiceDialogRequested();
     void stringVoiceV2DialogRequested();
+    void stringVoiceV3DialogRequested();
     void stringEnsembleDialogRequested();
     void speechDialogRequested();
     void deviceSettingsDialogRequested(QString deviceName);

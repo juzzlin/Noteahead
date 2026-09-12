@@ -40,6 +40,7 @@
 #include "../../domain/devices/string_ensemble_device.hpp"
 #include "../../domain/devices/string_voice_device.hpp"
 #include "../../domain/devices/string_voice_v2_device.hpp"
+#include "../../domain/devices/string_voice_v3_device.hpp"
 #include "../../domain/devices/sub_mixer_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/wavetable_synth_device.hpp"
@@ -3658,6 +3659,41 @@ void XmlSerializationTest::test_stringVoiceV2_shouldRoundTripThroughTheFactory()
     QCOMPARE(restored.stringsTone(), 0.25f);
     QCOMPARE(restored.stringsBalance(), 0.4f);
     QCOMPARE(restored.typeId(), StringVoiceV2Device::typeIdString());
+    QVERIFY(restored.typeId() != StringVoiceDevice::typeIdString());
+}
+
+void XmlSerializationTest::test_stringVoiceV3_shouldRoundTripThroughTheFactory()
+{
+    // Covers the factory registration as well as the parameters. The type ids matter more here than
+    // usual: V3 differs from V2 only in how its sections are routed, so a V3 that came back as a V2
+    // would load without complaint and quietly sound wrong.
+    StringVoiceV3Device device { "Test StringVoiceV3" };
+    device.setStringsUpper(false);
+    device.setStringsLower(true);
+    device.setStringsTone(0.25f);
+    device.setStringsBalance(0.4f);
+    device.setEnsembleEnabled(false);
+
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        device.serializeToXml(writer);
+    }
+
+    NahdXmlReader reader { xml };
+    QVERIFY(reader.readNextStartElement());
+    QCOMPARE(reader.name(), Constants::NahdXml::xmlKeyDevice());
+
+    StringVoiceV3Device restored { "Restored" };
+    restored.deserializeFromXml(reader);
+
+    QCOMPARE(restored.stringsUpper(), false);
+    QCOMPARE(restored.stringsLower(), true);
+    QCOMPARE(restored.stringsTone(), 0.25f);
+    QCOMPARE(restored.stringsBalance(), 0.4f);
+    QCOMPARE(restored.ensembleEnabled(), false);
+    QCOMPARE(restored.typeId(), StringVoiceV3Device::typeIdString());
+    QVERIFY(restored.typeId() != StringVoiceV2Device::typeIdString());
     QVERIFY(restored.typeId() != StringVoiceDevice::typeIdString());
 }
 

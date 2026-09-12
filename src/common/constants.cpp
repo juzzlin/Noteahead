@@ -189,6 +189,11 @@ QString stringVoiceV2DeviceName()
     return "Noteahead String & Voice V2";
 }
 
+QString stringVoiceV3DeviceName()
+{
+    return "Noteahead String & Voice V3";
+}
+
 QString stringEnsembleDeviceName()
 {
     return "Noteahead String Ensemble";

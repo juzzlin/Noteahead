@@ -5,6 +5,13 @@ Release date:
 
 New features:
 
+* Add String & Voice V3
+  - Ensemble reaches the Human Voice section only, as on the hardware
+  - The Strings sound each note as three slightly detuned copies, so they
+    shimmer on their own instead of standing still with Ensemble off
+  - Fitted to VC340 recordings of the Strings made with Ensemble off
+  - V2 is untouched and songs using it are unaffected
+
 * Chain effects after a send effect
   - A Chain button on each row of the Send Effects tab opens a rack that
     runs on what that send returns, so a reverb can be EQ'd or a delay

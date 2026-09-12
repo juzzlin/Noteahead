@@ -26,6 +26,7 @@
 #include "string_ensemble_device.hpp"
 #include "string_voice_device.hpp"
 #include "string_voice_v2_device.hpp"
+#include "string_voice_v3_device.hpp"
 #include "sub_mixer_device.hpp"
 #include "synth_device.hpp"
 #include "wavetable_synth_device.hpp"
@@ -72,6 +73,9 @@ void DeviceFactory::init()
     });
     registerDevice(StringVoiceV2Device::typeIdString(), [](const std::string & name) {
         return std::make_shared<StringVoiceV2Device>(name);
+    });
+    registerDevice(StringVoiceV3Device::typeIdString(), [](const std::string & name) {
+        return std::make_shared<StringVoiceV3Device>(name);
     });
     registerDevice(StringEnsembleDevice::typeIdString(), [](const std::string & name) {
         return std::make_shared<StringEnsembleDevice>(name);

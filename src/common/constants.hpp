@@ -79,6 +79,7 @@ QString kick808DeviceName();
 QString subMixerDeviceName();
 QString stringVoiceDeviceName();
 QString stringVoiceV2DeviceName();
+QString stringVoiceV3DeviceName();
 QString stringEnsembleDeviceName();
 QString speechDeviceName();
 QString fmSynthDeviceName();
