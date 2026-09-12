@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 #include "nahd_xml_writer.hpp"
 
+#include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
 namespace noteahead {
@@ -63,6 +64,20 @@ void NahdXmlWriter::writeAttribute(const QString & name, const QString & value)
 void NahdXmlWriter::writeCharacters(const QString & text)
 {
     m_writer->writeCharacters(text);
+}
+
+void NahdXmlWriter::writeRawXml(const QString & xml)
+{
+    // Replayed token by token rather than pasted as text: QXmlStreamWriter has no raw output, and
+    // going back through a reader also means a malformed fragment cannot corrupt the document.
+    QXmlStreamReader reader { xml };
+    while (!reader.atEnd() && !reader.hasError()) {
+        reader.readNext();
+        if (reader.isStartDocument() || reader.isEndDocument()) {
+            continue;
+        }
+        m_writer->writeCurrentToken(reader);
+    }
 }
 
 void NahdXmlWriter::setAutoFormatting(bool enable)

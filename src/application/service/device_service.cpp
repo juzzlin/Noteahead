@@ -56,6 +56,8 @@ DeviceService::~DeviceService() = default;
 
 void DeviceService::setDevice(size_t slotIndex, DeviceS device)
 {
+    // Whatever was being held for this slot has just been replaced by a real device
+    m_unknownDevices.erase(slotIndex);
     connect(device.get(), &Device::dataChanged, this, &DeviceService::dataChanged);
     device->setId(slotIndex);
     if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(device)) {
@@ -563,6 +565,14 @@ void DeviceService::serializeDevices(ProjectWriter & writer) const
             dev->serializeToXml(writer);
         }
     }
+
+    // Slots this version could not fill are written back from what was read, so saving a project
+    // here never costs it a device that another build would have shown.
+    for (const auto & [slotIndex, xml] : m_unknownDevices) {
+        if (!device(slotIndex)) {
+            writer.writeRawXml(xml);
+        }
+    }
 }
 
 void DeviceService::serializeReverbSends(ProjectWriter & writer) const
@@ -666,7 +676,7 @@ void DeviceService::deserializeDevice(ProjectReader & reader)
     const auto name = reader.attribute(Constants::NahdXml::xmlKeyName()).toString();
     const auto typeId = reader.attribute(Constants::NahdXml::xmlKeyTypeId()).toString();
     const auto slotAttr = reader.attribute(Constants::NahdXml::xmlKeySlot());
-    if (slotAttr.isNull() || slotAttr.toUInt() > Constants::deviceRackSize()) {
+    if (slotAttr.isNull() || slotAttr.toUInt() >= Constants::deviceRackSize()) {
         juzzlin::L(TAG).warning() << std::format("Skipping device {} ({}) with slot index {} out of bounds!", typeId.toStdString(), name.toStdString(), slotAttr.toUInt());
         reader.skipCurrentElement();
         return;
@@ -675,8 +685,10 @@ void DeviceService::deserializeDevice(ProjectReader & reader)
         setDevice(slotAttr.toUInt(), dev);
         dev->deserializeFromXml(reader);
     } else {
-        juzzlin::L(TAG).error() << std::format("Failed to create device {} ({}) with slot index {}", typeId.toStdString(), name.toStdString(), slotAttr.toUInt());
-        reader.skipCurrentElement();
+        // Nothing here can show this device, but reading past it would be what finally deletes it.
+        // The element is kept exactly as it was written and put back on the next save.
+        juzzlin::L(TAG).error() << std::format("Failed to create device {} ({}) with slot index {}: keeping its settings", typeId.toStdString(), name.toStdString(), slotAttr.toUInt());
+        m_unknownDevices[slotAttr.toUInt()] = reader.readElementXml();
     }
 }
 
@@ -779,6 +791,8 @@ float DeviceService::legacyPresetParameterValue(ProjectReader & reader, const st
 
 void DeviceService::deserializeFromXml(ProjectReader & reader)
 {
+    m_unknownDevices.clear();
+
     while (reader.readNextStartElement()) {
         if (reader.name() == Constants::NahdXml::xmlKeyDevice()) {
             deserializeDevice(reader);
@@ -804,6 +818,17 @@ void DeviceService::deserializeFromXml(ProjectReader & reader)
     }
     if (!missingSamplePaths.isEmpty()) {
         emit samplesMissing(missingSamplePaths);
+    }
+
+    QStringList unknownDeviceDescriptions;
+    for (const auto & [slotIndex, xml] : m_unknownDevices) {
+        NahdXmlReader unknownReader { xml };
+        unknownReader.readNextStartElement();
+        const auto typeName = unknownReader.attribute(Constants::NahdXml::xmlKeyTypeName()).toString();
+        unknownDeviceDescriptions.append(QString { "%1: %2" }.arg(slotIndex + 1).arg(typeName.isEmpty() ? QString { "?" } : typeName));
+    }
+    if (!unknownDeviceDescriptions.isEmpty()) {
+        emit unknownDevicesFound(unknownDeviceDescriptions);
     }
 }
 

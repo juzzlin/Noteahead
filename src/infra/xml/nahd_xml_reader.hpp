@@ -49,6 +49,7 @@ public:
     QString errorString() const override;
 
     QString readElementText() override;
+    QString readElementXml() override;
 
 private:
     std::unique_ptr<QXmlStreamReader> m_reader;

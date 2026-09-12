@@ -1170,6 +1170,9 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_shouldLoadSamplerDevi
     const auto engine = std::make_shared<AudioEngine>();
     DeviceService deviceServiceOut { engine, std::make_shared<DataService>() };
     const auto samplerOut = std::make_shared<SamplerDevice>(samplerName, std::make_unique<MockAudioFileReader>());
+    // This case is about the path being stored, so embedding -- which replaces the path with a
+    // nahd:// reference -- is turned off rather than left at its default
+    samplerOut->setEmbedWaveData(false);
     samplerOut->loadSample(60, fileName);
     samplerOut->setSamplePan(60, 0.75f);
     samplerOut->setSampleVolume(60, 0.8f);
@@ -1373,6 +1376,7 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_relativePath_shouldLo
     deviceServiceOut.setProjectPath(projectPath);
 
     const auto samplerOut = std::make_shared<SamplerDevice>(samplerName, std::make_unique<MockAudioFileReader>());
+    samplerOut->setEmbedWaveData(false);
     samplerOut->loadSample(60, absolutePath);
     deviceServiceOut.setDevice(0, samplerOut);
 

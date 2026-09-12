@@ -16,6 +16,7 @@
 
 #include <QVariant>
 #include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 namespace noteahead {
 
@@ -100,6 +101,33 @@ QString NahdXmlReader::errorString() const
 QString NahdXmlReader::readElementText()
 {
     return m_reader->readElementText();
+}
+
+QString NahdXmlReader::readElementXml()
+{
+    if (!m_reader->isStartElement()) {
+        return {};
+    }
+
+    QString xml;
+    QXmlStreamWriter writer { &xml };
+    // Depth rather than element names: an element can contain another of its own name, and only
+    // counting tells the matching end element from a nested one.
+    int depth = 0;
+    do {
+        if (m_reader->isStartElement()) {
+            depth++;
+        } else if (m_reader->isEndElement()) {
+            depth--;
+        }
+        writer.writeCurrentToken(*m_reader);
+        if (depth == 0) {
+            break;
+        }
+        m_reader->readNext();
+    } while (!m_reader->atEnd() && !m_reader->hasError());
+
+    return xml;
 }
 
 } // namespace noteahead

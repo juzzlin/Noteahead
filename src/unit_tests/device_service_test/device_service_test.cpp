@@ -635,6 +635,114 @@ void DeviceServiceTest::test_peekDeviceTypeInfo_synth_shouldReturnCorrectTypeInf
     QVERIFY(!info.typeName.isEmpty());
 }
 
+namespace {
+
+//! A Devices element holding one device this build knows and one it does not, which is what a
+//! project saved by a newer version looks like from here.
+QString devicesXmlWithAnUnknownDevice()
+{
+    return QString {
+        "<Devices>"
+        " <Device slot=\"0\" name=\"Noteahead Internal Device 1\" typeName=\"Noteahead Synth\" category=\"Synths\" typeId=\"%1\">"
+        "  <Parameters/>"
+        " </Device>"
+        " <Device slot=\"1\" name=\"Noteahead Internal Device 2\" typeName=\"Noteahead Fictional\" category=\"Synths\" typeId=\"not-a-registered-type\">"
+        "  <Parameters>"
+        "   <Parameter name=\"somethingOnlyTheNewerVersionKnows\" valueType=\"int\" value=\"7\"/>"
+        "  </Parameters>"
+        " </Device>"
+        "</Devices>"
+    }
+      .arg(QString::fromStdString(SynthDevice::typeIdString()));
+}
+
+QString serializedDevices(DeviceService & service)
+{
+    QString xml;
+    NahdXmlWriter writer { xml };
+    service.serializeToXml(writer);
+    return xml;
+}
+
+void deserializeDevices(DeviceService & service, const QString & xml)
+{
+    NahdXmlReader reader { xml };
+    reader.readNextStartElement();
+    service.deserializeFromXml(reader);
+}
+
+} // namespace
+
+void DeviceServiceTest::test_deserialize_unknownDevice_shouldNotDropTheKnownOnes()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    DeviceService service { audioEngine, std::make_shared<DataService>() };
+
+    deserializeDevices(service, devicesXmlWithAnUnknownDevice());
+
+    QVERIFY(service.device(static_cast<size_t>(0)));
+    // Nothing here can build it, so its slot reads as empty
+    QVERIFY(!service.device(static_cast<size_t>(1)));
+}
+
+void DeviceServiceTest::test_deserialize_unknownDevice_shouldReportIt()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    DeviceService service { audioEngine, std::make_shared<DataService>() };
+
+    QSignalSpy spy { &service, &DeviceService::unknownDevicesFound };
+
+    deserializeDevices(service, devicesXmlWithAnUnknownDevice());
+
+    QCOMPARE(spy.count(), 1);
+    const auto descriptions = spy.at(0).at(0).toStringList();
+    QCOMPARE(descriptions.size(), 1);
+    QVERIFY(descriptions.at(0).contains("Noteahead Fictional"));
+}
+
+void DeviceServiceTest::test_serialize_unknownDevice_shouldWriteItBackUnchanged()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    DeviceService service { audioEngine, std::make_shared<DataService>() };
+
+    deserializeDevices(service, devicesXmlWithAnUnknownDevice());
+
+    const auto xml = serializedDevices(service);
+
+    // Opening a project in a version that cannot show one of its devices, and saving it, used to
+    // be what deleted that device for good
+    QVERIFY(xml.contains("not-a-registered-type"));
+    QVERIFY(xml.contains("somethingOnlyTheNewerVersionKnows"));
+    QVERIFY(xml.contains("Noteahead Fictional"));
+}
+
+void DeviceServiceTest::test_serialize_unknownDevice_slotTakenByARealDevice_shouldBeForgotten()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    DeviceService service { audioEngine, std::make_shared<DataService>() };
+
+    deserializeDevices(service, devicesXmlWithAnUnknownDevice());
+    // The user put something of their own in the slot, which is the one thing that may replace it
+    service.setDevice(1, DeviceFactory::createDevice(SynthDevice::typeIdString(), "Noteahead Internal Device 2"));
+
+    const auto xml = serializedDevices(service);
+
+    QVERIFY(!xml.contains("not-a-registered-type"));
+    QVERIFY(!xml.contains("somethingOnlyTheNewerVersionKnows"));
+}
+
+void DeviceServiceTest::test_deserialize_unknownDevice_loadedAgain_shouldNotAccumulate()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    DeviceService service { audioEngine, std::make_shared<DataService>() };
+
+    deserializeDevices(service, devicesXmlWithAnUnknownDevice());
+    deserializeDevices(service, "<Devices/>");
+
+    // The previous project's leftovers must not follow the user into the next one
+    QVERIFY(!serializedDevices(service).contains("not-a-registered-type"));
+}
+
 void DeviceServiceTest::test_peekDeviceTypeInfo_nonexistentFile_shouldReturnEmpty()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();

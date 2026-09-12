@@ -48,6 +48,13 @@ public:
     virtual QString errorString() const = 0;
 
     virtual QString readElementText() = 0;
+
+    //! The current element and everything under it, as XML, leaving the reader on its end element
+    //! exactly as skipCurrentElement() does.
+    //!
+    //! For content this version of the application does not understand and must not destroy by
+    //! reading past it: captured here and written back by ProjectWriter::writeRawXml().
+    virtual QString readElementXml() = 0;
 };
 
 } // namespace noteahead

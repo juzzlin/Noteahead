@@ -221,7 +221,10 @@ SamplerDevice::SamplerDevice(std::string name, AudioFileReaderU audioFileReader)
 {
     addParameter(Parameter { Constants::NahdXml::xmlKeyChannelMode().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
     addParameter(Parameter { Constants::NahdXml::xmlKeyChromaticMode().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyEmbedWaveData().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
+    // On by default: a project that carries its samples survives being moved, mailed or opened
+    // through a symlinked path, and none of those are things the person saving it thinks about.
+    // Projects saved with it off keep it off -- the setting is written into every project file.
+    addParameter(Parameter { Constants::NahdXml::xmlKeyEmbedWaveData().toStdString(), 1.0f, 0, 1, 1, 1, Parameter::Type::Boolean });
 
     m_voices.resize(m_maxVoices);
     for (auto && sample : m_samples) {

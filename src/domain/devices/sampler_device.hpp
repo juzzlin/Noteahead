@@ -402,7 +402,7 @@ private:
     float m_authoredGlobalHpfCutoff = 0.0f;
     bool m_channelMode = false;
     bool m_chromaticMode = false;
-    bool m_embedWaveData = false;
+    bool m_embedWaveData = true;
     std::string m_projectPath;
     std::vector<std::string> m_missingSamplePaths;
     PathResolver m_pathResolver;

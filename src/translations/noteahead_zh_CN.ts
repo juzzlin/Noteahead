@@ -8732,6 +8732,14 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
 <context>
     <name>noteahead::Application</name>
     <message>
+        <source>This version does not know these devices, so their slots are shown as empty:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Their settings are kept and saved back, so nothing is lost by working on the project here.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The project loaded, but these samples could not be read:</source>
         <translation type="unfinished"></translation>
     </message>

@@ -27,6 +27,7 @@
 
 #include <chrono>
 #include <functional>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -191,6 +192,10 @@ signals:
     //! project itself loaded: this is what the pads are missing, not a failure to open the song.
     void samplesMissing(QStringList paths);
 
+    //! Devices this version does not know about, one description per slot. Their settings are held
+    //! and written back on save, so the project can be opened here without losing them.
+    void unknownDevicesFound(QStringList descriptions);
+
 private:
     bool importDeviceSettingsFromXml(int slotIndex, const QString & xml);
 
@@ -203,6 +208,14 @@ private:
     void pruneSubMixerMembers();
 
     DeviceService::DeviceS getDevice(std::string name, std::string typeId);
+
+    //! The XML of devices no registered type could be made from, by slot.
+    //!
+    //! A project saved by a newer version, or by one with a device this build was not compiled
+    //! with, used to lose that device the moment it was saved again: it could not be created, so
+    //! nothing held the slot and nothing wrote it back. Keeping the element verbatim makes opening
+    //! and saving a project here harmless to whatever it carries that this version cannot show.
+    std::map<size_t, QString> m_unknownDevices;
 
     //! Slot a MIDI port name addresses, or nothing when the name is not "<prefix> <n>".
     std::optional<size_t> slotFromPortName(const QString & portName) const;

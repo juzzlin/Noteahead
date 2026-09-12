@@ -27,6 +27,12 @@ New features:
 
 Bug fixes:
 
+* A device this version does not know is no longer lost on save
+  - Opening a project made with a newer version, or with a device this build
+    lacks, left that slot empty and deleted it from the file on the next save
+  - Its settings are now kept and written back, and the slots are listed when
+    the project opens
+
 * A sample that cannot be read no longer loses the project
   - Loading a project whose sample file had been moved or deleted discarded
     the whole song and left an empty one in its place
@@ -34,6 +40,11 @@ Bug fixes:
     and those pads keep their settings so putting the file back is enough
 
 Other:
+
+* The Sampler embeds its samples by default
+  - A new project carries its samples, so moving or sharing it cannot leave
+    the pads pointing at files that are no longer there
+  - Existing projects keep the setting they were saved with
 
 7.5.0
 =====

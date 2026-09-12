@@ -121,6 +121,7 @@ private slots:
     void test_deserialize_missingSample_shouldReportWhatWasMissing();
     void test_deserialize_missingSample_shouldKeepThePadForTheNextSave();
     void test_deserialize_missingSample_reloaded_shouldForgetTheOldFailure();
+    void test_embedWaveData_shouldBeOnByDefault();
     void test_serialize_sampleOutsideTheProject_shouldStoreItRelativeToTheProject();
     void test_serialize_sampleOutsideTheProject_shouldSurviveAReload();
     void test_processAudio_reusesBuffersWithoutLeaking();

@@ -584,6 +584,8 @@ QByteArray samplerXmlWithTwoPads()
 {
     QByteArray data;
     SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    // These cases are about pads that reference a file rather than carry it
+    sampler.setEmbedWaveData(false);
     sampler.loadSample(36, "/samples/Kick.wav");
     sampler.loadSample(38, "/samples/Snare.wav");
     NahdXmlWriter writer { data };
@@ -685,11 +687,28 @@ void SamplerTest::test_deserialize_missingSample_reloaded_shouldForgetTheOldFail
     QVERIFY(sampler.missingSamplePaths().empty());
 }
 
+void SamplerTest::test_embedWaveData_shouldBeOnByDefault()
+{
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    // A project that carries its samples cannot be broken by moving it, and nothing about saving
+    // one suggests that it would not
+    QVERIFY(sampler.embedWaveData());
+
+    sampler.loadSample(36, "/samples/Kick.wav");
+    QByteArray data;
+    {
+        NahdXmlWriter writer { data };
+        sampler.serializeToXml(writer);
+    }
+    QVERIFY(QString::fromUtf8(data).contains("nahd://Kick.wav"));
+}
+
 void SamplerTest::test_serialize_sampleOutsideTheProject_shouldStoreItRelativeToTheProject()
 {
     SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
     // A project nested deeply under a tree the samples sit near the top of, which is what an album
     // of songs sharing one sample library looks like
+    sampler.setEmbedWaveData(false);
     sampler.setProjectPath("/music/Artists/Band/2026/TheEp/Songs/TheSong");
     sampler.loadSample(36, "/music/Samples/Drums/Kick.wav");
 
@@ -710,6 +729,7 @@ void SamplerTest::test_serialize_sampleOutsideTheProject_shouldSurviveAReload()
     QByteArray data;
     {
         SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+        sampler.setEmbedWaveData(false);
         sampler.setProjectPath("/music/Artists/Band/2026/TheEp/Songs/TheSong");
         sampler.loadSample(36, "/music/Samples/Drums/Kick.wav");
         NahdXmlWriter writer { data };

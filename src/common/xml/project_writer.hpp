@@ -34,6 +34,9 @@ public:
     virtual void writeAttribute(const QString & name, const QString & value) = 0;
     virtual void writeCharacters(const QString & text) = 0;
 
+    //! Writes a fragment captured by ProjectReader::readElementXml() back out unchanged.
+    virtual void writeRawXml(const QString & xml) = 0;
+
     virtual void setAutoFormatting(bool enable) = 0;
     virtual void setAutoFormattingIndent(int indent) = 0;
 };

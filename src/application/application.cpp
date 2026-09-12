@@ -460,6 +460,10 @@ void Application::connectDeviceService()
         m_editorService->setIsModified(true);
     });
 
+    connect(m_deviceService.get(), &DeviceService::unknownDevicesFound, this, [this](QStringList descriptions) {
+        m_applicationService->requestAlertDialog(tr("This version does not know these devices, so their slots are shown as empty:") + "\n\n" + descriptions.join("\n") + "\n\n" + tr("Their settings are kept and saved back, so nothing is lost by working on the project here."));
+    });
+
     connect(m_deviceService.get(), &DeviceService::samplesMissing, this, [this](QStringList paths) {
         m_applicationService->requestAlertDialog(tr("The project loaded, but these samples could not be read:") + "\n\n" + paths.join("\n"));
     });

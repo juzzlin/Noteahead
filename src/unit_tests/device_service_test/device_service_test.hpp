@@ -52,6 +52,11 @@ private slots:
 
     void test_device_bySlotAndByName_shouldResolveWithoutTheEngine();
     void test_processMidiNoteOn_whileEngineIsProcessing_shouldNotBlock();
+    void test_deserialize_unknownDevice_shouldNotDropTheKnownOnes();
+    void test_deserialize_unknownDevice_shouldReportIt();
+    void test_deserialize_unknownDevice_loadedAgain_shouldNotAccumulate();
+    void test_serialize_unknownDevice_shouldWriteItBackUnchanged();
+    void test_serialize_unknownDevice_slotTakenByARealDevice_shouldBeForgotten();
 };
 
 } // namespace noteahead

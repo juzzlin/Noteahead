@@ -44,6 +44,8 @@ public:
     void writeAttribute(const QString & name, const QString & value) override;
     void writeCharacters(const QString & text) override;
 
+    void writeRawXml(const QString & xml) override;
+
     void setAutoFormatting(bool enable) override;
     void setAutoFormattingIndent(int indent) override;
 
