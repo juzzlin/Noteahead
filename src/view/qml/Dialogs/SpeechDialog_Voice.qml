@@ -41,7 +41,11 @@ ColumnLayout {
             text: qsTr("Type")
         }
         ComboBox {
-            model: [qsTr("Male"), qsTr("Female")]
+            // Read through the active language so retranslate() reaches a model built in JS.
+            model: {
+                languageService.activeLanguage;
+                return [qsTr("Male"), qsTr("Female"), qsTr("Child"), qsTr("Deep"), qsTr("Breathy")];
+            }
             currentIndex: speechController.voiceType
             onActivated: i => speechController.voiceType = i
             Layout.fillWidth: true
@@ -84,6 +88,32 @@ ColumnLayout {
         label: qsTr("Breathiness")
         value: speechController.breathiness
         onMoved: v => speechController.breathiness = v
+        Layout.fillWidth: true
+    }
+    Knob {
+        label: qsTr("Openness")
+        enabled: speechController.voiceEngine === 1
+        value: speechController.openQuotient
+        onMoved: v => speechController.openQuotient = v
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("How long the vocal folds stay open. Down is pressed and buzzy, up is soft and breathy. Half way is what the voice type asks for.")
+        Layout.fillWidth: true
+    }
+    Knob {
+        label: qsTr("Jitter")
+        enabled: speechController.voiceEngine === 1
+        value: speechController.voicePerturbation
+        onMoved: v => speechController.voicePerturbation = v
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("How unsteady the voice is from one cycle to the next. At zero it is perfectly periodic, which is what a machine sounds like.")
+        Layout.fillWidth: true
+    }
+    CheckBox {
+        text: qsTr("Glottal Source")
+        checked: speechController.voiceEngine === 1
+        onToggled: speechController.voiceEngine = checked ? 1 : 0
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Models the vocal folds instead of the sawtooth this device used before. Off in songs saved with that older voice, so they sound as they did; turning it on changes how they sound.")
         Layout.fillWidth: true
     }
     Knob {

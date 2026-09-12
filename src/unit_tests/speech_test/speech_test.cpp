@@ -145,6 +145,57 @@ double preciseFundamental(const std::vector<double> & buffer)
     return SampleRate / (static_cast<double>(best) + offset);
 }
 
+//! Centre of gravity of the speech band, from an interleaved buffer. What "brighter" means when the
+//! two things being compared are the same vowel said by two different speakers.
+double spectralCentroid(const std::vector<double> & buffer)
+{
+    constexpr int size = 16384;
+    std::vector<double> re(size, 0.0);
+    std::vector<double> im(size, 0.0);
+    for (int i = 0; i < size && static_cast<size_t>(i) * 2 < buffer.size(); i++) {
+        const double window = 0.5 - 0.5 * std::cos(2.0 * M_PI * i / (size - 1));
+        re[static_cast<size_t>(i)] = buffer[static_cast<size_t>(i) * 2] * window;
+    }
+    Fft::forward(re.data(), im.data(), size);
+
+    const auto low = static_cast<size_t>(std::lround(100.0 * size / SampleRate));
+    const auto high = static_cast<size_t>(std::lround(8000.0 * size / SampleRate));
+    double weighted = 0.0, total = 0.0;
+    for (size_t i = low; i <= high; i++) {
+        const double magnitude = std::hypot(re[i], im[i]);
+        weighted += magnitude * static_cast<double>(i) * SampleRate / size;
+        total += magnitude;
+    }
+    return total > 0.0 ? weighted / total : 0.0;
+}
+
+//! Level of the fundamental over that of the second harmonic, in dB, from an interleaved buffer.
+//!
+//! The one number that says how a voice is produced rather than what it is saying: open folds put
+//! nearly everything in the first harmonic, a hard short pulse spreads it. It is also most of what
+//! separates a man's voice from a woman's at the same pitch.
+double firstToSecondHarmonic(const std::vector<double> & buffer, double f0)
+{
+    constexpr int size = 32768;
+    std::vector<double> re(size, 0.0);
+    std::vector<double> im(size, 0.0);
+    for (int i = 0; i < size && static_cast<size_t>(i) * 2 < buffer.size(); i++) {
+        const double window = 0.5 - 0.5 * std::cos(2.0 * M_PI * i / (size - 1));
+        re[static_cast<size_t>(i)] = buffer[static_cast<size_t>(i) * 2] * window;
+    }
+    Fft::forward(re.data(), im.data(), size);
+
+    const auto peakNear = [&](double hz) {
+        const auto centre = static_cast<size_t>(std::lround(hz * size / SampleRate));
+        double best = 0.0;
+        for (size_t b = centre - 2; b <= centre + 2; b++) {
+            best = std::max(best, std::hypot(re[b], im[b]));
+        }
+        return best;
+    };
+    return 20.0 * std::log10(std::max(1e-12, peakNear(f0)) / std::max(1e-12, peakNear(2.0 * f0)));
+}
+
 //! Frequency of the strongest spectral component between two bounds, from an interleaved buffer.
 double spectralPeak(const std::vector<double> & buffer, double lowHz, double highHz)
 {
@@ -183,6 +234,19 @@ double peakAmplitude(const std::vector<double> & buffer)
         peak = std::max(peak, std::abs(sample));
     }
     return peak;
+}
+
+//! A held vowel from a device set up to say nothing else, so that what is measured is the voice
+//! rather than the phrase. Interleaved, with the onset already spent.
+std::vector<double> heldVowel(SpeechDevice & device, uint8_t note)
+{
+    device.setPhrase("/AA/");
+    device.setIntonation(0.0f);
+    device.setVibratoDepth(0.0f);
+    device.setSyncMode(static_cast<int>(SpeechSequencer::SyncMode::Fit));
+    device.processMidiNoteOn(note, 100);
+    renderDevice(device, 16384);
+    return renderDevice(device, 65536);
 }
 
 //! Fundamental of the left channel, by autocorrelation over the range a speaking voice covers.
@@ -789,6 +853,10 @@ void SpeechTest::test_device_stressedSyllable_shouldBeReachedGradually()
     device.setPhrase("money");
     device.setIntonation(1.0f);
     device.setRate(0.0f);
+    // What is under test is the contour, and the glottal source's jitter is deliberate roughness on
+    // top of it: at the default depth it puts some 15 cents of wander between two adjacent windows,
+    // which is measurement noise here however much it is the point elsewhere.
+    device.setVoicePerturbation(0.0f);
     device.processMidiNoteOn(48, 100);
 
     std::vector<double> rendered;
@@ -801,24 +869,30 @@ void SpeechTest::test_device_stressedSyllable_shouldBeReachedGradually()
     const auto hop = static_cast<size_t>(SampleRate * 0.020);
     const auto window = static_cast<size_t>(SampleRate * 0.060);
 
-    std::vector<double> track;
-    for (size_t from = 0; from + window < frames; from += hop) {
+    // Which window each measurement came from is kept with it. A dropped one leaves its neighbours
+    // 40 ms apart rather than 20, and a step measured across that gap is twice the size through no
+    // fault of the contour -- which is how a perfectly good glide reads as a jump.
+    std::vector<std::pair<size_t, double>> track;
+    for (size_t from = 0, index = 0; from + window < frames; from += hop, index++) {
         const double f0 = preciseFundamental(std::vector<double>(rendered.begin() + static_cast<long>(from * 2),
                                                                  rendered.begin() + static_cast<long>((from + window) * 2)));
         // A nasal's murmur sits near the fundamental and an autocorrelation will now and then lock
         // an octave off it. A contour never moves that far, so anything out here is the measurement
         // failing rather than the pitch.
         if (f0 > 0.0 && std::abs(1200.0 * std::log2(f0 / 130.8128)) < 700.0) {
-            track.push_back(f0);
+            track.emplace_back(index, f0);
         }
     }
     QVERIFY(track.size() > 8);
 
     double largestStep = 0.0;
     for (size_t i = 1; i < track.size(); i++) {
-        largestStep = std::max(largestStep, std::abs(1200.0 * std::log2(track[i] / track[i - 1])));
+        if (track[i].first != track[i - 1].first + 1) {
+            continue;
+        }
+        largestStep = std::max(largestStep, std::abs(1200.0 * std::log2(track[i].second / track[i - 1].second)));
     }
-    const auto [low, high] = std::ranges::minmax(track);
+    const auto [low, high] = std::ranges::minmax(track | std::views::transform([](const auto & point) { return point.second; }));
     const double range = 1200.0 * std::log2(high / low);
 
     // The accent has to be there to be gradual about: at full intonation it is three semitones, on
@@ -940,6 +1014,170 @@ void SpeechTest::test_device_voiceType_shouldRaiseTheFormants()
     const double male = firstFormant(0);
     const double female = firstFormant(1);
     QVERIFY2(female > male * 1.08, qPrintable(QString::number(male, 'f', 0) + " -> " + QString::number(female, 'f', 0) + " Hz"));
+}
+
+void SpeechTest::test_device_voiceType_everyType_shouldSpeak_data()
+{
+    QTest::addColumn<int>("type");
+
+    QTest::newRow("male") << 0;
+    QTest::newRow("female") << 1;
+    QTest::newRow("child") << 2;
+    QTest::newRow("deep") << 3;
+    QTest::newRow("breathy") << 4;
+}
+
+void SpeechTest::test_device_voiceType_everyType_shouldSpeak()
+{
+    QFETCH(int, type);
+
+    // A type whose settings put the source outside what the pulse can make would go silent rather
+    // than sound wrong, and silence is the one failure nobody notices while auditioning presets.
+    SpeechDevice device { "Speech" };
+    device.setVoiceType(type);
+    device.processMidiNoteOn(57, 100);
+
+    QVERIFY(peakAmplitude(renderDevice(device, 16384)) > 0.001);
+    QVERIFY(device.hasActiveAudio());
+}
+
+void SpeechTest::test_device_voiceType_shouldSeparateTheVoiceQualities()
+{
+    // What two numbers could not do. Before the glottal source, every type was the same larynx at a
+    // different tract length, and the whole pressed-to-breathy axis measured 1.3 dB wide.
+    const auto balance = [](int type) {
+        SpeechDevice device { "Speech" };
+        device.setVoiceType(type);
+        return firstToSecondHarmonic(heldVowel(device, 57), 220.0);
+    };
+
+    const double deep = balance(3);
+    const double male = balance(0);
+    const double breathy = balance(4);
+
+    QVERIFY2(male > deep + 2.0, qPrintable(QString("deep %1 dB, male %2 dB").arg(deep).arg(male)));
+    QVERIFY2(breathy > male + 6.0, qPrintable(QString("male %1 dB, breathy %2 dB").arg(male).arg(breathy)));
+}
+
+void SpeechTest::test_device_femaleVoice_shouldBeBrighterThanTheMale()
+{
+    // The bug the glottal source was added to fix. A woman's tract is shorter, so on the same vowel
+    // at the same note her voice is the brighter of the two. What made the old female voice fail to
+    // read as one is that the two settings carrying her fought: the shorter tract brightened and the
+    // extra rolloff darkened, and measured together she came out *darker* than the man.
+    const auto brightness = [](int type) {
+        SpeechDevice device { "Speech" };
+        device.setVoiceType(type);
+        return spectralCentroid(heldVowel(device, 57));
+    };
+
+    const double male = brightness(0);
+    const double female = brightness(1);
+    QVERIFY2(female > male, qPrintable(QString("male %1 Hz, female %2 Hz").arg(male).arg(female)));
+}
+
+void SpeechTest::test_device_voiceEngine_shouldDefaultToTheGlottalSource()
+{
+    // A device made now gets the new voice; only a project that predates it asks for the old one,
+    // and it asks by carrying no voiceEngine at all.
+    SpeechDevice device { "Speech" };
+    QCOMPARE(device.voiceEngine(), 1);
+}
+
+void SpeechTest::test_device_voiceEngine_shouldNotChangeTheLevel()
+{
+    // Turning the switch changes how the voice is made, not how loud it is. A user comparing the two
+    // has to be hearing a voice change rather than a level change, or the louder one simply wins.
+    const auto loudness = [](int engine) {
+        SpeechDevice device { "Speech" };
+        device.setVoiceEngine(engine);
+        device.processMidiNoteOn(57, 100);
+        std::vector<double> mono;
+        while (mono.size() < static_cast<size_t>(SampleRate * 4) && (device.hasActiveAudio() || mono.empty())) {
+            const auto block = renderDevice(device, 1024);
+            for (size_t i = 0; i < block.size(); i += 2) {
+                mono.push_back(block[i]);
+            }
+        }
+        double sum = 0.0;
+        for (auto && sample : mono) {
+            sum += sample * sample;
+        }
+        return std::sqrt(sum / static_cast<double>(std::max<size_t>(1, mono.size())));
+    };
+
+    const double difference = 20.0 * std::log10(loudness(1) / loudness(0));
+    QVERIFY2(std::abs(difference) < 1.0, qPrintable(QString::number(difference, 'f', 2) + " dB"));
+}
+
+void SpeechTest::test_device_openness_shouldChangeTheHarmonicBalance()
+{
+    // The control the sawtooth had no way to offer. Half travel is whatever the voice type chose, so
+    // the two ends are a deviation from a voice rather than two different voices.
+    const auto balance = [](float openness) {
+        SpeechDevice device { "Speech" };
+        device.setOpenQuotient(openness);
+        return firstToSecondHarmonic(heldVowel(device, 57), 220.0);
+    };
+
+    const double pressed = balance(0.0f);
+    const double breathy = balance(1.0f);
+    QVERIFY2(breathy > pressed + 6.0, qPrintable(QString("pressed %1 dB, breathy %2 dB").arg(pressed).arg(breathy)));
+}
+
+void SpeechTest::test_device_legacyEngine_shouldIgnoreThePerturbation()
+{
+    // Jitter is the other half of what the new engine adds, and a project saved before it existed
+    // must not acquire any. It is forced to zero on the legacy path rather than merely defaulted
+    // there, so that neither the control nor a voice type carrying one can leak it in -- which is
+    // stated here as the output being the same sample for sample however far the control is turned.
+    const auto render = [](int engine, float perturbation) {
+        SpeechDevice device { "Speech" };
+        device.setVoiceEngine(engine);
+        device.setVoicePerturbation(perturbation);
+        return heldVowel(device, 57);
+    };
+
+    QCOMPARE(render(0, 1.0f), render(0, 0.0f));
+    QVERIFY(render(1, 1.0f) != render(1, 0.0f));
+}
+
+void SpeechTest::test_device_legacyEngine_shouldMatchTheSourceItReplaced()
+{
+    // The whole of the backwards-compatibility guarantee, pinned to a number.
+    //
+    // These were measured on the commit before the glottal source existed, by rendering the default
+    // phrase through the device exactly as below. A song saved against that build has to go on
+    // sounding the way it did, and "the legacy branch is untouched" is an argument about code that
+    // stops being true the moment somebody edits the shared path by accident. This is the assertion
+    // that notices.
+    //
+    // If this fails, the legacy voice has moved and some project somewhere now sounds different.
+    // Fix the cause -- do not re-measure the constants.
+    constexpr double referenceRms = 0.025627327;
+    constexpr double referencePeak = 0.092176670;
+
+    SpeechDevice device { "Speech" };
+    device.setVoiceEngine(0);
+    device.processMidiNoteOn(57, 100);
+
+    std::vector<double> mono;
+    while (mono.size() < static_cast<size_t>(SampleRate * 4) && (device.hasActiveAudio() || mono.empty())) {
+        const auto block = renderDevice(device, 1024);
+        for (size_t i = 0; i < block.size(); i += 2) {
+            mono.push_back(block[i]);
+        }
+    }
+
+    double sum = 0.0, peak = 0.0;
+    for (auto && sample : mono) {
+        sum += sample * sample;
+        peak = std::max(peak, std::abs(sample));
+    }
+    const double rms = std::sqrt(sum / static_cast<double>(std::max<size_t>(1, mono.size())));
+
+    QVERIFY2(std::abs(rms - referenceRms) < 1e-7, qPrintable(QString::number(rms, 'f', 9)));
+    QVERIFY2(std::abs(peak - referencePeak) < 1e-7, qPrintable(QString::number(peak, 'f', 9)));
 }
 
 void SpeechTest::test_device_formantShift_shouldBeNeutralAtHalfTravel()

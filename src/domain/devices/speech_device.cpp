@@ -49,22 +49,82 @@ constexpr double GlideSecondsRange = 0.075;
 constexpr double MinFormantShift = 0.8;
 constexpr double FormantShiftRange = 0.4;
 
-//! What a voice type sets: how much shorter the tract is than the male one the phoneme table is
-//! written for, and where the glottal tilt sits.
+//! What a voice type sets.
 //!
-//! A woman's voice is not a man's moved up. The tract is about a sixth shorter, which lifts the
-//! formants, and the source falls away faster, which is why it reads as softer rather than merely
-//! higher. The pitch is the third part and that is the note being played, so a female voice sung an
-//! octave down will still sound like one person doing an impression of another.
+//! A voice is not a pitch. Four things separate two speakers saying the same word at the same note:
+//! the length of the tract, which moves the whole vowel space; the share of the period the folds
+//! stay open, which decides whether the voice is pressed or breathy and is most of what a listener
+//! hears as its character; the breath mixed in behind it; and how steady it all is. The pitch is a
+//! fifth, and that one is the note being played, which is why a type has to carry the other four or
+//! it is only a transposition.
+//!
+//! Two numbers used to carry it -- tract length and a low pass -- and those two fight: the shorter
+//! tract brightens and the low pass darkens. Measured on a held vowel they nearly cancelled, and the
+//! female voice came out with a *lower* spectral centroid than the male one where a real one is
+//! higher. That is why she did not read as female, and it is the reason the rolloff is gone from
+//! every type here: the softness belongs to the source, where the open quotient now puts it.
 struct VoiceTypeSettings
 {
+    //! Tract length, as a multiplier on every formant. Above 1 is a shorter tract, so a smaller
+    //! speaker.
     double formantShift;
-    //! Corner of the extra rolloff on the source, or 0 for none.
+    //! Corner of the extra rolloff on the source, or 0 for none. Only the legacy types use it.
     double sourceRolloff;
+    //! Share of the period the folds are open. Low is pressed, high is breathy.
+    double openQuotient;
+    //! Aspiration behind the voice, before the user's own Breathiness is added.
+    double breathiness;
+    //! How unsteady the folds are, as a share of full travel.
+    double perturbation;
 };
 
-constexpr VoiceTypeSettings MaleVoice { 1.0, 0.0 };
-constexpr VoiceTypeSettings FemaleVoice { 1.17, 3500.0 };
+//! What Male and Female were before the source could tell them apart. Reached only by a project
+//! saved against them, which has to keep sounding as it did -- see VoiceEngine.
+constexpr VoiceTypeSettings LegacyVoices[] {
+    { 1.0, 0.0, 0.5, 0.0, 0.0 },
+    { 1.17, 3500.0, 0.5, 0.0, 0.0 }
+};
+
+//! The voices, in the order the dialog lists them.
+//!
+//! Male and Female keep positions 0 and 1 because the ordinal is what a project stores: moving them
+//! would silently turn every saved Speech device into a different speaker. New ones are appended.
+constexpr VoiceTypeSettings VoiceTypes[] {
+    //! Modal: the folds shut firmly and the voice is even. The tract is the one the phoneme table
+    //! was measured against, so this is the reference the other four are stated against.
+    { 1.0, 0.0, 0.48, 0.04, 0.35 },
+    //! A sixth shorter, and breathier -- the open quotient does the softening the low pass used to
+    //! attempt, and does it without darkening the formants that make her sound like a woman.
+    { 1.17, 0.0, 0.62, 0.10, 0.45 },
+    //! A child: shorter again, breathier again, and markedly less steady. Control of the folds is
+    //! something that is learned, and its absence is most of what makes a young voice recognisable.
+    { 1.35, 0.0, 0.66, 0.12, 0.75 },
+    //! Deep: a long tract and a hard, short pulse. Pressed rather than merely low, because a voice
+    //! sung an octave down is still the same voice unless the source changes with it.
+    { 0.87, 0.0, 0.34, 0.02, 0.30 },
+    //! Breathy: the folds never quite meet, so most of the energy is in the first harmonic and the
+    //! rest is air. The tract is the male one, which is what keeps it a manner of speaking rather
+    //! than a fifth speaker.
+    { 1.04, 0.0, 0.80, 0.30, 0.55 }
+};
+
+//! Which engine a device is running.
+//!
+//! The source was a sawtooth through a tilt until the Rosenberg pulse replaced it, and a project
+//! saved before that has to go on sounding the way it did when it was saved. So the engine is a
+//! setting rather than a version of the program: a device constructed now gets Modern, and
+//! deserializeFromXml() forces Legacy before it reads, so a file that carries no such parameter --
+//! which is every file written until now -- keeps the voice it was written with.
+enum class VoiceEngine
+{
+    Legacy = 0,
+    Modern = 1
+};
+
+bool isLegacyEngine(float voiceEngine)
+{
+    return static_cast<int>(voiceEngine) != static_cast<int>(VoiceEngine::Modern);
+}
 
 //! Semitones a stressed syllable is lifted by at full intonation.
 //!
@@ -79,6 +139,14 @@ constexpr double StressAccentSemitones = 3.0;
 //! able to go above unity matters -- consonants are the first thing a dense mix buries, and they
 //! are what carries the words.
 constexpr double ConsonantLevelRange = 2.0;
+
+//! What the Openness control spans either side of whatever the voice type chose, so that half
+//! travel is the type's own value and the knob is a deviation from a voice rather than a voice.
+constexpr double OpenQuotientRange = 0.5;
+
+//! What the Jitter control spans, as a multiplier on the type's own unsteadiness. Half travel is
+//! the type unaltered, which is what makes the default the voice the type describes.
+constexpr double PerturbationRange = 1.0;
 
 //! What the Vibrato Rate control spans, in Hz.
 constexpr double MinVibratoRate = 2.0;
@@ -104,7 +172,12 @@ SpeechDevice::SpeechDevice(std::string name)
     addParameter(Parameter(Constants::NahdXml::xmlKeyBreathiness().toStdString(), 0.1f, 0, 10000, 1000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyConsonantLevel().toStdString(), 0.5f, 0, 10000, 5000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeySibilance().toStdString(), 0.31f, 0, 10000, 3100, 100));
-    addParameter(Parameter(Constants::NahdXml::xmlKeyVoiceType().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyVoiceType().toStdString(), 0.0f, 0, 4, 0, 1, Parameter::Type::Discrete));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyOpenQuotient().toStdString(), 0.5f, 0, 10000, 5000, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyVoicePerturbation().toStdString(), 0.5f, 0, 10000, 5000, 100));
+    // Modern for a device made now; deserializeFromXml() forces Legacy before it reads, so a project
+    // that predates this parameter keeps the voice it was saved with.
+    addParameter(Parameter(Constants::NahdXml::xmlKeyVoiceEngine().toStdString(), 1.0f, 0, 1, 1, 1, Parameter::Type::Discrete));
     addParameter(Parameter(Constants::NahdXml::xmlKeyVelocitySensitivity().toStdString(), 0.5f, 0, 10000, 5000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyIntonation().toStdString(), 0.4f, 0, 10000, 4000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyVibratoRate().toStdString(), 0.3f, 0, 10000, 3000, 100));
@@ -372,6 +445,9 @@ void SpeechDevice::syncParameters()
     m_consonantLevel = value(Constants::NahdXml::xmlKeyConsonantLevel(), m_consonantLevel);
     m_sibilance = value(Constants::NahdXml::xmlKeySibilance(), m_sibilance);
     m_voiceType = value(Constants::NahdXml::xmlKeyVoiceType(), m_voiceType);
+    m_openQuotient = value(Constants::NahdXml::xmlKeyOpenQuotient(), m_openQuotient);
+    m_voicePerturbation = value(Constants::NahdXml::xmlKeyVoicePerturbation(), m_voicePerturbation);
+    m_voiceEngine = value(Constants::NahdXml::xmlKeyVoiceEngine(), m_voiceEngine);
     m_velocitySensitivity = value(Constants::NahdXml::xmlKeyVelocitySensitivity(), m_velocitySensitivity);
     m_intonation = value(Constants::NahdXml::xmlKeyIntonation(), m_intonation);
     m_vibratoRate = value(Constants::NahdXml::xmlKeyVibratoRate(), m_vibratoRate);
@@ -391,10 +467,23 @@ void SpeechDevice::syncParameters()
     m_sequencer.setDivisionBeats(static_cast<double>(m_syncDivision) / 4.0);
 
     m_voice.setGlideTime(MinGlideSeconds + GlideSecondsRange * static_cast<double>(m_glide));
-    const auto & voiceType = static_cast<int>(m_voiceType) == 1 ? FemaleVoice : MaleVoice;
+
+    const bool legacy = isLegacyEngine(m_voiceEngine);
+    // A legacy device only ever stored 0 or 1, so the table it indexes is the two-entry one. Should
+    // a user pick one of the new types on such a device they have asked for a new voice, and the
+    // modern table is what they get -- what must not change is a project nobody has touched.
+    const auto index = static_cast<size_t>(std::clamp(static_cast<int>(m_voiceType), 0, static_cast<int>(std::size(VoiceTypes)) - 1));
+    const auto & voiceType = (legacy && index < std::size(LegacyVoices)) ? LegacyVoices[index] : VoiceTypes[index];
+
+    m_voice.setGlottalModel(legacy ? GlottalSource::Model::Saw : GlottalSource::Model::Rosenberg);
     m_voice.setFormantShift(voiceType.formantShift * (MinFormantShift + FormantShiftRange * static_cast<double>(m_formantShift)));
     m_voice.setSourceRolloff(voiceType.sourceRolloff);
-    m_voice.setBreathiness(static_cast<double>(m_breathiness));
+    // The controls are offsets from what the voice type chose rather than absolutes, so that picking
+    // a voice moves the sound and the knobs still mean what they meant. Half travel on Openness is
+    // the type's own value, which is what makes a type audible without the user dialling anything.
+    m_voice.setOpenQuotient(voiceType.openQuotient + OpenQuotientRange * (static_cast<double>(m_openQuotient) - 0.5));
+    m_voice.setVoicePerturbation(legacy ? 0.0 : voiceType.perturbation * PerturbationRange * static_cast<double>(m_voicePerturbation) * 2.0);
+    m_voice.setBreathiness(static_cast<double>(m_breathiness) + (legacy ? 0.0 : voiceType.breathiness));
     m_voice.setConsonantLevel(static_cast<double>(m_consonantLevel) * ConsonantLevelRange);
     m_voice.setSibilance(static_cast<double>(m_sibilance));
 }
@@ -603,6 +692,36 @@ int SpeechDevice::voiceType() const
     return static_cast<int>(m_voiceType);
 }
 
+float SpeechDevice::openQuotient() const
+{
+    return m_openQuotient;
+}
+
+void SpeechDevice::setOpenQuotient(float openQuotient)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyOpenQuotient().toStdString(), openQuotient);
+}
+
+float SpeechDevice::voicePerturbation() const
+{
+    return m_voicePerturbation;
+}
+
+void SpeechDevice::setVoicePerturbation(float voicePerturbation)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVoicePerturbation().toStdString(), voicePerturbation);
+}
+
+int SpeechDevice::voiceEngine() const
+{
+    return static_cast<int>(m_voiceEngine);
+}
+
+void SpeechDevice::setVoiceEngine(int voiceEngine)
+{
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyVoiceEngine().toStdString(), voiceEngine);
+}
+
 void SpeechDevice::setVoiceType(int voiceType)
 {
     setDiscreteParameterValue(Constants::NahdXml::xmlKeyVoiceType().toStdString(), voiceType);
@@ -739,6 +858,12 @@ void SpeechDevice::deserializeFromXml(ProjectReader & reader)
         if (const auto stored = reader.attribute(Constants::NahdXml::xmlKeyPhrase()); !stored.isNull()) {
             m_phrase = stored.toString().toStdString();
         }
+
+        // Forced before the parameters are read rather than defaulted in the constructor, because
+        // an absent parameter keeps whatever the container already holds. Every project written
+        // before the Rosenberg source existed carries no voiceEngine, so this is what makes those
+        // load as the voice they were saved with; one written since carries it and overwrites this.
+        setDiscreteParameterValue(Constants::NahdXml::xmlKeyVoiceEngine().toStdString(), static_cast<int>(VoiceEngine::Legacy));
 
         deserializeAttributesFromXml(reader);
 

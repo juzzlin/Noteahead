@@ -95,6 +95,15 @@ public:
     void setSibilance(float sibilance);
     int voiceType() const;
     void setVoiceType(int voiceType);
+    float openQuotient() const;
+    void setOpenQuotient(float openQuotient);
+    float voicePerturbation() const;
+    void setVoicePerturbation(float voicePerturbation);
+    //! Which source the device runs: 0 for the sawtooth every project until now was written
+    //! against, 1 for the glottal pulse. A setting rather than a program version, so that opening an
+    //! old song does not change how it sounds and upgrading one stays the user's own decision.
+    int voiceEngine() const;
+    void setVoiceEngine(int voiceEngine);
     float velocitySensitivity() const;
     void setVelocitySensitivity(float sensitivity);
     float intonation() const;
@@ -215,6 +224,9 @@ private:
     float m_consonantLevel { 0.5f };
     float m_sibilance { 0.31f };
     float m_voiceType { 0.0f };
+    float m_openQuotient { 0.5f };
+    float m_voicePerturbation { 0.5f };
+    float m_voiceEngine { 1.0f };
     float m_velocitySensitivity { 0.5f };
     float m_intonation { 0.4f };
     float m_vibratoRate { 0.3f };

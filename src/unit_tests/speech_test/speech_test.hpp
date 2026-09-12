@@ -64,6 +64,15 @@ private slots:
     void test_device_flutter_shouldKeepTheFundamentalMoving();
     void test_device_vibratoDepth_shouldDefaultToOff();
     void test_device_voiceType_shouldRaiseTheFormants();
+    void test_device_voiceType_everyType_shouldSpeak_data();
+    void test_device_voiceType_everyType_shouldSpeak();
+    void test_device_voiceType_shouldSeparateTheVoiceQualities();
+    void test_device_femaleVoice_shouldBeBrighterThanTheMale();
+    void test_device_voiceEngine_shouldDefaultToTheGlottalSource();
+    void test_device_voiceEngine_shouldNotChangeTheLevel();
+    void test_device_openness_shouldChangeTheHarmonicBalance();
+    void test_device_legacyEngine_shouldIgnoreThePerturbation();
+    void test_device_legacyEngine_shouldMatchTheSourceItReplaced();
     void test_device_formantShift_shouldBeNeutralAtHalfTravel();
 
     void test_device_lineCount_shouldCountSentences();

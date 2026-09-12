@@ -1505,6 +1505,21 @@ QString xmlKeyVoiceType()
     return "voiceType";
 }
 
+QString xmlKeyVoiceEngine()
+{
+    return "voiceEngine";
+}
+
+QString xmlKeyOpenQuotient()
+{
+    return "openQuotient";
+}
+
+QString xmlKeyVoicePerturbation()
+{
+    return "voicePerturbation";
+}
+
 QString xmlKeyIntonation()
 {
     return "intonation";
