@@ -42,6 +42,11 @@ New features:
 
 Bug fixes:
 
+* Export metadata follows the song that is open
+  - Opening another song left the previous song's album, artist and notes in
+    the audio render dialog, over the new song's own values
+  - The stored values were always the new song's; only the dialog was stale
+
 * Speech reduces its unstressed vowels
   - Every syllable was said at full value, which gives a sentence the weight
     of a list of syllables read out one at a time

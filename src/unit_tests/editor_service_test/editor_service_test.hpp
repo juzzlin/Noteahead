@@ -28,6 +28,8 @@ private slots:
 
     void test_setPatternName_sameName_shouldNotMarkModified();
     void test_initialize_shouldInitializeCorrectly();
+    void test_setSong_shouldNotifyExportMetadataAndNotes();
+    void test_setSong_shouldReplaceExportMetadataOfThePreviousSong();
 
     void test_defaultSong_shouldReturnCorrectProperties();
     void test_defaultSong_shouldNotHaveNoteData();

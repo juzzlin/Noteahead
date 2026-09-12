@@ -153,6 +153,11 @@ void EditorService::setSong(SongS song)
     emit songLengthChanged();
     emit currentFileNameChanged();
     emit songMetadataChanged();
+    // Both have a notifier of their own, so songMetadataChanged() does not cover them. Left out,
+    // the export dialog and the notes field keep showing the previous song's values: the properties
+    // read the new song correctly, but nothing ever asks them to.
+    emit exportMetadataChanged();
+    emit songNotesChanged();
 
     updateScrollBar();
 

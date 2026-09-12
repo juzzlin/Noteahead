@@ -59,6 +59,35 @@ void EditorServiceTest::test_setPatternName_sameName_shouldNotMarkModified()
     QVERIFY(editorService.isModified());
 }
 
+void EditorServiceTest::test_setSong_shouldNotifyExportMetadataAndNotes()
+{
+    // Both have a notifier of their own, so a new song has to emit them by name. Without that the
+    // export dialog goes on showing the album, artist and notes of the song that was open before.
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+
+    QSignalSpy exportSpy { &editorService, &EditorService::exportMetadataChanged };
+    QSignalSpy notesSpy { &editorService, &EditorService::songNotesChanged };
+
+    editorService.setSong(std::make_shared<Song>());
+
+    QCOMPARE(exportSpy.count(), 1);
+    QCOMPARE(notesSpy.count(), 1);
+}
+
+void EditorServiceTest::test_setSong_shouldReplaceExportMetadataOfThePreviousSong()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+
+    editorService.setExportMetadataAlbum("Frozenland");
+    editorService.setSongNotes("Notes of the first song");
+    QCOMPARE(editorService.exportMetadataAlbum(), QString { "Frozenland" });
+
+    editorService.setSong(std::make_shared<Song>());
+
+    QVERIFY(editorService.exportMetadataAlbum().isEmpty());
+    QVERIFY(editorService.songNotes().isEmpty());
+}
+
 void EditorServiceTest::test_initialize_shouldInitializeCorrectly()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
