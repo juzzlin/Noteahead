@@ -210,6 +210,21 @@ void SynthControllerTest::test_voiceModes()
     QCOMPARE(modes.at(5), QString("Mono"));
 }
 
+void SynthControllerTest::test_lfoEngagementProperties_shouldRoundTripThroughTheDevice()
+{
+    const auto synth = std::make_shared<SynthDevice>("Test Synth");
+    SynthController controller { synth };
+
+    // Four near-identical accessors across two LFOs, which is exactly where one wrong member goes
+    // unnoticed, so each is driven the way QML drives it: write the UI value, read it back.
+    const QStringList properties { "lfoDelay", "lfoFade", "lfo2Delay", "lfo2Fade" };
+    for (const auto & name : properties) {
+        const int written = 321;
+        QVERIFY2(controller.setProperty(name.toUtf8().constData(), written), qPrintable(name));
+        QVERIFY2(controller.property(name.toUtf8().constData()).toInt() == written, qPrintable(name));
+    }
+}
+
 void SynthControllerTest::test_lfoTargetNames()
 {
     const auto synth = std::make_shared<SynthDevice>("Test Synth");

@@ -81,4 +81,27 @@ ColumnLayout {
         onActivated: i => fmSynthController.lfoTarget = i
         Layout.fillWidth: true
     }
+    RowLayout {
+        Layout.fillWidth: true
+        Knob {
+            label: qsTr("Delay")
+            mapping: "cubic"
+            mapMin: 0
+            mapMax: Constants.maxLfoEnvelopeTimeMs
+            suffix: "ms"
+            value: fmSynthController.lfoDelay
+            onMoved: v => fmSynthController.lfoDelay = v
+            Layout.fillWidth: true
+        }
+        Knob {
+            label: qsTr("Fade")
+            mapping: "cubic"
+            mapMin: 0
+            mapMax: Constants.maxLfoEnvelopeTimeMs
+            suffix: "ms"
+            value: fmSynthController.lfoFade
+            onMoved: v => fmSynthController.lfoFade = v
+            Layout.fillWidth: true
+        }
+    }
 }

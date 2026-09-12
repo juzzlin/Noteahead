@@ -516,6 +516,7 @@
         </ul>
     </li>
     <li><strong>LFO 1 &amp; LFO 2</strong>: Two independent Low-Frequency Oscillators with multiple waveforms and modes (Normal, 1-Shot and BPM-synced). Each can target <strong>Pitch</strong> (all three oscillators at once), <strong>Shape</strong>, <strong>Cutoff</strong>, <strong>Volume</strong> (tremolo), <strong>Resonance</strong>, <strong>Pan</strong> (auto-pan), or <strong>Pitch 1</strong>, <strong>Pitch 2</strong> and <strong>Pitch 3</strong> to detune a single oscillator against the others. Their modulations stack additively.</li>
+    <li><strong>LFO Delay &amp; Fade</strong>: <strong>Delay</strong> holds an LFO back for up to five seconds after the note starts, and <strong>Fade</strong> then eases it up to full depth instead of switching it on. Both are measured from each note, and each LFO has its own pair. This is what makes a vibrato arrive on a held note the way a player adds one rather than being there from the attack, and it is just as useful on a slow filter sweep that should not begin until the note has settled. The delay holds the LFO's shape as well as its depth, so a <strong>1-Shot</strong> sweep happens after the delay rather than being spent during it. Both default to zero, which engages the LFO on the note at full depth.</li>
     <li><strong>Analog Character</strong>: A <strong>Drift</strong> knob applies a slow per-voice pitch drift (up to &plusmn;5 cents) with an independent rate per voice, for an analog feel.</li>
     <li><strong>Voice / Global</strong>:
         <ul>
@@ -618,7 +619,7 @@
 <ul>
     <li><strong>Oscillators</strong>: Two independent wavetable oscillators with Classic and Spectral wavetable sets, plus a noise generator.</li>
     <li><strong>Filters</strong>: Cascaded LPF and HPF with resonance.</li>
-    <li><strong>Modulation</strong>: Amp and Mod envelopes and two LFOs, with the same target list as the Synth.</li>
+    <li><strong>Modulation</strong>: Amp and Mod envelopes and two LFOs, with the same target list as the Synth and the same <strong>Delay</strong> and <strong>Fade</strong>.</li>
     <li><strong>Voices</strong>: Poly and Unison modes with stereo pan spread and portamento.</li>
 </ul>
 
@@ -635,7 +636,7 @@
     <li><strong>Key Scale</strong>: how much the operator is backed off towards the top of the keyboard. A modulator held at a fixed level gets harsher the higher it is played, because its sidebands climb with the note; this is the cure, and it is what keeps a patch usable across the whole compass.</li>
     <li><strong>Operator envelope</strong>: <strong>Attack</strong>, <strong>Decay</strong> and <strong>Sustain</strong>. On a modulator this is the timbre over time — a modulator with no sustain decays away and leaves the note settling from bright to plain, which is the characteristic FM movement. There is no release here: an operator is not released with the note, it holds where it is and the Amp EG fades the whole voice, so the note fades as the sound it currently is.</li>
     <li><strong>Feedback</strong>: the top operator of every algorithm modulates itself. Low settings thicken it, and past roughly two thirds the loop stops resolving to a waveform and breaks into noise — which is where the DX machines got their noise from, and the only noise source this instrument has. Useful for metallic percussion.</li>
-    <li><strong>Filter, Amp EG, Mod EG and LFOs</strong>: an LPF/HPF pair, the amp envelope that owns the note's release, and a mod envelope and two LFOs that can drive Cutoff, Pitch, <strong>Mod Index</strong> — every modulation path at once, which is the FM synth's brightness control — or Feedback.</li>
+    <li><strong>Filter, Amp EG, Mod EG and LFOs</strong>: an LPF/HPF pair, the amp envelope that owns the note's release, and a mod envelope and two LFOs that can drive Cutoff, Pitch, <strong>Mod Index</strong> — every modulation path at once, which is the FM synth's brightness control — or Feedback. Both LFOs have the Synth's <strong>Delay</strong> and <strong>Fade</strong>.</li>
     <li><strong>Presets</strong>: sixteen factory patches above the tabs, from the electric piano and bells through to organ, brass and metal. A preset writes the whole panel, so anything it does not name goes back to its default.</li>
     <li><strong>Randomize</strong>: assembles a patch at random. FM is not an instrument anyone dials in blind, so this is a real way of finding sounds: it settles on an envelope shape, an algorithm and ratios from a weighted table before filling in the detail, which is what keeps the result playable rather than noise.</li>
 </ul>

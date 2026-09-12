@@ -56,11 +56,15 @@ class FmSynthController : public DeviceController
     Q_PROPERTY(int lfoRate READ lfoRate WRITE setLfoRate NOTIFY lfoRateChanged)
     Q_PROPERTY(int lfoInt READ lfoInt WRITE setLfoInt NOTIFY lfoIntChanged)
     Q_PROPERTY(int lfoTarget READ lfoTarget WRITE setLfoTarget NOTIFY lfoTargetChanged)
+    Q_PROPERTY(int lfoDelay READ lfoDelay WRITE setLfoDelay NOTIFY lfoDelayChanged)
+    Q_PROPERTY(int lfoFade READ lfoFade WRITE setLfoFade NOTIFY lfoFadeChanged)
     Q_PROPERTY(int lfo2Waveform READ lfo2Waveform WRITE setLfo2Waveform NOTIFY lfo2WaveformChanged)
     Q_PROPERTY(int lfo2Mode READ lfo2Mode WRITE setLfo2Mode NOTIFY lfo2ModeChanged)
     Q_PROPERTY(int lfo2Rate READ lfo2Rate WRITE setLfo2Rate NOTIFY lfo2RateChanged)
     Q_PROPERTY(int lfo2Int READ lfo2Int WRITE setLfo2Int NOTIFY lfo2IntChanged)
     Q_PROPERTY(int lfo2Target READ lfo2Target WRITE setLfo2Target NOTIFY lfo2TargetChanged)
+    Q_PROPERTY(int lfo2Delay READ lfo2Delay WRITE setLfo2Delay NOTIFY lfo2DelayChanged)
+    Q_PROPERTY(int lfo2Fade READ lfo2Fade WRITE setLfo2Fade NOTIFY lfo2FadeChanged)
     Q_PROPERTY(int voiceMode READ voiceMode WRITE setVoiceMode NOTIFY voiceModeChanged)
     Q_PROPERTY(int voiceDepth READ voiceDepth WRITE setVoiceDepth NOTIFY voiceDepthChanged)
     Q_PROPERTY(int panSpread READ panSpread WRITE setPanSpread NOTIFY panSpreadChanged)
@@ -144,6 +148,10 @@ public:
     void setLfoInt(int value);
     int lfoTarget() const;
     void setLfoTarget(int value);
+    int lfoDelay() const;
+    void setLfoDelay(int value);
+    int lfoFade() const;
+    void setLfoFade(int value);
     int lfo2Waveform() const;
     void setLfo2Waveform(int value);
     int lfo2Mode() const;
@@ -154,6 +162,10 @@ public:
     void setLfo2Int(int value);
     int lfo2Target() const;
     void setLfo2Target(int value);
+    int lfo2Delay() const;
+    void setLfo2Delay(int value);
+    int lfo2Fade() const;
+    void setLfo2Fade(int value);
     int voiceMode() const;
     void setVoiceMode(int value);
     int voiceDepth() const;
@@ -240,11 +252,15 @@ signals:
     void lfoRateChanged();
     void lfoIntChanged();
     void lfoTargetChanged();
+    void lfoDelayChanged();
+    void lfoFadeChanged();
     void lfo2WaveformChanged();
     void lfo2ModeChanged();
     void lfo2RateChanged();
     void lfo2IntChanged();
     void lfo2TargetChanged();
+    void lfo2DelayChanged();
+    void lfo2FadeChanged();
     void voiceModeChanged();
     void voiceDepthChanged();
     void panSpreadChanged();

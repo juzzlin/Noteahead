@@ -35,6 +35,7 @@ private slots:
     void test_lfo2Target_everyOfferedTarget_shouldReachTheDevice();
     void test_lfo2_properties_shouldUpdateDevice();
     void test_lfo2_properties_shouldEmitSignals();
+    void test_lfoEngagementProperties_shouldRoundTripThroughTheDevice();
 
     void test_sustain_properties_shouldEmitSignals();
     void test_curve_properties_shouldEmitSignals();

@@ -350,6 +350,38 @@ int sawCycleLengthBpm(double sampleRate, double bpm, double syncRate)
     return -1;
 }
 
+constexpr double EnvelopeSampleRate { 1000.0 };
+
+// Returns an Lfo at EnvelopeSampleRate armed with the given delay and fade, both in seconds.
+Lfo createEnvelopeLfo(Lfo::Waveform waveform, double frequency, double delaySeconds, double fadeSeconds)
+{
+    Lfo lfo;
+    lfo.setSampleRate(EnvelopeSampleRate);
+    lfo.setFrequency(frequency);
+    lfo.setWaveform(waveform);
+    lfo.setDelayTime(delaySeconds);
+    lfo.setFadeTime(fadeSeconds);
+    lfo.reset();
+    return lfo;
+}
+
+std::vector<double> collectSamples(Lfo & lfo, int count)
+{
+    std::vector<double> samples;
+    samples.reserve(static_cast<size_t>(count));
+    for (int i = 0; i < count; i++) {
+        samples.push_back(lfo.nextSample());
+    }
+    return samples;
+}
+
+size_t leadingSilence(const std::vector<double> & samples)
+{
+    return static_cast<size_t>(std::distance(samples.begin(), std::find_if(samples.begin(), samples.end(), [](double value) {
+                                                 return value != 0.0;
+                                             })));
+}
+
 } // namespace
 
 void LfoTest::test_setFrequency_bpm_shouldProduceCycleMatchingBpm()
@@ -381,6 +413,120 @@ void LfoTest::test_setFrequency_bpm_differentSyncRate_shouldScaleCycle()
     QVERIFY(quarter > 0);
     QVERIFY(half > 0);
     QVERIFY(std::abs(half - quarter * 2) <= 2);
+}
+
+void LfoTest::test_trigger_shouldRestartTheShape()
+{
+    auto lfo = createEnvelopeLfo(Lfo::Waveform::Saw, 1.0, 0.0, 0.0);
+    collectSamples(lfo, 300);
+    QVERIFY(lfo.phase() > 0.0);
+
+    lfo.trigger();
+
+    QCOMPARE(lfo.phase(), 0.0);
+    QVERIFY(std::abs(lfo.nextSample() - (-1.0)) < 1e-9);
+}
+
+// --- Delay ---
+
+void LfoTest::test_delayTime_zero_shouldEngageImmediately()
+{
+    auto lfo = createEnvelopeLfo(Lfo::Waveform::Saw, 1.0, 0.0, 0.0);
+    QVERIFY(std::abs(lfo.nextSample() - (-1.0)) < 1e-9);
+}
+
+void LfoTest::test_delayTime_shouldOutputSilenceUntilItExpires()
+{
+    // 100 ms at 1 kHz is 100 samples, and zero is the value that modulates nothing.
+    auto lfo = createEnvelopeLfo(Lfo::Waveform::Saw, 1.0, 0.1, 0.0);
+    const auto samples = collectSamples(lfo, 120);
+
+    QCOMPARE(leadingSilence(samples), size_t { 100 });
+    QVERIFY(std::abs(samples.at(100) - (-1.0)) < 1e-9);
+}
+
+void LfoTest::test_delayTime_shouldHoldThePhaseWhileItRuns()
+{
+    // The shape must not be spent during the delay: every note starts its first cycle from the
+    // same place, whatever the delay is set to.
+    auto lfo = createEnvelopeLfo(Lfo::Waveform::Saw, 1.0, 0.1, 0.0);
+    collectSamples(lfo, 100);
+
+    QCOMPARE(lfo.phase(), 0.0);
+}
+
+void LfoTest::test_delayTime_oneShot_shouldStartTheSweepAfterTheDelay()
+{
+    // A 100-sample cycle behind a 200-sample delay. Advancing the phase during the delay would
+    // spend the single sweep before anything could hear it.
+    auto lfo = createEnvelopeLfo(Lfo::Waveform::Saw, 10.0, 0.2, 0.0);
+    lfo.setMode(Lfo::Mode::OneShot);
+    const auto samples = collectSamples(lfo, 400);
+
+    QCOMPARE(leadingSilence(samples), size_t { 200 });
+    QVERIFY(std::abs(samples.at(200) - (-1.0)) < 1e-9);
+    QVERIFY(samples.at(250) > -0.1);
+    QVERIFY(samples.at(250) < 0.1);
+    // Parked on the value the saw ends on, once the one sweep is over.
+    QVERIFY(std::abs(samples.at(399) - 1.0) < 1e-9);
+}
+
+void LfoTest::test_delayTime_shouldRestartOnTrigger()
+{
+    auto lfo = createEnvelopeLfo(Lfo::Waveform::Square, 0.1, 0.1, 0.0);
+    QCOMPARE(leadingSilence(collectSamples(lfo, 200)), size_t { 100 });
+
+    lfo.trigger();
+
+    QCOMPARE(leadingSilence(collectSamples(lfo, 200)), size_t { 100 });
+}
+
+void LfoTest::test_delayTime_higherSampleRate_shouldWaitTheSameTime()
+{
+    // The rate is raised after the delay is set, so this also covers setSampleRate() rescaling it.
+    auto lfo = createEnvelopeLfo(Lfo::Waveform::Square, 0.1, 0.1, 0.0);
+    lfo.setSampleRate(EnvelopeSampleRate * 2.0);
+    lfo.trigger();
+
+    QCOMPARE(leadingSilence(collectSamples(lfo, 300)), size_t { 200 });
+}
+
+// --- Fade ---
+
+void LfoTest::test_fadeTime_zero_shouldEngageAtFullDepth()
+{
+    auto lfo = createEnvelopeLfo(Lfo::Waveform::Square, 0.1, 0.0, 0.0);
+    QVERIFY(std::abs(lfo.nextSample() - 1.0) < 1e-9);
+}
+
+void LfoTest::test_fadeTime_shouldStartFromZeroAndRampToFullDepth()
+{
+    // A square held in its first half is a constant +1, so the output is the fade level itself.
+    auto lfo = createEnvelopeLfo(Lfo::Waveform::Square, 0.1, 0.0, 0.1);
+    const auto samples = collectSamples(lfo, 150);
+
+    QCOMPARE(samples.at(0), 0.0);
+    QVERIFY(std::abs(samples.at(50) - 0.5) < 1e-9);
+    QVERIFY(std::abs(samples.at(100) - 1.0) < 1e-9);
+    QVERIFY(std::abs(samples.at(149) - 1.0) < 1e-9);
+}
+
+void LfoTest::test_fadeTime_shouldRampMonotonically()
+{
+    auto lfo = createEnvelopeLfo(Lfo::Waveform::Square, 0.1, 0.0, 0.1);
+    const auto samples = collectSamples(lfo, 200);
+
+    QVERIFY(std::is_sorted(samples.begin(), samples.end()));
+}
+
+void LfoTest::test_fadeTime_shouldStartWhereTheDelayEnds()
+{
+    auto lfo = createEnvelopeLfo(Lfo::Waveform::Square, 0.1, 0.1, 0.1);
+    const auto samples = collectSamples(lfo, 250);
+
+    QCOMPARE(leadingSilence(samples), size_t { 101 });
+    QVERIFY(std::abs(samples.at(150) - 0.5) < 1e-9);
+    QVERIFY(std::abs(samples.at(200) - 1.0) < 1e-9);
 }
 
 } // namespace noteahead

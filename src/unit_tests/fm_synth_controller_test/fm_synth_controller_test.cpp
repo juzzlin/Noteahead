@@ -91,7 +91,8 @@ void FmSynthControllerTest::test_everyContinuousProperty_shouldRoundTripThroughT
         "feedback", "lpfCutoff", "lpfResonance", "hpfCutoff",
         "ampAttack", "ampDecay", "ampSustain", "ampRelease", "ampCurve", "ampVelocitySensitivity",
         "modAttack", "modDecay", "modSustain", "modInt", "modCurve",
-        "lfoRate", "lfoInt", "lfo2Rate", "lfo2Int",
+        "lfoRate", "lfoInt", "lfoDelay", "lfoFade",
+        "lfo2Rate", "lfo2Int", "lfo2Delay", "lfo2Fade",
         "voiceDepth", "panSpread", "portamento"
     };
 

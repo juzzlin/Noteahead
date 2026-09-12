@@ -2748,6 +2748,14 @@
         <source>Intensity</source>
         <translation type="unfinished">强度</translation>
     </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">延迟</translation>
+    </message>
+    <message>
+        <source>Fade</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FmSynthDialog_Lfo2</name>
@@ -2762,6 +2770,14 @@
     <message>
         <source>Intensity</source>
         <translation type="unfinished">强度</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">延迟</translation>
+    </message>
+    <message>
+        <source>Fade</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7882,6 +7898,14 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <source>Intensity</source>
         <translation>强度</translation>
     </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">延迟</translation>
+    </message>
+    <message>
+        <source>Fade</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SynthDialog_Lfo2</name>
@@ -7896,6 +7920,14 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>Intensity</source>
         <translation>强度</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">延迟</translation>
+    </message>
+    <message>
+        <source>Fade</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8638,6 +8670,14 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <source>Intensity</source>
         <translation>强度</translation>
     </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">延迟</translation>
+    </message>
+    <message>
+        <source>Fade</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>WavetableSynthDialog_Lfo2</name>
@@ -8652,6 +8692,14 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>Intensity</source>
         <translation>强度</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">延迟</translation>
+    </message>
+    <message>
+        <source>Fade</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

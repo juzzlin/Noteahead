@@ -80,4 +80,27 @@ ColumnLayout {
         onMoved: v => synthController.lfoInt = v
         Layout.fillWidth: true
     }
+    RowLayout {
+        Layout.fillWidth: true
+        Knob {
+            label: qsTr("Delay")
+            mapping: "cubic"
+            mapMin: 0
+            mapMax: Constants.maxLfoEnvelopeTimeMs
+            suffix: "ms"
+            value: synthController.lfoDelay
+            onMoved: v => synthController.lfoDelay = v
+            Layout.fillWidth: true
+        }
+        Knob {
+            label: qsTr("Fade")
+            mapping: "cubic"
+            mapMin: 0
+            mapMax: Constants.maxLfoEnvelopeTimeMs
+            suffix: "ms"
+            value: synthController.lfoFade
+            onMoved: v => synthController.lfoFade = v
+            Layout.fillWidth: true
+        }
+    }
 }

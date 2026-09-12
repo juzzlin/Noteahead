@@ -104,11 +104,11 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
   - Per-slot level meter with a gain staging marker, a load readout, and a clip LED that latches on any full-scale output until clicked.
   - Faders run from -inf to +10 dB, with unity three quarters up the throw, on devices and Sampler pads alike.
 - Synth
-  - Polyphonic VA synthesizer (up to 6 voices) with three oscillators at organ footages (32'..2'), a digital Multi engine, multi-mode filters, ADSR/Mod EGs, two LFOs that can modulate a single oscillator's pitch, Poly/Unison/Dual/Supersaw/Drift/Mono voice modes, and a built-in Delay.
+  - Polyphonic VA synthesizer (up to 6 voices) with three oscillators at organ footages (32'..2'), a digital Multi engine, multi-mode filters, ADSR/Mod EGs, two LFOs that can modulate a single oscillator's pitch and that can be delayed and faded in after each note, Poly/Unison/Dual/Supersaw/Drift/Mono voice modes, and a built-in Delay.
 - Wavetable Synth
-  - 8-voice wavetable synthesizer with two independent wavetable oscillators (Classic and Spectral sets), noise generator, cascaded LPF/HPF filters, Amp and Mod EGs, LFO, and Poly/Unison voice modes with stereo pan spread. Features 2× oversampling and portamento.
+  - 8-voice wavetable synthesizer with two independent wavetable oscillators (Classic and Spectral sets), noise generator, cascaded LPF/HPF filters, Amp and Mod EGs, two LFOs with delayed and faded engagement, and Poly/Unison voice modes with stereo pan spread. Features 2× oversampling and portamento.
 - FM Synth
-  - 8-voice four-operator phase-modulation synthesizer in the shape of Yamaha's four-operator machines. Eight algorithms with feedback on the top operator, eight operator waveforms, and per-operator ratio, detune, level, velocity sensitivity, key scaling and envelope. LPF/HPF, Amp and Mod EGs, two LFOs, and the shared voice modes. Ships with sixteen factory presets and a button that assembles a playable patch at random.
+  - 8-voice four-operator phase-modulation synthesizer in the shape of Yamaha's four-operator machines. Eight algorithms with feedback on the top operator, eight operator waveforms, and per-operator ratio, detune, level, velocity sensitivity, key scaling and envelope. LPF/HPF, Amp and Mod EGs, two LFOs with delayed and faded engagement, and the shared voice modes. Ships with sixteen factory presets and a button that assembles a playable patch at random.
 - Bass Synth
   - Monophonic acid-style synthesizer with sub-oscillator, resonant 24dB LPF, and TB-303 style accent/slide.
 - Drum Synth

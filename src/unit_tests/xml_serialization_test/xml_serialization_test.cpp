@@ -1524,6 +1524,48 @@ void XmlSerializationTest::test_toXml_whileAutomated_shouldSaveAuthoredValues()
     QCOMPARE(drumIn->parameter(kickHpfKey)->get().value(), 0.25f);
 }
 
+void XmlSerializationTest::test_fromXml_synthDevice_withoutLfoEngagement_shouldEngageImmediately()
+{
+    // A project saved before the LFO delay and fade existed names neither key, and must sound
+    // exactly as it did: the LFO engages on the note, at full depth.
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+    const auto synthOut = std::make_shared<SynthDevice>("Test Synth");
+    synthOut->setLfoDelay(0.45f);
+    synthOut->setLfoFade(0.55f);
+    synthOut->setLfo2Delay(0.35f);
+    synthOut->setLfo2Fade(0.65f);
+    deviceServiceOut.setDevice(0, synthOut);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    auto xml = editorServiceOut.toXml();
+    // Renaming the keys is how the older file is simulated: a name the device does not know is
+    // skipped, which is exactly what happens when the attribute is simply absent.
+    for (const auto & key : { Constants::NahdXml::xmlKeyLfoDelay(), Constants::NahdXml::xmlKeyLfoFade(),
+                              Constants::NahdXml::xmlKeyLfo2Delay(), Constants::NahdXml::xmlKeyLfo2Fade() }) {
+        const auto attribute = QString { "\"%1\"" }.arg(key);
+        QVERIFY2(xml.contains(attribute), qPrintable(key));
+        xml.replace(attribute, QString { "\"unknown%1\"" }.arg(key));
+    }
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    const auto deviceServiceIn = std::make_shared<DeviceService>(engineIn, std::make_shared<DataService>());
+    const auto synthIn = std::make_shared<SynthDevice>("Test Synth");
+    deviceServiceIn->setDevice(0, synthIn);
+
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, deviceServiceIn.get(), &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    QCOMPARE(synthIn->lfoDelay(), 0.0f);
+    QCOMPARE(synthIn->lfoFade(), 0.0f);
+    QCOMPARE(synthIn->lfo2Delay(), 0.0f);
+    QCOMPARE(synthIn->lfo2Fade(), 0.0f);
+}
+
 void XmlSerializationTest::test_toXmlFromXml_synthDevice_shouldPreserveValuesAndDiscreteFlags()
 {
     const auto synthName = "Noteahead Internal Device 1";
@@ -1556,11 +1598,15 @@ void XmlSerializationTest::test_toXmlFromXml_synthDevice_shouldPreserveValuesAnd
     // The per-oscillator targets are the highest ordinals, so they are what proves the parameter
     // range is wide enough to store every destination the UI offers.
     synthOut->setLfoTarget(SynthDevice::LfoTarget::Pitch2);
+    synthOut->setLfoDelay(0.45f);
+    synthOut->setLfoFade(0.55f);
     synthOut->setLfo2Waveform(Lfo::Waveform::Square);
     synthOut->setLfo2Mode(Lfo::Mode::OneShot);
     synthOut->setLfo2Rate(0.3f);
     synthOut->setLfo2Int(0.7f);
     synthOut->setLfo2Target(SynthDevice::LfoTarget::Pitch3);
+    synthOut->setLfo2Delay(0.35f);
+    synthOut->setLfo2Fade(0.65f);
     deviceServiceOut.setDevice(0, synthOut);
 
     EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
@@ -1600,10 +1646,14 @@ void XmlSerializationTest::test_toXmlFromXml_synthDevice_shouldPreserveValuesAnd
     QCOMPARE(synthIn->lfoMode(), Lfo::Mode::OneShot);
     QCOMPARE(synthIn->lfoRate(), 0.4f);
     QCOMPARE(synthIn->lfoTarget(), SynthDevice::LfoTarget::Pitch2);
+    QCOMPARE(synthIn->lfoDelay(), 0.45f);
+    QCOMPARE(synthIn->lfoFade(), 0.55f);
     QCOMPARE(synthIn->lfo2Waveform(), Lfo::Waveform::Square);
     QCOMPARE(synthIn->lfo2Mode(), Lfo::Mode::OneShot);
     QCOMPARE(synthIn->lfo2Rate(), 0.3f);
     QCOMPARE(synthIn->lfo2Target(), SynthDevice::LfoTarget::Pitch3);
+    QCOMPARE(synthIn->lfo2Delay(), 0.35f);
+    QCOMPARE(synthIn->lfo2Fade(), 0.65f);
 
     // Verify discrete flags
     const auto vco1Wave = synthIn->parameter(Constants::NahdXml::xmlKeyVco1Waveform().toStdString());

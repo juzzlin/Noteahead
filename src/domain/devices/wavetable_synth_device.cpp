@@ -180,12 +180,16 @@ WavetableSynthDevice::WavetableSynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoRate().toStdString(), 0.5f, 0, 10000, 5000, 100, Parameter::Type::Continuous, { "wavetableSynthLfoRate" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoIntensity().toStdString(), 0.5f, 0, 10000, 5000, 100, Parameter::Type::Continuous, { "wavetableSynthLfoIntensity" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoTarget().toStdString(), 0.0f, 0, 6, 0, 1, Parameter::Type::Discrete, { "wavetableSynthLfoTarget" } });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfoDelay().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfoFade().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Waveform().toStdString(), 1.0f, 0, 4, 1, 1, Parameter::Type::Discrete, { "wavetableSynthLfo2Waveform" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Mode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete, { "wavetableSynthLfo2Mode" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Rate().toStdString(), 0.5f, 0, 10000, 5000, 100, Parameter::Type::Continuous, { "wavetableSynthLfo2Rate" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Intensity().toStdString(), 0.5f, 0, 10000, 5000, 100, Parameter::Type::Continuous, { "wavetableSynthLfo2Intensity" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Target().toStdString(), 0.0f, 0, 6, 0, 1, Parameter::Type::Discrete, { "wavetableSynthLfo2Target" } });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Delay().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Fade().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceMode().toStdString(), 0.0f, 0, 5, 0, 1, Parameter::Type::Discrete, { "wavetableSynthVoiceMode" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceDepth().toStdString(), 0.1f, 0, 10000, 1000, 100, Parameter::Type::Continuous, { "wavetableSynthVoiceDepth" } });
@@ -265,6 +269,8 @@ void WavetableSynthDevice::processAudio(AudioContext & context)
         } else {
             voice.lfo.setFrequency(ParameterMapper::mapLfoFrequency(m_lfoRate, 0.05, 20.0));
         }
+        voice.lfo.setDelayTime(ParameterMapper::mapCubic(m_lfoDelay, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
+        voice.lfo.setFadeTime(ParameterMapper::mapCubic(m_lfoFade, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
 
         voice.lfo2.setWaveform(m_lfo2Waveform);
         voice.lfo2.setMode(m_lfo2Mode);
@@ -273,6 +279,8 @@ void WavetableSynthDevice::processAudio(AudioContext & context)
         } else {
             voice.lfo2.setFrequency(ParameterMapper::mapLfoFrequency(m_lfo2Rate, 0.05, 20.0));
         }
+        voice.lfo2.setDelayTime(ParameterMapper::mapCubic(m_lfo2Delay, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
+        voice.lfo2.setFadeTime(ParameterMapper::mapCubic(m_lfo2Fade, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
 
         if (voice.active) {
             renderVoice(voice, context, oversampleFactor, oversampledRate, portamentoCoeff, pbRatio, index);
@@ -906,6 +914,8 @@ void WavetableSynthDevice::syncParameters()
     updateParam(Constants::NahdXml::xmlKeyLfoIntensity(), m_lfoInt);
     m_lfoDepth = intensityToDepth(m_lfoInt);
     updateDiscreteParam(Constants::NahdXml::xmlKeyLfoTarget(), m_lfoTarget);
+    updateParam(Constants::NahdXml::xmlKeyLfoDelay(), m_lfoDelay);
+    updateParam(Constants::NahdXml::xmlKeyLfoFade(), m_lfoFade);
 
     updateDiscreteParam(Constants::NahdXml::xmlKeyLfo2Waveform(), m_lfo2Waveform);
     updateDiscreteParam(Constants::NahdXml::xmlKeyLfo2Mode(), m_lfo2Mode);
@@ -913,6 +923,8 @@ void WavetableSynthDevice::syncParameters()
     updateParam(Constants::NahdXml::xmlKeyLfo2Intensity(), m_lfo2Int);
     m_lfo2Depth = intensityToDepth(m_lfo2Int);
     updateDiscreteParam(Constants::NahdXml::xmlKeyLfo2Target(), m_lfo2Target);
+    updateParam(Constants::NahdXml::xmlKeyLfo2Delay(), m_lfo2Delay);
+    updateParam(Constants::NahdXml::xmlKeyLfo2Fade(), m_lfo2Fade);
 
     updateDiscreteParam(Constants::NahdXml::xmlKeyVoiceMode(), m_voiceMode);
     updateParam(Constants::NahdXml::xmlKeyVoiceDepth(), m_voiceDepth);
@@ -943,6 +955,8 @@ void WavetableSynthDevice::syncParameters()
         } else {
             voice.lfo.setFrequency(ParameterMapper::mapLfoFrequency(m_lfoRate, 0.05, 20.0));
         }
+        voice.lfo.setDelayTime(ParameterMapper::mapCubic(m_lfoDelay, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
+        voice.lfo.setFadeTime(ParameterMapper::mapCubic(m_lfoFade, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
 
         voice.lfo2.setWaveform(m_lfo2Waveform);
         voice.lfo2.setMode(m_lfo2Mode);
@@ -951,6 +965,8 @@ void WavetableSynthDevice::syncParameters()
         } else {
             voice.lfo2.setFrequency(ParameterMapper::mapLfoFrequency(m_lfo2Rate, 0.05, 20.0));
         }
+        voice.lfo2.setDelayTime(ParameterMapper::mapCubic(m_lfo2Delay, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
+        voice.lfo2.setFadeTime(ParameterMapper::mapCubic(m_lfo2Fade, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
 
         voice.ampEg.setAttackTime(ParameterMapper::mapExponential(m_ampAttack, 0.001, 10.0));
         voice.ampEg.setDecayTime(ParameterMapper::mapExponential(m_ampDecay, 0.01, 10.0));
@@ -1405,6 +1421,34 @@ WavetableSynthDevice::LfoTarget WavetableSynthDevice::lfoTarget() const
     return m_lfoTarget;
 }
 
+float WavetableSynthDevice::lfoDelay() const
+{
+    return m_lfoDelay;
+}
+
+void WavetableSynthDevice::setLfoDelay(float delay)
+{
+    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfoDelay().toStdString()); synthParameter) {
+        synthParameter->get().setValue(delay);
+        syncParameters();
+        emit dataChanged();
+    }
+}
+
+float WavetableSynthDevice::lfoFade() const
+{
+    return m_lfoFade;
+}
+
+void WavetableSynthDevice::setLfoFade(float fade)
+{
+    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfoFade().toStdString()); synthParameter) {
+        synthParameter->get().setValue(fade);
+        syncParameters();
+        emit dataChanged();
+    }
+}
+
 void WavetableSynthDevice::setLfoTarget(LfoTarget target)
 {
     if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfoTarget().toStdString()); synthParameter) {
@@ -1474,6 +1518,34 @@ void WavetableSynthDevice::setLfo2Int(float intensity)
 WavetableSynthDevice::LfoTarget WavetableSynthDevice::lfo2Target() const
 {
     return m_lfo2Target;
+}
+
+float WavetableSynthDevice::lfo2Delay() const
+{
+    return m_lfo2Delay;
+}
+
+void WavetableSynthDevice::setLfo2Delay(float delay)
+{
+    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfo2Delay().toStdString()); synthParameter) {
+        synthParameter->get().setValue(delay);
+        syncParameters();
+        emit dataChanged();
+    }
+}
+
+float WavetableSynthDevice::lfo2Fade() const
+{
+    return m_lfo2Fade;
+}
+
+void WavetableSynthDevice::setLfo2Fade(float fade)
+{
+    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyLfo2Fade().toStdString()); synthParameter) {
+        synthParameter->get().setValue(fade);
+        syncParameters();
+        emit dataChanged();
+    }
 }
 
 void WavetableSynthDevice::setLfo2Target(LfoTarget target)

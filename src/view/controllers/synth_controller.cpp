@@ -615,6 +615,30 @@ int SynthController::lfoTarget() const
     return m_synth ? static_cast<int>(m_synth->lfoTarget()) : 0;
 }
 
+int SynthController::lfoDelay() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->lfoDelay() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setLfoDelay(int delay)
+{
+    if (m_synth) {
+        m_synth->setLfoDelay(static_cast<float>(delay) / Constants::uiInternalScaling());
+    }
+}
+
+int SynthController::lfoFade() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->lfoFade() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setLfoFade(int fade)
+{
+    if (m_synth) {
+        m_synth->setLfoFade(static_cast<float>(fade) / Constants::uiInternalScaling());
+    }
+}
+
 void SynthController::setLfoTarget(int target)
 {
     if (m_synth) {
@@ -679,6 +703,30 @@ void SynthController::setLfo2Int(int intensity)
 int SynthController::lfo2Target() const
 {
     return m_synth ? static_cast<int>(m_synth->lfo2Target()) : 0;
+}
+
+int SynthController::lfo2Delay() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->lfo2Delay() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setLfo2Delay(int delay)
+{
+    if (m_synth) {
+        m_synth->setLfo2Delay(static_cast<float>(delay) / Constants::uiInternalScaling());
+    }
+}
+
+int SynthController::lfo2Fade() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->lfo2Fade() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setLfo2Fade(int fade)
+{
+    if (m_synth) {
+        m_synth->setLfo2Fade(static_cast<float>(fade) / Constants::uiInternalScaling());
+    }
 }
 
 void SynthController::setLfo2Target(int target)
@@ -953,11 +1001,15 @@ void SynthController::requestSettings()
     emit lfoRateChanged();
     emit lfoIntChanged();
     emit lfoTargetChanged();
+    emit lfoDelayChanged();
+    emit lfoFadeChanged();
     emit lfo2WaveformChanged();
     emit lfo2ModeChanged();
     emit lfo2RateChanged();
     emit lfo2IntChanged();
     emit lfo2TargetChanged();
+    emit lfo2DelayChanged();
+    emit lfo2FadeChanged();
 
     emit voiceModeChanged();
     emit voiceDepthChanged();

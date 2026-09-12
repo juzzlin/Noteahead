@@ -73,4 +73,8 @@ QtObject {
     readonly property real dialogExitScale: 0.85
 
     readonly property real uiInternalScaling: 1000.0
+
+    //! Matches Constants::maxLfoEnvelopeTimeSeconds(), in milliseconds: the LFO delay and fade knobs
+    //! read out in ms, and the device maps the same range in seconds.
+    readonly property real maxLfoEnvelopeTimeMs: 5000
 }

@@ -2750,6 +2750,14 @@
         <source>Intensity</source>
         <translation type="unfinished">Intensywność</translation>
     </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">Delay</translation>
+    </message>
+    <message>
+        <source>Fade</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FmSynthDialog_Lfo2</name>
@@ -2764,6 +2772,14 @@
     <message>
         <source>Intensity</source>
         <translation type="unfinished">Intensywność</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">Delay</translation>
+    </message>
+    <message>
+        <source>Fade</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7884,6 +7900,14 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <source>Intensity</source>
         <translation>Intensywność</translation>
     </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">Delay</translation>
+    </message>
+    <message>
+        <source>Fade</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SynthDialog_Lfo2</name>
@@ -7898,6 +7922,14 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     <message>
         <source>Intensity</source>
         <translation>Intensywność</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">Delay</translation>
+    </message>
+    <message>
+        <source>Fade</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8640,6 +8672,14 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <source>Intensity</source>
         <translation>Intensywność</translation>
     </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">Delay</translation>
+    </message>
+    <message>
+        <source>Fade</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>WavetableSynthDialog_Lfo2</name>
@@ -8654,6 +8694,14 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     <message>
         <source>Intensity</source>
         <translation>Intensywność</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">Delay</translation>
+    </message>
+    <message>
+        <source>Fade</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -194,11 +194,15 @@ void FmSynthController::requestSettings()
     emit lfoRateChanged();
     emit lfoIntChanged();
     emit lfoTargetChanged();
+    emit lfoDelayChanged();
+    emit lfoFadeChanged();
     emit lfo2WaveformChanged();
     emit lfo2ModeChanged();
     emit lfo2RateChanged();
     emit lfo2IntChanged();
     emit lfo2TargetChanged();
+    emit lfo2DelayChanged();
+    emit lfo2FadeChanged();
     emit voiceModeChanged();
     emit voiceDepthChanged();
     emit panSpreadChanged();
@@ -488,6 +492,30 @@ int FmSynthController::lfoTarget() const
     return m_synth ? static_cast<int>(m_synth->lfoTarget()) : 0;
 }
 
+int FmSynthController::lfoDelay() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->lfoDelay() * Constants::uiInternalScaling())) : 0;
+}
+
+void FmSynthController::setLfoDelay(int value)
+{
+    if (m_synth) {
+        m_synth->setLfoDelay(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int FmSynthController::lfoFade() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->lfoFade() * Constants::uiInternalScaling())) : 0;
+}
+
+void FmSynthController::setLfoFade(int value)
+{
+    if (m_synth) {
+        m_synth->setLfoFade(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
 void FmSynthController::setLfoTarget(int value)
 {
     if (m_synth) {
@@ -546,6 +574,30 @@ void FmSynthController::setLfo2Int(int value)
 int FmSynthController::lfo2Target() const
 {
     return m_synth ? static_cast<int>(m_synth->lfo2Target()) : 0;
+}
+
+int FmSynthController::lfo2Delay() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->lfo2Delay() * Constants::uiInternalScaling())) : 0;
+}
+
+void FmSynthController::setLfo2Delay(int value)
+{
+    if (m_synth) {
+        m_synth->setLfo2Delay(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int FmSynthController::lfo2Fade() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->lfo2Fade() * Constants::uiInternalScaling())) : 0;
+}
+
+void FmSynthController::setLfo2Fade(int value)
+{
+    if (m_synth) {
+        m_synth->setLfo2Fade(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
 }
 
 void FmSynthController::setLfo2Target(int value)

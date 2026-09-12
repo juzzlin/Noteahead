@@ -184,12 +184,16 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoRate().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoIntensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoTarget().toStdString(), 0.0f, 0, 9, 0, 1, Parameter::Type::Discrete }); // Pitch default
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfoDelay().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfoFade().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Waveform().toStdString(), 1.0f, 0, 4, 1, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Mode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Rate().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Intensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Target().toStdString(), 0.0f, 0, 9, 0, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Delay().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Fade().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceMode().toStdString(), 0.0f, 0, 5, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceDepth().toStdString(), 0.0f, 0, 10000, 0, 100 });
@@ -1165,6 +1169,10 @@ void SynthDevice::syncParameters()
         m_lfoInt = ParameterMapper::mapCubicCentered((p->get().value() - 0.5f) * 2.0f, -1.0, 1.0);
     if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoTarget().toStdString()); p)
         m_lfoTarget = static_cast<LfoTarget>(p->get().xmlValue());
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoDelay().toStdString()); p)
+        m_lfoDelay = p->get().value();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoFade().toStdString()); p)
+        m_lfoFade = p->get().value();
 
     if (const auto p = parameter(Constants::NahdXml::xmlKeyLfo2Waveform().toStdString()); p)
         m_lfo2Waveform = static_cast<Lfo::Waveform>(p->get().xmlValue());
@@ -1176,6 +1184,10 @@ void SynthDevice::syncParameters()
         m_lfo2Int = ParameterMapper::mapCubicCentered((p->get().value() - 0.5f) * 2.0f, -1.0, 1.0);
     if (const auto p = parameter(Constants::NahdXml::xmlKeyLfo2Target().toStdString()); p)
         m_lfo2Target = static_cast<LfoTarget>(p->get().xmlValue());
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyLfo2Delay().toStdString()); p)
+        m_lfo2Delay = p->get().value();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyLfo2Fade().toStdString()); p)
+        m_lfo2Fade = p->get().value();
 
     if (const auto p = parameter(Constants::NahdXml::xmlKeyVoiceMode().toStdString()); p)
         m_voiceMode = static_cast<VoiceMode>(p->get().xmlValue());
@@ -1238,6 +1250,8 @@ void SynthDevice::syncParameters()
             freq = static_cast<float>(ParameterMapper::mapLfoFrequency(m_lfoRate, 0.05, 20.0));
         }
         voice.lfo.setFrequency(freq);
+        voice.lfo.setDelayTime(ParameterMapper::mapCubic(m_lfoDelay, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
+        voice.lfo.setFadeTime(ParameterMapper::mapCubic(m_lfoFade, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
 
         voice.lfo2.setWaveform(m_lfo2Waveform);
         voice.lfo2.setMode(m_lfo2Mode);
@@ -1249,6 +1263,8 @@ void SynthDevice::syncParameters()
             freq2 = static_cast<float>(ParameterMapper::mapLfoFrequency(m_lfo2Rate, 0.05, 20.0));
         }
         voice.lfo2.setFrequency(freq2);
+        voice.lfo2.setDelayTime(ParameterMapper::mapCubic(m_lfo2Delay, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
+        voice.lfo2.setFadeTime(ParameterMapper::mapCubic(m_lfo2Fade, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
 
         voice.ampEg.setAttackTime(ParameterMapper::mapExponential(m_ampAttack, 0.000001, 20.0));
         voice.ampEg.setDecayTime(ParameterMapper::mapExponential(m_ampDecay, 0.01, 60.0));
@@ -1802,6 +1818,26 @@ void SynthDevice::setLfoTarget(LfoTarget target)
     setDiscreteParameterValue(Constants::NahdXml::xmlKeyLfoTarget().toStdString(), static_cast<int>(target));
 }
 
+float SynthDevice::lfoDelay() const
+{
+    return m_lfoDelay;
+}
+
+void SynthDevice::setLfoDelay(float delay)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfoDelay().toStdString(), delay);
+}
+
+float SynthDevice::lfoFade() const
+{
+    return m_lfoFade;
+}
+
+void SynthDevice::setLfoFade(float fade)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfoFade().toStdString(), fade);
+}
+
 // Lfo 2
 Lfo::Waveform SynthDevice::lfo2Waveform() const
 {
@@ -1851,6 +1887,26 @@ SynthDevice::LfoTarget SynthDevice::lfo2Target() const
 void SynthDevice::setLfo2Target(LfoTarget target)
 {
     setDiscreteParameterValue(Constants::NahdXml::xmlKeyLfo2Target().toStdString(), static_cast<int>(target));
+}
+
+float SynthDevice::lfo2Delay() const
+{
+    return m_lfo2Delay;
+}
+
+void SynthDevice::setLfo2Delay(float delay)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfo2Delay().toStdString(), delay);
+}
+
+float SynthDevice::lfo2Fade() const
+{
+    return m_lfo2Fade;
+}
+
+void SynthDevice::setLfo2Fade(float fade)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfo2Fade().toStdString(), fade);
 }
 
 // Voice / Global

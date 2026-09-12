@@ -224,6 +224,71 @@ void SynthTest::test_presetMidiCcReset_shouldRestorePresetValues()
     QCOMPARE(synth.lpfCutoff(), presetCutoff);
 }
 
+namespace {
+
+//! Renders one block of a cutoff-modulated note. \a intensity is the LFO intensity parameter, whose
+//! neutral is 0.5, and the delay and fade are the parameters rather than seconds.
+std::vector<double> renderLfoBlock(float intensity, float delay, float fade)
+{
+    SynthDevice synth { "Test Synth" };
+    synth.setLfoTarget(SynthDevice::LfoTarget::Cutoff);
+    synth.setLpfCutoff(0.5f);
+    synth.setLfoRate(1.0f);
+    synth.setLfoInt(intensity);
+    synth.setLfoDelay(delay);
+    synth.setLfoFade(fade);
+
+    synth.processMidiNoteOn(60, 100);
+
+    std::vector<double> output(512, 0.0);
+    AudioContext context { std::span(output.data(), output.size()), 256, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+    synth.processAudio(context);
+    return output;
+}
+
+double maxDifference(const std::vector<double> & a, const std::vector<double> & b)
+{
+    double difference = 0.0;
+    for (size_t i = 0; i < a.size(); i++) {
+        difference = std::max(difference, std::abs(a.at(i) - b.at(i)));
+    }
+    return difference;
+}
+
+} // namespace
+
+void SynthTest::test_lfoEngagement_shouldDefaultToImmediate()
+{
+    // Zero for both is what makes a project saved before these existed sound exactly as it did.
+    const SynthDevice synth { "Test Synth" };
+    QCOMPARE(synth.lfoDelay(), 0.0f);
+    QCOMPARE(synth.lfoFade(), 0.0f);
+    QCOMPARE(synth.lfo2Delay(), 0.0f);
+    QCOMPARE(synth.lfo2Fade(), 0.0f);
+}
+
+void SynthTest::test_lfoEngagement_delay_shouldSuppressModulationUntilItExpires()
+{
+    const auto unmodulated = renderLfoBlock(0.5f, 0.0f, 0.0f);
+    const auto modulated = renderLfoBlock(1.0f, 0.0f, 0.0f);
+    const auto delayed = renderLfoBlock(1.0f, 1.0f, 0.0f);
+
+    // A full delay outlasts the block, so the LFO has not reached the cutoff yet.
+    QVERIFY(maxDifference(unmodulated, modulated) > 1e-6);
+    QVERIFY(maxDifference(unmodulated, delayed) < 1e-12);
+}
+
+void SynthTest::test_lfoEngagement_fade_shouldEaseModulationIn()
+{
+    const auto unmodulated = renderLfoBlock(0.5f, 0.0f, 0.0f);
+    const auto immediate = renderLfoBlock(1.0f, 0.0f, 0.0f);
+    const auto faded = renderLfoBlock(1.0f, 0.0f, 1.0f);
+
+    // The fade outlasts the block too, so the modulation is present but still on its way up.
+    QVERIFY(maxDifference(unmodulated, faded) > 1e-12);
+    QVERIFY(maxDifference(unmodulated, faded) < maxDifference(unmodulated, immediate));
+}
+
 void SynthTest::test_lfoModulation_shouldUpdateInternalState()
 {
     SynthDevice synth { "Test Synth" };
@@ -242,6 +307,12 @@ void SynthTest::test_lfoModulation_shouldUpdateInternalState()
 
     synth.setLfoTarget(SynthDevice::LfoTarget::Cutoff);
     QCOMPARE(synth.lfoTarget(), SynthDevice::LfoTarget::Cutoff);
+
+    synth.setLfoDelay(0.4f);
+    QCOMPARE(synth.lfoDelay(), 0.4f);
+
+    synth.setLfoFade(0.6f);
+    QCOMPARE(synth.lfoFade(), 0.6f);
 
     // Verify audio generation works with Lfo
     synth.processMidiNoteOn(60, 100);

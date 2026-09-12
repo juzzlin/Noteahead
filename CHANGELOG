@@ -5,6 +5,12 @@ Release date:
 
 New features:
 
+* Vibrato that arrives after the note
+  - Delay holds an LFO back before it engages, and Fade eases it up to full
+    depth instead of switching it on
+  - On both LFOs of Synth, FM Synth and Wavetable Synth
+  - Both default to zero, so existing patches sound exactly as before
+
 * Speech can say a lyric a line at a time
   - A new Line trigger mode speaks one sentence per note, so one Speech
     device carries a whole lyric instead of one per line

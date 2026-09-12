@@ -29,6 +29,8 @@ private slots:
     void test_defaultValues_shouldBeCorrect();
     void test_parameterSetting_shouldUpdateValues();
     void test_operatorParameters_shouldBeIndependentPerOperator();
+    void test_lfoEngagement_shouldDefaultToImmediate();
+    void test_lfoEngagement_parameterSetting_shouldUpdateValues();
 
     void test_algorithms_everyOne_shouldOnlyModulateHigherOperators();
     void test_algorithms_everyOne_shouldHaveACarrier();

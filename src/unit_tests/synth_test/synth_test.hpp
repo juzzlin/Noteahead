@@ -35,6 +35,9 @@ private slots:
     void test_midiCc_shouldUpdateParameters();
     void test_presetMidiCcReset_shouldRestorePresetValues();
     void test_lfoModulation_shouldUpdateInternalState();
+    void test_lfoEngagement_shouldDefaultToImmediate();
+    void test_lfoEngagement_delay_shouldSuppressModulationUntilItExpires();
+    void test_lfoEngagement_fade_shouldEaseModulationIn();
     void test_voiceStealing_shouldStealQuietestVoice();
     void test_softClipper_shouldPreventClipping();
     void test_reset_shouldRestoreDefaults();

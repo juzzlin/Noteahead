@@ -52,6 +52,20 @@ private slots:
     void test_setFrequency_bpm_shouldProduceCycleMatchingBpm();
     void test_setFrequency_bpm_higherBpm_shouldProduceShorterCycle();
     void test_setFrequency_bpm_differentSyncRate_shouldScaleCycle();
+
+    void test_trigger_shouldRestartTheShape();
+
+    void test_delayTime_zero_shouldEngageImmediately();
+    void test_delayTime_shouldOutputSilenceUntilItExpires();
+    void test_delayTime_shouldHoldThePhaseWhileItRuns();
+    void test_delayTime_oneShot_shouldStartTheSweepAfterTheDelay();
+    void test_delayTime_shouldRestartOnTrigger();
+    void test_delayTime_higherSampleRate_shouldWaitTheSameTime();
+
+    void test_fadeTime_zero_shouldEngageAtFullDepth();
+    void test_fadeTime_shouldStartFromZeroAndRampToFullDepth();
+    void test_fadeTime_shouldRampMonotonically();
+    void test_fadeTime_shouldStartWhereTheDelayEnds();
 };
 
 } // namespace noteahead

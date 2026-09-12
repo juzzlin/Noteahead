@@ -32,6 +32,7 @@ void Lfo::setSampleRate(double sampleRate)
     }
     DspComponent::setSampleRate(sampleRate);
     updatePhaseStep();
+    updateEnvelopeTimes();
 }
 
 void Lfo::setFrequency(double frequency)
@@ -55,6 +56,18 @@ void Lfo::setMode(Mode mode)
     m_mode = mode;
 }
 
+void Lfo::setDelayTime(double seconds)
+{
+    m_delayTime = std::max(0.0, seconds);
+    updateEnvelopeTimes();
+}
+
+void Lfo::setFadeTime(double seconds)
+{
+    m_fadeTime = std::max(0.0, seconds);
+    updateEnvelopeTimes();
+}
+
 void Lfo::setPhase(double phase)
 {
     m_phase = phase;
@@ -71,11 +84,17 @@ double Lfo::phase() const
     return m_phase;
 }
 
-void Lfo::reset()
+void Lfo::trigger()
 {
     m_phase = 0.0;
     m_oneShotActive = true;
     m_oneShotHold = 0.0;
+    m_elapsedSamples = 0;
+}
+
+void Lfo::reset()
+{
+    trigger();
     m_rng.seed(0);
     m_randomValue = m_dist(m_rng);
 }
@@ -99,8 +118,20 @@ double Lfo::waveformValue(double phase) const
 
 double Lfo::nextSample()
 {
+    const auto elapsed = static_cast<double>(m_elapsedSamples);
+    m_elapsedSamples++;
+
+    if (elapsed < m_delaySamples) {
+        // The phase is held rather than advanced, so a one-shot sweep happens after the delay
+        // instead of being spent during it and every note starts its first cycle from the same
+        // place. Zero is the value that modulates nothing, whatever the destination.
+        return 0.0;
+    }
+
+    const auto fade = fadeLevel(elapsed - m_delaySamples);
+
     if (m_mode == Mode::OneShot && !m_oneShotActive) {
-        return m_oneShotHold;
+        return m_oneShotHold * fade;
     }
 
     double value = waveformValue(m_phase);
@@ -121,12 +152,28 @@ double Lfo::nextSample()
         }
     }
 
-    return value;
+    return value * fade;
 }
 
 void Lfo::updatePhaseStep()
 {
     m_phaseStep = m_frequency / m_sampleRate;
+}
+
+void Lfo::updateEnvelopeTimes()
+{
+    // The elapsed count is deliberately left alone: the devices push these times every block, so
+    // re-arming here would keep restarting the delay and it would never expire.
+    m_delaySamples = m_delayTime * m_sampleRate;
+    m_fadeSamples = m_fadeTime * m_sampleRate;
+}
+
+double Lfo::fadeLevel(double samplesSinceDelay) const
+{
+    if (m_fadeSamples <= 0.0) {
+        return 1.0;
+    }
+    return std::clamp(samplesSinceDelay / m_fadeSamples, 0.0, 1.0);
 }
 
 } // namespace noteahead

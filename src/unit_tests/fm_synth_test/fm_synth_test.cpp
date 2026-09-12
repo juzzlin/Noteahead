@@ -164,6 +164,30 @@ void FmSynthTest::test_parameterSetting_shouldUpdateValues()
     QCOMPARE(synth.pitchBendRange(), 12);
 }
 
+void FmSynthTest::test_lfoEngagement_shouldDefaultToImmediate()
+{
+    // Zero for both is what makes a project saved before these existed sound exactly as it did.
+    const FmSynthDevice synth { "Test FM" };
+    QCOMPARE(synth.lfoDelay(), 0.0f);
+    QCOMPARE(synth.lfoFade(), 0.0f);
+    QCOMPARE(synth.lfo2Delay(), 0.0f);
+    QCOMPARE(synth.lfo2Fade(), 0.0f);
+}
+
+void FmSynthTest::test_lfoEngagement_parameterSetting_shouldUpdateValues()
+{
+    FmSynthDevice synth { "Test FM" };
+
+    synth.setLfoDelay(0.4f);
+    QCOMPARE(synth.lfoDelay(), 0.4f);
+    synth.setLfoFade(0.6f);
+    QCOMPARE(synth.lfoFade(), 0.6f);
+    synth.setLfo2Delay(0.3f);
+    QCOMPARE(synth.lfo2Delay(), 0.3f);
+    synth.setLfo2Fade(0.7f);
+    QCOMPARE(synth.lfo2Fade(), 0.7f);
+}
+
 void FmSynthTest::test_operatorParameters_shouldBeIndependentPerOperator()
 {
     FmSynthDevice synth { "Test FM" };

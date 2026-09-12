@@ -109,6 +109,8 @@ class SynthController : public DeviceController
     Q_PROPERTY(int lfoRate READ lfoRate WRITE setLfoRate NOTIFY lfoRateChanged)
     Q_PROPERTY(int lfoInt READ lfoInt WRITE setLfoInt NOTIFY lfoIntChanged)
     Q_PROPERTY(int lfoTarget READ lfoTarget WRITE setLfoTarget NOTIFY lfoTargetChanged)
+    Q_PROPERTY(int lfoDelay READ lfoDelay WRITE setLfoDelay NOTIFY lfoDelayChanged)
+    Q_PROPERTY(int lfoFade READ lfoFade WRITE setLfoFade NOTIFY lfoFadeChanged)
 
     // Lfo 2
     Q_PROPERTY(int lfo2Waveform READ lfo2Waveform WRITE setLfo2Waveform NOTIFY lfo2WaveformChanged)
@@ -116,6 +118,8 @@ class SynthController : public DeviceController
     Q_PROPERTY(int lfo2Rate READ lfo2Rate WRITE setLfo2Rate NOTIFY lfo2RateChanged)
     Q_PROPERTY(int lfo2Int READ lfo2Int WRITE setLfo2Int NOTIFY lfo2IntChanged)
     Q_PROPERTY(int lfo2Target READ lfo2Target WRITE setLfo2Target NOTIFY lfo2TargetChanged)
+    Q_PROPERTY(int lfo2Delay READ lfo2Delay WRITE setLfo2Delay NOTIFY lfo2DelayChanged)
+    Q_PROPERTY(int lfo2Fade READ lfo2Fade WRITE setLfo2Fade NOTIFY lfo2FadeChanged)
 
     // Global
     Q_PROPERTY(int voiceMode READ voiceMode WRITE setVoiceMode NOTIFY voiceModeChanged)
@@ -267,6 +271,10 @@ public:
     void setLfoInt(int intensity);
     int lfoTarget() const;
     void setLfoTarget(int target);
+    int lfoDelay() const;
+    void setLfoDelay(int delay);
+    int lfoFade() const;
+    void setLfoFade(int fade);
 
     int lfo2Waveform() const;
     void setLfo2Waveform(int wave);
@@ -278,6 +286,10 @@ public:
     void setLfo2Int(int intensity);
     int lfo2Target() const;
     void setLfo2Target(int target);
+    int lfo2Delay() const;
+    void setLfo2Delay(int delay);
+    int lfo2Fade() const;
+    void setLfo2Fade(int fade);
 
     int voiceMode() const;
     void setVoiceMode(int m);
@@ -372,11 +384,15 @@ signals:
     void lfoRateChanged();
     void lfoIntChanged();
     void lfoTargetChanged();
+    void lfoDelayChanged();
+    void lfoFadeChanged();
     void lfo2WaveformChanged();
     void lfo2ModeChanged();
     void lfo2RateChanged();
     void lfo2IntChanged();
     void lfo2TargetChanged();
+    void lfo2DelayChanged();
+    void lfo2FadeChanged();
     void voiceModeChanged();
     void voiceDepthChanged();
     void portamentoChanged();

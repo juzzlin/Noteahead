@@ -255,6 +255,12 @@ public:
     void setLfoInt(float intensity);
     LfoTarget lfoTarget() const;
     void setLfoTarget(LfoTarget target);
+    //! How long after a note the LFO waits before it engages, and how long it then takes to reach
+    //! full depth. Both zero, the default, engage it on the note at full depth.
+    float lfoDelay() const;
+    void setLfoDelay(float delay);
+    float lfoFade() const;
+    void setLfoFade(float fade);
 
     // Lfo 2
     Lfo::Waveform lfo2Waveform() const;
@@ -267,6 +273,10 @@ public:
     void setLfo2Int(float intensity);
     LfoTarget lfo2Target() const;
     void setLfo2Target(LfoTarget target);
+    float lfo2Delay() const;
+    void setLfo2Delay(float delay);
+    float lfo2Fade() const;
+    void setLfo2Fade(float fade);
 
     // Voice / Global
     VoiceMode voiceMode() const;
@@ -452,12 +462,16 @@ private:
     float m_lfoRate { 0.5f };
     float m_lfoInt { 0.0f };
     LfoTarget m_lfoTarget { LfoTarget::Pitch };
+    float m_lfoDelay { 0.0f };
+    float m_lfoFade { 0.0f };
 
     Lfo::Waveform m_lfo2Waveform { Lfo::Waveform::Triangle };
     Lfo::Mode m_lfo2Mode { Lfo::Mode::Normal };
     float m_lfo2Rate { 0.5f };
     float m_lfo2Int { 0.0f };
     LfoTarget m_lfo2Target { LfoTarget::Pitch };
+    float m_lfo2Delay { 0.0f };
+    float m_lfo2Fade { 0.0f };
 
     VoiceMode m_voiceMode { VoiceMode::Poly };
     uint64_t m_nextTriggerId { 1 };

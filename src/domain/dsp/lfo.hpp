@@ -18,6 +18,7 @@
 
 #include "dsp_component.hpp"
 
+#include <cstdint>
 #include <random>
 #include <string>
 #include <vector>
@@ -50,8 +51,17 @@ public:
     void setFrequency(double bpm, double syncRate);
     void setWaveform(Waveform waveform);
     void setMode(Mode mode);
+
+    //! Time from the trigger before the LFO starts moving, in seconds. Zero, the default, engages it
+    //! on the note itself, which is what this LFO has always done.
+    void setDelayTime(double seconds);
+    //! Time the output takes to reach full depth once the delay has elapsed, in seconds. Zero, the
+    //! default, hands over the full depth at once.
+    void setFadeTime(double seconds);
+
     void setPhase(double phase);
     double phase() const;
+    //! Restarts the shape and the delay/fade envelope, leaving the random sequence where it is.
     void trigger();
     double nextSample();
     void reset();
@@ -67,11 +77,25 @@ private:
     //! Value a finished one-shot parks on: the level its shape ends at.
     double m_oneShotHold { 0.0 };
 
+    double m_delayTime { 0.0 };
+    double m_fadeTime { 0.0 };
+    double m_delaySamples { 0.0 };
+    double m_fadeSamples { 0.0 };
+    //! Samples since the last trigger, which is what both the delay and the fade are measured
+    //! against. Counted rather than turned into a deadline at trigger time: the devices push the
+    //! times once per block, so a note arriving before the first push would otherwise be armed with
+    //! a delay of zero and never wait at all.
+    uint64_t m_elapsedSamples { 0 };
+
     double m_randomValue { 0.0 };
     std::mt19937 m_rng { 0 };
     std::uniform_real_distribution<double> m_dist { -1.0, 1.0 };
 
     void updatePhaseStep();
+    void updateEnvelopeTimes();
+
+    //! Depth in effect \a samplesSinceDelay samples after the delay expired, 0..1.
+    double fadeLevel(double samplesSinceDelay) const;
 
     double waveformValue(double phase) const;
 };

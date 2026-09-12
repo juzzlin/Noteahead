@@ -338,6 +338,33 @@ void WavetableSynthTest::test_lfo2_parameterSetting_shouldUpdateValues()
     QCOMPARE(synth.lfo2Target(), WavetableSynthDevice::LfoTarget::Cutoff);
 }
 
+void WavetableSynthTest::test_lfoEngagement_shouldDefaultToImmediate()
+{
+    // Zero for both is what makes a project saved before these existed sound exactly as it did.
+    const WavetableSynthDevice synth { "Test Synth" };
+    QCOMPARE(synth.lfoDelay(), 0.0f);
+    QCOMPARE(synth.lfoFade(), 0.0f);
+    QCOMPARE(synth.lfo2Delay(), 0.0f);
+    QCOMPARE(synth.lfo2Fade(), 0.0f);
+}
+
+void WavetableSynthTest::test_lfoEngagement_parameterSetting_shouldUpdateValues()
+{
+    WavetableSynthDevice synth { "Test Synth" };
+
+    synth.setLfoDelay(0.4f);
+    QCOMPARE(synth.lfoDelay(), 0.4f);
+
+    synth.setLfoFade(0.6f);
+    QCOMPARE(synth.lfoFade(), 0.6f);
+
+    synth.setLfo2Delay(0.3f);
+    QCOMPARE(synth.lfo2Delay(), 0.3f);
+
+    synth.setLfo2Fade(0.7f);
+    QCOMPARE(synth.lfo2Fade(), 0.7f);
+}
+
 void WavetableSynthTest::test_lfo2_serialization_shouldPreserveState()
 {
     WavetableSynthDevice synth1 { "Test Synth 1" };

@@ -145,6 +145,13 @@ constexpr float uiInternalScaling()
     return 1000.0f;
 }
 
+//! Longest delay or fade an LFO's engagement envelope can be set to, in seconds. The knobs that set
+//! it are cubic, so the short times vibrato actually needs keep most of the travel.
+constexpr double maxLfoEnvelopeTimeSeconds()
+{
+    return 5.0;
+}
+
 //! Where unity gain sits on a fader's 0..1 throw. Everything above it is boost, so the usable
 //! range is -inf .. maxFaderBoostDb(). Chosen so the taper below unity is the linear-amplitude
 //! one faders had before the boost range existed, just compressed into the lower part of the throw.
@@ -684,11 +691,15 @@ QString xmlKeyLfoMode();
 QString xmlKeyLfoRate();
 QString xmlKeyLfoIntensity();
 QString xmlKeyLfoTarget();
+QString xmlKeyLfoDelay();
+QString xmlKeyLfoFade();
 QString xmlKeyLfo2Waveform();
 QString xmlKeyLfo2Mode();
 QString xmlKeyLfo2Rate();
 QString xmlKeyLfo2Intensity();
 QString xmlKeyLfo2Target();
+QString xmlKeyLfo2Delay();
+QString xmlKeyLfo2Fade();
 QString xmlKeyWavetableIndex();
 
 //! FM operator parameters. @p operatorIndex is zero based; the keys count from one, the way the

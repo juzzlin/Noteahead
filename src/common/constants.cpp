@@ -2220,6 +2220,16 @@ QString xmlKeyLfoTarget()
     return "lfoTarget";
 }
 
+QString xmlKeyLfoDelay()
+{
+    return "lfoDelay";
+}
+
+QString xmlKeyLfoFade()
+{
+    return "lfoFade";
+}
+
 QString xmlKeyLfo2Waveform()
 {
     return "lfo2Waveform";
@@ -2243,6 +2253,16 @@ QString xmlKeyLfo2Intensity()
 QString xmlKeyLfo2Target()
 {
     return "lfo2Target";
+}
+
+QString xmlKeyLfo2Delay()
+{
+    return "lfo2Delay";
+}
+
+QString xmlKeyLfo2Fade()
+{
+    return "lfo2Fade";
 }
 
 QString xmlKeyWavetableIndex()

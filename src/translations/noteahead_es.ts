@@ -2749,6 +2749,14 @@
         <source>Intensity</source>
         <translation type="unfinished">Intensidad</translation>
     </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">Retardo</translation>
+    </message>
+    <message>
+        <source>Fade</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FmSynthDialog_Lfo2</name>
@@ -2763,6 +2771,14 @@
     <message>
         <source>Intensity</source>
         <translation type="unfinished">Intensidad</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">Retardo</translation>
+    </message>
+    <message>
+        <source>Fade</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7883,6 +7899,14 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
         <source>Intensity</source>
         <translation>Intensidad</translation>
     </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">Retardo</translation>
+    </message>
+    <message>
+        <source>Fade</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SynthDialog_Lfo2</name>
@@ -7897,6 +7921,14 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     <message>
         <source>Intensity</source>
         <translation>Intensidad</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">Retardo</translation>
+    </message>
+    <message>
+        <source>Fade</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8639,6 +8671,14 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
         <source>Intensity</source>
         <translation>Intensidad</translation>
     </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">Retardo</translation>
+    </message>
+    <message>
+        <source>Fade</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>WavetableSynthDialog_Lfo2</name>
@@ -8653,6 +8693,14 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     <message>
         <source>Intensity</source>
         <translation>Intensidad</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">Retardo</translation>
+    </message>
+    <message>
+        <source>Fade</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
