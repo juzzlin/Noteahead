@@ -66,6 +66,12 @@ New features:
 
 Bug fixes:
 
+* Speech misreads several numbers
+  - "zero" was said with the vowel of "bed", and "seven" with the vowel of
+    "see"
+  - "nineteen" and "ninety" lost the long I of "nine", "hundred" lost its
+    last vowel, and "oh" was read as "ah"
+
 * Speech clicks when a note is let go of
   - The fade that covers the end of a phrase was applied to a sample already
     forced to zero, so it faded silence and covered nothing

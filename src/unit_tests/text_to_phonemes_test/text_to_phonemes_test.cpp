@@ -311,7 +311,7 @@ void TextToPhonemesTest::test_textToPhonemes_singleLetter_shouldBeSpokenAsItsNam
     // A letter is not a word, and read as one it is whatever its rules leave behind: "M" is a bare
     // nasal and "F" a bare fricative. Both are among the quietest sounds the voice makes and neither
     // is a syllable, so what came out was a hum where a listener expects "em".
-    QTest::newRow("the case this was written for") << "zero zero three five A M" << "Z EH R OW  Z EH R OW  TH R IY  F AY V  EY  EH M";
+    QTest::newRow("the case this was written for") << "zero zero three five A M" << "Z IH R OW  Z IH R OW  TH R IY  F AY V  EY  EH M";
     QTest::newRow("M is em, not a nasal") << "say M" << "S EY  EH M";
     QTest::newRow("F is ef, not a fricative") << "say F" << "S EY  EH F";
     QTest::newRow("H is aitch") << "say H" << "S EY  EY T SH";
@@ -393,6 +393,56 @@ void TextToPhonemesTest::test_textToPhonemes_letterNames_shouldNamePhonemesTheVo
                  }),
                  qPrintable(name));
     }
+}
+
+void TextToPhonemesTest::test_textToPhonemes_numbers_shouldReadCorrectly_data()
+{
+    QTest::addColumn<QString>("text");
+    QTest::addColumn<QString>("phonemes");
+
+    // A number read out a figure at a time is most of what this device is asked to do with numbers,
+    // and the rules got several of them wrong in ways a listener cannot read past.
+    QTest::newRow("zero is not zair-oh") << "zero" << "Z IH R OW";
+    QTest::newRow("seven is not see-vun") << "seven" << "S EH V AX N";
+    QTest::newRow("nineteen is not nin-ee-teen") << "nineteen" << "N AY N T IY N";
+    QTest::newRow("ninety is not nin-uh-ty") << "ninety" << "N AY N T IY";
+    QTest::newRow("hundred keeps its vowel") << "hundred" << "HH AH N D R AX D";
+    QTest::newRow("oh is the digit, not ah") << "oh" << "OW";
+
+    // The ones the rules already had right, so that a fix for a neighbour cannot quietly take them.
+    QTest::newRow("nine") << "nine" << "N AY N";
+    QTest::newRow("seventeen keeps the stem") << "seventeen" << "S AX V AX N T IY N";
+    QTest::newRow("hundreds") << "hundreds" << "HH AH N D R AX D Z";
+    QTest::newRow("the case this was written for") << "zero zero three five" << "Z IH R OW  Z IH R OW  TH R IY  F AY V";
+}
+
+void TextToPhonemesTest::test_textToPhonemes_numbers_shouldReadCorrectly()
+{
+    QFETCH(QString, text);
+    QFETCH(QString, phonemes);
+    QCOMPARE(spoken(text.toStdString()), phonemes);
+}
+
+void TextToPhonemesTest::test_textToPhonemes_eroEnding_shouldNotClaimALongerWord_data()
+{
+    QTest::addColumn<QString>("text");
+    QTest::addColumn<QString>("phonemes");
+
+    // "-ero" says /ɪ/ only at the end of a word. Where the O carries on into another syllable the
+    // vowel is /ɛ/, and a rule that took both would trade one wrong word for a class of them.
+    QTest::newRow("hero goes with zero") << "hero" << "HH IH R OW";
+    QTest::newRow("ferocious does not") << "ferocious" << "F EH R OW SH AX S";
+    QTest::newRow("stereo does not") << "stereo" << "S T IY R IY OW";
+    // A vowel before the ER is claimed by an earlier rule, which this must not reach past.
+    QTest::newRow("aero is left alone") << "aero" << "AE ER OW";
+    QTest::newRow("Ohio keeps its O") << "ohio" << "OW HH IH OW";
+}
+
+void TextToPhonemesTest::test_textToPhonemes_eroEnding_shouldNotClaimALongerWord()
+{
+    QFETCH(QString, text);
+    QFETCH(QString, phonemes);
+    QCOMPARE(spoken(text.toStdString()), phonemes);
 }
 
 void TextToPhonemesTest::test_textToPhonemes_affricates_shouldExpandToAStopAndAFricative()
