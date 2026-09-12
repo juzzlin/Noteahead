@@ -5,6 +5,16 @@ Release date:
 
 New features:
 
+* A glottal source for Speech
+  - Models the vocal folds instead of a sawtooth, so the voice has an
+    Openness control: pressed and buzzy at one end, soft and breathy at the
+    other
+  - Jitter adds the cycle-to-cycle unsteadiness a real voice has, and the
+    breath now follows the glottal cycle instead of sitting behind it
+  - Three voice types added: Child, Deep and Breathy
+  - Female was measurably darker than Male, which is backwards; it is now
+    brighter, as a shorter vocal tract makes it
+
 * Speech spells out single letters
   - A lone capital is said by name: "A M" is "ay em", not a schwa and a hum
   - The article "a" and a sentence-opening "A" are unchanged, unless another

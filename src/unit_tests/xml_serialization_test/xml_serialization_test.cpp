@@ -2279,7 +2279,9 @@ void XmlSerializationTest::test_toXmlFromXml_speechDevice_shouldLoadCorrectly()
     speech->setSyncLength(12);
     speech->setSyncDivision(3);
     speech->setSibilance(0.42f);
-    speech->setVoiceType(1);
+    speech->setVoiceType(3);
+    speech->setOpenQuotient(0.72f);
+    speech->setVoicePerturbation(0.18f);
     speech->setVelocitySensitivity(0.65f);
     speech->setFaderPosition(Device::FaderPosition::PostInserts);
     deviceServiceOut.setDevice(1, speech);
@@ -2318,10 +2320,45 @@ void XmlSerializationTest::test_toXmlFromXml_speechDevice_shouldLoadCorrectly()
     QCOMPARE(restored->syncLength(), 12);
     QCOMPARE(restored->syncDivision(), 3);
     QVERIFY(std::abs(restored->sibilance() - 0.42f) < 0.001f);
-    QCOMPARE(restored->voiceType(), 1);
+    QCOMPARE(restored->voiceType(), 3);
+    QVERIFY(std::abs(restored->openQuotient() - 0.72f) < 0.001f);
+    QVERIFY(std::abs(restored->voicePerturbation() - 0.18f) < 0.001f);
+    // A project written by this version says which engine it wants, so it keeps the modern one.
+    QCOMPARE(restored->voiceEngine(), 1);
     QVERIFY(std::abs(restored->velocitySensitivity() - 0.65f) < 0.001f);
 
     QCOMPARE(static_cast<int>(restored->faderPosition()), static_cast<int>(Device::FaderPosition::PostInserts));
+}
+
+void XmlSerializationTest::test_fromXml_speechDevice_withoutVoiceEngine_shouldStayOnTheOldVoice()
+{
+    // The guarantee the glottal source was added under: a song saved before it existed carries no
+    // voiceEngine parameter, and has to go on sounding the way it did when it was saved. An absent
+    // parameter keeps whatever the container holds, so SpeechDevice forces Legacy before it reads
+    // and a file that does carry one overwrites that -- which is what the round trip above checks.
+    DeviceFactory::init();
+
+    SpeechDevice speech { "Speech" };
+    // A device made now is on the new engine, or nobody would ever hear it.
+    QCOMPARE(speech.voiceEngine(), 1);
+
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        speech.serializeToXml(writer);
+    }
+    // Strip the parameter out, which is exactly what a file written before it existed looks like.
+    const auto legacyXml = QString { xml }.remove(QRegularExpression { R"(<Parameter name="voiceEngine"[^/]*/>)" });
+    QVERIFY(legacyXml.length() < xml.length());
+
+    NahdXmlReader reader { legacyXml };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+
+    SpeechDevice restored { "Speech" };
+    restored.deserializeFromXml(reader);
+
+    QCOMPARE(restored.voiceEngine(), 0);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_pianoSynthV2Device_shouldLoadCorrectly()

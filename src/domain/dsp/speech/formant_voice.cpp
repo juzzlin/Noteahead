@@ -41,8 +41,6 @@ double lerp(double from, double to, double t)
 
 FormantVoice::FormantVoice()
 {
-    m_glottis.setWaveform(PolyBlepOscillator::Waveform::Saw);
-
     for (auto & filter : m_formants) {
         filter.setMode(CascadedSvf::Mode::BandPass);
         filter.setOrder(2);
@@ -63,6 +61,7 @@ void FormantVoice::setSampleRate(double sampleRate)
 
     m_glottis.setSampleRate(sampleRate);
     m_tilt.calculate(std::min(TiltFrequency, sampleRate * 0.45), sampleRate);
+    m_pulseRadiation.calculate(std::min(PulseRadiationFrequency, sampleRate * 0.45), sampleRate);
     setSourceRolloff(m_sourceRolloff);
     setSibilance(m_sibilance);
 
@@ -217,6 +216,24 @@ void FormantVoice::setSourceRolloff(double frequency)
 void FormantVoice::setBreathiness(double breathiness)
 {
     m_breathiness = std::clamp(breathiness, 0.0, 1.0);
+}
+
+void FormantVoice::setGlottalModel(GlottalSource::Model model)
+{
+    m_glottalModel = model;
+    m_glottis.setModel(model);
+}
+
+void FormantVoice::setOpenQuotient(double openQuotient)
+{
+    m_glottis.setOpenQuotient(openQuotient);
+}
+
+void FormantVoice::setVoicePerturbation(double perturbation)
+{
+    const double amount = std::max(0.0, perturbation);
+    m_glottis.setJitter(amount * JitterRange);
+    m_glottis.setShimmer(amount * ShimmerRange);
 }
 
 void FormantVoice::setConsonantLevel(double level)
@@ -389,8 +406,13 @@ double FormantVoice::nextSample()
     // sitting some 33 dB under F1 on /i/ where it belongs nearer 19, and left the close vowels tens
     // of dB louder than the open ones. F2 is where most of a vowel's identity is, so burying it is
     // not a tone preference -- it is the difference between speech and a hum.
-    m_tilt.process(m_glottis.nextSample());
+    const bool saw = m_glottalModel == GlottalSource::Model::Saw;
+    m_tilt.process(m_glottis.nextSample() * (saw ? 1.0 : RosenbergSourceGain));
     double voiced = m_tilt.highPass();
+    if (!saw) {
+        m_pulseRadiation.process(voiced);
+        voiced = m_pulseRadiation.highPass();
+    }
     if (m_sourceRolloff > 0.0) {
         m_sourceRolloffFilter.process(voiced);
         voiced = m_sourceRolloffFilter.lowPass();
@@ -403,7 +425,12 @@ double FormantVoice::nextSample()
     }
 
     const double voicing = m_phoneme->voicing;
-    const double source = voicing * voiced + (1.0 - voicing) * noise + voicing * m_breathiness * noise;
+    // Only the breath follows the glottal cycle. The frication of an unvoiced phoneme is made at a
+    // constriction in the mouth with the folds apart and still, so pulsing that would be wrong as
+    // well as unintelligible -- and openness() is flat under the saw model anyway, which is what
+    // keeps a project written against it sounding as it did.
+    const double aspiration = voicing * m_breathiness * noise * m_glottis.openness();
+    const double source = voicing * voiced + (1.0 - voicing) * noise + aspiration;
 
     m_level += (m_levelTarget - m_level) * m_levelCoefficient;
     m_seam += (1.0 - m_seam) * m_seamCoefficient;
@@ -474,6 +501,7 @@ void FormantVoice::reset()
 
     m_glottis.reset();
     m_tilt.reset();
+    m_pulseRadiation.reset();
     m_sourceRolloffFilter.reset();
     for (auto & filter : m_noiseRolloff) {
         filter.reset();

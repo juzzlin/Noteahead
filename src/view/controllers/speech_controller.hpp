@@ -36,6 +36,9 @@ class SpeechController : public DeviceController
     Q_PROPERTY(int consonantLevel READ consonantLevel WRITE setConsonantLevel NOTIFY consonantLevelChanged)
     Q_PROPERTY(int sibilance READ sibilance WRITE setSibilance NOTIFY sibilanceChanged)
     Q_PROPERTY(int voiceType READ voiceType WRITE setVoiceType NOTIFY voiceTypeChanged)
+    Q_PROPERTY(int openQuotient READ openQuotient WRITE setOpenQuotient NOTIFY openQuotientChanged)
+    Q_PROPERTY(int voicePerturbation READ voicePerturbation WRITE setVoicePerturbation NOTIFY voicePerturbationChanged)
+    Q_PROPERTY(int voiceEngine READ voiceEngine WRITE setVoiceEngine NOTIFY voiceEngineChanged)
     Q_PROPERTY(int velocitySensitivity READ velocitySensitivity WRITE setVelocitySensitivity NOTIFY velocitySensitivityChanged)
     Q_PROPERTY(int intonation READ intonation WRITE setIntonation NOTIFY intonationChanged)
     Q_PROPERTY(int vibratoRate READ vibratoRate WRITE setVibratoRate NOTIFY vibratoRateChanged)
@@ -72,6 +75,12 @@ public:
     void setSibilance(int value);
     int voiceType() const;
     void setVoiceType(int value);
+    int openQuotient() const;
+    void setOpenQuotient(int value);
+    int voicePerturbation() const;
+    void setVoicePerturbation(int value);
+    int voiceEngine() const;
+    void setVoiceEngine(int value);
     int velocitySensitivity() const;
     void setVelocitySensitivity(int value);
     int intonation() const;
@@ -113,6 +122,9 @@ signals:
     void consonantLevelChanged();
     void sibilanceChanged();
     void voiceTypeChanged();
+    void openQuotientChanged();
+    void voicePerturbationChanged();
+    void voiceEngineChanged();
     void velocitySensitivityChanged();
     void intonationChanged();
     void vibratoRateChanged();

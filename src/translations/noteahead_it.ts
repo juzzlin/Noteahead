@@ -6637,6 +6637,18 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
         <translation>Femminile</translation>
     </message>
     <message>
+        <source>Child</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Deep</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Breathy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Formant Shift</source>
         <translation>Spostamento delle formanti</translation>
     </message>
@@ -6671,6 +6683,30 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
     <message>
         <source>Breathiness</source>
         <translation>Soffio</translation>
+    </message>
+    <message>
+        <source>Openness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How long the vocal folds stay open. Down is pressed and buzzy, up is soft and breathy. Half way is what the voice type asks for.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Jitter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How unsteady the voice is from one cycle to the next. At zero it is perfectly periodic, which is what a machine sounds like.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Glottal Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Models the vocal folds instead of the sawtooth this device used before. Off in songs saved with that older voice, so they sound as they did; turning it on changes how they sound.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Intonation</source>

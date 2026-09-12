@@ -47,11 +47,21 @@ constexpr size_t SettleFrames = 6000;
 
 using Utterance = std::vector<std::pair<std::string, size_t>>;
 
+//! A voice on the sawtooth source.
+//!
+//! The phoneme table's amplitudes are what most of this file measures, and they are stated against
+//! measured speech through that source: it is the waveform they were fitted with, so it is the one
+//! they have to be checked against. The glottal pulse presents the same table with a different
+//! spectrum and lands its vowels a few dB apart from where the sawtooth lands them -- which is a
+//! property of the source rather than an error in the table, and so not something this file can
+//! usefully hold an opinion about. What the pulse does is measured in glottal_source_test, and what
+//! the device makes of it in speech_test.
 FormantVoice makeVoice()
 {
     FormantVoice voice;
     voice.setSampleRate(SampleRate);
     voice.setFrequency(Fundamental);
+    voice.setGlottalModel(GlottalSource::Model::Saw);
     return voice;
 }
 

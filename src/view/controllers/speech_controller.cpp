@@ -138,6 +138,45 @@ void SpeechController::setSibilance(int value)
     }
 }
 
+int SpeechController::openQuotient() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->openQuotient() * Constants::uiInternalScaling())) : 0;
+}
+
+void SpeechController::setOpenQuotient(int value)
+{
+    if (m_device) {
+        m_device->setOpenQuotient(static_cast<float>(value) / Constants::uiInternalScaling());
+        emit openQuotientChanged();
+    }
+}
+
+int SpeechController::voicePerturbation() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->voicePerturbation() * Constants::uiInternalScaling())) : 0;
+}
+
+void SpeechController::setVoicePerturbation(int value)
+{
+    if (m_device) {
+        m_device->setVoicePerturbation(static_cast<float>(value) / Constants::uiInternalScaling());
+        emit voicePerturbationChanged();
+    }
+}
+
+int SpeechController::voiceEngine() const
+{
+    return m_device ? m_device->voiceEngine() : 1;
+}
+
+void SpeechController::setVoiceEngine(int value)
+{
+    if (m_device) {
+        m_device->setVoiceEngine(value);
+        emit voiceEngineChanged();
+    }
+}
+
 int SpeechController::voiceType() const
 {
     return m_device ? m_device->voiceType() : 0;

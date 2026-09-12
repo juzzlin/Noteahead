@@ -19,7 +19,7 @@
 #include "../cascaded_svf.hpp"
 #include "../dsp_component.hpp"
 #include "../one_pole_filter.hpp"
-#include "../poly_blep_oscillator.hpp"
+#include "glottal_source.hpp"
 #include "phoneme.hpp"
 
 #include <array>
@@ -30,8 +30,8 @@ namespace noteahead {
 //! A single speaking voice: a glottal source and a bank of three formant resonances that move
 //! between the targets of whatever phoneme it has been handed.
 //!
-//! The source is the textbook source-filter chain: a sawtooth through a glottal tilt, so it falls at
-//! about 12 dB per octave the way a glottal pulse train does, and then radiation from the lips,
+//! The source is the textbook source-filter chain: a glottal flow pulse through a tilt, so it falls
+//! at about 12 dB per octave the way a glottal pulse train does, and then radiation from the lips,
 //! which is a differentiator and gives 6 dB per octave back. Noise is summed in according to the
 //! phoneme's voicing. The bank sums with alternating polarity and
 //! normalises each band by its own Q, again as FormantFilterBank does and for the same measured
@@ -98,6 +98,15 @@ public:
     //! Aspiration mixed into the voiced phonemes.
     void setBreathiness(double breathiness);
 
+    //! Which waveform the folds are modelled by. See GlottalSource::Model.
+    void setGlottalModel(GlottalSource::Model model);
+    //! Share of the period the folds are open. Pressed at the bottom, breathy at the top.
+    void setOpenQuotient(double openQuotient);
+    //! Cycle-to-cycle wander of the period and of the pulse height. One control for the two, in the
+    //! ratio measured speech has them: a voice with rough pitch and even loudness is not a thing a
+    //! throat does, so they are not worth separating.
+    void setVoicePerturbation(double perturbation);
+
     //! Level of everything that is not a vowel, relative to the vowels.
     void setConsonantLevel(double level);
 
@@ -133,6 +142,38 @@ private:
     //! left into an audible tick once per period. Taking the high-pass tap never forms that
     //! difference, so there is nothing to amplify.
     static constexpr double TiltFrequency { 200.0 };
+
+    //! Corner of the second radiation pole, used only under the glottal pulse. See m_pulseRadiation.
+    //!
+    //! Not the tilt's own corner, and fitted rather than derived: a Rosenberg pulse only falls at its
+    //! asymptotic 12 dB per octave well above the knee its open phase puts at around the reciprocal
+    //! of that phase, which at speech pitches lands near here. Placing the pole at the knee rather
+    //! than at the tilt's corner is what takes the vowel-to-vowel balance from 5 dB out to 1.
+    static constexpr double PulseRadiationFrequency { 400.0 };
+
+    //! What one notch of perturbation is worth, as a fraction of the period and of the pulse height.
+    //!
+    //! Measured speech runs 0.3 to 1 per cent of jitter and several times that of shimmer, so full
+    //! travel is a little past the top of what a healthy voice does and half of it is where a voice
+    //! actually sits. The pair moves together because a throat does not offer them separately.
+    static constexpr double JitterRange { 0.012 };
+    static constexpr double ShimmerRange { 0.05 };
+
+    //! Level the Rosenberg pulse is handed to the tilt at, relative to the saw it replaced.
+    //!
+    //! Measured rather than derived: the two waveforms have quite different spectra, and
+    //! SourceMakeupGain is the one place the device's level is decided, so the difference is taken
+    //! out here instead of being allowed to reach it. Without it the new source alone moved the
+    //! device several dB, which would have been a level change dressed up as a voice change.
+    //!
+    //! Fitted against a spoken phrase rather than against a held vowel, the two not agreeing: the
+    //! pulse leaves the vowels about 5 dB apart in balance from where the sawtooth left them, so
+    //! which vowels a phrase happens to contain moves the answer by a dB or two. A phrase is what a
+    //! listener compares, so a phrase is what this is set by. The remaining balance difference is
+    //! not a fault to be tuned out -- a different larynx does land the phoneme table's amplitudes
+    //! slightly differently, and the table is stated against measured speech rather than against
+    //! either source.
+    static constexpr double RosenbergSourceGain { 14.4 };
 
     //! The one place the device's output level is decided.
     //!
@@ -298,6 +339,9 @@ private:
     double m_glideTime { 0.03 };
     double m_formantShift { 1.0 };
     double m_sourceRolloff { 0.0 };
+    //! Held alongside the source's own copy because the makeup gain that levels the two waveforms
+    //! against each other is applied here, and nextSample() has to know which one is running.
+    GlottalSource::Model m_glottalModel { GlottalSource::Model::Rosenberg };
     double m_breathiness { 0.0 };
     double m_consonantLevel { 1.0 };
     double m_sibilance { 0.5 };
@@ -340,9 +384,18 @@ private:
     double m_seam { 1.0 };
     double m_seamCoefficient { 0.0 };
 
-    PolyBlepOscillator m_glottis;
+    GlottalSource m_glottis;
     //! Glottal tilt and lip radiation together: the high-pass tap is the source.
     OnePoleFilter m_tilt;
+    //! The second half of the radiation, used only under the glottal pulse.
+    //!
+    //! The sawtooth falls at 6 dB per octave and the pulse at 12, so one high-pass tap leaves the
+    //! pulse 6 dB per octave darker than the waveform the phoneme table was calibrated against. That
+    //! is not a tone preference: the table's amplitudes are stated against measured speech, and under
+    //! a source that dark the close vowels -- whose first formant sits right where a glottal pulse
+    //! keeps its energy -- came out 6 dB louder than the open ones, which is backwards. A second tap
+    //! puts the slope back and lets one table serve both sources.
+    OnePoleFilter m_pulseRadiation;
     OnePoleFilter m_sourceRolloffFilter;
     std::array<OnePoleFilter, 2> m_noiseRolloff;
     std::array<CascadedSvf, 3> m_formants;

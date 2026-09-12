@@ -54,6 +54,7 @@ set(HEADER_FILES
     dsp/poly_blep_oscillator.hpp
     dsp/saturating_svf.hpp
     dsp/speech/formant_voice.hpp
+    dsp/speech/glottal_source.hpp
     dsp/speech/phoneme.hpp
     dsp/speech/speech_sequencer.hpp
     dsp/speech/text_to_phonemes.hpp
@@ -202,6 +203,7 @@ set(SOURCE_FILES
     dsp/poly_blep_oscillator.cpp
     dsp/saturating_svf.cpp
     dsp/speech/formant_voice.cpp
+    dsp/speech/glottal_source.cpp
     dsp/speech/phoneme_table.cpp
     dsp/speech/speech_sequencer.cpp
     dsp/speech/text_to_phonemes.cpp
