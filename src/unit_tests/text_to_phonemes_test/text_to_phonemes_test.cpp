@@ -303,6 +303,98 @@ void TextToPhonemesTest::test_textToPhonemes_curlyApostrophe_shouldNotSplitTheWo
     QCOMPARE(std::ranges::count(curly, true, &PhonemeEvent::wordStart), 1);
 }
 
+void TextToPhonemesTest::test_textToPhonemes_singleLetter_shouldBeSpokenAsItsName_data()
+{
+    QTest::addColumn<QString>("text");
+    QTest::addColumn<QString>("phonemes");
+
+    // A letter is not a word, and read as one it is whatever its rules leave behind: "M" is a bare
+    // nasal and "F" a bare fricative. Both are among the quietest sounds the voice makes and neither
+    // is a syllable, so what came out was a hum where a listener expects "em".
+    QTest::newRow("the case this was written for") << "zero zero three five A M" << "Z EH R OW  Z EH R OW  TH R IY  F AY V  EY  EH M";
+    QTest::newRow("M is em, not a nasal") << "say M" << "S EY  EH M";
+    QTest::newRow("F is ef, not a fricative") << "say F" << "S EY  EH F";
+    QTest::newRow("H is aitch") << "say H" << "S EY  EY T SH";
+    QTest::newRow("W is the long one") << "say W" << "S EY  D AH B AX L Y UW";
+    QTest::newRow("Q takes a glide") << "say Q" << "S EY  K Y UW";
+    QTest::newRow("X is a cluster") << "say X" << "S EY  EH K S";
+    QTest::newRow("Z is the American one") << "say Z" << "S EY  Z IY";
+    QTest::newRow("punctuation does not break the run") << "A, M" << "EY  _  EH M";
+}
+
+void TextToPhonemesTest::test_textToPhonemes_singleLetter_shouldBeSpokenAsItsName()
+{
+    QFETCH(QString, text);
+    QFETCH(QString, phonemes);
+    QCOMPARE(spoken(text.toStdString()), phonemes);
+}
+
+void TextToPhonemesTest::test_textToPhonemes_singleLetter_shouldBeStressed()
+{
+    // A letter being spelled out is being pointed at: it takes the pitch accent and keeps its vowel.
+    // Were it left unstressed the reduction pass would turn "em" back into a schwa, which is most of
+    // what made the letter inaudible in the first place.
+    const auto events = textToPhonemes("say M");
+    QVERIFY(!events.empty());
+    QVERIFY(std::ranges::all_of(events | std::views::drop(events.size() - 2), &PhonemeEvent::stressed));
+}
+
+void TextToPhonemesTest::test_textToPhonemes_singleLetter_shouldBeOneSyllablePerLetter()
+{
+    // Step mode advances by syllables, so a spelled letter has to be one of them or a row of letters
+    // does not land one to a note.
+    QCOMPARE(divided("A M"), QString { "|EY|EH M" });
+}
+
+void TextToPhonemesTest::test_textToPhonemes_lowercaseSingleLetter_shouldStayAWord_data()
+{
+    QTest::addColumn<QString>("text");
+    QTest::addColumn<QString>("phonemes");
+
+    // Case is what tells the two apart, because English writes the only two one-letter words a fixed
+    // way: the article is "a" and the pronoun is "I".
+    QTest::newRow("the article is lowercase") << "a cat" << "AX  K AE T";
+    QTest::newRow("and stays reduced mid-sentence") << "sat on a mat" << "S AE T  AA N  AX  M AE T";
+    // The pronoun needs no exception of its own: its sound and the letter I's name are both AY.
+    QTest::newRow("the pronoun reads the same either way") << "I am here" << "AY  AE M  HH IY R";
+}
+
+void TextToPhonemesTest::test_textToPhonemes_lowercaseSingleLetter_shouldStayAWord()
+{
+    QFETCH(QString, text);
+    QFETCH(QString, phonemes);
+    QCOMPARE(spoken(text.toStdString()), phonemes);
+}
+
+void TextToPhonemesTest::test_textToPhonemes_sentenceInitialA_shouldStayTheArticle()
+{
+    // The one place a capital is not a spelling: a sentence capitalizes its first word, so "A" here
+    // is the article rather than the letter.
+    QCOMPARE(spoken("A cat sat on the mat."), QString { "AX  K AE T  S AE T  AA N  DH AX  M AE T  _" });
+}
+
+void TextToPhonemesTest::test_textToPhonemes_sentenceInitialA_beforeAnotherLetter_shouldBeSpelled()
+{
+    // A run of letters is a run of letters wherever it starts, which is what makes a phrase that is
+    // nothing but "A M" a time of day rather than an article and a hum.
+    QCOMPARE(spoken("A M"), QString { "EY  EH M" });
+}
+
+void TextToPhonemesTest::test_textToPhonemes_letterNames_shouldNamePhonemesTheVoiceKnows()
+{
+    // Every letter has to name a syllable. A typo in the table would otherwise show up only as the
+    // one letter that stays silent, or as the one that is still a bare consonant.
+    for (char letter = 'A'; letter <= 'Z'; letter++) {
+        const auto events = textToPhonemes(std::string { "say " } + letter);
+        const auto name = QString { "letter " } + QChar { letter };
+        QVERIFY2(events.size() > 2, qPrintable(name));
+        QVERIFY2(std::ranges::any_of(events | std::views::drop(2), [](const PhonemeEvent & event) {
+                     return event.spec->type == PhonemeType::Vowel;
+                 }),
+                 qPrintable(name));
+    }
+}
+
 void TextToPhonemesTest::test_textToPhonemes_affricates_shouldExpandToAStopAndAFricative()
 {
     // The synthesizer has no affricate, because an affricate is a stop released into a fricative and
