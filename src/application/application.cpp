@@ -459,6 +459,10 @@ void Application::connectDeviceService()
     connect(m_deviceService.get(), &DeviceService::dataChanged, this, [this]() {
         m_editorService->setIsModified(true);
     });
+
+    connect(m_deviceService.get(), &DeviceService::samplesMissing, this, [this](QStringList paths) {
+        m_applicationService->requestAlertDialog(tr("The project loaded, but these samples could not be read:") + "\n\n" + paths.join("\n"));
+    });
 }
 
 void Application::connectAudioService()

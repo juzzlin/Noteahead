@@ -260,6 +260,14 @@ public:
 
     void setProjectPath(const std::string & projectPath);
 
+    //! Samples the last deserialization could not read, by the path it looked in.
+    //!
+    //! A pad whose file has gone missing costs that pad, not the song: loading a project collects
+    //! the failures here and carries on, so one moved sample can no longer take the whole thing
+    //! down with it. The pad keeps its settings and its path, so putting the file back -- or
+    //! pointing the pad at it again -- is all it takes to have the sound back.
+    const std::vector<std::string> & missingSamplePaths() const;
+
     using PathResolver = std::function<QString(const QString &)>;
     void setPathResolver(PathResolver resolver);
 
@@ -396,6 +404,7 @@ private:
     bool m_chromaticMode = false;
     bool m_embedWaveData = false;
     std::string m_projectPath;
+    std::vector<std::string> m_missingSamplePaths;
     PathResolver m_pathResolver;
     AudioFileReaderU m_audioFileReader;
     const size_t m_maxVoices = 32;

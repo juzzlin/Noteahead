@@ -791,6 +791,20 @@ void DeviceService::deserializeFromXml(ProjectReader & reader)
         }
     }
     emit dataChanged();
+
+    // Reported once for the whole project rather than per device, so that a folder of samples gone
+    // missing is one message instead of a dialog per pad.
+    QStringList missingSamplePaths;
+    for (size_t slotIndex = 0; slotIndex < Constants::deviceRackSize(); slotIndex++) {
+        if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(device(slotIndex)); sampler) {
+            for (const auto & path : sampler->missingSamplePaths()) {
+                missingSamplePaths.append(QString::fromStdString(path));
+            }
+        }
+    }
+    if (!missingSamplePaths.isEmpty()) {
+        emit samplesMissing(missingSamplePaths);
+    }
 }
 
 void DeviceService::setSamplerAudioFileReaderFactory(SamplerAudioFileReaderFactory factory)

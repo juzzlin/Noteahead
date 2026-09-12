@@ -36,8 +36,11 @@ namespace noteahead {
 class MockAudioFileReader : public AudioFileReader
 {
 public:
-    bool open(const std::string &, Mode, Info & info) override
+    bool open(const std::string & path, Mode, Info & info) override
     {
+        if (!m_unreadablePathFragment.empty() && path.find(m_unreadablePathFragment) != std::string::npos) {
+            return false;
+        }
         info = this->info();
         return true;
     }
@@ -131,11 +134,19 @@ public:
         m_step = frame;
     }
 
+    //! Makes open() fail for any path holding this substring, which is how a sample that has been
+    //! moved or deleted since the project was saved looks to the device.
+    void setUnreadablePathFragment(const std::string & fragment)
+    {
+        m_unreadablePathFragment = fragment;
+    }
+
 private:
     int m_channels = 2;
     int64_t m_frames = 1024;
     bool m_ramp = false;
     int64_t m_step = -1;
+    std::string m_unreadablePathFragment;
 };
 
 namespace {
@@ -564,6 +575,156 @@ void SamplerTest::test_chromaticMode_pitch_shouldMatchSemitoneRatio()
     QVERIFY(qFuzzyCompare(sampler.chromaticPitchRatio(12), 1.0)); // At the root
     QVERIFY(qFuzzyCompare(sampler.chromaticPitchRatio(24), 2.0)); // One octave above
     QVERIFY(qFuzzyCompare(sampler.chromaticPitchRatio(0), 0.5)); // One octave below (lowest root extends down)
+}
+
+namespace {
+
+//! A project's worth of sampler XML holding one readable pad and one whose file has gone missing.
+QByteArray samplerXmlWithTwoPads()
+{
+    QByteArray data;
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    sampler.loadSample(36, "/samples/Kick.wav");
+    sampler.loadSample(38, "/samples/Snare.wav");
+    NahdXmlWriter writer { data };
+    sampler.serializeToXml(writer);
+    return data;
+}
+
+void readToFirstStartElement(ProjectReader & reader)
+{
+    while (!reader.atEnd() && !reader.isStartElement()) {
+        reader.readNext();
+    }
+}
+
+} // namespace
+
+void SamplerTest::test_deserialize_missingSample_shouldKeepTheRestOfTheDevice()
+{
+    const auto data = samplerXmlWithTwoPads();
+
+    auto audioFileReader = std::make_unique<MockAudioFileReader>();
+    audioFileReader->setUnreadablePathFragment("Snare");
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::move(audioFileReader) };
+
+    NahdXmlReader reader { data };
+    readToFirstStartElement(reader);
+    // A pad whose file cannot be read used to throw out of here, and the project load above caught
+    // it by discarding the whole song
+    sampler.deserializeFromXml(reader);
+
+    // The readable pad loaded and kept its audio, so the failure next to it cost only its own pad
+    QVERIFY(sampler.sampleDuration(36) > 0.0);
+    // The pad that failed is kept, but empty: it has a path and no audio
+    QCOMPARE(sampler.sampleDuration(38), 0.0);
+}
+
+void SamplerTest::test_deserialize_missingSample_shouldReportWhatWasMissing()
+{
+    const auto data = samplerXmlWithTwoPads();
+
+    auto audioFileReader = std::make_unique<MockAudioFileReader>();
+    audioFileReader->setUnreadablePathFragment("Snare");
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::move(audioFileReader) };
+
+    NahdXmlReader reader { data };
+    readToFirstStartElement(reader);
+    sampler.deserializeFromXml(reader);
+
+    QCOMPARE(sampler.missingSamplePaths().size(), static_cast<size_t>(1));
+    QVERIFY(QString::fromStdString(sampler.missingSamplePaths().at(0)).contains("Snare"));
+}
+
+void SamplerTest::test_deserialize_missingSample_shouldKeepThePadForTheNextSave()
+{
+    const auto data = samplerXmlWithTwoPads();
+
+    auto audioFileReader = std::make_unique<MockAudioFileReader>();
+    audioFileReader->setUnreadablePathFragment("Snare");
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::move(audioFileReader) };
+
+    NahdXmlReader reader { data };
+    readToFirstStartElement(reader);
+    sampler.deserializeFromXml(reader);
+
+    QByteArray resaved;
+    {
+        NahdXmlWriter writer { resaved };
+        sampler.serializeToXml(writer);
+    }
+
+    // Opening a project while a sample is misplaced and saving it again must not be what finally
+    // loses the pad: the path survives, so putting the file back is all it takes
+    QVERIFY(QString::fromUtf8(resaved).contains("Snare.wav"));
+    QVERIFY(QString::fromUtf8(resaved).contains("Kick.wav"));
+}
+
+void SamplerTest::test_deserialize_missingSample_reloaded_shouldForgetTheOldFailure()
+{
+    const auto data = samplerXmlWithTwoPads();
+
+    auto audioFileReader = std::make_unique<MockAudioFileReader>();
+    audioFileReader->setUnreadablePathFragment("Snare");
+    auto * rawReader = audioFileReader.get();
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::move(audioFileReader) };
+
+    {
+        NahdXmlReader reader { data };
+        readToFirstStartElement(reader);
+        sampler.deserializeFromXml(reader);
+    }
+    QCOMPARE(sampler.missingSamplePaths().size(), static_cast<size_t>(1));
+
+    rawReader->setUnreadablePathFragment("");
+    {
+        NahdXmlReader reader { data };
+        readToFirstStartElement(reader);
+        sampler.deserializeFromXml(reader);
+    }
+    QVERIFY(sampler.missingSamplePaths().empty());
+}
+
+void SamplerTest::test_serialize_sampleOutsideTheProject_shouldStoreItRelativeToTheProject()
+{
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    // A project nested deeply under a tree the samples sit near the top of, which is what an album
+    // of songs sharing one sample library looks like
+    sampler.setProjectPath("/music/Artists/Band/2026/TheEp/Songs/TheSong");
+    sampler.loadSample(36, "/music/Samples/Drums/Kick.wav");
+
+    QByteArray data;
+    {
+        NahdXmlWriter writer { data };
+        sampler.serializeToXml(writer);
+    }
+
+    // Exactly as many levels up as the project is deep below the common root, and no restating of
+    // the path from the root afterwards. A path that climbs the wrong number of levels resolves
+    // somewhere that does not exist, and the pad is lost the moment the project is reopened.
+    QVERIFY(QString::fromUtf8(data).contains("../../../../../../Samples/Drums/Kick.wav"));
+}
+
+void SamplerTest::test_serialize_sampleOutsideTheProject_shouldSurviveAReload()
+{
+    QByteArray data;
+    {
+        SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+        sampler.setProjectPath("/music/Artists/Band/2026/TheEp/Songs/TheSong");
+        sampler.loadSample(36, "/music/Samples/Drums/Kick.wav");
+        NahdXmlWriter writer { data };
+        sampler.serializeToXml(writer);
+    }
+
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    sampler.setProjectPath("/music/Artists/Band/2026/TheEp/Songs/TheSong");
+    NahdXmlReader reader { data };
+    readToFirstStartElement(reader);
+    sampler.deserializeFromXml(reader);
+
+    // The pad found its file again, so nothing was reported missing
+    QVERIFY(sampler.missingSamplePaths().empty());
+    QVERIFY(sampler.sampleDuration(36) > 0.0);
 }
 
 void SamplerTest::test_chromaticMode_shouldRoundTripThroughXml()

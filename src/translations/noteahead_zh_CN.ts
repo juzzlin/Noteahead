@@ -8732,6 +8732,10 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
 <context>
     <name>noteahead::Application</name>
     <message>
+        <source>The project loaded, but these samples could not be read:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The project needs to be saved before audio can be recorded.</source>
         <translation>必须先保存项目才能录制音频。</translation>
     </message>

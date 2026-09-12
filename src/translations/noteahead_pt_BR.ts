@@ -8733,6 +8733,10 @@ Um apóstrofo marca a sílaba tônica: A&apos;merica</translation>
 <context>
     <name>noteahead::Application</name>
     <message>
+        <source>The project loaded, but these samples could not be read:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The project needs to be saved before audio can be recorded.</source>
         <translation>O projeto precisa ser salvo antes que o áudio possa ser gravado.</translation>
     </message>

@@ -117,6 +117,12 @@ private slots:
     void test_projectLoadMidiCcResetGlobal_shouldRestoreLoadedValues();
     void test_padMidiCc_shouldNotChangeAuthoredValue();
     void test_loadSample_relativePath_shouldWorkWithProjectPath();
+    void test_deserialize_missingSample_shouldKeepTheRestOfTheDevice();
+    void test_deserialize_missingSample_shouldReportWhatWasMissing();
+    void test_deserialize_missingSample_shouldKeepThePadForTheNextSave();
+    void test_deserialize_missingSample_reloaded_shouldForgetTheOldFailure();
+    void test_serialize_sampleOutsideTheProject_shouldStoreItRelativeToTheProject();
+    void test_serialize_sampleOutsideTheProject_shouldSurviveAReload();
     void test_processAudio_reusesBuffersWithoutLeaking();
     void test_processMidiNoteOn_retrigger_shouldFadeTheSoundingVoiceOut();
     void test_processMidiNoteOn_retrigger_fullVoicePool_shouldStillSound();

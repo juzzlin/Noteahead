@@ -1474,6 +1474,8 @@ void SamplerDevice::deserializeFromXml(ProjectReader & reader)
 {
     deserializeAttributesFromXml(reader);
 
+    m_missingSamplePaths.clear();
+
     while (reader.readNextStartElement()) {
         const auto name = reader.name();
         if (name == Constants::NahdXml::xmlKeyParameters()) {
@@ -1488,7 +1490,22 @@ void SamplerDevice::deserializeFromXml(ProjectReader & reader)
                     const auto note = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyNote());
                     const auto path = reader.attribute(Constants::NahdXml::xmlKeySamplePath()).toString();
                     if (note.has_value()) {
-                        loadSample(static_cast<uint8_t>(note.value()), path.toStdString());
+                        // A pad whose file cannot be read costs that pad and nothing more. Letting
+                        // this throw aborted the whole project load and left an empty song in its
+                        // place, so a single moved sample lost everything else with it.
+                        try {
+                            loadSample(static_cast<uint8_t>(note.value()), path.toStdString());
+                        } catch (const std::exception & e) {
+                            juzzlin::L(TAG).error() << e.what();
+                            m_missingSamplePaths.push_back(path.toStdString());
+                            // The pad is kept as a shell holding the path it wanted and the
+                            // settings that follow, so that saving the project does not quietly
+                            // drop a pad whose file merely happens to be missing today.
+                            std::lock_guard<std::recursive_mutex> lock { mutex() };
+                            auto shell = std::make_unique<Sample>();
+                            shell->filePath = path.toStdString();
+                            m_samples.at(note.value()) = std::move(shell);
+                        }
                         std::lock_guard<std::recursive_mutex> lock { mutex() };
                         if (const auto s = m_samples.at(note.value()).get(); s) {
                             // Manual dispatch so the nested per-pad InsertEffects rack is read rather than
@@ -1656,6 +1673,11 @@ bool SamplerDevice::clearAutomationInternal()
     }
 
     return changed;
+}
+
+const std::vector<std::string> & SamplerDevice::missingSamplePaths() const
+{
+    return m_missingSamplePaths;
 }
 
 void SamplerDevice::setProjectPath(const std::string & projectPath)

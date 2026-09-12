@@ -187,6 +187,10 @@ public:
 signals:
     void dataChanged();
 
+    //! Samples a project referenced but could not be read, by the path that was looked in. The
+    //! project itself loaded: this is what the pads are missing, not a failure to open the song.
+    void samplesMissing(QStringList paths);
+
 private:
     bool importDeviceSettingsFromXml(int slotIndex, const QString & xml);
 

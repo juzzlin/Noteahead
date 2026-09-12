@@ -8733,6 +8733,10 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
 <context>
     <name>noteahead::Application</name>
     <message>
+        <source>The project loaded, but these samples could not be read:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The project needs to be saved before audio can be recorded.</source>
         <translation>Il progetto deve essere salvato prima di poter registrare l&apos;audio.</translation>
     </message>

@@ -8733,6 +8733,10 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
 <context>
     <name>noteahead::Application</name>
     <message>
+        <source>The project loaded, but these samples could not be read:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The project needs to be saved before audio can be recorded.</source>
         <translation>Das Projekt muss gespeichert werden, bevor Audio aufgenommen werden kann.</translation>
     </message>

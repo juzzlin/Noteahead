@@ -6,8 +6,8 @@ Release date:
 New features:
 
 * Save your own presets for Synth and FM Synth
-  - Save preset... stores the panel under a name of your own, next to the
-    factory patches in the same dropdown, marked with a *
+  - Save stores the panel under a name of your own, next to the factory
+    patches in the same dropdown, marked with a *
   - Presets live in ~/.config/Noteahead/presets, one file each, so they can
     be copied between machines
 
@@ -26,6 +26,12 @@ New features:
     return, whether it sits in the send slot or in the chain
 
 Bug fixes:
+
+* A sample that cannot be read no longer loses the project
+  - Loading a project whose sample file had been moved or deleted discarded
+    the whole song and left an empty one in its place
+  - The project now loads, the pads that are missing their files are listed,
+    and those pads keep their settings so putting the file back is enough
 
 Other:
 

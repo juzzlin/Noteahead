@@ -8733,6 +8733,10 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
 <context>
     <name>noteahead::Application</name>
     <message>
+        <source>The project loaded, but these samples could not be read:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The project needs to be saved before audio can be recorded.</source>
         <translation>Projekti täytyy tallentaa ennen kuin ääntä voi nauhoittaa.</translation>
     </message>

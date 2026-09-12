@@ -8733,6 +8733,10 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
 <context>
     <name>noteahead::Application</name>
     <message>
+        <source>The project loaded, but these samples could not be read:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The project needs to be saved before audio can be recorded.</source>
         <translation>Het project moet worden opgeslagen voordat audio kan worden opgenomen.</translation>
     </message>
