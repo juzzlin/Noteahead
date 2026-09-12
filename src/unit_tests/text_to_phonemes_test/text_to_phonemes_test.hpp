@@ -41,6 +41,16 @@ private slots:
     void test_textToPhonemes_stressMark_shouldNotEatContractions_data();
     void test_textToPhonemes_stressMark_shouldNotEatContractions();
 
+    void test_textToPhonemes_singleLetter_shouldBeSpokenAsItsName_data();
+    void test_textToPhonemes_singleLetter_shouldBeSpokenAsItsName();
+    void test_textToPhonemes_singleLetter_shouldBeStressed();
+    void test_textToPhonemes_singleLetter_shouldBeOneSyllablePerLetter();
+    void test_textToPhonemes_lowercaseSingleLetter_shouldStayAWord_data();
+    void test_textToPhonemes_lowercaseSingleLetter_shouldStayAWord();
+    void test_textToPhonemes_sentenceInitialA_shouldStayTheArticle();
+    void test_textToPhonemes_sentenceInitialA_beforeAnotherLetter_shouldBeSpelled();
+    void test_textToPhonemes_letterNames_shouldNamePhonemesTheVoiceKnows();
+
     void test_textToPhonemes_affricates_shouldExpandToAStopAndAFricative();
 
     void test_textToPhonemes_doubledConsonant_shouldBeSpokenOnce_data();

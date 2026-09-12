@@ -5,6 +5,11 @@ Release date:
 
 New features:
 
+* Speech spells out single letters
+  - A lone capital is said by name: "A M" is "ay em", not a schwa and a hum
+  - The article "a" and a sentence-opening "A" are unchanged, unless another
+    letter follows
+
 * Presets for the EQ 8-Band Parametric
   - Seventeen starting points, one per source: master bus, vocal, guitar,
     kicks, snare, cymbals, piano, strings, pads and the synths

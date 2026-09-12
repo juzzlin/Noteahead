@@ -118,6 +118,45 @@ constexpr LexiconEntry FunctionWords[] {
     { "TWO", "T UW" },
 };
 
+//! What a letter is called when it is spoken as a letter rather than read as part of a word.
+//!
+//! A single letter is not a word the rules can read. Run through them, "M" is the bare nasal and
+//! "F" the bare fricative -- a hum and a hiss, both of them among the quietest sounds the voice
+//! makes, and neither of them a syllable. What a listener expects is the letter's *name*, which is
+//! a syllable built around a vowel: "em", "ef", "ay". So the letters are spelled here, once, rather
+//! than left to a rule set that is about spellings of words.
+//!
+//! Z is the American "zee". The British "zed" is the one place the two alphabets disagree, and the
+//! /.../ escape is the fix for a user who wants it.
+constexpr LexiconEntry LetterNames[] {
+    { "A", "EY" },
+    { "B", "B IY" },
+    { "C", "S IY" },
+    { "D", "D IY" },
+    { "E", "IY" },
+    { "F", "EH F" },
+    { "G", "JH IY" },
+    { "H", "EY CH" },
+    { "I", "AY" },
+    { "J", "JH EY" },
+    { "K", "K EY" },
+    { "L", "EH L" },
+    { "M", "EH M" },
+    { "N", "EH N" },
+    { "O", "OW" },
+    { "P", "P IY" },
+    { "Q", "K Y UW" },
+    { "R", "AA R" },
+    { "S", "EH S" },
+    { "T", "T IY" },
+    { "U", "Y UW" },
+    { "V", "V IY" },
+    { "W", "D AH B AX L Y UW" },
+    { "X", "EH K S" },
+    { "Y", "W AY" },
+    { "Z", "Z IY" },
+};
+
 //! Punctuation that is a pause, and the part of it that also ends a line.
 //!
 //! A line is a sentence, so it ends where a sentence does. The rest -- comma, semicolon, colon,
@@ -841,14 +880,57 @@ void markWordStress(PhonemeEventList & events, size_t firstEvent, size_t lastEve
     }
 }
 
+//! Whether the next word in @p text from @p pos is a single letter written as a capital.
+//!
+//! Case is what tells a letter being spelled apart from the two English words that are one letter
+//! long, because English writes those two a fixed way: the article is "a" and the pronoun is "I".
+//! A capital A is therefore the letter, save at the start of a sentence, which the caller handles;
+//! and I needs no handling at all, because the pronoun and the letter's name are the same sound.
+//!
+//! The scan steps over pause punctuation as well as spaces, so that "A, M" is the same run of
+//! letters that "A M" is. It is a lookahead only -- whether the letter it finds is itself spelled
+//! out is decided when the walk reaches it.
+bool isSpelledLetter(std::string_view text, size_t pos)
+{
+    while (pos < text.size() && (text[pos] == ' ' || PausePunctuation.find(text[pos]) != std::string_view::npos)) {
+        pos++;
+    }
+    if (pos >= text.size() || !std::isupper(static_cast<unsigned char>(text[pos]))) {
+        return false;
+    }
+    const size_t next = pos + 1;
+    return next >= text.size() || (!std::isalpha(static_cast<unsigned char>(text[next])) && !isApostrophe(text, next));
+}
+
 //! Runs one word, already uppercased and padded with a space either side, through the rules.
 //!
-//! Returns whether the word was read as a reduced function word rather than through the rules.
-bool appendWord(std::string_view padded, PhonemeEventList & events)
+//! With @p spellOut the word is one letter that the caller has decided is being spelled rather than
+//! read, and the letter's name is spoken in place of anything the rules would make of it.
+//!
+//! Returns whether the word was taken from a lexicon rather than read through the rules, which is
+//! also the answer to whether the stress pass has anything to do with it: a function word is
+//! unstressed by definition and a spelled letter is stressed here.
+bool appendWord(std::string_view padded, bool spellOut, PhonemeEventList & events)
 {
     const size_t firstEvent = events.size();
 
     const auto bare = padded.substr(1, padded.size() - 2);
+    if (spellOut) {
+        if (const auto entry = std::ranges::find(LetterNames, bare, &LexiconEntry::word); entry != std::ranges::end(LetterNames)) {
+            appendPhonemes(entry->phonemes, events, false);
+            // A letter being spelled out is being pointed at, so it takes the accent and keeps its
+            // vowel. Marked here because the stress pass works from a spelling, and the spelling of
+            // a letter name is not the letter.
+            for (size_t i = firstEvent; i < events.size(); i++) {
+                events[i].stressed = true;
+            }
+            if (events.size() > firstEvent) {
+                events[firstEvent].wordStart = true;
+            }
+            return true;
+        }
+    }
+
     if (const auto entry = std::ranges::find(FunctionWords, bare, &LexiconEntry::word); entry != std::ranges::end(FunctionWords)) {
         appendPhonemes(entry->phonemes, events, false);
         for (size_t i = firstEvent; i < events.size(); i++) {
@@ -1197,6 +1279,7 @@ PhonemeEventList textToPhonemes(std::string_view text)
             pos = std::min(end + 1, text.size());
         } else if (std::isalpha(character) || isApostrophe(text, pos)) {
             // Padded either side so the rules' word-boundary class needs no special case at the ends.
+            const size_t wordStart = pos;
             std::string word { ' ' };
             std::vector<size_t> marks;
             while (pos < text.size()) {
@@ -1226,8 +1309,15 @@ PhonemeEventList textToPhonemes(std::string_view text)
                 }
             }
 
+            // A single letter written as a capital is being spelled rather than read, with one
+            // exception: a sentence capitalizes its first word, so a line-initial "A" is the
+            // article. Unless what follows it is another letter -- a run of letters is a run of
+            // letters wherever it starts, which is what makes "A M" a time of day.
+            const bool sentenceInitialArticle = pendingLineStart && text[wordStart] == 'A' && !isSpelledLetter(text, pos);
+            const bool spellOut = !sentenceInitialArticle && isSpelledLetter(text, wordStart);
+
             const size_t before = events.size();
-            const bool reduced = appendWord(word, events);
+            const bool reduced = appendWord(word, spellOut, events);
             if (events.size() > before) {
                 spellings.push_back({ reduced ? std::string {} : word.substr(1, word.size() - 2), stress });
             }
