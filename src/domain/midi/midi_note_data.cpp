@@ -17,9 +17,10 @@
 
 namespace noteahead {
 
-MidiNoteData::MidiNoteData(uint8_t note, uint8_t velocity)
+MidiNoteData::MidiNoteData(uint8_t note, uint8_t velocity, std::optional<double> noteBeats)
   : m_note { note }
   , m_velocity { velocity }
+  , m_noteBeats { noteBeats }
 {
 }
 
@@ -31,6 +32,11 @@ uint8_t MidiNoteData::note() const
 uint8_t MidiNoteData::velocity() const
 {
     return m_velocity;
+}
+
+std::optional<double> MidiNoteData::noteBeats() const
+{
+    return m_noteBeats;
 }
 
 } // namespace noteahead

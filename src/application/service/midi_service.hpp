@@ -18,6 +18,7 @@
 
 #include <QObject>
 #include <QThread>
+#include <map>
 
 #include <chrono>
 #include <memory>
@@ -79,6 +80,12 @@ public:
     void stopNoteAt(InstrumentW instrument, MidiNoteDataCR data, std::chrono::steady_clock::time_point when);
     virtual Q_INVOKABLE void stopAllNotes(InstrumentW instrument);
     virtual Q_INVOKABLE void stopAllNotes();
+
+    //! Whether any internal device counts the notes it is given. \see DeviceService.
+    virtual bool anyDeviceWantsNoteIndexSeek() const;
+    //! Places each named port's device as though it had already been given that many notes.
+    using PortNoteCounts = std::map<QString, size_t>;
+    virtual Q_INVOKABLE void seekDevicesToNoteIndex(const PortNoteCounts & counts);
     using MidiCcDataCR = const MidiCcData &;
     Q_INVOKABLE void sendCcData(InstrumentW instrument, MidiCcDataCR data);
     //! Controller moves go the same way as the notes.

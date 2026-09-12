@@ -47,6 +47,12 @@ private slots:
     void test_textToPhonemes_doubledConsonant_shouldBeSpokenOnce();
     void test_textToPhonemes_doubledConsonant_acrossWords_shouldBeSpokenTwice();
 
+    void test_textToPhonemes_sentenceEnd_shouldStartALine_data();
+    void test_textToPhonemes_sentenceEnd_shouldStartALine();
+    void test_textToPhonemes_firstPhoneme_shouldStartALine();
+    void test_textToPhonemes_repeatedPunctuation_shouldStartOneLine();
+    void test_phonemeNames_perLine_shouldBreakAtEachLine();
+
     void test_textToPhonemes_unstressedVowel_shouldReduceToASchwa_data();
     void test_textToPhonemes_unstressedVowel_shouldReduceToASchwa();
     void test_textToPhonemes_unstressedVowel_shouldKeepItsQuality_data();

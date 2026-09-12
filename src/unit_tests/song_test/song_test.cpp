@@ -1590,6 +1590,86 @@ void SongTest::test_transposeSong_drumTrackSet_shouldNotTransposeDrumTrack()
     QCOMPARE(it1->newNoteData.note().value(), 61);
 }
 
+void SongTest::test_renderToEvents_noteOn_shouldCarryItsNoteOffTick()
+{
+    // A note's length in a tracker is the distance to whatever ends it, and only the rendered list
+    // knows where that landed. A device that has to fit something inside the note -- a spoken line
+    // -- needs it at the moment the note starts rather than when it ends.
+    Song song;
+    song.setBeatsPerMinute(120);
+    song.setLinesPerBeat(8);
+    song.setInstrument(0, std::make_shared<Instrument>("Instrument"));
+
+    NoteData noteOnData;
+    noteOnData.setAsNoteOn(60, 100);
+    song.setNoteDataAtPosition(noteOnData, { 0, 0, 0, 0, 0 });
+    NoteData noteOffData;
+    noteOffData.setAsNoteOff(60);
+    song.setNoteDataAtPosition(noteOffData, { 0, 0, 0, 8, 0 });
+
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
+    const auto noteOn = std::ranges::find_if(events, [](auto && event) {
+        const auto noteData = event->noteData();
+        return noteData && noteData->type() == NoteData::Type::NoteOn;
+    });
+    QVERIFY(noteOn != std::ranges::end(events));
+    QVERIFY((*noteOn)->noteOffTick().has_value());
+    QCOMPARE(*(*noteOn)->noteOffTick() - (*noteOn)->tick(), 8 * song.ticksPerLine());
+}
+
+void SongTest::test_renderToEvents_danglingNote_shouldStillCarryALength()
+{
+    // A note nothing ends is closed by the dangling-note pass at the end of the song, so every
+    // rendered note has a length. Nothing that reaches a device through a render is without one,
+    // and the length the device falls back on is for live play, which never comes through here.
+    Song song;
+    song.setInstrument(0, std::make_shared<Instrument>("Instrument"));
+    NoteData noteData;
+    noteData.setAsNoteOn(60, 100);
+    song.setNoteDataAtPosition(noteData, { 0, 0, 0, 0, 0 });
+
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
+    const auto noteOn = std::ranges::find_if(events, [](auto && event) {
+        const auto noteData = event->noteData();
+        return noteData && noteData->type() == NoteData::Type::NoteOn;
+    });
+    QVERIFY(noteOn != std::ranges::end(events));
+    QVERIFY((*noteOn)->noteOffTick().has_value());
+    QVERIFY(*(*noteOn)->noteOffTick() > (*noteOn)->tick());
+}
+
+void SongTest::test_countNoteOnsByPort_shouldCountPerPort()
+{
+    // What places a counting device when playback starts from the middle of a song: the notes it
+    // would already have been given by then, gathered by the port they were played through.
+    Song song;
+    const auto instrument1 = std::make_shared<Instrument>("PortA");
+    const auto instrument2 = std::make_shared<Instrument>("PortA");
+    const auto instrument3 = std::make_shared<Instrument>("PortB");
+    song.setInstrument(0, instrument1);
+    song.setInstrument(1, instrument2);
+    song.setInstrument(2, instrument3);
+
+    // Set through the song so that the note data gets stamped with the track it lands on, which is
+    // how the render knows which instrument -- and so which port -- played it.
+    const auto noteOnAt = [&song](const Position & position, uint8_t note) {
+        NoteData noteData;
+        noteData.setAsNoteOn(note, 100);
+        song.setNoteDataAtPosition(noteData, position);
+    };
+
+    // Two tracks sharing a port add up, because the device they reach is the one that counted them.
+    noteOnAt({ 0, 0, 0, 0, 0 }, 60);
+    noteOnAt({ 0, 0, 0, 4, 0 }, 62);
+    noteOnAt({ 0, 1, 0, 2, 0 }, 64);
+    noteOnAt({ 0, 2, 0, 0, 0 }, 65);
+
+    const auto events = song.renderToEvents(std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<SideChainService>(), 0);
+    const auto counts = Song::countNoteOnsByPort(events);
+    QCOMPARE(counts.at("PortA"), size_t { 3 });
+    QCOMPARE(counts.at("PortB"), size_t { 1 });
+}
+
 void SongTest::test_duration_skippedPattern_shouldReturnCorrectDuration()
 {
     Song song;

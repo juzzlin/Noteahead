@@ -49,6 +49,7 @@ class SpeechController : public DeviceController
     Q_PROPERTY(QString phrase READ phrase WRITE setPhrase NOTIFY phraseChanged)
     Q_PROPERTY(QString phrasePhonemes READ phrasePhonemes NOTIFY phraseChanged)
     Q_PROPERTY(int syllableCount READ syllableCount NOTIFY phraseChanged)
+    Q_PROPERTY(int lineCount READ lineCount NOTIFY phraseChanged)
 
 public:
     explicit SpeechController(std::shared_ptr<SpeechDevice> device, QObject * parent = nullptr);
@@ -100,6 +101,7 @@ public:
     QString phrasePhonemes() const;
 
     int syllableCount() const;
+    int lineCount() const;
 
     Q_INVOKABLE void requestSettings() override;
 

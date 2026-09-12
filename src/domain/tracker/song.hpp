@@ -193,6 +193,17 @@ public:
     EventList renderToEvents(AutomationServiceS automationService, SideChainServiceS sideChainService, size_t startPosition) const;
     EventList renderToEvents(AutomationServiceS automationService, SideChainServiceS sideChainService, size_t startPosition, size_t endPosition) const;
 
+    //! How many note-ons each port has seen in @p events, by the port the instrument plays through.
+    //!
+    //! For seeding a device that counts the notes it is given. Such a device holds a position the
+    //! song does not carry, so starting playback from the middle would leave it wherever the last
+    //! run left it; the player renders what comes before the start and says how far in that is.
+    //!
+    //! Takes a rendered list rather than rendering one, so that it is a counting function and
+    //! nothing more.
+    using PortNoteCounts = std::map<QString, size_t>;
+    static PortNoteCounts countNoteOnsByPort(const EventList & events);
+
     size_t beatsPerMinute() const;
     void setBeatsPerMinute(size_t bpm);
     size_t linesPerBeat() const;
@@ -262,6 +273,13 @@ private:
     EventList generateNoteOffs(EventListCR eventList) const;
     EventList generateMidiClockEvents(EventListCR eventList, size_t startTick, size_t endTick) const;
     EventList removeNonMappedNoteOffs(EventListCR events) const;
+    //! Writes each note-on's note-off tick onto it, so that a note's length is readable at the
+    //! moment it starts rather than only when it ends.
+    //!
+    //! Separate from generateNoteOffs(), which is where the pairing could also have gone, on
+    //! purpose: that function is carefully arranged about the auto note-off offset and the order
+    //! events land in, and it is on the path of every note in every song. This only reads.
+    EventList annotateNoteLengths(EventListCR events) const;
     EventList renderStartOfSong(size_t tick) const;
     EventList renderEndOfSong(EventListCR eventList, size_t tick) const;
 

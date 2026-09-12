@@ -40,6 +40,16 @@ private slots:
     void test_sequencer_stepMode_heldNote_shouldSustainTheFinalVowel();
     void test_sequencer_emptyPhrase_shouldNeverBecomeActive();
 
+    void test_sequencer_lineMode_shouldSpeakOneSentencePerTrigger();
+    void test_sequencer_lineMode_shouldWrapAtTheEndOfThePhrase();
+    void test_sequencer_lineMode_shouldLeaveTheTrailingSilenceOut();
+    void test_sequencer_lineMode_fitMode_shouldSpanTheNote();
+    void test_sequencer_lineMode_fitMode_withoutANote_shouldFallBackToLength();
+    void test_sequencer_lineMode_gridMode_shouldGiveEachSyllableOneDivision();
+    void test_sequencer_noteBeats_shouldNotReachTheOtherTriggerModes();
+    void test_sequencer_setCursor_shouldPlaceTheNextTrigger();
+    void test_sequencer_lineMode_heldNote_shouldNotSustain();
+
     void test_device_noteOn_shouldProduceAudio();
     void test_device_loudness_shouldMatchTheRestOfTheRack();
     void test_device_velocitySensitivity_shouldScaleTheLevel_data();
@@ -55,6 +65,10 @@ private slots:
     void test_device_vibratoDepth_shouldDefaultToOff();
     void test_device_voiceType_shouldRaiseTheFormants();
     void test_device_formantShift_shouldBeNeutralAtHalfTravel();
+
+    void test_device_lineCount_shouldCountSentences();
+    void test_device_noteIndexSeek_shouldBeWantedOnlyInLineMode();
+    void test_device_phrasePhonemes_shouldBreakPerLineOnlyInLineMode();
 
     void test_device_phrase_shouldCompileOnAssignment();
     void test_device_emptyPhrase_shouldStaySilent();

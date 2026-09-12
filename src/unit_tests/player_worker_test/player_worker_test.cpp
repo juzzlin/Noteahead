@@ -74,9 +74,12 @@ public:
         stopAllNotesCallCount++;
     }
 
-    void playNote(InstrumentW, MidiNoteDataCR) override
+    std::optional<double> lastNoteBeats;
+
+    void playNote(InstrumentW, MidiNoteDataCR data) override
     {
         playNoteCallCount++;
+        lastNoteBeats = data.noteBeats();
     }
 
     void stopNote(InstrumentW, MidiNoteDataCR) override
@@ -136,6 +139,66 @@ void PlayerWorkerTest::test_mixerChange_shouldStopNotes()
     // Assert: stopNote should be called for the active note on the muted track
     QCOMPARE(midiService->stopNoteCallCount, 1);
     QCOMPARE(midiService->stopAllNotesCallCount, 0);
+}
+
+//! A worker with one note-on on track 0, ready to be handed to test_handleEvent().
+PlayerWorker::EventList makeNoteOnEvents(const std::shared_ptr<Event> & event, MixerService & mixerService)
+{
+    mixerService.setTrackIndices({ 0 });
+    mixerService.setColumnIndices(0, { 0 });
+    return { event };
+}
+
+void PlayerWorkerTest::test_noteOn_shouldCarryTheNoteLengthInBeats()
+{
+    // A device that has to fit something inside the note -- a spoken line -- needs the length when
+    // the note starts. In beats rather than seconds, so that a tempo change while it sounds moves
+    // what was fitted inside it along with everything else.
+    const auto midiService { std::make_shared<MockMidiService>() };
+    const auto mixerService { std::make_shared<MixerService>() };
+    TestablePlayerWorker worker { midiService, mixerService, nullptr };
+
+    const auto instrument { std::make_shared<Instrument>("TestPort") };
+    instrument->setMidiAddress(MidiAddress { "TestPort", 0 });
+
+    NoteData noteData { 0, 0 };
+    noteData.setAsNoteOn(60, 100);
+    const auto event { std::make_shared<Event>(0, noteData) };
+    event->setInstrument(instrument);
+    // Four lines of six ticks is a beat, so two beats is forty-eight ticks.
+    event->setNoteOffTick(48);
+
+    const PlayerWorker::Timing timing { 120, 4, 6 };
+    worker.initialize(makeNoteOnEvents(event, *mixerService), timing);
+    worker.test_handleEvent(*event);
+
+    QCOMPARE(midiService->playNoteCallCount, 1);
+    QVERIFY(midiService->lastNoteBeats.has_value());
+    QVERIFY(std::abs(*midiService->lastNoteBeats - 2.0) < 1.0e-9);
+}
+
+void PlayerWorkerTest::test_noteOn_withoutANoteOffTick_shouldCarryNoLength()
+{
+    // Nothing says how long it lasts, so nothing is claimed. What reads the length falls back to
+    // whatever it would have done without one.
+    const auto midiService { std::make_shared<MockMidiService>() };
+    const auto mixerService { std::make_shared<MixerService>() };
+    TestablePlayerWorker worker { midiService, mixerService, nullptr };
+
+    const auto instrument { std::make_shared<Instrument>("TestPort") };
+    instrument->setMidiAddress(MidiAddress { "TestPort", 0 });
+
+    NoteData noteData { 0, 0 };
+    noteData.setAsNoteOn(60, 100);
+    const auto event { std::make_shared<Event>(0, noteData) };
+    event->setInstrument(instrument);
+
+    const PlayerWorker::Timing timing { 120, 4, 6 };
+    worker.initialize(makeNoteOnEvents(event, *mixerService), timing);
+    worker.test_handleEvent(*event);
+
+    QCOMPARE(midiService->playNoteCallCount, 1);
+    QVERIFY(!midiService->lastNoteBeats.has_value());
 }
 
 void PlayerWorkerTest::test_columnMuteBehavior_shouldNotStopAllNotes()

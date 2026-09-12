@@ -6491,6 +6491,10 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <translation>音素</translation>
     </message>
     <message>
+        <source>%1 line(s), %2 syllable(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>%1 syllable(s)</source>
         <translation>%1 个音节</translation>
     </message>
@@ -6514,12 +6518,20 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <translation>步进</translation>
     </message>
     <message>
+        <source>Line</source>
+        <translation type="unfinished">行</translation>
+    </message>
+    <message>
         <source>A note speaks the whole phrase.</source>
         <translation>一个音符说出整个乐句。</translation>
     </message>
     <message>
         <source>A note speaks the next syllable.</source>
         <translation>一个音符说出下一个音节。</translation>
+    </message>
+    <message>
+        <source>A note speaks the next line. A full stop, ! or ? starts a new one.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sync</source>
@@ -6548,6 +6560,10 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>Each syllable takes one Division.</source>
         <translation>每个音节占用一个 Division。</translation>
+    </message>
+    <message>
+        <source>Each line fills the note that speaks it.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Rate</source>

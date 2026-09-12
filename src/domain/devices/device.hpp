@@ -93,6 +93,26 @@ public:
     void setId(size_t id);
 
     virtual void processMidiNoteOn(uint8_t note, uint8_t velocity) = 0;
+
+    //! Whether this device counts the notes it is given, and so has a position the song does not
+    //! carry. Nothing does unless it says so, and the player skips the work of finding out when
+    //! nothing does.
+    virtual bool wantsNoteIndexSeek() const;
+
+    //! Places such a device as though it had already been given @p noteIndex notes.
+    //!
+    //! What makes a counting device survive being started from the middle of a song: the player
+    //! renders what comes before the start position, counts the notes this device would have had,
+    //! and says so here.
+    virtual void seekToNoteIndex(size_t noteIndex);
+
+    //! How long the note about to be started lasts, in beats.
+    //!
+    //! Said separately rather than as an argument to processMidiNoteOn() because almost nothing
+    //! wants it: a device that holds a note until its note-off has no use for knowing the length in
+    //! advance, and only one that has to fit something inside the note does. Set before the note-on
+    //! and read from noteBeats() while handling it.
+    void setNextNoteBeats(std::optional<double> beats);
     virtual void processMidiNoteOff(uint8_t note) = 0;
     //! Takes Expression itself and hands everything else to the device. Not virtual for the same
     //! reason as the list above: no device can miss the control by not implementing it.
@@ -136,6 +156,9 @@ public:
         uint8_t controller {};
         uint8_t programme {};
         uint8_t channel {};
+        //! How long the note lasts, in beats. Unused by every type but NoteOn, and unset whenever
+        //! the caller has no timeline to measure it against.
+        std::optional<double> noteBeats;
     };
 
     //! Queues an event to take effect at its own frame. Called off the audio thread.
@@ -322,6 +345,9 @@ signals:
     void sampleRateChanged();
 
 protected:
+    //! How long the note now being started lasts, in beats, or nothing when nobody said.
+    std::optional<double> noteBeats() const;
+
     //! The CCs this device offers, without the ones every device has. Empty unless overridden.
     virtual std::vector<MidiCcController> deviceMidiCcControllers() const;
     //! Everything processMidiCc() did not handle itself.
@@ -384,6 +410,7 @@ private:
     ClipDetector m_clipDetector;
 
     std::vector<ScheduledEvent> m_scheduledEvents;
+    std::optional<double> m_nextNoteBeats;
 
     mutable std::recursive_mutex m_mutex;
 };

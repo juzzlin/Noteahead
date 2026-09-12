@@ -120,6 +120,16 @@ void Event::setTick(size_t tick)
     m_tick = tick;
 }
 
+Event::TickOpt Event::noteOffTick() const
+{
+    return m_noteOffTick;
+}
+
+void Event::setNoteOffTick(size_t tick)
+{
+    m_noteOffTick = tick;
+}
+
 Event::Type Event::type() const
 {
     return m_type;

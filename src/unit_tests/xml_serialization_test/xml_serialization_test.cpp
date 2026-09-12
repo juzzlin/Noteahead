@@ -2224,7 +2224,7 @@ void XmlSerializationTest::test_toXmlFromXml_speechDevice_shouldLoadCorrectly()
     speech->setIntonation(0.55f);
     speech->setVibratoRate(0.45f);
     speech->setVibratoDepth(0.25f);
-    speech->setTriggerMode(1);
+    speech->setTriggerMode(2);
     speech->setSyncMode(2);
     speech->setSyncLength(12);
     speech->setSyncDivision(3);
@@ -2263,7 +2263,7 @@ void XmlSerializationTest::test_toXmlFromXml_speechDevice_shouldLoadCorrectly()
     QVERIFY(std::abs(restored->intonation() - 0.55f) < 0.001f);
     QVERIFY(std::abs(restored->vibratoRate() - 0.45f) < 0.001f);
     QVERIFY(std::abs(restored->vibratoDepth() - 0.25f) < 0.001f);
-    QCOMPARE(restored->triggerMode(), 1);
+    QCOMPARE(restored->triggerMode(), 2);
     QCOMPARE(restored->syncMode(), 2);
     QCOMPARE(restored->syncLength(), 12);
     QCOMPARE(restored->syncDivision(), 3);

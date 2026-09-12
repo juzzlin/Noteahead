@@ -83,14 +83,30 @@ void PlayerService::initializeWorker()
     m_playerWorkerThread.start(QThread::HighestPriority);
 }
 
+PlayerService::PortNoteCounts PlayerService::deviceSeek() const
+{
+    // A device that counts the notes it is given holds a position the song does not carry, so
+    // starting from the middle would leave it wherever the last run stopped -- the right notes with
+    // the wrong words under them. What comes before the start position is rendered a second time,
+    // purely to be counted.
+    //
+    // Behind the question rather than done always: nothing but a Speech device set to speak a line
+    // per note asks for this, and the render is not free.
+    if (!m_songPosition || !m_midiService->anyDeviceWantsNoteIndexSeek()) {
+        return {};
+    }
+    return Song::countNoteOnsByPort(m_song->renderToEvents(m_automationService, m_sideChainService, 0, m_songPosition));
+}
+
 void PlayerService::initializeWorkerWithSongData()
 {
     const PlayerWorker::Timing timing { m_song->beatsPerMinute(), m_song->linesPerBeat(), m_song->ticksPerLine() };
     m_playerWorker->setJackBpmSyncEnabled(m_settingsService->jackSyncEnabled() && m_settingsService->jackBpmSyncEnabled());
+    const auto seek = deviceSeek();
     if (m_playerWorker->isLooping()) {
-        m_playerWorker->initialize(m_song->renderToEvents(m_automationService, m_sideChainService, m_songPosition, m_songPosition + 1), timing);
+        m_playerWorker->initialize(m_song->renderToEvents(m_automationService, m_sideChainService, m_songPosition, m_songPosition + 1), timing, seek);
     } else {
-        m_playerWorker->initialize(m_song->renderToEvents(m_automationService, m_sideChainService, m_songPosition), timing);
+        m_playerWorker->initialize(m_song->renderToEvents(m_automationService, m_sideChainService, m_songPosition), timing, seek);
     }
 }
 

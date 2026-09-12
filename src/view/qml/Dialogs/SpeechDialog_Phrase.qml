@@ -95,7 +95,11 @@ ColumnLayout {
     }
 
     Label {
-        text: qsTr("%1 syllable(s)").arg(speechController.syllableCount)
+        // The line count only where lines mean something, so the readout says nothing new to
+        // anybody who is not using them.
+        text: speechController.triggerMode === 2
+            ? qsTr("%1 line(s), %2 syllable(s)").arg(speechController.lineCount).arg(speechController.syllableCount)
+            : qsTr("%1 syllable(s)").arg(speechController.syllableCount)
         color: "#999"
         font.pixelSize: 11
     }

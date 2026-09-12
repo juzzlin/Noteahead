@@ -111,7 +111,7 @@ SpeechDevice::SpeechDevice(std::string name)
     addParameter(Parameter(Constants::NahdXml::xmlKeyVibratoDepth().toStdString(), 0.0f, 0, 10000, 0, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), 1.0f, 0, 10000, 10000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.0f, 0, 10000, 0, 100));
-    addParameter(Parameter(Constants::NahdXml::xmlKeyTriggerMode().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyTriggerMode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete));
     addParameter(Parameter(Constants::NahdXml::xmlKeySyncMode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete));
     // In sixteenths, so a whole number of them is a musically meaningful length either way.
     addParameter(Parameter(Constants::NahdXml::xmlKeySyncLength().toStdString(), 16.0f, 1, 64, 16, 1, Parameter::Type::Discrete));
@@ -198,7 +198,7 @@ void SpeechDevice::setPhrase(const std::string & phrase)
 std::string SpeechDevice::phrasePhonemes() const
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
-    return phonemeNames(m_sequencer.phonemes());
+    return phonemeNames(m_sequencer.phonemes(), triggerModeEnum() == SpeechSequencer::TriggerMode::Line);
 }
 
 size_t SpeechDevice::syllableCursor() const
@@ -220,11 +220,17 @@ void SpeechDevice::handleNoteOn(uint8_t note, uint8_t velocity)
     m_pitch = -1.0;
 
     // A note arriving while one is already speaking re-pitches rather than restarts, in Phrase mode:
-    // that is what makes a held phrase singable across a melody. In Step mode every note is meant to
-    // fetch the next syllable, so it always triggers.
+    // that is what makes a held phrase singable across a melody. In Step and Line mode every note is
+    // meant to fetch the next syllable or line, so it always triggers.
+    const auto mode = triggerModeEnum();
     const bool retrigger = !m_noteHeld
       || m_sequencer.phoneme() == nullptr
-      || static_cast<SpeechSequencer::TriggerMode>(static_cast<int>(m_triggerMode)) == SpeechSequencer::TriggerMode::Step;
+      || mode == SpeechSequencer::TriggerMode::Step
+      || mode == SpeechSequencer::TriggerMode::Line;
+
+    // Only Line mode has anything to fit inside a note. Handed over before the trigger, because the
+    // durations for the whole line are worked out there and cannot be revised afterwards.
+    m_sequencer.setNoteBeats(mode == SpeechSequencer::TriggerMode::Line ? noteBeats() : std::nullopt);
 
     m_noteHeld = true;
 
@@ -311,6 +317,41 @@ void SpeechDevice::processMidiAllNotesOff()
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     m_noteHeld = false;
     m_sequencer.stop();
+
+    // Line mode rewinds with it, so that pressing play speaks the lyric from its first line rather
+    // than from wherever the last run was interrupted. PlayerService sends all-notes-off before it
+    // starts playing, which is what makes this the clean slate the player's seed then lands on.
+    //
+    // Gated on the mode because Step mode's cursor has always survived a stop, and a song written
+    // against that must keep doing what it did.
+    if (triggerModeEnum() == SpeechSequencer::TriggerMode::Line) {
+        m_sequencer.setCursor(0);
+    }
+}
+
+SpeechSequencer::TriggerMode SpeechDevice::triggerModeEnum() const
+{
+    return static_cast<SpeechSequencer::TriggerMode>(std::clamp(static_cast<int>(m_triggerMode), 0, 2));
+}
+
+bool SpeechDevice::wantsNoteIndexSeek() const
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    return triggerModeEnum() == SpeechSequencer::TriggerMode::Line;
+}
+
+void SpeechDevice::seekToNoteIndex(size_t noteIndex)
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    if (triggerModeEnum() == SpeechSequencer::TriggerMode::Line) {
+        m_sequencer.setCursor(noteIndex);
+    }
+}
+
+size_t SpeechDevice::lineCount() const
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    return m_sequencer.lineCount();
 }
 
 void SpeechDevice::syncParameters()
@@ -342,7 +383,7 @@ void SpeechDevice::syncParameters()
     m_syncLength = value(Constants::NahdXml::xmlKeySyncLength(), m_syncLength);
     m_syncDivision = value(Constants::NahdXml::xmlKeySyncDivision(), m_syncDivision);
 
-    m_sequencer.setTriggerMode(static_cast<SpeechSequencer::TriggerMode>(std::clamp(static_cast<int>(m_triggerMode), 0, 1)));
+    m_sequencer.setTriggerMode(static_cast<SpeechSequencer::TriggerMode>(std::clamp(static_cast<int>(m_triggerMode), 0, 2)));
     m_sequencer.setSyncMode(static_cast<SpeechSequencer::SyncMode>(std::clamp(static_cast<int>(m_syncMode), 0, 2)));
     m_sequencer.setRate(MinRate + RateRange * static_cast<double>(m_rate));
     // The lengths are given in sixteenths and the sequencer works in beats.

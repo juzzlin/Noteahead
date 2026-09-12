@@ -38,13 +38,13 @@ ColumnLayout {
     ColumnLayout {
         Label { text: qsTr("Trigger") }
         ComboBox {
-            model: [qsTr("Phrase"), qsTr("Step")]
+            model: [qsTr("Phrase"), qsTr("Step"), qsTr("Line")]
             currentIndex: speechController.triggerMode
             onActivated: i => speechController.triggerMode = i
             Layout.fillWidth: true
         }
         Label {
-            text: speechController.triggerMode === 0 ? qsTr("A note speaks the whole phrase.") : qsTr("A note speaks the next syllable.")
+            text: speechController.triggerMode === 0 ? qsTr("A note speaks the whole phrase.") : (speechController.triggerMode === 1 ? qsTr("A note speaks the next syllable.") : qsTr("A note speaks the next line. A full stop, ! or ? starts a new one."))
             color: "#999"
             font.pixelSize: 11
             wrapMode: Text.WordWrap
@@ -62,7 +62,7 @@ ColumnLayout {
             Layout.fillWidth: true
         }
         Label {
-            text: speechController.syncMode === 0 ? qsTr("Natural durations, set by Rate.") : (speechController.syncMode === 1 ? qsTr("The phrase is stretched to span Length.") : qsTr("Each syllable takes one Division."))
+            text: speechController.syncMode === 0 ? qsTr("Natural durations, set by Rate.") : (speechController.syncMode === 1 ? (speechController.triggerMode === 2 ? qsTr("Each line fills the note that speaks it.") : qsTr("The phrase is stretched to span Length.")) : qsTr("Each syllable takes one Division."))
             color: "#999"
             font.pixelSize: 11
             wrapMode: Text.WordWrap

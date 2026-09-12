@@ -17,21 +17,29 @@
 #define MIDI_NOTE_DATA_HPP
 
 #include <cstdint>
+#include <optional>
 
 namespace noteahead {
 
 class MidiNoteData
 {
 public:
-    MidiNoteData(uint8_t note, uint8_t velocity);
+    //! \param noteBeats How long the note lasts, in beats, where that is known.
+    //!
+    //! Known when the song is playing, because the note-off is already in the rendered event list
+    //! by then, and not known when somebody presses a key. Defaulted for that reason: the callers
+    //! that have no timeline do not have to say so.
+    MidiNoteData(uint8_t note, uint8_t velocity, std::optional<double> noteBeats = std::nullopt);
     MidiNoteData() = default;
 
     uint8_t note() const;
     uint8_t velocity() const;
+    std::optional<double> noteBeats() const;
 
 private:
     uint8_t m_note = 0;
     uint8_t m_velocity = 0;
+    std::optional<double> m_noteBeats;
 };
 
 } // namespace noteahead

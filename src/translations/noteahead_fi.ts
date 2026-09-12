@@ -6492,6 +6492,10 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <translation>Foneemit</translation>
     </message>
     <message>
+        <source>%1 line(s), %2 syllable(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>%1 syllable(s)</source>
         <translation>%1 tavua</translation>
     </message>
@@ -6515,12 +6519,20 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <translation>Askel</translation>
     </message>
     <message>
+        <source>Line</source>
+        <translation type="unfinished">Rivi</translation>
+    </message>
+    <message>
         <source>A note speaks the whole phrase.</source>
         <translation>Yksi nuotti puhuu koko fraasin.</translation>
     </message>
     <message>
         <source>A note speaks the next syllable.</source>
         <translation>Yksi nuotti puhuu seuraavan tavun.</translation>
+    </message>
+    <message>
+        <source>A note speaks the next line. A full stop, ! or ? starts a new one.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sync</source>
@@ -6549,6 +6561,10 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     <message>
         <source>Each syllable takes one Division.</source>
         <translation>Kukin tavu vie yhden Divisionin.</translation>
+    </message>
+    <message>
+        <source>Each line fills the note that speaks it.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Rate</source>

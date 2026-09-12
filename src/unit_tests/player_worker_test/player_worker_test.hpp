@@ -25,6 +25,9 @@ class PlayerWorkerTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_noteOn_shouldCarryTheNoteLengthInBeats();
+    void test_noteOn_withoutANoteOffTick_shouldCarryNoLength();
+
     void test_columnMuteBehavior_shouldNotStopAllNotes();
     void test_trackMuteBehavior_shouldStopAllNotes();
     void test_playback_shouldSendMidiEvents();

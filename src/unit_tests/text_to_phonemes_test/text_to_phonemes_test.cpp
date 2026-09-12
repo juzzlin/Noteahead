@@ -53,6 +53,21 @@ QString divided(const std::string & text)
     return marks;
 }
 
+//! The phonemes with a '/' before each line start, so a test can state where the lines fall.
+QString lined(const std::string & text)
+{
+    QString marks;
+    for (auto && event : textToPhonemes(text)) {
+        if (event.lineStart) {
+            marks += "/";
+        } else if (!marks.isEmpty()) {
+            marks += " ";
+        }
+        marks += QString::fromStdString(std::string { event.spec->name });
+    }
+    return marks;
+}
+
 } // namespace
 
 void TextToPhonemesTest::test_textToPhonemes_ordinaryWords_shouldReadCorrectly_data()
@@ -394,6 +409,56 @@ void TextToPhonemesTest::test_textToPhonemes_stressMark_shouldMoveTheReduction()
     // vowels too -- which is most of what a user reaches for it to fix.
     QCOMPARE(spoken("america"), QString { "AE M EH R IH K AX" });
     QCOMPARE(spoken("A'merica"), QString { "AX M EH R IH K AX" });
+}
+
+void TextToPhonemesTest::test_textToPhonemes_sentenceEnd_shouldStartALine_data()
+{
+    QTest::addColumn<QString>("text");
+    QTest::addColumn<QString>("lines");
+
+    // A line is a sentence, so it ends where a sentence does. The mark still leaves its pause
+    // behind, and that pause belongs to the line that just ended rather than the one beginning.
+    QTest::newRow("full stop") << "hi. go" << "/HH IH _/G OW";
+    QTest::newRow("exclamation") << "hi! go" << "/HH IH _/G OW";
+    QTest::newRow("question") << "hi? go" << "/HH IH _/G OW";
+
+    // The rest are pauses inside a line, which is the only reason the two sets differ.
+    QTest::newRow("comma") << "hi, go" << "/HH IH _ G OW";
+    QTest::newRow("semicolon") << "hi; go" << "/HH IH _ G OW";
+    QTest::newRow("colon") << "hi: go" << "/HH IH _ G OW";
+    QTest::newRow("dash") << "hi- go" << "/HH IH _ G OW";
+}
+
+void TextToPhonemesTest::test_textToPhonemes_sentenceEnd_shouldStartALine()
+{
+    QFETCH(QString, text);
+    QFETCH(QString, lines);
+
+    QCOMPARE(lined(text.toStdString()), lines);
+}
+
+void TextToPhonemesTest::test_textToPhonemes_firstPhoneme_shouldStartALine()
+{
+    // Or a phrase with no punctuation in it would have no lines at all, and Line mode nothing to
+    // speak.
+    const auto events = textToPhonemes("hello world");
+    QVERIFY(!events.empty());
+    QVERIFY(events.front().lineStart);
+    QCOMPARE(std::ranges::count(events, true, &PhonemeEvent::lineStart), 1);
+}
+
+void TextToPhonemesTest::test_textToPhonemes_repeatedPunctuation_shouldStartOneLine()
+{
+    // A run of marks is one boundary, not three. The line opens on the first thing actually spoken
+    // after it, because a silence is the pause that closed the line before.
+    QCOMPARE(lined("hi... go"), QString { "/HH IH _ _ _/G OW" });
+}
+
+void TextToPhonemesTest::test_phonemeNames_perLine_shouldBreakAtEachLine()
+{
+    const auto events = textToPhonemes("hi. go");
+    QCOMPARE(QString::fromStdString(phonemeNames(events)), QString { "HH IH  _  G OW" });
+    QCOMPARE(QString::fromStdString(phonemeNames(events, true)), QString { "HH IH  _\nG OW" });
 }
 
 void TextToPhonemesTest::test_textToPhonemes_escape_shouldBypassTheRules()

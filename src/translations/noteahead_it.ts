@@ -6492,6 +6492,10 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
         <translation>Fonemi</translation>
     </message>
     <message>
+        <source>%1 line(s), %2 syllable(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>%1 syllable(s)</source>
         <translation>%1 sillaba/e</translation>
     </message>
@@ -6515,12 +6519,20 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
         <translation>Passo</translation>
     </message>
     <message>
+        <source>Line</source>
+        <translation type="unfinished">Riga</translation>
+    </message>
+    <message>
         <source>A note speaks the whole phrase.</source>
         <translation>Una nota pronuncia l&apos;intera frase.</translation>
     </message>
     <message>
         <source>A note speaks the next syllable.</source>
         <translation>Una nota pronuncia la sillaba successiva.</translation>
+    </message>
+    <message>
+        <source>A note speaks the next line. A full stop, ! or ? starts a new one.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sync</source>
@@ -6549,6 +6561,10 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
     <message>
         <source>Each syllable takes one Division.</source>
         <translation>Ogni sillaba occupa una Division.</translation>
+    </message>
+    <message>
+        <source>Each line fills the note that speaks it.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Rate</source>

@@ -18,6 +18,7 @@
 
 #include <QObject>
 #include <QThread>
+#include <map>
 #include <memory>
 
 namespace noteahead {
@@ -87,6 +88,9 @@ signals:
 private:
     void initializeWorker();
     void initializeWorkerWithSongData();
+    //! Where each port's counting device belongs when playback starts from m_songPosition.
+    using PortNoteCounts = std::map<QString, size_t>;
+    PortNoteCounts deviceSeek() const;
 
     void startWorker();
     void stopWorker();

@@ -6492,6 +6492,10 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
         <translation>Phoneme</translation>
     </message>
     <message>
+        <source>%1 line(s), %2 syllable(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>%1 syllable(s)</source>
         <translation>%1 Silbe(n)</translation>
     </message>
@@ -6515,12 +6519,20 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
         <translation>Schritt</translation>
     </message>
     <message>
+        <source>Line</source>
+        <translation type="unfinished">Zeile</translation>
+    </message>
+    <message>
         <source>A note speaks the whole phrase.</source>
         <translation>Eine Note spricht die ganze Phrase.</translation>
     </message>
     <message>
         <source>A note speaks the next syllable.</source>
         <translation>Eine Note spricht die nächste Silbe.</translation>
+    </message>
+    <message>
+        <source>A note speaks the next line. A full stop, ! or ? starts a new one.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sync</source>
@@ -6549,6 +6561,10 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
     <message>
         <source>Each syllable takes one Division.</source>
         <translation>Jede Silbe nimmt eine Division ein.</translation>
+    </message>
+    <message>
+        <source>Each line fills the note that speaks it.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Rate</source>

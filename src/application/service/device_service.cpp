@@ -293,9 +293,10 @@ bool DeviceService::isInternalDevice(const QString & portName) const
     return portName.startsWith(m_internalDevicePortPrefix);
 }
 
-void DeviceService::processMidiNoteOn(const QString & portName, uint8_t note, uint8_t velocity)
+void DeviceService::processMidiNoteOn(const QString & portName, uint8_t note, uint8_t velocity, std::optional<double> noteBeats)
 {
     if (const auto dev = deviceForPort(portName); dev) {
+        dev->setNextNoteBeats(noteBeats);
         dev->processMidiNoteOn(note, velocity);
     }
 }
@@ -339,7 +340,7 @@ std::optional<std::chrono::steady_clock::duration> DeviceService::scheduleLookah
     return std::chrono::duration_cast<std::chrono::steady_clock::duration>(std::chrono::nanoseconds { needed + margin });
 }
 
-void DeviceService::scheduleMidiNoteOn(const QString & portName, uint8_t note, uint8_t velocity, uint64_t frame)
+void DeviceService::scheduleMidiNoteOn(const QString & portName, uint8_t note, uint8_t velocity, uint64_t frame, std::optional<double> noteBeats)
 {
     if (const auto dev = deviceForPort(portName); dev) {
         Device::ScheduledEvent event;
@@ -347,6 +348,7 @@ void DeviceService::scheduleMidiNoteOn(const QString & portName, uint8_t note, u
         event.frame = frame;
         event.note = note;
         event.velocity = velocity;
+        event.noteBeats = noteBeats;
         dev->scheduleMidiEvent(event);
     }
 }
@@ -438,6 +440,23 @@ void DeviceService::processMidiAllNotesOff()
         if (const auto dev = device(name)) {
             dev->processMidiAllNotesOff();
         }
+    }
+}
+
+bool DeviceService::anyWantsNoteIndexSeek() const
+{
+    for (const auto & name : internalDeviceNames()) {
+        if (const auto dev = device(name); dev && dev->wantsNoteIndexSeek()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void DeviceService::seekToNoteIndex(const QString & portName, size_t noteIndex)
+{
+    if (const auto dev = deviceForPort(portName); dev) {
+        dev->seekToNoteIndex(noteIndex);
     }
 }
 

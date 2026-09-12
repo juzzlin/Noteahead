@@ -6492,6 +6492,10 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
         <translation>Fonemen</translation>
     </message>
     <message>
+        <source>%1 line(s), %2 syllable(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>%1 syllable(s)</source>
         <translation>%1 lettergreep/-grepen</translation>
     </message>
@@ -6515,12 +6519,20 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
         <translation>Stap</translation>
     </message>
     <message>
+        <source>Line</source>
+        <translation type="unfinished">Regel</translation>
+    </message>
+    <message>
         <source>A note speaks the whole phrase.</source>
         <translation>Eén noot spreekt de hele frase uit.</translation>
     </message>
     <message>
         <source>A note speaks the next syllable.</source>
         <translation>Eén noot spreekt de volgende lettergreep uit.</translation>
+    </message>
+    <message>
+        <source>A note speaks the next line. A full stop, ! or ? starts a new one.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sync</source>
@@ -6549,6 +6561,10 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     <message>
         <source>Each syllable takes one Division.</source>
         <translation>Elke lettergreep neemt één Division in.</translation>
+    </message>
+    <message>
+        <source>Each line fills the note that speaks it.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Rate</source>

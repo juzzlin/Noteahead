@@ -19,6 +19,7 @@
 #include "text_to_phonemes.hpp"
 
 #include <cstddef>
+#include <optional>
 #include <vector>
 
 namespace noteahead {
@@ -38,7 +39,12 @@ public:
         Phrase = 0,
         //! A note speaks the next syllable. The tracker-native one: write a melody and the words
         //! land on its notes.
-        Step = 1
+        Step = 1,
+        //! A note speaks the next sentence, so one device carries a whole lyric.
+        //!
+        //! Appended rather than slotted in beside Phrase, where it belongs by size: the value is
+        //! written into every project that uses the device, so the order is not free to change.
+        Line = 2
     };
 
     enum class SyncMode
@@ -67,6 +73,29 @@ public:
     void setLengthBeats(double beats);
     //! Beats one syllable occupies in Grid mode.
     void setDivisionBeats(double beats);
+
+    //! How long the note that fired this utterance lasts, in beats, when the player knows.
+    //!
+    //! What Fit spans in Line mode, in place of the one Length every utterance would otherwise
+    //! share. A lyric's lines are not the same length as each other, so a single setting either
+    //! races the long ones or drawls the short ones; the note is already the right length, and it
+    //! is the thing the pattern shows.
+    //!
+    //! In beats rather than seconds so that a tempo change mid-line still lands: beatFrames() reads
+    //! the tempo that is in effect, which is what the recompute in setBpm() relies on.
+    //!
+    //! Nothing without it: Length is what Fit falls back to when a note carries no length. Every
+    //! note that reaches a device through a render has one, because the render closes even the
+    //! notes nothing ends, so what falls back is live play -- a key held on a keyboard has no
+    //! length until it is let go of, by which time the durations have long been decided.
+    void setNoteBeats(std::optional<double> beats);
+
+    //! Places the cursor at the utterance a given number of notes into the phrase.
+    //!
+    //! A cursor is state the song does not carry, so starting from the middle of a song would
+    //! otherwise speak the wrong line under the right note. The player counts the notes that come
+    //! before where it is starting and says so here.
+    void setCursor(size_t noteIndex);
 
     //! Note on. Phrase mode rewinds to the start; Step mode speaks the syllable under the cursor
     //! and moves the cursor on, wrapping at the end of the phrase.
@@ -101,6 +130,10 @@ public:
     size_t syllableCursor() const;
     size_t syllableCount() const;
 
+    //! Which line a Line-mode note would speak next.
+    size_t lineCursor() const;
+    size_t lineCount() const;
+
 private:
     void beginUtterance(size_t from, size_t to);
     void computeDurations(size_t from, size_t to);
@@ -109,6 +142,13 @@ private:
     double beatFrames() const;
     //! Whether the current phoneme is the one a held note sustains.
     bool sustainsCurrent() const;
+    //! The utterance starting at @p from, with any trailing silence left out of it.
+    //!
+    //! The pause a full stop leaves behind belongs between the lines rather than inside one. Left
+    //! in, Grid spends a whole division on it -- a lone silence has no vowel to absorb the slack,
+    //! so it takes a slot of its own -- and Fit squeezes the words to make room for it. The gap
+    //! before the next line is the note's own, which the instrument's note-off offset already sets.
+    size_t trimTrailingSilence(size_t from, size_t to) const;
 
     double m_sampleRate { 48000.0 };
     double m_bpm { 120.0 };
@@ -116,6 +156,8 @@ private:
     PhonemeEventList m_phonemes;
     //! Indices of the syllable starts, plus nothing else. Step mode walks this.
     std::vector<size_t> m_syllableStarts;
+    //! The same for the sentence starts, which Line mode walks.
+    std::vector<size_t> m_lineStarts;
     //! Frames each phoneme lasts. Sized with the phrase so that starting an utterance, which
     //! happens on the audio thread, never allocates.
     std::vector<size_t> m_durations;
@@ -125,6 +167,7 @@ private:
     double m_rate { 1.0 };
     double m_lengthBeats { 4.0 };
     double m_divisionBeats { 0.5 };
+    std::optional<double> m_noteBeats;
 
     size_t m_start { 0 };
     size_t m_index { 0 };
@@ -134,6 +177,9 @@ private:
     size_t m_utteranceFrame { 0 };
     size_t m_utteranceFrames { 0 };
     size_t m_syllableCursor { 0 };
+    //! Kept apart from the syllable cursor rather than shared, so that nothing about Step mode
+    //! moves when a phrase is written with sentences in it.
+    size_t m_lineCursor { 0 };
 
     bool m_active { false };
     bool m_held { false };

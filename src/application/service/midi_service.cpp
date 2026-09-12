@@ -191,7 +191,7 @@ void MidiService::playNote(InstrumentW instrument, MidiNoteDataCR data)
     if (const auto instr = instrument.lock()) {
         const auto portName = instr->midiAddress().portName();
         if (m_deviceService && m_deviceService->isInternalDevice(portName)) {
-            m_deviceService->processMidiNoteOn(portName, data.note(), data.velocity());
+            m_deviceService->processMidiNoteOn(portName, data.note(), data.velocity(), data.noteBeats());
         } else {
             m_outputWorker->playNote(portName, instr->midiAddress().channel(), data.note(), data.velocity());
         }
@@ -224,7 +224,7 @@ void MidiService::playNoteAt(InstrumentW instrument, MidiNoteDataCR data, std::c
         const auto portName = instr->midiAddress().portName();
         if (m_deviceService->isInternalDevice(portName)) {
             if (const auto frame = m_deviceService->frameForTime(when); frame) {
-                m_deviceService->scheduleMidiNoteOn(portName, data.note(), data.velocity(), *frame);
+                m_deviceService->scheduleMidiNoteOn(portName, data.note(), data.velocity(), *frame, data.noteBeats());
                 return;
             }
         }
@@ -296,6 +296,26 @@ void MidiService::stopAllNotes(InstrumentW instrument)
         } else {
             m_outputWorker->stopAllNotes(portName, instr->midiAddress().channel());
         }
+    }
+}
+
+bool MidiService::anyDeviceWantsNoteIndexSeek() const
+{
+    return m_deviceService && m_deviceService->anyWantsNoteIndexSeek();
+}
+
+void MidiService::seekDevicesToNoteIndex(const PortNoteCounts & counts)
+{
+    if (!m_deviceService) {
+        return;
+    }
+    // Every internal device, not only the ports that carried a note: one that comes before the
+    // start position without any notes of its own belongs at the beginning, and saying nothing
+    // would leave it wherever it was.
+    for (auto && name : m_deviceService->internalDeviceNames()) {
+        const auto portName = QString::fromStdString(name);
+        const auto it = counts.find(portName);
+        m_deviceService->seekToNoteIndex(portName, it != counts.end() ? it->second : 0);
     }
 }
 

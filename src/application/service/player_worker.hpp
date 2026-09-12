@@ -61,7 +61,11 @@ public:
 
     ~PlayerWorker() override;
 
-    void initialize(const EventList & events, const Timing & timing);
+    //! \param deviceSeek Where each port's device belongs when this timeline begins, for a device
+    //! that counts the notes it is given. Applied when play starts and again on every loop, so a
+    //! looping pattern says the same thing every time round rather than drifting through a lyric.
+    using PortNoteCounts = std::map<QString, size_t>;
+    void initialize(const EventList & events, const Timing & timing, const PortNoteCounts & deviceSeek = {});
 
     Q_INVOKABLE void play();
     Q_INVOKABLE void stop();
@@ -85,6 +89,10 @@ private:
     void setIsPlaying(bool isPlaying);
 
     void stopAllNotes();
+    //! How long @p event's note lasts, in beats, where the render paired it with a note-off.
+    std::optional<double> noteBeatsOf(const Event & event) const;
+    //! Puts the counting devices back where this timeline begins.
+    void seekDevices();
     void stopTransport();
 
     MidiServiceS m_midiService;
@@ -95,6 +103,7 @@ private:
 
     using EventMap = std::map<quint64, EventList>;
     EventMap m_eventMap;
+    PortNoteCounts m_deviceSeek;
 
     using InstrumentS = std::shared_ptr<Instrument>;
     std::set<InstrumentS> m_allInstruments;

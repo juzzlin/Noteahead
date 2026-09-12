@@ -240,6 +240,9 @@ void SpeechController::setTriggerMode(int value)
     if (m_device) {
         m_device->setTriggerMode(value);
         emit triggerModeChanged();
+        // The phoneme readout breaks per line in Line mode and not otherwise, and the count beneath
+        // it says a different thing there, so both follow the mode as well as the phrase.
+        emit phraseChanged();
     }
 }
 
@@ -303,6 +306,11 @@ QString SpeechController::phrasePhonemes() const
 int SpeechController::syllableCount() const
 {
     return m_device ? static_cast<int>(m_device->syllableCount()) : 0;
+}
+
+int SpeechController::lineCount() const
+{
+    return m_device ? static_cast<int>(m_device->lineCount()) : 0;
 }
 
 void SpeechController::requestSettings()

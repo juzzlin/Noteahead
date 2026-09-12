@@ -61,6 +61,9 @@ public:
     void processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t channel) override;
     void processMidiAllNotesOff() override;
 
+    bool wantsNoteIndexSeek() const override;
+    void seekToNoteIndex(size_t noteIndex) override;
+
     void processAudio(AudioContext & context) override;
     bool hasActiveAudio() const override;
 
@@ -117,6 +120,9 @@ public:
     size_t syllableCursor() const;
     size_t syllableCount() const;
 
+    //! How many lines the phrase divides into. One unless it holds a full stop.
+    size_t lineCount() const;
+
 protected:
     void syncParameters() override;
 
@@ -124,6 +130,9 @@ private:
     void handleNoteOn(uint8_t note, uint8_t velocity);
     void handleNoteOff(uint8_t note);
     void compilePhrase();
+    //! The trigger mode as the sequencer's enum, clamped to what this build knows. A project
+    //! written by a later version can carry a value this one has no mode for.
+    SpeechSequencer::TriggerMode triggerModeEnum() const;
     //! Fundamental the contour asks for: the note, the declination and the stress accent. What the
     //! voice is actually given is this smoothed and fluttered.
     double currentFrequency() const;

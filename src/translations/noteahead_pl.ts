@@ -6493,6 +6493,10 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <translation>Fonemy</translation>
     </message>
     <message>
+        <source>%1 line(s), %2 syllable(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>%1 syllable(s)</source>
         <translation>%1 sylab(y)</translation>
     </message>
@@ -6516,12 +6520,20 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <translation>Krok</translation>
     </message>
     <message>
+        <source>Line</source>
+        <translation type="unfinished">Wiersz</translation>
+    </message>
+    <message>
         <source>A note speaks the whole phrase.</source>
         <translation>Jedna nuta wypowiada całą frazę.</translation>
     </message>
     <message>
         <source>A note speaks the next syllable.</source>
         <translation>Jedna nuta wypowiada następną sylabę.</translation>
+    </message>
+    <message>
+        <source>A note speaks the next line. A full stop, ! or ? starts a new one.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sync</source>
@@ -6550,6 +6562,10 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     <message>
         <source>Each syllable takes one Division.</source>
         <translation>Każda sylaba zajmuje jedną Division.</translation>
+    </message>
+    <message>
+        <source>Each line fills the note that speaks it.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Rate</source>

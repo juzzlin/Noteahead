@@ -6492,6 +6492,10 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
         <translation>Phonèmes</translation>
     </message>
     <message>
+        <source>%1 line(s), %2 syllable(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>%1 syllable(s)</source>
         <translation>%1 syllabe(s)</translation>
     </message>
@@ -6515,12 +6519,20 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
         <translation>Pas</translation>
     </message>
     <message>
+        <source>Line</source>
+        <translation type="unfinished">Ligne</translation>
+    </message>
+    <message>
         <source>A note speaks the whole phrase.</source>
         <translation>Une note prononce toute la phrase.</translation>
     </message>
     <message>
         <source>A note speaks the next syllable.</source>
         <translation>Une note prononce la syllabe suivante.</translation>
+    </message>
+    <message>
+        <source>A note speaks the next line. A full stop, ! or ? starts a new one.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sync</source>
@@ -6549,6 +6561,10 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
     <message>
         <source>Each syllable takes one Division.</source>
         <translation>Chaque syllabe occupe une Division.</translation>
+    </message>
+    <message>
+        <source>Each line fills the note that speaks it.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Rate</source>

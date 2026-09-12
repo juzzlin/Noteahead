@@ -62,15 +62,23 @@ void SpeechSequencer::setPhonemes(PhonemeEventList phonemes)
     m_durations.assign(m_phonemes.size(), 0);
 
     m_syllableStarts.clear();
+    m_lineStarts.clear();
     for (size_t i = 0; i < m_phonemes.size(); i++) {
         if (m_phonemes[i].syllableStart) {
             m_syllableStarts.push_back(i);
         }
+        if (m_phonemes[i].lineStart) {
+            m_lineStarts.push_back(i);
+        }
     }
     // Anything before the first marked syllable still has to be spoken, so the first utterance
-    // starts at the beginning of the phrase whether or not a mark landed there.
+    // starts at the beginning of the phrase whether or not a mark landed there. The same for the
+    // lines, which a phrase of bare punctuation can leave without one.
     if (!m_phonemes.empty() && (m_syllableStarts.empty() || m_syllableStarts.front())) {
         m_syllableStarts.insert(m_syllableStarts.begin(), 0);
+    }
+    if (!m_phonemes.empty() && (m_lineStarts.empty() || m_lineStarts.front())) {
+        m_lineStarts.insert(m_lineStarts.begin(), 0);
     }
 
     reset();
@@ -106,6 +114,18 @@ void SpeechSequencer::setDivisionBeats(double beats)
     m_divisionBeats = std::max(0.05, beats);
 }
 
+void SpeechSequencer::setNoteBeats(std::optional<double> beats)
+{
+    m_noteBeats = beats.has_value() ? std::optional { std::max(0.05, *beats) } : std::nullopt;
+}
+
+void SpeechSequencer::setCursor(size_t noteIndex)
+{
+    // Against each mode's own count, so the same number seeds whichever of them is in effect.
+    m_syllableCursor = m_syllableStarts.empty() ? 0 : noteIndex % m_syllableStarts.size();
+    m_lineCursor = m_lineStarts.empty() ? 0 : noteIndex % m_lineStarts.size();
+}
+
 double SpeechSequencer::beatFrames() const
 {
     return 60.0 / m_bpm * m_sampleRate;
@@ -137,7 +157,11 @@ void SpeechSequencer::computeDurations(size_t from, size_t to)
         for (size_t i = from; i < to; i++) {
             nominalTotal += static_cast<double>(nominalFrames(m_phonemes[i]));
         }
-        const double target = m_lengthBeats * beatFrames();
+        // Line mode spans the note that fired it. Every other mode spans the one Length they
+        // share, which is right when there is one utterance and wrong when there are several of
+        // different lengths.
+        const bool followsNote = m_triggerMode == TriggerMode::Line && m_noteBeats.has_value();
+        const double target = (followsNote ? *m_noteBeats : m_lengthBeats) * beatFrames();
         const double scale = nominalTotal > 0.0 ? target / nominalTotal : 1.0;
         for (size_t i = from; i < to; i++) {
             m_durations[i] = clampDuration(nominalFrames(m_phonemes[i]) * scale);
@@ -193,6 +217,15 @@ void SpeechSequencer::computeDurations(size_t from, size_t to)
     }
 }
 
+size_t SpeechSequencer::trimTrailingSilence(size_t from, size_t to) const
+{
+    while (to > from && m_phonemes[to - 1].spec->type == PhonemeType::Silence) {
+        to--;
+    }
+    // A line of nothing but silence is still a line, and a note spent on it has to do something.
+    return to > from ? to : to + 1;
+}
+
 void SpeechSequencer::beginUtterance(size_t from, size_t to)
 {
     if (from >= to || to > m_phonemes.size()) {
@@ -226,6 +259,19 @@ void SpeechSequencer::trigger()
 
     if (m_triggerMode == TriggerMode::Phrase) {
         beginUtterance(0, m_phonemes.size());
+        return;
+    }
+
+    if (m_triggerMode == TriggerMode::Line) {
+        if (m_lineStarts.empty()) {
+            m_active = false;
+            return;
+        }
+        const size_t cursor = m_lineCursor % m_lineStarts.size();
+        const size_t from = m_lineStarts[cursor];
+        const size_t to = cursor + 1 < m_lineStarts.size() ? m_lineStarts[cursor + 1] : m_phonemes.size();
+        m_lineCursor = (cursor + 1) % m_lineStarts.size();
+        beginUtterance(from, trimTrailingSilence(from, to));
         return;
     }
 
@@ -263,6 +309,7 @@ void SpeechSequencer::reset()
     m_utteranceFrame = 0;
     m_utteranceFrames = 0;
     m_syllableCursor = 0;
+    m_lineCursor = 0;
 }
 
 bool SpeechSequencer::sustainsCurrent() const
@@ -352,6 +399,16 @@ size_t SpeechSequencer::syllableCursor() const
 size_t SpeechSequencer::syllableCount() const
 {
     return m_syllableStarts.size();
+}
+
+size_t SpeechSequencer::lineCursor() const
+{
+    return m_lineCursor;
+}
+
+size_t SpeechSequencer::lineCount() const
+{
+    return m_lineStarts.size();
 }
 
 } // namespace noteahead

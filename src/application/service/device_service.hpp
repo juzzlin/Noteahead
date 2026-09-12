@@ -67,7 +67,7 @@ public:
     virtual DeviceS device(const std::string & name) const;
 
     Q_INVOKABLE virtual bool isInternalDevice(const QString & portName) const;
-    void processMidiNoteOn(const QString & portName, uint8_t note, uint8_t velocity);
+    void processMidiNoteOn(const QString & portName, uint8_t note, uint8_t velocity, std::optional<double> noteBeats = std::nullopt);
     void processMidiNoteOff(const QString & portName, uint8_t note);
 
     //! Frame the given moment falls on, or nothing while the engine is not rendering.
@@ -83,7 +83,7 @@ public:
     //! returned while the engine is not rendering, since there is then no timeline to be early on.
     std::optional<std::chrono::steady_clock::duration> scheduleLookahead() const;
 
-    void scheduleMidiNoteOn(const QString & portName, uint8_t note, uint8_t velocity, uint64_t frame);
+    void scheduleMidiNoteOn(const QString & portName, uint8_t note, uint8_t velocity, uint64_t frame, std::optional<double> noteBeats = std::nullopt);
     void scheduleMidiNoteOff(const QString & portName, uint8_t note, uint64_t frame);
     void scheduleMidiCc(const QString & portName, uint8_t controller, uint8_t value, uint8_t channel, uint64_t frame);
     void scheduleMidiPitchBend(const QString & portName, uint16_t value, uint8_t channel, uint64_t frame);
@@ -94,6 +94,13 @@ public:
     void processMidiProgramChange(const QString & portName, uint8_t program, uint8_t channel);
     void processMidiAllNotesOff(const QString & portName);
     void processMidiAllNotesOff();
+
+    //! Whether any internal device counts the notes it is given, and so needs placing when playback
+    //! starts from somewhere other than the beginning. Asked first so that a song with nothing of
+    //! the kind in it does not pay for the render that answering would otherwise need.
+    bool anyWantsNoteIndexSeek() const;
+    //! Places the device on @p portName as though it had already been given @p noteIndex notes.
+    void seekToNoteIndex(const QString & portName, size_t noteIndex);
 
     //! Applies an instrument's patch to the internal device it plays through, as a program change.
     //! Bank select is left out on purpose: an internal device has no banks to select from.

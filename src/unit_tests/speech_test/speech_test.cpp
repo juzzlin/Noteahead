@@ -452,6 +452,191 @@ void SpeechTest::test_sequencer_emptyPhrase_shouldNeverBecomeActive()
     QVERIFY(!sequencer.advance());
 }
 
+void SpeechTest::test_sequencer_lineMode_shouldSpeakOneSentencePerTrigger()
+{
+    auto sequencer = makeSequencer("hi. go. up");
+    sequencer.setTriggerMode(SpeechSequencer::TriggerMode::Line);
+    sequencer.setSyncMode(SpeechSequencer::SyncMode::Grid);
+
+    // Three sentences, so three notes carry the lyric however many syllables it holds.
+    QCOMPARE(sequencer.lineCount(), size_t { 3 });
+
+    sequencer.trigger();
+    QCOMPARE(spokenNames(sequencer), (std::vector<std::string> { "HH", "IH" }));
+    sequencer.trigger();
+    QCOMPARE(spokenNames(sequencer), (std::vector<std::string> { "G", "OW" }));
+    sequencer.trigger();
+    QCOMPARE(spokenNames(sequencer), (std::vector<std::string> { "AH", "P" }));
+}
+
+void SpeechTest::test_sequencer_lineMode_shouldWrapAtTheEndOfThePhrase()
+{
+    auto sequencer = makeSequencer("hi. go");
+    sequencer.setTriggerMode(SpeechSequencer::TriggerMode::Line);
+    sequencer.setSyncMode(SpeechSequencer::SyncMode::Grid);
+
+    for (size_t i = 0; i < sequencer.lineCount(); i++) {
+        sequencer.trigger();
+        spokenNames(sequencer);
+    }
+
+    // Back to the first line, so a song longer than the lyric keeps saying it.
+    sequencer.trigger();
+    QCOMPARE(spokenNames(sequencer), (std::vector<std::string> { "HH", "IH" }));
+}
+
+void SpeechTest::test_sequencer_lineMode_shouldLeaveTheTrailingSilenceOut()
+{
+    // The pause a full stop leaves behind belongs between the lines. Left in, Grid would spend a
+    // whole division on it -- a lone silence has no vowel to absorb the slack -- and Fit would
+    // squeeze the words to make room for it.
+    auto sequencer = makeSequencer("hi. go");
+    sequencer.setTriggerMode(SpeechSequencer::TriggerMode::Line);
+    sequencer.setSyncMode(SpeechSequencer::SyncMode::Grid);
+    sequencer.trigger();
+
+    const auto spoken = spokenNames(sequencer);
+    QCOMPARE(spoken, (std::vector<std::string> { "HH", "IH" }));
+    QVERIFY(std::ranges::find(spoken, std::string { "_" }) == spoken.end());
+}
+
+//! Frames one trigger of the sequencer takes from end to end.
+size_t utteranceFrames(SpeechSequencer & sequencer)
+{
+    size_t frames = 0;
+    while (sequencer.advance() && frames < static_cast<size_t>(SampleRate * 60)) {
+        frames++;
+    }
+    return frames + 1;
+}
+
+void SpeechTest::test_sequencer_lineMode_fitMode_shouldSpanTheNote()
+{
+    // A lyric's lines are not the same length as each other, so one Length either races the long
+    // ones or drawls the short ones. The note is already the right length and the pattern shows it.
+    const auto framesFor = [](const std::string & phrase, size_t line, double noteBeats) {
+        auto sequencer = makeSequencer(phrase);
+        sequencer.setTriggerMode(SpeechSequencer::TriggerMode::Line);
+        sequencer.setSyncMode(SpeechSequencer::SyncMode::Fit);
+        sequencer.setLengthBeats(4.0);
+        sequencer.setNoteBeats(noteBeats);
+        for (size_t i = 0; i <= line; i++) {
+            sequencer.trigger();
+            if (i != line) {
+                utteranceFrames(sequencer);
+            }
+        }
+        return utteranceFrames(sequencer);
+    };
+
+    // At 120 bpm a beat is half a second, so two beats is one second whichever line it carries.
+    const double beatFrames = 60.0 / 120.0 * SampleRate;
+    const auto shortLine = framesFor("hi. I never wanted to say goodbye", 0, 2.0);
+    const auto longLine = framesFor("hi. I never wanted to say goodbye", 1, 6.0);
+
+    QVERIFY2(std::abs(static_cast<double>(shortLine) - 2.0 * beatFrames) < beatFrames * 0.05,
+             qPrintable(QString::number(shortLine) + " frames for two beats"));
+    QVERIFY2(std::abs(static_cast<double>(longLine) - 6.0 * beatFrames) < beatFrames * 0.05,
+             qPrintable(QString::number(longLine) + " frames for six beats"));
+}
+
+void SpeechTest::test_sequencer_lineMode_fitMode_withoutANote_shouldFallBackToLength()
+{
+    // Live play has no timeline to measure a note against, and neither has a note whose note-off
+    // was dropped before it reached the device. Length is what Fit spans then.
+    auto sequencer = makeSequencer("hi. go");
+    sequencer.setTriggerMode(SpeechSequencer::TriggerMode::Line);
+    sequencer.setSyncMode(SpeechSequencer::SyncMode::Fit);
+    sequencer.setLengthBeats(3.0);
+    sequencer.setNoteBeats(std::nullopt);
+    sequencer.trigger();
+
+    const double beatFrames = 60.0 / 120.0 * SampleRate;
+    const auto frames = utteranceFrames(sequencer);
+    QVERIFY2(std::abs(static_cast<double>(frames) - 3.0 * beatFrames) < beatFrames * 0.05,
+             qPrintable(QString::number(frames) + " frames for three beats"));
+}
+
+void SpeechTest::test_sequencer_lineMode_gridMode_shouldGiveEachSyllableOneDivision()
+{
+    // Grid is the other answer to uneven lines: the syllables march at the division, so a long line
+    // simply takes longer than a short one.
+    const auto framesFor = [](size_t line) {
+        auto sequencer = makeSequencer("hi. hello world");
+        sequencer.setTriggerMode(SpeechSequencer::TriggerMode::Line);
+        sequencer.setSyncMode(SpeechSequencer::SyncMode::Grid);
+        sequencer.setDivisionBeats(0.5);
+        for (size_t i = 0; i <= line; i++) {
+            sequencer.trigger();
+            if (i != line) {
+                utteranceFrames(sequencer);
+            }
+        }
+        return utteranceFrames(sequencer);
+    };
+
+    // "hi" is one syllable and "hello world" three, at half a beat each.
+    const double halfBeat = 0.5 * 60.0 / 120.0 * SampleRate;
+    QVERIFY2(std::abs(static_cast<double>(framesFor(0)) - halfBeat) < halfBeat * 0.1, "one division");
+    QVERIFY2(std::abs(static_cast<double>(framesFor(1)) - 3.0 * halfBeat) < halfBeat * 0.1, "three divisions");
+}
+
+void SpeechTest::test_sequencer_noteBeats_shouldNotReachTheOtherTriggerModes()
+{
+    // Nothing about Phrase or Step moves when a note happens to carry a length. Only Line mode has
+    // an utterance that was meant to fit inside one.
+    const auto framesFor = [](SpeechSequencer::TriggerMode mode) {
+        auto sequencer = makeSequencer("hello world");
+        sequencer.setTriggerMode(mode);
+        sequencer.setSyncMode(SpeechSequencer::SyncMode::Fit);
+        sequencer.setLengthBeats(2.0);
+        sequencer.setNoteBeats(8.0);
+        sequencer.trigger();
+        return utteranceFrames(sequencer);
+    };
+
+    const double beatFrames = 60.0 / 120.0 * SampleRate;
+    for (auto && mode : { SpeechSequencer::TriggerMode::Phrase, SpeechSequencer::TriggerMode::Step }) {
+        const auto frames = framesFor(mode);
+        QVERIFY2(std::abs(static_cast<double>(frames) - 2.0 * beatFrames) < beatFrames * 0.05,
+                 qPrintable(QString::number(frames) + " frames, expected Length rather than the note"));
+    }
+}
+
+void SpeechTest::test_sequencer_setCursor_shouldPlaceTheNextTrigger()
+{
+    // What the player seeds, so that starting from the middle of a song speaks the line the note
+    // count says rather than whichever one the last run left behind.
+    auto sequencer = makeSequencer("hi. go. up");
+    sequencer.setTriggerMode(SpeechSequencer::TriggerMode::Line);
+    sequencer.setSyncMode(SpeechSequencer::SyncMode::Grid);
+
+    sequencer.setCursor(2);
+    QCOMPARE(sequencer.lineCursor(), size_t { 2 });
+    sequencer.trigger();
+    QCOMPARE(spokenNames(sequencer), (std::vector<std::string> { "AH", "P" }));
+
+    // And it wraps, so a count from the top of a long song still names a line.
+    sequencer.setCursor(4);
+    QCOMPARE(sequencer.lineCursor(), size_t { 1 });
+}
+
+void SpeechTest::test_sequencer_lineMode_heldNote_shouldNotSustain()
+{
+    // A line is an event and runs to its end. Only a Step-mode syllable holds its vowel for the
+    // length of the note, because there the note is what the syllable is being sung on.
+    auto sequencer = makeSequencer("hi. go");
+    sequencer.setTriggerMode(SpeechSequencer::TriggerMode::Line);
+    sequencer.setSyncMode(SpeechSequencer::SyncMode::Free);
+    sequencer.trigger();
+
+    size_t frames = 0;
+    while (sequencer.advance() && frames < static_cast<size_t>(SampleRate * 10)) {
+        frames++;
+    }
+    QVERIFY(!sequencer.isActive());
+}
+
 void SpeechTest::test_device_noteOn_shouldProduceAudio()
 {
     SpeechDevice device { "Speech" };
@@ -778,6 +963,55 @@ void SpeechTest::test_device_formantShift_shouldBeNeutralAtHalfTravel()
     QVERIFY2(std::abs(firstFormant(0.5f, 0) - 730.0) < 80.0, qPrintable(QString::number(firstFormant(0.5f, 0), 'f', 0)));
     QVERIFY(firstFormant(1.0f, 0) > firstFormant(0.5f, 0));
     QVERIFY(firstFormant(0.0f, 0) < firstFormant(0.5f, 0));
+}
+
+void SpeechTest::test_device_lineCount_shouldCountSentences()
+{
+    SpeechDevice device { "Speech" };
+
+    device.setPhrase("hello world");
+    QCOMPARE(device.lineCount(), size_t { 1 });
+
+    device.setPhrase("hello. world");
+    QCOMPARE(device.lineCount(), size_t { 2 });
+
+    // A comma is a pause inside a line, not a line of its own.
+    device.setPhrase("hello, world");
+    QCOMPARE(device.lineCount(), size_t { 1 });
+}
+
+void SpeechTest::test_device_noteIndexSeek_shouldBeWantedOnlyInLineMode()
+{
+    // The player renders the song twice to answer this, so a song with nothing counting notes in it
+    // must not be asked to pay for it. Only Line mode holds a position the song does not carry.
+    SpeechDevice device { "Speech" };
+    device.setPhrase("hello. world");
+
+    for (auto && mode : { SpeechSequencer::TriggerMode::Phrase, SpeechSequencer::TriggerMode::Step }) {
+        device.setTriggerMode(static_cast<int>(mode));
+        QVERIFY(!device.wantsNoteIndexSeek());
+    }
+
+    device.setTriggerMode(static_cast<int>(SpeechSequencer::TriggerMode::Line));
+    QVERIFY(device.wantsNoteIndexSeek());
+}
+
+void SpeechTest::test_device_phrasePhonemes_shouldBreakPerLineOnlyInLineMode()
+{
+    // The readout says a different thing where lines mean something, and the same thing as before
+    // everywhere else.
+    SpeechDevice device { "Speech" };
+    device.setPhrase("hi. go");
+
+    device.setTriggerMode(static_cast<int>(SpeechSequencer::TriggerMode::Phrase));
+    const auto asPhrase = device.phrasePhonemes();
+    QVERIFY(asPhrase.find('\n') == std::string::npos);
+
+    device.setTriggerMode(static_cast<int>(SpeechSequencer::TriggerMode::Line));
+    QVERIFY(device.phrasePhonemes().find('\n') != std::string::npos);
+
+    device.setTriggerMode(static_cast<int>(SpeechSequencer::TriggerMode::Step));
+    QCOMPARE(device.phrasePhonemes(), asPhrase);
 }
 
 void SpeechTest::test_device_phrase_shouldCompileOnAssignment()

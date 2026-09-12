@@ -118,6 +118,13 @@ constexpr LexiconEntry FunctionWords[] {
     { "TWO", "T UW" },
 };
 
+//! Punctuation that is a pause, and the part of it that also ends a line.
+//!
+//! A line is a sentence, so it ends where a sentence does. The rest -- comma, semicolon, colon,
+//! dash -- are pauses inside one, which is the only reason the two sets are not the same.
+constexpr std::string_view PausePunctuation = ".,;:!?-";
+constexpr std::string_view LineEndPunctuation = ".!?";
+
 //! How much shorter an unstressed function word runs than its natural length.
 constexpr double FunctionWordLength = 0.75;
 
@@ -1170,9 +1177,15 @@ PhonemeEventList textToPhonemes(std::string_view text)
     // pause, or a function word, which is unstressed by definition.
     std::vector<Spelling> spellings;
 
+    // The phrase opens a line, and every sentence-final mark opens the next one. Carried rather
+    // than applied on the spot because the mark comes before what it introduces, and because a run
+    // of them -- "well... then" -- must open one line, not three.
+    bool pendingLineStart = true;
+
     size_t pos = 0;
     while (pos < text.size()) {
         const auto character = static_cast<unsigned char>(text[pos]);
+        const size_t lineCandidate = events.size();
 
         if (text[pos] == '/') {
             const size_t end = std::min(text.find('/', pos + 1), text.size());
@@ -1221,11 +1234,22 @@ PhonemeEventList textToPhonemes(std::string_view text)
         } else {
             // Punctuation is a pause; a plain space only separates words. Speech does not stop
             // between every word, and in Step mode a silence between them would eat a note.
-            if (std::string_view { ".,;:!?-" }.find(text[pos]) != std::string_view::npos) {
+            if (PausePunctuation.find(text[pos]) != std::string_view::npos) {
                 events.push_back({ &speechSilence(), true, true });
                 spellings.emplace_back();
+                if (LineEndPunctuation.find(text[pos]) != std::string_view::npos) {
+                    pendingLineStart = true;
+                }
             }
             pos++;
+        }
+
+        // The mark lands on the first thing actually spoken. A silence belongs to the line that
+        // just ended -- it is the pause after it -- so a line that opened on one would begin on
+        // the very pause that closed the line before.
+        if (pendingLineStart && events.size() > lineCandidate && events[lineCandidate].spec->type != PhonemeType::Silence) {
+            events[lineCandidate].lineStart = true;
+            pendingLineStart = false;
         }
     }
 
@@ -1250,12 +1274,12 @@ bool speechRulesAreWellFormed()
     });
 }
 
-std::string phonemeNames(const PhonemeEventList & events)
+std::string phonemeNames(const PhonemeEventList & events, bool perLine)
 {
     std::string names;
     for (auto && event : events) {
         if (!names.empty()) {
-            names += event.wordStart ? "  " : " ";
+            names += (perLine && event.lineStart) ? "\n" : (event.wordStart ? "  " : " ");
         }
         names += event.spec->name;
     }

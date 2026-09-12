@@ -36,7 +36,9 @@
 #include "track.hpp"
 
 #include <algorithm>
+#include <numeric>
 #include <set>
+#include <tuple>
 
 namespace noteahead {
 
@@ -1032,6 +1034,54 @@ Song::EventsAndTick Song::renderPatterns(AutomationServiceS automationService, E
     return { processedEventList, tick };
 }
 
+Song::EventList Song::annotateNoteLengths(EventListCR events) const
+{
+    // In tick order, because the list is assembled pass by pass and a note-off can be appended
+    // before the note-on it ends. Indices rather than a sorted copy of the list: the events are
+    // shared and the annotation has to land on the ones the caller keeps.
+    std::vector<size_t> order(events.size());
+    std::iota(order.begin(), order.end(), 0);
+    std::ranges::stable_sort(order, {}, [&](size_t i) { return events[i]->tick(); });
+
+    // Keyed by what identifies a sounding note: which column it was written in and which note it is.
+    std::map<std::tuple<size_t, size_t, uint8_t>, EventS> sounding;
+    for (auto && index : order) {
+        auto && event = events[index];
+        const auto noteData = event->noteData();
+        if (!noteData || !noteData->note().has_value()) {
+            continue;
+        }
+        const auto key = std::make_tuple(noteData->track(), noteData->column(), *noteData->note());
+        if (noteData->type() == NoteData::Type::NoteOn) {
+            // A note left sounding by a note-off that never came keeps no length, which is the
+            // honest answer: nothing in the render says when it ends.
+            sounding[key] = event;
+        } else if (noteData->type() == NoteData::Type::NoteOff) {
+            if (const auto it = sounding.find(key); it != sounding.end()) {
+                it->second->setNoteOffTick(event->tick());
+                sounding.erase(it);
+            }
+        }
+    }
+
+    return events;
+}
+
+Song::PortNoteCounts Song::countNoteOnsByPort(const EventList & events)
+{
+    PortNoteCounts counts;
+    for (auto && event : events) {
+        const auto noteData = event->noteData();
+        if (!noteData || !noteData->note().has_value() || noteData->type() != NoteData::Type::NoteOn) {
+            continue;
+        }
+        if (const auto instrument = event->instrument(); instrument) {
+            counts[instrument->midiAddress().portName()]++;
+        }
+    }
+    return counts;
+}
+
 Song::EventList Song::generateMidiClockEvents(EventListCR eventList, size_t startTick, size_t endTick) const
 {
     const size_t midiClockPulsesPerBeat = 24;
@@ -1165,6 +1215,8 @@ Song::EventList Song::renderContent(AutomationServiceS automationService, SideCh
     eventList = generateNoteOffs(eventList);
     juzzlin::L(TAG).debug() << "Removing non-mapped note-off's";
     eventList = removeNonMappedNoteOffs(eventList);
+    juzzlin::L(TAG).debug() << "Annotating note lengths";
+    eventList = annotateNoteLengths(eventList);
     juzzlin::L(TAG).debug() << "Generating MIDI clock events";
     eventList = generateMidiClockEvents(eventList, startTick, tick);
 

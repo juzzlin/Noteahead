@@ -32,6 +32,11 @@ struct PhonemeEvent
     bool syllableStart;
     //! First phoneme of a word.
     bool wordStart;
+    //! First phoneme of a line: the start of the phrase, and whatever follows a full stop, an
+    //! exclamation mark or a question mark. Line mode advances the phrase by these, so one note
+    //! speaks one sentence. Read by nothing else, which is why the other trigger modes are
+    //! unaffected by where they fall.
+    bool lineStart { false };
     //! Whether this phoneme belongs to the word's stressed syllable. English is stress-timed, so
     //! this is what the rhythm is built on: the strong syllable runs longer, takes a pitch accent,
     //! and is the only one that keeps its vowel.
@@ -98,7 +103,10 @@ bool speechRulesAreWellFormed();
 
 //! The phoneme names of @p events, space separated, with a double space between words. What the
 //! dialog shows the user so they can see what the rules made of what they typed.
-std::string phonemeNames(const PhonemeEventList & events);
+//!
+//! With @p perLine the readout breaks at every line, which is what Line mode wants to show and
+//! every other mode does not: a phrase the device speaks in one go should read as one.
+std::string phonemeNames(const PhonemeEventList & events, bool perLine = false);
 
 } // namespace noteahead
 

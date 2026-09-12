@@ -98,6 +98,16 @@ public:
     size_t tick() const;
     void setTick(size_t tick);
 
+    //! The tick this note-on's note-off falls on, once the render has paired them.
+    //!
+    //! An annotation the render leaves behind, in the way applyDelay() and applyVelocityJitter()
+    //! leave theirs, rather than anything the pattern holds: a note's length in a tracker is the
+    //! distance to whatever ends it, and only the rendered list knows where that landed. Nothing
+    //! but a device that has to fit something inside the note reads it.
+    using TickOpt = std::optional<size_t>;
+    TickOpt noteOffTick() const;
+    void setNoteOffTick(size_t tick);
+
     Type type() const;
 
     template<class Visitor>
@@ -145,6 +155,7 @@ public:
 
 private:
     size_t m_tick;
+    TickOpt m_noteOffTick;
 
     Type m_type;
 

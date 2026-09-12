@@ -42,13 +42,14 @@ PlayerWorker::PlayerWorker(MidiServiceS midiService, MixerServiceS mixerService,
     connect(m_mixerService.get(), &MixerService::configurationChanged, this, &PlayerWorker::onMixerChanged, Qt::DirectConnection);
 }
 
-void PlayerWorker::initialize(const EventList & events, const Timing & timing)
+void PlayerWorker::initialize(const EventList & events, const Timing & timing, const PortNoteCounts & deviceSeek)
 {
     juzzlin::L(TAG).info() << "Event count: " << events.size();
 
     if (!m_isPlaying) {
 
         m_timing = timing;
+        m_deviceSeek = deviceSeek;
         m_eventMap.clear();
         m_allInstruments.clear();
         m_activeNotes.clear();
@@ -163,10 +164,13 @@ void PlayerWorker::handleEvent(const Event & event, std::optional<std::chrono::s
                 } else if (data.type() == NoteData::Type::NoteOn && data.note().has_value()) {
                     if (shouldEventPlay(data.track(), data.column())) {
                         const auto effectiveVelocity = m_mixerService->effectiveVelocity(data.track(), data.column(), data.velocity());
+                        // In beats rather than seconds, so that a tempo change while the note is
+                        // sounding moves what was fitted inside it along with everything else.
+                        const auto noteBeats = noteBeatsOf(event);
                         if (when) {
-                            m_midiService->playNoteAt(instrument, { *data.note(), effectiveVelocity }, *when);
+                            m_midiService->playNoteAt(instrument, { *data.note(), effectiveVelocity, noteBeats }, *when);
                         } else {
-                            m_midiService->playNote(instrument, { *data.note(), effectiveVelocity });
+                            m_midiService->playNote(instrument, { *data.note(), effectiveVelocity, noteBeats });
                         }
                         m_activeNotes[instrument].push_back({ data.track(), data.column(), *data.note() });
                     }
@@ -214,6 +218,19 @@ void PlayerWorker::handleEvent(const Event & event, std::optional<std::chrono::s
             }
         }
     });
+}
+
+std::optional<double> PlayerWorker::noteBeatsOf(const Event & event) const
+{
+    const auto noteOffTick = event.noteOffTick();
+    if (!noteOffTick || *noteOffTick <= event.tick()) {
+        return std::nullopt;
+    }
+    const auto ticksPerBeat = static_cast<double>(m_timing.ticksPerLine * m_timing.linesPerBeat);
+    if (ticksPerBeat <= 0.0) {
+        return std::nullopt;
+    }
+    return static_cast<double>(*noteOffTick - event.tick()) / ticksPerBeat;
 }
 
 quint64 PlayerWorker::effectiveTick(quint64 tick, quint64 minTick, quint64 maxTick) const
@@ -275,8 +292,17 @@ void PlayerWorker::processEvents()
     };
 
     auto tick = minTick;
+    seekDevices();
+    // Where the loop turns over. The timeline starts again from minTick, so anything counting the
+    // notes it is given has to start again with it, or a pattern whose note count does not divide
+    // its lyric would land on a different line every time round.
+    std::optional<quint64> previousEffectiveTick;
     while (m_isPlaying && (tick <= maxTick || m_isLooping)) {
         const auto effectiveTick = this->effectiveTick(tick, minTick, maxTick);
+        if (previousEffectiveTick && effectiveTick < *previousEffectiveTick) {
+            seekDevices();
+        }
+        previousEffectiveTick = effectiveTick;
         if (m_timing.ticksPerLine > 0 && effectiveTick % m_timing.ticksPerLine == 0) {
             emit tickUpdated(static_cast<quint64>(effectiveTick));
         }
@@ -355,6 +381,13 @@ void PlayerWorker::setIsPlaying(bool isPlaying)
     m_isPlaying = isPlaying;
 
     emit isPlayingChanged();
+}
+
+void PlayerWorker::seekDevices()
+{
+    if (m_midiService && m_midiService->anyDeviceWantsNoteIndexSeek()) {
+        m_midiService->seekDevicesToNoteIndex(m_deviceSeek);
+    }
 }
 
 void PlayerWorker::stopAllNotes()

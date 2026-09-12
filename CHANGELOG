@@ -5,6 +5,15 @@ Release date:
 
 New features:
 
+* Speech can say a lyric a line at a time
+  - A new Line trigger mode speaks one sentence per note, so one Speech
+    device carries a whole lyric instead of one per line
+  - A full stop, ! or ? starts the next line; a comma still only pauses
+  - With Sync set to Fit each line fills the note that speaks it, so lines
+    of different lengths need no setting of their own
+  - Starting playback anywhere, or looping a pattern, lands on the line the
+    song says rather than wherever the last run stopped
+
 * Save your own presets for Synth and FM Synth
   - Save stores the panel under a name of your own, next to the factory
     patches in the same dropdown, marked with a *

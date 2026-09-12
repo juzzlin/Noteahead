@@ -495,6 +495,26 @@ void Device::scheduleMidiEvent(const ScheduledEvent & event)
     m_scheduledEvents.push_back(event);
 }
 
+bool Device::wantsNoteIndexSeek() const
+{
+    return false;
+}
+
+void Device::seekToNoteIndex(size_t)
+{
+}
+
+void Device::setNextNoteBeats(std::optional<double> beats)
+{
+    const std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    m_nextNoteBeats = beats;
+}
+
+std::optional<double> Device::noteBeats() const
+{
+    return m_nextNoteBeats;
+}
+
 void Device::applyScheduledEvents(uint64_t frame)
 {
     const std::lock_guard<std::recursive_mutex> lock { m_mutex };
@@ -509,6 +529,10 @@ void Device::applyScheduledEvents(uint64_t frame)
     while (due != m_scheduledEvents.end() && due->frame <= frame) {
         switch (due->type) {
         case ScheduledEvent::Type::NoteOn:
+            // Carried on the queued event rather than set when it was queued: the queue is what
+            // holds the ordering, and a length set at queueing time would belong to whichever note
+            // happened to be scheduled last rather than to this one.
+            setNextNoteBeats(due->noteBeats);
             processMidiNoteOn(due->note, due->velocity);
             break;
         case ScheduledEvent::Type::NoteOff:

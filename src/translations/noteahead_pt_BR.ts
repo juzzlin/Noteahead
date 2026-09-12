@@ -6492,6 +6492,10 @@ Um apóstrofo marca a sílaba tônica: A&apos;merica</translation>
         <translation>Fonemas</translation>
     </message>
     <message>
+        <source>%1 line(s), %2 syllable(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>%1 syllable(s)</source>
         <translation>%1 sílaba(s)</translation>
     </message>
@@ -6515,12 +6519,20 @@ Um apóstrofo marca a sílaba tônica: A&apos;merica</translation>
         <translation>Passo</translation>
     </message>
     <message>
+        <source>Line</source>
+        <translation type="unfinished">Linha</translation>
+    </message>
+    <message>
         <source>A note speaks the whole phrase.</source>
         <translation>Uma nota fala a frase inteira.</translation>
     </message>
     <message>
         <source>A note speaks the next syllable.</source>
         <translation>Uma nota fala a sílaba seguinte.</translation>
+    </message>
+    <message>
+        <source>A note speaks the next line. A full stop, ! or ? starts a new one.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sync</source>
@@ -6549,6 +6561,10 @@ Um apóstrofo marca a sílaba tônica: A&apos;merica</translation>
     <message>
         <source>Each syllable takes one Division.</source>
         <translation>Cada sílaba ocupa uma Division.</translation>
+    </message>
+    <message>
+        <source>Each line fills the note that speaks it.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Rate</source>
