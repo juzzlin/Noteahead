@@ -30,6 +30,7 @@ class DrumSynthController : public DeviceController
     Q_OBJECT
 
     Q_PROPERTY(int selectedVoice READ selectedVoice WRITE setSelectedVoice NOTIFY selectedVoiceChanged)
+    Q_PROPERTY(int filterSlope READ filterSlope WRITE setFilterSlope NOTIFY filterSlopeChanged)
 
     // Selected Voice Parameters
     Q_PROPERTY(int voiceLevel READ voiceLevel WRITE setVoiceLevel NOTIFY voiceLevelChanged)
@@ -76,6 +77,8 @@ public:
     Q_INVOKABLE void setDevice(const QString & deviceName);
 
     int selectedVoice() const;
+    int filterSlope() const;
+    void setFilterSlope(int value);
     void setSelectedVoice(int index);
 
     int voiceLevel() const;
@@ -139,6 +142,7 @@ public:
 
 signals:
     void selectedVoiceChanged();
+    void filterSlopeChanged();
     void voiceLevelChanged();
     void voicePanChanged();
     void voiceLpfCutoffChanged();

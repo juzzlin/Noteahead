@@ -63,6 +63,10 @@ public:
     void reset() override;
     void resetAudio() override;
 
+    //! 0 for 12 dB/oct, which the voice filters have always been, and 1 for 24.
+    int filterSlope() const;
+    void setFilterSlope(int filterSlope);
+
     void serializeToXml(ProjectWriter & writer) const override;
     void deserializeFromXml(ProjectReader & reader) override;
 
@@ -97,6 +101,10 @@ private:
         std::unique_ptr<DrumEngine> engine;
         std::shared_ptr<LowPassFilter> lpf;
         std::shared_ptr<HighPassFilter> hpf;
+        //! Second stage of each filter, in the chain always and neutral unless the slope asks for it.
+        std::shared_ptr<LowPassFilter> lpfStage2;
+        std::shared_ptr<HighPassFilter> hpfStage2;
+        bool steepFilter = false;
         std::shared_ptr<Volume> volumeEffect;
         std::shared_ptr<Panning> panningEffect;
         EffectRack effectRack;
@@ -110,6 +118,8 @@ private:
         void updateEffects();
     };
 
+    //! 0 for 12 dB/oct, which the voice filters have always been, and 1 for 24.
+    float m_filterSlope = 0.0f;
     std::string m_name;
     std::array<Voice, DrumSynth::NumVoices> m_voices;
     int m_selectedVoice { 0 };

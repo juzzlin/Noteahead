@@ -219,6 +219,10 @@ SamplerDevice::SamplerDevice(std::string name, AudioFileReaderU audioFileReader)
   : m_name { std::move(name) }
   , m_audioFileReader { audioFileReader ? std::move(audioFileReader) : std::make_unique<SndFileReader>() }
 {
+    // 12 dB/oct, which is what the sampler's filters have always been. A project that never touches
+    // this carries the value it has always had and sounds as it always did. One setting for the
+    // device rather than one per pad: the pads are one instrument and are filtered as one.
+    addParameter(Parameter { Constants::NahdXml::xmlKeyFilterSlope().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyChannelMode().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
     addParameter(Parameter { Constants::NahdXml::xmlKeyChromaticMode().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
     // On by default: a project that carries its samples survives being moved, mailed or opened
@@ -240,9 +244,11 @@ SamplerDevice::Voice::Voice()
 {
     lpf = std::make_shared<LowPassFilter>();
     hpf = std::make_shared<HighPassFilter>();
+    lpfStage2 = std::make_shared<LowPassFilter>();
+    hpfStage2 = std::make_shared<HighPassFilter>();
     volumeEffect = std::make_shared<Volume>();
     panningEffect = std::make_shared<Panning>();
-    effects = { lpf, hpf, volumeEffect, panningEffect };
+    effects = { lpf, lpfStage2, hpf, hpfStage2, volumeEffect, panningEffect };
 }
 
 void SamplerDevice::updateVoiceEffects(Voice & voice)
@@ -255,8 +261,15 @@ void SamplerDevice::updateVoiceEffects(Voice & voice)
     const float combinedVolume = static_cast<float>(ParameterMapper::mapFader(voice.sample->volume)) * voice.velocity;
     voice.volumeEffect->setVolume(combinedVolume);
 
-    voice.lpf->setCutoff(std::clamp(voice.sample->cutoff + (voice.cutoff - 1.0f), 0.0f, 1.0f));
-    voice.hpf->setCutoff(std::clamp(voice.sample->hpfCutoff + voice.hpfCutoff, 0.0f, 1.0f));
+    const auto lpfCutoff = std::clamp(voice.sample->cutoff + (voice.cutoff - 1.0f), 0.0f, 1.0f);
+    const auto hpfCutoff = std::clamp(voice.sample->hpfCutoff + voice.hpfCutoff, 0.0f, 1.0f);
+    voice.lpf->setCutoff(lpfCutoff);
+    voice.hpf->setCutoff(hpfCutoff);
+    // Parked at the end of its range a filter passes the signal through, so this is what turns the
+    // second stage off rather than taking it out of the chain.
+    const bool steep = static_cast<int>(m_filterSlope) == 1;
+    voice.lpfStage2->setCutoff(steep ? lpfCutoff : 1.0f);
+    voice.hpfStage2->setCutoff(steep ? hpfCutoff : 0.0f);
 }
 
 std::string SamplerDevice::name() const
@@ -1715,6 +1728,16 @@ void SamplerDevice::setGain(float gain)
     Device::setGain(gain);
 }
 
+int SamplerDevice::filterSlope() const
+{
+    return static_cast<int>(m_filterSlope);
+}
+
+void SamplerDevice::setFilterSlope(int filterSlope)
+{
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyFilterSlope().toStdString(), filterSlope);
+}
+
 void SamplerDevice::syncParameters()
 {
     Device::syncParameters();
@@ -1726,6 +1749,9 @@ void SamplerDevice::syncParameters()
     }
     if (auto p = parameter(Constants::NahdXml::xmlKeyEmbedWaveData().toStdString()); p) {
         m_embedWaveData = p->get().value() > 0.5f;
+    }
+    if (auto p = parameter(Constants::NahdXml::xmlKeyFilterSlope().toStdString()); p) {
+        m_filterSlope = p->get().value();
     }
 
     // Update active voices with new global parameters

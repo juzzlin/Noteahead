@@ -36,12 +36,21 @@ void DrumSynthDevice::Voice::updateEffects()
     panningEffect->setPan(pan);
     lpf->setCutoff(lpfCutoff);
     hpf->setCutoff(hpfCutoff);
+    // Parked at the end of its range a filter passes the signal through, so this is what turns the
+    // second stage off rather than taking it out of the chain.
+    lpfStage2->setCutoff(steepFilter ? lpfCutoff : 1.0f);
+    hpfStage2->setCutoff(steepFilter ? hpfCutoff : 0.0f);
 }
 
 DrumSynthDevice::DrumSynthDevice(std::string name)
   : m_name { std::move(name) }
 {
     initializeVoices();
+
+    // 12 dB/oct, which is what the drum synth's voice filters have always been. One setting for the
+    // kit rather than one per drum: a kit is mixed as a whole, and eleven of these would be eleven
+    // more controls to explain for a choice nobody makes per instrument.
+    addParameter(Parameter { Constants::NahdXml::xmlKeyFilterSlope().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
 
     for (int i { 0 }; i < NumVoices; i++) {
         addVoiceParameters(i);
@@ -205,6 +214,8 @@ void DrumSynthDevice::processAudio(AudioContext & context)
         voice.engine->setOversampleFactor(oversampleFactor);
         voice.lpf->setSampleRate(oversampledRate);
         voice.hpf->setSampleRate(oversampledRate);
+        voice.lpfStage2->setSampleRate(oversampledRate);
+        voice.hpfStage2->setSampleRate(oversampledRate);
     }
 
     // Snapshot each voice's insert-rack effects for per-sample processing at the oversampled rate. The
@@ -251,7 +262,9 @@ void DrumSynthDevice::processAudio(AudioContext & context)
                     double r = sample;
 
                     voice.lpf->process(l, r);
+                    voice.lpfStage2->process(l, r);
                     voice.hpf->process(l, r);
+                    voice.hpfStage2->process(l, r);
                     voice.volumeEffect->process(l, r);
                     voice.panningEffect->process(l, r);
 
@@ -441,6 +454,8 @@ void DrumSynthDevice::initializeVoices()
         m_voices.at(i).midiNote = notes.at(i);
         m_voices.at(i).lpf = std::make_shared<LowPassFilter>();
         m_voices.at(i).hpf = std::make_shared<HighPassFilter>();
+        m_voices.at(i).lpfStage2 = std::make_shared<LowPassFilter>();
+        m_voices.at(i).hpfStage2 = std::make_shared<HighPassFilter>();
         m_voices.at(i).volumeEffect = std::make_shared<Volume>();
         m_voices.at(i).panningEffect = std::make_shared<Panning>();
 
@@ -543,9 +558,26 @@ void DrumSynthDevice::addCymbalParameters(const std::string & prefix)
     addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyAttack().toStdString(), 0.0f, 0, 10000, 0, 100 });
 }
 
+int DrumSynthDevice::filterSlope() const
+{
+    return static_cast<int>(m_filterSlope);
+}
+
+void DrumSynthDevice::setFilterSlope(int filterSlope)
+{
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyFilterSlope().toStdString(), filterSlope);
+}
+
 void DrumSynthDevice::syncParameters()
 {
     Device::syncParameters();
+
+    if (auto p = parameter(Constants::NahdXml::xmlKeyFilterSlope().toStdString()); p) {
+        m_filterSlope = p->get().value();
+        for (auto && voice : m_voices) {
+            voice.steepFilter = static_cast<int>(m_filterSlope) == 1;
+        }
+    }
 
     for (int i { 0 }; i < NumVoices; i++) {
         syncVoiceParameters(i);

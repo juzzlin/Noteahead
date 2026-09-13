@@ -60,6 +60,7 @@ class SamplerController : public DeviceController
     Q_PROPERTY(double selectedPadDuration READ selectedPadDuration NOTIFY selectedPadDurationChanged)
     Q_PROPERTY(bool channelMode READ channelMode WRITE setChannelMode NOTIFY channelModeChanged)
     Q_PROPERTY(bool chromaticMode READ chromaticMode WRITE setChromaticMode NOTIFY chromaticModeChanged)
+    Q_PROPERTY(int filterSlope READ filterSlope WRITE setFilterSlope NOTIFY filterSlopeChanged)
     Q_PROPERTY(bool embedWaveData READ embedWaveData WRITE setEmbedWaveData NOTIFY embedWaveDataChanged)
 
 public:
@@ -147,6 +148,8 @@ public:
     void setChannelMode(bool enabled);
 
     bool chromaticMode() const;
+    int filterSlope() const;
+    void setFilterSlope(int value);
     void setChromaticMode(bool enabled);
 
     bool embedWaveData() const;
@@ -190,6 +193,7 @@ signals:
     void selectedPadDurationChanged();
     void channelModeChanged();
     void chromaticModeChanged();
+    void filterSlopeChanged();
     void embedWaveDataChanged();
     void samplerChanged();
 

@@ -56,6 +56,19 @@ void DrumSynthController::setDevice(const QString & deviceName)
     setDevice(m_deviceService->device(deviceName.toStdString()));
 }
 
+int DrumSynthController::filterSlope() const
+{
+    return m_device ? m_device->filterSlope() : 0;
+}
+
+void DrumSynthController::setFilterSlope(int value)
+{
+    if (m_device) {
+        m_device->setFilterSlope(value);
+        emit filterSlopeChanged();
+    }
+}
+
 int DrumSynthController::selectedVoice() const
 {
     return m_selectedVoice;

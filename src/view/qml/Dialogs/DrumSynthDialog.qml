@@ -105,6 +105,22 @@ AnimatedDialog {
                             value: drumSynthController.pan
                             onMoved: (val) => drumSynthController.pan = val
                         }
+                        ColumnLayout {
+                            Label {
+                                text: qsTr("Filter Slope")
+                            }
+                            ComboBox {
+                                // Read through the active language so retranslate() reaches a model built in JS.
+                                model: {
+                                    languageService.activeLanguage;
+                                    return ["12 dB/oct", "24 dB/oct"];
+                                }
+                                currentIndex: drumSynthController.filterSlope
+                                onActivated: i => drumSynthController.filterSlope = i
+                                ToolTip.visible: hovered
+                                ToolTip.text: qsTr("How steeply every voice's LPF and HPF roll off. The steeper one clears more out of the way at the same cutoff.")
+                            }
+                        }
                     }
                 }
 

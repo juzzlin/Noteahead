@@ -465,6 +465,19 @@ void SamplerController::setChannelMode(bool enabled)
     }
 }
 
+int SamplerController::filterSlope() const
+{
+    return m_sampler ? m_sampler->filterSlope() : 0;
+}
+
+void SamplerController::setFilterSlope(int value)
+{
+    if (m_sampler) {
+        m_sampler->setFilterSlope(value);
+        emit filterSlopeChanged();
+    }
+}
+
 bool SamplerController::chromaticMode() const
 {
     return m_sampler && m_sampler->chromaticMode();

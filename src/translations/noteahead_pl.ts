@@ -1811,6 +1811,14 @@
         <translation>Panorama</translation>
     </message>
     <message>
+        <source>Filter Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply every voice&apos;s LPF and HPF roll off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Voices</source>
         <translation>Głosy</translation>
     </message>
@@ -5348,6 +5356,14 @@
     <message>
         <source>Fader</source>
         <translation>Suwak</translation>
+    </message>
+    <message>
+        <source>Filter Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply every pad&apos;s LPF and HPF roll off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Map pads to MIDI channels 1-16 (for MIDI CC automation only)</source>

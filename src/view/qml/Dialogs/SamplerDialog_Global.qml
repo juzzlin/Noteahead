@@ -52,6 +52,25 @@ ColumnLayout {
         }
     }
 
+    ColumnLayout {
+        Layout.fillWidth: true
+        Label {
+            text: qsTr("Filter Slope")
+        }
+        ComboBox {
+            // Read through the active language so retranslate() reaches a model built in JS.
+            model: {
+                languageService.activeLanguage;
+                return ["12 dB/oct", "24 dB/oct"];
+            }
+            currentIndex: samplerController.filterSlope
+            onActivated: i => samplerController.filterSlope = i
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("How steeply every pad's LPF and HPF roll off. The steeper one clears more out of the way at the same cutoff.")
+            Layout.fillWidth: true
+        }
+    }
+
     CheckBox {
         id: channelModeCheckbox
         text: qsTr("Map pads to MIDI channels 1-16 (for MIDI CC automation only)")

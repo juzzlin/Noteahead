@@ -216,6 +216,10 @@ public:
     bool chromaticMode() const;
     void setChromaticMode(bool enabled);
 
+    //! 0 for 12 dB/oct, which is what the sampler's filters have always been, and 1 for 24.
+    int filterSlope() const;
+    void setFilterSlope(int filterSlope);
+
     //! Maps a pad index to a MIDI note. The two modes address the same shared per-note sample array with
     //! different layouts, so samples for both modes coexist and are all serialized; the modes are not meant
     //! to be used simultaneously. The layouts overlap only at notes 36 and 48:
@@ -337,6 +341,14 @@ private:
 
         std::shared_ptr<LowPassFilter> lpf;
         std::shared_ptr<HighPassFilter> hpf;
+        //! Second stage of each filter, in the chain always and neutral unless the slope asks for it.
+        //!
+        //! Kept in the chain rather than added to it when the slope changes, because the chain is
+        //! built once when the voice is made and the slope can move while it is sounding. A filter
+        //! parked at the end of its range hands the signal straight through, so an unused stage costs
+        //! a comparison.
+        std::shared_ptr<LowPassFilter> lpfStage2;
+        std::shared_ptr<HighPassFilter> hpfStage2;
         std::shared_ptr<Volume> volumeEffect;
         std::shared_ptr<Panning> panningEffect;
         std::vector<std::shared_ptr<Effect>> effects;
@@ -396,6 +408,8 @@ private:
     std::vector<std::pair<Sample *, std::vector<double>>> m_padBuffers;
 
     std::string m_name;
+    //! 0 for 12 dB/oct, 1 for 24. See the second filter stage on Voice.
+    float m_filterSlope = 0.0f;
     float m_globalCutoff = 1.0f;
     float m_globalHpfCutoff = 0.0f;
     float m_authoredGlobalCutoff = 1.0f;

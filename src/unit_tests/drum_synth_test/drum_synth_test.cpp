@@ -29,7 +29,73 @@
 #include "repro_kick_pop.cpp"
 #include <QTest>
 
+#include <cmath>
+
 namespace noteahead {
+
+namespace {
+
+//! Runs a kick through the device with the given slope and hands back the interleaved output.
+std::vector<double> renderKick(int slope, float hpfCutoff)
+{
+    DrumSynthDevice device { "Drum Synth" };
+    device.setFilterSlope(slope);
+    device.updateVoiceParameter(0, Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), hpfCutoff);
+    device.processMidiNoteOn(36, 100);
+    std::vector<double> buffer(4096 * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), 4096, 44100 };
+    device.processAudio(context);
+    return buffer;
+}
+
+} // namespace
+
+void DrumSynthTest::test_filterSlope_shouldDefaultToTheSlopeItAlwaysHad()
+{
+    // 12 dB/oct is what the voice filters have always been, so that is where a device starts and
+    // where every project that never touches the setting stays.
+    const DrumSynthDevice device { "Drum Synth" };
+    QCOMPARE(device.filterSlope(), 0);
+}
+
+void DrumSynthTest::test_filterSlope_steep_shouldCutFurther()
+{
+    // A second stage of the same filter, so the stop band falls twice as fast.
+    //
+    // Measured at one frequency well below the corner rather than as broadband level: two stages at
+    // the same Q peak at the corner, so near it the steeper filter is the louder of the two, and a
+    // broadband figure mixes that peak in with the rejection being measured.
+    const auto magnitudeAt100Hz = [](int slope) {
+        const auto rendered = renderKick(slope, 0.6f);
+        double re = 0.0, im = 0.0;
+        const size_t frames = rendered.size() / 2;
+        for (size_t i = 0; i < frames; i++) {
+            const double phase = 2.0 * M_PI * 100.0 * static_cast<double>(i) / 44100.0;
+            re += rendered[i * 2] * std::cos(phase);
+            im += rendered[i * 2] * std::sin(phase);
+        }
+        return std::hypot(re, im) / static_cast<double>(frames);
+    };
+
+    const double shallow = magnitudeAt100Hz(0);
+    const double steep = magnitudeAt100Hz(1);
+    QVERIFY2(steep < shallow * 0.5, qPrintable(QString("shallow %1, steep %2").arg(shallow).arg(steep)));
+}
+
+void DrumSynthTest::test_filterSlope_shallow_shouldRenderAsBefore()
+{
+    // The second stage is parked where it passes the signal through rather than taken out of the
+    // chain, so this is what says that parking it really is transparent -- and so that no existing
+    // project changed by the setting being added.
+    DrumSynthDevice plain { "Drum Synth" };
+    plain.updateVoiceParameter(0, Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.6f);
+    plain.processMidiNoteOn(36, 100);
+    std::vector<double> first(4096 * 2, 0.0);
+    AudioContext firstContext { std::span(first.data(), first.size()), 4096, 44100 };
+    plain.processAudio(firstContext);
+
+    QCOMPARE(renderKick(0, 0.6f), first);
+}
 
 void DrumSynthTest::test_kickEngine_attack_shouldAddClick()
 {

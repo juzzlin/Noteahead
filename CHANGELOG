@@ -18,6 +18,11 @@ Sun, 13 Sep 2026 08:37:52 +0300
 
 New features:
 
+* Filter Slope on Sampler and Drum Synth
+  - Their LPF and HPF can now roll off at 24 dB/oct instead of 12
+  - One setting for the whole device; 12 dB/oct stays the default, so
+    nothing you have already sounds different
+
 * A glottal source for Speech
   - Models the vocal folds instead of a sawtooth, so the voice has an
     Openness control: pressed and buzzy at one end, soft and breathy at the
