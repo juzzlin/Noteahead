@@ -1820,6 +1820,11 @@ QString xmlKeyBandQ(size_t bandIndex)
     return QString { "band%1Q" }.arg(bandIndex + 1);
 }
 
+QString xmlKeyBandSlope(size_t bandIndex)
+{
+    return QString { "band%1Slope" }.arg(bandIndex + 1);
+}
+
 QString xmlKeyBandThreshold(size_t bandIndex)
 {
     return QString { "band%1Threshold" }.arg(bandIndex + 1);

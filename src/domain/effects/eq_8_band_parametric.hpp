@@ -20,7 +20,9 @@
 #include "effect.hpp"
 
 #include <array>
+#include <cmath>
 #include <cstdint>
+#include <span>
 
 namespace noteahead {
 
@@ -47,24 +49,93 @@ public:
     };
 
 private:
+    //! Pole Qs of a Butterworth cascade, by slope.
+    //!
+    //! A steep cut is several second-order sections in series, and which Q each one takes is what
+    //! decides whether the result is a Butterworth or merely steep. Cascading identical sections
+    //! loses 3 dB at the corner per section -- a four-section 48 dB/oct cut would sit 12 dB down
+    //! where it should be 3 -- and a user reads that as the corner being in the wrong place. These
+    //! are the standard staggered values, and the user's own Q scales them so that dialling
+    //! resonance still does what it does at 12 dB/oct.
+    static constexpr double ButterworthQ12[] { 0.7071 };
+    static constexpr double ButterworthQ24[] { 0.5412, 1.3066 };
+    static constexpr double ButterworthQ48[] { 0.5098, 0.6013, 0.8999, 2.5629 };
+    static constexpr size_t MaxCutStages { 4 };
+
     struct Band
     {
         // The EQ operates internally in Mid/Side, so these process the mid and side channels respectively.
         SvfFilter filterMid;
         SvfFilter filterSide;
+        //! The sections beyond the first, used only by a cut band asking for more than 12 dB/oct.
+        std::array<SvfFilter, MaxCutStages - 1> extraMid;
+        std::array<SvfFilter, MaxCutStages - 1> extraSide;
+        //! How many sections are actually in use, the first included.
+        size_t stages { 1 };
         SvfFilter::Type type { SvfFilter::Type::Bypass };
         double frequency { 1000.0 };
         double gainDb { 0.0 };
         double q { 0.707 };
+        //! 0 for 12 dB/oct, 1 for 24, 2 for 48. Meaningful only on a cut.
+        int slope { 0 };
 
         void reset()
         {
             filterMid.reset();
             filterSide.reset();
+            for (auto & filter : extraMid) {
+                filter.reset();
+            }
+            for (auto & filter : extraSide) {
+                filter.reset();
+            }
+        }
+
+        //! The Butterworth Qs this band's slope asks for, scaled by the user's own Q.
+        std::span<const double> poleQs() const
+        {
+            if (type != SvfFilter::Type::LowCut && type != SvfFilter::Type::HighCut) {
+                return { ButterworthQ12 };
+            }
+            if (slope >= 2) {
+                return { ButterworthQ48 };
+            }
+            if (slope == 1) {
+                return { ButterworthQ24 };
+            }
+            return { ButterworthQ12 };
+        }
+
+        //! Configures however many sections the slope asks for, each at its own Butterworth Q.
+        void updateCutCoefficients(double sampleRate)
+        {
+            const auto qs = poleQs();
+            stages = qs.size();
+            // A cut's level at its own corner is the product of its sections' Qs, and the Butterworth
+            // stagger is chosen so that product is always 0.7071 whatever the order. So the user's Q
+            // is spread across the sections rather than applied to each: the nth root of it leaves
+            // the product equal to the Q asked for, and the corner therefore sits where it sat at 12
+            // dB/oct. Applied to every section instead, a Q of 1 came out 3 dB up at 24 dB/oct and 9
+            // dB up at 48 -- a high pass that boomed at the very frequency it was put there to
+            // clear.
+            const double scale = std::pow(q / 0.7071, 1.0 / static_cast<double>(stages));
+            for (size_t i = 0; i < qs.size(); i++) {
+                const double stageQ = qs[i] * scale;
+                auto & mid = i == 0 ? filterMid : extraMid.at(i - 1);
+                auto & side = i == 0 ? filterSide : extraSide.at(i - 1);
+                if (type == SvfFilter::Type::LowCut) {
+                    mid.calculateLowCut(frequency, sampleRate, stageQ);
+                    side.calculateLowCut(frequency, sampleRate, stageQ);
+                } else {
+                    mid.calculateHighCut(frequency, sampleRate, stageQ);
+                    side.calculateHighCut(frequency, sampleRate, stageQ);
+                }
+            }
         }
 
         void updateCoefficients(double sampleRate)
         {
+            stages = 1;
             switch (type) {
             case SvfFilter::Type::Bypass:
                 filterMid.setBypass();
@@ -83,12 +154,8 @@ private:
                 filterSide.calculateHighShelf(frequency, sampleRate, q, gainDb);
                 break;
             case SvfFilter::Type::LowCut:
-                filterMid.calculateLowCut(frequency, sampleRate, q);
-                filterSide.calculateLowCut(frequency, sampleRate, q);
-                break;
             case SvfFilter::Type::HighCut:
-                filterMid.calculateHighCut(frequency, sampleRate, q);
-                filterSide.calculateHighCut(frequency, sampleRate, q);
+                updateCutCoefficients(sampleRate);
                 break;
             case SvfFilter::Type::Notch:
                 filterMid.calculateNotch(frequency, sampleRate, q);

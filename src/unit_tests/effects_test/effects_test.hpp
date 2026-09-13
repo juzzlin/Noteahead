@@ -61,6 +61,13 @@ private slots:
     void test_endlessReverb_mixZero_shouldPassDrySignal();
     void test_endlessReverb_freeze_shouldSustainTail();
     void test_eq8BandParametricEffect_shouldApplyBandsAndBeStable();
+    void test_eq8BandParametricEffect_cutSlope_shouldDefaultToTwelve();
+    void test_eq8BandParametricEffect_cutSlope_shouldSetTheStopBand_data();
+    void test_eq8BandParametricEffect_cutSlope_shouldSetTheStopBand();
+    void test_eq8BandParametricEffect_cutSlope_shouldHoldTheCorner_data();
+    void test_eq8BandParametricEffect_cutSlope_shouldHoldTheCorner();
+    void test_eq8BandParametricEffect_cutSlope_shouldNotTouchABell();
+
     void test_eq8BandParametricEffect_stereoMode_shouldDefaultToMidSide();
     void test_eq8BandParametricEffect_midMode_shouldAffectMidOnly();
     void test_eq8BandParametricEffect_sideMode_shouldAffectSideOnly();

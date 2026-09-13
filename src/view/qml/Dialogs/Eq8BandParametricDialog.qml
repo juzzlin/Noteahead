@@ -185,5 +185,28 @@ EffectDialog {
             Layout.fillWidth: true
             enabled: typeCombo.currentIndex !== 0
         }
+
+        ColumnLayout {
+            spacing: 5
+            Layout.alignment: Qt.AlignHCenter
+            Label {
+                text: qsTr("Slope")
+                font.bold: true
+                font.pixelSize: 11
+                color: "#aaa"
+                Layout.alignment: Qt.AlignHCenter
+            }
+            ComboBox {
+                implicitWidth: 110
+                model: ["12 dB/oct", "24 dB/oct", "48 dB/oct"]
+                currentIndex: {
+                    effectRackController.revision;
+                    return effectRackController.parameterValue(effectIndex, effectRackController.eq8BandParametricSlopeKey(bandIndex));
+                }
+                onActivated: index => effectRackController.setParameterValue(effectIndex, effectRackController.eq8BandParametricSlopeKey(bandIndex), index)
+                // Only a cut has a slope to set. A bell or a shelf is shaped by its Q.
+                enabled: typeCombo.currentIndex === 4 || typeCombo.currentIndex === 5
+            }
+        }
     }
 }

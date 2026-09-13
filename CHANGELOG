@@ -18,6 +18,13 @@ Sun, 13 Sep 2026 08:37:52 +0300
 
 New features:
 
+* Steeper cuts in the EQ 8-Band Parametric
+  - Low Cut and High Cut bands can now run at 24 or 48 dB/oct as well as 12
+  - Steeper cuts clear rumble and mud without dragging the low mids down
+    with them
+  - The corner stays where the Q puts it whatever the slope
+  - 12 dB/oct stays the default, so existing curves are unchanged
+
 * Filter Slope on Sampler and Drum Synth
   - Their LPF and HPF can now roll off at 24 dB/oct instead of 12
   - One setting for the whole device; 12 dB/oct stays the default, so

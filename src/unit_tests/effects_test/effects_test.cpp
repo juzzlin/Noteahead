@@ -16,6 +16,7 @@
 #include "effects_test.hpp"
 
 #include "../../common/constants.hpp"
+#include "../../common/parameter_mapper.hpp"
 #include "../../common/utils.hpp"
 #include "../../domain/dsp/audio_context.hpp"
 #include "../../domain/dsp/cascaded_svf.hpp"
@@ -1391,6 +1392,125 @@ void configureShelfEq(Eq8BandParametric & eq, float stereoModeValue)
     eq.sync();
 }
 } // namespace
+
+namespace {
+
+//! Level in dB at @p hz through a fresh EQ whose first band is a cut at 1 kHz with the given slope.
+double eqCutMagnitude(int slope, bool lowCut, double hz)
+{
+    Eq8BandParametric eq;
+    eq.setSampleRate(48000.0);
+    const auto set = [&eq](const QString & key, float value) {
+        if (auto p = eq.parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    };
+    set(Constants::NahdXml::xmlKeyBandType(0), static_cast<float>(lowCut ? SvfFilter::Type::LowCut : SvfFilter::Type::HighCut));
+    set(Constants::NahdXml::xmlKeyBandFreq(0), static_cast<float>(ParameterMapper::unmapLogFrequency(1000.0, 20.0, 20000.0)));
+    set(Constants::NahdXml::xmlKeyBandSlope(0), static_cast<float>(slope));
+
+    double peak = 0.0;
+    const size_t settle = 24000;
+    const size_t measure = static_cast<size_t>(48000.0 / hz * 20.0);
+    for (size_t i = 0; i < settle + measure; i++) {
+        double left = std::sin(2.0 * M_PI * hz * static_cast<double>(i) / 48000.0);
+        double right = left;
+        eq.process(left, right);
+        if (i >= settle) {
+            peak = std::max(peak, std::abs(left));
+        }
+    }
+    return 20.0 * std::log10(std::max(1e-12, peak));
+}
+
+} // namespace
+
+void EffectsTest::test_eq8BandParametricEffect_cutSlope_shouldDefaultToTwelve()
+{
+    // 12 dB/oct is what a cut band has always been, so a project that never touches this keeps the
+    // curve it was written with.
+    Eq8BandParametric eq;
+    const auto p = eq.parameter(Constants::NahdXml::xmlKeyBandSlope(0).toStdString());
+    QVERIFY(p);
+    QCOMPARE(p->get().value(), 0.0f);
+}
+
+void EffectsTest::test_eq8BandParametricEffect_cutSlope_shouldSetTheStopBand_data()
+{
+    QTest::addColumn<int>("slope");
+    QTest::addColumn<double>("expectedPerOctave");
+
+    QTest::newRow("12 dB/oct") << 0 << 12.0;
+    QTest::newRow("24 dB/oct") << 1 << 24.0;
+    QTest::newRow("48 dB/oct") << 2 << 48.0;
+}
+
+void EffectsTest::test_eq8BandParametricEffect_cutSlope_shouldSetTheStopBand()
+{
+    QFETCH(int, slope);
+    QFETCH(double, expectedPerOctave);
+
+    // Two octaves below the corner and one below it, which is far enough down for the asymptote to
+    // have arrived and not so far that the measurement runs into the noise floor.
+    const double lower = eqCutMagnitude(slope, true, 250.0);
+    const double upper = eqCutMagnitude(slope, true, 500.0);
+    const double measured = upper - lower;
+
+    QVERIFY2(std::abs(measured - expectedPerOctave) < expectedPerOctave * 0.15,
+             qPrintable(QString("%1 dB/oct where %2 was asked for").arg(measured).arg(expectedPerOctave)));
+}
+
+void EffectsTest::test_eq8BandParametricEffect_cutSlope_shouldHoldTheCorner_data()
+{
+    QTest::addColumn<int>("slope");
+
+    QTest::newRow("12 dB/oct") << 0;
+    QTest::newRow("24 dB/oct") << 1;
+    QTest::newRow("48 dB/oct") << 2;
+}
+
+void EffectsTest::test_eq8BandParametricEffect_cutSlope_shouldHoldTheCorner()
+{
+    QFETCH(int, slope);
+
+    // Changing the slope must not move the corner. A cut's level there is the product of its
+    // sections' Qs, so applying the band's Q to every section instead of spreading it across them
+    // put a Q of 1 three dB up at 24 dB/oct and nine dB up at 48 -- a high pass that boomed at the
+    // very frequency it was put there to clear.
+    const double atCorner = eqCutMagnitude(slope, true, 1000.0);
+    const double reference = eqCutMagnitude(0, true, 1000.0);
+    QVERIFY2(std::abs(atCorner - reference) < 1.0,
+             qPrintable(QString("%1 dB at the corner against %2 at 12 dB/oct").arg(atCorner).arg(reference)));
+}
+
+void EffectsTest::test_eq8BandParametricEffect_cutSlope_shouldNotTouchABell()
+{
+    // A bell is shaped by its Q and has no slope to set, so the setting must not reach it -- and the
+    // dialog greys it out for the same reason.
+    const auto makeBell = [](int slope) {
+        auto eq = std::make_unique<Eq8BandParametric>();
+        eq->setSampleRate(48000.0);
+        const auto set = [&eq](const QString & key, float value) {
+            if (auto p = eq->parameter(key.toStdString()); p) {
+                p->get().setValue(value);
+            }
+        };
+        set(Constants::NahdXml::xmlKeyBandType(0), static_cast<float>(SvfFilter::Type::Bell));
+        set(Constants::NahdXml::xmlKeyBandGain(0), 0.75f);
+        set(Constants::NahdXml::xmlKeyBandSlope(0), static_cast<float>(slope));
+        return eq;
+    };
+
+    auto shallow = makeBell(0);
+    auto steep = makeBell(2);
+
+    for (int i = 0; i < 512; i++) {
+        double a = std::sin(0.1 * i), b = a, c = a, d = a;
+        shallow->process(a, b);
+        steep->process(c, d);
+        QCOMPARE(c, a);
+    }
+}
 
 void EffectsTest::test_eq8BandParametricEffect_stereoMode_shouldDefaultToMidSide()
 {

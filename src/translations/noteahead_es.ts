@@ -2529,6 +2529,10 @@
         <source>Q</source>
         <translation>Q</translation>
     </message>
+    <message>
+        <source>Slope</source>
+        <translation type="unfinished">Pendiente</translation>
+    </message>
 </context>
 <context>
     <name>ErrorDialog</name>

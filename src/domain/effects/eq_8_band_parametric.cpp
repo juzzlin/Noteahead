@@ -33,6 +33,9 @@ Eq8BandParametric::Eq8BandParametric()
         addParameter(Parameter { Constants::NahdXml::xmlKeyBandFreq(i).toStdString(), 0.5f, 20, 20000, 1000, 100, Parameter::Type::Continuous, { std::format("eq8BandParametricBand{}Freq", i + 1) } });
         addParameter(Parameter { Constants::NahdXml::xmlKeyBandGain(i).toStdString(), 0.5f, -2400, 2400, 0, 100, Parameter::Type::Continuous, { std::format("eq8BandParametricBand{}Gain", i + 1) } });
         addParameter(Parameter { Constants::NahdXml::xmlKeyBandQ(i).toStdString(), 0.5f, 1, 100, 10, 10, Parameter::Type::Continuous, { std::format("eq8BandParametricBand{}Q", i + 1) } });
+        // 12 dB/oct, which is what a cut band has always been, so a project that never touches this
+        // keeps the curve it was written with.
+        addParameter(Parameter { Constants::NahdXml::xmlKeyBandSlope(i).toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete });
     }
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyStereoMode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete });
@@ -90,9 +93,15 @@ void Eq8BandParametric::processStereo(double & left, double & right)
     for (auto & band : m_bands) {
         if (processMid) {
             mid = band.filterMid.process(mid);
+            for (size_t stage = 1; stage < band.stages; stage++) {
+                mid = band.extraMid.at(stage - 1).process(mid);
+            }
         }
         if (processSide) {
             side = band.filterSide.process(side);
+            for (size_t stage = 1; stage < band.stages; stage++) {
+                side = band.extraSide.at(stage - 1).process(side);
+            }
         }
     }
 
@@ -127,6 +136,9 @@ void Eq8BandParametric::syncParameters()
         }
         if (const auto p = parameter(Constants::NahdXml::xmlKeyBandQ(i).toStdString()); p) {
             band.q = ParameterMapper::mapExponential(static_cast<double>(p->get().value()), 0.1, 10.0);
+        }
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyBandSlope(i).toStdString()); p) {
+            band.slope = static_cast<int>(p->get().value());
         }
         band.updateCoefficients(m_sampleRate);
     }

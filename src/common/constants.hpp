@@ -597,6 +597,7 @@ QString xmlKeyBandType(size_t bandIndex);
 QString xmlKeyBandFreq(size_t bandIndex);
 QString xmlKeyBandGain(size_t bandIndex);
 QString xmlKeyBandQ(size_t bandIndex);
+QString xmlKeyBandSlope(size_t bandIndex);
 QString xmlKeyBandThreshold(size_t bandIndex);
 QString xmlKeyBandRatio(size_t bandIndex);
 QString xmlKeyBandKnee(size_t bandIndex);

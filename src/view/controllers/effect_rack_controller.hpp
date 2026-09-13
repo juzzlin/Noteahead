@@ -415,6 +415,7 @@ public:
     Q_INVOKABLE QString eq8BandParametricFreqKey(quint32 bandIndex) const;
     Q_INVOKABLE QString eq8BandParametricGainKey(quint32 bandIndex) const;
     Q_INVOKABLE QString eq8BandParametricQKey(quint32 bandIndex) const;
+    Q_INVOKABLE QString eq8BandParametricSlopeKey(quint32 bandIndex) const;
     Q_INVOKABLE QString eq8BandParametricStereoModeKey() const;
 
     Q_INVOKABLE QString vintagePassiveEqLowFreqKey() const;

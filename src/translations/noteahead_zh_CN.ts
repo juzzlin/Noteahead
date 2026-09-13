@@ -2528,6 +2528,10 @@
         <source>Q</source>
         <translation>Q</translation>
     </message>
+    <message>
+        <source>Slope</source>
+        <translation type="unfinished">斜率</translation>
+    </message>
 </context>
 <context>
     <name>ErrorDialog</name>
