@@ -271,6 +271,19 @@ void FmSynthController::setLpfCutoff(int value)
     }
 }
 
+int FmSynthController::filterSlope() const
+{
+    return m_synth ? m_synth->filterSlope() : 1;
+}
+
+void FmSynthController::setFilterSlope(int value)
+{
+    if (m_synth) {
+        m_synth->setFilterSlope(value);
+        emit filterSlopeChanged();
+    }
+}
+
 int FmSynthController::lpfResonance() const
 {
     return m_synth ? static_cast<int>(std::round(m_synth->lpfResonance() * Constants::uiInternalScaling())) : 0;

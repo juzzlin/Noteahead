@@ -2731,6 +2731,14 @@
         <translation type="unfinished">Risonanza</translation>
     </message>
     <message>
+        <source>Filter Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply the LPF and HPF roll off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>HPF Cutoff</source>
         <translation type="unfinished">Taglio HPF</translation>
     </message>
@@ -7921,6 +7929,14 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
         <translation>Risonanza LPF</translation>
     </message>
     <message>
+        <source>Filter Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply the LPF and HPF roll off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>HPF Cutoff</source>
         <translation>Taglio HPF</translation>
     </message>
@@ -8695,6 +8711,14 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
     <message>
         <source>LPF Resonance</source>
         <translation>Risonanza LPF</translation>
+    </message>
+    <message>
+        <source>Filter Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply the LPF and HPF roll off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>HPF Cutoff</source>

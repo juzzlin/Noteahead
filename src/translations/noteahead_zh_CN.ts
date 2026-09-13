@@ -2730,6 +2730,14 @@
         <translation type="unfinished">共振</translation>
     </message>
     <message>
+        <source>Filter Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply the LPF and HPF roll off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>HPF Cutoff</source>
         <translation type="unfinished">高通截止频率</translation>
     </message>
@@ -7920,6 +7928,14 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <translation>低通共振</translation>
     </message>
     <message>
+        <source>Filter Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply the LPF and HPF roll off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>HPF Cutoff</source>
         <translation>高通截止频率</translation>
     </message>
@@ -8694,6 +8710,14 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>LPF Resonance</source>
         <translation>低通共振</translation>
+    </message>
+    <message>
+        <source>Filter Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply the LPF and HPF roll off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>HPF Cutoff</source>

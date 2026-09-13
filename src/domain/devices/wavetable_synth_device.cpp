@@ -158,6 +158,9 @@ WavetableSynthDevice::WavetableSynthDevice(std::string name)
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), 1.0f, 0, 10000, 10000, 100, Parameter::Type::Continuous, { "wavetableSynthLpfCutoff" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLpfResonance().toStdString(), 0.0f, 0, 10000, 0, 100, Parameter::Type::Continuous, { "wavetableSynthLpfResonance" } });
+    // 24 dB/oct, which is what these voices have always been. 12 is the other classic voice: a
+    // gentler filter keeps the top of a pad where a four-pole sweep takes it away.
+    addParameter(Parameter { Constants::NahdXml::xmlKeyFilterSlope().toStdString(), 1.0f, 0, 1, 1, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.0f, 0, 10000, 0, 100, Parameter::Type::Continuous, { "wavetableSynthHpfCutoff" } });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyAmpAttack().toStdString(), 0.1f, 0, 10000, 1000, 100, Parameter::Type::Continuous, { "wavetableSynthAmpAttack" } });
@@ -862,6 +865,16 @@ float WavetableSynthDevice::generateVoiceSample(Voice & voice, const ModulationV
     return voice.hpf.process(voice.lpf.process(mix)) * static_cast<float>(mods.ampEnvelope) * ampMod;
 }
 
+int WavetableSynthDevice::filterSlope() const
+{
+    return static_cast<int>(m_filterSlope);
+}
+
+void WavetableSynthDevice::setFilterSlope(int filterSlope)
+{
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyFilterSlope().toStdString(), filterSlope);
+}
+
 void WavetableSynthDevice::syncParameters()
 {
     Device::syncParameters();
@@ -892,6 +905,7 @@ void WavetableSynthDevice::syncParameters()
 
     updateParam(Constants::NahdXml::xmlKeyLpfCutoff(), m_lpfCutoff);
     updateParam(Constants::NahdXml::xmlKeyLpfResonance(), m_lpfResonance);
+    updateParam(Constants::NahdXml::xmlKeyFilterSlope(), m_filterSlope);
     updateParam(Constants::NahdXml::xmlKeyHpfCutoff(), m_hpfCutoff);
 
     updateParam(Constants::NahdXml::xmlKeyAmpAttack(), m_ampAttack);

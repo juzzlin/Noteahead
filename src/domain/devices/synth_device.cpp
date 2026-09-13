@@ -160,6 +160,9 @@ SynthDevice::SynthDevice(std::string name)
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), 1.0f, 0, 10000, 10000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLpfResonance().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    // 24 dB/oct, which is what these voices have always been. 12 is the other classic voice: a
+    // gentler filter keeps the top of a pad where a four-pole sweep takes it away.
+    addParameter(Parameter { Constants::NahdXml::xmlKeyFilterSlope().toStdString(), 1.0f, 0, 1, 1, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyKeyTrack().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
@@ -1049,6 +1052,11 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
 
     voice.lpf.setCutoff(std::clamp(m_lpfCutoff + cutoffMod, 0.0, 1.0));
     voice.lpf.setResonance(std::clamp(m_lpfResonance + static_cast<float>(mods.resonanceMod), 0.0f, 1.0f));
+    // Two poles or four. Set here with the rest of the filter's settings rather than once when the
+    // voice is made, so that changing it reaches a note that is already sounding.
+    const int order = static_cast<int>(m_filterSlope) == 0 ? 2 : 4;
+    voice.lpf.setOrder(order);
+    voice.hpf.setOrder(order);
     voice.hpf.setCutoff(std::clamp(m_hpfCutoff + mods.hpfCutoffMod, 0.0, 1.0));
 
     const float filtered = voice.hpf.process(voice.lpf.process(static_cast<float>(mixHeadroom)));
@@ -1056,9 +1064,21 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
     return filtered * static_cast<float>(mods.ampEnvelope) * ampMod;
 }
 
+int SynthDevice::filterSlope() const
+{
+    return static_cast<int>(m_filterSlope);
+}
+
+void SynthDevice::setFilterSlope(int filterSlope)
+{
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyFilterSlope().toStdString(), filterSlope);
+}
+
 void SynthDevice::syncParameters()
 {
     Device::syncParameters();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyFilterSlope().toStdString()); p)
+        m_filterSlope = p->get().value();
     if (const auto p = parameter(Constants::NahdXml::xmlKeyVco1Waveform().toStdString()); p)
         m_vco1Waveform = static_cast<PolyBlepOscillator::Waveform>(p->get().xmlValue());
     if (const auto p = parameter(Constants::NahdXml::xmlKeyVco1Octave().toStdString()); p)

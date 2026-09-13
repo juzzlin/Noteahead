@@ -2731,6 +2731,14 @@
         <translation type="unfinished">Resonanssi</translation>
     </message>
     <message>
+        <source>Filter Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply the LPF and HPF roll off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>HPF Cutoff</source>
         <translation type="unfinished">HPF cutoff</translation>
     </message>
@@ -7921,6 +7929,14 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <translation>LPF-resonanssi</translation>
     </message>
     <message>
+        <source>Filter Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply the LPF and HPF roll off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>HPF Cutoff</source>
         <translation>HPF cutoff</translation>
     </message>
@@ -8695,6 +8711,14 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     <message>
         <source>LPF Resonance</source>
         <translation>LPF-resonanssi</translation>
+    </message>
+    <message>
+        <source>Filter Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply the LPF and HPF roll off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>HPF Cutoff</source>

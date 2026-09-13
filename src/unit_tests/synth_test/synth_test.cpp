@@ -52,6 +52,50 @@ public:
 
 } // namespace
 
+void SynthTest::test_filterSlope_shouldDefaultToTheSlopeItAlwaysHad()
+{
+    // 24 dB/oct is what these voices have always been, so that is where a device starts and where
+    // every project that never touches the setting stays.
+    const SynthDevice synth { "Synth" };
+    QCOMPARE(synth.filterSlope(), 1);
+}
+
+void SynthTest::test_filterSlope_shallow_shouldKeepMoreOfTheTop()
+{
+    // Two poles instead of four, which is the other classic voice: at the same cutoff a gentler
+    // filter leaves more above it. Measured well into the stop band, where the two differ most and
+    // where the resonant peak at the corner cannot confuse the comparison.
+    const auto magnitudeAboveCutoff = [](int slope) {
+        SynthDevice synth { "Synth" };
+        synth.setFilterSlope(slope);
+        synth.setLpfCutoff(0.5f);
+        synth.setLpfResonance(0.0f);
+        synth.processMidiNoteOn(60, 127);
+
+        // Past the attack, so the measurement is of the filter rather than of the envelope.
+        std::vector<double> warmUp(2048 * 2, 0.0);
+        AudioContext warmUpContext { std::span(warmUp.data(), warmUp.size()), 2048, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+        synth.processAudio(warmUpContext);
+
+        std::vector<double> buffer(4096 * 2, 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), 4096, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+        synth.processAudio(context);
+
+        const double rate = Constants::defaultSampleRate();
+        double re = 0.0, im = 0.0;
+        for (size_t i = 0; i < 4096; i++) {
+            const double phase = 2.0 * M_PI * 2500.0 * static_cast<double>(i) / rate;
+            re += buffer[i * 2] * std::cos(phase);
+            im += buffer[i * 2] * std::sin(phase);
+        }
+        return std::hypot(re, im) / 4096.0;
+    };
+
+    const double steep = magnitudeAboveCutoff(1);
+    const double shallow = magnitudeAboveCutoff(0);
+    QVERIFY2(shallow > steep * 2.0, qPrintable(QString("steep %1, shallow %2").arg(steep).arg(shallow)));
+}
+
 void SynthTest::initTestCase()
 {
 }

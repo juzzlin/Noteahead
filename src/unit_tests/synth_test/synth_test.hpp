@@ -25,6 +25,8 @@ class SynthTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_filterSlope_shouldDefaultToTheSlopeItAlwaysHad();
+    void test_filterSlope_shallow_shouldKeepMoreOfTheTop();
     void initTestCase();
     void cleanupTestCase();
 

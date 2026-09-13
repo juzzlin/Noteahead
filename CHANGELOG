@@ -18,6 +18,11 @@ Sun, 13 Sep 2026 08:37:52 +0300
 
 New features:
 
+* Filter Slope on Synth, FM Synth and Wavetable Synth
+  - Their voice filters can run at 12 dB/oct as well as the 24 they have
+    always been, which is the gentler, more open filter voice
+  - 24 dB/oct stays the default, so existing patches are unchanged
+
 * Steeper cuts in the EQ 8-Band Parametric
   - Low Cut and High Cut bands can now run at 24 or 48 dB/oct as well as 12
   - Steeper cuts clear rumble and mud without dragging the low mids down

@@ -182,6 +182,9 @@ FmSynthDevice::FmSynthDevice(std::string name)
 
     addParameter(Parameter { NahdXml::xmlKeyLpfCutoff().toStdString(), 1.0f, 0, 10000, 10000, 100 });
     addParameter(Parameter { NahdXml::xmlKeyLpfResonance().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    // 24 dB/oct, which is what these voices have always been. 12 is the other classic voice: a
+    // gentler filter keeps the top of a pad where a four-pole sweep takes it away.
+    addParameter(Parameter { NahdXml::xmlKeyFilterSlope().toStdString(), 1.0f, 0, 1, 1, 1, Parameter::Type::Discrete });
     addParameter(Parameter { NahdXml::xmlKeyHpfCutoff().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
     addParameter(Parameter { NahdXml::xmlKeyAmpAttack().toStdString(), 0.0f, 0, 10000, 0, 100 });
@@ -935,6 +938,16 @@ double FmSynthDevice::voiceGlideFrequency(size_t index) const
     return index < m_voices.size() ? m_voices.at(index).glideFrequency : 0.0;
 }
 
+int FmSynthDevice::filterSlope() const
+{
+    return static_cast<int>(m_filterSlope);
+}
+
+void FmSynthDevice::setFilterSlope(int filterSlope)
+{
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyFilterSlope().toStdString(), filterSlope);
+}
+
 void FmSynthDevice::syncParameters()
 {
     Device::syncParameters();
@@ -979,6 +992,7 @@ void FmSynthDevice::syncParameters()
 
     updateParam(NahdXml::xmlKeyLpfCutoff(), m_lpfCutoff);
     updateParam(NahdXml::xmlKeyLpfResonance(), m_lpfResonance);
+    updateParam(NahdXml::xmlKeyFilterSlope(), m_filterSlope);
     updateParam(NahdXml::xmlKeyHpfCutoff(), m_hpfCutoff);
 
     updateParam(NahdXml::xmlKeyAmpAttack(), m_ampAttack);

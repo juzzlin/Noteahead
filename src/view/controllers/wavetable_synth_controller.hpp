@@ -48,6 +48,7 @@ class WavetableSynthController : public DeviceController
     // Filter
     Q_PROPERTY(int lpfCutoff READ lpfCutoff WRITE setLpfCutoff NOTIFY lpfCutoffChanged)
     Q_PROPERTY(int lpfResonance READ lpfResonance WRITE setLpfResonance NOTIFY lpfResonanceChanged)
+    Q_PROPERTY(int filterSlope READ filterSlope WRITE setFilterSlope NOTIFY filterSlopeChanged)
     Q_PROPERTY(int hpfCutoff READ hpfCutoff WRITE setHpfCutoff NOTIFY hpfCutoffChanged)
 
     // Amp EG
@@ -141,6 +142,8 @@ public:
     void setLpfCutoff(int c);
     int lpfResonance() const;
     void setLpfResonance(int r);
+    int filterSlope() const;
+    void setFilterSlope(int value);
     int hpfCutoff() const;
     void setHpfCutoff(int c);
 
@@ -246,6 +249,7 @@ signals:
     void noiseLevelChanged();
     void lpfCutoffChanged();
     void lpfResonanceChanged();
+    void filterSlopeChanged();
     void hpfCutoffChanged();
     void ampAttackChanged();
     void ampDecayChanged();

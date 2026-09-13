@@ -137,6 +137,13 @@ public:
     //! unity, where the centre voice is held up and the outer ones give way.
     float voiceLevel(size_t index) const;
 
+    //! 0 for 12 dB/oct, 1 for 24, which is what these voices have always been.
+
+    int filterSlope() const;
+
+    void setFilterSlope(int filterSlope);
+
+
     void serializeToXml(ProjectWriter & writer) const override;
     void deserializeFromXml(ProjectReader & reader) override;
 
@@ -440,6 +447,8 @@ private:
 
     float m_lpfCutoff { 1.0f };
     float m_lpfResonance { 0.0f };
+    //! 0 for 12 dB/oct, 1 for 24, which is what these voices have always been.
+    float m_filterSlope { 1.0f };
     float m_hpfCutoff { 0.0f };
     float m_filterKeyTrack { 0.0f };
 
