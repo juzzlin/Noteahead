@@ -36,6 +36,7 @@ ColumnLayout {
     }
 
     RowLayout {
+        Layout.bottomMargin: Constants.dropDownBottomMargin
         ComboBox {
             model: synthController.voiceModes
             currentIndex: synthController.voiceMode

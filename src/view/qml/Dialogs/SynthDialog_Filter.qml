@@ -38,6 +38,7 @@ ColumnLayout {
     RowLayout {
         spacing: 10
         Layout.fillWidth: true
+        Layout.bottomMargin: Constants.dropDownBottomMargin
 
         ColumnLayout {
             Layout.fillWidth: true

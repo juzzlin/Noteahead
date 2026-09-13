@@ -40,7 +40,7 @@ ColumnLayout {
         currentIndex: fmSynthController.voiceMode
         onActivated: i => fmSynthController.voiceMode = i
         Layout.fillWidth: true
-        Layout.bottomMargin: 10
+        Layout.bottomMargin: Constants.dropDownBottomMargin
     }
     Knob {
         label: qsTr("Voice Depth")

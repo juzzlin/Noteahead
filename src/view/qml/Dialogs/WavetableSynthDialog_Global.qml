@@ -40,14 +40,14 @@ ColumnLayout {
         currentIndex: wavetableSynthController.voiceMode
         onActivated: i => wavetableSynthController.voiceMode = i
         Layout.fillWidth: true
-        Layout.bottomMargin: 10
+        Layout.bottomMargin: Constants.dropDownBottomMargin
     }
     ComboBox {
         model: wavetableSynthController.wavetableNames
         currentIndex: wavetableSynthController.wavetableIndex
         onActivated: i => wavetableSynthController.wavetableIndex = i
         Layout.fillWidth: true
-        Layout.bottomMargin: 10
+        Layout.bottomMargin: Constants.dropDownBottomMargin
     }
     Knob {
         label: qsTr("Voice Depth")

@@ -35,6 +35,11 @@ QtObject {
     // minUnitWidth the track headers get cramped, so a narrow window shows fewer and a wide one
     // shows more; the ceiling is whatever the song actually has. defaultVisibleUnitCount is what a
     // fixed, non-fitting editor shows.
+    // A dropdown sits tighter against what follows it than a knob does: it has no label below it to
+    // stand the two apart, so its box runs straight into the next control. This is the gap that puts
+    // back, and it is one value so that every dialog leaves the same one.
+    readonly property int dropDownBottomMargin: 5
+
     readonly property int minUnitWidth: 280
     readonly property int defaultVisibleUnitCount: 6
     readonly property int minVisibleUnitCount: 2

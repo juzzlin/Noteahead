@@ -54,6 +54,7 @@ ColumnLayout {
 
     ColumnLayout {
         Layout.fillWidth: true
+        Layout.bottomMargin: Constants.dropDownBottomMargin
         Label {
             text: qsTr("LPF Slope")
         }
@@ -69,6 +70,7 @@ ColumnLayout {
 
     ColumnLayout {
         Layout.fillWidth: true
+        Layout.bottomMargin: Constants.dropDownBottomMargin
         Label {
             text: qsTr("HPF Slope")
         }
