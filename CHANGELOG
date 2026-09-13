@@ -5,19 +5,6 @@ Release date:
 
 New features:
 
-Bug fixes:
-
-Other:
-
-8.0.0
-=====
-
-Release date:
-
-Sun, 13 Sep 2026 08:37:52 +0300
-
-New features:
-
 * Filter Slope on Synth, FM Synth and Wavetable Synth
   - Their voice filters can run at 12 dB/oct as well as the 24 they have
     always been, which is the gentler, more open filter voice
@@ -34,6 +21,19 @@ New features:
   - Their LPF and HPF can now roll off at 24 dB/oct instead of 12
   - One setting for the whole device; 12 dB/oct stays the default, so
     nothing you have already sounds different
+
+Bug fixes:
+
+Other:
+
+8.0.0
+=====
+
+Release date:
+
+Sun, 13 Sep 2026 08:37:52 +0300
+
+New features:
 
 * A glottal source for Speech
   - Models the vocal folds instead of a sawtooth, so the voice has an
