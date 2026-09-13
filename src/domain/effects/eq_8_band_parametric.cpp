@@ -32,7 +32,11 @@ Eq8BandParametric::Eq8BandParametric()
         addParameter(Parameter { Constants::NahdXml::xmlKeyBandType(i).toStdString(), 0.0f, 0, 6, 0, 1, Parameter::Type::Discrete, { std::format("eq8BandParametricBand{}Type", i + 1) } });
         addParameter(Parameter { Constants::NahdXml::xmlKeyBandFreq(i).toStdString(), 0.5f, 20, 20000, 1000, 100, Parameter::Type::Continuous, { std::format("eq8BandParametricBand{}Freq", i + 1) } });
         addParameter(Parameter { Constants::NahdXml::xmlKeyBandGain(i).toStdString(), 0.5f, -2400, 2400, 0, 100, Parameter::Type::Continuous, { std::format("eq8BandParametricBand{}Gain", i + 1) } });
-        addParameter(Parameter { Constants::NahdXml::xmlKeyBandQ(i).toStdString(), 0.5f, 1, 100, 10, 10, Parameter::Type::Continuous, { std::format("eq8BandParametricBand{}Q", i + 1) } });
+        // 0.5753 maps to Q = 1.414, which is a bell exactly one octave wide -- the width a
+        // parametric is expected to open at, and the one a musician reads as "a bit either side of
+        // this note". The stored default said 10 where the live one said the equivalent of 50, and
+        // only the live one was ever heard; they now agree.
+        addParameter(Parameter { Constants::NahdXml::xmlKeyBandQ(i).toStdString(), 0.5753f, 1, 100, 58, 10, Parameter::Type::Continuous, { std::format("eq8BandParametricBand{}Q", i + 1) } });
         // 12 dB/oct, which is what a cut band has always been, so a project that never touches this
         // keeps the curve it was written with.
         addParameter(Parameter { Constants::NahdXml::xmlKeyBandSlope(i).toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete });

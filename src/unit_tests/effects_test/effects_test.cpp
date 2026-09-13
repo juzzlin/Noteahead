@@ -1321,8 +1321,8 @@ void EffectsTest::test_eq8BandParametricEffect_shouldApplyBandsAndBeStable()
     // Test defaults
     {
         if (auto p = effect.parameter(Constants::NahdXml::xmlKeyBandQ(0).toStdString()); p) {
-            // Default should be 0.5f (maps to 1.0)
-            QCOMPARE(p->get().value(), 0.5f);
+            // Maps to Q = 1.414, a bell one octave wide.
+            QCOMPARE(p->get().value(), 0.5753f);
         }
     }
 
@@ -1424,6 +1424,40 @@ double eqCutMagnitude(int slope, bool lowCut, double hz)
 }
 
 } // namespace
+
+void EffectsTest::test_eq8BandParametricEffect_bell_shouldDefaultToOneOctave()
+{
+    // A bell's width is read off its half-gain points, and at Q = 1.414 they sit half an octave
+    // either side of the centre -- one octave across, which is the width a parametric is expected to
+    // open at and the one a musician means by "around this note".
+    const auto magnitudeAt = [](double hz) {
+        Eq8BandParametric eq;
+        eq.setSampleRate(48000.0);
+        const auto set = [&eq](const QString & key, float value) {
+            if (auto p = eq.parameter(key.toStdString()); p) {
+                p->get().setValue(value);
+            }
+        };
+        set(Constants::NahdXml::xmlKeyBandType(0), static_cast<float>(SvfFilter::Type::Bell));
+        set(Constants::NahdXml::xmlKeyBandFreq(0), static_cast<float>(ParameterMapper::unmapLogFrequency(1000.0, 20.0, 20000.0)));
+        set(Constants::NahdXml::xmlKeyBandGain(0), 0.75f); // +12 dB
+        double peak = 0.0;
+        for (size_t i = 0; i < 28800; i++) {
+            double left = std::sin(2.0 * M_PI * hz * static_cast<double>(i) / 48000.0), right = left;
+            eq.process(left, right);
+            if (i >= 24000) {
+                peak = std::max(peak, std::abs(left));
+            }
+        }
+        return 20.0 * std::log10(std::max(1e-12, peak));
+    };
+
+    QVERIFY2(std::abs(magnitudeAt(1000.0) - 12.0) < 0.2, qPrintable(QString::number(magnitudeAt(1000.0))));
+    // Half an octave either side of 1 kHz, where half the boost should be left.
+    for (auto && hz : { 707.0, 1414.0 }) {
+        QVERIFY2(std::abs(magnitudeAt(hz) - 6.0) < 0.5, qPrintable(QString("%1 dB at %2 Hz").arg(magnitudeAt(hz)).arg(hz)));
+    }
+}
 
 void EffectsTest::test_eq8BandParametricEffect_cutSlope_shouldDefaultToTwelve()
 {
