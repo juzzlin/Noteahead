@@ -1222,8 +1222,16 @@ void SpeechTest::test_device_legacyEngine_shouldMatchTheSourceItReplaced()
     //
     // If this fails, the legacy voice has moved and some project somewhere now sounds different.
     // Fix the cause -- do not re-measure the constants.
+    //
+    // The tolerance is set by how far two machines disagree, not by what is audible. The device
+    // runs the phrase through sin, tan, pow and exp2 some forty-five thousand times, and those are
+    // libm's to round: the same source measured 2e-5 apart in relative terms on two build machines
+    // against a first attempt at 4e-6, which failed on both. A real regression -- a coefficient, a
+    // filter order, a branch taken differently -- moves this by percent rather than by parts per
+    // hundred thousand, so a relative tolerance five times the observed spread still catches one.
     constexpr double referenceRms = 0.025627327;
     constexpr double referencePeak = 0.092176670;
+    constexpr double tolerance = 1e-4;
 
     SpeechDevice device { "Speech" };
     device.setVoiceEngine(0);
@@ -1244,8 +1252,8 @@ void SpeechTest::test_device_legacyEngine_shouldMatchTheSourceItReplaced()
     }
     const double rms = std::sqrt(sum / static_cast<double>(std::max<size_t>(1, mono.size())));
 
-    QVERIFY2(std::abs(rms - referenceRms) < 1e-7, qPrintable(QString::number(rms, 'f', 9)));
-    QVERIFY2(std::abs(peak - referencePeak) < 1e-7, qPrintable(QString::number(peak, 'f', 9)));
+    QVERIFY2(std::abs(rms - referenceRms) < referenceRms * tolerance, qPrintable(QString::number(rms, 'f', 9)));
+    QVERIFY2(std::abs(peak - referencePeak) < referencePeak * tolerance, qPrintable(QString::number(peak, 'f', 9)));
 }
 
 void SpeechTest::test_device_formantShift_shouldBeNeutralAtHalfTravel()
