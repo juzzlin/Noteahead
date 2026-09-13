@@ -63,12 +63,15 @@ void SynthTest::test_filterSlope_shouldDefaultToTheSlopeItAlwaysHad()
 void SynthTest::test_filterSlope_shallow_shouldKeepMoreOfTheTop()
 {
     // Two poles instead of four, which is the other classic voice: at the same cutoff a gentler
-    // filter leaves more above it. Measured well into the stop band, where the two differ most and
-    // where the resonant peak at the corner cannot confuse the comparison.
+    // filter leaves more above it.
+    //
+    // Measured at the note's own fundamental with the corner set below it, rather than somewhere up
+    // in the stop band: what a patch has up there depends on the patch, and a default one that is
+    // close to a sine leaves nothing there to measure but the noise floor.
     const auto magnitudeAboveCutoff = [](int slope) {
         SynthDevice synth { "Synth" };
         synth.setFilterSlope(slope);
-        synth.setLpfCutoff(0.5f);
+        synth.setLpfCutoff(0.25f);
         synth.setLpfResonance(0.0f);
         synth.processMidiNoteOn(60, 127);
 
@@ -84,7 +87,7 @@ void SynthTest::test_filterSlope_shallow_shouldKeepMoreOfTheTop()
         const double rate = Constants::defaultSampleRate();
         double re = 0.0, im = 0.0;
         for (size_t i = 0; i < 4096; i++) {
-            const double phase = 2.0 * M_PI * 2500.0 * static_cast<double>(i) / rate;
+            const double phase = 2.0 * M_PI * 261.63 * static_cast<double>(i) / rate;
             re += buffer[i * 2] * std::cos(phase);
             im += buffer[i * 2] * std::sin(phase);
         }

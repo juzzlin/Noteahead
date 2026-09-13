@@ -25,6 +25,8 @@ class WavetableSynthTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_filterSlope_shouldDefaultToTheSlopeItAlwaysHad();
+    void test_filterSlope_shallow_shouldKeepMoreOfTheTop();
     void test_name_shouldReturnCorrectName();
     void test_defaultValues_shouldBeCorrect();
     void test_parameterSetting_shouldUpdateValues();

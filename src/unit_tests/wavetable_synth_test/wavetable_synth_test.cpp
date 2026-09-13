@@ -46,6 +46,54 @@ public:
 
 } // namespace
 
+void WavetableSynthTest::test_filterSlope_shouldDefaultToTheSlopeItAlwaysHad()
+{
+    // 24 dB/oct is what these voices have always been, so that is where a device starts and where
+    // every project that never touches the setting stays.
+    const WavetableSynthDevice device { "Wavetable Synth" };
+    QCOMPARE(device.filterSlope(), 1);
+}
+
+void WavetableSynthTest::test_filterSlope_shallow_shouldKeepMoreOfTheTop()
+{
+    // Two poles instead of four. Worth asserting per device rather than once: the setting was added
+    // to three synths at a stroke and reached the audio path of only one of them, which a test on
+    // that one could not notice.
+    //
+    // Measured at the note's own fundamental with the corner set below it, rather than somewhere up
+    // in the stop band: what a patch has up there depends on the patch, and a default one that is
+    // close to a sine leaves nothing there to measure but the noise floor.
+    const auto magnitudeAtFundamental = [](int slope) {
+        WavetableSynthDevice device { "Wavetable Synth" };
+        device.setFilterSlope(slope);
+        device.setLpfCutoff(0.25f);
+        device.setLpfResonance(0.0f);
+        device.processMidiNoteOn(60, 127);
+
+        const auto rate = static_cast<uint32_t>(Constants::defaultSampleRate());
+        // Past the attack, so the measurement is of the filter rather than of the envelope.
+        std::vector<double> warmUp(2048 * 2, 0.0);
+        AudioContext warmUpContext { std::span(warmUp.data(), warmUp.size()), 2048, rate };
+        device.processAudio(warmUpContext);
+
+        std::vector<double> buffer(4096 * 2, 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), 4096, rate };
+        device.processAudio(context);
+
+        double re = 0.0, im = 0.0;
+        for (size_t i = 0; i < 4096; i++) {
+            const double phase = 2.0 * M_PI * 261.63 * static_cast<double>(i) / Constants::defaultSampleRate();
+            re += buffer[i * 2] * std::cos(phase);
+            im += buffer[i * 2] * std::sin(phase);
+        }
+        return std::hypot(re, im) / 4096.0;
+    };
+
+    const double steep = magnitudeAtFundamental(1);
+    const double shallow = magnitudeAtFundamental(0);
+    QVERIFY2(shallow > steep * 2.0, qPrintable(QString("steep %1, shallow %2").arg(steep).arg(shallow)));
+}
+
 void WavetableSynthTest::test_name_shouldReturnCorrectName()
 {
     const std::string name = "Test Synth";

@@ -624,6 +624,11 @@ float FmSynthDevice::generateVoiceSample(Voice & voice, const ModulationValues &
 
     voice.lpf.setCutoff(std::clamp(m_lpfCutoff + static_cast<float>(mods.cutoffMod), 0.0f, 1.0f));
     voice.lpf.setResonance(std::clamp(m_lpfResonance + static_cast<float>(mods.resonanceMod), 0.0f, 1.0f));
+    // Two poles or four. Set here with the rest of the filter's settings rather than once when the
+    // voice is made, so that changing it reaches a note that is already sounding.
+    const int order = static_cast<int>(m_filterSlope) == 0 ? 2 : 4;
+    voice.lpf.setOrder(order);
+    voice.hpf.setOrder(order);
     voice.hpf.setCutoff(m_hpfCutoff);
 
     const float ampMod = static_cast<float>(std::max(0.0, 1.0 + mods.volumeMod));
