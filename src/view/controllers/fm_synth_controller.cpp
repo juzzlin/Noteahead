@@ -19,6 +19,7 @@
 #include "../../domain/devices/fm_synth_device.hpp"
 #include "../../domain/devices/fm_synth_presets.hpp"
 #include "../../domain/dsp/lfo.hpp"
+#include "../../domain/effects/delay.hpp"
 #include "fm_operator_controller.hpp"
 
 #include <cmath>
@@ -78,9 +79,13 @@ QVariantList FmSynthController::operators() const
 
 QStringList FmSynthController::presetNames() const
 {
+    // Numbered the way the Synth numbers its own, so the two dialogs read alike.
     QStringList list;
-    for (auto && preset : FmSynthPresets::presets()) {
-        list << QString::fromStdString(preset.name);
+    const auto & presets = FmSynthPresets::presets();
+    for (size_t i = 0; i < presets.size(); i++) {
+        list << QString { "%1: %2" }
+                  .arg(static_cast<int>(i), 3, 10, QChar { '0' })
+                  .arg(QString::fromStdString(presets.at(i).name));
     }
     return list;
 }
@@ -217,6 +222,15 @@ void FmSynthController::requestSettings()
     emit panSpreadChanged();
     emit portamentoChanged();
     emit pitchBendRangeChanged();
+    emit delayTypeChanged();
+    emit delayTimeChanged();
+    emit delayFeedbackChanged();
+    emit delayDepthChanged();
+    emit delayMixChanged();
+    emit delaySyncDivisionChanged();
+    emit delayFeedbackLpfChanged();
+    emit delayFeedbackHpfChanged();
+    emit delaySyncChanged();
     emit volumeChanged();
     emit gainChanged();
     emit panChanged();
@@ -616,6 +630,114 @@ void FmSynthController::setPitchBendRange(int value)
 {
     if (m_synth) {
         m_synth->setPitchBendRange(value);
+    }
+}
+
+int FmSynthController::delayType() const
+{
+    return m_synth ? static_cast<int>(m_synth->delayType()) : 0;
+}
+
+void FmSynthController::setDelayType(int value)
+{
+    if (m_synth) {
+        m_synth->setDelayType(static_cast<Delay::Type>(value));
+    }
+}
+
+int FmSynthController::delayTime() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->delayTime() * Constants::uiInternalScaling())) : 0;
+}
+
+void FmSynthController::setDelayTime(int value)
+{
+    if (m_synth) {
+        m_synth->setDelayTime(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int FmSynthController::delayFeedback() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->delayFeedback() * Constants::uiInternalScaling())) : 0;
+}
+
+void FmSynthController::setDelayFeedback(int value)
+{
+    if (m_synth) {
+        m_synth->setDelayFeedback(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int FmSynthController::delayDepth() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->delayDepth() * Constants::uiInternalScaling())) : 0;
+}
+
+void FmSynthController::setDelayDepth(int value)
+{
+    if (m_synth) {
+        m_synth->setDelayDepth(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int FmSynthController::delayMix() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->delayMix() * Constants::uiInternalScaling())) : 0;
+}
+
+void FmSynthController::setDelayMix(int value)
+{
+    if (m_synth) {
+        m_synth->setDelayMix(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int FmSynthController::delaySyncDivision() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->delaySyncDivision() * Constants::uiInternalScaling())) : 0;
+}
+
+void FmSynthController::setDelaySyncDivision(int value)
+{
+    if (m_synth) {
+        m_synth->setDelaySyncDivision(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int FmSynthController::delayFeedbackLpf() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->delayFeedbackLpf() * Constants::uiInternalScaling())) : 0;
+}
+
+void FmSynthController::setDelayFeedbackLpf(int value)
+{
+    if (m_synth) {
+        m_synth->setDelayFeedbackLpf(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int FmSynthController::delayFeedbackHpf() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->delayFeedbackHpf() * Constants::uiInternalScaling())) : 0;
+}
+
+void FmSynthController::setDelayFeedbackHpf(int value)
+{
+    if (m_synth) {
+        m_synth->setDelayFeedbackHpf(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+bool FmSynthController::delaySync() const
+{
+    return m_synth ? m_synth->delaySync() : false;
+}
+
+void FmSynthController::setDelaySync(bool value)
+{
+    if (m_synth) {
+        m_synth->setDelaySync(value);
     }
 }
 

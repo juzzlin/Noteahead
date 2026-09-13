@@ -17,6 +17,7 @@
 
 #include "../../common/constants.hpp"
 #include "../../domain/devices/fm_synth_device.hpp"
+#include "../../domain/devices/fm_synth_presets.hpp"
 #include "../../view/controllers/fm_operator_controller.hpp"
 #include "../../view/controllers/fm_synth_controller.hpp"
 
@@ -145,6 +146,21 @@ void FmSynthControllerTest::test_reset_shouldRestoreDefaultValues()
     synth->reset();
     QCOMPARE(controller.algorithm(), 0);
     QCOMPARE(controller.lpfCutoff(), toUi(1.0f));
+}
+
+void FmSynthControllerTest::test_presetNames_shouldBeNumberedLikeTheSynths()
+{
+    const auto synth = std::make_shared<FmSynthDevice>("Test FM");
+    const FmSynthController controller { synth };
+
+    // Three digits and a colon, as the Synth's list is written. The two dialogs sit side by side in
+    // the same rack, so a preset list that reads differently in each is just noise.
+    const auto names = controller.presetNames();
+    QCOMPARE(names.size(), static_cast<int>(FmSynthPresets::presets().size()));
+    QCOMPARE(names.at(0), QString { "000: Init" });
+    for (int i = 0; i < names.size(); i++) {
+        QVERIFY2(names.at(i).startsWith(QString { "%1: " }.arg(i, 3, 10, QChar { '0' })), qPrintable(names.at(i)));
+    }
 }
 
 void FmSynthControllerTest::test_operators_shouldExposeOneControllerPerOperator()

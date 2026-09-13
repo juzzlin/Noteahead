@@ -16,6 +16,8 @@
 #ifndef FM_SYNTH_DEVICE_HPP
 #define FM_SYNTH_DEVICE_HPP
 
+#include "../effects/delay.hpp"
+
 #include "../dsp/adsr_envelope.hpp"
 #include "../dsp/cascaded_svf.hpp"
 #include "../dsp/dc_blocker.hpp"
@@ -233,6 +235,26 @@ public:
     LfoTarget lfo2Target() const;
     void setLfo2Target(LfoTarget target);
 
+    // Delay
+    Delay::Type delayType() const;
+    void setDelayType(Delay::Type type);
+    float delayTime() const;
+    void setDelayTime(float time);
+    float delayFeedback() const;
+    void setDelayFeedback(float fb);
+    float delayDepth() const;
+    void setDelayDepth(float depth);
+    float delayMix() const;
+    void setDelayMix(float mix);
+    bool delaySync() const;
+    void setDelaySync(bool sync);
+    float delaySyncDivision() const;
+    void setDelaySyncDivision(float division);
+    float delayFeedbackLpf() const;
+    void setDelayFeedbackLpf(float cutoff);
+    float delayFeedbackHpf() const;
+    void setDelayFeedbackHpf(float cutoff);
+
     // Voice / Global
     VoiceMode voiceMode() const;
     void setVoiceMode(VoiceMode mode);
@@ -356,6 +378,18 @@ private:
     float m_panSpread { 0.5f };
     float m_portamento { 0.0f };
     float m_bpm { 120.0f };
+
+    //! The same delay the Synth carries, and for the same reason: an FM patch is dry by nature, and
+    //! the sound most people picture is one with a delay on it. It runs after the voices are summed
+    //! and downsampled.
+    Delay m_delay;
+    Delay::Type m_delayType { Delay::Type::Stereo };
+    float m_delayTime { 0.5f };
+    float m_delayFeedback { 0.3f };
+    float m_delayDepth { 0.5f };
+    float m_delayMix { 0.0f };
+    bool m_delaySync { false };
+    float m_delaySyncDivision { 0.25f };
 
     uint16_t m_pitchBend { 8192 };
     int m_pitchBendRange { 2 };

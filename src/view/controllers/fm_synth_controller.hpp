@@ -67,6 +67,16 @@ class FmSynthController : public DeviceController
     Q_PROPERTY(int portamento READ portamento WRITE setPortamento NOTIFY portamentoChanged)
     Q_PROPERTY(int pitchBendRange READ pitchBendRange WRITE setPitchBendRange NOTIFY pitchBendRangeChanged)
 
+    Q_PROPERTY(int delayType READ delayType WRITE setDelayType NOTIFY delayTypeChanged)
+    Q_PROPERTY(int delayTime READ delayTime WRITE setDelayTime NOTIFY delayTimeChanged)
+    Q_PROPERTY(int delayFeedback READ delayFeedback WRITE setDelayFeedback NOTIFY delayFeedbackChanged)
+    Q_PROPERTY(int delayDepth READ delayDepth WRITE setDelayDepth NOTIFY delayDepthChanged)
+    Q_PROPERTY(int delayMix READ delayMix WRITE setDelayMix NOTIFY delayMixChanged)
+    Q_PROPERTY(int delaySyncDivision READ delaySyncDivision WRITE setDelaySyncDivision NOTIFY delaySyncDivisionChanged)
+    Q_PROPERTY(int delayFeedbackLpf READ delayFeedbackLpf WRITE setDelayFeedbackLpf NOTIFY delayFeedbackLpfChanged)
+    Q_PROPERTY(int delayFeedbackHpf READ delayFeedbackHpf WRITE setDelayFeedbackHpf NOTIFY delayFeedbackHpfChanged)
+    Q_PROPERTY(bool delaySync READ delaySync WRITE setDelaySync NOTIFY delaySyncChanged)
+
     //! The four operator panels, in order. Constant: the objects live as long as the controller and
     //! follow whichever device it is pointed at.
     Q_PROPERTY(QVariantList operators READ operators CONSTANT)
@@ -157,6 +167,25 @@ public:
     int pitchBendRange() const;
     void setPitchBendRange(int value);
 
+    int delayType() const;
+    void setDelayType(int value);
+    int delayTime() const;
+    void setDelayTime(int value);
+    int delayFeedback() const;
+    void setDelayFeedback(int value);
+    int delayDepth() const;
+    void setDelayDepth(int value);
+    int delayMix() const;
+    void setDelayMix(int value);
+    int delaySyncDivision() const;
+    void setDelaySyncDivision(int value);
+    int delayFeedbackLpf() const;
+    void setDelayFeedbackLpf(int value);
+    int delayFeedbackHpf() const;
+    void setDelayFeedbackHpf(int value);
+    bool delaySync() const;
+    void setDelaySync(bool value);
+
     QVariantList operators() const;
 
     QStringList presetNames() const;
@@ -183,6 +212,15 @@ public:
 
 signals:
     void translationsChanged();
+    void delayTypeChanged();
+    void delayTimeChanged();
+    void delayFeedbackChanged();
+    void delayDepthChanged();
+    void delayMixChanged();
+    void delaySyncDivisionChanged();
+    void delayFeedbackLpfChanged();
+    void delayFeedbackHpfChanged();
+    void delaySyncChanged();
     void currentPresetIndexChanged();
 
     void algorithmChanged();

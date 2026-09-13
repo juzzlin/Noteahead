@@ -60,6 +60,8 @@ private slots:
     void test_allNotesOff_shouldReleaseEveryVoice();
     void test_polyphony_shouldPlayEveryVoice();
     void test_pitchBend_shouldChangeTheOutput();
+    void test_delay_atZeroMix_shouldLeaveNothingBehind();
+    void test_delay_shouldRepeatAfterTheNoteStops();
     void test_voiceMode_unison_shouldDetuneTheStack();
 };
 

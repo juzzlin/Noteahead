@@ -532,6 +532,41 @@ void FmSynthTest::test_pitchBend_shouldChangeTheOutput()
     QVERIFY(renderMono(bent, 2) != renderMono(*plain, 2));
 }
 
+void FmSynthTest::test_delay_atZeroMix_shouldLeaveNothingBehind()
+{
+    // The mix defaults to zero, so a patch that says nothing about the delay stays dry -- every
+    // preset so far was voiced before the delay existed and must sound as it did.
+    FmSynthDevice synth { "Test FM" };
+    synth.setAmpRelease(0.0f);
+    synth.processMidiNoteOn(NoteA4, 127);
+    renderMono(synth, 2);
+    synth.processMidiNoteOff(NoteA4);
+    renderMono(synth, 8);
+
+    QVERIFY(!synth.hasActiveAudio());
+    QCOMPARE(rootMeanSquare(renderMono(synth, 4)), 0.0);
+}
+
+void FmSynthTest::test_delay_shouldRepeatAfterTheNoteStops()
+{
+    // What a delay is for: sound after the voice has gone. The note is released and left to fall
+    // silent, so anything heard past that point can only be the delay.
+    FmSynthDevice synth { "Test FM" };
+    synth.setAmpRelease(0.0f);
+    // The time is in seconds, so this is 80 ms -- short enough to have come back round inside the
+    // window below, where the half-second default would not have.
+    synth.setDelayTime(0.08f);
+    synth.setDelayMix(0.8f);
+    synth.setDelayFeedback(0.6f);
+    synth.processMidiNoteOn(NoteA4, 127);
+    renderMono(synth, 2);
+    synth.processMidiNoteOff(NoteA4);
+    renderMono(synth, 8);
+
+    QVERIFY(!synth.hasActiveAudio());
+    QVERIFY(rootMeanSquare(renderMono(synth, 4)) > 0.0001);
+}
+
 void FmSynthTest::test_voiceMode_unison_shouldDetuneTheStack()
 {
     FmSynthDevice synth { "Test FM" };

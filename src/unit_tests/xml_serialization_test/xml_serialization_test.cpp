@@ -1987,6 +1987,13 @@ void XmlSerializationTest::test_toXmlFromXml_fmSynthDevice_shouldLoadCorrectly()
     fmSynth->setPanSpread(0.66f);
     fmSynth->setPortamento(0.22f);
     fmSynth->setPitchBendRange(7);
+    fmSynth->setDelayType(Delay::Type::PingPong);
+    fmSynth->setDelayTime(0.3f);
+    fmSynth->setDelayFeedback(0.45f);
+    fmSynth->setDelayDepth(0.25f);
+    fmSynth->setDelayMix(0.5f);
+    fmSynth->setDelaySync(true);
+    fmSynth->setDelaySyncDivision(0.125f);
     deviceServiceOut.setDevice(1, fmSynth);
 
     EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
@@ -2032,6 +2039,13 @@ void XmlSerializationTest::test_toXmlFromXml_fmSynthDevice_shouldLoadCorrectly()
     QVERIFY(std::abs(restored->panSpread() - 0.66f) < 0.001f);
     QVERIFY(std::abs(restored->portamento() - 0.22f) < 0.001f);
     QCOMPARE(restored->pitchBendRange(), 7);
+    QCOMPARE(restored->delayType(), Delay::Type::PingPong);
+    QVERIFY(std::abs(restored->delayTime() - 0.3f) < 0.001f);
+    QVERIFY(std::abs(restored->delayFeedback() - 0.45f) < 0.001f);
+    QVERIFY(std::abs(restored->delayDepth() - 0.25f) < 0.001f);
+    QVERIFY(std::abs(restored->delayMix() - 0.5f) < 0.001f);
+    QCOMPARE(restored->delaySync(), true);
+    QVERIFY(std::abs(restored->delaySyncDivision() - 0.125f) < 0.001f);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_stringEnsembleDevice_shouldLoadCorrectly()

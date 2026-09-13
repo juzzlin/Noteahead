@@ -32,6 +32,7 @@ private slots:
     void test_deviceChange_shouldRefreshProperties();
     void test_reset_shouldRestoreDefaultValues();
 
+    void test_presetNames_shouldBeNumberedLikeTheSynths();
     void test_operators_shouldExposeOneControllerPerOperator();
     void test_operatorProperties_shouldUpdateDevice();
     void test_operatorProperties_shouldAddressTheRightOperator();

@@ -124,6 +124,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/FmSynthDialog.qml
     ${QML_BASE_DIR}/Dialogs/FmSynthDialog_Algorithm.qml
     ${QML_BASE_DIR}/Dialogs/FmSynthDialog_AmpEg.qml
+    ${QML_BASE_DIR}/Dialogs/FmSynthDialog_Delay.qml
     ${QML_BASE_DIR}/Dialogs/FmSynthDialog_Filter.qml
     ${QML_BASE_DIR}/Dialogs/FmSynthDialog_Global.qml
     ${QML_BASE_DIR}/Dialogs/FmSynthDialog_Lfo1.qml

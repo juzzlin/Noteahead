@@ -216,6 +216,16 @@ FmSynthDevice::FmSynthDevice(std::string name)
     addParameter(Parameter { NahdXml::xmlKeyPortamento().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { NahdXml::xmlKeyPitchBendRange().toStdString(), 2.0f, 0, 24, 2, 1, Parameter::Type::Discrete });
 
+    addParameter(Parameter { NahdXml::xmlKeyDelayType().toStdString(), 0.0f, 0, 3, 0, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { NahdXml::xmlKeyDelayTime().toStdString(), 0.5f, 0, 10000, 500 }); // 0..10 seconds in ms
+    addParameter(Parameter { NahdXml::xmlKeyDelayFeedback().toStdString(), 0.3f, 0, 10000, 3000, 100 });
+    addParameter(Parameter { NahdXml::xmlKeyDelayDepth().toStdString(), 0.5f, 0, 10000, 5000, 100 });
+    addParameter(Parameter { NahdXml::xmlKeyDelayMix().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { NahdXml::xmlKeyDelaySync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
+    addParameter(Parameter { NahdXml::xmlKeyDelaySyncDivision().toStdString(), 0.25f, 0, 10000, 2500, 100 });
+    addParameter(Parameter { NahdXml::xmlKeyDelayFeedbackLpf().toStdString(), 1.0f, 0, 10000, 10000, 100 });
+    addParameter(Parameter { NahdXml::xmlKeyDelayFeedbackHpf().toStdString(), 0.0f, 0, 10000, 0, 100 });
+
     for (auto && voice : m_voices) {
         voice.lpf.setMode(CascadedSvf::Mode::LowPass);
         voice.hpf.setMode(CascadedSvf::Mode::HighPass);
@@ -414,14 +424,20 @@ void FmSynthDevice::processAudio(AudioContext & context)
             highR[os] = m_oversampledBuffer[(i * oversampleFactor + os) * 2 + 1];
         }
 
-        context.buffer[i * 2] += static_cast<double>(m_downsamplerL.process(highL.data(), oversampleFactor));
-        context.buffer[i * 2 + 1] += static_cast<double>(m_downsamplerR.process(highR.data(), oversampleFactor));
+        double l = static_cast<double>(m_downsamplerL.process(highL.data(), oversampleFactor));
+        double r = static_cast<double>(m_downsamplerR.process(highR.data(), oversampleFactor));
+
+        m_delay.process(l, r);
+
+        context.buffer[i * 2] += l;
+        context.buffer[i * 2 + 1] += r;
     }
 }
 
 void FmSynthDevice::prepareForProcessing(AudioContext & context)
 {
     setSampleRate(context.sampleRate);
+    m_delay.setSampleRate(static_cast<double>(context.sampleRate));
     const size_t requiredSize = static_cast<size_t>(context.frameCount) * clampOversampleFactor(context.oversampleFactor) * 2;
     if (m_oversampledBuffer.size() < requiredSize) {
         m_oversampledBuffer.resize(requiredSize);
@@ -699,6 +715,7 @@ void FmSynthDevice::setBpm(float bpm)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     m_bpm = bpm;
+    m_delay.setBpm(bpm);
 }
 
 void FmSynthDevice::reset()
@@ -713,6 +730,7 @@ void FmSynthDevice::resetAudio()
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     m_rng.seed(RngSeed);
+    m_delay.reset();
     for (auto && voice : m_voices) {
         voice.reset();
     }
@@ -986,6 +1004,29 @@ void FmSynthDevice::syncParameters()
     updateParam(NahdXml::xmlKeyPanSpread(), m_panSpread);
     updateParam(NahdXml::xmlKeyPortamento(), m_portamento);
     updateDiscreteParam(NahdXml::xmlKeyPitchBendRange(), m_pitchBendRange);
+
+    updateDiscreteParam(NahdXml::xmlKeyDelayType(), m_delayType);
+    updateParam(NahdXml::xmlKeyDelayTime(), m_delayTime);
+    updateParam(NahdXml::xmlKeyDelayFeedback(), m_delayFeedback);
+    updateParam(NahdXml::xmlKeyDelayDepth(), m_delayDepth);
+    updateParam(NahdXml::xmlKeyDelayMix(), m_delayMix);
+    if (const auto p = parameter(NahdXml::xmlKeyDelaySync().toStdString()); p) {
+        m_delaySync = p->get().value() > 0.5f;
+    }
+    updateParam(NahdXml::xmlKeyDelaySyncDivision(), m_delaySyncDivision);
+    if (const auto p = parameter(NahdXml::xmlKeyDelayFeedbackLpf().toStdString()); p) {
+        m_delay.setFeedbackLpf(p->get().value());
+    }
+    if (const auto p = parameter(NahdXml::xmlKeyDelayFeedbackHpf().toStdString()); p) {
+        m_delay.setFeedbackHpf(p->get().value());
+    }
+    m_delay.setType(m_delayType);
+    m_delay.setTime(m_delayTime);
+    m_delay.setFeedback(m_delayFeedback);
+    m_delay.setDepth(m_delayDepth);
+    m_delay.setMix(m_delayMix);
+    m_delay.setSync(m_delaySync);
+    m_delay.setSyncDivision(m_delaySyncDivision);
 
     for (auto && voice : m_voices) {
         for (size_t i = 0; i < OperatorCount; i++) {
@@ -1645,6 +1686,132 @@ void FmSynthDevice::setPitchBendRange(int value)
 {
     if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyPitchBendRange().toStdString()); synthParameter) {
         synthParameter->get().setFromXml(static_cast<int>(value));
+        syncParameters();
+        emit dataChanged();
+    }
+}
+
+Delay::Type FmSynthDevice::delayType() const
+{
+    return m_delayType;
+}
+
+void FmSynthDevice::setDelayType(Delay::Type value)
+{
+    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyDelayType().toStdString()); synthParameter) {
+        synthParameter->get().setFromXml(static_cast<int>(value));
+        syncParameters();
+        emit dataChanged();
+    }
+}
+
+float FmSynthDevice::delayTime() const
+{
+    return m_delayTime;
+}
+
+void FmSynthDevice::setDelayTime(float value)
+{
+    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString()); synthParameter) {
+        synthParameter->get().setValue(value);
+        syncParameters();
+        emit dataChanged();
+    }
+}
+
+float FmSynthDevice::delayFeedback() const
+{
+    return m_delayFeedback;
+}
+
+void FmSynthDevice::setDelayFeedback(float value)
+{
+    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyDelayFeedback().toStdString()); synthParameter) {
+        synthParameter->get().setValue(value);
+        syncParameters();
+        emit dataChanged();
+    }
+}
+
+float FmSynthDevice::delayDepth() const
+{
+    return m_delayDepth;
+}
+
+void FmSynthDevice::setDelayDepth(float value)
+{
+    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyDelayDepth().toStdString()); synthParameter) {
+        synthParameter->get().setValue(value);
+        syncParameters();
+        emit dataChanged();
+    }
+}
+
+float FmSynthDevice::delayMix() const
+{
+    return m_delayMix;
+}
+
+void FmSynthDevice::setDelayMix(float value)
+{
+    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyDelayMix().toStdString()); synthParameter) {
+        synthParameter->get().setValue(value);
+        syncParameters();
+        emit dataChanged();
+    }
+}
+
+bool FmSynthDevice::delaySync() const
+{
+    return m_delaySync;
+}
+
+void FmSynthDevice::setDelaySync(bool value)
+{
+    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyDelaySync().toStdString()); synthParameter) {
+        synthParameter->get().setFromXml(value ? 1 : 0);
+        syncParameters();
+        emit dataChanged();
+    }
+}
+
+float FmSynthDevice::delaySyncDivision() const
+{
+    return m_delaySyncDivision;
+}
+
+void FmSynthDevice::setDelaySyncDivision(float value)
+{
+    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString()); synthParameter) {
+        synthParameter->get().setValue(value);
+        syncParameters();
+        emit dataChanged();
+    }
+}
+
+float FmSynthDevice::delayFeedbackLpf() const
+{
+    return m_delay.feedbackLpf();
+}
+
+void FmSynthDevice::setDelayFeedbackLpf(float cutoff)
+{
+    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyDelayFeedbackLpf().toStdString()); synthParameter) {
+        synthParameter->get().setValue(cutoff);
+        syncParameters();
+        emit dataChanged();
+    }
+}
+
+float FmSynthDevice::delayFeedbackHpf() const
+{
+    return m_delay.feedbackHpf();
+}
+
+void FmSynthDevice::setDelayFeedbackHpf(float cutoff)
+{
+    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyDelayFeedbackHpf().toStdString()); synthParameter) {
+        synthParameter->get().setValue(cutoff);
         syncParameters();
         emit dataChanged();
     }

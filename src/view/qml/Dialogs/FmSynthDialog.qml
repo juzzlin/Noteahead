@@ -118,8 +118,8 @@ AnimatedDialog {
                         moduleWidth: mainRow.moduleWidth
                     }
                     FmSynthDialog_Tab2 {
-                        // Three columns rather than five, so these get the wider share.
-                        moduleWidth: mainRow.moduleWidth * 5 / 3
+                        // Four columns rather than five, so these get a slightly wider share.
+                        moduleWidth: mainRow.moduleWidth * 5 / 4
                     }
                     FmSynthDialog_Tab3 {
                         moduleWidth: mainRow.moduleWidth * 5 / 3
@@ -132,7 +132,7 @@ AnimatedDialog {
                         text: qsTr("Operators")
                     }
                     TabButton {
-                        text: qsTr("Filter / Envelopes")
+                        text: qsTr("Filter / Envelopes / Delay")
                     }
                     TabButton {
                         text: qsTr("LFOs")
