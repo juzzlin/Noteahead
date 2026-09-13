@@ -13,6 +13,7 @@ class SynthControllerTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_requestSettings_shouldNotifyEveryProperty();
     void test_loadPreset_shouldShowTheLoadedPreset();
     void test_presetNames_withUserPresets_shouldContinueTheFactoryNumbering();
     void test_loadPreset_userPreset_shouldApplyTheStoredPatch();

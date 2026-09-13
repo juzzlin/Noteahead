@@ -9,11 +9,48 @@
 #include "../../domain/devices/synth_presets.hpp"
 #include "../../view/controllers/synth_controller.hpp"
 
+#include <QMetaProperty>
 #include <QSignalSpy>
 #include <QTemporaryDir>
 #include <QTest>
+#include <memory>
+#include <vector>
 
 namespace noteahead {
+
+void SynthControllerTest::test_requestSettings_shouldNotifyEveryProperty()
+{
+    // requestSettings() is what a dialog is refreshed by, and it refreshes by emitting each
+    // property's notify signal one at a time. A property added without a line here has bindings
+    // that never re-evaluate: its knob shows a stale value and looks broken, which is exactly what
+    // happened twice while the fourth oscillator and the filter slopes were being added.
+    //
+    // Stated over the metaobject rather than as a list, or this test would need the same line
+    // adding to it and would miss the next one just as easily.
+    const auto synth = std::make_shared<SynthDevice>("Test Synth");
+    SynthController controller { synth };
+
+    const auto * meta = controller.metaObject();
+    std::vector<std::unique_ptr<QSignalSpy>> spies;
+    std::vector<QString> names;
+    for (int i = meta->propertyOffset(); i < meta->propertyCount(); i++) {
+        const auto property = meta->property(i);
+        // Writable ones only. The read-only lists -- waveform names, target names -- are what fills
+        // a combo rather than what it holds, and they are refreshed by retranslate() instead.
+        if (!property.hasNotifySignal() || !property.isWritable()) {
+            continue;
+        }
+        spies.push_back(std::make_unique<QSignalSpy>(&controller, property.notifySignal()));
+        names.push_back(QString::fromLatin1(property.name()));
+    }
+    QVERIFY(!spies.empty());
+
+    controller.requestSettings();
+
+    for (size_t i = 0; i < spies.size(); i++) {
+        QVERIFY2(spies.at(i)->count() > 0, qPrintable(names.at(i) + " is never notified, so its control cannot refresh"));
+    }
+}
 
 void SynthControllerTest::test_sampleRateChange_shouldUpdateHzValues()
 {

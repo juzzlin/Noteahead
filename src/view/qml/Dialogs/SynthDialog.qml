@@ -87,6 +87,10 @@ AnimatedDialog {
             readonly property real sidebarWidth: parent.width * 0.18
             readonly property real synthAreaWidth: parent.width - sidebarWidth - separator.width - 20
             readonly property real moduleWidth: (synthAreaWidth - (20 * 2) - 30) / 3 // 20=spacing, 30=scroll padding
+            // The oscillator tab puts four modules on one row where the others put three, so it
+            // divides the same width by four. Derived from synthAreaWidth like the one above, and
+            // for the same reason: measuring the row itself is what the layout guard trips on.
+            readonly property real vcoModuleWidth: (synthAreaWidth - (20 * 3) - 30) / 4
 
             // Fixed Sidebar: Global settings
             ScrollView {
@@ -126,7 +130,7 @@ AnimatedDialog {
                     Layout.bottomMargin: 10
 
                     SynthDialog_Tab1 {
-                        moduleWidth: mainRow.moduleWidth
+                        moduleWidth: mainRow.vcoModuleWidth
                     }
 
                     SynthDialog_Tab2 {

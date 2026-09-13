@@ -995,6 +995,13 @@ void SynthController::requestSettings()
     emit vco3RoundnessChanged();
     emit vco3SyncChanged();
 
+    emit vco4WaveformChanged();
+    emit vco4OctaveChanged();
+    emit vco4PitchChanged();
+    emit vco4ShapeChanged();
+    emit vco4RoundnessChanged();
+    emit vco4SyncChanged();
+
     emit multiTypeChanged();
     emit multiShapeChanged();
     emit multiLevelChanged();
@@ -1003,6 +1010,8 @@ void SynthController::requestSettings()
     emit mixVco1Changed();
     emit mixVco2Changed();
     emit mixVco3Changed();
+    emit mixVco4Changed();
+
 
     emit lpfCutoffChanged();
     emit lpfResonanceChanged();

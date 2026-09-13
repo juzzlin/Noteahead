@@ -23,7 +23,7 @@ ScrollView {
     property real moduleWidth: 0
 
     GridLayout {
-        columns: 3
+        columns: 4
         columnSpacing: 20
         width: parent.width - 20
         SynthDialog_Vco1 {
@@ -50,7 +50,7 @@ ScrollView {
             Layout.preferredWidth: moduleWidth
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignTop
-            Layout.columnSpan: 3
+            Layout.columnSpan: 4
             Layout.topMargin: 10
         }
     }
