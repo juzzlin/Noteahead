@@ -1810,11 +1810,11 @@
         <translation>Panning</translation>
     </message>
     <message>
-        <source>Filter Slope</source>
+        <source>LPF/HPF Slope</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>How steeply every voice&apos;s LPF and HPF roll off. The steeper one clears more out of the way at the same cutoff.</source>
+        <source>How steeply both of every voice&apos;s filters roll off. The steeper one clears more out of the way at the same cutoff.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2723,20 +2723,20 @@
         <translation type="unfinished">Filter</translation>
     </message>
     <message>
+        <source>LPF/HPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply both filters roll off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>LPF Cutoff</source>
         <translation type="unfinished">LPF-cutoff</translation>
     </message>
     <message>
         <source>Resonance</source>
         <translation type="unfinished">Resonantie</translation>
-    </message>
-    <message>
-        <source>Filter Slope</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>How steeply the LPF and HPF roll off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>HPF Cutoff</source>
@@ -5369,11 +5369,11 @@
         <translation>Fader</translation>
     </message>
     <message>
-        <source>Filter Slope</source>
+        <source>LPF/HPF Slope</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>How steeply every pad&apos;s LPF and HPF roll off. The steeper one clears more out of the way at the same cutoff.</source>
+        <source>How steeply both of every pad&apos;s filters roll off. The steeper one clears more out of the way at the same cutoff.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7921,20 +7921,20 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
         <translation>Filter</translation>
     </message>
     <message>
+        <source>LPF/HPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply both filters roll off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>LPF Cutoff</source>
         <translation>LPF-cutoff</translation>
     </message>
     <message>
         <source>LPF Resonance</source>
         <translation>LPF-resonantie</translation>
-    </message>
-    <message>
-        <source>Filter Slope</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>How steeply the LPF and HPF roll off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>HPF Cutoff</source>
@@ -8705,20 +8705,20 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
         <translation>Filter</translation>
     </message>
     <message>
+        <source>LPF/HPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply both filters roll off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>LPF Cutoff</source>
         <translation>LPF-cutoff</translation>
     </message>
     <message>
         <source>LPF Resonance</source>
         <translation>LPF-resonantie</translation>
-    </message>
-    <message>
-        <source>Filter Slope</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>How steeply the LPF and HPF roll off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>HPF Cutoff</source>

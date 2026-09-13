@@ -176,6 +176,7 @@ void FmSynthController::requestSettings()
     emit feedbackChanged();
     emit lpfCutoffChanged();
     emit lpfResonanceChanged();
+    emit filterSlopeChanged();
     emit hpfCutoffChanged();
     emit ampAttackChanged();
     emit ampDecayChanged();

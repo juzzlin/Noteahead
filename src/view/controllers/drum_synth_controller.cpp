@@ -405,6 +405,7 @@ void DrumSynthController::requestSettings()
     emit voicePanChanged();
     emit voiceLpfCutoffChanged();
     emit voiceHpfCutoffChanged();
+    emit filterSlopeChanged();
     emit voiceTuneChanged();
     emit voiceDecayChanged();
     emit voiceAttackChanged();

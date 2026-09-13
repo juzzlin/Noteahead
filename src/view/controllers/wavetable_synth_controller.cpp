@@ -674,6 +674,7 @@ void WavetableSynthController::requestSettings()
     emit noiseLevelChanged();
     emit lpfCutoffChanged();
     emit lpfResonanceChanged();
+    emit filterSlopeChanged();
     emit hpfCutoffChanged();
     emit ampAttackChanged();
     emit ampDecayChanged();

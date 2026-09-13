@@ -992,6 +992,7 @@ void SynthController::requestSettings()
 
     emit lpfCutoffChanged();
     emit lpfResonanceChanged();
+    emit filterSlopeChanged();
     emit hpfCutoffChanged();
     emit filterKeyTrackChanged();
 

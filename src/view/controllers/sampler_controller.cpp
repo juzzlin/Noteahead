@@ -63,6 +63,7 @@ void SamplerController::setSampler(SamplerDevice::SamplerDeviceS sampler)
         emit chromaticModeChanged();
         emit channelModeChanged();
         emit embedWaveDataChanged();
+        emit filterSlopeChanged();
         setSelectedPad(m_selectedPad); // Trigger updates for properties
     }
 }

@@ -35,6 +35,21 @@ ColumnLayout {
         Layout.topMargin: 10
     }
 
+    ColumnLayout {
+        Layout.fillWidth: true
+        Label {
+            text: qsTr("LPF/HPF Slope")
+        }
+        ComboBox {
+            model: ["12 dB/oct", "24 dB/oct"]
+            currentIndex: synthController.filterSlope
+            onActivated: idx => synthController.filterSlope = idx
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("How steeply both filters roll off. The gentler one keeps the top of a sound where the steeper one takes it away.")
+            Layout.fillWidth: true
+        }
+    }
+
     FilterKnob {
         label: qsTr("LPF Cutoff")
         controller: synthController
@@ -47,20 +62,6 @@ ColumnLayout {
         value: synthController.lpfResonance
         onMoved: v => synthController.lpfResonance = v
         Layout.fillWidth: true
-    }
-    ColumnLayout {
-        Layout.fillWidth: true
-        Label {
-            text: qsTr("Filter Slope")
-        }
-        ComboBox {
-            model: ["12 dB/oct", "24 dB/oct"]
-            currentIndex: synthController.filterSlope
-            onActivated: i => synthController.filterSlope = i
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("How steeply the LPF and HPF roll off. The gentler one keeps the top of a sound where the steeper one takes it away.")
-            Layout.fillWidth: true
-        }
     }
     FilterKnob {
         label: qsTr("HPF Cutoff")

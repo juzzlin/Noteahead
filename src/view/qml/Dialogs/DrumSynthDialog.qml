@@ -107,7 +107,7 @@ AnimatedDialog {
                         }
                         ColumnLayout {
                             Label {
-                                text: qsTr("Filter Slope")
+                                text: qsTr("LPF/HPF Slope")
                             }
                             ComboBox {
                                 // Read through the active language so retranslate() reaches a model built in JS.
@@ -118,7 +118,7 @@ AnimatedDialog {
                                 currentIndex: drumSynthController.filterSlope
                                 onActivated: i => drumSynthController.filterSlope = i
                                 ToolTip.visible: hovered
-                                ToolTip.text: qsTr("How steeply every voice's LPF and HPF roll off. The steeper one clears more out of the way at the same cutoff.")
+                                ToolTip.text: qsTr("How steeply both of every voice's filters roll off. The steeper one clears more out of the way at the same cutoff.")
                             }
                         }
                     }
