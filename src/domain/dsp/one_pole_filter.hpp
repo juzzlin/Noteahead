@@ -16,6 +16,9 @@
 #ifndef ONE_POLE_FILTER_HPP
 #define ONE_POLE_FILTER_HPP
 
+#include <complex>
+#include <optional>
+
 namespace noteahead {
 
 //! First-order topology-preserving transform filter exposing both of its taps.
@@ -42,9 +45,23 @@ public:
     double lowPass() const;
     double highPass() const;
 
+    //! Complex response of the high-pass tap at @p frequency.
+    //!
+    //! What a parallel-summed equalizer needs of a shelf tap: it meets the dry path at a phase that
+    //! turns through 90 degrees across the corner, so only a complex sum lands on the gain that is
+    //! actually heard. Derived from the coefficient process() runs on, like SvfFilter::responseAt().
+    std::complex<double> highPassResponseAt(double frequency, double sampleRate) const;
+
+    //! Complex response of the low-pass tap at @p frequency, the complement of the high-pass one.
+    std::complex<double> lowPassResponseAt(double frequency, double sampleRate) const;
+
     void reset();
 
 private:
+    //! The frequency being asked about, warped and normalised to the corner, or nothing when this
+    //! filter has no corner to normalise against.
+    std::optional<std::complex<double>> normalisedFrequency(double frequency, double sampleRate) const;
+
     double m_g { 0.0 };
     double m_s { 0.0 };
     double m_lowPass { 0.0 };

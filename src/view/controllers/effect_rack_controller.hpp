@@ -419,9 +419,16 @@ public:
     //! The Q a band opens at when the user picks @p bandType, or -1 for a type that has no sensible
     //! one. Applied on the user's action so that loading a project cannot overwrite a saved Q.
     Q_INVOKABLE float eq8BandParametricDefaultQ(int bandType) const;
+    //! Sets a band's type, opening it at the Q that type is reached for at.
+    //!
+    //! A no-op when the band is already that type, because a combo box reports the user picking the
+    //! item that was already current and a Q the user set is not something to throw away for that.
+    Q_INVOKABLE void eq8BandParametricSetBandType(quint32 effectIndex, quint32 bandIndex, int bandType);
     //! The equalizer's response over the audible range, in dB, as @p points evenly spaced on a log
     //! frequency scale from 20 Hz to 20 kHz -- the scale the curve is drawn on.
     Q_INVOKABLE QVariantList eq8BandParametricResponse(quint32 effectIndex, int points) const;
+    //! The curve of the path the equalizer leaves unshaped, or an empty list when it shapes both.
+    Q_INVOKABLE QVariantList eq8BandParametricPassThroughResponse(quint32 effectIndex, int points) const;
     Q_INVOKABLE QString eq8BandParametricStereoModeKey() const;
 
     Q_INVOKABLE QString vintagePassiveEqLowFreqKey() const;
@@ -433,6 +440,7 @@ public:
     Q_INVOKABLE QString vintagePassiveEqHighAttenFreqKey() const;
     Q_INVOKABLE QString vintagePassiveEqHighAttenKey() const;
 
+    Q_INVOKABLE QVariantList airBandEqResponse(quint32 effectIndex, int points) const;
     Q_INVOKABLE QString airBandEqBandGainKey(quint32 bandIndex) const;
     Q_INVOKABLE QString airBandEqAirFreqKey() const;
     Q_INVOKABLE QString airBandEqAirGainKey() const;
@@ -541,6 +549,9 @@ private:
     //! the insert or the send rack; subIndex >= 0 is a Sampler pad or a Drum Synth voice.
     EffectRackOpt rackAt(const QString & deviceName, bool isInsertRack, int subIndex) const;
     EffectRackOpt currentRack() const;
+
+    //! The effect at @p effectIndex in the rack now shown, or nothing when there is none there.
+    std::shared_ptr<Effect> effectAt(quint32 effectIndex) const;
 
     DeviceServiceS m_deviceService;
     EditorServiceS m_editorService;

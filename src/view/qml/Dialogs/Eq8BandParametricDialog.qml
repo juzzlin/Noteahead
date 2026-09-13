@@ -73,6 +73,13 @@ EffectDialog {
                     // the dialog is resized.
                     return effectRackController.eq8BandParametricResponse(root.effectIndex, Math.max(64, Math.round(width / 2)));
                 }
+                // Flat, and drawn only when the stereo mode above leaves one path unshaped. Without
+                // it a Mid or Side cut looks exactly like one taken across the whole image, which is
+                // the one thing about those modes worth seeing.
+                secondaryResponse: {
+                    effectRackController.revision;
+                    return effectRackController.eq8BandParametricPassThroughResponse(root.effectIndex, Math.max(64, Math.round(width / 2)));
+                }
                 dbRange: 18
                 accentColor: themeService.accentColor
                 Layout.fillWidth: true
@@ -149,15 +156,10 @@ EffectDialog {
                         effectRackController.revision;
                         return effectRackController.parameterValue(effectIndex, effectRackController.eq8BandParametricTypeKey(bandIndex));
                     }
-                    onActivated: index => {
-                        effectRackController.setParameterValue(effectIndex, effectRackController.eq8BandParametricTypeKey(bandIndex), index);
-                        // Q means a different thing to each type, so picking one opens it at the
-                        // width that type is reached for at. Negative means the type has no opinion.
-                        const q = effectRackController.eq8BandParametricDefaultQ(index);
-                        if (q >= 0) {
-                            effectRackController.setParameterValue(effectIndex, effectRackController.eq8BandParametricQKey(bandIndex), q);
-                        }
-                    }
+                    // Q means a different thing to each type, so picking one opens it at the width
+                    // that type is reached for at. Which type it already was decides whether that
+                    // happens at all, so the controller is asked rather than told.
+                    onActivated: index => effectRackController.eq8BandParametricSetBandType(effectIndex, bandIndex, index)
                     Layout.fillWidth: true
                 }
             }

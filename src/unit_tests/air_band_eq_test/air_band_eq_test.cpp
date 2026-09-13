@@ -299,6 +299,78 @@ void AirBandEqTest::test_outputGain_boosted_shouldScaleOutput()
     QVERIFY(std::abs(measureGainDb(effect, 1000.0) - 6.0) < 0.1);
 }
 
+namespace {
+
+//! Frequencies the curve is checked at: a tap's own centre, and the skirts either side of it.
+//!
+//! The skirts are the point. A tap is in phase with the dry path only at its centre, so summing the
+//! taps' magnitudes rather than their complex responses agrees exactly where these start and drifts
+//! wider everywhere else.
+constexpr double CurveFrequencies[] { 60.0, 100.0, 160.0, 250.0, 400.0, 650.0, 1000.0, 1600.0, 2500.0, 5000.0, 10000.0 };
+
+void verifyCurveMatchesWhatIsHeard(AirBandEq & effect, double tolerance)
+{
+    for (auto && frequency : CurveFrequencies) {
+        const double heard = measureGainDb(effect, frequency);
+        const double drawn = effect.magnitudeDbAt(frequency);
+        QVERIFY2(std::abs(heard - drawn) < tolerance,
+                 qPrintable(QString("at %1 Hz: heard %2 dB, drawn %3 dB").arg(frequency).arg(heard).arg(drawn)));
+    }
+}
+
+} // namespace
+
+void AirBandEqTest::test_magnitudeDb_defaults_shouldBeFlat()
+{
+    auto effect = makeEq();
+
+    for (auto && frequency : CurveFrequencies) {
+        QVERIFY2(std::abs(effect.magnitudeDbAt(frequency)) < 0.01,
+                 qPrintable(QString("at %1 Hz: %2 dB").arg(frequency).arg(effect.magnitudeDbAt(frequency))));
+    }
+}
+
+void AirBandEqTest::test_magnitudeDb_bandBoosted_shouldMatchWhatIsHeard()
+{
+    auto effect = makeEq();
+    setBand(effect, Band650Hz, 0.6f); // +3 dB at the centre
+
+    verifyCurveMatchesWhatIsHeard(effect, 0.15);
+}
+
+void AirBandEqTest::test_magnitudeDb_bandsOverlapping_shouldMatchWhatIsHeard()
+{
+    // The bells sit two octaves apart at a Q that leaves them overlapping, so several at once is the
+    // case where a sum of magnitudes drifts furthest: every tap's error adds in the same direction.
+    auto effect = makeEq();
+    setBand(effect, Band160Hz, 0.7f);
+    setBand(effect, Band650Hz, 0.8f);
+    setBand(effect, Band2500Hz, BandFullCut);
+
+    verifyCurveMatchesWhatIsHeard(effect, 0.15);
+}
+
+void AirBandEqTest::test_magnitudeDb_airBandBoosted_shouldMatchWhatIsHeard()
+{
+    auto effect = makeEq();
+    setParameter(effect, Constants::NahdXml::xmlKeyAirFreq(), Air10kHz);
+    setParameter(effect, Constants::NahdXml::xmlKeyAirGain(), 0.5f);
+
+    verifyCurveMatchesWhatIsHeard(effect, 0.15);
+}
+
+void AirBandEqTest::test_magnitudeDb_outputGainBoosted_shouldIncludeTheTrim()
+{
+    // The trim is part of what is heard, and pulling the band knobs down to offset the air band is
+    // the move the hardware prescribes: a curve that hid the trim would show that as an uncompensated
+    // cut.
+    auto effect = makeEq();
+    setBand(effect, Band650Hz, 0.6f);
+    setParameter(effect, Constants::NahdXml::xmlKeyGain(), 0.75f); // +6 dB
+
+    verifyCurveMatchesWhatIsHeard(effect, 0.15);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::AirBandEqTest)

@@ -51,12 +51,32 @@ public:
     //! project loads, or opening a song would overwrite every Q it had saved.
     static std::optional<float> defaultQParameterValue(SvfFilter::Type type);
 
-    //! What the whole equalizer does at @p frequency, in dB.
+    //! Which of the two paths a response is asked about.
+    //!
+    //! The bands are configured identically on both, so the two differ only in whether the stereo
+    //! mode lets them run: in Mid or Side mode one path is shaped and the other is a straight wire.
+    //! A curve that ignored this would show a Side-only cut as though the whole image took it.
+    enum class Path
+    {
+        Mid,
+        Side
+    };
+
+    //! What the whole equalizer does to @p path at @p frequency, in dB.
     //!
     //! Asked of the bands themselves rather than worked out from the parameters a second time, so
     //! that a curve drawn from it cannot drift away from what is being heard -- including the extra
     //! sections a steep cut runs, which no formula over the parameters would know about.
+    double magnitudeDbAt(double frequency, Path path) const;
+
+    //! What the equalizer does at @p frequency to whichever path it shapes.
+    //!
+    //! The Mid path unless the stereo mode leaves it untouched, which makes this the curve worth
+    //! drawing boldest whatever the mode is.
     double magnitudeDbAt(double frequency) const;
+
+    //! Whether @p path passes through this equalizer unshaped under the current stereo mode.
+    bool isPathBypassed(Path path) const;
 
     enum class StereoMode
     {
@@ -194,6 +214,9 @@ private:
     void syncParameters();
     void updateBuffers();
     void processStereo(double & left, double & right);
+
+    //! The stereo mode as the parameters have it, up to date even before a block is processed.
+    StereoMode stereoModeFromParameters() const;
 
     static constexpr size_t NumBands = 8;
     std::array<Band, NumBands> m_bands;

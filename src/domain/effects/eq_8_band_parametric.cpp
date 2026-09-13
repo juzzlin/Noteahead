@@ -26,8 +26,29 @@
 
 namespace noteahead {
 
-double Eq8BandParametric::magnitudeDbAt(double frequency) const
+Eq8BandParametric::StereoMode Eq8BandParametric::stereoModeFromParameters() const
 {
+    // Read off the parameter rather than m_stereoMode for the same reason the bands are rebuilt
+    // below: m_stereoMode is only brought up to date when a block is processed.
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyStereoMode().toStdString()); p) {
+        return static_cast<StereoMode>(std::clamp(static_cast<int>(std::round(p->get().value())), 0, 2));
+    }
+    return StereoMode::MidSide;
+}
+
+bool Eq8BandParametric::isPathBypassed(Path path) const
+{
+    const auto mode = stereoModeFromParameters();
+    return path == Path::Mid ? mode == StereoMode::Side : mode == StereoMode::Mid;
+}
+
+double Eq8BandParametric::magnitudeDbAt(double frequency, Path path) const
+{
+    // A path the stereo mode leaves out is a straight wire, however the bands are set.
+    if (isPathBypassed(path)) {
+        return 0.0;
+    }
+
     // Measured on bands of its own rather than on the ones processing audio. Two reasons, and either
     // alone would be enough: the processing bands are written by the audio thread and this is asked
     // from the user interface thread, and they are only brought up to date when a block is
@@ -47,6 +68,11 @@ double Eq8BandParametric::magnitudeDbAt(double frequency) const
     // the way off" on any scale a dialog would use.
     constexpr double floorMagnitude = 1.0e-6;
     return 20.0 * std::log10(std::max(floorMagnitude, magnitude));
+}
+
+double Eq8BandParametric::magnitudeDbAt(double frequency) const
+{
+    return magnitudeDbAt(frequency, isPathBypassed(Path::Mid) ? Path::Side : Path::Mid);
 }
 
 std::optional<float> Eq8BandParametric::defaultQParameterValue(SvfFilter::Type type)

@@ -64,6 +64,8 @@ private slots:
     void test_eq8BandParametricEffect_bell_shouldDefaultToOneOctave();
     void test_eq8BandParametricEffect_magnitude_shouldMatchWhatIsHeard_data();
     void test_eq8BandParametricEffect_magnitude_shouldMatchWhatIsHeard();
+    void test_eq8BandParametricEffect_magnitude_shouldBeFlatOnAPathTheStereoModeBypasses_data();
+    void test_eq8BandParametricEffect_magnitude_shouldBeFlatOnAPathTheStereoModeBypasses();
     void test_eq8BandParametricEffect_defaultQ_shouldFollowTheType_data();
     void test_eq8BandParametricEffect_defaultQ_shouldFollowTheType();
     void test_eq8BandParametricEffect_defaultQ_shouldBeAbsentWhereNothingIsShaped_data();

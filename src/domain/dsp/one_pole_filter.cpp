@@ -43,6 +43,36 @@ void OnePoleFilter::calculate(double frequency, double sampleRate)
     m_g = g / (1.0 + g);
 }
 
+std::complex<double> OnePoleFilter::highPassResponseAt(double frequency, double sampleRate) const
+{
+    const auto s = normalisedFrequency(frequency, sampleRate);
+    if (!s) {
+        return { 0.0, 0.0 };
+    }
+    return *s / (*s + 1.0);
+}
+
+std::complex<double> OnePoleFilter::lowPassResponseAt(double frequency, double sampleRate) const
+{
+    const auto s = normalisedFrequency(frequency, sampleRate);
+    if (!s) {
+        return { 1.0, 0.0 };
+    }
+    return 1.0 / (*s + 1.0);
+}
+
+std::optional<std::complex<double>> OnePoleFilter::normalisedFrequency(double frequency, double sampleRate) const
+{
+    // calculate() stores the coefficient the integrator runs on, g / (1 + g), rather than the warped
+    // corner itself, so the corner has to be recovered before a ratio against it means anything.
+    if (m_g <= 0.0 || m_g >= 1.0 || sampleRate <= 0.0) {
+        return std::nullopt;
+    }
+    const double corner = m_g / (1.0 - m_g);
+    const double warped = std::tan(std::numbers::pi * std::clamp(frequency, 0.0, maxCorner(sampleRate)) / sampleRate);
+    return std::complex<double> { 0.0, warped / corner };
+}
+
 void OnePoleFilter::process(double input)
 {
     const double v = (input - m_s) * m_g;

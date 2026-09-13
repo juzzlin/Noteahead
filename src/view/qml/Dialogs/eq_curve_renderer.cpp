@@ -56,6 +56,18 @@ void EqCurveRenderer::setResponse(const QVariantList & response)
     emit responseChanged();
 }
 
+QVariantList EqCurveRenderer::secondaryResponse() const
+{
+    return m_secondaryResponse;
+}
+
+void EqCurveRenderer::setSecondaryResponse(const QVariantList & response)
+{
+    m_secondaryResponse = response;
+    update();
+    emit secondaryResponseChanged();
+}
+
 int EqCurveRenderer::dbRange() const
 {
     return m_dbRange;
@@ -134,25 +146,27 @@ void EqCurveRenderer::paint(QPainter * painter)
         painter->drawText(QRectF(x - 20.0, plotY + plotH + 2.0, 40.0, LabelMargin - 4.0), Qt::AlignHCenter | Qt::AlignTop, label);
     }
 
-    const int points = m_response.size();
-    if (points < 2) {
+    const QRectF plot { plotX, plotY, plotW, plotH };
+
+    // Drawn first and left unfilled, so that where the two coincide the filled one wins and the
+    // secondary reads as the lesser of the two without needing a legend to say so.
+    if (m_secondaryResponse.size() >= 2) {
+        QPen pen { m_accentColor.lighter(120), 1 };
+        pen.setStyle(Qt::DashLine);
+        painter->setPen(pen);
+        painter->setOpacity(0.55);
+        painter->drawPath(curvePath(m_secondaryResponse, plot));
+        painter->setOpacity(1.0);
+    }
+
+    if (m_response.size() < 2) {
         return;
     }
 
     // The curve, and the same curve closed against flat and filled. The fill is what makes a boost
     // read as a boost at a glance -- a bare line leaves the eye to work out which side of flat it is
     // on, which is the one thing this drawing exists to say.
-    QPainterPath curve;
-    for (int i = 0; i < points; i++) {
-        const qreal x = plotX + plotW * static_cast<double>(i) / static_cast<double>(points - 1);
-        const double db = std::clamp(m_response.at(i).toDouble(), -range, range);
-        const qreal y = plotY + plotH * (0.5 - db / (range * 2.0));
-        if (i == 0) {
-            curve.moveTo(x, y);
-        } else {
-            curve.lineTo(x, y);
-        }
-    }
+    const QPainterPath curve = curvePath(m_response, plot);
 
     QPainterPath filled = curve;
     filled.lineTo(plotX + plotW, plotY + plotH * 0.5);
@@ -165,6 +179,25 @@ void EqCurveRenderer::paint(QPainter * painter)
 
     painter->setPen(QPen(m_accentColor, 2));
     painter->drawPath(curve);
+}
+
+QPainterPath EqCurveRenderer::curvePath(const QVariantList & response, const QRectF & plot) const
+{
+    const double range = static_cast<double>(m_dbRange);
+    const int points = response.size();
+
+    QPainterPath path;
+    for (int i = 0; i < points; i++) {
+        const qreal x = plot.x() + plot.width() * static_cast<double>(i) / static_cast<double>(points - 1);
+        const double db = std::clamp(response.at(i).toDouble(), -range, range);
+        const qreal y = plot.y() + plot.height() * (0.5 - db / (range * 2.0));
+        if (i == 0) {
+            path.moveTo(x, y);
+        } else {
+            path.lineTo(x, y);
+        }
+    }
+    return path;
 }
 
 } // namespace noteahead

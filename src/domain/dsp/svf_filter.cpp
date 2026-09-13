@@ -178,8 +178,13 @@ void SvfFilter::setBypass()
 
 double SvfFilter::magnitudeAt(double frequency, double sampleRate) const
 {
+    return std::abs(responseAt(frequency, sampleRate));
+}
+
+std::complex<double> SvfFilter::responseAt(double frequency, double sampleRate) const
+{
     if (m_isBypassed || m_g <= 0.0 || sampleRate <= 0.0) {
-        return 1.0;
+        return { 1.0, 0.0 };
     }
 
     // The prototype is normalised to the cutoff, and g is the warped cutoff, so the frequency being
@@ -192,7 +197,7 @@ double SvfFilter::magnitudeAt(double frequency, double sampleRate) const
     const std::complex<double> bandPass = s / denominator;
     const std::complex<double> lowPass = 1.0 / denominator;
 
-    return std::abs(m_m0 + m_m1 * bandPass + m_m2 * lowPass);
+    return m_m0 + m_m1 * bandPass + m_m2 * lowPass;
 }
 
 double SvfFilter::process(double input)

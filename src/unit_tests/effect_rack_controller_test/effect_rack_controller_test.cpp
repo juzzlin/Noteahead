@@ -4,6 +4,7 @@
 #include "../../application/service/preset_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/dsp/svf_filter.hpp"
+#include "../../domain/effects/air_band_eq.hpp"
 #include "../../domain/effects/auto_filter.hpp"
 #include "../../domain/effects/auto_panner.hpp"
 #include "../../domain/effects/chorus.hpp"
@@ -31,9 +32,11 @@
 #include <QTemporaryDir>
 #include <QTest>
 
+#include <algorithm>
 #include <cmath>
 #include <memory>
 #include <numbers>
+#include <ranges>
 
 #include "../../domain/devices/device.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
@@ -316,6 +319,172 @@ void EffectRackControllerTest::test_eq8BandParametricResponse_flatBands_shouldBe
     for (auto && point : response) {
         QVERIFY2(std::abs(point.toDouble()) < 0.01, qPrintable(QString::number(point.toDouble())));
     }
+}
+
+namespace {
+
+//! Puts @p typeId in slot 0 of @p controller's insert rack, which is what every curve here reads.
+void setUpInsertRackWith(EffectRackController & controller, const std::string & typeId)
+{
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(typeId));
+}
+
+} // namespace
+
+void EffectRackControllerTest::test_eq8BandParametricSetBandType_sameType_shouldKeepTheQ()
+{
+    // A combo box reports the user picking the item that was already current, so opening the type
+    // list on a band and closing it again used to overwrite a Q that had been set by hand. Projects
+    // lost their band widths just by being looked at.
+    const auto engine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(engine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+    setUpInsertRackWith(controller, Eq8BandParametric::typeIdString());
+
+    const auto qKey = Constants::NahdXml::xmlKeyBandQ(0);
+    controller.eq8BandParametricSetBandType(0, 0, static_cast<int>(SvfFilter::Type::Bell));
+    controller.setParameterValue(0, qKey, 0.5051f); // a width of the user's own choosing
+    const auto authored = controller.parameterValue(0, qKey);
+
+    controller.eq8BandParametricSetBandType(0, 0, static_cast<int>(SvfFilter::Type::Bell));
+
+    QCOMPARE(controller.parameterValue(0, qKey), authored);
+}
+
+void EffectRackControllerTest::test_eq8BandParametricSetBandType_newType_shouldOpenAtThatTypesQ()
+{
+    const auto engine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(engine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+    setUpInsertRackWith(controller, Eq8BandParametric::typeIdString());
+
+    const auto qKey = Constants::NahdXml::xmlKeyBandQ(0);
+    const auto typeKey = Constants::NahdXml::xmlKeyBandType(0);
+    controller.eq8BandParametricSetBandType(0, 0, static_cast<int>(SvfFilter::Type::Bell));
+    controller.setParameterValue(0, qKey, 0.5051f);
+
+    // Changing the type is the move the default is for: Q means a different thing to a shelf.
+    controller.eq8BandParametricSetBandType(0, 0, static_cast<int>(SvfFilter::Type::LowShelf));
+
+    QCOMPARE(static_cast<int>(std::round(controller.parameterValue(0, typeKey))), static_cast<int>(SvfFilter::Type::LowShelf));
+    const auto expected = Eq8BandParametric::defaultQParameterValue(SvfFilter::Type::LowShelf);
+    QVERIFY(expected.has_value());
+    QCOMPARE(controller.parameterValue(0, qKey), *expected);
+}
+
+void EffectRackControllerTest::test_eq8BandParametricSetBandType_typeWithNoOpinion_shouldKeepTheQ()
+{
+    const auto engine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(engine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+    setUpInsertRackWith(controller, Eq8BandParametric::typeIdString());
+
+    const auto qKey = Constants::NahdXml::xmlKeyBandQ(0);
+    controller.eq8BandParametricSetBandType(0, 0, static_cast<int>(SvfFilter::Type::Bell));
+    controller.setParameterValue(0, qKey, 0.5051f);
+    const auto authored = controller.parameterValue(0, qKey);
+
+    // Bypassing a band shapes nothing, so there is no width to have an opinion about -- and the one
+    // the band had is what it should still have when it is switched back on.
+    controller.eq8BandParametricSetBandType(0, 0, static_cast<int>(SvfFilter::Type::Bypass));
+
+    QCOMPARE(controller.parameterValue(0, qKey), authored);
+}
+
+void EffectRackControllerTest::test_eq8BandParametricPassThroughResponse_bothPathsShaped_shouldBeEmpty()
+{
+    // In Mid + Side mode there is no second curve to draw: it would lie exactly on the first and say
+    // only that there is a second curve.
+    const auto engine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(engine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+    setUpInsertRackWith(controller, Eq8BandParametric::typeIdString());
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeyStereoMode(), static_cast<float>(Eq8BandParametric::StereoMode::MidSide));
+
+    QVERIFY(controller.eq8BandParametricPassThroughResponse(0, 32).isEmpty());
+}
+
+void EffectRackControllerTest::test_eq8BandParametricPassThroughResponse_onePathBypassed_shouldBeFlat()
+{
+    const auto engine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(engine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+    setUpInsertRackWith(controller, Eq8BandParametric::typeIdString());
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeyBandType(0), static_cast<float>(SvfFilter::Type::Bell));
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeyBandGain(0), 0.0f); // -24 dB
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeyStereoMode(), static_cast<float>(Eq8BandParametric::StereoMode::Side));
+
+    // The mid path takes none of that cut, and the curve for it is the flat line that says so.
+    const auto passThrough = controller.eq8BandParametricPassThroughResponse(0, 32);
+    QCOMPARE(passThrough.size(), 32);
+    for (auto && point : passThrough) {
+        QVERIFY2(std::abs(point.toDouble()) < 0.01, qPrintable(QString::number(point.toDouble())));
+    }
+
+    // While the curve drawn boldest is the side path, which does take it.
+    const auto shaped = controller.eq8BandParametricResponse(0, 32);
+    const auto deepest = std::ranges::min(shaped | std::views::transform([](auto && p) { return p.toDouble(); }));
+    QVERIFY2(deepest < -12.0, qPrintable(QString("deepest point of the shaped path was %1 dB").arg(deepest)));
+}
+
+void EffectRackControllerTest::test_airBandEqResponse_shouldFollowTheBandThatIsBoosted()
+{
+    const auto engine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(engine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+    setUpInsertRackWith(controller, AirBandEq::typeIdString());
+
+    // The 650 Hz band pass all the way up, which the curve has to show around 650 Hz and nowhere
+    // near the ends of the range.
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeyBandGain(3), 1.0f);
+
+    const auto response = controller.airBandEqResponse(0, 64);
+    QCOMPARE(response.size(), 64);
+
+    // 20 Hz to 20 kHz over 64 points, evenly spaced by octave: 650 Hz lands a little past the middle.
+    const auto at = [&response](double hz) {
+        const int i = static_cast<int>(std::round(std::log(hz / 20.0) / std::log(1000.0) * 63.0));
+        return response.at(std::clamp(i, 0, 63)).toDouble();
+    };
+    QVERIFY2(at(650.0) > 9.0, qPrintable(QString("%1 dB at 650 Hz").arg(at(650.0))));
+    QVERIFY2(at(650.0) > at(20000.0) + 6.0, qPrintable(QString("%1 dB at 650 Hz, %2 at the top").arg(at(650.0)).arg(at(20000.0))));
+    QVERIFY2(at(650.0) > at(20.0) + 6.0, qPrintable(QString("%1 dB at 650 Hz, %2 at the bottom").arg(at(650.0)).arg(at(20.0))));
+}
+
+void EffectRackControllerTest::test_airBandEqResponse_flatBands_shouldBeFlat()
+{
+    // Every band knob starts at its flat detent and the air band starts off, so an equalizer nobody
+    // has touched draws a straight line.
+    const auto engine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(engine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+    setUpInsertRackWith(controller, AirBandEq::typeIdString());
+
+    const auto response = controller.airBandEqResponse(0, 32);
+    QCOMPARE(response.size(), 32);
+    for (auto && point : response) {
+        QVERIFY2(std::abs(point.toDouble()) < 0.01, qPrintable(QString::number(point.toDouble())));
+    }
+}
+
+void EffectRackControllerTest::test_airBandEqResponse_wrongEffect_shouldBeEmpty()
+{
+    // The dialog asks by index, and an index is a thing that can be stale.
+    const auto engine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(engine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+    setUpInsertRackWith(controller, Eq8BandParametric::typeIdString());
+
+    QVERIFY(controller.airBandEqResponse(0, 32).isEmpty());
 }
 
 void EffectRackControllerTest::test_eq8BandParametricResponse_wrongEffect_shouldBeEmpty()

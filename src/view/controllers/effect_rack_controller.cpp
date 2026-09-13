@@ -21,6 +21,7 @@
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/dsp/lfo.hpp"
+#include "../../domain/effects/air_band_eq.hpp"
 #include "../../domain/effects/all_pass_filter.hpp"
 #include "../../domain/effects/analog_fuzz.hpp"
 #include "../../domain/effects/auto_ducker.hpp"
@@ -1399,29 +1400,84 @@ float EffectRackController::eq8BandParametricDefaultQ(int bandType) const
     return q.value_or(-1.0f);
 }
 
-QVariantList EffectRackController::eq8BandParametricResponse(quint32 effectIndex, int points) const
+namespace {
+
+//! Samples @p magnitudeDbAt over the drawn range, evenly spaced by octave from 20 Hz to 20 kHz.
+//!
+//! The spacing EqCurveRenderer expects, kept in one place so that every curve in every dialog is
+//! sampled the same way.
+QVariantList sampleResponse(int points, const std::function<double(double)> & magnitudeDbAt)
 {
     QVariantList response;
     if (points <= 1) {
         return response;
     }
-
-    const auto rack = currentRack();
-    if (!rack) {
-        return response;
-    }
-    const auto effect = std::dynamic_pointer_cast<Eq8BandParametric>(rack->get().effect(static_cast<size_t>(effectIndex)));
-    if (!effect) {
-        return response;
-    }
-
     response.reserve(points);
     for (int i = 0; i < points; i++) {
         const double t = static_cast<double>(i) / static_cast<double>(points - 1);
-        const double hz = 20.0 * std::pow(1000.0, t); // 20 Hz to 20 kHz, evenly spaced by octave
-        response.append(effect->magnitudeDbAt(hz));
+        const double hz = 20.0 * std::pow(1000.0, t);
+        response.append(magnitudeDbAt(hz));
     }
     return response;
+}
+
+} // namespace
+
+std::shared_ptr<Effect> EffectRackController::effectAt(quint32 effectIndex) const
+{
+    const auto rack = currentRack();
+    return rack ? rack->get().effect(static_cast<size_t>(effectIndex)) : nullptr;
+}
+
+void EffectRackController::eq8BandParametricSetBandType(quint32 effectIndex, quint32 bandIndex, int bandType)
+{
+    const auto typeKey = Constants::NahdXml::xmlKeyBandType(bandIndex);
+    if (static_cast<int>(std::round(parameterValue(effectIndex, typeKey))) == bandType) {
+        return;
+    }
+
+    setParameterValue(effectIndex, typeKey, static_cast<float>(bandType));
+
+    if (const auto q = Eq8BandParametric::defaultQParameterValue(static_cast<SvfFilter::Type>(bandType)); q) {
+        setParameterValue(effectIndex, Constants::NahdXml::xmlKeyBandQ(bandIndex), *q);
+    }
+}
+
+QVariantList EffectRackController::eq8BandParametricResponse(quint32 effectIndex, int points) const
+{
+    const auto effect = std::dynamic_pointer_cast<Eq8BandParametric>(effectAt(effectIndex));
+    if (!effect) {
+        return {};
+    }
+    return sampleResponse(points, [&effect](double hz) { return effect->magnitudeDbAt(hz); });
+}
+
+QVariantList EffectRackController::eq8BandParametricPassThroughResponse(quint32 effectIndex, int points) const
+{
+    const auto effect = std::dynamic_pointer_cast<Eq8BandParametric>(effectAt(effectIndex));
+    if (!effect) {
+        return {};
+    }
+
+    // Nothing to draw when the equalizer shapes both paths: a second curve lying exactly on the
+    // first says only that there is a second curve.
+    const auto bypassed = effect->isPathBypassed(Eq8BandParametric::Path::Mid)
+      ? Eq8BandParametric::Path::Mid
+      : (effect->isPathBypassed(Eq8BandParametric::Path::Side) ? Eq8BandParametric::Path::Side : std::optional<Eq8BandParametric::Path> {});
+    if (!bypassed) {
+        return {};
+    }
+
+    return sampleResponse(points, [&effect, path = *bypassed](double hz) { return effect->magnitudeDbAt(hz, path); });
+}
+
+QVariantList EffectRackController::airBandEqResponse(quint32 effectIndex, int points) const
+{
+    const auto effect = std::dynamic_pointer_cast<AirBandEq>(effectAt(effectIndex));
+    if (!effect) {
+        return {};
+    }
+    return sampleResponse(points, [&effect](double hz) { return effect->magnitudeDbAt(hz); });
 }
 
 QString EffectRackController::eq8BandParametricStereoModeKey() const

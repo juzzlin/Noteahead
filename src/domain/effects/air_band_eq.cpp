@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <complex>
 
 namespace noteahead {
 
@@ -173,7 +174,7 @@ void AirBandEq::sync()
     m_shouldUpdateBuffers = true;
 }
 
-void AirBandEq::syncParameters()
+AirBandEq::TapSettings AirBandEq::tapSettingsFromParameters() const
 {
     namespace C = Constants::NahdXml;
 
@@ -182,8 +183,10 @@ void AirBandEq::syncParameters()
         return p ? static_cast<double>(p->get().value()) : 0.0;
     };
 
+    TapSettings settings;
+
     for (size_t i = 0; i < BandCount; i++) {
-        m_bandGains[i] = bandMixCoefficient(valueOf(C::xmlKeyBandGain(i)));
+        settings.bandGains[i] = bandMixCoefficient(valueOf(C::xmlKeyBandGain(i)));
     }
 
     const auto airIndex = std::clamp(static_cast<size_t>(std::lround(valueOf(C::xmlKeyAirFreq()))), size_t { 0 }, AirFreqs.size() - 1);
@@ -198,18 +201,62 @@ void AirBandEq::syncParameters()
     const double airCorner = std::min(selectedFreq, maxCorner);
     const double skirtScale = selectedFreq > maxCorner ? airCorner / selectedFreq : 1.0;
 
-    m_airGain = airIndex == AirOffIndex ? 0.0 : airMixCoefficient(valueOf(C::xmlKeyAirGain())) * skirtScale;
+    settings.airGain = airIndex == AirOffIndex ? 0.0 : airMixCoefficient(valueOf(C::xmlKeyAirGain())) * skirtScale;
+    // Kept in sync even while OFF so that selecting a frequency does not click.
+    settings.airCorner = airIndex == AirOffIndex ? AirFreqs[1] : airCorner;
+    settings.outputGain = outputGainFactor(valueOf(C::xmlKeyGain()));
+
+    return settings;
+}
+
+void AirBandEq::syncParameters()
+{
+    const auto settings = tapSettingsFromParameters();
+
+    m_bandGains = settings.bandGains;
+    m_airGain = settings.airGain;
+    m_outputGain = settings.outputGain;
 
     for (auto & channel : m_channels) {
         for (size_t i = 0; i < BellCount; i++) {
             channel.bells[i].calculateBandPass(BellFreqs[i], m_sampleRate, BandQ);
         }
         channel.shelf.calculate(ShelfFreq, m_sampleRate);
-        // Kept in sync even while OFF so that selecting a frequency does not click.
-        channel.air.calculate(airIndex == AirOffIndex ? AirFreqs[1] : airCorner, m_sampleRate);
+        channel.air.calculate(settings.airCorner, m_sampleRate);
+    }
+}
+
+double AirBandEq::magnitudeDbAt(double frequency) const
+{
+    const auto settings = tapSettingsFromParameters();
+
+    // The dry path contributes unity at every frequency; the taps are added to it, exactly as
+    // processChannel() adds them.
+    std::complex<double> response { 1.0, 0.0 };
+
+    SvfFilter bell;
+    for (size_t i = 0; i < BellCount; i++) {
+        bell.calculateBandPass(BellFreqs[i], m_sampleRate, BandQ);
+        response += settings.bandGains[i] * bell.responseAt(frequency, m_sampleRate);
     }
 
-    m_outputGain = outputGainFactor(valueOf(C::xmlKeyGain()));
+    OnePoleFilter tap;
+    tap.calculate(ShelfFreq, m_sampleRate);
+    response += settings.bandGains[BellCount] * tap.highPassResponseAt(frequency, m_sampleRate);
+
+    tap.calculate(settings.airCorner, m_sampleRate);
+    response += settings.airGain * tap.highPassResponseAt(frequency, m_sampleRate);
+
+    // The output trim is part of what is heard, so it belongs on the curve: pulling the band knobs
+    // down to offset the air band is the move the hardware prescribes, and a curve that hid the trim
+    // would show that move as a cut with no compensation.
+    const double magnitude = std::abs(response) * settings.outputGain;
+
+    // Floored for the same reason Eq8BandParametric::magnitudeDbAt() floors: cuts deep enough to
+    // null the dry path have no decibel value to draw, and this reads as all the way off on any
+    // scale a dialog would use.
+    constexpr double floorMagnitude = 1.0e-6;
+    return 20.0 * std::log10(std::max(floorMagnitude, magnitude));
 }
 
 std::string AirBandEq::typeIdString()

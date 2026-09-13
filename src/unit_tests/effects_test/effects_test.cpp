@@ -1513,6 +1513,69 @@ void EffectsTest::test_eq8BandParametricEffect_magnitude_shouldMatchWhatIsHeard(
              qPrintable(QString("heard %1 dB, drawn %2 dB at %3 Hz").arg(measured).arg(predicted).arg(hz)));
 }
 
+void EffectsTest::test_eq8BandParametricEffect_magnitude_shouldBeFlatOnAPathTheStereoModeBypasses_data()
+{
+    QTest::addColumn<int>("stereoMode");
+    QTest::addColumn<int>("bypassedPath");
+    QTest::addColumn<int>("shapedPath");
+
+    QTest::newRow("mid only bypasses the side") << static_cast<int>(Eq8BandParametric::StereoMode::Mid)
+                                                << static_cast<int>(Eq8BandParametric::Path::Side)
+                                                << static_cast<int>(Eq8BandParametric::Path::Mid);
+    QTest::newRow("side only bypasses the mid") << static_cast<int>(Eq8BandParametric::StereoMode::Side)
+                                                << static_cast<int>(Eq8BandParametric::Path::Mid)
+                                                << static_cast<int>(Eq8BandParametric::Path::Side);
+}
+
+void EffectsTest::test_eq8BandParametricEffect_magnitude_shouldBeFlatOnAPathTheStereoModeBypasses()
+{
+    QFETCH(int, stereoMode);
+    QFETCH(int, bypassedPath);
+    QFETCH(int, shapedPath);
+
+    // A stereo mode that shapes one path wires the other straight through, however deep the band is
+    // set. A curve has to say which of the two it is drawing, or a cut taken out of half the image
+    // looks exactly like one taken out of all of it.
+    Eq8BandParametric eq;
+    eq.setSampleRate(48000.0);
+    const auto set = [&eq](const QString & key, float value) {
+        if (auto p = eq.parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    };
+    set(Constants::NahdXml::xmlKeyBandType(0), static_cast<float>(SvfFilter::Type::Bell));
+    set(Constants::NahdXml::xmlKeyBandFreq(0), static_cast<float>(ParameterMapper::unmapLogFrequency(1000.0, 20.0, 20000.0)));
+    set(Constants::NahdXml::xmlKeyBandGain(0), 0.0f); // -24 dB, as deep as a band goes
+    set(Constants::NahdXml::xmlKeyStereoMode(), static_cast<float>(stereoMode));
+
+    const auto bypassed = static_cast<Eq8BandParametric::Path>(bypassedPath);
+    const auto shaped = static_cast<Eq8BandParametric::Path>(shapedPath);
+
+    QVERIFY(eq.isPathBypassed(bypassed));
+    QVERIFY(!eq.isPathBypassed(shaped));
+    QCOMPARE(eq.magnitudeDbAt(1000.0, bypassed), 0.0);
+    QVERIFY(eq.magnitudeDbAt(1000.0, shaped) < -12.0);
+
+    // The one-argument overload is what a dialog draws boldest, so it has to follow the path that is
+    // actually being shaped rather than always reporting the mid one.
+    QCOMPARE(eq.magnitudeDbAt(1000.0), eq.magnitudeDbAt(1000.0, shaped));
+
+    // And the wire is a wire: a centred signal through a side-only equalizer comes back as it went
+    // in, which is the half of the truth the drawn curve used to leave out.
+    double peak = 0.0;
+    for (size_t i = 0; i < 28800; i++) {
+        double left = std::sin(2.0 * M_PI * 1000.0 * static_cast<double>(i) / 48000.0), right = left;
+        eq.process(left, right);
+        if (i >= 24000) {
+            peak = std::max(peak, std::abs(left));
+        }
+    }
+    const double heardOnTheMidPath = 20.0 * std::log10(std::max(1e-12, peak));
+    const double expected = eq.magnitudeDbAt(1000.0, Eq8BandParametric::Path::Mid);
+    QVERIFY2(std::abs(heardOnTheMidPath - expected) < 0.5,
+             qPrintable(QString("heard %1 dB on the mid path, drawn %2 dB").arg(heardOnTheMidPath).arg(expected)));
+}
+
 void EffectsTest::test_eq8BandParametricEffect_defaultQ_shouldFollowTheType_data()
 {
     QTest::addColumn<int>("type");

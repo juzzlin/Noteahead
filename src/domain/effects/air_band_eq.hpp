@@ -56,6 +56,18 @@ public:
     void reset() override;
     void sync() override;
 
+    //! What the whole equalizer does at @p frequency, in dB.
+    //!
+    //! Summed complex rather than as magnitudes, because that is how the taps actually meet the dry
+    //! path: each arrives at its own phase, and only at a tap's own centre is it in phase with the
+    //! dry signal. Adding magnitudes would draw skirts up to a decibel wider than they are heard.
+    //!
+    //! Worked out on taps of its own rather than on the ones processing audio, for the same two
+    //! reasons Eq8BandParametric::magnitudeDbAt() does: those are written by the audio thread while
+    //! this is asked from the user interface thread, and they are only brought up to date once a
+    //! block has been processed, so a dialog opened before anything played would draw a flat line.
+    double magnitudeDbAt(double frequency) const;
+
     //! Band passes on the panel: four bells plus the 2.5 kHz shelf. The air band is separate.
     static constexpr size_t BandCount = 5;
     //! The subset of the band passes realised as band-pass taps; the remainder is the shelf.
@@ -71,6 +83,18 @@ private:
 
         void reset();
     };
+
+    //! Everything the panel settings map to, derived once and used by both the audio path and the
+    //! response curve so the two cannot disagree about what a knob means.
+    struct TapSettings
+    {
+        std::array<double, BandCount> bandGains {};
+        double airGain { 0.0 };
+        double airCorner { 0.0 };
+        double outputGain { 1.0 };
+    };
+
+    TapSettings tapSettingsFromParameters() const;
 
     void syncParameters();
     void updateBuffers();

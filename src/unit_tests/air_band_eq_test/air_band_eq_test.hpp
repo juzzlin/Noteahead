@@ -38,6 +38,11 @@ private slots:
     void test_airBand_risingFrequency_shouldReduceAudibleLift();
     void test_airBand_fortyKilohertz_shouldStayStableAtBaseRate();
     void test_outputGain_boosted_shouldScaleOutput();
+    void test_magnitudeDb_defaults_shouldBeFlat();
+    void test_magnitudeDb_bandBoosted_shouldMatchWhatIsHeard();
+    void test_magnitudeDb_bandsOverlapping_shouldMatchWhatIsHeard();
+    void test_magnitudeDb_airBandBoosted_shouldMatchWhatIsHeard();
+    void test_magnitudeDb_outputGainBoosted_shouldIncludeTheTrim();
 };
 
 } // namespace noteahead

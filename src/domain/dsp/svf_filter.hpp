@@ -16,6 +16,8 @@
 #ifndef SVF_FILTER_HPP
 #define SVF_FILTER_HPP
 
+#include <complex>
+
 namespace noteahead {
 
 class SvfFilter
@@ -59,6 +61,14 @@ public:
     //! a curve drawn with it is the curve the audio takes -- including the frequency warping the
     //! bilinear transform puts in near Nyquist, which a drawing of the analog prototype would miss.
     double magnitudeAt(double frequency, double sampleRate) const;
+
+    //! Complex response of this filter at @p frequency.
+    //!
+    //! Magnitude alone is enough for a cascade, where responses multiply and the phases come along
+    //! for the ride. A parallel-summed equalizer needs this instead: its taps meet the dry path at
+    //! different phases, and adding their magnitudes would draw a wider curve than it is heard at
+    //! every frequency but a tap's own centre.
+    std::complex<double> responseAt(double frequency, double sampleRate) const;
 
     double process(double input);
     void reset();

@@ -17,7 +17,9 @@
 #define EQ_CURVE_RENDERER_HPP
 
 #include <QColor>
+#include <QPainterPath>
 #include <QQuickPaintedItem>
+#include <QRectF>
 #include <QVariantList>
 
 namespace noteahead {
@@ -34,6 +36,12 @@ class EqCurveRenderer : public QQuickPaintedItem
 
     //! The response in dB, evenly spaced by octave from 20 Hz to 20 kHz.
     Q_PROPERTY(QVariantList response READ response WRITE setResponse NOTIFY responseChanged)
+    //! A second response drawn behind the first, thin and unfilled, or empty for none.
+    //!
+    //! For the case where one curve is not the whole truth: an equalizer working on one half of the
+    //! stereo image shapes that half and wires the other straight through, and a single curve says
+    //! nothing about which it is doing.
+    Q_PROPERTY(QVariantList secondaryResponse READ secondaryResponse WRITE setSecondaryResponse NOTIFY secondaryResponseChanged)
     //! How far the curve is drawn either side of flat, in dB.
     Q_PROPERTY(int dbRange READ dbRange WRITE setDbRange NOTIFY dbRangeChanged)
     Q_PROPERTY(QColor accentColor READ accentColor WRITE setAccentColor NOTIFY accentColorChanged)
@@ -43,6 +51,9 @@ public:
 
     QVariantList response() const;
     void setResponse(const QVariantList & response);
+
+    QVariantList secondaryResponse() const;
+    void setSecondaryResponse(const QVariantList & response);
 
     int dbRange() const;
     void setDbRange(int dbRange);
@@ -54,6 +65,7 @@ public:
 
 signals:
     void responseChanged();
+    void secondaryResponseChanged();
     void dbRangeChanged();
     void accentColorChanged();
 
@@ -61,7 +73,11 @@ private:
     //! Where a frequency falls across the plot, 0 at 20 Hz and 1 at 20 kHz.
     static double frequencyPosition(double hz);
 
+    //! @p response as a path across the plot, with the dB values clamped to the drawn range.
+    QPainterPath curvePath(const QVariantList & response, const QRectF & plot) const;
+
     QVariantList m_response;
+    QVariantList m_secondaryResponse;
     int m_dbRange = 18;
     QColor m_accentColor { 0, 180, 255 };
 };
