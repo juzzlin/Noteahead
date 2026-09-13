@@ -26,6 +26,35 @@
 
 namespace noteahead {
 
+std::optional<float> Eq8BandParametric::defaultQParameterValue(SvfFilter::Type type)
+{
+    // The Q each type opens at. The parameter is exponential over 0.1 to 10, so the value stored is
+    // where that Q falls on it.
+    const auto asParameterValue = [](double q) {
+        return static_cast<float>(ParameterMapper::unmapExponential(q, 0.1, 10.0));
+    };
+
+    switch (type) {
+    case SvfFilter::Type::Bell:
+        // One octave across, measured at the half-gain points.
+        return asParameterValue(1.4142);
+    case SvfFilter::Type::LowShelf:
+    case SvfFilter::Type::HighShelf:
+    case SvfFilter::Type::LowCut:
+    case SvfFilter::Type::HighCut:
+        // Butterworth, which is the shelf that does not overshoot and the cut whose corner is flat.
+        return asParameterValue(0.7071);
+    case SvfFilter::Type::Notch:
+        // A notch is for removing one thing, so it starts narrow enough to be worth reaching for.
+        return asParameterValue(4.0);
+    case SvfFilter::Type::Bypass:
+    case SvfFilter::Type::BandPass:
+        // Nothing is being shaped, so there is no width to have an opinion about.
+        return std::nullopt;
+    }
+    return std::nullopt;
+}
+
 Eq8BandParametric::Eq8BandParametric()
 {
     for (int i = 0; i < static_cast<int>(NumBands); i++) {

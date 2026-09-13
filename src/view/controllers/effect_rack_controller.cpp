@@ -1393,6 +1393,12 @@ QString EffectRackController::eq8BandParametricSlopeKey(quint32 bandIndex) const
     return Constants::NahdXml::xmlKeyBandSlope(bandIndex);
 }
 
+float EffectRackController::eq8BandParametricDefaultQ(int bandType) const
+{
+    const auto q = Eq8BandParametric::defaultQParameterValue(static_cast<SvfFilter::Type>(bandType));
+    return q.value_or(-1.0f);
+}
+
 QString EffectRackController::eq8BandParametricStereoModeKey() const
 {
     return Constants::NahdXml::xmlKeyStereoMode();

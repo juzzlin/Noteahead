@@ -22,6 +22,7 @@
 #include <array>
 #include <cmath>
 #include <cstdint>
+#include <optional>
 #include <span>
 
 namespace noteahead {
@@ -40,6 +41,15 @@ public:
     void reset() override;
     void sync() override;
     const EffectPresetList & factoryPresets() const override;
+
+    //! The Q a band of @p type should open at, as a parameter value, or nothing for a type that has
+    //! no sensible one.
+    //!
+    //! Q means a different thing to each type, so one default cannot serve them all: a bell wants
+    //! the octave a musician reaches for, a cut wants the Butterworth that leaves its corner flat,
+    //! and a notch is only useful narrow. Applied when the user picks a type rather than when a
+    //! project loads, or opening a song would overwrite every Q it had saved.
+    static std::optional<float> defaultQParameterValue(SvfFilter::Type type);
 
     enum class StereoMode
     {

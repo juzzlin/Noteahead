@@ -136,7 +136,15 @@ EffectDialog {
                         effectRackController.revision;
                         return effectRackController.parameterValue(effectIndex, effectRackController.eq8BandParametricTypeKey(bandIndex));
                     }
-                    onActivated: index => effectRackController.setParameterValue(effectIndex, effectRackController.eq8BandParametricTypeKey(bandIndex), index)
+                    onActivated: index => {
+                        effectRackController.setParameterValue(effectIndex, effectRackController.eq8BandParametricTypeKey(bandIndex), index);
+                        // Q means a different thing to each type, so picking one opens it at the
+                        // width that type is reached for at. Negative means the type has no opinion.
+                        const q = effectRackController.eq8BandParametricDefaultQ(index);
+                        if (q >= 0) {
+                            effectRackController.setParameterValue(effectIndex, effectRackController.eq8BandParametricQKey(bandIndex), q);
+                        }
+                    }
                     Layout.fillWidth: true
                 }
             }

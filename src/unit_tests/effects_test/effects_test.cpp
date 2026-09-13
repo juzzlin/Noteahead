@@ -1459,6 +1459,50 @@ void EffectsTest::test_eq8BandParametricEffect_bell_shouldDefaultToOneOctave()
     }
 }
 
+void EffectsTest::test_eq8BandParametricEffect_defaultQ_shouldFollowTheType_data()
+{
+    QTest::addColumn<int>("type");
+    QTest::addColumn<double>("expectedQ");
+
+    // One default cannot serve every type: Q means a width to a bell, a corner shape to a cut and a
+    // depth to a notch.
+    QTest::newRow("a bell is one octave across") << static_cast<int>(SvfFilter::Type::Bell) << 1.4142;
+    QTest::newRow("a low shelf does not overshoot") << static_cast<int>(SvfFilter::Type::LowShelf) << 0.7071;
+    QTest::newRow("a high shelf does not overshoot") << static_cast<int>(SvfFilter::Type::HighShelf) << 0.7071;
+    QTest::newRow("a low cut has a flat corner") << static_cast<int>(SvfFilter::Type::LowCut) << 0.7071;
+    QTest::newRow("a high cut has a flat corner") << static_cast<int>(SvfFilter::Type::HighCut) << 0.7071;
+    QTest::newRow("a notch is narrow") << static_cast<int>(SvfFilter::Type::Notch) << 4.0;
+}
+
+void EffectsTest::test_eq8BandParametricEffect_defaultQ_shouldFollowTheType()
+{
+    QFETCH(int, type);
+    QFETCH(double, expectedQ);
+
+    const auto value = Eq8BandParametric::defaultQParameterValue(static_cast<SvfFilter::Type>(type));
+    QVERIFY(value.has_value());
+
+    const double q = ParameterMapper::mapExponential(static_cast<double>(*value), 0.1, 10.0);
+    QVERIFY2(std::abs(q - expectedQ) < 0.01, qPrintable(QString("Q %1 where %2 was wanted").arg(q).arg(expectedQ)));
+}
+
+void EffectsTest::test_eq8BandParametricEffect_defaultQ_shouldBeAbsentWhereNothingIsShaped_data()
+{
+    QTest::addColumn<int>("type");
+
+    QTest::newRow("bypass") << static_cast<int>(SvfFilter::Type::Bypass);
+    QTest::newRow("band pass") << static_cast<int>(SvfFilter::Type::BandPass);
+}
+
+void EffectsTest::test_eq8BandParametricEffect_defaultQ_shouldBeAbsentWhereNothingIsShaped()
+{
+    QFETCH(int, type);
+
+    // Nothing is being shaped, so there is no width to have an opinion about, and the dialog leaves
+    // whatever Q the band already had rather than inventing one.
+    QVERIFY(!Eq8BandParametric::defaultQParameterValue(static_cast<SvfFilter::Type>(type)).has_value());
+}
+
 void EffectsTest::test_eq8BandParametricEffect_cutSlope_shouldDefaultToTwelve()
 {
     // 12 dB/oct is what a cut band has always been, so a project that never touches this keeps the

@@ -28,9 +28,10 @@ Bug fixes:
 
 Other:
 
-* The EQ's bell bands open one octave wide by default
-  - Q is 1.414 where it was 1.0, which is the width a parametric is expected
-    to start at
+* The EQ's bands open at a Q that suits the type
+  - A bell is one octave wide, a shelf or a cut is Butterworth, and a notch
+    starts narrow
+  - Applied when you pick the type; a saved Q is never overwritten
 
 8.0.0
 =====

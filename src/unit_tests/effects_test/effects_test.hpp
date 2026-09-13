@@ -62,6 +62,10 @@ private slots:
     void test_endlessReverb_freeze_shouldSustainTail();
     void test_eq8BandParametricEffect_shouldApplyBandsAndBeStable();
     void test_eq8BandParametricEffect_bell_shouldDefaultToOneOctave();
+    void test_eq8BandParametricEffect_defaultQ_shouldFollowTheType_data();
+    void test_eq8BandParametricEffect_defaultQ_shouldFollowTheType();
+    void test_eq8BandParametricEffect_defaultQ_shouldBeAbsentWhereNothingIsShaped_data();
+    void test_eq8BandParametricEffect_defaultQ_shouldBeAbsentWhereNothingIsShaped();
     void test_eq8BandParametricEffect_cutSlope_shouldDefaultToTwelve();
     void test_eq8BandParametricEffect_cutSlope_shouldSetTheStopBand_data();
     void test_eq8BandParametricEffect_cutSlope_shouldSetTheStopBand();

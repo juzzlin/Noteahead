@@ -416,6 +416,9 @@ public:
     Q_INVOKABLE QString eq8BandParametricGainKey(quint32 bandIndex) const;
     Q_INVOKABLE QString eq8BandParametricQKey(quint32 bandIndex) const;
     Q_INVOKABLE QString eq8BandParametricSlopeKey(quint32 bandIndex) const;
+    //! The Q a band opens at when the user picks @p bandType, or -1 for a type that has no sensible
+    //! one. Applied on the user's action so that loading a project cannot overwrite a saved Q.
+    Q_INVOKABLE float eq8BandParametricDefaultQ(int bandType) const;
     Q_INVOKABLE QString eq8BandParametricStereoModeKey() const;
 
     Q_INVOKABLE QString vintagePassiveEqLowFreqKey() const;
