@@ -35,20 +35,6 @@ ColumnLayout {
         Layout.topMargin: 10
     }
 
-    ColumnLayout {
-        Layout.fillWidth: true
-        Label {
-            text: qsTr("LPF/HPF Slope")
-        }
-        ComboBox {
-            model: ["12 dB/oct", "24 dB/oct"]
-            currentIndex: synthController.filterSlope
-            onActivated: idx => synthController.filterSlope = idx
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("How steeply both filters roll off. The gentler one keeps the top of a sound where the steeper one takes it away.")
-            Layout.fillWidth: true
-        }
-    }
 
     FilterKnob {
         label: qsTr("LPF Cutoff")
@@ -63,6 +49,20 @@ ColumnLayout {
         onMoved: v => synthController.lpfResonance = v
         Layout.fillWidth: true
     }
+    ColumnLayout {
+        Layout.fillWidth: true
+        Label {
+            text: qsTr("LPF Slope")
+        }
+        ComboBox {
+            model: ["12 dB/oct", "24 dB/oct"]
+            currentIndex: synthController.lpfSlope
+            onActivated: idx => synthController.lpfSlope = idx
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("How steeply the low pass rolls off. The gentler one keeps the top of a sound where the steeper one takes it away.")
+            Layout.fillWidth: true
+        }
+    }
     FilterKnob {
         label: qsTr("HPF Cutoff")
         controller: synthController
@@ -70,6 +70,20 @@ ColumnLayout {
         isHpf: true
         onMoved: v => synthController.hpfCutoff = v
         Layout.fillWidth: true
+    }
+    ColumnLayout {
+        Layout.fillWidth: true
+        Label {
+            text: qsTr("HPF Slope")
+        }
+        ComboBox {
+            model: ["12 dB/oct", "24 dB/oct"]
+            currentIndex: synthController.hpfSlope
+            onActivated: idx => synthController.hpfSlope = idx
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("How steeply the high pass rolls off. The steeper one clears more out of the way at the same cutoff.")
+            Layout.fillWidth: true
+        }
     }
     Knob {
         label: qsTr("Key Track")

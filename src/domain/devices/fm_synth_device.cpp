@@ -184,7 +184,10 @@ FmSynthDevice::FmSynthDevice(std::string name)
     addParameter(Parameter { NahdXml::xmlKeyLpfResonance().toStdString(), 0.0f, 0, 10000, 0, 100 });
     // 24 dB/oct, which is what these voices have always been. 12 is the other classic voice: a
     // gentler filter keeps the top of a pad where a four-pole sweep takes it away.
-    addParameter(Parameter { NahdXml::xmlKeyFilterSlope().toStdString(), 1.0f, 0, 1, 1, 1, Parameter::Type::Discrete });
+    // One slope was shared by both filters when this was added. That name is kept as a legacy name
+    // on the low pass, which is the filter it was really being used for.
+    addParameter(Parameter { NahdXml::xmlKeyLpfSlope().toStdString(), 1.0f, 0, 1, 1, 1, Parameter::Type::Discrete, { NahdXml::xmlKeyFilterSlope().toStdString() } });
+    addParameter(Parameter { NahdXml::xmlKeyHpfSlope().toStdString(), 1.0f, 0, 1, 1, 1, Parameter::Type::Discrete });
     addParameter(Parameter { NahdXml::xmlKeyHpfCutoff().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
     addParameter(Parameter { NahdXml::xmlKeyAmpAttack().toStdString(), 0.0f, 0, 10000, 0, 100 });
@@ -624,11 +627,10 @@ float FmSynthDevice::generateVoiceSample(Voice & voice, const ModulationValues &
 
     voice.lpf.setCutoff(std::clamp(m_lpfCutoff + static_cast<float>(mods.cutoffMod), 0.0f, 1.0f));
     voice.lpf.setResonance(std::clamp(m_lpfResonance + static_cast<float>(mods.resonanceMod), 0.0f, 1.0f));
-    // Two poles or four. Set here with the rest of the filter's settings rather than once when the
-    // voice is made, so that changing it reaches a note that is already sounding.
-    const int order = static_cast<int>(m_filterSlope) == 0 ? 2 : 4;
-    voice.lpf.setOrder(order);
-    voice.hpf.setOrder(order);
+    // Two poles or four, per filter. Set here with the rest of their settings rather than once when
+    // the voice is made, so that changing one reaches a note that is already sounding.
+    voice.lpf.setOrder(static_cast<int>(m_lpfSlope) == 0 ? 2 : 4);
+    voice.hpf.setOrder(static_cast<int>(m_hpfSlope) == 0 ? 2 : 4);
     voice.hpf.setCutoff(m_hpfCutoff);
 
     const float ampMod = static_cast<float>(std::max(0.0, 1.0 + mods.volumeMod));
@@ -943,14 +945,24 @@ double FmSynthDevice::voiceGlideFrequency(size_t index) const
     return index < m_voices.size() ? m_voices.at(index).glideFrequency : 0.0;
 }
 
-int FmSynthDevice::filterSlope() const
+int FmSynthDevice::lpfSlope() const
 {
-    return static_cast<int>(m_filterSlope);
+    return static_cast<int>(m_lpfSlope);
 }
 
-void FmSynthDevice::setFilterSlope(int filterSlope)
+void FmSynthDevice::setLpfSlope(int slope)
 {
-    setDiscreteParameterValue(Constants::NahdXml::xmlKeyFilterSlope().toStdString(), filterSlope);
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyLpfSlope().toStdString(), slope);
+}
+
+int FmSynthDevice::hpfSlope() const
+{
+    return static_cast<int>(m_hpfSlope);
+}
+
+void FmSynthDevice::setHpfSlope(int slope)
+{
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyHpfSlope().toStdString(), slope);
 }
 
 void FmSynthDevice::syncParameters()
@@ -997,7 +1009,8 @@ void FmSynthDevice::syncParameters()
 
     updateParam(NahdXml::xmlKeyLpfCutoff(), m_lpfCutoff);
     updateParam(NahdXml::xmlKeyLpfResonance(), m_lpfResonance);
-    updateParam(NahdXml::xmlKeyFilterSlope(), m_filterSlope);
+    updateParam(NahdXml::xmlKeyLpfSlope(), m_lpfSlope);
+    updateParam(NahdXml::xmlKeyHpfSlope(), m_hpfSlope);
     updateParam(NahdXml::xmlKeyHpfCutoff(), m_hpfCutoff);
 
     updateParam(NahdXml::xmlKeyAmpAttack(), m_ampAttack);

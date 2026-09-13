@@ -112,15 +112,15 @@ std::unique_ptr<FmSynthDevice> makeModulatedSynth(float modulatorLevel, uint8_t 
 
 } // namespace
 
-void FmSynthTest::test_filterSlope_shouldDefaultToTheSlopeItAlwaysHad()
+void FmSynthTest::test_lpfSlope_shouldDefaultToTheSlopeItAlwaysHad()
 {
     // 24 dB/oct is what these voices have always been, so that is where a device starts and where
     // every project that never touches the setting stays.
     const FmSynthDevice device { "FM Synth" };
-    QCOMPARE(device.filterSlope(), 1);
+    QCOMPARE(device.lpfSlope(), 1);
 }
 
-void FmSynthTest::test_filterSlope_shallow_shouldKeepMoreOfTheTop()
+void FmSynthTest::test_lpfSlope_shallow_shouldKeepMoreOfTheTop()
 {
     // Two poles instead of four. Worth asserting per device rather than once: the setting was added
     // to three synths at a stroke and reached the audio path of only one of them, which a test on
@@ -131,7 +131,7 @@ void FmSynthTest::test_filterSlope_shallow_shouldKeepMoreOfTheTop()
     // close to a sine leaves nothing there to measure but the noise floor.
     const auto magnitudeAboveCutoff = [](int slope) {
         FmSynthDevice device { "FM Synth" };
-        device.setFilterSlope(slope);
+        device.setLpfSlope(slope);
         device.setLpfCutoff(0.25f);
         device.setLpfResonance(0.0f);
         device.processMidiNoteOn(60, 127);

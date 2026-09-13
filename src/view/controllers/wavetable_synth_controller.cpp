@@ -175,16 +175,29 @@ void WavetableSynthController::setLpfCutoff(int c)
     }
 }
 
-int WavetableSynthController::filterSlope() const
+int WavetableSynthController::lpfSlope() const
 {
-    return m_synth ? m_synth->filterSlope() : 1;
+    return m_synth ? m_synth->lpfSlope() : 1;
 }
 
-void WavetableSynthController::setFilterSlope(int value)
+void WavetableSynthController::setLpfSlope(int value)
 {
     if (m_synth) {
-        m_synth->setFilterSlope(value);
-        emit filterSlopeChanged();
+        m_synth->setLpfSlope(value);
+        emit lpfSlopeChanged();
+    }
+}
+
+int WavetableSynthController::hpfSlope() const
+{
+    return m_synth ? m_synth->hpfSlope() : 1;
+}
+
+void WavetableSynthController::setHpfSlope(int value)
+{
+    if (m_synth) {
+        m_synth->setHpfSlope(value);
+        emit hpfSlopeChanged();
     }
 }
 
@@ -674,7 +687,8 @@ void WavetableSynthController::requestSettings()
     emit noiseLevelChanged();
     emit lpfCutoffChanged();
     emit lpfResonanceChanged();
-    emit filterSlopeChanged();
+    emit lpfSlopeChanged();
+    emit hpfSlopeChanged();
     emit hpfCutoffChanged();
     emit ampAttackChanged();
     emit ampDecayChanged();

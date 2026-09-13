@@ -63,7 +63,8 @@ void SamplerController::setSampler(SamplerDevice::SamplerDeviceS sampler)
         emit chromaticModeChanged();
         emit channelModeChanged();
         emit embedWaveDataChanged();
-        emit filterSlopeChanged();
+        emit lpfSlopeChanged();
+        emit hpfSlopeChanged();
         setSelectedPad(m_selectedPad); // Trigger updates for properties
     }
 }
@@ -466,16 +467,29 @@ void SamplerController::setChannelMode(bool enabled)
     }
 }
 
-int SamplerController::filterSlope() const
+int SamplerController::lpfSlope() const
 {
-    return m_sampler ? m_sampler->filterSlope() : 0;
+    return m_sampler ? m_sampler->lpfSlope() : 0;
 }
 
-void SamplerController::setFilterSlope(int value)
+void SamplerController::setLpfSlope(int value)
 {
     if (m_sampler) {
-        m_sampler->setFilterSlope(value);
-        emit filterSlopeChanged();
+        m_sampler->setLpfSlope(value);
+        emit lpfSlopeChanged();
+    }
+}
+
+int SamplerController::hpfSlope() const
+{
+    return m_sampler ? m_sampler->hpfSlope() : 0;
+}
+
+void SamplerController::setHpfSlope(int value)
+{
+    if (m_sampler) {
+        m_sampler->setHpfSlope(value);
+        emit hpfSlopeChanged();
     }
 }
 

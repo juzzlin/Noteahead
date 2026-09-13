@@ -25,9 +25,9 @@ class SamplerTest : public QObject
     Q_OBJECT
 
 private slots:
-    void test_filterSlope_shouldDefaultToTheSlopeItAlwaysHad();
-    void test_filterSlope_steep_shouldCutFurther();
-    void test_filterSlope_shallow_shouldRenderAsBefore();
+    void test_lpfSlope_shouldDefaultToTheSlopeItAlwaysHad();
+    void test_hpfSlope_steep_shouldCutFurther();
+    void test_lpfSlope_shallow_shouldRenderAsBefore();
     void initTestCase();
     void cleanupTestCase();
 

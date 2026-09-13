@@ -132,10 +132,10 @@ public:
 
     //! 0 for 12 dB/oct, 1 for 24, which is what these voices have always been.
 
-    int filterSlope() const;
-
-    void setFilterSlope(int filterSlope);
-
+    int lpfSlope() const;
+    void setLpfSlope(int slope);
+    int hpfSlope() const;
+    void setHpfSlope(int slope);
 
     void serializeToXml(ProjectWriter & writer) const override;
     void deserializeFromXml(ProjectReader & reader) override;
@@ -360,7 +360,8 @@ private:
     float m_lpfCutoff { 1.0f };
     float m_lpfResonance { 0.0f };
     //! 0 for 12 dB/oct, 1 for 24, which is what these voices have always been.
-    float m_filterSlope { 1.0f };
+    float m_lpfSlope { 1.0f };
+    float m_hpfSlope { 1.0f };
     float m_hpfCutoff { 0.0f };
 
     float m_ampAttack { 0.1f };

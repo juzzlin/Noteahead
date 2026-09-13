@@ -52,15 +52,27 @@ public:
 
 } // namespace
 
-void SynthTest::test_filterSlope_shouldDefaultToTheSlopeItAlwaysHad()
+void SynthTest::test_lpfSlope_shouldDefaultToTheSlopeItAlwaysHad()
 {
     // 24 dB/oct is what these voices have always been, so that is where a device starts and where
     // every project that never touches the setting stays.
     const SynthDevice synth { "Synth" };
-    QCOMPARE(synth.filterSlope(), 1);
+    QCOMPARE(synth.lpfSlope(), 1);
 }
 
-void SynthTest::test_filterSlope_shallow_shouldKeepMoreOfTheTop()
+void SynthTest::test_lpfSlope_legacyName_shouldStillLoad()
+{
+    // One slope was shared by both filters for a while before they were separated. A project saved
+    // in between carries that name, and the value it holds was set for the low pass, so that is the
+    // parameter it has to arrive at.
+    SynthDevice synth { "Synth" };
+    const auto p = synth.parameter(Constants::NahdXml::xmlKeyLpfSlope().toStdString());
+    QVERIFY(p);
+    const auto & names = p->get().legacyNames();
+    QVERIFY(std::ranges::find(names, Constants::NahdXml::xmlKeyFilterSlope().toStdString()) != names.end());
+}
+
+void SynthTest::test_lpfSlope_shallow_shouldKeepMoreOfTheTop()
 {
     // Two poles instead of four, which is the other classic voice: at the same cutoff a gentler
     // filter leaves more above it.
@@ -70,7 +82,7 @@ void SynthTest::test_filterSlope_shallow_shouldKeepMoreOfTheTop()
     // close to a sine leaves nothing there to measure but the noise floor.
     const auto magnitudeAboveCutoff = [](int slope) {
         SynthDevice synth { "Synth" };
-        synth.setFilterSlope(slope);
+        synth.setLpfSlope(slope);
         synth.setLpfCutoff(0.25f);
         synth.setLpfResonance(0.0f);
         synth.processMidiNoteOn(60, 127);

@@ -107,18 +107,26 @@ AnimatedDialog {
                         }
                         ColumnLayout {
                             Label {
-                                text: qsTr("LPF/HPF Slope")
+                                text: qsTr("LPF Slope")
                             }
                             ComboBox {
-                                // Read through the active language so retranslate() reaches a model built in JS.
-                                model: {
-                                    languageService.activeLanguage;
-                                    return ["12 dB/oct", "24 dB/oct"];
-                                }
-                                currentIndex: drumSynthController.filterSlope
-                                onActivated: i => drumSynthController.filterSlope = i
+                                model: ["12 dB/oct", "24 dB/oct"]
+                                currentIndex: drumSynthController.lpfSlope
+                                onActivated: idx => drumSynthController.lpfSlope = idx
                                 ToolTip.visible: hovered
-                                ToolTip.text: qsTr("How steeply both of every voice's filters roll off. The steeper one clears more out of the way at the same cutoff.")
+                                ToolTip.text: qsTr("How steeply every voice's low pass rolls off. The steeper one clears more out of the way at the same cutoff.")
+                            }
+                        }
+                        ColumnLayout {
+                            Label {
+                                text: qsTr("HPF Slope")
+                            }
+                            ComboBox {
+                                model: ["12 dB/oct", "24 dB/oct"]
+                                currentIndex: drumSynthController.hpfSlope
+                                onActivated: idx => drumSynthController.hpfSlope = idx
+                                ToolTip.visible: hovered
+                                ToolTip.text: qsTr("How steeply every voice's high pass rolls off. The steeper one clears more out of the way at the same cutoff.")
                             }
                         }
                     }

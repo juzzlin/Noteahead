@@ -175,22 +175,23 @@ std::vector<double> render(SamplerDevice & sampler, uint32_t frameCount)
 
 } // namespace
 
-void SamplerTest::test_filterSlope_shouldDefaultToTheSlopeItAlwaysHad()
+void SamplerTest::test_lpfSlope_shouldDefaultToTheSlopeItAlwaysHad()
 {
     // 12 dB/oct is what the sampler's filters have always been, so that is where a device starts and
     // where every project that never touches the setting stays.
     const auto sampler = makeMonoSampler();
-    QCOMPARE(sampler->filterSlope(), 0);
+    QCOMPARE(sampler->lpfSlope(), 0);
+    QCOMPARE(sampler->hpfSlope(), 0);
 }
 
-void SamplerTest::test_filterSlope_steep_shouldCutFurther()
+void SamplerTest::test_hpfSlope_steep_shouldCutFurther()
 {
     // A second stage of the same filter, so the stop band falls twice as fast. Measured on the high
     // pass because the test sample is a ramp: nearly all of its energy is at the bottom, which is
     // exactly what a high pass takes away and what a low pass would hand back untouched.
     const auto level = [](int slope) {
         auto sampler = makeMonoSampler(true);
-        sampler->setFilterSlope(slope);
+        sampler->setHpfSlope(slope);
         sampler->setSampleHpfCutoff(60, 0.6f);
         sampler->processMidiNoteOn(60, 100);
         const auto rendered = render(*sampler, 4096);
@@ -206,7 +207,7 @@ void SamplerTest::test_filterSlope_steep_shouldCutFurther()
     QVERIFY2(steep < shallow * 0.9, qPrintable(QString("shallow %1, steep %2").arg(shallow).arg(steep)));
 }
 
-void SamplerTest::test_filterSlope_shallow_shouldRenderAsBefore()
+void SamplerTest::test_lpfSlope_shallow_shouldRenderAsBefore()
 {
     // The second stage is parked where it passes the signal through rather than taken out of the
     // chain, so this is what says that parking it really is transparent -- and so that no existing
@@ -216,7 +217,8 @@ void SamplerTest::test_filterSlope_shallow_shouldRenderAsBefore()
     plain->processMidiNoteOn(60, 100);
 
     auto explicitlyShallow = makeMonoSampler(true);
-    explicitlyShallow->setFilterSlope(0);
+    explicitlyShallow->setLpfSlope(0);
+    explicitlyShallow->setHpfSlope(0);
     explicitlyShallow->setSampleHpfCutoff(60, 0.6f);
     explicitlyShallow->processMidiNoteOn(60, 100);
 

@@ -38,8 +38,8 @@ void DrumSynthDevice::Voice::updateEffects()
     hpf->setCutoff(hpfCutoff);
     // Parked at the end of its range a filter passes the signal through, so this is what turns the
     // second stage off rather than taking it out of the chain.
-    lpfStage2->setCutoff(steepFilter ? lpfCutoff : 1.0f);
-    hpfStage2->setCutoff(steepFilter ? hpfCutoff : 0.0f);
+    lpfStage2->setCutoff(steepLpf ? lpfCutoff : 1.0f);
+    hpfStage2->setCutoff(steepHpf ? hpfCutoff : 0.0f);
 }
 
 DrumSynthDevice::DrumSynthDevice(std::string name)
@@ -47,10 +47,14 @@ DrumSynthDevice::DrumSynthDevice(std::string name)
 {
     initializeVoices();
 
-    // 12 dB/oct, which is what the drum synth's voice filters have always been. One setting for the
+    // 12 dB/oct, which is what the drum synth's voice filters have always been. One pair for the
     // kit rather than one per drum: a kit is mixed as a whole, and eleven of these would be eleven
     // more controls to explain for a choice nobody makes per instrument.
-    addParameter(Parameter { Constants::NahdXml::xmlKeyFilterSlope().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
+    //
+    // One slope was shared by both filters when this was added. That name is kept as a legacy name
+    // on the low pass, which is the filter it was really being used for.
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLpfSlope().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete, { Constants::NahdXml::xmlKeyFilterSlope().toStdString() } });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyHpfSlope().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
 
     for (int i { 0 }; i < NumVoices; i++) {
         addVoiceParameters(i);
@@ -558,25 +562,39 @@ void DrumSynthDevice::addCymbalParameters(const std::string & prefix)
     addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyAttack().toStdString(), 0.0f, 0, 10000, 0, 100 });
 }
 
-int DrumSynthDevice::filterSlope() const
+int DrumSynthDevice::lpfSlope() const
 {
-    return static_cast<int>(m_filterSlope);
+    return static_cast<int>(m_lpfSlope);
 }
 
-void DrumSynthDevice::setFilterSlope(int filterSlope)
+void DrumSynthDevice::setLpfSlope(int slope)
 {
-    setDiscreteParameterValue(Constants::NahdXml::xmlKeyFilterSlope().toStdString(), filterSlope);
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyLpfSlope().toStdString(), slope);
+}
+
+int DrumSynthDevice::hpfSlope() const
+{
+    return static_cast<int>(m_hpfSlope);
+}
+
+void DrumSynthDevice::setHpfSlope(int slope)
+{
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyHpfSlope().toStdString(), slope);
 }
 
 void DrumSynthDevice::syncParameters()
 {
     Device::syncParameters();
 
-    if (auto p = parameter(Constants::NahdXml::xmlKeyFilterSlope().toStdString()); p) {
-        m_filterSlope = p->get().value();
-        for (auto && voice : m_voices) {
-            voice.steepFilter = static_cast<int>(m_filterSlope) == 1;
-        }
+    if (auto p = parameter(Constants::NahdXml::xmlKeyLpfSlope().toStdString()); p) {
+        m_lpfSlope = p->get().value();
+    }
+    if (auto p = parameter(Constants::NahdXml::xmlKeyHpfSlope().toStdString()); p) {
+        m_hpfSlope = p->get().value();
+    }
+    for (auto && voice : m_voices) {
+        voice.steepLpf = static_cast<int>(m_lpfSlope) == 1;
+        voice.steepHpf = static_cast<int>(m_hpfSlope) == 1;
     }
 
     for (int i { 0 }; i < NumVoices; i++) {

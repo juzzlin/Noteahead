@@ -56,16 +56,29 @@ void DrumSynthController::setDevice(const QString & deviceName)
     setDevice(m_deviceService->device(deviceName.toStdString()));
 }
 
-int DrumSynthController::filterSlope() const
+int DrumSynthController::lpfSlope() const
 {
-    return m_device ? m_device->filterSlope() : 0;
+    return m_device ? m_device->lpfSlope() : 0;
 }
 
-void DrumSynthController::setFilterSlope(int value)
+void DrumSynthController::setLpfSlope(int value)
 {
     if (m_device) {
-        m_device->setFilterSlope(value);
-        emit filterSlopeChanged();
+        m_device->setLpfSlope(value);
+        emit lpfSlopeChanged();
+    }
+}
+
+int DrumSynthController::hpfSlope() const
+{
+    return m_device ? m_device->hpfSlope() : 0;
+}
+
+void DrumSynthController::setHpfSlope(int value)
+{
+    if (m_device) {
+        m_device->setHpfSlope(value);
+        emit hpfSlopeChanged();
     }
 }
 
@@ -405,7 +418,8 @@ void DrumSynthController::requestSettings()
     emit voicePanChanged();
     emit voiceLpfCutoffChanged();
     emit voiceHpfCutoffChanged();
-    emit filterSlopeChanged();
+    emit lpfSlopeChanged();
+    emit hpfSlopeChanged();
     emit voiceTuneChanged();
     emit voiceDecayChanged();
     emit voiceAttackChanged();

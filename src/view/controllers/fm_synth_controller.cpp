@@ -176,7 +176,8 @@ void FmSynthController::requestSettings()
     emit feedbackChanged();
     emit lpfCutoffChanged();
     emit lpfResonanceChanged();
-    emit filterSlopeChanged();
+    emit lpfSlopeChanged();
+    emit hpfSlopeChanged();
     emit hpfCutoffChanged();
     emit ampAttackChanged();
     emit ampDecayChanged();
@@ -272,16 +273,29 @@ void FmSynthController::setLpfCutoff(int value)
     }
 }
 
-int FmSynthController::filterSlope() const
+int FmSynthController::lpfSlope() const
 {
-    return m_synth ? m_synth->filterSlope() : 1;
+    return m_synth ? m_synth->lpfSlope() : 1;
 }
 
-void FmSynthController::setFilterSlope(int value)
+void FmSynthController::setLpfSlope(int value)
 {
     if (m_synth) {
-        m_synth->setFilterSlope(value);
-        emit filterSlopeChanged();
+        m_synth->setLpfSlope(value);
+        emit lpfSlopeChanged();
+    }
+}
+
+int FmSynthController::hpfSlope() const
+{
+    return m_synth ? m_synth->hpfSlope() : 1;
+}
+
+void FmSynthController::setHpfSlope(int value)
+{
+    if (m_synth) {
+        m_synth->setHpfSlope(value);
+        emit hpfSlopeChanged();
     }
 }
 

@@ -55,21 +55,33 @@ ColumnLayout {
     ColumnLayout {
         Layout.fillWidth: true
         Label {
-            text: qsTr("LPF/HPF Slope")
+            text: qsTr("LPF Slope")
         }
         ComboBox {
-            // Read through the active language so retranslate() reaches a model built in JS.
-            model: {
-                languageService.activeLanguage;
-                return ["12 dB/oct", "24 dB/oct"];
-            }
-            currentIndex: samplerController.filterSlope
-            onActivated: i => samplerController.filterSlope = i
+            model: ["12 dB/oct", "24 dB/oct"]
+            currentIndex: samplerController.lpfSlope
+            onActivated: idx => samplerController.lpfSlope = idx
             ToolTip.visible: hovered
-            ToolTip.text: qsTr("How steeply both of every pad's filters roll off. The steeper one clears more out of the way at the same cutoff.")
+            ToolTip.text: qsTr("How steeply every pad's low pass rolls off. The steeper one clears more out of the way at the same cutoff.")
             Layout.fillWidth: true
         }
     }
+
+    ColumnLayout {
+        Layout.fillWidth: true
+        Label {
+            text: qsTr("HPF Slope")
+        }
+        ComboBox {
+            model: ["12 dB/oct", "24 dB/oct"]
+            currentIndex: samplerController.hpfSlope
+            onActivated: idx => samplerController.hpfSlope = idx
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("How steeply every pad's high pass rolls off. The steeper one clears more out of the way at the same cutoff.")
+            Layout.fillWidth: true
+        }
+    }
+
 
     CheckBox {
         id: channelModeCheckbox

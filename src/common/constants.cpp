@@ -1710,6 +1710,16 @@ QString xmlKeyFilterSlope()
     return "filterSlope";
 }
 
+QString xmlKeyLpfSlope()
+{
+    return "lpfSlope";
+}
+
+QString xmlKeyHpfSlope()
+{
+    return "hpfSlope";
+}
+
 QString xmlKeyKeyTrack()
 {
     return "keyTrack";

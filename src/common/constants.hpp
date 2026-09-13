@@ -574,6 +574,8 @@ QString xmlKeyPitchBendRange();
 QString xmlKeyResonance();
 QString xmlKeyFilterType();
 QString xmlKeyFilterSlope();
+QString xmlKeyLpfSlope();
+QString xmlKeyHpfSlope();
 QString xmlKeyKeyTrack();
 QString xmlKeyAttack();
 QString xmlKeyDecay();

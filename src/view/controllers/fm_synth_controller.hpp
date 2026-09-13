@@ -38,7 +38,8 @@ class FmSynthController : public DeviceController
     Q_PROPERTY(int feedback READ feedback WRITE setFeedback NOTIFY feedbackChanged)
     Q_PROPERTY(int lpfCutoff READ lpfCutoff WRITE setLpfCutoff NOTIFY lpfCutoffChanged)
     Q_PROPERTY(int lpfResonance READ lpfResonance WRITE setLpfResonance NOTIFY lpfResonanceChanged)
-    Q_PROPERTY(int filterSlope READ filterSlope WRITE setFilterSlope NOTIFY filterSlopeChanged)
+    Q_PROPERTY(int lpfSlope READ lpfSlope WRITE setLpfSlope NOTIFY lpfSlopeChanged)
+    Q_PROPERTY(int hpfSlope READ hpfSlope WRITE setHpfSlope NOTIFY hpfSlopeChanged)
     Q_PROPERTY(int hpfCutoff READ hpfCutoff WRITE setHpfCutoff NOTIFY hpfCutoffChanged)
     Q_PROPERTY(int ampAttack READ ampAttack WRITE setAmpAttack NOTIFY ampAttackChanged)
     Q_PROPERTY(int ampDecay READ ampDecay WRITE setAmpDecay NOTIFY ampDecayChanged)
@@ -113,8 +114,10 @@ public:
     void setLpfCutoff(int value);
     int lpfResonance() const;
     void setLpfResonance(int value);
-    int filterSlope() const;
-    void setFilterSlope(int value);
+    int lpfSlope() const;
+    void setLpfSlope(int value);
+    int hpfSlope() const;
+    void setHpfSlope(int value);
     int hpfCutoff() const;
     void setHpfCutoff(int value);
     int ampAttack() const;
@@ -237,7 +240,8 @@ signals:
     void feedbackChanged();
     void lpfCutoffChanged();
     void lpfResonanceChanged();
-    void filterSlopeChanged();
+    void lpfSlopeChanged();
+    void hpfSlopeChanged();
     void hpfCutoffChanged();
     void ampAttackChanged();
     void ampDecayChanged();

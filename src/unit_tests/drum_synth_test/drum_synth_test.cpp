@@ -39,7 +39,7 @@ namespace {
 std::vector<double> renderKick(int slope, float hpfCutoff)
 {
     DrumSynthDevice device { "Drum Synth" };
-    device.setFilterSlope(slope);
+    device.setHpfSlope(slope);
     device.updateVoiceParameter(0, Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), hpfCutoff);
     device.processMidiNoteOn(36, 100);
     std::vector<double> buffer(4096 * 2, 0.0);
@@ -50,15 +50,16 @@ std::vector<double> renderKick(int slope, float hpfCutoff)
 
 } // namespace
 
-void DrumSynthTest::test_filterSlope_shouldDefaultToTheSlopeItAlwaysHad()
+void DrumSynthTest::test_lpfSlope_shouldDefaultToTheSlopeItAlwaysHad()
 {
     // 12 dB/oct is what the voice filters have always been, so that is where a device starts and
     // where every project that never touches the setting stays.
     const DrumSynthDevice device { "Drum Synth" };
-    QCOMPARE(device.filterSlope(), 0);
+    QCOMPARE(device.lpfSlope(), 0);
+    QCOMPARE(device.hpfSlope(), 0);
 }
 
-void DrumSynthTest::test_filterSlope_steep_shouldCutFurther()
+void DrumSynthTest::test_hpfSlope_steep_shouldCutFurther()
 {
     // A second stage of the same filter, so the stop band falls twice as fast.
     //
@@ -82,7 +83,7 @@ void DrumSynthTest::test_filterSlope_steep_shouldCutFurther()
     QVERIFY2(steep < shallow * 0.5, qPrintable(QString("shallow %1, steep %2").arg(shallow).arg(steep)));
 }
 
-void DrumSynthTest::test_filterSlope_shallow_shouldRenderAsBefore()
+void DrumSynthTest::test_lpfSlope_shallow_shouldRenderAsBefore()
 {
     // The second stage is parked where it passes the signal through rather than taken out of the
     // chain, so this is what says that parking it really is transparent -- and so that no existing

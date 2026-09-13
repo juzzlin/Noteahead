@@ -217,8 +217,10 @@ public:
     void setChromaticMode(bool enabled);
 
     //! 0 for 12 dB/oct, which is what the sampler's filters have always been, and 1 for 24.
-    int filterSlope() const;
-    void setFilterSlope(int filterSlope);
+    int lpfSlope() const;
+    void setLpfSlope(int slope);
+    int hpfSlope() const;
+    void setHpfSlope(int slope);
 
     //! Maps a pad index to a MIDI note. The two modes address the same shared per-note sample array with
     //! different layouts, so samples for both modes coexist and are all serialized; the modes are not meant
@@ -409,7 +411,8 @@ private:
 
     std::string m_name;
     //! 0 for 12 dB/oct, 1 for 24. See the second filter stage on Voice.
-    float m_filterSlope = 0.0f;
+    float m_lpfSlope = 0.0f;
+    float m_hpfSlope = 0.0f;
     float m_globalCutoff = 1.0f;
     float m_globalHpfCutoff = 0.0f;
     float m_authoredGlobalCutoff = 1.0f;

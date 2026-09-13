@@ -1810,11 +1810,19 @@
         <translation>Panorointi</translation>
     </message>
     <message>
-        <source>LPF/HPF Slope</source>
+        <source>LPF Slope</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>How steeply both of every voice&apos;s filters roll off. The steeper one clears more out of the way at the same cutoff.</source>
+        <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2723,14 +2731,6 @@
         <translation type="unfinished">Suodin</translation>
     </message>
     <message>
-        <source>LPF/HPF Slope</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>How steeply both filters roll off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>LPF Cutoff</source>
         <translation type="unfinished">LPF cutoff</translation>
     </message>
@@ -2739,8 +2739,24 @@
         <translation type="unfinished">Resonanssi</translation>
     </message>
     <message>
+        <source>LPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply the low pass rolls off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>HPF Cutoff</source>
         <translation type="unfinished">HPF cutoff</translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply the high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5369,11 +5385,19 @@
         <translation>Liuku</translation>
     </message>
     <message>
-        <source>LPF/HPF Slope</source>
+        <source>LPF Slope</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>How steeply both of every pad&apos;s filters roll off. The steeper one clears more out of the way at the same cutoff.</source>
+        <source>How steeply every pad&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply every pad&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7921,14 +7945,6 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <translation>Suodin</translation>
     </message>
     <message>
-        <source>LPF/HPF Slope</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>How steeply both filters roll off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>LPF Cutoff</source>
         <translation>LPF cutoff</translation>
     </message>
@@ -7937,8 +7953,24 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <translation>LPF-resonanssi</translation>
     </message>
     <message>
+        <source>LPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply the low pass rolls off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>HPF Cutoff</source>
         <translation>HPF cutoff</translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply the high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Key Track</source>
@@ -8705,14 +8737,6 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <translation>Suodin</translation>
     </message>
     <message>
-        <source>LPF/HPF Slope</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>How steeply both filters roll off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>LPF Cutoff</source>
         <translation>LPF cutoff</translation>
     </message>
@@ -8721,8 +8745,24 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <translation>LPF-resonanssi</translation>
     </message>
     <message>
+        <source>LPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply the low pass rolls off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>HPF Cutoff</source>
         <translation>HPF cutoff</translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply the high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

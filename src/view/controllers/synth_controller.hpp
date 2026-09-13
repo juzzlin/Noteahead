@@ -84,7 +84,8 @@ class SynthController : public DeviceController
     // Filter
     Q_PROPERTY(int lpfCutoff READ lpfCutoff WRITE setLpfCutoff NOTIFY lpfCutoffChanged)
     Q_PROPERTY(int lpfResonance READ lpfResonance WRITE setLpfResonance NOTIFY lpfResonanceChanged)
-    Q_PROPERTY(int filterSlope READ filterSlope WRITE setFilterSlope NOTIFY filterSlopeChanged)
+    Q_PROPERTY(int lpfSlope READ lpfSlope WRITE setLpfSlope NOTIFY lpfSlopeChanged)
+    Q_PROPERTY(int hpfSlope READ hpfSlope WRITE setHpfSlope NOTIFY hpfSlopeChanged)
     Q_PROPERTY(int hpfCutoff READ hpfCutoff WRITE setHpfCutoff NOTIFY hpfCutoffChanged)
     Q_PROPERTY(int filterKeyTrack READ filterKeyTrack WRITE setFilterKeyTrack NOTIFY filterKeyTrackChanged)
 
@@ -231,8 +232,10 @@ public:
     void setLpfCutoff(int c);
     int lpfResonance() const;
     void setLpfResonance(int r);
-    int filterSlope() const;
-    void setFilterSlope(int value);
+    int lpfSlope() const;
+    void setLpfSlope(int value);
+    int hpfSlope() const;
+    void setHpfSlope(int value);
     int hpfCutoff() const;
     void setHpfCutoff(int c);
     int filterKeyTrack() const;
@@ -368,7 +371,8 @@ signals:
     void mixVco3Changed();
     void lpfCutoffChanged();
     void lpfResonanceChanged();
-    void filterSlopeChanged();
+    void lpfSlopeChanged();
+    void hpfSlopeChanged();
     void hpfCutoffChanged();
     void filterKeyTrackChanged();
     void ampAttackChanged();

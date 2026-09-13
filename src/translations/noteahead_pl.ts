@@ -1811,11 +1811,19 @@
         <translation>Panorama</translation>
     </message>
     <message>
-        <source>LPF/HPF Slope</source>
+        <source>LPF Slope</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>How steeply both of every voice&apos;s filters roll off. The steeper one clears more out of the way at the same cutoff.</source>
+        <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2724,14 +2732,6 @@
         <translation type="unfinished">Filtr</translation>
     </message>
     <message>
-        <source>LPF/HPF Slope</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>How steeply both filters roll off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>LPF Cutoff</source>
         <translation type="unfinished">Odcięcie LPF</translation>
     </message>
@@ -2740,8 +2740,24 @@
         <translation type="unfinished">Rezonans</translation>
     </message>
     <message>
+        <source>LPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply the low pass rolls off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>HPF Cutoff</source>
         <translation type="unfinished">Odcięcie HPF</translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply the high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5370,11 +5386,19 @@
         <translation>Suwak</translation>
     </message>
     <message>
-        <source>LPF/HPF Slope</source>
+        <source>LPF Slope</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>How steeply both of every pad&apos;s filters roll off. The steeper one clears more out of the way at the same cutoff.</source>
+        <source>How steeply every pad&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply every pad&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7922,14 +7946,6 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <translation>Filtr</translation>
     </message>
     <message>
-        <source>LPF/HPF Slope</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>How steeply both filters roll off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>LPF Cutoff</source>
         <translation>Odcięcie LPF</translation>
     </message>
@@ -7938,8 +7954,24 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <translation>Rezonans LPF</translation>
     </message>
     <message>
+        <source>LPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply the low pass rolls off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>HPF Cutoff</source>
         <translation>Odcięcie HPF</translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply the high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Key Track</source>
@@ -8706,14 +8738,6 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <translation>Filtr</translation>
     </message>
     <message>
-        <source>LPF/HPF Slope</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>How steeply both filters roll off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>LPF Cutoff</source>
         <translation>Odcięcie LPF</translation>
     </message>
@@ -8722,8 +8746,24 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <translation>Rezonans LPF</translation>
     </message>
     <message>
+        <source>LPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply the low pass rolls off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>HPF Cutoff</source>
         <translation>Odcięcie HPF</translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply the high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
