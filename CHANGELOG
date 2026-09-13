@@ -5,6 +5,19 @@ Release date:
 
 New features:
 
+Bug fixes:
+
+Other:
+
+8.0.0
+=====
+
+Release date:
+
+Sun, 13 Sep 2026 08:37:52 +0300
+
+New features:
+
 * A glottal source for Speech
   - Models the vocal folds instead of a sawtooth, so the voice has an
     Openness control: pressed and buzzy at one end, soft and breathy at the
