@@ -3,6 +3,7 @@
 #include "../../application/service/editor_service.hpp"
 #include "../../application/service/preset_service.hpp"
 #include "../../common/constants.hpp"
+#include "../../domain/dsp/svf_filter.hpp"
 #include "../../domain/effects/auto_filter.hpp"
 #include "../../domain/effects/auto_panner.hpp"
 #include "../../domain/effects/chorus.hpp"
@@ -278,6 +279,56 @@ void EffectRackControllerTest::test_effectParametersSummary_saturator_shouldRetu
     // Default saturator: drive 6.0dB, mix 100%
     const auto summary = controller.effectParametersSummary(0);
     QCOMPARE(summary, QString { "(drive=6.0dB, mix=100%)" });
+}
+
+void EffectRackControllerTest::test_eq8BandParametricResponse_shouldSpanTheAudibleRange()
+{
+    const auto engine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(engine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(Eq8BandParametric::typeIdString()));
+
+    // A bell at the top of the range, to say which end of the list is which.
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeyBandType(0), static_cast<float>(SvfFilter::Type::Bell));
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeyBandFreq(0), 1.0f);
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeyBandGain(0), 1.0f); // +24 dB
+
+    const auto response = controller.eq8BandParametricResponse(0, 64);
+    QCOMPARE(response.size(), 64);
+    QVERIFY2(response.last().toDouble() > response.first().toDouble() + 6.0,
+             qPrintable(QString("%1 dB at the bottom, %2 at the top").arg(response.first().toDouble()).arg(response.last().toDouble())));
+}
+
+void EffectRackControllerTest::test_eq8BandParametricResponse_flatBands_shouldBeFlat()
+{
+    const auto engine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(engine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(Eq8BandParametric::typeIdString()));
+
+    // Every band starts bypassed, so an equalizer nobody has touched draws a straight line.
+    const auto response = controller.eq8BandParametricResponse(0, 32);
+    QCOMPARE(response.size(), 32);
+    for (auto && point : response) {
+        QVERIFY2(std::abs(point.toDouble()) < 0.01, qPrintable(QString::number(point.toDouble())));
+    }
+}
+
+void EffectRackControllerTest::test_eq8BandParametricResponse_wrongEffect_shouldBeEmpty()
+{
+    // The dialog asks by index, and an index is a thing that can be stale. Anything but an
+    // equalizer there has no response to give rather than a wrong one.
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+    controller.setIsInsertRack(true);
+
+    QVERIFY(controller.eq8BandParametricResponse(0, 32).isEmpty());
 }
 
 void EffectRackControllerTest::test_effectParametersSummary_eq8BandParametric_shouldReturnFormattedSummary()

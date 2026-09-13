@@ -5,6 +5,12 @@ Release date:
 
 New features:
 
+* The EQ draws its curve
+  - A response curve in the corner of the dialog, following the bands as
+    they are set
+  - Read off the filters the equalizer processes with, so it cannot show
+    something other than what is heard
+
 * LPF Slope and HPF Slope on Synth, FM Synth and Wavetable Synth
   - Their voice filters can run at 12 dB/oct as well as the 24 they have
     always been, which is the gentler, more open filter voice

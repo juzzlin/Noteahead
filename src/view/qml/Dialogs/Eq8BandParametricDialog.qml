@@ -65,6 +65,20 @@ EffectDialog {
             Item {
                 Layout.fillWidth: true
             }
+
+            EqCurveRenderer {
+                // The response comes from the equalizer itself, which reads it off the filters it
+                // processes with, so the curve cannot drift from what is being heard. revision is
+                // bumped by every parameter change, which is what makes it follow a knob.
+                response: {
+                    effectRackController.revision;
+                    return effectRackController.eq8BandParametricResponse(root.effectIndex, 240);
+                }
+                dbRange: 18
+                accentColor: themeService.accentColor
+                Layout.preferredWidth: 300
+                Layout.preferredHeight: 120
+            }
         }
 
         ScrollView {

@@ -51,6 +51,13 @@ public:
     //! project loads, or opening a song would overwrite every Q it had saved.
     static std::optional<float> defaultQParameterValue(SvfFilter::Type type);
 
+    //! What the whole equalizer does at @p frequency, in dB.
+    //!
+    //! Asked of the bands themselves rather than worked out from the parameters a second time, so
+    //! that a curve drawn from it cannot drift away from what is being heard -- including the extra
+    //! sections a steep cut runs, which no formula over the parameters would know about.
+    double magnitudeDbAt(double frequency) const;
+
     enum class StereoMode
     {
         MidSide, // Both mid and side channels are processed (equivalent to independent L/R processing).
@@ -181,6 +188,9 @@ private:
         }
     };
 
+    //! The settings of band @p index, read off the parameters. Its filters are left unconfigured;
+    //! updateCoefficients() is what brings them up.
+    Band bandFromParameters(size_t index) const;
     void syncParameters();
     void updateBuffers();
     void processStereo(double & left, double & right);

@@ -53,6 +53,13 @@ public:
 
     void setBypass();
 
+    //! Magnitude of this filter at @p frequency, as a linear ratio.
+    //!
+    //! Derived from the very coefficients process() runs on rather than from a formula per type, so
+    //! a curve drawn with it is the curve the audio takes -- including the frequency warping the
+    //! bilinear transform puts in near Nyquist, which a drawing of the analog prototype would miss.
+    double magnitudeAt(double frequency, double sampleRate) const;
+
     double process(double input);
     void reset();
 

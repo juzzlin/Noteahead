@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <complex>
 #include <numbers>
 
 namespace noteahead {
@@ -173,6 +174,25 @@ void SvfFilter::calculateNotch(double frequency, double sampleRate, double q)
 void SvfFilter::setBypass()
 {
     m_isBypassed = true;
+}
+
+double SvfFilter::magnitudeAt(double frequency, double sampleRate) const
+{
+    if (m_isBypassed || m_g <= 0.0 || sampleRate <= 0.0) {
+        return 1.0;
+    }
+
+    // The prototype is normalised to the cutoff, and g is the warped cutoff, so the frequency being
+    // asked about is warped the same way before the ratio is taken.
+    const double warped = std::tan(std::numbers::pi * std::clamp(frequency, 0.0, sampleRate * 0.499) / sampleRate);
+    const std::complex<double> s { 0.0, warped / m_g };
+
+    // The same mix process() takes: m0 on the input, m1 on the band pass, m2 on the low pass.
+    const std::complex<double> denominator = s * s + m_k * s + 1.0;
+    const std::complex<double> bandPass = s / denominator;
+    const std::complex<double> lowPass = 1.0 / denominator;
+
+    return std::abs(m_m0 + m_m1 * bandPass + m_m2 * lowPass);
 }
 
 double SvfFilter::process(double input)

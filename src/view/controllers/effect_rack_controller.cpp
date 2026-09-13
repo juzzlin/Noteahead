@@ -1399,6 +1399,31 @@ float EffectRackController::eq8BandParametricDefaultQ(int bandType) const
     return q.value_or(-1.0f);
 }
 
+QVariantList EffectRackController::eq8BandParametricResponse(quint32 effectIndex, int points) const
+{
+    QVariantList response;
+    if (points <= 1) {
+        return response;
+    }
+
+    const auto rack = currentRack();
+    if (!rack) {
+        return response;
+    }
+    const auto effect = std::dynamic_pointer_cast<Eq8BandParametric>(rack->get().effect(static_cast<size_t>(effectIndex)));
+    if (!effect) {
+        return response;
+    }
+
+    response.reserve(points);
+    for (int i = 0; i < points; i++) {
+        const double t = static_cast<double>(i) / static_cast<double>(points - 1);
+        const double hz = 20.0 * std::pow(1000.0, t); // 20 Hz to 20 kHz, evenly spaced by octave
+        response.append(effect->magnitudeDbAt(hz));
+    }
+    return response;
+}
+
 QString EffectRackController::eq8BandParametricStereoModeKey() const
 {
     return Constants::NahdXml::xmlKeyStereoMode();

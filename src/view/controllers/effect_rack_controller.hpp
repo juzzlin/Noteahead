@@ -419,6 +419,9 @@ public:
     //! The Q a band opens at when the user picks @p bandType, or -1 for a type that has no sensible
     //! one. Applied on the user's action so that loading a project cannot overwrite a saved Q.
     Q_INVOKABLE float eq8BandParametricDefaultQ(int bandType) const;
+    //! The equalizer's response over the audible range, in dB, as @p points evenly spaced on a log
+    //! frequency scale from 20 Hz to 20 kHz -- the scale the curve is drawn on.
+    Q_INVOKABLE QVariantList eq8BandParametricResponse(quint32 effectIndex, int points) const;
     Q_INVOKABLE QString eq8BandParametricStereoModeKey() const;
 
     Q_INVOKABLE QString vintagePassiveEqLowFreqKey() const;

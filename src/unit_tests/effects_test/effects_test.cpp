@@ -1459,6 +1459,60 @@ void EffectsTest::test_eq8BandParametricEffect_bell_shouldDefaultToOneOctave()
     }
 }
 
+void EffectsTest::test_eq8BandParametricEffect_magnitude_shouldMatchWhatIsHeard_data()
+{
+    QTest::addColumn<int>("type");
+    QTest::addColumn<int>("slope");
+    QTest::addColumn<double>("hz");
+
+    QTest::newRow("bell at its centre") << static_cast<int>(SvfFilter::Type::Bell) << 0 << 1000.0;
+    QTest::newRow("bell off to one side") << static_cast<int>(SvfFilter::Type::Bell) << 0 << 2000.0;
+    QTest::newRow("low shelf below") << static_cast<int>(SvfFilter::Type::LowShelf) << 0 << 200.0;
+    QTest::newRow("high shelf above") << static_cast<int>(SvfFilter::Type::HighShelf) << 0 << 5000.0;
+    QTest::newRow("low cut in the stop band") << static_cast<int>(SvfFilter::Type::LowCut) << 0 << 250.0;
+    QTest::newRow("low cut at 24 dB/oct") << static_cast<int>(SvfFilter::Type::LowCut) << 1 << 250.0;
+    QTest::newRow("low cut at 48 dB/oct") << static_cast<int>(SvfFilter::Type::LowCut) << 2 << 400.0;
+    QTest::newRow("high cut at 48 dB/oct") << static_cast<int>(SvfFilter::Type::HighCut) << 2 << 2500.0;
+    // Beside the notch rather than on it: at the centre both the measurement and the curve are
+    // simply "off", and comparing two floors says nothing.
+    QTest::newRow("notch beside the notch") << static_cast<int>(SvfFilter::Type::Notch) << 0 << 1300.0;
+}
+
+void EffectsTest::test_eq8BandParametricEffect_magnitude_shouldMatchWhatIsHeard()
+{
+    QFETCH(int, type);
+    QFETCH(int, slope);
+    QFETCH(double, hz);
+
+    // The drawn curve has to be the curve being heard, so it is checked against a tone actually put
+    // through the equalizer rather than against a formula written out a second time.
+    Eq8BandParametric eq;
+    eq.setSampleRate(48000.0);
+    const auto set = [&eq](const QString & key, float value) {
+        if (auto p = eq.parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    };
+    set(Constants::NahdXml::xmlKeyBandType(0), static_cast<float>(type));
+    set(Constants::NahdXml::xmlKeyBandFreq(0), static_cast<float>(ParameterMapper::unmapLogFrequency(1000.0, 20.0, 20000.0)));
+    set(Constants::NahdXml::xmlKeyBandGain(0), 0.75f); // +12 dB where the type uses gain
+    set(Constants::NahdXml::xmlKeyBandSlope(0), static_cast<float>(slope));
+
+    double peak = 0.0;
+    for (size_t i = 0; i < 28800; i++) {
+        double left = std::sin(2.0 * M_PI * hz * static_cast<double>(i) / 48000.0), right = left;
+        eq.process(left, right);
+        if (i >= 24000) {
+            peak = std::max(peak, std::abs(left));
+        }
+    }
+    const double measured = 20.0 * std::log10(std::max(1e-12, peak));
+    const double predicted = eq.magnitudeDbAt(hz);
+
+    QVERIFY2(std::abs(measured - predicted) < 0.5,
+             qPrintable(QString("heard %1 dB, drawn %2 dB at %3 Hz").arg(measured).arg(predicted).arg(hz)));
+}
+
 void EffectsTest::test_eq8BandParametricEffect_defaultQ_shouldFollowTheType_data()
 {
     QTest::addColumn<int>("type");

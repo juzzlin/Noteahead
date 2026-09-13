@@ -65,6 +65,7 @@
 #include "../view/controllers/synth_controller.hpp"
 #include "../view/controllers/wavetable_synth_controller.hpp"
 #include "../view/qml/Components/oscilloscope_renderer.hpp"
+#include "../view/qml/Dialogs/eq_curve_renderer.hpp"
 #include "../view/qml/Dialogs/rta_renderer.hpp"
 #include "../view/qml/Dialogs/song_overview_renderer.hpp"
 #include "../view/qml/Dialogs/stereo_field_renderer.hpp"
@@ -250,6 +251,7 @@ void Application::registerTypes()
     qmlRegisterType<MixerService>("Noteahead", majorVersion, minorVersion, "MixerService");
     qmlRegisterType<NoteColumnLineContainerHelper>("Noteahead", majorVersion, minorVersion, "NoteColumnLineContainerHelper");
     qmlRegisterType<NoteColumnRenderer>("Noteahead", majorVersion, minorVersion, "NoteColumnRenderer");
+    qmlRegisterType<EqCurveRenderer>("Noteahead", majorVersion, minorVersion, "EqCurveRenderer");
     qmlRegisterType<RtaRenderer>("Noteahead", majorVersion, minorVersion, "RtaRenderer");
     qmlRegisterType<StereoFieldRenderer>("Noteahead", majorVersion, minorVersion, "StereoFieldRenderer");
     qmlRegisterType<SongOverviewRenderer>("Noteahead", majorVersion, minorVersion, "SongOverviewRenderer");

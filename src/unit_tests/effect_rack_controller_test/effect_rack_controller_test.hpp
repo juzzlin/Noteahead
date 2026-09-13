@@ -10,6 +10,9 @@ class EffectRackControllerTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_eq8BandParametricResponse_shouldSpanTheAudibleRange();
+    void test_eq8BandParametricResponse_flatBands_shouldBeFlat();
+    void test_eq8BandParametricResponse_wrongEffect_shouldBeEmpty();
     void initTestCase();
     void cleanupTestCase();
     void test_effectParametersSummary_reverb_shouldReturnFormattedSummary();
