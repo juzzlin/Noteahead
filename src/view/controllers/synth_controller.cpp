@@ -106,7 +106,8 @@ QStringList SynthController::modTargetNames() const
     // In ordinal order, not in a sensible reading order: a ComboBox's index is the value that gets
     // written to the project, so the list has to follow SynthDevice::ModTarget exactly.
     return { tr("Pitch 1"), tr("Pitch 2"), tr("Pitch 3"), tr("Cutoff"),
-             tr("Pitch"), tr("Shape"), tr("Volume"), tr("Resonance"), tr("Pan"), tr("HPF Cutoff") };
+             tr("Pitch"), tr("Shape"), tr("Volume"), tr("Resonance"), tr("Pan"), tr("HPF Cutoff"),
+             tr("Pitch 4") };
 }
 
 QStringList SynthController::lfoModeNames() const
@@ -118,7 +119,7 @@ QStringList SynthController::lfoTargetNames() const
 {
     // Ordinal order again, which is why the single-VCO pitches trail the list. See LfoTarget.
     return { tr("Pitch"), tr("Shape"), tr("Cutoff"), tr("Volume"), tr("Resonance"), tr("Pan"),
-             tr("Pitch 1"), tr("Pitch 2"), tr("Pitch 3"), tr("HPF Cutoff") };
+             tr("Pitch 1"), tr("Pitch 2"), tr("Pitch 3"), tr("HPF Cutoff"), tr("Pitch 4") };
 }
 
 QStringList SynthController::lfo2WaveformNames() const
@@ -1174,6 +1175,90 @@ void SynthController::setMixVco3(int lvl)
 {
     if (m_synth) {
         m_synth->setMixVco3(static_cast<float>(lvl) / Constants::uiInternalScaling());
+    }
+}
+
+int SynthController::vco4Waveform() const
+{
+    return m_synth ? static_cast<int>(m_synth->vco4Waveform()) : 0;
+}
+
+void SynthController::setVco4Waveform(int wave)
+{
+    if (m_synth) {
+        m_synth->setVco4Waveform(static_cast<PolyBlepOscillator::Waveform>(wave));
+    }
+}
+
+int SynthController::vco4Octave() const
+{
+    return m_synth ? m_synth->vco4Octave() : 0;
+}
+
+void SynthController::setVco4Octave(int oct)
+{
+    if (m_synth) {
+        m_synth->setVco4Octave(oct);
+    }
+}
+
+int SynthController::vco4Pitch() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->vco4Pitch() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setVco4Pitch(int p)
+{
+    if (m_synth) {
+        m_synth->setVco4Pitch(static_cast<float>(p) / Constants::uiInternalScaling());
+    }
+}
+
+int SynthController::vco4Shape() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->vco4Shape() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setVco4Shape(int s)
+{
+    if (m_synth) {
+        m_synth->setVco4Shape(static_cast<float>(s) / Constants::uiInternalScaling());
+    }
+}
+
+int SynthController::vco4Roundness() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->vco4Roundness() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setVco4Roundness(int r)
+{
+    if (m_synth) {
+        m_synth->setVco4Roundness(static_cast<float>(r) / Constants::uiInternalScaling());
+    }
+}
+
+bool SynthController::vco4Sync() const
+{
+    return m_synth ? m_synth->vco4Sync() : false;
+}
+
+void SynthController::setVco4Sync(bool s)
+{
+    if (m_synth) {
+        m_synth->setVco4Sync(s);
+    }
+}
+
+int SynthController::mixVco4() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->mixVco4() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setMixVco4(int lvl)
+{
+    if (m_synth) {
+        m_synth->setMixVco4(static_cast<float>(lvl) / Constants::uiInternalScaling());
     }
 }
 

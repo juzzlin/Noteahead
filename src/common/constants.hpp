@@ -661,6 +661,12 @@ QString xmlKeyVco3Pitch();
 QString xmlKeyVco3Shape();
 QString xmlKeyVco3Roundness();
 QString xmlKeyVco3Sync();
+QString xmlKeyVco4Waveform();
+QString xmlKeyVco4Octave();
+QString xmlKeyVco4Pitch();
+QString xmlKeyVco4Shape();
+QString xmlKeyVco4Roundness();
+QString xmlKeyVco4Sync();
 
 QString xmlKeyOsc1Pos();
 QString xmlKeyOsc1Octave();
@@ -729,6 +735,7 @@ QString xmlKeyMultiLevel();
 QString xmlKeyMixLevel1();
 QString xmlKeyMixLevel2();
 QString xmlKeyMixLevel3();
+QString xmlKeyMixLevel4();
 
 QString xmlKeyPreset();
 QString xmlKeyTypeId();

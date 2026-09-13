@@ -5,6 +5,12 @@ Release date:
 
 New features:
 
+* A fourth VCO in the Synth
+  - Its own waveform, octave, pitch, shape, roundness and hard sync, and
+    its own level in the mix
+  - Reachable from the Mod EG and both LFOs, as Pitch 4
+  - Silent by default, so patches you already have are unchanged
+
 * The EQ draws its curve
   - A response curve in the corner of the dialog, following the bands as
     they are set

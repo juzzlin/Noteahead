@@ -2105,6 +2105,36 @@ QString xmlKeyVco3Sync()
     return "vco3Sync";
 }
 
+QString xmlKeyVco4Waveform()
+{
+    return "vco4Waveform";
+}
+
+QString xmlKeyVco4Octave()
+{
+    return "vco4Octave";
+}
+
+QString xmlKeyVco4Pitch()
+{
+    return "vco4Pitch";
+}
+
+QString xmlKeyVco4Shape()
+{
+    return "vco4Shape";
+}
+
+QString xmlKeyVco4Roundness()
+{
+    return "vco4Roundness";
+}
+
+QString xmlKeyVco4Sync()
+{
+    return "vco4Sync";
+}
+
 QString xmlKeyOsc1Pos()
 {
     return "osc1Pos";
@@ -2398,6 +2428,11 @@ QString xmlKeyMixLevel2()
 QString xmlKeyMixLevel3()
 {
     return "mixLevel3";
+}
+
+QString xmlKeyMixLevel4()
+{
+    return "mixLevel4";
 }
 
 QString xmlKeyPreset()

@@ -8221,6 +8221,33 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     </message>
 </context>
 <context>
+    <name>SynthDialog_Vco4</name>
+    <message>
+        <source>VCO 4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pitch</source>
+        <translation type="unfinished">Toonhoogte</translation>
+    </message>
+    <message>
+        <source>Shape</source>
+        <translation type="unfinished">Vorm</translation>
+    </message>
+    <message>
+        <source>Roundness</source>
+        <translation type="unfinished">Rondheid</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation type="unfinished">Niveau</translation>
+    </message>
+    <message>
+        <source>Hard Sync to VCO3</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>TrackHeader</name>
     <message>
         <source>Set velocity scale for this TRACK, 0-100 %. All note velocities will be scaled according to this setting.</source>
@@ -9455,6 +9482,10 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     <message>
         <source>HPF Cutoff</source>
         <translation>HPF-cutoff</translation>
+    </message>
+    <message>
+        <source>Pitch 4</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Normal</source>

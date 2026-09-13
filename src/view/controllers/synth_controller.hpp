@@ -69,6 +69,12 @@ class SynthController : public DeviceController
     Q_PROPERTY(int vco3Shape READ vco3Shape WRITE setVco3Shape NOTIFY vco3ShapeChanged)
     Q_PROPERTY(int vco3Roundness READ vco3Roundness WRITE setVco3Roundness NOTIFY vco3RoundnessChanged)
     Q_PROPERTY(bool vco3Sync READ vco3Sync WRITE setVco3Sync NOTIFY vco3SyncChanged)
+    Q_PROPERTY(int vco4Waveform READ vco4Waveform WRITE setVco4Waveform NOTIFY vco4WaveformChanged)
+    Q_PROPERTY(int vco4Octave READ vco4Octave WRITE setVco4Octave NOTIFY vco4OctaveChanged)
+    Q_PROPERTY(int vco4Pitch READ vco4Pitch WRITE setVco4Pitch NOTIFY vco4PitchChanged)
+    Q_PROPERTY(int vco4Shape READ vco4Shape WRITE setVco4Shape NOTIFY vco4ShapeChanged)
+    Q_PROPERTY(int vco4Roundness READ vco4Roundness WRITE setVco4Roundness NOTIFY vco4RoundnessChanged)
+    Q_PROPERTY(bool vco4Sync READ vco4Sync WRITE setVco4Sync NOTIFY vco4SyncChanged)
 
     // Multi Engine
     Q_PROPERTY(int multiType READ multiType WRITE setMultiType NOTIFY multiTypeChanged)
@@ -80,6 +86,7 @@ class SynthController : public DeviceController
     Q_PROPERTY(int mixVco1 READ mixVco1 WRITE setMixVco1 NOTIFY mixVco1Changed)
     Q_PROPERTY(int mixVco2 READ mixVco2 WRITE setMixVco2 NOTIFY mixVco2Changed)
     Q_PROPERTY(int mixVco3 READ mixVco3 WRITE setMixVco3 NOTIFY mixVco3Changed)
+    Q_PROPERTY(int mixVco4 READ mixVco4 WRITE setMixVco4 NOTIFY mixVco4Changed)
 
     // Filter
     Q_PROPERTY(int lpfCutoff READ lpfCutoff WRITE setLpfCutoff NOTIFY lpfCutoffChanged)
@@ -211,6 +218,18 @@ public:
     void setVco3Roundness(int r);
     bool vco3Sync() const;
     void setVco3Sync(bool s);
+    int vco4Waveform() const;
+    void setVco4Waveform(int wave);
+    int vco4Octave() const;
+    void setVco4Octave(int oct);
+    int vco4Pitch() const;
+    void setVco4Pitch(int p);
+    int vco4Shape() const;
+    void setVco4Shape(int s);
+    int vco4Roundness() const;
+    void setVco4Roundness(int r);
+    bool vco4Sync() const;
+    void setVco4Sync(bool s);
 
     int multiType() const;
     void setMultiType(int type);
@@ -227,6 +246,8 @@ public:
     void setMixVco2(int lvl);
     int mixVco3() const;
     void setMixVco3(int lvl);
+    int mixVco4() const;
+    void setMixVco4(int lvl);
 
     int lpfCutoff() const;
     void setLpfCutoff(int c);
@@ -362,6 +383,12 @@ signals:
     void vco3ShapeChanged();
     void vco3RoundnessChanged();
     void vco3SyncChanged();
+    void vco4WaveformChanged();
+    void vco4OctaveChanged();
+    void vco4PitchChanged();
+    void vco4ShapeChanged();
+    void vco4RoundnessChanged();
+    void vco4SyncChanged();
     void multiTypeChanged();
     void multiShapeChanged();
     void multiLevelChanged();
@@ -369,6 +396,7 @@ signals:
     void mixVco1Changed();
     void mixVco2Changed();
     void mixVco3Changed();
+    void mixVco4Changed();
     void lpfCutoffChanged();
     void lpfResonanceChanged();
     void lpfSlopeChanged();

@@ -254,6 +254,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Vco1.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Vco2.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Vco3.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDialog_Vco4.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/TubeStageDialog.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_InstrumentSettings.qml

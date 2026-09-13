@@ -81,7 +81,9 @@ public:
         Volume,
         Resonance,
         Pan,
-        HpfCutoff
+        HpfCutoff,
+        //! Appended with the fourth oscillator, for the same reason everything else here is.
+        Pitch4
     };
 
     //! Serialized as a raw ordinal, so this is append-only: inserting a value would silently change
@@ -102,7 +104,9 @@ public:
         Pitch3,
         //! Sweeping the high pass alongside the low pass is what moves a band through the spectrum
         //! rather than merely opening one end of it.
-        HpfCutoff
+        HpfCutoff,
+        //! Appended with the fourth oscillator, for the same reason everything else here is.
+        Pitch4
     };
 
     explicit SynthDevice(std::string name);
@@ -194,6 +198,18 @@ public:
     void setVco3Roundness(float roundness);
     bool vco3Sync() const;
     void setVco3Sync(bool sync);
+    PolyBlepOscillator::Waveform vco4Waveform() const;
+    void setVco4Waveform(PolyBlepOscillator::Waveform wave);
+    int vco4Octave() const;
+    void setVco4Octave(int octave);
+    float vco4Pitch() const;
+    void setVco4Pitch(float pitch);
+    float vco4Shape() const;
+    void setVco4Shape(float shape);
+    float vco4Roundness() const;
+    void setVco4Roundness(float roundness);
+    bool vco4Sync() const;
+    void setVco4Sync(bool sync);
 
     // Multi Engine
     MultiEngine::Type multiType() const;
@@ -212,6 +228,8 @@ public:
     void setMixVco2(float level);
     float mixVco3() const;
     void setMixVco3(float level);
+    float mixVco4() const;
+    void setMixVco4(float level);
 
     // Filter
     float lpfCutoff() const;
@@ -356,6 +374,7 @@ private:
         PolyBlepOscillator vco1;
         PolyBlepOscillator vco2;
         PolyBlepOscillator vco3;
+        PolyBlepOscillator vco4;
         MultiEngine multi;
         CascadedSvf lpf;
         CascadedSvf hpf;
@@ -435,6 +454,12 @@ private:
     float m_vco3Shape { 0.0f };
     float m_vco3Roundness { 0.5f };
     bool m_vco3Sync { false };
+    PolyBlepOscillator::Waveform m_vco4Waveform { PolyBlepOscillator::Waveform::Saw };
+    int m_vco4Octave { 0 };
+    float m_vco4Pitch { 0.5f };
+    float m_vco4Shape { 0.0f };
+    float m_vco4Roundness { 0.5f };
+    bool m_vco4Sync { false };
 
     MultiEngine::Type m_multiType { MultiEngine::Type::Low };
     float m_multiShape { 0.5f };
@@ -444,6 +469,7 @@ private:
     float m_mixVco1 { 1.0f };
     float m_mixVco2 { 0.0f };
     float m_mixVco3 { 0.0f };
+    float m_mixVco4 { 0.0f };
 
     float m_lpfCutoff { 1.0f };
     float m_lpfResonance { 0.0f };
@@ -521,6 +547,7 @@ private:
     double m_vco1BasePitchRatio { 1.0 };
     double m_vco2BasePitchRatio { 1.0 };
     double m_vco3BasePitchRatio { 1.0 };
+    double m_vco4BasePitchRatio { 1.0 };
 
     void handleNoteOn(uint8_t note, uint8_t velocity);
     //! Starts a note on the given voice through whichever path the Phase Sync switch selects.
@@ -549,6 +576,7 @@ private:
         double vco1PitchMod { 0.0 };
         double vco2PitchMod { 0.0 };
         double vco3PitchMod { 0.0 };
+        double vco4PitchMod { 0.0 };
         double resonanceMod { 0.0 };
         double panMod { 0.0 };
         double volumeMod { 0.0 };

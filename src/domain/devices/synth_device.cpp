@@ -36,6 +36,7 @@ void SynthDevice::Voice::reset()
     vco1.reset();
     vco2.reset();
     vco3.reset();
+    vco4.reset();
     lpf.reset();
     hpf.reset();
     ampEg.reset();
@@ -94,6 +95,9 @@ void SynthDevice::Voice::applyTrigger(const Trigger & trigger, std::optional<Pha
         vco1.sync(phases->at(0));
         vco2.sync(phases->at(1));
         vco3.sync(phases->at(2));
+        if (phases->size() > 3) {
+            vco4.sync(phases->at(3));
+        }
     }
 
     // Restarting from zero is what gives a repeated note its own attack. Carrying on from where the
@@ -149,6 +153,13 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco3Roundness().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVco3Sync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
 
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco4Waveform().toStdString(), 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco4Octave().toStdString(), 0.0f, -2, 2, 0, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco4Pitch().toStdString(), 0.5f, -2400, 2400, 0 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco4Shape().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco4Roundness().toStdString(), 0.5f, 0, 10000, 5000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyVco4Sync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
+
     addParameter(Parameter { Constants::NahdXml::xmlKeyMultiMode().toStdString(), 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete }); // Low default
     addParameter(Parameter { Constants::NahdXml::xmlKeyMultiShape().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyMultiLevel().toStdString(), 0.0f, 0, 10000, 0, 100 });
@@ -157,6 +168,8 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyMixLevel1().toStdString(), 1.0f, 0, 10000, 10000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyMixLevel2().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyMixLevel3().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    // Silent by default, like the third: a patch that never reaches for it is the patch it was.
+    addParameter(Parameter { Constants::NahdXml::xmlKeyMixLevel4().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), 1.0f, 0, 10000, 10000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLpfResonance().toStdString(), 0.0f, 0, 10000, 0, 100 });
@@ -183,14 +196,14 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyModDecay().toStdString(), 0.34f, 0, 10000, 3400, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyModSustain().toStdString(), 0.0f, 0, 10000, 0, 100 }); // AD by default
     addParameter(Parameter { Constants::NahdXml::xmlKeyModIntensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyModTarget().toStdString(), 3.0f, 0, 9, 3, 1, Parameter::Type::Discrete }); // Cutoff default
+    addParameter(Parameter { Constants::NahdXml::xmlKeyModTarget().toStdString(), 3.0f, 0, 10, 3, 1, Parameter::Type::Discrete }); // Cutoff default
     addParameter(Parameter { Constants::NahdXml::xmlKeyModCurve().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoWaveform().toStdString(), 1.0f, 0, 4, 1, 1, Parameter::Type::Discrete }); // Tri default
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoMode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete }); // Normal default
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoRate().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoIntensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyLfoTarget().toStdString(), 0.0f, 0, 9, 0, 1, Parameter::Type::Discrete }); // Pitch default
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfoTarget().toStdString(), 0.0f, 0, 10, 0, 1, Parameter::Type::Discrete }); // Pitch default
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoDelay().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoFade().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
@@ -198,7 +211,7 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Mode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Rate().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Intensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Target().toStdString(), 0.0f, 0, 9, 0, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Target().toStdString(), 0.0f, 0, 10, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Delay().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Fade().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
@@ -489,6 +502,7 @@ void SynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversampledRate,
     voice.vco1.setSampleRate(oversampledRate);
     voice.vco2.setSampleRate(oversampledRate);
     voice.vco3.setSampleRate(oversampledRate);
+    voice.vco4.setSampleRate(oversampledRate);
     voice.multi.setSampleRate(oversampledRate);
     voice.multi.setOversampleFactor(m_oversampleFactor);
     voice.lpf.setSampleRate(oversampledRate);
@@ -502,12 +516,15 @@ void SynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversampledRate,
     voice.vco1.setWaveform(m_vco1Waveform);
     voice.vco2.setWaveform(m_vco2Waveform);
     voice.vco3.setWaveform(m_vco3Waveform);
+    voice.vco4.setWaveform(m_vco4Waveform);
     voice.vco1.setShape(m_vco1Shape);
     voice.vco1.setRoundness(m_vco1Roundness);
     voice.vco2.setShape(m_vco2Shape);
     voice.vco2.setRoundness(m_vco2Roundness);
     voice.vco3.setShape(m_vco3Shape);
     voice.vco3.setRoundness(m_vco3Roundness);
+    voice.vco4.setShape(m_vco4Shape);
+    voice.vco4.setRoundness(m_vco4Roundness);
     voice.multi.setType(m_multiType);
     voice.multi.setShape(m_multiShape);
     voice.multi.setKeyTrack(m_multiKeyTrack);
@@ -895,21 +912,25 @@ SynthDevice::ModulationValues SynthDevice::calculateModulation(Voice & voice) co
     mods.vco1PitchMod = (m_modTarget == ModTarget::Pitch1) ? modEnv : 0.0;
     mods.vco2PitchMod = (m_modTarget == ModTarget::Pitch2) ? modEnv : 0.0;
     mods.vco3PitchMod = (m_modTarget == ModTarget::Pitch3) ? modEnv : 0.0;
+    mods.vco4PitchMod = (m_modTarget == ModTarget::Pitch4) ? modEnv : 0.0;
     if (m_modTarget == ModTarget::Pitch) {
         mods.vco1PitchMod += modEnv;
         mods.vco2PitchMod += modEnv;
         mods.vco3PitchMod += modEnv;
+        mods.vco4PitchMod += modEnv;
     }
 
     if (m_lfoTarget == LfoTarget::Pitch) {
         mods.vco1PitchMod += lfoVal;
         mods.vco2PitchMod += lfoVal;
         mods.vco3PitchMod += lfoVal;
+        mods.vco4PitchMod += lfoVal;
     }
     if (m_lfo2Target == LfoTarget::Pitch) {
         mods.vco1PitchMod += lfo2Val;
         mods.vco2PitchMod += lfo2Val;
         mods.vco3PitchMod += lfo2Val;
+        mods.vco4PitchMod += lfo2Val;
     }
 
     if (m_lfoTarget == LfoTarget::Pitch1) {
@@ -929,6 +950,12 @@ SynthDevice::ModulationValues SynthDevice::calculateModulation(Voice & voice) co
     }
     if (m_lfo2Target == LfoTarget::Pitch3) {
         mods.vco3PitchMod += lfo2Val;
+    }
+    if (m_lfoTarget == LfoTarget::Pitch4) {
+        mods.vco4PitchMod += lfoVal;
+    }
+    if (m_lfo2Target == LfoTarget::Pitch4) {
+        mods.vco4PitchMod += lfo2Val;
     }
 
     mods.volumeMod = (m_modTarget == ModTarget::Volume) ? modEnv : 0.0;
@@ -963,6 +990,7 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
     double vco1Freq = voice.glideFrequency * m_vco1BasePitchRatio * pbRatio;
     double vco2Freq = voice.glideFrequency * m_vco2BasePitchRatio * pbRatio;
     double vco3Freq = voice.glideFrequency * m_vco3BasePitchRatio * pbRatio;
+    double vco4Freq = voice.glideFrequency * m_vco4BasePitchRatio * pbRatio;
 
     if (mods.vco1PitchMod != 0.0) {
         vco1Freq *= std::exp2(mods.vco1PitchMod);
@@ -972,6 +1000,9 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
     }
     if (mods.vco3PitchMod != 0.0) {
         vco3Freq *= std::exp2(mods.vco3PitchMod);
+    }
+    if (mods.vco4PitchMod != 0.0) {
+        vco4Freq *= std::exp2(mods.vco4PitchMod);
     }
 
     // Drift voice mode has no fixed detune, so the wander is the detune: the depth knob feeds the
@@ -986,6 +1017,7 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
         vco1Freq *= driftRatio;
         vco2Freq *= driftRatio;
         vco3Freq *= driftRatio;
+        vco4Freq *= driftRatio;
     }
 
     double vco1Val = 0.0;
@@ -1025,6 +1057,7 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
     }
 
     double vco3Val = 0.0;
+    double oldPhase3 = voice.vco3.phase();
     if (m_mixVco3 >= 0.001f) {
         voice.vco3.setFrequency(vco3Freq);
         voice.vco3.setShape(std::clamp(m_vco3Shape + mods.shapeMod, 0.0, 1.0));
@@ -1040,7 +1073,28 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
                 voice.vco3.sync(0.0);
             }
         }
+        oldPhase3 = voice.vco3.phase();
         vco3Val = voice.vco3.nextSample();
+    }
+
+    double vco4Val = 0.0;
+    if (m_mixVco4 >= 0.001f) {
+        voice.vco4.setFrequency(vco4Freq);
+        voice.vco4.setShape(std::clamp(m_vco4Shape + mods.shapeMod, 0.0, 1.0));
+
+        // VCO4 hard syncs to VCO3, continuing the chain each oscillator makes with the one before
+        // it: 2 to 1, 3 to 2, 4 to 3.
+        if (m_vco4Sync && voice.vco3.phase() < oldPhase3) {
+            const double phaseStep3 = vco3Freq / oversampledRate;
+            const double phaseStep4 = vco4Freq / oversampledRate;
+            if (phaseStep3 > 0.0) {
+                const double fraction = voice.vco3.phase() / phaseStep3;
+                voice.vco4.sync(fraction * phaseStep4);
+            } else {
+                voice.vco4.sync(0.0);
+            }
+        }
+        vco4Val = voice.vco4.nextSample();
     }
 
     double multiVal = 0.0;
@@ -1048,8 +1102,11 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
         multiVal = voice.multi.nextSample();
     }
 
-    const double mix = (vco1Val * m_mixVco1) + (vco2Val * m_mixVco2) + (vco3Val * m_mixVco3) + (multiVal * m_multiLevel);
-    const double mixHeadroom = mix * 0.4; // Slightly more headroom for 3rd VCO + Multi engine
+    const double mix = (vco1Val * m_mixVco1) + (vco2Val * m_mixVco2) + (vco3Val * m_mixVco3) + (vco4Val * m_mixVco4) + (multiVal * m_multiLevel);
+    // Headroom for four oscillators and the multi engine. Left where three sources put it: the
+    // fourth starts silent, so a patch that never reaches for it keeps the level it always had, and
+    // one that does is asking for more sound rather than for the same sound quieter.
+    const double mixHeadroom = mix * 0.4;
 
     // Filter
     const double cutoffMod = mods.cutoffMod + (voice.note - 60.0) / 127.0 * m_filterKeyTrack;
@@ -1142,6 +1199,22 @@ void SynthDevice::syncParameters()
     const double vco3PitchOffset = ParameterMapper::mapCubicCentered(m_vco3Pitch * 2.0 - 1.0, -2400, 2400);
     m_vco3BasePitchRatio = std::pow(2.0, (m_vco3Octave * 12.0 + vco3PitchOffset / 100.0) / 12.0);
 
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVco4Waveform().toStdString()); p)
+        m_vco4Waveform = static_cast<PolyBlepOscillator::Waveform>(p->get().xmlValue());
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVco4Octave().toStdString()); p)
+        m_vco4Octave = p->get().xmlValue();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVco4Pitch().toStdString()); p)
+        m_vco4Pitch = p->get().value();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVco4Shape().toStdString()); p)
+        m_vco4Shape = p->get().value();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVco4Roundness().toStdString()); p)
+        m_vco4Roundness = p->get().value();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyVco4Sync().toStdString()); p)
+        m_vco4Sync = p->get().value() > 0.5f;
+
+    const double vco4PitchOffset = ParameterMapper::mapCubicCentered(m_vco4Pitch * 2.0 - 1.0, -2400, 2400);
+    m_vco4BasePitchRatio = std::pow(2.0, (m_vco4Octave * 12.0 + vco4PitchOffset / 100.0) / 12.0);
+
     if (const auto p = parameter(Constants::NahdXml::xmlKeyMultiMode().toStdString()); p)
         m_multiType = static_cast<MultiEngine::Type>(p->get().xmlValue());
     if (const auto p = parameter(Constants::NahdXml::xmlKeyMultiShape().toStdString()); p)
@@ -1157,6 +1230,8 @@ void SynthDevice::syncParameters()
         m_mixVco2 = p->get().value();
     if (const auto p = parameter(Constants::NahdXml::xmlKeyMixLevel3().toStdString()); p)
         m_mixVco3 = p->get().value();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyMixLevel4().toStdString()); p)
+        m_mixVco4 = p->get().value();
 
     if (const auto p = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); p)
         m_lpfCutoff = p->get().value();
@@ -1271,9 +1346,11 @@ void SynthDevice::syncParameters()
         voice.vco1.setWaveform(m_vco1Waveform);
         voice.vco2.setWaveform(m_vco2Waveform);
         voice.vco3.setWaveform(m_vco3Waveform);
+        voice.vco4.setWaveform(m_vco4Waveform);
         voice.vco1.setShape(m_vco1Shape);
         voice.vco2.setShape(m_vco2Shape);
         voice.vco3.setShape(m_vco3Shape);
+        voice.vco4.setShape(m_vco4Shape);
 
         voice.lfo.setWaveform(m_lfoWaveform);
         voice.lfo.setMode(m_lfoMode);
@@ -2181,6 +2258,76 @@ float SynthDevice::mixVco3() const
 void SynthDevice::setMixVco3(float level)
 {
     setContinuousParameterValue(Constants::NahdXml::xmlKeyMixLevel3().toStdString(), level);
+}
+
+PolyBlepOscillator::Waveform SynthDevice::vco4Waveform() const
+{
+    return m_vco4Waveform;
+}
+
+void SynthDevice::setVco4Waveform(PolyBlepOscillator::Waveform wave)
+{
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyVco4Waveform().toStdString(), static_cast<int>(wave));
+}
+
+int SynthDevice::vco4Octave() const
+{
+    return m_vco4Octave;
+}
+
+void SynthDevice::setVco4Octave(int octave)
+{
+    setDiscreteParameterValue(Constants::NahdXml::xmlKeyVco4Octave().toStdString(), octave);
+}
+
+float SynthDevice::vco4Pitch() const
+{
+    return m_vco4Pitch;
+}
+
+void SynthDevice::setVco4Pitch(float pitch)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVco4Pitch().toStdString(), pitch);
+}
+
+float SynthDevice::vco4Shape() const
+{
+    return m_vco4Shape;
+}
+
+void SynthDevice::setVco4Shape(float shape)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVco4Shape().toStdString(), shape);
+}
+
+float SynthDevice::vco4Roundness() const
+{
+    return m_vco4Roundness;
+}
+
+void SynthDevice::setVco4Roundness(float roundness)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVco4Roundness().toStdString(), roundness);
+}
+
+bool SynthDevice::vco4Sync() const
+{
+    return m_vco4Sync;
+}
+
+void SynthDevice::setVco4Sync(bool sync)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyVco4Sync().toStdString(), sync ? 1.0f : 0.0f);
+}
+
+float SynthDevice::mixVco4() const
+{
+    return m_mixVco4;
+}
+
+void SynthDevice::setMixVco4(float level)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyMixLevel4().toStdString(), level);
 }
 
 float SynthDevice::oscillatorDrift() const

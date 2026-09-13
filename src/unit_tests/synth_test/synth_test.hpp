@@ -25,6 +25,11 @@ class SynthTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_vco4_shouldBeSilentUntilMixedIn();
+    void test_vco4_settings_shouldRoundTrip();
+    void test_vco4_shouldSoundAtItsOwnPitch();
+    void test_vco4_modTarget_shouldMoveItsPitch();
+    void test_vco4_lfoTarget_shouldMoveItsPitch();
     void test_lpfSlope_shouldDefaultToTheSlopeItAlwaysHad();
     void test_lpfSlope_legacyName_shouldStillLoad();
     void test_lpfSlope_shallow_shouldKeepMoreOfTheTop();

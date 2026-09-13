@@ -52,6 +52,157 @@ public:
 
 } // namespace
 
+namespace {
+
+//! Renders a note and hands back the interleaved output, past the attack.
+std::vector<double> renderSynth(SynthDevice & synth, uint8_t note = 60)
+{
+    synth.processMidiNoteOn(note, 127);
+    const auto rate = static_cast<uint32_t>(Constants::defaultSampleRate());
+    std::vector<double> warmUp(2048 * 2, 0.0);
+    AudioContext warmUpContext { std::span(warmUp.data(), warmUp.size()), 2048, rate };
+    synth.processAudio(warmUpContext);
+
+    std::vector<double> buffer(8192 * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), 8192, rate };
+    synth.processAudio(context);
+    return buffer;
+}
+
+//! Magnitude at one frequency in an interleaved buffer, by correlation.
+double magnitudeAt(const std::vector<double> & buffer, double hz)
+{
+    const size_t frames = buffer.size() / 2;
+    double re = 0.0, im = 0.0;
+    for (size_t i = 0; i < frames; i++) {
+        const double phase = 2.0 * M_PI * hz * static_cast<double>(i) / Constants::defaultSampleRate();
+        re += buffer[i * 2] * std::cos(phase);
+        im += buffer[i * 2] * std::sin(phase);
+    }
+    return std::hypot(re, im) / static_cast<double>(frames);
+}
+
+} // namespace
+
+void SynthTest::test_vco4_shouldBeSilentUntilMixedIn()
+{
+    // The fourth oscillator starts at zero level, so a patch that predates it is the patch it was.
+    const SynthDevice fresh { "Synth" };
+    QCOMPARE(fresh.mixVco4(), 0.0f);
+
+    SynthDevice synth { "Synth" };
+    synth.setMixVco1(0.0f);
+    synth.setMixVco2(0.0f);
+    synth.setMixVco3(0.0f);
+    const auto silent = renderSynth(synth);
+    double peak = 0.0;
+    for (auto && sample : silent) {
+        peak = std::max(peak, std::abs(sample));
+    }
+    QVERIFY2(peak < 0.001, qPrintable(QString::number(peak)));
+}
+
+void SynthTest::test_vco4_settings_shouldRoundTrip()
+{
+    // Every setting the fourth oscillator has, through the project format and back.
+    SynthDevice out { "Synth" };
+    out.setVco4Waveform(PolyBlepOscillator::Waveform::Square);
+    out.setVco4Octave(-2);
+    out.setVco4Pitch(0.65f);
+    out.setVco4Shape(0.4f);
+    out.setVco4Roundness(0.3f);
+    out.setVco4Sync(true);
+    out.setMixVco4(0.8f);
+    out.setModTarget(SynthDevice::ModTarget::Pitch4);
+    out.setLfoTarget(SynthDevice::LfoTarget::Pitch4);
+
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        out.serializeToXml(writer);
+    }
+
+    NahdXmlReader reader { xml };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+
+    SynthDevice in { "Synth" };
+    in.deserializeFromXml(reader);
+
+    QCOMPARE(static_cast<int>(in.vco4Waveform()), static_cast<int>(PolyBlepOscillator::Waveform::Square));
+    QCOMPARE(in.vco4Octave(), -2);
+    QVERIFY(std::abs(in.vco4Pitch() - 0.65f) < 0.001f);
+    QVERIFY(std::abs(in.vco4Shape() - 0.4f) < 0.001f);
+    QVERIFY(std::abs(in.vco4Roundness() - 0.3f) < 0.001f);
+    QCOMPARE(in.vco4Sync(), true);
+    QVERIFY(std::abs(in.mixVco4() - 0.8f) < 0.001f);
+    // The widened end of each enum has to survive the parameter's range as well as the format.
+    QCOMPARE(static_cast<int>(in.modTarget()), static_cast<int>(SynthDevice::ModTarget::Pitch4));
+    QCOMPARE(static_cast<int>(in.lfoTarget()), static_cast<int>(SynthDevice::LfoTarget::Pitch4));
+}
+
+void SynthTest::test_vco4_shouldSoundAtItsOwnPitch()
+{
+    // On its own, an octave below the others, so what is heard can only be it.
+    SynthDevice synth { "Synth" };
+    synth.setMixVco1(0.0f);
+    synth.setMixVco2(0.0f);
+    synth.setMixVco3(0.0f);
+    synth.setMixVco4(1.0f);
+    synth.setVco4Octave(-1);
+    // A sine, so the only thing in the output is the fundamental: a saw an octave down puts its
+    // second harmonic exactly on the note, which would be indistinguishable from not transposing.
+    synth.setVco4Waveform(PolyBlepOscillator::Waveform::Sine);
+
+    const auto rendered = renderSynth(synth); // C4, so the fourth sounds C3
+    const double ownPitch = magnitudeAt(rendered, 130.81);
+    const double otherPitch = magnitudeAt(rendered, 261.63);
+    QVERIFY2(ownPitch > otherPitch * 4.0,
+             qPrintable(QString("%1 at its own octave, %2 at the note's").arg(ownPitch).arg(otherPitch)));
+}
+
+void SynthTest::test_vco4_modTarget_shouldMoveItsPitch()
+{
+    // Pitch4 was appended to the Mod EG's destinations rather than slotted in beside Pitch3: the
+    // ordinal is written into every project, so the order is not free to change.
+    const auto magnitudeAtRest = [](bool modulated) {
+        SynthDevice synth { "Synth" };
+        synth.setMixVco1(0.0f);
+        synth.setMixVco2(0.0f);
+        synth.setMixVco3(0.0f);
+        synth.setMixVco4(1.0f);
+        if (modulated) {
+            synth.setModTarget(SynthDevice::ModTarget::Pitch4);
+            synth.setModInt(1.0f);
+            synth.setModSustain(1.0f);
+        }
+        return magnitudeAt(renderSynth(synth), 261.63);
+    };
+
+    QVERIFY2(magnitudeAtRest(true) < magnitudeAtRest(false) * 0.5,
+             "the mod envelope did not move the fourth oscillator off the note");
+}
+
+void SynthTest::test_vco4_lfoTarget_shouldMoveItsPitch()
+{
+    const auto magnitudeAtRest = [](bool modulated) {
+        SynthDevice synth { "Synth" };
+        synth.setMixVco1(0.0f);
+        synth.setMixVco2(0.0f);
+        synth.setMixVco3(0.0f);
+        synth.setMixVco4(1.0f);
+        if (modulated) {
+            synth.setLfoTarget(SynthDevice::LfoTarget::Pitch4);
+            synth.setLfoInt(1.0f);
+            synth.setLfoRate(0.5f);
+        }
+        return magnitudeAt(renderSynth(synth), 261.63);
+    };
+
+    QVERIFY2(magnitudeAtRest(true) < magnitudeAtRest(false) * 0.5,
+             "the LFO did not move the fourth oscillator off the note");
+}
+
 void SynthTest::test_lpfSlope_shouldDefaultToTheSlopeItAlwaysHad()
 {
     // 24 dB/oct is what these voices have always been, so that is where a device starts and where

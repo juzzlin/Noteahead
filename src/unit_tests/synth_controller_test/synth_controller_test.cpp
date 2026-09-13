@@ -169,7 +169,7 @@ void SynthControllerTest::test_modTargetNames()
     const auto synth = std::make_shared<SynthDevice>("Test Synth");
     SynthController controller { synth };
     const auto targets = controller.modTargetNames();
-    QCOMPARE(targets.size(), 10);
+    QCOMPARE(targets.size(), 11);
 
     // The first four are what the Mod EG has always offered, and a project saved before the rest
     // were added stores one of these ordinals. They must not move.
@@ -177,6 +177,9 @@ void SynthControllerTest::test_modTargetNames()
     QCOMPARE(targets.at(1), QString("Pitch 2"));
     QCOMPARE(targets.at(2), QString("Pitch 3"));
     QCOMPARE(targets.at(3), QString("Cutoff"));
+    // Appended with the fourth oscillator rather than placed beside Pitch 3, the ordinal being
+    // written into every project.
+    QCOMPARE(targets.at(10), QString("Pitch 4"));
 
     // Appended to bring the Mod EG up to the LFOs' destinations.
     QCOMPARE(targets.at(4), QString("Pitch"));
@@ -230,7 +233,7 @@ void SynthControllerTest::test_lfoTargetNames()
     const auto synth = std::make_shared<SynthDevice>("Test Synth");
     SynthController controller { synth };
     const auto targets = controller.lfoTargetNames();
-    QCOMPARE(targets.size(), 10);
+    QCOMPARE(targets.size(), 11);
     // The order is the serialized LfoTarget ordinal, so it is append-only: reordering these would
     // change the LFO destination of every project saved before the change.
     QCOMPARE(targets.at(0), QString("Pitch"));
@@ -238,6 +241,7 @@ void SynthControllerTest::test_lfoTargetNames()
     QCOMPARE(targets.at(2), QString("Cutoff"));
     QCOMPARE(targets.at(3), QString("Volume"));
     QCOMPARE(targets.at(4), QString("Resonance"));
+    QCOMPARE(targets.at(10), QString("Pitch 4"));
     QCOMPARE(targets.at(5), QString("Pan"));
     QCOMPARE(targets.at(6), QString("Pitch 1"));
     QCOMPARE(targets.at(7), QString("Pitch 2"));

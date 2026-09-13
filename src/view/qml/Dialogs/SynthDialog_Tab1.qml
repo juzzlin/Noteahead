@@ -41,6 +41,11 @@ ScrollView {
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignTop
         }
+        SynthDialog_Vco4 {
+            Layout.preferredWidth: moduleWidth
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignTop
+        }
         SynthDialog_Multi {
             Layout.preferredWidth: moduleWidth
             Layout.fillWidth: true

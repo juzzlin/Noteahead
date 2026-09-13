@@ -8221,6 +8221,33 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     </message>
 </context>
 <context>
+    <name>SynthDialog_Vco4</name>
+    <message>
+        <source>VCO 4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pitch</source>
+        <translation type="unfinished">Tono</translation>
+    </message>
+    <message>
+        <source>Shape</source>
+        <translation type="unfinished">Forma</translation>
+    </message>
+    <message>
+        <source>Roundness</source>
+        <translation type="unfinished">Redondez</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation type="unfinished">Nivel</translation>
+    </message>
+    <message>
+        <source>Hard Sync to VCO3</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>TrackHeader</name>
     <message>
         <source>Set velocity scale for this TRACK, 0-100 %. All note velocities will be scaled according to this setting.</source>
@@ -9455,6 +9482,10 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     <message>
         <source>HPF Cutoff</source>
         <translation>Corte del HPF</translation>
+    </message>
+    <message>
+        <source>Pitch 4</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Normal</source>
