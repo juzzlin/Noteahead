@@ -2734,8 +2734,8 @@
         <translation type="unfinished">低通截止频率</translation>
     </message>
     <message>
-        <source>Resonance</source>
-        <translation type="unfinished">共振</translation>
+        <source>LPF Resonance</source>
+        <translation type="unfinished">低通共振</translation>
     </message>
     <message>
         <source>LPF Slope</source>
@@ -7960,6 +7960,14 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>LPF Key Track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How far the note played moves the LPF cutoff. The high pass does not follow the keyboard.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>HPF Cutoff</source>
         <translation>高通截止频率</translation>
     </message>
@@ -7970,10 +7978,6 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>How steeply the high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Key Track</source>
-        <translation>键位跟踪</translation>
     </message>
 </context>
 <context>

@@ -66,6 +66,8 @@ ColumnLayout {
     }
 
 
+    LayoutSeparator {}
+
     FilterKnob {
         label: qsTr("HPF Cutoff")
         controller: wavetableSynthController

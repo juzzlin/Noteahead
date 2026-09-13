@@ -47,7 +47,7 @@ ColumnLayout {
         Layout.fillWidth: true
     }
     Knob {
-        label: qsTr("Resonance")
+        label: qsTr("LPF Resonance")
         value: fmSynthController.lpfResonance
         onMoved: v => fmSynthController.lpfResonance = v
         Layout.fillWidth: true
@@ -66,6 +66,8 @@ ColumnLayout {
             Layout.fillWidth: true
         }
     }
+    LayoutSeparator {}
+
     Knob {
         label: qsTr("HPF Cutoff")
         mapping: "logFrequency"

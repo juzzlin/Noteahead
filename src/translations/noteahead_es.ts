@@ -2735,8 +2735,8 @@
         <translation type="unfinished">Corte del LPF</translation>
     </message>
     <message>
-        <source>Resonance</source>
-        <translation type="unfinished">Resonancia</translation>
+        <source>LPF Resonance</source>
+        <translation type="unfinished">Resonancia del LPF</translation>
     </message>
     <message>
         <source>LPF Slope</source>
@@ -7961,6 +7961,14 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>LPF Key Track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How far the note played moves the LPF cutoff. The high pass does not follow the keyboard.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>HPF Cutoff</source>
         <translation>Corte del HPF</translation>
     </message>
@@ -7971,10 +7979,6 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     <message>
         <source>How steeply the high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Key Track</source>
-        <translation>Seguimiento de tecla</translation>
     </message>
 </context>
 <context>

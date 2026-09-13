@@ -2735,8 +2735,8 @@
         <translation type="unfinished">LPF-cutoff</translation>
     </message>
     <message>
-        <source>Resonance</source>
-        <translation type="unfinished">Resonantie</translation>
+        <source>LPF Resonance</source>
+        <translation type="unfinished">LPF-resonantie</translation>
     </message>
     <message>
         <source>LPF Slope</source>
@@ -7961,6 +7961,14 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>LPF Key Track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How far the note played moves the LPF cutoff. The high pass does not follow the keyboard.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>HPF Cutoff</source>
         <translation>HPF-cutoff</translation>
     </message>
@@ -7971,10 +7979,6 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     <message>
         <source>How steeply the high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Key Track</source>
-        <translation>Key tracking</translation>
     </message>
 </context>
 <context>

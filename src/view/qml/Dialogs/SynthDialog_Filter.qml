@@ -63,6 +63,16 @@ ColumnLayout {
             Layout.fillWidth: true
         }
     }
+    Knob {
+        label: qsTr("LPF Key Track")
+        value: synthController.filterKeyTrack
+        onMoved: v => synthController.filterKeyTrack = v
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("How far the note played moves the LPF cutoff. The high pass does not follow the keyboard.")
+        Layout.fillWidth: true
+    }
+    LayoutSeparator {}
+
     FilterKnob {
         label: qsTr("HPF Cutoff")
         controller: synthController
@@ -84,11 +94,5 @@ ColumnLayout {
             ToolTip.text: qsTr("How steeply the high pass rolls off. The steeper one clears more out of the way at the same cutoff.")
             Layout.fillWidth: true
         }
-    }
-    Knob {
-        label: qsTr("Key Track")
-        value: synthController.filterKeyTrack
-        onMoved: v => synthController.filterKeyTrack = v
-        Layout.fillWidth: true
     }
 }

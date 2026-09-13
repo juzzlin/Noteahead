@@ -2736,8 +2736,8 @@
         <translation type="unfinished">Odcięcie LPF</translation>
     </message>
     <message>
-        <source>Resonance</source>
-        <translation type="unfinished">Rezonans</translation>
+        <source>LPF Resonance</source>
+        <translation type="unfinished">Rezonans LPF</translation>
     </message>
     <message>
         <source>LPF Slope</source>
@@ -7962,6 +7962,14 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>LPF Key Track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How far the note played moves the LPF cutoff. The high pass does not follow the keyboard.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>HPF Cutoff</source>
         <translation>Odcięcie HPF</translation>
     </message>
@@ -7972,10 +7980,6 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     <message>
         <source>How steeply the high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Key Track</source>
-        <translation>Śledzenie klawiatury</translation>
     </message>
 </context>
 <context>
