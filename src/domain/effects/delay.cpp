@@ -138,6 +138,16 @@ void Delay::updateWriteBuffer(double inputL, double inputR, double fbL, double f
     applyTapeSaturation(writeL, writeR);
     applyFeedbackFilters(writeL, writeR);
 
+    // Whatever goes into the line, feedback included, keeps it alive. Counted rather than scanned:
+    // the line is long enough that reading it through on every block would cost more than the delay
+    // itself.
+    constexpr double silenceThreshold = 1.0e-9;
+    if (std::abs(writeL) > silenceThreshold || std::abs(writeR) > silenceThreshold) {
+        m_silentWriteFrames = 0;
+    } else if (m_silentWriteFrames < bufSize) {
+        m_silentWriteFrames++;
+    }
+
     m_bufferL[m_writePos] = writeL;
     m_bufferR[m_writePos] = writeR;
 
@@ -291,6 +301,12 @@ void Delay::reset()
     m_fbLpfR.reset();
     m_fbHpfL.reset();
     m_fbHpfR.reset();
+    m_silentWriteFrames = m_bufferL.size();
+}
+
+bool Delay::isSettled() const
+{
+    return m_silentWriteFrames >= m_bufferL.size();
 }
 
 void Delay::setType(Type type)

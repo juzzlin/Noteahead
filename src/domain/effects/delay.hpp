@@ -45,6 +45,11 @@ public:
     void reset() override;
     void sync() override;
 
+    //! A delay is silent between taps and silent when finished, and the two look identical from
+    //! outside. This is what tells them apart: nothing readable is left once a whole buffer length
+    //! of silence has been written into the line.
+    bool isSettled() const override;
+
     void setType(Type type);
     void setTime(double seconds);
     void setFeedback(double feedback);
@@ -81,6 +86,8 @@ private:
     std::vector<double> m_bufferL;
     std::vector<double> m_bufferR;
     uint32_t m_writePos { 0 };
+    //! Frames of silence written into the line, counted up to its length and no further.
+    size_t m_silentWriteFrames { 0 };
     uint32_t m_lastSampleRate { 0 };
 
     // Feedback filters

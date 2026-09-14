@@ -20,6 +20,7 @@
 #include "../../domain/dsp/volume.hpp"
 #include "../../domain/effects/auto_ducker.hpp"
 #include "../../domain/effects/compressor.hpp"
+#include "../../domain/effects/delay.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
@@ -129,6 +130,76 @@ std::shared_ptr<AutoDucker> hardDucker()
 }
 
 } // namespace
+
+void SideChainAudioTest::test_audioEngine_sendEffect_addedAfterTheTempo_shouldStillFollowIt()
+{
+    // AudioContext carries a tempo that no backend ever filled in, so it sat at the struct's default
+    // of 120 whatever the song ran at, and the only thing that moved an effect off 120 was the push
+    // the racks make when the tempo changes. An effect added after that push kept 120 until the
+    // tempo next moved -- which a synced delay on a send bus gives away immediately.
+    AudioEngine engine;
+    const auto device = std::make_shared<MockDevice>("Source");
+    device->setGenerateSignal(true);
+    device->setReverbSend(0, 1.0f);
+    engine.setDevice(0, device);
+
+    engine.setBpm(140.0f);
+
+    // Added after the tempo was set, which is what happens whenever an effect is dropped into a
+    // rack mid-song.
+    const auto delay = std::make_shared<Delay>();
+    engine.sendEffectRack().setEffect(0, delay);
+
+    std::vector<double> buffer(128, 0.0);
+    AudioContext context { std::span(buffer.data(), 128), 64, 44100 };
+    engine.process(context);
+
+    QCOMPARE(delay->bpm(), 140.0f);
+}
+
+void SideChainAudioTest::test_audioEngine_sendDelay_quietBus_shouldStillReturnItsEchoes()
+{
+    // A delay is silent between its taps, and the send path stopped a bus whose input and output
+    // were both quiet. A percussive hit into a delay send is exactly that: the bus falls quiet
+    // immediately and the first echo is still half a beat away, so the line froze and nothing ever
+    // came back.
+    AudioEngine engine;
+    engine.setBpm(120.0f); // A quarter note is 500 ms
+
+    const auto device = std::make_shared<MockDevice>("Source");
+    device->setGenerateSignal(true);
+    device->setReverbSend(0, 1.0f);
+    engine.setDevice(0, device);
+
+    const auto delay = std::make_shared<Delay>();
+    setParameter(delay, Constants::NahdXml::xmlKeyDelaySync(), 1.0f);
+    setParameter(delay, Constants::NahdXml::xmlKeyDelaySyncDivision(), 0.25f);
+    setParameter(delay, Constants::NahdXml::xmlKeyDelayMix(), 1.0f);
+    engine.sendEffectRack().setEffect(0, delay);
+
+    std::vector<double> buffer(128, 0.0);
+    AudioContext context { std::span(buffer.data(), 128), 64, 44100 };
+
+    // One block of input and then silence, the way a snare hit into a send looks.
+    engine.process(context);
+    device->setGenerateSignal(false);
+
+    constexpr double blockMs = 64.0 * 1000.0 / 44100.0;
+    double firstEchoMs = 0.0;
+    for (int block = 1; block < 500 && firstEchoMs == 0.0; block++) {
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        engine.process(context);
+        for (const double sample : buffer) {
+            if (std::abs(sample) > 1.0e-4) {
+                firstEchoMs = block * blockMs;
+                break;
+            }
+        }
+    }
+
+    QVERIFY2(firstEchoMs > 0.0, "the delay send returned no echo at all");
+    QVERIFY2(std::abs(firstEchoMs - 500.0) < 10.0, qPrintable(QString { "the echo landed at %1 ms rather than on the beat" }.arg(firstEchoMs)));
+}
 
 void SideChainAudioTest::test_audioEngine_sendEffect_sideChain_shouldFollowTheNamedDevice()
 {
