@@ -11,8 +11,8 @@ Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It bui
 <table>
   <tr><td colspan="4"><img src="/screenshots/7.0.0/Noteahead.png" width="100%"></td></tr>
   <tr>
-    <td><img src="/screenshots/3.1.0/Synth.png" width="100%"></td>
-    <td><img src="/screenshots/3.1.0/BassSynth.png" width="100%"></td>
+    <td><img src="/screenshots/13.0.0/Synth.png" width="100%"></td>
+    <td><img src="/screenshots/13.0.0/BassSynth.png" width="100%"></td>
     <td><img src="/screenshots/3.1.0/DrumSynth.png" width="100%"></td>
     <td><img src="/screenshots/7.4.0/Sampler.png" width="100%"></td>
   </tr>
@@ -51,6 +51,18 @@ Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It bui
     <td><img src="/screenshots/12.0.0/RecordedAutomationCurves.png" width="100%"></td>
     <td><img src="/screenshots/13.0.0/RoomMics.png" width="100%"></td>
     <td><img src="/screenshots/13.0.0/SongOverview.png" width="100%"></td>
+  </tr>
+  <tr>
+    <td><img src="/screenshots/13.0.0/Kick909.png" width="100%"></td>
+    <td><img src="/screenshots/13.0.0/DrumSynth909.png" width="100%"></td>
+    <td><img src="/screenshots/13.0.0/Kick808.png" width="100%"></td>
+    <td><img src="/screenshots/13.0.0/DrumSynth808.png" width="100%"></td>
+  </tr>
+  <tr>
+    <td><img src="/screenshots/13.0.0/KickSynth.png" width="100%"></td>
+    <td><img src="/screenshots/13.0.0/SnareSynth.png" width="100%"></td>
+    <td><img src="/screenshots/13.0.0/DrumSynthV2.png" width="100%"></td>
+    <td></td>
   </tr>
 </table>
 
