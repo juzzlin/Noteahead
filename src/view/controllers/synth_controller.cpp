@@ -1012,7 +1012,6 @@ void SynthController::requestSettings()
     emit mixVco3Changed();
     emit mixVco4Changed();
 
-
     emit lpfCutoffChanged();
     emit lpfResonanceChanged();
     emit lpfSlopeChanged();
