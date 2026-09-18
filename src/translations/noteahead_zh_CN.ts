@@ -8258,6 +8258,38 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <source>Phase Sync</source>
         <translation>相位同步</translation>
     </message>
+    <message>
+        <source>LPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation type="unfinished">低通截止频率</translation>
+    </message>
+    <message>
+        <source>Rolls the top off this oscillator alone, before it reaches the mix and the voice&apos;s own filter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Resonance</source>
+        <translation type="unfinished">低通共振</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation type="unfinished">高通截止频率</translation>
+    </message>
+    <message>
+        <source>Thins out this oscillator alone, which is how one is made to sit under another rather than against it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation type="unfinished">滤波器</translation>
+    </message>
 </context>
 <context>
     <name>SynthDialog_Vco2</name>
@@ -8289,6 +8321,38 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <source>Cross Mod Depth</source>
         <translation>交叉调制深度</translation>
     </message>
+    <message>
+        <source>LPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation type="unfinished">低通截止频率</translation>
+    </message>
+    <message>
+        <source>Rolls the top off this oscillator alone, before it reaches the mix and the voice&apos;s own filter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Resonance</source>
+        <translation type="unfinished">低通共振</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation type="unfinished">高通截止频率</translation>
+    </message>
+    <message>
+        <source>Thins out this oscillator alone, which is how one is made to sit under another rather than against it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation type="unfinished">滤波器</translation>
+    </message>
 </context>
 <context>
     <name>SynthDialog_Vco3</name>
@@ -8316,6 +8380,38 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <source>Hard Sync to VCO2</source>
         <translation>硬同步到 VCO2</translation>
     </message>
+    <message>
+        <source>LPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation type="unfinished">低通截止频率</translation>
+    </message>
+    <message>
+        <source>Rolls the top off this oscillator alone, before it reaches the mix and the voice&apos;s own filter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Resonance</source>
+        <translation type="unfinished">低通共振</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation type="unfinished">高通截止频率</translation>
+    </message>
+    <message>
+        <source>Thins out this oscillator alone, which is how one is made to sit under another rather than against it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation type="unfinished">滤波器</translation>
+    </message>
 </context>
 <context>
     <name>SynthDialog_Vco4</name>
@@ -8342,6 +8438,38 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>Hard Sync to VCO3</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation type="unfinished">低通截止频率</translation>
+    </message>
+    <message>
+        <source>Rolls the top off this oscillator alone, before it reaches the mix and the voice&apos;s own filter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Resonance</source>
+        <translation type="unfinished">低通共振</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation type="unfinished">高通截止频率</translation>
+    </message>
+    <message>
+        <source>Thins out this oscillator alone, which is how one is made to sit under another rather than against it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation type="unfinished">滤波器</translation>
     </message>
 </context>
 <context>
@@ -9582,6 +9710,14 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Pitch 4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO %1 LPF</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO %1 HPF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

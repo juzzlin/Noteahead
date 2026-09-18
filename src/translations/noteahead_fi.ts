@@ -8259,6 +8259,38 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <source>Phase Sync</source>
         <translation>Vaihesynkronointi</translation>
     </message>
+    <message>
+        <source>LPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation type="unfinished">LPF cutoff</translation>
+    </message>
+    <message>
+        <source>Rolls the top off this oscillator alone, before it reaches the mix and the voice&apos;s own filter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Resonance</source>
+        <translation type="unfinished">LPF-resonanssi</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation type="unfinished">HPF cutoff</translation>
+    </message>
+    <message>
+        <source>Thins out this oscillator alone, which is how one is made to sit under another rather than against it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation type="unfinished">Suodin</translation>
+    </message>
 </context>
 <context>
     <name>SynthDialog_Vco2</name>
@@ -8290,6 +8322,38 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <source>Cross Mod Depth</source>
         <translation>Ristimodulaation syvyys</translation>
     </message>
+    <message>
+        <source>LPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation type="unfinished">LPF cutoff</translation>
+    </message>
+    <message>
+        <source>Rolls the top off this oscillator alone, before it reaches the mix and the voice&apos;s own filter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Resonance</source>
+        <translation type="unfinished">LPF-resonanssi</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation type="unfinished">HPF cutoff</translation>
+    </message>
+    <message>
+        <source>Thins out this oscillator alone, which is how one is made to sit under another rather than against it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation type="unfinished">Suodin</translation>
+    </message>
 </context>
 <context>
     <name>SynthDialog_Vco3</name>
@@ -8317,6 +8381,38 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <source>Hard Sync to VCO2</source>
         <translation>Hard sync VCO2:een</translation>
     </message>
+    <message>
+        <source>LPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation type="unfinished">LPF cutoff</translation>
+    </message>
+    <message>
+        <source>Rolls the top off this oscillator alone, before it reaches the mix and the voice&apos;s own filter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Resonance</source>
+        <translation type="unfinished">LPF-resonanssi</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation type="unfinished">HPF cutoff</translation>
+    </message>
+    <message>
+        <source>Thins out this oscillator alone, which is how one is made to sit under another rather than against it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation type="unfinished">Suodin</translation>
+    </message>
 </context>
 <context>
     <name>SynthDialog_Vco4</name>
@@ -8343,6 +8439,38 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     <message>
         <source>Hard Sync to VCO3</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation type="unfinished">LPF cutoff</translation>
+    </message>
+    <message>
+        <source>Rolls the top off this oscillator alone, before it reaches the mix and the voice&apos;s own filter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Resonance</source>
+        <translation type="unfinished">LPF-resonanssi</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation type="unfinished">HPF cutoff</translation>
+    </message>
+    <message>
+        <source>Thins out this oscillator alone, which is how one is made to sit under another rather than against it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation type="unfinished">Suodin</translation>
     </message>
 </context>
 <context>
@@ -9583,6 +9711,14 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     </message>
     <message>
         <source>Pitch 4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO %1 LPF</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO %1 HPF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

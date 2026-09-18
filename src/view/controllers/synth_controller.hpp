@@ -91,6 +91,33 @@ class SynthController : public DeviceController
     // Filter
     Q_PROPERTY(int lpfCutoff READ lpfCutoff WRITE setLpfCutoff NOTIFY lpfCutoffChanged)
     Q_PROPERTY(int lpfResonance READ lpfResonance WRITE setLpfResonance NOTIFY lpfResonanceChanged)
+    // The per-oscillator filter sections. Four of everything, since a QML binding needs a
+    // property of its own to depend on.
+    Q_PROPERTY(int vco1LpfCutoff READ vco1LpfCutoff WRITE setVco1LpfCutoff NOTIFY vco1LpfCutoffChanged)
+    Q_PROPERTY(int vco1LpfResonance READ vco1LpfResonance WRITE setVco1LpfResonance NOTIFY vco1LpfResonanceChanged)
+    Q_PROPERTY(int vco1LpfSlope READ vco1LpfSlope WRITE setVco1LpfSlope NOTIFY vco1LpfSlopeChanged)
+    Q_PROPERTY(int vco1HpfCutoff READ vco1HpfCutoff WRITE setVco1HpfCutoff NOTIFY vco1HpfCutoffChanged)
+    Q_PROPERTY(int vco1HpfSlope READ vco1HpfSlope WRITE setVco1HpfSlope NOTIFY vco1HpfSlopeChanged)
+    Q_PROPERTY(bool vco1FilterEngaged READ vco1FilterEngaged NOTIFY vco1FilterEngagedChanged)
+    Q_PROPERTY(int vco2LpfCutoff READ vco2LpfCutoff WRITE setVco2LpfCutoff NOTIFY vco2LpfCutoffChanged)
+    Q_PROPERTY(int vco2LpfResonance READ vco2LpfResonance WRITE setVco2LpfResonance NOTIFY vco2LpfResonanceChanged)
+    Q_PROPERTY(int vco2LpfSlope READ vco2LpfSlope WRITE setVco2LpfSlope NOTIFY vco2LpfSlopeChanged)
+    Q_PROPERTY(int vco2HpfCutoff READ vco2HpfCutoff WRITE setVco2HpfCutoff NOTIFY vco2HpfCutoffChanged)
+    Q_PROPERTY(int vco2HpfSlope READ vco2HpfSlope WRITE setVco2HpfSlope NOTIFY vco2HpfSlopeChanged)
+    Q_PROPERTY(bool vco2FilterEngaged READ vco2FilterEngaged NOTIFY vco2FilterEngagedChanged)
+    Q_PROPERTY(int vco3LpfCutoff READ vco3LpfCutoff WRITE setVco3LpfCutoff NOTIFY vco3LpfCutoffChanged)
+    Q_PROPERTY(int vco3LpfResonance READ vco3LpfResonance WRITE setVco3LpfResonance NOTIFY vco3LpfResonanceChanged)
+    Q_PROPERTY(int vco3LpfSlope READ vco3LpfSlope WRITE setVco3LpfSlope NOTIFY vco3LpfSlopeChanged)
+    Q_PROPERTY(int vco3HpfCutoff READ vco3HpfCutoff WRITE setVco3HpfCutoff NOTIFY vco3HpfCutoffChanged)
+    Q_PROPERTY(int vco3HpfSlope READ vco3HpfSlope WRITE setVco3HpfSlope NOTIFY vco3HpfSlopeChanged)
+    Q_PROPERTY(bool vco3FilterEngaged READ vco3FilterEngaged NOTIFY vco3FilterEngagedChanged)
+    Q_PROPERTY(int vco4LpfCutoff READ vco4LpfCutoff WRITE setVco4LpfCutoff NOTIFY vco4LpfCutoffChanged)
+    Q_PROPERTY(int vco4LpfResonance READ vco4LpfResonance WRITE setVco4LpfResonance NOTIFY vco4LpfResonanceChanged)
+    Q_PROPERTY(int vco4LpfSlope READ vco4LpfSlope WRITE setVco4LpfSlope NOTIFY vco4LpfSlopeChanged)
+    Q_PROPERTY(int vco4HpfCutoff READ vco4HpfCutoff WRITE setVco4HpfCutoff NOTIFY vco4HpfCutoffChanged)
+    Q_PROPERTY(int vco4HpfSlope READ vco4HpfSlope WRITE setVco4HpfSlope NOTIFY vco4HpfSlopeChanged)
+    Q_PROPERTY(bool vco4FilterEngaged READ vco4FilterEngaged NOTIFY vco4FilterEngagedChanged)
+
     Q_PROPERTY(int lpfSlope READ lpfSlope WRITE setLpfSlope NOTIFY lpfSlopeChanged)
     Q_PROPERTY(int hpfSlope READ hpfSlope WRITE setHpfSlope NOTIFY hpfSlopeChanged)
     Q_PROPERTY(int hpfCutoff READ hpfCutoff WRITE setHpfCutoff NOTIFY hpfCutoffChanged)
@@ -174,6 +201,9 @@ public:
     QStringList octaveNames() const;
     QStringList multiTypeNames() const;
     QStringList modTargetNames() const;
+    //! The eight per-oscillator filter corners, which both the Mod EG and the LFOs can reach. At the
+    //! end of either list, because the ordinal a ComboBox writes is what the project stores.
+    QStringList vcoFilterTargetNames() const;
     QStringList lfoModeNames() const;
     QStringList lfoTargetNames() const;
     QStringList lfo2WaveformNames() const;
@@ -186,6 +216,52 @@ public:
     void setVco1Octave(int oct);
     int vco1Pitch() const;
     void setVco1Pitch(int p);
+    // Per-oscillator filter sections, one set per VCO.
+    int vco1LpfCutoff() const;
+    void setVco1LpfCutoff(int value);
+    int vco1LpfResonance() const;
+    void setVco1LpfResonance(int value);
+    int vco1LpfSlope() const;
+    void setVco1LpfSlope(int value);
+    int vco1HpfCutoff() const;
+    void setVco1HpfCutoff(int value);
+    int vco1HpfSlope() const;
+    void setVco1HpfSlope(int value);
+    bool vco1FilterEngaged() const;
+    int vco2LpfCutoff() const;
+    void setVco2LpfCutoff(int value);
+    int vco2LpfResonance() const;
+    void setVco2LpfResonance(int value);
+    int vco2LpfSlope() const;
+    void setVco2LpfSlope(int value);
+    int vco2HpfCutoff() const;
+    void setVco2HpfCutoff(int value);
+    int vco2HpfSlope() const;
+    void setVco2HpfSlope(int value);
+    bool vco2FilterEngaged() const;
+    int vco3LpfCutoff() const;
+    void setVco3LpfCutoff(int value);
+    int vco3LpfResonance() const;
+    void setVco3LpfResonance(int value);
+    int vco3LpfSlope() const;
+    void setVco3LpfSlope(int value);
+    int vco3HpfCutoff() const;
+    void setVco3HpfCutoff(int value);
+    int vco3HpfSlope() const;
+    void setVco3HpfSlope(int value);
+    bool vco3FilterEngaged() const;
+    int vco4LpfCutoff() const;
+    void setVco4LpfCutoff(int value);
+    int vco4LpfResonance() const;
+    void setVco4LpfResonance(int value);
+    int vco4LpfSlope() const;
+    void setVco4LpfSlope(int value);
+    int vco4HpfCutoff() const;
+    void setVco4HpfCutoff(int value);
+    int vco4HpfSlope() const;
+    void setVco4HpfSlope(int value);
+    bool vco4FilterEngaged() const;
+
     int vco1Shape() const;
     void setVco1Shape(int s);
     int vco1Roundness() const;
@@ -368,6 +444,30 @@ signals:
     void vco1WaveformChanged();
     void vco1OctaveChanged();
     void vco1PitchChanged();
+    void vco1LpfCutoffChanged();
+    void vco1LpfResonanceChanged();
+    void vco1LpfSlopeChanged();
+    void vco1HpfCutoffChanged();
+    void vco1HpfSlopeChanged();
+    void vco1FilterEngagedChanged();
+    void vco2LpfCutoffChanged();
+    void vco2LpfResonanceChanged();
+    void vco2LpfSlopeChanged();
+    void vco2HpfCutoffChanged();
+    void vco2HpfSlopeChanged();
+    void vco2FilterEngagedChanged();
+    void vco3LpfCutoffChanged();
+    void vco3LpfResonanceChanged();
+    void vco3LpfSlopeChanged();
+    void vco3HpfCutoffChanged();
+    void vco3HpfSlopeChanged();
+    void vco3FilterEngagedChanged();
+    void vco4LpfCutoffChanged();
+    void vco4LpfResonanceChanged();
+    void vco4LpfSlopeChanged();
+    void vco4HpfCutoffChanged();
+    void vco4HpfSlopeChanged();
+    void vco4FilterEngagedChanged();
     void vco1ShapeChanged();
     void vco1RoundnessChanged();
     void vco1SyncChanged();

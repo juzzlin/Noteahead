@@ -2190,6 +2190,31 @@ QString xmlKeyLpfResonance()
     return "lpfResonance";
 }
 
+QString xmlKeyVcoLpfCutoff(size_t vcoIndex)
+{
+    return QString { "vco%1LpfCutoff" }.arg(vcoIndex + 1);
+}
+
+QString xmlKeyVcoHpfCutoff(size_t vcoIndex)
+{
+    return QString { "vco%1HpfCutoff" }.arg(vcoIndex + 1);
+}
+
+QString xmlKeyVcoLpfResonance(size_t vcoIndex)
+{
+    return QString { "vco%1LpfResonance" }.arg(vcoIndex + 1);
+}
+
+QString xmlKeyVcoLpfSlope(size_t vcoIndex)
+{
+    return QString { "vco%1LpfSlope" }.arg(vcoIndex + 1);
+}
+
+QString xmlKeyVcoHpfSlope(size_t vcoIndex)
+{
+    return QString { "vco%1HpfSlope" }.arg(vcoIndex + 1);
+}
+
 QString xmlKeyHpfCutoff()
 {
     return "hpfCutoff";

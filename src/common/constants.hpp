@@ -684,6 +684,14 @@ QString xmlKeyLpfCutoff();
 QString xmlKeyLpfResonance();
 QString xmlKeyHpfCutoff();
 
+//! Per-oscillator tone filters, indexed from zero. Each VCO has a low pass and a high pass of its
+//! own, ahead of the mix and of the filter section the whole voice runs through.
+QString xmlKeyVcoLpfCutoff(size_t vcoIndex);
+QString xmlKeyVcoHpfCutoff(size_t vcoIndex);
+QString xmlKeyVcoLpfResonance(size_t vcoIndex);
+QString xmlKeyVcoLpfSlope(size_t vcoIndex);
+QString xmlKeyVcoHpfSlope(size_t vcoIndex);
+
 QString xmlKeyAmpAttack();
 QString xmlKeyAmpDecay();
 QString xmlKeyAmpSustain();

@@ -39,6 +39,10 @@ void SynthDevice::Voice::reset()
     vco4.reset();
     lpf.reset();
     hpf.reset();
+    for (size_t i = 0; i < VcoCount; i++) {
+        vcoLpf[i].reset();
+        vcoHpf[i].reset();
+    }
     ampEg.reset();
     modEg.reset();
     lfo.reset();
@@ -196,14 +200,14 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyModDecay().toStdString(), 0.34f, 0, 10000, 3400, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyModSustain().toStdString(), 0.0f, 0, 10000, 0, 100 }); // AD by default
     addParameter(Parameter { Constants::NahdXml::xmlKeyModIntensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyModTarget().toStdString(), 3.0f, 0, 10, 3, 1, Parameter::Type::Discrete }); // Cutoff default
+    addParameter(Parameter { Constants::NahdXml::xmlKeyModTarget().toStdString(), 3.0f, 0, 18, 3, 1, Parameter::Type::Discrete }); // Cutoff default
     addParameter(Parameter { Constants::NahdXml::xmlKeyModCurve().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoWaveform().toStdString(), 1.0f, 0, 4, 1, 1, Parameter::Type::Discrete }); // Tri default
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoMode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete }); // Normal default
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoRate().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoIntensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyLfoTarget().toStdString(), 0.0f, 0, 10, 0, 1, Parameter::Type::Discrete }); // Pitch default
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfoTarget().toStdString(), 0.0f, 0, 18, 0, 1, Parameter::Type::Discrete }); // Pitch default
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoDelay().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoFade().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
@@ -211,7 +215,7 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Mode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Rate().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Intensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Target().toStdString(), 0.0f, 0, 10, 0, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Target().toStdString(), 0.0f, 0, 18, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Delay().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Fade().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
@@ -235,9 +239,27 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayFeedbackLpf().toStdString(), 1.0f, 0, 10000, 10000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayFeedbackHpf().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
+    // A filter section per oscillator, ahead of the mix. Open at both ends and flat by default: an
+    // absent parameter keeps the default, so every project saved before these existed loads
+    // sounding exactly as it did.
+    for (size_t i = 0; i < VcoCount; i++) {
+        addParameter(Parameter { Constants::NahdXml::xmlKeyVcoLpfCutoff(i).toStdString(), 1.0f, 0, 10000, 10000, 100 });
+        addParameter(Parameter { Constants::NahdXml::xmlKeyVcoLpfResonance(i).toStdString(), 0.0f, 0, 10000, 0, 100 });
+        addParameter(Parameter { Constants::NahdXml::xmlKeyVcoHpfCutoff(i).toStdString(), 0.0f, 0, 10000, 0, 100 });
+        // Twelve decibels an octave by default, where the voice's own filter defaults to
+        // twenty-four: this one shapes an oscillator on its way into the mix rather than carving
+        // the whole voice, and the gentler slope is what that asks for.
+        addParameter(Parameter { Constants::NahdXml::xmlKeyVcoLpfSlope(i).toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
+        addParameter(Parameter { Constants::NahdXml::xmlKeyVcoHpfSlope(i).toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
+    }
+
     for (auto && voice : m_voices) {
         voice.lpf.setMode(CascadedSvf::Mode::LowPass);
         voice.hpf.setMode(CascadedSvf::Mode::HighPass);
+        for (size_t i = 0; i < VcoCount; i++) {
+            voice.vcoLpf[i].setMode(CascadedSvf::Mode::LowPass);
+            voice.vcoHpf[i].setMode(CascadedSvf::Mode::HighPass);
+        }
     }
     initializeVoiceDrift();
 
@@ -332,6 +354,12 @@ void SynthDevice::prepareForProcessing(AudioContext & context)
         m_oversampledBuffer.resize(requiredSize);
     }
     std::fill(m_oversampledBuffer.begin(), m_oversampledBuffer.begin() + requiredSize, 0.0f);
+
+    // Asked once here rather than per sample per voice: neither the controls nor the modulation
+    // targets can move inside a block, so the answer would be the same every time.
+    for (size_t i = 0; i < VcoCount; i++) {
+        m_vcoFilterEngagedThisBlock[i] = vcoFilterEngaged(i);
+    }
 }
 
 bool SynthDevice::isStacked(VoiceMode mode)
@@ -360,7 +388,52 @@ using Utils::Dsp::voiceSpreadMaxSemitones;
 //! that note's start sits far below anything the ear reads as timing.
 constexpr double declickSeconds { 0.001 };
 
+//! Which oscillator a per-oscillator filter target belongs to, and which of its two filters it is.
+struct VcoFilterTarget
+{
+    size_t vcoIndex {};
+    bool lowPass {};
+};
+
+//! Both target enums end with the same eight entries in the same order -- VCO order, low pass then
+//! high pass -- so the ordinal alone says where a target points, and the Mod EG and the two LFOs
+//! share one lookup instead of eight branches each.
+std::optional<VcoFilterTarget> vcoFilterTargetOf(int target, int firstTarget)
+{
+    const int offset = target - firstTarget;
+    if (offset < 0 || offset >= static_cast<int>(SynthDevice::VcoCount) * 2) {
+        return std::nullopt;
+    }
+    return VcoFilterTarget { static_cast<size_t>(offset / 2), offset % 2 == 0 };
+}
+
+//! How far a control has to be off its neutral end before the filter it belongs to is worth running.
+constexpr float filterEngagedEpsilon { 0.001f };
+
 } // namespace
+
+bool SynthDevice::vcoFilterEngaged(size_t vcoIndex) const
+{
+    if (vcoIndex >= VcoCount) {
+        return false;
+    }
+
+    if (m_vcoLpfCutoff[vcoIndex] < 1.0f - filterEngagedEpsilon
+        || m_vcoHpfCutoff[vcoIndex] > filterEngagedEpsilon
+        || m_vcoLpfResonance[vcoIndex] > filterEngagedEpsilon) {
+        return true;
+    }
+
+    // A filter parked wide open is still engaged while something is sweeping it: the controls say
+    // where the sweep starts, not whether there is one.
+    const auto pointsHere = [vcoIndex](int target, int firstTarget) {
+        const auto hit = vcoFilterTargetOf(target, firstTarget);
+        return hit && hit->vcoIndex == vcoIndex;
+    };
+    return pointsHere(static_cast<int>(m_modTarget), static_cast<int>(ModTarget::Vco1Lpf))
+      || pointsHere(static_cast<int>(m_lfoTarget), static_cast<int>(LfoTarget::Vco1Lpf))
+      || pointsHere(static_cast<int>(m_lfo2Target), static_cast<int>(LfoTarget::Vco1Lpf));
+}
 
 double SynthDevice::voiceDetuneSemitones(size_t index) const
 {
@@ -507,6 +580,10 @@ void SynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversampledRate,
     voice.multi.setOversampleFactor(m_oversampleFactor);
     voice.lpf.setSampleRate(oversampledRate);
     voice.hpf.setSampleRate(oversampledRate);
+    for (size_t i = 0; i < VcoCount; i++) {
+        voice.vcoLpf[i].setSampleRate(oversampledRate);
+        voice.vcoHpf[i].setSampleRate(oversampledRate);
+    }
     voice.ampEg.setSampleRate(oversampledRate);
     voice.modEg.setSampleRate(oversampledRate);
     voice.lfo.setSampleRate(oversampledRate);
@@ -974,6 +1051,18 @@ SynthDevice::ModulationValues SynthDevice::calculateModulation(Voice & voice) co
         mods.resonanceMod += lfo2Val;
     }
 
+    // The per-oscillator filters. Whichever of the three sources points at one of them adds to that
+    // oscillator's own modulation rather than to the voice's filter.
+    const auto addVcoFilterMod = [&mods](int target, int firstTarget, double amount) {
+        if (const auto hit = vcoFilterTargetOf(target, firstTarget); hit) {
+            auto & destination = hit->lowPass ? mods.vcoLpfCutoffMod : mods.vcoHpfCutoffMod;
+            destination[hit->vcoIndex] += amount;
+        }
+    };
+    addVcoFilterMod(static_cast<int>(m_modTarget), static_cast<int>(ModTarget::Vco1Lpf), modEnv);
+    addVcoFilterMod(static_cast<int>(m_lfoTarget), static_cast<int>(LfoTarget::Vco1Lpf), lfoVal);
+    addVcoFilterMod(static_cast<int>(m_lfo2Target), static_cast<int>(LfoTarget::Vco1Lpf), lfo2Val);
+
     mods.panMod = (m_modTarget == ModTarget::Pan) ? modEnv : 0.0;
     if (m_lfoTarget == LfoTarget::Pan) {
         mods.panMod += lfoVal;
@@ -1019,6 +1108,22 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
         vco3Freq *= driftRatio;
         vco4Freq *= driftRatio;
     }
+
+    // Each oscillator's own filter section, between it and the mix. Skipped whole while nothing has
+    // been asked of it, which is where every patch that predates these controls sits.
+    const auto filterVco = [this, &voice, &mods](size_t index, double value) {
+        if (!m_vcoFilterEngagedThisBlock[index]) {
+            return value;
+        }
+        auto & lpf = voice.vcoLpf[index];
+        auto & hpf = voice.vcoHpf[index];
+        lpf.setCutoff(std::clamp(static_cast<double>(m_vcoLpfCutoff[index]) + mods.vcoLpfCutoffMod[index], 0.0, 1.0));
+        lpf.setResonance(m_vcoLpfResonance[index]);
+        lpf.setOrder(static_cast<int>(m_vcoLpfSlope[index]) == 0 ? 2 : 4);
+        hpf.setCutoff(std::clamp(static_cast<double>(m_vcoHpfCutoff[index]) + mods.vcoHpfCutoffMod[index], 0.0, 1.0));
+        hpf.setOrder(static_cast<int>(m_vcoHpfSlope[index]) == 0 ? 2 : 4);
+        return static_cast<double>(hpf.process(lpf.process(value)));
+    };
 
     double vco1Val = 0.0;
     double oldPhase1 = voice.vco1.phase();
@@ -1101,6 +1206,14 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
     if (m_multiLevel >= 0.001f) {
         multiVal = voice.multi.nextSample();
     }
+
+    // VCO1's filter runs here rather than where the sample was taken: the cross mod above reads the
+    // raw oscillator, so filtering it would change the character of every patch that uses cross mod
+    // rather than only what VCO1 contributes to the mix.
+    vco1Val = filterVco(0, vco1Val);
+    vco2Val = filterVco(1, vco2Val);
+    vco3Val = filterVco(2, vco3Val);
+    vco4Val = filterVco(3, vco4Val);
 
     const double mix = (vco1Val * m_mixVco1) + (vco2Val * m_mixVco2) + (vco3Val * m_mixVco3) + (vco4Val * m_mixVco4) + (multiVal * m_multiLevel);
     // Headroom for four oscillators and the multi engine. Left where three sources put it: the
@@ -1232,6 +1345,19 @@ void SynthDevice::syncParameters()
         m_mixVco3 = p->get().value();
     if (const auto p = parameter(Constants::NahdXml::xmlKeyMixLevel4().toStdString()); p)
         m_mixVco4 = p->get().value();
+
+    for (size_t i = 0; i < VcoCount; i++) {
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyVcoLpfCutoff(i).toStdString()); p)
+            m_vcoLpfCutoff[i] = p->get().value();
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyVcoLpfResonance(i).toStdString()); p)
+            m_vcoLpfResonance[i] = p->get().value();
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyVcoHpfCutoff(i).toStdString()); p)
+            m_vcoHpfCutoff[i] = p->get().value();
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyVcoLpfSlope(i).toStdString()); p)
+            m_vcoLpfSlope[i] = p->get().value();
+        if (const auto p = parameter(Constants::NahdXml::xmlKeyVcoHpfSlope(i).toStdString()); p)
+            m_vcoHpfSlope[i] = p->get().value();
+    }
 
     if (const auto p = parameter(Constants::NahdXml::xmlKeyLpfCutoff().toStdString()); p)
         m_lpfCutoff = p->get().value();
@@ -1531,6 +1657,66 @@ float SynthDevice::vco1Pitch() const
 void SynthDevice::setVco1Pitch(float pitch)
 {
     setContinuousParameterValue(Constants::NahdXml::xmlKeyVco1Pitch().toStdString(), pitch);
+}
+
+float SynthDevice::vcoLpfCutoff(size_t vcoIndex) const
+{
+    return vcoIndex < VcoCount ? m_vcoLpfCutoff[vcoIndex] : 1.0f;
+}
+
+void SynthDevice::setVcoLpfCutoff(size_t vcoIndex, float cutoff)
+{
+    if (vcoIndex < VcoCount) {
+        setContinuousParameterValue(Constants::NahdXml::xmlKeyVcoLpfCutoff(vcoIndex).toStdString(), cutoff);
+    }
+}
+
+float SynthDevice::vcoLpfResonance(size_t vcoIndex) const
+{
+    return vcoIndex < VcoCount ? m_vcoLpfResonance[vcoIndex] : 0.0f;
+}
+
+void SynthDevice::setVcoLpfResonance(size_t vcoIndex, float resonance)
+{
+    if (vcoIndex < VcoCount) {
+        setContinuousParameterValue(Constants::NahdXml::xmlKeyVcoLpfResonance(vcoIndex).toStdString(), resonance);
+    }
+}
+
+int SynthDevice::vcoLpfSlope(size_t vcoIndex) const
+{
+    return vcoIndex < VcoCount ? static_cast<int>(m_vcoLpfSlope[vcoIndex]) : 0;
+}
+
+void SynthDevice::setVcoLpfSlope(size_t vcoIndex, int slope)
+{
+    if (vcoIndex < VcoCount) {
+        setDiscreteParameterValue(Constants::NahdXml::xmlKeyVcoLpfSlope(vcoIndex).toStdString(), slope);
+    }
+}
+
+float SynthDevice::vcoHpfCutoff(size_t vcoIndex) const
+{
+    return vcoIndex < VcoCount ? m_vcoHpfCutoff[vcoIndex] : 0.0f;
+}
+
+void SynthDevice::setVcoHpfCutoff(size_t vcoIndex, float cutoff)
+{
+    if (vcoIndex < VcoCount) {
+        setContinuousParameterValue(Constants::NahdXml::xmlKeyVcoHpfCutoff(vcoIndex).toStdString(), cutoff);
+    }
+}
+
+int SynthDevice::vcoHpfSlope(size_t vcoIndex) const
+{
+    return vcoIndex < VcoCount ? static_cast<int>(m_vcoHpfSlope[vcoIndex]) : 0;
+}
+
+void SynthDevice::setVcoHpfSlope(size_t vcoIndex, int slope)
+{
+    if (vcoIndex < VcoCount) {
+        setDiscreteParameterValue(Constants::NahdXml::xmlKeyVcoHpfSlope(vcoIndex).toStdString(), slope);
+    }
 }
 
 float SynthDevice::vco1Shape() const

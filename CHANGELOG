@@ -5,6 +5,12 @@ Release date:
 
 New features:
 
+* A filter section per oscillator in the Synth
+  - Each VCO gets its own low pass with resonance and slope, a high pass
+    with slope, and a Filter tab to keep them out of the way
+  - The Mod EG and both LFOs can sweep any of the eight new corners
+  - Silent on patches you already have: every one of them starts wide open
+
 * Presets for the Bass Synth
   - Ten patches from Deep Sub to Acid Squelch, an Init to get back, and a
     Save of your own beside them

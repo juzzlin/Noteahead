@@ -44,6 +44,9 @@ class SynthDevice : public Device
 public:
     static constexpr int MaxVoices = 6;
 
+    //! Oscillators in a voice. Named so the per-oscillator arrays and the loops over them agree.
+    static constexpr size_t VcoCount = 4;
+
     //! Serialized as a raw ordinal, so this is append-only: inserting a value would silently change
     //! the voice mode of every project saved before the change.
     enum class VoiceMode
@@ -83,7 +86,17 @@ public:
         Pan,
         HpfCutoff,
         //! Appended with the fourth oscillator, for the same reason everything else here is.
-        Pitch4
+        Pitch4,
+        //! Appended with the per-oscillator filter sections. In VCO order, low pass then high
+        //! pass, so a target can be turned into a VCO index arithmetically.
+        Vco1Lpf,
+        Vco1Hpf,
+        Vco2Lpf,
+        Vco2Hpf,
+        Vco3Lpf,
+        Vco3Hpf,
+        Vco4Lpf,
+        Vco4Hpf
     };
 
     //! Serialized as a raw ordinal, so this is append-only: inserting a value would silently change
@@ -106,7 +119,17 @@ public:
         //! rather than merely opening one end of it.
         HpfCutoff,
         //! Appended with the fourth oscillator, for the same reason everything else here is.
-        Pitch4
+        Pitch4,
+        //! Appended with the per-oscillator filter sections. In VCO order, low pass then high
+        //! pass, so a target can be turned into a VCO index arithmetically.
+        Vco1Lpf,
+        Vco1Hpf,
+        Vco2Lpf,
+        Vco2Hpf,
+        Vco3Lpf,
+        Vco3Hpf,
+        Vco4Lpf,
+        Vco4Hpf
     };
 
     explicit SynthDevice(std::string name);
@@ -130,6 +153,28 @@ public:
 
     void processAudio(AudioContext & context) override;
     bool hasActiveAudio() const override;
+
+    //! Whether the given oscillator's own filter section does anything at all: a control off its
+    //! neutral end, or a modulation source pointing at one of its two corners.
+    //!
+    //! The audio path asks once per block and skips both filters when it is false, so an oscillator
+    //! nobody has filtered costs nothing. The dialog asks so that it can mark the tab those controls
+    //! live behind -- otherwise a closed filter is invisible from the oscillator's other page.
+    bool vcoFilterEngaged(size_t vcoIndex) const;
+
+    //! The per-oscillator filter sections, addressed by VCO index. Indexed rather than spelled out
+    //! four times over: there is nothing to say about VCO3's low pass that is not also true of
+    //! VCO1's, and twenty named pairs would say it twenty times.
+    float vcoLpfCutoff(size_t vcoIndex) const;
+    void setVcoLpfCutoff(size_t vcoIndex, float cutoff);
+    float vcoLpfResonance(size_t vcoIndex) const;
+    void setVcoLpfResonance(size_t vcoIndex, float resonance);
+    int vcoLpfSlope(size_t vcoIndex) const;
+    void setVcoLpfSlope(size_t vcoIndex, int slope);
+    float vcoHpfCutoff(size_t vcoIndex) const;
+    void setVcoHpfCutoff(size_t vcoIndex, float cutoff);
+    int vcoHpfSlope(size_t vcoIndex) const;
+    void setVcoHpfSlope(size_t vcoIndex, int slope);
 
     void setBpm(float bpm) override;
 
@@ -378,6 +423,11 @@ private:
         MultiEngine multi;
         CascadedSvf lpf;
         CascadedSvf hpf;
+        //! A low pass and a high pass of its own for each VCO, ahead of the mix. Indexed in VCO
+        //! order, and skipped altogether while a pair sits at the ends of its travel -- which is
+        //! where they start, so a patch that does not reach for them costs nothing.
+        std::array<CascadedSvf, VcoCount> vcoLpf;
+        std::array<CascadedSvf, VcoCount> vcoHpf;
         AdsrEnvelope ampEg;
         AdsrEnvelope modEg;
         Lfo lfo;
@@ -470,6 +520,18 @@ private:
     float m_mixVco2 { 0.0f };
     float m_mixVco3 { 0.0f };
     float m_mixVco4 { 0.0f };
+
+    //! The per-oscillator filter sections, in VCO order. Open at both ends and flat by default, so
+    //! a project saved before they existed sounds exactly as it did.
+    std::array<float, VcoCount> m_vcoLpfCutoff { 1.0f, 1.0f, 1.0f, 1.0f };
+    std::array<float, VcoCount> m_vcoLpfResonance { 0.0f, 0.0f, 0.0f, 0.0f };
+    std::array<float, VcoCount> m_vcoHpfCutoff { 0.0f, 0.0f, 0.0f, 0.0f };
+    //! Zero is twelve decibels an octave, one is twenty-four, as in the voice's own filter.
+    std::array<float, VcoCount> m_vcoLpfSlope { 0.0f, 0.0f, 0.0f, 0.0f };
+    std::array<float, VcoCount> m_vcoHpfSlope { 0.0f, 0.0f, 0.0f, 0.0f };
+    //! vcoFilterEngaged() as it stood when the block started, so the answer cannot change under the
+    //! voices halfway through one.
+    std::array<bool, VcoCount> m_vcoFilterEngagedThisBlock {};
 
     float m_lpfCutoff { 1.0f };
     float m_lpfResonance { 0.0f };
@@ -580,6 +642,10 @@ private:
         double resonanceMod { 0.0 };
         double panMod { 0.0 };
         double volumeMod { 0.0 };
+        //! Per-oscillator filter modulation, in VCO order. Summed from whichever of the Mod EG and
+        //! the two LFOs point at that oscillator's filters.
+        std::array<double, VcoCount> vcoLpfCutoffMod {};
+        std::array<double, VcoCount> vcoHpfCutoffMod {};
     };
 
     ModulationValues calculateModulation(Voice & voice) const;

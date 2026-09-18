@@ -8260,6 +8260,38 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <source>Phase Sync</source>
         <translation>Synchronizacja fazy</translation>
     </message>
+    <message>
+        <source>LPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation type="unfinished">Odcięcie LPF</translation>
+    </message>
+    <message>
+        <source>Rolls the top off this oscillator alone, before it reaches the mix and the voice&apos;s own filter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Resonance</source>
+        <translation type="unfinished">Rezonans LPF</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation type="unfinished">Odcięcie HPF</translation>
+    </message>
+    <message>
+        <source>Thins out this oscillator alone, which is how one is made to sit under another rather than against it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation type="unfinished">Filtr</translation>
+    </message>
 </context>
 <context>
     <name>SynthDialog_Vco2</name>
@@ -8291,6 +8323,38 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <source>Cross Mod Depth</source>
         <translation>Głębokość modulacji krzyżowej</translation>
     </message>
+    <message>
+        <source>LPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation type="unfinished">Odcięcie LPF</translation>
+    </message>
+    <message>
+        <source>Rolls the top off this oscillator alone, before it reaches the mix and the voice&apos;s own filter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Resonance</source>
+        <translation type="unfinished">Rezonans LPF</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation type="unfinished">Odcięcie HPF</translation>
+    </message>
+    <message>
+        <source>Thins out this oscillator alone, which is how one is made to sit under another rather than against it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation type="unfinished">Filtr</translation>
+    </message>
 </context>
 <context>
     <name>SynthDialog_Vco3</name>
@@ -8318,6 +8382,38 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <source>Hard Sync to VCO2</source>
         <translation>Hard sync do VCO2</translation>
     </message>
+    <message>
+        <source>LPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation type="unfinished">Odcięcie LPF</translation>
+    </message>
+    <message>
+        <source>Rolls the top off this oscillator alone, before it reaches the mix and the voice&apos;s own filter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Resonance</source>
+        <translation type="unfinished">Rezonans LPF</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation type="unfinished">Odcięcie HPF</translation>
+    </message>
+    <message>
+        <source>Thins out this oscillator alone, which is how one is made to sit under another rather than against it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation type="unfinished">Filtr</translation>
+    </message>
 </context>
 <context>
     <name>SynthDialog_Vco4</name>
@@ -8344,6 +8440,38 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     <message>
         <source>Hard Sync to VCO3</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation type="unfinished">Odcięcie LPF</translation>
+    </message>
+    <message>
+        <source>Rolls the top off this oscillator alone, before it reaches the mix and the voice&apos;s own filter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF Resonance</source>
+        <translation type="unfinished">Rezonans LPF</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation type="unfinished">Odcięcie HPF</translation>
+    </message>
+    <message>
+        <source>Thins out this oscillator alone, which is how one is made to sit under another rather than against it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation type="unfinished">Filtr</translation>
     </message>
 </context>
 <context>
@@ -9584,6 +9712,14 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>Pitch 4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO %1 LPF</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO %1 HPF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

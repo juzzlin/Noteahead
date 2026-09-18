@@ -105,9 +105,21 @@ QStringList SynthController::modTargetNames() const
 {
     // In ordinal order, not in a sensible reading order: a ComboBox's index is the value that gets
     // written to the project, so the list has to follow SynthDevice::ModTarget exactly.
-    return { tr("Pitch 1"), tr("Pitch 2"), tr("Pitch 3"), tr("Cutoff"),
-             tr("Pitch"), tr("Shape"), tr("Volume"), tr("Resonance"), tr("Pan"), tr("HPF Cutoff"),
-             tr("Pitch 4") };
+    return QStringList { tr("Pitch 1"), tr("Pitch 2"), tr("Pitch 3"), tr("Cutoff"),
+                         tr("Pitch"), tr("Shape"), tr("Volume"), tr("Resonance"), tr("Pan"), tr("HPF Cutoff"),
+                         tr("Pitch 4") }
+    + vcoFilterTargetNames();
+}
+
+QStringList SynthController::vcoFilterTargetNames() const
+{
+    // The per-oscillator filter corners, trailing both target lists because their ordinals are
+    // persisted. Shared, since the Mod EG and the LFOs reach exactly the same eight.
+    QStringList names;
+    for (int vco = 1; vco <= static_cast<int>(SynthDevice::VcoCount); vco++) {
+        names << tr("VCO %1 LPF").arg(vco) << tr("VCO %1 HPF").arg(vco);
+    }
+    return names;
 }
 
 QStringList SynthController::lfoModeNames() const
@@ -118,8 +130,9 @@ QStringList SynthController::lfoModeNames() const
 QStringList SynthController::lfoTargetNames() const
 {
     // Ordinal order again, which is why the single-VCO pitches trail the list. See LfoTarget.
-    return { tr("Pitch"), tr("Shape"), tr("Cutoff"), tr("Volume"), tr("Resonance"), tr("Pan"),
-             tr("Pitch 1"), tr("Pitch 2"), tr("Pitch 3"), tr("HPF Cutoff"), tr("Pitch 4") };
+    return QStringList { tr("Pitch"), tr("Shape"), tr("Cutoff"), tr("Volume"), tr("Resonance"), tr("Pan"),
+                         tr("Pitch 1"), tr("Pitch 2"), tr("Pitch 3"), tr("HPF Cutoff"), tr("Pitch 4") }
+    + vcoFilterTargetNames();
 }
 
 QStringList SynthController::lfo2WaveformNames() const
@@ -172,6 +185,288 @@ void SynthController::setVco1Pitch(int p)
     if (m_synth) {
         m_synth->setVco1Pitch(static_cast<float>(p) / Constants::uiInternalScaling());
     }
+}
+
+// The per-oscillator filter sections. The device addresses them by index; QML needs a property per
+// control, so each one here is a named wrapper over the indexed pair.
+int SynthController::vco1LpfCutoff() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->vcoLpfCutoff(0) * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setVco1LpfCutoff(int value)
+{
+    if (m_synth) {
+        m_synth->setVcoLpfCutoff(0, static_cast<float>(value) / Constants::uiInternalScaling());
+        emit vco1FilterEngagedChanged();
+    }
+}
+
+int SynthController::vco1LpfResonance() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->vcoLpfResonance(0) * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setVco1LpfResonance(int value)
+{
+    if (m_synth) {
+        m_synth->setVcoLpfResonance(0, static_cast<float>(value) / Constants::uiInternalScaling());
+        emit vco1FilterEngagedChanged();
+    }
+}
+
+int SynthController::vco1LpfSlope() const
+{
+    return m_synth ? m_synth->vcoLpfSlope(0) : 0;
+}
+
+void SynthController::setVco1LpfSlope(int value)
+{
+    if (m_synth) {
+        m_synth->setVcoLpfSlope(0, value);
+        emit vco1LpfSlopeChanged();
+    }
+}
+
+int SynthController::vco1HpfCutoff() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->vcoHpfCutoff(0) * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setVco1HpfCutoff(int value)
+{
+    if (m_synth) {
+        m_synth->setVcoHpfCutoff(0, static_cast<float>(value) / Constants::uiInternalScaling());
+        emit vco1FilterEngagedChanged();
+    }
+}
+
+int SynthController::vco1HpfSlope() const
+{
+    return m_synth ? m_synth->vcoHpfSlope(0) : 0;
+}
+
+void SynthController::setVco1HpfSlope(int value)
+{
+    if (m_synth) {
+        m_synth->setVcoHpfSlope(0, value);
+        emit vco1HpfSlopeChanged();
+    }
+}
+
+bool SynthController::vco1FilterEngaged() const
+{
+    return m_synth && m_synth->vcoFilterEngaged(0);
+}
+
+int SynthController::vco2LpfCutoff() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->vcoLpfCutoff(1) * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setVco2LpfCutoff(int value)
+{
+    if (m_synth) {
+        m_synth->setVcoLpfCutoff(1, static_cast<float>(value) / Constants::uiInternalScaling());
+        emit vco2FilterEngagedChanged();
+    }
+}
+
+int SynthController::vco2LpfResonance() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->vcoLpfResonance(1) * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setVco2LpfResonance(int value)
+{
+    if (m_synth) {
+        m_synth->setVcoLpfResonance(1, static_cast<float>(value) / Constants::uiInternalScaling());
+        emit vco2FilterEngagedChanged();
+    }
+}
+
+int SynthController::vco2LpfSlope() const
+{
+    return m_synth ? m_synth->vcoLpfSlope(1) : 0;
+}
+
+void SynthController::setVco2LpfSlope(int value)
+{
+    if (m_synth) {
+        m_synth->setVcoLpfSlope(1, value);
+        emit vco2LpfSlopeChanged();
+    }
+}
+
+int SynthController::vco2HpfCutoff() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->vcoHpfCutoff(1) * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setVco2HpfCutoff(int value)
+{
+    if (m_synth) {
+        m_synth->setVcoHpfCutoff(1, static_cast<float>(value) / Constants::uiInternalScaling());
+        emit vco2FilterEngagedChanged();
+    }
+}
+
+int SynthController::vco2HpfSlope() const
+{
+    return m_synth ? m_synth->vcoHpfSlope(1) : 0;
+}
+
+void SynthController::setVco2HpfSlope(int value)
+{
+    if (m_synth) {
+        m_synth->setVcoHpfSlope(1, value);
+        emit vco2HpfSlopeChanged();
+    }
+}
+
+bool SynthController::vco2FilterEngaged() const
+{
+    return m_synth && m_synth->vcoFilterEngaged(1);
+}
+
+int SynthController::vco3LpfCutoff() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->vcoLpfCutoff(2) * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setVco3LpfCutoff(int value)
+{
+    if (m_synth) {
+        m_synth->setVcoLpfCutoff(2, static_cast<float>(value) / Constants::uiInternalScaling());
+        emit vco3FilterEngagedChanged();
+    }
+}
+
+int SynthController::vco3LpfResonance() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->vcoLpfResonance(2) * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setVco3LpfResonance(int value)
+{
+    if (m_synth) {
+        m_synth->setVcoLpfResonance(2, static_cast<float>(value) / Constants::uiInternalScaling());
+        emit vco3FilterEngagedChanged();
+    }
+}
+
+int SynthController::vco3LpfSlope() const
+{
+    return m_synth ? m_synth->vcoLpfSlope(2) : 0;
+}
+
+void SynthController::setVco3LpfSlope(int value)
+{
+    if (m_synth) {
+        m_synth->setVcoLpfSlope(2, value);
+        emit vco3LpfSlopeChanged();
+    }
+}
+
+int SynthController::vco3HpfCutoff() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->vcoHpfCutoff(2) * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setVco3HpfCutoff(int value)
+{
+    if (m_synth) {
+        m_synth->setVcoHpfCutoff(2, static_cast<float>(value) / Constants::uiInternalScaling());
+        emit vco3FilterEngagedChanged();
+    }
+}
+
+int SynthController::vco3HpfSlope() const
+{
+    return m_synth ? m_synth->vcoHpfSlope(2) : 0;
+}
+
+void SynthController::setVco3HpfSlope(int value)
+{
+    if (m_synth) {
+        m_synth->setVcoHpfSlope(2, value);
+        emit vco3HpfSlopeChanged();
+    }
+}
+
+bool SynthController::vco3FilterEngaged() const
+{
+    return m_synth && m_synth->vcoFilterEngaged(2);
+}
+
+int SynthController::vco4LpfCutoff() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->vcoLpfCutoff(3) * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setVco4LpfCutoff(int value)
+{
+    if (m_synth) {
+        m_synth->setVcoLpfCutoff(3, static_cast<float>(value) / Constants::uiInternalScaling());
+        emit vco4FilterEngagedChanged();
+    }
+}
+
+int SynthController::vco4LpfResonance() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->vcoLpfResonance(3) * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setVco4LpfResonance(int value)
+{
+    if (m_synth) {
+        m_synth->setVcoLpfResonance(3, static_cast<float>(value) / Constants::uiInternalScaling());
+        emit vco4FilterEngagedChanged();
+    }
+}
+
+int SynthController::vco4LpfSlope() const
+{
+    return m_synth ? m_synth->vcoLpfSlope(3) : 0;
+}
+
+void SynthController::setVco4LpfSlope(int value)
+{
+    if (m_synth) {
+        m_synth->setVcoLpfSlope(3, value);
+        emit vco4LpfSlopeChanged();
+    }
+}
+
+int SynthController::vco4HpfCutoff() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->vcoHpfCutoff(3) * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setVco4HpfCutoff(int value)
+{
+    if (m_synth) {
+        m_synth->setVcoHpfCutoff(3, static_cast<float>(value) / Constants::uiInternalScaling());
+        emit vco4FilterEngagedChanged();
+    }
+}
+
+int SynthController::vco4HpfSlope() const
+{
+    return m_synth ? m_synth->vcoHpfSlope(3) : 0;
+}
+
+void SynthController::setVco4HpfSlope(int value)
+{
+    if (m_synth) {
+        m_synth->setVcoHpfSlope(3, value);
+        emit vco4HpfSlopeChanged();
+    }
+}
+
+bool SynthController::vco4FilterEngaged() const
+{
+    return m_synth && m_synth->vcoFilterEngaged(3);
 }
 
 int SynthController::vco1Shape() const
@@ -568,6 +863,12 @@ void SynthController::setModTarget(int t)
 {
     if (m_synth) {
         m_synth->setModTarget(static_cast<SynthDevice::ModTarget>(t));
+        // Pointing a source at a per-oscillator filter engages it even with its controls
+        // wide open, so the tab markers have to be told.
+        emit vco1FilterEngagedChanged();
+        emit vco2FilterEngagedChanged();
+        emit vco3FilterEngagedChanged();
+        emit vco4FilterEngagedChanged();
     }
 }
 
@@ -670,6 +971,12 @@ void SynthController::setLfoTarget(int target)
 {
     if (m_synth) {
         m_synth->setLfoTarget(static_cast<SynthDevice::LfoTarget>(target));
+        // Pointing a source at a per-oscillator filter engages it even with its controls
+        // wide open, so the tab markers have to be told.
+        emit vco1FilterEngagedChanged();
+        emit vco2FilterEngagedChanged();
+        emit vco3FilterEngagedChanged();
+        emit vco4FilterEngagedChanged();
     }
 }
 
@@ -760,6 +1067,12 @@ void SynthController::setLfo2Target(int target)
 {
     if (m_synth) {
         m_synth->setLfo2Target(static_cast<SynthDevice::LfoTarget>(target));
+        // Pointing a source at a per-oscillator filter engages it even with its controls
+        // wide open, so the tab markers have to be told.
+        emit vco1FilterEngagedChanged();
+        emit vco2FilterEngagedChanged();
+        emit vco3FilterEngagedChanged();
+        emit vco4FilterEngagedChanged();
     }
 }
 
@@ -977,6 +1290,30 @@ void SynthController::requestSettings()
     emit vco1WaveformChanged();
     emit vco1OctaveChanged();
     emit vco1PitchChanged();
+    emit vco1LpfCutoffChanged();
+    emit vco1LpfResonanceChanged();
+    emit vco1LpfSlopeChanged();
+    emit vco1HpfCutoffChanged();
+    emit vco1HpfSlopeChanged();
+    emit vco1FilterEngagedChanged();
+    emit vco2LpfCutoffChanged();
+    emit vco2LpfResonanceChanged();
+    emit vco2LpfSlopeChanged();
+    emit vco2HpfCutoffChanged();
+    emit vco2HpfSlopeChanged();
+    emit vco2FilterEngagedChanged();
+    emit vco3LpfCutoffChanged();
+    emit vco3LpfResonanceChanged();
+    emit vco3LpfSlopeChanged();
+    emit vco3HpfCutoffChanged();
+    emit vco3HpfSlopeChanged();
+    emit vco3FilterEngagedChanged();
+    emit vco4LpfCutoffChanged();
+    emit vco4LpfResonanceChanged();
+    emit vco4LpfSlopeChanged();
+    emit vco4HpfCutoffChanged();
+    emit vco4HpfSlopeChanged();
+    emit vco4FilterEngagedChanged();
     emit vco1ShapeChanged();
     emit vco1RoundnessChanged();
     emit vco1SyncChanged();

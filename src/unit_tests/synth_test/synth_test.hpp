@@ -33,6 +33,13 @@ private slots:
     void test_lpfSlope_shouldDefaultToTheSlopeItAlwaysHad();
     void test_lpfSlope_legacyName_shouldStillLoad();
     void test_lpfSlope_shallow_shouldKeepMoreOfTheTop();
+
+    void test_vcoFilter_default_shouldBeDisengagedOnEveryOscillator();
+    void test_vcoFilter_closedLowPass_shouldEngageThatOscillatorAlone();
+    void test_vcoFilter_modTarget_shouldEngageAFilterLeftWideOpen();
+    void test_vcoFilter_lowPass_shouldDarkenOnlyItsOwnOscillator();
+    void test_vcoFilter_settings_shouldRoundTrip();
+    void test_vcoFilter_absentFromXml_shouldLoadWideOpen();
     void initTestCase();
     void cleanupTestCase();
 

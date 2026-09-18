@@ -23,6 +23,7 @@
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
 #include <QBuffer>
+#include <QRegularExpression>
 #include <QTest>
 #include <algorithm>
 #include <cmath>
@@ -260,6 +261,157 @@ void SynthTest::test_lpfSlope_shallow_shouldKeepMoreOfTheTop()
     const double steep = magnitudeAboveCutoff(1);
     const double shallow = magnitudeAboveCutoff(0);
     QVERIFY2(shallow > steep * 2.0, qPrintable(QString("steep %1, shallow %2").arg(steep).arg(shallow)));
+}
+
+void SynthTest::test_vcoFilter_default_shouldBeDisengagedOnEveryOscillator()
+{
+    // Nothing asked of them, so nothing runs: this is what keeps a patch that predates these
+    // controls costing exactly what it always did.
+    const SynthDevice synth { "Synth" };
+    for (size_t vco = 0; vco < SynthDevice::VcoCount; vco++) {
+        QVERIFY2(!synth.vcoFilterEngaged(vco), qPrintable(QString::number(vco)));
+        QCOMPARE(synth.vcoLpfCutoff(vco), 1.0f);
+        QCOMPARE(synth.vcoHpfCutoff(vco), 0.0f);
+        QCOMPARE(synth.vcoLpfResonance(vco), 0.0f);
+    }
+}
+
+void SynthTest::test_vcoFilter_closedLowPass_shouldEngageThatOscillatorAlone()
+{
+    SynthDevice synth { "Synth" };
+    synth.setVcoLpfCutoff(0, 0.5f);
+
+    QVERIFY(synth.vcoFilterEngaged(0));
+    QVERIFY(!synth.vcoFilterEngaged(1));
+    QVERIFY(!synth.vcoFilterEngaged(2));
+    QVERIFY(!synth.vcoFilterEngaged(3));
+}
+
+void SynthTest::test_vcoFilter_modTarget_shouldEngageAFilterLeftWideOpen()
+{
+    // The controls say where a sweep starts, not whether there is one: a filter parked open is
+    // still engaged once something points at it.
+    SynthDevice synth { "Synth" };
+    QVERIFY(!synth.vcoFilterEngaged(1));
+
+    synth.setModTarget(SynthDevice::ModTarget::Vco2Lpf);
+
+    QVERIFY(synth.vcoFilterEngaged(1));
+    QVERIFY(!synth.vcoFilterEngaged(0));
+    QCOMPARE(synth.vcoLpfCutoff(1), 1.0f);
+}
+
+void SynthTest::test_vcoFilter_lowPass_shouldDarkenOnlyItsOwnOscillator()
+{
+    // \param upVco which oscillator is mixed in; VCO1's low pass is set either way.
+    const auto renderWith = [](int upVco, float vco1Cutoff) {
+        SynthDevice synth { "Synth" };
+        synth.setVco1Waveform(PolyBlepOscillator::Waveform::Saw);
+        synth.setVco2Waveform(PolyBlepOscillator::Waveform::Saw);
+        synth.setMixVco1(upVco == 1 ? 1.0f : 0.0f);
+        synth.setMixVco2(upVco == 2 ? 1.0f : 0.0f);
+        synth.setMixVco3(0.0f);
+        synth.setMixVco4(0.0f);
+        synth.setVcoLpfCutoff(0, vco1Cutoff);
+        return renderSynth(synth);
+    };
+
+    // About 630 Hz, so the note's own fundamental passes and its upper harmonics do not.
+    constexpr float closedCutoff { 0.5f };
+    constexpr double fundamental { 261.63 };
+    constexpr double eighthHarmonic { fundamental * 8.0 };
+
+    const auto open = renderWith(1, 1.0f);
+    const auto closed = renderWith(1, closedCutoff);
+
+    QVERIFY2(magnitudeAt(closed, eighthHarmonic) < magnitudeAt(open, eighthHarmonic) * 0.5,
+             qPrintable(QString { "open %1, closed %2" }.arg(magnitudeAt(open, eighthHarmonic)).arg(magnitudeAt(closed, eighthHarmonic))));
+    QVERIFY(magnitudeAt(closed, fundamental) > magnitudeAt(open, fundamental) * 0.5);
+
+    // The same filter with VCO2 the one being heard: it belongs to VCO1, so it does nothing here.
+    const auto otherOpen = renderWith(2, 1.0f);
+    const auto otherClosed = renderWith(2, closedCutoff);
+
+    double worst = 0.0;
+    for (size_t i = 0; i < otherOpen.size(); i++) {
+        worst = std::max(worst, std::abs(otherOpen[i] - otherClosed[i]));
+    }
+    QVERIFY2(worst < 1.0e-12, qPrintable(QString::number(worst)));
+}
+
+void SynthTest::test_vcoFilter_settings_shouldRoundTrip()
+{
+    SynthDevice synth { "Synth" };
+    for (size_t vco = 0; vco < SynthDevice::VcoCount; vco++) {
+        synth.setVcoLpfCutoff(vco, 0.3f + 0.1f * static_cast<float>(vco));
+        synth.setVcoLpfResonance(vco, 0.2f + 0.1f * static_cast<float>(vco));
+        synth.setVcoHpfCutoff(vco, 0.1f + 0.1f * static_cast<float>(vco));
+        synth.setVcoLpfSlope(vco, static_cast<int>(vco % 2));
+        synth.setVcoHpfSlope(vco, static_cast<int>((vco + 1) % 2));
+    }
+
+    QByteArray data;
+    QBuffer buffer { &data };
+    buffer.open(QIODevice::WriteOnly);
+    NahdXmlWriter writer { buffer };
+    writer.writeStartDocument();
+    synth.serializeToXml(writer);
+    writer.writeEndDocument();
+    buffer.close();
+
+    SynthDevice loaded { "Synth" };
+    buffer.open(QIODevice::ReadOnly);
+    NahdXmlReader reader { buffer };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+    loaded.deserializeFromXml(reader);
+    buffer.close();
+
+    for (size_t vco = 0; vco < SynthDevice::VcoCount; vco++) {
+        QVERIFY(std::abs(loaded.vcoLpfCutoff(vco) - synth.vcoLpfCutoff(vco)) < 0.001f);
+        QVERIFY(std::abs(loaded.vcoLpfResonance(vco) - synth.vcoLpfResonance(vco)) < 0.001f);
+        QVERIFY(std::abs(loaded.vcoHpfCutoff(vco) - synth.vcoHpfCutoff(vco)) < 0.001f);
+        QCOMPARE(loaded.vcoLpfSlope(vco), synth.vcoLpfSlope(vco));
+        QCOMPARE(loaded.vcoHpfSlope(vco), synth.vcoHpfSlope(vco));
+    }
+}
+
+void SynthTest::test_vcoFilter_absentFromXml_shouldLoadWideOpen()
+{
+    // What a project saved before these controls existed looks like: the parameters are simply not
+    // in the file. An absent parameter keeps the container's default, and the default has to be a
+    // filter that does nothing, or every old song would come back filtered.
+    SynthDevice out { "Synth" };
+    for (size_t vco = 0; vco < SynthDevice::VcoCount; vco++) {
+        out.setVcoLpfCutoff(vco, 0.2f);
+        out.setVcoHpfCutoff(vco, 0.8f);
+        out.setVcoLpfResonance(vco, 0.7f);
+    }
+
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        out.serializeToXml(writer);
+    }
+
+    QRegularExpression perVcoFilter { R"(<Parameter name="vco[0-9](Lpf|Hpf)[^"]*"[^>]*(/>|>\s*</Parameter>))" };
+    const auto legacy = QString { xml }.remove(perVcoFilter);
+    QVERIFY2(legacy.length() < xml.length(), "nothing was stripped, so the test proves nothing");
+    QVERIFY(!legacy.contains("vco1LpfCutoff"));
+
+    NahdXmlReader reader { legacy };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+
+    SynthDevice in { "Synth" };
+    in.deserializeFromXml(reader);
+
+    for (size_t vco = 0; vco < SynthDevice::VcoCount; vco++) {
+        QCOMPARE(in.vcoLpfCutoff(vco), 1.0f);
+        QCOMPARE(in.vcoHpfCutoff(vco), 0.0f);
+        QCOMPARE(in.vcoLpfResonance(vco), 0.0f);
+        QVERIFY(!in.vcoFilterEngaged(vco));
+    }
 }
 
 void SynthTest::initTestCase()
