@@ -44,6 +44,11 @@ private slots:
     void test_windowSize_unset_shouldReturnGivenDefault();
     void test_windowSize_stored_shouldOverrideGivenDefault();
 
+    //! Declared before the setter round-trip below on purpose: the slots share one settings file
+    //! and run in declaration order, so an unset value can only be observed before something has
+    //! stored one.
+    void test_mixerOutputMeterView_unset_shouldDefaultToLevel();
+
     void test_setters_shouldPersistAcrossInstances();
 };
 

@@ -30,6 +30,7 @@
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/gain.hpp"
 #include "../../domain/utility/level_meter.hpp"
+#include "../../domain/utility/loudness_meter.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
@@ -455,6 +456,37 @@ void DeviceRackControllerTest::test_deviceMeterLevels_shouldReportPreInsertLevel
 
     controller.setMetersActive(false);
     QVERIFY(!device->meter().active());
+}
+
+void DeviceRackControllerTest::test_deviceOutputMeters_shouldCarryEveryReadingOfTheOutputTaps()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto prefix = Constants::internalDevicePortPrefix().toStdString();
+    const auto device = std::make_shared<MockDevice>(prefix + " 1");
+    deviceService->setDevice(0, device);
+
+    DeviceRackController controller { deviceService, {}, std::make_shared<MockEditorService>() };
+
+    // An empty slot has nothing to report. The map is what the mixer's OUT views read, and every one
+    // of them has to find its key there whichever view happens to be showing.
+    QVERIFY(controller.deviceOutputMeters(1).isEmpty());
+    const auto idle = controller.deviceOutputMeters(0);
+    QCOMPARE(idle["peakDb"].toFloat(), LevelMeter::MinimumDb);
+    QCOMPARE(idle["rmsDb"].toFloat(), LevelMeter::MinimumDb);
+    QCOMPARE(idle["integratedLufs"].toFloat(), LoudnessMeter::MinimumLufs);
+    QCOMPARE(idle["shortTermLufs"].toFloat(), LoudnessMeter::MinimumLufs);
+
+    controller.setMetersActive(true);
+    QVERIFY(device->outputMeter().active());
+    QVERIFY(device->outputLoudnessMeter().active());
+
+    const std::vector<double> fullScale(64, 1.0);
+    device->outputMeter().write(fullScale.data(), 32, 48000);
+    QVERIFY(std::abs(controller.deviceOutputMeters(0)["peakDb"].toFloat()) < 0.01f);
+
+    controller.setMetersActive(false);
+    QVERIFY(!device->outputMeter().active());
 }
 
 void DeviceRackControllerTest::test_deviceMeterLevels_afterSlotChanged_shouldFollowTheActiveGate()

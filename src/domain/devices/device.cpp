@@ -708,6 +708,16 @@ const LevelMeter & Device::meter() const
     return m_meter;
 }
 
+LevelMeter & Device::outputMeter()
+{
+    return m_outputMeter;
+}
+
+const LevelMeter & Device::outputMeter() const
+{
+    return m_outputMeter;
+}
+
 LoudnessMeter & Device::outputLoudnessMeter()
 {
     return m_outputLoudnessMeter;

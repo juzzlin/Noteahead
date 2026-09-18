@@ -20,6 +20,7 @@
 #include <QObject>
 #include <QStringList>
 #include <QUrl>
+#include <QVariantMap>
 
 #include <memory>
 #include <vector>
@@ -118,10 +119,13 @@ public:
 
     //! [peakDb, rmsDb] of the device's pre-insert level tap. Empty when the slot is empty.
     Q_INVOKABLE QVariantList deviceMeterLevels(int slotIndex) const;
-    //! [shortTermLufs, integratedLufs] of the device's output loudness tap. Empty when the slot is
-    //! empty. The integrated reading is what two devices are compared by; the short-term one only
-    //! shows that something is arriving.
-    Q_INVOKABLE QVariantList deviceOutputLoudness(int slotIndex) const;
+    //! Everything the mixer's OUT region can show, taken together so that every view of it describes
+    //! the same moment: peakDb and rmsDb of the output level tap, shortTermLufs and integratedLufs
+    //! of the output loudness tap. Empty when the slot is empty.
+    //!
+    //! A map rather than a list so that a metric added later is a new key, not a renumbering of
+    //! every index the QML reads.
+    Q_INVOKABLE QVariantMap deviceOutputMeters(int slotIndex) const;
     //! Starts the integrated measurement over, for one device or for the whole rack.
     Q_INVOKABLE void resetDeviceLoudness(int slotIndex);
     Q_INVOKABLE void resetAllDeviceLoudness();

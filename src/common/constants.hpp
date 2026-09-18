@@ -131,6 +131,12 @@ constexpr int defaultGainStagingTargetDb()
     return -18;
 }
 
+//! Which reading the Mixer's OUT region shows on every strip: an id from the view list in
+//! OutputMeter.qml, stored as a string rather than an index so that reordering that list cannot
+//! silently change what an existing installation shows. "level" is the unweighted post-fader level,
+//! which is the one that answers headroom and energy; "loudness" is the K-weighted LUFS reading.
+QString defaultMixerOutputMeterView();
+
 //! Milliseconds a note-off precedes the next note-on on the same column, unless the song or the
 //! channel says otherwise. Real MIDI hardware needs the gap to retrigger. This is both the fallback
 //! for a song that stores no offset and the value new songs are seeded with, so the two cannot drift

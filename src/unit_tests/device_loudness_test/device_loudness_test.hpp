@@ -33,6 +33,9 @@ private slots:
     void test_outputLoudness_engine_shouldMeasureAfterTheFader();
     void test_outputLoudness_engine_shouldMeasureAfterTheInserts();
     void test_outputLoudness_engine_silentDevice_shouldFallBackToTheFloor();
+
+    void test_outputLevel_engine_shouldMeasureAfterTheFader();
+    void test_outputLevel_engine_silentDevice_shouldFallAway();
 };
 
 } // namespace noteahead

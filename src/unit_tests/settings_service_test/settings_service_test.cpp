@@ -171,6 +171,15 @@ void SettingsServiceTest::test_windowSize_stored_shouldOverrideGivenDefault()
     QCOMPARE(reloadedSettingsService.windowSize(QSize { 640, 480 }), storedSize);
 }
 
+void SettingsServiceTest::test_mixerOutputMeterView_unset_shouldDefaultToLevel()
+{
+    // The mixer opens on the unweighted level, which is the reading that answers headroom and
+    // energy; the K-weighted one is a click away.
+    SettingsService settingsService;
+
+    QCOMPARE(settingsService.mixerOutputMeterView(), Constants::defaultMixerOutputMeterView());
+}
+
 void SettingsServiceTest::test_setters_shouldPersistAcrossInstances()
 {
     {
@@ -182,6 +191,7 @@ void SettingsServiceTest::test_setters_shouldPersistAcrossInstances()
         settingsService.setGainStagingTargetDb(-20);
         settingsService.setAutomationDisplayMode(static_cast<int>(Constants::AutomationDisplayMode::Tint));
         settingsService.setAutomationCurveThicknessTenths(25);
+        settingsService.setMixerOutputMeterView("loudness");
     }
 
     SettingsService reloadedSettingsService;
@@ -193,6 +203,7 @@ void SettingsServiceTest::test_setters_shouldPersistAcrossInstances()
     QCOMPARE(reloadedSettingsService.gainStagingTargetDb(), -20);
     QCOMPARE(reloadedSettingsService.automationDisplayMode(), static_cast<int>(Constants::AutomationDisplayMode::Tint));
     QCOMPARE(reloadedSettingsService.automationCurveThicknessTenths(), 25);
+    QCOMPARE(reloadedSettingsService.mixerOutputMeterView(), QString { "loudness" });
 }
 
 } // namespace noteahead

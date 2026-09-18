@@ -139,6 +139,11 @@ size_t effectRackSize()
     return 16;
 }
 
+QString defaultMixerOutputMeterView()
+{
+    return "level";
+}
+
 QString samplerDeviceName()
 {
     return "Noteahead Sampler";

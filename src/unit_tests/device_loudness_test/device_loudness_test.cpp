@@ -160,6 +160,11 @@ float measureThroughEngine(AudioEngine & engine, Device & device, double seconds
     device.meter().setActive(true);
     device.outputLoudnessMeter().setActive(true);
     device.outputLoudnessMeter().requestReset();
+    // The level tap of the same point, which the caller reads off the device afterwards. Reset by
+    // hand because setActive() only clears on the way down, and a second measurement would
+    // otherwise start on the peak the first one left.
+    device.outputMeter().setActive(true);
+    device.outputMeter().reset();
 
     std::vector<double> buffer(static_cast<size_t>(FrameCount) * 2, 0.0);
     AudioContext context { std::span(buffer.data(), buffer.size()), FrameCount, SampleRate };
@@ -301,6 +306,50 @@ void DeviceLoudnessTest::test_outputLoudness_engine_silentDevice_shouldFallBackT
     device->setAmplitude(0.0);
 
     QCOMPARE(measureThroughEngine(engine, *device), LoudnessMeter::MinimumLufs);
+}
+
+void DeviceLoudnessTest::test_outputLevel_engine_shouldMeasureAfterTheFader()
+{
+    AudioEngine engine;
+    const auto device = std::make_shared<SineDevice>(0.5);
+    engine.setDevice(0, device);
+
+    measureThroughEngine(engine, *device);
+    const auto unityRms = device->outputMeter().rmsDb();
+    const auto unityInputRms = device->meter().rmsDb();
+    // A 0.5 sine is -9.03 dBFS RMS, and the output tap sees it unweighted -- which is the whole
+    // point of it next to the loudness tap.
+    QVERIFY(std::abs(unityRms - -9.03f) < 0.1f);
+
+    device->setVolume(static_cast<float>(ParameterMapper::unmapFader(0.5)));
+
+    measureThroughEngine(engine, *device);
+
+    // Half the amplitude out of the fader is 6 dB here too, and again only the output tap sees it:
+    // the gain-staging tap is taken before the fader.
+    QVERIFY(std::abs((unityRms - device->outputMeter().rmsDb()) - 6.02f) < 0.2f);
+    QVERIFY(std::abs(device->meter().rmsDb() - unityInputRms) < 0.1f);
+}
+
+void DeviceLoudnessTest::test_outputLevel_engine_silentDevice_shouldFallAway()
+{
+    AudioEngine engine;
+    const auto device = std::make_shared<SineDevice>(0.5);
+    engine.setDevice(0, device);
+
+    measureThroughEngine(engine, *device);
+    QVERIFY(device->outputMeter().rmsDb() > -12.0f);
+
+    // A device the engine stops processing altogether is still fed silence, or the bar would sit
+    // where the last note left it for as long as the device stays quiet. Unlike the loudness
+    // reading this one falls rather than blanks: the peak slides at a fixed rate and the RMS decays
+    // over its window, so what is asserted is that it has fallen away, not that it has hit the floor.
+    device->setAmplitude(0.0);
+
+    measureThroughEngine(engine, *device);
+
+    QVERIFY(device->outputMeter().rmsDb() < -60.0f);
+    QVERIFY(device->outputMeter().peakDb() < -60.0f);
 }
 
 } // namespace noteahead

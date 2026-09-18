@@ -4839,6 +4839,36 @@
     </message>
 </context>
 <context>
+    <name>OutputMeter</name>
+    <message>
+        <source>Level</source>
+        <translation type="unfinished">Livello</translation>
+    </message>
+    <message>
+        <source>Loudness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Click to switch the reading, right-click to pick one.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>OutputMeter_Level</name>
+    <message>
+        <source>Output level of this device: %1 dBFS peak, %2 dBFS RMS.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The peak is the headroom this device takes; the bar is a 300 ms RMS, the energy it puts into the mix. Neither is weighted, so two devices matched here are matched on energy rather than on perceived loudness.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Measured after the insert effects, the fader and the pan. The marker is the gain staging target, %1 dBFS.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PannerDialog</name>
     <message>
         <source>Panner Parameters (Slot %1)</source>

@@ -133,7 +133,9 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
         device->meter().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
         // Silence is measured rather than skipped: the loudness blocks have to keep advancing for
         // the short-term reading to fall away, and BS.1770 gating drops them from the integrated one
-        // anyway, so a device that stops playing does not drag its own average down.
+        // anyway, so a device that stops playing does not drag its own average down. The output
+        // level tap needs the same treatment for its peak to fall back instead of freezing.
+        device->outputMeter().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
         device->outputLoudnessMeter().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
         device->loadMeter().addBlock(std::chrono::nanoseconds::zero(), bufferSeconds);
         return;
@@ -183,8 +185,10 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
     // boost past unity and whatever the insert rack did.
     device->clipDetector().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount);
 
-    // And so is the loudness: this is the device's actual contribution, which is what makes two of
-    // them comparable against each other. No-op unless the mixer is on screen.
+    // The same signal, in the other unit: the level tap answers headroom and unweighted energy, the
+    // loudness tap answers how loud this device is against another one. Both are the device's actual
+    // contribution, and both are a no-op unless the mixer is on screen.
+    device->outputMeter().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
     device->outputLoudnessMeter().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
 
     if (deviceContext.deviceOutputBuffersMutable) {

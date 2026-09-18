@@ -164,10 +164,10 @@ AnimatedDialog {
                             deviceRackController.revision;
                             return deviceRackController.deviceMeterLevels(index);
                         }
-                        readonly property var outputLoudness: {
+                        readonly property var outputMeters: {
                             mainLayout.meterTick;
                             deviceRackController.revision;
-                            return deviceRackController.deviceOutputLoudness(index);
+                            return deviceRackController.deviceOutputMeters(index);
                         }
                         readonly property bool deviceClipped: {
                             mainLayout.meterTick;
@@ -278,10 +278,11 @@ AnimatedDialog {
                                 color: "#555"
                             }
 
-                            // Two taps of the same device, in the two units each is actually read in:
-                            // IN is a level, against the gain staging target; OUT is a loudness, to
-                            // be compared with another device's. Kept in a row of their own so the
-                            // pair reads as one block rather than as four things among the controls.
+                            // Two taps of the same device, at the two points each is actually read
+                            // at: IN is the level before the inserts, against the gain staging
+                            // target; OUT is what the device finally hands over, in whichever unit
+                            // the mixer is currently showing. Kept in a row of their own so the pair
+                            // reads as one block rather than as four things among the controls.
                             RowLayout {
                                 Layout.fillWidth: true
                                 Layout.alignment: Qt.AlignVCenter
@@ -315,11 +316,19 @@ AnimatedDialog {
                                     Layout.alignment: Qt.AlignVCenter
                                 }
 
-                                LoudnessReadout {
+                                // Every strip shows the same reading, and switching one switches
+                                // them all: a column of strips is only comparable when it is one
+                                // column of the same thing.
+                                OutputMeter {
+                                    // The footprint the loudness readout alone used to have. At the
+                                    // minimum window size the strip has nothing spare, and what the
+                                    // OUT region takes comes off the knob labels.
                                     Layout.preferredWidth: 90
+                                    Layout.minimumWidth: 84
                                     Layout.alignment: Qt.AlignVCenter
-                                    shortTermLufs: strip.outputLoudness.length ? strip.outputLoudness[0] : -70
-                                    integratedLufs: strip.outputLoudness.length ? strip.outputLoudness[1] : -70
+                                    readings: strip.outputMeters
+                                    viewId: settingsService.mixerOutputMeterView
+                                    onViewChangeRequested: id => settingsService.mixerOutputMeterView = id
                                 }
 
                                 ClipLed {

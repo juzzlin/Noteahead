@@ -34,6 +34,7 @@ const auto audioInputDeviceIdKey = "audioInputDeviceId";
 const auto audioOutputDeviceIdKey = "audioOutputDeviceId";
 const auto playbackOversampleFactorKey = "playbackOversampleFactor";
 const auto automationDisplayModeKey = "automationDisplayMode";
+const auto mixerOutputMeterViewKey = "mixerOutputMeterView";
 const auto automationCurveThicknessTenthsKey = "automationCurveThicknessTenths";
 const auto gainStagingTargetDbKey = "gainStagingTargetDb";
 const auto recordingEnabledKey = "recordingEnabled";
@@ -587,6 +588,23 @@ void setAutomationDisplayMode(int mode)
     QSettings settings;
     settings.beginGroup(settingsGroupEditor);
     settings.setValue(automationDisplayModeKey, mode);
+    settings.endGroup();
+}
+
+QString mixerOutputMeterView(QString defaultMixerOutputMeterView)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    const auto view = settings.value(mixerOutputMeterViewKey, defaultMixerOutputMeterView).toString();
+    settings.endGroup();
+    return view;
+}
+
+void setMixerOutputMeterView(QString view)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupEditor);
+    settings.setValue(mixerOutputMeterViewKey, view);
     settings.endGroup();
 }
 

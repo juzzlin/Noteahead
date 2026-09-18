@@ -118,6 +118,9 @@ void setPlaybackOversampleFactor(int factor);
 int gainStagingTargetDb(int defaultGainStagingTargetDb);
 void setGainStagingTargetDb(int gainStagingTargetDb);
 
+QString mixerOutputMeterView(QString defaultMixerOutputMeterView);
+void setMixerOutputMeterView(QString view);
+
 QColor accentColor(QColor defaultAccentColor);
 void setAccentColor(QColor accentColor);
 

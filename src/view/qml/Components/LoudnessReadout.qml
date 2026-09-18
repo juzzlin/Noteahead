@@ -33,6 +33,10 @@ Item {
     property real shortTermLufs: minimumLufs
     property real integratedLufs: minimumLufs
 
+    //! Set by OutputMeter, which owns the switching this readout is one of the views of. Empty
+    //! wherever the readout stands on its own.
+    property string switchHint: ""
+
     readonly property bool hasReading: root.integratedLufs > root.minimumLufs
 
     implicitWidth: 84
@@ -81,7 +85,7 @@ Item {
 
     ToolTip.visible: hoverArea.containsMouse
     ToolTip.delay: Constants.toolTipDelay
-    ToolTip.text: qsTr("Output loudness of this device: %1 LUFS integrated since the mixer was opened or reset, %2 LUFS short-term.").arg(root.formatLufs(root.integratedLufs)).arg(root.formatLufs(root.shortTermLufs)) + "\n" + qsTr("Two devices are balanced by the difference between their integrated readings. Silence is gated out, so this is how loud the device is when it plays, not how often it plays.") + "\n" + qsTr("Measured after the insert effects, the fader and the pan. What the device sends to a send effect returns on the send bus and is not counted here, and a device inside a SubMixer is measured before the SubMixer's own strip.")
+    ToolTip.text: qsTr("Output loudness of this device: %1 LUFS integrated since the mixer was opened or reset, %2 LUFS short-term.").arg(root.formatLufs(root.integratedLufs)).arg(root.formatLufs(root.shortTermLufs)) + "\n" + qsTr("Two devices are balanced by the difference between their integrated readings. Silence is gated out, so this is how loud the device is when it plays, not how often it plays.") + "\n" + qsTr("Measured after the insert effects, the fader and the pan. What the device sends to a send effect returns on the send bus and is not counted here, and a device inside a SubMixer is measured before the SubMixer's own strip.") + (root.switchHint === "" ? "" : "\n" + root.switchHint)
 
     MouseArea {
         id: hoverArea

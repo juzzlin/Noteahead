@@ -257,14 +257,16 @@ QVariantList DeviceRackController::deviceMeterLevels(int slotIndex) const
     return levels;
 }
 
-QVariantList DeviceRackController::deviceOutputLoudness(int slotIndex) const
+QVariantMap DeviceRackController::deviceOutputMeters(int slotIndex) const
 {
-    QVariantList loudness;
+    QVariantMap meters;
     if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex))) {
-        loudness.append(device->outputLoudnessMeter().shortTermLufs());
-        loudness.append(device->outputLoudnessMeter().integratedLufs());
+        meters["peakDb"] = device->outputMeter().peakDb();
+        meters["rmsDb"] = device->outputMeter().rmsDb();
+        meters["shortTermLufs"] = device->outputLoudnessMeter().shortTermLufs();
+        meters["integratedLufs"] = device->outputLoudnessMeter().integratedLufs();
     }
-    return loudness;
+    return meters;
 }
 
 void DeviceRackController::resetDeviceLoudness(int slotIndex)
@@ -295,6 +297,7 @@ void DeviceRackController::applyMetersActive()
     for (int slotIndex = 0; slotIndex < deviceCount(); slotIndex++) {
         if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex))) {
             device->meter().setActive(m_metersActive);
+            device->outputMeter().setActive(m_metersActive);
             device->outputLoudnessMeter().setActive(m_metersActive);
             device->loadMeter().setActive(m_metersActive);
         }

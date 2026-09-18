@@ -245,6 +245,17 @@ public:
     LevelMeter & meter();
     const LevelMeter & meter() const;
 
+    //! Level of what this device finally hands over, taken at the same point as the loudness tap
+    //! below: after the inserts, the fader, the pan and the expression.
+    //!
+    //! The unweighted counterpart of that tap, and the answer to the two questions LUFS cannot
+    //! answer -- how much headroom the device is taking (peak) and how much energy it is putting
+    //! into the mix (RMS, over a 300 ms window, which is VU integration time). K-weighting throws
+    //! away most of what a bass is doing, so a bass balanced against a hi-hat by loudness alone ends
+    //! up far too loud. Gated by setActive() like the other meters.
+    LevelMeter & outputMeter();
+    const LevelMeter & outputMeter() const;
+
     //! Loudness of what this device finally hands over, taken after the inserts, the fader, the pan
     //! and the expression -- its actual contribution, rather than the level Gain is set against.
     //!
@@ -420,6 +431,7 @@ private:
     EffectRack m_insertEffectRack;
     AudioScope m_scope;
     LevelMeter m_meter;
+    LevelMeter m_outputMeter;
     LoudnessMeter m_outputLoudnessMeter;
     LoadMeter m_loadMeter;
     ClipDetector m_clipDetector;

@@ -50,6 +50,7 @@ SettingsService::SettingsService()
   , m_midiExportAutoAssignChannels { Settings::midiExportAutoAssignChannels() }
   , m_playbackOversampleFactor { Settings::playbackOversampleFactor() }
   , m_gainStagingTargetDb { Settings::gainStagingTargetDb(Constants::defaultGainStagingTargetDb()) }
+  , m_mixerOutputMeterView { Settings::mixerOutputMeterView(Constants::defaultMixerOutputMeterView()) }
   , m_automationDisplayMode { Settings::automationDisplayMode(Constants::defaultAutomationDisplayMode()) }
   , m_automationCurveThicknessTenths { Settings::automationCurveThicknessTenths(Constants::defaultAutomationCurveThicknessTenths()) }
   , m_userLanguage { Settings::userLanguage({}) }
@@ -401,6 +402,20 @@ void SettingsService::setGainStagingTargetDb(int targetDb)
         m_gainStagingTargetDb = targetDb;
         Settings::setGainStagingTargetDb(targetDb);
         emit gainStagingTargetDbChanged();
+    }
+}
+
+QString SettingsService::mixerOutputMeterView() const
+{
+    return m_mixerOutputMeterView;
+}
+
+void SettingsService::setMixerOutputMeterView(QString view)
+{
+    if (m_mixerOutputMeterView != view) {
+        m_mixerOutputMeterView = view;
+        Settings::setMixerOutputMeterView(view);
+        emit mixerOutputMeterViewChanged();
     }
 }
 

@@ -23,11 +23,12 @@ New features:
   - A preset never carries a side-chain source: the device it names belongs
     to the project, not to the patch
 
-* Loudness metering per device in the Mixer
-  - Each strip now shows IN, the level Gain is set against, beside OUT, the
-    loudness the device actually contributes, in LUFS
-  - Balancing one device against another is the difference between their
-    integrated readings: 2 LU lower is 2 dB under
+* Metering per device in the Mixer
+  - Each strip now shows IN, the level Gain is set against, beside OUT, what
+    the device actually contributes
+  - OUT reads either Level, in dBFS, or Loudness, in LUFS: click it to switch,
+    right-click to pick. Level is unweighted, so it compares the energy of two
+    devices where LUFS compares their perceived loudness
 
 * Ten more Synth presets
   - Hollow Bass, Supersaw, Hoover, Cross Mod Brass, Formant Pad, Drift
