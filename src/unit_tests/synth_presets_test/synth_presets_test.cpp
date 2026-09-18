@@ -187,10 +187,15 @@ void SynthPresetsTest::test_presets_namingAFilterSweep_shouldAimItAtTheFilter()
           && preset.parameters.at("modTarget") == modCutoff;
         const bool sweepsWithLfo = preset.parameters.count("lfoIntensity") && preset.parameters.count("lfoTarget")
           && preset.parameters.at("lfoTarget") == lfoCutoff;
+        // The second LFO reaches the filter exactly as the first does, and its target ordinals are
+        // the same enum. A patch sweeping with it is keeping the promise its name makes just as
+        // much as one sweeping with LFO 1.
+        const bool sweepsWithLfo2 = preset.parameters.count("lfo2Intensity") && preset.parameters.count("lfo2Target")
+          && preset.parameters.at("lfo2Target") == lfoCutoff;
 
         for (const auto * named : { "Acid", "Sweep", "Wobble", "Pluck" }) {
             if (preset.name.find(named) != std::string::npos) {
-                QVERIFY2(sweepsWithEnvelope || sweepsWithLfo, preset.name.c_str());
+                QVERIFY2(sweepsWithEnvelope || sweepsWithLfo || sweepsWithLfo2, preset.name.c_str());
             }
         }
     }

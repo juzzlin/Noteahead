@@ -45,6 +45,33 @@ std::string opKey(int op, const char * suffix)
     return "op" + std::to_string(op) + suffix;
 }
 
+// The algorithms, by the ordinal the parameter persists. Named here because a patch that says
+// "Branch" is readable and one that says 2.0f is not.
+constexpr float Serial = 0.0f;
+constexpr float Branch = 2.0f;
+constexpr float TripleMod = 3.0f;
+constexpr float ChainAndCarrier = 5.0f;
+constexpr float SharedMod = 6.0f;
+constexpr float Additive = 7.0f;
+
+// Operator waveforms, as FmOperator orders them. Every patch above this line is pure sine; these
+// are the other seven, which change what the sidebands are made of before any of them are placed.
+constexpr float HalfSine = 1.0f;
+constexpr float AbsSine = 2.0f;
+constexpr float Saw = 7.0f;
+
+// Modulation destinations. ModIndex scales every modulation path at once, which is the FM synth's
+// brightness control and the destination worth reaching for most often.
+constexpr float ModIndex = 2.0f;
+constexpr float LfoPitch = 0.0f;
+constexpr float LfoCutoff = 1.0f;
+constexpr float LfoModIndex = 2.0f;
+constexpr float LfoVolume = 3.0f;
+
+// Voice modes, ordered as SynthDevice's are.
+constexpr float Unison = 1.0f;
+constexpr float Mono = 5.0f;
+
 } // namespace
 
 const std::vector<SynthPreset> & FmSynthPresets::presets()
@@ -287,6 +314,240 @@ const std::vector<SynthPreset> & FmSynthPresets::presets()
                                         { "ampRelease", timeKnob(0.08) },
                                         { "ampCurve", 0.7f },
                                       } });
+
+        // --- Added later ---
+        //
+        // Appended rather than filed in among the patches above, because a preset's position in
+        // this list is the MIDI program number that selects it. Moving an existing patch would
+        // change the instrument in any song that names one.
+
+        // The other electric piano: a reed rather than a tine, so the modulator is a half sine --
+        // which is a sine with its bottom half flattened, and so already full of the even harmonics
+        // a reed barks with. Operator 3 runs alongside as a carrier of its own for the body.
+        list.push_back({ "Wurly", {
+                                    { "algorithm", ChainAndCarrier },
+                                    { opKey(2, "Waveform"), HalfSine },
+                                    { opKey(2, "Ratio"), 1.0f },
+                                    { opKey(2, "Level"), 0.62f },
+                                    { opKey(2, "Decay"), timeKnob(0.35) },
+                                    { opKey(2, "Sustain"), 0.08f },
+                                    { opKey(2, "VelocitySensitivity"), 0.85f },
+                                    { opKey(3, "Level"), 0.4f },
+                                    { opKey(4, "Ratio"), 3.0f },
+                                    { opKey(4, "Level"), 0.25f },
+                                    { opKey(4, "Decay"), timeKnob(0.09) },
+                                    { opKey(4, "Sustain"), 0.0f },
+                                    { opKey(4, "VelocitySensitivity"), 1.0f },
+                                    { "ampDecay", timeKnob(2.2) },
+                                    { "ampSustain", 0.22f },
+                                    { "ampRelease", timeKnob(0.35) },
+                                    { "ampCurve", 0.55f },
+                                  } });
+
+        // Three modulators into one carrier, all of them opening slowly. Brass is not bright at the
+        // start of the note and bright afterwards -- it arrives, and the modulator attack is the
+        // only thing here that can make it arrive.
+        list.push_back({ "DX Brass", {
+                                       { "algorithm", TripleMod },
+                                       { opKey(2, "Ratio"), 1.0f },
+                                       { opKey(2, "Level"), 0.5f },
+                                       { opKey(2, "Attack"), attackKnob(0.09) },
+                                       { opKey(2, "Sustain"), 0.7f },
+                                       { opKey(3, "Ratio"), 2.0f },
+                                       { opKey(3, "Level"), 0.3f },
+                                       { opKey(3, "Attack"), attackKnob(0.13) },
+                                       { opKey(3, "Sustain"), 0.55f },
+                                       { opKey(4, "Ratio"), 3.0f },
+                                       { opKey(4, "Level"), 0.16f },
+                                       { opKey(4, "Attack"), attackKnob(0.16) },
+                                       { opKey(4, "Sustain"), 0.4f },
+                                       { "ampAttack", attackKnob(0.04) },
+                                       { "ampDecay", timeKnob(1.2) },
+                                       { "ampSustain", 0.8f },
+                                       { "ampRelease", timeKnob(0.25) },
+                                     } });
+
+        // Feedback on the modulator turns its sine towards a saw, and the LFO on the modulation
+        // index moves the whole thing rather than any one operator. Together that is the growl.
+        list.push_back({ "Growl Bass", {
+                                         { opKey(2, "Ratio"), 1.0f },
+                                         { opKey(2, "Level"), 0.68f },
+                                         { opKey(2, "Decay"), timeKnob(0.5) },
+                                         { opKey(2, "Sustain"), 0.45f },
+                                         { "feedback", 0.55f },
+                                         { "lfoTarget", LfoModIndex },
+                                         { "lfoRate", 0.42f },
+                                         { "lfoIntensity", 0.35f },
+                                         { "lpfCutoff", 0.7f },
+                                         // Unison rather than Mono: a stack spends the pool on the
+                                         // one note being played, which is what a bass wants and
+                                         // what nothing else in this list asks for.
+                                         { "voiceMode", Unison },
+                                         { "voiceDepth", 0.25f },
+                                         { "ampDecay", timeKnob(1.5) },
+                                         { "ampSustain", 0.6f },
+                                         { "ampRelease", timeKnob(0.12) },
+                                       } });
+
+        // One modulator into three carriers at once, which is what gives every partial the same
+        // movement instead of three independent voices. The rectified sine is full of even
+        // harmonics, and a struck bar is mostly even harmonics.
+        list.push_back({ "Vibes", {
+                                    { "algorithm", SharedMod },
+                                    // Operators 1 to 3 are the carriers under this algorithm, so
+                                    // these are the bar's partials rather than modulation depths.
+                                    { opKey(1, "Level"), 1.0f },
+                                    { opKey(2, "Ratio"), 4.0f },
+                                    { opKey(2, "Level"), 0.5f },
+                                    { opKey(3, "Ratio"), 9.0f },
+                                    { opKey(3, "Level"), 0.22f },
+                                    { opKey(4, "Waveform"), AbsSine },
+                                    { opKey(4, "Ratio"), 1.0f },
+                                    { opKey(4, "Level"), 0.28f },
+                                    { opKey(4, "Decay"), timeKnob(0.25) },
+                                    { opKey(4, "Sustain"), 0.0f },
+                                    { "lfoTarget", LfoVolume },
+                                    { "lfoRate", 0.55f }, // The vibraphone's fans, near enough
+                                    { "lfoIntensity", 0.5f },
+                                    { "ampDecay", timeKnob(2.5) },
+                                    { "ampSustain", 0.0f },
+                                    { "ampRelease", timeKnob(0.8) },
+                                    { "ampCurve", 0.5f },
+                                  } });
+
+        // A branch rather than a stack: one modulator is itself modulated and another is not, so
+        // two sets of sidebands arrive with different decays. A struck metal pan is exactly that.
+        list.push_back({ "Steel Drum", {
+                                         { "algorithm", Branch },
+                                         { opKey(2, "Ratio"), 2.0f },
+                                         { opKey(2, "Level"), 0.45f },
+                                         { opKey(2, "Decay"), timeKnob(0.18) },
+                                         { opKey(2, "Sustain"), 0.1f },
+                                         { opKey(3, "Ratio"), 3.0f },
+                                         { opKey(3, "Level"), 0.4f },
+                                         { opKey(3, "Decay"), timeKnob(0.07) },
+                                         { opKey(3, "Sustain"), 0.0f },
+                                         { opKey(4, "Ratio"), 5.0f },
+                                         { opKey(4, "Level"), 0.3f },
+                                         { opKey(4, "Decay"), timeKnob(0.04) },
+                                         { opKey(4, "Sustain"), 0.0f },
+                                         { "ampDecay", timeKnob(1.1) },
+                                         { "ampSustain", 0.0f },
+                                         { "ampRelease", timeKnob(0.4) },
+                                         { "ampCurve", 0.6f },
+                                       } });
+
+        // A saw modulator is the bluntest instrument here: every harmonic at once, straight into
+        // the carrier. Gone in a tenth of a second it is a plucked string; held, it is unusable.
+        list.push_back({ "Koto", {
+                                   { "algorithm", Serial },
+                                   { opKey(2, "Waveform"), Saw },
+                                   { opKey(2, "Ratio"), 1.0f },
+                                   { opKey(2, "Level"), 0.4f },
+                                   { opKey(2, "Decay"), timeKnob(0.08) },
+                                   { opKey(2, "Sustain"), 0.0f },
+                                   { opKey(2, "VelocitySensitivity"), 0.8f },
+                                   { opKey(3, "Ratio"), 2.0f },
+                                   { opKey(3, "Level"), 0.3f },
+                                   { opKey(3, "Decay"), timeKnob(0.05) },
+                                   { opKey(3, "Sustain"), 0.0f },
+                                   { "ampDecay", timeKnob(1.3) },
+                                   { "ampSustain", 0.0f },
+                                   { "ampRelease", timeKnob(0.5) },
+                                   { "ampCurve", 0.65f },
+                                 } });
+
+        // No modulation at all: four carriers detuned against each other, which is the one
+        // algorithm where this synth is an additive one. Levels are kept well down because four
+        // carriers at once is also the one place it can run out of headroom.
+        list.push_back({ "Ice Pad", {
+                                      { "algorithm", Additive },
+                                      { opKey(1, "Level"), 1.0f },
+                                      { opKey(2, "Ratio"), 2.0f },
+                                      { opKey(2, "Detune"), 0.53f },
+                                      { opKey(2, "Level"), 0.4f },
+                                      { opKey(3, "Ratio"), 4.0f },
+                                      { opKey(3, "Detune"), 0.47f },
+                                      { opKey(3, "Level"), 0.2f },
+                                      { opKey(4, "Ratio"), 8.0f },
+                                      { opKey(4, "Detune"), 0.55f },
+                                      { opKey(4, "Level"), 0.1f },
+                                      // Left polyphonic on purpose: a stacked voice mode spends the
+                                      // whole pool on one note, and a pad is played as a chord. The
+                                      // detune that makes this move is between the carriers
+                                      // themselves rather than between voices.
+                                      { "panSpread", 0.5f },
+                                      { "lfoTarget", LfoPitch },
+                                      { "lfoRate", 0.25f },
+                                      { "lfoIntensity", 0.08f },
+                                      { "ampAttack", attackKnob(0.2) },
+                                      { "ampSustain", 1.0f },
+                                      { "ampRelease", timeKnob(2.5) },
+                                    } });
+
+        // Feedback taken far enough that the operator is most of the way to noise, held rather than
+        // struck, with the index wandering under it. Nothing decays here; the note is the drone.
+        list.push_back({ "Bell Drone", {
+                                         { opKey(2, "Ratio"), 11.0f },
+                                         { opKey(2, "Detune"), 0.62f },
+                                         { opKey(2, "Level"), 0.3f },
+                                         { opKey(2, "Sustain"), 1.0f },
+                                         { "feedback", 0.72f },
+                                         { "lfoTarget", LfoModIndex },
+                                         { "lfoRate", 0.18f },
+                                         { "lfoIntensity", 0.6f },
+                                         { "lpfCutoff", 0.8f },
+                                         { "ampAttack", attackKnob(0.12) },
+                                         { "ampSustain", 1.0f },
+                                         { "ampRelease", timeKnob(3.0) },
+                                       } });
+
+        // The filter, which the patches above use only to take the top off. Here the second LFO
+        // sweeps it with the resonance up, which is a formant moving rather than a tone control.
+        list.push_back({ "Talking Lead", {
+                                           { "algorithm", Serial },
+                                           { opKey(2, "Ratio"), 2.0f },
+                                           { opKey(2, "Level"), 0.45f },
+                                           { opKey(2, "Sustain"), 0.6f },
+                                           { opKey(3, "Ratio"), 1.0f },
+                                           { opKey(3, "Level"), 0.25f },
+                                           { opKey(3, "Sustain"), 0.5f },
+                                           { "modTarget", ModIndex },
+                                           { "modIntensity", 0.4f },
+                                           { "modDecay", timeKnob(0.3) },
+                                           { "lpfCutoff", 0.55f },
+                                           { "lpfResonance", 0.6f },
+                                           { "lfo2Target", LfoCutoff },
+                                           { "lfo2Rate", 0.4f },
+                                           { "lfo2Intensity", 0.55f },
+                                           { "voiceMode", Mono },
+                                           { "portamento", 0.12f },
+                                           { "ampAttack", attackKnob(0.01) },
+                                           { "ampSustain", 0.9f },
+                                           { "ampRelease", timeKnob(0.2) },
+                                         } });
+
+        // The delay, which no patch above touches at all. Synced, so the repeats stay with the song
+        // whatever tempo it is played at, and darkened in the feedback path so they fall away.
+        list.push_back({ "Tape Echo Keys", {
+                                             { "algorithm", 4.0f }, // Twin Stacks, as the pianos use
+                                             { opKey(2, "Ratio"), 1.0f },
+                                             { opKey(2, "Level"), 0.4f },
+                                             { opKey(2, "Decay"), timeKnob(0.4) },
+                                             { opKey(2, "Sustain"), 0.1f },
+                                             { opKey(4, "Ratio"), 7.0f },
+                                             { opKey(4, "Level"), 0.2f },
+                                             { opKey(4, "Decay"), timeKnob(0.1) },
+                                             { opKey(4, "Sustain"), 0.0f },
+                                             { "delaySync", 1.0f },
+                                             { "delaySyncDivision", 0.375f }, // A dotted eighth
+                                             { "delayFeedback", 0.5f },
+                                             { "delayFeedbackLpf", 0.4f },
+                                             { "delayMix", 0.35f },
+                                             { "ampDecay", timeKnob(1.6) },
+                                             { "ampSustain", 0.2f },
+                                             { "ampRelease", timeKnob(0.3) },
+                                           } });
 
         return list;
     }();

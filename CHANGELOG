@@ -5,6 +5,19 @@ Release date:
 
 New features:
 
+* Ten more Synth presets
+  - Hollow Bass, Supersaw, Hoover, Cross Mod Brass, Formant Pad, Drift
+    Choir, Rotary Organ, Dub Chord, Noise Sweep and Wind
+  - Between them they reach the fourth oscillator, the Multi engine, the
+    second LFO, cross modulation and the synced delay, none of which any
+    earlier preset touched
+
+* Ten more FM Synth presets
+  - Wurly, DX Brass, Growl Bass, Vibes, Steel Drum, Koto, Ice Pad, Bell
+    Drone, Talking Lead and Tape Echo Keys
+  - The first presets to use anything but a sine operator, and the first
+    to use the LFOs, the filter's resonance and the delay
+
 * A fourth VCO in the Synth
   - Its own waveform, octave, pitch, shape, roundness and hard sync, and
     its own level in the mix

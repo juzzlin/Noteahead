@@ -80,7 +80,20 @@ constexpr float LfoPitch = 0.0f;
 constexpr float LfoCutoff = 2.0f;
 
 // Voice modes.
+constexpr float Supersaw = 3.0f;
+constexpr float Drift = 4.0f;
 constexpr float Mono = 5.0f;
+
+// Modulation destinations the patches below reach for, by persisted ordinal.
+constexpr float ModPitch = 4.0f; // Every VCO at once
+constexpr float LfoShape = 1.0f;
+constexpr float LfoPan = 5.0f;
+
+// The Multi oscillator's modes, as MultiEngine orders them.
+constexpr float MultiPeak = 2.0f;
+
+// Delay types, as Delay orders them.
+constexpr float DelayStereo = 0.0f;
 
 } // namespace
 
@@ -358,6 +371,238 @@ const std::vector<SynthPreset> & SynthPresets::presets()
                                             { "ampSustain", 1.0f },
                                             { "ampRelease", releaseKnob(0.25) },
                                           } });
+
+        // --- Added later ---
+        //
+        // Appended rather than filed under the groups above, because a preset's position in this
+        // list is the MIDI program number that selects it: a song sends a program change and gets
+        // whatever is at that index. Slotting these in where they read best would move every patch
+        // after them and quietly change the instrument in any song that names one.
+
+        // What the fourth oscillator and the Multi engine are for, neither of which any patch above
+        // touches. The high-passed noise sits on top of the octave stack rather than in it.
+        list.push_back({ "Hollow Bass", {
+                                          { "vco1Waveform", Square },
+                                          { "vco1Shape", 0.78f }, // A narrow pulse, which is where the hollow comes from
+                                          { "vco2Waveform", Square },
+                                          { "vco2Shape", 0.22f },
+                                          { "vco2Pitch", 0.505f },
+                                          { "mixLevel2", 0.7f },
+                                          { "hpfCutoff", cutoffKnob(120.0) },
+                                          { "hpfSlope", 1.0f },
+                                          { "lpfCutoff", cutoffKnob(1400.0) },
+                                          { "lpfResonance", 0.25f },
+                                          { "keyTrack", 0.45f },
+                                          { "modTarget", ModCutoff },
+                                          { "modIntensity", intensity(0.4) },
+                                          { "modAttack", attackKnob(0.001) },
+                                          { "modDecay", decayKnob(0.18) },
+                                          { "voiceMode", Mono },
+                                          { "ampVelocitySensitivity", 0.8f },
+                                          { "ampAttack", attackKnob(0.002) },
+                                          { "ampDecay", decayKnob(0.5) },
+                                          { "ampSustain", 0.45f },
+                                          { "ampRelease", releaseKnob(0.1) },
+                                        } });
+
+        // The voice mode nothing above uses. Seven saws with the detune spread unevenly around a
+        // centre voice, which is what keeps the middle of it in tune while the edges beat.
+        list.push_back({ "Supersaw", {
+                                       { "vco1Waveform", Saw },
+                                       { "voiceMode", Supersaw },
+                                       { "voiceDepth", 0.35f },
+                                       { "panSpread", 0.8f },
+                                       { "lpfCutoff", cutoffKnob(7000.0) },
+                                       { "lpfResonance", 0.1f },
+                                       { "ampAttack", attackKnob(0.01) },
+                                       { "ampDecay", decayKnob(1.5) },
+                                       { "ampSustain", 0.85f },
+                                       { "ampRelease", releaseKnob(0.3) },
+                                     } });
+
+        // The mod envelope on every VCO's pitch at once rather than on one of them, which is the
+        // downward swoop the sound is named for. Nothing above aims at that destination.
+        list.push_back({ "Hoover", {
+                                     { "vco1Waveform", Saw },
+                                     { "vco2Waveform", Square },
+                                     { "vco2Shape", 0.35f },
+                                     { "vco2Pitch", 0.545f },
+                                     { "mixLevel2", 0.85f },
+                                     { "vco3Waveform", Saw },
+                                     { "vco3Octave", -1.0f },
+                                     { "mixLevel3", 0.5f },
+                                     { "lpfCutoff", cutoffKnob(3200.0) },
+                                     { "lpfResonance", 0.35f },
+                                     { "modTarget", ModPitch },
+                                     { "modIntensity", intensity(0.3) },
+                                     { "modAttack", attackKnob(0.001) },
+                                     { "modDecay", decayKnob(0.22) },
+                                     { "modSustain", 0.0f },
+                                     // Drift gives each voice of the stack its own slow wander
+                                     // instead of a fixed detune, so no two ever settle against
+                                     // each other. A stacked mode spends the whole voice pool on
+                                     // the note being played, which is what a lead wants.
+                                     { "voiceMode", Drift },
+                                     { "voiceDepth", 0.45f },
+                                     { "panSpread", 0.5f },
+                                     { "ampAttack", attackKnob(0.004) },
+                                     { "ampSustain", 0.9f },
+                                     { "ampRelease", releaseKnob(0.25) },
+                                   } });
+
+        // The only patch that uses cross modulation, which is what puts the metal into the attack
+        // without any of it having to come from the filter.
+        list.push_back({ "Cross Mod Brass", {
+                                              { "vco1Waveform", Saw },
+                                              { "vco2Waveform", Saw },
+                                              { "vco2Pitch", 0.51f },
+                                              { "mixLevel2", 0.8f },
+                                              { "crossModDepth", 0.3f },
+                                              { "lpfCutoff", cutoffKnob(1100.0) },
+                                              { "lpfResonance", 0.15f },
+                                              { "modTarget", ModCutoff },
+                                              { "modIntensity", intensity(0.55) },
+                                              { "modAttack", attackKnob(0.06) }, // The lip, not a click
+                                              { "modDecay", decayKnob(0.9) },
+                                              { "modSustain", 0.4f },
+                                              { "ampAttack", attackKnob(0.03) },
+                                              { "ampSustain", 0.85f },
+                                              { "ampRelease", releaseKnob(0.3) },
+                                            } });
+
+        // The second LFO, which nothing above uses, on the pulse width. Two oscillators drifting
+        // through their own shapes is the whole of this sound.
+        list.push_back({ "Formant Pad", {
+                                          { "vco1Waveform", Square },
+                                          { "vco1Shape", 0.4f },
+                                          { "vco1Roundness", 0.7f },
+                                          { "vco2Waveform", Square },
+                                          { "vco2Shape", 0.6f },
+                                          { "vco2Pitch", 0.507f },
+                                          { "mixLevel2", 0.9f },
+                                          { "lpfCutoff", cutoffKnob(2600.0) },
+                                          { "lpfSlope", 0.0f }, // 12 dB/oct, so the top stays open
+                                          { "lfo2Target", LfoShape },
+                                          { "lfo2Rate", lfoRateKnob(0.35) },
+                                          { "lfo2Intensity", intensity(0.5) },
+                                          { "ampAttack", attackKnob(0.15) },
+                                          { "ampSustain", 1.0f },
+                                          { "ampRelease", releaseKnob(1.2) },
+                                        } });
+
+        // Drift gives every voice its own slow wander instead of a fixed detune, so no two notes of
+        // a chord ever settle against each other. The fourth oscillator is the octave above.
+        list.push_back({ "Drift Choir", {
+                                          { "vco1Waveform", Triangle },
+                                          { "vco2Waveform", Saw },
+                                          { "mixLevel2", 0.75f },
+                                          { "vco4Waveform", Triangle },
+                                          { "vco4Octave", 1.0f },
+                                          { "mixLevel4", 0.55f },
+                                          // Polyphonic on purpose: the stacked voice modes spend
+                                          // the pool on one note, and this is a chord sound. Its
+                                          // movement comes from the oscillators drifting instead.
+                                          { "oscillatorDrift", 0.7f },
+                                          { "panSpread", 0.6f },
+                                          { "lpfCutoff", cutoffKnob(2200.0) },
+                                          { "ampAttack", attackKnob(0.2) },
+                                          { "ampSustain", 1.0f },
+                                          { "ampRelease", releaseKnob(1.5) },
+                                        } });
+
+        // Four oscillators as drawbars, and the second LFO on the pan for the rotor. The LFO's own
+        // delay and fade are what let the rotor start slow the way the real one does.
+        list.push_back({ "Rotary Organ", {
+                                           { "vco1Waveform", Sine },
+                                           { "vco2Waveform", Sine },
+                                           { "vco2Octave", 1.0f },
+                                           { "mixLevel2", 0.45f },
+                                           { "vco3Waveform", Sine },
+                                           { "vco3Octave", -1.0f },
+                                           { "mixLevel3", 0.35f },
+                                           { "vco4Waveform", Sine },
+                                           { "vco4Octave", 2.0f },
+                                           { "vco4Pitch", 0.5021f }, // The fifth-ish drawbar, slightly off
+                                           { "mixLevel4", 0.25f },
+                                           { "mixLevel1", 0.7f },
+                                           { "lpfCutoff", cutoffKnob(6000.0) },
+                                           { "lfo2Target", LfoPan },
+                                           { "lfo2Rate", lfoRateKnob(6.0) },
+                                           { "lfo2Intensity", intensity(0.7) },
+                                           { "lfo2Delay", 0.25f },
+                                           { "lfo2Fade", 0.4f },
+                                           { "panSpread", 0.3f },
+                                           { "ampAttack", attackKnob(0.004) },
+                                           { "ampSustain", 1.0f },
+                                           { "ampRelease", releaseKnob(0.06) },
+                                         } });
+
+        // The delay section, which the patches above reach only for its mix and its time. Synced to
+        // the song instead, with the repeats darkening as they go.
+        list.push_back({ "Dub Chord", {
+                                        { "vco1Waveform", Saw },
+                                        { "vco2Waveform", Square },
+                                        { "vco2Shape", 0.3f },
+                                        { "vco2Octave", -1.0f },
+                                        { "mixLevel2", 0.6f },
+                                        { "lpfCutoff", cutoffKnob(1800.0) },
+                                        { "lpfResonance", 0.3f },
+                                        { "modTarget", ModCutoff },
+                                        { "modIntensity", intensity(0.5) },
+                                        { "modAttack", attackKnob(0.002) },
+                                        { "modDecay", decayKnob(0.3) },
+                                        { "delayType", DelayStereo },
+                                        { "delaySync", 1.0f },
+                                        { "delaySyncDivision", 0.375f }, // A dotted eighth
+                                        { "delayFeedback", 0.55f },
+                                        { "delayFeedbackLpf", 0.45f },
+                                        { "delayMix", 0.4f },
+                                        { "ampAttack", attackKnob(0.003) },
+                                        { "ampDecay", decayKnob(0.45) },
+                                        { "ampSustain", 0.2f },
+                                        { "ampRelease", releaseKnob(0.3) },
+                                      } });
+
+        // The Multi oscillator, which nothing above turns up at all, swept by the second LFO. The
+        // name is a promise the test checks: a preset calling itself a sweep has to aim something
+        // at the filter.
+        list.push_back({ "Noise Sweep", {
+                                          { "vco1Waveform", Saw },
+                                          { "mixLevel1", 0.5f },
+                                          { "multiMode", MultiPeak },
+                                          { "multiLevel", 0.9f },
+                                          { "multiShape", 0.6f },
+                                          // High enough that the bottom of the sweep still passes
+                                          // something: the LFO runs at a quarter of a hertz, so a
+                                          // note can easily start anywhere in the cycle, and a base
+                                          // low enough to close on its way down would leave every
+                                          // other note silent.
+                                          { "lpfCutoff", cutoffKnob(4000.0) },
+                                          { "lpfResonance", 0.55f },
+                                          { "lfo2Target", LfoCutoff },
+                                          { "lfo2Rate", lfoRateKnob(0.3) },
+                                          { "lfo2Intensity", intensity(0.45) },
+                                          { "ampAttack", attackKnob(0.05) },
+                                          { "ampSustain", 1.0f },
+                                          { "ampRelease", releaseKnob(1.0) },
+                                        } });
+
+        // The Multi oscillator again, this time resonating and tracking the keyboard, so the noise
+        // has a pitch to it without any oscillator being turned up at all.
+        list.push_back({ "Wind", {
+                                   { "mixLevel1", 0.0f }, // Nothing but the Multi engine
+                                   { "multiMode", MultiPeak },
+                                   { "multiLevel", 1.0f },
+                                   { "multiShape", 0.75f },
+                                   { "multiKeyTrack", 0.8f },
+                                   { "lpfCutoff", cutoffKnob(5000.0) },
+                                   { "lfoTarget", LfoCutoff },
+                                   { "lfoRate", lfoRateKnob(0.4) },
+                                   { "lfoIntensity", intensity(0.45) },
+                                   { "ampAttack", attackKnob(0.18) },
+                                   { "ampSustain", 1.0f },
+                                   { "ampRelease", releaseKnob(1.4) },
+                                 } });
 
         return list;
     }();
