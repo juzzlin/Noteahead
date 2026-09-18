@@ -90,6 +90,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/BassSynthDialog_Filter.qml
     ${QML_BASE_DIR}/Dialogs/BassSynthDialog_Global.qml
     ${QML_BASE_DIR}/Dialogs/BassSynthDialog_Oscillator.qml
+    ${QML_BASE_DIR}/Dialogs/BassSynthDialog_Presets.qml
     ${QML_BASE_DIR}/Dialogs/ChorusDialog.qml
     ${QML_BASE_DIR}/Dialogs/ClipperDialog.qml
     ${QML_BASE_DIR}/Dialogs/ColumnSettingsDialog.qml

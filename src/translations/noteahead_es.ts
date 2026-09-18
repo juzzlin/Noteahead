@@ -808,6 +808,33 @@
     </message>
 </context>
 <context>
+    <name>BassSynthDialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation type="unfinished">Preajuste:</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation type="unfinished">Guardar</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A monophonic bass synthesizer with accent and slide</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ChorusDialog</name>
     <message>
         <source>Chorus Parameters (Slot %1)</source>

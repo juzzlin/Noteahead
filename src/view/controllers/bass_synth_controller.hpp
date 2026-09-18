@@ -59,6 +59,9 @@ public:
     bool setDevice(DeviceS device) override;
     std::shared_ptr<BassSynthDevice> bassSynthDevice() const;
 
+    QStringList factoryPresetNames() const override;
+    void loadFactoryPreset(int index) override;
+
     // Accessors
     int waveform() const;
     void setWaveform(int wave);

@@ -15,6 +15,8 @@
 
 #include "bass_synth_device.hpp"
 
+#include "bass_synth_presets.hpp"
+
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
 #include "../../common/utils.hpp"
@@ -201,6 +203,58 @@ void BassSynthDevice::processMidiPitchBend(uint16_t value, uint8_t)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     m_pitchBend = value;
+}
+
+void BassSynthDevice::processMidiProgramChange(uint8_t program, uint8_t)
+{
+    // Transport traffic: a program change in a song may move the whole panel, but the patch the
+    // user saved has to still be there when playback stops.
+    applyPreset(program, false);
+}
+
+void BassSynthDevice::loadPreset(int index)
+{
+    applyPreset(index, true);
+}
+
+void BassSynthDevice::applyPreset(int index, bool authored)
+{
+    {
+        const std::lock_guard<std::recursive_mutex> lock { mutex() };
+
+        const auto & presets = BassSynthPresets::presets();
+        if (index < 0 || index >= static_cast<int>(presets.size())) {
+            return;
+        }
+
+        // A preset is the whole panel, so everything it does not name goes back to its default
+        // first -- on the same layer the preset itself is about to be written to.
+        if (authored) {
+            reset();
+        } else {
+            for (auto && [name, p] : parameters()) {
+                p.setAutomationValue(p.defaultValue());
+            }
+        }
+
+        for (auto && [name, value] : presets[index].parameters) {
+            if (const auto p = parameter(name); p) {
+                if (authored) {
+                    p->get().setValue(value);
+                } else {
+                    p->get().setAutomationValue(value);
+                }
+            }
+        }
+
+        syncParameters();
+    }
+
+    if (authored) {
+        emit dataChanged();
+    } else {
+        emit parametersChanged();
+    }
 }
 
 void BassSynthDevice::processMidiAllNotesOff()

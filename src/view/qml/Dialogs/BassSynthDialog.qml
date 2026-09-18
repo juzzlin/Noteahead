@@ -71,6 +71,9 @@ AnimatedDialog {
         anchors.margins: 15
         spacing: 15
 
+        BassSynthDialog_Presets {
+        }
+
         RowLayout {
             id: mainRow
             Layout.fillWidth: true

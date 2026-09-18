@@ -5,6 +5,12 @@ Release date:
 
 New features:
 
+* Presets for the Bass Synth
+  - Ten patches from Deep Sub to Acid Squelch, an Init to get back, and a
+    Save of your own beside them
+  - A program change in a song loads a patch for as long as it plays,
+    leaving the one you saved untouched
+
 * Presets for the Delay and the Auto Ducker
   - Nine delay patches and seven ducker patches, and a Save of your own
     beside them

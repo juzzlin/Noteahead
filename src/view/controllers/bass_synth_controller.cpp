@@ -18,6 +18,7 @@
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
 #include "../../domain/devices/bass_synth_device.hpp"
+#include "../../domain/devices/bass_synth_presets.hpp"
 
 #include <QDebug>
 #include <cmath>
@@ -62,6 +63,23 @@ void BassSynthController::setWaveform(int wave)
 {
     if (m_device) {
         m_device->setWaveform(static_cast<PolyBlepOscillator::Waveform>(wave));
+    }
+}
+
+QStringList BassSynthController::factoryPresetNames() const
+{
+    QStringList names;
+    for (const auto & preset : BassSynthPresets::presets()) {
+        names.append(QString::fromStdString(preset.name));
+    }
+    return names;
+}
+
+void BassSynthController::loadFactoryPreset(int index)
+{
+    if (m_device) {
+        m_device->loadPreset(index);
+        requestSettings();
     }
 }
 

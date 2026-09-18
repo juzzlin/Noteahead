@@ -48,7 +48,13 @@ public:
     void processMidiNoteOff(uint8_t note) override;
     void processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t channel) override;
     void processMidiPitchBend(uint16_t value, uint8_t channel) override;
+    void processMidiProgramChange(uint8_t program, uint8_t channel) override;
     void processMidiAllNotesOff() override;
+
+    //! Loads a factory patch as the user's own choice: it becomes the patch, and it is what gets
+    //! saved. A program change in a song takes the same patch on the automation layer instead, so
+    //! that playback cannot bake itself into the project.
+    void loadPreset(int index);
 
     void processAudio(AudioContext & context) override;
     bool hasActiveAudio() const override;
@@ -100,6 +106,9 @@ protected:
     void syncParameters() override;
 
 private:
+    //! \param authored Whether the preset is the user's choice or a program change from a song.
+    void applyPreset(int index, bool authored);
+
     struct Voice
     {
         PolyBlepOscillator vco;
