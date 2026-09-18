@@ -29,26 +29,22 @@ RtaRenderer::RtaRenderer(QQuickItem * parent)
 {
 }
 
-QVariantList RtaRenderer::bands() const
+void RtaRenderer::setBandLevels(const std::vector<float> & levels)
 {
-    return m_bands;
-}
-
-void RtaRenderer::setBands(const QVariantList & bands)
-{
-    m_bands = bands;
+    m_bands = levels;
     update();
 }
 
-QVariantList RtaRenderer::bandPositions() const
-{
-    return m_bandPositions;
-}
-
-void RtaRenderer::setBandPositions(const QVariantList & positions)
+void RtaRenderer::setBandLayout(const std::vector<std::pair<float, float>> & positions, uint32_t generation)
 {
     m_bandPositions = positions;
+    m_layoutGeneration = generation;
     update();
+}
+
+uint32_t RtaRenderer::layoutGeneration() const
+{
+    return m_layoutGeneration;
 }
 
 int RtaRenderer::dbRange() const
@@ -137,7 +133,7 @@ double RtaRenderer::logFreqNorm(double freq)
 
 void RtaRenderer::paint(QPainter * painter)
 {
-    const int B = m_bands.size();
+    const int B = static_cast<int>(m_bands.size());
     if (B == 0) {
         painter->fillRect(boundingRect(), QColor("#111111"));
         return;
@@ -199,18 +195,18 @@ void RtaRenderer::paint(QPainter * painter)
     }
 
     // Bars — use per-band log-frequency positions when available, else equal spacing.
-    const bool hasPositions = (m_bandPositions.size() == B * 2);
+    const bool hasPositions = (static_cast<int>(m_bandPositions.size()) == B);
     painter->setClipRect(QRectF(plotX, plotY, plotW, plotH));
     for (int b = 0; b < B; b++) {
-        const float levelDb = std::clamp(m_bands[b].toFloat(), floorDb, 0.0f);
+        const float levelDb = std::clamp(m_bands[b], floorDb, 0.0f);
         const float t = (levelDb - floorDb) / (0.0f - floorDb);
         const qreal barH = t * plotH;
 
         const qreal xLo = hasPositions
-          ? plotX + m_bandPositions[b * 2].toDouble() * plotW
+          ? plotX + m_bandPositions[b].first * plotW
           : plotX + static_cast<qreal>(b) / B * plotW;
         const qreal xHi = hasPositions
-          ? plotX + m_bandPositions[b * 2 + 1].toDouble() * plotW
+          ? plotX + m_bandPositions[b].second * plotW
           : plotX + static_cast<qreal>(b + 1) / B * plotW;
         const qreal barW = std::max(1.0, xHi - xLo - 1.0);
         const qreal barY = plotY + plotH - barH;

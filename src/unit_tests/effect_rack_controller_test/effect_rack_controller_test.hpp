@@ -20,6 +20,7 @@ private slots:
     void test_eq8BandParametricPassThroughResponse_onePathBypassed_shouldBeFlat();
     void test_airBandEqResponse_shouldFollowTheBandThatIsBoosted();
     void test_airBandEqResponse_flatBands_shouldBeFlat();
+    void test_rtaUpdateRenderer_shouldHandTheAnalyzersLayoutToTheRenderer();
     void test_airBandEqResponse_wrongEffect_shouldBeEmpty();
     void initTestCase();
     void cleanupTestCase();

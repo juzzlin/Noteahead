@@ -41,15 +41,17 @@ EffectDialog {
 
     property var fpsIntervals: [67, 33, 16]
 
+    // The band count is what a project stores, so 96 was appended to the modes rather than slotted
+    // between 64 and 128. The panel shows them in the order a reader expects and maps back here.
+    property var bandCountModes: [0, 1, 3, 2]
+
     Timer {
         id: updateTimer
         interval: root.fpsIntervals[fpsCombo.currentIndex]
         running: root.visible && root.effectIndex >= 0
         repeat: true
-        onTriggered: {
-            renderer.bands = effectRackController.rtaBandMagnitudes(root.effectIndex);
-            renderer.bandPositions = effectRackController.rtaBandLogPositions(root.effectIndex);
-        }
+        // One call: it copies the levels into the renderer and the layout only when that moved.
+        onTriggered: effectRackController.rtaUpdateRenderer(root.effectIndex, renderer)
     }
 
     onVisibleChanged: {
@@ -65,7 +67,7 @@ EffectDialog {
         renderer.dbRange = dbRangeValue();
         renderer.showPinkNoise = effectRackController.parameterValue(effectIndex, effectRackController.rtaShowPinkNoiseKey()) >= 0.5;
         renderer.pinkNoiseLevel = effectRackController.parameterValue(effectIndex, effectRackController.rtaPinkNoiseLevelKey());
-        renderer.bandPositions = effectRackController.rtaBandLogPositions(effectIndex);
+        effectRackController.rtaUpdateRenderer(effectIndex, renderer);
     }
 
     function dbRangeValue() {
@@ -100,10 +102,10 @@ EffectDialog {
                 Label { text: qsTr("Bands"); color: "#aaaaaa"; font.pixelSize: 11 }
                 ComboBox {
                     id: bandCountCombo
-                    model: ["32", "64", "128"]
-                    currentIndex: Math.round(effectRackController.parameterValue(root.effectIndex, effectRackController.rtaBandCountKey()))
+                    model: ["32", "64", "96", "128"]
+                    currentIndex: root.bandCountModes.indexOf(Math.round(effectRackController.parameterValue(root.effectIndex, effectRackController.rtaBandCountKey())))
                     onActivated: {
-                        effectRackController.setParameterValue(root.effectIndex, effectRackController.rtaBandCountKey(), currentIndex);
+                        effectRackController.setParameterValue(root.effectIndex, effectRackController.rtaBandCountKey(), root.bandCountModes[currentIndex]);
                     }
                     Universal.theme: Universal.Dark
                     implicitWidth: 80
@@ -167,7 +169,7 @@ EffectDialog {
                 ComboBox {
                     id: fpsCombo
                     model: ["15", "30", "60"]
-                    currentIndex: 1
+                    currentIndex: 2
                     Universal.theme: Universal.Dark
                     implicitWidth: 70
                 }

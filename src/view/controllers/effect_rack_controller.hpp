@@ -469,8 +469,17 @@ public:
     Q_INVOKABLE float dbtpMeterTruePeakHoldL(quint32 effectIndex) const;
     Q_INVOKABLE float dbtpMeterTruePeakHoldR(quint32 effectIndex) const;
 
-    Q_INVOKABLE QVariantList rtaBandMagnitudes(quint32 effectIndex) const;
-    Q_INVOKABLE QVariantList rtaBandLogPositions(quint32 effectIndex) const;
+    //! Copies one frame of analysis straight into @p renderer, layout included when it has moved.
+    //!
+    //! One call rather than a list of levels and a list of positions fetched separately: the levels
+    //! are wanted on every frame and the positions only when the band count or the sample rate
+    //! changes, and neither needs to become a list of QVariants to cross a dozen pixels of C++.
+    //!
+    //! Declared as QObject rather than as the renderer it wants: moc records a parameter it cannot
+    //! see the declaration of by the name as spelled here, and QML then looks that name up against
+    //! the fully qualified one the class is registered under and finds nothing, which fails the
+    //! call rather than the build. QObject is a type it always knows.
+    Q_INVOKABLE void rtaUpdateRenderer(quint32 effectIndex, QObject * renderer) const;
     Q_INVOKABLE QString rtaBandCountKey() const;
     Q_INVOKABLE QString rtaDbRangeKey() const;
     Q_INVOKABLE QString rtaShowPinkNoiseKey() const;

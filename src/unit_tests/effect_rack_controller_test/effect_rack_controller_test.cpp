@@ -21,11 +21,13 @@
 #include "../../domain/effects/saturator.hpp"
 #include "../../domain/utility/dbtp_meter.hpp"
 #include "../../domain/utility/lufs_meter.hpp"
+#include "../../domain/utility/rta.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 #include "../../view/controllers/effect_rack_controller.hpp"
+#include "../../view/qml/Dialogs/rta_renderer.hpp"
 
 #include <QBuffer>
 #include <QSignalSpy>
@@ -473,6 +475,36 @@ void EffectRackControllerTest::test_airBandEqResponse_flatBands_shouldBeFlat()
     for (auto && point : response) {
         QVERIFY2(std::abs(point.toDouble()) < 0.01, qPrintable(QString::number(point.toDouble())));
     }
+}
+
+void EffectRackControllerTest::test_rtaUpdateRenderer_shouldHandTheAnalyzersLayoutToTheRenderer()
+{
+    const auto engine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(engine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+    setUpInsertRackWith(controller, Rta::typeIdString());
+
+    RtaRenderer renderer;
+    QCOMPARE(renderer.layoutGeneration(), 0u);
+
+    // Invoked by name rather than called, because the dialog reaches this through the meta-object
+    // and a direct call proves nothing about that. A parameter whose declaration moc cannot see is
+    // recorded by the name as spelled, which QML then fails to resolve against the fully qualified
+    // name the class is registered under: the call is dropped at runtime and the analyzer draws
+    // nothing at all, with the build and a direct call both perfectly happy.
+    QVERIFY(QMetaObject::invokeMethod(&controller, "rtaUpdateRenderer", Q_ARG(quint32, 0), Q_ARG(QObject *, &renderer)));
+
+    // The whole path a frame takes: a renderer that never hears about the layout draws every bar in
+    // the wrong place.
+    QVERIFY(renderer.layoutGeneration() > 0u);
+
+    // A slot with no analyzer in it, something that is not a renderer, and nothing at all are all
+    // quiet no-ops.
+    controller.rtaUpdateRenderer(1, &renderer);
+    QObject stranger;
+    controller.rtaUpdateRenderer(0, &stranger);
+    controller.rtaUpdateRenderer(0, nullptr);
 }
 
 void EffectRackControllerTest::test_airBandEqResponse_wrongEffect_shouldBeEmpty()

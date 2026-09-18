@@ -57,6 +57,7 @@
 #include "../../domain/utility/stereo_field_meter.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
+#include "../qml/Dialogs/rta_renderer.hpp"
 #include "knob_controller.hpp"
 
 #include <QDateTime>
@@ -2543,37 +2544,25 @@ float EffectRackController::dbtpMeterTruePeakHoldR(quint32 effectIndex) const
     return dbtpFloor;
 }
 
-QVariantList EffectRackController::rtaBandMagnitudes(quint32 effectIndex) const
+void EffectRackController::rtaUpdateRenderer(quint32 effectIndex, QObject * rendererObject) const
 {
-    if (const auto rack = currentRack()) {
-        if (const auto effect = rack->get().effect(effectIndex)) {
-            if (const auto rta = std::dynamic_pointer_cast<Rta>(effect)) {
-                QVariantList list;
-                for (const float v : rta->bandMagnitudesDb()) {
-                    list.append(v);
-                }
-                return list;
-            }
-        }
+    const auto renderer = qobject_cast<RtaRenderer *>(rendererObject);
+    if (!renderer) {
+        return;
     }
-    return {};
-}
 
-QVariantList EffectRackController::rtaBandLogPositions(quint32 effectIndex) const
-{
     if (const auto rack = currentRack()) {
         if (const auto effect = rack->get().effect(effectIndex)) {
             if (const auto rta = std::dynamic_pointer_cast<Rta>(effect)) {
-                QVariantList list;
-                for (const auto & [xLo, xHi] : rta->bandLogPositions()) {
-                    list.append(xLo);
-                    list.append(xHi);
+                // Layout first: a frame drawn with the levels of the new band count against the
+                // positions of the old one would put every bar in the wrong place.
+                if (const auto generation = rta->layoutGeneration(); generation != renderer->layoutGeneration()) {
+                    renderer->setBandLayout(rta->bandLogPositions(), generation);
                 }
-                return list;
+                renderer->setBandLevels(rta->bandMagnitudesDb());
             }
         }
     }
-    return {};
 }
 
 QString EffectRackController::rtaBandCountKey() const

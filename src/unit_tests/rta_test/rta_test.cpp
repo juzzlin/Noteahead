@@ -23,7 +23,9 @@
 
 #include <algorithm>
 #include <cmath>
+#include <memory>
 #include <numbers>
+#include <random>
 #include <vector>
 
 namespace noteahead {
@@ -53,6 +55,81 @@ static void feedBuffer(Rta & rta, std::vector<double> & buf, uint32_t sampleRate
     ctx.frameCount = static_cast<uint32_t>(buf.size() / 2);
     ctx.sampleRate = sampleRate;
     rta.process(ctx);
+}
+
+//! An analyzer in @p bandCountMode, run far enough to have adopted it.
+//!
+//! The mode only reaches the bands when the audio thread next runs, so anything asked of the
+//! analyzer before that describes the mode it is leaving.
+static std::unique_ptr<Rta> makeRta(float bandCountMode)
+{
+    auto rta = std::make_unique<Rta>();
+    rta->setAnalysisEnabled(true);
+    if (auto p = rta->parameter(Constants::NahdXml::xmlKeyBandCount().toStdString()); p) {
+        p->get().update(bandCountMode);
+    }
+    rta->sync();
+    auto warmup = makeSilentBuffer(64);
+    feedBuffer(*rta, warmup);
+    return rta;
+}
+
+//! Index of the bar covering @p freq, from the normalised log-frequency spans the analyzer draws at.
+static size_t bandAt(const Rta & rta, double freq)
+{
+    const auto positions = rta.bandLogPositions();
+    const double x = std::log10(freq / 20.0) / std::log10(1000.0);
+    for (size_t i = 0; i < positions.size(); i++) {
+        if (x >= positions[i].first && x < positions[i].second) {
+            return i;
+        }
+    }
+    return 0;
+}
+
+static void feedTone(Rta & rta, double freq, double & phase, uint32_t frames)
+{
+    std::vector<double> buf(frames * 2);
+    for (uint32_t i = 0; i < frames; i++) {
+        const double s = 0.5 * std::sin(phase);
+        phase += 2.0 * std::numbers::pi * freq / DefaultSampleRate;
+        buf[i * 2] = s;
+        buf[i * 2 + 1] = s;
+    }
+    feedBuffer(rta, buf);
+}
+
+//! Milliseconds a tone at @p freq takes to bring its own bar within 3 dB of where it settles.
+static double measureResponseMs(double freq)
+{
+    constexpr uint32_t blockFrames = 64;
+
+    auto settled = makeRta(2.0f);
+    const auto band = bandAt(*settled, freq);
+    double phase = 0.0;
+    for (uint32_t i = 0; i < DefaultSampleRate * 3 / blockFrames; i++) {
+        feedTone(*settled, freq, phase, blockFrames);
+    }
+    const double steadyDb = settled->bandMagnitudesDb()[band];
+
+    auto fresh = makeRta(2.0f);
+    for (uint32_t i = 0; i < DefaultSampleRate * 2 / blockFrames; i++) {
+        auto silence = makeSilentBuffer(blockFrames);
+        feedBuffer(*fresh, silence);
+    }
+
+    phase = 0.0;
+    uint32_t blocks = 0;
+    const uint32_t maxBlocks = DefaultSampleRate * 3 / blockFrames;
+    for (uint32_t i = 0; i < maxBlocks; i++) {
+        feedTone(*fresh, freq, phase, blockFrames);
+        blocks++;
+        if (fresh->bandMagnitudesDb()[band] > steadyDb - 3.0) {
+            break;
+        }
+    }
+
+    return 1000.0 * blocks * blockFrames / DefaultSampleRate;
 }
 
 void RtaTest::test_typeId_shouldReturnExpectedString()
@@ -176,6 +253,71 @@ void RtaTest::test_bandCount_mode64_shouldIncreaseBandCount()
 
     const int newCount = static_cast<int>(rta.bandMagnitudesDb().size());
     QVERIFY(newCount > initialCount);
+}
+
+void RtaTest::test_bandCount_mode96_shouldProduceNinetySixBars()
+{
+    // 96 is the mode that was appended after 128, so this is also what says the stored value still
+    // means what it meant: a project saved in 128-band mode must not come back as 96.
+    QCOMPARE(makeRta(3.0f)->bandMagnitudesDb().size(), size_t { 96 });
+    QCOMPARE(makeRta(2.0f)->bandMagnitudesDb().size(), size_t { 128 });
+}
+
+void RtaTest::test_response_highBand_shouldSettleSoonerThanLowBand()
+{
+    // The point of analysing each band at its own resolution. A bar at 8 kHz is four hundred times
+    // wider than one at 30 Hz and has no use for the window the bottom of the display needs, so it
+    // must not be made to wait for it. The low bar is measured too, because the bound that matters
+    // is the ratio: the bottom is slow for reasons no analyzer can argue with.
+    const double highMs = measureResponseMs(8000.0);
+    const double lowMs = measureResponseMs(120.0);
+
+    QVERIFY2(highMs < 40.0, qPrintable(QString("8 kHz took %1 ms").arg(highMs)));
+    QVERIFY2(highMs * 4.0 < lowMs, qPrintable(QString("8 kHz took %1 ms against %2 ms at 120 Hz").arg(highMs).arg(lowMs)));
+}
+
+void RtaTest::test_bands_whiteNoise_shouldNotStepWhereResolutionChanges()
+{
+    auto rta = makeRta(2.0f);
+
+    std::mt19937 rng { 4242 };
+    std::uniform_real_distribution<double> dist { -0.3, 0.3 };
+    constexpr uint32_t blockFrames = 256;
+
+    // Averaged over time as well as over bins: one reading of a band holding a couple of bins of
+    // noise varies by several dB on its own, which is not what this is looking for.
+    std::vector<double> sums(rta->bandMagnitudesDb().size(), 0.0);
+    int readings = 0;
+    for (uint32_t i = 0; i < DefaultSampleRate * 6 / blockFrames; i++) {
+        std::vector<double> buf(blockFrames * 2);
+        for (uint32_t j = 0; j < blockFrames; j++) {
+            const double s = dist(rng);
+            buf[j * 2] = s;
+            buf[j * 2 + 1] = s;
+        }
+        feedBuffer(*rta, buf);
+        if (i > DefaultSampleRate / blockFrames) {
+            const auto levels = rta->bandMagnitudesDb();
+            for (size_t b = 0; b < sums.size(); b++) {
+                sums[b] += levels[b];
+            }
+            readings++;
+        }
+    }
+
+    // Noise of one colour must draw one curve. Neighbouring bars are measured by different windows
+    // wherever the resolution changes, and a level that did not survive that change would draw a
+    // step at the crossover rather than the even rise log-spaced bands give white noise. Bars below
+    // a few hundred hertz hold a single bin, where one reading differs from the next for reasons
+    // that have nothing to do with which window produced it.
+    const auto positions = rta->bandLogPositions();
+    for (size_t i = 1; i < sums.size(); i++) {
+        if (positions[i].first < std::log10(300.0 / 20.0) / std::log10(1000.0)) {
+            continue;
+        }
+        const double step = std::abs(sums[i] - sums[i - 1]) / readings;
+        QVERIFY2(step < 2.5, qPrintable(QString("bars %1 and %2 are %3 dB apart").arg(i - 1).arg(i).arg(step)));
+    }
 }
 
 } // namespace noteahead

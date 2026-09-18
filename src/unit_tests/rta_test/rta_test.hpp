@@ -35,6 +35,9 @@ private slots:
     void test_process_audioContext_analysisEnabled_sine1kHz_shouldDetectEnergy();
     void test_reset_shouldClearBandMagnitudesToFloor();
     void test_bandCount_mode64_shouldIncreaseBandCount();
+    void test_bandCount_mode96_shouldProduceNinetySixBars();
+    void test_response_highBand_shouldSettleSoonerThanLowBand();
+    void test_bands_whiteNoise_shouldNotStepWhereResolutionChanges();
 };
 
 } // namespace noteahead

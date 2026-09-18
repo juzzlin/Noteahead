@@ -96,6 +96,11 @@ New features:
   - One pair for the whole device; 12 dB/oct stays the default, so nothing
     you have already sounds different
 
+* 96 bands in the RTA, and a display that keeps up with the music
+  - Every band is measured at its own resolution now: above 400 Hz the bars
+    answer in 20-60 ms where they used to take 100-390
+  - Half the CPU of the analysis it replaces, and 60 frames a second by default
+
 Bug fixes:
 
 * The Air Band EQ's 2.5 kHz band is a bell

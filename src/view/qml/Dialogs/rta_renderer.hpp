@@ -17,7 +17,10 @@
 #define RTA_RENDERER_HPP
 
 #include <QQuickPaintedItem>
-#include <QVariantList>
+
+#include <cstdint>
+#include <utility>
+#include <vector>
 
 namespace noteahead {
 
@@ -25,8 +28,6 @@ class RtaRenderer : public QQuickPaintedItem
 {
     Q_OBJECT
 
-    Q_PROPERTY(QVariantList bands READ bands WRITE setBands NOTIFY bandsChanged)
-    Q_PROPERTY(QVariantList bandPositions READ bandPositions WRITE setBandPositions NOTIFY bandPositionsChanged)
     Q_PROPERTY(int dbRange READ dbRange WRITE setDbRange NOTIFY dbRangeChanged)
     Q_PROPERTY(bool showPinkNoise READ showPinkNoise WRITE setShowPinkNoise NOTIFY showPinkNoiseChanged)
     Q_PROPERTY(float pinkNoiseLevel READ pinkNoiseLevel WRITE setPinkNoiseLevel NOTIFY pinkNoiseLevelChanged)
@@ -35,11 +36,19 @@ class RtaRenderer : public QQuickPaintedItem
 public:
     explicit RtaRenderer(QQuickItem * parent = nullptr);
 
-    QVariantList bands() const;
-    void setBands(const QVariantList & bands);
+    //! The levels to draw, one per bar, in dB.
+    //!
+    //! Taken as a vector straight from the analyzer rather than through a QML list: this is called
+    //! sixty times a second on up to 128 bars, and boxing every one of them into a QVariant on the
+    //! way through the engine costs more than drawing them does.
+    void setBandLevels(const std::vector<float> & levels);
 
-    QVariantList bandPositions() const;
-    void setBandPositions(const QVariantList & positions);
+    //! Where the bars sit, as normalised log-frequency spans, and which layout they came from.
+    void setBandLayout(const std::vector<std::pair<float, float>> & positions, uint32_t generation);
+
+    //! The layout generation last handed to setBandLayout(), so the caller can skip sending one
+    //! that has not moved.
+    uint32_t layoutGeneration() const;
 
     int dbRange() const;
     void setDbRange(int dbRange);
@@ -56,8 +65,6 @@ public:
     void paint(QPainter * painter) override;
 
 signals:
-    void bandsChanged();
-    void bandPositionsChanged();
     void dbRangeChanged();
     void showPinkNoiseChanged();
     void pinkNoiseLevelChanged();
@@ -67,8 +74,9 @@ private:
     static QColor barColor(float levelDb, float floorDb, const QColor & accent);
     static double logFreqNorm(double freq);
 
-    QVariantList m_bands;
-    QVariantList m_bandPositions; // flat: [xLo0, xHi0, xLo1, xHi1, ...]
+    std::vector<float> m_bands;
+    std::vector<std::pair<float, float>> m_bandPositions;
+    uint32_t m_layoutGeneration = 0;
     int m_dbRange = 60;
     bool m_showPinkNoise = true;
     float m_pinkNoiseLevel = -18.0f;
