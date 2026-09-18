@@ -228,6 +228,12 @@ private:
     FrameAnchor m_frameAnchor;
     int64_t m_previousBlockNanoseconds { 0 };
     int64_t m_maxBlockGapNanoseconds { 0 };
+    //! The song tempo, as the last setBpm() left it. Kept here so that every block can be stamped
+    //! with it: AudioContext carries a tempo field that no backend ever filled in, so everything
+    //! reading it -- a device's sequencer, a rack on a sampler voice, the effects below -- was
+    //! running at the field's default of 120 whatever the song said.
+    std::atomic<float> m_bpm { 120.0f };
+
     std::atomic<bool> m_isExclusive { false };
     std::atomic<bool> m_playbackThreadingEnabled { false };
     //! Scheduling of the thread that drives playback, sampled once from process(). Threading

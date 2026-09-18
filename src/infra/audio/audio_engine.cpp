@@ -246,7 +246,14 @@ void processEffectTask(void * context, size_t taskIndex, size_t /*workerIndex*/)
         return;
     }
 
-    if (!effectContext.sendBusHasSignal->at(taskIndex) && !effectContext.effectActiveFlags->at(taskIndex)) {
+    // A quiet bus and a quiet return are not enough to stop running the chain. A delay is silent
+    // between its taps, so stopping there freezes the line with the echo still in it and the echo
+    // never arrives -- the same trap a device's insert rack avoids by asking insertEffectsSettled().
+    const auto isUnsettled = [&isRunnable](const EffectRack::EffectS & candidate) {
+        return isRunnable(candidate) && !candidate->isSettled();
+    };
+    if (!effectContext.sendBusHasSignal->at(taskIndex) && !effectContext.effectActiveFlags->at(taskIndex)
+        && !isUnsettled(effect) && std::ranges::none_of(chain, isUnsettled)) {
         std::fill(wetBuffer.begin(), wetBuffer.begin() + bufferSize, 0.0);
         return;
     }
@@ -547,6 +554,7 @@ AudioEngine::DeviceNames AudioEngine::deviceNames() const
 void AudioEngine::setBpm(float bpm)
 {
     std::lock_guard<std::mutex> lock { m_mutex };
+    m_bpm.store(bpm);
     m_sendEffectRack->setBpm(bpm);
     m_insertEffectRack->setBpm(bpm);
     for (auto & chain : m_sendChainRacks) {
@@ -574,6 +582,10 @@ void AudioEngine::process(AudioContext & context)
     // sees the same start and a scheduled event lands on the frame it names no matter which lane
     // picked the device up.
     context.startFrame = m_framesRendered.load(std::memory_order_relaxed);
+    // Stamped here rather than by each backend: the RtAudio and JACK callbacks and the offline
+    // render worker all build their context without one, and every context derived below -- each
+    // device's, each send bus's -- copies this field.
+    context.bpm = static_cast<double>(m_bpm.load());
     // Refresh the cached send-effects snapshot only when the rack actually changed, so the common
     // case avoids copying the vector (and bumping shared_ptr refcounts) under a lock every callback.
     if (const auto version = m_sendEffectRack->version(); version != m_sendEffectsVersion) {
@@ -745,7 +757,16 @@ void AudioEngine::process(AudioContext & context)
         size_t activeSendCount = 0;
         for (size_t i = 0; i < sendCount; i++) {
             m_sendBusHasSignal[i] = bufferContainsSignal(m_sendBusBuffers[i], bufferSize) ? 1 : 0;
-            if (busHasWork(i) && (m_sendBusHasSignal[i] || m_effectActiveFlags[i])) {
+            const auto busUnsettled = [this, &effects](size_t index) {
+                const auto holding = [](const EffectRack::EffectS & candidate) {
+                    return candidate && candidate->enabled() && !candidate->isSettled();
+                };
+                if (holding(effects[index])) {
+                    return true;
+                }
+                return index < m_sendChainSnapshots.size() && std::ranges::any_of(m_sendChainSnapshots[index], holding);
+            };
+            if (busHasWork(i) && (m_sendBusHasSignal[i] || m_effectActiveFlags[i] || busUnsettled(i))) {
                 activeSendCount++;
             }
         }

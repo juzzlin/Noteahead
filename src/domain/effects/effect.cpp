@@ -126,6 +126,17 @@ void Effect::process(AudioContext & context)
 
     setOversampleFactor(context.oversampleFactor);
 
+    // The tempo this block is being rendered at, taken from the block for the same reason the
+    // oversample factor is. The racks also push the tempo when it moves, but an effect added
+    // between two of those would otherwise keep the 120 it was constructed with until the tempo
+    // next moved -- which a synced delay gives away the moment it is added.
+    //
+    // Guarded on an actual change: setBpm() is virtual, and an effect that syncs to it may mark its
+    // whole parameter set for recomputation, which is not something to do on every block.
+    if (const auto blockBpm = static_cast<float>(context.bpm); std::abs(blockBpm - m_bpm) > 0.001f) {
+        setBpm(blockBpm);
+    }
+
     const auto blend = blendState();
     if (!blend.solo && !blend.blends) {
         processBlock(context);

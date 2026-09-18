@@ -52,6 +52,17 @@ New features:
 
 Bug fixes:
 
+* Tempo-synced effects follow the song's tempo
+  - The tempo was never written into the audio block at all, so anything
+    reading it there ran at a fixed 120 whatever the song said
+  - An effect dropped into a rack kept 120 until the tempo next changed,
+    which a synced delay on a send gave away at once
+
+* A delay on a send bus keeps its echoes
+  - The bus stopped whenever its input and its return were both quiet,
+    which is precisely what a delay looks like between two taps
+  - A short sound sent to a delay had its echoes swallowed
+
 * Side chain sources work outside a device's own inserts
   - A ducker or a compressor on a send bus or in the master rack was never
     given the device outputs, so the source it named was ignored and it
