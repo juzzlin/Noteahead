@@ -15,6 +15,8 @@
 
 #include "delay.hpp"
 
+#include "delay_presets.hpp"
+
 #include "../../common/constants.hpp"
 #include "../dsp/audio_context.hpp"
 
@@ -39,6 +41,11 @@ Delay::Delay()
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString(), 0.25f, 0, 10000, 2500, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayFeedbackLpf().toStdString(), 1.0f, 0, 10000, 10000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayFeedbackHpf().toStdString(), 0.0f, 0, 10000, 0, 100 });
+}
+
+const EffectPresetList & Delay::factoryPresets() const
+{
+    return DelayPresets::presets();
 }
 
 void Delay::sync()

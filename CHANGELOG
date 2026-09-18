@@ -5,6 +5,12 @@ Release date:
 
 New features:
 
+* Presets for the Delay and the Auto Ducker
+  - Nine delay patches and seven ducker patches, and a Save of your own
+    beside them
+  - A preset never carries a side-chain source: the device it names belongs
+    to the project, not to the patch
+
 * Loudness metering per device in the Mixer
   - Each strip now shows IN, the level Gain is set against, beside OUT, the
     loudness the device actually contributes, in LUFS

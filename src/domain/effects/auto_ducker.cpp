@@ -14,7 +14,9 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "auto_ducker.hpp"
+
 #include "../dsp/audio_context.hpp"
+#include "auto_ducker_presets.hpp"
 
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
@@ -168,6 +170,11 @@ void AutoDucker::reset()
     m_holdCounter = 0;
     m_sideChainLpfL.reset();
     m_sideChainLpfR.reset();
+}
+
+const EffectPresetList & AutoDucker::factoryPresets() const
+{
+    return AutoDuckerPresets::presets();
 }
 
 void AutoDucker::sync()

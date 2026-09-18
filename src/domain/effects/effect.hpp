@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "../dsp/dsp_component.hpp"
@@ -106,6 +107,16 @@ public:
 
     //! Applies the built-in patch at @p index. Returns false when there is no such patch.
     bool applyFactoryPreset(size_t index);
+
+    //! Parameters a preset neither carries nor overwrites, and what they are set to right now.
+    //!
+    //! The side-chain source is a patch cable rather than a sound: it names a device slot in this
+    //! project, and a preset saved in another one knows nothing about it. Without this a preset
+    //! would quietly unplug a ducker -- every parameter goes back to its default first, and the
+    //! default source is none at all.
+    using PresetExemptValues = std::vector<std::pair<std::string, float>>;
+    PresetExemptValues presetExemptValues() const;
+    void restorePresetExemptValues(const PresetExemptValues & values);
 
     //! Applies a stored preset, with @p reader sitting on the preset's <Parameters> element.
     //!

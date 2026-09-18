@@ -68,12 +68,14 @@ set(HEADER_FILES
     effects/all_pass_filter.hpp
     effects/analog_fuzz.hpp
     effects/auto_ducker.hpp
+    effects/auto_ducker_presets.hpp
     effects/auto_filter.hpp
     effects/auto_panner.hpp
     effects/bass_grinder.hpp
     effects/clipper.hpp
     effects/compressor.hpp
     effects/delay.hpp
+    effects/delay_presets.hpp
     effects/dimension.hpp
     effects/early_reflections.hpp
     effects/drive.hpp
@@ -220,6 +222,7 @@ set(SOURCE_FILES
     effects/all_pass_filter.cpp
     effects/analog_fuzz.cpp
     effects/auto_ducker.cpp
+    effects/auto_ducker_presets.cpp
     effects/auto_filter.cpp
     effects/auto_panner.cpp
     effects/bass_grinder.cpp
@@ -227,6 +230,7 @@ set(SOURCE_FILES
     effects/clipper.cpp
     effects/compressor.cpp
     effects/delay.cpp
+    effects/delay_presets.cpp
     effects/dimension.cpp
     effects/early_reflections.cpp
     effects/drive.cpp

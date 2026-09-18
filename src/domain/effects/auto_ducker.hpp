@@ -42,6 +42,8 @@ public:
     void sync() override;
     bool isSettled() const override;
 
+    const EffectPresetList & factoryPresets() const override;
+
     std::optional<size_t> sidechainSourceDeviceIndex() const override;
 
     //! Gain currently applied, in dB. Negative while ducking, positive while boosting.

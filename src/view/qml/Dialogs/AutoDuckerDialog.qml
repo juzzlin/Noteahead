@@ -49,6 +49,10 @@ EffectDialog {
             width: dialogScrollView.availableWidth
             spacing: 16
 
+            EffectPresetRow {
+                effectIndex: root.effectIndex
+            }
+
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 30

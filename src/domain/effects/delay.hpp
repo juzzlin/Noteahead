@@ -50,6 +50,8 @@ public:
     //! of silence has been written into the line.
     bool isSettled() const override;
 
+    const EffectPresetList & factoryPresets() const override;
+
     void setType(Type type);
     void setTime(double seconds);
     void setFeedback(double feedback);

@@ -313,12 +313,40 @@ const EffectPresetList & Effect::factoryPresets() const
     return none;
 }
 
+Effect::PresetExemptValues Effect::presetExemptValues() const
+{
+    // One entry today, and a list rather than a special case so that the next routing control to
+    // appear on an effect is exempted by being named here.
+    static const std::vector<std::string> exemptKeys {
+        Constants::NahdXml::xmlKeySideChainSourceDevice().toStdString()
+    };
+
+    PresetExemptValues values;
+    for (const auto & name : exemptKeys) {
+        if (const auto p = parameter(name); p) {
+            values.emplace_back(name, p->get().value());
+        }
+    }
+    return values;
+}
+
+void Effect::restorePresetExemptValues(const PresetExemptValues & values)
+{
+    for (const auto & [name, value] : values) {
+        if (const auto p = parameter(name); p) {
+            p->get().setValue(value);
+        }
+    }
+}
+
 bool Effect::applyFactoryPreset(size_t index)
 {
     const auto & presets = factoryPresets();
     if (index >= presets.size()) {
         return false;
     }
+
+    const auto exempt = presetExemptValues();
 
     resetParametersToDefaults();
 
@@ -328,6 +356,8 @@ bool Effect::applyFactoryPreset(size_t index)
         }
     }
 
+    restorePresetExemptValues(exempt);
+
     sync();
 
     return true;
@@ -335,8 +365,15 @@ bool Effect::applyFactoryPreset(size_t index)
 
 void Effect::applyPresetParametersFromXml(ProjectReader & reader)
 {
+    // Restored after the read as well as the reset: a preset file carries every parameter the
+    // effect had when it was saved, the source among them, and that slot number means nothing here.
+    const auto exempt = presetExemptValues();
+
     resetParametersToDefaults();
     deserializeParametersFromXml(reader);
+
+    restorePresetExemptValues(exempt);
+
     sync();
 }
 
