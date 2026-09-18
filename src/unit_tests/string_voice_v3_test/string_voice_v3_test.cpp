@@ -27,9 +27,9 @@
 #include <limits>
 #include <numbers>
 
+#include <algorithm>
 #include <array>
 #include <cmath>
-#include <algorithm>
 #include <numeric>
 #include <vector>
 

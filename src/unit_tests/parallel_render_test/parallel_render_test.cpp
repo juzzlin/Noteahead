@@ -15,19 +15,18 @@
 
 #include "parallel_render_test.hpp"
 
+#include "../../domain/devices/device_factory.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/string_ensemble_device.hpp"
 #include "../../domain/devices/sub_mixer_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/wavetable_synth_device.hpp"
-#include "../../domain/devices/device_factory.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/effect_rack.hpp"
 #include "../../domain/effects/reverb.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 
 #include "../../application/service/automation_service.hpp"
-#include "../../infra/data_service.hpp"
 #include "../../application/service/device_service.hpp"
 #include "../../application/service/editor_service.hpp"
 #include "../../application/service/mixer_service.hpp"
@@ -41,6 +40,7 @@
 #include "../../domain/tracker/instrument.hpp"
 #include "../../domain/tracker/note_data.hpp"
 #include "../../domain/tracker/song.hpp"
+#include "../../infra/data_service.hpp"
 
 #include <QTest>
 
@@ -303,10 +303,10 @@ void ParallelRenderTest::test_songLoad_realTimeBuffers_shouldReportTiming()
         qInfo().noquote() << "";
         qInfo().noquote() << QString { "burst of %1 (%2 ms deadline):" }.arg(burst).arg(burst * deadlineMs, 0, 'f', 2);
         qInfo().noquote() << QString { "  p50 %1 ms  p95 %2 ms  max %3 ms (%4 %% of burst deadline)" }
-                                 .arg(burstMs[burstMs.size() / 2], 0, 'f', 2)
-                                 .arg(burstMs[static_cast<size_t>(burstMs.size() * 0.95)], 0, 'f', 2)
-                                 .arg(burstMs.back(), 0, 'f', 2)
-                                 .arg(100.0 * burstMs.back() / (burst * deadlineMs), 0, 'f', 1);
+                               .arg(burstMs[burstMs.size() / 2], 0, 'f', 2)
+                               .arg(burstMs[static_cast<size_t>(burstMs.size() * 0.95)], 0, 'f', 2)
+                               .arg(burstMs.back(), 0, 'f', 2)
+                               .arg(100.0 * burstMs.back() / (burst * deadlineMs), 0, 'f', 1);
     }
 }
 
