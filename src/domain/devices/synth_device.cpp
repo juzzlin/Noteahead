@@ -67,12 +67,13 @@ void SynthDevice::Voice::triggerSynced(const Trigger & trigger)
 
 void SynthDevice::Voice::triggerFree(const Trigger & trigger, double randomPhase)
 {
-    // VCO4's offset is not the next third: a fourth one would land on 0.99, which is VCO1 again. Its
-    // own half turn is simply the largest gap left, and the three that were here first cannot move
-    // without changing how every patch that predates VCO4 starts a note.
+    // VCO4 takes the largest gap the three thirds leave rather than the next third, which would be
+    // 0.99 and is VCO1 again. Not half a turn either, tempting as the remaining gap looks: half a
+    // turn is a whole one at twice the frequency, so an oscillator an octave above another lands in
+    // anti-phase with it and the two lose their shared partial. A sixth costs nothing of the sort.
     const auto phases = active
       ? std::nullopt
-      : std::optional<Phases> { Phases { randomPhase, std::fmod(randomPhase + 0.33, 1.0), std::fmod(randomPhase + 0.66, 1.0), std::fmod(randomPhase + 0.5, 1.0) } };
+      : std::optional<Phases> { Phases { randomPhase, std::fmod(randomPhase + 0.33, 1.0), std::fmod(randomPhase + 0.66, 1.0), std::fmod(randomPhase + 1.0 / 6.0, 1.0) } };
 
     // Envelopes restart on the same condition as the phases: a voice that is not already sounding
     // is starting a note from nothing and must start its envelopes from nothing too. A voice is
