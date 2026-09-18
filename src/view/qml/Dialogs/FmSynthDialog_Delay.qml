@@ -62,8 +62,11 @@ ColumnLayout {
             Knob {
                 id: delayTimeKnob
                 label: qsTr("Time")
-                mapping: "cubic"
-                mapMin: 1
+                // Linear over the delay's full ten seconds, because that is what the device does
+                // with the parameter. Reading it out cubically showed 1251 ms at mid-travel while
+                // the delay itself was 5000.
+                mapping: "linear"
+                mapMin: 0
                 mapMax: 10000
                 to: 10000
                 suffix: "ms"

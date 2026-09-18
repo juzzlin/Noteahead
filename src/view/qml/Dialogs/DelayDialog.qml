@@ -116,11 +116,15 @@ EffectDialog {
                     Knob {
                         label: qsTr("Time")
                         suffix: "ms"
-                        mapping: "cubic"
-                        mapMin: 1
+                        // Linear over the line's full ten seconds, because that is exactly what the
+                        // effect does with this parameter: the delay is the position times 10 s.
+                        // It used to read out cubically over 1..10000 ms, which agreed with the
+                        // engine nowhere -- mid-travel showed 1251 ms and delayed by 5000.
+                        mapping: "linear"
+                        mapMin: 0
                         mapMax: 10000
                         // 'to' intentionally left at the default uiInternalScaling so the slider domain matches
-                        // the value domain below (parameterValue * uiInternalScaling). The cubic 1..10000 ms
+                        // the value domain below (parameterValue * uiInternalScaling). The 0..10000 ms
                         // display range comes from mapMin/mapMax, not from 'to'.
                         value: {
                             effectRackController.revision;

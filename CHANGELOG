@@ -77,6 +77,12 @@ New features:
 
 Bug fixes:
 
+* The delay Time knob shows the time the delay actually runs at
+  - It read out cubically over 1-10000 ms while the delay itself is the
+    knob's position times ten seconds: mid-travel showed 1251 ms and
+    delayed by 5000
+  - The Delay effect and the Synth and FM Synth delays alike
+
 * Copying a send effect brings its chain along
   - A send bus is its effect plus whatever runs after it, and only the
     effect was copied
