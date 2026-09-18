@@ -3197,6 +3197,21 @@
     </message>
 </context>
 <context>
+    <name>LoudnessReadout</name>
+    <message>
+        <source>Output loudness of this device: %1 LUFS integrated since the mixer was opened or reset, %2 LUFS short-term.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Two devices are balanced by the difference between their integrated readings. Silence is gated out, so this is how loud the device is when it plays, not how often it plays.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Measured after the insert effects, the fader and the pan. What the device sends to a send effect returns on the send bus and is not counted here, and a device inside a SubMixer is measured before the SubMixer&apos;s own strip.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>LoudnessReportDialog</name>
     <message>
         <source>Loudness Analysis Report</source>
@@ -4415,6 +4430,14 @@
         <translation>Mixer</translation>
     </message>
     <message>
+        <source>Reset loudness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start every device&apos;s integrated loudness measurement over</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Ok</source>
         <translation>OK</translation>
     </message>
@@ -4443,8 +4466,8 @@
         <translation>Panning</translation>
     </message>
     <message>
-        <source>Device</source>
-        <translation>Dispositivo</translation>
+        <source>IN meters the level Gain is set against. OUT is the loudness the device finally contributes: to place one device 2 dB under another, aim for an integrated reading 2 LU lower.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Insert FX</source>

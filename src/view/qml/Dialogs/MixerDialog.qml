@@ -64,6 +64,18 @@ AnimatedDialog {
             }
         }
         AppButton {
+            text: qsTr("Reset loudness")
+            // Same reasoning as the button above: a label that runs long in most translations, and
+            // an ActionRole so the dialog stays open while the readings build up again.
+            implicitWidth: Math.max(Constants.defaultButtonWidth, implicitContentWidth + leftPadding + rightPadding)
+            DialogButtonBox.buttonRole: DialogButtonBox.ActionRole
+            toolTipText: qsTr("Start every device's integrated loudness measurement over")
+            onClicked: {
+                deviceRackController.resetAllDeviceLoudness();
+                mainLayout.meterTick++;
+            }
+        }
+        AppButton {
             text: qsTr("Ok")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
@@ -152,6 +164,11 @@ AnimatedDialog {
                             deviceRackController.revision;
                             return deviceRackController.deviceMeterLevels(index);
                         }
+                        readonly property var outputLoudness: {
+                            mainLayout.meterTick;
+                            deviceRackController.revision;
+                            return deviceRackController.deviceOutputLoudness(index);
+                        }
                         readonly property bool deviceClipped: {
                             mainLayout.meterTick;
                             deviceRackController.revision;
@@ -163,25 +180,53 @@ AnimatedDialog {
                             anchors.margins: 12
                             spacing: 12
 
-                            ColumnLayout {
+                            // The name block is the way into the device, the way the Device Rack row
+                            // already is. A button of its own would only cost the strip the width
+                            // the second meter needs.
+                            Rectangle {
                                 Layout.preferredWidth: 180
-                                spacing: 2
+                                Layout.fillWidth: true
+                                Layout.minimumWidth: 110
+                                Layout.maximumWidth: 260
+                                Layout.fillHeight: true
+                                color: nameArea.containsMouse ? "#3f3f3f" : "transparent"
+                                border.color: nameArea.containsMouse ? "#666" : "transparent"
+                                radius: 3
 
-                                Text {
-                                    text: qsTr("%1: %2").arg(index + 1).arg(strip.deviceName)
-                                    color: "white"
-                                    font.pointSize: 12
-                                    font.bold: true
-                                    elide: Text.ElideRight
-                                    Layout.fillWidth: true
+                                ColumnLayout {
+                                    anchors.fill: parent
+                                    anchors.leftMargin: 4
+                                    anchors.rightMargin: 4
+                                    spacing: 2
+
+                                    Text {
+                                        text: qsTr("%1: %2").arg(index + 1).arg(strip.deviceName)
+                                        color: nameArea.containsMouse ? themeService.accentColor : "white"
+                                        font.pointSize: 12
+                                        font.bold: true
+                                        elide: Text.ElideRight
+                                        Layout.fillWidth: true
+                                    }
+
+                                    Text {
+                                        text: strip.trackNames === "" ? strip.deviceTypeName : qsTr("%1 — %2").arg(strip.deviceTypeName).arg(strip.trackNames)
+                                        color: "#aaa"
+                                        font.pointSize: 10
+                                        elide: Text.ElideRight
+                                        Layout.fillWidth: true
+                                    }
                                 }
 
-                                Text {
-                                    text: strip.trackNames === "" ? strip.deviceTypeName : qsTr("%1 — %2").arg(strip.deviceTypeName).arg(strip.trackNames)
-                                    color: "#aaa"
-                                    font.pointSize: 10
-                                    elide: Text.ElideRight
-                                    Layout.fillWidth: true
+                                ToolTip.visible: nameArea.containsMouse
+                                ToolTip.delay: Constants.toolTipDelay
+                                ToolTip.text: qsTr("Open the device dialog")
+
+                                MouseArea {
+                                    id: nameArea
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: deviceRackController.openDevice(index)
                                 }
                             }
 
@@ -194,6 +239,7 @@ AnimatedDialog {
                                 mapMin: -30
                                 mapMax: 30
                                 Layout.preferredWidth: 130
+                                Layout.maximumWidth: 200
                                 value: {
                                     deviceRackController.revision;
                                     return deviceRackController.deviceGain(index);
@@ -205,6 +251,7 @@ AnimatedDialog {
                                 label: qsTr("Fader")
                                 mapping: "fader"
                                 Layout.preferredWidth: 130
+                                Layout.maximumWidth: 200
                                 value: {
                                     deviceRackController.revision;
                                     return deviceRackController.deviceVolume(index);
@@ -216,6 +263,7 @@ AnimatedDialog {
                                 label: qsTr("Pan")
                                 mapping: "pan"
                                 Layout.preferredWidth: 130
+                                Layout.maximumWidth: 200
                                 value: {
                                     deviceRackController.revision;
                                     return deviceRackController.devicePan(index);
@@ -223,28 +271,73 @@ AnimatedDialog {
                                 onMoved: v => deviceRackController.setDevicePan(index, v)
                             }
 
-                            LevelMeterBar {
-                                Layout.preferredWidth: 110
-                                Layout.alignment: Qt.AlignVCenter
-                                peakDb: strip.meterLevels.length ? strip.meterLevels[0] : -120
-                                rmsDb: strip.meterLevels.length ? strip.meterLevels[1] : -120
-                                markerDb: settingsService.gainStagingTargetDb
+                            // Vertical Separator
+                            Rectangle {
+                                Layout.preferredWidth: 1
+                                Layout.fillHeight: true
+                                color: "#555"
                             }
 
-                            ClipLed {
+                            // Two taps of the same device, in the two units each is actually read in:
+                            // IN is a level, against the gain staging target; OUT is a loudness, to
+                            // be compared with another device's. Kept in a row of their own so the
+                            // pair reads as one block rather than as four things among the controls.
+                            RowLayout {
+                                Layout.fillWidth: true
                                 Layout.alignment: Qt.AlignVCenter
-                                clipped: strip.deviceClipped
-                                onClicked: {
-                                    deviceRackController.clearDeviceClip(index);
-                                    mainLayout.meterTick++;
+                                spacing: 6
+
+                                Text {
+                                    text: "IN:"
+                                    color: "#aaa"
+                                    font.pointSize: 9
+                                    Layout.alignment: Qt.AlignVCenter
+                                }
+
+                                LevelMeterBar {
+                                    // The one thing here that reads better the longer it is, so it
+                                    // takes what the strip has spare -- up to the point where a
+                                    // level meter stops telling you anything more.
+                                    Layout.fillWidth: true
+                                    Layout.minimumWidth: 90
+                                    Layout.maximumWidth: 180
+                                    Layout.alignment: Qt.AlignVCenter
+                                    peakDb: strip.meterLevels.length ? strip.meterLevels[0] : -120
+                                    rmsDb: strip.meterLevels.length ? strip.meterLevels[1] : -120
+                                    markerDb: settingsService.gainStagingTargetDb
+                                }
+
+                                Text {
+                                    text: "OUT:"
+                                    color: "#aaa"
+                                    font.pointSize: 9
+                                    Layout.leftMargin: 6
+                                    Layout.alignment: Qt.AlignVCenter
+                                }
+
+                                LoudnessReadout {
+                                    Layout.preferredWidth: 90
+                                    Layout.alignment: Qt.AlignVCenter
+                                    shortTermLufs: strip.outputLoudness.length ? strip.outputLoudness[0] : -70
+                                    integratedLufs: strip.outputLoudness.length ? strip.outputLoudness[1] : -70
+                                }
+
+                                ClipLed {
+                                    Layout.leftMargin: 2
+                                    Layout.alignment: Qt.AlignVCenter
+                                    clipped: strip.deviceClipped
+                                    onClicked: {
+                                        deviceRackController.clearDeviceClip(index);
+                                        mainLayout.meterTick++;
+                                    }
                                 }
                             }
 
-                            AppButton {
-                                text: qsTr("Device")
-                                Layout.preferredWidth: 80
-                                toolTipText: qsTr("Open the device dialog")
-                                onClicked: deviceRackController.openDevice(index)
+                            // Vertical Separator
+                            Rectangle {
+                                Layout.preferredWidth: 1
+                                Layout.fillHeight: true
+                                color: "#555"
                             }
 
                             AppButton {
@@ -267,7 +360,7 @@ AnimatedDialog {
         }
 
         Text {
-            text: qsTr("These are the very same controls as in each device's own dialog: Gain trims the device into its insert effects, the Fader balances it, Pan places it.")
+            text: qsTr("These are the very same controls as in each device's own dialog: Gain trims the device into its insert effects, the Fader balances it, Pan places it.") + " " + qsTr("IN meters the level Gain is set against. OUT is the loudness the device finally contributes: to place one device 2 dB under another, aim for an integrated reading 2 LU lower.")
             color: "#aaa"
             font.italic: true
             font.pointSize: 11

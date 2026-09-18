@@ -25,6 +25,7 @@
 #include "../utility/clip_detector.hpp"
 #include "../utility/level_meter.hpp"
 #include "../utility/load_meter.hpp"
+#include "../utility/loudness_meter.hpp"
 
 #include <cstdint>
 #include <mutex>
@@ -244,6 +245,19 @@ public:
     LevelMeter & meter();
     const LevelMeter & meter() const;
 
+    //! Loudness of what this device finally hands over, taken after the inserts, the fader, the pan
+    //! and the expression -- its actual contribution, rather than the level Gain is set against.
+    //!
+    //! In LUFS rather than dBFS because the question it answers is how loud two *different* devices
+    //! are against each other, and peak and RMS both fail at that: an intermittent kick reads far
+    //! below a sustained pad it matches by ear. Gated by setActive() like the other meters.
+    //!
+    //! Two things it cannot account for, both of which leave by another path: a device claimed by a
+    //! SubMixer is measured before that SubMixer's own strip, and what a device contributes through
+    //! its sends returns on the send bus rather than here.
+    LoudnessMeter & outputLoudnessMeter();
+    const LoudnessMeter & outputLoudnessMeter() const;
+
     //! Share of the audio buffer's real-time budget this device's processing takes. Gated by
     //! setActive() like the other taps.
     LoadMeter & loadMeter();
@@ -406,6 +420,7 @@ private:
     EffectRack m_insertEffectRack;
     AudioScope m_scope;
     LevelMeter m_meter;
+    LoudnessMeter m_outputLoudnessMeter;
     LoadMeter m_loadMeter;
     ClipDetector m_clipDetector;
 

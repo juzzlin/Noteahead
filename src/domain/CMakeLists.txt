@@ -140,6 +140,7 @@ set(HEADER_FILES
     utility/level_meter.hpp
     utility/load_meter.hpp
     utility/loudness_analyzer.hpp
+    utility/loudness_meter.hpp
     utility/lufs_meter.hpp
     utility/rta.hpp
     utility/spectrum_analyzer.hpp
@@ -288,6 +289,7 @@ set(SOURCE_FILES
     utility/level_meter.cpp
     utility/load_meter.cpp
     utility/loudness_analyzer.cpp
+    utility/loudness_meter.cpp
     utility/lufs_meter.cpp
     utility/rta.cpp
     utility/spectrum_analyzer.cpp

@@ -5,6 +5,12 @@ Release date:
 
 New features:
 
+* Loudness metering per device in the Mixer
+  - Each strip now shows IN, the level Gain is set against, beside OUT, the
+    loudness the device actually contributes, in LUFS
+  - Balancing one device against another is the difference between their
+    integrated readings: 2 LU lower is 2 dB under
+
 * Ten more Synth presets
   - Hollow Bass, Supersaw, Hoover, Cross Mod Brass, Formant Pad, Drift
     Choir, Rotary Organ, Dub Chord, Noise Sweep and Wind

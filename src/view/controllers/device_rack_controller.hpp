@@ -118,7 +118,16 @@ public:
 
     //! [peakDb, rmsDb] of the device's pre-insert level tap. Empty when the slot is empty.
     Q_INVOKABLE QVariantList deviceMeterLevels(int slotIndex) const;
-    //! Gates every device's level and load tap. Keep it enabled only while meters are on screen.
+    //! [shortTermLufs, integratedLufs] of the device's output loudness tap. Empty when the slot is
+    //! empty. The integrated reading is what two devices are compared by; the short-term one only
+    //! shows that something is arriving.
+    Q_INVOKABLE QVariantList deviceOutputLoudness(int slotIndex) const;
+    //! Starts the integrated measurement over, for one device or for the whole rack.
+    Q_INVOKABLE void resetDeviceLoudness(int slotIndex);
+    Q_INVOKABLE void resetAllDeviceLoudness();
+
+    //! Gates every device's level, loudness and load tap. Keep it enabled only while meters are on
+    //! screen.
     Q_INVOKABLE void setMetersActive(bool active);
 
     //! Whether the device's output has hit full scale since the indicator was last cleared. Latches

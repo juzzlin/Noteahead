@@ -131,6 +131,10 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
         // its meters would keep reading whatever they last showed, for as long as it stays silent.
         // The device buffer was just cleared, so it is the silence to report.
         device->meter().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
+        // Silence is measured rather than skipped: the loudness blocks have to keep advancing for
+        // the short-term reading to fall away, and BS.1770 gating drops them from the integrated one
+        // anyway, so a device that stops playing does not drag its own average down.
+        device->outputLoudnessMeter().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
         device->loadMeter().addBlock(std::chrono::nanoseconds::zero(), bufferSeconds);
         return;
     }
@@ -178,6 +182,10 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
     // Clipping is judged on what the device finally hands over, so it accounts for the fader, any
     // boost past unity and whatever the insert rack did.
     device->clipDetector().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount);
+
+    // And so is the loudness: this is the device's actual contribution, which is what makes two of
+    // them comparable against each other. No-op unless the mixer is on screen.
+    device->outputLoudnessMeter().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
 
     if (deviceContext.deviceOutputBuffersMutable) {
         const auto slotIndex = deviceContext.slotSnapshot->at(deviceSnapshotIndex);
