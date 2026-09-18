@@ -26,6 +26,16 @@ EffectDialog {
     modal: true
     focus: true
 
+    // Main.qml keeps one instance of this dialog and hands it whichever slot is being edited, so
+    // the band grid would otherwise open wherever the previous visit left it scrolled. Put back
+    // before the dialog is shown rather than after, so there is nothing to see jumping. EffectDialog
+    // takes its own snapshot through a Connections precisely so that a handler here does not
+    // displace it.
+    onAboutToShow: {
+        scrollView.contentItem.contentX = 0;
+        scrollView.contentItem.contentY = 0;
+    }
+
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
 
@@ -92,8 +102,6 @@ EffectDialog {
             Layout.fillWidth: true
             Layout.fillHeight: true
             clip: true
-            contentWidth: -1
-            contentHeight: bandsGrid.implicitHeight
             ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
             ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
@@ -102,7 +110,13 @@ EffectDialog {
                 columns: 4
                 rowSpacing: 30
                 columnSpacing: 30
-                width: parent.width
+                // availableWidth rather than the Flickable's own width, which is what the grid's
+                // parent is: available is what is left once the vertical scroll bar has taken its
+                // share, so the fourth column does not run under the bar. The flick range is left
+                // to the layout's implicit size for the same reason -- pinned at the grid's
+                // unsqueezed implicit width, it was wider than the viewport, which gives the view
+                // somewhere to sit other than the start.
+                width: scrollView.availableWidth
 
                 Repeater {
                     model: 8

@@ -52,6 +52,11 @@ New features:
 
 Bug fixes:
 
+* The EQ 8 dialog opens at the first band
+  - The dialog is reused for every slot, so its band grid came back
+    wherever the previous visit had scrolled it
+  - The grid could also slide sideways past its own width, into nothing
+
 * Looking at an EQ band's type no longer overwrites its Q
   - A combo box reports the item you pick even when it was already the
     current one, so opening the type list and closing it again applied the
