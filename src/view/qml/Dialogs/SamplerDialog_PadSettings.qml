@@ -166,10 +166,9 @@ ColumnLayout {
             value: samplerController.selectedPadChokeGroup
             editable: true
             onValueModified: samplerController.selectedPadChokeGroup = value
-            Keys.onReturnPressed: {
-                value = valueFromText(contentItem.text, locale);
-                samplerController.selectedPadChokeGroup = value;
-            }
+            // Return already commits the typed text; assigning value here would drop the binding
+            // above and leave the field showing this pad's group after the selection has moved on.
+            Keys.onReturnPressed: focus = false
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered

@@ -44,10 +44,11 @@ ColumnLayout {
             value: root.seconds
             editable: true
             onValueModified: root.secondsModified(value)
-            Keys.onReturnPressed: {
-                value = valueFromText(contentItem.text, locale);
-                root.secondsModified(value);
-            }
+            // Return commits the typed text on its own, and writing value from here would be the
+            // last thing this field ever shows: a JS assignment drops the binding above, after
+            // which the offset the device actually holds -- clamped to the end of the sample,
+            // moved by a marker, or belonging to another pad entirely -- never reaches the field.
+            Keys.onReturnPressed: focus = false
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered && root.toolTip !== ""
@@ -64,10 +65,8 @@ ColumnLayout {
             value: root.milliseconds
             editable: true
             onValueModified: root.millisecondsModified(value)
-            Keys.onReturnPressed: {
-                value = valueFromText(contentItem.text, locale);
-                root.millisecondsModified(value);
-            }
+            // Same as the seconds field above: committing by hand here would cost the binding.
+            Keys.onReturnPressed: focus = false
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered && root.toolTip !== ""

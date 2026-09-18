@@ -201,6 +201,9 @@ void SamplerController::setSelectedPadStartOffsetSeconds(int seconds)
     if (const auto note = selectedNote(); note) {
         const auto current = splitSeconds(m_sampler->sampleStartOffset(*note));
         m_sampler->setSampleStartOffset(*note, seconds + current.milliseconds / 1000.0);
+        // The device clamps the offset to the length of the sample, so what it holds afterwards is
+        // not necessarily what was asked for. Saying so is what lets the field snap back to it.
+        emit selectedPadStartOffsetChanged();
     }
 }
 
@@ -215,6 +218,7 @@ void SamplerController::setSelectedPadStartOffsetMilliseconds(int milliseconds)
     if (const auto note = selectedNote(); note) {
         const auto current = splitSeconds(m_sampler->sampleStartOffset(*note));
         m_sampler->setSampleStartOffset(*note, current.seconds + milliseconds / 1000.0);
+        emit selectedPadStartOffsetChanged();
     }
 }
 

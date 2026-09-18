@@ -90,6 +90,13 @@ New features:
 
 Bug fixes:
 
+* The Sampler's offset fields keep following the pad
+  - Pressing Return in one of them dropped its binding for good, so a value
+    the device had clamped to the end of the sample, moved with a marker or
+    belonged to another pad never reached the field again
+  - An offset set past the end of the sample now visibly snaps back to where
+    it landed, and can be cleared from there
+
 * The delay Time knob shows the time the delay actually runs at
   - It read out cubically over 1-10000 ms while the delay itself is the
     knob's position times ten seconds: mid-travel showed 1251 ms and

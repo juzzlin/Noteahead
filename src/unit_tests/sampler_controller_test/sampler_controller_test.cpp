@@ -175,6 +175,34 @@ void SamplerControllerTest::test_selectedPadStartOffset_wholeSecond_shouldReadBa
     QCOMPARE(controller.selectedPadStartOffsetMilliseconds(), 0);
 }
 
+void SamplerControllerTest::test_selectedPadStartOffset_pastTheSampleEnd_shouldClampAndStayClearable()
+{
+    // Three quarters of a second of audio, asked for a whole second of offset: the device clamps to
+    // what there is, which leaves the offset in the milliseconds field rather than in the seconds
+    // one. Both parts have to report that, or the field the user is looking at says zero while the
+    // pad still starts three quarters of a second in.
+    auto reader = std::make_unique<MockAudioFileReader>();
+    reader->setFrames(static_cast<int64_t>(Constants::defaultSampleRate() * 3 / 4));
+    const auto sampler = std::make_shared<SamplerDevice>("Test Sampler", std::move(reader));
+    SamplerController controller { sampler };
+    controller.setSelectedPad(0);
+    controller.loadSample(0, "test.wav");
+
+    QSignalSpy spy { &controller, &SamplerController::selectedPadStartOffsetChanged };
+    controller.setSelectedPadStartOffsetSeconds(1);
+
+    QVERIFY(spy.count() > 0);
+    QCOMPARE(controller.selectedPadStartOffsetSeconds(), 0);
+    QCOMPARE(controller.selectedPadStartOffsetMilliseconds(), 750);
+
+    // And it has to be possible to get back out of that: the seconds field alone cannot do it, since
+    // the clamped remainder lives in the other one.
+    controller.setSelectedPadStartOffsetMilliseconds(0);
+
+    QCOMPARE(controller.selectedPadStartOffsetSeconds(), 0);
+    QCOMPARE(controller.selectedPadStartOffsetMilliseconds(), 0);
+}
+
 void SamplerControllerTest::test_selectedPadLoop_enabled_shouldDropTheLoopPointInTheMiddleOfTheRange()
 {
     // Four seconds trimmed by a second at each end leaves a two second range, so the point lands one
