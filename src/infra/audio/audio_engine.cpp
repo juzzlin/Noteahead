@@ -72,6 +72,11 @@ struct EffectProcessContext
     std::vector<std::vector<double>> * effectWetBuffers {};
     std::vector<uint8_t> * effectActiveFlags {};
     std::vector<uint8_t> * sendBusHasSignal {};
+    //! The same device outputs a device's own insert rack is given. A send bus runs after every
+    //! device has been rendered, so an effect out here can read a side chain exactly as an insert
+    //! can -- and ducking a delay or a reverb return with the kick is the reason most people reach
+    //! for a side chain at all.
+    std::span<const std::span<const double>> deviceOutputBuffers {};
     uint32_t frameCount {};
     uint32_t sampleRate {};
     double bpm {};
@@ -249,7 +254,7 @@ void processEffectTask(void * context, size_t taskIndex, size_t /*workerIndex*/)
     // Copy dry signal to wet buffer for in-place processing
     std::copy(sendBus.begin(), sendBus.begin() + bufferSize, wetBuffer.begin());
 
-    AudioContext context_obj { std::span(wetBuffer.data(), bufferSize), effectContext.frameCount, effectContext.sampleRate, effectContext.bpm, {}, effectContext.oversampleFactor, effectContext.offline };
+    AudioContext context_obj { std::span(wetBuffer.data(), bufferSize), effectContext.frameCount, effectContext.sampleRate, effectContext.bpm, effectContext.deviceOutputBuffers, effectContext.oversampleFactor, effectContext.offline };
 
     bool dryStillIn = true;
     const auto runEffect = [&](const EffectRack::EffectS & current) {
@@ -487,6 +492,13 @@ void AudioEngine::clearDevice(size_t slotIndex)
 {
     std::lock_guard<std::mutex> lock { m_mutex };
     m_devices.erase(slotIndex);
+
+    // Nothing writes this slot's output buffer once its device is gone, so whatever it last
+    // rendered would sit there for good -- and an effect side chained to the slot would go on
+    // being driven by a block of audio that stopped playing when the device was removed.
+    if (slotIndex < m_deviceOutputBuffers.size()) {
+        std::fill(m_deviceOutputBuffers[slotIndex].begin(), m_deviceOutputBuffers[slotIndex].end(), 0.0);
+    }
 }
 
 AudioEngine::DeviceS AudioEngine::device(size_t slotIndex) const
@@ -615,9 +627,14 @@ void AudioEngine::process(AudioContext & context)
         }
     }
 
+    // Sized before the device branch rather than inside it: the send buses and the master rack read
+    // these spans too, and they run whether or not this project has a single device loaded. Left
+    // inside, a span could still be describing an older, shorter block when an effect out there
+    // came to read it.
+    ensureDeviceOutputBuffers(bufferSize);
+
     if (!m_deviceSnapshot.empty()) {
         ensureDeviceActiveFlags(m_deviceSnapshot.size());
-        ensureDeviceOutputBuffers(bufferSize);
         rebuildProcessingGraph();
 
         m_deviceSendSnapshot.resize(m_deviceSnapshot.size() * sendCount);
@@ -740,6 +757,7 @@ void AudioEngine::process(AudioContext & context)
             &m_effectWetBuffers,
             &m_effectActiveFlags,
             &m_sendBusHasSignal,
+            std::span<const std::span<const double>>(m_deviceOutputBufferSpans),
             context.frameCount,
             context.sampleRate,
             context.bpm,
@@ -768,6 +786,10 @@ void AudioEngine::process(AudioContext & context)
         }
     }
 
+    // The master rack is an insert rack like any other and gets the same side chain sources. The
+    // context handed in by the backend carries none, so they are put in place here, after every
+    // device and every send bus has been rendered into them.
+    context.deviceOutputBuffers = std::span<const std::span<const double>>(m_deviceOutputBufferSpans);
     m_insertEffectRack->processInPlace(context);
 
     // Whole-callback load. Over 100% is what the listener hears as a dropout, so the meter counts

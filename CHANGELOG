@@ -52,6 +52,14 @@ New features:
 
 Bug fixes:
 
+* Side chain sources work outside a device's own inserts
+  - A ducker or a compressor on a send bus or in the master rack was never
+    given the device outputs, so the source it named was ignored and it
+    listened to its own input instead
+  - Ducking a delay or a reverb return with the kick works as it reads
+  - Removing a device now stops driving whatever was side chained to its
+    slot
+
 * The EQ 8 dialog opens at the first band
   - The dialog is reused for every slot, so its band grid came back
     wherever the previous visit had scrolled it

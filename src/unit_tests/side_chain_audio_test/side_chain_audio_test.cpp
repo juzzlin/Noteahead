@@ -104,6 +104,152 @@ private:
     bool m_hasActiveAudio { true };
 };
 
+namespace {
+
+//! Sets one of an effect's parameters and syncs it, which is three lines at every call site
+//! otherwise.
+void setParameter(const std::shared_ptr<Effect> & effect, const QString & key, float value)
+{
+    if (const auto p = effect->parameter(key.toStdString()); p) {
+        p->get().setValue(value);
+        effect->sync();
+    }
+}
+
+//! A ducker that engages only on a detector above -20 dB, hard, fast and by a useful amount.
+std::shared_ptr<AutoDucker> hardDucker()
+{
+    auto ducker = std::make_shared<AutoDucker>();
+    setParameter(ducker, Constants::NahdXml::xmlKeyThreshold(), 0.66667f); // -20 dB
+    setParameter(ducker, Constants::NahdXml::xmlKeyKnee(), 0.0f); // A switch at the threshold
+    setParameter(ducker, Constants::NahdXml::xmlKeyAttack(), 0.0f); // 0.1 ms, so one block is plenty
+    setParameter(ducker, Constants::NahdXml::xmlKeyRelease(), 0.0f); // 1 ms, so letting go is as quick
+    setParameter(ducker, Constants::NahdXml::xmlKeyAmount(), 0.25f); // -12 dB
+    return ducker;
+}
+
+} // namespace
+
+void SideChainAudioTest::test_audioEngine_sendEffect_sideChain_shouldFollowTheNamedDevice()
+{
+    // Ducking a delay or a reverb return with the kick is the reason most people reach for a side
+    // chain, and the send buses were handed an empty set of device outputs, so the source was
+    // silently ignored and the effect fell back to listening to the bus itself.
+    //
+    // The bus is deliberately quieter than the threshold and the named device louder than it, so
+    // only a side chain that is really being read can engage this ducker.
+    AudioEngine engine;
+
+    const auto kick = std::make_shared<MockDevice>("Kick");
+    kick->setGenerateSignal(true); // 1.0, i.e. 0 dB
+    engine.setDevice(0, kick);
+
+    const auto source = std::make_shared<MockDevice>("Source");
+    source->setGenerateSignal(true);
+    source->setReverbSend(0, 0.05f); // The bus carries -26 dB, well under the threshold
+    engine.setDevice(1, source);
+
+    const auto ducker = hardDucker();
+    setParameter(ducker, Constants::NahdXml::xmlKeySideChainSourceDevice(), 0.0f); // The kick's slot
+    engine.sendEffectRack().setEffect(0, ducker);
+
+    std::vector<double> buffer(128, 0.0);
+    AudioContext context { std::span(buffer.data(), 128), 64, 44100 };
+    engine.process(context);
+
+    QVERIFY2(ducker->gainDb() < -3.0f, qPrintable(QString { "the send bus ducker did not engage: %1 dB" }.arg(static_cast<double>(ducker->gainDb()))));
+}
+
+void SideChainAudioTest::test_audioEngine_sendEffect_sideChain_noSource_shouldListenToTheBus()
+{
+    // The other half of the same claim: with no source named the effect listens to its own input,
+    // and the bus alone is under the threshold. Without this the test above would pass just as well
+    // on an effect that ducked unconditionally.
+    AudioEngine engine;
+
+    const auto kick = std::make_shared<MockDevice>("Kick");
+    kick->setGenerateSignal(true);
+    engine.setDevice(0, kick);
+
+    const auto source = std::make_shared<MockDevice>("Source");
+    source->setGenerateSignal(true);
+    source->setReverbSend(0, 0.05f);
+    engine.setDevice(1, source);
+
+    const auto ducker = hardDucker(); // Source device left at its default of none
+    engine.sendEffectRack().setEffect(0, ducker);
+
+    std::vector<double> buffer(128, 0.0);
+    AudioContext context { std::span(buffer.data(), 128), 64, 44100 };
+    engine.process(context);
+
+    QVERIFY2(ducker->gainDb() > -0.5f, qPrintable(QString { "the bus alone engaged the ducker: %1 dB" }.arg(static_cast<double>(ducker->gainDb()))));
+}
+
+void SideChainAudioTest::test_audioEngine_masterEffect_sideChain_shouldFollowTheNamedDevice()
+{
+    // The master rack is handed the context the backend built, which carries no device outputs at
+    // all, so a side chain there listened to the master bus no matter which slot it named.
+    //
+    // Pointed at a silent slot while the master itself is loud: an effect reading the slot stays
+    // open, and one that has fallen back to its own input ducks. The master sum always contains the
+    // side chain source, so this is the way round that can tell the two apart.
+    AudioEngine engine;
+
+    const auto silent = std::make_shared<MockDevice>("Silent");
+    engine.setDevice(0, silent);
+
+    const auto loud = std::make_shared<MockDevice>("Loud");
+    loud->setGenerateSignal(true); // The master carries 0 dB
+    engine.setDevice(1, loud);
+
+    const auto ducker = hardDucker();
+    setParameter(ducker, Constants::NahdXml::xmlKeySideChainSourceDevice(), 0.0f); // The silent slot
+    engine.insertEffectRack().setEffect(0, ducker);
+
+    std::vector<double> buffer(128, 0.0);
+    AudioContext context { std::span(buffer.data(), 128), 64, 44100 };
+    engine.process(context);
+
+    QVERIFY2(ducker->gainDb() > -0.5f, qPrintable(QString { "the master ducker followed the master instead of its source: %1 dB" }.arg(static_cast<double>(ducker->gainDb()))));
+}
+
+void SideChainAudioTest::test_audioEngine_clearDevice_shouldStopFeedingItsSideChain()
+{
+    // A slot's output buffer is only ever written by the device in it, so removing the device left
+    // its last block sitting there and anything side chained to the slot went on being driven by
+    // audio that had stopped playing.
+    AudioEngine engine;
+
+    const auto kick = std::make_shared<MockDevice>("Kick");
+    kick->setGenerateSignal(true);
+    engine.setDevice(0, kick);
+
+    const auto source = std::make_shared<MockDevice>("Source");
+    source->setGenerateSignal(true);
+    source->setReverbSend(0, 0.05f);
+    engine.setDevice(1, source);
+
+    const auto ducker = hardDucker();
+    setParameter(ducker, Constants::NahdXml::xmlKeySideChainSourceDevice(), 0.0f);
+    engine.sendEffectRack().setEffect(0, ducker);
+
+    std::vector<double> buffer(128, 0.0);
+    AudioContext context { std::span(buffer.data(), 128), 64, 44100 };
+    engine.process(context);
+    QVERIFY2(ducker->gainDb() < -3.0f, "the ducker did not engage to begin with");
+
+    engine.clearDevice(0);
+
+    // Long enough for the release to have run out if nothing is holding the detector up.
+    for (int block = 0; block < 400; block++) {
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        engine.process(context);
+    }
+
+    QVERIFY2(ducker->gainDb() > -0.5f, qPrintable(QString { "a removed device was still ducking: %1 dB" }.arg(static_cast<double>(ducker->gainDb()))));
+}
+
 void SideChainAudioTest::test_audioEngine_idleDevice_shouldLetItsMetersFallBack()
 {
     // The engine skips a device that has gone silent. It still has to report that silence, or the

@@ -25,6 +25,10 @@ class SideChainAudioTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_audioEngine_sendEffect_sideChain_shouldFollowTheNamedDevice();
+    void test_audioEngine_sendEffect_sideChain_noSource_shouldListenToTheBus();
+    void test_audioEngine_masterEffect_sideChain_shouldFollowTheNamedDevice();
+    void test_audioEngine_clearDevice_shouldStopFeedingItsSideChain();
     void test_audioEngine_idleDevice_shouldLetItsMetersFallBack();
     void test_audioEngine_rebuildProcessingGraph_shouldCorrectlySortIndependentDevices();
     void test_audioEngine_rebuildProcessingGraph_shouldCorrectlySortDependentDevices();
