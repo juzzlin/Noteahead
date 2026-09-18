@@ -41,6 +41,9 @@ struct AudioEngineWorkBuffer
     std::vector<double> preFaderBuffer {};
     std::vector<double> outputBuffer {};
     std::vector<std::vector<double>> sendBuffers {};
+    //! Scratch for the insert rack's side chain sources, so asking for them on the audio thread
+    //! allocates nothing once it has grown to size.
+    std::vector<size_t> sidechainSources {};
 };
 
 class AudioEngine

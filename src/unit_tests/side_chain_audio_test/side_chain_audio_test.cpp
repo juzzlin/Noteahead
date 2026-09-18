@@ -716,6 +716,38 @@ void SideChainAudioTest::test_audioEngine_silentDeviceWithEngagedDucker_shouldKe
     QVERIFY2(ducker->gainDb() > -0.1f, qPrintable(QString { "the ducker froze at %1 dB" }.arg(ducker->gainDb())));
 }
 
+void SideChainAudioTest::test_audioEngine_silentDeviceWithIdleDucker_shouldStillFollowItsSideChain()
+{
+    // The other half of the freeze above: a ducker sitting at unity on a device that is not playing
+    // reports itself settled, so the engine skips the device and the ducker never gets to see the
+    // side chain at all. It can then only ever engage on a block where its own device happens to be
+    // making sound, which is exactly backwards -- the whole point of a side chain is that the
+    // detector is somebody else's signal.
+    AudioEngine engine;
+    const auto source = std::make_shared<MockDevice>("Source");
+    const auto target = std::make_shared<MockDevice>("Target");
+    source->setGenerateSignal(true);
+    target->setGenerateSignal(false);
+    target->setHasActiveAudio(false);
+
+    const auto ducker = hardDucker();
+    setParameter(ducker, Constants::NahdXml::xmlKeySideChainSourceDevice(), 0.0f);
+    target->insertEffectRack().setEffect(0, ducker);
+
+    engine.setDevice(0, source);
+    engine.setDevice(1, target);
+
+    std::vector<double> buffer(128, 0.0);
+    AudioContext context { std::span(buffer.data(), 128), 64, 44100 };
+
+    for (int i = 0; i < 20; i++) {
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        engine.process(context);
+    }
+
+    QVERIFY2(ducker->gainDb() < -1.0f, qPrintable(QString { "the ducker never engaged: %1 dB" }.arg(ducker->gainDb())));
+}
+
 void SideChainAudioTest::test_audioEngine_serialAndExclusive_shouldProduceIdenticalOutput()
 {
     // Real-time playback processes serially; offline render (exclusive mode) may fan out to worker

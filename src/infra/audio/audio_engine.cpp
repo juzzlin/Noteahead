@@ -88,13 +88,29 @@ struct EffectProcessContext
 //! project names, so it can outrun the fixed set of chains and leave a bus with no chain to point at.
 const std::vector<EffectRack::EffectS> noSendChain;
 
-bool bufferContainsSignal(const std::vector<double> & buffer, uint32_t bufferSize)
+bool bufferContainsSignal(std::span<const double> buffer, uint32_t bufferSize)
 {
     constexpr double threshold = 1.0e-12;
-    for (uint32_t i = 0; i < bufferSize; i++) {
+    const auto count = std::min<uint32_t>(bufferSize, static_cast<uint32_t>(buffer.size()));
+    for (uint32_t i = 0; i < count; i++) {
         if (std::abs(buffer[i]) > threshold) {
             return true;
         }
+    }
+    return false;
+}
+
+//! Whether the effect is following another device that has something in it this block.
+//!
+//! A side-chained effect is driven by somebody else's signal, so its own state cannot say whether
+//! it still has work to do: an idle ducker sits at unity and reports itself settled, and stopping
+//! there would keep it from ever seeing the side chain at all -- it could then only engage on a
+//! block where whatever carries it happened to be making sound, which is backwards. While the
+//! source is quiet the two questions agree and the effect can be left alone as before.
+bool sideChainIsFeeding(const EffectRack::EffectS & effect, std::span<const std::span<const double>> deviceOutputBuffers, uint32_t bufferSize)
+{
+    if (const auto sourceIndex = effect->sidechainSourceDeviceIndex(); sourceIndex && *sourceIndex < deviceOutputBuffers.size()) {
+        return bufferContainsSignal(deviceOutputBuffers[*sourceIndex], bufferSize);
     }
     return false;
 }
@@ -121,7 +137,18 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
     // A device holding a scheduled event is not idle even while it is silent: the note has not been
     // applied yet, so hasActiveAudio() cannot know about it, and skipping the block would drop the
     // note rather than save the work.
-    if (!device->hasActiveAudio() && !device->hasScheduledEvents() && !deviceContext.deviceActiveFlags->at(deviceSnapshotIndex) && device->insertEffectsSettled()) {
+    // A side chain is the other way an insert can have work to do while its own device is silent,
+    // and unlike a release it is not something the insert can report on its own: see
+    // sideChainIsFeeding(). Asked of the sources' output buffers, which the layering above has
+    // already filled for this block.
+    const auto sideChainFeedingInserts = [&] {
+        device->sidechainDependencies(workBuffer.sidechainSources);
+        return std::ranges::any_of(workBuffer.sidechainSources, [&](size_t slotIndex) {
+            return slotIndex < deviceContext.deviceOutputBuffers.size() && bufferContainsSignal(deviceContext.deviceOutputBuffers[slotIndex], deviceContext.bufferSize);
+        });
+    };
+
+    if (!device->hasActiveAudio() && !device->hasScheduledEvents() && !deviceContext.deviceActiveFlags->at(deviceSnapshotIndex) && device->insertEffectsSettled() && !sideChainFeedingInserts()) {
         if (deviceContext.deviceOutputBuffersMutable) {
             const auto slotIndex = deviceContext.slotSnapshot->at(deviceSnapshotIndex);
             auto & outputBuffer = deviceContext.deviceOutputBuffersMutable->at(slotIndex);
@@ -261,8 +288,8 @@ void processEffectTask(void * context, size_t taskIndex, size_t /*workerIndex*/)
     // A quiet bus and a quiet return are not enough to stop running the chain. A delay is silent
     // between its taps, so stopping there freezes the line with the echo still in it and the echo
     // never arrives -- the same trap a device's insert rack avoids by asking insertEffectsSettled().
-    const auto isUnsettled = [&isRunnable](const EffectRack::EffectS & candidate) {
-        return isRunnable(candidate) && !candidate->isSettled();
+    const auto isUnsettled = [&](const EffectRack::EffectS & candidate) {
+        return isRunnable(candidate) && (!candidate->isSettled() || sideChainIsFeeding(candidate, effectContext.deviceOutputBuffers, bufferSize));
     };
     if (!effectContext.sendBusHasSignal->at(taskIndex) && !effectContext.effectActiveFlags->at(taskIndex)
         && !isUnsettled(effect) && std::ranges::none_of(chain, isUnsettled)) {

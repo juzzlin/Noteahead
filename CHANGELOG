@@ -109,6 +109,10 @@ New features:
 
 Bug fixes:
 
+* A side-chained insert follows its source on a silent device
+  - The gain of an Auto Ducker only moved on blocks where the device carrying
+    it happened to be making sound, which is backwards for a side chain
+
 * The Air Band EQ's 2.5 kHz band is a bell
   - It was built as a shelf, so boosting it carried everything above it up
     instead of coming back down, and duplicated the AIR BAND's lowest position
