@@ -17,17 +17,31 @@ import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 import Noteahead 1.0
-import "../Components"
 
-Item {
+// Everything about how the synth behaves like a circuit rather than like arithmetic: the drive in
+// the filter, and the two controls that keep its tuning from sitting perfectly still.
+ScrollView {
+    clip: true
     property real moduleWidth: 0
-    // Set by the host to a reliable "scope is shown" condition (dialog open + this tab current).
-    property bool scopeActive: false
 
-    Oscilloscope {
-        anchors.fill: parent
-        anchors.margins: 10
-        deviceController: synthController
-        active: scopeActive
+    ColumnLayout {
+        width: parent.width - 20
+        spacing: 20
+
+        RowLayout {
+            spacing: 20
+            Layout.fillWidth: true
+
+            SynthDialog_Drive {
+                Layout.preferredWidth: moduleWidth
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignTop
+            }
+            SynthDialog_Analog {
+                Layout.preferredWidth: moduleWidth * 2
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignTop
+            }
+        }
     }
 }

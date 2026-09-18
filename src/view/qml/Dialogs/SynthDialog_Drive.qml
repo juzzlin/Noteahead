@@ -20,6 +20,13 @@ import QtQuick.Controls.Universal 2.15
 import Noteahead 1.0
 import "../Components"
 
+// How hard the low pass is driven into its own ceiling.
+//
+// Not the same thing as a distortion in front of the filter, which is what an insert effect can
+// already do: there the harmonics are made outside the loop that is meant to tame them, and the
+// resonant peak keeps its height however hard the input is pushed. Here the fold is inside the
+// loop, so the peak compresses as the filter is driven and everything the loop makes is filtered by
+// the same poles on its way round again.
 ColumnLayout {
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
@@ -27,7 +34,7 @@ ColumnLayout {
     Layout.alignment: Qt.AlignTop
 
     Label {
-        text: qsTr("Analog Character")
+        text: qsTr("Filter Drive")
         font.bold: true
         font.pixelSize: 16
         color: themeService.accentColor
@@ -37,22 +44,24 @@ ColumnLayout {
 
     RowLayout {
         Layout.fillWidth: true
-        Knob {
-            label: qsTr("Drift")
-            value: synthController.oscillatorDrift
-            onMoved: v => synthController.oscillatorDrift = v
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("How far the whole voice wanders out of tune. Every oscillator of the voice moves together, so this is the note drifting rather than the oscillators drifting apart.")
-            Layout.fillWidth: true
-        }
 
         Knob {
-            label: qsTr("Instability")
-            value: synthController.oscillatorInstability
-            onMoved: v => synthController.oscillatorInstability = v
+            label: qsTr("Drive")
+            value: synthController.filterDrive
+            onMoved: v => synthController.filterDrive = v
             ToolTip.visible: hovered
-            ToolTip.text: qsTr("How far each oscillator wanders on its own. Two of them at the same pitch then beat slowly against each other instead of summing into one waveform that never moves, which is what a stack of VCOs sounds like when none of them can hold its tuning.")
+            ToolTip.text: qsTr("How hard the low pass is driven. The peaks and the resonance fold inside the filter rather than in front of it, so the tone thickens and the resonant peak compresses instead of tearing. At zero the filter is the clean one every patch was made on.")
             Layout.fillWidth: true
         }
+    }
+
+    Label {
+        text: qsTr("Drive works on the main low pass, not on the per-oscillator filters. The level is held roughly where it was, so the knob changes the tone rather than the balance.")
+        color: "#aaa"
+        font.italic: true
+        font.pixelSize: 12
+        wrapMode: Text.WordWrap
+        Layout.fillWidth: true
+        Layout.topMargin: 10
     }
 }

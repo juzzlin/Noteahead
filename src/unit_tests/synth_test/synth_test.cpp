@@ -19,15 +19,19 @@
 #include "../../common/utils.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/synth_presets.hpp"
+#include "../../infra/audio/backend/sndfile_reader.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
 #include <QBuffer>
+#include <QFile>
 #include <QRegularExpression>
 #include <QTest>
 #include <algorithm>
 #include <cmath>
+#include <format>
 #include <map>
+#include <numeric>
 #include <optional>
 #include <ranges>
 #include <string>
@@ -84,6 +88,163 @@ double magnitudeAt(const std::vector<double> & buffer, double hz)
 }
 
 } // namespace
+
+namespace {
+
+//! Two saws at the very same pitch, nothing else running, held for as long as it takes to hear a
+//! slow beat: the case a stack of oscillators in a mono patch actually is.
+std::unique_ptr<SynthDevice> unisonStackSynth(float instability)
+{
+    auto synth = std::make_unique<SynthDevice>("Synth");
+    synth->setVoiceMode(SynthDevice::VoiceMode::Mono);
+    // Sines rather than saws: a saw's peak is a band-limited discontinuity, and where the sample
+    // grid falls across it moves the measured peak by a fraction of a dB whenever the pitch moves.
+    // That is the drift this test has to be blind to, so the waveform is one that has no edge.
+    synth->setVco1Waveform(PolyBlepOscillator::Waveform::Sine);
+    synth->setVco2Waveform(PolyBlepOscillator::Waveform::Sine);
+    synth->setMixVco1(1.0f);
+    synth->setMixVco2(1.0f);
+    synth->setMixVco3(0.0f);
+    synth->setMixVco4(0.0f);
+    synth->setAmpAttack(0.0f);
+    synth->setAmpDecay(0.0f);
+    synth->setAmpSustain(1.0f);
+    synth->setLfoInt(0.5f); // Centred, so the LFO adds nothing of its own
+    synth->setOscillatorInstability(instability);
+    return synth;
+}
+
+//! How far the level of a held note moves, in dB, once the attack is out of the way. A pair of
+//! oscillators that cannot drift apart sums to one waveform whose shape never changes, and holds
+//! this at nothing.
+double heldNoteLevelSwingDb(SynthDevice & synth, uint8_t note, double seconds)
+{
+    constexpr uint32_t rate { 48000 };
+    constexpr size_t blockFrames { 1024 };
+    synth.processMidiNoteOn(note, 110);
+
+    std::vector<double> levels;
+    std::vector<double> block(blockFrames * 2, 0.0);
+    const auto blocks = static_cast<size_t>(seconds * rate / blockFrames);
+    for (size_t i = 0; i < blocks; i++) {
+        std::fill(block.begin(), block.end(), 0.0);
+        AudioContext context { std::span(block.data(), block.size()), blockFrames, rate };
+        synth.processAudio(context);
+        // The first half second is the attack and the filter settling, which is not what is measured.
+        if (i * blockFrames < rate / 2) {
+            continue;
+        }
+        // The peak of the block rather than its RMS: a block holds a whole number of periods only by
+        // accident, and the part period at its end moves an RMS reading whenever the pitch moves --
+        // which is exactly what the drift this test has to ignore does. The peak of a waveform is
+        // its shape, and two oscillators that cannot drift apart keep one shape for ever.
+        double peak = 0.0;
+        for (size_t f = 0; f < blockFrames; f++) {
+            peak = std::max(peak, std::abs(0.5 * (block[f * 2] + block[f * 2 + 1])));
+        }
+        levels.push_back(20.0 * std::log10(std::max(1e-12, peak)));
+    }
+
+    const auto [minIt, maxIt] = std::minmax_element(levels.begin(), levels.end());
+    return *maxIt - *minIt;
+}
+
+} // namespace
+
+namespace {
+
+//! One sine into the filter and nothing else, which is the signal that tells a linear filter from a
+//! saturating one: a linear filter cannot add a harmonic that was not there.
+std::unique_ptr<SynthDevice> filterDriveSynth(float drive)
+{
+    auto synth = std::make_unique<SynthDevice>("Synth");
+    synth->setVco1Waveform(PolyBlepOscillator::Waveform::Sine);
+    synth->setMixVco1(1.0f);
+    synth->setMixVco2(0.0f);
+    synth->setMixVco3(0.0f);
+    synth->setAmpAttack(0.0f);
+    synth->setAmpDecay(0.0f);
+    synth->setAmpSustain(1.0f);
+    synth->setLfoInt(0.5f); // Centred, so the LFO adds nothing of its own
+    synth->setLpfCutoff(0.6f);
+    synth->setLpfResonance(0.5f);
+    synth->setFilterDrive(drive);
+    return synth;
+}
+
+//! Level of the third harmonic against the fundamental, in dB. The distortion is symmetric, so the
+//! odd harmonics are where it shows.
+double thirdHarmonicDb(const std::vector<double> & buffer, double fundamentalHz)
+{
+    const double fundamental = magnitudeAt(buffer, fundamentalHz);
+    const double third = magnitudeAt(buffer, fundamentalHz * 3.0);
+    return 20.0 * std::log10(std::max(1e-12, third / std::max(1e-12, fundamental)));
+}
+
+double rmsDb(const std::vector<double> & buffer)
+{
+    double sum = 0.0;
+    for (size_t i = 0; i < buffer.size(); i += 2) {
+        sum += buffer[i] * buffer[i];
+    }
+    return 20.0 * std::log10(std::max(1e-12, std::sqrt(sum / static_cast<double>(buffer.size() / 2))));
+}
+
+constexpr uint8_t DriveTestNote { 60 };
+const double DriveTestHz = 440.0 * 0.5 * std::pow(2.0, 3.0 / 12.0); // C4 against A4
+
+} // namespace
+
+void SynthTest::test_filterDrive_shouldFoldHarmonicsIntoASineTheFilterWouldNotHave()
+{
+    // A linear filter is linear: one sine in is one sine out, whatever the resonance. The saturating
+    // one folds its own integrator states, and what comes back round through the poles is the odd
+    // harmonics an overdriven VCF makes. Drive at the bottom has to stay the filter the synth has
+    // always had, since that is where every patch made before this control sits.
+    auto clean = filterDriveSynth(0.0f);
+    const auto cleanThird = thirdHarmonicDb(renderSynth(*clean, DriveTestNote), DriveTestHz);
+    QVERIFY2(cleanThird < -35.0, qPrintable(QString { "clean filter distorted by %1 dB" }.arg(cleanThird)));
+
+    auto driven = filterDriveSynth(0.5f);
+    const auto drivenThird = thirdHarmonicDb(renderSynth(*driven, DriveTestNote), DriveTestHz);
+    QVERIFY2(drivenThird > -20.0, qPrintable(QString { "driven filter only reached %1 dB" }.arg(drivenThird)));
+}
+
+void SynthTest::test_filterDrive_shouldNotRunAwayWithTheLevel()
+{
+    // Drive is level into the filter, and the fold is what stops that level coming out the other
+    // side. Most of it is handed back so that the knob changes the tone rather than the balance: a
+    // control that costs or gains ten decibels on the way is one nobody can compare either side of.
+    const auto clean = rmsDb(renderSynth(*filterDriveSynth(0.0f), DriveTestNote));
+    const auto driven = rmsDb(renderSynth(*filterDriveSynth(1.0f), DriveTestNote));
+
+    QVERIFY2(std::abs(driven - clean) < 3.0, qPrintable(QString { "level moved by %1 dB" }.arg(driven - clean)));
+}
+
+void SynthTest::test_oscillatorInstability_oscillatorsInUnison_shouldBeatAgainstEachOther()
+{
+    // The whole point of the control. Two oscillators at one pitch sum to a single waveform whose
+    // shape never changes, however long the note is held -- which is why a multi-oscillator mono
+    // patch sounds dead next to a unison stack. Given a wander of their own they beat instead.
+    auto synth = unisonStackSynth(0.5f);
+
+    const auto swing = heldNoteLevelSwingDb(*synth, 48, 8.0);
+
+    QVERIFY2(swing > 2.0, qPrintable(QString { "level swing was only %1 dB" }.arg(swing)));
+}
+
+void SynthTest::test_oscillatorInstability_off_shouldLeaveTheStackStanding()
+{
+    // And with the control at the bottom, where every patch that predates it sits, the pair has to
+    // stand as still as it always did. Drift is no substitute: it moves every oscillator of the
+    // voice by the very same ratio, so it cannot move two of them apart.
+    auto synth = unisonStackSynth(0.0f);
+    synth->setOscillatorDrift(1.0f);
+
+    const auto swing = heldNoteLevelSwingDb(*synth, 48, 8.0);
+
+    QVERIFY2(swing < 0.5, qPrintable(QString { "level swing was %1 dB" }.arg(swing)));
+}
 
 void SynthTest::test_vco4_shouldBeSilentUntilMixedIn()
 {
@@ -1649,6 +1810,53 @@ void SynthTest::test_oscillatorDrift_serialization_shouldPreserveState()
     }
 }
 
+void SynthTest::test_filterDrive_serialization_shouldPreserveState()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        synth.setFilterDrive(0.62f);
+        NahdXmlWriter writer { data };
+        synth.serializeToXml(writer);
+    }
+
+    {
+        SynthDevice synth { "Test Synth" };
+        NahdXmlReader reader { data };
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        synth.deserializeFromXml(reader);
+        QCOMPARE(synth.filterDrive(), 0.62f);
+    }
+}
+
+void SynthTest::test_oscillatorInstability_serialization_shouldPreserveState()
+{
+    QByteArray data;
+    {
+        SynthDevice synth { "Test Synth" };
+        synth.setOscillatorInstability(0.42f);
+        NahdXmlWriter writer { data };
+        synth.serializeToXml(writer);
+    }
+
+    {
+        SynthDevice synth { "Test Synth" };
+        NahdXmlReader reader { data };
+        while (!reader.atEnd() && !reader.isStartElement()) {
+            reader.readNext();
+        }
+        synth.deserializeFromXml(reader);
+        QCOMPARE(synth.oscillatorInstability(), 0.42f);
+    }
+    // A patch made before either control existed carries neither, and must come back at the bottom
+    // of both: that is the synth it was saved from.
+    const SynthDevice fresh { "Test Synth" };
+    QCOMPARE(fresh.oscillatorInstability(), 0.0f);
+    QCOMPARE(fresh.filterDrive(), 0.0f);
+}
+
 void SynthTest::test_crossModDepth_zero_shouldProduceSameFrequency()
 {
     const auto setup = [](SynthDevice & synth) {
@@ -2708,6 +2916,55 @@ void SynthTest::test_phaseSyncOff_repeatedNote_shouldNotFadeOut()
 
     const std::vector<double> handover { second.begin(), second.begin() + 64 };
     QVERIFY(peakOf(handover) > peakOf(second) * 0.5);
+}
+
+void SynthTest::test_phaseSync_vco4_shouldStartEveryNoteFromTheSamePhase()
+{
+    // Phase Sync resets the oscillators so that a repeated note is the same note however it was
+    // reached. VCO4 was left out of it: the array the starting phases travel in held three entries,
+    // and the guard meant to cover the fourth asked a fixed-size array whether it had more than
+    // three. It never had, so the fourth oscillator carried on from wherever the note before it
+    // happened to leave it -- which is only visible on a note that interrupts a sounding one, since
+    // a voice that has fallen silent is not advanced at all and keeps its phase by accident.
+    SynthDevice synth { "Test Synth" };
+    setUpRetriggerSynth(synth, true);
+    synth.setVco4Waveform(PolyBlepOscillator::Waveform::Sine);
+    synth.setMixVco1(0.0f);
+    synth.setMixVco4(1.0f);
+    // Held rather than plucked, so the voice is still sounding when the next note arrives and the
+    // synced path really does restart it.
+    synth.setAmpDecay(0.0f);
+    synth.setAmpSustain(1.0f);
+
+    const auto render = [&](size_t frames) {
+        std::vector<double> buffer(frames * 2, 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frames), 48000 };
+        synth.processAudio(context);
+        return buffer;
+    };
+
+    constexpr size_t NoteFrames { 3000 };
+    synth.processMidiNoteOn(69, 127);
+    render(NoteFrames);
+
+    synth.processMidiNoteOn(69, 127);
+    const auto first = render(NoteFrames);
+
+    // A stretch of held note of some length that is nobody's whole number of periods: an oscillator
+    // that is not reset by the next note starts it from somewhere else entirely because of this.
+    render(4321);
+
+    synth.processMidiNoteOn(69, 127);
+    const auto second = render(NoteFrames);
+
+    const double peak = peakOf(first);
+    QVERIFY(peak > 0.01);
+    // The tail, which is past the fade the synced path puts in front of a restart.
+    double worst = 0.0;
+    for (size_t i = first.size() / 2; i < first.size(); i++) {
+        worst = std::max(worst, std::abs(first.at(i) - second.at(i)));
+    }
+    QVERIFY2(worst < peak * 0.05, qPrintable(QString { "notes differ by %1 of peak %2" }.arg(worst).arg(peak)));
 }
 
 void SynthTest::test_ampCurve_shouldSteepenTheAudibleDecay()

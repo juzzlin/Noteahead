@@ -1159,6 +1159,32 @@ void SynthController::setOscillatorDrift(int drift)
     }
 }
 
+// Oscillator instability
+int SynthController::oscillatorInstability() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->oscillatorInstability() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setOscillatorInstability(int instability)
+{
+    if (m_synth) {
+        m_synth->setOscillatorInstability(static_cast<float>(instability) / Constants::uiInternalScaling());
+    }
+}
+
+// Filter drive
+int SynthController::filterDrive() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->filterDrive() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setFilterDrive(int drive)
+{
+    if (m_synth) {
+        m_synth->setFilterDrive(static_cast<float>(drive) / Constants::uiInternalScaling());
+    }
+}
+
 // Cross modulation
 int SynthController::crossModDepth() const
 {
@@ -1397,6 +1423,8 @@ void SynthController::requestSettings()
     emit sampleRateChanged();
 
     emit oscillatorDriftChanged();
+    emit oscillatorInstabilityChanged();
+    emit filterDriveChanged();
     emit crossModDepthChanged();
     emit delayTypeChanged();
     emit delayTimeChanged();

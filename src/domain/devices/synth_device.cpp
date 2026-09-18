@@ -62,14 +62,17 @@ void SynthDevice::Voice::triggerSynced(const Trigger & trigger)
         return;
     }
 
-    applyTrigger(trigger, Phases { 0.0, 0.0, 0.0 }, true);
+    applyTrigger(trigger, Phases { 0.0, 0.0, 0.0, 0.0 }, true);
 }
 
 void SynthDevice::Voice::triggerFree(const Trigger & trigger, double randomPhase)
 {
+    // VCO4's offset is not the next third: a fourth one would land on 0.99, which is VCO1 again. Its
+    // own half turn is simply the largest gap left, and the three that were here first cannot move
+    // without changing how every patch that predates VCO4 starts a note.
     const auto phases = active
       ? std::nullopt
-      : std::optional<Phases> { Phases { randomPhase, std::fmod(randomPhase + 0.33, 1.0), std::fmod(randomPhase + 0.66, 1.0) } };
+      : std::optional<Phases> { Phases { randomPhase, std::fmod(randomPhase + 0.33, 1.0), std::fmod(randomPhase + 0.66, 1.0), std::fmod(randomPhase + 0.5, 1.0) } };
 
     // Envelopes restart on the same condition as the phases: a voice that is not already sounding
     // is starting a note from nothing and must start its envelopes from nothing too. A voice is
@@ -99,9 +102,7 @@ void SynthDevice::Voice::applyTrigger(const Trigger & trigger, std::optional<Pha
         vco1.sync(phases->at(0));
         vco2.sync(phases->at(1));
         vco3.sync(phases->at(2));
-        if (phases->size() > 3) {
-            vco4.sync(phases->at(3));
-        }
+        vco4.sync(phases->at(3));
     }
 
     // Restarting from zero is what gives a repeated note its own attack. Carrying on from where the
@@ -226,6 +227,8 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyPitchBendRange().toStdString(), 2.0f, 0, 24, 2, 1, Parameter::Type::Discrete });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyOscillatorDrift().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyOscillatorInstability().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyFilterDrive().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyCrossModDepth().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayType().toStdString(), 0.0f, 0, 3, 0, 1, Parameter::Type::Discrete });
@@ -266,6 +269,31 @@ SynthDevice::SynthDevice(std::string name)
     SynthDevice::syncParameters();
 }
 
+namespace {
+
+//! Slowest and fastest an oscillator's own wander runs, in Hz. Slow enough to read as tuning that
+//! will not sit still rather than as vibrato, and spread widely enough that no two oscillators
+//! return to the same relative tuning on any musical timescale.
+constexpr double OscDriftMinRateHz { 0.05 };
+constexpr double OscDriftRateSpreadHz { 0.28 };
+//! Fractional parts of the golden and silver ratios, the two irrationals the rates and the starting
+//! phases are drawn from.
+constexpr double GoldenRatioFraction { 0.6180339887498949 };
+constexpr double SilverRatioFraction { 0.4142135623730951 };
+//! Cents each oscillator wanders either side of its pitch at full instability. Two oscillators can
+//! therefore drift up to a fifth of a semitone apart, which beats audibly without sounding out of
+//! tune -- and at the bottom of the knob it is a few cents, the tuning error of a VCO that has been
+//! on for an hour.
+constexpr double InstabilityMaxCents { 6.0 };
+//! Level into the filter at the top of the Drive control, as a factor. The mix meets the filter at
+//! a few tenths of full scale, so this is what decides whether the top of the knob is an overdriven
+//! filter or a slightly rounded one. 16 is some 24 dB, which reaches well past the ceiling.
+constexpr double MaxFilterDriveGain { 16.0 };
+//! How much of the level the drive adds is taken back off the output at the top of the knob.
+constexpr double DriveMakeup { 0.5 };
+
+} // namespace
+
 void SynthDevice::initializeVoiceDrift()
 {
     // Prime-ratio drift rates so each voice drifts independently without coherent beating, and a
@@ -276,6 +304,17 @@ void SynthDevice::initializeVoiceDrift()
     for (size_t i = 0; i < m_voices.size(); i++) {
         m_voices[i].driftRate = driftRates[i];
         m_voices[i].driftPhase = static_cast<double>(i) / MaxVoices;
+
+        // A rate and a phase of its own for every oscillator of every voice -- twenty-four of them,
+        // too many to pick by hand and far too many to let repeat. The fractional parts of the
+        // multiples of an irrational number never do: they fill the interval without ever landing on
+        // each other, which is exactly the property the hand-picked voice rates above are after. Two
+        // different irrationals keep the rates from deciding the phases with them.
+        for (size_t j = 0; j < VcoCount; j++) {
+            const auto index = static_cast<double>(i * VcoCount + j + 1);
+            m_voices[i].oscDriftRate[j] = OscDriftMinRateHz + OscDriftRateSpreadHz * std::fmod(index * GoldenRatioFraction, 1.0);
+            m_voices[i].oscDriftPhase[j] = std::fmod(index * SilverRatioFraction, 1.0);
+        }
     }
 }
 
@@ -540,7 +579,7 @@ void SynthDevice::renderVoice(Voice & voice, AudioContext & context, uint8_t ove
             if (voice.pendingTrigger) {
                 voice.declickGain -= declickStep;
                 if (voice.declickGain <= 0.0) {
-                    voice.applyTrigger(*voice.pendingTrigger, Voice::Phases { 0.0, 0.0, 0.0 }, true);
+                    voice.applyTrigger(*voice.pendingTrigger, Voice::Phases { 0.0, 0.0, 0.0, 0.0 }, true);
                 }
             }
 
@@ -580,6 +619,12 @@ void SynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversampledRate,
     voice.multi.setOversampleFactor(m_oversampleFactor);
     voice.lpf.setSampleRate(oversampledRate);
     voice.hpf.setSampleRate(oversampledRate);
+    for (auto & stage : voice.drivenLpf) {
+        stage.setSampleRate(oversampledRate);
+        // Keeps the squash per unit of time rather than per sample, so a render at 4x sounds like
+        // playback at 1x. See SaturatingSvf::setSaturationPerStep().
+        stage.setSaturationPerStep(1.0 / static_cast<double>(std::max<uint8_t>(1, m_oversampleFactor)));
+    }
     for (size_t i = 0; i < VcoCount; i++) {
         voice.vcoLpf[i].setSampleRate(oversampledRate);
         voice.vcoHpf[i].setSampleRate(oversampledRate);
@@ -1074,6 +1119,37 @@ SynthDevice::ModulationValues SynthDevice::calculateModulation(Voice & voice) co
     return mods;
 }
 
+double SynthDevice::drivenLowPass(Voice & voice, double input, double cutoff, double resonance, uint32_t oversampledRate) const
+{
+    // The same corner the linear filter would land on, in Hz rather than in knob travel: the two
+    // filters map their cutoff differently, and a patch must not change pitch of tone when Drive
+    // comes off the stop.
+    const double maxFreq = std::min(20000.0, oversampledRate * 0.49);
+    const double frequency = 20.0 * std::exp2(cutoff * std::log2(maxFreq / 20.0));
+
+    // Drive is level into the filter and the same level back out of it, rather than a ceiling that
+    // comes down: the loop saturates at unity either way, and dividing out what was put in is what
+    // keeps a patch at the level it was while it gains the harmonics. Small signals therefore pass
+    // through unchanged and it is the peaks and the resonance that fold, which is what an
+    // overdriven VCF does and what no amount of distortion in front of a linear filter can imitate.
+    const double gain = 1.0 + static_cast<double>(m_filterDrive) * (MaxFilterDriveGain - 1.0);
+    const int stages = static_cast<int>(m_lpfSlope) == 0 ? 1 : 2;
+
+    double value = input * gain;
+    for (int i = 0; i < stages; i++) {
+        auto & stage = voice.drivenLpf[static_cast<size_t>(i)];
+        stage.setCutoff(frequency);
+        stage.setResonance(resonance);
+        stage.setSaturation(1.0);
+        value = stage.process(value);
+    }
+    // What comes back is a few dB louder than what went in, since the fold is what stops the level
+    // rising with the gain rather than anything taking it away. Most of that is given back here, so
+    // that turning the knob is a change of tone and not a change of level: what is left is the
+    // decibel or two an overdriven filter is supposed to gain.
+    return value / (1.0 + static_cast<double>(m_filterDrive) * DriveMakeup);
+}
+
 float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & mods, double oversampledRate, double pbRatio)
 {
     double vco1Freq = voice.glideFrequency * m_vco1BasePitchRatio * pbRatio;
@@ -1107,6 +1183,24 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
         vco2Freq *= driftRatio;
         vco3Freq *= driftRatio;
         vco4Freq *= driftRatio;
+    }
+
+    // And the same thing one level down, which is the one two oscillators can hear on each other.
+    // The drift above moves the whole voice by a single ratio, so a stack of VCOs at one pitch keeps
+    // whatever phase relationship it started the note with forever, however far that knob is turned
+    // up: it sums to one static waveform. Here each oscillator wanders on a rate of its own, so a
+    // pair of them beats slowly, never at a steady rate, and never combs.
+    const double instabilityCents = static_cast<double>(m_oscillatorInstability) * InstabilityMaxCents;
+    if (instabilityCents > 0.0) {
+        const auto wander = [&](size_t index) {
+            auto & phase = voice.oscDriftPhase[index];
+            phase = std::fmod(phase + voice.oscDriftRate[index] / oversampledRate, 1.0);
+            return std::exp2(instabilityCents / 1200.0 * std::sin(phase * (2.0 * M_PI)));
+        };
+        vco1Freq *= wander(0);
+        vco2Freq *= wander(1);
+        vco3Freq *= wander(2);
+        vco4Freq *= wander(3);
     }
 
     // Each oscillator's own filter section, between it and the mix. Skipped whole while nothing has
@@ -1232,7 +1326,10 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
     voice.hpf.setOrder(static_cast<int>(m_hpfSlope) == 0 ? 2 : 4);
     voice.hpf.setCutoff(std::clamp(m_hpfCutoff + mods.hpfCutoffMod, 0.0, 1.0));
 
-    const float filtered = voice.hpf.process(voice.lpf.process(static_cast<float>(mixHeadroom)));
+    const double lowPassed = m_filterDrive > 0.001f
+      ? drivenLowPass(voice, mixHeadroom, std::clamp(m_lpfCutoff + cutoffMod, 0.0, 1.0), std::clamp(m_lpfResonance + static_cast<float>(mods.resonanceMod), 0.0f, 1.0f), oversampledRate)
+      : voice.lpf.process(mixHeadroom);
+    const float filtered = voice.hpf.process(static_cast<float>(lowPassed));
     const float ampMod = static_cast<float>(std::max(0.0, 1.0 + mods.volumeMod));
     return filtered * static_cast<float>(mods.ampEnvelope) * ampMod;
 }
@@ -1438,6 +1535,10 @@ void SynthDevice::syncParameters()
 
     if (const auto p = parameter(Constants::NahdXml::xmlKeyOscillatorDrift().toStdString()); p)
         m_oscillatorDrift = p->get().value();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyOscillatorInstability().toStdString()); p)
+        m_oscillatorInstability = p->get().value();
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyFilterDrive().toStdString()); p)
+        m_filterDrive = p->get().value();
     if (const auto p = parameter(Constants::NahdXml::xmlKeyCrossModDepth().toStdString()); p)
         m_crossModDepth = p->get().value();
 
@@ -2514,6 +2615,26 @@ float SynthDevice::mixVco4() const
 void SynthDevice::setMixVco4(float level)
 {
     setContinuousParameterValue(Constants::NahdXml::xmlKeyMixLevel4().toStdString(), level);
+}
+
+float SynthDevice::filterDrive() const
+{
+    return m_filterDrive;
+}
+
+void SynthDevice::setFilterDrive(float drive)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyFilterDrive().toStdString(), drive);
+}
+
+float SynthDevice::oscillatorInstability() const
+{
+    return m_oscillatorInstability;
+}
+
+void SynthDevice::setOscillatorInstability(float instability)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyOscillatorInstability().toStdString(), instability);
 }
 
 float SynthDevice::oscillatorDrift() const

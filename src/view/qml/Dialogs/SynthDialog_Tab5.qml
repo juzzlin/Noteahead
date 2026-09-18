@@ -17,40 +17,17 @@ import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 import Noteahead 1.0
+import "../Components"
 
-ScrollView {
-    clip: true
+Item {
     property real moduleWidth: 0
+    // Set by the host to a reliable "scope is shown" condition (dialog open + this tab current).
+    property bool scopeActive: false
 
-    ColumnLayout {
-        width: parent.width - 20
-        spacing: 20
-
-        RowLayout {
-            spacing: 20
-            Layout.fillWidth: true
-
-            SynthDialog_Lfo {
-                Layout.preferredWidth: moduleWidth * 1.5
-                Layout.fillWidth: true
-                Layout.alignment: Qt.AlignTop
-            }
-            SynthDialog_Lfo2 {
-                Layout.preferredWidth: moduleWidth * 1.5
-                Layout.fillWidth: true
-                Layout.alignment: Qt.AlignTop
-            }
-        }
-
-        RowLayout {
-            spacing: 20
-            Layout.fillWidth: true
-
-            SynthDialog_Delay {
-                Layout.preferredWidth: moduleWidth * 3 + 20
-                Layout.fillWidth: true
-                Layout.alignment: Qt.AlignTop
-            }
-        }
+    Oscilloscope {
+        anchors.fill: parent
+        anchors.margins: 10
+        deviceController: synthController
+        active: scopeActive
     }
 }

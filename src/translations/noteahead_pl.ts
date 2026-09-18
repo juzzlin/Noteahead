@@ -7986,6 +7986,10 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <translation>LFO / efekty</translation>
     </message>
     <message>
+        <source>Drive / Analog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Scope</source>
         <translation>Oscyloskop</translation>
     </message>
@@ -8031,6 +8035,18 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <source>Drift</source>
         <translation>Dryf</translation>
     </message>
+    <message>
+        <source>How far the whole voice wanders out of tune. Every oscillator of the voice moves together, so this is the note drifting rather than the oscillators drifting apart.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instability</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How far each oscillator wanders on its own. Two of them at the same pitch then beat slowly against each other instead of summing into one waveform that never moves, which is what a stack of VCOs sounds like when none of them can hold its tuning.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SynthDialog_Delay</name>
@@ -8065,6 +8081,25 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     <message>
         <source>Mix</source>
         <translation>Mix</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDialog_Drive</name>
+    <message>
+        <source>Filter Drive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drive</source>
+        <translation type="unfinished">Drive</translation>
+    </message>
+    <message>
+        <source>How hard the low pass is driven. The peaks and the resonance fold inside the filter rather than in front of it, so the tone thickens and the resonant peak compresses instead of tearing. At zero the filter is the clean one every patch was made on.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drive works on the main low pass, not on the per-oscillator filters. The level is held roughly where it was, so the knob changes the tone rather than the balance.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

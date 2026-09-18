@@ -244,6 +244,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/SynthDialog_AmpEg.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Analog.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Delay.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDialog_Drive.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Filter.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Global.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Lfo.qml
@@ -255,6 +256,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Tab2.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Tab3.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Tab4.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDialog_Tab5.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Vco1.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Vco2.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Vco3.qml

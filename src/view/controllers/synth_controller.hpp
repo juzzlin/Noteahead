@@ -166,6 +166,8 @@ class SynthController : public DeviceController
 
     // Oscillator drift
     Q_PROPERTY(int oscillatorDrift READ oscillatorDrift WRITE setOscillatorDrift NOTIFY oscillatorDriftChanged)
+    Q_PROPERTY(int oscillatorInstability READ oscillatorInstability WRITE setOscillatorInstability NOTIFY oscillatorInstabilityChanged)
+    Q_PROPERTY(int filterDrive READ filterDrive WRITE setFilterDrive NOTIFY filterDriveChanged)
 
     // Cross modulation
     Q_PROPERTY(int crossModDepth READ crossModDepth WRITE setCrossModDepth NOTIFY crossModDepthChanged)
@@ -411,6 +413,12 @@ public:
     int oscillatorDrift() const;
     void setOscillatorDrift(int drift);
 
+    int oscillatorInstability() const;
+    void setOscillatorInstability(int instability);
+
+    int filterDrive() const;
+    void setFilterDrive(int drive);
+
     int crossModDepth() const;
     void setCrossModDepth(int depth);
 
@@ -535,6 +543,8 @@ signals:
     void panSpreadChanged();
     void pitchBendRangeChanged();
     void oscillatorDriftChanged();
+    void oscillatorInstabilityChanged();
+    void filterDriveChanged();
     void crossModDepthChanged();
     void delayTypeChanged();
     void delayTimeChanged();

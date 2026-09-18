@@ -132,6 +132,13 @@ private slots:
     void test_ampCurve_serialization_shouldPreserveState();
     void test_modCurve_serialization_shouldPreserveState();
     void test_repeatedNote_afterVoiceRetired_shouldSweepTheSameWay();
+    void test_filterDrive_shouldFoldHarmonicsIntoASineTheFilterWouldNotHave();
+    void test_filterDrive_shouldNotRunAwayWithTheLevel();
+    void test_filterDrive_serialization_shouldPreserveState();
+    void test_oscillatorInstability_serialization_shouldPreserveState();
+    void test_oscillatorInstability_oscillatorsInUnison_shouldBeatAgainstEachOther();
+    void test_oscillatorInstability_off_shouldLeaveTheStackStanding();
+    void test_phaseSync_vco4_shouldStartEveryNoteFromTheSamePhase();
 };
 
 } // namespace noteahead

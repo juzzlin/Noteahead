@@ -23,6 +23,14 @@ New features:
   - A preset never carries a side-chain source: the device it names belongs
     to the project, not to the patch
 
+* Instability and Drive in the Synth
+  - Instability gives every oscillator a slow wander of its own, so two of them
+    at one pitch beat against each other instead of summing into a waveform
+    that never moves. Drift moves the whole voice and cannot do that
+  - Drive pushes the low pass into its own ceiling: the peaks and the resonance
+    fold inside the filter rather than in front of it. Both start at zero, so
+    every patch is the patch it was
+
 * Metering per device in the Mixer
   - Each strip now shows IN, the level Gain is set against, beside OUT, what
     the device actually contributes
@@ -89,6 +97,11 @@ New features:
     you have already sounds different
 
 Bug fixes:
+
+* The Synth's fourth oscillator answers Phase Sync
+  - The starting phases were carried in an array of three, so VCO4 was never
+    reset and a repeated note started it wherever the note before it had left
+    it
 
 * The Sampler's offset fields keep following the pad
   - Pressing Return in one of them dropped its binding for good, so a value

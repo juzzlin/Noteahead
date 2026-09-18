@@ -1810,6 +1810,16 @@ QString xmlKeyOscillatorDrift()
     return "oscillatorDrift";
 }
 
+QString xmlKeyOscillatorInstability()
+{
+    return "oscillatorInstability";
+}
+
+QString xmlKeyFilterDrive()
+{
+    return "filterDrive";
+}
+
 QString xmlKeyCrossModDepth()
 {
     return "crossModDepth";

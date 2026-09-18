@@ -23,6 +23,7 @@
 #include "../dsp/multi_engine.hpp"
 #include "../dsp/one_pole_filter.hpp"
 #include "../dsp/poly_blep_oscillator.hpp"
+#include "../dsp/saturating_svf.hpp"
 #include "../dsp/upsampler.hpp"
 #include "../effects/delay.hpp"
 #include "device.hpp"
@@ -369,6 +370,15 @@ public:
     float oscillatorDrift() const;
     void setOscillatorDrift(float drift);
 
+    //! How far each oscillator wanders on its own, as opposed to the whole voice wandering together.
+    float oscillatorInstability() const;
+    void setOscillatorInstability(float instability);
+
+    //! How hard the low pass is driven into its own ceiling. Zero is the linear filter the synth has
+    //! always had, and is what every patch made before this sits at.
+    float filterDrive() const;
+    void setFilterDrive(float drive);
+
     // Cross modulation (VCO1 -> VCO2 audio-rate FM)
     float crossModDepth() const;
     void setCrossModDepth(float depth);
@@ -414,7 +424,7 @@ private:
     struct Voice
     {
         //! Starting phase of each oscillator, in VCO order.
-        using Phases = std::array<double, 3>;
+        using Phases = std::array<double, VcoCount>;
 
         PolyBlepOscillator vco1;
         PolyBlepOscillator vco2;
@@ -423,6 +433,10 @@ private:
         MultiEngine multi;
         CascadedSvf lpf;
         CascadedSvf hpf;
+        //! The low pass again, saturating, for when Drive is up. A second filter rather than a mode
+        //! of the first: the linear one has to keep behaving exactly as it did, down to the sample,
+        //! for every patch that leaves Drive alone.
+        std::array<SaturatingSvf, 2> drivenLpf;
         //! A low pass and a high pass of its own for each VCO, ahead of the mix. Indexed in VCO
         //! order, and skipped altogether while a pair sits at the ends of its travel -- which is
         //! where they start, so a patch that does not reach for them costs nothing.
@@ -442,6 +456,11 @@ private:
         float velocity { 1.0f };
         double driftPhase { 0.0 };
         double driftRate { 0.2 };
+        //! The same wander again, once per oscillator instead of once per voice. What makes two VCOs
+        //! at the same pitch beat against each other: the voice-wide drift above moves all four by
+        //! the very same ratio, which leaves their relative tuning exactly as steady as it was.
+        std::array<double, VcoCount> oscDriftPhase {};
+        std::array<double, VcoCount> oscDriftRate {};
         //! Rolls the top off the outer voices of a stacked mode, where the beating is roughest.
         OnePoleFilter unisonDamp;
 
@@ -582,6 +601,8 @@ private:
     // Manual settings for CC reset
 
     float m_oscillatorDrift { 0.0f };
+    float m_oscillatorInstability { 0.0f };
+    float m_filterDrive { 0.0f };
     float m_crossModDepth { 0.0f };
 
     Delay m_delay;
@@ -626,6 +647,10 @@ private:
 
     //! Puts every voice's free-running drift oscillator back to its starting rate and phase.
     void initializeVoiceDrift();
+
+    //! The low pass with its integrators saturating, which is the path Drive takes. Kept out of
+    //! generateVoiceSample() so the clean path there stays the two lines it always was.
+    double drivenLowPass(Voice & voice, double input, double cutoff, double resonance, uint32_t oversampledRate) const;
 
     struct ModulationValues
     {
