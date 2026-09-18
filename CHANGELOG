@@ -71,6 +71,10 @@ New features:
 
 Bug fixes:
 
+* Copying a send effect brings its chain along
+  - A send bus is its effect plus whatever runs after it, and only the
+    effect was copied
+
 * Tempo-synced effects follow the song's tempo
   - The tempo was never written into the audio block at all, so anything
     reading it there ran at a fixed 120 whatever the song said

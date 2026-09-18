@@ -537,6 +537,13 @@ private:
         bool enabled = true;
     };
 
+    //! Carries a send bus's chain of effects over with the effect itself.
+    //!
+    //! A send bus is its effect plus whatever the user hung after it, and copying only the effect
+    //! left the target bus sounding nothing like the one it was copied from. A no-op on every other
+    //! rack: only the master send rack's slots have chains behind them.
+    void copySendChain(int sourceBus, int targetBus);
+
     //! Type id of the effect in @p effectIndex, or empty when the slot is empty. What the preset
     //! store is keyed by, so presets of one effect type are never offered for another.
     QString effectTypeId(quint32 effectIndex) const;

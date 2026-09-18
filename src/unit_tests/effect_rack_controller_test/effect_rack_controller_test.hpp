@@ -41,6 +41,10 @@ private slots:
     void test_effectParametersSummary_dbtpMeter_shouldPadReadingsToConstantWidth();
     void test_isEffectEnabled_shouldReturnEnabledState();
     void test_currentRack_drumVoiceSubIndex_shouldTargetVoiceRack();
+
+    void test_copyEffect_sendBus_shouldCopyTheChainToo();
+    void test_copyEffect_sendBus_sourceWithNoChain_shouldClearTheTargetChain();
+    void test_copyEffect_insertRack_shouldLeaveSendChainsAlone();
     void test_revision_shouldIncrementOnPropertySet();
     void test_exportSettings_shouldSerializeEffects();
     void test_importSettings_shouldRestoreEffects();

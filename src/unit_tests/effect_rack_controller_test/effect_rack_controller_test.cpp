@@ -652,6 +652,85 @@ void EffectRackControllerTest::test_currentRack_drumVoiceSubIndex_shouldTargetVo
     QVERIFY(drum->insertEffectRack().hasEffects());
 }
 
+void EffectRackControllerTest::test_copyEffect_sendBus_shouldCopyTheChainToo()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+
+    // The master send rack: no device name, not the insert rack, no sub-index.
+    controller.setIsInsertRack(false);
+    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+
+    // ...and the chain bus 0 runs after its reverb.
+    controller.setTargetSubIndex(0);
+    controller.setEffect(0, QString::fromStdString(Phaser::typeIdString()));
+    controller.setTargetSubIndex(-1);
+
+    controller.copyEffect(0, 1);
+
+    // A send bus is its effect plus what the user hung after it, and a copy has to be both.
+    const auto copiedEffect = deviceService->sendEffectRack().effect(1);
+    QVERIFY(copiedEffect);
+    QCOMPARE(copiedEffect->typeId(), Reverb::typeIdString());
+    const auto copiedChain = deviceService->sendChainRack(1).effect(0);
+    QVERIFY2(copiedChain, "the chain of the copied bus was left empty");
+    QCOMPARE(copiedChain->typeId(), Phaser::typeIdString());
+    // The source keeps its own.
+    const auto sourceChain = deviceService->sendChainRack(0).effect(0);
+    QVERIFY(sourceChain);
+    QCOMPARE(sourceChain->typeId(), Phaser::typeIdString());
+}
+
+void EffectRackControllerTest::test_copyEffect_sendBus_sourceWithNoChain_shouldClearTheTargetChain()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+
+    controller.setIsInsertRack(false);
+    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+
+    // Only the target has a chain of its own.
+    controller.setTargetSubIndex(1);
+    controller.setEffect(0, QString::fromStdString(Phaser::typeIdString()));
+    controller.setTargetSubIndex(-1);
+
+    controller.copyEffect(0, 1);
+
+    // The target ends up being what it was copied from, which includes having no chain.
+    QVERIFY(!deviceService->sendChainRack(1).hasEffects());
+}
+
+void EffectRackControllerTest::test_copyEffect_insertRack_shouldLeaveSendChainsAlone()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+
+    // A chain on bus 1 that nothing in this test should touch.
+    controller.setIsInsertRack(false);
+    controller.setTargetSubIndex(1);
+    controller.setEffect(0, QString::fromStdString(Phaser::typeIdString()));
+    controller.setTargetSubIndex(-1);
+
+    // Copying within a plain list of effects: only the master send rack has buses.
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(Reverb::typeIdString()));
+    controller.copyEffect(0, 1);
+
+    const auto copiedEffect = deviceService->insertEffectRack().effect(1);
+    QVERIFY(copiedEffect);
+    QCOMPARE(copiedEffect->typeId(), Reverb::typeIdString());
+    const auto untouchedChain = deviceService->sendChainRack(1).effect(0);
+    QVERIFY2(untouchedChain, "copying inside an insert rack cleared a send bus chain");
+    QCOMPARE(untouchedChain->typeId(), Phaser::typeIdString());
+    QVERIFY(!deviceService->sendChainRack(0).hasEffects());
+}
+
 void EffectRackControllerTest::test_revision_shouldIncrementOnPropertySet()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();

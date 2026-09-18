@@ -386,11 +386,30 @@ void EffectRackController::copyEffect(int sourceSlot, int targetSlot)
 {
     if (const auto rack = currentRack(); rack) {
         if (rack->get().copyEffect(static_cast<size_t>(sourceSlot), static_cast<size_t>(targetSlot))) {
+            copySendChain(sourceSlot, targetSlot);
             m_editorService->setIsModified(true);
             m_revision++;
             emit revisionChanged();
         }
     }
+}
+
+void EffectRackController::copySendChain(int sourceBus, int targetBus)
+{
+    // The master send rack is the only rack whose slots are buses: a device's inserts, a pad's, a
+    // voice's and a chain rack itself are all plain lists with nothing hanging off a slot.
+    if (!m_targetDeviceName.isEmpty() || m_isInsertRack || m_targetSubIndex >= 0) {
+        return;
+    }
+
+    const auto chainCount = m_deviceService->sendChainRackCount();
+    if (sourceBus < 0 || targetBus < 0 || static_cast<size_t>(sourceBus) >= chainCount || static_cast<size_t>(targetBus) >= chainCount) {
+        return;
+    }
+
+    // copyFrom() empties the target first, so a bus copied from one with no chain is left with none
+    // of its own -- the target ends up being what it was copied from, chain and all.
+    m_deviceService->sendChainRack(static_cast<size_t>(targetBus)).copyFrom(m_deviceService->sendChainRack(static_cast<size_t>(sourceBus)));
 }
 
 QVariantList EffectRackController::availableRackSources() const
