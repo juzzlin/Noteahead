@@ -19,6 +19,13 @@ New features:
   - In Mid or Side mode the untouched path is drawn too, so a cut taken
     out of half the image no longer looks like one taken out of all of it
 
+* The render report measures the mix's balance
+  - A third-octave average of the whole track, plus what sits in the low
+    mids, mids, presence and highs
+  - Read against the mix's own midrange, so two tracks mastered to
+    different loudnesses can be compared band for band
+  - Presence against highs is the number a hollow mix gives itself away by
+
 * The Air Band EQ draws its curve
   - Summed the way its taps actually meet the dry signal, so the skirts
     are as wide as they sound rather than up to 1.5 dB wider

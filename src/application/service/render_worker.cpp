@@ -456,25 +456,27 @@ void RenderWorker::writeFinalFile(const QString & tempPath,
     QFile::remove(tempPath);
 }
 
-LoudnessAnalyzer::Result RenderWorker::runLoudnessAnalysis(const QString & finalPath, quint32 sampleRate)
+RenderWorker::AnalysisResult RenderWorker::runLoudnessAnalysis(const QString & finalPath, quint32 sampleRate)
 {
-    juzzlin::L(TAG).info() << "Running loudness/peak analysis on final file...";
+    juzzlin::L(TAG).info() << "Running loudness/peak and balance analysis on final file...";
     auto reader = m_audioFileReaderFactory ? m_audioFileReaderFactory() : std::make_unique<SndFileReader>();
     AudioFileReader::Info info {};
     if (!reader->open(finalPath.toStdString(), AudioFileReader::Mode::Read, info)) {
         throw std::runtime_error { "Failed to open final file for analysis: " + finalPath.toStdString() };
     }
 
-    LoudnessAnalyzer analyzer { static_cast<double>(sampleRate) };
+    LoudnessAnalyzer loudness { static_cast<double>(sampleRate) };
+    SpectrumAnalyzer spectrum { static_cast<double>(sampleRate), info.channels };
     std::vector<float> analyzeBuffer(16384);
     int64_t read = 0;
     while ((read = reader->readFloat(analyzeBuffer)) > 0) {
         const int64_t numSamples = read * info.channels;
-        analyzer.process(analyzeBuffer.data(), numSamples);
+        loudness.process(analyzeBuffer.data(), static_cast<size_t>(numSamples));
+        spectrum.process(analyzeBuffer.data(), static_cast<size_t>(numSamples));
     }
     reader->close();
 
-    return analyzer.calculate();
+    return AnalysisResult { loudness.calculate(), spectrum.calculate() };
 }
 
 QString RenderWorker::analysisFilePath(const QString & renderedPath)
@@ -482,7 +484,7 @@ QString RenderWorker::analysisFilePath(const QString & renderedPath)
     return renderedPath + ".loudness.txt";
 }
 
-QString RenderWorker::formatReportHtml(const LoudnessAnalyzer::Result & result)
+QString RenderWorker::formatReportHtml(const AnalysisResult & result)
 {
     QString report = QString("<table width='100%' cellpadding='5' cellspacing='0'>"
                              "<tr>"
@@ -501,17 +503,33 @@ QString RenderWorker::formatReportHtml(const LoudnessAnalyzer::Result & result)
                              "<td>Threshold</td><td align='right'><font color='#888888'>%4 LUFS</font></td>"
                              "</tr>"
                              "</table>")
-                       .arg(result.integratedLoudness, 0, 'f', 1)
-                       .arg(result.truePeak, 0, 'f', 1)
-                       .arg(result.loudnessRange, 0, 'f', 1)
-                       .arg(result.threshold, 0, 'f', 1);
+                       .arg(result.loudness.integratedLoudness, 0, 'f', 1)
+                       .arg(result.loudness.truePeak, 0, 'f', 1)
+                       .arg(result.loudness.loudnessRange, 0, 'f', 1)
+                       .arg(result.loudness.threshold, 0, 'f', 1);
+
+    if (result.spectrum.isValid) {
+        const auto row = [](const QString & name, float value, const QString & color) {
+            return QString { "<tr><td>%1</td><td align='right'><font color='%2'><b>%3 dB</b></font></td></tr>" }
+              .arg(name, color)
+              .arg(value, 0, 'f', 1);
+        };
+        report += QString { "<br><table width='100%' cellpadding='5' cellspacing='0'>"
+                            "<tr><td bgcolor='#2c2c2c'><b>Balance</b></td>"
+                            "<td align='right' bgcolor='#2c2c2c'><b>vs. own midrange</b></td></tr>%1%2%3%4%5</table>" }
+                    .arg(row("Low mids (100-250 Hz)", result.spectrum.lowMidDb, "#4CAF50"),
+                         row("Mids (250-630 Hz)", result.spectrum.midDb, "#4CAF50"),
+                         row("Presence (0.8-1.6 kHz)", result.spectrum.upperMidDb, "#2196F3"),
+                         row("Highs (2.5-8 kHz)", result.spectrum.highDb, "#FF9800"),
+                         row("Presence - highs", result.spectrum.upperMidToHighDb, "#888888"));
+    }
 
     juzzlin::L(TAG).info() << "Analysis completed:\n"
                            << report.toStdString();
     return report;
 }
 
-QString RenderWorker::formatReportText(const LoudnessAnalyzer::Result & result, const QString & renderedPath, quint32 sampleRate)
+QString RenderWorker::formatReportText(const AnalysisResult & result, const QString & renderedPath, quint32 sampleRate)
 {
     const auto label = [](const QString & text, const QString & value) {
         return QString { "%1%2\n" }.arg(text, -22).arg(value);
@@ -526,10 +544,37 @@ QString RenderWorker::formatReportText(const LoudnessAnalyzer::Result & result, 
     report += label("Date:", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
     report += label("Sample rate:", QString { "%1 Hz" }.arg(sampleRate));
     report += "\n";
-    report += label("Integrated loudness:", number(result.integratedLoudness, "LUFS"));
-    report += label("True peak:", number(result.truePeak, "dBTP"));
-    report += label("Loudness range (LRA):", number(result.loudnessRange, "LU"));
-    report += label("Threshold:", number(result.threshold, "LUFS"));
+    report += label("Integrated loudness:", number(result.loudness.integratedLoudness, "LUFS"));
+    report += label("True peak:", number(result.loudness.truePeak, "dBTP"));
+    report += label("Loudness range (LRA):", number(result.loudness.loudnessRange, "LU"));
+    report += label("Threshold:", number(result.loudness.threshold, "LUFS"));
+
+    if (result.spectrum.isValid) {
+        const auto & spectrum = result.spectrum;
+        report += "\nBalance\n";
+        report += "Levels are relative to this mix's own 100 Hz - 8 kHz average, so they can be\n";
+        report += "compared with another mix directly whatever the two were mastered to.\n\n";
+        report += label("Low mids 100-250 Hz:", number(spectrum.lowMidDb, "dB"));
+        report += label("Mids 250-630 Hz:", number(spectrum.midDb, "dB"));
+        report += label("Presence 0.8-1.6 kHz:", number(spectrum.upperMidDb, "dB"));
+        report += label("Highs 2.5-8 kHz:", number(spectrum.highDb, "dB"));
+        report += label("Presence - highs:", number(spectrum.upperMidToHighDb, "dB"));
+
+        report += "\nThird-octave average\n\n";
+        for (const auto & band : spectrum.bands) {
+            const auto hz = band.centerHz >= 1000.0
+              ? QString { "%1 kHz" }.arg(band.centerHz / 1000.0, 0, 'f', band.centerHz >= 10000.0 ? 0 : 1)
+              : QString { "%1 Hz" }.arg(band.centerHz, 0, 'f', 0);
+            // A bar as well as the number: the shape of a balance is read across the bands at a
+            // glance, and a column of figures hides it.
+            const int bar = std::clamp(static_cast<int>(std::lround(band.levelDb + 18.0)), 0, 40);
+            report += QString { "%1%2  %3\n" }
+                        .arg(hz, -10)
+                        .arg(QString { "%1 dB" }.arg(band.levelDb, 6, 'f', 1))
+                        .arg(QString { "#" }.repeated(bar));
+        }
+    }
+
     return report;
 }
 

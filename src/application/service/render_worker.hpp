@@ -19,6 +19,7 @@
 #include "../../common/audio_backend.hpp"
 #include "../../domain/tracker/song.hpp"
 #include "../../domain/utility/loudness_analyzer.hpp"
+#include "../../domain/utility/spectrum_analyzer.hpp"
 
 #include <functional>
 #include <map>
@@ -110,7 +111,15 @@ private:
     void handleEvent(const Event & event);
     double runNormalizationScan(const QString & tempPath);
     void writeFinalFile(const QString & tempPath, const QString & finalPath, double gain, quint32 sampleRate, quint32 recordingBufferSize, noteahead::BitDepth bitDepth, noteahead::AudioFormat format, const std::map<noteahead::AudioFileReader::TagType, std::string> & tags);
-    LoudnessAnalyzer::Result runLoudnessAnalysis(const QString & finalPath, quint32 sampleRate);
+
+    //! Loudness and balance, both measured in one pass over the finished file.
+    struct AnalysisResult
+    {
+        LoudnessAnalyzer::Result loudness;
+        SpectrumAnalyzer::Result spectrum;
+    };
+
+    AnalysisResult runLoudnessAnalysis(const QString & finalPath, quint32 sampleRate);
 
     //! Path of the report written beside a rendered file: its whole name plus ".loudness.txt", so
     //! that rendering the same song to both WAV and FLAC cannot have one report overwrite the other.
@@ -118,10 +127,10 @@ private:
 
     //! The analysis as the report dialog shows it. Both formatters read the same result, so the file
     //! and the dialog cannot end up disagreeing.
-    static QString formatReportHtml(const LoudnessAnalyzer::Result & result);
+    static QString formatReportHtml(const AnalysisResult & result);
 
     //! The analysis as it is written to disk.
-    static QString formatReportText(const LoudnessAnalyzer::Result & result, const QString & renderedPath, quint32 sampleRate);
+    static QString formatReportText(const AnalysisResult & result, const QString & renderedPath, quint32 sampleRate);
 
     //! Writes the report beside the rendered file. Failing to write it is logged and swallowed: the
     //! audio is what the user asked for, and it is already on disk by this point.

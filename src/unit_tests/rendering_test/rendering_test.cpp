@@ -1107,6 +1107,12 @@ void RenderingTest::test_render_analysis_shouldWriteReportBesideTheRenderedFile(
     QVERIFY(text.contains("Threshold:"));
     QVERIFY(text.contains("LUFS"));
     QVERIFY(text.contains("dBTP"));
+
+    // The balance half of the report, measured in the same pass over the finished file.
+    QVERIFY(text.contains("Balance"));
+    QVERIFY(text.contains("Presence 0.8-1.6 kHz:"));
+    QVERIFY(text.contains("Presence - highs:"));
+    QVERIFY(text.contains("Third-octave average"));
 }
 
 void RenderingTest::test_render_analyzeWithoutNormalize_shouldWriteTheFinalFileInOnePass()
