@@ -162,6 +162,21 @@ void AirBandEqTest::test_bandPass_fullCut_shouldStopAtDocumentedMinimum()
     QVERIFY(std::abs(measureGainDb(effect, 40.0) + 4.5) < 0.5);
 }
 
+void AirBandEqTest::test_bandPass_topBandBoosted_shouldFallAwayAboveItsCentre()
+{
+    auto effect = makeEq();
+    setBand(effect, Band2500Hz, BandFullBoost);
+
+    // The topmost band pass is a bell like the other four, not a shelf: the panel gives all five one
+    // heading and one range, and lifting everything above a corner is what the AIR BAND is for.
+    // Boosting it must therefore leave the top octaves where they were rather than carrying them up.
+    const double atCentre = measureGainDb(effect, 2500.0);
+    const double twoOctavesAbove = measureGainDb(effect, 10000.0);
+
+    QVERIFY2(atCentre > 10.0, qPrintable(QString("at the centre: %1 dB").arg(atCentre)));
+    QVERIFY2(twoOctavesAbove < atCentre - 6.0, qPrintable(QString("two octaves above: %1 dB").arg(twoOctavesAbove)));
+}
+
 void AirBandEqTest::test_bandPasses_loweredTogether_shouldPreserveCurveShape()
 {
     const std::vector<double> probeFrequencies { 40.0, 160.0, 650.0, 2500.0 };

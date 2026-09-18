@@ -98,6 +98,11 @@ New features:
 
 Bug fixes:
 
+* The Air Band EQ's 2.5 kHz band is a bell
+  - It was built as a shelf, so boosting it carried everything above it up
+    instead of coming back down, and duplicated the AIR BAND's lowest position
+  - Projects that use it keep their settings but will sound different up top
+
 * The Synth's fourth oscillator answers Phase Sync
   - The starting phases were carried in an array of three, so VCO4 was never
     reset and a repeated note started it wherever the note before it had left

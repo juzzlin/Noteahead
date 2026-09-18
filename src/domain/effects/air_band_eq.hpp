@@ -68,17 +68,15 @@ public:
     //! block has been processed, so a dialog opened before anything played would draw a flat line.
     double magnitudeDbAt(double frequency) const;
 
-    //! Band passes on the panel: four bells plus the 2.5 kHz shelf. The air band is separate.
+    //! Band passes on the panel, every one of them a bell. The air band is separate: it is the
+    //! only section of the panel that lifts everything above a corner rather than around a centre.
     static constexpr size_t BandCount = 5;
-    //! The subset of the band passes realised as band-pass taps; the remainder is the shelf.
-    static constexpr size_t BellCount = 4;
 
 private:
     //! One channel's worth of taps. Processed as dual mono, matching the single-channel original.
     struct ChannelState
     {
-        std::array<SvfFilter, BellCount> bells;
-        OnePoleFilter shelf;
+        std::array<SvfFilter, BandCount> bells;
         OnePoleFilter air;
 
         void reset();

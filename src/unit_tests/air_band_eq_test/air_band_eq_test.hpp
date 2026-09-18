@@ -30,6 +30,7 @@ private slots:
     void test_bandPass_cut_shouldAttenuateCenterFrequency();
     void test_bandPass_fullBoost_shouldReachDocumentedMaximum();
     void test_bandPass_fullCut_shouldStopAtDocumentedMinimum();
+    void test_bandPass_topBandBoosted_shouldFallAwayAboveItsCentre();
     void test_bandPasses_loweredTogether_shouldPreserveCurveShape();
     void test_airBand_boosted_shouldAmplifyHighFrequencies();
     void test_airBand_boosted_shouldRaiseOverallGain();

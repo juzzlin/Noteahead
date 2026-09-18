@@ -26,9 +26,11 @@ namespace noteahead {
 
 namespace {
 
-// Fixed band-pass centres, mirroring the front panel. The first four are bells; 2.5 kHz is a shelf.
-constexpr std::array<double, AirBandEq::BellCount> BellFreqs { 10.0, 40.0, 160.0, 650.0 };
-constexpr double ShelfFreq = 2500.0;
+// Fixed band-pass centres, mirroring the front panel. Every one is a bell, 2.5 kHz included: the
+// panel groups all five under one heading with one range, and the air band is what the hardware
+// gives you when you want everything above a corner lifted instead. A shelf here would also make
+// the 2.5 kHz knob a duplicate of the air band's lowest position.
+constexpr std::array<double, AirBandEq::BandCount> BellFreqs { 10.0, 40.0, 160.0, 650.0, 2500.0 };
 
 // AIR BAND selector positions. Index 0 is the panel's OFF detent.
 constexpr std::array<double, 6> AirFreqs { 0.0, 2500.0, 5000.0, 10000.0, 20000.0, 40000.0 };
@@ -43,9 +45,9 @@ constexpr double MaxBandCutDb = 4.5;
 constexpr double MaxAirGainDb = 20.0;
 constexpr double MaxOutputTrimDb = 12.0;
 
-// The bell centres sit two octaves apart, so a Q of about 0.667 gives each tap a two-octave -3 dB
-// bandwidth. Neighbouring bands then overlap enough that moving all five together shifts the whole
-// curve instead of rippling it, which is the interaction the hardware is built around.
+// The five bell centres sit two octaves apart, so a Q of about 0.667 gives each tap a two-octave
+// -3 dB bandwidth. Neighbouring bands then overlap enough that moving all five together shifts the
+// whole curve instead of rippling it, which is the interaction the hardware is built around.
 constexpr double BandQ = 0.667;
 
 //! Coefficient a tap is scaled by before being summed into the dry path.
@@ -80,7 +82,6 @@ void AirBandEq::ChannelState::reset()
     for (auto & bell : bells) {
         bell.reset();
     }
-    shelf.reset();
     air.reset();
 }
 
@@ -149,12 +150,9 @@ double AirBandEq::processChannel(double input, ChannelState & state)
     // by addition instead of stacking multiplicatively the way a cascade would.
     double output = input;
 
-    for (size_t i = 0; i < BellCount; i++) {
+    for (size_t i = 0; i < BandCount; i++) {
         output += m_bandGains[i] * state.bells[i].process(input);
     }
-
-    state.shelf.process(input);
-    output += m_bandGains[BellCount] * state.shelf.highPass();
 
     state.air.process(input);
     output += m_airGain * state.air.highPass();
@@ -218,10 +216,9 @@ void AirBandEq::syncParameters()
     m_outputGain = settings.outputGain;
 
     for (auto & channel : m_channels) {
-        for (size_t i = 0; i < BellCount; i++) {
+        for (size_t i = 0; i < BandCount; i++) {
             channel.bells[i].calculateBandPass(BellFreqs[i], m_sampleRate, BandQ);
         }
-        channel.shelf.calculate(ShelfFreq, m_sampleRate);
         channel.air.calculate(settings.airCorner, m_sampleRate);
     }
 }
@@ -235,15 +232,12 @@ double AirBandEq::magnitudeDbAt(double frequency) const
     std::complex<double> response { 1.0, 0.0 };
 
     SvfFilter bell;
-    for (size_t i = 0; i < BellCount; i++) {
+    for (size_t i = 0; i < BandCount; i++) {
         bell.calculateBandPass(BellFreqs[i], m_sampleRate, BandQ);
         response += settings.bandGains[i] * bell.responseAt(frequency, m_sampleRate);
     }
 
     OnePoleFilter tap;
-    tap.calculate(ShelfFreq, m_sampleRate);
-    response += settings.bandGains[BellCount] * tap.highPassResponseAt(frequency, m_sampleRate);
-
     tap.calculate(settings.airCorner, m_sampleRate);
     response += settings.airGain * tap.highPassResponseAt(frequency, m_sampleRate);
 
