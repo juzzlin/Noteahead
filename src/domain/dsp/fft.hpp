@@ -21,6 +21,15 @@ namespace noteahead::Fft {
 //! Iterative Cooley-Tukey DIT radix-2 FFT (in-place, N must be a power of 2).
 void forward(double * re, double * im, int N);
 
+//! Spectrum of @p N real samples, written to @p re and @p im as the bins 0 to N/2 inclusive.
+//!
+//! Half the work of packing real input into forward() and throwing the mirrored half away: the
+//! even and odd samples are packed as the real and imaginary parts of one N/2-point transform, and
+//! the spectrum of the original is recovered from its conjugate symmetry. @p re and @p im must
+//! hold N/2+1 values and may not alias @p input. Bins above N/2 are left untouched; a real signal
+//! has nothing there that the bins below do not already carry.
+void forwardReal(const double * input, double * re, double * im, int N);
+
 //! Inverse of forward(), scaled by 1/N (in-place, N must be a power of 2).
 void inverse(double * re, double * im, int N);
 

@@ -58,6 +58,74 @@ void forward(double * re, double * im, int N)
     }
 }
 
+void forwardReal(const double * input, double * re, double * im, int N)
+{
+    if (N < 4) {
+        return;
+    }
+
+    const int half = N / 2;
+
+    // Even samples as the real part, odd as the imaginary: one N/2-point transform carries both.
+    for (int i = 0; i < half; i++) {
+        re[i] = input[2 * i];
+        im[i] = input[2 * i + 1];
+    }
+
+    forward(re, im, half);
+
+    // Unpacking. With Z the packed transform, the transforms of the even and odd samples are
+    //   E[k] = (Z[k] + conj(Z[half-k])) / 2,  O[k] = (Z[k] - conj(Z[half-k])) / 2i
+    // and the spectrum of the original is E[k] + exp(-2*pi*i*k/N) * O[k]. Bins k and half-k are
+    // written together because each is read while the other is computed.
+    const double z0Re = re[0];
+    const double z0Im = im[0];
+    re[0] = z0Re + z0Im; // DC and Nyquist are both real and fall out of Z[0] alone.
+    im[0] = 0.0;
+    re[half] = z0Re - z0Im;
+    im[half] = 0.0;
+
+    // Twiddles by the same recurrence the butterflies use rather than a cosine per bin: this runs
+    // on the audio thread, and a transcendental per bin would cost more than the transform it
+    // serves.
+    const double ang = -std::numbers::pi / half;
+    const double wStepRe = std::cos(ang);
+    const double wStepIm = std::sin(ang);
+    double wRe = 1.0;
+    double wIm = 0.0;
+
+    for (int k = 1; k <= half / 2; k++) {
+        const double nextWRe = wRe * wStepRe - wIm * wStepIm;
+        wIm = wRe * wStepIm + wIm * wStepRe;
+        wRe = nextWRe;
+
+        const int mirror = half - k;
+
+        const double zkRe = re[k];
+        const double zkIm = im[k];
+        const double zmRe = re[mirror];
+        const double zmIm = im[mirror];
+
+        const double evenRe = 0.5 * (zkRe + zmRe);
+        const double evenIm = 0.5 * (zkIm - zmIm);
+        const double oddRe = 0.5 * (zkIm + zmIm);
+        const double oddIm = -0.5 * (zkRe - zmRe);
+
+        const double rotRe = oddRe * wRe - oddIm * wIm;
+        const double rotIm = oddRe * wIm + oddIm * wRe;
+
+        re[k] = evenRe + rotRe;
+        im[k] = evenIm + rotIm;
+
+        // The mirrored bin shares the same even and odd parts, conjugated, against the twiddle a
+        // half turn away.
+        if (mirror != k) {
+            re[mirror] = evenRe - rotRe;
+            im[mirror] = -(evenIm - rotIm);
+        }
+    }
+}
+
 void inverse(double * re, double * im, int N)
 {
     // Conjugate, forward transform, conjugate back: the same butterflies run backwards.
