@@ -463,6 +463,14 @@
         <translation>设备 %1</translation>
     </message>
     <message>
+        <source>Device %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Device %1: %2 — %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>LPF</source>
         <translation>LPF</translation>
     </message>
@@ -1129,6 +1137,14 @@
     <message>
         <source>Device %1</source>
         <translation>设备 %1</translation>
+    </message>
+    <message>
+        <source>Device %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Device %1: %2 — %3</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>LPF</source>
@@ -4650,6 +4666,14 @@
         <translation>设备 %1</translation>
     </message>
     <message>
+        <source>Device %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Device %1: %2 — %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Low</source>
         <translation>低</translation>
     </message>
@@ -7333,6 +7357,14 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <source>Device %1</source>
         <translation>设备 %1</translation>
     </message>
+    <message>
+        <source>Device %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Device %1: %2 — %3</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>StringVoiceDialog_Voice</name>
@@ -7544,6 +7576,14 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>Device %1</source>
         <translation>设备 %1</translation>
+    </message>
+    <message>
+        <source>Device %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Device %1: %2 — %3</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7764,6 +7804,14 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>Device %1</source>
         <translation type="unfinished">设备 %1</translation>
+    </message>
+    <message>
+        <source>Device %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Device %1: %2 — %3</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

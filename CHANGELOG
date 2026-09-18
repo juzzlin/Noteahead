@@ -103,6 +103,10 @@ Bug fixes:
 
 Other:
 
+* Side-chain sources are named
+  - Every side-chain source list names the device's type and tracks instead
+    of numbering the slots
+
 * The EQ's bands open at a Q that suits the type
   - A bell is one octave wide, a shelf or a cut is Butterworth, and a notch
     starts narrow

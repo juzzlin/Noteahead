@@ -463,6 +463,14 @@
         <translation>Dispositivo %1</translation>
     </message>
     <message>
+        <source>Device %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Device %1: %2 — %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>LPF</source>
         <translation>LPF</translation>
     </message>
@@ -1129,6 +1137,14 @@
     <message>
         <source>Device %1</source>
         <translation>Dispositivo %1</translation>
+    </message>
+    <message>
+        <source>Device %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Device %1: %2 — %3</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>LPF</source>
@@ -4651,6 +4667,14 @@
         <translation>Dispositivo %1</translation>
     </message>
     <message>
+        <source>Device %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Device %1: %2 — %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Low</source>
         <translation>Graves</translation>
     </message>
@@ -7334,6 +7358,14 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
         <source>Device %1</source>
         <translation>Dispositivo %1</translation>
     </message>
+    <message>
+        <source>Device %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Device %1: %2 — %3</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>StringVoiceDialog_Voice</name>
@@ -7545,6 +7577,14 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     <message>
         <source>Device %1</source>
         <translation>Dispositivo %1</translation>
+    </message>
+    <message>
+        <source>Device %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Device %1: %2 — %3</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7765,6 +7805,14 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     <message>
         <source>Device %1</source>
         <translation type="unfinished">Dispositivo %1</translation>
+    </message>
+    <message>
+        <source>Device %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Device %1: %2 — %3</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

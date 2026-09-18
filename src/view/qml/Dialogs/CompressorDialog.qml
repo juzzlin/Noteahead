@@ -220,9 +220,20 @@ EffectDialog {
                                 // A JS block is not a translation binding, so a language change does not re-evaluate it
                                 // on its own. Reading the active language makes the dependency explicit.
                                 languageService.activeLanguage;
+                                deviceRackController.revision;
                                 var items = [qsTr("None")];
                                 for (var i = 0; i < deviceRackController.deviceCount; i++) {
-                                    items.push(qsTr("Device %1").arg(i + 1));
+                                    // The type and the tracks are what identify a source, the way the Device Rack names one.
+                                    // An empty slot has neither and stays a bare number.
+                                    const typeName = deviceRackController.deviceTypeName(i);
+                                    const trackNames = deviceRackController.trackNames(i);
+                                    if (typeName === "") {
+                                        items.push(qsTr("Device %1").arg(i + 1));
+                                    } else if (trackNames === "") {
+                                        items.push(qsTr("Device %1: %2").arg(i + 1).arg(typeName));
+                                    } else {
+                                        items.push(qsTr("Device %1: %2 — %3").arg(i + 1).arg(typeName).arg(trackNames));
+                                    }
                                 }
                                 return items;
                             }
