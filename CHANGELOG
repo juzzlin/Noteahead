@@ -96,6 +96,12 @@ New features:
   - One pair for the whole device; 12 dB/oct stays the default, so nothing
     you have already sounds different
 
+* The render report says what its numbers mean
+  - A Notes section in the report dialog and in the .loudness.txt beside the
+    render: where the balance departs, and what that tends to sound like
+  - Read against the mix's own lean rather than a reference curve, so a dark
+    master is a dark master and not five separate faults
+
 * 96 bands in the RTA, and a display that keeps up with the music
   - Every band is measured at its own resolution now: above 400 Hz the bars
     answer in 20-60 ms where they used to take 100-390

@@ -22,10 +22,12 @@
 #include "../../domain/tracker/instrument.hpp"
 #include "../../domain/tracker/note_data.hpp"
 #include "../../domain/utility/loudness_analyzer.hpp"
+#include "../../domain/utility/mix_advisor.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/audio/audio_file_recorder.hpp"
 #include "../../infra/audio/backend/sndfile_reader.hpp"
 #include "device_service.hpp"
+#include "mix_advice_formatter.hpp"
 #include "mixer_service.hpp"
 
 #include <QDateTime>
@@ -524,6 +526,20 @@ QString RenderWorker::formatReportHtml(const AnalysisResult & result)
                          row("Presence - highs", result.spectrum.upperMidToHighDb, "#888888"));
     }
 
+    // What the numbers above amount to, in sentences. Read off the same two results the tables are,
+    // so the notes cannot describe a mix other than the one measured.
+    if (const auto advice = MixAdvisor::advise(result.spectrum, result.loudness); !advice.findings.empty()) {
+        QString notes;
+        for (auto && finding : advice.findings) {
+            const auto color = finding.severity == MixAdvisor::Severity::Caution ? "#FF9800" : "#bbbbbb";
+            notes += QString { "<tr><td><font color='%1'>%2</font></td></tr>" }
+                       .arg(color, MixAdviceFormatter::sentence(finding).toHtmlEscaped());
+        }
+        report += QString { "<br><table width='100%' cellpadding='5' cellspacing='0'>"
+                            "<tr><td bgcolor='#2c2c2c'><b>%1</b></td></tr>%2</table>" }
+                    .arg(tr("Notes"), notes);
+    }
+
     juzzlin::L(TAG).info() << "Analysis completed:\n"
                            << report.toStdString();
     return report;
@@ -572,6 +588,15 @@ QString RenderWorker::formatReportText(const AnalysisResult & result, const QStr
                         .arg(hz, -10)
                         .arg(QString { "%1 dB" }.arg(band.levelDb, 6, 'f', 1))
                         .arg(QString { "#" }.repeated(bar));
+        }
+    }
+
+    // The same findings the dialog shows, from the same call: the file and the dialog disagreeing
+    // about a mix would be worse than neither saying anything.
+    if (const auto advice = MixAdvisor::advise(result.spectrum, result.loudness); !advice.findings.empty()) {
+        report += "\n" + tr("Notes") + "\n\n";
+        for (auto && finding : advice.findings) {
+            report += "- " + MixAdviceFormatter::sentence(finding) + "\n";
         }
     }
 

@@ -24,8 +24,11 @@ AnimatedDialog {
     id: root
     title: "<strong>" + qsTr("Loudness Analysis Report") + "</strong>"
     modal: true
-    implicitWidth: 450
-    implicitHeight: 300
+    // Sized here rather than where it is instantiated, and larger than the old half-window: the
+    // report is prose now as well as tables, and half of a 1024-wide window breaks these sentences
+    // over four lines each.
+    width: parent ? parent.width * Constants.defaultDialogScale : 720
+    height: parent ? parent.height * Constants.defaultDialogScale : 540
 
     property alias reportText: reportLabel.text
 

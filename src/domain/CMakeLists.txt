@@ -145,6 +145,7 @@ set(HEADER_FILES
     utility/loudness_analyzer.hpp
     utility/loudness_meter.hpp
     utility/lufs_meter.hpp
+    utility/mix_advisor.hpp
     utility/rta.hpp
     utility/spectrum_analyzer.hpp
     utility/stereo_field_meter.hpp
@@ -297,6 +298,7 @@ set(SOURCE_FILES
     utility/loudness_analyzer.cpp
     utility/loudness_meter.cpp
     utility/lufs_meter.cpp
+    utility/mix_advisor.cpp
     utility/rta.cpp
     utility/spectrum_analyzer.cpp
     utility/stereo_field_meter.cpp

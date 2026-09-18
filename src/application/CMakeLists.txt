@@ -38,6 +38,7 @@ set(HEADER_FILES
     service/midi_worker.hpp
     service/midi_worker_in.hpp
     service/midi_worker_out.hpp
+    service/mix_advice_formatter.hpp
     service/mixer_service.hpp
     service/player_service.hpp
     service/player_worker.hpp
@@ -97,6 +98,7 @@ set(SOURCE_FILES
     service/midi_worker.cpp
     service/midi_worker_in.cpp
     service/midi_worker_out.cpp
+    service/mix_advice_formatter.cpp
     service/mixer_service.cpp
     service/player_service.cpp
     service/player_worker.cpp

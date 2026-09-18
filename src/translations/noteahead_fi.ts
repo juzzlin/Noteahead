@@ -4467,6 +4467,97 @@
     </message>
 </context>
 <context>
+    <name>MixAdvice</name>
+    <message>
+        <source>Overall the mix leans down %1 dB per octave. That is its tone rather than a fault, and everything below is read against that lean.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Overall the mix leans up %1 dB per octave, brighter than pink noise. Everything below is read against that lean.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Overall the mix sits level with pink noise. Everything below is read against that line.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>True peak reaches %1 dBTP, at or over full scale. It clips as it is, and again through any lossy encoder.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>True peak reaches %1 dBTP, under a decibel of headroom. A lossy encoder rebuilds peaks above the samples it was given, so this can clip on playback.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Nothing stands out: every region sits close to the mix&apos;s own tilt.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Below 50 Hz sits %1 dB above the tilt. Most speakers will not reproduce it, and a limiter spends its headroom on it anyway.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Below 50 Hz sits %1 dB under the tilt. The bottom octave is thin, and on a big system the mix will sound smaller than it does here.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>50-125 Hz sits %1 dB above the tilt, where bass and kick share the room. A mix that piles up here reads as boomy.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>50-125 Hz sits %1 dB under the tilt. Bass and kick are thin against the rest of the mix.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>125-400 Hz sits %1 dB above the tilt. This is where a mix reads as thick or muddy, and it is the first thing heard on small speakers.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>125-400 Hz sits %1 dB under the tilt. Most instruments lose their body, and the mix reads as lean.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>400 Hz - 1.25 kHz sits %1 dB above the tilt. This is the boxy region: it makes a mix sound like it is being played through something.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>400 Hz - 1.25 kHz sits %1 dB under the tilt. A scooped middle is impressive on a first listen and empty on a fifth.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>1.25-4 kHz sits %1 dB above the tilt. Leads cut through easily here, and the same region turns harsh at listening level.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>1.25-4 kHz sits %1 dB under the tilt. Leads sit behind the rest of the mix, and detail reads as distant.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>4-10 kHz sits %1 dB above the tilt. Cymbals and sibilance are forward, which tires the ear over a long listen.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>4-10 kHz sits %1 dB under the tilt. The mix reads as dull and closed-in.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Above 10 kHz sits %1 dB above the tilt. Plenty of air, to the point of reading as brittle.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Above 10 kHz sits %1 dB under the tilt. The top octave is closed in, and the sense of space goes before anything else does.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Presence sits %1 dB under the highs. That is the number a hollow mix gives itself away by: brightness with nothing under it reads as thin rather than as clear.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The %1 band stands %2 dB above both of its neighbours. Usually one sustained note or a resonance rather than the balance of the mix.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MixerDialog</name>
     <message>
         <source>Mixer</source>
@@ -9601,6 +9692,13 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     <message>
         <source>MIDI %1 port(s) went offline </source>
         <translation>MIDI %1 -portteja siirtyi offline-tilaan </translation>
+    </message>
+</context>
+<context>
+    <name>noteahead::RenderWorker</name>
+    <message>
+        <source>Notes</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

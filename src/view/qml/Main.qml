@@ -122,8 +122,6 @@ ApplicationWindow {
     LoudnessReportDialog {
         id: loudnessReportDialog
         anchors.centerIn: parent
-        width: parent.width * Constants.effectDialogScale
-        height: parent.height * Constants.effectDialogScale
     }
     EventSelectionDialog {
         id: eventSelectionDialog
