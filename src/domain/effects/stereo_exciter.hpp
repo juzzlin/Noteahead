@@ -69,8 +69,8 @@ private:
     //! The side chain: the band the harmonics are generated from.
     double sideChain(SvfFilter & steep, SvfFilter & gentle, double input) const;
 
-    //! Odd and even shaping, blended by Timbre.
-    double shape(double value) const;
+    //! Odd and even harmonics of a band of peak @p amplitude, blended by Timbre.
+    double shape(double value, double amplitude) const;
 
     float m_tune { 0.5f };
     float m_peak { 0.0f };
@@ -82,8 +82,12 @@ private:
     SvfFilter m_steepR;
     SvfFilter m_gentleL;
     SvfFilter m_gentleR;
+    SvfFilter m_outputL;
+    SvfFilter m_outputR;
 
     double m_harmonicsDb { 0.0 };
+    double m_inputEnvelope { 0.0 };
+    double m_bandEnvelope { 0.0 };
     double m_lastSampleRate { -1.0 };
     bool m_coefficientsDirty { true };
 

@@ -43,12 +43,32 @@ constexpr double MaxPeakQ = 5.0;
 //! fills it back in, so the generated harmonics come from a wider band and read as fuller.
 constexpr double FillQ = 0.5;
 
+//! Q of the high pass the generated signal goes through. Butterworth: flat above Tune, no bump.
+constexpr double OutputQ = 0.7071;
+
 //! How much of the gentle path Zero Fill can add.
 constexpr double MaxFill = 1.0;
 
-//! Drive into the shaper. Fixed: it is Harmonics that sets how much of the result is heard, and a
-//! drive control on top of that would only be a second way of saying the same thing.
-constexpr double ShaperDrive = 3.0;
+//! The band is held at unit peak on its way into the shaper, by following its own envelope, so
+//! Harmonics adds the same proportion of it whether the source peaks at -30 dBFS or at full scale. A
+//! fixed curve could only suit one level: calibrated for full scale it was a straight line on a
+//! device's real -26 dBFS and added nothing.
+//!
+//! This is how far below the input the band can fall and still be treated as a band. Below that it
+//! is measured against the input instead, so that the little a tone far under Tune leaves in the
+//! band is not lifted to full strength, which would leave Tune meaning nothing.
+constexpr double LowestBandRatio = 0.1;
+
+//! Envelope release. The attack is instant, so the band never outruns what it is measured against,
+//! and the release is slow so the measurement does not ride the waveform and modulate it.
+constexpr double EnvelopeReleaseMs = 150.0;
+
+//! Room left above the band's envelope for the peaks that fall between samples, which the
+//! oversampled path reconstructs and the envelope, taken at the base rate, never sees.
+constexpr double PeakHeadroom = 1.2;
+
+//! Lowest envelope the band is measured against. Silence would otherwise be lifted without limit.
+constexpr double EnvelopeFloor = 1.0e-4;
 
 //! How much of the generated signal is added at the top of the Harmonics control.
 constexpr double MaxHarmonics = 0.8;
@@ -116,6 +136,8 @@ void StereoExciter::updateFilters()
     m_steepR.calculateHighCut(tuneHz, sampleRate, peakQ);
     m_gentleL.calculateHighCut(tuneHz * 0.5, sampleRate, FillQ);
     m_gentleR.calculateHighCut(tuneHz * 0.5, sampleRate, FillQ);
+    m_outputL.calculateHighCut(tuneHz, sampleRate, OutputQ);
+    m_outputR.calculateHighCut(tuneHz, sampleRate, OutputQ);
 }
 
 double StereoExciter::sideChain(SvfFilter & steep, SvfFilter & gentle, double input) const
@@ -128,16 +150,19 @@ double StereoExciter::sideChain(SvfFilter & steep, SvfFilter & gentle, double in
     return steepBand + gentleBand * static_cast<double>(m_zeroFill) * MaxFill;
 }
 
-double StereoExciter::shape(double value) const
+double StereoExciter::shape(double value, double amplitude) const
 {
-    const double driven = value * ShaperDrive;
+    // Chebyshev polynomials, generalised to a band of peak @p amplitude: on a sine they return
+    // exactly one harmonic and nothing at all at the band's own frequency. A saturating curve also
+    // compresses the band it is given, and taking that back out is what an exciter cannot do
+    // cleanly: the remainder is a copy of the band, larger than the harmonics themselves.
+    const double squaredAmplitude = amplitude * amplitude;
 
-    // Odd-symmetric: returns 3rd, 5th and so on, which read as edge.
-    const double odd = std::tanh(driven);
+    // The 3rd harmonic, which reads as edge.
+    const double odd = 4.0 * value * value * value - 3.0 * squaredAmplitude * value;
 
-    // Asymmetric: the two halves of the wave meet different parts of the curve, which is what
-    // returns even harmonics, and those read as warmth.
-    const double even = driven >= 0.0 ? std::tanh(driven) : std::tanh(driven * 0.4) / 0.4;
+    // The 2nd harmonic, which reads as warmth.
+    const double even = 2.0 * value * value - squaredAmplitude;
 
     // Timbre runs odd at one end and even at the other, blending rather than switching.
     const double blend = static_cast<double>(m_timbre);
@@ -148,53 +173,50 @@ void StereoExciter::processSample(double & left, double & right)
 {
     updateFilters();
 
+    const double sampleRate = m_sampleRate > 0 ? m_sampleRate : 48000.0;
+
+    // The filters and the envelopes carry state, so they keep running even when nothing is added.
+    const double sideL = sideChain(m_steepL, m_gentleL, left);
+    const double sideR = sideChain(m_steepR, m_gentleR, right);
+    const double releaseCoefficient = std::exp(-1.0 / (EnvelopeReleaseMs * sampleRate / 1000.0));
+    const auto follow = [releaseCoefficient](double & envelope, double peak) {
+        envelope = std::max(peak, envelope * releaseCoefficient);
+    };
+    follow(m_inputEnvelope, std::max(std::abs(left), std::abs(right)));
+    follow(m_bandEnvelope, std::max(std::abs(sideL), std::abs(sideR)));
+
     if (m_harmonics <= 0.0f) {
-        // The filters carry state, so they have to keep running even when nothing is being added.
-        sideChain(m_steepL, m_gentleL, left);
-        sideChain(m_steepR, m_gentleR, right);
         m_harmonicsDb = 0.0;
         return;
     }
 
-    const double sampleRate = m_sampleRate > 0 ? m_sampleRate : 48000.0;
     const uint8_t factor = clampOversampleFactor(oversampleFactor());
     const double amount = static_cast<double>(m_harmonics) * MaxHarmonics;
 
-    const double sideL = sideChain(m_steepL, m_gentleL, left);
-    const double sideR = sideChain(m_steepR, m_gentleR, right);
-
-    // The shaper returns the band it was given along with the harmonics it generated, so what is
-    // added has to have the band itself taken back out: an exciter that also turned up the band it
-    // works on would just be an equalizer with extra steps.
-    //
-    // What is subtracted is the band times the shaper's small-signal gain, which is its slope
-    // through zero, not the shaped signal: subtracting that would take the harmonics with it and
-    // leave silence.
-    const auto harmonicsOf = [this](double band) {
-        return shape(band) - band * ShaperDrive;
+    const double reference = std::max({ m_bandEnvelope * PeakHeadroom, m_inputEnvelope * LowestBandRatio, EnvelopeFloor });
+    const double amplitude = std::min(1.0, m_bandEnvelope / reference);
+    const auto harmonicsOf = [this, amplitude](double normalised) {
+        // Only a peak that beats even the headroom gets here, but the polynomials grow fast past unity.
+        return shape(std::clamp(normalised, -1.0, 1.0), amplitude);
     };
 
     double harmonicL = 0.0;
     double harmonicR = 0.0;
 
     if (factor == 1) {
-        harmonicL = harmonicsOf(sideL);
-        harmonicR = harmonicsOf(sideR);
+        harmonicL = harmonicsOf(sideL / reference);
+        harmonicR = harmonicsOf(sideR / reference);
     } else {
         // Harmonics of a band this high land above Nyquist at the base rate and fold back down as
         // inharmonic tones, which is the opposite of what the effect is for.
-        //
-        // The band is taken back out up here, where it has the same resampling latency as the shaped
-        // signal. Subtracting it after decimation would cancel nothing: the late copy combs against
-        // the early one and adds the band back, many decibels up, instead of removing it.
         //
         // The input itself passes straight through, not delayed to match: Mix and Solo are applied
         // by the base class against the input as it came in, and a delayed copy would comb against
         // that. Only the harmonics are late, and they are new material with nothing to cancel.
         std::array<float, 4> highL {};
         std::array<float, 4> highR {};
-        m_oversampling->upsamplerL.process(static_cast<float>(sideL), highL.data(), factor);
-        m_oversampling->upsamplerR.process(static_cast<float>(sideR), highR.data(), factor);
+        m_oversampling->upsamplerL.process(static_cast<float>(sideL / reference), highL.data(), factor);
+        m_oversampling->upsamplerR.process(static_cast<float>(sideR / reference), highR.data(), factor);
         for (uint8_t k = 0; k < factor; k++) {
             highL[k] = static_cast<float>(harmonicsOf(static_cast<double>(highL[k])));
             highR[k] = static_cast<float>(harmonicsOf(static_cast<double>(highR[k])));
@@ -202,6 +224,12 @@ void StereoExciter::processSample(double & left, double & right)
         harmonicL = static_cast<double>(m_oversampling->decimatorL.process(highL.data(), factor));
         harmonicR = static_cast<double>(m_oversampling->decimatorR.process(highR.data(), factor));
     }
+
+    // On a band of many partials the shaper also returns their differences, which land below the band
+    // as mud under the source, and the 2nd harmonic leaves an offset whenever the envelope moves.
+    // Neither is top end, so only what is above Tune is kept. Then back to the band's own level.
+    harmonicL = (harmonicL - m_outputL.process(harmonicL)) * reference;
+    harmonicR = (harmonicR - m_outputR.process(harmonicR)) * reference;
 
     left += harmonicL * amount;
     right += harmonicR * amount;
@@ -231,7 +259,11 @@ void StereoExciter::reset()
     m_oversampling->upsamplerR.reset();
     m_oversampling->decimatorL.reset();
     m_oversampling->decimatorR.reset();
+    m_outputL.reset();
+    m_outputR.reset();
     m_harmonicsDb = 0.0;
+    m_inputEnvelope = 0.0;
+    m_bandEnvelope = 0.0;
 }
 
 void StereoExciter::syncParameters()

@@ -137,6 +137,40 @@ void StereoExciterTest::test_harmonics_shouldGenerateContentAboveTheInput()
                .constData());
 }
 
+void StereoExciterTest::test_harmonics_deviceLevel_shouldBeAudible()
+{
+    // A device puts out around -26 dBFS. The shaper used to bend only near full scale, so at that
+    // level it was a straight line and the soloed output sat over 40 dB under the source.
+    StereoExciter soloed;
+    setParameter(soloed, Constants::NahdXml::xmlKeyTune(), 0.0f); // Lowest corner, so the tone is in the band
+    setParameter(soloed, Constants::NahdXml::xmlKeyHarmonics(), 0.5f);
+    setParameter(soloed, Constants::NahdXml::xmlKeySolo(), 1.0f);
+
+    constexpr double amplitude = 0.05;
+    const double added = rms(renderSine(soloed, 3000.0, amplitude));
+    const double relativeDb = 20.0 * std::log10(added / (amplitude / std::numbers::sqrt2));
+    QVERIFY2(relativeDb > -25.0, qPrintable(QString { "Adds only %1 dB at device level" }.arg(relativeDb)));
+}
+
+void StereoExciterTest::test_harmonics_anyLevel_shouldAddTheSameProportion()
+{
+    // The shaper follows the band's envelope, so Harmonics means the same thing on a quiet pad as on
+    // a lead pushed to full scale.
+    const auto addedDb = [](double amplitude) {
+        StereoExciter soloed;
+        setParameter(soloed, Constants::NahdXml::xmlKeyTune(), 0.0f);
+        setParameter(soloed, Constants::NahdXml::xmlKeyHarmonics(), 0.5f);
+        setParameter(soloed, Constants::NahdXml::xmlKeySolo(), 1.0f);
+        return 20.0 * std::log10(rms(renderSine(soloed, 3000.0, amplitude)) / (amplitude / std::numbers::sqrt2));
+    };
+
+    const double reference = addedDb(0.05);
+    for (const double amplitude : { 0.005, 0.5, 1.0 }) {
+        const double added = addedDb(amplitude);
+        QVERIFY2(std::abs(added - reference) < 0.5, qPrintable(QString { "At %1: %2 dB against %3 dB at 0.05" }.arg(amplitude).arg(added).arg(reference)));
+    }
+}
+
 void StereoExciterTest::test_belowTune_shouldBeLeftAlone()
 {
     // Only the band above Tune feeds the shaper, so a low tone must come through essentially as it

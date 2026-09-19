@@ -103,11 +103,6 @@ double levelDb(Effect & effect, uint8_t factor, double frequency, double amplitu
     return 20.0 * std::log10(goertzel(out, frequency));
 }
 
-// The Stereo Exciter's shaper runs hot, so its tone has to be quieter still to keep the shaper's own
-// compression out of the measurement: that compression is part of the harmonics, which arrive with
-// the resampling latency, while a comb is linear and shows at any level.
-constexpr double ExciterAmplitude { 0.01 };
-
 // Oversampling delays whatever goes through the resampler, so a dry or cancelling path that skips
 // it combs against the wet one. The level at 2x and 4x must then match 1x across the band.
 void verifyLevelKeptAcrossFactors(Effect & effect, double amplitude = 0.05)
@@ -213,7 +208,7 @@ void EffectOversamplingTest::test_stereoExciter_higherFactor_shouldKeepLevel()
     setParam(exciter, Constants::NahdXml::xmlKeyHarmonics(), 1.0f);
     exciter.sync();
 
-    verifyLevelKeptAcrossFactors(exciter, ExciterAmplitude);
+    verifyLevelKeptAcrossFactors(exciter);
 }
 
 void EffectOversamplingTest::test_stereoExciter_partialMix_higherFactor_shouldKeepLevel()
@@ -227,7 +222,7 @@ void EffectOversamplingTest::test_stereoExciter_partialMix_higherFactor_shouldKe
     setParam(exciter, Constants::NahdXml::xmlKeyMix(), 0.7f);
     exciter.sync();
 
-    verifyLevelKeptAcrossFactors(exciter, ExciterAmplitude);
+    verifyLevelKeptAcrossFactors(exciter);
 }
 
 void EffectOversamplingTest::test_stereoExciter_solo_higherFactor_shouldPassOnlyHarmonics()

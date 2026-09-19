@@ -27,6 +27,8 @@ class StereoExciterTest : public QObject
 private slots:
     void test_harmonicsZero_shouldPassSignalThrough();
     void test_harmonics_shouldGenerateContentAboveTheInput();
+    void test_harmonics_deviceLevel_shouldBeAudible();
+    void test_harmonics_anyLevel_shouldAddTheSameProportion();
     void test_belowTune_shouldBeLeftAlone();
     void test_timbre_odd_shouldFavourOddHarmonics();
     void test_timbre_even_shouldFavourEvenHarmonics();

@@ -114,6 +114,11 @@ Bug fixes:
   - The Stereo Exciter, Tube Stage and Analog Fuzz combed at 2x and 4x
   - The Stereo Exciter's Solo plays only what it adds at 2x and 4x too
 
+* The Stereo Exciter works at any level
+  - It added next to nothing below full scale; Harmonics now means the same
+    at any level, and adds only above Tune
+  - Projects that use it keep their settings but will sound brighter
+
 * A side-chained insert follows its source on a silent device
   - The gain of an Auto Ducker only moved on blocks where the device carrying
     it happened to be making sound, which is backwards for a side chain
