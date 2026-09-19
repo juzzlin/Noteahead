@@ -40,8 +40,11 @@ namespace noteahead {
 //! of once per oversampled one.
 //!
 //! The interpolator's group delay (about five base-rate samples, and none at 1x) shifts the
-//! interpolated part slightly against anything the caller still generates at the oversampled rate.
-//! At a tenth of a millisecond that is inaudible, and it is constant.
+//! interpolated part slightly against anything the caller still generates at the oversampled rate,
+//! the envelopes included. At a tenth of a millisecond that is inaudible, and it is constant. It is
+//! also why this uses the short inner half-band: the steep outer one would be three times as late,
+//! enough for an envelope to pass its peak before the noise arrives and blunt the attack. The flat top
+//! octave that filter buys is not needed here, since the device's decimator removes the images.
 class BaseRateSource
 {
 public:
@@ -80,7 +83,7 @@ public:
     void reset();
 
 private:
-    Upsampler m_upsampler;
+    Upsampler m_upsampler { HalfBandStage::Inner };
     std::array<float, 4> m_interpolated {};
     uint8_t m_factor { 1 };
     uint8_t m_index { 0 };

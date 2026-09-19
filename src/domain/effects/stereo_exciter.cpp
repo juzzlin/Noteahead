@@ -64,6 +64,13 @@ struct StereoExciter::Oversampling
     Upsampler upsamplerR;
     Decimator decimatorL;
     Decimator decimatorR;
+
+    //! The untouched signal, taken through the same round trip so that it keeps the resampling
+    //! latency of the harmonics added to it.
+    Upsampler dryUpsamplerL;
+    Upsampler dryUpsamplerR;
+    Decimator dryDecimatorL;
+    Decimator dryDecimatorR;
 };
 
 StereoExciter::StereoExciter()
@@ -144,45 +151,42 @@ double StereoExciter::shape(double value) const
     return odd * (1.0 - blend) + even * blend;
 }
 
+void StereoExciter::delayDry(double & left, double & right, uint8_t factor)
+{
+    if (factor == 1) {
+        return;
+    }
+
+    std::array<float, 4> highL {};
+    std::array<float, 4> highR {};
+    m_oversampling->dryUpsamplerL.process(static_cast<float>(left), highL.data(), factor);
+    m_oversampling->dryUpsamplerR.process(static_cast<float>(right), highR.data(), factor);
+    left = static_cast<double>(m_oversampling->dryDecimatorL.process(highL.data(), factor));
+    right = static_cast<double>(m_oversampling->dryDecimatorR.process(highR.data(), factor));
+}
+
 void StereoExciter::processSample(double & left, double & right)
 {
     updateFilters();
 
+    const uint8_t factor = clampOversampleFactor(oversampleFactor());
+
     if (m_harmonics <= 0.0f) {
         // The filters carry state, so they have to keep running even when nothing is being added.
+        // So does the dry round trip: skipping it would make the latency jump whenever Harmonics
+        // leaves zero, and that is a click.
         sideChain(m_steepL, m_gentleL, left);
         sideChain(m_steepR, m_gentleR, right);
+        delayDry(left, right, factor);
         m_harmonicsDb = 0.0;
         return;
     }
 
     const double sampleRate = m_sampleRate > 0 ? m_sampleRate : 48000.0;
-    const uint8_t factor = clampOversampleFactor(oversampleFactor());
     const double amount = static_cast<double>(m_harmonics) * MaxHarmonics;
 
     const double sideL = sideChain(m_steepL, m_gentleL, left);
     const double sideR = sideChain(m_steepR, m_gentleR, right);
-
-    double harmonicL = 0.0;
-    double harmonicR = 0.0;
-
-    if (factor == 1) {
-        harmonicL = shape(sideL);
-        harmonicR = shape(sideR);
-    } else {
-        // Harmonics of a band this high land above Nyquist at the base rate and fold back down as
-        // inharmonic tones, which is the opposite of what the effect is for.
-        std::array<float, 4> highL {};
-        std::array<float, 4> highR {};
-        m_oversampling->upsamplerL.process(static_cast<float>(sideL), highL.data(), factor);
-        m_oversampling->upsamplerR.process(static_cast<float>(sideR), highR.data(), factor);
-        for (uint8_t k = 0; k < factor; k++) {
-            highL[k] = static_cast<float>(shape(static_cast<double>(highL[k])));
-            highR[k] = static_cast<float>(shape(static_cast<double>(highR[k])));
-        }
-        harmonicL = static_cast<double>(m_oversampling->decimatorL.process(highL.data(), factor));
-        harmonicR = static_cast<double>(m_oversampling->decimatorR.process(highR.data(), factor));
-    }
 
     // The shaper returns the band it was given along with the harmonics it generated, so what is
     // added has to have the band itself taken back out: an exciter that also turned up the band it
@@ -191,8 +195,36 @@ void StereoExciter::processSample(double & left, double & right)
     // What is subtracted is the band times the shaper's small-signal gain, which is its slope
     // through zero, not the shaped signal: subtracting that would take the harmonics with it and
     // leave silence.
-    harmonicL -= sideL * ShaperDrive;
-    harmonicR -= sideR * ShaperDrive;
+    const auto harmonicsOf = [this](double band) {
+        return shape(band) - band * ShaperDrive;
+    };
+
+    double harmonicL = 0.0;
+    double harmonicR = 0.0;
+
+    if (factor == 1) {
+        harmonicL = harmonicsOf(sideL);
+        harmonicR = harmonicsOf(sideR);
+    } else {
+        // Harmonics of a band this high land above Nyquist at the base rate and fold back down as
+        // inharmonic tones, which is the opposite of what the effect is for.
+        //
+        // The band is taken back out up here, where it has the same resampling latency as the shaped
+        // signal. Subtracting it after decimation would cancel nothing: the late copy combs against
+        // the early one and adds the band back, many decibels up, instead of removing it.
+        std::array<float, 4> highL {};
+        std::array<float, 4> highR {};
+        m_oversampling->upsamplerL.process(static_cast<float>(sideL), highL.data(), factor);
+        m_oversampling->upsamplerR.process(static_cast<float>(sideR), highR.data(), factor);
+        for (uint8_t k = 0; k < factor; k++) {
+            highL[k] = static_cast<float>(harmonicsOf(static_cast<double>(highL[k])));
+            highR[k] = static_cast<float>(harmonicsOf(static_cast<double>(highR[k])));
+        }
+        harmonicL = static_cast<double>(m_oversampling->decimatorL.process(highL.data(), factor));
+        harmonicR = static_cast<double>(m_oversampling->decimatorR.process(highR.data(), factor));
+    }
+
+    delayDry(left, right, factor);
 
     left += harmonicL * amount;
     right += harmonicR * amount;
@@ -218,6 +250,14 @@ void StereoExciter::reset()
     m_steepR.reset();
     m_gentleL.reset();
     m_gentleR.reset();
+    m_oversampling->upsamplerL.reset();
+    m_oversampling->upsamplerR.reset();
+    m_oversampling->decimatorL.reset();
+    m_oversampling->decimatorR.reset();
+    m_oversampling->dryUpsamplerL.reset();
+    m_oversampling->dryUpsamplerR.reset();
+    m_oversampling->dryDecimatorL.reset();
+    m_oversampling->dryDecimatorR.reset();
     m_harmonicsDb = 0.0;
 }
 

@@ -72,6 +72,9 @@ private:
     //! Odd and even shaping, blended by Timbre.
     double shape(double value) const;
 
+    //! Gives the dry signal the resampling latency the harmonics get at 2x and 4x.
+    void delayDry(double & left, double & right, uint8_t factor);
+
     float m_tune { 0.5f };
     float m_peak { 0.0f };
     float m_zeroFill { 0.0f };

@@ -66,6 +66,11 @@ struct TubeStage::Oversampling
     Upsampler upsamplerR;
     Decimator decimatorL;
     Decimator decimatorR;
+
+    //! The untouched signal, carried through a decimator of its own so that the Mix dry path has the
+    //! same resampling latency as the wet one. Blending against the raw input would comb.
+    Decimator dryDecimatorL;
+    Decimator dryDecimatorR;
 };
 
 TubeStage::TubeStage()
@@ -123,8 +128,8 @@ void TubeStage::processSample(double & left, double & right)
     const double outputLin = static_cast<double>(Utils::Dsp::dbToLinear(m_outputDb));
     const double mix = static_cast<double>(m_mix);
 
-    const double dryL = left;
-    const double dryR = right;
+    double dryL = left;
+    double dryR = right;
 
     double peakPre = 0.0;
     double peakPost = 0.0;
@@ -149,12 +154,16 @@ void TubeStage::processSample(double & left, double & right)
         std::array<float, 4> highR {};
         m_oversampling->upsamplerL.process(static_cast<float>(dryL), highL.data(), factor);
         m_oversampling->upsamplerR.process(static_cast<float>(dryR), highR.data(), factor);
+        const std::array<float, 4> dryHighL = highL;
+        const std::array<float, 4> dryHighR = highR;
         for (uint8_t k = 0; k < factor; k++) {
             highL[k] = static_cast<float>(valve(static_cast<double>(highL[k])));
             highR[k] = static_cast<float>(valve(static_cast<double>(highR[k])));
         }
         wetL = static_cast<double>(m_oversampling->decimatorL.process(highL.data(), factor));
         wetR = static_cast<double>(m_oversampling->decimatorR.process(highR.data(), factor));
+        dryL = static_cast<double>(m_oversampling->dryDecimatorL.process(dryHighL.data(), factor));
+        dryR = static_cast<double>(m_oversampling->dryDecimatorR.process(dryHighR.data(), factor));
     }
 
     // The bias point leaves a DC offset on the output that no downstream effect should have to deal
@@ -208,6 +217,8 @@ void TubeStage::reset()
     m_oversampling->upsamplerR.reset();
     m_oversampling->decimatorL.reset();
     m_oversampling->decimatorR.reset();
+    m_oversampling->dryDecimatorL.reset();
+    m_oversampling->dryDecimatorR.reset();
 }
 
 void TubeStage::sync()

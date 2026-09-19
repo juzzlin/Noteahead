@@ -15,10 +15,13 @@
 
 #include "effect_oversampling_test.hpp"
 #include "../../common/constants.hpp"
+#include "../../domain/effects/analog_fuzz.hpp"
 #include "../../domain/effects/bass_grinder.hpp"
 #include "../../domain/effects/clipper.hpp"
 #include "../../domain/effects/drive.hpp"
 #include "../../domain/effects/saturator.hpp"
+#include "../../domain/effects/stereo_exciter.hpp"
+#include "../../domain/effects/tube_stage.hpp"
 
 #include <QTest>
 
@@ -76,6 +79,41 @@ double aliasMagnitude(Effect & effect, uint8_t factor, double inputFreq, double 
         }
     }
     return goertzel(out, aliasFreq);
+}
+
+// Level of a quiet sine at the input frequency after the effect, in dB. Quiet so that the effect stays
+// close to linear and what is measured is the path the signal takes, not the distortion.
+double levelDb(Effect & effect, uint8_t factor, double frequency)
+{
+    effect.reset();
+    effect.setOversampleFactor(factor);
+
+    const int total = 8192;
+    const int warmup = 1024;
+    std::vector<double> out;
+    out.reserve(total - warmup);
+    for (int i = 0; i < total; i++) {
+        double l = 0.05 * std::sin(2.0 * std::numbers::pi * frequency * static_cast<double>(i));
+        double r = l;
+        effect.process(l, r);
+        if (i >= warmup) {
+            out.push_back(l);
+        }
+    }
+    return 20.0 * std::log10(goertzel(out, frequency));
+}
+
+// Oversampling delays whatever goes through the resampler, so a dry or cancelling path that skips
+// it combs against the wet one. The level at 2x and 4x must then match 1x across the band.
+void verifyLevelKeptAcrossFactors(Effect & effect)
+{
+    for (const double frequency : { 0.0125, 0.025, 0.05, 0.1 }) {
+        const double reference = levelDb(effect, 1, frequency);
+        for (const uint8_t factor : { uint8_t { 2 }, uint8_t { 4 } }) {
+            const double level = levelDb(effect, factor, frequency);
+            QVERIFY2(std::abs(level - reference) < 0.5, qPrintable(QString { "%1x at %2: %3 dB vs %4 dB at 1x" }.arg(factor).arg(frequency).arg(level).arg(reference)));
+        }
+    }
 }
 
 } // namespace
@@ -160,6 +198,35 @@ void EffectOversamplingTest::test_drive_factorOne_dryMix_shouldPassThrough()
         QVERIFY(std::abs(l - inL) < 1.0e-6);
         QVERIFY(std::abs(r - inR) < 1.0e-6);
     }
+}
+
+void EffectOversamplingTest::test_stereoExciter_higherFactor_shouldKeepLevel()
+{
+    StereoExciter exciter;
+    setParam(exciter, Constants::NahdXml::xmlKeyTune(), 0.0f); // Lowest corner, so the band covers the test tones
+    setParam(exciter, Constants::NahdXml::xmlKeyZeroFill(), 1.0f);
+    setParam(exciter, Constants::NahdXml::xmlKeyHarmonics(), 1.0f);
+    exciter.sync();
+
+    verifyLevelKeptAcrossFactors(exciter);
+}
+
+void EffectOversamplingTest::test_tubeStage_partialMix_higherFactor_shouldKeepLevel()
+{
+    TubeStage tubeStage;
+    setParam(tubeStage, Constants::NahdXml::xmlKeyMix(), 0.5f);
+    tubeStage.sync();
+
+    verifyLevelKeptAcrossFactors(tubeStage);
+}
+
+void EffectOversamplingTest::test_analogFuzz_partialMix_higherFactor_shouldKeepLevel()
+{
+    AnalogFuzz analogFuzz;
+    setParam(analogFuzz, Constants::NahdXml::xmlKeyMix(), 0.5f);
+    analogFuzz.sync();
+
+    verifyLevelKeptAcrossFactors(analogFuzz);
 }
 
 } // namespace noteahead

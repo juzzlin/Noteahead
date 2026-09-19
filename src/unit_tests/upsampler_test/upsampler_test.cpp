@@ -47,6 +47,30 @@ float roundTripPeak(uint8_t factor)
     }
     return peak;
 }
+
+constexpr double CdSampleRate { 44100.0 };
+
+// RMS of a sine at @p frequency after an upsample -> (identity) -> downsample round trip at the
+// 44.1 kHz base rate, relative to the input, in dB.
+double roundTripDb(double frequency, uint8_t factor)
+{
+    Upsampler up;
+    Decimator down;
+    std::array<float, 4> high {};
+    double squareSum = 0.0;
+    int counted = 0;
+    for (int n = 0; n < 8000; n++) {
+        const float x = static_cast<float>(0.5 * std::sin(2.0 * std::numbers::pi * frequency * static_cast<double>(n) / CdSampleRate));
+        up.process(x, high.data(), factor);
+        const double y = down.process(high.data(), factor);
+        if (n > 400) { // Past the filters' warm-up
+            squareSum += y * y;
+            counted++;
+        }
+    }
+    return 20.0 * std::log10(std::sqrt(squareSum / counted) / (0.5 / std::numbers::sqrt2));
+}
+
 } // namespace
 
 void UpsamplerTest::test_process_factorOne_shouldPassThrough()
@@ -174,6 +198,46 @@ void UpsamplerTest::test_decimator_aboveBaseNyquist_shouldRejectAliases()
     const double rms = std::sqrt(squareSum / counted);
     const double decibels = 20.0 * std::log10(rms / (0.5 / std::numbers::sqrt2));
     QVERIFY2(decibels < -60.0, qPrintable(QString { "alias only %1 dB down" }.arg(decibels)));
+}
+
+void UpsamplerTest::test_roundTrip_topOctave_shouldStayFlat()
+{
+    // Every oversampled effect puts the whole signal through this round trip, and a chain has
+    // several of them. At 44.1 kHz the audio band ends only 2 kHz below Nyquist, which a short
+    // half-band cannot resolve: the 43-tap one took 3.6 dB off 20 kHz per effect.
+    for (const double frequency : { 16000.0, 18000.0, 19000.0, 20000.0 }) {
+        for (const uint8_t factor : { 2, 4 }) {
+            const double decibels = roundTripDb(frequency, factor);
+            QVERIFY2(std::abs(decibels) < 0.1, qPrintable(QString { "%1 Hz at %2x: %3 dB" }.arg(frequency).arg(factor).arg(decibels)));
+        }
+    }
+}
+
+void UpsamplerTest::test_decimator_justAboveBaseNyquist_shouldRejectAliases()
+{
+    // 24.1 kHz folds to 20 kHz at a 44.1 kHz base rate: the narrowest transition the outer filter has
+    // to make.
+    constexpr double frequency { 24100.0 };
+    for (const uint8_t factor : { 2, 4 }) {
+        Decimator decimator;
+        const double highRate = CdSampleRate * factor;
+        std::array<float, 4> high {};
+        double squareSum = 0.0;
+        int counted = 0;
+        for (int n = 0; n < 8000; n++) {
+            for (uint8_t k = 0; k < factor; k++) {
+                const double t = static_cast<double>(n) * factor + k;
+                high[k] = static_cast<float>(0.5 * std::sin(2.0 * std::numbers::pi * frequency * t / highRate));
+            }
+            const double out = decimator.process(high.data(), factor);
+            if (n > 400) {
+                squareSum += out * out;
+                counted++;
+            }
+        }
+        const double decibels = 20.0 * std::log10(std::sqrt(squareSum / counted) / (0.5 / std::numbers::sqrt2));
+        QVERIFY2(decibels < -60.0, qPrintable(QString { "%1x: alias only %2 dB down" }.arg(factor).arg(decibels)));
+    }
 }
 
 void UpsamplerTest::test_noiseGain_shouldKeepInBandNoiseLevelConstant()

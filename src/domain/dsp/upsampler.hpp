@@ -34,24 +34,43 @@ uint8_t clampOversampleFactor(uint8_t factor);
 //! quieter the more you oversample, which is the opposite of oversampling being transparent.
 float noiseGainForOversampling(uint8_t factor);
 
-//! Length of the windowed-sinc half-band FIR shared by the effect interpolator and decimator. Long
-//! enough (steep transition, deep stopband) to suppress the broadband harmonics a nonlinear effect
-//! generates when oversampled, unlike the short half-band the synth voices use on already-band-limited
-//! sources. Must be of the form 4n+3 so the filter is a true half-band centred on a single tap.
-inline constexpr int HalfBandLength = 43;
+//! Lengths of the two windowed-sinc half-band FIRs. Both must be of the form 4n+3 so the filter is a
+//! true half-band centred on a single tap, with every other tap zero.
+//!
+//! The outer one sits at the base rate's edge, where the audio band ends only a few kilohertz below
+//! Nyquist: at 44.1 kHz it has to pass 20 kHz and reject 24.1 kHz, which takes a long Kaiser window.
+//! A 43-tap filter there took 3.6 dB off 20 kHz per round trip and rejected only 14.5 dB at 24.1 kHz.
+//!
+//! The inner one runs between 2x and 4x, where everything it must pass is below a quarter of its
+//! Nyquist, so a short filter is already transparent.
+inline constexpr int OuterHalfBandLength = 119;
+inline constexpr int InnerHalfBandLength = 43;
+
+//! Which of the two half-bands a 2x stage uses. See OuterHalfBandLength.
+enum class HalfBandStage
+{
+    Outer,
+    Inner
+};
 
 //! 2x polyphase half-band interpolator for oversampling nonlinear effects. Produces two high-rate
 //! samples from one base-rate sample; pairs with Decimator2x for a near-transparent round trip.
 class Upsampler2x
 {
 public:
+    explicit Upsampler2x(HalfBandStage stage = HalfBandStage::Outer);
+
     void process(float sample, float & out0, float & out1);
     void reset();
 
 private:
-    static constexpr size_t HistLength = (HalfBandLength + 1) / 2;
-    std::array<float, HistLength> m_buffer {};
-    size_t m_writeIndex { 0 };
+    static constexpr size_t MaxHistLength = (OuterHalfBandLength + 1) / 2;
+    // Twice the history, each sample written to both halves, so that the newest-first window is
+    // always one contiguous run and the inner loop needs no wrap-around.
+    std::array<float, 2 * MaxHistLength> m_buffer {};
+    size_t m_histLength;
+    size_t m_position { 0 };
+    HalfBandStage m_stage;
 };
 
 //! 2x half-band decimator for oversampling nonlinear effects: filters two high-rate samples and
@@ -59,12 +78,23 @@ private:
 class Decimator2x
 {
 public:
+    explicit Decimator2x(HalfBandStage stage = HalfBandStage::Outer);
+
     float process(float s0, float s1);
     void reset();
 
 private:
-    std::array<float, HalfBandLength> m_buffer {};
-    size_t m_writeIndex { 0 };
+    static constexpr size_t MaxOddLength = (OuterHalfBandLength + 1) / 2;
+    static constexpr size_t MaxEvenDelay = (OuterHalfBandLength + 1) / 4;
+    // The second sample of each pair meets every nonzero tap but the centre one, and the first sample
+    // meets only the centre one, so each gets its own line. Doubled as in Upsampler2x.
+    std::array<float, 2 * MaxOddLength> m_odd {};
+    std::array<float, 2 * MaxEvenDelay> m_even {};
+    size_t m_oddLength;
+    size_t m_evenDelay;
+    size_t m_oddPosition { 0 };
+    size_t m_evenPosition { 0 };
+    HalfBandStage m_stage;
 };
 
 //! Interpolates one base-rate sample to a block of high-rate samples for factors 1, 2 and 4. Factor 1
@@ -72,14 +102,19 @@ private:
 class Upsampler
 {
 public:
+    //! @p outerStage picks the filter for the base-rate stage. Only a source whose images a decimator
+    //! removes afterwards anyway should pass Inner: it trades the flat top octave for a third of the
+    //! latency. See BaseRateSource.
+    explicit Upsampler(HalfBandStage outerStage = HalfBandStage::Outer);
+
     //! Fill @p out with @p factor high-rate samples interpolated from one base-rate @p sample.
     //! @p factor must be 1, 2 or 4; any other value is treated as a passthrough.
     void process(float sample, float * out, uint8_t factor);
     void reset();
 
 private:
-    Upsampler2x m_stage1;
-    Upsampler2x m_stage2;
+    Upsampler2x m_outer;
+    Upsampler2x m_inner { HalfBandStage::Inner };
 };
 
 //! Decimates a block of high-rate samples back to one base-rate sample for factors 1, 2 and 4. Factor
@@ -93,8 +128,8 @@ public:
     void reset();
 
 private:
-    Decimator2x m_stage1;
-    Decimator2x m_stage2;
+    Decimator2x m_inner { HalfBandStage::Inner };
+    Decimator2x m_outer { HalfBandStage::Outer };
 };
 
 } // namespace noteahead

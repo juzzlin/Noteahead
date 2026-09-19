@@ -109,6 +109,10 @@ New features:
 
 Bug fixes:
 
+* Oversampled renders keep their top end and mids
+  - At 44.1 kHz every oversampled effect took 3.6 dB off 20 kHz; now flat
+  - The Stereo Exciter, Tube Stage and Analog Fuzz combed at 2x and 4x
+
 * A side-chained insert follows its source on a silent device
   - The gain of an Auto Ducker only moved on blocks where the device carrying
     it happened to be making sound, which is backwards for a side chain

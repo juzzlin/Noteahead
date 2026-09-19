@@ -35,6 +35,8 @@ private slots:
     void test_decimator_dcInput_shouldPreserveLevel();
     void test_decimator_audioBand_shouldNotAttenuateWithOversampling();
     void test_decimator_aboveBaseNyquist_shouldRejectAliases();
+    void test_roundTrip_topOctave_shouldStayFlat();
+    void test_decimator_justAboveBaseNyquist_shouldRejectAliases();
     void test_noiseGain_shouldKeepInBandNoiseLevelConstant();
 };
 

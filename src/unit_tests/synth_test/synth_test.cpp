@@ -2848,6 +2848,17 @@ double peakOf(const std::vector<double> & samples)
     return peak;
 }
 
+//! The first sample that rises above @p tolerance: where a note starts once the decimator's latency
+//! has passed.
+size_t onsetOf(const std::vector<double> & samples, double tolerance)
+{
+    size_t onset = 0;
+    while (onset < samples.size() && std::abs(samples.at(onset)) < tolerance) {
+        onset++;
+    }
+    return onset;
+}
+
 //! How far into the second note the first note's waveform starts over, or nothing if it never does.
 //! A voice that restarted from a known phase repeats the shape it produced the first time; one left
 //! running carries on from wherever it happened to be.
@@ -2857,9 +2868,13 @@ std::optional<size_t> restartOffset(const std::vector<double> & first, const std
     //! Wide enough to catch a restart that never came, narrow enough that it stays inside the decay
     //! the comparison relies on.
     constexpr size_t searched { 128 };
+    //! The comparison starts where the first note does, not at its first sample. Before that is only
+    //! the oversampling decimator's latency, which on the second note is where the fading voice and
+    //! the restarted one overlap inside the filter, so matching it would test the filter instead.
+    const size_t onset = onsetOf(first, tolerance);
     for (size_t offset = 0; offset < searched; offset++) {
         double worst = 0.0;
-        for (size_t i = 0; i < compared; i++) {
+        for (size_t i = onset; i < onset + compared; i++) {
             worst = std::max(worst, std::abs(second.at(offset + i) - first.at(i)));
         }
         if (worst < tolerance) {
@@ -2901,8 +2916,10 @@ void SynthTest::test_phaseSync_repeatedNote_shouldFadeOutBeforeRestarting()
     const auto offset = restartOffset(first, second, peak * 0.1);
     QVERIFY(offset.has_value());
     QVERIFY2(offset.value() > 0, "the note took over with no fade at all");
-    QVERIFY2(std::abs(second.at(offset.value() - 1)) < peak * 0.1,
-             qPrintable(QString { "handover at %1 of peak %2" }.arg(second.at(offset.value() - 1)).arg(peak)));
+    // The sample just before the restarted note starts, which is its offset plus the latency both
+    // notes share.
+    const double handover = second.at(offset.value() + onsetOf(first, peak * 0.1) - 1);
+    QVERIFY2(std::abs(handover) < peak * 0.1, qPrintable(QString { "handover at %1 of peak %2" }.arg(handover).arg(peak)));
 }
 
 void SynthTest::test_phaseSyncOff_repeatedNote_shouldNotFadeOut()
