@@ -83,7 +83,7 @@ double aliasMagnitude(Effect & effect, uint8_t factor, double inputFreq, double 
 
 // Level of a quiet sine at the input frequency after the effect, in dB. Quiet so that the effect stays
 // close to linear and what is measured is the path the signal takes, not the distortion.
-double levelDb(Effect & effect, uint8_t factor, double frequency)
+double levelDb(Effect & effect, uint8_t factor, double frequency, double amplitude = 0.05)
 {
     effect.reset();
     effect.setOversampleFactor(factor);
@@ -93,7 +93,7 @@ double levelDb(Effect & effect, uint8_t factor, double frequency)
     std::vector<double> out;
     out.reserve(total - warmup);
     for (int i = 0; i < total; i++) {
-        double l = 0.05 * std::sin(2.0 * std::numbers::pi * frequency * static_cast<double>(i));
+        double l = amplitude * std::sin(2.0 * std::numbers::pi * frequency * static_cast<double>(i));
         double r = l;
         effect.process(l, r);
         if (i >= warmup) {
@@ -103,14 +103,19 @@ double levelDb(Effect & effect, uint8_t factor, double frequency)
     return 20.0 * std::log10(goertzel(out, frequency));
 }
 
+// The Stereo Exciter's shaper runs hot, so its tone has to be quieter still to keep the shaper's own
+// compression out of the measurement: that compression is part of the harmonics, which arrive with
+// the resampling latency, while a comb is linear and shows at any level.
+constexpr double ExciterAmplitude { 0.01 };
+
 // Oversampling delays whatever goes through the resampler, so a dry or cancelling path that skips
 // it combs against the wet one. The level at 2x and 4x must then match 1x across the band.
-void verifyLevelKeptAcrossFactors(Effect & effect)
+void verifyLevelKeptAcrossFactors(Effect & effect, double amplitude = 0.05)
 {
     for (const double frequency : { 0.0125, 0.025, 0.05, 0.1 }) {
-        const double reference = levelDb(effect, 1, frequency);
+        const double reference = levelDb(effect, 1, frequency, amplitude);
         for (const uint8_t factor : { uint8_t { 2 }, uint8_t { 4 } }) {
-            const double level = levelDb(effect, factor, frequency);
+            const double level = levelDb(effect, factor, frequency, amplitude);
             QVERIFY2(std::abs(level - reference) < 0.5, qPrintable(QString { "%1x at %2: %3 dB vs %4 dB at 1x" }.arg(factor).arg(frequency).arg(level).arg(reference)));
         }
     }
@@ -208,7 +213,41 @@ void EffectOversamplingTest::test_stereoExciter_higherFactor_shouldKeepLevel()
     setParam(exciter, Constants::NahdXml::xmlKeyHarmonics(), 1.0f);
     exciter.sync();
 
-    verifyLevelKeptAcrossFactors(exciter);
+    verifyLevelKeptAcrossFactors(exciter, ExciterAmplitude);
+}
+
+void EffectOversamplingTest::test_stereoExciter_partialMix_higherFactor_shouldKeepLevel()
+{
+    // Mix is blended by the base class against the input as it came in, so whatever the exciter
+    // passes through has to arrive without the resampling latency or the blend combs.
+    StereoExciter exciter;
+    setParam(exciter, Constants::NahdXml::xmlKeyTune(), 0.0f);
+    setParam(exciter, Constants::NahdXml::xmlKeyZeroFill(), 1.0f);
+    setParam(exciter, Constants::NahdXml::xmlKeyHarmonics(), 1.0f);
+    setParam(exciter, Constants::NahdXml::xmlKeyMix(), 0.7f);
+    exciter.sync();
+
+    verifyLevelKeptAcrossFactors(exciter, ExciterAmplitude);
+}
+
+void EffectOversamplingTest::test_stereoExciter_solo_higherFactor_shouldPassOnlyHarmonics()
+{
+    // Solo is the output minus the input. A quiet tone barely excites the shaper, so what is left
+    // must be far below the tone itself at every factor, not a delayed copy of it.
+    StereoExciter exciter;
+    setParam(exciter, Constants::NahdXml::xmlKeyTune(), 0.0f);
+    setParam(exciter, Constants::NahdXml::xmlKeyZeroFill(), 1.0f);
+    setParam(exciter, Constants::NahdXml::xmlKeyHarmonics(), 1.0f);
+    setParam(exciter, Constants::NahdXml::xmlKeySolo(), 1.0f);
+    exciter.sync();
+
+    const double input = 20.0 * std::log10(0.05 * 7168 / 2); // Goertzel magnitude of the unprocessed tone
+    for (const double frequency : { 0.0125, 0.025, 0.05, 0.1 }) {
+        for (const uint8_t factor : { uint8_t { 1 }, uint8_t { 2 }, uint8_t { 4 } }) {
+            const double level = levelDb(exciter, factor, frequency);
+            QVERIFY2(level < input - 10.0, qPrintable(QString { "%1x at %2: %3 dB against %4 dB in" }.arg(factor).arg(frequency).arg(level).arg(input)));
+        }
+    }
 }
 
 void EffectOversamplingTest::test_tubeStage_partialMix_higherFactor_shouldKeepLevel()

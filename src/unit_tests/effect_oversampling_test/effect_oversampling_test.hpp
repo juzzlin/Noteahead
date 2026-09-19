@@ -31,6 +31,8 @@ private slots:
     void test_bassGrinder_higherFactor_shouldReduceAliasing();
     void test_drive_factorOne_dryMix_shouldPassThrough();
     void test_stereoExciter_higherFactor_shouldKeepLevel();
+    void test_stereoExciter_partialMix_higherFactor_shouldKeepLevel();
+    void test_stereoExciter_solo_higherFactor_shouldPassOnlyHarmonics();
     void test_tubeStage_partialMix_higherFactor_shouldKeepLevel();
     void test_analogFuzz_partialMix_higherFactor_shouldKeepLevel();
 };
