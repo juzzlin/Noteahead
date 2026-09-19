@@ -15,6 +15,7 @@
 
 #include "parameter_test.hpp"
 
+#include "../../common/constants.hpp"
 #include "../../domain/tracker/parameter.hpp"
 #include "../../domain/tracker/parameter_automation.hpp"
 #include "../../domain/tracker/parameter_container.hpp"
@@ -156,7 +157,7 @@ void ParameterTest::test_container_parameterSnapshot_shouldHoldAuthoredValues()
 
 void ParameterTest::test_display_linear_shouldRoundTrip()
 {
-    const ParameterDisplay gain { ParameterDisplay::Mapping::Linear, "dB", -12.0, 12.0, ParameterDisplay::Rest::Centre };
+    const ParameterDisplay gain { .mapping = ParameterDisplay::Mapping::Linear, .unit = "dB", .min = -12.0, .max = 12.0, .rest = ParameterDisplay::Rest::Centre, .label = "Test" };
 
     QCOMPARE(gain.toUnits(0.5), 0.0);
     QCOMPARE(gain.toUnits(1.0), 12.0);
@@ -168,10 +169,14 @@ void ParameterTest::test_display_curvedMappings_shouldRoundTrip()
     // Every curve has to come back to the position it started from, or a value typed in units
     // would land somewhere other than where it reads.
     const std::vector<ParameterDisplay> displays {
-        { ParameterDisplay::Mapping::Exponential, "ms", 0.1, 500.0 },
-        { ParameterDisplay::Mapping::CubicCentered, "%", -100.0, 100.0, ParameterDisplay::Rest::Centre },
-        { ParameterDisplay::Mapping::LogFrequency, "Hz", 20.0, 20000.0 },
-        { ParameterDisplay::Mapping::LfoFrequency, "Hz", 0.05, 20.0 }
+        { .mapping = ParameterDisplay::Mapping::Exponential, .unit = "ms", .min = 0.1, .max = 500.0, .label = "Test" },
+        { .mapping = ParameterDisplay::Mapping::CubicCentered, .unit = "%", .min = -100.0, .max = 100.0, .rest = ParameterDisplay::Rest::Centre, .label = "Test" },
+        { .mapping = ParameterDisplay::Mapping::LogFrequency, .unit = "Hz", .min = 20.0, .max = 20000.0, .label = "Test" },
+        { .mapping = ParameterDisplay::Mapping::LfoFrequency, .unit = "Hz", .min = 0.05, .max = 20.0, .label = "Test" },
+        { .mapping = ParameterDisplay::Mapping::ExponentialFromZero, .unit = "s", .min = 0.005, .max = 10.0, .label = "Test" },
+        { .mapping = ParameterDisplay::Mapping::Cubic, .unit = "s", .min = 0.0, .max = 8.0, .label = "Test" },
+        { .mapping = ParameterDisplay::Mapping::Pan, .unit = "%", .min = -100.0, .max = 100.0, .rest = ParameterDisplay::Rest::Centre, .label = "Test" },
+        { .mapping = ParameterDisplay::Mapping::Bipolar, .unit = "st", .min = -24.0, .max = 24.0, .rest = ParameterDisplay::Rest::Centre, .label = "Test" }
     };
     for (const auto & display : displays) {
         for (const double position : { 0.0, 0.1, 0.37, 0.5, 0.82, 1.0 }) {
@@ -179,14 +184,21 @@ void ParameterTest::test_display_curvedMappings_shouldRoundTrip()
         }
     }
 
+    // The fader reads in decibels, unity at its unity position; the bottom is silence, floored
+    const ParameterDisplay fader { .mapping = ParameterDisplay::Mapping::Fader, .unit = "dB", .label = "Test" };
+    for (const double position : { 0.1, 0.37, 0.5, 0.82, 1.0 }) {
+        QVERIFY2(std::abs(fader.toPosition(fader.toUnits(position)) - position) < 1.0e-9, qPrintable(QString::number(position)));
+    }
+    QVERIFY(std::abs(fader.toUnits(Constants::faderUnityPosition())) < 1.0e-9);
+
     // The log curve doubles in equal steps: the middle of 20 Hz to 20 kHz is their geometric mean.
-    const ParameterDisplay cutoff { ParameterDisplay::Mapping::LogFrequency, "Hz", 20.0, 20000.0 };
+    const ParameterDisplay cutoff { .mapping = ParameterDisplay::Mapping::LogFrequency, .unit = "Hz", .min = 20.0, .max = 20000.0, .label = "Test" };
     QVERIFY(std::abs(cutoff.toUnits(0.5) - std::sqrt(20.0 * 20000.0)) < 1.0e-6);
 }
 
 void ParameterTest::test_display_toPosition_outOfRange_shouldClamp()
 {
-    const ParameterDisplay cutoff { ParameterDisplay::Mapping::LogFrequency, "Hz", 20.0, 20000.0 };
+    const ParameterDisplay cutoff { .mapping = ParameterDisplay::Mapping::LogFrequency, .unit = "Hz", .min = 20.0, .max = 20000.0, .label = "Test" };
 
     QCOMPARE(cutoff.toPosition(5.0), 0.0);
     QCOMPARE(cutoff.toPosition(40000.0), 1.0);
@@ -194,8 +206,8 @@ void ParameterTest::test_display_toPosition_outOfRange_shouldClamp()
 
 void ParameterTest::test_display_restPosition_shouldFollowTheRest()
 {
-    QCOMPARE((ParameterDisplay { ParameterDisplay::Mapping::Linear, "%", 0.0, 100.0 }.restPosition()), 0.0);
-    QCOMPARE((ParameterDisplay { ParameterDisplay::Mapping::CubicCentered, "%", -100.0, 100.0, ParameterDisplay::Rest::Centre }.restPosition()), 0.5);
+    QCOMPARE((ParameterDisplay { .mapping = ParameterDisplay::Mapping::Linear, .unit = "%", .min = 0.0, .max = 100.0, .label = "Test" }.restPosition()), 0.0);
+    QCOMPARE((ParameterDisplay { .mapping = ParameterDisplay::Mapping::CubicCentered, .unit = "%", .min = -100.0, .max = 100.0, .rest = ParameterDisplay::Rest::Centre, .label = "Test" }.restPosition()), 0.5);
 }
 
 void ParameterTest::test_container_setParameterDisplay_shouldAttachIt()
@@ -204,7 +216,7 @@ void ParameterTest::test_container_setParameterDisplay_shouldAttachIt()
     container.addParameter(continuousParameter());
     QVERIFY(!container.parameter("cutoff")->get().display().has_value());
 
-    container.setParameterDisplay("cutoff", { ParameterDisplay::Mapping::LogFrequency, "Hz", 20.0, 20000.0 });
+    container.setParameterDisplay("cutoff", { .mapping = ParameterDisplay::Mapping::LogFrequency, .unit = "Hz", .min = 20.0, .max = 20000.0, .label = "Test" });
 
     const auto & display = container.parameter("cutoff")->get().display();
     QVERIFY(display.has_value());
@@ -236,7 +248,7 @@ void ParameterTest::test_effectiveValue_relativeCentred_shouldScaleFromTheCentre
 {
     // A control that runs either way about off: scaling it down fades it out rather than inverting it.
     auto parameter = continuousParameter();
-    parameter.setDisplay({ ParameterDisplay::Mapping::CubicCentered, "%", -100.0, 100.0, ParameterDisplay::Rest::Centre });
+    parameter.setDisplay({ .mapping = ParameterDisplay::Mapping::CubicCentered, .unit = "%", .min = -100.0, .max = 100.0, .rest = ParameterDisplay::Rest::Centre, .label = "Test" });
     parameter.setValue(0.9f);
 
     QCOMPARE(ParameterAutomation::effectiveValue(ParameterAutomation::Mode::Relative, 0.0, parameter), 0.5f);
@@ -260,8 +272,8 @@ void ParameterTest::test_effectiveValue_relative_shouldFollowTheAuthoredValue()
 void ParameterTest::test_display_highPass_shouldFollowTheLowPassCurve()
 {
     // Only the readout differs: which end it calls Bypass
-    const ParameterDisplay lowPass { ParameterDisplay::Mapping::LogFrequency, "Hz", 20.0, 20000.0 };
-    const ParameterDisplay highPass { ParameterDisplay::Mapping::LogFrequencyHighPass, "Hz", 20.0, 20000.0 };
+    const ParameterDisplay lowPass { .mapping = ParameterDisplay::Mapping::LogFrequency, .unit = "Hz", .min = 20.0, .max = 20000.0, .label = "Test" };
+    const ParameterDisplay highPass { .mapping = ParameterDisplay::Mapping::LogFrequencyHighPass, .unit = "Hz", .min = 20.0, .max = 20000.0, .label = "Test" };
     for (const double position : { 0.0, 0.3, 0.5, 1.0 }) {
         QCOMPARE(highPass.toUnits(position), lowPass.toUnits(position));
         QCOMPARE(highPass.toPosition(lowPass.toUnits(position)), lowPass.toPosition(lowPass.toUnits(position)));

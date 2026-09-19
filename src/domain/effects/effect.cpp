@@ -34,8 +34,8 @@ Effect::~Effect() = default;
 Effect::Effect(const Effect & other)
   : DspComponent { other }
   , ParameterContainer { other }
-  , m_id { other.m_id }
   , m_dryBuffer { other.m_dryBuffer }
+  , m_id { other.m_id }
   , m_mixLaw { other.m_mixLaw }
   , m_enabled { other.m_enabled }
   , m_bpm { other.m_bpm }
@@ -63,8 +63,8 @@ Effect & Effect::operator=(const Effect & other)
 Effect::Effect(Effect && other)
   : DspComponent { std::move(other) }
   , ParameterContainer { std::move(other) }
-  , m_id { other.m_id }
   , m_dryBuffer { std::move(other.m_dryBuffer) }
+  , m_id { other.m_id }
   , m_mixLaw { other.m_mixLaw }
   , m_enabled { other.m_enabled }
   , m_bpm { other.m_bpm }
