@@ -1,196 +1,3 @@
-x.y.z
-=====
-
-Release date:
-
-New features:
-
-* A filter section per oscillator in the Synth
-  - Each VCO gets its own low pass with resonance and slope, a high pass
-    with slope, and a Filter tab to keep them out of the way
-  - The Mod EG and both LFOs can sweep any of the eight new corners
-  - Silent on patches you already have: every one of them starts wide open
-
-* Presets for the Bass Synth
-  - Ten patches from Deep Sub to Acid Squelch, an Init to get back, and a
-    Save of your own beside them
-  - A program change in a song loads a patch for as long as it plays,
-    leaving the one you saved untouched
-
-* Presets for the Delay and the Auto Ducker
-  - Nine delay patches and seven ducker patches, and a Save of your own
-    beside them
-  - A preset never carries a side-chain source: the device it names belongs
-    to the project, not to the patch
-
-* Instability and Drive in the Synth
-  - Instability gives every oscillator a slow wander of its own, so two of them
-    at one pitch beat against each other instead of summing into a waveform
-    that never moves. Drift moves the whole voice and cannot do that
-  - Drive pushes the low pass into its own ceiling: the peaks and the resonance
-    fold inside the filter rather than in front of it. Both start at zero, so
-    every patch is the patch it was
-
-* Metering per device in the Mixer
-  - Each strip now shows IN, the level Gain is set against, beside OUT, what
-    the device actually contributes
-  - OUT reads either Level, in dBFS, or Loudness, in LUFS: click it to switch,
-    right-click to pick. Level is unweighted, so it compares the energy of two
-    devices where LUFS compares their perceived loudness
-
-* Ten more Synth presets
-  - Hollow Bass, Supersaw, Hoover, Cross Mod Brass, Formant Pad, Drift
-    Choir, Rotary Organ, Dub Chord, Noise Sweep and Wind
-  - Between them they reach the fourth oscillator, the Multi engine, the
-    second LFO, cross modulation and the synced delay, none of which any
-    earlier preset touched
-
-* Ten more FM Synth presets
-  - Wurly, DX Brass, Growl Bass, Vibes, Steel Drum, Koto, Ice Pad, Bell
-    Drone, Talking Lead and Tape Echo Keys
-  - The first presets to use anything but a sine operator, and the first
-    to use the LFOs, the filter's resonance and the delay
-
-* A fourth VCO in the Synth
-  - Its own waveform, octave, pitch, shape, roundness and hard sync, and
-    its own level in the mix
-  - Reachable from the Mod EG and both LFOs, as Pitch 4
-  - Silent by default, so patches you already have are unchanged
-
-* The EQ draws its curve
-  - A response curve in the corner of the dialog, following the bands as
-    they are set
-  - Read off the filters the equalizer processes with, so it cannot show
-    something other than what is heard
-  - In Mid or Side mode the untouched path is drawn too, so a cut taken
-    out of half the image no longer looks like one taken out of all of it
-
-* The render report measures the mix's balance
-  - A third-octave average of the whole track, plus what sits in the low
-    mids, mids, presence and highs
-  - Read against the mix's own midrange, so two tracks mastered to
-    different loudnesses can be compared band for band
-  - Presence against highs is the number a hollow mix gives itself away by
-
-* The Air Band EQ draws its curve
-  - Summed the way its taps actually meet the dry signal, so the skirts
-    are as wide as they sound rather than up to 1.5 dB wider
-  - The Output trim is part of the curve
-
-* LPF Slope and HPF Slope on Synth, FM Synth and Wavetable Synth
-  - Their voice filters can run at 12 dB/oct as well as the 24 they have
-    always been, which is the gentler, more open filter voice
-  - Each filter has its own slope
-  - 24 dB/oct stays the default, so existing patches are unchanged
-
-* Steeper cuts in the EQ 8-Band Parametric
-  - Low Cut and High Cut bands can now run at 24 or 48 dB/oct as well as 12
-  - Steeper cuts clear rumble and mud without dragging the low mids down
-    with them
-  - The corner stays where the Q puts it whatever the slope
-  - 12 dB/oct stays the default, so existing curves are unchanged
-
-* LPF Slope and HPF Slope on Sampler and Drum Synth
-  - Their LPF and HPF can now roll off at 24 dB/oct instead of 12, each
-    with its own slope
-  - One pair for the whole device; 12 dB/oct stays the default, so nothing
-    you have already sounds different
-
-* The render report says what its numbers mean
-  - A Notes section in the report dialog and in the .loudness.txt beside the
-    render: where the balance departs, and what that tends to sound like
-  - Read against the mix's own lean rather than a reference curve, so a dark
-    master is a dark master and not five separate faults
-
-* 96 bands in the RTA, and a display that keeps up with the music
-  - Every band is measured at its own resolution now: above 400 Hz the bars
-    answer in 20-60 ms where they used to take 100-390
-  - Half the CPU of the analysis it replaces, and 60 frames a second by default
-
-Bug fixes:
-
-* Oversampled renders keep their top end and mids
-  - At 44.1 kHz every oversampled effect took 3.6 dB off 20 kHz; now flat
-  - The Stereo Exciter, Tube Stage and Analog Fuzz combed at 2x and 4x
-  - The Stereo Exciter's Solo plays only what it adds at 2x and 4x too
-
-* The Stereo Exciter works at any level
-  - It added next to nothing below full scale; Harmonics now means the same
-    at any level, and adds only above Tune
-  - Projects that use it keep their settings but will sound brighter
-
-* A side-chained insert follows its source on a silent device
-  - The gain of an Auto Ducker only moved on blocks where the device carrying
-    it happened to be making sound, which is backwards for a side chain
-
-* The Air Band EQ's 2.5 kHz band is a bell
-  - It was built as a shelf, so boosting it carried everything above it up
-    instead of coming back down, and duplicated the AIR BAND's lowest position
-  - Projects that use it keep their settings but will sound different up top
-
-* The Synth's fourth oscillator answers Phase Sync
-  - The starting phases were carried in an array of three, so VCO4 was never
-    reset and a repeated note started it wherever the note before it had left
-    it
-
-* The Sampler's offset fields keep following the pad
-  - Pressing Return in one of them dropped its binding for good, so a value
-    the device had clamped to the end of the sample, moved with a marker or
-    belonged to another pad never reached the field again
-  - An offset set past the end of the sample now visibly snaps back to where
-    it landed, and can be cleared from there
-
-* The delay Time knob shows the time the delay actually runs at
-  - It read out cubically over 1-10000 ms while the delay itself is the
-    knob's position times ten seconds: mid-travel showed 1251 ms and
-    delayed by 5000
-  - The Delay effect and the Synth and FM Synth delays alike
-
-* Copying a send effect brings its chain along
-  - A send bus is its effect plus whatever runs after it, and only the
-    effect was copied
-
-* Tempo-synced effects follow the song's tempo
-  - The tempo was never written into the audio block at all, so anything
-    reading it there ran at a fixed 120 whatever the song said
-  - An effect dropped into a rack kept 120 until the tempo next changed,
-    which a synced delay on a send gave away at once
-
-* A delay on a send bus keeps its echoes
-  - The bus stopped whenever its input and its return were both quiet,
-    which is precisely what a delay looks like between two taps
-  - A short sound sent to a delay had its echoes swallowed
-
-* Side chain sources work outside a device's own inserts
-  - A ducker or a compressor on a send bus or in the master rack was never
-    given the device outputs, so the source it named was ignored and it
-    listened to its own input instead
-  - Ducking a delay or a reverb return with the kick works as it reads
-  - Removing a device now stops driving whatever was side chained to its
-    slot
-
-* The EQ 8 dialog opens at the first band
-  - The dialog is reused for every slot, so its band grid came back
-    wherever the previous visit had scrolled it
-  - The grid could also slide sideways past its own width, into nothing
-
-* Looking at an EQ band's type no longer overwrites its Q
-  - A combo box reports the item you pick even when it was already the
-    current one, so opening the type list and closing it again applied the
-    type's default width on top of the one you had set
-  - Projects lost band widths just by being opened and looked at
-
-Other:
-
-* Side-chain sources are named
-  - Every side-chain source list names the device's type and tracks instead
-    of numbering the slots
-
-* The EQ's bands open at a Q that suits the type
-  - A bell is one octave wide, a shelf or a cut is Butterworth, and a notch
-    starts narrow
-  - Applied when you pick the type; a saved Q is never overwritten
-
 8.0.0
 =====
 
@@ -200,129 +7,116 @@ Sun, 13 Sep 2026 08:37:52 +0300
 
 New features:
 
-* A glottal source for Speech
-  - Models the vocal folds instead of a sawtooth, so the voice has an
-    Openness control: pressed and buzzy at one end, soft and breathy at the
-    other
-  - Jitter adds the cycle-to-cycle unsteadiness a real voice has, and the
-    breath now follows the glottal cycle instead of sitting behind it
-  - Three voice types added: Child, Deep and Breathy
-  - Female was measurably darker than Male, which is backwards; it is now
-    brighter, as a shorter vocal tract makes it
+* A filter section per oscillator in the Synth
+  - Each VCO gets its own low pass with resonance and slope, and a high pass
+  - The Mod EG and both LFOs can sweep any of the new corners
+  - Every existing patch starts wide open, so nothing changes
 
-* Speech spells out single letters
-  - A lone capital is said by name: "A M" is "ay em", not a schwa and a hum
-  - The article "a" and a sentence-opening "A" are unchanged, unless another
-    letter follows
+* A fourth VCO, Instability and Drive in the Synth
+  - VCO4 has its own waveform, octave, pitch, shape and sync, and is Pitch 4
+    as a modulation target
+  - Instability lets each oscillator wander on its own; Drive saturates the
+    low pass from inside
+  - All three start silent or at zero, so existing patches are unchanged
 
-* Presets for the EQ 8-Band Parametric
-  - Seventeen starting points, one per source: master bus, vocal, guitar,
-    kicks, snare, cymbals, piano, strings, pads and the synths
-  - Save stores the panel under a name of your own, next to the built-in
-    ones in the same dropdown, marked with a *
-  - Flat bypasses every band and is the way back from any other preset
-  - Effects share the preset store with the devices, so any effect can be
-    given presets from here on
+* Filter slopes on the synths, the Sampler and the Drum Synth
+  - LPF and HPF run at 12 or 24 dB/oct, each with its own slope
+  - Existing patches keep the slope they had
 
 * Vibrato that arrives after the note
-  - Delay holds an LFO back before it engages, and Fade eases it up to full
-    depth instead of switching it on
-  - On both LFOs of Synth, FM Synth and Wavetable Synth
-  - Both default to zero, so existing patches sound exactly as before
+  - Delay and Fade on both LFOs of the Synth, FM Synth and Wavetable Synth
+  - Both default to zero, so existing patches are unchanged
 
-* Speech can say a lyric a line at a time
-  - A new Line trigger mode speaks one sentence per note, so one Speech
-    device carries a whole lyric instead of one per line
-  - A full stop, ! or ? starts the next line; a comma still only pauses
-  - With Sync set to Fit each line fills the note that speaks it, so lines
-    of different lengths need no setting of their own
-  - Starting playback anywhere, or looping a pattern, lands on the line the
-    song says rather than wherever the last run stopped
+* Presets
+  - For the Bass Synth, the Delay, the Auto Ducker and the EQ 8-Band
+    Parametric, and ten more each for the Synth and the FM Synth
+  - Save your own beside the built-in ones; they live in
+    ~/.config/Noteahead/presets, one file each
 
-* Save your own presets for Synth and FM Synth
-  - Save stores the panel under a name of your own, next to the factory
-    patches in the same dropdown, marked with a *
-  - Presets live in ~/.config/Noteahead/presets, one file each, so they can
-    be copied between machines
+* String & Voice V3
+  - Ensemble reaches only the Human Voice section, as on the VC340
+  - The Strings shimmer on their own with Ensemble off; V2 is unchanged
 
-* Add String & Voice V3
-  - Ensemble reaches the Human Voice section only, as on the hardware
-  - The Strings sound each note as three slightly detuned copies, so they
-    shimmer on their own instead of standing still with Ensemble off
-  - Fitted to VC340 recordings of the Strings made with Ensemble off
-  - V2 is untouched and songs using it are unaffected
+* Speech
+  - A glottal source with Openness and Jitter, and Child, Deep and Breathy
+    voices; Female is now brighter than Male, not darker
+  - A Line trigger mode speaks a lyric one sentence per note
+  - A lone capital is spelled out: "A M" is "ay em"
 
 * Chain effects after a send effect
-  - A Chain button on each row of the Send Effects tab opens a rack that
-    runs on what that send returns, so a reverb can be EQ'd or a delay
-    compressed without the dry signal going through it
-  - The first effect of a bus is the one that keeps the dry out of the
-    return, whether it sits in the send slot or in the chain
+  - A Chain button on each send runs a rack on what that send returns, so a
+    reverb can be EQ'd without the dry signal going through it
+
+* IN and OUT meters per device in the Mixer
+  - OUT reads Level in dBFS or Loudness in LUFS; click it to switch
+
+* Curves and steeper cuts in the EQs
+  - The EQ 8-Band Parametric and the Air Band EQ draw their response curves
+  - The EQ 8's Low Cut and High Cut can run at 24 or 48 dB/oct
+
+* The render report measures the mix's balance
+  - Band levels read against the mix's own midrange, and notes on what they
+    tend to sound like
+
+* 96 bands in the RTA, and a faster display
+  - Above 400 Hz the bars answer in 20-60 ms instead of 100-390, at half the
+    CPU
 
 Bug fixes:
 
-* Speech misreads several numbers
-  - "zero" was said with the vowel of "bed", and "seven" with the vowel of
-    "see"
-  - "nineteen" and "ninety" lost the long I of "nine", "hundred" lost its
-    last vowel, and "oh" was read as "ah"
+* Oversampled renders keep their top end and mids
+  - At 44.1 kHz every oversampled effect took 3.6 dB off 20 kHz
+  - The Stereo Exciter, Tube Stage and Analog Fuzz combed at 2x and 4x
 
-* Speech clicks when a note is let go of
-  - The fade that covers the end of a phrase was applied to a sample already
-    forced to zero, so it faded silence and covered nothing
-  - The waveform stopped wherever it was, a fifth of full scale in one sample
-    at the end of a syllable
-  - Affects old projects too, which is the point of fixing it
+* The Stereo Exciter works at any level
+  - Harmonics means the same at any level and adds only above Tune
+  - Solo now plays only what it adds, at every oversampling factor
+  - Projects that use it keep their settings but will sound brighter
+
+* Side chains
+  - Sources on send buses and in the master rack are no longer ignored
+  - An insert follows its source even while its own device is silent
+  - Removing a device stops driving what was side-chained to it
+
+* Delays and tempo
+  - Tempo-synced effects follow the song instead of a fixed 120 BPM
+  - A delay on a send bus no longer swallows its own echoes
+  - The Time knob shows the time the delay actually runs at
+  - Copying a send effect brings its chain along
+
+* EQs
+  - Looking at a band's type no longer overwrites its Q
+  - The EQ 8 dialog opens at the first band
+  - The Air Band EQ's 2.5 kHz band is a bell, not a shelf; projects that use
+    it will sound different up top
+
+* The Synth's VCO4 answers Phase Sync
+
+* Sampler
+  - The offset fields keep following the pad after Return is pressed
+  - A missing sample file no longer loses the whole project
+
+* Speech
+  - Several numbers, doubled consonants and unstressed vowels are read right
+  - No click when a note is released, and no warble on a stressed syllable;
+    existing projects keep their vibrato
+  - Sibilance honours its default
+
+* A device this version does not know survives a save
 
 * Export metadata follows the song that is open
-  - Opening another song left the previous song's album, artist and notes in
-    the audio render dialog, over the new song's own values
-  - The stored values were always the new song's; only the dialog was stale
-
-* Speech reduces its unstressed vowels
-  - Every syllable was said at full value, which gives a sentence the weight
-    of a list of syllables read out one at a time
-  - The weak syllables now centre on a schwa, as English says them, and the
-    apostrophe stress mark settles a word's vowels along with its rhythm
-
-* Speech says a doubled consonant once
-  - "better" and "happy" were read a letter at a time, so both letters were
-    spoken: two closures and two bursts, which is a stammer mid-word
-  - A tenth of ordinary English words were affected
-
-* Speech no longer warbles on a stressed syllable
-  - The pitch accent stepped a semitone or more between one phoneme and the
-    next; it now moves the way a voice does
-  - Vibrato is off by default, and a slow irregular flutter takes its place
-  - Existing projects keep the vibrato they were saved with
-
-* Speech honours its Sibilance default
-  - The control was registered twice and kept the wrong one, so fricatives
-    ran brighter and louder than the panel said
-
-* A device this version does not know is no longer lost on save
-  - Opening a project made with a newer version, or with a device this build
-    lacks, left that slot empty and deleted it from the file on the next save
-  - Its settings are now kept and written back, and the slots are listed when
-    the project opens
-
-* A sample that cannot be read no longer loses the project
-  - Loading a project whose sample file had been moved or deleted discarded
-    the whole song and left an empty one in its place
-  - The project now loads, the pads that are missing their files are listed,
-    and those pads keep their settings so putting the file back is enough
 
 Other:
 
-* Document the Air Band EQ in the built-in manual
-  - Its knobs read out in panel units rather than decibels, and the decibels
-    they map to are asymmetric; both are now written down
-  - The effect sections of the rack chapter are in alphabetical order
+* Side-chain sources are listed by name
+
+* The EQ's bands open at a Q that suits the type
+  - A saved Q is never overwritten
 
 * The Sampler embeds its samples by default
-  - A new project carries its samples, so moving or sharing it cannot leave
-    the pads pointing at files that are no longer there
   - Existing projects keep the setting they were saved with
+
+* The Air Band EQ is documented in the built-in manual
 
 7.5.0
 =====
