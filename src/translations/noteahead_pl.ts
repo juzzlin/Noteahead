@@ -3455,6 +3455,14 @@
         <translation>Szybkość</translation>
     </message>
     <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">Dzielnik szybkości</translation>
+    </message>
+    <message>
+        <source>Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Intensity</source>
         <translation>Intensywność</translation>
     </message>
@@ -3476,6 +3484,14 @@
     <message>
         <source>Rate</source>
         <translation>Szybkość</translation>
+    </message>
+    <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">Dzielnik szybkości</translation>
+    </message>
+    <message>
+        <source>Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Intensity</source>
@@ -9469,6 +9485,14 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <translation>Szybkość</translation>
     </message>
     <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">Dzielnik szybkości</translation>
+    </message>
+    <message>
+        <source>Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Intensity</source>
         <translation>Intensywność</translation>
     </message>
@@ -9490,6 +9514,14 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     <message>
         <source>Rate</source>
         <translation>Szybkość</translation>
+    </message>
+    <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">Dzielnik szybkości</translation>
+    </message>
+    <message>
+        <source>Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Intensity</source>
@@ -10493,6 +10525,14 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <translation>Szybkość</translation>
     </message>
     <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">Dzielnik szybkości</translation>
+    </message>
+    <message>
+        <source>Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Intensity</source>
         <translation>Intensywność</translation>
     </message>
@@ -10514,6 +10554,14 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     <message>
         <source>Rate</source>
         <translation>Szybkość</translation>
+    </message>
+    <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">Dzielnik szybkości</translation>
+    </message>
+    <message>
+        <source>Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Intensity</source>

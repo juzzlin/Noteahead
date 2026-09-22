@@ -3454,6 +3454,14 @@
         <translation>Snelheid</translation>
     </message>
     <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">Snelheidsdeler</translation>
+    </message>
+    <message>
+        <source>Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Intensity</source>
         <translation>Intensiteit</translation>
     </message>
@@ -3475,6 +3483,14 @@
     <message>
         <source>Rate</source>
         <translation>Snelheid</translation>
+    </message>
+    <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">Snelheidsdeler</translation>
+    </message>
+    <message>
+        <source>Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Intensity</source>
@@ -9467,6 +9483,14 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
         <translation>Snelheid</translation>
     </message>
     <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">Snelheidsdeler</translation>
+    </message>
+    <message>
+        <source>Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Intensity</source>
         <translation>Intensiteit</translation>
     </message>
@@ -9488,6 +9512,14 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     <message>
         <source>Rate</source>
         <translation>Snelheid</translation>
+    </message>
+    <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">Snelheidsdeler</translation>
+    </message>
+    <message>
+        <source>Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Intensity</source>
@@ -10491,6 +10523,14 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
         <translation>Snelheid</translation>
     </message>
     <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">Snelheidsdeler</translation>
+    </message>
+    <message>
+        <source>Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Intensity</source>
         <translation>Intensiteit</translation>
     </message>
@@ -10512,6 +10552,14 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     <message>
         <source>Rate</source>
         <translation>Snelheid</translation>
+    </message>
+    <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">Snelheidsdeler</translation>
+    </message>
+    <message>
+        <source>Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Intensity</source>

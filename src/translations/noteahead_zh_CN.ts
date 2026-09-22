@@ -3453,6 +3453,14 @@
         <translation>速率</translation>
     </message>
     <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">速率分频</translation>
+    </message>
+    <message>
+        <source>Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Intensity</source>
         <translation>强度</translation>
     </message>
@@ -3474,6 +3482,14 @@
     <message>
         <source>Rate</source>
         <translation>速率</translation>
+    </message>
+    <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">速率分频</translation>
+    </message>
+    <message>
+        <source>Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Intensity</source>
@@ -9465,6 +9481,14 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <translation>速率</translation>
     </message>
     <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">速率分频</translation>
+    </message>
+    <message>
+        <source>Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Intensity</source>
         <translation>强度</translation>
     </message>
@@ -9486,6 +9510,14 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>Rate</source>
         <translation>速率</translation>
+    </message>
+    <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">速率分频</translation>
+    </message>
+    <message>
+        <source>Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Intensity</source>
@@ -10489,6 +10521,14 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <translation>速率</translation>
     </message>
     <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">速率分频</translation>
+    </message>
+    <message>
+        <source>Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Intensity</source>
         <translation>强度</translation>
     </message>
@@ -10510,6 +10550,14 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>Rate</source>
         <translation>速率</translation>
+    </message>
+    <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">速率分频</translation>
+    </message>
+    <message>
+        <source>Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Intensity</source>

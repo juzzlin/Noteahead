@@ -3454,6 +3454,14 @@
         <translation>Vitesse</translation>
     </message>
     <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">Diviseur de vitesse</translation>
+    </message>
+    <message>
+        <source>Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Intensity</source>
         <translation>Intensité</translation>
     </message>
@@ -3475,6 +3483,14 @@
     <message>
         <source>Rate</source>
         <translation>Vitesse</translation>
+    </message>
+    <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">Diviseur de vitesse</translation>
+    </message>
+    <message>
+        <source>Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Intensity</source>
@@ -9467,6 +9483,14 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
         <translation>Vitesse</translation>
     </message>
     <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">Diviseur de vitesse</translation>
+    </message>
+    <message>
+        <source>Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Intensity</source>
         <translation>Intensité</translation>
     </message>
@@ -9488,6 +9512,14 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
     <message>
         <source>Rate</source>
         <translation>Vitesse</translation>
+    </message>
+    <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">Diviseur de vitesse</translation>
+    </message>
+    <message>
+        <source>Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Intensity</source>
@@ -10491,6 +10523,14 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
         <translation>Vitesse</translation>
     </message>
     <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">Diviseur de vitesse</translation>
+    </message>
+    <message>
+        <source>Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Intensity</source>
         <translation>Intensité</translation>
     </message>
@@ -10512,6 +10552,14 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
     <message>
         <source>Rate</source>
         <translation>Vitesse</translation>
+    </message>
+    <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">Diviseur de vitesse</translation>
+    </message>
+    <message>
+        <source>Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Intensity</source>
