@@ -2552,6 +2552,35 @@ void SamplerTest::test_audibleLength_shouldFollowTheTrimsAndTheTuning()
     QVERIFY2(std::abs(tunedUp - 0.5) < 0.02, qPrintable(QString::number(tunedUp)));
 }
 
+void SamplerTest::test_attackSeconds_curve_shouldRiseFromZeroWithoutAStep()
+{
+    // The bottom is an instant start, and the first nudge of the knob is a hair longer, not 5 ms
+    QCOMPARE(SamplerDevice::attackSeconds(0.0f), 0.0);
+    QCOMPARE(SamplerDevice::holdSeconds(0.0f), 0.0);
+    QVERIFY(SamplerDevice::attackSeconds(0.001f) < 0.0001);
+    QVERIFY(SamplerDevice::holdSeconds(0.001f) < 0.0001);
+    QVERIFY(std::abs(SamplerDevice::attackSeconds(1.0f) - 10.0) < 1.0e-6);
+    double previous = 0.0;
+    for (int i = 1; i <= 1000; i++) {
+        const double seconds = SamplerDevice::attackSeconds(static_cast<float>(i) / 1000.0f);
+        QVERIFY(seconds > previous);
+        // Never more than a few percent of the way at once: no step anywhere on the travel
+        QVERIFY2(seconds - previous < 0.01 + 0.01 * seconds, qPrintable(QString::number(i)));
+        previous = seconds;
+    }
+}
+
+void SamplerTest::test_envelopePositionFromLegacy_shouldKeepTheTime()
+{
+    // The old curve: nothing at zero, exponential over 5 ms to 10 s above it
+    QCOMPARE(SamplerDevice::envelopePositionFromLegacy(0.0f), 0.0f);
+    for (const float legacy : { 0.0001f, 0.01f, 0.2f, 0.45f, 0.8f, 1.0f }) {
+        const double oldSeconds = 0.005 * std::pow(2000.0, static_cast<double>(legacy));
+        const double newSeconds = SamplerDevice::attackSeconds(SamplerDevice::envelopePositionFromLegacy(legacy));
+        QVERIFY2(std::abs(newSeconds / oldSeconds - 1.0) < 1.0e-5, qPrintable(QString { "%1: %2 s was %3 s" }.arg(legacy).arg(newSeconds).arg(oldSeconds)));
+    }
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SamplerTest)

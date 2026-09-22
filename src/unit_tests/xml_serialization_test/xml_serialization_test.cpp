@@ -47,7 +47,6 @@
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/wavetable_synth_device.hpp"
 #include "../../domain/effects/air_band_eq.hpp"
-#include "../../domain/effects/eq_32_band_graphical.hpp"
 #include "../../domain/effects/all_pass_filter.hpp"
 #include "../../domain/effects/analog_fuzz.hpp"
 #include "../../domain/effects/auto_ducker.hpp"
@@ -63,6 +62,7 @@
 #include "../../domain/effects/early_reflections.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/endless_reverb.hpp"
+#include "../../domain/effects/eq_32_band_graphical.hpp"
 #include "../../domain/effects/eq_8_band_parametric.hpp"
 #include "../../domain/effects/flanger.hpp"
 #include "../../domain/effects/gain.hpp"
@@ -1361,6 +1361,52 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_padTuningTrimAndEnvel
     QCOMPARE(samplerIn->sampleCurve(62), 0.0f);
     QCOMPARE(samplerIn->sampleReverse(62), false);
     QCOMPARE(samplerIn->sampleEndOffset(62), 0.0);
+}
+
+void XmlSerializationTest::test_fromXml_samplerDevice_legacyAttackAndHold_shouldKeepTheirTimes()
+{
+    // A project from before the envelope curve was made continuous stores a pad's attack and hold as
+    // "attack" and "hold", positions on the old curve. Loading it has to give the pad the times it
+    // was saved with, which are now at other positions under the new names.
+    const std::string fileName = "test.wav";
+    const auto samplerName = "Noteahead Internal Device 1";
+
+    DeviceService deviceServiceOut { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+    const auto samplerOut = std::make_shared<SamplerDevice>(samplerName, std::make_unique<MockAudioFileReader>());
+    samplerOut->loadSample(60, fileName);
+    samplerOut->setSampleAttack(60, 0.5f);
+    samplerOut->setSampleHold(60, 0.5f);
+    samplerOut->loadSample(62, fileName);
+    deviceServiceOut.setDevice(0, samplerOut);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+    auto xml = editorServiceOut.toXml();
+
+    // Rewritten as the old format had it: the old names, and old-curve positions of 0.2 and 0.45 on
+    // the pad that has them. The pad left at zero stays at zero under the old names too.
+    QVERIFY(xml.contains(R"(name="attackTime")"));
+    xml.replace(QRegularExpression { R"lit(name="attackTime" valueType="float" value="5000")lit" }, R"lit(name="attack" valueType="float" value="2000")lit");
+    xml.replace(QRegularExpression { R"lit(name="holdTime" valueType="float" value="5000")lit" }, R"lit(name="hold" valueType="float" value="4500")lit");
+    xml.replace(QRegularExpression { R"lit(name="(attack|hold)Time")lit" }, R"lit(name="\1")lit");
+    QVERIFY(!xml.contains(R"(name="attackTime")"));
+    QVERIFY(xml.contains(R"(name="attack" valueType="float" value="2000")"));
+
+    const auto deviceServiceIn = std::make_shared<DeviceService>(std::make_shared<AudioEngine>(), std::make_shared<DataService>());
+    const auto samplerIn = std::make_shared<SamplerDevice>(samplerName, std::make_unique<MockAudioFileReader>());
+    deviceServiceIn->setDevice(0, samplerIn);
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, deviceServiceIn.get(), &DeviceService::deserializeFromXml);
+    editorServiceIn.fromXml(xml);
+
+    // The old curve: exponential over 5 ms to 10 s above zero
+    const auto oldSeconds = [](double position) { return 0.005 * std::pow(2000.0, position); };
+    const double attack = SamplerDevice::attackSeconds(samplerIn->sampleAttack(60));
+    const double hold = SamplerDevice::holdSeconds(samplerIn->sampleHold(60));
+    QVERIFY2(std::abs(attack / oldSeconds(0.2) - 1.0) < 0.001, qPrintable(QString::number(attack)));
+    QVERIFY2(std::abs(hold / oldSeconds(0.45) - 1.0) < 0.001, qPrintable(QString::number(hold)));
+    QCOMPARE(samplerIn->sampleAttack(62), 0.0f);
+    QCOMPARE(samplerIn->sampleHold(62), 0.0f);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_samplerDevice_padEffectRack_shouldRoundTrip()

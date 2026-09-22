@@ -270,6 +270,9 @@ public:
     //! envelope over the waveform from these, so it reads the same times the voices run on.
     static double attackSeconds(float attack);
     static double holdSeconds(float hold);
+    //! A pad's attack or hold position saved under the old names, on the curve those used, moved to
+    //! the position on today's curve that gives the same time.
+    static float envelopePositionFromLegacy(float legacyPosition);
     static double decaySeconds(float decay);
     static double releaseSeconds(float release);
 

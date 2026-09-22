@@ -1740,6 +1740,11 @@ QString xmlKeyHold()
     return "hold";
 }
 
+QString xmlKeyHoldTime()
+{
+    return "holdTime";
+}
+
 QString xmlKeyDrive()
 {
     return "drive";
@@ -1843,6 +1848,11 @@ QString xmlKeyKeyTrack()
 QString xmlKeyAttack()
 {
     return "attack";
+}
+
+QString xmlKeyAttackTime()
+{
+    return "attackTime";
 }
 
 QString xmlKeyDecay()

@@ -25,6 +25,7 @@ class KnobControllerTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_format_exponentialFromZero_shouldReadNothingAtTheBottom();
     void test_intensityMapping_shouldMapValuesCorrectly();
     void test_intensityToString_shouldFormatPercentageStrings();
     void test_panMapping_shouldMapValuesCorrectly();

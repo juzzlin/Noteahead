@@ -35,7 +35,7 @@ ColumnLayout {
 
     Knob {
         label: qsTr("Attack")
-        mapping: "exponential"
+        mapping: "exponentialFromZero"
         mapMin: 0.005
         mapMax: 10.0
         suffix: "s"
@@ -47,7 +47,7 @@ ColumnLayout {
 
     Knob {
         label: qsTr("Hold")
-        mapping: "exponential"
+        mapping: "exponentialFromZero"
         mapMin: 0.005
         mapMax: 10.0
         suffix: "s"

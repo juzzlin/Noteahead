@@ -398,6 +398,20 @@ void KnobControllerTest::test_parse_highPass_bypass_shouldBeTheBottom()
     QCOMPARE(controller.parse("1.5 kHz", "logFrequencyHighPass", "Hz", 20.0, 20000.0).toDouble(), controller.unmap(1500.0, "logFrequency", 20.0, 20000.0));
 }
 
+void KnobControllerTest::test_format_exponentialFromZero_shouldReadNothingAtTheBottom()
+{
+    // The Sampler's attack and hold: the bottom is an instant start, and it says so instead of
+    // naming the 5 ms knee the way the plain exponential's bottom does
+    KnobController controller;
+    QVERIFY(!controller.format(0.0, "exponentialFromZero", "s", 0.005, 10.0).startsWith("5"));
+    QCOMPARE(controller.format(0.0, "exponentialFromZero", "s", 0.005, 10.0), controller.format(0.0, "linear", "s", 0.0, 10.0));
+    QCOMPARE(controller.format(1.0, "exponentialFromZero", "s", 0.005, 10.0), controller.format(1.0, "exponential", "s", 0.005, 10.0));
+    // A typed time lands where it reads back the same
+    const auto position = controller.parse("20 ms", "exponentialFromZero", "s", 0.005, 10.0);
+    QVERIFY(position.isValid());
+    QCOMPARE(controller.format(position.toDouble(), "exponentialFromZero", "s", 0.005, 10.0), QString { "20.0 ms" });
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::KnobControllerTest)

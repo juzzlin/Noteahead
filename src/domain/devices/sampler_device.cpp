@@ -53,8 +53,10 @@ SamplerDevice::Sample::Sample()
     addParameter(Parameter { Constants::NahdXml::xmlKeyEndOffset().toStdString(), 0.0f, 0, 60000, 0, 1 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyTune().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDetune().toStdString(), 0.5f, 0, 10000, 5000, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyAttack().toStdString(), 0.0f, 0, 10000, 0, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyHold().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    // Renamed when the curve was made continuous down to zero; a pad saved under the old names keeps
+    // its time, converted from the old curve onto the new one. See envelopePositionFromLegacy().
+    addParameter(Parameter { Constants::NahdXml::xmlKeyAttackTime().toStdString(), 0.0f, 0, 10000, 0, 100, Parameter::Type::Continuous, { Constants::NahdXml::xmlKeyAttack().toStdString() }, &SamplerDevice::envelopePositionFromLegacy });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyHoldTime().toStdString(), 0.0f, 0, 10000, 0, 100, Parameter::Type::Continuous, { Constants::NahdXml::xmlKeyHold().toStdString() }, &SamplerDevice::envelopePositionFromLegacy });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDecay().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeySustain().toStdString(), 1.0f, 0, 10000, 10000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyReleaseTime().toStdString(), 0.0f, 0, 10000, 0, 100 });
@@ -92,13 +94,27 @@ constexpr double DetuneCentRange { 100.0 };
 
 double SamplerDevice::attackSeconds(float attack)
 {
-    return attack <= 0.0f ? 0.0 : ParameterMapper::mapExponential(static_cast<double>(attack), MinEnvelopeSeconds, MaxEnvelopeSeconds);
+    // Zero is an instant start, and the curve rises from there without a step: the old one jumped
+    // from nothing to its 5 ms minimum on the first nudge of the knob, which the readout hid by
+    // calling the bottom 5 ms too.
+    return ParameterMapper::mapExponentialFromZero(static_cast<double>(attack), MinEnvelopeSeconds, MaxEnvelopeSeconds);
 }
 
 double SamplerDevice::holdSeconds(float hold)
 {
-    // Zero is no hold at all rather than the shortest one, so the default stage is truly absent.
-    return hold <= 0.0f ? 0.0 : ParameterMapper::mapExponential(static_cast<double>(hold), MinEnvelopeSeconds, MaxEnvelopeSeconds);
+    // Zero is no hold at all, and the curve rises from there the same way the attack's does.
+    return ParameterMapper::mapExponentialFromZero(static_cast<double>(hold), MinEnvelopeSeconds, MaxEnvelopeSeconds);
+}
+
+float SamplerDevice::envelopePositionFromLegacy(float legacyPosition)
+{
+    // The old curve: nothing at the bottom, then exponential over 5 ms .. 10 s. Through seconds and
+    // back onto the new curve, so the pad keeps the time it was saved with.
+    if (legacyPosition <= 0.0f) {
+        return 0.0f;
+    }
+    const double seconds = ParameterMapper::mapExponential(static_cast<double>(legacyPosition), MinEnvelopeSeconds, MaxEnvelopeSeconds);
+    return static_cast<float>(ParameterMapper::unmapExponentialFromZero(seconds, MinEnvelopeSeconds, MaxEnvelopeSeconds));
 }
 
 double SamplerDevice::decaySeconds(float decay)
@@ -1339,22 +1355,22 @@ void SamplerDevice::setSampleDetune(uint8_t note, float detune)
 
 float SamplerDevice::sampleAttack(uint8_t note) const
 {
-    return padValue(note, Constants::NahdXml::xmlKeyAttack().toStdString(), 0.0f);
+    return padValue(note, Constants::NahdXml::xmlKeyAttackTime().toStdString(), 0.0f);
 }
 
 void SamplerDevice::setSampleAttack(uint8_t note, float attack)
 {
-    setPadValue(note, Constants::NahdXml::xmlKeyAttack().toStdString(), attack);
+    setPadValue(note, Constants::NahdXml::xmlKeyAttackTime().toStdString(), attack);
 }
 
 float SamplerDevice::sampleHold(uint8_t note) const
 {
-    return padValue(note, Constants::NahdXml::xmlKeyHold().toStdString(), 0.0f);
+    return padValue(note, Constants::NahdXml::xmlKeyHoldTime().toStdString(), 0.0f);
 }
 
 void SamplerDevice::setSampleHold(uint8_t note, float hold)
 {
-    setPadValue(note, Constants::NahdXml::xmlKeyHold().toStdString(), hold);
+    setPadValue(note, Constants::NahdXml::xmlKeyHoldTime().toStdString(), hold);
 }
 
 float SamplerDevice::sampleDecay(uint8_t note) const
@@ -2147,9 +2163,9 @@ void SamplerDevice::syncSampleFields(Sample & sample)
         sample.tune = p->get().value();
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyDetune().toStdString()); p)
         sample.detune = p->get().value();
-    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyAttack().toStdString()); p)
+    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyAttackTime().toStdString()); p)
         sample.attack = p->get().value();
-    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyHold().toStdString()); p)
+    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyHoldTime().toStdString()); p)
         sample.hold = p->get().value();
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyDecay().toStdString()); p)
         sample.decay = p->get().value();

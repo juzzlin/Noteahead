@@ -36,6 +36,20 @@ double ParameterMapper::unmapExponential(double mappedValue, double min, double 
     return std::log(mappedValue / min) / std::log(max / min);
 }
 
+double ParameterMapper::mapExponentialFromZero(double value, double knee, double max)
+{
+    if (knee <= 0 || max <= 0)
+        return 0.0;
+    return knee * (std::pow(1.0 + max / knee, std::clamp(value, 0.0, 1.0)) - 1.0);
+}
+
+double ParameterMapper::unmapExponentialFromZero(double mappedValue, double knee, double max)
+{
+    if (knee <= 0 || max <= 0 || mappedValue <= 0)
+        return 0.0;
+    return std::clamp(std::log(1.0 + mappedValue / knee) / std::log(1.0 + max / knee), 0.0, 1.0);
+}
+
 double ParameterMapper::mapCubic(double value, double min, double max)
 {
     const double range = max - min;

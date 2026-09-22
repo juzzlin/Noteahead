@@ -101,6 +101,8 @@ double KnobController::map(double value, const QString & type, double min, doubl
 {
     if (type == "exponential")
         return ParameterMapper::mapExponential(value, min, max);
+    if (type == "exponentialFromZero")
+        return ParameterMapper::mapExponentialFromZero(value, min, max);
     if (type == "cubic")
         return ParameterMapper::mapCubic(value, min, max);
     if (type == "cubicCentered" || type == "pan" || type == "intensity")
@@ -125,6 +127,8 @@ double KnobController::unmap(double mappedValue, const QString & type, double mi
 {
     if (type == "exponential")
         return ParameterMapper::unmapExponential(mappedValue, min, max);
+    if (type == "exponentialFromZero")
+        return ParameterMapper::unmapExponentialFromZero(mappedValue, min, max);
     if (type == "cubic")
         return ParameterMapper::unmapCubic(mappedValue, min, max);
     if (type == "cubicCentered" || type == "pan" || type == "intensity")

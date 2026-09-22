@@ -27,6 +27,12 @@ public:
     static double mapCubic(double value, double min, double max);
     static double unmapCubic(double mappedValue, double min, double max);
 
+    //! An exponential that starts at nothing: @p knee times ((1 + max / knee)^value - 1). Exponential
+    //! across most of the travel like mapExponential() over knee..max, which it stays within @p knee
+    //! of, but continuous down to zero rather than stepping there from knee.
+    static double mapExponentialFromZero(double value, double knee, double max);
+    static double unmapExponentialFromZero(double mappedValue, double knee, double max);
+
     static double mapCubicCentered(double value, double min, double max);
     static double unmapCubicCentered(double mappedValue, double min, double max);
 

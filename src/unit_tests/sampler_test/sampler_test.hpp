@@ -25,6 +25,8 @@ class SamplerTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_attackSeconds_curve_shouldRiseFromZeroWithoutAStep();
+    void test_envelopePositionFromLegacy_shouldKeepTheTime();
     void test_lpfSlope_shouldDefaultToTheSlopeItAlwaysHad();
     void test_hpfSlope_steep_shouldCutFurther();
     void test_lpfSlope_shallow_shouldRenderAsBefore();
