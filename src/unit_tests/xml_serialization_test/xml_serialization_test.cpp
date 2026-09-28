@@ -2492,6 +2492,36 @@ void XmlSerializationTest::test_fromXml_speechDevice_shouldNotSignalWhileHolding
     QCOMPARE(spy.count(), 1);
 }
 
+void XmlSerializationTest::test_fromXml_drumSynthV2_shouldNotSignalWhileHoldingTheLock()
+{
+    // The same trap the Speech device's legacy engine fell into, and for the same reason:
+    // deserializeFromXml() holds the device mutex for the whole read, and dataChanged() reaches
+    // MidiService, whose handler goes out to the worker thread. Putting the legacy amp envelope
+    // back was emitting it forty-four times from under that lock, and projects with a V2 in them
+    // stopped loading at all.
+    //
+    // The deadlock itself is a question of thread timing and will not reproduce here. The extra
+    // emits that cause it will, which is what this counts.
+    DeviceFactory::init();
+
+    DrumSynthV2Device device { "Drums" };
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        device.serializeToXml(writer);
+    }
+
+    NahdXmlReader reader { xml };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+
+    DrumSynthV2Device restored { "Drums" };
+    QSignalSpy spy { &restored, &Device::dataChanged };
+    restored.deserializeFromXml(reader);
+
+    QCOMPARE(spy.count(), 1);
+}
+
 void XmlSerializationTest::test_toXmlFromXml_pianoSynthV2Device_shouldLoadCorrectly()
 {
     // Devices are rebuilt through DeviceFactory, so this also covers the factory registration:

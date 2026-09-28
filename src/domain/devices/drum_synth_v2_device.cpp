@@ -479,12 +479,16 @@ void DrumSynthV2Device::restoreLegacyAmpEnvelope()
       { 0.6300f, 0.5940f }, // ReverseCrash: hold 2000 ms, decay 400 ms
     } };
 
+    // writeVoiceParameter() rather than updateVoiceParameter(), which emits dataChanged(). This
+    // runs from deserializeFromXml() with the device mutex held, and that signal reaches
+    // MidiService, whose handler goes out to the worker thread: emitting it from under the lock
+    // deadlocks the load. The same trap the Speech device's legacy engine fell into.
     for (int index = 0; index < NumVoices; index++) {
         const auto & voiceLegacy = legacy.at(static_cast<size_t>(index));
-        updateVoiceParameter(index, Constants::NahdXml::xmlKeyAmpHold().toStdString(), voiceLegacy.hold);
-        updateVoiceParameter(index, Constants::NahdXml::xmlKeyAmpDecay().toStdString(), voiceLegacy.decay);
-        updateVoiceParameter(index, Constants::NahdXml::xmlKeyAmpSustain().toStdString(), 0.0f);
-        updateVoiceParameter(index, Constants::NahdXml::xmlKeyAmpRelease().toStdString(), 0.0f);
+        writeVoiceParameter(index, Constants::NahdXml::xmlKeyAmpHold().toStdString(), voiceLegacy.hold, true);
+        writeVoiceParameter(index, Constants::NahdXml::xmlKeyAmpDecay().toStdString(), voiceLegacy.decay, true);
+        writeVoiceParameter(index, Constants::NahdXml::xmlKeyAmpSustain().toStdString(), 0.0f, true);
+        writeVoiceParameter(index, Constants::NahdXml::xmlKeyAmpRelease().toStdString(), 0.0f, true);
     }
 }
 

@@ -100,6 +100,7 @@ private slots:
     void test_fromXml_speechDevice_withoutVoiceEngine_shouldStayOnTheOldVoice();
     void test_fromXml_drumSynthV2_withoutSustain_shouldKeepTheEnvelopeItWasVoicedWith();
     void test_fromXml_speechDevice_shouldNotSignalWhileHoldingTheLock();
+    void test_fromXml_drumSynthV2_shouldNotSignalWhileHoldingTheLock();
     void test_toXmlFromXml_pianoSynthV2Device_shouldLoadCorrectly();
     void test_toXmlFromXml_pianoSynthV3Device_shouldLoadCorrectly();
     void test_toXmlFromXml_kick808Device_shouldLoadCorrectly();
