@@ -112,6 +112,9 @@ public:
         float decay = 0.0f;
         float sustain = 1.0f;
         float release = 0.0f;
+        //! Bend of every envelope segment, 0..1, with the same meaning as the Synth's: zero leaves
+        //! them straight, which is what the pads have always been, so an existing pad is unchanged.
+        float curve = 0.0f;
         //! Plays the range from its end backwards. The range itself does not move.
         bool reverse = false;
         //! Wraps playback inside the range instead of stopping at its far end. A looping voice is ended
@@ -179,6 +182,9 @@ public:
 
     float sampleRelease(uint8_t note) const;
     void setSampleRelease(uint8_t note, float release);
+
+    float sampleCurve(uint8_t note) const;
+    void setSampleCurve(uint8_t note, float curve);
 
     bool sampleReverse(uint8_t note) const;
     void setSampleReverse(uint8_t note, bool reverse);

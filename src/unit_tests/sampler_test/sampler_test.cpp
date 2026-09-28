@@ -1275,6 +1275,30 @@ void SamplerTest::test_ampEnvelope_defaults_shouldNotAttenuateTheSample()
     }
 }
 
+void SamplerTest::test_ampEnvelope_curve_shouldBendTheDecay()
+{
+    // A straight decay is still half way up half way through, where a plucked or struck sound is
+    // long gone. The curve is what buys that shape, so what it has to do is get the level down
+    // earlier without moving either end of the segment.
+    const auto levelPartWayIntoTheDecay = [](float curve) {
+        const auto sampler = makeMonoSampler();
+        sampler->setSampleAttack(60, 0.0f);
+        sampler->setSampleDecay(60, 0.5f);
+        sampler->setSampleSustain(60, 0.0f);
+        sampler->setSampleCurve(60, curve);
+        sampler->processMidiNoteOn(60, 127);
+        const auto buffer = render(*sampler, 4096);
+        return std::abs(buffer[buffer.size() - 2]);
+    };
+
+    const auto straight = levelPartWayIntoTheDecay(0.0f);
+    const auto bent = levelPartWayIntoTheDecay(1.0f);
+
+    QVERIFY2(straight > 0.0, "the straight decay had already finished, so there is nothing to compare");
+    QVERIFY2(bent < straight * 0.5,
+             qPrintable(QString { "the curve did not bend the decay: %1 vs %2" }.arg(bent).arg(straight)));
+}
+
 void SamplerTest::test_ampEnvelope_zeroSustain_shouldDropTheVoiceWithoutANoteOff()
 {
     // A percussive envelope parks at its zero sustain rather than going idle. A voice that waited for a
@@ -1577,6 +1601,7 @@ void SamplerTest::test_copySample_shouldCopyTuningTrimAndEnvelope()
     sampler.setSampleDecay(60, 0.3f);
     sampler.setSampleSustain(60, 0.4f);
     sampler.setSampleRelease(60, 0.6f);
+    sampler.setSampleCurve(60, 0.8f);
     sampler.setSampleReverse(60, true);
     sampler.setSampleEndOffset(60, 0.01);
 
@@ -1588,6 +1613,7 @@ void SamplerTest::test_copySample_shouldCopyTuningTrimAndEnvelope()
     QCOMPARE(sampler.sampleDecay(62), sampler.sampleDecay(60));
     QCOMPARE(sampler.sampleSustain(62), sampler.sampleSustain(60));
     QCOMPARE(sampler.sampleRelease(62), sampler.sampleRelease(60));
+    QCOMPARE(sampler.sampleCurve(62), sampler.sampleCurve(60));
     QCOMPARE(sampler.sampleReverse(62), true);
     QVERIFY(std::abs(sampler.sampleEndOffset(62) - sampler.sampleEndOffset(60)) < 1e-6);
 }

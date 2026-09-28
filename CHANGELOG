@@ -12,6 +12,10 @@ New features:
   - An amp envelope per voice: Attack, Hold, Decay and Curve, riding on top of
     what the voice already plays. Pull Hold down and the drum tightens
 
+* A Curve control on the Sampler's pad envelope
+  - The same bend the Synth's envelopes have, per pad, and the waveform view
+    draws the shape the pad is actually played through
+
 * Analyse any audio file, and compare two
   - Tools => Analyse audio files... measures a WAV or FLAC the way the render
     report does, two files side by side

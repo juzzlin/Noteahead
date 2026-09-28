@@ -93,6 +93,7 @@ private slots:
     void test_reverse_endOffset_shouldTrimWhatIsHeardLast();
 
     void test_ampEnvelope_defaults_shouldNotAttenuateTheSample();
+    void test_ampEnvelope_curve_shouldBendTheDecay();
     void test_ampEnvelope_zeroSustain_shouldDropTheVoiceWithoutANoteOff();
     void test_ampEnvelope_noteOff_shouldReleaseRatherThanCutOff();
     void test_ampEnvelope_attack_shouldRampTheSampleIn();

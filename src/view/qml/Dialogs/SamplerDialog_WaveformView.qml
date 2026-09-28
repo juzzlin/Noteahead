@@ -64,6 +64,7 @@ WaveformView {
     envelopeDecay: samplerController.selectedPadDecaySeconds
     envelopeSustain: samplerController.selectedPadSustain
     envelopeRelease: samplerController.selectedPadReleaseSeconds
+    envelopeCurve: samplerController.selectedPadCurve
 
     // An empty pad has nothing to trim, so it gets no handles either.
     draggableMarkers: fileName !== ""

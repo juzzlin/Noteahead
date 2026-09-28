@@ -49,12 +49,16 @@ Rectangle {
     property double envelopeDecay: 0.0
     property double envelopeSustain: 1.0
     property double envelopeRelease: 0.0
+    //! Bend of every segment, 0..1, matching AdsrEnvelope::setCurve(). Zero draws the straight lines
+    //! this view has always drawn.
+    property double envelopeCurve: 0.0
     onShowEnvelopeChanged: canvas.requestPaint()
     onDurationChanged: canvas.requestPaint()
     onEnvelopeAttackChanged: canvas.requestPaint()
     onEnvelopeDecayChanged: canvas.requestPaint()
     onEnvelopeSustainChanged: canvas.requestPaint()
     onEnvelopeReleaseChanged: canvas.requestPaint()
+    onEnvelopeCurveChanged: canvas.requestPaint()
 
     //! Draws the start, the end and the loop point as handles the mouse can drag. The view reports
     //! where a handle was dragged as a fraction of the file and leaves the writing to its owner.
@@ -74,28 +78,46 @@ Rectangle {
     //! where a pad held to the end of its range would be released. A segment that would run past the
     //! end of the range is cut there, at the level it had reached, so a long attack on a short sample
     //! shows how little of the envelope the pad ever plays.
+    //! The same bend the envelope itself applies, so the picture is the shape the pad is played
+    //! through rather than an idealisation of it. Matches AdsrEnvelope::shape().
+    function envelopeShape(phase) {
+        const curvature = rootItem.envelopeCurve * 6.0;
+        if (curvature < 1.0e-6) {
+            return phase;
+        }
+        return Math.expm1(-curvature * phase) / Math.expm1(-curvature);
+    }
+
     function envelopePoints(x0, x1, pixelsPerSecond) {
+        // A bent segment is drawn as a run of points rather than one line. At zero curve the shaping
+        // is the identity and they all fall on the straight line this drew before.
+        const steps = 24;
         const points = [[x0, 0]];
         let x = x0;
         let level = 0;
-        const segment = (seconds, target) => {
-            const end = x + seconds * pixelsPerSecond;
-            if (end >= x1) {
-                level += (target - level) * (end > x ? (x1 - x) / (end - x) : 1);
-                x = x1;
-                points.push([x, level]);
-                return false;
+        //! Rising segments bend towards their target and falling ones away from their start, which is
+        //! the asymmetry that makes one read as an attack and the other as a decay.
+        const segment = (seconds, target, rising, boundary) => {
+            const start = level;
+            const startX = x;
+            const end = startX + seconds * pixelsPerSecond;
+            const cut = end >= boundary;
+            const lastPhase = cut ? (end > startX ? (boundary - startX) / (end - startX) : 1) : 1;
+            for (let i = 1; i <= steps; i++) {
+                const phase = lastPhase * i / steps;
+                const shaped = rootItem.envelopeShape(phase);
+                level = rising ? start + (target - start) * shaped : target + (start - target) * (1 - shaped);
+                points.push([startX + (end - startX) * phase, level]);
             }
-            x = end;
-            level = target;
-            points.push([x, level]);
-            return true;
+            x = cut ? boundary : end;
+            return !cut;
         };
-        if (segment(rootItem.envelopeAttack, 1) && segment(rootItem.envelopeDecay, rootItem.envelopeSustain)) {
+        if (segment(rootItem.envelopeAttack, 1, true, x1) && segment(rootItem.envelopeDecay, rootItem.envelopeSustain, false, x1)) {
             level = rootItem.envelopeSustain;
             points.push([x1, level]);
         }
-        points.push([x1 + rootItem.envelopeRelease * pixelsPerSecond, 0]);
+        x = x1;
+        segment(rootItem.envelopeRelease, 0, false, Infinity);
         return points;
     }
 

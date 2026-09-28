@@ -94,6 +94,7 @@ void SamplerController::setSelectedPad(int selectedPad)
         emit selectedPadDecayChanged();
         emit selectedPadSustainChanged();
         emit selectedPadReleaseChanged();
+        emit selectedPadCurveChanged();
         emit selectedPadReverseChanged();
         emit selectedPadLoopChanged();
         emit selectedPadChokeGroupChanged();
@@ -357,6 +358,20 @@ void SamplerController::setSelectedPadSustain(double sustain)
     if (const auto note = selectedNote(); note) {
         m_sampler->setSampleSustain(*note, static_cast<float>(sustain));
         emit selectedPadSustainChanged();
+    }
+}
+
+double SamplerController::selectedPadCurve() const
+{
+    const auto note = selectedNote();
+    return note ? static_cast<double>(m_sampler->sampleCurve(*note)) : 0.0;
+}
+
+void SamplerController::setSelectedPadCurve(double curve)
+{
+    if (const auto note = selectedNote(); note) {
+        m_sampler->setSampleCurve(*note, static_cast<float>(curve));
+        emit selectedPadCurveChanged();
     }
 }
 

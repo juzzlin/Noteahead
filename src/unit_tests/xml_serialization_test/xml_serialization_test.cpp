@@ -1257,6 +1257,7 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_padTuningTrimAndEnvel
     samplerOut->setSampleDecay(60, 0.3f);
     samplerOut->setSampleSustain(60, 0.4f);
     samplerOut->setSampleRelease(60, 0.6f);
+    samplerOut->setSampleCurve(60, 0.8f);
     samplerOut->setSampleReverse(60, true);
     samplerOut->setSampleEndOffset(60, 0.01);
     // The pad next door keeps the defaults, so the round trip also covers the case that has to keep
@@ -1284,6 +1285,7 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_padTuningTrimAndEnvel
     QVERIFY(std::abs(samplerIn->sampleDecay(60) - 0.3f) < 0.001f);
     QVERIFY(std::abs(samplerIn->sampleSustain(60) - 0.4f) < 0.001f);
     QVERIFY(std::abs(samplerIn->sampleRelease(60) - 0.6f) < 0.001f);
+    QVERIFY(std::abs(samplerIn->sampleCurve(60) - 0.8f) < 0.001f);
     QCOMPARE(samplerIn->sampleReverse(60), true);
     QVERIFY(std::abs(samplerIn->sampleEndOffset(60) - 0.01) < 0.001);
 
@@ -1293,6 +1295,8 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_padTuningTrimAndEnvel
     QCOMPARE(samplerIn->sampleAttack(62), 0.0f);
     QCOMPARE(samplerIn->sampleSustain(62), 1.0f);
     QCOMPARE(samplerIn->sampleRelease(62), 0.0f);
+    // Straight segments, which is what every pad had before the curve existed.
+    QCOMPARE(samplerIn->sampleCurve(62), 0.0f);
     QCOMPARE(samplerIn->sampleReverse(62), false);
     QCOMPARE(samplerIn->sampleEndOffset(62), 0.0);
 }

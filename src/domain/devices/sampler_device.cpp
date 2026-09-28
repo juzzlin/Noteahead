@@ -55,6 +55,7 @@ SamplerDevice::Sample::Sample()
     addParameter(Parameter { Constants::NahdXml::xmlKeyDecay().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeySustain().toStdString(), 1.0f, 0, 10000, 10000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyReleaseTime().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyAmpCurve().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyReverse().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLoop().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLoopStart().toStdString(), 0.0f, 0, 60000, 0, 1 });
@@ -174,6 +175,7 @@ void SamplerDevice::updateVoiceEnvelope(Voice & voice)
     voice.ampEg.setDecayTime(decaySeconds(voice.sample->decay));
     voice.ampEg.setSustainLevel(static_cast<double>(voice.sample->sustain));
     voice.ampEg.setReleaseTime(releaseSeconds(voice.sample->release));
+    voice.ampEg.setCurve(static_cast<double>(voice.sample->curve));
 }
 
 void SamplerDevice::wrapPosition(Voice & voice, const PlayRange & range)
@@ -1224,6 +1226,16 @@ void SamplerDevice::setSampleRelease(uint8_t note, float release)
     setPadValue(note, Constants::NahdXml::xmlKeyReleaseTime().toStdString(), release);
 }
 
+float SamplerDevice::sampleCurve(uint8_t note) const
+{
+    return padValue(note, Constants::NahdXml::xmlKeyAmpCurve().toStdString(), 0.0f);
+}
+
+void SamplerDevice::setSampleCurve(uint8_t note, float curve)
+{
+    setPadValue(note, Constants::NahdXml::xmlKeyAmpCurve().toStdString(), curve);
+}
+
 bool SamplerDevice::sampleReverse(uint8_t note) const
 {
     std::lock_guard<std::recursive_mutex> lock { mutex() };
@@ -1650,6 +1662,8 @@ void SamplerDevice::syncSampleFields(Sample & sample)
         sample.sustain = p->get().value();
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyReleaseTime().toStdString()); p)
         sample.release = p->get().value();
+    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyAmpCurve().toStdString()); p)
+        sample.curve = p->get().value();
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyReverse().toStdString()); p)
         sample.reverse = p->get().value() > 0.5f;
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyLoop().toStdString()); p)
