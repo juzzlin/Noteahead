@@ -56,9 +56,10 @@ New features:
     deliberately not oversampled, because there the aliases are the point
 
 * Sustain and Release on the Drum Synth V2's amp envelope
-  - AHDSR rather than AHD, both at zero by default. Sustain at full makes the
-    envelope a constant one, which is the only way for a V2 voice to sound
-    exactly like V1 rather than thirty-odd decibels close to it
+  - AHDSR rather than AHD. A device added now has the envelope switched off,
+    sustain at full and the rest at their minimum, which is a voice exactly as
+    V1 plays it rather than thirty-odd decibels close to it
+  - Kits saved before the stage keep the envelope they were voiced against
 
 * A Hold stage on the Sampler's pad envelope
   - AHDSR rather than ADSR, at zero by default, so every pad saved before it

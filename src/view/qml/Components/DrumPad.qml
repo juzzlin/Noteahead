@@ -71,7 +71,9 @@ Rectangle {
         Universal.foreground: root.textColor
         anchors.top: parent.top
         anchors.right: parent.right
-        anchors.margins: 4
+        // Clear of the corner: a radius of 12 cuts about three and a half pixels off the corner
+        // diagonally, and a smaller margin than this put the button across the rounded border.
+        anchors.margins: 8
         implicitWidth: 28
         implicitHeight: 18
         padding: 0

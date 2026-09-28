@@ -51,6 +51,10 @@ ColumnLayout {
             suffix: "s"
             value: drumSynthV2Controller.voiceAmpAttack
             onMoved: val => drumSynthV2Controller.voiceAmpAttack = val
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("How long the voice takes to reach full level. At zero it opens on the strike, which is what a drum does.")
         }
         Knob {
             Layout.fillWidth: true
@@ -61,6 +65,10 @@ ColumnLayout {
             suffix: "s"
             value: drumSynthV2Controller.voiceAmpHold
             onMoved: val => drumSynthV2Controller.voiceAmpHold = val
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("How long it stays at full before the decay begins. Pulling this down is how a drum is tightened.")
         }
         Knob {
             Layout.fillWidth: true
@@ -71,6 +79,10 @@ ColumnLayout {
             suffix: "s"
             value: drumSynthV2Controller.voiceAmpDecay
             onMoved: val => drumSynthV2Controller.voiceAmpDecay = val
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("How long it takes to fall from full to the Sustain level. Nothing to hear while Sustain is at full, because the level never leaves the top.")
         }
         Knob {
             Layout.fillWidth: true
@@ -101,5 +113,9 @@ ColumnLayout {
             label: qsTr("Curve")
             value: drumSynthV2Controller.voiceAmpCurve
             onMoved: val => drumSynthV2Controller.voiceAmpCurve = val
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Bend of the attack and the decay. At zero they are straight lines; above it most of the travel happens at the start of the segment.")
         }
 }

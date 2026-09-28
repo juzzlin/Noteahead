@@ -55,6 +55,11 @@ public:
     //! which is the only way for V2 to sound exactly like V1 rather than merely close to it.
     void setSustainLevel(double level);
     //! How long the level takes to reach silence once the note is let go of.
+    //!
+    //! Zero is no release stage at all rather than an instant one: a drum is struck rather than
+    //! held, and a note-off that cut a sustaining voice dead in a single sample would be a
+    //! full-scale step, which is a click. With no release the voice simply rings out as its engine
+    //! decides, which is what a drum with no amp envelope does.
     void setReleaseTime(double seconds);
 
     //! Bend of the attack and the decay, 0..1, with the same meaning and the same shaping as

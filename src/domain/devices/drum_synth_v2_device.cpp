@@ -449,10 +449,50 @@ void DrumSynthV2Device::serializeToXml(ProjectWriter & writer) const
     writer.writeEndElement();
 }
 
+//! Puts the amp envelope back the way it shipped, before a project is read.
+//!
+//! A kit saved before the sustain stage existed carries no sustain attribute, and an absent
+//! parameter keeps whatever the container holds -- which is now an envelope that does nothing. Such
+//! a kit was voiced against an envelope parked just past each voice's tail, so reading it without
+//! putting those values back first would quietly lengthen every drum in it.
+//!
+//! The same shape as SpeechDevice's legacy voice engine, and for the same reason.
+void DrumSynthV2Device::restoreLegacyAmpEnvelope()
+{
+    struct AmpEnvelopeDefaults
+    {
+        float hold {};
+        float decay {};
+    };
+
+    static constexpr std::array<AmpEnvelopeDefaults, NumVoices> legacy { {
+      { 0.4661f, 0.6443f }, // Kick: hold 810 ms, decay 580 ms
+      { 0.3832f, 0.5759f }, // Snare: hold 450 ms, decay 350 ms
+      { 0.1957f, 0.2819f }, // ClosedHiHat: hold 60 ms, decay 40 ms
+      { 0.3714f, 0.5129f }, // Clap: hold 410 ms, decay 220 ms
+      { 0.3969f, 0.5719f }, // OpenHiHat: hold 500 ms, decay 340 ms
+      { 0.5499f, 0.7068f }, // LowTom: hold 1330 ms, decay 920 ms
+      { 0.5499f, 0.7068f }, // MidTom: hold 1330 ms, decay 920 ms
+      { 0.5499f, 0.7068f }, // HighTom: hold 1330 ms, decay 920 ms
+      { 0.6937f, 0.8724f }, // Crash: hold 2670 ms, decay 3120 ms
+      { 0.7570f, 0.8345f }, // Ride: hold 3470 ms, decay 2360 ms
+      { 0.6300f, 0.5940f }, // ReverseCrash: hold 2000 ms, decay 400 ms
+    } };
+
+    for (int index = 0; index < NumVoices; index++) {
+        const auto & voiceLegacy = legacy.at(static_cast<size_t>(index));
+        updateVoiceParameter(index, Constants::NahdXml::xmlKeyAmpHold().toStdString(), voiceLegacy.hold);
+        updateVoiceParameter(index, Constants::NahdXml::xmlKeyAmpDecay().toStdString(), voiceLegacy.decay);
+        updateVoiceParameter(index, Constants::NahdXml::xmlKeyAmpSustain().toStdString(), 0.0f);
+        updateVoiceParameter(index, Constants::NahdXml::xmlKeyAmpRelease().toStdString(), 0.0f);
+    }
+}
+
 void DrumSynthV2Device::deserializeFromXml(ProjectReader & reader)
 {
     {
         const std::lock_guard<std::recursive_mutex> lock { mutex() };
+        restoreLegacyAmpEnvelope();
         deserializeAttributesFromXml(reader);
 
         while (!reader.atEnd() && !reader.hasError()) {
@@ -679,14 +719,17 @@ void DrumSynthV2Device::addAmpEnvelopeParameters(int index, const std::string & 
       { 0.6300f, 0.5940f }, // ReverseCrash: hold 2000 ms, decay 400 ms
     } };
 
-    const auto & voiceDefaults = defaults.at(static_cast<size_t>(index));
+    // Unused now that the envelope starts out doing nothing, and kept because it is what
+    // legacyAmpEnvelopeDefaults() puts back for a kit saved before the sustain existed.
+    (void)defaults;
 
+    // A device added now starts with the envelope switched off: everything at its minimum and the
+    // sustain at full, which makes the envelope a constant one and the voice exactly V1's. It is a
+    // stage to reach for rather than one already shaping the drum.
     addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyAmpAttack().toStdString(), 0.0f, 0, 10000, 0, 100 });
-    addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyAmpHold().toStdString(), voiceDefaults.hold, 0, 10000, static_cast<int>(voiceDefaults.hold * 10000), 100 });
-    addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyAmpDecay().toStdString(), voiceDefaults.decay, 0, 10000, static_cast<int>(voiceDefaults.decay * 10000), 100 });
-    // Both at zero, so a kit saved before these existed decays to silence and goes idle exactly as
-    // it did. Sustain at full is what makes the envelope a constant one and the voice V1's again.
-    addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyAmpSustain().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyAmpHold().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyAmpDecay().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyAmpSustain().toStdString(), 1.0f, 0, 10000, 10000, 100 });
     addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyAmpRelease().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyAmpCurve().toStdString(), 0.0f, 0, 10000, 0, 100 });
 }
@@ -942,6 +985,13 @@ bool DrumSynthV2Device::writeVoiceParameter(int voiceIndex, const std::string & 
 bool DrumSynthV2Device::automateVoiceParameter(int voiceIndex, const std::string & paramName, float value)
 {
     return writeVoiceParameter(voiceIndex, paramName, value, false);
+}
+
+float DrumSynthV2Device::voiceParameterValue(int voiceIndex, const std::string & paramName) const
+{
+    const std::string prefix { voiceId(voiceIndex) + "_" };
+    const auto p = parameter(prefix + paramName);
+    return p ? p->get().value() : 0.0f;
 }
 
 bool DrumSynthV2Device::updateVoiceParameter(int voiceIndex, const std::string & paramName, float value)

@@ -2417,6 +2417,50 @@ void XmlSerializationTest::test_fromXml_speechDevice_withoutVoiceEngine_shouldSt
     QCOMPARE(restored.voiceEngine(), 0);
 }
 
+void XmlSerializationTest::test_fromXml_drumSynthV2_withoutSustain_shouldKeepTheEnvelopeItWasVoicedWith()
+{
+    // A kit saved before the amp envelope had a sustain carries no sustain attribute, and an absent
+    // parameter keeps whatever the container holds -- which is now an envelope that does nothing at
+    // all. Such a kit was voiced against one parked just past each voice's tail, so reading it
+    // without putting those values back would quietly lengthen every drum in it.
+    DeviceFactory::init();
+
+    DrumSynthV2Device device { "Drums" };
+    const auto kick = static_cast<int>(DrumSynthV2::VoiceIndex::Kick);
+    const std::string sustainKey { Constants::NahdXml::xmlKeyAmpSustain().toStdString() };
+    const std::string holdKey { Constants::NahdXml::xmlKeyAmpHold().toStdString() };
+
+    // A device made now has the envelope switched off, or it would be shaping a drum nobody asked
+    // it to shape.
+    QCOMPARE(device.voiceParameterValue(kick, sustainKey), 1.0f);
+    QCOMPARE(device.voiceParameterValue(kick, holdKey), 0.0f);
+
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        device.serializeToXml(writer);
+    }
+    // Exactly what a file written before the stage existed looks like.
+    const auto legacyXml = QString { xml }
+                             .remove(QRegularExpression { R"(<Parameter name="[^"]*ampSustain"[^/]*/>)" })
+                             .remove(QRegularExpression { R"(<Parameter name="[^"]*ampRelease"[^/]*/>)" })
+                             .remove(QRegularExpression { R"(<Parameter name="[^"]*ampHold"[^/]*/>)" })
+                             .remove(QRegularExpression { R"(<Parameter name="[^"]*ampDecay"[^/]*/>)" });
+    QVERIFY(legacyXml.length() < xml.length());
+
+    NahdXmlReader reader { legacyXml };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+
+    DrumSynthV2Device restored { "Drums" };
+    restored.deserializeFromXml(reader);
+
+    // The envelope it was voiced against: no sustain, and the kick's hold back where it shipped.
+    QCOMPARE(restored.voiceParameterValue(kick, sustainKey), 0.0f);
+    QVERIFY2(std::abs(restored.voiceParameterValue(kick, holdKey) - 0.4661f) < 0.001f,
+             qPrintable(QString::number(restored.voiceParameterValue(kick, holdKey))));
+}
+
 void XmlSerializationTest::test_fromXml_speechDevice_shouldNotSignalWhileHoldingTheLock()
 {
     // deserializeFromXml() holds the device mutex for the whole read and emits dataChanged() once,

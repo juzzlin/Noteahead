@@ -214,6 +214,10 @@ void DrumSynthV2Test::test_ampEnvelope_shortHold_shouldTightenTheVoice()
     QVERIFY2(asShipped > 0.9, qPrintable(QString { "the kick is already short: %1 s" }.arg(asShipped)));
 
     // Hold is mapped cubically over eight seconds, so this is 64 ms.
+    // The envelope ships transparent -- sustain at full -- so shaping a voice means pulling the
+    // sustain down first. Without that the stage below has nothing to shape: the level never leaves
+    // the top.
+    device.updateVoiceParameter(static_cast<int>(DrumSynthV2::VoiceIndex::Kick), Constants::NahdXml::xmlKeyAmpSustain().toStdString(), 0.0f);
     const std::string holdKey { Constants::NahdXml::xmlKeyAmpHold().toStdString() };
     device.updateVoiceParameter(static_cast<int>(DrumSynthV2::VoiceIndex::Kick), holdKey, 0.2f);
     const std::string decayKey { Constants::NahdXml::xmlKeyAmpDecay().toStdString() };
@@ -268,6 +272,10 @@ void DrumSynthV2Test::test_ampEnvelope_closed_shouldStopTheVoiceRendering()
     const DrumSynthV2Device notes { "Notes" };
     DrumSynthV2Device device { "Test" };
     const auto kick = static_cast<int>(DrumSynthV2::VoiceIndex::Kick);
+    // The envelope ships transparent -- sustain at full -- so shaping a voice means pulling the
+    // sustain down first. Without that the stage below has nothing to shape: the level never leaves
+    // the top.
+    device.updateVoiceParameter(kick, Constants::NahdXml::xmlKeyAmpSustain().toStdString(), 0.0f);
     device.updateVoiceParameter(kick, Constants::NahdXml::xmlKeyAmpHold().toStdString(), 0.1f);
     device.updateVoiceParameter(kick, Constants::NahdXml::xmlKeyAmpDecay().toStdString(), 0.1f);
 
@@ -297,6 +305,7 @@ void DrumSynthV2Test::test_ampEnvelope_curve_shouldBendTheVoicesDecay()
         DrumSynthV2Device device { "Test" };
         // A hold short enough that the decay is under way well inside the render, and a decay long
         // enough that a straight one is still going at the end of it.
+        device.updateVoiceParameter(kick, Constants::NahdXml::xmlKeyAmpSustain().toStdString(), 0.0f);
         device.updateVoiceParameter(kick, Constants::NahdXml::xmlKeyAmpHold().toStdString(), 0.05f);
         device.updateVoiceParameter(kick, Constants::NahdXml::xmlKeyAmpDecay().toStdString(), 0.75f);
         device.updateVoiceParameter(kick, Constants::NahdXml::xmlKeyAmpCurve().toStdString(), curve);

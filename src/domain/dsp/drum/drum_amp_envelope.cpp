@@ -76,9 +76,11 @@ void DrumAmpEnvelope::trigger()
 
 void DrumAmpEnvelope::release()
 {
-    if (m_state != State::Idle) {
-        beginSegment(State::Release);
+    // Nothing to let go of, and nothing asked for: see setReleaseTime().
+    if (m_state == State::Idle || m_releaseTime <= 0.0) {
+        return;
     }
+    beginSegment(State::Release);
 }
 
 void DrumAmpEnvelope::reset()

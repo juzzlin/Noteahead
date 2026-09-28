@@ -89,6 +89,9 @@ public:
     //! Writes a voice parameter and announces a project edit. For the dialog, which is exactly
     //! that. MIDI CC must use automateVoiceParameter() instead -- see processDeviceMidiCc().
     bool updateVoiceParameter(int voiceIndex, const std::string & paramName, float value);
+    //! What one voice's parameter reads, or zero where there is no such parameter. The counterpart
+    //! of updateVoiceParameter(), which is the only way in without knowing how a voice is prefixed.
+    float voiceParameterValue(int voiceIndex, const std::string & paramName) const;
 
 protected:
     void syncParameters() override;
@@ -166,6 +169,8 @@ private:
     void initializeVoices();
     void addVoiceParameters(int index);
     void addAmpEnvelopeParameters(int index, const std::string & prefix);
+    //! See the definition: what a kit saved before the sustain stage was voiced against.
+    void restoreLegacyAmpEnvelope();
     void addKickParameters(const std::string & prefix);
     void addSnareParameters(const std::string & prefix);
     void addTomParameters(const std::string & prefix);
