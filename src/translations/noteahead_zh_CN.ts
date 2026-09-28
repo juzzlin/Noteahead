@@ -36,11 +36,11 @@
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">取消</translation>
+        <translation>取消</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">确定</translation>
+        <translation>确定</translation>
     </message>
 </context>
 <context>
@@ -70,11 +70,11 @@
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">取消</translation>
+        <translation>取消</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">确定</translation>
+        <translation>确定</translation>
     </message>
 </context>
 <context>
@@ -228,7 +228,7 @@
     </message>
     <message>
         <source>A</source>
-        <translation type="unfinished">A</translation>
+        <translation>A</translation>
     </message>
     <message>
         <source>B</source>
@@ -244,19 +244,19 @@
     </message>
     <message>
         <source>Audio files</source>
-        <translation type="unfinished">音频文件</translation>
+        <translation>音频文件</translation>
     </message>
     <message>
         <source>WAV files</source>
-        <translation type="unfinished">WAV 文件</translation>
+        <translation>WAV 文件</translation>
     </message>
     <message>
         <source>FLAC files</source>
-        <translation type="unfinished">FLAC 文件</translation>
+        <translation>FLAC 文件</translation>
     </message>
     <message>
         <source>All files</source>
-        <translation type="unfinished">所有文件</translation>
+        <translation>所有文件</translation>
     </message>
     <message>
         <source>Open audio file B</source>
@@ -283,11 +283,11 @@
     </message>
     <message>
         <source>Open...</source>
-        <translation type="unfinished">打开...</translation>
+        <translation>打开...</translation>
     </message>
     <message>
         <source>Clear</source>
-        <translation type="unfinished">清除</translation>
+        <translation>清除</translation>
     </message>
     <message>
         <source>Open a WAV or FLAC file to analyse it.</source>
@@ -387,10 +387,6 @@
     <message>
         <source>min</source>
         <translation>分</translation>
-    </message>
-    <message>
-        <source>s</source>
-        <translation>秒</translation>
     </message>
     <message>
         <source>Analyze loudness (LUFS, LRA, dBTP)</source>
@@ -738,11 +734,11 @@
     </message>
     <message>
         <source>Rate Divider</source>
-        <translation type="unfinished">速率分频</translation>
+        <translation>速率分频</translation>
     </message>
     <message>
         <source>Rate Divider divides the Rate by anything from 1 to %1, in both modes: a tempo-locked sweep can be stretched over several bars, and a free-running one over minutes.</source>
-        <translation type="unfinished">速率分频在两种模式下都可将 Rate 除以 1 到 %1 之间的任意值：与速度同步的扫频可拉长至数个小节，自由运行的可拉长至数分钟。</translation>
+        <translation>速率分频在两种模式下都可将 Rate 除以 1 到 %1 之间的任意值：与速度同步的扫频可拉长至数个小节，自由运行的可拉长至数分钟。</translation>
     </message>
 </context>
 <context>
@@ -923,11 +919,11 @@
     <name>BassSynthDialog_Presets</name>
     <message>
         <source>Preset:</source>
-        <translation type="unfinished">预设：</translation>
+        <translation>预设：</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">保存</translation>
+        <translation>保存</translation>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
@@ -961,16 +957,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>bits</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Word length. The quantisation error follows the signal, which is the grit riding on top of it</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Rate</source>
-        <translation type="unfinished">速率</translation>
+        <translation>速率</translation>
     </message>
     <message>
         <source>Samples are held at this rate. Everything above its Nyquist folds back as aliases, which is the metallic half of the sound</source>
@@ -978,7 +970,7 @@
     </message>
     <message>
         <source>Mix</source>
-        <translation type="unfinished">混合</translation>
+        <translation>混合</translation>
     </message>
     <message>
         <source>How much of the crushed signal is heard against the clean one</source>
@@ -1477,7 +1469,7 @@
     </message>
     <message>
         <source>Amount</source>
-        <translation type="unfinished">量</translation>
+        <translation>量</translation>
     </message>
     <message>
         <source>How much of the difference between the channels is moved to the middle</source>
@@ -1485,7 +1477,7 @@
     </message>
     <message>
         <source>Delay</source>
-        <translation type="unfinished">延迟</translation>
+        <translation>延迟</translation>
     </message>
     <message>
         <source>us</source>
@@ -1497,7 +1489,7 @@
     </message>
     <message>
         <source>Cutoff</source>
-        <translation type="unfinished">截止频率</translation>
+        <translation>截止频率</translation>
     </message>
     <message>
         <source>Above this the head shadows the far ear, so nothing crosses over</source>
@@ -1505,7 +1497,7 @@
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished">输出</translation>
+        <translation>输出</translation>
     </message>
 </context>
 <context>
@@ -1713,7 +1705,7 @@
     </message>
     <message>
         <source>Sends</source>
-        <translation type="unfinished">发送</translation>
+        <translation>发送</translation>
     </message>
     <message>
         <source>Import Rack...</source>
@@ -1800,11 +1792,11 @@
     </message>
     <message>
         <source>Settings...</source>
-        <translation type="unfinished">设置...</translation>
+        <translation>设置...</translation>
     </message>
     <message>
         <source>Insert FX...</source>
-        <translation type="unfinished">插入效果...</translation>
+        <translation>插入效果...</translation>
     </message>
     <message>
         <source>Sends...</source>
@@ -1812,11 +1804,11 @@
     </message>
     <message>
         <source>Import Settings...</source>
-        <translation type="unfinished">导入设置...</translation>
+        <translation>导入设置...</translation>
     </message>
     <message>
         <source>Export Settings...</source>
-        <translation type="unfinished">导出设置...</translation>
+        <translation>导出设置...</translation>
     </message>
 </context>
 <context>
@@ -2138,27 +2130,27 @@
     <name>DrumSynthV2Dialog</name>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">确定</translation>
+        <translation>确定</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">取消</translation>
+        <translation>取消</translation>
     </message>
     <message>
         <source>Global</source>
-        <translation type="unfinished">全局</translation>
+        <translation>全局</translation>
     </message>
     <message>
         <source>Gain</source>
-        <translation type="unfinished">增益</translation>
+        <translation>增益</translation>
     </message>
     <message>
         <source>Fader</source>
-        <translation type="unfinished">推子</translation>
+        <translation>推子</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished">声像</translation>
+        <translation>声像</translation>
     </message>
     <message>
         <source>LPF Slope</source>
@@ -2178,11 +2170,11 @@
     </message>
     <message>
         <source>Voices</source>
-        <translation type="unfinished">复音数</translation>
+        <translation>复音数</translation>
     </message>
     <message>
         <source>FX</source>
-        <translation type="unfinished">效果</translation>
+        <translation>效果</translation>
     </message>
     <message>
         <source>Insert effects and sends for this voice</source>
@@ -2190,78 +2182,78 @@
     </message>
     <message>
         <source>Voice Settings</source>
-        <translation type="unfinished">声部设置</translation>
+        <translation>声部设置</translation>
     </message>
     <message>
         <source>Level</source>
-        <translation type="unfinished">电平</translation>
+        <translation>电平</translation>
     </message>
     <message>
         <source>LPF</source>
-        <translation type="unfinished">LPF</translation>
+        <translation>LPF</translation>
     </message>
     <message>
         <source>HPF</source>
-        <translation type="unfinished">HPF</translation>
+        <translation>HPF</translation>
     </message>
     <message>
         <source>Tune</source>
-        <translation type="unfinished">调音</translation>
+        <translation>调音</translation>
     </message>
     <message>
         <source>Decay</source>
-        <translation type="unfinished">衰减</translation>
+        <translation>衰减</translation>
     </message>
     <message>
         <source>Attack</source>
-        <translation type="unfinished">起音</translation>
+        <translation>起音</translation>
     </message>
     <message>
         <source>C.Tune</source>
-        <translation type="unfinished">C.Tune</translation>
+        <translation>C.Tune</translation>
     </message>
     <message>
         <source>P.Depth</source>
-        <translation type="unfinished">音高深度</translation>
+        <translation>音高深度</translation>
     </message>
     <message>
         <source>P.Decay</source>
-        <translation type="unfinished">音高衰减</translation>
+        <translation>音高衰减</translation>
     </message>
     <message>
         <source>Snappy</source>
-        <translation type="unfinished">响弦</translation>
+        <translation>响弦</translation>
     </message>
     <message>
         <source>Tone</source>
-        <translation type="unfinished">音色</translation>
+        <translation>音色</translation>
     </message>
     <message>
         <source>Reso</source>
-        <translation type="unfinished">Reso</translation>
+        <translation>Reso</translation>
     </message>
 </context>
 <context>
     <name>DrumSynthV2Dialog_AmpEg</name>
     <message>
         <source>Amp Envelope</source>
-        <translation type="unfinished">音量包络</translation>
+        <translation>音量包络</translation>
     </message>
     <message>
         <source>Attack</source>
-        <translation type="unfinished">起音</translation>
+        <translation>起音</translation>
     </message>
     <message>
         <source>Hold</source>
-        <translation type="unfinished">保持</translation>
+        <translation>保持</translation>
     </message>
     <message>
         <source>Decay</source>
-        <translation type="unfinished">衰减</translation>
+        <translation>衰减</translation>
     </message>
     <message>
         <source>Curve</source>
-        <translation type="unfinished">曲线</translation>
+        <translation>曲线</translation>
     </message>
 </context>
 <context>
@@ -2443,7 +2435,7 @@
     </message>
     <message>
         <source>Copy...</source>
-        <translation type="unfinished">复制...</translation>
+        <translation>复制...</translation>
     </message>
     <message>
         <source>Replace this automation with the settings of another one</source>
@@ -2573,7 +2565,7 @@
     </message>
     <message>
         <source>Copy...</source>
-        <translation type="unfinished">复制...</translation>
+        <translation>复制...</translation>
     </message>
     <message>
         <source>Replace this automation with the settings of another one</source>
@@ -2721,11 +2713,11 @@
     <name>EffectPresetRow</name>
     <message>
         <source>Preset:</source>
-        <translation type="unfinished">预设：</translation>
+        <translation>预设：</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">保存</translation>
+        <translation>保存</translation>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
@@ -2917,7 +2909,7 @@
     </message>
     <message>
         <source>Slope</source>
-        <translation type="unfinished">斜率</translation>
+        <translation>斜率</translation>
     </message>
 </context>
 <context>
@@ -3010,11 +3002,11 @@
     </message>
     <message>
         <source>Mode</source>
-        <translation type="unfinished">模式</translation>
+        <translation>模式</translation>
     </message>
     <message>
         <source>Rate</source>
-        <translation type="unfinished">速率</translation>
+        <translation>速率</translation>
     </message>
     <message>
         <source>How fast the sweep runs. In BPM mode it reads in beat divisions instead</source>
@@ -3022,7 +3014,7 @@
     </message>
     <message>
         <source>Rate Divider</source>
-        <translation type="unfinished">速率分频</translation>
+        <translation>速率分频</translation>
     </message>
     <message>
         <source>Divides the rate, so the sweep can crawl over several bars instead of over a second</source>
@@ -3030,7 +3022,7 @@
     </message>
     <message>
         <source>Delay</source>
-        <translation type="unfinished">延迟</translation>
+        <translation>延迟</translation>
     </message>
     <message>
         <source>Shortest delay the sweep reaches. Past ten milliseconds the copy stops combing and is heard as a chorus</source>
@@ -3038,7 +3030,7 @@
     </message>
     <message>
         <source>Depth</source>
-        <translation type="unfinished">深度</translation>
+        <translation>深度</translation>
     </message>
     <message>
         <source>How far above the Delay setting the sweep travels</source>
@@ -3046,7 +3038,7 @@
     </message>
     <message>
         <source>Feedback</source>
-        <translation type="unfinished">反馈</translation>
+        <translation>反馈</translation>
     </message>
     <message>
         <source>Sharpens the peaks between the notches. The sign matters as much as the amount: the two polarities comb at different frequencies</source>
@@ -3054,7 +3046,7 @@
     </message>
     <message>
         <source>Stereo Phase</source>
-        <translation type="unfinished">立体声相位</translation>
+        <translation>立体声相位</translation>
     </message>
     <message>
         <source>How far apart the two channels sweep</source>
@@ -3062,7 +3054,7 @@
     </message>
     <message>
         <source>Mix</source>
-        <translation type="unfinished">混合</translation>
+        <translation>混合</translation>
     </message>
     <message>
         <source>The comb is the sum of the dry and the delayed copy, so this is the depth of the notches rather than a convenience</source>
@@ -3073,11 +3065,11 @@
     <name>FmSynthDialog</name>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">确定</translation>
+        <translation>确定</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">取消</translation>
+        <translation>取消</translation>
     </message>
     <message>
         <source>Operators</source>
@@ -3085,22 +3077,22 @@
     </message>
     <message>
         <source>Filter / Envelopes</source>
-        <translation type="unfinished">滤波器 / 包络</translation>
+        <translation>滤波器 / 包络</translation>
     </message>
     <message>
         <source>LFO / Effects</source>
-        <translation type="unfinished">LFO / 效果</translation>
+        <translation>LFO / 效果</translation>
     </message>
 </context>
 <context>
     <name>FmSynthDialog_Algorithm</name>
     <message>
         <source>Algorithm</source>
-        <translation type="unfinished">算法</translation>
+        <translation>算法</translation>
     </message>
     <message>
         <source>Feedback</source>
-        <translation type="unfinished">反馈</translation>
+        <translation>反馈</translation>
     </message>
     <message>
         <source>Feedback is on operator</source>
@@ -3115,77 +3107,77 @@
     </message>
     <message>
         <source>Attack</source>
-        <translation type="unfinished">起音</translation>
+        <translation>起音</translation>
     </message>
     <message>
         <source>Decay</source>
-        <translation type="unfinished">衰减</translation>
+        <translation>衰减</translation>
     </message>
     <message>
         <source>Sustain</source>
-        <translation type="unfinished">延持</translation>
+        <translation>延持</translation>
     </message>
     <message>
         <source>Release</source>
-        <translation type="unfinished">释音</translation>
+        <translation>释音</translation>
     </message>
     <message>
         <source>Curve</source>
-        <translation type="unfinished">曲线</translation>
+        <translation>曲线</translation>
     </message>
     <message>
         <source>Velocity Sensitivity</source>
-        <translation type="unfinished">力度灵敏度</translation>
+        <translation>力度灵敏度</translation>
     </message>
 </context>
 <context>
     <name>FmSynthDialog_Delay</name>
     <message>
         <source>Delay Effect</source>
-        <translation type="unfinished">延迟效果</translation>
+        <translation>延迟效果</translation>
     </message>
     <message>
         <source>Sync</source>
-        <translation type="unfinished">同步</translation>
+        <translation>同步</translation>
     </message>
     <message>
         <source>Time</source>
-        <translation type="unfinished">时间</translation>
+        <translation>时间</translation>
     </message>
     <message>
         <source>Feedback</source>
-        <translation type="unfinished">反馈</translation>
+        <translation>反馈</translation>
     </message>
     <message>
         <source>LPF</source>
-        <translation type="unfinished">LPF</translation>
+        <translation>LPF</translation>
     </message>
     <message>
         <source>HPF</source>
-        <translation type="unfinished">HPF</translation>
+        <translation>HPF</translation>
     </message>
     <message>
         <source>Depth</source>
-        <translation type="unfinished">深度</translation>
+        <translation>深度</translation>
     </message>
     <message>
         <source>Mix</source>
-        <translation type="unfinished">混合</translation>
+        <translation>混合</translation>
     </message>
 </context>
 <context>
     <name>FmSynthDialog_Filter</name>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">滤波器</translation>
+        <translation>滤波器</translation>
     </message>
     <message>
         <source>LPF Cutoff</source>
-        <translation type="unfinished">低通截止频率</translation>
+        <translation>低通截止频率</translation>
     </message>
     <message>
         <source>LPF Resonance</source>
-        <translation type="unfinished">低通共振</translation>
+        <translation>低通共振</translation>
     </message>
     <message>
         <source>LPF Slope</source>
@@ -3197,7 +3189,7 @@
     </message>
     <message>
         <source>HPF Cutoff</source>
-        <translation type="unfinished">高通截止频率</translation>
+        <translation>高通截止频率</translation>
     </message>
     <message>
         <source>HPF Slope</source>
@@ -3212,54 +3204,54 @@
     <name>FmSynthDialog_Global</name>
     <message>
         <source>Voice / Global</source>
-        <translation type="unfinished">声部 / 全局</translation>
+        <translation>声部 / 全局</translation>
     </message>
     <message>
         <source>Voice Depth</source>
-        <translation type="unfinished">声部深度</translation>
+        <translation>声部深度</translation>
     </message>
     <message>
         <source>Portamento</source>
-        <translation type="unfinished">滑音</translation>
+        <translation>滑音</translation>
     </message>
     <message>
         <source>Pan Spread</source>
-        <translation type="unfinished">声像扩散</translation>
+        <translation>声像扩散</translation>
     </message>
     <message>
         <source>Pitch Bend Range</source>
-        <translation type="unfinished">弯音范围</translation>
+        <translation>弯音范围</translation>
     </message>
     <message>
         <source>Gain</source>
-        <translation type="unfinished">增益</translation>
+        <translation>增益</translation>
     </message>
     <message>
         <source>Fader</source>
-        <translation type="unfinished">推子</translation>
+        <translation>推子</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished">声像</translation>
+        <translation>声像</translation>
     </message>
 </context>
 <context>
     <name>FmSynthDialog_Lfo1</name>
     <message>
         <source>LFO 1</source>
-        <translation type="unfinished">LFO 1</translation>
+        <translation>LFO 1</translation>
     </message>
     <message>
         <source>Rate</source>
-        <translation type="unfinished">速率</translation>
+        <translation>速率</translation>
     </message>
     <message>
         <source>Intensity</source>
-        <translation type="unfinished">强度</translation>
+        <translation>强度</translation>
     </message>
     <message>
         <source>Delay</source>
-        <translation type="unfinished">延迟</translation>
+        <translation>延迟</translation>
     </message>
     <message>
         <source>Fade</source>
@@ -3270,19 +3262,19 @@
     <name>FmSynthDialog_Lfo2</name>
     <message>
         <source>LFO 2</source>
-        <translation type="unfinished">LFO 2</translation>
+        <translation>LFO 2</translation>
     </message>
     <message>
         <source>Rate</source>
-        <translation type="unfinished">速率</translation>
+        <translation>速率</translation>
     </message>
     <message>
         <source>Intensity</source>
-        <translation type="unfinished">强度</translation>
+        <translation>强度</translation>
     </message>
     <message>
         <source>Delay</source>
-        <translation type="unfinished">延迟</translation>
+        <translation>延迟</translation>
     </message>
     <message>
         <source>Fade</source>
@@ -3293,27 +3285,27 @@
     <name>FmSynthDialog_ModEg</name>
     <message>
         <source>Mod EG</source>
-        <translation type="unfinished">Mod EG</translation>
+        <translation>Mod EG</translation>
     </message>
     <message>
         <source>Attack</source>
-        <translation type="unfinished">起音</translation>
+        <translation>起音</translation>
     </message>
     <message>
         <source>Decay</source>
-        <translation type="unfinished">衰减</translation>
+        <translation>衰减</translation>
     </message>
     <message>
         <source>Sustain</source>
-        <translation type="unfinished">延持</translation>
+        <translation>延持</translation>
     </message>
     <message>
         <source>Intensity</source>
-        <translation type="unfinished">强度</translation>
+        <translation>强度</translation>
     </message>
     <message>
         <source>Curve</source>
-        <translation type="unfinished">曲线</translation>
+        <translation>曲线</translation>
     </message>
 </context>
 <context>
@@ -3336,19 +3328,19 @@
     </message>
     <message>
         <source>Ratio</source>
-        <translation type="unfinished">压缩比</translation>
+        <translation>压缩比</translation>
     </message>
     <message>
         <source>Detune</source>
-        <translation type="unfinished">失谐</translation>
+        <translation>失谐</translation>
     </message>
     <message>
         <source>Level</source>
-        <translation type="unfinished">电平</translation>
+        <translation>电平</translation>
     </message>
     <message>
         <source>Velocity Sensitivity</source>
-        <translation type="unfinished">力度灵敏度</translation>
+        <translation>力度灵敏度</translation>
     </message>
     <message>
         <source>Key Scale</source>
@@ -3356,26 +3348,26 @@
     </message>
     <message>
         <source>Envelope</source>
-        <translation type="unfinished">包络</translation>
+        <translation>包络</translation>
     </message>
     <message>
         <source>Attack</source>
-        <translation type="unfinished">起音</translation>
+        <translation>起音</translation>
     </message>
     <message>
         <source>Decay</source>
-        <translation type="unfinished">衰减</translation>
+        <translation>衰减</translation>
     </message>
     <message>
         <source>Sustain</source>
-        <translation type="unfinished">延持</translation>
+        <translation>延持</translation>
     </message>
 </context>
 <context>
     <name>FmSynthDialog_Presets</name>
     <message>
         <source>Preset:</source>
-        <translation type="unfinished">预设：</translation>
+        <translation>预设：</translation>
     </message>
     <message>
         <source>Randomize</source>
@@ -3383,7 +3375,7 @@
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">保存</translation>
+        <translation>保存</translation>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
@@ -3411,10 +3403,6 @@
     <message>
         <source>Ok</source>
         <translation>确定</translation>
-    </message>
-    <message>
-        <source>dB</source>
-        <translation>dB</translation>
     </message>
 </context>
 <context>
@@ -3452,7 +3440,7 @@
     </message>
     <message>
         <source>Threshold</source>
-        <translation type="unfinished">阈值</translation>
+        <translation>阈值</translation>
     </message>
     <message>
         <source>Below this the gate closes. It opens again six dB higher, so a level wobbling about it cannot rattle the gate</source>
@@ -3460,7 +3448,7 @@
     </message>
     <message>
         <source>Ratio</source>
-        <translation type="unfinished">压缩比</translation>
+        <translation>压缩比</translation>
     </message>
     <message>
         <source>How steeply the level falls away below the threshold. Low is an expander leaning on the quiet parts, high is a gate that slams</source>
@@ -3476,7 +3464,7 @@
     </message>
     <message>
         <source>Attack</source>
-        <translation type="unfinished">起音</translation>
+        <translation>起音</translation>
     </message>
     <message>
         <source>How fast it opens. Slow enough and the front of every hit is swallowed</source>
@@ -3484,7 +3472,7 @@
     </message>
     <message>
         <source>Hold</source>
-        <translation type="unfinished">保持</translation>
+        <translation>保持</translation>
     </message>
     <message>
         <source>How long it stays open after the level falls away, which is what stops it chattering</source>
@@ -3492,7 +3480,7 @@
     </message>
     <message>
         <source>Release</source>
-        <translation type="unfinished">释音</translation>
+        <translation>释音</translation>
     </message>
     <message>
         <source>How fast it closes once the hold has run out</source>
@@ -5402,7 +5390,7 @@
     <name>OutputMeter</name>
     <message>
         <source>Level</source>
-        <translation type="unfinished">电平</translation>
+        <translation>电平</translation>
     </message>
     <message>
         <source>Loudness</source>
@@ -5894,7 +5882,7 @@
     </message>
     <message>
         <source>Amount</source>
-        <translation type="unfinished">量</translation>
+        <translation>量</translation>
     </message>
     <message>
         <source>How far from this room towards that one. At zero the mix is heard as it is</source>
@@ -5918,7 +5906,7 @@
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished">输出</translation>
+        <translation>输出</translation>
     </message>
 </context>
 <context>
@@ -6190,7 +6178,7 @@
     </message>
     <message>
         <source>Curve</source>
-        <translation type="unfinished">曲线</translation>
+        <translation>曲线</translation>
     </message>
 </context>
 <context>
@@ -7322,7 +7310,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Line</source>
-        <translation type="unfinished">行</translation>
+        <translation>行</translation>
     </message>
     <message>
         <source>A note speaks the whole phrase.</source>
@@ -7374,7 +7362,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Portamento</source>
-        <translation type="unfinished">滑音</translation>
+        <translation>滑音</translation>
     </message>
     <message>
         <source>Hold a note on one column and play the melody on another: the second column moves the pitch without starting the next line.</source>
@@ -8318,41 +8306,41 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <name>StringVoiceV3Dialog</name>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">确定</translation>
+        <translation>确定</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">取消</translation>
+        <translation>取消</translation>
     </message>
 </context>
 <context>
     <name>StringVoiceV3Dialog_Balance</name>
     <message>
         <source>Balance</source>
-        <translation type="unfinished">平衡</translation>
+        <translation>平衡</translation>
     </message>
     <message>
         <source>One level per section, so the two can be balanced without re-tuning each footage.</source>
-        <translation type="unfinished">每个部分一个电平，这样无需重新调整每个音栓脚长即可平衡两者。</translation>
+        <translation>每个部分一个电平，这样无需重新调整每个音栓脚长即可平衡两者。</translation>
     </message>
     <message>
         <source>Human Voice</source>
-        <translation type="unfinished">人声</translation>
+        <translation>人声</translation>
     </message>
     <message>
         <source>Strings</source>
-        <translation type="unfinished">弦乐</translation>
+        <translation>弦乐</translation>
     </message>
 </context>
 <context>
     <name>StringVoiceV3Dialog_Ensemble</name>
     <message>
         <source>Ensemble Chorus</source>
-        <translation type="unfinished">合奏合唱</translation>
+        <translation>合奏合唱</translation>
     </message>
     <message>
         <source>Enable Ensemble</source>
-        <translation type="unfinished">启用合奏</translation>
+        <translation>启用合奏</translation>
     </message>
     <message>
         <source>Applies to the Voice section only, as on the hardware. The Strings have a chorus of their own that is always on.</source>
@@ -8364,135 +8352,135 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Mode:</source>
-        <translation type="unfinished">模式：</translation>
+        <translation>模式：</translation>
     </message>
     <message>
         <source>Chorus I</source>
-        <translation type="unfinished">Chorus I</translation>
+        <translation>Chorus I</translation>
     </message>
     <message>
         <source>Chorus II</source>
-        <translation type="unfinished">Chorus II</translation>
+        <translation>Chorus II</translation>
     </message>
     <message>
         <source>Chorus I + II</source>
-        <translation type="unfinished">Chorus I + II</translation>
+        <translation>Chorus I + II</translation>
     </message>
     <message>
         <source>Vibrato</source>
-        <translation type="unfinished">颤音</translation>
+        <translation>颤音</translation>
     </message>
     <message>
         <source>Rate</source>
-        <translation type="unfinished">速率</translation>
+        <translation>速率</translation>
     </message>
     <message>
         <source>Depth</source>
-        <translation type="unfinished">深度</translation>
+        <translation>深度</translation>
     </message>
     <message>
         <source>Delay</source>
-        <translation type="unfinished">延迟</translation>
+        <translation>延迟</translation>
     </message>
 </context>
 <context>
     <name>StringVoiceV3Dialog_Global</name>
     <message>
         <source>Global</source>
-        <translation type="unfinished">全局</translation>
+        <translation>全局</translation>
     </message>
     <message>
         <source>Gain</source>
-        <translation type="unfinished">增益</translation>
+        <translation>增益</translation>
     </message>
     <message>
         <source>Fader</source>
-        <translation type="unfinished">推子</translation>
+        <translation>推子</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished">声像</translation>
+        <translation>声像</translation>
     </message>
     <message>
         <source>Pan Spread</source>
-        <translation type="unfinished">声像扩散</translation>
+        <translation>声像扩散</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">滤波器</translation>
+        <translation>滤波器</translation>
     </message>
     <message>
         <source>LPF Cutoff</source>
-        <translation type="unfinished">低通截止频率</translation>
+        <translation>低通截止频率</translation>
     </message>
     <message>
         <source>HPF Cutoff</source>
-        <translation type="unfinished">高通截止频率</translation>
+        <translation>高通截止频率</translation>
     </message>
 </context>
 <context>
     <name>StringVoiceV3Dialog_Strings</name>
     <message>
         <source>Strings Section</source>
-        <translation type="unfinished">弦乐部</translation>
+        <translation>弦乐部</translation>
     </message>
     <message>
         <source>Upper</source>
-        <translation type="unfinished">上</translation>
+        <translation>上</translation>
     </message>
     <message>
         <source>Lower</source>
-        <translation type="unfinished">下</translation>
+        <translation>下</translation>
     </message>
     <message>
         <source>Tone</source>
-        <translation type="unfinished">音色</translation>
+        <translation>音色</translation>
     </message>
     <message>
         <source>Attack Time</source>
-        <translation type="unfinished">起音时间</translation>
+        <translation>起音时间</translation>
     </message>
     <message>
         <source>Release Time</source>
-        <translation type="unfinished">释音时间</translation>
+        <translation>释音时间</translation>
     </message>
 </context>
 <context>
     <name>StringVoiceV3Dialog_Velocity</name>
     <message>
         <source>Velocity</source>
-        <translation type="unfinished">力度</translation>
+        <translation>力度</translation>
     </message>
     <message>
         <source>How far both sections follow how hard a key is struck. Fully down they ignore it.</source>
-        <translation type="unfinished">两个部分跟随按键力度的程度。调至最低时将忽略力度。</translation>
+        <translation>两个部分跟随按键力度的程度。调至最低时将忽略力度。</translation>
     </message>
     <message>
         <source>Velocity Sensitivity</source>
-        <translation type="unfinished">力度灵敏度</translation>
+        <translation>力度灵敏度</translation>
     </message>
 </context>
 <context>
     <name>StringVoiceV3Dialog_Vocoder</name>
     <message>
         <source>Vocoder</source>
-        <translation type="unfinished">声码器</translation>
+        <translation>声码器</translation>
     </message>
     <message>
         <source>Enable Vocoder</source>
-        <translation type="unfinished">启用声码器</translation>
+        <translation>启用声码器</translation>
     </message>
     <message>
         <source>Modulator:</source>
-        <translation type="unfinished">调制源：</translation>
+        <translation>调制源：</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">无</translation>
+        <translation>无</translation>
     </message>
     <message>
         <source>Device %1</source>
-        <translation type="unfinished">设备 %1</translation>
+        <translation>设备 %1</translation>
     </message>
     <message>
         <source>Device %1: %2</source>
@@ -8507,39 +8495,39 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <name>StringVoiceV3Dialog_Voice</name>
     <message>
         <source>Voice Section</source>
-        <translation type="unfinished">人声部分</translation>
+        <translation>人声部分</translation>
     </message>
     <message>
         <source>Lower (below C4)</source>
-        <translation type="unfinished">下部（C4 以下）</translation>
+        <translation>下部（C4 以下）</translation>
     </message>
     <message>
         <source>Male 8&apos;</source>
-        <translation type="unfinished">男声 8&apos;</translation>
+        <translation>男声 8&apos;</translation>
     </message>
     <message>
         <source>Male 4&apos;</source>
-        <translation type="unfinished">男声 4&apos;</translation>
+        <translation>男声 4&apos;</translation>
     </message>
     <message>
         <source>Upper (C4 and above)</source>
-        <translation type="unfinished">上部（C4 及以上）</translation>
+        <translation>上部（C4 及以上）</translation>
     </message>
     <message>
         <source>Female 4&apos;</source>
-        <translation type="unfinished">女声 4&apos;</translation>
+        <translation>女声 4&apos;</translation>
     </message>
     <message>
         <source>The female voice sounds only above the split, an octave up, as on the hardware.</source>
-        <translation type="unfinished">女声仅在分割点以上发声，高一个八度，与硬件一致。</translation>
+        <translation>女声仅在分割点以上发声，高一个八度，与硬件一致。</translation>
     </message>
     <message>
         <source>Attack Time</source>
-        <translation type="unfinished">起音时间</translation>
+        <translation>起音时间</translation>
     </message>
     <message>
         <source>Release Time</source>
-        <translation type="unfinished">释音时间</translation>
+        <translation>释音时间</translation>
     </message>
 </context>
 <context>
@@ -8721,7 +8709,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Drive</source>
-        <translation type="unfinished">驱动</translation>
+        <translation>驱动</translation>
     </message>
     <message>
         <source>How hard the low pass is driven. The peaks and the resonance fold inside the filter rather than in front of it, so the tone thickens and the resonant peak compresses instead of tearing. At zero the filter is the clean one every patch was made on.</source>
@@ -8826,7 +8814,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Delay</source>
-        <translation type="unfinished">延迟</translation>
+        <translation>延迟</translation>
     </message>
     <message>
         <source>Fade</source>
@@ -8849,7 +8837,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Delay</source>
-        <translation type="unfinished">延迟</translation>
+        <translation>延迟</translation>
     </message>
     <message>
         <source>Fade</source>
@@ -8906,7 +8894,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <name>SynthDialog_Presets</name>
     <message>
         <source>Save</source>
-        <translation type="unfinished">保存</translation>
+        <translation>保存</translation>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
@@ -8965,7 +8953,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>LPF Cutoff</source>
-        <translation type="unfinished">低通截止频率</translation>
+        <translation>低通截止频率</translation>
     </message>
     <message>
         <source>Rolls the top off this oscillator alone, before it reaches the mix and the voice&apos;s own filter.</source>
@@ -8973,11 +8961,11 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>LPF Resonance</source>
-        <translation type="unfinished">低通共振</translation>
+        <translation>低通共振</translation>
     </message>
     <message>
         <source>HPF Cutoff</source>
-        <translation type="unfinished">高通截止频率</translation>
+        <translation>高通截止频率</translation>
     </message>
     <message>
         <source>Thins out this oscillator alone, which is how one is made to sit under another rather than against it.</source>
@@ -8985,7 +8973,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">滤波器</translation>
+        <translation>滤波器</translation>
     </message>
 </context>
 <context>
@@ -9028,7 +9016,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>LPF Cutoff</source>
-        <translation type="unfinished">低通截止频率</translation>
+        <translation>低通截止频率</translation>
     </message>
     <message>
         <source>Rolls the top off this oscillator alone, before it reaches the mix and the voice&apos;s own filter.</source>
@@ -9036,11 +9024,11 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>LPF Resonance</source>
-        <translation type="unfinished">低通共振</translation>
+        <translation>低通共振</translation>
     </message>
     <message>
         <source>HPF Cutoff</source>
-        <translation type="unfinished">高通截止频率</translation>
+        <translation>高通截止频率</translation>
     </message>
     <message>
         <source>Thins out this oscillator alone, which is how one is made to sit under another rather than against it.</source>
@@ -9048,7 +9036,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">滤波器</translation>
+        <translation>滤波器</translation>
     </message>
 </context>
 <context>
@@ -9087,7 +9075,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>LPF Cutoff</source>
-        <translation type="unfinished">低通截止频率</translation>
+        <translation>低通截止频率</translation>
     </message>
     <message>
         <source>Rolls the top off this oscillator alone, before it reaches the mix and the voice&apos;s own filter.</source>
@@ -9095,11 +9083,11 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>LPF Resonance</source>
-        <translation type="unfinished">低通共振</translation>
+        <translation>低通共振</translation>
     </message>
     <message>
         <source>HPF Cutoff</source>
-        <translation type="unfinished">高通截止频率</translation>
+        <translation>高通截止频率</translation>
     </message>
     <message>
         <source>Thins out this oscillator alone, which is how one is made to sit under another rather than against it.</source>
@@ -9107,7 +9095,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">滤波器</translation>
+        <translation>滤波器</translation>
     </message>
 </context>
 <context>
@@ -9118,19 +9106,19 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Pitch</source>
-        <translation type="unfinished">音高</translation>
+        <translation>音高</translation>
     </message>
     <message>
         <source>Shape</source>
-        <translation type="unfinished">形状</translation>
+        <translation>形状</translation>
     </message>
     <message>
         <source>Roundness</source>
-        <translation type="unfinished">圆润度</translation>
+        <translation>圆润度</translation>
     </message>
     <message>
         <source>Level</source>
-        <translation type="unfinished">电平</translation>
+        <translation>电平</translation>
     </message>
     <message>
         <source>Hard Sync to VCO3</source>
@@ -9146,7 +9134,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>LPF Cutoff</source>
-        <translation type="unfinished">低通截止频率</translation>
+        <translation>低通截止频率</translation>
     </message>
     <message>
         <source>Rolls the top off this oscillator alone, before it reaches the mix and the voice&apos;s own filter.</source>
@@ -9154,11 +9142,11 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>LPF Resonance</source>
-        <translation type="unfinished">低通共振</translation>
+        <translation>低通共振</translation>
     </message>
     <message>
         <source>HPF Cutoff</source>
-        <translation type="unfinished">高通截止频率</translation>
+        <translation>高通截止频率</translation>
     </message>
     <message>
         <source>Thins out this oscillator alone, which is how one is made to sit under another rather than against it.</source>
@@ -9166,7 +9154,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">滤波器</translation>
+        <translation>滤波器</translation>
     </message>
 </context>
 <context>
@@ -9506,11 +9494,11 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Waveform</source>
-        <translation type="unfinished">波形</translation>
+        <translation>波形</translation>
     </message>
     <message>
         <source>Depth</source>
-        <translation type="unfinished">深度</translation>
+        <translation>深度</translation>
     </message>
     <message>
         <source>How much level the deepest point takes away. The loudest the tremolo ever is equals the signal that went in</source>
@@ -9518,7 +9506,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Stereo Phase</source>
-        <translation type="unfinished">立体声相位</translation>
+        <translation>立体声相位</translation>
     </message>
     <message>
         <source>At zero both channels duck together. At a hundred and eighty they duck in opposition, and the sound swings between the speakers</source>
@@ -9526,7 +9514,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Rate</source>
-        <translation type="unfinished">速率</translation>
+        <translation>速率</translation>
     </message>
     <message>
         <source>Used when Sync is off</source>
@@ -9534,7 +9522,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Rate Divider</source>
-        <translation type="unfinished">速率分频</translation>
+        <translation>速率分频</translation>
     </message>
     <message>
         <source>Divides the rate in both modes, so the tremolo can breathe over bars rather than beats</source>
@@ -9816,7 +9804,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Delay</source>
-        <translation type="unfinished">延迟</translation>
+        <translation>延迟</translation>
     </message>
     <message>
         <source>Fade</source>
@@ -9839,7 +9827,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Delay</source>
-        <translation type="unfinished">延迟</translation>
+        <translation>延迟</translation>
     </message>
     <message>
         <source>Fade</source>
@@ -10161,35 +10149,35 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <name>noteahead::FmSynthController</name>
     <message>
         <source>Poly</source>
-        <translation type="unfinished">复音</translation>
+        <translation>复音</translation>
     </message>
     <message>
         <source>Unison</source>
-        <translation type="unfinished">齐奏</translation>
+        <translation>齐奏</translation>
     </message>
     <message>
         <source>Dual</source>
-        <translation type="unfinished">双层</translation>
+        <translation>双层</translation>
     </message>
     <message>
         <source>Supersaw</source>
-        <translation type="unfinished">Supersaw</translation>
+        <translation>Supersaw</translation>
     </message>
     <message>
         <source>Drift</source>
-        <translation type="unfinished">漂移</translation>
+        <translation>漂移</translation>
     </message>
     <message>
         <source>Mono</source>
-        <translation type="unfinished">单声道</translation>
+        <translation>单声道</translation>
     </message>
     <message>
         <source>Cutoff</source>
-        <translation type="unfinished">截止频率</translation>
+        <translation>截止频率</translation>
     </message>
     <message>
         <source>Pitch</source>
-        <translation type="unfinished">音高</translation>
+        <translation>音高</translation>
     </message>
     <message>
         <source>Mod Index</source>
@@ -10197,31 +10185,31 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Feedback</source>
-        <translation type="unfinished">反馈</translation>
+        <translation>反馈</translation>
     </message>
     <message>
         <source>Normal</source>
-        <translation type="unfinished">正常</translation>
+        <translation>正常</translation>
     </message>
     <message>
         <source>BPM</source>
-        <translation type="unfinished">BPM</translation>
+        <translation>BPM</translation>
     </message>
     <message>
         <source>1-Shot</source>
-        <translation type="unfinished">单次</translation>
+        <translation>单次</translation>
     </message>
     <message>
         <source>Volume</source>
-        <translation type="unfinished">音量</translation>
+        <translation>音量</translation>
     </message>
     <message>
         <source>Resonance</source>
-        <translation type="unfinished">共振</translation>
+        <translation>共振</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished">声像</translation>
+        <translation>声像</translation>
     </message>
 </context>
 <context>

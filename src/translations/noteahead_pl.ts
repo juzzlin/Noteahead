@@ -36,11 +36,11 @@
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Anuluj</translation>
+        <translation>Anuluj</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
 </context>
 <context>
@@ -70,11 +70,11 @@
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Anuluj</translation>
+        <translation>Anuluj</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
 </context>
 <context>
@@ -228,7 +228,7 @@
     </message>
     <message>
         <source>A</source>
-        <translation type="unfinished">A</translation>
+        <translation>A</translation>
     </message>
     <message>
         <source>B</source>
@@ -244,19 +244,19 @@
     </message>
     <message>
         <source>Audio files</source>
-        <translation type="unfinished">Pliki dźwiękowe</translation>
+        <translation>Pliki dźwiękowe</translation>
     </message>
     <message>
         <source>WAV files</source>
-        <translation type="unfinished">Pliki WAV</translation>
+        <translation>Pliki WAV</translation>
     </message>
     <message>
         <source>FLAC files</source>
-        <translation type="unfinished">Pliki FLAC</translation>
+        <translation>Pliki FLAC</translation>
     </message>
     <message>
         <source>All files</source>
-        <translation type="unfinished">Wszystkie pliki</translation>
+        <translation>Wszystkie pliki</translation>
     </message>
     <message>
         <source>Open audio file B</source>
@@ -283,11 +283,11 @@
     </message>
     <message>
         <source>Open...</source>
-        <translation type="unfinished">Otwórz...</translation>
+        <translation>Otwórz...</translation>
     </message>
     <message>
         <source>Clear</source>
-        <translation type="unfinished">Wyczyść</translation>
+        <translation>Wyczyść</translation>
     </message>
     <message>
         <source>Open a WAV or FLAC file to analyse it.</source>
@@ -387,10 +387,6 @@
     <message>
         <source>min</source>
         <translation>min</translation>
-    </message>
-    <message>
-        <source>s</source>
-        <translation>s</translation>
     </message>
     <message>
         <source>Analyze loudness (LUFS, LRA, dBTP)</source>
@@ -738,11 +734,11 @@
     </message>
     <message>
         <source>Rate Divider</source>
-        <translation type="unfinished">Dzielnik szybkości</translation>
+        <translation>Dzielnik szybkości</translation>
     </message>
     <message>
         <source>Rate Divider divides the Rate by anything from 1 to %1, in both modes: a tempo-locked sweep can be stretched over several bars, and a free-running one over minutes.</source>
-        <translation type="unfinished">Dzielnik szybkości dzieli Rate przez wartość od 1 do %1 w obu trybach: zamiatanie zsynchronizowane z tempem można rozciągnąć na kilka taktów, a swobodne na minuty.</translation>
+        <translation>Dzielnik szybkości dzieli Rate przez wartość od 1 do %1 w obu trybach: zamiatanie zsynchronizowane z tempem można rozciągnąć na kilka taktów, a swobodne na minuty.</translation>
     </message>
 </context>
 <context>
@@ -923,11 +919,11 @@
     <name>BassSynthDialog_Presets</name>
     <message>
         <source>Preset:</source>
-        <translation type="unfinished">Preset:</translation>
+        <translation>Preset:</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">Zapisz</translation>
+        <translation>Zapisz</translation>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
@@ -961,16 +957,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>bits</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Word length. The quantisation error follows the signal, which is the grit riding on top of it</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Rate</source>
-        <translation type="unfinished">Szybkość</translation>
+        <translation>Szybkość</translation>
     </message>
     <message>
         <source>Samples are held at this rate. Everything above its Nyquist folds back as aliases, which is the metallic half of the sound</source>
@@ -978,7 +970,7 @@
     </message>
     <message>
         <source>Mix</source>
-        <translation type="unfinished">Mix</translation>
+        <translation>Mix</translation>
     </message>
     <message>
         <source>How much of the crushed signal is heard against the clean one</source>
@@ -1479,7 +1471,7 @@
     </message>
     <message>
         <source>Amount</source>
-        <translation type="unfinished">Ilość</translation>
+        <translation>Ilość</translation>
     </message>
     <message>
         <source>How much of the difference between the channels is moved to the middle</source>
@@ -1487,7 +1479,7 @@
     </message>
     <message>
         <source>Delay</source>
-        <translation type="unfinished">Delay</translation>
+        <translation>Delay</translation>
     </message>
     <message>
         <source>us</source>
@@ -1499,7 +1491,7 @@
     </message>
     <message>
         <source>Cutoff</source>
-        <translation type="unfinished">Odcięcie</translation>
+        <translation>Odcięcie</translation>
     </message>
     <message>
         <source>Above this the head shadows the far ear, so nothing crosses over</source>
@@ -1507,7 +1499,7 @@
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished">Wyjście</translation>
+        <translation>Wyjście</translation>
     </message>
 </context>
 <context>
@@ -1715,7 +1707,7 @@
     </message>
     <message>
         <source>Sends</source>
-        <translation type="unfinished">Wysyłki</translation>
+        <translation>Wysyłki</translation>
     </message>
     <message>
         <source>Import Rack...</source>
@@ -1802,11 +1794,11 @@
     </message>
     <message>
         <source>Settings...</source>
-        <translation type="unfinished">Ustawienia...</translation>
+        <translation>Ustawienia...</translation>
     </message>
     <message>
         <source>Insert FX...</source>
-        <translation type="unfinished">Efekty insert...</translation>
+        <translation>Efekty insert...</translation>
     </message>
     <message>
         <source>Sends...</source>
@@ -1814,11 +1806,11 @@
     </message>
     <message>
         <source>Import Settings...</source>
-        <translation type="unfinished">Importuj ustawienia...</translation>
+        <translation>Importuj ustawienia...</translation>
     </message>
     <message>
         <source>Export Settings...</source>
-        <translation type="unfinished">Eksportuj ustawienia...</translation>
+        <translation>Eksportuj ustawienia...</translation>
     </message>
 </context>
 <context>
@@ -2140,27 +2132,27 @@
     <name>DrumSynthV2Dialog</name>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Anuluj</translation>
+        <translation>Anuluj</translation>
     </message>
     <message>
         <source>Global</source>
-        <translation type="unfinished">Globalne</translation>
+        <translation>Globalne</translation>
     </message>
     <message>
         <source>Gain</source>
-        <translation type="unfinished">Wzmocnienie</translation>
+        <translation>Wzmocnienie</translation>
     </message>
     <message>
         <source>Fader</source>
-        <translation type="unfinished">Suwak</translation>
+        <translation>Suwak</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished">Panorama</translation>
+        <translation>Panorama</translation>
     </message>
     <message>
         <source>LPF Slope</source>
@@ -2180,11 +2172,11 @@
     </message>
     <message>
         <source>Voices</source>
-        <translation type="unfinished">Głosy</translation>
+        <translation>Głosy</translation>
     </message>
     <message>
         <source>FX</source>
-        <translation type="unfinished">FX</translation>
+        <translation>FX</translation>
     </message>
     <message>
         <source>Insert effects and sends for this voice</source>
@@ -2192,78 +2184,78 @@
     </message>
     <message>
         <source>Voice Settings</source>
-        <translation type="unfinished">Ustawienia głosu</translation>
+        <translation>Ustawienia głosu</translation>
     </message>
     <message>
         <source>Level</source>
-        <translation type="unfinished">Poziom</translation>
+        <translation>Poziom</translation>
     </message>
     <message>
         <source>LPF</source>
-        <translation type="unfinished">LPF</translation>
+        <translation>LPF</translation>
     </message>
     <message>
         <source>HPF</source>
-        <translation type="unfinished">HPF</translation>
+        <translation>HPF</translation>
     </message>
     <message>
         <source>Tune</source>
-        <translation type="unfinished">Strojenie</translation>
+        <translation>Strojenie</translation>
     </message>
     <message>
         <source>Decay</source>
-        <translation type="unfinished">Opadanie</translation>
+        <translation>Opadanie</translation>
     </message>
     <message>
         <source>Attack</source>
-        <translation type="unfinished">Atak</translation>
+        <translation>Atak</translation>
     </message>
     <message>
         <source>C.Tune</source>
-        <translation type="unfinished">C.Tune</translation>
+        <translation>C.Tune</translation>
     </message>
     <message>
         <source>P.Depth</source>
-        <translation type="unfinished">P.Głębokość</translation>
+        <translation>P.Głębokość</translation>
     </message>
     <message>
         <source>P.Decay</source>
-        <translation type="unfinished">P.Opadanie</translation>
+        <translation>P.Opadanie</translation>
     </message>
     <message>
         <source>Snappy</source>
-        <translation type="unfinished">Snappy</translation>
+        <translation>Snappy</translation>
     </message>
     <message>
         <source>Tone</source>
-        <translation type="unfinished">Barwa</translation>
+        <translation>Barwa</translation>
     </message>
     <message>
         <source>Reso</source>
-        <translation type="unfinished">Reso</translation>
+        <translation>Reso</translation>
     </message>
 </context>
 <context>
     <name>DrumSynthV2Dialog_AmpEg</name>
     <message>
         <source>Amp Envelope</source>
-        <translation type="unfinished">Obwiednia amplitudy</translation>
+        <translation>Obwiednia amplitudy</translation>
     </message>
     <message>
         <source>Attack</source>
-        <translation type="unfinished">Atak</translation>
+        <translation>Atak</translation>
     </message>
     <message>
         <source>Hold</source>
-        <translation type="unfinished">Przytrzymanie</translation>
+        <translation>Przytrzymanie</translation>
     </message>
     <message>
         <source>Decay</source>
-        <translation type="unfinished">Opadanie</translation>
+        <translation>Opadanie</translation>
     </message>
     <message>
         <source>Curve</source>
-        <translation type="unfinished">Krzywa</translation>
+        <translation>Krzywa</translation>
     </message>
 </context>
 <context>
@@ -2445,7 +2437,7 @@
     </message>
     <message>
         <source>Copy...</source>
-        <translation type="unfinished">Kopiuj...</translation>
+        <translation>Kopiuj...</translation>
     </message>
     <message>
         <source>Replace this automation with the settings of another one</source>
@@ -2575,7 +2567,7 @@
     </message>
     <message>
         <source>Copy...</source>
-        <translation type="unfinished">Kopiuj...</translation>
+        <translation>Kopiuj...</translation>
     </message>
     <message>
         <source>Replace this automation with the settings of another one</source>
@@ -2723,11 +2715,11 @@
     <name>EffectPresetRow</name>
     <message>
         <source>Preset:</source>
-        <translation type="unfinished">Preset:</translation>
+        <translation>Preset:</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">Zapisz</translation>
+        <translation>Zapisz</translation>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
@@ -2919,7 +2911,7 @@
     </message>
     <message>
         <source>Slope</source>
-        <translation type="unfinished">Nachylenie</translation>
+        <translation>Nachylenie</translation>
     </message>
 </context>
 <context>
@@ -3012,11 +3004,11 @@
     </message>
     <message>
         <source>Mode</source>
-        <translation type="unfinished">Tryb</translation>
+        <translation>Tryb</translation>
     </message>
     <message>
         <source>Rate</source>
-        <translation type="unfinished">Szybkość</translation>
+        <translation>Szybkość</translation>
     </message>
     <message>
         <source>How fast the sweep runs. In BPM mode it reads in beat divisions instead</source>
@@ -3024,7 +3016,7 @@
     </message>
     <message>
         <source>Rate Divider</source>
-        <translation type="unfinished">Dzielnik szybkości</translation>
+        <translation>Dzielnik szybkości</translation>
     </message>
     <message>
         <source>Divides the rate, so the sweep can crawl over several bars instead of over a second</source>
@@ -3032,7 +3024,7 @@
     </message>
     <message>
         <source>Delay</source>
-        <translation type="unfinished">Delay</translation>
+        <translation>Delay</translation>
     </message>
     <message>
         <source>Shortest delay the sweep reaches. Past ten milliseconds the copy stops combing and is heard as a chorus</source>
@@ -3040,7 +3032,7 @@
     </message>
     <message>
         <source>Depth</source>
-        <translation type="unfinished">Głębokość</translation>
+        <translation>Głębokość</translation>
     </message>
     <message>
         <source>How far above the Delay setting the sweep travels</source>
@@ -3048,7 +3040,7 @@
     </message>
     <message>
         <source>Feedback</source>
-        <translation type="unfinished">Sprzężenie</translation>
+        <translation>Sprzężenie</translation>
     </message>
     <message>
         <source>Sharpens the peaks between the notches. The sign matters as much as the amount: the two polarities comb at different frequencies</source>
@@ -3056,7 +3048,7 @@
     </message>
     <message>
         <source>Stereo Phase</source>
-        <translation type="unfinished">Faza stereo</translation>
+        <translation>Faza stereo</translation>
     </message>
     <message>
         <source>How far apart the two channels sweep</source>
@@ -3064,7 +3056,7 @@
     </message>
     <message>
         <source>Mix</source>
-        <translation type="unfinished">Mix</translation>
+        <translation>Mix</translation>
     </message>
     <message>
         <source>The comb is the sum of the dry and the delayed copy, so this is the depth of the notches rather than a convenience</source>
@@ -3075,11 +3067,11 @@
     <name>FmSynthDialog</name>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Anuluj</translation>
+        <translation>Anuluj</translation>
     </message>
     <message>
         <source>Operators</source>
@@ -3087,22 +3079,22 @@
     </message>
     <message>
         <source>Filter / Envelopes</source>
-        <translation type="unfinished">Filtr / obwiednie</translation>
+        <translation>Filtr / obwiednie</translation>
     </message>
     <message>
         <source>LFO / Effects</source>
-        <translation type="unfinished">LFO / efekty</translation>
+        <translation>LFO / efekty</translation>
     </message>
 </context>
 <context>
     <name>FmSynthDialog_Algorithm</name>
     <message>
         <source>Algorithm</source>
-        <translation type="unfinished">Algorytm</translation>
+        <translation>Algorytm</translation>
     </message>
     <message>
         <source>Feedback</source>
-        <translation type="unfinished">Sprzężenie</translation>
+        <translation>Sprzężenie</translation>
     </message>
     <message>
         <source>Feedback is on operator</source>
@@ -3117,77 +3109,77 @@
     </message>
     <message>
         <source>Attack</source>
-        <translation type="unfinished">Atak</translation>
+        <translation>Atak</translation>
     </message>
     <message>
         <source>Decay</source>
-        <translation type="unfinished">Opadanie</translation>
+        <translation>Opadanie</translation>
     </message>
     <message>
         <source>Sustain</source>
-        <translation type="unfinished">Podtrzymanie</translation>
+        <translation>Podtrzymanie</translation>
     </message>
     <message>
         <source>Release</source>
-        <translation type="unfinished">Zwolnienie</translation>
+        <translation>Zwolnienie</translation>
     </message>
     <message>
         <source>Curve</source>
-        <translation type="unfinished">Krzywa</translation>
+        <translation>Krzywa</translation>
     </message>
     <message>
         <source>Velocity Sensitivity</source>
-        <translation type="unfinished">Czułość velocity</translation>
+        <translation>Czułość velocity</translation>
     </message>
 </context>
 <context>
     <name>FmSynthDialog_Delay</name>
     <message>
         <source>Delay Effect</source>
-        <translation type="unfinished">Efekt delay</translation>
+        <translation>Efekt delay</translation>
     </message>
     <message>
         <source>Sync</source>
-        <translation type="unfinished">Sync</translation>
+        <translation>Sync</translation>
     </message>
     <message>
         <source>Time</source>
-        <translation type="unfinished">Czas</translation>
+        <translation>Czas</translation>
     </message>
     <message>
         <source>Feedback</source>
-        <translation type="unfinished">Sprzężenie</translation>
+        <translation>Sprzężenie</translation>
     </message>
     <message>
         <source>LPF</source>
-        <translation type="unfinished">LPF</translation>
+        <translation>LPF</translation>
     </message>
     <message>
         <source>HPF</source>
-        <translation type="unfinished">HPF</translation>
+        <translation>HPF</translation>
     </message>
     <message>
         <source>Depth</source>
-        <translation type="unfinished">Głębokość</translation>
+        <translation>Głębokość</translation>
     </message>
     <message>
         <source>Mix</source>
-        <translation type="unfinished">Mix</translation>
+        <translation>Mix</translation>
     </message>
 </context>
 <context>
     <name>FmSynthDialog_Filter</name>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">Filtr</translation>
+        <translation>Filtr</translation>
     </message>
     <message>
         <source>LPF Cutoff</source>
-        <translation type="unfinished">Odcięcie LPF</translation>
+        <translation>Odcięcie LPF</translation>
     </message>
     <message>
         <source>LPF Resonance</source>
-        <translation type="unfinished">Rezonans LPF</translation>
+        <translation>Rezonans LPF</translation>
     </message>
     <message>
         <source>LPF Slope</source>
@@ -3199,7 +3191,7 @@
     </message>
     <message>
         <source>HPF Cutoff</source>
-        <translation type="unfinished">Odcięcie HPF</translation>
+        <translation>Odcięcie HPF</translation>
     </message>
     <message>
         <source>HPF Slope</source>
@@ -3214,54 +3206,54 @@
     <name>FmSynthDialog_Global</name>
     <message>
         <source>Voice / Global</source>
-        <translation type="unfinished">Głos / globalne</translation>
+        <translation>Głos / globalne</translation>
     </message>
     <message>
         <source>Voice Depth</source>
-        <translation type="unfinished">Głębokość głosów</translation>
+        <translation>Głębokość głosów</translation>
     </message>
     <message>
         <source>Portamento</source>
-        <translation type="unfinished">Portamento</translation>
+        <translation>Portamento</translation>
     </message>
     <message>
         <source>Pan Spread</source>
-        <translation type="unfinished">Rozpiętość panoramy</translation>
+        <translation>Rozpiętość panoramy</translation>
     </message>
     <message>
         <source>Pitch Bend Range</source>
-        <translation type="unfinished">Zakres pitch bend</translation>
+        <translation>Zakres pitch bend</translation>
     </message>
     <message>
         <source>Gain</source>
-        <translation type="unfinished">Wzmocnienie</translation>
+        <translation>Wzmocnienie</translation>
     </message>
     <message>
         <source>Fader</source>
-        <translation type="unfinished">Suwak</translation>
+        <translation>Suwak</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished">Panorama</translation>
+        <translation>Panorama</translation>
     </message>
 </context>
 <context>
     <name>FmSynthDialog_Lfo1</name>
     <message>
         <source>LFO 1</source>
-        <translation type="unfinished">LFO 1</translation>
+        <translation>LFO 1</translation>
     </message>
     <message>
         <source>Rate</source>
-        <translation type="unfinished">Szybkość</translation>
+        <translation>Szybkość</translation>
     </message>
     <message>
         <source>Intensity</source>
-        <translation type="unfinished">Intensywność</translation>
+        <translation>Intensywność</translation>
     </message>
     <message>
         <source>Delay</source>
-        <translation type="unfinished">Delay</translation>
+        <translation>Delay</translation>
     </message>
     <message>
         <source>Fade</source>
@@ -3272,19 +3264,19 @@
     <name>FmSynthDialog_Lfo2</name>
     <message>
         <source>LFO 2</source>
-        <translation type="unfinished">LFO 2</translation>
+        <translation>LFO 2</translation>
     </message>
     <message>
         <source>Rate</source>
-        <translation type="unfinished">Szybkość</translation>
+        <translation>Szybkość</translation>
     </message>
     <message>
         <source>Intensity</source>
-        <translation type="unfinished">Intensywność</translation>
+        <translation>Intensywność</translation>
     </message>
     <message>
         <source>Delay</source>
-        <translation type="unfinished">Delay</translation>
+        <translation>Delay</translation>
     </message>
     <message>
         <source>Fade</source>
@@ -3295,27 +3287,27 @@
     <name>FmSynthDialog_ModEg</name>
     <message>
         <source>Mod EG</source>
-        <translation type="unfinished">Mod EG</translation>
+        <translation>Mod EG</translation>
     </message>
     <message>
         <source>Attack</source>
-        <translation type="unfinished">Atak</translation>
+        <translation>Atak</translation>
     </message>
     <message>
         <source>Decay</source>
-        <translation type="unfinished">Opadanie</translation>
+        <translation>Opadanie</translation>
     </message>
     <message>
         <source>Sustain</source>
-        <translation type="unfinished">Podtrzymanie</translation>
+        <translation>Podtrzymanie</translation>
     </message>
     <message>
         <source>Intensity</source>
-        <translation type="unfinished">Intensywność</translation>
+        <translation>Intensywność</translation>
     </message>
     <message>
         <source>Curve</source>
-        <translation type="unfinished">Krzywa</translation>
+        <translation>Krzywa</translation>
     </message>
 </context>
 <context>
@@ -3338,19 +3330,19 @@
     </message>
     <message>
         <source>Ratio</source>
-        <translation type="unfinished">Proporcja</translation>
+        <translation>Proporcja</translation>
     </message>
     <message>
         <source>Detune</source>
-        <translation type="unfinished">Rozstrojenie</translation>
+        <translation>Rozstrojenie</translation>
     </message>
     <message>
         <source>Level</source>
-        <translation type="unfinished">Poziom</translation>
+        <translation>Poziom</translation>
     </message>
     <message>
         <source>Velocity Sensitivity</source>
-        <translation type="unfinished">Czułość velocity</translation>
+        <translation>Czułość velocity</translation>
     </message>
     <message>
         <source>Key Scale</source>
@@ -3358,26 +3350,26 @@
     </message>
     <message>
         <source>Envelope</source>
-        <translation type="unfinished">Obwiednia</translation>
+        <translation>Obwiednia</translation>
     </message>
     <message>
         <source>Attack</source>
-        <translation type="unfinished">Atak</translation>
+        <translation>Atak</translation>
     </message>
     <message>
         <source>Decay</source>
-        <translation type="unfinished">Opadanie</translation>
+        <translation>Opadanie</translation>
     </message>
     <message>
         <source>Sustain</source>
-        <translation type="unfinished">Podtrzymanie</translation>
+        <translation>Podtrzymanie</translation>
     </message>
 </context>
 <context>
     <name>FmSynthDialog_Presets</name>
     <message>
         <source>Preset:</source>
-        <translation type="unfinished">Preset:</translation>
+        <translation>Preset:</translation>
     </message>
     <message>
         <source>Randomize</source>
@@ -3385,7 +3377,7 @@
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">Zapisz</translation>
+        <translation>Zapisz</translation>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
@@ -3413,10 +3405,6 @@
     <message>
         <source>Ok</source>
         <translation>OK</translation>
-    </message>
-    <message>
-        <source>dB</source>
-        <translation>dB</translation>
     </message>
 </context>
 <context>
@@ -3454,7 +3442,7 @@
     </message>
     <message>
         <source>Threshold</source>
-        <translation type="unfinished">Próg</translation>
+        <translation>Próg</translation>
     </message>
     <message>
         <source>Below this the gate closes. It opens again six dB higher, so a level wobbling about it cannot rattle the gate</source>
@@ -3462,7 +3450,7 @@
     </message>
     <message>
         <source>Ratio</source>
-        <translation type="unfinished">Proporcja</translation>
+        <translation>Proporcja</translation>
     </message>
     <message>
         <source>How steeply the level falls away below the threshold. Low is an expander leaning on the quiet parts, high is a gate that slams</source>
@@ -3478,7 +3466,7 @@
     </message>
     <message>
         <source>Attack</source>
-        <translation type="unfinished">Atak</translation>
+        <translation>Atak</translation>
     </message>
     <message>
         <source>How fast it opens. Slow enough and the front of every hit is swallowed</source>
@@ -3486,7 +3474,7 @@
     </message>
     <message>
         <source>Hold</source>
-        <translation type="unfinished">Przytrzymanie</translation>
+        <translation>Przytrzymanie</translation>
     </message>
     <message>
         <source>How long it stays open after the level falls away, which is what stops it chattering</source>
@@ -3494,7 +3482,7 @@
     </message>
     <message>
         <source>Release</source>
-        <translation type="unfinished">Zwolnienie</translation>
+        <translation>Zwolnienie</translation>
     </message>
     <message>
         <source>How fast it closes once the hold has run out</source>
@@ -5404,7 +5392,7 @@
     <name>OutputMeter</name>
     <message>
         <source>Level</source>
-        <translation type="unfinished">Poziom</translation>
+        <translation>Poziom</translation>
     </message>
     <message>
         <source>Loudness</source>
@@ -5896,7 +5884,7 @@
     </message>
     <message>
         <source>Amount</source>
-        <translation type="unfinished">Ilość</translation>
+        <translation>Ilość</translation>
     </message>
     <message>
         <source>How far from this room towards that one. At zero the mix is heard as it is</source>
@@ -5920,7 +5908,7 @@
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished">Wyjście</translation>
+        <translation>Wyjście</translation>
     </message>
 </context>
 <context>
@@ -6192,7 +6180,7 @@
     </message>
     <message>
         <source>Curve</source>
-        <translation type="unfinished">Krzywa</translation>
+        <translation>Krzywa</translation>
     </message>
 </context>
 <context>
@@ -7324,7 +7312,7 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>Line</source>
-        <translation type="unfinished">Wiersz</translation>
+        <translation>Wiersz</translation>
     </message>
     <message>
         <source>A note speaks the whole phrase.</source>
@@ -7376,7 +7364,7 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>Portamento</source>
-        <translation type="unfinished">Portamento</translation>
+        <translation>Portamento</translation>
     </message>
     <message>
         <source>Hold a note on one column and play the melody on another: the second column moves the pitch without starting the next line.</source>
@@ -8320,41 +8308,41 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     <name>StringVoiceV3Dialog</name>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Anuluj</translation>
+        <translation>Anuluj</translation>
     </message>
 </context>
 <context>
     <name>StringVoiceV3Dialog_Balance</name>
     <message>
         <source>Balance</source>
-        <translation type="unfinished">Balans</translation>
+        <translation>Balans</translation>
     </message>
     <message>
         <source>One level per section, so the two can be balanced without re-tuning each footage.</source>
-        <translation type="unfinished">Jeden poziom na sekcję, aby dało się je zrównoważyć bez ponownego strojenia każdej stopy.</translation>
+        <translation>Jeden poziom na sekcję, aby dało się je zrównoważyć bez ponownego strojenia każdej stopy.</translation>
     </message>
     <message>
         <source>Human Voice</source>
-        <translation type="unfinished">Głos ludzki</translation>
+        <translation>Głos ludzki</translation>
     </message>
     <message>
         <source>Strings</source>
-        <translation type="unfinished">Smyczki</translation>
+        <translation>Smyczki</translation>
     </message>
 </context>
 <context>
     <name>StringVoiceV3Dialog_Ensemble</name>
     <message>
         <source>Ensemble Chorus</source>
-        <translation type="unfinished">Chorus ensemble</translation>
+        <translation>Chorus ensemble</translation>
     </message>
     <message>
         <source>Enable Ensemble</source>
-        <translation type="unfinished">Włącz ensemble</translation>
+        <translation>Włącz ensemble</translation>
     </message>
     <message>
         <source>Applies to the Voice section only, as on the hardware. The Strings have a chorus of their own that is always on.</source>
@@ -8366,135 +8354,135 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>Mode:</source>
-        <translation type="unfinished">Tryb:</translation>
+        <translation>Tryb:</translation>
     </message>
     <message>
         <source>Chorus I</source>
-        <translation type="unfinished">Chorus I</translation>
+        <translation>Chorus I</translation>
     </message>
     <message>
         <source>Chorus II</source>
-        <translation type="unfinished">Chorus II</translation>
+        <translation>Chorus II</translation>
     </message>
     <message>
         <source>Chorus I + II</source>
-        <translation type="unfinished">Chorus I + II</translation>
+        <translation>Chorus I + II</translation>
     </message>
     <message>
         <source>Vibrato</source>
-        <translation type="unfinished">Vibrato</translation>
+        <translation>Vibrato</translation>
     </message>
     <message>
         <source>Rate</source>
-        <translation type="unfinished">Szybkość</translation>
+        <translation>Szybkość</translation>
     </message>
     <message>
         <source>Depth</source>
-        <translation type="unfinished">Głębokość</translation>
+        <translation>Głębokość</translation>
     </message>
     <message>
         <source>Delay</source>
-        <translation type="unfinished">Delay</translation>
+        <translation>Delay</translation>
     </message>
 </context>
 <context>
     <name>StringVoiceV3Dialog_Global</name>
     <message>
         <source>Global</source>
-        <translation type="unfinished">Globalne</translation>
+        <translation>Globalne</translation>
     </message>
     <message>
         <source>Gain</source>
-        <translation type="unfinished">Wzmocnienie</translation>
+        <translation>Wzmocnienie</translation>
     </message>
     <message>
         <source>Fader</source>
-        <translation type="unfinished">Suwak</translation>
+        <translation>Suwak</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished">Panorama</translation>
+        <translation>Panorama</translation>
     </message>
     <message>
         <source>Pan Spread</source>
-        <translation type="unfinished">Rozpiętość panoramy</translation>
+        <translation>Rozpiętość panoramy</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">Filtr</translation>
+        <translation>Filtr</translation>
     </message>
     <message>
         <source>LPF Cutoff</source>
-        <translation type="unfinished">Odcięcie LPF</translation>
+        <translation>Odcięcie LPF</translation>
     </message>
     <message>
         <source>HPF Cutoff</source>
-        <translation type="unfinished">Odcięcie HPF</translation>
+        <translation>Odcięcie HPF</translation>
     </message>
 </context>
 <context>
     <name>StringVoiceV3Dialog_Strings</name>
     <message>
         <source>Strings Section</source>
-        <translation type="unfinished">Sekcja smyczkowa</translation>
+        <translation>Sekcja smyczkowa</translation>
     </message>
     <message>
         <source>Upper</source>
-        <translation type="unfinished">Górny</translation>
+        <translation>Górny</translation>
     </message>
     <message>
         <source>Lower</source>
-        <translation type="unfinished">Dolny</translation>
+        <translation>Dolny</translation>
     </message>
     <message>
         <source>Tone</source>
-        <translation type="unfinished">Barwa</translation>
+        <translation>Barwa</translation>
     </message>
     <message>
         <source>Attack Time</source>
-        <translation type="unfinished">Czas ataku</translation>
+        <translation>Czas ataku</translation>
     </message>
     <message>
         <source>Release Time</source>
-        <translation type="unfinished">Czas zwolnienia</translation>
+        <translation>Czas zwolnienia</translation>
     </message>
 </context>
 <context>
     <name>StringVoiceV3Dialog_Velocity</name>
     <message>
         <source>Velocity</source>
-        <translation type="unfinished">Velocity</translation>
+        <translation>Velocity</translation>
     </message>
     <message>
         <source>How far both sections follow how hard a key is struck. Fully down they ignore it.</source>
-        <translation type="unfinished">Jak mocno obie sekcje podążają za siłą uderzenia w klawisz. Na minimum ją ignorują.</translation>
+        <translation>Jak mocno obie sekcje podążają za siłą uderzenia w klawisz. Na minimum ją ignorują.</translation>
     </message>
     <message>
         <source>Velocity Sensitivity</source>
-        <translation type="unfinished">Czułość velocity</translation>
+        <translation>Czułość velocity</translation>
     </message>
 </context>
 <context>
     <name>StringVoiceV3Dialog_Vocoder</name>
     <message>
         <source>Vocoder</source>
-        <translation type="unfinished">Wokoder</translation>
+        <translation>Wokoder</translation>
     </message>
     <message>
         <source>Enable Vocoder</source>
-        <translation type="unfinished">Włącz wokoder</translation>
+        <translation>Włącz wokoder</translation>
     </message>
     <message>
         <source>Modulator:</source>
-        <translation type="unfinished">Modulator:</translation>
+        <translation>Modulator:</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">Brak</translation>
+        <translation>Brak</translation>
     </message>
     <message>
         <source>Device %1</source>
-        <translation type="unfinished">Urządzenie %1</translation>
+        <translation>Urządzenie %1</translation>
     </message>
     <message>
         <source>Device %1: %2</source>
@@ -8509,39 +8497,39 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     <name>StringVoiceV3Dialog_Voice</name>
     <message>
         <source>Voice Section</source>
-        <translation type="unfinished">Sekcja głosu</translation>
+        <translation>Sekcja głosu</translation>
     </message>
     <message>
         <source>Lower (below C4)</source>
-        <translation type="unfinished">Dolny (poniżej C4)</translation>
+        <translation>Dolny (poniżej C4)</translation>
     </message>
     <message>
         <source>Male 8&apos;</source>
-        <translation type="unfinished">Męski 8&apos;</translation>
+        <translation>Męski 8&apos;</translation>
     </message>
     <message>
         <source>Male 4&apos;</source>
-        <translation type="unfinished">Męski 4&apos;</translation>
+        <translation>Męski 4&apos;</translation>
     </message>
     <message>
         <source>Upper (C4 and above)</source>
-        <translation type="unfinished">Górny (C4 i wyżej)</translation>
+        <translation>Górny (C4 i wyżej)</translation>
     </message>
     <message>
         <source>Female 4&apos;</source>
-        <translation type="unfinished">Żeński 4&apos;</translation>
+        <translation>Żeński 4&apos;</translation>
     </message>
     <message>
         <source>The female voice sounds only above the split, an octave up, as on the hardware.</source>
-        <translation type="unfinished">Głos żeński brzmi tylko powyżej punktu podziału, oktawę wyżej, tak jak w sprzęcie.</translation>
+        <translation>Głos żeński brzmi tylko powyżej punktu podziału, oktawę wyżej, tak jak w sprzęcie.</translation>
     </message>
     <message>
         <source>Attack Time</source>
-        <translation type="unfinished">Czas ataku</translation>
+        <translation>Czas ataku</translation>
     </message>
     <message>
         <source>Release Time</source>
-        <translation type="unfinished">Czas zwolnienia</translation>
+        <translation>Czas zwolnienia</translation>
     </message>
 </context>
 <context>
@@ -8723,7 +8711,7 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>Drive</source>
-        <translation type="unfinished">Drive</translation>
+        <translation>Drive</translation>
     </message>
     <message>
         <source>How hard the low pass is driven. The peaks and the resonance fold inside the filter rather than in front of it, so the tone thickens and the resonant peak compresses instead of tearing. At zero the filter is the clean one every patch was made on.</source>
@@ -8828,7 +8816,7 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>Delay</source>
-        <translation type="unfinished">Delay</translation>
+        <translation>Delay</translation>
     </message>
     <message>
         <source>Fade</source>
@@ -8851,7 +8839,7 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>Delay</source>
-        <translation type="unfinished">Delay</translation>
+        <translation>Delay</translation>
     </message>
     <message>
         <source>Fade</source>
@@ -8908,7 +8896,7 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     <name>SynthDialog_Presets</name>
     <message>
         <source>Save</source>
-        <translation type="unfinished">Zapisz</translation>
+        <translation>Zapisz</translation>
     </message>
     <message>
         <source>Save the current settings as a preset of your own</source>
@@ -8967,7 +8955,7 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>LPF Cutoff</source>
-        <translation type="unfinished">Odcięcie LPF</translation>
+        <translation>Odcięcie LPF</translation>
     </message>
     <message>
         <source>Rolls the top off this oscillator alone, before it reaches the mix and the voice&apos;s own filter.</source>
@@ -8975,11 +8963,11 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>LPF Resonance</source>
-        <translation type="unfinished">Rezonans LPF</translation>
+        <translation>Rezonans LPF</translation>
     </message>
     <message>
         <source>HPF Cutoff</source>
-        <translation type="unfinished">Odcięcie HPF</translation>
+        <translation>Odcięcie HPF</translation>
     </message>
     <message>
         <source>Thins out this oscillator alone, which is how one is made to sit under another rather than against it.</source>
@@ -8987,7 +8975,7 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">Filtr</translation>
+        <translation>Filtr</translation>
     </message>
 </context>
 <context>
@@ -9030,7 +9018,7 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>LPF Cutoff</source>
-        <translation type="unfinished">Odcięcie LPF</translation>
+        <translation>Odcięcie LPF</translation>
     </message>
     <message>
         <source>Rolls the top off this oscillator alone, before it reaches the mix and the voice&apos;s own filter.</source>
@@ -9038,11 +9026,11 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>LPF Resonance</source>
-        <translation type="unfinished">Rezonans LPF</translation>
+        <translation>Rezonans LPF</translation>
     </message>
     <message>
         <source>HPF Cutoff</source>
-        <translation type="unfinished">Odcięcie HPF</translation>
+        <translation>Odcięcie HPF</translation>
     </message>
     <message>
         <source>Thins out this oscillator alone, which is how one is made to sit under another rather than against it.</source>
@@ -9050,7 +9038,7 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">Filtr</translation>
+        <translation>Filtr</translation>
     </message>
 </context>
 <context>
@@ -9089,7 +9077,7 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>LPF Cutoff</source>
-        <translation type="unfinished">Odcięcie LPF</translation>
+        <translation>Odcięcie LPF</translation>
     </message>
     <message>
         <source>Rolls the top off this oscillator alone, before it reaches the mix and the voice&apos;s own filter.</source>
@@ -9097,11 +9085,11 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>LPF Resonance</source>
-        <translation type="unfinished">Rezonans LPF</translation>
+        <translation>Rezonans LPF</translation>
     </message>
     <message>
         <source>HPF Cutoff</source>
-        <translation type="unfinished">Odcięcie HPF</translation>
+        <translation>Odcięcie HPF</translation>
     </message>
     <message>
         <source>Thins out this oscillator alone, which is how one is made to sit under another rather than against it.</source>
@@ -9109,7 +9097,7 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">Filtr</translation>
+        <translation>Filtr</translation>
     </message>
 </context>
 <context>
@@ -9120,19 +9108,19 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>Pitch</source>
-        <translation type="unfinished">Wysokość</translation>
+        <translation>Wysokość</translation>
     </message>
     <message>
         <source>Shape</source>
-        <translation type="unfinished">Kształt</translation>
+        <translation>Kształt</translation>
     </message>
     <message>
         <source>Roundness</source>
-        <translation type="unfinished">Zaokrąglenie</translation>
+        <translation>Zaokrąglenie</translation>
     </message>
     <message>
         <source>Level</source>
-        <translation type="unfinished">Poziom</translation>
+        <translation>Poziom</translation>
     </message>
     <message>
         <source>Hard Sync to VCO3</source>
@@ -9148,7 +9136,7 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>LPF Cutoff</source>
-        <translation type="unfinished">Odcięcie LPF</translation>
+        <translation>Odcięcie LPF</translation>
     </message>
     <message>
         <source>Rolls the top off this oscillator alone, before it reaches the mix and the voice&apos;s own filter.</source>
@@ -9156,11 +9144,11 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>LPF Resonance</source>
-        <translation type="unfinished">Rezonans LPF</translation>
+        <translation>Rezonans LPF</translation>
     </message>
     <message>
         <source>HPF Cutoff</source>
-        <translation type="unfinished">Odcięcie HPF</translation>
+        <translation>Odcięcie HPF</translation>
     </message>
     <message>
         <source>Thins out this oscillator alone, which is how one is made to sit under another rather than against it.</source>
@@ -9168,7 +9156,7 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">Filtr</translation>
+        <translation>Filtr</translation>
     </message>
 </context>
 <context>
@@ -9508,11 +9496,11 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>Waveform</source>
-        <translation type="unfinished">Kształt fali</translation>
+        <translation>Kształt fali</translation>
     </message>
     <message>
         <source>Depth</source>
-        <translation type="unfinished">Głębokość</translation>
+        <translation>Głębokość</translation>
     </message>
     <message>
         <source>How much level the deepest point takes away. The loudest the tremolo ever is equals the signal that went in</source>
@@ -9520,7 +9508,7 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>Stereo Phase</source>
-        <translation type="unfinished">Faza stereo</translation>
+        <translation>Faza stereo</translation>
     </message>
     <message>
         <source>At zero both channels duck together. At a hundred and eighty they duck in opposition, and the sound swings between the speakers</source>
@@ -9528,7 +9516,7 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>Rate</source>
-        <translation type="unfinished">Szybkość</translation>
+        <translation>Szybkość</translation>
     </message>
     <message>
         <source>Used when Sync is off</source>
@@ -9536,7 +9524,7 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>Rate Divider</source>
-        <translation type="unfinished">Dzielnik szybkości</translation>
+        <translation>Dzielnik szybkości</translation>
     </message>
     <message>
         <source>Divides the rate in both modes, so the tremolo can breathe over bars rather than beats</source>
@@ -9818,7 +9806,7 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>Delay</source>
-        <translation type="unfinished">Delay</translation>
+        <translation>Delay</translation>
     </message>
     <message>
         <source>Fade</source>
@@ -9841,7 +9829,7 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>Delay</source>
-        <translation type="unfinished">Delay</translation>
+        <translation>Delay</translation>
     </message>
     <message>
         <source>Fade</source>
@@ -10163,35 +10151,35 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     <name>noteahead::FmSynthController</name>
     <message>
         <source>Poly</source>
-        <translation type="unfinished">Poly</translation>
+        <translation>Poly</translation>
     </message>
     <message>
         <source>Unison</source>
-        <translation type="unfinished">Unisono</translation>
+        <translation>Unisono</translation>
     </message>
     <message>
         <source>Dual</source>
-        <translation type="unfinished">Podwójny</translation>
+        <translation>Podwójny</translation>
     </message>
     <message>
         <source>Supersaw</source>
-        <translation type="unfinished">Supersaw</translation>
+        <translation>Supersaw</translation>
     </message>
     <message>
         <source>Drift</source>
-        <translation type="unfinished">Dryf</translation>
+        <translation>Dryf</translation>
     </message>
     <message>
         <source>Mono</source>
-        <translation type="unfinished">Mono</translation>
+        <translation>Mono</translation>
     </message>
     <message>
         <source>Cutoff</source>
-        <translation type="unfinished">Odcięcie</translation>
+        <translation>Odcięcie</translation>
     </message>
     <message>
         <source>Pitch</source>
-        <translation type="unfinished">Wysokość</translation>
+        <translation>Wysokość</translation>
     </message>
     <message>
         <source>Mod Index</source>
@@ -10199,31 +10187,31 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
     <message>
         <source>Feedback</source>
-        <translation type="unfinished">Sprzężenie</translation>
+        <translation>Sprzężenie</translation>
     </message>
     <message>
         <source>Normal</source>
-        <translation type="unfinished">Normalna</translation>
+        <translation>Normalna</translation>
     </message>
     <message>
         <source>BPM</source>
-        <translation type="unfinished">BPM</translation>
+        <translation>BPM</translation>
     </message>
     <message>
         <source>1-Shot</source>
-        <translation type="unfinished">One-shot</translation>
+        <translation>One-shot</translation>
     </message>
     <message>
         <source>Volume</source>
-        <translation type="unfinished">Głośność</translation>
+        <translation>Głośność</translation>
     </message>
     <message>
         <source>Resonance</source>
-        <translation type="unfinished">Rezonans</translation>
+        <translation>Rezonans</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished">Panorama</translation>
+        <translation>Panorama</translation>
     </message>
 </context>
 <context>
