@@ -189,6 +189,46 @@ void DrumSynthV2Test::test_ampEnvelope_closed_shouldStopTheVoiceRendering()
     QVERIFY2(!device.hasActiveAudio(), "the voice kept rendering after its envelope had closed");
 }
 
+void DrumSynthV2Test::test_ampEnvelope_curve_shouldBendTheVoicesDecay()
+{
+    // The envelope's own curve is covered in drum_amp_envelope_test. What this covers is the wiring:
+    // that the per-voice parameter actually reaches the envelope the voice is played through, which
+    // no amount of the DSP being correct would tell us.
+    const DrumSynthV2Device notes { "Notes" };
+    const auto kick = static_cast<int>(DrumSynthV2::VoiceIndex::Kick);
+    const auto kickNote = notes.voiceNote(kick);
+
+    const auto levelPartWayIntoTheDecay = [&](float curve) {
+        DrumSynthV2Device device { "Test" };
+        // A hold short enough that the decay is under way well inside the render, and a decay long
+        // enough that a straight one is still going at the end of it.
+        device.updateVoiceParameter(kick, Constants::NahdXml::xmlKeyAmpHold().toStdString(), 0.05f);
+        device.updateVoiceParameter(kick, Constants::NahdXml::xmlKeyAmpDecay().toStdString(), 0.75f);
+        device.updateVoiceParameter(kick, Constants::NahdXml::xmlKeyAmpCurve().toStdString(), curve);
+        device.processMidiNoteOn(kickNote, 100);
+
+        std::vector<double> buffer(frameCount * 2, 0.0);
+        double peak = 0.0;
+        for (int block = 0; block < 4; block++) {
+            std::fill(buffer.begin(), buffer.end(), 0.0);
+            AudioContext context { std::span(buffer.data(), buffer.size()), frameCount, sampleRate };
+            device.processAudio(context);
+        }
+        // The last block, by which point the decay has had a while to separate the two shapes.
+        for (uint32_t i = 0; i < frameCount; i++) {
+            peak = std::max(peak, std::max(std::abs(buffer[i * 2]), std::abs(buffer[i * 2 + 1])));
+        }
+        return peak;
+    };
+
+    const auto straight = levelPartWayIntoTheDecay(0.0f);
+    const auto bent = levelPartWayIntoTheDecay(1.0f);
+
+    QVERIFY2(straight > 0.0, "the straight decay had already finished, so there is nothing to compare");
+    QVERIFY2(bent < straight * 0.5,
+             qPrintable(QString { "the voice's curve did not reach its envelope: %1 vs %2" }.arg(bent).arg(straight)));
+}
+
 void DrumSynthV2Test::test_drumSynthV2Device_xmlSerialization_shouldRestoreParameters()
 {
     DrumSynthV2Device device { "Test" };
