@@ -158,6 +158,11 @@ QString ApplicationService::drumSynthDeviceName() const
     return Constants::drumSynthDeviceName();
 }
 
+QString ApplicationService::drumSynthV2DeviceName() const
+{
+    return Constants::drumSynthV2DeviceName();
+}
+
 QString ApplicationService::pianoSynthDeviceName() const
 {
     return Constants::pianoSynthDeviceName();

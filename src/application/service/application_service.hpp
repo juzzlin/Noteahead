@@ -46,6 +46,7 @@ class ApplicationService : public QObject
     Q_PROPERTY(QString fmSynthDeviceName READ fmSynthDeviceName CONSTANT)
     Q_PROPERTY(QString bassSynthDeviceName READ bassSynthDeviceName CONSTANT)
     Q_PROPERTY(QString drumSynthDeviceName READ drumSynthDeviceName CONSTANT)
+    Q_PROPERTY(QString drumSynthV2DeviceName READ drumSynthV2DeviceName CONSTANT)
     Q_PROPERTY(QString pianoSynthDeviceName READ pianoSynthDeviceName CONSTANT)
     Q_PROPERTY(QString pianoSynthV2DeviceName READ pianoSynthV2DeviceName CONSTANT)
     Q_PROPERTY(QString pianoSynthV3DeviceName READ pianoSynthV3DeviceName CONSTANT)
@@ -86,6 +87,7 @@ public:
     Q_INVOKABLE QString fmSynthDeviceName() const;
     Q_INVOKABLE QString bassSynthDeviceName() const;
     Q_INVOKABLE QString drumSynthDeviceName() const;
+    Q_INVOKABLE QString drumSynthV2DeviceName() const;
     Q_INVOKABLE QString pianoSynthDeviceName() const;
     Q_INVOKABLE QString pianoSynthV2DeviceName() const;
     Q_INVOKABLE QString pianoSynthV3DeviceName() const;

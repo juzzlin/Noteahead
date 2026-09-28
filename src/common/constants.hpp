@@ -84,6 +84,7 @@ QString synthDeviceName();
 QString wavetableSynthDeviceName();
 QString bassSynthDeviceName();
 QString drumSynthDeviceName();
+QString drumSynthV2DeviceName();
 QString pianoSynthDeviceName();
 QString pianoSynthV2DeviceName();
 QString pianoSynthV3DeviceName();
@@ -702,6 +703,7 @@ QString xmlKeyVcoHpfSlope(size_t vcoIndex);
 
 QString xmlKeyAmpAttack();
 QString xmlKeyAmpDecay();
+QString xmlKeyAmpHold();
 QString xmlKeyAmpSustain();
 QString xmlKeyAmpRelease();
 QString xmlKeyAmpVelocitySensitivity();

@@ -116,6 +116,8 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/DimensionDialog.qml
     ${QML_BASE_DIR}/Dialogs/DriveDialog.qml
     ${QML_BASE_DIR}/Dialogs/DrumSynthDialog.qml
+    ${QML_BASE_DIR}/Dialogs/DrumSynthV2Dialog.qml
+    ${QML_BASE_DIR}/Dialogs/DrumSynthV2Dialog_AmpEg.qml
     ${QML_BASE_DIR}/Dialogs/EditMidiCcAutomationsDelegate.qml
     ${QML_BASE_DIR}/Dialogs/EditMidiCcAutomationsDialog.qml
     ${QML_BASE_DIR}/Dialogs/EditPitchBendAutomationsDelegate.qml

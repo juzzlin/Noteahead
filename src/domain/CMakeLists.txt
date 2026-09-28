@@ -5,6 +5,8 @@ set(HEADER_FILES
     devices/device_factory.hpp
     devices/drum_synth_constants.hpp
     devices/drum_synth_device.hpp
+    devices/drum_synth_v2_constants.hpp
+    devices/drum_synth_v2_device.hpp
     devices/fm_synth_device.hpp
     devices/fm_synth_presets.hpp
     devices/kick_808_device.hpp
@@ -31,6 +33,7 @@ set(HEADER_FILES
     dsp/diode_ladder_filter.hpp
     dsp/drum/clap_engine.hpp
     dsp/drum/crash_engine.hpp
+    dsp/drum/drum_amp_envelope.hpp
     dsp/drum/drum_engine.hpp
     dsp/drum/hihat_engine.hpp
     dsp/drum/kick_808_engine.hpp
@@ -159,6 +162,8 @@ set(SOURCE_FILES
     devices/device_registration.cpp
     devices/drum_synth_constants.cpp
     devices/drum_synth_device.cpp
+    devices/drum_synth_v2_constants.cpp
+    devices/drum_synth_v2_device.cpp
     devices/fm_synth_device.cpp
     devices/fm_synth_presets.cpp
     devices/kick_808_device.cpp
@@ -186,6 +191,7 @@ set(SOURCE_FILES
     dsp/divide_down_generator.cpp
     dsp/drum/clap_engine.cpp
     dsp/drum/crash_engine.cpp
+    dsp/drum/drum_amp_envelope.cpp
     dsp/drum/hihat_engine.cpp
     dsp/drum/kick_808_engine.cpp
     dsp/drum/kick_engine.cpp

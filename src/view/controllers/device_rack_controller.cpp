@@ -21,6 +21,7 @@
 #include "../../domain/devices/bass_synth_device.hpp"
 #include "../../domain/devices/device_factory.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
+#include "../../domain/devices/drum_synth_v2_device.hpp"
 #include "../../domain/devices/fm_synth_device.hpp"
 #include "../../domain/devices/kick_808_device.hpp"
 #include "../../domain/devices/piano_synth_device.hpp"
@@ -167,6 +168,8 @@ void DeviceRackController::openDevice(const QString & name)
                     emit bassSynthDialogRequested();
                 } else if (typeId == DrumSynthDevice::typeIdString()) {
                     emit drumSynthDialogRequested();
+                } else if (typeId == DrumSynthV2Device::typeIdString()) {
+                    emit drumSynthV2DialogRequested();
                 } else if (typeId == PianoSynthDevice::typeIdString()) {
                     emit pianoSynthDialogRequested();
                 } else if (typeId == PianoSynthV2Device::typeIdString()) {
@@ -491,6 +494,7 @@ QVariantList DeviceRackController::availableDevices() const
     addDevice("FM Synth", QString::fromStdString(FmSynthDevice::typeIdString()));
     addDevice("Bass Synth", QString::fromStdString(BassSynthDevice::typeIdString()));
     addDevice("Drum Synth", QString::fromStdString(DrumSynthDevice::typeIdString()));
+    addDevice("Drum Synth V2", QString::fromStdString(DrumSynthV2Device::typeIdString()));
     addDevice("Piano Synth", QString::fromStdString(PianoSynthDevice::typeIdString()));
     addDevice("Piano Synth V2", QString::fromStdString(PianoSynthV2Device::typeIdString()));
     addDevice("Piano Synth V3", QString::fromStdString(PianoSynthV3Device::typeIdString()));
@@ -653,6 +657,16 @@ void DeviceRackController::addDrumSynth()
     for (int i = 0; i < deviceCount(); i++) {
         if (!m_deviceService->device(static_cast<size_t>(i))) {
             setDevice(i, QString::fromStdString(DrumSynthDevice::typeIdString()));
+            return;
+        }
+    }
+}
+
+void DeviceRackController::addDrumSynthV2()
+{
+    for (int i = 0; i < deviceCount(); i++) {
+        if (!m_deviceService->device(static_cast<size_t>(i))) {
+            setDevice(i, QString::fromStdString(DrumSynthV2Device::typeIdString()));
             return;
         }
     }

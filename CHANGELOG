@@ -1,3 +1,17 @@
+x.y.z
+=====
+
+Release date:
+
+New features:
+
+* Drum Synth V2
+  - A second Drum Synth to build on. The original is untouched, so every kit in
+    an existing project keeps playing exactly as it did
+
+  - An amp envelope per voice: Attack, Hold, Decay and Curve, riding on top of
+    what the voice already plays. Pull Hold down and the drum tightens
+
 8.0.0
 =====
 

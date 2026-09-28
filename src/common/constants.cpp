@@ -174,6 +174,11 @@ QString drumSynthDeviceName()
     return "Noteahead DrumSynth";
 }
 
+QString drumSynthV2DeviceName()
+{
+    return "Noteahead DrumSynth V2";
+}
+
 QString pianoSynthDeviceName()
 {
     return "Noteahead PianoSynth";
@@ -2243,6 +2248,11 @@ QString xmlKeyAmpAttack()
 QString xmlKeyAmpDecay()
 {
     return "ampDecay";
+}
+
+QString xmlKeyAmpHold()
+{
+    return "ampHold";
 }
 
 QString xmlKeyAmpSustain()

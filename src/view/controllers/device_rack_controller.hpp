@@ -155,6 +155,7 @@ public:
     Q_INVOKABLE void addWavetableSynth();
     Q_INVOKABLE void addBassSynth();
     Q_INVOKABLE void addDrumSynth();
+    Q_INVOKABLE void addDrumSynthV2();
     Q_INVOKABLE void addPianoSynth();
     Q_INVOKABLE void addPianoSynthV2();
     Q_INVOKABLE void addPianoSynthV3();
@@ -176,6 +177,7 @@ signals:
     void fmSynthDialogRequested();
     void bassSynthDialogRequested();
     void drumSynthDialogRequested();
+    void drumSynthV2DialogRequested();
     void pianoSynthDialogRequested();
     void pianoSynthV2DialogRequested();
     void pianoSynthV3DialogRequested();
