@@ -105,15 +105,14 @@ GridView {
                 ToolTip.visible: isLoaded && containsMouse
                 ToolTip.text: filePath
 
+                // Selecting a pad and filling it are two different intentions, and only one of them
+                // should interrupt you with a file dialog. An empty pad has to be selectable on its
+                // own now that it can be recorded into: opening a file browser over the top of that
+                // means cancelling it before you can press record.
                 onPressed: mouse => {
                     samplerController.selectedPad = index;
-                    if (mouse.button === Qt.LeftButton) {
-                        if (isLoaded) {
-                            samplerController.playSample(index, 1.0);
-                        } else if (fileDialog) {
-                            fileDialog.padToAssign = index;
-                            fileDialog.open();
-                        }
+                    if (mouse.button === Qt.LeftButton && isLoaded) {
+                        samplerController.playSample(index, 1.0);
                     }
                 }
 
@@ -141,8 +140,7 @@ GridView {
                 Universal.accent: themeService.accentColor
                 delegate: MenuItemDelegate {}
                 MenuItem {
-                    text: qsTr("Change File...")
-                    enabled: padMenu.padIsLoaded
+                    text: padMenu.padIsLoaded ? qsTr("Change File...") : qsTr("Load File...")
                     onTriggered: {
                         if (padGrid.fileDialog) {
                             padGrid.fileDialog.padToAssign = padMenu.padIndex;

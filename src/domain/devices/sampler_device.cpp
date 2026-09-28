@@ -1792,7 +1792,15 @@ void SamplerDevice::setPadValue(uint8_t note, const std::string & parameterName,
     emit dataChanged();
 }
 
-//! Measures what it takes to bring the trimmed range up to full scale.
+//! What a normalised pad peaks at: -1 dBFS, not 0.
+//!
+//! The pad is not the last thing in the chain. Its own filters and effects, the resampling that
+//! tuning does, the fader and the pan law all come after this, and several of them can hand back a
+//! sample larger than the one they were given. A decibel of headroom costs nothing audible and
+//! keeps a normalised pad from being the thing that clips the mix.
+constexpr float NormalizeTargetPeak { 0.8913f }; // -1 dBFS
+
+//! Measures what it takes to bring the trimmed range to the target level.
 //!
 //! Only ever a scan when the range has actually moved: syncSampleFields() runs on every pad value
 //! there is, and walking a few million frames because somebody nudged the pan would be felt.
@@ -1830,7 +1838,7 @@ void SamplerDevice::updateNormalizeGain(Sample & sample)
 
     // A silent pad is left alone rather than handed an infinite gain.
     if (peak > 1.0e-6f) {
-        sample.normalizeGain = 1.0f / peak;
+        sample.normalizeGain = NormalizeTargetPeak / peak;
     }
 }
 

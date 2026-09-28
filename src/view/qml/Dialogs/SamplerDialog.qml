@@ -100,10 +100,12 @@ AnimatedDialog {
         }
 
         SamplerDialog_Record {
+            id: recordStrip
             Layout.fillWidth: true
             samplerDialogVisible: root.visible
-            // Lined up with the pad matrix, whose width follows its own height.
-            controlsWidth: pads.width
+            // Half the dialog, which is a width that does not move: the pad matrix's own follows
+            // its height, so matching that made the strip change width with the dialog's shape.
+            controlsWidth: recordStrip.width * 0.5
         }
 
         ScrollView {

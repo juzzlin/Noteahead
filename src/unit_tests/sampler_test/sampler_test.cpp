@@ -247,8 +247,9 @@ void SamplerTest::test_normalize_off_shouldLeaveThePadAsItWas()
     normalized->processMidiNoteOn(60, 127);
     const auto lifted = peak(render(*normalized, 256));
 
-    QVERIFY2(lifted > asIs * 3.5 && lifted < asIs * 4.5,
-             qPrintable(QString { "a quarter-scale pad went from %1 to %2, which is not four times" }.arg(asIs).arg(lifted)));
+    // A quarter-scale pad taken to -1 dBFS is a gain of 0.8913 / 0.25, near enough three and a half.
+    QVERIFY2(lifted > asIs * 3.2 && lifted < asIs * 3.9,
+             qPrintable(QString { "a quarter-scale pad went from %1 to %2" }.arg(asIs).arg(lifted)));
 }
 
 void SamplerTest::test_normalize_shouldNotTouchTheFile()
@@ -352,7 +353,7 @@ void SamplerTest::test_normalize_shouldSurviveARoundTrip()
     auto plain = makeQuietSampler(0.25f);
     plain->processMidiNoteOn(60, 127);
     const auto asIs = peak(render(*plain, 256));
-    QVERIFY2(lifted > asIs * 3.5, qPrintable(QString { "the restored pad plays at %1 against %2" }.arg(lifted).arg(asIs)));
+    QVERIFY2(lifted > asIs * 3.2, qPrintable(QString { "the restored pad plays at %1 against %2" }.arg(lifted).arg(asIs)));
 }
 
 void SamplerTest::test_materializeEphemeralSamples_shouldWriteOutWhatWouldBeLost()

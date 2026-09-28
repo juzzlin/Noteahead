@@ -36,8 +36,9 @@ New features:
     session and written out beside the project when you save it
 
 * Normalize, per Sampler pad
-  - Plays a pad at full scale whatever it was recorded at, measured over the
-    part the trims leave. A gain rather than an edit: the file is untouched
+  - Brings a pad's loudest peak to -1 dBFS whatever it was recorded at,
+    measured over the part the trims leave. A gain rather than an edit: the
+    file is untouched
 
 * A Curve control on the Sampler's pad envelope
   - The same bend the Synth's envelopes have, per pad, and the waveform view
