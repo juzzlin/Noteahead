@@ -64,21 +64,6 @@ double peak(const std::vector<double> & buffer)
     return value;
 }
 
-//! Peak over the last quarter of a buffer.
-//!
-//! A gate starts open and takes its release to close, so the loudest sample in a gated buffer is
-//! always one of the first: measured over the whole thing, every one of these tests would be
-//! reading the gate's release time rather than what it settles at.
-double settledPeak(const std::vector<double> & buffer)
-{
-    const auto from = buffer.size() / 4 * 3;
-    double value = 0.0;
-    for (size_t i = from; i < buffer.size(); i++) {
-        value = std::max(value, std::abs(buffer[i]));
-    }
-    return value;
-}
-
 void setParameter(Effect & effect, const QString & key, float value)
 {
     if (auto p = effect.parameter(key.toStdString()); p) {

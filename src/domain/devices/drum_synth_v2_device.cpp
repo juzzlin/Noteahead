@@ -750,8 +750,9 @@ void DrumSynthV2Device::addAmpEnvelopeParameters(int index, const std::string & 
       { 0.6300f, 0.5940f }, // ReverseCrash: hold 2000 ms, decay 400 ms
     } };
 
-    // Unused now that the envelope starts out doing nothing, and kept because it is what
+    // Unused now that the envelope starts out doing nothing, and kept because they are what
     // legacyAmpEnvelopeDefaults() puts back for a kit saved before the sustain existed.
+    (void)index;
     (void)defaults;
 
     // A device added now starts with the envelope switched off: everything at its minimum and the

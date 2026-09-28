@@ -46,7 +46,7 @@ struct ReferenceEnvironment
     };
 
     //! Name as the preset list shows it.
-    std::string name;
+    std::string name {};
 
     //! Where the system stops reproducing. A phone speaker's job is mostly refusing the bottom two
     //! octaves, so this is the field that carries most environments.
@@ -57,11 +57,11 @@ struct ReferenceEnvironment
     double lowPassQ { 0.707 };
 
     //! Up to four bells, applied to both channels.
-    std::vector<Band> bands;
+    std::vector<Band> bands {};
 
     //! The space, if the system is heard in one. Taps are per channel, the right one offset from the
     //! left so the reflections do not arrive as one mono slap.
-    std::vector<Tap> taps;
+    std::vector<Tap> taps {};
     //! Corner of the damping filter each tap passes through: the later the reflection, the darker.
     double dampingHz { 6000.0 };
 
