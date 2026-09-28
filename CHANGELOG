@@ -123,6 +123,10 @@ New features:
 
 Bug fixes:
 
+* Audio input and output devices are listed again
+  - RtAudio 6 hands out device ids that are not 0, 1, 2, so enumerating by
+    index found nothing. Settings had no devices to choose from
+
 * Unticking "Embed wave data" no longer loses the samples
   - A project whose pads came out of its own embedded data was saved pointing at
     a directory that stops existing when the application does. Those pads are

@@ -57,6 +57,7 @@ RowLayout {
         textRole: "name"
         valueRole: "id"
         enabled: !samplerController.recording
+        model: samplerController.inputDevices
         onActivated: samplerController.setInputDevice(currentValue)
     }
 
@@ -70,16 +71,11 @@ RowLayout {
         text: samplerController.recording ? qsTr("Recording onto the selected pad…") : (editorService.currentFileName ? "" : qsTr("The project has not been saved, so recordings are kept only until you save it."))
     }
 
-    function refreshInputs(): void {
-        const devices = samplerController.inputDevices();
-        inputCombo.model = devices;
-        if (devices.length > 0 && inputCombo.currentIndex < 0) {
-            inputCombo.currentIndex = 0;
-        }
+    AppButton {
+        text: qsTr("Refresh")
+        enabled: !samplerController.recording
+        onClicked: samplerController.refreshInputDevices()
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Looks for inputs again, for something plugged in since the dialog was opened.")
     }
-
-    onSamplerDialogVisibleChanged: if (samplerDialogVisible) {
-        refreshInputs();
-    }
-    Component.onCompleted: refreshInputs()
 }

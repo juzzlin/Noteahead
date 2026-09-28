@@ -101,9 +101,12 @@ ColumnLayout {
         }
     }
 
-    RowLayout {
+    // Two across rather than three: the column is narrow, and a third one squeezed the labels until
+    // they ran into each other. GridLayout wraps them onto a second row instead.
+    GridLayout {
         Layout.fillWidth: true
-        spacing: 10
+        columns: 2
+        columnSpacing: 10
         CheckBox {
             id: reverseCheckBox
             text: qsTr("Reverse")
@@ -114,6 +117,7 @@ ColumnLayout {
                 text: reverseCheckBox.text
                 color: "white"
                 verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideRight
                 leftPadding: reverseCheckBox.indicator.width + reverseCheckBox.spacing
             }
             ToolTip.delay: Constants.toolTipDelay
@@ -122,7 +126,7 @@ ColumnLayout {
             ToolTip.text: qsTr("Plays the pad backwards. The offsets follow the reversed waveform.")
         }
 
-CheckBox {
+        CheckBox {
             id: normalizeCheckBox
             text: qsTr("Normalize")
             Layout.fillWidth: true
@@ -132,6 +136,7 @@ CheckBox {
                 text: normalizeCheckBox.text
                 color: "white"
                 verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideRight
                 leftPadding: normalizeCheckBox.indicator.width + normalizeCheckBox.spacing
             }
             ToolTip.delay: Constants.toolTipDelay
@@ -149,6 +154,7 @@ CheckBox {
                 text: loopCheckBox.text
                 color: "white"
                 verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideRight
                 leftPadding: loopCheckBox.indicator.width + loopCheckBox.spacing
             }
             ToolTip.delay: Constants.toolTipDelay

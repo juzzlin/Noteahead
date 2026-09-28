@@ -98,11 +98,10 @@ void AudioPlayerRtAudio::setOutputDevice(uint32_t deviceId)
 std::vector<AudioDevice> AudioPlayerRtAudio::getOutputDevices()
 {
     std::vector<AudioDevice> devices;
-    const unsigned int deviceCount = m_rtAudio.getDeviceCount();
-    for (unsigned int deviceIndex = 0; deviceIndex < deviceCount; deviceIndex++) {
-        const auto info = m_rtAudio.getDeviceInfo(deviceIndex);
-        if (info.outputChannels > 0) {
-            devices.push_back({ deviceIndex, info.name });
+    // By id, not by index: see the same loop in AudioRecorderRtAudio.
+    for (const auto deviceId : m_rtAudio.getDeviceIds()) {
+        if (const auto info = m_rtAudio.getDeviceInfo(deviceId); info.outputChannels > 0) {
+            devices.push_back({ deviceId, info.name });
         }
     }
     return devices;

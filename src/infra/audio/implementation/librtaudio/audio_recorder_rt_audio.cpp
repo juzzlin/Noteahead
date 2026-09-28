@@ -69,11 +69,12 @@ void AudioRecorderRtAudio::setInputDevice(uint32_t deviceId)
 std::vector<AudioDevice> AudioRecorderRtAudio::getInputDevices()
 {
     std::vector<AudioDevice> devices;
-    const unsigned int deviceCount = m_rtAudio.getDeviceCount();
-    for (unsigned int i = 0; i < deviceCount; ++i) {
-        const auto info = m_rtAudio.getDeviceInfo(i);
-        if (info.inputChannels > 0) {
-            devices.push_back({ i, info.name });
+    // By id, not by index. RtAudio 6 hands out ids that are not the numbers 0..count-1, and asking
+    // it about an index it does not recognise as an id answers with an empty device and a warning
+    // on the console -- which read as a machine with no inputs on it at all.
+    for (const auto deviceId : m_rtAudio.getDeviceIds()) {
+        if (const auto info = m_rtAudio.getDeviceInfo(deviceId); info.inputChannels > 0) {
+            devices.push_back({ deviceId, info.name });
         }
     }
     return devices;
