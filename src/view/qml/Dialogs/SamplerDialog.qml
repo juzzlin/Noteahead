@@ -85,6 +85,7 @@ AnimatedDialog {
     }
 
     ColumnLayout {
+        id: mainColumn
         anchors.fill: parent
         anchors.margins: 10
         spacing: 15
@@ -103,9 +104,10 @@ AnimatedDialog {
             id: recordStrip
             Layout.fillWidth: true
             samplerDialogVisible: root.visible
-            // Half the dialog, which is a width that does not move: the pad matrix's own follows
-            // its height, so matching that made the strip change width with the dialog's shape.
-            controlsWidth: recordStrip.width * 0.5
+            // Measured off the column rather than off the strip itself. The column is anchored to
+            // the dialog, so its width owes nothing to what is inside it; taking the strip's own
+            // width instead fed a layout its own result and Qt gave up rearranging it.
+            controlsWidth: mainColumn.width * 0.5
         }
 
         ScrollView {
