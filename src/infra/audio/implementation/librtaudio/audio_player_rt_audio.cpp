@@ -167,10 +167,17 @@ uint32_t AudioPlayerRtAudio::initializeSoundStream(uint32_t deviceId, uint32_t c
     streamOptions.streamName = TAG;
 
     uint32_t bufferFrames = bufferSize;
-    m_rtAudio.openStream(&streamParameters, nullptr, RTAUDIO_SINT32,
-                         sampleRate, &bufferFrames,
-                         &AudioPlayerRtAudio::playCallback, this, &streamOptions);
-    m_rtAudio.startStream();
+    // By return value, not by throwing: see the same call in AudioRecorderRtAudio.
+    if (const auto error = m_rtAudio.openStream(&streamParameters, nullptr, RTAUDIO_SINT32,
+                                                sampleRate, &bufferFrames,
+                                                &AudioPlayerRtAudio::playCallback, this, &streamOptions);
+        error != RTAUDIO_NO_ERROR) {
+        throw std::runtime_error { "Cannot open the output stream: " + m_rtAudio.getErrorText() };
+    }
+    if (const auto error = m_rtAudio.startStream(); error != RTAUDIO_NO_ERROR) {
+        m_rtAudio.closeStream();
+        throw std::runtime_error { "Cannot start the output stream: " + m_rtAudio.getErrorText() };
+    }
 
     return m_rtAudio.getStreamSampleRate();
 }

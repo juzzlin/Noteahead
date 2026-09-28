@@ -141,6 +141,11 @@ void AudioService::onErrorOccurred(QString message)
 
 void AudioService::startRecording(QString filePath, quint32 bufferSize, quint64 startTick)
 {
+    // Zero means "whatever is configured". The sampler has no reason to know about buffer sizes,
+    // and a zero handed to RtAudio asks it to open a stream of no length.
+    if (!bufferSize) {
+        bufferSize = static_cast<quint32>(m_settingsService->audioBufferSize());
+    }
     m_isRecording = true;
     emit isRecordingChanged();
     m_currentRecordingFileName = filePath;

@@ -107,11 +107,19 @@ uint32_t AudioRecorderRtAudio::initializeSoundStream(uint32_t deviceId, uint32_t
     streamOptions.numberOfBuffers = 2;
     streamOptions.streamName = "NoteaheadRecorder";
 
+    // RtAudio 6 reports failure by return value rather than by throwing, so the try/catch around
+    // this call never fired and a stream that would not open recorded silence without saying why.
     uint32_t bufferFrames = bufferSize;
-    m_rtAudio.openStream(nullptr, &streamParameters, RTAUDIO_SINT32,
-                         sampleRate, &bufferFrames,
-                         &AudioRecorderRtAudio::recordCallback, this, &streamOptions);
-    m_rtAudio.startStream();
+    if (const auto error = m_rtAudio.openStream(nullptr, &streamParameters, RTAUDIO_SINT32,
+                                                sampleRate, &bufferFrames,
+                                                &AudioRecorderRtAudio::recordCallback, this, &streamOptions);
+        error != RTAUDIO_NO_ERROR) {
+        throw std::runtime_error { "Cannot open the input stream: " + m_rtAudio.getErrorText() };
+    }
+    if (const auto error = m_rtAudio.startStream(); error != RTAUDIO_NO_ERROR) {
+        m_rtAudio.closeStream();
+        throw std::runtime_error { "Cannot start the input stream: " + m_rtAudio.getErrorText() };
+    }
 
     return m_rtAudio.getStreamSampleRate();
 }
@@ -146,6 +154,9 @@ void AudioRecorderRtAudio::start(const std::string & fileName, uint32_t bufferSi
             sampleRate = deviceInfo.preferredSampleRate ? deviceInfo.preferredSampleRate : static_cast<uint32_t>(Constants::defaultSampleRate());
             channelCount = std::min(deviceInfo.inputChannels, 2u);
             deviceName = deviceInfo.name;
+            if (!channelCount) {
+                throw std::runtime_error { "Device " + std::to_string(deviceId) + " has no inputs to record from" };
+            }
         }
 
         m_channels = channelCount;

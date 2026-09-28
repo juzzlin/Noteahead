@@ -124,6 +124,11 @@ New features:
 
 Bug fixes:
 
+* Audio stream failures are reported instead of swallowed
+  - RtAudio 6 reports them by return value rather than by throwing, so the
+    handling written for RtAudio 5 never ran and a stream that would not open
+    played or recorded silence without saying why
+
 * Audio input and output devices are listed again
   - RtAudio 6 hands out device ids that are not 0, 1, 2, so enumerating by
     index found nothing. Settings had no devices to choose from
