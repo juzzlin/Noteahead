@@ -53,7 +53,7 @@ AnimatedDialog {
                 }
             }
             Label {
-                text: qsTr("dB")
+                text: "dB"
                 verticalAlignment: Label.AlignVCenter
                 padding: 4
             }

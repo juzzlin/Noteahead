@@ -295,7 +295,7 @@ AnimatedDialog {
                             }
 
                             Label {
-                                text: qsTr("s")
+                                text: "s"
                                 enabled: trimCheckBox.checked
                             }
                         }
@@ -345,7 +345,7 @@ AnimatedDialog {
                             }
 
                             Label {
-                                text: qsTr("s")
+                                text: "s"
                                 enabled: fadeOutCheckBox.checked
                             }
 
@@ -393,7 +393,7 @@ AnimatedDialog {
                             }
 
                             Label {
-                                text: qsTr("s")
+                                text: "s"
                                 enabled: silenceCheckBox.checked
                             }
 

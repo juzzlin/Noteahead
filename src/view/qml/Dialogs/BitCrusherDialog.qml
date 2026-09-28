@@ -68,7 +68,7 @@ EffectDialog {
                 Knob {
                     label: qsTr("Bit Depth")
                     mapping: "integer"
-                    suffix: " " + qsTr("bits")
+                    suffix: " bits"
                     from: 1
                     to: effectRackController.bitCrusherMaxBits()
                     stepSize: 1
