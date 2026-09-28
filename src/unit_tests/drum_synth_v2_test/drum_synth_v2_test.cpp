@@ -18,6 +18,7 @@
 #include "../../common/constants.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/drum_synth_v2_constants.hpp"
+#include "../../application/service/drum_voice_preview.hpp"
 #include "../../domain/devices/drum_synth_v2_device.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
@@ -331,6 +332,139 @@ void DrumSynthV2Test::test_ampEnvelope_curve_shouldBendTheVoicesDecay()
     QVERIFY2(straight > 0.0, "the straight decay had already finished, so there is nothing to compare");
     QVERIFY2(bent < straight * 0.5,
              qPrintable(QString { "the voice's curve did not reach its envelope: %1 vs %2" }.arg(bent).arg(straight)));
+}
+
+void DrumSynthV2Test::test_renderVoiceAlone_shouldStopWhenTheVoiceDoes()
+{
+    DrumSynthV2Device device { "Preview" };
+    const auto kick = static_cast<int>(DrumSynthV2::VoiceIndex::Kick);
+
+    const auto rendered = device.renderVoiceAlone(kick, sampleRate, 8.0);
+    QVERIFY2(!rendered.empty(), "nothing was rendered");
+
+    const auto seconds = static_cast<double>(rendered.size() / 2) / sampleRate;
+    // The kick rings for well over a second and nothing like the eight it was allowed, so the stop
+    // condition is doing the work rather than the ceiling.
+    QVERIFY2(seconds > 0.2 && seconds < 7.0, qPrintable(QString::number(seconds)));
+
+    double peak = 0.0;
+    for (auto && sample : rendered) {
+        peak = std::max(peak, std::abs(sample));
+    }
+    QVERIFY2(peak > 0.01, qPrintable(QString::number(peak)));
+}
+
+void DrumSynthV2Test::test_renderVoiceAlone_shouldBeDeterministic()
+{
+    // The picture must not flicker between repaints, and a drum has no pitch to follow: the same
+    // voice has to render the same frames every time, noise-based voices included.
+    DrumSynthV2Device device { "Preview" };
+    const auto hat = static_cast<int>(DrumSynthV2::VoiceIndex::ClosedHiHat);
+
+    const auto first = device.renderVoiceAlone(hat, sampleRate, 4.0);
+    const auto second = device.renderVoiceAlone(hat, sampleRate, 4.0);
+    QCOMPARE(first.size(), second.size());
+    for (size_t i = 0; i < first.size(); i++) {
+        QCOMPARE(first.at(i), second.at(i));
+    }
+}
+
+void DrumSynthV2Test::test_renderVoiceAlone_shouldRenderOnlyThatVoice()
+{
+    // One voice alone, so the picture is of the drum that is selected and not of whatever else the
+    // kit happens to have sounding.
+    DrumSynthV2Device device { "Preview" };
+    const auto crash = static_cast<int>(DrumSynthV2::VoiceIndex::Crash);
+    device.processMidiNoteOn(device.voiceNote(static_cast<int>(DrumSynthV2::VoiceIndex::Kick)), 127);
+
+    const auto rendered = device.renderVoiceAlone(crash, sampleRate, 6.0);
+    const auto onlyCrash = DrumSynthV2Device { "Clean" }.renderVoiceAlone(crash, sampleRate, 6.0);
+    QCOMPARE(rendered.size(), onlyCrash.size());
+    for (size_t i = 0; i < rendered.size(); i++) {
+        QCOMPARE(rendered.at(i), onlyCrash.at(i));
+    }
+}
+
+void DrumSynthV2Test::test_voicePreview_shouldPictureTheVoiceAndMeasureWhatIsHeard()
+{
+    DrumSynthV2Device device { "Preview" };
+    const auto kick = static_cast<int>(DrumSynthV2::VoiceIndex::Kick);
+
+    const auto preview = DrumVoicePreview::render(device, kick, 128, sampleRate);
+    QCOMPARE(preview.peaks.size(), 128);
+    QVERIFY2(preview.durationSeconds > 0.2, qPrintable(QString::number(preview.durationSeconds)));
+    QVERIFY2(preview.audibleSeconds > 0.2, qPrintable(QString::number(preview.audibleSeconds)));
+
+    // Something was drawn rather than a row of zeroes.
+    double tallest = 0.0;
+    for (auto && point : preview.peaks) {
+        tallest = std::max(tallest, point.toDouble());
+    }
+    QVERIFY2(tallest > 0.01, qPrintable(QString::number(tallest)));
+}
+
+void DrumSynthV2Test::test_voicePreview_shouldNotDisturbTheDeviceItPictures()
+{
+    // The device being pictured is the one in the rack, and it may well be playing: rendering has
+    // to happen on a copy or the preview would strike a voice the song is in the middle of.
+    DrumSynthV2Device device { "Live" };
+    const auto kick = static_cast<int>(DrumSynthV2::VoiceIndex::Kick);
+    device.processMidiNoteOn(device.voiceNote(kick), 100);
+
+    // Part way into the kick, where a preview landing on the same voice would be obvious.
+    std::vector<double> before;
+    std::vector<double> buffer(frameCount * 2, 0.0);
+    for (uint32_t block = 0; block < 2; block++) {
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), frameCount, sampleRate };
+        device.processAudio(context);
+    }
+
+    DrumVoicePreview::render(device, kick, 64, sampleRate);
+
+    // What the live device plays next has to be what it would have played anyway.
+    DrumSynthV2Device untouched { "Live" };
+    untouched.processMidiNoteOn(untouched.voiceNote(kick), 100);
+    for (uint32_t block = 0; block < 2; block++) {
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), frameCount, sampleRate };
+        untouched.processAudio(context);
+    }
+
+    std::vector<double> afterPreview(frameCount * 2, 0.0);
+    {
+        AudioContext context { std::span(afterPreview.data(), afterPreview.size()), frameCount, sampleRate };
+        device.processAudio(context);
+    }
+    std::vector<double> afterNothing(frameCount * 2, 0.0);
+    {
+        AudioContext context { std::span(afterNothing.data(), afterNothing.size()), frameCount, sampleRate };
+        untouched.processAudio(context);
+    }
+
+    for (size_t i = 0; i < afterPreview.size(); i++) {
+        QCOMPARE(afterPreview.at(i), afterNothing.at(i));
+    }
+}
+
+void DrumSynthV2Test::test_voicePreview_shortEnvelope_shouldShortenOnlyWhatIsHeard()
+{
+    // The two figures part company as soon as the envelope does anything: the picture still shows
+    // the whole drum, and the readout says how much of it is left.
+    DrumSynthV2Device device { "Preview" };
+    const auto kick = static_cast<int>(DrumSynthV2::VoiceIndex::Kick);
+
+    const auto full = DrumVoicePreview::render(device, kick, 64, sampleRate);
+
+    device.updateVoiceParameter(kick, Constants::NahdXml::xmlKeyAmpSustain().toStdString(), 0.0f);
+    device.updateVoiceParameter(kick, Constants::NahdXml::xmlKeyAmpHold().toStdString(), 0.0f);
+    device.updateVoiceParameter(kick, Constants::NahdXml::xmlKeyAmpDecay().toStdString(), 0.05f);
+    const auto tightened = DrumVoicePreview::render(device, kick, 64, sampleRate);
+
+    QVERIFY2(tightened.audibleSeconds < full.audibleSeconds * 0.5,
+             qPrintable(QString::number(tightened.audibleSeconds) + " vs " + QString::number(full.audibleSeconds)));
+    QVERIFY2(std::abs(tightened.durationSeconds - full.durationSeconds) < 1.0e-9,
+             qPrintable(QString::number(tightened.durationSeconds) + " vs " + QString::number(full.durationSeconds)));
 }
 
 void DrumSynthV2Test::test_drumSynthV2Device_xmlSerialization_shouldRestoreParameters()

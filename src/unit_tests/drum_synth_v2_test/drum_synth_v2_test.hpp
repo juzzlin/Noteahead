@@ -34,6 +34,12 @@ private slots:
     void test_ampEnvelope_fullSustain_shouldMatchV1Exactly();
     void test_ampEnvelope_closed_shouldStopTheVoiceRendering();
     void test_ampEnvelope_curve_shouldBendTheVoicesDecay();
+    void test_renderVoiceAlone_shouldStopWhenTheVoiceDoes();
+    void test_renderVoiceAlone_shouldBeDeterministic();
+    void test_renderVoiceAlone_shouldRenderOnlyThatVoice();
+    void test_voicePreview_shouldPictureTheVoiceAndMeasureWhatIsHeard();
+    void test_voicePreview_shouldNotDisturbTheDeviceItPictures();
+    void test_voicePreview_shortEnvelope_shouldShortenOnlyWhatIsHeard();
     void test_drumSynthV2Device_xmlSerialization_shouldRestoreParameters();
 };
 

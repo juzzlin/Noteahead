@@ -29,6 +29,7 @@ set(HEADER_FILES
     service/audio_analysis_service.hpp
     service/audio_analysis_worker.hpp
     service/audio_service.hpp
+    service/drum_voice_preview.hpp
     service/audio_worker.hpp
     service/automation_service.hpp
     service/copy_manager.hpp
@@ -92,6 +93,7 @@ set(SOURCE_FILES
     service/audio_analysis_service.cpp
     service/audio_analysis_worker.cpp
     service/audio_service.cpp
+    service/drum_voice_preview.cpp
     service/audio_worker.cpp
     service/automation_service.cpp
     service/copy_manager.cpp

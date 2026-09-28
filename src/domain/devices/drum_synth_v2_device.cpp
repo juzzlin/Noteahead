@@ -987,6 +987,37 @@ bool DrumSynthV2Device::automateVoiceParameter(int voiceIndex, const std::string
     return writeVoiceParameter(voiceIndex, paramName, value, false);
 }
 
+std::vector<double> DrumSynthV2Device::renderVoiceAlone(int voiceIndex, double sampleRate, double maxSeconds)
+{
+    if (voiceIndex < 0 || voiceIndex >= NumVoices || sampleRate <= 0.0) {
+        return {};
+    }
+
+    // 512 rather than a whole buffer: the stop condition is only checked between blocks, so a
+    // short drum would otherwise be rendered a good deal past the point it went quiet.
+    constexpr uint32_t blockFrames { 512 };
+
+    resetAudio();
+    setSampleRate(sampleRate);
+    processMidiNoteOn(voiceNote(voiceIndex), 127);
+
+    std::vector<double> rendered;
+    std::vector<double> buffer(blockFrames * 2, 0.0);
+    const auto ceiling = static_cast<size_t>(maxSeconds * sampleRate) * 2;
+    rendered.reserve(ceiling);
+
+    while (rendered.size() < ceiling) {
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), blockFrames, static_cast<uint32_t>(sampleRate) };
+        processAudio(context);
+        rendered.insert(rendered.end(), buffer.begin(), buffer.end());
+        if (!hasActiveAudio()) {
+            break;
+        }
+    }
+    return rendered;
+}
+
 float DrumSynthV2Device::voiceParameterValue(int voiceIndex, const std::string & paramName) const
 {
     const std::string prefix { voiceId(voiceIndex) + "_" };

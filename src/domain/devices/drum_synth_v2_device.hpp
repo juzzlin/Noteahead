@@ -78,6 +78,19 @@ public:
 
     uint8_t voiceNote(int index) const;
 
+    //! Renders one voice alone, from its strike until it goes quiet, and hands the frames back.
+    //!
+    //! Everything the voice passes through on its way out is in it, that voice's own insert effects
+    //! included, because what the picture is for is showing the drum as it actually sounds.
+    //!
+    //! Mutates the device, so it is meant to be called on a copy rather than on one that is
+    //! playing: it resets the audio state, strikes the voice and runs the whole device forward.
+    //! Deterministic, since the engines are re-seeded by that reset and a drum has no pitch to
+    //! follow -- the same voice renders the same frames every time.
+    //! \param maxSeconds Ceiling for a voice that never quite stops, a cymbal most of all.
+    //! \return Interleaved stereo frames.
+    std::vector<double> renderVoiceAlone(int voiceIndex, double sampleRate, double maxSeconds);
+
     // Per-voice insert effect rack.
     EffectRack & voiceEffectRack(int index);
 
