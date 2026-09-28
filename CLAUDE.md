@@ -70,7 +70,7 @@ The codebase is split into five layers. Logic must never leak upward (domain kno
 3. Add `xmlKey<Name>()` constant(s) to `Constants::NahdXml` in `src/common/constants.hpp/.cpp`. Add the effect type string to `Constants::RackEffectType`. Reuse existing generic keys where they fit — e.g. `xmlKeyBandGain(i)`, `xmlKeyGain()`.
 4. Register the effect in `EffectFactory::init()` in `src/domain/effects/effect_factory.cpp`: by `typeIdString()`, by type string, and a `registerLegacyEffect()` snake_case alias.
 5. Add `Q_PROPERTY` type string, `Q_INVOKABLE` parameter-key methods, an `addEffect(...)` line in `availableEffects()`, and an `effectParametersSummary()` branch to `EffectRackController`.
-6. Add `src/view/qml/Dialogs/<Name>Dialog.qml` following the *Dialog sizing* rules below, register it in `QML_SOURCE_FILES` in `src/CMakeLists.txt` (alphabetical), instantiate it in `Main.qml`, and add the click handler to **both** `MasterEffectsDialog.qml` and `DeviceInsertEffectsDialog.qml`.
+6. Add `src/view/qml/Dialogs/<Name>Dialog.qml` following the *Dialog sizing* rules below, register it in `QML_SOURCE_FILES` in `src/CMakeLists.txt` (alphabetical), instantiate it in `Main.qml`, and add the branch to `EffectDialogLauncher.qml` — the single place a type is mapped to its dialog.
 7. Add `src/unit_tests/<name>_test/` with its own `CMakeLists.txt`, plus `add_subdirectory` in `src/unit_tests/CMakeLists.txt`.
 8. Add a round-trip case to `xml_serialization_test` and a `CHANGELOG` entry under *New features*.
 
