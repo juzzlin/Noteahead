@@ -1792,13 +1792,14 @@ void SamplerDevice::setPadValue(uint8_t note, const std::string & parameterName,
     emit dataChanged();
 }
 
-//! What a normalised pad peaks at: -1 dBFS, not 0.
+//! What a normalised pad peaks at: -6 dBFS.
 //!
-//! The pad is not the last thing in the chain. Its own filters and effects, the resampling that
-//! tuning does, the fader and the pan law all come after this, and several of them can hand back a
-//! sample larger than the one they were given. A decibel of headroom costs nothing audible and
-//! keeps a normalised pad from being the thing that clips the mix.
-constexpr float NormalizeTargetPeak { 0.8913f }; // -1 dBFS
+//! The pad is nowhere near the last thing in the chain. Its own filters and effects, the resampling
+//! that tuning does, the fader, the pan law and everything the track runs through all come after
+//! this, and several of them can hand back a sample larger than the one they were given. Six
+//! decibels is room to work in rather than a safety margin: normalising is for putting pads on a
+//! common footing, and a pad that arrives already at the ceiling leaves nowhere to go but down.
+constexpr float NormalizeTargetPeak { 0.5012f }; // -6 dBFS
 
 //! Measures what it takes to bring the trimmed range to the target level.
 //!

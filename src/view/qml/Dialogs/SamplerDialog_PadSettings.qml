@@ -142,7 +142,7 @@ ColumnLayout {
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
-            ToolTip.text: qsTr("Brings the pad's loudest peak to -1 dBFS, whatever it was recorded at. The file is left alone -- this is a gain, and it rides on top of the fader. Measured over the trimmed part, so trimming a loud click away makes the rest louder.")
+            ToolTip.text: qsTr("Brings the pad's loudest peak to -6 dBFS, whatever it was recorded at. The file is left alone -- this is a gain, and it rides on top of the fader. Measured over the trimmed part, so trimming a loud click away makes the rest louder.")
         }
         CheckBox {
             id: loopCheckBox

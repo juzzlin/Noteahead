@@ -36,7 +36,7 @@ New features:
     session and written out beside the project when you save it
 
 * Normalize, per Sampler pad
-  - Brings a pad's loudest peak to -1 dBFS whatever it was recorded at,
+  - Brings a pad's loudest peak to -6 dBFS whatever it was recorded at,
     measured over the part the trims leave. A gain rather than an edit: the
     file is untouched
 
