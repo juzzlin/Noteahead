@@ -28,7 +28,14 @@ AnimatedDialog {
     width: parent ? parent.width * Constants.largeDialogScale : 800
     height: parent ? parent.height * Constants.largeDialogScale : 700
 
-    readonly property var voiceNames: ["Kick", "Snare", "CHH", "Clap", "OHH", "Lo Tom", "Mid Tom", "Hi Tom", "Crash", "Ride", "Rev Crash"]
+    // Short labels for the pads, which are not the device's own names: a pad is too narrow for
+    // "Reverse Crash". Only labels -- how many pads there are comes from the device, so a voice
+    // added there cannot go missing here for want of an entry in this list.
+    readonly property var voiceNames: ["Kick", "Snare", "CHH", "Clap", "OHH", "Lo Tom", "Mid Tom", "Hi Tom", "Crash", "Ride", "Rev Crash", "Rim"]
+
+    function voiceLabel(index) {
+        return index < voiceNames.length ? voiceNames[index] : drumSynthV2Controller.voiceName(index);
+    }
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
@@ -107,21 +114,20 @@ AnimatedDialog {
                             columnSpacing: 8
 
                             Repeater {
-                                model: root.voiceNames
+                                model: drumSynthV2Controller.voiceCount()
                                 delegate: DrumPad {
                                     // Declared here rather than taken from the context: a delegate
                                     // whose root has required properties is handed its model data
                                     // by name, and nothing is injected implicitly.
                                     required property int index
-                                    required property string modelData
 
-                                    label: modelData
+                                    label: root.voiceLabel(index)
                                     selected: drumSynthV2Controller.selectedVoice === index
                                     onStruck: {
                                         drumSynthV2Controller.selectedVoice = index;
                                         drumSynthV2Controller.playVoice(index);
                                     }
-                                    onEffectsRequested: UiService.requestDeviceSubEffectsDialog(drumSynthV2Controller.deviceName(), index, root.voiceNames[index])
+                                    onEffectsRequested: UiService.requestDeviceSubEffectsDialog(drumSynthV2Controller.deviceName(), index, root.voiceLabel(index))
                                 }
                             }
                         }
@@ -144,7 +150,7 @@ AnimatedDialog {
                     spacing: 10
 
                     Label {
-                        text: qsTr("Voice Settings") + " (" + root.voiceNames[drumSynthV2Controller.selectedVoice] + ")"
+                        text: qsTr("Voice Settings") + " (" + root.voiceLabel(drumSynthV2Controller.selectedVoice) + ")"
                         font.bold: true
                         color: themeService.accentColor
                     }
@@ -274,7 +280,7 @@ AnimatedDialog {
                     Layout.fillWidth: true
                     Layout.preferredWidth: contentRow.width * 0.2
                     Layout.alignment: Qt.AlignTop
-                    voiceName: root.voiceNames[drumSynthV2Controller.selectedVoice]
+                    voiceName: root.voiceLabel(drumSynthV2Controller.selectedVoice)
                 }
                 // Vertical separator
                 Rectangle {

@@ -208,6 +208,11 @@ public:
 
     Q_INVOKABLE void requestSettings() override;
     Q_INVOKABLE void playVoice(int index);
+    //! How many voices the device has. The pad grid is built from this rather than from the length
+    //! of its own label list, so a voice added in the domain cannot quietly fail to get a pad.
+    Q_INVOKABLE int voiceCount() const;
+    //! The device's own name for a voice, as a fallback for a pad with no short label of its own.
+    Q_INVOKABLE QString voiceName(int index) const;
 
 signals:
     void selectedVoiceChanged();

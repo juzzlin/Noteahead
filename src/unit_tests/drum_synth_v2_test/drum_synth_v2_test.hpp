@@ -51,6 +51,7 @@ private slots:
     void test_cymbals_crash_shouldBloom();
     void test_cymbals_crash_shouldPeakInTheSplashBand();
     void test_cymbals_shouldHaveABody();
+    void test_everyVoice_shouldHaveANameAndANoteOfItsOwn();
     void test_rim_shouldBeAShortPitchedClick();
     void test_rim_shouldNotDisturbAProjectSavedWithoutIt();
     void test_drumSynthV2Device_xmlSerialization_shouldRestoreParameters();

@@ -29,6 +29,7 @@
 
 #include <algorithm>
 #include <array>
+#include <set>
 #include <span>
 
 #include <cmath>
@@ -831,6 +832,26 @@ void DrumSynthV2Test::test_cymbals_shouldHaveABody()
         QVERIFY2(body - whole > -30.0,
                  qPrintable(QString { "%1 has no body: %2 dB under the whole" }
                               .arg(DrumSynthV2::voiceName(voice)).arg(body - whole)));
+    }
+}
+
+void DrumSynthV2Test::test_everyVoice_shouldHaveANameAndANoteOfItsOwn()
+{
+    // The pad grid used to be built from a list of labels written out in the QML, so adding the rim
+    // in the domain left it with no pad at all: eleven labels, twelve voices, and the twelfth
+    // simply never drawn. The grid counts the device's voices now, and this is the other half of
+    // that -- every voice reachable, named, and on a note nothing else answers to.
+    const DrumSynthV2Device device { "V2" };
+    std::set<uint8_t> notes;
+    std::set<QString> names;
+    for (int voice = 0; voice < DrumSynthV2::NumVoices; voice++) {
+        const auto name = DrumSynthV2::voiceName(voice);
+        QVERIFY2(name != "Undefined", qPrintable(QString { "voice %1 has no name" }.arg(voice)));
+        QVERIFY2(names.insert(name).second, qPrintable(QString { "%1 is used twice" }.arg(name)));
+        QVERIFY2(notes.insert(device.voiceNote(voice)).second,
+                 qPrintable(QString { "%1 shares a note with another voice" }.arg(name)));
+        QVERIFY2(DrumSynthV2::voiceId(voice) != "Undefined",
+                 qPrintable(QString { "%1 has no id to serialize under" }.arg(name)));
     }
 }
 

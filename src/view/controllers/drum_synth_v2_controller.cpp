@@ -631,6 +631,16 @@ void DrumSynthV2Controller::playVoice(int index)
     }
 }
 
+int DrumSynthV2Controller::voiceCount() const
+{
+    return DrumSynthV2::NumVoices;
+}
+
+QString DrumSynthV2Controller::voiceName(int index) const
+{
+    return DrumSynthV2::voiceName(index);
+}
+
 std::string DrumSynthV2Controller::currentVoicePrefix() const
 {
     return DrumSynthV2::voiceId(m_selectedVoice) + "_";
