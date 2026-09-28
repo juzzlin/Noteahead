@@ -71,6 +71,8 @@ private:
     Voicing m_voicing { Voicing::Classic };
     //! Rises from the strike: see the bloom in the .cpp, which is what makes this a crash.
     float m_bloomEnv { 0.0f };
+    //! How far through the reverse swell, 0 to 1. The envelopes are read at the time remaining.
+    double m_reverseProgress { 0.0 };
     float m_tune { 0.5f };
     float m_decay { 0.5f };
     float m_resonance { 0.3f };
@@ -92,7 +94,7 @@ private:
     BaseRateSource m_noiseBank;
     float nextMetallicBaseSample(double pitchScale);
 
-    std::array<double, 12> m_phases { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    std::array<double, 24> m_phases {};
     float m_sizzleEnv { 0.0f };
     float m_bodyEnv { 0.0f };
     double m_wobblePhase { 0.0 };

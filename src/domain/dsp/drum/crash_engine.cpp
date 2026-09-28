@@ -104,6 +104,7 @@ void CrashEngine::trigger(float velocity)
     m_bodyEnv = 1.0f;
     m_attackEnv = 0.0f;
     m_bloomEnv = 0.0f;
+    m_reverseProgress = 0.0;
     m_hpf.reset();
     m_bpf.reset();
     m_lpf.reset();
@@ -124,21 +125,38 @@ void CrashEngine::trigger(float velocity)
 float CrashEngine::nextMetallicBaseSample(double pitchScale)
 {
     const double baseFreq { ((m_voicing == Voicing::Rd9 ? Rd9BaseFreq : 350.0) + m_tune * 400.0) * pitchScale };
-    static constexpr std::array<double, 12> ratios {
-        1.0, 1.27, 2.11, 3.47, 4.21, 5.17, 6.39, 7.63, 8.87, 10.13, 12.39, 14.57
+    // Twenty-four, of which the Classic voicing sounds the first twelve. Twelve is too few for a
+    // crash: with the weight piled on two of them the bank rang as a pitched tone rather than a
+    // wash -- measured at the default Tune it stood twenty-one decibels above its neighbourhood at
+    // 6.87 kHz, which is 900 Hz times the 7.63 ratio, and again at 7.98. The recording's peaks are
+    // spread across the spectrum and its strongest is up at 17.6 kHz, where it reads as air.
+    static constexpr std::array<double, 24> ratios {
+        1.0, 1.27, 1.73, 2.11, 2.68, 3.47, 3.86, 4.21, 4.79, 5.17, 5.83, 6.39,
+        7.02, 7.63, 8.21, 8.87, 9.54, 10.13, 11.21, 12.39, 13.47, 14.57, 16.31, 18.13
     };
+    static constexpr size_t ClassicPartials { 12 };
+    const size_t partials = m_voicing == Voicing::Rd9 ? ratios.size() : ClassicPartials;
 
     // The splash is the band from four to eight kilohertz, which is where the ratios from 7.63 up
     // land over this base. Summed flat they sat six decibels under the record there, and that band
     // is most of what makes a crash sound like struck metal rather than like a wash.
-    static constexpr std::array<double, 12> rd9Weights {
-        0.55, 0.55, 0.65, 0.75, 0.85, 0.95, 1.05, 1.45, 1.5, 1.45, 1.3, 1.15
+    // Deliberately flat. Every bump here is a partial that can be picked out by ear, and what a
+    // crash needs is density rather than any particular mode being loud.
+    static constexpr std::array<double, 24> rd9Weights {
+        0.62, 0.64, 0.68, 0.72, 0.78, 0.84, 0.90, 0.95, 1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0, 0.98, 0.96, 0.94, 0.9, 0.86, 0.82, 0.76, 0.7
     };
 
     double metallicSource = 0.0;
     double weightSum = 0.0;
     const double invSr = 1.0 / baseSampleRate();
-    for (size_t i = 0; i < 12; ++i) {
+    // A partial over the Nyquist rate folds back down as a tone that has nothing to do with the
+    // cymbal and moves the wrong way when Tune is raised.
+    const double highest = baseSampleRate() * 0.5;
+    for (size_t i = 0; i < partials; ++i) {
+        if (baseFreq * ratios[i] >= highest) {
+            break;
+        }
         m_phases[i] += baseFreq * ratios[i] * invSr;
         if (m_phases[i] >= 1.0)
             m_phases[i] -= 1.0;
@@ -162,6 +180,22 @@ float CrashEngine::nextSample()
     }
     const float noise { m_noiseBank.nextSample() };
 
+    // Reverse is a time mirror of the struck crash, not just its amplitude run backwards.
+    //
+    // It used to ramp the level up while the bloom, the filter sweep, the body and the sizzle all
+    // still ran forwards, so what swelled was a crash already fully open -- the one thing the
+    // forward voice is careful not to be. Here a progress counter runs the length of the swell and
+    // every envelope is evaluated at the time still remaining, so the sound arrives at its own
+    // strike: the wash closes down into the hit instead of opening out of it.
+    const bool rd9 = m_voicing == Voicing::Rd9;
+    const bool reversed = rd9 && m_mode == Mode::Reverse;
+    float remaining = 0.0f;
+    if (reversed) {
+        const double swellSeconds = std::max(0.01f, m_decay) * 4.0f;
+        m_reverseProgress = std::min(1.0, m_reverseProgress + 1.0 / (swellSeconds * sr));
+        remaining = static_cast<float>((1.0 - m_reverseProgress) * swellSeconds);
+    }
+
     // Attack envelope to soften the initial hit
     if (m_attackEnv < 1.0f) {
         const float attackTime { std::max(0.0005f, m_attack * 0.2f) };
@@ -170,8 +204,12 @@ float CrashEngine::nextSample()
     }
 
     // Pitch envelope for the initial "hit" - used only for subtle shimmer, no "laser" sweeps
-    const float pitchEnvDecay { 1.0f - (1.0f / (0.02f * static_cast<float>(sampleRate()))) };
-    m_pitchEnv *= pitchEnvDecay;
+    constexpr float PitchSeconds { 0.02f };
+    if (reversed) {
+        m_pitchEnv = std::exp(-remaining / PitchSeconds);
+    } else {
+        m_pitchEnv *= 1.0f - (1.0f / (PitchSeconds * static_cast<float>(sampleRate())));
+    }
     const double pitchMod = 1.0 + m_pitchEnv * 0.05;
 
     // The bloom, which is what makes a crash a crash rather than a ride.
@@ -180,20 +218,29 @@ float CrashEngine::nextSample()
     // milliseconds -- and opens out to 4.6 kHz, its splash band climbing five decibels, over the
     // next hundred. That spreading wash is the sound; struck fully open and left to decay, as this
     // was, the same spectrum reads as a ride.
-    if (m_voicing == Voicing::Rd9) {
+    if (reversed) {
+        m_bloomEnv = 1.0f - std::exp(-remaining / Rd9BloomSeconds);
+    } else if (rd9) {
         m_bloomEnv += (1.0f - m_bloomEnv) / (Rd9BloomSeconds * static_cast<float>(sampleRate()));
     }
 
     // Sizzle envelope for high-frequency splash
-    const float sizzleDecay { 1.0f - (1.0f / (0.15f * static_cast<float>(sampleRate()))) };
-    m_sizzleEnv *= sizzleDecay;
+    constexpr float SizzleSeconds { 0.15f };
+    if (reversed) {
+        m_sizzleEnv = std::exp(-remaining / SizzleSeconds);
+    } else {
+        m_sizzleEnv *= 1.0f - (1.0f / (SizzleSeconds * static_cast<float>(sampleRate())));
+    }
 
     // Body envelope for low-mid weight. Twenty milliseconds is an impact rather than a body: the
     // record carries its 200 to 600 Hz for the whole of the crash, twenty decibels above what this
     // was leaving there.
     const float bodySeconds = m_voicing == Voicing::Rd9 ? Rd9BodySeconds : 0.02f;
-    const float bodyDecay { 1.0f - (1.0f / (bodySeconds * static_cast<float>(sampleRate()))) };
-    m_bodyEnv *= bodyDecay;
+    if (reversed) {
+        m_bodyEnv = std::exp(-remaining / bodySeconds);
+    } else {
+        m_bodyEnv *= 1.0f - (1.0f / (bodySeconds * static_cast<float>(sampleRate())));
+    }
 
     // Wobble: Subtler modulation for character without too much "beating"
     const double wobbleFreq = 1.5 + m_tune * 2.0;
@@ -225,7 +272,6 @@ float CrashEngine::nextSample()
     // Four tenths of metal against four tenths of steady noise, plus the strike and the sizzle on
     // top, left the top two octaves measuring flatness 0.60 where the record sits at 0.37. That is
     // the difference between a cymbal and a wash of noise shaped like one.
-    const bool rd9 = m_voicing == Voicing::Rd9;
     const float metalLevel = rd9 ? Rd9MetalLevel : 0.4f;
     const float washLevel = rd9 ? Rd9WashLevel : 0.4f;
     const float sizzleLevel = rd9 ? Rd9SizzleLevel : 0.5f;
@@ -281,6 +327,14 @@ float CrashEngine::nextSample()
             if (m_ampEnv < AmplitudeThreshold) {
                 m_active = false;
                 m_ampEnv = 0.0f;
+            }
+        } else if (reversed) {
+            // The forward voice's own decay, read backwards, so the swell is the shape the crash
+            // actually has rather than a straight line.
+            m_ampEnv = std::exp(-remaining / (std::max(0.01f, m_decay) * Rd9DecayScale));
+            if (m_reverseProgress >= 1.0) {
+                m_ampEnv = 1.0f;
+                m_active = false;
             }
         } else {
             const float riseRate { 1.0f / (std::max(0.01f, m_decay) * 4.0f * static_cast<float>(sampleRate())) };

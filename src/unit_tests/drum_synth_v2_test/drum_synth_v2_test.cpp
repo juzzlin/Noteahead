@@ -693,6 +693,38 @@ void DrumSynthV2Test::test_snare_shouldBeADrumRatherThanASizzle()
              qPrintable(QString { "the snare is a sizzle: body %1 dB, 4-8 kHz %2 dB" }.arg(body).arg(sizzle)));
 }
 
+void DrumSynthV2Test::test_reverseCrash_shouldBeTheCrashRunBackwards()
+{
+    // It used to ramp the level up while everything that shapes the crash still ran forwards, so
+    // what swelled was a cymbal already fully open -- the one thing the forward voice is careful
+    // not to be. A reverse has to arrive at its own strike: the wash closes down into the hit
+    // rather than opening out of it, so the sound is darkest at the end where the crash is
+    // darkest at the beginning.
+    DrumSynthV2Device v2 { "V2" };
+    const auto reverse = static_cast<int>(DrumSynthV2::VoiceIndex::ReverseCrash);
+    const auto rendered = v2.renderVoiceAlone(reverse, sampleRate, 8.0);
+    const auto seconds = static_cast<double>(rendered.size() / 2) / sampleRate;
+    QVERIFY(seconds > 0.5);
+
+    const auto middle = centroidBetween(rendered, seconds * 0.5, seconds * 0.5 + 0.06);
+    const auto atTheStrike = centroidBetween(rendered, seconds - 0.06, seconds);
+    QVERIFY2(middle - atTheStrike > 1000.0,
+             qPrintable(QString { "the reverse does not close into its strike: %1 Hz in the middle, %2 Hz at the end" }
+                          .arg(middle).arg(atTheStrike)));
+
+    // And it swells rather than decaying, which is the part that was already right.
+    const auto levelOf = [&](double from, double to) {
+        double sum = 0.0;
+        size_t counted = 0;
+        for (auto i = static_cast<size_t>(from * sampleRate); i < static_cast<size_t>(to * sampleRate) && i * 2 < rendered.size(); i++) {
+            sum += rendered.at(i * 2) * rendered.at(i * 2);
+            counted++;
+        }
+        return counted ? sum / static_cast<double>(counted) : 0.0;
+    };
+    QVERIFY(levelOf(seconds - 0.1, seconds) > levelOf(0.0, 0.1));
+}
+
 void DrumSynthV2Test::test_cymbals_v1_shouldNotTakeTheFit()
 {
     // The fit belongs to V2 alone. The engines are shared, so the constants it is made of sit
