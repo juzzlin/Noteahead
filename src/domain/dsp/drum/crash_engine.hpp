@@ -35,6 +35,14 @@ public:
         Reverse
     };
 
+    //! Which cymbal this is voiced as. See RideEngine::Voicing: Classic is what the original Drum
+    //! Synth has always played, Rd9 is fitted to a recording and is what Drum Synth V2 selects.
+    enum class Voicing
+    {
+        Classic,
+        Rd9
+    };
+
     CrashEngine();
     virtual ~CrashEngine() override = default;
 
@@ -44,6 +52,8 @@ public:
     bool isActive() const override;
     void reset() override;
     void stop() override;
+
+    void setVoicing(Voicing voicing);
 
     void setTune(float tune);
     void setDecay(float decay);
@@ -57,6 +67,7 @@ private:
     float m_attackEnv { 0.0f };
     bool m_active { false };
 
+    Voicing m_voicing { Voicing::Classic };
     float m_tune { 0.5f };
     float m_decay { 0.5f };
     float m_resonance { 0.3f };

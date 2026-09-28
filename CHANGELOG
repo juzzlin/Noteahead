@@ -12,6 +12,9 @@ New features:
   - An amp envelope per voice: Attack, Hold, Decay and Curve, riding on top of
     what the voice already plays. Pull Hold down and the drum tightens
 
+  - Crash and Ride fitted to a hardware cymbal: struck metal rather than a wash
+    of noise, and both now carry a body under 600 Hz
+
 * A Curve control on the Sampler's pad envelope
   - The same bend the Synth's envelopes have, per pad, and the waveform view
     draws the shape the pad is actually played through

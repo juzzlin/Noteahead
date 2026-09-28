@@ -68,15 +68,25 @@ float CrashEngine::nextMetallicBaseSample(double pitchScale)
         1.0, 1.27, 2.11, 3.47, 4.21, 5.17, 6.39, 7.63, 8.87, 10.13, 12.39, 14.57
     };
 
+    // The splash is the band from four to eight kilohertz, which is where the ratios from 7.63 up
+    // land over this base. Summed flat they sat six decibels under the record there, and that band
+    // is most of what makes a crash sound like struck metal rather than like a wash.
+    static constexpr std::array<double, 12> rd9Weights {
+        0.55, 0.55, 0.65, 0.75, 0.85, 0.95, 1.05, 1.45, 1.5, 1.45, 1.3, 1.15
+    };
+
     double metallicSource = 0.0;
+    double weightSum = 0.0;
     const double invSr = 1.0 / baseSampleRate();
     for (size_t i = 0; i < 12; ++i) {
         m_phases[i] += baseFreq * ratios[i] * invSr;
         if (m_phases[i] >= 1.0)
             m_phases[i] -= 1.0;
-        metallicSource += (m_phases[i] < 0.5 ? 1.0 : -1.0);
+        const double weight = m_voicing == Voicing::Rd9 ? rd9Weights[i] : 1.0;
+        metallicSource += weight * (m_phases[i] < 0.5 ? 1.0 : -1.0);
+        weightSum += weight;
     }
-    return static_cast<float>(metallicSource / 12.0);
+    return static_cast<float>(metallicSource / std::max(1.0, weightSum));
 }
 
 float CrashEngine::nextSample()
@@ -108,8 +118,11 @@ float CrashEngine::nextSample()
     const float sizzleDecay { 1.0f - (1.0f / (0.15f * static_cast<float>(sampleRate()))) };
     m_sizzleEnv *= sizzleDecay;
 
-    // Body envelope for low-mid weight - fast decay for impact
-    const float bodyDecay { 1.0f - (1.0f / (0.02f * static_cast<float>(sampleRate()))) };
+    // Body envelope for low-mid weight. Twenty milliseconds is an impact rather than a body: the
+    // record carries its 200 to 600 Hz for the whole of the crash, twenty decibels above what this
+    // was leaving there.
+    const float bodySeconds = m_voicing == Voicing::Rd9 ? 0.25f : 0.02f;
+    const float bodyDecay { 1.0f - (1.0f / (bodySeconds * static_cast<float>(sampleRate()))) };
     m_bodyEnv *= bodyDecay;
 
     // Wobble: Subtler modulation for character without too much "beating"
@@ -126,7 +139,7 @@ float CrashEngine::nextSample()
     m_bodyFilter.setResonance(0.4f);
 
     // Body is more prominent if decay is long (OHH approach)
-    const float bodyGain = 0.6f * std::min(1.0f, m_decay * 2.0f);
+    const float bodyGain = (m_voicing == Voicing::Rd9 ? 0.7f : 0.6f) * std::min(1.0f, m_decay * 2.0f);
     const float bodySource = m_bodyFilter.process(noise) * m_bodyEnv * bodyGain;
 
     // Metallic part: 12 square wave oscillators with ratios tuned for 2kHz-8kHz clusters, generated
@@ -139,9 +152,18 @@ float CrashEngine::nextSample()
     const double metallicSource { m_metallicBank.nextSample() };
 
     // Blend: metallic core with noise "wash", "sizzle"
-    const float strikeNoise = noise * m_pitchEnv * 0.6f;
-    const float sizzleNoise = noise * m_sizzleEnv * 0.5f;
-    float source = (static_cast<float>(metallicSource) * 0.4f + noise * 0.4f + strikeNoise + sizzleNoise) * m_attackEnv;
+    // Four tenths of metal against four tenths of steady noise, plus the strike and the sizzle on
+    // top, left the top two octaves measuring flatness 0.60 where the record sits at 0.37. That is
+    // the difference between a cymbal and a wash of noise shaped like one.
+    const bool rd9 = m_voicing == Voicing::Rd9;
+    const float metalLevel = rd9 ? 0.75f : 0.4f;
+    const float washLevel = rd9 ? 0.09f : 0.4f;
+    const float sizzleLevel = rd9 ? 0.24f : 0.5f;
+    // The record is metal from the first sample: measured over its attack it is markedly more
+    // tonal than this was, and a strike made of noise is most of why.
+    const float strikeNoise = noise * m_pitchEnv * (rd9 ? 0.25f : 0.6f);
+    const float sizzleNoise = noise * m_sizzleEnv * sizzleLevel;
+    float source = (static_cast<float>(metallicSource) * metalLevel + noise * washLevel + strikeNoise + sizzleNoise) * m_attackEnv;
 
     // Triple filtering to shape the spectral profile
     m_hpf.setSampleRate(sr);
@@ -153,7 +175,9 @@ float CrashEngine::nextSample()
     m_bpf.setResonance(0.5f);
 
     m_lpf.setSampleRate(sr);
-    m_lpf.setCutoff(0.85f); // 12kHz roll-off
+    // Higher for the fitted voicing: the record still has real weight in its top octave, and at
+    // 0.85 the splash was being rolled off five decibels below it.
+    m_lpf.setCutoff(rd9 ? 0.88f : 0.85f); // 12kHz roll-off
     m_lpf.setResonance(0.1f);
 
     const auto hpfOut = static_cast<float>(m_hpf.process(source));
@@ -164,7 +188,10 @@ float CrashEngine::nextSample()
 
     const float chokeDecayRate { 1.0f - (1.0f / (ChokeFadeSeconds * static_cast<float>(sampleRate()))) };
     if (m_mode == Mode::Normal) {
-        const float decayRate = m_stopping ? chokeDecayRate : 1.0f - (1.0f / (std::max(0.01f, m_decay) * 2.5f * static_cast<float>(sampleRate())));
+        // The record falls sixteen decibels over its first nine tenths of a second; this was
+        // falling nine.
+        const float decayScale = rd9 ? 1.1f : 2.5f;
+        const float decayRate = m_stopping ? chokeDecayRate : 1.0f - (1.0f / (std::max(0.01f, m_decay) * decayScale * static_cast<float>(sampleRate())));
         m_ampEnv *= decayRate;
         if (m_ampEnv < AmplitudeThreshold) {
             m_active = false;
@@ -206,6 +233,11 @@ void CrashEngine::reset()
 void CrashEngine::stop()
 {
     m_stopping = true;
+}
+
+void CrashEngine::setVoicing(Voicing voicing)
+{
+    m_voicing = voicing;
 }
 
 void CrashEngine::setTune(float tune)

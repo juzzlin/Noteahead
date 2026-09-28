@@ -20,6 +20,7 @@
 #include "../../domain/devices/drum_synth_v2_constants.hpp"
 #include "../../application/service/drum_voice_preview.hpp"
 #include "../../domain/devices/drum_synth_v2_device.hpp"
+#include "../../domain/dsp/fft.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
@@ -40,6 +41,43 @@ constexpr uint32_t sampleRate = 44100;
 //! Triggers one note on a freshly built device and hands back the interleaved output. Templated over
 //! the device so that V1 and V2 are driven through exactly the same steps, which is the whole point
 //! of the comparison below.
+//! Spectral flatness of a rendered voice over a band, 0 for a pure tone and 1 for white noise.
+double bandFlatness(const std::vector<double> & frames, double lowHz, double highHz)
+{
+    constexpr int size = 8192;
+    std::vector<double> re(size, 0.0), im(size, 0.0);
+    for (int i = 0; i < size && static_cast<size_t>(i) * 2 < frames.size(); i++) {
+        re[static_cast<size_t>(i)] = frames.at(static_cast<size_t>(i) * 2) * (0.5 - 0.5 * std::cos(2.0 * M_PI * i / (size - 1)));
+    }
+    Fft::forward(re.data(), im.data(), size);
+
+    const auto from = static_cast<int>(lowHz * size / sampleRate);
+    const auto to = std::min(size / 2, static_cast<int>(highHz * size / sampleRate));
+    double logSum = 0.0;
+    double sum = 0.0;
+    int count = 0;
+    for (int bin = from; bin < to; bin++) {
+        const double magnitude = std::max(1.0e-12, std::hypot(re[bin], im[bin]));
+        logSum += std::log(magnitude);
+        sum += magnitude;
+        count++;
+    }
+    return count ? std::exp(logSum / count) / (sum / count) : 0.0;
+}
+
+//! Whether a voice is one V2 plays with an engine of its own.
+//!
+//! The cymbals are fitted to a recording of the hardware: V1's crash carried four tenths of steady
+//! noise against four of metal, which measures as a wash rather than as struck metal, and neither
+//! cymbal had any body below 600 Hz. V1 keeps what it always played, so these three are the voices
+//! the two devices no longer share.
+bool isFittedCymbal(int voice)
+{
+    using enum DrumSynthV2::VoiceIndex;
+    const auto index = static_cast<DrumSynthV2::VoiceIndex>(voice);
+    return index == Crash || index == Ride || index == ReverseCrash;
+}
+
 template<typename DeviceT>
 std::vector<double> renderNote(uint8_t note, uint32_t blocks = 1)
 {
@@ -134,6 +172,9 @@ void DrumSynthV2Test::test_drumSynthV2Device_everyVoice_shouldStayCloseToV1()
     // has to stay far enough below the voice itself that nobody would call it a different drum.
     const DrumSynthV2Device notes { "Notes" };
     for (int voice = 0; voice < DrumSynthV2::NumVoices; voice++) {
+        if (isFittedCymbal(voice)) {
+            continue;
+        }
         const auto note = notes.voiceNote(voice);
         const auto v1 = renderNote<DrumSynthDevice>(note, fullTailBlocks);
         const auto v2 = renderNote<DrumSynthV2Device>(note, fullTailBlocks);
@@ -236,6 +277,9 @@ void DrumSynthV2Test::test_ampEnvelope_fullSustain_shouldMatchV1Exactly()
     // the attack, hold and release at zero the envelope is a constant one, and the voice is V1's.
     const DrumSynthV2Device notes { "Notes" };
     for (int voice = 0; voice < DrumSynthV2::NumVoices; voice++) {
+        if (isFittedCymbal(voice)) {
+            continue;
+        }
         const auto note = notes.voiceNote(voice);
 
         DrumSynthV2Device v2 { "V2" };
@@ -501,6 +545,59 @@ void DrumSynthV2Test::test_voiceElapsedSeconds_shouldFollowTheVoice()
     // And gone once the voice has run out.
     render(fullTailBlocks);
     QVERIFY(!device.voiceElapsedSeconds(kick).has_value());
+}
+
+void DrumSynthV2Test::test_cymbals_shouldBeStruckMetalRatherThanNoise()
+{
+    // What separates a cymbal from a wash of noise shaped like one, and the thing the recordings
+    // were fitted against: measured over its attack the hardware's crash is far more tonal in its
+    // top two octaves than the engine V1 plays, which is heard as water rather than as metal.
+    DrumSynthV2Device v2 { "V2" };
+    DrumSynthDevice v1 { "V1" };
+
+    for (auto voice : { static_cast<int>(DrumSynthV2::VoiceIndex::Crash), static_cast<int>(DrumSynthV2::VoiceIndex::Ride) }) {
+        const auto note = v2.voiceNote(voice);
+        const auto fitted = v2.renderVoiceAlone(voice, sampleRate, 4.0);
+        const auto classic = renderNote<DrumSynthDevice>(note, fullTailBlocks);
+
+        const auto fittedFlatness = bandFlatness(fitted, 5000.0, 16000.0);
+        const auto classicFlatness = bandFlatness(classic, 5000.0, 16000.0);
+        QVERIFY2(fittedFlatness < classicFlatness,
+                 qPrintable(QString { "%1: fitted %2 is no more tonal than V1's %3" }
+                              .arg(DrumSynthV2::voiceName(voice)).arg(fittedFlatness).arg(classicFlatness)));
+    }
+}
+
+void DrumSynthV2Test::test_cymbals_shouldHaveABody()
+{
+    // Neither cymbal had anything below 600 Hz worth measuring: V1's ride high-passed it all away,
+    // and the crash's body envelope lasted twenty milliseconds. The recordings carry that band for
+    // the whole of the sound.
+    const auto bandDb = [](const std::vector<double> & frames, double lowHz, double highHz) {
+        constexpr int size = 8192;
+        std::vector<double> re(size, 0.0), im(size, 0.0);
+        for (int i = 0; i < size && static_cast<size_t>(i) * 2 < frames.size(); i++) {
+            re[static_cast<size_t>(i)] = frames.at(static_cast<size_t>(i) * 2) * (0.5 - 0.5 * std::cos(2.0 * M_PI * i / (size - 1)));
+        }
+        Fft::forward(re.data(), im.data(), size);
+        double power = 0.0;
+        for (int bin = static_cast<int>(lowHz * size / sampleRate); bin < std::min(size / 2, static_cast<int>(highHz * size / sampleRate)); bin++) {
+            power += re[bin] * re[bin] + im[bin] * im[bin];
+        }
+        return 10.0 * std::log10(std::max(power, 1.0e-30));
+    };
+
+    DrumSynthV2Device v2 { "V2" };
+    for (auto voice : { static_cast<int>(DrumSynthV2::VoiceIndex::Crash), static_cast<int>(DrumSynthV2::VoiceIndex::Ride) }) {
+        const auto fitted = v2.renderVoiceAlone(voice, sampleRate, 4.0);
+        const auto body = bandDb(fitted, 200.0, 600.0);
+        const auto whole = bandDb(fitted, 20.0, 20000.0);
+        // The recordings sit twelve decibels under their own total for the crash and twenty for the
+        // ride. What is asserted is that the band is there at all, which it was not.
+        QVERIFY2(body - whole > -30.0,
+                 qPrintable(QString { "%1 has no body: %2 dB under the whole" }
+                              .arg(DrumSynthV2::voiceName(voice)).arg(body - whole)));
+    }
 }
 
 void DrumSynthV2Test::test_drumSynthV2Device_xmlSerialization_shouldRestoreParameters()

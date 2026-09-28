@@ -29,6 +29,17 @@ namespace noteahead {
 class RideEngine : public DrumEngine
 {
 public:
+    //! Which cymbal this is voiced as.
+    //!
+    //! Classic is what the original Drum Synth has always played and is not free to change: every
+    //! kit written against it has to keep sounding the way it did. Rd9 is fitted to a recording of
+    //! the hardware and is what Drum Synth V2 selects.
+    enum class Voicing
+    {
+        Classic,
+        Rd9
+    };
+
     RideEngine();
     virtual ~RideEngine() override = default;
 
@@ -37,6 +48,8 @@ public:
     bool isActive() const override;
     void reset() override;
     void stop() override;
+
+    void setVoicing(Voicing voicing);
 
     void setTune(float tune);
     void setDecay(float decay);
@@ -47,6 +60,7 @@ private:
     float m_attackEnv { 0.0f };
     bool m_active { false };
 
+    Voicing m_voicing { Voicing::Classic };
     float m_tune { 0.5f };
     float m_decay { 0.5f };
     float m_resonance { 0.3f };
@@ -64,7 +78,12 @@ private:
     BaseRateSource m_noiseBank;
     float nextMetallicBaseSample();
 
-    std::array<double, 6> m_phases { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    //! Ten, of which the Classic voicing sounds the first six. The hardware's ride carries most of
+    //! its weight between four and sixteen kilohertz, and six partials over a 550 Hz base reach
+    //! only 2.3: everything above that was coming from the noise, which is why taking the noise
+    //! away took the brightness with it.
+    static constexpr size_t ClassicPartials { 6 };
+    std::array<double, 10> m_phases {};
     bool m_stopping { false };
 };
 

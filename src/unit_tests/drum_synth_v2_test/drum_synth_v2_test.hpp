@@ -41,6 +41,8 @@ private slots:
     void test_voicePreview_shouldNotDisturbTheDeviceItPictures();
     void test_voicePreview_shortEnvelope_shouldShortenOnlyWhatIsHeard();
     void test_voiceElapsedSeconds_shouldFollowTheVoice();
+    void test_cymbals_shouldBeStruckMetalRatherThanNoise();
+    void test_cymbals_shouldHaveABody();
     void test_drumSynthV2Device_xmlSerialization_shouldRestoreParameters();
 };
 

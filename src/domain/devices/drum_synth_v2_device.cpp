@@ -642,12 +642,21 @@ void DrumSynthV2Device::initializeVoices()
         else if (voiceIdx >= VoiceIndex::LowTom && voiceIdx <= VoiceIndex::HighTom)
             m_voices.at(i).engine = std::make_unique<TomEngine>();
         else if (voiceIdx == VoiceIndex::Crash) {
-            m_voices.at(i).engine = std::make_unique<CrashEngine>();
+            // The cymbals are the two voices V2 does not share with V1. Both were fitted to a
+            // recording: the crash had four tenths of steady noise against four of metal, which
+            // measured as a wash rather than as struck metal, and neither of them had any body
+            // below 600 Hz at all.
+            auto crash = std::make_unique<CrashEngine>();
+            crash->setVoicing(CrashEngine::Voicing::Rd9);
+            m_voices.at(i).engine = std::move(crash);
         } else if (voiceIdx == VoiceIndex::Ride) {
-            m_voices.at(i).engine = std::make_unique<RideEngine>();
+            auto ride = std::make_unique<RideEngine>();
+            ride->setVoicing(RideEngine::Voicing::Rd9);
+            m_voices.at(i).engine = std::move(ride);
         } else if (voiceIdx == VoiceIndex::ReverseCrash) {
             auto crash = std::make_unique<CrashEngine>();
             crash->setMode(CrashEngine::Mode::Reverse);
+            crash->setVoicing(CrashEngine::Voicing::Rd9);
             m_voices.at(i).engine = std::move(crash);
         }
     }
