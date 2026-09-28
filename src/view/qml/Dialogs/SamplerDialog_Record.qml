@@ -26,94 +26,121 @@ RowLayout {
     id: root
 
     property bool samplerDialogVisible: false
+    //! What the controls span, so they can be lined up with the pad matrix below them. Zero lets
+    //! them take whatever they need.
+    property real controlsWidth: 0
 
     spacing: 10
 
-    // The same round, red-rimmed record button the song recorder has in the editor: pressing
-    // record is pressing record, wherever you happen to be.
-    Button {
-        id: recordButton
-        Layout.preferredHeight: inputCombo.implicitHeight
-        Layout.preferredWidth: height
+    // Sized to the pad matrix underneath, so the strip reads as belonging to it rather than
+    // floating above it at a width of its own.
+    RowLayout {
+        id: controls
 
-        enabled: samplerController.selectedPad >= 0 && inputCombo.count > 0
-        opacity: enabled ? 1.0 : 0.5
-        focusPolicy: Qt.NoFocus
-        onClicked: samplerController.recording ? samplerController.stopRecording() : samplerController.startRecording()
+        Layout.preferredWidth: root.controlsWidth > 0 ? root.controlsWidth : implicitWidth
+        spacing: 10
 
-        ToolTip.delay: Constants.toolTipDelay
-        ToolTip.timeout: Constants.toolTipTimeout
-        ToolTip.visible: hovered
-        ToolTip.text: samplerController.recording ? qsTr("Stops recording and puts what was recorded on the pad.") : qsTr("Records the chosen input onto the selected pad. Whatever the pad held is replaced.")
+        // The same round, red-rimmed record button the song recorder has in the editor: pressing
+        // record is pressing record, wherever you happen to be.
+        Button {
+            id: recordButton
 
-        background: Rectangle {
-            id: recordBackground
-            radius: height / 2
-            color: samplerController.recording ? "#440000" : "#333333"
-            border.color: samplerController.recording ? "#FF0000" : "#555555"
-            border.width: 1
+            Layout.preferredHeight: inputCombo.implicitHeight
+            Layout.preferredWidth: height
 
-            // Breathing while it is actually recording, which is what tells it apart from the
-            // song's switch: that one is armed and waiting, this one is running.
-            SequentialAnimation on opacity {
-                running: samplerController.recording
-                loops: Animation.Infinite
-                alwaysRunToEnd: true
-                NumberAnimation {
-                    to: 0.45
-                    duration: 600
-                    easing.type: Easing.InOutSine
+            enabled: samplerController.selectedPad >= 0 && inputCombo.count > 0
+            opacity: enabled ? 1.0 : 0.5
+            focusPolicy: Qt.NoFocus
+            onClicked: samplerController.recording ? samplerController.stopRecording() : samplerController.startRecording()
+
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: samplerController.recording ? qsTr("Stops recording and puts what was recorded on the pad.") : qsTr("Records the chosen input onto the selected pad. Whatever the pad held is replaced.")
+
+            background: Rectangle {
+                id: recordBackground
+                radius: height / 2
+                color: samplerController.recording ? "#440000" : "#333333"
+                border.color: samplerController.recording ? "#FF0000" : "#555555"
+                border.width: 1
+
+                // Breathing while it is actually recording, which is what tells it apart from the
+                // song's switch: that one is armed and waiting, this one is running.
+                SequentialAnimation on opacity {
+                    running: samplerController.recording
+                    loops: Animation.Infinite
+                    alwaysRunToEnd: true
+                    NumberAnimation {
+                        to: 0.45
+                        duration: 600
+                        easing.type: Easing.InOutSine
+                    }
+                    NumberAnimation {
+                        to: 1.0
+                        duration: 600
+                        easing.type: Easing.InOutSine
+                    }
+                    onRunningChanged: if (!running) {
+                        recordBackground.opacity = 1.0;
+                    }
                 }
-                NumberAnimation {
-                    to: 1.0
-                    duration: 600
-                    easing.type: Easing.InOutSine
-                }
-                onRunningChanged: if (!running) {
-                    recordBackground.opacity = 1.0;
+            }
+
+            contentItem: Item {
+                Image {
+                    source: "../Graphics/record.png"
+                    width: parent.height * 0.8
+                    height: width
+                    sourceSize.width: width
+                    sourceSize.height: height
+                    fillMode: Image.PreserveAspectFit
+                    x: Math.floor((parent.width - width) / 2)
+                    y: Math.floor((parent.height - height) / 2)
                 }
             }
         }
 
-        contentItem: Item {
-            Image {
-                source: "../Graphics/record.png"
-                width: parent.height * 0.8
-                height: width
-                sourceSize.width: width
-                sourceSize.height: height
-                fillMode: Image.PreserveAspectFit
-                x: Math.floor((parent.width - width) / 2)
-                y: Math.floor((parent.height - height) / 2)
+        // The same input the rest of the application records from, and the same setting: there is
+        // one recorder and one persisted choice, so a picker of the sampler's own would change the
+        // live device without saving it and leave Settings showing something else. Offered here
+        // because choosing an input is part of sampling, owned there because that is where it
+        // belongs.
+        ComboBox {
+            id: inputCombo
+
+            Layout.fillWidth: true
+            textRole: "name"
+            valueRole: "id"
+            enabled: !samplerController.recording
+            model: audioSettingsModel.inputDevices
+            onActivated: audioSettingsModel.selectedInputDeviceId = currentValue
+            Component.onCompleted: currentIndex = indexOfValue(audioSettingsModel.selectedInputDeviceId)
+
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Which input is sampled. The same one the rest of the application records from, so changing it here changes it in Settings too.")
+
+            Connections {
+                target: audioSettingsModel
+                function onInputDevicesChanged() {
+                    inputCombo.currentIndex = inputCombo.indexOfValue(audioSettingsModel.selectedInputDeviceId);
+                }
+                function onSelectedInputDeviceIdChanged() {
+                    inputCombo.currentIndex = inputCombo.indexOfValue(audioSettingsModel.selectedInputDeviceId);
+                }
             }
         }
-    }
 
-    Label {
-        text: qsTr("Input")
-    }
-
-    // The same input the rest of the application records from, and the same setting: there is one
-    // recorder and one persisted choice, so a picker of the sampler's own would change the live
-    // device without saving it and leave Settings showing something else. Offered here because
-    // choosing an input is part of sampling, owned there because that is where it belongs.
-    ComboBox {
-        id: inputCombo
-        Layout.preferredWidth: 260
-        textRole: "name"
-        valueRole: "id"
-        enabled: !samplerController.recording
-        model: audioSettingsModel.inputDevices
-        onActivated: audioSettingsModel.selectedInputDeviceId = currentValue
-        Component.onCompleted: currentIndex = indexOfValue(audioSettingsModel.selectedInputDeviceId)
-        Connections {
-            target: audioSettingsModel
-            function onInputDevicesChanged() {
-                inputCombo.currentIndex = inputCombo.indexOfValue(audioSettingsModel.selectedInputDeviceId);
-            }
-            function onSelectedInputDeviceIdChanged() {
-                inputCombo.currentIndex = inputCombo.indexOfValue(audioSettingsModel.selectedInputDeviceId);
-            }
+        AppButton {
+            text: qsTr("Refresh")
+            enabled: !samplerController.recording
+            onClicked: audioSettingsModel.refreshInputDevices()
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Looks for inputs again, for something plugged in since the dialog was opened.")
         }
     }
 
@@ -125,13 +152,5 @@ RowLayout {
         // anywhere to live is only kept because saving writes it out, and that is worth knowing
         // before you record something you cannot do twice.
         text: samplerController.recording ? qsTr("Recording onto the selected pad…") : (editorService.currentFileName ? "" : qsTr("The project has not been saved, so recordings are kept only until you save it."))
-    }
-
-    AppButton {
-        text: qsTr("Refresh")
-        enabled: !samplerController.recording
-        onClicked: audioSettingsModel.refreshInputDevices()
-        ToolTip.visible: hovered
-        ToolTip.text: qsTr("Looks for inputs again, for something plugged in since the dialog was opened.")
     }
 }

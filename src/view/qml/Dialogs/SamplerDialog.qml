@@ -101,9 +101,9 @@ AnimatedDialog {
 
         SamplerDialog_Record {
             Layout.fillWidth: true
-            Layout.leftMargin: 10
-            Layout.rightMargin: 10
             samplerDialogVisible: root.visible
+            // Lined up with the pad matrix, whose width follows its own height.
+            controlsWidth: pads.width
         }
 
         ScrollView {
@@ -119,6 +119,7 @@ AnimatedDialog {
                 spacing: 20
 
                 SamplerDialog_Pads {
+                    id: pads
                     fileDialog: sampleFileDialog
                     Layout.fillHeight: true
                     Layout.alignment: Qt.AlignTop
