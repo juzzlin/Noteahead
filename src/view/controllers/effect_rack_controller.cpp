@@ -26,7 +26,6 @@
 #include "../../domain/effects/analog_fuzz.hpp"
 #include "../../domain/effects/auto_ducker.hpp"
 #include "../../domain/effects/auto_filter.hpp"
-#include "../../domain/effects/auto_panner.hpp"
 #include "../../domain/effects/bass_grinder.hpp"
 #include "../../domain/effects/chorus.hpp"
 #include "../../domain/effects/clipper.hpp"
@@ -613,7 +612,7 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                         rateStr = knobController.syncLabel(knobController.syncIndex(division->get().value() * Constants::uiInternalScaling()));
                     } else {
                         const auto rate = effect->parameter(Constants::NahdXml::xmlKeyRate().toStdString());
-                        const float rateHz = static_cast<float>(ParameterMapper::mapExponential(rate->get().value(), 0.05, 20.0));
+                        const float rateHz = static_cast<float>(ParameterMapper::mapLfoFrequency(rate->get().value(), 0.05, 20.0));
                         rateStr = QString { "%1Hz" }.arg(rateHz, 0, 'f', 2);
                     }
                     return QString { "(rate=%1, int=%2%)" }

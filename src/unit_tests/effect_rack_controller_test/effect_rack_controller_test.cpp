@@ -203,9 +203,13 @@ void EffectRackControllerTest::test_effectParametersSummary_autoPanner_shouldRet
     controller.setIsInsertRack(true);
     controller.setEffect(0, QString::fromStdString(AutoPanner::typeIdString()));
 
-    // Default auto panner: rate 1.00Hz, intensity 100%
+    // Default auto panner: rate 3.52Hz, intensity 100%.
+    //
+    // It read 1.00Hz until the summary was made to map the rate the way the LFO itself does. The two
+    // mappings agree at both ends of the control and are out by three and a half times in the
+    // middle, so what the number said and what the pan did were never the same thing.
     const auto summary = controller.effectParametersSummary(0);
-    QCOMPARE(summary, QString { "(rate=1.00Hz, int=100%)" });
+    QCOMPARE(summary, QString { "(rate=3.52Hz, int=100%)" });
 }
 
 void EffectRackControllerTest::test_effectParametersSummary_autoFilter_shouldReturnFormattedSummary()

@@ -112,7 +112,10 @@ EffectDialog {
                     Knob {
                         label: qsTr("Rate")
                         suffix: "Hz"
-                        mapping: "exponential"
+                        // As the LFO itself maps it. It read as an exponential between the same two
+                        // ends, which agrees at both and is out by three and a half times in the
+                        // middle: the knob said one hertz where the pan was moving at three.
+                        mapping: "lfoFrequency"
                         mapMin: 0.05
                         mapMax: 20.0
                         value: {
