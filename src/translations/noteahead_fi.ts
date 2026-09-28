@@ -10411,7 +10411,7 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     </message>
     <message>
         <source>Decimate</source>
-        <translation type="unfinished"></translation>
+        <translation>Desimointi</translation>
     </message>
     <message>
         <source>Pitch 1</source>
