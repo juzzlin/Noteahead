@@ -23,6 +23,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <optional>
 #include <vector>
 
 #include "../../infra/audio/backend/audio_file_reader.hpp"
@@ -108,6 +109,13 @@ signals:
 
 private:
     void handleEvent(const Event & event);
+
+    //! How long a note lasts, in beats, or nothing when the render does not say.
+    //!
+    //! The same answer PlayerWorker gives, because a device that fits something inside a note --
+    //! Speech, whose Line mode spans the note that speaks it -- has to hear the same length whether
+    //! the song is being played or written to a file.
+    std::optional<double> noteBeatsOf(const Event & event) const;
     double runNormalizationScan(const QString & tempPath);
     void writeFinalFile(const QString & tempPath, const QString & finalPath, double gain, quint32 sampleRate, quint32 recordingBufferSize, noteahead::BitDepth bitDepth, noteahead::AudioFormat format, const std::map<noteahead::AudioFileReader::TagType, std::string> & tags);
 
@@ -120,6 +128,9 @@ private:
     MixerServiceS m_mixerService;
 
     AudioFileReaderFactory m_audioFileReaderFactory;
+
+    //! Kept from the render's own parameters, so handleEvent() can turn a note-off tick into beats.
+    Timing m_timing {};
 
     bool m_isRendering = false;
 };

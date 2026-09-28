@@ -63,6 +63,9 @@ Bug fixes:
 * A Speech line no longer drawls over the rest of the song when nothing ends
   the note that speaks it
 
+* Speech's Line mode now fits a line to its note in a render as well as in
+  playback, having always fallen back to Length when rendering
+
 8.0.0
 =====
 

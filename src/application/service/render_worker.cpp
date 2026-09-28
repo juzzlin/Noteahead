@@ -129,6 +129,7 @@ void RenderWorker::render(const QString & fileName,
         }
 
         m_audioEngine->setBpm(static_cast<float>(timing.beatsPerMinute));
+        m_timing = timing;
 
         // A render has to be a function of the project and nothing else: the same song must come out
         // the same whatever the session did beforehand. Three things go into that, in this order.
@@ -353,6 +354,19 @@ void RenderWorker::render(const QString & fileName,
     }
 }
 
+std::optional<double> RenderWorker::noteBeatsOf(const Event & event) const
+{
+    const auto noteOffTick = event.noteOffTick();
+    if (!noteOffTick || *noteOffTick <= event.tick()) {
+        return std::nullopt;
+    }
+    const auto ticksPerBeat = static_cast<double>(m_timing.ticksPerLine * m_timing.linesPerBeat);
+    if (ticksPerBeat <= 0.0) {
+        return std::nullopt;
+    }
+    return static_cast<double>(*noteOffTick - event.tick()) / ticksPerBeat;
+}
+
 void RenderWorker::handleEvent(const Event & event)
 {
     event.visit([&](auto && data) {
@@ -365,7 +379,10 @@ void RenderWorker::handleEvent(const Event & event)
                     } else if (data.type() == NoteData::Type::NoteOn && data.note().has_value()) {
                         if (m_mixerService->shouldColumnPlay(data.track(), data.column())) {
                             const auto effectiveVelocity = m_mixerService->effectiveVelocity(data.track(), data.column(), data.velocity());
-                            m_deviceService->processMidiNoteOn(portName, *data.note(), effectiveVelocity);
+                            // With the note's length, as the player sends it. Without it Speech's
+                            // Line mode has nothing to fit a line inside and falls back to Length,
+                            // so a rendered song spoke to a different clock than the played one.
+                            m_deviceService->processMidiNoteOn(portName, *data.note(), effectiveVelocity, noteBeatsOf(event));
                         }
                     }
                 }
