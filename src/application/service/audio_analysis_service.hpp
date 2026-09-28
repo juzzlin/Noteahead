@@ -62,6 +62,10 @@ public:
     //! True while either side is being measured.
     bool isAnalyzing() const;
 
+    //! True while this side in particular is being measured. The side keeps showing its previous
+    //! result meanwhile, so this is what says the reading on screen is about to be replaced.
+    bool isAnalyzing(Side side) const;
+
     //! The comparison as it is written to disk. Empty when neither side holds a result.
     QString reportText() const;
 

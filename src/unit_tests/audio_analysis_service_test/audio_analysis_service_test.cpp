@@ -262,6 +262,54 @@ void AudioAnalysisServiceTest::test_swap_shouldInvertTheDifference()
              qPrintable(QString { "%1 against %2 before the swap" }.arg(highMinusLow(service)).arg(before)));
 }
 
+void AudioAnalysisServiceTest::test_analyze_secondFileOnTheSameSide_shouldReplaceTheFirst()
+{
+    // Opening another file into a side that already holds one has to measure the new file rather
+    // than leave the old reading on screen.
+    Library library {
+        { "dark.wav", tiltedNoise(4.0, 0.25) },
+        { "bright.wav", tiltedNoise(4.0, 4.0) }
+    };
+    AudioAnalysisService service;
+    service.setAudioFileReaderFactory([&library] { return std::make_unique<MockAudioFileReader>(library); });
+
+    analyzeAndWait(service, AudioAnalysisService::Side::Left, "dark.wav");
+    const auto first = service.analysis(AudioAnalysisService::Side::Left).spectrum.highDb;
+    QCOMPARE(service.analysis(AudioAnalysisService::Side::Left).filePath, QString { "dark.wav" });
+
+    analyzeAndWait(service, AudioAnalysisService::Side::Left, "bright.wav");
+
+    QCOMPARE(service.analysis(AudioAnalysisService::Side::Left).filePath, QString { "bright.wav" });
+    const auto second = service.analysis(AudioAnalysisService::Side::Left).spectrum.highDb;
+    QVERIFY2(second - first > 3.0, qPrintable(QString { "highs went from %1 to %2 dB" }.arg(first).arg(second)));
+    QVERIFY(!service.isAnalyzing());
+}
+
+void AudioAnalysisServiceTest::test_analyze_shouldMarkOnlyItsOwnSideBusy()
+{
+    // Each side shows its own progress: the dialog keeps the previous reading on screen while a new
+    // file is measured, so without this there is nothing to say anything is happening.
+    Library library { { "dark.wav", tiltedNoise(1.0, 0.25) }, { "bright.wav", tiltedNoise(1.0, 4.0) } };
+    AudioAnalysisService service;
+    service.setAudioFileReaderFactory([&library] { return std::make_unique<MockAudioFileReader>(library); });
+
+    QSignalSpy busyChanged { &service, &AudioAnalysisService::isAnalyzingChanged };
+
+    service.analyze(AudioAnalysisService::Side::Right, "bright.wav");
+    QVERIFY(service.isAnalyzing(AudioAnalysisService::Side::Right));
+    QVERIFY(!service.isAnalyzing(AudioAnalysisService::Side::Left));
+    QCOMPARE(busyChanged.count(), 1);
+
+    // A second side starting while the first is still going has to announce itself as well.
+    service.analyze(AudioAnalysisService::Side::Left, "dark.wav");
+    QVERIFY(service.isAnalyzing(AudioAnalysisService::Side::Left));
+    QCOMPARE(busyChanged.count(), 2);
+
+    QTRY_VERIFY_WITH_TIMEOUT(!service.isAnalyzing(), 30000);
+    QVERIFY(!service.isAnalyzing(AudioAnalysisService::Side::Left));
+    QVERIFY(!service.isAnalyzing(AudioAnalysisService::Side::Right));
+}
+
 void AudioAnalysisServiceTest::test_recentFiles_shouldListWhatWasMeasured()
 {
     QStandardPaths::setTestModeEnabled(true);

@@ -42,6 +42,8 @@ class AudioAnalysisController : public QObject
     Q_PROPERTY(bool hasRight READ hasRight NOTIFY analysisChanged)
     Q_PROPERTY(bool isAnalyzing READ isAnalyzing NOTIFY isAnalyzingChanged)
     Q_PROPERTY(QStringList recentFiles READ recentFiles NOTIFY recentFilesChanged)
+    Q_PROPERTY(bool leftBusy READ leftBusy NOTIFY isAnalyzingChanged)
+    Q_PROPERTY(bool rightBusy READ rightBusy NOTIFY isAnalyzingChanged)
 
 public:
     using AudioAnalysisServiceS = std::shared_ptr<AudioAnalysisService>;
@@ -77,6 +79,8 @@ public:
     bool hasRight() const;
     bool isAnalyzing() const;
     QStringList recentFiles() const;
+    bool leftBusy() const;
+    bool rightBusy() const;
 
 signals:
     void analysisChanged();

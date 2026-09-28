@@ -47,10 +47,17 @@ constexpr double NormalizeLowHz = 99.0;
 constexpr double NormalizeHighHz = 8000.0;
 
 //! The four regions the summary reports, as [low, high] in hertz.
+//! Below the range everything else is normalised against: what a club system will find and a phone
+//! will not. The same region MixAdvisor calls Sub, so the table and the notes agree.
+constexpr double SubRange[] { 20.0, 50.0 };
+//! Between the sub and the low mids: the octave the kick and the bass are heard in.
+constexpr double BassRange[] { 50.0, 99.0 };
 constexpr double LowMidRange[] { 99.0, 250.0 };
 constexpr double MidRange[] { 250.0, 630.0 };
 constexpr double UpperMidRange[] { 794.0, 1600.0 };
 constexpr double HighRange[] { 2520.0, 8000.0 };
+//! Above brightness, where a mix either breathes or does not. The same region MixAdvisor calls Air.
+constexpr double AirRange[] { 10000.0, 20000.0 };
 
 //! Third-octave band edges: a sixth of an octave either side of the centre.
 constexpr double EdgeRatio = 1.122462048309373; // 2^(1/6)
@@ -189,10 +196,13 @@ SpectrumAnalyzer::Result SpectrumAnalyzer::calculate() const
         band.levelDb = static_cast<float>(static_cast<double>(band.levelDb) - reference);
     }
 
+    result.subDb = static_cast<float>(meanOfRange(result.bands, SubRange[0], SubRange[1]));
+    result.bassDb = static_cast<float>(meanOfRange(result.bands, BassRange[0], BassRange[1]));
     result.lowMidDb = static_cast<float>(meanOfRange(result.bands, LowMidRange[0], LowMidRange[1]));
     result.midDb = static_cast<float>(meanOfRange(result.bands, MidRange[0], MidRange[1]));
     result.upperMidDb = static_cast<float>(meanOfRange(result.bands, UpperMidRange[0], UpperMidRange[1]));
     result.highDb = static_cast<float>(meanOfRange(result.bands, HighRange[0], HighRange[1]));
+    result.airDb = static_cast<float>(meanOfRange(result.bands, AirRange[0], AirRange[1]));
     result.upperMidToHighDb = result.upperMidDb - result.highDb;
     result.isValid = true;
 

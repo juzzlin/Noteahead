@@ -83,6 +83,10 @@ void AnalysisReportFormatterTest::test_comparisonText_shouldSubtractTheLeftFromT
     QCOMPARE(rowFor(report, "100 Hz"), QString { "100 Hz -1.0 -3.0 -2.0" });
     QCOMPARE(rowFor(report, "1.0 kHz"), QString { "1.0 kHz 0.0 2.5 2.5" });
     QVERIFY(report.contains("Highs 2.5-8 kHz:"));
+    // The bottom belongs in the comparison as much as the top: it is what a club will find.
+    QVERIFY(report.contains("Sub 20-50 Hz:"));
+    QVERIFY(report.contains("Bass 50-100 Hz:"));
+    QVERIFY(report.contains("Air 10-20 kHz:"));
 }
 
 void AnalysisReportFormatterTest::test_comparisonText_oneSideOnly_shouldLeaveTheDifferenceOut()

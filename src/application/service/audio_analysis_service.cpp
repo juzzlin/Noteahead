@@ -65,11 +65,11 @@ void AudioAnalysisService::analyze(Side side, const QString & filePath)
 
     juzzlin::L(TAG).info() << "Requesting analysis of " << filePath.toStdString();
 
-    const auto wasAnalyzing = isAnalyzing();
+    // Emitted whenever a side's state changes rather than only when the first one starts: each side
+    // shows its own progress, and a second file opened while the first is still being measured has
+    // to light up too.
     m_pending.at(index(side)) = true;
-    if (!wasAnalyzing) {
-        emit isAnalyzingChanged();
-    }
+    emit isAnalyzingChanged();
 
     // Queued on purpose: the worker lives in its own thread, and the file is read there.
     QMetaObject::invokeMethod(m_worker.get(), "analyze", Qt::QueuedConnection,
@@ -97,6 +97,11 @@ const AudioAnalysis & AudioAnalysisService::analysis(Side side) const
 bool AudioAnalysisService::isAnalyzing() const
 {
     return m_pending.at(index(Side::Left)) || m_pending.at(index(Side::Right));
+}
+
+bool AudioAnalysisService::isAnalyzing(Side side) const
+{
+    return m_pending.at(index(side));
 }
 
 QString AudioAnalysisService::reportText() const
@@ -148,9 +153,7 @@ void AudioAnalysisService::onAnalysisFinished(int side, noteahead::AudioAnalysis
     m_pending.at(index(static_cast<Side>(side))) = false;
 
     emit analysisChanged(side);
-    if (!isAnalyzing()) {
-        emit isAnalyzingChanged();
-    }
+    emit isAnalyzingChanged();
 }
 
 void AudioAnalysisService::onAnalysisFailed(int side, QString message)
@@ -160,9 +163,7 @@ void AudioAnalysisService::onAnalysisFailed(int side, QString message)
 
     emit analysisChanged(side);
     emit errorOccurred(side, message);
-    if (!isAnalyzing()) {
-        emit isAnalyzingChanged();
-    }
+    emit isAnalyzingChanged();
 }
 
 } // namespace noteahead

@@ -93,11 +93,14 @@ QString html(const AudioAnalysis & analysis)
         };
         report += QString { "<br><table width='100%' cellpadding='5' cellspacing='0'>"
                             "<tr><td bgcolor='#2c2c2c'><b>Balance</b></td>"
-                            "<td align='right' bgcolor='#2c2c2c'><b>vs. own midrange</b></td></tr>%1%2%3%4%5</table>" }
-                    .arg(row("Low mids (100-250 Hz)", result.spectrum.lowMidDb, "#4CAF50"),
+                            "<td align='right' bgcolor='#2c2c2c'><b>vs. own midrange</b></td></tr>%1%2%3%4%5%6%7%8</table>" }
+                    .arg(row("Sub (20-50 Hz)", result.spectrum.subDb, "#FFEB3B"),
+                         row("Bass (50-100 Hz)", result.spectrum.bassDb, "#8BC34A"),
+                         row("Low mids (100-250 Hz)", result.spectrum.lowMidDb, "#4CAF50"),
                          row("Mids (250-630 Hz)", result.spectrum.midDb, "#4CAF50"),
                          row("Presence (0.8-1.6 kHz)", result.spectrum.upperMidDb, "#2196F3"),
                          row("Highs (2.5-8 kHz)", result.spectrum.highDb, "#FF9800"),
+                         row("Air (10-20 kHz)", result.spectrum.airDb, "#00BCD4"),
                          row("Presence - highs", result.spectrum.upperMidToHighDb, "#888888"));
     }
 
@@ -139,10 +142,13 @@ QString text(const AudioAnalysis & analysis)
         report += "\nBalance\n";
         report += "Levels are relative to this mix's own 100 Hz - 8 kHz average, so they can be\n";
         report += "compared with another mix directly whatever the two were mastered to.\n\n";
+        report += label("Sub 20-50 Hz:", number(spectrum.subDb, "dB"));
+        report += label("Bass 50-100 Hz:", number(spectrum.bassDb, "dB"));
         report += label("Low mids 100-250 Hz:", number(spectrum.lowMidDb, "dB"));
         report += label("Mids 250-630 Hz:", number(spectrum.midDb, "dB"));
         report += label("Presence 0.8-1.6 kHz:", number(spectrum.upperMidDb, "dB"));
         report += label("Highs 2.5-8 kHz:", number(spectrum.highDb, "dB"));
+        report += label("Air 10-20 kHz:", number(spectrum.airDb, "dB"));
         report += label("Presence - highs:", number(spectrum.upperMidToHighDb, "dB"));
 
         report += "\nThird-octave average\n\n";
@@ -209,10 +215,13 @@ QString comparisonText(const AudioAnalysis & a, const AudioAnalysis & b)
         };
         report += "\n";
         report += QString { "%1%2%3%4\n" }.arg("", -22).arg("A", 8).arg("B", 8).arg("B - A", 8);
+        report += summary("Sub 20-50 Hz:", a.spectrum.subDb, b.spectrum.subDb);
+        report += summary("Bass 50-100 Hz:", a.spectrum.bassDb, b.spectrum.bassDb);
         report += summary("Low mids 100-250 Hz:", a.spectrum.lowMidDb, b.spectrum.lowMidDb);
         report += summary("Mids 250-630 Hz:", a.spectrum.midDb, b.spectrum.midDb);
         report += summary("Presence 0.8-1.6 kHz:", a.spectrum.upperMidDb, b.spectrum.upperMidDb);
         report += summary("Highs 2.5-8 kHz:", a.spectrum.highDb, b.spectrum.highDb);
+        report += summary("Air 10-20 kHz:", a.spectrum.airDb, b.spectrum.airDb);
         report += summary("Integrated LUFS:", a.loudness.integratedLoudness, b.loudness.integratedLoudness);
         report += summary("True peak dBTP:", a.loudness.truePeak, b.loudness.truePeak);
     }

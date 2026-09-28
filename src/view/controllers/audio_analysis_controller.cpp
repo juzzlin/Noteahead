@@ -174,4 +174,14 @@ bool AudioAnalysisController::isAnalyzing() const
     return m_audioAnalysisService->isAnalyzing();
 }
 
+bool AudioAnalysisController::leftBusy() const
+{
+    return m_audioAnalysisService->isAnalyzing(Side::Left);
+}
+
+bool AudioAnalysisController::rightBusy() const
+{
+    return m_audioAnalysisService->isAnalyzing(Side::Right);
+}
+
 } // namespace noteahead

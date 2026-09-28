@@ -31,6 +31,9 @@ private slots:
     void test_bands_whiteNoise_shouldRiseThreeDbPerThird();
     void test_bands_level_shouldNotDependOnMasteredLoudness();
     void test_summary_scoopedPresence_shouldLowerPresenceAgainstHighs();
+    void test_summary_subHeavyMix_shouldReportItsSub();
+    void test_summary_airyMix_shouldReportItsAir();
+    void test_summary_bassHeavyMix_shouldReportItsBass();
     void test_bands_mono_shouldMatchStereo();
 };
 

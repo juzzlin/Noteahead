@@ -174,6 +174,83 @@ void SpectrumAnalyzerTest::test_summary_scoopedPresence_shouldLowerPresenceAgain
              qPrintable(QString { "flat %1 dB, scooped %2 dB" }.arg(a.upperMidToHighDb).arg(b.upperMidToHighDb)));
 }
 
+void SpectrumAnalyzerTest::test_summary_subHeavyMix_shouldReportItsSub()
+{
+    // The bottom octave and a half is the part a club finds and a phone never will, so the summary
+    // has to carry it rather than leaving it to be read off the band list.
+    SpectrumAnalyzer loaded { SampleRate };
+    auto mix = noise(0.05);
+    const auto sub = tone(35.0, 0.5);
+    for (size_t i = 0; i < mix.size(); i++) {
+        mix[i] += sub[i];
+    }
+    feed(loaded, mix);
+    const auto withSub = loaded.calculate();
+
+    SpectrumAnalyzer plain { SampleRate };
+    feed(plain, noise(0.05));
+    const auto withoutSub = plain.calculate();
+
+    QVERIFY(withSub.isValid);
+    QVERIFY(withoutSub.isValid);
+    QVERIFY2(withSub.subDb - withoutSub.subDb > 10.0,
+             qPrintable(QString { "sub read %1 dB against %2 dB without it" }.arg(withSub.subDb).arg(withoutSub.subDb)));
+    // And only the sub moved: the bands it is measured against are the mix's own midrange.
+    QVERIFY2(std::abs(withSub.midDb - withoutSub.midDb) < 2.0,
+             qPrintable(QString { "the mids moved from %1 to %2 dB" }.arg(withoutSub.midDb).arg(withSub.midDb)));
+}
+
+void SpectrumAnalyzerTest::test_summary_airyMix_shouldReportItsAir()
+{
+    // The top octave is the other end of the same question: what a mix has above where brightness
+    // stops, which is the difference between open and dull.
+    SpectrumAnalyzer aired { SampleRate };
+    auto mix = noise(0.05);
+    const auto air = tone(12500.0, 0.5);
+    for (size_t i = 0; i < mix.size(); i++) {
+        mix[i] += air[i];
+    }
+    feed(aired, mix);
+    const auto withAir = aired.calculate();
+
+    SpectrumAnalyzer plain { SampleRate };
+    feed(plain, noise(0.05));
+    const auto withoutAir = plain.calculate();
+
+    QVERIFY(withAir.isValid);
+    QVERIFY2(withAir.airDb - withoutAir.airDb > 10.0,
+             qPrintable(QString { "air read %1 dB against %2 dB without it" }.arg(withAir.airDb).arg(withoutAir.airDb)));
+    QVERIFY2(std::abs(withAir.midDb - withoutAir.midDb) < 2.0,
+             qPrintable(QString { "the mids moved from %1 to %2 dB" }.arg(withoutAir.midDb).arg(withAir.midDb)));
+}
+
+void SpectrumAnalyzerTest::test_summary_bassHeavyMix_shouldReportItsBass()
+{
+    // The octave between the sub and the low mids, which a kick and a bass share and which the sub
+    // reading alone says nothing about.
+    SpectrumAnalyzer loaded { SampleRate };
+    auto mix = noise(0.05);
+    const auto bass = tone(70.0, 0.5);
+    for (size_t i = 0; i < mix.size(); i++) {
+        mix[i] += bass[i];
+    }
+    feed(loaded, mix);
+    const auto withBass = loaded.calculate();
+
+    SpectrumAnalyzer plain { SampleRate };
+    feed(plain, noise(0.05));
+    const auto withoutBass = plain.calculate();
+
+    QVERIFY(withBass.isValid);
+    QVERIFY2(withBass.bassDb - withoutBass.bassDb > 10.0,
+             qPrintable(QString { "bass read %1 dB against %2 dB without it" }.arg(withBass.bassDb).arg(withoutBass.bassDb)));
+    // A 70 Hz tone belongs to the bass reading alone: the neighbouring regions must not claim it.
+    QVERIFY2(std::abs(withBass.subDb - withoutBass.subDb) < 3.0,
+             qPrintable(QString { "the sub moved from %1 to %2 dB" }.arg(withoutBass.subDb).arg(withBass.subDb)));
+    QVERIFY2(std::abs(withBass.lowMidDb - withoutBass.lowMidDb) < 3.0,
+             qPrintable(QString { "the low mids moved from %1 to %2 dB" }.arg(withoutBass.lowMidDb).arg(withBass.lowMidDb)));
+}
+
 void SpectrumAnalyzerTest::test_bands_mono_shouldMatchStereo()
 {
     // Renders are not always two channels, and the stride is the analyzer's business rather than the

@@ -85,7 +85,7 @@ AnimatedDialog {
                 accentColor: root.leftColor
                 fileName: audioAnalysisController.leftFileName
                 report: audioAnalysisController.leftReport
-                busy: audioAnalysisController.isAnalyzing && !audioAnalysisController.hasLeft
+                busy: audioAnalysisController.leftBusy
                 onOpenRequested: openLeftDialog.open()
                 onClearRequested: audioAnalysisController.clearLeft()
                 onRecentRequested: filePath => audioAnalysisController.analyzeLeftPath(filePath)
@@ -107,7 +107,7 @@ AnimatedDialog {
                 accentColor: root.rightColor
                 fileName: audioAnalysisController.rightFileName
                 report: audioAnalysisController.rightReport
-                busy: audioAnalysisController.isAnalyzing && !audioAnalysisController.hasRight
+                busy: audioAnalysisController.rightBusy
                 onOpenRequested: openRightDialog.open()
                 onClearRequested: audioAnalysisController.clearRight()
                 onRecentRequested: filePath => audioAnalysisController.analyzeRightPath(filePath)

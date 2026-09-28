@@ -45,6 +45,13 @@ public:
     struct Result
     {
         std::vector<Band> bands;
+        //! The bottom octave and a half, which most systems do not reproduce and the rest reproduce
+        //! loudly. Measured over the same 20-50 Hz the notes talk about, so a reading here and a
+        //! sentence about the sub cannot describe different things.
+        float subDb { 0.0f };
+        //! Where the kick and the bass actually live on most systems, and the region a mix is most
+        //! often wrong in. Between the sub and the low mids, so the three read as one story.
+        float bassDb { 0.0f };
         //! Weight: what gives a mix its body.
         float lowMidDb { 0.0f };
         //! Between weight and presence, and where "mud" is blamed whether or not it lives there.
@@ -53,6 +60,9 @@ public:
         float upperMidDb { 0.0f };
         //! Brightness.
         float highDb { 0.0f };
+        //! The top octave: what a mix has left above where brightness stops and air begins. At
+        //! 44.1 kHz this reaches as far as the 16 kHz band, which is the last one there is.
+        float airDb { 0.0f };
         //! Presence against brightness, which is the single number a hollow mix gives itself away
         //! by: the two move in opposite directions and the ear reads the difference, not either one.
         float upperMidToHighDb { 0.0f };
