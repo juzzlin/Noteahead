@@ -259,11 +259,13 @@ public:
     Q_INVOKABLE QString phaserLfoModeKey() const;
     Q_INVOKABLE QString phaserLfoRateKey() const;
     Q_INVOKABLE QString phaserRateDividerKey() const;
+    Q_INVOKABLE QString autoPannerRateDividerKey() const;
     Q_INVOKABLE QString phaserStereoPhaseKey() const;
     Q_INVOKABLE QString phaserGainKey() const;
     Q_INVOKABLE QString phaserMixKey() const;
     Q_INVOKABLE int phaserMaxStages() const;
     Q_INVOKABLE int phaserMaxRateDivider() const;
+    Q_INVOKABLE int autoPannerMaxRateDivider() const;
 
     //! Shared by every effect whose LFO follows the Synth's shapes and modes.
     Q_INVOKABLE QStringList lfoWaveformNames() const;

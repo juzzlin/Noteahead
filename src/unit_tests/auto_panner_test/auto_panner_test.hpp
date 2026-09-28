@@ -28,6 +28,7 @@ private slots:
     void test_process_shouldModulatePanning();
     void test_intensity_shouldScaleModulation();
     void test_setBpm_shouldUpdateLfoFrequencyInSyncMode();
+    void test_rateDivider_shouldStretchTheSweep();
 };
 
 } // namespace noteahead

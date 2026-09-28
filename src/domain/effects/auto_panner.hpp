@@ -35,11 +35,17 @@ public:
     void sync() override;
     void setBpm(float bpm) override;
 
+    //! Largest factor the Rate Divider offers. As the Phaser's, so that the same control means the
+    //! same thing on both.
+    static int maxRateDivider();
+
 private:
     Lfo m_lfo;
     double m_intensity { 1.0 };
     double m_rate { 0.5 };
     double m_syncDivision { 0.25 };
+    //! One, so a project saved before this sweeps exactly as fast as it always did.
+    int m_rateDivider { 1 };
     bool m_sync { false };
 
     void updateLfoFrequency();

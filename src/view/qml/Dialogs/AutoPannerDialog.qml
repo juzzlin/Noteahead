@@ -136,6 +136,29 @@ EffectDialog {
                         Layout.fillWidth: true
                     }
                 }
+
+                Knob {
+                    label: qsTr("Rate Divider")
+                    mapping: "integer"
+                    suffix: ""
+                    from: 1
+                    to: effectRackController.autoPannerMaxRateDivider()
+                    stepSize: 1
+                    value: {
+                        effectRackController.revision;
+                        return Math.max(1, effectRackController.parameterValue(root.effectIndex, effectRackController.autoPannerRateDividerKey()));
+                    }
+                    onMoved: v => effectRackController.setParameterValue(root.effectIndex, effectRackController.autoPannerRateDividerKey(), Math.round(v))
+                    Layout.alignment: Qt.AlignTop
+                }
+            }
+
+            Label {
+                text: qsTr("Rate Divider divides the Rate by anything from 1 to %1, in both modes: a tempo-locked sweep can be stretched over several bars, and a free-running one over minutes.").arg(effectRackController.autoPannerMaxRateDivider())
+                wrapMode: Text.WordWrap
+                font.pixelSize: 11
+                color: "#aaa"
+                Layout.fillWidth: true
             }
 
             Item { Layout.fillHeight: true }

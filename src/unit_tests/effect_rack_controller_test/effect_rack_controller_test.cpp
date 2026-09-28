@@ -210,6 +210,10 @@ void EffectRackControllerTest::test_effectParametersSummary_autoPanner_shouldRet
     // middle, so what the number said and what the pan did were never the same thing.
     const auto summary = controller.effectParametersSummary(0);
     QCOMPARE(summary, QString { "(rate=3.52Hz, int=100%)" });
+
+    // The divider is reported in the rate, so a sweep stretched over bars reads as one.
+    controller.setParameterValue(0, controller.autoPannerRateDividerKey(), 4.0f);
+    QCOMPARE(controller.effectParametersSummary(0), QString { "(rate=0.88Hz, int=100%)" });
 }
 
 void EffectRackControllerTest::test_effectParametersSummary_autoFilter_shouldReturnFormattedSummary()

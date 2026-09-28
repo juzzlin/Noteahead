@@ -31,6 +31,12 @@ AutoPanner::AutoPanner()
     addParameter({ Constants::NahdXml::xmlKeyRate().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter({ Constants::NahdXml::xmlKeySync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
     addParameter({ Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString(), 0.25f, 0, 100, 25 });
+    addParameter({ Constants::NahdXml::xmlKeyRateDivider().toStdString(), 1.0f, 1, maxRateDivider(), 1, 1, Parameter::Type::Discrete });
+}
+
+int AutoPanner::maxRateDivider()
+{
+    return 64;
 }
 
 std::string AutoPanner::typeIdString()
@@ -86,6 +92,9 @@ void AutoPanner::sync()
     if (auto p = parameter(Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString()); p) {
         m_syncDivision = static_cast<double>(p->get().value());
     }
+    if (auto p = parameter(Constants::NahdXml::xmlKeyRateDivider().toStdString()); p) {
+        m_rateDivider = std::clamp(p->get().xmlValue(), 1, maxRateDivider());
+    }
     updateLfoFrequency();
 }
 
@@ -97,12 +106,12 @@ void AutoPanner::setBpm(float bpm)
 
 void AutoPanner::updateLfoFrequency()
 {
-    if (m_sync) {
-        const double bps = static_cast<double>(bpm()) / 60.0;
-        m_lfo.setFrequency(bps / (m_syncDivision * 4.0));
-    } else {
-        m_lfo.setFrequency(ParameterMapper::mapLfoFrequency(m_rate, 0.05, 20.0));
-    }
+    // The divider sits after both, as it does on the Phaser: sync tops out at one cycle per whole
+    // note, so a pan stretched over several bars had no way to be asked for at all.
+    const double frequency = m_sync
+      ? (static_cast<double>(bpm()) / 60.0) / (m_syncDivision * 4.0)
+      : ParameterMapper::mapLfoFrequency(m_rate, 0.05, 20.0);
+    m_lfo.setFrequency(frequency / m_rateDivider);
 }
 
 } // namespace noteahead

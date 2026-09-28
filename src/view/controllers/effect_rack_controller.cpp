@@ -26,6 +26,7 @@
 #include "../../domain/effects/analog_fuzz.hpp"
 #include "../../domain/effects/auto_ducker.hpp"
 #include "../../domain/effects/auto_filter.hpp"
+#include "../../domain/effects/auto_panner.hpp"
 #include "../../domain/effects/bass_grinder.hpp"
 #include "../../domain/effects/chorus.hpp"
 #include "../../domain/effects/clipper.hpp"
@@ -604,15 +605,22 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
             } else if (type == Constants::RackEffectType::autoPanner()) {
                 const auto sync = effect->parameter(Constants::NahdXml::xmlKeySync().toStdString());
                 const auto intensity = effect->parameter(Constants::NahdXml::xmlKeyIntensity().toStdString());
+                const auto divider = effect->parameter(Constants::NahdXml::xmlKeyRateDivider().toStdString());
                 if (sync && intensity) {
+                    const auto rateDivider = divider ? std::max(1, divider->get().xmlValue()) : 1;
                     QString rateStr;
                     if (sync->get().value() > 0.5f) {
                         const auto division = effect->parameter(Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString());
                         KnobController knobController;
+                        // A division cannot be divided into a division that has a name, so the
+                        // divider is reported as itself.
                         rateStr = knobController.syncLabel(knobController.syncIndex(division->get().value() * Constants::uiInternalScaling()));
+                        if (rateDivider > 1) {
+                            rateStr += QString { "/%1" }.arg(rateDivider);
+                        }
                     } else {
                         const auto rate = effect->parameter(Constants::NahdXml::xmlKeyRate().toStdString());
-                        const float rateHz = static_cast<float>(ParameterMapper::mapLfoFrequency(rate->get().value(), 0.05, 20.0));
+                        const float rateHz = static_cast<float>(ParameterMapper::mapLfoFrequency(rate->get().value(), 0.05, 20.0)) / static_cast<float>(rateDivider);
                         rateStr = QString { "%1Hz" }.arg(rateHz, 0, 'f', 2);
                     }
                     return QString { "(rate=%1, int=%2%)" }
@@ -1720,6 +1728,11 @@ QString EffectRackController::phaserRateDividerKey() const
     return Constants::NahdXml::xmlKeyRateDivider();
 }
 
+QString EffectRackController::autoPannerRateDividerKey() const
+{
+    return Constants::NahdXml::xmlKeyRateDivider();
+}
+
 QString EffectRackController::phaserStereoPhaseKey() const
 {
     return Constants::NahdXml::xmlKeyStereoPhase();
@@ -1743,6 +1756,11 @@ int EffectRackController::phaserMaxStages() const
 int EffectRackController::phaserMaxRateDivider() const
 {
     return Phaser::maxRateDivider();
+}
+
+int EffectRackController::autoPannerMaxRateDivider() const
+{
+    return AutoPanner::maxRateDivider();
 }
 
 QStringList EffectRackController::lfoWaveformNames() const
