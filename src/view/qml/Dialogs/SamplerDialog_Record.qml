@@ -29,22 +29,64 @@ RowLayout {
 
     spacing: 10
 
-    AppButton {
+    // The same round, red-rimmed record button the song recorder has in the editor: pressing
+    // record is pressing record, wherever you happen to be.
+    Button {
         id: recordButton
-        text: samplerController.recording ? qsTr("Stop") : qsTr("Record")
-        enabled: samplerController.selectedPad >= 0 && inputCombo.count > 0
-        onClicked: samplerController.recording ? samplerController.stopRecording() : samplerController.startRecording()
-        ToolTip.visible: hovered
-        ToolTip.text: qsTr("Records the chosen input onto the selected pad. Whatever the pad held is replaced.")
-    }
+        Layout.preferredHeight: inputCombo.implicitHeight
+        Layout.preferredWidth: height
 
-    Rectangle {
-        Layout.preferredWidth: 12
-        Layout.preferredHeight: 12
-        radius: 6
-        color: samplerController.recording ? "#e0483c" : "#333"
-        border.color: "#555"
-        border.width: 1
+        enabled: samplerController.selectedPad >= 0 && inputCombo.count > 0
+        opacity: enabled ? 1.0 : 0.5
+        focusPolicy: Qt.NoFocus
+        onClicked: samplerController.recording ? samplerController.stopRecording() : samplerController.startRecording()
+
+        ToolTip.delay: Constants.toolTipDelay
+        ToolTip.timeout: Constants.toolTipTimeout
+        ToolTip.visible: hovered
+        ToolTip.text: samplerController.recording ? qsTr("Stops recording and puts what was recorded on the pad.") : qsTr("Records the chosen input onto the selected pad. Whatever the pad held is replaced.")
+
+        background: Rectangle {
+            id: recordBackground
+            radius: height / 2
+            color: samplerController.recording ? "#440000" : "#333333"
+            border.color: samplerController.recording ? "#FF0000" : "#555555"
+            border.width: 1
+
+            // Breathing while it is actually recording, which is what tells it apart from the
+            // song's switch: that one is armed and waiting, this one is running.
+            SequentialAnimation on opacity {
+                running: samplerController.recording
+                loops: Animation.Infinite
+                alwaysRunToEnd: true
+                NumberAnimation {
+                    to: 0.45
+                    duration: 600
+                    easing.type: Easing.InOutSine
+                }
+                NumberAnimation {
+                    to: 1.0
+                    duration: 600
+                    easing.type: Easing.InOutSine
+                }
+                onRunningChanged: if (!running) {
+                    recordBackground.opacity = 1.0;
+                }
+            }
+        }
+
+        contentItem: Item {
+            Image {
+                source: "../Graphics/record.png"
+                width: parent.height * 0.8
+                height: width
+                sourceSize.width: width
+                sourceSize.height: height
+                fillMode: Image.PreserveAspectFit
+                x: Math.floor((parent.width - width) / 2)
+                y: Math.floor((parent.height - height) / 2)
+            }
+        }
     }
 
     Label {
