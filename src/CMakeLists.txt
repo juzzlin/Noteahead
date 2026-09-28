@@ -237,6 +237,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/SamplerDialog_PadAmpEg.qml
     ${QML_BASE_DIR}/Dialogs/SamplerDialog_PadSettings.qml
     ${QML_BASE_DIR}/Dialogs/SamplerDialog_Pads.qml
+    ${QML_BASE_DIR}/Dialogs/SamplerDialog_Record.qml
     ${QML_BASE_DIR}/Dialogs/SamplerDialog_WaveformView.qml
     ${QML_BASE_DIR}/Dialogs/SaturatorDialog.qml
     ${QML_BASE_DIR}/Dialogs/SettingsDialog.qml

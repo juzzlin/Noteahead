@@ -110,6 +110,11 @@ void AudioService::initializeWorker()
         }
     });
     connect(m_audioWorker.get(), &AudioWorker::playbackFinished, this, &AudioService::stopPlayback);
+    connect(m_audioWorker.get(), &AudioWorker::recordingStopped, this, [this] {
+        if (!m_latestRecordingFileName.isEmpty()) {
+            emit recordingFinished(m_latestRecordingFileName);
+        }
+    });
 
     m_audioWorker->moveToThread(&m_audioWorkerThread);
     m_audioWorkerThread.start(QThread::HighPriority);

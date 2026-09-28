@@ -18,6 +18,7 @@
 
 #include "device_controller.hpp"
 #include <memory>
+#include <QTemporaryDir>
 #include <optional>
 
 #include "../../domain/devices/sampler_device.hpp"
@@ -26,6 +27,7 @@
 
 namespace noteahead {
 
+class AudioService;
 class SamplerDevice;
 
 class SamplerController : public DeviceController
@@ -69,6 +71,7 @@ class SamplerController : public DeviceController
     Q_PROPERTY(int lpfSlope READ lpfSlope WRITE setLpfSlope NOTIFY lpfSlopeChanged)
     Q_PROPERTY(int hpfSlope READ hpfSlope WRITE setHpfSlope NOTIFY hpfSlopeChanged)
     Q_PROPERTY(bool embedWaveData READ embedWaveData WRITE setEmbedWaveData NOTIFY embedWaveDataChanged)
+    Q_PROPERTY(bool recording READ recording NOTIFY recordingChanged)
 
 public:
     explicit SamplerController(SamplerDevice::SamplerDeviceS sampler, QObject * parent = nullptr);
@@ -77,6 +80,24 @@ public:
     DeviceS device() const override;
     bool setDevice(DeviceS device) override;
     SamplerPadModel * padModel() const;
+
+    using AudioServiceS = std::shared_ptr<AudioService>;
+    //! Sampling is recording, so the sampler needs the service that owns the input.
+    void setAudioService(AudioServiceS audioService);
+
+    //! The input devices that can be sampled from, as {id, name} maps for the combo box.
+    Q_INVOKABLE QVariantList inputDevices() const;
+    Q_INVOKABLE void setInputDevice(int deviceId);
+
+    //! Records into the selected pad until stopRecording() is called.
+    //!
+    //! Goes beside the project when there is one, and into a directory of this session's own when
+    //! there is not -- the pad is then marked so that saving the project writes it out rather than
+    //! losing it. Refusing to record until the project has been saved, which is what the song
+    //! recorder does, is the wrong trade for sampling: the sound you want is happening now.
+    Q_INVOKABLE void startRecording();
+    Q_INVOKABLE void stopRecording();
+    bool recording() const;
     SamplerDevice::SamplerDeviceS sampler() const;
     void setSampler(SamplerDevice::SamplerDeviceS sampler);
 
@@ -217,6 +238,7 @@ signals:
     void lpfSlopeChanged();
     void hpfSlopeChanged();
     void embedWaveDataChanged();
+    void recordingChanged();
     void samplerChanged();
 
 private:
@@ -234,9 +256,22 @@ private:
     //! The note of the selected pad, or nothing when no pad is selected.
     std::optional<uint8_t> selectedNote() const;
 
+    //! Puts what was just recorded onto the pad it was recorded for.
+    void onRecordingFinished(const QString & filePath);
+
     SamplerDevice::SamplerDeviceS m_sampler;
     std::unique_ptr<SamplerPadModel> m_padModel;
     int m_selectedPad = 0;
+
+    AudioServiceS m_audioService;
+    //! Where recordings go when the project has nowhere of its own yet. Lives as long as this
+    //! session, which is exactly as long as the recordings in it are worth anything.
+    std::unique_ptr<QTemporaryDir> m_recordingDirectory;
+    //! The pad the running recording was started for, so that selecting another one mid-take does
+    //! not land the sample somewhere the user was not looking when they pressed record.
+    std::optional<int> m_recordingPad;
+    //! Whether the running recording will need writing out when the project is saved.
+    bool m_recordingIsEphemeral = false;
 };
 
 } // namespace noteahead

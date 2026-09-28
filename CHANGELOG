@@ -29,6 +29,12 @@ New features:
   - A Rim voice, on C#3, fitted to a recording of the hardware: a woody pitched
     click with a Click control for how much stick is in it
 
+* Recording straight into the Sampler
+  - Sample an instrument in the room onto the selected pad: pick an input, hit
+    Record, and what you played is on the pad when you stop
+  - Works before the project has been saved. The recording is kept for the
+    session and written out beside the project when you save it
+
 * Normalize, per Sampler pad
   - Plays a pad at full scale whatever it was recorded at, measured over the
     part the trims leave. A gain rather than an edit: the file is untouched

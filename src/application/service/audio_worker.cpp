@@ -56,6 +56,7 @@ void AudioWorker::startRecording(QString filePath, quint32 bufferSize)
 void AudioWorker::stopRecording()
 {
     m_audioRecorder->stop();
+    emit recordingStopped();
 }
 
 void AudioWorker::startPlayback(QString filePath, quint32 bufferSize)

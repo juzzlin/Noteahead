@@ -88,6 +88,11 @@ signals:
     void playbackPositionChanged();
     void latestRecordingStartTickChanged();
     void latestRecordingEndTickChanged();
+    //! A recording has finished and its file is complete. Carries the file that was written.
+    //!
+    //! Not the same moment as isRecordingChanged(), which is emitted as soon as the stop is asked
+    //! for: the worker still has the file open then, so anything that reads it belongs here.
+    void recordingFinished(QString filePath);
     void reinitialized();
     void errorOccurred(QString message);
 

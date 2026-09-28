@@ -1,4 +1,10 @@
 #include "sampler_controller.hpp"
+
+#include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include <QFile>
+#include <QDir>
+#include <QDateTime>
+#include "../../application/service/audio_service.hpp"
 #include "../../application/models/sampler/sampler_pad_model.hpp"
 #include "../../application/note_converter.hpp"
 #include "../../common/constants.hpp"
@@ -12,6 +18,8 @@
 #include <cmath>
 
 namespace noteahead {
+
+static const auto TAG = "SamplerController";
 
 SamplerController::SamplerController(SamplerDevice::SamplerDeviceS sampler, QObject * parent)
   : DeviceController { parent }
@@ -615,6 +623,116 @@ QVariantList SamplerController::getWaveformData(int numPoints)
         }
     }
     return data;
+}
+
+void SamplerController::setAudioService(AudioServiceS audioService)
+{
+    if (m_audioService) {
+        disconnect(m_audioService.get(), &AudioService::recordingFinished, this, nullptr);
+    }
+    m_audioService = std::move(audioService);
+    if (m_audioService) {
+        connect(m_audioService.get(), &AudioService::recordingFinished, this, [this](QString filePath) {
+            onRecordingFinished(filePath);
+        });
+    }
+}
+
+QVariantList SamplerController::inputDevices() const
+{
+    return m_audioService ? m_audioService->getInputDevices() : QVariantList {};
+}
+
+void SamplerController::setInputDevice(int deviceId)
+{
+    if (m_audioService) {
+        m_audioService->setInputDevice(deviceId);
+    }
+}
+
+bool SamplerController::recording() const
+{
+    return m_recordingPad.has_value();
+}
+
+void SamplerController::startRecording()
+{
+    if (!m_audioService || !m_sampler || recording()) {
+        return;
+    }
+    const auto note = selectedNote();
+    if (!note) {
+        return;
+    }
+
+    const auto project = QString::fromStdString(m_sampler->projectPath());
+    auto target = project.isEmpty() ? QString {} : QDir { project }.absoluteFilePath("samples");
+    m_recordingIsEphemeral = target.isEmpty();
+    if (m_recordingIsEphemeral) {
+        // Nowhere of its own to live yet. Recording into a directory of this session's own is far
+        // better than refusing to record at all, which is what the song recorder does -- the pad is
+        // marked so that saving the project writes it out.
+        if (!m_recordingDirectory) {
+            m_recordingDirectory = std::make_unique<QTemporaryDir>();
+        }
+        if (!m_recordingDirectory->isValid()) {
+            juzzlin::L(TAG).error() << "Cannot create a directory to record into";
+            return;
+        }
+        target = m_recordingDirectory->path();
+    } else if (!QDir {}.mkpath(target)) {
+        juzzlin::L(TAG).error() << "Cannot create " << std::quoted(target.toStdString());
+        return;
+    }
+
+    const auto fileName = QString { "pad%1_%2.wav" }
+                            .arg(m_selectedPad + 1, 2, 10, QChar { '0' })
+                            .arg(QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss"));
+    const auto filePath = QDir { target }.absoluteFilePath(fileName);
+
+    m_recordingPad = m_selectedPad;
+    juzzlin::L(TAG).info() << "Recording pad " << (m_selectedPad + 1) << " into " << std::quoted(filePath.toStdString());
+    m_audioService->startRecording(filePath, 0, 0);
+    emit recordingChanged();
+}
+
+void SamplerController::stopRecording()
+{
+    if (!m_audioService || !recording()) {
+        return;
+    }
+    // The pad is loaded from onRecordingFinished() rather than here: this only asks the worker to
+    // stop, and the file is still open until it says it has.
+    m_audioService->stopRecording(0);
+}
+
+void SamplerController::onRecordingFinished(const QString & filePath)
+{
+    if (!m_recordingPad || !m_sampler) {
+        return;
+    }
+    const auto pad = *m_recordingPad;
+    m_recordingPad.reset();
+    emit recordingChanged();
+
+    if (!QFile::exists(filePath)) {
+        juzzlin::L(TAG).error() << "Nothing was recorded to " << std::quoted(filePath.toStdString());
+        return;
+    }
+
+    const auto note = static_cast<uint8_t>(noteForPad(pad));
+    try {
+        m_sampler->loadSample(note, filePath.toStdString());
+    } catch (const std::exception & e) {
+        juzzlin::L(TAG).error() << "Loading the recording failed: " << e.what();
+        return;
+    }
+    if (m_recordingIsEphemeral) {
+        m_sampler->markSampleEphemeral(note);
+    }
+
+    setSelectedPad(pad);
+    emit selectedPadChanged();
 }
 
 void SamplerController::initialize()

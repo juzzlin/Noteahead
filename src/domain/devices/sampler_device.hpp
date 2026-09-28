@@ -346,6 +346,8 @@ public:
     bool isFinished(uint8_t note) const;
 
     void setProjectPath(const std::string & projectPath);
+    //! Where the project lives, or empty when it has nowhere yet.
+    std::string projectPath() const;
 
     //! Samples the last deserialization could not read, by the path it looked in.
     //!

@@ -1959,6 +1959,12 @@ void SamplerDevice::setProjectPath(const std::string & projectPath)
     m_projectPath = projectPath;
 }
 
+std::string SamplerDevice::projectPath() const
+{
+    std::lock_guard<std::recursive_mutex> lock { mutex() };
+    return m_projectPath;
+}
+
 void SamplerDevice::setPathResolver(PathResolver resolver)
 {
     std::lock_guard<std::recursive_mutex> lock { mutex() };

@@ -463,6 +463,7 @@ void Application::connectDeviceService()
     });
     connect(m_editorService.get(), &EditorService::projectPathChanged, m_deviceService.get(), &DeviceService::setProjectPath);
 
+    m_samplerController->setAudioService(m_audioService);
     m_synthController->setDeviceService(m_deviceService);
     m_wavetableSynthController->setDeviceService(m_deviceService);
     m_fmSynthController->setDeviceService(m_deviceService);

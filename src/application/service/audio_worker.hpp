@@ -59,6 +59,11 @@ signals:
     void errorOccurred(QString message);
     void playbackPositionChanged(double position);
     void playbackFinished();
+    //! The recorder has stopped and its file is closed.
+    //!
+    //! stopRecording() is queued onto this thread, so anything that wants to read what was
+    //! recorded has to wait for this rather than for the call that asked for the stop.
+    void recordingStopped();
 
 private slots:
     void onStatusTimerTimeout();
