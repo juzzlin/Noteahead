@@ -279,7 +279,6 @@ public:
     //! this is not simply the duration.
     double sampleAudibleLength(uint8_t note) const;
 
-
     // Per-pad insert effect rack for the given note, created lazily on first access.
     EffectRack & sampleEffectRack(uint8_t note);
 

@@ -25,9 +25,9 @@
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
 #include "../../infra/audio/backend/sndfile_reader.hpp"
-#include <sndfile.h>
 #include <QTemporaryDir>
 #include <QTest>
+#include <sndfile.h>
 
 #include <algorithm>
 #include <cmath>
@@ -320,7 +320,6 @@ void SamplerTest::test_normalize_silentPad_shouldNotGetAnInfiniteGain()
 }
 
 namespace {
-
 
 } // namespace
 

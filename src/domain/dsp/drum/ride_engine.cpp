@@ -61,7 +61,6 @@ constexpr float Rd9MaxCutoff { 0.985f };
 
 } // namespace
 
-
 RideEngine::RideEngine()
 {
     m_rng.seed(0);

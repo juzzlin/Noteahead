@@ -15,10 +15,10 @@
 
 #include "drum_synth_v2_test.hpp"
 
+#include "../../application/service/drum_voice_preview.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/drum_synth_v2_constants.hpp"
-#include "../../application/service/drum_voice_preview.hpp"
 #include "../../domain/devices/drum_synth_v2_device.hpp"
 #include "../../domain/dsp/fft.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
@@ -658,7 +658,8 @@ void DrumSynthV2Test::test_toms_shouldBeStruckNotJustPitched()
         const auto ratio = 10.0 * std::log10(std::max(struck, 1.0e-30) / std::max(whole, 1.0e-30));
         QVERIFY2(ratio > -45.0,
                  qPrintable(QString { "%1 has no stick in it: 2-4 kHz is %2 dB under the whole" }
-                              .arg(DrumSynthV2::voiceName(voice)).arg(ratio)));
+                              .arg(DrumSynthV2::voiceName(voice))
+                              .arg(ratio)));
     }
 }
 
@@ -668,10 +669,9 @@ void DrumSynthV2Test::test_toms_shouldBePitchedLikeTheRecordings()
     // because the fit kept wanting to move them -- a deep sweep smears energy across the bands and
     // scores like a broadband drum, so left to itself it put the toms an octave and a half low and
     // matched the recording's spectrum with something that was not the same drum.
-    const std::array<std::pair<DrumSynthV2::VoiceIndex, double>, 3> wanted { {
-      { DrumSynthV2::VoiceIndex::LowTom, 71.0 },
-      { DrumSynthV2::VoiceIndex::MidTom, 124.0 },
-      { DrumSynthV2::VoiceIndex::HighTom, 170.0 } } };
+    const std::array<std::pair<DrumSynthV2::VoiceIndex, double>, 3> wanted { { { DrumSynthV2::VoiceIndex::LowTom, 71.0 },
+                                                                               { DrumSynthV2::VoiceIndex::MidTom, 124.0 },
+                                                                               { DrumSynthV2::VoiceIndex::HighTom, 170.0 } } };
 
     DrumSynthV2Device v2 { "V2" };
     for (const auto & [voice, expected] : wanted) {
@@ -679,7 +679,9 @@ void DrumSynthV2Test::test_toms_shouldBePitchedLikeTheRecordings()
         const auto pitch = fundamentalOf(v2.renderVoiceAlone(index, sampleRate, 2.0), 0.02, 0.2);
         QVERIFY2(std::abs(pitch - expected) < expected * 0.12,
                  qPrintable(QString { "%1 is at %2 Hz, not near the recording's %3" }
-                              .arg(DrumSynthV2::voiceName(index)).arg(pitch).arg(expected)));
+                              .arg(DrumSynthV2::voiceName(index))
+                              .arg(pitch)
+                              .arg(expected)));
     }
 }
 
@@ -714,7 +716,8 @@ void DrumSynthV2Test::test_reverseCrash_shouldBeTheCrashRunBackwards()
     const auto atTheStrike = centroidBetween(rendered, seconds - 0.06, seconds);
     QVERIFY2(middle - atTheStrike > 1000.0,
              qPrintable(QString { "the reverse does not close into its strike: %1 Hz in the middle, %2 Hz at the end" }
-                          .arg(middle).arg(atTheStrike)));
+                          .arg(middle)
+                          .arg(atTheStrike)));
 
     // And it swells rather than decaying, which is the part that was already right.
     const auto levelOf = [&](double from, double to) {
@@ -776,7 +779,10 @@ void DrumSynthV2Test::test_cymbals_tune_shouldOnlyEverBrighten()
             QVERIFY2(centroids.at(i) > centroids.at(i - 1),
                      qPrintable(QString { "%1 gets darker as Tune rises: %2 Hz at %3%%, %4 Hz at %5%%" }
                                   .arg(DrumSynthV2::voiceName(voice))
-                                  .arg(centroids.at(i - 1)).arg((i - 1) * 25).arg(centroids.at(i)).arg(i * 25)));
+                                  .arg(centroids.at(i - 1))
+                                  .arg((i - 1) * 25)
+                                  .arg(centroids.at(i))
+                                  .arg(i * 25)));
         }
     }
 }
@@ -831,7 +837,8 @@ void DrumSynthV2Test::test_cymbals_shouldHaveABody()
         const auto whole = 10.0 * std::log10(std::max(bandPower(ps, 20.0, 20000.0), 1.0e-30));
         QVERIFY2(body - whole > -30.0,
                  qPrintable(QString { "%1 has no body: %2 dB under the whole" }
-                              .arg(DrumSynthV2::voiceName(voice)).arg(body - whole)));
+                              .arg(DrumSynthV2::voiceName(voice))
+                              .arg(body - whole)));
     }
 }
 

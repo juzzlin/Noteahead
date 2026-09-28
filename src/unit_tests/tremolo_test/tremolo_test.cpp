@@ -16,8 +16,8 @@
 #include "tremolo_test.hpp"
 
 #include "../../common/constants.hpp"
-#include "../../domain/effects/effect.hpp"
 #include "../../domain/dsp/audio_context.hpp"
+#include "../../domain/effects/effect.hpp"
 #include "../../domain/effects/tremolo.hpp"
 
 #include <QTest>
@@ -129,7 +129,6 @@ void TremoloTest::test_stereoPhase_shouldDuckTheChannelsApart()
     }
     QVERIFY2(largestDifference > 0.1, qPrintable(QString::number(largestDifference)));
 }
-
 
 } // namespace noteahead
 

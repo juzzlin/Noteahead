@@ -15,8 +15,8 @@
 
 #include "auto_panner_test.hpp"
 
-#include "../../domain/dsp/audio_context.hpp"
 #include "../../common/constants.hpp"
+#include "../../domain/dsp/audio_context.hpp"
 #include "../../domain/effects/auto_panner.hpp"
 
 #include <QTest>
@@ -90,7 +90,6 @@ void AutoPannerTest::test_setBpm_shouldUpdateLfoFrequencyInSyncMode()
     // Just verify it doesn't crash and does something
     QVERIFY(true);
 }
-
 
 void AutoPannerTest::test_rateDivider_shouldStretchTheSweep()
 {

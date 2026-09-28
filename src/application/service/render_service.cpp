@@ -24,9 +24,9 @@
 
 #include <QDateTime>
 
-#include <algorithm>
 #include <QDir>
 #include <QFileInfo>
+#include <algorithm>
 
 namespace noteahead {
 

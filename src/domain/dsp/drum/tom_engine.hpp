@@ -50,7 +50,6 @@ public:
 
     void setVoicing(Voicing voicing);
 
-
     void setTune(float tune);
     void setDecay(float decay);
     void setPitchDepth(float depth);

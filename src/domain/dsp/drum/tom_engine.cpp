@@ -17,8 +17,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <algorithm>
-#include <cmath>
 #include <numbers>
 
 namespace noteahead {
@@ -54,7 +52,6 @@ constexpr float Rd9DecayScale { 0.188f };
 constexpr float Rd9OutputGain { 0.63f };
 
 } // namespace
-
 
 TomEngine::TomEngine()
 {

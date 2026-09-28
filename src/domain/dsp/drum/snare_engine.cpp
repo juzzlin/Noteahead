@@ -43,7 +43,6 @@ constexpr float Rd9OutputGain { 2.45f };
 
 } // namespace
 
-
 void SnareEngine::setVoicing(Voicing voicing)
 {
     m_voicing = voicing;

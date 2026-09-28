@@ -16,8 +16,8 @@
 #include "flanger_test.hpp"
 
 #include "../../common/constants.hpp"
-#include "../../domain/effects/effect.hpp"
 #include "../../domain/dsp/audio_context.hpp"
+#include "../../domain/effects/effect.hpp"
 #include "../../domain/effects/flanger.hpp"
 
 #include <QTest>
@@ -147,7 +147,6 @@ void FlangerTest::test_rateDivider_shouldSlowTheSweep()
 
     QVERIFY2(movement(1.0f) > movement(32.0f) * 1.5, "the divider did not slow the sweep");
 }
-
 
 } // namespace noteahead
 

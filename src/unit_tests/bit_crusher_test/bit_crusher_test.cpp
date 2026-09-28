@@ -16,9 +16,9 @@
 #include "bit_crusher_test.hpp"
 
 #include "../../common/constants.hpp"
-#include "../../domain/effects/effect.hpp"
 #include "../../domain/dsp/audio_context.hpp"
 #include "../../domain/effects/bit_crusher.hpp"
+#include "../../domain/effects/effect.hpp"
 
 #include <QTest>
 
@@ -132,7 +132,6 @@ void BitCrusherTest::test_rate_shouldHoldEachSample()
     const double repeatsPerRun = static_cast<double>(held) / static_cast<double>(runs);
     QVERIFY2(std::abs(repeatsPerRun - 3.0) < 0.2, qPrintable(QString::number(repeatsPerRun)));
 }
-
 
 } // namespace noteahead
 

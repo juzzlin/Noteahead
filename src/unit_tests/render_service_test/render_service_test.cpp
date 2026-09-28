@@ -37,22 +37,51 @@ namespace noteahead {
 class NoteBeatsProbeDevice : public Device
 {
 public:
-    std::string name() const override { return "NoteBeatsProbe"; }
-    std::string category() const override { return "Test"; }
-    std::string typeName() const override { return "NoteBeatsProbe"; }
-    std::string typeId() const override { return "00000000-0000-4000-8000-00000000beef"; }
+    std::string name() const override
+    {
+        return "NoteBeatsProbe";
+    }
+
+    std::string category() const override
+    {
+        return "Test";
+    }
+
+    std::string typeName() const override
+    {
+        return "NoteBeatsProbe";
+    }
+
+    std::string typeId() const override
+    {
+        return "00000000-0000-4000-8000-00000000beef";
+    }
 
     void processMidiNoteOn(uint8_t, uint8_t) override
     {
         m_received.push_back(noteBeats());
     }
 
-    void processMidiNoteOff(uint8_t) override { }
-    void processMidiAllNotesOff() override { }
-    void processDeviceMidiCc(uint8_t, uint8_t, uint8_t) override { }
-    void processAudio(AudioContext &) override { }
+    void processMidiNoteOff(uint8_t) override
+    {
+    }
 
-    const std::vector<std::optional<double>> & received() const { return m_received; }
+    void processMidiAllNotesOff() override
+    {
+    }
+
+    void processDeviceMidiCc(uint8_t, uint8_t, uint8_t) override
+    {
+    }
+
+    void processAudio(AudioContext &) override
+    {
+    }
+
+    const std::vector<std::optional<double>> & received() const
+    {
+        return m_received;
+    }
 
 private:
     std::vector<std::optional<double>> m_received;
@@ -269,7 +298,6 @@ void RenderServiceTest::test_renderMaster_secondRender_shouldStartFromZeroProgre
 
     QVERIFY(spy.wait(5000));
 }
-
 
 void RenderServiceTest::test_renderMaster_shouldGiveTheDeviceTheNoteLength()
 {

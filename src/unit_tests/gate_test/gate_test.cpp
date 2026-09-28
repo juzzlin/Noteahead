@@ -16,8 +16,8 @@
 #include "gate_test.hpp"
 
 #include "../../common/constants.hpp"
-#include "../../domain/effects/effect.hpp"
 #include "../../domain/dsp/audio_context.hpp"
+#include "../../domain/effects/effect.hpp"
 #include "../../domain/effects/gate.hpp"
 
 #include <QTest>
@@ -152,7 +152,6 @@ void GateTest::test_hold_shouldKeepItOpenAfterTheSignalStops()
     // not run out.
     QVERIFY2(effect.gainDb() > -1.0, qPrintable(QString::number(effect.gainDb())));
 }
-
 
 } // namespace noteahead
 

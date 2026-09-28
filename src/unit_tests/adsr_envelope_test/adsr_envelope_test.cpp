@@ -207,7 +207,6 @@ void AdsrEnvelopeTest::test_curve_fullAttack_shouldRiseFasterThanLinear()
     QCOMPARE(envelope.state(), AdsrEnvelope::State::Attack);
 }
 
-
 void AdsrEnvelopeTest::test_hold_zero_shouldNotDelayTheDecay()
 {
     // The default, and the whole reason it is the default: an envelope that never sets a hold has

@@ -17,8 +17,8 @@
 #define SAMPLER_CONTROLLER_HPP
 
 #include "device_controller.hpp"
-#include <memory>
 #include <QTemporaryDir>
+#include <memory>
 #include <optional>
 
 #include "../../domain/devices/sampler_device.hpp"
@@ -84,7 +84,6 @@ public:
     using AudioServiceS = std::shared_ptr<AudioService>;
     //! Sampling is recording, so the sampler needs the service that owns the input.
     void setAudioService(AudioServiceS audioService);
-
 
     //! Records into the selected pad until stopRecording() is called.
     //!

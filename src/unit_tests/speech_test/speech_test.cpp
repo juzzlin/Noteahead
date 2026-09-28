@@ -1539,7 +1539,6 @@ void SpeechTest::test_device_reset_shouldRestoreTheDefaultPhrase()
     QVERIFY(std::abs(device.intonation() - 0.4f) < 0.001f);
 }
 
-
 void SpeechTest::test_device_lineMode_overlappingNote_shouldRepitchNotAdvance()
 {
     // Write the line as one long note on one column and the melody on another, and the melody must
@@ -1656,7 +1655,6 @@ void SpeechTest::test_device_portamento_shouldGlideToTheNewNote()
     QVERIFY2(glided < immediate * 0.9, qPrintable(QString::number(glided) + " vs " + QString::number(immediate)));
 }
 
-
 void SpeechTest::test_glottalSource_subharmonic_shouldPutEnergyAtHalfTheFundamental()
 {
     // What separates a growl from a rough voice, measured where the difference is: a real component
@@ -1750,7 +1748,6 @@ void SpeechTest::test_device_voiceType_alien_shouldBeSmallerThanTheChild()
     const auto alien = firstFormant(7);
     QVERIFY2(alien > child * 1.08, qPrintable(QString::number(child, 'f', 0) + " -> " + QString::number(alien, 'f', 0) + " Hz"));
 }
-
 
 void SpeechTest::test_device_sampleRate_shouldNotChangeTheVoice()
 {

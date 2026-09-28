@@ -639,8 +639,7 @@ void DrumSynthV2Device::initializeVoices()
             auto snare = std::make_unique<SnareEngine>();
             snare->setVoicing(SnareEngine::Voicing::Rd9);
             m_voices.at(i).engine = std::move(snare);
-        }
-        else if (voiceIdx == VoiceIndex::Clap)
+        } else if (voiceIdx == VoiceIndex::Clap)
             m_voices.at(i).engine = std::make_unique<ClapEngine>();
         else if (voiceIdx == VoiceIndex::ClosedHiHat || voiceIdx == VoiceIndex::OpenHiHat)
             m_voices.at(i).engine = std::make_unique<HiHatEngine>();
@@ -648,8 +647,7 @@ void DrumSynthV2Device::initializeVoices()
             auto tom = std::make_unique<TomEngine>();
             tom->setVoicing(TomEngine::Voicing::Rd9);
             m_voices.at(i).engine = std::move(tom);
-        }
-        else if (voiceIdx == VoiceIndex::Rim)
+        } else if (voiceIdx == VoiceIndex::Rim)
             m_voices.at(i).engine = std::make_unique<RimEngine>();
         else if (voiceIdx == VoiceIndex::Crash) {
             // The cymbals are the two voices V2 does not share with V1. Both were fitted to a

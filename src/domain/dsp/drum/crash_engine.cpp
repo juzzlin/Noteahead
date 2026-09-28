@@ -79,7 +79,6 @@ constexpr float Rd9ReverseOutputGain { 1.63f };
 
 } // namespace
 
-
 CrashEngine::CrashEngine()
 {
     m_rng.seed(0);
