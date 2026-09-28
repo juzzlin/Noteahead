@@ -107,9 +107,9 @@
 <ul>
     <li><strong>Equalizers</strong>: <strong>EQ 8-Band Parametric</strong> (Bell, Shelf, Cut and Notch types per band, plus Mid/Side modes), <strong>Vintage Passive EQ</strong> (EQP-1A style, with interacting low Boost/Atten shelves and a high bell), <strong>Air Band EQ</strong> (fixed parallel-summed bands added back to the dry signal) and <strong>Simple EQ</strong> (a single "Sounds Good" knob sweeping a loudness-smile curve).</li>
     <li><strong>Reverbs</strong>: <strong>Reverb</strong> (the FDN reverb described below), <strong>Endless Reverb</strong> (a large modulated ambient reverb with a Freeze switch for an infinite tail) and <strong>Early Reflections</strong> (the room a sound is in, without a tail, described below).</li>
-    <li><strong>Dynamics</strong>: <strong>Compressor</strong> (with side-chain support), <strong>Multiband Compressor</strong> (three bands split by Linkwitz-Riley crossovers, described below), <strong>Auto Ducker</strong> (side-chain driven ducking or boosting), <strong>Limiter</strong> (lookahead brickwall with gain reduction metering), <strong>Gain</strong> (a plain +/-24 dB trim with a clip indicator, described below), <strong>Clipper</strong> and <strong>Wave Designer</strong> (transient shaper, described below).</li>
-    <li><strong>Saturation</strong>: <strong>Drive</strong> (Soft, Hard, Fold and Dist algorithms), <strong>Saturator</strong>, <strong>Tube Stage</strong> (valve preamp, described below), <strong>Analog Fuzz</strong> (a synth's drive knob: a fuzz stage played through the filter it overdrives, described below), <strong>Bass Grinder</strong> (split-band bass preamp distortion, described below) and <strong>Stereo Exciter</strong> (harmonic generator, described below).</li>
-    <li><strong>Filters & Modulation</strong>: <strong>Auto Filter</strong> (swept filter with two LFOs and an envelope follower, described below), <strong>Phaser</strong> (swept all-pass cascade, described below), <strong>Chorus</strong>, <strong>Delay</strong> (Mono, Ping Pong and Tape modes, with BPM sync) and <strong>All-Pass Filter</strong>.</li>
+    <li><strong>Dynamics</strong>: <strong>Compressor</strong> (with side-chain support), <strong>Multiband Compressor</strong> (three bands split by Linkwitz-Riley crossovers, described below), <strong>Gate</strong> (a noise gate that is also a downward expander, described below), <strong>Auto Ducker</strong> (side-chain driven ducking or boosting), <strong>Limiter</strong> (lookahead brickwall with gain reduction metering), <strong>Gain</strong> (a plain +/-24 dB trim with a clip indicator, described below), <strong>Clipper</strong> and <strong>Wave Designer</strong> (transient shaper, described below).</li>
+    <li><strong>Saturation &amp; Lo-fi</strong>: <strong>Drive</strong> (Soft, Hard, Fold and Dist algorithms), <strong>Saturator</strong>, <strong>Tube Stage</strong> (valve preamp, described below), <strong>Analog Fuzz</strong> (a synth's drive knob: a fuzz stage played through the filter it overdrives, described below), <strong>Bass Grinder</strong> (split-band bass preamp distortion, described below), <strong>Bit Crusher</strong> (word length and sample rate thrown away separately, described below) and <strong>Stereo Exciter</strong> (harmonic generator, described below).</li>
+    <li><strong>Filters & Modulation</strong>: <strong>Auto Filter</strong> (swept filter with two LFOs and an envelope follower, described below), <strong>Phaser</strong> (swept all-pass cascade, described below), <strong>Flanger</strong> (swept short delay, described below), <strong>Chorus</strong>, <strong>Tremolo</strong> (level modulated by an LFO, described below), <strong>Delay</strong> (Mono, Ping Pong and Tape modes, with BPM sync) and <strong>All-Pass Filter</strong>.</li>
     <li><strong>Stereo</strong>: <strong>Panner</strong>, <strong>Auto Panner</strong>, <strong>Stereo Enhancer</strong> (psychoacoustic EQ, described below), <strong>Stereo Widener</strong> (width per band, described below) and <strong>Dimension</strong> (builds width out of a mono source, described below).</li>
     <li><strong>Metering & Analysis</strong>: <strong>LUFS Meter</strong> (momentary, short-term and a gated integrated reading that runs as the song plays), <strong>dBTP Meter</strong> (true peak), <strong>RTA</strong> (real-time analyzer), <strong>Stereo Field Meter</strong> (goniometer and correlation, described below) and <strong>Monitor</strong> (mono and single-channel fold-downs for checking a mix by ear, described below). Use these as inserts to watch the signal at any point in the chain.</li>
     <li><strong>Reference Monitoring</strong>: <strong>Reference</strong> (plays the mix as a car, a phone or a club would) and <strong>Crossfeed</strong> (the far-ear arrival headphones do not give you), both described below. Like the Monitor, neither is ever printed into a render.</li>
@@ -179,6 +179,15 @@
     <li><strong>Mix</strong> and <strong>Output</strong>: the blend against the dry signal, and an output trim.</li>
 </ul>
 
+<h3>Bit Crusher Parameters</h3>
+<p>Two separate degradations that are usually spoken of as one. Reducing the word length quantises the amplitude, and the error that leaves is <em>correlated with the signal</em>, which is why it is heard as grit riding on top of the sound rather than as noise behind it. Reducing the sample rate holds each sample for several frames, and everything above the new Nyquist folds back down as aliases &mdash; those are not harmonically related to what produced them, which is why a rate reduction sounds metallic where a word length reduction merely sounds dirty. Both controls start transparent, so the effect is inaudible until one of them is moved.</p>
+<ul>
+    <li><strong>Bit Depth</strong>: word length, 1 to 16 bits. At 16 nothing is quantised. The steps sit either side of zero rather than across the whole range, so silence stays silent: put a step boundary at zero instead and a signal resting there dithers between the two nearest levels on its own noise.</li>
+    <li><strong>Rate</strong>: the rate the samples are held at, 100 Hz to 48 kHz. Held fractionally, so a target that is not a whole division of the real sample rate still averages out to the rate asked for instead of snapping to the nearest divisor.</li>
+    <li><strong>Mix</strong>: how much of the crushed signal is heard against the clean one. Parallel crushing keeps the body of a sound and lays the grit over it.</li>
+</ul>
+<p>This effect is <strong>deliberately not oversampled</strong>. Every other nonlinear effect in the rack runs at a multiple of the sample rate precisely so its aliases land where they can be filtered away; here the aliases <em>are</em> the effect, so oversampling would remove what was asked for. The rate is set in hertz rather than as a divisor for the same reason: what it does must not change when the engine's own oversampling does.</p>
+
 <h3>Compressor Parameters</h3>
 <p>The Compressor is a versatile dynamic processor used to control the signal's dynamic range. It uses a high-quality feed-forward algorithm with optional lookahead.</p>
 <ul>
@@ -227,6 +236,19 @@
 </ul>
 <p>The built-in presets are starting points for one source each, not finished curves: every move in them is a few decibels, which is the range in which an EQ decision is still reversible by ear. Sources that want a defined bottom rather than a deeper one get a single 12 dB/octave high pass — 30 Hz on the master bus and on bass instruments, 80 Hz on a snare or a guitar, 100 Hz on a vocal, 150 Hz on cymbals, where there is nothing below but spill. None of them spends more than one band on it, so a preset always leaves most of the EQ free for the moves it is a starting point for. <strong>Flat</strong> bypasses every band and is the way back from any of the others.</p>
 
+<h3>Flanger Parameters</h3>
+<p>A swept short delay summed back with the dry signal. The delay is the whole of what separates the three effects in this family: a fixed time offset combs at harmonically spaced notches, hundreds of them, and sweeping that offset drags the entire harmonic series up and down together &mdash; which the ear follows as a single moving resonance rather than as a filter. The Phaser's notches come from all-pass sections instead, so there are only as many as it has stages and they are not harmonically related; the Chorus uses this same delay but far longer and with no feedback, so its copies are heard as separate voices rather than as a comb.</p>
+<ul>
+    <li><strong>Mode</strong>: Normal runs the sweep in hertz, BPM locks it to the tempo in beat divisions.</li>
+    <li><strong>Rate</strong>: how fast the sweep runs, 0.05 to 20 Hz, or in divisions when locked to the tempo.</li>
+    <li><strong>Rate Divider</strong>: divides the rate by anything from 1 to 64, in both modes, for a sweep that crawls over several bars rather than over a second.</li>
+    <li><strong>Delay</strong>: the shortest delay the sweep reaches, 0.2 to 10 ms, which is where the comb's first notch sits at its highest. Past about ten milliseconds the copy stops combing and starts being heard as a separate sound, which is a chorus rather than a flanger.</li>
+    <li><strong>Depth</strong>: how far above the Delay setting the sweep travels. The travel is a multiple of the Delay rather than a fixed number of milliseconds, because the notches are harmonically spaced: a fixed offset moves them a great deal at a short delay and hardly at all at a long one.</li>
+    <li><strong>Feedback</strong>: sharpens the peaks between the notches, and is <strong>bipolar</strong>. The sign matters as much as the amount &mdash; the two polarities comb at different frequencies, positive reinforcing where negative cancels, and the negative side is the hollower and more metallic of the two. Half travel is no feedback at all.</li>
+    <li><strong>Stereo Phase</strong>: how far apart the two channels sweep, 0 to 180 degrees.</li>
+    <li><strong>Mix</strong>: not a convenience here. The comb <em>is</em> the sum of the dry signal and the delayed copy, so this control sets the depth of the notches; at fully wet there is nothing for the copy to cancel against and the effect all but disappears.</li>
+</ul>
+
 <h3>Gain Parameters</h3>
 <p>A level trim and nothing else. Every other way of changing level in the rack also changes the sound -- a limiter is dynamics, a drive or a saturator is distortion -- so this is the one to reach for when the only thing wanted is more or less of it: staging the sum into the master chain, or matching two devices before they hit a bus compressor.</p>
 <ul>
@@ -235,6 +257,18 @@
 </ul>
 <p>Nothing is truncated at the Gain itself, only at the final output: the chain runs in double throughout. The light is therefore a warning rather than a report of damage -- bring the level back down before the end of the chain and nothing is lost; leave it over and the output will clip.</p>
 <p>Note that making a finished mix louder is a limiter's job, not this one's: a trim that boosts has no way to catch what it pushes past full scale.</p>
+
+<h3>Gate Parameters</h3>
+<p>The opposite operation to the Auto Ducker, which pulls a signal down because <em>another</em> one is loud. Here the signal keys itself: what decides the gain is how loud this signal is right now, and the point is that below a threshold it stops being heard at all. Use it to tighten a drum, to clear a noise floor out of the gaps, or &mdash; at a low ratio &mdash; simply to lean on the quiet parts.</p>
+<ul>
+    <li><strong>Threshold</strong>: the level the gate opens at, -60 to 0 dB. It closes six dB lower. That hysteresis is fixed rather than exposed, because what it is for is stopping a level wobbling about the threshold from rattling the gate open and shut, and a user who set it to zero would only have turned the rattle back on.</li>
+    <li><strong>Ratio</strong>: how steeply the gain falls away once the signal drops below the threshold, 1:1 to 100:1. This is the difference between a gate that slams and an expander that merely leans. At 1:1 it does nothing at all, whatever the level.</li>
+    <li><strong>Range</strong>: how far down it is allowed to go, 0 to 90 dB. Ratio and Range are both needed and are not the same control: Range is what lets this tighten a drum by twelve dB rather than silencing it.</li>
+    <li><strong>Attack</strong>: how fast it opens, 0.05 to 100 ms. Note that this is the opposite sense to a compressor's attack, where the attack is the gain coming <em>down</em>. Set it slow and the front of every hit is swallowed.</li>
+    <li><strong>Hold</strong>: how long it stays open after the level falls away, 0 to 500 ms. The other half of what keeps it from chattering.</li>
+    <li><strong>Release</strong>: how fast it closes once the hold has run out, 5 to 2000 ms.</li>
+</ul>
+<p>The detector is a peak follower that rises instantly and falls over about fifteen milliseconds. Instantly on the way up because a gate that opened on an average would let the front of every transient through while still closed; fifteen milliseconds on the way down because a faster one falls into the gaps between the cycles of a low note and gates a bass on every period.</p>
 
 <h3>Monitor</h3>
 <p>The listening half of what the Stereo Field Meter measures. The meter tells you a mix is at risk in mono; this lets you hear it, by folding the signal down where it is inserted. Put it last in the master rack to check the whole mix, or on a single device to find which part is causing the trouble.</p>
@@ -348,6 +382,16 @@
     <li><strong>Correlation</strong>, per band: what the width control actually did. 1 is mono, 0 is fully decorrelated, and anything sustained below 0 will cancel when the mix is summed to mono.</li>
 </ul>
 <p>There is deliberately no Mix control: the split path is phase-rotated against its own input by the crossovers, so blending it with an untouched dry signal would comb filter rather than soften the widening.</p>
+
+<h3>Tremolo Parameters</h3>
+<p>Level modulated by an LFO &mdash; the Auto Panner's mechanism pointed at loudness instead of position. It is worth being its own effect because the two do genuinely different things to a mix: panning moves a sound without changing how loud it is, and a panner set to a square wave still sums to the same level in mono. This takes level away and puts it back, so it survives a fold to mono and it changes the track's relationship to anything compressing behind it.</p>
+<ul>
+    <li><strong>Waveform</strong>: the LFO shape, sharing the Synth's set. A square is the choppy on/off tremolo; a sine is the amplifier's.</li>
+    <li><strong>Depth</strong>: how much level the deepest point takes away. The modulation is <strong>downward only</strong>, so the loudest the tremolo ever is equals the signal that went into it; modulating either side of unity instead would make turning the depth up turn the track up, which is heard as the effect being louder rather than deeper.</li>
+    <li><strong>Stereo Phase</strong>: 0 to 180 degrees. At zero both channels duck together, which is the tremolo on an amplifier. At a hundred and eighty they duck in opposition, and the sound swings between the speakers while its mono sum stays put &mdash; a different effect again from the panner, which moves the sound itself.</li>
+    <li><strong>Rate</strong>: the speed, 0.05 to 20 Hz, or in beat divisions when Sync is on.</li>
+    <li><strong>Rate Divider</strong>: divides the rate by anything from 1 to 64, in both modes, for a tremolo that breathes over bars rather than beats.</li>
+</ul>
 
 <h3>Tube Stage Parameters</h3>
 <p>A valve preamp stage, for warming a signal the way a console's tube channel does. It differs from the Saturator's Tube mode in where the valve <em>sits</em> on its curve rather than in the curve itself.</p>
@@ -660,6 +704,14 @@
     </li>
 </ul>
 
+<h3>Drum Synth V2</h3>
+<p>A second Drum Synth to build on, kept as a separate instrument rather than as a change to the original, so that every kit in an existing project keeps playing exactly as it did. The eleven voices and their engines are the same; what is new is the envelope riding on top of them.</p>
+<ul>
+    <li><strong>Amp Envelope</strong>: per voice, with <strong>Attack</strong>, <strong>Hold</strong>, <strong>Decay</strong> and <strong>Curve</strong>, applied on top of whatever the voice already plays rather than in place of it. Pull <strong>Hold</strong> down and the drum tightens; <strong>Curve</strong> bends the decay between a fast initial fall and a linear one, the same bend the Synth's envelopes have.</li>
+    <li><strong>Everything else</strong>: as the original &mdash; the same eleven voices, the same per-voice Level, Pan, filters, Tune, Decay and Attack, the same Advanced controls, and the same per-voice <strong>FX</strong> button.</li>
+    <li><strong>Per-Voice Sends</strong>: a voice can be routed to the global send buses on its own, independently of what the device sends, so one drum sits in the reverb while the rest of the kit stays dry.</li>
+</ul>
+
 <h3>Wavetable Synth</h3>
 <p>An 8-voice wavetable synthesizer for digital and evolving timbres.</p>
 <ul>
@@ -753,6 +805,14 @@
     <li><strong>Ensemble and Vocoder</strong>: as in the original — a BBD-style ensemble chorus, and a side-chain vocoder driven by another track.</li>
 </ul>
 
+<h3>String &amp; Voice V3</h3>
+<p>A further revision against the same recording, kept separate again so that V2 is untouched. What changes is the register structure, which now follows the hardware's rather than a symmetrical reading of it.</p>
+<ul>
+    <li><strong>Registers</strong>: <strong>Lower Male</strong> at 8' and 4', and <strong>Upper Male</strong> at 8' with <strong>Female</strong> at 4'. There is no Female 8' at all, because a VC340 does not have one &mdash; the earlier versions offered a register the instrument never had.</li>
+    <li><strong>Strings</strong>: as in V2, Upper and Lower with Balance and a Tone control fitted to the recording.</li>
+    <li><strong>Ensemble and Vocoder</strong>: as in the original.</li>
+</ul>
+
 <h3>String Ensemble</h3>
 <p>A divide-down string machine in the Solina tradition. Twelve master oscillators are tapped at 16', 8' and 4' by every key, so octaves stay phase-locked and polyphony is effectively unlimited — hold as many keys as you like.</p>
 <ul>
@@ -767,12 +827,14 @@
 <p>A formant speech synthesizer: it says a phrase you type, pitched to the notes you play. There is no sample and no dictionary — a glottal source drives a bank of resonators that move between the shapes a vocal tract makes, which is why it sings the phrase at whatever pitch the track asks for rather than transposing a recording of it.</p>
 <ul>
     <li><strong>Phrase</strong>: what it says. English spelling is read by a few hundred letter-to-sound rules, and the phonemes they produce are shown under the field so you can see what it made of what you typed. No rule set gets every word right, so two escapes are provided: anything between slashes is taken as literal phonemes — <code>hello /w er l d/</code> — and an apostrophe before a syllable marks it as the stressed one, as a dictionary marks it: <code>A'merica</code>. Contractions are still contractions; the two are told apart by what follows. A single letter written as a capital is spelled out by name rather than read as a word, so <code>zero zero three five A M</code> says "ay em" and not a hum; the lowercase <code>a</code> is still the article, and so is a capital <code>A</code> opening a sentence unless another letter follows it.</li>
-    <li><strong>Trigger</strong>: <strong>Phrase</strong> speaks the whole thing from one note. <strong>Step</strong> speaks the next syllable on each note, so a melody written in the tracker carries the words, one syllable per note, wrapping when the phrase runs out.</li>
-    <li><strong>Sync</strong>: <strong>Free</strong> uses natural speech durations, set by <strong>Rate</strong>. <strong>Fit</strong> stretches the whole phrase to span a set number of sixteenths, keeping its rhythm rather than flattening it. <strong>Grid</strong> gives every syllable one division, which is the mechanical, rap-like reading.</li>
-    <li><strong>Voice</strong>: <strong>Male</strong>, <strong>Female</strong>, <strong>Child</strong>, <strong>Deep</strong> or <strong>Breathy</strong>. A type sets four things at once: the length of the vocal tract, which moves the whole vowel space; how long the vocal folds stay open, which decides whether the voice is pressed or breathy and carries most of its character; how much breath sits behind it; and how steady it is. The pitch is a fifth and that one is the note you play, so a voice sung an octave down still sounds like the same speaker.</li>
+    <li><strong>Trigger</strong>: <strong>Phrase</strong> speaks the whole thing from one note. <strong>Step</strong> speaks the next syllable on each note, so a melody written in the tracker carries the words, one syllable per note, wrapping when the phrase runs out. <strong>Line</strong> speaks the next sentence on each note, so one device carries a whole lyric; a full stop, an exclamation mark or a question mark starts a new line, while a comma only pauses.</li>
+    <li><strong>Sync</strong>: <strong>Free</strong> uses natural speech durations, set by <strong>Rate</strong>. <strong>Fit</strong> stretches the whole phrase to span a set number of sixteenths, keeping its rhythm rather than flattening it. <strong>Grid</strong> gives every syllable one division, which is the mechanical, rap-like reading. In <strong>Line</strong> mode Fit spans the note that speaks the line instead, so lines of different lengths need no setting of their own &mdash; <strong>Length</strong> is greyed out there, because it has nothing to say.</li>
+    <li><strong>Singing a line across a melody</strong>: a note arriving while another is still held re-pitches what is being spoken rather than fetching the next line. Write the line as one long note on one column and the melody on a second, and the second column moves the pitch without advancing the lyric. <strong>Portamento</strong> sets how long such a note takes to slide, up to 300 ms; at zero it lands at once, as it always did. The first note of a line always lands on pitch, whatever the setting.</li>
+    <li><strong>Voice</strong>: <strong>Male</strong>, <strong>Female</strong>, <strong>Child</strong>, <strong>Deep</strong>, <strong>Breathy</strong>, <strong>Giant</strong>, <strong>Elder</strong>, <strong>Alien</strong> or <strong>Monster</strong>. A type sets four things at once: the length of the vocal tract, which moves the whole vowel space; how long the vocal folds stay open, which decides whether the voice is pressed or breathy and carries most of its character; how much breath sits behind it; and how steady it is. The pitch is a fifth and that one is the note you play, so a voice sung an octave down still sounds like the same speaker.</li>
     <li><strong>Voice controls</strong>: <strong>Formant Shift</strong> trims the tract length either side of whatever the voice type chose, with no trim at half travel. <strong>Glide</strong> sets how long a formant takes to reach its target — short is robotic, long is slurred, and the useful range is narrow. <strong>Consonants</strong> and <strong>Sibilance</strong> set the level of the consonants and of the s-sounds; both are unity at half travel. <strong>Breathiness</strong> mixes air into the voiced sounds, and <strong>Intonation</strong> sets how far the pitch falls across a phrase and rises on a stressed syllable — at zero it is a monotone.</li>
     <li><strong>Openness</strong>: how long the vocal folds stay open in each cycle. Down is pressed and buzzy, up is soft and breathy; half travel is whatever the voice type asked for, so this is a deviation from a voice rather than a voice of its own. It is the control that separates a pressed voice from a breathy one, which no amount of filtering can do.</li>
     <li><strong>Jitter</strong>: how unsteady the voice is from one cycle to the next — the pitch and the loudness of each glottal pulse wander a little, as a real voice's do. At zero the voice is perfectly periodic, which is most of what a machine sounds like. Half travel is the voice type's own.</li>
+    <li><strong>The later voices</strong>: <strong>Giant</strong> is a tract a third longer again than Deep's, because size is the tract rather than the pitch &mdash; a voice merely sung an octave down is the same speaker being quiet about it. <strong>Elder</strong> leaks air and is unsteady, which is all that separates it from Breathy. <strong>Alien</strong> is a child's short tract, pressed rather than soft and steadier than any throat manages; the steadiness is what stops it being a child. <strong>Monster</strong> growls, and the growl is a <em>doubled glottal period</em> &mdash; every second pulse weakened, putting real energy at half the fundamental &mdash; rather than an unsteady voice. The two are different mechanisms and the ear tells them apart at once, which is why no amount of Jitter reaches it.</li>
     <li><strong>Glottal Source</strong>: models the vocal folds rather than the sawtooth this device used previously. It is on for any device you add now. Songs saved before it existed load with it off, so they sound exactly as they did; turning it on is how you move such a song onto the new voice, and it will change how that song sounds.</li>
     <li><strong>Global</strong>: Gain, Fader, Pan, Velocity Sensitivity and LPF/HPF cutoff. MIDI CC for Fader (CC 7), Pan (CC 10), LPF (CC 74), HPF (CC 81) and Formant Shift (CC 71).</li>
 </ul>

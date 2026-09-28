@@ -4,7 +4,7 @@
 
 Noteahead is a pattern-based MIDI sequencer and music production environment for Linux, built around the tracker workflow: fast, keyboard-driven editing with the whole song in front of you.
 
-It is also a complete studio. Fourteen internal instruments, a virtual device rack with per-device insert effects and sends, a mixer view, 35 rack effects and analyzers, and a sample-accurate offline renderer take a song from the first note to a finished master without ever leaving the application. Point it outwards instead and it drives a room full of MIDI hardware with the same precision — or does both at once, in the same song.
+It is also a complete studio. Sixteen internal instruments, a virtual device rack with per-device insert effects and sends, a mixer view, 41 rack effects and analyzers, and a sample-accurate offline renderer take a song from the first note to a finished master without ever leaving the application. Point it outwards instead and it drives a room full of MIDI hardware with the same precision — or does both at once, in the same song.
 
 Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It builds with CMake and uses CTest + Qt Test framework for unit tests.
 
@@ -45,9 +45,9 @@ Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It bui
 ##
 ## What you can do with it
 
-**Produce entire songs in the box.** Fourteen internal instruments cover a lot of ground: a six-voice virtual analog Synth, an eight-voice Wavetable Synth, a four-operator FM Synth, an acid Bass Synth, an eleven-voice Drum Synth, a 16-pad Sampler, three physically modelled pianos, a TR-808-style Kick808, three vintage string machines after the VP-330/VC340 and the Solina, and a formant speech synth. Each one sits in a slot of the Virtual Device Rack with its own insert effects, sends, fader, level meter and clip LED.
+**Produce entire songs in the box.** Sixteen internal instruments cover a lot of ground: a six-voice virtual analog Synth, an eight-voice Wavetable Synth, a four-operator FM Synth, an acid Bass Synth, two eleven-voice Drum Synths, a 16-pad Sampler, three physically modelled pianos, a TR-808-style Kick808, four vintage string machines after the VP-330/VC340 and the Solina, and a formant speech synth. Each one sits in a slot of the Virtual Device Rack with its own insert effects, sends, fader, level meter and clip LED.
 
-**Mix and master without leaving the application.** All 35 rack effects and analyzers are available both on the master bus and as per-device inserts: four EQs including an 8-band parametric with Mid/Side, two reverbs, single-band and multiband compression, a lookahead limiter, transient shaping, saturation and tube stages, modulation, an auto filter and a phaser — plus LUFS, true-peak and RTA metering to tell you where you stand. The Mixer view puts every device side by side as channel strips.
+**Mix and master without leaving the application.** All 41 rack effects and analyzers are available both on the master bus and as per-device inserts: four EQs including an 8-band parametric with Mid/Side, two reverbs and an early-reflections room, single-band and multiband compression, a gate, a lookahead limiter, transient shaping, saturation and tube stages, a bit crusher, chorus, flanger, phaser and tremolo, an auto filter — plus LUFS, true-peak, RTA and goniometer metering, and reference monitoring to tell you where you stand. The Mixer view puts every device side by side as channel strips.
 
 **Sequence external gear.** Noteahead began as a MIDI brain and is still a very good one. Ports are hot-plugged, every track routes to its own port and channel, and CC and pitch bend automation, an arpeggiator, chords, step recording and MIDI side-chaining are all there. Internal and external instruments live happily in the same song.
 
@@ -114,8 +114,10 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
   - Monophonic acid-style synthesizer with sub-oscillator, resonant 24dB LPF, and TB-303 style accent/slide.
 - Drum Synth
   - Multi-engine drum machine with 11 independent voices (Kick, Snare, Toms, etc.) and dedicated per-voice controls.
+- Drum Synth V2
+  - A second Drum Synth to build on, kept separate so every kit in an existing project keeps playing the original. Adds an amp envelope per voice — Attack, Hold, Decay and Curve — riding on top of what the voice already plays, so pulling Hold down tightens the drum.
 - Sampler
-  - 16-pad internal sampler with WAV support, dual filters, and per-sample panning/volume.
+  - 16-pad internal sampler with WAV support, dual filters, and per-sample panning/volume. Pads can be sent to the global send buses one at a time, so a single pad sits in the reverb while the rest of the kit stays dry.
 - Piano Synth
   - Physically modelled (waveguide) piano with brightness, decay, inharmonicity, LPF/HPF shaping, release, and stereo pan spread.
 - Piano Synth V2
@@ -128,10 +130,12 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
   - Vintage string/choir ensemble inspired by the Roland VP-330 / Behringer VC340, with strings and voice registers, BBD ensemble chorus, and a sidechain vocoder.
 - String & Voice V2
   - The same ensemble rebuilt against a recording of the hardware. The Strings section carries the Upper and Lower switches the hardware has, saying which half of the split it sounds on, with Balance for how loud, and a Tone control fitted to that recording instead of V1's 8'/4' levels, which a VC340 does not have. Voices are summed rather than scaled by how many are sounding, so releasing part of a chord no longer lifts the notes still held, and a Velocity Sensitivity control spans both sections at once. V1 is untouched.
+- String & Voice V3
+  - A further revision against the same recording, kept separate again so V2 is untouched. The register structure follows the hardware's: Lower Male at 8' and 4', Upper Male at 8' with Female at 4', and no Female 8' at all, because a VC340 does not have one.
 - String Ensemble
   - Divide-down string machine in the Solina tradition: twelve master oscillators tapped at 16'/8'/4' by every key, so octaves stay phase-locked and polyphony is unlimited. Bass section (Contrabass, Cello) below the split with its own Volume Bass, upper section (Horn, Viola, Trumpet, Violin) above it, plus Crescendo/Sustain Length, ensemble chorus and a swept phaser.
 - Speech
-  - Formant speech synthesizer that says a typed phrase, pitched to the notes played. English text is read by a letter-to-sound rule set with stress; anything between slashes is taken as literal phonemes, and an apostrophe marks the stressed syllable. Trigger a whole phrase from one note or a syllable per note, free-running or locked to the tempo. Male and female voice types, with Formant Shift, Glide, Sibilance, Breathiness and Intonation.
+  - Formant speech synthesizer that says a typed phrase, pitched to the notes played. English text is read by a letter-to-sound rule set with stress; anything between slashes is taken as literal phonemes, and an apostrophe marks the stressed syllable. Trigger a whole phrase from one note, a syllable per note, or a sentence per note so that one device carries a whole lyric — free-running, stretched to a set length, or fitted to the note that speaks it. Nine voice types, from Male and Female through Child, Deep and Breathy to Giant, Elder, Alien and Monster, the last of which growls on a doubled glottal period rather than on an unsteady one. Formant Shift, Glide, Sibilance, Breathiness, Intonation and a Portamento that slides between notes played over a line already being spoken.
 - Sub Mixer
   - Groups other devices so a whole set is mixed and processed as one entity, with its own insert effects, Volume, Gain and Pan. Members keep their own reverb sends, Sub Mixers can be nested, and Volume/Pan can be ridden from a track over MIDI CC.
 - Dynamic Routing
@@ -156,12 +160,16 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
   - High-quality Feedback Delay Network algorithm with 8 studio presets (Hall, Cathedral, etc.) and fine-grained controls.
 - Endless Reverb
   - Large ambient reverb built on an 8-line modulated Householder FDN with input diffusion, plus a Freeze switch for an infinite tail.
+- Early Reflections
+  - The room a sound is in, without a tail: the first arrivals off the walls, with Size, Diffusion, Damping, Pre-Delay, Width and a Solo for hearing only the reflections.
 - Compressor
   - Feed-forward compressor with soft-knee interpolation, lookahead support, Peak/RMS detection, side-chain source selection, and real-time gain reduction metering.
 - Multiband Compressor
   - Three bands split by Linkwitz-Riley crossovers that sum back flat, with per-band threshold, ratio, knee, attack, release, makeup, bypass, solo and gain reduction metering. The side chain source is split by the same crossovers.
 - Auto Ducker
   - Side-chain driven level rider with Threshold, Knee, Attack, Hold and Release. Amount is signed, so the same effect ducks the signal out of the way or lifts it with the side chain.
+- Gate
+  - Noise gate and downward expander in one. Ratio sets how steeply the level falls away below the Threshold, and Range floors it, so a drum can be tightened by twelve dB rather than silenced. Hold and a fixed six dB of hysteresis keep a level sitting near the threshold from rattling the gate open and shut.
 - Limiter
   - Lookahead brickwall peak limiter with Threshold, Ceiling, Release and Lookahead controls, a Boost switch for maximum loudness, and gain reduction metering.
 - Clipper
@@ -174,6 +182,10 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
   - Overdrive with Drive amount, dry/wet Mix and output Gain, in Soft (tanh), Hard (clip), Fold (wavefolder) and Dist algorithms.
 - Bass Grinder
   - Split-band bass preamp distortion: Split keeps the fundamental out of an asymmetric diode clipper so a kick or a bass stays weighty while the band above it is ground up, with Blend, Drive, a Color voicing and a three-band tone stack.
+- Analog Fuzz
+  - A synth's drive knob rather than a pedal in front of one: the fuzz stage sits inside the filter it overdrives, so the resonance gives way under drive instead of screaming, and the harmonics come out filtered rather than laid on top. Drive, Fuzz, Bias, Cutoff, Resonance, Mix and Output.
+- Bit Crusher
+  - Word length and sample rate thrown away separately. Fewer bits is grit that follows the signal; a lower rate folds everything above its new Nyquist back down as aliases, which is the metallic half of the sound. Deliberately not oversampled, because unlike every other nonlinear effect here its aliases are the point.
 - Wave Designer
   - Transient shaper with Attack and Sustain, level-independent by design, plus Gain, Mix and a gain meter. Not a compressor: it acts on how sharply the signal changes, never on how loud it is.
 - Stereo Exciter
@@ -184,16 +196,28 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
   - Stereo chorus with rate, depth, delay, width, and LPF/HPF shaping.
 - Delay
   - Studio-standard delay with feedback, tempo sync, and Mono/Ping-Pong/Tape modes.
+- Flanger
+  - A swept short delay summed back with the dry signal. The fixed time offset combs at harmonically spaced notches and sweeping it drags the whole series along, which the ear follows as one moving resonance — the jet whoosh a phaser cannot do, because its notches are not harmonically related. Bipolar Feedback, since the two polarities comb at different frequencies, plus a Rate Divider up to 64.
+- Tremolo
+  - Level modulated by an LFO, downward only, so turning Depth up never turns the track up. At a Stereo Phase of 180 degrees the two channels duck in opposition and the sound swings between the speakers while its mono sum stays put — which a panner, moving the sound itself, does not do.
 - Auto Filter
   - Cutoff and resonance sweeps that belong to the rack rather than to the instrument. LPF/HPF/BPF/Notch at 12 or 24 dB/oct, two LFOs with the Synth's waveforms and tempo sync (one on the cutoff, one on the resonance), an envelope follower with attack and release, bipolar non-linear intensities, a stereo phase offset for wide sweeps, gain and mix.
 - Phaser
   - 2 to 12 all-pass stages, one notch per pair, swept by an LFO with the Synth's waveforms and tempo sync. Centre frequency, Depth, bipolar Feedback, a stereo phase offset defaulting to quadrature, gain and mix, plus a Rate Divider (1 to 64) for sweeps lasting minutes or several bars.
 - Panner & Auto Panner
-  - Static stereo panning plus an LFO-driven auto panner.
+  - Static stereo panning plus an LFO-driven auto panner, the latter with tempo sync and a Rate Divider up to 64 for pans that sweep over several bars.
+- Stereo Widener
+  - Width set per band, so the bottom can be held in the middle while everything above it opens out.
+- Dimension
+  - Builds width out of a mono source rather than widening one that already has it.
+- Reference & Crossfeed
+  - Reference plays the mix as another system would — Car, Club, Phone, Laptop, Hall, Boombox, Earbuds, TV or Nearfield. Crossfeed puts back the far-ear arrival that headphones do not give you. Neither is ever printed into a render.
+- Monitor
+  - Mono and single-channel fold-downs for checking a mix by ear, also never printed into a render.
 - All-Pass Filter
   - Multi-stage all-pass filter for phase shaping.
 - Metering & Analysis
-  - LUFS loudness meter with a live gated integrated reading, dBTP true-peak meter, and a real-time analyzer (RTA).
+  - LUFS loudness meter with a live gated integrated reading, dBTP true-peak meter, a real-time analyzer (RTA), and a Stereo Field Meter with goniometer and correlation.
 - Integrated Effects
   - Includes High-Pass/Low-Pass filters and Panning/Volume utilities.
 
