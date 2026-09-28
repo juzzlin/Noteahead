@@ -98,7 +98,11 @@ QStringList SynthController::octaveNames() const
 
 QStringList SynthController::multiTypeNames() const
 {
-    return { tr("High"), tr("Low"), tr("Peak"), tr("Decim") };
+    // The minilogue xd's own four, named after the filter each one is rather than after the band it
+    // happens to leave. A name like "high frequency noise" is true at one end of Shape and false at
+    // the other: High at the bottom of its range is a high pass at 20 Hz, which passes the whole
+    // spectrum. In ordinal order, because the index is what the project stores.
+    return { tr("High Pass"), tr("Low Pass"), tr("Band Pass"), tr("Decimate") };
 }
 
 QStringList SynthController::modTargetNames() const

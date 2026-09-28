@@ -8596,6 +8596,10 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <translation>振荡器</translation>
     </message>
     <message>
+        <source>Noise</source>
+        <translation>噪声</translation>
+    </message>
+    <message>
         <source>Filter / Envelope</source>
         <translation>滤波器 / 包络</translation>
     </message>
@@ -10393,20 +10397,20 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <translation>单声道</translation>
     </message>
     <message>
-        <source>High</source>
-        <translation>高</translation>
+        <source>High Pass</source>
+        <translation>高通</translation>
     </message>
     <message>
-        <source>Low</source>
-        <translation>低</translation>
+        <source>Low Pass</source>
+        <translation>低通</translation>
     </message>
     <message>
-        <source>Peak</source>
-        <translation>峰值</translation>
+        <source>Band Pass</source>
+        <translation>带通</translation>
     </message>
     <message>
-        <source>Decim</source>
-        <translation>降采样</translation>
+        <source>Decimate</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Pitch 1</source>

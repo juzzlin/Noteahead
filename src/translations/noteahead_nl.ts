@@ -8597,6 +8597,10 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
         <translation>Oscillatoren</translation>
     </message>
     <message>
+        <source>Noise</source>
+        <translation>Ruis</translation>
+    </message>
+    <message>
         <source>Filter / Envelope</source>
         <translation>Filter / envelop</translation>
     </message>
@@ -10394,20 +10398,20 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
         <translation>Mono</translation>
     </message>
     <message>
-        <source>High</source>
-        <translation>Hoog</translation>
+        <source>High Pass</source>
+        <translation>Hoogdoorlaat</translation>
     </message>
     <message>
-        <source>Low</source>
-        <translation>Laag</translation>
+        <source>Low Pass</source>
+        <translation>Laagdoorlaat</translation>
     </message>
     <message>
-        <source>Peak</source>
-        <translation>Piek</translation>
+        <source>Band Pass</source>
+        <translation>Banddoorlaat</translation>
     </message>
     <message>
-        <source>Decim</source>
-        <translation>Decimatie</translation>
+        <source>Decimate</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Pitch 1</source>

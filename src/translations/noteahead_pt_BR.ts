@@ -8597,6 +8597,10 @@ Um apóstrofo marca a sílaba tônica: A&apos;merica</translation>
         <translation>Osciladores</translation>
     </message>
     <message>
+        <source>Noise</source>
+        <translation>Ruído</translation>
+    </message>
+    <message>
         <source>Filter / Envelope</source>
         <translation>Filtro / envelope</translation>
     </message>
@@ -10394,20 +10398,20 @@ Um apóstrofo marca a sílaba tônica: A&apos;merica</translation>
         <translation>Mono</translation>
     </message>
     <message>
-        <source>High</source>
-        <translation>Agudos</translation>
+        <source>High Pass</source>
+        <translation>Passa-alta</translation>
     </message>
     <message>
-        <source>Low</source>
-        <translation>Graves</translation>
+        <source>Low Pass</source>
+        <translation>Passa-baixa</translation>
     </message>
     <message>
-        <source>Peak</source>
-        <translation>Pico</translation>
+        <source>Band Pass</source>
+        <translation>Passa-banda</translation>
     </message>
     <message>
-        <source>Decim</source>
-        <translation>Dizimação</translation>
+        <source>Decimate</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Pitch 1</source>

@@ -8597,6 +8597,10 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <translation>Oskillaattorit</translation>
     </message>
     <message>
+        <source>Noise</source>
+        <translation>Kohina</translation>
+    </message>
+    <message>
         <source>Filter / Envelope</source>
         <translation>Suodin / verhokäyrä</translation>
     </message>
@@ -10394,20 +10398,20 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <translation>Mono</translation>
     </message>
     <message>
-        <source>High</source>
-        <translation>Ylä</translation>
+        <source>High Pass</source>
+        <translation>Ylipäästö</translation>
     </message>
     <message>
-        <source>Low</source>
-        <translation>Ala</translation>
+        <source>Low Pass</source>
+        <translation>Alipäästö</translation>
     </message>
     <message>
-        <source>Peak</source>
-        <translation>Peak</translation>
+        <source>Band Pass</source>
+        <translation>Kaistanpäästö</translation>
     </message>
     <message>
-        <source>Decim</source>
-        <translation>Desimointi</translation>
+        <source>Decimate</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Pitch 1</source>

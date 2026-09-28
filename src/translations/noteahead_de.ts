@@ -8597,6 +8597,10 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
         <translation>Oszillatoren</translation>
     </message>
     <message>
+        <source>Noise</source>
+        <translation>Rauschen</translation>
+    </message>
+    <message>
         <source>Filter / Envelope</source>
         <translation>Filter / Hüllkurve</translation>
     </message>
@@ -10394,20 +10398,20 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
         <translation>Mono</translation>
     </message>
     <message>
-        <source>High</source>
-        <translation>Hoch</translation>
+        <source>High Pass</source>
+        <translation>Hochpass</translation>
     </message>
     <message>
-        <source>Low</source>
-        <translation>Tief</translation>
+        <source>Low Pass</source>
+        <translation>Tiefpass</translation>
     </message>
     <message>
-        <source>Peak</source>
-        <translation>Peak</translation>
+        <source>Band Pass</source>
+        <translation>Bandpass</translation>
     </message>
     <message>
-        <source>Decim</source>
-        <translation>Decim</translation>
+        <source>Decimate</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Pitch 1</source>

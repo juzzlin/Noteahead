@@ -591,7 +591,14 @@
 <ul>
     <li><strong>Selection</strong>: Assign a track to a specific synth by selecting its name (e.g., "Noteahead Synth 1") in the <strong>Track Settings</strong> port list.</li>
     <li><strong>Oscillators (VCO1, VCO2 & VCO3)</strong>: Three oscillators with <strong>Triangle</strong>, <strong>Saw</strong>, and <strong>Square</strong> waveforms. Each features <strong>Octave</strong> as an organ footage (<strong>32'</strong>, <strong>16'</strong>, <strong>8'</strong>, <strong>4'</strong> or <strong>2'</strong>), <strong>Pitch</strong> (fine-tuning), <strong>Shape</strong> (pulse-width or waveform modulation), <strong>Level</strong>, and <strong>Sync</strong> — VCO2 hard-syncs to VCO1 and VCO3 to VCO2. VCO2 adds <strong>Cross Mod Depth</strong> for FM-style timbres.</li>
-    <li><strong>Multi Engine</strong>: An additional digital engine providing <strong>Low</strong> and <strong>High</strong> frequency content, <strong>Peak</strong> (peaking filter), and <strong>Decim</strong> (bit-crusher/decimator) textures. It includes its own <strong>Shape</strong>, <strong>Key Track</strong> and <strong>Level</strong> controls.</li>
+    <li><strong>Multi Engine</strong>, on the <strong>Noise</strong> tab beside the oscillators: a noise source after the multi engine in Korg's minilogue xd, with that machine's four noise types. It is a noise source rather than an oscillator, which is why it has a tab of its own rather than a fifth place on the oscillator one.
+        <ul>
+            <li><strong>Type</strong>: <strong>High Pass</strong>, <strong>Low Pass</strong>, <strong>Band Pass</strong> or <strong>Decimate</strong>. Each names the filter the noise is passed through, not the band it leaves behind &mdash; a High Pass with Shape at the bottom sits at 20 Hz and lets the whole spectrum through.</li>
+            <li><strong>Shape</strong>: what that filter is set to, and so it means something different for each type: the cutoff for <strong>High Pass</strong> and <strong>Low Pass</strong> (20 Hz to 20 kHz), the centre frequency for <strong>Band Pass</strong> (110 to 880 Hz), and the rate the noise is resampled at for <strong>Decimate</strong> (240 Hz to 48 kHz).</li>
+            <li><strong>Key Track</strong>: how far the note being played carries that frequency with it, so the noise can be tuned along with the oscillators.</li>
+            <li><strong>Level</strong>: how much of it is mixed in.</li>
+        </ul>
+    </li>
     <li><strong>Filters</strong>:
         <ul>
             <li><strong>LPF Cutoff & Resonance</strong>: A resonant low-pass filter for sculpting the timbre.</li>

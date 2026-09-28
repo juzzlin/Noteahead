@@ -8597,6 +8597,10 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
         <translation>Oscillatori</translation>
     </message>
     <message>
+        <source>Noise</source>
+        <translation>Rumore</translation>
+    </message>
+    <message>
         <source>Filter / Envelope</source>
         <translation>Filtro / inviluppo</translation>
     </message>
@@ -10394,20 +10398,20 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
         <translation>Mono</translation>
     </message>
     <message>
-        <source>High</source>
-        <translation>Alti</translation>
+        <source>High Pass</source>
+        <translation>Passa-alto</translation>
     </message>
     <message>
-        <source>Low</source>
-        <translation>Bassi</translation>
+        <source>Low Pass</source>
+        <translation>Passa-basso</translation>
     </message>
     <message>
-        <source>Peak</source>
-        <translation>Picco</translation>
+        <source>Band Pass</source>
+        <translation>Passa-banda</translation>
     </message>
     <message>
-        <source>Decim</source>
-        <translation>Decimazione</translation>
+        <source>Decimate</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Pitch 1</source>

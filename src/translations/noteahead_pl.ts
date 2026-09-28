@@ -8598,6 +8598,10 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <translation>Oscylatory</translation>
     </message>
     <message>
+        <source>Noise</source>
+        <translation>Szum</translation>
+    </message>
+    <message>
         <source>Filter / Envelope</source>
         <translation>Filtr / obwiednia</translation>
     </message>
@@ -10395,20 +10399,20 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <translation>Mono</translation>
     </message>
     <message>
-        <source>High</source>
-        <translation>Góra</translation>
+        <source>High Pass</source>
+        <translation>Górnoprzepustowy</translation>
     </message>
     <message>
-        <source>Low</source>
-        <translation>Dół</translation>
+        <source>Low Pass</source>
+        <translation>Dolnoprzepustowy</translation>
     </message>
     <message>
-        <source>Peak</source>
-        <translation>Szczyt</translation>
+        <source>Band Pass</source>
+        <translation>Pasmowoprzepustowy</translation>
     </message>
     <message>
-        <source>Decim</source>
-        <translation>Decymacja</translation>
+        <source>Decimate</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Pitch 1</source>

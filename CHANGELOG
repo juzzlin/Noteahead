@@ -55,6 +55,10 @@ New features:
   - Bit Crusher throws away word length and sample rate separately, and is
     deliberately not oversampled, because there the aliases are the point
 
+* The Synth's Multi Engine has a Noise tab of its own
+  - Beside the oscillators rather than below them, since it is a noise source
+    and not a fifth oscillator
+
 * The oversampling is in the render's file name
   - Alongside the sample rate and the word length, so two renders that differ
     only in quality setting do not differ only in their timestamp

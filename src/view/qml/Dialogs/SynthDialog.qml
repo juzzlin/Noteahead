@@ -133,6 +133,10 @@ AnimatedDialog {
                         moduleWidth: mainRow.vcoModuleWidth
                     }
 
+                    SynthDialog_TabNoise {
+                        moduleWidth: mainRow.moduleWidth
+                    }
+
                     SynthDialog_Tab2 {
                         moduleWidth: mainRow.moduleWidth
                     }
@@ -148,8 +152,8 @@ AnimatedDialog {
                     SynthDialog_Tab5 {
                         moduleWidth: mainRow.moduleWidth
                         // Drive scope capture from dependable signals: the dialog is open and the
-                        // Scope tab (index 4) is current. Avoids relying on nested-item visibility.
-                        scopeActive: root.visible && synthTabBar.currentIndex === 4
+                        // Scope tab (index 5) is current. Avoids relying on nested-item visibility.
+                        scopeActive: root.visible && synthTabBar.currentIndex === 5
                     }
                 }
 
@@ -158,6 +162,9 @@ AnimatedDialog {
                     Layout.fillWidth: true
                     TabButton {
                         text: qsTr("Oscillators")
+                    }
+                    TabButton {
+                        text: qsTr("Noise")
                     }
                     TabButton {
                         text: qsTr("Filter / Envelope")

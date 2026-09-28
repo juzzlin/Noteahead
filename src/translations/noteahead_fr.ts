@@ -8597,6 +8597,10 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
         <translation>Oscillateurs</translation>
     </message>
     <message>
+        <source>Noise</source>
+        <translation>Bruit</translation>
+    </message>
+    <message>
         <source>Filter / Envelope</source>
         <translation>Filtre / enveloppe</translation>
     </message>
@@ -10394,20 +10398,20 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
         <translation>Mono</translation>
     </message>
     <message>
-        <source>High</source>
-        <translation>Aigu</translation>
+        <source>High Pass</source>
+        <translation>Passe-haut</translation>
     </message>
     <message>
-        <source>Low</source>
-        <translation>Grave</translation>
+        <source>Low Pass</source>
+        <translation>Passe-bas</translation>
     </message>
     <message>
-        <source>Peak</source>
-        <translation>Crête</translation>
+        <source>Band Pass</source>
+        <translation>Passe-bande</translation>
     </message>
     <message>
-        <source>Decim</source>
-        <translation>Décimation</translation>
+        <source>Decimate</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Pitch 1</source>
