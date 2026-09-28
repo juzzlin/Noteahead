@@ -36,6 +36,8 @@ ColumnLayout {
     }
 
     RowLayout {
+        Layout.fillWidth: true
+        Layout.bottomMargin: Constants.dropDownBottomMargin
         ComboBox {
             model: synthController.multiTypeNames
             currentIndex: synthController.multiType
