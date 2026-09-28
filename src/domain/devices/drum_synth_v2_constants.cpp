@@ -32,7 +32,8 @@ QString voiceName(int index)
         { VoiceIndex::HighTom, "High Tom" },
         { VoiceIndex::Crash, "Crash" },
         { VoiceIndex::Ride, "Ride" },
-        { VoiceIndex::ReverseCrash, "Reverse Crash" }
+        { VoiceIndex::ReverseCrash, "Reverse Crash" },
+        { VoiceIndex::Rim, "Rim" }
     };
     const auto it = names.find(static_cast<VoiceIndex>(index));
     return it != names.end() ? it->second : "Undefined";
@@ -51,7 +52,8 @@ std::string voiceId(int index)
         { VoiceIndex::HighTom, "HighTom" },
         { VoiceIndex::Crash, "Crash" },
         { VoiceIndex::Ride, "Ride" },
-        { VoiceIndex::ReverseCrash, "ReverseCrash" }
+        { VoiceIndex::ReverseCrash, "ReverseCrash" },
+        { VoiceIndex::Rim, "Rim" }
     };
     const auto it = ids.find(static_cast<VoiceIndex>(index));
     return it != ids.end() ? it->second : "Undefined";

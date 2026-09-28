@@ -476,6 +476,27 @@ void DrumSynthV2Controller::setKickPitchDecay(int value)
     }
 }
 
+int DrumSynthV2Controller::rimClick() const
+{
+    if (!m_device) {
+        return 500;
+    }
+    const auto parameter = m_device->parameter(DrumSynthV2::voiceId(static_cast<int>(DrumSynthV2::VoiceIndex::Rim)) + "_" + Constants::NahdXml::xmlKeyClick().toStdString());
+    return parameter ? static_cast<int>(std::round(parameter->get().value() * Constants::uiInternalScaling())) : 500;
+}
+
+void DrumSynthV2Controller::setRimClick(int value)
+{
+    if (m_device) {
+        m_device->updateVoiceParameter(static_cast<int>(DrumSynthV2::VoiceIndex::Rim), Constants::NahdXml::xmlKeyClick().toStdString(), static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+bool DrumSynthV2Controller::isRim() const
+{
+    return m_selectedVoice == static_cast<int>(DrumSynthV2::VoiceIndex::Rim);
+}
+
 int DrumSynthV2Controller::snareSnappy() const
 {
     if (!m_device) {
@@ -642,6 +663,7 @@ void DrumSynthV2Controller::requestSettings()
     emit kickClickTuneChanged();
     emit kickPitchDepthChanged();
     emit kickPitchDecayChanged();
+    emit rimClickChanged();
     emit snareSnappyChanged();
     emit snareToneChanged();
     emit tomPitchDepthChanged();

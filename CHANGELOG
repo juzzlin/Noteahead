@@ -26,6 +26,9 @@ New features:
   - Reverse Crash is the crash run backwards now, closing into its strike
     instead of swelling a cymbal that was already open
 
+  - A Rim voice, on C#3, fitted to a recording of the hardware: a woody pitched
+    click with a Click control for how much stick is in it
+
 * A Curve control on the Sampler's pad envelope
   - The same bend the Synth's envelopes have, per pad, and the waveform view
     draws the shape the pad is actually played through

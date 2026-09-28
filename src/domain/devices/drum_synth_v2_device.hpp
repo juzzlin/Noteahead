@@ -21,6 +21,7 @@
 #include "../dsp/drum/hihat_engine.hpp"
 #include "../dsp/drum/kick_engine.hpp"
 #include "../dsp/drum/ride_engine.hpp"
+#include "../dsp/drum/rim_engine.hpp"
 #include "../dsp/drum/snare_engine.hpp"
 #include "../dsp/drum/tom_engine.hpp"
 #include "../dsp/high_pass_filter.hpp"
@@ -196,6 +197,7 @@ private:
     //! See the definition: what a kit saved before the sustain stage was voiced against.
     void restoreLegacyAmpEnvelope();
     void addKickParameters(const std::string & prefix);
+    void addRimParameters(const std::string & prefix);
     void addSnareParameters(const std::string & prefix);
     void addTomParameters(const std::string & prefix);
     void addHiHatParameters(const std::string & prefix);
@@ -210,6 +212,7 @@ private:
     void syncTomParameters(int index, const std::string & prefix);
     void syncHiHatParameters(int index, const std::string & prefix);
     void syncCymbalParameters(int index, const std::string & prefix);
+    void syncRimParameters(int index, const std::string & prefix);
 };
 
 } // namespace noteahead

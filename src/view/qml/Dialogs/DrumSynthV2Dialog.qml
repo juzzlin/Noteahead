@@ -219,6 +219,12 @@ AnimatedDialog {
                             onMoved: (val) => drumSynthV2Controller.kickPitchDecay = val
                         }
                         Knob {
+                            visible: drumSynthV2Controller.isRim
+                            label: qsTr("Click")
+                            value: drumSynthV2Controller.rimClick
+                            onMoved: (val) => drumSynthV2Controller.rimClick = val
+                        }
+                        Knob {
                             visible: drumSynthV2Controller.isSnare
                             label: qsTr("Snappy")
                             value: drumSynthV2Controller.snareSnappy

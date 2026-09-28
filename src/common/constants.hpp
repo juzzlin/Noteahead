@@ -799,6 +799,7 @@ QString xmlKeyData();
 QString xmlKeyDrumSynth();
 QString xmlKeyPad();
 QString xmlKeyTune();
+QString xmlKeyClick();
 QString xmlKeyClickTune();
 QString xmlKeySnappy();
 QString xmlKeyTone();

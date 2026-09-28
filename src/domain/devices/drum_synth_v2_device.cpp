@@ -483,6 +483,7 @@ void DrumSynthV2Device::restoreLegacyAmpEnvelope()
       { 0.6937f, 0.8724f }, // Crash: hold 2670 ms, decay 3120 ms
       { 0.7570f, 0.8345f }, // Ride: hold 3470 ms, decay 2360 ms
       { 0.6300f, 0.5940f }, // ReverseCrash: hold 2000 ms, decay 400 ms
+      { 0.1957f, 0.2819f }, // Rim: hold 60 ms, decay 40 ms -- it is over almost at once
     } };
 
     // writeVoiceParameter() rather than updateVoiceParameter(), which emits dataChanged(). This
@@ -617,7 +618,8 @@ void DrumSynthV2Device::initializeVoices()
         static_cast<uint8_t>(HiTom),
         static_cast<uint8_t>(Crash),
         static_cast<uint8_t>(Ride),
-        static_cast<uint8_t>(ReverseCrash)
+        static_cast<uint8_t>(ReverseCrash),
+        static_cast<uint8_t>(Rim)
     };
 
     for (int i { 0 }; i < NumVoices; i++) {
@@ -647,6 +649,8 @@ void DrumSynthV2Device::initializeVoices()
             tom->setVoicing(TomEngine::Voicing::Rd9);
             m_voices.at(i).engine = std::move(tom);
         }
+        else if (voiceIdx == VoiceIndex::Rim)
+            m_voices.at(i).engine = std::make_unique<RimEngine>();
         else if (voiceIdx == VoiceIndex::Crash) {
             // The cymbals are the two voices V2 does not share with V1. Both were fitted to a
             // recording: the crash had four tenths of steady noise against four of metal, which
@@ -713,6 +717,8 @@ void DrumSynthV2Device::addVoiceParameters(int index)
         addTomParameters(prefix);
     else if (voiceIdx >= VoiceIndex::Crash && voiceIdx <= VoiceIndex::ReverseCrash)
         addCymbalParameters(prefix);
+    else if (voiceIdx == VoiceIndex::Rim)
+        addRimParameters(prefix);
 }
 
 //! Where each voice's amp envelope starts: held open until the voice has fallen to about -40 dBFS,
@@ -765,6 +771,11 @@ void DrumSynthV2Device::addKickParameters(const std::string & prefix)
     addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyClickTune().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyPitchDepth().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyPitchDecay().toStdString(), 0.5f, 0, 10000, 5000, 100 });
+}
+
+void DrumSynthV2Device::addRimParameters(const std::string & prefix)
+{
+    addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyClick().toStdString(), 0.5f, 0, 10000, 5000, 100 });
 }
 
 void DrumSynthV2Device::addSnareParameters(const std::string & prefix)
@@ -861,6 +872,8 @@ void DrumSynthV2Device::syncVoiceParameters(int index)
         syncTomParameters(index, prefix);
     else if (voiceIdx >= VoiceIndex::Crash && voiceIdx <= VoiceIndex::ReverseCrash)
         syncCymbalParameters(index, prefix);
+    else if (voiceIdx == VoiceIndex::Rim)
+        syncRimParameters(index, prefix);
 }
 
 void DrumSynthV2Device::syncAmpEnvelopeParameters(int index, const std::string & prefix)
@@ -909,7 +922,8 @@ void DrumSynthV2Device::syncCommonEngineParameters(int index, const std::string 
                 static_cast<RideEngine &>(engine).setTune(val);
             else
                 static_cast<CrashEngine &>(engine).setTune(val);
-        }
+        } else if (voiceIdx == VoiceIndex::Rim)
+            static_cast<RimEngine &>(engine).setTune(val);
     }
 
     if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyDecay().toStdString()); p) {
@@ -929,7 +943,8 @@ void DrumSynthV2Device::syncCommonEngineParameters(int index, const std::string 
                 static_cast<RideEngine &>(engine).setDecay(val);
             else
                 static_cast<CrashEngine &>(engine).setDecay(val);
-        }
+        } else if (voiceIdx == VoiceIndex::Rim)
+            static_cast<RimEngine &>(engine).setDecay(val);
     }
 }
 
@@ -974,6 +989,13 @@ void DrumSynthV2Device::syncHiHatParameters(int index, const std::string & prefi
     auto & engine { static_cast<HiHatEngine &>(*m_voices.at(index).engine) };
     if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyResonance().toStdString()); p)
         engine.setResonance(p->get().value());
+}
+
+void DrumSynthV2Device::syncRimParameters(int index, const std::string & prefix)
+{
+    auto & engine { static_cast<RimEngine &>(*m_voices.at(index).engine) };
+    if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyClick().toStdString()); p)
+        engine.setClick(p->get().value());
 }
 
 void DrumSynthV2Device::syncCymbalParameters(int index, const std::string & prefix)

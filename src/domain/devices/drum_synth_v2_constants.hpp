@@ -34,10 +34,13 @@ enum class VoiceIndex : int
     HighTom = 7,
     Crash = 8,
     Ride = 9,
-    ReverseCrash = 10
+    ReverseCrash = 10,
+    //! Appended rather than slotted into its General MIDI place on purpose: every voice before it
+    //! keeps the index it has always had, so a project saved before there was a rim still reads.
+    Rim = 11
 };
 
-static constexpr int NumVoices = 11;
+static constexpr int NumVoices = 12;
 
 enum class MidiNote : uint8_t
 {
@@ -52,7 +55,9 @@ enum class MidiNote : uint8_t
     HiTom = 45,
     Crash = 49,
     Ride = 51,
-    ReverseCrash = 52
+    ReverseCrash = 52,
+    //! C#3, where a side stick lives in General MIDI.
+    Rim = 37
 };
 
 //! Ranges of the per-voice amp envelope. Attack and Hold are mapped cubically so the short end,
@@ -65,7 +70,7 @@ static constexpr double AmpEnvelopeMaxDecaySeconds = 8.0;
 static constexpr uint8_t CcStartRange1 = 14;
 static constexpr int NumVoicesRange1 = 6;
 static constexpr uint8_t CcStartRange2 = 102;
-static constexpr int NumVoicesRange2 = 5;
+static constexpr int NumVoicesRange2 = 6;
 
 QString voiceName(int index);
 std::string voiceId(int index);

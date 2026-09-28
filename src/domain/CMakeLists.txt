@@ -39,6 +39,7 @@ set(HEADER_FILES
     dsp/drum/kick_808_engine.hpp
     dsp/drum/kick_engine.hpp
     dsp/drum/ride_engine.hpp
+    dsp/drum/rim_engine.hpp
     dsp/drum/snare_engine.hpp
     dsp/drum/tom_engine.hpp
     dsp/dsp_component.hpp
@@ -205,6 +206,7 @@ set(SOURCE_FILES
     dsp/drum/kick_808_engine.cpp
     dsp/drum/kick_engine.cpp
     dsp/drum/ride_engine.cpp
+    dsp/drum/rim_engine.cpp
     dsp/drum/snare_engine.cpp
     dsp/drum/tom_engine.cpp
     dsp/dsp_component.cpp

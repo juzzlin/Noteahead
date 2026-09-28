@@ -2685,6 +2685,11 @@ QString xmlKeyTune()
     return "tune";
 }
 
+QString xmlKeyClick()
+{
+    return "click";
+}
+
 QString xmlKeyClickTune()
 {
     return "clickTune";

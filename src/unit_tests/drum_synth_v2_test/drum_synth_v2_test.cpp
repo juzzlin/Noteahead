@@ -24,6 +24,7 @@
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
+#include <QRegularExpression>
 #include <QTest>
 
 #include <algorithm>
@@ -165,8 +166,10 @@ bool isFittedVoice(int voice)
 {
     using enum DrumSynthV2::VoiceIndex;
     const auto index = static_cast<DrumSynthV2::VoiceIndex>(voice);
+    // Rim is here for a different reason from the rest: V1 has no rim at all, so there is nothing
+    // to hold it against rather than a voicing that deliberately drifted.
     return index == Snare || index == LowTom || index == MidTom || index == HighTom
-      || index == Crash || index == Ride || index == ReverseCrash;
+      || index == Crash || index == Ride || index == ReverseCrash || index == Rim;
 }
 
 template<typename DeviceT>
@@ -829,6 +832,74 @@ void DrumSynthV2Test::test_cymbals_shouldHaveABody()
                  qPrintable(QString { "%1 has no body: %2 dB under the whole" }
                               .arg(DrumSynthV2::voiceName(voice)).arg(body - whole)));
     }
+}
+
+void DrumSynthV2Test::test_rim_shouldBeAShortPitchedClick()
+{
+    // Not the crack the name suggests. Measured off the hardware it is a woody click: everything
+    // above 600 Hz is twenty to sixty decibels down, the weight is all in the 200 to 600 Hz band,
+    // and it is over in eighty-five milliseconds.
+    DrumSynthV2Device v2 { "V2" };
+    const auto rim = static_cast<int>(DrumSynthV2::VoiceIndex::Rim);
+    QCOMPARE(v2.voiceNote(rim), static_cast<uint8_t>(DrumSynthV2::MidiNote::Rim));
+
+    const auto rendered = v2.renderVoiceAlone(rim, sampleRate, 2.0);
+    const auto seconds = static_cast<double>(rendered.size() / 2) / sampleRate;
+    QVERIFY2(seconds < 0.25, qPrintable(QString { "the rim rings for %1 s" }.arg(seconds)));
+
+    const auto ps = spectrum(rendered, 0.09);
+    const auto body = bandPower(ps, 200.0, 600.0);
+    for (const auto band : { std::pair { 60.0, 200.0 }, std::pair { 600.0, 1000.0 }, std::pair { 1000.0, 2000.0 } }) {
+        QVERIFY2(body > bandPower(ps, band.first, band.second),
+                 qPrintable(QString { "the rim's weight is not in the low mids: %1-%2 Hz is louder" }.arg(band.first).arg(band.second)));
+    }
+
+    // And tonal up where it lives: the recording measures a spectral flatness of 0.11 over one to
+    // four kilohertz, so what is there is partials rather than a burst of stick.
+    QVERIFY2(bandFlatness(ps, 1000.0, 4000.0) < 0.5,
+             qPrintable(QString { "the rim is noise, not struck wood: flatness %1" }.arg(bandFlatness(ps, 1000.0, 4000.0))));
+}
+
+void DrumSynthV2Test::test_rim_shouldNotDisturbAProjectSavedWithoutIt()
+{
+    // The rim is the twelfth voice, and it was appended rather than slotted into its General MIDI
+    // place so that every voice before it keeps the index it has always had. A project written
+    // before there was a rim simply has no Rim_ parameters in it, and has to read back with all of
+    // its own voices untouched and the rim at its defaults.
+    DrumSynthV2Device device { "Test" };
+    const std::string tuneKey { DrumSynthV2::voiceId(static_cast<int>(DrumSynthV2::VoiceIndex::Kick)) + "_" + Constants::NahdXml::xmlKeyTune().toStdString() };
+    if (auto p = device.parameter(tuneKey); p) {
+        p->get().setValue(0.75f);
+    }
+
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        device.serializeToXml(writer);
+    }
+    // Every trace of the rim taken out again, which is exactly what an older file looks like.
+    const auto rimPrefix = QString::fromStdString(DrumSynthV2::voiceId(static_cast<int>(DrumSynthV2::VoiceIndex::Rim)) + "_");
+    QVERIFY(xml.contains(rimPrefix));
+    static const QRegularExpression rimParameter { R"(<Parameter name=")" + rimPrefix + R"([^"]*"[^>]*/>)" };
+    xml.remove(rimParameter);
+    QVERIFY2(!xml.contains(rimPrefix), "the rim was not fully stripped, so this proves nothing");
+
+    DrumSynthV2Device restored { "Restored" };
+    NahdXmlReader reader { xml };
+    while (!reader.atEnd() && !reader.isStartElement()) {
+        reader.readNext();
+    }
+    restored.deserializeFromXml(reader);
+
+    const auto tune = restored.parameter(tuneKey);
+    QVERIFY(tune.has_value());
+    QCOMPARE(tune->get().value(), 0.75f);
+
+    // The rim is still there, at the value it is born with, and still sounds.
+    const auto click = restored.parameter(DrumSynthV2::voiceId(static_cast<int>(DrumSynthV2::VoiceIndex::Rim)) + "_" + Constants::NahdXml::xmlKeyClick().toStdString());
+    QVERIFY(click.has_value());
+    QCOMPARE(click->get().value(), 0.5f);
+    QVERIFY(!restored.renderVoiceAlone(static_cast<int>(DrumSynthV2::VoiceIndex::Rim), sampleRate, 2.0).empty());
 }
 
 void DrumSynthV2Test::test_drumSynthV2Device_xmlSerialization_shouldRestoreParameters()

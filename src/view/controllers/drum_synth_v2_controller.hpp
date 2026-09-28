@@ -79,6 +79,7 @@ class DrumSynthV2Controller : public DeviceController
     Q_PROPERTY(int kickPitchDecay READ kickPitchDecay WRITE setKickPitchDecay NOTIFY kickPitchDecayChanged)
 
     // Snare Specific
+    Q_PROPERTY(int rimClick READ rimClick WRITE setRimClick NOTIFY rimClickChanged)
     Q_PROPERTY(int snareSnappy READ snareSnappy WRITE setSnareSnappy NOTIFY snareSnappyChanged)
     Q_PROPERTY(int snareTone READ snareTone WRITE setSnareTone NOTIFY snareToneChanged)
 
@@ -93,6 +94,7 @@ class DrumSynthV2Controller : public DeviceController
 
     // UI Helpers
     Q_PROPERTY(bool isKick READ isKick NOTIFY selectedVoiceChanged)
+    Q_PROPERTY(bool isRim READ isRim NOTIFY selectedVoiceChanged)
     Q_PROPERTY(bool isSnare READ isSnare NOTIFY selectedVoiceChanged)
     Q_PROPERTY(bool isTom READ isTom NOTIFY selectedVoiceChanged)
     Q_PROPERTY(bool isCymbal READ isCymbal NOTIFY selectedVoiceChanged)
@@ -178,6 +180,9 @@ public:
     int kickPitchDecay() const;
     void setKickPitchDecay(int value);
 
+    int rimClick() const;
+    void setRimClick(int value);
+    bool isRim() const;
     int snareSnappy() const;
     void setSnareSnappy(int value);
 
@@ -227,6 +232,7 @@ signals:
     void kickClickTuneChanged();
     void kickPitchDepthChanged();
     void kickPitchDecayChanged();
+    void rimClickChanged();
     void snareSnappyChanged();
     void snareToneChanged();
     void tomPitchDepthChanged();
