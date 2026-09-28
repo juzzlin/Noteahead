@@ -48,6 +48,7 @@
 #include "../view/controllers/bass_synth_controller.hpp"
 #include "../view/controllers/device_rack_controller.hpp"
 #include "../view/controllers/drum_synth_controller.hpp"
+#include "../view/controllers/audio_analysis_controller.hpp"
 #include "../view/controllers/drum_synth_v2_controller.hpp"
 #include "../view/controllers/effect_rack_controller.hpp"
 #include "../view/controllers/fm_synth_controller.hpp"
@@ -68,6 +69,7 @@
 #include "../view/qml/Components/oscilloscope_renderer.hpp"
 #include "../view/qml/Dialogs/eq_curve_renderer.hpp"
 #include "../view/qml/Dialogs/rta_renderer.hpp"
+#include "../view/qml/Dialogs/spectrum_compare_renderer.hpp"
 #include "../view/qml/Dialogs/song_overview_renderer.hpp"
 #include "../view/qml/Dialogs/stereo_field_renderer.hpp"
 #include "../view/qml/Editor/line_number_renderer.hpp"
@@ -87,6 +89,7 @@
 #include "models/track_settings_model.hpp"
 #include "note_converter.hpp"
 #include "service/application_service.hpp"
+#include "service/audio_analysis_service.hpp"
 #include "service/audio_service.hpp"
 #include "service/automation_service.hpp"
 #include "service/device_service.hpp"
@@ -170,6 +173,8 @@ Application::Application(int & argc, char ** argv)
   , m_knobController { std::make_shared<KnobController>() }
   , m_jackService { std::make_shared<JackService>(m_settingsService, m_audioEngine) }
   , m_audioService { std::make_shared<AudioService>(m_settingsService, m_jackService, m_audioEngine) }
+  , m_audioAnalysisService { std::make_shared<AudioAnalysisService>() }
+  , m_audioAnalysisController { std::make_shared<AudioAnalysisController>(m_audioAnalysisService) }
   , m_eventSelectionModel { std::make_shared<EventSelectionModel>() }
   , m_midiService { std::make_shared<MidiService>(m_deviceService) }
   , m_mixerService { std::make_shared<MixerService>() }
@@ -266,6 +271,7 @@ void Application::registerTypes()
     qmlRegisterType<SamplerPadModel>("Noteahead", majorVersion, minorVersion, "SamplerPadModel");
     qmlRegisterType<DrumSynthController>("Noteahead", majorVersion, minorVersion, "DrumSynthController");
     qmlRegisterType<DrumSynthV2Controller>("Noteahead", majorVersion, minorVersion, "DrumSynthV2Controller");
+    qmlRegisterType<SpectrumCompareRenderer>("Noteahead", majorVersion, minorVersion, "SpectrumCompareRenderer");
     qmlRegisterType<BassSynthController>("Noteahead", majorVersion, minorVersion, "BassSynthController");
     qmlRegisterType<PianoSynthController>("Noteahead", majorVersion, minorVersion, "PianoSynthController");
     qmlRegisterType<PianoSynthV2Controller>("Noteahead", majorVersion, minorVersion, "PianoSynthV2Controller");
@@ -306,6 +312,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("fmSynthController", m_fmSynthController.get());
     m_engine->rootContext()->setContextProperty("bassSynthController", m_bassSynthController.get());
     m_engine->rootContext()->setContextProperty("drumSynthController", m_drumSynthController.get());
+    m_engine->rootContext()->setContextProperty("audioAnalysisController", m_audioAnalysisController.get());
     m_engine->rootContext()->setContextProperty("drumSynthV2Controller", m_drumSynthV2Controller.get());
     m_engine->rootContext()->setContextProperty("pianoSynthController", m_pianoSynthController.get());
     m_engine->rootContext()->setContextProperty("pianoSynthV2Controller", m_pianoSynthV2Controller.get());

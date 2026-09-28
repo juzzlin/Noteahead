@@ -82,6 +82,8 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/LimiterDialog.qml
     ${QML_BASE_DIR}/Dialogs/LufsMeterDialog.qml
     ${QML_BASE_DIR}/Dialogs/LoudnessReportDialog.qml
+    ${QML_BASE_DIR}/Dialogs/AudioAnalysisDialog.qml
+    ${QML_BASE_DIR}/Dialogs/AudioAnalysisDialog_Side.qml
     ${QML_BASE_DIR}/Dialogs/AudioRenderDialog.qml
     ${QML_BASE_DIR}/Dialogs/AutoDuckerDialog.qml
     ${QML_BASE_DIR}/Dialogs/AutoFilterDialog.qml

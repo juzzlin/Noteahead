@@ -12,6 +12,12 @@ New features:
   - An amp envelope per voice: Attack, Hold, Decay and Curve, riding on top of
     what the voice already plays. Pull Hold down and the drum tightens
 
+* Analyse any audio file, and compare two
+  - Tools => Analyse audio files... measures a WAV or FLAC the way the render
+    report does, two files side by side
+  - The chart draws both balances and the difference between them, which is
+    the equalizer move from one to the other
+
 8.0.0
 =====
 

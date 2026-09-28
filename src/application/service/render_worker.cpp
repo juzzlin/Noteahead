@@ -22,12 +22,11 @@
 #include "../../domain/tracker/instrument.hpp"
 #include "../../domain/tracker/note_data.hpp"
 #include "../../domain/utility/loudness_analyzer.hpp"
-#include "../../domain/utility/mix_advisor.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/audio/audio_file_recorder.hpp"
 #include "../../infra/audio/backend/sndfile_reader.hpp"
+#include "analysis_report_formatter.hpp"
 #include "device_service.hpp"
-#include "mix_advice_formatter.hpp"
 #include "mixer_service.hpp"
 
 #include <QDateTime>
@@ -327,9 +326,10 @@ void RenderWorker::render(const QString & fileName,
         QString report = "";
         if (analyze) {
             const auto result = runLoudnessAnalysis(fileName, sampleRate);
-            report = formatReportHtml(result);
-            writeAnalysisFile(fileName, formatReportText(result, fileName, sampleRate));
-            report += QString { "<br/>Saved to: %1" }.arg(QFileInfo { analysisFilePath(fileName) }.fileName());
+            report = AnalysisReportFormatter::html(result);
+            const auto reportPath = AnalysisReportFormatter::analysisFilePath(fileName);
+            AnalysisReportFormatter::writeReportFile(reportPath, AnalysisReportFormatter::text(result));
+            report += QString { "<br/>Saved to: %1" }.arg(QFileInfo { reportPath }.fileName());
         }
 
         m_audioEngine->reset();
@@ -458,7 +458,7 @@ void RenderWorker::writeFinalFile(const QString & tempPath,
     QFile::remove(tempPath);
 }
 
-RenderWorker::AnalysisResult RenderWorker::runLoudnessAnalysis(const QString & finalPath, quint32 sampleRate)
+AudioAnalysis RenderWorker::runLoudnessAnalysis(const QString & finalPath, quint32 sampleRate)
 {
     juzzlin::L(TAG).info() << "Running loudness/peak and balance analysis on final file...";
     auto reader = m_audioFileReaderFactory ? m_audioFileReaderFactory() : std::make_unique<SndFileReader>();
@@ -478,143 +478,7 @@ RenderWorker::AnalysisResult RenderWorker::runLoudnessAnalysis(const QString & f
     }
     reader->close();
 
-    return AnalysisResult { loudness.calculate(), spectrum.calculate() };
-}
-
-QString RenderWorker::analysisFilePath(const QString & renderedPath)
-{
-    return renderedPath + ".loudness.txt";
-}
-
-QString RenderWorker::formatReportHtml(const AnalysisResult & result)
-{
-    QString report = QString("<table width='100%' cellpadding='5' cellspacing='0'>"
-                             "<tr>"
-                             "<td bgcolor='#2c2c2c'><b>Parameter</b></td><td align='right' bgcolor='#2c2c2c'><b>Value</b></td>"
-                             "</tr>"
-                             "<tr>"
-                             "<td>Integrated Loudness</td><td align='right'><font color='#4CAF50'><b>%1 LUFS</b></font></td>"
-                             "</tr>"
-                             "<tr>"
-                             "<td>True Peak</td><td align='right'><font color='#FF9800'><b>%2 dBTP</b></font></td>"
-                             "</tr>"
-                             "<tr>"
-                             "<td>Loudness Range (LRA)</td><td align='right'><font color='#2196F3'><b>%3 LU</b></font></td>"
-                             "</tr>"
-                             "<tr>"
-                             "<td>Threshold</td><td align='right'><font color='#888888'>%4 LUFS</font></td>"
-                             "</tr>"
-                             "</table>")
-                       .arg(result.loudness.integratedLoudness, 0, 'f', 1)
-                       .arg(result.loudness.truePeak, 0, 'f', 1)
-                       .arg(result.loudness.loudnessRange, 0, 'f', 1)
-                       .arg(result.loudness.threshold, 0, 'f', 1);
-
-    if (result.spectrum.isValid) {
-        const auto row = [](const QString & name, float value, const QString & color) {
-            return QString { "<tr><td>%1</td><td align='right'><font color='%2'><b>%3 dB</b></font></td></tr>" }
-              .arg(name, color)
-              .arg(value, 0, 'f', 1);
-        };
-        report += QString { "<br><table width='100%' cellpadding='5' cellspacing='0'>"
-                            "<tr><td bgcolor='#2c2c2c'><b>Balance</b></td>"
-                            "<td align='right' bgcolor='#2c2c2c'><b>vs. own midrange</b></td></tr>%1%2%3%4%5</table>" }
-                    .arg(row("Low mids (100-250 Hz)", result.spectrum.lowMidDb, "#4CAF50"),
-                         row("Mids (250-630 Hz)", result.spectrum.midDb, "#4CAF50"),
-                         row("Presence (0.8-1.6 kHz)", result.spectrum.upperMidDb, "#2196F3"),
-                         row("Highs (2.5-8 kHz)", result.spectrum.highDb, "#FF9800"),
-                         row("Presence - highs", result.spectrum.upperMidToHighDb, "#888888"));
-    }
-
-    // What the numbers above amount to, in sentences. Read off the same two results the tables are,
-    // so the notes cannot describe a mix other than the one measured.
-    if (const auto advice = MixAdvisor::advise(result.spectrum, result.loudness); !advice.findings.empty()) {
-        QString notes;
-        for (auto && finding : advice.findings) {
-            const auto color = finding.severity == MixAdvisor::Severity::Caution ? "#FF9800" : "#bbbbbb";
-            notes += QString { "<tr><td><font color='%1'>%2</font></td></tr>" }
-                       .arg(color, MixAdviceFormatter::sentence(finding).toHtmlEscaped());
-        }
-        report += QString { "<br><table width='100%' cellpadding='5' cellspacing='0'>"
-                            "<tr><td bgcolor='#2c2c2c'><b>%1</b></td></tr>%2</table>" }
-                    .arg(tr("Notes"), notes);
-    }
-
-    juzzlin::L(TAG).info() << "Analysis completed:\n"
-                           << report.toStdString();
-    return report;
-}
-
-QString RenderWorker::formatReportText(const AnalysisResult & result, const QString & renderedPath, quint32 sampleRate)
-{
-    const auto label = [](const QString & text, const QString & value) {
-        return QString { "%1%2\n" }.arg(text, -22).arg(value);
-    };
-    const auto number = [](float value, const QString & unit) {
-        // Written the same way the report dialog writes it, so the file and the dialog agree
-        return QString { "%1 %2" }.arg(value, 0, 'f', 1).arg(unit);
-    };
-
-    QString report = "Noteahead loudness analysis\n\n";
-    report += label("File:", QFileInfo { renderedPath }.fileName());
-    report += label("Date:", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
-    report += label("Sample rate:", QString { "%1 Hz" }.arg(sampleRate));
-    report += "\n";
-    report += label("Integrated loudness:", number(result.loudness.integratedLoudness, "LUFS"));
-    report += label("True peak:", number(result.loudness.truePeak, "dBTP"));
-    report += label("Loudness range (LRA):", number(result.loudness.loudnessRange, "LU"));
-    report += label("Threshold:", number(result.loudness.threshold, "LUFS"));
-
-    if (result.spectrum.isValid) {
-        const auto & spectrum = result.spectrum;
-        report += "\nBalance\n";
-        report += "Levels are relative to this mix's own 100 Hz - 8 kHz average, so they can be\n";
-        report += "compared with another mix directly whatever the two were mastered to.\n\n";
-        report += label("Low mids 100-250 Hz:", number(spectrum.lowMidDb, "dB"));
-        report += label("Mids 250-630 Hz:", number(spectrum.midDb, "dB"));
-        report += label("Presence 0.8-1.6 kHz:", number(spectrum.upperMidDb, "dB"));
-        report += label("Highs 2.5-8 kHz:", number(spectrum.highDb, "dB"));
-        report += label("Presence - highs:", number(spectrum.upperMidToHighDb, "dB"));
-
-        report += "\nThird-octave average\n\n";
-        for (const auto & band : spectrum.bands) {
-            const auto hz = band.centerHz >= 1000.0
-              ? QString { "%1 kHz" }.arg(band.centerHz / 1000.0, 0, 'f', band.centerHz >= 10000.0 ? 0 : 1)
-              : QString { "%1 Hz" }.arg(band.centerHz, 0, 'f', 0);
-            // A bar as well as the number: the shape of a balance is read across the bands at a
-            // glance, and a column of figures hides it.
-            const int bar = std::clamp(static_cast<int>(std::lround(band.levelDb + 18.0)), 0, 40);
-            report += QString { "%1%2  %3\n" }
-                        .arg(hz, -10)
-                        .arg(QString { "%1 dB" }.arg(band.levelDb, 6, 'f', 1))
-                        .arg(QString { "#" }.repeated(bar));
-        }
-    }
-
-    // The same findings the dialog shows, from the same call: the file and the dialog disagreeing
-    // about a mix would be worse than neither saying anything.
-    if (const auto advice = MixAdvisor::advise(result.spectrum, result.loudness); !advice.findings.empty()) {
-        report += "\n" + tr("Notes") + "\n\n";
-        for (auto && finding : advice.findings) {
-            report += "- " + MixAdviceFormatter::sentence(finding) + "\n";
-        }
-    }
-
-    return report;
-}
-
-void RenderWorker::writeAnalysisFile(const QString & renderedPath, const QString & report)
-{
-    const auto path = analysisFilePath(renderedPath);
-    QFile file { path };
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        juzzlin::L(TAG).error() << "Failed to write the analysis file: " << path.toStdString();
-        return;
-    }
-    QTextStream stream { &file };
-    stream << report;
-    file.close();
-    juzzlin::L(TAG).info() << "Analysis written to " << path.toStdString();
+    return AudioAnalysis { loudness.calculate(), spectrum.calculate(), finalPath, sampleRate, info.channels, info.frames, true };
 }
 
 } // namespace noteahead

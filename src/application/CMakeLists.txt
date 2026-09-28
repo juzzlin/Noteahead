@@ -23,7 +23,11 @@ set(HEADER_FILES
     models/track_settings_model.hpp
     note_converter.hpp
     position.hpp
+    service/analysis_report_formatter.hpp
     service/application_service.hpp
+    service/audio_analysis.hpp
+    service/audio_analysis_service.hpp
+    service/audio_analysis_worker.hpp
     service/audio_service.hpp
     service/audio_worker.hpp
     service/automation_service.hpp
@@ -83,7 +87,10 @@ set(SOURCE_FILES
     models/sampler/sampler_pad_model.cpp
     models/track_settings_model.cpp
     note_converter.cpp
+    service/analysis_report_formatter.cpp
     service/application_service.cpp
+    service/audio_analysis_service.cpp
+    service/audio_analysis_worker.cpp
     service/audio_service.cpp
     service/audio_worker.cpp
     service/automation_service.cpp

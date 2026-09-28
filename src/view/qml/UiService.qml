@@ -18,6 +18,7 @@ import QtQuick 2.15
 
 QtObject {
     signal aboutDialogRequested
+    signal audioAnalysisDialogRequested
     signal activeOctaveChanged(int activeOctave)
     signal columnAddMidiCcAutomationDialogRequested
     signal columnAddPitchBendAutomationDialogRequested
@@ -166,6 +167,9 @@ QtObject {
     }
     function requestAboutDialog(): void {
         aboutDialogRequested();
+    }
+    function requestAudioAnalysisDialog(): void {
+        audioAnalysisDialogRequested();
     }
     function requestManualDialog(): void {
         manualDialogRequested();

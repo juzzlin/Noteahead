@@ -35,5 +35,10 @@ Menu {
         text: qsTr("Gain converter...")
         onTriggered: UiService.requestGainConverterDialog()
     }
+    MenuSeparator {}
+    Action {
+        text: qsTr("Analyse audio files...")
+        onTriggered: UiService.requestAudioAnalysisDialog()
+    }
     delegate: MenuItemDelegate {}
 }

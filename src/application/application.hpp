@@ -36,6 +36,8 @@ class Argengine;
 namespace noteahead {
 
 class ApplicationService;
+class AudioAnalysisController;
+class AudioAnalysisService;
 class AudioEngine;
 class AudioService;
 class AudioSettingsModel;
@@ -202,6 +204,9 @@ private:
     std::shared_ptr<JackService> m_jackService;
 
     std::shared_ptr<AudioService> m_audioService;
+
+    std::shared_ptr<AudioAnalysisService> m_audioAnalysisService;
+    std::shared_ptr<AudioAnalysisController> m_audioAnalysisController;
 
     std::shared_ptr<EventSelectionModel> m_eventSelectionModel;
 

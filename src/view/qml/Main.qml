@@ -895,6 +895,10 @@ ApplicationWindow {
         width: parent.width * Constants.defaultDialogScale * 0.75
         height: parent.height * 0.25
     }
+    AudioAnalysisDialog {
+        id: audioAnalysisDialog
+        anchors.centerIn: parent
+    }
     GainConverterDialog {
         id: gainConverterDialog
         anchors.centerIn: parent
@@ -1418,6 +1422,9 @@ ApplicationWindow {
         UiService.copyPadDialogRequested.connect(padIndex => {
             copyPadDialog.padIndex = padIndex;
             copyPadDialog.open();
+        });
+        UiService.audioAnalysisDialogRequested.connect(() => {
+            audioAnalysisDialog.open();
         });
         UiService.gainConverterDialogRequested.connect(() => {
             gainConverterDialog.open();
