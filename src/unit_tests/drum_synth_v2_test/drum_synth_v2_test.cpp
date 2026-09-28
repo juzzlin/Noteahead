@@ -41,25 +41,63 @@ constexpr uint32_t sampleRate = 44100;
 //! Triggers one note on a freshly built device and hands back the interleaved output. Templated over
 //! the device so that V1 and V2 are driven through exactly the same steps, which is the whole point
 //! of the comparison below.
-//! Spectral flatness of a rendered voice over a band, 0 for a pure tone and 1 for white noise.
-double bandFlatness(const std::vector<double> & frames, double lowHz, double highHz)
+//! Welch-averaged power spectrum of the left channel over the first @p seconds.
+//!
+//! The averaging is not an optimisation. A single frame's flatness collapses for noise -- its bin
+//! magnitudes are Rayleigh distributed, so the geometric mean falls far under the arithmetic one
+//! and white noise scores about 0.6 rather than 1.0. Measured that way these cymbals looked like
+//! they were matching the hardware while they were nothing like it.
+std::vector<double> spectrum(const std::vector<double> & frames, double seconds)
 {
-    constexpr int size = 8192;
-    std::vector<double> re(size, 0.0), im(size, 0.0);
-    for (int i = 0; i < size && static_cast<size_t>(i) * 2 < frames.size(); i++) {
-        re[static_cast<size_t>(i)] = frames.at(static_cast<size_t>(i) * 2) * (0.5 - 0.5 * std::cos(2.0 * M_PI * i / (size - 1)));
+    constexpr int size = 2048;
+    std::vector<double> acc(size / 2, 0.0);
+    const auto limit = std::min(frames.size() / 2, static_cast<size_t>(seconds * sampleRate));
+    int windows = 0;
+    for (size_t start = 0; start + size <= limit; start += size / 2) {
+        std::vector<double> re(size), im(size, 0.0);
+        for (int i = 0; i < size; i++) {
+            re[static_cast<size_t>(i)] = frames.at((start + static_cast<size_t>(i)) * 2) * (0.5 - 0.5 * std::cos(2.0 * M_PI * i / (size - 1)));
+        }
+        Fft::forward(re.data(), im.data(), size);
+        for (size_t k = 0; k < acc.size(); k++) {
+            acc[k] += re[k] * re[k] + im[k] * im[k];
+        }
+        windows++;
     }
-    Fft::forward(re.data(), im.data(), size);
+    for (auto && value : acc) {
+        value /= std::max(1, windows);
+    }
+    return acc;
+}
 
-    const auto from = static_cast<int>(lowHz * size / sampleRate);
-    const auto to = std::min(size / 2, static_cast<int>(highHz * size / sampleRate));
+size_t binOf(double hz)
+{
+    return static_cast<size_t>(hz * 2048 / sampleRate);
+}
+
+double bandPower(const std::vector<double> & ps, double lowHz, double highHz)
+{
+    double sum = 0.0;
+    for (auto k = binOf(lowHz); k < std::min(ps.size(), binOf(highHz)); k++) {
+        sum += ps.at(k);
+    }
+    return sum;
+}
+
+//! How noisy a band is: 0 for a pure tone, and for noise as much as the band's own tilt allows.
+//!
+//! Only ever asked about one octave at a time. Over a wider band this mostly reports the spectral
+//! slope rather than the noisiness, because a sound that falls steeply across the band is far from
+//! flat however noisy it is.
+double bandFlatness(const std::vector<double> & ps, double lowHz, double highHz)
+{
     double logSum = 0.0;
     double sum = 0.0;
-    int count = 0;
-    for (int bin = from; bin < to; bin++) {
-        const double magnitude = std::max(1.0e-12, std::hypot(re[bin], im[bin]));
-        logSum += std::log(magnitude);
-        sum += magnitude;
+    size_t count = 0;
+    for (auto k = binOf(lowHz); k < std::min(ps.size(), binOf(highHz)); k++) {
+        const double power = std::max(ps.at(k), 1.0e-20);
+        logSum += std::log(power);
+        sum += power;
         count++;
     }
     return count ? std::exp(logSum / count) / (sum / count) : 0.0;
@@ -547,24 +585,48 @@ void DrumSynthV2Test::test_voiceElapsedSeconds_shouldFollowTheVoice()
     QVERIFY(!device.voiceElapsedSeconds(kick).has_value());
 }
 
-void DrumSynthV2Test::test_cymbals_shouldBeStruckMetalRatherThanNoise()
+void DrumSynthV2Test::test_cymbals_v1_shouldNotTakeTheFit()
 {
-    // What separates a cymbal from a wash of noise shaped like one, and the thing the recordings
-    // were fitted against: measured over its attack the hardware's crash is far more tonal in its
-    // top two octaves than the engine V1 plays, which is heard as water rather than as metal.
+    // The fit belongs to V2 alone. The engines are shared, so the constants it is made of sit
+    // behind a voicing the original device does not select -- and every kit written against V1 has
+    // to keep sounding the way it did. Asserted through what the two disagree about: V1's crash
+    // peaks an octave below the splash band, and its ride is hiss where V2's is metal.
+    const DrumSynthV2Device notes { "Notes" };
+    const auto v1Crash = spectrum(renderNote<DrumSynthDevice>(notes.voiceNote(static_cast<int>(DrumSynthV2::VoiceIndex::Crash)), fullTailBlocks), 0.35);
+    QVERIFY(bandPower(v1Crash, 2000.0, 4000.0) > bandPower(v1Crash, 4000.0, 8000.0));
+
+    const auto v1Ride = spectrum(renderNote<DrumSynthDevice>(notes.voiceNote(static_cast<int>(DrumSynthV2::VoiceIndex::Ride)), fullTailBlocks), 0.35);
+    QVERIFY(bandFlatness(v1Ride, 5000.0, 16000.0) > 0.6);
+}
+
+void DrumSynthV2Test::test_cymbals_ride_shouldBeAsNoisyAsRealMetal()
+{
+    // A ride's shimmer *is* noise, and this is the regression that matters: fitted once against a
+    // flatness measured across a wide band -- which reports tilt rather than noisiness -- the ride
+    // came out four times more tonal than the recording and was heard as a dry bell. The recording
+    // measures about 0.36 here. V1 sits at roughly 0.78, which is hiss laid over a cymbal, so the
+    // cymbal has to be between the two rather than merely under V1.
     DrumSynthV2Device v2 { "V2" };
-    DrumSynthDevice v1 { "V1" };
+    const auto ride = static_cast<int>(DrumSynthV2::VoiceIndex::Ride);
+    const auto ps = spectrum(v2.renderVoiceAlone(ride, sampleRate, 4.0), 0.35);
+    const auto flatness = bandFlatness(ps, 5000.0, 16000.0);
+    QVERIFY2(flatness > 0.15, qPrintable(QString { "ride is a bell, not a cymbal: flatness %1" }.arg(flatness)));
+    QVERIFY2(flatness < 0.55, qPrintable(QString { "ride is hiss, not a cymbal: flatness %1" }.arg(flatness)));
+}
 
-    for (auto voice : { static_cast<int>(DrumSynthV2::VoiceIndex::Crash), static_cast<int>(DrumSynthV2::VoiceIndex::Ride) }) {
-        const auto note = v2.voiceNote(voice);
-        const auto fitted = v2.renderVoiceAlone(voice, sampleRate, 4.0);
-        const auto classic = renderNote<DrumSynthDevice>(note, fullTailBlocks);
-
-        const auto fittedFlatness = bandFlatness(fitted, 5000.0, 16000.0);
-        const auto classicFlatness = bandFlatness(classic, 5000.0, 16000.0);
-        QVERIFY2(fittedFlatness < classicFlatness,
-                 qPrintable(QString { "%1: fitted %2 is no more tonal than V1's %3" }
-                              .arg(DrumSynthV2::voiceName(voice)).arg(fittedFlatness).arg(classicFlatness)));
+void DrumSynthV2Test::test_cymbals_crash_shouldPeakInTheSplashBand()
+{
+    // What makes a crash splash is where its weight sits: the recording peaks between four and
+    // eight kilohertz and falls away above and below. V1 peaks at two to four and is nine decibels
+    // down in the splash band, which is heard as a wash rather than as a cymbal being hit.
+    DrumSynthV2Device v2 { "V2" };
+    const auto crash = static_cast<int>(DrumSynthV2::VoiceIndex::Crash);
+    const auto ps = spectrum(v2.renderVoiceAlone(crash, sampleRate, 4.0), 0.35);
+    const auto splash = bandPower(ps, 4000.0, 8000.0);
+    for (const auto band : { std::pair { 1000.0, 2000.0 }, std::pair { 2000.0, 4000.0 }, std::pair { 8000.0, 16000.0 } }) {
+        const auto other = bandPower(ps, band.first, band.second);
+        QVERIFY2(splash > other,
+                 qPrintable(QString { "crash does not peak in the splash band: %1-%2 Hz is louder" }.arg(band.first).arg(band.second)));
     }
 }
 
@@ -572,28 +634,12 @@ void DrumSynthV2Test::test_cymbals_shouldHaveABody()
 {
     // Neither cymbal had anything below 600 Hz worth measuring: V1's ride high-passed it all away,
     // and the crash's body envelope lasted twenty milliseconds. The recordings carry that band for
-    // the whole of the sound.
-    const auto bandDb = [](const std::vector<double> & frames, double lowHz, double highHz) {
-        constexpr int size = 8192;
-        std::vector<double> re(size, 0.0), im(size, 0.0);
-        for (int i = 0; i < size && static_cast<size_t>(i) * 2 < frames.size(); i++) {
-            re[static_cast<size_t>(i)] = frames.at(static_cast<size_t>(i) * 2) * (0.5 - 0.5 * std::cos(2.0 * M_PI * i / (size - 1)));
-        }
-        Fft::forward(re.data(), im.data(), size);
-        double power = 0.0;
-        for (int bin = static_cast<int>(lowHz * size / sampleRate); bin < std::min(size / 2, static_cast<int>(highHz * size / sampleRate)); bin++) {
-            power += re[bin] * re[bin] + im[bin] * im[bin];
-        }
-        return 10.0 * std::log10(std::max(power, 1.0e-30));
-    };
-
+    // the whole of the sound, within about twelve decibels of their own total.
     DrumSynthV2Device v2 { "V2" };
     for (auto voice : { static_cast<int>(DrumSynthV2::VoiceIndex::Crash), static_cast<int>(DrumSynthV2::VoiceIndex::Ride) }) {
-        const auto fitted = v2.renderVoiceAlone(voice, sampleRate, 4.0);
-        const auto body = bandDb(fitted, 200.0, 600.0);
-        const auto whole = bandDb(fitted, 20.0, 20000.0);
-        // The recordings sit twelve decibels under their own total for the crash and twenty for the
-        // ride. What is asserted is that the band is there at all, which it was not.
+        const auto ps = spectrum(v2.renderVoiceAlone(voice, sampleRate, 4.0), 0.35);
+        const auto body = 10.0 * std::log10(std::max(bandPower(ps, 200.0, 600.0), 1.0e-30));
+        const auto whole = 10.0 * std::log10(std::max(bandPower(ps, 20.0, 20000.0), 1.0e-30));
         QVERIFY2(body - whole > -30.0,
                  qPrintable(QString { "%1 has no body: %2 dB under the whole" }
                               .arg(DrumSynthV2::voiceName(voice)).arg(body - whole)));

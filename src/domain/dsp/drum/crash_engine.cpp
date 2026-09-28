@@ -21,6 +21,32 @@
 
 namespace noteahead {
 
+namespace {
+
+//! What the Rd9 voicing is made of, fitted to a recording of the hardware rather than chosen.
+//!
+//! The fit minimised a distance with two halves: the spectral envelope in third-octave bands, and
+//! how tonal the sound is inside each octave taken separately. Both halves are needed. Matching
+//! only the envelope lets a wash of noise pass for a cymbal, and tonality measured across a wide
+//! band mostly reports the spectral tilt rather than the noisiness -- which is how an earlier
+//! attempt at this drove the crash to a quarter of the recording's noise while its own number
+//! said it was matching.
+constexpr float Rd9MetalLevel { 0.525f };
+constexpr float Rd9WashLevel { 0.066f };
+constexpr float Rd9SizzleLevel { 0.300f };
+//! Nearly one: the recording's attack is broadband, and a crash that is struck tonally has no
+//! splash to it.
+constexpr float Rd9StrikeLevel { 0.941f };
+//! Negative, so the partial weights lean back down towards the fundamental: the recording's weight
+//! sits at four to eight kilohertz, and the top of the bank overshot it.
+constexpr double Rd9MetalTilt { -0.178 };
+constexpr float Rd9HpfCutoff { 0.375f };
+constexpr float Rd9BpfCutoff { 0.569f };
+constexpr float Rd9LpfCutoff { 0.88f };
+constexpr double Rd9BaseFreq { 450.0 };
+
+} // namespace
+
 CrashEngine::CrashEngine()
 {
     m_rng.seed(0);
@@ -63,7 +89,7 @@ void CrashEngine::trigger(float velocity)
 
 float CrashEngine::nextMetallicBaseSample(double pitchScale)
 {
-    const double baseFreq { (350.0 + m_tune * 400.0) * pitchScale };
+    const double baseFreq { ((m_voicing == Voicing::Rd9 ? Rd9BaseFreq : 350.0) + m_tune * 400.0) * pitchScale };
     static constexpr std::array<double, 12> ratios {
         1.0, 1.27, 2.11, 3.47, 4.21, 5.17, 6.39, 7.63, 8.87, 10.13, 12.39, 14.57
     };
@@ -82,7 +108,7 @@ float CrashEngine::nextMetallicBaseSample(double pitchScale)
         m_phases[i] += baseFreq * ratios[i] * invSr;
         if (m_phases[i] >= 1.0)
             m_phases[i] -= 1.0;
-        const double weight = m_voicing == Voicing::Rd9 ? rd9Weights[i] : 1.0;
+        const double weight = m_voicing == Voicing::Rd9 ? rd9Weights[i] * std::pow(ratios[i], Rd9MetalTilt) : 1.0;
         metallicSource += weight * (m_phases[i] < 0.5 ? 1.0 : -1.0);
         weightSum += weight;
     }
@@ -156,28 +182,28 @@ float CrashEngine::nextSample()
     // top, left the top two octaves measuring flatness 0.60 where the record sits at 0.37. That is
     // the difference between a cymbal and a wash of noise shaped like one.
     const bool rd9 = m_voicing == Voicing::Rd9;
-    const float metalLevel = rd9 ? 0.75f : 0.4f;
-    const float washLevel = rd9 ? 0.09f : 0.4f;
-    const float sizzleLevel = rd9 ? 0.24f : 0.5f;
+    const float metalLevel = rd9 ? Rd9MetalLevel : 0.4f;
+    const float washLevel = rd9 ? Rd9WashLevel : 0.4f;
+    const float sizzleLevel = rd9 ? Rd9SizzleLevel : 0.5f;
     // The record is metal from the first sample: measured over its attack it is markedly more
     // tonal than this was, and a strike made of noise is most of why.
-    const float strikeNoise = noise * m_pitchEnv * (rd9 ? 0.25f : 0.6f);
+    const float strikeNoise = noise * m_pitchEnv * (rd9 ? Rd9StrikeLevel : 0.6f);
     const float sizzleNoise = noise * m_sizzleEnv * sizzleLevel;
     float source = (static_cast<float>(metallicSource) * metalLevel + noise * washLevel + strikeNoise + sizzleNoise) * m_attackEnv;
 
     // Triple filtering to shape the spectral profile
     m_hpf.setSampleRate(sr);
-    m_hpf.setCutoff(0.35f + m_tune * 0.4f);
+    m_hpf.setCutoff((rd9 ? Rd9HpfCutoff : 0.35f) + m_tune * 0.4f);
     m_hpf.setResonance(m_resonance * 0.2f);
 
     m_bpf.setSampleRate(sr);
-    m_bpf.setCutoff(0.45f + m_tune * 0.5f);
+    m_bpf.setCutoff((rd9 ? Rd9BpfCutoff : 0.45f) + m_tune * 0.5f);
     m_bpf.setResonance(0.5f);
 
     m_lpf.setSampleRate(sr);
     // Higher for the fitted voicing: the record still has real weight in its top octave, and at
     // 0.85 the splash was being rolled off five decibels below it.
-    m_lpf.setCutoff(rd9 ? 0.88f : 0.85f); // 12kHz roll-off
+    m_lpf.setCutoff(rd9 ? Rd9LpfCutoff : 0.85f); // 12kHz roll-off
     m_lpf.setResonance(0.1f);
 
     const auto hpfOut = static_cast<float>(m_hpf.process(source));

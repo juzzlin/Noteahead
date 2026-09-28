@@ -20,6 +20,24 @@
 
 namespace noteahead {
 
+namespace {
+
+//! What the Rd9 voicing is made of, fitted to a recording of the hardware. See CrashEngine for what
+//! the fit minimised and why tonality has to be measured inside one octave at a time.
+//!
+//! The noise level is the one that matters here: a ride's shimmer *is* noise, and a bank of
+//! partials with the noise taken off it reads as a dry bell rather than as a cymbal. The recording
+//! is markedly noisier in its top two octaves than a tonal bank can be.
+constexpr float Rd9NoiseLevel { 0.294f };
+//! Positive, so the upper partials are the loud ones: struck on the bow, the hardware puts its
+//! weight between four and sixteen kilohertz.
+constexpr double Rd9MetalTilt { 0.369 };
+constexpr float Rd9CutoffBase { 0.225f };
+constexpr float Rd9CutoffTune { 0.26f };
+constexpr double Rd9BaseFreq { 253.0 };
+
+} // namespace
+
 RideEngine::RideEngine()
 {
     m_rng.seed(0);
@@ -43,7 +61,7 @@ void RideEngine::trigger(float velocity)
 
 float RideEngine::nextMetallicBaseSample()
 {
-    const double baseFreq { 300.0 + m_tune * 500.0 };
+    const double baseFreq { (m_voicing == Voicing::Rd9 ? Rd9BaseFreq : 300.0) + m_tune * 500.0 };
     // The first six are the cymbal this has always been. The four above them carry it up into the
     // band the record actually lives in, and are inharmonic with the rest so they read as the same
     // piece of metal rather than as a tone laid over it.
@@ -63,7 +81,7 @@ float RideEngine::nextMetallicBaseSample()
         m_phases[i] += baseFreq * ratios[i] * invSr;
         if (m_phases[i] >= 1.0)
             m_phases[i] -= 1.0;
-        const double weight = m_voicing == Voicing::Rd9 ? rd9Weights[i] : 1.0;
+        const double weight = m_voicing == Voicing::Rd9 ? rd9Weights[i] * std::pow(ratios[i], Rd9MetalTilt) : 1.0;
         metallicSource += weight * (m_phases[i] < 0.5 ? 1.0 : -1.0);
         weightSum += weight;
     }
@@ -95,13 +113,13 @@ float RideEngine::nextSample()
     // playing -- a ride is struck metal, and the noise is the air around it rather than the sound
     // itself. Three tenths of noise put the spectral flatness above 0.8 up there where the record
     // sits at 0.6, which is heard as hiss laid over the cymbal.
-    const float noiseLevel = m_voicing == Voicing::Rd9 ? 0.12f : 0.3f;
+    const float noiseLevel = m_voicing == Voicing::Rd9 ? Rd9NoiseLevel : 0.3f;
     float source = static_cast<float>(metallicSource) * (1.0f - noiseLevel) + noise * noiseLevel;
 
     m_filter.setSampleRate(sr);
     // The record carries as much between 200 and 600 Hz as it does in the octave above, and the
     // high pass sat far too high to leave any of it: the cymbal had no body at all.
-    m_filter.setCutoff(m_voicing == Voicing::Rd9 ? 0.30f + m_tune * 0.32f : 0.4f + m_tune * 0.5f);
+    m_filter.setCutoff(m_voicing == Voicing::Rd9 ? Rd9CutoffBase + m_tune * Rd9CutoffTune : 0.4f + m_tune * 0.5f);
     m_filter.setResonance(m_resonance);
     const auto out = static_cast<float>(m_filter.process(source) * m_ampEnv * m_attackEnv * m_velocity);
 
@@ -109,9 +127,11 @@ float RideEngine::nextSample()
     m_attackEnv = std::min(1.0f, m_attackEnv + attackRate);
 
     const float chokeDecayRate { 1.0f - (1.0f / (ChokeFadeSeconds * static_cast<float>(sampleRate()))) };
-    // The record falls twenty-two decibels over its first nine tenths of a second; this was
-    // falling six, so it rang on under everything that followed it.
-    const float decayScale = m_voicing == Voicing::Rd9 ? 0.75f : 2.0f;
+    // The recording is faded out over its last hundred milliseconds -- it drops thirteen decibels
+    // below its own decay there -- so what it falls end to end is not what the cymbal does. Fitted
+    // to the ungated part instead, it decays at eighteen decibels per second, where this was
+    // falling eight and ringing on under everything that followed it.
+    const float decayScale = m_voicing == Voicing::Rd9 ? 0.96f : 2.0f;
     const float decayRate = m_stopping ? chokeDecayRate : 1.0f - (1.0f / (std::max(0.01f, m_decay) * decayScale * static_cast<float>(sampleRate())));
     m_ampEnv *= decayRate;
     if (m_ampEnv < AmplitudeThreshold) {
