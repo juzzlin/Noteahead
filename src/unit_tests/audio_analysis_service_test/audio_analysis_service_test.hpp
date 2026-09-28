@@ -29,6 +29,7 @@ private slots:
     void test_analyze_unreadableFile_shouldFail();
     void test_analyze_brighterFile_shouldShowPositiveDifference();
     void test_swap_shouldInvertTheDifference();
+    void test_recentFiles_shouldListWhatWasMeasured();
     void test_reportText_noFiles_shouldBeEmpty();
     void test_saveReport_shouldWriteTheComparison();
 };

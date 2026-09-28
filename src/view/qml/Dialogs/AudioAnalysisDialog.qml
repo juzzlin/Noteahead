@@ -88,6 +88,7 @@ AnimatedDialog {
                 busy: audioAnalysisController.isAnalyzing && !audioAnalysisController.hasLeft
                 onOpenRequested: openLeftDialog.open()
                 onClearRequested: audioAnalysisController.clearLeft()
+                onRecentRequested: filePath => audioAnalysisController.analyzeLeftPath(filePath)
             }
 
             // The two sides are read against each other, so the eye needs the boundary.
@@ -109,6 +110,7 @@ AnimatedDialog {
                 busy: audioAnalysisController.isAnalyzing && !audioAnalysisController.hasRight
                 onOpenRequested: openRightDialog.open()
                 onClearRequested: audioAnalysisController.clearRight()
+                onRecentRequested: filePath => audioAnalysisController.analyzeRightPath(filePath)
             }
         }
 

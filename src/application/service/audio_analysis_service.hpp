@@ -20,6 +20,7 @@
 #include "audio_analysis_worker.hpp"
 
 #include <QObject>
+#include <QStringList>
 #include <QThread>
 
 #include <array>
@@ -67,9 +68,14 @@ public:
     //! Writes reportText() to @p filePath.
     bool saveReport(const QString & filePath) const;
 
+    //! Audio files measured before, newest first. Kept in the settings rather than in a project: a
+    //! reference track is held against every song, not against one.
+    QStringList recentFiles() const;
+
 signals:
     //! One side changed: analysed, cleared, or swapped with the other.
     void analysisChanged(int side);
+    void recentFilesChanged();
     void isAnalyzingChanged();
     void errorOccurred(int side, QString message);
 
@@ -79,8 +85,12 @@ private:
 
     static size_t index(Side side);
 
+    void rememberFile(const QString & filePath);
+
     QThread m_workerThread;
     std::unique_ptr<AudioAnalysisWorker> m_worker;
+
+    QStringList m_recentFiles;
 
     std::array<AudioAnalysis, 2> m_analyses;
     std::array<bool, 2> m_pending { false, false };

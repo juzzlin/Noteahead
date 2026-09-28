@@ -40,6 +40,11 @@ void setWindowSize(QSize size);
 QStringList recentFiles();
 void setRecentFiles(const QStringList & fileList);
 
+//! Audio files the analysis tool has measured, newest first. Kept apart from the project list: one
+//! is the songs you work on, the other the renders and reference tracks you hold them against.
+QStringList recentAnalysisFiles();
+void setRecentAnalysisFiles(const QStringList & fileList);
+
 QString lastImportDirectory();
 void setLastImportDirectory(const QString & directory);
 

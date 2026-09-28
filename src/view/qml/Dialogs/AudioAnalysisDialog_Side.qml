@@ -33,6 +33,8 @@ ColumnLayout {
 
     signal openRequested
     signal clearRequested
+    //! A path picked from the recent list, which needs no file dialog at all.
+    signal recentRequested(string filePath)
 
     RowLayout {
         Layout.fillWidth: true
@@ -66,6 +68,33 @@ ColumnLayout {
             implicitWidth: Constants.defaultButtonWidth * 0.8
             enabled: !root.busy
             onClicked: root.openRequested()
+        }
+        // The same files get held against one song after another, so the list is worth one click
+        // rather than a walk through the file dialog every time.
+        AppButton {
+            text: "\u25be"
+            implicitWidth: Constants.defaultButtonWidth * 0.3
+            enabled: !root.busy && audioAnalysisController.recentFiles.length > 0
+            onClicked: recentMenu.open()
+
+            Menu {
+                id: recentMenu
+                y: parent.height
+                Universal.theme: Universal.Dark
+                Repeater {
+                    model: audioAnalysisController.recentFiles
+                    MenuItem {
+                        required property int index
+                        required property string modelData
+                        text: audioAnalysisController.recentFileNames()[index]
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: modelData
+                        onTriggered: root.recentRequested(modelData)
+                    }
+                }
+            }
         }
         AppButton {
             text: qsTr("Clear")

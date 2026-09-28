@@ -17,6 +17,7 @@
 #define AUDIO_ANALYSIS_CONTROLLER_HPP
 
 #include <QObject>
+#include <QStringList>
 #include <QUrl>
 
 #include <memory>
@@ -40,6 +41,7 @@ class AudioAnalysisController : public QObject
     Q_PROPERTY(bool hasLeft READ hasLeft NOTIFY analysisChanged)
     Q_PROPERTY(bool hasRight READ hasRight NOTIFY analysisChanged)
     Q_PROPERTY(bool isAnalyzing READ isAnalyzing NOTIFY isAnalyzingChanged)
+    Q_PROPERTY(QStringList recentFiles READ recentFiles NOTIFY recentFilesChanged)
 
 public:
     using AudioAnalysisServiceS = std::shared_ptr<AudioAnalysisService>;
@@ -48,6 +50,11 @@ public:
 
     Q_INVOKABLE void analyzeLeft(const QUrl & fileUrl);
     Q_INVOKABLE void analyzeRight(const QUrl & fileUrl);
+    //! Same two, for a path out of the recent list rather than out of a file dialog.
+    Q_INVOKABLE void analyzeLeftPath(const QString & filePath);
+    Q_INVOKABLE void analyzeRightPath(const QString & filePath);
+    //! The recent paths' file names, for a menu that would otherwise be a column of directories.
+    Q_INVOKABLE QStringList recentFileNames() const;
     Q_INVOKABLE void clearLeft();
     Q_INVOKABLE void clearRight();
     Q_INVOKABLE void swap();
@@ -69,10 +76,12 @@ public:
     bool hasLeft() const;
     bool hasRight() const;
     bool isAnalyzing() const;
+    QStringList recentFiles() const;
 
 signals:
     void analysisChanged();
     void isAnalyzingChanged();
+    void recentFilesChanged();
     void errorOccurred(QString message);
 
 private:

@@ -23,6 +23,7 @@ const auto autoNoteOffOffsetKey = "autoNoteOffOffset";
 const auto controllerPortKey = "controllerPort";
 
 const auto recentFilesArrayKey = "recentFilesArray";
+const auto recentAnalysisFilesArrayKey = "recentAnalysisFilesArray";
 const auto recentFilesFilePathKey = "filePath";
 const auto lastImportDirectoryKey = "lastImportDirectory";
 const auto lastEffectImportDirectoryKey = "lastEffectImportDirectory";
@@ -157,6 +158,30 @@ void setRecentFiles(const QStringList & fileList)
 {
     QSettings settings;
     settings.beginWriteArray(recentFilesArrayKey);
+    for (int i = 0; i < fileList.size(); i++) {
+        settings.setArrayIndex(i);
+        settings.setValue(recentFilesFilePathKey, fileList.at(i));
+    }
+    settings.endArray();
+}
+
+QStringList recentAnalysisFiles()
+{
+    QStringList fileList;
+    QSettings settings;
+    const int size = settings.beginReadArray(recentAnalysisFilesArrayKey);
+    for (int i = 0; i < size; i++) {
+        settings.setArrayIndex(i);
+        fileList.push_back(settings.value(recentFilesFilePathKey).toString());
+    }
+    settings.endArray();
+    return fileList;
+}
+
+void setRecentAnalysisFiles(const QStringList & fileList)
+{
+    QSettings settings;
+    settings.beginWriteArray(recentAnalysisFilesArrayKey);
     for (int i = 0; i < fileList.size(); i++) {
         settings.setArrayIndex(i);
         settings.setValue(recentFilesFilePathKey, fileList.at(i));

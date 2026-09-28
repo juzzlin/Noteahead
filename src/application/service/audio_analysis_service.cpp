@@ -16,8 +16,10 @@
 #include "audio_analysis_service.hpp"
 
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../infra/settings.hpp"
 #include "analysis_report_formatter.hpp"
 
+#include <QFileInfo>
 #include <QMetaObject>
 
 namespace noteahead {
@@ -27,6 +29,7 @@ static const auto TAG = "AudioAnalysisService";
 AudioAnalysisService::AudioAnalysisService(QObject * parent)
   : QObject { parent }
   , m_worker { std::make_unique<AudioAnalysisWorker>() }
+  , m_recentFiles { Settings::recentAnalysisFiles() }
 {
     qRegisterMetaType<noteahead::AudioAnalysis>("noteahead::AudioAnalysis");
 
@@ -106,6 +109,28 @@ QString AudioAnalysisService::reportText() const
     return AnalysisReportFormatter::comparisonText(left, right);
 }
 
+QStringList AudioAnalysisService::recentFiles() const
+{
+    return m_recentFiles;
+}
+
+void AudioAnalysisService::rememberFile(const QString & filePath)
+{
+    // Remembered once it has been measured rather than when it was asked for: a path that failed to
+    // open is not a file worth offering again.
+    const auto absolute = QFileInfo { filePath }.absoluteFilePath();
+    m_recentFiles.removeAll(absolute);
+    m_recentFiles.push_front(absolute);
+
+    constexpr int maxFileCount = 10;
+    while (m_recentFiles.size() > maxFileCount) {
+        m_recentFiles.pop_back();
+    }
+
+    Settings::setRecentAnalysisFiles(m_recentFiles);
+    emit recentFilesChanged();
+}
+
 bool AudioAnalysisService::saveReport(const QString & filePath) const
 {
     const auto report = reportText();
@@ -117,6 +142,8 @@ bool AudioAnalysisService::saveReport(const QString & filePath) const
 
 void AudioAnalysisService::onAnalysisFinished(int side, noteahead::AudioAnalysis analysis)
 {
+    rememberFile(analysis.filePath);
+
     m_analyses.at(index(static_cast<Side>(side))) = std::move(analysis);
     m_pending.at(index(static_cast<Side>(side))) = false;
 

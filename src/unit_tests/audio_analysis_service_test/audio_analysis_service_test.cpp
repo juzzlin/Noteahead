@@ -19,7 +19,9 @@
 #include "../../application/service/audio_analysis_service.hpp"
 #include "../../infra/audio/backend/audio_file_reader.hpp"
 
+#include <QSettings>
 #include <QSignalSpy>
+#include <QStandardPaths>
 #include <QTemporaryDir>
 #include <QTest>
 
@@ -258,6 +260,38 @@ void AudioAnalysisServiceTest::test_swap_shouldInvertTheDifference()
     QCOMPARE(service.analysis(AudioAnalysisService::Side::Left).filePath, QString { "bright.wav" });
     QVERIFY2(std::abs(highMinusLow(service) + before) < 1.0e-4,
              qPrintable(QString { "%1 against %2 before the swap" }.arg(highMinusLow(service)).arg(before)));
+}
+
+void AudioAnalysisServiceTest::test_recentFiles_shouldListWhatWasMeasured()
+{
+    QStandardPaths::setTestModeEnabled(true);
+    QSettings {}.clear();
+
+    Library library {
+        { "dark.wav", tiltedNoise(1.0, 0.25) },
+        { "bright.wav", tiltedNoise(1.0, 4.0) }
+    };
+    AudioAnalysisService service;
+    service.setAudioFileReaderFactory([&library] { return std::make_unique<MockAudioFileReader>(library); });
+
+    analyzeAndWait(service, AudioAnalysisService::Side::Left, "dark.wav");
+    analyzeAndWait(service, AudioAnalysisService::Side::Right, "bright.wav");
+
+    // Newest first, so the list reads as what was just being worked on.
+    QCOMPARE(service.recentFiles().size(), 2);
+    QVERIFY(service.recentFiles().at(0).endsWith("bright.wav"));
+    QVERIFY(service.recentFiles().at(1).endsWith("dark.wav"));
+
+    // Measuring one again moves it back to the top rather than listing it twice.
+    analyzeAndWait(service, AudioAnalysisService::Side::Left, "dark.wav");
+    QCOMPARE(service.recentFiles().size(), 2);
+    QVERIFY(service.recentFiles().at(0).endsWith("dark.wav"));
+
+    // A file that could not be read is not a file worth offering again.
+    QSignalSpy failed { &service, &AudioAnalysisService::errorOccurred };
+    service.analyze(AudioAnalysisService::Side::Right, "missing.wav");
+    QVERIFY(failed.wait(30000));
+    QCOMPARE(service.recentFiles().size(), 2);
 }
 
 void AudioAnalysisServiceTest::test_reportText_noFiles_shouldBeEmpty()

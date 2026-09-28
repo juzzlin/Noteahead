@@ -55,6 +55,7 @@ AudioAnalysisController::AudioAnalysisController(AudioAnalysisServiceS audioAnal
         emit analysisChanged();
     });
     connect(m_audioAnalysisService.get(), &AudioAnalysisService::isAnalyzingChanged, this, &AudioAnalysisController::isAnalyzingChanged);
+    connect(m_audioAnalysisService.get(), &AudioAnalysisService::recentFilesChanged, this, &AudioAnalysisController::recentFilesChanged);
     connect(m_audioAnalysisService.get(), &AudioAnalysisService::errorOccurred, this, [this](int, QString message) {
         emit errorOccurred(message);
     });
@@ -68,6 +69,30 @@ void AudioAnalysisController::analyzeLeft(const QUrl & fileUrl)
 void AudioAnalysisController::analyzeRight(const QUrl & fileUrl)
 {
     m_audioAnalysisService->analyze(Side::Right, fileUrl.toLocalFile());
+}
+
+void AudioAnalysisController::analyzeLeftPath(const QString & filePath)
+{
+    m_audioAnalysisService->analyze(Side::Left, filePath);
+}
+
+void AudioAnalysisController::analyzeRightPath(const QString & filePath)
+{
+    m_audioAnalysisService->analyze(Side::Right, filePath);
+}
+
+QStringList AudioAnalysisController::recentFiles() const
+{
+    return m_audioAnalysisService->recentFiles();
+}
+
+QStringList AudioAnalysisController::recentFileNames() const
+{
+    QStringList names;
+    for (auto && path : m_audioAnalysisService->recentFiles()) {
+        names << QFileInfo { path }.fileName();
+    }
+    return names;
 }
 
 void AudioAnalysisController::clearLeft()
