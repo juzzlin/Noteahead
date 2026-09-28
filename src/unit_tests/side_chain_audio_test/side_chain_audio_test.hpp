@@ -38,6 +38,8 @@ private slots:
     void test_audioEngine_rebuildProcessingGraph_shouldHandleCircularDependencyGracefully();
     void test_audioEngine_silentDeviceWithEngagedDucker_shouldKeepProcessingUntilItReleases();
     void test_audioEngine_silentDeviceWithIdleDucker_shouldStillFollowItsSideChain();
+    void test_audioEngine_silentDeviceWithStereoFieldMeter_shouldKeepMeasuringTheSilence();
+    void test_audioEngine_silentDeviceWithRta_shouldKeepMeasuringTheSilence();
     void test_audioEngine_serialAndExclusive_shouldProduceIdenticalOutput();
     void test_audioEngine_sendEffectAddedAfterProcess_shouldBeApplied();
     void test_audioEngine_sendEffectRackDisabled_shouldStopTheSendEffects();

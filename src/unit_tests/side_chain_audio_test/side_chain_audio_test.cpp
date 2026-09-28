@@ -21,12 +21,17 @@
 #include "../../domain/effects/auto_ducker.hpp"
 #include "../../domain/effects/compressor.hpp"
 #include "../../domain/effects/delay.hpp"
+#include "../../domain/utility/rta.hpp"
+#include "../../domain/utility/stereo_field_meter.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
 #include <QByteArray>
 #include <QTest>
+#include <algorithm>
+#include <cmath>
+#include <numbers>
 
 namespace noteahead {
 
@@ -76,17 +81,27 @@ public:
 
     void processAudio(AudioContext & context) override
     {
-        if (m_generateSignal) {
-            for (uint32_t i = 0; i < context.frameCount; i++) {
-                context.buffer[i * 2] = 1.0;
-                context.buffer[i * 2 + 1] = 1.0;
-            }
+        if (!m_generateSignal) {
+            return;
+        }
+        for (uint32_t i = 0; i < context.frameCount; i++) {
+            // DC unless a tone was asked for. Enough for anything that only weighs the signal, but
+            // not for a spectrum analyser, which has no band for it.
+            const double sample = m_toneHz > 0.0 ? std::sin(m_phase) : 1.0;
+            m_phase = std::fmod(m_phase + 2.0 * std::numbers::pi * m_toneHz / context.sampleRate, 2.0 * std::numbers::pi);
+            context.buffer[i * 2] = sample;
+            context.buffer[i * 2 + 1] = sample;
         }
     }
 
     void setGenerateSignal(bool generate)
     {
         m_generateSignal = generate;
+    }
+
+    void setToneHz(double toneHz)
+    {
+        m_toneHz = toneHz;
     }
 
     bool hasActiveAudio() const override
@@ -102,6 +117,8 @@ public:
 private:
     std::string m_name;
     bool m_generateSignal { false };
+    double m_toneHz { 0.0 };
+    double m_phase { 0.0 };
     bool m_hasActiveAudio { true };
 };
 
@@ -746,6 +763,82 @@ void SideChainAudioTest::test_audioEngine_silentDeviceWithIdleDucker_shouldStill
     }
 
     QVERIFY2(ducker->gainDb() < -1.0f, qPrintable(QString { "the ducker never engaged: %1 dB" }.arg(ducker->gainDb())));
+}
+
+void SideChainAudioTest::test_audioEngine_silentDeviceWithStereoFieldMeter_shouldKeepMeasuringTheSilence()
+{
+    // A meter in an insert rack is the third way an effect has work to do on a device that has gone
+    // quiet, after a release and a side chain: what it displays *is* the silence. Skipping the
+    // device leaves the goniometer drawing the last block that had anything in it, and the numbers
+    // beside it describing a stereo field that stopped existing seconds ago -- which is worse than
+    // showing nothing, because it looks like a live reading.
+    AudioEngine engine;
+    const auto device = std::make_shared<MockDevice>("Device");
+    device->setGenerateSignal(true);
+
+    const auto meter = std::make_shared<StereoFieldMeter>();
+    meter->setAnalysisEnabled(true);
+    device->insertEffectRack().setEffect(0, meter);
+
+    engine.setDevice(0, device);
+
+    std::vector<double> buffer(128, 0.0);
+    AudioContext context { std::span(buffer.data(), 128), 64, 44100 };
+
+    for (int i = 0; i < 2000; i++) {
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        engine.process(context);
+    }
+    QVERIFY2(meter->reading().midDb > -6.0f, qPrintable(QString::number(meter->reading().midDb)));
+
+    device->setGenerateSignal(false);
+    device->setHasActiveAudio(false);
+    for (int i = 0; i < 4000; i++) {
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        engine.process(context);
+    }
+
+    QVERIFY2(meter->reading().midDb < -40.0f, qPrintable(QString { "the meter froze at %1 dB" }.arg(meter->reading().midDb)));
+}
+
+void SideChainAudioTest::test_audioEngine_silentDeviceWithRta_shouldKeepMeasuringTheSilence()
+{
+    // The same for the other analyser that can sit in an insert rack, and for the same reason: a
+    // spectrum frozen at the last note reads as one that is still sounding.
+    AudioEngine engine;
+    const auto device = std::make_shared<MockDevice>("Device");
+    device->setGenerateSignal(true);
+
+    device->setToneHz(1000.0);
+
+    const auto rta = std::make_shared<Rta>();
+    rta->setAnalysisEnabled(true);
+    device->insertEffectRack().setEffect(0, rta);
+
+    engine.setDevice(0, device);
+
+    std::vector<double> buffer(128, 0.0);
+    AudioContext context { std::span(buffer.data(), 128), 64, 44100 };
+
+    const auto loudestBand = [&] {
+        const auto bands = rta->bandMagnitudesDb();
+        return bands.empty() ? -200.0f : *std::ranges::max_element(bands);
+    };
+
+    for (int i = 0; i < 2000; i++) {
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        engine.process(context);
+    }
+    QVERIFY2(loudestBand() > -40.0f, qPrintable(QString::number(loudestBand())));
+
+    device->setGenerateSignal(false);
+    device->setHasActiveAudio(false);
+    for (int i = 0; i < 4000; i++) {
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        engine.process(context);
+    }
+
+    QVERIFY2(loudestBand() < -60.0f, qPrintable(QString { "the spectrum froze at %1 dB" }.arg(loudestBand())));
 }
 
 void SideChainAudioTest::test_audioEngine_serialAndExclusive_shouldProduceIdenticalOutput()

@@ -97,6 +97,11 @@ std::string Rta::typeId() const
     return typeIdString();
 }
 
+bool Rta::isSettled() const
+{
+    return !m_analysisEnabled.load(std::memory_order_relaxed);
+}
+
 void Rta::setAnalysisEnabled(bool enabled)
 {
     m_analysisEnabled.store(enabled, std::memory_order_relaxed);

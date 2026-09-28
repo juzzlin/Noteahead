@@ -62,6 +62,11 @@ public:
     void reset() override;
     void sync() override;
 
+    //! Never settled while the analysis is on, for the same reason the Stereo Field Meter is not:
+    //! the engine skips a quiet device and with it the insert rack, and the spectrum would then
+    //! hang at the last block that had anything in it instead of falling away.
+    bool isSettled() const override;
+
     void setAnalysisEnabled(bool enabled);
 
     std::vector<float> bandMagnitudesDb() const;

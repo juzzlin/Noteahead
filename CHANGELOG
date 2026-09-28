@@ -28,6 +28,10 @@ New features:
   - The chart draws both balances and the difference between them, which is
     the equalizer move from one to the other
 
+Bug fixes:
+
+* Stop the Stereo Field Meter and the RTA freezing on a silent device
+
 8.0.0
 =====
 

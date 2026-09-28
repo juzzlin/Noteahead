@@ -61,6 +61,12 @@ public:
     void reset() override;
     void sync() override;
 
+    //! Never settled while the analysis is on. The engine skips a device that has gone quiet, and
+    //! a skipped device does not run its insert rack -- which would leave the meter showing the
+    //! last thing it saw for as long as the silence lasts, and reading as a field that is still
+    //! there. Silence is a reading like any other and has to be measured to be shown.
+    bool isSettled() const override;
+
     //! Analysis costs nothing while no dialog is showing it, so it is gated rather than always run.
     void setAnalysisEnabled(bool enabled);
 

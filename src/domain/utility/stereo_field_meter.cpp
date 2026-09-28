@@ -132,6 +132,11 @@ std::string StereoFieldMeter::typeId() const
     return typeIdString();
 }
 
+bool StereoFieldMeter::isSettled() const
+{
+    return !m_analysisEnabled.load(std::memory_order_relaxed);
+}
+
 void StereoFieldMeter::setAnalysisEnabled(bool enabled)
 {
     m_analysisEnabled.store(enabled, std::memory_order_relaxed);
