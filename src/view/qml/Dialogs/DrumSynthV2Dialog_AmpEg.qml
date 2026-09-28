@@ -41,50 +41,41 @@ ColumnLayout {
         color: themeService.accentColor
     }
 
-    ScrollView {
-        Layout.fillWidth: true
-        Layout.fillHeight: true
-        contentWidth: ampEgRow.implicitWidth
-        clip: true
-        ScrollBar.horizontal.policy: ScrollBar.AsNeeded
-        ScrollBar.vertical.policy: ScrollBar.AlwaysOff
 
-        RowLayout {
-            id: ampEgRow
-            spacing: 15
-
-            Knob {
-                label: qsTr("Attack")
-                mapping: "cubic"
-                mapMin: 0
-                mapMax: 1.0
-                suffix: "s"
-                value: drumSynthV2Controller.voiceAmpAttack
-                onMoved: val => drumSynthV2Controller.voiceAmpAttack = val
-            }
-            Knob {
-                label: qsTr("Hold")
-                mapping: "cubic"
-                mapMin: 0
-                mapMax: 8.0
-                suffix: "s"
-                value: drumSynthV2Controller.voiceAmpHold
-                onMoved: val => drumSynthV2Controller.voiceAmpHold = val
-            }
-            Knob {
-                label: qsTr("Decay")
-                mapping: "exponential"
-                mapMin: 0.005
-                mapMax: 8.0
-                suffix: "s"
-                value: drumSynthV2Controller.voiceAmpDecay
-                onMoved: val => drumSynthV2Controller.voiceAmpDecay = val
-            }
-            Knob {
-                label: qsTr("Curve")
-                value: drumSynthV2Controller.voiceAmpCurve
-                onMoved: val => drumSynthV2Controller.voiceAmpCurve = val
-            }
+        Knob {
+            Layout.fillWidth: true
+            label: qsTr("Attack")
+            mapping: "cubic"
+            mapMin: 0
+            mapMax: 1.0
+            suffix: "s"
+            value: drumSynthV2Controller.voiceAmpAttack
+            onMoved: val => drumSynthV2Controller.voiceAmpAttack = val
         }
-    }
+        Knob {
+            Layout.fillWidth: true
+            label: qsTr("Hold")
+            mapping: "cubic"
+            mapMin: 0
+            mapMax: 8.0
+            suffix: "s"
+            value: drumSynthV2Controller.voiceAmpHold
+            onMoved: val => drumSynthV2Controller.voiceAmpHold = val
+        }
+        Knob {
+            Layout.fillWidth: true
+            label: qsTr("Decay")
+            mapping: "exponential"
+            mapMin: 0.005
+            mapMax: 8.0
+            suffix: "s"
+            value: drumSynthV2Controller.voiceAmpDecay
+            onMoved: val => drumSynthV2Controller.voiceAmpDecay = val
+        }
+        Knob {
+            Layout.fillWidth: true
+            label: qsTr("Curve")
+            value: drumSynthV2Controller.voiceAmpCurve
+            onMoved: val => drumSynthV2Controller.voiceAmpCurve = val
+        }
 }

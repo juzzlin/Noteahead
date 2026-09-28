@@ -65,7 +65,8 @@ New features:
 
 * The Drum Synths look like the rest of the application
   - Accent-coloured section headings instead of framed group boxes, rounded
-    pads as the Sampler has, and the voices and global controls side by side
+    pads as the Sampler has, and every section a column beside the pads rather
+    than a row of sliders under them
 
 * The Synth's Multi Engine has a Noise tab of its own
   - Beside the oscillators rather than below them, since it is a noise source

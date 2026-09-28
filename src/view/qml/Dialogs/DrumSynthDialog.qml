@@ -75,20 +75,18 @@ AnimatedDialog {
             ScrollBar.vertical.policy: ScrollBar.AsNeeded
             ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
-            ColumnLayout {
+            // One row of columns, as the Sampler lays its pads and settings out: the pads are
+            // only four wide, and everything that used to sit under them fits in the space beside
+            // them instead.
+            RowLayout {
+                id: contentRow
                 width: contentScrollView.availableWidth
-                spacing: 15
+                height: Math.max(implicitHeight, contentScrollView.availableHeight)
+                spacing: 20
 
-                // The voices and the global controls side by side: eleven pads in four columns
-                // are far narrower than the dialog, and the space to their right is where the
-                // global controls used to sit below them.
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 20
-
-                    ColumnLayout {
-                        Layout.alignment: Qt.AlignTop
-                        spacing: 10
+                ColumnLayout {
+                    Layout.alignment: Qt.AlignTop
+                    spacing: 10
 
                         Label {
                             text: qsTr("Voices")
@@ -122,15 +120,148 @@ AnimatedDialog {
                         }
                     }
 
-                    // One column beside the matrix, at a width of its own: a slider stretched
-                    // across the dialog is harder to set than a short one, not easier.
-                    ColumnLayout {
-                        Layout.alignment: Qt.AlignTop
-                        // Capped as well as preferred: a Knob carries a wide implicit width, and a
-                        // preference alone loses to it.
-                        Layout.preferredWidth: 280
-                        Layout.maximumWidth: 280
-                        spacing: 10
+                // Vertical separator
+                Rectangle {
+                    Layout.preferredWidth: 1
+                    Layout.fillHeight: true
+                    color: "#333"
+                }
+
+                // Two columns rather than one long row: the controls then stand beside the pads in
+                // the space the row used to leave empty, and the dialog stops being taller than it
+                // needs to be. The Sampler lays its pad settings out the same way.
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: contentRow.width * 0.28
+                    Layout.alignment: Qt.AlignTop
+                    spacing: 10
+
+                    Label {
+                        text: qsTr("Voice Settings") + " (" + root.voiceNames[drumSynthController.selectedVoice] + ")"
+                        font.bold: true
+                        color: themeService.accentColor
+                    }
+
+                    GridLayout {
+                        columns: 2
+                        columnSpacing: 15
+                        rowSpacing: 6
+                        Layout.fillWidth: true
+
+
+                        Knob {
+                            label: qsTr("Level")
+                            mapping: "volume"
+                            value: drumSynthController.voiceLevel
+                            onMoved: (val) => drumSynthController.voiceLevel = val
+                        }
+                        Knob {
+                            label: qsTr("Pan")
+                            mapping: "pan"
+                            value: drumSynthController.voicePan
+                            onMoved: (val) => drumSynthController.voicePan = val
+                        }
+                        FilterKnob {
+                            label: qsTr("LPF")
+                            controller: drumSynthController
+                            value: drumSynthController.voiceLpfCutoff
+                            onMoved: (val) => drumSynthController.voiceLpfCutoff = val
+                        }
+                        FilterKnob {
+                            label: qsTr("HPF")
+                            controller: drumSynthController
+                            isHpf: true
+                            value: drumSynthController.voiceHpfCutoff
+                            onMoved: (val) => drumSynthController.voiceHpfCutoff = val
+                        }
+                        Knob {
+                            label: qsTr("Tune")
+                            value: drumSynthController.voiceTune
+                            onMoved: (val) => drumSynthController.voiceTune = val
+                        }
+                        Knob {
+                            label: qsTr("Decay")
+                            value: drumSynthController.voiceDecay
+                            onMoved: (val) => drumSynthController.voiceDecay = val
+                        }
+
+                        // Voice Specific
+                        Knob {
+                            visible: drumSynthController.isKick
+                            label: qsTr("Attack")
+                            mapping: "cubic"
+                            value: drumSynthController.kickAttack
+                            onMoved: (val) => drumSynthController.kickAttack = val
+                        }
+                        Knob {
+                            visible: drumSynthController.isKick
+                            label: qsTr("C.Tune")
+                            value: drumSynthController.kickClickTune
+                            onMoved: (val) => drumSynthController.kickClickTune = val
+                        }
+                        Knob {
+                            visible: drumSynthController.isKick
+                            label: qsTr("P.Depth")
+                            value: drumSynthController.kickPitchDepth
+                            onMoved: (val) => drumSynthController.kickPitchDepth = val
+                        }
+                        Knob {
+                            visible: drumSynthController.isKick
+                            label: qsTr("P.Decay")
+                            value: drumSynthController.kickPitchDecay
+                            onMoved: (val) => drumSynthController.kickPitchDecay = val
+                        }
+                        Knob {
+                            visible: drumSynthController.isSnare
+                            label: qsTr("Snappy")
+                            value: drumSynthController.snareSnappy
+                            onMoved: (val) => drumSynthController.snareSnappy = val
+                        }
+                        Knob {
+                            visible: drumSynthController.isSnare
+                            label: qsTr("Tone")
+                            value: drumSynthController.snareTone
+                            onMoved: (val) => drumSynthController.snareTone = val
+                        }
+                        Knob {
+                            visible: drumSynthController.isTom
+                            label: qsTr("P.Depth")
+                            value: drumSynthController.tomPitchDepth
+                            onMoved: (val) => drumSynthController.tomPitchDepth = val
+                        }
+                        Knob {
+                            visible: drumSynthController.isTom
+                            label: qsTr("P.Decay")
+                            value: drumSynthController.tomPitchDecay
+                            onMoved: (val) => drumSynthController.tomPitchDecay = val
+                        }
+                        Knob {
+                            visible: drumSynthController.hasAttack && !drumSynthController.isKick
+                            label: qsTr("Attack")
+                            value: drumSynthController.voiceAttack
+                            onMoved: (val) => drumSynthController.voiceAttack = val
+                        }
+                        Knob {
+                            visible: drumSynthController.hasResonance
+                            label: qsTr("Reso")
+                            value: drumSynthController.voiceResonance
+                            onMoved: (val) => drumSynthController.voiceResonance = val
+                        }
+                    }
+                }
+                // Vertical separator
+                Rectangle {
+                    Layout.preferredWidth: 1
+                    Layout.fillHeight: true
+                    color: "#333"
+                }
+
+                // Last of the columns, as the Sampler puts its own global section last.
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: contentRow.width * 0.2
+                    Layout.alignment: Qt.AlignTop
+                    spacing: 10
 
                         Label {
                             text: qsTr("Global")
@@ -196,138 +327,6 @@ AnimatedDialog {
                             }
                         }
                     }
-
-                    // Everything left over, so neither the matrix nor the column grows with the
-                    // dialog.
-                    Item {
-                        Layout.fillWidth: true
-                    }
-                }
-
-                // Voice Settings
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    spacing: 10
-
-                    Label {
-                        text: qsTr("Voice Settings") + " (" + root.voiceNames[drumSynthController.selectedVoice] + ")"
-                        font.bold: true
-                        color: themeService.accentColor
-                    }
-
-                    ScrollView {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 150
-                        contentWidth: settingsRow.implicitWidth
-                        clip: true
-                        ScrollBar.horizontal.policy: ScrollBar.AsNeeded
-                        ScrollBar.vertical.policy: ScrollBar.AlwaysOff
-
-                        RowLayout {
-                            id: settingsRow
-                            spacing: 15
-
-                            Knob {
-                                label: qsTr("Level")
-                                mapping: "volume"
-                                value: drumSynthController.voiceLevel
-                                onMoved: (val) => drumSynthController.voiceLevel = val
-                            }
-                            Knob {
-                                label: qsTr("Pan")
-                                mapping: "pan"
-                                value: drumSynthController.voicePan
-                                onMoved: (val) => drumSynthController.voicePan = val
-                            }
-                            FilterKnob {
-                                label: qsTr("LPF")
-                                controller: drumSynthController
-                                value: drumSynthController.voiceLpfCutoff
-                                onMoved: (val) => drumSynthController.voiceLpfCutoff = val
-                            }
-                            FilterKnob {
-                                label: qsTr("HPF")
-                                controller: drumSynthController
-                                isHpf: true
-                                value: drumSynthController.voiceHpfCutoff
-                                onMoved: (val) => drumSynthController.voiceHpfCutoff = val
-                            }
-                            Knob {
-                                label: qsTr("Tune")
-                                value: drumSynthController.voiceTune
-                                onMoved: (val) => drumSynthController.voiceTune = val
-                            }
-                            Knob {
-                                label: qsTr("Decay")
-                                value: drumSynthController.voiceDecay
-                                onMoved: (val) => drumSynthController.voiceDecay = val
-                            }
-
-                            // Voice Specific
-                            Knob {
-                                visible: drumSynthController.isKick
-                                label: qsTr("Attack")
-                                mapping: "cubic"
-                                value: drumSynthController.kickAttack
-                                onMoved: (val) => drumSynthController.kickAttack = val
-                            }
-                            Knob {
-                                visible: drumSynthController.isKick
-                                label: qsTr("C.Tune")
-                                value: drumSynthController.kickClickTune
-                                onMoved: (val) => drumSynthController.kickClickTune = val
-                            }
-                            Knob {
-                                visible: drumSynthController.isKick
-                                label: qsTr("P.Depth")
-                                value: drumSynthController.kickPitchDepth
-                                onMoved: (val) => drumSynthController.kickPitchDepth = val
-                            }
-                            Knob {
-                                visible: drumSynthController.isKick
-                                label: qsTr("P.Decay")
-                                value: drumSynthController.kickPitchDecay
-                                onMoved: (val) => drumSynthController.kickPitchDecay = val
-                            }
-                            Knob {
-                                visible: drumSynthController.isSnare
-                                label: qsTr("Snappy")
-                                value: drumSynthController.snareSnappy
-                                onMoved: (val) => drumSynthController.snareSnappy = val
-                            }
-                            Knob {
-                                visible: drumSynthController.isSnare
-                                label: qsTr("Tone")
-                                value: drumSynthController.snareTone
-                                onMoved: (val) => drumSynthController.snareTone = val
-                            }
-                            Knob {
-                                visible: drumSynthController.isTom
-                                label: qsTr("P.Depth")
-                                value: drumSynthController.tomPitchDepth
-                                onMoved: (val) => drumSynthController.tomPitchDepth = val
-                            }
-                            Knob {
-                                visible: drumSynthController.isTom
-                                label: qsTr("P.Decay")
-                                value: drumSynthController.tomPitchDecay
-                                onMoved: (val) => drumSynthController.tomPitchDecay = val
-                            }
-                            Knob {
-                                visible: drumSynthController.hasAttack && !drumSynthController.isKick
-                                label: qsTr("Attack")
-                                value: drumSynthController.voiceAttack
-                                onMoved: (val) => drumSynthController.voiceAttack = val
-                            }
-                            Knob {
-                                visible: drumSynthController.hasResonance
-                                label: qsTr("Reso")
-                                value: drumSynthController.voiceResonance
-                                onMoved: (val) => drumSynthController.voiceResonance = val
-                            }
-                        }
-                    }
-                }
             }
         }
 

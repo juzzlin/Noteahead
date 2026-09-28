@@ -31,11 +31,11 @@ Rectangle {
     //! Raised by the small FX button in the corner.
     signal effectsRequested
 
-    // Wide and short, as the buttons these replaced were: a drum's name needs the width, and the
-    // matrix only has to be narrow enough to leave the global controls a column beside it.
+    // Nearly square, so that three rows of them stand about as tall as the column of global
+    // controls beside them. Still wider than tall, because a drum's name needs the width.
     implicitWidth: 112
-    implicitHeight: 52
-    radius: 10
+    implicitHeight: 96
+    radius: 12
 
     // The accent colour is the background on the selected pad, so the text has to be the one that
     // contrasts with it rather than a fixed white.
