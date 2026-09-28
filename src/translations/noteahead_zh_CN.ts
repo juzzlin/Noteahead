@@ -191,6 +191,110 @@
     </message>
 </context>
 <context>
+    <name>AnalysisReport</name>
+    <message>
+        <source>Notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>AudioAnalysis</name>
+    <message>
+        <source>Failed to open &apos;%1&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&apos;%1&apos; holds no audio</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>AudioAnalysisDialog</name>
+    <message>
+        <source>Analyse audio files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Swap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save report...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A</source>
+        <translation type="unfinished">A</translation>
+    </message>
+    <message>
+        <source>B</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Third-octave balance. Bars are B - A: above the line B has more, and that is the cut B needs to match A.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open audio file A</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Audio files</source>
+        <translation type="unfinished">音频文件</translation>
+    </message>
+    <message>
+        <source>WAV files</source>
+        <translation type="unfinished">WAV 文件</translation>
+    </message>
+    <message>
+        <source>FLAC files</source>
+        <translation type="unfinished">FLAC 文件</translation>
+    </message>
+    <message>
+        <source>All files</source>
+        <translation type="unfinished">所有文件</translation>
+    </message>
+    <message>
+        <source>Open audio file B</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save analysis report</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Text files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to save the report.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>AudioAnalysisDialog_Side</name>
+    <message>
+        <source>No file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open...</source>
+        <translation type="unfinished">打开...</translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation type="unfinished">清除</translation>
+    </message>
+    <message>
+        <source>Open a WAV or FLAC file to analyse it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AudioRenderDialog</name>
     <message>
         <source>Render audio</source>
@@ -632,6 +736,14 @@
         <source>Rate</source>
         <translation>速率</translation>
     </message>
+    <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">速率分频</translation>
+    </message>
+    <message>
+        <source>Rate Divider divides the Rate by anything from 1 to %1, in both modes: a tempo-locked sweep can be stretched over several bars, and a free-running one over minutes.</source>
+        <translation type="unfinished">速率分频在两种模式下都可将 Rate 除以 1 到 %1 之间的任意值：与速度同步的扫频可拉长至数个小节，自由运行的可拉长至数分钟。</translation>
+    </message>
 </context>
 <context>
     <name>BassGrinderDialog</name>
@@ -831,6 +943,45 @@
     </message>
     <message>
         <source>A monophonic bass synthesizer with accent and slide</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>BitCrusherDialog</name>
+    <message>
+        <source>Bit Crusher (Slot %1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Throws away word length and sample rate, separately. Fewer bits is grit that follows the signal; a lower rate folds everything above its Nyquist back down as aliases, which is the metallic half of the sound. Neither is oversampled, because here the aliases are the point.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bit Depth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>bits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Word length. The quantisation error follows the signal, which is the grit riding on top of it</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation type="unfinished">速率</translation>
+    </message>
+    <message>
+        <source>Samples are held at this rate. Everything above its Nyquist folds back as aliases, which is the metallic half of the sound</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation type="unfinished">混合</translation>
+    </message>
+    <message>
+        <source>How much of the crushed signal is heard against the clean one</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1315,6 +1466,49 @@
     </message>
 </context>
 <context>
+    <name>CrossfeedDialog</name>
+    <message>
+        <source>Crossfeed (Slot %1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gives each ear a little of the other channel, late and dark, the way a pair of speakers does. For headphones: it pulls a hard-panned part out of the middle of the head. Heard only, never rendered.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation type="unfinished">量</translation>
+    </message>
+    <message>
+        <source>How much of the difference between the channels is moved to the middle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">延迟</translation>
+    </message>
+    <message>
+        <source>us</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How much later the far ear hears it: the time sound takes to travel around a head</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cutoff</source>
+        <translation type="unfinished">截止频率</translation>
+    </message>
+    <message>
+        <source>Above this the head shadows the far ear, so nothing crosses over</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="unfinished">输出</translation>
+    </message>
+</context>
+<context>
     <name>DateField</name>
     <message>
         <source>Pick a date</source>
@@ -1518,6 +1712,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Sends</source>
+        <translation type="unfinished">发送</translation>
+    </message>
+    <message>
         <source>Import Rack...</source>
         <translation>导入机架...</translation>
     </message>
@@ -1580,6 +1778,10 @@
     <message>
         <source>Manage</source>
         <translation>管理</translation>
+    </message>
+    <message>
+        <source>How much of this goes to each global send effect. Click a send&apos;s name to open it.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Insert effects are processed in order. Dry/Wet mix is handled by each effect.</source>
@@ -1876,8 +2078,8 @@
         <translation>效果</translation>
     </message>
     <message>
-        <source>Insert effects for this voice</source>
-        <translation>此声部的插入效果</translation>
+        <source>Insert effects and sends for this voice</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Voice Settings</source>
@@ -1930,6 +2132,136 @@
     <message>
         <source>Reso</source>
         <translation>Reso</translation>
+    </message>
+</context>
+<context>
+    <name>DrumSynthV2Dialog</name>
+    <message>
+        <source>Ok</source>
+        <translation type="unfinished">确定</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">取消</translation>
+    </message>
+    <message>
+        <source>Global</source>
+        <translation type="unfinished">全局</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation type="unfinished">增益</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation type="unfinished">推子</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation type="unfinished">声像</translation>
+    </message>
+    <message>
+        <source>LPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Voices</source>
+        <translation type="unfinished">复音数</translation>
+    </message>
+    <message>
+        <source>FX</source>
+        <translation type="unfinished">效果</translation>
+    </message>
+    <message>
+        <source>Insert effects and sends for this voice</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Voice Settings</source>
+        <translation type="unfinished">声部设置</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation type="unfinished">电平</translation>
+    </message>
+    <message>
+        <source>LPF</source>
+        <translation type="unfinished">LPF</translation>
+    </message>
+    <message>
+        <source>HPF</source>
+        <translation type="unfinished">HPF</translation>
+    </message>
+    <message>
+        <source>Tune</source>
+        <translation type="unfinished">调音</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation type="unfinished">衰减</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation type="unfinished">起音</translation>
+    </message>
+    <message>
+        <source>C.Tune</source>
+        <translation type="unfinished">C.Tune</translation>
+    </message>
+    <message>
+        <source>P.Depth</source>
+        <translation type="unfinished">音高深度</translation>
+    </message>
+    <message>
+        <source>P.Decay</source>
+        <translation type="unfinished">音高衰减</translation>
+    </message>
+    <message>
+        <source>Snappy</source>
+        <translation type="unfinished">响弦</translation>
+    </message>
+    <message>
+        <source>Tone</source>
+        <translation type="unfinished">音色</translation>
+    </message>
+    <message>
+        <source>Reso</source>
+        <translation type="unfinished">Reso</translation>
+    </message>
+</context>
+<context>
+    <name>DrumSynthV2Dialog_AmpEg</name>
+    <message>
+        <source>Amp Envelope</source>
+        <translation type="unfinished">音量包络</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation type="unfinished">起音</translation>
+    </message>
+    <message>
+        <source>Hold</source>
+        <translation type="unfinished">保持</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation type="unfinished">衰减</translation>
+    </message>
+    <message>
+        <source>Curve</source>
+        <translation type="unfinished">曲线</translation>
     </message>
 </context>
 <context>
@@ -2409,22 +2741,26 @@
     </message>
 </context>
 <context>
-    <name>EffectSendsDialog</name>
+    <name>EffectSendsView</name>
     <message>
-        <source>Effect Sends: </source>
-        <translation>效果发送：</translation>
+        <source>Routing: %1 %2</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Ok</source>
-        <translation>确定</translation>
-    </message>
-    <message>
-        <source>Routing: </source>
-        <translation>路由：</translation>
+        <source>Routing: %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Send %1: %2 %3</source>
-        <translation>发送 %1：%2 %3</translation>
+        <translation type="unfinished">发送 %1：%2 %3</translation>
+    </message>
+    <message>
+        <source>Open this send effect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Nothing to send to yet: add an effect to the master send rack first.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2660,6 +2996,77 @@
     <message>
         <source>Swap the send order of LSB and MSB bytes</source>
         <translation>交换 LSB 与 MSB 字节的发送顺序</translation>
+    </message>
+</context>
+<context>
+    <name>FlangerDialog</name>
+    <message>
+        <source>Flanger (Slot %1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A swept short delay summed back with the dry signal. The fixed time offset combs at harmonically spaced notches and sweeping it drags the whole series along, which the ear follows as one moving resonance -- the jet whoosh a phaser cannot do, because its notches are not harmonically related.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation type="unfinished">模式</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation type="unfinished">速率</translation>
+    </message>
+    <message>
+        <source>How fast the sweep runs. In BPM mode it reads in beat divisions instead</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">速率分频</translation>
+    </message>
+    <message>
+        <source>Divides the rate, so the sweep can crawl over several bars instead of over a second</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">延迟</translation>
+    </message>
+    <message>
+        <source>Shortest delay the sweep reaches. Past ten milliseconds the copy stops combing and is heard as a chorus</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation type="unfinished">深度</translation>
+    </message>
+    <message>
+        <source>How far above the Delay setting the sweep travels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Feedback</source>
+        <translation type="unfinished">反馈</translation>
+    </message>
+    <message>
+        <source>Sharpens the peaks between the notches. The sign matters as much as the amount: the two polarities comb at different frequencies</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stereo Phase</source>
+        <translation type="unfinished">立体声相位</translation>
+    </message>
+    <message>
+        <source>How far apart the two channels sweep</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation type="unfinished">混合</translation>
+    </message>
+    <message>
+        <source>The comb is the sum of the dry and the delayed copy, so this is the depth of the notches rather than a convenience</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3031,6 +3438,65 @@
     <message>
         <source>To make a finished mix louder, reach for the Limiter instead: it catches what a boost pushes past full scale, which a plain trim cannot.</source>
         <translation>要让成品混音更响，应改用限制器：它能兜住提升所推出的超过满量程的部分，而单纯的微调做不到这一点。</translation>
+    </message>
+</context>
+<context>
+    <name>GateDialog</name>
+    <message>
+        <source>Gate (Slot %1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pulls the quiet parts further down and lets the loud ones through: a gate for tightening drums or removing a noise floor, and a downward expander when Ratio is low. Hold and the six dB hysteresis are what keep it from chattering on a level sitting near the threshold.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Threshold</source>
+        <translation type="unfinished">阈值</translation>
+    </message>
+    <message>
+        <source>Below this the gate closes. It opens again six dB higher, so a level wobbling about it cannot rattle the gate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ratio</source>
+        <translation type="unfinished">压缩比</translation>
+    </message>
+    <message>
+        <source>How steeply the level falls away below the threshold. Low is an expander leaning on the quiet parts, high is a gate that slams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How far down it is allowed to go at all, so a drum can be tightened rather than silenced</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation type="unfinished">起音</translation>
+    </message>
+    <message>
+        <source>How fast it opens. Slow enough and the front of every hit is swallowed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hold</source>
+        <translation type="unfinished">保持</translation>
+    </message>
+    <message>
+        <source>How long it stays open after the level falls away, which is what stops it chattering</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation type="unfinished">释音</translation>
+    </message>
+    <message>
+        <source>How fast it closes once the hold has run out</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4102,6 +4568,10 @@
     <message>
         <source>Gain converter...</source>
         <translation>增益转换器...</translation>
+    </message>
+    <message>
+        <source>Analyse audio files...</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5409,6 +5879,49 @@
     </message>
 </context>
 <context>
+    <name>ReferenceDialog</name>
+    <message>
+        <source>Reference (Slot %1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Plays the mix the way another system would: its band limits, its voicing, the room or box it rings in, and the compression it applies. Indicative rather than exact, and heard only: an export is never touched.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>System</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation type="unfinished">量</translation>
+    </message>
+    <message>
+        <source>How far from this room towards that one. At zero the mix is heard as it is</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Room</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How much of the space the system is heard in: the cabin, the club, the hall</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dynamics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How much of that system&apos;s own compression and drive is applied</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="unfinished">输出</translation>
+    </message>
+</context>
+<context>
     <name>RenderProgressDialog</name>
     <message>
         <source>Rendering audio</source>
@@ -5675,6 +6188,10 @@
         <source>Release</source>
         <translation>释音</translation>
     </message>
+    <message>
+        <source>Curve</source>
+        <translation type="unfinished">曲线</translation>
+    </message>
 </context>
 <context>
     <name>SamplerDialog_PadSettings</name>
@@ -5750,8 +6267,8 @@
         <translation>音符 %1 (%2)</translation>
     </message>
     <message>
-        <source>Insert effects for this pad</source>
-        <translation>此打击垫的插入效果</translation>
+        <source>Insert effects and sends for this pad</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear</source>
@@ -6856,6 +7373,14 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <translation>速率</translation>
     </message>
     <message>
+        <source>Portamento</source>
+        <translation type="unfinished">滑音</translation>
+    </message>
+    <message>
+        <source>Hold a note on one column and play the melody on another: the second column moves the pitch without starting the next line.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Length (1/16 steps)</source>
         <translation>长度（1/16 步进）</translation>
     </message>
@@ -6892,6 +7417,22 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Breathy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Giant</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Elder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alien</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Monster</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8954,6 +9495,53 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
 </context>
 <context>
+    <name>TremoloDialog</name>
+    <message>
+        <source>Tremolo (Slot %1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Level modulated by an LFO: the Auto Panner&apos;s mechanism pointed at loudness instead of position. Unlike panning it survives a fold to mono, because it genuinely takes level away and puts it back.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Waveform</source>
+        <translation type="unfinished">波形</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation type="unfinished">深度</translation>
+    </message>
+    <message>
+        <source>How much level the deepest point takes away. The loudest the tremolo ever is equals the signal that went in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stereo Phase</source>
+        <translation type="unfinished">立体声相位</translation>
+    </message>
+    <message>
+        <source>At zero both channels duck together. At a hundred and eighty they duck in opposition, and the sound swings between the speakers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation type="unfinished">速率</translation>
+    </message>
+    <message>
+        <source>Used when Sync is off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">速率分频</translation>
+    </message>
+    <message>
+        <source>Divides the rate in both modes, so the tremolo can breathe over bars rather than beats</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>TubeStageDialog</name>
     <message>
         <source>Tube Stage Parameters (Slot %1)</source>
@@ -9518,6 +10106,14 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <translation>侧向</translation>
     </message>
     <message>
+        <source>bits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>None</source>
         <translation>无</translation>
     </message>
@@ -9691,13 +10287,6 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>MIDI %1 port(s) went offline </source>
         <translation>MIDI %1 端口已离线 </translation>
-    </message>
-</context>
-<context>
-    <name>noteahead::RenderWorker</name>
-    <message>
-        <source>Notes</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
