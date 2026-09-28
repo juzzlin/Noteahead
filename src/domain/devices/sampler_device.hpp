@@ -228,6 +228,25 @@ public:
     float sampleNormalizeGain(uint8_t note) const;
     void setSampleNormalize(uint8_t note, bool normalize);
 
+    //! Moves the pad's trims in past the silence at either end of it.
+    //!
+    //! Sets the offsets the markers already use rather than touching the audio, so it can be undone
+    //! by dragging them back out. What counts as silence is measured against the pad's own peak: a
+    //! quiet recording is mostly silent by any absolute measure, and would be trimmed to nothing.
+    //!
+    //! \return Whether anything was trimmed.
+    bool autoTrimSample(uint8_t note);
+
+    //! Writes the pad's trimmed range out as a new file and re-points the pad at it.
+    //!
+    //! Destructive, which is why it is asked for explicitly: what the trims were hiding is gone
+    //! afterwards. Always a new file -- a pad usually points into the user's own sample library,
+    //! and cropping is not a reason to rewrite what is in it.
+    //!
+    //! \param targetDirectory Where the new file goes. Empty writes beside the existing one.
+    //! \return Whether the pad was cropped.
+    bool cropSampleToTrim(uint8_t note, const QString & targetDirectory);
+
     bool sampleLoop(uint8_t note) const;
     void setSampleLoop(uint8_t note, bool loop);
 

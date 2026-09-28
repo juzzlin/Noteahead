@@ -15,6 +15,8 @@
 
 #include "sampler_device.hpp"
 
+#include <sndfile.h>
+
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
 #include "../../common/utils.hpp"
@@ -1358,6 +1360,148 @@ float SamplerDevice::sampleNormalizeGain(uint8_t note) const
 void SamplerDevice::setSampleNormalize(uint8_t note, bool normalize)
 {
     setPadValue(note, Constants::NahdXml::xmlKeyNormalize().toStdString(), normalize ? 1.0f : 0.0f);
+}
+
+bool SamplerDevice::autoTrimSample(uint8_t note)
+{
+    //! Forty-eight decibels under the pad's own loudest frame. Relative rather than absolute
+    //! because an absolute floor trims a quiet recording down to nothing and leaves a loud one with
+    //! its noise still in.
+    constexpr float SilenceUnderPeak { 0.004f }; // -48 dB
+    //! Kept in front of the first sound. Landing exactly on it shaves the leading edge off a
+    //! transient, which is heard as the attack losing its point.
+    constexpr double LeadInSeconds { 0.005 };
+
+    double startTrim = 0.0;
+    double endTrim = 0.0;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (note >= maxSamples) {
+            return false;
+        }
+        const auto & sample = m_samples.at(note);
+        if (!sample || !sample->data || sample->channels <= 0 || sample->sampleRate <= 0) {
+            return false;
+        }
+
+        const auto & data = *sample->data;
+        const auto channels = static_cast<size_t>(sample->channels);
+        const auto frames = data.size() / channels;
+        if (frames < 2) {
+            return false;
+        }
+
+        float peak = 0.0f;
+        for (const auto value : data) {
+            peak = std::max(peak, std::abs(value));
+        }
+        if (peak < 1.0e-6f) {
+            return false;
+        }
+        const float floor = peak * SilenceUnderPeak;
+
+        const auto loudAt = [&](size_t frame) {
+            for (size_t channel = 0; channel < channels; channel++) {
+                if (std::abs(data.at(frame * channels + channel)) > floor) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        size_t first = 0;
+        while (first < frames && !loudAt(first)) {
+            first++;
+        }
+        if (first >= frames) {
+            return false;
+        }
+        size_t last = frames - 1;
+        while (last > first && !loudAt(last)) {
+            last--;
+        }
+
+        const auto rate = static_cast<double>(sample->sampleRate);
+        startTrim = std::max(0.0, static_cast<double>(first) / rate - LeadInSeconds);
+        endTrim = std::max(0.0, static_cast<double>(frames - 1 - last) / rate);
+        if (startTrim < 1.0e-6 && endTrim < 1.0e-6) {
+            return false;
+        }
+    }
+
+    // Outside the lock: these emit, and dataChanged() from under it is the deadlock the drum synth
+    // found the hard way.
+    setSampleStartOffset(note, startTrim);
+    setSampleEndOffset(note, endTrim);
+    return true;
+}
+
+bool SamplerDevice::cropSampleToTrim(uint8_t note, const QString & targetDirectory)
+{
+    std::string source;
+    std::vector<float> cropped;
+    int channels = 0;
+    int sampleRate = 0;
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (note >= maxSamples) {
+            return false;
+        }
+        const auto & sample = m_samples.at(note);
+        if (!sample || !sample->data) {
+            return false;
+        }
+        const auto range = playRange(*sample);
+        if (!range) {
+            return false;
+        }
+        channels = sample->channels;
+        sampleRate = sample->sampleRate;
+        source = absoluteFilePath(note);
+
+        // The range is in play order, so a reversed pad's first frame is its last: the file keeps
+        // the order it was recorded in and the pad keeps playing it backwards.
+        const auto from = static_cast<size_t>(std::max(0.0, std::min(range->first, range->last)));
+        const auto to = static_cast<size_t>(std::max(range->first, range->last));
+        const auto & data = *sample->data;
+        const auto frameCount = data.size() / static_cast<size_t>(channels);
+        if (from >= frameCount || to <= from) {
+            return false;
+        }
+        cropped.assign(data.begin() + static_cast<long>(from * static_cast<size_t>(channels)),
+                       data.begin() + static_cast<long>(std::min(to + 1, frameCount) * static_cast<size_t>(channels)));
+    }
+
+    const QFileInfo sourceInfo { QString::fromStdString(source) };
+    const auto directory = targetDirectory.isEmpty() ? sourceInfo.absolutePath() : targetDirectory;
+    if (!QDir {}.mkpath(directory)) {
+        juzzlin::L(TAG).error() << "Cannot create " << std::quoted(directory.toStdString());
+        return false;
+    }
+
+    // Never over the file it came from: that is very often something in the user's own library.
+    auto target = QDir { directory }.absoluteFilePath(sourceInfo.completeBaseName() + "_cropped.wav");
+    for (int attempt = 2; QFile::exists(target) && attempt < 100; attempt++) {
+        target = QDir { directory }.absoluteFilePath(QString { "%1_cropped%2.wav" }.arg(sourceInfo.completeBaseName()).arg(attempt));
+    }
+
+    AudioFileReader::Info info {};
+    info.channels = channels;
+    info.samplerate = sampleRate;
+    info.format = SF_FORMAT_WAV | SF_FORMAT_PCM_24;
+    if (!m_audioFileReader->open(target.toStdString(), AudioFileReader::Mode::Write, info)) {
+        juzzlin::L(TAG).error() << "Cannot write " << std::quoted(target.toStdString());
+        return false;
+    }
+    m_audioFileReader->writeFloat(std::span<const float> { cropped });
+    m_audioFileReader->close();
+
+    juzzlin::L(TAG).info() << "Cropped pad " << static_cast<int>(note) << " to " << std::quoted(target.toStdString());
+    loadSample(note, target.toStdString());
+    // The trims are in the file now, so the pad starts again with none.
+    setSampleStartOffset(note, 0.0);
+    setSampleEndOffset(note, 0.0);
+    return true;
 }
 
 void SamplerDevice::setSampleReverse(uint8_t note, bool reverse)

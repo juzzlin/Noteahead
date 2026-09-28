@@ -786,6 +786,37 @@ void SamplerController::clearSample(int padIndex)
     m_padModel->updatePad(padIndex);
 }
 
+void SamplerController::autoTrimPad(int padIndex)
+{
+    if (!m_sampler) {
+        return;
+    }
+    if (m_sampler->autoTrimSample(static_cast<uint8_t>(noteForPad(padIndex)))) {
+        emit selectedPadStartOffsetChanged();
+        emit selectedPadEndOffsetChanged();
+        emit selectedPadDurationChanged();
+    }
+}
+
+void SamplerController::cropPadToTrim(int padIndex)
+{
+    if (!m_sampler) {
+        return;
+    }
+    // Beside the project when there is one, so the cropped file is somewhere the project can keep
+    // pointing at. With no project it lands beside whatever it was cropped from.
+    const auto project = QString::fromStdString(m_sampler->projectPath());
+    const auto target = project.isEmpty() ? QString {} : QDir { project }.absoluteFilePath("samples");
+    if (m_sampler->cropSampleToTrim(static_cast<uint8_t>(noteForPad(padIndex)), target)) {
+        if (project.isEmpty()) {
+            // Nowhere of its own yet, so saving the project has to write it out.
+            m_sampler->markSampleEphemeral(static_cast<uint8_t>(noteForPad(padIndex)));
+        }
+        setSelectedPad(padIndex);
+        emit selectedPadChanged();
+    }
+}
+
 void SamplerController::copyPad(int sourcePad, int targetPad)
 {
     if (!m_sampler || sourcePad == targetPad) {

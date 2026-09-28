@@ -29,6 +29,11 @@ New features:
   - A Rim voice, on C#3, fitted to a recording of the hardware: a woody pitched
     click with a Click control for how much stick is in it
 
+* Auto-trim and Crop to trim, on a pad's context menu
+  - Auto-trim moves the markers in past the silence at either end, so it can be
+    dragged back out. Crop to trim writes the trimmed range out as a new file
+    and plays that, which is what shrinks an embedded project
+
 * Recording straight into the Sampler
   - Sample an instrument in the room onto the selected pad: pick an input, hit
     Record, and what you played is on the pad when you stop

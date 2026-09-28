@@ -24,6 +24,8 @@
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
+#include "../../infra/audio/backend/sndfile_reader.hpp"
+#include <sndfile.h>
 #include <QTemporaryDir>
 #include <QTest>
 
@@ -354,6 +356,131 @@ void SamplerTest::test_normalize_shouldSurviveARoundTrip()
     plain->processMidiNoteOn(60, 127);
     const auto asIs = peak(render(*plain, 256));
     QVERIFY2(lifted > asIs * 1.8, qPrintable(QString { "the restored pad plays at %1 against %2" }.arg(lifted).arg(asIs)));
+}
+
+void SamplerTest::test_autoTrim_shouldMoveTheTrimsPastTheSilence()
+{
+    // Silence at the head, sound after it: the markers should end up just in front of the sound,
+    // and the pad should still be able to be dragged back out to the whole file.
+    auto reader = std::make_unique<MockAudioFileReader>();
+    reader->setForceChannels(1);
+    reader->setFrames(static_cast<int64_t>(Constants::defaultSampleRate()));
+    // Silent until a tenth of a second in, loud from there.
+    reader->setStepAt(static_cast<int64_t>(Constants::defaultSampleRate() / 10));
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::move(reader) };
+    sampler.loadSample(60, "test.wav");
+
+    QCOMPARE(sampler.sampleStartOffset(60), 0.0);
+    QVERIFY(sampler.autoTrimSample(60));
+
+    // Just in front of the sound rather than exactly on it: the lead-in is what stops the trim
+    // shaving the leading edge off a transient.
+    const auto start = sampler.sampleStartOffset(60);
+    QVERIFY2(start > 0.09 && start < 0.1,
+             qPrintable(QString { "the start trim landed at %1 s, not just short of 0.1" }.arg(start)));
+    // Nothing to take off the end: it is loud all the way to the last frame.
+    QVERIFY(sampler.sampleEndOffset(60) < 0.001);
+}
+
+void SamplerTest::test_autoTrim_silence_shouldLeaveThePadAlone()
+{
+    // Nothing above the floor anywhere. Trimming a silent pad to nothing helps no one.
+    auto sampler = makeQuietSampler(0.0f);
+    QVERIFY(!sampler->autoTrimSample(60));
+    QCOMPARE(sampler->sampleStartOffset(60), 0.0);
+    QCOMPARE(sampler->sampleEndOffset(60), 0.0);
+}
+
+void SamplerTest::test_cropToTrim_shouldWriteANewFileAndNotTouchTheOriginal()
+{
+    // Destructive to the pad, never to what the pad points at: that is usually something in the
+    // user's own sample library, and cropping is not a reason to rewrite what is in it.
+    QTemporaryDir source;
+    QVERIFY(source.isValid());
+    const auto original = QDir { source.path() }.absoluteFilePath("loop.wav");
+    QFile file { original };
+    QVERIFY(file.open(QIODevice::WriteOnly));
+    file.write("not really a wav, but it must survive untouched");
+    file.close();
+    const auto originalSize = QFileInfo { original }.size();
+
+    auto reader = std::make_unique<MockAudioFileReader>();
+    reader->setForceChannels(1);
+    reader->setFrames(static_cast<int64_t>(Constants::defaultSampleRate()));
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::move(reader) };
+    sampler.loadSample(60, original.toStdString());
+    sampler.setSampleStartOffset(60, 0.25);
+    sampler.setSampleEndOffset(60, 0.25);
+
+    QTemporaryDir target;
+    QVERIFY(target.isValid());
+    QVERIFY(sampler.cropSampleToTrim(60, target.path()));
+
+    // The original is exactly as it was.
+    QCOMPARE(QFileInfo { original }.size(), originalSize);
+    // The pad plays something else now, and starts again with no trims, because they are in the
+    // file.
+    const auto now = QString::fromStdString(sampler.sample(60)->filePath);
+    QVERIFY2(now != original, qPrintable(QString { "the pad still points at %1" }.arg(now)));
+    QVERIFY2(now.startsWith(target.path()), qPrintable(QString { "the crop went to %1" }.arg(now)));
+    QCOMPARE(sampler.sampleStartOffset(60), 0.0);
+    QCOMPARE(sampler.sampleEndOffset(60), 0.0);
+}
+
+void SamplerTest::test_cropToTrim_shouldReallyWriteTheTrimmedAudio()
+{
+    // The one that goes through a real file rather than the mock: crop is the destructive operation
+    // here, so it is worth knowing that what comes out is a playable file of the right length and
+    // not merely that the pad's path changed.
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const auto original = QDir { directory.path() }.absoluteFilePath("tone.wav");
+
+    constexpr int rate = 48000;
+    constexpr int frames = rate; // one second
+    {
+        AudioFileReader::Info info {};
+        info.channels = 1;
+        info.samplerate = rate;
+        info.format = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
+        SndFileReader writer;
+        QVERIFY(writer.open(original.toStdString(), AudioFileReader::Mode::Write, info));
+        std::vector<float> tone(frames);
+        for (int i = 0; i < frames; i++) {
+            tone[static_cast<size_t>(i)] = 0.5f * std::sin(2.0 * M_PI * 440.0 * i / rate);
+        }
+        writer.writeFloat(std::span<const float> { tone });
+        writer.close();
+    }
+
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<SndFileReader>() };
+    sampler.loadSample(60, original.toStdString());
+    // A quarter off each end leaves half a second.
+    sampler.setSampleStartOffset(60, 0.25);
+    sampler.setSampleEndOffset(60, 0.25);
+    QVERIFY(sampler.cropSampleToTrim(60, directory.path()));
+
+    const auto cropped = QString::fromStdString(sampler.sample(60)->filePath);
+    QVERIFY2(QFile::exists(cropped), qPrintable(QString { "nothing was written to %1" }.arg(cropped)));
+
+    AudioFileReader::Info info {};
+    SndFileReader check;
+    QVERIFY(check.open(cropped.toStdString(), AudioFileReader::Mode::Read, info));
+    QCOMPARE(info.samplerate, rate);
+    QCOMPARE(info.channels, 1);
+    // Half a second of it, give or take the frame the range rounds to.
+    QVERIFY2(std::abs(info.frames - rate / 2) < 4,
+             qPrintable(QString { "the crop is %1 frames, not half a second" }.arg(info.frames)));
+
+    // And it is the middle of the tone, not silence.
+    std::vector<float> data(static_cast<size_t>(info.frames));
+    check.readFloat(std::span<float> { data });
+    check.close();
+    float peak = 0.0f;
+    for (const auto value : data) {
+        peak = std::max(peak, std::abs(value));
+    }
+    QVERIFY2(peak > 0.4f, qPrintable(QString { "the cropped file peaks at %1" }.arg(peak)));
 }
 
 void SamplerTest::test_materializeEphemeralSamples_shouldWriteOutWhatWouldBeLost()

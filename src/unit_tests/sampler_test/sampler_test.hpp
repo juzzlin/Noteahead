@@ -41,6 +41,10 @@ private slots:
     void test_normalize_shouldMeasureOnlyWhatIsHeard();
     void test_normalize_silentPad_shouldNotGetAnInfiniteGain();
     void test_normalize_shouldSurviveARoundTrip();
+    void test_autoTrim_shouldMoveTheTrimsPastTheSilence();
+    void test_autoTrim_silence_shouldLeaveThePadAlone();
+    void test_cropToTrim_shouldWriteANewFileAndNotTouchTheOriginal();
+    void test_cropToTrim_shouldReallyWriteTheTrimmedAudio();
     void test_materializeEphemeralSamples_shouldWriteOutWhatWouldBeLost();
     void test_materializeEphemeralSamples_shouldLeaveOrdinarySamplesAlone();
     void test_padSend_shouldReachTheBusOnItsOwn();

@@ -37,7 +37,12 @@ RowLayout {
     RowLayout {
         id: controls
 
+        // preferredWidth alone loses to what the children say they need -- a long device name in
+        // the box is enough to push the group past its half -- so the cap has to be given as well,
+        // and the box has to be allowed to shrink under its own implicit width.
+        Layout.fillWidth: false
         Layout.preferredWidth: root.controlsWidth > 0 ? root.controlsWidth : implicitWidth
+        Layout.maximumWidth: root.controlsWidth > 0 ? root.controlsWidth : Number.POSITIVE_INFINITY
         spacing: 10
 
         // The same round, red-rimmed record button the song recorder has in the editor: pressing
@@ -110,6 +115,7 @@ RowLayout {
             id: inputCombo
 
             Layout.fillWidth: true
+            Layout.minimumWidth: 60
             textRole: "name"
             valueRole: "id"
             enabled: !samplerController.recording

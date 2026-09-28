@@ -202,6 +202,10 @@ public:
     //! One entry per loaded pad, with padIndex, note, noteName and fileName. Feeds CopyPadDialog.
     Q_INVOKABLE QVariantList loadedPads() const;
     Q_INVOKABLE void clearSample(int padIndex);
+    //! Moves the pad's trims in past the silence at either end. Reversible: it sets the markers.
+    Q_INVOKABLE void autoTrimPad(int padIndex);
+    //! Writes the pad's trimmed range out as a new file and plays that instead. Not reversible.
+    Q_INVOKABLE void cropPadToTrim(int padIndex);
     Q_INVOKABLE void playSample(int padIndex, double velocity = 1.0);
     Q_INVOKABLE void stopSample(int padIndex);
     Q_INVOKABLE void updatePlaybackStatus();

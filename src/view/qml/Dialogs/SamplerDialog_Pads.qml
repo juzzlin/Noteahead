@@ -150,6 +150,17 @@ GridView {
                 }
                 MenuSeparator {}
                 MenuItem {
+                    text: qsTr("Auto-trim")
+                    enabled: padMenu.padIsLoaded
+                    onTriggered: samplerController.autoTrimPad(padMenu.padIndex)
+                }
+                MenuItem {
+                    text: qsTr("Crop to trim")
+                    enabled: padMenu.padIsLoaded
+                    onTriggered: samplerController.cropPadToTrim(padMenu.padIndex)
+                }
+                MenuSeparator {}
+                MenuItem {
                     text: qsTr("Clear")
                     enabled: padMenu.padIsLoaded
                     onTriggered: samplerController.clearSample(padMenu.padIndex)
