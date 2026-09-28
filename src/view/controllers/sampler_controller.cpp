@@ -636,28 +636,6 @@ void SamplerController::setAudioService(AudioServiceS audioService)
             onRecordingFinished(filePath);
         });
     }
-    refreshInputDevices();
-}
-
-QVariantList SamplerController::inputDevices() const
-{
-    return m_inputDevices;
-}
-
-void SamplerController::refreshInputDevices()
-{
-    auto devices = m_audioService ? m_audioService->getInputDevices() : QVariantList {};
-    if (devices != m_inputDevices) {
-        m_inputDevices = std::move(devices);
-        emit inputDevicesChanged();
-    }
-}
-
-void SamplerController::setInputDevice(int deviceId)
-{
-    if (m_audioService) {
-        m_audioService->setInputDevice(deviceId);
-    }
 }
 
 bool SamplerController::recording() const

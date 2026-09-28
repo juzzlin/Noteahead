@@ -35,7 +35,7 @@ AnimatedDialog {
 
     onAboutToShow: {
         samplerController.initialize();
-        samplerController.refreshInputDevices();
+        audioSettingsModel.refreshInputDevices();
         waveform.updateWaveform();
     }
 

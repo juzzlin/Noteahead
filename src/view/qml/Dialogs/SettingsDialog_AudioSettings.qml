@@ -118,21 +118,6 @@ GroupBox {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 spacing: 10
-                CheckBox {
-                    id: enableAudioRecordingCheckbox
-                    text: qsTr("Enable audio recording when playing.\nAudio files will appear next to the current project file.")
-                    checked: settingsService.recordingEnabled
-                    Layout.fillWidth: true
-                    ToolTip.delay: Constants.toolTipDelay
-                    ToolTip.timeout: Constants.toolTipTimeout
-                    ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Enable/disable audio recording")
-                    onCheckedChanged: {
-                        if (settingsService.recordingEnabled !== checked) {
-                            settingsService.recordingEnabled = checked
-                        }
-                    }
-                }
 
                 RowLayout {
                     spacing: 10
@@ -157,10 +142,12 @@ GroupBox {
                     }
                 }
 
+                // Not gated on the checkbox above it. That one is about recording the input while
+                // the song plays; which input is chosen is a separate question, and the sampler
+                // records from it whether or not the song recorder is ever switched on.
                 GridLayout {
                     Layout.fillWidth: true
                     columns: 3
-                    enabled: enableAudioRecordingCheckbox.checked
                     Label {
                         text: qsTr("Device:")
                         Layout.fillWidth: true
@@ -195,6 +182,22 @@ GroupBox {
                         onClicked: audioSettingsModel.refreshInputDevices()
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Refresh input device list")
+                    }
+                }
+
+                CheckBox {
+                    id: enableAudioRecordingCheckbox
+                    text: qsTr("Enable audio recording when playing.\nAudio files will appear next to the current project file.")
+                    checked: settingsService.recordingEnabled
+                    Layout.fillWidth: true
+                    ToolTip.delay: Constants.toolTipDelay
+                    ToolTip.timeout: Constants.toolTipTimeout
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Enable/disable audio recording")
+                    onCheckedChanged: {
+                        if (settingsService.recordingEnabled !== checked) {
+                            settingsService.recordingEnabled = checked
+                        }
                     }
                 }
             }

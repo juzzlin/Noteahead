@@ -51,14 +51,28 @@ RowLayout {
         text: qsTr("Input")
     }
 
+    // The same input the rest of the application records from, and the same setting: there is one
+    // recorder and one persisted choice, so a picker of the sampler's own would change the live
+    // device without saving it and leave Settings showing something else. Offered here because
+    // choosing an input is part of sampling, owned there because that is where it belongs.
     ComboBox {
         id: inputCombo
         Layout.preferredWidth: 260
         textRole: "name"
         valueRole: "id"
         enabled: !samplerController.recording
-        model: samplerController.inputDevices
-        onActivated: samplerController.setInputDevice(currentValue)
+        model: audioSettingsModel.inputDevices
+        onActivated: audioSettingsModel.selectedInputDeviceId = currentValue
+        Component.onCompleted: currentIndex = indexOfValue(audioSettingsModel.selectedInputDeviceId)
+        Connections {
+            target: audioSettingsModel
+            function onInputDevicesChanged() {
+                inputCombo.currentIndex = inputCombo.indexOfValue(audioSettingsModel.selectedInputDeviceId);
+            }
+            function onSelectedInputDeviceIdChanged() {
+                inputCombo.currentIndex = inputCombo.indexOfValue(audioSettingsModel.selectedInputDeviceId);
+            }
+        }
     }
 
     Label {
@@ -74,7 +88,7 @@ RowLayout {
     AppButton {
         text: qsTr("Refresh")
         enabled: !samplerController.recording
-        onClicked: samplerController.refreshInputDevices()
+        onClicked: audioSettingsModel.refreshInputDevices()
         ToolTip.visible: hovered
         ToolTip.text: qsTr("Looks for inputs again, for something plugged in since the dialog was opened.")
     }

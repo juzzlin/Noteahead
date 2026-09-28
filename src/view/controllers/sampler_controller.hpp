@@ -72,7 +72,6 @@ class SamplerController : public DeviceController
     Q_PROPERTY(int hpfSlope READ hpfSlope WRITE setHpfSlope NOTIFY hpfSlopeChanged)
     Q_PROPERTY(bool embedWaveData READ embedWaveData WRITE setEmbedWaveData NOTIFY embedWaveDataChanged)
     Q_PROPERTY(bool recording READ recording NOTIFY recordingChanged)
-    Q_PROPERTY(QVariantList inputDevices READ inputDevices NOTIFY inputDevicesChanged)
 
 public:
     explicit SamplerController(SamplerDevice::SamplerDeviceS sampler, QObject * parent = nullptr);
@@ -86,16 +85,6 @@ public:
     //! Sampling is recording, so the sampler needs the service that owns the input.
     void setAudioService(AudioServiceS audioService);
 
-    //! The input devices that can be sampled from, as {id, name} maps for the combo box.
-    //!
-    //! Cached rather than asked for on the spot. The dialog is built while the QML engine loads,
-    //! which is before the audio service is handed over, so anything that asked at that moment got
-    //! an empty list and kept it -- which is what left the Record button permanently disabled.
-    QVariantList inputDevices() const;
-    //! Re-scans the inputs. Called when the audio service arrives and whenever the dialog opens, so
-    //! that something plugged in since last time is there.
-    Q_INVOKABLE void refreshInputDevices();
-    Q_INVOKABLE void setInputDevice(int deviceId);
 
     //! Records into the selected pad until stopRecording() is called.
     //!
@@ -247,7 +236,6 @@ signals:
     void hpfSlopeChanged();
     void embedWaveDataChanged();
     void recordingChanged();
-    void inputDevicesChanged();
     void samplerChanged();
 
 private:
@@ -273,7 +261,6 @@ private:
     int m_selectedPad = 0;
 
     AudioServiceS m_audioService;
-    QVariantList m_inputDevices;
     //! Where recordings go when the project has nowhere of its own yet. Lives as long as this
     //! session, which is exactly as long as the recordings in it are worth anything.
     std::unique_ptr<QTemporaryDir> m_recordingDirectory;
