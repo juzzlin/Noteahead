@@ -180,7 +180,11 @@ AnimatedDialog {
                             readonly property var factors: [1, 2, 4]
                             model: [qsTr("Draft (1x)"), qsTr("Normal (2x)"), qsTr("High (4x)")]
                             currentIndex: Math.max(0, factors.indexOf(renderSettingsModel.oversampleFactor))
-                            onActivated: index => renderSettingsModel.oversampleFactor = factors[index]
+                            onActivated: index => {
+                                renderSettingsModel.oversampleFactor = factors[index];
+                                if (!rootItem.customFileName)
+                                    rootItem.outputFileName = renderService.defaultRenderFileName;
+                            }
                         }
                     }
 

@@ -1751,6 +1751,83 @@ void SpeechTest::test_device_voiceType_alien_shouldBeSmallerThanTheChild()
     QVERIFY2(alien > child * 1.08, qPrintable(QString::number(child, 'f', 0) + " -> " + QString::number(alien, 'f', 0) + " Hz"));
 }
 
+
+void SpeechTest::test_device_sampleRate_shouldNotChangeTheVoice()
+{
+    // A song rendered at 44.1 kHz has to sound like the one played back at 48. Nothing in the voice
+    // is allowed to be measured in samples rather than in seconds: a formant that moved with the
+    // rate, or a filter whose corner did, would make the render a different instrument.
+    struct Measured
+    {
+        double f1 {};
+        double f2 {};
+        double mid {};
+        double high {};
+    };
+
+    const auto measure = [](double rate) {
+        SpeechDevice device { "Speech" };
+        device.setPhrase("/aa/");
+        device.setIntonation(0.0f);
+        device.setVibratoDepth(0.0f);
+        device.setTriggerMode(static_cast<int>(SpeechSequencer::TriggerMode::Step));
+        device.setSyncMode(static_cast<int>(SpeechSequencer::SyncMode::Free));
+        device.processMidiNoteOn(48, 100);
+
+        const auto renderAt = [&](uint32_t frames) {
+            std::vector<double> buffer(frames * 2, 0.0);
+            AudioContext context { std::span<double>(buffer.data(), buffer.size()), frames, static_cast<uint32_t>(rate), 120.0, {}, 1, false };
+            device.processAudio(context);
+            return buffer;
+        };
+        renderAt(8192);
+        const auto rendered = renderAt(65536);
+
+        std::vector<double> mono;
+        for (size_t i = 0; i < rendered.size(); i += 2) {
+            mono.push_back(rendered[i]);
+        }
+        constexpr int size = 32768;
+        std::vector<double> re(size, 0.0), im(size, 0.0);
+        for (int i = 0; i < size && static_cast<size_t>(i) < mono.size(); i++) {
+            re[static_cast<size_t>(i)] = mono[static_cast<size_t>(i)] * (0.5 - 0.5 * std::cos(2.0 * M_PI * i / (size - 1)));
+        }
+        Fft::forward(re.data(), im.data(), size);
+
+        const auto bandDb = [&](double low, double high) {
+            double sum = 0.0;
+            for (int bin = static_cast<int>(low * size / rate); bin <= static_cast<int>(high * size / rate) && bin < size / 2; bin++) {
+                sum += re[bin] * re[bin] + im[bin] * im[bin];
+            }
+            return 10.0 * std::log10(std::max(1e-20, sum));
+        };
+        const auto peakIn = [&](double low, double high) {
+            double best = 0.0;
+            int at = 0;
+            for (int bin = static_cast<int>(low * size / rate); bin <= static_cast<int>(high * size / rate) && bin < size / 2; bin++) {
+                if (const double magnitude = std::hypot(re[bin], im[bin]); magnitude > best) {
+                    best = magnitude;
+                    at = bin;
+                }
+            }
+            return at * rate / size;
+        };
+        return Measured { peakIn(300.0, 1200.0), peakIn(1200.0, 2400.0), bandDb(500.0, 2000.0), bandDb(2000.0, 6000.0) };
+    };
+
+    const auto at48 = measure(48000.0);
+    const auto at44 = measure(44100.0);
+
+    // A bin is about 1.5 Hz at 48 kHz, so a formant may land one or two bins away and no further.
+    QVERIFY2(std::abs(at44.f1 - at48.f1) < at48.f1 * 0.01, qPrintable(QString::number(at48.f1) + " -> " + QString::number(at44.f1)));
+    QVERIFY2(std::abs(at44.f2 - at48.f2) < at48.f2 * 0.01, qPrintable(QString::number(at48.f2) + " -> " + QString::number(at44.f2)));
+
+    // The one honest difference is the noise floor: white noise drawn per sample carries its power
+    // over a narrower band at the lower rate, which is 10*log10(48/44.1) = 0.37 dB and no more.
+    QVERIFY2(std::abs(at44.mid - at48.mid) < 1.0, qPrintable(QString::number(at48.mid) + " -> " + QString::number(at44.mid)));
+    QVERIFY2(std::abs(at44.high - at48.high) < 1.0, qPrintable(QString::number(at48.high) + " -> " + QString::number(at44.high)));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SpeechTest)

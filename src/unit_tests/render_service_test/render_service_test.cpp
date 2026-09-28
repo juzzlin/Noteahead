@@ -181,6 +181,11 @@ void RenderServiceTest::test_renderIndividualTracks_shouldSkipNonInternalInstrum
     QVERIFY(containsGlob(files, "Track0_*.flac"));
     QVERIFY(containsGlob(files, "Track2_*.flac"));
     QVERIFY(!containsGlob(files, "Track1_*.flac"));
+
+    // The settings a render was made with are carried in its name: sample rate, word length and
+    // the oversampling, which changes the master audibly and would otherwise leave two renders of
+    // the same song differing only in their timestamp.
+    QVERIFY2(containsGlob(files, "Track0_*k_*bit_*x_*.flac"), qPrintable(files.join(", ")));
 }
 
 void RenderServiceTest::test_renderIndividualTracks_shouldRestoreMixerState()

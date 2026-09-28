@@ -23,6 +23,8 @@
 #include "render_worker.hpp"
 
 #include <QDateTime>
+
+#include <algorithm>
 #include <QDir>
 #include <QFileInfo>
 
@@ -150,8 +152,12 @@ QString RenderService::renderFileName(const QString & baseName) const
             return "16bit";
         }
     }();
+    // The oversampling belongs in the name as much as the rate and the word length do: it is a
+    // setting that audibly changes the master, so two renders of the same song that differ only in
+    // it must not differ only in their timestamp either.
+    const auto oversampleSuffix = QString::number(std::max(1, renderSettings.oversampleFactor())) + "x";
     const auto ext = static_cast<AudioFormat>(renderSettings.format()) == AudioFormat::Flac ? ".flac" : ".wav";
-    return QString { "%1_%2_%3_%4%5" }.arg(baseName, sampleRateSuffix, bitDepthSuffix, date, ext);
+    return QString { "%1_%2_%3_%4_%5%6" }.arg(baseName, sampleRateSuffix, bitDepthSuffix, oversampleSuffix, date, ext);
 }
 
 QString RenderService::defaultRenderFileName() const

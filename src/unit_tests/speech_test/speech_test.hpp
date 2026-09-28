@@ -60,6 +60,7 @@ private slots:
     void test_device_noteOn_shouldFollowTheNotePitch();
     void test_device_tuning_shouldBeExact_data();
     void test_device_tuning_shouldBeExact();
+    void test_device_sampleRate_shouldNotChangeTheVoice();
     void test_device_stressedSyllable_shouldTakeAPitchAccent();
     void test_device_stressedSyllable_shouldBeReachedGradually();
     void test_device_noteOn_shouldLandOnThePitchAtOnce();

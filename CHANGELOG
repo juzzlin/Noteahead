@@ -55,6 +55,10 @@ New features:
   - Bit Crusher throws away word length and sample rate separately, and is
     deliberately not oversampled, because there the aliases are the point
 
+* The oversampling is in the render's file name
+  - Alongside the sample rate and the word length, so two renders that differ
+    only in quality setting do not differ only in their timestamp
+
 * A Rate Divider on the Auto Panner
   - Divides the rate by up to 64 in both modes, so a pan can sweep over several
     bars instead of stopping at one cycle per whole note
