@@ -68,7 +68,12 @@ public:
                 data[i] = static_cast<float>(i);
             }
         } else {
-            std::fill(data.begin(), data.end(), 1.0f);
+            std::fill(data.begin(), data.end(), m_amplitude);
+            // A loud head over a quiet body, for the tests that care which part of the sample a
+            // measurement was taken over.
+            for (size_t i = 0; i < data.size() && static_cast<int64_t>(i) < m_loudHead; i++) {
+                data[i] = 1.0f;
+            }
         }
         return data.size();
     }
@@ -134,6 +139,18 @@ public:
         m_step = frame;
     }
 
+    //! What the flat part of the sample reads, so a test can ask for a pad quieter than full scale.
+    void setAmplitude(float amplitude)
+    {
+        m_amplitude = amplitude;
+    }
+
+    //! Full scale for this many frames at the head, whatever the amplitude is.
+    void setLoudHead(int64_t frames)
+    {
+        m_loudHead = frames;
+    }
+
     //! Makes open() fail for any path holding this substring, which is how a sample that has been
     //! moved or deleted since the project was saved looks to the device.
     void setUnreadablePathFragment(const std::string & fragment)
@@ -145,6 +162,8 @@ private:
     int m_channels = 2;
     int64_t m_frames = 1024;
     bool m_ramp = false;
+    float m_amplitude = 1.0f;
+    int64_t m_loudHead = 0;
     int64_t m_step = -1;
     std::string m_unreadablePathFragment;
 };
@@ -198,7 +217,142 @@ double peak(const std::vector<double> & samples)
     return result;
 }
 
+//! A sampler whose pad reads at @p amplitude, with an optional full-scale head.
+std::unique_ptr<SamplerDevice> makeQuietSampler(float amplitude, int64_t loudHead = 0)
+{
+    auto reader = std::make_unique<MockAudioFileReader>();
+    reader->setForceChannels(1);
+    reader->setFrames(static_cast<int64_t>(Constants::defaultSampleRate()));
+    reader->setAmplitude(amplitude);
+    reader->setLoudHead(loudHead);
+    auto sampler = std::make_unique<SamplerDevice>(Constants::samplerDeviceName().toStdString(), std::move(reader));
+    sampler->loadSample(60, "test.wav");
+    return sampler;
+}
+
 } // namespace
+
+void SamplerTest::test_normalize_off_shouldLeaveThePadAsItWas()
+{
+    // The default, and what every project saved before the setting existed reads back as. A quiet
+    // pad stays quiet: normalising is something you ask for.
+    auto sampler = makeQuietSampler(0.25f);
+    QVERIFY(!sampler->sampleNormalize(60));
+    sampler->processMidiNoteOn(60, 127);
+    const auto asIs = peak(render(*sampler, 256));
+
+    auto normalized = makeQuietSampler(0.25f);
+    normalized->setSampleNormalize(60, true);
+    normalized->processMidiNoteOn(60, 127);
+    const auto lifted = peak(render(*normalized, 256));
+
+    QVERIFY2(lifted > asIs * 3.5 && lifted < asIs * 4.5,
+             qPrintable(QString { "a quarter-scale pad went from %1 to %2, which is not four times" }.arg(asIs).arg(lifted)));
+}
+
+void SamplerTest::test_normalize_shouldNotTouchTheFile()
+{
+    // The whole reason it is a gain: a pad usually points at something in the user's own sample
+    // library, and normalising by rewriting that would be editing their library from inside a
+    // tracker. Turning it off has to put the pad back exactly where it was.
+    auto sampler = makeQuietSampler(0.25f);
+    sampler->processMidiNoteOn(60, 127);
+    const auto before = peak(render(*sampler, 256));
+
+    sampler->setSampleNormalize(60, true);
+    sampler->setSampleNormalize(60, false);
+    sampler->processMidiAllNotesOff();
+    sampler->processMidiNoteOn(60, 127);
+    const auto after = peak(render(*sampler, 256));
+
+    QVERIFY2(std::abs(after - before) < 1.0e-9,
+             qPrintable(QString { "the pad came back at %1 rather than %2" }.arg(after).arg(before)));
+}
+
+//! Loudest frame from @p fromFrame on, so a measurement can skip a deliberate spike at the head.
+double peakFrom(const std::vector<double> & samples, size_t fromFrame)
+{
+    double result = 0.0;
+    for (size_t i = fromFrame * 2; i < samples.size(); i++) {
+        result = std::max(result, std::abs(samples.at(i)));
+    }
+    return result;
+}
+
+void SamplerTest::test_normalize_shouldMeasureOnlyWhatIsHeard()
+{
+    // Measured over the trimmed range rather than the whole file. Trimming a loud click off the
+    // front should make the rest louder -- with a whole-file peak it would leave the pad quiet and
+    // the box still ticked, which is the sort of thing that reads as a bug.
+    // Both end up peaking at full scale -- that is what normalising means -- so what separates them
+    // is how loud the quiet body comes out, not the peak.
+    const int64_t head = 128;
+    auto sampler = makeQuietSampler(0.25f, head);
+    sampler->setSampleNormalize(60, true);
+    sampler->processMidiNoteOn(60, 127);
+    const auto bodyWithTheClick = peakFrom(render(*sampler, 512), static_cast<size_t>(head) * 2);
+
+    auto trimmed = makeQuietSampler(0.25f, head);
+    trimmed->setSampleNormalize(60, true);
+    // Past the loud head, so what is left is the quiet body alone.
+    trimmed->setSampleStartOffset(60, static_cast<double>(head * 2) / Constants::defaultSampleRate());
+    trimmed->processMidiNoteOn(60, 127);
+    const auto bodyAlone = peakFrom(render(*trimmed, 512), static_cast<size_t>(head) * 2);
+
+    QVERIFY2(bodyAlone > bodyWithTheClick * 2.0,
+             qPrintable(QString { "trimming the click away left the body at %1 against %2" }.arg(bodyAlone).arg(bodyWithTheClick)));
+}
+
+void SamplerTest::test_normalize_silentPad_shouldNotGetAnInfiniteGain()
+{
+    auto sampler = makeQuietSampler(0.0f);
+    sampler->setSampleNormalize(60, true);
+    sampler->processMidiNoteOn(60, 127);
+    const auto rendered = render(*sampler, 256);
+    for (const auto sample : rendered) {
+        QVERIFY(std::isfinite(sample));
+    }
+    QCOMPARE(peak(rendered), 0.0);
+}
+
+namespace {
+
+
+} // namespace
+
+void SamplerTest::test_normalize_shouldSurviveARoundTrip()
+{
+    auto sampler = makeQuietSampler(0.25f);
+    sampler->setSampleNormalize(60, true);
+
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        sampler->serializeToXml(writer);
+    }
+    // Nothing else in the project should have grown a normalise flag it did not ask for.
+    QVERIFY(xml.contains(Constants::NahdXml::xmlKeyNormalize()));
+
+    auto reader = std::make_unique<MockAudioFileReader>();
+    reader->setForceChannels(1);
+    reader->setFrames(static_cast<int64_t>(Constants::defaultSampleRate()));
+    reader->setAmplitude(0.25f);
+    SamplerDevice restored { Constants::samplerDeviceName().toStdString(), std::move(reader) };
+    NahdXmlReader xmlReader { xml };
+    while (!xmlReader.atEnd() && !xmlReader.isStartElement()) {
+        xmlReader.readNext();
+    }
+    restored.deserializeFromXml(xmlReader);
+
+    QVERIFY(restored.sampleNormalize(60));
+    restored.processMidiNoteOn(60, 127);
+    const auto lifted = peak(render(restored, 256));
+
+    auto plain = makeQuietSampler(0.25f);
+    plain->processMidiNoteOn(60, 127);
+    const auto asIs = peak(render(*plain, 256));
+    QVERIFY2(lifted > asIs * 3.5, qPrintable(QString { "the restored pad plays at %1 against %2" }.arg(lifted).arg(asIs)));
+}
 
 void SamplerTest::test_padSend_shouldReachTheBusOnItsOwn()
 {

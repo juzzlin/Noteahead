@@ -97,6 +97,7 @@ void SamplerController::setSelectedPad(int selectedPad)
         emit selectedPadReleaseChanged();
         emit selectedPadCurveChanged();
         emit selectedPadReverseChanged();
+        emit selectedPadNormalizeChanged();
         emit selectedPadLoopChanged();
         emit selectedPadChokeGroupChanged();
         emit selectedPadDurationChanged();
@@ -440,6 +441,22 @@ void SamplerController::setSelectedPadReverse(bool reverse)
     if (note && m_sampler->sampleReverse(*note) != reverse) {
         m_sampler->setSampleReverse(*note, reverse);
         emit selectedPadReverseChanged();
+        emit selectedPadNormalizeChanged();
+    }
+}
+
+bool SamplerController::selectedPadNormalize() const
+{
+    const auto note = selectedNote();
+    return note && m_sampler->sampleNormalize(*note);
+}
+
+void SamplerController::setSelectedPadNormalize(bool normalize)
+{
+    const auto note = selectedNote();
+    if (note && m_sampler->sampleNormalize(*note) != normalize) {
+        m_sampler->setSampleNormalize(*note, normalize);
+        emit selectedPadNormalizeChanged();
     }
 }
 
@@ -590,6 +607,13 @@ QVariantList SamplerController::getWaveformData(int numPoints)
     if (m_sampler->sampleReverse(static_cast<uint8_t>(note))) {
         std::reverse(data.begin(), data.end());
     }
+    // Drawn at the gain it plays at, so a normalised pad does not look quieter than it sounds. The
+    // picture is clamped like the peaks themselves are, since the view draws 0..1.
+    if (const auto gain = m_sampler->sampleNormalizeGain(static_cast<uint8_t>(note)); gain != 1.0f) {
+        for (auto && point : data) {
+            point = std::min(1.0, point.toDouble() * static_cast<double>(gain));
+        }
+    }
     return data;
 }
 
@@ -620,6 +644,7 @@ void SamplerController::requestSettings()
         emit selectedPadSustainChanged();
         emit selectedPadReleaseChanged();
         emit selectedPadReverseChanged();
+        emit selectedPadNormalizeChanged();
         emit selectedPadLoopChanged();
         emit selectedPadChokeGroupChanged();
         emit selectedPadDurationChanged();

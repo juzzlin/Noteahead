@@ -58,6 +58,7 @@ SamplerDevice::Sample::Sample()
     addParameter(Parameter { Constants::NahdXml::xmlKeyReleaseTime().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyAmpCurve().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyReverse().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyNormalize().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLoop().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLoopStart().toStdString(), 0.0f, 0, 60000, 0, 1 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyChokeGroup().toStdString(), 0.0f, 0, maxChokeGroup, 0, 1, Parameter::Type::Discrete });
@@ -274,7 +275,9 @@ void SamplerDevice::updateVoiceEffects(Voice & voice)
     const float combinedPan = (std::clamp(sPan + mPan, -1.0f, 1.0f) + 1.0f) / 2.0f;
     voice.panningEffect->setPan(combinedPan);
 
-    const float combinedVolume = static_cast<float>(ParameterMapper::mapFader(voice.sample->volume)) * voice.velocity;
+    // The normalise gain multiplies with the fader rather than replacing it: normalising brings
+    // every pad to a common reference, and the fader is still where the balance is set.
+    const float combinedVolume = static_cast<float>(ParameterMapper::mapFader(voice.sample->volume)) * voice.velocity * voice.sample->normalizeGain;
     voice.volumeEffect->setVolume(combinedVolume);
 
     const auto lpfCutoff = std::clamp(voice.sample->cutoff + (voice.cutoff - 1.0f), 0.0f, 1.0f);
@@ -1337,6 +1340,23 @@ bool SamplerDevice::sampleReverse(uint8_t note) const
     return m_samples.at(note)->reverse;
 }
 
+bool SamplerDevice::sampleNormalize(uint8_t note) const
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    return note < maxSamples && m_samples.at(note) ? m_samples.at(note)->normalize : false;
+}
+
+float SamplerDevice::sampleNormalizeGain(uint8_t note) const
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    return note < maxSamples && m_samples.at(note) ? m_samples.at(note)->normalizeGain : 1.0f;
+}
+
+void SamplerDevice::setSampleNormalize(uint8_t note, bool normalize)
+{
+    setPadValue(note, Constants::NahdXml::xmlKeyNormalize().toStdString(), normalize ? 1.0f : 0.0f);
+}
+
 void SamplerDevice::setSampleReverse(uint8_t note, bool reverse)
 {
     setPadValue(note, Constants::NahdXml::xmlKeyReverse().toStdString(), reverse ? 1.0f : 0.0f);
@@ -1728,8 +1748,52 @@ void SamplerDevice::setPadValue(uint8_t note, const std::string & parameterName,
     emit dataChanged();
 }
 
+//! Measures what it takes to bring the trimmed range up to full scale.
+//!
+//! Only ever a scan when the range has actually moved: syncSampleFields() runs on every pad value
+//! there is, and walking a few million frames because somebody nudged the pan would be felt.
+void SamplerDevice::updateNormalizeGain(Sample & sample)
+{
+    if (!sample.normalize) {
+        sample.normalizeGain = 1.0f;
+        sample.normalizeGainStart = -1.0;
+        sample.normalizeGainEnd = -1.0;
+        return;
+    }
+    if (sample.normalizeGainStart == sample.startOffset && sample.normalizeGainEnd == sample.endOffset) {
+        return;
+    }
+
+    sample.normalizeGainStart = sample.startOffset;
+    sample.normalizeGainEnd = sample.endOffset;
+    sample.normalizeGain = 1.0f;
+
+    const auto range = playRange(sample);
+    if (!range || !sample.data || sample.channels <= 0) {
+        return;
+    }
+
+    const auto & data = *sample.data;
+    const auto channels = static_cast<size_t>(sample.channels);
+    const auto from = static_cast<size_t>(std::max(0.0, range->first));
+    const auto to = std::min(data.size() / channels, static_cast<size_t>(range->last) + 1);
+    float peak = 0.0f;
+    for (auto frame = from; frame < to; frame++) {
+        for (size_t channel = 0; channel < channels; channel++) {
+            peak = std::max(peak, std::abs(data.at(frame * channels + channel)));
+        }
+    }
+
+    // A silent pad is left alone rather than handed an infinite gain.
+    if (peak > 1.0e-6f) {
+        sample.normalizeGain = 1.0f / peak;
+    }
+}
+
 void SamplerDevice::syncSampleFields(Sample & sample)
 {
+    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyNormalize().toStdString()); p)
+        sample.normalize = p->get().value() > 0.5f;
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyPan().toStdString()); p)
         sample.pan = p->get().value();
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyFader().toStdString()); p)
@@ -1766,6 +1830,9 @@ void SamplerDevice::syncSampleFields(Sample & sample)
         sample.loopStart = static_cast<double>(p->get().value()) * 60.0;
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyChokeGroup().toStdString()); p)
         sample.chokeGroup = static_cast<int>(std::lround(p->get().value()));
+
+    // Last, because it is measured over the trimmed range and the offsets have only just been read.
+    updateNormalizeGain(sample);
 }
 
 size_t SamplerDevice::sendSourceCount() const

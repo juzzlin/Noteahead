@@ -418,6 +418,7 @@ QString xmlKeyFormat();
 QString xmlKeySampleRate();
 QString xmlKeyBitDepth();
 QString xmlKeyOversampleFactor();
+QString xmlKeyNormalize();
 QString xmlKeyNormalizeEnabled();
 QString xmlKeyNormalizeLevelTenthsDb();
 QString xmlKeyTrimEnabled();

@@ -121,6 +121,24 @@ ColumnLayout {
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Plays the pad backwards. The offsets follow the reversed waveform.")
         }
+
+CheckBox {
+            id: normalizeCheckBox
+            text: qsTr("Normalize")
+            Layout.fillWidth: true
+            checked: samplerController.selectedPadNormalize
+            onToggled: samplerController.selectedPadNormalize = checked
+            contentItem: Label {
+                text: normalizeCheckBox.text
+                color: "white"
+                verticalAlignment: Text.AlignVCenter
+                leftPadding: normalizeCheckBox.indicator.width + normalizeCheckBox.spacing
+            }
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Plays the pad at full scale whatever it was recorded at. The file is left alone -- this is a gain, and it rides on top of the fader. Measured over the trimmed part, so trimming a loud click away makes the rest louder.")
+        }
         CheckBox {
             id: loopCheckBox
             text: qsTr("Loop")

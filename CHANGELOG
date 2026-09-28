@@ -29,6 +29,10 @@ New features:
   - A Rim voice, on C#3, fitted to a recording of the hardware: a woody pitched
     click with a Click control for how much stick is in it
 
+* Normalize, per Sampler pad
+  - Plays a pad at full scale whatever it was recorded at, measured over the
+    part the trims leave. A gain rather than an edit: the file is untouched
+
 * A Curve control on the Sampler's pad envelope
   - The same bend the Synth's envelopes have, per pad, and the waveform view
     draws the shape the pad is actually played through

@@ -120,6 +120,22 @@ public:
         float curve = 0.0f;
         //! Plays the range from its end backwards. The range itself does not move.
         bool reverse = false;
+        //! Plays the pad at full scale whatever it was recorded at. Off by default, so a pad saved
+        //! before the setting existed sounds exactly as it did.
+        //!
+        //! Deliberately not a change to the file: a pad usually points at something in the user's own
+        //! sample library, and normalising by rewriting that would be editing their library from
+        //! inside a tracker. It is a gain, and it multiplies with the fader rather than replacing it.
+        bool normalize = false;
+        //! The gain that brings the loudest frame of the *trimmed* range to full scale, 1.0 when the
+        //! pad is not normalised. The trimmed range rather than the whole file, because that is what
+        //! is actually heard: trimming a loud click off the front should make the rest louder, not
+        //! leave the pad quiet with the box still ticked.
+        float normalizeGain = 1.0f;
+        //! The offsets normalizeGain was measured over, so the scan happens when the range moves and
+        //! not on every turn of an unrelated knob.
+        double normalizeGainStart = -1.0;
+        double normalizeGainEnd = -1.0;
         //! Wraps playback inside the range instead of stopping at its far end. A looping voice is ended
         //! by its amp envelope alone, so a pad that loops on a full sustain holds until its note-off.
         bool loop = false;
@@ -198,6 +214,11 @@ public:
 
     bool sampleReverse(uint8_t note) const;
     void setSampleReverse(uint8_t note, bool reverse);
+    bool sampleNormalize(uint8_t note) const;
+    //! The gain a normalised pad plays at, 1.0 when it is not normalised. For the waveform view,
+    //! which otherwise draws a normalised pad quieter than it sounds.
+    float sampleNormalizeGain(uint8_t note) const;
+    void setSampleNormalize(uint8_t note, bool normalize);
 
     bool sampleLoop(uint8_t note) const;
     void setSampleLoop(uint8_t note, bool loop);
@@ -336,6 +357,7 @@ private:
 
     //! Copies a pad's parameters into the plain fields the voices read.
     static void syncSampleFields(Sample & sample);
+    static void updateNormalizeGain(Sample & sample);
 
     //! Writes one of the two trims, clamped to the sample it trims.
     void setOffsetParameter(uint8_t note, const std::string & parameterName, double offset);

@@ -36,6 +36,11 @@ private slots:
     void test_loadAndClearSample_shouldUpdateModel();
 
     void test_loadSample_ontoLoadedPad_shouldKeepItsSettingsAndEffects();
+    void test_normalize_off_shouldLeaveThePadAsItWas();
+    void test_normalize_shouldNotTouchTheFile();
+    void test_normalize_shouldMeasureOnlyWhatIsHeard();
+    void test_normalize_silentPad_shouldNotGetAnInfiniteGain();
+    void test_normalize_shouldSurviveARoundTrip();
     void test_padSend_shouldReachTheBusOnItsOwn();
     void test_padSend_otherPads_shouldStayOutOfIt();
     void test_padSend_postFader_shouldFollowTheFader();

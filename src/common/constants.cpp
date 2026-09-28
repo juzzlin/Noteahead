@@ -1020,6 +1020,11 @@ QString xmlKeyOversampleFactor()
     return "oversampleFactor";
 }
 
+QString xmlKeyNormalize()
+{
+    return "normalize";
+}
+
 QString xmlKeyNormalizeEnabled()
 {
     return "normalizeEnabled";
