@@ -41,6 +41,8 @@ private slots:
     void test_normalize_shouldMeasureOnlyWhatIsHeard();
     void test_normalize_silentPad_shouldNotGetAnInfiniteGain();
     void test_normalize_shouldSurviveARoundTrip();
+    void test_materializeEphemeralSamples_shouldWriteOutWhatWouldBeLost();
+    void test_materializeEphemeralSamples_shouldLeaveOrdinarySamplesAlone();
     void test_padSend_shouldReachTheBusOnItsOwn();
     void test_padSend_otherPads_shouldStayOutOfIt();
     void test_padSend_postFader_shouldFollowTheFader();

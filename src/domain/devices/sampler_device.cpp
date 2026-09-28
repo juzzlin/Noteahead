@@ -891,7 +891,10 @@ void SamplerDevice::loadSample(uint8_t note, const std::string & filePath)
 
     auto sample = std::make_unique<Sample>();
     if (QString::fromStdString(filePath).startsWith(Constants::NahdXml::embeddedDataPathPrefix())) {
+        // Resolves only through the directory the project's data was extracted into, which goes
+        // when the application does.
         sample->filePath = filePath;
+        sample->ephemeral = true;
     } else {
         sample->filePath = absolutePath.toStdString();
     }
@@ -1521,6 +1524,47 @@ std::map<QString, QString> SamplerDevice::getFilesToEmbed() const
         }
     }
     return files;
+}
+
+void SamplerDevice::markSampleEphemeral(uint8_t note)
+{
+    std::lock_guard<std::recursive_mutex> lock { mutex() };
+    if (note < maxSamples && m_samples.at(note)) {
+        m_samples.at(note)->ephemeral = true;
+    }
+}
+
+int SamplerDevice::materializeEphemeralSamples(const QString & targetDirectory)
+{
+    std::lock_guard<std::recursive_mutex> lock { mutex() };
+    int written = 0;
+    for (uint8_t note = 0; note < maxSamples; note++) {
+        auto & sample = m_samples.at(note);
+        if (!sample || !sample->ephemeral) {
+            continue;
+        }
+        const auto source = QString::fromStdString(absoluteFilePath(note));
+        if (source.isEmpty() || !QFile::exists(source)) {
+            juzzlin::L(TAG).error() << "Cannot write out ephemeral sample, nothing behind " << std::quoted(sample->filePath);
+            continue;
+        }
+        if (!QDir {}.mkpath(targetDirectory)) {
+            juzzlin::L(TAG).error() << "Cannot create " << std::quoted(targetDirectory.toStdString());
+            return written;
+        }
+        const auto target = QDir { targetDirectory }.absoluteFilePath(QFileInfo { source }.fileName());
+        // An existing file of the same name is left alone: two projects in one directory sharing a
+        // sample name is far likelier than one of them wanting to overwrite the other's audio.
+        if (!QFile::exists(target) && !QFile::copy(source, target)) {
+            juzzlin::L(TAG).error() << "Failed to write " << std::quoted(target.toStdString());
+            continue;
+        }
+        juzzlin::L(TAG).info() << "Wrote out ephemeral sample as " << std::quoted(target.toStdString());
+        sample->filePath = target.toStdString();
+        sample->ephemeral = false;
+        written++;
+    }
+    return written;
 }
 
 const SamplerDevice::Sample * SamplerDevice::padSample(uint8_t note) const

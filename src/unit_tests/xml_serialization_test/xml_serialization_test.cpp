@@ -1453,6 +1453,71 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_relativePath_shouldLo
     QCOMPARE(samplerIn->absoluteFilePath(60), absolutePath);
 }
 
+void XmlSerializationTest::test_toXmlFromXml_samplerDevice_unembedding_shouldNotLoseTheSample()
+{
+    // Turning "Embed wave data" off on a project whose samples only ever existed inside it. The
+    // pads point at nahd:// paths, which resolve through the temporary directory the data was
+    // extracted into and nowhere else, so saving without embedding has to put the audio somewhere
+    // real -- otherwise the project is written referring to files that stop existing when the
+    // application does.
+    const std::string projectPath { "/tmp/noteahead_unembed_test" };
+    const std::string absolutePath { QDir(QString::fromStdString(projectPath)).absoluteFilePath("samples/kick.wav").toStdString() };
+    QDir().mkpath(QFileInfo(QString::fromStdString(absolutePath)).absolutePath());
+    QFile source { QString::fromStdString(absolutePath) };
+    QVERIFY(source.open(QIODevice::WriteOnly));
+    source.write("dummy-wav-data");
+    source.close();
+
+    const auto samplerName = "Noteahead Internal Device 1";
+    const auto engine = std::make_shared<AudioEngine>();
+    const auto dataService = std::make_shared<DataService>();
+    DeviceService deviceServiceOut { engine, dataService };
+    deviceServiceOut.setProjectPath(projectPath);
+    const auto samplerOut = std::make_shared<SamplerDevice>(samplerName, std::make_unique<MockAudioFileReader>());
+    samplerOut->loadSample(60, absolutePath);
+    samplerOut->setEmbedWaveData(true);
+    deviceServiceOut.setDevice(0, samplerOut);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), dataService };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+    connect(&editorServiceOut, &EditorService::dataSerializationRequested, [&deviceServiceOut, dataService](ProjectWriter & writer) {
+        dataService->serializeDataToXml(writer, deviceServiceOut.getFilesToEmbed());
+    });
+    const auto xml = editorServiceOut.toXml();
+
+    // The original is gone: all that is left of the sample is what the project carries.
+    QFile::remove(QString::fromStdString(absolutePath));
+
+    const auto engine2 = std::make_shared<AudioEngine>();
+    const auto dataService2 = std::make_shared<DataService>();
+    DeviceService deviceServiceIn { engine2, dataService2 };
+    deviceServiceIn.setProjectPath(projectPath);
+    const auto samplerIn = std::make_shared<SamplerDevice>(samplerName, std::make_unique<MockAudioFileReader>());
+    deviceServiceIn.setDevice(0, samplerIn);
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), dataService2 };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+    connect(&editorServiceIn, &EditorService::devicesSerializationRequested, &deviceServiceIn, &DeviceService::serializeToXml);
+    connect(&editorServiceIn, &EditorService::dataSerializationRequested, [&deviceServiceIn, dataService2](ProjectWriter & writer) {
+        dataService2->serializeDataToXml(writer, deviceServiceIn.getFilesToEmbed());
+    });
+    editorServiceIn.fromXml(xml);
+    QVERIFY(samplerIn->sample(60));
+
+    // The user unticks embedding and saves.
+    samplerIn->setEmbedWaveData(false);
+    const auto xml2 = editorServiceIn.toXml();
+
+    // Whatever the project now says about that pad has to still be there next time it is opened.
+    QVERIFY2(!xml2.contains(Constants::NahdXml::embeddedDataPathPrefix()),
+             "the project still points into the extracted data it no longer carries");
+    const auto written = samplerIn->absoluteFilePath(60);
+    QVERIFY2(QFile::exists(QString::fromStdString(written)),
+             qPrintable(QString { "the pad points at %1, which does not exist" }.arg(QString::fromStdString(written))));
+
+    QFile::remove(QString::fromStdString(written));
+    QDir { QString::fromStdString(projectPath) }.removeRecursively();
+}
+
 void XmlSerializationTest::test_toXmlFromXml_samplerDevice_saveAs_shouldPreserveEmbeddedData()
 {
     const std::string projectPath { "/tmp/noteahead_test" };

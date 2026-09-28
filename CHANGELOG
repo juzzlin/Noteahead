@@ -117,6 +117,11 @@ New features:
 
 Bug fixes:
 
+* Unticking "Embed wave data" no longer loses the samples
+  - A project whose pads came out of its own embedded data was saved pointing at
+    a directory that stops existing when the application does. Those pads are
+    now written out beside the project first
+
 * Loading a project with a Drum Synth V2 in it no longer hangs
 
 * Stop the Stereo Field Meter and the RTA freezing on a silent device

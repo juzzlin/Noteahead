@@ -24,6 +24,7 @@
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
+#include <QTemporaryDir>
 #include <QTest>
 
 #include <algorithm>
@@ -352,6 +353,45 @@ void SamplerTest::test_normalize_shouldSurviveARoundTrip()
     plain->processMidiNoteOn(60, 127);
     const auto asIs = peak(render(*plain, 256));
     QVERIFY2(lifted > asIs * 3.5, qPrintable(QString { "the restored pad plays at %1 against %2" }.arg(lifted).arg(asIs)));
+}
+
+void SamplerTest::test_materializeEphemeralSamples_shouldWriteOutWhatWouldBeLost()
+{
+    // What stands between a recording made before the project was saved and the project being
+    // written out pointing at a directory that stops existing when the application does. The pad
+    // is left pointing at the file it wrote, and is no longer ephemeral.
+    QTemporaryDir source;
+    QVERIFY(source.isValid());
+    const auto recording = QDir { source.path() }.absoluteFilePath("take1.wav");
+    QFile file { recording };
+    QVERIFY(file.open(QIODevice::WriteOnly));
+    file.write("dummy-wav-data");
+    file.close();
+
+    auto sampler = makeQuietSampler(0.25f);
+    sampler->loadSample(60, recording.toStdString());
+    sampler->markSampleEphemeral(60);
+
+    QTemporaryDir project;
+    QVERIFY(project.isValid());
+    const auto target = QDir { project.path() }.absoluteFilePath("samples");
+    QCOMPARE(sampler->materializeEphemeralSamples(target), 1);
+
+    const auto written = QDir { target }.absoluteFilePath("take1.wav");
+    QVERIFY2(QFile::exists(written), qPrintable(QString { "nothing at %1" }.arg(written)));
+    QCOMPARE(QString::fromStdString(sampler->sample(60)->filePath), written);
+
+    // Once written out there is nothing ephemeral left about it, so a second save does not copy again.
+    QCOMPARE(sampler->materializeEphemeralSamples(target), 0);
+}
+
+void SamplerTest::test_materializeEphemeralSamples_shouldLeaveOrdinarySamplesAlone()
+{
+    // A pad pointing into the user's own sample library is not ours to copy anywhere.
+    auto sampler = makeQuietSampler(0.25f);
+    QTemporaryDir project;
+    QVERIFY(project.isValid());
+    QCOMPARE(sampler->materializeEphemeralSamples(QDir { project.path() }.absoluteFilePath("samples")), 0);
 }
 
 void SamplerTest::test_padSend_shouldReachTheBusOnItsOwn()

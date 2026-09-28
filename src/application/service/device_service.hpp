@@ -149,7 +149,7 @@ public:
 
     void setProjectPath(const std::string & projectPath);
 
-    void serializeToXml(ProjectWriter & writer) const;
+    void serializeToXml(ProjectWriter & writer);
     void deserializeFromXml(ProjectReader & reader);
 
     //! The engine, for callers that need its whole-callback load meter.
@@ -178,6 +178,10 @@ public:
     DeviceTypeInfo peekDeviceTypeInfo(ProjectReader & reader) const;
 
     std::map<QString, QString> getFilesToEmbed() const;
+
+    //! Writes out every sampler pad whose audio is ephemeral, for the samplers that are not
+    //! embedding. Called before a save, while the audio is still there to copy.
+    void materializeEphemeralSamples();
 
     void reset();
 

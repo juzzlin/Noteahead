@@ -88,6 +88,14 @@ public:
         Sample();
 
         std::string filePath;
+        //! Whether the audio behind this pad exists only for as long as the application runs.
+        //!
+        //! True for a pad loaded out of an embedded project, whose nahd:// path resolves through the
+        //! temporary directory the data was extracted into, and for one recorded before the project
+        //! had anywhere to live. Either way the file is gone next session unless the project is
+        //! saved, so materializeEphemeralSamples() writes it out. Runtime only -- there is nothing
+        //! to serialize, since a saved project has by definition stopped being ephemeral.
+        bool ephemeral = false;
         std::shared_ptr<const std::vector<float>> data;
         int channels = 0;
         int sampleRate = 0;
@@ -306,6 +314,20 @@ public:
     void setEmbedWaveData(bool enabled);
 
     std::map<QString, QString> getFilesToEmbed() const;
+
+    //! Writes out every pad whose audio is ephemeral, and re-points it at the file it wrote.
+    //!
+    //! Saving without embedding would otherwise write a path with nothing behind it, and the
+    //! project would open next time referring to a directory that stopped existing when the
+    //! application did. See Sample::ephemeral.
+    //!
+    //! \param targetDirectory Where the files are written. Created if it is not there.
+    //! \return How many pads were written out.
+    int materializeEphemeralSamples(const QString & targetDirectory);
+
+    //! Marks a pad's audio as living only for this session. What a recording made into a temporary
+    //! directory calls, so that saving the project writes it out rather than losing it.
+    void markSampleEphemeral(uint8_t note);
 
     void setPan(float pan) override;
     void setVolume(float volume) override;

@@ -555,6 +555,20 @@ void DeviceService::setProjectPath(const std::string & projectPath)
     }
 }
 
+void DeviceService::materializeEphemeralSamples()
+{
+    if (m_projectPath.empty()) {
+        return;
+    }
+    // Beside the project, in the directory the sampler already writes relative paths against.
+    const auto target = QDir { QString::fromStdString(m_projectPath) }.absoluteFilePath("samples");
+    for (const auto & name : internalDeviceNames()) {
+        if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(device(name)); sampler && !sampler->embedWaveData()) {
+            sampler->materializeEphemeralSamples(target);
+        }
+    }
+}
+
 std::map<QString, QString> DeviceService::getFilesToEmbed() const
 {
     std::map<QString, QString> allFiles;
@@ -688,8 +702,12 @@ void DeviceService::serializeMasterEffects(ProjectWriter & writer) const
     writer.writeEndElement(); // MasterEffects
 }
 
-void DeviceService::serializeToXml(ProjectWriter & writer) const
+void DeviceService::serializeToXml(ProjectWriter & writer)
 {
+    // Before a single path is written: a pad that is no longer being embedded needs its audio put
+    // somewhere real first, and this is the last moment the extracted data is still there to copy.
+    materializeEphemeralSamples();
+
     writer.writeStartElement(Constants::NahdXml::xmlKeyDevices());
 
     serializeDevices(writer);
