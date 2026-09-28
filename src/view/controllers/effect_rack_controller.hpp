@@ -547,6 +547,18 @@ public:
     //! offer the tab at all.
     Q_INVOKABLE bool hasPartSends(const QString & deviceName) const;
 
+    //! Points the controller at the master send rack and hands back the type of the effect on
+    //! @p busIndex, so a send row's title can open that effect's own dialog. Empty when the bus has
+    //! no effect to open.
+    Q_INVOKABLE QString openSendBusEffect(quint32 busIndex);
+
+    //! The master send rack, read without pointing the controller at it: a device's Sends tab shows
+    //! what the buses are while the controller is still targeting that device's own rack.
+    Q_INVOKABLE int masterSendCount() const;
+    Q_INVOKABLE QString masterSendEffectType(quint32 busIndex) const;
+    Q_INVOKABLE bool hasMasterSendEffects() const;
+    //! What effectParametersSummary() gives for the current rack, for a master send bus instead.
+    Q_INVOKABLE QString masterSendParametersSummary(quint32 busIndex) const;
 
 signals:
     void effectCountChanged();
@@ -561,6 +573,9 @@ signals:
     void importEffectSettingsConfirmationRequested(int slotIndex, QUrl fileUrl, QString currentType, QString importedType, bool typeMismatch);
 
 private:
+    //! The parameter summary of one effect, whichever rack it came from.
+    QString summaryFor(const EffectRack::EffectS & effect) const;
+
     struct EffectTypeInfo
     {
         QString typeId;

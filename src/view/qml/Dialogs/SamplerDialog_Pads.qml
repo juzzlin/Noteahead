@@ -87,7 +87,7 @@ GridView {
                 onClicked: UiService.requestDeviceSubEffectsDialog(samplerController.deviceName(), note, qsTr("Note %1 (%2)").arg(noteName).arg(note))
                 ToolTip.delay: Constants.toolTipDelay
                 ToolTip.visible: hovered
-                ToolTip.text: qsTr("Insert effects for this pad")
+                ToolTip.text: qsTr("Insert effects and sends for this pad")
             }
 
             MouseArea {

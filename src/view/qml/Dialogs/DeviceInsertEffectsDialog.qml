@@ -30,6 +30,11 @@ AnimatedDialog {
     // False opens the master send side instead of an insert rack. A send bus's chain is a rack of
     // inserts on what that bus returns, so it is this same dialog, pointed elsewhere.
     property bool isInsertRack: true
+    //! Which tab to open on: 0 inserts, 1 sends. A caller that came from a Sends button asks for 1.
+    property int tabIndex: 0
+    //! A send bus's chain has nothing to route anywhere -- it *is* the routing -- and neither has a
+    //! device that does not exist, so those open on the inserts alone.
+    readonly property bool sendsAvailable: isInsertRack && deviceName !== ""
     // What the export, import and copy prompts call this rack. Derived rather than set from outside,
     // so that opening the dialog on one kind of rack cannot leave a stale name behind for the next.
     readonly property string rackLabel: {
@@ -38,7 +43,7 @@ AnimatedDialog {
         }
         return subIndex >= 0 ? qsTr("%1 %2").arg(deviceName).arg(subLabel) : deviceName;
     }
-    title: "<strong>" + (isInsertRack ? qsTr("Insert Effects") : qsTr("Send Chain")) + "</strong>"
+    title: "<strong>" + (!isInsertRack ? qsTr("Send Chain") : (tabBar.currentIndex === 1 ? qsTr("Sends") : qsTr("Insert Effects"))) + "</strong>"
     modal: true
     focus: true
     width: parent ? parent.width * Constants.largeDialogScale : 800
@@ -56,6 +61,7 @@ AnimatedDialog {
     }
 
     onOpened: {
+        tabBar.currentIndex = sendsAvailable ? tabIndex : 0;
         effectRackController.isInsertRack = isInsertRack;
         effectRackController.targetDeviceName = deviceName;
         effectRackController.targetSubIndex = subIndex;
@@ -103,9 +109,28 @@ AnimatedDialog {
         anchors.margins: 20
         spacing: 20
 
+        EffectSendsView {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            visible: root.sendsAvailable && tabBar.currentIndex === 1
+            deviceName: root.deviceName
+            subIndex: root.subIndex
+            subLabel: root.subLabel
+            onBusEffectRequested: busIndex => {
+                // The bus belongs to the master rack, so opening its effect takes the controller
+                // there. The dialog closes: what opens next is not about this device any more.
+                const effectType = effectRackController.openSendBusEffect(busIndex);
+                root.close();
+                if (effectType !== "") {
+                    effectDialogLauncher.open(effectType, busIndex);
+                }
+            }
+        }
+
         RowLayout {
             Layout.fillWidth: true
             spacing: 10
+            visible: !root.sendsAvailable || tabBar.currentIndex === 0
 
             Switch {
                 id: rackEnabledSwitch
@@ -286,8 +311,25 @@ AnimatedDialog {
             }
         }
 
+        // Along the bottom, where the master rack keeps its own. One dialog per device, with its inserts and its routing side by side: a pad's sends were
+        // reachable from nowhere at all before this.
+        TabBar {
+            id: tabBar
+            Layout.fillWidth: true
+            visible: root.sendsAvailable
+            Universal.theme: Universal.Dark
+            TabButton {
+                text: qsTr("Insert Effects")
+            }
+            TabButton {
+                text: qsTr("Sends")
+            }
+        }
+
         Text {
-            text: qsTr("Insert effects are processed in order. Dry/Wet mix is handled by each effect.")
+            text: root.sendsAvailable && tabBar.currentIndex === 1
+                ? qsTr("How much of this goes to each global send effect. Click a send's name to open it.")
+                : qsTr("Insert effects are processed in order. Dry/Wet mix is handled by each effect.")
             color: "#aaa"
             font.italic: true
             font.pointSize: 11

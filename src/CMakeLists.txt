@@ -54,6 +54,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Components/DeviceMenuButton.qml
     ${QML_BASE_DIR}/Components/EffectDialogLauncher.qml
     ${QML_BASE_DIR}/Components/EffectPresetRow.qml
+    ${QML_BASE_DIR}/Components/EffectSendsView.qml
     ${QML_BASE_DIR}/Components/FilterKnob.qml
     ${QML_BASE_DIR}/Components/Knob.qml
     ${QML_BASE_DIR}/Components/LayoutSeparator.qml
@@ -127,7 +128,6 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/EditPitchBendAutomationsDialog.qml
     ${QML_BASE_DIR}/Dialogs/EarlyReflectionsDialog.qml
     ${QML_BASE_DIR}/Dialogs/EffectDialog.qml
-    ${QML_BASE_DIR}/Dialogs/EffectSendsDialog.qml
     ${QML_BASE_DIR}/Dialogs/EffectsGalleryDialog.qml
     ${QML_BASE_DIR}/Dialogs/EndlessReverbDialog.qml
     ${QML_BASE_DIR}/Dialogs/Eq8BandParametricDialog.qml

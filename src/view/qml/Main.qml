@@ -469,10 +469,6 @@ ApplicationWindow {
         anchors.centerIn: parent
     }
 
-    EffectSendsDialog {
-        id: effectSendsDialog
-        anchors.centerIn: parent
-    }
     ReverbDialog {
         id: reverbDialog
         anchors.centerIn: parent
@@ -1056,9 +1052,15 @@ ApplicationWindow {
             deviceRackDialog.updateUsage();
             deviceRackDialog.open();
         });
+        // The separate sends dialog is gone: routing is a tab of the device's own effects dialog,
+        // so that a pad's sends are reachable from the same place its inserts are.
         UiService.effectSendsDialogRequested.connect(deviceName => {
-            effectSendsDialog.deviceName = deviceName;
-            effectSendsDialog.open();
+            deviceInsertEffectsDialog.isInsertRack = true;
+            deviceInsertEffectsDialog.deviceName = deviceName;
+            deviceInsertEffectsDialog.subIndex = -1;
+            deviceInsertEffectsDialog.subLabel = "";
+            deviceInsertEffectsDialog.tabIndex = 1;
+            deviceInsertEffectsDialog.open();
         });
         UiService.deviceSettingsDialogRequested.connect(deviceName => {
             deviceSettingsDialog.deviceName = deviceName;
@@ -1069,9 +1071,11 @@ ApplicationWindow {
             deviceInsertEffectsDialog.deviceName = deviceName;
             deviceInsertEffectsDialog.subIndex = -1;
             deviceInsertEffectsDialog.subLabel = "";
+            deviceInsertEffectsDialog.tabIndex = 0;
             deviceInsertEffectsDialog.open();
         });
         UiService.deviceSubEffectsDialogRequested.connect((deviceName, subIndex, subLabel) => {
+            deviceInsertEffectsDialog.tabIndex = 0;
             deviceInsertEffectsDialog.isInsertRack = true;
             deviceInsertEffectsDialog.deviceName = deviceName;
             deviceInsertEffectsDialog.subIndex = subIndex;

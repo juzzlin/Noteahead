@@ -168,7 +168,7 @@ AnimatedDialog {
                                     onClicked: UiService.requestDeviceSubEffectsDialog(drumSynthController.deviceName(), index, root.voiceNames[index])
                                     ToolTip.delay: Constants.toolTipDelay
                                     ToolTip.visible: hovered
-                                    ToolTip.text: qsTr("Insert effects for this voice")
+                                    ToolTip.text: qsTr("Insert effects and sends for this voice")
                                 }
                             }
                         }

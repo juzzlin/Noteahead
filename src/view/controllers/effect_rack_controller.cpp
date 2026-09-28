@@ -577,7 +577,22 @@ QString EffectRackController::effectDisplayName(const QString & typeId) const
 QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
 {
     if (const auto rack = currentRack(); rack) {
-        if (const auto effect = rack->get().effect(effectIndex); effect) {
+        return summaryFor(rack->get().effect(effectIndex));
+    }
+    return {};
+}
+
+QString EffectRackController::masterSendParametersSummary(quint32 busIndex) const
+{
+    // The master send rack rather than whatever the controller is pointed at: a device's Sends tab
+    // names the buses while the controller is still targeting that device's own rack.
+    return summaryFor(m_deviceService->sendEffectRack().effect(busIndex));
+}
+
+QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) const
+{
+    {
+        if (effect) {
             const auto type = QString::fromStdString(effect->type());
             if (type == Constants::RackEffectType::allPassFilter()) {
                 const auto freq = effect->parameter(Constants::NahdXml::xmlKeyFrequency().toStdString());
@@ -3126,6 +3141,35 @@ bool EffectRackController::hasPartSends(const QString & deviceName) const
         return device->sendSourceCount() > 0;
     }
     return false;
+}
+
+int EffectRackController::masterSendCount() const
+{
+    return static_cast<int>(Constants::effectRackSize());
+}
+
+QString EffectRackController::masterSendEffectType(quint32 busIndex) const
+{
+    if (const auto effect = m_deviceService->sendEffectRack().effect(busIndex); effect) {
+        return QString::fromStdString(effect->type());
+    }
+    return {};
+}
+
+bool EffectRackController::hasMasterSendEffects() const
+{
+    return m_deviceService->sendEffectRack().hasEffects();
+}
+
+QString EffectRackController::openSendBusEffect(quint32 busIndex)
+{
+    // The bus's effect lives in the master send rack, so the controller is pointed there before the
+    // dialog is asked to open it: every effect dialog reads the rack the controller is targeting.
+    setTargetDeviceName({});
+    setIsInsertRack(false);
+    setTargetSubIndex(-1);
+
+    return effectType(busIndex);
 }
 
 } // namespace noteahead
