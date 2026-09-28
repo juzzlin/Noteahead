@@ -71,6 +71,19 @@ void SpeechController::setRate(int value)
     }
 }
 
+int SpeechController::portamento() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->portamento() * Constants::uiInternalScaling())) : 0;
+}
+
+void SpeechController::setPortamento(int value)
+{
+    if (m_device) {
+        m_device->setPortamento(static_cast<float>(value) / Constants::uiInternalScaling());
+        emit portamentoChanged();
+    }
+}
+
 int SpeechController::glide() const
 {
     return m_device ? static_cast<int>(std::round(m_device->glide() * Constants::uiInternalScaling())) : 0;
@@ -355,6 +368,7 @@ int SpeechController::lineCount() const
 void SpeechController::requestSettings()
 {
     emit rateChanged();
+    emit portamentoChanged();
     emit glideChanged();
     emit formantShiftChanged();
     emit breathinessChanged();

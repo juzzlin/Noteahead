@@ -25,6 +25,8 @@
 #include "device.hpp"
 
 #include <array>
+#include <optional>
+#include <set>
 #include <string>
 
 namespace noteahead {
@@ -83,6 +85,8 @@ public:
 
     float rate() const;
     void setRate(float rate);
+    float portamento() const;
+    void setPortamento(float portamento);
     float glide() const;
     void setGlide(float glide);
     float formantShift() const;
@@ -127,6 +131,8 @@ public:
 
     //! Which syllable the next note would speak in Step mode.
     size_t syllableCursor() const;
+    //! Which line a Line-mode note would speak next. The counterpart of syllableCursor().
+    size_t lineCursor() const;
     size_t syllableCount() const;
 
     //! How many lines the phrase divides into. One unless it holds a full stop.
@@ -212,7 +218,11 @@ private:
     TrueStereoPanner m_panner;
 
     uint8_t m_note { 0 };
-    bool m_noteHeld { false };
+    //! Every note still down, not merely the last one. What separates a melody note slurring into a
+    //! line already being spoken from a note that starts the next line: the first arrives while
+    //! something else is held, the second arrives alone. A set rather than a count so that a
+    //! repeated note-on, or note-offs arriving out of order, cannot leave the device stuck.
+    std::set<uint8_t> m_heldNotes;
     double m_velocity { 1.0 };
 
     //! Where the fundamental is now, in log2 Hz, as opposed to where the contour wants it. Log
@@ -220,12 +230,23 @@ private:
     //! Negative until a note has set it, which is how a note-on knows to land rather than glide.
     double m_pitch { -1.0 };
     double m_pitchCoefficient { 1.0 };
+
+    //! Where the note itself is, in log2 Hz, while it slides towards the one last played. Kept apart
+    //! from m_pitch, which smooths the intonation contour at a fixed 45 ms: a portamento long enough
+    //! to sing would otherwise blur the stress accent along with it.
+    //!
+    //! Empty until a note has set it, which is how the first note of an utterance lands rather than
+    //! glides.
+    std::optional<double> m_notePitch;
+    double m_portamentoCoefficient { 1.0 };
     std::array<double, std::size(FlutterRates)> m_flutterPhases {};
 
     double m_fade { 0.0 };
     double m_fadeCoefficient { 0.0 };
 
     float m_rate { 1.0f };
+    //! Zero, so that a project saved before this glides no more than it always did.
+    float m_portamento { 0.0f };
     float m_glide { 0.35f };
     float m_formantShift { 0.5f };
     float m_breathiness { 0.1f };

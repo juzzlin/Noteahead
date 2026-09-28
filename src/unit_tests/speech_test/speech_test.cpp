@@ -1514,6 +1514,123 @@ void SpeechTest::test_device_reset_shouldRestoreTheDefaultPhrase()
     QVERIFY(std::abs(device.intonation() - 0.4f) < 0.001f);
 }
 
+
+void SpeechTest::test_device_lineMode_overlappingNote_shouldRepitchNotAdvance()
+{
+    // Write the line as one long note on one column and the melody on another, and the melody must
+    // move the pitch without fetching the next line. This is the whole of what makes a synced line
+    // singable: before it, every note in the second column jumped a line ahead.
+    SpeechDevice device { "Speech" };
+    device.setPhrase("hi there. go away");
+    device.setTriggerMode(static_cast<int>(SpeechSequencer::TriggerMode::Line));
+    QCOMPARE(device.lineCursor(), size_t { 0 });
+
+    // The column holding the line.
+    device.processMidiNoteOn(60, 100);
+    QCOMPARE(device.lineCursor(), size_t { 1 });
+    renderDevice(device, 4096);
+
+    // The melody over it, while the first note is still down.
+    device.processMidiNoteOn(67, 100);
+    QCOMPARE(device.lineCursor(), size_t { 1 });
+    device.processMidiNoteOff(67);
+    device.processMidiNoteOn(69, 100);
+    QCOMPARE(device.lineCursor(), size_t { 1 });
+
+    // And the next line only once the column holding this one lets go.
+    device.processMidiNoteOff(69);
+    device.processMidiNoteOff(60);
+    device.processMidiNoteOn(62, 100);
+    QCOMPARE(device.lineCursor(), size_t { 0 });
+}
+
+void SpeechTest::test_device_lineMode_overlappingNote_shouldFollowTheNewPitch()
+{
+    const auto fundamentalAfter = [](uint8_t second) {
+        SpeechDevice device { "Speech" };
+        device.setPhrase("laa laa laa laa");
+        device.setTriggerMode(static_cast<int>(SpeechSequencer::TriggerMode::Line));
+        device.setSyncMode(static_cast<int>(SpeechSequencer::SyncMode::Fit));
+        device.setSyncLength(64);
+        device.processMidiNoteOn(60, 100);
+        renderDevice(device, 8192);
+        device.processMidiNoteOn(second, 100);
+        // Past the glide, which is at its default of none here, and past the contour smoothing.
+        renderDevice(device, 8192);
+        return preciseFundamental(renderDevice(device, 16384));
+    };
+
+    // A fifth up is a ratio of 1.5, and the declination pulls both ends down together.
+    const auto lower = fundamentalAfter(60);
+    const auto upper = fundamentalAfter(67);
+    QVERIFY2(lower > 0.0 && upper > 0.0, qPrintable(QString::number(lower) + " / " + QString::number(upper)));
+    const auto ratio = upper / lower;
+    QVERIFY2(std::abs(ratio - 1.5) < 0.05, qPrintable(QString::number(ratio) + " instead of 1.5"));
+}
+
+void SpeechTest::test_device_lineMode_noteOff_whileAnotherHeld_shouldKeepSpeaking()
+{
+    // The melody column letting go of a note must not end the line the other column is holding.
+    SpeechDevice device { "Speech" };
+    device.setPhrase("this line is long enough to still be running");
+    device.setTriggerMode(static_cast<int>(SpeechSequencer::TriggerMode::Line));
+
+    device.processMidiNoteOn(60, 100);
+    device.processMidiNoteOn(67, 100);
+    renderDevice(device, 4096);
+    device.processMidiNoteOff(67);
+    QVERIFY(device.hasActiveAudio());
+    QVERIFY(peakAmplitude(renderDevice(device, 4096)) > 0.001);
+}
+
+void SpeechTest::test_device_stepMode_overlappingNote_shouldStillAdvance()
+{
+    // Step mode is deliberately left out of the legato rule: every note there fetches the next
+    // syllable, and a song written against that must go on doing what it did.
+    SpeechDevice device { "Speech" };
+    device.setPhrase("one two three four");
+    device.setTriggerMode(static_cast<int>(SpeechSequencer::TriggerMode::Step));
+
+    const auto first = device.syllableCursor();
+    device.processMidiNoteOn(60, 100);
+    const auto second = device.syllableCursor();
+    QVERIFY(second != first);
+    device.processMidiNoteOn(67, 100);
+    QVERIFY(device.syllableCursor() != second);
+}
+
+void SpeechTest::test_device_portamento_shouldDefaultToOff()
+{
+    // A project saved before the control existed has to glide no more than it always did.
+    SpeechDevice device { "Speech" };
+    QCOMPARE(device.portamento(), 0.0f);
+}
+
+void SpeechTest::test_device_portamento_shouldGlideToTheNewNote()
+{
+    // How far the pitch has got a short way into the slide. With no portamento the note is reached
+    // in one sample, so the two must differ; the glide is only heard on a note that slurs into an
+    // utterance already being spoken, which is what the second note here does.
+    const auto fundamentalJustAfter = [](float portamento) {
+        SpeechDevice device { "Speech" };
+        device.setPhrase("laa laa laa laa");
+        device.setTriggerMode(static_cast<int>(SpeechSequencer::TriggerMode::Line));
+        device.setSyncMode(static_cast<int>(SpeechSequencer::SyncMode::Fit));
+        device.setSyncLength(64);
+        device.setPortamento(portamento);
+        device.processMidiNoteOn(60, 100);
+        renderDevice(device, 8192);
+        device.processMidiNoteOn(72, 100);
+        return preciseFundamental(renderDevice(device, 4096));
+    };
+
+    const auto immediate = fundamentalJustAfter(0.0f);
+    const auto glided = fundamentalJustAfter(1.0f);
+    QVERIFY2(immediate > 0.0 && glided > 0.0, qPrintable(QString::number(immediate) + " / " + QString::number(glided)));
+    // Still on its way up an octave, so measurably below where the jump lands at once.
+    QVERIFY2(glided < immediate * 0.9, qPrintable(QString::number(glided) + " vs " + QString::number(immediate)));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SpeechTest)

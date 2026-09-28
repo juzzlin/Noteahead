@@ -80,9 +80,32 @@ ColumnLayout {
         Layout.fillWidth: true
     }
 
+    Knob {
+        label: qsTr("Portamento")
+        // Only a note slurring into something already being spoken glides, and in Step mode every
+        // note fetches the next syllable instead, so nothing there ever does.
+        enabled: speechController.triggerMode !== 1
+        opacity: enabled ? 1.0 : 0.4
+        value: speechController.portamento
+        onMoved: v => speechController.portamento = v
+        Layout.topMargin: 10
+        Layout.fillWidth: true
+    }
+
+    Label {
+        text: qsTr("Hold a note on one column and play the melody on another: the second column moves the pitch without starting the next line.")
+        color: "#999"
+        font.pixelSize: 11
+        wrapMode: Text.WordWrap
+        Layout.fillWidth: true
+    }
+
     ColumnLayout {
         Layout.topMargin: 10
-        enabled: speechController.syncMode === 1
+        // Line mode spans the note that speaks the line instead, so Length has nothing to say about
+        // what is heard: a control that is read only when a note carries no length of its own --
+        // which, on the timeline, is never.
+        enabled: speechController.syncMode === 1 && speechController.triggerMode !== 2
         opacity: enabled ? 1.0 : 0.4
         Label { text: qsTr("Length (1/16 steps)") }
         SpinBox {

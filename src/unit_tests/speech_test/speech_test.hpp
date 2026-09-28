@@ -77,6 +77,12 @@ private slots:
     void test_device_legacyEngine_shouldMatchTheSourceItReplaced();
     void test_device_formantShift_shouldBeNeutralAtHalfTravel();
 
+    void test_device_lineMode_overlappingNote_shouldRepitchNotAdvance();
+    void test_device_lineMode_overlappingNote_shouldFollowTheNewPitch();
+    void test_device_lineMode_noteOff_whileAnotherHeld_shouldKeepSpeaking();
+    void test_device_stepMode_overlappingNote_shouldStillAdvance();
+    void test_device_portamento_shouldDefaultToOff();
+    void test_device_portamento_shouldGlideToTheNewNote();
     void test_device_lineCount_shouldCountSentences();
     void test_device_noteIndexSeek_shouldBeWantedOnlyInLineMode();
     void test_device_phrasePhonemes_shouldBreakPerLineOnlyInLineMode();

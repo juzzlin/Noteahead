@@ -30,6 +30,7 @@ class SpeechController : public DeviceController
     Q_OBJECT
 
     Q_PROPERTY(int rate READ rate WRITE setRate NOTIFY rateChanged)
+    Q_PROPERTY(int portamento READ portamento WRITE setPortamento NOTIFY portamentoChanged)
     Q_PROPERTY(int glide READ glide WRITE setGlide NOTIFY glideChanged)
     Q_PROPERTY(int formantShift READ formantShift WRITE setFormantShift NOTIFY formantShiftChanged)
     Q_PROPERTY(int breathiness READ breathiness WRITE setBreathiness NOTIFY breathinessChanged)
@@ -63,6 +64,8 @@ public:
 
     int rate() const;
     void setRate(int value);
+    int portamento() const;
+    void setPortamento(int value);
     int glide() const;
     void setGlide(int value);
     int formantShift() const;
@@ -116,6 +119,7 @@ public:
 
 signals:
     void rateChanged();
+    void portamentoChanged();
     void glideChanged();
     void formantShiftChanged();
     void breathinessChanged();

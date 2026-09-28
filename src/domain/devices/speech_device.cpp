@@ -38,6 +38,11 @@ constexpr double OutputGain = 0.9;
 constexpr double MinRate = 0.35;
 constexpr double RateRange = 2.65;
 
+//! What the Portamento control spans, in seconds to slide from one note to the next. Zero is a
+//! jump, which is what every note did before the control existed. The ceiling is a slide slow
+//! enough to be heard as one across a syllable and no slower; past it the note never arrives.
+constexpr double PortamentoSecondsRange = 0.3;
+
 //! What the Glide control spans, in seconds of formant transition. Below the floor a transition is
 //! too abrupt to be heard as one; above the ceiling the phonemes run into each other.
 constexpr double MinGlideSeconds = 0.005;
@@ -167,6 +172,7 @@ SpeechDevice::SpeechDevice(std::string name)
   , m_phrase { defaultPhrase() }
 {
     addParameter(Parameter(Constants::NahdXml::xmlKeyRate().toStdString(), 0.25f, 0, 10000, 2500, 100));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyPortamento().toStdString(), 0.0f, 0, 10000, 0, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyGlide().toStdString(), 0.35f, 0, 10000, 3500, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyFormantShift().toStdString(), 0.5f, 0, 10000, 5000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyBreathiness().toStdString(), 0.1f, 0, 10000, 1000, 100));
@@ -280,6 +286,12 @@ size_t SpeechDevice::syllableCursor() const
     return m_sequencer.syllableCursor();
 }
 
+size_t SpeechDevice::lineCursor() const
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    return m_sequencer.lineCursor();
+}
+
 size_t SpeechDevice::syllableCount() const
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
@@ -288,26 +300,33 @@ size_t SpeechDevice::syllableCount() const
 
 void SpeechDevice::handleNoteOn(uint8_t note, uint8_t velocity)
 {
+    // A note arriving while another is still down re-pitches what is being spoken rather than
+    // restarting it: that is what makes an utterance singable across a melody. Write the line on
+    // one column as a single long note and the melody on a second, and the second column moves the
+    // pitch without fetching the next line.
+    //
+    // Step mode is left out. Every note there is meant to fetch the next syllable, and a song
+    // written against that would otherwise stop advancing wherever two notes overlap.
+    const auto mode = triggerModeEnum();
+    const bool legato = !m_heldNotes.empty()
+      && m_sequencer.phoneme() != nullptr
+      && mode != SpeechSequencer::TriggerMode::Step;
+
+    m_heldNotes.insert(note);
     m_note = note;
     m_velocity = std::clamp(static_cast<double>(velocity) / 127.0, 0.0, 1.0);
-    m_pitch = -1.0;
-
-    // A note arriving while one is already speaking re-pitches rather than restarts, in Phrase mode:
-    // that is what makes a held phrase singable across a melody. In Step and Line mode every note is
-    // meant to fetch the next syllable or line, so it always triggers.
-    const auto mode = triggerModeEnum();
-    const bool retrigger = !m_noteHeld
-      || m_sequencer.phoneme() == nullptr
-      || mode == SpeechSequencer::TriggerMode::Step
-      || mode == SpeechSequencer::TriggerMode::Line;
+    // A note that starts an utterance lands on pitch. Only one slurring into an utterance already
+    // being spoken glides, over the portamento time.
+    if (!legato) {
+        m_pitch = -1.0;
+        m_notePitch.reset();
+    }
 
     // Only Line mode has anything to fit inside a note. Handed over before the trigger, because the
     // durations for the whole line are worked out there and cannot be revised afterwards.
     m_sequencer.setNoteBeats(mode == SpeechSequencer::TriggerMode::Line ? noteBeats() : std::nullopt);
 
-    m_noteHeld = true;
-
-    if (retrigger) {
+    if (!legato) {
         m_sequencer.trigger();
         // Lfo::trigger() is declared but has no implementation, so the phase is set directly.
         m_vibrato.setPhase(0.0);
@@ -316,11 +335,13 @@ void SpeechDevice::handleNoteOn(uint8_t note, uint8_t velocity)
 
 void SpeechDevice::handleNoteOff(uint8_t note)
 {
-    if (note != m_note) {
-        return;
+    m_heldNotes.erase(note);
+    // Released only once nothing is left down. A melody note ending over a line that is still being
+    // spoken must not end the line with it, and the pitch stays where that melody note left it:
+    // falling back to the column holding the line would be a jump nobody wrote.
+    if (m_heldNotes.empty()) {
+        m_sequencer.release();
     }
-    m_noteHeld = false;
-    m_sequencer.release();
 }
 
 void SpeechDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
@@ -388,7 +409,7 @@ void SpeechDevice::processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_
 void SpeechDevice::processMidiAllNotesOff()
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
-    m_noteHeld = false;
+    m_heldNotes.clear();
     m_sequencer.stop();
 
     // Line mode rewinds with it, so that pressing play speaks the lyric from its first line rather
@@ -439,6 +460,7 @@ void SpeechDevice::syncParameters()
     };
 
     m_rate = value(Constants::NahdXml::xmlKeyRate(), m_rate);
+    m_portamento = value(Constants::NahdXml::xmlKeyPortamento(), m_portamento);
     m_glide = value(Constants::NahdXml::xmlKeyGlide(), m_glide);
     m_formantShift = value(Constants::NahdXml::xmlKeyFormantShift(), m_formantShift);
     m_breathiness = value(Constants::NahdXml::xmlKeyBreathiness(), m_breathiness);
@@ -503,7 +525,9 @@ double SpeechDevice::nextFlutter(double sampleRate)
 
 double SpeechDevice::currentFrequency() const
 {
-    double frequency = noteToFrequency(m_note);
+    // Wherever the portamento has got to, rather than the note that was asked for. Empty only
+    // before the first note of an utterance has been rendered.
+    double frequency = m_notePitch.has_value() ? std::exp2(*m_notePitch) : noteToFrequency(m_note);
 
     // Speech falls in pitch across an utterance and falls further at its end. Without it every
     // phrase is a monotone, which is the single thing that most makes a synthesizer sound like a
@@ -543,6 +567,10 @@ void SpeechDevice::processAudio(AudioContext & context)
 
     m_fadeCoefficient = 1.0 - std::exp(-1.0 / (OutputFadeTime * context.sampleRate));
     m_pitchCoefficient = 1.0 - std::exp(-1.0 / (PitchGlideTime * context.sampleRate));
+    // At zero the note is reached in one sample, which is what every note did before the control
+    // existed and is why the default keeps an old project sounding as it did.
+    const double portamentoSeconds = PortamentoSecondsRange * static_cast<double>(m_portamento);
+    m_portamentoCoefficient = portamentoSeconds > 0.0 ? 1.0 - std::exp(-1.0 / (portamentoSeconds * context.sampleRate)) : 1.0;
 
     // At zero the velocity is ignored and every note speaks at full level, at one it scales the
     // level outright. Half way is the default because a spoken phrase carries a lot of its meaning
@@ -557,6 +585,11 @@ void SpeechDevice::processAudio(AudioContext & context)
         if (spec) {
             m_voice.setPhoneme(*spec, m_sequencer.nextPhoneme(), m_sequencer.phonemeSeconds());
             m_voice.setPhonemeProgress(m_sequencer.progress());
+
+            // The note slides first and the contour is smoothed over the result, so that a long
+            // portamento does not drag the stress accent out with it.
+            const double askedNote = std::log2(noteToFrequency(m_note));
+            m_notePitch = m_notePitch.has_value() ? *m_notePitch + (askedNote - *m_notePitch) * m_portamentoCoefficient : askedNote;
 
             // The contour is smoothed, the modulation is not: smoothing the flutter and the vibrato
             // as well would be filtering the very thing they are there to add.
@@ -630,9 +663,10 @@ void SpeechDevice::resetAudio()
     m_hpfR.reset();
     m_dcBlockerL.reset();
     m_dcBlockerR.reset();
-    m_noteHeld = false;
+    m_heldNotes.clear();
     m_fade = 0.0;
     m_pitch = -1.0;
+    m_notePitch.reset();
     m_flutterPhases = {};
 }
 
@@ -644,6 +678,16 @@ float SpeechDevice::rate() const
 void SpeechDevice::setRate(float rate)
 {
     setContinuousParameterValue(Constants::NahdXml::xmlKeyRate().toStdString(), rate);
+}
+
+float SpeechDevice::portamento() const
+{
+    return m_portamento;
+}
+
+void SpeechDevice::setPortamento(float portamento)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyPortamento().toStdString(), portamento);
 }
 
 float SpeechDevice::glide() const

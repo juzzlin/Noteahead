@@ -2312,6 +2312,7 @@ void XmlSerializationTest::test_toXmlFromXml_speechDevice_shouldLoadCorrectly()
     // the one setting on any device that can carry characters the format itself cares about.
     speech->setPhrase("hello, /w er l d/ & goodbye");
     speech->setRate(0.75f);
+    speech->setPortamento(0.4f);
     speech->setGlide(0.2f);
     speech->setFormantShift(0.65f);
     speech->setBreathiness(0.3f);
@@ -2353,6 +2354,7 @@ void XmlSerializationTest::test_toXmlFromXml_speechDevice_shouldLoadCorrectly()
     QCOMPARE(restored->phrasePhonemes(), speech->phrasePhonemes());
 
     QVERIFY(std::abs(restored->rate() - 0.75f) < 0.001f);
+    QVERIFY(std::abs(restored->portamento() - 0.4f) < 0.001f);
     QVERIFY(std::abs(restored->glide() - 0.2f) < 0.001f);
     QVERIFY(std::abs(restored->formantShift() - 0.65f) < 0.001f);
     QVERIFY(std::abs(restored->breathiness() - 0.3f) < 0.001f);
