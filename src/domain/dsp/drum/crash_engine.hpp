@@ -55,6 +55,7 @@ public:
 
     void setVoicing(Voicing voicing);
 
+
     void setTune(float tune);
     void setDecay(float decay);
     void setResonance(float resonance);
@@ -68,6 +69,8 @@ private:
     bool m_active { false };
 
     Voicing m_voicing { Voicing::Classic };
+    //! Rises from the strike: see the bloom in the .cpp, which is what makes this a crash.
+    float m_bloomEnv { 0.0f };
     float m_tune { 0.5f };
     float m_decay { 0.5f };
     float m_resonance { 0.3f };

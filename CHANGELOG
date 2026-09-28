@@ -12,8 +12,8 @@ New features:
   - An amp envelope per voice: Attack, Hold, Decay and Curve, riding on top of
     what the voice already plays. Pull Hold down and the drum tightens
 
-  - Crash and Ride fitted to a recording of the hardware: the crash peaks in the
-    splash band where it used to sit an octave below it, and both carry a body
+  - Crash and Ride fitted to a recording of the hardware: the crash opens out
+    from its strike rather than being struck full, and both carry a body
 
 * A Curve control on the Sampler's pad envelope
   - The same bend the Synth's envelopes have, per pad, and the waveform view

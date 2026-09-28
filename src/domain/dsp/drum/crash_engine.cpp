@@ -25,27 +25,36 @@ namespace {
 
 //! What the Rd9 voicing is made of, fitted to a recording of the hardware rather than chosen.
 //!
-//! The fit minimised a distance with two halves: the spectral envelope in third-octave bands, and
-//! how tonal the sound is inside each octave taken separately. Both halves are needed. Matching
-//! only the envelope lets a wash of noise pass for a cymbal, and tonality measured across a wide
-//! band mostly reports the spectral tilt rather than the noisiness -- which is how an earlier
-//! attempt at this drove the crash to a quarter of the recording's noise while its own number
-//! said it was matching.
-constexpr float Rd9MetalLevel { 0.525f };
-constexpr float Rd9WashLevel { 0.066f };
-constexpr float Rd9SizzleLevel { 0.300f };
-//! Nearly one: the recording's attack is broadband, and a crash that is struck tonally has no
-//! splash to it.
-constexpr float Rd9StrikeLevel { 0.941f };
-//! Negative, so the partial weights lean back down towards the fundamental: the recording's weight
-//! sits at four to eight kilohertz, and the top of the bank overshot it.
-constexpr double Rd9MetalTilt { -0.178 };
-constexpr float Rd9HpfCutoff { 0.375f };
-constexpr float Rd9BpfCutoff { 0.569f };
-constexpr float Rd9LpfCutoff { 0.88f };
-constexpr double Rd9BaseFreq { 450.0 };
+//! The fit minimised a distance with four parts: the spectral envelope in third-octave bands, how
+//! tonal the sound is inside each octave taken separately, the trajectory of level, splash band and
+//! spectral centroid over six sixty-millisecond slices, and how far the last two of those swing
+//! from the strike. Every part earned its place by a failure without it. Envelope alone lets a wash
+//! of noise pass for a cymbal. Tonality measured across a wide band reports the spectral tilt
+//! rather than the noisiness. And an average over the whole sound cannot tell a crash from a ride
+//! at all: fitted without the trajectory this matched the recording's spectrum closely while
+//! sounding like a ride, because it was struck fully open and left to decay.
+constexpr float Rd9MetalLevel { 0.387f };
+constexpr float Rd9WashLevel { 0.080f };
+constexpr float Rd9SizzleLevel { 0.284f };
+constexpr float Rd9StrikeLevel { 0.569f };
+constexpr double Rd9MetalTilt { -0.162 };
+constexpr float Rd9HpfCutoff { 0.431f };
+constexpr float Rd9BpfCutoff { 0.578f };
+//! The filter is swept between these two by the bloom, not parked at one of them.
+constexpr float Rd9LpfStart { 0.753f };
+constexpr float Rd9LpfCutoff { 0.885f };
+constexpr double Rd9BaseFreq { 700.0 };
+//! How long the wash takes to open out. Forty-six milliseconds, against a recording whose centroid
+//! climbs from 2.2 to 4.6 kHz over its first two slices.
+constexpr float Rd9BloomSeconds { 0.046f };
+//! How much of the top is already there at the strike. Not zero: a crash is struck, not faded in.
+constexpr float Rd9BloomFloor { 0.25f };
+constexpr float Rd9BodySeconds { 0.080f };
+constexpr float Rd9BodyGain { 0.850f };
+constexpr float Rd9DecayScale { 1.05f };
 
 } // namespace
+
 
 CrashEngine::CrashEngine()
 {
@@ -70,6 +79,7 @@ void CrashEngine::trigger(float velocity)
     m_sizzleEnv = 1.0f;
     m_bodyEnv = 1.0f;
     m_attackEnv = 0.0f;
+    m_bloomEnv = 0.0f;
     m_hpf.reset();
     m_bpf.reset();
     m_lpf.reset();
@@ -140,6 +150,16 @@ float CrashEngine::nextSample()
     m_pitchEnv *= pitchEnvDecay;
     const double pitchMod = 1.0 + m_pitchEnv * 0.05;
 
+    // The bloom, which is what makes a crash a crash rather than a ride.
+    //
+    // The recording starts dark -- its spectral centroid is 2.2 kHz over the first sixty
+    // milliseconds -- and opens out to 4.6 kHz, its splash band climbing five decibels, over the
+    // next hundred. That spreading wash is the sound; struck fully open and left to decay, as this
+    // was, the same spectrum reads as a ride.
+    if (m_voicing == Voicing::Rd9) {
+        m_bloomEnv += (1.0f - m_bloomEnv) / (Rd9BloomSeconds * static_cast<float>(sampleRate()));
+    }
+
     // Sizzle envelope for high-frequency splash
     const float sizzleDecay { 1.0f - (1.0f / (0.15f * static_cast<float>(sampleRate()))) };
     m_sizzleEnv *= sizzleDecay;
@@ -147,7 +167,7 @@ float CrashEngine::nextSample()
     // Body envelope for low-mid weight. Twenty milliseconds is an impact rather than a body: the
     // record carries its 200 to 600 Hz for the whole of the crash, twenty decibels above what this
     // was leaving there.
-    const float bodySeconds = m_voicing == Voicing::Rd9 ? 0.25f : 0.02f;
+    const float bodySeconds = m_voicing == Voicing::Rd9 ? Rd9BodySeconds : 0.02f;
     const float bodyDecay { 1.0f - (1.0f / (bodySeconds * static_cast<float>(sampleRate()))) };
     m_bodyEnv *= bodyDecay;
 
@@ -165,7 +185,7 @@ float CrashEngine::nextSample()
     m_bodyFilter.setResonance(0.4f);
 
     // Body is more prominent if decay is long (OHH approach)
-    const float bodyGain = (m_voicing == Voicing::Rd9 ? 0.7f : 0.6f) * std::min(1.0f, m_decay * 2.0f);
+    const float bodyGain = (m_voicing == Voicing::Rd9 ? Rd9BodyGain : 0.6f) * std::min(1.0f, m_decay * 2.0f);
     const float bodySource = m_bodyFilter.process(noise) * m_bodyEnv * bodyGain;
 
     // Metallic part: 12 square wave oscillators with ratios tuned for 2kHz-8kHz clusters, generated
@@ -189,7 +209,10 @@ float CrashEngine::nextSample()
     // tonal than this was, and a strike made of noise is most of why.
     const float strikeNoise = noise * m_pitchEnv * (rd9 ? Rd9StrikeLevel : 0.6f);
     const float sizzleNoise = noise * m_sizzleEnv * sizzleLevel;
-    float source = (static_cast<float>(metallicSource) * metalLevel + noise * washLevel + strikeNoise + sizzleNoise) * m_attackEnv;
+    // Held back at the strike and let in as the bloom opens, so the top spreads rather than being
+    // there from the first sample.
+    const float bloom = rd9 ? Rd9BloomFloor + (1.0f - Rd9BloomFloor) * m_bloomEnv : 1.0f;
+    float source = (static_cast<float>(metallicSource) * metalLevel * bloom + noise * washLevel + strikeNoise + sizzleNoise * bloom) * m_attackEnv;
 
     // Triple filtering to shape the spectral profile
     m_hpf.setSampleRate(sr);
@@ -203,7 +226,10 @@ float CrashEngine::nextSample()
     m_lpf.setSampleRate(sr);
     // Higher for the fitted voicing: the record still has real weight in its top octave, and at
     // 0.85 the splash was being rolled off five decibels below it.
-    m_lpf.setCutoff(rd9 ? Rd9LpfCutoff : 0.85f); // 12kHz roll-off
+    // Swept open by the bloom rather than fixed. This is where the crash comes from: the recording
+    // is dark at the strike, a 2.2 kHz centroid, and spreads to 4.6 kHz over the next hundred
+    // milliseconds. Holding the filter down and letting it open is what that spreading is.
+    m_lpf.setCutoff(rd9 ? Rd9LpfStart + (Rd9LpfCutoff - Rd9LpfStart) * m_bloomEnv : 0.85f); // 12kHz roll-off
     m_lpf.setResonance(0.1f);
 
     const auto hpfOut = static_cast<float>(m_hpf.process(source));
@@ -216,7 +242,7 @@ float CrashEngine::nextSample()
     if (m_mode == Mode::Normal) {
         // The record falls sixteen decibels over its first nine tenths of a second; this was
         // falling nine.
-        const float decayScale = rd9 ? 1.1f : 2.5f;
+        const float decayScale = rd9 ? Rd9DecayScale : 2.5f;
         const float decayRate = m_stopping ? chokeDecayRate : 1.0f - (1.0f / (std::max(0.01f, m_decay) * decayScale * static_cast<float>(sampleRate())));
         m_ampEnv *= decayRate;
         if (m_ampEnv < AmplitudeThreshold) {

@@ -103,6 +103,34 @@ double bandFlatness(const std::vector<double> & ps, double lowHz, double highHz)
     return count ? std::exp(logSum / count) / (sum / count) : 0.0;
 }
 
+//! Spectral centroid over a window, in Hz: where the weight of the sound sits.
+double centroidBetween(const std::vector<double> & frames, double from, double to)
+{
+    constexpr int size = 2048;
+    std::vector<double> acc(size / 2, 0.0);
+    const auto start = static_cast<size_t>(from * sampleRate);
+    const auto limit = std::min(frames.size() / 2, static_cast<size_t>(to * sampleRate));
+    int windows = 0;
+    for (auto at = start; at + size <= limit; at += size / 4) {
+        std::vector<double> re(size), im(size, 0.0);
+        for (int i = 0; i < size; i++) {
+            re[static_cast<size_t>(i)] = frames.at((at + static_cast<size_t>(i)) * 2) * (0.5 - 0.5 * std::cos(2.0 * M_PI * i / (size - 1)));
+        }
+        Fft::forward(re.data(), im.data(), size);
+        for (size_t k = 0; k < acc.size(); k++) {
+            acc[k] += re[k] * re[k] + im[k] * im[k];
+        }
+        windows++;
+    }
+    double num = 0.0;
+    double den = 0.0;
+    for (auto k = binOf(500.0); k < std::min(acc.size(), binOf(16000.0)); k++) {
+        num += static_cast<double>(k) * sampleRate / size * acc.at(k);
+        den += acc.at(k);
+    }
+    return num / std::max(den, 1.0e-20);
+}
+
 //! Whether a voice is one V2 plays with an engine of its own.
 //!
 //! The cymbals are fitted to a recording of the hardware: V1's crash carried four tenths of steady
@@ -612,6 +640,28 @@ void DrumSynthV2Test::test_cymbals_ride_shouldBeAsNoisyAsRealMetal()
     const auto flatness = bandFlatness(ps, 5000.0, 16000.0);
     QVERIFY2(flatness > 0.15, qPrintable(QString { "ride is a bell, not a cymbal: flatness %1" }.arg(flatness)));
     QVERIFY2(flatness < 0.55, qPrintable(QString { "ride is hiss, not a cymbal: flatness %1" }.arg(flatness)));
+}
+
+void DrumSynthV2Test::test_cymbals_crash_shouldBloom()
+{
+    // The difference between a crash and a ride, and the one an average over the whole sound cannot
+    // see. The recording is dark at the strike -- a centroid of 2.2 kHz over its first sixty
+    // milliseconds -- and opens out to 4.6 kHz over the next hundred. That spreading wash is what
+    // "crash" means. Struck fully open and left to decay, which is what this did while its averaged
+    // spectrum matched the recording closely, the same voice is heard as a ride.
+    DrumSynthV2Device v2 { "V2" };
+    const auto crash = static_cast<int>(DrumSynthV2::VoiceIndex::Crash);
+    const auto rendered = v2.renderVoiceAlone(crash, sampleRate, 4.0);
+    const auto struck = centroidBetween(rendered, 0.0, 0.06);
+    const auto open = centroidBetween(rendered, 0.12, 0.18);
+    // Both halves are asserted because either alone lets the bloom be defeated: measured here, the
+    // strike reads 2820 Hz and opens to 5080. Letting the metal through at full from the strike and
+    // keeping only the filter sweep still rises by 1830 Hz, and the behaviour this replaced -- open
+    // from the first sample -- starts at 4550 and rises by 600.
+    QVERIFY2(struck < 3100.0,
+             qPrintable(QString { "the crash is not dark at the strike: %1 Hz" }.arg(struck)));
+    QVERIFY2(open - struck > 2000.0,
+             qPrintable(QString { "the crash does not open out: %1 Hz at the strike, %2 Hz after it" }.arg(struck).arg(open)));
 }
 
 void DrumSynthV2Test::test_cymbals_crash_shouldPeakInTheSplashBand()
