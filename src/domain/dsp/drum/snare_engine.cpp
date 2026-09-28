@@ -21,6 +21,34 @@
 
 namespace noteahead {
 
+namespace {
+
+//! What the Rd9 voicing is made of, fitted to a recording of the hardware.
+//!
+//! The balance is the heart of it. At the default Snappy the noise came out three times the body,
+//! and the body died in forty milliseconds, so the drum measured twenty-six decibels short of the
+//! recording below 200 Hz and thirteen to nineteen above it. The recording is a drum with snares
+//! on it, not a burst of noise with a drum somewhere underneath.
+constexpr float Rd9BodyBase { 95.0f };
+constexpr float Rd9BodyRange { 75.0f };
+constexpr double Rd9Partial2Ratio { 1.525 };
+constexpr float Rd9Partial2Level { 0.525f };
+constexpr float Rd9TonalLevel { 0.531f };
+constexpr float Rd9NoiseLevel { 0.850f };
+constexpr float Rd9NoiseCutoff { 0.538f };
+constexpr float Rd9NoiseResonance { 0.0f };
+constexpr float Rd9TonalSeconds { 0.061f };
+constexpr float Rd9DecayScale { 0.231f };
+constexpr float Rd9OutputGain { 2.45f };
+
+} // namespace
+
+
+void SnareEngine::setVoicing(Voicing voicing)
+{
+    m_voicing = voicing;
+}
+
 SnareEngine::SnareEngine()
 {
     m_rng.seed(0);
@@ -44,8 +72,11 @@ void SnareEngine::trigger(float velocity)
 
     const double sr = sampleRate();
     m_noiseFilter.setSampleRate(sr);
-    m_noiseFilter.setCutoff(0.65f + m_tone * 0.3f);
-    m_noiseFilter.setResonance(0.3f);
+    // The recording rolls off steeply above two kilohertz, where this sat wide open: a band pass
+    // at 0.8 put most of the snare's energy four to sixteen kilohertz, thirteen to nineteen
+    // decibels above the record, and what came out was sizzle rather than a drum.
+    m_noiseFilter.setCutoff(m_voicing == Voicing::Rd9 ? Rd9NoiseCutoff + m_tone * 0.2f : 0.65f + m_tone * 0.3f);
+    m_noiseFilter.setResonance(m_voicing == Voicing::Rd9 ? Rd9NoiseResonance : 0.3f);
 }
 
 float SnareEngine::nextSample()
@@ -65,7 +96,9 @@ float SnareEngine::nextSample()
     const double pitchMod { 1.0 + m_pitchEnv * 1.5 };
 
     // Tonal part (Body bump 150-600 Hz)
-    const double tonalFreq1 { (150.0 + (m_tune * 250.0)) * pitchMod };
+    // The recording's body sits at 146 Hz; this mapping put it at 275.
+    const bool rd9 = m_voicing == Voicing::Rd9;
+    const double tonalFreq1 { (rd9 ? Rd9BodyBase + m_tune * Rd9BodyRange : 150.0 + (m_tune * 250.0)) * pitchMod };
     const double tonalPhaseStep1 { tonalFreq1 / sr };
     m_tonalPhase1 += tonalPhaseStep1;
     if (m_tonalPhase1 >= 1.0) {
@@ -73,7 +106,7 @@ float SnareEngine::nextSample()
     }
     const float tonal1 { static_cast<float>(std::sin(m_tonalPhase1 * 2.0 * std::numbers::pi)) };
 
-    const double tonalFreq2 { tonalFreq1 * 1.63 };
+    const double tonalFreq2 { tonalFreq1 * (rd9 ? Rd9Partial2Ratio : 1.63) };
     const double tonalPhaseStep2 { tonalFreq2 / sr };
     m_tonalPhase2 += tonalPhaseStep2;
     if (m_tonalPhase2 >= 1.0) {
@@ -82,7 +115,7 @@ float SnareEngine::nextSample()
     const float tonal2 { static_cast<float>(std::sin(m_tonalPhase2 * 2.0 * std::numbers::pi)) };
 
     // Mix and saturate the tonal part slightly to make it less "sine-like"
-    float tonal { (tonal1 + tonal2 * 0.4f) / 1.4f };
+    float tonal { (tonal1 + tonal2 * (rd9 ? Rd9Partial2Level : 0.4f)) / 1.4f };
     tonal = std::tanh(tonal * 1.5f);
 
     if (m_invertPhase) {
@@ -97,8 +130,15 @@ float SnareEngine::nextSample()
     const float noise { m_noiseBank.nextSample() };
     const auto filteredNoise = static_cast<float>(m_noiseFilter.process(noise));
 
-    float out { (tonal * m_tonalEnv * (1.0f - m_snappy) * 0.8f + filteredNoise * m_snappy * 2.5f) * m_ampEnv * m_attackEnv * m_velocity };
+    // At the default Snappy the noise came out three times the body. The record is the other way
+    // round: it is a drum with snares on it, not a burst of noise with a drum under it.
+    const float tonalGain = rd9 ? Rd9TonalLevel : 0.8f;
+    const float noiseGain = rd9 ? Rd9NoiseLevel : 2.5f;
+    float out { (tonal * m_tonalEnv * (1.0f - m_snappy) * tonalGain + filteredNoise * m_snappy * noiseGain) * m_ampEnv * m_attackEnv * m_velocity };
     out = std::tanh(out);
+    if (rd9) {
+        out *= Rd9OutputGain;
+    }
 
     // Separate decay for tonal part (much faster than noise)
     const float attackRate { 1.0f / (0.0005f * static_cast<float>(sr)) };
@@ -169,8 +209,12 @@ void SnareEngine::updateRates()
 
     m_lastSampleRate = sr;
     m_pitchEnvDecay = 1.0f - (1.0f / (0.01f * static_cast<float>(sr)));
-    m_tonalDecayRate = 1.0f - (1.0f / (0.04f * static_cast<float>(sr)));
-    m_decayRate = 1.0f - (1.0f / (std::max(0.001f, m_decay) * 0.3f * static_cast<float>(sr)));
+    // Forty milliseconds is a click, not a drum: the body was gone before it could be heard, which
+    // is most of why the snare measured twenty-six decibels short of the record below 200 Hz.
+    const float tonalSeconds = m_voicing == Voicing::Rd9 ? Rd9TonalSeconds : 0.04f;
+    const float decayScale = m_voicing == Voicing::Rd9 ? Rd9DecayScale : 0.3f;
+    m_tonalDecayRate = 1.0f - (1.0f / (tonalSeconds * static_cast<float>(sr)));
+    m_decayRate = 1.0f - (1.0f / (std::max(0.001f, m_decay) * decayScale * static_cast<float>(sr)));
 }
 
 } // namespace noteahead

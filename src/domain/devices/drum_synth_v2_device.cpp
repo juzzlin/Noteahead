@@ -633,14 +633,20 @@ void DrumSynthV2Device::initializeVoices()
         const auto voiceIdx { static_cast<VoiceIndex>(i) };
         if (voiceIdx == VoiceIndex::Kick)
             m_voices.at(i).engine = std::make_unique<KickEngine>();
-        else if (voiceIdx == VoiceIndex::Snare)
-            m_voices.at(i).engine = std::make_unique<SnareEngine>();
+        else if (voiceIdx == VoiceIndex::Snare) {
+            auto snare = std::make_unique<SnareEngine>();
+            snare->setVoicing(SnareEngine::Voicing::Rd9);
+            m_voices.at(i).engine = std::move(snare);
+        }
         else if (voiceIdx == VoiceIndex::Clap)
             m_voices.at(i).engine = std::make_unique<ClapEngine>();
         else if (voiceIdx == VoiceIndex::ClosedHiHat || voiceIdx == VoiceIndex::OpenHiHat)
             m_voices.at(i).engine = std::make_unique<HiHatEngine>();
-        else if (voiceIdx >= VoiceIndex::LowTom && voiceIdx <= VoiceIndex::HighTom)
-            m_voices.at(i).engine = std::make_unique<TomEngine>();
+        else if (voiceIdx >= VoiceIndex::LowTom && voiceIdx <= VoiceIndex::HighTom) {
+            auto tom = std::make_unique<TomEngine>();
+            tom->setVoicing(TomEngine::Voicing::Rd9);
+            m_voices.at(i).engine = std::move(tom);
+        }
         else if (voiceIdx == VoiceIndex::Crash) {
             // The cymbals are the two voices V2 does not share with V1. Both were fitted to a
             // recording: the crash had four tenths of steady noise against four of metal, which

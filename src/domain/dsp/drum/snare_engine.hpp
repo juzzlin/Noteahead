@@ -36,6 +36,16 @@ public:
     void reset() override;
     void stop() override;
 
+    //! Which drum this is voiced as. Classic is what the original Drum Synth has always played and
+    //! is not free to change; Rd9 is fitted to a recording of the hardware.
+    enum class Voicing
+    {
+        Classic,
+        Rd9
+    };
+    void setVoicing(Voicing voicing);
+
+
     void setTune(float tune);
     void setDecay(float decay);
     void setSnappy(float snappy);
@@ -53,6 +63,8 @@ private:
     float m_pitchEnv { 0.0f };
     bool m_active { false };
     bool m_invertPhase { false };
+
+    Voicing m_voicing { Voicing::Classic };
 
     float m_tune { 0.5f };
     float m_decay { 0.5f };

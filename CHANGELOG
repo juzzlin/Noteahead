@@ -19,6 +19,10 @@ New features:
   - Tune only ever brightens the cymbals now. Past about seventy per cent it
     used to push them against a fixed filter and darken them again
 
+  - Snare and the three toms fitted to recordings of the hardware too: the toms
+    are struck rather than only pitched, and the snare is a drum with snares on
+    it rather than a burst of noise
+
 * A Curve control on the Sampler's pad envelope
   - The same bend the Synth's envelopes have, per pad, and the waveform view
     draws the shape the pad is actually played through

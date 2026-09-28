@@ -27,6 +27,7 @@
 #include <QTest>
 
 #include <algorithm>
+#include <array>
 #include <span>
 
 #include <cmath>
@@ -131,17 +132,41 @@ double centroidBetween(const std::vector<double> & frames, double from, double t
     return num / std::max(den, 1.0e-20);
 }
 
-//! Whether a voice is one V2 plays with an engine of its own.
+//! The strongest frequency between 40 and 400 Hz, which for a tom is the drum's pitch.
+double fundamentalOf(const std::vector<double> & frames, double from, double to)
+{
+    constexpr int size = 8192;
+    std::vector<double> re(size, 0.0), im(size, 0.0);
+    const auto start = static_cast<size_t>(from * sampleRate);
+    const auto limit = std::min(frames.size() / 2, static_cast<size_t>(to * sampleRate));
+    for (int i = 0; i < size && start + static_cast<size_t>(i) < limit; i++) {
+        re[static_cast<size_t>(i)] = frames.at((start + static_cast<size_t>(i)) * 2) * (0.5 - 0.5 * std::cos(2.0 * M_PI * i / (size - 1)));
+    }
+    Fft::forward(re.data(), im.data(), size);
+    size_t best = 0;
+    double loudest = 0.0;
+    for (auto k = static_cast<size_t>(40.0 * size / sampleRate); k < static_cast<size_t>(400.0 * size / sampleRate); k++) {
+        if (const auto magnitude = re[k] * re[k] + im[k] * im[k]; magnitude > loudest) {
+            loudest = magnitude;
+            best = k;
+        }
+    }
+    return static_cast<double>(best) * sampleRate / size;
+}
+
+//! Whether a voice is one V2 plays with a voicing of its own.
 //!
-//! The cymbals are fitted to a recording of the hardware: V1's crash carried four tenths of steady
-//! noise against four of metal, which measures as a wash rather than as struck metal, and neither
-//! cymbal had any body below 600 Hz. V1 keeps what it always played, so these three are the voices
-//! the two devices no longer share.
-bool isFittedCymbal(int voice)
+//! These are fitted to recordings of the hardware, and each was a different sort of wrong: V1's
+//! crash was a wash of noise with no body under 600 Hz, its toms were single sine waves with no
+//! stick and no partials at all, and its snare put three times as much noise as drum into a kit
+//! piece that is meant to be a drum with snares on it. V1 keeps what it always played, so these
+//! are the voices the two devices no longer share.
+bool isFittedVoice(int voice)
 {
     using enum DrumSynthV2::VoiceIndex;
     const auto index = static_cast<DrumSynthV2::VoiceIndex>(voice);
-    return index == Crash || index == Ride || index == ReverseCrash;
+    return index == Snare || index == LowTom || index == MidTom || index == HighTom
+      || index == Crash || index == Ride || index == ReverseCrash;
 }
 
 template<typename DeviceT>
@@ -239,7 +264,7 @@ void DrumSynthV2Test::test_drumSynthV2Device_everyVoice_shouldStayCloseToV1()
     // has to stay far enough below the voice itself that nobody would call it a different drum.
     const DrumSynthV2Device notes { "Notes" };
     for (int voice = 0; voice < DrumSynthV2::NumVoices; voice++) {
-        if (isFittedCymbal(voice)) {
+        if (isFittedVoice(voice)) {
             continue;
         }
         const auto note = notes.voiceNote(voice);
@@ -344,7 +369,7 @@ void DrumSynthV2Test::test_ampEnvelope_fullSustain_shouldMatchV1Exactly()
     // the attack, hold and release at zero the envelope is a constant one, and the voice is V1's.
     const DrumSynthV2Device notes { "Notes" };
     for (int voice = 0; voice < DrumSynthV2::NumVoices; voice++) {
-        if (isFittedCymbal(voice)) {
+        if (isFittedVoice(voice)) {
             continue;
         }
         const auto note = notes.voiceNote(voice);
@@ -612,6 +637,60 @@ void DrumSynthV2Test::test_voiceElapsedSeconds_shouldFollowTheVoice()
     // And gone once the voice has run out.
     render(fullTailBlocks);
     QVERIFY(!device.voiceElapsedSeconds(kick).has_value());
+}
+
+void DrumSynthV2Test::test_toms_shouldBeStruckNotJustPitched()
+{
+    // V1's tom is one sine wave. It has no stick and no modes above the fundamental, so it measured
+    // ninety decibels down where the recordings carry real energy and showed no spectral peaks at
+    // all against their nine to eleven -- a pitched thump rather than a drum being hit.
+    DrumSynthV2Device v2 { "V2" };
+    for (auto voice : { static_cast<int>(DrumSynthV2::VoiceIndex::LowTom),
+                        static_cast<int>(DrumSynthV2::VoiceIndex::MidTom),
+                        static_cast<int>(DrumSynthV2::VoiceIndex::HighTom) }) {
+        const auto ps = spectrum(v2.renderVoiceAlone(voice, sampleRate, 2.0), 0.3);
+        const auto whole = bandPower(ps, 20.0, 20000.0);
+        const auto struck = bandPower(ps, 2000.0, 4000.0);
+        const auto ratio = 10.0 * std::log10(std::max(struck, 1.0e-30) / std::max(whole, 1.0e-30));
+        QVERIFY2(ratio > -45.0,
+                 qPrintable(QString { "%1 has no stick in it: 2-4 kHz is %2 dB under the whole" }
+                              .arg(DrumSynthV2::voiceName(voice)).arg(ratio)));
+    }
+}
+
+void DrumSynthV2Test::test_toms_shouldBePitchedLikeTheRecordings()
+{
+    // Measured off the hardware: 71, 124 and 170 Hz once the pitch sweep has settled. Worth pinning
+    // because the fit kept wanting to move them -- a deep sweep smears energy across the bands and
+    // scores like a broadband drum, so left to itself it put the toms an octave and a half low and
+    // matched the recording's spectrum with something that was not the same drum.
+    const std::array<std::pair<DrumSynthV2::VoiceIndex, double>, 3> wanted { {
+      { DrumSynthV2::VoiceIndex::LowTom, 71.0 },
+      { DrumSynthV2::VoiceIndex::MidTom, 124.0 },
+      { DrumSynthV2::VoiceIndex::HighTom, 170.0 } } };
+
+    DrumSynthV2Device v2 { "V2" };
+    for (const auto & [voice, expected] : wanted) {
+        const auto index = static_cast<int>(voice);
+        const auto pitch = fundamentalOf(v2.renderVoiceAlone(index, sampleRate, 2.0), 0.02, 0.2);
+        QVERIFY2(std::abs(pitch - expected) < expected * 0.12,
+                 qPrintable(QString { "%1 is at %2 Hz, not near the recording's %3" }
+                              .arg(DrumSynthV2::voiceName(index)).arg(pitch).arg(expected)));
+    }
+}
+
+void DrumSynthV2Test::test_snare_shouldBeADrumRatherThanASizzle()
+{
+    // V1's snare puts three times as much noise as drum into the mix at the default Snappy, and its
+    // body dies in forty milliseconds. Measured against the recording it was twenty-six decibels
+    // short below 200 Hz and thirteen to nineteen too loud above four kilohertz. The recording has
+    // far more of the drum than of the snares, and that is the way round this asserts.
+    DrumSynthV2Device v2 { "V2" };
+    const auto ps = spectrum(v2.renderVoiceAlone(static_cast<int>(DrumSynthV2::VoiceIndex::Snare), sampleRate, 2.0), 0.3);
+    const auto body = 10.0 * std::log10(std::max(bandPower(ps, 60.0, 200.0), 1.0e-30));
+    const auto sizzle = 10.0 * std::log10(std::max(bandPower(ps, 4000.0, 8000.0), 1.0e-30));
+    QVERIFY2(body > sizzle,
+             qPrintable(QString { "the snare is a sizzle: body %1 dB, 4-8 kHz %2 dB" }.arg(body).arg(sizzle)));
 }
 
 void DrumSynthV2Test::test_cymbals_v1_shouldNotTakeTheFit()
