@@ -19,6 +19,7 @@
 #include "../../../../common/denormal_protection.hpp"
 #include "../../../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../audio_engine.hpp"
+#include "rtaudio_compat.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -97,14 +98,9 @@ void AudioPlayerRtAudio::setOutputDevice(uint32_t deviceId)
 
 std::vector<AudioDevice> AudioPlayerRtAudio::getOutputDevices()
 {
-    std::vector<AudioDevice> devices;
-    // By id, not by index: see the same loop in AudioRecorderRtAudio.
-    for (const auto deviceId : m_rtAudio.getDeviceIds()) {
-        if (const auto info = m_rtAudio.getDeviceInfo(deviceId); info.outputChannels > 0) {
-            devices.push_back({ deviceId, info.name });
-        }
-    }
-    return devices;
+    return RtAudioCompat::devices(m_rtAudio, [](const RtAudio::DeviceInfo & info) {
+        return info.outputChannels > 0;
+    });
 }
 
 uint32_t AudioPlayerRtAudio::sampleRate()
@@ -167,16 +163,19 @@ uint32_t AudioPlayerRtAudio::initializeSoundStream(uint32_t deviceId, uint32_t c
     streamOptions.streamName = TAG;
 
     uint32_t bufferFrames = bufferSize;
-    // By return value, not by throwing: see the same call in AudioRecorderRtAudio.
-    if (const auto error = m_rtAudio.openStream(&streamParameters, nullptr, RTAUDIO_SINT32,
-                                                sampleRate, &bufferFrames,
-                                                &AudioPlayerRtAudio::playCallback, this, &streamOptions);
-        error != RTAUDIO_NO_ERROR) {
-        throw std::runtime_error { "Cannot open the output stream: " + m_rtAudio.getErrorText() };
-    }
-    if (const auto error = m_rtAudio.startStream(); error != RTAUDIO_NO_ERROR) {
+    RtAudioCompat::checkedCall(
+      m_rtAudio, [&] {
+          return m_rtAudio.openStream(&streamParameters, nullptr, RTAUDIO_SINT32,
+                                      sampleRate, &bufferFrames,
+                                      &AudioPlayerRtAudio::playCallback, this, &streamOptions);
+      },
+      "Cannot open the output stream");
+    try {
+        RtAudioCompat::checkedCall(
+          m_rtAudio, [&] { return m_rtAudio.startStream(); }, "Cannot start the output stream");
+    } catch (...) {
         m_rtAudio.closeStream();
-        throw std::runtime_error { "Cannot start the output stream: " + m_rtAudio.getErrorText() };
+        throw;
     }
 
     return m_rtAudio.getStreamSampleRate();

@@ -10,6 +10,7 @@ set(HEADER_FILES
     audio/implementation/jack/audio_recorder_jack.hpp
     audio/implementation/librtaudio/audio_player_rt_audio.hpp
     audio/implementation/librtaudio/audio_recorder_rt_audio.hpp
+    audio/implementation/librtaudio/rtaudio_compat.hpp
     audio/real_time_worker_pool.hpp
     audio/ring_buffer.hpp
     data_service.hpp

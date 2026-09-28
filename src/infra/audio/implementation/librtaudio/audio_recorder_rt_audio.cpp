@@ -18,6 +18,7 @@
 #include "../../../../common/constants.hpp"
 #include "../../../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../audio_engine.hpp"
+#include "rtaudio_compat.hpp"
 
 #include <algorithm>
 
@@ -68,16 +69,9 @@ void AudioRecorderRtAudio::setInputDevice(uint32_t deviceId)
 
 std::vector<AudioDevice> AudioRecorderRtAudio::getInputDevices()
 {
-    std::vector<AudioDevice> devices;
-    // By id, not by index. RtAudio 6 hands out ids that are not the numbers 0..count-1, and asking
-    // it about an index it does not recognise as an id answers with an empty device and a warning
-    // on the console -- which read as a machine with no inputs on it at all.
-    for (const auto deviceId : m_rtAudio.getDeviceIds()) {
-        if (const auto info = m_rtAudio.getDeviceInfo(deviceId); info.inputChannels > 0) {
-            devices.push_back({ deviceId, info.name });
-        }
-    }
-    return devices;
+    return RtAudioCompat::devices(m_rtAudio, [](const RtAudio::DeviceInfo & info) {
+        return info.inputChannels > 0;
+    });
 }
 
 uint32_t AudioRecorderRtAudio::sampleRate()
@@ -107,18 +101,20 @@ uint32_t AudioRecorderRtAudio::initializeSoundStream(uint32_t deviceId, uint32_t
     streamOptions.numberOfBuffers = 2;
     streamOptions.streamName = "NoteaheadRecorder";
 
-    // RtAudio 6 reports failure by return value rather than by throwing, so the try/catch around
-    // this call never fired and a stream that would not open recorded silence without saying why.
     uint32_t bufferFrames = bufferSize;
-    if (const auto error = m_rtAudio.openStream(nullptr, &streamParameters, RTAUDIO_SINT32,
-                                                sampleRate, &bufferFrames,
-                                                &AudioRecorderRtAudio::recordCallback, this, &streamOptions);
-        error != RTAUDIO_NO_ERROR) {
-        throw std::runtime_error { "Cannot open the input stream: " + m_rtAudio.getErrorText() };
-    }
-    if (const auto error = m_rtAudio.startStream(); error != RTAUDIO_NO_ERROR) {
+    RtAudioCompat::checkedCall(
+      m_rtAudio, [&] {
+          return m_rtAudio.openStream(nullptr, &streamParameters, RTAUDIO_SINT32,
+                                      sampleRate, &bufferFrames,
+                                      &AudioRecorderRtAudio::recordCallback, this, &streamOptions);
+      },
+      "Cannot open the input stream");
+    try {
+        RtAudioCompat::checkedCall(
+          m_rtAudio, [&] { return m_rtAudio.startStream(); }, "Cannot start the input stream");
+    } catch (...) {
         m_rtAudio.closeStream();
-        throw std::runtime_error { "Cannot start the input stream: " + m_rtAudio.getErrorText() };
+        throw;
     }
 
     return m_rtAudio.getStreamSampleRate();
