@@ -13,7 +13,11 @@ New features:
     what the voice already plays. Pull Hold down and the drum tightens
 
   - Crash and Ride fitted to a recording of the hardware: the crash opens out
-    from its strike rather than being struck full, and both carry a body
+    from its strike rather than being struck full, and the ride shimmers and
+    darkens as it decays instead of ringing on unchanged
+
+  - Tune only ever brightens the cymbals now. Past about seventy per cent it
+    used to push them against a fixed filter and darken them again
 
 * A Curve control on the Sampler's pad envelope
   - The same bend the Synth's envelopes have, per pad, and the waveform view

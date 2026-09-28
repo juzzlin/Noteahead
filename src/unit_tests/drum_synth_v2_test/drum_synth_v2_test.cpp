@@ -168,6 +168,7 @@ constexpr uint32_t fullTailBlocks = 80; // ~7.4 s
 
 } // namespace
 
+// THROWAWAY probe: how loud each voice is, so the fitted cymbals can be checked against the kit.
 void DrumSynthV2Test::test_voiceSend_shouldReachTheBusOnItsOwn()
 {
     // A snare in the plate while the rest of the kit stays dry: the case a per-device send cannot
@@ -640,6 +641,29 @@ void DrumSynthV2Test::test_cymbals_ride_shouldBeAsNoisyAsRealMetal()
     const auto flatness = bandFlatness(ps, 5000.0, 16000.0);
     QVERIFY2(flatness > 0.15, qPrintable(QString { "ride is a bell, not a cymbal: flatness %1" }.arg(flatness)));
     QVERIFY2(flatness < 0.55, qPrintable(QString { "ride is hiss, not a cymbal: flatness %1" }.arg(flatness)));
+}
+
+void DrumSynthV2Test::test_cymbals_tune_shouldOnlyEverBrighten()
+{
+    // Tune used to raise the source band against a fixed output filter, which then took away what
+    // it had raised: the crash brightened to 6.2 kHz by seventy per cent and fell back to 3.6 at
+    // full, as dark there as at none, and the ride wandered up and down with no direction at all.
+    // A Tune control that reverses on itself is worse than one with a small range, so what is
+    // asserted is the direction rather than any particular brightness.
+    for (auto voice : { static_cast<int>(DrumSynthV2::VoiceIndex::Crash), static_cast<int>(DrumSynthV2::VoiceIndex::Ride) }) {
+        std::vector<double> centroids;
+        for (int step = 0; step <= 4; step++) {
+            DrumSynthV2Device v2 { "V2" };
+            v2.updateVoiceParameter(voice, Constants::NahdXml::xmlKeyTune().toStdString(), step / 4.0f);
+            centroids.push_back(centroidBetween(v2.renderVoiceAlone(voice, sampleRate, 2.0), 0.05, 0.25));
+        }
+        for (size_t i = 1; i < centroids.size(); i++) {
+            QVERIFY2(centroids.at(i) > centroids.at(i - 1),
+                     qPrintable(QString { "%1 gets darker as Tune rises: %2 Hz at %3%%, %4 Hz at %5%%" }
+                                  .arg(DrumSynthV2::voiceName(voice))
+                                  .arg(centroids.at(i - 1)).arg((i - 1) * 25).arg(centroids.at(i)).arg(i * 25)));
+        }
+    }
 }
 
 void DrumSynthV2Test::test_cymbals_crash_shouldBloom()

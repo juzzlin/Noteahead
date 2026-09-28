@@ -38,8 +38,21 @@ constexpr float Rd9WashLevel { 0.080f };
 constexpr float Rd9SizzleLevel { 0.284f };
 constexpr float Rd9StrikeLevel { 0.569f };
 constexpr double Rd9MetalTilt { -0.162 };
-constexpr float Rd9HpfCutoff { 0.431f };
-constexpr float Rd9BpfCutoff { 0.578f };
+//! Cutoffs at the middle of the Tune range, which is where the fit was made, and how far each one
+//! moves from there.
+//!
+//! Tune used to raise the high pass and band pass from a fixed floor while the low pass stayed
+//! put, so past about seventy per cent it pushed the source band above the low pass, which then
+//! took it away again: the crash grew brighter to 6.2 kHz and then fell back to 3.6, as dark at
+//! full Tune as at none. The band moves as a whole now, centred so that the fitted sound at the
+//! middle of the range is unchanged.
+constexpr float Rd9HpfCutoff { 0.631f };
+constexpr float Rd9HpfTuneRange { 0.4f };
+constexpr float Rd9BpfTuneRange { 0.25f };
+constexpr float Rd9LpfTuneRange { 0.2f };
+//! Short of one: the filter is not asked for a cutoff it cannot have.
+constexpr float Rd9MaxCutoff { 0.985f };
+constexpr float Rd9BpfCutoff { 0.828f };
 //! The filter is swept between these two by the bloom, not parked at one of them.
 constexpr float Rd9LpfStart { 0.753f };
 constexpr float Rd9LpfCutoff { 0.885f };
@@ -52,6 +65,17 @@ constexpr float Rd9BloomFloor { 0.25f };
 constexpr float Rd9BodySeconds { 0.080f };
 constexpr float Rd9BodyGain { 0.850f };
 constexpr float Rd9DecayScale { 1.05f };
+//! Restores what the fit cost in level.
+//!
+//! The fit compared spectra normalised by their own total, so nothing in it constrained how loud
+//! the voice came out -- and holding the metal back at the strike took the peak with it. Measured
+//! against the kit it plays in, the crash had fallen six decibels under V1's while every other
+//! voice sits one to two above it. A plain gain, so the fitted spectrum and trajectory are
+//! untouched.
+constexpr float Rd9OutputGain { 2.5f };
+//! The same gain leaves the reverse swell four decibels hotter than the struck crash, because it
+//! rises to a full envelope rather than decaying from one, so it is trimmed on its own.
+constexpr float Rd9ReverseOutputGain { 1.63f };
 
 } // namespace
 
@@ -214,13 +238,15 @@ float CrashEngine::nextSample()
     const float bloom = rd9 ? Rd9BloomFloor + (1.0f - Rd9BloomFloor) * m_bloomEnv : 1.0f;
     float source = (static_cast<float>(metallicSource) * metalLevel * bloom + noise * washLevel + strikeNoise + sizzleNoise * bloom) * m_attackEnv;
 
-    // Triple filtering to shape the spectral profile
+    // Triple filtering to shape the spectral profile. Every cutoff is taken from the middle of the
+    // Tune range so that the three move together: see Rd9HpfCutoff.
+    const float tuneOffset = m_tune - 0.5f;
     m_hpf.setSampleRate(sr);
-    m_hpf.setCutoff((rd9 ? Rd9HpfCutoff : 0.35f) + m_tune * 0.4f);
+    m_hpf.setCutoff(rd9 ? std::min(Rd9MaxCutoff, Rd9HpfCutoff + tuneOffset * Rd9HpfTuneRange) : 0.35f + m_tune * 0.4f);
     m_hpf.setResonance(m_resonance * 0.2f);
 
     m_bpf.setSampleRate(sr);
-    m_bpf.setCutoff((rd9 ? Rd9BpfCutoff : 0.45f) + m_tune * 0.5f);
+    m_bpf.setCutoff(rd9 ? std::min(Rd9MaxCutoff, Rd9BpfCutoff + tuneOffset * Rd9BpfTuneRange) : 0.45f + m_tune * 0.5f);
     m_bpf.setResonance(0.5f);
 
     m_lpf.setSampleRate(sr);
@@ -229,14 +255,14 @@ float CrashEngine::nextSample()
     // Swept open by the bloom rather than fixed. This is where the crash comes from: the recording
     // is dark at the strike, a 2.2 kHz centroid, and spreads to 4.6 kHz over the next hundred
     // milliseconds. Holding the filter down and letting it open is what that spreading is.
-    m_lpf.setCutoff(rd9 ? Rd9LpfStart + (Rd9LpfCutoff - Rd9LpfStart) * m_bloomEnv : 0.85f); // 12kHz roll-off
+    m_lpf.setCutoff(rd9 ? std::min(Rd9MaxCutoff, Rd9LpfStart + (Rd9LpfCutoff - Rd9LpfStart) * m_bloomEnv + tuneOffset * Rd9LpfTuneRange) : 0.85f); // 12kHz roll-off
     m_lpf.setResonance(0.1f);
 
     const auto hpfOut = static_cast<float>(m_hpf.process(source));
     const auto bpfOut = static_cast<float>(m_bpf.process(source));
     const auto filtered = hpfOut * 0.5f + bpfOut * 0.5f;
 
-    const auto out = static_cast<float>((m_lpf.process(filtered) + bodySource * m_attackEnv) * m_ampEnv * m_velocity);
+    const auto out = static_cast<float>((m_lpf.process(filtered) + bodySource * m_attackEnv) * m_ampEnv * m_velocity * (rd9 ? (m_mode == Mode::Normal ? Rd9OutputGain : Rd9ReverseOutputGain) : 1.0f));
 
     const float chokeDecayRate { 1.0f - (1.0f / (ChokeFadeSeconds * static_cast<float>(sampleRate()))) };
     if (m_mode == Mode::Normal) {

@@ -51,6 +51,7 @@ public:
 
     void setVoicing(Voicing voicing);
 
+
     void setTune(float tune);
     void setDecay(float decay);
     void setResonance(float resonance);
@@ -61,6 +62,8 @@ private:
     bool m_active { false };
 
     Voicing m_voicing { Voicing::Classic };
+    //! Falls from the strike, closing m_damping with it: see the darkening in the .cpp.
+    float m_darkenEnv { 1.0f };
     float m_tune { 0.5f };
     float m_decay { 0.5f };
     float m_resonance { 0.3f };
@@ -72,18 +75,22 @@ private:
     std::mt19937 m_rng { RngSeed };
     std::uniform_real_distribution<float> m_dist { -1.0f, 1.0f };
     CascadedSvf m_filter;
+    //! Frequency-dependent damping of the struck metal, for the Rd9 voicing only.
+    CascadedSvf m_damping;
+    //! The shimmer's own path: see why it is not damped with the metal, in the .cpp.
+    CascadedSvf m_noiseFilter;
 
     //! Bank of square oscillators, run at the base rate so it is oversampling-independent.
     BaseRateSource m_metallicBank;
     BaseRateSource m_noiseBank;
     float nextMetallicBaseSample();
 
-    //! Ten, of which the Classic voicing sounds the first six. The hardware's ride carries most of
+    //! Sixteen, of which the Classic voicing sounds the first six. The hardware's ride carries most of
     //! its weight between four and sixteen kilohertz, and six partials over a 550 Hz base reach
     //! only 2.3: everything above that was coming from the noise, which is why taking the noise
     //! away took the brightness with it.
     static constexpr size_t ClassicPartials { 6 };
-    std::array<double, 10> m_phases {};
+    std::array<double, 16> m_phases {};
     bool m_stopping { false };
 };
 
