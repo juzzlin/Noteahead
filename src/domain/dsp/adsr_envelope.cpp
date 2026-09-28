@@ -32,6 +32,12 @@ void AdsrEnvelope::setAttackTime(double seconds)
     updatePhaseStep();
 }
 
+void AdsrEnvelope::setHoldTime(double seconds)
+{
+    m_holdTime = std::max(0.0, seconds);
+    updatePhaseStep();
+}
+
 void AdsrEnvelope::setDecayTime(double seconds)
 {
     m_decayTime = std::max(MinimumSegmentTime, seconds);
@@ -97,6 +103,14 @@ double AdsrEnvelope::nextSample()
     case State::Idle:
         m_currentLevel = 0.0;
         break;
+    case State::Hold:
+        // Sitting at whatever the attack reached, which is the peak: a hold that alters the level
+        // would be a second decay rather than a hold.
+        m_phase += m_phaseStep;
+        if (m_phase >= 1.0) {
+            beginSegment(State::Decay);
+        }
+        break;
     case State::Attack:
     case State::Decay:
     case State::Release:
@@ -105,7 +119,11 @@ double AdsrEnvelope::nextSample()
             m_phase = 1.0;
             m_currentLevel = m_segmentTarget;
             if (m_state == State::Attack) {
-                beginSegment(State::Decay);
+                // Straight into the decay when there is no hold to take. A zero-length segment
+                // that still costs its one sample would shift every decay by that sample, and the
+                // default has to leave an envelope doing exactly what it did before the stage
+                // existed.
+                beginSegment(m_holdTime > 0.0 ? State::Hold : State::Decay);
             } else if (m_state == State::Decay) {
                 m_state = State::Sustain;
             } else {
@@ -181,6 +199,8 @@ double AdsrEnvelope::segmentDuration(State state) const
     switch (state) {
     case State::Attack:
         return m_attackTime * std::max(0.0, 1.0 - m_segmentStart);
+    case State::Hold:
+        return m_holdTime;
     case State::Decay:
         return m_decayTime;
     case State::Release:

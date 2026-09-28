@@ -1261,6 +1261,7 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_padTuningTrimAndEnvel
     samplerOut->setSampleTune(60, 0.75f);
     samplerOut->setSampleDetune(60, 0.25f);
     samplerOut->setSampleAttack(60, 0.2f);
+    samplerOut->setSampleHold(60, 0.45f);
     samplerOut->setSampleDecay(60, 0.3f);
     samplerOut->setSampleSustain(60, 0.4f);
     samplerOut->setSampleRelease(60, 0.6f);
@@ -1289,6 +1290,10 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_padTuningTrimAndEnvel
     QCOMPARE(SamplerDevice::tuneSemitones(samplerIn->sampleTune(60)), 12);
     QVERIFY(std::abs(SamplerDevice::detuneCents(samplerIn->sampleDetune(60)) + 50.0) < 0.5);
     QVERIFY(std::abs(samplerIn->sampleAttack(60) - 0.2f) < 0.001f);
+    QVERIFY(std::abs(samplerIn->sampleHold(60) - 0.45f) < 0.001f);
+    // The pad that was never given a hold reads back without one, which is the stage being absent
+    // rather than merely short.
+    QCOMPARE(samplerIn->sampleHold(62), 0.0f);
     QVERIFY(std::abs(samplerIn->sampleDecay(60) - 0.3f) < 0.001f);
     QVERIFY(std::abs(samplerIn->sampleSustain(60) - 0.4f) < 0.001f);
     QVERIFY(std::abs(samplerIn->sampleRelease(60) - 0.6f) < 0.001f);

@@ -28,13 +28,21 @@ public:
     enum class State
     {
         Idle,
+        //! Held at the top between the attack and the decay. Appended rather than slotted in after
+        //! Attack, where it belongs by order: the ordinal is not stored anywhere, but every switch
+        //! over this enum is easier to read when the existing names keep their places.
         Attack,
         Decay,
         Sustain,
-        Release
+        Release,
+        Hold
     };
 
     void setAttackTime(double seconds);
+    //! How long the envelope stays at the top before the decay begins. Zero, the default, falls
+    //! straight through into the decay, which is what every caller that does not set it gets and
+    //! is exactly the ADSR this was before the stage existed.
+    void setHoldTime(double seconds);
     void setDecayTime(double seconds);
     void setSustainLevel(double level);
     void setReleaseTime(double seconds);
@@ -79,6 +87,7 @@ private:
     State m_state { State::Idle };
 
     double m_attackTime { 0.01 };
+    double m_holdTime { 0.0 };
     double m_decayTime { 0.1 };
     double m_sustainLevel { 1.0 };
     double m_releaseTime { 0.1 };

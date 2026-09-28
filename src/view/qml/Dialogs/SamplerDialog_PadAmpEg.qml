@@ -46,6 +46,22 @@ ColumnLayout {
     }
 
     Knob {
+        label: qsTr("Hold")
+        mapping: "exponential"
+        mapMin: 0.005
+        mapMax: 10.0
+        suffix: "s"
+        value: samplerController.selectedPadHold * Constants.uiInternalScaling
+        onMoved: v => {
+            samplerController.selectedPadHold = v / Constants.uiInternalScaling;
+        }
+        ToolTip.delay: Constants.toolTipDelay
+        ToolTip.timeout: Constants.toolTipTimeout
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Time at full level between the attack and the decay. At zero there is no hold stage at all, which is how every pad played before it existed.")
+    }
+
+    Knob {
         label: qsTr("Decay")
         mapping: "exponential"
         mapMin: 0.005

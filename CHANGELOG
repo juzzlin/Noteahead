@@ -55,6 +55,10 @@ New features:
   - Bit Crusher throws away word length and sample rate separately, and is
     deliberately not oversampled, because there the aliases are the point
 
+* A Hold stage on the Sampler's pad envelope
+  - AHDSR rather than ADSR, at zero by default, so every pad saved before it
+    falls straight through into its decay exactly as it always did
+
 * A retriggered Drum Synth V2 voice hears its attack again
   - The level is walked to silence over two milliseconds before the new hit's
     attack, so a slow attack is slow on every hit and not only the first

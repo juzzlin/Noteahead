@@ -91,6 +91,7 @@ void SamplerController::setSelectedPad(int selectedPad)
         emit selectedPadTuneChanged();
         emit selectedPadDetuneChanged();
         emit selectedPadAttackChanged();
+        emit selectedPadHoldChanged();
         emit selectedPadDecayChanged();
         emit selectedPadSustainChanged();
         emit selectedPadReleaseChanged();
@@ -330,6 +331,20 @@ void SamplerController::setSelectedPadAttack(double attack)
     if (const auto note = selectedNote(); note) {
         m_sampler->setSampleAttack(*note, static_cast<float>(attack));
         emit selectedPadAttackChanged();
+    }
+}
+
+double SamplerController::selectedPadHold() const
+{
+    const auto note = selectedNote();
+    return note ? static_cast<double>(m_sampler->sampleHold(*note)) : 0.0;
+}
+
+void SamplerController::setSelectedPadHold(double hold)
+{
+    if (const auto note = selectedNote(); note) {
+        m_sampler->setSampleHold(*note, static_cast<float>(hold));
+        emit selectedPadHoldChanged();
     }
 }
 

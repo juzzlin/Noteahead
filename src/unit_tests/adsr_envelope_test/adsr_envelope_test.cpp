@@ -207,6 +207,58 @@ void AdsrEnvelopeTest::test_curve_fullAttack_shouldRiseFasterThanLinear()
     QCOMPARE(envelope.state(), AdsrEnvelope::State::Attack);
 }
 
+
+void AdsrEnvelopeTest::test_hold_zero_shouldNotDelayTheDecay()
+{
+    // The default, and the whole reason it is the default: an envelope that never sets a hold has
+    // to behave exactly as it did before the stage existed, down to the sample. A zero-length
+    // segment that still cost its one sample would shift every decay by it.
+    auto withoutHold = makeDecayingEnvelope(0.0);
+    auto withZeroHold = makeDecayingEnvelope(0.0);
+    withZeroHold.setHoldTime(0.0);
+
+    const int samples = static_cast<int>(DecaySeconds * SampleRate * 0.25);
+    advanceSamples(withoutHold, samples);
+    advanceSamples(withZeroHold, samples);
+    QCOMPARE(withZeroHold.value(), withoutHold.value());
+}
+
+void AdsrEnvelopeTest::test_hold_shouldStayAtTheTopForItsTime()
+{
+    auto envelope = makeEnvelope(0.0);
+    envelope.setAttackTime(InstantAttackSeconds);
+    envelope.setHoldTime(0.02);
+    envelope.trigger();
+    envelope.nextSample();
+
+    // Still at the top part way through the hold, where without one it would already be decaying.
+    advanceSamples(envelope, static_cast<int>(0.01 * SampleRate));
+    QCOMPARE(envelope.state(), AdsrEnvelope::State::Hold);
+    QCOMPARE(envelope.value(), 1.0);
+
+    // And decaying once it has run out.
+    advanceSamples(envelope, static_cast<int>(0.015 * SampleRate));
+    QCOMPARE(envelope.state(), AdsrEnvelope::State::Decay);
+    QVERIFY2(envelope.value() < 1.0, qPrintable(QString::number(envelope.value())));
+}
+
+void AdsrEnvelopeTest::test_hold_shouldDelayTheDecayByItsTime()
+{
+    const auto levelAfter = [](double hold) {
+        auto envelope = makeEnvelope(0.0);
+        envelope.setAttackTime(InstantAttackSeconds);
+        envelope.setHoldTime(hold);
+        envelope.trigger();
+        envelope.nextSample();
+        advanceSamples(envelope, static_cast<int>((hold + DecaySeconds * 0.5) * SampleRate));
+        return envelope.value();
+    };
+
+    // Half way down the decay either way: the hold moves the decay later, it does not shorten it.
+    QVERIFY2(std::abs(levelAfter(0.0) - levelAfter(0.02)) < 0.01,
+             qPrintable(QString::number(levelAfter(0.0)) + " vs " + QString::number(levelAfter(0.02))));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::AdsrEnvelopeTest)

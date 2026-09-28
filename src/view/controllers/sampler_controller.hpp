@@ -53,6 +53,7 @@ class SamplerController : public DeviceController
     Q_PROPERTY(double selectedPadRelease READ selectedPadRelease WRITE setSelectedPadRelease NOTIFY selectedPadReleaseChanged)
     Q_PROPERTY(double selectedPadCurve READ selectedPadCurve WRITE setSelectedPadCurve NOTIFY selectedPadCurveChanged)
     Q_PROPERTY(double selectedPadAttackSeconds READ selectedPadAttackSeconds NOTIFY selectedPadAttackChanged)
+    Q_PROPERTY(double selectedPadHold READ selectedPadHold WRITE setSelectedPadHold NOTIFY selectedPadHoldChanged)
     Q_PROPERTY(double selectedPadDecaySeconds READ selectedPadDecaySeconds NOTIFY selectedPadDecayChanged)
     Q_PROPERTY(double selectedPadReleaseSeconds READ selectedPadReleaseSeconds NOTIFY selectedPadReleaseChanged)
     Q_PROPERTY(bool selectedPadReverse READ selectedPadReverse WRITE setSelectedPadReverse NOTIFY selectedPadReverseChanged)
@@ -119,6 +120,8 @@ public:
 
     double selectedPadAttack() const;
     void setSelectedPadAttack(double attack);
+    double selectedPadHold() const;
+    void setSelectedPadHold(double hold);
 
     double selectedPadDecay() const;
     void setSelectedPadDecay(double decay);
@@ -191,6 +194,7 @@ signals:
     void selectedPadTuneChanged();
     void selectedPadDetuneChanged();
     void selectedPadAttackChanged();
+    void selectedPadHoldChanged();
     void selectedPadDecayChanged();
     void selectedPadSustainChanged();
     void selectedPadReleaseChanged();

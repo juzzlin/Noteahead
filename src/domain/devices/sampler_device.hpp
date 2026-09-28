@@ -109,6 +109,9 @@ public:
         //! Amp envelope, 0..1 each. The defaults reproduce the fixed de-click fade the pads had before
         //! the envelope existed: instant attack, full sustain, a release of a few milliseconds.
         float attack = 0.0f;
+        //! Time at the top between the attack and the decay. Zero, so a pad saved before the stage
+        //! existed falls straight through into its decay exactly as it always did.
+        float hold = 0.0f;
         float decay = 0.0f;
         float sustain = 1.0f;
         float release = 0.0f;
@@ -178,6 +181,8 @@ public:
 
     float sampleAttack(uint8_t note) const;
     void setSampleAttack(uint8_t note, float attack);
+    float sampleHold(uint8_t note) const;
+    void setSampleHold(uint8_t note, float hold);
 
     float sampleDecay(uint8_t note) const;
     void setSampleDecay(uint8_t note, float decay);
@@ -206,6 +211,7 @@ public:
     //! Seconds each amp-envelope segment takes at the given knob position. The dialog draws the
     //! envelope over the waveform from these, so it reads the same times the voices run on.
     static double attackSeconds(float attack);
+    static double holdSeconds(float hold);
     static double decaySeconds(float decay);
     static double releaseSeconds(float release);
 

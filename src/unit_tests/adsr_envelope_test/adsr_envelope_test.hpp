@@ -31,6 +31,9 @@ private slots:
     void test_isSilent_nonZeroSustain_shouldHoldUntilReleased();
     void test_isSilent_afterRelease_shouldBeTrue();
 
+    void test_hold_zero_shouldNotDelayTheDecay();
+    void test_hold_shouldStayAtTheTopForItsTime();
+    void test_hold_shouldDelayTheDecayByItsTime();
     void test_curve_zeroDecay_shouldStayLinear();
     void test_curve_zeroRelease_shouldStayLinear();
     void test_curve_halfDecay_shouldMatchPluckShape();

@@ -52,6 +52,7 @@ SamplerDevice::Sample::Sample()
     addParameter(Parameter { Constants::NahdXml::xmlKeyTune().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDetune().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyAttack().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyHold().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDecay().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeySustain().toStdString(), 1.0f, 0, 10000, 10000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyReleaseTime().toStdString(), 0.0f, 0, 10000, 0, 100 });
@@ -88,6 +89,12 @@ constexpr double DetuneCentRange { 100.0 };
 double SamplerDevice::attackSeconds(float attack)
 {
     return attack <= 0.0f ? 0.0 : ParameterMapper::mapExponential(static_cast<double>(attack), MinEnvelopeSeconds, MaxEnvelopeSeconds);
+}
+
+double SamplerDevice::holdSeconds(float hold)
+{
+    // Zero is no hold at all rather than the shortest one, so the default stage is truly absent.
+    return hold <= 0.0f ? 0.0 : ParameterMapper::mapExponential(static_cast<double>(hold), MinEnvelopeSeconds, MaxEnvelopeSeconds);
 }
 
 double SamplerDevice::decaySeconds(float decay)
@@ -174,6 +181,7 @@ void SamplerDevice::updateVoiceEnvelope(Voice & voice)
         return;
     }
     voice.ampEg.setAttackTime(attackSeconds(voice.sample->attack));
+    voice.ampEg.setHoldTime(holdSeconds(voice.sample->hold));
     voice.ampEg.setDecayTime(decaySeconds(voice.sample->decay));
     voice.ampEg.setSustainLevel(static_cast<double>(voice.sample->sustain));
     voice.ampEg.setReleaseTime(releaseSeconds(voice.sample->release));
@@ -1241,6 +1249,16 @@ void SamplerDevice::setSampleAttack(uint8_t note, float attack)
     setPadValue(note, Constants::NahdXml::xmlKeyAttack().toStdString(), attack);
 }
 
+float SamplerDevice::sampleHold(uint8_t note) const
+{
+    return padValue(note, Constants::NahdXml::xmlKeyHold().toStdString(), 0.0f);
+}
+
+void SamplerDevice::setSampleHold(uint8_t note, float hold)
+{
+    setPadValue(note, Constants::NahdXml::xmlKeyHold().toStdString(), hold);
+}
+
 float SamplerDevice::sampleDecay(uint8_t note) const
 {
     return padValue(note, Constants::NahdXml::xmlKeyDecay().toStdString(), 0.0f);
@@ -1701,6 +1719,8 @@ void SamplerDevice::syncSampleFields(Sample & sample)
         sample.detune = p->get().value();
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyAttack().toStdString()); p)
         sample.attack = p->get().value();
+    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyHold().toStdString()); p)
+        sample.hold = p->get().value();
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyDecay().toStdString()); p)
         sample.decay = p->get().value();
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeySustain().toStdString()); p)
