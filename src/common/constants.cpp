@@ -344,6 +344,26 @@ QString gain()
     return "gain";
 }
 
+QString gate()
+{
+    return "gate";
+}
+
+QString bitCrusher()
+{
+    return "bitCrusher";
+}
+
+QString flanger()
+{
+    return "flanger";
+}
+
+QString tremolo()
+{
+    return "tremolo";
+}
+
 QString dimension()
 {
     return "dimension";
@@ -1605,11 +1625,6 @@ QString xmlKeyFeedback()
     return "feedback";
 }
 
-QString xmlKeyRateDivider()
-{
-    return "rateDivider";
-}
-
 QString xmlKeyWidth()
 {
     return "width";
@@ -1628,6 +1643,16 @@ QString xmlKeyThreshold()
 QString xmlKeyRatio()
 {
     return "ratio";
+}
+
+QString xmlKeyRange()
+{
+    return "range";
+}
+
+QString xmlKeyRateDivider()
+{
+    return "rateDivider";
 }
 
 QString xmlKeyKnee()

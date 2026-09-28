@@ -49,6 +49,12 @@ New features:
     carries the tune
   - A Portamento control slides between those notes
 
+* Four effects the rack was missing: Gate, Bit Crusher, Flanger and Tremolo
+  - Gate doubles as a downward expander, with Range so a drum can be tightened
+    rather than silenced, and Hold against chattering
+  - Bit Crusher throws away word length and sample rate separately, and is
+    deliberately not oversampled, because there the aliases are the point
+
 * A Rate Divider on the Auto Panner
   - Divides the rate by up to 64 in both modes, so a pan can sweep over several
     bars instead of stopping at one cycle per whole note

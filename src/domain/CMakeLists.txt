@@ -76,6 +76,7 @@ set(HEADER_FILES
     effects/auto_filter.hpp
     effects/auto_panner.hpp
     effects/bass_grinder.hpp
+    effects/bit_crusher.hpp
     effects/clipper.hpp
     effects/compressor.hpp
     effects/crossfeed.hpp
@@ -92,7 +93,9 @@ set(HEADER_FILES
     effects/endless_reverb.hpp
     effects/eq_8_band_parametric.hpp
     effects/eq_8_band_parametric_presets.hpp
+    effects/flanger.hpp
     effects/gain.hpp
+    effects/gate.hpp
     effects/limiter.hpp
     effects/monitor.hpp
     effects/multiband_compressor.hpp
@@ -103,6 +106,7 @@ set(HEADER_FILES
     effects/reference_presets.hpp
     effects/reverb.hpp
     effects/saturator.hpp
+    effects/tremolo.hpp
     effects/tube_stage.hpp
     effects/simple_eq.hpp
     effects/vintage_passive_eq.hpp
@@ -240,6 +244,7 @@ set(SOURCE_FILES
     effects/auto_filter.cpp
     effects/auto_panner.cpp
     effects/bass_grinder.cpp
+    effects/bit_crusher.cpp
     effects/chorus.cpp
     effects/clipper.cpp
     effects/compressor.cpp
@@ -256,7 +261,9 @@ set(SOURCE_FILES
     effects/endless_reverb.cpp
     effects/eq_8_band_parametric.cpp
     effects/eq_8_band_parametric_presets.cpp
+    effects/flanger.cpp
     effects/gain.cpp
+    effects/gate.cpp
     effects/limiter.cpp
     effects/monitor.cpp
     effects/multiband_compressor.cpp
@@ -267,6 +274,7 @@ set(SOURCE_FILES
     effects/reference_presets.cpp
     effects/reverb.cpp
     effects/saturator.cpp
+    effects/tremolo.cpp
     effects/tube_stage.cpp
     effects/simple_eq.cpp
     effects/vintage_passive_eq.cpp

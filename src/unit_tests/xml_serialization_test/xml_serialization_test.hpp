@@ -123,6 +123,10 @@ private slots:
     void test_toXmlFromXml_earlyReflectionsEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_autoFilterEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_phaserEffect_shouldLoadCorrectly();
+    void test_toXmlFromXml_gateEffect_shouldLoadCorrectly();
+    void test_toXmlFromXml_bitCrusherEffect_shouldLoadCorrectly();
+    void test_toXmlFromXml_flangerEffect_shouldLoadCorrectly();
+    void test_toXmlFromXml_tremoloEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_lufsMeterEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_dbtpMeterEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_delayEffectRack_shouldLoadCorrectly();

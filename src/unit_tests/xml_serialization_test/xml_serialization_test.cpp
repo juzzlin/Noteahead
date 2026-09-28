@@ -66,6 +66,10 @@
 #include "../../domain/effects/limiter.hpp"
 #include "../../domain/effects/monitor.hpp"
 #include "../../domain/effects/multiband_compressor.hpp"
+#include "../../domain/effects/bit_crusher.hpp"
+#include "../../domain/effects/flanger.hpp"
+#include "../../domain/effects/gate.hpp"
+#include "../../domain/effects/tremolo.hpp"
 #include "../../domain/effects/phaser.hpp"
 #include "../../domain/effects/reference.hpp"
 #include "../../domain/effects/reference_environments.hpp"
@@ -3102,6 +3106,190 @@ void XmlSerializationTest::test_toXmlFromXml_phaserEffect_shouldLoadCorrectly()
     QVERIFY(effect);
     QCOMPARE(effect->typeId(), Phaser::typeIdString());
     const auto restored = std::dynamic_pointer_cast<Phaser>(effect);
+    QVERIFY(restored);
+
+    for (auto && [key, value] : values) {
+        const auto p = restored->parameter(key.toStdString());
+        QVERIFY(p.has_value());
+        QVERIFY(std::abs(p->get().value() - value) < 1.0e-3f);
+    }
+}
+
+void XmlSerializationTest::test_toXmlFromXml_gateEffect_shouldLoadCorrectly()
+{
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto effectOut = std::make_shared<Gate>();
+    const std::vector<std::pair<QString, float>> values {
+        { Constants::NahdXml::xmlKeyThreshold(), 0.6f },
+        { Constants::NahdXml::xmlKeyRatio(), 0.4f },
+        { Constants::NahdXml::xmlKeyRange(), 0.3f },
+        { Constants::NahdXml::xmlKeyAttack(), 0.15f },
+        { Constants::NahdXml::xmlKeyHold(), 0.35f },
+        { Constants::NahdXml::xmlKeyRelease(), 0.55f },
+    };
+    for (auto && [key, value] : values) {
+        if (auto p = effectOut->parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    }
+    deviceServiceOut.sendEffectRack().setEffect(0, effectOut);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(effect);
+    QCOMPARE(effect->typeId(), Gate::typeIdString());
+    const auto restored = std::dynamic_pointer_cast<Gate>(effect);
+    QVERIFY(restored);
+
+    for (auto && [key, value] : values) {
+        const auto p = restored->parameter(key.toStdString());
+        QVERIFY(p.has_value());
+        QVERIFY(std::abs(p->get().value() - value) < 1.0e-3f);
+    }
+}
+
+void XmlSerializationTest::test_toXmlFromXml_bitCrusherEffect_shouldLoadCorrectly()
+{
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto effectOut = std::make_shared<BitCrusher>();
+    const std::vector<std::pair<QString, float>> values {
+        { Constants::NahdXml::xmlKeyBitDepth(), 6.0f },
+        { Constants::NahdXml::xmlKeySampleRate(), 0.42f },
+        { Constants::NahdXml::xmlKeyMix(), 0.8f },
+    };
+    for (auto && [key, value] : values) {
+        if (auto p = effectOut->parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    }
+    deviceServiceOut.sendEffectRack().setEffect(0, effectOut);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(effect);
+    QCOMPARE(effect->typeId(), BitCrusher::typeIdString());
+    const auto restored = std::dynamic_pointer_cast<BitCrusher>(effect);
+    QVERIFY(restored);
+
+    for (auto && [key, value] : values) {
+        const auto p = restored->parameter(key.toStdString());
+        QVERIFY(p.has_value());
+        QVERIFY(std::abs(p->get().value() - value) < 1.0e-3f);
+    }
+}
+
+void XmlSerializationTest::test_toXmlFromXml_flangerEffect_shouldLoadCorrectly()
+{
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto effectOut = std::make_shared<Flanger>();
+    const std::vector<std::pair<QString, float>> values {
+        { Constants::NahdXml::xmlKeyLfoRate(), 0.44f },
+        { Constants::NahdXml::xmlKeyLfoMode(), 1.0f },
+        { Constants::NahdXml::xmlKeyRateDivider(), 12.0f },
+        { Constants::NahdXml::xmlKeyDepth(), 0.72f },
+        { Constants::NahdXml::xmlKeyDelay(), 0.28f },
+        { Constants::NahdXml::xmlKeyFeedback(), 0.18f },
+        { Constants::NahdXml::xmlKeyStereoPhase(), 0.75f },
+        { Constants::NahdXml::xmlKeyMix(), 0.6f },
+    };
+    for (auto && [key, value] : values) {
+        if (auto p = effectOut->parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    }
+    deviceServiceOut.sendEffectRack().setEffect(0, effectOut);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(effect);
+    QCOMPARE(effect->typeId(), Flanger::typeIdString());
+    const auto restored = std::dynamic_pointer_cast<Flanger>(effect);
+    QVERIFY(restored);
+
+    for (auto && [key, value] : values) {
+        const auto p = restored->parameter(key.toStdString());
+        QVERIFY(p.has_value());
+        QVERIFY(std::abs(p->get().value() - value) < 1.0e-3f);
+    }
+}
+
+void XmlSerializationTest::test_toXmlFromXml_tremoloEffect_shouldLoadCorrectly()
+{
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto effectOut = std::make_shared<Tremolo>();
+    const std::vector<std::pair<QString, float>> values {
+        { Constants::NahdXml::xmlKeyWaveform(), 2.0f },
+        { Constants::NahdXml::xmlKeyIntensity(), 0.66f },
+        { Constants::NahdXml::xmlKeyRate(), 0.33f },
+        { Constants::NahdXml::xmlKeySync(), 1.0f },
+        { Constants::NahdXml::xmlKeyDelaySyncDivision(), 0.5f },
+        { Constants::NahdXml::xmlKeyRateDivider(), 8.0f },
+        { Constants::NahdXml::xmlKeyStereoPhase(), 1.0f },
+    };
+    for (auto && [key, value] : values) {
+        if (auto p = effectOut->parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    }
+    deviceServiceOut.sendEffectRack().setEffect(0, effectOut);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(effect);
+    QCOMPARE(effect->typeId(), Tremolo::typeIdString());
+    const auto restored = std::dynamic_pointer_cast<Tremolo>(effect);
     QVERIFY(restored);
 
     for (auto && [key, value] : values) {

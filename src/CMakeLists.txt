@@ -79,7 +79,11 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/AllPassFilterDialog.qml
     ${QML_BASE_DIR}/Dialogs/AnalogFuzzDialog.qml
     ${QML_BASE_DIR}/Dialogs/AnimatedDialog.qml
+    ${QML_BASE_DIR}/Dialogs/BitCrusherDialog.qml
     ${QML_BASE_DIR}/Dialogs/CrossfeedDialog.qml
+    ${QML_BASE_DIR}/Dialogs/FlangerDialog.qml
+    ${QML_BASE_DIR}/Dialogs/GateDialog.qml
+    ${QML_BASE_DIR}/Dialogs/TremoloDialog.qml
     ${QML_BASE_DIR}/Dialogs/DbtpMeterDialog.qml
     ${QML_BASE_DIR}/Dialogs/LimiterDialog.qml
     ${QML_BASE_DIR}/Dialogs/LufsMeterDialog.qml

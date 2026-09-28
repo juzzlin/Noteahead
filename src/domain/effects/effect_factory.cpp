@@ -30,7 +30,11 @@
 #include "chorus.hpp"
 #include "clipper.hpp"
 #include "compressor.hpp"
+#include "bit_crusher.hpp"
 #include "crossfeed.hpp"
+#include "flanger.hpp"
+#include "gate.hpp"
+#include "tremolo.hpp"
 #include "delay.hpp"
 #include "dimension.hpp"
 #include "drive.hpp"
@@ -124,6 +128,10 @@ void EffectFactory::init()
     registerEffect(Limiter::typeIdString(), []() { return std::make_shared<Limiter>(); });
     registerEffect(LufsMeter::typeIdString(), []() { return std::make_shared<LufsMeter>(); });
     registerEffect(Crossfeed::typeIdString(), []() { return std::make_shared<Crossfeed>(); });
+    registerEffect(BitCrusher::typeIdString(), []() { return std::make_shared<BitCrusher>(); });
+    registerEffect(Flanger::typeIdString(), []() { return std::make_shared<Flanger>(); });
+    registerEffect(Gate::typeIdString(), []() { return std::make_shared<Gate>(); });
+    registerEffect(Tremolo::typeIdString(), []() { return std::make_shared<Tremolo>(); });
     registerEffect(Reference::typeIdString(), []() { return std::make_shared<Reference>(); });
     registerEffect(Monitor::typeIdString(), []() { return std::make_shared<Monitor>(); });
     registerEffect(Gain::typeIdString(), []() { return std::make_shared<Gain>(); });
@@ -141,6 +149,10 @@ void EffectFactory::init()
     // Readable-string aliases so the gallery can create effects by their type() name
     registerEffect(Constants::RackEffectType::autoDucker().toStdString(), []() { return std::make_shared<AutoDucker>(); });
     registerEffect(Constants::RackEffectType::crossfeed().toStdString(), []() { return std::make_shared<Crossfeed>(); });
+    registerEffect(Constants::RackEffectType::bitCrusher().toStdString(), []() { return std::make_shared<BitCrusher>(); });
+    registerEffect(Constants::RackEffectType::flanger().toStdString(), []() { return std::make_shared<Flanger>(); });
+    registerEffect(Constants::RackEffectType::gate().toStdString(), []() { return std::make_shared<Gate>(); });
+    registerEffect(Constants::RackEffectType::tremolo().toStdString(), []() { return std::make_shared<Tremolo>(); });
     registerEffect(Constants::RackEffectType::reference().toStdString(), []() { return std::make_shared<Reference>(); });
     registerEffect(Constants::RackEffectType::autoFilter().toStdString(), []() { return std::make_shared<AutoFilter>(); });
     registerEffect(Constants::RackEffectType::autoPanner().toStdString(), []() { return std::make_shared<AutoPanner>(); });
@@ -180,6 +192,10 @@ void EffectFactory::init()
     // Legacy support
     registerLegacyEffect("auto_ducker", []() { return std::make_shared<AutoDucker>(); });
     registerLegacyEffect("cross_feed", []() { return std::make_shared<Crossfeed>(); });
+    registerLegacyEffect("bit_crusher", []() { return std::make_shared<BitCrusher>(); });
+    registerLegacyEffect("flanger", []() { return std::make_shared<Flanger>(); });
+    registerLegacyEffect("gate", []() { return std::make_shared<Gate>(); });
+    registerLegacyEffect("tremolo", []() { return std::make_shared<Tremolo>(); });
     registerLegacyEffect("reference_monitor", []() { return std::make_shared<Reference>(); });
     registerLegacyEffect("auto_filter", []() { return std::make_shared<AutoFilter>(); });
     registerLegacyEffect("multiband_compressor", []() { return std::make_shared<MultibandCompressor>(); });

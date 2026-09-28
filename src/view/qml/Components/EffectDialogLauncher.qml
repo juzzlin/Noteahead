@@ -51,6 +51,18 @@ QtObject {
         } else if (effectType === effectRackController.crossfeedType) {
             crossfeedDialog.effectIndex = index;
             crossfeedDialog.open();
+        } else if (effectType === effectRackController.bitCrusherType) {
+            bitCrusherDialog.effectIndex = index;
+            bitCrusherDialog.open();
+        } else if (effectType === effectRackController.flangerType) {
+            flangerDialog.effectIndex = index;
+            flangerDialog.open();
+        } else if (effectType === effectRackController.gateType) {
+            gateDialog.effectIndex = index;
+            gateDialog.open();
+        } else if (effectType === effectRackController.tremoloType) {
+            tremoloDialog.effectIndex = index;
+            tremoloDialog.open();
         } else if (effectType === effectRackController.referenceType) {
             referenceDialog.effectIndex = index;
             referenceDialog.open();

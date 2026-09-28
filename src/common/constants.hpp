@@ -286,6 +286,10 @@ QString monitor();
 QString crossfeed();
 QString reference();
 QString gain();
+QString gate();
+QString bitCrusher();
+QString flanger();
+QString tremolo();
 } // namespace RackEffectType
 
 namespace NahdXml {
@@ -560,6 +564,7 @@ QString xmlKeyWidth();
 QString xmlKeyMix();
 QString xmlKeyThreshold();
 QString xmlKeyRatio();
+QString xmlKeyRange();
 QString xmlKeyKnee();
 QString xmlKeyMakeup();
 QString xmlKeyCeiling();

@@ -80,6 +80,10 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString phaserType READ phaserType CONSTANT)
     Q_PROPERTY(QString reverbType READ reverbType CONSTANT)
     Q_PROPERTY(QString endlessType READ endlessType CONSTANT)
+    Q_PROPERTY(QString gateType READ gateType CONSTANT)
+    Q_PROPERTY(QString bitCrusherType READ bitCrusherType CONSTANT)
+    Q_PROPERTY(QString flangerType READ flangerType CONSTANT)
+    Q_PROPERTY(QString tremoloType READ tremoloType CONSTANT)
 
 public:
     using DeviceServiceS = std::shared_ptr<DeviceService>;
@@ -152,6 +156,37 @@ public:
     QString pannerType() const;
     QString reverbType() const;
     QString endlessType() const;
+    QString gateType() const;
+    Q_INVOKABLE QString gateThresholdKey() const;
+    Q_INVOKABLE QString gateRatioKey() const;
+    Q_INVOKABLE QString gateRangeKey() const;
+    Q_INVOKABLE QString gateAttackKey() const;
+    Q_INVOKABLE QString gateHoldKey() const;
+    Q_INVOKABLE QString gateReleaseKey() const;
+    QString bitCrusherType() const;
+    Q_INVOKABLE QString bitCrusherBitDepthKey() const;
+    Q_INVOKABLE QString bitCrusherRateKey() const;
+    Q_INVOKABLE QString bitCrusherMixKey() const;
+    Q_INVOKABLE int bitCrusherMaxBits() const;
+    QString flangerType() const;
+    Q_INVOKABLE QString flangerRateKey() const;
+    Q_INVOKABLE QString flangerModeKey() const;
+    Q_INVOKABLE QString flangerRateDividerKey() const;
+    Q_INVOKABLE QString flangerDepthKey() const;
+    Q_INVOKABLE QString flangerDelayKey() const;
+    Q_INVOKABLE QString flangerFeedbackKey() const;
+    Q_INVOKABLE QString flangerStereoPhaseKey() const;
+    Q_INVOKABLE QString flangerMixKey() const;
+    Q_INVOKABLE int flangerMaxRateDivider() const;
+    QString tremoloType() const;
+    Q_INVOKABLE QString tremoloWaveformKey() const;
+    Q_INVOKABLE QString tremoloIntensityKey() const;
+    Q_INVOKABLE QString tremoloRateKey() const;
+    Q_INVOKABLE QString tremoloSyncKey() const;
+    Q_INVOKABLE QString tremoloSyncDivisionKey() const;
+    Q_INVOKABLE QString tremoloRateDividerKey() const;
+    Q_INVOKABLE QString tremoloStereoPhaseKey() const;
+    Q_INVOKABLE int tremoloMaxRateDivider() const;
 
     Q_INVOKABLE QString effectParametersSummary(quint32 effectIndex) const;
     Q_INVOKABLE QString effectDisplayName(const QString & typeId) const;

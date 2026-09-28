@@ -27,6 +27,10 @@
 #include "../../domain/effects/auto_ducker.hpp"
 #include "../../domain/effects/auto_filter.hpp"
 #include "../../domain/effects/auto_panner.hpp"
+#include "../../domain/effects/bit_crusher.hpp"
+#include "../../domain/effects/flanger.hpp"
+#include "../../domain/effects/gate.hpp"
+#include "../../domain/effects/tremolo.hpp"
 #include "../../domain/effects/bass_grinder.hpp"
 #include "../../domain/effects/chorus.hpp"
 #include "../../domain/effects/clipper.hpp"
@@ -352,6 +356,10 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("dBTP Meter", DbTpMeter::typeIdString());
     addEffect("Delay", Constants::RackEffectType::delay().toStdString());
     addEffect("Crossfeed", Constants::RackEffectType::crossfeed().toStdString());
+    addEffect("Bit Crusher", Constants::RackEffectType::bitCrusher().toStdString());
+    addEffect("Flanger", Constants::RackEffectType::flanger().toStdString());
+    addEffect("Gate", Constants::RackEffectType::gate().toStdString());
+    addEffect("Tremolo", Constants::RackEffectType::tremolo().toStdString());
     addEffect("Dimension", Constants::RackEffectType::dimension().toStdString());
     addEffect("Early Reflections", Constants::RackEffectType::earlyReflections().toStdString());
     addEffect("Drive", Constants::RackEffectType::drive().toStdString());
@@ -724,6 +732,71 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                 // on is a setting that misrepresents everything downstream of it.
                 if (const auto reference = std::dynamic_pointer_cast<Reference>(effect); reference) {
                     return QString { "(%1)" }.arg(QString::fromStdString(reference->environment().name).toUpper());
+                }
+            } else if (type == Constants::RackEffectType::gate()) {
+                const auto threshold = effect->parameter(Constants::NahdXml::xmlKeyThreshold().toStdString());
+                const auto ratio = effect->parameter(Constants::NahdXml::xmlKeyRatio().toStdString());
+                const auto range = effect->parameter(Constants::NahdXml::xmlKeyRange().toStdString());
+                if (threshold && ratio && range) {
+                    const double thresholdDb = -60.0 + static_cast<double>(threshold->get().value()) * 60.0;
+                    return QString { "(%1dB, %2:1, %3dB)" }
+                      .arg(thresholdDb, 0, 'f', 1)
+                      .arg(static_cast<double>(ratio->get().xmlValue()) / ratio->get().xmlScale(), 0, 'f', 1)
+                      .arg(-static_cast<double>(range->get().xmlValue()) / range->get().xmlScale(), 0, 'f', 0);
+                }
+            } else if (type == Constants::RackEffectType::bitCrusher()) {
+                const auto bits = effect->parameter(Constants::NahdXml::xmlKeyBitDepth().toStdString());
+                const auto rate = effect->parameter(Constants::NahdXml::xmlKeySampleRate().toStdString());
+                if (bits && rate) {
+                    const double hz = ParameterMapper::mapExponential(rate->get().value(), 100.0, 48000.0);
+                    return QString { "(%1 %2, %3 kHz)" }
+                      .arg(bits->get().xmlValue())
+                      .arg(tr("bits"))
+                      .arg(hz / 1000.0, 0, 'f', 1);
+                }
+            } else if (type == Constants::RackEffectType::flanger()) {
+                const auto rate = effect->parameter(Constants::NahdXml::xmlKeyLfoRate().toStdString());
+                const auto mode = effect->parameter(Constants::NahdXml::xmlKeyLfoMode().toStdString());
+                const auto divider = effect->parameter(Constants::NahdXml::xmlKeyRateDivider().toStdString());
+                const auto feedback = effect->parameter(Constants::NahdXml::xmlKeyFeedback().toStdString());
+                if (rate && mode && divider && feedback) {
+                    const auto rateDivider = std::max(1, divider->get().xmlValue());
+                    QString rateStr;
+                    if (static_cast<Lfo::Mode>(mode->get().xmlValue()) == Lfo::Mode::BPM) {
+                        KnobController knobController;
+                        rateStr = knobController.syncLabel(knobController.syncIndex(rate->get().value() * Constants::uiInternalScaling()));
+                        if (rateDivider > 1) {
+                            rateStr += QString { "/%1" }.arg(rateDivider);
+                        }
+                    } else {
+                        rateStr = QString { "%1Hz" }.arg(ParameterMapper::mapLfoFrequency(rate->get().value(), 0.05, 20.0) / rateDivider, 0, 'f', 2);
+                    }
+                    // Signed, because the two polarities of the feedback voice the comb quite
+                    // differently and the sign is what says which one is in use.
+                    const double signedFeedback = (static_cast<double>(feedback->get().value()) * 2.0 - 1.0) * 100.0;
+                    return QString { "(rate=%1, fb=%2%)" }.arg(rateStr).arg(signedFeedback, 0, 'f', 0);
+                }
+            } else if (type == Constants::RackEffectType::tremolo()) {
+                const auto sync = effect->parameter(Constants::NahdXml::xmlKeySync().toStdString());
+                const auto intensity = effect->parameter(Constants::NahdXml::xmlKeyIntensity().toStdString());
+                const auto divider = effect->parameter(Constants::NahdXml::xmlKeyRateDivider().toStdString());
+                if (sync && intensity && divider) {
+                    const auto rateDivider = std::max(1, divider->get().xmlValue());
+                    QString rateStr;
+                    if (sync->get().value() > 0.5f) {
+                        const auto division = effect->parameter(Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString());
+                        KnobController knobController;
+                        rateStr = knobController.syncLabel(knobController.syncIndex(division->get().value() * Constants::uiInternalScaling()));
+                        if (rateDivider > 1) {
+                            rateStr += QString { "/%1" }.arg(rateDivider);
+                        }
+                    } else {
+                        const auto rate = effect->parameter(Constants::NahdXml::xmlKeyRate().toStdString());
+                        rateStr = QString { "%1Hz" }.arg(ParameterMapper::mapLfoFrequency(rate->get().value(), 0.05, 20.0) / rateDivider, 0, 'f', 2);
+                    }
+                    return QString { "(rate=%1, depth=%2%)" }
+                      .arg(rateStr)
+                      .arg(static_cast<int>(std::lround(intensity->get().value() * 100.0)));
                 }
             } else if (type == Constants::RackEffectType::crossfeed()) {
                 if (const auto amount = effect->parameter(Constants::NahdXml::xmlKeyAmount().toStdString()); amount) {
@@ -2238,6 +2311,161 @@ QString EffectRackController::limiterType() const
 QString EffectRackController::monitorType() const
 {
     return Constants::RackEffectType::monitor();
+}
+
+QString EffectRackController::gateType() const
+{
+    return Constants::RackEffectType::gate();
+}
+
+QString EffectRackController::gateThresholdKey() const
+{
+    return Constants::NahdXml::xmlKeyThreshold();
+}
+
+QString EffectRackController::gateRatioKey() const
+{
+    return Constants::NahdXml::xmlKeyRatio();
+}
+
+QString EffectRackController::gateRangeKey() const
+{
+    return Constants::NahdXml::xmlKeyRange();
+}
+
+QString EffectRackController::gateAttackKey() const
+{
+    return Constants::NahdXml::xmlKeyAttack();
+}
+
+QString EffectRackController::gateHoldKey() const
+{
+    return Constants::NahdXml::xmlKeyHold();
+}
+
+QString EffectRackController::gateReleaseKey() const
+{
+    return Constants::NahdXml::xmlKeyRelease();
+}
+
+QString EffectRackController::bitCrusherType() const
+{
+    return Constants::RackEffectType::bitCrusher();
+}
+
+QString EffectRackController::bitCrusherBitDepthKey() const
+{
+    return Constants::NahdXml::xmlKeyBitDepth();
+}
+
+QString EffectRackController::bitCrusherRateKey() const
+{
+    return Constants::NahdXml::xmlKeySampleRate();
+}
+
+QString EffectRackController::bitCrusherMixKey() const
+{
+    return Constants::NahdXml::xmlKeyMix();
+}
+
+int EffectRackController::bitCrusherMaxBits() const
+{
+    return BitCrusher::maxBits();
+}
+
+QString EffectRackController::flangerType() const
+{
+    return Constants::RackEffectType::flanger();
+}
+
+QString EffectRackController::flangerRateKey() const
+{
+    return Constants::NahdXml::xmlKeyLfoRate();
+}
+
+QString EffectRackController::flangerModeKey() const
+{
+    return Constants::NahdXml::xmlKeyLfoMode();
+}
+
+QString EffectRackController::flangerRateDividerKey() const
+{
+    return Constants::NahdXml::xmlKeyRateDivider();
+}
+
+QString EffectRackController::flangerDepthKey() const
+{
+    return Constants::NahdXml::xmlKeyDepth();
+}
+
+QString EffectRackController::flangerDelayKey() const
+{
+    return Constants::NahdXml::xmlKeyDelay();
+}
+
+QString EffectRackController::flangerFeedbackKey() const
+{
+    return Constants::NahdXml::xmlKeyFeedback();
+}
+
+QString EffectRackController::flangerStereoPhaseKey() const
+{
+    return Constants::NahdXml::xmlKeyStereoPhase();
+}
+
+QString EffectRackController::flangerMixKey() const
+{
+    return Constants::NahdXml::xmlKeyMix();
+}
+
+int EffectRackController::flangerMaxRateDivider() const
+{
+    return Flanger::maxRateDivider();
+}
+
+QString EffectRackController::tremoloType() const
+{
+    return Constants::RackEffectType::tremolo();
+}
+
+QString EffectRackController::tremoloWaveformKey() const
+{
+    return Constants::NahdXml::xmlKeyWaveform();
+}
+
+QString EffectRackController::tremoloIntensityKey() const
+{
+    return Constants::NahdXml::xmlKeyIntensity();
+}
+
+QString EffectRackController::tremoloRateKey() const
+{
+    return Constants::NahdXml::xmlKeyRate();
+}
+
+QString EffectRackController::tremoloSyncKey() const
+{
+    return Constants::NahdXml::xmlKeySync();
+}
+
+QString EffectRackController::tremoloSyncDivisionKey() const
+{
+    return Constants::NahdXml::xmlKeyDelaySyncDivision();
+}
+
+QString EffectRackController::tremoloRateDividerKey() const
+{
+    return Constants::NahdXml::xmlKeyRateDivider();
+}
+
+QString EffectRackController::tremoloStereoPhaseKey() const
+{
+    return Constants::NahdXml::xmlKeyStereoPhase();
+}
+
+int EffectRackController::tremoloMaxRateDivider() const
+{
+    return Tremolo::maxRateDivider();
 }
 
 QString EffectRackController::crossfeedType() const
