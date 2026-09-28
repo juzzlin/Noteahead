@@ -52,6 +52,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Components/ClipLed.qml
     ${QML_BASE_DIR}/Components/DateField.qml
     ${QML_BASE_DIR}/Components/DeviceMenuButton.qml
+    ${QML_BASE_DIR}/Components/DrumPad.qml
     ${QML_BASE_DIR}/Components/EffectDialogLauncher.qml
     ${QML_BASE_DIR}/Components/EffectPresetRow.qml
     ${QML_BASE_DIR}/Components/EffectSendsView.qml

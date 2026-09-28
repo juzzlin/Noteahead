@@ -59,6 +59,10 @@ New features:
   - The level is walked to silence over two milliseconds before the new hit's
     attack, so a slow attack is slow on every hit and not only the first
 
+* The Drum Synths look like the rest of the application
+  - Accent-coloured section headings instead of framed group boxes, rounded
+    pads as the Sampler has, and the voices and global controls side by side
+
 * The Synth's Multi Engine has a Noise tab of its own
   - Beside the oscillators rather than below them, since it is a noise source
     and not a fifth oscillator

@@ -22,19 +22,28 @@ import "../Components"
 
 //! The per-voice amp envelope: what the voice's own engine plays is shaped by this rather than
 //! replaced by it, so pulling Hold down is how a drum is tightened.
-GroupBox {
+ColumnLayout {
     id: root
 
     property string voiceName: ""
 
-    title: qsTr("Amp Envelope") + (voiceName === "" ? "" : " (" + voiceName + ")")
     Layout.fillWidth: true
+    spacing: 10
 
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
 
+    // A heading rather than a framed box, as the Sampler and every other device dialog head their
+    // sections: the accent colour is what says "section", not a rectangle around it.
+    Label {
+        text: qsTr("Amp Envelope") + (root.voiceName === "" ? "" : " (" + root.voiceName + ")")
+        font.bold: true
+        color: themeService.accentColor
+    }
+
     ScrollView {
-        anchors.fill: parent
+        Layout.fillWidth: true
+        Layout.fillHeight: true
         contentWidth: ampEgRow.implicitWidth
         clip: true
         ScrollBar.horizontal.policy: ScrollBar.AsNeeded

@@ -79,96 +79,108 @@ AnimatedDialog {
                 width: contentScrollView.availableWidth
                 spacing: 15
 
-                // Global Controls
-                GroupBox {
-                    title: qsTr("Global")
+                // The voices and the global controls side by side: eleven pads in four columns
+                // are far narrower than the dialog, and the space to their right is where the
+                // global controls used to sit below them.
+                RowLayout {
                     Layout.fillWidth: true
-                    RowLayout {
-                        spacing: 20
-                        Knob {
-                            label: qsTr("Gain")
-                            mapping: "decibel"
-                            mapMin: -30
-                            mapMax: 30
-                            value: drumSynthV2Controller.gain
-                            onMoved: (val) => drumSynthV2Controller.gain = val
+                    spacing: 20
+
+                    ColumnLayout {
+                        Layout.alignment: Qt.AlignTop
+                        spacing: 10
+
+                        Label {
+                            text: qsTr("Voices")
+                            font.bold: true
+                            color: themeService.accentColor
                         }
-                        Knob {
-                            label: qsTr("Fader")
-                            mapping: "fader"
-                            value: drumSynthV2Controller.volume
-                            onMoved: (val) => drumSynthV2Controller.volume = val
-                        }
-                        Knob {
-                            label: qsTr("Pan")
-                            mapping: "pan"
-                            value: drumSynthV2Controller.pan
-                            onMoved: (val) => drumSynthV2Controller.pan = val
-                        }
-                        ColumnLayout {
-                            Label {
-                                text: qsTr("LPF Slope")
-                            }
-                            ComboBox {
-                                model: ["12 dB/oct", "24 dB/oct"]
-                                currentIndex: drumSynthV2Controller.lpfSlope
-                                onActivated: idx => drumSynthV2Controller.lpfSlope = idx
-                                ToolTip.visible: hovered
-                                ToolTip.text: qsTr("How steeply every voice's low pass rolls off. The steeper one clears more out of the way at the same cutoff.")
-                            }
-                        }
-                        ColumnLayout {
-                            Label {
-                                text: qsTr("HPF Slope")
-                            }
-                            ComboBox {
-                                model: ["12 dB/oct", "24 dB/oct"]
-                                currentIndex: drumSynthV2Controller.hpfSlope
-                                onActivated: idx => drumSynthV2Controller.hpfSlope = idx
-                                ToolTip.visible: hovered
-                                ToolTip.text: qsTr("How steeply every voice's high pass rolls off. The steeper one clears more out of the way at the same cutoff.")
+
+                        GridLayout {
+                            columns: 4
+                            rowSpacing: 8
+                            columnSpacing: 8
+
+                            Repeater {
+                                model: root.voiceNames
+                                delegate: DrumPad {
+                                    // Declared here rather than taken from the context: a delegate
+                                    // whose root has required properties is handed its model data
+                                    // by name, and nothing is injected implicitly.
+                                    required property int index
+                                    required property string modelData
+
+                                    label: modelData
+                                    selected: drumSynthV2Controller.selectedVoice === index
+                                    onStruck: {
+                                        drumSynthV2Controller.selectedVoice = index;
+                                        drumSynthV2Controller.playVoice(index);
+                                    }
+                                    onEffectsRequested: UiService.requestDeviceSubEffectsDialog(drumSynthV2Controller.deviceName(), index, root.voiceNames[index])
+                                }
                             }
                         }
                     }
-                }
 
-                // Voice Grid
-                GroupBox {
-                    title: qsTr("Voices")
-                    Layout.fillWidth: true
-            
-                    GridLayout {
-                        columns: 4
-                        width: parent.width
-                        rowSpacing: 10
-                        columnSpacing: 10
+                    ColumnLayout {
+                        Layout.alignment: Qt.AlignTop
+                        Layout.fillWidth: true
+                        spacing: 10
 
-                        Repeater {
-                            model: root.voiceNames
-                            delegate: AppButton {
-                                text: modelData
-                                Layout.fillWidth: true
-                                Layout.preferredHeight: 50
-                                highlighted: drumSynthV2Controller.selectedVoice === index
-                                onClicked: {
-                                    drumSynthV2Controller.selectedVoice = index
-                                    drumSynthV2Controller.playVoice(index)
+                        Label {
+                            text: qsTr("Global")
+                            font.bold: true
+                            color: themeService.accentColor
+                        }
+
+                        // Wraps rather than runs off: the voices now take the left half, so this
+                        // column is narrower than the dialog and has to stay usable at 1024 px.
+                        Flow {
+                            Layout.fillWidth: true
+                            spacing: 20
+
+                            Knob {
+                                label: qsTr("Gain")
+                                mapping: "decibel"
+                                mapMin: -30
+                                mapMax: 30
+                                value: drumSynthV2Controller.gain
+                                onMoved: (val) => drumSynthV2Controller.gain = val
+                            }
+                            Knob {
+                                label: qsTr("Fader")
+                                mapping: "fader"
+                                value: drumSynthV2Controller.volume
+                                onMoved: (val) => drumSynthV2Controller.volume = val
+                            }
+                            Knob {
+                                label: qsTr("Pan")
+                                mapping: "pan"
+                                value: drumSynthV2Controller.pan
+                                onMoved: (val) => drumSynthV2Controller.pan = val
+                            }
+                            ColumnLayout {
+                                Label {
+                                    text: qsTr("LPF Slope")
                                 }
-
-                                AppButton {
-                                    text: qsTr("FX")
-                                    anchors.top: parent.top
-                                    anchors.right: parent.right
-                                    anchors.margins: 3
-                                    implicitWidth: 30
-                                    implicitHeight: 20
-                                    padding: 0
-                                    font.pointSize: 8
-                                    z: 10
-                                    onClicked: UiService.requestDeviceSubEffectsDialog(drumSynthV2Controller.deviceName(), index, root.voiceNames[index])
-                                    ToolTip.delay: Constants.toolTipDelay
+                                ComboBox {
+                                    model: ["12 dB/oct", "24 dB/oct"]
+                                    currentIndex: drumSynthV2Controller.lpfSlope
+                                    onActivated: idx => drumSynthV2Controller.lpfSlope = idx
                                     ToolTip.visible: hovered
-                                    ToolTip.text: qsTr("Insert effects and sends for this voice")
+                                    ToolTip.text: qsTr("How steeply every voice's low pass rolls off. The steeper one clears more out of the way at the same cutoff.")
+                                }
+                            }
+                            ColumnLayout {
+                                Label {
+                                    text: qsTr("HPF Slope")
+                                }
+                                ComboBox {
+                                    model: ["12 dB/oct", "24 dB/oct"]
+                                    currentIndex: drumSynthV2Controller.hpfSlope
+                                    onActivated: idx => drumSynthV2Controller.hpfSlope = idx
+                                    ToolTip.visible: hovered
+                                    ToolTip.text: qsTr("How steeply every voice's high pass rolls off. The steeper one clears more out of the way at the same cutoff.")
                                 }
                             }
                         }
@@ -176,13 +188,19 @@ AnimatedDialog {
                 }
 
                 // Voice Settings
-                GroupBox {
-                    title: qsTr("Voice Settings") + " (" + root.voiceNames[drumSynthV2Controller.selectedVoice] + ")"
+                ColumnLayout {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 150
-            
+                    spacing: 10
+
+                    Label {
+                        text: qsTr("Voice Settings") + " (" + root.voiceNames[drumSynthV2Controller.selectedVoice] + ")"
+                        font.bold: true
+                        color: themeService.accentColor
+                    }
+
                     ScrollView {
-                        anchors.fill: parent
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 150
                         contentWidth: settingsRow.implicitWidth
                         clip: true
                         ScrollBar.horizontal.policy: ScrollBar.AsNeeded
