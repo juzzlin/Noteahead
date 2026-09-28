@@ -467,6 +467,42 @@ void DrumSynthV2Test::test_voicePreview_shortEnvelope_shouldShortenOnlyWhatIsHea
              qPrintable(QString::number(tightened.durationSeconds) + " vs " + QString::number(full.durationSeconds)));
 }
 
+void DrumSynthV2Test::test_voiceElapsedSeconds_shouldFollowTheVoice()
+{
+    // What the waveform view's playhead runs on: nothing before the strike, climbing with the
+    // audio while the voice sounds, and nothing again once it has gone.
+    DrumSynthV2Device device { "Playhead" };
+    const auto kick = static_cast<int>(DrumSynthV2::VoiceIndex::Kick);
+    device.setSampleRate(sampleRate);
+
+    QVERIFY(!device.voiceElapsedSeconds(kick).has_value());
+
+    device.processMidiNoteOn(device.voiceNote(kick), 127);
+    const auto render = [&](uint32_t blocks) {
+        std::vector<double> buffer(frameCount * 2, 0.0);
+        for (uint32_t block = 0; block < blocks; block++) {
+            std::fill(buffer.begin(), buffer.end(), 0.0);
+            AudioContext context { std::span(buffer.data(), buffer.size()), frameCount, sampleRate };
+            device.processAudio(context);
+        }
+    };
+
+    render(2);
+    const auto early = device.voiceElapsedSeconds(kick);
+    QVERIFY(early.has_value());
+    // Two blocks of 4096 at 44.1 kHz is a little under two tenths of a second.
+    QVERIFY2(std::abs(*early - 2.0 * frameCount / sampleRate) < 0.01, qPrintable(QString::number(*early)));
+
+    render(2);
+    const auto later = device.voiceElapsedSeconds(kick);
+    QVERIFY(later.has_value());
+    QVERIFY2(*later > *early, "the playhead did not advance");
+
+    // And gone once the voice has run out.
+    render(fullTailBlocks);
+    QVERIFY(!device.voiceElapsedSeconds(kick).has_value());
+}
+
 void DrumSynthV2Test::test_drumSynthV2Device_xmlSerialization_shouldRestoreParameters()
 {
     DrumSynthV2Device device { "Test" };

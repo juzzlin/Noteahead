@@ -33,6 +33,7 @@
 
 #include <array>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -77,6 +78,13 @@ public:
     void setSelectedVoice(int index);
 
     uint8_t voiceNote(int index) const;
+
+    //! How far into its sound one voice is, in seconds, or nothing when it is not sounding.
+    //!
+    //! What the waveform view's playhead runs on. In seconds rather than as a fraction, because the
+    //! device does not know how long the picture beside it spans: the envelope can end the voice
+    //! well before the material does, and it is the view that knows which of those it drew.
+    std::optional<double> voiceElapsedSeconds(int voiceIndex) const;
 
     //! Renders one voice alone, from its strike until it goes quiet, and hands the frames back.
     //!
@@ -136,6 +144,9 @@ private:
         //! Rides on top of whatever the engine plays: see DrumAmpEnvelope. In the VCA position,
         //! after the filters, so their resonant ring is shaped with everything else.
         DrumAmpEnvelope ampEnvelope;
+        //! Output frames since the voice was last struck, for the playhead. Counted per output
+        //! frame rather than per oversampled one, so it is a time whatever the quality is set to.
+        size_t renderedFrames {};
         std::shared_ptr<Volume> volumeEffect;
         std::shared_ptr<Panning> panningEffect;
         EffectRack effectRack;

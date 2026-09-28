@@ -25,6 +25,7 @@
 #include "../../domain/devices/drum_synth_v2_constants.hpp"
 #include "../../domain/devices/drum_synth_v2_device.hpp"
 
+#include <algorithm>
 #include <cmath>
 
 namespace noteahead {
@@ -33,10 +34,8 @@ DrumSynthV2Controller::DrumSynthV2Controller(std::shared_ptr<DeviceService> devi
   : DeviceController { parent }
   , m_deviceService { std::move(deviceService) }
 {
-    // Long enough that a knob drag settles into one render, short enough that letting go of the
-    // knob and looking at the picture feels like the same action.
     m_waveformTimer.setSingleShot(true);
-    m_waveformTimer.setInterval(250);
+    m_waveformTimer.setInterval(WaveformDebounceMs);
     connect(&m_waveformTimer, &QTimer::timeout, this, &DrumSynthV2Controller::renderWaveform);
 }
 
@@ -101,9 +100,11 @@ void DrumSynthV2Controller::setSelectedVoice(int index)
         m_selectedVoice = index;
         emit selectedVoiceChanged();
         requestSettings();
-        // Now rather than in a quarter of a second: picking a voice is one deliberate act, and
-        // there is nothing to coalesce it with.
-        renderWaveform();
+        // Without waiting, but not here either. Rendering a voice takes a third of a second for a
+        // crash, and the pad that changed this also plays the note: doing it inside this call
+        // leaves the drum silent until the picture is finished. Zero puts it on the next turn of
+        // the event loop, by which time the click has been served and the note has sounded.
+        scheduleWaveform(0);
     }
 }
 
@@ -125,6 +126,30 @@ double DrumSynthV2Controller::voiceAmpDecaySeconds() const
 double DrumSynthV2Controller::voiceAmpReleaseSeconds() const
 {
     return ParameterMapper::mapExponential(static_cast<double>(voiceAmpRelease()) / Constants::uiInternalScaling(), DrumSynthV2::AmpEnvelopeMinDecaySeconds, DrumSynthV2::AmpEnvelopeMaxDecaySeconds);
+}
+
+double DrumSynthV2Controller::playbackPosition() const
+{
+    if (!m_device || m_waveformDuration <= 0.0) {
+        return 0.0;
+    }
+    const auto elapsed = m_device->voiceElapsedSeconds(m_selectedVoice);
+    if (!elapsed) {
+        return 0.0;
+    }
+    // Against the picture rather than against the sound: a voice whose envelope has been pulled in
+    // stops before the end of the material, and the playhead has to stop where it is heard to.
+    return std::clamp(*elapsed / m_waveformDuration, 0.0, 1.0);
+}
+
+bool DrumSynthV2Controller::voiceSounding() const
+{
+    return m_device && m_device->voiceElapsedSeconds(m_selectedVoice).has_value();
+}
+
+void DrumSynthV2Controller::updatePlaybackStatus()
+{
+    emit playbackStatusChanged();
 }
 
 QVariantList DrumSynthV2Controller::waveformData() const
@@ -154,13 +179,14 @@ void DrumSynthV2Controller::setWaveformRequest(int peakCount, bool visible)
     }
 }
 
-void DrumSynthV2Controller::scheduleWaveform()
+void DrumSynthV2Controller::scheduleWaveform(int delayMs)
 {
     if (!m_waveformVisible || m_waveformPeakCount <= 0) {
         m_waveformTimer.stop();
         return;
     }
     // Restarted rather than left running, which is what collapses a drag into one render.
+    m_waveformTimer.setInterval(delayMs);
     m_waveformTimer.start();
 }
 

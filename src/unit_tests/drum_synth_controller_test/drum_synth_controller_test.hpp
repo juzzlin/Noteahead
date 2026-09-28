@@ -13,6 +13,7 @@ class DrumSynthControllerTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_waveform_voiceChange_shouldNotRenderInTheCall();
     void test_waveform_rapidChanges_shouldRenderOnce();
     void test_waveform_whileHidden_shouldNotRender();
     void test_sampleRateChange_shouldUpdateHzValues();

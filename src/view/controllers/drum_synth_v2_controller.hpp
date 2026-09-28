@@ -38,6 +38,9 @@ class DrumSynthV2Controller : public DeviceController
     //! pulled: a Sampler pad's picture changes only when its file does, so QML can ask for one when
     //! it likes; a drum voice's changes with every knob, and rendering one costs tens of
     //! milliseconds, so the controller decides when to redraw and tells the view.
+    //! Where the playhead sits, 0..1 of the picture, and whether there is anything to draw it for.
+    Q_PROPERTY(double playbackPosition READ playbackPosition NOTIFY playbackStatusChanged)
+    Q_PROPERTY(bool voiceSounding READ voiceSounding NOTIFY playbackStatusChanged)
     Q_PROPERTY(QVariantList waveformData READ waveformData NOTIFY waveformChanged)
     //! What the picture spans, in seconds.
     Q_PROPERTY(double waveformDuration READ waveformDuration NOTIFY waveformChanged)
@@ -115,6 +118,12 @@ public:
     double voiceAmpHoldSeconds() const;
     double voiceAmpDecaySeconds() const;
     double voiceAmpReleaseSeconds() const;
+
+    double playbackPosition() const;
+    bool voiceSounding() const;
+    //! Polled by the view while it is showing, as the Sampler's own waveform polls its pad: the
+    //! playhead moves with the audio, which nothing else in the device has reason to signal about.
+    Q_INVOKABLE void updatePlaybackStatus();
 
     QVariantList waveformData() const;
     double waveformDuration() const;
@@ -198,6 +207,7 @@ public:
 signals:
     void selectedVoiceChanged();
     void waveformChanged();
+    void playbackStatusChanged();
     void lpfSlopeChanged();
     void hpfSlopeChanged();
     void voiceLevelChanged();
@@ -234,7 +244,14 @@ private:
     //! Redraws now rather than after the wait. Picking a voice is one deliberate act rather than a
     //! stream of them, and a quarter of a second of blank would read as the dialog being slow.
     void renderWaveform();
-    void scheduleWaveform();
+    //! \param delayMs How long to wait. The default coalesces a knob drag; zero defers the redraw
+    //! to the next turn of the event loop without waiting, which is how a redraw is asked for
+    //! without doing it inside the handler that asked.
+    void scheduleWaveform(int delayMs = WaveformDebounceMs);
+
+    //! Long enough that a knob drag settles into one render, short enough that letting go of the
+    //! knob and looking at the picture feels like the same action.
+    static constexpr int WaveformDebounceMs { 250 };
 
     QVariantList m_waveformData;
     double m_waveformDuration { 0.0 };

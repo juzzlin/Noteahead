@@ -136,6 +136,7 @@ void DrumSynthV2Device::processMidiNoteOn(uint8_t note, uint8_t velocity)
             const float vel { static_cast<float>(velocity) / 127.0f };
             voice.engine->trigger(vel);
             voice.ampEnvelope.trigger();
+            voice.renderedFrames = 0;
             break;
         }
     }
@@ -288,6 +289,11 @@ void DrumSynthV2Device::processAudio(AudioContext & context)
 
             for (int v = 0; v < NumVoices; v++) {
                 auto & voice = m_voices.at(v);
+                // Counted on the first pass of the oversampling only, so it stays a count of output
+                // frames and the playhead runs at the same speed whatever the quality is set to.
+                if (!os && voice.engine->isActive() && voice.ampEnvelope.isActive()) {
+                    voice.renderedFrames++;
+                }
                 // Once the envelope has closed there is nothing left to hear however much tail the
                 // engine still has, so the voice stops costing anything -- which is what makes a
                 // short Hold cheaper than a long one rather than merely quieter.
@@ -989,6 +995,23 @@ bool DrumSynthV2Device::writeVoiceParameter(int voiceIndex, const std::string & 
 bool DrumSynthV2Device::automateVoiceParameter(int voiceIndex, const std::string & paramName, float value)
 {
     return writeVoiceParameter(voiceIndex, paramName, value, false);
+}
+
+std::optional<double> DrumSynthV2Device::voiceElapsedSeconds(int voiceIndex) const
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    if (voiceIndex < 0 || voiceIndex >= NumVoices) {
+        return std::nullopt;
+    }
+    const auto & voice = m_voices.at(static_cast<size_t>(voiceIndex));
+    if (!voice.engine->isActive() || !voice.ampEnvelope.isActive()) {
+        return std::nullopt;
+    }
+    const auto rate = sampleRate();
+    if (!rate) {
+        return std::nullopt;
+    }
+    return static_cast<double>(voice.renderedFrames) / static_cast<double>(rate);
 }
 
 std::vector<double> DrumSynthV2Device::renderVoiceAlone(int voiceIndex, double sampleRate, double maxSeconds)

@@ -11,10 +11,43 @@
 #include "../../view/controllers/drum_synth_controller.hpp"
 #include "../../view/controllers/drum_synth_v2_controller.hpp"
 
+#include <QElapsedTimer>
 #include <QSignalSpy>
 #include <QTest>
 
 namespace noteahead {
+
+void DrumSynthControllerTest::test_waveform_voiceChange_shouldNotRenderInTheCall()
+{
+    // A pad both selects a voice and plays it, in that order. Rendering the picture inside the
+    // selection left the drum silent until it was finished, which for a crash is a third of a
+    // second: the redraw has to be asked for and then got out of the way of.
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    DrumSynthV2Controller controller { deviceService };
+
+    const auto device = std::make_shared<DrumSynthV2Device>(Constants::drumSynthV2DeviceName().toStdString());
+    deviceService->setDevice(0, device);
+    controller.setDevice(Constants::drumSynthV2DeviceName());
+    controller.setWaveformRequest(64, true);
+
+    QSignalSpy spy { &controller, &DrumSynthV2Controller::waveformChanged };
+    QVERIFY(spy.wait(4000));
+    spy.clear();
+
+    // The crash, which is far and away the slowest of them to render.
+    QElapsedTimer timer;
+    timer.start();
+    controller.setSelectedVoice(8);
+    const auto elapsed = timer.elapsed();
+
+    QCOMPARE(spy.count(), 0);
+    QVERIFY2(elapsed < 50, qPrintable(QString { "selecting a voice took %1 ms" }.arg(elapsed)));
+
+    // And the picture follows on the next turn of the event loop rather than being dropped.
+    QVERIFY(spy.wait(4000));
+    QCOMPARE(spy.count(), 1);
+}
 
 void DrumSynthControllerTest::test_waveform_rapidChanges_shouldRenderOnce()
 {

@@ -55,7 +55,7 @@ New features:
   - Bit Crusher throws away word length and sample rate separately, and is
     deliberately not oversampled, because there the aliases are the point
 
-* A waveform view on the Drum Synth V2
+* A waveform view on the Drum Synth V2, with a playhead
   - The selected voice drawn the way the Sampler draws a pad, its own insert
     effects included, with the amp envelope laid over it
   - Both it and the Sampler now read out how long the sound lasts and the

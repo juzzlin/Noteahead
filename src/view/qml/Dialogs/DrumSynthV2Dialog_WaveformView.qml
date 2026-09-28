@@ -34,6 +34,11 @@ WaveformView {
     duration: drumSynthV2Controller.waveformDuration
     audibleLength: drumSynthV2Controller.audibleLength
 
+    // The playhead only while something is sounding: a drum is struck and gone, so a bar parked at
+    // the left between hits would be saying a voice is playing when none is.
+    showPlayhead: drumSynthV2Controller.voiceSounding
+    playbackPosition: drumSynthV2Controller.playbackPosition
+
     showEnvelope: true
     envelopeAttack: drumSynthV2Controller.voiceAmpAttackSeconds
     envelopeHold: drumSynthV2Controller.voiceAmpHoldSeconds
@@ -47,6 +52,15 @@ WaveformView {
     // on every frame of it.
     function requestWaveform(): void {
         drumSynthV2Controller.setWaveformRequest(Math.max(0, Math.floor(width) - 12), root.dialogVisible);
+    }
+
+    // Twenty milliseconds, as the Sampler's own waveform polls: the playhead moves with the audio,
+    // and nothing in the device has reason to signal about that on its own.
+    Timer {
+        interval: 20
+        running: root.dialogVisible
+        repeat: true
+        onTriggered: drumSynthV2Controller.updatePlaybackStatus()
     }
 
     onWidthChanged: requestWaveform()

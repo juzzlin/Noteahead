@@ -40,6 +40,7 @@ private slots:
     void test_voicePreview_shouldPictureTheVoiceAndMeasureWhatIsHeard();
     void test_voicePreview_shouldNotDisturbTheDeviceItPictures();
     void test_voicePreview_shortEnvelope_shouldShortenOnlyWhatIsHeard();
+    void test_voiceElapsedSeconds_shouldFollowTheVoice();
     void test_drumSynthV2Device_xmlSerialization_shouldRestoreParameters();
 };
 
