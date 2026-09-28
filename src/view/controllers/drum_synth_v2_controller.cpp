@@ -18,6 +18,7 @@
 #include <QVariant>
 
 #include "../../application/service/device_service.hpp"
+#include "../../application/service/drum_voice_preview.hpp"
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
 #include "../../domain/devices/drum_synth_v2_device.hpp"
@@ -30,6 +31,11 @@ DrumSynthV2Controller::DrumSynthV2Controller(std::shared_ptr<DeviceService> devi
   : DeviceController { parent }
   , m_deviceService { std::move(deviceService) }
 {
+    // Long enough that a knob drag settles into one render, short enough that letting go of the
+    // knob and looking at the picture feels like the same action.
+    m_waveformTimer.setSingleShot(true);
+    m_waveformTimer.setInterval(250);
+    connect(&m_waveformTimer, &QTimer::timeout, this, &DrumSynthV2Controller::renderWaveform);
 }
 
 DeviceController::DeviceS DrumSynthV2Controller::device() const
@@ -93,7 +99,61 @@ void DrumSynthV2Controller::setSelectedVoice(int index)
         m_selectedVoice = index;
         emit selectedVoiceChanged();
         requestSettings();
+        // Now rather than in a quarter of a second: picking a voice is one deliberate act, and
+        // there is nothing to coalesce it with.
+        renderWaveform();
     }
+}
+
+QVariantList DrumSynthV2Controller::waveformData() const
+{
+    return m_waveformData;
+}
+
+double DrumSynthV2Controller::waveformDuration() const
+{
+    return m_waveformDuration;
+}
+
+double DrumSynthV2Controller::audibleLength() const
+{
+    return m_audibleLength;
+}
+
+void DrumSynthV2Controller::setWaveformRequest(int peakCount, bool visible)
+{
+    // A resize changes the picture as surely as a parameter does, so it goes through the same wait:
+    // dragging a dialog edge would otherwise render on every frame of the drag.
+    const bool changed = peakCount != m_waveformPeakCount || visible != m_waveformVisible;
+    m_waveformPeakCount = peakCount;
+    m_waveformVisible = visible;
+    if (changed) {
+        scheduleWaveform();
+    }
+}
+
+void DrumSynthV2Controller::scheduleWaveform()
+{
+    if (!m_waveformVisible || m_waveformPeakCount <= 0) {
+        m_waveformTimer.stop();
+        return;
+    }
+    // Restarted rather than left running, which is what collapses a drag into one render.
+    m_waveformTimer.start();
+}
+
+void DrumSynthV2Controller::renderWaveform()
+{
+    m_waveformTimer.stop();
+    if (!m_device || !m_waveformVisible || m_waveformPeakCount <= 0) {
+        return;
+    }
+
+    const auto preview = DrumVoicePreview::render(*m_device, m_selectedVoice, m_waveformPeakCount, Constants::defaultSampleRate());
+    m_waveformData = preview.peaks;
+    m_waveformDuration = preview.durationSeconds;
+    m_audibleLength = preview.audibleSeconds;
+    emit waveformChanged();
 }
 
 int DrumSynthV2Controller::voiceLevel() const
@@ -509,6 +569,11 @@ std::string DrumSynthV2Controller::currentVoicePrefix() const
 
 void DrumSynthV2Controller::requestSettings()
 {
+    // Everything that changes a voice arrives here: the dialog's own knobs through the device's
+    // dataChanged, and so do presets, automation and incoming MIDI CC. Hooking the redraw on this
+    // one signal is what keeps the picture honest without a call in every setter.
+    scheduleWaveform();
+
     emit selectedVoiceChanged();
     emit voiceLevelChanged();
     emit voicePanChanged();

@@ -17,6 +17,10 @@
 #define DRUM_SYNTH_V2_CONTROLLER_HPP
 
 #include "device_controller.hpp"
+
+#include <QTimer>
+#include <QVariantList>
+
 #include <memory>
 #include <string>
 
@@ -30,6 +34,15 @@ class DrumSynthV2Controller : public DeviceController
     Q_OBJECT
 
     Q_PROPERTY(int selectedVoice READ selectedVoice WRITE setSelectedVoice NOTIFY selectedVoiceChanged)
+    //! The selected voice's picture, and the two lengths that go with it. Pushed rather than
+    //! pulled: a Sampler pad's picture changes only when its file does, so QML can ask for one when
+    //! it likes; a drum voice's changes with every knob, and rendering one costs tens of
+    //! milliseconds, so the controller decides when to redraw and tells the view.
+    Q_PROPERTY(QVariantList waveformData READ waveformData NOTIFY waveformChanged)
+    //! What the picture spans, in seconds.
+    Q_PROPERTY(double waveformDuration READ waveformDuration NOTIFY waveformChanged)
+    //! What is actually heard, in seconds, envelope and effects included.
+    Q_PROPERTY(double audibleLength READ audibleLength NOTIFY waveformChanged)
     Q_PROPERTY(int lpfSlope READ lpfSlope WRITE setLpfSlope NOTIFY lpfSlopeChanged)
     Q_PROPERTY(int hpfSlope READ hpfSlope WRITE setHpfSlope NOTIFY hpfSlopeChanged)
 
@@ -91,6 +104,14 @@ public:
     int hpfSlope() const;
     void setHpfSlope(int value);
     void setSelectedVoice(int index);
+
+    QVariantList waveformData() const;
+    double waveformDuration() const;
+    double audibleLength() const;
+
+    //! How many points the view has room for, and whether it is on screen at all. Nothing is
+    //! rendered until the view says both: a knob turned with the dialog shut costs nothing.
+    Q_INVOKABLE void setWaveformRequest(int peakCount, bool visible);
 
     int voiceLevel() const;
     void setVoiceLevel(int value);
@@ -165,6 +186,7 @@ public:
 
 signals:
     void selectedVoiceChanged();
+    void waveformChanged();
     void lpfSlopeChanged();
     void hpfSlopeChanged();
     void voiceLevelChanged();
@@ -194,6 +216,20 @@ signals:
 private:
     std::shared_ptr<DeviceService> m_deviceService;
     std::shared_ptr<DrumSynthV2Device> m_device;
+
+    //! Coalesces the redraws. A knob drag emits a change per pixel of travel, and each one would
+    //! otherwise pay for a render; restarting this on every change collapses a drag into one.
+    QTimer m_waveformTimer;
+    //! Redraws now rather than after the wait. Picking a voice is one deliberate act rather than a
+    //! stream of them, and a quarter of a second of blank would read as the dialog being slow.
+    void renderWaveform();
+    void scheduleWaveform();
+
+    QVariantList m_waveformData;
+    double m_waveformDuration { 0.0 };
+    double m_audibleLength { 0.0 };
+    int m_waveformPeakCount { 0 };
+    bool m_waveformVisible { false };
     int m_selectedVoice { 0 };
 
     std::string currentVoicePrefix() const;

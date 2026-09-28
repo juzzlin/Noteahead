@@ -5,14 +5,64 @@
 #include "../../application/service/device_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
+#include "../../domain/devices/drum_synth_v2_device.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
 #include "../../view/controllers/drum_synth_controller.hpp"
+#include "../../view/controllers/drum_synth_v2_controller.hpp"
 
 #include <QSignalSpy>
 #include <QTest>
 
 namespace noteahead {
+
+void DrumSynthControllerTest::test_waveform_rapidChanges_shouldRenderOnce()
+{
+    // Rendering a drum voice costs tens of milliseconds, and a knob drag emits a change per pixel
+    // of travel. Without the wait every one of those would pay for a render; with it a whole drag
+    // collapses into the single redraw the user is actually waiting to see.
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    DrumSynthV2Controller controller { deviceService };
+
+    const auto device = std::make_shared<DrumSynthV2Device>(Constants::drumSynthV2DeviceName().toStdString());
+    deviceService->setDevice(0, device);
+    controller.setDevice(Constants::drumSynthV2DeviceName());
+    controller.setWaveformRequest(64, true);
+
+    QSignalSpy spy { &controller, &DrumSynthV2Controller::waveformChanged };
+    QVERIFY(spy.wait(2000));
+    spy.clear();
+
+    // A drag's worth of changes, far faster than the wait.
+    for (int step = 0; step < 20; step++) {
+        controller.setVoiceDecay(step * 100);
+    }
+    QCOMPARE(spy.count(), 0);
+
+    QVERIFY(spy.wait(2000));
+    QCOMPARE(spy.count(), 1);
+    QVERIFY(!controller.waveformData().isEmpty());
+}
+
+void DrumSynthControllerTest::test_waveform_whileHidden_shouldNotRender()
+{
+    // A knob turned with the dialog shut costs nothing at all.
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    DrumSynthV2Controller controller { deviceService };
+
+    const auto device = std::make_shared<DrumSynthV2Device>(Constants::drumSynthV2DeviceName().toStdString());
+    deviceService->setDevice(0, device);
+    controller.setDevice(Constants::drumSynthV2DeviceName());
+    controller.setWaveformRequest(64, false);
+
+    QSignalSpy spy { &controller, &DrumSynthV2Controller::waveformChanged };
+    controller.setVoiceDecay(5000);
+    QTest::qWait(600);
+    QCOMPARE(spy.count(), 0);
+    QVERIFY(controller.waveformData().isEmpty());
+}
 
 void DrumSynthControllerTest::test_sampleRateChange_shouldUpdateHzValues()
 {
