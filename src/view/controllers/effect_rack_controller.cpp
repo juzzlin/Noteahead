@@ -3098,4 +3098,34 @@ void EffectRackController::setDeviceSend(const QString & deviceName, quint32 eff
     }
 }
 
+float EffectRackController::partSend(const QString & deviceName, int subIndex, quint32 effectIndex) const
+{
+    if (subIndex < 0) {
+        return deviceSend(deviceName, effectIndex);
+    }
+    if (const auto device = m_deviceService->device(deviceName.toStdString()); device) {
+        return device->sendSourceLevel(static_cast<size_t>(subIndex), effectIndex);
+    }
+    return 0.0f;
+}
+
+void EffectRackController::setPartSend(const QString & deviceName, int subIndex, quint32 effectIndex, float send)
+{
+    if (subIndex < 0) {
+        setDeviceSend(deviceName, effectIndex, send);
+        return;
+    }
+    if (const auto device = m_deviceService->device(deviceName.toStdString()); device) {
+        device->setSendSourceLevel(static_cast<size_t>(subIndex), effectIndex, send);
+    }
+}
+
+bool EffectRackController::hasPartSends(const QString & deviceName) const
+{
+    if (const auto device = m_deviceService->device(deviceName.toStdString()); device) {
+        return device->sendSourceCount() > 0;
+    }
+    return false;
+}
+
 } // namespace noteahead

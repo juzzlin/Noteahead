@@ -29,6 +29,8 @@
 #include "repro_kick_pop.cpp"
 #include <QTest>
 
+#include <algorithm>
+
 #include <cmath>
 
 namespace noteahead {
@@ -49,6 +51,61 @@ std::vector<double> renderKick(int slope, float hpfCutoff)
 }
 
 } // namespace
+
+void DrumSynthTest::test_voiceSend_shouldReachTheBusOnItsOwn()
+{
+    // A snare in the plate while the rest of the kit stays dry: the case a per-device send cannot
+    // express, and the reason for all of this.
+    DrumSynthDevice device { "Drum Synth" };
+    device.setSendSourceLevel(0, 0, 1.0f);
+    device.processMidiNoteOn(36, 100);
+
+    std::vector<std::vector<double>> buses(2, std::vector<double>(4096 * 2, 0.0));
+    std::vector<std::span<double>> busSpans;
+    for (auto & bus : buses) {
+        busSpans.emplace_back(bus.data(), bus.size());
+    }
+    std::vector<double> buffer(4096 * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), 4096, 44100 };
+    context.sendBuses = std::span<const std::span<double>>(busSpans);
+    device.processAudio(context);
+
+    const auto peak = [](const std::vector<double> & samples) {
+        double result = 0.0;
+        for (const double sample : samples) {
+            result = std::max(result, std::abs(sample));
+        }
+        return result;
+    };
+
+    QCOMPARE(device.reverbSend(0), 0.0f);
+    QVERIFY2(peak(buses.at(0)) > 0.01, qPrintable(QString { "the bus got %1" }.arg(peak(buses.at(0)))));
+    // Only the voice that was routed, and only the bus it was routed to.
+    QVERIFY2(peak(buses.at(1)) < 1.0e-9, qPrintable(QString { "the unused bus got %1" }.arg(peak(buses.at(1)))));
+}
+
+void DrumSynthTest::test_voiceSend_unrouted_shouldSendNothing()
+{
+    // The compatibility case: every kit in every project saved until now.
+    DrumSynthDevice device { "Drum Synth" };
+    device.processMidiNoteOn(36, 100);
+
+    std::vector<double> bus(4096 * 2, 0.0);
+    std::vector<std::span<double>> busSpans { std::span<double>(bus.data(), bus.size()) };
+    std::vector<double> buffer(4096 * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), 4096, 44100 };
+    context.sendBuses = std::span<const std::span<double>>(busSpans);
+    device.processAudio(context);
+
+    double busPeak = 0.0;
+    double outputPeak = 0.0;
+    for (size_t i = 0; i < bus.size(); i++) {
+        busPeak = std::max(busPeak, std::abs(bus[i]));
+        outputPeak = std::max(outputPeak, std::abs(buffer[i]));
+    }
+    QVERIFY2(outputPeak > 0.01, "the kick was not heard at all");
+    QVERIFY2(busPeak < 1.0e-12, qPrintable(QString { "the bus got %1" }.arg(busPeak)));
+}
 
 void DrumSynthTest::test_lpfSlope_shouldDefaultToTheSlopeItAlwaysHad()
 {

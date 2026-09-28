@@ -26,6 +26,8 @@ class DrumSynthTest : public QObject
 
 private slots:
     void test_lpfSlope_shouldDefaultToTheSlopeItAlwaysHad();
+    void test_voiceSend_shouldReachTheBusOnItsOwn();
+    void test_voiceSend_unrouted_shouldSendNothing();
     void test_hpfSlope_steep_shouldCutFurther();
     void test_lpfSlope_shallow_shouldRenderAsBefore();
     void test_kickEngine_attack_shouldAddClick();

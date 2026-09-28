@@ -26,6 +26,8 @@ class DrumSynthV2Test : public QObject
 
 private slots:
     void test_drumSynthV2Device_typeId_shouldDifferFromV1();
+    void test_voiceSend_shouldReachTheBusOnItsOwn();
+    void test_voiceSend_unrouted_shouldSendNothing();
     void test_drumSynthV2Device_everyVoice_shouldStayCloseToV1();
     void test_drumSynthV2Device_midiNoteOn_shouldTriggerVoice();
     void test_ampEnvelope_shortHold_shouldTightenTheVoice();

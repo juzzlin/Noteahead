@@ -3,6 +3,9 @@
 #include "../../application/service/editor_service.hpp"
 #include "../../application/service/preset_service.hpp"
 #include "../../common/constants.hpp"
+#include "../../domain/devices/device_factory.hpp"
+#include "../../domain/devices/drum_synth_device.hpp"
+#include "../../domain/devices/synth_device.hpp"
 #include "../../domain/dsp/svf_filter.hpp"
 #include "../../domain/effects/air_band_eq.hpp"
 #include "../../domain/effects/auto_filter.hpp"
@@ -1340,6 +1343,46 @@ void EffectRackControllerTest::test_availableEffects_shouldBeSortedByName()
         QVERIFY2(QString::compare(previous, current, Qt::CaseInsensitive) < 0,
                  qPrintable(QString { "\"%1\" is listed before \"%2\"" }.arg(previous, current)));
     }
+}
+
+void EffectRackControllerTest::test_partSend_shouldAddressOnePadOnly()
+{
+    // A pad's send belongs to the pad: setting one must not move its neighbours or the device.
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+
+    DeviceFactory::init();
+    const auto device = DeviceFactory::createDevice(DrumSynthDevice::typeIdString(), "Drums");
+    deviceService->setDevice(0, device);
+
+    QVERIFY(controller.hasPartSends("Drums"));
+    controller.setPartSend("Drums", 2, 1, 0.5f);
+
+    QCOMPARE(controller.partSend("Drums", 2, 1), 0.5f);
+    QCOMPARE(controller.partSend("Drums", 3, 1), 0.0f);
+    QCOMPARE(controller.partSend("Drums", 2, 0), 0.0f);
+    QCOMPARE(controller.deviceSend("Drums", 1), 0.0f);
+}
+
+void EffectRackControllerTest::test_partSend_negativeSubIndex_shouldBeTheDeviceItself()
+{
+    // So a dialog that does not know whether it is showing a device or one of its parts can ask the
+    // same way for both.
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+
+    DeviceFactory::init();
+    const auto device = DeviceFactory::createDevice(SynthDevice::typeIdString(), "Synth");
+    deviceService->setDevice(0, device);
+
+    controller.setPartSend("Synth", -1, 3, 0.25f);
+
+    QCOMPARE(controller.deviceSend("Synth", 3), 0.25f);
+    QCOMPARE(controller.partSend("Synth", -1, 3), 0.25f);
+    // A Synth has no parts of its own, so the tab has nothing to show for it.
+    QVERIFY(!controller.hasPartSends("Synth"));
 }
 
 void EffectRackControllerTest::test_availableEffects_shouldOfferTheMonitoringEffects()

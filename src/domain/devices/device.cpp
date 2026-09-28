@@ -267,6 +267,33 @@ void Device::setReverbSend(size_t index, float send)
     }
 }
 
+size_t Device::sendSourceCount() const
+{
+    return 0;
+}
+
+float Device::sendSourceLevel(size_t, size_t) const
+{
+    return 0.0f;
+}
+
+void Device::setSendSourceLevel(size_t, size_t, float)
+{
+}
+
+bool Device::hasSendSources() const
+{
+    const auto sources = sendSourceCount();
+    for (size_t source = 0; source < sources; source++) {
+        for (size_t bus = 0; bus < reverbSendCount(); bus++) {
+            if (sendSourceLevel(source, bus) > 0.0f) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 size_t Device::reverbSendCount() const
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
@@ -483,6 +510,9 @@ void Device::renderBlock(AudioContext & context)
         piece.buffer = context.buffer.subspan(static_cast<size_t>(rendered) * 2, static_cast<size_t>(until - rendered) * 2);
         piece.frameCount = until - rendered;
         piece.startFrame = at;
+        // The send buses are not sliced with the buffer -- they belong to the whole block -- so a
+        // device writing into them is told where this piece sits inside them.
+        piece.sendBusOffset = context.sendBusOffset + static_cast<size_t>(rendered) * 2;
         processAudio(piece);
 
         rendered = until;
@@ -593,13 +623,15 @@ void Device::processInsertEffects(AudioContext & context)
     m_insertEffectRack.processInPlace(context);
 }
 
+double Device::faderGain() const
+{
+    const std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    return ParameterMapper::mapFader(static_cast<double>(m_volume));
+}
+
 void Device::applyFader(AudioContext & context) const
 {
-    double volume {};
-    {
-        const std::lock_guard<std::recursive_mutex> lock { m_mutex };
-        volume = ParameterMapper::mapFader(static_cast<double>(m_volume));
-    }
+    const double volume = faderGain();
 
     const uint32_t sampleCount = context.frameCount * 2;
     for (uint32_t i = 0; i < sampleCount; i++) {

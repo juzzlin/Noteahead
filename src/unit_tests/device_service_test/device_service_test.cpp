@@ -800,6 +800,79 @@ void DeviceServiceTest::test_reverbSends_shouldSaveAndLoadCorrectly()
     QCOMPARE(dev2->reverbSend(2), 0.75f);
 }
 
+void DeviceServiceTest::test_partSends_shouldSaveAndLoadCorrectly()
+{
+    // A pad's route is the pad's, so it has to survive a save with the pad it belongs to rather than
+    // being folded into whatever the device itself sends.
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto dataService = std::make_shared<DataService>();
+    DeviceService service { audioEngine, dataService };
+
+    DeviceFactory::init();
+    const auto dev = DeviceFactory::createDevice(DrumSynthDevice::typeIdString(), "TestDrums");
+    service.setDevice(0, dev);
+
+    dev->setReverbSend(0, 0.25f); // The device's own, which must stay its own
+    dev->setSendSourceLevel(1, 0, 0.5f);
+    dev->setSendSourceLevel(3, 2, 0.75f);
+
+    QString xml;
+    NahdXmlWriter writer { xml };
+    service.serializeToXml(writer);
+
+    const auto audioEngine2 = std::make_shared<AudioEngine>();
+    const auto dataService2 = std::make_shared<DataService>();
+    DeviceService service2 { audioEngine2, dataService2 };
+    const auto dev2 = DeviceFactory::createDevice(DrumSynthDevice::typeIdString(), "TestDrums");
+    service2.setDevice(0, dev2);
+
+    NahdXmlReader reader { xml };
+    QVERIFY(reader.readNextStartElement());
+    QCOMPARE(reader.name(), Constants::NahdXml::xmlKeyDevices());
+    service2.deserializeFromXml(reader);
+
+    QCOMPARE(dev2->reverbSend(0), 0.25f);
+    QCOMPARE(dev2->sendSourceLevel(1, 0), 0.5f);
+    QCOMPARE(dev2->sendSourceLevel(3, 2), 0.75f);
+    // And nothing else was routed by the reading of it.
+    QCOMPARE(dev2->sendSourceLevel(0, 0), 0.0f);
+    QCOMPARE(dev2->sendSourceLevel(1, 1), 0.0f);
+}
+
+void DeviceServiceTest::test_partSends_projectWithoutThem_shouldLoadAsUnrouted()
+{
+    // Every project saved until now: its sends carry no sub-index, so they are the device's own and
+    // every part reads back routed nowhere.
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto dataService = std::make_shared<DataService>();
+    DeviceService service { audioEngine, dataService };
+
+    DeviceFactory::init();
+    const auto dev = DeviceFactory::createDevice(DrumSynthDevice::typeIdString(), "TestDrums");
+    service.setDevice(0, dev);
+    dev->setReverbSend(1, 0.6f);
+
+    QString xml;
+    NahdXmlWriter writer { xml };
+    service.serializeToXml(writer);
+    QVERIFY2(!xml.contains(Constants::NahdXml::xmlKeySubIndex()), "a device with no part sends wrote one anyway");
+
+    const auto audioEngine2 = std::make_shared<AudioEngine>();
+    const auto dataService2 = std::make_shared<DataService>();
+    DeviceService service2 { audioEngine2, dataService2 };
+    const auto dev2 = DeviceFactory::createDevice(DrumSynthDevice::typeIdString(), "TestDrums");
+    service2.setDevice(0, dev2);
+
+    NahdXmlReader reader { xml };
+    QVERIFY(reader.readNextStartElement());
+    service2.deserializeFromXml(reader);
+
+    QCOMPARE(dev2->reverbSend(1), 0.6f);
+    for (size_t source = 0; source < dev2->sendSourceCount(); source++) {
+        QCOMPARE(dev2->sendSourceLevel(source, 1), 0.0f);
+    }
+}
+
 void DeviceServiceTest::test_masterRackEnabled_shouldSaveAndLoadCorrectly()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();

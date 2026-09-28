@@ -535,6 +535,19 @@ public:
     Q_INVOKABLE float deviceSend(const QString & deviceName, quint32 effectIndex) const;
     Q_INVOKABLE void setDeviceSend(const QString & deviceName, quint32 effectIndex, float send);
 
+    //! The same, for one part of a device: a Sampler pad or a Drum Synth voice.
+    //!
+    //! @p subIndex below zero means the device itself, so a caller that does not know whether it is
+    //! looking at a part can ask the same way either way. A part's send is its own rather than a
+    //! share of the device's: both reach the bus, which is what makes a dry kit with one wet drum
+    //! possible at all.
+    Q_INVOKABLE float partSend(const QString & deviceName, int subIndex, quint32 effectIndex) const;
+    Q_INVOKABLE void setPartSend(const QString & deviceName, int subIndex, quint32 effectIndex, float send);
+    //! Whether this device has parts that can be routed on their own, so a dialog knows whether to
+    //! offer the tab at all.
+    Q_INVOKABLE bool hasPartSends(const QString & deviceName) const;
+
+
 signals:
     void effectCountChanged();
     void revisionChanged();

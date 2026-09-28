@@ -173,7 +173,85 @@ std::vector<double> render(SamplerDevice & sampler, uint32_t frameCount)
     return buffer;
 }
 
+//! Renders with a pair of send buses attached, and hands back what landed in bus @p busIndex.
+std::vector<double> renderWithSends(SamplerDevice & sampler, uint32_t frameCount, size_t busIndex, size_t busCount = 2)
+{
+    std::vector<double> buffer(frameCount * 2, 0.0);
+    std::vector<std::vector<double>> buses(busCount, std::vector<double>(frameCount * 2, 0.0));
+    std::vector<std::span<double>> busSpans;
+    for (auto & bus : buses) {
+        busSpans.emplace_back(bus.data(), bus.size());
+    }
+
+    AudioContext context { std::span(buffer.data(), buffer.size()), frameCount, static_cast<uint32_t>(Constants::defaultSampleRate()) };
+    context.sendBuses = std::span<const std::span<double>>(busSpans);
+    sampler.processAudio(context);
+    return buses.at(busIndex);
+}
+
+double peak(const std::vector<double> & samples)
+{
+    double result = 0.0;
+    for (const double sample : samples) {
+        result = std::max(result, std::abs(sample));
+    }
+    return result;
+}
+
 } // namespace
+
+void SamplerTest::test_padSend_shouldReachTheBusOnItsOwn()
+{
+    // The case that was impossible before: one pad in the reverb while the device sends nothing.
+    auto sampler = makeMonoSampler();
+    sampler->setSendSourceLevel(60, 0, 1.0f);
+    sampler->processMidiNoteOn(60, 127);
+
+    const auto bus = renderWithSends(*sampler, 256, 0);
+
+    QCOMPARE(sampler->reverbSend(0), 0.0f);
+    QVERIFY2(peak(bus) > 0.01, qPrintable(QString { "the bus got %1" }.arg(peak(bus))));
+}
+
+void SamplerTest::test_padSend_otherPads_shouldStayOutOfIt()
+{
+    // A send belongs to the pad that was given it, not to the device: a pad with none must not be
+    // carried into the bus by a neighbour that has one.
+    auto sampler = makeMonoSampler();
+    sampler->loadSample(62, "other.wav");
+    sampler->setSendSourceLevel(60, 0, 1.0f);
+
+    sampler->processMidiNoteOn(62, 127);
+    const auto busFromOtherPad = renderWithSends(*sampler, 256, 0);
+    QVERIFY2(peak(busFromOtherPad) < 1.0e-9, qPrintable(QString { "the bus got %1" }.arg(peak(busFromOtherPad))));
+
+    // And bus 1, which nothing was routed to, stays empty whichever pad plays.
+    sampler->processMidiNoteOn(60, 127);
+    const auto unusedBus = renderWithSends(*sampler, 256, 1);
+    QVERIFY2(peak(unusedBus) < 1.0e-9, qPrintable(QString { "the unused bus got %1" }.arg(peak(unusedBus))));
+}
+
+void SamplerTest::test_padSend_postFader_shouldFollowTheFader()
+{
+    // The device's Send Tap governs a pad's send as it governs the device's own: post-fader means
+    // riding the fader down takes the send with it.
+    auto preFader = makeMonoSampler();
+    preFader->setSendTap(Device::SendTap::PreFader);
+    preFader->setSendSourceLevel(60, 0, 1.0f);
+    preFader->setVolume(0.2f);
+    preFader->processMidiNoteOn(60, 127);
+    const auto preFaderBus = renderWithSends(*preFader, 256, 0);
+
+    auto postFader = makeMonoSampler();
+    postFader->setSendTap(Device::SendTap::PostFader);
+    postFader->setSendSourceLevel(60, 0, 1.0f);
+    postFader->setVolume(0.2f);
+    postFader->processMidiNoteOn(60, 127);
+    const auto postFaderBus = renderWithSends(*postFader, 256, 0);
+
+    QVERIFY2(peak(postFaderBus) < peak(preFaderBus) * 0.9,
+             qPrintable(QString { "post-fader sent %1 against pre-fader's %2" }.arg(peak(postFaderBus)).arg(peak(preFaderBus))));
+}
 
 void SamplerTest::test_lpfSlope_shouldDefaultToTheSlopeItAlwaysHad()
 {

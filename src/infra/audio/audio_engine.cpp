@@ -168,7 +168,7 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
         return;
     }
 
-    AudioContext audioContext { std::span(workBuffer.deviceBuffer.data(), deviceContext.bufferSize), deviceContext.frameCount, deviceContext.sampleRate, deviceContext.bpm, deviceContext.deviceOutputBuffers, deviceContext.oversampleFactor, deviceContext.offline, deviceContext.startFrame };
+    AudioContext audioContext { std::span(workBuffer.deviceBuffer.data(), deviceContext.bufferSize), deviceContext.frameCount, deviceContext.sampleRate, deviceContext.bpm, deviceContext.deviceOutputBuffers, deviceContext.oversampleFactor, deviceContext.offline, deviceContext.startFrame, std::span<const std::span<double>>(workBuffer.sendBufferSpans) };
 
     // Cheap enough to read unconditionally; the meter itself is a no-op while nothing is displayed.
     const auto processingStarted = std::chrono::steady_clock::now();
@@ -1103,9 +1103,20 @@ void AudioEngine::ensureWorkBuffers(size_t laneCount, size_t sendCount, uint32_t
         if (workBuffer.sendBuffers.size() != sendCount) {
             workBuffer.sendBuffers.resize(sendCount);
         }
+        bool spansStale = workBuffer.sendBufferSpans.size() != sendCount;
         for (auto & sendBuffer : workBuffer.sendBuffers) {
             if (sendBuffer.size() < bufferSize) {
                 sendBuffer.resize(bufferSize, 0.0);
+                spansStale = true;
+            }
+        }
+        // A resize can move the buffers, so the spans are rebuilt whenever one did. Off the audio
+        // thread's steady state: this only runs when the block size or the send count changes.
+        if (spansStale) {
+            workBuffer.sendBufferSpans.clear();
+            workBuffer.sendBufferSpans.reserve(workBuffer.sendBuffers.size());
+            for (auto & sendBuffer : workBuffer.sendBuffers) {
+                workBuffer.sendBufferSpans.emplace_back(sendBuffer.data(), bufferSize);
             }
         }
     }

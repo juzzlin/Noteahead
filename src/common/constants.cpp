@@ -863,6 +863,11 @@ QString xmlKeyEffectSlot()
     return "effectSlot";
 }
 
+QString xmlKeySubIndex()
+{
+    return "subIndex";
+}
+
 QString xmlKeyAudioRecorder()
 {
     return "AudioRecorder";

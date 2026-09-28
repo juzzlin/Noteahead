@@ -384,6 +384,7 @@ QString xmlKeyEffect();
 QString xmlKeySend();
 QString xmlKeyDeviceSlot();
 QString xmlKeyEffectSlot();
+QString xmlKeySubIndex();
 
 QString xmlKeyAudioRecorder();
 QString xmlKeyLatestRecordingFilePath();

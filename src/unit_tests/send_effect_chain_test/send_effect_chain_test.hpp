@@ -34,6 +34,11 @@ private slots:
     void test_sendChain_addedAfterProcess_shouldBeApplied();
     void test_sendChain_sendRackBypassed_shouldStopToo();
     void test_sendChain_ordering_shouldRunInSlotOrder();
+
+    void test_sendBuses_partOfADevice_shouldReachTheBus();
+    void test_sendBuses_partOfADevice_shouldAddToTheDeviceSend();
+    void test_sendBuses_noSendEffects_shouldBeEmpty();
+    void test_sendBuses_blockCutAtAnEvent_shouldWriteWhereThePieceSits();
 };
 
 } // namespace noteahead

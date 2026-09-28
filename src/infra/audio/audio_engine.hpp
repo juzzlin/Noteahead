@@ -29,6 +29,8 @@
 
 #include "../../domain/utility/load_meter.hpp"
 
+#include <span>
+
 namespace noteahead {
 
 class EffectRack;
@@ -41,6 +43,9 @@ struct AudioEngineWorkBuffer
     std::vector<double> preFaderBuffer {};
     std::vector<double> outputBuffer {};
     std::vector<std::vector<double>> sendBuffers {};
+    //! The same buffers as spans, so a device can be handed them without anything allocating on the
+    //! audio thread. Rebuilt only when sendBuffers is resized.
+    std::vector<std::span<double>> sendBufferSpans {};
     //! Scratch for the insert rack's side chain sources, so asking for them on the audio thread
     //! allocates nothing once it has grown to size.
     std::vector<size_t> sidechainSources {};

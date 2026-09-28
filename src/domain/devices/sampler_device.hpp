@@ -125,6 +125,11 @@ public:
         //! before the loop point existed; anything more plays the range once and then repeats only its
         //! tail, the way a sustain loop skips a sampled attack.
         double loopStart = 0.0;
+        //! Level into each global send bus, one entry per bus and zero by default, so a pad that has
+        //! never been routed anywhere is a pad that sounds exactly as it always has. Not parameters:
+        //! nothing automates a send, and a pad's parameters are written out in full, which sixteen
+        //! more of per pad would bloat every project that has a kit in it.
+        std::vector<float> sends;
         //! Choke group, or zero for none. Triggering a pad silences the sounding voices of the *other*
         //! pads sharing its group, which is how a closed hi-hat cuts off an open one.
         int chokeGroup = 0;
@@ -216,6 +221,19 @@ public:
     // Per-pad insert effect rack for the given note, created lazily on first access.
     EffectRack & sampleEffectRack(uint8_t note);
 
+    //! Every pad is a send source of its own: @p sourceIndex is the note the pad sits on.
+    size_t sendSourceCount() const override;
+    float sendSourceLevel(size_t sourceIndex, size_t busIndex) const override;
+    void setSendSourceLevel(size_t sourceIndex, size_t busIndex, float level) override;
+
+private:
+    //! Whether this pad is routed to any send bus, which is what earns it a sub-mix of its own.
+    static bool hasAnySend(const Sample & sample);
+
+    //! Adds one pad's sub-mix into the send buses its own levels name. See sendSourceCount().
+    void addSendContribution(AudioContext & context, const Sample & sample, const std::vector<double> & padBuffer, uint32_t bufferSize) const;
+
+public:
     bool channelMode() const;
     void setChannelMode(bool enabled);
 

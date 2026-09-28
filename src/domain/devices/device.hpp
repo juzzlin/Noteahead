@@ -207,6 +207,10 @@ public:
     //! it there and silently change existing patches.
     void applyFader(AudioContext & context) const;
 
+    //! The gain applyFader() applies, for a device that taps a part of itself into a send bus and
+    //! has to follow the fader the engine will apply to the rest of it afterwards.
+    double faderGain() const;
+
     FaderPosition faderPosition() const;
     void setFaderPosition(FaderPosition position);
 
@@ -358,6 +362,18 @@ public:
     float reverbSend(size_t index) const;
     virtual void setReverbSend(size_t index, float send);
     size_t reverbSendCount() const;
+
+    //! How many parts of this device can be sent to a bus on their own: a Sampler's pads, a Drum
+    //! Synth's voices. Zero for a device that is only ever sent as a whole, which is most of them.
+    //!
+    //! A part's send is an extra tap rather than a share of the device's own: a pad can be in the
+    //! reverb with the device send at zero, which is the case a per-device send cannot express.
+    virtual size_t sendSourceCount() const;
+    //! Level of @p sourceIndex into send bus @p busIndex, 0 when the part sends nothing there.
+    virtual float sendSourceLevel(size_t sourceIndex, size_t busIndex) const;
+    virtual void setSendSourceLevel(size_t sourceIndex, size_t busIndex, float level);
+    //! Whether any part sends anywhere, so the audio path can skip the whole business when not.
+    bool hasSendSources() const;
 
 signals:
     //! The device itself changed in a way the rest of the application has to react to: it was

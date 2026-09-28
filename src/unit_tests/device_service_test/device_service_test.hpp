@@ -48,6 +48,8 @@ private slots:
     void test_peekDeviceTypeInfo_synth_shouldReturnCorrectTypeInfo();
     void test_peekDeviceTypeInfo_nonexistentFile_shouldReturnEmpty();
     void test_reverbSends_shouldSaveAndLoadCorrectly();
+    void test_partSends_shouldSaveAndLoadCorrectly();
+    void test_partSends_projectWithoutThem_shouldLoadAsUnrouted();
     void test_masterRackEnabled_shouldSaveAndLoadCorrectly();
 
     void test_device_bySlotAndByName_shouldResolveWithoutTheEngine();

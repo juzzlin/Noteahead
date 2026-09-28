@@ -60,6 +60,8 @@ SamplerDevice::Sample::Sample()
     addParameter(Parameter { Constants::NahdXml::xmlKeyLoop().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLoopStart().toStdString(), 0.0f, 0, 60000, 0, 1 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyChokeGroup().toStdString(), 0.0f, 0, maxChokeGroup, 0, 1, Parameter::Type::Discrete });
+
+    sends.resize(Constants::effectRackSize(), 0.0f);
 }
 
 namespace {
@@ -653,9 +655,13 @@ void SamplerDevice::processAudio(AudioContext & context)
 
         // Rack pads accumulate dry (unity gain) into their own buffer; device gain is applied when the
         // processed pad buffer is folded into the main output. Rack-less pads take the direct fast path.
+        //
+        // A pad that sends somewhere needs the same sub-mix even with an empty rack: its send is a tap
+        // on the pad alone, and there is nothing to tap once it has been summed with everything else.
         const bool hasRack = voice.sample->effectRack && voice.sample->effectRack->hasEffects();
-        std::vector<double> & target = hasRack ? padBufferFor(voice.sample) : buffer;
-        const double voiceGain = hasRack ? 1.0 : gain;
+        const bool needsSubMix = hasRack || hasAnySend(*voice.sample);
+        std::vector<double> & target = needsSubMix ? padBufferFor(voice.sample) : buffer;
+        const double voiceGain = needsSubMix ? 1.0 : gain;
 
         const auto & sampleData { *voice.sample->data };
         const int channels = voice.sample->channels;
@@ -738,10 +744,18 @@ void SamplerDevice::processAudio(AudioContext & context)
     // Apply each pad's insert rack to its sub-mix and fold it into the main buffer with device gain.
     for (size_t k = 0; k < padCount; k++) {
         auto & [sample, padBuffer] = m_padBuffers[k];
-        auto & rack = *sample->effectRack;
-        rack.setBpm(static_cast<float>(context.bpm));
-        AudioContext padContext { std::span<double>(padBuffer.data(), bufferSize), context.frameCount, context.sampleRate, context.bpm, {}, context.oversampleFactor, context.offline };
-        rack.processInPlace(padContext);
+        if (sample->effectRack && sample->effectRack->hasEffects()) {
+            auto & rack = *sample->effectRack;
+            rack.setBpm(static_cast<float>(context.bpm));
+            AudioContext padContext { std::span<double>(padBuffer.data(), bufferSize), context.frameCount, context.sampleRate, context.bpm, {}, context.oversampleFactor, context.offline };
+            rack.processInPlace(padContext);
+        }
+
+        // The pad's own tap into the global send buses, taken here so it carries the pad's insert
+        // effects but not the device's fader, gain or master pan. Independent of the device's own
+        // send: a pad can be in the reverb with the device sending nothing at all.
+        addSendContribution(context, *sample, padBuffer, bufferSize);
+
         for (uint32_t i = 0; i < bufferSize; i++) {
             buffer[i] += padBuffer[i] * gain;
         }
@@ -750,6 +764,37 @@ void SamplerDevice::processAudio(AudioContext & context)
     for (uint32_t i = 0; i < context.frameCount; i++) {
         context.buffer[i * 2] += buffer[i * 2];
         context.buffer[i * 2 + 1] += buffer[i * 2 + 1];
+    }
+}
+
+bool SamplerDevice::hasAnySend(const Sample & sample)
+{
+    return std::ranges::any_of(sample.sends, [](float level) { return level > 0.0f; });
+}
+
+void SamplerDevice::addSendContribution(AudioContext & context, const Sample & sample, const std::vector<double> & padBuffer, uint32_t bufferSize) const
+{
+    if (context.sendBuses.empty()) {
+        return;
+    }
+
+    // Post-fader sends follow the fader the engine is about to apply, exactly as a device's own send
+    // does. Pre-fader ones are taken as they stand here, which is already before it.
+    const double tapGain = sendTap() == SendTap::PostFader ? static_cast<double>(faderGain()) : 1.0;
+
+    for (size_t busIndex = 0; busIndex < context.sendBuses.size() && busIndex < sample.sends.size(); busIndex++) {
+        const double level = static_cast<double>(sample.sends.at(busIndex)) * tapGain;
+        if (level <= 0.0) {
+            continue;
+        }
+        const auto bus = context.sendBuses[busIndex];
+        if (context.sendBusOffset >= bus.size()) {
+            continue;
+        }
+        const auto count = std::min(static_cast<size_t>(bufferSize), bus.size() - context.sendBusOffset);
+        for (size_t i = 0; i < count; i++) {
+            bus[context.sendBusOffset + i] += padBuffer[i] * level;
+        }
     }
 }
 
@@ -1672,6 +1717,41 @@ void SamplerDevice::syncSampleFields(Sample & sample)
         sample.loopStart = static_cast<double>(p->get().value()) * 60.0;
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyChokeGroup().toStdString()); p)
         sample.chokeGroup = static_cast<int>(std::lround(p->get().value()));
+}
+
+size_t SamplerDevice::sendSourceCount() const
+{
+    return maxSamples;
+}
+
+float SamplerDevice::sendSourceLevel(size_t sourceIndex, size_t busIndex) const
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    if (sourceIndex < m_samples.size()) {
+        if (const auto & sample = m_samples.at(sourceIndex); sample && busIndex < sample->sends.size()) {
+            return sample->sends.at(busIndex);
+        }
+    }
+    return 0.0f;
+}
+
+void SamplerDevice::setSendSourceLevel(size_t sourceIndex, size_t busIndex, float level)
+{
+    {
+        const std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (sourceIndex >= m_samples.size()) {
+            return;
+        }
+        auto & sample = m_samples.at(sourceIndex);
+        if (!sample || busIndex >= sample->sends.size()) {
+            return;
+        }
+        if (qFuzzyCompare(sample->sends.at(busIndex), level)) {
+            return;
+        }
+        sample->sends.at(busIndex) = level;
+    }
+    emit dataChanged();
 }
 
 bool SamplerDevice::clearAutomationInternal()

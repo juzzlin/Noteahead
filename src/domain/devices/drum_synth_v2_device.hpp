@@ -81,6 +81,11 @@ public:
     // Per-voice insert effect rack.
     EffectRack & voiceEffectRack(int index);
 
+    //! Every voice is a send source of its own: @p sourceIndex is the voice.
+    size_t sendSourceCount() const override;
+    float sendSourceLevel(size_t sourceIndex, size_t busIndex) const override;
+    void setSendSourceLevel(size_t sourceIndex, size_t busIndex, float level) override;
+
     //! Writes a voice parameter and announces a project edit. For the dialog, which is exactly
     //! that. MIDI CC must use automateVoiceParameter() instead -- see processDeviceMidiCc().
     bool updateVoiceParameter(int voiceIndex, const std::string & paramName, float value);
@@ -102,6 +107,9 @@ private:
     struct Voice
     {
         std::unique_ptr<DrumEngine> engine;
+        //! Level into each global send bus, zero by default, so a kit that has never been routed
+        //! anywhere sounds exactly as it always has.
+        std::vector<float> sends;
         std::shared_ptr<LowPassFilter> lpf;
         std::shared_ptr<HighPassFilter> hpf;
         //! Second stage of each filter, in the chain always and neutral unless the slope asks for it.
@@ -135,6 +143,16 @@ private:
     //! Scratch buffer for the oversampled mix, kept as a member so no allocation happens on the
     //! audio thread. It only ever grows.
     std::vector<float> m_oversampledBuffer;
+
+    //! The same, one per send bus, for the voices routed to it. Only the buses actually used are
+    //! filled and decimated, so a kit that sends nowhere pays nothing at all.
+    std::vector<std::vector<float>> m_sendOversampledBuffers;
+    //! One decimator pair per bus, since each carries a signal of its own.
+    std::vector<std::pair<Decimator, Decimator>> m_sendDecimators;
+
+    //! Adds the voices routed to a bus into that bus, decimating what was accumulated at the
+    //! oversampled rate. See Device::sendSourceCount().
+    void addSendContributions(AudioContext & context, uint8_t oversampleFactor, double panL, double panR);
 
     //! Per-voice snapshot of the enabled insert-rack effects, rebuilt every block but kept between
     //! blocks so that refilling it costs nothing: this runs on the audio thread, which must not

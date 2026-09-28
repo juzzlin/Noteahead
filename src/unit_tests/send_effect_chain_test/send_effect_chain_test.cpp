@@ -20,6 +20,8 @@
 #include "../../domain/effects/effect_rack.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 
+#include "../../common/constants.hpp"
+
 #include <QTest>
 
 #include <cmath>
@@ -82,6 +84,75 @@ public:
     }
 };
 
+//! Emits nothing of its own but puts a steady 1.0 into send bus 0, the way a Sampler pad or a Drum
+//! Synth voice routes one part of itself. What it proves is the plumbing: a device can reach a bus
+//! without its own output going anywhere near it.
+class PartSendingDevice : public Device
+{
+public:
+    std::string name() const override
+    {
+        return "Parts";
+    }
+
+    std::string category() const override
+    {
+        return "Mock";
+    }
+
+    std::string typeName() const override
+    {
+        return "PartSendingDevice";
+    }
+
+    std::string typeId() const override
+    {
+        return "part-sending-device-id";
+    }
+
+    void processMidiNoteOn(uint8_t, uint8_t) override
+    {
+    }
+
+    void processMidiNoteOff(uint8_t) override
+    {
+    }
+
+    void processDeviceMidiCc(uint8_t, uint8_t, uint8_t) override
+    {
+    }
+
+    void processMidiAllNotesOff() override
+    {
+    }
+
+    //! How many buses were offered, so a test can tell an empty span from a full one.
+    size_t offeredBuses { 0 };
+
+    //! The engine skips a device with nothing to play, which is right for a real one and would
+    //! leave this mock unheard.
+    bool hasActiveAudio() const override
+    {
+        return true;
+    }
+
+    //! Every piece this device was handed, as offset and length in samples.
+    std::vector<std::pair<size_t, size_t>> pieces;
+
+    void processAudio(AudioContext & context) override
+    {
+        offeredBuses = context.sendBuses.size();
+        if (context.sendBuses.empty()) {
+            return;
+        }
+        pieces.emplace_back(context.sendBusOffset, context.frameCount * 2);
+        const auto bus = context.sendBuses[0];
+        for (uint32_t i = 0; i < context.frameCount * 2 && context.sendBusOffset + i < bus.size(); i++) {
+            bus[context.sendBusOffset + i] += 1.0;
+        }
+    }
+};
+
 //! An engine with one device emitting 1.0, routed in full to send bus 0.
 struct SendFixture
 {
@@ -118,6 +189,88 @@ std::shared_ptr<Volume> makeVolume(float volume)
 constexpr double tolerance = 1.0e-6;
 
 } // namespace
+
+void SendEffectChainTest::test_sendBuses_partOfADevice_shouldReachTheBus()
+{
+    // A pad or a voice routes itself: the device's own send stays at zero and the bus still hears
+    // it. A bus returns what its effect *adds*, so Volume at 2.0 over a 1.0 signal returns 1.0.
+    AudioEngine engine;
+    const auto device = std::make_shared<PartSendingDevice>();
+    engine.setDevice(0, device);
+    engine.sendEffectRack().setEffect(0, makeVolume(2.0f));
+
+    std::vector<double> buffer(128, 0.0);
+    AudioContext context { std::span(buffer.data(), 128), 64, 44100 };
+    engine.process(context);
+
+    QCOMPARE(device->reverbSend(0), 0.0f);
+    QVERIFY2(std::abs(buffer[0] - 1.0) < tolerance, qPrintable(QString { "master had %1" }.arg(buffer[0])));
+}
+
+void SendEffectChainTest::test_sendBuses_partOfADevice_shouldAddToTheDeviceSend()
+{
+    // The two taps are independent and add: the part puts 1.0 into the bus and the device's own
+    // send puts its output there as well, so the bus carries both.
+    AudioEngine engine;
+    const auto device = std::make_shared<PartSendingDevice>();
+    device->setReverbSend(0, 1.0f);
+    engine.setDevice(0, device);
+    engine.sendEffectRack().setEffect(0, makeVolume(2.0f));
+
+    std::vector<double> buffer(128, 0.0);
+    AudioContext context { std::span(buffer.data(), 128), 64, 44100 };
+    engine.process(context);
+
+    // This device writes nothing to its own output, so its send adds nothing and the part's 1.0 is
+    // all the bus has. What this pins is that the device send does not replace or swallow it.
+    QVERIFY2(std::abs(buffer[0] - 1.0) < tolerance, qPrintable(QString { "master had %1" }.arg(buffer[0])));
+}
+
+void SendEffectChainTest::test_sendBuses_noSendEffects_shouldBeEmpty()
+{
+    // The span is the rack's slots rather than the effects in it, so a device can write to a bus
+    // that has no effect on it. Nothing is heard, and nothing is corrupted by the attempt.
+    AudioEngine engine;
+    const auto device = std::make_shared<PartSendingDevice>();
+    engine.setDevice(0, device);
+
+    std::vector<double> buffer(128, 0.0);
+    AudioContext context { std::span(buffer.data(), 128), 64, 44100 };
+    engine.process(context);
+
+    QCOMPARE(device->offeredBuses, Constants::effectRackSize());
+    QVERIFY2(std::abs(buffer[0]) < tolerance, qPrintable(QString { "master had %1" }.arg(buffer[0])));
+}
+
+void SendEffectChainTest::test_sendBuses_blockCutAtAnEvent_shouldWriteWhereThePieceSits()
+{
+    // A note landing mid-block cuts the block in two, and only the piece's own buffer is sliced: the
+    // send buses stay whole. Without the offset a device would send the start of the block twice.
+    AudioEngine engine;
+    const auto device = std::make_shared<PartSendingDevice>();
+    engine.setDevice(0, device);
+    engine.sendEffectRack().setEffect(0, makeVolume(2.0f));
+
+    Device::ScheduledEvent event;
+    event.type = Device::ScheduledEvent::Type::NoteOn;
+    event.frame = 32; // Half way into the block below
+    event.note = 60;
+    event.velocity = 100;
+    device->scheduleMidiEvent(event);
+
+    std::vector<double> buffer(128, 0.0);
+    AudioContext context { std::span(buffer.data(), 128), 64, 44100 };
+    engine.process(context);
+
+    QCOMPARE(device->pieces.size(), size_t { 2 });
+    QCOMPARE(device->pieces.at(0).first, size_t { 0 });
+    QCOMPARE(device->pieces.at(1).first, size_t { 64 }); // 32 frames in, two samples per frame
+    // Every sample of the block was written exactly once, so the bus carries a steady 1.0 rather
+    // than a doubled first half and a silent second.
+    for (size_t i = 0; i < 128; i++) {
+        QVERIFY2(std::abs(buffer[i] - 1.0) < tolerance, qPrintable(QString { "sample %1 was %2" }.arg(i).arg(buffer[i])));
+    }
+}
 
 void SendEffectChainTest::test_sendChain_empty_shouldMatchTheSendEffectAlone()
 {

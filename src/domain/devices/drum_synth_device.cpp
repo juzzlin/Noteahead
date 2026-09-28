@@ -250,6 +250,26 @@ void DrumSynthDevice::processAudio(AudioContext & context)
         m_oversampledBuffer.resize(oversampledSize);
     }
     std::fill(m_oversampledBuffer.begin(), m_oversampledBuffer.begin() + oversampledSize, 0.0f);
+
+    // One scratch buffer per bus, but only while something is routed there: a kit that sends
+    // nowhere neither allocates nor clears anything.
+    const size_t sendBusCount = hasSendSources() ? context.sendBuses.size() : 0;
+    if (m_sendOversampledBuffers.size() < sendBusCount) {
+        m_sendOversampledBuffers.resize(sendBusCount);
+        m_sendDecimators.resize(sendBusCount);
+    }
+    for (size_t bus = 0; bus < sendBusCount; bus++) {
+        auto & sendBuffer = m_sendOversampledBuffers.at(bus);
+        if (sendBuffer.size() < oversampledSize) {
+            sendBuffer.resize(oversampledSize);
+        }
+        std::fill(sendBuffer.begin(), sendBuffer.begin() + oversampledSize, 0.0f);
+    }
+    // Keeps the accumulation loop below from writing into a bus this block does not have.
+    if (m_sendOversampledBuffers.size() > sendBusCount) {
+        m_sendOversampledBuffers.resize(sendBusCount);
+        m_sendDecimators.resize(sendBusCount);
+    }
     auto & oversampledBuffer = m_oversampledBuffer;
     const float globalGain = linearGainInternal();
 
@@ -274,6 +294,19 @@ void DrumSynthDevice::processAudio(AudioContext & context)
 
                     for (auto & effect : m_voiceRackEffects.at(v)) {
                         effect->process(l, r);
+                    }
+
+                    // The voice's own tap into the global buses, taken here so it carries the
+                    // voice's filters, level, pan and inserts but not the device's soft clip or
+                    // master pan. Accumulated at the oversampled rate and decimated once per bus.
+                    for (size_t bus = 0; bus < m_sendOversampledBuffers.size() && bus < voice.sends.size(); bus++) {
+                        const double level = static_cast<double>(voice.sends.at(bus));
+                        if (level <= 0.0) {
+                            continue;
+                        }
+                        auto & sendBuffer = m_sendOversampledBuffers.at(bus);
+                        sendBuffer[(i * oversampleFactor + os) * 2] += static_cast<float>(l * level);
+                        sendBuffer[(i * oversampleFactor + os) * 2 + 1] += static_cast<float>(r * level);
                     }
 
                     mixL += static_cast<float>(l);
@@ -304,6 +337,42 @@ void DrumSynthDevice::processAudio(AudioContext & context)
 
         context.buffer[i * 2] += l * panL;
         context.buffer[i * 2 + 1] += r * panR;
+    }
+
+    addSendContributions(context, oversampleFactor, panL, panR);
+}
+
+void DrumSynthDevice::addSendContributions(AudioContext & context, uint8_t oversampleFactor, double panL, double panR)
+{
+    if (m_sendOversampledBuffers.empty()) {
+        return;
+    }
+
+    // Post-fader sends follow the fader the engine is about to apply, as a device's own send does.
+    const double tapGain = sendTap() == SendTap::PostFader ? faderGain() : 1.0;
+
+    std::array<float, 4> highL {};
+    std::array<float, 4> highR {};
+    for (size_t bus = 0; bus < m_sendOversampledBuffers.size() && bus < context.sendBuses.size(); bus++) {
+        const auto & sendBuffer = m_sendOversampledBuffers.at(bus);
+        auto & [decimatorL, decimatorR] = m_sendDecimators.at(bus);
+        const auto target = context.sendBuses[bus];
+        for (uint32_t i = 0; i < context.frameCount; i++) {
+            for (uint8_t os = 0; os < oversampleFactor; os++) {
+                highL[os] = sendBuffer[(i * oversampleFactor + os) * 2];
+                highR[os] = sendBuffer[(i * oversampleFactor + os) * 2 + 1];
+            }
+            const double l = decimatorL.process(highL.data(), oversampleFactor);
+            const double r = decimatorR.process(highR.data(), oversampleFactor);
+            const size_t index = context.sendBusOffset + i * 2;
+            if (index + 1 >= target.size()) {
+                break;
+            }
+            // Panned like the device's own output, so a voice sits in the same place in the bus as
+            // it does in the mix.
+            target[index] += l * panL * tapGain;
+            target[index + 1] += r * panR * tapGain;
+        }
     }
 }
 
@@ -429,6 +498,39 @@ uint8_t DrumSynthDevice::voiceNote(int index) const
     return 0;
 }
 
+size_t DrumSynthDevice::sendSourceCount() const
+{
+    return DrumSynth::NumVoices;
+}
+
+float DrumSynthDevice::sendSourceLevel(size_t sourceIndex, size_t busIndex) const
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    if (sourceIndex < m_voices.size() && busIndex < m_voices.at(sourceIndex).sends.size()) {
+        return m_voices.at(sourceIndex).sends.at(busIndex);
+    }
+    return 0.0f;
+}
+
+void DrumSynthDevice::setSendSourceLevel(size_t sourceIndex, size_t busIndex, float level)
+{
+    {
+        const std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (sourceIndex >= m_voices.size()) {
+            return;
+        }
+        auto & sends = m_voices.at(sourceIndex).sends;
+        if (busIndex >= sends.size()) {
+            return;
+        }
+        if (qFuzzyCompare(sends.at(busIndex), level)) {
+            return;
+        }
+        sends.at(busIndex) = level;
+    }
+    emit dataChanged();
+}
+
 EffectRack & DrumSynthDevice::voiceEffectRack(int index)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
@@ -456,6 +558,7 @@ void DrumSynthDevice::initializeVoices()
 
     for (int i { 0 }; i < NumVoices; i++) {
         m_voices.at(i).midiNote = notes.at(i);
+        m_voices.at(i).sends.assign(Constants::effectRackSize(), 0.0f);
         m_voices.at(i).lpf = std::make_shared<LowPassFilter>();
         m_voices.at(i).hpf = std::make_shared<HighPassFilter>();
         m_voices.at(i).lpfStage2 = std::make_shared<LowPassFilter>();

@@ -52,6 +52,25 @@ struct AudioContext
     //! Last on purpose: the engine builds its context positionally, so a field added before one of
     //! those would silently take another's argument.
     uint64_t startFrame { 0 };
+
+    //! The send buses this block is being mixed into, one buffer per bus, interleaved as @ref buffer
+    //! is. Empty when the song has no send effects, and empty in any context derived for a part of a
+    //! device rather than the device itself.
+    //!
+    //! What lets a device route parts of itself rather than only its whole output: a Sampler pad or
+    //! a Drum Synth voice adds its own signal here, and the engine adds the device's own send on top
+    //! afterwards, so the two taps are independent. Everything else leaves this alone.
+    //!
+    //! The buffers belong to the lane the device is being processed on, so writing here races
+    //! nothing even while devices run in parallel.
+    std::span<const std::span<double>> sendBuses {};
+
+    //! Where this context's audio starts inside the block's send buses, in samples.
+    //!
+    //! Non-zero only when a block has been cut at a scheduled event: the piece's own buffer is a
+    //! sub-span starting there, while the send buses stay whole. A device adding to a bus has to
+    //! offset by this or a note landing mid-block would send the start of the block instead.
+    size_t sendBusOffset { 0 };
 };
 
 } // namespace noteahead

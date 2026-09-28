@@ -608,6 +608,23 @@ void DeviceService::serializeReverbSends(ProjectWriter & writer) const
                     writer.writeEndElement(); // Send
                 }
             }
+
+            // The parts of a device that route themselves: a Sampler's pads, a Drum Synth's voices.
+            // Written as the same element with a sub-index on it, and only when a part actually
+            // sends somewhere -- so a project with none is the file it always was.
+            for (size_t sourceIndex = 0; sourceIndex < dev->sendSourceCount(); sourceIndex++) {
+                for (int effectSlot = 0; effectSlot < static_cast<int>(Constants::effectRackSize()); effectSlot++) {
+                    const float send = dev->sendSourceLevel(sourceIndex, static_cast<size_t>(effectSlot));
+                    if (send > 0.0001f) {
+                        writer.writeStartElement(Constants::NahdXml::xmlKeySend());
+                        writer.writeAttribute(Constants::NahdXml::xmlKeyDeviceSlot(), QString::number(deviceSlot));
+                        writer.writeAttribute(Constants::NahdXml::xmlKeySubIndex(), QString::number(sourceIndex));
+                        writer.writeAttribute(Constants::NahdXml::xmlKeyEffectSlot(), QString::number(effectSlot));
+                        writer.writeAttribute(Constants::NahdXml::xmlKeyValue(), QString::number(static_cast<double>(send)));
+                        writer.writeEndElement(); // Send
+                    }
+                }
+            }
         }
     }
 }
@@ -716,9 +733,16 @@ void DeviceService::deserializeEffectSend(ProjectReader & reader)
     const auto deviceSlot = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyDeviceSlot(), false);
     const auto effectSlot = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyEffectSlot(), false);
     const auto value = Utils::Xml::readDoubleAttribute(reader, Constants::NahdXml::xmlKeyValue(), false);
+    // Absent on every send written before parts could route themselves, which is what makes those
+    // files read back as the device's own send.
+    const auto subIndex = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeySubIndex(), false);
     if (deviceSlot.has_value() && effectSlot.has_value() && value.has_value()) {
         if (const auto dev = m_audioEngine->device(static_cast<size_t>(deviceSlot.value()))) {
-            dev->setReverbSend(static_cast<size_t>(effectSlot.value()), static_cast<float>(value.value()));
+            if (subIndex.has_value() && subIndex.value() >= 0) {
+                dev->setSendSourceLevel(static_cast<size_t>(subIndex.value()), static_cast<size_t>(effectSlot.value()), static_cast<float>(value.value()));
+            } else {
+                dev->setReverbSend(static_cast<size_t>(effectSlot.value()), static_cast<float>(value.value()));
+            }
         }
     }
     reader.skipCurrentElement();
