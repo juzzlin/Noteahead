@@ -122,9 +122,14 @@ AnimatedDialog {
                         }
                     }
 
+                    // One column beside the matrix, at a width of its own: a slider stretched
+                    // across the dialog is harder to set than a short one, not easier.
                     ColumnLayout {
                         Layout.alignment: Qt.AlignTop
-                        Layout.fillWidth: true
+                        // Capped as well as preferred: a Knob carries a wide implicit width, and a
+                        // preference alone loses to it.
+                        Layout.preferredWidth: 280
+                        Layout.maximumWidth: 280
                         spacing: 10
 
                         Label {
@@ -133,37 +138,41 @@ AnimatedDialog {
                             color: themeService.accentColor
                         }
 
-                        // Wraps rather than runs off: the voices now take the left half, so this
-                        // column is narrower than the dialog and has to stay usable at 1024 px.
-                        Flow {
+                        Knob {
+                            label: qsTr("Gain")
                             Layout.fillWidth: true
-                            spacing: 20
+                            mapping: "decibel"
+                            mapMin: -30
+                            mapMax: 30
+                            value: drumSynthV2Controller.gain
+                            onMoved: (val) => drumSynthV2Controller.gain = val
+                        }
+                        Knob {
+                            label: qsTr("Fader")
+                            Layout.fillWidth: true
+                            mapping: "fader"
+                            value: drumSynthV2Controller.volume
+                            onMoved: (val) => drumSynthV2Controller.volume = val
+                        }
+                        Knob {
+                            label: qsTr("Pan")
+                            Layout.fillWidth: true
+                            mapping: "pan"
+                            value: drumSynthV2Controller.pan
+                            onMoved: (val) => drumSynthV2Controller.pan = val
+                        }
 
-                            Knob {
-                                label: qsTr("Gain")
-                                mapping: "decibel"
-                                mapMin: -30
-                                mapMax: 30
-                                value: drumSynthV2Controller.gain
-                                onMoved: (val) => drumSynthV2Controller.gain = val
-                            }
-                            Knob {
-                                label: qsTr("Fader")
-                                mapping: "fader"
-                                value: drumSynthV2Controller.volume
-                                onMoved: (val) => drumSynthV2Controller.volume = val
-                            }
-                            Knob {
-                                label: qsTr("Pan")
-                                mapping: "pan"
-                                value: drumSynthV2Controller.pan
-                                onMoved: (val) => drumSynthV2Controller.pan = val
-                            }
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 10
+
                             ColumnLayout {
+                                Layout.fillWidth: true
                                 Label {
                                     text: qsTr("LPF Slope")
                                 }
                                 ComboBox {
+                                    Layout.fillWidth: true
                                     model: ["12 dB/oct", "24 dB/oct"]
                                     currentIndex: drumSynthV2Controller.lpfSlope
                                     onActivated: idx => drumSynthV2Controller.lpfSlope = idx
@@ -172,10 +181,12 @@ AnimatedDialog {
                                 }
                             }
                             ColumnLayout {
+                                Layout.fillWidth: true
                                 Label {
                                     text: qsTr("HPF Slope")
                                 }
                                 ComboBox {
+                                    Layout.fillWidth: true
                                     model: ["12 dB/oct", "24 dB/oct"]
                                     currentIndex: drumSynthV2Controller.hpfSlope
                                     onActivated: idx => drumSynthV2Controller.hpfSlope = idx
@@ -184,6 +195,12 @@ AnimatedDialog {
                                 }
                             }
                         }
+                    }
+
+                    // Everything left over, so neither the matrix nor the column grows with the
+                    // dialog.
+                    Item {
+                        Layout.fillWidth: true
                     }
                 }
 
