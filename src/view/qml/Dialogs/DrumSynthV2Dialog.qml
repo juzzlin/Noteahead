@@ -65,6 +65,13 @@ AnimatedDialog {
         anchors.margins: 15
         spacing: 15
 
+        // Above the columns, as the Sampler puts its own waveform above its pads. Outside the
+        // scrolling area on purpose: it is what the knobs below are being set against, so it stays
+        // put while they scroll.
+        DrumSynthV2Dialog_WaveformView {
+            dialogVisible: root.visible
+        }
+
         // Everything above the keyboard scrolls together, so a short dialog shortens this area
         // instead of pushing the keyboard out of the dialog
         ScrollView {

@@ -61,6 +61,8 @@ class SamplerController : public DeviceController
     Q_PROPERTY(bool selectedPadLoop READ selectedPadLoop WRITE setSelectedPadLoop NOTIFY selectedPadLoopChanged)
     Q_PROPERTY(int selectedPadChokeGroup READ selectedPadChokeGroup WRITE setSelectedPadChokeGroup NOTIFY selectedPadChokeGroupChanged)
     Q_PROPERTY(double selectedPadDuration READ selectedPadDuration NOTIFY selectedPadDurationChanged)
+    //! What the pad is actually heard for, trims, tuning and envelope included.
+    Q_PROPERTY(double selectedPadAudibleLength READ selectedPadAudibleLength NOTIFY selectedPadDurationChanged)
     Q_PROPERTY(bool channelMode READ channelMode WRITE setChannelMode NOTIFY channelModeChanged)
     Q_PROPERTY(bool chromaticMode READ chromaticMode WRITE setChromaticMode NOTIFY chromaticModeChanged)
     Q_PROPERTY(int lpfSlope READ lpfSlope WRITE setLpfSlope NOTIFY lpfSlopeChanged)
@@ -153,6 +155,7 @@ public:
     void setSelectedPadChokeGroup(int group);
 
     double selectedPadDuration() const;
+    double selectedPadAudibleLength() const;
 
     bool channelMode() const;
     void setChannelMode(bool enabled);

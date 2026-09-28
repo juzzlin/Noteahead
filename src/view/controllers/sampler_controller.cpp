@@ -491,6 +491,14 @@ double SamplerController::selectedPadDuration() const
     return m_sampler->sampleDuration(static_cast<uint8_t>(noteForPad(m_selectedPad)));
 }
 
+double SamplerController::selectedPadAudibleLength() const
+{
+    if (!m_sampler || m_selectedPad < 0) {
+        return 0.0;
+    }
+    return m_sampler->sampleAudibleLength(static_cast<uint8_t>(noteForPad(m_selectedPad)));
+}
+
 bool SamplerController::channelMode() const
 {
     if (!m_sampler) {

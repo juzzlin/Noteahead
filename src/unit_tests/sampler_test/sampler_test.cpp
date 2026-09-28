@@ -1913,6 +1913,32 @@ void SamplerTest::test_processMidiNoteOn_retrigger_fullVoicePool_shouldStillSoun
     QVERIFY2(std::abs(render(sampler, 4).front()) > oneVoice * 31.5, "the retriggered hit was dropped");
 }
 
+void SamplerTest::test_audibleLength_shouldFollowTheTrimsAndTheTuning()
+{
+    // Not the file's length: what is heard is the stretch the trims leave, read at whatever rate
+    // the tuning asks for. A pad tuned an octave up plays its material twice as fast and so lasts
+    // half as long, which is the figure the waveform view quotes a tempo against.
+    auto reader = std::make_unique<MockAudioFileReader>();
+    auto * mock = reader.get();
+    mock->setFrames(static_cast<int64_t>(Constants::defaultSampleRate())); // One second
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::move(reader) };
+    sampler.loadSample(60, "one_second.wav");
+
+    const auto whole = sampler.sampleAudibleLength(60);
+    QVERIFY2(std::abs(whole - 1.0) < 0.02, qPrintable(QString::number(whole)));
+
+    // Half a second trimmed off the tail.
+    sampler.setSampleEndOffset(60, 0.5);
+    const auto trimmed = sampler.sampleAudibleLength(60);
+    QVERIFY2(std::abs(trimmed - 0.5) < 0.02, qPrintable(QString::number(trimmed)));
+
+    // An octave up halves what is left of it again.
+    sampler.setSampleEndOffset(60, 0.0);
+    sampler.setSampleTune(60, 0.75f); // +12 semitones, so twice the rate
+    const auto tunedUp = sampler.sampleAudibleLength(60);
+    QVERIFY2(std::abs(tunedUp - 0.5) < 0.02, qPrintable(QString::number(tunedUp)));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SamplerTest)

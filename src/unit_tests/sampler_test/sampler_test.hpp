@@ -134,6 +134,7 @@ private slots:
     void test_processAudio_reusesBuffersWithoutLeaking();
     void test_processMidiNoteOn_retrigger_shouldFadeTheSoundingVoiceOut();
     void test_processMidiNoteOn_retrigger_fullVoicePool_shouldStillSound();
+    void test_audibleLength_shouldFollowTheTrimsAndTheTuning();
 };
 
 } // namespace noteahead

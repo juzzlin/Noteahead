@@ -35,6 +35,11 @@ Rectangle {
     onEndOffsetChanged: canvas.requestPaint()
     property bool showPlayhead: false
     property string fileName: ""
+
+    //! How long the sound actually lasts, in seconds. Not the same as duration, which is what the
+    //! picture spans: an envelope that closes early shortens what is heard without shortening the
+    //! material it was drawn from. Zero hides the readout.
+    property double audibleLength: 0.0
     property alias accentColor: canvas.accentColor
 
     //! Where a looping range comes back round to, as a fraction of the file. Negative hides the marker.
@@ -264,6 +269,25 @@ Rectangle {
         color: "white"
         font.pixelSize: 10
         visible: text !== ""
+    }
+
+    // How long it lasts, and the tempo at which one hit fills a beat. Past that tempo the sound
+    // runs into the next beat, which is the question being asked of a drum or a one-shot.
+    Text {
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.rightMargin: 10
+        // Higher than the file name opposite it: the waveform is drawn to within a few pixels of
+        // the frame, and at the file name's own margin this sat on the border.
+        anchors.bottomMargin: 18
+        text: {
+            const ms = rootItem.audibleLength * 1000;
+            const bpm = Math.round(60000 / ms);
+            return Math.round(ms) + " ms \u00b7 " + qsTr("max %1 BPM").arg(bpm);
+        }
+        color: "#aaa"
+        font.pixelSize: 10
+        visible: rootItem.audibleLength > 0
     }
 
     MouseArea {

@@ -43,6 +43,12 @@ class DrumSynthV2Controller : public DeviceController
     Q_PROPERTY(double waveformDuration READ waveformDuration NOTIFY waveformChanged)
     //! What is actually heard, in seconds, envelope and effects included.
     Q_PROPERTY(double audibleLength READ audibleLength NOTIFY waveformChanged)
+    //! The envelope's segment times in seconds, as the voices run them. The waveform view draws
+    //! the overlay on the same axis as the picture, so it needs seconds rather than knob travel.
+    Q_PROPERTY(double voiceAmpAttackSeconds READ voiceAmpAttackSeconds NOTIFY voiceAmpAttackChanged)
+    Q_PROPERTY(double voiceAmpHoldSeconds READ voiceAmpHoldSeconds NOTIFY voiceAmpHoldChanged)
+    Q_PROPERTY(double voiceAmpDecaySeconds READ voiceAmpDecaySeconds NOTIFY voiceAmpDecayChanged)
+    Q_PROPERTY(double voiceAmpReleaseSeconds READ voiceAmpReleaseSeconds NOTIFY voiceAmpReleaseChanged)
     Q_PROPERTY(int lpfSlope READ lpfSlope WRITE setLpfSlope NOTIFY lpfSlopeChanged)
     Q_PROPERTY(int hpfSlope READ hpfSlope WRITE setHpfSlope NOTIFY hpfSlopeChanged)
 
@@ -104,6 +110,11 @@ public:
     int hpfSlope() const;
     void setHpfSlope(int value);
     void setSelectedVoice(int index);
+
+    double voiceAmpAttackSeconds() const;
+    double voiceAmpHoldSeconds() const;
+    double voiceAmpDecaySeconds() const;
+    double voiceAmpReleaseSeconds() const;
 
     QVariantList waveformData() const;
     double waveformDuration() const;

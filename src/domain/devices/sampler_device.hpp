@@ -223,6 +223,14 @@ public:
     static double tuneRatio(const Sample & sample);
 
     double sampleDuration(uint8_t note) const;
+    //! How long the pad is actually heard for at its root note, in seconds.
+    //!
+    //! Not the file's length: what is played is the stretch the trims leave, read at whatever rate
+    //! the tuning asks for, and cut short again if the amp envelope closes before the end of it. A
+    //! pad tuned up plays its material faster and so lasts less time, which is the whole reason
+    //! this is not simply the duration.
+    double sampleAudibleLength(uint8_t note) const;
+
 
     // Per-pad insert effect rack for the given note, created lazily on first access.
     EffectRack & sampleEffectRack(uint8_t note);

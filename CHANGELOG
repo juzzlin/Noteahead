@@ -55,6 +55,12 @@ New features:
   - Bit Crusher throws away word length and sample rate separately, and is
     deliberately not oversampled, because there the aliases are the point
 
+* A waveform view on the Drum Synth V2
+  - The selected voice drawn the way the Sampler draws a pad, its own insert
+    effects included, with the amp envelope laid over it
+  - Both it and the Sampler now read out how long the sound lasts and the
+    tempo at which one hit fills a beat
+
 * Sustain and Release on the Drum Synth V2's amp envelope
   - AHDSR rather than AHD. A device added now has the envelope switched off,
     sustain at full and the rest at their minimum, which is a voice exactly as

@@ -1188,6 +1188,35 @@ double SamplerDevice::sampleDurationOf(const Sample & sample)
     return static_cast<double>(sample.data->size() / static_cast<size_t>(sample.channels)) / static_cast<double>(sample.sampleRate);
 }
 
+double SamplerDevice::sampleAudibleLength(uint8_t note) const
+{
+    std::lock_guard<std::recursive_mutex> lock { mutex() };
+    if (note >= maxSamples || !m_samples.at(note)) {
+        return 0.0;
+    }
+    const auto & sample = *m_samples.at(note);
+    const auto range = playRange(sample);
+    if (!range || sample.sampleRate <= 0) {
+        return 0.0;
+    }
+
+    // What the trims leave, read at the rate the tuning asks for.
+    const double frames = std::abs(range->last - range->first);
+    const double ratio = tuneRatio(sample);
+    const double played = ratio > 0.0 ? frames / static_cast<double>(sample.sampleRate) / ratio : 0.0;
+
+    // A pad that loops is not bounded by its material at all: what ends it is the envelope.
+    const double envelope = attackSeconds(sample.attack) + holdSeconds(sample.hold)
+      + decaySeconds(sample.decay) + releaseSeconds(sample.release);
+    if (sample.loop) {
+        return envelope;
+    }
+
+    // Whichever runs out first. A sustain holds the level up for as long as the material lasts, so
+    // an envelope that never closes leaves the material to decide.
+    return sample.sustain > 0.0f ? played : std::min(played, envelope);
+}
+
 double SamplerDevice::sampleEndOffset(uint8_t note) const
 {
     std::lock_guard<std::recursive_mutex> lock { mutex() };

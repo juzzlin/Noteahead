@@ -60,6 +60,7 @@ WaveformView {
 
     showEnvelope: fileName !== ""
     duration: samplerController.selectedPadDuration
+    audibleLength: samplerController.selectedPadAudibleLength
     envelopeAttack: samplerController.selectedPadAttackSeconds
     envelopeHold: samplerController.selectedPadHoldSeconds
     envelopeDecay: samplerController.selectedPadDecaySeconds

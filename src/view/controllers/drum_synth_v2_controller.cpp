@@ -20,7 +20,9 @@
 #include "../../application/service/device_service.hpp"
 #include "../../application/service/drum_voice_preview.hpp"
 #include "../../common/constants.hpp"
+#include "../../common/parameter_mapper.hpp"
 #include "../../common/utils.hpp"
+#include "../../domain/devices/drum_synth_v2_constants.hpp"
 #include "../../domain/devices/drum_synth_v2_device.hpp"
 
 #include <cmath>
@@ -103,6 +105,26 @@ void DrumSynthV2Controller::setSelectedVoice(int index)
         // there is nothing to coalesce it with.
         renderWaveform();
     }
+}
+
+double DrumSynthV2Controller::voiceAmpAttackSeconds() const
+{
+    return ParameterMapper::mapCubic(static_cast<double>(voiceAmpAttack()) / Constants::uiInternalScaling(), 0.0, DrumSynthV2::AmpEnvelopeMaxAttackSeconds);
+}
+
+double DrumSynthV2Controller::voiceAmpHoldSeconds() const
+{
+    return ParameterMapper::mapCubic(static_cast<double>(voiceAmpHold()) / Constants::uiInternalScaling(), 0.0, DrumSynthV2::AmpEnvelopeMaxHoldSeconds);
+}
+
+double DrumSynthV2Controller::voiceAmpDecaySeconds() const
+{
+    return ParameterMapper::mapExponential(static_cast<double>(voiceAmpDecay()) / Constants::uiInternalScaling(), DrumSynthV2::AmpEnvelopeMinDecaySeconds, DrumSynthV2::AmpEnvelopeMaxDecaySeconds);
+}
+
+double DrumSynthV2Controller::voiceAmpReleaseSeconds() const
+{
+    return ParameterMapper::mapExponential(static_cast<double>(voiceAmpRelease()) / Constants::uiInternalScaling(), DrumSynthV2::AmpEnvelopeMinDecaySeconds, DrumSynthV2::AmpEnvelopeMaxDecaySeconds);
 }
 
 QVariantList DrumSynthV2Controller::waveformData() const
