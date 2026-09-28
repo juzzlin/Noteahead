@@ -112,6 +112,7 @@
     <li><strong>Filters & Modulation</strong>: <strong>Auto Filter</strong> (swept filter with two LFOs and an envelope follower, described below), <strong>Phaser</strong> (swept all-pass cascade, described below), <strong>Chorus</strong>, <strong>Delay</strong> (Mono, Ping Pong and Tape modes, with BPM sync) and <strong>All-Pass Filter</strong>.</li>
     <li><strong>Stereo</strong>: <strong>Panner</strong>, <strong>Auto Panner</strong>, <strong>Stereo Enhancer</strong> (psychoacoustic EQ, described below), <strong>Stereo Widener</strong> (width per band, described below) and <strong>Dimension</strong> (builds width out of a mono source, described below).</li>
     <li><strong>Metering & Analysis</strong>: <strong>LUFS Meter</strong> (momentary, short-term and a gated integrated reading that runs as the song plays), <strong>dBTP Meter</strong> (true peak), <strong>RTA</strong> (real-time analyzer), <strong>Stereo Field Meter</strong> (goniometer and correlation, described below) and <strong>Monitor</strong> (mono and single-channel fold-downs for checking a mix by ear, described below). Use these as inserts to watch the signal at any point in the chain.</li>
+    <li><strong>Reference Monitoring</strong>: <strong>Reference</strong> (plays the mix as a car, a phone or a club would) and <strong>Crossfeed</strong> (the far-ear arrival headphones do not give you), both described below. Like the Monitor, neither is ever printed into a render.</li>
 </ul>
 
 <h3>Air Band EQ Parameters</h3>
@@ -245,6 +246,28 @@
 </ul>
 <p>There is no Mix and no output trim on purpose: half of a mono check is not a thing worth hearing, and a control that could scale the comparison would make it a worse reference.</p>
 <p>Monitoring only: whatever mode is selected is left out of an audio render, so a check left on Mono cannot print into an exported file.</p>
+
+<h3>Reference</h3>
+<p>Plays the mix the way another system would. A mix is signed off in one room and then heard in a car, on a phone, in a club: this is the cheap way of visiting those places without leaving the room. Put it last in the master rack.</p>
+<ul>
+    <li><strong>System</strong>: Car, Club, Phone, Laptop, Hall, Boombox, Earbuds, TV or Nearfield. Each one is a model rather than a curve: where the system stops reproducing, how it is voiced, what its box or room rings at, how much of the stereo image survives, and the compression it applies. The preset dropdown holds the same list, so the systems can be stepped through from there.</li>
+    <li><strong>Amount</strong>: how far from this room towards that one. At zero the mix is heard exactly as it is, which is also how the effect sits when it is unused.</li>
+    <li><strong>Room</strong>: how much of the space the system is heard in -- the cabin, the club, the hall. Turn it down to hear the voicing on its own.</li>
+    <li><strong>Dynamics</strong>: how much of that system's own compression and drive is applied. A car radio and a club PA both hold a mix down hard, and that is part of what makes them sound the way they do.</li>
+    <li><strong>Output</strong>: a trim, since every system changes the level.</li>
+</ul>
+<p>Indicative rather than exact. A parametric model of a car is not a car; the point is to force the decisions a car would force -- whether the bass balance survives losing an octave, whether the vocal carries once the midrange is scooped.</p>
+<p>Monitoring only: an audio render passes through untouched, so a check left on Phone cannot print into an exported file.</p>
+
+<h3>Crossfeed</h3>
+<p>For headphones. On speakers both ears hear both boxes, the far one a fraction of a millisecond later and duller because the head is in the way. Headphones give each channel to one ear alone, so a hard-panned part lands inside the head instead of out in front of it. This puts the far arrival back.</p>
+<ul>
+    <li><strong>Amount</strong>: how much of the difference between the channels is moved to the middle. Presets for the three classic voicings: <strong>Bauer</strong>, <strong>Chu Moy</strong> and <strong>Meier</strong>, plus <strong>Off</strong>.</li>
+    <li><strong>Delay</strong>: how much later the far ear hears it, in microseconds. Around 270 is the time sound takes to travel the width of a head.</li>
+    <li><strong>Cutoff</strong>: above this the head shadows the far ear, so nothing crosses over.</li>
+    <li><strong>Output</strong>: a trim.</li>
+</ul>
+<p>Worked on the side signal rather than by adding each channel to the other, so centred material comes through at exactly the level it went in at: what one ear loses, the other gains. Monitoring only, like Reference and Monitor.</p>
 
 <h3>Multiband Compressor Parameters</h3>
 <p>Three compressors on one signal, each working on its own part of the spectrum. Use it where a single compressor cannot win: a loud kick pumping the whole mix down, or a harsh vocal band that needs holding while the body is left alone.</p>

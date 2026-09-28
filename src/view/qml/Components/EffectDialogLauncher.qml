@@ -48,6 +48,12 @@ QtObject {
         } else if (effectType === effectRackController.monitorType) {
             monitorDialog.effectIndex = index;
             monitorDialog.open();
+        } else if (effectType === effectRackController.crossfeedType) {
+            crossfeedDialog.effectIndex = index;
+            crossfeedDialog.open();
+        } else if (effectType === effectRackController.referenceType) {
+            referenceDialog.effectIndex = index;
+            referenceDialog.open();
         } else if (effectType === effectRackController.gainType) {
             gainDialog.effectIndex = index;
             gainDialog.open();

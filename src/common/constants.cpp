@@ -329,6 +329,16 @@ QString monitor()
     return "monitor";
 }
 
+QString crossfeed()
+{
+    return "crossfeed";
+}
+
+QString reference()
+{
+    return "reference";
+}
+
 QString gain()
 {
     return "gain";
@@ -1563,6 +1573,21 @@ QString xmlKeyRate()
 QString xmlKeyDepth()
 {
     return "depth";
+}
+
+QString xmlKeyDynamics()
+{
+    return "dynamics";
+}
+
+QString xmlKeyEnvironment()
+{
+    return "environment";
+}
+
+QString xmlKeyRoom()
+{
+    return "room";
 }
 
 QString xmlKeyDetune()

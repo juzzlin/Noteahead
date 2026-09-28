@@ -585,6 +585,18 @@ ApplicationWindow {
         id: monitorDialog
         anchors.centerIn: parent
     }
+    CrossfeedDialog {
+        id: crossfeedDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
+    }
+    ReferenceDialog {
+        id: referenceDialog
+        anchors.centerIn: parent
+        width: parent.width * Constants.defaultDialogScale
+        height: parent.height * Constants.defaultDialogScale
+    }
     GainDialog {
         id: gainDialog
         anchors.centerIn: parent

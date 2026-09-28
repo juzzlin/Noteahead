@@ -59,6 +59,8 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString bassGrinderType READ bassGrinderType CONSTANT)
     Q_PROPERTY(QString limiterType READ limiterType CONSTANT)
     Q_PROPERTY(QString monitorType READ monitorType CONSTANT)
+    Q_PROPERTY(QString crossfeedType READ crossfeedType CONSTANT)
+    Q_PROPERTY(QString referenceType READ referenceType CONSTANT)
     Q_PROPERTY(QString gainType READ gainType CONSTANT)
     Q_PROPERTY(QString compressorType READ compressorType CONSTANT)
     Q_PROPERTY(QString multibandCompressorType READ multibandCompressorType CONSTANT)
@@ -132,6 +134,8 @@ public:
     QString bassGrinderType() const;
     QString limiterType() const;
     QString monitorType() const;
+    QString crossfeedType() const;
+    QString referenceType() const;
     QString gainType() const;
     QString compressorType() const;
     QString multibandCompressorType() const;
@@ -332,6 +336,19 @@ public:
     Q_INVOKABLE QString limiterBoostKey() const;
 
     Q_INVOKABLE QString monitorModeKey() const;
+
+    Q_INVOKABLE QString crossfeedAmountKey() const;
+    Q_INVOKABLE QString crossfeedDelayKey() const;
+    Q_INVOKABLE QString crossfeedCutoffKey() const;
+    Q_INVOKABLE QString crossfeedGainKey() const;
+
+    Q_INVOKABLE QString referenceEnvironmentKey() const;
+    Q_INVOKABLE QString referenceAmountKey() const;
+    Q_INVOKABLE QString referenceRoomKey() const;
+    Q_INVOKABLE QString referenceDynamicsKey() const;
+    Q_INVOKABLE QString referenceGainKey() const;
+    //! Names of the systems the environment parameter numbers, for the dialog's selector.
+    Q_INVOKABLE QStringList referenceEnvironmentNames() const;
 
     Q_INVOKABLE QString gainGainKey() const;
     //! Whether the Gain in this slot has seen a full-scale sample since it was last cleared.

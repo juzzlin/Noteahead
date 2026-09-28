@@ -30,6 +30,7 @@
 #include "chorus.hpp"
 #include "clipper.hpp"
 #include "compressor.hpp"
+#include "crossfeed.hpp"
 #include "delay.hpp"
 #include "dimension.hpp"
 #include "drive.hpp"
@@ -42,6 +43,7 @@
 #include "multiband_compressor.hpp"
 #include "panner.hpp"
 #include "phaser.hpp"
+#include "reference.hpp"
 #include "reverb.hpp"
 #include "saturator.hpp"
 #include "simple_eq.hpp"
@@ -121,6 +123,8 @@ void EffectFactory::init()
     registerEffect(Eq8BandParametric::typeIdString(), []() { return std::make_shared<Eq8BandParametric>(); });
     registerEffect(Limiter::typeIdString(), []() { return std::make_shared<Limiter>(); });
     registerEffect(LufsMeter::typeIdString(), []() { return std::make_shared<LufsMeter>(); });
+    registerEffect(Crossfeed::typeIdString(), []() { return std::make_shared<Crossfeed>(); });
+    registerEffect(Reference::typeIdString(), []() { return std::make_shared<Reference>(); });
     registerEffect(Monitor::typeIdString(), []() { return std::make_shared<Monitor>(); });
     registerEffect(Gain::typeIdString(), []() { return std::make_shared<Gain>(); });
     registerEffect(MultibandCompressor::typeIdString(), []() { return std::make_shared<MultibandCompressor>(); });
@@ -136,6 +140,8 @@ void EffectFactory::init()
 
     // Readable-string aliases so the gallery can create effects by their type() name
     registerEffect(Constants::RackEffectType::autoDucker().toStdString(), []() { return std::make_shared<AutoDucker>(); });
+    registerEffect(Constants::RackEffectType::crossfeed().toStdString(), []() { return std::make_shared<Crossfeed>(); });
+    registerEffect(Constants::RackEffectType::reference().toStdString(), []() { return std::make_shared<Reference>(); });
     registerEffect(Constants::RackEffectType::autoFilter().toStdString(), []() { return std::make_shared<AutoFilter>(); });
     registerEffect(Constants::RackEffectType::autoPanner().toStdString(), []() { return std::make_shared<AutoPanner>(); });
     registerEffect(Constants::RackEffectType::endless().toStdString(), []() { return std::make_shared<EndlessReverb>(); });
@@ -173,6 +179,8 @@ void EffectFactory::init()
 
     // Legacy support
     registerLegacyEffect("auto_ducker", []() { return std::make_shared<AutoDucker>(); });
+    registerLegacyEffect("cross_feed", []() { return std::make_shared<Crossfeed>(); });
+    registerLegacyEffect("reference_monitor", []() { return std::make_shared<Reference>(); });
     registerLegacyEffect("auto_filter", []() { return std::make_shared<AutoFilter>(); });
     registerLegacyEffect("multiband_compressor", []() { return std::make_shared<MultibandCompressor>(); });
     registerLegacyEffect("stereo_widener", []() { return std::make_shared<StereoWidener>(); });

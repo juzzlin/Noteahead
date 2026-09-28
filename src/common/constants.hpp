@@ -283,6 +283,8 @@ QString lufsMeter();
 QString dbtpMeter();
 QString rta();
 QString monitor();
+QString crossfeed();
+QString reference();
 QString gain();
 } // namespace RackEffectType
 
@@ -547,6 +549,9 @@ QString xmlKeySyncMode();
 QString xmlKeySyncLength();
 QString xmlKeySyncDivision();
 QString xmlKeyDepth();
+QString xmlKeyDynamics();
+QString xmlKeyEnvironment();
+QString xmlKeyRoom();
 QString xmlKeyDetune();
 QString xmlKeyFeedback();
 QString xmlKeyRateDivider();

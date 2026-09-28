@@ -31,6 +31,7 @@
 #include "../../domain/effects/chorus.hpp"
 #include "../../domain/effects/clipper.hpp"
 #include "../../domain/effects/compressor.hpp"
+#include "../../domain/effects/crossfeed.hpp"
 #include "../../domain/effects/delay.hpp"
 #include "../../domain/effects/dimension.hpp"
 #include "../../domain/effects/drive.hpp"
@@ -44,6 +45,8 @@
 #include "../../domain/effects/multiband_compressor.hpp"
 #include "../../domain/effects/panner.hpp"
 #include "../../domain/effects/phaser.hpp"
+#include "../../domain/effects/reference.hpp"
+#include "../../domain/effects/reference_environments.hpp"
 #include "../../domain/effects/reverb.hpp"
 #include "../../domain/effects/saturator.hpp"
 #include "../../domain/effects/stereo_enhancer.hpp"
@@ -348,6 +351,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Compressor", Constants::RackEffectType::compressor().toStdString());
     addEffect("dBTP Meter", DbTpMeter::typeIdString());
     addEffect("Delay", Constants::RackEffectType::delay().toStdString());
+    addEffect("Crossfeed", Constants::RackEffectType::crossfeed().toStdString());
     addEffect("Dimension", Constants::RackEffectType::dimension().toStdString());
     addEffect("Early Reflections", Constants::RackEffectType::earlyReflections().toStdString());
     addEffect("Drive", Constants::RackEffectType::drive().toStdString());
@@ -358,6 +362,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Limiter", Constants::RackEffectType::limiter().toStdString());
     addEffect("Gain", Constants::RackEffectType::gain().toStdString());
     addEffect("Monitor", Constants::RackEffectType::monitor().toStdString());
+    addEffect("Reference", Constants::RackEffectType::reference().toStdString());
     addEffect("Multiband Compressor", Constants::RackEffectType::multibandCompressor().toStdString());
     addEffect("LUFS Meter", LufsMeter::typeIdString());
     addEffect("Panner", Constants::RackEffectType::panner().toStdString());
@@ -691,6 +696,16 @@ QString EffectRackController::effectParametersSummary(quint32 effectIndex) const
                     case Monitor::Mode::Side:
                         return QString { "(%1)" }.arg(tr("SIDE"));
                     }
+                }
+            } else if (type == Constants::RackEffectType::reference()) {
+                // The system being checked against, named: like the monitor's fold, a reference left
+                // on is a setting that misrepresents everything downstream of it.
+                if (const auto reference = std::dynamic_pointer_cast<Reference>(effect); reference) {
+                    return QString { "(%1)" }.arg(QString::fromStdString(reference->environment().name).toUpper());
+                }
+            } else if (type == Constants::RackEffectType::crossfeed()) {
+                if (const auto amount = effect->parameter(Constants::NahdXml::xmlKeyAmount().toStdString()); amount) {
+                    return QString { "(%1 %2%)" }.arg(tr("amount")).arg(amount->get().xmlValue() / 100);
                 }
             } else if (type == Constants::RackEffectType::compressor()) {
                 const auto attack { effect->parameter(Constants::NahdXml::xmlKeyAttack().toStdString()) };
@@ -1199,6 +1214,62 @@ QString EffectRackController::limiterBoostKey() const
 QString EffectRackController::monitorModeKey() const
 {
     return Constants::NahdXml::xmlKeyMode();
+}
+
+QString EffectRackController::crossfeedAmountKey() const
+{
+    return Constants::NahdXml::xmlKeyAmount();
+}
+
+QString EffectRackController::crossfeedDelayKey() const
+{
+    return Constants::NahdXml::xmlKeyDelay();
+}
+
+QString EffectRackController::crossfeedCutoffKey() const
+{
+    return Constants::NahdXml::xmlKeyCutoff();
+}
+
+QString EffectRackController::crossfeedGainKey() const
+{
+    return Constants::NahdXml::xmlKeyGain();
+}
+
+QString EffectRackController::referenceEnvironmentKey() const
+{
+    return Constants::NahdXml::xmlKeyEnvironment();
+}
+
+QString EffectRackController::referenceAmountKey() const
+{
+    return Constants::NahdXml::xmlKeyAmount();
+}
+
+QString EffectRackController::referenceRoomKey() const
+{
+    return Constants::NahdXml::xmlKeyRoom();
+}
+
+QString EffectRackController::referenceDynamicsKey() const
+{
+    return Constants::NahdXml::xmlKeyDynamics();
+}
+
+QString EffectRackController::referenceGainKey() const
+{
+    return Constants::NahdXml::xmlKeyGain();
+}
+
+QStringList EffectRackController::referenceEnvironmentNames() const
+{
+    // Read from the table the effect itself selects with, so the list cannot name a system the
+    // effect does not have or miss one it does.
+    QStringList names;
+    for (auto && environment : referenceEnvironments()) {
+        names << QString::fromStdString(environment.name);
+    }
+    return names;
 }
 
 QString EffectRackController::gainGainKey() const
@@ -2135,6 +2206,16 @@ QString EffectRackController::limiterType() const
 QString EffectRackController::monitorType() const
 {
     return Constants::RackEffectType::monitor();
+}
+
+QString EffectRackController::crossfeedType() const
+{
+    return Constants::RackEffectType::crossfeed();
+}
+
+QString EffectRackController::referenceType() const
+{
+    return Constants::RackEffectType::reference();
 }
 
 QString EffectRackController::gainType() const

@@ -1342,6 +1342,23 @@ void EffectRackControllerTest::test_availableEffects_shouldBeSortedByName()
     }
 }
 
+void EffectRackControllerTest::test_availableEffects_shouldOfferTheMonitoringEffects()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+
+    // An effect the factory knows but the gallery does not list is an effect nobody can reach.
+    QStringList types;
+    for (auto && entry : controller.availableEffects()) {
+        types << entry.toMap()["typeId"].toString();
+    }
+
+    QVERIFY2(types.contains(Constants::RackEffectType::reference()), qPrintable(types.join(", ")));
+    QVERIFY2(types.contains(Constants::RackEffectType::crossfeed()), qPrintable(types.join(", ")));
+}
+
 void EffectRackControllerTest::test_targetSubIndex_masterSendRack_shouldAddressTheBusChain()
 {
     // On the master send side a sub-index means a send bus, and points the controller at that bus's

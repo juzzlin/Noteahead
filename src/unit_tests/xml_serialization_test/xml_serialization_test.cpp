@@ -54,6 +54,7 @@
 #include "../../domain/effects/bass_grinder.hpp"
 #include "../../domain/effects/chorus.hpp"
 #include "../../domain/effects/clipper.hpp"
+#include "../../domain/effects/crossfeed.hpp"
 #include "../../domain/effects/delay.hpp"
 #include "../../domain/effects/dimension.hpp"
 #include "../../domain/effects/drive.hpp"
@@ -66,6 +67,8 @@
 #include "../../domain/effects/monitor.hpp"
 #include "../../domain/effects/multiband_compressor.hpp"
 #include "../../domain/effects/phaser.hpp"
+#include "../../domain/effects/reference.hpp"
+#include "../../domain/effects/reference_environments.hpp"
 #include "../../domain/effects/reverb.hpp"
 #include "../../domain/effects/saturator.hpp"
 #include "../../domain/effects/simple_eq.hpp"
@@ -3475,6 +3478,100 @@ void XmlSerializationTest::test_toXmlFromXml_dimensionEffect_shouldLoadCorrectly
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyAmount()) - 0.66f) < 0.01f);
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyHpfCutoff()) - 0.81f) < 0.01f);
     QVERIFY(std::abs(value(Constants::NahdXml::xmlKeySolo()) - 1.0f) < 0.01f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_crossfeedEffect_shouldLoadCorrectly()
+{
+    EffectFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto crossfeed = std::make_shared<Crossfeed>();
+    const auto set = [&](const QString & key, float value) {
+        if (auto p = crossfeed->parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    };
+    set(Constants::NahdXml::xmlKeyAmount(), 0.42f);
+    set(Constants::NahdXml::xmlKeyDelay(), 0.33f);
+    set(Constants::NahdXml::xmlKeyCutoff(), 0.77f);
+    deviceServiceOut.sendEffectRack().setEffect(0, crossfeed);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(effect);
+    const auto restored = std::dynamic_pointer_cast<Crossfeed>(effect);
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), Crossfeed::typeIdString());
+
+    const auto value = [&](const QString & key) {
+        const auto p = restored->parameter(key.toStdString());
+        return p ? p->get().value() : -1.0f;
+    };
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyAmount()) - 0.42f) < 0.01f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyDelay()) - 0.33f) < 0.01f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyCutoff()) - 0.77f) < 0.01f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_referenceEffect_shouldLoadCorrectly()
+{
+    EffectFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto reference = std::make_shared<Reference>();
+    const auto set = [&](const QString & key, float value) {
+        if (auto p = reference->parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    };
+    // The environment is what a project stores about this effect, so it is the value that matters
+    // most here: a number that moved would open a song on the wrong system.
+    set(Constants::NahdXml::xmlKeyEnvironment(), 2.0f);
+    set(Constants::NahdXml::xmlKeyAmount(), 0.75f);
+    set(Constants::NahdXml::xmlKeyRoom(), 0.25f);
+    set(Constants::NahdXml::xmlKeyDynamics(), 0.5f);
+    deviceServiceOut.sendEffectRack().setEffect(0, reference);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto effect = deviceServiceIn.sendEffectRack().effect(0);
+    QVERIFY(effect);
+    const auto restored = std::dynamic_pointer_cast<Reference>(effect);
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), Reference::typeIdString());
+    QCOMPARE(restored->environment().name, referenceEnvironments().at(2).name);
+
+    const auto value = [&](const QString & key) {
+        const auto p = restored->parameter(key.toStdString());
+        return p ? p->get().value() : -1.0f;
+    };
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyAmount()) - 0.75f) < 0.01f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyRoom()) - 0.25f) < 0.01f);
+    QVERIFY(std::abs(value(Constants::NahdXml::xmlKeyDynamics()) - 0.5f) < 0.01f);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_stereoFieldMeterEffect_shouldLoadCorrectly()

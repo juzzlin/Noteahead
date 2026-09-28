@@ -16,6 +16,12 @@ New features:
   - The same bend the Synth's envelopes have, per pad, and the waveform view
     draws the shape the pad is actually played through
 
+* Reference monitoring and headphone crossfeed
+  - Reference plays the mix as another system would: Car, Club, Phone, Laptop,
+    Hall, Boombox, Earbuds, TV or Nearfield
+  - Crossfeed puts the far-ear arrival back for headphones
+  - Neither is ever printed into a render
+
 * Analyse any audio file, and compare two
   - Tools => Analyse audio files... measures a WAV or FLAC the way the render
     report does, two files side by side

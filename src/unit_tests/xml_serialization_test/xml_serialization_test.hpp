@@ -118,6 +118,8 @@ private slots:
     void test_toXmlFromXml_gainEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_monitorEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_dimensionEffect_shouldLoadCorrectly();
+    void test_toXmlFromXml_crossfeedEffect_shouldLoadCorrectly();
+    void test_toXmlFromXml_referenceEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_earlyReflectionsEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_autoFilterEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_phaserEffect_shouldLoadCorrectly();

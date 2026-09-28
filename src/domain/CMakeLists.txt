@@ -78,6 +78,8 @@ set(HEADER_FILES
     effects/bass_grinder.hpp
     effects/clipper.hpp
     effects/compressor.hpp
+    effects/crossfeed.hpp
+    effects/crossfeed_presets.hpp
     effects/delay.hpp
     effects/delay_presets.hpp
     effects/dimension.hpp
@@ -96,6 +98,9 @@ set(HEADER_FILES
     effects/multiband_compressor.hpp
     effects/panner.hpp
     effects/phaser.hpp
+    effects/reference.hpp
+    effects/reference_environments.hpp
+    effects/reference_presets.hpp
     effects/reverb.hpp
     effects/saturator.hpp
     effects/tube_stage.hpp
@@ -238,6 +243,8 @@ set(SOURCE_FILES
     effects/chorus.cpp
     effects/clipper.cpp
     effects/compressor.cpp
+    effects/crossfeed.cpp
+    effects/crossfeed_presets.cpp
     effects/delay.cpp
     effects/delay_presets.cpp
     effects/dimension.cpp
@@ -255,6 +262,9 @@ set(SOURCE_FILES
     effects/multiband_compressor.cpp
     effects/panner.cpp
     effects/phaser.cpp
+    effects/reference.cpp
+    effects/reference_environments.cpp
+    effects/reference_presets.cpp
     effects/reverb.cpp
     effects/saturator.cpp
     effects/tube_stage.cpp

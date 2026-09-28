@@ -78,6 +78,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/AllPassFilterDialog.qml
     ${QML_BASE_DIR}/Dialogs/AnalogFuzzDialog.qml
     ${QML_BASE_DIR}/Dialogs/AnimatedDialog.qml
+    ${QML_BASE_DIR}/Dialogs/CrossfeedDialog.qml
     ${QML_BASE_DIR}/Dialogs/DbtpMeterDialog.qml
     ${QML_BASE_DIR}/Dialogs/LimiterDialog.qml
     ${QML_BASE_DIR}/Dialogs/LufsMeterDialog.qml
@@ -219,6 +220,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/PitchBendAutomationModel.qml
     ${QML_BASE_DIR}/Dialogs/RecentFilesDialog.qml
     ${QML_BASE_DIR}/Dialogs/RenderProgressDialog.qml
+    ${QML_BASE_DIR}/Dialogs/ReferenceDialog.qml
     ${QML_BASE_DIR}/Dialogs/ReverbDialog.qml
     ${QML_BASE_DIR}/Dialogs/RtaDialog.qml
     ${QML_BASE_DIR}/Dialogs/SamplerDialog.qml
