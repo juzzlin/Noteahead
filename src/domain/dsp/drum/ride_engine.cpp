@@ -25,21 +25,29 @@ namespace {
 //! Restores what the fit cost in level: it compared spectra normalised by their own total, so
 //! nothing in it constrained how loud the voice came out. Measured against the kit it plays in,
 //! the ride had fallen three decibels under V1's while every other voice sits about two above it.
-constexpr float Rd9NoiseLevel { 0.103f };
+constexpr float Rd9OutputGain { 1.21f };
+
+//! What the Rd9 voicing is made of, fitted to a recording of the hardware. See CrashEngine for what
+//! the fit minimises.
+//!
+//! The base frequency is the one to be careful with. Left free, the fit ran it to 1.5 kHz, where
+//! the bank's own lowest partial is above the low mids -- so the whole 200 Hz to 1.5 kHz had to be
+//! filled with noise, and the cymbal hissed. It is held low enough that the metal reaches down
+//! there itself.
+constexpr double Rd9BaseFreq { 515.0 };
+constexpr float Rd9NoiseLevel { 0.129f };
 //! Positive and large: struck on the bow, the hardware puts its weight between four and sixteen
 //! kilohertz, so the upper partials are the loud ones.
-constexpr double Rd9MetalTilt { 1.131 };
-constexpr float Rd9CutoffBase { 0.400f };
+constexpr double Rd9MetalTilt { 1.325 };
+constexpr float Rd9CutoffBase { 0.412f };
 constexpr float Rd9CutoffTune { 0.319f };
 //! Where the shimmer starts, on its own path: see why it is not damped with the metal, below.
-constexpr float Rd9NoiseCutoff { 0.200f };
-constexpr double Rd9BaseFreq { 1518.8 };
+constexpr float Rd9NoiseCutoff { 0.247f };
 //! The damping sweeps between these two, which is how the cymbal darkens as it decays.
 constexpr float Rd9DampStart { 0.990f };
 constexpr float Rd9DampEnd { 0.885f };
 constexpr float Rd9DarkenSeconds { 0.172f };
 constexpr float Rd9DecayScale { 2.0f };
-constexpr float Rd9OutputGain { 1.38f };
 
 //! How far the cutoffs move across the Tune range, from their fitted values at the middle of it.
 //!
