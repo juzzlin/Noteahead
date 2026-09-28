@@ -28,6 +28,15 @@ New features:
   - The chart draws both balances and the difference between them, which is
     the equalizer move from one to the other
 
+* Send a Sampler pad or a Drum Synth voice on its own
+  - A pad or voice reaches the global send buses independently of what its
+    device sends, so one drum can sit in the reverb while the rest of the kit
+    stays dry
+
+* One effects dialog per device, with Insert and Sends tabs
+  - A pad's or voice's routing is reachable from the same FX button its
+    inserts are, and clicking a send row opens the effect on that bus
+
 * Sing a Speech line across a melody
   - A note played while another is still held moves the pitch instead of
     fetching the next line, so one column can hold the line while another
