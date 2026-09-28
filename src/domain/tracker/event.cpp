@@ -130,6 +130,16 @@ void Event::setNoteOffTick(size_t tick)
     m_noteOffTick = tick;
 }
 
+bool Event::isAutoNoteOff() const
+{
+    return m_isAutoNoteOff;
+}
+
+void Event::setAsAutoNoteOff()
+{
+    m_isAutoNoteOff = true;
+}
+
 Event::Type Event::type() const
 {
     return m_type;

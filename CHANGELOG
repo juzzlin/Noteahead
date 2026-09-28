@@ -32,6 +32,9 @@ Bug fixes:
 
 * Stop the Stereo Field Meter and the RTA freezing on a silent device
 
+* A Speech line no longer drawls over the rest of the song when nothing ends
+  the note that speaks it
+
 8.0.0
 =====
 

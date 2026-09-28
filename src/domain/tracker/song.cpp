@@ -716,6 +716,12 @@ Song::EventList Song::generateAutoNoteOffsForDanglingNotes(size_t tick, ActiveNo
     Song::EventList processedEvents;
     for (const auto & [trackAndColumn, notes] : activeNotes) {
         const auto noteOffEvents = generateNoteOffsForActiveNotes(trackAndColumn, tick, activeNotes);
+        // Marked as invented here rather than where they are made, because the same maker also
+        // produces the note-offs that a following note or a written one asks for, and those are
+        // the song's own.
+        for (auto && noteOffEvent : noteOffEvents) {
+            noteOffEvent->setAsAutoNoteOff();
+        }
         std::ranges::copy(noteOffEvents, std::back_inserter(processedEvents));
     }
     return processedEvents;
@@ -1058,7 +1064,12 @@ Song::EventList Song::annotateNoteLengths(EventListCR events) const
             sounding[key] = event;
         } else if (noteData->type() == NoteData::Type::NoteOff) {
             if (const auto it = sounding.find(key); it != sounding.end()) {
-                it->second->setNoteOffTick(event->tick());
+                // An invented note-off closes the note so that nothing is left hanging, but it
+                // says nothing about how long the note was meant to be: it sits past the end of
+                // the song, wherever that happens to fall.
+                if (!event->isAutoNoteOff()) {
+                    it->second->setNoteOffTick(event->tick());
+                }
                 sounding.erase(it);
             }
         }

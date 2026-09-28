@@ -108,6 +108,14 @@ public:
     TickOpt noteOffTick() const;
     void setNoteOffTick(size_t tick);
 
+    //! Whether this note-off was invented by the render to close a note the song never ends.
+    //!
+    //! Such a note-off lands past the last line, so pairing a note-on with it would report the note
+    //! as lasting all the rest of the song. Nobody wrote that length, and a device that fits
+    //! something inside a note -- a spoken line -- is better told nothing than told that.
+    bool isAutoNoteOff() const;
+    void setAsAutoNoteOff();
+
     Type type() const;
 
     template<class Visitor>
@@ -156,6 +164,7 @@ public:
 private:
     size_t m_tick;
     TickOpt m_noteOffTick;
+    bool m_isAutoNoteOff { false };
 
     Type m_type;
 

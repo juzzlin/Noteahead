@@ -1617,11 +1617,12 @@ void SongTest::test_renderToEvents_noteOn_shouldCarryItsNoteOffTick()
     QCOMPARE(*(*noteOn)->noteOffTick() - (*noteOn)->tick(), 8 * song.ticksPerLine());
 }
 
-void SongTest::test_renderToEvents_danglingNote_shouldStillCarryALength()
+void SongTest::test_renderToEvents_danglingNote_shouldCarryNoLength()
 {
-    // A note nothing ends is closed by the dangling-note pass at the end of the song, so every
-    // rendered note has a length. Nothing that reaches a device through a render is without one,
-    // and the length the device falls back on is for live play, which never comes through here.
+    // A note nothing ends is still closed by the dangling-note pass, so nothing is left hanging,
+    // but that note-off lands past the last line and says nothing about how long the note was
+    // meant to be. Reported as a length it would stretch whatever a device fits inside the note --
+    // a spoken line -- across all the rest of the song.
     Song song;
     song.setInstrument(0, std::make_shared<Instrument>("Instrument"));
     NoteData noteData;
@@ -1634,8 +1635,15 @@ void SongTest::test_renderToEvents_danglingNote_shouldStillCarryALength()
         return noteData && noteData->type() == NoteData::Type::NoteOn;
     });
     QVERIFY(noteOn != std::ranges::end(events));
-    QVERIFY((*noteOn)->noteOffTick().has_value());
-    QVERIFY(*(*noteOn)->noteOffTick() > (*noteOn)->tick());
+    QVERIFY(!(*noteOn)->noteOffTick().has_value());
+
+    // Closed all the same: the note-off is there, it is simply not the note's length.
+    const auto noteOff = std::ranges::find_if(events, [](auto && event) {
+        const auto noteData = event->noteData();
+        return noteData && noteData->type() == NoteData::Type::NoteOff;
+    });
+    QVERIFY(noteOff != std::ranges::end(events));
+    QVERIFY((*noteOff)->isAutoNoteOff());
 }
 
 void SongTest::test_countNoteOnsByPort_shouldCountPerPort()

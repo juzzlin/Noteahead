@@ -108,7 +108,7 @@ private slots:
     void test_transposeSong_drumTrackSet_shouldNotTransposeDrumTrack();
 
     void test_renderToEvents_noteOn_shouldCarryItsNoteOffTick();
-    void test_renderToEvents_danglingNote_shouldStillCarryALength();
+    void test_renderToEvents_danglingNote_shouldCarryNoLength();
     void test_countNoteOnsByPort_shouldCountPerPort();
 
     void test_duration_skippedPattern_shouldReturnCorrectDuration();
