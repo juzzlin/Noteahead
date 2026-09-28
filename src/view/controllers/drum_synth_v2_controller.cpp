@@ -224,6 +224,38 @@ void DrumSynthV2Controller::setVoiceAmpHold(int value)
     }
 }
 
+int DrumSynthV2Controller::voiceAmpSustain() const
+{
+    if (!m_device) {
+        return 0;
+    }
+    const auto parameter = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyAmpSustain().toStdString());
+    return parameter ? static_cast<int>(std::round(parameter->get().value() * Constants::uiInternalScaling())) : 0;
+}
+
+void DrumSynthV2Controller::setVoiceAmpSustain(int value)
+{
+    if (m_device) {
+        m_device->updateVoiceParameter(m_selectedVoice, Constants::NahdXml::xmlKeyAmpSustain().toStdString(), static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int DrumSynthV2Controller::voiceAmpRelease() const
+{
+    if (!m_device) {
+        return 0;
+    }
+    const auto parameter = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyAmpRelease().toStdString());
+    return parameter ? static_cast<int>(std::round(parameter->get().value() * Constants::uiInternalScaling())) : 0;
+}
+
+void DrumSynthV2Controller::setVoiceAmpRelease(int value)
+{
+    if (m_device) {
+        m_device->updateVoiceParameter(m_selectedVoice, Constants::NahdXml::xmlKeyAmpRelease().toStdString(), static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
 int DrumSynthV2Controller::voiceAmpDecay() const
 {
     if (!m_device) {
@@ -490,6 +522,8 @@ void DrumSynthV2Controller::requestSettings()
     emit voiceAmpAttackChanged();
     emit voiceAmpHoldChanged();
     emit voiceAmpDecayChanged();
+    emit voiceAmpSustainChanged();
+    emit voiceAmpReleaseChanged();
     emit voiceAmpCurveChanged();
     emit kickAttackChanged();
     emit kickClickTuneChanged();

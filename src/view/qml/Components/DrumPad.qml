@@ -15,6 +15,7 @@
 
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts 1.15
 import Noteahead 1.0
 
@@ -65,6 +66,9 @@ Rectangle {
 
     AppButton {
         text: qsTr("FX")
+        // As on a Sampler pad: the selected pad's background is the accent colour, and the style's
+        // white label all but disappears on a bright one.
+        Universal.foreground: root.textColor
         anchors.top: parent.top
         anchors.right: parent.right
         anchors.margins: 4

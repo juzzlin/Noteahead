@@ -46,6 +46,8 @@ class DrumSynthV2Controller : public DeviceController
     Q_PROPERTY(int voiceAmpAttack READ voiceAmpAttack WRITE setVoiceAmpAttack NOTIFY voiceAmpAttackChanged)
     Q_PROPERTY(int voiceAmpHold READ voiceAmpHold WRITE setVoiceAmpHold NOTIFY voiceAmpHoldChanged)
     Q_PROPERTY(int voiceAmpDecay READ voiceAmpDecay WRITE setVoiceAmpDecay NOTIFY voiceAmpDecayChanged)
+    Q_PROPERTY(int voiceAmpSustain READ voiceAmpSustain WRITE setVoiceAmpSustain NOTIFY voiceAmpSustainChanged)
+    Q_PROPERTY(int voiceAmpRelease READ voiceAmpRelease WRITE setVoiceAmpRelease NOTIFY voiceAmpReleaseChanged)
     Q_PROPERTY(int voiceAmpCurve READ voiceAmpCurve WRITE setVoiceAmpCurve NOTIFY voiceAmpCurveChanged)
 
     // Kick Specific
@@ -115,6 +117,10 @@ public:
     int voiceAmpHold() const;
     void setVoiceAmpHold(int value);
     int voiceAmpDecay() const;
+    int voiceAmpSustain() const;
+    void setVoiceAmpSustain(int value);
+    int voiceAmpRelease() const;
+    void setVoiceAmpRelease(int value);
     void setVoiceAmpDecay(int value);
     int voiceAmpCurve() const;
     void setVoiceAmpCurve(int value);
@@ -171,6 +177,8 @@ signals:
     void voiceAmpAttackChanged();
     void voiceAmpHoldChanged();
     void voiceAmpDecayChanged();
+    void voiceAmpSustainChanged();
+    void voiceAmpReleaseChanged();
     void voiceAmpCurveChanged();
     void kickAttackChanged();
     void kickClickTuneChanged();

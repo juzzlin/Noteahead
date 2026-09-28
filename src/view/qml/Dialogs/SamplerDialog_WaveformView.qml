@@ -61,6 +61,7 @@ WaveformView {
     showEnvelope: fileName !== ""
     duration: samplerController.selectedPadDuration
     envelopeAttack: samplerController.selectedPadAttackSeconds
+    envelopeHold: samplerController.selectedPadHoldSeconds
     envelopeDecay: samplerController.selectedPadDecaySeconds
     envelopeSustain: samplerController.selectedPadSustain
     envelopeRelease: samplerController.selectedPadReleaseSeconds

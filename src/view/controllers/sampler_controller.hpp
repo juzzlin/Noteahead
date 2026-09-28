@@ -53,6 +53,7 @@ class SamplerController : public DeviceController
     Q_PROPERTY(double selectedPadRelease READ selectedPadRelease WRITE setSelectedPadRelease NOTIFY selectedPadReleaseChanged)
     Q_PROPERTY(double selectedPadCurve READ selectedPadCurve WRITE setSelectedPadCurve NOTIFY selectedPadCurveChanged)
     Q_PROPERTY(double selectedPadAttackSeconds READ selectedPadAttackSeconds NOTIFY selectedPadAttackChanged)
+    Q_PROPERTY(double selectedPadHoldSeconds READ selectedPadHoldSeconds NOTIFY selectedPadHoldChanged)
     Q_PROPERTY(double selectedPadHold READ selectedPadHold WRITE setSelectedPadHold NOTIFY selectedPadHoldChanged)
     Q_PROPERTY(double selectedPadDecaySeconds READ selectedPadDecaySeconds NOTIFY selectedPadDecayChanged)
     Q_PROPERTY(double selectedPadReleaseSeconds READ selectedPadReleaseSeconds NOTIFY selectedPadReleaseChanged)
@@ -138,6 +139,7 @@ public:
     //! The amp envelope's segment times in seconds, as the voices run them. The waveform view draws
     //! the envelope on the same time axis as the sample, so it needs the times, not the positions.
     double selectedPadAttackSeconds() const;
+    double selectedPadHoldSeconds() const;
     double selectedPadDecaySeconds() const;
     double selectedPadReleaseSeconds() const;
 

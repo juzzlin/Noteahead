@@ -55,9 +55,16 @@ New features:
   - Bit Crusher throws away word length and sample rate separately, and is
     deliberately not oversampled, because there the aliases are the point
 
+* Sustain and Release on the Drum Synth V2's amp envelope
+  - AHDSR rather than AHD, both at zero by default. Sustain at full makes the
+    envelope a constant one, which is the only way for a V2 voice to sound
+    exactly like V1 rather than thirty-odd decibels close to it
+
 * A Hold stage on the Sampler's pad envelope
   - AHDSR rather than ADSR, at zero by default, so every pad saved before it
     falls straight through into its decay exactly as it always did
+  - The waveform view draws it, and the FX button on a pad takes the pad's own
+    text colour so it stays readable on a bright accent
 
 * A retriggered Drum Synth V2 voice hears its attack again
   - The level is walked to silence over two milliseconds before the new hit's

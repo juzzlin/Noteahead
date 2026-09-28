@@ -151,6 +151,16 @@ void DrumSynthV2Device::processMidiNoteOff(uint8_t note)
     if (note == static_cast<uint8_t>(ClosedHiHat) || note == static_cast<uint8_t>(PedalHiHat)) {
         m_voices[static_cast<int>(VoiceIndex::OpenHiHat)].engine->stop();
     }
+
+    // A drum is struck rather than held, so this does nothing at all unless the voice has been
+    // given a sustain to be let go of: the release falls away from wherever the level stands, and
+    // on an envelope with no sustain there is nothing left standing by the time the note ends.
+    for (auto && voice : m_voices) {
+        if (voice.midiNote == note) {
+            voice.ampEnvelope.release();
+            break;
+        }
+    }
 }
 
 void DrumSynthV2Device::processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t /*channel*/)
@@ -674,6 +684,10 @@ void DrumSynthV2Device::addAmpEnvelopeParameters(int index, const std::string & 
     addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyAmpAttack().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyAmpHold().toStdString(), voiceDefaults.hold, 0, 10000, static_cast<int>(voiceDefaults.hold * 10000), 100 });
     addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyAmpDecay().toStdString(), voiceDefaults.decay, 0, 10000, static_cast<int>(voiceDefaults.decay * 10000), 100 });
+    // Both at zero, so a kit saved before these existed decays to silence and goes idle exactly as
+    // it did. Sustain at full is what makes the envelope a constant one and the voice V1's again.
+    addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyAmpSustain().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyAmpRelease().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyAmpCurve().toStdString(), 0.0f, 0, 10000, 0, 100 });
 }
 
@@ -793,6 +807,12 @@ void DrumSynthV2Device::syncAmpEnvelopeParameters(int index, const std::string &
     }
     if (const auto p = parameter(prefix + Constants::NahdXml::xmlKeyAmpDecay().toStdString()); p) {
         envelope.setDecayTime(ParameterMapper::mapExponential(p->get().value(), AmpEnvelopeMinDecaySeconds, AmpEnvelopeMaxDecaySeconds));
+    }
+    if (const auto p = parameter(prefix + Constants::NahdXml::xmlKeyAmpSustain().toStdString()); p) {
+        envelope.setSustainLevel(p->get().value());
+    }
+    if (const auto p = parameter(prefix + Constants::NahdXml::xmlKeyAmpRelease().toStdString()); p) {
+        envelope.setReleaseTime(ParameterMapper::mapExponential(p->get().value(), AmpEnvelopeMinDecaySeconds, AmpEnvelopeMaxDecaySeconds));
     }
     if (const auto p = parameter(prefix + Constants::NahdXml::xmlKeyAmpCurve().toStdString()); p) {
         envelope.setCurve(p->get().value());

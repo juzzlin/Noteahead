@@ -38,6 +38,16 @@ void DrumAmpEnvelope::setDecayTime(double seconds)
     updatePhaseStep();
 }
 
+void DrumAmpEnvelope::setSustainLevel(double level)
+{
+    m_sustainLevel = std::clamp(level, 0.0, 1.0);
+}
+
+void DrumAmpEnvelope::setReleaseTime(double seconds)
+{
+    m_releaseTime = std::max(0.0, seconds);
+}
+
 void DrumAmpEnvelope::setCurve(double curve)
 {
     m_curve = std::clamp(curve, 0.0, 1.0);
@@ -62,6 +72,13 @@ void DrumAmpEnvelope::trigger()
 
     // Otherwise the tail is walked to zero first, and nextSample() begins the attack when it lands.
     beginSegment(State::Choke);
+}
+
+void DrumAmpEnvelope::release()
+{
+    if (m_state != State::Idle) {
+        beginSegment(State::Release);
+    }
 }
 
 void DrumAmpEnvelope::reset()
@@ -97,24 +114,33 @@ double DrumAmpEnvelope::nextSample()
             beginSegment(State::Decay);
         }
         break;
+    case State::Sustain:
+        m_currentLevel = m_sustainLevel;
+        break;
     case State::Attack:
     case State::Decay:
+    case State::Release:
         m_phase += m_phaseStep;
         if (m_phase >= 1.0) {
             if (m_state == State::Attack) {
                 m_currentLevel = 1.0;
                 beginSegment(State::Hold);
+            } else if (m_state == State::Decay && m_sustainLevel > 0.0) {
+                // Somewhere to stay: the envelope waits at the sustain level for the note off.
+                m_currentLevel = m_sustainLevel;
+                m_state = State::Sustain;
             } else {
-                m_currentLevel = 0.0;
+                m_currentLevel = m_state == State::Decay ? 0.0 : 0.0;
                 m_state = State::Idle;
             }
         } else {
             const double shaped = shape(m_phase);
-            // The attack rises into the top and the decay falls away from where it started, so the
-            // one shaping function bends one concave and the other convex.
+            // The attack rises into the top and the falling segments fall away from where they
+            // started, so the one shaping function bends one concave and the others convex.
+            const double target = m_state == State::Decay ? m_sustainLevel : 0.0;
             m_currentLevel = m_state == State::Attack
               ? m_segmentStart + (1.0 - m_segmentStart) * shaped
-              : m_segmentStart * (1.0 - shaped);
+              : target + (m_segmentStart - target) * (1.0 - shaped);
         }
         break;
     }
@@ -149,6 +175,8 @@ double DrumAmpEnvelope::segmentDuration(State state) const
         return m_holdTime;
     case State::Decay:
         return m_decayTime * std::clamp(m_segmentStart, 0.0, 1.0);
+    case State::Release:
+        return m_releaseTime * std::clamp(m_segmentStart, 0.0, 1.0);
     default:
         return 0.0;
     }

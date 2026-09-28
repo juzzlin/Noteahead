@@ -75,6 +75,9 @@ GridView {
 
             AppButton {
                 text: qsTr("FX")
+                // The pad's own text colour, not the style's white: on a bright accent a loaded
+                // pad's background is the accent itself, and white on it is barely there.
+                Universal.foreground: padRect.textColor
                 visible: isLoaded
                 anchors.top: parent.top
                 anchors.right: parent.right

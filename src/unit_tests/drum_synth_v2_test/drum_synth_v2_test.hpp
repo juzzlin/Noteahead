@@ -31,6 +31,7 @@ private slots:
     void test_drumSynthV2Device_everyVoice_shouldStayCloseToV1();
     void test_drumSynthV2Device_midiNoteOn_shouldTriggerVoice();
     void test_ampEnvelope_shortHold_shouldTightenTheVoice();
+    void test_ampEnvelope_fullSustain_shouldMatchV1Exactly();
     void test_ampEnvelope_closed_shouldStopTheVoiceRendering();
     void test_ampEnvelope_curve_shouldBendTheVoicesDecay();
     void test_drumSynthV2Device_xmlSerialization_shouldRestoreParameters();

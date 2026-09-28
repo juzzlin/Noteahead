@@ -223,6 +223,44 @@ void DrumSynthV2Test::test_ampEnvelope_shortHold_shouldTightenTheVoice()
     QVERIFY2(tightened < 0.2, qPrintable(QString { "Hold did not tighten the kick: %1 s, was %2 s" }.arg(tightened).arg(asShipped)));
 }
 
+void DrumSynthV2Test::test_ampEnvelope_fullSustain_shouldMatchV1Exactly()
+{
+    // What the sustain stage is for. Without one the envelope always decays to silence, so the
+    // closest V2 could come to V1 was its defaults parked just past each voice's own tail -- which
+    // measures thirty-odd decibels down rather than nothing at all. With the sustain at full and
+    // the attack, hold and release at zero the envelope is a constant one, and the voice is V1's.
+    const DrumSynthV2Device notes { "Notes" };
+    for (int voice = 0; voice < DrumSynthV2::NumVoices; voice++) {
+        const auto note = notes.voiceNote(voice);
+
+        DrumSynthV2Device v2 { "V2" };
+        v2.updateVoiceParameter(voice, Constants::NahdXml::xmlKeyAmpAttack().toStdString(), 0.0f);
+        v2.updateVoiceParameter(voice, Constants::NahdXml::xmlKeyAmpHold().toStdString(), 0.0f);
+        v2.updateVoiceParameter(voice, Constants::NahdXml::xmlKeyAmpRelease().toStdString(), 0.0f);
+        v2.updateVoiceParameter(voice, Constants::NahdXml::xmlKeyAmpSustain().toStdString(), 1.0f);
+
+        v2.processMidiNoteOn(note, 100);
+        std::vector<double> rendered;
+        std::vector<double> buffer(frameCount * 2, 0.0);
+        for (uint32_t block = 0; block < fullTailBlocks; block++) {
+            std::fill(buffer.begin(), buffer.end(), 0.0);
+            AudioContext context { std::span(buffer.data(), buffer.size()), frameCount, sampleRate };
+            v2.processAudio(context);
+            rendered.insert(rendered.end(), buffer.begin(), buffer.end());
+        }
+
+        const auto v1 = renderNote<DrumSynthDevice>(note, fullTailBlocks);
+        QCOMPARE(rendered.size(), v1.size());
+
+        double largest = 0.0;
+        for (size_t i = 0; i < v1.size(); i++) {
+            largest = std::max(largest, std::abs(rendered.at(i) - v1.at(i)));
+        }
+        QVERIFY2(largest < 1.0e-12,
+                 qPrintable(QString { "%1 differs from V1 by %2" }.arg(DrumSynthV2::voiceName(voice)).arg(largest)));
+    }
+}
+
 void DrumSynthV2Test::test_ampEnvelope_closed_shouldStopTheVoiceRendering()
 {
     // A closed envelope has to take the voice out of hasActiveAudio(), or the device keeps being

@@ -46,6 +46,9 @@ Rectangle {
     property bool showEnvelope: false
     property double duration: 0.0
     property double envelopeAttack: 0.0
+    //! Time held at the top between the attack and the decay. Zero, the default, draws nothing at
+    //! all, which is the ADSR this view drew before the stage existed.
+    property double envelopeHold: 0.0
     property double envelopeDecay: 0.0
     property double envelopeSustain: 1.0
     property double envelopeRelease: 0.0
@@ -55,6 +58,7 @@ Rectangle {
     onShowEnvelopeChanged: canvas.requestPaint()
     onDurationChanged: canvas.requestPaint()
     onEnvelopeAttackChanged: canvas.requestPaint()
+    onEnvelopeHoldChanged: canvas.requestPaint()
     onEnvelopeDecayChanged: canvas.requestPaint()
     onEnvelopeSustainChanged: canvas.requestPaint()
     onEnvelopeReleaseChanged: canvas.requestPaint()
@@ -112,7 +116,9 @@ Rectangle {
             x = cut ? boundary : end;
             return !cut;
         };
-        if (segment(rootItem.envelopeAttack, 1, true, x1) && segment(rootItem.envelopeDecay, rootItem.envelopeSustain, false, x1)) {
+        // The hold is flat, so it is a segment whose target is where it already is: the same
+        // clipping and the same boundary handling as the others, without a special case.
+        if (segment(rootItem.envelopeAttack, 1, true, x1) && segment(rootItem.envelopeHold, 1, false, x1) && segment(rootItem.envelopeDecay, rootItem.envelopeSustain, false, x1)) {
             level = rootItem.envelopeSustain;
             points.push([x1, level]);
         }

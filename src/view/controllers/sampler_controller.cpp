@@ -410,6 +410,12 @@ double SamplerController::selectedPadAttackSeconds() const
     return note ? SamplerDevice::attackSeconds(m_sampler->sampleAttack(*note)) : 0.0;
 }
 
+double SamplerController::selectedPadHoldSeconds() const
+{
+    const auto note = selectedNote();
+    return note ? SamplerDevice::holdSeconds(m_sampler->sampleHold(*note)) : 0.0;
+}
+
 double SamplerController::selectedPadDecaySeconds() const
 {
     const auto note = selectedNote();

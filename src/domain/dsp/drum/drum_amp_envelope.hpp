@@ -36,12 +36,26 @@ public:
         Choke,
         Attack,
         Hold,
-        Decay
+        Decay,
+        //! Held at the sustain level until the note is let go of. Appended, so the names that were
+        //! here keep their places.
+        Sustain,
+        Release
     };
 
     void setAttackTime(double seconds);
     void setHoldTime(double seconds);
     void setDecayTime(double seconds);
+
+    //! Where the decay lands, 0..1. Zero, the default, decays to silence and goes idle, which is
+    //! what a one-shot drum envelope did before the stage existed.
+    //!
+    //! At one the envelope is flat at the top for as long as the note is held, and with a zero
+    //! attack, hold and release it is then a constant 1 -- an envelope that does nothing at all,
+    //! which is the only way for V2 to sound exactly like V1 rather than merely close to it.
+    void setSustainLevel(double level);
+    //! How long the level takes to reach silence once the note is let go of.
+    void setReleaseTime(double seconds);
 
     //! Bend of the attack and the decay, 0..1, with the same meaning and the same shaping as
     //! AdsrEnvelope::setCurve(): zero leaves them straight and anything above moves most of the
@@ -64,6 +78,8 @@ public:
     //! is that a retrigger is late by that much, and it is set short enough not to be heard as
     //! timing.
     void trigger();
+    //! Note off. Falls away from wherever the level stands; a no-op on an envelope already idle.
+    void release();
     void reset();
 
     double nextSample();
@@ -94,6 +110,8 @@ private:
 
     double m_attackTime { MinimumSegmentTime };
     double m_holdTime { 0.0 };
+    double m_sustainLevel { 0.0 };
+    double m_releaseTime { 0.0 };
     double m_decayTime { MinimumSegmentTime };
     double m_curve { 0.0 };
 
