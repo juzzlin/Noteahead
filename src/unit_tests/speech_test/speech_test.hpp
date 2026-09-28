@@ -66,6 +66,10 @@ private slots:
     void test_device_flutter_shouldKeepTheFundamentalMoving();
     void test_device_vibratoDepth_shouldDefaultToOff();
     void test_device_voiceType_shouldRaiseTheFormants();
+    void test_glottalSource_subharmonic_shouldPutEnergyAtHalfTheFundamental();
+    void test_device_voiceType_monster_shouldGrowl();
+    void test_device_voiceType_giant_shouldBeLargerThanTheDeep();
+    void test_device_voiceType_alien_shouldBeSmallerThanTheChild();
     void test_device_voiceType_everyType_shouldSpeak_data();
     void test_device_voiceType_everyType_shouldSpeak();
     void test_device_voiceType_shouldSeparateTheVoiceQualities();

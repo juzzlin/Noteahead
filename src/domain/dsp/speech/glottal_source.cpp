@@ -88,6 +88,11 @@ void GlottalSource::setOpenQuotient(double openQuotient)
     updateShapeNorms();
 }
 
+void GlottalSource::setSubharmonic(double subharmonic)
+{
+    m_subharmonic = std::clamp(subharmonic, 0.0, 1.0);
+}
+
 void GlottalSource::setSpeedQuotient(double speedQuotient)
 {
     m_speedQuotient = std::max(1.0, speedQuotient);
@@ -138,6 +143,15 @@ void GlottalSource::beginPeriod()
     // not know what the last cycle did. A smoothed version of it is vibrato with a rough edge.
     m_periodScale = 1.0 + m_jitter * m_deviation(m_rng);
     m_amplitude = 1.0 + m_shimmer * m_deviation(m_rng);
+
+    // The amplitude half of diplophonia. Real folds alternate the period as well, in a pair that
+    // keeps its mean, and that is the stronger of the two mechanisms -- but it is also the one that
+    // walks into the octave below: past about 0.7 here the ear already stops hearing a growl and
+    // starts hearing a voice sung an octave down, and a period alternation reaches that sooner.
+    m_weakPeriod = !m_weakPeriod;
+    if (m_weakPeriod) {
+        m_amplitude *= 1.0 - m_subharmonic;
+    }
 }
 
 double GlottalSource::rosenberg(double phase) const
@@ -200,6 +214,7 @@ void GlottalSource::reset()
     m_phase = 0.0;
     m_periodScale = 1.0;
     m_amplitude = 1.0;
+    m_weakPeriod = false;
     m_openness = 1.0;
     // Straight to the target rather than glided: there is nothing to glide from when the voice has
     // been silent, and starting the glide at the last note's value is how the first pulse of a new

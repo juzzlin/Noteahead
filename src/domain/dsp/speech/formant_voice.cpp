@@ -236,6 +236,16 @@ void FormantVoice::setVoicePerturbation(double perturbation)
     m_glottis.setShimmer(amount * ShimmerRange);
 }
 
+void FormantVoice::setSpeedQuotient(double speedQuotient)
+{
+    m_glottis.setSpeedQuotient(speedQuotient);
+}
+
+void FormantVoice::setSubharmonic(double subharmonic)
+{
+    m_glottis.setSubharmonic(subharmonic);
+}
+
 void FormantVoice::setConsonantLevel(double level)
 {
     m_consonantLevel = std::max(0.0, level);

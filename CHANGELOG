@@ -37,6 +37,12 @@ New features:
   - A pad's or voice's routing is reachable from the same FX button its
     inserts are, and clicking a send row opens the effect on that bus
 
+* Four more Speech voices: Giant, Elder, Alien and Monster
+  - Monster growls: the folds double their period, which is a different thing
+    from an unsteady voice and is what a roar actually is
+  - The five voices that existed are untouched, so every saved device keeps
+    the speaker it was written with
+
 * Sing a Speech line across a melody
   - A note played while another is still held moves the pitch instead of
     fetching the next line, so one column can hold the line while another

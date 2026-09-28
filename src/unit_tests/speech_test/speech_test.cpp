@@ -18,6 +18,7 @@
 #include "../../domain/devices/speech_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/dsp/fft.hpp"
+#include "../../domain/dsp/speech/glottal_source.hpp"
 #include "../../domain/dsp/speech/speech_sequencer.hpp"
 #include "../../domain/dsp/speech/text_to_phonemes.hpp"
 
@@ -195,6 +196,26 @@ double firstToSecondHarmonic(const std::vector<double> & buffer, double f0)
         return best;
     };
     return 20.0 * std::log10(std::max(1e-12, peakNear(f0)) / std::max(1e-12, peakNear(2.0 * f0)));
+}
+
+//! Magnitude near one frequency, from a mono buffer.
+double magnitudeNear(const std::vector<double> & mono, double hz)
+{
+    constexpr int size = 32768;
+    std::vector<double> re(size, 0.0);
+    std::vector<double> im(size, 0.0);
+    for (int i = 0; i < size && static_cast<size_t>(i) < mono.size(); i++) {
+        const double window = 0.5 - 0.5 * std::cos(2.0 * M_PI * i / (size - 1));
+        re[static_cast<size_t>(i)] = mono[static_cast<size_t>(i)] * window;
+    }
+    Fft::forward(re.data(), im.data(), size);
+
+    const auto centre = static_cast<size_t>(std::lround(hz * size / SampleRate));
+    double best = 0.0;
+    for (size_t b = centre - 2; b <= centre + 2; b++) {
+        best = std::max(best, std::hypot(re[b], im[b]));
+    }
+    return best;
 }
 
 //! Frequency of the strongest spectral component between two bounds, from an interleaved buffer.
@@ -1093,6 +1114,10 @@ void SpeechTest::test_device_voiceType_everyType_shouldSpeak_data()
     QTest::newRow("child") << 2;
     QTest::newRow("deep") << 3;
     QTest::newRow("breathy") << 4;
+    QTest::newRow("giant") << 5;
+    QTest::newRow("elder") << 6;
+    QTest::newRow("alien") << 7;
+    QTest::newRow("monster") << 8;
 }
 
 void SpeechTest::test_device_voiceType_everyType_shouldSpeak()
@@ -1629,6 +1654,101 @@ void SpeechTest::test_device_portamento_shouldGlideToTheNewNote()
     QVERIFY2(immediate > 0.0 && glided > 0.0, qPrintable(QString::number(immediate) + " / " + QString::number(glided)));
     // Still on its way up an octave, so measurably below where the jump lands at once.
     QVERIFY2(glided < immediate * 0.9, qPrintable(QString::number(glided) + " vs " + QString::number(immediate)));
+}
+
+
+void SpeechTest::test_glottalSource_subharmonic_shouldPutEnergyAtHalfTheFundamental()
+{
+    // What separates a growl from a rough voice, measured where the difference is: a real component
+    // at half the fundamental. Jitter at any depth leaves that band empty, because a wandering
+    // period is not a doubled one.
+    const auto halfToFull = [](double subharmonic, double jitter) {
+        GlottalSource source;
+        source.setSampleRate(SampleRate);
+        source.setModel(GlottalSource::Model::Rosenberg);
+        source.setFrequency(110.0);
+        source.setSubharmonic(subharmonic);
+        source.setJitter(jitter);
+        source.reset();
+        source.setFrequency(110.0);
+
+        std::vector<double> mono;
+        mono.reserve(65536);
+        for (size_t i = 0; i < 65536; i++) {
+            mono.push_back(source.nextSample());
+        }
+        return magnitudeNear(mono, 55.0) / std::max(1e-12, magnitudeNear(mono, 110.0));
+    };
+
+    const auto plain = halfToFull(0.0, 0.0);
+    const auto rough = halfToFull(0.0, 0.012);
+    const auto growl = halfToFull(0.55, 0.0);
+
+    QVERIFY2(growl > 0.25, qPrintable(QString::number(growl)));
+    // An order of magnitude over either, which is why the subharmonic had to be its own control.
+    QVERIFY2(growl > plain * 10.0, qPrintable(QString::number(growl) + " vs " + QString::number(plain)));
+    QVERIFY2(growl > rough * 10.0, qPrintable(QString::number(growl) + " vs " + QString::number(rough)));
+}
+
+void SpeechTest::test_device_voiceType_monster_shouldGrowl()
+{
+    const auto halfToFull = [](int type) {
+        SpeechDevice device { "Speech" };
+        device.setVoiceType(type);
+        const auto rendered = heldVowel(device, 40);
+        std::vector<double> mono;
+        for (size_t i = 0; i < rendered.size(); i += 2) {
+            mono.push_back(rendered[i]);
+        }
+        const auto f0 = fundamentalFrequency(rendered);
+        return magnitudeNear(mono, f0 * 0.5) / std::max(1e-12, magnitudeNear(mono, f0));
+    };
+
+    const auto male = halfToFull(0);
+    const auto monster = halfToFull(8);
+    QVERIFY2(monster > male * 5.0, qPrintable(QString::number(monster) + " vs " + QString::number(male)));
+}
+
+void SpeechTest::test_device_voiceType_giant_shouldBeLargerThanTheDeep()
+{
+    // Size is the tract, not the note, so both are held on the same one: what is left is the part
+    // of being big that pitch cannot stand in for.
+    const auto firstFormant = [](int type) {
+        SpeechDevice device { "Speech" };
+        device.setPhrase("/aa/");
+        device.setVoiceType(type);
+        device.setIntonation(0.0f);
+        device.setVibratoDepth(0.0f);
+        device.setTriggerMode(static_cast<int>(SpeechSequencer::TriggerMode::Step));
+        device.setSyncMode(static_cast<int>(SpeechSequencer::SyncMode::Free));
+        device.processMidiNoteOn(48, 100);
+        renderDevice(device, 8192);
+        return spectralPeak(renderDevice(device, 65536), 300.0, 1400.0);
+    };
+
+    const auto deep = firstFormant(3);
+    const auto giant = firstFormant(5);
+    QVERIFY2(giant < deep * 0.92, qPrintable(QString::number(deep, 'f', 0) + " -> " + QString::number(giant, 'f', 0) + " Hz"));
+}
+
+void SpeechTest::test_device_voiceType_alien_shouldBeSmallerThanTheChild()
+{
+    const auto firstFormant = [](int type) {
+        SpeechDevice device { "Speech" };
+        device.setPhrase("/aa/");
+        device.setVoiceType(type);
+        device.setIntonation(0.0f);
+        device.setVibratoDepth(0.0f);
+        device.setTriggerMode(static_cast<int>(SpeechSequencer::TriggerMode::Step));
+        device.setSyncMode(static_cast<int>(SpeechSequencer::SyncMode::Free));
+        device.processMidiNoteOn(48, 100);
+        renderDevice(device, 8192);
+        return spectralPeak(renderDevice(device, 65536), 300.0, 1600.0);
+    };
+
+    const auto child = firstFormant(2);
+    const auto alien = firstFormant(7);
+    QVERIFY2(alien > child * 1.08, qPrintable(QString::number(child, 'f', 0) + " -> " + QString::number(alien, 'f', 0) + " Hz"));
 }
 
 } // namespace noteahead

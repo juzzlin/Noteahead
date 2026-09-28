@@ -79,6 +79,15 @@ public:
     //! jitter in measured speech, which is the ratio setJitter()'s caller is expected to keep.
     void setShimmer(double shimmer);
 
+    //! How much every second pulse is weakened, 0..1. Period doubling, which is what a growl is.
+    //!
+    //! Real energy at half the fundamental with the fundamental still present, rather than the
+    //! wander that jitter gives: the two are different mechanisms and the ear tells them apart at
+    //! once. Around 0.5 is a growl, 1 is every second pulse gone and so a clean octave down.
+    //!
+    //! Measured in voices as diplophonia, and heard in vocal fry and in every roared voice.
+    void setSubharmonic(double subharmonic);
+
     double nextSample();
 
     //! How far open the folds are on the sample just produced, scaled so that its mean over a
@@ -119,6 +128,10 @@ private:
     double m_speedQuotient { 2.5 };
     double m_jitter { 0.0 };
     double m_shimmer { 0.0 };
+    double m_subharmonic { 0.0 };
+    //! Which of the two alternating periods is being spoken, so the weakening lands on every other
+    //! one rather than on a random half of them.
+    bool m_weakPeriod { false };
 
     double m_phase { 0.0 };
     double m_phaseStep { 0.0 };

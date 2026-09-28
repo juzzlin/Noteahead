@@ -44,7 +44,7 @@ ColumnLayout {
             // Read through the active language so retranslate() reaches a model built in JS.
             model: {
                 languageService.activeLanguage;
-                return [qsTr("Male"), qsTr("Female"), qsTr("Child"), qsTr("Deep"), qsTr("Breathy")];
+                return [qsTr("Male"), qsTr("Female"), qsTr("Child"), qsTr("Deep"), qsTr("Breathy"), qsTr("Giant"), qsTr("Elder"), qsTr("Alien"), qsTr("Monster")];
             }
             currentIndex: speechController.voiceType
             onActivated: i => speechController.voiceType = i

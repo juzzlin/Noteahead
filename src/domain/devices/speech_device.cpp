@@ -81,13 +81,18 @@ struct VoiceTypeSettings
     double breathiness;
     //! How unsteady the folds are, as a share of full travel.
     double perturbation;
+    //! How hard the folds snap shut. 2.5 is modal, and every voice written before the field existed
+    //! is stated at it, so adding the field changed none of them.
+    double speedQuotient;
+    //! Period doubling, which is a growl. Zero for every voice a throat makes on purpose.
+    double subharmonic;
 };
 
 //! What Male and Female were before the source could tell them apart. Reached only by a project
 //! saved against them, which has to keep sounding as it did -- see VoiceEngine.
 constexpr VoiceTypeSettings LegacyVoices[] {
-    { 1.0, 0.0, 0.5, 0.0, 0.0 },
-    { 1.17, 3500.0, 0.5, 0.0, 0.0 }
+    { 1.0, 0.0, 0.5, 0.0, 0.0, 2.5, 0.0 },
+    { 1.17, 3500.0, 0.5, 0.0, 0.0, 2.5, 0.0 }
 };
 
 //! The voices, in the order the dialog lists them.
@@ -97,20 +102,36 @@ constexpr VoiceTypeSettings LegacyVoices[] {
 constexpr VoiceTypeSettings VoiceTypes[] {
     //! Modal: the folds shut firmly and the voice is even. The tract is the one the phoneme table
     //! was measured against, so this is the reference the other four are stated against.
-    { 1.0, 0.0, 0.48, 0.04, 0.35 },
+    { 1.0, 0.0, 0.48, 0.04, 0.35, 2.5, 0.0 },
     //! A sixth shorter, and breathier -- the open quotient does the softening the low pass used to
     //! attempt, and does it without darkening the formants that make her sound like a woman.
-    { 1.17, 0.0, 0.62, 0.10, 0.45 },
+    { 1.17, 0.0, 0.62, 0.10, 0.45, 2.5, 0.0 },
     //! A child: shorter again, breathier again, and markedly less steady. Control of the folds is
     //! something that is learned, and its absence is most of what makes a young voice recognisable.
-    { 1.35, 0.0, 0.66, 0.12, 0.75 },
+    { 1.35, 0.0, 0.66, 0.12, 0.75, 2.5, 0.0 },
     //! Deep: a long tract and a hard, short pulse. Pressed rather than merely low, because a voice
     //! sung an octave down is still the same voice unless the source changes with it.
-    { 0.87, 0.0, 0.34, 0.02, 0.30 },
+    { 0.87, 0.0, 0.34, 0.02, 0.30, 2.5, 0.0 },
     //! Breathy: the folds never quite meet, so most of the energy is in the first harmonic and the
     //! rest is air. The tract is the male one, which is what keeps it a manner of speaking rather
     //! than a fifth speaker.
-    { 1.04, 0.0, 0.80, 0.30, 0.55 }
+    { 1.04, 0.0, 0.80, 0.30, 0.55, 2.5, 0.0 },
+    //! A giant: the tract a third longer again than Deep's. Size rather than pitch is what this one
+    //! is, and the tract is what carries it -- a voice merely sung an octave down is the same
+    //! speaker being quiet about it.
+    { 0.72, 0.0, 0.38, 0.05, 0.45, 2.5, 0.0 },
+    //! An elder: the folds no longer meet cleanly, so the voice leaks air, and the steadiness that
+    //! holding a note takes is the first thing age costs. Full perturbation is the whole point of
+    //! it, and is all that separates this from Breathy.
+    { 0.96, 0.0, 0.72, 0.20, 1.00, 2.5, 0.0 },
+    //! An alien: a child's short tract, pressed rather than soft, and steadier than any throat
+    //! manages. The steadiness is what stops it being a child -- nothing living holds a pitch that
+    //! well, and the ear hears that before it hears the size.
+    { 1.55, 0.0, 0.30, 0.02, 0.08, 2.5, 0.0 },
+    //! A monster: a long tract, a hard closure and a growl. The growl is the subharmonic and nothing
+    //! else does it -- perturbation at full travel gives a voice that wobbles, which is an old or an
+    //! ill voice rather than a roaring one.
+    { 0.80, 0.0, 0.32, 0.06, 0.70, 4.5, 0.60 }
 };
 
 //! Which engine a device is running.
@@ -178,7 +199,7 @@ SpeechDevice::SpeechDevice(std::string name)
     addParameter(Parameter(Constants::NahdXml::xmlKeyBreathiness().toStdString(), 0.1f, 0, 10000, 1000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyConsonantLevel().toStdString(), 0.5f, 0, 10000, 5000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeySibilance().toStdString(), 0.31f, 0, 10000, 3100, 100));
-    addParameter(Parameter(Constants::NahdXml::xmlKeyVoiceType().toStdString(), 0.0f, 0, 4, 0, 1, Parameter::Type::Discrete));
+    addParameter(Parameter(Constants::NahdXml::xmlKeyVoiceType().toStdString(), 0.0f, 0, 8, 0, 1, Parameter::Type::Discrete));
     addParameter(Parameter(Constants::NahdXml::xmlKeyOpenQuotient().toStdString(), 0.5f, 0, 10000, 5000, 100));
     addParameter(Parameter(Constants::NahdXml::xmlKeyVoicePerturbation().toStdString(), 0.5f, 0, 10000, 5000, 100));
     // Modern for a device made now; deserializeFromXml() forces Legacy before it reads, so a project
@@ -505,6 +526,10 @@ void SpeechDevice::syncParameters()
     // the type's own value, which is what makes a type audible without the user dialling anything.
     m_voice.setOpenQuotient(voiceType.openQuotient + OpenQuotientRange * (static_cast<double>(m_openQuotient) - 0.5));
     m_voice.setVoicePerturbation(legacy ? 0.0 : voiceType.perturbation * PerturbationRange * static_cast<double>(m_voicePerturbation) * 2.0);
+    // Both stated at the modal values for a legacy device, which is what its source had before
+    // either was reachable.
+    m_voice.setSpeedQuotient(legacy ? 2.5 : voiceType.speedQuotient);
+    m_voice.setSubharmonic(legacy ? 0.0 : voiceType.subharmonic);
     m_voice.setBreathiness(static_cast<double>(m_breathiness) + (legacy ? 0.0 : voiceType.breathiness));
     m_voice.setConsonantLevel(static_cast<double>(m_consonantLevel) * ConsonantLevelRange);
     m_voice.setSibilance(static_cast<double>(m_sibilance));

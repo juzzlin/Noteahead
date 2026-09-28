@@ -107,6 +107,13 @@ public:
     //! throat does, so they are not worth separating.
     void setVoicePerturbation(double perturbation);
 
+    //! How hard the folds snap shut, as the ratio of the opening stretch to the closing one. Higher
+    //! closes faster and so brightens and hardens the voice; the modal default is 2.5.
+    void setSpeedQuotient(double speedQuotient);
+
+    //! Period doubling, 0..1. What separates a growl from a merely rough voice.
+    void setSubharmonic(double subharmonic);
+
     //! Level of everything that is not a vowel, relative to the vowels.
     void setConsonantLevel(double level);
 
