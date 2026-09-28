@@ -32,6 +32,8 @@ public:
     enum class State
     {
         Idle,
+        //! Falling to silence before a retrigger's attack begins. See trigger().
+        Choke,
         Attack,
         Hold,
         Decay
@@ -48,6 +50,19 @@ public:
 
     void setSampleRate(double sampleRate) override;
 
+    //! Struck. An attack that has somewhere to travel begins at once; one that does not is given
+    //! somewhere to travel first.
+    //!
+    //! A drum voice is one voice rather than a pool, so a hit during the last one's tail has to
+    //! reuse the envelope that tail is still riding on. Starting the attack from where the level
+    //! stands means a retrigger at full level has no distance to cover, and the attack is silent --
+    //! which is why a slow attack was heard on the first hit and never again. Starting it from zero
+    //! instead steps the output down to silence, which is a click.
+    //!
+    //! So the level is walked down to zero over ChokeSeconds first and the attack follows from
+    //! there, which is what the Sampler achieves by fading the old voice under a new one. The cost
+    //! is that a retrigger is late by that much, and it is set short enough not to be heard as
+    //! timing.
     void trigger();
     void reset();
 
@@ -67,6 +82,15 @@ private:
 
     static constexpr double MaxCurvature { 6.0 };
     static constexpr double MinimumSegmentTime { 0.000001 };
+
+    //! How long the level takes to reach zero before a retrigger's attack. Long enough that the
+    //! step is a ramp rather than an edge, short enough to sit inside the attack transient of the
+    //! drum being struck.
+    static constexpr double ChokeSeconds { 0.002 };
+
+    //! Level below which a retrigger simply attacks: there is nothing left to walk down from, and
+    //! delaying the hit to fade silence would only make it late.
+    static constexpr double ChokeThreshold { 0.001 };
 
     double m_attackTime { MinimumSegmentTime };
     double m_holdTime { 0.0 };

@@ -131,10 +131,12 @@ void DrumAmpEnvelopeTest::test_envelope_curve_shouldMoveTravelToTheStartOfTheDec
     QVERIFY2(bent < straight - 0.2, qPrintable(QString { "straight %1, bent %2" }.arg(straight).arg(bent)));
 }
 
-void DrumAmpEnvelopeTest::test_envelope_retrigger_duringDecay_shouldRiseFromWhereItStood()
+void DrumAmpEnvelopeTest::test_envelope_retrigger_duringDecay_shouldChokeThenAttack()
 {
-    // A drum played fast is retriggered mid-tail, and starting the attack from zero there would put
-    // a hole in the sound on every fast roll.
+    // A drum voice is one voice rather than a pool, so a hit during the last one's tail reuses the
+    // envelope that tail rides on. It used to start the attack from where the level stood, which
+    // left a retrigger at any height with less attack to travel -- and at full height with none at
+    // all, so a slow attack was heard on the first hit and never again.
     auto envelope = makeEnvelope(0.02, 0.0, 0.5);
     envelope.trigger();
     advance(envelope, 0.1);
@@ -142,8 +144,64 @@ void DrumAmpEnvelopeTest::test_envelope_retrigger_duringDecay_shouldRiseFromWher
     QVERIFY(beforeRetrigger > 0.0 && beforeRetrigger < 1.0);
 
     envelope.trigger();
+    QCOMPARE(envelope.state(), DrumAmpEnvelope::State::Choke);
+
+    // Down to silence within the choke, and climbing again immediately after it. A hair past the
+    // two milliseconds, because the last step of the ramp lands a floating-point whisker short.
+    advance(envelope, 0.0025);
     QCOMPARE(envelope.state(), DrumAmpEnvelope::State::Attack);
-    QVERIFY2(envelope.nextSample() > beforeRetrigger, "the retrigger dipped below where the tail stood");
+    QVERIFY2(envelope.value() < beforeRetrigger * 0.1, qPrintable(QString::number(envelope.value())));
+}
+
+void DrumAmpEnvelopeTest::test_envelope_retrigger_shouldGiveTheAttackItsFullTime()
+{
+    // The whole point of the choke: an attack that was inaudible on every hit after the first is
+    // now heard on all of them, because it always has the full range to travel.
+    auto envelope = makeEnvelope(0.05, 0.2, 0.5);
+    envelope.trigger();
+    advance(envelope, 0.1);
+    QCOMPARE(envelope.value(), 1.0);
+
+    envelope.trigger();
+    // Half way through the attack it must be part way up, not already at the top.
+    advance(envelope, 0.002 + 0.025);
+    QVERIFY2(envelope.value() > 0.1 && envelope.value() < 0.9, qPrintable(QString::number(envelope.value())));
+
+    advance(envelope, 0.03);
+    QCOMPARE(envelope.value(), 1.0);
+}
+
+void DrumAmpEnvelopeTest::test_envelope_retrigger_shouldNotStepToSilence()
+{
+    // Why the level is walked down rather than reset: the step from a loud tail straight to zero is
+    // an edge, and an edge is a click.
+    auto envelope = makeEnvelope(0.05, 0.2, 0.5);
+    envelope.trigger();
+    advance(envelope, 0.1);
+
+    envelope.trigger();
+    double previous = envelope.value();
+    double largestStep = 0.0;
+    for (int i = 0; i < static_cast<int>(0.002 * sampleRate); i++) {
+        const auto level = envelope.nextSample();
+        largestStep = std::max(largestStep, std::abs(level - previous));
+        previous = level;
+    }
+    // One sample of a two millisecond ramp, with a little room: nothing like the full-scale step a
+    // reset would have made.
+    QVERIFY2(largestStep < 0.02, qPrintable(QString::number(largestStep)));
+}
+
+void DrumAmpEnvelopeTest::test_envelope_retrigger_fromSilence_shouldAttackAtOnce()
+{
+    // Nothing to walk down from, so the hit is not delayed to fade silence.
+    auto envelope = makeEnvelope(0.02, 0.0, 0.1);
+    envelope.trigger();
+    advance(envelope, 0.5);
+    QCOMPARE(envelope.state(), DrumAmpEnvelope::State::Idle);
+
+    envelope.trigger();
+    QCOMPARE(envelope.state(), DrumAmpEnvelope::State::Attack);
 }
 
 void DrumAmpEnvelopeTest::test_envelope_reset_shouldGoIdle()

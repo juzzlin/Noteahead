@@ -54,9 +54,14 @@ void DrumAmpEnvelope::setSampleRate(double sampleRate)
 
 void DrumAmpEnvelope::trigger()
 {
-    // From wherever the level stands rather than from zero, so a retrigger during the tail of the
-    // last hit rises out of it instead of chopping it to silence first.
-    beginSegment(State::Attack);
+    // Nothing sounding: the attack has the whole range to travel and starts now.
+    if (m_currentLevel <= ChokeThreshold) {
+        beginSegment(State::Attack);
+        return;
+    }
+
+    // Otherwise the tail is walked to zero first, and nextSample() begins the attack when it lands.
+    beginSegment(State::Choke);
 }
 
 void DrumAmpEnvelope::reset()
@@ -73,6 +78,17 @@ double DrumAmpEnvelope::nextSample()
     switch (m_state) {
     case State::Idle:
         m_currentLevel = 0.0;
+        break;
+    case State::Choke:
+        m_phase += m_phaseStep;
+        if (m_phase >= 1.0) {
+            m_currentLevel = 0.0;
+            beginSegment(State::Attack);
+        } else {
+            // Straight down rather than shaped: this is not a decay anybody asked to hear, it is
+            // the shortest honest way from where the level stands to zero.
+            m_currentLevel = m_segmentStart * (1.0 - m_phase);
+        }
         break;
     case State::Hold:
         m_currentLevel = 1.0;
@@ -123,6 +139,8 @@ bool DrumAmpEnvelope::isActive() const
 double DrumAmpEnvelope::segmentDuration(State state) const
 {
     switch (state) {
+    case State::Choke:
+        return ChokeSeconds;
     case State::Attack:
         // What is left to climb, so a retrigger part-way up takes the shorter path rather than the
         // full attack time from where it already is.

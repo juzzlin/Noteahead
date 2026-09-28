@@ -31,7 +31,10 @@ private slots:
     void test_envelope_decay_shouldReachSilenceAndGoIdle();
     void test_envelope_attack_shouldRiseOverItsTime();
     void test_envelope_curve_shouldMoveTravelToTheStartOfTheDecay();
-    void test_envelope_retrigger_duringDecay_shouldRiseFromWhereItStood();
+    void test_envelope_retrigger_duringDecay_shouldChokeThenAttack();
+    void test_envelope_retrigger_shouldGiveTheAttackItsFullTime();
+    void test_envelope_retrigger_shouldNotStepToSilence();
+    void test_envelope_retrigger_fromSilence_shouldAttackAtOnce();
     void test_envelope_reset_shouldGoIdle();
 };
 
