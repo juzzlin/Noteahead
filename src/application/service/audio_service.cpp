@@ -112,8 +112,12 @@ void AudioService::initializeWorker()
     });
     connect(m_audioWorker.get(), &AudioWorker::playbackFinished, this, &AudioService::stopPlayback);
     connect(m_audioWorker.get(), &AudioWorker::recordingStopped, this, [this] {
-        if (!m_latestRecordingFileName.isEmpty()) {
-            emit recordingFinished(m_latestRecordingFileName);
+        // The file this take wrote, not the song's latest recording: a Sampler pad take never becomes
+        // that, and reading it from there handed the sampler the wrong file the moment it did not.
+        if (!m_finishedRecordingFileName.isEmpty()) {
+            const auto finished = m_finishedRecordingFileName;
+            m_finishedRecordingFileName.clear();
+            emit recordingFinished(finished);
         }
     });
 
@@ -142,6 +146,17 @@ void AudioService::onErrorOccurred(QString message)
 
 void AudioService::startRecording(QString filePath, quint32 bufferSize, quint64 startTick)
 {
+    startRecording(filePath, bufferSize, startTick, true);
+}
+
+void AudioService::startSampleRecording(QString filePath, quint32 bufferSize)
+{
+    // No start tick: a pad take has no place on the song's timeline.
+    startRecording(filePath, bufferSize, 0, false);
+}
+
+void AudioService::startRecording(QString filePath, quint32 bufferSize, quint64 startTick, bool songTake)
+{
     // Zero means "whatever is configured". The sampler has no reason to know about buffer sizes,
     // and a zero handed to RtAudio asks it to open a stream of no length.
     if (!bufferSize) {
@@ -151,6 +166,7 @@ void AudioService::startRecording(QString filePath, quint32 bufferSize, quint64 
     emit isRecordingChanged();
     m_currentRecordingFileName = filePath;
     m_currentRecordingStartTick = startTick;
+    m_currentRecordingIsSongTake = songTake;
     const auto functionName = "startRecording";
     if (const bool invoked = QMetaObject::invokeMethod(m_audioWorker.get(), functionName, Q_ARG(QString, filePath), Q_ARG(quint32, bufferSize)); !invoked) {
         juzzlin::L(TAG).error() << "Invoking a method failed!: " << functionName;
@@ -164,13 +180,18 @@ void AudioService::stopRecording(quint64 stopTick)
         juzzlin::L(TAG).error() << "Invoking a method failed!: " << functionName;
     }
     if (!m_currentRecordingFileName.isEmpty()) {
-        m_latestRecordingFileName = m_currentRecordingFileName;
+        // Handed to recordingFinished() below whatever kind of take it was, so whoever asked for the
+        // recording gets the file it actually wrote.
+        m_finishedRecordingFileName = m_currentRecordingFileName;
+        if (m_currentRecordingIsSongTake) {
+            m_latestRecordingFileName = m_currentRecordingFileName;
+            m_latestRecordingStartTick = m_currentRecordingStartTick;
+            m_latestRecordingEndTick = stopTick;
+            emit latestRecordingFileNameChanged();
+            emit latestRecordingStartTickChanged();
+            emit latestRecordingEndTickChanged();
+        }
         m_currentRecordingFileName.clear();
-        m_latestRecordingStartTick = m_currentRecordingStartTick;
-        m_latestRecordingEndTick = stopTick;
-        emit latestRecordingFileNameChanged();
-        emit latestRecordingStartTickChanged();
-        emit latestRecordingEndTickChanged();
     }
     m_isRecording = false;
     emit isRecordingChanged();

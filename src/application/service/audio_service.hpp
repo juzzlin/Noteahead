@@ -58,6 +58,13 @@ private slots:
 
 public:
     Q_INVOKABLE void startRecording(QString filePath, quint32 bufferSize, quint64 startTick);
+    //! Records a file that is not a take of the song.
+    //!
+    //! What the Sampler's pad recording uses. A pad take is a sample, not a recording of the song, so
+    //! it has no business becoming the song's latest recording: that is what the wave view under the
+    //! editor draws, what its play button plays, what its position is mapped onto the song's ticks
+    //! from, and what the project saves a path to. It still arrives back through recordingFinished().
+    Q_INVOKABLE void startSampleRecording(QString filePath, quint32 bufferSize);
     Q_INVOKABLE void stopRecording(quint64 stopTick);
 
     Q_INVOKABLE void startPlayback(QString filePath, quint32 bufferSize);
@@ -109,7 +116,16 @@ private:
     std::unique_ptr<AudioWorker> m_audioWorker;
     QThread m_audioWorkerThread;
     QString m_latestRecordingFileName;
+    void startRecording(QString filePath, quint32 bufferSize, quint64 startTick, bool songTake);
+
     QString m_currentRecordingFileName;
+    //! Whether the take running now is a take of the song, and so the one the wave view under the
+    //! editor is about. False for a Sampler pad recording.
+    bool m_currentRecordingIsSongTake = true;
+    //! The file the take that just stopped wrote. Kept because the worker reports the stop after the
+    //! caller has already finished with the current take, and because recordingFinished() has to carry
+    //! the file that was actually recorded rather than whatever is in the song's latest slot.
+    QString m_finishedRecordingFileName;
     bool m_isRecording = false;
     bool m_isPlayingPlayback = false;
     double m_playbackPosition = 0.0;

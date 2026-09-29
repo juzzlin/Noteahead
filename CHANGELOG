@@ -149,6 +149,10 @@ New features:
 
 Bug fixes:
 
+* A Sampler pad recording is no longer treated as a recording of the song
+  - It used to take over the wave view under the editor, and the project saved a
+    path to it -- one that stopped existing when the pad take was a temporary file
+
 * Audio stream failures are reported instead of swallowed
   - RtAudio 6 reports them by return value rather than by throwing, so the
     handling written for RtAudio 5 never ran and a stream that would not open

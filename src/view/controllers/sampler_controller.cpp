@@ -705,7 +705,7 @@ void SamplerController::startRecording()
     m_recordingPad = m_selectedPad;
     m_recordingElapsed.start();
     juzzlin::L(TAG).info() << "Recording pad " << (m_selectedPad + 1) << " into " << std::quoted(filePath.toStdString());
-    m_audioService->startRecording(filePath, 0, 0);
+    m_audioService->startSampleRecording(filePath, 0);
     emit recordingChanged();
 }
 
