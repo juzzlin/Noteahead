@@ -53,6 +53,11 @@ QtObject {
     readonly property double bottomBarFontScale: 0.5
     readonly property int bottomBarMinFontSize: 9
 
+    // What a wave view says over the picture rather than beside it: the guide text on an empty view,
+    // and the clock that takes its place while a take runs. One size, because they are alternatives
+    // to each other and a jump between them would read as two unrelated things.
+    readonly property int waveViewOverlayFontSize: 20
+
     // Anything shorter and the 88 keys are not worth clicking
     readonly property int minKeyboardHeight: 60
 

@@ -26,6 +26,9 @@ WaveformView {
 
     property bool samplerDialogVisible: false
     property var currentWaveformData: []
+    //! Bumped while a take runs, so the clock below re-reads the elapsed time. The time itself is
+    //! polled rather than signalled: it changes continuously and is only shown to a tenth.
+    property int recordingTick: 0
     waveformData: currentWaveformData
     fileName: {
         if (samplerController.selectedPad < 0)
@@ -33,6 +36,10 @@ WaveformView {
         const sample = samplerController.padModel.data(samplerController.padModel.index(samplerController.selectedPad, 0), SamplerPadModel.FilePath);
         return sample ? sample.split("/").pop() : "";
     }
+
+    // An empty view says what to do with it. Held back while a take runs, because the clock sits in
+    // the same place and says something more useful.
+    placeholderText: samplerController.recording ? "" : qsTr("Record audio or assign a file")
 
     playbackPosition: samplerController.playbackPosition
     startOffset: {
@@ -85,6 +92,34 @@ WaveformView {
         onTriggered: {
             samplerController.updatePlaybackStatus();
         }
+    }
+
+    // How long the take has been running, where the waveform is not yet. A recording you cannot do
+    // twice is worth knowing the length of while you are making it.
+    Text {
+        anchors.centerIn: parent
+        visible: samplerController.recording
+        color: themeService.accentColor
+        font.pixelSize: Constants.waveViewOverlayFontSize
+        font.bold: true
+        // Rounded to tenths first and split afterwards. Splitting first and rounding the seconds lets
+        // the rounding cross a boundary the minutes have already been taken from: 9.96 s read as
+        // "0:010.0", and 59.96 s would have read as "0:60.0".
+        text: {
+            waveform.recordingTick;
+            const tenths = Math.round(samplerController.recordingSeconds() * 10);
+            const minutes = Math.floor(tenths / 600);
+            const withinMinute = tenths - minutes * 600;
+            const seconds = Math.floor(withinMinute / 10);
+            return minutes + ":" + (seconds < 10 ? "0" : "") + seconds + "." + (withinMinute % 10);
+        }
+    }
+
+    Timer {
+        interval: 100
+        running: waveform.samplerDialogVisible && samplerController.recording
+        repeat: true
+        onTriggered: waveform.recordingTick++
     }
 
     //! The offsets are two properties, a whole second and a millisecond, and rounding to whole

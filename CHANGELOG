@@ -136,6 +136,10 @@ New features:
     the next pad, so the four strings of a bass can sit a fourth apart instead
     of being stretched an octave each
 
+* The Sampler says what an empty pad is for, and how long a take is
+  - "Record audio or assign a file" in the middle of an empty wave view, and a
+    clock in its place while a recording runs
+
 * A Mono switch per pad, beside Loop
   - Sums a stereo pad to one channel before it is panned, so it sits at a point
     in the image instead of keeping the width it was recorded with

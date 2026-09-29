@@ -315,6 +315,18 @@ void SamplerControllerTest::test_copyPad_shouldCopyPadToTarget()
     QCOMPARE(cutoffSpy.count(), 1);
 }
 
+void SamplerControllerTest::test_recordingSeconds_notRecording_shouldBeZero()
+{
+    // The clock is read every tenth of a second while the dialog is open, including before anything
+    // has ever been recorded. An unstarted QElapsedTimer has nothing meaningful to report, so the
+    // reading has to come from the guard rather than from the timer.
+    const auto sampler = std::make_shared<SamplerDevice>("Test Sampler", std::make_unique<MockAudioFileReader>());
+    SamplerController controller { sampler };
+
+    QVERIFY(!controller.recording());
+    QCOMPARE(controller.recordingSeconds(), 0.0);
+}
+
 void SamplerControllerTest::test_selectedPadMono_shouldBePerPadAndSayWhenItChanges()
 {
     // The checkbox binds to this property, so selecting another pad has to say the value changed. It

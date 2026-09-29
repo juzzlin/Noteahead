@@ -26,6 +26,7 @@ private slots:
     void test_copyPad_shouldCopyPadToTarget();
     void test_copyPad_samePad_shouldDoNothing();
     void test_playbackPosition_chromaticMode_shouldFollowAPitchedNote();
+    void test_recordingSeconds_notRecording_shouldBeZero();
     void test_selectedPadMono_shouldBePerPadAndSayWhenItChanges();
     void test_padNote_chromaticMode_shouldDefaultToOneOctavePerPad();
     void test_setPadNote_shouldMoveThePadAndItsAudio();

@@ -17,6 +17,7 @@
 #define SAMPLER_CONTROLLER_HPP
 
 #include "device_controller.hpp"
+#include <QElapsedTimer>
 #include <QTemporaryDir>
 #include <memory>
 #include <optional>
@@ -216,6 +217,13 @@ public:
     Q_INVOKABLE bool setPadNote(int padIndex, int midiNote);
     //! "C-4" and the like, for naming a note in the UI without duplicating NoteConverter in QML.
     Q_INVOKABLE QString noteName(int midiNote) const;
+    //! How long the take running now has lasted, in seconds. Zero when nothing is recording.
+    //!
+    //! Wall clock from the moment recording started, which is what "how long have I been playing"
+    //! asks. Polled rather than signalled: it changes continuously, so a notify per value would be a
+    //! signal per frame for something a readout only shows to a tenth of a second.
+    Q_INVOKABLE double recordingSeconds() const;
+
     //! What the meters beside the wave view show: leftPeakDb, leftRmsDb, rightPeakDb, rightRmsDb.
     //!
     //! The record input while recording, and the Sampler's own output -- after its inserts and its
@@ -291,6 +299,7 @@ private:
     //! The pad the running recording was started for, so that selecting another one mid-take does
     //! not land the sample somewhere the user was not looking when they pressed record.
     std::optional<int> m_recordingPad;
+    QElapsedTimer m_recordingElapsed;
     //! Whether the running recording will need writing out when the project is saved.
     bool m_recordingIsEphemeral = false;
 };

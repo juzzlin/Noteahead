@@ -659,6 +659,14 @@ bool SamplerController::recording() const
     return m_recordingPad.has_value();
 }
 
+double SamplerController::recordingSeconds() const
+{
+    if (!recording() || !m_recordingElapsed.isValid()) {
+        return 0.0;
+    }
+    return static_cast<double>(m_recordingElapsed.elapsed()) / 1000.0;
+}
+
 void SamplerController::startRecording()
 {
     if (!m_audioService || !m_sampler || recording()) {
@@ -695,6 +703,7 @@ void SamplerController::startRecording()
     const auto filePath = QDir { target }.absoluteFilePath(fileName);
 
     m_recordingPad = m_selectedPad;
+    m_recordingElapsed.start();
     juzzlin::L(TAG).info() << "Recording pad " << (m_selectedPad + 1) << " into " << std::quoted(filePath.toStdString());
     m_audioService->startRecording(filePath, 0, 0);
     emit recordingChanged();

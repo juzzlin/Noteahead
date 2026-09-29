@@ -35,6 +35,9 @@ Rectangle {
     onEndOffsetChanged: canvas.requestPaint()
     property bool showPlayhead: false
     property string fileName: ""
+    //! Said in the middle of the view while there is no waveform to draw. Empty for a view that would
+    //! rather show nothing than explain itself.
+    property string placeholderText: ""
 
     //! How long the sound actually lasts, in seconds. Not the same as duration, which is what the
     //! picture spans: an envelope that closes early shortens what is heard without shortening the
@@ -269,6 +272,17 @@ Rectangle {
         color: "white"
         font.pixelSize: 10
         visible: text !== ""
+    }
+
+    Text {
+        anchors.centerIn: parent
+        text: rootItem.placeholderText
+        // The thing you see in an empty view, so it carries the weight the clock that replaces it does.
+        // Grey rather than accented: it is a hint about what to do, not a value being reported.
+        color: "#888"
+        font.pixelSize: Constants.waveViewOverlayFontSize
+        font.bold: true
+        visible: text !== "" && (!rootItem.waveformData || rootItem.waveformData.length === 0)
     }
 
     // How long it lasts, and the tempo at which one hit fills a beat. Past that tempo the sound
