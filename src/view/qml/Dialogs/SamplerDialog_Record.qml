@@ -31,7 +31,31 @@ RowLayout {
     //! them take whatever they need.
     property real controlsWidth: 0
 
+    //! True while the audio devices are being enumerated, which is a hardware probe and can take long
+    //! enough to be worth saying something about.
+    property bool inputsPending: false
+
     spacing: 10
+
+    //! Asks for the input list, off the caller's own frame.
+    //!
+    //! Enumerating devices blocks the thread that asks, so doing it straight from the dialog's open
+    //! handler froze the window before it had painted. The timer hands the frame back first, which is
+    //! what lets the indicator below be seen at all.
+    function refreshInputs() {
+        root.inputsPending = true;
+        inputRefreshTimer.restart();
+    }
+
+    Timer {
+        id: inputRefreshTimer
+        interval: 1
+        repeat: false
+        onTriggered: {
+            audioSettingsModel.refreshInputDevices();
+            root.inputsPending = false;
+        }
+    }
 
     // Sized to the pad matrix underneath, so the strip reads as belonging to it rather than
     // floating above it at a width of its own.
@@ -119,7 +143,7 @@ RowLayout {
             Layout.minimumWidth: 60
             textRole: "name"
             valueRole: "id"
-            enabled: !samplerController.recording
+            enabled: !samplerController.recording && !root.inputsPending
             model: audioSettingsModel.inputDevices
             onActivated: audioSettingsModel.selectedInputDeviceId = currentValue
             Component.onCompleted: currentIndex = indexOfValue(audioSettingsModel.selectedInputDeviceId)
@@ -140,10 +164,18 @@ RowLayout {
             }
         }
 
+        BusyIndicator {
+            running: root.inputsPending
+            visible: root.inputsPending
+            implicitWidth: inputCombo.implicitHeight
+            implicitHeight: inputCombo.implicitHeight
+            Layout.preferredWidth: implicitWidth
+        }
+
         AppButton {
             text: qsTr("Refresh")
-            enabled: !samplerController.recording
-            onClicked: audioSettingsModel.refreshInputDevices()
+            enabled: !samplerController.recording && !root.inputsPending
+            onClicked: root.refreshInputs()
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered

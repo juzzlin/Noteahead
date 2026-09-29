@@ -35,9 +35,13 @@ AnimatedDialog {
 
     onAboutToShow: {
         samplerController.initialize();
-        audioSettingsModel.refreshInputDevices();
         waveform.updateWaveform();
     }
+    // The input list is not asked for here. Enumerating audio devices means probing the hardware,
+    // which blocks whoever asks, and everything in onAboutToShow runs before the dialog has painted a
+    // single frame -- so the wait landed on a window that was not there yet, and there was nothing to
+    // put a spinner on. The record strip asks once it is on screen instead.
+    onOpened: recordStrip.refreshInputs()
 
     footer: DialogButtonBox {
         DeviceMenuButton {
