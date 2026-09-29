@@ -83,6 +83,8 @@ private slots:
     void test_serialize_defaultPadNotes_shouldWriteNoPadsElement();
     void test_serialize_movedPads_shouldRoundTripThroughXml();
     void test_deserialize_projectWithoutPads_shouldBehaveExactlyAsBefore();
+    void test_deserialize_ontoADeviceWithMovedPads_shouldResetThePadNotes();
+    void test_deserialize_ontoADeviceWithPads_shouldNotKeepThePadsTheFileDoesNotMention();
     void test_chromaticMode_playbackPosition_shouldFollowAPitchedNote();
     void test_chromaticMode_isFinished_shouldFollowAPitchedNote();
     void test_midiCcReset_shouldResetInternalValues();

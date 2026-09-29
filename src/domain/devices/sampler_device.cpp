@@ -1903,6 +1903,22 @@ void SamplerDevice::deserializeFromXml(ProjectReader & reader)
 
     m_missingSamplePaths.clear();
 
+    // Everything the incoming XML may simply not mention has to go before it is read, not while it is
+    // being read: a file that says nothing about a pad means the pad is not there, and leaving what
+    // the device happened to hold before made importing settings a merge rather than a load. The
+    // device on the receiving end is often not a fresh one -- importing a Sampler onto a slot that
+    // already holds one reuses the instance.
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        for (auto && sample : m_samples) {
+            if (sample) {
+                stopVoicesUsing(sample.get());
+                sample = nullptr;
+            }
+        }
+        m_chromaticPadNotes = defaultChromaticPadNotes();
+    }
+
     while (reader.readNextStartElement()) {
         const auto name = reader.name();
         if (name == Constants::NahdXml::xmlKeyParameters()) {
@@ -1912,9 +1928,9 @@ void SamplerDevice::deserializeFromXml(ProjectReader & reader)
         } else if (name == Constants::NahdXml::xmlKeyParameter()) {
             deserializeParameter(reader);
         } else if (name == Constants::NahdXml::xmlKeyPads()) {
-            // Absent for every project saved before pads could be placed, which leaves the octave
-            // layout they were written with.
-            m_chromaticPadNotes = defaultChromaticPadNotes();
+            // Only the pads that were moved are written, and the rest were reset to the octave layout
+            // above -- which is also what a project saved before pads could be placed gets, since it
+            // carries no <Pads> at all.
             while (reader.readNextStartElement()) {
                 if (reader.name() == Constants::NahdXml::xmlKeyPad()) {
                     const auto index = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyIndex(), false);

@@ -1381,6 +1381,69 @@ void SamplerTest::test_serialize_defaultPadNotes_shouldWriteNoPadsElement()
     QVERIFY2(!QString::fromUtf8(data).contains("<" + Constants::NahdXml::xmlKeyPads()), data.constData());
 }
 
+void SamplerTest::test_deserialize_ontoADeviceWithMovedPads_shouldResetThePadNotes()
+{
+    // Importing settings is a load, not a merge. A file whose pads are all at the octave layout says
+    // nothing about pads at all, and used to leave whatever placement the device already had: the
+    // imported Sampler came up with the previous one's pads.
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    sampler.setChromaticMode(true);
+    sampler.loadSample(24, "old.wav");
+    QVERIFY(sampler.setPadNote(2, 28));
+    QCOMPARE(sampler.noteForPad(2), 28);
+
+    // A device saved with its pads left alone, so it carries no <Pads> element.
+    QByteArray data;
+    {
+        SamplerDevice source { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+        source.setChromaticMode(true);
+        source.loadSample(24, "new.wav");
+        NahdXmlWriter writer { data };
+        source.serializeToXml(writer);
+    }
+    QVERIFY(!QString::fromUtf8(data).contains(Constants::NahdXml::xmlKeyPads()));
+
+    {
+        NahdXmlReader reader { data };
+        readToFirstStartElement(reader);
+        sampler.deserializeFromXml(reader);
+    }
+
+    QCOMPARE(sampler.noteForPad(2), 24);
+    QVERIFY(sampler.sample(24));
+    QVERIFY(!sampler.sample(28));
+}
+
+void SamplerTest::test_deserialize_ontoADeviceWithPads_shouldNotKeepThePadsTheFileDoesNotMention()
+{
+    // The same staleness one level down: a device holding a full kit, loaded from a file holding one
+    // pad, used to come up with the other fifteen still on it.
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    for (uint8_t pad = 0; pad < 4; pad++) {
+        sampler.loadSample(static_cast<uint8_t>(36 + pad), "old.wav");
+    }
+    QVERIFY(sampler.sample(39));
+
+    QByteArray data;
+    {
+        SamplerDevice source { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+        source.loadSample(36, "new.wav");
+        NahdXmlWriter writer { data };
+        source.serializeToXml(writer);
+    }
+
+    {
+        NahdXmlReader reader { data };
+        readToFirstStartElement(reader);
+        sampler.deserializeFromXml(reader);
+    }
+
+    QVERIFY(sampler.sample(36));
+    QVERIFY(!sampler.sample(37));
+    QVERIFY(!sampler.sample(38));
+    QVERIFY(!sampler.sample(39));
+}
+
 void SamplerTest::test_serialize_movedPads_shouldRoundTripThroughXml()
 {
     QByteArray data;
