@@ -62,6 +62,7 @@ SamplerDevice::Sample::Sample()
     addParameter(Parameter { Constants::NahdXml::xmlKeyReverse().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
     addParameter(Parameter { Constants::NahdXml::xmlKeyNormalize().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLoop().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyMono().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLoopStart().toStdString(), 0.0f, 0, 60000, 0, 1 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyChokeGroup().toStdString(), 0.0f, 0, maxChokeGroup, 0, 1, Parameter::Type::Discrete });
 
@@ -348,14 +349,64 @@ std::vector<MidiCcController> SamplerDevice::deviceMidiCcControllers() const
     return list;
 }
 
+std::array<int, static_cast<size_t>(SamplerDevice::padCount)> SamplerDevice::defaultChromaticPadNotes()
+{
+    std::array<int, static_cast<size_t>(padCount)> notes {};
+    for (size_t pad = 0; pad < notes.size(); pad++) {
+        notes.at(pad) = static_cast<int>(pad) * 12; // One pad per octave, rooted on its C.
+    }
+    return notes;
+}
+
 int SamplerDevice::noteForPad(int padIndex) const
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
+    if (padIndex < 0 || padIndex >= padCount) {
+        return 0;
+    }
     if (m_chromaticMode) {
-        return padIndex * 12; // Each pad is an octave; its root is the C of that octave.
+        return m_chromaticPadNotes.at(static_cast<size_t>(padIndex));
     }
     return padStartNote + padIndex;
+}
+
+bool SamplerDevice::setPadNote(int padIndex, int note)
+{
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        if (!m_chromaticMode || padIndex < 0 || padIndex >= padCount) {
+            return false;
+        }
+        if (note < 0 || note >= static_cast<int>(maxSamples)) {
+            return false;
+        }
+        const auto from = m_chromaticPadNotes.at(static_cast<size_t>(padIndex));
+        if (from == note) {
+            return false;
+        }
+        // Another pad already sits there. Moving onto it would either overwrite its audio or leave
+        // two pads on one note with one of them unreachable, so the move is refused instead.
+        for (size_t other = 0; other < m_chromaticPadNotes.size(); other++) {
+            if (other != static_cast<size_t>(padIndex) && m_chromaticPadNotes.at(other) == note) {
+                return false;
+            }
+        }
+
+        // The audio travels with the pad: a sample lives at the note it sounds, which is what makes
+        // the covering search below able to pitch from it.
+        if (from >= 0 && from < static_cast<int>(maxSamples)) {
+            auto & source = m_samples.at(static_cast<size_t>(from));
+            if (source) {
+                stopVoicesUsing(source.get());
+                m_samples.at(static_cast<size_t>(note)) = std::move(source);
+            }
+        }
+        m_chromaticPadNotes.at(static_cast<size_t>(padIndex)) = note;
+    }
+
+    emit dataChanged();
+    return true;
 }
 
 std::optional<SamplerDevice::PadCcTarget> SamplerDevice::padCcTarget(uint8_t controller, uint8_t value) const
@@ -683,6 +734,9 @@ void SamplerDevice::processAudio(AudioContext & context)
         const double pitchScale = rateScale * voice.pitchRatio * tuneRatio(*voice.sample)
           * (voice.sample->reverse ? -1.0 : 1.0);
         const bool loops = voice.sample->loop;
+        // A one-channel file is already mono, so only a stereo pad has anything to fold. Hoisted out
+        // of the frame loop because it cannot change while the voice renders.
+        const bool foldToMono = voice.sample->mono && channels == 2;
         const float chokeStep = static_cast<float>(1.0 / (ChokeFadeSeconds * context.sampleRate));
 
         for (uint32_t i = 0; i < context.frameCount; i++) {
@@ -722,6 +776,13 @@ void SamplerDevice::processAudio(AudioContext & context)
                 const double r1 = static_cast<double>(sampleData.at(next * 2 + 1));
                 left = l0 + (l1 - l0) * fract;
                 right = r0 + (r1 - r0) * fract;
+            }
+
+            // Before the effects, because the pad's pan is one of them: folding here is what lets a
+            // stereo pad be placed at a point in the image instead of keeping the width it was
+            // recorded with. Averaged rather than summed, so correlated material does not gain 6 dB.
+            if (foldToMono) {
+                left = right = (left + right) * 0.5;
             }
 
             for (auto && effect : voice.effects) {
@@ -1523,6 +1584,20 @@ void SamplerDevice::setSampleLoop(uint8_t note, bool loop)
     setPadValue(note, Constants::NahdXml::xmlKeyLoop().toStdString(), loop ? 1.0f : 0.0f);
 }
 
+bool SamplerDevice::sampleMono(uint8_t note) const
+{
+    std::lock_guard<std::recursive_mutex> lock { mutex() };
+    if (note >= maxSamples || !m_samples.at(note)) {
+        return false;
+    }
+    return m_samples.at(note)->mono;
+}
+
+void SamplerDevice::setSampleMono(uint8_t note, bool mono)
+{
+    setPadValue(note, Constants::NahdXml::xmlKeyMono().toStdString(), mono ? 1.0f : 0.0f);
+}
+
 int SamplerDevice::sampleChokeGroup(uint8_t note) const
 {
     std::lock_guard<std::recursive_mutex> lock { mutex() };
@@ -1600,12 +1675,14 @@ const SamplerDevice::Sample * SamplerDevice::coveringSample(uint8_t note, uint8_
 {
     std::lock_guard<std::recursive_mutex> lock { mutex() };
 
-    // Find the greatest octave root (multiple of 12) at or below the note that has a sample. If there is none
-    // below, fall back to the lowest set root so the lowest sample also covers everything beneath it.
+    // A pad's note is the bottom of its range: the greatest note at or below this one that has a
+    // sample is the pad that owns it, and the pad is pitched up from there until the next pad takes
+    // over. Every note is searched rather than every twelfth, because pads are placed wherever the
+    // instrument was sampled -- a bass is a fourth between strings, not an octave.
     const Sample * covering = nullptr;
     rootNote = 0;
 
-    for (int root = (note / 12) * 12; root >= 0; root -= 12) {
+    for (int root = note; root >= 0; root--) {
         if (m_samples.at(static_cast<size_t>(root))) {
             covering = m_samples.at(static_cast<size_t>(root)).get();
             rootNote = static_cast<uint8_t>(root);
@@ -1613,8 +1690,8 @@ const SamplerDevice::Sample * SamplerDevice::coveringSample(uint8_t note, uint8_
         }
     }
 
-    // Nothing at or below: use the lowest set root above the note.
-    for (int root = ((note / 12) + 1) * 12; root < static_cast<int>(maxSamples); root += 12) {
+    // Nothing at or below: the lowest pad extends down, so it covers this note too.
+    for (int root = note + 1; root < static_cast<int>(maxSamples); root++) {
         if (m_samples.at(static_cast<size_t>(root))) {
             covering = m_samples.at(static_cast<size_t>(root)).get();
             rootNote = static_cast<uint8_t>(root);
@@ -1767,6 +1844,21 @@ void SamplerDevice::serializeToXml(ProjectWriter & writer) const
     serializeParametersToXml(writer);
     writer.writeEndElement();
 
+    // Only the pads that have been moved. A project whose pads are still an octave apart writes no
+    // <Pads> at all and reads back exactly as it did before pads could be placed.
+    if (const auto defaults = defaultChromaticPadNotes(); m_chromaticPadNotes != defaults) {
+        writer.writeStartElement(Constants::NahdXml::xmlKeyPads());
+        for (size_t pad = 0; pad < m_chromaticPadNotes.size(); pad++) {
+            if (m_chromaticPadNotes.at(pad) != defaults.at(pad)) {
+                writer.writeStartElement(Constants::NahdXml::xmlKeyPad());
+                writer.writeAttribute(Constants::NahdXml::xmlKeyIndex(), QString::number(pad));
+                writer.writeAttribute(Constants::NahdXml::xmlKeyNote(), QString::number(m_chromaticPadNotes.at(pad)));
+                writer.writeEndElement();
+            }
+        }
+        writer.writeEndElement();
+    }
+
     writer.writeStartElement(Constants::NahdXml::xmlKeySamples());
     for (uint8_t note = 0; note < maxSamples; note++) {
         if (const auto & s = m_samples.at(note)) {
@@ -1819,11 +1911,27 @@ void SamplerDevice::deserializeFromXml(ProjectReader & reader)
             insertEffectRack().deserializeEffectsFromXml(reader);
         } else if (name == Constants::NahdXml::xmlKeyParameter()) {
             deserializeParameter(reader);
+        } else if (name == Constants::NahdXml::xmlKeyPads()) {
+            // Absent for every project saved before pads could be placed, which leaves the octave
+            // layout they were written with.
+            m_chromaticPadNotes = defaultChromaticPadNotes();
+            while (reader.readNextStartElement()) {
+                if (reader.name() == Constants::NahdXml::xmlKeyPad()) {
+                    const auto index = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyIndex(), false);
+                    const auto padNote = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyNote(), false);
+                    if (index.has_value() && padNote.has_value() && index.value() < static_cast<size_t>(padCount)) {
+                        m_chromaticPadNotes.at(index.value()) = static_cast<int>(padNote.value());
+                    }
+                }
+                reader.skipCurrentElement();
+            }
         } else if (name == Constants::NahdXml::xmlKeySamples()) {
             while (reader.readNextStartElement()) {
                 if (reader.name() == Constants::NahdXml::xmlKeySample()) {
                     const auto note = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyNote());
                     const auto path = reader.attribute(Constants::NahdXml::xmlKeySamplePath()).toString();
+                    // Absent for every pad that plays its own note, which is every pad of a project
+                    // saved before this existed.
                     if (note.has_value()) {
                         // A pad whose file cannot be read costs that pad and nothing more. Letting
                         // this throw aborted the whole project load and left an empty song in its
@@ -2027,6 +2135,8 @@ void SamplerDevice::syncSampleFields(Sample & sample)
         sample.reverse = p->get().value() > 0.5f;
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyLoop().toStdString()); p)
         sample.loop = p->get().value() > 0.5f;
+    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyMono().toStdString()); p)
+        sample.mono = p->get().value() > 0.5f;
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyLoopStart().toStdString()); p)
         sample.loopStart = static_cast<double>(p->get().value()) * 60.0;
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyChokeGroup().toStdString()); p)

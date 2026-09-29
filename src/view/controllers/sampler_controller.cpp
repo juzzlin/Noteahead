@@ -107,6 +107,7 @@ void SamplerController::setSelectedPad(int selectedPad)
         emit selectedPadReverseChanged();
         emit selectedPadNormalizeChanged();
         emit selectedPadLoopChanged();
+        emit selectedPadMonoChanged();
         emit selectedPadChokeGroupChanged();
         emit selectedPadDurationChanged();
     }
@@ -468,6 +469,21 @@ void SamplerController::setSelectedPadNormalize(bool normalize)
     }
 }
 
+bool SamplerController::selectedPadMono() const
+{
+    const auto note = selectedNote();
+    return note && m_sampler->sampleMono(*note);
+}
+
+void SamplerController::setSelectedPadMono(bool mono)
+{
+    const auto note = selectedNote();
+    if (note && m_sampler->sampleMono(*note) != mono) {
+        m_sampler->setSampleMono(*note, mono);
+        emit selectedPadMonoChanged();
+    }
+}
+
 bool SamplerController::selectedPadLoop() const
 {
     const auto note = selectedNote();
@@ -752,6 +768,7 @@ void SamplerController::requestSettings()
         emit selectedPadReverseChanged();
         emit selectedPadNormalizeChanged();
         emit selectedPadLoopChanged();
+        emit selectedPadMonoChanged();
         emit selectedPadChokeGroupChanged();
         emit selectedPadDurationChanged();
     }
@@ -796,6 +813,62 @@ void SamplerController::autoTrimPad(int padIndex)
         emit selectedPadEndOffsetChanged();
         emit selectedPadDurationChanged();
     }
+}
+
+QVariantMap SamplerController::meterLevels() const
+{
+    // Recording is the one time the input is the interesting signal: the pads are silent and the
+    // question is whether what is arriving is loud enough to keep.
+    if (recording() && m_audioService) {
+        if (const auto levels = m_audioService->inputLevels(); !levels.isEmpty()) {
+            return levels;
+        }
+    }
+    if (!m_sampler) {
+        return {};
+    }
+    const auto & meter = m_sampler->outputStereoMeter();
+    return {
+        { "leftPeakDb", meter.leftPeakDb() },
+        { "leftRmsDb", meter.leftRmsDb() },
+        { "rightPeakDb", meter.rightPeakDb() },
+        { "rightRmsDb", meter.rightRmsDb() }
+    };
+}
+
+void SamplerController::setMetersActive(bool active)
+{
+    if (m_sampler) {
+        m_sampler->outputStereoMeter().setActive(active);
+    }
+    if (m_audioService) {
+        m_audioService->setInputMeterActive(active);
+    }
+}
+
+int SamplerController::padNote(int padIndex) const
+{
+    return m_sampler ? noteForPad(padIndex) : -1;
+}
+
+bool SamplerController::setPadNote(int padIndex, int midiNote)
+{
+    if (!m_sampler || !m_sampler->setPadNote(padIndex, midiNote)) {
+        return false;
+    }
+    // Moving one pad moves the boundary it shares with its neighbours, so every tile's range label
+    // can have changed, not just this one's.
+    m_padModel->updateAllPads();
+    emit selectedPadChanged();
+    return true;
+}
+
+QString SamplerController::noteName(int midiNote) const
+{
+    if (midiNote < 0 || midiNote >= static_cast<int>(SamplerDevice::maxSamples)) {
+        return {};
+    }
+    return QString::fromStdString(NoteConverter::midiToString(static_cast<uint8_t>(midiNote)));
 }
 
 void SamplerController::cropPadToTrim(int padIndex)

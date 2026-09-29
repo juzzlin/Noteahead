@@ -46,6 +46,19 @@ int AudioRecorderRtAudio::recordCallback(void *, void * inputBuffer,
     const auto in = static_cast<int32_t *>(inputBuffer);
     const size_t totalSamples = frameCount * self->m_channels;
 
+    // Metered here rather than off the ring buffer: this is what arrived, whether or not the writer
+    // keeps up with it. A no-op unless a meter is on screen, and the scratch buffer is sized once.
+    if (self->m_inputMeter.active()) {
+        constexpr double toUnity = 1.0 / 2147483648.0; // int32 full scale
+        if (self->m_meterBuffer.size() < totalSamples) {
+            self->m_meterBuffer.resize(totalSamples);
+        }
+        for (size_t i = 0; i < totalSamples; i++) {
+            self->m_meterBuffer[i] = static_cast<double>(in[i]) * toUnity;
+        }
+        self->m_inputMeter.write(self->m_meterBuffer.data(), frameCount, self->m_sampleRate, self->m_channels);
+    }
+
     if (!self->m_recorder.push(in, totalSamples)) {
         self->m_overflowCount.fetch_add(1, std::memory_order_relaxed);
     }
@@ -157,6 +170,10 @@ void AudioRecorderRtAudio::start(const std::string & fileName, uint32_t bufferSi
 
         m_channels = channelCount;
         const uint32_t actualSampleRate = initializeSoundStream(deviceId, channelCount, sampleRate, actualBufferSize);
+        // What the stream actually opened at, not what was asked for: the meter's peak fallback and
+        // RMS window are in seconds, so a wrong rate makes both of them wrong.
+        m_sampleRate = actualSampleRate;
+        m_meterBuffer.assign(static_cast<size_t>(actualBufferSize ? actualBufferSize : 4096) * channelCount, 0.0);
 
         juzzlin::L(TAG).info() << "Recording from device: " << deviceName << ", " << actualSampleRate << " Hz, " << channelCount << " channels (24-bit WAV)";
         juzzlin::L(TAG).info() << "Buffer size: " << (actualBufferSize == 0 ? "Default" : std::to_string(actualBufferSize));

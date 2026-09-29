@@ -17,6 +17,8 @@
 #define AUDIO_RECORDER_HPP
 
 #include "../../common/audio_backend.hpp"
+#include "../../domain/utility/stereo_level_meter.hpp"
+
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -39,6 +41,13 @@ public:
     explicit AudioRecorder(AudioEngineS audioEngine = nullptr);
     virtual ~AudioRecorder();
 
+    //! Level of what is arriving at the input, for a meter to read while recording.
+    //!
+    //! On the base rather than on a backend, so that asking for the input level does not mean knowing
+    //! which backend is open. A backend that has no per-buffer hook to fill it leaves it silent.
+    StereoLevelMeter & inputMeter();
+    const StereoLevelMeter & inputMeter() const;
+
     virtual void start(const std::string & fileName, uint32_t bufferSize);
     virtual void stop();
 
@@ -49,6 +58,7 @@ public:
 
 protected:
     AudioEngineS m_audioEngine;
+    StereoLevelMeter m_inputMeter;
 };
 
 } // namespace noteahead

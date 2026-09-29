@@ -23,6 +23,7 @@
 #include "../../common/xml/project_reader.hpp"
 #include "../../common/xml/project_writer.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../domain/utility/stereo_level_meter.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/audio/implementation/jack/audio_player_jack.hpp"
 #include "../../infra/audio/implementation/jack/audio_recorder_jack.hpp"
@@ -223,6 +224,27 @@ void AudioService::setPlaybackPosition(double position)
 double AudioService::playbackPosition() const
 {
     return m_playbackPosition;
+}
+
+QVariantMap AudioService::inputLevels() const
+{
+    const auto meter = m_audioWorker ? m_audioWorker->inputMeter() : nullptr;
+    if (!meter) {
+        return {};
+    }
+    return {
+        { "leftPeakDb", meter->leftPeakDb() },
+        { "leftRmsDb", meter->leftRmsDb() },
+        { "rightPeakDb", meter->rightPeakDb() },
+        { "rightRmsDb", meter->rightRmsDb() }
+    };
+}
+
+void AudioService::setInputMeterActive(bool active)
+{
+    if (const auto meter = m_audioWorker ? m_audioWorker->inputMeter() : nullptr; meter) {
+        meter->setActive(active);
+    }
 }
 
 QVariantList AudioService::getInputDevices()

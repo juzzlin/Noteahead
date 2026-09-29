@@ -461,6 +461,7 @@ QString xmlKeyName();
 
 QString xmlKeyNone();
 QString xmlKeyNote();
+QString xmlKeyPads();
 QString xmlKeyNoteOn();
 QString xmlKeyNoteOff();
 QString xmlKeyNoteData();
@@ -794,6 +795,7 @@ QString xmlKeyReverse();
 QString xmlKeyLoop();
 QString xmlKeyLoopStart();
 QString xmlKeyChokeGroup();
+QString xmlKeyMono();
 
 QString xmlKeyData();
 

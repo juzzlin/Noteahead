@@ -49,6 +49,10 @@ public:
 
     void updatePad(int padIndex);
 
+    //! Refreshes every tile. What moving a pad needs: it moves a range boundary, so the labels of the
+    //! pads either side of it change too.
+    void updateAllPads();
+
     // MIDI note a pad maps to. See SamplerDevice::noteForPad() for the layouts.
     int noteForPad(int padIndex) const;
 

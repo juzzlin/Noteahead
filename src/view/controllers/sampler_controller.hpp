@@ -62,6 +62,7 @@ class SamplerController : public DeviceController
     Q_PROPERTY(bool selectedPadReverse READ selectedPadReverse WRITE setSelectedPadReverse NOTIFY selectedPadReverseChanged)
     Q_PROPERTY(bool selectedPadNormalize READ selectedPadNormalize WRITE setSelectedPadNormalize NOTIFY selectedPadNormalizeChanged)
     Q_PROPERTY(bool selectedPadLoop READ selectedPadLoop WRITE setSelectedPadLoop NOTIFY selectedPadLoopChanged)
+    Q_PROPERTY(bool selectedPadMono READ selectedPadMono WRITE setSelectedPadMono NOTIFY selectedPadMonoChanged)
     Q_PROPERTY(int selectedPadChokeGroup READ selectedPadChokeGroup WRITE setSelectedPadChokeGroup NOTIFY selectedPadChokeGroupChanged)
     Q_PROPERTY(double selectedPadDuration READ selectedPadDuration NOTIFY selectedPadDurationChanged)
     //! What the pad is actually heard for, trims, tuning and envelope included.
@@ -169,7 +170,9 @@ public:
     void setSelectedPadNormalize(bool normalize);
 
     bool selectedPadLoop() const;
+    bool selectedPadMono() const;
     void setSelectedPadLoop(bool loop);
+    void setSelectedPadMono(bool mono);
 
     int selectedPadChokeGroup() const;
     void setSelectedPadChokeGroup(int group);
@@ -205,6 +208,23 @@ public:
     Q_INVOKABLE void autoTrimPad(int padIndex);
     //! Writes the pad's trimmed range out as a new file and plays that instead. Not reversible.
     Q_INVOKABLE void cropPadToTrim(int padIndex);
+    //! The note a pad sits on, which in chromatic mode is the note its audio sounds and the bottom of
+    //! the range it covers.
+    Q_INVOKABLE int padNote(int padIndex) const;
+    //! Moves a chromatic pad, taking its audio with it. False when the note is out of range or
+    //! another pad is already there.
+    Q_INVOKABLE bool setPadNote(int padIndex, int midiNote);
+    //! "C-4" and the like, for naming a note in the UI without duplicating NoteConverter in QML.
+    Q_INVOKABLE QString noteName(int midiNote) const;
+    //! What the meters beside the wave view show: leftPeakDb, leftRmsDb, rightPeakDb, rightRmsDb.
+    //!
+    //! The record input while recording, and the Sampler's own output -- after its inserts and its
+    //! fader, the same tap the mixer reads -- the rest of the time. One call, so both bars are always
+    //! from the same moment.
+    Q_INVOKABLE QVariantMap meterLevels() const;
+    //! Turns both taps on, for as long as the dialog showing them is open.
+    Q_INVOKABLE void setMetersActive(bool active);
+
     Q_INVOKABLE void playSample(int padIndex, double velocity = 1.0);
     Q_INVOKABLE void stopSample(int padIndex);
     Q_INVOKABLE void updatePlaybackStatus();
@@ -231,6 +251,7 @@ signals:
     void selectedPadReverseChanged();
     void selectedPadNormalizeChanged();
     void selectedPadLoopChanged();
+    void selectedPadMonoChanged();
     void selectedPadChokeGroupChanged();
     void selectedPadDurationChanged();
     void channelModeChanged();

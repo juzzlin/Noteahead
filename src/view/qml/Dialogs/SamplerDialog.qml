@@ -94,10 +94,25 @@ AnimatedDialog {
             Layout.fillWidth: true
         }
 
-        SamplerDialog_WaveformView {
-            id: waveform
+        // The wave and the meters read as one strip: the meters are about the signal the wave is a
+        // picture of.
+        RowLayout {
             Layout.fillWidth: true
-            samplerDialogVisible: root.visible
+            spacing: 8
+
+            SamplerDialog_WaveformView {
+                id: waveform
+                Layout.fillWidth: true
+                samplerDialogVisible: root.visible
+            }
+
+            SamplerDialog_Meters {
+                // Matched to the wave view's own height rather than filling, so the bars stand beside
+                // the picture instead of the margins around it.
+                Layout.preferredHeight: waveform.Layout.preferredHeight
+                Layout.alignment: Qt.AlignVCenter
+                samplerDialogVisible: root.visible
+            }
         }
 
         SamplerDialog_Record {

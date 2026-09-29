@@ -162,6 +162,7 @@ set(HEADER_FILES
     utility/rta.hpp
     utility/spectrum_analyzer.hpp
     utility/stereo_field_meter.hpp
+    utility/stereo_level_meter.hpp
 )
 
 set(SOURCE_FILES
@@ -328,6 +329,7 @@ set(SOURCE_FILES
     utility/rta.cpp
     utility/spectrum_analyzer.cpp
     utility/stereo_field_meter.cpp
+    utility/stereo_level_meter.cpp
 )
 
 add_library(${DomainLibName} STATIC ${HEADER_FILES} ${SOURCE_FILES})

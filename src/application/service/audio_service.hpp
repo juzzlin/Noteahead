@@ -67,6 +67,13 @@ public:
     Q_INVOKABLE void setPlaybackPosition(double position);
     Q_INVOKABLE double playbackPosition() const;
 
+    //! Level of what is arriving at the record input: leftPeakDb, leftRmsDb, rightPeakDb,
+    //! rightRmsDb, all dBFS. Empty when no recorder is open, so a caller can tell "silent" from
+    //! "nothing to ask". One call so both channels come from the same moment.
+    Q_INVOKABLE QVariantMap inputLevels() const;
+    //! Turns the input level tap on. Off, the audio thread does nothing but load one atomic.
+    Q_INVOKABLE void setInputMeterActive(bool active);
+
     Q_INVOKABLE QVariantList getInputDevices();
     Q_INVOKABLE void setInputDevice(int deviceId);
     Q_INVOKABLE QVariantList getOutputDevices();

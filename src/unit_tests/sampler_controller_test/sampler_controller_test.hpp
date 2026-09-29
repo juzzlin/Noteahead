@@ -26,6 +26,14 @@ private slots:
     void test_copyPad_shouldCopyPadToTarget();
     void test_copyPad_samePad_shouldDoNothing();
     void test_playbackPosition_chromaticMode_shouldFollowAPitchedNote();
+    void test_selectedPadMono_shouldBePerPadAndSayWhenItChanges();
+    void test_padNote_chromaticMode_shouldDefaultToOneOctavePerPad();
+    void test_setPadNote_shouldMoveThePadAndItsAudio();
+    void test_setPadNote_occupiedNote_shouldBeRefused();
+    void test_setPadNote_outOfRange_shouldBeRefused();
+    void test_setPadNote_drumMode_shouldBeRefused();
+    void test_noteName_shouldNameTheNote();
+    void test_meterLevels_notRecording_shouldReadTheSamplerOutput();
 };
 
 } // namespace noteahead

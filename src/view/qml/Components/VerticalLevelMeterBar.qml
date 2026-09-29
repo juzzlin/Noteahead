@@ -1,0 +1,113 @@
+// This file is part of Noteahead.
+// Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
+//
+// Noteahead is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// Noteahead is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
+
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import QtQuick.Controls.Universal 2.15
+import Noteahead 1.0
+
+// LevelMeterBar stood on its end, with a channel letter under it. The bar shows RMS, the thin line
+// shows peak, and the marker is where a gain staged signal should be sitting -- the same three things
+// and the same colours, so a level reads the same here as it does in the mixer.
+//
+// Upright because a pair of these belongs beside something as tall as a wave view, where two
+// horizontal bars would either be stacked in a corner or eat the width of the thing they sit next to.
+Item {
+    id: root
+
+    property real peakDb: -120
+    property real rmsDb: -120
+    property real minimumDb: -60
+    property real maximumDb: 0
+    property real markerDb: -18
+    //! "L" or "R". Shown under the bar, so a glance says which channel is which.
+    property string label: ""
+
+    implicitWidth: 14
+    implicitHeight: 120
+
+    function positionOf(db) {
+        const clamped = Math.max(root.minimumDb, Math.min(root.maximumDb, db));
+        return (clamped - root.minimumDb) / (root.maximumDb - root.minimumDb);
+    }
+
+    Rectangle {
+        id: track
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.bottom: channelLabel.top
+        anchors.bottomMargin: 2
+        color: "#1a1a1a"
+        border.color: "#555"
+        radius: 2
+
+        Rectangle {
+            id: rmsBar
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            anchors.margins: 1
+            height: Math.max(0, (track.height - 2) * root.positionOf(root.rmsDb))
+            radius: 1
+            // Accent normally, red once it is close to clipping. The target marker already shows where
+            // the gain staging aim is, so the bar itself needs no second warning colour.
+            color: root.peakDb > -1 ? "#d04040" : themeService.accentColor
+        }
+
+        Rectangle {
+            id: peakLine
+            height: 2
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.margins: 1
+            // Measured from the bottom like the bar, so both read against the same scale.
+            y: Math.max(1, Math.min(track.height - 3, (track.height - 2) * (1.0 - root.positionOf(root.peakDb))))
+            color: root.peakDb > -1 ? "#ff6060" : "#e0e0e0"
+            visible: root.peakDb > root.minimumDb
+        }
+
+        Rectangle {
+            id: marker
+            height: 1
+            anchors.left: parent.left
+            anchors.right: parent.right
+            y: (track.height - 2) * (1.0 - root.positionOf(root.markerDb)) + 1
+            color: "#8899cc"
+            opacity: 0.9
+        }
+    }
+
+    Label {
+        id: channelLabel
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+        // Not translated: L and R are what every mixer in the world calls them.
+        text: root.label
+        color: "#999"
+        font.pointSize: 8
+    }
+
+    ToolTip.visible: hoverArea.containsMouse
+    ToolTip.delay: Constants.toolTipDelay
+    ToolTip.text: qsTr("%1: %2 dBFS peak, %3 dBFS RMS. The marker is %4 dBFS.").arg(root.label).arg(root.peakDb <= root.minimumDb ? "-∞" : root.peakDb.toFixed(1)).arg(root.rmsDb <= root.minimumDb ? "-∞" : root.rmsDb.toFixed(1)).arg(root.markerDb)
+
+    MouseArea {
+        id: hoverArea
+        anchors.fill: parent
+        hoverEnabled: true
+        acceptedButtons: Qt.NoButton
+    }
+}

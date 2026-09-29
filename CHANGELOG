@@ -131,6 +131,18 @@ New features:
   - Lossless and about half the size. Re-saving an existing project converts
     what it carries
 
+* Chromatic pads can be put on any note, from the pad's right-click menu
+  - A pad plays at the rate it was recorded at on its own note and covers up to
+    the next pad, so the four strings of a bass can sit a fourth apart instead
+    of being stretched an octave each
+
+* A Mono switch per pad, beside Loop
+  - Sums a stereo pad to one channel before it is panned, so it sits at a point
+    in the image instead of keeping the width it was recorded with
+
+* Stereo level meters beside the Sampler's wave view
+  - The input while recording, the Sampler's own output the rest of the time
+
 Bug fixes:
 
 * Audio stream failures are reported instead of swallowed

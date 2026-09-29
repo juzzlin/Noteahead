@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
+import QtQml 2.15
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
@@ -135,6 +136,9 @@ GridView {
                 // read off the delegate's model context from inside the items.
                 readonly property int padIndex: index
                 readonly property bool padIsLoaded: isLoaded
+                //! The note the pad sits on. Re-read on every open, because the items are built once.
+                property int currentNote: -1
+                onAboutToShow: currentNote = samplerController.padNote(padIndex)
                 // A popup does not inherit the theme of the dialog the pads live in either
                 Universal.theme: Universal.Dark
                 Universal.accent: themeService.accentColor
@@ -158,6 +162,50 @@ GridView {
                     text: qsTr("Crop to trim")
                     enabled: padMenu.padIsLoaded
                     onTriggered: samplerController.cropPadToTrim(padMenu.padIndex)
+                }
+                MenuSeparator {}
+
+                // Where the pad sits: the note its audio sounds, and the bottom of the range it
+                // covers. Two levels because 128 notes in one list is not a menu anyone can use.
+                //
+                // Chromatic mode only. A drum pad is its note by definition -- the layout is the kit.
+                Menu {
+                    id: baseNoteMenu
+                    title: qsTr("Set base note")
+                    enabled: padMenu.padIsLoaded && samplerController.chromaticMode
+                    delegate: MenuItemDelegate {}
+                    Universal.theme: Universal.Dark
+                    Universal.accent: themeService.accentColor
+
+                    // Instantiator and not Repeater: a Repeater can only create Items, and a
+                    // sub-menu is not one, so it silently builds an empty menu.
+                    Instantiator {
+                        model: 11
+                        onObjectAdded: (index, object) => baseNoteMenu.insertMenu(index, object)
+                        onObjectRemoved: (index, object) => baseNoteMenu.removeMenu(object)
+                        delegate: Menu {
+                            id: octaveMenu
+                            required property int index
+                            readonly property int firstNote: index * 12
+                            // Named by the C it starts on, the way the tracker names notes.
+                            title: samplerController.noteName(octaveMenu.firstNote)
+                            delegate: MenuItemDelegate {}
+                            Universal.theme: Universal.Dark
+                            Universal.accent: themeService.accentColor
+                            Repeater {
+                                // The top octave is a partial one: the keyboard stops at G.
+                                model: Math.min(12, 128 - octaveMenu.firstNote)
+                                MenuItem {
+                                    required property int index
+                                    readonly property int midiNote: octaveMenu.firstNote + index
+                                    text: samplerController.noteName(midiNote)
+                                    checkable: true
+                                    checked: midiNote === padMenu.currentNote
+                                    onTriggered: samplerController.setPadNote(padMenu.padIndex, midiNote)
+                                }
+                            }
+                        }
+                    }
                 }
                 MenuSeparator {}
                 MenuItem {

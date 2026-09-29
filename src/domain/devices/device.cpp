@@ -750,6 +750,16 @@ const LevelMeter & Device::outputMeter() const
     return m_outputMeter;
 }
 
+StereoLevelMeter & Device::outputStereoMeter()
+{
+    return m_outputStereoMeter;
+}
+
+const StereoLevelMeter & Device::outputStereoMeter() const
+{
+    return m_outputStereoMeter;
+}
+
 LoudnessMeter & Device::outputLoudnessMeter()
 {
     return m_outputLoudnessMeter;

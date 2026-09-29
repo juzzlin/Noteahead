@@ -25,6 +25,16 @@ AudioRecorder::AudioRecorder(AudioEngineS audioEngine)
 
 AudioRecorder::~AudioRecorder() = default;
 
+StereoLevelMeter & AudioRecorder::inputMeter()
+{
+    return m_inputMeter;
+}
+
+const StereoLevelMeter & AudioRecorder::inputMeter() const
+{
+    return m_inputMeter;
+}
+
 void AudioRecorder::start(const std::string &, uint32_t)
 {
 }

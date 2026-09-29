@@ -1205,6 +1205,11 @@ QString xmlKeyNote()
     return "note";
 }
 
+QString xmlKeyPads()
+{
+    return "Pads";
+}
+
 QString xmlKeyNone()
 {
     return "none";
@@ -2668,6 +2673,11 @@ QString xmlKeyLoopStart()
 QString xmlKeyChokeGroup()
 {
     return "chokeGroup";
+}
+
+QString xmlKeyMono()
+{
+    return "mono";
 }
 
 QString xmlKeyData()

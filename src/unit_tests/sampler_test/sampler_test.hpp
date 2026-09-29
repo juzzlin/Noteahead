@@ -75,6 +75,14 @@ private slots:
     void test_chromaticMode_multipleSamples_shouldSelectCoveringSample();
     void test_chromaticMode_pitch_shouldMatchSemitoneRatio();
     void test_chromaticMode_shouldRoundTripThroughXml();
+    void test_sampleMono_stereoPad_shouldFoldTheChannelsTogether();
+    void test_sampleMono_off_shouldLeaveAStereoPadAlone();
+    void test_setPadNote_shouldMoveThePadAndPitchFromItsNewNote();
+    void test_setPadNote_bassStrings_shouldCoverUpToTheNextPad();
+    void test_setPadNote_occupiedNote_shouldRefuseAndKeepBothPads();
+    void test_serialize_defaultPadNotes_shouldWriteNoPadsElement();
+    void test_serialize_movedPads_shouldRoundTripThroughXml();
+    void test_deserialize_projectWithoutPads_shouldBehaveExactlyAsBefore();
     void test_chromaticMode_playbackPosition_shouldFollowAPitchedNote();
     void test_chromaticMode_isFinished_shouldFollowAPitchedNote();
     void test_midiCcReset_shouldResetInternalValues();

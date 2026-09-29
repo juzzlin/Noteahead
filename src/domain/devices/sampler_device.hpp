@@ -160,6 +160,12 @@ public:
         //! Choke group, or zero for none. Triggering a pad silences the sounding voices of the *other*
         //! pads sharing its group, which is how a closed hi-hat cuts off an open one.
         int chokeGroup = 0;
+        //! Sums a stereo pad to one channel before it is panned, so it lands wherever the pan puts it
+        //! instead of keeping the width it was recorded with.
+        //!
+        //! Off by default, so a pad saved before this existed plays exactly as it did. A mono file is
+        //! unaffected either way: it already is one channel.
+        bool mono = false;
 
         // Per-pad insert effect rack. Shared so Sample stays copyable (saveState/restoreState deep-copy)
         // and so every voice/note playing this sample runs through the same stateful effect chain.
@@ -248,6 +254,10 @@ public:
     bool cropSampleToTrim(uint8_t note, const QString & targetDirectory);
 
     bool sampleLoop(uint8_t note) const;
+
+    //! Whether the pad is summed to one channel before it is panned. See Sample::mono.
+    bool sampleMono(uint8_t note) const;
+    void setSampleMono(uint8_t note, bool mono);
     void setSampleLoop(uint8_t note, bool loop);
 
     //! Zero when the pad is in no choke group. Groups run 1..maxChokeGroup.
@@ -309,16 +319,29 @@ public:
 
     //! Maps a pad index to a MIDI note. The two modes address the same shared per-note sample array with
     //! different layouts, so samples for both modes coexist and are all serialized; the modes are not meant
-    //! to be used simultaneously. The layouts overlap only at notes 36 and 48:
+    //! to be used simultaneously.
     //!
-    //!   Mode        Pad -> MIDI note   Notes used
-    //!   ---------   ----------------   -----------------------------------
-    //!   Drum        36 + pad           36..51
-    //!   Chromatic   12 * pad           0, 12, 24, 36, 48, 60, ... (octave C roots)
+    //!   Mode        Pad -> MIDI note
+    //!   ---------   ---------------------------------------------------------
+    //!   Drum        36 + pad, fixed
+    //!   Chromatic   wherever the pad has been put, 12 * pad until it is moved
     //!
     //! The chromatic layout runs past the end of the sample array on the topmost pads, so the note is
     //! returned unclamped: callers that index the array have to check it against maxSamples.
     int noteForPad(int padIndex) const;
+
+    //! Moves a chromatic pad to \p note, taking whatever it holds with it.
+    //!
+    //! A pad's note is the note its audio sounds, and the bottom of the range it covers: it plays at
+    //! unity there and is pitched up from there until the next pad above takes over. Placing the pads
+    //! is therefore how an instrument sampled at several pitches is laid out -- the open strings of a
+    //! bass are a fourth apart, which the octave-per-pad default cannot express.
+    //!
+    //! Does nothing in drum mode, where a pad is its note by definition, and nothing when the target
+    //! note is out of range or already taken by another pad, so a move never silently drops audio.
+    //!
+    //! \return Whether the pad moved.
+    bool setPadNote(int padIndex, int note);
 
     // Resolves the sample that covers the given note in chromatic mode and, via rootNote, the octave root it
     // is pitched from. Returns nullptr if no sample is set. The lowest set root extends down and the highest
@@ -403,6 +426,9 @@ private:
 
     //! Copies a pad's parameters into the plain fields the voices read.
     static void syncSampleFields(Sample & sample);
+
+    //! One pad per octave, which is the layout chromatic mode has always had.
+    static std::array<int, static_cast<size_t>(padCount)> defaultChromaticPadNotes();
     static void updateNormalizeGain(Sample & sample);
 
     //! Writes one of the two trims, clamped to the sample it trims.
@@ -525,6 +551,9 @@ private:
     float m_authoredGlobalHpfCutoff = 0.0f;
     bool m_channelMode = false;
     bool m_chromaticMode = false;
+    //! Where each pad sits in chromatic mode. An octave apart until moved, which is what every pad of
+    //! a project saved before pads could be placed still is.
+    std::array<int, static_cast<size_t>(padCount)> m_chromaticPadNotes = defaultChromaticPadNotes();
     bool m_embedWaveData = true;
     std::string m_projectPath;
     std::vector<std::string> m_missingSamplePaths;

@@ -162,6 +162,24 @@ ColumnLayout {
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Repeats the pad's range until the note is released. The amp envelope decides when a looping pad falls silent.")
         }
+        CheckBox {
+            id: monoCheckBox
+            text: qsTr("Mono")
+            Layout.fillWidth: true
+            checked: samplerController.selectedPadMono
+            onToggled: samplerController.selectedPadMono = checked
+            contentItem: Label {
+                text: monoCheckBox.text
+                color: "white"
+                verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideRight
+                leftPadding: monoCheckBox.indicator.width + monoCheckBox.spacing
+            }
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Sums a stereo pad to one channel before it is panned, so it sits at a point in the image instead of keeping the width it was recorded with. A mono file is unaffected.")
+        }
     }
 
     SamplerDialog_OffsetField {

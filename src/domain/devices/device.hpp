@@ -26,6 +26,7 @@
 #include "../utility/level_meter.hpp"
 #include "../utility/load_meter.hpp"
 #include "../utility/loudness_meter.hpp"
+#include "../utility/stereo_level_meter.hpp"
 
 #include <cstdint>
 #include <mutex>
@@ -260,6 +261,14 @@ public:
     LevelMeter & outputMeter();
     const LevelMeter & outputMeter() const;
 
+    //! The same tap with its two channels kept apart, for a stereo pair of meters.
+    //!
+    //! outputMeter() folds the pair into one reading, which is what a mixer strip shows and what the
+    //! mixer is built on. Fed from the same buffer at the same moment, so the two always agree about
+    //! the signal; gated by setActive() like the rest, so it costs an atomic load while unused.
+    StereoLevelMeter & outputStereoMeter();
+    const StereoLevelMeter & outputStereoMeter() const;
+
     //! Loudness of what this device finally hands over, taken after the inserts, the fader, the pan
     //! and the expression -- its actual contribution, rather than the level Gain is set against.
     //!
@@ -448,6 +457,7 @@ private:
     AudioScope m_scope;
     LevelMeter m_meter;
     LevelMeter m_outputMeter;
+    StereoLevelMeter m_outputStereoMeter;
     LoudnessMeter m_outputLoudnessMeter;
     LoadMeter m_loadMeter;
     ClipDetector m_clipDetector;

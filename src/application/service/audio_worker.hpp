@@ -27,6 +27,7 @@
 namespace noteahead {
 
 class AudioRecorder;
+class StereoLevelMeter;
 class AudioPlayer;
 class AudioEngine;
 
@@ -43,6 +44,12 @@ public:
 
     Q_INVOKABLE void startRecording(QString filePath, quint32 bufferSize);
     Q_INVOKABLE void stopRecording();
+
+    //! The recorder's input level tap, or nullptr when there is no recorder.
+    //!
+    //! Not a slot: it hands back a meter of atomics, which is what a meter is for, and the caller
+    //! reads it without waiting on this worker's thread.
+    StereoLevelMeter * inputMeter() const;
 
     Q_INVOKABLE void startPlayback(QString filePath, quint32 bufferSize);
     Q_INVOKABLE void stopPlayback();

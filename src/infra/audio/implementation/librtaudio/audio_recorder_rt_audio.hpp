@@ -24,6 +24,7 @@
 #include <atomic>
 #include <cstdint>
 #include <string>
+#include <vector>
 
 namespace noteahead {
 
@@ -61,6 +62,11 @@ private:
     AudioFileRecorder m_recorder;
 
     uint32_t m_channels = 0;
+    //! Kept rather than asked of RtAudio, because the input meter needs it inside the callback.
+    uint32_t m_sampleRate = 0;
+    //! Scratch for converting the int32 input to unity-scaled doubles for the meter. Grown once, on
+    //! the first metered callback, and never on the audio thread again.
+    std::vector<double> m_meterBuffer;
 };
 
 } // namespace noteahead

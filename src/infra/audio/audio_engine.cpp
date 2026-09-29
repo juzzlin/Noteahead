@@ -163,6 +163,7 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
         // anyway, so a device that stops playing does not drag its own average down. The output
         // level tap needs the same treatment for its peak to fall back instead of freezing.
         device->outputMeter().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
+        device->outputStereoMeter().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
         device->outputLoudnessMeter().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
         device->loadMeter().addBlock(std::chrono::nanoseconds::zero(), bufferSeconds);
         return;
@@ -216,6 +217,7 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
     // loudness tap answers how loud this device is against another one. Both are the device's actual
     // contribution, and both are a no-op unless the mixer is on screen.
     device->outputMeter().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
+    device->outputStereoMeter().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
     device->outputLoudnessMeter().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
 
     if (deviceContext.deviceOutputBuffersMutable) {

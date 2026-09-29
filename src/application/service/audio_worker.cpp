@@ -31,6 +31,11 @@ AudioWorker::AudioWorker(std::unique_ptr<AudioRecorder> audioRecorder, std::uniq
     connect(m_statusTimer, &QTimer::timeout, this, &AudioWorker::onStatusTimerTimeout);
 }
 
+StereoLevelMeter * AudioWorker::inputMeter() const
+{
+    return m_audioRecorder ? &m_audioRecorder->inputMeter() : nullptr;
+}
+
 void AudioWorker::initializeRealTimeStream(quint32 bufferSize)
 {
     m_bufferSize = bufferSize;

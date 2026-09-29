@@ -2,8 +2,10 @@
 // Copyright (C) 2026 Jussi Lind <jussi.lind@iki.fi>
 //
 #include "sampler_controller_test.hpp"
+
 #include "../../common/constants.hpp"
 #include "../../domain/devices/sampler_device.hpp"
+#include "../../domain/utility/stereo_level_meter.hpp"
 #include "../../infra/audio/backend/audio_file_reader.hpp"
 #include "../../view/controllers/sampler_controller.hpp"
 
@@ -311,6 +313,126 @@ void SamplerControllerTest::test_copyPad_shouldCopyPadToTarget()
     QVERIFY(std::abs(controller.selectedPadCutoff() - 0.4) < 1e-6);
     // The copy landed on the selected pad, so the pad settings are re-read
     QCOMPARE(cutoffSpy.count(), 1);
+}
+
+void SamplerControllerTest::test_selectedPadMono_shouldBePerPadAndSayWhenItChanges()
+{
+    // The checkbox binds to this property, so selecting another pad has to say the value changed. It
+    // did not, and the switch went on showing whichever pad was last touched -- which reads in the UI
+    // as Mono being stuck on for every pad, even though each pad held its own value all along.
+    const auto sampler = std::make_shared<SamplerDevice>("Test Sampler", std::make_unique<MockAudioFileReader>());
+    SamplerController controller { sampler };
+    controller.loadSample(0, "/samples/one.wav");
+    controller.loadSample(1, "/samples/two.wav");
+
+    controller.setSelectedPad(0);
+    controller.setSelectedPadMono(true);
+    QVERIFY(controller.selectedPadMono());
+
+    QSignalSpy spy { &controller, &SamplerController::selectedPadMonoChanged };
+    controller.setSelectedPad(1);
+
+    QCOMPARE(spy.count(), 1);
+    QVERIFY(!controller.selectedPadMono()); // pad 1 was never switched to mono
+    QVERIFY(!sampler->sampleMono(37));
+
+    controller.setSelectedPad(0);
+    QVERIFY(controller.selectedPadMono()); // and pad 0 kept it
+    QVERIFY(sampler->sampleMono(36));
+}
+
+void SamplerControllerTest::test_padNote_chromaticMode_shouldDefaultToOneOctavePerPad()
+{
+    const auto sampler = std::make_shared<SamplerDevice>("Test Sampler", std::make_unique<MockAudioFileReader>());
+    SamplerController controller { sampler };
+
+    QCOMPARE(controller.padNote(0), 36); // drum mode: pad 0 is C-3
+    sampler->setChromaticMode(true);
+    QCOMPARE(controller.padNote(0), 0);
+    QCOMPARE(controller.padNote(3), 36);
+}
+
+void SamplerControllerTest::test_setPadNote_shouldMoveThePadAndItsAudio()
+{
+    const auto sampler = std::make_shared<SamplerDevice>("Test Sampler", std::make_unique<MockAudioFileReader>());
+    SamplerController controller { sampler };
+    sampler->setChromaticMode(true);
+    controller.loadSample(2, "/samples/bass_e.wav"); // pad 2 is C-2
+
+    QVERIFY(controller.setPadNote(2, 28)); // E-2
+
+    QCOMPARE(controller.padNote(2), 28);
+    QVERIFY(sampler->sample(28));
+    QVERIFY(!sampler->sample(24)); // the audio moved rather than being copied
+}
+
+void SamplerControllerTest::test_setPadNote_occupiedNote_shouldBeRefused()
+{
+    const auto sampler = std::make_shared<SamplerDevice>("Test Sampler", std::make_unique<MockAudioFileReader>());
+    SamplerController controller { sampler };
+    sampler->setChromaticMode(true);
+    controller.loadSample(2, "/samples/one.wav");
+    controller.loadSample(3, "/samples/two.wav");
+
+    // Pad 3 sits on C-3 already. Moving pad 2 onto it would leave one of them unreachable.
+    QVERIFY(!controller.setPadNote(2, 36));
+    QCOMPARE(controller.padNote(2), 24);
+    QVERIFY(sampler->sample(24));
+    QVERIFY(sampler->sample(36));
+}
+
+void SamplerControllerTest::test_setPadNote_outOfRange_shouldBeRefused()
+{
+    const auto sampler = std::make_shared<SamplerDevice>("Test Sampler", std::make_unique<MockAudioFileReader>());
+    SamplerController controller { sampler };
+    sampler->setChromaticMode(true);
+    controller.loadSample(2, "/samples/kick.wav");
+
+    QVERIFY(!controller.setPadNote(2, 128));
+    QVERIFY(!controller.setPadNote(2, -1));
+    QCOMPARE(controller.padNote(2), 24);
+}
+
+void SamplerControllerTest::test_setPadNote_drumMode_shouldBeRefused()
+{
+    // A drum pad is its note by definition: the layout is what a kit is.
+    const auto sampler = std::make_shared<SamplerDevice>("Test Sampler", std::make_unique<MockAudioFileReader>());
+    SamplerController controller { sampler };
+    controller.loadSample(0, "/samples/kick.wav");
+
+    QVERIFY(!controller.setPadNote(0, 40));
+    QCOMPARE(controller.padNote(0), 36);
+}
+
+void SamplerControllerTest::test_noteName_shouldNameTheNote()
+{
+    const auto sampler = std::make_shared<SamplerDevice>("Test Sampler", std::make_unique<MockAudioFileReader>());
+    SamplerController controller { sampler };
+
+    // The names the menu is built from, so they have to be the tracker's own.
+    QCOMPARE(controller.noteName(36), QString { "C-3" });
+    QCOMPARE(controller.noteName(28), QString { "E-2" });
+    QCOMPARE(controller.noteName(127), QString { "G-A" });
+    QCOMPARE(controller.noteName(128), QString {});
+    QCOMPARE(controller.noteName(-1), QString {});
+}
+
+void SamplerControllerTest::test_meterLevels_notRecording_shouldReadTheSamplerOutput()
+{
+    const auto sampler = std::make_shared<SamplerDevice>("Test Sampler", std::make_unique<MockAudioFileReader>());
+    SamplerController controller { sampler };
+
+    // Nothing has played and the tap is off, so the pair reads its floor -- but it reads, rather than
+    // handing the meters nothing to show.
+    const auto levels = controller.meterLevels();
+    QVERIFY(levels.contains("leftPeakDb"));
+    QVERIFY(levels.contains("rightRmsDb"));
+    QCOMPARE(levels["leftPeakDb"].toFloat(), StereoLevelMeter::MinimumDb);
+
+    controller.setMetersActive(true);
+    QVERIFY(sampler->outputStereoMeter().active());
+    controller.setMetersActive(false);
+    QVERIFY(!sampler->outputStereoMeter().active());
 }
 
 void SamplerControllerTest::test_copyPad_samePad_shouldDoNothing()

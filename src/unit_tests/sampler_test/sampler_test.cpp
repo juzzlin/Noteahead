@@ -1246,6 +1246,206 @@ void SamplerTest::test_chromaticMode_shouldRoundTripThroughXml()
     }
 }
 
+//! A stereo sampler whose two channels differ, which is what tells a folded pad from an unfolded one.
+//! The ramp mock writes the interleaved index into every sample, so left and right never match.
+std::unique_ptr<SamplerDevice> makeStereoRampSampler()
+{
+    auto reader = std::make_unique<MockAudioFileReader>();
+    reader->setFrames(static_cast<int64_t>(Constants::defaultSampleRate()));
+    reader->setRamp(true);
+    auto sampler = std::make_unique<SamplerDevice>(Constants::samplerDeviceName().toStdString(), std::move(reader));
+    sampler->loadSample(60, "stereo.wav");
+    return sampler;
+}
+
+void SamplerTest::test_sampleMono_stereoPad_shouldFoldTheChannelsTogether()
+{
+    auto sampler = makeStereoRampSampler();
+    QVERIFY(!sampler->sampleMono(60)); // off unless asked for, so an existing pad is untouched
+    sampler->setSampleMono(60, true);
+    QVERIFY(sampler->sampleMono(60));
+
+    sampler->processMidiNoteOn(60, 127);
+    const auto rendered = render(*sampler, 64);
+
+    // Centre panned, so folding leaves the two sides carrying the same signal.
+    bool heardSomething = false;
+    for (size_t frame = 0; frame < rendered.size() / 2; frame++) {
+        const auto left = rendered.at(frame * 2);
+        const auto right = rendered.at(frame * 2 + 1);
+        heardSomething = heardSomething || std::abs(left) > 0.0;
+        QVERIFY2(std::abs(left - right) < 1e-9, qPrintable(QString::number(frame)));
+    }
+    QVERIFY(heardSomething);
+}
+
+void SamplerTest::test_sampleMono_off_shouldLeaveAStereoPadAlone()
+{
+    // The other half of the same measurement: without it the test above would pass on a pad that was
+    // never stereo to begin with.
+    auto sampler = makeStereoRampSampler();
+    sampler->processMidiNoteOn(60, 127);
+    const auto rendered = render(*sampler, 64);
+
+    bool sidesDiffer = false;
+    for (size_t frame = 0; frame < rendered.size() / 2 && !sidesDiffer; frame++) {
+        sidesDiffer = std::abs(rendered.at(frame * 2) - rendered.at(frame * 2 + 1)) > 1e-9;
+    }
+    QVERIFY(sidesDiffer);
+}
+
+void SamplerTest::test_setPadNote_shouldMoveThePadAndPitchFromItsNewNote()
+{
+    // The case this exists for: an open bass E recorded onto a pad. The pad is moved to E-2, and from
+    // then on E-2 is where it plays at the rate it was recorded at.
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    sampler.setChromaticMode(true);
+    sampler.loadSample(24, "bass_e.wav"); // pad 2, C-2
+
+    QVERIFY(sampler.setPadNote(2, 28)); // E-2
+    QCOMPARE(sampler.noteForPad(2), 28);
+
+    // The audio went with the pad rather than being left behind on the old note.
+    QVERIFY(sampler.sample(28));
+    QVERIFY(!sampler.sample(24));
+
+    QVERIFY(qFuzzyCompare(sampler.chromaticPitchRatio(28), 1.0));
+    QVERIFY(qFuzzyCompare(sampler.chromaticPitchRatio(40), 2.0)); // an octave above the E
+    uint8_t root = 255;
+    QVERIFY(sampler.coveringSample(30, root));
+    QCOMPARE(root, static_cast<uint8_t>(28));
+}
+
+void SamplerTest::test_setPadNote_bassStrings_shouldCoverUpToTheNextPad()
+{
+    // Four pads a fourth apart, which is what the octave-per-pad layout could not express. Each one
+    // is the base of its range up to the next, the lowest extends down and the highest extends up.
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    sampler.setChromaticMode(true);
+    const std::array<std::pair<int, int>, 4> strings { { { 0, 28 }, { 1, 33 }, { 2, 38 }, { 3, 43 } } }; // E-2 A-2 D-3 G-3
+    for (const auto & [pad, note] : strings) {
+        sampler.loadSample(static_cast<uint8_t>(sampler.noteForPad(pad)), "string.wav");
+        QVERIFY(sampler.setPadNote(pad, note));
+    }
+
+    const auto rootOf = [&sampler](uint8_t note) {
+        uint8_t root = 255;
+        return sampler.coveringSample(note, root) ? root : static_cast<uint8_t>(255);
+    };
+
+    QCOMPARE(rootOf(28), static_cast<uint8_t>(28)); // on the E
+    QCOMPARE(rootOf(32), static_cast<uint8_t>(28)); // still the E, just under the A
+    QCOMPARE(rootOf(33), static_cast<uint8_t>(33)); // the A takes over on its own note
+    QCOMPARE(rootOf(42), static_cast<uint8_t>(38)); // the D, just under the G
+    QCOMPARE(rootOf(43), static_cast<uint8_t>(43)); // the G
+    QCOMPARE(rootOf(100), static_cast<uint8_t>(43)); // the highest extends up
+    QCOMPARE(rootOf(10), static_cast<uint8_t>(28)); // and the lowest extends down
+
+    // Each string plays at the rate it was recorded at on its own note, and is stretched only as far
+    // as the next string. The old layout pitched all of this from the C below instead.
+    QVERIFY(qFuzzyCompare(sampler.chromaticPitchRatio(28), 1.0));
+    QVERIFY(qFuzzyCompare(sampler.chromaticPitchRatio(33), 1.0));
+    QVERIFY(qFuzzyCompare(sampler.chromaticPitchRatio(32), std::pow(2.0, 4.0 / 12.0))); // four up from the E
+    QVERIFY(qFuzzyCompare(sampler.chromaticPitchRatio(47), std::pow(2.0, 4.0 / 12.0))); // and from the G
+}
+
+void SamplerTest::test_setPadNote_occupiedNote_shouldRefuseAndKeepBothPads()
+{
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    sampler.setChromaticMode(true);
+    sampler.loadSample(24, "one.wav"); // pad 2
+    sampler.loadSample(36, "two.wav"); // pad 3
+
+    // Moving pad 2 on top of pad 3 would leave one of them unreachable, so it is refused outright
+    // rather than overwriting audio.
+    QVERIFY(!sampler.setPadNote(2, 36));
+
+    QCOMPARE(sampler.noteForPad(2), 24);
+    QVERIFY(sampler.sample(24));
+    QVERIFY(sampler.sample(36));
+}
+
+void SamplerTest::test_serialize_defaultPadNotes_shouldWriteNoPadsElement()
+{
+    // The whole of backwards compatibility in one assertion: pads still an octave apart write no
+    // placement at all, so an existing project re-saves as the project it was.
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    sampler.setChromaticMode(true);
+    sampler.loadSample(24, "test.wav");
+
+    QByteArray data;
+    {
+        NahdXmlWriter writer { data };
+        sampler.serializeToXml(writer);
+    }
+    QVERIFY2(!QString::fromUtf8(data).contains("<" + Constants::NahdXml::xmlKeyPads()), data.constData());
+}
+
+void SamplerTest::test_serialize_movedPads_shouldRoundTripThroughXml()
+{
+    QByteArray data;
+    {
+        SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+        sampler.setChromaticMode(true);
+        sampler.loadSample(24, "bass_e.wav");
+        QVERIFY(sampler.setPadNote(2, 28));
+        NahdXmlWriter writer { data };
+        sampler.serializeToXml(writer);
+    }
+    QVERIFY(QString::fromUtf8(data).contains(Constants::NahdXml::xmlKeyPads()));
+
+    {
+        SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+        NahdXmlReader reader { data };
+        readToFirstStartElement(reader);
+        sampler.deserializeFromXml(reader);
+
+        QCOMPARE(sampler.noteForPad(2), 28);
+        QVERIFY(sampler.sample(28));
+        // The pads nobody moved are still an octave apart.
+        QCOMPARE(sampler.noteForPad(3), 36);
+        QVERIFY(qFuzzyCompare(sampler.chromaticPitchRatio(28), 1.0));
+    }
+}
+
+void SamplerTest::test_deserialize_projectWithoutPads_shouldBehaveExactlyAsBefore()
+{
+    // A Sampler exactly as a build without placeable pads wrote it, written out here by hand rather
+    // than produced by the current code, so that this keeps testing the old shape whatever the writer
+    // does next. It has to load, lay its pads out by the octave and pitch as it always did.
+    const QString oldFormat = R"(<Device typeId="sampler" typeName="Sampler" name="Sampler" port="Sampler">
+  <Samples>
+    <Sample note="24" path="samples/low.wav"/>
+    <Sample note="36" path="samples/high.wav"/>
+  </Samples>
+</Device>)";
+
+    SamplerDevice sampler { Constants::samplerDeviceName().toStdString(), std::make_unique<MockAudioFileReader>() };
+    {
+        NahdXmlReader reader { oldFormat };
+        readToFirstStartElement(reader);
+        sampler.deserializeFromXml(reader);
+    }
+    sampler.setChromaticMode(true);
+
+    QCOMPARE(sampler.noteForPad(2), 24);
+    QCOMPARE(sampler.noteForPad(3), 36);
+    QVERIFY(sampler.sample(24));
+    QVERIFY(sampler.sample(36));
+
+    // The ratios a pad laid out on a C has always had.
+    QVERIFY(qFuzzyCompare(sampler.chromaticPitchRatio(24), 1.0));
+    QVERIFY(qFuzzyCompare(sampler.chromaticPitchRatio(36), 1.0));
+    QVERIFY(qFuzzyCompare(sampler.chromaticPitchRatio(35), std::pow(2.0, 11.0 / 12.0)));
+
+    QByteArray resaved;
+    {
+        NahdXmlWriter writer { resaved };
+        sampler.serializeToXml(writer);
+    }
+    QVERIFY2(!QString::fromUtf8(resaved).contains("<" + Constants::NahdXml::xmlKeyPads()), resaved.constData());
+}
+
 //! A chromatic sampler with one octave-root sample, long enough that a note pitched up an octave
 //! still has sample left after the frames the tests render.
 std::unique_ptr<SamplerDevice> makeChromaticSampler()

@@ -77,10 +77,11 @@ QString SamplerPadModel::chromaticRangeLabel(int padIndex) const
         return {};
     }
 
-    // A set pad covers from its own C down to the previous set pad (or note 0 if it is the lowest) and up to
-    // the next set pad (or the top of the keyboard if it is the highest).
+    // A set pad covers from its own note up to the next set pad below the one above it, with the
+    // lowest extending down to note 0 and the highest up to the top of the keyboard. Every note is
+    // searched rather than every twelfth, because pads are placed wherever the instrument was sampled.
     bool isLowestSet = true;
-    for (int r = root - 12; r >= 0; r -= 12) {
+    for (int r = root - 1; r >= 0; r--) {
         if (m_sampler->sample(static_cast<uint8_t>(r))) {
             isLowestSet = false;
             break;
@@ -88,7 +89,7 @@ QString SamplerPadModel::chromaticRangeLabel(int padIndex) const
     }
 
     int nextRoot = -1;
-    for (int r = root + 12; r < static_cast<int>(SamplerDevice::maxSamples); r += 12) {
+    for (int r = root + 1; r < static_cast<int>(SamplerDevice::maxSamples); r++) {
         if (m_sampler->sample(static_cast<uint8_t>(r))) {
             nextRoot = r;
             break;
@@ -96,7 +97,8 @@ QString SamplerPadModel::chromaticRangeLabel(int padIndex) const
     }
 
     const int startNote = isLowestSet ? 0 : root;
-    const int endNote = nextRoot >= 0 ? nextRoot : static_cast<int>(SamplerDevice::maxSamples) - 1;
+    // Up to, but not including, wherever the next pad starts.
+    const int endNote = nextRoot >= 0 ? nextRoot - 1 : static_cast<int>(SamplerDevice::maxSamples) - 1;
 
     return QString::fromStdString(NoteConverter::midiToString(static_cast<uint8_t>(startNote)))
       + " - " + QString::fromStdString(NoteConverter::midiToString(static_cast<uint8_t>(endNote)));
@@ -146,6 +148,13 @@ void SamplerPadModel::updatePad(int padIndex)
     }
     const auto idx = index(padIndex);
     emit dataChanged(idx, idx, { FilePath, IsLoaded });
+}
+
+void SamplerPadModel::updateAllPads()
+{
+    if (const auto last = rowCount() - 1; last >= 0) {
+        emit dataChanged(index(0), index(last), { Note, NoteName, RangeLabel, FilePath, IsLoaded });
+    }
 }
 
 } // namespace noteahead
