@@ -762,9 +762,11 @@ void SamplerController::requestSettings()
         emit selectedPadTuneChanged();
         emit selectedPadDetuneChanged();
         emit selectedPadAttackChanged();
+        emit selectedPadHoldChanged();
         emit selectedPadDecayChanged();
         emit selectedPadSustainChanged();
         emit selectedPadReleaseChanged();
+        emit selectedPadCurveChanged();
         emit selectedPadReverseChanged();
         emit selectedPadNormalizeChanged();
         emit selectedPadLoopChanged();
