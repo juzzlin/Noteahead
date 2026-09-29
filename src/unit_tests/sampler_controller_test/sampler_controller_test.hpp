@@ -29,6 +29,7 @@ private slots:
     void test_playbackPosition_chromaticMode_shouldFollowAPitchedNote();
     void test_recordingSeconds_notRecording_shouldBeZero();
     void test_metronomeSettings_shouldClampAndSayWhenTheyChange();
+    void test_startRecording_shouldEmptyThePadStraightAway();
     void test_selectedPadMono_shouldBePerPadAndSayWhenItChanges();
     void test_padNote_chromaticMode_shouldDefaultToOneOctavePerPad();
     void test_setPadNote_shouldMoveThePadAndItsAudio();

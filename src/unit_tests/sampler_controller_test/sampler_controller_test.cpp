@@ -3,10 +3,13 @@
 //
 #include "sampler_controller_test.hpp"
 
+#include "../../application/service/audio_service.hpp"
+#include "../../application/service/jack_service.hpp"
 #include "../../application/service/settings_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/utility/stereo_level_meter.hpp"
+#include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/audio/backend/audio_file_reader.hpp"
 #include "../../view/controllers/sampler_controller.hpp"
 
@@ -383,6 +386,33 @@ void SamplerControllerTest::test_metronomeSettings_shouldClampAndSayWhenTheyChan
     QCOMPARE(controller.metronomeBeatsPerBar(), 1);
     controller.setMetronomeBeatsPerBar(99);
     QCOMPARE(controller.metronomeBeatsPerBar(), 16);
+}
+
+void SamplerControllerTest::test_startRecording_shouldEmptyThePadStraightAway()
+{
+    // The pad is emptied as the take starts, not when it lands: what is on it is about to be replaced,
+    // and leaving it there meant recording over a waveform that was still drawn and still playable.
+    // No project path, so the take goes to a temporary directory of the controller's own.
+    const auto sampler = std::make_shared<SamplerDevice>("Test Sampler", std::make_unique<MockAudioFileReader>());
+    SamplerController controller { sampler };
+
+    const auto engine = std::make_shared<AudioEngine>();
+    const auto settingsService = std::make_shared<SettingsService>();
+    // autoInitialize off: no worker and no stream, which leaves exactly the bookkeeping under test.
+    controller.setAudioService(std::make_shared<AudioService>(settingsService,
+                                                              std::make_shared<JackService>(settingsService, engine),
+                                                              engine, nullptr, false));
+
+    controller.loadSample(0, "/samples/old.wav");
+    controller.setSelectedPad(0);
+    QVERIFY(sampler->sample(36));
+
+    QSignalSpy spy { &controller, &SamplerController::selectedPadChanged };
+    controller.startRecording();
+
+    QVERIFY(controller.recording());
+    QVERIFY2(!sampler->sample(36), "the pad still holds what the take is replacing");
+    QVERIFY(spy.count() > 0); // the view is told, so the wave goes empty at once
 }
 
 void SamplerControllerTest::test_selectedPadMono_shouldBePerPadAndSayWhenItChanges()

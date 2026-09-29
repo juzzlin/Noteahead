@@ -813,6 +813,14 @@ void SamplerController::startRecording()
     // Cleared here rather than after use: a take recorded with the metronome off must not be trimmed
     // by whatever the one before it was counted in with.
     m_countInSeconds = 0.0;
+
+    // The pad is emptied as the take starts rather than when it lands. What is on the pad is about to
+    // be replaced, and leaving it there meant recording over a waveform that was still being drawn
+    // and still playable -- the view said nothing was happening while everything was.
+    const auto recordingNote = static_cast<uint8_t>(noteForPad(m_selectedPad));
+    m_sampler->clearSample(recordingNote);
+    m_padModel->updatePad(m_selectedPad);
+    emit selectedPadChanged();
     juzzlin::L(TAG).info() << "Recording pad " << (m_selectedPad + 1) << " into " << std::quoted(filePath.toStdString());
     m_audioService->startSampleRecording(filePath, 0);
     emit recordingChanged();
