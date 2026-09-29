@@ -94,9 +94,9 @@ public:
     Q_INVOKABLE void setInputMeterActive(bool active);
 
     Q_INVOKABLE QVariantList getInputDevices();
-    Q_INVOKABLE void setInputDevice(int deviceId);
+    Q_INVOKABLE virtual void setInputDevice(int deviceId);
     Q_INVOKABLE QVariantList getOutputDevices();
-    Q_INVOKABLE void setOutputDevice(int deviceId);
+    Q_INVOKABLE virtual void setOutputDevice(int deviceId);
 
     Q_INVOKABLE QString latestRecordingFileName() const;
     Q_INVOKABLE bool isRecording() const;

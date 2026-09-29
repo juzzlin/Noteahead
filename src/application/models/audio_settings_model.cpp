@@ -39,6 +39,12 @@ AudioSettingsModel::AudioSettingsModel(AudioServiceS audioService, SettingsServi
     connect(m_audioService.get(), &AudioService::reinitialized, this, [this]() {
         refreshInputDevices();
         refreshOutputDevices();
+        // Reinitializing builds a new recorder and a new player, and they come up on whatever the
+        // system calls the default. The chosen devices have to be put back onto them, or the boxes go
+        // on showing a choice that nothing is acting on -- which is what the application's own
+        // startup does, one reinitialize after this model applied the saved devices.
+        m_audioService->setInputDevice(m_selectedInputDeviceId);
+        m_audioService->setOutputDevice(m_selectedOutputDeviceId);
     });
 }
 
