@@ -13,25 +13,28 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef AUDIO_SERVICE_TEST_HPP
-#define AUDIO_SERVICE_TEST_HPP
+#ifndef METRONOME_TEST_HPP
+#define METRONOME_TEST_HPP
 
 #include <QObject>
 
 namespace noteahead {
 
-class AudioServiceTest : public QObject
+class MetronomeTest : public QObject
 {
     Q_OBJECT
 
 private slots:
-    void test_stopRecording_songTake_shouldBecomeTheLatestRecording();
-    void test_stopRecording_sampleTake_shouldNotTouchTheLatestRecording();
-    void test_stopRecording_sampleTake_shouldNotBeSerialized();
-    void test_beatsToSeconds_shouldFollowTheEngineTempo();
-    void test_startMetronome_shouldRunTheEngineClickAndCountIn();
+    void test_render_stopped_shouldAddNothing();
+    void test_render_shouldClickOnEveryBeat();
+    void test_render_acrossBufferBoundaries_shouldKeepTheBeatsEvenlySpaced();
+    void test_render_firstBeatOfTheBar_shouldBeAccented();
+    void test_countIn_shouldFinishOnTheLastCountedBeat();
+    void test_countIn_zeroBeats_shouldStartFinished();
+    void test_start_afterStopping_shouldClickImmediately();
+    void test_setBpm_shouldChangeTheBeatSpacing();
 };
 
 } // namespace noteahead
 
-#endif // AUDIO_SERVICE_TEST_HPP
+#endif // METRONOME_TEST_HPP

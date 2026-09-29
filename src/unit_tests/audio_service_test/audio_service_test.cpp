@@ -19,6 +19,7 @@
 #include "../../application/service/jack_service.hpp"
 #include "../../application/service/settings_service.hpp"
 #include "../../common/xml/project_writer.hpp"
+#include "../../domain/dsp/metronome.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
@@ -100,6 +101,38 @@ void AudioServiceTest::test_stopRecording_sampleTake_shouldNotBeSerialized()
 
     const auto xml = serialized(*service);
     QVERIFY2(!xml.contains("pad_take.wav"), qPrintable(xml));
+}
+
+void AudioServiceTest::test_beatsToSeconds_shouldFollowTheEngineTempo()
+{
+    // What a take is trimmed by, so that it starts on the downbeat rather than on the count-in.
+    const auto engine = std::make_shared<AudioEngine>();
+    const auto settingsService = std::make_shared<SettingsService>();
+    AudioService service { settingsService, std::make_shared<JackService>(settingsService, engine), engine, nullptr, false };
+
+    engine->setBpm(120.0f);
+    QVERIFY(qFuzzyCompare(service.beatsToSeconds(4), 2.0)); // four beats at two a second
+
+    engine->setBpm(60.0f);
+    QVERIFY(qFuzzyCompare(service.beatsToSeconds(4), 4.0));
+    QCOMPARE(service.beatsToSeconds(0), 0.0);
+}
+
+void AudioServiceTest::test_startMetronome_shouldRunTheEngineClickAndCountIn()
+{
+    const auto engine = std::make_shared<AudioEngine>();
+    const auto settingsService = std::make_shared<SettingsService>();
+    AudioService service { settingsService, std::make_shared<JackService>(settingsService, engine), engine, nullptr, false };
+
+    QVERIFY(!engine->metronome().running());
+
+    service.startMetronome(4, 4, 0.5);
+    QVERIFY(engine->metronome().running());
+    QCOMPARE(service.metronomeCountInBeatsRemaining(), 4);
+    QVERIFY(!service.metronomeCountInFinished());
+
+    service.stopMetronome();
+    QVERIFY(!engine->metronome().running());
 }
 
 } // namespace noteahead

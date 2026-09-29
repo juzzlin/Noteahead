@@ -47,6 +47,7 @@ set(HEADER_FILES
     dsp/fm_operator.hpp
     dsp/high_pass_filter.hpp
     dsp/lfo.hpp
+    dsp/metronome.hpp
     dsp/micro_pitch_shifter.hpp
     dsp/linkwitz_riley_crossover.hpp
     dsp/low_pass_filter.hpp
@@ -216,6 +217,7 @@ set(SOURCE_FILES
     dsp/fm_operator.cpp
     dsp/high_pass_filter.cpp
     dsp/lfo.cpp
+    dsp/metronome.cpp
     dsp/micro_pitch_shifter.cpp
     dsp/linkwitz_riley_crossover.cpp
     dsp/low_pass_filter.cpp

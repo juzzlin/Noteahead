@@ -100,13 +100,19 @@ WaveformView {
         anchors.centerIn: parent
         visible: samplerController.recording
         color: themeService.accentColor
-        font.pixelSize: Constants.waveViewOverlayFontSize
+        // The count-in is read at a glance from across a room with an instrument in your hands.
+        font.pixelSize: samplerController.countInBeatsRemaining > 0 ? Constants.waveViewOverlayFontSize * 2 : Constants.waveViewOverlayFontSize
         font.bold: true
         // Rounded to tenths first and split afterwards. Splitting first and rounding the seconds lets
         // the rounding cross a boundary the minutes have already been taken from: 9.96 s read as
         // "0:010.0", and 59.96 s would have read as "0:60.0".
+        // Counting down through the pre-count, then counting the take up. The count-in is the more
+        // useful of the two while it runs: it says when to come in.
         text: {
             waveform.recordingTick;
+            if (samplerController.countInBeatsRemaining > 0) {
+                return samplerController.countInBeatsRemaining;
+            }
             const tenths = Math.round(samplerController.recordingSeconds() * 10);
             const minutes = Math.floor(tenths / 600);
             const withinMinute = tenths - minutes * 600;

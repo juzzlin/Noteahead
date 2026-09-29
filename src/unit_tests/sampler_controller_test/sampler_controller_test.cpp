@@ -3,13 +3,16 @@
 //
 #include "sampler_controller_test.hpp"
 
+#include "../../application/service/settings_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/utility/stereo_level_meter.hpp"
 #include "../../infra/audio/backend/audio_file_reader.hpp"
 #include "../../view/controllers/sampler_controller.hpp"
 
+#include <QSettings>
 #include <QSignalSpy>
+#include <QTemporaryDir>
 #include <QTest>
 
 #include <algorithm>
@@ -87,6 +90,29 @@ public:
 private:
     int64_t m_frames = 1024;
 };
+
+namespace {
+
+//! Settings of this test's own, so that the metronome switches it writes go to a directory that goes
+//! with the process. Without it the test both read back what its previous run had persisted -- which
+//! made the defaults it asserts depend on run order -- and wrote into the settings of whatever
+//! application name the test binary happens to carry.
+QTemporaryDir & settingsDirectory()
+{
+    static QTemporaryDir directory;
+    return directory;
+}
+
+} // namespace
+
+void SamplerControllerTest::initTestCase()
+{
+    QCoreApplication::setOrganizationName("NoteaheadTest");
+    QCoreApplication::setApplicationName("SamplerControllerTest");
+    QVERIFY(settingsDirectory().isValid());
+    QSettings::setDefaultFormat(QSettings::IniFormat);
+    QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, settingsDirectory().path());
+}
 
 void SamplerControllerTest::test_sampleRateChange_shouldUpdateHzValues()
 {
@@ -325,6 +351,38 @@ void SamplerControllerTest::test_recordingSeconds_notRecording_shouldBeZero()
 
     QVERIFY(!controller.recording());
     QCOMPARE(controller.recordingSeconds(), 0.0);
+}
+
+void SamplerControllerTest::test_metronomeSettings_shouldClampAndSayWhenTheyChange()
+{
+    const auto sampler = std::make_shared<SamplerDevice>("Test Sampler", std::make_unique<MockAudioFileReader>());
+    SamplerController controller { sampler };
+
+    // A metronome nobody asked for stays out of the way, and a bar is the pre-count most people want.
+    QVERIFY(!controller.metronomeEnabled());
+    QVERIFY(controller.clickDuringTake());
+    QCOMPARE(controller.preCountBars(), 1);
+    QCOMPARE(controller.metronomeBeatsPerBar(), 4);
+    QCOMPARE(controller.countInBeatsRemaining(), 0);
+
+    QSignalSpy enabledSpy { &controller, &SamplerController::metronomeEnabledChanged };
+    controller.setMetronomeEnabled(true);
+    QCOMPARE(enabledSpy.count(), 1);
+    controller.setMetronomeEnabled(true); // no change, no signal
+    QCOMPARE(enabledSpy.count(), 1);
+
+    // Nothing absurd gets through to the click: zero bars is "no count", and there is a ceiling.
+    QSignalSpy barsSpy { &controller, &SamplerController::preCountBarsChanged };
+    controller.setPreCountBars(-1);
+    QCOMPARE(controller.preCountBars(), 0);
+    controller.setPreCountBars(999);
+    QCOMPARE(controller.preCountBars(), 8);
+    QCOMPARE(barsSpy.count(), 2);
+
+    controller.setMetronomeBeatsPerBar(0);
+    QCOMPARE(controller.metronomeBeatsPerBar(), 1);
+    controller.setMetronomeBeatsPerBar(99);
+    QCOMPARE(controller.metronomeBeatsPerBar(), 16);
 }
 
 void SamplerControllerTest::test_selectedPadMono_shouldBePerPadAndSayWhenItChanges()

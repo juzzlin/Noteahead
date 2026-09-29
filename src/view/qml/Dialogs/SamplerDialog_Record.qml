@@ -23,19 +23,16 @@ import "../Components"
 // Sampling an instrument that is in the room: the recording lands on whichever pad is selected, so
 // the strip sits with the waveform rather than on the pads themselves -- sixteen record buttons
 // would say this is a per-pad thing, and it is not.
-RowLayout {
+ColumnLayout {
     id: root
 
     property bool samplerDialogVisible: false
-    //! What the controls span, so they can be lined up with the pad matrix below them. Zero lets
-    //! them take whatever they need.
-    property real controlsWidth: 0
 
     //! True while the audio devices are being enumerated, which is a hardware probe and can take long
     //! enough to be worth saying something about.
     property bool inputsPending: false
 
-    spacing: 10
+    spacing: 4
 
     //! Asks for the input list, off the caller's own frame.
     //!
@@ -57,17 +54,12 @@ RowLayout {
         }
     }
 
-    // Sized to the pad matrix underneath, so the strip reads as belonging to it rather than
-    // floating above it at a width of its own.
+    // The whole width: there is more here than half a dialog holds, and the status line below has a
+    // row of its own rather than taking the other half of this one.
     RowLayout {
         id: controls
 
-        // preferredWidth alone loses to what the children say they need -- a long device name in
-        // the box is enough to push the group past its half -- so the cap has to be given as well,
-        // and the box has to be allowed to shrink under its own implicit width.
-        Layout.fillWidth: false
-        Layout.preferredWidth: root.controlsWidth > 0 ? root.controlsWidth : implicitWidth
-        Layout.maximumWidth: root.controlsWidth > 0 ? root.controlsWidth : Number.POSITIVE_INFINITY
+        Layout.fillWidth: true
         spacing: 10
 
         // The same round, red-rimmed record button the song recorder has in the editor: pressing
@@ -141,6 +133,9 @@ RowLayout {
 
             Layout.fillWidth: true
             Layout.minimumWidth: 60
+            // A quarter of the strip and no more. Device names run long, and this is the only control
+            // here that can absorb width without needing it.
+            Layout.maximumWidth: root.width * 0.25
             textRole: "name"
             valueRole: "id"
             enabled: !samplerController.recording && !root.inputsPending
@@ -180,6 +175,65 @@ RowLayout {
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Looks for inputs again, for something plugged in since the dialog was opened.")
+        }
+
+        // Counts you in before the take and, unless told otherwise, keeps time through it.
+        CheckBox {
+            id: metronomeCheckBox
+            text: qsTr("Metronome")
+            enabled: !samplerController.recording
+            checked: samplerController.metronomeEnabled
+            onToggled: samplerController.metronomeEnabled = checked
+            contentItem: Label {
+                text: metronomeCheckBox.text
+                color: "white"
+                verticalAlignment: Text.AlignVCenter
+                leftPadding: metronomeCheckBox.indicator.width + metronomeCheckBox.spacing
+            }
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Clicks the song's tempo. Recording starts during the count-in, and the take is trimmed to begin on the downbeat, so nothing played early is lost.")
+        }
+
+        SpinBox {
+            id: preCountSpinBox
+            from: 0
+            to: 8
+            value: samplerController.preCountBars
+            editable: false
+            enabled: !samplerController.recording && samplerController.metronomeEnabled
+            implicitWidth: 130
+            onValueModified: samplerController.preCountBars = value
+            textFromValue: (value, locale) => value === 0 ? qsTr("No count") : qsTr("%n bar(s)", "", value)
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("How many bars are counted before the take begins.")
+        }
+
+        CheckBox {
+            id: clickDuringTakeCheckBox
+            text: qsTr("Click during take")
+            enabled: !samplerController.recording && samplerController.metronomeEnabled
+            checked: samplerController.clickDuringTake
+            onToggled: samplerController.clickDuringTake = checked
+            contentItem: Label {
+                text: clickDuringTakeCheckBox.text
+                color: "white"
+                verticalAlignment: Text.AlignVCenter
+                leftPadding: clickDuringTakeCheckBox.indicator.width + clickDuringTakeCheckBox.spacing
+            }
+            ToolTip.delay: Constants.toolTipDelay
+            ToolTip.timeout: Constants.toolTipTimeout
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Keeps clicking through the take. Turn it off when the click is coming back into the input, as it does when a mixer feeds the output back: the count-in is trimmed off the take, so only a click heard during the take ends up in what the pad plays.")
+        }
+
+        // Takes whatever the capped input box leaves, so the controls stay grouped at the left
+        // instead of being stretched apart across the strip.
+        Item {
+            Layout.fillWidth: true
         }
     }
 

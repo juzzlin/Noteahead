@@ -74,6 +74,18 @@ public:
     Q_INVOKABLE void setPlaybackPosition(double position);
     Q_INVOKABLE double playbackPosition() const;
 
+    //! Starts the click, counting \p countInBeats of it as a pre-count. The tempo is the song's, so
+    //! there is nothing to pass: the engine already carries it.
+    Q_INVOKABLE void startMetronome(int countInBeats, int beatsPerBar, double level);
+    Q_INVOKABLE void stopMetronome();
+    //! True once the pre-count has been clicked through. Polled, because it is decided on the audio
+    //! thread and nothing can be signalled out of there.
+    Q_INVOKABLE bool metronomeCountInFinished() const;
+    Q_INVOKABLE int metronomeCountInBeatsRemaining() const;
+    //! Seconds \p beats last at the tempo the engine is running at. What a take is trimmed by so
+    //! that it starts on the downbeat.
+    Q_INVOKABLE double beatsToSeconds(int beats) const;
+
     //! Level of what is arriving at the record input: leftPeakDb, leftRmsDb, rightPeakDb,
     //! rightRmsDb, all dBFS. Empty when no recorder is open, so a caller can tell "silent" from
     //! "nothing to ask". One call so both channels come from the same moment.
@@ -96,6 +108,8 @@ public:
     void deserializeFromXml(ProjectReader & reader);
 
 signals:
+    //! The recorder's stream is open and frames are arriving. See AudioWorker::recordingStarted().
+    void recordingStarted();
     void latestRecordingFileNameChanged();
     void isRecordingChanged();
     void isPlayingPlaybackChanged();

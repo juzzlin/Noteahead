@@ -19,6 +19,7 @@
 #include "device_controller.hpp"
 #include <QElapsedTimer>
 #include <QTemporaryDir>
+#include <QTimer>
 #include <memory>
 #include <optional>
 
@@ -64,6 +65,13 @@ class SamplerController : public DeviceController
     Q_PROPERTY(bool selectedPadNormalize READ selectedPadNormalize WRITE setSelectedPadNormalize NOTIFY selectedPadNormalizeChanged)
     Q_PROPERTY(bool selectedPadLoop READ selectedPadLoop WRITE setSelectedPadLoop NOTIFY selectedPadLoopChanged)
     Q_PROPERTY(bool selectedPadMono READ selectedPadMono WRITE setSelectedPadMono NOTIFY selectedPadMonoChanged)
+    Q_PROPERTY(bool metronomeEnabled READ metronomeEnabled WRITE setMetronomeEnabled NOTIFY metronomeEnabledChanged)
+    Q_PROPERTY(bool clickDuringTake READ clickDuringTake WRITE setClickDuringTake NOTIFY clickDuringTakeChanged)
+    Q_PROPERTY(int preCountBars READ preCountBars WRITE setPreCountBars NOTIFY preCountBarsChanged)
+    Q_PROPERTY(int metronomeBeatsPerBar READ metronomeBeatsPerBar WRITE setMetronomeBeatsPerBar NOTIFY metronomeBeatsPerBarChanged)
+    //! Beats of the pre-count still to come, or zero when one is not running. Polled by the clock in
+    //! the wave view, which counts them down.
+    Q_PROPERTY(int countInBeatsRemaining READ countInBeatsRemaining NOTIFY countInBeatsRemainingChanged)
     Q_PROPERTY(int selectedPadChokeGroup READ selectedPadChokeGroup WRITE setSelectedPadChokeGroup NOTIFY selectedPadChokeGroupChanged)
     Q_PROPERTY(double selectedPadDuration READ selectedPadDuration NOTIFY selectedPadDurationChanged)
     //! What the pad is actually heard for, trims, tuning and envelope included.
@@ -172,6 +180,16 @@ public:
 
     bool selectedPadLoop() const;
     bool selectedPadMono() const;
+
+    bool metronomeEnabled() const;
+    void setMetronomeEnabled(bool enabled);
+    bool clickDuringTake() const;
+    void setClickDuringTake(bool enabled);
+    int preCountBars() const;
+    void setPreCountBars(int bars);
+    int metronomeBeatsPerBar() const;
+    void setMetronomeBeatsPerBar(int beats);
+    int countInBeatsRemaining() const;
     void setSelectedPadLoop(bool loop);
     void setSelectedPadMono(bool mono);
 
@@ -260,6 +278,11 @@ signals:
     void selectedPadNormalizeChanged();
     void selectedPadLoopChanged();
     void selectedPadMonoChanged();
+    void metronomeEnabledChanged();
+    void clickDuringTakeChanged();
+    void preCountBarsChanged();
+    void metronomeBeatsPerBarChanged();
+    void countInBeatsRemainingChanged();
     void selectedPadChokeGroupChanged();
     void selectedPadDurationChanged();
     void channelModeChanged();
@@ -287,6 +310,10 @@ private:
 
     //! Puts what was just recorded onto the pad it was recorded for.
     void onRecordingFinished(const QString & filePath);
+    //! The recorder is running: start the pre-count, if one was asked for.
+    void onRecordingStarted();
+    //! Watches the metronome for the end of the pre-count, which is decided on the audio thread.
+    void pollCountIn();
 
     SamplerDevice::SamplerDeviceS m_sampler;
     std::unique_ptr<SamplerPadModel> m_padModel;
@@ -300,6 +327,18 @@ private:
     //! not land the sample somewhere the user was not looking when they pressed record.
     std::optional<int> m_recordingPad;
     QElapsedTimer m_recordingElapsed;
+
+    //! Started when a take starts and stopped when it ends. Polls the metronome, which decides on the
+    //! audio thread when the pre-count is through and cannot signal it out.
+    QTimer * m_countInPoller {};
+    bool m_metronomeEnabled;
+    bool m_clickDuringTake;
+    int m_preCountBars;
+    int m_metronomeBeatsPerBar = 4;
+    //! Seconds of pre-count in the take running now, which is what it gets trimmed by. Zero when the
+    //! take was recorded without one.
+    double m_countInSeconds = 0.0;
+    int m_countInBeatsRemaining = 0;
     //! Whether the running recording will need writing out when the project is saved.
     bool m_recordingIsEphemeral = false;
 };

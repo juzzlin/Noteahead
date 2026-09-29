@@ -136,6 +136,11 @@ New features:
     the next pad, so the four strings of a bass can sit a fourth apart instead
     of being stretched an octave each
 
+* A metronome with a pre-count, in the Sampler
+  - Counts you in at the song's tempo before a pad take and keeps clicking
+    through it. Recording runs from the start, so nothing played early is lost,
+    and the take is trimmed to begin on the downbeat
+
 * The Sampler says what an empty pad is for, and how long a take is
   - "Record audio or assign a file" in the middle of an empty wave view, and a
     clock in its place while a recording runs

@@ -17,6 +17,7 @@
 #define AUDIO_ENGINE_HPP
 
 #include "../../domain/devices/device.hpp"
+#include "../../domain/dsp/metronome.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -68,6 +69,12 @@ public:
     DeviceNames deviceNames() const;
 
     void setBpm(float bpm);
+    float bpm() const;
+
+    //! The click, which anything that wants one switches on. Rendered after the master rack, so
+    //! nothing shapes it, and never while rendering offline.
+    Metronome & metronome();
+    const Metronome & metronome() const;
 
     void process(AudioContext & context);
 
@@ -250,6 +257,7 @@ private:
     std::atomic<int> m_callbackPolicy { -1 };
     std::atomic<int> m_callbackPriority { 0 };
     LoadMeter m_loadMeter;
+    Metronome m_metronome;
     std::atomic<uint8_t> m_playbackOversampleFactor { 2 };
     std::atomic<bool> m_fastRender { false };
 };

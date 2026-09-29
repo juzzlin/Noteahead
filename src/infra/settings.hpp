@@ -88,6 +88,12 @@ bool midiSyncEnabled();
 void setMidiSyncEnabled(bool enabled);
 
 bool waveViewEnabled();
+void setMetronomeEnabled(bool enabled);
+bool metronomeEnabled();
+void setMetronomeClickDuringTake(bool enabled);
+bool metronomeClickDuringTake();
+void setMetronomePreCountBars(int bars);
+int metronomePreCountBars();
 void setWaveViewEnabled(bool enabled);
 
 bool patternPeekEnabled();

@@ -66,6 +66,13 @@ signals:
     void errorOccurred(QString message);
     void playbackPositionChanged(double position);
     void playbackFinished();
+    //! The recorder's stream is open and frames are arriving.
+    //!
+    //! Not the same moment as asking for the recording: opening an input stream takes long enough
+    //! that anything meant to line up with the audio -- a count-in, above all -- has to start from
+    //! here rather than from the request.
+    void recordingStarted();
+
     //! The recorder has stopped and its file is closed.
     //!
     //! stopRecording() is queued onto this thread, so anything that wants to read what was

@@ -854,6 +854,14 @@ void AudioEngine::process(AudioContext & context)
     context.deviceOutputBuffers = std::span<const std::span<const double>>(m_deviceOutputBufferSpans);
     m_insertEffectRack->processInPlace(context);
 
+    // After the master rack, so nothing shapes the click and no device meters see it, and never
+    // while rendering offline: the click is a reference for whoever is playing, not part of the song,
+    // and it has no business in an exported file.
+    if (!m_isExclusive.load()) {
+        m_metronome.setBpm(context.bpm);
+        m_metronome.render(context.buffer, context.frameCount, context.sampleRate);
+    }
+
     // Whole-callback load. Over 100% is what the listener hears as a dropout, so the meter counts
     // those separately.
     m_loadMeter.addBlock(std::chrono::steady_clock::now() - callbackStarted,
@@ -959,6 +967,21 @@ void AudioEngine::clear()
 
     std::fill(m_deviceActiveFlags.begin(), m_deviceActiveFlags.end(), 0);
     std::fill(m_effectActiveFlags.begin(), m_effectActiveFlags.end(), 0);
+}
+
+float AudioEngine::bpm() const
+{
+    return m_bpm.load();
+}
+
+Metronome & AudioEngine::metronome()
+{
+    return m_metronome;
+}
+
+const Metronome & AudioEngine::metronome() const
+{
+    return m_metronome;
 }
 
 void AudioEngine::setIsExclusive(bool exclusive)

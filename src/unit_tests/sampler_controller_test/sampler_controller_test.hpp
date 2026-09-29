@@ -13,6 +13,7 @@ class SamplerControllerTest : public QObject
     Q_OBJECT
 
 private slots:
+    void initTestCase();
     void test_sampleRateChange_shouldUpdateHzValues();
     void test_properties_shouldUpdateDeviceAndEmitSignals();
     void test_selectedPadLoopStart_secondsAndMilliseconds_shouldCombineIntoOneOffset();
@@ -27,6 +28,7 @@ private slots:
     void test_copyPad_samePad_shouldDoNothing();
     void test_playbackPosition_chromaticMode_shouldFollowAPitchedNote();
     void test_recordingSeconds_notRecording_shouldBeZero();
+    void test_metronomeSettings_shouldClampAndSayWhenTheyChange();
     void test_selectedPadMono_shouldBePerPadAndSayWhenItChanges();
     void test_padNote_chromaticMode_shouldDefaultToOneOctavePerPad();
     void test_setPadNote_shouldMoveThePadAndItsAudio();

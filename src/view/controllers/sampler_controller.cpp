@@ -8,6 +8,7 @@
 #include "../../common/waveform_generator.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/devices/sampler_device.hpp"
+#include "../../infra/settings.hpp"
 #include <QDateTime>
 #include <QDir>
 #include <QFile>
@@ -26,6 +27,9 @@ SamplerController::SamplerController(SamplerDevice::SamplerDeviceS sampler, QObj
   , m_sampler { std::move(sampler) }
   , m_padModel { std::make_unique<SamplerPadModel>(m_sampler, this) }
   , m_selectedPad { -1 }
+  , m_metronomeEnabled { Settings::metronomeEnabled() }
+  , m_clickDuringTake { Settings::metronomeClickDuringTake() }
+  , m_preCountBars { Settings::metronomePreCountBars() }
 {
     connectDeviceSignals();
 }
@@ -651,7 +655,109 @@ void SamplerController::setAudioService(AudioServiceS audioService)
         connect(m_audioService.get(), &AudioService::recordingFinished, this, [this](QString filePath) {
             onRecordingFinished(filePath);
         });
+        // Not when the recording was asked for: opening an input stream takes long enough that a
+        // count-in started there would be ahead of the audio by however long it took.
+        connect(m_audioService.get(), &AudioService::recordingStarted, this, &SamplerController::onRecordingStarted);
     }
+}
+
+void SamplerController::onRecordingStarted()
+{
+    if (!recording() || !m_metronomeEnabled || !m_audioService) {
+        return;
+    }
+    const auto beats = m_preCountBars * m_metronomeBeatsPerBar;
+    // Remembered now rather than measured later: the tempo can be changed while a take runs, and what
+    // the take has to be trimmed by is the pre-count it actually heard.
+    m_countInSeconds = m_audioService->beatsToSeconds(beats);
+    m_audioService->startMetronome(beats, m_metronomeBeatsPerBar, 0.5);
+
+    if (!m_countInPoller) {
+        m_countInPoller = new QTimer { this };
+        m_countInPoller->setInterval(50);
+        connect(m_countInPoller, &QTimer::timeout, this, &SamplerController::pollCountIn);
+    }
+    m_countInBeatsRemaining = beats;
+    emit countInBeatsRemainingChanged();
+    m_countInPoller->start();
+}
+
+void SamplerController::pollCountIn()
+{
+    if (!m_audioService) {
+        return;
+    }
+    if (const auto remaining = m_audioService->metronomeCountInBeatsRemaining(); remaining != m_countInBeatsRemaining) {
+        m_countInBeatsRemaining = remaining;
+        emit countInBeatsRemainingChanged();
+    }
+    // Through the pre-count. Either the click carries on with the take or it has done its job.
+    if (m_audioService->metronomeCountInFinished()) {
+        m_countInPoller->stop();
+        if (!m_clickDuringTake) {
+            m_audioService->stopMetronome();
+        }
+    }
+}
+
+bool SamplerController::metronomeEnabled() const
+{
+    return m_metronomeEnabled;
+}
+
+void SamplerController::setMetronomeEnabled(bool enabled)
+{
+    if (m_metronomeEnabled != enabled) {
+        m_metronomeEnabled = enabled;
+        Settings::setMetronomeEnabled(enabled);
+        emit metronomeEnabledChanged();
+    }
+}
+
+bool SamplerController::clickDuringTake() const
+{
+    return m_clickDuringTake;
+}
+
+void SamplerController::setClickDuringTake(bool enabled)
+{
+    if (m_clickDuringTake != enabled) {
+        m_clickDuringTake = enabled;
+        Settings::setMetronomeClickDuringTake(enabled);
+        emit clickDuringTakeChanged();
+    }
+}
+
+int SamplerController::preCountBars() const
+{
+    return m_preCountBars;
+}
+
+void SamplerController::setPreCountBars(int bars)
+{
+    if (const auto clamped = std::clamp(bars, 0, 8); m_preCountBars != clamped) {
+        m_preCountBars = clamped;
+        Settings::setMetronomePreCountBars(clamped);
+        emit preCountBarsChanged();
+    }
+}
+
+int SamplerController::metronomeBeatsPerBar() const
+{
+    return m_metronomeBeatsPerBar;
+}
+
+void SamplerController::setMetronomeBeatsPerBar(int beats)
+{
+    if (const auto clamped = std::clamp(beats, 1, 16); m_metronomeBeatsPerBar != clamped) {
+        m_metronomeBeatsPerBar = clamped;
+        emit metronomeBeatsPerBarChanged();
+    }
+}
+
+int SamplerController::countInBeatsRemaining() const
+{
+    return m_countInBeatsRemaining;
 }
 
 bool SamplerController::recording() const
@@ -704,6 +810,9 @@ void SamplerController::startRecording()
 
     m_recordingPad = m_selectedPad;
     m_recordingElapsed.start();
+    // Cleared here rather than after use: a take recorded with the metronome off must not be trimmed
+    // by whatever the one before it was counted in with.
+    m_countInSeconds = 0.0;
     juzzlin::L(TAG).info() << "Recording pad " << (m_selectedPad + 1) << " into " << std::quoted(filePath.toStdString());
     m_audioService->startSampleRecording(filePath, 0);
     emit recordingChanged();
@@ -728,6 +837,17 @@ void SamplerController::onRecordingFinished(const QString & filePath)
     m_recordingPad.reset();
     emit recordingChanged();
 
+    if (m_countInPoller) {
+        m_countInPoller->stop();
+    }
+    if (m_audioService) {
+        m_audioService->stopMetronome();
+    }
+    if (m_countInBeatsRemaining) {
+        m_countInBeatsRemaining = 0;
+        emit countInBeatsRemainingChanged();
+    }
+
     if (!QFile::exists(filePath)) {
         juzzlin::L(TAG).error() << "Nothing was recorded to " << std::quoted(filePath.toStdString());
         return;
@@ -742,6 +862,12 @@ void SamplerController::onRecordingFinished(const QString & filePath)
     }
     if (m_recordingIsEphemeral) {
         m_sampler->markSampleEphemeral(note);
+    }
+    // The count-in was recorded rather than waited out, so that nothing played early could be missed.
+    // It comes off here as a trim, which leaves it in the file and draggable in the wave view; Crop
+    // to trim makes it permanent.
+    if (m_countInSeconds > 0.0) {
+        m_sampler->setSampleStartOffset(note, m_countInSeconds);
     }
 
     setSelectedPad(pad);

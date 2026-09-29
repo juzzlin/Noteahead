@@ -44,6 +44,9 @@ const auto multiThreadedPlaybackEnabledKey = "multiThreadedPlaybackEnabled";
 const auto jackBpmSyncEnabledKey = "jackBpmSyncEnabled";
 const auto midiSyncEnabledKey = "midiSyncEnabled";
 const auto waveViewEnabledKey = "waveViewEnabled";
+const auto metronomeEnabledKey = "metronomeEnabled";
+const auto metronomeClickDuringTakeKey = "metronomeClickDuringTake";
+const auto metronomePreCountBarsKey = "metronomePreCountBars";
 const auto patternPeekEnabledKey = "patternPeekEnabled";
 const auto tipsEnabledKey = "tipsEnabled";
 
@@ -443,6 +446,59 @@ void setWaveViewEnabled(bool enabled)
     QSettings settings;
     settings.beginGroup(settingsGroupAudio);
     settings.setValue(waveViewEnabledKey, enabled);
+    settings.endGroup();
+}
+
+bool metronomeEnabled()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    // Off unless asked for: a click nobody switched on would be a surprise the first time a pad is
+    // recorded.
+    const auto enabled = settings.value(metronomeEnabledKey, false).toBool();
+    settings.endGroup();
+    return enabled;
+}
+
+void setMetronomeEnabled(bool enabled)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    settings.setValue(metronomeEnabledKey, enabled);
+    settings.endGroup();
+}
+
+bool metronomeClickDuringTake()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    const auto enabled = settings.value(metronomeClickDuringTakeKey, true).toBool();
+    settings.endGroup();
+    return enabled;
+}
+
+void setMetronomeClickDuringTake(bool enabled)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    settings.setValue(metronomeClickDuringTakeKey, enabled);
+    settings.endGroup();
+}
+
+int metronomePreCountBars()
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    const auto bars = settings.value(metronomePreCountBarsKey, 1).toInt();
+    settings.endGroup();
+    return bars;
+}
+
+void setMetronomePreCountBars(int bars)
+{
+    QSettings settings;
+    settings.beginGroup(settingsGroupAudio);
+    settings.setValue(metronomePreCountBarsKey, bars);
     settings.endGroup();
 }
 

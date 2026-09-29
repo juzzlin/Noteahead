@@ -53,6 +53,7 @@ void AudioWorker::startRecording(QString filePath, quint32 bufferSize)
 {
     try {
         m_audioRecorder->start(filePath.toStdString(), bufferSize);
+        emit recordingStarted();
     } catch (const std::exception & e) {
         emit errorOccurred(QString::fromStdString(e.what()));
     }

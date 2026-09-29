@@ -111,6 +111,7 @@ void AudioService::initializeWorker()
         }
     });
     connect(m_audioWorker.get(), &AudioWorker::playbackFinished, this, &AudioService::stopPlayback);
+    connect(m_audioWorker.get(), &AudioWorker::recordingStarted, this, &AudioService::recordingStarted);
     connect(m_audioWorker.get(), &AudioWorker::recordingStopped, this, [this] {
         // The file this take wrote, not the song's latest recording: a Sampler pad take never becomes
         // that, and reading it from there handed the sampler the wrong file the moment it did not.
@@ -245,6 +246,39 @@ void AudioService::setPlaybackPosition(double position)
 double AudioService::playbackPosition() const
 {
     return m_playbackPosition;
+}
+
+void AudioService::startMetronome(int countInBeats, int beatsPerBar, double level)
+{
+    if (!m_audioEngine) {
+        return;
+    }
+    m_audioEngine->metronome().setBeatsPerBar(beatsPerBar);
+    m_audioEngine->metronome().setLevel(level);
+    m_audioEngine->metronome().start(countInBeats);
+}
+
+void AudioService::stopMetronome()
+{
+    if (m_audioEngine) {
+        m_audioEngine->metronome().stop();
+    }
+}
+
+bool AudioService::metronomeCountInFinished() const
+{
+    return m_audioEngine && m_audioEngine->metronome().countInFinished();
+}
+
+int AudioService::metronomeCountInBeatsRemaining() const
+{
+    return m_audioEngine ? m_audioEngine->metronome().countInBeatsRemaining() : 0;
+}
+
+double AudioService::beatsToSeconds(int beats) const
+{
+    const auto bpm = m_audioEngine ? static_cast<double>(m_audioEngine->bpm()) : 0.0;
+    return bpm > 0.0 ? static_cast<double>(beats) * 60.0 / bpm : 0.0;
 }
 
 QVariantMap AudioService::inputLevels() const
