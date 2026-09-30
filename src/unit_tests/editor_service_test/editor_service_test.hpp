@@ -106,6 +106,8 @@ private slots:
 
     void test_requestColumnTranspose_shouldTransposeColumn();
     void test_requestTrackTranspose_shouldTransposeTrack();
+    void test_requestTrackTransposeAllPatterns_shouldTransposeTrackInEveryPattern();
+    void test_requestColumnTransposeAllPatterns_shouldTransposeColumnInEveryPattern();
     void test_requestPatternTranspose_shouldTransposePattern();
     void test_requestSongTranspose_shouldTransposeSong();
     void test_requestSelectionTranspose_shouldTransposeSelection();

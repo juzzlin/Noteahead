@@ -5,6 +5,10 @@ Release date:
 
 New features:
 
+* Transpose a track or a column in all patterns at once
+  - A "Transpose in all patterns" sub-menu on the Track and Column context
+    menus, in one undo step, leaving the other tracks and columns alone
+
 * Drum Synth V2
   - A second Drum Synth to build on. The original is untouched, so every kit in
     an existing project keeps playing exactly as it did

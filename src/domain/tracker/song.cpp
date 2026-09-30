@@ -75,12 +75,37 @@ Song::ChangedPositions Song::pasteColumn(size_t patternIndex, size_t trackIndex,
 
 NoteChangeList Song::transposeColumn(const Position & position, int semitones) const
 {
-    if (!m_patterns.empty()) {
-        if (auto inst = masterPattern()->instrument(position.track); inst && inst->settings().drumTrack) {
-            return {};
-        }
+    if (isDrumTrack(position.track)) {
+        return {};
     }
     return m_patterns.contains(position.pattern) ? m_patterns.at(position.pattern)->transposeColumn(position, semitones) : NoteChangeList {};
+}
+
+NoteChangeList Song::transposeColumnAllPatterns(const Position & position, int semitones) const
+{
+    if (isDrumTrack(position.track)) {
+        return {};
+    }
+
+    NoteChangeList changes;
+    for (auto && [index, pattern] : m_patterns) {
+        // A pattern that does not have the track or the column is skipped rather than asked: the
+        // layout is the same in every pattern, so this cannot happen for a song built by the editor,
+        // but Pattern's accessors throw and a hand-edited project must not bring the transpose down.
+        const auto trackIndices = pattern->trackIndices();
+        if (std::ranges::find(trackIndices, position.track) == trackIndices.end()) {
+            continue;
+        }
+        const auto columnIndices = pattern->columnIndices(position.track);
+        if (std::ranges::find(columnIndices, position.column) == columnIndices.end()) {
+            continue;
+        }
+        auto patternPosition = position;
+        patternPosition.pattern = index;
+        auto patternChanges = pattern->transposeColumn(patternPosition, semitones);
+        changes.insert(changes.end(), patternChanges.begin(), patternChanges.end());
+    }
+    return changes;
 }
 
 Song::ChangedPositions Song::cutTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager, const AutomationService & automationService) const
@@ -109,12 +134,31 @@ Song::ChangedPositions Song::pasteTrack(size_t patternIndex, size_t trackIndex, 
 
 NoteChangeList Song::transposeTrack(const Position & position, int semitones) const
 {
-    if (!m_patterns.empty()) {
-        if (auto inst = masterPattern()->instrument(position.track); inst && inst->settings().drumTrack) {
-            return {};
-        }
+    if (isDrumTrack(position.track)) {
+        return {};
     }
     return m_patterns.contains(position.pattern) ? m_patterns.at(position.pattern)->transposeTrack(position, semitones) : NoteChangeList {};
+}
+
+NoteChangeList Song::transposeTrackAllPatterns(const Position & position, int semitones) const
+{
+    if (isDrumTrack(position.track)) {
+        return {};
+    }
+
+    NoteChangeList changes;
+    for (auto && [index, pattern] : m_patterns) {
+        // Skipped rather than asked, for the same reason as in transposeColumnAllPatterns().
+        const auto trackIndices = pattern->trackIndices();
+        if (std::ranges::find(trackIndices, position.track) == trackIndices.end()) {
+            continue;
+        }
+        auto patternPosition = position;
+        patternPosition.pattern = index;
+        auto patternChanges = pattern->transposeTrack(patternPosition, semitones);
+        changes.insert(changes.end(), patternChanges.begin(), patternChanges.end());
+    }
+    return changes;
 }
 
 Song::ChangedPositions Song::cutPattern(size_t patternIndex, CopyManager & copyManager, const AutomationService & automationService) const
@@ -354,6 +398,15 @@ Song::PatternS Song::pattern(size_t patternIndex) const
 Song::PatternS Song::masterPattern() const
 {
     return m_patterns.at(m_masterPatternIndex);
+}
+
+bool Song::isDrumTrack(size_t trackIndex) const
+{
+    if (m_patterns.empty()) {
+        return false;
+    }
+    const auto instrument = masterPattern()->instrument(trackIndex);
+    return instrument && instrument->settings().drumTrack;
 }
 
 size_t Song::patternCount() const

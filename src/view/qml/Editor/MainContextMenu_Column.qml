@@ -88,6 +88,51 @@ Menu {
         enabled: !UiService.isPlaying()
         onTriggered: editorService.requestColumnTranspose(-12)
     }
+    Menu {
+        title: qsTr("Transpose in all patterns")
+        width: rootItem.width
+        Action {
+            text: qsTr("Transpose <b>+1</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestColumnTransposeAllPatterns(1)
+        }
+        Action {
+            text: qsTr("Transpose <b>-1</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestColumnTransposeAllPatterns(-1)
+        }
+        Action {
+            text: qsTr("Transpose <b>+2</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestColumnTransposeAllPatterns(2)
+        }
+        Action {
+            text: qsTr("Transpose <b>-2</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestColumnTransposeAllPatterns(-2)
+        }
+        Action {
+            text: qsTr("Transpose <b>+6</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestColumnTransposeAllPatterns(6)
+        }
+        Action {
+            text: qsTr("Transpose <b>-6</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestColumnTransposeAllPatterns(-6)
+        }
+        Action {
+            text: qsTr("Transpose <b>+12</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestColumnTransposeAllPatterns(12)
+        }
+        Action {
+            text: qsTr("Transpose <b>-12</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestColumnTransposeAllPatterns(-12)
+        }
+        delegate: MenuItemDelegate {}
+    }
     MenuSeparator {}
     Action {
         text: qsTr("Add Note OFF")

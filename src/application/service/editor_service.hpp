@@ -299,6 +299,8 @@ public:
     virtual Q_INVOKABLE void requestColumnCopy();
     virtual Q_INVOKABLE void requestColumnPaste();
     virtual Q_INVOKABLE void requestColumnTranspose(int semitones);
+    //! Transposes this column in every pattern, not only in the one on screen.
+    virtual Q_INVOKABLE void requestColumnTransposeAllPatterns(int semitones);
     virtual Q_INVOKABLE bool hasColumnToPaste() const;
 
     virtual Q_INVOKABLE void requestTrackCut();
@@ -306,6 +308,8 @@ public:
     virtual Q_INVOKABLE void requestTrackPaste();
     virtual Q_INVOKABLE bool hasTrackToPaste() const;
     virtual Q_INVOKABLE void requestTrackTranspose(int semitones);
+    //! Transposes this track in every pattern, not only in the one on screen.
+    virtual Q_INVOKABLE void requestTrackTransposeAllPatterns(int semitones);
 
     virtual Q_INVOKABLE void requestPatternCut();
     virtual Q_INVOKABLE void requestPatternCopy();

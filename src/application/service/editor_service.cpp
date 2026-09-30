@@ -2063,6 +2063,17 @@ void EditorService::requestColumnTranspose(int semitones)
     }
 }
 
+void EditorService::requestColumnTransposeAllPatterns(int semitones)
+{
+    if (auto changes = m_song->transposeColumnAllPatterns(m_state.cursorPosition, semitones); !changes.empty()) {
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
+            emit noteDataAtPositionChanged(pos);
+            setIsModified(true); }, [this](const Position & pos) { requestPosition(pos); }));
+        // The patterns that are not on screen changed too, and nothing else says so.
+        emit statusTextRequested(tr("Column transposed in all patterns"));
+    }
+}
+
 EditorService::LineList EditorService::columnData(ColumnAddress columnAddress) const
 {
     const auto [patternIndex, trackIndex, columnIndex] = columnAddress;
@@ -2185,6 +2196,17 @@ void EditorService::requestTrackTranspose(int semitones)
         m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
             emit noteDataAtPositionChanged(pos);
             setIsModified(true); }, [this](const Position & pos) { requestPosition(pos); }));
+    }
+}
+
+void EditorService::requestTrackTransposeAllPatterns(int semitones)
+{
+    if (auto changes = m_song->transposeTrackAllPatterns(m_state.cursorPosition, semitones); !changes.empty()) {
+        m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
+            emit noteDataAtPositionChanged(pos);
+            setIsModified(true); }, [this](const Position & pos) { requestPosition(pos); }));
+        // The patterns that are not on screen changed too, and nothing else says so.
+        emit statusTextRequested(tr("Track transposed in all patterns"));
     }
 }
 

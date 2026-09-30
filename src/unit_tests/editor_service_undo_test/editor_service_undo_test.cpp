@@ -606,6 +606,36 @@ void EditorServiceUndoTest::test_undoRedo_transposeTrack_shouldUndoAndRedo()
     QCOMPARE(editorService.displayNoteAtPosition(0, 0, 1, 0), "D-3");
 }
 
+void EditorServiceUndoTest::test_undoRedo_transposeTrackAllPatterns_shouldUndoAndRedo()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    editorService.requestPosition(0, 0, 0, 0, 0);
+    editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
+
+    editorService.setCurrentPattern(1);
+    editorService.requestPosition(1, 0, 0, 0, 0);
+    editorService.requestNoteOnAtCurrentPosition(1, 3, 64);
+
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+    QCOMPARE(editorService.displayNoteAtPosition(1, 0, 0, 0), "C-3");
+
+    // Action: Transpose the track in every pattern -- one command covering both of them.
+    editorService.requestTrackTransposeAllPatterns(2);
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "D-3");
+    QCOMPARE(editorService.displayNoteAtPosition(1, 0, 0, 0), "D-3");
+    QVERIFY(editorService.canUndo());
+
+    // Undo: one step puts both patterns back
+    editorService.undo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+    QCOMPARE(editorService.displayNoteAtPosition(1, 0, 0, 0), "C-3");
+
+    // Redo
+    editorService.redo();
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "D-3");
+    QCOMPARE(editorService.displayNoteAtPosition(1, 0, 0, 0), "D-3");
+}
+
 void EditorServiceUndoTest::test_undoRedo_transposePattern_shouldUndoAndRedo()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };

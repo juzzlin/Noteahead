@@ -74,11 +74,18 @@ public:
     ChangedPositions copyColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager, const AutomationService & automationService) const;
     ChangedPositions pasteColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const;
     NoteChangeList transposeColumn(const Position & position, int semitones) const;
+    //! Transposes the column the position names in every pattern of the song, not only in the one it
+    //! names. The columns of a track are the same ones in every pattern, so only the pattern index
+    //! varies: the position addresses the same column everywhere.
+    NoteChangeList transposeColumnAllPatterns(const Position & position, int semitones) const;
 
     ChangedPositions cutTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager, const AutomationService & automationService) const;
     ChangedPositions copyTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager, const AutomationService & automationService) const;
     ChangedPositions pasteTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const;
     NoteChangeList transposeTrack(const Position & position, int semitones) const;
+    //! Transposes the track the position names in every pattern of the song, not only in the one it
+    //! names. The tracks are the same ones in every pattern, as above.
+    NoteChangeList transposeTrackAllPatterns(const Position & position, int semitones) const;
 
     ChangedPositions cutPattern(size_t patternIndex, CopyManager & copyManager, const AutomationService & automationService) const;
     ChangedPositions copyPattern(size_t patternIndex, CopyManager & copyManager, const AutomationService & automationService) const;
@@ -288,6 +295,10 @@ private:
     EventList renderContent(AutomationServiceS automationService, SideChainServiceS sideChainService, size_t startPosition, size_t endPosition) const;
 
     PatternS masterPattern() const;
+
+    //! Whether the track carries a drum kit, and so must be left out of transposition: transposing
+    //! it would change which drum is struck rather than its pitch.
+    bool isDrumTrack(size_t trackIndex) const;
 
     size_t m_beatsPerMinute = 120;
     size_t m_linesPerBeat = 8;

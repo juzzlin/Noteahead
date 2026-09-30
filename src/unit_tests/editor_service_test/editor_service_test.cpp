@@ -1432,6 +1432,49 @@ void EditorServiceTest::test_requestTrackTranspose_shouldTransposeTrack()
     QCOMPARE(editorService.displayVelocityAtPosition(0, 0, 1, 0), "064");
 }
 
+void EditorServiceTest::test_requestTrackTransposeAllPatterns_shouldTransposeTrackInEveryPattern()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64)); // C-3 on track 0
+    QVERIFY(editorService.requestPosition(0, 1, 0, 0, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64)); // C-3 on track 1, must not move
+
+    editorService.setCurrentPattern(1);
+    QVERIFY(editorService.requestPosition(1, 0, 0, 0, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(3, 3, 64)); // D-3 on track 0
+
+    // Asked from pattern 1, so pattern 0 moving is the whole point of the scope.
+    editorService.requestTrackTransposeAllPatterns(1);
+
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C#3");
+    QCOMPARE(editorService.displayNoteAtPosition(1, 0, 0, 0), "D#3");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 1, 0, 0), "C-3");
+}
+
+void EditorServiceTest::test_requestColumnTransposeAllPatterns_shouldTransposeColumnInEveryPattern()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+
+    editorService.requestNewColumn(0);
+
+    QVERIFY(editorService.requestPosition(0, 0, 1, 0, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64)); // C-3 on column 1
+    QVERIFY(editorService.requestPosition(0, 0, 0, 0, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64)); // C-3 on column 0, must not move
+
+    editorService.setCurrentPattern(1);
+    QVERIFY(editorService.requestPosition(1, 0, 1, 0, 0));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(3, 3, 64)); // D-3 on column 1
+
+    editorService.requestColumnTransposeAllPatterns(1);
+
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 1, 0), "C#3");
+    QCOMPARE(editorService.displayNoteAtPosition(1, 0, 1, 0), "D#3");
+    QCOMPARE(editorService.displayNoteAtPosition(0, 0, 0, 0), "C-3");
+}
+
 void EditorServiceTest::test_requestPatternTranspose_shouldTransposePattern()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };

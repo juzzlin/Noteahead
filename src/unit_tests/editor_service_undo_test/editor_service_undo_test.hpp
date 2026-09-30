@@ -47,6 +47,7 @@ private slots:
     void test_undoRedo_clearsOnStructuralChange_shouldClearStack();
     void test_undoRedo_transposeColumn_shouldUndoAndRedo();
     void test_undoRedo_transposeTrack_shouldUndoAndRedo();
+    void test_undoRedo_transposeTrackAllPatterns_shouldUndoAndRedo();
     void test_undoRedo_transposePattern_shouldUndoAndRedo();
     void test_undoRedo_transposeSelection_shouldUndoAndRedo();
     void test_undoRedo_linearVelocityInterpolation_shouldUndoAndRedo();

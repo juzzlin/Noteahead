@@ -1505,6 +1505,104 @@ void SongTest::test_renderToEvents_midiSideChain_shouldClampAttackEvents()
     QVERIFY(targetEventFound);
 }
 
+void SongTest::test_transposeTrackAllPatterns_shouldTransposeTrackInEveryPattern()
+{
+    Song song;
+    song.createPattern(1);
+    song.createPattern(2);
+
+    // The same track in all three patterns, on two different lines to show that the whole column is
+    // taken rather than only the line the position names.
+    const Position pos0 = { 0, 1, 0, 0, 0 };
+    const Position pos1 = { 1, 1, 0, 3, 0 };
+    const Position pos2 = { 2, 1, 0, 7, 0 };
+    song.noteDataAtPosition(pos0)->setAsNoteOn(60, 100);
+    song.noteDataAtPosition(pos1)->setAsNoteOn(62, 100);
+    song.noteDataAtPosition(pos2)->setAsNoteOn(64, 100);
+
+    // Asked from pattern 0, so anything in patterns 1 and 2 comes from the new scope alone.
+    const auto changes = song.transposeTrackAllPatterns({ 0, 1, 0, 0, 0 }, 12);
+
+    QCOMPARE(changes.size(), static_cast<size_t>(3));
+    for (auto && [position, expectedNote] : std::vector<std::pair<Position, int>> { { pos0, 72 }, { pos1, 74 }, { pos2, 76 } }) {
+        const auto change = std::find_if(changes.begin(), changes.end(), [&](auto && candidate) { return candidate.position == position; });
+        QVERIFY(change != changes.end());
+        QCOMPARE(change->newNoteData.note().value(), expectedNote);
+    }
+}
+
+void SongTest::test_transposeTrackAllPatterns_shouldNotTransposeOtherTracks()
+{
+    Song song;
+    song.createPattern(1);
+
+    const Position transposed = { 1, 1, 0, 0, 0 };
+    const Position untouched = { 1, 0, 0, 0, 0 };
+    song.noteDataAtPosition(transposed)->setAsNoteOn(60, 100);
+    song.noteDataAtPosition(untouched)->setAsNoteOn(60, 100);
+
+    const auto changes = song.transposeTrackAllPatterns({ 0, 1, 0, 0, 0 }, 1);
+
+    QCOMPARE(changes.size(), static_cast<size_t>(1));
+    QCOMPARE(changes.at(0).position, transposed);
+}
+
+void SongTest::test_transposeTrackAllPatterns_drumTrackSet_shouldNotTransposeDrumTrack()
+{
+    Song song;
+    song.createPattern(1);
+
+    auto drumInstrument = std::make_shared<Instrument>("");
+    auto drumSettings = drumInstrument->settings();
+    drumSettings.drumTrack = true;
+    drumInstrument->setSettings(drumSettings);
+    song.setInstrument(0, drumInstrument);
+
+    song.noteDataAtPosition({ 0, 0, 0, 0, 0 })->setAsNoteOn(60, 100);
+    song.noteDataAtPosition({ 1, 0, 0, 0, 0 })->setAsNoteOn(60, 100);
+
+    QVERIFY(song.transposeTrackAllPatterns({ 0, 0, 0, 0, 0 }, 1).empty());
+}
+
+void SongTest::test_transposeColumnAllPatterns_shouldTransposeColumnInEveryPattern()
+{
+    Song song;
+    song.createPattern(1);
+
+    const Position pos0 = { 0, 0, 0, 0, 0 };
+    const Position pos1 = { 1, 0, 0, 5, 0 };
+    song.noteDataAtPosition(pos0)->setAsNoteOn(60, 100);
+    song.noteDataAtPosition(pos1)->setAsNoteOn(60, 100);
+
+    const auto changes = song.transposeColumnAllPatterns({ 0, 0, 0, 0, 0 }, -12);
+
+    QCOMPARE(changes.size(), static_cast<size_t>(2));
+    for (auto && position : { pos0, pos1 }) {
+        const auto change = std::find_if(changes.begin(), changes.end(), [&](auto && candidate) { return candidate.position == position; });
+        QVERIFY(change != changes.end());
+        QCOMPARE(change->newNoteData.note().value(), 48);
+    }
+}
+
+void SongTest::test_transposeColumnAllPatterns_shouldNotTransposeOtherColumns()
+{
+    Song song;
+    // Adding a column applies to every pattern, which is what makes one position address the same
+    // column in all of them.
+    song.addColumn(0);
+    song.createPattern(1);
+
+    const Position transposed = { 1, 0, 1, 0, 0 };
+    const Position untouched = { 1, 0, 0, 0, 0 };
+    song.noteDataAtPosition(transposed)->setAsNoteOn(60, 100);
+    song.noteDataAtPosition(untouched)->setAsNoteOn(60, 100);
+
+    const auto changes = song.transposeColumnAllPatterns({ 0, 0, 1, 0, 0 }, 1);
+
+    QCOMPARE(changes.size(), static_cast<size_t>(1));
+    QCOMPARE(changes.at(0).position, transposed);
+}
+
 void SongTest::test_transposePattern_drumTrackSet_shouldNotTransposeDrumTrack()
 {
     Song song;
