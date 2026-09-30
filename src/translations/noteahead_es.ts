@@ -2021,6 +2021,17 @@
     </message>
 </context>
 <context>
+    <name>DrumPad</name>
+    <message>
+        <source>FX</source>
+        <translation type="unfinished">FX</translation>
+    </message>
+    <message>
+        <source>Insert effects and sends for this voice</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>DrumSynthDialog</name>
     <message>
         <source>Ok</source>
@@ -2065,14 +2076,6 @@
     <message>
         <source>Voices</source>
         <translation>Voces</translation>
-    </message>
-    <message>
-        <source>FX</source>
-        <translation>FX</translation>
-    </message>
-    <message>
-        <source>Insert effects and sends for this voice</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Voice Settings</source>
@@ -2174,14 +2177,6 @@
         <translation>Voces</translation>
     </message>
     <message>
-        <source>FX</source>
-        <translation>FX</translation>
-    </message>
-    <message>
-        <source>Insert effects and sends for this voice</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Voice Settings</source>
         <translation>Ajustes de voz</translation>
     </message>
@@ -2222,6 +2217,10 @@
         <translation>P.Caída</translation>
     </message>
     <message>
+        <source>Click</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Snappy</source>
         <translation>Snappy</translation>
     </message>
@@ -2245,16 +2244,48 @@
         <translation>Ataque</translation>
     </message>
     <message>
+        <source>How long the voice takes to reach full level. At zero it opens on the strike, which is what a drum does.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Hold</source>
         <translation>Retención</translation>
+    </message>
+    <message>
+        <source>How long it stays at full before the decay begins. Pulling this down is how a drum is tightened.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Decay</source>
         <translation>Caída</translation>
     </message>
     <message>
+        <source>How long it takes to fall from full to the Sustain level. Nothing to hear while Sustain is at full, because the level never leaves the top.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation type="unfinished">Sostenido</translation>
+    </message>
+    <message>
+        <source>Where the decay lands. At zero the voice decays to silence as a one-shot drum does; at full the envelope stops shaping the voice at all, which is what makes V2 sound exactly like V1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation type="unfinished">Liberación</translation>
+    </message>
+    <message>
+        <source>How the voice falls away once the note ends. Nothing to hear unless Sustain is above zero, since a voice with none has already gone quiet by then.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Curve</source>
         <translation>Curva</translation>
+    </message>
+    <message>
+        <source>Bend of the attack and the decay. At zero they are straight lines; above it most of the travel happens at the start of the segment.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4007,6 +4038,10 @@
         <translation>Transponer &lt;b&gt;-12&lt;/b&gt; semitonos</translation>
     </message>
     <message>
+        <source>Transpose in all patterns</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Add Note OFF</source>
         <translation>Añadir Note OFF</translation>
     </message>
@@ -4324,6 +4359,10 @@
     <message>
         <source>Transpose &lt;b&gt;-12&lt;/b&gt; semitones</source>
         <translation>Transponer &lt;b&gt;-12&lt;/b&gt; semitonos</translation>
+    </message>
+    <message>
+        <source>Transpose in all patterns</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Add Note OFF</source>
@@ -6132,8 +6171,8 @@
         <translation>Restablecer</translation>
     </message>
     <message>
-        <source>Press and hold pad to play, release to stop. Right-click to clear. Assignments are saved with the song project. To use the sampler, select &apos;%1&apos; as the port in Track Settings.</source>
-        <translation>Mantén pulsado el pad para tocar y suéltalo para parar. Haz clic derecho para vaciarlo. Las asignaciones se guardan con el proyecto. Para usar el sampler, selecciona &apos;%1&apos; como puerto en los ajustes de pista.</translation>
+        <source>Press and hold pad to play, release to stop. Right-click to load, change or clear. Assignments are saved with the song project. To use the sampler, select &apos;%1&apos; as the port in Track Settings.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6164,6 +6203,14 @@
     <message>
         <source>Attack</source>
         <translation>Ataque</translation>
+    </message>
+    <message>
+        <source>Hold</source>
+        <translation type="unfinished">Retención</translation>
+    </message>
+    <message>
+        <source>Time at full level between the attack and the decay. At zero there is no hold stage at all, which is how every pad played before it existed.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Decay</source>
@@ -6221,12 +6268,28 @@
         <translation>Reproduce el pad al revés. Los desplazamientos siguen la forma de onda invertida.</translation>
     </message>
     <message>
+        <source>Normalize</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Brings the pad&apos;s loudest peak to -6 dBFS, whatever it was recorded at. The file is left alone -- this is a gain, and it rides on top of the fader. Measured over the trimmed part, so trimming a loud click away makes the rest louder.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Loop</source>
         <translation>Bucle</translation>
     </message>
     <message>
         <source>Repeats the pad&apos;s range until the note is released. The amp envelope decides when a looping pad falls silent.</source>
         <translation>Repite el rango del pad hasta que se suelta la nota. La envolvente de amplitud decide cuándo enmudece un pad en bucle.</translation>
+    </message>
+    <message>
+        <source>Mono</source>
+        <translation type="unfinished">Mono</translation>
+    </message>
+    <message>
+        <source>Sums a stereo pad to one channel before it is panned, so it sits at a point in the image instead of keeping the width it was recorded with. A mono file is unaffected.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Loop Start:</source>
@@ -6260,6 +6323,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Load File...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Auto-trim</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Crop to trim</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set base note</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Clear</source>
         <translation>Vaciar</translation>
     </message>
@@ -6270,6 +6349,75 @@
     <message>
         <source>Change File...</source>
         <translation>Cambiar archivo...</translation>
+    </message>
+</context>
+<context>
+    <name>SamplerDialog_Record</name>
+    <message>
+        <source>Stops recording and puts what was recorded on the pad.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Records the chosen input onto the selected pad. Whatever the pad held is replaced.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Which input is sampled. The same one the rest of the application records from, so changing it here changes it in Settings too.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Refresh</source>
+        <translation type="unfinished">Actualizar</translation>
+    </message>
+    <message>
+        <source>Looks for inputs again, for something plugged in since the dialog was opened.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Metronome</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clicks the song&apos;s tempo. Recording starts during the count-in, and the take is trimmed to begin on the downbeat, so nothing played early is lost.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No count</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n bar(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>How many bars are counted before the take begins.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Click during take</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keeps clicking through the take. Turn it off when the click is coming back into the input, as it does when a mixer feeds the output back: the count-in is trimmed off the take, so only a click heard during the take ends up in what the pad plays.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Recording onto the selected pad…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The project has not been saved, so recordings are kept only until you save it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SamplerDialog_WaveformView</name>
+    <message>
+        <source>Record audio or assign a file</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9608,6 +9756,13 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     </message>
 </context>
 <context>
+    <name>VerticalLevelMeterBar</name>
+    <message>
+        <source>%1: %2 dBFS peak, %3 dBFS RMS. The marker is %4 dBFS.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>VintagePassiveEqDialog</name>
     <message>
         <source>Vintage Passive EQ (Slot %1)</source>
@@ -9671,6 +9826,13 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     <message>
         <source>Shaping</source>
         <translation>Modelado</translation>
+    </message>
+</context>
+<context>
+    <name>WaveformView</name>
+    <message>
+        <source>max %1 BPM</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10012,6 +10174,10 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
         <translation>No se pudo pegar la columna: </translation>
     </message>
     <message>
+        <source>Column transposed in all patterns</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Track cut</source>
         <translation>Pista cortada</translation>
     </message>
@@ -10026,6 +10192,10 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     <message>
         <source>Failed to paste track: </source>
         <translation>No se pudo pegar la pista: </translation>
+    </message>
+    <message>
+        <source>Track transposed in all patterns</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Pattern cut</source>
