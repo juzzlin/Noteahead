@@ -53,7 +53,7 @@
 <p>Both kinds of track behave the same way in the editor: the same note columns, the same velocity, delay and pan fields, and the same automation. The difference is only where the notes end up — out of a MIDI port, or into an internal device whose audio Noteahead mixes and renders itself. While you can change patches on-the-fly, the track-based approach keeps your sequence organized.</p>
 <ul>
     <li><strong>Track Settings</strong>: Set the MIDI port, channel, bank, patch, volume, pan, and cutoff. Assigning an internal device instead is done from the same dialog.</li>
-    <li><strong>Drum track</strong>: When enabled in Track Settings, the track is excluded from pattern-wide transposition commands. This is useful for tracks triggering drum kits where transposition would change the instrument instead of the pitch.</li>
+    <li><strong>Drum track</strong>: When enabled in Track Settings, the track is excluded from the pattern-wide and song-wide transposition commands. This is useful for tracks triggering drum kits where transposition would change the instrument instead of the pitch. Transposing that track or one of its columns on its own still works: naming it is asking for exactly it.</li>
     <li><strong>Note Columns</strong>: Use the <code>[+]</code> and <code>[-]</code> buttons in the track header to manage multiple note columns per track, allowing for polyphonic sequencing or complex layered parts.</li>
     <li><strong>Velocity Scaling</strong>: Velocity is calculated as the product of track scale, column scale, and individual note velocity.</li>
 </ul>

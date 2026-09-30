@@ -2065,6 +2065,7 @@ void EditorService::requestColumnTranspose(int semitones)
 
 void EditorService::requestColumnTransposeAllPatterns(int semitones)
 {
+    juzzlin::L(TAG).info() << "Requesting column transpose by " << semitones << " semitones in all patterns";
     if (auto changes = m_song->transposeColumnAllPatterns(m_state.cursorPosition, semitones); !changes.empty()) {
         m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
             emit noteDataAtPositionChanged(pos);
@@ -2201,6 +2202,7 @@ void EditorService::requestTrackTranspose(int semitones)
 
 void EditorService::requestTrackTransposeAllPatterns(int semitones)
 {
+    juzzlin::L(TAG).info() << "Requesting track transpose by " << semitones << " semitones in all patterns";
     if (auto changes = m_song->transposeTrackAllPatterns(m_state.cursorPosition, semitones); !changes.empty()) {
         m_undoStack->push(std::make_shared<NoteEditCommand>(m_song, std::move(changes), m_state.cursorPosition, m_state.cursorPosition, [this](const Position & pos) {
             emit noteDataAtPositionChanged(pos);

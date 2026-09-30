@@ -158,6 +158,10 @@ New features:
 
 Bug fixes:
 
+* A drum track can be transposed by naming it
+  - The Track and Column transpositions left drum tracks alone, which only the
+    pattern- and song-wide ones are meant to do
+
 * A Sampler pad recording is no longer treated as a recording of the song
   - It used to take over the wave view under the editor, and the project saved a
     path to it -- one that stopped existing when the pad take was a temporary file

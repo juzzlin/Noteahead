@@ -1547,21 +1547,67 @@ void SongTest::test_transposeTrackAllPatterns_shouldNotTransposeOtherTracks()
     QCOMPARE(changes.at(0).position, transposed);
 }
 
-void SongTest::test_transposeTrackAllPatterns_drumTrackSet_shouldNotTransposeDrumTrack()
+namespace {
+
+//! Marks track 0 of @p song as a drum track.
+void setDrumTrack(Song & song, size_t trackIndex)
+{
+    auto instrument = std::make_shared<Instrument>("");
+    auto settings = instrument->settings();
+    settings.drumTrack = true;
+    instrument->setSettings(settings);
+    song.setInstrument(trackIndex, instrument);
+}
+
+} // namespace
+
+// Naming one track or column is asking for exactly it, so the drum-track exclusion does not apply:
+// only the pattern- and song-wide transpositions leave drum tracks alone.
+void SongTest::test_transposeTrackAllPatterns_drumTrackSet_shouldTransposeDrumTrack()
 {
     Song song;
     song.createPattern(1);
+    setDrumTrack(song, 0);
 
-    auto drumInstrument = std::make_shared<Instrument>("");
-    auto drumSettings = drumInstrument->settings();
-    drumSettings.drumTrack = true;
-    drumInstrument->setSettings(drumSettings);
-    song.setInstrument(0, drumInstrument);
+    const Position pos0 = { 0, 0, 0, 0, 0 };
+    const Position pos1 = { 1, 0, 0, 0, 0 };
+    song.noteDataAtPosition(pos0)->setAsNoteOn(60, 100);
+    song.noteDataAtPosition(pos1)->setAsNoteOn(60, 100);
 
-    song.noteDataAtPosition({ 0, 0, 0, 0, 0 })->setAsNoteOn(60, 100);
-    song.noteDataAtPosition({ 1, 0, 0, 0, 0 })->setAsNoteOn(60, 100);
+    const auto changes = song.transposeTrackAllPatterns({ 0, 0, 0, 0, 0 }, 1);
 
-    QVERIFY(song.transposeTrackAllPatterns({ 0, 0, 0, 0, 0 }, 1).empty());
+    QCOMPARE(changes.size(), static_cast<size_t>(2));
+    for (auto && change : changes) {
+        QCOMPARE(change.newNoteData.note().value(), 61);
+    }
+}
+
+void SongTest::test_transposeTrack_drumTrackSet_shouldTransposeDrumTrack()
+{
+    Song song;
+    setDrumTrack(song, 0);
+
+    const Position pos = { 0, 0, 0, 0, 0 };
+    song.noteDataAtPosition(pos)->setAsNoteOn(60, 100);
+
+    const auto changes = song.transposeTrack(pos, 1);
+
+    QCOMPARE(changes.size(), static_cast<size_t>(1));
+    QCOMPARE(changes.at(0).newNoteData.note().value(), 61);
+}
+
+void SongTest::test_transposeColumn_drumTrackSet_shouldTransposeDrumTrack()
+{
+    Song song;
+    setDrumTrack(song, 0);
+
+    const Position pos = { 0, 0, 0, 0, 0 };
+    song.noteDataAtPosition(pos)->setAsNoteOn(60, 100);
+
+    const auto changes = song.transposeColumn(pos, 1);
+
+    QCOMPARE(changes.size(), static_cast<size_t>(1));
+    QCOMPARE(changes.at(0).newNoteData.note().value(), 61);
 }
 
 void SongTest::test_transposeColumnAllPatterns_shouldTransposeColumnInEveryPattern()

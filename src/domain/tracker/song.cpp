@@ -75,18 +75,11 @@ Song::ChangedPositions Song::pasteColumn(size_t patternIndex, size_t trackIndex,
 
 NoteChangeList Song::transposeColumn(const Position & position, int semitones) const
 {
-    if (isDrumTrack(position.track)) {
-        return {};
-    }
     return m_patterns.contains(position.pattern) ? m_patterns.at(position.pattern)->transposeColumn(position, semitones) : NoteChangeList {};
 }
 
 NoteChangeList Song::transposeColumnAllPatterns(const Position & position, int semitones) const
 {
-    if (isDrumTrack(position.track)) {
-        return {};
-    }
-
     NoteChangeList changes;
     for (auto && [index, pattern] : m_patterns) {
         // A pattern that does not have the track or the column is skipped rather than asked: the
@@ -134,18 +127,11 @@ Song::ChangedPositions Song::pasteTrack(size_t patternIndex, size_t trackIndex, 
 
 NoteChangeList Song::transposeTrack(const Position & position, int semitones) const
 {
-    if (isDrumTrack(position.track)) {
-        return {};
-    }
     return m_patterns.contains(position.pattern) ? m_patterns.at(position.pattern)->transposeTrack(position, semitones) : NoteChangeList {};
 }
 
 NoteChangeList Song::transposeTrackAllPatterns(const Position & position, int semitones) const
 {
-    if (isDrumTrack(position.track)) {
-        return {};
-    }
-
     NoteChangeList changes;
     for (auto && [index, pattern] : m_patterns) {
         // Skipped rather than asked, for the same reason as in transposeColumnAllPatterns().
@@ -189,7 +175,7 @@ NoteChangeList Song::transposePattern(const Position & position, int semitones) 
 {
     Pattern::DrumTracks drumTracks;
     for (size_t trackIndex : masterPattern()->trackIndices()) {
-        if (auto inst = masterPattern()->instrument(trackIndex); inst && inst->settings().drumTrack) {
+        if (isDrumTrack(trackIndex)) {
             drumTracks.insert(trackIndex);
         }
     }
@@ -200,7 +186,7 @@ NoteChangeList Song::transposeSong(int semitones) const
 {
     Pattern::DrumTracks drumTracks;
     for (size_t trackIndex : masterPattern()->trackIndices()) {
-        if (auto inst = masterPattern()->instrument(trackIndex); inst && inst->settings().drumTrack) {
+        if (isDrumTrack(trackIndex)) {
             drumTracks.insert(trackIndex);
         }
     }

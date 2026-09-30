@@ -106,7 +106,9 @@ private slots:
 
     void test_transposeTrackAllPatterns_shouldTransposeTrackInEveryPattern();
     void test_transposeTrackAllPatterns_shouldNotTransposeOtherTracks();
-    void test_transposeTrackAllPatterns_drumTrackSet_shouldNotTransposeDrumTrack();
+    void test_transposeTrackAllPatterns_drumTrackSet_shouldTransposeDrumTrack();
+    void test_transposeTrack_drumTrackSet_shouldTransposeDrumTrack();
+    void test_transposeColumn_drumTrackSet_shouldTransposeDrumTrack();
     void test_transposeColumnAllPatterns_shouldTransposeColumnInEveryPattern();
     void test_transposeColumnAllPatterns_shouldNotTransposeOtherColumns();
     void test_transposePattern_drumTrackSet_shouldNotTransposeDrumTrack();
