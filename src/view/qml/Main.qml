@@ -20,6 +20,7 @@ import QtQuick.Controls.Universal 2.15
 import QtQuick.Dialogs
 import QtQuick.Layouts
 import Noteahead 1.0
+import "Components"
 import "Dialogs"
 import "Editor"
 import "ToolBar"

@@ -18,7 +18,7 @@ pipeline {
                 stages {
                     stage('Build and test') {
                         steps {
-                            sh "mkdir -p build-$BUILD_TYPE && cd build-$BUILD_TYPE && cmake -GNinja -DCMAKE_BUILD_TYPE=$BUILD_TYPE .. && cmake --build . && ctest --output-on-failure --parallel \$(nproc)"
+                            sh "mkdir -p build-$BUILD_TYPE && cd build-$BUILD_TYPE && cmake -GNinja -DCMAKE_BUILD_TYPE=$BUILD_TYPE .. && cmake --build . && ctest --output-on-failure --timeout 600 --parallel \$(nproc)"
                         }
                     }
                 }

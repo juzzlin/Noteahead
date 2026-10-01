@@ -18,6 +18,7 @@
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
 
+#include <QCoreApplication>
 #include <QSignalSpy>
 #include <QTemporaryDir>
 #include <QTest>
@@ -27,6 +28,19 @@
 #include <vector>
 
 namespace noteahead {
+
+//! Blocks until the spy has seen `count` renders finish, however long they take.
+//!
+//! The worker hands its result back through the event loop, so waiting on the loop rather than on
+//! the clock follows the render itself: a CI machine still linking while the tests run has stalled a
+//! one-bar render for five seconds, and any timeout short enough to be useful can lose that race. A
+//! render that never finishes is left to ctest's own timeout.
+static void waitForRenders(const QSignalSpy & spy, qsizetype count)
+{
+    while (spy.count() < count) {
+        QCoreApplication::processEvents(QEventLoop::AllEvents | QEventLoop::WaitForMoreEvents);
+    }
+}
 
 //! A device that records the note length the render hands it, and nothing else.
 //!
@@ -174,7 +188,7 @@ void RenderServiceTest::test_renderIndividualTracks_shouldSkipNonInternalInstrum
     renderService.renderIndividualTracks(tempDir.path());
 
     // Wait for it to finish.
-    QVERIFY(spy.wait(5000));
+    waitForRenders(spy, 1);
 
     // Check that it finished successfully
     QCOMPARE(spy.at(0).at(0).toBool(), true);
@@ -247,7 +261,7 @@ void RenderServiceTest::test_renderIndividualTracks_shouldRestoreMixerState()
 
     renderService.renderIndividualTracks(tempDir.path());
 
-    QVERIFY(spy.wait(5000));
+    waitForRenders(spy, 1);
 
     // Mixer state should be restored
     QCOMPARE(mixerService->isTrackSoloed(0), true);
@@ -285,7 +299,7 @@ void RenderServiceTest::test_renderMaster_secondRender_shouldStartFromZeroProgre
     QSignalSpy spy { &renderService, &RenderService::renderingFinished };
 
     renderService.renderMaster(QDir { tempDir.path() }.filePath("first.flac"));
-    QVERIFY(spy.wait(5000));
+    waitForRenders(spy, 1);
     QCOMPARE(progressWhenBarAppears, 0.0);
 
     // The first render left progress where it finished. Starting another one has to clear that, or
@@ -296,7 +310,7 @@ void RenderServiceTest::test_renderMaster_secondRender_shouldStartFromZeroProgre
     renderService.renderMaster(QDir { tempDir.path() }.filePath("second.flac"));
     QCOMPARE(progressWhenBarAppears, 0.0);
 
-    QVERIFY(spy.wait(5000));
+    waitForRenders(spy, 2);
 }
 
 void RenderServiceTest::test_renderMaster_shouldGiveTheDeviceTheNoteLength()
@@ -336,7 +350,7 @@ void RenderServiceTest::test_renderMaster_shouldGiveTheDeviceTheNoteLength()
     QVERIFY(tempDir.isValid());
     QSignalSpy spy { &renderService, &RenderService::renderingFinished };
     renderService.renderMaster(tempDir.filePath("render.flac"));
-    QVERIFY(spy.wait(30000));
+    waitForRenders(spy, 1);
     QVERIFY2(spy.at(0).at(0).toBool(), qPrintable(spy.at(0).at(1).toString()));
 
     QVERIFY2(!probe->received().empty(), "the render never reached the device");

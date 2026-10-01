@@ -174,8 +174,10 @@ void RealTimeWorkerPoolTest::test_run_realisticCallbackDuration_shouldNotStall()
     constexpr size_t taskCount { 6 };
     constexpr int iterations { 20000 };
 
+    // No deadline: a stall is pool.run() never returning, which a clock checked after it cannot
+    // catch, while a loaded CI machine running other tests beside this one can legitimately take a
+    // minute over the whole loop. A hang is left to the ctest timeout instead.
     std::atomic_int completed { 0 };
-    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds { 60 };
 
     for (int i = 0; i < iterations; i++) {
         pool.run(taskCount, &completed, [](void * context, size_t, size_t) {
@@ -186,7 +188,6 @@ void RealTimeWorkerPoolTest::test_run_realisticCallbackDuration_shouldNotStall()
             }
             static_cast<std::atomic_int *>(context)->fetch_add(1);
         });
-        QVERIFY2(std::chrono::steady_clock::now() < deadline, "The pool stalled");
     }
 
     QCOMPARE(completed.load(), static_cast<int>(taskCount) * iterations);

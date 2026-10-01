@@ -5,198 +5,97 @@ Release date:
 
 New features:
 
-* Transpose a track or a column in all patterns at once
-  - A "Transpose in all patterns" sub-menu on the Track and Column context
-    menus, in one undo step, leaving the other tracks and columns alone
-
-* Drum Synth V2
-  - A second Drum Synth to build on. The original is untouched, so every kit in
-    an existing project keeps playing exactly as it did
-
-  - An amp envelope per voice: Attack, Hold, Decay and Curve, riding on top of
-    what the voice already plays. Pull Hold down and the drum tightens
-
-  - Crash and Ride fitted to a recording of the hardware: the crash opens out
-    from its strike rather than being struck full, and the ride shimmers and
-    darkens as it decays instead of ringing on unchanged
-
-  - Tune only ever brightens the cymbals now. Past about seventy per cent it
-    used to push them against a fixed filter and darken them again
-
-  - Snare and the three toms fitted to recordings of the hardware too: the toms
-    are struck rather than only pitched, and the snare is a drum with snares on
-    it rather than a burst of noise
-
-  - Reverse Crash is the crash run backwards now, closing into its strike
-    instead of swelling a cymbal that was already open
-
-  - A Rim voice, on C#3, fitted to a recording of the hardware: a woody pitched
-    click with a Click control for how much stick is in it
-
-* Auto-trim and Crop to trim, on a pad's context menu
-  - Auto-trim moves the markers in past the silence at either end, so it can be
-    dragged back out. Crop to trim writes the trimmed range out as a new file
-    and plays that, which is what shrinks an embedded project
-
-* Recording straight into the Sampler
-  - Sample an instrument in the room onto the selected pad: pick an input, hit
-    Record, and what you played is on the pad when you stop
-  - Works before the project has been saved. The recording is kept for the
-    session and written out beside the project when you save it
-
-* Normalize, per Sampler pad
-  - Brings a pad's loudest peak to -6 dBFS whatever it was recorded at,
-    measured over the part the trims leave. A gain rather than an edit: the
-    file is untouched
-
-* A Curve control on the Sampler's pad envelope
-  - The same bend the Synth's envelopes have, per pad, and the waveform view
-    draws the shape the pad is actually played through
-
-* Reference monitoring and headphone crossfeed
-  - Reference plays the mix as another system would: Car, Club, Phone, Laptop,
-    Hall, Boombox, Earbuds, TV or Nearfield
-  - Crossfeed puts the far-ear arrival back for headphones
-  - Neither is ever printed into a render
-
-* Analyse any audio file, and compare two
-  - Tools => Analyse audio files... measures a WAV or FLAC the way the render
-    report does, two files side by side
-  - The chart draws both balances and the difference between them, which is
-    the equalizer move from one to the other
-
-* Send a Sampler pad or a Drum Synth voice on its own
-  - A pad or voice reaches the global send buses independently of what its
-    device sends, so one drum can sit in the reverb while the rest of the kit
-    stays dry
-
-* One effects dialog per device, with Insert and Sends tabs
-  - A pad's or voice's routing is reachable from the same FX button its
-    inserts are, and clicking a send row opens the effect on that bus
-
-* Four more Speech voices: Giant, Elder, Alien and Monster
-  - Monster growls: the folds double their period, which is a different thing
-    from an unsteady voice and is what a roar actually is
-  - The five voices that existed are untouched, so every saved device keeps
-    the speaker it was written with
-
-* Sing a Speech line across a melody
-  - A note played while another is still held moves the pitch instead of
-    fetching the next line, so one column can hold the line while another
-    carries the tune
-  - A Portamento control slides between those notes
-
-* Four effects the rack was missing: Gate, Bit Crusher, Flanger and Tremolo
-  - Gate doubles as a downward expander, with Range so a drum can be tightened
-    rather than silenced, and Hold against chattering
-  - Bit Crusher throws away word length and sample rate separately, and is
-    deliberately not oversampled, because there the aliases are the point
-
-* A waveform view on the Drum Synth V2, with a playhead
-  - The selected voice drawn the way the Sampler draws a pad, its own insert
-    effects included, with the amp envelope laid over it
-  - Both it and the Sampler now read out how long the sound lasts and the
-    tempo at which one hit fills a beat
-
-* Sustain and Release on the Drum Synth V2's amp envelope
-  - AHDSR rather than AHD. A device added now has the envelope switched off,
-    sustain at full and the rest at their minimum, which is a voice exactly as
-    V1 plays it rather than thirty-odd decibels close to it
-  - Kits saved before the stage keep the envelope they were voiced against
-
-* A Hold stage on the Sampler's pad envelope
-  - AHDSR rather than ADSR, at zero by default, so every pad saved before it
-    falls straight through into its decay exactly as it always did
-  - The waveform view draws it, and the FX button on a pad takes the pad's own
-    text colour so it stays readable on a bright accent
-
-* A retriggered Drum Synth V2 voice hears its attack again
-  - The level is walked to silence over two milliseconds before the new hit's
-    attack, so a slow attack is slow on every hit and not only the first
-
-* The Drum Synths look like the rest of the application
-  - Accent-coloured section headings instead of framed group boxes, rounded
-    pads as the Sampler has, and every section a column beside the pads rather
-    than a row of sliders under them
-
-* The Synth's Multi Engine has a Noise tab of its own
-  - Beside the oscillators rather than below them, since it is a noise source
-    and not a fifth oscillator
-
-* The oversampling is in the render's file name
-  - Alongside the sample rate and the word length, so two renders that differ
-    only in quality setting do not differ only in their timestamp
-
-* A Rate Divider on the Auto Panner
-  - Divides the rate by up to 64 in both modes, so a pan can sweep over several
-    bars instead of stopping at one cycle per whole note
-
-* Embedded samples are stored as FLAC
-  - Lossless and about half the size. Re-saving an existing project converts
-    what it carries
-
-* Chromatic pads can be put on any note, from the pad's right-click menu
-  - A pad plays at the rate it was recorded at on its own note and covers up to
-    the next pad, so the four strings of a bass can sit a fourth apart instead
-    of being stretched an octave each
-
-* A metronome with a pre-count, in the Sampler
-  - Counts you in at the song's tempo before a pad take and keeps clicking
-    through it. Recording runs from the start, so nothing played early is lost,
-    and the take is trimmed to begin on the downbeat
-
-* The Sampler says what an empty pad is for, and how long a take is
-  - "Record audio or assign a file" in the middle of an empty wave view, and a
-    clock in its place while a recording runs
-
-* A Mono switch per pad, beside Loop
-  - Sums a stereo pad to one channel before it is panned, so it sits at a point
-    in the image instead of keeping the width it was recorded with
-
-* Stereo level meters beside the Sampler's wave view
-  - The input while recording, the Sampler's own output the rest of the time
-
 Bug fixes:
-
-* A drum track can be transposed by naming it
-  - The Track and Column transpositions left drum tracks alone, which only the
-    pattern- and song-wide ones are meant to do
-
-* A Sampler pad recording is no longer treated as a recording of the song
-  - It used to take over the wave view under the editor, and the project saved a
-    path to it -- one that stopped existing when the pad take was a temporary file
-
-* Audio stream failures are reported instead of swallowed
-  - RtAudio 6 reports them by return value rather than by throwing, so the
-    handling written for RtAudio 5 never ran and a stream that would not open
-    played or recorded silence without saying why
-
-* Audio input and output devices are listed again
-  - RtAudio 6 hands out device ids that are not 0, 1, 2, so enumerating by
-    index found nothing. Settings had no devices to choose from
-
-* Unticking "Embed wave data" no longer loses the samples
-  - A project whose pads came out of its own embedded data was saved pointing at
-    a directory that stops existing when the application does. Those pads are
-    now written out beside the project first
-
-* Loading a project with a Drum Synth V2 in it no longer hangs
-
-* Stop the Stereo Field Meter and the RTA freezing on a silent device
-
-* The Auto Panner's rate readout now matches the rate it pans at, having read
-  low by three and a half times in the middle of the control
-
-* A Speech line no longer drawls over the rest of the song when nothing ends
-  the note that speaks it
-
-* Speech's Line mode now fits a line to its note in a render as well as in
-  playback, having always fallen back to Length when rendering
 
 Other:
 
-* The Device Rack lists the tracks a Sub Mixer carries, and gives the track
-  list more room before cutting it short
+9.0.0
+=====
+
+Release date:
+
+Thu, 01 Oct 2026 23:21:48 +0300
+
+New features:
+
+* Sampler
+  - Record straight onto a pad, with a metronome that counts in at the song's
+    tempo; the take is trimmed to start on the downbeat
+  - Recording works before the project is saved; the take is written out
+    beside the project on save
+  - Auto-trim and Crop to trim on a pad's context menu
+  - Normalize brings a pad's peak to -6 dBFS without touching the file
+  - The pad envelope is AHDSR with a Curve control; saved pads are unchanged
+  - Chromatic pads can be put on any note, so a bass's four strings can sit a
+    fourth apart instead of being stretched an octave each
+  - A Mono switch per pad, beside Loop
+  - Stereo level meters beside the wave view
+  - An empty pad says how to fill it, and a take shows its length as it runs
+
+* Drum Synth V2
+  - A second Drum Synth to build on; the original is untouched
+  - An AHDSR amp envelope per voice, off by default
+  - Crash, Ride, Snare and the three toms fitted to recordings of the hardware
+  - A Rim voice on C#3, with a Click control
+  - Reverse Crash is the crash run backwards
+  - Tune only ever brightens the cymbals
+  - A waveform view with a playhead and the amp envelope laid over it
+
+* The Drum Synths look like the rest of the application
+  - Accent-coloured section headings, rounded pads, and the sections in
+    columns beside the pads
+
+* Speech
+  - Four more voices: Giant, Elder, Alien and Monster
+  - Sing a line across a melody: a note played while another is held moves
+    the pitch instead of speaking the next line, with Portamento between them
+
+* Gate, Bit Crusher, Flanger and Tremolo effects
+  - Gate doubles as a downward expander, with Range and Hold
+
+* Sends per Sampler pad and per Drum Synth voice
+  - A pad or voice reaches the send buses on its own, so one drum can sit in
+    the reverb while the rest of the kit stays dry
+  - One effects dialog per device, with Insert and Sends tabs
+
+* Reference monitoring and headphone crossfeed
+  - Reference plays the mix as Car, Club, Phone, Laptop, Hall, Boombox,
+    Earbuds, TV or Nearfield; neither is ever printed into a render
+
+* Analyse any audio file, and compare two
+  - Tools => Analyse audio files...; the chart draws the difference between
+    the two balances
+
+* Transpose a track or a column in all patterns at once, in one undo step
+
+* A Rate Divider of up to 64 on the Auto Panner
+
+* The Synth's Multi Engine has a Noise tab of its own
+
+* The oversampling is in the render's file name
+
+* Embedded samples are stored as FLAC, about half the size
+
+Bug fixes:
+
+* Audio devices are listed again with RtAudio 6, and stream failures are
+  reported instead of playing or recording silence
+
+* Unticking "Embed wave data" no longer loses the samples
+
+* Track and Column transpositions transpose drum tracks too
+
+* The Stereo Field Meter and the RTA no longer freeze on a silent device
+
+* The Auto Panner's rate readout matches the rate it pans at
+
+* A Speech line no longer drawls on when nothing ends its note
+
+* Speech's Line mode works in a render as well as in playback
+
+Other:
+
+* The Device Rack lists the tracks a Sub Mixer carries
 
 8.0.0
 =====
