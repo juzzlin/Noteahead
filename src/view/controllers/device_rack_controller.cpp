@@ -462,19 +462,43 @@ QString DeviceRackController::deviceName(int slotIndex) const
     return "";
 }
 
-QString DeviceRackController::trackNames(int slotIndex) const
+QStringList DeviceRackController::trackNameList(int slotIndex) const
 {
+    QStringList trackNames;
     if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex))) {
         const auto deviceName = QString::fromStdString(device->name());
-        QStringList trackNames;
         for (const auto index : m_editorService->trackIndices()) {
             if (const auto portName = m_editorService->instrumentPortName(index); portName == deviceName) {
                 trackNames << m_editorService->trackName(index);
             }
         }
-        return trackNames.join(", ");
     }
-    return "";
+    return trackNames;
+}
+
+QString DeviceRackController::trackNames(int slotIndex) const
+{
+    return trackNameList(slotIndex).join(", ");
+}
+
+QStringList DeviceRackController::usageTrackNames(int slotIndex) const
+{
+    // A SubMixer plays nothing itself; what it carries is whatever its members play, so it borrows
+    // their tracks, through any SubMixer nested inside it. DeviceService rules out cycles.
+    if (const auto subMixer = std::dynamic_pointer_cast<SubMixerDevice>(m_deviceService->device(static_cast<size_t>(slotIndex)))) {
+        QStringList names;
+        for (const auto memberSlot : subMixer->members()) {
+            names << usageTrackNames(static_cast<int>(memberSlot));
+        }
+        names.removeDuplicates();
+        return names;
+    }
+    return trackNameList(slotIndex);
+}
+
+QString DeviceRackController::usageSummary(int slotIndex) const
+{
+    return usageTrackNames(slotIndex).join(", ");
 }
 
 QVariantList DeviceRackController::availableDevices() const

@@ -31,6 +31,8 @@ private slots:
     void test_devices_shouldReturnDeviceNames();
     void test_trackNames_shouldReturnTrackNamesForDevice();
     void test_subMixerCandidates_shouldCarryTrackNames();
+    void test_usageSummary_device_shouldReturnTrackNames();
+    void test_usageSummary_subMixer_shouldReturnMemberTrackNames();
     void test_deviceGain_shouldDefaultToUnityAndRoundTrip();
     void test_setDevice_shouldAddDeviceAndNotify();
     void test_replaceDevice_shouldKeepInsertEffectsAndNotify();

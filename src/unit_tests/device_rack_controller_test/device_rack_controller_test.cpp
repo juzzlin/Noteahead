@@ -265,6 +265,57 @@ void DeviceRackControllerTest::test_subMixerCandidates_shouldCarryTrackNames()
     QVERIFY(!entry["typeName"].toString().isEmpty());
 }
 
+void DeviceRackControllerTest::test_usageSummary_device_shouldReturnTrackNames()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto deviceName = "Device 1";
+    deviceService->setDevice(0, std::make_shared<MockDevice>(deviceName));
+
+    const auto editorService = std::make_shared<MockEditorService>();
+    editorService->setMockIndices({ 0 });
+    editorService->setMockTrackName(0, "Drums");
+    editorService->setMockInstrumentPortName(0, QString::fromStdString(deviceName));
+
+    DeviceRackController controller { deviceService, {}, editorService };
+
+    QCOMPARE(controller.usageSummary(0), QString { "Drums" });
+}
+
+void DeviceRackControllerTest::test_usageSummary_subMixer_shouldReturnMemberTrackNames()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    deviceService->setDevice(0, std::make_shared<MockDevice>("Device 1"));
+    deviceService->setDevice(1, std::make_shared<MockDevice>("Device 2"));
+    deviceService->setDevice(2, std::make_shared<MockDevice>("Device 3"));
+    deviceService->setDevice(3, std::make_shared<SubMixerDevice>("Inner"));
+    deviceService->setDevice(4, std::make_shared<SubMixerDevice>("Outer"));
+
+    const auto editorService = std::make_shared<MockEditorService>();
+    editorService->setMockIndices({ 0, 1, 2, 3 });
+    editorService->setMockTrackName(0, "Drums");
+    editorService->setMockInstrumentPortName(0, "Device 1");
+    editorService->setMockTrackName(1, "Bass");
+    editorService->setMockInstrumentPortName(1, "Device 2");
+    editorService->setMockTrackName(2, "Bass, doubled");
+    editorService->setMockInstrumentPortName(2, "Device 2");
+    editorService->setMockTrackName(3, "Pads");
+    editorService->setMockInstrumentPortName(3, "Device 3");
+
+    DeviceRackController controller { deviceService, {}, editorService };
+
+    QCOMPARE(controller.usageSummary(4), QString {});
+
+    QVERIFY(controller.addSubMixerMember(3, 2));
+    QVERIFY(controller.addSubMixerMember(4, 0));
+    QVERIFY(controller.addSubMixerMember(4, 1));
+    QVERIFY(controller.addSubMixerMember(4, 3));
+    QCOMPARE(controller.usageSummary(3), QString { "Pads" });
+    // A nested SubMixer contributes the tracks of its own members.
+    QCOMPARE(controller.usageSummary(4), QString { "Drums, Bass, Bass, doubled, Pads" });
+}
+
 void DeviceRackControllerTest::test_deviceGain_shouldDefaultToUnityAndRoundTrip()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();

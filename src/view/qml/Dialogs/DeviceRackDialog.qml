@@ -102,9 +102,9 @@ AnimatedDialog {
                     deviceRackController.revision;
                     return deviceRackController.deviceName(index);
                 }
-                readonly property string trackNames: {
+                readonly property string usageSummary: {
                     deviceRackController.revision;
-                    return deviceRackController.trackNames(index);
+                    return deviceRackController.usageSummary(index);
                 }
                 readonly property var meterLevels: {
                     deviceListView.meterTick;
@@ -177,19 +177,29 @@ AnimatedDialog {
                         // The buttons and meters on the row have fixed widths, so the name is what
                         // gives way on a narrow rack instead of running over them
                         Layout.fillWidth: true
+                        Layout.preferredWidth: implicitWidth
                         Layout.minimumWidth: 0
                         elide: Text.ElideRight
                         visible: deviceType !== ""
                     }
 
                     Text {
-                        text: trackNames
+                        text: usageSummary
                         color: "#aaa"
                         font.pointSize: 11
-                        Layout.preferredWidth: 150
+                        // Shares the slack with the name in proportion to their lengths, so a long
+                        // list of tracks is not cut to a fixed stub while the name has room to spare
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: implicitWidth
+                        Layout.minimumWidth: 0
                         horizontalAlignment: Text.AlignRight
                         elide: Text.ElideRight
                         visible: deviceType !== ""
+                        ToolTip.visible: truncated && summaryHover.hovered
+                        ToolTip.text: usageSummary
+                        HoverHandler {
+                            id: summaryHover
+                        }
                     }
 
                     Image {

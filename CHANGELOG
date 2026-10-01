@@ -193,6 +193,11 @@ Bug fixes:
 * Speech's Line mode now fits a line to its note in a render as well as in
   playback, having always fallen back to Length when rendering
 
+Other:
+
+* The Device Rack lists the tracks a Sub Mixer carries, and gives the track
+  list more room before cutting it short
+
 8.0.0
 =====
 

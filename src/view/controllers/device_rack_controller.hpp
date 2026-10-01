@@ -89,6 +89,9 @@ public:
     Q_INVOKABLE QString deviceTypeName(int slotIndex) const;
     Q_INVOKABLE QString deviceName(int slotIndex) const;
     Q_INVOKABLE QString trackNames(int slotIndex) const;
+    //! What the Device Rack shows beside a device: the tracks it plays on, or for a SubMixer the
+    //! tracks its members play on.
+    Q_INVOKABLE QString usageSummary(int slotIndex) const;
     Q_INVOKABLE QVariantList availableDevices() const;
 
     //! Every occupied slot a SubMixer could take, with whether it already belongs to one.
@@ -193,6 +196,8 @@ signals:
 
 private:
     QString trackNames(const QString & deviceName) const;
+    QStringList trackNameList(int slotIndex) const;
+    QStringList usageTrackNames(int slotIndex) const;
 
     //! Push the current gate onto every device's taps. Needed after any slot change, because a
     //! freshly created device starts with its meters off regardless of what is on screen.
