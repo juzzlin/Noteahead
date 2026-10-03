@@ -47,6 +47,11 @@ EffectDialog {
             width: Math.max(implicitWidth, scrollView.availableWidth)
             spacing: 16
 
+            EffectPresetRow {
+                effectIndex: root.effectIndex
+                showWhenEmpty: true
+            }
+
             Label {
                 text: qsTr("The reflections that arrive before a reverb becomes a wash. This is the axis a tail cannot buy: how far away something is, not how large the room around it sounds.")
                 color: "#aaa"

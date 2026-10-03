@@ -1260,6 +1260,22 @@ void EffectRackControllerTest::test_saveEffectUserPreset_shouldOfferItAndSelectI
     QCOMPARE(f.controller.currentEffectUserPresetName(0), QString { "My Curve" });
 }
 
+void EffectRackControllerTest::test_saveEffectUserPreset_effectWithoutFactoryPresets_shouldOfferIt()
+{
+    // An effect that ships no patches still shows its row on request, so the first preset the user
+    // saves there has to become the whole list, and the one selected.
+    PresetFixture f { EndlessReverb::typeIdString() };
+    QVERIFY(f.controller.effectPresetNames(0).isEmpty());
+
+    QVERIFY(f.controller.saveEffectUserPreset(0, "My Space"));
+
+    const auto names = f.controller.effectPresetNames(0);
+    QCOMPARE(names.size(), 1);
+    QVERIFY2(names.first().endsWith("My Space" + Constants::userPresetMarker()), qPrintable(names.first()));
+    QCOMPARE(f.controller.currentEffectPresetIndex(0), 0);
+    QVERIFY(f.controller.currentEffectPresetIsUserPreset(0));
+}
+
 void EffectRackControllerTest::test_saveEffectUserPreset_shouldRoundTripThroughTheStore()
 {
     PresetFixture f;

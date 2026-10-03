@@ -24,7 +24,7 @@ import Noteahead 1.0
 //!
 //! Sits above the rest of the panel rather than inside it, because a preset writes the whole panel.
 //! Hides itself when the effect ships no patches and the user has saved none, so an effect that has
-//! no presets is not given an empty row.
+//! no presets is not given an empty row, unless the dialog asks for it with showWhenEmpty.
 RowLayout {
     id: root
 
@@ -37,11 +37,15 @@ RowLayout {
     property int currentIndex: 0
     property bool currentIsUserPreset: false
 
+    //! For an effect that ships no patches yet: without this the row, and with it Save, would never
+    //! appear, and the user could not save the first preset of their own.
+    property bool showWhenEmpty: false
+
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
     Layout.fillWidth: true
     spacing: 10
-    visible: presetNames.length > 0
+    visible: showWhenEmpty || presetNames.length > 0
 
     function refresh(): void {
         if (effectIndex < 0) {

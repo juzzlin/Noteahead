@@ -71,6 +71,7 @@ private slots:
     void test_loadEffectPreset_shouldNotBeMarkedAsAUserPreset();
     void test_snapshotEffect_shouldSelectTheFirstPreset();
     void test_saveEffectUserPreset_shouldOfferItAndSelectIt();
+    void test_saveEffectUserPreset_effectWithoutFactoryPresets_shouldOfferIt();
     void test_saveEffectUserPreset_shouldRoundTripThroughTheStore();
     void test_deleteCurrentEffectUserPreset_shouldRemoveItAndClampTheSelection();
     void test_deleteCurrentEffectUserPreset_factoryPreset_shouldFail();

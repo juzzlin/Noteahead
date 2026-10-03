@@ -49,6 +49,11 @@ EffectDialog {
             width: dialogScrollView.availableWidth
             spacing: 16
 
+            EffectPresetRow {
+                effectIndex: root.effectIndex
+                showWhenEmpty: true
+            }
+
             GridLayout {
                 columns: 4
                 columnSpacing: 24
