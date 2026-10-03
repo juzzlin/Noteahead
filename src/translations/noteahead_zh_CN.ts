@@ -2518,7 +2518,7 @@
         <translation type="unfinished">已启用</translation>
     </message>
     <message>
-        <source>Missing effect: this automation does nothing</source>
+        <source>Missing target: this automation does nothing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5718,15 +5718,11 @@
 <context>
     <name>ParameterAutomationModel</name>
     <message>
-        <source>There are no effects to automate. Add one to a rack first.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Target</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Effect</source>
+        <source>There is nothing to automate. Add an effect to a rack, or a device that offers parameters, first.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5805,7 +5801,11 @@
 <context>
     <name>ParameterAutomationTargets</name>
     <message>
-        <source>Missing effect</source>
+        <source>Missing target</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Device %1 (%2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5878,6 +5878,22 @@
     <message>
         <source>Mix</source>
         <translation type="unfinished">混合</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation type="unfinished">低通截止频率</translation>
+    </message>
+    <message>
+        <source>LPF Resonance</source>
+        <translation type="unfinished">低通共振</translation>
+    </message>
+    <message>
+        <source>LPF Key Track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation type="unfinished">高通截止频率</translation>
     </message>
 </context>
 <context>
