@@ -59,6 +59,25 @@
     </message>
 </context>
 <context>
+    <name>AddParameterAutomationDialog</name>
+    <message>
+        <source>Copy automation...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill these fields from an automation that already exists</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Anuluj</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation type="unfinished">OK</translation>
+    </message>
+</context>
+<context>
     <name>AddPitchBendAutomationDialog</name>
     <message>
         <source>Copy automation...</source>
@@ -1251,10 +1270,6 @@
     <message>
         <source>Compressor Parameters (Slot %1)</source>
         <translation>Compressor – parametry (Slot %1)</translation>
-    </message>
-    <message>
-        <source>Preset:</source>
-        <translation>Preset:</translation>
     </message>
     <message>
         <source>Threshold</source>
@@ -2492,6 +2507,116 @@
     <message>
         <source>No MIDI CC automations added</source>
         <translation>Nie dodano automatyzacji MIDI CC</translation>
+    </message>
+</context>
+<context>
+    <name>EditParameterAutomationsDelegate</name>
+    <message>
+        <source>Pattern: %1, Track: %2, Column: %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation type="unfinished">Włączone</translation>
+    </message>
+    <message>
+        <source>Missing effect: this automation does nothing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Interpolation</source>
+        <translation type="unfinished">Interpolacja</translation>
+    </message>
+    <message>
+        <source>Start line</source>
+        <translation type="unfinished">Wiersz początkowy</translation>
+    </message>
+    <message>
+        <source>End line</source>
+        <translation type="unfinished">Wiersz końcowy</translation>
+    </message>
+    <message>
+        <source>Curve</source>
+        <translation type="unfinished">Krzywa</translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation type="unfinished">Tryb</translation>
+    </message>
+    <message>
+        <source>Absolute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Relative</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start value</source>
+        <translation type="unfinished">Wartość początkowa</translation>
+    </message>
+    <message>
+        <source>End value</source>
+        <translation type="unfinished">Wartość końcowa</translation>
+    </message>
+    <message>
+        <source>At the current setting: %1 to %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Modulation</source>
+        <translation type="unfinished">Modulacja</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Typ</translation>
+    </message>
+    <message>
+        <source>Cycles</source>
+        <translation type="unfinished">Cykle</translation>
+    </message>
+    <message>
+        <source>Amplitude (%)</source>
+        <translation type="unfinished">Amplituda (%)</translation>
+    </message>
+    <message>
+        <source>Offset (%)</source>
+        <translation type="unfinished">Przesunięcie (%)</translation>
+    </message>
+    <message>
+        <source>Sine Wave</source>
+        <translation type="unfinished">Fala sinusoidalna</translation>
+    </message>
+    <message>
+        <source>Random</source>
+        <translation type="unfinished">Losowo</translation>
+    </message>
+    <message>
+        <source>Inverted</source>
+        <translation type="unfinished">Odwrócony</translation>
+    </message>
+    <message>
+        <source>Comment</source>
+        <translation type="unfinished">Komentarz</translation>
+    </message>
+    <message>
+        <source>Copy...</source>
+        <translation type="unfinished">Kopiuj...</translation>
+    </message>
+    <message>
+        <source>Replace this automation with the settings of another one</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete this automation</source>
+        <translation type="unfinished">Usuń tę automatyzację</translation>
+    </message>
+</context>
+<context>
+    <name>EditParameterAutomationsDialog</name>
+    <message>
+        <source>No parameter automations added</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3889,6 +4014,10 @@
         <translation>Dodano automatyzację Pitch Bend</translation>
     </message>
     <message>
+        <source>Parameter automation added</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Delete the preset &apos;%1&apos;?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3919,6 +4048,10 @@
     <message>
         <source>Add MIDI CC automation</source>
         <translation>Dodaj automatyzację MIDI CC</translation>
+    </message>
+    <message>
+        <source>Copy parameter automation</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy Pitch Bend automation</source>
@@ -3972,9 +4105,41 @@
         <source>Edit Pitch Bend automations by pattern</source>
         <translation>Edytuj automatyzacje Pitch Bend według wzorców</translation>
     </message>
+    <message>
+        <source>Add parameter automation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit parameter automations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit parameter automations by line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit parameter automations by column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit parameter automations by track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit parameter automations by selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit parameter automations by pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MainContextMenu</name>
+    <message>
+        <source>Automation</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>Edit MIDI CC automations (ALL)...</source>
         <translation>Edytuj automatyzacje MIDI CC (WSZYSTKIE)...</translation>
@@ -3982,6 +4147,10 @@
     <message>
         <source>Edit Pitch Bend automations (ALL)...</source>
         <translation>Edytuj automatyzacje Pitch Bend (WSZYSTKIE)...</translation>
+    </message>
+    <message>
+        <source>Edit parameter automations (ALL)...</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4005,6 +4174,10 @@
     <message>
         <source>Paste</source>
         <translation>Wklej</translation>
+    </message>
+    <message>
+        <source>Transpose</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Transpose &lt;b&gt;+1&lt;/b&gt; semitones</source>
@@ -4075,6 +4248,10 @@
         <translation>Usuń bieżącą kolumnę</translation>
     </message>
     <message>
+        <source>Automation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Add MIDI CC automation...</source>
         <translation>Dodaj automatyzację MIDI CC...</translation>
     </message>
@@ -4089,6 +4266,14 @@
     <message>
         <source>Edit Pitch Bend automations...</source>
         <translation>Edytuj automatyzacje Pitch Bend...</translation>
+    </message>
+    <message>
+        <source>Add parameter automation...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit parameter automations...</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4110,6 +4295,10 @@
         <translation>Ustaw delay...</translation>
     </message>
     <message>
+        <source>Automation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Add MIDI CC automation...</source>
         <translation>Dodaj automatyzację MIDI CC...</translation>
     </message>
@@ -4125,6 +4314,14 @@
         <source>Edit Pitch Bend automations...</source>
         <translation>Edytuj automatyzacje Pitch Bend...</translation>
     </message>
+    <message>
+        <source>Add parameter automation...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit parameter automations...</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MainContextMenu_Pattern</name>
@@ -4139,6 +4336,10 @@
     <message>
         <source>Paste</source>
         <translation>Wklej</translation>
+    </message>
+    <message>
+        <source>Transpose</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Transpose &lt;b&gt;+1&lt;/b&gt; semitones</source>
@@ -4177,12 +4378,20 @@
         <translation>Dodaj Note OFF</translation>
     </message>
     <message>
+        <source>Automation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Edit MIDI CC automations...</source>
         <translation>Edytuj automatyzacje MIDI CC...</translation>
     </message>
     <message>
         <source>Edit Pitch Bend automations...</source>
         <translation>Edytuj automatyzacje Pitch Bend...</translation>
+    </message>
+    <message>
+        <source>Edit parameter automations...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Pattern</source>
@@ -4206,6 +4415,10 @@
     <message>
         <source>Paste</source>
         <translation>Wklej</translation>
+    </message>
+    <message>
+        <source>Transpose</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Transpose &lt;b&gt;+1&lt;/b&gt; semitones</source>
@@ -4248,12 +4461,24 @@
         <translation>Interpoluj panoramę...</translation>
     </message>
     <message>
+        <source>Automation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Add MIDI CC automation...</source>
         <translation>Dodaj automatyzację MIDI CC...</translation>
     </message>
     <message>
         <source>Add Pitch Bend automation...</source>
         <translation>Dodaj automatyzację Pitch Bend...</translation>
+    </message>
+    <message>
+        <source>Add parameter automation...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit parameter automations...</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4273,6 +4498,10 @@
     <message>
         <source>Master effect rack...</source>
         <translation>Rack efektów master...</translation>
+    </message>
+    <message>
+        <source>Transpose</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Transpose &lt;b&gt;+1&lt;/b&gt; semitones</source>
@@ -4328,6 +4557,10 @@
     <message>
         <source>Paste</source>
         <translation>Wklej</translation>
+    </message>
+    <message>
+        <source>Transpose</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Transpose &lt;b&gt;+1&lt;/b&gt; semitones</source>
@@ -4398,12 +4631,24 @@
         <translation>Usuń bieżącą ścieżkę</translation>
     </message>
     <message>
+        <source>Automation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Edit MIDI CC automations...</source>
         <translation>Edytuj automatyzacje MIDI CC...</translation>
     </message>
     <message>
         <source>Edit Pitch Bend automations...</source>
         <translation>Edytuj automatyzacje Pitch Bend...</translation>
+    </message>
+    <message>
+        <source>Add parameter automation...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit parameter automations...</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5473,6 +5718,171 @@
     </message>
 </context>
 <context>
+    <name>ParameterAutomationModel</name>
+    <message>
+        <source>There are no effects to automate. Add one to a rack first.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Target</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Effect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Parameter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation type="unfinished">Tryb</translation>
+    </message>
+    <message>
+        <source>Absolute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Relative</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Absolute sets the value itself. Relative goes from the control&apos;s rest at 0% to the knob&apos;s own setting at 100%, like Expression.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Interpolation settings</source>
+        <translation type="unfinished">Ustawienia interpolacji</translation>
+    </message>
+    <message>
+        <source>Start line</source>
+        <translation type="unfinished">Wiersz początkowy</translation>
+    </message>
+    <message>
+        <source>End line</source>
+        <translation type="unfinished">Wiersz końcowy</translation>
+    </message>
+    <message>
+        <source>Curve</source>
+        <translation type="unfinished">Krzywa</translation>
+    </message>
+    <message>
+        <source>Start value</source>
+        <translation type="unfinished">Wartość początkowa</translation>
+    </message>
+    <message>
+        <source>End value</source>
+        <translation type="unfinished">Wartość końcowa</translation>
+    </message>
+    <message>
+        <source>At the current setting: %1 to %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output settings</source>
+        <translation type="unfinished">Ustawienia wyjścia</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move the value on every tick. Turn off to step it on the lines instead.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Events per beat</source>
+        <translation type="unfinished">Zdarzenia na uderzenie</translation>
+    </message>
+    <message>
+        <source>Line offset</source>
+        <translation type="unfinished">Przesunięcie wiersza</translation>
+    </message>
+    <message>
+        <source>Comment</source>
+        <translation type="unfinished">Komentarz</translation>
+    </message>
+</context>
+<context>
+    <name>ParameterAutomationTargets</name>
+    <message>
+        <source>Missing effect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Device %1 (%2) / Insert %3: %4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Device %1 (%2) / Rack %3, insert %4: %5</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Master / Insert %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send %1 / Insert %2: %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ParameterDisplay</name>
+    <message>
+        <source>Cutoff</source>
+        <translation type="unfinished">Odcięcie</translation>
+    </message>
+    <message>
+        <source>Resonance</source>
+        <translation type="unfinished">Rezonans</translation>
+    </message>
+    <message>
+        <source>Cutoff LFO Rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cutoff LFO Intensity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resonance LFO Rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resonance LFO Intensity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stereo Phase</source>
+        <translation type="unfinished">Faza stereo</translation>
+    </message>
+    <message>
+        <source>Envelope Amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Envelope Attack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Envelope Release</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation type="unfinished">Wzmocnienie</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation type="unfinished">Mix</translation>
+    </message>
+</context>
+<context>
     <name>PhaserDialog</name>
     <message>
         <source>Phaser Parameters (Slot %1)</source>
@@ -5966,10 +6376,6 @@
     <message>
         <source>Reverb Parameters (Slot %1)</source>
         <translation>Reverb – parametry (Slot %1)</translation>
-    </message>
-    <message>
-        <source>Preset:</source>
-        <translation>Preset:</translation>
     </message>
     <message>
         <source>Size</source>
