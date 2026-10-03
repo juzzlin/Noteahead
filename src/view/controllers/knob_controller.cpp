@@ -105,7 +105,7 @@ double KnobController::map(double value, const QString & type, double min, doubl
         return ParameterMapper::mapCubic(value, min, max);
     if (type == "cubicCentered" || type == "pan" || type == "intensity")
         return ParameterMapper::mapCubicCentered(value * 2.0 - 1.0, min, max);
-    if (type == "logFrequency")
+    if (type == "logFrequency" || type == "logFrequencyHighPass")
         return ParameterMapper::mapLogFrequency(value, min, max);
     if (type == "lfoFrequency")
         return ParameterMapper::mapLfoFrequency(value, min, max);
@@ -129,7 +129,7 @@ double KnobController::unmap(double mappedValue, const QString & type, double mi
         return ParameterMapper::unmapCubic(mappedValue, min, max);
     if (type == "cubicCentered" || type == "pan" || type == "intensity")
         return (ParameterMapper::unmapCubicCentered(mappedValue, min, max) + 1.0) / 2.0;
-    if (type == "logFrequency")
+    if (type == "logFrequency" || type == "logFrequencyHighPass")
         return ParameterMapper::unmapLogFrequency(mappedValue, min, max);
     if (type == "lfoFrequency")
         return ParameterMapper::unmapLfoFrequency(mappedValue, min, max);
@@ -182,9 +182,12 @@ QString KnobController::format(double value, const QString & type, const QString
           ? QString { "%1%" }.arg(mappedValue, 0, 'f', 1)
           : QString { "%1 %2" }.arg(mappedValue, 0, 'f', 1).arg(suffix);
     }
-    if (type == "logFrequency" || type == "frequency") {
+    if (type == "logFrequency" || type == "logFrequencyHighPass" || type == "frequency") {
         const double linearValue = value * Constants::uiInternalScaling();
-        const QString freqStr = frequencyToString(linearValue, mappedValue, false);
+        // A low pass is out of the way at the top of its travel and a high pass at the bottom, which
+        // is where each filter switches itself off. The other end is a frequency like any other.
+        const bool isHighPass = type == "logFrequencyHighPass";
+        const QString freqStr = isHighPass && linearValue <= 0.1 ? tr("Bypass") : frequencyToString(linearValue, mappedValue, isHighPass);
         const QString pctStr = percentageToString(linearValue);
         return QString { "%1 / %2" }.arg(pctStr).arg(freqStr);
     }
@@ -246,9 +249,9 @@ QVariant KnobController::parse(const QString & text, const QString & type, const
         return clampToPosition(ParameterMapper::unmapDecibel(*gain, (max - min) / 2.0));
     }
 
-    if (type == "logFrequency" || type == "frequency") {
+    if (type == "logFrequency" || type == "logFrequencyHighPass" || type == "frequency") {
         if (lowered == "bypass" || lowered == tr("Bypass").toLower()) {
-            return clampToPosition(1.0);
+            return clampToPosition(type == "logFrequencyHighPass" ? 0.0 : 1.0);
         }
         const auto input = splitNumberAndUnit(trimmed);
         if (!input) {

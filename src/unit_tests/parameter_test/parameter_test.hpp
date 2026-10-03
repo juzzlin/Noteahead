@@ -39,6 +39,7 @@ private slots:
     void test_display_curvedMappings_shouldRoundTrip();
     void test_display_toPosition_outOfRange_shouldClamp();
     void test_display_restPosition_shouldFollowTheRest();
+    void test_display_highPass_shouldFollowTheLowPassCurve();
     void test_container_setParameterDisplay_shouldAttachIt();
 
     void test_effectiveValue_absolute_shouldBeThePosition();

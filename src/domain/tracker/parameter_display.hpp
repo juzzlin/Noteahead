@@ -37,6 +37,9 @@ struct ParameterDisplay
         Exponential,
         CubicCentered,
         LogFrequency,
+        //! The same curve as LogFrequency, for a high pass: out of the way at the bottom of its
+        //! travel rather than at the top, which is the end its readout calls Bypass.
+        LogFrequencyHighPass,
         LfoFrequency
     };
 

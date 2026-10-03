@@ -376,6 +376,28 @@ void KnobControllerTest::test_map_parameterDisplay_shouldAgreeWithTheDomain()
     }
 }
 
+void KnobControllerTest::test_format_highPass_shouldBypassAtTheBottom()
+{
+    // A high pass is out of the way at the bottom of its travel, not at the top
+    KnobController controller;
+    QCOMPARE(controller.format(0.0, "logFrequencyHighPass", "Hz", 20, 20000), QString { "0.0% / Bypass" });
+    QCOMPARE(controller.format(1.0, "logFrequencyHighPass", "Hz", 20, 20000), QString { "100.0% / 20.0 kHz" });
+    // Same curve as the low pass in between
+    QCOMPARE(controller.map(0.5, "logFrequencyHighPass", 20, 20000), controller.map(0.5, "logFrequency", 20, 20000));
+    QCOMPARE(controller.format(0.5, "logFrequencyHighPass", "Hz", 20, 20000), controller.format(0.5, "logFrequency", "Hz", 20, 20000));
+    // And a low pass is still out of the way at the top
+    QCOMPARE(controller.format(1.0, "logFrequency", "Hz", 20, 20000), QString { "100.0% / Bypass" });
+    QCOMPARE(controller.format(0.0, "logFrequency", "Hz", 20, 20000), QString { "0.0% / 20 Hz" });
+}
+
+void KnobControllerTest::test_parse_highPass_bypass_shouldBeTheBottom()
+{
+    KnobController controller;
+    QCOMPARE(controller.parse("Bypass", "logFrequencyHighPass", "Hz", 20.0, 20000.0).toDouble(), 0.0);
+    QCOMPARE(controller.parse("Bypass", "logFrequency", "Hz", 20.0, 20000.0).toDouble(), 1.0);
+    QCOMPARE(controller.parse("1.5 kHz", "logFrequencyHighPass", "Hz", 20.0, 20000.0).toDouble(), controller.unmap(1500.0, "logFrequency", 20.0, 20000.0));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::KnobControllerTest)

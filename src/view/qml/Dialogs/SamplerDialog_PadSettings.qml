@@ -53,6 +53,8 @@ ColumnLayout {
 
     // LPF Cutoff Knob
     FilterKnob {
+        // LowPassFilter and HighPassFilter, whose travel starts at 0 Hz
+        startsAtZero: true
         label: qsTr("LPF Cutoff")
         controller: samplerController
         value: samplerController.selectedPadCutoff * Constants.uiInternalScaling
@@ -63,6 +65,8 @@ ColumnLayout {
 
     // HPF Cutoff Knob
     FilterKnob {
+        // LowPassFilter and HighPassFilter, whose travel starts at 0 Hz
+        startsAtZero: true
         label: qsTr("HPF Cutoff")
         controller: samplerController
         value: samplerController.selectedPadHpfCutoff * Constants.uiInternalScaling

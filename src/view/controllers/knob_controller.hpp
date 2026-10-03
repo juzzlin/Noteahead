@@ -55,7 +55,9 @@ public:
     Q_INVOKABLE QString decibelToString(double value, double from = 0, double to = Constants::uiInternalScaling()) const;
     Q_INVOKABLE QString decibelMultiplierToString(double multiplier) const;
     Q_INVOKABLE QString valueToString(double value, const QString & suffix, double from = 0, double to = Constants::uiInternalScaling(), bool isInteger = true) const;
-    Q_INVOKABLE QString frequencyToString(double value, double cutoffHz, bool isHpf) const;
+    //! @p forceHz reads the top of the travel as a frequency rather than as Bypass, for a filter
+    //! that is not out of the way there.
+    Q_INVOKABLE QString frequencyToString(double value, double cutoffHz, bool forceHz) const;
 
     Q_INVOKABLE int syncIndex(double value) const;
     Q_INVOKABLE double syncValue(int index) const;

@@ -175,12 +175,16 @@ AnimatedDialog {
                             onMoved: (val) => drumSynthV2Controller.voicePan = val
                         }
                         FilterKnob {
+                            // LowPassFilter and HighPassFilter, whose travel starts at 0 Hz
+                            startsAtZero: true
                             label: qsTr("LPF")
                             controller: drumSynthV2Controller
                             value: drumSynthV2Controller.voiceLpfCutoff
                             onMoved: (val) => drumSynthV2Controller.voiceLpfCutoff = val
                         }
                         FilterKnob {
+                            // LowPassFilter and HighPassFilter, whose travel starts at 0 Hz
+                            startsAtZero: true
                             label: qsTr("HPF")
                             controller: drumSynthV2Controller
                             isHpf: true

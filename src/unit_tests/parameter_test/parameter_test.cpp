@@ -257,6 +257,18 @@ void ParameterTest::test_effectiveValue_relative_shouldFollowTheAuthoredValue()
     QCOMPARE(ParameterAutomation::effectiveValue(ParameterAutomation::Mode::Relative, 1.0, parameter), 0.8f);
 }
 
+void ParameterTest::test_display_highPass_shouldFollowTheLowPassCurve()
+{
+    // Only the readout differs: which end it calls Bypass
+    const ParameterDisplay lowPass { ParameterDisplay::Mapping::LogFrequency, "Hz", 20.0, 20000.0 };
+    const ParameterDisplay highPass { ParameterDisplay::Mapping::LogFrequencyHighPass, "Hz", 20.0, 20000.0 };
+    for (const double position : { 0.0, 0.3, 0.5, 1.0 }) {
+        QCOMPARE(highPass.toUnits(position), lowPass.toUnits(position));
+        QCOMPARE(highPass.toPosition(lowPass.toUnits(position)), lowPass.toPosition(lowPass.toUnits(position)));
+    }
+    QCOMPARE(highPass.mappingName(), std::string { "logFrequencyHighPass" });
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::ParameterTest)

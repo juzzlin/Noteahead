@@ -43,6 +43,8 @@ private slots:
     void test_valueMapping_shouldReadPastFullScale();
     void test_valueMapping_shouldHonourTheUnit();
     void test_frequencyToString_shouldFormatFrequencyStrings();
+    void test_format_highPass_shouldBypassAtTheBottom();
+    void test_parse_highPass_bypass_shouldBeTheBottom();
     void test_syncLogic_shouldHandleSyncValuesAndLabels();
     void test_map_parameterDisplay_shouldAgreeWithTheDomain();
 };

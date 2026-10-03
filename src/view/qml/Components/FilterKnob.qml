@@ -19,9 +19,16 @@ import Noteahead 1.0
 Knob {
     id: knobRoot
     property var controller: null
+    //! A high pass is out of the way at the bottom of its travel, a low pass at the top, and that is
+    //! the end the readout calls Bypass.
     property bool isHpf: false
-    
-    mapping: "logFrequency"
-    mapMin: 0
-    mapMax: controller ? controller.sampleRate / 2.0 : 20000 // Generic max
+    //! For the LowPassFilter and HighPassFilter the Drum Synths and the Sampler run, which put the
+    //! bottom of the travel at 0 Hz. Every other device's filter starts at 20 Hz.
+    property bool startsAtZero: false
+
+    // The curve the filters themselves follow: equal octaves from 20 Hz, or the 0 Hz curve, both up
+    // to 20 kHz or just short of Nyquist when that is lower. See CascadedSvf and Utils::Dsp::cutoffToHz.
+    mapping: isHpf ? "logFrequencyHighPass" : "logFrequency"
+    mapMin: startsAtZero ? 0 : 20
+    mapMax: controller ? Math.min(20000, controller.sampleRate * 0.49) : 20000
 }

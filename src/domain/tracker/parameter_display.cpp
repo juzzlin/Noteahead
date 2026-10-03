@@ -30,6 +30,7 @@ double ParameterDisplay::toUnits(double position) const
     case Mapping::CubicCentered:
         return ParameterMapper::mapCubicCentered(clamped * 2.0 - 1.0, min, max);
     case Mapping::LogFrequency:
+    case Mapping::LogFrequencyHighPass:
         return ParameterMapper::mapLogFrequency(clamped, min, max);
     case Mapping::LfoFrequency:
         return ParameterMapper::mapLfoFrequency(clamped, min, max);
@@ -50,6 +51,7 @@ double ParameterDisplay::toPosition(double units) const
         position = (ParameterMapper::unmapCubicCentered(units, min, max) + 1.0) / 2.0;
         break;
     case Mapping::LogFrequency:
+    case Mapping::LogFrequencyHighPass:
         position = ParameterMapper::unmapLogFrequency(units, min, max);
         break;
     case Mapping::LfoFrequency:
@@ -76,6 +78,8 @@ std::string ParameterDisplay::mappingName() const
         return "cubicCentered";
     case Mapping::LogFrequency:
         return "logFrequency";
+    case Mapping::LogFrequencyHighPass:
+        return "logFrequencyHighPass";
     case Mapping::LfoFrequency:
         return "lfoFrequency";
     case Mapping::Linear:

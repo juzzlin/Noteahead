@@ -281,7 +281,7 @@ SynthDevice::SynthDevice(std::string name)
     describe(C::xmlKeyLpfCutoff(), { .mapping = Display::Mapping::LogFrequency, .unit = "Hz", .min = 20.0, .max = 20000.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "LPF Cutoff") });
     describe(C::xmlKeyLpfResonance(), { .unit = "%", .max = 100.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "LPF Resonance") });
     describe(C::xmlKeyKeyTrack(), { .unit = "%", .max = 100.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "LPF Key Track") });
-    describe(C::xmlKeyHpfCutoff(), { .mapping = Display::Mapping::LogFrequency, .unit = "Hz", .min = 20.0, .max = 20000.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "HPF Cutoff") });
+    describe(C::xmlKeyHpfCutoff(), { .mapping = Display::Mapping::LogFrequencyHighPass, .unit = "Hz", .min = 20.0, .max = 20000.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "HPF Cutoff") });
 
     SynthDevice::syncParameters();
 }

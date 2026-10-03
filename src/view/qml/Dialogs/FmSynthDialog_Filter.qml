@@ -89,7 +89,7 @@ ColumnLayout {
     }
     Knob {
         label: qsTr("HPF Cutoff")
-        mapping: "logFrequency"
+        mapping: "logFrequencyHighPass"
         mapMin: 20
         mapMax: 20000
         suffix: "Hz"
