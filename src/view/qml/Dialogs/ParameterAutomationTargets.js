@@ -17,10 +17,14 @@
 // effect is called the same thing wherever it is shown. The targets themselves come from
 // propertyService.automationTargets().
 
-//! Where the effect sits and what it is, e.g. "Device 2 (Synth) / Insert 3: Auto Filter".
-function effectLabel(target) {
+//! What the target is and where it sits: "Device 2 (Synth)" for a device, and for an effect e.g.
+//! "Device 2 (Synth) / Insert 3: Auto Filter".
+function targetLabel(target) {
     if (!target) {
-        return qsTr("Missing effect");
+        return qsTr("Missing target");
+    }
+    if (target.owner === "device") {
+        return qsTr("Device %1 (%2)").arg(target.deviceSlot + 1).arg(target.deviceTypeName);
     }
     // By type rather than type id: that is what the effect gallery keys its names by
     const name = effectRackController.effectDisplayName(target.type);
@@ -39,13 +43,18 @@ function effectLabel(target) {
     return name;
 }
 
-function findTarget(targets, effectId) {
+function findTarget(targets, owner, ownerId) {
+    return targets[findTargetIndex(targets, owner, ownerId)] || null;
+}
+
+//! Index of the target in @p targets, or -1 when it is not there.
+function findTargetIndex(targets, owner, ownerId) {
     for (let i = 0; i < targets.length; i++) {
-        if (targets[i].effectId === effectId) {
-            return targets[i];
+        if (targets[i].owner === owner && targets[i].ownerId === ownerId) {
+            return i;
         }
     }
-    return null;
+    return -1;
 }
 
 function findParameter(target, key) {

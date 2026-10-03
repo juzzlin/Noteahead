@@ -37,16 +37,22 @@ Item {
     property real startPosition: 0
     property real endPosition: 1
 
-    function refreshTargets(): void {
+    //! Reads the targets the project has now, and selects the device @p deviceUuid when it is one
+    //! of them: the track's own instrument is what a track most often rides.
+    function refreshTargets(deviceUuid: string): void {
         targets = propertyService.automationTargets();
-        targetComboBox.currentIndex = targets.length ? 0 : -1;
+        const deviceIndex = Targets.findTargetIndex(targets, "device", deviceUuid);
+        targetComboBox.currentIndex = deviceIndex >= 0 ? deviceIndex : (targets.length ? 0 : -1);
         parameterComboBox.currentIndex = 0;
     }
     function hasTarget(): bool {
         return currentTarget !== null && currentParameter !== null;
     }
-    function effectId(): string {
-        return currentTarget ? currentTarget.effectId : "";
+    function owner(): string {
+        return currentTarget ? currentTarget.owner : "";
+    }
+    function ownerId(): string {
+        return currentTarget ? currentTarget.ownerId : "";
     }
     function parameterKey(): string {
         return currentParameter ? currentParameter.key : "";
@@ -105,7 +111,7 @@ Item {
     //! the form was opened.
     function applyValues(values: var): void {
         for (let i = 0; i < targets.length; i++) {
-            if (targets[i].effectId === values.effectId) {
+            if (targets[i].owner === values.owner && targets[i].ownerId === values.ownerId) {
                 targetComboBox.currentIndex = i;
                 const parameters = targets[i].parameters;
                 for (let j = 0; j < parameters.length; j++) {
@@ -153,7 +159,7 @@ Item {
         width: rootItem.width
         spacing: 10
         Label {
-            text: qsTr("There are no effects to automate. Add one to a rack first.")
+            text: qsTr("There is nothing to automate. Add an effect to a rack, or a device that offers parameters, first.")
             visible: !rootItem.targets.length
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
@@ -165,14 +171,14 @@ Item {
             GridLayout {
                 id: targetGrid
                 // Sized from the row rather than left to the layout, which shares out width by what
-                // each combo box holds: an effect name is long, a parameter name not much shorter,
+                // each combo box holds: a target name is long, a parameter name not much shorter,
                 // and Mode only ever says Absolute or Relative.
                 readonly property real share: (width - 2 * columnSpacing) / 10
                 width: parent.width
                 columns: 3
                 rowSpacing: 10
                 Label {
-                    text: qsTr("Effect")
+                    text: qsTr("Target")
                 }
                 Label {
                     text: qsTr("Parameter")
@@ -182,7 +188,7 @@ Item {
                 }
                 ComboBox {
                     id: targetComboBox
-                    model: rootItem.targets.map(target => Targets.effectLabel(target))
+                    model: rootItem.targets.map(target => Targets.targetLabel(target))
                     onActivated: parameterComboBox.currentIndex = 0
                     Layout.preferredWidth: targetGrid.share * 4
                 }

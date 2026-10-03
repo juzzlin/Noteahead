@@ -28,7 +28,7 @@ GroupBox {
     title: qsTr("Pattern: %1, Track: %2, Column: %3").arg(model.pattern).arg(model.track).arg(model.column)
 
     property var targets: []
-    readonly property var target: Targets.findTarget(targets, model.effectId)
+    readonly property var target: Targets.findTarget(targets, model.owner, model.ownerId)
     readonly property var parameter: Targets.findParameter(target, model.parameter)
     readonly property bool isRelative: model.mode === 1
     readonly property var knobSetup: Targets.knobSetup(parameter, isRelative)
@@ -78,7 +78,7 @@ GroupBox {
         }
         Label {
             // A target that is gone renders nothing, and says so here rather than silently
-            text: delegateRoot.target ? Targets.effectLabel(delegateRoot.target) + " - " + (delegateRoot.parameter ? delegateRoot.parameter.label : model.parameter) : qsTr("Missing effect: this automation does nothing")
+            text: delegateRoot.target ? Targets.targetLabel(delegateRoot.target) + " - " + (delegateRoot.parameter ? delegateRoot.parameter.label : model.parameter) : qsTr("Missing target: this automation does nothing")
             color: delegateRoot.target ? themeService.accentColor : "orange"
             elide: Text.ElideMiddle
             Layout.column: 1

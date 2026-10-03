@@ -52,9 +52,10 @@ AnimatedDialog {
     function setTitle(text: string): void {
         title = "<strong>" + text + "</strong>";
     }
-    //! Opens the form over the given lines, on the effects the project has right now.
-    function openForLines(startLine: int, endLine: int): void {
-        model.refreshTargets();
+    //! Opens the form over the given lines, on the targets the project has right now, with the
+    //! device @p deviceUuid selected when it offers any.
+    function openForLines(startLine: int, endLine: int, deviceUuid: string): void {
+        model.refreshTargets(deviceUuid);
         model.reset();
         model.setStartLine(startLine);
         model.setEndLine(endLine);
