@@ -3281,6 +3281,8 @@ bool EffectRackController::importSettings(ProjectReader & reader)
         if (reader.readNext() == ProjectReader::TokenType::StartElement) {
             if (reader.name() == Constants::NahdXml::xmlKeyInsertEffects()) {
                 rack->get().deserializeEffectsFromXml(reader);
+                // The file may have come from this very project, whose effects still hold its ids.
+                rack->get().renewEffectIds();
                 return !reader.hasError();
             }
         }

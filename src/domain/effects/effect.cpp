@@ -22,6 +22,8 @@
 #include "../../common/xml/project_reader.hpp"
 #include "../dsp/audio_context.hpp"
 
+#include <QUuid>
+
 #include <algorithm>
 #include <cmath>
 
@@ -32,6 +34,7 @@ Effect::~Effect() = default;
 Effect::Effect(const Effect & other)
   : DspComponent { other }
   , ParameterContainer { other }
+  , m_id { other.m_id }
   , m_dryBuffer { other.m_dryBuffer }
   , m_mixLaw { other.m_mixLaw }
   , m_enabled { other.m_enabled }
@@ -46,6 +49,7 @@ Effect & Effect::operator=(const Effect & other)
     if (this != &other) {
         DspComponent::operator=(other);
         ParameterContainer::operator=(other);
+        m_id = other.m_id;
         m_dryBuffer = other.m_dryBuffer;
         m_mixLaw = other.m_mixLaw;
         m_enabled = other.m_enabled;
@@ -59,6 +63,7 @@ Effect & Effect::operator=(const Effect & other)
 Effect::Effect(Effect && other)
   : DspComponent { std::move(other) }
   , ParameterContainer { std::move(other) }
+  , m_id { other.m_id }
   , m_dryBuffer { std::move(other.m_dryBuffer) }
   , m_mixLaw { other.m_mixLaw }
   , m_enabled { other.m_enabled }
@@ -74,6 +79,7 @@ Effect & Effect::operator=(Effect && other)
     if (this != &other) {
         DspComponent::operator=(std::move(other));
         ParameterContainer::operator=(std::move(other));
+        m_id = other.m_id;
         m_dryBuffer = std::move(other.m_dryBuffer);
         m_mixLaw = other.m_mixLaw;
         m_enabled = other.m_enabled;
@@ -83,6 +89,26 @@ Effect & Effect::operator=(Effect && other)
         other.resolveSharedParameters();
     }
     return *this;
+}
+
+const std::string & Effect::id() const
+{
+    return m_id;
+}
+
+void Effect::setId(std::string id)
+{
+    m_id = std::move(id);
+}
+
+void Effect::renewId()
+{
+    m_id = newId();
+}
+
+std::string Effect::newId()
+{
+    return QUuid::createUuid().toString(QUuid::WithoutBraces).toStdString();
 }
 
 Effect::StringList Effect::parameterNames() const

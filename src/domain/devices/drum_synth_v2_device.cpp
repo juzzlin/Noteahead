@@ -602,6 +602,16 @@ EffectRack & DrumSynthV2Device::voiceEffectRack(int index)
     return m_voices.at(std::clamp(index, 0, NumVoices - 1)).effectRack;
 }
 
+Device::EffectRackList DrumSynthV2Device::effectRacks()
+{
+    auto racks = Device::effectRacks();
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    for (auto && voice : m_voices) {
+        racks.push_back(voice.effectRack);
+    }
+    return racks;
+}
+
 void DrumSynthV2Device::initializeVoices()
 {
     using enum DrumSynthV2::MidiNote;

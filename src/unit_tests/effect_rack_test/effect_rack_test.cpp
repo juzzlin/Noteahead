@@ -29,6 +29,31 @@
 
 namespace noteahead {
 
+namespace {
+
+//! Writes the rack out and reads it back into a fresh one, the way a project save and load does.
+std::unique_ptr<EffectRack> roundTrip(const EffectRack & rack)
+{
+    QString xml;
+    NahdXmlWriter writer { xml };
+    writer.writeStartElement(Constants::NahdXml::xmlKeyMasterEffects());
+    rack.serializeEffectsToXml(writer);
+    writer.writeEndElement();
+
+    auto loaded = std::make_unique<EffectRack>();
+    NahdXmlReader reader { xml };
+    while (reader.readNextStartElement()) {
+        if (reader.name() == Constants::NahdXml::xmlKeyMasterEffects()) {
+            loaded->deserializeEffectsFromXml(reader);
+        } else {
+            reader.skipCurrentElement();
+        }
+    }
+    return loaded;
+}
+
+} // namespace
+
 void EffectRackTest::initTestCase()
 {
     EffectFactory::init();
@@ -504,6 +529,98 @@ void EffectRackTest::test_copyFrom_emptySource_shouldClearTarget()
     QVERIFY(!target.hasEffects());
     // The rack keeps its fixed slot count so that setEffect() still works on it
     QCOMPARE(target.effectCount(), Constants::effectRackSize());
+}
+
+void EffectRackTest::test_effectId_newEffects_shouldBeUnique()
+{
+    const Reverb a;
+    const Reverb b;
+    QVERIFY(!a.id().empty());
+    QVERIFY(a.id() != b.id());
+}
+
+void EffectRackTest::test_effectId_serialization_shouldRoundTrip()
+{
+    EffectRack rack;
+    const auto reverb = std::make_shared<Reverb>();
+    rack.setEffect(3, reverb);
+
+    const auto loaded = roundTrip(rack);
+
+    // An automation aimed at the effect has to find it again after the project is reloaded.
+    QVERIFY(loaded->effect(3));
+    QCOMPARE(loaded->effect(3)->id(), reverb->id());
+}
+
+void EffectRackTest::test_effectId_projectWithoutIds_shouldAssignOne()
+{
+    // A project saved before effects had ids.
+    const auto xml = QString { "<%1><Effect slot=\"0\" %2=\"%3\" %4=\"%5\"/></%1>" }
+                       .arg(Constants::NahdXml::xmlKeyMasterEffects(),
+                            Constants::NahdXml::xmlKeyTypeId(), QString::fromStdString(Reverb::typeIdString()),
+                            Constants::NahdXml::xmlKeyType(), Constants::RackEffectType::reverb());
+
+    EffectRack rack;
+    NahdXmlReader reader { xml };
+    while (reader.readNextStartElement()) {
+        if (reader.name() == Constants::NahdXml::xmlKeyMasterEffects()) {
+            rack.deserializeEffectsFromXml(reader);
+        } else {
+            reader.skipCurrentElement();
+        }
+    }
+
+    QVERIFY(rack.effect(0));
+    QVERIFY(!rack.effect(0)->id().empty());
+}
+
+void EffectRackTest::test_effectId_copyEffect_shouldRenewIt()
+{
+    EffectRack rack;
+    rack.setEffect(0, std::make_shared<Reverb>());
+
+    QVERIFY(rack.copyEffect(0, 1));
+
+    QVERIFY(rack.effect(1)->id() != rack.effect(0)->id());
+}
+
+void EffectRackTest::test_effectId_copyFrom_renew_shouldGiveNewIds()
+{
+    EffectRack source;
+    source.setEffect(1, std::make_shared<Reverb>());
+
+    EffectRack target;
+    target.copyFrom(source);
+
+    QVERIFY(target.effect(1)->id() != source.effect(1)->id());
+}
+
+void EffectRackTest::test_effectId_copyFrom_keep_shouldKeepIds()
+{
+    EffectRack source;
+    source.setEffect(1, std::make_shared<Reverb>());
+
+    EffectRack target;
+    target.copyFrom(source, EffectRack::IdPolicy::Keep);
+
+    QCOMPARE(target.effect(1)->id(), source.effect(1)->id());
+    // Still a copy rather than the same object: only the identity is carried over.
+    QVERIFY(target.effect(1) != source.effect(1));
+}
+
+void EffectRackTest::test_effectId_renewEffectIds_shouldChangeEveryId()
+{
+    EffectRack rack;
+    rack.setEffect(0, std::make_shared<Reverb>());
+    rack.setEffect(4, std::make_shared<Reverb>());
+    const auto id0 = rack.effect(0)->id();
+    const auto id4 = rack.effect(4)->id();
+
+    rack.renewEffectIds();
+
+    QVERIFY(rack.effect(0)->id() != id0);
+    QVERIFY(rack.effect(4)->id() != id4);
+    QVERIFY(rack.effect(0)->id() != rack.effect(4)->id());
 }
 
 void EffectRackTest::test_swapEffects_shouldSwapTwoSlots()

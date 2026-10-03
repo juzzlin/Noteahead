@@ -86,9 +86,24 @@ public:
     //! source slot is empty or source and target are the same slot.
     bool copyEffect(size_t sourceIndex, size_t targetIndex);
 
+    //! Whether effects copied from elsewhere keep the ids they had there. See Effect::id().
+    enum class IdPolicy
+    {
+        //! The copy is a second set of effects beside the first, so it needs ids of its own.
+        Renew,
+        //! The copy takes the place of the original, which is about to go away: swapping the
+        //! instrument in a slot. Automations aimed at the old effects then carry on with these.
+        Keep
+    };
+
     //! Replace this rack's contents with in-memory clones of another rack's effects. The two racks
     //! stay independent afterwards: nothing is shared, not even the effect state.
-    void copyFrom(const EffectRack & other);
+    void copyFrom(const EffectRack & other, IdPolicy idPolicy = IdPolicy::Renew);
+
+    //! Gives every effect in the rack a new id. For a rack read from anywhere but the project it
+    //! belongs to -- an imported file, a device copied from another slot -- whose ids are already
+    //! taken by the effects it was saved from.
+    void renewEffectIds();
 
 private:
     void markChanged();

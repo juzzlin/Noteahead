@@ -1039,6 +1039,9 @@ bool DeviceService::importDeviceSettings(int slotIndex, ProjectReader & reader)
                             try {
                                 dev->deserializeFromXml(reader);
                                 dev->setId(static_cast<size_t>(slotIndex));
+                                // Imported or copied from another slot, so its effects' ids already
+                                // belong to the effects they were saved from.
+                                dev->renewEffectIds();
                             } catch (const std::exception & e) {
                                 // Deserialization can throw (e.g. a Sampler failing to load a sample). This is
                                 // invoked from QML, so swallow the exception here to fail gracefully instead of

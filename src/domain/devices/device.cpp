@@ -700,13 +700,27 @@ const EffectRack & Device::insertEffectRack() const
     return m_insertEffectRack;
 }
 
+Device::EffectRackList Device::effectRacks()
+{
+    return { m_insertEffectRack };
+}
+
+void Device::renewEffectIds()
+{
+    for (auto && rack : effectRacks()) {
+        rack.get().renewEffectIds();
+    }
+}
+
 void Device::adoptChannelStripFrom(const Device & other)
 {
     if (&other == this) {
         return;
     }
 
-    m_insertEffectRack.copyFrom(other.insertEffectRack());
+    // The other device is on its way out, so its effects keep their ids here: an automation aimed
+    // at one of them carries on with its copy rather than losing its target to an instrument swap.
+    m_insertEffectRack.copyFrom(other.insertEffectRack(), EffectRack::IdPolicy::Keep);
 
     // Through the virtual setters, so that a device folding pan or gain into its voices picks the
     // values up rather than only storing them.

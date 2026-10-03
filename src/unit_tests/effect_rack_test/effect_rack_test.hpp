@@ -46,6 +46,14 @@ private slots:
     void test_copyEffect_sameSlot_shouldFail();
     void test_copyFrom_shouldCloneEffectsIndependently();
     void test_copyFrom_emptySource_shouldClearTarget();
+    void test_effectId_newEffects_shouldBeUnique();
+    void test_effectId_serialization_shouldRoundTrip();
+    void test_effectId_projectWithoutIds_shouldAssignOne();
+    void test_effectId_copyEffect_shouldRenewIt();
+    void test_effectId_copyFrom_renew_shouldGiveNewIds();
+    void test_effectId_copyFrom_keep_shouldKeepIds();
+    void test_effectId_renewEffectIds_shouldChangeEveryId();
+
     void test_swapEffects_shouldSwapTwoSlots();
     void test_swapEffects_outOfBounds_shouldDoNothing();
     void test_moveEffect_upwards_shouldShiftSlotsInBetweenDown();

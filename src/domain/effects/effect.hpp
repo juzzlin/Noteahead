@@ -67,6 +67,17 @@ public:
     virtual std::string type() const = 0;
     virtual std::string typeId() const = 0;
 
+    //! Identity of this one effect within the project, which is what an automation names to reach
+    //! it. A rack slot will not do: the slot moves whenever the rack is reordered, and an automation
+    //! pointing at one would quietly start driving whatever effect was moved there.
+    //!
+    //! A fresh effect gets a fresh id. A project being loaded puts back the one that was saved, and
+    //! anything that duplicates an effect -- a copy, a paste, an import -- renews it, so no two
+    //! effects in a project share one. A C++ copy keeps it, as a copy of any other value would.
+    const std::string & id() const;
+    void setId(std::string id);
+    void renewId();
+
     //! The two entry points the rack calls. Deliberately not virtual: this is where the controls
     //! every effect shares are applied around the effect's own work, so that no effect has to
     //! remember to honour them and none can honour them differently.
@@ -226,6 +237,11 @@ private:
 
     //! Dry copy for block-form blending, kept between blocks so the audio thread does not allocate.
     std::vector<double> m_dryBuffer;
+
+    //! A new UUID without braces.
+    static std::string newId();
+
+    std::string m_id { newId() };
 
     MixLaw m_mixLaw { MixLaw::Crossfade };
     bool m_enabled { true };

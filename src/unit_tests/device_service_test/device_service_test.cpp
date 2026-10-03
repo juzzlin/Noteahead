@@ -406,6 +406,23 @@ void DeviceServiceTest::test_replaceDevice_shouldKeepChannelStrip()
     QCOMPARE(replacement->reverbSend(0), 0.0f);
 }
 
+void DeviceServiceTest::test_replaceDevice_shouldKeepEffectIds()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto dataService = std::make_shared<DataService>();
+    DeviceService service { audioEngine, dataService };
+
+    const auto synth = DeviceFactory::createDevice(SynthDevice::typeIdString(), "TestSynth");
+    synth->insertEffectRack().setEffect(1, EffectFactory::createEffect(Gain::typeIdString()));
+    service.setDevice(0, synth);
+    const auto id = synth->insertEffectRack().effect(1)->id();
+
+    service.replaceDevice(0, DeviceFactory::createDevice(SamplerDevice::typeIdString(), "TestSynth"));
+
+    // Swapping the instrument keeps the strip, and with it whatever automation was aimed at it.
+    QCOMPARE(service.device(0)->insertEffectRack().effect(1)->id(), id);
+}
+
 void DeviceServiceTest::test_replaceDevice_emptySlot_shouldJustSetTheDevice()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
@@ -459,6 +476,29 @@ void DeviceServiceTest::test_copyDevice_shouldDuplicateParametersIntoTargetSlot(
     QVERIFY(copy != synth);
     // The source is left untouched.
     QCOMPARE(service.device(0), synth);
+}
+
+void DeviceServiceTest::test_copyDevice_shouldRenewEffectIds()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto dataService = std::make_shared<DataService>();
+    DeviceService service { audioEngine, dataService };
+
+    // A drum synth, so that the per-voice racks are covered as well as the insert rack.
+    const auto drums = std::make_shared<DrumSynthDevice>("TestDrums");
+    drums->insertEffectRack().setEffect(0, EffectFactory::createEffect(Gain::typeIdString()));
+    drums->voiceEffectRack(0).setEffect(0, EffectFactory::createEffect(Gain::typeIdString()));
+    service.setDevice(0, drums);
+
+    QVERIFY(service.copyDevice(0, 1));
+
+    const auto copy = std::dynamic_pointer_cast<DrumSynthDevice>(service.device(1));
+    QVERIFY(copy);
+    QVERIFY(copy->insertEffectRack().effect(0));
+    QVERIFY(copy->voiceEffectRack(0).effect(0));
+    // Two effects sharing an id would leave an automation unable to tell them apart.
+    QVERIFY(copy->insertEffectRack().effect(0)->id() != drums->insertEffectRack().effect(0)->id());
+    QVERIFY(copy->voiceEffectRack(0).effect(0)->id() != drums->voiceEffectRack(0).effect(0)->id());
 }
 
 void DeviceServiceTest::test_copyDevice_differentType_shouldReplaceTargetDevice()

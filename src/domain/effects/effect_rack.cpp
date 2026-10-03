@@ -269,6 +269,7 @@ void EffectRack::serializeEffectsToXml(ProjectWriter & writer) const
             writer.writeAttribute("slot", QString::number(i));
             writer.writeAttribute(Constants::NahdXml::xmlKeyTypeId(), QString::fromStdString(effect->typeId()));
             writer.writeAttribute(Constants::NahdXml::xmlKeyType(), QString::fromStdString(effect->type()));
+            writer.writeAttribute(Constants::NahdXml::xmlKeyId(), QString::fromStdString(effect->id()));
             writer.writeAttribute(Constants::NahdXml::xmlKeyEnabled(), effect->enabled() ? Constants::NahdXml::xmlValueTrue() : Constants::NahdXml::xmlValueFalse());
             effect->serializeParametersToXml(writer);
             writer.writeEndElement(); // Effect
@@ -301,10 +302,16 @@ void EffectRack::deserializeEffect(ProjectReader & reader)
     const auto typeId = reader.attribute(Constants::NahdXml::xmlKeyTypeId()).toString().toStdString();
     const auto type = reader.attribute(Constants::NahdXml::xmlKeyType()).toString().toStdString();
     const auto enabled = reader.attribute(Constants::NahdXml::xmlKeyEnabled()).toString() != Constants::NahdXml::xmlValueFalse();
+    const auto id = reader.attribute(Constants::NahdXml::xmlKeyId()).toString().toStdString();
 
     const auto effect = EffectFactory::createEffect(typeId, type);
 
     if (effect) {
+        // A project saved before effects had ids keeps the fresh one the effect was created with,
+        // and is written out with it from then on.
+        if (!id.empty()) {
+            effect->setId(id);
+        }
         effect->setEnabled(enabled);
         effect->deserializeParametersFromXml(reader);
         effect->sync();
@@ -448,7 +455,7 @@ bool EffectRack::copyEffect(size_t sourceIndex, size_t targetIndex)
     return true;
 }
 
-void EffectRack::copyFrom(const EffectRack & other)
+void EffectRack::copyFrom(const EffectRack & other, IdPolicy idPolicy)
 {
     if (&other == this) {
         return;
@@ -466,10 +473,23 @@ void EffectRack::copyFrom(const EffectRack & other)
     for (size_t i = 0; i < sourceEffects.size(); i++) {
         if (sourceEffects[i]) {
             m_effects[i] = cloneEffect(sourceEffects[i]);
+            if (m_effects[i] && idPolicy == IdPolicy::Keep) {
+                m_effects[i]->setId(sourceEffects[i]->id());
+            }
         }
     }
     setEnabled(other.enabled());
     markChanged();
+}
+
+void EffectRack::renewEffectIds()
+{
+    const std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    for (auto && effect : m_effects) {
+        if (effect) {
+            effect->renewId();
+        }
+    }
 }
 
 } // namespace noteahead

@@ -29,6 +29,7 @@
 #include "../utility/stereo_level_meter.hpp"
 
 #include <cstdint>
+#include <functional>
 #include <mutex>
 #include <optional>
 #include <string>
@@ -233,6 +234,15 @@ public:
     //! Whether the insert rack has nothing left to release. A device that has gone silent is only
     //! safe to stop processing once this holds: see Effect::isSettled().
     bool insertEffectsSettled() const;
+
+    //! Every effect rack this device owns: the insert rack, then any it keeps per voice or per pad.
+    //! What lets the project reach each effect in it without knowing which devices keep extra racks.
+    using EffectRackList = std::vector<std::reference_wrapper<EffectRack>>;
+    virtual EffectRackList effectRacks();
+
+    //! Renews the id of every effect in every rack the device owns. For a device read from
+    //! anywhere but its own project: see EffectRack::renewEffectIds().
+    void renewEffectIds();
 
     //! Takes over another device's channel strip: insert effects, sends, fader, gain, pan, fader
     //! position and send tap. Everything on a slot that is not the instrument itself.

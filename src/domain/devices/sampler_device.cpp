@@ -1635,6 +1635,18 @@ EffectRack & SamplerDevice::sampleEffectRack(uint8_t note)
     return *slot->effectRack;
 }
 
+Device::EffectRackList SamplerDevice::effectRacks()
+{
+    auto racks = Device::effectRacks();
+    std::lock_guard<std::recursive_mutex> lock { mutex() };
+    for (auto && sample : m_samples) {
+        if (sample && sample->effectRack) {
+            racks.push_back(*sample->effectRack);
+        }
+    }
+    return racks;
+}
+
 bool SamplerDevice::channelMode() const
 {
     std::lock_guard<std::recursive_mutex> lock { mutex() };

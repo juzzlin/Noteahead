@@ -103,6 +103,8 @@ public:
     // Per-voice insert effect rack.
     EffectRack & voiceEffectRack(int index);
 
+    EffectRackList effectRacks() override;
+
     //! Every voice is a send source of its own: @p sourceIndex is the voice.
     size_t sendSourceCount() const override;
     float sendSourceLevel(size_t sourceIndex, size_t busIndex) const override;

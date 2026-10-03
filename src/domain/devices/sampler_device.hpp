@@ -292,6 +292,9 @@ public:
     // Per-pad insert effect rack for the given note, created lazily on first access.
     EffectRack & sampleEffectRack(uint8_t note);
 
+    //! The insert rack, then the rack of every pad that has one.
+    EffectRackList effectRacks() override;
+
     //! Every pad is a send source of its own: @p sourceIndex is the note the pad sits on.
     size_t sendSourceCount() const override;
     float sendSourceLevel(size_t sourceIndex, size_t busIndex) const override;

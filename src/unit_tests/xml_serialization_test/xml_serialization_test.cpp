@@ -1344,6 +1344,7 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_padEffectRack_shouldR
     const auto effect = samplerIn->sampleEffectRack(60).effect(0);
     QVERIFY(effect);
     QCOMPARE(effect->typeId(), reverbOut->typeId());
+    QCOMPARE(effect->id(), reverbOut->id());
     QVERIFY(!effect->enabled());
     // A pad without an added effect must not gain a phantom rack entry.
     QVERIFY(!samplerIn->sampleEffectRack(61).hasEffects());
@@ -1377,6 +1378,7 @@ void XmlSerializationTest::test_toXmlFromXml_drumSynthDevice_voiceEffectRack_sho
     const auto effect = drumIn->voiceEffectRack(1).effect(0);
     QVERIFY(effect);
     QCOMPARE(effect->typeId(), reverbOut->typeId());
+    QCOMPARE(effect->id(), reverbOut->id());
     QVERIFY(!effect->enabled());
     // A voice without an added effect must not gain one.
     QVERIFY(!drumIn->voiceEffectRack(0).hasEffects());
@@ -1866,6 +1868,7 @@ void XmlSerializationTest::test_toXmlFromXml_masterSendEffects_shouldLoadCorrect
     QCOMPARE(restoredReverb->decay(), 0.75f);
     QCOMPARE(restoredReverb->lpfCutoff(), 0.72f);
     QCOMPARE(restoredReverb->hpfCutoff(), 0.28f);
+    QCOMPARE(restoredReverb->id(), reverb->id());
 }
 
 void XmlSerializationTest::test_toXmlFromXml_sendChains_shouldLoadCorrectly()
@@ -1903,6 +1906,7 @@ void XmlSerializationTest::test_toXmlFromXml_sendChains_shouldLoadCorrectly()
     const auto restoredChorus = std::dynamic_pointer_cast<Chorus>(deviceServiceIn.sendChainRack(0).effect(1));
     QVERIFY(restoredChorus);
     QCOMPARE(restoredChorus->width(), 0.42f);
+    QCOMPARE(restoredChorus->id(), chorus->id());
     QVERIFY(!deviceServiceIn.sendChainRack(0).effect(0));
 
     const auto restoredTail = std::dynamic_pointer_cast<Reverb>(deviceServiceIn.sendChainRack(2).effect(0));
@@ -3729,6 +3733,7 @@ void XmlSerializationTest::test_toXmlFromXml_gainEffect_shouldLoadCorrectly()
     QVERIFY(restored);
     QCOMPARE(restored->typeId(), Gain::typeIdString());
     QVERIFY(std::abs(restored->gainDb() + 6.0f) < 0.05f);
+    QCOMPARE(restored->id(), gain->id());
 }
 
 void XmlSerializationTest::test_toXmlFromXml_monitorEffect_shouldLoadCorrectly()
