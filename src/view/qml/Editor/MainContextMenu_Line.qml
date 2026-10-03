@@ -40,37 +40,43 @@ Menu {
         onTriggered: UiService.requestLineDelayDialog()
     }
     MenuSeparator {}
-    Action {
-        text: qsTr("Add MIDI CC automation...")
-        enabled: !UiService.isPlaying()
-        onTriggered: UiService.requestLineAddMidiCcAutomationDialog()
-    }
-    Action {
-        text: qsTr("Edit MIDI CC automations...")
-        enabled: !UiService.isPlaying()
-        onTriggered: UiService.requestEditMidiCcAutomationsDialogByLine()
-    }
-    MenuSeparator {}
-    Action {
-        text: qsTr("Add Pitch Bend automation...")
-        enabled: !UiService.isPlaying()
-        onTriggered: UiService.requestLineAddPitchBendAutomationDialog()
-    }
-    Action {
-        text: qsTr("Edit Pitch Bend automations...")
-        enabled: !UiService.isPlaying()
-        onTriggered: UiService.requestEditPitchBendAutomationsDialogByLine()
-    }
-    MenuSeparator {}
-    Action {
-        text: qsTr("Add parameter automation...")
-        enabled: !UiService.isPlaying()
-        onTriggered: UiService.requestLineAddParameterAutomationDialog()
-    }
-    Action {
-        text: qsTr("Edit parameter automations...")
-        enabled: !UiService.isPlaying()
-        onTriggered: UiService.requestEditParameterAutomationsDialogByLine()
+    // In a sub-menu of their own, one or two entries for each kind, to keep the menu short
+    Menu {
+        title: qsTr("Automation")
+        width: rootItem.width
+        Action {
+            text: qsTr("Add MIDI CC automation...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestLineAddMidiCcAutomationDialog()
+        }
+        Action {
+            text: qsTr("Edit MIDI CC automations...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEditMidiCcAutomationsDialogByLine()
+        }
+        MenuSeparator {}
+        Action {
+            text: qsTr("Add Pitch Bend automation...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestLineAddPitchBendAutomationDialog()
+        }
+        Action {
+            text: qsTr("Edit Pitch Bend automations...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEditPitchBendAutomationsDialogByLine()
+        }
+        MenuSeparator {}
+        Action {
+            text: qsTr("Add parameter automation...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestLineAddParameterAutomationDialog()
+        }
+        Action {
+            text: qsTr("Edit parameter automations...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEditParameterAutomationsDialogByLine()
+        }
+        delegate: MenuItemDelegate {}
     }
     delegate: MenuItemDelegate {}
 }

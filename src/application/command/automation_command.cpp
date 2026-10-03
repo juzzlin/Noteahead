@@ -18,56 +18,82 @@
 
 namespace noteahead {
 
-AutomationCommand::AutomationCommand(AutomationServiceS automationService, MidiCcAutomationList additions, PitchBendAutomationList pbAdditions, MidiCcAutomationList deletions, PitchBendAutomationList pbDeletions)
+namespace {
+
+// One overload per kind, so that AutomationSet::forEach() can hand each automation to the right one.
+
+void add(AutomationService & service, MidiCcAutomation & automation)
+{
+    automation.setId(service.addMidiCcAutomation(automation));
+}
+
+void add(AutomationService & service, PitchBendAutomation & automation)
+{
+    automation.setId(service.addPitchBendAutomation(automation));
+}
+
+void add(AutomationService & service, ParameterAutomation & automation)
+{
+    automation.setId(service.addParameterAutomation(automation));
+}
+
+void addWithId(AutomationService & service, const MidiCcAutomation & automation)
+{
+    service.addMidiCcAutomationWithId(automation);
+}
+
+void addWithId(AutomationService & service, const PitchBendAutomation & automation)
+{
+    service.addPitchBendAutomationWithId(automation);
+}
+
+void addWithId(AutomationService & service, const ParameterAutomation & automation)
+{
+    service.addParameterAutomationWithId(automation);
+}
+
+void remove(AutomationService & service, const MidiCcAutomation & automation)
+{
+    service.deleteMidiCcAutomation(automation);
+}
+
+void remove(AutomationService & service, const PitchBendAutomation & automation)
+{
+    service.deletePitchBendAutomation(automation);
+}
+
+void remove(AutomationService & service, const ParameterAutomation & automation)
+{
+    service.deleteParameterAutomation(automation);
+}
+
+} // namespace
+
+AutomationCommand::AutomationCommand(AutomationServiceS automationService, AutomationSet additions, AutomationSet deletions)
   : m_automationService { std::move(automationService) }
   , m_additions { std::move(additions) }
-  , m_pitchBendAdditions { std::move(pbAdditions) }
   , m_deletions { std::move(deletions) }
-  , m_pitchBendDeletions { std::move(pbDeletions) }
 {
 }
 
 void AutomationCommand::undo()
 {
-    for (auto && automation : m_additions) {
-        m_automationService->deleteMidiCcAutomation(automation);
-    }
-    for (auto && automation : m_pitchBendAdditions) {
-        m_automationService->deletePitchBendAutomation(automation);
-    }
-    for (auto && automation : m_deletions) {
-        m_automationService->addMidiCcAutomationWithId(automation);
-    }
-    for (auto && automation : m_pitchBendDeletions) {
-        m_automationService->addPitchBendAutomationWithId(automation);
-    }
+    auto & service = *m_automationService;
+    m_additions.forEach([&service](auto && automation) { remove(service, automation); });
+    m_deletions.forEach([&service](auto && automation) { addWithId(service, automation); });
 }
 
 void AutomationCommand::redo()
 {
-    for (auto && automation : m_deletions) {
-        m_automationService->deleteMidiCcAutomation(automation);
-    }
-    for (auto && automation : m_pitchBendDeletions) {
-        m_automationService->deletePitchBendAutomation(automation);
-    }
+    auto & service = *m_automationService;
+    m_deletions.forEach([&service](auto && automation) { remove(service, automation); });
 
+    // The first time through the additions are given ids of their own, which every redo after it
+    // reuses, so that an undo finds them by the id they were added under.
     if (m_idsAssigned) {
-        for (auto && automation : m_additions) {
-            m_automationService->addMidiCcAutomationWithId(automation);
-        }
-        for (auto && automation : m_pitchBendAdditions) {
-            m_automationService->addPitchBendAutomationWithId(automation);
-        }
+        m_additions.forEach([&service](auto && automation) { addWithId(service, automation); });
     } else {
-        for (auto && automation : m_additions) {
-            const auto id = m_automationService->addMidiCcAutomation(automation);
-            automation.setId(id);
-        }
-        for (auto && automation : m_pitchBendAdditions) {
-            const auto id = m_automationService->addPitchBendAutomation(automation);
-            automation.setId(id);
-        }
+        m_additions.forEach([&service](auto && automation) { add(service, automation); });
         m_idsAssigned = true;
     }
 }

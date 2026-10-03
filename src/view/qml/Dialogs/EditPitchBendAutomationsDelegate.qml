@@ -328,7 +328,7 @@ GroupBox {
                 ToolTip.timeout: Constants.toolTipTimeout
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Replace this automation with the settings of another one")
-                onClicked: UiService.requestCopyAutomationDialog(true, index)
+                onClicked: UiService.requestCopyAutomationDialog("pitchBend", index)
             }
             AppButton {
                 id: deleteButton

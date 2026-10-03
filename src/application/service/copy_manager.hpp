@@ -19,8 +19,7 @@
 #include <memory>
 #include <vector>
 
-#include "../../domain/midi/midi_cc_automation.hpp"
-#include "../../domain/midi/pitch_bend_automation.hpp"
+#include "../../domain/tracker/automation_set.hpp"
 #include "../../domain/tracker/note_data.hpp"
 #include "../position.hpp"
 
@@ -66,20 +65,12 @@ public:
     PasteChangeList getPastePatternChanges(const Pattern & targetPattern) const;
     PasteChangeList getPasteSelectionChanges(const Pattern & targetPattern, const Position & targetPosition) const;
 
-    using MidiCcAutomationList = std::vector<MidiCcAutomation>;
-    using PitchBendAutomationList = std::vector<PitchBendAutomation>;
-
-    MidiCcAutomationList getPasteColumnMidiCcAutomationChanges(const Pattern & targetPattern, size_t trackIndex, size_t columnIndex) const;
-    PitchBendAutomationList getPasteColumnPitchBendAutomationChanges(const Pattern & targetPattern, size_t trackIndex, size_t columnIndex) const;
-
-    MidiCcAutomationList getPasteTrackMidiCcAutomationChanges(const Pattern & targetPattern, size_t trackIndex) const;
-    PitchBendAutomationList getPasteTrackPitchBendAutomationChanges(const Pattern & targetPattern, size_t trackIndex) const;
-
-    MidiCcAutomationList getPastePatternMidiCcAutomationChanges(const Pattern & targetPattern) const;
-    PitchBendAutomationList getPastePatternPitchBendAutomationChanges(const Pattern & targetPattern) const;
-
-    MidiCcAutomationList getPasteSelectionMidiCcAutomationChanges(const Pattern & targetPattern, const Position & targetPosition) const;
-    PitchBendAutomationList getPasteSelectionPitchBendAutomationChanges(const Pattern & targetPattern, const Position & targetPosition) const;
+    //! The copied automations as they land on a paste at the given place, every kind at once. A
+    //! cut deletes them from where they were, which is the same set placed back at its source.
+    AutomationSet getPasteColumnAutomationChanges(const Pattern & targetPattern, size_t trackIndex, size_t columnIndex) const;
+    AutomationSet getPasteTrackAutomationChanges(const Pattern & targetPattern, size_t trackIndex) const;
+    AutomationSet getPastePatternAutomationChanges(const Pattern & targetPattern) const;
+    AutomationSet getPasteSelectionAutomationChanges(const Pattern & targetPattern, const Position & targetPosition) const;
 
     size_t sourceLineCount() const;
 
@@ -92,8 +83,7 @@ private:
 
     std::vector<std::pair<Position, NoteData>> m_copiedData;
 
-    MidiCcAutomationList m_copiedMidiCcAutomations;
-    PitchBendAutomationList m_copiedPitchBendAutomations;
+    AutomationSet m_copiedAutomations;
 
     size_t m_sourceLineCount = 0;
 };

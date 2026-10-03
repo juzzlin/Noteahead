@@ -48,6 +48,23 @@ GroupBox {
         rowModel.modulationType = type;
     }
 
+    // A copy replaces this automation wholesale, and a control typed into no longer follows the
+    // model, so the row is read again rather than left showing what it was replaced from.
+    Connections {
+        target: parameterAutomationsModel
+        function onAutomationReplaced(replacedIndex: int): void {
+            if (replacedIndex === index) {
+                startLineSpinBox.value = delegateRoot.rowModel.line0;
+                endLineSpinBox.value = delegateRoot.rowModel.line1;
+                cyclesSpinBox.value = delegateRoot.rowModel.modulationCycles;
+                amplitudeSpinBox.value = delegateRoot.rowModel.modulationAmplitude;
+                offsetSpinBox.value = delegateRoot.rowModel.modulationOffset;
+                invertedCheckBox.checked = delegateRoot.rowModel.modulationInverted;
+                commentEdit.text = delegateRoot.rowModel.comment;
+            }
+        }
+    }
+
     GridLayout {
         anchors.fill: parent
         columns: 4
@@ -94,6 +111,7 @@ GroupBox {
                     Layout.fillWidth: true
                 }
                 SpinBox {
+                    id: startLineSpinBox
                     from: 0
                     to: 999
                     editable: true
@@ -103,6 +121,7 @@ GroupBox {
                     Layout.fillWidth: true
                 }
                 SpinBox {
+                    id: endLineSpinBox
                     from: 0
                     to: 999
                     editable: true
@@ -187,6 +206,7 @@ GroupBox {
                     Layout.fillWidth: true
                 }
                 SpinBox {
+                    id: cyclesSpinBox
                     from: 0
                     to: 127
                     editable: true
@@ -196,6 +216,7 @@ GroupBox {
                     Layout.fillWidth: true
                 }
                 SpinBox {
+                    id: amplitudeSpinBox
                     from: 0
                     to: 200
                     editable: true
@@ -205,6 +226,7 @@ GroupBox {
                     Layout.fillWidth: true
                 }
                 SpinBox {
+                    id: offsetSpinBox
                     from: -100
                     to: 100
                     editable: true
@@ -214,6 +236,7 @@ GroupBox {
                     Layout.fillWidth: true
                 }
                 CheckBox {
+                    id: invertedCheckBox
                     text: qsTr("Inverted")
                     checked: model.modulationInverted
                     onToggled: model.modulationInverted = checked
@@ -221,31 +244,52 @@ GroupBox {
             }
         }
         TextField {
+            id: commentEdit
             placeholderText: qsTr("Comment")
             text: model.comment
             onEditingFinished: model.comment = text
             Keys.onReturnPressed: focus = false
             Layout.row: 3
             Layout.column: 0
-            Layout.columnSpan: 3
+            Layout.columnSpan: 4
             Layout.fillWidth: true
         }
-        AppButton {
-            Layout.row: 3
-            Layout.column: 3
+        // Under the comment field and exactly as wide as it, the two sharing that width evenly, as
+        // in the other automation dialogs.
+        RowLayout {
+            Layout.row: 4
+            Layout.column: 0
+            Layout.columnSpan: 4
             Layout.fillWidth: true
-            ToolTip.delay: Constants.toolTipDelay
-            ToolTip.timeout: Constants.toolTipTimeout
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("Delete this automation")
-            Image {
-                source: "../Graphics/delete.png"
-                sourceSize: Qt.size(parent.height, parent.height)
-                height: parent.height
-                anchors.centerIn: parent
-                fillMode: Image.PreserveAspectFit
+            spacing: 10
+            AppButton {
+                text: qsTr("Copy...")
+                Layout.fillWidth: true
+                // An even split has to be asked for: fillWidth shares out what is left over from each
+                // item's own implicit width, and a labelled button starts wider than an icon.
+                Layout.preferredWidth: 0
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Replace this automation with the settings of another one")
+                onClicked: UiService.requestCopyAutomationDialog("parameter", index)
             }
-            onClicked: parameterAutomationsModel.removeAt(index)
+            AppButton {
+                Layout.fillWidth: true
+                Layout.preferredWidth: 0
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Delete this automation")
+                Image {
+                    source: "../Graphics/delete.png"
+                    sourceSize: Qt.size(parent.height, parent.height)
+                    height: parent.height
+                    anchors.centerIn: parent
+                    fillMode: Image.PreserveAspectFit
+                }
+                onClicked: parameterAutomationsModel.removeAt(index)
+            }
         }
     }
 }

@@ -130,6 +130,7 @@ set(HEADER_FILES
     tracker/auto_note_off_offset.hpp
     tracker/automation.hpp
     tracker/automation_location.hpp
+    tracker/automation_set.hpp
     tracker/column.hpp
     tracker/column_settings.hpp
     tracker/event.hpp
@@ -305,6 +306,7 @@ set(SOURCE_FILES
     tracker/auto_note_off_offset.cpp
     tracker/automation.cpp
     tracker/automation_location.cpp
+    tracker/automation_set.cpp
     tracker/column.cpp
     tracker/column_settings.cpp
     tracker/event.cpp

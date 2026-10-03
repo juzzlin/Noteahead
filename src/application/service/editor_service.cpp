@@ -1975,13 +1975,12 @@ void EditorService::requestColumnCut()
         updateDuration(); }, [this](const Position & pos) { requestPosition(pos); });
 
     if (m_automationService) {
-        const auto midiCcDeletions = m_state.copyManager.getPasteColumnMidiCcAutomationChanges(*m_song->pattern(currentPattern()), currentTrack(), currentColumn());
-        const auto pitchBendDeletions = m_state.copyManager.getPasteColumnPitchBendAutomationChanges(*m_song->pattern(currentPattern()), currentTrack(), currentColumn());
+        auto deletions = m_state.copyManager.getPasteColumnAutomationChanges(*m_song->pattern(currentPattern()), currentTrack(), currentColumn());
 
-        if (midiCcDeletions.empty() && pitchBendDeletions.empty()) {
+        if (deletions.empty()) {
             m_undoStack->push(std::move(noteEditCommand));
         } else {
-            auto automationCommand = std::make_shared<AutomationCommand>(m_automationService, AutomationCommand::MidiCcAutomationList {}, AutomationCommand::PitchBendAutomationList {}, std::move(midiCcDeletions), std::move(pitchBendDeletions));
+            auto automationCommand = std::make_shared<AutomationCommand>(m_automationService, AutomationSet {}, std::move(deletions));
 
             CompositeCommand::CommandList commands;
             commands.push_back(std::move(noteEditCommand));
@@ -2028,16 +2027,13 @@ void EditorService::requestColumnPaste()
             updateDuration(); }, [this](const Position & pos) { requestPosition(pos); });
 
         if (m_automationService) {
-            const auto midiCcDeletions = m_automationService->midiCcAutomationsByColumn(currentPattern(), currentTrack(), currentColumn());
-            const auto pitchBendDeletions = m_automationService->pitchBendAutomationsByColumn(currentPattern(), currentTrack(), currentColumn());
+            auto deletions = m_automationService->automationsByColumn(currentPattern(), currentTrack(), currentColumn());
+            auto additions = m_state.copyManager.getPasteColumnAutomationChanges(targetPattern, currentTrack(), currentColumn());
 
-            const auto midiCcAdditions = m_state.copyManager.getPasteColumnMidiCcAutomationChanges(targetPattern, currentTrack(), currentColumn());
-            const auto pitchBendAdditions = m_state.copyManager.getPasteColumnPitchBendAutomationChanges(targetPattern, currentTrack(), currentColumn());
-
-            if (midiCcDeletions.empty() && pitchBendDeletions.empty() && midiCcAdditions.empty() && pitchBendAdditions.empty()) {
+            if (deletions.empty() && additions.empty()) {
                 m_undoStack->push(std::move(noteEditCommand));
             } else {
-                auto automationCommand = std::make_shared<AutomationCommand>(m_automationService, std::move(midiCcAdditions), std::move(pitchBendAdditions), std::move(midiCcDeletions), std::move(pitchBendDeletions));
+                auto automationCommand = std::make_shared<AutomationCommand>(m_automationService, std::move(additions), std::move(deletions));
 
                 CompositeCommand::CommandList commands;
                 commands.push_back(std::move(noteEditCommand));
@@ -2107,13 +2103,12 @@ void EditorService::requestTrackCut()
         updateDuration(); }, [this](const Position & pos) { requestPosition(pos); });
 
     if (m_automationService) {
-        const auto midiCcDeletions = m_state.copyManager.getPasteTrackMidiCcAutomationChanges(*m_song->pattern(currentPattern()), currentTrack());
-        const auto pitchBendDeletions = m_state.copyManager.getPasteTrackPitchBendAutomationChanges(*m_song->pattern(currentPattern()), currentTrack());
+        auto deletions = m_state.copyManager.getPasteTrackAutomationChanges(*m_song->pattern(currentPattern()), currentTrack());
 
-        if (midiCcDeletions.empty() && pitchBendDeletions.empty()) {
+        if (deletions.empty()) {
             m_undoStack->push(std::move(noteEditCommand));
         } else {
-            auto automationCommand = std::make_shared<AutomationCommand>(m_automationService, AutomationCommand::MidiCcAutomationList {}, AutomationCommand::PitchBendAutomationList {}, std::move(midiCcDeletions), std::move(pitchBendDeletions));
+            auto automationCommand = std::make_shared<AutomationCommand>(m_automationService, AutomationSet {}, std::move(deletions));
 
             CompositeCommand::CommandList commands;
             commands.push_back(std::move(noteEditCommand));
@@ -2160,16 +2155,13 @@ void EditorService::requestTrackPaste()
             updateDuration(); }, [this](const Position & pos) { requestPosition(pos); });
 
         if (m_automationService) {
-            const auto midiCcDeletions = m_automationService->midiCcAutomationsByTrack(currentPattern(), currentTrack());
-            const auto pitchBendDeletions = m_automationService->pitchBendAutomationsByTrack(currentPattern(), currentTrack());
+            auto deletions = m_automationService->automationsByTrack(currentPattern(), currentTrack());
+            auto additions = m_state.copyManager.getPasteTrackAutomationChanges(targetPattern, currentTrack());
 
-            const auto midiCcAdditions = m_state.copyManager.getPasteTrackMidiCcAutomationChanges(targetPattern, currentTrack());
-            const auto pitchBendAdditions = m_state.copyManager.getPasteTrackPitchBendAutomationChanges(targetPattern, currentTrack());
-
-            if (midiCcDeletions.empty() && pitchBendDeletions.empty() && midiCcAdditions.empty() && pitchBendAdditions.empty()) {
+            if (deletions.empty() && additions.empty()) {
                 m_undoStack->push(std::move(noteEditCommand));
             } else {
-                auto automationCommand = std::make_shared<AutomationCommand>(m_automationService, std::move(midiCcAdditions), std::move(pitchBendAdditions), std::move(midiCcDeletions), std::move(pitchBendDeletions));
+                auto automationCommand = std::make_shared<AutomationCommand>(m_automationService, std::move(additions), std::move(deletions));
 
                 CompositeCommand::CommandList commands;
                 commands.push_back(std::move(noteEditCommand));
@@ -2232,13 +2224,12 @@ void EditorService::requestPatternCut()
         updateDuration(); }, [this](const Position & pos) { requestPosition(pos); });
 
     if (m_automationService) {
-        auto midiCcDeletions = m_state.copyManager.getPastePatternMidiCcAutomationChanges(*m_song->pattern(currentPattern()));
-        auto pitchBendDeletions = m_state.copyManager.getPastePatternPitchBendAutomationChanges(*m_song->pattern(currentPattern()));
+        auto deletions = m_state.copyManager.getPastePatternAutomationChanges(*m_song->pattern(currentPattern()));
 
-        if (midiCcDeletions.empty() && pitchBendDeletions.empty()) {
+        if (deletions.empty()) {
             m_undoStack->push(std::move(noteEditCommand));
         } else {
-            auto automationCommand = std::make_shared<AutomationCommand>(m_automationService, AutomationCommand::MidiCcAutomationList {}, AutomationCommand::PitchBendAutomationList {}, std::move(midiCcDeletions), std::move(pitchBendDeletions));
+            auto automationCommand = std::make_shared<AutomationCommand>(m_automationService, AutomationSet {}, std::move(deletions));
 
             CompositeCommand::CommandList commands;
             commands.push_back(std::move(noteEditCommand));
@@ -2294,16 +2285,13 @@ void EditorService::requestPatternPaste()
             updateDuration(); }, [this](const Position & pos) { requestPosition(pos); });
 
         if (m_automationService) {
-            const auto midiCcDeletions = m_automationService->midiCcAutomationsByPattern(currentPattern());
-            const auto pitchBendDeletions = m_automationService->pitchBendAutomationsByPattern(currentPattern());
+            auto deletions = m_automationService->automationsByPattern(currentPattern());
+            auto additions = m_state.copyManager.getPastePatternAutomationChanges(targetPattern);
 
-            const auto midiCcAdditions = m_state.copyManager.getPastePatternMidiCcAutomationChanges(targetPattern);
-            const auto pitchBendAdditions = m_state.copyManager.getPastePatternPitchBendAutomationChanges(targetPattern);
-
-            if (midiCcDeletions.empty() && pitchBendDeletions.empty() && midiCcAdditions.empty() && pitchBendAdditions.empty()) {
+            if (deletions.empty() && additions.empty()) {
                 m_undoStack->push(std::move(noteEditCommand));
             } else {
-                auto automationCommand = std::make_shared<AutomationCommand>(m_automationService, std::move(midiCcAdditions), std::move(pitchBendAdditions), std::move(midiCcDeletions), std::move(pitchBendDeletions));
+                auto automationCommand = std::make_shared<AutomationCommand>(m_automationService, std::move(additions), std::move(deletions));
 
                 CompositeCommand::CommandList commands;
                 commands.push_back(std::move(noteEditCommand));
@@ -2363,13 +2351,12 @@ void EditorService::requestSelectionCut()
         updateDuration(); }, [this](const Position & pos) { requestPosition(pos); });
 
     if (m_automationService) {
-        const auto midiCcDeletions = m_state.copyManager.getPasteSelectionMidiCcAutomationChanges(*m_song->pattern(currentPattern()), position());
-        const auto pitchBendDeletions = m_state.copyManager.getPasteSelectionPitchBendAutomationChanges(*m_song->pattern(currentPattern()), position());
+        auto deletions = m_state.copyManager.getPasteSelectionAutomationChanges(*m_song->pattern(currentPattern()), position());
 
-        if (midiCcDeletions.empty() && pitchBendDeletions.empty()) {
+        if (deletions.empty()) {
             m_undoStack->push(std::move(noteEditCommand));
         } else {
-            auto automationCommand = std::make_shared<AutomationCommand>(m_automationService, AutomationCommand::MidiCcAutomationList {}, AutomationCommand::PitchBendAutomationList {}, std::move(midiCcDeletions), std::move(pitchBendDeletions));
+            auto automationCommand = std::make_shared<AutomationCommand>(m_automationService, AutomationSet {}, std::move(deletions));
 
             CompositeCommand::CommandList commands;
             commands.push_back(std::move(noteEditCommand));
@@ -2416,42 +2403,22 @@ void EditorService::requestSelectionPaste()
             updateDuration(); }, [this](const Position & pos) { requestPosition(pos); });
 
         if (m_automationService) {
-            const auto targetAreaMidiCc = m_state.copyManager.getPasteSelectionMidiCcAutomationChanges(targetPattern, position());
-            const auto targetAreaPitchBend = m_state.copyManager.getPasteSelectionPitchBendAutomationChanges(targetPattern, position());
+            auto additions = m_state.copyManager.getPasteSelectionAutomationChanges(targetPattern, position());
 
-            AutomationCommand::MidiCcAutomationList midiCcDeletions;
-            AutomationCommand::PitchBendAutomationList pitchBendDeletions;
-
-            for (const auto & automation : targetAreaMidiCc) {
+            // Whatever already runs over any line the pasted automations will cover gives way to them
+            AutomationSet deletions;
+            additions.forEach([&](auto && automation) {
                 const auto & location = automation.location();
                 const auto & interpolation = automation.interpolation();
                 for (size_t line = interpolation.line0; line <= interpolation.line1; ++line) {
-                    const auto existing = m_automationService->midiCcAutomationsByLine(location.pattern(), location.track(), location.column(), line);
-                    for (const auto & ex : existing) {
-                        if (std::ranges::find(midiCcDeletions, ex) == midiCcDeletions.end()) {
-                            midiCcDeletions.push_back(ex);
-                        }
-                    }
+                    deletions.merge(m_automationService->automationsByLine(location.pattern(), location.track(), location.column(), line));
                 }
-            }
+            });
 
-            for (const auto & automation : targetAreaPitchBend) {
-                const auto & location = automation.location();
-                const auto & interpolation = automation.interpolation();
-                for (size_t line = interpolation.line0; line <= interpolation.line1; ++line) {
-                    const auto existing = m_automationService->pitchBendAutomationsByLine(location.pattern(), location.track(), location.column(), line);
-                    for (const auto & ex : existing) {
-                        if (std::ranges::find(pitchBendDeletions, ex) == pitchBendDeletions.end()) {
-                            pitchBendDeletions.push_back(ex);
-                        }
-                    }
-                }
-            }
-
-            if (midiCcDeletions.empty() && pitchBendDeletions.empty() && targetAreaMidiCc.empty() && targetAreaPitchBend.empty()) {
+            if (deletions.empty() && additions.empty()) {
                 m_undoStack->push(std::move(noteEditCommand));
             } else {
-                auto automationCommand = std::make_shared<AutomationCommand>(m_automationService, targetAreaMidiCc, targetAreaPitchBend, std::move(midiCcDeletions), std::move(pitchBendDeletions));
+                auto automationCommand = std::make_shared<AutomationCommand>(m_automationService, std::move(additions), std::move(deletions));
 
                 CompositeCommand::CommandList commands;
                 commands.push_back(std::move(noteEditCommand));

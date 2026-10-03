@@ -100,6 +100,39 @@ Item {
     function comment(): string {
         return commentEdit.text;
     }
+    //! Fills the form from an automation that already exists, what it drives included when that
+    //! effect is still in the project. Its location is left out: the new automation belongs where
+    //! the form was opened.
+    function applyValues(values: var): void {
+        for (let i = 0; i < targets.length; i++) {
+            if (targets[i].effectId === values.effectId) {
+                targetComboBox.currentIndex = i;
+                const parameters = targets[i].parameters;
+                for (let j = 0; j < parameters.length; j++) {
+                    if (parameters[j].key === values.parameter) {
+                        parameterComboBox.currentIndex = j;
+                    }
+                }
+            }
+        }
+        modeComboBox.currentIndex = values.mode;
+        setStartLine(values.line0);
+        setEndLine(values.line1);
+        startPosition = values.value0;
+        endPosition = values.value1;
+        curveComboBox.currentIndex = values.curve;
+        smoothCheckBox.checked = values.eventsPerBeat === 0;
+        if (values.eventsPerBeat > 0) {
+            eventsPerBeatSpinBox.value = values.eventsPerBeat;
+        }
+        lineOffsetSpinBox.value = values.lineOffset;
+        modulationGroupBox.modulationType = values.modulationType;
+        modulationGroupBox.cycles = values.modulationCycles;
+        modulationGroupBox.amplitude = values.modulationAmplitude;
+        modulationGroupBox.offset = values.modulationOffset;
+        modulationGroupBox.inverted = values.modulationInverted;
+        commentEdit.text = values.comment;
+    }
     function reset(): void {
         modeComboBox.currentIndex = 0;
         startPosition = 0;
@@ -130,6 +163,11 @@ Item {
             enabled: rootItem.targets.length > 0
             Layout.fillWidth: true
             GridLayout {
+                id: targetGrid
+                // Sized from the row rather than left to the layout, which shares out width by what
+                // each combo box holds: an effect name is long, a parameter name not much shorter,
+                // and Mode only ever says Absolute or Relative.
+                readonly property real share: (width - 2 * columnSpacing) / 10
                 width: parent.width
                 columns: 3
                 rowSpacing: 10
@@ -146,20 +184,17 @@ Item {
                     id: targetComboBox
                     model: rootItem.targets.map(target => Targets.effectLabel(target))
                     onActivated: parameterComboBox.currentIndex = 0
-                    Layout.fillWidth: true
-                    Layout.preferredWidth: 3
+                    Layout.preferredWidth: targetGrid.share * 4
                 }
                 ComboBox {
                     id: parameterComboBox
                     model: rootItem.currentTarget ? rootItem.currentTarget.parameters.map(parameter => parameter.label) : []
-                    Layout.fillWidth: true
-                    Layout.preferredWidth: 2
+                    Layout.preferredWidth: targetGrid.share * 4
                 }
                 ComboBox {
                     id: modeComboBox
                     model: [qsTr("Absolute"), qsTr("Relative")]
-                    Layout.fillWidth: true
-                    Layout.preferredWidth: 1
+                    Layout.preferredWidth: targetGrid.share * 2
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered

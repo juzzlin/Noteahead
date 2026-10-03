@@ -902,13 +902,19 @@ ApplicationWindow {
         // edit dialog, written through its model rather than reached as a delegate.
         property int targetRow: -1
         onAutomationSelected: values => {
-            if (targetRow < 0) {
-                if (isPitchBend) {
+            if (kind === "parameter") {
+                if (targetRow < 0) {
+                    addParameterAutomationDialog.form.applyValues(values);
+                } else {
+                    parameterAutomationsModel.applyValues(targetRow, values);
+                }
+            } else if (targetRow < 0) {
+                if (kind === "pitchBend") {
                     addPitchBendAutomationDialog.applyValues(values);
                 } else {
                     addMidiCcAutomationDialog.applyValues(values);
                 }
-            } else if (isPitchBend) {
+            } else if (kind === "pitchBend") {
                 pitchBendAutomationsModel.applyValues(targetRow, values);
             } else {
                 midiCcAutomationsModel.applyValues(targetRow, values);
@@ -1351,10 +1357,16 @@ ApplicationWindow {
             addMidiCcAutomationDialog.resetOutput();
             addMidiCcAutomationDialog.open();
         });
-        UiService.copyAutomationDialogRequested.connect((isPitchBend, targetRow) => {
-            copyAutomationDialog.isPitchBend = isPitchBend;
+        UiService.copyAutomationDialogRequested.connect((kind, targetRow) => {
+            copyAutomationDialog.kind = kind;
             copyAutomationDialog.targetRow = targetRow;
-            copyAutomationDialog.setTitle(isPitchBend ? qsTr("Copy Pitch Bend automation") : qsTr("Copy MIDI CC automation"));
+            if (kind === "parameter") {
+                copyAutomationDialog.setTitle(qsTr("Copy parameter automation"));
+            } else if (kind === "pitchBend") {
+                copyAutomationDialog.setTitle(qsTr("Copy Pitch Bend automation"));
+            } else {
+                copyAutomationDialog.setTitle(qsTr("Copy MIDI CC automation"));
+            }
             copyAutomationDialog.open();
         });
         UiService.editMidiCcAutomationsDialogRequested.connect(() => {
@@ -1461,6 +1473,11 @@ ApplicationWindow {
             addParameterAutomationDialog.setTitle(qsTr("Add parameter automation"));
             addParameterAutomationDialog.openForLines(0, editorService.currentLineCount - 1);
         });
+        // Automations belong to a column, so the track's goes on the column the cursor is in
+        UiService.trackAddParameterAutomationDialogRequested.connect(() => {
+            addParameterAutomationDialog.setTitle(qsTr("Add parameter automation"));
+            addParameterAutomationDialog.openForLines(0, editorService.currentLineCount - 1);
+        });
         UiService.selectionAddParameterAutomationDialogRequested.connect(() => {
             addParameterAutomationDialog.setTitle(qsTr("Add parameter automation"));
             addParameterAutomationDialog.openForLines(selectionService.minLine(), selectionService.maxLine());
@@ -1486,6 +1503,11 @@ ApplicationWindow {
             const position = editorService.position;
             parameterAutomationsModel.requestParameterAutomationsByTrack(position.pattern, position.track);
             editParameterAutomationsDialog.setTitle(qsTr("Edit parameter automations by track"));
+            editParameterAutomationsDialog.open();
+        });
+        UiService.editParameterAutomationsDialogBySelectionRequested.connect(() => {
+            parameterAutomationsModel.requestParameterAutomationsBySelection(editorService.position.pattern, selectionService.track(), selectionService.minColumn(), selectionService.maxColumn(), selectionService.minLine(), selectionService.maxLine());
+            editParameterAutomationsDialog.setTitle(qsTr("Edit parameter automations by selection"));
             editParameterAutomationsDialog.open();
         });
         UiService.editParameterAutomationsDialogByPatternRequested.connect(() => {

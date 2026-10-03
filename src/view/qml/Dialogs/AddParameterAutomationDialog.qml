@@ -28,6 +28,15 @@ AnimatedDialog {
     height: parent ? parent.height * Constants.defaultDialogScale : 600
     footer: DialogButtonBox {
         AppButton {
+            text: qsTr("Copy automation...")
+            implicitWidth: Constants.defaultButtonWidth
+            // An action rather than an accept: the picker fills these fields in and the form stays
+            // open on top of it, so nothing is written until Ok.
+            DialogButtonBox.buttonRole: DialogButtonBox.ActionRole
+            onClicked: UiService.requestCopyAutomationDialog("parameter", -1)
+            toolTipText: qsTr("Fill these fields from an automation that already exists")
+        }
+        AppButton {
             text: qsTr("Cancel")
             implicitWidth: Constants.defaultButtonWidth
             DialogButtonBox.buttonRole: DialogButtonBox.RejectRole

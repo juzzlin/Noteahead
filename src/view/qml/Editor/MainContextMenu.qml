@@ -47,21 +47,28 @@ Menu {
     MenuSeparator {}
     MainContextMenu_Song {}
     MenuSeparator {}
-    Action {
-        text: qsTr("Edit MIDI CC automations (ALL)...")
-        enabled: !UiService.isPlaying()
-        onTriggered: UiService.requestEditMidiCcAutomationsDialog()
-    }
-    MenuSeparator {}
-    Action {
-        text: qsTr("Edit Pitch Bend automations (ALL)...")
-        enabled: !UiService.isPlaying()
-        onTriggered: UiService.requestEditPitchBendAutomationsDialog()
-    }
-    Action {
-        text: qsTr("Edit parameter automations (ALL)...")
-        enabled: !UiService.isPlaying()
-        onTriggered: UiService.requestEditParameterAutomationsDialog()
+    // In a sub-menu of their own, one or two entries for each kind, to keep the menu short
+    Menu {
+        title: qsTr("Automation")
+        width: rootItem.width
+        Action {
+            text: qsTr("Edit MIDI CC automations (ALL)...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEditMidiCcAutomationsDialog()
+        }
+        MenuSeparator {}
+        Action {
+            text: qsTr("Edit Pitch Bend automations (ALL)...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEditPitchBendAutomationsDialog()
+        }
+        MenuSeparator {}
+        Action {
+            text: qsTr("Edit parameter automations (ALL)...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEditParameterAutomationsDialog()
+        }
+        delegate: MenuItemDelegate {}
     }
     delegate: MenuItemDelegate {}
 }

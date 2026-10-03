@@ -74,6 +74,7 @@ private slots:
 
     void test_midiCcAutomationsAsVariantList_shouldCarryEveryParameter();
     void test_pitchBendAutomationsAsVariantList_shouldCarryEveryParameter();
+    void test_parameterAutomationsAsVariantList_shouldCarryEveryParameter();
 };
 
 } // namespace noteahead

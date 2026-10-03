@@ -50,6 +50,9 @@ private slots:
     void test_trackCopyPaste_equalSizes_shouldCopyTrack();
     void test_trackCopyPaste_shorterTarget_shouldCopyTrack();
     void test_trackCopyPaste_withAutomations_shouldCopyAutomations();
+    void test_trackCopyPaste_withParameterAutomations_shouldCopyThem();
+    void test_columnCut_withParameterAutomations_shouldRemoveThem();
+    void test_selectionPaste_withParameterAutomations_shouldReplaceOverlappingOnes();
 
     void test_patternCutPaste_equalSizes_shouldCopyPattern();
     void test_patternCutPaste_shorterTarget_shouldCopyPattern();

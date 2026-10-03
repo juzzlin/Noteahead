@@ -72,6 +72,26 @@ void ParameterAutomationsModelTest::test_requestParameterAutomationsByLine_shoul
     QCOMPARE(dataOf(model, 0, Role::Id).toULongLong(), quint64 { 2 });
 }
 
+void ParameterAutomationsModelTest::test_requestParameterAutomationsBySelection_shouldFilterOnOverlap()
+{
+    ParameterAutomationsModel model;
+
+    // Columns 2..3, lines 8..12 of track 1
+    model.requestParameterAutomationsBySelection(0, 1, 2, 3, 8, 12);
+    model.setParameterAutomations({
+      automation(1, { 0, 1, 2 }, 0, 8), // Ends on the first selected line
+      automation(2, { 0, 1, 3 }, 12, 20), // Starts on the last one
+      automation(3, { 0, 1, 3 }, 0, 7), // Ends just before
+      automation(4, { 0, 1, 4 }, 8, 12), // A column outside
+      automation(5, { 0, 2, 2 }, 8, 12), // Another track
+      automation(6, { 1, 1, 2 }, 8, 12) // Another pattern
+    });
+
+    QCOMPARE(model.rowCount(), 2);
+    QCOMPARE(dataOf(model, 0, Role::Id).toULongLong(), quint64 { 1 });
+    QCOMPARE(dataOf(model, 1, Role::Id).toULongLong(), quint64 { 2 });
+}
+
 void ParameterAutomationsModelTest::test_setData_shouldHoldTheEditUntilApplied()
 {
     ParameterAutomationsModel model;
@@ -122,6 +142,29 @@ void ParameterAutomationsModelTest::test_removeAt_shouldDeleteOnApply()
     QCOMPARE(deletedSpy.count(), 1);
     QCOMPARE(changedSpy.count(), 0);
     QCOMPARE(deletedSpy.at(0).at(0).value<ParameterAutomation>().id(), size_t { 1 });
+}
+
+void ParameterAutomationsModelTest::test_applyValues_shouldKeepLocationEnabledAndTarget()
+{
+    ParameterAutomationsModel model;
+    model.setParameterAutomations({ automation(1, { 0, 1, 2 }, 0, 8) });
+    QSignalSpy replacedSpy { &model, &ParameterAutomationsModel::automationReplaced };
+
+    model.applyValues(0, { { "pattern", 5 }, { "track", 5 }, { "enabled", false }, { "effectId", "other" }, { "parameter", "resonance" }, { "mode", 0 }, { "line0", 2 }, { "line1", 6 }, { "value0", 0.3 }, { "value1", 0.6 }, { "comment", "Copied" } });
+
+    QCOMPARE(replacedSpy.count(), 1);
+    QCOMPARE(replacedSpy.at(0).at(0).toInt(), 0);
+    // What the automation does comes from the copy...
+    QCOMPARE(dataOf(model, 0, Role::Mode).toInt(), 0);
+    QCOMPARE(dataOf(model, 0, Role::Line0).toULongLong(), quint64 { 2 });
+    QCOMPARE(dataOf(model, 0, Role::Value1).toDouble(), 0.6);
+    QCOMPARE(dataOf(model, 0, Role::Comment).toString(), QString { "Copied" });
+    // ...where it lives, whether it is on and what it drives do not
+    QCOMPARE(dataOf(model, 0, Role::Pattern).toULongLong(), quint64 { 0 });
+    QCOMPARE(dataOf(model, 0, Role::Track).toULongLong(), quint64 { 1 });
+    QVERIFY(dataOf(model, 0, Role::Enabled).toBool());
+    QCOMPARE(dataOf(model, 0, Role::EffectId).toString(), QString { "effect-1" });
+    QCOMPARE(dataOf(model, 0, Role::Parameter).toString(), QString { "cutoff" });
 }
 
 } // namespace noteahead

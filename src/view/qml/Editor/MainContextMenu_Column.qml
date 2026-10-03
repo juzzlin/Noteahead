@@ -44,92 +44,101 @@ Menu {
         onTriggered: editorService.requestColumnPaste()
     }
     MenuSeparator {}
-    Action {
-        text: qsTr("Transpose <b>+1</b> semitones")
-        shortcut: "Alt+F10"
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestColumnTranspose(1)
-    }
-    Action {
-        text: qsTr("Transpose <b>-1</b> semitones")
-        shortcut: "Alt+F9"
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestColumnTranspose(-1)
-    }
-    Action {
-        text: qsTr("Transpose <b>+2</b> semitones")
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestColumnTranspose(2)
-    }
-    Action {
-        text: qsTr("Transpose <b>-2</b> semitones")
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestColumnTranspose(-2)
-    }
-    Action {
-        text: qsTr("Transpose <b>+6</b> semitones")
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestColumnTranspose(6)
-    }
-    Action {
-        text: qsTr("Transpose <b>-6</b> semitones")
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestColumnTranspose(-6)
-    }
-    Action {
-        text: qsTr("Transpose <b>+12</b> semitones")
-        shortcut: "Alt+F12"
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestColumnTranspose(12)
-    }
-    Action {
-        text: qsTr("Transpose <b>-12</b> semitones")
-        shortcut: "Alt+F11"
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestColumnTranspose(-12)
-    }
+    // In a sub-menu of its own: eight steps each way, and the all-patterns ones under that, made the
+    // menu taller than a small window. The shortcuts still work, as Qt finds the window of an action
+    // in a sub-menu through its parent menus.
     Menu {
-        title: qsTr("Transpose in all patterns")
+        title: qsTr("Transpose")
         width: rootItem.width
         Action {
             text: qsTr("Transpose <b>+1</b> semitones")
+            shortcut: "Alt+F10"
             enabled: !UiService.isPlaying()
-            onTriggered: editorService.requestColumnTransposeAllPatterns(1)
+            onTriggered: editorService.requestColumnTranspose(1)
         }
         Action {
             text: qsTr("Transpose <b>-1</b> semitones")
+            shortcut: "Alt+F9"
             enabled: !UiService.isPlaying()
-            onTriggered: editorService.requestColumnTransposeAllPatterns(-1)
+            onTriggered: editorService.requestColumnTranspose(-1)
         }
         Action {
             text: qsTr("Transpose <b>+2</b> semitones")
             enabled: !UiService.isPlaying()
-            onTriggered: editorService.requestColumnTransposeAllPatterns(2)
+            onTriggered: editorService.requestColumnTranspose(2)
         }
         Action {
             text: qsTr("Transpose <b>-2</b> semitones")
             enabled: !UiService.isPlaying()
-            onTriggered: editorService.requestColumnTransposeAllPatterns(-2)
+            onTriggered: editorService.requestColumnTranspose(-2)
         }
         Action {
             text: qsTr("Transpose <b>+6</b> semitones")
             enabled: !UiService.isPlaying()
-            onTriggered: editorService.requestColumnTransposeAllPatterns(6)
+            onTriggered: editorService.requestColumnTranspose(6)
         }
         Action {
             text: qsTr("Transpose <b>-6</b> semitones")
             enabled: !UiService.isPlaying()
-            onTriggered: editorService.requestColumnTransposeAllPatterns(-6)
+            onTriggered: editorService.requestColumnTranspose(-6)
         }
         Action {
             text: qsTr("Transpose <b>+12</b> semitones")
+            shortcut: "Alt+F12"
             enabled: !UiService.isPlaying()
-            onTriggered: editorService.requestColumnTransposeAllPatterns(12)
+            onTriggered: editorService.requestColumnTranspose(12)
         }
         Action {
             text: qsTr("Transpose <b>-12</b> semitones")
+            shortcut: "Alt+F11"
             enabled: !UiService.isPlaying()
-            onTriggered: editorService.requestColumnTransposeAllPatterns(-12)
+            onTriggered: editorService.requestColumnTranspose(-12)
+        }
+        MenuSeparator {}
+        Menu {
+            title: qsTr("Transpose in all patterns")
+            width: rootItem.width
+            Action {
+                text: qsTr("Transpose <b>+1</b> semitones")
+                enabled: !UiService.isPlaying()
+                onTriggered: editorService.requestColumnTransposeAllPatterns(1)
+            }
+            Action {
+                text: qsTr("Transpose <b>-1</b> semitones")
+                enabled: !UiService.isPlaying()
+                onTriggered: editorService.requestColumnTransposeAllPatterns(-1)
+            }
+            Action {
+                text: qsTr("Transpose <b>+2</b> semitones")
+                enabled: !UiService.isPlaying()
+                onTriggered: editorService.requestColumnTransposeAllPatterns(2)
+            }
+            Action {
+                text: qsTr("Transpose <b>-2</b> semitones")
+                enabled: !UiService.isPlaying()
+                onTriggered: editorService.requestColumnTransposeAllPatterns(-2)
+            }
+            Action {
+                text: qsTr("Transpose <b>+6</b> semitones")
+                enabled: !UiService.isPlaying()
+                onTriggered: editorService.requestColumnTransposeAllPatterns(6)
+            }
+            Action {
+                text: qsTr("Transpose <b>-6</b> semitones")
+                enabled: !UiService.isPlaying()
+                onTriggered: editorService.requestColumnTransposeAllPatterns(-6)
+            }
+            Action {
+                text: qsTr("Transpose <b>+12</b> semitones")
+                enabled: !UiService.isPlaying()
+                onTriggered: editorService.requestColumnTransposeAllPatterns(12)
+            }
+            Action {
+                text: qsTr("Transpose <b>-12</b> semitones")
+                enabled: !UiService.isPlaying()
+                onTriggered: editorService.requestColumnTransposeAllPatterns(-12)
+            }
+            delegate: MenuItemDelegate {}
         }
         delegate: MenuItemDelegate {}
     }
@@ -179,37 +188,43 @@ Menu {
         onTriggered: editorService.requestCurrentColumnDeletion()
     }
     MenuSeparator {}
-    Action {
-        text: qsTr("Add MIDI CC automation...")
-        enabled: !UiService.isPlaying()
-        onTriggered: UiService.requestColumnAddMidiCcAutomationDialog()
-    }
-    Action {
-        text: qsTr("Edit MIDI CC automations...")
-        enabled: !UiService.isPlaying()
-        onTriggered: UiService.requestEditMidiCcAutomationsDialogByColumn()
-    }
-    MenuSeparator {}
-    Action {
-        text: qsTr("Add Pitch Bend automation...")
-        enabled: !UiService.isPlaying()
-        onTriggered: UiService.requestColumnAddPitchBendAutomationDialog()
-    }
-    Action {
-        text: qsTr("Edit Pitch Bend automations...")
-        enabled: !UiService.isPlaying()
-        onTriggered: UiService.requestEditPitchBendAutomationsDialogByColumn()
-    }
-    MenuSeparator {}
-    Action {
-        text: qsTr("Add parameter automation...")
-        enabled: !UiService.isPlaying()
-        onTriggered: UiService.requestColumnAddParameterAutomationDialog()
-    }
-    Action {
-        text: qsTr("Edit parameter automations...")
-        enabled: !UiService.isPlaying()
-        onTriggered: UiService.requestEditParameterAutomationsDialogByColumn()
+    // In a sub-menu of their own, one or two entries for each kind, to keep the menu short
+    Menu {
+        title: qsTr("Automation")
+        width: rootItem.width
+        Action {
+            text: qsTr("Add MIDI CC automation...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestColumnAddMidiCcAutomationDialog()
+        }
+        Action {
+            text: qsTr("Edit MIDI CC automations...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEditMidiCcAutomationsDialogByColumn()
+        }
+        MenuSeparator {}
+        Action {
+            text: qsTr("Add Pitch Bend automation...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestColumnAddPitchBendAutomationDialog()
+        }
+        Action {
+            text: qsTr("Edit Pitch Bend automations...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEditPitchBendAutomationsDialogByColumn()
+        }
+        MenuSeparator {}
+        Action {
+            text: qsTr("Add parameter automation...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestColumnAddParameterAutomationDialog()
+        }
+        Action {
+            text: qsTr("Edit parameter automations...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEditParameterAutomationsDialogByColumn()
+        }
+        delegate: MenuItemDelegate {}
     }
     delegate: MenuItemDelegate {}
 }

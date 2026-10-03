@@ -39,49 +39,57 @@ Menu {
         onTriggered: editorService.requestPatternPaste()
     }
     MenuSeparator {}
-    Action {
-        text: qsTr("Transpose <b>+1</b> semitones")
-        shortcut: "Ctrl+F10"
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestPatternTranspose(1)
-    }
-    Action {
-        text: qsTr("Transpose <b>-1</b> semitones")
-        shortcut: "Ctrl+F9"
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestPatternTranspose(-1)
-    }
-    Action {
-        text: qsTr("Transpose <b>+2</b> semitones")
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestPatternTranspose(2)
-    }
-    Action {
-        text: qsTr("Transpose <b>-2</b> semitones")
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestPatternTranspose(-2)
-    }
-    Action {
-        text: qsTr("Transpose <b>+6</b> semitones")
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestPatternTranspose(6)
-    }
-    Action {
-        text: qsTr("Transpose <b>-6</b> semitones")
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestPatternTranspose(-6)
-    }
-    Action {
-        text: qsTr("Transpose <b>+12</b> semitones")
-        shortcut: "Ctrl+F12"
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestPatternTranspose(12)
-    }
-    Action {
-        text: qsTr("Transpose <b>-12</b> semitones")
-        shortcut: "Ctrl+F11"
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestPatternTranspose(-12)
+    // In a sub-menu of its own: eight steps each way, and the all-patterns ones under that, made the
+    // menu taller than a small window. The shortcuts still work, as Qt finds the window of an action
+    // in a sub-menu through its parent menus.
+    Menu {
+        title: qsTr("Transpose")
+        width: rootItem.width
+        Action {
+            text: qsTr("Transpose <b>+1</b> semitones")
+            shortcut: "Ctrl+F10"
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestPatternTranspose(1)
+        }
+        Action {
+            text: qsTr("Transpose <b>-1</b> semitones")
+            shortcut: "Ctrl+F9"
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestPatternTranspose(-1)
+        }
+        Action {
+            text: qsTr("Transpose <b>+2</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestPatternTranspose(2)
+        }
+        Action {
+            text: qsTr("Transpose <b>-2</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestPatternTranspose(-2)
+        }
+        Action {
+            text: qsTr("Transpose <b>+6</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestPatternTranspose(6)
+        }
+        Action {
+            text: qsTr("Transpose <b>-6</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestPatternTranspose(-6)
+        }
+        Action {
+            text: qsTr("Transpose <b>+12</b> semitones")
+            shortcut: "Ctrl+F12"
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestPatternTranspose(12)
+        }
+        Action {
+            text: qsTr("Transpose <b>-12</b> semitones")
+            shortcut: "Ctrl+F11"
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestPatternTranspose(-12)
+        }
+        delegate: MenuItemDelegate {}
     }
     MenuSeparator {}
     Action {
@@ -90,21 +98,28 @@ Menu {
         onTriggered: editorService.requestNoteOffAtPatternFirstLine()
     }
     MenuSeparator {}
-    Action {
-        text: qsTr("Edit MIDI CC automations...")
-        enabled: !UiService.isPlaying()
-        onTriggered: UiService.requestEditMidiCcAutomationsDialogByPattern()
-    }
-    MenuSeparator {}
-    Action {
-        text: qsTr("Edit Pitch Bend automations...")
-        enabled: !UiService.isPlaying()
-        onTriggered: UiService.requestEditPitchBendAutomationsDialogByPattern()
-    }
-    Action {
-        text: qsTr("Edit parameter automations...")
-        enabled: !UiService.isPlaying()
-        onTriggered: UiService.requestEditParameterAutomationsDialogByPattern()
+    // In a sub-menu of their own, one or two entries for each kind, to keep the menu short
+    Menu {
+        title: qsTr("Automation")
+        width: rootItem.width
+        Action {
+            text: qsTr("Edit MIDI CC automations...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEditMidiCcAutomationsDialogByPattern()
+        }
+        MenuSeparator {}
+        Action {
+            text: qsTr("Edit Pitch Bend automations...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEditPitchBendAutomationsDialogByPattern()
+        }
+        MenuSeparator {}
+        Action {
+            text: qsTr("Edit parameter automations...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEditParameterAutomationsDialogByPattern()
+        }
+        delegate: MenuItemDelegate {}
     }
     delegate: MenuItemDelegate {}
 }

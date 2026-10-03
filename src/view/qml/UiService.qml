@@ -33,7 +33,7 @@ QtObject {
     signal deleteUnusedPatternsRequested
     signal deviceDialogRequested(string deviceName)
     signal deviceGalleryDialogRequested(int slotIndex)
-    signal copyAutomationDialogRequested(bool isPitchBend, int targetRow)
+    signal copyAutomationDialogRequested(string kind, int targetRow)
     signal copyDeviceDialogRequested(int slotIndex)
     signal copyEffectDialogRequested(int slotIndex)
     signal copyEffectRackDialogRequested(string targetName)
@@ -60,6 +60,7 @@ QtObject {
     signal editParameterAutomationsDialogByColumnRequested
     signal editParameterAutomationsDialogByLineRequested
     signal editParameterAutomationsDialogByPatternRequested
+    signal editParameterAutomationsDialogBySelectionRequested
     signal editParameterAutomationsDialogByTrackRequested
     signal editParameterAutomationsDialogRequested
     signal editPitchBendAutomationsDialogByColumnRequested
@@ -87,6 +88,7 @@ QtObject {
     signal samplerDialogRequested
     signal selectionAddMidiCcAutomationDialogRequested
     signal selectionAddParameterAutomationDialogRequested
+    signal trackAddParameterAutomationDialogRequested
     signal selectionAddPitchBendAutomationDialogRequested
     signal selectionVelocityInterpolationDialogRequested
     signal settingsDialogRequested
@@ -370,8 +372,9 @@ QtObject {
     //
     // targetRow is the row of the edit dialog being filled, or -1 for the add form, which has no row
     // of its own until it is accepted.
-    function requestCopyAutomationDialog(isPitchBend: bool, targetRow: int): void {
-        copyAutomationDialogRequested(isPitchBend, targetRow);
+    //! @p kind is "midiCc", "pitchBend" or "parameter": which automations to list.
+    function requestCopyAutomationDialog(kind: string, targetRow: int): void {
+        copyAutomationDialogRequested(kind, targetRow);
     }
     function requestEditMidiCcAutomationsDialog(): void {
         if (!isPlaying()) {
@@ -476,6 +479,16 @@ QtObject {
     function requestEditParameterAutomationsDialogByPattern(): void {
         if (!isPlaying()) {
             editParameterAutomationsDialogByPatternRequested();
+        }
+    }
+    function requestTrackAddParameterAutomationDialog(): void {
+        if (!isPlaying()) {
+            trackAddParameterAutomationDialogRequested();
+        }
+    }
+    function requestEditParameterAutomationsDialogBySelection(): void {
+        if (!isPlaying()) {
+            editParameterAutomationsDialogBySelectionRequested();
         }
     }
     function requestFocusOnEditorView(): void {

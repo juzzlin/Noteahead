@@ -27,9 +27,11 @@ class ParameterAutomationsModelTest : public QObject
 private slots:
     void test_setParameterAutomations_shouldExposeEveryRole();
     void test_requestParameterAutomationsByLine_shouldFilter();
+    void test_requestParameterAutomationsBySelection_shouldFilterOnOverlap();
     void test_setData_shouldHoldTheEditUntilApplied();
     void test_setData_target_shouldBeRefused();
     void test_removeAt_shouldDeleteOnApply();
+    void test_applyValues_shouldKeepLocationEnabledAndTarget();
 };
 
 } // namespace noteahead

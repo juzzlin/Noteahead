@@ -544,6 +544,51 @@ AutomationService::ParameterAutomationList AutomationService::parameterAutomatio
     return m_automations.parameter;
 }
 
+namespace {
+
+//! The automations of @p from that @p keep says yes to, of every kind.
+AutomationSet filtered(const AutomationSet & from, auto && keep)
+{
+    AutomationSet result;
+    std::ranges::copy_if(from.midiCc, std::back_inserter(result.midiCc), keep);
+    std::ranges::copy_if(from.pitchBend, std::back_inserter(result.pitchBend), keep);
+    std::ranges::copy_if(from.parameter, std::back_inserter(result.parameter), keep);
+    return result;
+}
+
+} // namespace
+
+AutomationSet AutomationService::automationsByLine(quint64 pattern, quint64 track, quint64 column, quint64 line) const
+{
+    return filtered(m_automations, [&](auto && automation) {
+        auto && location = automation.location();
+        auto && interpolation = automation.interpolation();
+        return location.pattern() == pattern && location.track() == track && location.column() == column && line >= interpolation.line0 && line <= interpolation.line1;
+    });
+}
+
+AutomationSet AutomationService::automationsByColumn(quint64 pattern, quint64 track, quint64 column) const
+{
+    return filtered(m_automations, [&](auto && automation) {
+        auto && location = automation.location();
+        return location.pattern() == pattern && location.track() == track && location.column() == column;
+    });
+}
+
+AutomationSet AutomationService::automationsByTrack(quint64 pattern, quint64 track) const
+{
+    return filtered(m_automations, [&](auto && automation) {
+        return automation.location().pattern() == pattern && automation.location().track() == track;
+    });
+}
+
+AutomationSet AutomationService::automationsByPattern(quint64 pattern) const
+{
+    return filtered(m_automations, [&](auto && automation) {
+        return automation.location().pattern() == pattern;
+    });
+}
+
 AutomationService::MidiCcAutomationList AutomationService::midiCcAutomations() const
 {
     return m_automations.midiCc;
@@ -595,6 +640,24 @@ QVariantList AutomationService::pitchBendAutomationsAsVariantList() const
     QVariantList list;
     for (auto && automation : m_automations.pitchBend) {
         list.append(commonAutomationVariants(automation, automation.interpolation(), automation.modulation()));
+    }
+    return list;
+}
+
+QVariantList AutomationService::parameterAutomationsAsVariantList() const
+{
+    QVariantList list;
+    for (auto && automation : m_automations.parameter) {
+        auto entry = commonAutomationVariants(automation, automation.interpolation(), automation.modulation());
+        // Positions between 0 and 1, which the shared keys would round to whole numbers
+        entry["value0"] = automation.interpolation().value0;
+        entry["value1"] = automation.interpolation().value1;
+        entry["effectId"] = QString::fromStdString(automation.target().ownerId);
+        entry["parameter"] = QString::fromStdString(automation.target().parameter);
+        entry["mode"] = static_cast<int>(automation.mode());
+        entry["eventsPerBeat"] = static_cast<int>(automation.eventsPerBeat());
+        entry["lineOffset"] = static_cast<int>(automation.lineOffset());
+        list.append(entry);
     }
     return list;
 }

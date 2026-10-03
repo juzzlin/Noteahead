@@ -19,9 +19,11 @@
 #include "../../domain/tracker/parameter_automation.hpp"
 
 #include <QAbstractListModel>
+#include <QVariantMap>
 
 #include <optional>
 #include <set>
+#include <utility>
 #include <vector>
 
 namespace noteahead {
@@ -66,6 +68,8 @@ public:
     Q_INVOKABLE void requestParameterAutomationsByTrack(quint64 pattern, quint64 track);
     Q_INVOKABLE void requestParameterAutomationsByColumn(quint64 pattern, quint64 track, quint64 column);
     Q_INVOKABLE void requestParameterAutomationsByLine(quint64 pattern, quint64 track, quint64 column, quint64 line);
+    //! Every automation on the selected columns that runs over any of the selected lines.
+    Q_INVOKABLE void requestParameterAutomationsBySelection(quint64 pattern, quint64 track, quint64 minColumn, quint64 maxColumn, quint64 minLine, quint64 maxLine);
 
     using ParameterAutomationList = std::vector<ParameterAutomation>;
     void setParameterAutomations(ParameterAutomationList parameterAutomations);
@@ -80,10 +84,20 @@ public:
     //! Hands every held edit and deletion on to be written into the song.
     Q_INVOKABLE void applyAll();
 
+    //! Overwrites the automation at the given row with the settings of another one.
+    //!
+    //! Everything but the location, the enabled flag and the target: a copy changes what an
+    //! automation does, not where it lives, whether it is on, or what it drives. Keys missing from
+    //! the map are left alone.
+    Q_INVOKABLE void applyValues(int index, const QVariantMap & values);
+
 signals:
     void parameterAutomationChanged(const ParameterAutomation & parameterAutomation);
     void parameterAutomationDeleted(const ParameterAutomation & parameterAutomation);
     void parameterAutomationsRequested();
+    //! One row was replaced wholesale by applyValues(). The row's spin boxes stop following the
+    //! model once typed into, so they need telling.
+    void automationReplaced(int index);
 
 private:
     ParameterAutomationList filtered(const ParameterAutomationList & parameterAutomations) const;
@@ -93,12 +107,15 @@ private:
     ParameterAutomationSet m_changed;
     ParameterAutomationSet m_deleted;
 
+    //! Inclusive at both ends. One column or one line is a range that starts where it ends.
+    using Range = std::pair<quint64, quint64>;
+
     struct Filter
     {
         std::optional<quint64> pattern;
         std::optional<quint64> track;
-        std::optional<quint64> column;
-        std::optional<quint64> line;
+        std::optional<Range> columns;
+        std::optional<Range> lines;
     };
 
     Filter m_filter;

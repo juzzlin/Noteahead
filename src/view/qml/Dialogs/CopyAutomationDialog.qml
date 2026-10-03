@@ -19,6 +19,7 @@ import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts 1.15
 import Noteahead 1.0
 import "../Components"
+import "ParameterAutomationTargets.js" as Targets
 
 // Picks an automation to start a new one from. Opened on top of the Add automation form, which is
 // what it fills in: nothing is written here, so the copy can still be retuned or abandoned.
@@ -32,9 +33,13 @@ AnimatedDialog {
     // to do that clicking the row has not already done.
     standardButtons: Dialog.Cancel
 
-    //! Which kind of automation to list. The two carry different parameters, and whatever opened
-    //! this dialog already knows which of them it is filling.
-    property bool isPitchBend: false
+    //! Which kind of automation to list: "midiCc", "pitchBend" or "parameter". They carry different
+    //! parameters, and whatever opened this dialog already knows which of them it is filling.
+    property string kind: "midiCc"
+    readonly property bool isPitchBend: kind === "pitchBend"
+    readonly property bool isParameter: kind === "parameter"
+    //! For naming what a parameter automation drives. Read when the dialog opens.
+    property var targets: []
 
     // A pure binding rather than a qsTr() down in the delegate's lookup below, which is a JS block
     // and so would keep whatever it was first evaluated in when the language changes.
@@ -53,7 +58,14 @@ AnimatedDialog {
     //! the list out from under the edit it was opened from.
     property var automations: []
 
-    onOpened: automations = isPitchBend ? automationService.pitchBendAutomationsAsVariantList() : automationService.midiCcAutomationsAsVariantList()
+    onOpened: {
+        if (isParameter) {
+            targets = propertyService.automationTargets();
+            automations = automationService.parameterAutomationsAsVariantList();
+        } else {
+            automations = isPitchBend ? automationService.pitchBendAutomationsAsVariantList() : automationService.midiCcAutomationsAsVariantList();
+        }
+    }
 
     // The curve names live in InterpolationCurveComboBox and nowhere else. One hidden instance reads
     // them here rather than a second copy that could drift out of step with Interpolator::CurveType,
@@ -100,9 +112,20 @@ AnimatedDialog {
                 // Value ranges and controller names are per port, so the name has to be looked up
                 // through the automation's own track rather than the one the form sits on.
                 readonly property string portName: editorService.instrumentPortName(modelData.track)
-                readonly property string controllerName: rootItem.isPitchBend ? rootItem.pitchBendLabel : row.midiCcName
+                readonly property string controllerName: rootItem.isPitchBend ? rootItem.pitchBendLabel : (rootItem.isParameter ? row.parameterName : row.midiCcName)
+                readonly property var target: rootItem.isParameter ? Targets.findTarget(rootItem.targets, modelData.effectId) : null
+                readonly property var parameter: Targets.findParameter(row.target, modelData.parameter)
+                readonly property string parameterName: row.target ? Targets.effectLabel(row.target) + " - " + (row.parameter ? row.parameter.label : modelData.parameter) : Targets.effectLabel(null)
+                //! Positions read out the way the knob reads them, or as percentages for a relative one
+                function valueText(position: real): string {
+                    if (!rootItem.isParameter) {
+                        return String(position);
+                    }
+                    const setup = Targets.knobSetup(row.parameter, modelData.mode === 1);
+                    return knobController.format(position, setup.mapping, setup.suffix, setup.min, setup.max);
+                }
                 readonly property string midiCcName: {
-                    if (rootItem.isPitchBend) {
+                    if (rootItem.isPitchBend || rootItem.isParameter) {
                         return "";
                     }
                     const controllers = propertyService.getAvailableMidiControllers(row.portName);
@@ -139,7 +162,7 @@ AnimatedDialog {
                         Layout.fillWidth: true
                         spacing: 10
                         Text {
-                            text: qsTr("Lines %1-%2, values %3-%4, %5").arg(modelData.line0).arg(modelData.line1).arg(modelData.value0).arg(modelData.value1).arg(curveNames.model[modelData.curve])
+                            text: qsTr("Lines %1-%2, values %3-%4, %5").arg(modelData.line0).arg(modelData.line1).arg(row.valueText(modelData.value0)).arg(row.valueText(modelData.value1)).arg(curveNames.model[modelData.curve])
                             color: row.textColor
                             font.pointSize: 9
                         }

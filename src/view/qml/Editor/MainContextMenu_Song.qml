@@ -37,45 +37,53 @@ Menu {
         onTriggered: applicationService.requestMasterEffectsDialog()
     }
     MenuSeparator {}
-    Action {
-        text: qsTr("Transpose <b>+1</b> semitones")
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestSongTranspose(1)
-    }
-    Action {
-        text: qsTr("Transpose <b>-1</b> semitones")
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestSongTranspose(-1)
-    }
-    Action {
-        text: qsTr("Transpose <b>+2</b> semitones")
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestSongTranspose(2)
-    }
-    Action {
-        text: qsTr("Transpose <b>-2</b> semitones")
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestSongTranspose(-2)
-    }
-    Action {
-        text: qsTr("Transpose <b>+6</b> semitones")
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestSongTranspose(6)
-    }
-    Action {
-        text: qsTr("Transpose <b>-6</b> semitones")
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestSongTranspose(-6)
-    }
-    Action {
-        text: qsTr("Transpose <b>+12</b> semitones")
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestSongTranspose(12)
-    }
-    Action {
-        text: qsTr("Transpose <b>-12</b> semitones")
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestSongTranspose(-12)
+    // In a sub-menu of its own: eight steps each way, and the all-patterns ones under that, made the
+    // menu taller than a small window. The shortcuts still work, as Qt finds the window of an action
+    // in a sub-menu through its parent menus.
+    Menu {
+        title: qsTr("Transpose")
+        width: rootItem.width
+        Action {
+            text: qsTr("Transpose <b>+1</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestSongTranspose(1)
+        }
+        Action {
+            text: qsTr("Transpose <b>-1</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestSongTranspose(-1)
+        }
+        Action {
+            text: qsTr("Transpose <b>+2</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestSongTranspose(2)
+        }
+        Action {
+            text: qsTr("Transpose <b>-2</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestSongTranspose(-2)
+        }
+        Action {
+            text: qsTr("Transpose <b>+6</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestSongTranspose(6)
+        }
+        Action {
+            text: qsTr("Transpose <b>-6</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestSongTranspose(-6)
+        }
+        Action {
+            text: qsTr("Transpose <b>+12</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestSongTranspose(12)
+        }
+        Action {
+            text: qsTr("Transpose <b>-12</b> semitones")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestSongTranspose(-12)
+        }
+        delegate: MenuItemDelegate {}
     }
     delegate: MenuItemDelegate {}
 }

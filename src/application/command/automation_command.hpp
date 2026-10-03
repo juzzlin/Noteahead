@@ -19,33 +19,28 @@
 #include "command.hpp"
 
 #include <memory>
-#include <vector>
 
-#include "../../domain/midi/midi_cc_automation.hpp"
-#include "../../domain/midi/pitch_bend_automation.hpp"
+#include "../../domain/tracker/automation_set.hpp"
 
 namespace noteahead {
 
 class AutomationService;
 
+//! Adds and deletes automations of every kind as one undoable step.
 class AutomationCommand : public Command
 {
 public:
     using AutomationServiceS = std::shared_ptr<AutomationService>;
-    using MidiCcAutomationList = std::vector<MidiCcAutomation>;
-    using PitchBendAutomationList = std::vector<PitchBendAutomation>;
 
-    AutomationCommand(AutomationServiceS automationService, MidiCcAutomationList additions, PitchBendAutomationList pbAdditions, MidiCcAutomationList deletions, PitchBendAutomationList pbDeletions);
+    AutomationCommand(AutomationServiceS automationService, AutomationSet additions, AutomationSet deletions);
 
     void undo() override;
     void redo() override;
 
 private:
     AutomationServiceS m_automationService;
-    MidiCcAutomationList m_additions;
-    PitchBendAutomationList m_pitchBendAdditions;
-    MidiCcAutomationList m_deletions;
-    PitchBendAutomationList m_pitchBendDeletions;
+    AutomationSet m_additions;
+    AutomationSet m_deletions;
     bool m_idsAssigned = false;
 };
 

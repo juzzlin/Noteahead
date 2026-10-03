@@ -45,13 +45,19 @@ void ParameterAutomationsModel::requestParameterAutomationsByTrack(quint64 patte
 
 void ParameterAutomationsModel::requestParameterAutomationsByColumn(quint64 pattern, quint64 track, quint64 column)
 {
-    m_filter = { pattern, track, column, {} };
+    m_filter = { pattern, track, Range { column, column }, {} };
     emit parameterAutomationsRequested();
 }
 
 void ParameterAutomationsModel::requestParameterAutomationsByLine(quint64 pattern, quint64 track, quint64 column, quint64 line)
 {
-    m_filter = { pattern, track, column, line };
+    m_filter = { pattern, track, Range { column, column }, Range { line, line } };
+    emit parameterAutomationsRequested();
+}
+
+void ParameterAutomationsModel::requestParameterAutomationsBySelection(quint64 pattern, quint64 track, quint64 minColumn, quint64 maxColumn, quint64 minLine, quint64 maxLine)
+{
+    m_filter = { pattern, track, Range { minColumn, maxColumn }, Range { minLine, maxLine } };
     emit parameterAutomationsRequested();
 }
 
@@ -63,8 +69,8 @@ ParameterAutomationsModel::ParameterAutomationList ParameterAutomationsModel::fi
         const auto & interpolation = automation.interpolation();
         return (!m_filter.pattern || location.pattern() == *m_filter.pattern) && //
           (!m_filter.track || location.track() == *m_filter.track) && //
-          (!m_filter.column || location.column() == *m_filter.column) && //
-          (!m_filter.line || (interpolation.line0 <= *m_filter.line && interpolation.line1 >= *m_filter.line));
+          (!m_filter.columns || (location.column() >= m_filter.columns->first && location.column() <= m_filter.columns->second)) && //
+          (!m_filter.lines || (interpolation.line0 <= m_filter.lines->second && interpolation.line1 >= m_filter.lines->first));
     });
     return result;
 }
@@ -268,6 +274,40 @@ QHash<int, QByteArray> ParameterAutomationsModel::roleNames() const
         { static_cast<int>(DataRole::Value0), "value0" },
         { static_cast<int>(DataRole::Value1), "value1" }
     };
+}
+
+void ParameterAutomationsModel::applyValues(int index, const QVariantMap & values)
+{
+    if (index < 0 || static_cast<size_t>(index) >= m_parameterAutomations.size()) {
+        return;
+    }
+
+    // Through setData(), so that the rules for each role stay in one place
+    static const std::vector<std::pair<QString, DataRole>> fields {
+        { "mode", DataRole::Mode },
+        { "line0", DataRole::Line0 },
+        { "line1", DataRole::Line1 },
+        { "value0", DataRole::Value0 },
+        { "value1", DataRole::Value1 },
+        { "curve", DataRole::Curve },
+        { "eventsPerBeat", DataRole::EventsPerBeat },
+        { "lineOffset", DataRole::LineOffset },
+        { "modulationType", DataRole::Modulation_Type },
+        { "modulationCycles", DataRole::Modulation_Cycles },
+        { "modulationAmplitude", DataRole::Modulation_Amplitude },
+        { "modulationOffset", DataRole::Modulation_Offset },
+        { "modulationInverted", DataRole::Modulation_Inverted },
+        { "comment", DataRole::Comment }
+    };
+
+    const auto modelIndex = this->index(index);
+    for (auto && [key, role] : fields) {
+        if (const auto value = values.find(key); value != values.end()) {
+            setData(modelIndex, *value, static_cast<int>(role));
+        }
+    }
+
+    emit automationReplaced(index);
 }
 
 void ParameterAutomationsModel::applyAll()

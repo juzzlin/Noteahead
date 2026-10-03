@@ -27,6 +27,7 @@
 
 #include "../../domain/midi/midi_cc_automation.hpp"
 #include "../../domain/midi/pitch_bend_automation.hpp"
+#include "../../domain/tracker/automation_set.hpp"
 #include "../../domain/tracker/event.hpp"
 #include "../../domain/tracker/parameter_automation.hpp"
 
@@ -100,6 +101,8 @@ public:
     //! being written belongs where its own form was opened.
     Q_INVOKABLE QVariantList midiCcAutomationsAsVariantList() const;
     Q_INVOKABLE QVariantList pitchBendAutomationsAsVariantList() const;
+    //! Values are knob positions as stored, and the target comes as effectId and parameter.
+    Q_INVOKABLE QVariantList parameterAutomationsAsVariantList() const;
 
     Q_INVOKABLE bool hasAutomations(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
     Q_INVOKABLE double automationWeight(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
@@ -150,6 +153,13 @@ public:
     void addParameterAutomationWithId(const ParameterAutomation & automation);
     ParameterAutomationList parameterAutomationsByColumn(quint64 pattern, quint64 track, quint64 column) const;
     ParameterAutomationList parameterAutomations() const;
+
+    //! Every kind at once, where an automation is anywhere on the given line, column, track or
+    //! pattern. What copying, pasting and undoing work with. See AutomationSet.
+    AutomationSet automationsByLine(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
+    AutomationSet automationsByColumn(quint64 pattern, quint64 track, quint64 column) const;
+    AutomationSet automationsByTrack(quint64 pattern, quint64 track) const;
+    AutomationSet automationsByPattern(quint64 pattern) const;
 
     using EventS = std::shared_ptr<Event>;
     using EventList = std::vector<EventS>;
@@ -205,17 +215,10 @@ private:
     double sineModulationValue(const ModulationParameters & modulation, double phase) const;
     double randomModulationValue(size_t automationId, const ModulationParameters & modulation, double phase) const;
 
-    struct Automations
-    {
-        MidiCcAutomationList midiCc;
-        PitchBendAutomationList pitchBend;
-        ParameterAutomationList parameter;
-    };
-
     //! Value range of a controller at the given track's destination.
     int controllerMaxValue(uint8_t controller, size_t track) const;
 
-    Automations m_automations;
+    AutomationSet m_automations;
     std::shared_ptr<PropertyService> m_propertyService;
     PortNameResolver m_portNameResolver;
     EffectResolver m_effectResolver;

@@ -519,6 +519,92 @@ void EditorServiceTest::test_trackCopyPaste_withAutomations_shouldCopyAutomation
     QCOMPARE(automationService->midiCcAutomationsByTrack(targetPattern, targetTrack).size(), 1);
 }
 
+namespace {
+
+//! A cutoff sweep over the given lines, as the add dialog makes one.
+quint64 addCutoffSweep(AutomationService & automationService, quint64 pattern, quint64 track, quint64 column, quint64 line0, quint64 line1)
+{
+    return automationService.addParameterAutomation(pattern, track, column, "effect-1", "cutoff", static_cast<int>(ParameterAutomation::Mode::Relative), line0, line1, 0.0, 1.0, 0, "Sweep", 0, 0);
+}
+
+} // namespace
+
+void EditorServiceTest::test_trackCopyPaste_withParameterAutomations_shouldCopyThem()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
+    editorService.setAutomationService(automationService);
+
+    QVERIFY(editorService.requestPosition({ 0, 1, 0, 0, 0 }));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+    addCutoffSweep(*automationService, 0, 1, 0, 0, 8);
+
+    editorService.requestTrackCopy();
+    editorService.setCurrentPattern(1);
+    QVERIFY(editorService.requestPosition({ 1, 2, 0, 0, 0 }));
+    editorService.requestTrackPaste();
+
+    const auto pasted = automationService->automationsByTrack(1, 2).parameter;
+    QCOMPARE(pasted.size(), size_t { 1 });
+    QCOMPARE(pasted.at(0).target().parameter, std::string { "cutoff" });
+    QCOMPARE(pasted.at(0).mode(), ParameterAutomation::Mode::Relative);
+    // The source is left where it was
+    QCOMPARE(automationService->automationsByTrack(0, 1).parameter.size(), size_t { 1 });
+
+    editorService.undo();
+    QVERIFY(automationService->automationsByTrack(1, 2).parameter.empty());
+    editorService.redo();
+    QCOMPARE(automationService->automationsByTrack(1, 2).parameter.size(), size_t { 1 });
+}
+
+void EditorServiceTest::test_columnCut_withParameterAutomations_shouldRemoveThem()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
+    editorService.setAutomationService(automationService);
+
+    QVERIFY(editorService.requestPosition({ 0, 0, 0, 0, 0 }));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+    addCutoffSweep(*automationService, 0, 0, 0, 0, 8);
+
+    editorService.requestColumnCut();
+    QVERIFY(automationService->automationsByColumn(0, 0, 0).parameter.empty());
+
+    editorService.undo();
+    QCOMPARE(automationService->automationsByColumn(0, 0, 0).parameter.size(), size_t { 1 });
+}
+
+void EditorServiceTest::test_selectionPaste_withParameterAutomations_shouldReplaceOverlappingOnes()
+{
+    auto selectionService = std::make_shared<SelectionService>();
+    EditorService editorService { selectionService, std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
+    editorService.setAutomationService(automationService);
+
+    QVERIFY(editorService.requestPosition({ 0, 0, 0, 0, 0 }));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+    addCutoffSweep(*automationService, 0, 0, 0, 0, 3);
+    // Lies under where the copy will land
+    addCutoffSweep(*automationService, 0, 0, 0, 10, 12);
+
+    selectionService->requestSelectionStart(0, 0, 0, 0);
+    selectionService->requestSelectionEnd(0, 0, 0, 3);
+    editorService.requestSelectionCopy();
+    QVERIFY(editorService.requestPosition({ 0, 0, 0, 8, 0 }));
+    editorService.requestSelectionPaste();
+
+    // The copy runs over lines 8..11 and the one it overlapped is gone
+    const auto automations = automationService->automationsByColumn(0, 0, 0).parameter;
+    QCOMPARE(automations.size(), size_t { 2 });
+    QVERIFY(std::ranges::any_of(automations, [](auto && automation) { return automation.interpolation().line0 == 8 && automation.interpolation().line1 == 11; }));
+    QVERIFY(std::ranges::none_of(automations, [](auto && automation) { return automation.interpolation().line0 == 10; }));
+
+    editorService.undo();
+    const auto restored = automationService->automationsByColumn(0, 0, 0).parameter;
+    QCOMPARE(restored.size(), size_t { 2 });
+    QVERIFY(std::ranges::any_of(restored, [](auto && automation) { return automation.interpolation().line0 == 10; }));
+}
+
 void EditorServiceTest::test_patternCutPaste_equalSizes_shouldCopyPattern()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };

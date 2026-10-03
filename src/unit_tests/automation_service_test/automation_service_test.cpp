@@ -957,6 +957,34 @@ void AutomationServiceTest::test_renderToEventsByColumn_parameter_missingEffect_
     QVERIFY(automationService.renderToEventsByColumn(0, 0, 0, 0, 4, 4).empty());
 }
 
+void AutomationServiceTest::test_parameterAutomationsAsVariantList_shouldCarryEveryParameter()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    const auto id = automationService.addParameterAutomation(1, 2, 3, "effect-1", "cutoff", static_cast<int>(ParameterAutomation::Mode::Relative), 4, 12, 0.125, 0.875, static_cast<int>(Interpolator::CurveType::EaseOut), "Sweep", 2, 1);
+    automationService.addParameterModulation(id, static_cast<int>(ModulationParameters::ModulationType::Random), 3, 20.0f, 5.0f, true);
+
+    const auto list = automationService.parameterAutomationsAsVariantList();
+
+    QCOMPARE(list.size(), qsizetype { 1 });
+    const auto entry = list.at(0).toMap();
+    QCOMPARE(entry["effectId"].toString(), QString { "effect-1" });
+    QCOMPARE(entry["parameter"].toString(), QString { "cutoff" });
+    QCOMPARE(entry["mode"].toInt(), static_cast<int>(ParameterAutomation::Mode::Relative));
+    QCOMPARE(entry["pattern"].toULongLong(), quint64 { 1 });
+    QCOMPARE(entry["line0"].toULongLong(), quint64 { 4 });
+    QCOMPARE(entry["line1"].toULongLong(), quint64 { 12 });
+    // Positions, not rounded to whole numbers the way the MIDI kinds' values are
+    QCOMPARE(entry["value0"].toDouble(), 0.125);
+    QCOMPARE(entry["value1"].toDouble(), 0.875);
+    QCOMPARE(entry["curve"].toInt(), static_cast<int>(Interpolator::CurveType::EaseOut));
+    QCOMPARE(entry["eventsPerBeat"].toInt(), 2);
+    QCOMPARE(entry["lineOffset"].toInt(), 1);
+    QCOMPARE(entry["modulationType"].toInt(), static_cast<int>(ModulationParameters::ModulationType::Random));
+    QCOMPARE(entry["modulationAmplitude"].toFloat(), 20.0f);
+    QVERIFY(entry["modulationInverted"].toBool());
+    QCOMPARE(entry["comment"].toString(), QString { "Sweep" });
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::AutomationServiceTest)

@@ -45,92 +45,101 @@ Menu {
         onTriggered: editorService.requestTrackPaste()
     }
     MenuSeparator {}
-    Action {
-        text: qsTr("Transpose <b>+1</b> semitones")
-        shortcut: "Shift+F10"
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestTrackTranspose(1)
-    }
-    Action {
-        text: qsTr("Transpose <b>-1</b> semitones")
-        shortcut: "Shift+F9"
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestTrackTranspose(-1)
-    }
-    Action {
-        text: qsTr("Transpose <b>+2</b> semitones")
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestTrackTranspose(2)
-    }
-    Action {
-        text: qsTr("Transpose <b>-2</b> semitones")
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestTrackTranspose(-2)
-    }
-    Action {
-        text: qsTr("Transpose <b>+6</b> semitones")
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestTrackTranspose(6)
-    }
-    Action {
-        text: qsTr("Transpose <b>-6</b> semitones")
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestTrackTranspose(-6)
-    }
-    Action {
-        text: qsTr("Transpose <b>+12</b> semitones")
-        shortcut: "Shift+F12"
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestTrackTranspose(12)
-    }
-    Action {
-        text: qsTr("Transpose <b>-12</b> semitones")
-        shortcut: "Shift+F11"
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestTrackTranspose(-12)
-    }
+    // In a sub-menu of its own: eight steps each way, and the all-patterns ones under that, made the
+    // menu taller than a small window. The shortcuts still work, as Qt finds the window of an action
+    // in a sub-menu through its parent menus.
     Menu {
-        title: qsTr("Transpose in all patterns")
+        title: qsTr("Transpose")
         width: rootItem.width
         Action {
             text: qsTr("Transpose <b>+1</b> semitones")
+            shortcut: "Shift+F10"
             enabled: !UiService.isPlaying()
-            onTriggered: editorService.requestTrackTransposeAllPatterns(1)
+            onTriggered: editorService.requestTrackTranspose(1)
         }
         Action {
             text: qsTr("Transpose <b>-1</b> semitones")
+            shortcut: "Shift+F9"
             enabled: !UiService.isPlaying()
-            onTriggered: editorService.requestTrackTransposeAllPatterns(-1)
+            onTriggered: editorService.requestTrackTranspose(-1)
         }
         Action {
             text: qsTr("Transpose <b>+2</b> semitones")
             enabled: !UiService.isPlaying()
-            onTriggered: editorService.requestTrackTransposeAllPatterns(2)
+            onTriggered: editorService.requestTrackTranspose(2)
         }
         Action {
             text: qsTr("Transpose <b>-2</b> semitones")
             enabled: !UiService.isPlaying()
-            onTriggered: editorService.requestTrackTransposeAllPatterns(-2)
+            onTriggered: editorService.requestTrackTranspose(-2)
         }
         Action {
             text: qsTr("Transpose <b>+6</b> semitones")
             enabled: !UiService.isPlaying()
-            onTriggered: editorService.requestTrackTransposeAllPatterns(6)
+            onTriggered: editorService.requestTrackTranspose(6)
         }
         Action {
             text: qsTr("Transpose <b>-6</b> semitones")
             enabled: !UiService.isPlaying()
-            onTriggered: editorService.requestTrackTransposeAllPatterns(-6)
+            onTriggered: editorService.requestTrackTranspose(-6)
         }
         Action {
             text: qsTr("Transpose <b>+12</b> semitones")
+            shortcut: "Shift+F12"
             enabled: !UiService.isPlaying()
-            onTriggered: editorService.requestTrackTransposeAllPatterns(12)
+            onTriggered: editorService.requestTrackTranspose(12)
         }
         Action {
             text: qsTr("Transpose <b>-12</b> semitones")
+            shortcut: "Shift+F11"
             enabled: !UiService.isPlaying()
-            onTriggered: editorService.requestTrackTransposeAllPatterns(-12)
+            onTriggered: editorService.requestTrackTranspose(-12)
+        }
+        MenuSeparator {}
+        Menu {
+            title: qsTr("Transpose in all patterns")
+            width: rootItem.width
+            Action {
+                text: qsTr("Transpose <b>+1</b> semitones")
+                enabled: !UiService.isPlaying()
+                onTriggered: editorService.requestTrackTransposeAllPatterns(1)
+            }
+            Action {
+                text: qsTr("Transpose <b>-1</b> semitones")
+                enabled: !UiService.isPlaying()
+                onTriggered: editorService.requestTrackTransposeAllPatterns(-1)
+            }
+            Action {
+                text: qsTr("Transpose <b>+2</b> semitones")
+                enabled: !UiService.isPlaying()
+                onTriggered: editorService.requestTrackTransposeAllPatterns(2)
+            }
+            Action {
+                text: qsTr("Transpose <b>-2</b> semitones")
+                enabled: !UiService.isPlaying()
+                onTriggered: editorService.requestTrackTransposeAllPatterns(-2)
+            }
+            Action {
+                text: qsTr("Transpose <b>+6</b> semitones")
+                enabled: !UiService.isPlaying()
+                onTriggered: editorService.requestTrackTransposeAllPatterns(6)
+            }
+            Action {
+                text: qsTr("Transpose <b>-6</b> semitones")
+                enabled: !UiService.isPlaying()
+                onTriggered: editorService.requestTrackTransposeAllPatterns(-6)
+            }
+            Action {
+                text: qsTr("Transpose <b>+12</b> semitones")
+                enabled: !UiService.isPlaying()
+                onTriggered: editorService.requestTrackTransposeAllPatterns(12)
+            }
+            Action {
+                text: qsTr("Transpose <b>-12</b> semitones")
+                enabled: !UiService.isPlaying()
+                onTriggered: editorService.requestTrackTransposeAllPatterns(-12)
+            }
+            delegate: MenuItemDelegate {}
         }
         delegate: MenuItemDelegate {}
     }
@@ -182,21 +191,33 @@ Menu {
         onTriggered: editorService.requestTrackDeletion()
     }
     MenuSeparator {}
-    Action {
-        text: qsTr("Edit MIDI CC automations...")
-        enabled: !UiService.isPlaying()
-        onTriggered: UiService.requestEditMidiCcAutomationsDialogByTrack()
-    }
-    MenuSeparator {}
-    Action {
-        text: qsTr("Edit Pitch Bend automations...")
-        enabled: !UiService.isPlaying()
-        onTriggered: UiService.requestEditPitchBendAutomationsDialogByTrack()
-    }
-    Action {
-        text: qsTr("Edit parameter automations...")
-        enabled: !UiService.isPlaying()
-        onTriggered: UiService.requestEditParameterAutomationsDialogByTrack()
+    // In a sub-menu of their own, one or two entries for each kind, to keep the menu short
+    Menu {
+        title: qsTr("Automation")
+        width: rootItem.width
+        Action {
+            text: qsTr("Edit MIDI CC automations...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEditMidiCcAutomationsDialogByTrack()
+        }
+        MenuSeparator {}
+        Action {
+            text: qsTr("Edit Pitch Bend automations...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEditPitchBendAutomationsDialogByTrack()
+        }
+        MenuSeparator {}
+        Action {
+            text: qsTr("Add parameter automation...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestTrackAddParameterAutomationDialog()
+        }
+        Action {
+            text: qsTr("Edit parameter automations...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEditParameterAutomationsDialogByTrack()
+        }
+        delegate: MenuItemDelegate {}
     }
     delegate: MenuItemDelegate {}
 }
