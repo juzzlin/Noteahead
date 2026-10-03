@@ -923,6 +923,31 @@ QString xmlKeyPitchBendAutomation()
     return "PitchBendAutomation";
 }
 
+QString xmlKeyParameterAutomation()
+{
+    return "ParameterAutomation";
+}
+
+QString xmlKeyAutomationTarget()
+{
+    return "Target";
+}
+
+QString xmlKeyOwner()
+{
+    return "owner";
+}
+
+QString xmlKeyOwnerId()
+{
+    return "ownerId";
+}
+
+QString xmlKeyParameterName()
+{
+    return "parameter";
+}
+
 QString xmlKeyInterpolation()
 {
     return "Interpolation";
@@ -2792,6 +2817,16 @@ QString xmlValueBool()
 QString xmlValueFloat()
 {
     return "float";
+}
+
+QString xmlValueEffect()
+{
+    return "effect";
+}
+
+QString xmlValueRelative()
+{
+    return "relative";
 }
 
 QString xmlValueSineWave()

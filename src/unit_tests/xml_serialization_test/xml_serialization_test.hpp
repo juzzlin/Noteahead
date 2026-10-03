@@ -50,6 +50,8 @@ private slots:
     void test_toXmlFromXml_automationService_midiCc_noModulation_shouldLoadAutomationService();
     void test_toXmlFromXml_automationService_midiCc_shouldLoadAutomationService();
     void test_toXmlFromXml_automationService_midiCc_withModulation_shouldLoadAutomationService();
+    void test_toXmlFromXml_automationService_parameter_shouldLoadAutomationService();
+    void test_toXmlFromXml_automationService_parameter_absolute_shouldNotWriteMode();
     void test_toXmlFromXml_automationService_pitchBend_curve_shouldLoadAutomationService();
     void test_toXmlFromXml_automationService_pitchBend_shouldLoadAutomationService();
     void test_toXmlFromXml_automationService_pitchBend_withModulation_shouldLoadAutomationService();

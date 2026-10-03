@@ -617,6 +617,55 @@ void XmlSerializationTest::test_toXmlFromXml_automationService_midiCc_linearCurv
     QCOMPARE(automationServiceIn.midiCcAutomations().at(0).interpolation().curve, Interpolator::CurveType::Linear);
 }
 
+void XmlSerializationTest::test_toXmlFromXml_automationService_parameter_shouldLoadAutomationService()
+{
+    // Everything an automation carries, set away from its default, so that nothing can be dropped
+    // on the way through without this noticing. Fractional positions too: they are written as
+    // doubles, and must not come back rounded onto a coarser grid.
+    ModulationParameters modulation;
+    modulation.type = ModulationParameters::ModulationType::Random;
+    modulation.cycles = 4.0f;
+    modulation.amplitude = 25.0f;
+    modulation.offset = -10.0f;
+    modulation.inverted = true;
+    ParameterAutomation automationOut { 0, AutomationLocation { 2, 3, 1 }, { ParameterAutomation::Target::Owner::Effect, "0b5c3e2a-1d4f-4e8b-9a7c-6f2e1d3c4b5a", "cutoff" }, ParameterAutomation::Mode::Relative, { 4, 28, 0.123456789, 0.987654321, Interpolator::CurveType::EaseInOut }, modulation, "Filter sweep", false };
+    automationOut.setEventsPerBeat(16);
+    automationOut.setLineOffset(2);
+
+    AutomationService automationServiceOut { std::make_shared<PropertyService>() };
+    automationServiceOut.addParameterAutomation(automationOut);
+
+    AutomationService automationServiceIn { std::make_shared<PropertyService>() };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorService, &EditorService::automationSerializationRequested, &automationServiceOut, &AutomationService::serializeToXml);
+    connect(&editorService, &EditorService::automationDeserializationRequested, &automationServiceIn, &AutomationService::deserializeFromXml);
+
+    editorService.fromXml(editorService.toXml());
+
+    QCOMPARE(automationServiceIn.parameterAutomations().size(), size_t { 1 });
+    QCOMPARE(automationServiceIn.parameterAutomations().at(0), automationServiceOut.parameterAutomations().at(0));
+}
+
+void XmlSerializationTest::test_toXmlFromXml_automationService_parameter_absolute_shouldNotWriteMode()
+{
+    AutomationService automationServiceOut { std::make_shared<PropertyService>() };
+    automationServiceOut.addParameterAutomation({ 0, AutomationLocation { 0, 0, 0 }, { ParameterAutomation::Target::Owner::Effect, "effect", "cutoff" }, ParameterAutomation::Mode::Absolute, { 0, 8, 0.0, 1.0 }, {}, {}, true });
+
+    AutomationService automationServiceIn { std::make_shared<PropertyService>() };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorService, &EditorService::automationSerializationRequested, &automationServiceOut, &AutomationService::serializeToXml);
+    connect(&editorService, &EditorService::automationDeserializationRequested, &automationServiceIn, &AutomationService::deserializeFromXml);
+
+    const auto xml = editorService.toXml();
+    // Absolute is the plain case, so only relative says what it is
+    QVERIFY(xml.contains("ParameterAutomation"));
+    QVERIFY(!xml.contains("relative"));
+
+    editorService.fromXml(xml);
+
+    QCOMPARE(automationServiceIn.parameterAutomations().at(0).mode(), ParameterAutomation::Mode::Absolute);
+}
+
 void XmlSerializationTest::test_toXmlFromXml_automationService_midiCc_withModulation_shouldLoadAutomationService()
 {
     AutomationService automationServiceOut { std::make_shared<PropertyService>() };

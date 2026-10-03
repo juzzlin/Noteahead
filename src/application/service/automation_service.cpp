@@ -421,6 +421,71 @@ AutomationService::MidiCcAutomationList AutomationService::midiCcAutomationsByPa
     return automations;
 }
 
+quint64 AutomationService::addParameterAutomation(const ParameterAutomation & automation)
+{
+    const auto maxIdItem = std::ranges::max_element(m_automations.parameter, [](auto && lhs, auto && rhs) { return lhs.id() < rhs.id(); });
+    auto newAutomation = automation;
+    newAutomation.setId(maxIdItem != m_automations.parameter.end() ? maxIdItem->id() + 1 : 1);
+    m_automations.parameter.push_back(newAutomation);
+    notifyChangedLines(newAutomation);
+    juzzlin::L(TAG).info() << "Parameter Automation added: " << newAutomation.toString().toStdString();
+    return newAutomation.id();
+}
+
+void AutomationService::addParameterAutomationWithId(const ParameterAutomation & automation)
+{
+    m_automations.parameter.push_back(automation);
+    notifyChangedLines(automation);
+    juzzlin::L(TAG).info() << "Parameter Automation added (with ID): " << automation.toString().toStdString();
+}
+
+void AutomationService::deleteParameterAutomation(const ParameterAutomation & automationToDelete)
+{
+    if (const auto iter = std::ranges::find_if(m_automations.parameter, [&](auto && existingAutomation) {
+            return automationToDelete.id() == existingAutomation.id();
+        });
+        iter != m_automations.parameter.end()) {
+        m_automations.parameter.erase(iter);
+        notifyChangedLines(automationToDelete);
+        juzzlin::L(TAG).info() << "Parameter Automation deleted: " << automationToDelete.toString().toStdString();
+    } else {
+        juzzlin::L(TAG).error() << "No such automation id to delete: " << automationToDelete.id();
+    }
+}
+
+void AutomationService::updateParameterAutomation(const ParameterAutomation & updatedAutomation)
+{
+    if (const auto iter = std::ranges::find_if(m_automations.parameter, [&](auto && existingAutomation) {
+            return updatedAutomation.id() == existingAutomation.id();
+        });
+        iter != m_automations.parameter.end()) {
+        if (const auto oldAutomation = *iter; oldAutomation != updatedAutomation) {
+            *iter = updatedAutomation;
+            notifyChangedLinesMerged(oldAutomation, updatedAutomation);
+            juzzlin::L(TAG).info() << "Parameter Automation updated: " << updatedAutomation.toString().toStdString();
+        }
+    } else {
+        juzzlin::L(TAG).error() << "No such automation id: " << updatedAutomation.id();
+    }
+}
+
+AutomationService::ParameterAutomationList AutomationService::parameterAutomationsByColumn(quint64 pattern, quint64 track, quint64 column) const
+{
+    ParameterAutomationList automations;
+    std::ranges::copy(m_automations.parameter
+                        | std::views::filter([&](auto && automation) {
+                              auto && location = automation.location();
+                              return location.pattern() == pattern && location.track() == track && location.column() == column;
+                          }),
+                      std::back_inserter(automations));
+    return automations;
+}
+
+AutomationService::ParameterAutomationList AutomationService::parameterAutomations() const
+{
+    return m_automations.parameter;
+}
+
 AutomationService::MidiCcAutomationList AutomationService::midiCcAutomations() const
 {
     return m_automations.midiCc;
@@ -802,6 +867,10 @@ void AutomationService::deletePatterns(const std::set<size_t> & patternsToDelete
     std::erase_if(m_automations.pitchBend, [&](auto && automation) {
         return patternsToDelete.contains(automation.location().pattern());
     });
+
+    std::erase_if(m_automations.parameter, [&](auto && automation) {
+        return patternsToDelete.contains(automation.location().pattern());
+    });
 }
 
 void AutomationService::notifyChangedLines(quint64 pattern, quint64 track, quint64 column, quint64 line0, quint64 line1)
@@ -846,6 +915,20 @@ void AutomationService::notifyChangedLinesMerged(const PitchBendAutomation & aut
     notifyChangedLines(location.pattern(), location.track(), location.column(), std::min(interpolation1.line0, interpolation2.line0), std::max(interpolation1.line1, interpolation2.line1));
 }
 
+void AutomationService::notifyChangedLines(const ParameterAutomation & automation)
+{
+    const auto location = automation.location();
+    const auto interpolation = automation.interpolation();
+    notifyChangedLines(location.pattern(), location.track(), location.column(), interpolation.line0, interpolation.line1);
+}
+
+void AutomationService::notifyChangedLinesMerged(const ParameterAutomation & automation1, const ParameterAutomation & automation2)
+{
+    // Either end may have moved, and the old location may differ from the new one
+    notifyChangedLines(automation1);
+    notifyChangedLines(automation2);
+}
+
 void AutomationService::deserializeFromXml(ProjectReader & reader)
 {
     juzzlin::L(TAG).info() << "Deserializing";
@@ -860,6 +943,11 @@ void AutomationService::deserializeFromXml(ProjectReader & reader)
             if (const auto automation = PitchBendAutomation::deserializeFromXml(reader); automation) {
                 automation->setId(m_automations.pitchBend.size() + 1); // Assign id on-the-fly
                 m_automations.pitchBend.push_back(*automation);
+            }
+        } else if (reader.isStartElement() && !reader.name().compare(Constants::NahdXml::xmlKeyParameterAutomation())) {
+            if (const auto automation = ParameterAutomation::deserializeFromXml(reader); automation) {
+                automation->setId(m_automations.parameter.size() + 1); // Assign id on-the-fly
+                m_automations.parameter.push_back(*automation);
             }
         }
         reader.readNext();
@@ -877,6 +965,10 @@ void AutomationService::serializeToXml(ProjectWriter & writer) const
     }
 
     for (const auto & automation : m_automations.pitchBend) {
+        automation.serializeToXml(writer);
+    }
+
+    for (const auto & automation : m_automations.parameter) {
         automation.serializeToXml(writer);
     }
 

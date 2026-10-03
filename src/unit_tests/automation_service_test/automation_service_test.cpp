@@ -20,6 +20,7 @@
 #include "../../application/service/property_service.hpp"
 #include "../../domain/midi/midi_cc_automation.hpp"
 #include "../../domain/tracker/interpolator.hpp"
+#include "../../domain/tracker/parameter_automation.hpp"
 
 #include <QSignalSpy>
 #include <QTest>
@@ -27,6 +28,16 @@
 Q_DECLARE_METATYPE(noteahead::Position)
 
 namespace noteahead {
+
+namespace {
+
+//! A cutoff sweep over lines 2..10 of the given location.
+ParameterAutomation cutoffSweep(size_t pattern, size_t track, size_t column)
+{
+    return ParameterAutomation { 0, AutomationLocation { pattern, track, column }, { ParameterAutomation::Target::Owner::Effect, "effect-1", "cutoff" }, ParameterAutomation::Mode::Absolute, { 2, 10, 0.25, 0.75 }, {}, {}, true };
+}
+
+} // namespace
 
 void AutomationServiceTest::initTestCase()
 {
@@ -150,6 +161,67 @@ void AutomationServiceTest::test_deletePitchBendAutomation_shouldDeleteAutomatio
 
     QVERIFY(automationService.pitchBendAutomations().empty());
     QCOMPARE(lineDataChangedSpy.count(), automation.interpolation().line1 - automation.interpolation().line0 + 1);
+}
+
+void AutomationServiceTest::test_addParameterAutomation_shouldAddAutomation()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    QSignalSpy lineDataChangedSpy { &automationService, &AutomationService::lineDataChanged };
+
+    QCOMPARE(automationService.addParameterAutomation(cutoffSweep(0, 1, 0)), quint64 { 1 });
+    QCOMPARE(automationService.addParameterAutomation(cutoffSweep(0, 1, 0)), quint64 { 2 });
+
+    QCOMPARE(automationService.parameterAutomations().size(), size_t { 2 });
+    QCOMPARE(automationService.parameterAutomations().at(0).target().parameter, std::string { "cutoff" });
+    // Lines 2..10 of both
+    QCOMPARE(lineDataChangedSpy.count(), 18);
+}
+
+void AutomationServiceTest::test_updateParameterAutomation_shouldReplaceIt()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    automationService.addParameterAutomation(cutoffSweep(0, 0, 0));
+
+    auto automation = automationService.parameterAutomations().at(0);
+    automation.setMode(ParameterAutomation::Mode::Relative);
+    automationService.updateParameterAutomation(automation);
+
+    QCOMPARE(automationService.parameterAutomations().at(0).mode(), ParameterAutomation::Mode::Relative);
+}
+
+void AutomationServiceTest::test_deleteParameterAutomation_shouldDeleteAutomation()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    automationService.addParameterAutomation(cutoffSweep(0, 0, 0));
+
+    automationService.deleteParameterAutomation(automationService.parameterAutomations().at(0));
+
+    QVERIFY(automationService.parameterAutomations().empty());
+}
+
+void AutomationServiceTest::test_parameterAutomationsByColumn_shouldFilterByLocation()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    automationService.addParameterAutomation(cutoffSweep(0, 1, 2));
+    automationService.addParameterAutomation(cutoffSweep(0, 1, 3));
+    automationService.addParameterAutomation(cutoffSweep(1, 1, 2));
+
+    const auto automations = automationService.parameterAutomationsByColumn(0, 1, 2);
+
+    QCOMPARE(automations.size(), size_t { 1 });
+    QCOMPARE(automations.at(0).location(), (AutomationLocation { 0, 1, 2 }));
+}
+
+void AutomationServiceTest::test_deletePatterns_shouldDeleteParameterAutomations()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    automationService.addParameterAutomation(cutoffSweep(0, 0, 0));
+    automationService.addParameterAutomation(cutoffSweep(3, 0, 0));
+
+    automationService.deletePatterns({ 3 });
+
+    QCOMPARE(automationService.parameterAutomations().size(), size_t { 1 });
+    QCOMPARE(automationService.parameterAutomations().at(0).location().pattern(), size_t { 0 });
 }
 
 void AutomationServiceTest::test_automationWeight_midiCc_shouldCalculateCorrectWeight()

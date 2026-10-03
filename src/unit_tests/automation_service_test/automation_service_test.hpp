@@ -32,6 +32,11 @@ private slots:
     void test_deleteMidiCcAutomation_shouldDeleteAutomation();
     void test_addPitchBendAutomation_shouldAddAutomation();
     void test_deletePitchBendAutomation_shouldDeleteAutomation();
+    void test_addParameterAutomation_shouldAddAutomation();
+    void test_updateParameterAutomation_shouldReplaceIt();
+    void test_deleteParameterAutomation_shouldDeleteAutomation();
+    void test_parameterAutomationsByColumn_shouldFilterByLocation();
+    void test_deletePatterns_shouldDeleteParameterAutomations();
 
     void test_automationWeight_midiCc_shouldCalculateCorrectWeight();
     void test_hasAutomations_disabled_shouldReportNone();

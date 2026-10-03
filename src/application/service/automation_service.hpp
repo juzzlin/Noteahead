@@ -28,6 +28,7 @@
 #include "../../domain/midi/midi_cc_automation.hpp"
 #include "../../domain/midi/pitch_bend_automation.hpp"
 #include "../../domain/tracker/event.hpp"
+#include "../../domain/tracker/parameter_automation.hpp"
 
 namespace noteahead {
 
@@ -132,6 +133,13 @@ public:
     PitchBendAutomationList pitchBendAutomationsByPattern(quint64 pattern) const;
     PitchBendAutomationList pitchBendAutomations() const;
 
+    //! Automations that drive a parameter directly rather than through MIDI. See ParameterAutomation.
+    using ParameterAutomationList = std::vector<ParameterAutomation>;
+    quint64 addParameterAutomation(const ParameterAutomation & automation);
+    void addParameterAutomationWithId(const ParameterAutomation & automation);
+    ParameterAutomationList parameterAutomationsByColumn(quint64 pattern, quint64 track, quint64 column) const;
+    ParameterAutomationList parameterAutomations() const;
+
     using EventS = std::shared_ptr<Event>;
     using EventList = std::vector<EventS>;
     EventList renderToEventsByLine(size_t pattern, size_t track, size_t column, size_t line, size_t tick) const;
@@ -145,6 +153,8 @@ public slots:
     void updateMidiCcAutomation(const MidiCcAutomation & updatedAutomation);
     void deletePitchBendAutomation(const PitchBendAutomation & automationToDelete);
     void updatePitchBendAutomation(const PitchBendAutomation & updatedAutomation);
+    void deleteParameterAutomation(const ParameterAutomation & automationToDelete);
+    void updateParameterAutomation(const ParameterAutomation & updatedAutomation);
 
 signals:
     void lineDataChanged(const Position & position);
@@ -163,6 +173,8 @@ private:
     void notifyChangedLinesMerged(const MidiCcAutomation & automation1, const MidiCcAutomation & automation2);
     void notifyChangedLines(const PitchBendAutomation & automation);
     void notifyChangedLinesMerged(const PitchBendAutomation & automation1, const PitchBendAutomation & automation2);
+    void notifyChangedLines(const ParameterAutomation & automation);
+    void notifyChangedLinesMerged(const ParameterAutomation & automation1, const ParameterAutomation & automation2);
     EventList renderMidiCcToEventsByLine(size_t pattern, size_t track, size_t column, size_t line, size_t tick) const;
     EventList renderPitchBendToEventsByLine(size_t pattern, size_t track, size_t column, size_t line, size_t tick) const;
     EventList renderMidiCcToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine, size_t linesPerBeat) const;
@@ -175,6 +187,7 @@ private:
     {
         MidiCcAutomationList midiCc;
         PitchBendAutomationList pitchBend;
+        ParameterAutomationList parameter;
     };
 
     //! Value range of a controller at the given track's destination.
