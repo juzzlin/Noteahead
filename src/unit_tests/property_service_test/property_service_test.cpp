@@ -202,7 +202,7 @@ QVariantMap parameterOf(const QVariantMap & target, const QString & key)
 
 } // namespace
 
-void PropertyServiceTest::test_automationTargets_shouldListEveryEffectWithItsLocation()
+void PropertyServiceTest::test_automationTargets_shouldListDevicesThenEffects()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
     const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
@@ -218,17 +218,24 @@ void PropertyServiceTest::test_automationTargets_shouldListEveryEffectWithItsLoc
 
     const auto targets = propertyService.automationTargets();
 
-    QCOMPARE(targets.size(), qsizetype { 2 });
-    const auto device = targets.at(0).toMap();
-    QCOMPARE(device["effectId"].toString(), QString::fromStdString(inDevice->id()));
+    // The Synth itself first, as the track's own instrument is what is most often ridden
+    QCOMPARE(targets.size(), qsizetype { 3 });
+    const auto synthTarget = targets.at(0).toMap();
+    QCOMPARE(synthTarget["owner"].toString(), QString { "device" });
+    QCOMPARE(synthTarget["ownerId"].toString(), QString::fromStdString(synth->uuid()));
+    QCOMPARE(synthTarget["deviceSlot"].toInt(), 2);
+    QCOMPARE(synthTarget["deviceTypeName"].toString(), QString::fromStdString(synth->typeName()));
+    const auto device = targets.at(1).toMap();
+    QCOMPARE(device["owner"].toString(), QString { "effect" });
+    QCOMPARE(device["ownerId"].toString(), QString::fromStdString(inDevice->id()));
     QCOMPARE(device["typeId"].toString(), QString::fromStdString(AutoFilter::typeIdString()));
     // What the effect gallery names effects by
     QCOMPARE(device["type"].toString(), Constants::RackEffectType::autoFilter());
     QCOMPARE(device["rack"].toInt(), static_cast<int>(DeviceService::EffectLocation::Rack::DeviceInsert));
     QCOMPARE(device["deviceSlot"].toInt(), 2);
     QCOMPARE(device["effectSlot"].toInt(), 3);
-    const auto master = targets.at(1).toMap();
-    QCOMPARE(master["effectId"].toString(), QString::fromStdString(onMaster->id()));
+    const auto master = targets.at(2).toMap();
+    QCOMPARE(master["ownerId"].toString(), QString::fromStdString(onMaster->id()));
     QCOMPARE(master["rack"].toInt(), static_cast<int>(DeviceService::EffectLocation::Rack::MasterInsert));
     QCOMPARE(master["effectSlot"].toInt(), 1);
 }
@@ -264,7 +271,7 @@ void PropertyServiceTest::test_automationTargets_parameterWithoutDisplay_shouldB
     const auto gain = std::make_shared<Gain>();
     deviceService->insertEffectRack().setEffect(0, gain);
 
-    const auto parameter = propertyService.automationParameter(QString::fromStdString(gain->id()), Constants::NahdXml::xmlKeyGain());
+    const auto parameter = propertyService.automationParameter("effect", QString::fromStdString(gain->id()), Constants::NahdXml::xmlKeyGain());
 
     QCOMPARE(parameter["label"].toString(), Constants::NahdXml::xmlKeyGain());
     QCOMPARE(parameter["unit"].toString(), QString { "%" });
@@ -281,8 +288,62 @@ void PropertyServiceTest::test_automationParameter_missing_shouldBeEmpty()
     const auto filter = std::make_shared<AutoFilter>();
     deviceService->insertEffectRack().setEffect(0, filter);
 
-    QVERIFY(propertyService.automationParameter("no-such-effect", Constants::NahdXml::xmlKeyCutoff()).isEmpty());
-    QVERIFY(propertyService.automationParameter(QString::fromStdString(filter->id()), "noSuchParameter").isEmpty());
+    QVERIFY(propertyService.automationParameter("effect", "no-such-effect", Constants::NahdXml::xmlKeyCutoff()).isEmpty());
+    QVERIFY(propertyService.automationParameter("effect", QString::fromStdString(filter->id()), "noSuchParameter").isEmpty());
+}
+
+void PropertyServiceTest::test_automationTargets_device_shouldOfferOnlyDescribedParameters()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    PropertyService propertyService;
+    propertyService.setDeviceService(deviceService);
+    deviceService->setDevice(0, std::make_shared<SynthDevice>("Synth"));
+
+    const auto synthTarget = propertyService.automationTargets().at(0).toMap();
+
+    // A Synth registers dozens; only the controls it describes are offered
+    QStringList keys;
+    for (auto && parameter : synthTarget["parameters"].toList()) {
+        keys.push_back(parameter.toMap()["key"].toString());
+    }
+    keys.sort();
+    QStringList expected { Constants::NahdXml::xmlKeyLpfCutoff(), Constants::NahdXml::xmlKeyLpfResonance(), Constants::NahdXml::xmlKeyKeyTrack(), Constants::NahdXml::xmlKeyHpfCutoff() };
+    expected.sort();
+    QCOMPARE(keys, expected);
+
+    const auto cutoff = parameterOf(synthTarget, Constants::NahdXml::xmlKeyLpfCutoff());
+    QCOMPARE(cutoff["label"].toString(), QString { "LPF Cutoff" });
+    QCOMPARE(cutoff["unit"].toString(), QString { "Hz" });
+    QCOMPARE(cutoff["min"].toDouble(), 20.0);
+}
+
+void PropertyServiceTest::test_automationTargets_deviceWithoutDescriptions_shouldNotBeListed()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    PropertyService propertyService;
+    propertyService.setDeviceService(deviceService);
+    // Describes nothing yet, so there is nothing to offer
+    deviceService->setDevice(0, std::make_shared<BassSynthDevice>("Bass"));
+
+    QVERIFY(propertyService.automationTargets().isEmpty());
+}
+
+void PropertyServiceTest::test_automationParameter_device_shouldFindIt()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    PropertyService propertyService;
+    propertyService.setDeviceService(deviceService);
+    const auto synth = std::make_shared<SynthDevice>("Synth");
+    deviceService->setDevice(3, synth);
+    const auto uuid = QString::fromStdString(synth->uuid());
+
+    QCOMPARE(propertyService.automationParameter("device", uuid, Constants::NahdXml::xmlKeyHpfCutoff())["label"].toString(), QString { "HPF Cutoff" });
+    // Undescribed device parameters are not offered, and an effect id does not find a device
+    QVERIFY(propertyService.automationParameter("device", uuid, Constants::NahdXml::xmlKeyLpfSlope()).isEmpty());
+    QVERIFY(propertyService.automationParameter("effect", uuid, Constants::NahdXml::xmlKeyHpfCutoff()).isEmpty());
 }
 
 } // namespace noteahead

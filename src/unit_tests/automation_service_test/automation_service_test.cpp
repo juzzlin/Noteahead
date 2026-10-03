@@ -18,6 +18,7 @@
 #include "../../application/position.hpp"
 #include "../../application/service/automation_service.hpp"
 #include "../../application/service/property_service.hpp"
+#include "../../domain/devices/synth_device.hpp"
 #include "../../domain/effects/auto_filter.hpp"
 #include "../../domain/midi/midi_cc_automation.hpp"
 #include "../../domain/tracker/interpolator.hpp"
@@ -38,11 +39,13 @@ ParameterAutomation cutoffSweep(size_t pattern, size_t track, size_t column)
     return ParameterAutomation { 0, AutomationLocation { pattern, track, column }, { ParameterAutomation::Target::Owner::Effect, "effect-1", "cutoff" }, ParameterAutomation::Mode::Absolute, { 2, 10, 0.25, 0.75 }, {}, {}, true };
 }
 
-//! An automation service whose parameter automations reach @p effect under the id "effect-1".
-void resolveTo(AutomationService & automationService, std::shared_ptr<Effect> effect)
+//! An automation service whose parameter automations reach @p target under the id "effect-1", as
+//! an effect, or "device-1", as a device.
+void resolveTo(AutomationService & automationService, std::shared_ptr<ParameterAutomationTarget> target)
 {
-    automationService.setEffectResolver([effect](const std::string & id) -> std::shared_ptr<Effect> {
-        return id == "effect-1" ? effect : nullptr;
+    automationService.setTargetResolver([target](const ParameterAutomation::Target & wanted) -> std::shared_ptr<ParameterAutomationTarget> {
+        const bool isDevice = wanted.owner == ParameterAutomation::Target::Owner::Device;
+        return wanted.ownerId == (isDevice ? "device-1" : "effect-1") ? target : nullptr;
     });
 }
 
@@ -237,7 +240,7 @@ void AutomationServiceTest::test_addParameterAutomation_fromQml_shouldBuildTheAu
 {
     AutomationService automationService { std::make_shared<PropertyService>() };
 
-    const auto id = automationService.addParameterAutomation(1, 2, 3, "effect-1", "cutoff", static_cast<int>(ParameterAutomation::Mode::Relative), 4, 12, 0.25, 1.5, static_cast<int>(Interpolator::CurveType::EaseIn), "Sweep", 2, 1);
+    const auto id = automationService.addParameterAutomation(1, 2, 3, "effect", "effect-1", "cutoff", static_cast<int>(ParameterAutomation::Mode::Relative), 4, 12, 0.25, 1.5, static_cast<int>(Interpolator::CurveType::EaseIn), "Sweep", 2, 1);
     automationService.addParameterModulation(id, static_cast<int>(ModulationParameters::ModulationType::Random), 3, 20.0f, 5.0f, true);
 
     const auto automation = automationService.parameterAutomations().at(0);
@@ -907,7 +910,7 @@ void AutomationServiceTest::test_renderToEventsByColumn_parameter_shouldCarryTar
     QVERIFY(!events.empty());
     const auto data = events.front()->parameterData();
     QVERIFY(data.has_value());
-    QCOMPARE(data->effect().lock(), std::static_pointer_cast<Effect>(filter));
+    QCOMPARE(data->target().lock(), std::static_pointer_cast<ParameterAutomationTarget>(filter));
     QCOMPARE(data->parameter(), std::string { "cutoff" });
     QCOMPARE(data->mode(), ParameterAutomation::Mode::Relative);
     QCOMPARE(data->track(), size_t { 2 });
@@ -960,14 +963,15 @@ void AutomationServiceTest::test_renderToEventsByColumn_parameter_missingEffect_
 void AutomationServiceTest::test_parameterAutomationsAsVariantList_shouldCarryEveryParameter()
 {
     AutomationService automationService { std::make_shared<PropertyService>() };
-    const auto id = automationService.addParameterAutomation(1, 2, 3, "effect-1", "cutoff", static_cast<int>(ParameterAutomation::Mode::Relative), 4, 12, 0.125, 0.875, static_cast<int>(Interpolator::CurveType::EaseOut), "Sweep", 2, 1);
+    const auto id = automationService.addParameterAutomation(1, 2, 3, "effect", "effect-1", "cutoff", static_cast<int>(ParameterAutomation::Mode::Relative), 4, 12, 0.125, 0.875, static_cast<int>(Interpolator::CurveType::EaseOut), "Sweep", 2, 1);
     automationService.addParameterModulation(id, static_cast<int>(ModulationParameters::ModulationType::Random), 3, 20.0f, 5.0f, true);
 
     const auto list = automationService.parameterAutomationsAsVariantList();
 
     QCOMPARE(list.size(), qsizetype { 1 });
     const auto entry = list.at(0).toMap();
-    QCOMPARE(entry["effectId"].toString(), QString { "effect-1" });
+    QCOMPARE(entry["owner"].toString(), QString { "effect" });
+    QCOMPARE(entry["ownerId"].toString(), QString { "effect-1" });
     QCOMPARE(entry["parameter"].toString(), QString { "cutoff" });
     QCOMPARE(entry["mode"].toInt(), static_cast<int>(ParameterAutomation::Mode::Relative));
     QCOMPARE(entry["pattern"].toULongLong(), quint64 { 1 });
@@ -983,6 +987,33 @@ void AutomationServiceTest::test_parameterAutomationsAsVariantList_shouldCarryEv
     QCOMPARE(entry["modulationAmplitude"].toFloat(), 20.0f);
     QVERIFY(entry["modulationInverted"].toBool());
     QCOMPARE(entry["comment"].toString(), QString { "Sweep" });
+}
+
+void AutomationServiceTest::test_renderToEventsByColumn_parameter_device_shouldReachTheDevice()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    const auto synth = std::make_shared<SynthDevice>("Synth");
+    resolveTo(automationService, synth);
+    automationService.addParameterAutomation(0, 0, 0, "device", "device-1", "lpfCutoff", static_cast<int>(ParameterAutomation::Mode::Absolute), 0, 2, 0.0, 1.0, 0, {}, 0, 0);
+
+    const auto events = automationService.renderToEventsByColumn(0, 0, 0, 0, 4, 4);
+
+    QCOMPARE(events.size(), size_t { 9 });
+    const auto data = events.front()->parameterData();
+    QCOMPARE(data->target().lock(), std::static_pointer_cast<ParameterAutomationTarget>(synth));
+    QCOMPARE(data->parameter(), std::string { "lpfCutoff" });
+}
+
+void AutomationServiceTest::test_renderToEventsByColumn_parameter_missingDevice_shouldRenderNothing()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    resolveTo(automationService, std::make_shared<SynthDevice>("Synth"));
+    // Aimed at a device that is not there: the device id of the resolver is "device-1"
+    automationService.addParameterAutomation(0, 0, 0, "device", "gone", "lpfCutoff", static_cast<int>(ParameterAutomation::Mode::Absolute), 0, 2, 0.0, 1.0, 0, {}, 0, 0);
+    // Nor does an effect id find a device, or the other way round
+    automationService.addParameterAutomation(0, 0, 0, "effect", "device-1", "lpfCutoff", static_cast<int>(ParameterAutomation::Mode::Absolute), 0, 2, 0.0, 1.0, 0, {}, 0, 0);
+
+    QVERIFY(automationService.renderToEventsByColumn(0, 0, 0, 0, 4, 4).empty());
 }
 
 } // namespace noteahead

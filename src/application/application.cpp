@@ -599,9 +599,12 @@ void Application::connectAutomationService()
         return QString {};
     });
 
-    m_automationService->setEffectResolver([deviceService = std::weak_ptr<DeviceService> { m_deviceService }](const std::string & id) -> std::shared_ptr<Effect> {
+    m_automationService->setTargetResolver([deviceService = std::weak_ptr<DeviceService> { m_deviceService }](const ParameterAutomation::Target & target) -> std::shared_ptr<ParameterAutomationTarget> {
         if (const auto locked = deviceService.lock()) {
-            return locked->findEffect(id);
+            if (target.owner == ParameterAutomation::Target::Owner::Device) {
+                return locked->findDevice(target.ownerId);
+            }
+            return locked->findEffect(target.ownerId);
         }
         return {};
     });

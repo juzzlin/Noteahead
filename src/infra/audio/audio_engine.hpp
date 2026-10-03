@@ -36,8 +36,8 @@
 
 namespace noteahead {
 
-class Effect;
 class EffectRack;
+class ParameterAutomationTarget;
 class RealTimeWorkerPool;
 
 struct AudioEngineWorkBuffer
@@ -113,10 +113,10 @@ public:
 
     FrameAnchor frameAnchor() const;
 
-    //! A value a parameter automation wants one of the effects at.
+    //! A value a parameter automation wants an effect or a device at.
     struct ParameterChange
     {
-        std::weak_ptr<Effect> effect;
+        std::weak_ptr<ParameterAutomationTarget> target;
         std::string parameter;
         ParameterAutomation::Mode mode = ParameterAutomation::Mode::Absolute;
         double value = 0.0;
@@ -129,13 +129,13 @@ public:
     //! Queues a change for the audio thread, which applies it at the start of the block that holds
     //! its frame. Called off the audio thread.
     //!
-    //! Applied there rather than by whoever calls this, because the effect is in use on the audio
+    //! Applied there rather than by whoever calls this, because the target is in use on the audio
     //! thread the whole time a song plays: writing its parameters from anywhere else would race the
     //! very code reading them. A block's worth early at worst, which a parameter sweep cannot be
     //! heard to be.
     void scheduleParameterChange(ParameterChange change);
 
-    //! Drops whatever is still queued and puts every effect the queue has touched back to its
+    //! Drops whatever is still queued and puts everything the queue has touched back to its
     //! authored values, so that nothing a song played is left behind when it stops.
     void clearParameterAutomation();
 
@@ -271,9 +271,9 @@ private:
     //! Separate from m_mutex so that queueing a change never waits for a block to finish rendering.
     std::mutex m_parameterChangesMutex;
     std::vector<ParameterChange> m_parameterChanges;
-    //! Every effect a change has been applied to since the last clear, so that a stop can put them
-    //! back without walking every rack in the project.
-    std::vector<std::weak_ptr<Effect>> m_automatedEffects;
+    //! Everything a change has been applied to since the last clear, so that a stop can put it back
+    //! without walking every rack and device in the project.
+    std::vector<std::weak_ptr<ParameterAutomationTarget>> m_automatedTargets;
     std::atomic<uint64_t> m_framesRendered { 0 };
     //! Even means settled, odd means being written. The audio thread bumps it either side of the
     //! anchor, so a reader that sees the same even value twice knows it read one whole anchor.

@@ -48,18 +48,23 @@ public:
     Q_INVOKABLE int minValue(int controller, const QString & portName = {}) const;
     Q_INVOKABLE int maxValue(int controller, const QString & portName = {}) const;
 
-    //! Everything a parameter automation can drive: one entry per effect in the project, with where
-    //! it sits and the parameters it offers.
+    //! Everything a parameter automation can drive: the devices, then every effect in the project,
+    //! each with where it sits and the parameters it offers.
     //!
-    //! Each effect carries effectId, typeId, type, rack (DeviceService::EffectLocation::Rack as an int),
-    //! deviceSlot, deviceTypeName, rackIndex, effectSlot and parameters. Each parameter carries key,
-    //! label, unit, mapping, min, max, rest and knob (its authored position) -- what Knob.qml and KnobController take, so a value
-    //! reads and is typed exactly as on the knob. A parameter that has not said how it reads out is
-    //! offered as a bare percentage of its travel. Only continuous parameters are offered: a
-    //! position between two choices of a switch means nothing.
+    //! Every entry carries owner ("device" or "effect"), ownerId and parameters. A device adds
+    //! deviceSlot and deviceTypeName; an effect adds typeId, type, rack (DeviceService::EffectLocation
+    //! ::Rack as an int), deviceSlot, deviceTypeName, rackIndex and effectSlot. Each parameter carries
+    //! key, label, unit, mapping, min, max, rest and knob (its authored position) -- what Knob.qml and
+    //! KnobController take, so a value reads and is typed exactly as on the knob.
+    //!
+    //! Only continuous parameters are offered: a position between two choices of a switch means
+    //! nothing. An effect offers all of them, as a bare percentage of the travel where it has not
+    //! said how one reads out. A device offers only those it has described: it has far more, most of
+    //! them the inner workings of a voice or a pad, and listing them all would bury the few worth
+    //! riding. A device that describes none is not listed.
     Q_INVOKABLE QVariantList automationTargets() const;
-    //! One parameter of automationTargets(), or an empty map when the effect or the parameter is gone.
-    Q_INVOKABLE QVariantMap automationParameter(const QString & effectId, const QString & key) const;
+    //! One parameter of automationTargets(), or an empty map when the target or the parameter is gone.
+    Q_INVOKABLE QVariantMap automationParameter(const QString & owner, const QString & ownerId, const QString & key) const;
 
 private:
     //! The controller as the port's device declares it, or nothing when the port is not an

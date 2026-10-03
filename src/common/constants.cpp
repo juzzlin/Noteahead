@@ -963,6 +963,11 @@ QString xmlKeyId()
     return "id";
 }
 
+QString xmlKeyUuid()
+{
+    return "uuid";
+}
+
 QString xmlKeyLine0()
 {
     return "line0";
@@ -2817,6 +2822,11 @@ QString xmlValueBool()
 QString xmlValueFloat()
 {
     return "float";
+}
+
+QString xmlValueDevice()
+{
+    return "device";
 }
 
 QString xmlValueEffect()

@@ -143,6 +143,73 @@ private:
     std::vector<float> m_seen;
 };
 
+//! A device that remembers the value its one described parameter had in every block it rendered.
+class ParameterProbeDevice : public Device
+{
+public:
+    ParameterProbeDevice()
+    {
+        addParameter(Parameter { "probe", 0.5f, 0, 10000, 5000, 100 });
+        // Described, or a device would not offer it to automation at all
+        setParameterDisplay("probe", { .unit = "%", .max = 100.0, .label = "Probe" });
+    }
+
+    std::string name() const override
+    {
+        return "ParameterProbe";
+    }
+
+    std::string category() const override
+    {
+        return "Test";
+    }
+
+    std::string typeName() const override
+    {
+        return "ParameterProbe";
+    }
+
+    std::string typeId() const override
+    {
+        return "00000000-0000-4000-8000-00000000d0e5";
+    }
+
+    void processMidiNoteOn(uint8_t, uint8_t) override
+    {
+    }
+
+    void processMidiNoteOff(uint8_t) override
+    {
+    }
+
+    void processMidiAllNotesOff() override
+    {
+    }
+
+    void processDeviceMidiCc(uint8_t, uint8_t, uint8_t) override
+    {
+    }
+
+    void processAudio(AudioContext &) override
+    {
+        m_seen.push_back(parameter("probe")->get().value());
+    }
+
+    //! Always, so that the engine never skips the silent probe and every block is seen
+    bool hasActiveAudio() const override
+    {
+        return true;
+    }
+
+    const std::vector<float> & seen() const
+    {
+        return m_seen;
+    }
+
+private:
+    std::vector<float> m_seen;
+};
+
 class MockEditorService : public EditorService
 {
 public:
@@ -409,8 +476,11 @@ void RenderServiceTest::test_renderMaster_parameterAutomation_shouldSweepTheEffe
     auto editorService = std::make_shared<MockEditorService>();
     auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
     auto sideChainService = std::make_shared<SideChainService>();
-    automationService->setEffectResolver([deviceService](const std::string & id) {
-        return deviceService->findEffect(id);
+    automationService->setTargetResolver([deviceService](const ParameterAutomation::Target & target) -> std::shared_ptr<ParameterAutomationTarget> {
+        if (target.owner == ParameterAutomation::Target::Owner::Device) {
+            return deviceService->findDevice(target.ownerId);
+        }
+        return deviceService->findEffect(target.ownerId);
     });
 
     auto song = std::make_shared<Song>();
@@ -451,6 +521,61 @@ void RenderServiceTest::test_renderMaster_parameterAutomation_shouldSweepTheEffe
 
     // And the render leaves the knob as the user set it
     QCOMPARE(probe->parameter("probe")->get().value(), 0.5f);
+}
+
+void RenderServiceTest::test_renderMaster_parameterAutomation_shouldSweepTheDevice()
+{
+    auto audioEngine = std::make_shared<AudioEngine>();
+    auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    auto mixerService = std::make_shared<MixerService>();
+    auto editorService = std::make_shared<MockEditorService>();
+    auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
+    auto sideChainService = std::make_shared<SideChainService>();
+    automationService->setTargetResolver([deviceService](const ParameterAutomation::Target & target) -> std::shared_ptr<ParameterAutomationTarget> {
+        if (target.owner == ParameterAutomation::Target::Owner::Device) {
+            return deviceService->findDevice(target.ownerId);
+        }
+        return deviceService->findEffect(target.ownerId);
+    });
+
+    auto song = std::make_shared<Song>();
+    song->setBeatsPerMinute(120);
+    song->setLinesPerBeat(4);
+    song->setInstrument(0, std::make_shared<Instrument>(Constants::internalDevicePortPrefix() + " 1"));
+    editorService->setSong(song);
+    editorService->setTrackIndices({ 0 });
+    editorService->setInstrumentPort(0, Constants::internalDevicePortPrefix() + " 1");
+
+    const auto probe = std::make_shared<ParameterProbeDevice>();
+    deviceService->setDevice(0, probe);
+    probe->parameter("probe")->get().setValue(0.8f);
+
+    // Relative, from nothing up to the knob over lines 0 to 16
+    automationService->addParameterAutomation({ 0, AutomationLocation { 0, 0, 0 }, { ParameterAutomation::Target::Owner::Device, probe->uuid(), "probe" }, ParameterAutomation::Mode::Relative, { 0, 16, 0.0, 1.0 }, {}, {}, true });
+
+    RenderService renderService { audioEngine, deviceService, mixerService, editorService, automationService, sideChainService };
+
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+    QSignalSpy spy { &renderService, &RenderService::renderingFinished };
+    renderService.renderMaster(tempDir.filePath("render.flac"));
+    waitForRenders(spy, 1);
+    QVERIFY2(spy.at(0).at(0).toBool(), qPrintable(spy.at(0).at(1).toString()));
+
+    const auto & seen = probe->seen();
+    QVERIFY(!seen.empty());
+    QCOMPARE(seen.front(), 0.0f);
+    // Up to the knob and no further: relative never passes the setting it scales
+    const auto top = std::ranges::max(seen);
+    QVERIFY(std::abs(top - 0.8f) < 1.0e-6f);
+    QVERIFY(std::ranges::is_sorted(seen.begin(), std::ranges::find_if(seen, [](float value) { return std::abs(value - 0.8f) < 1.0e-6f; })));
+    std::vector<float> distinct = seen;
+    std::ranges::sort(distinct);
+    distinct.erase(std::unique(distinct.begin(), distinct.end()), distinct.end());
+    QVERIFY2(distinct.size() > 100, qPrintable(QString::number(distinct.size())));
+
+    // And the render leaves the knob as the user set it
+    QCOMPARE(probe->parameter("probe")->get().value(), 0.8f);
 }
 
 } // namespace noteahead

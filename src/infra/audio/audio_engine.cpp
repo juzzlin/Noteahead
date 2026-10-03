@@ -18,9 +18,9 @@
 #include "../../common/constants.hpp"
 #include "../../common/denormal_protection.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
-#include "../../domain/effects/effect.hpp"
 #include "../../domain/effects/effect_rack.hpp"
 #include "../../domain/effects/reverb.hpp"
+#include "../../domain/tracker/parameter_automation_target.hpp"
 #include "real_time_worker_pool.hpp"
 
 #include <algorithm>
@@ -478,7 +478,7 @@ AudioEngine::AudioEngine()
     m_sendChainVersions.assign(m_sendChainRacks.size(), std::numeric_limits<uint64_t>::max());
     // So that the audio thread does not allocate while a song is getting going.
     m_parameterChanges.reserve(256);
-    m_automatedEffects.reserve(64);
+    m_automatedTargets.reserve(64);
     m_sendChainEnabled.assign(m_sendChainRacks.size(), 1);
 
     enableHardwareDenormalProtection();
@@ -620,17 +620,16 @@ void AudioEngine::scheduleParameterChange(ParameterChange change)
 
 void AudioEngine::clearParameterAutomation()
 {
-    // The engine lock first, so that no block is halfway through the effects being put back.
+    // The engine lock first, so that no block is halfway through the targets being put back.
     const std::lock_guard<std::mutex> engineLock { m_mutex };
     const std::lock_guard<std::mutex> lock { m_parameterChangesMutex };
     m_parameterChanges.clear();
-    for (auto && weakEffect : m_automatedEffects) {
-        if (const auto effect = weakEffect.lock(); effect) {
-            effect->clearAutomation();
-            effect->sync();
+    for (auto && weakTarget : m_automatedTargets) {
+        if (const auto target = weakTarget.lock(); target) {
+            target->clearParameterAutomation();
         }
     }
-    m_automatedEffects.clear();
+    m_automatedTargets.clear();
 }
 
 void AudioEngine::applyParameterChanges(uint64_t blockEndFrame)
@@ -644,14 +643,10 @@ void AudioEngine::applyParameterChanges(uint64_t blockEndFrame)
         if (change.frame && *change.frame >= blockEndFrame) {
             continue;
         }
-        if (const auto effect = change.effect.lock(); effect) {
-            if (const auto parameter = effect->parameter(change.parameter); parameter) {
-                parameter->get().setAutomationValue(ParameterAutomation::effectiveValue(change.mode, change.value, parameter->get()));
-                effect->sync();
-                const bool known = std::ranges::any_of(m_automatedEffects, [&effect](auto && automated) { return automated.lock() == effect; });
-                if (!known) {
-                    m_automatedEffects.push_back(effect);
-                }
+        if (const auto target = change.target.lock(); target && target->applyParameterAutomation(change.parameter, change.mode, change.value)) {
+            const bool known = std::ranges::any_of(m_automatedTargets, [&target](auto && automated) { return automated.lock() == target; });
+            if (!known) {
+                m_automatedTargets.push_back(target);
             }
         }
     }

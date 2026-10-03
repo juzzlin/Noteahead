@@ -40,6 +40,16 @@ QString positionToXml(double position)
 
 } // namespace
 
+QString ParameterAutomation::Target::ownerToString(Owner owner)
+{
+    return owner == Owner::Device ? C::xmlValueDevice() : C::xmlValueEffect();
+}
+
+ParameterAutomation::Target::Owner ParameterAutomation::Target::ownerFromString(const QString & owner)
+{
+    return owner == C::xmlValueDevice() ? Owner::Device : Owner::Effect;
+}
+
 ParameterAutomation::ParameterAutomation() = default;
 
 ParameterAutomation::ParameterAutomation(size_t id, AutomationLocation location, Target target, Mode mode, InterpolationParameters interpolation, ModulationParameters modulation, QString comment, bool enabled)
@@ -178,7 +188,7 @@ void ParameterAutomation::serializeToXml(ProjectWriter & writer) const
     writer.writeAttribute(C::xmlKeyEnabled(), enabled() ? C::xmlValueTrue() : C::xmlValueFalse());
 
     writer.writeStartElement(C::xmlKeyAutomationTarget());
-    writer.writeAttribute(C::xmlKeyOwner(), C::xmlValueEffect());
+    writer.writeAttribute(C::xmlKeyOwner(), Target::ownerToString(m_target.owner));
     writer.writeAttribute(C::xmlKeyOwnerId(), QString::fromStdString(m_target.ownerId));
     writer.writeAttribute(C::xmlKeyParameterName(), QString::fromStdString(m_target.parameter));
     writer.writeEndElement(); // Target
@@ -227,7 +237,8 @@ ParameterAutomation::ParameterAutomationU ParameterAutomation::deserializeFromXm
             continue;
         }
         if (!reader.name().compare(C::xmlKeyAutomationTarget())) {
-            target.owner = Target::Owner::Effect;
+            // Effects came first, so an automation that does not say is aimed at one
+            target.owner = Target::ownerFromString(reader.attribute(C::xmlKeyOwner()).toString());
             target.ownerId = reader.attribute(C::xmlKeyOwnerId()).toString().toStdString();
             target.parameter = reader.attribute(C::xmlKeyParameterName()).toString().toStdString();
         } else if (!reader.name().compare(C::xmlKeyLocation())) {

@@ -41,22 +41,27 @@ class ProjectWriter;
 class ParameterAutomation : public Automation
 {
 public:
-    //! What the automation drives. Generic in its owner so that a device's own parameters can be
-    //! driven the same way later; an effect is all there is today.
+    //! What the automation drives: a parameter of an effect, or of a device.
     struct Target
     {
         enum class Owner
         {
-            Effect
+            Effect,
+            Device
         };
 
         Owner owner = Owner::Effect;
-        //! The owner's id: Effect::id() for an effect.
+        //! The owner's id: Effect::id() for an effect, Device::uuid() for a device.
         std::string ownerId;
         //! The parameter's key within its owner.
         std::string parameter;
 
         bool operator==(const Target & other) const = default;
+
+        //! "effect" or "device", as the project file and the UI both name an owner. Anything else
+        //! reads as an effect, which is what an automation that does not say is aimed at.
+        static QString ownerToString(Owner owner);
+        static Owner ownerFromString(const QString & owner);
     };
 
     enum class Mode

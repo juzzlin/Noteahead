@@ -23,6 +23,7 @@
 #include <vector>
 
 #include "../dsp/dsp_component.hpp"
+#include "../tracker/parameter_automation_target.hpp"
 #include "../tracker/parameter_container.hpp"
 #include "effect_presets.hpp"
 
@@ -31,7 +32,7 @@ namespace noteahead {
 struct AudioContext;
 class ProjectReader;
 
-class Effect : public DspComponent, public ParameterContainer
+class Effect : public DspComponent, public ParameterContainer, public ParameterAutomationTarget
 {
 public:
     Effect() = default;
@@ -77,6 +78,9 @@ public:
     const std::string & id() const;
     void setId(std::string id);
     void renewId();
+
+    bool applyParameterAutomation(const std::string & key, ParameterAutomation::Mode mode, double value) override;
+    void clearParameterAutomation() override;
 
     //! The two entry points the rack calls. Deliberately not virtual: this is where the controls
     //! every effect shares are applied around the effect's own work, so that no effect has to

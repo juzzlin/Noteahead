@@ -23,6 +23,9 @@
 #include "../../infra/midi/midi_cc_mapping.hpp"
 #include "../dsp/true_stereo_panner.hpp"
 
+#include <QUuid>
+#include <QVariant>
+
 #include <algorithm>
 #include <cmath>
 
@@ -48,6 +51,7 @@ Parameter Device::faderParameter()
 
 Device::Device()
 {
+    renewUuid();
     addParameter(faderParameter());
     // Unity by default, so a project saved before this existed loads and sounds exactly as it did.
     addParameter(Parameter { Constants::NahdXml::xmlKeyExpression().toStdString(), 1.0f, 0, 10000, 10000, 100, Parameter::Type::Continuous });
@@ -72,6 +76,42 @@ size_t Device::id() const
 void Device::setId(size_t id)
 {
     m_id = id;
+}
+
+const std::string & Device::uuid() const
+{
+    return m_uuid;
+}
+
+void Device::setUuid(std::string uuid)
+{
+    m_uuid = std::move(uuid);
+}
+
+bool Device::applyParameterAutomation(const std::string & key, ParameterAutomation::Mode mode, double value)
+{
+    {
+        std::lock_guard<std::recursive_mutex> lock { m_mutex };
+        const auto p = parameter(key);
+        if (!p || p->get().type() != Parameter::Type::Continuous) {
+            return false;
+        }
+        p->get().setAutomationValue(ParameterAutomation::effectiveValue(mode, value, p->get()));
+        syncParameters();
+    }
+    // Outside the lock, as everywhere else this is emitted: the dialogs read back from the device.
+    emit parametersChanged();
+    return true;
+}
+
+void Device::clearParameterAutomation()
+{
+    clearAutomation();
+}
+
+void Device::renewUuid()
+{
+    m_uuid = QUuid::createUuid().toString(QUuid::WithoutBraces).toStdString();
 }
 
 std::vector<MidiCcController> Device::deviceMidiCcControllers() const
@@ -839,6 +879,7 @@ void Device::serializeAttributesToXml(ProjectWriter & writer) const
     writer.writeAttribute(Constants::NahdXml::xmlKeyTypeName(), QString::fromStdString(typeName()));
     writer.writeAttribute(Constants::NahdXml::xmlKeyCategory(), QString::fromStdString(category()));
     writer.writeAttribute(Constants::NahdXml::xmlKeyTypeId(), QString::fromStdString(typeId()));
+    writer.writeAttribute(Constants::NahdXml::xmlKeyUuid(), QString::fromStdString(m_uuid));
 }
 
 void Device::deserializeAttributesFromXml(ProjectReader & reader)
@@ -847,6 +888,11 @@ void Device::deserializeAttributesFromXml(ProjectReader & reader)
         m_id = slot.value();
     } else if (const auto id = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyId(), false); id.has_value()) {
         m_id = id.value();
+    }
+    // A project saved before devices had one keeps the fresh one the device was created with, and
+    // is written out with it from then on.
+    if (const auto uuid = reader.attribute(Constants::NahdXml::xmlKeyUuid()).toString(); !uuid.isEmpty()) {
+        m_uuid = uuid.toStdString();
     }
 }
 

@@ -524,7 +524,7 @@ namespace {
 //! A cutoff sweep over the given lines, as the add dialog makes one.
 quint64 addCutoffSweep(AutomationService & automationService, quint64 pattern, quint64 track, quint64 column, quint64 line0, quint64 line1)
 {
-    return automationService.addParameterAutomation(pattern, track, column, "effect-1", "cutoff", static_cast<int>(ParameterAutomation::Mode::Relative), line0, line1, 0.0, 1.0, 0, "Sweep", 0, 0);
+    return automationService.addParameterAutomation(pattern, track, column, "effect", "effect-1", "cutoff", static_cast<int>(ParameterAutomation::Mode::Relative), line0, line1, 0.0, 1.0, 0, "Sweep", 0, 0);
 }
 
 } // namespace
@@ -555,6 +555,33 @@ void EditorServiceTest::test_trackCopyPaste_withParameterAutomations_shouldCopyT
     QVERIFY(automationService->automationsByTrack(1, 2).parameter.empty());
     editorService.redo();
     QCOMPARE(automationService->automationsByTrack(1, 2).parameter.size(), size_t { 1 });
+}
+
+void EditorServiceTest::test_columnCopyPaste_withDeviceAutomations_shouldKeepTheirTarget()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
+    editorService.setAutomationService(automationService);
+
+    QVERIFY(editorService.requestPosition({ 0, 0, 0, 0, 0 }));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+    automationService->addParameterAutomation(0, 0, 0, "device", "device-1", "lpfCutoff", static_cast<int>(ParameterAutomation::Mode::Relative), 0, 8, 1.0, 0.0, 0, {}, 0, 0);
+
+    editorService.requestColumnCopy();
+    editorService.setCurrentPattern(1);
+    QVERIFY(editorService.requestPosition({ 1, 0, 0, 0, 0 }));
+    editorService.requestColumnPaste();
+
+    const auto pasted = automationService->automationsByColumn(1, 0, 0).parameter;
+    QCOMPARE(pasted.size(), size_t { 1 });
+    // Still the same device, not turned into an effect on the way
+    QCOMPARE(pasted.at(0).target().owner, ParameterAutomation::Target::Owner::Device);
+    QCOMPARE(pasted.at(0).target().ownerId, std::string { "device-1" });
+
+    editorService.undo();
+    QVERIFY(automationService->automationsByColumn(1, 0, 0).parameter.empty());
+    editorService.redo();
+    QCOMPARE(automationService->automationsByColumn(1, 0, 0).parameter.size(), size_t { 1 });
 }
 
 void EditorServiceTest::test_columnCut_withParameterAutomations_shouldRemoveThem()

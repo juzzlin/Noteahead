@@ -107,7 +107,9 @@ QVariant ParameterAutomationsModel::data(const QModelIndex & index, int role) co
         return automation.comment();
     case DataRole::Curve:
         return static_cast<int>(interpolation.curve);
-    case DataRole::EffectId:
+    case DataRole::Owner:
+        return ParameterAutomation::Target::ownerToString(automation.target().owner);
+    case DataRole::OwnerId:
         return QString::fromStdString(automation.target().ownerId);
     case DataRole::Enabled:
         return automation.enabled();
@@ -206,7 +208,8 @@ bool ParameterAutomationsModel::setData(const QModelIndex & index, const QVarian
     // Where an automation sits and what it drives are not edited here: a different target is a
     // different automation.
     case DataRole::Column:
-    case DataRole::EffectId:
+    case DataRole::Owner:
+    case DataRole::OwnerId:
     case DataRole::Id:
     case DataRole::Parameter:
     case DataRole::Pattern:
@@ -255,7 +258,8 @@ QHash<int, QByteArray> ParameterAutomationsModel::roleNames() const
         { static_cast<int>(DataRole::Column), "column" },
         { static_cast<int>(DataRole::Comment), "comment" },
         { static_cast<int>(DataRole::Curve), "curve" },
-        { static_cast<int>(DataRole::EffectId), "effectId" },
+        { static_cast<int>(DataRole::Owner), "owner" },
+        { static_cast<int>(DataRole::OwnerId), "ownerId" },
         { static_cast<int>(DataRole::Enabled), "enabled" },
         { static_cast<int>(DataRole::EventsPerBeat), "eventsPerBeat" },
         { static_cast<int>(DataRole::Id), "id" },

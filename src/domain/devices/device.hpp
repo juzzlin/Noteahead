@@ -20,6 +20,7 @@
 
 #include "../dsp/audio_context.hpp"
 #include "../effects/effect_rack.hpp"
+#include "../tracker/parameter_automation_target.hpp"
 #include "../tracker/parameter_container.hpp"
 #include "../utility/audio_scope.hpp"
 #include "../utility/clip_detector.hpp"
@@ -55,7 +56,7 @@ struct MidiCcController
     std::optional<uint8_t> note {};
 };
 
-class Device : public QObject, public ParameterContainer
+class Device : public QObject, public ParameterContainer, public ParameterAutomationTarget
 {
     Q_OBJECT
 
@@ -94,6 +95,22 @@ public:
 
     size_t id() const;
     void setId(size_t id);
+
+    //! Identity of this one device within the project, which is what a parameter automation names
+    //! to reach it. Not id(), which is the slot: a device copied to another slot keeps the slot it
+    //! lands in, and the instrument swapped into a slot takes over its number.
+    //!
+    //! A fresh device gets a fresh one, a project being loaded puts back the saved one, and a copy
+    //! or an import renews it. Unlike an effect's, it does not survive an instrument swap: the new
+    //! instrument has parameters of its own, and an automation written for the old one's would only
+    //! drive whatever the new one happens to call by the same name.
+    const std::string & uuid() const;
+    void setUuid(std::string uuid);
+    void renewUuid();
+
+    //! Under the device's lock, and followed by a resync, the way a MIDI controller is taken.
+    bool applyParameterAutomation(const std::string & key, ParameterAutomation::Mode mode, double value) override;
+    void clearParameterAutomation() override;
 
     virtual void processMidiNoteOn(uint8_t note, uint8_t velocity) = 0;
 
@@ -445,6 +462,7 @@ protected:
 
 private:
     size_t m_id { 0 };
+    std::string m_uuid;
     uint32_t m_sampleRate { static_cast<uint32_t>(Constants::defaultSampleRate()) };
 
     //! Fader position, seeded to unity in the constructor.

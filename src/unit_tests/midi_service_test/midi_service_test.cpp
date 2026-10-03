@@ -22,6 +22,7 @@
 #include "../../domain/devices/device_factory.hpp"
 #include "../../domain/devices/drum_synth_constants.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
+#include "../../domain/devices/synth_device.hpp"
 #include "../../domain/effects/auto_filter.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/tracker/instrument.hpp"
@@ -162,6 +163,27 @@ void MidiServiceTest::test_sendParameterData_shouldReachTheEffectOnTheAudioThrea
     audioEngine->process(context);
 
     QVERIFY(std::abs(filter->parameter(cutoffKey)->get().value() - 0.3f) < 1.0e-6f);
+}
+
+void MidiServiceTest::test_sendParameterData_device_shouldReachTheDeviceOnTheAudioThread()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    TestMidiService midiService { deviceService };
+    const auto synth = std::make_shared<SynthDevice>("Synth");
+    deviceService->setDevice(0, synth);
+    synth->setLpfCutoff(0.9f);
+
+    midiService.sendParameterData(ParameterData { 0, 0, synth, Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), ParameterAutomation::Mode::Absolute, 0.35 }, std::nullopt);
+
+    // Not written by the sender: only the audio thread touches the device
+    QVERIFY(std::abs(synth->lpfCutoff() - 0.9f) < 1.0e-6f);
+
+    std::vector<double> buffer(128 * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), 128, 48000 };
+    audioEngine->process(context);
+
+    QVERIFY(std::abs(synth->lpfCutoff() - 0.35f) < 1.0e-6f);
 }
 
 } // namespace noteahead

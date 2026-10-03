@@ -18,6 +18,7 @@
 #include "../../common/constants.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/effects/effect.hpp"
+#include "../../domain/tracker/parameter_automation.hpp"
 #include "../../infra/midi/midi_cc_mapping.hpp"
 #include "../note_converter.hpp"
 #include "device_service.hpp"
@@ -54,11 +55,12 @@ QVariantList PropertyService::availableMidiControllers() const
 
 namespace {
 
-QVariantList automatableParameters(const Effect & effect)
+//! @p describedOnly leaves out the parameters that have not said how they read out.
+QVariantList automatableParameters(const ParameterContainer & container, bool describedOnly)
 {
     QVariantList parameters;
-    for (auto && [key, parameter] : effect.parameters()) {
-        if (parameter.type() != Parameter::Type::Continuous) {
+    for (auto && [key, parameter] : container.parameters()) {
+        if (parameter.type() != Parameter::Type::Continuous || (describedOnly && !parameter.display())) {
             continue;
         }
         QVariantMap map;
@@ -94,9 +96,23 @@ QVariantList PropertyService::automationTargets() const
 {
     QVariantList targets;
     if (const auto deviceService = m_deviceService.lock(); deviceService) {
+        for (size_t slot = 0; slot < Constants::deviceRackSize(); slot++) {
+            if (const auto device = deviceService->device(slot); device) {
+                if (auto parameters = automatableParameters(*device, true); !parameters.isEmpty()) {
+                    QVariantMap map;
+                    map["owner"] = ParameterAutomation::Target::ownerToString(ParameterAutomation::Target::Owner::Device);
+                    map["ownerId"] = QString::fromStdString(device->uuid());
+                    map["deviceSlot"] = static_cast<int>(slot);
+                    map["deviceTypeName"] = QString::fromStdString(device->typeName());
+                    map["parameters"] = std::move(parameters);
+                    targets.push_back(map);
+                }
+            }
+        }
         for (auto && location : deviceService->effectLocations()) {
             QVariantMap map;
-            map["effectId"] = QString::fromStdString(location.effect->id());
+            map["owner"] = ParameterAutomation::Target::ownerToString(ParameterAutomation::Target::Owner::Effect);
+            map["ownerId"] = QString::fromStdString(location.effect->id());
             map["typeId"] = QString::fromStdString(location.effect->typeId());
             map["type"] = QString::fromStdString(location.effect->type());
             map["rack"] = static_cast<int>(location.rack);
@@ -104,22 +120,30 @@ QVariantList PropertyService::automationTargets() const
             map["deviceTypeName"] = QString::fromStdString(location.deviceTypeName);
             map["rackIndex"] = static_cast<int>(location.rackIndex);
             map["effectSlot"] = static_cast<int>(location.effectSlot);
-            map["parameters"] = automatableParameters(*location.effect);
+            map["parameters"] = automatableParameters(*location.effect, false);
             targets.push_back(map);
         }
     }
     return targets;
 }
 
-QVariantMap PropertyService::automationParameter(const QString & effectId, const QString & key) const
+QVariantMap PropertyService::automationParameter(const QString & owner, const QString & ownerId, const QString & key) const
 {
-    if (const auto deviceService = m_deviceService.lock(); deviceService) {
-        if (const auto effect = deviceService->findEffect(effectId.toStdString()); effect) {
-            for (auto && parameter : automatableParameters(*effect)) {
-                if (const auto map = parameter.toMap(); map["key"].toString() == key) {
-                    return map;
-                }
-            }
+    const auto deviceService = m_deviceService.lock();
+    if (!deviceService) {
+        return {};
+    }
+    QVariantList parameters;
+    if (ParameterAutomation::Target::ownerFromString(owner) == ParameterAutomation::Target::Owner::Device) {
+        if (const auto device = deviceService->findDevice(ownerId.toStdString()); device) {
+            parameters = automatableParameters(*device, true);
+        }
+    } else if (const auto effect = deviceService->findEffect(ownerId.toStdString()); effect) {
+        parameters = automatableParameters(*effect, false);
+    }
+    for (auto && parameter : parameters) {
+        if (const auto map = parameter.toMap(); map["key"].toString() == key) {
+            return map;
         }
     }
     return {};

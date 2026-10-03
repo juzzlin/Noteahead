@@ -15,6 +15,7 @@
 
 #include "knob_controller_test.hpp"
 #include "../../common/constants.hpp"
+#include "../../domain/devices/synth_device.hpp"
 #include "../../domain/effects/auto_filter.hpp"
 #include "../../view/controllers/knob_controller.hpp"
 
@@ -358,7 +359,12 @@ void KnobControllerTest::test_map_parameterDisplay_shouldAgreeWithTheDomain()
     // the knob reads it. Two copies of one curve can only stay one curve if something checks them.
     KnobController controller;
     const AutoFilter filter;
-    for (const auto & [name, parameter] : filter.parameters()) {
+    const SynthDevice synth { "Synth" };
+    auto parameters = filter.parameters();
+    for (auto && [name, parameter] : synth.parameters()) {
+        parameters.emplace("synth:" + name, parameter);
+    }
+    for (const auto & [name, parameter] : parameters) {
         if (const auto & display = parameter.display(); display) {
             const auto mapping = QString::fromStdString(display->mappingName());
             for (const double position : { 0.0, 0.2, 0.5, 0.75, 1.0 }) {

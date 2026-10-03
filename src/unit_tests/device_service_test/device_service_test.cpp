@@ -425,6 +425,23 @@ void DeviceServiceTest::test_replaceDevice_shouldKeepEffectIds()
     QCOMPARE(service.device(0)->insertEffectRack().effect(1)->id(), id);
 }
 
+void DeviceServiceTest::test_replaceDevice_shouldGiveTheNewDeviceItsOwnUuid()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    DeviceService service { audioEngine, std::make_shared<DataService>() };
+    const auto synth = DeviceFactory::createDevice(SynthDevice::typeIdString(), "TestSynth");
+    service.setDevice(0, synth);
+    const auto replacement = DeviceFactory::createDevice(SamplerDevice::typeIdString(), "TestSynth");
+    const auto replacementUuid = replacement->uuid();
+
+    service.replaceDevice(0, replacement);
+
+    // Unlike the strip's effects, the instrument itself is new: an automation written for the old
+    // one's parameters must not carry on driving whatever the new one calls by the same name.
+    QCOMPARE(service.device(0)->uuid(), replacementUuid);
+    QVERIFY(service.device(0)->uuid() != synth->uuid());
+}
+
 void DeviceServiceTest::test_replaceDevice_emptySlot_shouldJustSetTheDevice()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
@@ -529,6 +546,79 @@ void DeviceServiceTest::test_findEffect_shouldSearchEveryRack()
     QVERIFY(!service.findEffect({}));
 }
 
+void DeviceServiceTest::test_findDevice_shouldFindItByUuid()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    DeviceService service { audioEngine, std::make_shared<DataService>() };
+    const auto synth = DeviceFactory::createDevice(SynthDevice::typeIdString(), "TestSynth");
+    const auto sampler = DeviceFactory::createDevice(SamplerDevice::typeIdString(), "TestSampler");
+    service.setDevice(1, synth);
+    service.setDevice(4, sampler);
+
+    QCOMPARE(service.findDevice(synth->uuid()), synth);
+    QCOMPARE(service.findDevice(sampler->uuid()), sampler);
+    QVERIFY(!service.findDevice("no-such-device"));
+    QVERIFY(!service.findDevice({}));
+}
+
+void DeviceServiceTest::test_deviceUuidForPort_shouldNameTheDeviceBehindThePort()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    DeviceService service { audioEngine, std::make_shared<DataService>() };
+    const auto synth = DeviceFactory::createDevice(SynthDevice::typeIdString(), "TestSynth");
+    service.setDevice(0, synth);
+    const auto port = QString::fromStdString(service.internalDeviceNames().at(0));
+
+    QCOMPARE(service.deviceUuidForPort(port), QString::fromStdString(synth->uuid()));
+    // An external port has no device behind it
+    QVERIFY(service.deviceUuidForPort("Some MIDI Port").isEmpty());
+}
+
+void DeviceServiceTest::test_scheduleParameterChange_device_shouldApplyInTheBlockOfItsFrame()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    DeviceService service { audioEngine, std::make_shared<DataService>() };
+    const auto synth = std::make_shared<SynthDevice>("TestSynth");
+    service.setDevice(0, synth);
+    const auto key = Constants::NahdXml::xmlKeyLpfCutoff().toStdString();
+    synth->setLpfCutoff(0.8f);
+
+    service.scheduleParameterChange(ParameterData { 0, 0, synth, key, ParameterAutomation::Mode::Absolute, 0.25 }, 1000);
+    service.scheduleParameterChange(ParameterData { 0, 0, synth, key, ParameterAutomation::Mode::Relative, 0.5 }, 1600);
+
+    std::vector<double> buffer(512 * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), 512, 48000 };
+    audioEngine->process(context); // Frames 0..511: not yet
+    QVERIFY(std::abs(synth->lpfCutoff() - 0.8f) < 1.0e-6f);
+    audioEngine->process(context); // 512..1023 holds frame 1000
+    QVERIFY(std::abs(synth->lpfCutoff() - 0.25f) < 1.0e-6f);
+    audioEngine->process(context); // 1024..1535: nothing due
+    QVERIFY(std::abs(synth->lpfCutoff() - 0.25f) < 1.0e-6f);
+    audioEngine->process(context); // 1536..2047 holds frame 1600: half of the knob
+    QVERIFY(std::abs(synth->lpfCutoff() - 0.4f) < 1.0e-6f);
+    QCOMPARE(synth->parameter(key)->get().authoredValue(), 0.8f);
+}
+
+void DeviceServiceTest::test_clearAutomation_shouldRestoreAutomatedDevices()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    DeviceService service { audioEngine, std::make_shared<DataService>() };
+    const auto synth = std::make_shared<SynthDevice>("TestSynth");
+    service.setDevice(0, synth);
+    synth->setHpfCutoff(0.1f);
+
+    service.scheduleParameterChange(ParameterData { 0, 0, synth, Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), ParameterAutomation::Mode::Absolute, 0.7 }, std::nullopt);
+    std::vector<double> buffer(256 * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), 256, 48000 };
+    audioEngine->process(context);
+    QVERIFY(std::abs(synth->hpfCutoff() - 0.7f) < 1.0e-6f);
+
+    service.clearAutomation();
+
+    QVERIFY(std::abs(synth->hpfCutoff() - 0.1f) < 1.0e-6f);
+    QVERIFY(!synth->isAutomated());
+}
+
 void DeviceServiceTest::test_scheduleParameterChange_shouldApplyInTheBlockOfItsFrame()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
@@ -590,6 +680,30 @@ void DeviceServiceTest::test_clearAutomation_shouldRestoreAutomatedEffects()
 
     audioEngine->process(context);
     QCOMPARE(filter->parameter(cutoffKey)->get().value(), authored);
+}
+
+void DeviceServiceTest::test_copyDevice_shouldRenewTheDeviceUuid()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    DeviceService service { audioEngine, std::make_shared<DataService>() };
+    const auto synth = DeviceFactory::createDevice(SynthDevice::typeIdString(), "TestSynth");
+    service.setDevice(0, synth);
+
+    QVERIFY(service.copyDevice(0, 1));
+
+    // Two devices sharing one would leave an automation unable to tell them apart
+    QVERIFY(service.device(1));
+    QVERIFY(!service.device(1)->uuid().empty());
+    QVERIFY(service.device(1)->uuid() != synth->uuid());
+    QCOMPARE(service.device(0)->uuid(), synth->uuid());
+}
+
+void DeviceServiceTest::test_deviceUuid_newDevices_shouldBeUnique()
+{
+    const auto a = DeviceFactory::createDevice(SynthDevice::typeIdString(), "A");
+    const auto b = DeviceFactory::createDevice(SynthDevice::typeIdString(), "B");
+    QVERIFY(!a->uuid().empty());
+    QVERIFY(a->uuid() != b->uuid());
 }
 
 void DeviceServiceTest::test_copyDevice_differentType_shouldReplaceTargetDevice()

@@ -147,6 +147,7 @@ set(HEADER_FILES
     tracker/note_data_manipulator.hpp
     tracker/parameter.hpp
     tracker/parameter_automation.hpp
+    tracker/parameter_automation_target.hpp
     tracker/parameter_container.hpp
     tracker/parameter_data.hpp
     tracker/parameter_display.hpp
@@ -322,6 +323,7 @@ set(SOURCE_FILES
     tracker/note_data_manipulator.cpp
     tracker/parameter.cpp
     tracker/parameter_automation.cpp
+    tracker/parameter_automation_target.cpp
     tracker/parameter_container.cpp
     tracker/parameter_data.cpp
     tracker/parameter_display.cpp

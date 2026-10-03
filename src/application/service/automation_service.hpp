@@ -38,7 +38,7 @@ class ProjectWriter;
 
 struct Position;
 
-class Effect;
+class ParameterAutomationTarget;
 class PropertyService;
 
 class AutomationService : public QObject
@@ -57,11 +57,11 @@ public:
     using PortNameResolver = std::function<QString(size_t track)>;
     void setPortNameResolver(PortNameResolver resolver);
 
-    //! Finds the effect a parameter automation names. Injected for the same reason as the port
-    //! resolver: where effects live is the device service's business, not this one's. Without it,
-    //! or for an effect that is gone, a parameter automation renders nothing.
-    using EffectResolver = std::function<std::shared_ptr<Effect>(const std::string & id)>;
-    void setEffectResolver(EffectResolver resolver);
+    //! Finds the effect or device a parameter automation names. Injected for the same reason as the
+    //! port resolver: where those live is the device service's business, not this one's. Without
+    //! it, or for a target that is gone, a parameter automation renders nothing.
+    using TargetResolver = std::function<std::shared_ptr<ParameterAutomationTarget>(const ParameterAutomation::Target & target)>;
+    void setTargetResolver(TargetResolver resolver);
 
     void clear();
 
@@ -101,7 +101,7 @@ public:
     //! being written belongs where its own form was opened.
     Q_INVOKABLE QVariantList midiCcAutomationsAsVariantList() const;
     Q_INVOKABLE QVariantList pitchBendAutomationsAsVariantList() const;
-    //! Values are knob positions as stored, and the target comes as effectId and parameter.
+    //! Values are knob positions as stored, and the target comes as owner, ownerId and parameter.
     Q_INVOKABLE QVariantList parameterAutomationsAsVariantList() const;
 
     Q_INVOKABLE bool hasAutomations(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
@@ -148,7 +148,7 @@ public:
     quint64 addParameterAutomation(const ParameterAutomation & automation);
     //! The add dialog's way in. Values are knob positions, 0 to 1, whichever the mode; the dialog
     //! converts from the units it shows them in.
-    Q_INVOKABLE quint64 addParameterAutomation(quint64 pattern, quint64 track, quint64 column, const QString & effectId, const QString & parameter, int mode, quint64 line0, quint64 line1, double value0, double value1, int curve, const QString & comment, quint8 eventsPerBeat, quint8 lineOffset);
+    Q_INVOKABLE quint64 addParameterAutomation(quint64 pattern, quint64 track, quint64 column, const QString & owner, const QString & ownerId, const QString & parameter, int mode, quint64 line0, quint64 line1, double value0, double value1, int curve, const QString & comment, quint8 eventsPerBeat, quint8 lineOffset);
     Q_INVOKABLE void addParameterModulation(quint64 automationId, int type, quint64 cycles, float amplitude, float offset, bool inverted);
     void addParameterAutomationWithId(const ParameterAutomation & automation);
     ParameterAutomationList parameterAutomationsByColumn(quint64 pattern, quint64 track, quint64 column) const;
@@ -221,7 +221,7 @@ private:
     AutomationSet m_automations;
     std::shared_ptr<PropertyService> m_propertyService;
     PortNameResolver m_portNameResolver;
-    EffectResolver m_effectResolver;
+    TargetResolver m_targetResolver;
 };
 
 } // namespace noteahead

@@ -48,7 +48,8 @@ void ParameterAutomationsModelTest::test_setParameterAutomations_shouldExposeEve
     QCOMPARE(dataOf(model, 0, Role::Pattern).toULongLong(), quint64 { 1 });
     QCOMPARE(dataOf(model, 0, Role::Track).toULongLong(), quint64 { 2 });
     QCOMPARE(dataOf(model, 0, Role::Column).toULongLong(), quint64 { 3 });
-    QCOMPARE(dataOf(model, 0, Role::EffectId).toString(), QString { "effect-1" });
+    QCOMPARE(dataOf(model, 0, Role::Owner).toString(), QString { "effect" });
+    QCOMPARE(dataOf(model, 0, Role::OwnerId).toString(), QString { "effect-1" });
     QCOMPARE(dataOf(model, 0, Role::Parameter).toString(), QString { "cutoff" });
     QCOMPARE(dataOf(model, 0, Role::Mode).toInt(), static_cast<int>(ParameterAutomation::Mode::Relative));
     QCOMPARE(dataOf(model, 0, Role::Line0).toULongLong(), quint64 { 4 });
@@ -119,7 +120,7 @@ void ParameterAutomationsModelTest::test_setData_target_shouldBeRefused()
     ParameterAutomationsModel model;
     model.setParameterAutomations({ automation(1, { 0, 0, 0 }, 0, 8) });
 
-    QVERIFY(!model.setData(model.index(0), "other", static_cast<int>(Role::EffectId)));
+    QVERIFY(!model.setData(model.index(0), "other", static_cast<int>(Role::OwnerId)));
     QVERIFY(!model.setData(model.index(0), "resonance", static_cast<int>(Role::Parameter)));
     QCOMPARE(dataOf(model, 0, Role::Parameter).toString(), QString { "cutoff" });
 }
@@ -150,7 +151,7 @@ void ParameterAutomationsModelTest::test_applyValues_shouldKeepLocationEnabledAn
     model.setParameterAutomations({ automation(1, { 0, 1, 2 }, 0, 8) });
     QSignalSpy replacedSpy { &model, &ParameterAutomationsModel::automationReplaced };
 
-    model.applyValues(0, { { "pattern", 5 }, { "track", 5 }, { "enabled", false }, { "effectId", "other" }, { "parameter", "resonance" }, { "mode", 0 }, { "line0", 2 }, { "line1", 6 }, { "value0", 0.3 }, { "value1", 0.6 }, { "comment", "Copied" } });
+    model.applyValues(0, { { "pattern", 5 }, { "track", 5 }, { "enabled", false }, { "owner", "device" }, { "ownerId", "other" }, { "parameter", "resonance" }, { "mode", 0 }, { "line0", 2 }, { "line1", 6 }, { "value0", 0.3 }, { "value1", 0.6 }, { "comment", "Copied" } });
 
     QCOMPARE(replacedSpy.count(), 1);
     QCOMPARE(replacedSpy.at(0).at(0).toInt(), 0);
@@ -163,7 +164,7 @@ void ParameterAutomationsModelTest::test_applyValues_shouldKeepLocationEnabledAn
     QCOMPARE(dataOf(model, 0, Role::Pattern).toULongLong(), quint64 { 0 });
     QCOMPARE(dataOf(model, 0, Role::Track).toULongLong(), quint64 { 1 });
     QVERIFY(dataOf(model, 0, Role::Enabled).toBool());
-    QCOMPARE(dataOf(model, 0, Role::EffectId).toString(), QString { "effect-1" });
+    QCOMPARE(dataOf(model, 0, Role::OwnerId).toString(), QString { "effect-1" });
     QCOMPARE(dataOf(model, 0, Role::Parameter).toString(), QString { "cutoff" });
 }
 

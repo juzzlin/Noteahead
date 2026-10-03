@@ -19,6 +19,7 @@
 #include "../../common/utils.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/synth_presets.hpp"
+#include "../../domain/tracker/parameter_automation.hpp"
 #include "../../infra/audio/backend/sndfile_reader.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
@@ -26,6 +27,7 @@
 #include <QBuffer>
 #include <QFile>
 #include <QRegularExpression>
+#include <QSignalSpy>
 #include <QTest>
 #include <algorithm>
 #include <cmath>
@@ -3211,6 +3213,83 @@ void SynthTest::test_repeatedNote_afterVoiceRetired_shouldSweepTheSameWay()
     // A stale mod envelope puts this above 1.0; a voice that starts its sweep from nothing stays
     // well under 0.1.
     QVERIFY2(worst < 0.25, qPrintable(QString { "the recycled voice swept differently: %1 of a fresh voice's brightness" }.arg(worst)));
+}
+
+void SynthTest::test_applyParameterAutomation_absolute_shouldDriveTheFilter()
+{
+    SynthDevice synth { "Synth" };
+    const auto key = Constants::NahdXml::xmlKeyLpfCutoff().toStdString();
+    const auto authored = synth.parameter(key)->get().authoredValue();
+
+    QVERIFY(synth.applyParameterAutomation(key, ParameterAutomation::Mode::Absolute, 0.3));
+
+    // Synced into what the voices read, not only written to the parameter
+    QVERIFY(std::abs(synth.lpfCutoff() - 0.3f) < 1.0e-6f);
+    // The live layer only: the project keeps the knob
+    QCOMPARE(synth.parameter(key)->get().authoredValue(), authored);
+}
+
+void SynthTest::test_applyParameterAutomation_relative_shouldScaleTheKnob()
+{
+    SynthDevice synth { "Synth" };
+    const auto key = Constants::NahdXml::xmlKeyLpfCutoff().toStdString();
+    synth.setLpfCutoff(0.8f);
+
+    QVERIFY(synth.applyParameterAutomation(key, ParameterAutomation::Mode::Relative, 0.5));
+
+    // Half way from the bottom of the travel to the knob
+    QVERIFY(std::abs(synth.lpfCutoff() - 0.4f) < 1.0e-6f);
+}
+
+void SynthTest::test_applyParameterAutomation_unknownOrSwitch_shouldBeRefused()
+{
+    SynthDevice synth { "Synth" };
+    const auto slopeKey = Constants::NahdXml::xmlKeyLpfSlope().toStdString();
+    const auto slope = synth.parameter(slopeKey)->get().value();
+
+    QVERIFY(!synth.applyParameterAutomation("noSuchParameter", ParameterAutomation::Mode::Absolute, 0.5));
+    // A position between two choices of a switch means nothing
+    QVERIFY(!synth.applyParameterAutomation(slopeKey, ParameterAutomation::Mode::Absolute, 0.0));
+    QCOMPARE(synth.parameter(slopeKey)->get().value(), slope);
+}
+
+void SynthTest::test_applyParameterAutomation_shouldNotifyTheDialogs()
+{
+    SynthDevice synth { "Synth" };
+    QSignalSpy spy { &synth, &Device::parametersChanged };
+
+    QVERIFY(synth.applyParameterAutomation(Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), ParameterAutomation::Mode::Absolute, 0.2));
+
+    QCOMPARE(spy.count(), 1);
+}
+
+void SynthTest::test_clearParameterAutomation_shouldRestoreTheKnob()
+{
+    SynthDevice synth { "Synth" };
+    const auto key = Constants::NahdXml::xmlKeyHpfCutoff().toStdString();
+    synth.setHpfCutoff(0.1f);
+    QVERIFY(synth.applyParameterAutomation(key, ParameterAutomation::Mode::Absolute, 0.6));
+    QVERIFY(std::abs(synth.hpfCutoff() - 0.6f) < 1.0e-6f);
+
+    synth.clearParameterAutomation();
+
+    QVERIFY(std::abs(synth.hpfCutoff() - 0.1f) < 1.0e-6f);
+    QVERIFY(!synth.isAutomated());
+}
+
+void SynthTest::test_display_cutoffs_shouldMatchTheFilters()
+{
+    // Both filters put their cutoff on 20 Hz to 20 kHz in equal octaves; an automation written in
+    // hertz has to land on the frequency the filter then runs at.
+    const SynthDevice synth { "Synth" };
+    for (auto && key : { Constants::NahdXml::xmlKeyLpfCutoff(), Constants::NahdXml::xmlKeyHpfCutoff() }) {
+        const auto & display = synth.parameter(key.toStdString())->get().display();
+        QVERIFY(display.has_value());
+        for (const double position : { 0.0, 0.25, 0.5, 0.9, 1.0 }) {
+            const double filterHz = 20.0 * std::exp2(position * std::log2(20000.0 / 20.0));
+            QVERIFY(std::abs(display->toUnits(position) - filterHz) < 1.0e-6 * filterHz);
+        }
+    }
 }
 
 } // namespace noteahead

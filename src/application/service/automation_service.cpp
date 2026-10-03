@@ -45,9 +45,9 @@ void AutomationService::setPortNameResolver(PortNameResolver resolver)
     m_portNameResolver = std::move(resolver);
 }
 
-void AutomationService::setEffectResolver(EffectResolver resolver)
+void AutomationService::setTargetResolver(TargetResolver resolver)
 {
-    m_effectResolver = std::move(resolver);
+    m_targetResolver = std::move(resolver);
 }
 
 int AutomationService::controllerMaxValue(uint8_t controller, size_t track) const
@@ -472,9 +472,9 @@ quint64 AutomationService::addParameterAutomation(const ParameterAutomation & au
     return newAutomation.id();
 }
 
-quint64 AutomationService::addParameterAutomation(quint64 pattern, quint64 track, quint64 column, const QString & effectId, const QString & parameter, int mode, quint64 line0, quint64 line1, double value0, double value1, int curve, const QString & comment, quint8 eventsPerBeat, quint8 lineOffset)
+quint64 AutomationService::addParameterAutomation(quint64 pattern, quint64 track, quint64 column, const QString & owner, const QString & ownerId, const QString & parameter, int mode, quint64 line0, quint64 line1, double value0, double value1, int curve, const QString & comment, quint8 eventsPerBeat, quint8 lineOffset)
 {
-    ParameterAutomation automation { 0, AutomationLocation { pattern, track, column }, { ParameterAutomation::Target::Owner::Effect, effectId.toStdString(), parameter.toStdString() }, static_cast<ParameterAutomation::Mode>(mode), { line0, line1, std::clamp(value0, 0.0, 1.0), std::clamp(value1, 0.0, 1.0), static_cast<Interpolator::CurveType>(curve) }, {}, comment, true };
+    ParameterAutomation automation { 0, AutomationLocation { pattern, track, column }, { ParameterAutomation::Target::ownerFromString(owner), ownerId.toStdString(), parameter.toStdString() }, static_cast<ParameterAutomation::Mode>(mode), { line0, line1, std::clamp(value0, 0.0, 1.0), std::clamp(value1, 0.0, 1.0), static_cast<Interpolator::CurveType>(curve) }, {}, comment, true };
     automation.setEventsPerBeat(eventsPerBeat);
     automation.setLineOffset(lineOffset);
     return addParameterAutomation(automation);
@@ -652,7 +652,8 @@ QVariantList AutomationService::parameterAutomationsAsVariantList() const
         // Positions between 0 and 1, which the shared keys would round to whole numbers
         entry["value0"] = automation.interpolation().value0;
         entry["value1"] = automation.interpolation().value1;
-        entry["effectId"] = QString::fromStdString(automation.target().ownerId);
+        entry["owner"] = ParameterAutomation::Target::ownerToString(automation.target().owner);
+        entry["ownerId"] = QString::fromStdString(automation.target().ownerId);
         entry["parameter"] = QString::fromStdString(automation.target().parameter);
         entry["mode"] = static_cast<int>(automation.mode());
         entry["eventsPerBeat"] = static_cast<int>(automation.eventsPerBeat());
@@ -887,7 +888,7 @@ double AutomationService::parameterValueAt(const ParameterAutomation & automatio
 AutomationService::EventList AutomationService::renderParameterToEventsByLine(size_t pattern, size_t track, size_t column, size_t line, size_t tick) const
 {
     EventList events;
-    if (!m_effectResolver) {
+    if (!m_targetResolver) {
         return events;
     }
 
@@ -895,8 +896,8 @@ AutomationService::EventList AutomationService::renderParameterToEventsByLine(si
         const auto & location = automation.location();
         const auto & interpolation = automation.interpolation();
         if (automation.enabled() && location.pattern() == pattern && location.track() == track && location.column() == column && line >= interpolation.line0 && line <= interpolation.line1) {
-            if (const auto effect = m_effectResolver(automation.target().ownerId); effect) {
-                events.push_back(std::make_shared<Event>(tick, ParameterData { track, column, effect, automation.target().parameter, automation.mode(), parameterValueAt(automation, static_cast<double>(line)) }));
+            if (const auto target = m_targetResolver(automation.target()); target) {
+                events.push_back(std::make_shared<Event>(tick, ParameterData { track, column, target, automation.target().parameter, automation.mode(), parameterValueAt(automation, static_cast<double>(line)) }));
             }
         }
     }
@@ -907,7 +908,7 @@ AutomationService::EventList AutomationService::renderParameterToEventsByLine(si
 AutomationService::EventList AutomationService::renderParameterToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine, size_t linesPerBeat) const
 {
     EventList events;
-    if (!m_effectResolver || !ticksPerLine) {
+    if (!m_targetResolver || !ticksPerLine) {
         return events;
     }
 
@@ -921,15 +922,15 @@ AutomationService::EventList AutomationService::renderParameterToEventsByColumn(
             continue;
         }
 
-        const auto effect = m_effectResolver(automation.target().ownerId);
-        if (!effect) {
-            juzzlin::L(TAG).debug() << "No effect for parameter automation " << automation.id() << ", skipping";
+        const auto target = m_targetResolver(automation.target());
+        if (!target) {
+            juzzlin::L(TAG).debug() << "No target for parameter automation " << automation.id() << ", skipping";
             continue;
         }
 
         const auto & interpolation = automation.interpolation();
         const auto pushEvent = [&](size_t eventTick, double value) {
-            events.push_back(std::make_shared<Event>(eventTick, ParameterData { track, column, effect, automation.target().parameter, automation.mode(), value }));
+            events.push_back(std::make_shared<Event>(eventTick, ParameterData { track, column, target, automation.target().parameter, automation.mode(), value }));
         };
 
         std::optional<double> previousValue;

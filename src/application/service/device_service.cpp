@@ -1044,6 +1044,7 @@ bool DeviceService::importDeviceSettings(int slotIndex, ProjectReader & reader)
                                 // Imported or copied from another slot, so its effects' ids already
                                 // belong to the effects they were saved from.
                                 dev->renewEffectIds();
+                                dev->renewUuid();
                             } catch (const std::exception & e) {
                                 // Deserialization can throw (e.g. a Sampler failing to load a sample). This is
                                 // invoked from QML, so swallow the exception here to fail gracefully instead of
@@ -1157,9 +1158,30 @@ std::shared_ptr<Effect> DeviceService::findEffect(const std::string & id) const
     return {};
 }
 
+QString DeviceService::deviceUuidForPort(const QString & portName) const
+{
+    if (const auto dev = deviceForPort(portName); dev) {
+        return QString::fromStdString(dev->uuid());
+    }
+    return {};
+}
+
+DeviceService::DeviceS DeviceService::findDevice(const std::string & uuid) const
+{
+    if (uuid.empty()) {
+        return {};
+    }
+    for (size_t slot = 0; slot < Constants::deviceRackSize(); slot++) {
+        if (auto dev = device(slot); dev && dev->uuid() == uuid) {
+            return dev;
+        }
+    }
+    return {};
+}
+
 void DeviceService::scheduleParameterChange(const ParameterData & data, std::optional<uint64_t> frame)
 {
-    m_audioEngine->scheduleParameterChange({ data.effect(), data.parameter(), data.mode(), data.value(), frame });
+    m_audioEngine->scheduleParameterChange({ data.target(), data.parameter(), data.mode(), data.value(), frame });
 }
 
 EffectRack & DeviceService::sendChainRack(size_t busIndex)

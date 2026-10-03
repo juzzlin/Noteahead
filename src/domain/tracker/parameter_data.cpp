@@ -17,18 +17,18 @@
 
 namespace noteahead {
 
-ParameterData::ParameterData(size_t track, size_t column, EffectW effect, std::string parameter, ParameterAutomation::Mode mode, double value)
+ParameterData::ParameterData(size_t track, size_t column, TargetW target, std::string parameter, ParameterAutomation::Mode mode, double value)
   : EventData { track, column }
-  , m_effect { std::move(effect) }
+  , m_target { std::move(target) }
   , m_parameter { std::move(parameter) }
   , m_mode { mode }
   , m_value { value }
 {
 }
 
-const ParameterData::EffectW & ParameterData::effect() const
+const ParameterData::TargetW & ParameterData::target() const
 {
-    return m_effect;
+    return m_target;
 }
 
 const std::string & ParameterData::parameter() const

@@ -38,11 +38,18 @@ private slots:
     void test_importDeviceSettings_emptySlot_shouldCreateDeviceFromFile();
     void test_replaceDevice_shouldKeepChannelStrip();
     void test_replaceDevice_shouldKeepEffectIds();
+    void test_replaceDevice_shouldGiveTheNewDeviceItsOwnUuid();
+    void test_deviceUuid_newDevices_shouldBeUnique();
     void test_replaceDevice_emptySlot_shouldJustSetTheDevice();
     void test_replaceDevice_subMixerMember_shouldKeepMembership();
     void test_copyDevice_shouldDuplicateParametersIntoTargetSlot();
     void test_copyDevice_shouldRenewEffectIds();
+    void test_copyDevice_shouldRenewTheDeviceUuid();
     void test_findEffect_shouldSearchEveryRack();
+    void test_findDevice_shouldFindItByUuid();
+    void test_deviceUuidForPort_shouldNameTheDeviceBehindThePort();
+    void test_scheduleParameterChange_device_shouldApplyInTheBlockOfItsFrame();
+    void test_clearAutomation_shouldRestoreAutomatedDevices();
     void test_scheduleParameterChange_shouldApplyInTheBlockOfItsFrame();
     void test_scheduleParameterChange_relative_shouldScaleTheKnob();
     void test_clearAutomation_shouldRestoreAutomatedEffects();

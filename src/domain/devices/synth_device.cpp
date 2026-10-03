@@ -15,6 +15,8 @@
 
 #include "synth_device.hpp"
 
+#include <QtGlobal>
+
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
 #include "../../common/utils.hpp"
@@ -266,6 +268,20 @@ SynthDevice::SynthDevice(std::string name)
         }
     }
     initializeVoiceDrift();
+
+    // What a parameter automation may drive, and how it reads out. Only what is described here is
+    // offered, which keeps the list to the controls worth riding rather than every one of the
+    // voice's internals. The cutoffs follow the filters themselves, 20 Hz to 20 kHz in equal
+    // octaves, which is where CascadedSvf puts them.
+    using Display = ParameterDisplay;
+    namespace C = Constants::NahdXml;
+    const auto describe = [this](const QString & key, Display display) {
+        setParameterDisplay(key.toStdString(), std::move(display));
+    };
+    describe(C::xmlKeyLpfCutoff(), { .mapping = Display::Mapping::LogFrequency, .unit = "Hz", .min = 20.0, .max = 20000.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "LPF Cutoff") });
+    describe(C::xmlKeyLpfResonance(), { .unit = "%", .max = 100.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "LPF Resonance") });
+    describe(C::xmlKeyKeyTrack(), { .unit = "%", .max = 100.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "LPF Key Track") });
+    describe(C::xmlKeyHpfCutoff(), { .mapping = Display::Mapping::LogFrequency, .unit = "Hz", .min = 20.0, .max = 20000.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "HPF Cutoff") });
 
     SynthDevice::syncParameters();
 }

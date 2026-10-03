@@ -71,6 +71,8 @@ private slots:
     void test_renderToEventsByColumn_parameter_eventsPerBeat_shouldStepOnLines();
     void test_renderToEventsByColumn_parameter_modulationOffset_shouldBePercentOfTravel();
     void test_renderToEventsByColumn_parameter_missingEffect_shouldRenderNothing();
+    void test_renderToEventsByColumn_parameter_device_shouldReachTheDevice();
+    void test_renderToEventsByColumn_parameter_missingDevice_shouldRenderNothing();
 
     void test_midiCcAutomationsAsVariantList_shouldCarryEveryParameter();
     void test_pitchBendAutomationsAsVariantList_shouldCarryEveryParameter();

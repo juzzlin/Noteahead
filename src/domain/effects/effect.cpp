@@ -106,6 +106,22 @@ void Effect::renewId()
     m_id = newId();
 }
 
+bool Effect::applyParameterAutomation(const std::string & key, ParameterAutomation::Mode mode, double value)
+{
+    if (const auto p = parameter(key); p && p->get().type() == Parameter::Type::Continuous) {
+        p->get().setAutomationValue(ParameterAutomation::effectiveValue(mode, value, p->get()));
+        sync();
+        return true;
+    }
+    return false;
+}
+
+void Effect::clearParameterAutomation()
+{
+    clearAutomation();
+    sync();
+}
+
 std::string Effect::newId()
 {
     return QUuid::createUuid().toString(QUuid::WithoutBraces).toStdString();

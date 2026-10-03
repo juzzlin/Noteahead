@@ -1399,6 +1399,52 @@ void XmlSerializationTest::test_toXmlFromXml_samplerDevice_padEffectRack_shouldR
     QVERIFY(!samplerIn->sampleEffectRack(61).hasEffects());
 }
 
+void XmlSerializationTest::test_toXmlFromXml_device_uuid_shouldRoundTrip()
+{
+    DeviceFactory::init();
+
+    DeviceService deviceServiceOut { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+    const auto synthOut = std::make_shared<SynthDevice>("Noteahead Internal Device 1");
+    deviceServiceOut.setDevice(0, synthOut);
+    QVERIFY(!synthOut->uuid().empty());
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+    const auto xml = editorServiceOut.toXml();
+
+    DeviceService deviceServiceIn { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+    editorServiceIn.fromXml(xml);
+
+    // An automation aimed at the device has to find it again after the project is reloaded
+    QVERIFY(deviceServiceIn.device(0));
+    QCOMPARE(deviceServiceIn.device(0)->uuid(), synthOut->uuid());
+}
+
+void XmlSerializationTest::test_toXmlFromXml_device_withoutUuid_shouldBeGivenOne()
+{
+    DeviceFactory::init();
+
+    DeviceService deviceServiceOut { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+    deviceServiceOut.setDevice(0, std::make_shared<SynthDevice>("Noteahead Internal Device 1"));
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+    // A project saved before devices had ids
+    auto xml = editorServiceOut.toXml();
+    xml.remove(QRegularExpression { R"( uuid="[^"]*")" });
+    QVERIFY(!xml.contains("uuid="));
+
+    DeviceService deviceServiceIn { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+    editorServiceIn.fromXml(xml);
+
+    QVERIFY(deviceServiceIn.device(0));
+    QVERIFY(!deviceServiceIn.device(0)->uuid().empty());
+}
+
 void XmlSerializationTest::test_toXmlFromXml_drumSynthDevice_voiceEffectRack_shouldRoundTrip()
 {
     const auto drumName = "Noteahead Internal Device 1";
@@ -4683,6 +4729,44 @@ void XmlSerializationTest::test_allPassFilter_legacyNames_shouldLoadCorrectly()
     if (const auto p = effect.parameter(Constants::NahdXml::xmlKeyStages().toStdString()); p) {
         QCOMPARE(p->get().xmlValue(), 3);
     }
+}
+
+void XmlSerializationTest::test_toXmlFromXml_automationService_parameter_device_shouldRoundTrip()
+{
+    AutomationService automationServiceOut { std::make_shared<PropertyService>() };
+    automationServiceOut.addParameterAutomation({ 0, AutomationLocation { 1, 2, 0 }, { ParameterAutomation::Target::Owner::Device, "device-uuid", "lpfCutoff" }, ParameterAutomation::Mode::Relative, { 0, 8, 0.0, 1.0 }, {}, {}, true });
+
+    AutomationService automationServiceIn { std::make_shared<PropertyService>() };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorService, &EditorService::automationSerializationRequested, &automationServiceOut, &AutomationService::serializeToXml);
+    connect(&editorService, &EditorService::automationDeserializationRequested, &automationServiceIn, &AutomationService::deserializeFromXml);
+
+    const auto xml = editorService.toXml();
+    QVERIFY(xml.contains(R"(owner="device")"));
+    editorService.fromXml(xml);
+
+    QCOMPARE(automationServiceIn.parameterAutomations().size(), size_t { 1 });
+    QCOMPARE(automationServiceIn.parameterAutomations().at(0), automationServiceOut.parameterAutomations().at(0));
+}
+
+void XmlSerializationTest::test_fromXml_automationService_parameter_withoutOwner_shouldAimAtAnEffect()
+{
+    AutomationService automationServiceOut { std::make_shared<PropertyService>() };
+    automationServiceOut.addParameterAutomation({ 0, AutomationLocation { 0, 0, 0 }, { ParameterAutomation::Target::Owner::Effect, "effect-id", "cutoff" }, ParameterAutomation::Mode::Absolute, { 0, 8, 0.0, 1.0 }, {}, {}, true });
+
+    AutomationService automationServiceIn { std::make_shared<PropertyService>() };
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorService, &EditorService::automationSerializationRequested, &automationServiceOut, &AutomationService::serializeToXml);
+    connect(&editorService, &EditorService::automationDeserializationRequested, &automationServiceIn, &AutomationService::deserializeFromXml);
+
+    // Written before devices could be targets, when an automation did not say what it was aimed at
+    auto xml = editorService.toXml();
+    xml.remove(QRegularExpression { R"( owner="[^"]*")" });
+    QVERIFY(!xml.contains("owner="));
+    editorService.fromXml(xml);
+
+    QCOMPARE(automationServiceIn.parameterAutomations().at(0).target().owner, ParameterAutomation::Target::Owner::Effect);
+    QCOMPARE(automationServiceIn.parameterAutomations().at(0).target().ownerId, std::string { "effect-id" });
 }
 
 } // namespace noteahead

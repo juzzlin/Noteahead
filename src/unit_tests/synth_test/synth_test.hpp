@@ -25,6 +25,13 @@ class SynthTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_applyParameterAutomation_absolute_shouldDriveTheFilter();
+    void test_applyParameterAutomation_relative_shouldScaleTheKnob();
+    void test_applyParameterAutomation_unknownOrSwitch_shouldBeRefused();
+    void test_applyParameterAutomation_shouldNotifyTheDialogs();
+    void test_clearParameterAutomation_shouldRestoreTheKnob();
+    void test_display_cutoffs_shouldMatchTheFilters();
+
     void test_vco4_shouldBeSilentUntilMixedIn();
     void test_vco4_settings_shouldRoundTrip();
     void test_vco4_shouldSoundAtItsOwnPitch();

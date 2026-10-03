@@ -24,20 +24,20 @@
 
 namespace noteahead {
 
-class Effect;
+class ParameterAutomationTarget;
 
 //! One step of a ParameterAutomation, as the player hands it on.
 //!
-//! Carries the effect itself rather than its id: the song is rendered afresh for every play, so the
-//! effect is looked up once there instead of once per event on the way to the audio thread. Held
-//! weakly, so an effect removed while the song plays is simply no longer driven.
+//! Carries the effect or device itself rather than its id: the song is rendered afresh for every
+//! play, so the target is looked up once there instead of once per event on the way to the audio
+//! thread. Held weakly, so one removed while the song plays is simply no longer driven.
 class ParameterData : public EventData
 {
 public:
-    using EffectW = std::weak_ptr<Effect>;
-    ParameterData(size_t track, size_t column, EffectW effect, std::string parameter, ParameterAutomation::Mode mode, double value);
+    using TargetW = std::weak_ptr<ParameterAutomationTarget>;
+    ParameterData(size_t track, size_t column, TargetW target, std::string parameter, ParameterAutomation::Mode mode, double value);
 
-    const EffectW & effect() const;
+    const TargetW & target() const;
     const std::string & parameter() const;
     ParameterAutomation::Mode mode() const;
     //! A knob position for an absolute automation; how far from rest towards the knob for a
@@ -45,7 +45,7 @@ public:
     double value() const;
 
 private:
-    EffectW m_effect;
+    TargetW m_target;
     std::string m_parameter;
     ParameterAutomation::Mode m_mode = ParameterAutomation::Mode::Absolute;
     double m_value = 0.0;

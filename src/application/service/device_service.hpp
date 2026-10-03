@@ -68,6 +68,9 @@ public:
     virtual DeviceS device(const std::string & name) const;
 
     Q_INVOKABLE virtual bool isInternalDevice(const QString & portName) const;
+    //! Device::uuid() of the internal device behind a port, or empty for any other port. What lets
+    //! the automation dialog open on the device the track plays.
+    Q_INVOKABLE QString deviceUuidForPort(const QString & portName) const;
     void processMidiNoteOn(const QString & portName, uint8_t note, uint8_t velocity, std::optional<double> noteBeats = std::nullopt);
     void processMidiNoteOff(const QString & portName, uint8_t note);
 
@@ -232,6 +235,9 @@ public:
     //! The effect with the given id, wherever it sits: a device's own racks, the master inserts, a
     //! send bus or a send chain. Nothing when no effect in the project has that id. See Effect::id().
     std::shared_ptr<Effect> findEffect(const std::string & id) const;
+
+    //! The device with the given uuid, whichever slot it is in. See Device::uuid().
+    DeviceS findDevice(const std::string & uuid) const;
 
     //! Hands a parameter automation step to the audio thread, to take effect at @p frame or, with
     //! no frame, at the start of the next block. See AudioEngine::scheduleParameterChange().
