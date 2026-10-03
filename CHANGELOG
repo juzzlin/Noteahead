@@ -39,6 +39,8 @@ Bug fixes:
 
 * Parameter automation targets name devices as the gallery does, not by their internal type
 
+* Drums no longer click when struck again while still ringing
+
 * Mixer: meters no longer stay still when it is opened from the Device Rack with Ctrl+M
 
 * Device scopes and the Phase Scope draw their traces about twenty times faster, so they no longer stutter

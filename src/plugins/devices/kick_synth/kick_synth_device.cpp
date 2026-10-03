@@ -245,9 +245,10 @@ void KickSynthDevice::processDeviceMidiNoteOn(uint8_t note, uint8_t velocity)
     m_engine.setSampleRate(engineSampleRate(static_cast<double>(sampleRate())));
     const float rawVel = static_cast<float>(velocity) / 127.0f;
     const float vel = (1.0f - m_velocitySensitivity) + m_velocitySensitivity * rawVel;
-    m_engine.trigger(vel);
     if (m_ampEnvelopeEnabled) {
-        m_ampEnvelope.trigger();
+        m_strike.strike(m_engine, m_ampEnvelope, vel);
+    } else {
+        m_engine.trigger(vel);
     }
 }
 
@@ -327,6 +328,9 @@ void KickSynthDevice::processAudio(AudioContext & context)
         float engineR = 0.0f;
         m_engine.nextSample(engineL, engineR);
 
+        if (m_ampEnvelopeEnabled) {
+            m_strike.advance(m_engine, m_ampEnvelope);
+        }
         const double amp = m_ampEnvelopeEnabled ? m_ampEnvelope.nextSample() : 1.0;
         double sampleL = static_cast<double>(engineL) * gain * amp;
         double sampleR = static_cast<double>(engineR) * gain * amp;
@@ -360,6 +364,7 @@ void KickSynthDevice::resetDeviceAudio()
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     m_engine.reset();
     m_ampEnvelope.reset();
+    m_strike.reset();
     m_lpfL.reset();
     m_lpfR.reset();
     m_hpfL.reset();
@@ -523,6 +528,10 @@ void KickSynthDevice::syncAmpEnvelope()
     if (enabled && !m_ampEnvelopeEnabled && m_engine.isActive()) {
         // Turned on under a ringing drum: the envelope picks it up at full rather than cutting it
         m_ampEnvelope.trigger();
+    }
+    if (!enabled && m_ampEnvelopeEnabled) {
+        // Switched off during a retrigger's fade: the hit it held back is struck now
+        m_strike.strikeNow(m_engine);
     }
     m_ampEnvelopeEnabled = enabled;
 }

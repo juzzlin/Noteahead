@@ -16,10 +16,14 @@
 #include "drum_amp_envelope_test.hpp"
 
 #include "../../domain/dsp/drum/drum_amp_envelope.hpp"
+#include "../../domain/dsp/drum/drum_engine.hpp"
+#include "../../domain/dsp/drum/drum_strike.hpp"
 
 #include <QTest>
 
+#include <algorithm>
 #include <cmath>
+#include <numbers>
 
 namespace noteahead {
 
@@ -46,6 +50,53 @@ DrumAmpEnvelope makeEnvelope(double attack, double hold, double decay)
     envelope.setHoldTime(hold);
     envelope.setDecayTime(decay);
     return envelope;
+}
+
+//! A 100 Hz sine from its start at every strike, as a drum starts from silence, until stopped.
+class SineEngine : public DrumEngine
+{
+public:
+    void trigger(float) override
+    {
+        m_phase = 0;
+        m_active = true;
+        strikes++;
+    }
+
+    float nextSample() override
+    {
+        return m_active ? static_cast<float>(std::sin(2.0 * std::numbers::pi * 100.0 * static_cast<double>(m_phase++) / noteahead::sampleRate)) : 0.0f;
+    }
+
+    bool isActive() const override
+    {
+        return m_active;
+    }
+
+    void reset() override
+    {
+        m_active = false;
+    }
+
+    int strikes { 0 };
+
+private:
+    size_t m_phase { 0 };
+    bool m_active { false };
+};
+
+//! The engine under the envelope for @p samples, as a device renders it, and the largest step.
+double render(SineEngine & engine, DrumAmpEnvelope & envelope, DrumStrike & strike, int samples)
+{
+    double largest = 0.0;
+    double previous = 0.0;
+    for (int i = 0; i < samples; i++) {
+        strike.advance(engine, envelope);
+        const double sample = static_cast<double>(engine.nextSample()) * envelope.nextSample();
+        largest = std::max(largest, std::abs(sample - previous));
+        previous = sample;
+    }
+    return largest;
 }
 
 } // namespace
@@ -147,8 +198,8 @@ void DrumAmpEnvelopeTest::test_envelope_retrigger_duringDecay_shouldChokeThenAtt
     QCOMPARE(envelope.state(), DrumAmpEnvelope::State::Choke);
 
     // Down to silence within the choke, and climbing again immediately after it. A hair past the
-    // two milliseconds, because the last step of the ramp lands a floating-point whisker short.
-    advance(envelope, 0.0025);
+    // millisecond, because the last step of the ramp lands a floating-point whisker short.
+    advance(envelope, 0.0015);
     QCOMPARE(envelope.state(), DrumAmpEnvelope::State::Attack);
     QVERIFY2(envelope.value() < beforeRetrigger * 0.1, qPrintable(QString::number(envelope.value())));
 }
@@ -164,7 +215,7 @@ void DrumAmpEnvelopeTest::test_envelope_retrigger_shouldGiveTheAttackItsFullTime
 
     envelope.trigger();
     // Half way through the attack it must be part way up, not already at the top.
-    advance(envelope, 0.002 + 0.025);
+    advance(envelope, 0.001 + 0.025);
     QVERIFY2(envelope.value() > 0.1 && envelope.value() < 0.9, qPrintable(QString::number(envelope.value())));
 
     advance(envelope, 0.03);
@@ -182,14 +233,14 @@ void DrumAmpEnvelopeTest::test_envelope_retrigger_shouldNotStepToSilence()
     envelope.trigger();
     double previous = envelope.value();
     double largestStep = 0.0;
-    for (int i = 0; i < static_cast<int>(0.002 * sampleRate); i++) {
+    for (int i = 0; i < static_cast<int>(0.001 * sampleRate); i++) {
         const auto level = envelope.nextSample();
         largestStep = std::max(largestStep, std::abs(level - previous));
         previous = level;
     }
-    // One sample of a two millisecond ramp, with a little room: nothing like the full-scale step a
+    // One sample of a millisecond ramp, with a little room: nothing like the full-scale step a
     // reset would have made.
-    QVERIFY2(largestStep < 0.02, qPrintable(QString::number(largestStep)));
+    QVERIFY2(largestStep < 0.03, qPrintable(QString::number(largestStep)));
 }
 
 void DrumAmpEnvelopeTest::test_envelope_retrigger_fromSilence_shouldAttackAtOnce()
@@ -216,6 +267,38 @@ void DrumAmpEnvelopeTest::test_envelope_reset_shouldGoIdle()
     QCOMPARE(envelope.state(), DrumAmpEnvelope::State::Idle);
     QCOMPARE(envelope.value(), 0.0);
     QVERIFY(!envelope.isActive());
+}
+
+void DrumAmpEnvelopeTest::test_strike_retrigger_shouldNotStep()
+{
+    // A sine moves at most 0.013 a sample at 100 Hz; restarting it inside the fade and jumping back
+    // to full level afterwards is a step of about 0.1
+    auto envelope = makeEnvelope(0.0, 0.0, 2.0);
+    SineEngine engine;
+    DrumStrike strike;
+    strike.strike(engine, envelope, 1.0f);
+    render(engine, envelope, strike, static_cast<int>(0.1 * sampleRate));
+
+    strike.strike(engine, envelope, 1.0f);
+    QCOMPARE(engine.strikes, 1);
+    const double largest = render(engine, envelope, strike, static_cast<int>(0.05 * sampleRate));
+    QCOMPARE(engine.strikes, 2);
+    QVERIFY2(largest < 0.02, qPrintable(QString::number(largest)));
+}
+
+void DrumAmpEnvelopeTest::test_strike_silentEngine_shouldStrikeAtOnce()
+{
+    auto envelope = makeEnvelope(0.0, 0.0, 2.0);
+    SineEngine engine;
+    DrumStrike strike;
+    strike.strike(engine, envelope, 1.0f);
+    render(engine, envelope, strike, 100);
+    engine.reset();
+
+    // The envelope still stands high, but nothing is sounding under it to fade
+    strike.strike(engine, envelope, 1.0f);
+    QCOMPARE(engine.strikes, 2);
+    QVERIFY(!strike.isPending());
 }
 
 } // namespace noteahead

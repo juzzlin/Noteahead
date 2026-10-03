@@ -20,6 +20,7 @@
 #include "../../../domain/dsp/cascaded_svf.hpp"
 #include "../../../domain/dsp/dc_blocker.hpp"
 #include "../../../domain/dsp/drum/drum_amp_envelope.hpp"
+#include "../../../domain/dsp/drum/drum_strike.hpp"
 #include "../../../domain/dsp/drum/kick_909_engine.hpp"
 #include "../../../domain/dsp/true_stereo_panner.hpp"
 
@@ -106,6 +107,8 @@ private:
     TrueStereoPanner m_panner {};
 
     DrumAmpEnvelope m_ampEnvelope {};
+
+    DrumStrike m_strike;
     bool m_ampEnvelopeEnabled { false };
 
     DcBlocker m_dcBlockerL {};

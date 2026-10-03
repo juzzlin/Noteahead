@@ -179,9 +179,10 @@ void Kick909Device::processDeviceMidiNoteOn(uint8_t note, uint8_t velocity)
     m_engine.setNoteRatio(noteRatio(note));
     const float rawVel = static_cast<float>(velocity) / 127.0f;
     const float vel = (1.0f - m_velocitySensitivity) + m_velocitySensitivity * rawVel;
-    m_engine.trigger(vel);
     if (m_ampEnvelopeEnabled) {
-        m_ampEnvelope.trigger();
+        m_strike.strike(m_engine, m_ampEnvelope, vel);
+    } else {
+        m_engine.trigger(vel);
     }
 }
 
@@ -253,6 +254,9 @@ void Kick909Device::processAudio(AudioContext & context)
     const double gain = OutputGain * linearGainInternal();
 
     for (uint32_t i = 0; i < context.frameCount; i++) {
+        if (m_ampEnvelopeEnabled) {
+            m_strike.advance(m_engine, m_ampEnvelope);
+        }
         const double amp = m_ampEnvelopeEnabled ? m_ampEnvelope.nextSample() : 1.0;
         // The drum is mono until the panner, so it is filtered once
         double sampleL = m_hpf.process(m_lpf.process(static_cast<double>(m_engine.nextSample()) * gain * amp));
@@ -284,6 +288,7 @@ void Kick909Device::resetDeviceAudio()
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     m_engine.reset();
     m_ampEnvelope.reset();
+    m_strike.reset();
     m_lpf.reset();
     m_hpf.reset();
     m_dcBlockerL.reset();
@@ -437,6 +442,10 @@ void Kick909Device::syncAmpEnvelope()
     if (enabled && !m_ampEnvelopeEnabled && m_engine.isActive()) {
         // Turned on under a ringing drum: the envelope picks it up at full rather than cutting it
         m_ampEnvelope.trigger();
+    }
+    if (!enabled && m_ampEnvelopeEnabled) {
+        // Switched off during a retrigger's fade: the hit it held back is struck now
+        m_strike.strikeNow(m_engine);
     }
     m_ampEnvelopeEnabled = enabled;
 }

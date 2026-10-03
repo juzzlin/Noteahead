@@ -19,6 +19,7 @@
 #include "../../plugins/devices/drum_synth_v2/drum_synth_v2_constants.hpp"
 #include "../dsp/drum/drum_amp_envelope.hpp"
 #include "../dsp/drum/drum_engine.hpp"
+#include "../dsp/drum/drum_strike.hpp"
 #include "../dsp/high_pass_filter.hpp"
 #include "../dsp/low_pass_filter.hpp"
 #include "../dsp/panning.hpp"
@@ -186,6 +187,8 @@ private:
         //! Rides on top of whatever the engine plays: see DrumAmpEnvelope. In the VCA position,
         //! after the filters, so their resonant ring is shaped with everything else.
         DrumAmpEnvelope ampEnvelope;
+        //! Holds a retrigger back until the envelope has faded the hit still sounding.
+        DrumStrike strike;
         //! Output frames since the voice was last struck, for the playhead. Counted per output
         //! frame rather than per oversampled one, so it is a time whatever the quality is set to.
         size_t renderedFrames {};
