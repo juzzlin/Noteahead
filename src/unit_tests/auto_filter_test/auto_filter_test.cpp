@@ -162,6 +162,33 @@ double renderGainDb(AutoFilter & effect, double frequency)
 
 } // namespace
 
+void AutoFilterTest::test_display_continuousParameters_shouldAllHaveOne()
+{
+    // Automation has only the display to tell it what a value means. A continuous control without
+    // one could still be automated, but only by bare knob position.
+    const AutoFilter filter;
+    for (const auto & [name, parameter] : filter.parameters()) {
+        if (parameter.type() == Parameter::Type::Continuous) {
+            QVERIFY2(parameter.display().has_value(), name.c_str());
+        } else {
+            QVERIFY2(!parameter.display().has_value(), name.c_str());
+        }
+    }
+}
+
+void AutoFilterTest::test_display_cutoff_shouldMatchTheFilter()
+{
+    // The filter places its cutoff on 20 Hz to 20 kHz in equal octaves; the readout has to name the
+    // frequency it actually runs at, or an automation written in hertz would land somewhere else.
+    const AutoFilter filter;
+    const auto & display = filter.parameter(Constants::NahdXml::xmlKeyCutoff().toStdString())->get().display();
+    QVERIFY(display.has_value());
+    for (const double position : { 0.0, 0.25, 0.7, 1.0 }) {
+        const double filterHz = 20.0 * std::exp2(position * std::log2(1000.0));
+        QVERIFY(std::abs(display->toUnits(position) - filterHz) < 1.0e-6 * filterHz);
+    }
+}
+
 void AutoFilterTest::test_process_lowPass_shouldAttenuateHighFrequencies()
 {
     AutoFilter effect;

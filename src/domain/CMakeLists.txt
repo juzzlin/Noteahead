@@ -146,6 +146,7 @@ set(HEADER_FILES
     tracker/note_data_manipulator.hpp
     tracker/parameter.hpp
     tracker/parameter_container.hpp
+    tracker/parameter_display.hpp
     tracker/pattern.hpp
     tracker/play_order.hpp
     tracker/render_settings.hpp
@@ -317,6 +318,7 @@ set(SOURCE_FILES
     tracker/note_data_manipulator.cpp
     tracker/parameter.cpp
     tracker/parameter_container.cpp
+    tracker/parameter_display.cpp
     tracker/pattern.cpp
     tracker/play_order.cpp
     tracker/render_settings.cpp

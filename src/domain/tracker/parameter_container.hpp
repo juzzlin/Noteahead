@@ -46,6 +46,8 @@ public:
     ParameterContainer & operator=(ParameterContainer &&) = default;
 
     void addParameter(Parameter parameter);
+    //! Says how the named parameter reads out. See ParameterDisplay. A no-op for an unknown name.
+    void setParameterDisplay(const std::string & name, ParameterDisplay display);
 
     ParameterOpt parameter(const std::string & name);
     ConstParameterOpt parameter(const std::string & name) const;

@@ -50,6 +50,24 @@ AutoFilter::AutoFilter()
 
     addMixParameter(1.0f, MixLaw::Crossfade);
 
+    // The readouts AutoFilterDialog shows, so that automation speaks in the same units as the knobs.
+    // The rates read out in hertz even when an LFO is synced to the tempo, where the knob shows a
+    // beat division instead: the position is the same either way, only its name changes.
+    using Display = ParameterDisplay;
+    namespace C = Constants::NahdXml;
+    setParameterDisplay(C::xmlKeyCutoff().toStdString(), { Display::Mapping::LogFrequency, "Hz", 20.0, 20000.0 });
+    setParameterDisplay(C::xmlKeyResonance().toStdString(), { Display::Mapping::Linear, "%", 0.0, 100.0 });
+    setParameterDisplay(C::xmlKeyLfoRate().toStdString(), { Display::Mapping::LfoFrequency, "Hz", 0.05, 20.0 });
+    setParameterDisplay(C::xmlKeyLfoIntensity().toStdString(), { Display::Mapping::CubicCentered, "%", -100.0, 100.0, Display::Rest::Centre });
+    setParameterDisplay(C::xmlKeyLfo2Rate().toStdString(), { Display::Mapping::LfoFrequency, "Hz", 0.05, 20.0 });
+    setParameterDisplay(C::xmlKeyLfo2Intensity().toStdString(), { Display::Mapping::CubicCentered, "%", -100.0, 100.0, Display::Rest::Centre });
+    setParameterDisplay(C::xmlKeyStereoPhase().toStdString(), { Display::Mapping::Linear, "°", 0.0, 180.0 });
+    setParameterDisplay(C::xmlKeyEnvMod().toStdString(), { Display::Mapping::CubicCentered, "%", -100.0, 100.0, Display::Rest::Centre });
+    setParameterDisplay(C::xmlKeyAttack().toStdString(), { Display::Mapping::Exponential, "ms", 0.1, 500.0 });
+    setParameterDisplay(C::xmlKeyRelease().toStdString(), { Display::Mapping::Exponential, "ms", 1.0, 2000.0 });
+    setParameterDisplay(C::xmlKeyGain().toStdString(), { Display::Mapping::Linear, "dB", -12.0, 12.0, Display::Rest::Centre });
+    setParameterDisplay(C::xmlKeyMix().toStdString(), { Display::Mapping::Linear, "%", 0.0, 100.0 });
+
     applyParameters();
 
     // So that a fresh effect and one that has been reset start from the same state, which the LFOs

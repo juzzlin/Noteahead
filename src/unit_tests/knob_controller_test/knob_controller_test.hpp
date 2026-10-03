@@ -44,6 +44,7 @@ private slots:
     void test_valueMapping_shouldHonourTheUnit();
     void test_frequencyToString_shouldFormatFrequencyStrings();
     void test_syncLogic_shouldHandleSyncValuesAndLabels();
+    void test_map_parameterDisplay_shouldAgreeWithTheDomain();
 };
 
 } // namespace noteahead

@@ -25,6 +25,9 @@ class AutoFilterTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_display_continuousParameters_shouldAllHaveOne();
+    void test_display_cutoff_shouldMatchTheFilter();
+
     void test_process_lowPass_shouldAttenuateHighFrequencies();
     void test_process_highPass_shouldAttenuateLowFrequencies();
     void test_process_bandPass_shouldPassItsBandAtUnity();

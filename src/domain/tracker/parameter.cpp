@@ -38,6 +38,16 @@ const std::string & Parameter::name() const
     return m_name;
 }
 
+const std::optional<ParameterDisplay> & Parameter::display() const
+{
+    return m_display;
+}
+
+void Parameter::setDisplay(ParameterDisplay display)
+{
+    m_display = std::move(display);
+}
+
 const LegacyNameList & Parameter::legacyNames() const
 {
     return m_legacyNames;

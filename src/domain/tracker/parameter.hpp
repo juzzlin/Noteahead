@@ -16,6 +16,8 @@
 #ifndef PARAMETER_HPP
 #define PARAMETER_HPP
 
+#include "parameter_display.hpp"
+
 #include <functional>
 #include <optional>
 #include <string>
@@ -76,6 +78,11 @@ public:
     bool isDiscrete() const;
     bool isBoolean() const;
 
+    //! How the stored position reads out, for a parameter that has said so. Nothing says nothing
+    //! about units, and anything showing the value then has only the bare position to go on.
+    const std::optional<ParameterDisplay> & display() const;
+    void setDisplay(ParameterDisplay display);
+
     const LegacyNameList & legacyNames() const;
     const LegacyValueConverter & legacyValueConverter() const;
 
@@ -99,6 +106,7 @@ private:
     int m_xmlDefault = 0;
     int m_xmlScale = 1;
     Type m_type = Type::Continuous;
+    std::optional<ParameterDisplay> m_display;
     LegacyNameList m_legacyNames;
     LegacyValueConverter m_legacyValueConverter;
 };

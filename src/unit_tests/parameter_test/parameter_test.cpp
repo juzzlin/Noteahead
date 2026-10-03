@@ -17,8 +17,12 @@
 
 #include "../../domain/tracker/parameter.hpp"
 #include "../../domain/tracker/parameter_container.hpp"
+#include "../../domain/tracker/parameter_display.hpp"
 
 #include <QTest>
+
+#include <cmath>
+#include <vector>
 
 namespace noteahead {
 
@@ -147,6 +151,66 @@ void ParameterTest::test_container_parameterSnapshot_shouldHoldAuthoredValues()
     container.restoreParameterSnapshot(snapshot);
     QVERIFY(qFuzzyCompare(container.parameter("cutoff")->get().value(), 0.25f));
     QVERIFY(qFuzzyCompare(container.parameter("cutoff")->get().authoredValue(), 0.25f));
+}
+
+void ParameterTest::test_display_linear_shouldRoundTrip()
+{
+    const ParameterDisplay gain { ParameterDisplay::Mapping::Linear, "dB", -12.0, 12.0, ParameterDisplay::Rest::Centre };
+
+    QCOMPARE(gain.toUnits(0.5), 0.0);
+    QCOMPARE(gain.toUnits(1.0), 12.0);
+    QCOMPARE(gain.toPosition(-6.0), 0.25);
+}
+
+void ParameterTest::test_display_curvedMappings_shouldRoundTrip()
+{
+    // Every curve has to come back to the position it started from, or a value typed in units
+    // would land somewhere other than where it reads.
+    const std::vector<ParameterDisplay> displays {
+        { ParameterDisplay::Mapping::Exponential, "ms", 0.1, 500.0 },
+        { ParameterDisplay::Mapping::CubicCentered, "%", -100.0, 100.0, ParameterDisplay::Rest::Centre },
+        { ParameterDisplay::Mapping::LogFrequency, "Hz", 20.0, 20000.0 },
+        { ParameterDisplay::Mapping::LfoFrequency, "Hz", 0.05, 20.0 }
+    };
+    for (const auto & display : displays) {
+        for (const double position : { 0.0, 0.1, 0.37, 0.5, 0.82, 1.0 }) {
+            QVERIFY2(std::abs(display.toPosition(display.toUnits(position)) - position) < 1.0e-9, display.mappingName().c_str());
+        }
+    }
+
+    // The log curve doubles in equal steps: the middle of 20 Hz to 20 kHz is their geometric mean.
+    const ParameterDisplay cutoff { ParameterDisplay::Mapping::LogFrequency, "Hz", 20.0, 20000.0 };
+    QVERIFY(std::abs(cutoff.toUnits(0.5) - std::sqrt(20.0 * 20000.0)) < 1.0e-6);
+}
+
+void ParameterTest::test_display_toPosition_outOfRange_shouldClamp()
+{
+    const ParameterDisplay cutoff { ParameterDisplay::Mapping::LogFrequency, "Hz", 20.0, 20000.0 };
+
+    QCOMPARE(cutoff.toPosition(5.0), 0.0);
+    QCOMPARE(cutoff.toPosition(40000.0), 1.0);
+}
+
+void ParameterTest::test_display_restPosition_shouldFollowTheRest()
+{
+    QCOMPARE((ParameterDisplay { ParameterDisplay::Mapping::Linear, "%", 0.0, 100.0 }.restPosition()), 0.0);
+    QCOMPARE((ParameterDisplay { ParameterDisplay::Mapping::CubicCentered, "%", -100.0, 100.0, ParameterDisplay::Rest::Centre }.restPosition()), 0.5);
+}
+
+void ParameterTest::test_container_setParameterDisplay_shouldAttachIt()
+{
+    ParameterContainer container;
+    container.addParameter(continuousParameter());
+    QVERIFY(!container.parameter("cutoff")->get().display().has_value());
+
+    container.setParameterDisplay("cutoff", { ParameterDisplay::Mapping::LogFrequency, "Hz", 20.0, 20000.0 });
+
+    const auto & display = container.parameter("cutoff")->get().display();
+    QVERIFY(display.has_value());
+    QCOMPARE(display->unit, std::string { "Hz" });
+    // An unknown name is ignored rather than creating a parameter.
+    container.setParameterDisplay("missing", {});
+    QVERIFY(!container.parameter("missing").has_value());
 }
 
 } // namespace noteahead

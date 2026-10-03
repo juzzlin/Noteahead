@@ -15,10 +15,12 @@
 
 #include "knob_controller_test.hpp"
 #include "../../common/constants.hpp"
+#include "../../domain/effects/auto_filter.hpp"
 #include "../../view/controllers/knob_controller.hpp"
 
 #include <QTest>
 
+#include <cmath>
 #include <vector>
 
 namespace noteahead {
@@ -348,6 +350,24 @@ void KnobControllerTest::test_syncLogic_shouldHandleSyncValuesAndLabels()
 
     // 1/2 = 0.5. 0.5 * 1000 = 500
     QCOMPARE(controller.syncIndex(500.0), 2);
+}
+
+void KnobControllerTest::test_map_parameterDisplay_shouldAgreeWithTheDomain()
+{
+    // The domain names its curves after the knob's, so that a value shown outside a dialog reads as
+    // the knob reads it. Two copies of one curve can only stay one curve if something checks them.
+    KnobController controller;
+    const AutoFilter filter;
+    for (const auto & [name, parameter] : filter.parameters()) {
+        if (const auto & display = parameter.display(); display) {
+            const auto mapping = QString::fromStdString(display->mappingName());
+            for (const double position : { 0.0, 0.2, 0.5, 0.75, 1.0 }) {
+                const double knob = controller.map(position, mapping, display->min, display->max);
+                QVERIFY2(std::abs(knob - display->toUnits(position)) < 1.0e-9, name.c_str());
+                QVERIFY2(std::abs(controller.unmap(knob, mapping, display->min, display->max) - display->toPosition(knob)) < 1.0e-9, name.c_str());
+            }
+        }
+    }
 }
 
 } // namespace noteahead

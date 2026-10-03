@@ -34,6 +34,12 @@ private slots:
     void test_setFromXml_shouldAuthorValue();
     void test_container_clearAutomation_shouldRestoreEveryParameter();
     void test_container_parameterSnapshot_shouldHoldAuthoredValues();
+
+    void test_display_linear_shouldRoundTrip();
+    void test_display_curvedMappings_shouldRoundTrip();
+    void test_display_toPosition_outOfRange_shouldClamp();
+    void test_display_restPosition_shouldFollowTheRest();
+    void test_container_setParameterDisplay_shouldAttachIt();
 };
 
 } // namespace noteahead

@@ -39,6 +39,13 @@ void ParameterContainer::addParameter(Parameter parameter)
     m_parameters.emplace(name, std::move(parameter));
 }
 
+void ParameterContainer::setParameterDisplay(const std::string & name, ParameterDisplay display)
+{
+    if (const auto p = parameter(name); p) {
+        p->get().setDisplay(std::move(display));
+    }
+}
+
 ParameterContainer::ParameterOpt ParameterContainer::parameter(const std::string & name)
 {
     if (const auto it = m_parameters.find(name); it != m_parameters.end()) {
