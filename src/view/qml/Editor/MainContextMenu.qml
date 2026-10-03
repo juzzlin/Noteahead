@@ -58,5 +58,10 @@ Menu {
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEditPitchBendAutomationsDialog()
     }
+    Action {
+        text: qsTr("Edit parameter automations (ALL)...")
+        enabled: !UiService.isPlaying()
+        onTriggered: UiService.requestEditParameterAutomationsDialog()
+    }
     delegate: MenuItemDelegate {}
 }

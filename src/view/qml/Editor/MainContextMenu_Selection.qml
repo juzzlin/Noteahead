@@ -106,5 +106,10 @@ Menu {
         enabled: !UiService.isPlaying() && selectionService.isValidSelection
         onTriggered: UiService.requestSelectionAddPitchBendAutomationDialog()
     }
+    Action {
+        text: qsTr("Add parameter automation...")
+        enabled: !UiService.isPlaying() && selectionService.isValidSelection
+        onTriggered: UiService.requestSelectionAddParameterAutomationDialog()
+    }
     delegate: MenuItemDelegate {}
 }

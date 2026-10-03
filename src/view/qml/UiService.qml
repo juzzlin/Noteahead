@@ -21,6 +21,7 @@ QtObject {
     signal audioAnalysisDialogRequested
     signal activeOctaveChanged(int activeOctave)
     signal columnAddMidiCcAutomationDialogRequested
+    signal columnAddParameterAutomationDialogRequested
     signal columnAddPitchBendAutomationDialogRequested
     signal columnSettingsDialogRequested(int trackIndex, int columnIndex)
     signal columnVelocityInterpolationDialogRequested
@@ -56,6 +57,11 @@ QtObject {
     signal editMidiCcAutomationsDialogByPatternRequested
     signal editMidiCcAutomationsDialogByTrackRequested
     signal editMidiCcAutomationsDialogRequested
+    signal editParameterAutomationsDialogByColumnRequested
+    signal editParameterAutomationsDialogByLineRequested
+    signal editParameterAutomationsDialogByPatternRequested
+    signal editParameterAutomationsDialogByTrackRequested
+    signal editParameterAutomationsDialogRequested
     signal editPitchBendAutomationsDialogByColumnRequested
     signal editPitchBendAutomationsDialogByLineRequested
     signal editPitchBendAutomationsDialogByPatternRequested
@@ -68,6 +74,7 @@ QtObject {
     signal focusOnEditorViewRequested
     signal gainConverterDialogRequested
     signal lineAddMidiCcAutomationDialogRequested
+    signal lineAddParameterAutomationDialogRequested
     signal lineAddPitchBendAutomationDialogRequested
     signal lineDelayDialogRequested
     signal manualDialogRequested
@@ -79,6 +86,7 @@ QtObject {
     signal renderProgressDialogRequested
     signal samplerDialogRequested
     signal selectionAddMidiCcAutomationDialogRequested
+    signal selectionAddParameterAutomationDialogRequested
     signal selectionAddPitchBendAutomationDialogRequested
     signal selectionVelocityInterpolationDialogRequested
     signal settingsDialogRequested
@@ -428,6 +436,46 @@ QtObject {
     function requestEditPitchBendAutomationsDialogByPattern(): void {
         if (!isPlaying()) {
             editPitchBendAutomationsDialogByPatternRequested();
+        }
+    }
+    function requestLineAddParameterAutomationDialog(): void {
+        if (!isPlaying()) {
+            lineAddParameterAutomationDialogRequested();
+        }
+    }
+    function requestColumnAddParameterAutomationDialog(): void {
+        if (!isPlaying()) {
+            columnAddParameterAutomationDialogRequested();
+        }
+    }
+    function requestSelectionAddParameterAutomationDialog(): void {
+        if (!isPlaying()) {
+            selectionAddParameterAutomationDialogRequested();
+        }
+    }
+    function requestEditParameterAutomationsDialog(): void {
+        if (!isPlaying()) {
+            editParameterAutomationsDialogRequested();
+        }
+    }
+    function requestEditParameterAutomationsDialogByLine(): void {
+        if (!isPlaying()) {
+            editParameterAutomationsDialogByLineRequested();
+        }
+    }
+    function requestEditParameterAutomationsDialogByColumn(): void {
+        if (!isPlaying()) {
+            editParameterAutomationsDialogByColumnRequested();
+        }
+    }
+    function requestEditParameterAutomationsDialogByTrack(): void {
+        if (!isPlaying()) {
+            editParameterAutomationsDialogByTrackRequested();
+        }
+    }
+    function requestEditParameterAutomationsDialogByPattern(): void {
+        if (!isPlaying()) {
+            editParameterAutomationsDialogByPatternRequested();
         }
     }
     function requestFocusOnEditorView(): void {

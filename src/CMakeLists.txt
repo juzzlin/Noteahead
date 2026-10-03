@@ -76,6 +76,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/AboutDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddMidiCcAutomationDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddMidiCcSettingDialog.qml
+    ${QML_BASE_DIR}/Dialogs/AddParameterAutomationDialog.qml
     ${QML_BASE_DIR}/Dialogs/AddPitchBendAutomationDialog.qml
     ${QML_BASE_DIR}/Dialogs/AirBandEqDialog.qml
     ${QML_BASE_DIR}/Dialogs/AllPassFilterDialog.qml
@@ -131,6 +132,8 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/DrumSynthV2Dialog_WaveformView.qml
     ${QML_BASE_DIR}/Dialogs/EditMidiCcAutomationsDelegate.qml
     ${QML_BASE_DIR}/Dialogs/EditMidiCcAutomationsDialog.qml
+    ${QML_BASE_DIR}/Dialogs/EditParameterAutomationsDelegate.qml
+    ${QML_BASE_DIR}/Dialogs/EditParameterAutomationsDialog.qml
     ${QML_BASE_DIR}/Dialogs/EditPitchBendAutomationsDelegate.qml
     ${QML_BASE_DIR}/Dialogs/EditPitchBendAutomationsDialog.qml
     ${QML_BASE_DIR}/Dialogs/EarlyReflectionsDialog.qml
@@ -224,6 +227,8 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/StringVoiceDialog_Voice.qml
     ${QML_BASE_DIR}/Dialogs/StringVoiceV2Dialog_Voice.qml
     ${QML_BASE_DIR}/Dialogs/StringVoiceV3Dialog_Voice.qml
+    ${QML_BASE_DIR}/Dialogs/ParameterAutomationModel.qml
+    ${QML_BASE_DIR}/Dialogs/ParameterAutomationTargets.js
     ${QML_BASE_DIR}/Dialogs/PitchBendAutomationModel.qml
     ${QML_BASE_DIR}/Dialogs/RecentFilesDialog.qml
     ${QML_BASE_DIR}/Dialogs/RenderProgressDialog.qml
@@ -386,6 +391,10 @@ set(PNG_SOURCE_FILES
     ${QML_BASE_DIR}/Graphics/solo.png
     ${QML_BASE_DIR}/Graphics/stop.png
 )
+
+# A plain script rather than a library, so that it sees the context properties of the documents
+# importing it. Left out of the qmldir, or every document in the module would evaluate it too.
+set_source_files_properties(${QML_BASE_DIR}/Dialogs/ParameterAutomationTargets.js PROPERTIES QT_QML_SKIP_QMLDIR_ENTRY TRUE)
 
 # NO_IMPORT_SCAN: Qt runs qmlimportscanner at finalization to statically link the QML plugins an
 # application imports. That is only meaningful against a static Qt. Against the shared Qt every

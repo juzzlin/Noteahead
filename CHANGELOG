@@ -5,6 +5,10 @@ Release date:
 
 New features:
 
+* Parameter automation
+  - Automate an effect's parameters directly, in their own units (Hz, ms, dB)
+  - Relative mode scales the knob's own setting, like Expression
+
 * Reverb, Compressor, Endless Reverb, Multiband Compressor and Early Reflections
   - Save and delete presets of your own, as on the other effects
 

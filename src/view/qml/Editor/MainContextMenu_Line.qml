@@ -61,5 +61,16 @@ Menu {
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEditPitchBendAutomationsDialogByLine()
     }
+    MenuSeparator {}
+    Action {
+        text: qsTr("Add parameter automation...")
+        enabled: !UiService.isPlaying()
+        onTriggered: UiService.requestLineAddParameterAutomationDialog()
+    }
+    Action {
+        text: qsTr("Edit parameter automations...")
+        enabled: !UiService.isPlaying()
+        onTriggered: UiService.requestEditParameterAutomationsDialogByLine()
+    }
     delegate: MenuItemDelegate {}
 }

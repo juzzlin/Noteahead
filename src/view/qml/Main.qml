@@ -915,6 +915,24 @@ ApplicationWindow {
             }
         }
     }
+    AddParameterAutomationDialog {
+        id: addParameterAutomationDialog
+        anchors.centerIn: parent
+        onAccepted: {
+            const position = editorService.position;
+            const automationId = automationService.addParameterAutomation(position.pattern, position.track, position.column, form.effectId(), form.parameterKey(), form.mode(), form.startLine(), form.endLine(), form.startValue(), form.endValue(), form.curve(), form.comment(), form.eventsPerBeat(), form.lineOffset());
+            if (form.cycles() > 0 || form.amplitude() > 0 || form.offset() !== 0) {
+                automationService.addParameterModulation(automationId, form.modulationType(), form.cycles(), form.amplitude(), form.offset(), form.inverted());
+            }
+            selectionService.clear();
+            bottomBar.setStatusText(qsTr("Parameter automation added"));
+        }
+    }
+    EditParameterAutomationsDialog {
+        id: editParameterAutomationsDialog
+        anchors.centerIn: parent
+        onAccepted: parameterAutomationsModel.applyAll()
+    }
     EditPitchBendAutomationsDialog {
         id: editPitchBendAutomationsDialog
         anchors.centerIn: parent
@@ -1434,6 +1452,47 @@ ApplicationWindow {
             pitchBendAutomationsModel.requestPitchBendAutomationsByPattern(position.pattern);
             editPitchBendAutomationsDialog.setTitle(qsTr("Edit Pitch Bend automations by pattern"));
             editPitchBendAutomationsDialog.open();
+        });
+        UiService.lineAddParameterAutomationDialogRequested.connect(() => {
+            addParameterAutomationDialog.setTitle(qsTr("Add parameter automation"));
+            addParameterAutomationDialog.openForLines(editorService.position.line, editorService.position.line);
+        });
+        UiService.columnAddParameterAutomationDialogRequested.connect(() => {
+            addParameterAutomationDialog.setTitle(qsTr("Add parameter automation"));
+            addParameterAutomationDialog.openForLines(0, editorService.currentLineCount - 1);
+        });
+        UiService.selectionAddParameterAutomationDialogRequested.connect(() => {
+            addParameterAutomationDialog.setTitle(qsTr("Add parameter automation"));
+            addParameterAutomationDialog.openForLines(selectionService.minLine(), selectionService.maxLine());
+        });
+        UiService.editParameterAutomationsDialogRequested.connect(() => {
+            parameterAutomationsModel.requestParameterAutomations();
+            editParameterAutomationsDialog.setTitle(qsTr("Edit parameter automations"));
+            editParameterAutomationsDialog.open();
+        });
+        UiService.editParameterAutomationsDialogByLineRequested.connect(() => {
+            const position = editorService.position;
+            parameterAutomationsModel.requestParameterAutomationsByLine(position.pattern, position.track, position.column, position.line);
+            editParameterAutomationsDialog.setTitle(qsTr("Edit parameter automations by line"));
+            editParameterAutomationsDialog.open();
+        });
+        UiService.editParameterAutomationsDialogByColumnRequested.connect(() => {
+            const position = editorService.position;
+            parameterAutomationsModel.requestParameterAutomationsByColumn(position.pattern, position.track, position.column);
+            editParameterAutomationsDialog.setTitle(qsTr("Edit parameter automations by column"));
+            editParameterAutomationsDialog.open();
+        });
+        UiService.editParameterAutomationsDialogByTrackRequested.connect(() => {
+            const position = editorService.position;
+            parameterAutomationsModel.requestParameterAutomationsByTrack(position.pattern, position.track);
+            editParameterAutomationsDialog.setTitle(qsTr("Edit parameter automations by track"));
+            editParameterAutomationsDialog.open();
+        });
+        UiService.editParameterAutomationsDialogByPatternRequested.connect(() => {
+            const position = editorService.position;
+            parameterAutomationsModel.requestParameterAutomationsByPattern(position.pattern);
+            editParameterAutomationsDialog.setTitle(qsTr("Edit parameter automations by pattern"));
+            editParameterAutomationsDialog.open();
         });
         UiService.delayCalculatorDialogRequested.connect(() => {
             delayCalculatorDialog.bpm = editorService.beatsPerMinute;

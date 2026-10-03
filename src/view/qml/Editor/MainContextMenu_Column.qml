@@ -200,5 +200,16 @@ Menu {
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEditPitchBendAutomationsDialogByColumn()
     }
+    MenuSeparator {}
+    Action {
+        text: qsTr("Add parameter automation...")
+        enabled: !UiService.isPlaying()
+        onTriggered: UiService.requestColumnAddParameterAutomationDialog()
+    }
+    Action {
+        text: qsTr("Edit parameter automations...")
+        enabled: !UiService.isPlaying()
+        onTriggered: UiService.requestEditParameterAutomationsDialogByColumn()
+    }
     delegate: MenuItemDelegate {}
 }

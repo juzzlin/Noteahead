@@ -193,5 +193,10 @@ Menu {
         enabled: !UiService.isPlaying()
         onTriggered: UiService.requestEditPitchBendAutomationsDialogByTrack()
     }
+    Action {
+        text: qsTr("Edit parameter automations...")
+        enabled: !UiService.isPlaying()
+        onTriggered: UiService.requestEditParameterAutomationsDialogByTrack()
+    }
     delegate: MenuItemDelegate {}
 }
