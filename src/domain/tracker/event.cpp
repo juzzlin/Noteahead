@@ -43,6 +43,13 @@ Event::Event(size_t tick, PitchBendDataCR pitchBendData)
 {
 }
 
+Event::Event(size_t tick, ParameterDataCR parameterData)
+  : m_tick { tick }
+  , m_type { Event::Type::ParameterData }
+  , m_data { parameterData }
+{
+}
+
 Event::Event(size_t tick, InstrumentSettingsS instrumentSettings)
   : m_tick { tick }
   , m_type { Event::Type::InstrumentSettings }
@@ -165,6 +172,14 @@ Event::PitchBendDataOpt Event::pitchBendData() const
 {
     if (auto pitchBendData = std::get_if<PitchBendData>(&m_data)) {
         return *pitchBendData;
+    }
+    return std::nullopt;
+}
+
+Event::ParameterDataOpt Event::parameterData() const
+{
+    if (auto parameterData = std::get_if<ParameterData>(&m_data)) {
+        return *parameterData;
     }
     return std::nullopt;
 }

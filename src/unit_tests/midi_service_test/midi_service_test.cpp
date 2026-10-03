@@ -22,8 +22,10 @@
 #include "../../domain/devices/device_factory.hpp"
 #include "../../domain/devices/drum_synth_constants.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
+#include "../../domain/effects/auto_filter.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/tracker/instrument.hpp"
+#include "../../domain/tracker/parameter_data.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
 
@@ -137,6 +139,29 @@ void MidiServiceTest::test_instrumentRequest_internalDevice_applyPatch_shouldNot
     setup.midiService->handleInstrumentRequest({ InstrumentRequest::Type::ApplyPatch, setup.instrument });
 
     QVERIFY(qFuzzyCompare(kickHpfCutoff(*setup.device), originalValue));
+}
+
+void MidiServiceTest::test_sendParameterData_shouldReachTheEffectOnTheAudioThread()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    TestMidiService midiService { deviceService };
+    const auto filter = std::make_shared<AutoFilter>();
+    deviceService->insertEffectRack().setEffect(0, filter);
+    const auto cutoffKey = Constants::NahdXml::xmlKeyCutoff().toStdString();
+    const auto authored = filter->parameter(cutoffKey)->get().authoredValue();
+
+    // The way the player sends it when the stream cannot place it: no time, so the next block.
+    midiService.sendParameterData(ParameterData { 0, 0, filter, cutoffKey, ParameterAutomation::Mode::Absolute, 0.3 }, std::nullopt);
+
+    // Not written by the sender: only the audio thread touches the effect
+    QCOMPARE(filter->parameter(cutoffKey)->get().value(), authored);
+
+    std::vector<double> buffer(128 * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), 128, 48000 };
+    audioEngine->process(context);
+
+    QVERIFY(std::abs(filter->parameter(cutoffKey)->get().value() - 0.3f) < 1.0e-6f);
 }
 
 } // namespace noteahead

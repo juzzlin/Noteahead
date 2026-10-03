@@ -40,6 +40,7 @@ class AudioEngine;
 class AudioFileReader;
 class DataService;
 class Instrument;
+class ParameterData;
 class ProjectReader;
 class ProjectWriter;
 class SynthDevice;
@@ -122,7 +123,8 @@ public:
     //! MIDI CC -- from automations, from a controller, from a track's instrument settings -- writes
     //! only the live layer of a parameter, so this is what makes the panels and the sound return to
     //! the patch once the transport stops. Devices also do it themselves on CC 121; this is the
-    //! sweep for everything the message never reached.
+    //! sweep for everything the message never reached. Effects driven by a parameter automation
+    //! go back to their authored values here too.
     void clearAutomation();
 
     using InternalDeviceNames = std::vector<std::string>;
@@ -195,6 +197,14 @@ public:
     //! The effects a send bus runs after its own effect. See AudioEngine::sendChainRack().
     EffectRack & sendChainRack(size_t busIndex);
     size_t sendChainRackCount() const;
+
+    //! The effect with the given id, wherever it sits: a device's own racks, the master inserts, a
+    //! send bus or a send chain. Nothing when no effect in the project has that id. See Effect::id().
+    std::shared_ptr<Effect> findEffect(const std::string & id) const;
+
+    //! Hands a parameter automation step to the audio thread, to take effect at @p frame or, with
+    //! no frame, at the start of the next block. See AudioEngine::scheduleParameterChange().
+    void scheduleParameterChange(const ParameterData & data, std::optional<uint64_t> frame);
 
 signals:
     void dataChanged();

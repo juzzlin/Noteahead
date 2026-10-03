@@ -19,8 +19,11 @@
 #include "../../common/utils.hpp"
 #include "../../common/xml/project_reader.hpp"
 #include "../../common/xml/project_writer.hpp"
+#include "parameter.hpp"
 
 #include <QVariant>
+
+#include <algorithm>
 
 namespace noteahead {
 
@@ -130,6 +133,17 @@ uint8_t ParameterAutomation::lineOffset() const
 void ParameterAutomation::setLineOffset(uint8_t lineOffset)
 {
     m_lineOffset = lineOffset;
+}
+
+float ParameterAutomation::effectiveValue(Mode mode, double value, const Parameter & parameter)
+{
+    const double position = std::clamp(value, 0.0, 1.0);
+    if (mode == Mode::Absolute) {
+        return static_cast<float>(position);
+    }
+    const double rest = parameter.display() ? parameter.display()->restPosition() : 0.0;
+    const double knob = static_cast<double>(parameter.authoredValue());
+    return static_cast<float>(rest + (knob - rest) * position);
 }
 
 QString ParameterAutomation::toString() const

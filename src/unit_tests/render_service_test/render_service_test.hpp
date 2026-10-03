@@ -14,6 +14,7 @@ private slots:
     void test_renderIndividualTracks_shouldRestoreMixerState();
     void test_renderMaster_secondRender_shouldStartFromZeroProgress();
     void test_renderMaster_shouldGiveTheDeviceTheNoteLength();
+    void test_renderMaster_parameterAutomation_shouldSweepTheEffect();
 };
 
 } // namespace noteahead

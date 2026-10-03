@@ -29,6 +29,7 @@ private slots:
     void cleanupTestCase();
 
     void test_instrumentRequest_internalDevice_applyAll_shouldApplyMidiCcSettings();
+    void test_sendParameterData_shouldReachTheEffectOnTheAudioThread();
     void test_instrumentRequest_internalDevice_applyMidiCc_shouldApplyMidiCcSettings();
     void test_instrumentRequest_internalDevice_disabledSetting_shouldNotApplyMidiCcSetting();
     void test_instrumentRequest_internalDevice_applyPatch_shouldNotApplyMidiCcSettings();

@@ -40,6 +40,11 @@ private slots:
     void test_display_toPosition_outOfRange_shouldClamp();
     void test_display_restPosition_shouldFollowTheRest();
     void test_container_setParameterDisplay_shouldAttachIt();
+
+    void test_effectiveValue_absolute_shouldBeThePosition();
+    void test_effectiveValue_relative_shouldScaleFromTheMinimum();
+    void test_effectiveValue_relativeCentred_shouldScaleFromTheCentre();
+    void test_effectiveValue_relative_shouldFollowTheAuthoredValue();
 };
 
 } // namespace noteahead

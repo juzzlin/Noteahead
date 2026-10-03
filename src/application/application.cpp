@@ -593,6 +593,13 @@ void Application::connectAutomationService()
         }
         return QString {};
     });
+
+    m_automationService->setEffectResolver([deviceService = std::weak_ptr<DeviceService> { m_deviceService }](const std::string & id) -> std::shared_ptr<Effect> {
+        if (const auto locked = deviceService.lock()) {
+            return locked->findEffect(id);
+        }
+        return {};
+    });
 }
 
 void Application::connectMidiCcAutomationsModel()

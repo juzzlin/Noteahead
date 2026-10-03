@@ -18,6 +18,7 @@
 #include "../../application/position.hpp"
 #include "../../application/service/automation_service.hpp"
 #include "../../application/service/property_service.hpp"
+#include "../../domain/effects/auto_filter.hpp"
 #include "../../domain/midi/midi_cc_automation.hpp"
 #include "../../domain/tracker/interpolator.hpp"
 #include "../../domain/tracker/parameter_automation.hpp"
@@ -35,6 +36,14 @@ namespace {
 ParameterAutomation cutoffSweep(size_t pattern, size_t track, size_t column)
 {
     return ParameterAutomation { 0, AutomationLocation { pattern, track, column }, { ParameterAutomation::Target::Owner::Effect, "effect-1", "cutoff" }, ParameterAutomation::Mode::Absolute, { 2, 10, 0.25, 0.75 }, {}, {}, true };
+}
+
+//! An automation service whose parameter automations reach @p effect under the id "effect-1".
+void resolveTo(AutomationService & automationService, std::shared_ptr<Effect> effect)
+{
+    automationService.setEffectResolver([effect](const std::string & id) -> std::shared_ptr<Effect> {
+        return id == "effect-1" ? effect : nullptr;
+    });
 }
 
 } // namespace
@@ -814,6 +823,90 @@ void AutomationServiceTest::test_pitchBendAutomationsAsVariantList_shouldCarryEv
     QVERIFY(!entry.contains("controller"));
     QVERIFY(!entry.contains("eventsPerBeat"));
     QVERIFY(!entry.contains("lineOffset"));
+}
+
+void AutomationServiceTest::test_renderToEventsByColumn_parameter_shouldRenderEveryTick()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    resolveTo(automationService, std::make_shared<AutoFilter>());
+    // Lines 1..3, 0 to 1
+    automationService.addParameterAutomation({ 0, AutomationLocation { 0, 0, 0 }, { ParameterAutomation::Target::Owner::Effect, "effect-1", "cutoff" }, ParameterAutomation::Mode::Absolute, { 1, 3, 0.0, 1.0 }, {}, {}, true });
+
+    const size_t tick = 100;
+    const size_t ticksPerLine = 4;
+    const auto events = automationService.renderToEventsByColumn(0, 0, 0, tick, ticksPerLine, 4);
+
+    // Every tick from the first line to the last, not one event per line.
+    QCOMPARE(events.size(), size_t { 9 });
+    for (size_t i = 0; i < events.size(); i++) {
+        QCOMPARE(events.at(i)->type(), Event::Type::ParameterData);
+        QCOMPARE(events.at(i)->tick(), tick + ticksPerLine + i);
+        QVERIFY(std::abs(events.at(i)->parameterData()->value() - static_cast<double>(i) / 8.0) < 1.0e-12);
+    }
+    // Ends exactly where it was written to
+    QCOMPARE(events.back()->parameterData()->value(), 1.0);
+}
+
+void AutomationServiceTest::test_renderToEventsByColumn_parameter_shouldCarryTargetAndMode()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    const auto filter = std::make_shared<AutoFilter>();
+    resolveTo(automationService, filter);
+    automationService.addParameterAutomation({ 0, AutomationLocation { 0, 2, 1 }, { ParameterAutomation::Target::Owner::Effect, "effect-1", "cutoff" }, ParameterAutomation::Mode::Relative, { 0, 1, 1.0, 0.5 }, {}, {}, true });
+
+    const auto events = automationService.renderToEventsByColumn(0, 2, 1, 0, 2, 4);
+
+    QVERIFY(!events.empty());
+    const auto data = events.front()->parameterData();
+    QVERIFY(data.has_value());
+    QCOMPARE(data->effect().lock(), std::static_pointer_cast<Effect>(filter));
+    QCOMPARE(data->parameter(), std::string { "cutoff" });
+    QCOMPARE(data->mode(), ParameterAutomation::Mode::Relative);
+    QCOMPARE(data->track(), size_t { 2 });
+    QCOMPARE(data->column(), size_t { 1 });
+}
+
+void AutomationServiceTest::test_renderToEventsByColumn_parameter_eventsPerBeat_shouldStepOnLines()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    resolveTo(automationService, std::make_shared<AutoFilter>());
+    ParameterAutomation automation { 0, AutomationLocation { 0, 0, 0 }, { ParameterAutomation::Target::Owner::Effect, "effect-1", "cutoff" }, ParameterAutomation::Mode::Absolute, { 0, 8, 0.0, 1.0 }, {}, {}, true };
+    automation.setEventsPerBeat(2);
+    automationService.addParameterAutomation(automation);
+
+    const size_t ticksPerLine = 6;
+    const auto events = automationService.renderToEventsByColumn(0, 0, 0, 0, ticksPerLine, 4);
+
+    // Two a beat of four lines: lines 0, 2, 4, 6 and 8, each on its line's first tick.
+    QCOMPARE(events.size(), size_t { 5 });
+    for (size_t i = 0; i < events.size(); i++) {
+        QCOMPARE(events.at(i)->tick(), i * 2 * ticksPerLine);
+    }
+}
+
+void AutomationServiceTest::test_renderToEventsByColumn_parameter_modulationOffset_shouldBePercentOfTravel()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    resolveTo(automationService, std::make_shared<AutoFilter>());
+    ModulationParameters modulation;
+    modulation.offset = 10.0f;
+    automationService.addParameterAutomation({ 0, AutomationLocation { 0, 0, 0 }, { ParameterAutomation::Target::Owner::Effect, "effect-1", "cutoff" }, ParameterAutomation::Mode::Absolute, { 0, 1, 0.5, 0.5 }, modulation, {}, true });
+
+    const auto events = automationService.renderToEventsByColumn(0, 0, 0, 0, 4, 4);
+
+    QVERIFY(!events.empty());
+    QVERIFY(std::abs(events.front()->parameterData()->value() - 0.6) < 1.0e-9);
+}
+
+void AutomationServiceTest::test_renderToEventsByColumn_parameter_missingEffect_shouldRenderNothing()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    automationService.addParameterAutomation({ 0, AutomationLocation { 0, 0, 0 }, { ParameterAutomation::Target::Owner::Effect, "gone", "cutoff" }, ParameterAutomation::Mode::Absolute, { 0, 4, 0.0, 1.0 }, {}, {}, true });
+
+    // Neither without a resolver nor with one that cannot find the effect
+    QVERIFY(automationService.renderToEventsByColumn(0, 0, 0, 0, 4, 4).empty());
+    resolveTo(automationService, std::make_shared<AutoFilter>());
+    QVERIFY(automationService.renderToEventsByColumn(0, 0, 0, 0, 4, 4).empty());
 }
 
 } // namespace noteahead

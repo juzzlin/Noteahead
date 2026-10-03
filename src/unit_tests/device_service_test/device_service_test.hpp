@@ -42,6 +42,10 @@ private slots:
     void test_replaceDevice_subMixerMember_shouldKeepMembership();
     void test_copyDevice_shouldDuplicateParametersIntoTargetSlot();
     void test_copyDevice_shouldRenewEffectIds();
+    void test_findEffect_shouldSearchEveryRack();
+    void test_scheduleParameterChange_shouldApplyInTheBlockOfItsFrame();
+    void test_scheduleParameterChange_relative_shouldScaleTheKnob();
+    void test_clearAutomation_shouldRestoreAutomatedEffects();
     void test_copyDevice_differentType_shouldReplaceTargetDevice();
     void test_copyDevice_emptySource_shouldFail();
     void test_copyDevice_sameSlot_shouldFail();

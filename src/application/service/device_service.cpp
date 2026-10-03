@@ -23,6 +23,7 @@
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/effects/effect_rack.hpp"
 #include "../../domain/tracker/instrument.hpp"
+#include "../../domain/tracker/parameter_data.hpp"
 #include "../../domain/utility/lufs_meter.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
@@ -493,6 +494,7 @@ void DeviceService::applyInstrumentSettings(const Instrument & instrument)
 
 void DeviceService::clearAutomation()
 {
+    m_audioEngine->clearParameterAutomation();
     for (const auto & name : internalDeviceNames()) {
         if (const auto dev = device(name)) {
             dev->clearAutomation();
@@ -1102,6 +1104,51 @@ void DeviceService::resetLoudnessMeters()
 EffectRack & DeviceService::sendEffectRack()
 {
     return m_audioEngine->sendEffectRack();
+}
+
+std::shared_ptr<Effect> DeviceService::findEffect(const std::string & id) const
+{
+    if (id.empty()) {
+        return {};
+    }
+
+    const auto findIn = [&id](const EffectRack & rack) -> std::shared_ptr<Effect> {
+        for (auto && effect : rack.effects()) {
+            if (effect && effect->id() == id) {
+                return effect;
+            }
+        }
+        return {};
+    };
+
+    for (auto && name : internalDeviceNames()) {
+        if (const auto dev = device(name); dev) {
+            for (auto && rack : dev->effectRacks()) {
+                if (auto effect = findIn(rack.get()); effect) {
+                    return effect;
+                }
+            }
+        }
+    }
+
+    if (auto effect = findIn(m_audioEngine->insertEffectRack()); effect) {
+        return effect;
+    }
+    if (auto effect = findIn(m_audioEngine->sendEffectRack()); effect) {
+        return effect;
+    }
+    for (size_t bus = 0; bus < m_audioEngine->sendChainRackCount(); bus++) {
+        if (auto effect = findIn(m_audioEngine->sendChainRack(bus)); effect) {
+            return effect;
+        }
+    }
+
+    return {};
+}
+
+void DeviceService::scheduleParameterChange(const ParameterData & data, std::optional<uint64_t> frame)
+{
+    m_audioEngine->scheduleParameterChange({ data.effect(), data.parameter(), data.mode(), data.value(), frame });
 }
 
 EffectRack & DeviceService::sendChainRack(size_t busIndex)

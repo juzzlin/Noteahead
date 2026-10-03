@@ -25,6 +25,7 @@
 
 namespace noteahead {
 
+class Parameter;
 class ProjectReader;
 class ProjectWriter;
 
@@ -105,6 +106,14 @@ public:
 
     uint8_t lineOffset() const;
     void setLineOffset(uint8_t lineOffset);
+
+    //! The value @p parameter is to run at when an automation in @p mode reaches @p value.
+    //!
+    //! Relative scales the knob's own setting towards the control's rest point, so 1 is exactly the
+    //! knob and 0 is the rest: the bottom of the travel for most controls, the centre for one that
+    //! runs either way about off. Read from the authored value rather than the live one, so moving
+    //! the knob while the song plays moves the top of the automation with it.
+    static float effectiveValue(Mode mode, double value, const Parameter & parameter);
 
     void serializeToXml(ProjectWriter & writer) const;
     using ParameterAutomationU = std::unique_ptr<ParameterAutomation>;

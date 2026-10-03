@@ -23,8 +23,10 @@
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/sub_mixer_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
+#include "../../domain/effects/auto_filter.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/gain.hpp"
+#include "../../domain/tracker/parameter_data.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
@@ -499,6 +501,95 @@ void DeviceServiceTest::test_copyDevice_shouldRenewEffectIds()
     // Two effects sharing an id would leave an automation unable to tell them apart.
     QVERIFY(copy->insertEffectRack().effect(0)->id() != drums->insertEffectRack().effect(0)->id());
     QVERIFY(copy->voiceEffectRack(0).effect(0)->id() != drums->voiceEffectRack(0).effect(0)->id());
+}
+
+void DeviceServiceTest::test_findEffect_shouldSearchEveryRack()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    DeviceService service { audioEngine, std::make_shared<DataService>() };
+
+    const auto drums = std::make_shared<DrumSynthDevice>("TestDrums");
+    const auto inDeviceInsert = std::make_shared<Gain>();
+    const auto inVoiceRack = std::make_shared<Gain>();
+    drums->insertEffectRack().setEffect(2, inDeviceInsert);
+    drums->voiceEffectRack(3).setEffect(0, inVoiceRack);
+    service.setDevice(0, drums);
+
+    const auto inMasterInsert = std::make_shared<Gain>();
+    const auto inSend = std::make_shared<Gain>();
+    const auto inSendChain = std::make_shared<Gain>();
+    service.insertEffectRack().setEffect(1, inMasterInsert);
+    service.sendEffectRack().setEffect(0, inSend);
+    service.sendChainRack(1).setEffect(0, inSendChain);
+
+    for (auto && effect : std::vector<std::shared_ptr<Effect>> { inDeviceInsert, inVoiceRack, inMasterInsert, inSend, inSendChain }) {
+        QCOMPARE(service.findEffect(effect->id()), effect);
+    }
+    QVERIFY(!service.findEffect("no-such-effect"));
+    QVERIFY(!service.findEffect({}));
+}
+
+void DeviceServiceTest::test_scheduleParameterChange_shouldApplyInTheBlockOfItsFrame()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    DeviceService service { audioEngine, std::make_shared<DataService>() };
+    const auto filter = std::make_shared<AutoFilter>();
+    service.insertEffectRack().setEffect(0, filter);
+    const auto cutoffKey = Constants::NahdXml::xmlKeyCutoff().toStdString();
+    const auto authored = filter->parameter(cutoffKey)->get().authoredValue();
+
+    service.scheduleParameterChange(ParameterData { 0, 0, filter, cutoffKey, ParameterAutomation::Mode::Absolute, 0.25 }, 1000);
+
+    std::vector<double> buffer(512 * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), 512, 48000 };
+    audioEngine->process(context); // Frames 0..511: not yet
+    QCOMPARE(filter->parameter(cutoffKey)->get().value(), authored);
+    audioEngine->process(context); // Frames 512..1023: the block that holds frame 1000
+    QCOMPARE(filter->parameter(cutoffKey)->get().value(), 0.25f);
+    // The live layer only: the project keeps the knob
+    QCOMPARE(filter->parameter(cutoffKey)->get().authoredValue(), authored);
+}
+
+void DeviceServiceTest::test_scheduleParameterChange_relative_shouldScaleTheKnob()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    DeviceService service { audioEngine, std::make_shared<DataService>() };
+    const auto filter = std::make_shared<AutoFilter>();
+    service.insertEffectRack().setEffect(0, filter);
+    const auto cutoffKey = Constants::NahdXml::xmlKeyCutoff().toStdString();
+    filter->parameter(cutoffKey)->get().setValue(0.8f);
+
+    service.scheduleParameterChange(ParameterData { 0, 0, filter, cutoffKey, ParameterAutomation::Mode::Relative, 0.5 }, std::nullopt);
+    std::vector<double> buffer(256 * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), 256, 48000 };
+    audioEngine->process(context);
+
+    QVERIFY(std::abs(filter->parameter(cutoffKey)->get().value() - 0.4f) < 1.0e-6f);
+}
+
+void DeviceServiceTest::test_clearAutomation_shouldRestoreAutomatedEffects()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    DeviceService service { audioEngine, std::make_shared<DataService>() };
+    const auto filter = std::make_shared<AutoFilter>();
+    service.insertEffectRack().setEffect(0, filter);
+    const auto cutoffKey = Constants::NahdXml::xmlKeyCutoff().toStdString();
+    const auto authored = filter->parameter(cutoffKey)->get().authoredValue();
+
+    service.scheduleParameterChange(ParameterData { 0, 0, filter, cutoffKey, ParameterAutomation::Mode::Absolute, 0.1 }, std::nullopt);
+    // Still queued when the transport stops: must not land afterwards either
+    service.scheduleParameterChange(ParameterData { 0, 0, filter, cutoffKey, ParameterAutomation::Mode::Absolute, 0.9 }, 1'000'000);
+    std::vector<double> buffer(256 * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), 256, 48000 };
+    audioEngine->process(context);
+    QCOMPARE(filter->parameter(cutoffKey)->get().value(), 0.1f);
+
+    service.clearAutomation();
+    QCOMPARE(filter->parameter(cutoffKey)->get().value(), authored);
+    QVERIFY(!filter->isAutomated());
+
+    audioEngine->process(context);
+    QCOMPARE(filter->parameter(cutoffKey)->get().value(), authored);
 }
 
 void DeviceServiceTest::test_copyDevice_differentType_shouldReplaceTargetDevice()

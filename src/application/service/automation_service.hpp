@@ -37,6 +37,7 @@ class ProjectWriter;
 
 struct Position;
 
+class Effect;
 class PropertyService;
 
 class AutomationService : public QObject
@@ -54,6 +55,12 @@ public:
     //! this service out of the song's business.
     using PortNameResolver = std::function<QString(size_t track)>;
     void setPortNameResolver(PortNameResolver resolver);
+
+    //! Finds the effect a parameter automation names. Injected for the same reason as the port
+    //! resolver: where effects live is the device service's business, not this one's. Without it,
+    //! or for an effect that is gone, a parameter automation renders nothing.
+    using EffectResolver = std::function<std::shared_ptr<Effect>(const std::string & id)>;
+    void setEffectResolver(EffectResolver resolver);
 
     void clear();
 
@@ -179,6 +186,15 @@ private:
     EventList renderPitchBendToEventsByLine(size_t pattern, size_t track, size_t column, size_t line, size_t tick) const;
     EventList renderMidiCcToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine, size_t linesPerBeat) const;
     EventList renderPitchBendToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine) const;
+    EventList renderParameterToEventsByLine(size_t pattern, size_t track, size_t column, size_t line, size_t tick) const;
+    EventList renderParameterToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine, size_t linesPerBeat) const;
+
+    //! Interpolation plus modulation of a parameter automation at a point that may fall between
+    //! lines, as a knob position.
+    double parameterValueAt(const ParameterAutomation & automation, double line) const;
+
+    //! Whether an automation thinned to @p eventsPerBeat, shifted by @p lineOffset, fires on @p line.
+    static bool firesOnLine(size_t line, uint8_t eventsPerBeat, uint8_t lineOffset, size_t linesPerBeat);
 
     double sineModulationValue(const ModulationParameters & modulation, double phase) const;
     double randomModulationValue(size_t automationId, const ModulationParameters & modulation, double phase) const;
@@ -196,6 +212,7 @@ private:
     Automations m_automations;
     std::shared_ptr<PropertyService> m_propertyService;
     PortNameResolver m_portNameResolver;
+    EffectResolver m_effectResolver;
 };
 
 } // namespace noteahead

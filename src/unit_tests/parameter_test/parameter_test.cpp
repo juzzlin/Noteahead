@@ -16,6 +16,7 @@
 #include "parameter_test.hpp"
 
 #include "../../domain/tracker/parameter.hpp"
+#include "../../domain/tracker/parameter_automation.hpp"
 #include "../../domain/tracker/parameter_container.hpp"
 #include "../../domain/tracker/parameter_display.hpp"
 
@@ -211,6 +212,49 @@ void ParameterTest::test_container_setParameterDisplay_shouldAttachIt()
     // An unknown name is ignored rather than creating a parameter.
     container.setParameterDisplay("missing", {});
     QVERIFY(!container.parameter("missing").has_value());
+}
+
+void ParameterTest::test_effectiveValue_absolute_shouldBeThePosition()
+{
+    const auto parameter = continuousParameter();
+    QCOMPARE(ParameterAutomation::effectiveValue(ParameterAutomation::Mode::Absolute, 0.6, parameter), 0.6f);
+    QCOMPARE(ParameterAutomation::effectiveValue(ParameterAutomation::Mode::Absolute, 1.4, parameter), 1.0f);
+}
+
+void ParameterTest::test_effectiveValue_relative_shouldScaleFromTheMinimum()
+{
+    auto parameter = continuousParameter();
+    parameter.setValue(0.8f);
+
+    // All the way is the knob itself, nothing is the bottom, and half is half the travel between.
+    QCOMPARE(ParameterAutomation::effectiveValue(ParameterAutomation::Mode::Relative, 1.0, parameter), 0.8f);
+    QCOMPARE(ParameterAutomation::effectiveValue(ParameterAutomation::Mode::Relative, 0.0, parameter), 0.0f);
+    QVERIFY(std::abs(ParameterAutomation::effectiveValue(ParameterAutomation::Mode::Relative, 0.5, parameter) - 0.4f) < 1.0e-6f);
+}
+
+void ParameterTest::test_effectiveValue_relativeCentred_shouldScaleFromTheCentre()
+{
+    // A control that runs either way about off: scaling it down fades it out rather than inverting it.
+    auto parameter = continuousParameter();
+    parameter.setDisplay({ ParameterDisplay::Mapping::CubicCentered, "%", -100.0, 100.0, ParameterDisplay::Rest::Centre });
+    parameter.setValue(0.9f);
+
+    QCOMPARE(ParameterAutomation::effectiveValue(ParameterAutomation::Mode::Relative, 0.0, parameter), 0.5f);
+    QVERIFY(std::abs(ParameterAutomation::effectiveValue(ParameterAutomation::Mode::Relative, 0.5, parameter) - 0.7f) < 1.0e-6f);
+
+    // Below the centre too
+    parameter.setValue(0.1f);
+    QVERIFY(std::abs(ParameterAutomation::effectiveValue(ParameterAutomation::Mode::Relative, 0.5, parameter) - 0.3f) < 1.0e-6f);
+}
+
+void ParameterTest::test_effectiveValue_relative_shouldFollowTheAuthoredValue()
+{
+    // What the automation wrote last is not the knob, and scaling that would compound every step.
+    auto parameter = continuousParameter();
+    parameter.setValue(0.8f);
+    parameter.setAutomationValue(0.2f);
+
+    QCOMPARE(ParameterAutomation::effectiveValue(ParameterAutomation::Mode::Relative, 1.0, parameter), 0.8f);
 }
 
 } // namespace noteahead

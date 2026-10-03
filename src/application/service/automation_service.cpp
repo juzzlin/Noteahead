@@ -22,6 +22,7 @@
 #include "../../domain/midi/midi_cc_data.hpp"
 #include "../../domain/midi/pitch_bend_data.hpp"
 #include "../../domain/tracker/interpolator.hpp"
+#include "../../domain/tracker/parameter_data.hpp"
 #include "../position.hpp"
 #include "property_service.hpp"
 
@@ -42,6 +43,11 @@ AutomationService::AutomationService(std::shared_ptr<PropertyService> propertySe
 void AutomationService::setPortNameResolver(PortNameResolver resolver)
 {
     m_portNameResolver = std::move(resolver);
+}
+
+void AutomationService::setEffectResolver(EffectResolver resolver)
+{
+    m_effectResolver = std::move(resolver);
 }
 
 int AutomationService::controllerMaxValue(uint8_t controller, size_t track) const
@@ -600,6 +606,7 @@ AutomationService::EventList AutomationService::renderToEventsByLine(size_t patt
     EventList events;
     std::ranges::copy(renderMidiCcToEventsByLine(pattern, track, column, line, tick), std::back_inserter(events));
     std::ranges::copy(renderPitchBendToEventsByLine(pattern, track, column, line, tick), std::back_inserter(events));
+    std::ranges::copy(renderParameterToEventsByLine(pattern, track, column, line, tick), std::back_inserter(events));
     return events;
 }
 
@@ -725,6 +732,121 @@ AutomationService::EventList AutomationService::renderToEventsByColumn(size_t pa
     EventList events;
     std::ranges::copy(renderMidiCcToEventsByColumn(pattern, track, column, tick, ticksPerLine, linesPerBeat), std::back_inserter(events));
     std::ranges::copy(renderPitchBendToEventsByColumn(pattern, track, column, tick, ticksPerLine), std::back_inserter(events));
+    std::ranges::copy(renderParameterToEventsByColumn(pattern, track, column, tick, ticksPerLine, linesPerBeat), std::back_inserter(events));
+    return events;
+}
+
+bool AutomationService::firesOnLine(size_t line, uint8_t eventsPerBeat, uint8_t lineOffset, size_t linesPerBeat)
+{
+    const double interval = static_cast<double>(linesPerBeat) / static_cast<double>(eventsPerBeat);
+    const size_t beatRelativeLine = line % linesPerBeat;
+    for (int i = 0; i < eventsPerBeat; ++i) {
+        if (const size_t fireLine = (static_cast<size_t>(std::round(i * interval)) + lineOffset) % linesPerBeat; beatRelativeLine == fireLine) {
+            return true;
+        }
+    }
+    return false;
+}
+
+double AutomationService::parameterValueAt(const ParameterAutomation & automation, double line) const
+{
+    const auto & interpolation = automation.interpolation();
+    const auto & modulation = automation.modulation();
+
+    const double span = static_cast<double>(interpolation.line1) - static_cast<double>(interpolation.line0);
+    const double phase = span > 0.0 ? std::clamp((line - static_cast<double>(interpolation.line0)) / span, 0.0, 1.0) : 0.0;
+    double value = interpolation.value0 + Interpolator::applyCurve(interpolation.curve, phase) * (interpolation.value1 - interpolation.value0);
+
+    // Amplitude and offset are percent of the knob's travel, the whole of which is 0 to 1 here.
+    double totalModulation = 0.0;
+    if (modulation.cycles > 0.f || modulation.amplitude > 0.f) {
+        const double modulationValue = modulation.type == ModulationParameters::ModulationType::Random ? randomModulationValue(automation.id(), modulation, phase) : sineModulationValue(modulation, phase);
+        totalModulation = modulationValue * modulation.amplitude / 100.0;
+    }
+    totalModulation += modulation.offset / 100.0;
+    value += totalModulation;
+
+    return std::clamp(value, 0.0, 1.0);
+}
+
+AutomationService::EventList AutomationService::renderParameterToEventsByLine(size_t pattern, size_t track, size_t column, size_t line, size_t tick) const
+{
+    EventList events;
+    if (!m_effectResolver) {
+        return events;
+    }
+
+    for (const auto & automation : m_automations.parameter) {
+        const auto & location = automation.location();
+        const auto & interpolation = automation.interpolation();
+        if (automation.enabled() && location.pattern() == pattern && location.track() == track && location.column() == column && line >= interpolation.line0 && line <= interpolation.line1) {
+            if (const auto effect = m_effectResolver(automation.target().ownerId); effect) {
+                events.push_back(std::make_shared<Event>(tick, ParameterData { track, column, effect, automation.target().parameter, automation.mode(), parameterValueAt(automation, static_cast<double>(line)) }));
+            }
+        }
+    }
+
+    return events;
+}
+
+AutomationService::EventList AutomationService::renderParameterToEventsByColumn(size_t pattern, size_t track, size_t column, size_t tick, size_t ticksPerLine, size_t linesPerBeat) const
+{
+    EventList events;
+    if (!m_effectResolver || !ticksPerLine) {
+        return events;
+    }
+
+    // Steps smaller than this are not heard on any control, and leaving them out keeps a sweep from
+    // turning every tick of a long automation into an event.
+    constexpr double smallestStep = 1.0e-4;
+
+    for (const auto & automation : m_automations.parameter) {
+        const auto & location = automation.location();
+        if (!automation.enabled() || location.pattern() != pattern || location.track() != track || location.column() != column) {
+            continue;
+        }
+
+        const auto effect = m_effectResolver(automation.target().ownerId);
+        if (!effect) {
+            juzzlin::L(TAG).debug() << "No effect for parameter automation " << automation.id() << ", skipping";
+            continue;
+        }
+
+        const auto & interpolation = automation.interpolation();
+        const auto pushEvent = [&](size_t eventTick, double value) {
+            events.push_back(std::make_shared<Event>(eventTick, ParameterData { track, column, effect, automation.target().parameter, automation.mode(), value }));
+        };
+
+        std::optional<double> previousValue;
+        if (automation.eventsPerBeat() > 0) {
+            // Thinned on purpose, so stepped on the line grid the way a MIDI CC automation is.
+            const auto eventsPerBeat = std::min(automation.eventsPerBeat(), static_cast<uint8_t>(linesPerBeat));
+            for (size_t line = interpolation.line0; line <= interpolation.line1; line++) {
+                if (!firesOnLine(line, eventsPerBeat, automation.lineOffset(), linesPerBeat) && line != interpolation.line1) {
+                    continue;
+                }
+                if (const auto value = parameterValueAt(automation, static_cast<double>(line)); !previousValue || *previousValue != value) {
+                    pushEvent(tick + line * ticksPerLine, value);
+                    previousValue = value;
+                }
+            }
+        } else {
+            // Every tick rather than every line: a parameter is not held to MIDI's 128 steps, and a
+            // filter stepped once a line is heard as a staircase rather than a sweep.
+            const size_t firstTick = interpolation.line0 * ticksPerLine;
+            const size_t lastTick = interpolation.line1 * ticksPerLine;
+            for (size_t lineTick = firstTick; lineTick <= lastTick; lineTick++) {
+                const auto value = parameterValueAt(automation, static_cast<double>(lineTick) / static_cast<double>(ticksPerLine));
+                // The last one always goes out, so the automation ends exactly where it was written to
+                const bool isLast = lineTick == lastTick;
+                if (!previousValue || std::abs(*previousValue - value) >= smallestStep || (isLast && *previousValue != value)) {
+                    pushEvent(tick + lineTick, value);
+                    previousValue = value;
+                }
+            }
+        }
+    }
+
     return events;
 }
 
@@ -753,19 +875,7 @@ AutomationService::EventList AutomationService::renderMidiCcToEventsByColumn(siz
 
                 std::optional<uint8_t> prevValue;
                 for (size_t line = interpolation.line0; line <= interpolation.line1; line++) {
-                    // Check if this line is an automated line based on Events Per Beat and Line Offset
-                    const size_t beatRelativeLine = line % linesPerBeat;
-                    bool shouldFire = false;
-
-                    for (int i = 0; i < eventsPerBeat; ++i) {
-                        const size_t fireLine = (static_cast<size_t>(std::round(i * interval)) + automation.lineOffset()) % linesPerBeat;
-                        if (beatRelativeLine == fireLine) {
-                            shouldFire = true;
-                            break;
-                        }
-                    }
-
-                    if (!shouldFire && line != interpolation.line1) {
+                    if (!firesOnLine(line, eventsPerBeat, automation.lineOffset(), linesPerBeat) && line != interpolation.line1) {
                         continue;
                     }
 

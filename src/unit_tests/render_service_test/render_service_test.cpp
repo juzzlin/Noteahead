@@ -12,8 +12,11 @@
 #include "../../common/constants.hpp"
 #include "../../domain/devices/device.hpp"
 #include "../../domain/dsp/audio_context.hpp"
+#include "../../domain/effects/effect.hpp"
+#include "../../domain/effects/effect_rack.hpp"
 #include "../../domain/tracker/instrument.hpp"
 #include "../../domain/tracker/note_data.hpp"
+#include "../../domain/tracker/parameter_automation.hpp"
 #include "../../domain/tracker/song.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
@@ -23,6 +26,7 @@
 #include <QTemporaryDir>
 #include <QTest>
 
+#include <algorithm>
 #include <cmath>
 #include <optional>
 #include <vector>
@@ -99,6 +103,44 @@ public:
 
 private:
     std::vector<std::optional<double>> m_received;
+};
+
+//! An effect that remembers the value its one parameter had in every block it was asked to render.
+class ParameterProbeEffect : public Effect
+{
+public:
+    ParameterProbeEffect()
+    {
+        addParameter(Parameter { "probe", 0.5f, 0, 10000, 5000, 100 });
+    }
+
+    std::string type() const override
+    {
+        return "ParameterProbe";
+    }
+
+    std::string typeId() const override
+    {
+        return "00000000-0000-4000-8000-0000000fade0";
+    }
+
+    const std::vector<float> & seen() const
+    {
+        return m_seen;
+    }
+
+protected:
+    void processSample(double &, double &) override
+    {
+    }
+
+    void processBlock(AudioContext &) override
+    {
+        m_seen.push_back(parameter("probe")->get().value());
+    }
+
+private:
+    std::vector<float> m_seen;
 };
 
 class MockEditorService : public EditorService
@@ -357,6 +399,58 @@ void RenderServiceTest::test_renderMaster_shouldGiveTheDeviceTheNoteLength()
     const auto beats = probe->received().front();
     QVERIFY2(beats.has_value(), "the render gave the device no note length at all");
     QVERIFY2(std::abs(*beats - 2.0) < 1.0e-6, qPrintable(QString::number(*beats)));
+}
+
+void RenderServiceTest::test_renderMaster_parameterAutomation_shouldSweepTheEffect()
+{
+    auto audioEngine = std::make_shared<AudioEngine>();
+    auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    auto mixerService = std::make_shared<MixerService>();
+    auto editorService = std::make_shared<MockEditorService>();
+    auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
+    auto sideChainService = std::make_shared<SideChainService>();
+    automationService->setEffectResolver([deviceService](const std::string & id) {
+        return deviceService->findEffect(id);
+    });
+
+    auto song = std::make_shared<Song>();
+    song->setBeatsPerMinute(120);
+    song->setLinesPerBeat(4);
+    song->setInstrument(0, std::make_shared<Instrument>(Constants::internalDevicePortPrefix() + " 1"));
+    editorService->setSong(song);
+    editorService->setTrackIndices({ 0 });
+    editorService->setInstrumentPort(0, Constants::internalDevicePortPrefix() + " 1");
+
+    // On the master inserts, so that the automation is seen to need no device of its own.
+    const auto probe = std::make_shared<ParameterProbeEffect>();
+    deviceService->insertEffectRack().setEffect(0, probe);
+
+    // Lines 0 to 16, all the way up.
+    automationService->addParameterAutomation({ 0, AutomationLocation { 0, 0, 0 }, { ParameterAutomation::Target::Owner::Effect, probe->id(), "probe" }, ParameterAutomation::Mode::Absolute, { 0, 16, 0.0, 1.0 }, {}, {}, true });
+
+    RenderService renderService { audioEngine, deviceService, mixerService, editorService, automationService, sideChainService };
+
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+    QSignalSpy spy { &renderService, &RenderService::renderingFinished };
+    renderService.renderMaster(tempDir.filePath("render.flac"));
+    waitForRenders(spy, 1);
+    QVERIFY2(spy.at(0).at(0).toBool(), qPrintable(spy.at(0).at(1).toString()));
+
+    const auto & seen = probe->seen();
+    QVERIFY(!seen.empty());
+    QCOMPARE(seen.front(), 0.0f);
+    QVERIFY(std::ranges::find(seen, 1.0f) != seen.end());
+    // Rising the whole way, and through far more values than the sixteen lines it spans: the sweep
+    // is rendered tick by tick rather than stepped once a line.
+    QVERIFY(std::ranges::is_sorted(seen.begin(), std::ranges::find(seen, 1.0f)));
+    std::vector<float> distinct = seen;
+    std::ranges::sort(distinct);
+    distinct.erase(std::unique(distinct.begin(), distinct.end()), distinct.end());
+    QVERIFY2(distinct.size() > 100, qPrintable(QString::number(distinct.size())));
+
+    // And the render leaves the knob as the user set it
+    QCOMPARE(probe->parameter("probe")->get().value(), 0.5f);
 }
 
 } // namespace noteahead

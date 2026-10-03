@@ -63,6 +63,11 @@ private slots:
     void test_renderToEventsByColumn_curve_shouldFollowCurve();
     void test_renderToEventsByColumn_shouldPruneRepeatingEvents();
     void test_renderToEventsByColumn_disableAutomation_shouldNotRenderEvents();
+    void test_renderToEventsByColumn_parameter_shouldRenderEveryTick();
+    void test_renderToEventsByColumn_parameter_shouldCarryTargetAndMode();
+    void test_renderToEventsByColumn_parameter_eventsPerBeat_shouldStepOnLines();
+    void test_renderToEventsByColumn_parameter_modulationOffset_shouldBePercentOfTravel();
+    void test_renderToEventsByColumn_parameter_missingEffect_shouldRenderNothing();
 
     void test_midiCcAutomationsAsVariantList_shouldCarryEveryParameter();
     void test_pitchBendAutomationsAsVariantList_shouldCarryEveryParameter();

@@ -26,6 +26,7 @@
 #include "../midi/midi_cc_data.hpp"
 #include "../midi/pitch_bend_data.hpp"
 #include "note_data.hpp"
+#include "parameter_data.hpp"
 
 namespace noteahead {
 
@@ -46,6 +47,7 @@ public:
         MidiClockOut,
         None,
         NoteData,
+        ParameterData,
         PitchBendData,
         StartOfSong,
     };
@@ -72,6 +74,7 @@ public:
       NoteData,
       MidiCcData,
       PitchBendData,
+      ParameterData,
       InstrumentSettingsS,
       StartOfSong,
       EndOfSong,
@@ -91,6 +94,10 @@ public:
     using PitchBendDataCR = const PitchBendData &;
     //! Builds a Pitch Bend data event.
     Event(size_t tick, PitchBendDataCR pitchBendData);
+
+    using ParameterDataCR = const ParameterData &;
+    //! Builds a parameter automation event.
+    Event(size_t tick, ParameterDataCR parameterData);
 
     //! Builds an instrument settings event.
     Event(size_t tick, InstrumentSettingsS instrumentSettings);
@@ -153,6 +160,9 @@ public:
 
     using PitchBendDataOpt = std::optional<PitchBendData>;
     PitchBendDataOpt pitchBendData() const;
+
+    using ParameterDataOpt = std::optional<ParameterData>;
+    ParameterDataOpt parameterData() const;
 
     using InstrumentS = std::shared_ptr<Instrument>;
     InstrumentS instrument() const;

@@ -23,6 +23,7 @@
 #include "../../domain/midi/midi_note_data.hpp"
 #include "../../domain/midi/pitch_bend_data.hpp"
 #include "../../domain/tracker/instrument.hpp"
+#include "../../domain/tracker/parameter_data.hpp"
 #include "../../infra/midi/midi_cc_mapping.hpp"
 #include "../instrument_request.hpp"
 #include "device_service.hpp"
@@ -373,6 +374,13 @@ void MidiService::sendPitchBendData(InstrumentW instrument, MidiService::PitchBe
         } else {
             m_outputWorker->sendPitchBendData(portName, instr->midiAddress().channel(), data.msb(), data.lsb());
         }
+    }
+}
+
+void MidiService::sendParameterData(const ParameterData & data, std::optional<std::chrono::steady_clock::time_point> when)
+{
+    if (m_deviceService) {
+        m_deviceService->scheduleParameterChange(data, when ? m_deviceService->frameForTime(*when) : std::nullopt);
     }
 }
 

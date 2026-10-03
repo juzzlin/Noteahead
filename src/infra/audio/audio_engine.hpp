@@ -18,6 +18,7 @@
 
 #include "../../domain/devices/device.hpp"
 #include "../../domain/dsp/metronome.hpp"
+#include "../../domain/tracker/parameter_automation.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -25,6 +26,7 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -34,6 +36,7 @@
 
 namespace noteahead {
 
+class Effect;
 class EffectRack;
 class RealTimeWorkerPool;
 
@@ -110,6 +113,32 @@ public:
 
     FrameAnchor frameAnchor() const;
 
+    //! A value a parameter automation wants one of the effects at.
+    struct ParameterChange
+    {
+        std::weak_ptr<Effect> effect;
+        std::string parameter;
+        ParameterAutomation::Mode mode = ParameterAutomation::Mode::Absolute;
+        double value = 0.0;
+        //! Frame on the stream timeline it is meant for. Nothing means as soon as possible, which is
+        //! what an offline render wants: it hands the engine each event just before the block that
+        //! starts on it.
+        std::optional<uint64_t> frame;
+    };
+
+    //! Queues a change for the audio thread, which applies it at the start of the block that holds
+    //! its frame. Called off the audio thread.
+    //!
+    //! Applied there rather than by whoever calls this, because the effect is in use on the audio
+    //! thread the whole time a song plays: writing its parameters from anywhere else would race the
+    //! very code reading them. A block's worth early at worst, which a parameter sweep cannot be
+    //! heard to be.
+    void scheduleParameterChange(ParameterChange change);
+
+    //! Drops whatever is still queued and puts every effect the queue has touched back to its
+    //! authored values, so that nothing a song played is left behind when it stops.
+    void clearParameterAutomation();
+
     void reset();
     void clear();
 
@@ -173,6 +202,9 @@ public:
     size_t sendChainRackCount() const;
 
 private:
+    //! Applies every queued parameter change whose frame falls before @p blockEndFrame.
+    void applyParameterChanges(uint64_t blockEndFrame);
+
     void ensureWorkBuffers(size_t laneCount, size_t sendCount, uint32_t bufferSize);
     void ensureEffectWetBuffers(size_t effectCount, uint32_t bufferSize);
     void ensureEffectActiveFlags(size_t effectCount);
@@ -236,6 +268,12 @@ private:
     std::vector<size_t> m_graphSignature;
     std::vector<size_t> m_prevGraphSignature;
     mutable std::mutex m_mutex;
+    //! Separate from m_mutex so that queueing a change never waits for a block to finish rendering.
+    std::mutex m_parameterChangesMutex;
+    std::vector<ParameterChange> m_parameterChanges;
+    //! Every effect a change has been applied to since the last clear, so that a stop can put them
+    //! back without walking every rack in the project.
+    std::vector<std::weak_ptr<Effect>> m_automatedEffects;
     std::atomic<uint64_t> m_framesRendered { 0 };
     //! Even means settled, odd means being written. The audio thread bumps it either side of the
     //! anchor, so a reader that sees the same even value twice knows it read one whole anchor.

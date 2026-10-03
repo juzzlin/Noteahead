@@ -206,6 +206,9 @@ void PlayerWorker::handleEvent(const Event & event, std::optional<std::chrono::s
                     m_midiService->sendPitchBendData(event.instrument(), data);
                 }
             }
+        } else if constexpr (std::is_same_v<T, ParameterData>) {
+            // Needs no instrument: it names its effect, whatever the track's port is.
+            m_midiService->sendParameterData(data, when);
         } else if constexpr (std::is_same_v<T, Event::InstrumentSettingsS>) {
             if (data) {
                 juzzlin::L(TAG).trace() << data->toString().toStdString();

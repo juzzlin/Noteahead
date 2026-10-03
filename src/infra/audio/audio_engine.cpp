@@ -18,6 +18,7 @@
 #include "../../common/constants.hpp"
 #include "../../common/denormal_protection.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
+#include "../../domain/effects/effect.hpp"
 #include "../../domain/effects/effect_rack.hpp"
 #include "../../domain/effects/reverb.hpp"
 #include "real_time_worker_pool.hpp"
@@ -475,6 +476,9 @@ AudioEngine::AudioEngine()
     }
     m_sendChainSnapshots.resize(m_sendChainRacks.size());
     m_sendChainVersions.assign(m_sendChainRacks.size(), std::numeric_limits<uint64_t>::max());
+    // So that the audio thread does not allocate while a song is getting going.
+    m_parameterChanges.reserve(256);
+    m_automatedEffects.reserve(64);
     m_sendChainEnabled.assign(m_sendChainRacks.size(), 1);
 
     enableHardwareDenormalProtection();
@@ -608,6 +612,54 @@ void AudioEngine::setBpm(float bpm)
     }
 }
 
+void AudioEngine::scheduleParameterChange(ParameterChange change)
+{
+    const std::lock_guard<std::mutex> lock { m_parameterChangesMutex };
+    m_parameterChanges.push_back(std::move(change));
+}
+
+void AudioEngine::clearParameterAutomation()
+{
+    // The engine lock first, so that no block is halfway through the effects being put back.
+    const std::lock_guard<std::mutex> engineLock { m_mutex };
+    const std::lock_guard<std::mutex> lock { m_parameterChangesMutex };
+    m_parameterChanges.clear();
+    for (auto && weakEffect : m_automatedEffects) {
+        if (const auto effect = weakEffect.lock(); effect) {
+            effect->clearAutomation();
+            effect->sync();
+        }
+    }
+    m_automatedEffects.clear();
+}
+
+void AudioEngine::applyParameterChanges(uint64_t blockEndFrame)
+{
+    const std::lock_guard<std::mutex> lock { m_parameterChangesMutex };
+    if (m_parameterChanges.empty()) {
+        return;
+    }
+    // In the order queued, so that of two changes due in one block the later one wins
+    for (auto && change : m_parameterChanges) {
+        if (change.frame && *change.frame >= blockEndFrame) {
+            continue;
+        }
+        if (const auto effect = change.effect.lock(); effect) {
+            if (const auto parameter = effect->parameter(change.parameter); parameter) {
+                parameter->get().setAutomationValue(ParameterAutomation::effectiveValue(change.mode, change.value, parameter->get()));
+                effect->sync();
+                const bool known = std::ranges::any_of(m_automatedEffects, [&effect](auto && automated) { return automated.lock() == effect; });
+                if (!known) {
+                    m_automatedEffects.push_back(effect);
+                }
+            }
+        }
+    }
+    std::erase_if(m_parameterChanges, [blockEndFrame](auto && change) {
+        return !change.frame || *change.frame < blockEndFrame;
+    });
+}
+
 void AudioEngine::process(AudioContext & context)
 {
     std::lock_guard<std::mutex> lock { m_mutex };
@@ -623,6 +675,7 @@ void AudioEngine::process(AudioContext & context)
     // sees the same start and a scheduled event lands on the frame it names no matter which lane
     // picked the device up.
     context.startFrame = m_framesRendered.load(std::memory_order_relaxed);
+    applyParameterChanges(context.startFrame + context.frameCount);
     // Stamped here rather than by each backend: the RtAudio and JACK callbacks and the offline
     // render worker all build their context without one, and every context derived below -- each
     // device's, each send bus's -- copies this field.

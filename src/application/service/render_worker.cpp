@@ -399,6 +399,10 @@ void RenderWorker::handleEvent(const Event & event)
                     m_deviceService->processMidiPitchBend(portName, (static_cast<uint16_t>(data.msb()) << 7) | data.lsb(), instrument->midiAddress().channel());
                 }
             }
+        } else if constexpr (std::is_same_v<T, ParameterData>) {
+            // Without a frame: the render hands each event over just before the block that starts
+            // on it, which is the block the engine applies it at.
+            m_deviceService->scheduleParameterChange(data, std::nullopt);
         } else if constexpr (std::is_same_v<T, Event::InstrumentSettingsS>) {
             if (data) {
                 if (auto && instrument = event.instrument(); instrument) {

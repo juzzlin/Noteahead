@@ -36,6 +36,7 @@ class MidiCcData;
 class MidiNoteData;
 class MidiWorkerIn;
 class MidiWorkerOut;
+class ParameterData;
 class PitchBendData;
 
 class MidiService : public QObject
@@ -101,6 +102,10 @@ public:
     Q_INVOKABLE void sendPitchBendData(InstrumentW instrument, PitchBendDataCR data);
     //! Bend moves go the same way as the notes. See sendCcDataAt.
     void sendPitchBendDataAt(InstrumentW instrument, PitchBendDataCR data, std::chrono::steady_clock::time_point when);
+    //! A parameter automation step. Not MIDI at all, but it goes where the internal devices' events
+    //! go and keeps their timing: at its frame when @p when places it on the stream, otherwise at
+    //! the next block. Whatever track it sits on, it drives the effect it names.
+    void sendParameterData(const ParameterData & data, std::optional<std::chrono::steady_clock::time_point> when);
 
 public slots:
     void handleInstrumentRequest(const InstrumentRequest & instrumentRequest);
