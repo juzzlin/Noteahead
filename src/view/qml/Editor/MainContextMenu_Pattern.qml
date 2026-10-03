@@ -91,13 +91,6 @@ Menu {
         }
         delegate: MenuItemDelegate {}
     }
-    MenuSeparator {}
-    Action {
-        text: qsTr("Add Note OFF")
-        enabled: !UiService.isPlaying()
-        onTriggered: editorService.requestNoteOffAtPatternFirstLine()
-    }
-    MenuSeparator {}
     // In a sub-menu of their own, one or two entries for each kind, to keep the menu short
     Menu {
         title: qsTr("Automation")
@@ -120,6 +113,12 @@ Menu {
             onTriggered: UiService.requestEditParameterAutomationsDialogByPattern()
         }
         delegate: MenuItemDelegate {}
+    }
+    MenuSeparator {}
+    Action {
+        text: qsTr("Add Note OFF")
+        enabled: !UiService.isPlaying()
+        onTriggered: editorService.requestNoteOffAtPatternFirstLine()
     }
     delegate: MenuItemDelegate {}
 }

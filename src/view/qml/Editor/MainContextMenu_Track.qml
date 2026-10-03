@@ -143,6 +143,34 @@ Menu {
         }
         delegate: MenuItemDelegate {}
     }
+    // In a sub-menu of their own, one or two entries for each kind, to keep the menu short
+    Menu {
+        title: qsTr("Automation")
+        width: rootItem.width
+        Action {
+            text: qsTr("Edit MIDI CC automations...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEditMidiCcAutomationsDialogByTrack()
+        }
+        MenuSeparator {}
+        Action {
+            text: qsTr("Edit Pitch Bend automations...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEditPitchBendAutomationsDialogByTrack()
+        }
+        MenuSeparator {}
+        Action {
+            text: qsTr("Add parameter automation...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestTrackAddParameterAutomationDialog()
+        }
+        Action {
+            text: qsTr("Edit parameter automations...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEditParameterAutomationsDialogByTrack()
+        }
+        delegate: MenuItemDelegate {}
+    }
     MenuSeparator {}
     Action {
         text: qsTr("Add Note OFF")
@@ -189,35 +217,6 @@ Menu {
         shortcut: "Shift+D"
         enabled: !UiService.isPlaying()
         onTriggered: editorService.requestTrackDeletion()
-    }
-    MenuSeparator {}
-    // In a sub-menu of their own, one or two entries for each kind, to keep the menu short
-    Menu {
-        title: qsTr("Automation")
-        width: rootItem.width
-        Action {
-            text: qsTr("Edit MIDI CC automations...")
-            enabled: !UiService.isPlaying()
-            onTriggered: UiService.requestEditMidiCcAutomationsDialogByTrack()
-        }
-        MenuSeparator {}
-        Action {
-            text: qsTr("Edit Pitch Bend automations...")
-            enabled: !UiService.isPlaying()
-            onTriggered: UiService.requestEditPitchBendAutomationsDialogByTrack()
-        }
-        MenuSeparator {}
-        Action {
-            text: qsTr("Add parameter automation...")
-            enabled: !UiService.isPlaying()
-            onTriggered: UiService.requestTrackAddParameterAutomationDialog()
-        }
-        Action {
-            text: qsTr("Edit parameter automations...")
-            enabled: !UiService.isPlaying()
-            onTriggered: UiService.requestEditParameterAutomationsDialogByTrack()
-        }
-        delegate: MenuItemDelegate {}
     }
     delegate: MenuItemDelegate {}
 }

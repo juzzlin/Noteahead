@@ -91,18 +91,6 @@ Menu {
         }
         delegate: MenuItemDelegate {}
     }
-    MenuSeparator {}
-    Action {
-        text: qsTr("Interpolate velocity...")
-        enabled: !UiService.isPlaying() && selectionService.isValidSelection
-        onTriggered: UiService.requestSelectionVelocityInterpolationDialog()
-    }
-    Action {
-        text: qsTr("Interpolate pan...")
-        enabled: !UiService.isPlaying() && selectionService.isValidSelection
-        onTriggered: UiService.requestSelectionPanInterpolationDialog()
-    }
-    MenuSeparator {}
     // In a sub-menu of their own, one or two entries for each kind, to keep the menu short
     Menu {
         title: qsTr("Automation")
@@ -130,6 +118,17 @@ Menu {
             onTriggered: UiService.requestEditParameterAutomationsDialogBySelection()
         }
         delegate: MenuItemDelegate {}
+    }
+    MenuSeparator {}
+    Action {
+        text: qsTr("Interpolate velocity...")
+        enabled: !UiService.isPlaying() && selectionService.isValidSelection
+        onTriggered: UiService.requestSelectionVelocityInterpolationDialog()
+    }
+    Action {
+        text: qsTr("Interpolate pan...")
+        enabled: !UiService.isPlaying() && selectionService.isValidSelection
+        onTriggered: UiService.requestSelectionPanInterpolationDialog()
     }
     delegate: MenuItemDelegate {}
 }

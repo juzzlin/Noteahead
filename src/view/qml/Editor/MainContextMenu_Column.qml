@@ -142,6 +142,44 @@ Menu {
         }
         delegate: MenuItemDelegate {}
     }
+    // In a sub-menu of their own, one or two entries for each kind, to keep the menu short
+    Menu {
+        title: qsTr("Automation")
+        width: rootItem.width
+        Action {
+            text: qsTr("Add MIDI CC automation...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestColumnAddMidiCcAutomationDialog()
+        }
+        Action {
+            text: qsTr("Edit MIDI CC automations...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEditMidiCcAutomationsDialogByColumn()
+        }
+        MenuSeparator {}
+        Action {
+            text: qsTr("Add Pitch Bend automation...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestColumnAddPitchBendAutomationDialog()
+        }
+        Action {
+            text: qsTr("Edit Pitch Bend automations...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEditPitchBendAutomationsDialogByColumn()
+        }
+        MenuSeparator {}
+        Action {
+            text: qsTr("Add parameter automation...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestColumnAddParameterAutomationDialog()
+        }
+        Action {
+            text: qsTr("Edit parameter automations...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestEditParameterAutomationsDialogByColumn()
+        }
+        delegate: MenuItemDelegate {}
+    }
     MenuSeparator {}
     Action {
         text: qsTr("Add Note OFF")
@@ -186,45 +224,6 @@ Menu {
         text: qsTr("Delete current column")
         enabled: !UiService.isPlaying()
         onTriggered: editorService.requestCurrentColumnDeletion()
-    }
-    MenuSeparator {}
-    // In a sub-menu of their own, one or two entries for each kind, to keep the menu short
-    Menu {
-        title: qsTr("Automation")
-        width: rootItem.width
-        Action {
-            text: qsTr("Add MIDI CC automation...")
-            enabled: !UiService.isPlaying()
-            onTriggered: UiService.requestColumnAddMidiCcAutomationDialog()
-        }
-        Action {
-            text: qsTr("Edit MIDI CC automations...")
-            enabled: !UiService.isPlaying()
-            onTriggered: UiService.requestEditMidiCcAutomationsDialogByColumn()
-        }
-        MenuSeparator {}
-        Action {
-            text: qsTr("Add Pitch Bend automation...")
-            enabled: !UiService.isPlaying()
-            onTriggered: UiService.requestColumnAddPitchBendAutomationDialog()
-        }
-        Action {
-            text: qsTr("Edit Pitch Bend automations...")
-            enabled: !UiService.isPlaying()
-            onTriggered: UiService.requestEditPitchBendAutomationsDialogByColumn()
-        }
-        MenuSeparator {}
-        Action {
-            text: qsTr("Add parameter automation...")
-            enabled: !UiService.isPlaying()
-            onTriggered: UiService.requestColumnAddParameterAutomationDialog()
-        }
-        Action {
-            text: qsTr("Edit parameter automations...")
-            enabled: !UiService.isPlaying()
-            onTriggered: UiService.requestEditParameterAutomationsDialogByColumn()
-        }
-        delegate: MenuItemDelegate {}
     }
     delegate: MenuItemDelegate {}
 }
