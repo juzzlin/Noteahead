@@ -265,7 +265,16 @@ void AutomationService::addPitchBendAutomationWithId(const PitchBendAutomation &
 
 bool AutomationService::hasAutomations(quint64 pattern, quint64 track, quint64 column, quint64 line) const
 {
-    return hasMidiCcAutomations(pattern, track, column, line) || hasPitchBendAutomations(pattern, track, column, line);
+    return hasMidiCcAutomations(pattern, track, column, line) || hasPitchBendAutomations(pattern, track, column, line) || hasParameterAutomations(pattern, track, column, line);
+}
+
+bool AutomationService::hasParameterAutomations(quint64 pattern, quint64 track, quint64 column, quint64 line) const
+{
+    return std::ranges::any_of(m_automations.parameter, [&](auto && automation) {
+        auto && location = automation.location();
+        auto && interpolation = automation.interpolation();
+        return automation.enabled() && location.pattern() == pattern && location.track() == track && location.column() == column && line >= interpolation.line0 && line <= interpolation.line1;
+    });
 }
 
 bool AutomationService::hasMidiCcAutomations(quint64 pattern, quint64 track, quint64 column, quint64 line) const
@@ -336,12 +345,37 @@ AutomationService::AutomationCurveList AutomationService::automationCurves(quint
                 [&](size_t line) { return (static_cast<double>(pitchBendValueAt(automation, line)) + 100.0) / 200.0; });
     }
 
+    // Already on the shared axis: a knob position, or for a relative automation how far towards it
+    for (const auto & automation : m_automations.parameter) {
+        const auto & location = automation.location();
+        if (!automation.enabled() || location.pattern() != pattern || location.track() != track || location.column() != column) {
+            continue;
+        }
+        collect(automation.id(), false, automation.interpolation().line0, automation.interpolation().line1,
+                [&](size_t line) { return parameterValueAt(automation, static_cast<double>(line)); });
+    }
+
     return curves;
 }
 
 double AutomationService::automationWeight(quint64 pattern, quint64 track, quint64 column, quint64 line) const
 {
-    return std::max(midiCcAutomationWeight(pattern, track, column, line), pitchBendAutomationWeight(pattern, track, column, line));
+    return std::max({ midiCcAutomationWeight(pattern, track, column, line), pitchBendAutomationWeight(pattern, track, column, line), parameterAutomationWeight(pattern, track, column, line) });
+}
+
+double AutomationService::parameterAutomationWeight(quint64 pattern, quint64 track, quint64 column, quint64 line) const
+{
+    double sum = 0.0;
+    int count = 0;
+    for (const auto & automation : m_automations.parameter) {
+        const auto & location = automation.location();
+        const auto & interpolation = automation.interpolation();
+        if (automation.enabled() && location.pattern() == pattern && location.track() == track && location.column() == column && line >= interpolation.line0 && line <= interpolation.line1) {
+            sum += parameterValueAt(automation, static_cast<double>(line));
+            count++;
+        }
+    }
+    return count ? sum / count : 0;
 }
 
 double AutomationService::midiCcAutomationWeight(quint64 pattern, quint64 track, quint64 column, quint64 line) const
@@ -436,6 +470,24 @@ quint64 AutomationService::addParameterAutomation(const ParameterAutomation & au
     notifyChangedLines(newAutomation);
     juzzlin::L(TAG).info() << "Parameter Automation added: " << newAutomation.toString().toStdString();
     return newAutomation.id();
+}
+
+quint64 AutomationService::addParameterAutomation(quint64 pattern, quint64 track, quint64 column, const QString & effectId, const QString & parameter, int mode, quint64 line0, quint64 line1, double value0, double value1, int curve, const QString & comment, quint8 eventsPerBeat, quint8 lineOffset)
+{
+    ParameterAutomation automation { 0, AutomationLocation { pattern, track, column }, { ParameterAutomation::Target::Owner::Effect, effectId.toStdString(), parameter.toStdString() }, static_cast<ParameterAutomation::Mode>(mode), { line0, line1, std::clamp(value0, 0.0, 1.0), std::clamp(value1, 0.0, 1.0), static_cast<Interpolator::CurveType>(curve) }, {}, comment, true };
+    automation.setEventsPerBeat(eventsPerBeat);
+    automation.setLineOffset(lineOffset);
+    return addParameterAutomation(automation);
+}
+
+void AutomationService::addParameterModulation(quint64 automationId, int type, quint64 cycles, float amplitude, float offset, bool inverted)
+{
+    if (const auto iter = std::ranges::find_if(m_automations.parameter, [&](auto && automation) { return automation.id() == automationId; }); iter != m_automations.parameter.end()) {
+        iter->setModulation({ static_cast<ModulationParameters::ModulationType>(type), static_cast<float>(cycles), amplitude, offset, inverted });
+        notifyChangedLines(*iter);
+    } else {
+        juzzlin::L(TAG).error() << "No such automation id to add modulation to: " << automationId;
+    }
 }
 
 void AutomationService::addParameterAutomationWithId(const ParameterAutomation & automation)

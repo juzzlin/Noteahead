@@ -78,6 +78,7 @@ class MidiSettingsModel;
 class MixerService;
 class NoteColumnLineContainerHelper;
 class NoteColumnModelHandler;
+class ParameterAutomationsModel;
 class PitchBendAutomationsModel;
 class PlayerService;
 class PropertyService;
@@ -135,6 +136,7 @@ private:
     void connectStateMachine();
     void connectEventSelectionModel();
     void connectPitchBendAutomationsModel();
+    void connectParameterAutomationsModel();
     void connectTrackSettingsModel();
     void connectColumnSettingsModel();
 
@@ -230,6 +232,7 @@ private:
 
     std::unique_ptr<MidiCcAutomationsModel> m_midiCcAutomationsModel;
     std::unique_ptr<PitchBendAutomationsModel> m_pitchBendAutomationsModel;
+    std::unique_ptr<ParameterAutomationsModel> m_parameterAutomationsModel;
     std::unique_ptr<ColumnSettingsModel> m_columnSettingsModel;
     std::unique_ptr<TrackSettingsModel> m_trackSettingsModel;
     std::unique_ptr<MidiSettingsModel> m_midiSettingsModel;

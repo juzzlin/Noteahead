@@ -81,6 +81,7 @@
 #include "models/midi_settings_model.hpp"
 #include "models/note_column_line_container_helper.hpp"
 #include "models/note_column_model_handler.hpp"
+#include "models/parameter_automations_model.hpp"
 #include "models/pitch_bend_automations_model.hpp"
 #include "models/recent_files_model.hpp"
 #include "models/render_settings_model.hpp"
@@ -191,6 +192,7 @@ Application::Application(int & argc, char ** argv)
   , m_renderService { std::make_shared<RenderService>(m_audioEngine, m_deviceService, m_mixerService, m_editorService, m_automationService, m_sideChainService) }
   , m_midiCcAutomationsModel { std::make_unique<MidiCcAutomationsModel>() }
   , m_pitchBendAutomationsModel { std::make_unique<PitchBendAutomationsModel>() }
+  , m_parameterAutomationsModel { std::make_unique<ParameterAutomationsModel>() }
   , m_columnSettingsModel { std::make_unique<ColumnSettingsModel>() }
   , m_trackSettingsModel { std::make_unique<TrackSettingsModel>() }
   , m_midiSettingsModel { std::make_unique<MidiSettingsModel>(m_settingsService) }
@@ -264,6 +266,7 @@ void Application::registerTypes()
     qmlRegisterType<SongOverviewRenderer>("Noteahead", majorVersion, minorVersion, "SongOverviewRenderer");
     qmlRegisterType<OscilloscopeRenderer>("Noteahead", majorVersion, minorVersion, "OscilloscopeRenderer");
     qmlRegisterType<PitchBendAutomationsModel>("Noteahead", majorVersion, minorVersion, "PitchBendAutomationsModel");
+    qmlRegisterType<ParameterAutomationsModel>("Noteahead", majorVersion, minorVersion, "ParameterAutomationsModel");
     qmlRegisterType<PropertyService>("Noteahead", majorVersion, minorVersion, "PropertyService");
     qmlRegisterType<RecentFilesModel>("Noteahead", majorVersion, minorVersion, "RecentFilesModel");
     qmlRegisterType<RenderSettingsModel>("Noteahead", majorVersion, minorVersion, "RenderSettingsModel");
@@ -337,6 +340,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("noteColumnLineContainerHelper", m_noteColumnLineContainerHelper.get());
     m_engine->rootContext()->setContextProperty("noteColumnModelHandler", m_noteColumnModelHandler.get());
     m_engine->rootContext()->setContextProperty("pitchBendAutomationsModel", m_pitchBendAutomationsModel.get());
+    m_engine->rootContext()->setContextProperty("parameterAutomationsModel", m_parameterAutomationsModel.get());
     m_engine->rootContext()->setContextProperty("playerService", m_playerService.get());
     m_engine->rootContext()->setContextProperty("propertyService", m_propertyService.get());
     m_engine->rootContext()->setContextProperty("recentFilesModel", m_recentFilesModel.get());
@@ -432,6 +436,7 @@ void Application::connectServices()
     connectEventSelectionModel();
     connectMidiCcAutomationsModel();
     connectPitchBendAutomationsModel();
+    connectParameterAutomationsModel();
     connectTrackSettingsModel();
     connectMidiSettingsModel();
     connectColumnSettingsModel();
@@ -628,6 +633,21 @@ void Application::connectPitchBendAutomationsModel()
     });
     connect(m_pitchBendAutomationsModel.get(), &PitchBendAutomationsModel::pitchBendAutomationDeleted, this, [this](auto && item) {
         m_automationService->deletePitchBendAutomation(item);
+        m_editorService->setIsModified(true);
+    });
+}
+
+void Application::connectParameterAutomationsModel()
+{
+    connect(m_parameterAutomationsModel.get(), &ParameterAutomationsModel::parameterAutomationsRequested, this, [this]() {
+        m_parameterAutomationsModel->setParameterAutomations(m_automationService->parameterAutomations());
+    });
+    connect(m_parameterAutomationsModel.get(), &ParameterAutomationsModel::parameterAutomationChanged, this, [this](auto && item) {
+        m_automationService->updateParameterAutomation(item);
+        m_editorService->setIsModified(true);
+    });
+    connect(m_parameterAutomationsModel.get(), &ParameterAutomationsModel::parameterAutomationDeleted, this, [this](auto && item) {
+        m_automationService->deleteParameterAutomation(item);
         m_editorService->setIsModified(true);
     });
 }

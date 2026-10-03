@@ -1106,43 +1106,54 @@ EffectRack & DeviceService::sendEffectRack()
     return m_audioEngine->sendEffectRack();
 }
 
+DeviceService::EffectLocationList DeviceService::effectLocations() const
+{
+    EffectLocationList locations;
+
+    const auto addRack = [&locations](const EffectRack & rack, EffectLocation where) {
+        // By slot rather than through effects(), which leaves the empty slots out and with them the
+        // numbering the rack shows.
+        for (size_t slot = 0; slot < rack.effectCount(); slot++) {
+            if (auto effect = rack.effect(slot); effect) {
+                where.effect = std::move(effect);
+                where.effectSlot = slot;
+                locations.push_back(where);
+            }
+        }
+    };
+
+    for (size_t slot = 0; slot < Constants::deviceRackSize(); slot++) {
+        if (const auto dev = device(slot); dev) {
+            const auto racks = dev->effectRacks();
+            for (size_t rackIndex = 0; rackIndex < racks.size(); rackIndex++) {
+                // The insert rack comes first; every other one belongs to a voice or a pad
+                const auto rack = rackIndex == 0 ? EffectLocation::Rack::DeviceInsert : EffectLocation::Rack::DeviceVoice;
+                addRack(racks.at(rackIndex).get(), { {}, rack, slot, dev->typeName(), rackIndex == 0 ? 0 : rackIndex - 1, 0 });
+            }
+        }
+    }
+
+    addRack(m_audioEngine->insertEffectRack(), { {}, EffectLocation::Rack::MasterInsert, 0, {}, 0, 0 });
+    for (size_t bus = 0; bus < m_audioEngine->sendChainRackCount(); bus++) {
+        if (auto effect = m_audioEngine->sendEffectRack().effect(bus); effect) {
+            locations.push_back({ std::move(effect), EffectLocation::Rack::Send, 0, {}, bus, bus });
+        }
+        addRack(m_audioEngine->sendChainRack(bus), { {}, EffectLocation::Rack::SendChain, 0, {}, bus, 0 });
+    }
+
+    return locations;
+}
+
 std::shared_ptr<Effect> DeviceService::findEffect(const std::string & id) const
 {
     if (id.empty()) {
         return {};
     }
-
-    const auto findIn = [&id](const EffectRack & rack) -> std::shared_ptr<Effect> {
-        for (auto && effect : rack.effects()) {
-            if (effect && effect->id() == id) {
-                return effect;
-            }
-        }
-        return {};
-    };
-
-    for (auto && name : internalDeviceNames()) {
-        if (const auto dev = device(name); dev) {
-            for (auto && rack : dev->effectRacks()) {
-                if (auto effect = findIn(rack.get()); effect) {
-                    return effect;
-                }
-            }
+    for (auto && location : effectLocations()) {
+        if (location.effect->id() == id) {
+            return location.effect;
         }
     }
-
-    if (auto effect = findIn(m_audioEngine->insertEffectRack()); effect) {
-        return effect;
-    }
-    if (auto effect = findIn(m_audioEngine->sendEffectRack()); effect) {
-        return effect;
-    }
-    for (size_t bus = 0; bus < m_audioEngine->sendChainRackCount(); bus++) {
-        if (auto effect = findIn(m_audioEngine->sendChainRack(bus)); effect) {
-            return effect;
-        }
-    }
-
     return {};
 }
 

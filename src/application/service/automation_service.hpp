@@ -143,6 +143,10 @@ public:
     //! Automations that drive a parameter directly rather than through MIDI. See ParameterAutomation.
     using ParameterAutomationList = std::vector<ParameterAutomation>;
     quint64 addParameterAutomation(const ParameterAutomation & automation);
+    //! The add dialog's way in. Values are knob positions, 0 to 1, whichever the mode; the dialog
+    //! converts from the units it shows them in.
+    Q_INVOKABLE quint64 addParameterAutomation(quint64 pattern, quint64 track, quint64 column, const QString & effectId, const QString & parameter, int mode, quint64 line0, quint64 line1, double value0, double value1, int curve, const QString & comment, quint8 eventsPerBeat, quint8 lineOffset);
+    Q_INVOKABLE void addParameterModulation(quint64 automationId, int type, quint64 cycles, float amplitude, float offset, bool inverted);
     void addParameterAutomationWithId(const ParameterAutomation & automation);
     ParameterAutomationList parameterAutomationsByColumn(quint64 pattern, quint64 track, quint64 column) const;
     ParameterAutomationList parameterAutomations() const;
@@ -169,8 +173,10 @@ signals:
 private:
     bool hasMidiCcAutomations(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
     bool hasPitchBendAutomations(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
+    bool hasParameterAutomations(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
     double midiCcAutomationWeight(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
     double pitchBendAutomationWeight(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
+    double parameterAutomationWeight(quint64 pattern, quint64 track, quint64 column, quint64 line) const;
     //! Interpolation plus modulation for one automation on one line, in the automation's own units.
     //! Shared with the event rendering so what is drawn cannot drift from what is played.
     int midiCcValueAt(const MidiCcAutomation & automation, size_t line) const;

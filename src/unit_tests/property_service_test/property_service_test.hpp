@@ -29,6 +29,10 @@ private slots:
     void test_getAvailableMidiControllers_withInternalDevice_shouldReturnDeviceSpecificControllers();
     void test_getAvailableMidiControllers_internalDevice_shouldCarryDeviceRanges();
     void test_valueRange_internalDeviceFader_shouldExtendPastMidi1();
+    void test_automationTargets_shouldListEveryEffectWithItsLocation();
+    void test_automationTargets_autoFilter_shouldDescribeItsParameters();
+    void test_automationTargets_parameterWithoutDisplay_shouldBePercentOfTravel();
+    void test_automationParameter_missing_shouldBeEmpty();
 };
 
 } // namespace noteahead

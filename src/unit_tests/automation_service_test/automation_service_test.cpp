@@ -233,6 +233,54 @@ void AutomationServiceTest::test_deletePatterns_shouldDeleteParameterAutomations
     QCOMPARE(automationService.parameterAutomations().at(0).location().pattern(), size_t { 0 });
 }
 
+void AutomationServiceTest::test_addParameterAutomation_fromQml_shouldBuildTheAutomation()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+
+    const auto id = automationService.addParameterAutomation(1, 2, 3, "effect-1", "cutoff", static_cast<int>(ParameterAutomation::Mode::Relative), 4, 12, 0.25, 1.5, static_cast<int>(Interpolator::CurveType::EaseIn), "Sweep", 2, 1);
+    automationService.addParameterModulation(id, static_cast<int>(ModulationParameters::ModulationType::Random), 3, 20.0f, 5.0f, true);
+
+    const auto automation = automationService.parameterAutomations().at(0);
+    QCOMPARE(automation.location(), (AutomationLocation { 1, 2, 3 }));
+    QCOMPARE(automation.target().ownerId, std::string { "effect-1" });
+    QCOMPARE(automation.target().parameter, std::string { "cutoff" });
+    QCOMPARE(automation.mode(), ParameterAutomation::Mode::Relative);
+    QCOMPARE(automation.interpolation().value0, 0.25);
+    // A position never lies outside the travel
+    QCOMPARE(automation.interpolation().value1, 1.0);
+    QCOMPARE(automation.interpolation().curve, Interpolator::CurveType::EaseIn);
+    QCOMPARE(automation.eventsPerBeat(), uint8_t { 2 });
+    QCOMPARE(automation.lineOffset(), uint8_t { 1 });
+    QCOMPARE(automation.modulation().type, ModulationParameters::ModulationType::Random);
+    QCOMPARE(automation.modulation().amplitude, 20.0f);
+}
+
+void AutomationServiceTest::test_hasAutomations_parameter_shouldReportItsLines()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    automationService.addParameterAutomation(cutoffSweep(0, 1, 0));
+
+    QVERIFY(!automationService.hasAutomations(0, 1, 0, 1));
+    QVERIFY(automationService.hasAutomations(0, 1, 0, 2));
+    QVERIFY(automationService.hasAutomations(0, 1, 0, 10));
+    QVERIFY(!automationService.hasAutomations(0, 1, 0, 11));
+    QVERIFY(std::abs(automationService.automationWeight(0, 1, 0, 6) - 0.5) < 1.0e-9);
+}
+
+void AutomationServiceTest::test_automationCurves_parameter_shouldBeKnobPositions()
+{
+    AutomationService automationService { std::make_shared<PropertyService>() };
+    automationService.addParameterAutomation(cutoffSweep(0, 0, 0));
+
+    const auto curves = automationService.automationCurves(0, 0, 0, 0, 10);
+
+    QCOMPARE(curves.size(), size_t { 1 });
+    QVERIFY(!curves.at(0).isPitchBend);
+    QVERIFY(!curves.at(0).values.at(1).has_value());
+    QCOMPARE(*curves.at(0).values.at(2), 0.25);
+    QCOMPARE(*curves.at(0).values.at(10), 0.75);
+}
+
 void AutomationServiceTest::test_automationWeight_midiCc_shouldCalculateCorrectWeight()
 {
     AutomationService automationService { std::make_shared<PropertyService>() };

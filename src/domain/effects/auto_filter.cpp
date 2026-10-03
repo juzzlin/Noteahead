@@ -15,6 +15,8 @@
 
 #include "auto_filter.hpp"
 
+#include <QtGlobal>
+
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
 
@@ -55,18 +57,21 @@ AutoFilter::AutoFilter()
     // beat division instead: the position is the same either way, only its name changes.
     using Display = ParameterDisplay;
     namespace C = Constants::NahdXml;
-    setParameterDisplay(C::xmlKeyCutoff().toStdString(), { Display::Mapping::LogFrequency, "Hz", 20.0, 20000.0 });
-    setParameterDisplay(C::xmlKeyResonance().toStdString(), { Display::Mapping::Linear, "%", 0.0, 100.0 });
-    setParameterDisplay(C::xmlKeyLfoRate().toStdString(), { Display::Mapping::LfoFrequency, "Hz", 0.05, 20.0 });
-    setParameterDisplay(C::xmlKeyLfoIntensity().toStdString(), { Display::Mapping::CubicCentered, "%", -100.0, 100.0, Display::Rest::Centre });
-    setParameterDisplay(C::xmlKeyLfo2Rate().toStdString(), { Display::Mapping::LfoFrequency, "Hz", 0.05, 20.0 });
-    setParameterDisplay(C::xmlKeyLfo2Intensity().toStdString(), { Display::Mapping::CubicCentered, "%", -100.0, 100.0, Display::Rest::Centre });
-    setParameterDisplay(C::xmlKeyStereoPhase().toStdString(), { Display::Mapping::Linear, "°", 0.0, 180.0 });
-    setParameterDisplay(C::xmlKeyEnvMod().toStdString(), { Display::Mapping::CubicCentered, "%", -100.0, 100.0, Display::Rest::Centre });
-    setParameterDisplay(C::xmlKeyAttack().toStdString(), { Display::Mapping::Exponential, "ms", 0.1, 500.0 });
-    setParameterDisplay(C::xmlKeyRelease().toStdString(), { Display::Mapping::Exponential, "ms", 1.0, 2000.0 });
-    setParameterDisplay(C::xmlKeyGain().toStdString(), { Display::Mapping::Linear, "dB", -12.0, 12.0, Display::Rest::Centre });
-    setParameterDisplay(C::xmlKeyMix().toStdString(), { Display::Mapping::Linear, "%", 0.0, 100.0 });
+    const auto describe = [this](const QString & key, Display display) {
+        setParameterDisplay(key.toStdString(), std::move(display));
+    };
+    describe(C::xmlKeyCutoff(), { .mapping = Display::Mapping::LogFrequency, .unit = "Hz", .min = 20.0, .max = 20000.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Cutoff") });
+    describe(C::xmlKeyResonance(), { .unit = "%", .max = 100.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Resonance") });
+    describe(C::xmlKeyLfoRate(), { .mapping = Display::Mapping::LfoFrequency, .unit = "Hz", .min = 0.05, .max = 20.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Cutoff LFO Rate") });
+    describe(C::xmlKeyLfoIntensity(), { .mapping = Display::Mapping::CubicCentered, .unit = "%", .min = -100.0, .max = 100.0, .rest = Display::Rest::Centre, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Cutoff LFO Intensity") });
+    describe(C::xmlKeyLfo2Rate(), { .mapping = Display::Mapping::LfoFrequency, .unit = "Hz", .min = 0.05, .max = 20.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Resonance LFO Rate") });
+    describe(C::xmlKeyLfo2Intensity(), { .mapping = Display::Mapping::CubicCentered, .unit = "%", .min = -100.0, .max = 100.0, .rest = Display::Rest::Centre, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Resonance LFO Intensity") });
+    describe(C::xmlKeyStereoPhase(), { .unit = "°", .max = 180.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Stereo Phase") });
+    describe(C::xmlKeyEnvMod(), { .mapping = Display::Mapping::CubicCentered, .unit = "%", .min = -100.0, .max = 100.0, .rest = Display::Rest::Centre, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Envelope Amount") });
+    describe(C::xmlKeyAttack(), { .mapping = Display::Mapping::Exponential, .unit = "ms", .min = 0.1, .max = 500.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Envelope Attack") });
+    describe(C::xmlKeyRelease(), { .mapping = Display::Mapping::Exponential, .unit = "ms", .min = 1.0, .max = 2000.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Envelope Release") });
+    describe(C::xmlKeyGain(), { .unit = "dB", .min = -12.0, .max = 12.0, .rest = Display::Rest::Centre, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Gain") });
+    describe(C::xmlKeyMix(), { .unit = "%", .max = 100.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Mix") });
 
     applyParameters();
 

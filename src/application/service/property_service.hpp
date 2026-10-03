@@ -48,6 +48,19 @@ public:
     Q_INVOKABLE int minValue(int controller, const QString & portName = {}) const;
     Q_INVOKABLE int maxValue(int controller, const QString & portName = {}) const;
 
+    //! Everything a parameter automation can drive: one entry per effect in the project, with where
+    //! it sits and the parameters it offers.
+    //!
+    //! Each effect carries effectId, typeId, type, rack (DeviceService::EffectLocation::Rack as an int),
+    //! deviceSlot, deviceTypeName, rackIndex, effectSlot and parameters. Each parameter carries key,
+    //! label, unit, mapping, min, max, rest and knob (its authored position) -- what Knob.qml and KnobController take, so a value
+    //! reads and is typed exactly as on the knob. A parameter that has not said how it reads out is
+    //! offered as a bare percentage of its travel. Only continuous parameters are offered: a
+    //! position between two choices of a switch means nothing.
+    Q_INVOKABLE QVariantList automationTargets() const;
+    //! One parameter of automationTargets(), or an empty map when the effect or the parameter is gone.
+    Q_INVOKABLE QVariantMap automationParameter(const QString & effectId, const QString & key) const;
+
 private:
     //! The controller as the port's device declares it, or nothing when the port is not an
     //! internal device or does not offer that controller.

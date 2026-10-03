@@ -37,6 +37,9 @@ private slots:
     void test_deleteParameterAutomation_shouldDeleteAutomation();
     void test_parameterAutomationsByColumn_shouldFilterByLocation();
     void test_deletePatterns_shouldDeleteParameterAutomations();
+    void test_addParameterAutomation_fromQml_shouldBuildTheAutomation();
+    void test_hasAutomations_parameter_shouldReportItsLines();
+    void test_automationCurves_parameter_shouldBeKnobPositions();
 
     void test_automationWeight_midiCc_shouldCalculateCorrectWeight();
     void test_hasAutomations_disabled_shouldReportNone();

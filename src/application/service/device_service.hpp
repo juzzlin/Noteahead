@@ -198,6 +198,37 @@ public:
     EffectRack & sendChainRack(size_t busIndex);
     size_t sendChainRackCount() const;
 
+    //! Where an effect sits, for anything that has to name it to a person.
+    struct EffectLocation
+    {
+        enum class Rack
+        {
+            //! A device's insert rack.
+            DeviceInsert,
+            //! One of the racks a device keeps per voice or per pad. rackIndex counts them from 0.
+            DeviceVoice,
+            MasterInsert,
+            //! A send bus's own effect. rackIndex is the bus.
+            Send,
+            //! The chain after a send bus's effect. rackIndex is the bus.
+            SendChain
+        };
+
+        std::shared_ptr<Effect> effect;
+        Rack rack = Rack::DeviceInsert;
+        //! The device slot, for the two device racks.
+        size_t deviceSlot = 0;
+        std::string deviceTypeName;
+        size_t rackIndex = 0;
+        //! The effect's slot within its rack.
+        size_t effectSlot = 0;
+    };
+
+    //! Every effect in the project and where it sits: device racks in slot order, then the master
+    //! inserts, then each send bus with its chain.
+    using EffectLocationList = std::vector<EffectLocation>;
+    EffectLocationList effectLocations() const;
+
     //! The effect with the given id, wherever it sits: a device's own racks, the master inserts, a
     //! send bus or a send chain. Nothing when no effect in the project has that id. See Effect::id().
     std::shared_ptr<Effect> findEffect(const std::string & id) const;

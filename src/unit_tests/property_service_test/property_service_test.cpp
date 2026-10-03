@@ -22,6 +22,8 @@
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
+#include "../../domain/effects/auto_filter.hpp"
+#include "../../domain/effects/gain.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
 #include "../../infra/midi/midi_cc_mapping.hpp"
@@ -184,6 +186,103 @@ void PropertyServiceTest::test_getAvailableMidiControllers_withInternalDevice_sh
         QCOMPARE(controllers.size(), 69);
         QCOMPARE(controllers.at(0).toMap()["name"].toString(), "7: Fader");
     }
+}
+
+namespace {
+
+QVariantMap parameterOf(const QVariantMap & target, const QString & key)
+{
+    for (auto && parameter : target["parameters"].toList()) {
+        if (const auto map = parameter.toMap(); map["key"].toString() == key) {
+            return map;
+        }
+    }
+    return {};
+}
+
+} // namespace
+
+void PropertyServiceTest::test_automationTargets_shouldListEveryEffectWithItsLocation()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    PropertyService propertyService;
+    propertyService.setDeviceService(deviceService);
+
+    const auto synth = std::make_shared<SynthDevice>("Synth");
+    const auto inDevice = std::make_shared<AutoFilter>();
+    synth->insertEffectRack().setEffect(3, inDevice);
+    deviceService->setDevice(2, synth);
+    const auto onMaster = std::make_shared<AutoFilter>();
+    deviceService->insertEffectRack().setEffect(1, onMaster);
+
+    const auto targets = propertyService.automationTargets();
+
+    QCOMPARE(targets.size(), qsizetype { 2 });
+    const auto device = targets.at(0).toMap();
+    QCOMPARE(device["effectId"].toString(), QString::fromStdString(inDevice->id()));
+    QCOMPARE(device["typeId"].toString(), QString::fromStdString(AutoFilter::typeIdString()));
+    // What the effect gallery names effects by
+    QCOMPARE(device["type"].toString(), Constants::RackEffectType::autoFilter());
+    QCOMPARE(device["rack"].toInt(), static_cast<int>(DeviceService::EffectLocation::Rack::DeviceInsert));
+    QCOMPARE(device["deviceSlot"].toInt(), 2);
+    QCOMPARE(device["effectSlot"].toInt(), 3);
+    const auto master = targets.at(1).toMap();
+    QCOMPARE(master["effectId"].toString(), QString::fromStdString(onMaster->id()));
+    QCOMPARE(master["rack"].toInt(), static_cast<int>(DeviceService::EffectLocation::Rack::MasterInsert));
+    QCOMPARE(master["effectSlot"].toInt(), 1);
+}
+
+void PropertyServiceTest::test_automationTargets_autoFilter_shouldDescribeItsParameters()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    PropertyService propertyService;
+    propertyService.setDeviceService(deviceService);
+    deviceService->insertEffectRack().setEffect(0, std::make_shared<AutoFilter>());
+
+    const auto target = propertyService.automationTargets().at(0).toMap();
+
+    const auto cutoff = parameterOf(target, Constants::NahdXml::xmlKeyCutoff());
+    QCOMPARE(cutoff["label"].toString(), QString { "Cutoff" });
+    QCOMPARE(cutoff["unit"].toString(), QString { "Hz" });
+    QCOMPARE(cutoff["mapping"].toString(), QString { "logFrequency" });
+    QCOMPARE(cutoff["min"].toDouble(), 20.0);
+    QCOMPARE(cutoff["max"].toDouble(), 20000.0);
+    QCOMPARE(cutoff["rest"].toDouble(), 0.0);
+    QCOMPARE(parameterOf(target, Constants::NahdXml::xmlKeyLfoIntensity())["rest"].toDouble(), 0.5);
+    // A switch is not offered: a position between two of its choices means nothing
+    QVERIFY(parameterOf(target, Constants::NahdXml::xmlKeyFilterType()).isEmpty());
+}
+
+void PropertyServiceTest::test_automationTargets_parameterWithoutDisplay_shouldBePercentOfTravel()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    PropertyService propertyService;
+    propertyService.setDeviceService(deviceService);
+    const auto gain = std::make_shared<Gain>();
+    deviceService->insertEffectRack().setEffect(0, gain);
+
+    const auto parameter = propertyService.automationParameter(QString::fromStdString(gain->id()), Constants::NahdXml::xmlKeyGain());
+
+    QCOMPARE(parameter["label"].toString(), Constants::NahdXml::xmlKeyGain());
+    QCOMPARE(parameter["unit"].toString(), QString { "%" });
+    QCOMPARE(parameter["mapping"].toString(), QString { "linear" });
+    QCOMPARE(parameter["max"].toDouble(), 100.0);
+}
+
+void PropertyServiceTest::test_automationParameter_missing_shouldBeEmpty()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    PropertyService propertyService;
+    propertyService.setDeviceService(deviceService);
+    const auto filter = std::make_shared<AutoFilter>();
+    deviceService->insertEffectRack().setEffect(0, filter);
+
+    QVERIFY(propertyService.automationParameter("no-such-effect", Constants::NahdXml::xmlKeyCutoff()).isEmpty());
+    QVERIFY(propertyService.automationParameter(QString::fromStdString(filter->id()), "noSuchParameter").isEmpty());
 }
 
 } // namespace noteahead

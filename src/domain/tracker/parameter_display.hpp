@@ -54,6 +54,9 @@ struct ParameterDisplay
     double min = 0.0;
     double max = 1.0;
     Rest rest = Rest::Minimum;
+    //! The control's name as its knob shows it, untranslated. Marked with QT_TRANSLATE_NOOP in the
+    //! "ParameterDisplay" context where it is set, and translated wherever it is shown.
+    std::string label;
 
     //! The value a knob position reads out as, in unit.
     double toUnits(double position) const;

@@ -17,11 +17,15 @@
 
 #include "../../common/constants.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
+#include "../../domain/effects/effect.hpp"
 #include "../../infra/midi/midi_cc_mapping.hpp"
 #include "../note_converter.hpp"
 #include "device_service.hpp"
 
+#include <QCoreApplication>
 #include <QVariantMap>
+
+#include <algorithm>
 
 #include <optional>
 
@@ -46,6 +50,79 @@ void PropertyService::setDeviceService(std::weak_ptr<DeviceService> deviceServic
 QVariantList PropertyService::availableMidiControllers() const
 {
     return getAvailableMidiControllers();
+}
+
+namespace {
+
+QVariantList automatableParameters(const Effect & effect)
+{
+    QVariantList parameters;
+    for (auto && [key, parameter] : effect.parameters()) {
+        if (parameter.type() != Parameter::Type::Continuous) {
+            continue;
+        }
+        QVariantMap map;
+        map["key"] = QString::fromStdString(key);
+        // Where the knob is set now, which is what a relative automation scales
+        map["knob"] = static_cast<double>(parameter.authoredValue());
+        if (const auto & display = parameter.display(); display) {
+            map["label"] = display->label.empty() ? QString::fromStdString(key) : QCoreApplication::translate("ParameterDisplay", display->label.c_str());
+            map["unit"] = QString::fromStdString(display->unit);
+            map["mapping"] = QString::fromStdString(display->mappingName());
+            map["min"] = display->min;
+            map["max"] = display->max;
+            map["rest"] = display->restPosition();
+        } else {
+            map["label"] = QString::fromStdString(key);
+            map["unit"] = QString { "%" };
+            map["mapping"] = QString { "linear" };
+            map["min"] = 0.0;
+            map["max"] = 100.0;
+            map["rest"] = 0.0;
+        }
+        parameters.push_back(map);
+    }
+    std::ranges::sort(parameters, [](auto && lhs, auto && rhs) {
+        return QString::localeAwareCompare(lhs.toMap()["label"].toString(), rhs.toMap()["label"].toString()) < 0;
+    });
+    return parameters;
+}
+
+} // namespace
+
+QVariantList PropertyService::automationTargets() const
+{
+    QVariantList targets;
+    if (const auto deviceService = m_deviceService.lock(); deviceService) {
+        for (auto && location : deviceService->effectLocations()) {
+            QVariantMap map;
+            map["effectId"] = QString::fromStdString(location.effect->id());
+            map["typeId"] = QString::fromStdString(location.effect->typeId());
+            map["type"] = QString::fromStdString(location.effect->type());
+            map["rack"] = static_cast<int>(location.rack);
+            map["deviceSlot"] = static_cast<int>(location.deviceSlot);
+            map["deviceTypeName"] = QString::fromStdString(location.deviceTypeName);
+            map["rackIndex"] = static_cast<int>(location.rackIndex);
+            map["effectSlot"] = static_cast<int>(location.effectSlot);
+            map["parameters"] = automatableParameters(*location.effect);
+            targets.push_back(map);
+        }
+    }
+    return targets;
+}
+
+QVariantMap PropertyService::automationParameter(const QString & effectId, const QString & key) const
+{
+    if (const auto deviceService = m_deviceService.lock(); deviceService) {
+        if (const auto effect = deviceService->findEffect(effectId.toStdString()); effect) {
+            for (auto && parameter : automatableParameters(*effect)) {
+                if (const auto map = parameter.toMap(); map["key"].toString() == key) {
+                    return map;
+                }
+            }
+        }
+    }
+    return {};
 }
 
 QVariantList PropertyService::getAvailableMidiControllers(const QString & portName) const
