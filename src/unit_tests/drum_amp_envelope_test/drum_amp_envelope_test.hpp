@@ -36,6 +36,9 @@ private slots:
     void test_envelope_retrigger_shouldNotStepToSilence();
     void test_envelope_retrigger_fromSilence_shouldAttackAtOnce();
     void test_envelope_reset_shouldGoIdle();
+
+    void test_strike_retrigger_shouldNotStep();
+    void test_strike_silentEngine_shouldStrikeAtOnce();
 };
 
 } // namespace noteahead

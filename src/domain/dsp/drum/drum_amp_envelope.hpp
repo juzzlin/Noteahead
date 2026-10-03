@@ -109,7 +109,7 @@ private:
     //! How long the level takes to reach zero before a retrigger's attack. Long enough that the
     //! step is a ramp rather than an edge, short enough to sit inside the attack transient of the
     //! drum being struck.
-    static constexpr double ChokeSeconds { 0.002 };
+    static constexpr double ChokeSeconds { 0.001 };
 
     //! Level below which a retrigger simply attacks: there is nothing left to walk down from, and
     //! delaying the hit to fade silence would only make it late.

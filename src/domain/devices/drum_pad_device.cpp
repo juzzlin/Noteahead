@@ -154,8 +154,7 @@ void DrumPadDevice::processDeviceMidiNoteOn(uint8_t note, uint8_t velocity)
     for (auto && voice : m_voices) {
         if (voice.midiNote == note) {
             const float vel { static_cast<float>(velocity) / 127.0f };
-            voice.engine->trigger(vel);
-            voice.ampEnvelope.trigger();
+            voice.strike.strike(*voice.engine, voice.ampEnvelope, vel);
             voice.renderedFrames = 0;
             break;
         }
@@ -306,6 +305,7 @@ void DrumPadDevice::processAudio(AudioContext & context)
 
             for (int v = 0; v < NumVoices; v++) {
                 auto & voice = m_voices.at(v);
+                voice.strike.advance(*voice.engine, voice.ampEnvelope);
                 // Counted on the first pass of the oversampling only, so it stays a count of output
                 // frames and the playhead runs at the same speed whatever the quality is set to.
                 if (!os && voice.engine->isActive() && voice.ampEnvelope.isActive()) {
@@ -436,6 +436,7 @@ void DrumPadDevice::resetDeviceAudio()
     for (auto && voice : m_voices) {
         voice.engine->reset();
         voice.ampEnvelope.reset();
+        voice.strike.reset();
         voice.effectRack.reset();
         for (auto && filter : { voice.lpf.get(), voice.lpfStage2.get() }) {
             if (filter) {

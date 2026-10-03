@@ -16,6 +16,7 @@
 #include "drum_synth_808_test.hpp"
 
 #include "../../../../../common/constants.hpp"
+#include "../../../../../domain/dsp/audio_context.hpp"
 #include "../../../../../domain/dsp/drum/clap_808_engine.hpp"
 #include "../../../../../domain/dsp/drum/kick_808_engine.hpp"
 #include "../../../../../domain/dsp/drum/metal_808_engine.hpp"
@@ -309,6 +310,39 @@ void DrumSynth808Test::test_kick_shouldPlayWhatKick808Plays()
     QVERIFY2(correlation > 0.98, qPrintable(QString::number(correlation)));
     // Where the RD-8's kick is with its Tuning at 3
     QVERIFY2(std::abs(strongestHz(reference, 0.15, 0.6, 40.0, 70.0) - 52.26) < 1.0, qPrintable(QString::number(strongestHz(reference, 0.15, 0.6, 40.0, 70.0))));
+}
+
+void DrumSynth808Test::test_kick_retrigger_shouldNotClick()
+{
+    // A hit while the last one still rings: the old one fades out and the new one starts clean,
+    // rather than starting inside the fade and jumping back to full level
+    DrumSynth808Device device { "808" };
+    device.setSampleRate(SampleRate);
+    const auto note = device.voiceNote(pad(VoiceIndex::Kick));
+    const size_t gapBlocks = static_cast<size_t>(0.25 * SampleRate) / 64;
+    std::vector<double> left;
+    std::vector<double> buffer(64 * 2);
+    for (size_t block = 0; block < gapBlocks + 100; block++) {
+        if (block == 0 || block == gapBlocks) {
+            device.processMidiNoteOn(note, 100);
+        }
+        std::ranges::fill(buffer, 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), 64, static_cast<uint32_t>(SampleRate) };
+        device.processAudio(context);
+        for (size_t i = 0; i < buffer.size(); i += 2) {
+            left.push_back(buffer.at(i));
+        }
+    }
+    const auto largestStep = [&left](size_t from) {
+        double largest = 0.0;
+        for (size_t i = from + 1; i < from + 480; i++) {
+            largest = std::max(largest, std::abs(left.at(i) - left.at(i - 1)));
+        }
+        return largest;
+    };
+    const double first = largestStep(0);
+    const double second = largestStep(gapBlocks * 64);
+    QVERIFY2(second < 2.0 * first, qPrintable(QString::number(first) + " vs " + QString::number(second)));
 }
 
 void DrumSynth808Test::test_kick_tuning_shouldSpanTheRd8sRange()

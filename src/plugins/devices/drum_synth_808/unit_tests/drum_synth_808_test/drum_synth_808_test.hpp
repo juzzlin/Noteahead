@@ -31,6 +31,7 @@ private slots:
     void test_everyPad_shouldPeakAtItsTargetUnderTheKick();
     void test_loadKit_shouldMixAsNamed();
     void test_kick_shouldPlayWhatKick808Plays();
+    void test_kick_retrigger_shouldNotClick();
     void test_kick_tuning_shouldSpanTheRd8sRange();
     void test_tom_noon_shouldSettleAtTheRd8sPitch();
     void test_tom_tune_shouldSpanTheRd8sRange();
