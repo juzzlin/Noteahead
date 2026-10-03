@@ -49,14 +49,8 @@ EffectDialog {
             width: dialogScrollView.availableWidth
             spacing: 20
 
-            RowLayout {
-                spacing: 10
-                Label { text: qsTr("Preset:") }
-                ComboBox {
-                    model: effectRackController.reverbPresets()
-                    onActivated: index => effectRackController.applyReverbPreset(root.effectIndex, index)
-                    Layout.fillWidth: true
-                }
+            EffectPresetRow {
+                effectIndex: root.effectIndex
             }
 
             GridLayout {

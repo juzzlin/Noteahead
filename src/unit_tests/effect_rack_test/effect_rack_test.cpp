@@ -346,16 +346,15 @@ void EffectRackTest::test_reverb_presets_shouldApplyPresets()
 {
     auto reverb = std::make_shared<Reverb>();
 
-    const auto presets = Reverb::presetNames();
+    const auto & presets = reverb->factoryPresets();
     QVERIFY(!presets.empty());
-    QCOMPARE(presets[0], "Hall");
+    QCOMPARE(presets[0].name, "Hall");
+    QCOMPARE(presets[4].name, "Cathedral");
 
-    reverb->applyPreset(Reverb::stringToPreset("Cathedral"));
+    QVERIFY(reverb->applyFactoryPreset(4));
     QCOMPARE(reverb->size(), 1.0f);
     QCOMPARE(reverb->lpfCutoff(), 0.84f);
     QCOMPARE(reverb->hpfCutoff(), 0.16f);
-
-    QCOMPARE(Reverb::presetToString(Reverb::Preset::Spring), "Spring");
 }
 
 void EffectRackTest::test_exportImportEffectSettings_shouldWorkForSingleEffect()

@@ -50,7 +50,6 @@
 #include "../../domain/effects/phaser.hpp"
 #include "../../domain/effects/reference.hpp"
 #include "../../domain/effects/reference_environments.hpp"
-#include "../../domain/effects/reverb.hpp"
 #include "../../domain/effects/saturator.hpp"
 #include "../../domain/effects/stereo_enhancer.hpp"
 #include "../../domain/effects/stereo_exciter.hpp"
@@ -3113,60 +3112,6 @@ bool EffectRackController::deleteCurrentEffectUserPreset(quint32 effectIndex)
     emit effectPresetsChanged(effectIndex);
 
     return true;
-}
-
-QStringList EffectRackController::reverbPresets() const
-{
-    QStringList presets;
-    for (const auto & name : Reverb::presetNames()) {
-        presets.append(QString::fromStdString(name));
-    }
-    return presets;
-}
-
-void EffectRackController::applyReverbPreset(quint32 effectIndex, quint32 presetIndex)
-{
-    if (const auto rack = currentRack(); rack) {
-        if (const auto effect = rack->get().effect(effectIndex); effect) {
-            if (const auto reverb = std::dynamic_pointer_cast<Reverb>(effect); reverb) {
-                const auto presetNames = Reverb::presetNames();
-                if (presetIndex < presetNames.size()) {
-                    reverb->applyPreset(Reverb::stringToPreset(presetNames[static_cast<size_t>(presetIndex)]));
-                    m_editorService->setIsModified(true);
-                    m_revision++;
-                    emit revisionChanged();
-                    emit parameterChanged(effectIndex, ""); // Notify all parameters changed
-                }
-            }
-        }
-    }
-}
-
-QStringList EffectRackController::compressorPresets() const
-{
-    QStringList presets;
-    for (const auto & name : Compressor::presetNames()) {
-        presets.append(QString::fromStdString(name));
-    }
-    return presets;
-}
-
-void EffectRackController::applyCompressorPreset(quint32 effectIndex, quint32 presetIndex)
-{
-    if (const auto rack = currentRack(); rack) {
-        if (const auto effect = rack->get().effect(effectIndex); effect) {
-            if (const auto compressor = std::dynamic_pointer_cast<Compressor>(effect); compressor) {
-                const auto presetNames = Compressor::presetNames();
-                if (presetIndex < presetNames.size()) {
-                    compressor->applyPreset(Compressor::stringToPreset(presetNames[static_cast<size_t>(presetIndex)]));
-                    m_editorService->setIsModified(true);
-                    m_revision++;
-                    emit revisionChanged();
-                    emit parameterChanged(effectIndex, ""); // Notify all parameters changed
-                }
-            }
-        }
-    }
 }
 
 void EffectRackController::snapshotEffect(int effectIndex)

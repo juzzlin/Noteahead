@@ -38,6 +38,15 @@ private slots:
     void test_autoDuckerPresets_classicPump_shouldMatchTheSourceNotes();
     void test_autoDuckerPresets_shouldNeverNameASideChainSource();
 
+    void test_reverbPresets_names_shouldBeUnique();
+    void test_reverbPresets_shouldNameOnlyKnownParameters();
+    void test_reverbPresets_shouldAllSetAMixAboveZero();
+    void test_reverbPresets_cathedral_shouldMatchTheSourceNotes();
+
+    void test_compressorPresets_names_shouldBeUnique();
+    void test_compressorPresets_shouldNameOnlyKnownParameters();
+    void test_compressorPresets_shouldNeverNameASideChainSource();
+
     void test_applyFactoryPreset_shouldKeepTheSideChainSource();
     void test_applyPresetParametersFromXml_shouldKeepTheSideChainSource();
 };

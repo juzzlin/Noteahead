@@ -81,6 +81,7 @@ set(HEADER_FILES
     effects/bit_crusher.hpp
     effects/clipper.hpp
     effects/compressor.hpp
+    effects/compressor_presets.hpp
     effects/crossfeed.hpp
     effects/crossfeed_presets.hpp
     effects/delay.hpp
@@ -107,6 +108,7 @@ set(HEADER_FILES
     effects/reference_environments.hpp
     effects/reference_presets.hpp
     effects/reverb.hpp
+    effects/reverb_presets.hpp
     effects/saturator.hpp
     effects/tremolo.hpp
     effects/tube_stage.hpp
@@ -253,6 +255,7 @@ set(SOURCE_FILES
     effects/chorus.cpp
     effects/clipper.cpp
     effects/compressor.cpp
+    effects/compressor_presets.cpp
     effects/crossfeed.cpp
     effects/crossfeed_presets.cpp
     effects/delay.cpp
@@ -278,6 +281,7 @@ set(SOURCE_FILES
     effects/reference_environments.cpp
     effects/reference_presets.cpp
     effects/reverb.cpp
+    effects/reverb_presets.cpp
     effects/saturator.cpp
     effects/tremolo.cpp
     effects/tube_stage.cpp

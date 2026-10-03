@@ -42,14 +42,8 @@ EffectDialog {
         anchors.margins: 20
         spacing: 16
 
-        RowLayout {
-            spacing: 10
-            Label { text: qsTr("Preset:") }
-            ComboBox {
-                model: effectRackController.compressorPresets()
-                onActivated: index => effectRackController.applyCompressorPreset(root.effectIndex, index)
-                Layout.fillWidth: true
-            }
+        EffectPresetRow {
+            effectIndex: root.effectIndex
         }
 
         ScrollView {

@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "reverb.hpp"
+#include "reverb_presets.hpp"
 
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
@@ -326,131 +327,9 @@ float Reverb::hpfCutoff() const
     return 0.2f;
 }
 
-void Reverb::applyPreset(Preset preset)
+const EffectPresetList & Reverb::factoryPresets() const
 {
-    switch (preset) {
-    case Preset::Hall:
-        setSize(0.8f);
-        setDecay(3000.0f / 10000.0f);
-        setDamping(0.3f);
-        setPreDelay(30.0f / 500.0f);
-        setWidth(1.2f / 2.0f);
-        setLpfCutoff(0.86f);
-        setHpfCutoff(0.18f);
-        break;
-    case Preset::LargeRoom:
-        setSize(0.6f);
-        setDecay(1500.0f / 10000.0f);
-        setDamping(0.4f);
-        setPreDelay(15.0f / 500.0f);
-        setWidth(1.0f / 2.0f);
-        setLpfCutoff(0.82f);
-        setHpfCutoff(0.2f);
-        break;
-    case Preset::SmallRoom:
-        setSize(0.3f);
-        setDecay(600.0f / 10000.0f);
-        setDamping(0.5f);
-        setPreDelay(5.0f / 500.0f);
-        setWidth(0.8f / 2.0f);
-        setLpfCutoff(0.78f);
-        setHpfCutoff(0.24f);
-        break;
-    case Preset::Plate:
-        setSize(0.5f);
-        setDecay(2000.0f / 10000.0f);
-        setDamping(0.2f);
-        setPreDelay(10.0f / 500.0f);
-        setWidth(1.5f / 2.0f);
-        setLpfCutoff(0.9f);
-        setHpfCutoff(0.2f);
-        break;
-    case Preset::Cathedral:
-        setSize(1.0f);
-        setDecay(8000.0f / 10000.0f);
-        setDamping(0.2f);
-        setPreDelay(50.0f / 500.0f);
-        setWidth(2.0f / 2.0f);
-        setLpfCutoff(0.84f);
-        setHpfCutoff(0.16f);
-        break;
-    case Preset::Basement:
-        setSize(0.2f);
-        setDecay(400.0f / 10000.0f);
-        setDamping(0.7f);
-        setPreDelay(2.0f / 500.0f);
-        setWidth(0.5f / 2.0f);
-        setLpfCutoff(0.68f);
-        setHpfCutoff(0.3f);
-        break;
-    case Preset::Tunnel:
-        setSize(0.9f);
-        setDecay(5000.0f / 10000.0f);
-        setDamping(0.1f);
-        setPreDelay(40.0f / 500.0f);
-        setWidth(0.6f / 2.0f);
-        setLpfCutoff(0.88f);
-        setHpfCutoff(0.18f);
-        break;
-    case Preset::Spring:
-        setSize(0.4f);
-        setDecay(1200.0f / 10000.0f);
-        setDamping(0.4f);
-        setPreDelay(5.0f / 500.0f);
-        setWidth(1.0f / 2.0f);
-        setLpfCutoff(0.72f);
-        setHpfCutoff(0.26f);
-        break;
-    }
-}
-
-std::string Reverb::presetToString(Preset preset)
-{
-    switch (preset) {
-    case Preset::Hall:
-        return "Hall";
-    case Preset::LargeRoom:
-        return "Large Room";
-    case Preset::SmallRoom:
-        return "Small Room";
-    case Preset::Plate:
-        return "Plate";
-    case Preset::Cathedral:
-        return "Cathedral";
-    case Preset::Basement:
-        return "Basement";
-    case Preset::Tunnel:
-        return "Tunnel";
-    case Preset::Spring:
-        return "Spring";
-    }
-    return "Hall";
-}
-
-Reverb::Preset Reverb::stringToPreset(const std::string & presetName)
-{
-    if (presetName == "Hall")
-        return Preset::Hall;
-    if (presetName == "Large Room")
-        return Preset::LargeRoom;
-    if (presetName == "Small Room")
-        return Preset::SmallRoom;
-    if (presetName == "Plate")
-        return Preset::Plate;
-    if (presetName == "Cathedral")
-        return Preset::Cathedral;
-    if (presetName == "Basement")
-        return Preset::Basement;
-    if (presetName == "Tunnel")
-        return Preset::Tunnel;
-    if (presetName == "Spring")
-        return Preset::Spring;
-    return Preset::Hall;
-}
-
-std::vector<std::string> Reverb::presetNames()
-{
-    return { "Hall", "Large Room", "Small Room", "Plate", "Cathedral", "Basement", "Tunnel", "Spring" };
+    return ReverbPresets::presets();
 }
 
 void Reverb::syncParameters()

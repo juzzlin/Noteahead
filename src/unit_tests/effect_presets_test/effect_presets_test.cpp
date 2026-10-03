@@ -19,8 +19,12 @@
 #include "../../common/parameter_mapper.hpp"
 #include "../../domain/effects/auto_ducker.hpp"
 #include "../../domain/effects/auto_ducker_presets.hpp"
+#include "../../domain/effects/compressor.hpp"
+#include "../../domain/effects/compressor_presets.hpp"
 #include "../../domain/effects/delay.hpp"
 #include "../../domain/effects/delay_presets.hpp"
+#include "../../domain/effects/reverb.hpp"
+#include "../../domain/effects/reverb_presets.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
@@ -75,7 +79,7 @@ double parameterOf(const Effect & effect, const QString & key)
     return p ? static_cast<double>(p->get().value()) : 0.0;
 }
 
-void checkNamesUniqueAndAlphabetical(const EffectPresetList & presets)
+void checkNamesUnique(const EffectPresetList & presets)
 {
     QVERIFY(!presets.empty());
 
@@ -84,6 +88,11 @@ void checkNamesUniqueAndAlphabetical(const EffectPresetList & presets)
         QVERIFY(!preset.name.empty());
         QVERIFY2(seen.insert(preset.name).second, preset.name.c_str());
     }
+}
+
+void checkNamesUniqueAndAlphabetical(const EffectPresetList & presets)
+{
+    checkNamesUnique(presets);
 
     // A list is read by name, which only works if the names are in an order a reader can predict.
     for (size_t i = 1; i < presets.size(); i++) {
@@ -206,6 +215,57 @@ void EffectPresetsTest::test_autoDuckerPresets_shouldNeverNameASideChainSource()
 {
     // A device slot means nothing outside the project it was saved in, so no patch may carry one.
     for (const auto & preset : AutoDuckerPresets::presets()) {
+        QVERIFY2(!valueOf(preset, C::xmlKeySideChainSourceDevice()).has_value(), preset.name.c_str());
+    }
+}
+
+void EffectPresetsTest::test_reverbPresets_names_shouldBeUnique()
+{
+    // Not alphabetical: the list keeps the order the dropdown offered before user presets came in.
+    checkNamesUnique(ReverbPresets::presets());
+}
+
+void EffectPresetsTest::test_reverbPresets_shouldNameOnlyKnownParameters()
+{
+    checkNamesOnlyKnownParameters(ReverbPresets::presets(), Reverb {});
+}
+
+void EffectPresetsTest::test_reverbPresets_shouldAllSetAMixAboveZero()
+{
+    // The effect's own default is fully dry, and a preset resets everything it does not name: one
+    // that forgot the mix would load as a reverb that cannot be heard at all.
+    for (const auto & preset : ReverbPresets::presets()) {
+        const auto mix = valueOf(preset, C::xmlKeyMix());
+        QVERIFY2(mix.has_value(), preset.name.c_str());
+        QVERIFY2(mix.value() > 0.0f, preset.name.c_str());
+    }
+}
+
+void EffectPresetsTest::test_reverbPresets_cathedral_shouldMatchTheSourceNotes()
+{
+    const auto reverb = applied<Reverb>(ReverbPresets::presets(), "Cathedral");
+
+    // Eight seconds of decay behind 50 ms of pre-delay, at full width.
+    QVERIFY(std::abs(parameterOf(reverb, C::xmlKeyDecay()) * 10000.0 - 8000.0) < 0.1);
+    QVERIFY(std::abs(parameterOf(reverb, C::xmlKeyPreDelay()) * 500.0 - 50.0) < 0.01);
+    QVERIFY(std::abs(parameterOf(reverb, C::xmlKeyWidth()) - 1.0) < 1.0e-6);
+    QVERIFY(std::abs(parameterOf(reverb, C::xmlKeySize()) - 1.0) < 1.0e-6);
+}
+
+void EffectPresetsTest::test_compressorPresets_names_shouldBeUnique()
+{
+    checkNamesUnique(CompressorPresets::presets());
+}
+
+void EffectPresetsTest::test_compressorPresets_shouldNameOnlyKnownParameters()
+{
+    checkNamesOnlyKnownParameters(CompressorPresets::presets(), Compressor {});
+}
+
+void EffectPresetsTest::test_compressorPresets_shouldNeverNameASideChainSource()
+{
+    // A device slot means nothing outside the project it was saved in, so no patch may carry one.
+    for (const auto & preset : CompressorPresets::presets()) {
         QVERIFY2(!valueOf(preset, C::xmlKeySideChainSourceDevice()).has_value(), preset.name.c_str());
     }
 }

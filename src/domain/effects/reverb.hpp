@@ -28,18 +28,6 @@ namespace noteahead {
 class Reverb : public Effect
 {
 public:
-    enum class Preset
-    {
-        Hall,
-        LargeRoom,
-        SmallRoom,
-        Plate,
-        Cathedral,
-        Basement,
-        Tunnel,
-        Spring
-    };
-
     Reverb();
 
     static std::string typeIdString();
@@ -75,11 +63,7 @@ public:
     void setHpfCutoff(float cutoff);
     float hpfCutoff() const;
 
-    void applyPreset(Preset preset);
-
-    static std::string presetToString(Preset preset);
-    static Preset stringToPreset(const std::string & presetName);
-    static std::vector<std::string> presetNames();
+    const EffectPresetList & factoryPresets() const override;
 
 private:
     void syncParameters();

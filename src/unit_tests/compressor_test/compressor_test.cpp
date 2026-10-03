@@ -19,9 +19,11 @@
 #include "../../common/parameter_mapper.hpp"
 #include "../../common/utils.hpp"
 #include "../../domain/effects/compressor.hpp"
+#include "../../domain/effects/compressor_presets.hpp"
 
 #include <QTest>
 
+#include <algorithm>
 #include <cmath>
 
 namespace noteahead {
@@ -40,6 +42,15 @@ void setParameter(Compressor & effect, const QString & key, float value)
         p->get().setValue(value);
     }
     effect.sync();
+}
+
+//! Applies the built-in patch called @p name.
+void applyPreset(Compressor & effect, const std::string & name)
+{
+    const auto & presets = CompressorPresets::presets();
+    const auto it = std::ranges::find_if(presets, [&name](const auto & preset) { return preset.name == name; });
+    QVERIFY(it != presets.end());
+    QVERIFY(effect.applyFactoryPreset(static_cast<size_t>(std::distance(presets.begin(), it))));
 }
 
 //! Feeds a steady stereo level for the given number of frames and returns the last output frame.
@@ -63,7 +74,7 @@ void CompressorTest::test_presets_shouldMapToTheirAuthoredValues()
     // what can silently drift. Glue is checked end to end; the rest only have to stay in range.
     Compressor effect;
     effect.setSampleRate(sampleRate);
-    effect.applyPreset(Compressor::Preset::Glue);
+    applyPreset(effect, "Glue");
 
     const auto valueOf = [&](const QString & key) {
         const auto p = effect.parameter(key.toStdString());
@@ -83,10 +94,10 @@ void CompressorTest::test_presets_shouldMapToTheirAuthoredValues()
     QCOMPARE(valueOf(Constants::NahdXml::xmlKeyMode()), 1.0f);
 
     // Every preset has to land inside the parameter ranges, or it would be silently clamped.
-    for (const auto & name : Compressor::presetNames()) {
+    for (const auto & preset : CompressorPresets::presets()) {
         Compressor other;
         other.setSampleRate(sampleRate);
-        other.applyPreset(Compressor::stringToPreset(name));
+        applyPreset(other, preset.name);
         for (const auto & key : { Constants::NahdXml::xmlKeyThreshold(), Constants::NahdXml::xmlKeyRatio(),
                                   Constants::NahdXml::xmlKeyAttack(), Constants::NahdXml::xmlKeyRelease(),
                                   Constants::NahdXml::xmlKeyKnee(), Constants::NahdXml::xmlKeyMakeup(),
@@ -106,7 +117,7 @@ void CompressorTest::test_presets_glue_shouldReduceGentlyAtProgramLevel()
     // squash. A threshold ported from a tool with hotter signals would do nothing here.
     Compressor effect;
     effect.setSampleRate(sampleRate);
-    effect.applyPreset(Compressor::Preset::Glue);
+    applyPreset(effect, "Glue");
 
     feed(effect, Utils::Dsp::dbToLinear(-17.0f), 20000);
     QVERIFY(effect.reductionDb() < -1.5f);
@@ -115,18 +126,30 @@ void CompressorTest::test_presets_glue_shouldReduceGentlyAtProgramLevel()
     // And it has to leave quiet passages alone, or it is not glue but levelling.
     Compressor quiet;
     quiet.setSampleRate(sampleRate);
-    quiet.applyPreset(Compressor::Preset::Glue);
+    applyPreset(quiet, "Glue");
     feed(quiet, Utils::Dsp::dbToLinear(-30.0f), 20000);
     QVERIFY(quiet.reductionDb() > -0.5f);
 }
 
-void CompressorTest::test_presets_names_shouldRoundTrip()
+void CompressorTest::test_presets_names_shouldBeUnique()
 {
-    const auto names = Compressor::presetNames();
-    QCOMPARE(names.size(), static_cast<size_t>(8));
-    for (const auto & name : names) {
-        QCOMPARE(Compressor::presetToString(Compressor::stringToPreset(name)), name);
+    const auto & presets = CompressorPresets::presets();
+    QCOMPARE(presets.size(), static_cast<size_t>(8));
+    for (const auto & preset : presets) {
+        QCOMPARE(std::ranges::count_if(presets, [&preset](const auto & other) { return other.name == preset.name; }), 1);
     }
+}
+
+void CompressorTest::test_presets_shouldKeepTheSideChainSource()
+{
+    Compressor effect;
+    setParameter(effect, Constants::NahdXml::xmlKeySideChainSourceDevice(), 2.0f);
+    QCOMPARE(effect.sidechainSourceDeviceIndex().value(), size_t { 2 });
+
+    applyPreset(effect, "Pump");
+
+    // The patch is a sound; the source is the wiring, and loading a patch may not pull the plug.
+    QCOMPARE(effect.sidechainSourceDeviceIndex().value(), size_t { 2 });
 }
 
 void CompressorTest::test_gain_belowThreshold_shouldPassThroughUnchanged()
