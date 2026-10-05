@@ -5727,6 +5727,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>The track&apos;s device offers nothing to automate. Add an effect to its insert rack first.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Parameter</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5807,6 +5811,10 @@
     </message>
     <message>
         <source>Device %1 (%2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 on %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
