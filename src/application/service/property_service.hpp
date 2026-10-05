@@ -63,6 +63,10 @@ public:
     //! them the inner workings of a voice or a pad, and listing them all would bury the few worth
     //! riding. A device that describes none is not listed.
     Q_INVOKABLE QVariantList automationTargets() const;
+    //! The part of automationTargets() a track playing @p portName is about: the internal device
+    //! behind the port, when it offers anything, and the effects in that device's own racks. Empty
+    //! for a port with no internal device behind it, where nothing narrows the list down.
+    Q_INVOKABLE QVariantList automationTargetsForPort(const QString & portName) const;
     //! One parameter of automationTargets(), or an empty map when the target or the parameter is gone.
     Q_INVOKABLE QVariantMap automationParameter(const QString & owner, const QString & ownerId, const QString & key) const;
 

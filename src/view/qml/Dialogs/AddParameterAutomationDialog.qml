@@ -52,10 +52,10 @@ AnimatedDialog {
     function setTitle(text: string): void {
         title = "<strong>" + text + "</strong>";
     }
-    //! Opens the form over the given lines, on the targets the project has right now, with the
-    //! device @p deviceUuid selected when it offers any.
-    function openForLines(startLine: int, endLine: int, deviceUuid: string): void {
-        model.refreshTargets(deviceUuid);
+    //! Opens the form over the given lines, on the targets of a track playing @p portName as the
+    //! project has them right now. See ParameterAutomationModel.refreshTargets().
+    function openForLines(startLine: int, endLine: int, portName: string): void {
+        model.refreshTargets(portName);
         model.reset();
         model.setStartLine(startLine);
         model.setEndLine(endLine);

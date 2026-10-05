@@ -33,6 +33,8 @@ private slots:
     void test_automationTargets_device_shouldOfferOnlyDescribedParameters();
     void test_automationTargets_deviceWithoutDescriptions_shouldNotBeListed();
     void test_automationParameter_device_shouldFindIt();
+    void test_automationTargetsForPort_shouldOfferOnlyTheDeviceAndItsEffects();
+    void test_automationTargetsForPort_externalPort_shouldBeEmpty();
     void test_automationTargets_autoFilter_shouldDescribeItsParameters();
     void test_automationTargets_parameterWithoutDisplay_shouldBePercentOfTravel();
     void test_automationParameter_missing_shouldBeEmpty();

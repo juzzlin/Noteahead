@@ -346,6 +346,50 @@ void PropertyServiceTest::test_automationParameter_device_shouldFindIt()
     QVERIFY(propertyService.automationParameter("effect", uuid, Constants::NahdXml::xmlKeyHpfCutoff()).isEmpty());
 }
 
+void PropertyServiceTest::test_automationTargetsForPort_shouldOfferOnlyTheDeviceAndItsEffects()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    PropertyService propertyService;
+    propertyService.setDeviceService(deviceService);
+
+    const auto ownSynth = std::make_shared<SynthDevice>("Own");
+    const auto ownInsert = std::make_shared<AutoFilter>();
+    ownSynth->insertEffectRack().setEffect(2, ownInsert);
+    deviceService->setDevice(0, ownSynth);
+    const auto otherSynth = std::make_shared<SynthDevice>("Other");
+    otherSynth->insertEffectRack().setEffect(0, std::make_shared<AutoFilter>());
+    deviceService->setDevice(1, otherSynth);
+    deviceService->insertEffectRack().setEffect(0, std::make_shared<AutoFilter>());
+    // Everything there is: two devices, and an effect in each rack
+    QCOMPARE(propertyService.automationTargets().size(), qsizetype { 5 });
+
+    const auto port = QString::fromStdString(deviceService->internalDeviceNames().at(0));
+    const auto targets = propertyService.automationTargetsForPort(port);
+
+    // The track's own device and the effect in its own rack: not the other device, not its effect,
+    // not the master
+    QCOMPARE(targets.size(), qsizetype { 2 });
+    QCOMPARE(targets.at(0).toMap()["owner"].toString(), QString { "device" });
+    QCOMPARE(targets.at(0).toMap()["ownerId"].toString(), QString::fromStdString(ownSynth->uuid()));
+    QCOMPARE(targets.at(1).toMap()["owner"].toString(), QString { "effect" });
+    QCOMPARE(targets.at(1).toMap()["ownerId"].toString(), QString::fromStdString(ownInsert->id()));
+}
+
+void PropertyServiceTest::test_automationTargetsForPort_externalPort_shouldBeEmpty()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    PropertyService propertyService;
+    propertyService.setDeviceService(deviceService);
+    deviceService->setDevice(0, std::make_shared<SynthDevice>("Synth"));
+    deviceService->insertEffectRack().setEffect(0, std::make_shared<AutoFilter>());
+
+    // Nothing behind the port to narrow the list down to
+    QVERIFY(propertyService.automationTargetsForPort("Some MIDI Port").isEmpty());
+    QVERIFY(propertyService.automationTargetsForPort({}).isEmpty());
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::PropertyServiceTest)

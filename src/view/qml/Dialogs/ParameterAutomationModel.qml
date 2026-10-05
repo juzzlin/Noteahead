@@ -37,12 +37,17 @@ Item {
     property real startPosition: 0
     property real endPosition: 1
 
-    //! Reads the targets the project has now, and selects the device @p deviceUuid when it is one
-    //! of them: the track's own instrument is what a track most often rides.
-    function refreshTargets(deviceUuid: string): void {
-        targets = propertyService.automationTargets();
-        const deviceIndex = Targets.findTargetIndex(targets, "device", deviceUuid);
-        targetComboBox.currentIndex = deviceIndex >= 0 ? deviceIndex : (targets.length ? 0 : -1);
+    //! Whether the track plays an internal device, which is then all the list offers.
+    property bool narrowedToTrackDevice: false
+
+    //! Reads the targets the project has now for a track playing @p portName: only its own device
+    //! and that device's effects when it plays an internal one, as everything else in a project of
+    //! any size buries them. A track that plays none has nothing to narrow the list down to, so it
+    //! gets every target. The master and the sends are reached through the editing dialog's "All".
+    function refreshTargets(portName: string): void {
+        narrowedToTrackDevice = deviceService.isInternalDevice(portName);
+        targets = narrowedToTrackDevice ? propertyService.automationTargetsForPort(portName) : propertyService.automationTargets();
+        targetComboBox.currentIndex = targets.length ? 0 : -1;
         parameterComboBox.currentIndex = 0;
     }
     function hasTarget(): bool {
@@ -159,7 +164,7 @@ Item {
         width: rootItem.width
         spacing: 10
         Label {
-            text: qsTr("There is nothing to automate. Add an effect to a rack, or a device that offers parameters, first.")
+            text: rootItem.narrowedToTrackDevice ? qsTr("The track's device offers nothing to automate. Add an effect to its insert rack first.") : qsTr("There is nothing to automate. Add an effect to a rack, or a device that offers parameters, first.")
             visible: !rootItem.targets.length
             wrapMode: Text.WordWrap
             Layout.fillWidth: true

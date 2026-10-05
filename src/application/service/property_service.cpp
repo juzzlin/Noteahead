@@ -127,6 +127,34 @@ QVariantList PropertyService::automationTargets() const
     return targets;
 }
 
+QVariantList PropertyService::automationTargetsForPort(const QString & portName) const
+{
+    QVariantList targets;
+    const auto deviceService = m_deviceService.lock();
+    if (!deviceService) {
+        return targets;
+    }
+    const auto device = deviceService->findDevice(deviceService->deviceUuidForPort(portName).toStdString());
+    if (!device) {
+        return targets;
+    }
+
+    const auto deviceOwner = ParameterAutomation::Target::ownerToString(ParameterAutomation::Target::Owner::Device);
+    const auto deviceUuid = QString::fromStdString(device->uuid());
+    const auto deviceSlot = static_cast<int>(device->id());
+    std::ranges::copy_if(automationTargets(), std::back_inserter(targets), [&](auto && target) {
+        const auto map = target.toMap();
+        if (map["owner"].toString() == deviceOwner) {
+            return map["ownerId"].toString() == deviceUuid;
+        }
+        // The device's insert rack and the racks of its voices or pads; not the master or the sends
+        const auto rack = static_cast<DeviceService::EffectLocation::Rack>(map["rack"].toInt());
+        const bool isDeviceRack = rack == DeviceService::EffectLocation::Rack::DeviceInsert || rack == DeviceService::EffectLocation::Rack::DeviceVoice;
+        return isDeviceRack && map["deviceSlot"].toInt() == deviceSlot;
+    });
+    return targets;
+}
+
 QVariantMap PropertyService::automationParameter(const QString & owner, const QString & ownerId, const QString & key) const
 {
     const auto deviceService = m_deviceService.lock();

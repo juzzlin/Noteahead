@@ -921,10 +921,6 @@ ApplicationWindow {
             }
         }
     }
-    //! Device::uuid() of the internal device the current track plays, or empty when it plays none.
-    function trackDeviceUuid(): string {
-        return deviceService.deviceUuidForPort(editorService.instrumentPortName(editorService.position.track));
-    }
     AddParameterAutomationDialog {
         id: addParameterAutomationDialog
         anchors.centerIn: parent
@@ -1471,20 +1467,20 @@ ApplicationWindow {
         });
         UiService.lineAddParameterAutomationDialogRequested.connect(() => {
             addParameterAutomationDialog.setTitle(qsTr("Add parameter automation"));
-            addParameterAutomationDialog.openForLines(editorService.position.line, editorService.position.line, mainWindow.trackDeviceUuid());
+            addParameterAutomationDialog.openForLines(editorService.position.line, editorService.position.line, editorService.instrumentPortName(editorService.position.track));
         });
         UiService.columnAddParameterAutomationDialogRequested.connect(() => {
             addParameterAutomationDialog.setTitle(qsTr("Add parameter automation"));
-            addParameterAutomationDialog.openForLines(0, editorService.currentLineCount - 1, mainWindow.trackDeviceUuid());
+            addParameterAutomationDialog.openForLines(0, editorService.currentLineCount - 1, editorService.instrumentPortName(editorService.position.track));
         });
         // Automations belong to a column, so the track's goes on the column the cursor is in
         UiService.trackAddParameterAutomationDialogRequested.connect(() => {
             addParameterAutomationDialog.setTitle(qsTr("Add parameter automation"));
-            addParameterAutomationDialog.openForLines(0, editorService.currentLineCount - 1, mainWindow.trackDeviceUuid());
+            addParameterAutomationDialog.openForLines(0, editorService.currentLineCount - 1, editorService.instrumentPortName(editorService.position.track));
         });
         UiService.selectionAddParameterAutomationDialogRequested.connect(() => {
             addParameterAutomationDialog.setTitle(qsTr("Add parameter automation"));
-            addParameterAutomationDialog.openForLines(selectionService.minLine(), selectionService.maxLine(), mainWindow.trackDeviceUuid());
+            addParameterAutomationDialog.openForLines(selectionService.minLine(), selectionService.maxLine(), editorService.instrumentPortName(editorService.position.track));
         });
         UiService.editParameterAutomationsDialogRequested.connect(() => {
             parameterAutomationsModel.requestParameterAutomations();
