@@ -15,6 +15,9 @@
 
 #include "kick_808_device.hpp"
 
+#include "device_parameter_display.hpp"
+#include <QtGlobal>
+
 #include "../../common/constants.hpp"
 #include "../../common/xml/project_reader.hpp"
 #include "../../common/xml/project_writer.hpp"
@@ -77,6 +80,17 @@ Kick808Device::Kick808Device(std::string name)
     m_hpf.setMode(CascadedSvf::Mode::HighPass);
 
     Kick808Device::syncParameters();
+
+    // What a parameter automation may drive, and how it reads out: the controls worth riding, in
+    // the units their knobs show.
+    DeviceParameterDisplay::filters(*this);
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyTune(), QT_TRANSLATE_NOOP("ParameterDisplay", "Tuning"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyTone(), QT_TRANSLATE_NOOP("ParameterDisplay", "Tone"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyDecay(), QT_TRANSLATE_NOOP("ParameterDisplay", "Decay"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyDrive(), QT_TRANSLATE_NOOP("ParameterDisplay", "Drive"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyPitchDepth(), QT_TRANSLATE_NOOP("ParameterDisplay", "Pitch Depth"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyPitchDecay(), QT_TRANSLATE_NOOP("ParameterDisplay", "Pitch Decay"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyPortamento(), QT_TRANSLATE_NOOP("ParameterDisplay", "Glide"));
 }
 
 Kick808Device::~Kick808Device() = default;

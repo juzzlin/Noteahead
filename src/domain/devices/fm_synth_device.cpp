@@ -15,6 +15,9 @@
 
 #include "fm_synth_device.hpp"
 
+#include "device_parameter_display.hpp"
+#include <QtGlobal>
+
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
 #include "../../common/utils.hpp"
@@ -246,6 +249,25 @@ FmSynthDevice::FmSynthDevice(std::string name)
     }
 
     FmSynthDevice::syncParameters();
+
+    // What a parameter automation may drive, and how it reads out: the controls worth riding, in
+    // the units their knobs show.
+    DeviceParameterDisplay::filters(*this);
+    DeviceParameterDisplay::lfos(*this);
+    DeviceParameterDisplay::bipolar(*this, Constants::NahdXml::xmlKeyModIntensity(), QT_TRANSLATE_NOOP("ParameterDisplay", "Mod EG Intensity"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyFeedback(), QT_TRANSLATE_NOOP("ParameterDisplay", "Feedback"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyDelayMix(), QT_TRANSLATE_NOOP("ParameterDisplay", "Delay Mix"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyDelayFeedback(), QT_TRANSLATE_NOOP("ParameterDisplay", "Delay Feedback"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyVoiceDepth(), QT_TRANSLATE_NOOP("ParameterDisplay", "Voice Depth"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyPanSpread(), QT_TRANSLATE_NOOP("ParameterDisplay", "Pan Spread"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyOperatorLevel(0), QT_TRANSLATE_NOOP("ParameterDisplay", "Operator 1 Level"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyOperatorLevel(1), QT_TRANSLATE_NOOP("ParameterDisplay", "Operator 2 Level"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyOperatorLevel(2), QT_TRANSLATE_NOOP("ParameterDisplay", "Operator 3 Level"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyOperatorLevel(3), QT_TRANSLATE_NOOP("ParameterDisplay", "Operator 4 Level"));
+    DeviceParameterDisplay::cents(*this, Constants::NahdXml::xmlKeyOperatorDetune(0), QT_TRANSLATE_NOOP("ParameterDisplay", "Operator 1 Detune"), 100.0);
+    DeviceParameterDisplay::cents(*this, Constants::NahdXml::xmlKeyOperatorDetune(1), QT_TRANSLATE_NOOP("ParameterDisplay", "Operator 2 Detune"), 100.0);
+    DeviceParameterDisplay::cents(*this, Constants::NahdXml::xmlKeyOperatorDetune(2), QT_TRANSLATE_NOOP("ParameterDisplay", "Operator 3 Detune"), 100.0);
+    DeviceParameterDisplay::cents(*this, Constants::NahdXml::xmlKeyOperatorDetune(3), QT_TRANSLATE_NOOP("ParameterDisplay", "Operator 4 Detune"), 100.0);
 }
 
 FmSynthDevice::~FmSynthDevice() = default;

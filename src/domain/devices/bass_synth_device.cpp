@@ -15,6 +15,9 @@
 
 #include "bass_synth_device.hpp"
 
+#include "device_parameter_display.hpp"
+#include <QtGlobal>
+
 #include "bass_synth_presets.hpp"
 
 #include "../../common/constants.hpp"
@@ -107,6 +110,19 @@ BassSynthDevice::BassSynthDevice(std::string name)
     m_voice.filterEg.setAttackTime(0.005);
 
     BassSynthDevice::syncParameters();
+
+    // What a parameter automation may drive, and how it reads out: the controls worth riding, in
+    // the units their knobs show.
+    DeviceParameterDisplay::filters(*this);
+    DeviceParameterDisplay::cents(*this, Constants::NahdXml::xmlKeyPitch(), QT_TRANSLATE_NOOP("ParameterDisplay", "Tuning"), 1200.0);
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyEnvMod(), QT_TRANSLATE_NOOP("ParameterDisplay", "Env Mod"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyDecay(), QT_TRANSLATE_NOOP("ParameterDisplay", "Decay"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyAccent(), QT_TRANSLATE_NOOP("ParameterDisplay", "Accent"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeySlide(), QT_TRANSLATE_NOOP("ParameterDisplay", "Slide"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeySubLevel(), QT_TRANSLATE_NOOP("ParameterDisplay", "Sub Level"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyDistDrive(), QT_TRANSLATE_NOOP("ParameterDisplay", "Distortion Drive"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyDistTone(), QT_TRANSLATE_NOOP("ParameterDisplay", "Distortion Tone"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyDistLevel(), QT_TRANSLATE_NOOP("ParameterDisplay", "Distortion Level"));
 }
 
 BassSynthDevice::~BassSynthDevice() = default;

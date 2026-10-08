@@ -14,7 +14,10 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "wavetable_synth_device.hpp"
+
+#include "device_parameter_display.hpp"
 #include "wavetable_synth_presets.hpp"
+#include <QtGlobal>
 
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
@@ -215,6 +218,21 @@ WavetableSynthDevice::WavetableSynthDevice(std::string name)
     }
 
     WavetableSynthDevice::syncParameters();
+
+    // What a parameter automation may drive, and how it reads out: the controls worth riding, in
+    // the units their knobs show.
+    DeviceParameterDisplay::filters(*this);
+    DeviceParameterDisplay::lfos(*this);
+    DeviceParameterDisplay::bipolar(*this, Constants::NahdXml::xmlKeyModIntensity(), QT_TRANSLATE_NOOP("ParameterDisplay", "Mod EG Intensity"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyOsc1Pos(), QT_TRANSLATE_NOOP("ParameterDisplay", "Osc 1 Position"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyOsc2Pos(), QT_TRANSLATE_NOOP("ParameterDisplay", "Osc 2 Position"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyOsc1Level(), QT_TRANSLATE_NOOP("ParameterDisplay", "Osc 1 Level"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyOsc2Level(), QT_TRANSLATE_NOOP("ParameterDisplay", "Osc 2 Level"));
+    DeviceParameterDisplay::cents(*this, Constants::NahdXml::xmlKeyOsc1Pitch(), QT_TRANSLATE_NOOP("ParameterDisplay", "Osc 1 Pitch"), 1200.0);
+    DeviceParameterDisplay::cents(*this, Constants::NahdXml::xmlKeyOsc2Pitch(), QT_TRANSLATE_NOOP("ParameterDisplay", "Osc 2 Pitch"), 1200.0);
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyNoiseLevel(), QT_TRANSLATE_NOOP("ParameterDisplay", "Noise Level"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyVoiceDepth(), QT_TRANSLATE_NOOP("ParameterDisplay", "Voice Depth"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyPanSpread(), QT_TRANSLATE_NOOP("ParameterDisplay", "Pan Spread"));
 }
 
 WavetableSynthDevice::~WavetableSynthDevice() = default;

@@ -15,6 +15,9 @@
 
 #include "string_ensemble_device.hpp"
 
+#include "device_parameter_display.hpp"
+#include <QtGlobal>
+
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
 #include "../../common/xml/project_reader.hpp"
@@ -109,6 +112,16 @@ StringEnsembleDevice::StringEnsembleDevice(std::string name)
     m_activeKeys.reserve(KeyCount);
 
     StringEnsembleDevice::syncParameters();
+
+    // What a parameter automation may drive, and how it reads out: the controls worth riding, in
+    // the units their knobs show.
+    DeviceParameterDisplay::filters(*this);
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyAttack(), QT_TRANSLATE_NOOP("ParameterDisplay", "Crescendo"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyReleaseTime(), QT_TRANSLATE_NOOP("ParameterDisplay", "Sustain Length"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyPhaserColor(), QT_TRANSLATE_NOOP("ParameterDisplay", "Phaser Color"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyPhaserRate(), QT_TRANSLATE_NOOP("ParameterDisplay", "Phaser Rate"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyVolumeBass(), QT_TRANSLATE_NOOP("ParameterDisplay", "Volume Bass"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyVelocitySensitivity(), QT_TRANSLATE_NOOP("ParameterDisplay", "Velocity Sensitivity"));
 }
 
 StringEnsembleDevice::~StringEnsembleDevice() = default;

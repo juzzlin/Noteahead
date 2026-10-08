@@ -23,8 +23,20 @@
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/drum_synth_v2_constants.hpp"
 #include "../../domain/devices/drum_synth_v2_device.hpp"
+#include "../../domain/devices/fm_synth_device.hpp"
+#include "../../domain/devices/kick_808_device.hpp"
+#include "../../domain/devices/piano_synth_device.hpp"
+#include "../../domain/devices/piano_synth_v2_device.hpp"
+#include "../../domain/devices/piano_synth_v3_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
+#include "../../domain/devices/speech_device.hpp"
+#include "../../domain/devices/string_ensemble_device.hpp"
+#include "../../domain/devices/string_voice_device.hpp"
+#include "../../domain/devices/string_voice_v2_device.hpp"
+#include "../../domain/devices/string_voice_v3_device.hpp"
+#include "../../domain/devices/sub_mixer_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
+#include "../../domain/devices/wavetable_synth_device.hpp"
 #include "../../domain/effects/auto_filter.hpp"
 #include "../../domain/effects/gain.hpp"
 #include "../../infra/audio/audio_engine.hpp"
@@ -306,15 +318,17 @@ void PropertyServiceTest::test_automationTargets_device_shouldOfferOnlyDescribed
 
     const auto synthTarget = propertyService.automationTargets().at(0).toMap();
 
-    // A Synth registers dozens; only the controls it describes are offered
+    // A Synth registers well over a hundred; only the controls it describes are offered, the inner
+    // workings of its voices left out
     QStringList keys;
     for (auto && parameter : synthTarget["parameters"].toList()) {
         keys.push_back(parameter.toMap()["key"].toString());
     }
-    keys.sort();
-    QStringList expected { Constants::NahdXml::xmlKeyLpfCutoff(), Constants::NahdXml::xmlKeyLpfResonance(), Constants::NahdXml::xmlKeyKeyTrack(), Constants::NahdXml::xmlKeyHpfCutoff() };
-    expected.sort();
-    QCOMPARE(keys, expected);
+    for (auto && key : { Constants::NahdXml::xmlKeyLpfCutoff(), Constants::NahdXml::xmlKeyLpfResonance(), Constants::NahdXml::xmlKeyKeyTrack(), Constants::NahdXml::xmlKeyHpfCutoff(), Constants::NahdXml::xmlKeyLfoRate(), Constants::NahdXml::xmlKeyVco1Shape(), Constants::NahdXml::xmlKeyMixLevel2() }) {
+        QVERIFY2(keys.contains(key), qPrintable(key));
+    }
+    QVERIFY(!keys.contains(Constants::NahdXml::xmlKeyVco1Roundness()));
+    QVERIFY(keys.size() < static_cast<qsizetype>(std::make_shared<SynthDevice>("Synth")->parameters().size()) / 3);
 
     const auto cutoff = parameterOf(synthTarget, Constants::NahdXml::xmlKeyLpfCutoff());
     QCOMPARE(cutoff["label"].toString(), QString { "LPF Cutoff" });
@@ -328,8 +342,8 @@ void PropertyServiceTest::test_automationTargets_deviceWithoutDescriptions_shoul
     const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     PropertyService propertyService;
     propertyService.setDeviceService(deviceService);
-    // Describes nothing yet, so there is nothing to offer
-    deviceService->setDevice(0, std::make_shared<BassSynthDevice>("Bass"));
+    // A sub-mixer has nothing of its own to ride, so there is nothing to offer
+    deviceService->setDevice(0, std::make_shared<SubMixerDevice>("Sub Mixer"));
 
     QVERIFY(propertyService.automationTargets().isEmpty());
 }
@@ -522,6 +536,51 @@ void PropertyServiceTest::test_automationTargets_drumSynth_shouldListEachDrum()
     }
     const auto kickCutoff = parameterOf(targets.at(0).toMap(), QString::fromStdString(DrumSynthV2::voiceId(0) + "_") + Constants::NahdXml::xmlKeyCutoff());
     QCOMPARE(kickCutoff["unit"].toString(), QString { "Hz" });
+}
+
+void PropertyServiceTest::test_automationTargets_everySynth_shouldOfferItsControls()
+{
+    // Every instrument offers its filter, in hertz, and the controls that make it what it is. The
+    // register and instrument buttons are switches, and a switch has nothing between its positions.
+    const auto check = [](const std::shared_ptr<Device> & device, const QStringList & expectedKeys) {
+        const auto audioEngine = std::make_shared<AudioEngine>();
+        const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+        PropertyService propertyService;
+        propertyService.setDeviceService(deviceService);
+        deviceService->setDevice(0, device);
+        const auto targets = propertyService.automationTargets();
+        QVERIFY2(targets.size() == 1, device->typeName().c_str());
+        const auto target = targets.at(0).toMap();
+        const auto cutoff = parameterOf(target, Constants::NahdXml::xmlKeyLpfCutoff());
+        QVERIFY2(cutoff["unit"].toString() == "Hz", device->typeName().c_str());
+        QVERIFY2(!parameterOf(target, Constants::NahdXml::xmlKeyHpfCutoff()).isEmpty(), device->typeName().c_str());
+        for (auto && key : expectedKeys) {
+            QVERIFY2(!parameterOf(target, key).isEmpty(), qPrintable(QString::fromStdString(device->typeName()) + ": " + key));
+        }
+    };
+    namespace C = Constants::NahdXml;
+    check(std::make_shared<BassSynthDevice>("Bass"), { C::xmlKeyLpfResonance(), C::xmlKeyEnvMod(), C::xmlKeyAccent(), C::xmlKeyPitch(), C::xmlKeyDistDrive() });
+    check(std::make_shared<Kick808Device>("Kick"), { C::xmlKeyTune(), C::xmlKeyDecay(), C::xmlKeyPitchDepth() });
+    check(std::make_shared<WavetableSynthDevice>("Wavetable"), { C::xmlKeyLpfResonance(), C::xmlKeyOsc1Pos(), C::xmlKeyOsc2Pos(), C::xmlKeyLfoRate(), C::xmlKeyLfo2Intensity(), C::xmlKeyModIntensity() });
+    check(std::make_shared<FmSynthDevice>("FM"), { C::xmlKeyLpfResonance(), C::xmlKeyFeedback(), C::xmlKeyOperatorLevel(1), C::xmlKeyOperatorDetune(3), C::xmlKeyLfoRate() });
+    check(std::make_shared<PianoSynthDevice>("Piano"), { C::xmlKeyBrightness(), C::xmlKeyHardness() });
+    check(std::make_shared<PianoSynthV2Device>("Piano V2"), { C::xmlKeyBrightness(), C::xmlKeyRichness(), C::xmlKeyStretch() });
+    check(std::make_shared<PianoSynthV3Device>("Piano V3"), { C::xmlKeyBrightness(), C::xmlKeyRichness(), C::xmlKeyAmpVelocitySensitivity() });
+    check(std::make_shared<StringVoiceDevice>("String Voice"), { C::xmlKeyVoiceBalance(), C::xmlKeyStringsLevel8(), C::xmlKeyVibratoDepth() });
+    check(std::make_shared<StringVoiceV2Device>("String Voice V2"), { C::xmlKeyVoiceBalance(), C::xmlKeyStringsTone(), C::xmlKeyVelocitySensitivity() });
+    check(std::make_shared<StringVoiceV3Device>("String Voice V3"), { C::xmlKeyVoiceBalance(), C::xmlKeyStringsTone(), C::xmlKeyVelocitySensitivity() });
+    check(std::make_shared<StringEnsembleDevice>("Ensemble"), { C::xmlKeyVolumeBass(), C::xmlKeyPhaserColor(), C::xmlKeyPhaserRate() });
+    check(std::make_shared<SpeechDevice>("Speech"), { C::xmlKeyFormantShift(), C::xmlKeyBreathiness(), C::xmlKeyVibratoDepth() });
+
+    // In their units: a wavetable LFO's rate in hertz, its intensity either way of none
+    const auto wavetable = std::make_shared<WavetableSynthDevice>("Wavetable");
+    for (auto && entry : wavetable->automatableParameters()) {
+        if (entry.key == C::xmlKeyLfoRate().toStdString()) {
+            QCOMPARE(entry.parameter.display()->unit, std::string { "Hz" });
+        } else if (entry.key == C::xmlKeyLfoIntensity().toStdString()) {
+            QCOMPARE(entry.parameter.display()->restPosition(), 0.5);
+        }
+    }
 }
 
 } // namespace noteahead

@@ -25,6 +25,7 @@ class PropertyServiceTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_automationTargets_everySynth_shouldOfferItsControls();
     void test_automationTargets_sampler_shouldListEachLoadedPad();
     void test_automationTargets_drumSynth_shouldListEachDrum();
     void test_availableMidiControllers_shouldReturnCorrectControllers();

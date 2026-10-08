@@ -15,6 +15,9 @@
 
 #include "string_voice_v2_device.hpp"
 
+#include "device_parameter_display.hpp"
+#include <QtGlobal>
+
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
@@ -165,6 +168,27 @@ StringVoiceV2Device::StringVoiceV2Device(std::string name)
     }
 
     syncParameters();
+
+    // What a parameter automation may drive, and how it reads out: the controls worth riding, in
+    // the units their knobs show.
+    DeviceParameterDisplay::filters(*this);
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyVoiceBalance(), QT_TRANSLATE_NOOP("ParameterDisplay", "Human Voice"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyStringsBalance(), QT_TRANSLATE_NOOP("ParameterDisplay", "Strings"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyVibratoRate(), QT_TRANSLATE_NOOP("ParameterDisplay", "Vibrato Rate"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyVibratoDepth(), QT_TRANSLATE_NOOP("ParameterDisplay", "Vibrato Depth"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyVibratoDelay(), QT_TRANSLATE_NOOP("ParameterDisplay", "Vibrato Delay"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyPanSpread(), QT_TRANSLATE_NOOP("ParameterDisplay", "Pan Spread"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyStringsAttack(), QT_TRANSLATE_NOOP("ParameterDisplay", "Strings Attack"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyStringsRelease(), QT_TRANSLATE_NOOP("ParameterDisplay", "Strings Release"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyVoiceMale8(), QT_TRANSLATE_NOOP("ParameterDisplay", "Male 8'"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyVoiceMale4(), QT_TRANSLATE_NOOP("ParameterDisplay", "Male 4'"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyVoiceUpperMale8(), QT_TRANSLATE_NOOP("ParameterDisplay", "Upper Male 8'"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyVoiceFemale8(), QT_TRANSLATE_NOOP("ParameterDisplay", "Female 8'"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyVoiceFemale4(), QT_TRANSLATE_NOOP("ParameterDisplay", "Female 4'"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyVoiceAttack(), QT_TRANSLATE_NOOP("ParameterDisplay", "Voice Attack"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyVoiceRelease(), QT_TRANSLATE_NOOP("ParameterDisplay", "Voice Release"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyStringsTone(), QT_TRANSLATE_NOOP("ParameterDisplay", "Strings Tone"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyVelocitySensitivity(), QT_TRANSLATE_NOOP("ParameterDisplay", "Velocity Sensitivity"));
 }
 
 StringVoiceV2Device::~StringVoiceV2Device() = default;

@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "synth_device.hpp"
+#include "device_parameter_display.hpp"
 
 #include <QtGlobal>
 
@@ -288,6 +289,22 @@ SynthDevice::SynthDevice(std::string name)
     describe(C::xmlKeyLpfResonance(), { .unit = "%", .max = 100.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "LPF Resonance") });
     describe(C::xmlKeyKeyTrack(), { .unit = "%", .max = 100.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "LPF Key Track") });
     describe(C::xmlKeyHpfCutoff(), { .mapping = Display::Mapping::LogFrequencyHighPass, .unit = "Hz", .min = 20.0, .max = 20000.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "HPF Cutoff") });
+    DeviceParameterDisplay::lfos(*this);
+    DeviceParameterDisplay::bipolar(*this, C::xmlKeyModIntensity(), QT_TRANSLATE_NOOP("ParameterDisplay", "Mod EG Intensity"));
+    DeviceParameterDisplay::percent(*this, C::xmlKeyVco1Shape(), QT_TRANSLATE_NOOP("ParameterDisplay", "VCO 1 Shape"));
+    DeviceParameterDisplay::percent(*this, C::xmlKeyVco2Shape(), QT_TRANSLATE_NOOP("ParameterDisplay", "VCO 2 Shape"));
+    DeviceParameterDisplay::percent(*this, C::xmlKeyVco3Shape(), QT_TRANSLATE_NOOP("ParameterDisplay", "VCO 3 Shape"));
+    DeviceParameterDisplay::percent(*this, C::xmlKeyVco4Shape(), QT_TRANSLATE_NOOP("ParameterDisplay", "VCO 4 Shape"));
+    DeviceParameterDisplay::percent(*this, C::xmlKeyMixLevel1(), QT_TRANSLATE_NOOP("ParameterDisplay", "VCO 1 Level"));
+    DeviceParameterDisplay::percent(*this, C::xmlKeyMixLevel2(), QT_TRANSLATE_NOOP("ParameterDisplay", "VCO 2 Level"));
+    DeviceParameterDisplay::percent(*this, C::xmlKeyMixLevel3(), QT_TRANSLATE_NOOP("ParameterDisplay", "VCO 3 Level"));
+    DeviceParameterDisplay::percent(*this, C::xmlKeyMixLevel4(), QT_TRANSLATE_NOOP("ParameterDisplay", "VCO 4 Level"));
+    DeviceParameterDisplay::percent(*this, C::xmlKeyFilterDrive(), QT_TRANSLATE_NOOP("ParameterDisplay", "Filter Drive"));
+    DeviceParameterDisplay::percent(*this, C::xmlKeyCrossModDepth(), QT_TRANSLATE_NOOP("ParameterDisplay", "Cross Mod"));
+    DeviceParameterDisplay::percent(*this, C::xmlKeyVoiceDepth(), QT_TRANSLATE_NOOP("ParameterDisplay", "Voice Depth"));
+    DeviceParameterDisplay::percent(*this, C::xmlKeyPanSpread(), QT_TRANSLATE_NOOP("ParameterDisplay", "Pan Spread"));
+    DeviceParameterDisplay::percent(*this, C::xmlKeyDelayMix(), QT_TRANSLATE_NOOP("ParameterDisplay", "Delay Mix"));
+    DeviceParameterDisplay::percent(*this, C::xmlKeyDelayFeedback(), QT_TRANSLATE_NOOP("ParameterDisplay", "Delay Feedback"));
 
     SynthDevice::syncParameters();
 }

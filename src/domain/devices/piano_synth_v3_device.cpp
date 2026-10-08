@@ -15,6 +15,9 @@
 
 #include "piano_synth_v3_device.hpp"
 
+#include "device_parameter_display.hpp"
+#include <QtGlobal>
+
 #include "../../common/constants.hpp"
 #include "../../common/xml/project_reader.hpp"
 #include "../../common/xml/project_writer.hpp"
@@ -69,6 +72,22 @@ PianoSynthV3Device::PianoSynthV3Device(std::string name)
     m_hpfR.setMode(CascadedSvf::Mode::HighPass);
 
     PianoSynthV3Device::syncParameters();
+
+    // What a parameter automation may drive, and how it reads out: the controls worth riding, in
+    // the units their knobs show.
+    DeviceParameterDisplay::filters(*this);
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyPanSpread(), QT_TRANSLATE_NOOP("ParameterDisplay", "Stereo Width"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyHardness(), QT_TRANSLATE_NOOP("ParameterDisplay", "Hammer Hardness"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyAttack(), QT_TRANSLATE_NOOP("ParameterDisplay", "Attack"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyRichness(), QT_TRANSLATE_NOOP("ParameterDisplay", "Richness"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyReleaseTime(), QT_TRANSLATE_NOOP("ParameterDisplay", "Release Time"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyDecay(), QT_TRANSLATE_NOOP("ParameterDisplay", "Decay"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyBrightness(), QT_TRANSLATE_NOOP("ParameterDisplay", "Brightness"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyInharmonicity(), QT_TRANSLATE_NOOP("ParameterDisplay", "Inharmonicity"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyStringDetune(), QT_TRANSLATE_NOOP("ParameterDisplay", "Unison Detune"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyDoubleDecay(), QT_TRANSLATE_NOOP("ParameterDisplay", "Double Decay"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyStretch(), QT_TRANSLATE_NOOP("ParameterDisplay", "Stretch Tuning"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyAmpVelocitySensitivity(), QT_TRANSLATE_NOOP("ParameterDisplay", "Velocity Sensitivity"));
 }
 
 PianoSynthV3Device::~PianoSynthV3Device() = default;

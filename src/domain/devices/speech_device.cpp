@@ -15,6 +15,9 @@
 
 #include "speech_device.hpp"
 
+#include "device_parameter_display.hpp"
+#include <QtGlobal>
+
 #include "../../common/constants.hpp"
 #include "../../common/xml/project_reader.hpp"
 #include "../../common/xml/project_writer.hpp"
@@ -225,6 +228,23 @@ SpeechDevice::SpeechDevice(std::string name)
 
     compilePhrase();
     SpeechDevice::syncParameters();
+
+    // What a parameter automation may drive, and how it reads out: the controls worth riding, in
+    // the units their knobs show.
+    DeviceParameterDisplay::filters(*this);
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyFormantShift(), QT_TRANSLATE_NOOP("ParameterDisplay", "Formant Shift"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyGlide(), QT_TRANSLATE_NOOP("ParameterDisplay", "Glide"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyConsonantLevel(), QT_TRANSLATE_NOOP("ParameterDisplay", "Consonants"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeySibilance(), QT_TRANSLATE_NOOP("ParameterDisplay", "Sibilance"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyBreathiness(), QT_TRANSLATE_NOOP("ParameterDisplay", "Breathiness"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyOpenQuotient(), QT_TRANSLATE_NOOP("ParameterDisplay", "Openness"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyVoicePerturbation(), QT_TRANSLATE_NOOP("ParameterDisplay", "Jitter"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyIntonation(), QT_TRANSLATE_NOOP("ParameterDisplay", "Intonation"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyVibratoRate(), QT_TRANSLATE_NOOP("ParameterDisplay", "Vibrato Rate"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyVibratoDepth(), QT_TRANSLATE_NOOP("ParameterDisplay", "Vibrato Depth"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyRate(), QT_TRANSLATE_NOOP("ParameterDisplay", "Rate"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyPortamento(), QT_TRANSLATE_NOOP("ParameterDisplay", "Portamento"));
+    DeviceParameterDisplay::percent(*this, Constants::NahdXml::xmlKeyVelocitySensitivity(), QT_TRANSLATE_NOOP("ParameterDisplay", "Velocity Sensitivity"));
 }
 
 SpeechDevice::~SpeechDevice() = default;
