@@ -5960,8 +5960,40 @@
         <translation type="unfinished">Afinación</translation>
     </message>
     <message>
+        <source>Tuning</source>
+        <translation type="unfinished">Afinación</translation>
+    </message>
+    <message>
+        <source>Env Mod</source>
+        <translation type="unfinished">Mod. de envolvente</translation>
+    </message>
+    <message>
         <source>Decay</source>
         <translation type="unfinished">Caída</translation>
+    </message>
+    <message>
+        <source>Accent</source>
+        <translation type="unfinished">Acento</translation>
+    </message>
+    <message>
+        <source>Slide</source>
+        <translation type="unfinished">Deslizamiento</translation>
+    </message>
+    <message>
+        <source>Sub Level</source>
+        <translation type="unfinished">Nivel del sub</translation>
+    </message>
+    <message>
+        <source>Distortion Drive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distortion Tone</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distortion Level</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Attack</source>
@@ -6060,7 +6092,63 @@
         <translation type="unfinished">Resonancia del LPF</translation>
     </message>
     <message>
+        <source>LFO 1 Rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LFO 2 Rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LFO 1 Intensity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LFO 2 Intensity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>LPF Key Track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO 1 Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO 2 Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO 3 Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO 4 Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO 1 Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO 2 Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO 3 Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO 4 Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter Drive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cross Mod</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6090,6 +6178,266 @@
     <message>
         <source>Release</source>
         <translation type="unfinished">Liberación</translation>
+    </message>
+    <message>
+        <source>Mod EG Intensity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Feedback</source>
+        <translation type="unfinished">Realimentación</translation>
+    </message>
+    <message>
+        <source>Delay Mix</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delay Feedback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Voice Depth</source>
+        <translation type="unfinished">Profundidad de voces</translation>
+    </message>
+    <message>
+        <source>Pan Spread</source>
+        <translation type="unfinished">Dispersión del paneo</translation>
+    </message>
+    <message>
+        <source>Operator 1 Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Operator 2 Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Operator 3 Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Operator 4 Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Operator 1 Detune</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Operator 2 Detune</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Operator 3 Detune</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Operator 4 Detune</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drive</source>
+        <translation type="unfinished">Drive</translation>
+    </message>
+    <message>
+        <source>Glide</source>
+        <translation type="unfinished">Glissando</translation>
+    </message>
+    <message>
+        <source>Stereo Width</source>
+        <translation type="unfinished">Anchura estéreo</translation>
+    </message>
+    <message>
+        <source>Brightness</source>
+        <translation type="unfinished">Brillo</translation>
+    </message>
+    <message>
+        <source>Inharmonicity</source>
+        <translation type="unfinished">Inarmonicidad</translation>
+    </message>
+    <message>
+        <source>Hammer Hardness</source>
+        <translation type="unfinished">Dureza del martillo</translation>
+    </message>
+    <message>
+        <source>Release Time</source>
+        <translation type="unfinished">Tiempo de liberación</translation>
+    </message>
+    <message>
+        <source>String Detune</source>
+        <translation type="unfinished">Desafinación de cuerdas</translation>
+    </message>
+    <message>
+        <source>Richness</source>
+        <translation type="unfinished">Riqueza</translation>
+    </message>
+    <message>
+        <source>Unison Detune</source>
+        <translation type="unfinished">Desafinación del unísono</translation>
+    </message>
+    <message>
+        <source>Double Decay</source>
+        <translation type="unfinished">Caída doble</translation>
+    </message>
+    <message>
+        <source>Stretch Tuning</source>
+        <translation type="unfinished">Afinación estirada</translation>
+    </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation type="unfinished">Sensibilidad a la velocidad</translation>
+    </message>
+    <message>
+        <source>Formant Shift</source>
+        <translation type="unfinished">Desplazamiento de formantes</translation>
+    </message>
+    <message>
+        <source>Consonants</source>
+        <translation type="unfinished">Consonantes</translation>
+    </message>
+    <message>
+        <source>Sibilance</source>
+        <translation type="unfinished">Sibilancia</translation>
+    </message>
+    <message>
+        <source>Breathiness</source>
+        <translation type="unfinished">Aire en la voz</translation>
+    </message>
+    <message>
+        <source>Openness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Jitter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Intonation</source>
+        <translation type="unfinished">Entonación</translation>
+    </message>
+    <message>
+        <source>Vibrato Rate</source>
+        <translation type="unfinished">Velocidad del vibrato</translation>
+    </message>
+    <message>
+        <source>Vibrato Depth</source>
+        <translation type="unfinished">Profundidad del vibrato</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation type="unfinished">Velocidad</translation>
+    </message>
+    <message>
+        <source>Portamento</source>
+        <translation type="unfinished">Portamento</translation>
+    </message>
+    <message>
+        <source>Crescendo</source>
+        <translation type="unfinished">Crescendo</translation>
+    </message>
+    <message>
+        <source>Sustain Length</source>
+        <translation type="unfinished">Longitud del sostenido</translation>
+    </message>
+    <message>
+        <source>Phaser Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Phaser Rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Volume Bass</source>
+        <translation type="unfinished">Volumen de graves</translation>
+    </message>
+    <message>
+        <source>Human Voice</source>
+        <translation type="unfinished">Voz humana</translation>
+    </message>
+    <message>
+        <source>Strings</source>
+        <translation type="unfinished">Cuerdas</translation>
+    </message>
+    <message>
+        <source>Vibrato Delay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strings Attack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strings Release</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Male 8&apos;</source>
+        <translation type="unfinished">Masculina 8&apos;</translation>
+    </message>
+    <message>
+        <source>Male 4&apos;</source>
+        <translation type="unfinished">Masculina 4&apos;</translation>
+    </message>
+    <message>
+        <source>Upper Male 8&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Female 8&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Female 4&apos;</source>
+        <translation type="unfinished">Femenina 4&apos;</translation>
+    </message>
+    <message>
+        <source>Voice Attack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Voice Release</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strings 8&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strings 4&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strings Tone</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Osc 1 Position</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Osc 2 Position</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Osc 1 Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Osc 2 Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Osc 1 Pitch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Osc 2 Pitch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Noise Level</source>
+        <translation type="unfinished">Nivel de ruido</translation>
     </message>
 </context>
 <context>

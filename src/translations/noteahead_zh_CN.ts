@@ -5959,8 +5959,40 @@
         <translation type="unfinished">调音</translation>
     </message>
     <message>
+        <source>Tuning</source>
+        <translation type="unfinished">调音</translation>
+    </message>
+    <message>
+        <source>Env Mod</source>
+        <translation type="unfinished">包络调制</translation>
+    </message>
+    <message>
         <source>Decay</source>
         <translation type="unfinished">衰减</translation>
+    </message>
+    <message>
+        <source>Accent</source>
+        <translation type="unfinished">重音</translation>
+    </message>
+    <message>
+        <source>Slide</source>
+        <translation type="unfinished">滑音</translation>
+    </message>
+    <message>
+        <source>Sub Level</source>
+        <translation type="unfinished">超低频电平</translation>
+    </message>
+    <message>
+        <source>Distortion Drive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distortion Tone</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distortion Level</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Attack</source>
@@ -6059,7 +6091,63 @@
         <translation type="unfinished">低通共振</translation>
     </message>
     <message>
+        <source>LFO 1 Rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LFO 2 Rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LFO 1 Intensity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LFO 2 Intensity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>LPF Key Track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO 1 Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO 2 Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO 3 Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO 4 Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO 1 Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO 2 Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO 3 Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO 4 Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter Drive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cross Mod</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6089,6 +6177,266 @@
     <message>
         <source>Release</source>
         <translation type="unfinished">释音</translation>
+    </message>
+    <message>
+        <source>Mod EG Intensity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Feedback</source>
+        <translation type="unfinished">反馈</translation>
+    </message>
+    <message>
+        <source>Delay Mix</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delay Feedback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Voice Depth</source>
+        <translation type="unfinished">声部深度</translation>
+    </message>
+    <message>
+        <source>Pan Spread</source>
+        <translation type="unfinished">声像扩散</translation>
+    </message>
+    <message>
+        <source>Operator 1 Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Operator 2 Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Operator 3 Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Operator 4 Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Operator 1 Detune</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Operator 2 Detune</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Operator 3 Detune</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Operator 4 Detune</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drive</source>
+        <translation type="unfinished">驱动</translation>
+    </message>
+    <message>
+        <source>Glide</source>
+        <translation type="unfinished">滑音</translation>
+    </message>
+    <message>
+        <source>Stereo Width</source>
+        <translation type="unfinished">立体声宽度</translation>
+    </message>
+    <message>
+        <source>Brightness</source>
+        <translation type="unfinished">亮度</translation>
+    </message>
+    <message>
+        <source>Inharmonicity</source>
+        <translation type="unfinished">非谐性</translation>
+    </message>
+    <message>
+        <source>Hammer Hardness</source>
+        <translation type="unfinished">击弦机硬度</translation>
+    </message>
+    <message>
+        <source>Release Time</source>
+        <translation type="unfinished">释音时间</translation>
+    </message>
+    <message>
+        <source>String Detune</source>
+        <translation type="unfinished">琴弦失谐</translation>
+    </message>
+    <message>
+        <source>Richness</source>
+        <translation type="unfinished">丰满度</translation>
+    </message>
+    <message>
+        <source>Unison Detune</source>
+        <translation type="unfinished">齐奏失谐</translation>
+    </message>
+    <message>
+        <source>Double Decay</source>
+        <translation type="unfinished">双段衰减</translation>
+    </message>
+    <message>
+        <source>Stretch Tuning</source>
+        <translation type="unfinished">拉伸调音</translation>
+    </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation type="unfinished">力度灵敏度</translation>
+    </message>
+    <message>
+        <source>Formant Shift</source>
+        <translation type="unfinished">共振峰偏移</translation>
+    </message>
+    <message>
+        <source>Consonants</source>
+        <translation type="unfinished">辅音</translation>
+    </message>
+    <message>
+        <source>Sibilance</source>
+        <translation type="unfinished">齿音</translation>
+    </message>
+    <message>
+        <source>Breathiness</source>
+        <translation type="unfinished">气声</translation>
+    </message>
+    <message>
+        <source>Openness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Jitter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Intonation</source>
+        <translation type="unfinished">语调</translation>
+    </message>
+    <message>
+        <source>Vibrato Rate</source>
+        <translation type="unfinished">颤音速率</translation>
+    </message>
+    <message>
+        <source>Vibrato Depth</source>
+        <translation type="unfinished">颤音深度</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation type="unfinished">速率</translation>
+    </message>
+    <message>
+        <source>Portamento</source>
+        <translation type="unfinished">滑音</translation>
+    </message>
+    <message>
+        <source>Crescendo</source>
+        <translation type="unfinished">渐强</translation>
+    </message>
+    <message>
+        <source>Sustain Length</source>
+        <translation type="unfinished">延持长度</translation>
+    </message>
+    <message>
+        <source>Phaser Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Phaser Rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Volume Bass</source>
+        <translation type="unfinished">低频音量</translation>
+    </message>
+    <message>
+        <source>Human Voice</source>
+        <translation type="unfinished">人声</translation>
+    </message>
+    <message>
+        <source>Strings</source>
+        <translation type="unfinished">弦乐</translation>
+    </message>
+    <message>
+        <source>Vibrato Delay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strings Attack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strings Release</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Male 8&apos;</source>
+        <translation type="unfinished">男声 8&apos;</translation>
+    </message>
+    <message>
+        <source>Male 4&apos;</source>
+        <translation type="unfinished">男声 4&apos;</translation>
+    </message>
+    <message>
+        <source>Upper Male 8&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Female 8&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Female 4&apos;</source>
+        <translation type="unfinished">女声 4&apos;</translation>
+    </message>
+    <message>
+        <source>Voice Attack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Voice Release</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strings 8&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strings 4&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strings Tone</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Osc 1 Position</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Osc 2 Position</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Osc 1 Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Osc 2 Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Osc 1 Pitch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Osc 2 Pitch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Noise Level</source>
+        <translation type="unfinished">噪声电平</translation>
     </message>
 </context>
 <context>
