@@ -246,6 +246,9 @@ public:
 
     Q_INVOKABLE void requestSettings() override;
 
+    QStringList factoryPresetNames() const override;
+    void loadFactoryPreset(int index) override;
+
     void setDeviceService(std::shared_ptr<DeviceService> deviceService);
 
 signals:

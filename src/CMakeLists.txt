@@ -304,6 +304,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Noise.qml
     ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Osc1.qml
     ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Osc2.qml
+    ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Presets.qml
     ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Tab1.qml
     ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Tab2.qml
     ${QML_BASE_DIR}/Dialogs/WavetableSynthDialog_Tab3.qml

@@ -19,6 +19,7 @@
 #include "../../common/parameter_mapper.hpp"
 #include "../../common/utils.hpp"
 #include "../../domain/devices/wavetable_synth_device.hpp"
+#include "../../domain/devices/wavetable_synth_presets.hpp"
 #include "../../domain/dsp/lfo.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
@@ -31,7 +32,9 @@
 #include <numeric>
 #include <optional>
 #include <ranges>
+#include <set>
 #include <span>
+#include <utility>
 #include <vector>
 
 namespace noteahead {
@@ -1407,6 +1410,94 @@ void WavetableSynthTest::test_lfoRateDivider_shouldSlowTheVoicesLfo()
     const int slowTurns = tremoloTurns(slow, Lfo::MaxRateDivider);
     QVERIFY2(fastTurns >= 3, qPrintable(QString::number(fastTurns)));
     QVERIFY2(slowTurns <= 1, qPrintable(QString::number(slowTurns)));
+}
+
+namespace {
+
+//! Peak and RMS, in dB, of a second of middle C and the release after it.
+std::pair<double, double> presetLevelDb(int presetIndex)
+{
+    WavetableSynthDevice synth { "Preset" };
+    synth.loadPreset(presetIndex);
+    const auto rate = static_cast<uint32_t>(Constants::defaultSampleRate());
+    const uint32_t frames = 1024;
+    double peak = 0.0;
+    double power = 0.0;
+    size_t count = 0;
+    synth.processMidiNoteOn(60, 100);
+    for (uint32_t block = 0; block < rate * 2 / frames; block++) {
+        if (block == rate / frames) {
+            synth.processMidiNoteOff(60);
+        }
+        std::vector<double> buffer(frames * 2, 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), frames, rate };
+        synth.processAudio(context);
+        for (const double sample : buffer) {
+            peak = std::max(peak, std::abs(sample));
+            power += sample * sample;
+            count++;
+        }
+    }
+    return { 20.0 * std::log10(std::max(peak, 1.0e-12)), 10.0 * std::log10(std::max(power / static_cast<double>(count), 1.0e-24)) };
+}
+
+} // namespace
+
+void WavetableSynthTest::test_presets_first_shouldBeInit()
+{
+    const auto & presets = WavetableSynthPresets::presets();
+    QVERIFY(presets.size() > 1);
+    QCOMPARE(presets.front().name, std::string { "Init" });
+    QVERIFY(presets.front().parameters.empty());
+}
+
+void WavetableSynthTest::test_presets_everyValue_shouldNameAParameterInItsRange()
+{
+    // A misspelt key would be dropped without a word, and a value out of range clamped to an end
+    WavetableSynthDevice synth { "Preset" };
+    std::set<std::string> names;
+    for (auto && preset : WavetableSynthPresets::presets()) {
+        QVERIFY2(names.insert(preset.name).second, preset.name.c_str());
+        for (auto && [key, value] : preset.parameters) {
+            const auto parameter = synth.parameter(key);
+            QVERIFY2(parameter.has_value(), qPrintable(QString::fromStdString(preset.name + ": " + key)));
+            if (parameter->get().type() == Parameter::Type::Continuous) {
+                QVERIFY2(value >= 0.0f && value <= 1.0f, qPrintable(QString::fromStdString(preset.name + ": " + key)));
+            } else {
+                QVERIFY2(value >= static_cast<float>(parameter->get().xmlMin()) && value <= static_cast<float>(parameter->get().xmlMax()), qPrintable(QString::fromStdString(preset.name + ": " + key)));
+            }
+        }
+    }
+}
+
+void WavetableSynthTest::test_loadPreset_shouldResetWhatItDoesNotName()
+{
+    // A preset is the whole panel: nothing of the patch before it survives
+    WavetableSynthDevice synth { "Preset" };
+    synth.setNoiseLevel(0.7f);
+    synth.setLpfResonance(0.9f);
+    const auto & presets = WavetableSynthPresets::presets();
+    const auto morphPad = std::ranges::find_if(presets, [](auto && preset) { return preset.name == "Morph Pad"; });
+    QVERIFY(morphPad != presets.end());
+    synth.loadPreset(static_cast<int>(morphPad - presets.begin()));
+    QCOMPARE(synth.noiseLevel(), 0.0f);
+    QCOMPARE(synth.lpfResonance(), 0.0f);
+    QCOMPARE(synth.voiceMode(), WavetableSynthDevice::VoiceMode::Unison);
+    QCOMPARE(synth.lfo2RateDivider(), 4);
+}
+
+void WavetableSynthTest::test_presets_everyOne_shouldPlayWithoutClipping()
+{
+    // Checked by render rather than by ear: every patch sounds, stays below full scale, and sits
+    // within a reasonable distance of the init patch rather than leaping out of a mix
+    const auto [initPeak, initRms] = presetLevelDb(0);
+    const auto & presets = WavetableSynthPresets::presets();
+    for (int i = 0; i < static_cast<int>(presets.size()); i++) {
+        const auto [peak, rms] = presetLevelDb(i);
+        const auto label = QString { "%1: peak %2 dB, rms %3 dB, init rms %4 dB" }.arg(QString::fromStdString(presets.at(static_cast<size_t>(i)).name)).arg(peak).arg(rms).arg(initRms);
+        QVERIFY2(peak < -1.0, qPrintable(label));
+        QVERIFY2(std::abs(rms - initRms) < 12.0, qPrintable(label));
+    }
 }
 
 } // namespace noteahead

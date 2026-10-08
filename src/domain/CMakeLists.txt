@@ -22,6 +22,7 @@ set(HEADER_FILES
     devices/synth_device.hpp
     devices/synth_presets.hpp
     devices/wavetable_synth_device.hpp
+    devices/wavetable_synth_presets.hpp
     dsp/adsr_envelope.hpp
     dsp/all_pass_chain.hpp
     dsp/base_rate_source.hpp
@@ -204,6 +205,7 @@ set(SOURCE_FILES
     devices/synth_device.cpp
     devices/synth_presets.cpp
     devices/wavetable_synth_device.cpp
+    devices/wavetable_synth_presets.cpp
     dsp/adsr_envelope.cpp
     dsp/all_pass_chain.cpp
     dsp/base_rate_source.cpp

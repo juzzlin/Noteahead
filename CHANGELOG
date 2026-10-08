@@ -15,6 +15,10 @@ New features:
 
 * Assign a device to a track from its header icon or its right-click menu
 
+* Wavetable Synth
+  - Factory presets, one or two for each wavetable
+  - Save and delete presets of your own, as on the other synths
+
 * EQ 32-Band Graphical
   - A third-octave mastering EQ whose curve passes through its sliders
   - Linear Phase mode; a render takes the master's latency back out

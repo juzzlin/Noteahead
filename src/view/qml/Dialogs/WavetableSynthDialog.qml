@@ -70,6 +70,9 @@ AnimatedDialog {
         anchors.margins: 15
         spacing: 10
 
+        WavetableSynthDialog_Presets {
+        }
+
         RowLayout {
             id: mainRow
             Layout.fillWidth: true

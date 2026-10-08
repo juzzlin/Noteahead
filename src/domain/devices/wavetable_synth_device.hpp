@@ -123,6 +123,10 @@ public:
     //! Exposed so tests can read the detune a voice mode hands out without rendering audio.
     double voiceGlideFrequency(size_t index) const;
 
+    //! Loads the factory patch at @p index of WavetableSynthPresets::presets(). Everything the patch
+    //! does not name goes back to its default first, so a preset is the whole panel.
+    void loadPreset(int index);
+
     // Voice / Global
     VoiceMode voiceMode() const;
     void setVoiceMode(VoiceMode mode);
@@ -367,6 +371,7 @@ private:
     double m_osc1BasePitchRatio { 1.0 };
     double m_osc2BasePitchRatio { 1.0 };
 
+    void applyPreset(const std::map<std::string, float> & values);
     void handleNoteOn(uint8_t note, uint8_t velocity);
     //! The phase a voice that starts from silence is given. @p stackIndex is the voice's place among
     //! the voices playing its note: 0 or 1 in a Dual pair, whichever pair that is, so that every

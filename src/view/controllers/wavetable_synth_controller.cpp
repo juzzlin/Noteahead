@@ -17,6 +17,7 @@
 
 #include "../../common/constants.hpp"
 #include "../../domain/devices/wavetable_synth_device.hpp"
+#include "../../domain/devices/wavetable_synth_presets.hpp"
 #include "../../domain/dsp/lfo.hpp"
 
 #include <cmath>
@@ -713,6 +714,23 @@ QStringList WavetableSynthController::lfo2ModeNames() const
 QStringList WavetableSynthController::lfo2TargetNames() const
 {
     return lfoTargetNames();
+}
+
+QStringList WavetableSynthController::factoryPresetNames() const
+{
+    QStringList list;
+    for (const auto & preset : WavetableSynthPresets::presets()) {
+        list << QString::fromStdString(preset.name);
+    }
+    return list;
+}
+
+void WavetableSynthController::loadFactoryPreset(int index)
+{
+    if (m_synth) {
+        m_synth->loadPreset(index);
+        requestSettings();
+    }
 }
 
 void WavetableSynthController::requestSettings()

@@ -15,13 +15,19 @@
 
 #include "wavetable_synth_controller_test.hpp"
 
+#include "../../application/service/preset_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/devices/wavetable_synth_device.hpp"
+#include "../../domain/devices/wavetable_synth_presets.hpp"
 #include "../../domain/dsp/lfo.hpp"
 #include "../../view/controllers/wavetable_synth_controller.hpp"
 
 #include <QSignalSpy>
+#include <QTemporaryDir>
 #include <QTest>
+
+#include <algorithm>
+#include <cmath>
 
 namespace noteahead {
 
@@ -232,6 +238,53 @@ void WavetableSynthControllerTest::test_lfoRateDivider_shouldReachTheDevice()
     controller.setLfo2RateDivider(64);
     QCOMPARE(spy2.count(), 1);
     QCOMPARE(synth->lfo2RateDivider(), 64);
+}
+
+void WavetableSynthControllerTest::test_presetNames_shouldListTheFactoryPatches()
+{
+    const auto synth = std::make_shared<WavetableSynthDevice>("Test Synth");
+    WavetableSynthController controller { synth };
+    const auto names = controller.presetNames();
+    QCOMPARE(names.size(), static_cast<int>(WavetableSynthPresets::presets().size()));
+    QVERIFY(names.first().endsWith("Init"));
+}
+
+void WavetableSynthControllerTest::test_loadPreset_factory_shouldApplyThePatch()
+{
+    const auto synth = std::make_shared<WavetableSynthDevice>("Test Synth");
+    WavetableSynthController controller { synth };
+    const auto & presets = WavetableSynthPresets::presets();
+    const auto pulseBass = std::ranges::find_if(presets, [](auto && preset) { return preset.name == "Pulse Bass"; });
+    QVERIFY(pulseBass != presets.end());
+    const auto index = static_cast<int>(pulseBass - presets.begin());
+
+    controller.loadPreset(index);
+    QCOMPARE(controller.currentPresetIndex(), index);
+    QVERIFY(!controller.currentPresetIsUserPreset());
+    QCOMPARE(synth->voiceMode(), WavetableSynthDevice::VoiceMode::Mono);
+}
+
+void WavetableSynthControllerTest::test_loadPreset_userPreset_shouldApplyTheStoredPatch()
+{
+    QTemporaryDir root;
+    const auto presetService = std::make_shared<PresetService>(root.path());
+    const auto synth = std::make_shared<WavetableSynthDevice>("Test Synth");
+    WavetableSynthController controller { synth };
+    controller.setPresetService(presetService);
+
+    synth->setLpfCutoff(0.4f);
+    QVERIFY(controller.saveUserPreset("My Pad"));
+    const auto factoryCount = static_cast<int>(WavetableSynthPresets::presets().size());
+    QCOMPARE(controller.presetNames().size(), factoryCount + 1);
+
+    // A factory preset in between, so that what the user preset restores cannot already be there
+    controller.loadPreset(0);
+    QVERIFY(std::abs(synth->lpfCutoff() - 0.4f) > 0.001f);
+
+    controller.loadPreset(factoryCount);
+    QVERIFY(controller.currentPresetIsUserPreset());
+    QCOMPARE(controller.currentUserPresetName(), QString { "My Pad" });
+    QVERIFY(std::abs(synth->lpfCutoff() - 0.4f) < 0.001f);
 }
 
 } // namespace noteahead

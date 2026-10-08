@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "wavetable_synth_device.hpp"
+#include "wavetable_synth_presets.hpp"
 
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
@@ -1639,6 +1640,35 @@ void WavetableSynthDevice::setLfo2Target(LfoTarget target)
 }
 
 // Voice / Global
+void WavetableSynthDevice::loadPreset(int index)
+{
+    const auto & presets = WavetableSynthPresets::presets();
+    if (index >= 0 && index < static_cast<int>(presets.size())) {
+        applyPreset(presets.at(static_cast<size_t>(index)).parameters);
+    }
+}
+
+void WavetableSynthDevice::applyPreset(const std::map<std::string, float> & values)
+{
+    {
+        const std::lock_guard<std::recursive_mutex> lock { mutex() };
+
+        // A preset is the whole panel, so everything it does not name goes back to its default
+        // first. Without this, whatever the previous patch had turned up stays turned up.
+        reset();
+
+        for (auto && [name, value] : values) {
+            if (const auto synthParameter = parameter(name); synthParameter) {
+                synthParameter->get().setValue(value);
+            }
+        }
+
+        syncParameters();
+    }
+
+    emit dataChanged();
+}
+
 double WavetableSynthDevice::voiceGlideFrequency(size_t index) const
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };

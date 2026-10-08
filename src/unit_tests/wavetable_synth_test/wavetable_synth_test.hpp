@@ -25,6 +25,10 @@ class WavetableSynthTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_presets_first_shouldBeInit();
+    void test_presets_everyValue_shouldNameAParameterInItsRange();
+    void test_loadPreset_shouldResetWhatItDoesNotName();
+    void test_presets_everyOne_shouldPlayWithoutClipping();
     void test_lfoRateDivider_default_shouldBeOne();
     void test_lfoRateDivider_shouldRoundTrip();
     void test_lfoRateDivider_projectWithoutIt_shouldLoadOne();
