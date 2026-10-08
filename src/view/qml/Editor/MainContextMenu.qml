@@ -51,20 +51,38 @@ Menu {
     Menu {
         title: qsTr("Automation")
         width: rootItem.width
+        // The adds go on the column the cursor is in, over the whole pattern, as from the Column
+        // menu. Only the parameter automation's is wider: its target list holds every device and
+        // effect, the master and the sends included, rather than only the track's own device.
         Action {
-            text: qsTr("Edit MIDI CC automations (ALL)...")
+            text: qsTr("Add MIDI CC automation...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestColumnAddMidiCcAutomationDialog()
+        }
+        Action {
+            text: qsTr("Edit MIDI CC automations (whole song)...")
             enabled: !UiService.isPlaying()
             onTriggered: UiService.requestEditMidiCcAutomationsDialog()
         }
         MenuSeparator {}
         Action {
-            text: qsTr("Edit Pitch Bend automations (ALL)...")
+            text: qsTr("Add Pitch Bend automation...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestColumnAddPitchBendAutomationDialog()
+        }
+        Action {
+            text: qsTr("Edit Pitch Bend automations (whole song)...")
             enabled: !UiService.isPlaying()
             onTriggered: UiService.requestEditPitchBendAutomationsDialog()
         }
         MenuSeparator {}
         Action {
-            text: qsTr("Edit parameter automations (ALL)...")
+            text: qsTr("Add parameter automation (all targets)...")
+            enabled: !UiService.isPlaying()
+            onTriggered: UiService.requestAddParameterAutomationDialog()
+        }
+        Action {
+            text: qsTr("Edit parameter automations (whole song)...")
             enabled: !UiService.isPlaying()
             onTriggered: UiService.requestEditParameterAutomationsDialog()
         }

@@ -21,6 +21,7 @@ QtObject {
     signal audioAnalysisDialogRequested
     signal activeOctaveChanged(int activeOctave)
     signal columnAddMidiCcAutomationDialogRequested
+    signal addParameterAutomationDialogRequested
     signal columnAddParameterAutomationDialogRequested
     signal columnAddPitchBendAutomationDialogRequested
     signal columnSettingsDialogRequested(int trackIndex, int columnIndex)
@@ -479,6 +480,12 @@ QtObject {
     function requestEditParameterAutomationsDialogByPattern(): void {
         if (!isPlaying()) {
             editParameterAutomationsDialogByPatternRequested();
+        }
+    }
+    //! Adds over every target in the project rather than the track's own device. See Main.qml.
+    function requestAddParameterAutomationDialog(): void {
+        if (!isPlaying()) {
+            addParameterAutomationDialogRequested();
         }
     }
     function requestTrackAddParameterAutomationDialog(): void {

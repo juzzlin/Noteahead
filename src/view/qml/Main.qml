@@ -1473,6 +1473,12 @@ ApplicationWindow {
             addParameterAutomationDialog.setTitle(qsTr("Add parameter automation"));
             addParameterAutomationDialog.openForLines(0, editorService.currentLineCount - 1, editorService.instrumentPortName(editorService.position.track));
         });
+        // No port to narrow by, so every device and effect is offered: the master and the sends can
+        // be reached from here even when every track plays a device of its own
+        UiService.addParameterAutomationDialogRequested.connect(() => {
+            addParameterAutomationDialog.setTitle(qsTr("Add parameter automation"));
+            addParameterAutomationDialog.openForLines(0, editorService.currentLineCount - 1, "");
+        });
         // Automations belong to a column, so the track's goes on the column the cursor is in
         UiService.trackAddParameterAutomationDialogRequested.connect(() => {
             addParameterAutomationDialog.setTitle(qsTr("Add parameter automation"));

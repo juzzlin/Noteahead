@@ -142,6 +142,7 @@ Menu {
         }
         delegate: MenuItemDelegate {}
     }
+    MenuSeparator {}
     // In a sub-menu of their own, one or two entries for each kind, to keep the menu short
     Menu {
         title: qsTr("Automation")
