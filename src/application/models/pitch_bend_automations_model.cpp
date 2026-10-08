@@ -54,7 +54,7 @@ void PitchBendAutomationsModel::requestPitchBendAutomationsByColumn(quint64 patt
     m_filter = {};
     m_filter.pattern = pattern;
     m_filter.track = track;
-    m_filter.column = column;
+    m_filter.columns = Range { column, column };
 
     emit pitchBendAutomationsRequested();
 }
@@ -64,8 +64,19 @@ void PitchBendAutomationsModel::requestPitchBendAutomationsByLine(quint64 patter
     m_filter = {};
     m_filter.pattern = pattern;
     m_filter.track = track;
-    m_filter.column = column;
-    m_filter.line = line;
+    m_filter.columns = Range { column, column };
+    m_filter.lines = Range { line, line };
+
+    emit pitchBendAutomationsRequested();
+}
+
+void PitchBendAutomationsModel::requestPitchBendAutomationsBySelection(quint64 pattern, quint64 track, quint64 minColumn, quint64 maxColumn, quint64 minLine, quint64 maxLine)
+{
+    m_filter = {};
+    m_filter.pattern = pattern;
+    m_filter.track = track;
+    m_filter.columns = Range { minColumn, maxColumn };
+    m_filter.lines = Range { minLine, maxLine };
 
     emit pitchBendAutomationsRequested();
 }
@@ -81,11 +92,11 @@ PitchBendAutomationsModel::PitchBendAutomationList PitchBendAutomationsModel::fi
                              if (m_filter.track.has_value() && automation.location().track() != m_filter.track.value()) {
                                  return false;
                              }
-                             if (m_filter.column.has_value() && automation.location().column() != m_filter.column.value()) {
+                             if (m_filter.columns.has_value() && (automation.location().column() < m_filter.columns->first || automation.location().column() > m_filter.columns->second)) {
                                  return false;
                              }
-                             if (m_filter.line.has_value()) {
-                                 if (automation.interpolation().line0 > m_filter.line.value() || automation.interpolation().line1 < m_filter.line.value()) {
+                             if (m_filter.lines.has_value()) {
+                                 if (automation.interpolation().line0 > m_filter.lines->second || automation.interpolation().line1 < m_filter.lines->first) {
                                      return false;
                                  }
                              }

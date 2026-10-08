@@ -57,6 +57,7 @@ QtObject {
     signal editMidiCcAutomationsDialogByColumnRequested
     signal editMidiCcAutomationsDialogByLineRequested
     signal editMidiCcAutomationsDialogByPatternRequested
+    signal editMidiCcAutomationsDialogBySelectionRequested
     signal editMidiCcAutomationsDialogByTrackRequested
     signal editMidiCcAutomationsDialogRequested
     signal editParameterAutomationsDialogByColumnRequested
@@ -68,6 +69,7 @@ QtObject {
     signal editPitchBendAutomationsDialogByColumnRequested
     signal editPitchBendAutomationsDialogByLineRequested
     signal editPitchBendAutomationsDialogByPatternRequested
+    signal editPitchBendAutomationsDialogBySelectionRequested
     signal editPitchBendAutomationsDialogByTrackRequested
     signal editPitchBendAutomationsDialogRequested
     signal deviceSettingsDialogRequested(string deviceName)
@@ -408,6 +410,11 @@ QtObject {
             editMidiCcAutomationsDialogByPatternRequested();
         }
     }
+    function requestEditMidiCcAutomationsDialogBySelection(): void {
+        if (!isPlaying()) {
+            editMidiCcAutomationsDialogBySelectionRequested();
+        }
+    }
     function requestLineAddPitchBendAutomationDialog(): void {
         if (!isPlaying()) {
             lineAddPitchBendAutomationDialogRequested();
@@ -446,6 +453,11 @@ QtObject {
     function requestEditPitchBendAutomationsDialogByPattern(): void {
         if (!isPlaying()) {
             editPitchBendAutomationsDialogByPatternRequested();
+        }
+    }
+    function requestEditPitchBendAutomationsDialogBySelection(): void {
+        if (!isPlaying()) {
+            editPitchBendAutomationsDialogBySelectionRequested();
         }
     }
     function requestLineAddParameterAutomationDialog(): void {

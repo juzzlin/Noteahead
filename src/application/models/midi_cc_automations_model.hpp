@@ -21,7 +21,9 @@
 #include <QAbstractListModel>
 #include <QVariantMap>
 
+#include <optional>
 #include <set>
+#include <utility>
 #include <vector>
 
 namespace noteahead {
@@ -63,6 +65,9 @@ public:
     Q_INVOKABLE void requestMidiCcAutomationsByTrack(quint64 pattern, quint64 track);
     Q_INVOKABLE void requestMidiCcAutomationsByColumn(quint64 pattern, quint64 track, quint64 column);
     Q_INVOKABLE void requestMidiCcAutomationsByLine(quint64 pattern, quint64 track, quint64 column, quint64 line);
+    //! The automations on any of the columns @p minColumn to @p maxColumn of @p track that reach into
+    //! the lines @p minLine to @p maxLine, as the Selection menu's edit shows them.
+    Q_INVOKABLE void requestMidiCcAutomationsBySelection(quint64 pattern, quint64 track, quint64 minColumn, quint64 maxColumn, quint64 minLine, quint64 maxLine);
     using MidiCcAutomationList = std::vector<MidiCcAutomation>;
     void setMidiCcAutomations(MidiCcAutomationList midiCcAutomations);
 
@@ -105,12 +110,15 @@ private:
     MidiCcAutomationSet m_midiCcAutomationsChanged;
     MidiCcAutomationSet m_midiCcAutomationsDeleted;
 
+    //! First and last, inclusive.
+    using Range = std::pair<quint64, quint64>;
+
     struct Filter
     {
         std::optional<quint64> pattern;
         std::optional<quint64> track;
-        std::optional<quint64> column;
-        std::optional<quint64> line;
+        std::optional<Range> columns;
+        std::optional<Range> lines;
     };
 
     Filter m_filter;

@@ -101,11 +101,21 @@ Menu {
             enabled: !UiService.isPlaying() && selectionService.isValidSelection
             onTriggered: UiService.requestSelectionAddMidiCcAutomationDialog()
         }
+        Action {
+            text: qsTr("Edit MIDI CC automations...")
+            enabled: !UiService.isPlaying() && selectionService.isValidSelection
+            onTriggered: UiService.requestEditMidiCcAutomationsDialogBySelection()
+        }
         MenuSeparator {}
         Action {
             text: qsTr("Add Pitch Bend automation...")
             enabled: !UiService.isPlaying() && selectionService.isValidSelection
             onTriggered: UiService.requestSelectionAddPitchBendAutomationDialog()
+        }
+        Action {
+            text: qsTr("Edit Pitch Bend automations...")
+            enabled: !UiService.isPlaying() && selectionService.isValidSelection
+            onTriggered: UiService.requestEditPitchBendAutomationsDialogBySelection()
         }
         MenuSeparator {}
         Action {

@@ -330,6 +330,34 @@ void PitchBendAutomationsModelTest::test_applyValues_shouldReplaceParametersButN
     QCOMPARE(replacedSpy.at(0).at(0).toInt(), 0);
 }
 
+void PitchBendAutomationsModelTest::test_requestPitchBendAutomationsBySelection_shouldFilterByColumnsAndLines()
+{
+    // Column 3 of track 2 in pattern 1, over lines 11 to 22
+    const PitchBendAutomation::InterpolationParameters interpolation { 11, 22, 33, 44 };
+    PitchBendAutomation automation { 42, { 1, 2, 3 }, interpolation, {} };
+    PitchBendAutomationsModel model;
+
+    const auto rows = [&](quint64 pattern, quint64 track, quint64 minColumn, quint64 maxColumn, quint64 minLine, quint64 maxLine) {
+        model.requestPitchBendAutomationsBySelection(pattern, track, minColumn, maxColumn, minLine, maxLine);
+        model.setPitchBendAutomations({ automation });
+        return model.rowCount();
+    };
+
+    // A selection over its column and any of its lines finds it, overlapping either end
+    QCOMPARE(rows(1, 2, 3, 3, 11, 22), 1);
+    QCOMPARE(rows(1, 2, 0, 5, 0, 11), 1);
+    QCOMPARE(rows(1, 2, 2, 3, 22, 40), 1);
+    QCOMPARE(rows(1, 2, 3, 4, 15, 16), 1);
+    // Next to it on either axis does not
+    QCOMPARE(rows(1, 2, 0, 2, 11, 22), 0);
+    QCOMPARE(rows(1, 2, 4, 6, 11, 22), 0);
+    QCOMPARE(rows(1, 2, 3, 3, 0, 10), 0);
+    QCOMPARE(rows(1, 2, 3, 3, 23, 40), 0);
+    // Nor another track or pattern
+    QCOMPARE(rows(1, 3, 3, 3, 11, 22), 0);
+    QCOMPARE(rows(2, 2, 3, 3, 11, 22), 0);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::PitchBendAutomationsModelTest)

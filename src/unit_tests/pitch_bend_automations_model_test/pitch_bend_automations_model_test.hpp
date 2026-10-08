@@ -25,6 +25,7 @@ class PitchBendAutomationsModelTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_requestPitchBendAutomationsBySelection_shouldFilterByColumnsAndLines();
 
     void test_addPitchBendAutomations_shouldAddAutomations();
 

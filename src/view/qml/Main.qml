@@ -1422,6 +1422,12 @@ ApplicationWindow {
             editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automations by pattern"));
             editMidiCcAutomationsDialog.open();
         });
+        UiService.editMidiCcAutomationsDialogBySelectionRequested.connect(() => {
+            midiCcAutomationsModel.linesPerBeat = editorService.linesPerBeat;
+            midiCcAutomationsModel.requestMidiCcAutomationsBySelection(editorService.position.pattern, selectionService.track(), selectionService.minColumn(), selectionService.maxColumn(), selectionService.minLine(), selectionService.maxLine());
+            editMidiCcAutomationsDialog.setTitle(qsTr("Edit MIDI CC automations by selection"));
+            editMidiCcAutomationsDialog.open();
+        });
         UiService.lineAddPitchBendAutomationDialogRequested.connect(() => {
             addPitchBendAutomationDialog.setTitle(qsTr("Add Pitch Bend automation"));
             addPitchBendAutomationDialog.setStartLine(editorService.position.line);
@@ -1482,6 +1488,11 @@ ApplicationWindow {
             const position = editorService.position;
             pitchBendAutomationsModel.requestPitchBendAutomationsByPattern(position.pattern);
             editPitchBendAutomationsDialog.setTitle(qsTr("Edit Pitch Bend automations by pattern"));
+            editPitchBendAutomationsDialog.open();
+        });
+        UiService.editPitchBendAutomationsDialogBySelectionRequested.connect(() => {
+            pitchBendAutomationsModel.requestPitchBendAutomationsBySelection(editorService.position.pattern, selectionService.track(), selectionService.minColumn(), selectionService.maxColumn(), selectionService.minLine(), selectionService.maxLine());
+            editPitchBendAutomationsDialog.setTitle(qsTr("Edit Pitch Bend automations by selection"));
             editPitchBendAutomationsDialog.open();
         });
         UiService.lineAddParameterAutomationDialogRequested.connect(() => {
