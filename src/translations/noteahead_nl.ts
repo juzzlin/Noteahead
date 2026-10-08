@@ -4152,6 +4152,10 @@
         <translation>MIDI CC-automatiseringen per patroon bewerken</translation>
     </message>
     <message>
+        <source>Edit MIDI CC automations by selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Add Pitch Bend automation</source>
         <translation>Pitch Bend-automatisering toevoegen</translation>
     </message>
@@ -4174,6 +4178,10 @@
     <message>
         <source>Edit Pitch Bend automations by pattern</source>
         <translation>Pitch Bend-automatiseringen per patroon bewerken</translation>
+    </message>
+    <message>
+        <source>Edit Pitch Bend automations by selection</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Add parameter automation</source>
@@ -4537,6 +4545,14 @@
     <message>
         <source>Transpose &lt;b&gt;-12&lt;/b&gt; semitones</source>
         <translation>&lt;b&gt;-12&lt;/b&gt; halve tonen transponeren</translation>
+    </message>
+    <message>
+        <source>Edit MIDI CC automations...</source>
+        <translation type="unfinished">MIDI CC-automatiseringen bewerken...</translation>
+    </message>
+    <message>
+        <source>Edit Pitch Bend automations...</source>
+        <translation type="unfinished">Pitch Bend-automatiseringen bewerken...</translation>
     </message>
     <message>
         <source>Interpolate velocity...</source>

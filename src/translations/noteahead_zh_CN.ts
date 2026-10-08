@@ -4151,6 +4151,10 @@
         <translation>按模式编辑 MIDI CC 自动化</translation>
     </message>
     <message>
+        <source>Edit MIDI CC automations by selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Add Pitch Bend automation</source>
         <translation>添加弯音自动化</translation>
     </message>
@@ -4173,6 +4177,10 @@
     <message>
         <source>Edit Pitch Bend automations by pattern</source>
         <translation>按模式编辑弯音自动化</translation>
+    </message>
+    <message>
+        <source>Edit Pitch Bend automations by selection</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Add parameter automation</source>
@@ -4536,6 +4544,14 @@
     <message>
         <source>Transpose &lt;b&gt;-12&lt;/b&gt; semitones</source>
         <translation>移调 &lt;b&gt;-12&lt;/b&gt; 个半音</translation>
+    </message>
+    <message>
+        <source>Edit MIDI CC automations...</source>
+        <translation type="unfinished">编辑 MIDI CC 自动化...</translation>
+    </message>
+    <message>
+        <source>Edit Pitch Bend automations...</source>
+        <translation type="unfinished">编辑弯音自动化...</translation>
     </message>
     <message>
         <source>Interpolate velocity...</source>

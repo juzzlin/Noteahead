@@ -4152,6 +4152,10 @@
         <translation>Muokkaa MIDI CC -automaatioita kuvioittain</translation>
     </message>
     <message>
+        <source>Edit MIDI CC automations by selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Add Pitch Bend automation</source>
         <translation>Lisää Pitch Bend -automaatio</translation>
     </message>
@@ -4174,6 +4178,10 @@
     <message>
         <source>Edit Pitch Bend automations by pattern</source>
         <translation>Muokkaa Pitch Bend -automaatioita kuvioittain</translation>
+    </message>
+    <message>
+        <source>Edit Pitch Bend automations by selection</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Add parameter automation</source>
@@ -4537,6 +4545,14 @@
     <message>
         <source>Transpose &lt;b&gt;-12&lt;/b&gt; semitones</source>
         <translation>Transponoi &lt;b&gt;-12&lt;/b&gt; puolisävelaskelta</translation>
+    </message>
+    <message>
+        <source>Edit MIDI CC automations...</source>
+        <translation type="unfinished">Muokkaa MIDI CC -automaatioita...</translation>
+    </message>
+    <message>
+        <source>Edit Pitch Bend automations...</source>
+        <translation type="unfinished">Muokkaa Pitch Bend -automaatioita...</translation>
     </message>
     <message>
         <source>Interpolate velocity...</source>
