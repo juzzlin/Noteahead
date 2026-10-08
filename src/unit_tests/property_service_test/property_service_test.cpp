@@ -15,16 +15,20 @@
 
 #include "property_service_test.hpp"
 
+#include "../../application/note_converter.hpp"
 #include "../../application/service/device_service.hpp"
 #include "../../application/service/property_service.hpp"
 #include "../../common/constants.hpp"
 #include "../../domain/devices/bass_synth_device.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
+#include "../../domain/devices/drum_synth_v2_constants.hpp"
+#include "../../domain/devices/drum_synth_v2_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/effects/auto_filter.hpp"
 #include "../../domain/effects/gain.hpp"
 #include "../../infra/audio/audio_engine.hpp"
+#include "../../infra/audio/backend/audio_file_reader.hpp"
 #include "../../infra/data_service.hpp"
 #include "../../infra/midi/midi_cc_mapping.hpp"
 
@@ -388,6 +392,136 @@ void PropertyServiceTest::test_automationTargetsForPort_externalPort_shouldBeEmp
     // Nothing behind the port to narrow the list down to
     QVERIFY(propertyService.automationTargetsForPort("Some MIDI Port").isEmpty());
     QVERIFY(propertyService.automationTargetsForPort({}).isEmpty());
+}
+
+namespace {
+
+//! Opens anything as a short stereo file of silence, so a pad can be loaded without a file.
+class MockAudioFileReader : public AudioFileReader
+{
+public:
+    bool open(const std::string &, Mode, Info & info) override
+    {
+        info.frames = 1000;
+        info.samplerate = static_cast<uint32_t>(Constants::defaultSampleRate());
+        info.channels = 2;
+        m_info = info;
+        m_isOpen = true;
+        return true;
+    }
+
+    void close() override
+    {
+        m_isOpen = false;
+    }
+
+    void setTag(TagType type, const std::string & value) override
+    {
+        (void)type;
+        (void)value;
+    }
+
+    int64_t readFloat(std::span<float> data) override
+    {
+        std::fill(data.begin(), data.end(), 0.0f);
+        return static_cast<int64_t>(data.size() / static_cast<size_t>(m_info.channels));
+    }
+
+    int64_t readDouble(std::span<double> data) override
+    {
+        std::fill(data.begin(), data.end(), 0.0);
+        return static_cast<int64_t>(data.size() / static_cast<size_t>(m_info.channels));
+    }
+
+    int64_t readInt(std::span<int32_t> data) override
+    {
+        std::fill(data.begin(), data.end(), 0);
+        return static_cast<int64_t>(data.size() / static_cast<size_t>(m_info.channels));
+    }
+
+    int64_t writeFloat(std::span<const float> data) override
+    {
+        return static_cast<int64_t>(data.size() / static_cast<size_t>(m_info.channels));
+    }
+
+    int64_t writeInt(std::span<const int32_t> data) override
+    {
+        return static_cast<int64_t>(data.size() / static_cast<size_t>(m_info.channels));
+    }
+
+    bool seek(int64_t, int) override
+    {
+        return true;
+    }
+
+    bool isOpen() const override
+    {
+        return m_isOpen;
+    }
+
+    Info info() const override
+    {
+        return m_info;
+    }
+
+private:
+    bool m_isOpen = false;
+    Info m_info;
+};
+
+} // namespace
+
+void PropertyServiceTest::test_automationTargets_sampler_shouldListEachLoadedPad()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    PropertyService propertyService;
+    propertyService.setDeviceService(deviceService);
+    const auto sampler = std::make_shared<SamplerDevice>("Sampler", std::make_unique<MockAudioFileReader>());
+    sampler->loadSample(36, "kick.wav");
+    sampler->loadSample(38, "snare.wav");
+    deviceService->setDevice(0, sampler);
+
+    // A target for each loaded pad, in note order, named by the note and what is on it
+    const auto targets = propertyService.automationTargets();
+    QCOMPARE(targets.size(), 2);
+    const auto kick = targets.at(0).toMap();
+    const auto snare = targets.at(1).toMap();
+    QCOMPARE(kick["ownerId"].toString(), QString::fromStdString(sampler->uuid()));
+    QCOMPARE(kick["group"].toString(), QString { "Pad %1 (kick.wav)" }.arg(QString::fromStdString(NoteConverter::midiToString(36))));
+    QCOMPARE(snare["group"].toString(), QString { "Pad %1 (snare.wav)" }.arg(QString::fromStdString(NoteConverter::midiToString(38))));
+
+    const auto cutoffKey = QString::fromStdString(SamplerDevice::padAutomationKey(38, Constants::NahdXml::xmlKeyCutoff().toStdString()));
+    const auto cutoff = parameterOf(snare, cutoffKey);
+    QCOMPARE(cutoff["unit"].toString(), QString { "Hz" });
+    QCOMPARE(cutoff["mapping"].toString(), QString { "logFrequency" });
+
+    // And an automation's key leads back to it
+    const auto found = propertyService.automationParameter("device", QString::fromStdString(sampler->uuid()), cutoffKey);
+    QCOMPARE(found["key"].toString(), cutoffKey);
+}
+
+void PropertyServiceTest::test_automationTargets_drumSynth_shouldListEachDrum()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    PropertyService propertyService;
+    propertyService.setDeviceService(deviceService);
+    deviceService->setDevice(0, std::make_shared<DrumSynthV2Device>("Drums"));
+
+    // One target for each drum of the kit, in kit order, with its level, pan and filters at least
+    const auto targets = propertyService.automationTargets();
+    QCOMPARE(targets.size(), DrumSynthV2::NumVoices);
+    for (int voice = 0; voice < DrumSynthV2::NumVoices; voice++) {
+        const auto target = targets.at(voice).toMap();
+        QCOMPARE(target["group"].toString(), DrumSynthV2::voiceName(voice));
+        const auto prefix = QString::fromStdString(DrumSynthV2::voiceId(voice) + "_");
+        for (auto && key : { Constants::NahdXml::xmlKeyLevel(), Constants::NahdXml::xmlKeyPan(), Constants::NahdXml::xmlKeyCutoff(), Constants::NahdXml::xmlKeyHpfCutoff(), Constants::NahdXml::xmlKeyAmpDecay() }) {
+            QVERIFY2(!parameterOf(target, prefix + key).isEmpty(), qPrintable(prefix + key));
+        }
+    }
+    const auto kickCutoff = parameterOf(targets.at(0).toMap(), QString::fromStdString(DrumSynthV2::voiceId(0) + "_") + Constants::NahdXml::xmlKeyCutoff());
+    QCOMPARE(kickCutoff["unit"].toString(), QString { "Hz" });
 }
 
 } // namespace noteahead

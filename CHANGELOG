@@ -8,6 +8,7 @@ New features:
 * Parameter automation
   - Automate a device's or an effect's parameters directly, in their own units (Hz, ms, dB)
   - Relative mode scales the knob's own setting, like Expression
+  - Sampler pads and drum machine drums, each listed as a target of its own
 
 * Synth, Wavetable Synth and FM Synth
   - Phase Randomness: 0% starts every note of a unison stack equally loud

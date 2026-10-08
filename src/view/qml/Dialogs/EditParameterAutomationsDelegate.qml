@@ -28,7 +28,7 @@ GroupBox {
     title: qsTr("Pattern: %1, Track: %2, Column: %3").arg(model.pattern).arg(model.track).arg(model.column)
 
     property var targets: []
-    readonly property var target: Targets.findTarget(targets, model.owner, model.ownerId)
+    readonly property var target: Targets.findTarget(targets, model.owner, model.ownerId, model.parameter)
     readonly property var parameter: Targets.findParameter(target, model.parameter)
     readonly property bool isRelative: model.mode === 1
     readonly property var knobSetup: Targets.knobSetup(parameter, isRelative)

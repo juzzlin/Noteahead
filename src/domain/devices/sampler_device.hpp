@@ -31,6 +31,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace noteahead {
@@ -270,6 +271,16 @@ public:
     //! envelope over the waveform from these, so it reads the same times the voices run on.
     static double attackSeconds(float attack);
     static double holdSeconds(float hold);
+
+    //! The key a parameter automation names pad @p note's parameter @p key by, "pad36/cutoff".
+    static std::string padAutomationKey(uint8_t note, const std::string & key);
+    //! The pad and the parameter a key from padAutomationKey() names, or nothing for any other key.
+    static std::optional<std::pair<uint8_t, std::string>> parsePadAutomationKey(const std::string & key);
+
+    //! The device's own described parameters, then those of every loaded pad.
+    AutomatableParameterList automatableParameters() const override;
+    //! Routes a pad's key to that pad, and anything else to the device's own parameters.
+    bool applyParameterAutomation(const std::string & key, ParameterAutomation::Mode mode, double value) override;
     //! A pad's attack or hold position saved under the old names, on the curve those used, moved to
     //! the position on today's curve that gives the same time.
     static float envelopePositionFromLegacy(float legacyPosition);

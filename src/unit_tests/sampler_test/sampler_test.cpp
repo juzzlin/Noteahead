@@ -2581,6 +2581,90 @@ void SamplerTest::test_envelopePositionFromLegacy_shouldKeepTheTime()
     }
 }
 
+void SamplerTest::test_automatableParameters_loadedPad_shouldBeListedUnderItsKey()
+{
+    // A pad's own parameters, keyed by the pad, in the units of its knobs; an empty pad lists none
+    auto sampler = makeMonoSampler();
+    const auto list = sampler->automatableParameters();
+    const auto cutoffKey = SamplerDevice::padAutomationKey(60, Constants::NahdXml::xmlKeyCutoff().toStdString());
+    const auto cutoff = std::ranges::find_if(list, [&](auto && entry) { return entry.key == cutoffKey; });
+    QVERIFY(cutoff != list.end());
+    QCOMPARE(cutoff->groupNote, std::optional<uint8_t> { 60 });
+    QCOMPARE(cutoff->groupName, std::string { "test.wav" });
+    QVERIFY(cutoff->parameter.display().has_value());
+    QCOMPARE(cutoff->parameter.display()->unit, std::string { "Hz" });
+    for (auto && key : { Constants::NahdXml::xmlKeyPan(), Constants::NahdXml::xmlKeyFader(), Constants::NahdXml::xmlKeyHpfCutoff(), Constants::NahdXml::xmlKeyTune(), Constants::NahdXml::xmlKeyDetune(), Constants::NahdXml::xmlKeyAttackTime(), Constants::NahdXml::xmlKeyHoldTime(), Constants::NahdXml::xmlKeyDecay(), Constants::NahdXml::xmlKeySustain(), Constants::NahdXml::xmlKeyReleaseTime() }) {
+        const auto padKey = SamplerDevice::padAutomationKey(60, key.toStdString());
+        QVERIFY2(std::ranges::any_of(list, [&](auto && entry) { return entry.key == padKey; }), qPrintable(key));
+    }
+    QVERIFY(std::ranges::all_of(list, [](auto && entry) { return entry.groupNote == std::optional<uint8_t> { 60 }; }));
+}
+
+void SamplerTest::test_applyParameterAutomation_pad_shouldDriveThePadAndClearBack()
+{
+    auto sampler = makeMonoSampler();
+    sampler->setSampleCutoff(60, 0.8f);
+    const auto key = SamplerDevice::padAutomationKey(60, Constants::NahdXml::xmlKeyCutoff().toStdString());
+
+    QVERIFY(sampler->applyParameterAutomation(key, ParameterAutomation::Mode::Absolute, 0.25));
+    QCOMPARE(sampler->sampleCutoff(60), 0.25f);
+
+    // Automation never authors the value: clearing it puts the knob back where the user left it
+    sampler->clearParameterAutomation();
+    QCOMPARE(sampler->sampleCutoff(60), 0.8f);
+}
+
+void SamplerTest::test_applyParameterAutomation_padRelative_shouldScaleTheKnob()
+{
+    // Relative scales from the control's rest towards the knob: half way to a knob at 0.8 from the bottom
+    auto sampler = makeMonoSampler();
+    sampler->setSampleCutoff(60, 0.8f);
+    const auto key = SamplerDevice::padAutomationKey(60, Constants::NahdXml::xmlKeyCutoff().toStdString());
+    QVERIFY(sampler->applyParameterAutomation(key, ParameterAutomation::Mode::Relative, 0.5));
+    QVERIFY(std::abs(sampler->sampleCutoff(60) - 0.4f) < 1.0e-6f);
+}
+
+void SamplerTest::test_applyParameterAutomation_padMissing_shouldBeRefused()
+{
+    auto sampler = makeMonoSampler();
+    // A pad with nothing loaded, a parameter the pad does not have, and a key that names no pad
+    QVERIFY(!sampler->applyParameterAutomation(SamplerDevice::padAutomationKey(61, Constants::NahdXml::xmlKeyCutoff().toStdString()), ParameterAutomation::Mode::Absolute, 0.5));
+    QVERIFY(!sampler->applyParameterAutomation(SamplerDevice::padAutomationKey(60, "noSuchParameter"), ParameterAutomation::Mode::Absolute, 0.5));
+    QVERIFY(!sampler->applyParameterAutomation("pad/cutoff", ParameterAutomation::Mode::Absolute, 0.5));
+    QVERIFY(!sampler->applyParameterAutomation("pad999/cutoff", ParameterAutomation::Mode::Absolute, 0.5));
+}
+
+void SamplerTest::test_parsePadAutomationKey_shouldRoundTrip()
+{
+    const auto parsed = SamplerDevice::parsePadAutomationKey(SamplerDevice::padAutomationKey(36, "cutoff"));
+    QVERIFY(parsed.has_value());
+    QCOMPARE(parsed->first, uint8_t { 36 });
+    QCOMPARE(parsed->second, std::string { "cutoff" });
+    QVERIFY(!SamplerDevice::parsePadAutomationKey("cutoff").has_value());
+    QVERIFY(!SamplerDevice::parsePadAutomationKey("pad36cutoff").has_value());
+    QVERIFY(!SamplerDevice::parsePadAutomationKey("padx/cutoff").has_value());
+}
+
+void SamplerTest::test_applyParameterAutomation_padCutoff_shouldReachASoundingNote()
+{
+    // A note already playing follows the pad's filter as the automation moves it
+    auto sampler = makeMonoSampler();
+    sampler->processMidiNoteOn(60, 127);
+    const auto rms = [](const std::vector<double> & buffer) {
+        double power = 0.0;
+        for (const double sample : buffer) {
+            power += sample * sample;
+        }
+        return std::sqrt(power / static_cast<double>(buffer.size()));
+    };
+    const double open = rms(render(*sampler, 2048));
+    QVERIFY(open > 0.0);
+    QVERIFY(sampler->applyParameterAutomation(SamplerDevice::padAutomationKey(60, Constants::NahdXml::xmlKeyCutoff().toStdString()), ParameterAutomation::Mode::Absolute, 0.0));
+    render(*sampler, 2048);
+    const double closed = rms(render(*sampler, 2048));
+    QVERIFY2(closed < open * 0.1, qPrintable(QString { "%1 -> %2" }.arg(open).arg(closed)));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SamplerTest)

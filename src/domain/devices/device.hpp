@@ -56,6 +56,18 @@ struct MidiCcController
     std::optional<uint8_t> note {};
 };
 
+//! One parameter a parameter automation can drive, and what it belongs to inside its device.
+struct AutomatableParameter
+{
+    std::string key;
+    Parameter parameter;
+    //! The pad it belongs to, for a device whose pads each have parameters of their own: the note the
+    //! pad plays on, and what is loaded on it. Neither for one of the device's own; a name alone for a
+    //! part that is named rather than played by note, a drum say.
+    std::optional<uint8_t> groupNote;
+    std::string groupName;
+};
+
 class Device : public QObject, public ParameterContainer, public ParameterAutomationTarget
 {
     Q_OBJECT
@@ -107,6 +119,12 @@ public:
     const std::string & uuid() const;
     void setUuid(std::string uuid);
     void renewUuid();
+
+    //! The parameters a parameter automation can drive: the continuous ones the device has described,
+    //! since it has far more and listing all of them would bury the few worth riding. A device whose
+    //! pads have parameters of their own lists those too, keyed so that the key names the pad.
+    using AutomatableParameterList = std::vector<AutomatableParameter>;
+    virtual AutomatableParameterList automatableParameters() const;
 
     //! Under the device's lock, and followed by a resync, the way a MIDI controller is taken.
     bool applyParameterAutomation(const std::string & key, ParameterAutomation::Mode mode, double value) override;

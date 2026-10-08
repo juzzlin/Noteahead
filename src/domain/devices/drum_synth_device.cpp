@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "drum_synth_device.hpp"
+#include "drum_voice_parameter_display.hpp"
 
 #include "../../common/constants.hpp"
 #include "../../common/utils.hpp"
@@ -86,6 +87,28 @@ std::string DrumSynthDevice::typeIdString()
 std::string DrumSynthDevice::typeId() const
 {
     return typeIdString();
+}
+
+Device::AutomatableParameterList DrumSynthDevice::automatableParameters() const
+{
+    // Grouped by drum, so that each one is a target of its own instead of every drum in one list,
+    // and in the order of the kit rather than of the keys
+    const auto voiceOf = [](const std::string & key) {
+        for (int voice = 0; voice < DrumSynth::NumVoices; voice++) {
+            if (key.starts_with(DrumSynth::voiceId(voice) + "_")) {
+                return voice;
+            }
+        }
+        return DrumSynth::NumVoices;
+    };
+    auto list = Device::automatableParameters();
+    for (auto && entry : list) {
+        if (const auto voice = voiceOf(entry.key); voice < DrumSynth::NumVoices) {
+            entry.groupName = DrumSynth::voiceName(voice).toStdString();
+        }
+    }
+    std::ranges::stable_sort(list, {}, [&voiceOf](auto && entry) { return voiceOf(entry.key); });
+    return list;
 }
 
 std::vector<MidiCcController> DrumSynthDevice::deviceMidiCcControllers() const
@@ -642,6 +665,8 @@ void DrumSynthDevice::addVoiceParameters(int index)
         addTomParameters(prefix);
     else if (voiceIdx >= VoiceIndex::Crash && voiceIdx <= VoiceIndex::ReverseCrash)
         addCymbalParameters(prefix);
+
+    describeDrumVoiceParameters(*this, prefix);
 }
 
 void DrumSynthDevice::addKickParameters(const std::string & prefix)

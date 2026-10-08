@@ -40,7 +40,16 @@ struct ParameterDisplay
         //! The same curve as LogFrequency, for a high pass: out of the way at the bottom of its
         //! travel rather than at the top, which is the end its readout calls Bypass.
         LogFrequencyHighPass,
-        LfoFrequency
+        LfoFrequency,
+        //! ParameterMapper::mapExponentialFromZero(), with min as its knee: zero at the bottom.
+        ExponentialFromZero,
+        //! Linear, read out as left and right of a centre.
+        Pan,
+        //! The fader throw, in decibels. min and max are not used.
+        Fader,
+        //! Linear, read out with its sign: a tuning either way of zero.
+        Bipolar,
+        Cubic
     };
 
     //! Where the control does nothing, which is what a relative automation scales towards. The

@@ -52,6 +52,8 @@ public:
     std::string typeId() const override;
 
     std::vector<MidiCcController> deviceMidiCcControllers() const override;
+    //! Every drum's described parameters, grouped by drum.
+    AutomatableParameterList automatableParameters() const override;
 
     static std::string typeIdString();
 

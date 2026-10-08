@@ -15,6 +15,8 @@
 
 #include "sampler_device.hpp"
 
+#include <QtGlobal>
+
 #include <sndfile.h>
 
 #include "../../common/constants.hpp"
@@ -29,10 +31,12 @@
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 
 #include <algorithm>
+#include <charconv>
 #include <cmath>
 #include <format>
 #include <iomanip>
 #include <stdexcept>
+#include <string_view>
 
 #include <QDir>
 #include <QFileInfo>
@@ -41,6 +45,27 @@
 namespace noteahead {
 
 static const auto TAG = "SamplerDevice";
+
+namespace {
+
+//! Seconds each envelope segment takes at the given knob position.
+//!
+//! Attack starts at nothing, so a pad that never touches it triggers at full level on its first frame
+//! the way it always has. The other two bottom out at the de-click fade the pads used to apply on
+//! note-off, which is the shortest release worth having.
+constexpr double MinEnvelopeSeconds { 0.005 };
+constexpr double MaxEnvelopeSeconds { 10.0 };
+
+//! How long a choked voice takes to fall silent. Long enough not to click, short enough that the pad
+//! taking over is not audibly sharing the bar with the one it cut.
+constexpr double ChokeFadeSeconds { 0.005 };
+
+//! Range of the coarse tuning knob, in whole semitones either way.
+constexpr int TuneSemitoneRange { 24 };
+//! Range of the fine tuning knob, in cents either way.
+constexpr double DetuneCentRange { 100.0 };
+
+} // namespace
 
 SamplerDevice::Sample::Sample()
 {
@@ -69,28 +94,27 @@ SamplerDevice::Sample::Sample()
     addParameter(Parameter { Constants::NahdXml::xmlKeyChokeGroup().toStdString(), 0.0f, 0, maxChokeGroup, 0, 1, Parameter::Type::Discrete });
 
     sends.resize(Constants::effectRackSize(), 0.0f);
+
+    // The readouts the pad dialog shows, so that a parameter automation on a pad speaks in the same
+    // units as its knobs
+    using Display = ParameterDisplay;
+    namespace C = Constants::NahdXml;
+    const auto describe = [this](const QString & key, Display display) {
+        setParameterDisplay(key.toStdString(), std::move(display));
+    };
+    describe(C::xmlKeyPan(), { .mapping = Display::Mapping::Pan, .unit = "%", .min = -100.0, .max = 100.0, .rest = Display::Rest::Centre, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Pan") });
+    describe(C::xmlKeyFader(), { .mapping = Display::Mapping::Fader, .unit = "dB", .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Fader") });
+    // LowPassFilter and HighPassFilter, whose travel starts at 0 Hz
+    describe(C::xmlKeyCutoff(), { .mapping = Display::Mapping::LogFrequency, .unit = "Hz", .min = 0.0, .max = 20000.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "LPF Cutoff") });
+    describe(C::xmlKeyHpfCutoff(), { .mapping = Display::Mapping::LogFrequencyHighPass, .unit = "Hz", .min = 0.0, .max = 20000.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "HPF Cutoff") });
+    describe(C::xmlKeyTune(), { .mapping = Display::Mapping::Bipolar, .unit = "st", .min = -TuneSemitoneRange, .max = TuneSemitoneRange, .rest = Display::Rest::Centre, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Tune") });
+    describe(C::xmlKeyDetune(), { .mapping = Display::Mapping::Bipolar, .unit = "ct", .min = -DetuneCentRange, .max = DetuneCentRange, .rest = Display::Rest::Centre, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Fine Tune") });
+    describe(C::xmlKeyAttackTime(), { .mapping = Display::Mapping::ExponentialFromZero, .unit = "s", .min = MinEnvelopeSeconds, .max = MaxEnvelopeSeconds, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Attack") });
+    describe(C::xmlKeyHoldTime(), { .mapping = Display::Mapping::ExponentialFromZero, .unit = "s", .min = MinEnvelopeSeconds, .max = MaxEnvelopeSeconds, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Hold") });
+    describe(C::xmlKeyDecay(), { .mapping = Display::Mapping::Exponential, .unit = "s", .min = MinEnvelopeSeconds, .max = MaxEnvelopeSeconds, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Decay") });
+    describe(C::xmlKeySustain(), { .unit = "%", .max = 100.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Sustain") });
+    describe(C::xmlKeyReleaseTime(), { .mapping = Display::Mapping::Exponential, .unit = "s", .min = MinEnvelopeSeconds, .max = MaxEnvelopeSeconds, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Release") });
 }
-
-namespace {
-
-//! Seconds each envelope segment takes at the given knob position.
-//!
-//! Attack starts at nothing, so a pad that never touches it triggers at full level on its first frame
-//! the way it always has. The other two bottom out at the de-click fade the pads used to apply on
-//! note-off, which is the shortest release worth having.
-constexpr double MinEnvelopeSeconds { 0.005 };
-constexpr double MaxEnvelopeSeconds { 10.0 };
-
-//! How long a choked voice takes to fall silent. Long enough not to click, short enough that the pad
-//! taking over is not audibly sharing the bar with the one it cut.
-constexpr double ChokeFadeSeconds { 0.005 };
-
-//! Range of the coarse tuning knob, in whole semitones either way.
-constexpr int TuneSemitoneRange { 24 };
-//! Range of the fine tuning knob, in cents either way.
-constexpr double DetuneCentRange { 100.0 };
-
-} // namespace
 
 double SamplerDevice::attackSeconds(float attack)
 {
@@ -349,11 +373,11 @@ std::vector<MidiCcController> SamplerDevice::deviceMidiCcControllers() const
     for (int pad { 0 }; pad < padCount; pad++) {
         const int note = noteForPad(pad);
         // Chromatic mode runs the topmost pads past the end of the keyboard: those address nothing
-        const std::optional<uint8_t> padNote = note < static_cast<int>(maxSamples)
+        const std::optional<uint8_t> groupNote = note < static_cast<int>(maxSamples)
           ? std::optional<uint8_t> { static_cast<uint8_t>(note) }
           : std::nullopt;
-        const auto padController = [pad, padNote](int number, const std::string & parameterName, int maxValue = 127) {
-            return MidiCcController { static_cast<uint8_t>(number), std::format("Pad {} {}", pad + 1, parameterName), 0, maxValue, padNote };
+        const auto padController = [pad, groupNote](int number, const std::string & parameterName, int maxValue = 127) {
+            return MidiCcController { static_cast<uint8_t>(number), std::format("Pad {} {}", pad + 1, parameterName), 0, maxValue, groupNote };
         };
         list.push_back(padController(padPanCcStart + pad, "Pan"));
         // The pad fader reaches past unity just like the device-wide one, so it needs the same range.
@@ -447,6 +471,75 @@ std::optional<SamplerDevice::PadCcTarget> SamplerDevice::padCcTarget(uint8_t con
     }
 
     return std::nullopt;
+}
+
+std::string SamplerDevice::padAutomationKey(uint8_t note, const std::string & key)
+{
+    return Constants::NahdXml::xmlKeyPadParameterPrefix().toStdString() + std::to_string(note) + "/" + key;
+}
+
+std::optional<std::pair<uint8_t, std::string>> SamplerDevice::parsePadAutomationKey(const std::string & key)
+{
+    const auto prefix = Constants::NahdXml::xmlKeyPadParameterPrefix().toStdString();
+    const auto slash = key.find('/');
+    if (!key.starts_with(prefix) || slash == std::string::npos || slash == prefix.size()) {
+        return {};
+    }
+    int note = 0;
+    const auto digits = std::string_view { key }.substr(prefix.size(), slash - prefix.size());
+    if (const auto [end, error] = std::from_chars(digits.data(), digits.data() + digits.size(), note); error != std::errc {} || end != digits.data() + digits.size() || note < 0 || note >= static_cast<int>(maxSamples)) {
+        return {};
+    }
+    return std::pair { static_cast<uint8_t>(note), key.substr(slash + 1) };
+}
+
+Device::AutomatableParameterList SamplerDevice::automatableParameters() const
+{
+    auto list = Device::automatableParameters();
+    std::lock_guard<std::recursive_mutex> lock { mutex() };
+    for (size_t note = 0; note < maxSamples; note++) {
+        const auto & sample = m_samples.at(note);
+        if (!sample) {
+            continue;
+        }
+        const auto name = QFileInfo { QString::fromStdString(sample->filePath) }.fileName().toStdString();
+        for (auto && [key, parameter] : sample->parameters()) {
+            if (parameter.type() == Parameter::Type::Continuous && parameter.display()) {
+                list.push_back({ padAutomationKey(static_cast<uint8_t>(note), key), parameter, static_cast<uint8_t>(note), name });
+            }
+        }
+    }
+    return list;
+}
+
+bool SamplerDevice::applyParameterAutomation(const std::string & key, ParameterAutomation::Mode mode, double value)
+{
+    const auto pad = parsePadAutomationKey(key);
+    if (!pad) {
+        return Device::applyParameterAutomation(key, mode, value);
+    }
+    {
+        std::lock_guard<std::recursive_mutex> lock { mutex() };
+        const auto & sample = m_samples.at(pad->first);
+        if (!sample) {
+            return false;
+        }
+        const auto parameter = sample->parameter(pad->second);
+        if (!parameter || parameter->get().type() != Parameter::Type::Continuous) {
+            return false;
+        }
+        parameter->get().setAutomationValue(ParameterAutomation::effectiveValue(mode, value, parameter->get()));
+        syncSampleFields(*sample);
+        // What the voices already sounding take from the pad as it plays; an envelope time is read
+        // when a note starts, so the next one picks it up
+        for (auto && voice : m_voices) {
+            if (voice.active && voice.sample == sample.get()) {
+                updateVoiceEffects(voice);
+            }
+        }
+    }
+    emit parametersChanged();
+    return true;
 }
 
 bool SamplerDevice::updatePadParameter(int note, const std::string & parameterName, float value)
@@ -1962,9 +2055,9 @@ void SamplerDevice::deserializeFromXml(ProjectReader & reader)
             while (reader.readNextStartElement()) {
                 if (reader.name() == Constants::NahdXml::xmlKeyPad()) {
                     const auto index = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyIndex(), false);
-                    const auto padNote = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyNote(), false);
-                    if (index.has_value() && padNote.has_value() && index.value() < static_cast<size_t>(padCount)) {
-                        m_chromaticPadNotes.at(index.value()) = static_cast<int>(padNote.value());
+                    const auto groupNote = Utils::Xml::readUIntAttribute(reader, Constants::NahdXml::xmlKeyNote(), false);
+                    if (index.has_value() && groupNote.has_value() && index.value() < static_cast<size_t>(padCount)) {
+                        m_chromaticPadNotes.at(index.value()) = static_cast<int>(groupNote.value());
                     }
                 }
                 reader.skipCurrentElement();

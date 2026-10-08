@@ -18,6 +18,7 @@
 #include "../../common/parameter_mapper.hpp"
 
 #include <algorithm>
+#include <cmath>
 
 namespace noteahead {
 
@@ -34,7 +35,18 @@ double ParameterDisplay::toUnits(double position) const
         return ParameterMapper::mapLogFrequency(clamped, min, max);
     case Mapping::LfoFrequency:
         return ParameterMapper::mapLfoFrequency(clamped, min, max);
+    case Mapping::ExponentialFromZero:
+        return ParameterMapper::mapExponentialFromZero(clamped, min, max);
+    case Mapping::Cubic:
+        return ParameterMapper::mapCubic(clamped, min, max);
+    case Mapping::Fader: {
+        // Floored for the same reason the equalizers floor their curves: the bottom is silence
+        constexpr double floorGain = 1.0e-6;
+        return 20.0 * std::log10(std::max(floorGain, ParameterMapper::mapFader(clamped)));
+    }
     case Mapping::Linear:
+    case Mapping::Pan:
+    case Mapping::Bipolar:
         break;
     }
     return min + clamped * (max - min);
@@ -57,7 +69,18 @@ double ParameterDisplay::toPosition(double units) const
     case Mapping::LfoFrequency:
         position = ParameterMapper::unmapLfoFrequency(units, min, max);
         break;
+    case Mapping::ExponentialFromZero:
+        position = ParameterMapper::unmapExponentialFromZero(units, min, max);
+        break;
+    case Mapping::Cubic:
+        position = ParameterMapper::unmapCubic(units, min, max);
+        break;
+    case Mapping::Fader:
+        position = ParameterMapper::unmapFader(std::pow(10.0, units / 20.0));
+        break;
     case Mapping::Linear:
+    case Mapping::Pan:
+    case Mapping::Bipolar:
         position = max != min ? (units - min) / (max - min) : 0.0;
         break;
     }
@@ -82,6 +105,16 @@ std::string ParameterDisplay::mappingName() const
         return "logFrequencyHighPass";
     case Mapping::LfoFrequency:
         return "lfoFrequency";
+    case Mapping::ExponentialFromZero:
+        return "exponentialFromZero";
+    case Mapping::Pan:
+        return "pan";
+    case Mapping::Fader:
+        return "fader";
+    case Mapping::Bipolar:
+        return "bipolar";
+    case Mapping::Cubic:
+        return "cubic";
     case Mapping::Linear:
         break;
     }

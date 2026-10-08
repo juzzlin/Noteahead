@@ -583,6 +583,7 @@ QString xmlKeyFreeze();
 QString xmlKeyGated();
 QString xmlKeyHold();
 QString xmlKeyHoldTime();
+QString xmlKeyPadParameterPrefix();
 QString xmlKeyDrive();
 QString xmlKeyDriveDb();
 QString xmlKeyFuzz();

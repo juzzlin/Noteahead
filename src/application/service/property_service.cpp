@@ -55,39 +55,85 @@ QVariantList PropertyService::availableMidiControllers() const
 
 namespace {
 
-//! @p describedOnly leaves out the parameters that have not said how they read out.
-QVariantList automatableParameters(const ParameterContainer & container, bool describedOnly)
+//! What the dialog knows a parameter by: its key, where its knob is, and how it reads out.
+QVariantMap parameterMap(const std::string & key, const Parameter & parameter)
 {
-    QVariantList parameters;
-    for (auto && [key, parameter] : container.parameters()) {
-        if (parameter.type() != Parameter::Type::Continuous || (describedOnly && !parameter.display())) {
-            continue;
-        }
-        QVariantMap map;
-        map["key"] = QString::fromStdString(key);
-        // Where the knob is set now, which is what a relative automation scales
-        map["knob"] = static_cast<double>(parameter.authoredValue());
-        if (const auto & display = parameter.display(); display) {
-            map["label"] = display->label.empty() ? QString::fromStdString(key) : QCoreApplication::translate("ParameterDisplay", display->label.c_str());
-            map["unit"] = QString::fromStdString(display->unit);
-            map["mapping"] = QString::fromStdString(display->mappingName());
-            map["min"] = display->min;
-            map["max"] = display->max;
-            map["rest"] = display->restPosition();
-        } else {
-            map["label"] = QString::fromStdString(key);
-            map["unit"] = QString { "%" };
-            map["mapping"] = QString { "linear" };
-            map["min"] = 0.0;
-            map["max"] = 100.0;
-            map["rest"] = 0.0;
-        }
-        parameters.push_back(map);
+    QVariantMap map;
+    map["key"] = QString::fromStdString(key);
+    // Where the knob is set now, which is what a relative automation scales
+    map["knob"] = static_cast<double>(parameter.authoredValue());
+    if (const auto & display = parameter.display(); display) {
+        map["label"] = display->label.empty() ? QString::fromStdString(key) : QCoreApplication::translate("ParameterDisplay", display->label.c_str());
+        map["unit"] = QString::fromStdString(display->unit);
+        map["mapping"] = QString::fromStdString(display->mappingName());
+        map["min"] = display->min;
+        map["max"] = display->max;
+        map["rest"] = display->restPosition();
+    } else {
+        map["label"] = QString::fromStdString(key);
+        map["unit"] = QString { "%" };
+        map["mapping"] = QString { "linear" };
+        map["min"] = 0.0;
+        map["max"] = 100.0;
+        map["rest"] = 0.0;
     }
+    return map;
+}
+
+void sortByLabel(QVariantList & parameters)
+{
     std::ranges::sort(parameters, [](auto && lhs, auto && rhs) {
         return QString::localeAwareCompare(lhs.toMap()["label"].toString(), rhs.toMap()["label"].toString()) < 0;
     });
+}
+
+//! Every continuous parameter of an effect, described or not.
+QVariantList effectParameters(const Effect & effect)
+{
+    QVariantList parameters;
+    for (auto && [key, parameter] : effect.parameters()) {
+        if (parameter.type() == Parameter::Type::Continuous) {
+            parameters.push_back(parameterMap(key, parameter));
+        }
+    }
+    sortByLabel(parameters);
     return parameters;
+}
+
+//! A device's parameters, split by the pad they belong to: the device's own first, then a group for
+//! each pad in note order. Listing a pad as a target of its own keeps each parameter list short.
+struct DeviceParameterGroup
+{
+    std::optional<uint8_t> groupNote;
+    std::string groupName;
+    QVariantList parameters;
+};
+
+//! "Pad C-2 (kick.wav)" for a pad: the note it plays on, as the tracker writes it, and what is loaded.
+//! A part named rather than played by note goes by its name, a drum say. Empty for the device's own.
+QString groupLabel(const DeviceParameterGroup & group)
+{
+    const auto name = QString::fromStdString(group.groupName);
+    if (!group.groupNote) {
+        return name;
+    }
+    const auto pad = QCoreApplication::translate("PropertyService", "Pad %1").arg(QString::fromStdString(NoteConverter::midiToString(*group.groupNote)));
+    return name.isEmpty() ? pad : QString { "%1 (%2)" }.arg(pad, name);
+}
+
+std::vector<DeviceParameterGroup> deviceParameterGroups(const Device & device)
+{
+    std::vector<DeviceParameterGroup> groups;
+    for (auto && automatable : device.automatableParameters()) {
+        if (groups.empty() || groups.back().groupNote != automatable.groupNote || groups.back().groupName != automatable.groupName) {
+            groups.push_back({ automatable.groupNote, automatable.groupName, {} });
+        }
+        groups.back().parameters.push_back(parameterMap(automatable.key, automatable.parameter));
+    }
+    for (auto && group : groups) {
+        sortByLabel(group.parameters);
+    }
+    return groups;
 }
 
 } // namespace
@@ -98,13 +144,15 @@ QVariantList PropertyService::automationTargets() const
     if (const auto deviceService = m_deviceService.lock(); deviceService) {
         for (size_t slot = 0; slot < Constants::deviceRackSize(); slot++) {
             if (const auto device = deviceService->device(slot); device) {
-                if (auto parameters = automatableParameters(*device, true); !parameters.isEmpty()) {
+                for (auto && group : deviceParameterGroups(*device)) {
                     QVariantMap map;
                     map["owner"] = ParameterAutomation::Target::ownerToString(ParameterAutomation::Target::Owner::Device);
                     map["ownerId"] = QString::fromStdString(device->uuid());
                     map["deviceSlot"] = static_cast<int>(slot);
                     map["deviceTypeName"] = QString::fromStdString(device->typeName());
-                    map["parameters"] = std::move(parameters);
+                    // A pad's parameters are a target of their own, named by the pad
+                    map["group"] = groupLabel(group);
+                    map["parameters"] = std::move(group.parameters);
                     targets.push_back(map);
                 }
             }
@@ -120,7 +168,7 @@ QVariantList PropertyService::automationTargets() const
             map["deviceTypeName"] = QString::fromStdString(location.deviceTypeName);
             map["rackIndex"] = static_cast<int>(location.rackIndex);
             map["effectSlot"] = static_cast<int>(location.effectSlot);
-            map["parameters"] = automatableParameters(*location.effect, false);
+            map["parameters"] = effectParameters(*location.effect);
             targets.push_back(map);
         }
     }
@@ -164,10 +212,12 @@ QVariantMap PropertyService::automationParameter(const QString & owner, const QS
     QVariantList parameters;
     if (ParameterAutomation::Target::ownerFromString(owner) == ParameterAutomation::Target::Owner::Device) {
         if (const auto device = deviceService->findDevice(ownerId.toStdString()); device) {
-            parameters = automatableParameters(*device, true);
+            for (auto && group : deviceParameterGroups(*device)) {
+                parameters.append(group.parameters);
+            }
         }
     } else if (const auto effect = deviceService->findEffect(ownerId.toStdString()); effect) {
-        parameters = automatableParameters(*effect, false);
+        parameters = effectParameters(*effect);
     }
     for (auto && parameter : parameters) {
         if (const auto map = parameter.toMap(); map["key"].toString() == key) {

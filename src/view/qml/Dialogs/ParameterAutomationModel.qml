@@ -115,14 +115,14 @@ Item {
     //! effect is still in the project. Its location is left out: the new automation belongs where
     //! the form was opened.
     function applyValues(values: var): void {
-        for (let i = 0; i < targets.length; i++) {
-            if (targets[i].owner === values.owner && targets[i].ownerId === values.ownerId) {
-                targetComboBox.currentIndex = i;
-                const parameters = targets[i].parameters;
-                for (let j = 0; j < parameters.length; j++) {
-                    if (parameters[j].key === values.parameter) {
-                        parameterComboBox.currentIndex = j;
-                    }
+        // The entry holding the parameter: a device is listed once for each of its pads
+        const index = Targets.findTargetIndex(targets, values.owner, values.ownerId, values.parameter);
+        if (index >= 0) {
+            targetComboBox.currentIndex = index;
+            const parameters = targets[index].parameters;
+            for (let j = 0; j < parameters.length; j++) {
+                if (parameters[j].key === values.parameter) {
+                    parameterComboBox.currentIndex = j;
                 }
             }
         }

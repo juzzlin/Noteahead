@@ -1745,6 +1745,11 @@ QString xmlKeyHoldTime()
     return "holdTime";
 }
 
+QString xmlKeyPadParameterPrefix()
+{
+    return "pad";
+}
+
 QString xmlKeyDrive()
 {
     return "drive";

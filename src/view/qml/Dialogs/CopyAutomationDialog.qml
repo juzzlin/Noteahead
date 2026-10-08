@@ -113,7 +113,7 @@ AnimatedDialog {
                 // through the automation's own track rather than the one the form sits on.
                 readonly property string portName: editorService.instrumentPortName(modelData.track)
                 readonly property string controllerName: rootItem.isPitchBend ? rootItem.pitchBendLabel : (rootItem.isParameter ? row.parameterName : row.midiCcName)
-                readonly property var target: rootItem.isParameter ? Targets.findTarget(rootItem.targets, modelData.owner, modelData.ownerId) : null
+                readonly property var target: rootItem.isParameter ? Targets.findTarget(rootItem.targets, modelData.owner, modelData.ownerId, modelData.parameter) : null
                 readonly property var parameter: Targets.findParameter(row.target, modelData.parameter)
                 readonly property string parameterName: row.target ? Targets.targetLabel(row.target) + " - " + (row.parameter ? row.parameter.label : modelData.parameter) : Targets.targetLabel(null)
                 //! Positions read out the way the knob reads them, or as percentages for a relative one

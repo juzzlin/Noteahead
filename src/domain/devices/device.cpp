@@ -88,6 +88,18 @@ void Device::setUuid(std::string uuid)
     m_uuid = std::move(uuid);
 }
 
+Device::AutomatableParameterList Device::automatableParameters() const
+{
+    std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    AutomatableParameterList list;
+    for (auto && [key, parameter] : parameters()) {
+        if (parameter.type() == Parameter::Type::Continuous && parameter.display()) {
+            list.push_back({ key, parameter, {}, {} });
+        }
+    }
+    return list;
+}
+
 bool Device::applyParameterAutomation(const std::string & key, ParameterAutomation::Mode mode, double value)
 {
     {

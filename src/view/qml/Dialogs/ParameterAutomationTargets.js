@@ -28,7 +28,9 @@ function targetLabel(target) {
         // The tracks it plays on, as the device rack sums them up, which is what tells two of the
         // same kind apart
         const tracks = deviceRackController.usageSummary(target.deviceSlot);
-        return tracks ? qsTr("%1 on %2").arg(device).arg(tracks) : device;
+        const named = tracks ? qsTr("%1 on %2").arg(device).arg(tracks) : device;
+        // A pad of the device's, with parameters of its own
+        return target.group ? named + " / " + target.group : named;
     }
     // By type rather than type id: that is what the effect gallery keys its names by
     const name = effectRackController.effectDisplayName(target.type);
@@ -47,18 +49,26 @@ function targetLabel(target) {
     return name;
 }
 
-function findTarget(targets, owner, ownerId) {
-    return targets[findTargetIndex(targets, owner, ownerId)] || null;
+function findTarget(targets, owner, ownerId, key) {
+    return targets[findTargetIndex(targets, owner, ownerId, key)] || null;
 }
 
-//! Index of the target in @p targets, or -1 when it is not there.
-function findTargetIndex(targets, owner, ownerId) {
+//! Index of the target in @p targets, or -1 when it is not there. A device can be listed once for
+//! each of its pads, so the one holding @p key is preferred; without it, or when no entry holds it,
+//! the device's first entry.
+function findTargetIndex(targets, owner, ownerId, key) {
+    let first = -1;
     for (let i = 0; i < targets.length; i++) {
         if (targets[i].owner === owner && targets[i].ownerId === ownerId) {
-            return i;
+            if (key === undefined || findParameter(targets[i], key)) {
+                return i;
+            }
+            if (first < 0) {
+                first = i;
+            }
         }
     }
-    return -1;
+    return first;
 }
 
 function findParameter(target, key) {

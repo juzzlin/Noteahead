@@ -25,6 +25,12 @@ class SamplerTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_automatableParameters_loadedPad_shouldBeListedUnderItsKey();
+    void test_applyParameterAutomation_pad_shouldDriveThePadAndClearBack();
+    void test_applyParameterAutomation_padRelative_shouldScaleTheKnob();
+    void test_applyParameterAutomation_padMissing_shouldBeRefused();
+    void test_parsePadAutomationKey_shouldRoundTrip();
+    void test_applyParameterAutomation_padCutoff_shouldReachASoundingNote();
     void test_attackSeconds_curve_shouldRiseFromZeroWithoutAStep();
     void test_envelopePositionFromLegacy_shouldKeepTheTime();
     void test_lpfSlope_shouldDefaultToTheSlopeItAlwaysHad();
