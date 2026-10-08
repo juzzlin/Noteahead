@@ -10653,6 +10653,33 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
 </context>
 <context>
+    <name>WavetableSynthDialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation type="unfinished">Preset:</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation type="unfinished">Zapisz</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Eight voices, six wavetables</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>WhatsNewDialog</name>
     <message>
         <source>What&apos;s New</source>
