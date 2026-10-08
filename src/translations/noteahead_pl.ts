@@ -4141,16 +4141,28 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Edit MIDI CC automations (ALL)...</source>
-        <translation>Edytuj automatyzacje MIDI CC (WSZYSTKIE)...</translation>
+        <source>Add MIDI CC automation...</source>
+        <translation>Dodaj automatyzację MIDI CC...</translation>
     </message>
     <message>
-        <source>Edit Pitch Bend automations (ALL)...</source>
-        <translation>Edytuj automatyzacje Pitch Bend (WSZYSTKIE)...</translation>
+        <source>Edit MIDI CC automations (whole song)...</source>
+        <translation>Edytuj automatyzacje MIDI CC (cały utwór)...</translation>
     </message>
     <message>
-        <source>Edit parameter automations (ALL)...</source>
-        <translation type="unfinished"></translation>
+        <source>Add Pitch Bend automation...</source>
+        <translation>Dodaj automatyzację Pitch Bend...</translation>
+    </message>
+    <message>
+        <source>Edit Pitch Bend automations (whole song)...</source>
+        <translation>Edytuj automatyzacje Pitch Bend (cały utwór)...</translation>
+    </message>
+    <message>
+        <source>Add parameter automation (all targets)...</source>
+        <translation>Dodaj automatyzację parametru (wszystkie cele)...</translation>
+    </message>
+    <message>
+        <source>Edit parameter automations (whole song)...</source>
+        <translation>Edytuj automatyzacje parametrów (cały utwór)...</translation>
     </message>
 </context>
 <context>
@@ -4269,11 +4281,11 @@
     </message>
     <message>
         <source>Add parameter automation...</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj automatyzację parametru...</translation>
     </message>
     <message>
         <source>Edit parameter automations...</source>
-        <translation type="unfinished"></translation>
+        <translation>Edytuj automatyzacje parametrów...</translation>
     </message>
 </context>
 <context>
@@ -4316,11 +4328,11 @@
     </message>
     <message>
         <source>Add parameter automation...</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj automatyzację parametru...</translation>
     </message>
     <message>
         <source>Edit parameter automations...</source>
-        <translation type="unfinished"></translation>
+        <translation>Edytuj automatyzacje parametrów...</translation>
     </message>
 </context>
 <context>
@@ -4391,7 +4403,7 @@
     </message>
     <message>
         <source>Edit parameter automations...</source>
-        <translation type="unfinished"></translation>
+        <translation>Edytuj automatyzacje parametrów...</translation>
     </message>
     <message>
         <source>Pattern</source>
@@ -4474,11 +4486,11 @@
     </message>
     <message>
         <source>Add parameter automation...</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj automatyzację parametru...</translation>
     </message>
     <message>
         <source>Edit parameter automations...</source>
-        <translation type="unfinished"></translation>
+        <translation>Edytuj automatyzacje parametrów...</translation>
     </message>
 </context>
 <context>
@@ -4644,11 +4656,11 @@
     </message>
     <message>
         <source>Add parameter automation...</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj automatyzację parametru...</translation>
     </message>
     <message>
         <source>Edit parameter automations...</source>
-        <translation type="unfinished"></translation>
+        <translation>Edytuj automatyzacje parametrów...</translation>
     </message>
 </context>
 <context>

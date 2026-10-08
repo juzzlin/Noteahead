@@ -4139,16 +4139,28 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Edit MIDI CC automations (ALL)...</source>
-        <translation>编辑 MIDI CC 自动化（全部）...</translation>
+        <source>Add MIDI CC automation...</source>
+        <translation>添加 MIDI CC 自动化...</translation>
     </message>
     <message>
-        <source>Edit Pitch Bend automations (ALL)...</source>
-        <translation>编辑弯音自动化（全部）...</translation>
+        <source>Edit MIDI CC automations (whole song)...</source>
+        <translation>编辑 MIDI CC 自动化（整首歌曲）...</translation>
     </message>
     <message>
-        <source>Edit parameter automations (ALL)...</source>
-        <translation type="unfinished"></translation>
+        <source>Add Pitch Bend automation...</source>
+        <translation>添加弯音自动化...</translation>
+    </message>
+    <message>
+        <source>Edit Pitch Bend automations (whole song)...</source>
+        <translation>编辑弯音自动化（整首歌曲）...</translation>
+    </message>
+    <message>
+        <source>Add parameter automation (all targets)...</source>
+        <translation>添加参数自动化（所有目标）...</translation>
+    </message>
+    <message>
+        <source>Edit parameter automations (whole song)...</source>
+        <translation>编辑参数自动化（整首歌曲）...</translation>
     </message>
 </context>
 <context>
@@ -4267,11 +4279,11 @@
     </message>
     <message>
         <source>Add parameter automation...</source>
-        <translation type="unfinished"></translation>
+        <translation>添加参数自动化...</translation>
     </message>
     <message>
         <source>Edit parameter automations...</source>
-        <translation type="unfinished"></translation>
+        <translation>编辑参数自动化...</translation>
     </message>
 </context>
 <context>
@@ -4314,11 +4326,11 @@
     </message>
     <message>
         <source>Add parameter automation...</source>
-        <translation type="unfinished"></translation>
+        <translation>添加参数自动化...</translation>
     </message>
     <message>
         <source>Edit parameter automations...</source>
-        <translation type="unfinished"></translation>
+        <translation>编辑参数自动化...</translation>
     </message>
 </context>
 <context>
@@ -4389,7 +4401,7 @@
     </message>
     <message>
         <source>Edit parameter automations...</source>
-        <translation type="unfinished"></translation>
+        <translation>编辑参数自动化...</translation>
     </message>
     <message>
         <source>Pattern</source>
@@ -4472,11 +4484,11 @@
     </message>
     <message>
         <source>Add parameter automation...</source>
-        <translation type="unfinished"></translation>
+        <translation>添加参数自动化...</translation>
     </message>
     <message>
         <source>Edit parameter automations...</source>
-        <translation type="unfinished"></translation>
+        <translation>编辑参数自动化...</translation>
     </message>
 </context>
 <context>
@@ -4642,11 +4654,11 @@
     </message>
     <message>
         <source>Add parameter automation...</source>
-        <translation type="unfinished"></translation>
+        <translation>添加参数自动化...</translation>
     </message>
     <message>
         <source>Edit parameter automations...</source>
-        <translation type="unfinished"></translation>
+        <translation>编辑参数自动化...</translation>
     </message>
 </context>
 <context>
