@@ -5949,8 +5949,68 @@
         <translation type="unfinished">Odcięcie</translation>
     </message>
     <message>
+        <source>Level</source>
+        <translation type="unfinished">Poziom</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation type="unfinished">Panorama</translation>
+    </message>
+    <message>
+        <source>Tune</source>
+        <translation type="unfinished">Strojenie</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation type="unfinished">Opadanie</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation type="unfinished">Atak</translation>
+    </message>
+    <message>
+        <source>Click Tune</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pitch Depth</source>
+        <translation type="unfinished">Głębokość pitch</translation>
+    </message>
+    <message>
+        <source>Pitch Decay</source>
+        <translation type="unfinished">Opadanie pitch</translation>
+    </message>
+    <message>
+        <source>Snappy</source>
+        <translation type="unfinished">Snappy</translation>
+    </message>
+    <message>
+        <source>Tone</source>
+        <translation type="unfinished">Barwa</translation>
+    </message>
+    <message>
         <source>Resonance</source>
         <translation type="unfinished">Rezonans</translation>
+    </message>
+    <message>
+        <source>Amp Attack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Amp Hold</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Amp Decay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Amp Sustain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Amp Release</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Cutoff LFO Rate</source>
@@ -6011,6 +6071,26 @@
     <message>
         <source>Output Gain</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation type="unfinished">Suwak</translation>
+    </message>
+    <message>
+        <source>Fine Tune</source>
+        <translation type="unfinished">Strojenie precyzyjne</translation>
+    </message>
+    <message>
+        <source>Hold</source>
+        <translation type="unfinished">Przytrzymanie</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation type="unfinished">Podtrzymanie</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation type="unfinished">Zwolnienie</translation>
     </message>
 </context>
 <context>
@@ -6427,6 +6507,13 @@
     <message>
         <source>Rewind to the start of the song and reset track settings</source>
         <translation>Przewiń na początek utworu i zresetuj ustawienia ścieżek</translation>
+    </message>
+</context>
+<context>
+    <name>PropertyService</name>
+    <message>
+        <source>Pad %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
