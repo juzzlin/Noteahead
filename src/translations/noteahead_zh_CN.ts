@@ -4424,6 +4424,10 @@
         <translation>粘贴</translation>
     </message>
     <message>
+        <source>In all patterns</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Transpose</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4813,6 +4817,10 @@
     <message>
         <source>Paste</source>
         <translation>粘贴</translation>
+    </message>
+    <message>
+        <source>In all patterns</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Transpose</source>
@@ -11553,6 +11561,18 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <translation>粘贴列失败：</translation>
     </message>
     <message>
+        <source>Column cut in all patterns</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Column copied in all patterns</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copied column pasted in all patterns</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Column transposed in all patterns</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11571,6 +11591,18 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>Failed to paste track: </source>
         <translation>粘贴轨道失败：</translation>
+    </message>
+    <message>
+        <source>Track cut in all patterns</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Track copied in all patterns</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copied track pasted in all patterns</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Track transposed in all patterns</source>

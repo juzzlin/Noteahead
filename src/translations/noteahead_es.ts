@@ -4425,6 +4425,10 @@
         <translation>Pegar</translation>
     </message>
     <message>
+        <source>In all patterns</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Transpose</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4814,6 +4818,10 @@
     <message>
         <source>Paste</source>
         <translation>Pegar</translation>
+    </message>
+    <message>
+        <source>In all patterns</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Transpose</source>
@@ -11555,6 +11563,18 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
         <translation>No se pudo pegar la columna: </translation>
     </message>
     <message>
+        <source>Column cut in all patterns</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Column copied in all patterns</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copied column pasted in all patterns</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Column transposed in all patterns</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11573,6 +11593,18 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     <message>
         <source>Failed to paste track: </source>
         <translation>No se pudo pegar la pista: </translation>
+    </message>
+    <message>
+        <source>Track cut in all patterns</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Track copied in all patterns</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copied track pasted in all patterns</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Track transposed in all patterns</source>
