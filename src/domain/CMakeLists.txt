@@ -4,6 +4,7 @@ set(HEADER_FILES
     devices/device.hpp
     devices/device_parameter_display.hpp
     devices/device_factory.hpp
+    devices/drum_pad_device.hpp
     devices/drum_synth_constants.hpp
     devices/drum_synth_device.hpp
     devices/drum_synth_v2_constants.hpp
@@ -191,6 +192,7 @@ set(SOURCE_FILES
     devices/device_parameter_display.cpp
     devices/device_factory.cpp
     devices/device_registration.cpp
+    devices/drum_pad_device.cpp
     devices/drum_synth_constants.cpp
     devices/drum_synth_device.cpp
     devices/drum_synth_v2_constants.cpp
