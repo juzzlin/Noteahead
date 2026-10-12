@@ -75,7 +75,8 @@ AnimatedDialog {
         // Above the columns, as the Sampler puts its own waveform above its pads. Outside the
         // scrolling area on purpose: it is what the knobs below are being set against, so it stays
         // put while they scroll.
-        DrumSynthV2Dialog_WaveformView {
+        DrumPadDialog_WaveformView {
+            controller: drumSynthV2Controller
             dialogVisible: root.visible
         }
 
@@ -280,7 +281,8 @@ AnimatedDialog {
                     color: "#333"
                 }
 
-                DrumSynthV2Dialog_AmpEg {
+                DrumPadDialog_AmpEg {
+                    controller: drumSynthV2Controller
                     Layout.fillWidth: true
                     Layout.preferredWidth: contentRow.width * 0.2
                     Layout.alignment: Qt.AlignTop

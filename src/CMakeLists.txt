@@ -128,10 +128,10 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/DeviceSettingsDialog.qml
     ${QML_BASE_DIR}/Dialogs/DimensionDialog.qml
     ${QML_BASE_DIR}/Dialogs/DriveDialog.qml
+    ${QML_BASE_DIR}/Dialogs/DrumPadDialog_AmpEg.qml
+    ${QML_BASE_DIR}/Dialogs/DrumPadDialog_WaveformView.qml
     ${QML_BASE_DIR}/Dialogs/DrumSynthDialog.qml
     ${QML_BASE_DIR}/Dialogs/DrumSynthV2Dialog.qml
-    ${QML_BASE_DIR}/Dialogs/DrumSynthV2Dialog_AmpEg.qml
-    ${QML_BASE_DIR}/Dialogs/DrumSynthV2Dialog_WaveformView.qml
     ${QML_BASE_DIR}/Dialogs/DynamicEqDialog.qml
     ${QML_BASE_DIR}/Dialogs/EditMidiCcAutomationsDelegate.qml
     ${QML_BASE_DIR}/Dialogs/EditMidiCcAutomationsDialog.qml
@@ -147,6 +147,10 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/Eq8BandParametricDialog.qml
     ${QML_BASE_DIR}/Dialogs/ErrorDialog.qml
     ${QML_BASE_DIR}/Dialogs/EventSelectionDialog.qml
+    ${QML_BASE_DIR}/Dialogs/FmDrumsDialog.qml
+    ${QML_BASE_DIR}/Dialogs/FmDrumsDialog_Noise.qml
+    ${QML_BASE_DIR}/Dialogs/FmDrumsDialog_Operator.qml
+    ${QML_BASE_DIR}/Dialogs/FmDrumsDialog_Voice.qml
     ${QML_BASE_DIR}/Dialogs/FmSynthDialog.qml
     ${QML_BASE_DIR}/Dialogs/FmSynthDialog_Algorithm.qml
     ${QML_BASE_DIR}/Dialogs/FmSynthDialog_AmpEg.qml

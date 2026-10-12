@@ -26,32 +26,34 @@ WaveformView {
 
     //! The dialog holding this, so nothing is rendered while it is shut.
     property bool dialogVisible: false
+    //! The DrumPadController of the drum machine this belongs to.
+    required property var controller
 
     Layout.fillWidth: true
     Layout.preferredHeight: 150
 
-    waveformData: drumSynthV2Controller.waveformData
-    duration: drumSynthV2Controller.waveformDuration
-    audibleLength: drumSynthV2Controller.audibleLength
+    waveformData: root.controller.waveformData
+    duration: root.controller.waveformDuration
+    audibleLength: root.controller.audibleLength
 
     // The playhead only while something is sounding: a drum is struck and gone, so a bar parked at
     // the left between hits would be saying a voice is playing when none is.
-    showPlayhead: drumSynthV2Controller.voiceSounding
-    playbackPosition: drumSynthV2Controller.playbackPosition
+    showPlayhead: root.controller.voiceSounding
+    playbackPosition: root.controller.playbackPosition
 
     showEnvelope: true
-    envelopeAttack: drumSynthV2Controller.voiceAmpAttackSeconds
-    envelopeHold: drumSynthV2Controller.voiceAmpHoldSeconds
-    envelopeDecay: drumSynthV2Controller.voiceAmpDecaySeconds
-    envelopeSustain: drumSynthV2Controller.voiceAmpSustain / Constants.uiInternalScaling
-    envelopeRelease: drumSynthV2Controller.voiceAmpReleaseSeconds
-    envelopeCurve: drumSynthV2Controller.voiceAmpCurve / Constants.uiInternalScaling
+    envelopeAttack: root.controller.voiceAmpAttackSeconds
+    envelopeHold: root.controller.voiceAmpHoldSeconds
+    envelopeDecay: root.controller.voiceAmpDecaySeconds
+    envelopeSustain: root.controller.voiceAmpSustain / Constants.uiInternalScaling
+    envelopeRelease: root.controller.voiceAmpReleaseSeconds
+    envelopeCurve: root.controller.voiceAmpCurve / Constants.uiInternalScaling
 
     // The picture is as wide as the view, so a resize invalidates it as surely as a knob does. Both
     // go through the controller's own wait, which is what stops a drag on the dialog edge rendering
     // on every frame of it.
     function requestWaveform(): void {
-        drumSynthV2Controller.setWaveformRequest(Math.max(0, Math.floor(width) - 12), root.dialogVisible);
+        root.controller.setWaveformRequest(Math.max(0, Math.floor(width) - 12), root.dialogVisible);
     }
 
     // Twenty milliseconds, as the Sampler's own waveform polls: the playhead moves with the audio,
@@ -60,7 +62,7 @@ WaveformView {
         interval: 20
         running: root.dialogVisible
         repeat: true
-        onTriggered: drumSynthV2Controller.updatePlaybackStatus()
+        onTriggered: root.controller.updatePlaybackStatus()
     }
 
     onWidthChanged: requestWaveform()

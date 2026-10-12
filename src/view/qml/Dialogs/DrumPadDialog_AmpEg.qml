@@ -26,6 +26,8 @@ ColumnLayout {
     id: root
 
     property string voiceName: ""
+    //! The DrumPadController of the drum machine this belongs to.
+    required property var controller
 
     Layout.fillWidth: true
     spacing: 10
@@ -49,8 +51,8 @@ ColumnLayout {
             mapMin: 0
             mapMax: 1.0
             suffix: "s"
-            value: drumSynthV2Controller.voiceAmpAttack
-            onMoved: val => drumSynthV2Controller.voiceAmpAttack = val
+            value: root.controller.voiceAmpAttack
+            onMoved: val => root.controller.voiceAmpAttack = val
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
@@ -63,8 +65,8 @@ ColumnLayout {
             mapMin: 0
             mapMax: 8.0
             suffix: "s"
-            value: drumSynthV2Controller.voiceAmpHold
-            onMoved: val => drumSynthV2Controller.voiceAmpHold = val
+            value: root.controller.voiceAmpHold
+            onMoved: val => root.controller.voiceAmpHold = val
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
@@ -77,8 +79,8 @@ ColumnLayout {
             mapMin: 0.005
             mapMax: 8.0
             suffix: "s"
-            value: drumSynthV2Controller.voiceAmpDecay
-            onMoved: val => drumSynthV2Controller.voiceAmpDecay = val
+            value: root.controller.voiceAmpDecay
+            onMoved: val => root.controller.voiceAmpDecay = val
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
@@ -87,8 +89,8 @@ ColumnLayout {
         Knob {
             Layout.fillWidth: true
             label: qsTr("Sustain")
-            value: drumSynthV2Controller.voiceAmpSustain
-            onMoved: val => drumSynthV2Controller.voiceAmpSustain = val
+            value: root.controller.voiceAmpSustain
+            onMoved: val => root.controller.voiceAmpSustain = val
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
@@ -101,8 +103,8 @@ ColumnLayout {
             mapMin: 0.005
             mapMax: 8.0
             suffix: "s"
-            value: drumSynthV2Controller.voiceAmpRelease
-            onMoved: val => drumSynthV2Controller.voiceAmpRelease = val
+            value: root.controller.voiceAmpRelease
+            onMoved: val => root.controller.voiceAmpRelease = val
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
@@ -111,8 +113,8 @@ ColumnLayout {
         Knob {
             Layout.fillWidth: true
             label: qsTr("Curve")
-            value: drumSynthV2Controller.voiceAmpCurve
-            onMoved: val => drumSynthV2Controller.voiceAmpCurve = val
+            value: root.controller.voiceAmpCurve
+            onMoved: val => root.controller.voiceAmpCurve = val
             ToolTip.delay: Constants.toolTipDelay
             ToolTip.timeout: Constants.toolTipTimeout
             ToolTip.visible: hovered
