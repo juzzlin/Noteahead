@@ -25,6 +25,9 @@ class WavetableSynthControllerTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_octave_changedOnTheDevice_shouldNotifyTheDialog();
+    void test_parameterAutomation_announced_shouldRefreshTheDialog();
+    void test_parametersChanged_shouldRefreshTheDialog();
     void test_ampVelocitySensitivity_shouldReachTheDevice();
     void test_presetNames_shouldListTheFactoryPatches();
     void test_loadPreset_factory_shouldApplyThePatch();

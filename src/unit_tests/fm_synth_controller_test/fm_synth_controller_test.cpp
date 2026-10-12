@@ -429,6 +429,38 @@ void FmSynthControllerTest::test_lfoRateDivider_shouldReachTheDevice()
     QCOMPARE(synth->lfo2RateDivider(), 64);
 }
 
+// This controller once declared its own connectDeviceSignals(), which hid the base one: none of the
+// device signals the base connects reached its dialog, so the Octave knob sat at 0 while the device
+// played an octave up, and neither automation nor incoming MIDI CC moved its knobs.
+void FmSynthControllerTest::test_octave_changedOnTheDevice_shouldNotifyTheDialog()
+{
+    const auto synth = std::make_shared<FmSynthDevice>("Test Synth");
+    FmSynthController controller { synth };
+    QSignalSpy spy { &controller, &DeviceController::octaveChanged };
+    synth->setOctave(1);
+    QVERIFY(spy.count() >= 1);
+    QCOMPARE(controller.octave(), 1);
+}
+
+void FmSynthControllerTest::test_parameterAutomation_announced_shouldRefreshTheDialog()
+{
+    const auto synth = std::make_shared<FmSynthDevice>("Test Synth");
+    FmSynthController controller { synth };
+    QSignalSpy spy { &controller, &FmSynthController::algorithmChanged };
+    emit synth->parameterAutomationScheduled(0);
+    QTRY_VERIFY_WITH_TIMEOUT(spy.count() >= 1, 1000);
+}
+
+void FmSynthControllerTest::test_parametersChanged_shouldRefreshTheDialog()
+{
+    // What incoming MIDI CC sends
+    const auto synth = std::make_shared<FmSynthDevice>("Test Synth");
+    FmSynthController controller { synth };
+    QSignalSpy spy { &controller, &FmSynthController::algorithmChanged };
+    emit synth->parametersChanged();
+    QVERIFY(spy.count() >= 1);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::FmSynthControllerTest)

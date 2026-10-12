@@ -809,13 +809,4 @@ void WavetableSynthController::setDeviceService(std::shared_ptr<DeviceService> d
     m_deviceService = std::move(deviceService);
 }
 
-void WavetableSynthController::connectDeviceSignals()
-{
-    if (!m_synth) {
-        return;
-    }
-
-    connect(m_synth.get(), &WavetableSynthDevice::dataChanged, this, &WavetableSynthController::requestSettings);
-}
-
 } // namespace noteahead

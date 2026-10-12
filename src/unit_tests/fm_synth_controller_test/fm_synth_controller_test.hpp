@@ -25,6 +25,9 @@ class FmSynthControllerTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_octave_changedOnTheDevice_shouldNotifyTheDialog();
+    void test_parameterAutomation_announced_shouldRefreshTheDialog();
+    void test_parametersChanged_shouldRefreshTheDialog();
     void test_lfoRateDivider_shouldReachTheDevice();
     void test_properties_shouldUpdateDevice();
     void test_properties_shouldEmitSignals();

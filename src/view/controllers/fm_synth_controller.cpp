@@ -231,15 +231,6 @@ void FmSynthController::requestSettings()
     }
 }
 
-void FmSynthController::connectDeviceSignals()
-{
-    if (!m_synth) {
-        return;
-    }
-
-    connect(m_synth.get(), &FmSynthDevice::dataChanged, this, &FmSynthController::requestSettings);
-}
-
 int FmSynthController::algorithm() const
 {
     return m_synth ? m_synth->algorithm() : 0;

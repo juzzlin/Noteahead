@@ -294,7 +294,6 @@ private:
     std::shared_ptr<DeviceService> m_deviceService;
     std::vector<FmOperatorController *> m_operators;
 
-    void connectDeviceSignals();
 };
 
 } // namespace noteahead
