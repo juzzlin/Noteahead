@@ -89,7 +89,7 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
 - Sample-Accurate Timing
   - Jitter-free and drift-free internal timing strategy.
 - High-Precision Offline Renderer
-  - Export songs to WAV or FLAC with sample-accurate timing, preserving all automations and parameters. Master mix or per-track stems, up to 4x oversampling, optional normalization, trim, fade out, tail silence and a LUFS/LRA/dBTP loudness report.
+  - Export songs to WAV or FLAC with sample-accurate timing, preserving all automations and parameters. Master mix or per-track stems, up to 4x oversampling, optional normalization, trim, fade out, tail silence and a LUFS/LRA/dBTP loudness report. A linear-phase master is put back in time, so the file starts with the song and keeps its length.
 - Native Audio Backend Selector
   - Explicit support for **ALSA**, **PulseAudio**, and **JACK** with optional transport synchronization.
 - Scalable Playback Quality
@@ -104,12 +104,13 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
   - Central hub for managing multiple independent instances of internal instruments.
   - Per-slot level meter with a gain staging marker, a load readout, and a clip LED that latches on any full-scale output until clicked.
   - Faders run from -inf to +10 dB, with unity three quarters up the throw, on devices and Sampler pads alike.
+  - A track without a device gets one from its header icon or its right-click menu, which opens the rack and offers the device just added.
 - Synth
-  - Polyphonic VA synthesizer (up to 6 voices) with three oscillators at organ footages (32'..2'), a digital Multi engine, multi-mode filters, ADSR/Mod EGs, two LFOs that can modulate a single oscillator's pitch and that can be delayed and faded in after each note, Poly/Unison/Dual/Supersaw/Drift/Mono voice modes, and a built-in Delay.
+  - Polyphonic VA synthesizer (up to 6 voices) with four oscillators at organ footages (32'..2'), each with a low and a high pass of its own, a digital Multi engine, multi-mode filters with Drive, ADSR/Mod EGs, two LFOs that can modulate a single oscillator's pitch and that can be delayed, faded in and slowed by a rate divider, Poly/Unison/Dual/Supersaw/Drift/Mono voice modes, Instability, Phase Sync and Phase Randomness, and a built-in Delay.
 - Wavetable Synth
-  - 8-voice wavetable synthesizer with two independent wavetable oscillators (Classic and Spectral sets), noise generator, cascaded LPF/HPF filters, Amp and Mod EGs, two LFOs with delayed and faded engagement, and Poly/Unison voice modes with stereo pan spread. Features 2× oversampling and portamento.
+  - 8-voice wavetable synthesizer with two independent wavetable oscillators over six tables (Classic Morph, Spectral Additive, Pulse Width, Vocal Formant, Resonant Sweep, Organ Drawbar), noise generator, cascaded LPF/HPF filters, Amp and Mod EGs, two LFOs with delayed and faded engagement and rate dividers, and the shared voice modes with stereo pan spread and Phase Randomness. Features 2× oversampling, portamento, ten factory presets and presets of your own.
 - FM Synth
-  - 8-voice four-operator phase-modulation synthesizer in the shape of Yamaha's four-operator machines. Eight algorithms with feedback on the top operator, eight operator waveforms, and per-operator ratio, detune, level, velocity sensitivity, key scaling and envelope. LPF/HPF, Amp and Mod EGs, two LFOs with delayed and faded engagement, and the shared voice modes. Ships with sixteen factory presets and a button that assembles a playable patch at random.
+  - 8-voice four-operator phase-modulation synthesizer in the shape of Yamaha's four-operator machines. Eight algorithms with feedback on the top operator, eight operator waveforms, and per-operator ratio, detune, level, velocity sensitivity, key scaling and envelope. LPF/HPF, Amp and Mod EGs, two LFOs with delayed and faded engagement and rate dividers, and the shared voice modes with Phase Randomness. Ships with sixteen factory presets and a button that assembles a playable patch at random.
 - Bass Synth
   - Monophonic acid-style synthesizer with sub-oscillator, resonant 24dB LPF, and TB-303 style accent/slide.
 - Drum Synth
@@ -117,7 +118,7 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
 - Drum Synth V2
   - A second Drum Synth to build on, kept separate so every kit in an existing project keeps playing the original. Adds an amp envelope per voice — Attack, Hold, Decay and Curve — riding on top of what the voice already plays, so pulling Hold down tightens the drum.
 - Sampler
-  - 16-pad internal sampler with WAV support, dual filters, and per-sample panning/volume. Pads can be sent to the global send buses one at a time, so a single pad sits in the reverb while the rest of the kit stays dry.
+  - 16-pad internal sampler for WAV and FLAC with per-pad pan, fader, LPF/HPF, tuning, an amp envelope with hold and curve, trimming, reverse, loop, normalize and choke groups, plus recording straight onto a pad with a metronome count-in. Pads can be sent to the global send buses one at a time, so a single pad sits in the reverb while the rest of the kit stays dry.
 - Piano Synth
   - Physically modelled (waveguide) piano with brightness, decay, inharmonicity, LPF/HPF shaping, release, and stereo pan spread.
 - Piano Synth V2
@@ -147,9 +148,11 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
 
 ### Effects Racks
 - Master and Per-Device Effect Racks
-  - Studio-quality effects hub with support for multiple independent instances. Every effect below is available in both the master rack and each device's insert rack.
+  - Studio-quality effects hub with support for multiple independent instances. Every effect below is available in both the master rack and each device's insert rack. Effects with built-in presets take presets of your own as well.
 - 8-Band Parametric EQ
   - High-precision equalizer with multiple filter types (Bell, Shelf, Cut, Notch) per band and Mid/Side processing modes.
+- 32-Band Graphical EQ
+  - Third-octave mastering equalizer, 16 Hz to 20 kHz at ±12 dB, whose curve passes through its sliders. Mid/Side modes and an optional Linear Phase mode.
 - Vintage Passive EQ
   - Passive "program equalizer" in the EQP-1A tradition, with interacting low Boost/Atten shelves, a high bell Boost with Bandwidth, and a separate high Atten shelf.
 - Air Band EQ
@@ -216,6 +219,10 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
   - Mono and single-channel fold-downs for checking a mix by ear, also never printed into a render.
 - All-Pass Filter
   - Multi-stage all-pass filter for phase shaping.
+- Phase Scope
+  - Polarity, channels, width, bass mono, sample-exact delay and gain, with a scope that freezes the signal against a reference, such as the kick against the bass, on every hit and reads out whether the two reinforce or cancel.
+- Gain
+  - A plain level trim, for gain staging into the rest of the chain.
 - Metering & Analysis
   - LUFS loudness meter with a live gated integrated reading, dBTP true-peak meter, a real-time analyzer (RTA), and a Stereo Field Meter with goniometer and correlation.
 - Integrated Effects
@@ -226,6 +233,8 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
   - Fast, tracker-style editing using decimal values (0-127).
 - Advanced Automation
   - Linear, Sine wave, and Random modulation for MIDI CCs and Pitch Bend.
+- Parameter Automation
+  - Drive any instrument's or effect's controls directly, in their own units (Hz, ms, dB) rather than 128 MIDI steps, absolutely or relative to the knob's own setting. Sampler pads and drum machine drums are targets of their own.
 - Pattern-Based Sequencing
   - Flexible play order management with independent pattern lengths.
 - Track & Column Management
