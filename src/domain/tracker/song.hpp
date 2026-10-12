@@ -73,6 +73,8 @@ public:
     ChangedPositions cutColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager, const AutomationService & automationService) const;
     ChangedPositions copyColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager, const AutomationService & automationService) const;
     ChangedPositions pasteColumn(size_t patternIndex, size_t trackIndex, size_t columnIndex, CopyManager & copyManager) const;
+    //! Copies this column out of every pattern that has it, for a paste into every pattern.
+    ChangedPositions copyColumnAllPatterns(size_t trackIndex, size_t columnIndex, CopyManager & copyManager, const AutomationService & automationService) const;
     //! Transposes one column. A drum track is transposed like any other: naming a single column is
     //! asking for exactly it, so only the blanket scopes below leave drum tracks out.
     NoteChangeList transposeColumn(const Position & position, int semitones) const;
@@ -84,6 +86,8 @@ public:
     ChangedPositions cutTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager, const AutomationService & automationService) const;
     ChangedPositions copyTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager, const AutomationService & automationService) const;
     ChangedPositions pasteTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const;
+    //! Copies this track out of every pattern that has it, for a paste into every pattern.
+    ChangedPositions copyTrackAllPatterns(size_t trackIndex, CopyManager & copyManager, const AutomationService & automationService) const;
     //! Transposes one track, drum track or not, for the same reason as transposeColumn().
     NoteChangeList transposeTrack(const Position & position, int semitones) const;
     //! Transposes the track the position names in every pattern of the song, not only in the one it

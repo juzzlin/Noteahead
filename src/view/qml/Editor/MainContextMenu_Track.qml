@@ -44,6 +44,26 @@ Menu {
         enabled: !UiService.isPlaying() && editorService.hasTrackToPaste
         onTriggered: editorService.requestTrackPaste()
     }
+    // A sub-menu rather than three more rows: flat, they made the menu taller than a 768 px window
+    Menu {
+        title: qsTr("In all patterns")
+        width: rootItem.width
+        Action {
+            text: qsTr("Cut")
+            enabled: !UiService.isPlaying()
+            onTriggered: editorService.requestTrackCutAllPatterns()
+        }
+        Action {
+            text: qsTr("Copy")
+            onTriggered: editorService.requestTrackCopyAllPatterns()
+        }
+        Action {
+            text: qsTr("Paste")
+            enabled: !UiService.isPlaying() && editorService.hasTrackToPasteAllPatterns
+            onTriggered: editorService.requestTrackPasteAllPatterns()
+        }
+        delegate: MenuItemDelegate {}
+    }
     MenuSeparator {}
     // In a sub-menu of its own: eight steps each way, and the all-patterns ones under that, made the
     // menu taller than a small window. The shortcuts still work, as Qt finds the window of an action

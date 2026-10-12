@@ -73,6 +73,24 @@ Song::ChangedPositions Song::pasteColumn(size_t patternIndex, size_t trackIndex,
     return m_patterns.contains(patternIndex) ? copyManager.pasteColumn(m_patterns.at(patternIndex), trackIndex, columnIndex) : Song::ChangedPositions {};
 }
 
+Song::ChangedPositions Song::copyColumnAllPatterns(size_t trackIndex, size_t columnIndex, CopyManager & copyManager, const AutomationService & automationService) const
+{
+    CopyManager::PatternList patterns;
+    for (auto && [index, pattern] : m_patterns) {
+        // Skipped rather than asked, for the same reason as in transposeColumnAllPatterns()
+        const auto trackIndices = pattern->trackIndices();
+        if (std::ranges::find(trackIndices, trackIndex) == trackIndices.end()) {
+            continue;
+        }
+        const auto columnIndices = pattern->columnIndices(trackIndex);
+        if (std::ranges::find(columnIndices, columnIndex) == columnIndices.end()) {
+            continue;
+        }
+        patterns.push_back(std::cref(*pattern));
+    }
+    return copyManager.pushSourceColumnAllPatterns(patterns, trackIndex, columnIndex, automationService);
+}
+
 NoteChangeList Song::transposeColumn(const Position & position, int semitones) const
 {
     return m_patterns.contains(position.pattern) ? m_patterns.at(position.pattern)->transposeColumn(position, semitones) : NoteChangeList {};
@@ -123,6 +141,18 @@ Song::ChangedPositions Song::copyTrack(size_t patternIndex, size_t trackIndex, C
 Song::ChangedPositions Song::pasteTrack(size_t patternIndex, size_t trackIndex, CopyManager & copyManager) const
 {
     return m_patterns.contains(patternIndex) ? copyManager.pasteTrack(m_patterns.at(patternIndex), trackIndex) : Song::ChangedPositions {};
+}
+
+Song::ChangedPositions Song::copyTrackAllPatterns(size_t trackIndex, CopyManager & copyManager, const AutomationService & automationService) const
+{
+    CopyManager::PatternList patterns;
+    for (auto && [index, pattern] : m_patterns) {
+        // Skipped rather than asked, for the same reason as in transposeColumnAllPatterns()
+        if (const auto trackIndices = pattern->trackIndices(); std::ranges::find(trackIndices, trackIndex) != trackIndices.end()) {
+            patterns.push_back(std::cref(*pattern));
+        }
+    }
+    return copyManager.pushSourceTrackAllPatterns(patterns, trackIndex, automationService);
 }
 
 NoteChangeList Song::transposeTrack(const Position & position, int semitones) const

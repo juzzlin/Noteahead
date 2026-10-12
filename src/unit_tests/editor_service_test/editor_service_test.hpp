@@ -46,6 +46,11 @@ private slots:
     void test_columnCopyPaste_shorterTarget_shouldCopyColumn();
 
     void test_trackCutPaste_equalSizes_shouldCopyTrack();
+    void test_columnCopyPasteAllPatterns_twoPatterns_shouldCopyEveryPattern();
+    void test_columnCutAllPatterns_twoPatterns_shouldClearEveryPatternInOneUndoStep();
+    void test_trackCopyPasteAllPatterns_twoPatterns_shouldCopyEveryPattern();
+    void test_trackPasteAllPatterns_patternMadeAfterCopy_shouldLeaveItAlone();
+    void test_columnCopy_afterCopyAllPatterns_shouldSwitchThePasteKind();
     void test_trackCutPaste_shorterTarget_shouldCopyTrack();
     void test_trackCopyPaste_equalSizes_shouldCopyTrack();
     void test_trackCopyPaste_shorterTarget_shouldCopyTrack();

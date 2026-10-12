@@ -392,6 +392,128 @@ void EditorServiceTest::test_trackCutPaste_equalSizes_shouldCopyTrack()
     QCOMPARE(editorService.song()->noteDataAtPosition(targetPosition)->track(), targetPosition.track);
 }
 
+namespace {
+
+//! A C-3 on the first line of pattern 0 and a D-3 on line 4 of pattern 1, both in the same place.
+void writeTwoPatterns(EditorService & editorService, quint64 track, quint64 column)
+{
+    editorService.setCurrentPattern(0);
+    QVERIFY(editorService.requestPosition({ 0, track, column, 0, 0 }));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(1, 3, 64));
+    editorService.setCurrentPattern(1);
+    QVERIFY(editorService.requestPosition({ 1, track, column, 4, 0 }));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(3, 3, 80));
+}
+
+} // namespace
+
+void EditorServiceTest::test_columnCopyPasteAllPatterns_twoPatterns_shouldCopyEveryPattern()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
+    editorService.setAutomationService(automationService);
+    writeTwoPatterns(editorService, 1, 0);
+    automationService->addMidiCcAutomation(1, 1, 0, 7, 0, 8, 0, 127, "Test CC", true, 8, 0);
+
+    editorService.requestColumnCopyAllPatterns();
+    QVERIFY(editorService.hasColumnToPasteAllPatterns());
+    QVERIFY(!editorService.hasColumnToPaste());
+
+    // Pasted from pattern 1, but every pattern gets its own part
+    QVERIFY(editorService.requestPosition({ 1, 2, 0, 0, 0 }));
+    editorService.requestColumnPasteAllPatterns();
+
+    QCOMPARE(editorService.displayNoteAtPosition({ 0, 2, 0, 0, 0 }), "C-3");
+    QCOMPARE(editorService.displayNoteAtPosition({ 1, 2, 0, 4, 0 }), "D-3");
+    QCOMPARE(editorService.displayNoteAtPosition({ 1, 2, 0, 0, 0 }), editorService.noDataString());
+    QCOMPARE(editorService.song()->noteDataAtPosition({ 1, 2, 0, 4, 0 })->track(), size_t { 2 });
+    QCOMPARE(editorService.displayNoteAtPosition({ 0, 1, 0, 0, 0 }), "C-3");
+    QCOMPARE(automationService->midiCcAutomationsByColumn(1, 2, 0).size(), size_t { 1 });
+    QVERIFY(automationService->midiCcAutomationsByColumn(0, 2, 0).empty());
+
+    // One step back takes the whole paste out
+    editorService.undo();
+    QCOMPARE(editorService.displayNoteAtPosition({ 0, 2, 0, 0, 0 }), editorService.noDataString());
+    QCOMPARE(editorService.displayNoteAtPosition({ 1, 2, 0, 4, 0 }), editorService.noDataString());
+    QVERIFY(automationService->midiCcAutomationsByColumn(1, 2, 0).empty());
+}
+
+void EditorServiceTest::test_columnCutAllPatterns_twoPatterns_shouldClearEveryPatternInOneUndoStep()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    auto automationService = std::make_shared<AutomationService>(std::make_shared<PropertyService>());
+    editorService.setAutomationService(automationService);
+    writeTwoPatterns(editorService, 1, 0);
+    automationService->addMidiCcAutomation(0, 1, 0, 7, 0, 8, 0, 127, "Test CC", true, 8, 0);
+
+    editorService.setIsModified(false);
+    editorService.requestColumnCutAllPatterns();
+    QVERIFY(editorService.isModified());
+    QCOMPARE(editorService.displayNoteAtPosition({ 0, 1, 0, 0, 0 }), editorService.noDataString());
+    QCOMPARE(editorService.displayNoteAtPosition({ 1, 1, 0, 4, 0 }), editorService.noDataString());
+    QVERIFY(automationService->midiCcAutomationsByColumn(0, 1, 0).empty());
+
+    editorService.undo();
+    QCOMPARE(editorService.displayNoteAtPosition({ 0, 1, 0, 0, 0 }), "C-3");
+    QCOMPARE(editorService.displayNoteAtPosition({ 1, 1, 0, 4, 0 }), "D-3");
+    QCOMPARE(automationService->midiCcAutomationsByColumn(0, 1, 0).size(), size_t { 1 });
+
+    // And what was cut is still there to paste
+    QVERIFY(editorService.requestPosition({ 1, 3, 0, 0, 0 }));
+    editorService.requestColumnPasteAllPatterns();
+    QCOMPARE(editorService.displayNoteAtPosition({ 0, 3, 0, 0, 0 }), "C-3");
+    QCOMPARE(editorService.displayNoteAtPosition({ 1, 3, 0, 4, 0 }), "D-3");
+}
+
+void EditorServiceTest::test_trackCopyPasteAllPatterns_twoPatterns_shouldCopyEveryPattern()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    writeTwoPatterns(editorService, 1, 0);
+
+    editorService.requestTrackCopyAllPatterns();
+    QVERIFY(editorService.hasTrackToPasteAllPatterns());
+    QVERIFY(!editorService.hasTrackToPaste());
+
+    QVERIFY(editorService.requestPosition({ 1, 2, 0, 0, 0 }));
+    editorService.requestTrackPasteAllPatterns();
+    QCOMPARE(editorService.displayNoteAtPosition({ 0, 2, 0, 0, 0 }), "C-3");
+    QCOMPARE(editorService.displayNoteAtPosition({ 1, 2, 0, 4, 0 }), "D-3");
+
+    editorService.undo();
+    QCOMPARE(editorService.displayNoteAtPosition({ 0, 2, 0, 0, 0 }), editorService.noDataString());
+    QCOMPARE(editorService.displayNoteAtPosition({ 1, 2, 0, 4, 0 }), editorService.noDataString());
+}
+
+void EditorServiceTest::test_trackPasteAllPatterns_patternMadeAfterCopy_shouldLeaveItAlone()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    writeTwoPatterns(editorService, 1, 0);
+    editorService.requestTrackCopyAllPatterns();
+
+    editorService.setCurrentPattern(2);
+    QVERIFY(editorService.requestPosition({ 2, 2, 0, 0, 0 }));
+    QVERIFY(editorService.requestNoteOnAtCurrentPosition(5, 3, 64));
+    editorService.requestTrackPasteAllPatterns();
+
+    QCOMPARE(editorService.displayNoteAtPosition({ 2, 2, 0, 0, 0 }), "E-3");
+    QCOMPARE(editorService.displayNoteAtPosition({ 0, 2, 0, 0, 0 }), "C-3");
+}
+
+void EditorServiceTest::test_columnCopy_afterCopyAllPatterns_shouldSwitchThePasteKind()
+{
+    EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    writeTwoPatterns(editorService, 1, 0);
+
+    editorService.requestColumnCopyAllPatterns();
+    QVERIFY(editorService.hasColumnToPasteAllPatterns());
+    editorService.requestColumnCopy();
+    QVERIFY(editorService.hasColumnToPaste());
+    QVERIFY(!editorService.hasColumnToPasteAllPatterns());
+    editorService.requestTrackCopyAllPatterns();
+    QVERIFY(editorService.hasTrackToPasteAllPatterns());
+    QVERIFY(!editorService.hasColumnToPaste());
+}
+
 void EditorServiceTest::test_trackCutPaste_shorterTarget_shouldCopyTrack()
 {
     EditorService editorService { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };

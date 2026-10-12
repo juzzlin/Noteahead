@@ -90,6 +90,8 @@ class EditorService : public QObject
 
     Q_PROPERTY(bool hasColumnToPaste READ hasColumnToPaste NOTIFY copyManagerStateChanged)
     Q_PROPERTY(bool hasTrackToPaste READ hasTrackToPaste NOTIFY copyManagerStateChanged)
+    Q_PROPERTY(bool hasColumnToPasteAllPatterns READ hasColumnToPasteAllPatterns NOTIFY copyManagerStateChanged)
+    Q_PROPERTY(bool hasTrackToPasteAllPatterns READ hasTrackToPasteAllPatterns NOTIFY copyManagerStateChanged)
     Q_PROPERTY(bool hasPatternToPaste READ hasPatternToPaste NOTIFY copyManagerStateChanged)
 
     Q_PROPERTY(Position position READ position NOTIFY positionChanged)
@@ -302,11 +304,22 @@ public:
     //! Transposes this column in every pattern, not only in the one on screen.
     virtual Q_INVOKABLE void requestColumnTransposeAllPatterns(int semitones);
     virtual Q_INVOKABLE bool hasColumnToPaste() const;
+    //! Cut, copy and paste of this column in every pattern, each pattern's part going back into the
+    //! pattern of the same index.
+    virtual Q_INVOKABLE void requestColumnCutAllPatterns();
+    virtual Q_INVOKABLE void requestColumnCopyAllPatterns();
+    virtual Q_INVOKABLE void requestColumnPasteAllPatterns();
+    virtual Q_INVOKABLE bool hasColumnToPasteAllPatterns() const;
 
     virtual Q_INVOKABLE void requestTrackCut();
     virtual Q_INVOKABLE void requestTrackCopy();
     virtual Q_INVOKABLE void requestTrackPaste();
     virtual Q_INVOKABLE bool hasTrackToPaste() const;
+    //! Cut, copy and paste of this track in every pattern, as for a column.
+    virtual Q_INVOKABLE void requestTrackCutAllPatterns();
+    virtual Q_INVOKABLE void requestTrackCopyAllPatterns();
+    virtual Q_INVOKABLE void requestTrackPasteAllPatterns();
+    virtual Q_INVOKABLE bool hasTrackToPasteAllPatterns() const;
     virtual Q_INVOKABLE void requestTrackTranspose(int semitones);
     //! Transposes this track in every pattern, not only in the one on screen.
     virtual Q_INVOKABLE void requestTrackTransposeAllPatterns(int semitones);
@@ -513,6 +526,13 @@ private:
     quint64 currentColumn() const;
 
     void deleteNoteDataAtPosition(const Position & position, bool shiftNotes);
+
+    //! Pushes a note edit and the automations it adds and removes as one undo step.
+    void pushNoteAndAutomationEdit(NoteChangeList changes, AutomationSet additions, AutomationSet deletions);
+    //! A note edit that clears @p positions, as a cut does.
+    NoteChangeList clearingChanges(const CopyManager::PositionList & positions) const;
+    //! A note edit that writes @p pastes over whatever is there.
+    NoteChangeList pastingChanges(const CopyManager::PasteChangeList & pastes) const;
     void insertNoteAtPosition(const Position & position);
 
     SongS deserializeProject(ProjectReader & reader, QString & createdDate);

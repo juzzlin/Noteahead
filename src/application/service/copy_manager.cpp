@@ -26,10 +26,15 @@ static const auto TAG = "CopyManager";
 
 CopyManager::CopyManager() = default;
 
-CopyManager::PositionList CopyManager::pushSourceColumn(const Pattern & pattern, size_t trackIndex, size_t columnIndex, const AutomationService & automationService)
+void CopyManager::clear()
 {
     m_copiedData.clear();
     m_copiedAutomations = {};
+    m_copiedPatterns.clear();
+}
+
+CopyManager::PositionList CopyManager::appendSourceColumn(const Pattern & pattern, size_t trackIndex, size_t columnIndex)
+{
     CopyManager::PositionList changedPositions;
     juzzlin::L(TAG).debug() << "Pushing data of pattern " << pattern.index();
     const auto lineCount = pattern.lineCount();
@@ -44,8 +49,29 @@ CopyManager::PositionList CopyManager::pushSourceColumn(const Pattern & pattern,
             juzzlin::L(TAG).error() << "Invalid position: " << position.toString();
         }
     }
+    m_copiedPatterns.insert(pattern.index());
+    return changedPositions;
+}
+
+CopyManager::PositionList CopyManager::pushSourceColumn(const Pattern & pattern, size_t trackIndex, size_t columnIndex, const AutomationService & automationService)
+{
+    clear();
+    const auto changedPositions = appendSourceColumn(pattern, trackIndex, columnIndex);
     m_copiedAutomations = automationService.automationsByColumn(pattern.index(), trackIndex, columnIndex);
     m_mode = Mode::Column;
+    return changedPositions;
+}
+
+CopyManager::PositionList CopyManager::pushSourceColumnAllPatterns(const PatternList & patterns, size_t trackIndex, size_t columnIndex, const AutomationService & automationService)
+{
+    clear();
+    CopyManager::PositionList changedPositions;
+    for (auto && pattern : patterns) {
+        const auto patternPositions = appendSourceColumn(pattern.get(), trackIndex, columnIndex);
+        changedPositions.insert(changedPositions.end(), patternPositions.begin(), patternPositions.end());
+        m_copiedAutomations.merge(automationService.automationsByColumn(pattern.get().index(), trackIndex, columnIndex));
+    }
+    m_mode = Mode::ColumnAllPatterns;
     return changedPositions;
 }
 
@@ -65,10 +91,8 @@ CopyManager::PositionList CopyManager::pasteColumn(PatternW targetPattern, size_
     return changedPositions;
 }
 
-CopyManager::PositionList CopyManager::pushSourceTrack(const Pattern & pattern, size_t trackIndex, const AutomationService & automationService)
+CopyManager::PositionList CopyManager::appendSourceTrack(const Pattern & pattern, size_t trackIndex)
 {
-    m_copiedData.clear();
-    m_copiedAutomations = {};
     CopyManager::PositionList changedPositions;
     juzzlin::L(TAG).debug() << "Pushing data of pattern " << pattern.index();
     const auto lineCount = pattern.lineCount();
@@ -85,9 +109,35 @@ CopyManager::PositionList CopyManager::pushSourceTrack(const Pattern & pattern, 
             }
         }
     }
+    m_copiedPatterns.insert(pattern.index());
+    return changedPositions;
+}
+
+CopyManager::PositionList CopyManager::pushSourceTrack(const Pattern & pattern, size_t trackIndex, const AutomationService & automationService)
+{
+    clear();
+    const auto changedPositions = appendSourceTrack(pattern, trackIndex);
     m_copiedAutomations = automationService.automationsByTrack(pattern.index(), trackIndex);
     m_mode = Mode::Track;
     return changedPositions;
+}
+
+CopyManager::PositionList CopyManager::pushSourceTrackAllPatterns(const PatternList & patterns, size_t trackIndex, const AutomationService & automationService)
+{
+    clear();
+    CopyManager::PositionList changedPositions;
+    for (auto && pattern : patterns) {
+        const auto patternPositions = appendSourceTrack(pattern.get(), trackIndex);
+        changedPositions.insert(changedPositions.end(), patternPositions.begin(), patternPositions.end());
+        m_copiedAutomations.merge(automationService.automationsByTrack(pattern.get().index(), trackIndex));
+    }
+    m_mode = Mode::TrackAllPatterns;
+    return changedPositions;
+}
+
+bool CopyManager::hasCopiedPattern(size_t patternIndex) const
+{
+    return m_copiedPatterns.contains(patternIndex);
 }
 
 CopyManager::PositionList CopyManager::pasteTrack(PatternW targetPattern, size_t trackIndex)
@@ -108,8 +158,7 @@ CopyManager::PositionList CopyManager::pasteTrack(PatternW targetPattern, size_t
 
 CopyManager::PositionList CopyManager::pushSourcePattern(const Pattern & pattern, const AutomationService & automationService)
 {
-    m_copiedData.clear();
-    m_copiedAutomations = {};
+    clear();
     CopyManager::PositionList changedPositions;
     juzzlin::L(TAG).info() << "Pushing data of pattern " << pattern.index();
     const auto lineCount = pattern.lineCount();
@@ -155,8 +204,7 @@ CopyManager::PositionList CopyManager::pastePattern(PatternW targetPattern)
 
 CopyManager::PositionList CopyManager::pushSourceSelection(const Pattern & pattern, const PositionList & positions, const AutomationService & automationService)
 {
-    m_copiedData.clear();
-    m_copiedAutomations = {};
+    clear();
     CopyManager::PositionList changedPositions;
     juzzlin::L(TAG).info() << "Pushing selected positions on pattern " << pattern.index();
     for (const auto & position : positions) {
@@ -257,6 +305,34 @@ CopyManager::PasteChangeList CopyManager::getPasteTrackChanges(const Pattern & t
     return changes;
 }
 
+CopyManager::PasteChangeList CopyManager::getPasteColumnAllPatternsChanges(const Pattern & targetPattern, size_t trackIndex, size_t columnIndex) const
+{
+    PasteChangeList changes;
+    for (const auto & [sourcePosition, noteData] : m_copiedData) {
+        if (sourcePosition.pattern != targetPattern.index()) {
+            continue;
+        }
+        if (const Position targetPosition = { targetPattern.index(), trackIndex, columnIndex, sourcePosition.line, 0 }; targetPattern.hasPosition(targetPosition)) {
+            changes.push_back({ targetPosition, noteData });
+        }
+    }
+    return changes;
+}
+
+CopyManager::PasteChangeList CopyManager::getPasteTrackAllPatternsChanges(const Pattern & targetPattern, size_t trackIndex) const
+{
+    PasteChangeList changes;
+    for (const auto & [sourcePosition, noteData] : m_copiedData) {
+        if (sourcePosition.pattern != targetPattern.index()) {
+            continue;
+        }
+        if (const Position targetPosition = { targetPattern.index(), trackIndex, sourcePosition.column, sourcePosition.line, 0 }; targetPattern.hasPosition(targetPosition)) {
+            changes.push_back({ targetPosition, noteData });
+        }
+    }
+    return changes;
+}
+
 CopyManager::PasteChangeList CopyManager::getPastePatternChanges(const Pattern & targetPattern) const
 {
     PasteChangeList changes;
@@ -305,6 +381,45 @@ AutomationSet CopyManager::getPasteTrackAutomationChanges(const Pattern & target
     changes.forEach([&](auto && automation) {
         const auto trackOffset = automation.location().track() - minTrack;
         automation.setLocation({ targetPattern.index(), trackIndex + trackOffset, automation.location().column() });
+    });
+    return changes;
+}
+
+AutomationSet CopyManager::copiedAutomationsOfPattern(size_t patternIndex) const
+{
+    AutomationSet automations;
+    for (auto && automation : m_copiedAutomations.midiCc) {
+        if (automation.location().pattern() == patternIndex) {
+            automations.midiCc.push_back(automation);
+        }
+    }
+    for (auto && automation : m_copiedAutomations.pitchBend) {
+        if (automation.location().pattern() == patternIndex) {
+            automations.pitchBend.push_back(automation);
+        }
+    }
+    for (auto && automation : m_copiedAutomations.parameter) {
+        if (automation.location().pattern() == patternIndex) {
+            automations.parameter.push_back(automation);
+        }
+    }
+    return automations;
+}
+
+AutomationSet CopyManager::getPasteColumnAllPatternsAutomationChanges(const Pattern & targetPattern, size_t trackIndex, size_t columnIndex) const
+{
+    auto changes = copiedAutomationsOfPattern(targetPattern.index());
+    changes.forEach([&](auto && automation) {
+        automation.setLocation({ targetPattern.index(), trackIndex, columnIndex });
+    });
+    return changes;
+}
+
+AutomationSet CopyManager::getPasteTrackAllPatternsAutomationChanges(const Pattern & targetPattern, size_t trackIndex) const
+{
+    auto changes = copiedAutomationsOfPattern(targetPattern.index());
+    changes.forEach([&](auto && automation) {
+        automation.setLocation({ targetPattern.index(), trackIndex, automation.location().column() });
     });
     return changes;
 }

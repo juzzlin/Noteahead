@@ -16,7 +16,9 @@
 #ifndef COPY_MANAGER_HPP
 #define COPY_MANAGER_HPP
 
+#include <functional>
 #include <memory>
+#include <set>
 #include <vector>
 
 #include "../../domain/tracker/automation_set.hpp"
@@ -37,6 +39,9 @@ public:
         None,
         Column,
         Track,
+        //! The column or the track of every pattern, each pattern's part kept under its own index.
+        ColumnAllPatterns,
+        TrackAllPatterns,
         Pattern,
         Selection
     };
@@ -51,6 +56,13 @@ public:
     PositionList pushSourceTrack(const Pattern & pattern, size_t trackIndex, const class AutomationService & automationService);
     PositionList pasteTrack(PatternW targetPattern, size_t trackIndex);
 
+    using PatternList = std::vector<std::reference_wrapper<const Pattern>>;
+    PositionList pushSourceColumnAllPatterns(const PatternList & patterns, size_t trackIndex, size_t columnIndex, const class AutomationService & automationService);
+    PositionList pushSourceTrackAllPatterns(const PatternList & patterns, size_t trackIndex, const class AutomationService & automationService);
+    //! Whether a copy of every pattern holds a part for the pattern at @p patternIndex. A pattern
+    //! made after the copy has none, and a paste leaves it alone.
+    bool hasCopiedPattern(size_t patternIndex) const;
+
     PositionList pushSourcePattern(const Pattern & pattern, const class AutomationService & automationService);
     PositionList pastePattern(PatternW targetPattern);
 
@@ -63,6 +75,9 @@ public:
     PasteChangeList getPasteColumnChanges(const Pattern & targetPattern, size_t trackIndex, size_t columnIndex) const;
     PasteChangeList getPasteTrackChanges(const Pattern & targetPattern, size_t trackIndex) const;
     PasteChangeList getPastePatternChanges(const Pattern & targetPattern) const;
+    //! The part of a copy of every pattern that belongs to @p targetPattern, placed in it.
+    PasteChangeList getPasteColumnAllPatternsChanges(const Pattern & targetPattern, size_t trackIndex, size_t columnIndex) const;
+    PasteChangeList getPasteTrackAllPatternsChanges(const Pattern & targetPattern, size_t trackIndex) const;
     PasteChangeList getPasteSelectionChanges(const Pattern & targetPattern, const Position & targetPosition) const;
 
     //! The copied automations as they land on a paste at the given place, every kind at once. A
@@ -70,11 +85,19 @@ public:
     AutomationSet getPasteColumnAutomationChanges(const Pattern & targetPattern, size_t trackIndex, size_t columnIndex) const;
     AutomationSet getPasteTrackAutomationChanges(const Pattern & targetPattern, size_t trackIndex) const;
     AutomationSet getPastePatternAutomationChanges(const Pattern & targetPattern) const;
+    AutomationSet getPasteColumnAllPatternsAutomationChanges(const Pattern & targetPattern, size_t trackIndex, size_t columnIndex) const;
+    AutomationSet getPasteTrackAllPatternsAutomationChanges(const Pattern & targetPattern, size_t trackIndex) const;
     AutomationSet getPasteSelectionAutomationChanges(const Pattern & targetPattern, const Position & targetPosition) const;
 
     size_t sourceLineCount() const;
 
 private:
+    void clear();
+    PositionList appendSourceColumn(const Pattern & pattern, size_t trackIndex, size_t columnIndex);
+    PositionList appendSourceTrack(const Pattern & pattern, size_t trackIndex);
+    //! The copied automations that belong to @p patternIndex.
+    AutomationSet copiedAutomationsOfPattern(size_t patternIndex) const;
+
     size_t getMinLineIndex() const;
     size_t getMinColumnIndex() const;
     size_t getMinTrackIndex() const;
@@ -84,6 +107,8 @@ private:
     std::vector<std::pair<Position, NoteData>> m_copiedData;
 
     AutomationSet m_copiedAutomations;
+
+    std::set<size_t> m_copiedPatterns;
 
     size_t m_sourceLineCount = 0;
 };
