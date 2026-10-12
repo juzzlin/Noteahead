@@ -6010,7 +6010,7 @@
     </message>
 </context>
 <context>
-    <name>OctaveSelector</name>
+    <name>OctaveKnob</name>
     <message>
         <source>Octave</source>
         <translation type="unfinished">Octaaf</translation>
