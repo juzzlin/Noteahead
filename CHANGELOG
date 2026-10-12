@@ -5,6 +5,9 @@ Release date:
 
 New features:
 
+* FM Drums: a drum machine with a four-operator FM voice on every pad
+  - Pitch envelope and filtered noise per pad, on the same notes as Drum Synth V2
+
 * Reverb and Endless Reverb: Solo, to hear the tail on its own
 
 * Wavetable Synth: Velocity Sensitivity in the Amp Envelope, 100% by default as before
