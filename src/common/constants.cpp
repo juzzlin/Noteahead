@@ -164,6 +164,11 @@ QString fmSynthDeviceName()
     return "Noteahead FmSynth";
 }
 
+QString fmDrumsDeviceName()
+{
+    return "Noteahead FmDrums";
+}
+
 QString bassSynthDeviceName()
 {
     return "Noteahead BassSynth";
@@ -2380,6 +2385,46 @@ QString xmlKeyNoiseLevel()
     return "noiseLevel";
 }
 
+QString xmlKeyNoiseModulation()
+{
+    return "noiseModulation";
+}
+
+QString xmlKeyNoiseTarget()
+{
+    return "noiseTarget";
+}
+
+QString xmlKeyNoiseAttack()
+{
+    return "noiseAttack";
+}
+
+QString xmlKeyNoiseDecay()
+{
+    return "noiseDecay";
+}
+
+QString xmlKeyNoiseCurve()
+{
+    return "noiseCurve";
+}
+
+QString xmlKeyNoiseFilterMode()
+{
+    return "noiseFilterMode";
+}
+
+QString xmlKeyNoiseCutoff()
+{
+    return "noiseCutoff";
+}
+
+QString xmlKeyNoiseResonance()
+{
+    return "noiseResonance";
+}
+
 QString xmlKeyLpfCutoff()
 {
     return "lpfCutoff";
@@ -2613,6 +2658,11 @@ QString xmlKeyOperatorDecay(size_t operatorIndex)
 QString xmlKeyOperatorSustain(size_t operatorIndex)
 {
     return QString { "op%1Sustain" }.arg(operatorIndex + 1);
+}
+
+QString xmlKeyOperatorCurve(size_t operatorIndex)
+{
+    return QString { "op%1Curve" }.arg(operatorIndex + 1);
 }
 
 QString xmlKeyAlgorithm()
@@ -3237,6 +3287,11 @@ QString xmlKeyPhaserRate()
 QString xmlKeyVelocitySensitivity()
 {
     return "velocitySensitivity";
+}
+
+QString xmlKeyModVelocitySensitivity()
+{
+    return "modVelocitySensitivity";
 }
 
 QString xmlKeyFaderPosition()

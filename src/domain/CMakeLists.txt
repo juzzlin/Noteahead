@@ -10,6 +10,7 @@ set(HEADER_FILES
     devices/drum_synth_v2_constants.hpp
     devices/drum_synth_v2_device.hpp
     devices/drum_voice_parameter_display.hpp
+    devices/fm_drums_device.hpp
     devices/fm_synth_device.hpp
     devices/fm_synth_presets.hpp
     devices/kick_808_device.hpp
@@ -199,6 +200,7 @@ set(SOURCE_FILES
     devices/drum_synth_v2_constants.cpp
     devices/drum_synth_v2_device.cpp
     devices/drum_voice_parameter_display.cpp
+    devices/fm_drums_device.cpp
     devices/fm_synth_device.cpp
     devices/fm_synth_presets.cpp
     devices/kick_808_device.cpp

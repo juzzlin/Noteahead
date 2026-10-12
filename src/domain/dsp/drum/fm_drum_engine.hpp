@@ -124,8 +124,14 @@ public:
 
 private:
     //! Peak of a single full-level carrier. Leaves the same room as the analogue engines leave, so
-    //! the two kits can be swapped without the mix moving.
-    static constexpr double OutputGain { 0.5 };
+    //! the two kits can be swapped without the mix moving: measured against Drum Synth V2, pad for
+    //! pad, over the first hundred milliseconds.
+    static constexpr double OutputGain { 0.7 };
+
+    //! Make-up for the noise heard on its own. Filtered noise carries far less power than a sine of
+    //! the same peak -- a band pass keeps only a slice of it -- so without this the noise knob ran
+    //! out well before a clap could stand level with the drums around it.
+    static constexpr double NoiseGain { 2.5 };
 
     //! How long a retrigger takes to blend away the last output of the hit it cut off. Starting
     //! every hit at phase zero is what makes a drum sound the same every time, and that restart is

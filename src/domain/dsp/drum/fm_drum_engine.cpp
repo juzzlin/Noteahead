@@ -161,7 +161,7 @@ float FmDrumEngine::nextSample()
         mix /= static_cast<double>(carrierCount);
     }
 
-    double out = (mix + noise * m_noiseLevel) * m_levelScale * m_outputLevel * OutputGain;
+    double out = (mix + noise * m_noiseLevel * NoiseGain) * m_levelScale * m_outputLevel * OutputGain;
 
     if (m_stopping) {
         m_chokeGain = std::max(0.0, m_chokeGain - 1.0 / (ChokeFadeSeconds * rate));

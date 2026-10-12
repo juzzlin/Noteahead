@@ -123,7 +123,7 @@ void FmDrumEngineTest::test_trigger_defaultVoice_shouldPlayTheBaseFrequency()
     QVERIFY(engine.isActive());
     QVERIFY(std::abs(frequency(samples, 0, samples.size()) - 100.0) < 0.5);
     QVERIFY(peak(samples) > 0.3);
-    QVERIFY(peak(samples) <= 0.5 + 1.0e-9);
+    QVERIFY(peak(samples) <= 0.7 + 1.0e-9);
 }
 
 void FmDrumEngineTest::test_trigger_twice_shouldRenderTheSameHit()

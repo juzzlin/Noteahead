@@ -33,6 +33,7 @@
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/drum_synth_v2_constants.hpp"
 #include "../../domain/devices/drum_synth_v2_device.hpp"
+#include "../../domain/devices/fm_drums_device.hpp"
 #include "../../domain/devices/fm_synth_device.hpp"
 #include "../../domain/devices/kick_808_device.hpp"
 #include "../../domain/devices/piano_synth_v2_device.hpp"
@@ -1563,6 +1564,42 @@ void XmlSerializationTest::test_toXmlFromXml_drumSynthV2Device_shouldComeBackAsV
     const auto tune = drumIn->parameter(tuneKey);
     QVERIFY(tune.has_value());
     QCOMPARE(tune->get().value(), 0.75f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_fmDrumsDevice_shouldComeBackAsFmDrums()
+{
+    // Not pre-created on the way back in, so this also proves the factory knows the type
+    DeviceFactory::init();
+
+    const auto drumName = "Noteahead Internal Device 1";
+    const auto snare = static_cast<int>(DrumSynthV2::VoiceIndex::Snare);
+
+    DeviceService deviceServiceOut { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+    const auto drumOut = std::make_shared<FmDrumsDevice>(drumName);
+    drumOut->updateVoiceParameter(snare, Constants::NahdXml::xmlKeyOperatorRatio(2).toStdString(), 0.61f);
+    drumOut->updateVoiceParameter(snare, Constants::NahdXml::xmlKeyNoiseFilterMode().toStdString(), 2.0f);
+    const auto reverbOut = std::make_shared<Reverb>();
+    drumOut->voiceEffectRack(snare).setEffect(0, reverbOut);
+    deviceServiceOut.setDevice(0, drumOut);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto deviceServiceIn = std::make_shared<DeviceService>(std::make_shared<AudioEngine>(), std::make_shared<DataService>());
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, deviceServiceIn.get(), &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto drumIn = std::dynamic_pointer_cast<FmDrumsDevice>(deviceServiceIn->device(0));
+    QVERIFY(drumIn);
+    QCOMPARE(drumIn->voiceParameterValue(snare, Constants::NahdXml::xmlKeyOperatorRatio(2).toStdString()), 0.61f);
+    QCOMPARE(drumIn->voiceParameterValue(snare, Constants::NahdXml::xmlKeyNoiseFilterMode().toStdString()), 2.0f);
+    const auto effect = drumIn->voiceEffectRack(snare).effect(0);
+    QVERIFY(effect);
+    QCOMPARE(effect->id(), reverbOut->id());
 }
 
 void XmlSerializationTest::test_toXmlFromXml_samplerDevice_relativePath_shouldLoadCorrectly()
