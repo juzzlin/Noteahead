@@ -7,6 +7,8 @@ New features:
 
 * An effect added to a send starts with Mix at 100%, and keeps its Mix across presets
 
+* Send knobs are twice as wide
+
 * Cut, copy and paste a column or a track in all patterns at once, in one undo step
 
 * Parameter automation

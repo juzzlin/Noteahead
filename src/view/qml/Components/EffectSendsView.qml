@@ -92,8 +92,9 @@ ColumnLayout {
             // above it is named. Left to themselves the label and the knob share the row's width
             // between them, which lines the knobs up differently on every row.
             Knob {
-                Layout.preferredWidth: 160
-                Layout.maximumWidth: 200
+                // Twice the width of a parameter knob: a send level is ridden more finely
+                Layout.preferredWidth: 320
+                Layout.maximumWidth: 400
                 Layout.alignment: Qt.AlignVCenter
                 value: {
                     effectRackController.revision;
