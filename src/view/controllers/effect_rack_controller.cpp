@@ -220,6 +220,11 @@ EffectRackController::EffectRackOpt EffectRackController::rackAt(const QString &
     return std::nullopt;
 }
 
+bool EffectRackController::isMasterSendRack() const
+{
+    return m_targetDeviceName.isEmpty() && !m_isInsertRack && m_targetSubIndex < 0;
+}
+
 EffectRackController::EffectRackOpt EffectRackController::currentRack() const
 {
     return rackAt(m_targetDeviceName, m_isInsertRack, m_targetSubIndex);
@@ -257,6 +262,15 @@ void EffectRackController::setParameterValue(quint32 effectIndex, const QString 
 void EffectRackController::setEffect(int slotIndex, const QString & typeId)
 {
     if (const auto effect = EffectFactory::createEffect(typeId.toStdString()); effect) {
+        // A send returns only what the effect adds, and the send amounts set how much of it: Mix
+        // starts at the top there, where every effect is heard as itself. Only a start: the knob
+        // is free to move after, and an effect loaded with a project keeps what it was saved with.
+        if (isMasterSendRack()) {
+            if (const auto mix = effect->parameter(Constants::NahdXml::xmlKeyMix().toStdString()); mix) {
+                mix->get().setValue(1.0f);
+                effect->sync();
+            }
+        }
         if (const auto rack = currentRack(); rack) {
             rack->get().setEffect(static_cast<size_t>(slotIndex), std::move(effect));
             m_editorService->setIsModified(true);
@@ -3562,6 +3576,11 @@ void EffectRackController::loadEffectPreset(quint32 effectIndex, int presetIndex
     m_presetEffectIndex = static_cast<int>(effectIndex);
     m_presetIndex = presetIndex;
 
+    // On a send, Mix belongs to the routing as much as to the sound, like the side-chain source a
+    // preset leaves alone: the preset brings its sound and the Mix stays where it was set
+    const auto mix = effect->parameter(Constants::NahdXml::xmlKeyMix().toStdString());
+    const auto keptMix = isMasterSendRack() && mix ? std::optional<float> { mix->get().value() } : std::nullopt;
+
     const auto factoryCount = effectFactoryPresetCount(effectIndex);
     if (presetIndex < factoryCount) {
         effect->applyFactoryPreset(static_cast<size_t>(presetIndex));
@@ -3569,6 +3588,10 @@ void EffectRackController::loadEffectPreset(quint32 effectIndex, int presetIndex
         if (const auto userIndex = presetIndex - factoryCount; userIndex < static_cast<int>(names.size())) {
             m_presetService->applyUserPreset(effectTypeId(effectIndex), names.at(userIndex), *effect);
         }
+    }
+    if (keptMix) {
+        mix->get().setValue(*keptMix);
+        effect->sync();
     }
 
     m_editorService->setIsModified(true);

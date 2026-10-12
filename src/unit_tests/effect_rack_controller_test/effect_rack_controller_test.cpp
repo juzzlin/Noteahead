@@ -1466,6 +1466,64 @@ void EffectRackControllerTest::test_availableEffects_shouldOfferTheAmbience()
     QCOMPARE(controller.effectParametersSummary(0), QString { "(size=40%, decay=0.80s, mix=30%)" });
 }
 
+void EffectRackControllerTest::test_setEffect_masterSendRack_shouldStartMixAtTheTop()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+
+    controller.setIsInsertRack(false);
+    controller.setEffect(0, controller.ambienceType());
+    QCOMPARE(controller.parameterValue(0, controller.ambienceMixKey()), 1.0f);
+    // Only a start: the knob moves as before
+    controller.setParameterValue(0, controller.ambienceMixKey(), 0.4f);
+    QCOMPARE(controller.parameterValue(0, controller.ambienceMixKey()), 0.4f);
+
+    // An insert keeps the effect's own default
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, controller.ambienceType());
+    QCOMPARE(controller.parameterValue(0, controller.ambienceMixKey()), 0.3f);
+
+    // And so does the chain behind a send bus, which is an insert on the return
+    controller.setIsInsertRack(false);
+    controller.setTargetSubIndex(0);
+    controller.setEffect(0, controller.ambienceType());
+    QCOMPARE(controller.parameterValue(0, controller.ambienceMixKey()), 0.3f);
+}
+
+void EffectRackControllerTest::test_loadEffectPreset_masterSendRack_shouldKeepTheMix()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+    const auto mixGlue = [&controller] {
+        // Shown numbered, as "004: Mix Glue"
+        const auto names = controller.effectPresetNames(0);
+        for (int i = 0; i < names.size(); i++) {
+            if (names.at(i).endsWith(": Mix Glue")) {
+                return i;
+            }
+        }
+        return -1;
+    };
+
+    controller.setIsInsertRack(false);
+    controller.setEffect(0, controller.ambienceType());
+    controller.setParameterValue(0, controller.ambienceMixKey(), 0.6f);
+    QVERIFY(mixGlue() > 0);
+    controller.loadEffectPreset(0, mixGlue());
+    QCOMPARE(controller.parameterValue(0, controller.ambienceMixKey()), 0.6f);
+    // The rest of the preset does land
+    QCOMPARE(controller.parameterValue(0, controller.ambienceSizeKey()), 0.45f);
+
+    // On an insert the preset's Mix is part of its sound
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, controller.ambienceType());
+    controller.setParameterValue(0, controller.ambienceMixKey(), 0.6f);
+    controller.loadEffectPreset(0, mixGlue());
+    QCOMPARE(controller.parameterValue(0, controller.ambienceMixKey()), 0.2f);
+}
+
 void EffectRackControllerTest::test_targetSubIndex_devicesWithParts_shouldAddressThePartRack()
 {
     // The rack was looked up by device type, and the Drum Synth V2 was missing from the list: its

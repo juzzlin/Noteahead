@@ -239,7 +239,7 @@
     <li><strong>Diffusion</strong>: scatters the reflections into a continuous cloud. Sixteen discrete arrivals is a fraction of what a room returns, and too sparse to hear as a space rather than as an effect.</li>
     <li><strong>Width</strong>: how far the pattern is spread across the stereo field. The two channels are given different arrival times to begin with, so the pattern carries an image of its own.</li>
     <li><strong>Low Cut</strong>: keeps the reflections out of the bottom, where they only muddy what is already there.</li>
-    <li><strong>Mix</strong> and <strong>Solo</strong>: the blend against the dry signal, and hearing the room without the source that caused it. On a send bus, set Mix to 100%: the send already returns only what the effect added, so Mix acts as the return level there.</li>
+    <li><strong>Mix</strong> and <strong>Solo</strong>: the blend against the dry signal, and hearing the room without the source that caused it. On a send bus Mix starts at 100%: the send already returns only what the effect added, so Mix acts as the return level there.</li>
 </ul>
 <p>Use it on a send, with the send amount as the distance control: more send is further back. One instance shared by everything is what sells the illusion, since a coherent room is a single room.</p>
 
@@ -498,6 +498,7 @@
 <p>Instead of having fixed effect chains, Noteahead uses a flexible <strong>Send Bus</strong> architecture. This allows you to route varying amounts of each instrument's signal to any of the master effects.</p>
 <ul>
     <li><strong>Effect Sends Dialog</strong>: In the <strong>Device Rack</strong>, each instrument instance has a dedicated <strong>Sends</strong> button. Clicking this opens a dialog with independent send knobs for all master effect slots.</li>
+    <li><strong>Mix on a send</strong>: an effect added to a send starts with <strong>Mix</strong> at 100 %, as the send returns only what the effect adds and the send knobs set how much of it. Mix is still free to move, and applying a preset leaves it where it is: on a send it is part of the routing, like a side-chain source.</li>
     <li><strong>Solo on a send</strong>: soloes the return, as on a return track in a mixer. The master then plays only the soloed returns, while every instrument keeps feeding its sends, so the effect can be heard on its own. Effects in a send's chain keep their own Solo, which passes only what they add to the return.</li>
     <li><strong>Parallel Processing</strong>: Because effects are shared, you can apply the same "Hall Reverb" to multiple instruments at different levels, creating a cohesive sense of space in your mix while saving CPU resources.</li>
 </ul>

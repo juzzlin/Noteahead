@@ -730,6 +730,9 @@ private:
     //! The rack an address points at. An empty device name is the master, where isInsertRack picks
     //! the insert or the send rack; subIndex >= 0 is a Sampler pad or a Drum Synth voice.
     EffectRackOpt rackAt(const QString & deviceName, bool isInsertRack, int subIndex) const;
+    //! Whether the controller is on the master send rack itself, rather than on an insert rack or
+    //! on the chain behind one of the send buses.
+    bool isMasterSendRack() const;
     EffectRackOpt currentRack() const;
 
     //! The effect at @p effectIndex in the rack now shown, or nothing when there is none there.

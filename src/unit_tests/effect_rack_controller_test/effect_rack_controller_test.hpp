@@ -43,6 +43,8 @@ private slots:
     void test_targetSubIndex_masterSendRack_shouldAddressTheBusChain();
     void test_targetSubIndex_devicesWithParts_shouldAddressThePartRack();
     void test_availableEffects_shouldOfferTheAmbience();
+    void test_setEffect_masterSendRack_shouldStartMixAtTheTop();
+    void test_loadEffectPreset_masterSendRack_shouldKeepTheMix();
     void test_targetSubIndex_deviceWithoutParts_shouldHaveNoRack();
     void test_sendChainEffectCount_shouldCountTheChainOfTheGivenBus();
     void test_effectParametersSummary_lufsMeter_shouldPadReadingsToConstantWidth();
