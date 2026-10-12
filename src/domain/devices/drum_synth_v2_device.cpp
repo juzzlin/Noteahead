@@ -50,6 +50,11 @@ std::string DrumSynthV2Device::typeId() const
     return typeIdString();
 }
 
+std::unique_ptr<DrumPadDevice> DrumSynthV2Device::newInstance(std::string name) const
+{
+    return std::make_unique<DrumSynthV2Device>(std::move(name));
+}
+
 //! Puts the amp envelope back the way it shipped, before a project is read.
 //!
 //! A kit saved before the sustain stage existed carries no sustain attribute, and an absent

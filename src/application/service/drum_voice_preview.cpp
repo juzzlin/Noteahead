@@ -16,7 +16,7 @@
 #include "drum_voice_preview.hpp"
 
 #include "../../common/constants.hpp"
-#include "../../domain/devices/drum_synth_v2_device.hpp"
+#include "../../domain/devices/drum_pad_device.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
@@ -39,7 +39,7 @@ constexpr double SilenceFloor { 1.0e-4 };
 
 //! An independent copy of the device, made the only way a device can be copied: through the format
 //! it is saved in.
-std::unique_ptr<DrumSynthV2Device> clone(const DrumSynthV2Device & device)
+std::unique_ptr<DrumPadDevice> clone(const DrumPadDevice & device)
 {
     QString xml;
     {
@@ -54,7 +54,7 @@ std::unique_ptr<DrumSynthV2Device> clone(const DrumSynthV2Device & device)
         return {};
     }
 
-    auto copy = std::make_unique<DrumSynthV2Device>(device.name());
+    auto copy = device.newInstance(device.name());
     copy->deserializeFromXml(reader);
     return copy;
 }
@@ -94,7 +94,7 @@ QVariantList toPeaks(const std::vector<double> & frames, int peakCount)
 
 } // namespace
 
-Preview render(const DrumSynthV2Device & device, int voiceIndex, int peakCount, double sampleRate)
+Preview render(const DrumPadDevice & device, int voiceIndex, int peakCount, double sampleRate)
 {
     if (peakCount <= 0 || sampleRate <= 0.0) {
         return {};

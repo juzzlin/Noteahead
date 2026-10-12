@@ -20,7 +20,7 @@
 
 namespace noteahead {
 
-class DrumSynthV2Device;
+class DrumPadDevice;
 
 //! Draws one drum voice, for the waveform view.
 //!
@@ -50,7 +50,7 @@ struct Preview
 };
 
 //! \param peakCount How many points the view has room for. Zero or fewer renders nothing.
-Preview render(const DrumSynthV2Device & device, int voiceIndex, int peakCount, double sampleRate);
+Preview render(const DrumPadDevice & device, int voiceIndex, int peakCount, double sampleRate);
 
 } // namespace DrumVoicePreview
 

@@ -52,6 +52,8 @@ public:
 
     static std::string typeIdString();
 
+    std::unique_ptr<DrumPadDevice> newInstance(std::string name) const override;
+
 protected:
     void addEngineParameters(int index, const std::string & prefix) override;
     void syncEngineParameters(int index, const std::string & prefix) override;

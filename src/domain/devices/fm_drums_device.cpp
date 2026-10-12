@@ -349,6 +349,11 @@ std::string FmDrumsDevice::typeId() const
     return typeIdString();
 }
 
+std::unique_ptr<DrumPadDevice> FmDrumsDevice::newInstance(std::string name) const
+{
+    return std::make_unique<FmDrumsDevice>(std::move(name));
+}
+
 FmDrumEngine & FmDrumsDevice::engine(int index)
 {
     return static_cast<FmDrumEngine &>(voiceEngine(index));

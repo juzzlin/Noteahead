@@ -117,6 +117,10 @@ public:
     //! of updateVoiceParameter(), which is the only way in without knowing how a voice is prefixed.
     float voiceParameterValue(int voiceIndex, const std::string & paramName) const;
 
+    //! A fresh device of the same kind, as it is before anything is loaded into it. What a copy is
+    //! made from, since a device is copied by reading what another one saved.
+    virtual std::unique_ptr<DrumPadDevice> newInstance(std::string name) const = 0;
+
 protected:
     //! Sets up everything around the engines. The subclass constructor then puts an engine on every
     //! pad with setVoiceEngine(), registers the parameters with addVoiceParameters() and syncs: those
