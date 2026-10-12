@@ -35,12 +35,6 @@ ColumnLayout {
         Layout.topMargin: 10
     }
 
-    OctaveSelector {
-
-        controller: kick808Controller
-
-    }
-
     Knob {
         label: qsTr("Gain")
         mapping: "decibel"
@@ -78,5 +72,8 @@ ColumnLayout {
         value: kick808Controller.hpfCutoff
         onMoved: v => kick808Controller.hpfCutoff = v
         Layout.fillWidth: true
+    }
+    OctaveKnob {
+        controller: kick808Controller
     }
 }

@@ -37,12 +37,6 @@ ColumnLayout {
         Layout.topMargin: 5
     }
 
-    OctaveSelector {
-
-        controller: stringVoiceV2Controller
-
-    }
-
     Knob {
         label: qsTr("Gain")
         mapping: "decibel"
@@ -97,5 +91,7 @@ ColumnLayout {
         onMoved: v => stringVoiceV2Controller.hpfCutoff = v
         Layout.fillWidth: true
     }
-
+    OctaveKnob {
+        controller: stringVoiceV2Controller
+    }
 }

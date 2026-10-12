@@ -78,9 +78,6 @@ ColumnLayout {
         onMoved: v => fmSynthController.pitchBendRange = Math.round(v)
         Layout.fillWidth: true
     }
-    OctaveSelector {
-        controller: fmSynthController
-    }
     Knob {
         label: qsTr("Gain")
         mapping: "decibel"
@@ -103,5 +100,8 @@ ColumnLayout {
         value: fmSynthController.pan
         onMoved: v => fmSynthController.pan = v
         Layout.fillWidth: true
+    }
+    OctaveKnob {
+        controller: fmSynthController
     }
 }

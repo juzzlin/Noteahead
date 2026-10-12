@@ -35,12 +35,6 @@ ColumnLayout {
         Layout.topMargin: 10
     }
 
-    OctaveSelector {
-
-        controller: bassSynthController
-
-    }
-
     Knob {
         label: qsTr("Gain")
         mapping: "decibel"
@@ -85,5 +79,8 @@ ColumnLayout {
         value: bassSynthController.pitchBendRange
         onMoved: v => bassSynthController.pitchBendRange = Math.round(v)
         Layout.fillWidth: true
+    }
+    OctaveKnob {
+        controller: bassSynthController
     }
 }

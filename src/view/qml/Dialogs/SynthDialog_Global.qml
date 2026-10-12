@@ -72,9 +72,6 @@ ColumnLayout {
         onMoved: v => synthController.pitchBendRange = Math.round(v)
         Layout.fillWidth: true
     }
-    OctaveSelector {
-        controller: synthController
-    }
     Knob {
         label: qsTr("Gain")
         mapping: "decibel"
@@ -97,5 +94,8 @@ ColumnLayout {
         value: synthController.pan
         onMoved: v => synthController.pan = v
         Layout.fillWidth: true
+    }
+    OctaveKnob {
+        controller: synthController
     }
 }

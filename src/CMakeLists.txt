@@ -63,7 +63,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Components/LoudnessReadout.qml
     ${QML_BASE_DIR}/Components/MenuItemDelegate.qml
     ${QML_BASE_DIR}/Components/MidiCcComboBox.qml
-    ${QML_BASE_DIR}/Components/OctaveSelector.qml
+    ${QML_BASE_DIR}/Components/OctaveKnob.qml
     ${QML_BASE_DIR}/Components/Oscilloscope.qml
     ${QML_BASE_DIR}/Components/OutputMeter.qml
     ${QML_BASE_DIR}/Components/OutputMeter_Level.qml
