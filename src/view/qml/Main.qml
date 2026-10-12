@@ -728,6 +728,10 @@ ApplicationWindow {
         id: eq32BandGraphicalDialog
         anchors.centerIn: parent
     }
+    DynamicEqDialog {
+        id: dynamicEqDialog
+        anchors.centerIn: parent
+    }
     PhaseScopeDialog {
         id: phaseScopeDialog
         anchors.centerIn: parent

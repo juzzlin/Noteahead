@@ -93,6 +93,7 @@ set(HEADER_FILES
     effects/delay.hpp
     effects/delay_presets.hpp
     effects/dimension.hpp
+    effects/dynamic_eq.hpp
     effects/early_reflections.hpp
     effects/drive.hpp
     effects/effect.hpp
@@ -281,6 +282,7 @@ set(SOURCE_FILES
     effects/delay.cpp
     effects/delay_presets.cpp
     effects/dimension.cpp
+    effects/dynamic_eq.cpp
     effects/early_reflections.cpp
     effects/drive.cpp
     effects/effect.cpp

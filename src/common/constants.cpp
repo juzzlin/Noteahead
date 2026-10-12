@@ -334,6 +334,11 @@ QString phaseScope()
     return "phasescope";
 }
 
+QString dynamicEq()
+{
+    return "dynamiceq";
+}
+
 QString crossfeed()
 {
     return "crossfeed";
@@ -1768,6 +1773,21 @@ QString xmlKeyMonoBassFrequency()
 QString xmlKeyDcBlock()
 {
     return "dcBlock";
+}
+
+QString xmlKeyDetectorSource()
+{
+    return "detectorSource";
+}
+
+QString xmlKeyDetectorFilter()
+{
+    return "detectorFilter";
+}
+
+QString xmlKeyListen()
+{
+    return "listen";
 }
 
 QString xmlKeyPadParameterPrefix()

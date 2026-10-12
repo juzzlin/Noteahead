@@ -219,6 +219,8 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
   - Mono and single-channel fold-downs for checking a mix by ear, also never printed into a render.
 - All-Pass Filter
   - Multi-stage all-pass filter for phase shaping.
+- Dynamic EQ
+  - A single Bell, Low Shelf, High Shelf or Flat band that stays flat until its detector goes over the threshold and then moves by up to its Range, cutting or boosting. The detector hears this signal or a side chain, through the band only or the full range, in Stereo, Mid or Side, with a level meter and a Listen switch to find the frequency to react to.
 - Phase Scope
   - Polarity, channels, width, bass mono, sample-exact delay and gain, with a scope that freezes the signal against a reference, such as the kick against the bass, on every hit and reads out whether the two reinforce or cancel.
 - Gain

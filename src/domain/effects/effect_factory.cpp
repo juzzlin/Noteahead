@@ -35,6 +35,7 @@
 #include "delay.hpp"
 #include "dimension.hpp"
 #include "drive.hpp"
+#include "dynamic_eq.hpp"
 #include "early_reflections.hpp"
 #include "endless_reverb.hpp"
 #include "eq_32_band_graphical.hpp"
@@ -138,6 +139,7 @@ void EffectFactory::init()
     registerEffect(Reference::typeIdString(), []() { return std::make_shared<Reference>(); });
     registerEffect(Monitor::typeIdString(), []() { return std::make_shared<Monitor>(); });
     // Its type id and its type are the same string, as the All-Pass Filter's are
+    registerEffect(DynamicEq::typeIdString(), []() { return std::make_shared<DynamicEq>(); });
     registerEffect(PhaseScope::typeIdString(), []() { return std::make_shared<PhaseScope>(); });
     // The type id it was saved under for the first hour it existed, as Utility
     registerEffect("utility", []() { return std::make_shared<PhaseScope>(); });

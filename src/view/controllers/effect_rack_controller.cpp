@@ -36,6 +36,7 @@
 #include "../../domain/effects/delay.hpp"
 #include "../../domain/effects/dimension.hpp"
 #include "../../domain/effects/drive.hpp"
+#include "../../domain/effects/dynamic_eq.hpp"
 #include "../../domain/effects/early_reflections.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/effect_rack.hpp"
@@ -361,6 +362,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Flanger", Constants::RackEffectType::flanger().toStdString());
     addEffect("Gate", Constants::RackEffectType::gate().toStdString());
     addEffect("Tremolo", Constants::RackEffectType::tremolo().toStdString());
+    addEffect("Dynamic EQ", DynamicEq::typeIdString());
     addEffect("Dimension", Constants::RackEffectType::dimension().toStdString());
     addEffect("Early Reflections", Constants::RackEffectType::earlyReflections().toStdString());
     addEffect("Drive", Constants::RackEffectType::drive().toStdString());
@@ -977,6 +979,33 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                     return QString { "(Graphical, %1, %2)" }.arg(modeName, tr("Linear Phase"));
                 }
                 return QString { "(Graphical, %1)" }.arg(modeName);
+            } else if (type == Constants::RackEffectType::dynamicEq()) {
+                if (const auto eq = std::dynamic_pointer_cast<DynamicEq>(effect)) {
+                    const auto valueOf = [&eq](const QString & key) {
+                        const auto p = eq->parameter(key.toStdString());
+                        return p ? p->get().value() : 0.0f;
+                    };
+                    namespace C = Constants::NahdXml;
+                    const QStringList types { tr("Bell"), tr("Low Shelf"), tr("High Shelf"), tr("Flat") };
+                    const auto bandType = std::clamp(static_cast<int>(std::lround(valueOf(C::xmlKeyFilterType()))), 0, 3);
+                    QStringList items { types.at(bandType) };
+                    if (bandType != static_cast<int>(DynamicEq::BandType::Flat)) {
+                        const auto hz = DynamicEq::frequencyHz(valueOf(C::xmlKeyFrequency()));
+                        items << (hz >= 1000.0 ? QString { "%1 kHz" }.arg(hz / 1000.0, 0, 'f', 1) : QString { "%1 Hz" }.arg(static_cast<int>(std::round(hz))));
+                    }
+                    const auto range = eq->rangeDb();
+                    items << QString { "%1%2 dB" }.arg(range > 0 ? "+" : "").arg(range, 0, 'f', 1);
+                    if (valueOf(C::xmlKeyDetectorSource()) > 0.5f) {
+                        QString scName { tr("None") };
+                        if (const auto sourceIndex { eq->sidechainSourceDeviceIndex() }; sourceIndex) {
+                            if (const auto sourceDevice { m_deviceService->device(*sourceIndex) }) {
+                                scName = QString::fromStdString(sourceDevice->name());
+                            }
+                        }
+                        items << QString { "%1=%2" }.arg(tr("sidechain"), scName);
+                    }
+                    return QString { "(%1)" }.arg(items.join(", "));
+                }
             } else if (type == Constants::RackEffectType::phaseScope()) {
                 // Only what is set away from neutral, which is what tells two of them apart
                 namespace C = Constants::NahdXml;
@@ -2688,6 +2717,154 @@ QString EffectRackController::vintagePassiveEqType() const
 QString EffectRackController::airBandEqType() const
 {
     return Constants::RackEffectType::airBandEq();
+}
+
+QString EffectRackController::dynamicEqType() const
+{
+    return Constants::RackEffectType::dynamicEq();
+}
+
+QString EffectRackController::dynamicEqTypeKey() const
+{
+    return Constants::NahdXml::xmlKeyFilterType();
+}
+
+QString EffectRackController::dynamicEqFrequencyKey() const
+{
+    return Constants::NahdXml::xmlKeyFrequency();
+}
+
+QString EffectRackController::dynamicEqQKey() const
+{
+    return Constants::NahdXml::xmlKeyQ();
+}
+
+QString EffectRackController::dynamicEqRangeKey() const
+{
+    return Constants::NahdXml::xmlKeyRange();
+}
+
+QString EffectRackController::dynamicEqThresholdKey() const
+{
+    return Constants::NahdXml::xmlKeyThreshold();
+}
+
+QString EffectRackController::dynamicEqRatioKey() const
+{
+    return Constants::NahdXml::xmlKeyRatio();
+}
+
+QString EffectRackController::dynamicEqKneeKey() const
+{
+    return Constants::NahdXml::xmlKeyKnee();
+}
+
+QString EffectRackController::dynamicEqAttackKey() const
+{
+    return Constants::NahdXml::xmlKeyAttack();
+}
+
+QString EffectRackController::dynamicEqReleaseKey() const
+{
+    return Constants::NahdXml::xmlKeyRelease();
+}
+
+QString EffectRackController::dynamicEqDetectorSourceKey() const
+{
+    return Constants::NahdXml::xmlKeyDetectorSource();
+}
+
+QString EffectRackController::dynamicEqDetectorFilterKey() const
+{
+    return Constants::NahdXml::xmlKeyDetectorFilter();
+}
+
+QString EffectRackController::dynamicEqSideChainSourceDeviceKey() const
+{
+    return Constants::NahdXml::xmlKeySideChainSourceDevice();
+}
+
+QString EffectRackController::dynamicEqSideChainLpfKey() const
+{
+    return Constants::NahdXml::xmlKeySideChainLpf();
+}
+
+QString EffectRackController::dynamicEqListenKey() const
+{
+    return Constants::NahdXml::xmlKeyListen();
+}
+
+QString EffectRackController::dynamicEqStereoModeKey() const
+{
+    return Constants::NahdXml::xmlKeyStereoMode();
+}
+
+QString EffectRackController::dynamicEqGainKey() const
+{
+    return Constants::NahdXml::xmlKeyGain();
+}
+
+namespace {
+
+QVariantList dynamicEqResponseAt(const std::shared_ptr<DynamicEq> & effect, int points, double gainDb)
+{
+    QVariantList response;
+    if (effect) {
+        for (const double db : effect->magnitudesDbAt(responseFrequencies(points), gainDb)) {
+            response.append(db);
+        }
+    }
+    return response;
+}
+
+} // namespace
+
+QVariantList EffectRackController::dynamicEqResponse(quint32 effectIndex, int points) const
+{
+    const auto effect = std::dynamic_pointer_cast<DynamicEq>(effectAt(effectIndex));
+    return dynamicEqResponseAt(effect, points, effect ? effect->currentGainDb() : 0.0);
+}
+
+QVariantList EffectRackController::dynamicEqRangeResponse(quint32 effectIndex, int points) const
+{
+    const auto effect = std::dynamic_pointer_cast<DynamicEq>(effectAt(effectIndex));
+    return dynamicEqResponseAt(effect, points, effect ? effect->rangeDb() : 0.0);
+}
+
+float EffectRackController::dynamicEqGainDb(quint32 effectIndex) const
+{
+    const auto effect = std::dynamic_pointer_cast<DynamicEq>(effectAt(effectIndex));
+    return effect ? effect->currentGainDb() : 0.0f;
+}
+
+float EffectRackController::dynamicEqDetectorLevelDb(quint32 effectIndex) const
+{
+    const auto effect = std::dynamic_pointer_cast<DynamicEq>(effectAt(effectIndex));
+    return effect ? effect->detectorLevelDb() : -120.0f;
+}
+
+float EffectRackController::dynamicEqRangeDb(quint32 effectIndex) const
+{
+    const auto effect = std::dynamic_pointer_cast<DynamicEq>(effectAt(effectIndex));
+    return effect ? static_cast<float>(effect->rangeDb()) : 0.0f;
+}
+
+QVariantList EffectRackController::dynamicEqGainHistory(quint32 effectIndex) const
+{
+    QVariantList list;
+    if (const auto effect = std::dynamic_pointer_cast<DynamicEq>(effectAt(effectIndex)); effect) {
+        for (const float db : effect->gainHistory()) {
+            list.append(db);
+        }
+    }
+    return list;
+}
+
+void EffectRackController::dynamicEqSetActive(quint32 effectIndex, bool active)
+{
+    if (const auto effect = std::dynamic_pointer_cast<DynamicEq>(effectAt(effectIndex)); effect) {
+        effect->setAnalysisEnabled(active);
+    }
 }
 
 QString EffectRackController::phaseScopeType() const

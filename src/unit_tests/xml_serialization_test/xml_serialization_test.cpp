@@ -59,6 +59,7 @@
 #include "../../domain/effects/delay.hpp"
 #include "../../domain/effects/dimension.hpp"
 #include "../../domain/effects/drive.hpp"
+#include "../../domain/effects/dynamic_eq.hpp"
 #include "../../domain/effects/early_reflections.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/effects/endless_reverb.hpp"
@@ -2411,6 +2412,70 @@ void XmlSerializationTest::test_toXmlFromXml_phaseScopeEffect_shouldLoadCorrectl
     QVERIFY(std::abs(valueOf(C::xmlKeyDelayTime()) - 0.123f) < 0.0001f);
     QCOMPARE(valueOf(C::xmlKeyDcBlock()), 1.0f);
     QCOMPARE(restored->sidechainSourceDeviceIndex(), std::optional<size_t> { 2 });
+}
+
+void XmlSerializationTest::test_toXmlFromXml_dynamicEqEffect_shouldLoadCorrectly()
+{
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto dynamicEq = std::make_shared<DynamicEq>();
+    const auto setParam = [&dynamicEq](const QString & key, float value) {
+        if (auto p = dynamicEq->parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    };
+    namespace C = Constants::NahdXml;
+    setParam(C::xmlKeyFilterType(), 2.0f);
+    setParam(C::xmlKeyFrequency(), 0.7f);
+    setParam(C::xmlKeyQ(), 0.3f);
+    setParam(C::xmlKeyRange(), 0.75f);
+    setParam(C::xmlKeyThreshold(), 0.5f);
+    setParam(C::xmlKeyRatio(), 0.25f);
+    setParam(C::xmlKeyKnee(), 0.5f);
+    setParam(C::xmlKeyAttack(), 0.2f);
+    setParam(C::xmlKeyRelease(), 0.8f);
+    setParam(C::xmlKeyDetectorSource(), 1.0f);
+    setParam(C::xmlKeyDetectorFilter(), 1.0f);
+    setParam(C::xmlKeySideChainSourceDevice(), 3.0f);
+    setParam(C::xmlKeySideChainLpf(), 0.4f);
+    setParam(C::xmlKeyListen(), 1.0f);
+    setParam(C::xmlKeyStereoMode(), 2.0f);
+    setParam(C::xmlKeyGain(), 0.25f);
+    deviceServiceOut.insertEffectRack().setEffect(0, dynamicEq);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+    editorServiceIn.fromXml(xml);
+
+    const auto restored = std::dynamic_pointer_cast<DynamicEq>(deviceServiceIn.insertEffectRack().effect(0));
+    QVERIFY(restored);
+    const auto valueOf = [&restored](const QString & key) {
+        const auto p = restored->parameter(key.toStdString());
+        return p ? p->get().value() : -100.0f;
+    };
+    QCOMPARE(valueOf(C::xmlKeyFilterType()), 2.0f);
+    QVERIFY(std::abs(valueOf(C::xmlKeyFrequency()) - 0.7f) < 0.001f);
+    QVERIFY(std::abs(valueOf(C::xmlKeyQ()) - 0.3f) < 0.001f);
+    QVERIFY(std::abs(restored->rangeDb() - 12.0) < 0.01);
+    QVERIFY(std::abs(valueOf(C::xmlKeyThreshold()) - 0.5f) < 0.001f);
+    QVERIFY(std::abs(valueOf(C::xmlKeyRatio()) - 0.25f) < 0.001f);
+    QVERIFY(std::abs(valueOf(C::xmlKeyKnee()) - 0.5f) < 0.001f);
+    QVERIFY(std::abs(valueOf(C::xmlKeyAttack()) - 0.2f) < 0.001f);
+    QVERIFY(std::abs(valueOf(C::xmlKeyRelease()) - 0.8f) < 0.001f);
+    QCOMPARE(valueOf(C::xmlKeyDetectorSource()), 1.0f);
+    QCOMPARE(valueOf(C::xmlKeyDetectorFilter()), 1.0f);
+    QVERIFY(std::abs(valueOf(C::xmlKeySideChainLpf()) - 0.4f) < 0.001f);
+    QCOMPARE(valueOf(C::xmlKeyListen()), 1.0f);
+    QCOMPARE(valueOf(C::xmlKeyStereoMode()), 2.0f);
+    QVERIFY(std::abs(valueOf(C::xmlKeyGain()) - 0.25f) < 0.001f);
+    QCOMPARE(restored->sidechainSourceDeviceIndex(), std::optional<size_t> { 3 });
 }
 
 void XmlSerializationTest::test_toXmlFromXml_subMixerDevice_shouldLoadCorrectly()

@@ -21,6 +21,7 @@
 #include "../../domain/effects/auto_ducker.hpp"
 #include "../../domain/effects/compressor.hpp"
 #include "../../domain/effects/delay.hpp"
+#include "../../domain/effects/dynamic_eq.hpp"
 #include "../../domain/utility/rta.hpp"
 #include "../../domain/utility/stereo_field_meter.hpp"
 #include "../../infra/audio/audio_engine.hpp"
@@ -300,6 +301,38 @@ void SideChainAudioTest::test_audioEngine_masterEffect_sideChain_shouldFollowThe
     engine.process(context);
 
     QVERIFY2(ducker->gainDb() > -0.5f, qPrintable(QString { "the master ducker followed the master instead of its source: %1 dB" }.arg(static_cast<double>(ducker->gainDb()))));
+}
+
+void SideChainAudioTest::test_audioEngine_insertDynamicEq_sideChain_shouldFollowTheNamedDevice()
+{
+    // A quiet device whose Dynamic EQ listens to a loud one at the band's own frequency
+    AudioEngine engine;
+
+    const auto kick = std::make_shared<MockDevice>("Kick");
+    kick->setGenerateSignal(true);
+    kick->setToneHz(1000.0);
+    engine.setDevice(0, kick);
+
+    const auto bass = std::make_shared<MockDevice>("Bass");
+    bass->setGenerateSignal(true);
+    bass->setToneHz(1000.0);
+    bass->setVolume(0.01f);
+    engine.setDevice(1, bass);
+
+    const auto eq = std::make_shared<DynamicEq>();
+    setParameter(eq, Constants::NahdXml::xmlKeyAttack(), 0.0f);
+    setParameter(eq, Constants::NahdXml::xmlKeyDetectorSource(), 1.0f);
+    setParameter(eq, Constants::NahdXml::xmlKeySideChainSourceDevice(), 0.0f);
+    bass->insertEffectRack().setEffect(0, eq);
+
+    std::vector<double> buffer(1024, 0.0);
+    AudioContext context { std::span(buffer.data(), 1024), 512, 44100 };
+    for (int block = 0; block < 20; block++) {
+        std::fill(buffer.begin(), buffer.end(), 0.0);
+        engine.process(context);
+    }
+
+    QVERIFY2(eq->currentGainDb() < -5.0f, qPrintable(QString { "the Dynamic EQ did not follow its side chain: %1 dB" }.arg(static_cast<double>(eq->currentGainDb()))));
 }
 
 void SideChainAudioTest::test_audioEngine_clearDevice_shouldStopFeedingItsSideChain()

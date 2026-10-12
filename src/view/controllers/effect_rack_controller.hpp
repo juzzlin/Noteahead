@@ -74,6 +74,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString airBandEqType READ airBandEqType CONSTANT)
     Q_PROPERTY(QString eq32BandGraphicalType READ eq32BandGraphicalType CONSTANT)
     Q_PROPERTY(QString phaseScopeType READ phaseScopeType CONSTANT)
+    Q_PROPERTY(QString dynamicEqType READ dynamicEqType CONSTANT)
     Q_PROPERTY(QString simpleEqType READ simpleEqType CONSTANT)
     Q_PROPERTY(QString pannerType READ pannerType CONSTANT)
     Q_PROPERTY(QString autoPannerType READ autoPannerType CONSTANT)
@@ -156,6 +157,7 @@ public:
     QString airBandEqType() const;
     QString eq32BandGraphicalType() const;
     QString phaseScopeType() const;
+    QString dynamicEqType() const;
     QString simpleEqType() const;
     QString pannerType() const;
     QString reverbType() const;
@@ -518,6 +520,35 @@ public:
     //! Every slider back to 0 dB, leaving the stereo mode and the output gain where they are, which
     //! is how this differs from the Flat preset.
     Q_INVOKABLE void eq32BandGraphicalFlatten(quint32 effectIndex);
+
+    // DynamicEq
+    Q_INVOKABLE QString dynamicEqTypeKey() const;
+    Q_INVOKABLE QString dynamicEqFrequencyKey() const;
+    Q_INVOKABLE QString dynamicEqQKey() const;
+    Q_INVOKABLE QString dynamicEqRangeKey() const;
+    Q_INVOKABLE QString dynamicEqThresholdKey() const;
+    Q_INVOKABLE QString dynamicEqRatioKey() const;
+    Q_INVOKABLE QString dynamicEqKneeKey() const;
+    Q_INVOKABLE QString dynamicEqAttackKey() const;
+    Q_INVOKABLE QString dynamicEqReleaseKey() const;
+    Q_INVOKABLE QString dynamicEqDetectorSourceKey() const;
+    Q_INVOKABLE QString dynamicEqDetectorFilterKey() const;
+    Q_INVOKABLE QString dynamicEqSideChainSourceDeviceKey() const;
+    Q_INVOKABLE QString dynamicEqSideChainLpfKey() const;
+    Q_INVOKABLE QString dynamicEqListenKey() const;
+    Q_INVOKABLE QString dynamicEqStereoModeKey() const;
+    Q_INVOKABLE QString dynamicEqGainKey() const;
+    //! The band at its current gain, and at the whole of its Range: where it is and how far it can go.
+    Q_INVOKABLE QVariantList dynamicEqResponse(quint32 effectIndex, int points) const;
+    Q_INVOKABLE QVariantList dynamicEqRangeResponse(quint32 effectIndex, int points) const;
+    Q_INVOKABLE float dynamicEqGainDb(quint32 effectIndex) const;
+    Q_INVOKABLE float dynamicEqRangeDb(quint32 effectIndex) const;
+    //! What the detector hears, in dB, to read against the threshold.
+    Q_INVOKABLE float dynamicEqDetectorLevelDb(quint32 effectIndex) const;
+    //! The band's gain over the last couple of seconds, oldest first.
+    Q_INVOKABLE QVariantList dynamicEqGainHistory(quint32 effectIndex) const;
+    //! The history is kept only while the dialog is open.
+    Q_INVOKABLE void dynamicEqSetActive(quint32 effectIndex, bool active);
 
     // PhaseScope
     Q_INVOKABLE QString phaseScopeGainKey() const;

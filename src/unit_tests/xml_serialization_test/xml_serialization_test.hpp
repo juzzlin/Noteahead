@@ -103,6 +103,7 @@ private slots:
     void test_toXmlFromXml_airBandEqEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_eq32BandGraphicalEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_phaseScopeEffect_shouldLoadCorrectly();
+    void test_toXmlFromXml_dynamicEqEffect_shouldLoadCorrectly();
     void test_toXmlFromXml_subMixerDevice_shouldLoadCorrectly();
     void test_toXmlFromXml_fmSynthDevice_shouldLoadCorrectly();
     void test_toXmlFromXml_stringEnsembleDevice_shouldLoadCorrectly();
