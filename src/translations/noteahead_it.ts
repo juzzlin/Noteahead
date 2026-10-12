@@ -11352,6 +11352,10 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
         <source>Curve</source>
         <translation>Curva</translation>
     </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation type="unfinished">Sensibilità alla velocity</translation>
+    </message>
 </context>
 <context>
     <name>WavetableSynthDialog_Filter</name>

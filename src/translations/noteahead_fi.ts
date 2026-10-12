@@ -11352,6 +11352,10 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <source>Curve</source>
         <translation>Käyrä</translation>
     </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation type="unfinished">Voimakkuusherkkyys</translation>
+    </message>
 </context>
 <context>
     <name>WavetableSynthDialog_Filter</name>

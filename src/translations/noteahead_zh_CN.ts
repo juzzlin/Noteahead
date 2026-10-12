@@ -11350,6 +11350,10 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <source>Curve</source>
         <translation>曲线</translation>
     </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation type="unfinished">力度灵敏度</translation>
+    </message>
 </context>
 <context>
     <name>WavetableSynthDialog_Filter</name>

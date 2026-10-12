@@ -11352,6 +11352,10 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
         <source>Curve</source>
         <translation>Kurve</translation>
     </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation type="unfinished">Velocity-Empfindlichkeit</translation>
+    </message>
 </context>
 <context>
     <name>WavetableSynthDialog_Filter</name>

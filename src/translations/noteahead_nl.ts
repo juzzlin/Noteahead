@@ -11352,6 +11352,10 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
         <source>Curve</source>
         <translation>Curve</translation>
     </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation type="unfinished">Velocity-gevoeligheid</translation>
+    </message>
 </context>
 <context>
     <name>WavetableSynthDialog_Filter</name>

@@ -11352,6 +11352,10 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
         <source>Curve</source>
         <translation>Courbe</translation>
     </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation type="unfinished">Sensibilité à la vélocité</translation>
+    </message>
 </context>
 <context>
     <name>WavetableSynthDialog_Filter</name>

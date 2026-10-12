@@ -11354,6 +11354,10 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <source>Curve</source>
         <translation>Krzywa</translation>
     </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation type="unfinished">Czułość velocity</translation>
+    </message>
 </context>
 <context>
     <name>WavetableSynthDialog_Filter</name>

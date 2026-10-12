@@ -11352,6 +11352,10 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
         <source>Curve</source>
         <translation>Curva</translation>
     </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation type="unfinished">Sensibilidad a la velocidad</translation>
+    </message>
 </context>
 <context>
     <name>WavetableSynthDialog_Filter</name>
