@@ -41,6 +41,26 @@ ColumnLayout {
         color: themeService.accentColor
     }
 
+    // Any pad can be any drum: this loads a sound onto the selected pad and leaves its mix alone
+    ColumnLayout {
+        Layout.fillWidth: true
+        Label {
+            text: qsTr("Sound")
+        }
+        ComboBox {
+            Layout.fillWidth: true
+            model: fmDrumsController.padPresetNames
+            // A menu of sounds to load rather than a readout of the one loaded: after a knob has
+            // moved, no entry would be true any more
+            currentIndex: -1
+            displayText: qsTr("Load a sound...")
+            onActivated: index => {
+                fmDrumsController.loadPadPreset(index);
+                currentIndex = -1;
+            }
+        }
+    }
+
     ColumnLayout {
         Layout.fillWidth: true
         Label {

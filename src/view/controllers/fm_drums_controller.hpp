@@ -40,6 +40,9 @@ class FmDrumsController : public DrumPadController
     Q_PROPERTY(QStringList algorithmNames READ algorithmNames CONSTANT)
     Q_PROPERTY(QStringList operatorWaveformNames READ operatorWaveformNames CONSTANT)
     Q_PROPERTY(QStringList noiseFilterModeNames READ noiseFilterModeNames CONSTANT)
+    //! Single-pad sounds to load onto the selected pad. The kits are the device's presets proper,
+    //! in DeviceController::presetNames along with the user's own.
+    Q_PROPERTY(QStringList padPresetNames READ padPresetNames CONSTANT)
 
     // One notification for the lot: a pad is thirty-odd knobs, and re-reading them all when any one
     // moves costs nothing worth a signal each
@@ -69,6 +72,13 @@ public:
     QStringList algorithmNames() const;
     QStringList operatorWaveformNames() const;
     QStringList noiseFilterModeNames() const;
+    QStringList padPresetNames() const;
+
+    //! Gives the selected pad sound @p index of padPresetNames, leaving its mix and envelope be.
+    Q_INVOKABLE void loadPadPreset(int index);
+
+    QStringList factoryPresetNames() const override;
+    void loadFactoryPreset(int index) override;
 
     int algorithm() const;
     void setAlgorithm(int algorithm);

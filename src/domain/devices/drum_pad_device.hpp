@@ -30,6 +30,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace noteahead {
@@ -140,6 +141,9 @@ protected:
     //! Puts back what a project saved by an older version was voiced against, before it is read.
     //! Called with the device mutex held, so it must not emit. Does nothing by default.
     virtual void restoreLegacyParameters();
+    //! Where pad @p index's low and high pass rest by default, as knob positions. Wide open, both of
+    //! them, unless the engine's own sound needs them to be part of it.
+    virtual std::pair<float, float> defaultFilterCutoffs(int index) const;
 
     void syncParameters() override;
 

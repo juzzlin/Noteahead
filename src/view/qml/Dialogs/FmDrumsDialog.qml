@@ -69,6 +69,9 @@ AnimatedDialog {
         anchors.margins: 15
         spacing: 15
 
+        FmDrumsDialog_Presets {
+        }
+
         // Outside the scrolling area, as on Drum Synth V2: the knobs below are set against it
         DrumPadDialog_WaveformView {
             controller: fmDrumsController

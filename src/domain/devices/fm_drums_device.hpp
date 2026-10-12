@@ -18,6 +18,7 @@
 
 #include "../dsp/drum/fm_drum_engine.hpp"
 #include "drum_pad_device.hpp"
+#include "fm_drums_presets.hpp"
 
 #include <string>
 
@@ -54,15 +55,24 @@ public:
 
     std::unique_ptr<DrumPadDevice> newInstance(std::string name) const override;
 
+    //! Puts the whole device back to its defaults and voices every pad from factory kit @p index.
+    void loadKit(size_t index);
+    //! Gives @p pad the sound of FmDrumsPresets::pads() entry @p index: its voice and filters, and
+    //! not its level, pan, envelope or effects.
+    void loadPadPreset(int pad, size_t index);
+
 protected:
     void addEngineParameters(int index, const std::string & prefix) override;
     void syncEngineParameters(int index, const std::string & prefix) override;
+    std::pair<float, float> defaultFilterCutoffs(int index) const override;
 
 private:
     //! Units and labels for every continuous control of one pad, so that automation offers them.
     void describeEngineParameters(const std::string & prefix);
 
     FmDrumEngine & engine(int index);
+    //! Writes @p voicing into the engine controls of pad @p index without syncing.
+    void applyVoicing(int index, const FmDrumsPadVoicing & voicing);
 };
 
 } // namespace noteahead

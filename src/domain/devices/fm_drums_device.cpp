@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "fm_drums_device.hpp"
+#include "fm_drums_presets.hpp"
 
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
@@ -41,200 +42,7 @@ constexpr double MaxNoiseCutoffHz { 20000.0 };
 
 using Waveform = FmOperator::Waveform;
 using NoiseFilterMode = FmDrumEngine::NoiseFilterMode;
-
-struct OperatorVoicing
-{
-    Waveform waveform { Waveform::Sine };
-    double ratio { 1.0 };
-    //! Knob position: the engine gets its square, as the FM Synth's operators do.
-    double level { 0.0 };
-    double attack { 0.0 };
-    double decay { 0.3 };
-    double curve { 0.5 };
-};
-
-//! One pad as the kit ships it, in the units the controls read out in.
-struct PadVoicing
-{
-    size_t algorithm { 0 };
-    double frequency { 100.0 };
-    double feedback { 0.0 };
-    double pitchSemitones { 0.0 };
-    double pitchDecay { 0.03 };
-    std::array<OperatorVoicing, OperatorCount> operators {};
-    double noiseLevel { 0.0 };
-    double noiseModulation { 0.0 };
-    size_t noiseTarget { 0 };
-    double noiseAttack { 0.0 };
-    double noiseDecay { 0.1 };
-    double noiseCurve { 0.5 };
-    NoiseFilterMode noiseFilterMode { NoiseFilterMode::HighPass };
-    double noiseCutoffHz { 5000.0 };
-    double noiseResonance { 0.0 };
-    double velocityToLevel { 1.0 };
-    double velocityToModulation { 0.5 };
-};
-
-// Algorithm ordinals, as FmSynthDevice::algorithms() lists them
-constexpr size_t Serial { 0 };
-constexpr size_t TwinStacks { 4 };
-
-//! The kit a new FM Drums starts with, in pad order: a starting point for every drum, built the way
-//! FM drum machines have always built them. A sine falling in pitch for the drums, inharmonic
-//! operator stacks for the metal, and noise for whatever FM cannot rattle on its own.
-const std::array<PadVoicing, NumVoices> & defaultKit()
-{
-    static const std::array<PadVoicing, NumVoices> kit { {
-      // Kick: a sine diving three octaves, and a modulator gone in forty milliseconds for the beater
-      { .algorithm = Serial,
-        .frequency = 48.0,
-        .pitchSemitones = 30.0,
-        .pitchDecay = 0.025,
-        .operators = { { { .level = 1.0, .decay = 1.2, .curve = 0.6 },
-                         { .ratio = 1.0, .level = 0.45, .decay = 0.04, .curve = 0.7 },
-                         {},
-                         {} } } },
-      // Snare: a short pitched body, with band passed noise both heard and rattling the body
-      { .algorithm = Serial,
-        .frequency = 185.0,
-        .pitchSemitones = 7.0,
-        .pitchDecay = 0.02,
-        .operators = { { { .level = 0.8, .decay = 0.3, .curve = 0.6 },
-                         { .ratio = 1.6, .level = 0.4, .decay = 0.05, .curve = 0.6 },
-                         {},
-                         {} } },
-        .noiseLevel = 0.4,
-        .noiseModulation = 0.25,
-        .noiseDecay = 0.4,
-        .noiseCurve = 0.6,
-        .noiseFilterMode = NoiseFilterMode::BandPass,
-        .noiseCutoffHz = 4500.0,
-        .noiseResonance = 0.2 },
-      // Closed hi-hat: two inharmonic stacks and high passed noise, both gone at once
-      { .algorithm = TwinStacks,
-        .frequency = 610.0,
-        .feedback = 0.3,
-        .operators = { { { .level = 0.8, .decay = 0.1, .curve = 0.7 },
-                         { .ratio = 1.47, .level = 0.85, .decay = 0.08 },
-                         { .ratio = 2.31, .level = 0.7, .decay = 0.1, .curve = 0.7 },
-                         { .ratio = 3.71, .level = 0.85, .decay = 0.08 } } },
-        .noiseLevel = 0.5,
-        .noiseDecay = 0.1,
-        .noiseCurve = 0.7,
-        .noiseCutoffHz = 7000.0 },
-      // Clap: noise round two kilohertz, rattling a quiet sine for a body
-      { .algorithm = Serial,
-        .frequency = 1100.0,
-        .operators = { { { .level = 0.35, .decay = 0.1, .curve = 0.6 }, {}, {}, {} } },
-        .noiseLevel = 1.0,
-        .noiseModulation = 0.8,
-        .noiseDecay = 0.5,
-        .noiseCurve = 0.7,
-        .noiseFilterMode = NoiseFilterMode::BandPass,
-        .noiseCutoffHz = 1800.0,
-        .noiseResonance = 0.3 },
-      // Open hi-hat: the closed one, let ring
-      { .algorithm = TwinStacks,
-        .frequency = 610.0,
-        .feedback = 0.3,
-        .operators = { { { .level = 0.8, .decay = 0.8, .curve = 0.6 },
-                         { .ratio = 1.47, .level = 0.85, .decay = 0.5 },
-                         { .ratio = 2.31, .level = 0.7, .decay = 0.8, .curve = 0.6 },
-                         { .ratio = 3.71, .level = 0.85, .decay = 0.5 } } },
-        .noiseLevel = 0.5,
-        .noiseDecay = 0.8,
-        .noiseCurve = 0.6,
-        .noiseCutoffHz = 7000.0 },
-      // Low tom
-      { .algorithm = Serial,
-        .frequency = 82.0,
-        .pitchSemitones = 10.0,
-        .pitchDecay = 0.05,
-        .operators = { { { .level = 0.8, .decay = 0.6, .curve = 0.6 },
-                         { .ratio = 1.5, .level = 0.25, .decay = 0.06, .curve = 0.6 },
-                         {},
-                         {} } },
-        .noiseLevel = 0.15,
-        .noiseDecay = 0.03,
-        .noiseFilterMode = NoiseFilterMode::LowPass,
-        .noiseCutoffHz = 3000.0 },
-      // Mid tom
-      { .algorithm = Serial,
-        .frequency = 120.0,
-        .pitchSemitones = 10.0,
-        .pitchDecay = 0.045,
-        .operators = { { { .level = 0.8, .decay = 0.6, .curve = 0.6 },
-                         { .ratio = 1.5, .level = 0.25, .decay = 0.06, .curve = 0.6 },
-                         {},
-                         {} } },
-        .noiseLevel = 0.15,
-        .noiseDecay = 0.03,
-        .noiseFilterMode = NoiseFilterMode::LowPass,
-        .noiseCutoffHz = 3000.0 },
-      // High tom
-      { .algorithm = Serial,
-        .frequency = 170.0,
-        .pitchSemitones = 10.0,
-        .pitchDecay = 0.04,
-        .operators = { { { .level = 0.8, .decay = 0.6, .curve = 0.6 },
-                         { .ratio = 1.5, .level = 0.25, .decay = 0.06, .curve = 0.6 },
-                         {},
-                         {} } },
-        .noiseLevel = 0.15,
-        .noiseDecay = 0.03,
-        .noiseFilterMode = NoiseFilterMode::LowPass,
-        .noiseCutoffHz = 3000.0 },
-      // Crash: deep inharmonic stacks with feedback, and a long wash of noise
-      { .algorithm = TwinStacks,
-        .frequency = 310.0,
-        .feedback = 0.5,
-        .operators = { { { .level = 0.35, .decay = 3.0, .curve = 0.6 },
-                         { .ratio = 2.76, .level = 0.9, .decay = 2.0 },
-                         { .ratio = 1.53, .level = 0.3, .decay = 3.0, .curve = 0.6 },
-                         { .ratio = 3.89, .level = 0.9, .decay = 2.0 } } },
-        .noiseLevel = 0.2,
-        .noiseModulation = 0.3,
-        .noiseDecay = 2.5,
-        .noiseCutoffHz = 5000.0 },
-      // Ride: lighter modulation than the crash, so the bell stays in it
-      { .algorithm = TwinStacks,
-        .frequency = 420.0,
-        .feedback = 0.2,
-        .operators = { { { .level = 0.65, .decay = 4.5, .curve = 0.6 },
-                         { .ratio = 3.17, .level = 0.55, .decay = 2.5 },
-                         { .ratio = 1.39, .level = 0.5, .decay = 4.5, .curve = 0.6 },
-                         { .ratio = 4.21, .level = 0.55, .decay = 2.5 } } },
-        .noiseLevel = 0.2,
-        .noiseDecay = 3.0,
-        .noiseCutoffHz = 8000.0 },
-      // Reverse crash: the crash with its attack and decay swapped round
-      { .algorithm = TwinStacks,
-        .frequency = 310.0,
-        .feedback = 0.5,
-        .operators = { { { .level = 0.35, .attack = 0.7, .decay = 0.04, .curve = 0.3 },
-                         { .ratio = 2.76, .level = 0.9, .attack = 0.7, .decay = 0.06 },
-                         { .ratio = 1.53, .level = 0.3, .attack = 0.7, .decay = 0.04, .curve = 0.3 },
-                         { .ratio = 3.89, .level = 0.9, .attack = 0.7, .decay = 0.06 } } },
-        .noiseLevel = 0.2,
-        .noiseModulation = 0.3,
-        .noiseAttack = 0.7,
-        .noiseDecay = 0.04,
-        .noiseCurve = 0.3,
-        .noiseCutoffHz = 5000.0 },
-      // Rim: a high, hard and very short click
-      { .algorithm = Serial,
-        .frequency = 520.0,
-        .operators = { { { .level = 1.0, .decay = 0.035, .curve = 0.7 },
-                         { .ratio = 2.3, .level = 0.5, .decay = 0.012, .curve = 0.7 },
-                         {},
-                         {} } },
-        .noiseLevel = 0.3,
-        .noiseDecay = 0.012,
-        .noiseFilterMode = NoiseFilterMode::BandPass,
-        .noiseCutoffHz = 3500.0 },
-    } };
-    return kit;
-}
+using PadVoicing = FmDrumsPadVoicing;
 
 // The knob travel of each kind of control, both ways
 double frequencyFromPosition(double position)
@@ -302,18 +110,65 @@ float positionOfNoiseCutoff(double hz)
     return static_cast<float>(ParameterMapper::unmapExponential(hz, MinNoiseCutoffHz, MaxNoiseCutoffHz));
 }
 
-//! A control resting at @p position, snapped onto the grid a project saves positions on. The kit is
-//! written in hertz and seconds, whose positions fall between the steps of that grid: unsnapped, a
-//! fresh device would sound a hair different once saved and opened again.
-Parameter continuous(const std::string & key, double position)
+//! @p position as the position a project saves: on the grid of 10000 steps that a continuous
+//! control is written on. The kit is written in hertz and seconds, whose positions fall between
+//! those steps, and unsnapped a fresh pad would sound a hair different once saved and opened again.
+float snapped(double position)
 {
-    const int xmlValue = Parameter::internalToXmlValue(static_cast<float>(position), 0, 10000);
-    return Parameter { key, Parameter::xmlValueToInternal(xmlValue, 0, 10000), 0, 10000, xmlValue, 100 };
+    return Parameter::xmlValueToInternal(Parameter::internalToXmlValue(static_cast<float>(position), 0, 10000), 0, 10000);
 }
 
-Parameter discrete(const std::string & key, size_t value, size_t count)
+//! One engine control of a pad as a voicing sets it.
+struct EngineValue
 {
-    return Parameter { key, static_cast<float>(value), 0, static_cast<int>(count) - 1, static_cast<int>(value), 1, Parameter::Type::Discrete };
+    QString key;
+    //! The knob position for a continuous control, the plain index for a choice.
+    double value;
+    //! How many choices, or zero for a continuous control.
+    size_t choices;
+};
+
+//! Every engine control of a pad and the value @p pad gives it. The one list both the parameters
+//! and the presets are made from, so a control cannot be registered and then missed by a preset.
+std::vector<EngineValue> engineValues(const PadVoicing & pad)
+{
+    std::vector<EngineValue> values {
+        { NahdXml::xmlKeyAlgorithm(), static_cast<double>(pad.algorithm), FmSynthDevice::AlgorithmCount },
+        { NahdXml::xmlKeyFrequency(), positionOfFrequency(pad.frequency), 0 },
+        { NahdXml::xmlKeyFeedback(), pad.feedback, 0 },
+        { NahdXml::xmlKeyPitchDepth(), positionOfSemitones(pad.pitchSemitones), 0 },
+        { NahdXml::xmlKeyPitchDecay(), positionOfPitchDecay(pad.pitchDecay), 0 },
+    };
+    for (size_t op = 0; op < OperatorCount; op++) {
+        const auto & voicing = pad.operators.at(op);
+        values.push_back({ NahdXml::xmlKeyOperatorWaveform(op), static_cast<double>(voicing.waveform), FmOperator::WaveformCount });
+        values.push_back({ NahdXml::xmlKeyOperatorRatio(op), positionOfRatio(voicing.ratio), 0 });
+        values.push_back({ NahdXml::xmlKeyOperatorLevel(op), voicing.level, 0 });
+        values.push_back({ NahdXml::xmlKeyOperatorAttack(op), positionOfAttack(voicing.attack), 0 });
+        values.push_back({ NahdXml::xmlKeyOperatorDecay(op), positionOfDecay(voicing.decay), 0 });
+        values.push_back({ NahdXml::xmlKeyOperatorCurve(op), voicing.curve, 0 });
+    }
+    values.push_back({ NahdXml::xmlKeyNoiseLevel(), pad.noiseLevel, 0 });
+    values.push_back({ NahdXml::xmlKeyNoiseModulation(), pad.noiseModulation, 0 });
+    values.push_back({ NahdXml::xmlKeyNoiseTarget(), static_cast<double>(pad.noiseTarget), OperatorCount });
+    values.push_back({ NahdXml::xmlKeyNoiseAttack(), positionOfAttack(pad.noiseAttack), 0 });
+    values.push_back({ NahdXml::xmlKeyNoiseDecay(), positionOfDecay(pad.noiseDecay), 0 });
+    values.push_back({ NahdXml::xmlKeyNoiseCurve(), pad.noiseCurve, 0 });
+    values.push_back({ NahdXml::xmlKeyNoiseFilterMode(), static_cast<double>(pad.noiseFilterMode), FmDrumEngine::NoiseFilterModeCount });
+    values.push_back({ NahdXml::xmlKeyNoiseCutoff(), positionOfNoiseCutoff(pad.noiseCutoffHz), 0 });
+    values.push_back({ NahdXml::xmlKeyNoiseResonance(), pad.noiseResonance, 0 });
+    values.push_back({ NahdXml::xmlKeyVelocitySensitivity(), pad.velocityToLevel, 0 });
+    values.push_back({ NahdXml::xmlKeyModVelocitySensitivity(), pad.velocityToModulation, 0 });
+    return values;
+}
+
+//! The value a parameter stores for @p value: snapped for a knob, clamped to the choices otherwise.
+float storedValue(const EngineValue & value)
+{
+    if (value.choices) {
+        return static_cast<float>(std::clamp(std::round(value.value), 0.0, static_cast<double>(value.choices - 1)));
+    }
+    return snapped(std::clamp(value.value, 0.0, 1.0));
 }
 
 } // namespace
@@ -361,39 +216,72 @@ FmDrumEngine & FmDrumsDevice::engine(int index)
 
 void FmDrumsDevice::addEngineParameters(int index, const std::string & prefix)
 {
-    const auto & pad = defaultKit().at(static_cast<size_t>(index));
-    const auto key = [&prefix](const QString & name) {
-        return prefix + name.toStdString();
-    };
-
-    addParameter(discrete(key(NahdXml::xmlKeyAlgorithm()), pad.algorithm, FmSynthDevice::AlgorithmCount));
-    addParameter(continuous(key(NahdXml::xmlKeyFrequency()), positionOfFrequency(pad.frequency)));
-    addParameter(continuous(key(NahdXml::xmlKeyFeedback()), pad.feedback));
-    addParameter(continuous(key(NahdXml::xmlKeyPitchDepth()), positionOfSemitones(pad.pitchSemitones)));
-    addParameter(continuous(key(NahdXml::xmlKeyPitchDecay()), positionOfPitchDecay(pad.pitchDecay)));
-
-    for (size_t op = 0; op < OperatorCount; op++) {
-        const auto & voicing = pad.operators.at(op);
-        addParameter(discrete(key(NahdXml::xmlKeyOperatorWaveform(op)), static_cast<size_t>(voicing.waveform), FmOperator::WaveformCount));
-        addParameter(continuous(key(NahdXml::xmlKeyOperatorRatio(op)), positionOfRatio(voicing.ratio)));
-        addParameter(continuous(key(NahdXml::xmlKeyOperatorLevel(op)), voicing.level));
-        addParameter(continuous(key(NahdXml::xmlKeyOperatorAttack(op)), positionOfAttack(voicing.attack)));
-        addParameter(continuous(key(NahdXml::xmlKeyOperatorDecay(op)), positionOfDecay(voicing.decay)));
-        addParameter(continuous(key(NahdXml::xmlKeyOperatorCurve(op)), voicing.curve));
+    for (auto && value : engineValues(FmDrumsPresets::kits().front().pads.at(static_cast<size_t>(index)))) {
+        const auto key = prefix + value.key.toStdString();
+        const float stored = storedValue(value);
+        if (value.choices) {
+            addParameter(Parameter { key, stored, 0, static_cast<int>(value.choices) - 1, static_cast<int>(stored), 1, Parameter::Type::Discrete });
+        } else {
+            addParameter(Parameter { key, stored, 0, 10000, Parameter::internalToXmlValue(stored, 0, 10000), 100 });
+        }
     }
+}
 
-    addParameter(continuous(key(NahdXml::xmlKeyNoiseLevel()), pad.noiseLevel));
-    addParameter(continuous(key(NahdXml::xmlKeyNoiseModulation()), pad.noiseModulation));
-    addParameter(discrete(key(NahdXml::xmlKeyNoiseTarget()), pad.noiseTarget, OperatorCount));
-    addParameter(continuous(key(NahdXml::xmlKeyNoiseAttack()), positionOfAttack(pad.noiseAttack)));
-    addParameter(continuous(key(NahdXml::xmlKeyNoiseDecay()), positionOfDecay(pad.noiseDecay)));
-    addParameter(continuous(key(NahdXml::xmlKeyNoiseCurve()), pad.noiseCurve));
-    addParameter(discrete(key(NahdXml::xmlKeyNoiseFilterMode()), static_cast<size_t>(pad.noiseFilterMode), FmDrumEngine::NoiseFilterModeCount));
-    addParameter(continuous(key(NahdXml::xmlKeyNoiseCutoff()), positionOfNoiseCutoff(pad.noiseCutoffHz)));
-    addParameter(continuous(key(NahdXml::xmlKeyNoiseResonance()), pad.noiseResonance));
+std::pair<float, float> FmDrumsDevice::defaultFilterCutoffs(int index) const
+{
+    const auto & pad = FmDrumsPresets::kits().front().pads.at(static_cast<size_t>(index));
+    return { snapped(pad.lpfCutoff), snapped(pad.hpfCutoff) };
+}
 
-    addParameter(continuous(key(NahdXml::xmlKeyVelocitySensitivity()), pad.velocityToLevel));
-    addParameter(continuous(key(NahdXml::xmlKeyModVelocitySensitivity()), pad.velocityToModulation));
+void FmDrumsDevice::applyVoicing(int index, const FmDrumsPadVoicing & voicing)
+{
+    const std::string prefix { voiceId(index) + "_" };
+    if (auto p = parameter(prefix + NahdXml::xmlKeyCutoff().toStdString()); p) {
+        p->get().setValue(snapped(voicing.lpfCutoff));
+    }
+    if (auto p = parameter(prefix + NahdXml::xmlKeyHpfCutoff().toStdString()); p) {
+        p->get().setValue(snapped(voicing.hpfCutoff));
+    }
+    for (auto && value : engineValues(voicing)) {
+        if (auto p = parameter(prefix + value.key.toStdString()); p) {
+            p->get().setValue(storedValue(value));
+        }
+    }
+}
+
+void FmDrumsDevice::loadKit(size_t index)
+{
+    const auto & kits = FmDrumsPresets::kits();
+    if (index >= kits.size()) {
+        return;
+    }
+    {
+        const std::lock_guard<std::recursive_mutex> lock { mutex() };
+        // A kit is the whole device, so everything it does not set goes back to its default first:
+        // the mix, the envelopes and the slopes along with the voices
+        reset();
+        for (int pad = 0; pad < NumVoices; pad++) {
+            applyVoicing(pad, kits.at(index).pads.at(static_cast<size_t>(pad)));
+        }
+        syncParameters();
+    }
+    emit dataChanged();
+}
+
+void FmDrumsDevice::loadPadPreset(int pad, size_t index)
+{
+    const auto & pads = FmDrumsPresets::pads();
+    if (pad < 0 || pad >= NumVoices || index >= pads.size()) {
+        return;
+    }
+    {
+        const std::lock_guard<std::recursive_mutex> lock { mutex() };
+        // The sound only: the pad keeps its level, pan, envelope and effects, which are where it
+        // sits in the kit rather than what it is
+        applyVoicing(pad, pads.at(index).voicing);
+        syncParameters();
+    }
+    emit dataChanged();
 }
 
 void FmDrumsDevice::syncEngineParameters(int index, const std::string & prefix)

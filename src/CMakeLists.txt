@@ -150,6 +150,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/FmDrumsDialog.qml
     ${QML_BASE_DIR}/Dialogs/FmDrumsDialog_Noise.qml
     ${QML_BASE_DIR}/Dialogs/FmDrumsDialog_Operator.qml
+    ${QML_BASE_DIR}/Dialogs/FmDrumsDialog_Presets.qml
     ${QML_BASE_DIR}/Dialogs/FmDrumsDialog_Voice.qml
     ${QML_BASE_DIR}/Dialogs/FmSynthDialog.qml
     ${QML_BASE_DIR}/Dialogs/FmSynthDialog_Algorithm.qml

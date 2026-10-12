@@ -595,6 +595,11 @@ void DrumPadDevice::restoreLegacyParameters()
 {
 }
 
+std::pair<float, float> DrumPadDevice::defaultFilterCutoffs(int) const
+{
+    return { 1.0f, 0.0f };
+}
+
 void DrumPadDevice::initializeVoices()
 {
     using enum DrumSynthV2::MidiNote;
@@ -634,8 +639,9 @@ void DrumPadDevice::addVoiceParameters(int index)
     // Standard voice parameters
     addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyLevel().toStdString(), 0.8f, 0, 10000, 8000, 100 });
     addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyPan().toStdString(), 0.5f, 0, 10000, 5000, 100 });
-    addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyCutoff().toStdString(), 1.0f, 0, 10000, 10000, 100 });
-    addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    const auto [lpfCutoff, hpfCutoff] = defaultFilterCutoffs(index);
+    addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyCutoff().toStdString(), lpfCutoff, 0, 10000, Parameter::internalToXmlValue(lpfCutoff, 0, 10000), 100 });
+    addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), hpfCutoff, 0, 10000, Parameter::internalToXmlValue(hpfCutoff, 0, 10000), 100 });
 
     addAmpEnvelopeParameters(index, prefix);
 

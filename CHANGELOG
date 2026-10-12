@@ -7,6 +7,7 @@ New features:
 
 * FM Drums: a drum machine with a four-operator FM voice on every pad
   - Pitch envelope and filtered noise per pad, on the same notes as Drum Synth V2
+  - Default, Analog and Percussion kits, and any kit's drum loadable onto any pad
 
 * Reverb and Endless Reverb: Solo, to hear the tail on its own
 

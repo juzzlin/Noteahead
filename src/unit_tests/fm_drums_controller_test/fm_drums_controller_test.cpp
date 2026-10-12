@@ -19,6 +19,7 @@
 #include "../../common/constants.hpp"
 #include "../../domain/devices/drum_synth_v2_device.hpp"
 #include "../../domain/devices/fm_drums_device.hpp"
+#include "../../domain/devices/fm_drums_presets.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
 #include "../../view/controllers/fm_drum_operator_controller.hpp"
@@ -150,6 +151,38 @@ void FmDrumsControllerTest::test_deviceChange_shouldNotifyTheOperators()
 
     QVERIFY(operatorSpy.count() > 0);
     QCOMPARE(fixture.op(0).decay(), 100);
+}
+
+void FmDrumsControllerTest::test_presets_kits_shouldBeTheFactoryPresets()
+{
+    Fixture fixture;
+    const auto & kits = FmDrumsPresets::kits();
+    const auto names = fixture.controller.presetNames();
+    QVERIFY(names.size() >= static_cast<qsizetype>(kits.size()));
+    for (size_t kit = 0; kit < kits.size(); kit++) {
+        QVERIFY2(names.at(static_cast<qsizetype>(kit)).contains(QString::fromStdString(kits.at(kit).name)), qPrintable(names.at(static_cast<qsizetype>(kit))));
+    }
+
+    fixture.controller.loadPreset(1);
+
+    FmDrumsDevice expected { "FM Drums" };
+    expected.loadKit(1);
+    QCOMPARE(fixture.controller.currentPresetIndex(), 1);
+    QCOMPARE(fixture.device->voiceParameterValue(Kick, NahdXml::xmlKeyFrequency().toStdString()), expected.voiceParameterValue(Kick, NahdXml::xmlKeyFrequency().toStdString()));
+}
+
+void FmDrumsControllerTest::test_loadPadPreset_shouldLoadOntoTheSelectedPad()
+{
+    Fixture fixture;
+    const auto names = fixture.controller.padPresetNames();
+    const auto cowbell = names.indexOf("Percussion Cowbell");
+    QVERIFY(cowbell >= 0);
+    fixture.controller.setSelectedVoice(Snare);
+
+    fixture.controller.loadPadPreset(static_cast<int>(cowbell));
+
+    QCOMPARE(fixture.controller.algorithm(), 7);
+    QVERIFY(fixture.device->voiceParameterValue(Kick, NahdXml::xmlKeyAlgorithm().toStdString()) != 7.0f);
 }
 
 } // namespace noteahead

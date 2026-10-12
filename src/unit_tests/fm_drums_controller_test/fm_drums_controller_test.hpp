@@ -32,6 +32,8 @@ private slots:
     void test_operator_write_shouldReachTheSelectedPad();
     void test_operator_routing_shouldFollowTheAlgorithm();
     void test_deviceChange_shouldNotifyTheOperators();
+    void test_presets_kits_shouldBeTheFactoryPresets();
+    void test_loadPadPreset_shouldLoadOntoTheSelectedPad();
 };
 
 } // namespace noteahead

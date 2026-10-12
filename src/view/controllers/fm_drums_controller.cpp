@@ -18,6 +18,7 @@
 #include "../../common/constants.hpp"
 #include "../../domain/devices/drum_pad_device.hpp"
 #include "../../domain/devices/fm_drums_device.hpp"
+#include "../../domain/devices/fm_drums_presets.hpp"
 #include "../../domain/devices/fm_synth_device.hpp"
 #include "fm_drum_operator_controller.hpp"
 
@@ -103,6 +104,38 @@ QStringList FmDrumsController::noiseFilterModeNames() const
 {
     // In FmDrumEngine::NoiseFilterMode order; filter jargon, so not translated
     return { "LP", "BP", "HP" };
+}
+
+QStringList FmDrumsController::padPresetNames() const
+{
+    QStringList list;
+    for (auto && preset : FmDrumsPresets::pads()) {
+        list << QString::fromStdString(preset.name);
+    }
+    return list;
+}
+
+void FmDrumsController::loadPadPreset(int index)
+{
+    if (const auto drums = std::dynamic_pointer_cast<FmDrumsDevice>(m_device); drums && index >= 0) {
+        drums->loadPadPreset(m_selectedVoice, static_cast<size_t>(index));
+    }
+}
+
+QStringList FmDrumsController::factoryPresetNames() const
+{
+    QStringList list;
+    for (auto && kit : FmDrumsPresets::kits()) {
+        list << QString::fromStdString(kit.name);
+    }
+    return list;
+}
+
+void FmDrumsController::loadFactoryPreset(int index)
+{
+    if (const auto drums = std::dynamic_pointer_cast<FmDrumsDevice>(m_device); drums && index >= 0) {
+        drums->loadKit(static_cast<size_t>(index));
+    }
 }
 
 int FmDrumsController::algorithm() const

@@ -34,6 +34,11 @@ private slots:
     void test_algorithm_shouldReachTheEngine();
     void test_automatableParameters_shouldOfferEveryContinuousControl();
     void test_xmlSerialization_shouldRestoreTheSound();
+    void test_loadKit_everyKit_shouldVoiceEveryPad();
+    void test_loadKit_default_shouldBeANewDevice();
+    void test_loadPadPreset_shouldChangeOnlyThatPadsVoice();
+    void test_presets_everyOperator_shouldStayBelowAliasing();
+    void test_presets_padNames_shouldBeUnique();
 };
 
 } // namespace noteahead

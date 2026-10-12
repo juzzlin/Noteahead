@@ -18,11 +18,14 @@
 #include "../../common/constants.hpp"
 #include "../../domain/devices/drum_synth_v2_device.hpp"
 #include "../../domain/devices/fm_drums_device.hpp"
+#include "../../domain/devices/fm_drums_presets.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
 
+#include <QRegularExpression>
 #include <QTest>
 
+#include <algorithm>
 #include <cmath>
 #include <set>
 
@@ -227,6 +230,86 @@ void FmDrumsTest::test_xmlSerialization_shouldRestoreTheSound()
     QCOMPARE(restoredFrames, originalFrames);
     QCOMPARE(toXml(restored), toXml(original));
     QVERIFY(restored.renderVoiceAlone(snare, SampleRate, MaxSeconds) != FmDrumsDevice { "FM Drums" }.renderVoiceAlone(snare, SampleRate, MaxSeconds));
+}
+
+void FmDrumsTest::test_loadKit_everyKit_shouldVoiceEveryPad()
+{
+    FmDrumsDevice device { "FM Drums" };
+    const auto & kits = FmDrumsPresets::kits();
+    QVERIFY(kits.size() > 1);
+
+    for (size_t kit = 0; kit < kits.size(); kit++) {
+        device.loadKit(kit);
+        for (int pad = 0; pad < DrumSynthV2::NumVoices; pad++) {
+            const auto frames = device.renderVoiceAlone(pad, SampleRate, MaxSeconds);
+            const auto name = QString::fromStdString(kits.at(kit).name) + " " + DrumSynthV2::voiceName(pad);
+            QVERIFY2(peak(frames) > 0.05, qPrintable(name + QString { " peaks at %1" }.arg(peak(frames))));
+            QVERIFY2(peak(frames) < 0.7, qPrintable(name + QString { " peaks at %1" }.arg(peak(frames))));
+            QVERIFY2(frames.size() < static_cast<size_t>(MaxSeconds * SampleRate) * 2, qPrintable(name + " never stopped"));
+        }
+    }
+}
+
+void FmDrumsTest::test_loadKit_default_shouldBeANewDevice()
+{
+    // A kit is the whole device: whatever was changed before it goes, mix and envelopes included
+    namespace NahdXml = Constants::NahdXml;
+    FmDrumsDevice device { "FM Drums" };
+    device.loadKit(1);
+    device.updateVoiceParameter(0, NahdXml::xmlKeyLevel().toStdString(), 0.3f);
+    device.updateVoiceParameter(4, NahdXml::xmlKeyAmpHold().toStdString(), 0.6f);
+    device.setLpfSlope(1);
+
+    device.loadKit(0);
+
+    const auto strip = [](QString xml) {
+        return xml.remove(QRegularExpression { " uuid=\"[^\"]*\"" });
+    };
+    QCOMPARE(strip(toXml(device)), strip(toXml(FmDrumsDevice { "FM Drums" })));
+}
+
+void FmDrumsTest::test_loadPadPreset_shouldChangeOnlyThatPadsVoice()
+{
+    namespace NahdXml = Constants::NahdXml;
+    FmDrumsDevice device { "FM Drums" };
+    const int snare = static_cast<int>(DrumSynthV2::VoiceIndex::Snare);
+    device.updateVoiceParameter(snare, NahdXml::xmlKeyLevel().toStdString(), 0.42f);
+    device.updateVoiceParameter(snare, NahdXml::xmlKeyAmpHold().toStdString(), 0.33f);
+    const auto kickBefore = device.renderVoiceAlone(0, SampleRate, MaxSeconds);
+
+    // The Percussion kit's cowbell, onto the snare's pad
+    const auto & presets = FmDrumsPresets::pads();
+    const auto cowbell = std::ranges::find_if(presets, [](auto && preset) { return preset.name == "Percussion Cowbell"; });
+    QVERIFY(cowbell != presets.end());
+    device.loadPadPreset(snare, static_cast<size_t>(cowbell - presets.begin()));
+
+    QCOMPARE(device.voiceParameterValue(snare, NahdXml::xmlKeyAlgorithm().toStdString()), 7.0f);
+    QCOMPARE(device.voiceParameterValue(snare, NahdXml::xmlKeyOperatorWaveform(0).toStdString()), static_cast<float>(FmOperator::Waveform::Square));
+    QCOMPARE(device.voiceParameterValue(snare, NahdXml::xmlKeyLevel().toStdString()), 0.42f);
+    QCOMPARE(device.voiceParameterValue(snare, NahdXml::xmlKeyAmpHold().toStdString()), 0.33f);
+    QCOMPARE(device.renderVoiceAlone(0, SampleRate, MaxSeconds), kickBefore);
+}
+
+void FmDrumsTest::test_presets_everyOperator_shouldStayBelowAliasing()
+{
+    // Above about 12 kHz an operator's partials fold back differently at each oversampling factor,
+    // so a preset would sound one way at one quality setting and another way at the next
+    for (auto && preset : FmDrumsPresets::pads()) {
+        for (auto && op : preset.voicing.operators) {
+            if (op.level > 0.02) {
+                const double frequency = preset.voicing.frequency * op.ratio;
+                QVERIFY2(frequency <= 12000.0, qPrintable(QString::fromStdString(preset.name) + QString { " has an operator at %1 Hz" }.arg(frequency)));
+            }
+        }
+    }
+}
+
+void FmDrumsTest::test_presets_padNames_shouldBeUnique()
+{
+    std::set<std::string> names;
+    for (auto && preset : FmDrumsPresets::pads()) {
+        QVERIFY2(names.insert(preset.name).second, preset.name.c_str());
+    }
 }
 
 } // namespace noteahead
