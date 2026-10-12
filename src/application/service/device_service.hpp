@@ -246,9 +246,18 @@ public:
     //! Hands a parameter automation step to the audio thread, to take effect at @p frame or, with
     //! no frame, at the start of the next block. See AudioEngine::scheduleParameterChange().
     void scheduleParameterChange(const ParameterData & data, std::optional<uint64_t> frame);
+    //! Tells whatever shows the target that an automation will move it @p delay from now. Only for
+    //! live playback: the audio thread that applies the change must not signal anything, and a
+    //! render moves values far faster than anything could be shown.
+    void notifyParameterAutomation(const ParameterData & data, std::chrono::milliseconds delay);
 
 signals:
     void dataChanged();
+
+    //! An automation will move a parameter of @p target @p delayMs from now. The target is only an
+    //! identity to compare against, never to be followed: it may be gone by the time this arrives.
+    //! Zero means every target, as when playback stops and automation lets go of them all.
+    void parameterAutomationScheduled(quintptr target, qint64 delayMs);
 
     //! Samples a project referenced but could not be read, by the path that was looked in. The
     //! project itself loaded: this is what the pads are missing, not a failure to open the song.

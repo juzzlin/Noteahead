@@ -44,6 +44,10 @@ private slots:
     void test_targetSubIndex_devicesWithParts_shouldAddressThePartRack();
     void test_availableEffects_shouldOfferTheAmbience();
     void test_setEffect_masterSendRack_shouldStartMixAtTheTop();
+    void test_parameterAutomation_effectInView_shouldRefreshWhenTheChangeLands();
+    void test_parameterAutomation_effectNotInView_shouldNotRefresh();
+    void test_parameterAutomation_burst_shouldRefreshAtMostEvery33ms();
+    void test_parameterAutomation_cleared_shouldRefresh();
     void test_loadEffectPreset_masterSendRack_shouldKeepTheMix();
     void test_targetSubIndex_deviceWithoutParts_shouldHaveNoRack();
     void test_sendChainEffectCount_shouldCountTheChainOfTheGivenBus();

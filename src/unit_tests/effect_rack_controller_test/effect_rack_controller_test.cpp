@@ -27,6 +27,7 @@
 #include "../../domain/effects/phaser.hpp"
 #include "../../domain/effects/reverb.hpp"
 #include "../../domain/effects/saturator.hpp"
+#include "../../domain/tracker/parameter_data.hpp"
 #include "../../domain/utility/dbtp_meter.hpp"
 #include "../../domain/utility/lufs_meter.hpp"
 #include "../../domain/utility/rta.hpp"
@@ -38,6 +39,7 @@
 #include "../../view/qml/Dialogs/rta_renderer.hpp"
 
 #include <QBuffer>
+#include <QElapsedTimer>
 #include <QSignalSpy>
 #include <QTemporaryDir>
 #include <QTest>
@@ -1464,6 +1466,93 @@ void EffectRackControllerTest::test_availableEffects_shouldOfferTheAmbience()
     controller.setEffect(0, controller.ambienceType());
     QCOMPARE(controller.effectType(0), controller.ambienceType());
     QCOMPARE(controller.effectParametersSummary(0), QString { "(size=40%, decay=0.80s, mix=30%)" });
+}
+
+namespace {
+
+//! An automation of the Auto Filter's cutoff, as playback schedules one.
+ParameterData cutoffAutomation(const std::shared_ptr<Effect> & effect)
+{
+    return { 0, 0, effect, Constants::NahdXml::xmlKeyCutoff().toStdString(), ParameterAutomation::Mode::Absolute, 0.5 };
+}
+
+} // namespace
+
+void EffectRackControllerTest::test_parameterAutomation_effectInView_shouldRefreshWhenTheChangeLands()
+{
+    // Automation moves the live value on the audio thread, which cannot tell anybody: the knobs of
+    // an open Auto Filter sat still while it played. Playback says so instead, ahead of time, and
+    // the dialog is refreshed when the change lands rather than when it was scheduled.
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(AutoFilter::typeIdString()));
+    const auto effect = deviceService->insertEffectRack().effect(0);
+    QVERIFY(effect);
+
+    QSignalSpy spy { &controller, &EffectRackController::revisionChanged };
+    deviceService->notifyParameterAutomation(cutoffAutomation(effect), std::chrono::milliseconds { 80 });
+    QTest::qWait(30);
+    QCOMPARE(spy.count(), 0);
+    QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 1, 1000);
+}
+
+void EffectRackControllerTest::test_parameterAutomation_effectNotInView_shouldNotRefresh()
+{
+    // The rack in view decides: an automation of anything else costs a comparison and nothing more
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(AutoFilter::typeIdString()));
+    const std::shared_ptr<Effect> elsewhere = std::make_shared<AutoFilter>();
+
+    QSignalSpy spy { &controller, &EffectRackController::revisionChanged };
+    deviceService->notifyParameterAutomation(cutoffAutomation(elsewhere), std::chrono::milliseconds { 0 });
+    QTest::qWait(100);
+    QCOMPARE(spy.count(), 0);
+}
+
+void EffectRackControllerTest::test_parameterAutomation_burst_shouldRefreshAtMostEvery33ms()
+{
+    // Every refresh re-reads every binding on the revision, so a busy automation is shown at a
+    // screen's pace rather than at its own, and the last change of the burst is still shown
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(AutoFilter::typeIdString()));
+    const auto effect = deviceService->insertEffectRack().effect(0);
+
+    QSignalSpy spy { &controller, &EffectRackController::revisionChanged };
+    QElapsedTimer clock;
+    clock.start();
+    // A hundred changes landing over 200 ms
+    for (int i = 0; i < 100; i++) {
+        deviceService->notifyParameterAutomation(cutoffAutomation(effect), std::chrono::milliseconds { i * 2 });
+    }
+    QTest::qWait(400);
+    QVERIFY2(spy.count() >= 2, qPrintable(QString::number(spy.count())));
+    QVERIFY2(spy.count() <= static_cast<int>(clock.elapsed() / 33) + 1, qPrintable(QString::number(spy.count())));
+    // And nothing further once it is all shown
+    const auto settled = spy.count();
+    QTest::qWait(100);
+    QCOMPARE(spy.count(), settled);
+}
+
+void EffectRackControllerTest::test_parameterAutomation_cleared_shouldRefresh()
+{
+    // Stopping puts every automated value back to what was set, and the knobs have to follow
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(AutoFilter::typeIdString()));
+
+    QSignalSpy spy { &controller, &EffectRackController::revisionChanged };
+    deviceService->clearAutomation();
+    QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 1, 1000);
 }
 
 void EffectRackControllerTest::test_setEffect_masterSendRack_shouldStartMixAtTheTop()

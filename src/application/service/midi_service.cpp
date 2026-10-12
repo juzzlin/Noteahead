@@ -381,6 +381,8 @@ void MidiService::sendParameterData(const ParameterData & data, std::optional<st
 {
     if (m_deviceService) {
         m_deviceService->scheduleParameterChange(data, when ? m_deviceService->frameForTime(*when) : std::nullopt);
+        const auto delay = when ? std::chrono::duration_cast<std::chrono::milliseconds>(*when - std::chrono::steady_clock::now()) : std::chrono::milliseconds::zero();
+        m_deviceService->notifyParameterAutomation(data, delay);
     }
 }
 

@@ -20,7 +20,9 @@
 #include "../../application/service/editor_service.hpp"
 #include "../../domain/tracker/parameter_container.hpp"
 
+#include <QElapsedTimer>
 #include <QObject>
+#include <QTimer>
 #include <QUrl>
 
 #include <functional>
@@ -742,6 +744,21 @@ private:
     EditorServiceS m_editorService;
     QString m_targetDeviceName;
     int m_revision = 0;
+
+    //! Automation moves a parameter's live value on the audio thread, where nothing may signal: the
+    //! playback that schedules it says so instead, ahead of time, and a dialog showing the target
+    //! is refreshed when the change lands. Without it the knobs sat still while automation played,
+    //! then all jumped at once as soon as anything else refreshed the dialog.
+    void handleParameterAutomation(quintptr target, qint64 delayMs);
+    void refreshForAutomation();
+    bool isInCurrentRack(quintptr target) const;
+    //! Single shot, and only ever started by an automation event: nothing runs while nothing is
+    //! automated.
+    QTimer m_automationRefreshTimer;
+    QElapsedTimer m_clock;
+    //! When the latest change that has not been shown yet lands, on m_clock.
+    qint64 m_automationPendingUntil = -1;
+    qint64 m_lastAutomationRefresh = -1;
     bool m_isInsertRack = false;
     int m_targetSubIndex = -1;
     std::optional<EffectSnapshot> m_snapshot;

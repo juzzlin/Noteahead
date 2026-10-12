@@ -495,6 +495,8 @@ void DeviceService::applyInstrumentSettings(const Instrument & instrument)
 void DeviceService::clearAutomation()
 {
     m_audioEngine->clearParameterAutomation();
+    // Every automated value is back to what was set: anything showing one has to show that again
+    emit parameterAutomationScheduled(0, 0);
     for (const auto & name : internalDeviceNames()) {
         if (const auto dev = device(name)) {
             dev->clearAutomation();
@@ -1182,6 +1184,13 @@ DeviceService::DeviceS DeviceService::findDevice(const std::string & uuid) const
 void DeviceService::scheduleParameterChange(const ParameterData & data, std::optional<uint64_t> frame)
 {
     m_audioEngine->scheduleParameterChange({ data.target(), data.parameter(), data.mode(), data.value(), frame });
+}
+
+void DeviceService::notifyParameterAutomation(const ParameterData & data, std::chrono::milliseconds delay)
+{
+    if (const auto target = data.target().lock(); target) {
+        emit parameterAutomationScheduled(reinterpret_cast<quintptr>(target.get()), std::max<qint64>(0, delay.count()));
+    }
 }
 
 EffectRack & DeviceService::sendChainRack(size_t busIndex)
