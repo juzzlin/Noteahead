@@ -2147,6 +2147,61 @@
     </message>
 </context>
 <context>
+    <name>DrumPadDialog_AmpEg</name>
+    <message>
+        <source>Amp Envelope</source>
+        <translation>Obwiednia amplitudy</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>Atak</translation>
+    </message>
+    <message>
+        <source>How long the voice takes to reach full level. At zero it opens on the strike, which is what a drum does.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hold</source>
+        <translation>Przytrzymanie</translation>
+    </message>
+    <message>
+        <source>How long it stays at full before the decay begins. Pulling this down is how a drum is tightened.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>Opadanie</translation>
+    </message>
+    <message>
+        <source>How long it takes to fall from full to the Sustain level. Nothing to hear while Sustain is at full, because the level never leaves the top.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation type="unfinished">Podtrzymanie</translation>
+    </message>
+    <message>
+        <source>Where the decay lands. At zero the voice decays to silence as a one-shot drum does; at full the envelope stops shaping the voice at all, which is what makes V2 sound exactly like V1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation type="unfinished">Zwolnienie</translation>
+    </message>
+    <message>
+        <source>How the voice falls away once the note ends. Nothing to hear unless Sustain is above zero, since a voice with none has already gone quiet by then.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Curve</source>
+        <translation>Krzywa</translation>
+    </message>
+    <message>
+        <source>Bend of the attack and the decay. At zero they are straight lines; above it most of the travel happens at the start of the segment.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>DrumSynthDialog</name>
     <message>
         <source>Ok</source>
@@ -2346,61 +2401,6 @@
     <message>
         <source>Reso</source>
         <translation>Reso</translation>
-    </message>
-</context>
-<context>
-    <name>DrumSynthV2Dialog_AmpEg</name>
-    <message>
-        <source>Amp Envelope</source>
-        <translation>Obwiednia amplitudy</translation>
-    </message>
-    <message>
-        <source>Attack</source>
-        <translation>Atak</translation>
-    </message>
-    <message>
-        <source>How long the voice takes to reach full level. At zero it opens on the strike, which is what a drum does.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hold</source>
-        <translation>Przytrzymanie</translation>
-    </message>
-    <message>
-        <source>How long it stays at full before the decay begins. Pulling this down is how a drum is tightened.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Decay</source>
-        <translation>Opadanie</translation>
-    </message>
-    <message>
-        <source>How long it takes to fall from full to the Sustain level. Nothing to hear while Sustain is at full, because the level never leaves the top.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sustain</source>
-        <translation type="unfinished">Podtrzymanie</translation>
-    </message>
-    <message>
-        <source>Where the decay lands. At zero the voice decays to silence as a one-shot drum does; at full the envelope stops shaping the voice at all, which is what makes V2 sound exactly like V1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation type="unfinished">Zwolnienie</translation>
-    </message>
-    <message>
-        <source>How the voice falls away once the note ends. Nothing to hear unless Sustain is above zero, since a voice with none has already gone quiet by then.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Curve</source>
-        <translation>Krzywa</translation>
-    </message>
-    <message>
-        <source>Bend of the attack and the decay. At zero they are straight lines; above it most of the travel happens at the start of the segment.</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3521,6 +3521,198 @@
     </message>
     <message>
         <source>The comb is the sum of the dry and the delayed copy, so this is the depth of the notches rather than a convenience</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FmDrumsDialog</name>
+    <message>
+        <source>Ok</source>
+        <translation type="unfinished">OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Anuluj</translation>
+    </message>
+    <message>
+        <source>Voices</source>
+        <translation type="unfinished">Głosy</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation type="unfinished">Mix</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation type="unfinished">Poziom</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation type="unfinished">Panorama</translation>
+    </message>
+    <message>
+        <source>LPF</source>
+        <translation type="unfinished">LPF</translation>
+    </message>
+    <message>
+        <source>HPF</source>
+        <translation type="unfinished">HPF</translation>
+    </message>
+    <message>
+        <source>Global</source>
+        <translation type="unfinished">Globalne</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation type="unfinished">Wzmocnienie</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation type="unfinished">Suwak</translation>
+    </message>
+    <message>
+        <source>LPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FmDrumsDialog_Noise</name>
+    <message>
+        <source>Noise</source>
+        <translation type="unfinished">Szum</translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation type="unfinished">Filtr</translation>
+    </message>
+    <message>
+        <source>FM Target</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation type="unfinished">Poziom</translation>
+    </message>
+    <message>
+        <source>FM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How much the noise modulates the target operator&apos;s phase.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cutoff</source>
+        <translation type="unfinished">Odcięcie</translation>
+    </message>
+    <message>
+        <source>Reso</source>
+        <translation type="unfinished">Reso</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation type="unfinished">Atak</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation type="unfinished">Opadanie</translation>
+    </message>
+    <message>
+        <source>Curve</source>
+        <translation type="unfinished">Krzywa</translation>
+    </message>
+</context>
+<context>
+    <name>FmDrumsDialog_Operator</name>
+    <message>
+        <source>Carrier</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Modulator</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Modulated by</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not modulated</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ratio</source>
+        <translation type="unfinished">Proporcja</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation type="unfinished">Poziom</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation type="unfinished">Atak</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation type="unfinished">Opadanie</translation>
+    </message>
+    <message>
+        <source>Curve</source>
+        <translation type="unfinished">Krzywa</translation>
+    </message>
+</context>
+<context>
+    <name>FmDrumsDialog_Voice</name>
+    <message>
+        <source>Voice</source>
+        <translation type="unfinished">Głos</translation>
+    </message>
+    <message>
+        <source>Algorithm</source>
+        <translation type="unfinished">Algorytm</translation>
+    </message>
+    <message>
+        <source>Pitch</source>
+        <translation type="unfinished">Wysokość</translation>
+    </message>
+    <message>
+        <source>Feedback</source>
+        <translation type="unfinished">Sprzężenie</translation>
+    </message>
+    <message>
+        <source>P.Depth</source>
+        <translation type="unfinished">P.Głębokość</translation>
+    </message>
+    <message>
+        <source>P.Decay</source>
+        <translation type="unfinished">P.Opadanie</translation>
+    </message>
+    <message>
+        <source>Velocity</source>
+        <translation type="unfinished">Velocity</translation>
+    </message>
+    <message>
+        <source>How much quieter a soft hit is than a hard one.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Vel &gt; FM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How much duller a soft hit is than a hard one: velocity scales how deep the operators modulate.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -6486,8 +6678,124 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Pitch</source>
+        <translation type="unfinished">Wysokość</translation>
+    </message>
+    <message>
         <source>Feedback</source>
         <translation type="unfinished">Sprzężenie</translation>
+    </message>
+    <message>
+        <source>Op 1 Ratio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Op 1 Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Op 1 Attack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Op 1 Decay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Op 1 Curve</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Op 2 Ratio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Op 2 Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Op 2 Attack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Op 2 Decay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Op 2 Curve</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Op 3 Ratio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Op 3 Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Op 3 Attack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Op 3 Decay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Op 3 Curve</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Op 4 Ratio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Op 4 Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Op 4 Attack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Op 4 Decay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Op 4 Curve</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Noise FM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Noise Attack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Noise Decay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Noise Curve</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Noise Cutoff</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Noise Resonance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Velocity</source>
+        <translation type="unfinished">Velocity</translation>
+    </message>
+    <message>
+        <source>Velocity to FM</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Delay Mix</source>
@@ -11936,6 +12244,13 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     <message>
         <source>One-Shot</source>
         <translation>One-shot</translation>
+    </message>
+</context>
+<context>
+    <name>noteahead::FmDrumOperatorController</name>
+    <message>
+        <source>Operator</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
