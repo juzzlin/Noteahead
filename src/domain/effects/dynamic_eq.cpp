@@ -134,7 +134,7 @@ DynamicEq::DynamicEq()
     };
     describe(C::xmlKeyFrequency(), { .mapping = Display::Mapping::LogFrequency, .unit = "Hz", .min = MinFrequency, .max = MaxFrequency, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Frequency") });
     describe(C::xmlKeyQ(), { .mapping = Display::Mapping::Exponential, .unit = "", .min = MinQ, .max = MaxQ, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Q") });
-    describe(C::xmlKeyRange(), { .unit = "dB", .min = -MaxRangeDb, .max = MaxRangeDb, .rest = Display::Rest::Centre, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Range") });
+    describe(C::xmlKeyRange(), { .unit = "dB", .min = -MaxRangeDb, .max = MaxRangeDb, .rest = Display::Rest::Centre, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Gain") });
     describe(C::xmlKeyThreshold(), { .unit = "dB", .min = -60.0, .max = 0.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Threshold") });
     describe(C::xmlKeyRatio(), { .unit = ":1", .min = 1.0, .max = 20.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Ratio") });
     describe(C::xmlKeyKnee(), { .unit = "dB", .min = 0.0, .max = 24.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Knee") });
@@ -278,7 +278,7 @@ void DynamicEq::processFrame(double & left, double & right, const double * exter
 
     m_detectorPeak = std::max(std::max(std::abs(detectorL), std::abs(detectorR)), m_detectorPeak * m_detectorPeakDecay);
 
-    // As far as a compressor would pull the level down, towards Range and never past it
+    // As far as a compressor would pull the level down, towards Gain and never past it
     const double reduction = -m_core.processGainDb(detectorL, detectorR);
     const double amount = std::min(reduction, std::abs(m_rangeDb));
     m_gainDb = m_rangeDb < 0.0 ? -amount : amount;

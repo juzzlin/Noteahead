@@ -32,8 +32,8 @@
 namespace noteahead {
 
 //! One EQ band whose gain is not set but earned: it stays flat until a detector goes over the
-//! threshold, and then moves towards Range by as much as a compressor would pull the level down,
-//! never further. A negative Range cuts what gets too loud -- a sibilant, a resonance, the bass
+//! threshold, and then moves towards Gain by as much as a compressor would pull the level down,
+//! never further. A negative Gain cuts what gets too loud -- a sibilant, a resonance, the bass
 //! under every kick -- and a positive one brings something up only while it is playing hard.
 //!
 //! The detector listens to this signal or to another device's, through a band-pass at the band's
@@ -103,9 +103,9 @@ public:
     void setAnalysisEnabled(bool enabled);
 
     //! What the band does at each of @p frequencies with its gain at @p gainDb, in dB, the output
-    //! gain included. Drawn twice: at the full Range as the outline, and at the current gain.
+    //! gain included. Drawn twice: at the full Gain as the outline, and at the current gain.
     std::vector<double> magnitudesDbAt(std::span<const double> frequencies, double gainDb) const;
-    //! Range in dB, from the parameter.
+    //! Gain in dB, from the parameter: the furthest the band goes. Stored as "range".
     double rangeDb() const;
 
     // Parameter conversions, shared with the presets and the dialog

@@ -282,19 +282,19 @@
 <p>The detector is a peak follower that rises instantly and falls over about fifteen milliseconds. Instantly on the way up because a gate that opened on an average would let the front of every transient through while still closed; fifteen milliseconds on the way down because a faster one falls into the gaps between the cycles of a low note and gates a bass on every period.</p>
 
 <h3>Dynamic EQ</h3>
-<p>One equalizer band whose gain is not set but earned. It stays flat until its detector goes over the threshold, and then moves by as much as a compressor at the same settings would pull the level down, but never further than its <strong>Range</strong>. Use it for what is only a problem some of the time: a sibilant, a resonance that rings on certain notes, the bass under every kick.</p>
+<p>One equalizer band whose gain is not set but earned. It stays flat until its detector goes over the threshold, and then moves by as much as a compressor at the same settings would pull the level down, but never further than its <strong>Gain</strong>. Use it for what is only a problem some of the time: a sibilant, a resonance that rings on certain notes, the bass under every kick.</p>
 <ul>
     <li><strong>Type</strong>: <strong>Bell</strong>, <strong>Low Shelf</strong>, <strong>High Shelf</strong> or <strong>Flat</strong>. Flat moves the whole signal instead of a band of it, which makes a ducker driven by whatever the detector hears.</li>
     <li><strong>Freq</strong> and <strong>Q</strong>: where the band sits, 20 Hz to 20 kHz, and how wide it is, 0.1 to 10.</li>
-    <li><strong>Range</strong>: how far the band can move, &plusmn;24 dB. Negative cuts what gets too loud; positive brings something up only while it plays hard.</li>
-    <li><strong>Threshold</strong>, <strong>Ratio</strong>, <strong>Knee</strong>, <strong>Attack</strong> and <strong>Release</strong>: as on the Compressor. The band moves by the reduction the compressor would apply, capped at the Range.</li>
+    <li><strong>Gain</strong>: how far the band can move, &plusmn;24 dB. Negative cuts what gets too loud; positive brings something up only while it plays hard.</li>
+    <li><strong>Threshold</strong>, <strong>Ratio</strong>, <strong>Knee</strong>, <strong>Attack</strong> and <strong>Release</strong>: as on the Compressor. The band moves by the reduction the compressor would apply, capped at the Gain.</li>
     <li><strong>Detector</strong>: <strong>Self</strong> listens to this signal, <strong>Side Chain</strong> to the device chosen next to it. <strong>Band only</strong> hears what is around the band's frequency, through a band-pass of the same Freq and Q, and <strong>Full range</strong> the whole signal. A side chain heard through the band has to have something at the band's frequency: a kick has next to nothing at 1 kHz. <strong>LPF</strong> low-passes the detector first, as on the Compressor, so that it reacts to the low end and ignores the top; off at the top of its travel.</li>
     <li><strong>Listen</strong>: plays what the detector hears instead of the output, to find the frequency to react to.</li>
     <li><strong>Stereo Mode</strong>: shape both channels, or only the <strong>Mid</strong> or the <strong>Side</strong>, which then also drives the detector.</li>
     <li><strong>Output</strong>: &plusmn;12 dB.</li>
 </ul>
 <p>The <strong>Detector</strong> readout and the meter beside the gain trace show what the detector hears, after its filters, against the threshold marked in white. Both light up when over the threshold; a band that never moves is a detector that never gets there.</p>
-<p>The curve shows the band where it is now, and dashed, where the whole of its Range would take it. The trace under it is the band's gain over the last couple of seconds, so the attack and the release can be watched as they happen.</p>
+<p>The curve shows the band where it is now, and dashed, where the whole of its Gain would take it. The trace beside it is the band's gain over the last couple of seconds, so the attack and the release can be watched as they happen.</p>
 
 <h3>Phase Scope</h3>
 <p>The plain tools for putting a signal right against another one, and the <strong>Scope</strong> that shows whether it is right yet. It is made for the low end: a kick and a bass that hit together either add up or take each other away, depending on how their waves line up, and which of the two it is cannot be heard from either on its own.</p>

@@ -145,7 +145,7 @@ EffectDialog {
 
             EqCurveRenderer {
                 id: curve
-                // Where the band is now, and dashed, where the whole of its Range would take it
+                // Where the band is now, and dashed, where the whole of its Gain would take it
                 response: root.liveResponse
                 secondaryResponse: {
                     effectRackController.revision;
@@ -166,7 +166,7 @@ EffectDialog {
                 ColumnLayout {
                     spacing: 2
                     Label {
-                        text: qsTr("Gain") + " " + (root.currentGainDb > 0.05 ? "+" : "") + root.currentGainDb.toFixed(1) + " dB"
+                        text: qsTr("Gain now") + " " + (root.currentGainDb > 0.05 ? "+" : "") + root.currentGainDb.toFixed(1) + " dB"
                         color: themeService.accentColor
                         font.family: "Monospace"
                     }
@@ -186,7 +186,7 @@ EffectDialog {
                     Canvas {
                         id: historyCanvas
                         // The band's gain over the last couple of seconds, newest on the right: the attack
-                        // and the release as they happen, between the flat line and the Range
+                        // and the release as they happen, between the flat line and the Gain
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         onPaint: {
@@ -317,7 +317,7 @@ EffectDialog {
                         Layout.fillWidth: true
                     }
                     Knob {
-                        label: qsTr("Range")
+                        label: qsTr("Gain")
                         suffix: "dB"
                         isInteger: false
                         from: -24
