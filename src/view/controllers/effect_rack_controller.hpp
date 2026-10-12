@@ -73,6 +73,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString vintagePassiveEqType READ vintagePassiveEqType CONSTANT)
     Q_PROPERTY(QString airBandEqType READ airBandEqType CONSTANT)
     Q_PROPERTY(QString eq32BandGraphicalType READ eq32BandGraphicalType CONSTANT)
+    Q_PROPERTY(QString utilityType READ utilityType CONSTANT)
     Q_PROPERTY(QString simpleEqType READ simpleEqType CONSTANT)
     Q_PROPERTY(QString pannerType READ pannerType CONSTANT)
     Q_PROPERTY(QString autoPannerType READ autoPannerType CONSTANT)
@@ -154,6 +155,7 @@ public:
     QString vintagePassiveEqType() const;
     QString airBandEqType() const;
     QString eq32BandGraphicalType() const;
+    QString utilityType() const;
     QString simpleEqType() const;
     QString pannerType() const;
     QString reverbType() const;
@@ -516,6 +518,28 @@ public:
     //! Every slider back to 0 dB, leaving the stereo mode and the output gain where they are, which
     //! is how this differs from the Flat preset.
     Q_INVOKABLE void eq32BandGraphicalFlatten(quint32 effectIndex);
+
+    // Utility
+    Q_INVOKABLE QString utilityGainKey() const;
+    Q_INVOKABLE QString utilityInvertLeftKey() const;
+    Q_INVOKABLE QString utilityInvertRightKey() const;
+    Q_INVOKABLE QString utilityChannelModeKey() const;
+    Q_INVOKABLE QString utilityWidthKey() const;
+    Q_INVOKABLE QString utilityMonoBassKey() const;
+    Q_INVOKABLE QString utilityMonoBassFrequencyKey() const;
+    Q_INVOKABLE QString utilityDelayKey() const;
+    Q_INVOKABLE QString utilityDcBlockKey() const;
+    Q_INVOKABLE QString utilityReferenceKey() const;
+    //! The delay as it is applied, in whole samples at the effect's rate.
+    Q_INVOKABLE int utilityDelaySamples(quint32 effectIndex) const;
+    //! Sets the delay to exactly @p samples at the effect's rate, for nudging a sample at a time.
+    Q_INVOKABLE void utilitySetDelaySamples(quint32 effectIndex, int samples);
+    //! The Phase Scope runs only while its dialog is open.
+    Q_INVOKABLE void utilitySetActive(quint32 effectIndex, bool active);
+    //! hasReference, correlation, referenceDb, signalDb and sumGainDb. Empty for no such effect.
+    Q_INVOKABLE QVariantMap utilityReading(quint32 effectIndex) const;
+    //! The latest hit: reference and signal, each decimated to at most @p maxPoints.
+    Q_INVOKABLE QVariantMap utilityCapture(quint32 effectIndex, int maxPoints) const;
 
     Q_INVOKABLE QString simpleEqAmountKey() const;
 

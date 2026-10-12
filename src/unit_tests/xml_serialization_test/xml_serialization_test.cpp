@@ -81,6 +81,7 @@
 #include "../../domain/effects/stereo_widener.hpp"
 #include "../../domain/effects/tremolo.hpp"
 #include "../../domain/effects/tube_stage.hpp"
+#include "../../domain/effects/utility.hpp"
 #include "../../domain/effects/vintage_passive_eq.hpp"
 #include "../../domain/effects/wave_designer.hpp"
 #include "../../domain/tracker/auto_note_off_offset.hpp"
@@ -2359,6 +2360,57 @@ void XmlSerializationTest::test_toXmlFromXml_eq32BandGraphicalEffect_shouldLoadC
     }
     QCOMPARE(valueOf(Constants::NahdXml::xmlKeyStereoMode()), 2.0f);
     QVERIFY(std::abs(valueOf(Constants::NahdXml::xmlKeyGain()) - 0.4f) < 0.001f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_utilityEffect_shouldLoadCorrectly()
+{
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto utility = std::make_shared<Utility>();
+    const auto setParam = [&utility](const QString & key, float value) {
+        if (auto p = utility->parameter(key.toStdString()); p) {
+            p->get().setValue(value);
+        }
+    };
+    namespace C = Constants::NahdXml;
+    setParam(C::xmlKeyGain(), 0.25f);
+    setParam(C::xmlKeyInvertLeft(), 1.0f);
+    setParam(C::xmlKeyChannelMode(), 3.0f);
+    setParam(C::xmlKeyWidth(), 0.75f);
+    setParam(C::xmlKeyMonoBass(), 1.0f);
+    setParam(C::xmlKeyMonoBassFrequency(), 0.5f);
+    setParam(C::xmlKeyDelayTime(), 0.123f);
+    setParam(C::xmlKeyDcBlock(), 1.0f);
+    setParam(C::xmlKeySideChainSourceDevice(), 2.0f);
+    deviceServiceOut.insertEffectRack().setEffect(0, utility);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+    editorServiceIn.fromXml(xml);
+
+    const auto restored = std::dynamic_pointer_cast<Utility>(deviceServiceIn.insertEffectRack().effect(0));
+    QVERIFY(restored);
+    const auto valueOf = [&restored](const QString & key) {
+        const auto p = restored->parameter(key.toStdString());
+        return p ? p->get().value() : -100.0f;
+    };
+    QVERIFY(std::abs(valueOf(C::xmlKeyGain()) - 0.25f) < 0.001f);
+    QCOMPARE(valueOf(C::xmlKeyInvertLeft()), 1.0f);
+    QCOMPARE(valueOf(C::xmlKeyInvertRight()), 0.0f);
+    QCOMPARE(valueOf(C::xmlKeyChannelMode()), 3.0f);
+    QVERIFY(std::abs(valueOf(C::xmlKeyWidth()) - 0.75f) < 0.001f);
+    QCOMPARE(valueOf(C::xmlKeyMonoBass()), 1.0f);
+    QVERIFY(std::abs(valueOf(C::xmlKeyMonoBassFrequency()) - 0.5f) < 0.005f);
+    QVERIFY(std::abs(valueOf(C::xmlKeyDelayTime()) - 0.123f) < 0.0001f);
+    QCOMPARE(valueOf(C::xmlKeyDcBlock()), 1.0f);
+    QCOMPARE(restored->sidechainSourceDeviceIndex(), std::optional<size_t> { 2 });
 }
 
 void XmlSerializationTest::test_toXmlFromXml_subMixerDevice_shouldLoadCorrectly()

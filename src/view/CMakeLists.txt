@@ -22,6 +22,7 @@ set(HEADER_FILES
     controllers/synth_controller.hpp
     controllers/wavetable_synth_controller.hpp
     qml/Components/oscilloscope_renderer.hpp
+    qml/Components/phase_scope_renderer.hpp
     qml/Dialogs/eq_curve_renderer.hpp
     qml/Dialogs/rta_renderer.hpp
     qml/Dialogs/song_overview_renderer.hpp
@@ -56,6 +57,7 @@ set(SOURCE_FILES
     controllers/synth_controller.cpp
     controllers/wavetable_synth_controller.cpp
     qml/Components/oscilloscope_renderer.cpp
+    qml/Components/phase_scope_renderer.cpp
     qml/Dialogs/eq_curve_renderer.cpp
     qml/Dialogs/rta_renderer.cpp
     qml/Dialogs/song_overview_renderer.cpp

@@ -49,7 +49,10 @@ struct ParameterDisplay
         Fader,
         //! Linear, read out with its sign: a tuning either way of zero.
         Bipolar,
-        Cubic
+        Cubic,
+        //! Linear, read out as the number itself rather than as a share of the travel: a width that
+        //! runs to 200 %.
+        Value
     };
 
     //! Where the control does nothing, which is what a relative automation scales towards. The

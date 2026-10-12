@@ -56,6 +56,7 @@
 #include "stereo_widener.hpp"
 #include "tremolo.hpp"
 #include "tube_stage.hpp"
+#include "utility.hpp"
 #include "vintage_passive_eq.hpp"
 #include "wave_designer.hpp"
 
@@ -136,6 +137,8 @@ void EffectFactory::init()
     registerEffect(Tremolo::typeIdString(), []() { return std::make_shared<Tremolo>(); });
     registerEffect(Reference::typeIdString(), []() { return std::make_shared<Reference>(); });
     registerEffect(Monitor::typeIdString(), []() { return std::make_shared<Monitor>(); });
+    // Its type id and its type are the same string, as the All-Pass Filter's are
+    registerEffect(Utility::typeIdString(), []() { return std::make_shared<Utility>(); });
     registerEffect(Gain::typeIdString(), []() { return std::make_shared<Gain>(); });
     registerEffect(MultibandCompressor::typeIdString(), []() { return std::make_shared<MultibandCompressor>(); });
     registerEffect(Panner::typeIdString(), []() { return std::make_shared<Panner>(); });

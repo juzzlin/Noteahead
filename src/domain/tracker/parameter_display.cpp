@@ -47,6 +47,7 @@ double ParameterDisplay::toUnits(double position) const
     case Mapping::Linear:
     case Mapping::Pan:
     case Mapping::Bipolar:
+    case Mapping::Value:
         break;
     }
     return min + clamped * (max - min);
@@ -81,6 +82,7 @@ double ParameterDisplay::toPosition(double units) const
     case Mapping::Linear:
     case Mapping::Pan:
     case Mapping::Bipolar:
+    case Mapping::Value:
         position = max != min ? (units - min) / (max - min) : 0.0;
         break;
     }
@@ -115,6 +117,8 @@ std::string ParameterDisplay::mappingName() const
         return "bipolar";
     case Mapping::Cubic:
         return "cubic";
+    case Mapping::Value:
+        return "value";
     case Mapping::Linear:
         break;
     }

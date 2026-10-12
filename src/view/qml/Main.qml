@@ -728,6 +728,10 @@ ApplicationWindow {
         id: eq32BandGraphicalDialog
         anchors.centerIn: parent
     }
+    UtilityDialog {
+        id: utilityDialog
+        anchors.centerIn: parent
+    }
     AirBandEqDialog {
         id: airBandEqDialog
         anchors.centerIn: parent

@@ -25,6 +25,10 @@ New features:
   - A third-octave mastering EQ whose curve passes through its sliders
   - Linear Phase mode; a render takes the master's latency back out
 
+* Utility
+  - Polarity, channels, width, bass mono, sample-exact delay, gain and DC block
+  - Phase Scope: this signal against a reference, frozen on every hit, with correlation
+
 * Reverb, Compressor, Endless Reverb, Multiband Compressor and Early Reflections
   - Save and delete presets of your own, as on the other effects
 

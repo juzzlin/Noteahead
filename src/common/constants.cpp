@@ -329,6 +329,11 @@ QString monitor()
     return "monitor";
 }
 
+QString utility()
+{
+    return "utility";
+}
+
 QString crossfeed()
 {
     return "crossfeed";
@@ -1743,6 +1748,26 @@ QString xmlKeyHold()
 QString xmlKeyHoldTime()
 {
     return "holdTime";
+}
+
+QString xmlKeyInvertLeft()
+{
+    return "invertLeft";
+}
+
+QString xmlKeyInvertRight()
+{
+    return "invertRight";
+}
+
+QString xmlKeyMonoBassFrequency()
+{
+    return "monoBassFrequency";
+}
+
+QString xmlKeyDcBlock()
+{
+    return "dcBlock";
 }
 
 QString xmlKeyPadParameterPrefix()

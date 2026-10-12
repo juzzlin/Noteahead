@@ -120,6 +120,9 @@ QtObject {
         } else if (effectType === effectRackController.vintagePassiveEqType) {
             vintagePassiveEqDialog.effectIndex = index;
             vintagePassiveEqDialog.open();
+        } else if (effectType === effectRackController.utilityType) {
+            utilityDialog.effectIndex = index;
+            utilityDialog.open();
         } else if (effectType === effectRackController.eq32BandGraphicalType) {
             eq32BandGraphicalDialog.effectIndex = index;
             eq32BandGraphicalDialog.open();

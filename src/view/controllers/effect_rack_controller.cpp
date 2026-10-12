@@ -57,6 +57,7 @@
 #include "../../domain/effects/stereo_widener.hpp"
 #include "../../domain/effects/tremolo.hpp"
 #include "../../domain/effects/tube_stage.hpp"
+#include "../../domain/effects/utility.hpp"
 #include "../../domain/effects/wave_designer.hpp"
 #include "../../domain/utility/dbtp_meter.hpp"
 #include "../../domain/utility/lufs_meter.hpp"
@@ -370,6 +371,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Simple EQ", Constants::RackEffectType::simpleEq().toStdString());
     addEffect("Limiter", Constants::RackEffectType::limiter().toStdString());
     addEffect("Gain", Constants::RackEffectType::gain().toStdString());
+    addEffect("Utility", Constants::RackEffectType::utility().toStdString());
     addEffect("Monitor", Constants::RackEffectType::monitor().toStdString());
     addEffect("Reference", Constants::RackEffectType::reference().toStdString());
     addEffect("Multiband Compressor", Constants::RackEffectType::multibandCompressor().toStdString());
@@ -975,6 +977,34 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                     return QString { "(Graphical, %1, %2)" }.arg(modeName, tr("Linear Phase"));
                 }
                 return QString { "(Graphical, %1)" }.arg(modeName);
+            } else if (type == Constants::RackEffectType::utility()) {
+                // Only what is set away from neutral, which is what tells two of them apart
+                namespace C = Constants::NahdXml;
+                const auto valueOf = [&effect](const QString & key) {
+                    const auto p = effect->parameter(key.toStdString());
+                    return p ? p->get().value() : 0.0f;
+                };
+                QStringList items;
+                if (valueOf(C::xmlKeyInvertLeft()) > 0.5f || valueOf(C::xmlKeyInvertRight()) > 0.5f) {
+                    items << QString { "\u00d8 %1%2" }.arg(valueOf(C::xmlKeyInvertLeft()) > 0.5f ? "L" : "").arg(valueOf(C::xmlKeyInvertRight()) > 0.5f ? "R" : "");
+                }
+                const QStringList modes { {}, tr("Left"), tr("Right"), tr("Swap"), tr("Mono") };
+                if (const auto mode = static_cast<int>(std::lround(valueOf(C::xmlKeyChannelMode()))); mode > 0 && mode < modes.size()) {
+                    items << modes.at(mode);
+                }
+                if (const auto width = static_cast<int>(std::lround(valueOf(C::xmlKeyWidth()) * 200.0f)); width != 100) {
+                    items << QString { "%1 %2%" }.arg(tr("width")).arg(width);
+                }
+                if (valueOf(C::xmlKeyMonoBass()) > 0.5f) {
+                    items << tr("bass mono");
+                }
+                if (const auto ms = valueOf(C::xmlKeyDelayTime()) * Utility::MaxDelayMs; ms > 0.0) {
+                    items << QString { "%1 %2 ms" }.arg(tr("delay")).arg(ms, 0, 'f', 2);
+                }
+                if (const auto db = (valueOf(C::xmlKeyGain()) * 2.0 - 1.0) * Utility::MaxGainDb; std::abs(db) >= 0.05) {
+                    items << QString { "%1%2 dB" }.arg(db > 0 ? "+" : "").arg(db, 0, 'f', 1);
+                }
+                return items.isEmpty() ? QString { "(%1)" }.arg(tr("neutral")) : QString { "(%1)" }.arg(items.join(", "));
             } else if (type == Constants::RackEffectType::vintagePassiveEq()) {
                 return "(Passive)";
             } else if (type == Constants::RackEffectType::airBandEq()) {
@@ -2658,6 +2688,124 @@ QString EffectRackController::vintagePassiveEqType() const
 QString EffectRackController::airBandEqType() const
 {
     return Constants::RackEffectType::airBandEq();
+}
+
+QString EffectRackController::utilityType() const
+{
+    return Constants::RackEffectType::utility();
+}
+
+QString EffectRackController::utilityGainKey() const
+{
+    return Constants::NahdXml::xmlKeyGain();
+}
+
+QString EffectRackController::utilityInvertLeftKey() const
+{
+    return Constants::NahdXml::xmlKeyInvertLeft();
+}
+
+QString EffectRackController::utilityInvertRightKey() const
+{
+    return Constants::NahdXml::xmlKeyInvertRight();
+}
+
+QString EffectRackController::utilityChannelModeKey() const
+{
+    return Constants::NahdXml::xmlKeyChannelMode();
+}
+
+QString EffectRackController::utilityWidthKey() const
+{
+    return Constants::NahdXml::xmlKeyWidth();
+}
+
+QString EffectRackController::utilityMonoBassKey() const
+{
+    return Constants::NahdXml::xmlKeyMonoBass();
+}
+
+QString EffectRackController::utilityMonoBassFrequencyKey() const
+{
+    return Constants::NahdXml::xmlKeyMonoBassFrequency();
+}
+
+QString EffectRackController::utilityDelayKey() const
+{
+    return Constants::NahdXml::xmlKeyDelayTime();
+}
+
+QString EffectRackController::utilityDcBlockKey() const
+{
+    return Constants::NahdXml::xmlKeyDcBlock();
+}
+
+QString EffectRackController::utilityReferenceKey() const
+{
+    return Constants::NahdXml::xmlKeySideChainSourceDevice();
+}
+
+int EffectRackController::utilityDelaySamples(quint32 effectIndex) const
+{
+    const auto effect = std::dynamic_pointer_cast<Utility>(effectAt(effectIndex));
+    if (!effect) {
+        return 0;
+    }
+    const auto delay = effect->parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString());
+    return delay ? static_cast<int>(Utility::delaySamples(delay->get().value(), effect->sampleRate())) : 0;
+}
+
+void EffectRackController::utilitySetDelaySamples(quint32 effectIndex, int samples)
+{
+    const auto effect = std::dynamic_pointer_cast<Utility>(effectAt(effectIndex));
+    if (!effect || effect->sampleRate() <= 0.0) {
+        return;
+    }
+    const auto maxSamples = static_cast<int>(Utility::delaySamples(1.0f, effect->sampleRate()));
+    const double ms = static_cast<double>(std::clamp(samples, 0, maxSamples)) * 1000.0 / effect->sampleRate();
+    setParameterValue(effectIndex, Constants::NahdXml::xmlKeyDelayTime(), static_cast<float>(ms / Utility::MaxDelayMs));
+}
+
+void EffectRackController::utilitySetActive(quint32 effectIndex, bool active)
+{
+    if (const auto effect = std::dynamic_pointer_cast<Utility>(effectAt(effectIndex)); effect) {
+        effect->setAnalysisEnabled(active);
+    }
+}
+
+QVariantMap EffectRackController::utilityReading(quint32 effectIndex) const
+{
+    QVariantMap map;
+    if (const auto effect = std::dynamic_pointer_cast<Utility>(effectAt(effectIndex)); effect) {
+        const auto reading = effect->reading();
+        map["hasReference"] = reading.hasReference;
+        map["correlation"] = reading.correlation;
+        map["referenceDb"] = reading.referenceDb;
+        map["signalDb"] = reading.signalDb;
+        map["sumGainDb"] = reading.sumGainDb;
+    }
+    return map;
+}
+
+QVariantMap EffectRackController::utilityCapture(quint32 effectIndex, int maxPoints) const
+{
+    QVariantMap map;
+    if (const auto effect = std::dynamic_pointer_cast<Utility>(effectAt(effectIndex)); effect) {
+        const auto capture = effect->capture();
+        // Every n-th sample, the same n for both, so that the two stay aligned
+        const auto decimate = [](const std::vector<float> & samples, size_t stride) {
+            QVariantList list;
+            for (size_t i = 0; i < samples.size(); i += stride) {
+                list.append(samples[i]);
+            }
+            return list;
+        };
+        const auto length = std::max(capture.reference.size(), capture.signal.size());
+        const auto stride = std::max<size_t>(1, maxPoints > 0 ? (length + static_cast<size_t>(maxPoints) - 1) / static_cast<size_t>(maxPoints) : 1);
+        map["reference"] = decimate(capture.reference, stride);
+        map["signal"] = decimate(capture.signal, stride);
+    }
+    return map;
 }
 
 QString EffectRackController::eq32BandGraphicalType() const
