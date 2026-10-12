@@ -3673,10 +3673,41 @@
     </message>
 </context>
 <context>
+    <name>FmDrumsDialog_Presets</name>
+    <message>
+        <source>Kit:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation type="unfinished">Speichern</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>FmDrumsDialog_Voice</name>
     <message>
         <source>Voice</source>
         <translation type="unfinished">Stimme</translation>
+    </message>
+    <message>
+        <source>Sound</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load a sound...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Algorithm</source>
