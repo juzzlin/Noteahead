@@ -55,12 +55,12 @@ public:
         return "marker";
     }
 
-    void processMidiNoteOn(uint8_t note, uint8_t) override
+    void processDeviceMidiNoteOn(uint8_t note, uint8_t) override
     {
         m_note = note;
     }
 
-    void processMidiNoteOff(uint8_t) override
+    void processDeviceMidiNoteOff(uint8_t) override
     {
         m_note = 0;
     }

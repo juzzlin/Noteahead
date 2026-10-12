@@ -143,7 +143,12 @@ std::vector<MidiCcController> DrumSynthV2Device::deviceMidiCcControllers() const
     return list;
 }
 
-void DrumSynthV2Device::processMidiNoteOn(uint8_t note, uint8_t velocity)
+bool DrumSynthV2Device::supportsOctave() const
+{
+    return false;
+}
+
+void DrumSynthV2Device::processDeviceMidiNoteOn(uint8_t note, uint8_t velocity)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
@@ -165,7 +170,7 @@ void DrumSynthV2Device::processMidiNoteOn(uint8_t note, uint8_t velocity)
     }
 }
 
-void DrumSynthV2Device::processMidiNoteOff(uint8_t note)
+void DrumSynthV2Device::processDeviceMidiNoteOff(uint8_t note)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 

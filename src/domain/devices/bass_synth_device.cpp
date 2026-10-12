@@ -163,13 +163,13 @@ std::vector<MidiCcController> BassSynthDevice::deviceMidiCcControllers() const
     };
 }
 
-void BassSynthDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
+void BassSynthDevice::processDeviceMidiNoteOn(uint8_t note, uint8_t velocity)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     handleNoteOn(note, velocity);
 }
 
-void BassSynthDevice::processMidiNoteOff(uint8_t note)
+void BassSynthDevice::processDeviceMidiNoteOff(uint8_t note)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     handleNoteOff(note);

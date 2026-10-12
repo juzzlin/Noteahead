@@ -196,6 +196,19 @@ void DeviceController::setVolume(int value)
     }
 }
 
+int DeviceController::octave() const
+{
+    const auto dev = device();
+    return dev ? dev->octave() : 0;
+}
+
+void DeviceController::setOctave(int value)
+{
+    if (const auto dev = device(); dev) {
+        dev->setOctave(value);
+    }
+}
+
 int DeviceController::gain() const
 {
     auto dev = device();
@@ -339,7 +352,11 @@ void DeviceController::connectDeviceSignals()
         // The open dialog still follows incoming MIDI CC, but nothing else in the application does
         connect(dev.get(), &Device::parametersChanged, this, &DeviceController::requestSettings, Qt::UniqueConnection);
         connect(dev.get(), &Device::parameterAutomationScheduled, &m_automationRefresh, &AutomationRefreshThrottle::schedule, Qt::UniqueConnection);
+        // Not a parameter, so requestSettings() does not cover it: a project load or another view
+        // of the device can move it
+        connect(dev.get(), &Device::dataChanged, this, &DeviceController::octaveChanged, Qt::UniqueConnection);
     }
+    emit octaveChanged();
 }
 
 } // namespace noteahead

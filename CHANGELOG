@@ -5,6 +5,9 @@ Release date:
 
 New features:
 
+* Octave, -2 to +2, in the Global section of every instrument but the Sampler and the drum machines
+  - Saved with the project, not in presets
+
 * An effect added to a send starts with Mix at 100%, and keeps its Mix across presets
 
 * Send knobs are twice as wide

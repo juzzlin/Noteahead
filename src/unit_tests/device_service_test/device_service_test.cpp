@@ -1212,14 +1212,14 @@ public:
         return "blocking";
     }
 
-    void processMidiNoteOn(uint8_t note, uint8_t velocity) override
+    void processDeviceMidiNoteOn(uint8_t note, uint8_t velocity) override
     {
         m_note = note;
         m_velocity = velocity;
         m_noteCount++;
     }
 
-    void processMidiNoteOff(uint8_t) override
+    void processDeviceMidiNoteOff(uint8_t) override
     {
     }
 

@@ -241,7 +241,7 @@ int StringVoiceDevice::allocateVoice()
     return oldest;
 }
 
-void StringVoiceDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
+void StringVoiceDevice::processDeviceMidiNoteOn(uint8_t note, uint8_t velocity)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
@@ -288,7 +288,7 @@ void StringVoiceDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
     v.pan = 0.5 + (side * m_panSpread * 0.5);
 }
 
-void StringVoiceDevice::processMidiNoteOff(uint8_t note)
+void StringVoiceDevice::processDeviceMidiNoteOff(uint8_t note)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 

@@ -513,13 +513,13 @@ bool WavetableSynthDevice::hasActiveAudio() const
     return std::ranges::any_of(m_voices, [](const auto & voice) { return voice.active; });
 }
 
-void WavetableSynthDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
+void WavetableSynthDevice::processDeviceMidiNoteOn(uint8_t note, uint8_t velocity)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     handleNoteOn(note, velocity);
 }
 
-void WavetableSynthDevice::processMidiNoteOff(uint8_t note)
+void WavetableSynthDevice::processDeviceMidiNoteOff(uint8_t note)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     handleNoteOff(note);

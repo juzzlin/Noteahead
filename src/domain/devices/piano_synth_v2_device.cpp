@@ -124,13 +124,13 @@ std::vector<MidiCcController> PianoSynthV2Device::deviceMidiCcControllers() cons
     };
 }
 
-void PianoSynthV2Device::processMidiNoteOn(uint8_t note, uint8_t velocity)
+void PianoSynthV2Device::processDeviceMidiNoteOn(uint8_t note, uint8_t velocity)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     handleNoteOn(note, velocity);
 }
 
-void PianoSynthV2Device::processMidiNoteOff(uint8_t note)
+void PianoSynthV2Device::processDeviceMidiNoteOff(uint8_t note)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     handleNoteOff(note);

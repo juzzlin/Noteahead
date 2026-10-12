@@ -673,13 +673,13 @@ bool FmSynthDevice::hasActiveAudio() const
     return std::ranges::any_of(m_voices, [](const auto & voice) { return voice.active; });
 }
 
-void FmSynthDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
+void FmSynthDevice::processDeviceMidiNoteOn(uint8_t note, uint8_t velocity)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     handleNoteOn(note, velocity);
 }
 
-void FmSynthDevice::processMidiNoteOff(uint8_t note)
+void FmSynthDevice::processDeviceMidiNoteOff(uint8_t note)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     handleNoteOff(note);

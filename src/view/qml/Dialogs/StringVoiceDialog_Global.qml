@@ -37,6 +37,12 @@ ColumnLayout {
         Layout.topMargin: 5
     }
 
+    OctaveSelector {
+
+        controller: stringVoiceController
+
+    }
+
     Knob {
         label: qsTr("Gain")
         mapping: "decibel"

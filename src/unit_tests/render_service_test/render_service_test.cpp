@@ -78,12 +78,12 @@ public:
         return "00000000-0000-4000-8000-00000000beef";
     }
 
-    void processMidiNoteOn(uint8_t, uint8_t) override
+    void processDeviceMidiNoteOn(uint8_t, uint8_t) override
     {
         m_received.push_back(noteBeats());
     }
 
-    void processMidiNoteOff(uint8_t) override
+    void processDeviceMidiNoteOff(uint8_t) override
     {
     }
 
@@ -254,11 +254,11 @@ public:
         return "00000000-0000-4000-8000-00000000d0e5";
     }
 
-    void processMidiNoteOn(uint8_t, uint8_t) override
+    void processDeviceMidiNoteOn(uint8_t, uint8_t) override
     {
     }
 
-    void processMidiNoteOff(uint8_t) override
+    void processDeviceMidiNoteOff(uint8_t) override
     {
     }
 

@@ -385,13 +385,13 @@ void SpeechDevice::handleNoteOff(uint8_t note)
     }
 }
 
-void SpeechDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
+void SpeechDevice::processDeviceMidiNoteOn(uint8_t note, uint8_t velocity)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     handleNoteOn(note, velocity);
 }
 
-void SpeechDevice::processMidiNoteOff(uint8_t note)
+void SpeechDevice::processDeviceMidiNoteOff(uint8_t note)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     handleNoteOff(note);

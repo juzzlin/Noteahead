@@ -736,13 +736,13 @@ bool SynthDevice::hasActiveAudio() const
     return std::ranges::any_of(m_voices, [](const auto & voice) { return voice.active; });
 }
 
-void SynthDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
+void SynthDevice::processDeviceMidiNoteOn(uint8_t note, uint8_t velocity)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     handleNoteOn(note, velocity);
 }
 
-void SynthDevice::processMidiNoteOff(uint8_t note)
+void SynthDevice::processDeviceMidiNoteOff(uint8_t note)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     handleNoteOff(note);

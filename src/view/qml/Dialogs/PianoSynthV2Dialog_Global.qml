@@ -35,6 +35,12 @@ ColumnLayout {
         Layout.topMargin: 10
     }
 
+    OctaveSelector {
+
+        controller: pianoSynthV2Controller
+
+    }
+
     Knob {
         label: qsTr("Gain")
         mapping: "decibel"

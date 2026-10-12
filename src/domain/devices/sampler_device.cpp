@@ -578,7 +578,12 @@ bool SamplerDevice::updatePadParameter(int note, const std::string & parameterNa
     return true;
 }
 
-void SamplerDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
+bool SamplerDevice::supportsOctave() const
+{
+    return false;
+}
+
+void SamplerDevice::processDeviceMidiNoteOn(uint8_t note, uint8_t velocity)
 {
     std::lock_guard<std::recursive_mutex> lock { mutex() };
 
@@ -668,7 +673,7 @@ void SamplerDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
     voice.active = true;
 }
 
-void SamplerDevice::processMidiNoteOff(uint8_t note)
+void SamplerDevice::processDeviceMidiNoteOff(uint8_t note)
 {
     std::lock_guard<std::recursive_mutex> lock { mutex() };
     for (auto && voice : m_voices) {

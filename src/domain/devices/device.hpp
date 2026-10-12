@@ -29,6 +29,8 @@
 #include "../utility/loudness_meter.hpp"
 #include "../utility/stereo_level_meter.hpp"
 
+#include <array>
+#include <atomic>
 #include <cstdint>
 #include <functional>
 #include <mutex>
@@ -130,7 +132,21 @@ public:
     bool applyParameterAutomation(const std::string & key, ParameterAutomation::Mode mode, double value) override;
     void clearParameterAutomation() override;
 
-    virtual void processMidiNoteOn(uint8_t note, uint8_t velocity) = 0;
+    //! Shifts the note by the device's octave and hands it to the device. Not virtual, so that no
+    //! device can miss the octave by not implementing it, and every way a note arrives -- playback,
+    //! a render, MIDI in, a dialog's keyboard -- is shifted the same.
+    void processMidiNoteOn(uint8_t note, uint8_t velocity);
+
+    //! The octave the device plays in, -2 to +2, applied to every note on its way in. A playing
+    //! setting rather than part of the sound: kept with the project but never in a preset, and a
+    //! preset never resets it.
+    static constexpr int MinOctave { -2 };
+    static constexpr int MaxOctave { 2 };
+    int octave() const;
+    void setOctave(int octave);
+    //! False for a device whose notes choose what plays rather than at what pitch -- a pad, a drum
+    //! -- where an octave up would play something else entirely.
+    virtual bool supportsOctave() const;
 
     //! Whether this device counts the notes it is given, and so has a position the song does not
     //! carry. Nothing does unless it says so, and the player skips the work of finding out when
@@ -151,7 +167,8 @@ public:
     //! advance, and only one that has to fit something inside the note does. Set before the note-on
     //! and read from noteBeats() while handling it.
     void setNextNoteBeats(std::optional<double> beats);
-    virtual void processMidiNoteOff(uint8_t note) = 0;
+    //! Releases the note at the octave it was started in, whatever the octave is now.
+    void processMidiNoteOff(uint8_t note);
     //! Takes Expression itself and hands everything else to the device. Not virtual for the same
     //! reason as the list above: no device can miss the control by not implementing it.
     void processMidiCc(uint8_t controller, uint8_t value, uint8_t channel);
@@ -450,6 +467,9 @@ signals:
     void parameterAutomationScheduled(qint64 delayMs);
 
 protected:
+    //! The device's own note handling, given the note already shifted by the octave.
+    virtual void processDeviceMidiNoteOn(uint8_t note, uint8_t velocity) = 0;
+    virtual void processDeviceMidiNoteOff(uint8_t note) = 0;
     //! How long the note now being started lasts, in beats, or nothing when nobody said.
     std::optional<double> noteBeats() const;
 
@@ -489,6 +509,15 @@ protected:
     float linearGainInternal() const;
 
 private:
+    //! The note @p note becomes when shifted by @p semitones, or nothing when that falls outside
+    //! MIDI.
+    static std::optional<uint8_t> shiftedNote(uint8_t note, int semitones);
+
+    std::atomic<int> m_octave { 0 };
+    //! The shift each incoming note was started with, so its note-off releases what it started even
+    //! if the octave has moved while the key was held. Nothing for a note not being held.
+    std::array<std::optional<int8_t>, 128> m_noteShifts {};
+
     size_t m_id { 0 };
     std::string m_uuid;
     uint32_t m_sampleRate { static_cast<uint32_t>(Constants::defaultSampleRate()) };

@@ -35,6 +35,8 @@ class DeviceController : public QObject
     Q_PROPERTY(int volume READ volume WRITE setVolume NOTIFY volumeChanged)
     Q_PROPERTY(int gain READ gain WRITE setGain NOTIFY gainChanged)
     Q_PROPERTY(int pan READ pan WRITE setPan NOTIFY panChanged)
+    //! -2 to +2. See Device::octave().
+    Q_PROPERTY(int octave READ octave WRITE setOctave NOTIFY octaveChanged)
     Q_PROPERTY(uint32_t sampleRate READ sampleRate NOTIFY sampleRateChanged)
     Q_PROPERTY(QStringList presetNames READ presetNames NOTIFY presetNamesChanged)
     Q_PROPERTY(int currentPresetIndex READ currentPresetIndex WRITE setCurrentPresetIndex NOTIFY currentPresetIndexChanged)
@@ -61,6 +63,8 @@ public:
 
     int pan() const;
     void setPan(int value);
+    int octave() const;
+    void setOctave(int value);
 
     uint32_t sampleRate() const;
 
@@ -117,6 +121,7 @@ signals:
     void volumeChanged();
     void gainChanged();
     void panChanged();
+    void octaveChanged();
     void sampleRateChanged();
     void presetNamesChanged();
     void currentPresetIndexChanged();

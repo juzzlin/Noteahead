@@ -160,7 +160,7 @@ std::vector<MidiCcController> StringEnsembleDevice::deviceMidiCcControllers() co
     };
 }
 
-void StringEnsembleDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
+void StringEnsembleDevice::processDeviceMidiNoteOn(uint8_t note, uint8_t velocity)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
@@ -177,7 +177,7 @@ void StringEnsembleDevice::processMidiNoteOn(uint8_t note, uint8_t velocity)
     }
 }
 
-void StringEnsembleDevice::processMidiNoteOff(uint8_t note)
+void StringEnsembleDevice::processDeviceMidiNoteOff(uint8_t note)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     releaseKey(note);

@@ -139,6 +139,64 @@ std::vector<MidiCcController> Device::availableMidiCcControllers() const
     return controllers;
 }
 
+std::optional<uint8_t> Device::shiftedNote(uint8_t note, int semitones)
+{
+    if (const int shifted = static_cast<int>(note) + semitones; shifted >= 0 && shifted <= 127) {
+        return static_cast<uint8_t>(shifted);
+    }
+    return std::nullopt;
+}
+
+void Device::processMidiNoteOn(uint8_t note, uint8_t velocity)
+{
+    std::optional<uint8_t> shifted;
+    {
+        std::lock_guard<std::recursive_mutex> lock { m_mutex };
+        const int semitones = supportsOctave() ? m_octave.load(std::memory_order_relaxed) * 12 : 0;
+        m_noteShifts.at(note & 0x7f) = static_cast<int8_t>(semitones);
+        shifted = shiftedNote(note, semitones);
+    }
+    // A note shifted out of MIDI is not played, and its note-off finds it so in the same way
+    if (shifted) {
+        processDeviceMidiNoteOn(*shifted, velocity);
+    }
+}
+
+void Device::processMidiNoteOff(uint8_t note)
+{
+    std::optional<uint8_t> shifted;
+    {
+        std::lock_guard<std::recursive_mutex> lock { m_mutex };
+        auto & started = m_noteShifts.at(note & 0x7f);
+        // A note-off with no note-on to match, as the transport sends when it stops, is released
+        // where a note-on now would have put it
+        const int semitones = started ? *started : (supportsOctave() ? m_octave.load(std::memory_order_relaxed) * 12 : 0);
+        started.reset();
+        shifted = shiftedNote(note, semitones);
+    }
+    if (shifted) {
+        processDeviceMidiNoteOff(*shifted);
+    }
+}
+
+int Device::octave() const
+{
+    return m_octave.load(std::memory_order_relaxed);
+}
+
+void Device::setOctave(int octave)
+{
+    const int clamped = supportsOctave() ? std::clamp(octave, MinOctave, MaxOctave) : 0;
+    if (m_octave.exchange(clamped) != clamped) {
+        emit dataChanged();
+    }
+}
+
+bool Device::supportsOctave() const
+{
+    return true;
+}
+
 void Device::processMidiCc(uint8_t controller, uint8_t value, uint8_t channel)
 {
     if (controller == static_cast<uint8_t>(MidiCcMapping::Controller::ExpressionControllerMSB)) {
@@ -898,6 +956,10 @@ void Device::serializeAttributesToXml(ProjectWriter & writer) const
     writer.writeAttribute(Constants::NahdXml::xmlKeyCategory(), QString::fromStdString(category()));
     writer.writeAttribute(Constants::NahdXml::xmlKeyTypeId(), QString::fromStdString(typeId()));
     writer.writeAttribute(Constants::NahdXml::xmlKeyUuid(), QString::fromStdString(m_uuid));
+    // Only when moved, so a project that never uses it is written exactly as before
+    if (const int octave = m_octave.load(std::memory_order_relaxed); octave != 0) {
+        writer.writeAttribute(Constants::NahdXml::xmlKeyOctave(), QString::number(octave));
+    }
 }
 
 void Device::deserializeAttributesFromXml(ProjectReader & reader)
@@ -912,6 +974,8 @@ void Device::deserializeAttributesFromXml(ProjectReader & reader)
     if (const auto uuid = reader.attribute(Constants::NahdXml::xmlKeyUuid()).toString(); !uuid.isEmpty()) {
         m_uuid = uuid.toStdString();
     }
+    const auto octave = Utils::Xml::readIntAttribute(reader, Constants::NahdXml::xmlKeyOctave(), false);
+    m_octave.store(supportsOctave() && octave ? std::clamp(*octave, MinOctave, MaxOctave) : 0, std::memory_order_relaxed);
 }
 
 } // namespace noteahead

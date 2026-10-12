@@ -116,8 +116,8 @@ public:
 
     static std::string typeIdString();
 
-    void processMidiNoteOn(uint8_t note, uint8_t velocity) override;
-    void processMidiNoteOff(uint8_t note) override;
+    void processDeviceMidiNoteOn(uint8_t note, uint8_t velocity) override;
+    void processDeviceMidiNoteOff(uint8_t note) override;
     void processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t channel) override;
     void processMidiPitchBend(uint16_t value, uint8_t channel) override;
     void processMidiAllNotesOff() override;

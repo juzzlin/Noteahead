@@ -139,7 +139,7 @@ float Kick808Device::effectiveNote(uint8_t note) const
     return base + (m_tune - 0.5f) * 2.0f * TuneRangeSemitones;
 }
 
-void Kick808Device::processMidiNoteOn(uint8_t note, uint8_t velocity)
+void Kick808Device::processDeviceMidiNoteOn(uint8_t note, uint8_t velocity)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     m_engine.setSampleRate(sampleRate());
@@ -147,7 +147,7 @@ void Kick808Device::processMidiNoteOn(uint8_t note, uint8_t velocity)
     m_engine.trigger(static_cast<float>(velocity) / 127.0f);
 }
 
-void Kick808Device::processMidiNoteOff(uint8_t)
+void Kick808Device::processDeviceMidiNoteOff(uint8_t)
 {
     // One-shot by design: the tail is owned by Decay, not by note length.
 }

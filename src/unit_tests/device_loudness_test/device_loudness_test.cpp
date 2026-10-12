@@ -92,11 +92,11 @@ public:
         return "sine-device-id";
     }
 
-    void processMidiNoteOn(uint8_t, uint8_t) override
+    void processDeviceMidiNoteOn(uint8_t, uint8_t) override
     {
     }
 
-    void processMidiNoteOff(uint8_t) override
+    void processDeviceMidiNoteOff(uint8_t) override
     {
     }
 

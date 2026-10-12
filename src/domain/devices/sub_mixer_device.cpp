@@ -74,11 +74,16 @@ void SubMixerDevice::setMembers(SlotList members)
     emit dataChanged();
 }
 
-void SubMixerDevice::processMidiNoteOn(uint8_t, uint8_t)
+bool SubMixerDevice::supportsOctave() const
+{
+    return false;
+}
+
+void SubMixerDevice::processDeviceMidiNoteOn(uint8_t, uint8_t)
 {
 }
 
-void SubMixerDevice::processMidiNoteOff(uint8_t)
+void SubMixerDevice::processDeviceMidiNoteOff(uint8_t)
 {
 }
 
