@@ -22,8 +22,10 @@
 #include "../../common/xml/project_writer.hpp"
 #include "../../infra/midi/midi_cc_mapping.hpp"
 #include "../dsp/true_stereo_panner.hpp"
+#include "../tracker/parameter_display.hpp"
 
 #include <QUuid>
+#include <QtGlobal>
 #include <QVariant>
 
 #include <algorithm>
@@ -62,6 +64,14 @@ Device::Device()
     // back then — which carries neither key — loads and sounds exactly as it did.
     addParameter(Parameter { Constants::NahdXml::xmlKeyFaderPosition().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeySendTap().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Discrete });
+
+    // The channel strip every device has, so that a parameter automation can ride it like any
+    // other control: in the units the Global section reads out in
+    using Display = ParameterDisplay;
+    namespace C = Constants::NahdXml;
+    setParameterDisplay(C::xmlKeyFader().toStdString(), { .mapping = Display::Mapping::Fader, .unit = "dB", .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Fader") });
+    setParameterDisplay(C::xmlKeyGain().toStdString(), { .mapping = Display::Mapping::Bipolar, .unit = "dB", .min = -30.0, .max = 30.0, .rest = Display::Rest::Centre, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Gain") });
+    setParameterDisplay(C::xmlKeyPan().toStdString(), { .mapping = Display::Mapping::Pan, .unit = "%", .min = -100.0, .max = 100.0, .rest = Display::Rest::Centre, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Pan") });
 
     m_volume = Constants::faderUnityPosition();
 
@@ -306,7 +316,10 @@ std::recursive_mutex & Device::mutex() const
 float Device::volume() const
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
-    return m_volume;
+    // As set rather than as playing: what a knob shows and what a copy takes. Under a relative
+    // automation the two differ, and the knob is the ceiling the automation scales, so it stays put.
+    const auto p = parameter(Constants::NahdXml::xmlKeyFader().toStdString());
+    return p ? p->get().shownValue() : m_volume;
 }
 
 void Device::setVolume(float volume)
@@ -351,7 +364,10 @@ MidiCcController Device::expressionMidiCcController()
 float Device::gain() const
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
-    return m_gain;
+    // As set rather than as playing: what a knob shows and what a copy takes. Under a relative
+    // automation the two differ, and the knob is the ceiling the automation scales, so it stays put.
+    const auto p = parameter(Constants::NahdXml::xmlKeyGain().toStdString());
+    return p ? p->get().shownValue() : m_gain;
 }
 
 void Device::setGain(float gain)
@@ -364,7 +380,10 @@ void Device::setGain(float gain)
 float Device::pan() const
 {
     std::lock_guard<std::recursive_mutex> lock { m_mutex };
-    return m_pan;
+    // As set rather than as playing: what a knob shows and what a copy takes. Under a relative
+    // automation the two differ, and the knob is the ceiling the automation scales, so it stays put.
+    const auto p = parameter(Constants::NahdXml::xmlKeyPan().toStdString());
+    return p ? p->get().shownValue() : m_pan;
 }
 
 void Device::setPan(float pan)

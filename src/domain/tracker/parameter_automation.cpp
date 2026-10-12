@@ -16,6 +16,7 @@
 #include "parameter_automation.hpp"
 
 #include "../../common/constants.hpp"
+#include "../../common/parameter_mapper.hpp"
 #include "../../common/utils.hpp"
 #include "../../common/xml/project_reader.hpp"
 #include "../../common/xml/project_writer.hpp"
@@ -151,8 +152,14 @@ float ParameterAutomation::effectiveValue(Mode mode, double value, const Paramet
     if (mode == Mode::Absolute) {
         return static_cast<float>(position);
     }
-    const double rest = parameter.display() ? parameter.display()->restPosition() : 0.0;
     const double knob = static_cast<double>(parameter.authoredValue());
+    // A fader scales its gain rather than its throw, so that relative is exactly what Expression is
+    // over MIDI: half is half the amplitude of wherever the fader stands. Scaling the position
+    // instead would follow the taper, and half of the throw is a good deal quieter than half.
+    if (parameter.display() && parameter.display()->mapping == ParameterDisplay::Mapping::Fader) {
+        return static_cast<float>(ParameterMapper::unmapFader(ParameterMapper::mapFader(knob) * position));
+    }
+    const double rest = parameter.display() ? parameter.display()->restPosition() : 0.0;
     return static_cast<float>(rest + (knob - rest) * position);
 }
 

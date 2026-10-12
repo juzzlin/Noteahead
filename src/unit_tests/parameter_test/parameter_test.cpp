@@ -16,6 +16,7 @@
 #include "parameter_test.hpp"
 
 #include "../../common/constants.hpp"
+#include "../../common/parameter_mapper.hpp"
 #include "../../domain/tracker/parameter.hpp"
 #include "../../domain/tracker/parameter_automation.hpp"
 #include "../../domain/tracker/parameter_container.hpp"
@@ -257,6 +258,22 @@ void ParameterTest::test_effectiveValue_relativeCentred_shouldScaleFromTheCentre
     // Below the centre too
     parameter.setValue(0.1f);
     QVERIFY(std::abs(ParameterAutomation::effectiveValue(ParameterAutomation::Mode::Relative, 0.5, parameter) - 0.3f) < 1.0e-6f);
+}
+
+void ParameterTest::test_effectiveValue_relativeFader_shouldScaleTheGain()
+{
+    // What Expression does over MIDI: half is half the amplitude of wherever the fader stands, not
+    // half its throw, which the taper makes a good deal quieter than that
+    auto parameter = continuousParameter();
+    parameter.setDisplay({ .mapping = ParameterDisplay::Mapping::Fader, .unit = "dB", .label = "Test" });
+    for (const float knob : { 0.3f, Constants::faderUnityPosition(), 0.95f }) {
+        parameter.setValue(knob);
+        const double gain = ParameterMapper::mapFader(static_cast<double>(knob));
+        for (const double fraction : { 0.0, 0.25, 0.5, 1.0 }) {
+            const auto effective = ParameterAutomation::effectiveValue(ParameterAutomation::Mode::Relative, fraction, parameter);
+            QVERIFY2(std::abs(ParameterMapper::mapFader(static_cast<double>(effective)) - gain * fraction) < 1.0e-5, qPrintable(QString { "%1 at %2" }.arg(knob).arg(fraction)));
+        }
+    }
 }
 
 void ParameterTest::test_effectiveValue_relative_shouldFollowTheAuthoredValue()

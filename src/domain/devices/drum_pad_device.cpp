@@ -70,18 +70,19 @@ std::string DrumPadDevice::category() const
 Device::AutomatableParameterList DrumPadDevice::automatableParameters() const
 {
     // Grouped by drum, so that each one is a target of its own instead of every drum in one list,
-    // and in the order of the kit rather than of the keys
+    // and in the order of the kit rather than of the keys. The device's own channel strip, which
+    // belongs to no drum, comes first, as the Sampler lists its own before its pads.
     const auto voiceOf = [](const std::string & key) {
         for (int voice = 0; voice < DrumSynthV2::NumVoices; voice++) {
             if (key.starts_with(DrumSynthV2::voiceId(voice) + "_")) {
                 return voice;
             }
         }
-        return DrumSynthV2::NumVoices;
+        return -1;
     };
     auto list = Device::automatableParameters();
     for (auto && entry : list) {
-        if (const auto voice = voiceOf(entry.key); voice < DrumSynthV2::NumVoices) {
+        if (const auto voice = voiceOf(entry.key); voice >= 0) {
             entry.groupName = DrumSynthV2::voiceName(voice).toStdString();
         }
     }

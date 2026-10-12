@@ -46,6 +46,7 @@ private slots:
     void test_effectiveValue_relative_shouldScaleFromTheMinimum();
     void test_effectiveValue_relativeCentred_shouldScaleFromTheCentre();
     void test_effectiveValue_relative_shouldFollowTheAuthoredValue();
+    void test_effectiveValue_relativeFader_shouldScaleTheGain();
 };
 
 } // namespace noteahead

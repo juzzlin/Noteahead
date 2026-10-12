@@ -105,7 +105,7 @@ double KnobController::map(double value, const QString & type, double min, doubl
         return ParameterMapper::mapExponentialFromZero(value, min, max);
     if (type == "cubic")
         return ParameterMapper::mapCubic(value, min, max);
-    if (type == "cubicCentered" || type == "pan" || type == "intensity")
+    if (type == "cubicCentered" || type == "intensity")
         return ParameterMapper::mapCubicCentered(value * 2.0 - 1.0, min, max);
     if (type == "logFrequency" || type == "logFrequencyHighPass")
         return ParameterMapper::mapLogFrequency(value, min, max);
@@ -115,9 +115,9 @@ double KnobController::map(double value, const QString & type, double min, doubl
         return ParameterMapper::mapDecibel(value, (max - min) / 2.0);
     if (type == "fader")
         return ParameterMapper::mapFader(value);
-    // "bipolar" and "value" are linear too: they differ only in how they read out, which format()
-    // handles. Neither can use the plain percentage readout, which ignores the range and shows the
-    // knob's own position: a control centred on zero would read 50 % at neutral and never read
+    // Pan is linear, as its readout and its typed entry both are. "bipolar" and "value" are too:
+    // they differ only in how they read out, which format() handles. Neither can use the plain
+    // percentage readout, which ignores the range and shows the knob's own position: a control centred on zero would read 50 % at neutral and never read
     // negative, and one running past 100 % would report full travel as 100 % however far it
     // actually goes.
     return min + (value * (max - min)); // linear
@@ -131,7 +131,7 @@ double KnobController::unmap(double mappedValue, const QString & type, double mi
         return ParameterMapper::unmapExponentialFromZero(mappedValue, min, max);
     if (type == "cubic")
         return ParameterMapper::unmapCubic(mappedValue, min, max);
-    if (type == "cubicCentered" || type == "pan" || type == "intensity")
+    if (type == "cubicCentered" || type == "intensity")
         return (ParameterMapper::unmapCubicCentered(mappedValue, min, max) + 1.0) / 2.0;
     if (type == "logFrequency" || type == "logFrequencyHighPass")
         return ParameterMapper::unmapLogFrequency(mappedValue, min, max);

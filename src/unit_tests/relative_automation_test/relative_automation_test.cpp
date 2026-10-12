@@ -249,6 +249,27 @@ void RelativeAutomationTest::test_samplerPad_relativeAutomation_shouldLeaveTheKn
     }
 }
 
+void RelativeAutomationTest::test_deviceFader_relativeAutomation_shouldMatchExpression()
+{
+    // Riding a device's fader relatively is riding its Expression: the same level at the same
+    // percentage, with the fader's own knob left where it was set
+    const auto faderKey = Constants::NahdXml::xmlKeyFader().toStdString();
+    for (const double fraction : { 0.0, 0.3, 0.5, 1.0 }) {
+        SynthDevice automated { "Synth" };
+        automated.setVolume(0.6f);
+        QVERIFY(automated.applyParameterAutomation(faderKey, ParameterAutomation::Mode::Relative, fraction));
+
+        SynthDevice expressed { "Synth" };
+        expressed.setVolume(0.6f);
+        expressed.setExpression(static_cast<float>(fraction));
+
+        const double automatedLevel = automated.faderGain() * static_cast<double>(automated.expression());
+        const double expressedLevel = expressed.faderGain() * static_cast<double>(expressed.expression());
+        QVERIFY2(std::abs(automatedLevel - expressedLevel) < 1.0e-5, qPrintable(QString { "%1: %2 against %3" }.arg(fraction).arg(automatedLevel).arg(expressedLevel)));
+        QCOMPARE(automated.volume(), 0.6f);
+    }
+}
+
 void RelativeAutomationTest::test_notifyParameterAutomation_relative_shouldNotRefresh()
 {
     // Nothing on screen changes, so nothing is worth refreshing

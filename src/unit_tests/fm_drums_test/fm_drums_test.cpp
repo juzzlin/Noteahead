@@ -181,7 +181,9 @@ void FmDrumsTest::test_automatableParameters_shouldOfferEveryContinuousControl()
     std::set<std::string> automatable;
     for (auto && entry : device.automatableParameters()) {
         automatable.insert(entry.key);
-        QVERIFY2(!entry.groupName.empty(), entry.key.c_str());
+        // Every drum's own, and the device's channel strip besides
+        const bool channelStrip = entry.key == Constants::NahdXml::xmlKeyFader().toStdString() || entry.key == Constants::NahdXml::xmlKeyGain().toStdString() || entry.key == Constants::NahdXml::xmlKeyPan().toStdString();
+        QVERIFY2(!entry.groupName.empty() || channelStrip, entry.key.c_str());
     }
 
     namespace NahdXml = Constants::NahdXml;

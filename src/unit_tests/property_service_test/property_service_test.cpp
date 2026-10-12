@@ -336,16 +336,24 @@ void PropertyServiceTest::test_automationTargets_device_shouldOfferOnlyDescribed
     QCOMPARE(cutoff["min"].toDouble(), 20.0);
 }
 
-void PropertyServiceTest::test_automationTargets_deviceWithoutDescriptions_shouldNotBeListed()
+void PropertyServiceTest::test_automationTargets_deviceWithoutDescriptions_shouldOfferItsChannelStrip()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();
     const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
     PropertyService propertyService;
     propertyService.setDeviceService(deviceService);
-    // A sub-mixer has nothing of its own to ride, so there is nothing to offer
+    // A sub-mixer has nothing of its own to ride, but it has the fader, gain and pan every device has
     deviceService->setDevice(0, std::make_shared<SubMixerDevice>("Sub Mixer"));
 
-    QVERIFY(propertyService.automationTargets().isEmpty());
+    const auto targets = propertyService.automationTargets();
+    QCOMPARE(targets.size(), 1);
+    const auto parameters = targets.at(0).toMap()["parameters"].toList();
+    QCOMPARE(parameters.size(), 3);
+    const auto fader = parameterOf(targets.at(0).toMap(), Constants::NahdXml::xmlKeyFader());
+    QCOMPARE(fader["unit"].toString(), QString { "dB" });
+    QCOMPARE(fader["mapping"].toString(), QString { "fader" });
+    QVERIFY(!parameterOf(targets.at(0).toMap(), Constants::NahdXml::xmlKeyGain()).isEmpty());
+    QVERIFY(!parameterOf(targets.at(0).toMap(), Constants::NahdXml::xmlKeyPan()).isEmpty());
 }
 
 void PropertyServiceTest::test_automationParameter_device_shouldFindIt()
@@ -496,11 +504,14 @@ void PropertyServiceTest::test_automationTargets_sampler_shouldListEachLoadedPad
     sampler->loadSample(38, "snare.wav");
     deviceService->setDevice(0, sampler);
 
-    // A target for each loaded pad, in note order, named by the note and what is on it
+    // The device's own channel strip, then a target for each loaded pad, in note order, named by
+    // the note and what is on it
     const auto targets = propertyService.automationTargets();
-    QCOMPARE(targets.size(), 2);
-    const auto kick = targets.at(0).toMap();
-    const auto snare = targets.at(1).toMap();
+    QCOMPARE(targets.size(), 3);
+    QVERIFY(targets.at(0).toMap()["group"].toString().isEmpty());
+    QVERIFY(!parameterOf(targets.at(0).toMap(), Constants::NahdXml::xmlKeyFader()).isEmpty());
+    const auto kick = targets.at(1).toMap();
+    const auto snare = targets.at(2).toMap();
     QCOMPARE(kick["ownerId"].toString(), QString::fromStdString(sampler->uuid()));
     QCOMPARE(kick["group"].toString(), QString { "Pad %1 (kick.wav)" }.arg(QString::fromStdString(NoteConverter::midiToString(36))));
     QCOMPARE(snare["group"].toString(), QString { "Pad %1 (snare.wav)" }.arg(QString::fromStdString(NoteConverter::midiToString(38))));
@@ -523,18 +534,21 @@ void PropertyServiceTest::test_automationTargets_drumSynth_shouldListEachDrum()
     propertyService.setDeviceService(deviceService);
     deviceService->setDevice(0, std::make_shared<DrumSynthV2Device>("Drums"));
 
-    // One target for each drum of the kit, in kit order, with its level, pan and filters at least
+    // The device's own channel strip, then one target for each drum of the kit, in kit order, with
+    // its level, pan and filters at least
     const auto targets = propertyService.automationTargets();
-    QCOMPARE(targets.size(), DrumSynthV2::NumVoices);
+    QCOMPARE(targets.size(), DrumSynthV2::NumVoices + 1);
+    QVERIFY(targets.at(0).toMap()["group"].toString().isEmpty());
+    QVERIFY(!parameterOf(targets.at(0).toMap(), Constants::NahdXml::xmlKeyFader()).isEmpty());
     for (int voice = 0; voice < DrumSynthV2::NumVoices; voice++) {
-        const auto target = targets.at(voice).toMap();
+        const auto target = targets.at(voice + 1).toMap();
         QCOMPARE(target["group"].toString(), DrumSynthV2::voiceName(voice));
         const auto prefix = QString::fromStdString(DrumSynthV2::voiceId(voice) + "_");
         for (auto && key : { Constants::NahdXml::xmlKeyLevel(), Constants::NahdXml::xmlKeyPan(), Constants::NahdXml::xmlKeyCutoff(), Constants::NahdXml::xmlKeyHpfCutoff(), Constants::NahdXml::xmlKeyAmpDecay() }) {
             QVERIFY2(!parameterOf(target, prefix + key).isEmpty(), qPrintable(prefix + key));
         }
     }
-    const auto kickCutoff = parameterOf(targets.at(0).toMap(), QString::fromStdString(DrumSynthV2::voiceId(0) + "_") + Constants::NahdXml::xmlKeyCutoff());
+    const auto kickCutoff = parameterOf(targets.at(1).toMap(), QString::fromStdString(DrumSynthV2::voiceId(0) + "_") + Constants::NahdXml::xmlKeyCutoff());
     QCOMPARE(kickCutoff["unit"].toString(), QString { "Hz" });
 }
 

@@ -367,10 +367,18 @@ void KnobControllerTest::test_map_parameterDisplay_shouldAgreeWithTheDomain()
     for (const auto & [name, parameter] : parameters) {
         if (const auto & display = parameter.display(); display) {
             const auto mapping = QString::fromStdString(display->mappingName());
+            // The fader is one curve read out in two units: the knob maps to the gain it applies,
+            // the domain to that gain in decibels. Compared in decibels, away from the silence at
+            // the bottom where the domain floors its readout.
+            const bool fader = display->mapping == ParameterDisplay::Mapping::Fader;
             for (const double position : { 0.0, 0.2, 0.5, 0.75, 1.0 }) {
+                if (fader && position == 0.0) {
+                    continue;
+                }
                 const double knob = controller.map(position, mapping, display->min, display->max);
-                QVERIFY2(std::abs(knob - display->toUnits(position)) < 1.0e-9, name.c_str());
-                QVERIFY2(std::abs(controller.unmap(knob, mapping, display->min, display->max) - display->toPosition(knob)) < 1.0e-9, name.c_str());
+                const double knobUnits = fader ? 20.0 * std::log10(knob) : knob;
+                QVERIFY2(std::abs(knobUnits - display->toUnits(position)) < 1.0e-9, name.c_str());
+                QVERIFY2(std::abs(controller.unmap(knob, mapping, display->min, display->max) - display->toPosition(knobUnits)) < 1.0e-9, name.c_str());
             }
         }
     }

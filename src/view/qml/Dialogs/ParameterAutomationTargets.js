@@ -97,6 +97,8 @@ function relativeReadout(parameter, fraction) {
     if (!parameter) {
         return "";
     }
-    const position = parameter.rest + (parameter.knob - parameter.rest) * fraction;
+    // As ParameterAutomation::effectiveValue() has it: a fader scales its gain, the way Expression
+    // does, and everything else scales its knob towards where it rests
+    const position = parameter.mapping === "fader" ? knobController.unmap(knobController.map(parameter.knob, "fader", 0, 1) * fraction, "fader", 0, 1) : parameter.rest + (parameter.knob - parameter.rest) * fraction;
     return knobController.format(position, parameter.mapping, parameter.unit, parameter.min, parameter.max);
 }
