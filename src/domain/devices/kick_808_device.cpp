@@ -337,7 +337,7 @@ void Kick808Device::syncParameters()
 
 float Kick808Device::tune() const
 {
-    return m_tune;
+    return shownParameterValue(Constants::NahdXml::xmlKeyTune(), m_tune);
 }
 
 void Kick808Device::setTune(float tune)
@@ -347,7 +347,7 @@ void Kick808Device::setTune(float tune)
 
 float Kick808Device::tone() const
 {
-    return m_tone;
+    return shownParameterValue(Constants::NahdXml::xmlKeyTone(), m_tone);
 }
 
 void Kick808Device::setTone(float tone)
@@ -357,7 +357,7 @@ void Kick808Device::setTone(float tone)
 
 float Kick808Device::decay() const
 {
-    return m_decay;
+    return shownParameterValue(Constants::NahdXml::xmlKeyDecay(), m_decay);
 }
 
 void Kick808Device::setDecay(float decay)
@@ -367,7 +367,7 @@ void Kick808Device::setDecay(float decay)
 
 float Kick808Device::pitchDepth() const
 {
-    return m_pitchDepth;
+    return shownParameterValue(Constants::NahdXml::xmlKeyPitchDepth(), m_pitchDepth);
 }
 
 void Kick808Device::setPitchDepth(float depth)
@@ -377,7 +377,7 @@ void Kick808Device::setPitchDepth(float depth)
 
 float Kick808Device::pitchDecay() const
 {
-    return m_pitchDecay;
+    return shownParameterValue(Constants::NahdXml::xmlKeyPitchDecay(), m_pitchDecay);
 }
 
 void Kick808Device::setPitchDecay(float decay)
@@ -387,7 +387,7 @@ void Kick808Device::setPitchDecay(float decay)
 
 float Kick808Device::drive() const
 {
-    return m_drive;
+    return shownParameterValue(Constants::NahdXml::xmlKeyDrive(), m_drive);
 }
 
 void Kick808Device::setDrive(float drive)
@@ -397,7 +397,7 @@ void Kick808Device::setDrive(float drive)
 
 float Kick808Device::glide() const
 {
-    return m_glide;
+    return shownParameterValue(Constants::NahdXml::xmlKeyPortamento(), m_glide);
 }
 
 void Kick808Device::setGlide(float glide)
@@ -417,7 +417,7 @@ void Kick808Device::setKeyTrack(bool keyTrack)
 
 float Kick808Device::lpfCutoff() const
 {
-    return m_lpfCutoff;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLpfCutoff(), m_lpfCutoff);
 }
 
 void Kick808Device::setLpfCutoff(float cutoff)
@@ -427,7 +427,7 @@ void Kick808Device::setLpfCutoff(float cutoff)
 
 float Kick808Device::hpfCutoff() const
 {
-    return m_hpfCutoff;
+    return shownParameterValue(Constants::NahdXml::xmlKeyHpfCutoff(), m_hpfCutoff);
 }
 
 void Kick808Device::setHpfCutoff(float cutoff)

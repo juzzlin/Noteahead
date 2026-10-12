@@ -632,7 +632,9 @@ void DeviceServiceTest::test_scheduleParameterChange_device_shouldApplyInTheBloc
     audioEngine->process(context); // 1024..1535: nothing due
     QVERIFY(std::abs(synth->lpfCutoff() - 0.25f) < 1.0e-6f);
     audioEngine->process(context); // 1536..2047 holds frame 1600: half of the knob
-    QVERIFY(std::abs(synth->lpfCutoff() - 0.4f) < 1.0e-6f);
+    QVERIFY(std::abs(synth->parameter(key)->get().value() - 0.4f) < 1.0e-6f);
+    // Relative leaves the knob at the value it scales
+    QVERIFY(std::abs(synth->lpfCutoff() - 0.8f) < 1.0e-6f);
     QCOMPARE(synth->parameter(key)->get().authoredValue(), 0.8f);
 }
 

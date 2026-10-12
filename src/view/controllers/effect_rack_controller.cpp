@@ -264,7 +264,7 @@ float EffectRackController::parameterValue(quint32 effectIndex, const QString & 
     if (const auto rack = currentRack(); rack) {
         if (const auto effect = rack->get().effect(static_cast<size_t>(effectIndex)); effect) {
             if (const auto parameter = effect->parameter(paramName.toStdString()); parameter) {
-                return parameter->get().value();
+                return parameter->get().shownValue();
             }
         }
     }
@@ -652,7 +652,7 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                 if (freq && stages) {
                     // In hertz, as the filter runs at it: the stored number is the knob's position
                     // spread linearly over 20 to 20000, not a frequency
-                    const auto hz = ParameterMapper::mapLogFrequency(static_cast<double>(freq->get().value()), 20.0, 20000.0);
+                    const auto hz = ParameterMapper::mapLogFrequency(static_cast<double>(freq->get().shownValue()), 20.0, 20000.0);
                     return QString { "(freq=%1Hz, stages=%2)" }
                       .arg(static_cast<int>(std::lround(hz)))
                       .arg(stages->get().xmlValue());
@@ -664,23 +664,23 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                 if (sync && intensity) {
                     const auto rateDivider = divider ? std::max(1, divider->get().xmlValue()) : 1;
                     QString rateStr;
-                    if (sync->get().value() > 0.5f) {
+                    if (sync->get().shownValue() > 0.5f) {
                         const auto division = effect->parameter(Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString());
                         KnobController knobController;
                         // A division cannot be divided into a division that has a name, so the
                         // divider is reported as itself.
-                        rateStr = knobController.syncLabel(knobController.syncIndex(division->get().value() * Constants::uiInternalScaling()));
+                        rateStr = knobController.syncLabel(knobController.syncIndex(division->get().shownValue() * Constants::uiInternalScaling()));
                         if (rateDivider > 1) {
                             rateStr += QString { "/%1" }.arg(rateDivider);
                         }
                     } else {
                         const auto rate = effect->parameter(Constants::NahdXml::xmlKeyRate().toStdString());
-                        const float rateHz = static_cast<float>(ParameterMapper::mapLfoFrequency(rate->get().value(), 0.05, 20.0)) / static_cast<float>(rateDivider);
+                        const float rateHz = static_cast<float>(ParameterMapper::mapLfoFrequency(rate->get().shownValue(), 0.05, 20.0)) / static_cast<float>(rateDivider);
                         rateStr = QString { "%1Hz" }.arg(rateHz, 0, 'f', 2);
                     }
                     return QString { "(rate=%1, int=%2%)" }
                       .arg(rateStr)
-                      .arg(static_cast<int>(std::round(intensity->get().value() * 100.0f)));
+                      .arg(static_cast<int>(std::round(intensity->get().shownValue() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::autoFilter()) {
                 const auto filterType = effect->parameter(Constants::NahdXml::xmlKeyFilterType().toStdString());
@@ -693,15 +693,15 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                     QString rateStr;
                     if (static_cast<Lfo::Mode>(mode->get().xmlValue()) == Lfo::Mode::BPM) {
                         KnobController knobController;
-                        rateStr = knobController.syncLabel(knobController.syncIndex(rate->get().value() * Constants::uiInternalScaling()));
+                        rateStr = knobController.syncLabel(knobController.syncIndex(rate->get().shownValue() * Constants::uiInternalScaling()));
                     } else {
-                        rateStr = QString { "%1Hz" }.arg(ParameterMapper::mapLfoFrequency(rate->get().value(), 0.05, 20.0), 0, 'f', 2);
+                        rateStr = QString { "%1Hz" }.arg(ParameterMapper::mapLfoFrequency(rate->get().shownValue(), 0.05, 20.0), 0, 'f', 2);
                     }
                     // The intensity readout carries the same cubic taper as the knob it came from.
-                    const auto intensityPercent = ParameterMapper::mapCubicCentered((intensity->get().value() - 0.5f) * 2.0f, -100.0, 100.0);
+                    const auto intensityPercent = ParameterMapper::mapCubicCentered((intensity->get().shownValue() - 0.5f) * 2.0f, -100.0, 100.0);
                     return QString { "(%1, %2, rate=%3, int=%4%)" }
                       .arg(typeNames.value(std::clamp(filterType->get().xmlValue(), 0, 3)))
-                      .arg(formatFrequency(ParameterMapper::mapExponential(cutoff->get().value(), 20.0, 20000.0)))
+                      .arg(formatFrequency(ParameterMapper::mapExponential(cutoff->get().shownValue(), 20.0, 20000.0)))
                       .arg(rateStr)
                       .arg(static_cast<int>(std::round(intensityPercent)));
                 }
@@ -718,14 +718,14 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                         KnobController knobController;
                         // A division cannot be divided into a division that has a name, so the
                         // divider is reported as itself.
-                        rateStr = knobController.syncLabel(knobController.syncIndex(rate->get().value() * Constants::uiInternalScaling()));
+                        rateStr = knobController.syncLabel(knobController.syncIndex(rate->get().shownValue() * Constants::uiInternalScaling()));
                         if (rateDivider > 1) {
                             rateStr += QString { "/%1" }.arg(rateDivider);
                         }
                     } else {
-                        rateStr = QString { "%1Hz" }.arg(ParameterMapper::mapLfoFrequency(rate->get().value(), 0.05, 20.0) / rateDivider, 0, 'f', 2);
+                        rateStr = QString { "%1Hz" }.arg(ParameterMapper::mapLfoFrequency(rate->get().shownValue(), 0.05, 20.0) / rateDivider, 0, 'f', 2);
                     }
-                    const auto feedbackPercent = ParameterMapper::mapCubicCentered((feedback->get().value() - 0.5f) * 2.0f, -100.0, 100.0);
+                    const auto feedbackPercent = ParameterMapper::mapCubicCentered((feedback->get().shownValue() - 0.5f) * 2.0f, -100.0, 100.0);
                     return QString { "(%1 stages, rate=%2, fb=%3%)" }
                       .arg(stages->get().xmlValue())
                       .arg(rateStr)
@@ -735,10 +735,10 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                 const auto rate = effect->parameter(Constants::NahdXml::xmlKeyRate().toStdString());
                 const auto mix = effect->parameter(Constants::NahdXml::xmlKeyMix().toStdString());
                 if (rate && mix) {
-                    const float rateHz = static_cast<float>(ParameterMapper::mapExponential(rate->get().value(), 0.1, 10.0));
+                    const float rateHz = static_cast<float>(ParameterMapper::mapExponential(rate->get().shownValue(), 0.1, 10.0));
                     return QString { "(rate=%1Hz, mix=%2%)" }
                       .arg(rateHz, 0, 'f', 1)
-                      .arg(static_cast<int>(std::round(mix->get().value() * 100.0f)));
+                      .arg(static_cast<int>(std::round(mix->get().shownValue() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::clipper()) {
                 if (const auto threshold = effect->parameter(Constants::NahdXml::xmlKeyThreshold().toStdString()); threshold) {
@@ -750,7 +750,7 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                 if (ceiling && boost) {
                     return QString { "(ceil=%1dB, boost=%2)" }
                       .arg(ceiling->get().xmlValue() / 100.0f, 0, 'f', 1)
-                      .arg(boost->get().value() > 0.5f ? tr("on") : tr("off"));
+                      .arg(boost->get().shownValue() > 0.5f ? tr("on") : tr("off"));
                 }
             } else if (type == Constants::RackEffectType::gain()) {
                 if (const auto gain = std::dynamic_pointer_cast<Gain>(effect); gain) {
@@ -785,7 +785,7 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                 const auto ratio = effect->parameter(Constants::NahdXml::xmlKeyRatio().toStdString());
                 const auto range = effect->parameter(Constants::NahdXml::xmlKeyRange().toStdString());
                 if (threshold && ratio && range) {
-                    const double thresholdDb = -60.0 + static_cast<double>(threshold->get().value()) * 60.0;
+                    const double thresholdDb = -60.0 + static_cast<double>(threshold->get().shownValue()) * 60.0;
                     return QString { "(%1dB, %2:1, %3dB)" }
                       .arg(thresholdDb, 0, 'f', 1)
                       .arg(static_cast<double>(ratio->get().xmlValue()) / ratio->get().xmlScale(), 0, 'f', 1)
@@ -795,7 +795,7 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                 const auto bits = effect->parameter(Constants::NahdXml::xmlKeyBitDepth().toStdString());
                 const auto rate = effect->parameter(Constants::NahdXml::xmlKeySampleRate().toStdString());
                 if (bits && rate) {
-                    const double hz = ParameterMapper::mapExponential(rate->get().value(), 100.0, 48000.0);
+                    const double hz = ParameterMapper::mapExponential(rate->get().shownValue(), 100.0, 48000.0);
                     return QString { "(%1 %2, %3 kHz)" }
                       .arg(bits->get().xmlValue())
                       .arg(tr("bits"))
@@ -811,16 +811,16 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                     QString rateStr;
                     if (static_cast<Lfo::Mode>(mode->get().xmlValue()) == Lfo::Mode::BPM) {
                         KnobController knobController;
-                        rateStr = knobController.syncLabel(knobController.syncIndex(rate->get().value() * Constants::uiInternalScaling()));
+                        rateStr = knobController.syncLabel(knobController.syncIndex(rate->get().shownValue() * Constants::uiInternalScaling()));
                         if (rateDivider > 1) {
                             rateStr += QString { "/%1" }.arg(rateDivider);
                         }
                     } else {
-                        rateStr = QString { "%1Hz" }.arg(ParameterMapper::mapLfoFrequency(rate->get().value(), 0.05, 20.0) / rateDivider, 0, 'f', 2);
+                        rateStr = QString { "%1Hz" }.arg(ParameterMapper::mapLfoFrequency(rate->get().shownValue(), 0.05, 20.0) / rateDivider, 0, 'f', 2);
                     }
                     // Signed, because the two polarities of the feedback voice the comb quite
                     // differently and the sign is what says which one is in use.
-                    const double signedFeedback = (static_cast<double>(feedback->get().value()) * 2.0 - 1.0) * 100.0;
+                    const double signedFeedback = (static_cast<double>(feedback->get().shownValue()) * 2.0 - 1.0) * 100.0;
                     return QString { "(rate=%1, fb=%2%)" }.arg(rateStr).arg(signedFeedback, 0, 'f', 0);
                 }
             } else if (type == Constants::RackEffectType::tremolo()) {
@@ -830,20 +830,20 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                 if (sync && intensity && divider) {
                     const auto rateDivider = std::max(1, divider->get().xmlValue());
                     QString rateStr;
-                    if (sync->get().value() > 0.5f) {
+                    if (sync->get().shownValue() > 0.5f) {
                         const auto division = effect->parameter(Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString());
                         KnobController knobController;
-                        rateStr = knobController.syncLabel(knobController.syncIndex(division->get().value() * Constants::uiInternalScaling()));
+                        rateStr = knobController.syncLabel(knobController.syncIndex(division->get().shownValue() * Constants::uiInternalScaling()));
                         if (rateDivider > 1) {
                             rateStr += QString { "/%1" }.arg(rateDivider);
                         }
                     } else {
                         const auto rate = effect->parameter(Constants::NahdXml::xmlKeyRate().toStdString());
-                        rateStr = QString { "%1Hz" }.arg(ParameterMapper::mapLfoFrequency(rate->get().value(), 0.05, 20.0) / rateDivider, 0, 'f', 2);
+                        rateStr = QString { "%1Hz" }.arg(ParameterMapper::mapLfoFrequency(rate->get().shownValue(), 0.05, 20.0) / rateDivider, 0, 'f', 2);
                     }
                     return QString { "(rate=%1, depth=%2%)" }
                       .arg(rateStr)
-                      .arg(static_cast<int>(std::lround(intensity->get().value() * 100.0)));
+                      .arg(static_cast<int>(std::lround(intensity->get().shownValue() * 100.0)));
                 }
             } else if (type == Constants::RackEffectType::crossfeed()) {
                 if (const auto amount = effect->parameter(Constants::NahdXml::xmlKeyAmount().toStdString()); amount) {
@@ -853,7 +853,7 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                 const auto attack { effect->parameter(Constants::NahdXml::xmlKeyAttack().toStdString()) };
                 const auto ratio { effect->parameter(Constants::NahdXml::xmlKeyRatio().toStdString()) };
                 if (attack && ratio) {
-                    const float attackMs { static_cast<float>(ParameterMapper::mapExponential(attack->get().value(), 0.1, 500.0)) };
+                    const float attackMs { static_cast<float>(ParameterMapper::mapExponential(attack->get().shownValue(), 0.1, 500.0)) };
                     const float ratioValue { static_cast<float>(ratio->get().xmlValue()) / static_cast<float>(ratio->get().xmlScale()) };
                     QString scName { tr("None") };
                     if (const auto sourceIndex { effect->sidechainSourceDeviceIndex() }; sourceIndex) {
@@ -863,7 +863,7 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                     }
                     QString modeName { tr("Peak") };
                     if (const auto mode { effect->parameter(Constants::NahdXml::xmlKeyMode().toStdString()) }; mode) {
-                        if (mode->get().value() > 0.5f) {
+                        if (mode->get().shownValue() > 0.5f) {
                             modeName = tr("RMS");
                         }
                     }
@@ -885,21 +885,21 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                     }
                     QString modeName { tr("Peak") };
                     if (const auto mode { effect->parameter(Constants::NahdXml::xmlKeyMode().toStdString()) }; mode) {
-                        if (mode->get().value() > 0.5f) {
+                        if (mode->get().shownValue() > 0.5f) {
                             modeName = tr("RMS");
                         }
                     }
                     return QString { "(%1, %2/%3Hz, sidechain=%4)" }
                       .arg(modeName)
-                      .arg(static_cast<int>(std::round(ParameterMapper::mapLogFrequency(lowerCrossover->get().value(), 20.0, 20000.0))))
-                      .arg(static_cast<int>(std::round(ParameterMapper::mapLogFrequency(upperCrossover->get().value(), 20.0, 20000.0))))
+                      .arg(static_cast<int>(std::round(ParameterMapper::mapLogFrequency(lowerCrossover->get().shownValue(), 20.0, 20000.0))))
+                      .arg(static_cast<int>(std::round(ParameterMapper::mapLogFrequency(upperCrossover->get().shownValue(), 20.0, 20000.0))))
                       .arg(scName);
                 }
             } else if (type == Constants::RackEffectType::ambience()) {
                 namespace C = Constants::NahdXml;
                 const auto valueOf = [&effect](const QString & key) {
                     const auto p = effect->parameter(key.toStdString());
-                    return p ? p->get().value() : 0.0f;
+                    return p ? p->get().shownValue() : 0.0f;
                 };
                 return QString { "(size=%1%, decay=%2s, mix=%3%)" }
                   .arg(static_cast<int>(std::round(valueOf(C::xmlKeySize()) * 100.0f)))
@@ -911,17 +911,17 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                 const auto mix { effect->parameter(Constants::NahdXml::xmlKeyMix().toStdString()) };
                 if (size && preDelay && mix) {
                     return QString { "(size=%1%, pre=%2ms, mix=%3%)" }
-                      .arg(static_cast<int>(std::round(size->get().value() * 100.0f)))
-                      .arg(static_cast<int>(std::round(preDelay->get().value() * 100.0f)))
-                      .arg(static_cast<int>(std::round(mix->get().value() * 100.0f)));
+                      .arg(static_cast<int>(std::round(size->get().shownValue() * 100.0f)))
+                      .arg(static_cast<int>(std::round(preDelay->get().shownValue() * 100.0f)))
+                      .arg(static_cast<int>(std::round(mix->get().shownValue() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::dimension()) {
                 const auto detune { effect->parameter(Constants::NahdXml::xmlKeyDetune().toStdString()) };
                 const auto amount { effect->parameter(Constants::NahdXml::xmlKeyAmount().toStdString()) };
                 if (detune && amount) {
                     return QString { "(detune=%1c, amount=%2%)" }
-                      .arg(detune->get().value() * 25.0f, 0, 'f', 1)
-                      .arg(static_cast<int>(std::round(amount->get().value() * 100.0f)));
+                      .arg(detune->get().shownValue() * 25.0f, 0, 'f', 1)
+                      .arg(static_cast<int>(std::round(amount->get().shownValue() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::stereoFieldMeter()) {
                 if (const auto meter { std::dynamic_pointer_cast<StereoFieldMeter>(effect) }; meter) {
@@ -936,13 +936,13 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                 const auto highWidth { effect->parameter(Constants::NahdXml::xmlKeyBandWidth(2).toStdString()) };
                 if (lowWidth && midWidth && highWidth) {
                     QString monoName { tr("off") };
-                    if (const auto monoBass { effect->parameter(Constants::NahdXml::xmlKeyMonoBass().toStdString()) }; monoBass && monoBass->get().value() > 0.5f) {
+                    if (const auto monoBass { effect->parameter(Constants::NahdXml::xmlKeyMonoBass().toStdString()) }; monoBass && monoBass->get().shownValue() > 0.5f) {
                         if (const auto monoFreq { effect->parameter(Constants::NahdXml::xmlKeyMonoFreq().toStdString()) }; monoFreq) {
-                            monoName = QString { "<%1Hz" }.arg(static_cast<int>(std::round(ParameterMapper::mapLogFrequency(monoFreq->get().value(), 20.0, 300.0))));
+                            monoName = QString { "<%1Hz" }.arg(static_cast<int>(std::round(ParameterMapper::mapLogFrequency(monoFreq->get().shownValue(), 20.0, 300.0))));
                         }
                     }
                     const auto widthPercent = [](const auto & parameter) {
-                        return static_cast<int>(std::round(parameter->get().value() * 200.0f));
+                        return static_cast<int>(std::round(parameter->get().shownValue() * 200.0f));
                     };
                     return QString { "(lo=%1%, mid=%2%, hi=%3%, mono=%4)" }
                       .arg(widthPercent(lowWidth))
@@ -970,17 +970,17 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                 const auto feedback = effect->parameter(Constants::NahdXml::xmlKeyDelayFeedback().toStdString());
                 if (sync && feedback) {
                     QString timeStr;
-                    if (sync->get().value() > 0.5f) {
+                    if (sync->get().shownValue() > 0.5f) {
                         const auto division = effect->parameter(Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString());
                         KnobController knobController;
-                        timeStr = knobController.syncLabel(knobController.syncIndex(division->get().value() * Constants::uiInternalScaling()));
+                        timeStr = knobController.syncLabel(knobController.syncIndex(division->get().shownValue() * Constants::uiInternalScaling()));
                     } else {
                         const auto time = effect->parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString());
-                        timeStr = QString { "%1ms" }.arg(static_cast<int>(std::round(time->get().value() * 10000.0f)));
+                        timeStr = QString { "%1ms" }.arg(static_cast<int>(std::round(time->get().shownValue() * 10000.0f)));
                     }
                     return QString { "(time=%1, fb=%2%)" }
                       .arg(timeStr)
-                      .arg(static_cast<int>(std::round(feedback->get().value() * 100.0f)));
+                      .arg(static_cast<int>(std::round(feedback->get().shownValue() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::lufsMeter()) {
                 if (const auto meter = std::dynamic_pointer_cast<LufsMeter>(effect)) {
@@ -998,7 +998,7 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
             } else if (type == Constants::RackEffectType::eq8BandParametric()) {
                 QString modeName { tr("Mid + Side") };
                 if (const auto stereoMode { effect->parameter(Constants::NahdXml::xmlKeyStereoMode().toStdString()) }; stereoMode) {
-                    switch (static_cast<Eq8BandParametric::StereoMode>(std::clamp(static_cast<int>(std::round(stereoMode->get().value())), 0, 2))) {
+                    switch (static_cast<Eq8BandParametric::StereoMode>(std::clamp(static_cast<int>(std::round(stereoMode->get().shownValue())), 0, 2))) {
                     case Eq8BandParametric::StereoMode::Mid:
                         modeName = tr("Mid");
                         break;
@@ -1013,7 +1013,7 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
             } else if (type == Constants::RackEffectType::eq32BandGraphical()) {
                 QString modeName { tr("Stereo") };
                 if (const auto stereoMode { effect->parameter(Constants::NahdXml::xmlKeyStereoMode().toStdString()) }; stereoMode) {
-                    switch (static_cast<Eq32BandGraphical::StereoMode>(std::clamp(static_cast<int>(std::round(stereoMode->get().value())), 0, 2))) {
+                    switch (static_cast<Eq32BandGraphical::StereoMode>(std::clamp(static_cast<int>(std::round(stereoMode->get().shownValue())), 0, 2))) {
                     case Eq32BandGraphical::StereoMode::Mid:
                         modeName = tr("Mid");
                         break;
@@ -1032,7 +1032,7 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                 if (const auto eq = std::dynamic_pointer_cast<DynamicEq>(effect)) {
                     const auto valueOf = [&eq](const QString & key) {
                         const auto p = eq->parameter(key.toStdString());
-                        return p ? p->get().value() : 0.0f;
+                        return p ? p->get().shownValue() : 0.0f;
                     };
                     namespace C = Constants::NahdXml;
                     const QStringList types { tr("Bell"), tr("Low Shelf"), tr("High Shelf"), tr("Flat") };
@@ -1060,7 +1060,7 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                 namespace C = Constants::NahdXml;
                 const auto valueOf = [&effect](const QString & key) {
                     const auto p = effect->parameter(key.toStdString());
-                    return p ? p->get().value() : 0.0f;
+                    return p ? p->get().shownValue() : 0.0f;
                 };
                 QStringList items;
                 if (valueOf(C::xmlKeyInvertLeft()) > 0.5f || valueOf(C::xmlKeyInvertRight()) > 0.5f) {
@@ -1089,15 +1089,15 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                 return "(Air)";
             } else if (type == Constants::RackEffectType::simpleEq()) {
                 if (const auto amount = effect->parameter(Constants::NahdXml::xmlKeyAmount().toStdString()); amount) {
-                    return QString { "(%1%)" }.arg(static_cast<int>(std::round(amount->get().value() * 100.0f)));
+                    return QString { "(%1%)" }.arg(static_cast<int>(std::round(amount->get().shownValue() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::panner()) {
                 const auto pan = effect->parameter(Constants::NahdXml::xmlKeyPan().toStdString());
                 const auto width = effect->parameter(Constants::NahdXml::xmlKeyWidth().toStdString());
                 if (pan && width) {
                     return QString { "(pan=%1%, width=%2%)" }
-                      .arg(static_cast<int>(std::round(pan->get().value() * 100.0f)))
-                      .arg(static_cast<int>(std::round(width->get().value() * 100.0f)));
+                      .arg(static_cast<int>(std::round(pan->get().shownValue() * 100.0f)))
+                      .arg(static_cast<int>(std::round(width->get().shownValue() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::reverb()) {
                 const auto preDelay = effect->parameter(Constants::NahdXml::xmlKeyPreDelay().toStdString());
@@ -1112,32 +1112,32 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                 const auto blend = effect->parameter(Constants::NahdXml::xmlKeyBlend().toStdString());
                 if (drive && blend) {
                     return QString { "(drive=%1dB, blend=%2%)" }
-                      .arg(drive->get().value() * 40.0f, 0, 'f', 1)
-                      .arg(static_cast<int>(std::round(blend->get().value() * 100.0f)));
+                      .arg(drive->get().shownValue() * 40.0f, 0, 'f', 1)
+                      .arg(static_cast<int>(std::round(blend->get().shownValue() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::analogFuzz()) {
                 const auto drive = effect->parameter(Constants::NahdXml::xmlKeyDrive().toStdString());
                 const auto fuzz = effect->parameter(Constants::NahdXml::xmlKeyFuzz().toStdString());
                 if (drive && fuzz) {
                     return QString { "(drive=%1dB, fuzz=%2%)" }
-                      .arg(drive->get().value() * 42.0f, 0, 'f', 1)
-                      .arg(static_cast<int>(std::round(fuzz->get().value() * 100.0f)));
+                      .arg(drive->get().shownValue() * 42.0f, 0, 'f', 1)
+                      .arg(static_cast<int>(std::round(fuzz->get().shownValue() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::tubeStage()) {
                 const auto drive = effect->parameter(Constants::NahdXml::xmlKeyDriveDb().toStdString());
                 const auto bias = effect->parameter(Constants::NahdXml::xmlKeyBias().toStdString());
                 if (drive && bias) {
                     return QString { "(drive=%1dB, bias=%2%)" }
-                      .arg(drive->get().value() * 48.0f, 0, 'f', 1)
-                      .arg(static_cast<int>(std::round(bias->get().value() * 100.0f)));
+                      .arg(drive->get().shownValue() * 48.0f, 0, 'f', 1)
+                      .arg(static_cast<int>(std::round(bias->get().shownValue() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::waveDesigner()) {
                 const auto attack = effect->parameter(Constants::NahdXml::xmlKeyAttack().toStdString());
                 const auto sustain = effect->parameter(Constants::NahdXml::xmlKeySustain().toStdString());
                 if (attack && sustain) {
                     return QString { "(attack=%1, sustain=%2)" }
-                      .arg((attack->get().value() - 0.5f) * 2.0f, 0, 'f', 2)
-                      .arg((sustain->get().value() - 0.5f) * 2.0f, 0, 'f', 2);
+                      .arg((attack->get().shownValue() - 0.5f) * 2.0f, 0, 'f', 2)
+                      .arg((sustain->get().shownValue() - 0.5f) * 2.0f, 0, 'f', 2);
                 }
             } else if (type == Constants::RackEffectType::stereoEnhancer()) {
                 const auto bass = effect->parameter(Constants::NahdXml::xmlKeyBassGain().toStdString());
@@ -1145,33 +1145,33 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                 const auto spread = effect->parameter(Constants::NahdXml::xmlKeySpread().toStdString());
                 if (bass && high && spread) {
                     return QString { "(bass=%1%, hi=%2%, spread=%3%)" }
-                      .arg(static_cast<int>(std::round(bass->get().value() * 100.0f)))
-                      .arg(static_cast<int>(std::round(high->get().value() * 100.0f)))
-                      .arg(static_cast<int>(std::round(spread->get().value() * 100.0f)));
+                      .arg(static_cast<int>(std::round(bass->get().shownValue() * 100.0f)))
+                      .arg(static_cast<int>(std::round(high->get().shownValue() * 100.0f)))
+                      .arg(static_cast<int>(std::round(spread->get().shownValue() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::stereoExciter()) {
                 const auto tune = effect->parameter(Constants::NahdXml::xmlKeyTune().toStdString());
                 const auto harmonics = effect->parameter(Constants::NahdXml::xmlKeyHarmonics().toStdString());
                 if (tune && harmonics) {
                     return QString { "(tune=%1Hz, harmonics=%2%)" }
-                      .arg(static_cast<int>(std::round(ParameterMapper::mapLogFrequency(tune->get().value(), 700.0, 8000.0))))
-                      .arg(static_cast<int>(std::round(harmonics->get().value() * 100.0f)));
+                      .arg(static_cast<int>(std::round(ParameterMapper::mapLogFrequency(tune->get().shownValue(), 700.0, 8000.0))))
+                      .arg(static_cast<int>(std::round(harmonics->get().shownValue() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::saturator()) {
                 const auto drive = effect->parameter(Constants::NahdXml::xmlKeyDriveDb().toStdString());
                 const auto mix = effect->parameter(Constants::NahdXml::xmlKeyMix().toStdString());
                 if (drive && mix) {
                     return QString { "(drive=%1dB, mix=%2%)" }
-                      .arg(drive->get().value() * 40.0f, 0, 'f', 1)
-                      .arg(static_cast<int>(std::round(mix->get().value() * 100.0f)));
+                      .arg(drive->get().shownValue() * 40.0f, 0, 'f', 1)
+                      .arg(static_cast<int>(std::round(mix->get().shownValue() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::drive()) {
                 const auto drive = effect->parameter(Constants::NahdXml::xmlKeyDriveDb().toStdString());
                 const auto mix = effect->parameter(Constants::NahdXml::xmlKeyMix().toStdString());
                 if (drive && mix) {
                     return QString { "(drive=%1dB, mix=%2%)" }
-                      .arg(drive->get().value() * 40.0f, 0, 'f', 1)
-                      .arg(static_cast<int>(std::round(mix->get().value() * 100.0f)));
+                      .arg(drive->get().shownValue() * 40.0f, 0, 'f', 1)
+                      .arg(static_cast<int>(std::round(mix->get().shownValue() * 100.0f)));
                 }
             } else if (type == Constants::RackEffectType::endless()) {
                 const auto preDelay = effect->parameter(Constants::NahdXml::xmlKeyPreDelay().toStdString());
@@ -1182,8 +1182,8 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                     // a rack listing, and the parameter has the same 0-500 ms range on both.
                     return QString { "(pre=%1ms, size=%2%, freeze=%3)" }
                       .arg(preDelay->get().xmlValue() / preDelay->get().xmlScale())
-                      .arg(static_cast<int>(std::round(size->get().value() * 100.0f)))
-                      .arg(freeze->get().value() > 0.5f ? tr("on") : tr("off"));
+                      .arg(static_cast<int>(std::round(size->get().shownValue() * 100.0f)))
+                      .arg(freeze->get().shownValue() > 0.5f ? tr("on") : tr("off"));
                 }
             }
         }
@@ -3058,7 +3058,7 @@ int EffectRackController::phaseScopeDelaySamples(quint32 effectIndex) const
         return 0;
     }
     const auto delay = effect->parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString());
-    return delay ? static_cast<int>(PhaseScope::delaySamples(delay->get().value(), effect->sampleRate())) : 0;
+    return delay ? static_cast<int>(PhaseScope::delaySamples(delay->get().shownValue(), effect->sampleRate())) : 0;
 }
 
 void EffectRackController::phaseScopeSetDelaySamples(quint32 effectIndex, int samples)
@@ -3618,7 +3618,7 @@ void EffectRackController::loadEffectPreset(quint32 effectIndex, int presetIndex
     // On a send, Mix belongs to the routing as much as to the sound, like the side-chain source a
     // preset leaves alone: the preset brings its sound and the Mix stays where it was set
     const auto mix = effect->parameter(Constants::NahdXml::xmlKeyMix().toStdString());
-    const auto keptMix = isMasterSendRack() && mix ? std::optional<float> { mix->get().value() } : std::nullopt;
+    const auto keptMix = isMasterSendRack() && mix ? std::optional<float> { mix->get().shownValue() } : std::nullopt;
 
     const auto factoryCount = effectFactoryPresetCount(effectIndex);
     if (presetIndex < factoryCount) {

@@ -1189,6 +1189,11 @@ void DeviceService::scheduleParameterChange(const ParameterData & data, std::opt
 
 void DeviceService::notifyParameterAutomation(const ParameterData & data, std::chrono::milliseconds delay)
 {
+    // A relative automation scales the value the knob shows rather than replacing it, so the knob
+    // stays where it is and there is nothing to show
+    if (data.mode() == ParameterAutomation::Mode::Relative) {
+        return;
+    }
     if (const auto target = data.target().lock(); target) {
         const auto delayMs = std::max<qint64>(0, delay.count());
         emit parameterAutomationScheduled(reinterpret_cast<quintptr>(target.get()), delayMs);

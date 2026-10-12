@@ -1247,7 +1247,7 @@ void FmSynthDevice::setOperatorRatio(size_t index, int value)
 
 float FmSynthDevice::operatorDetune(size_t index) const
 {
-    return m_operatorDetune.at(index);
+    return shownParameterValue(Constants::NahdXml::xmlKeyOperatorDetune(index), m_operatorDetune.at(index));
 }
 
 void FmSynthDevice::setOperatorDetune(size_t index, float value)
@@ -1261,7 +1261,7 @@ void FmSynthDevice::setOperatorDetune(size_t index, float value)
 
 float FmSynthDevice::operatorLevel(size_t index) const
 {
-    return m_operatorLevel.at(index);
+    return shownParameterValue(Constants::NahdXml::xmlKeyOperatorLevel(index), m_operatorLevel.at(index));
 }
 
 void FmSynthDevice::setOperatorLevel(size_t index, float value)
@@ -1275,7 +1275,7 @@ void FmSynthDevice::setOperatorLevel(size_t index, float value)
 
 float FmSynthDevice::operatorVelocitySensitivity(size_t index) const
 {
-    return m_operatorVelocitySensitivity.at(index);
+    return shownParameterValue(Constants::NahdXml::xmlKeyOperatorVelocitySensitivity(index), m_operatorVelocitySensitivity.at(index));
 }
 
 void FmSynthDevice::setOperatorVelocitySensitivity(size_t index, float value)
@@ -1289,7 +1289,7 @@ void FmSynthDevice::setOperatorVelocitySensitivity(size_t index, float value)
 
 float FmSynthDevice::operatorKeyScale(size_t index) const
 {
-    return m_operatorKeyScale.at(index);
+    return shownParameterValue(Constants::NahdXml::xmlKeyOperatorKeyScale(index), m_operatorKeyScale.at(index));
 }
 
 void FmSynthDevice::setOperatorKeyScale(size_t index, float value)
@@ -1303,7 +1303,7 @@ void FmSynthDevice::setOperatorKeyScale(size_t index, float value)
 
 float FmSynthDevice::operatorAttack(size_t index) const
 {
-    return m_operatorAttack.at(index);
+    return shownParameterValue(Constants::NahdXml::xmlKeyOperatorAttack(index), m_operatorAttack.at(index));
 }
 
 void FmSynthDevice::setOperatorAttack(size_t index, float value)
@@ -1317,7 +1317,7 @@ void FmSynthDevice::setOperatorAttack(size_t index, float value)
 
 float FmSynthDevice::operatorDecay(size_t index) const
 {
-    return m_operatorDecay.at(index);
+    return shownParameterValue(Constants::NahdXml::xmlKeyOperatorDecay(index), m_operatorDecay.at(index));
 }
 
 void FmSynthDevice::setOperatorDecay(size_t index, float value)
@@ -1331,7 +1331,7 @@ void FmSynthDevice::setOperatorDecay(size_t index, float value)
 
 float FmSynthDevice::operatorSustain(size_t index) const
 {
-    return m_operatorSustain.at(index);
+    return shownParameterValue(Constants::NahdXml::xmlKeyOperatorSustain(index), m_operatorSustain.at(index));
 }
 
 void FmSynthDevice::setOperatorSustain(size_t index, float value)
@@ -1361,7 +1361,7 @@ void FmSynthDevice::setAlgorithm(int value)
 
 float FmSynthDevice::feedback() const
 {
-    return m_feedback;
+    return shownParameterValue(Constants::NahdXml::xmlKeyFeedback(), m_feedback);
 }
 
 void FmSynthDevice::setFeedback(float value)
@@ -1375,7 +1375,7 @@ void FmSynthDevice::setFeedback(float value)
 
 float FmSynthDevice::lpfCutoff() const
 {
-    return m_lpfCutoff;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLpfCutoff(), m_lpfCutoff);
 }
 
 void FmSynthDevice::setLpfCutoff(float value)
@@ -1389,7 +1389,7 @@ void FmSynthDevice::setLpfCutoff(float value)
 
 float FmSynthDevice::lpfResonance() const
 {
-    return m_lpfResonance;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLpfResonance(), m_lpfResonance);
 }
 
 void FmSynthDevice::setLpfResonance(float value)
@@ -1403,7 +1403,7 @@ void FmSynthDevice::setLpfResonance(float value)
 
 float FmSynthDevice::hpfCutoff() const
 {
-    return m_hpfCutoff;
+    return shownParameterValue(Constants::NahdXml::xmlKeyHpfCutoff(), m_hpfCutoff);
 }
 
 void FmSynthDevice::setHpfCutoff(float value)
@@ -1417,7 +1417,7 @@ void FmSynthDevice::setHpfCutoff(float value)
 
 float FmSynthDevice::ampAttack() const
 {
-    return m_ampAttack;
+    return shownParameterValue(Constants::NahdXml::xmlKeyAmpAttack(), m_ampAttack);
 }
 
 void FmSynthDevice::setAmpAttack(float value)
@@ -1431,7 +1431,7 @@ void FmSynthDevice::setAmpAttack(float value)
 
 float FmSynthDevice::ampDecay() const
 {
-    return m_ampDecay;
+    return shownParameterValue(Constants::NahdXml::xmlKeyAmpDecay(), m_ampDecay);
 }
 
 void FmSynthDevice::setAmpDecay(float value)
@@ -1445,7 +1445,7 @@ void FmSynthDevice::setAmpDecay(float value)
 
 float FmSynthDevice::ampSustain() const
 {
-    return m_ampSustain;
+    return shownParameterValue(Constants::NahdXml::xmlKeyAmpSustain(), m_ampSustain);
 }
 
 void FmSynthDevice::setAmpSustain(float value)
@@ -1459,7 +1459,7 @@ void FmSynthDevice::setAmpSustain(float value)
 
 float FmSynthDevice::ampRelease() const
 {
-    return m_ampRelease;
+    return shownParameterValue(Constants::NahdXml::xmlKeyAmpRelease(), m_ampRelease);
 }
 
 void FmSynthDevice::setAmpRelease(float value)
@@ -1473,7 +1473,7 @@ void FmSynthDevice::setAmpRelease(float value)
 
 float FmSynthDevice::ampCurve() const
 {
-    return m_ampCurve;
+    return shownParameterValue(Constants::NahdXml::xmlKeyAmpCurve(), m_ampCurve);
 }
 
 void FmSynthDevice::setAmpCurve(float value)
@@ -1487,7 +1487,7 @@ void FmSynthDevice::setAmpCurve(float value)
 
 float FmSynthDevice::ampVelocitySensitivity() const
 {
-    return m_ampVelocitySensitivity;
+    return shownParameterValue(Constants::NahdXml::xmlKeyAmpVelocitySensitivity(), m_ampVelocitySensitivity);
 }
 
 void FmSynthDevice::setAmpVelocitySensitivity(float value)
@@ -1501,7 +1501,7 @@ void FmSynthDevice::setAmpVelocitySensitivity(float value)
 
 float FmSynthDevice::modAttack() const
 {
-    return m_modAttack;
+    return shownParameterValue(Constants::NahdXml::xmlKeyModAttack(), m_modAttack);
 }
 
 void FmSynthDevice::setModAttack(float value)
@@ -1515,7 +1515,7 @@ void FmSynthDevice::setModAttack(float value)
 
 float FmSynthDevice::modDecay() const
 {
-    return m_modDecay;
+    return shownParameterValue(Constants::NahdXml::xmlKeyModDecay(), m_modDecay);
 }
 
 void FmSynthDevice::setModDecay(float value)
@@ -1529,7 +1529,7 @@ void FmSynthDevice::setModDecay(float value)
 
 float FmSynthDevice::modSustain() const
 {
-    return m_modSustain;
+    return shownParameterValue(Constants::NahdXml::xmlKeyModSustain(), m_modSustain);
 }
 
 void FmSynthDevice::setModSustain(float value)
@@ -1543,7 +1543,7 @@ void FmSynthDevice::setModSustain(float value)
 
 float FmSynthDevice::modInt() const
 {
-    return m_modInt;
+    return shownParameterValue(Constants::NahdXml::xmlKeyModIntensity(), m_modInt);
 }
 
 void FmSynthDevice::setModInt(float value)
@@ -1571,7 +1571,7 @@ void FmSynthDevice::setModTarget(FmSynthDevice::ModTarget value)
 
 float FmSynthDevice::modCurve() const
 {
-    return m_modCurve;
+    return shownParameterValue(Constants::NahdXml::xmlKeyModCurve(), m_modCurve);
 }
 
 void FmSynthDevice::setModCurve(float value)
@@ -1613,7 +1613,7 @@ void FmSynthDevice::setLfoMode(Lfo::Mode value)
 
 float FmSynthDevice::lfoRate() const
 {
-    return m_lfoRate;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLfoRate(), m_lfoRate);
 }
 
 void FmSynthDevice::setLfoRate(float value)
@@ -1627,7 +1627,7 @@ void FmSynthDevice::setLfoRate(float value)
 
 float FmSynthDevice::lfoInt() const
 {
-    return m_lfoInt;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLfoIntensity(), m_lfoInt);
 }
 
 void FmSynthDevice::setLfoInt(float value)
@@ -1646,7 +1646,7 @@ FmSynthDevice::LfoTarget FmSynthDevice::lfoTarget() const
 
 float FmSynthDevice::lfoDelay() const
 {
-    return m_lfoDelay;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLfoDelay(), m_lfoDelay);
 }
 
 void FmSynthDevice::setLfoDelay(float value)
@@ -1660,7 +1660,7 @@ void FmSynthDevice::setLfoDelay(float value)
 
 float FmSynthDevice::lfoFade() const
 {
-    return m_lfoFade;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLfoFade(), m_lfoFade);
 }
 
 void FmSynthDevice::setLfoFade(float value)
@@ -1711,7 +1711,7 @@ void FmSynthDevice::setLfo2Mode(Lfo::Mode value)
 
 float FmSynthDevice::lfo2Rate() const
 {
-    return m_lfo2Rate;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLfo2Rate(), m_lfo2Rate);
 }
 
 void FmSynthDevice::setLfo2Rate(float value)
@@ -1725,7 +1725,7 @@ void FmSynthDevice::setLfo2Rate(float value)
 
 float FmSynthDevice::lfo2Int() const
 {
-    return m_lfo2Int;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLfo2Intensity(), m_lfo2Int);
 }
 
 void FmSynthDevice::setLfo2Int(float value)
@@ -1744,7 +1744,7 @@ FmSynthDevice::LfoTarget FmSynthDevice::lfo2Target() const
 
 float FmSynthDevice::lfo2Delay() const
 {
-    return m_lfo2Delay;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLfo2Delay(), m_lfo2Delay);
 }
 
 void FmSynthDevice::setLfo2Delay(float value)
@@ -1758,7 +1758,7 @@ void FmSynthDevice::setLfo2Delay(float value)
 
 float FmSynthDevice::lfo2Fade() const
 {
-    return m_lfo2Fade;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLfo2Fade(), m_lfo2Fade);
 }
 
 void FmSynthDevice::setLfo2Fade(float value)
@@ -1815,7 +1815,7 @@ void FmSynthDevice::setVoiceMode(FmSynthDevice::VoiceMode value)
 
 float FmSynthDevice::voiceDepth() const
 {
-    return m_voiceDepth;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVoiceDepth(), m_voiceDepth);
 }
 
 void FmSynthDevice::setVoiceDepth(float value)
@@ -1829,7 +1829,7 @@ void FmSynthDevice::setVoiceDepth(float value)
 
 float FmSynthDevice::phaseRandomness() const
 {
-    return m_phaseRandomness;
+    return shownParameterValue(Constants::NahdXml::xmlKeyPhaseRandomness(), m_phaseRandomness);
 }
 
 void FmSynthDevice::setPhaseRandomness(float randomness)
@@ -1839,7 +1839,7 @@ void FmSynthDevice::setPhaseRandomness(float randomness)
 
 float FmSynthDevice::panSpread() const
 {
-    return m_panSpread;
+    return shownParameterValue(Constants::NahdXml::xmlKeyPanSpread(), m_panSpread);
 }
 
 void FmSynthDevice::setPanSpread(float value)
@@ -1853,7 +1853,7 @@ void FmSynthDevice::setPanSpread(float value)
 
 float FmSynthDevice::portamento() const
 {
-    return m_portamento;
+    return shownParameterValue(Constants::NahdXml::xmlKeyPortamento(), m_portamento);
 }
 
 void FmSynthDevice::setPortamento(float value)
@@ -1895,7 +1895,7 @@ void FmSynthDevice::setDelayType(Delay::Type value)
 
 float FmSynthDevice::delayTime() const
 {
-    return m_delayTime;
+    return shownParameterValue(Constants::NahdXml::xmlKeyDelayTime(), m_delayTime);
 }
 
 void FmSynthDevice::setDelayTime(float value)
@@ -1909,7 +1909,7 @@ void FmSynthDevice::setDelayTime(float value)
 
 float FmSynthDevice::delayFeedback() const
 {
-    return m_delayFeedback;
+    return shownParameterValue(Constants::NahdXml::xmlKeyDelayFeedback(), m_delayFeedback);
 }
 
 void FmSynthDevice::setDelayFeedback(float value)
@@ -1923,7 +1923,7 @@ void FmSynthDevice::setDelayFeedback(float value)
 
 float FmSynthDevice::delayDepth() const
 {
-    return m_delayDepth;
+    return shownParameterValue(Constants::NahdXml::xmlKeyDelayDepth(), m_delayDepth);
 }
 
 void FmSynthDevice::setDelayDepth(float value)
@@ -1937,7 +1937,7 @@ void FmSynthDevice::setDelayDepth(float value)
 
 float FmSynthDevice::delayMix() const
 {
-    return m_delayMix;
+    return shownParameterValue(Constants::NahdXml::xmlKeyDelayMix(), m_delayMix);
 }
 
 void FmSynthDevice::setDelayMix(float value)
@@ -1965,7 +1965,7 @@ void FmSynthDevice::setDelaySync(bool value)
 
 float FmSynthDevice::delaySyncDivision() const
 {
-    return m_delaySyncDivision;
+    return shownParameterValue(Constants::NahdXml::xmlKeyDelaySyncDivision(), m_delaySyncDivision);
 }
 
 void FmSynthDevice::setDelaySyncDivision(float value)

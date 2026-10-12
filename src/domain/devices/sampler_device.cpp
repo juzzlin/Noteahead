@@ -528,7 +528,11 @@ bool SamplerDevice::applyParameterAutomation(const std::string & key, ParameterA
         if (!parameter || parameter->get().type() != Parameter::Type::Continuous) {
             return false;
         }
-        parameter->get().setAutomationValue(ParameterAutomation::effectiveValue(mode, value, parameter->get()));
+        if (const auto effective = ParameterAutomation::effectiveValue(mode, value, parameter->get()); mode == ParameterAutomation::Mode::Relative) {
+            parameter->get().setRelativeAutomationValue(effective);
+        } else {
+            parameter->get().setAutomationValue(effective);
+        }
         syncSampleFields(*sample);
         // What the voices already sounding take from the pad as it plays; an envelope time is read
         // when a note starts, so the next one picks it up
@@ -1193,7 +1197,7 @@ float SamplerDevice::samplePan(uint8_t note) const
     if (note >= maxSamples || !m_samples.at(note)) {
         return 0.5f;
     }
-    return m_samples.at(note)->pan;
+    return shownSampleValue(*m_samples.at(note), Constants::NahdXml::xmlKeyPan(), m_samples.at(note)->pan);
 }
 
 void SamplerDevice::setSamplePan(uint8_t note, float pan)
@@ -1228,7 +1232,7 @@ float SamplerDevice::sampleVolume(uint8_t note) const
     if (note >= maxSamples || !m_samples.at(note)) {
         return 1.0f;
     }
-    return m_samples.at(note)->volume;
+    return shownSampleValue(*m_samples.at(note), Constants::NahdXml::xmlKeyFader(), m_samples.at(note)->volume);
 }
 
 void SamplerDevice::setSampleVolume(uint8_t note, float volume)
@@ -1263,7 +1267,7 @@ float SamplerDevice::sampleCutoff(uint8_t note) const
     if (note >= maxSamples || !m_samples.at(note)) {
         return 1.0f;
     }
-    return m_samples.at(note)->cutoff;
+    return shownSampleValue(*m_samples.at(note), Constants::NahdXml::xmlKeyCutoff(), m_samples.at(note)->cutoff);
 }
 
 void SamplerDevice::setSampleCutoff(uint8_t note, float cutoff)
@@ -1298,7 +1302,7 @@ float SamplerDevice::sampleHpfCutoff(uint8_t note) const
     if (note >= maxSamples || !m_samples.at(note)) {
         return 0.0f;
     }
-    return m_samples.at(note)->hpfCutoff;
+    return shownSampleValue(*m_samples.at(note), Constants::NahdXml::xmlKeyHpfCutoff(), m_samples.at(note)->hpfCutoff);
 }
 
 void SamplerDevice::setSampleHpfCutoff(uint8_t note, float cutoff)
@@ -2171,8 +2175,9 @@ float SamplerDevice::padValue(uint8_t note, const std::string & parameterName, f
     if (note >= maxSamples || !m_samples.at(note)) {
         return fallback;
     }
+    // What the pad's knob shows, which a relative automation leaves alone: only the getters read this
     if (auto p = m_samples.at(note)->parameter(parameterName); p) {
-        return p->get().value();
+        return p->get().shownValue();
     }
     return fallback;
 }
@@ -2247,6 +2252,15 @@ void SamplerDevice::updateNormalizeGain(Sample & sample)
     if (peak > 1.0e-6f) {
         sample.normalizeGain = NormalizeTargetPeak / peak;
     }
+}
+
+float SamplerDevice::shownSampleValue(const Sample & sample, const QString & key, float live)
+{
+    // As Device::shownParameterValue(), for a pad's own parameters
+    if (const auto p = sample.parameter(key.toStdString()); p && p->get().isRelativelyAutomated()) {
+        return p->get().authoredValue();
+    }
+    return live;
 }
 
 void SamplerDevice::syncSampleFields(Sample & sample)

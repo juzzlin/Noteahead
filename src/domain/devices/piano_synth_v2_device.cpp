@@ -451,7 +451,7 @@ void PianoSynthV2Device::syncParameters()
 
 float PianoSynthV2Device::brightness() const
 {
-    return m_brightness;
+    return shownParameterValue(Constants::NahdXml::xmlKeyBrightness(), m_brightness);
 }
 
 void PianoSynthV2Device::setBrightness(float brightness)
@@ -461,7 +461,7 @@ void PianoSynthV2Device::setBrightness(float brightness)
 
 float PianoSynthV2Device::decay() const
 {
-    return m_decay;
+    return shownParameterValue(Constants::NahdXml::xmlKeyDecay(), m_decay);
 }
 
 void PianoSynthV2Device::setDecay(float decay)
@@ -471,7 +471,7 @@ void PianoSynthV2Device::setDecay(float decay)
 
 float PianoSynthV2Device::inharmonicity() const
 {
-    return m_inharmonicity;
+    return shownParameterValue(Constants::NahdXml::xmlKeyInharmonicity(), m_inharmonicity);
 }
 
 void PianoSynthV2Device::setInharmonicity(float inharmonicity)
@@ -481,7 +481,7 @@ void PianoSynthV2Device::setInharmonicity(float inharmonicity)
 
 float PianoSynthV2Device::hammerHardness() const
 {
-    return m_hammerHardness;
+    return shownParameterValue(Constants::NahdXml::xmlKeyHardness(), m_hammerHardness);
 }
 
 void PianoSynthV2Device::setHammerHardness(float hardness)
@@ -491,7 +491,7 @@ void PianoSynthV2Device::setHammerHardness(float hardness)
 
 float PianoSynthV2Device::stringDetune() const
 {
-    return m_stringDetune;
+    return shownParameterValue(Constants::NahdXml::xmlKeyStringDetune(), m_stringDetune);
 }
 
 void PianoSynthV2Device::setStringDetune(float detune)
@@ -501,7 +501,7 @@ void PianoSynthV2Device::setStringDetune(float detune)
 
 float PianoSynthV2Device::stretch() const
 {
-    return m_stretch;
+    return shownParameterValue(Constants::NahdXml::xmlKeyStretch(), m_stretch);
 }
 
 void PianoSynthV2Device::setStretch(float stretch)
@@ -511,7 +511,7 @@ void PianoSynthV2Device::setStretch(float stretch)
 
 float PianoSynthV2Device::richness() const
 {
-    return m_richness;
+    return shownParameterValue(Constants::NahdXml::xmlKeyRichness(), m_richness);
 }
 
 void PianoSynthV2Device::setRichness(float richness)
@@ -521,7 +521,7 @@ void PianoSynthV2Device::setRichness(float richness)
 
 float PianoSynthV2Device::doubleDecay() const
 {
-    return m_doubleDecay;
+    return shownParameterValue(Constants::NahdXml::xmlKeyDoubleDecay(), m_doubleDecay);
 }
 
 void PianoSynthV2Device::setDoubleDecay(float doubleDecay)
@@ -531,7 +531,7 @@ void PianoSynthV2Device::setDoubleDecay(float doubleDecay)
 
 float PianoSynthV2Device::attack() const
 {
-    return m_attack;
+    return shownParameterValue(Constants::NahdXml::xmlKeyAttack(), m_attack);
 }
 
 void PianoSynthV2Device::setAttack(float attack)
@@ -541,7 +541,7 @@ void PianoSynthV2Device::setAttack(float attack)
 
 float PianoSynthV2Device::lpfCutoff() const
 {
-    return m_lpfCutoff;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLpfCutoff(), m_lpfCutoff);
 }
 
 void PianoSynthV2Device::setLpfCutoff(float cutoff)
@@ -551,7 +551,7 @@ void PianoSynthV2Device::setLpfCutoff(float cutoff)
 
 float PianoSynthV2Device::hpfCutoff() const
 {
-    return m_hpfCutoff;
+    return shownParameterValue(Constants::NahdXml::xmlKeyHpfCutoff(), m_hpfCutoff);
 }
 
 void PianoSynthV2Device::setHpfCutoff(float cutoff)
@@ -561,7 +561,7 @@ void PianoSynthV2Device::setHpfCutoff(float cutoff)
 
 float PianoSynthV2Device::releaseTime() const
 {
-    return m_releaseTime;
+    return shownParameterValue(Constants::NahdXml::xmlKeyReleaseTime(), m_releaseTime);
 }
 
 void PianoSynthV2Device::setReleaseTime(float releaseTime)
@@ -571,7 +571,7 @@ void PianoSynthV2Device::setReleaseTime(float releaseTime)
 
 float PianoSynthV2Device::stereoWidth() const
 {
-    return m_stereoWidth;
+    return shownParameterValue(Constants::NahdXml::xmlKeyPanSpread(), m_stereoWidth);
 }
 
 void PianoSynthV2Device::setStereoWidth(float stereoWidth)

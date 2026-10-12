@@ -1836,7 +1836,7 @@ void SynthDevice::setVco1Octave(int octave)
 
 float SynthDevice::vco1Pitch() const
 {
-    return m_vco1Pitch;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVco1Pitch(), m_vco1Pitch);
 }
 
 void SynthDevice::setVco1Pitch(float pitch)
@@ -1906,7 +1906,7 @@ void SynthDevice::setVcoHpfSlope(size_t vcoIndex, int slope)
 
 float SynthDevice::vco1Shape() const
 {
-    return m_vco1Shape;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVco1Shape(), m_vco1Shape);
 }
 
 void SynthDevice::setVco1Shape(float shape)
@@ -1916,7 +1916,7 @@ void SynthDevice::setVco1Shape(float shape)
 
 float SynthDevice::vco1Roundness() const
 {
-    return m_vco1Roundness;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVco1Roundness(), m_vco1Roundness);
 }
 
 void SynthDevice::setVco1Roundness(float roundness)
@@ -1967,7 +1967,7 @@ void SynthDevice::setVco2Octave(int octave)
 
 float SynthDevice::vco2Pitch() const
 {
-    return m_vco2Pitch;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVco2Pitch(), m_vco2Pitch);
 }
 
 void SynthDevice::setVco2Pitch(float pitch)
@@ -1977,7 +1977,7 @@ void SynthDevice::setVco2Pitch(float pitch)
 
 float SynthDevice::vco2Shape() const
 {
-    return m_vco2Shape;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVco2Shape(), m_vco2Shape);
 }
 
 void SynthDevice::setVco2Shape(float shape)
@@ -1987,7 +1987,7 @@ void SynthDevice::setVco2Shape(float shape)
 
 float SynthDevice::vco2Roundness() const
 {
-    return m_vco2Roundness;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVco2Roundness(), m_vco2Roundness);
 }
 
 void SynthDevice::setVco2Roundness(float roundness)
@@ -2018,7 +2018,7 @@ void SynthDevice::setMultiType(MultiEngine::Type type)
 
 float SynthDevice::multiShape() const
 {
-    return m_multiShape;
+    return shownParameterValue(Constants::NahdXml::xmlKeyMultiShape(), m_multiShape);
 }
 
 void SynthDevice::setMultiShape(float shape)
@@ -2028,7 +2028,7 @@ void SynthDevice::setMultiShape(float shape)
 
 float SynthDevice::multiLevel() const
 {
-    return m_multiLevel;
+    return shownParameterValue(Constants::NahdXml::xmlKeyMultiLevel(), m_multiLevel);
 }
 
 void SynthDevice::setMultiLevel(float level)
@@ -2038,7 +2038,7 @@ void SynthDevice::setMultiLevel(float level)
 
 float SynthDevice::multiKeyTrack() const
 {
-    return m_multiKeyTrack;
+    return shownParameterValue(Constants::NahdXml::xmlKeyMultiKeyTrack(), m_multiKeyTrack);
 }
 
 void SynthDevice::setMultiKeyTrack(float keyTrack)
@@ -2049,7 +2049,7 @@ void SynthDevice::setMultiKeyTrack(float keyTrack)
 // Mixer
 float SynthDevice::mixVco1() const
 {
-    return m_mixVco1;
+    return shownParameterValue(Constants::NahdXml::xmlKeyMixLevel1(), m_mixVco1);
 }
 
 void SynthDevice::setMixVco1(float level)
@@ -2059,7 +2059,7 @@ void SynthDevice::setMixVco1(float level)
 
 float SynthDevice::mixVco2() const
 {
-    return m_mixVco2;
+    return shownParameterValue(Constants::NahdXml::xmlKeyMixLevel2(), m_mixVco2);
 }
 
 void SynthDevice::setMixVco2(float level)
@@ -2070,7 +2070,7 @@ void SynthDevice::setMixVco2(float level)
 // Filter
 float SynthDevice::lpfCutoff() const
 {
-    return m_lpfCutoff;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLpfCutoff(), m_lpfCutoff);
 }
 
 void SynthDevice::setLpfCutoff(float cutoff)
@@ -2090,7 +2090,7 @@ void SynthDevice::setLpfCutoff(float cutoff)
 
 float SynthDevice::lpfResonance() const
 {
-    return m_lpfResonance;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLpfResonance(), m_lpfResonance);
 }
 
 void SynthDevice::setLpfResonance(float resonance)
@@ -2110,7 +2110,7 @@ void SynthDevice::setLpfResonance(float resonance)
 
 float SynthDevice::hpfCutoff() const
 {
-    return m_hpfCutoff;
+    return shownParameterValue(Constants::NahdXml::xmlKeyHpfCutoff(), m_hpfCutoff);
 }
 
 void SynthDevice::setHpfCutoff(float cutoff)
@@ -2130,7 +2130,7 @@ void SynthDevice::setHpfCutoff(float cutoff)
 
 float SynthDevice::filterKeyTrack() const
 {
-    return m_filterKeyTrack;
+    return shownParameterValue(Constants::NahdXml::xmlKeyKeyTrack(), m_filterKeyTrack);
 }
 
 void SynthDevice::setFilterKeyTrack(float track)
@@ -2141,7 +2141,7 @@ void SynthDevice::setFilterKeyTrack(float track)
 // Amp EG
 float SynthDevice::ampAttack() const
 {
-    return m_ampAttack;
+    return shownParameterValue(Constants::NahdXml::xmlKeyAmpAttack(), m_ampAttack);
 }
 
 void SynthDevice::setAmpAttack(float a)
@@ -2151,7 +2151,7 @@ void SynthDevice::setAmpAttack(float a)
 
 float SynthDevice::ampDecay() const
 {
-    return m_ampDecay;
+    return shownParameterValue(Constants::NahdXml::xmlKeyAmpDecay(), m_ampDecay);
 }
 
 void SynthDevice::setAmpDecay(float d)
@@ -2161,7 +2161,7 @@ void SynthDevice::setAmpDecay(float d)
 
 float SynthDevice::ampSustain() const
 {
-    return m_ampSustain;
+    return shownParameterValue(Constants::NahdXml::xmlKeyAmpSustain(), m_ampSustain);
 }
 
 void SynthDevice::setAmpSustain(float s)
@@ -2171,7 +2171,7 @@ void SynthDevice::setAmpSustain(float s)
 
 float SynthDevice::ampRelease() const
 {
-    return m_ampRelease;
+    return shownParameterValue(Constants::NahdXml::xmlKeyAmpRelease(), m_ampRelease);
 }
 
 void SynthDevice::setAmpRelease(float r)
@@ -2181,7 +2181,7 @@ void SynthDevice::setAmpRelease(float r)
 
 float SynthDevice::ampVelocitySensitivity() const
 {
-    return m_ampVelocitySensitivity;
+    return shownParameterValue(Constants::NahdXml::xmlKeyAmpVelocitySensitivity(), m_ampVelocitySensitivity);
 }
 
 void SynthDevice::setAmpVelocitySensitivity(float sensitivity)
@@ -2191,7 +2191,7 @@ void SynthDevice::setAmpVelocitySensitivity(float sensitivity)
 
 float SynthDevice::ampCurve() const
 {
-    return m_ampCurve;
+    return shownParameterValue(Constants::NahdXml::xmlKeyAmpCurve(), m_ampCurve);
 }
 
 void SynthDevice::setAmpCurve(float curve)
@@ -2202,7 +2202,7 @@ void SynthDevice::setAmpCurve(float curve)
 // Mod EG
 float SynthDevice::modAttack() const
 {
-    return m_modAttack;
+    return shownParameterValue(Constants::NahdXml::xmlKeyModAttack(), m_modAttack);
 }
 
 void SynthDevice::setModAttack(float a)
@@ -2212,7 +2212,7 @@ void SynthDevice::setModAttack(float a)
 
 float SynthDevice::modDecay() const
 {
-    return m_modDecay;
+    return shownParameterValue(Constants::NahdXml::xmlKeyModDecay(), m_modDecay);
 }
 
 void SynthDevice::setModDecay(float d)
@@ -2222,7 +2222,7 @@ void SynthDevice::setModDecay(float d)
 
 float SynthDevice::modSustain() const
 {
-    return m_modSustain;
+    return shownParameterValue(Constants::NahdXml::xmlKeyModSustain(), m_modSustain);
 }
 
 void SynthDevice::setModSustain(float sustain)
@@ -2252,7 +2252,7 @@ void SynthDevice::setModTarget(ModTarget target)
 
 float SynthDevice::modCurve() const
 {
-    return m_modCurve;
+    return shownParameterValue(Constants::NahdXml::xmlKeyModCurve(), m_modCurve);
 }
 
 void SynthDevice::setModCurve(float curve)
@@ -2283,7 +2283,7 @@ void SynthDevice::setLfoMode(Lfo::Mode mode)
 
 float SynthDevice::lfoRate() const
 {
-    return m_lfoRate;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLfoRate(), m_lfoRate);
 }
 
 void SynthDevice::setLfoRate(float rate)
@@ -2313,7 +2313,7 @@ void SynthDevice::setLfoTarget(LfoTarget target)
 
 float SynthDevice::lfoDelay() const
 {
-    return m_lfoDelay;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLfoDelay(), m_lfoDelay);
 }
 
 void SynthDevice::setLfoDelay(float delay)
@@ -2323,7 +2323,7 @@ void SynthDevice::setLfoDelay(float delay)
 
 float SynthDevice::lfoFade() const
 {
-    return m_lfoFade;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLfoFade(), m_lfoFade);
 }
 
 void SynthDevice::setLfoFade(float fade)
@@ -2354,7 +2354,7 @@ void SynthDevice::setLfo2Mode(Lfo::Mode mode)
 
 float SynthDevice::lfo2Rate() const
 {
-    return m_lfo2Rate;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLfo2Rate(), m_lfo2Rate);
 }
 
 void SynthDevice::setLfo2Rate(float rate)
@@ -2384,7 +2384,7 @@ void SynthDevice::setLfo2Target(LfoTarget target)
 
 float SynthDevice::lfo2Delay() const
 {
-    return m_lfo2Delay;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLfo2Delay(), m_lfo2Delay);
 }
 
 void SynthDevice::setLfo2Delay(float delay)
@@ -2394,7 +2394,7 @@ void SynthDevice::setLfo2Delay(float delay)
 
 float SynthDevice::lfo2Fade() const
 {
-    return m_lfo2Fade;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLfo2Fade(), m_lfo2Fade);
 }
 
 void SynthDevice::setLfo2Fade(float fade)
@@ -2435,7 +2435,7 @@ void SynthDevice::setVoiceMode(VoiceMode mode)
 
 float SynthDevice::voiceDepth() const
 {
-    return m_voiceDepth;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVoiceDepth(), m_voiceDepth);
 }
 
 void SynthDevice::setVoiceDepth(float depth)
@@ -2445,7 +2445,7 @@ void SynthDevice::setVoiceDepth(float depth)
 
 float SynthDevice::portamento() const
 {
-    return m_portamento;
+    return shownParameterValue(Constants::NahdXml::xmlKeyPortamento(), m_portamento);
 }
 
 void SynthDevice::setPortamento(float val)
@@ -2455,7 +2455,7 @@ void SynthDevice::setPortamento(float val)
 
 float SynthDevice::panSpread() const
 {
-    return m_panSpread;
+    return shownParameterValue(Constants::NahdXml::xmlKeyPanSpread(), m_panSpread);
 }
 
 void SynthDevice::setPanSpread(float spread)
@@ -2512,7 +2512,7 @@ void SynthDevice::setDelayType(Delay::Type type)
 
 float SynthDevice::delayTime() const
 {
-    return m_delayTime;
+    return shownParameterValue(Constants::NahdXml::xmlKeyDelayTime(), m_delayTime);
 }
 
 void SynthDevice::setDelayTime(float time)
@@ -2522,7 +2522,7 @@ void SynthDevice::setDelayTime(float time)
 
 float SynthDevice::delayFeedback() const
 {
-    return m_delayFeedback;
+    return shownParameterValue(Constants::NahdXml::xmlKeyDelayFeedback(), m_delayFeedback);
 }
 
 void SynthDevice::setDelayFeedback(float fb)
@@ -2532,7 +2532,7 @@ void SynthDevice::setDelayFeedback(float fb)
 
 float SynthDevice::delayDepth() const
 {
-    return m_delayDepth;
+    return shownParameterValue(Constants::NahdXml::xmlKeyDelayDepth(), m_delayDepth);
 }
 
 void SynthDevice::setDelayDepth(float depth)
@@ -2542,7 +2542,7 @@ void SynthDevice::setDelayDepth(float depth)
 
 float SynthDevice::delayMix() const
 {
-    return m_delayMix;
+    return shownParameterValue(Constants::NahdXml::xmlKeyDelayMix(), m_delayMix);
 }
 
 void SynthDevice::setDelayMix(float mix)
@@ -2562,7 +2562,7 @@ void SynthDevice::setDelaySync(bool sync)
 
 float SynthDevice::delaySyncDivision() const
 {
-    return m_delaySyncDivision;
+    return shownParameterValue(Constants::NahdXml::xmlKeyDelaySyncDivision(), m_delaySyncDivision);
 }
 
 void SynthDevice::setDelaySyncDivision(float division)
@@ -2613,7 +2613,7 @@ void SynthDevice::setVco3Octave(int octave)
 
 float SynthDevice::vco3Pitch() const
 {
-    return m_vco3Pitch;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVco3Pitch(), m_vco3Pitch);
 }
 
 void SynthDevice::setVco3Pitch(float pitch)
@@ -2623,7 +2623,7 @@ void SynthDevice::setVco3Pitch(float pitch)
 
 float SynthDevice::vco3Shape() const
 {
-    return m_vco3Shape;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVco3Shape(), m_vco3Shape);
 }
 
 void SynthDevice::setVco3Shape(float shape)
@@ -2633,7 +2633,7 @@ void SynthDevice::setVco3Shape(float shape)
 
 float SynthDevice::vco3Roundness() const
 {
-    return m_vco3Roundness;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVco3Roundness(), m_vco3Roundness);
 }
 
 void SynthDevice::setVco3Roundness(float roundness)
@@ -2653,7 +2653,7 @@ void SynthDevice::setVco3Sync(bool sync)
 
 float SynthDevice::mixVco3() const
 {
-    return m_mixVco3;
+    return shownParameterValue(Constants::NahdXml::xmlKeyMixLevel3(), m_mixVco3);
 }
 
 void SynthDevice::setMixVco3(float level)
@@ -2683,7 +2683,7 @@ void SynthDevice::setVco4Octave(int octave)
 
 float SynthDevice::vco4Pitch() const
 {
-    return m_vco4Pitch;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVco4Pitch(), m_vco4Pitch);
 }
 
 void SynthDevice::setVco4Pitch(float pitch)
@@ -2693,7 +2693,7 @@ void SynthDevice::setVco4Pitch(float pitch)
 
 float SynthDevice::vco4Shape() const
 {
-    return m_vco4Shape;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVco4Shape(), m_vco4Shape);
 }
 
 void SynthDevice::setVco4Shape(float shape)
@@ -2703,7 +2703,7 @@ void SynthDevice::setVco4Shape(float shape)
 
 float SynthDevice::vco4Roundness() const
 {
-    return m_vco4Roundness;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVco4Roundness(), m_vco4Roundness);
 }
 
 void SynthDevice::setVco4Roundness(float roundness)
@@ -2723,7 +2723,7 @@ void SynthDevice::setVco4Sync(bool sync)
 
 float SynthDevice::mixVco4() const
 {
-    return m_mixVco4;
+    return shownParameterValue(Constants::NahdXml::xmlKeyMixLevel4(), m_mixVco4);
 }
 
 void SynthDevice::setMixVco4(float level)
@@ -2733,7 +2733,7 @@ void SynthDevice::setMixVco4(float level)
 
 float SynthDevice::filterDrive() const
 {
-    return m_filterDrive;
+    return shownParameterValue(Constants::NahdXml::xmlKeyFilterDrive(), m_filterDrive);
 }
 
 void SynthDevice::setFilterDrive(float drive)
@@ -2743,7 +2743,7 @@ void SynthDevice::setFilterDrive(float drive)
 
 float SynthDevice::oscillatorInstability() const
 {
-    return m_oscillatorInstability;
+    return shownParameterValue(Constants::NahdXml::xmlKeyOscillatorInstability(), m_oscillatorInstability);
 }
 
 void SynthDevice::setOscillatorInstability(float instability)
@@ -2753,7 +2753,7 @@ void SynthDevice::setOscillatorInstability(float instability)
 
 float SynthDevice::oscillatorDrift() const
 {
-    return m_oscillatorDrift;
+    return shownParameterValue(Constants::NahdXml::xmlKeyOscillatorDrift(), m_oscillatorDrift);
 }
 
 void SynthDevice::setOscillatorDrift(float drift)
@@ -2763,7 +2763,7 @@ void SynthDevice::setOscillatorDrift(float drift)
 
 float SynthDevice::crossModDepth() const
 {
-    return m_crossModDepth;
+    return shownParameterValue(Constants::NahdXml::xmlKeyCrossModDepth(), m_crossModDepth);
 }
 
 void SynthDevice::setCrossModDepth(float depth)

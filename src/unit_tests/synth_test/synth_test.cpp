@@ -3240,8 +3240,10 @@ void SynthTest::test_applyParameterAutomation_relative_shouldScaleTheKnob()
 
     QVERIFY(synth.applyParameterAutomation(key, ParameterAutomation::Mode::Relative, 0.5));
 
-    // Half way from the bottom of the travel to the knob
-    QVERIFY(std::abs(synth.lpfCutoff() - 0.4f) < 1.0e-6f);
+    // Half way from the bottom of the travel to the knob, in what the synth plays...
+    QVERIFY(std::abs(synth.parameter(key)->get().value() - 0.4f) < 1.0e-6f);
+    // ...while the knob stays where it was set: it is the reference being scaled
+    QVERIFY(std::abs(synth.lpfCutoff() - 0.8f) < 1.0e-6f);
 }
 
 void SynthTest::test_applyParameterAutomation_unknownOrSwitch_shouldBeRefused()

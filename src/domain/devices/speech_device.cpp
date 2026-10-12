@@ -717,7 +717,7 @@ void SpeechDevice::resetAudio()
 
 float SpeechDevice::rate() const
 {
-    return m_rate;
+    return shownParameterValue(Constants::NahdXml::xmlKeyRate(), m_rate);
 }
 
 void SpeechDevice::setRate(float rate)
@@ -727,7 +727,7 @@ void SpeechDevice::setRate(float rate)
 
 float SpeechDevice::portamento() const
 {
-    return m_portamento;
+    return shownParameterValue(Constants::NahdXml::xmlKeyPortamento(), m_portamento);
 }
 
 void SpeechDevice::setPortamento(float portamento)
@@ -737,7 +737,7 @@ void SpeechDevice::setPortamento(float portamento)
 
 float SpeechDevice::glide() const
 {
-    return m_glide;
+    return shownParameterValue(Constants::NahdXml::xmlKeyGlide(), m_glide);
 }
 
 void SpeechDevice::setGlide(float glide)
@@ -747,7 +747,7 @@ void SpeechDevice::setGlide(float glide)
 
 float SpeechDevice::formantShift() const
 {
-    return m_formantShift;
+    return shownParameterValue(Constants::NahdXml::xmlKeyFormantShift(), m_formantShift);
 }
 
 void SpeechDevice::setFormantShift(float formantShift)
@@ -757,7 +757,7 @@ void SpeechDevice::setFormantShift(float formantShift)
 
 float SpeechDevice::breathiness() const
 {
-    return m_breathiness;
+    return shownParameterValue(Constants::NahdXml::xmlKeyBreathiness(), m_breathiness);
 }
 
 void SpeechDevice::setBreathiness(float breathiness)
@@ -767,7 +767,7 @@ void SpeechDevice::setBreathiness(float breathiness)
 
 float SpeechDevice::sibilance() const
 {
-    return m_sibilance;
+    return shownParameterValue(Constants::NahdXml::xmlKeySibilance(), m_sibilance);
 }
 
 void SpeechDevice::setSibilance(float sibilance)
@@ -777,7 +777,7 @@ void SpeechDevice::setSibilance(float sibilance)
 
 float SpeechDevice::velocitySensitivity() const
 {
-    return m_velocitySensitivity;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVelocitySensitivity(), m_velocitySensitivity);
 }
 
 void SpeechDevice::setVelocitySensitivity(float sensitivity)
@@ -792,7 +792,7 @@ int SpeechDevice::voiceType() const
 
 float SpeechDevice::openQuotient() const
 {
-    return m_openQuotient;
+    return shownParameterValue(Constants::NahdXml::xmlKeyOpenQuotient(), m_openQuotient);
 }
 
 void SpeechDevice::setOpenQuotient(float openQuotient)
@@ -802,7 +802,7 @@ void SpeechDevice::setOpenQuotient(float openQuotient)
 
 float SpeechDevice::voicePerturbation() const
 {
-    return m_voicePerturbation;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVoicePerturbation(), m_voicePerturbation);
 }
 
 void SpeechDevice::setVoicePerturbation(float voicePerturbation)
@@ -827,7 +827,7 @@ void SpeechDevice::setVoiceType(int voiceType)
 
 float SpeechDevice::consonantLevel() const
 {
-    return m_consonantLevel;
+    return shownParameterValue(Constants::NahdXml::xmlKeyConsonantLevel(), m_consonantLevel);
 }
 
 void SpeechDevice::setConsonantLevel(float consonantLevel)
@@ -837,7 +837,7 @@ void SpeechDevice::setConsonantLevel(float consonantLevel)
 
 float SpeechDevice::intonation() const
 {
-    return m_intonation;
+    return shownParameterValue(Constants::NahdXml::xmlKeyIntonation(), m_intonation);
 }
 
 void SpeechDevice::setIntonation(float intonation)
@@ -847,7 +847,7 @@ void SpeechDevice::setIntonation(float intonation)
 
 float SpeechDevice::vibratoRate() const
 {
-    return m_vibratoRate;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVibratoRate(), m_vibratoRate);
 }
 
 void SpeechDevice::setVibratoRate(float vibratoRate)
@@ -857,7 +857,7 @@ void SpeechDevice::setVibratoRate(float vibratoRate)
 
 float SpeechDevice::vibratoDepth() const
 {
-    return m_vibratoDepth;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVibratoDepth(), m_vibratoDepth);
 }
 
 void SpeechDevice::setVibratoDepth(float vibratoDepth)
@@ -867,7 +867,7 @@ void SpeechDevice::setVibratoDepth(float vibratoDepth)
 
 float SpeechDevice::lpfCutoff() const
 {
-    return m_lpfCutoff;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLpfCutoff(), m_lpfCutoff);
 }
 
 void SpeechDevice::setLpfCutoff(float lpfCutoff)
@@ -877,7 +877,7 @@ void SpeechDevice::setLpfCutoff(float lpfCutoff)
 
 float SpeechDevice::hpfCutoff() const
 {
-    return m_hpfCutoff;
+    return shownParameterValue(Constants::NahdXml::xmlKeyHpfCutoff(), m_hpfCutoff);
 }
 
 void SpeechDevice::setHpfCutoff(float hpfCutoff)

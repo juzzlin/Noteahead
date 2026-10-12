@@ -210,7 +210,7 @@ int DrumSynthV2Controller::voiceLevel() const
         return 0;
     }
     const auto parameter = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyLevel().toStdString());
-    return parameter ? static_cast<int>(std::round(parameter->get().value() * Constants::uiInternalScaling())) : 0;
+    return parameter ? static_cast<int>(std::round(parameter->get().shownValue() * Constants::uiInternalScaling())) : 0;
 }
 
 void DrumSynthV2Controller::setVoiceLevel(int value)
@@ -226,7 +226,7 @@ int DrumSynthV2Controller::voicePan() const
         return 500;
     }
     const auto parameter = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyPan().toStdString());
-    return parameter ? static_cast<int>(std::round(parameter->get().value() * Constants::uiInternalScaling())) : 500;
+    return parameter ? static_cast<int>(std::round(parameter->get().shownValue() * Constants::uiInternalScaling())) : 500;
 }
 
 void DrumSynthV2Controller::setVoicePan(int value)
@@ -242,7 +242,7 @@ int DrumSynthV2Controller::voiceLpfCutoff() const
         return 1000;
     }
     const auto parameter = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyCutoff().toStdString());
-    return parameter ? static_cast<int>(std::round(parameter->get().value() * Constants::uiInternalScaling())) : 1000;
+    return parameter ? static_cast<int>(std::round(parameter->get().shownValue() * Constants::uiInternalScaling())) : 1000;
 }
 
 void DrumSynthV2Controller::setVoiceLpfCutoff(int value)
@@ -258,7 +258,7 @@ int DrumSynthV2Controller::voiceHpfCutoff() const
         return 0;
     }
     const auto parameter = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyHpfCutoff().toStdString());
-    return parameter ? static_cast<int>(std::round(parameter->get().value() * Constants::uiInternalScaling())) : 0;
+    return parameter ? static_cast<int>(std::round(parameter->get().shownValue() * Constants::uiInternalScaling())) : 0;
 }
 
 void DrumSynthV2Controller::setVoiceHpfCutoff(int value)
@@ -274,7 +274,7 @@ int DrumSynthV2Controller::voiceTune() const
         return 500;
     }
     const auto parameter = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyTune().toStdString());
-    return parameter ? static_cast<int>(std::round(parameter->get().value() * Constants::uiInternalScaling())) : 500;
+    return parameter ? static_cast<int>(std::round(parameter->get().shownValue() * Constants::uiInternalScaling())) : 500;
 }
 
 void DrumSynthV2Controller::setVoiceTune(int value)
@@ -290,7 +290,7 @@ int DrumSynthV2Controller::voiceDecay() const
         return 500;
     }
     const auto parameter = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyDecay().toStdString());
-    return parameter ? static_cast<int>(std::round(parameter->get().value() * Constants::uiInternalScaling())) : 500;
+    return parameter ? static_cast<int>(std::round(parameter->get().shownValue() * Constants::uiInternalScaling())) : 500;
 }
 
 void DrumSynthV2Controller::setVoiceDecay(int value)
@@ -306,7 +306,7 @@ int DrumSynthV2Controller::voiceAmpAttack() const
         return 0;
     }
     const auto parameter = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyAmpAttack().toStdString());
-    return parameter ? static_cast<int>(std::round(parameter->get().value() * Constants::uiInternalScaling())) : 0;
+    return parameter ? static_cast<int>(std::round(parameter->get().shownValue() * Constants::uiInternalScaling())) : 0;
 }
 
 void DrumSynthV2Controller::setVoiceAmpAttack(int value)
@@ -322,7 +322,7 @@ int DrumSynthV2Controller::voiceAmpHold() const
         return 0;
     }
     const auto parameter = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyAmpHold().toStdString());
-    return parameter ? static_cast<int>(std::round(parameter->get().value() * Constants::uiInternalScaling())) : 0;
+    return parameter ? static_cast<int>(std::round(parameter->get().shownValue() * Constants::uiInternalScaling())) : 0;
 }
 
 void DrumSynthV2Controller::setVoiceAmpHold(int value)
@@ -338,7 +338,7 @@ int DrumSynthV2Controller::voiceAmpSustain() const
         return 0;
     }
     const auto parameter = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyAmpSustain().toStdString());
-    return parameter ? static_cast<int>(std::round(parameter->get().value() * Constants::uiInternalScaling())) : 0;
+    return parameter ? static_cast<int>(std::round(parameter->get().shownValue() * Constants::uiInternalScaling())) : 0;
 }
 
 void DrumSynthV2Controller::setVoiceAmpSustain(int value)
@@ -354,7 +354,7 @@ int DrumSynthV2Controller::voiceAmpRelease() const
         return 0;
     }
     const auto parameter = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyAmpRelease().toStdString());
-    return parameter ? static_cast<int>(std::round(parameter->get().value() * Constants::uiInternalScaling())) : 0;
+    return parameter ? static_cast<int>(std::round(parameter->get().shownValue() * Constants::uiInternalScaling())) : 0;
 }
 
 void DrumSynthV2Controller::setVoiceAmpRelease(int value)
@@ -370,7 +370,7 @@ int DrumSynthV2Controller::voiceAmpDecay() const
         return 0;
     }
     const auto parameter = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyAmpDecay().toStdString());
-    return parameter ? static_cast<int>(std::round(parameter->get().value() * Constants::uiInternalScaling())) : 0;
+    return parameter ? static_cast<int>(std::round(parameter->get().shownValue() * Constants::uiInternalScaling())) : 0;
 }
 
 void DrumSynthV2Controller::setVoiceAmpDecay(int value)
@@ -386,7 +386,7 @@ int DrumSynthV2Controller::voiceAmpCurve() const
         return 0;
     }
     const auto parameter = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyAmpCurve().toStdString());
-    return parameter ? static_cast<int>(std::round(parameter->get().value() * Constants::uiInternalScaling())) : 0;
+    return parameter ? static_cast<int>(std::round(parameter->get().shownValue() * Constants::uiInternalScaling())) : 0;
 }
 
 void DrumSynthV2Controller::setVoiceAmpCurve(int value)
@@ -402,7 +402,7 @@ int DrumSynthV2Controller::voiceAttack() const
         return 0;
     }
     const auto parameter = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyAttack().toStdString());
-    return parameter ? static_cast<int>(std::round(parameter->get().value() * Constants::uiInternalScaling())) : 0;
+    return parameter ? static_cast<int>(std::round(parameter->get().shownValue() * Constants::uiInternalScaling())) : 0;
 }
 
 void DrumSynthV2Controller::setVoiceAttack(int value)
@@ -418,7 +418,7 @@ int DrumSynthV2Controller::kickAttack() const
         return 500;
     }
     const auto parameter = m_device->parameter(DrumSynthV2::voiceId(static_cast<int>(DrumSynthV2::VoiceIndex::Kick)) + "_" + Constants::NahdXml::xmlKeyAttack().toStdString());
-    return parameter ? static_cast<int>(std::round(parameter->get().value() * Constants::uiInternalScaling())) : 500;
+    return parameter ? static_cast<int>(std::round(parameter->get().shownValue() * Constants::uiInternalScaling())) : 500;
 }
 
 void DrumSynthV2Controller::setKickAttack(int value)
@@ -434,7 +434,7 @@ int DrumSynthV2Controller::kickClickTune() const
         return 500;
     }
     const auto parameter = m_device->parameter(DrumSynthV2::voiceId(static_cast<int>(DrumSynthV2::VoiceIndex::Kick)) + "_" + Constants::NahdXml::xmlKeyClickTune().toStdString());
-    return parameter ? static_cast<int>(std::round(parameter->get().value() * Constants::uiInternalScaling())) : 500;
+    return parameter ? static_cast<int>(std::round(parameter->get().shownValue() * Constants::uiInternalScaling())) : 500;
 }
 
 void DrumSynthV2Controller::setKickClickTune(int value)
@@ -450,7 +450,7 @@ int DrumSynthV2Controller::kickPitchDepth() const
         return 500;
     }
     const auto parameter = m_device->parameter(DrumSynthV2::voiceId(static_cast<int>(DrumSynthV2::VoiceIndex::Kick)) + "_" + Constants::NahdXml::xmlKeyPitchDepth().toStdString());
-    return parameter ? static_cast<int>(std::round(parameter->get().value() * Constants::uiInternalScaling())) : 500;
+    return parameter ? static_cast<int>(std::round(parameter->get().shownValue() * Constants::uiInternalScaling())) : 500;
 }
 
 void DrumSynthV2Controller::setKickPitchDepth(int value)
@@ -466,7 +466,7 @@ int DrumSynthV2Controller::kickPitchDecay() const
         return 500;
     }
     const auto parameter = m_device->parameter(DrumSynthV2::voiceId(static_cast<int>(DrumSynthV2::VoiceIndex::Kick)) + "_" + Constants::NahdXml::xmlKeyPitchDecay().toStdString());
-    return parameter ? static_cast<int>(std::round(parameter->get().value() * Constants::uiInternalScaling())) : 500;
+    return parameter ? static_cast<int>(std::round(parameter->get().shownValue() * Constants::uiInternalScaling())) : 500;
 }
 
 void DrumSynthV2Controller::setKickPitchDecay(int value)
@@ -482,7 +482,7 @@ int DrumSynthV2Controller::rimClick() const
         return 500;
     }
     const auto parameter = m_device->parameter(DrumSynthV2::voiceId(static_cast<int>(DrumSynthV2::VoiceIndex::Rim)) + "_" + Constants::NahdXml::xmlKeyClick().toStdString());
-    return parameter ? static_cast<int>(std::round(parameter->get().value() * Constants::uiInternalScaling())) : 500;
+    return parameter ? static_cast<int>(std::round(parameter->get().shownValue() * Constants::uiInternalScaling())) : 500;
 }
 
 void DrumSynthV2Controller::setRimClick(int value)
@@ -503,7 +503,7 @@ int DrumSynthV2Controller::snareSnappy() const
         return 500;
     }
     const auto parameter = m_device->parameter(DrumSynthV2::voiceId(static_cast<int>(DrumSynthV2::VoiceIndex::Snare)) + "_" + Constants::NahdXml::xmlKeySnappy().toStdString());
-    return parameter ? static_cast<int>(std::round(parameter->get().value() * Constants::uiInternalScaling())) : 500;
+    return parameter ? static_cast<int>(std::round(parameter->get().shownValue() * Constants::uiInternalScaling())) : 500;
 }
 
 void DrumSynthV2Controller::setSnareSnappy(int value)
@@ -519,7 +519,7 @@ int DrumSynthV2Controller::snareTone() const
         return 500;
     }
     const auto parameter = m_device->parameter(DrumSynthV2::voiceId(static_cast<int>(DrumSynthV2::VoiceIndex::Snare)) + "_" + Constants::NahdXml::xmlKeyTone().toStdString());
-    return parameter ? static_cast<int>(std::round(parameter->get().value() * Constants::uiInternalScaling())) : 500;
+    return parameter ? static_cast<int>(std::round(parameter->get().shownValue() * Constants::uiInternalScaling())) : 500;
 }
 
 void DrumSynthV2Controller::setSnareTone(int value)
@@ -535,7 +535,7 @@ int DrumSynthV2Controller::tomPitchDepth() const
         return 500;
     }
     const auto parameter = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyPitchDepth().toStdString());
-    return parameter ? static_cast<int>(std::round(parameter->get().value() * Constants::uiInternalScaling())) : 500;
+    return parameter ? static_cast<int>(std::round(parameter->get().shownValue() * Constants::uiInternalScaling())) : 500;
 }
 
 void DrumSynthV2Controller::setTomPitchDepth(int value)
@@ -551,7 +551,7 @@ int DrumSynthV2Controller::tomPitchDecay() const
         return 500;
     }
     const auto parameter = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyPitchDecay().toStdString());
-    return parameter ? static_cast<int>(std::round(parameter->get().value() * Constants::uiInternalScaling())) : 500;
+    return parameter ? static_cast<int>(std::round(parameter->get().shownValue() * Constants::uiInternalScaling())) : 500;
 }
 
 void DrumSynthV2Controller::setTomPitchDecay(int value)
@@ -567,7 +567,7 @@ int DrumSynthV2Controller::voiceResonance() const
         return 300;
     }
     const auto parameter = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyResonance().toStdString());
-    return parameter ? static_cast<int>(std::round(parameter->get().value() * Constants::uiInternalScaling())) : 300;
+    return parameter ? static_cast<int>(std::round(parameter->get().shownValue() * Constants::uiInternalScaling())) : 300;
 }
 
 void DrumSynthV2Controller::setVoiceResonance(int value)

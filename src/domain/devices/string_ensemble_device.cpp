@@ -649,7 +649,7 @@ void StringEnsembleDevice::setPhaserEnabled(bool enabled)
 
 float StringEnsembleDevice::volumeBass() const
 {
-    return m_volumeBass;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVolumeBass(), m_volumeBass);
 }
 
 void StringEnsembleDevice::setVolumeBass(float volumeBass)
@@ -659,7 +659,7 @@ void StringEnsembleDevice::setVolumeBass(float volumeBass)
 
 float StringEnsembleDevice::crescendo() const
 {
-    return m_crescendo;
+    return shownParameterValue(Constants::NahdXml::xmlKeyAttack(), m_crescendo);
 }
 
 void StringEnsembleDevice::setCrescendo(float crescendo)
@@ -669,7 +669,7 @@ void StringEnsembleDevice::setCrescendo(float crescendo)
 
 float StringEnsembleDevice::sustainLength() const
 {
-    return m_sustainLength;
+    return shownParameterValue(Constants::NahdXml::xmlKeyReleaseTime(), m_sustainLength);
 }
 
 void StringEnsembleDevice::setSustainLength(float sustainLength)
@@ -679,7 +679,7 @@ void StringEnsembleDevice::setSustainLength(float sustainLength)
 
 float StringEnsembleDevice::phaserColor() const
 {
-    return m_phaserColor;
+    return shownParameterValue(Constants::NahdXml::xmlKeyPhaserColor(), m_phaserColor);
 }
 
 void StringEnsembleDevice::setPhaserColor(float color)
@@ -689,7 +689,7 @@ void StringEnsembleDevice::setPhaserColor(float color)
 
 float StringEnsembleDevice::phaserRate() const
 {
-    return m_phaserRate;
+    return shownParameterValue(Constants::NahdXml::xmlKeyPhaserRate(), m_phaserRate);
 }
 
 void StringEnsembleDevice::setPhaserRate(float rate)
@@ -699,7 +699,7 @@ void StringEnsembleDevice::setPhaserRate(float rate)
 
 float StringEnsembleDevice::velocitySensitivity() const
 {
-    return m_velocitySensitivity;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVelocitySensitivity(), m_velocitySensitivity);
 }
 
 void StringEnsembleDevice::setVelocitySensitivity(float sensitivity)
@@ -709,7 +709,7 @@ void StringEnsembleDevice::setVelocitySensitivity(float sensitivity)
 
 float StringEnsembleDevice::lpfCutoff() const
 {
-    return m_lpfCutoff;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLpfCutoff(), m_lpfCutoff);
 }
 
 void StringEnsembleDevice::setLpfCutoff(float cutoff)
@@ -719,7 +719,7 @@ void StringEnsembleDevice::setLpfCutoff(float cutoff)
 
 float StringEnsembleDevice::hpfCutoff() const
 {
-    return m_hpfCutoff;
+    return shownParameterValue(Constants::NahdXml::xmlKeyHpfCutoff(), m_hpfCutoff);
 }
 
 void StringEnsembleDevice::setHpfCutoff(float cutoff)

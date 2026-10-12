@@ -446,6 +446,8 @@ private:
 
     //! Copies a pad's parameters into the plain fields the voices read.
     static void syncSampleFields(Sample & sample);
+    //! See Device::shownParameterValue(): the pad's own parameter decides.
+    static float shownSampleValue(const Sample & sample, const QString & key, float live);
 
     //! One pad per octave, which is the layout chromatic mode has always had.
     static std::array<int, static_cast<size_t>(padCount)> defaultChromaticPadNotes();

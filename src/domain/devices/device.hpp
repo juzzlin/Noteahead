@@ -144,6 +144,11 @@ public:
     static constexpr int MaxOctave { 2 };
     int octave() const;
     void setOctave(int octave);
+    //! What a knob shows for the parameter @p key, given @p live, the value the device runs on: the
+    //! authored value while a relative automation is scaling it, and @p live otherwise. For the
+    //! getters the dialogs read, so that a relative automation leaves the knob where it was set.
+    float shownParameterValue(const QString & key, float live) const;
+
     //! False for a device whose notes choose what plays rather than at what pitch -- a pad, a drum
     //! -- where an octave up would play something else entirely.
     virtual bool supportsOctave() const;

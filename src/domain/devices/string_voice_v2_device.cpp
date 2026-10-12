@@ -694,7 +694,7 @@ void StringVoiceV2Device::deserializeFromXml(ProjectReader & reader)
 // Getters and Setters implementation
 float StringVoiceV2Device::stringsBalance() const
 {
-    return m_stringsBalance;
+    return shownParameterValue(Constants::NahdXml::xmlKeyStringsBalance(), m_stringsBalance);
 }
 
 void StringVoiceV2Device::setStringsBalance(float val)
@@ -704,7 +704,7 @@ void StringVoiceV2Device::setStringsBalance(float val)
 
 float StringVoiceV2Device::voiceBalance() const
 {
-    return m_voiceBalance;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVoiceBalance(), m_voiceBalance);
 }
 
 void StringVoiceV2Device::setVoiceBalance(float val)
@@ -734,12 +734,12 @@ void StringVoiceV2Device::setStringsLower(bool val)
 
 float StringVoiceV2Device::stringsTone() const
 {
-    return m_stringsTone;
+    return shownParameterValue(Constants::NahdXml::xmlKeyStringsTone(), m_stringsTone);
 }
 
 float StringVoiceV2Device::velocitySensitivity() const
 {
-    return m_velocitySensitivity;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVelocitySensitivity(), m_velocitySensitivity);
 }
 
 void StringVoiceV2Device::setVelocitySensitivity(float val)
@@ -754,7 +754,7 @@ void StringVoiceV2Device::setStringsTone(float val)
 
 float StringVoiceV2Device::stringsAttack() const
 {
-    return m_stringsAttack;
+    return shownParameterValue(Constants::NahdXml::xmlKeyStringsAttack(), m_stringsAttack);
 }
 
 void StringVoiceV2Device::setStringsAttack(float val)
@@ -764,7 +764,7 @@ void StringVoiceV2Device::setStringsAttack(float val)
 
 float StringVoiceV2Device::stringsRelease() const
 {
-    return m_stringsRelease;
+    return shownParameterValue(Constants::NahdXml::xmlKeyStringsRelease(), m_stringsRelease);
 }
 
 void StringVoiceV2Device::setStringsRelease(float val)
@@ -774,7 +774,7 @@ void StringVoiceV2Device::setStringsRelease(float val)
 
 float StringVoiceV2Device::voiceMale8() const
 {
-    return m_voiceMale8;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVoiceMale8(), m_voiceMale8);
 }
 
 void StringVoiceV2Device::setVoiceMale8(float val)
@@ -784,7 +784,7 @@ void StringVoiceV2Device::setVoiceMale8(float val)
 
 float StringVoiceV2Device::voiceMale4() const
 {
-    return m_voiceMale4;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVoiceMale4(), m_voiceMale4);
 }
 
 void StringVoiceV2Device::setVoiceMale4(float val)
@@ -794,7 +794,7 @@ void StringVoiceV2Device::setVoiceMale4(float val)
 
 float StringVoiceV2Device::voiceUpperMale8() const
 {
-    return m_voiceUpperMale8;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVoiceUpperMale8(), m_voiceUpperMale8);
 }
 
 void StringVoiceV2Device::setVoiceUpperMale8(float val)
@@ -804,7 +804,7 @@ void StringVoiceV2Device::setVoiceUpperMale8(float val)
 
 float StringVoiceV2Device::voiceFemale4() const
 {
-    return m_voiceFemale4;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVoiceFemale4(), m_voiceFemale4);
 }
 
 void StringVoiceV2Device::setVoiceFemale4(float val)
@@ -814,7 +814,7 @@ void StringVoiceV2Device::setVoiceFemale4(float val)
 
 float StringVoiceV2Device::voiceAttack() const
 {
-    return m_voiceAttack;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVoiceAttack(), m_voiceAttack);
 }
 
 void StringVoiceV2Device::setVoiceAttack(float val)
@@ -824,7 +824,7 @@ void StringVoiceV2Device::setVoiceAttack(float val)
 
 float StringVoiceV2Device::voiceRelease() const
 {
-    return m_voiceRelease;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVoiceRelease(), m_voiceRelease);
 }
 
 void StringVoiceV2Device::setVoiceRelease(float val)
@@ -834,7 +834,7 @@ void StringVoiceV2Device::setVoiceRelease(float val)
 
 float StringVoiceV2Device::vibratoRate() const
 {
-    return m_vibratoRate;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVibratoRate(), m_vibratoRate);
 }
 
 void StringVoiceV2Device::setVibratoRate(float val)
@@ -844,7 +844,7 @@ void StringVoiceV2Device::setVibratoRate(float val)
 
 float StringVoiceV2Device::vibratoDepth() const
 {
-    return m_vibratoDepth;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVibratoDepth(), m_vibratoDepth);
 }
 
 void StringVoiceV2Device::setVibratoDepth(float val)
@@ -854,7 +854,7 @@ void StringVoiceV2Device::setVibratoDepth(float val)
 
 float StringVoiceV2Device::vibratoDelay() const
 {
-    return m_vibratoDelay;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVibratoDelay(), m_vibratoDelay);
 }
 
 void StringVoiceV2Device::setVibratoDelay(float val)
@@ -918,7 +918,7 @@ std::optional<size_t> StringVoiceV2Device::vocoderSidechainIndex() const
 
 float StringVoiceV2Device::lpfCutoff() const
 {
-    return m_lpfCutoff;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLpfCutoff(), m_lpfCutoff);
 }
 
 void StringVoiceV2Device::setLpfCutoff(float val)
@@ -928,7 +928,7 @@ void StringVoiceV2Device::setLpfCutoff(float val)
 
 float StringVoiceV2Device::hpfCutoff() const
 {
-    return m_hpfCutoff;
+    return shownParameterValue(Constants::NahdXml::xmlKeyHpfCutoff(), m_hpfCutoff);
 }
 
 void StringVoiceV2Device::setHpfCutoff(float val)
@@ -938,7 +938,7 @@ void StringVoiceV2Device::setHpfCutoff(float val)
 
 float StringVoiceV2Device::panSpread() const
 {
-    return m_panSpread;
+    return shownParameterValue(Constants::NahdXml::xmlKeyPanSpread(), m_panSpread);
 }
 
 void StringVoiceV2Device::setPanSpread(float val)

@@ -568,7 +568,7 @@ void BassSynthDevice::setWaveform(PolyBlepOscillator::Waveform wave)
 
 float BassSynthDevice::tuning() const
 {
-    return m_tuning;
+    return shownParameterValue(Constants::NahdXml::xmlKeyPitch(), m_tuning);
 }
 
 void BassSynthDevice::setTuning(float tuning)
@@ -578,7 +578,7 @@ void BassSynthDevice::setTuning(float tuning)
 
 float BassSynthDevice::subLevel() const
 {
-    return m_subLevel;
+    return shownParameterValue(Constants::NahdXml::xmlKeySubLevel(), m_subLevel);
 }
 
 void BassSynthDevice::setSubLevel(float level)
@@ -598,7 +598,7 @@ void BassSynthDevice::setSubOctave(int octave)
 
 float BassSynthDevice::lpfCutoff() const
 {
-    return m_lpfCutoff;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLpfCutoff(), m_lpfCutoff);
 }
 
 void BassSynthDevice::setLpfCutoff(float cutoff)
@@ -618,7 +618,7 @@ void BassSynthDevice::setLpfCutoff(float cutoff)
 
 float BassSynthDevice::lpfResonance() const
 {
-    return m_lpfResonance;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLpfResonance(), m_lpfResonance);
 }
 
 void BassSynthDevice::setLpfResonance(float resonance)
@@ -628,7 +628,7 @@ void BassSynthDevice::setLpfResonance(float resonance)
 
 float BassSynthDevice::hpfCutoff() const
 {
-    return m_hpfCutoff;
+    return shownParameterValue(Constants::NahdXml::xmlKeyHpfCutoff(), m_hpfCutoff);
 }
 
 void BassSynthDevice::setHpfCutoff(float cutoff)
@@ -648,7 +648,7 @@ void BassSynthDevice::setHpfCutoff(float cutoff)
 
 float BassSynthDevice::envMod() const
 {
-    return m_envMod;
+    return shownParameterValue(Constants::NahdXml::xmlKeyEnvMod(), m_envMod);
 }
 
 void BassSynthDevice::setEnvMod(float mod)
@@ -658,7 +658,7 @@ void BassSynthDevice::setEnvMod(float mod)
 
 float BassSynthDevice::decay() const
 {
-    return m_decay;
+    return shownParameterValue(Constants::NahdXml::xmlKeyDecay(), m_decay);
 }
 
 void BassSynthDevice::setDecay(float decay)
@@ -668,7 +668,7 @@ void BassSynthDevice::setDecay(float decay)
 
 float BassSynthDevice::accent() const
 {
-    return m_accent;
+    return shownParameterValue(Constants::NahdXml::xmlKeyAccent(), m_accent);
 }
 
 void BassSynthDevice::setAccent(float accent)
@@ -678,7 +678,7 @@ void BassSynthDevice::setAccent(float accent)
 
 float BassSynthDevice::slide() const
 {
-    return m_slide;
+    return shownParameterValue(Constants::NahdXml::xmlKeySlide(), m_slide);
 }
 
 void BassSynthDevice::setSlide(float slide)
@@ -715,7 +715,7 @@ void BassSynthDevice::setDistDrive(float drive)
 
 float BassSynthDevice::distTone() const
 {
-    return m_distTone;
+    return shownParameterValue(Constants::NahdXml::xmlKeyDistTone(), m_distTone);
 }
 
 void BassSynthDevice::setDistTone(float tone)
@@ -725,7 +725,7 @@ void BassSynthDevice::setDistTone(float tone)
 
 float BassSynthDevice::distLevel() const
 {
-    return m_distLevel;
+    return shownParameterValue(Constants::NahdXml::xmlKeyDistLevel(), m_distLevel);
 }
 
 void BassSynthDevice::setDistLevel(float level)

@@ -1147,7 +1147,7 @@ void WavetableSynthDevice::setOsc1Octave(int octave)
 
 float WavetableSynthDevice::osc1Pitch() const
 {
-    return m_osc1Pitch;
+    return shownParameterValue(Constants::NahdXml::xmlKeyOsc1Pitch(), m_osc1Pitch);
 }
 
 void WavetableSynthDevice::setOsc1Pitch(float pitch)
@@ -1161,7 +1161,7 @@ void WavetableSynthDevice::setOsc1Pitch(float pitch)
 
 float WavetableSynthDevice::osc1Level() const
 {
-    return m_osc1Level;
+    return shownParameterValue(Constants::NahdXml::xmlKeyOsc1Level(), m_osc1Level);
 }
 
 void WavetableSynthDevice::setOsc1Level(float level)
@@ -1176,7 +1176,7 @@ void WavetableSynthDevice::setOsc1Level(float level)
 // Accessors (Osc 2)
 float WavetableSynthDevice::osc2Pos() const
 {
-    return m_osc2Pos;
+    return shownParameterValue(Constants::NahdXml::xmlKeyOsc2Pos(), m_osc2Pos);
 }
 
 void WavetableSynthDevice::setOsc2Pos(float pos)
@@ -1204,7 +1204,7 @@ void WavetableSynthDevice::setOsc2Octave(int octave)
 
 float WavetableSynthDevice::osc2Pitch() const
 {
-    return m_osc2Pitch;
+    return shownParameterValue(Constants::NahdXml::xmlKeyOsc2Pitch(), m_osc2Pitch);
 }
 
 void WavetableSynthDevice::setOsc2Pitch(float pitch)
@@ -1218,7 +1218,7 @@ void WavetableSynthDevice::setOsc2Pitch(float pitch)
 
 float WavetableSynthDevice::osc2Level() const
 {
-    return m_osc2Level;
+    return shownParameterValue(Constants::NahdXml::xmlKeyOsc2Level(), m_osc2Level);
 }
 
 void WavetableSynthDevice::setOsc2Level(float level)
@@ -1233,7 +1233,7 @@ void WavetableSynthDevice::setOsc2Level(float level)
 // Noise
 float WavetableSynthDevice::noiseLevel() const
 {
-    return m_noiseLevel;
+    return shownParameterValue(Constants::NahdXml::xmlKeyNoiseLevel(), m_noiseLevel);
 }
 
 void WavetableSynthDevice::setNoiseLevel(float level)
@@ -1248,7 +1248,7 @@ void WavetableSynthDevice::setNoiseLevel(float level)
 // Filter
 float WavetableSynthDevice::lpfCutoff() const
 {
-    return m_lpfCutoff;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLpfCutoff(), m_lpfCutoff);
 }
 
 void WavetableSynthDevice::setLpfCutoff(float cutoff)
@@ -1262,7 +1262,7 @@ void WavetableSynthDevice::setLpfCutoff(float cutoff)
 
 float WavetableSynthDevice::lpfResonance() const
 {
-    return m_lpfResonance;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLpfResonance(), m_lpfResonance);
 }
 
 void WavetableSynthDevice::setLpfResonance(float resonance)
@@ -1276,7 +1276,7 @@ void WavetableSynthDevice::setLpfResonance(float resonance)
 
 float WavetableSynthDevice::hpfCutoff() const
 {
-    return m_hpfCutoff;
+    return shownParameterValue(Constants::NahdXml::xmlKeyHpfCutoff(), m_hpfCutoff);
 }
 
 void WavetableSynthDevice::setHpfCutoff(float cutoff)
@@ -1291,7 +1291,7 @@ void WavetableSynthDevice::setHpfCutoff(float cutoff)
 // Amp EG
 float WavetableSynthDevice::ampAttack() const
 {
-    return m_ampAttack;
+    return shownParameterValue(Constants::NahdXml::xmlKeyAmpAttack(), m_ampAttack);
 }
 
 void WavetableSynthDevice::setAmpAttack(float a)
@@ -1305,7 +1305,7 @@ void WavetableSynthDevice::setAmpAttack(float a)
 
 float WavetableSynthDevice::ampDecay() const
 {
-    return m_ampDecay;
+    return shownParameterValue(Constants::NahdXml::xmlKeyAmpDecay(), m_ampDecay);
 }
 
 void WavetableSynthDevice::setAmpDecay(float d)
@@ -1319,7 +1319,7 @@ void WavetableSynthDevice::setAmpDecay(float d)
 
 float WavetableSynthDevice::ampSustain() const
 {
-    return m_ampSustain;
+    return shownParameterValue(Constants::NahdXml::xmlKeyAmpSustain(), m_ampSustain);
 }
 
 void WavetableSynthDevice::setAmpSustain(float s)
@@ -1333,7 +1333,7 @@ void WavetableSynthDevice::setAmpSustain(float s)
 
 float WavetableSynthDevice::ampRelease() const
 {
-    return m_ampRelease;
+    return shownParameterValue(Constants::NahdXml::xmlKeyAmpRelease(), m_ampRelease);
 }
 
 void WavetableSynthDevice::setAmpRelease(float r)
@@ -1347,7 +1347,7 @@ void WavetableSynthDevice::setAmpRelease(float r)
 
 float WavetableSynthDevice::ampVelocitySensitivity() const
 {
-    return m_ampVelocitySensitivity;
+    return shownParameterValue(Constants::NahdXml::xmlKeyAmpVelocitySensitivity(), m_ampVelocitySensitivity);
 }
 
 void WavetableSynthDevice::setAmpVelocitySensitivity(float sensitivity)
@@ -1361,7 +1361,7 @@ void WavetableSynthDevice::setAmpVelocitySensitivity(float sensitivity)
 
 float WavetableSynthDevice::ampCurve() const
 {
-    return m_ampCurve;
+    return shownParameterValue(Constants::NahdXml::xmlKeyAmpCurve(), m_ampCurve);
 }
 
 void WavetableSynthDevice::setAmpCurve(float curve)
@@ -1376,7 +1376,7 @@ void WavetableSynthDevice::setAmpCurve(float curve)
 // Mod EG
 float WavetableSynthDevice::modAttack() const
 {
-    return m_modAttack;
+    return shownParameterValue(Constants::NahdXml::xmlKeyModAttack(), m_modAttack);
 }
 
 void WavetableSynthDevice::setModAttack(float a)
@@ -1390,7 +1390,7 @@ void WavetableSynthDevice::setModAttack(float a)
 
 float WavetableSynthDevice::modDecay() const
 {
-    return m_modDecay;
+    return shownParameterValue(Constants::NahdXml::xmlKeyModDecay(), m_modDecay);
 }
 
 void WavetableSynthDevice::setModDecay(float d)
@@ -1404,12 +1404,12 @@ void WavetableSynthDevice::setModDecay(float d)
 
 float WavetableSynthDevice::modInt() const
 {
-    return m_modInt;
+    return shownParameterValue(Constants::NahdXml::xmlKeyModIntensity(), m_modInt);
 }
 
 float WavetableSynthDevice::modSustain() const
 {
-    return m_modSustain;
+    return shownParameterValue(Constants::NahdXml::xmlKeyModSustain(), m_modSustain);
 }
 
 void WavetableSynthDevice::setModSustain(float sustain)
@@ -1446,7 +1446,7 @@ void WavetableSynthDevice::setModTarget(ModTarget target)
 
 float WavetableSynthDevice::modCurve() const
 {
-    return m_modCurve;
+    return shownParameterValue(Constants::NahdXml::xmlKeyModCurve(), m_modCurve);
 }
 
 void WavetableSynthDevice::setModCurve(float curve)
@@ -1489,7 +1489,7 @@ void WavetableSynthDevice::setLfoMode(Lfo::Mode mode)
 
 float WavetableSynthDevice::lfoRate() const
 {
-    return m_lfoRate;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLfoRate(), m_lfoRate);
 }
 
 void WavetableSynthDevice::setLfoRate(float rate)
@@ -1503,7 +1503,7 @@ void WavetableSynthDevice::setLfoRate(float rate)
 
 float WavetableSynthDevice::lfoInt() const
 {
-    return m_lfoInt;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLfoIntensity(), m_lfoInt);
 }
 
 void WavetableSynthDevice::setLfoInt(float intensity)
@@ -1522,7 +1522,7 @@ WavetableSynthDevice::LfoTarget WavetableSynthDevice::lfoTarget() const
 
 float WavetableSynthDevice::lfoDelay() const
 {
-    return m_lfoDelay;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLfoDelay(), m_lfoDelay);
 }
 
 void WavetableSynthDevice::setLfoDelay(float delay)
@@ -1536,7 +1536,7 @@ void WavetableSynthDevice::setLfoDelay(float delay)
 
 float WavetableSynthDevice::lfoFade() const
 {
-    return m_lfoFade;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLfoFade(), m_lfoFade);
 }
 
 void WavetableSynthDevice::setLfoFade(float fade)
@@ -1588,7 +1588,7 @@ void WavetableSynthDevice::setLfo2Mode(Lfo::Mode mode)
 
 float WavetableSynthDevice::lfo2Rate() const
 {
-    return m_lfo2Rate;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLfo2Rate(), m_lfo2Rate);
 }
 
 void WavetableSynthDevice::setLfo2Rate(float rate)
@@ -1602,7 +1602,7 @@ void WavetableSynthDevice::setLfo2Rate(float rate)
 
 float WavetableSynthDevice::lfo2Int() const
 {
-    return m_lfo2Int;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLfo2Intensity(), m_lfo2Int);
 }
 
 void WavetableSynthDevice::setLfo2Int(float intensity)
@@ -1621,7 +1621,7 @@ WavetableSynthDevice::LfoTarget WavetableSynthDevice::lfo2Target() const
 
 float WavetableSynthDevice::lfo2Delay() const
 {
-    return m_lfo2Delay;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLfo2Delay(), m_lfo2Delay);
 }
 
 void WavetableSynthDevice::setLfo2Delay(float delay)
@@ -1635,7 +1635,7 @@ void WavetableSynthDevice::setLfo2Delay(float delay)
 
 float WavetableSynthDevice::lfo2Fade() const
 {
-    return m_lfo2Fade;
+    return shownParameterValue(Constants::NahdXml::xmlKeyLfo2Fade(), m_lfo2Fade);
 }
 
 void WavetableSynthDevice::setLfo2Fade(float fade)
@@ -1726,7 +1726,7 @@ void WavetableSynthDevice::setVoiceMode(VoiceMode mode)
 float WavetableSynthDevice::voiceDepth() const
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
-    return m_voiceDepth;
+    return shownParameterValue(Constants::NahdXml::xmlKeyVoiceDepth(), m_voiceDepth);
 }
 
 void WavetableSynthDevice::setVoiceDepth(float depth)
@@ -1736,7 +1736,7 @@ void WavetableSynthDevice::setVoiceDepth(float depth)
 
 float WavetableSynthDevice::phaseRandomness() const
 {
-    return m_phaseRandomness;
+    return shownParameterValue(Constants::NahdXml::xmlKeyPhaseRandomness(), m_phaseRandomness);
 }
 
 void WavetableSynthDevice::setPhaseRandomness(float randomness)
@@ -1747,7 +1747,7 @@ void WavetableSynthDevice::setPhaseRandomness(float randomness)
 float WavetableSynthDevice::panSpread() const
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
-    return m_panSpread;
+    return shownParameterValue(Constants::NahdXml::xmlKeyPanSpread(), m_panSpread);
 }
 
 void WavetableSynthDevice::setPanSpread(float spread)
@@ -1758,7 +1758,7 @@ void WavetableSynthDevice::setPanSpread(float spread)
 float WavetableSynthDevice::portamento() const
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
-    return m_portamento;
+    return shownParameterValue(Constants::NahdXml::xmlKeyPortamento(), m_portamento);
 }
 
 void WavetableSynthDevice::setPortamento(float p)

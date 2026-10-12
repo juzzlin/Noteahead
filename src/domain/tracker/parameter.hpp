@@ -60,6 +60,15 @@ public:
     //! anything else the transport generates must use this: it is what keeps a song that is
     //! playing from rewriting the patch it is playing.
     void setAutomationValue(float val);
+    //! The same, for an automation that scales the authored value rather than replacing it. The
+    //! knob is the reference such an automation scales, so it stays where the user put it: see
+    //! shownValue().
+    void setRelativeAutomationValue(float val);
+    //! What a knob shows: the value in effect, except under a relative automation, where it is the
+    //! authored value the automation is scaling. Absolute automation and MIDI CC replace the value,
+    //! and the knob follows them.
+    float shownValue() const;
+    bool isRelativelyAutomated() const;
     //! Puts the authored value back in effect. A no-op unless automation has written here.
     void clearAutomation();
     bool isAutomated() const;
@@ -101,6 +110,7 @@ private:
     float m_value = 0.0f;
     float m_authoredValue = 0.0f;
     bool m_automated = false;
+    bool m_relativelyAutomated = false;
     int m_xmlMin = 0;
     int m_xmlMax = 100;
     int m_xmlDefault = 0;

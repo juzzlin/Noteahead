@@ -2621,7 +2621,13 @@ void SamplerTest::test_applyParameterAutomation_padRelative_shouldScaleTheKnob()
     sampler->setSampleCutoff(60, 0.8f);
     const auto key = SamplerDevice::padAutomationKey(60, Constants::NahdXml::xmlKeyCutoff().toStdString());
     QVERIFY(sampler->applyParameterAutomation(key, ParameterAutomation::Mode::Relative, 0.5));
-    QVERIFY(std::abs(sampler->sampleCutoff(60) - 0.4f) < 1.0e-6f);
+    // What the pad plays...
+    const auto parameters = sampler->automatableParameters();
+    const auto entry = std::ranges::find_if(parameters, [&key](auto && candidate) { return candidate.key == key; });
+    QVERIFY(entry != parameters.end());
+    QVERIFY(std::abs(entry->parameter.value() - 0.4f) < 1.0e-6f);
+    // ...and what its knob shows, which a relative automation leaves alone
+    QVERIFY(std::abs(sampler->sampleCutoff(60) - 0.8f) < 1.0e-6f);
 }
 
 void SamplerTest::test_applyParameterAutomation_padMissing_shouldBeRefused()

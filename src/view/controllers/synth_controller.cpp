@@ -857,7 +857,7 @@ int SynthController::modInt() const
 {
     if (m_synth) {
         if (auto p = m_synth->parameter(Constants::NahdXml::xmlKeyModIntensity().toStdString()); p) {
-            return static_cast<int>(std::round(p->get().value() * Constants::uiInternalScaling()));
+            return static_cast<int>(std::round(p->get().shownValue() * Constants::uiInternalScaling()));
         }
     }
     return 0;
@@ -941,7 +941,7 @@ int SynthController::lfoInt() const
 {
     if (m_synth) {
         if (auto p = m_synth->parameter(Constants::NahdXml::xmlKeyLfoIntensity().toStdString()); p) {
-            return static_cast<int>(std::round(p->get().value() * Constants::uiInternalScaling()));
+            return static_cast<int>(std::round(p->get().shownValue() * Constants::uiInternalScaling()));
         }
     }
     return 0;
@@ -1037,7 +1037,7 @@ int SynthController::lfo2Int() const
 {
     if (m_synth) {
         if (auto p = m_synth->parameter(Constants::NahdXml::xmlKeyLfo2Intensity().toStdString()); p) {
-            return static_cast<int>(std::round(p->get().value() * Constants::uiInternalScaling()));
+            return static_cast<int>(std::round(p->get().shownValue() * Constants::uiInternalScaling()));
         }
     }
     return 0;

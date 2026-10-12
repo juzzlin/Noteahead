@@ -108,7 +108,11 @@ bool Device::applyParameterAutomation(const std::string & key, ParameterAutomati
         if (!p || p->get().type() != Parameter::Type::Continuous) {
             return false;
         }
-        p->get().setAutomationValue(ParameterAutomation::effectiveValue(mode, value, p->get()));
+        if (const auto effective = ParameterAutomation::effectiveValue(mode, value, p->get()); mode == ParameterAutomation::Mode::Relative) {
+            p->get().setRelativeAutomationValue(effective);
+        } else {
+            p->get().setAutomationValue(effective);
+        }
         syncParameters();
     }
     // Nothing is signalled: this runs on the audio thread, where posting an event allocates and
@@ -177,6 +181,14 @@ void Device::processMidiNoteOff(uint8_t note)
     if (shifted) {
         processDeviceMidiNoteOff(*shifted);
     }
+}
+
+float Device::shownParameterValue(const QString & key, float live) const
+{
+    if (const auto p = parameter(key.toStdString()); p && p->get().isRelativelyAutomated()) {
+        return p->get().authoredValue();
+    }
+    return live;
 }
 
 int Device::octave() const

@@ -90,12 +90,31 @@ void Parameter::setValue(float val)
     m_authoredValue = m_value;
     // Whatever automation had written here is gone: the user just said what this value is.
     m_automated = false;
+    m_relativelyAutomated = false;
 }
 
 void Parameter::setAutomationValue(float val)
 {
     m_value = clampToRange(val);
     m_automated = true;
+    m_relativelyAutomated = false;
+}
+
+void Parameter::setRelativeAutomationValue(float val)
+{
+    m_value = clampToRange(val);
+    m_automated = true;
+    m_relativelyAutomated = true;
+}
+
+bool Parameter::isRelativelyAutomated() const
+{
+    return m_relativelyAutomated;
+}
+
+float Parameter::shownValue() const
+{
+    return m_relativelyAutomated ? m_authoredValue : m_value;
 }
 
 void Parameter::clearAutomation()
@@ -103,6 +122,7 @@ void Parameter::clearAutomation()
     if (m_automated) {
         m_value = m_authoredValue;
         m_automated = false;
+        m_relativelyAutomated = false;
     }
 }
 
@@ -186,6 +206,7 @@ void Parameter::setFromXml(int xmlVal, std::optional<int> xmlMin, std::optional<
     // Loading a project authors every value it carries.
     m_authoredValue = m_value;
     m_automated = false;
+    m_relativelyAutomated = false;
 }
 
 void Parameter::reset()
