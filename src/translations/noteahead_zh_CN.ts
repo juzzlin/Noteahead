@@ -163,6 +163,105 @@
     </message>
 </context>
 <context>
+    <name>AmbienceDialog</name>
+    <message>
+        <source>Ambience (Slot %1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A short, dense space to glue a mix and take the dryness off, rather than a tail to be heard. Use it on a send, or low on an insert.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Space</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="unfinished">大小</translation>
+    </message>
+    <message>
+        <source>Pre-Delay</source>
+        <translation type="unfinished">预延迟</translation>
+    </message>
+    <message>
+        <source>Diffusion</source>
+        <translation type="unfinished">扩散</translation>
+    </message>
+    <message>
+        <source>How much a transient is smeared before the space reflects it: a burst of noise rather than a slap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shape</source>
+        <translation type="unfinished">形状</translation>
+    </message>
+    <message>
+        <source>The envelope of the early reflections: fading away at the bottom, even in the middle, building up at the top</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Early/Late</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The balance of the early reflections against the tail</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tail</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation type="unfinished">衰减</translation>
+    </message>
+    <message>
+        <source>Damping</source>
+        <translation type="unfinished">阻尼</translation>
+    </message>
+    <message>
+        <source>Mod Rate</source>
+        <translation type="unfinished">调制速率</translation>
+    </message>
+    <message>
+        <source>Mod Depth</source>
+        <translation type="unfinished">调制深度</translation>
+    </message>
+    <message>
+        <source>How far the tail drifts. A few cents at most: what keeps a short decay from ringing metallic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="unfinished">输出</translation>
+    </message>
+    <message>
+        <source>Low Cut</source>
+        <translation type="unfinished">低切</translation>
+    </message>
+    <message>
+        <source>High Cut</source>
+        <translation type="unfinished">高切</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation type="unfinished">宽度</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation type="unfinished">混合</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <translation type="unfinished">独奏</translation>
+    </message>
+    <message>
+        <source>Pass only the space, so it can be heard without the source</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AnalogFuzzDialog</name>
     <message>
         <source>Analog Fuzz (Slot %1)</source>
@@ -6622,8 +6721,28 @@
         <translation type="unfinished">噪声电平</translation>
     </message>
     <message>
+        <source>Pre-Delay</source>
+        <translation type="unfinished">预延迟</translation>
+    </message>
+    <message>
+        <source>Early/Late</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mod Rate</source>
+        <translation type="unfinished">调制速率</translation>
+    </message>
+    <message>
         <source>Width</source>
         <translation type="unfinished">宽度</translation>
+    </message>
+    <message>
+        <source>Low Cut</source>
+        <translation type="unfinished">低切</translation>
+    </message>
+    <message>
+        <source>High Cut</source>
+        <translation type="unfinished">高切</translation>
     </message>
     <message>
         <source>Bass Mono Frequency</source>
