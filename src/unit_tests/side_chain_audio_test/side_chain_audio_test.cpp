@@ -18,6 +18,7 @@
 #include "../../common/constants.hpp"
 #include "../../domain/devices/device.hpp"
 #include "../../domain/dsp/volume.hpp"
+#include "../../domain/effects/ambience.hpp"
 #include "../../domain/effects/auto_ducker.hpp"
 #include "../../domain/effects/compressor.hpp"
 #include "../../domain/effects/delay.hpp"
@@ -217,6 +218,47 @@ void SideChainAudioTest::test_audioEngine_sendDelay_quietBus_shouldStillReturnIt
 
     QVERIFY2(firstEchoMs > 0.0, "the delay send returned no echo at all");
     QVERIFY2(std::abs(firstEchoMs - 500.0) < 10.0, qPrintable(QString { "the echo landed at %1 ms rather than on the beat" }.arg(firstEchoMs)));
+}
+
+void SideChainAudioTest::test_audioEngine_sendEffectSolo_shouldPlayOnlyTheReturn()
+{
+    // On a send, Solo is the return's, as on a return track: the master plays the return alone and
+    // the device keeps feeding it. The effect used to ignore it there, which left a switch that did
+    // nothing. Three engines alike but for the send effect: the dry alone, dry and return, and the
+    // soloed return, which has to be the second less the first.
+    const auto render = [](bool withEffect, bool solo) {
+        AudioEngine engine;
+        const auto device = std::make_shared<MockDevice>("Source");
+        device->setGenerateSignal(true);
+        device->setToneHz(440.0);
+        device->setReverbSend(0, 0.5f);
+        engine.setDevice(0, device);
+        if (withEffect) {
+            const auto ambience = std::make_shared<Ambience>();
+            setParameter(ambience, Constants::NahdXml::xmlKeyMix(), 1.0f);
+            setParameter(ambience, Constants::NahdXml::xmlKeySolo(), solo ? 1.0f : 0.0f);
+            engine.sendEffectRack().setEffect(0, ambience);
+        }
+        std::vector<double> output;
+        std::vector<double> buffer(1024, 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), 512, 48000 };
+        for (int block = 0; block < 20; block++) {
+            std::fill(buffer.begin(), buffer.end(), 0.0);
+            engine.process(context);
+            output.insert(output.end(), buffer.begin(), buffer.end());
+        }
+        return output;
+    };
+    const auto dry = render(false, false);
+    const auto mixed = render(true, false);
+    const auto soloed = render(true, true);
+
+    double returnEnergy = 0.0;
+    for (size_t i = 0; i < soloed.size(); i++) {
+        QVERIFY2(std::abs(soloed[i] - (mixed[i] - dry[i])) < 1.0e-9, qPrintable(QString { "sample %1" }.arg(i)));
+        returnEnergy += soloed[i] * soloed[i];
+    }
+    QVERIFY(returnEnergy > 0.0);
 }
 
 void SideChainAudioTest::test_audioEngine_sendEffect_sideChain_shouldFollowTheNamedDevice()

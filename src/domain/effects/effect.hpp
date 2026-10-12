@@ -151,6 +151,11 @@ public:
     //! device running until then. True unless overridden: most effects have nothing to settle.
     virtual bool isSettled() const;
 
+    //! Whether Solo is registered and engaged. Public for the engine: on a send bus the effect
+    //! leaves Solo alone, the bus returning only what it adds anyway, and Solo there means the
+    //! return itself, which only the engine can play on its own.
+    bool solo() const;
+
     //! How many frames late the effect's output is at @p sampleRate. Zero for everything that works
     //! sample by sample; a linear-phase filter has to hold back half its kernel. Nothing compensates
     //! for it in real time, so an effect that reports some is one for the master, where the whole mix
@@ -195,9 +200,6 @@ protected:
     //! can be heard on its own. Effects that have something to add opt in; one that only shapes what
     //! is already there, an equalizer say, has nothing to isolate.
     void addSoloParameter();
-
-    //! Whether Solo is registered and engaged.
-    bool solo() const;
 
     //! The wet-carrying half of the blend, for an effect that shapes rather than adds and so
     //! blends under MixLaw::Internal. A plain crossfade as an insert; in send mode the wet alone,

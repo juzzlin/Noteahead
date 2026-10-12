@@ -28,6 +28,7 @@ private slots:
     void test_audioEngine_sendEffect_addedAfterTheTempo_shouldStillFollowIt();
     void test_audioEngine_sendDelay_quietBus_shouldStillReturnItsEchoes();
     void test_audioEngine_sendEffect_sideChain_shouldFollowTheNamedDevice();
+    void test_audioEngine_sendEffectSolo_shouldPlayOnlyTheReturn();
     void test_audioEngine_sendEffect_sideChain_noSource_shouldListenToTheBus();
     void test_audioEngine_masterEffect_sideChain_shouldFollowTheNamedDevice();
     void test_audioEngine_insertDynamicEq_sideChain_shouldFollowTheNamedDevice();

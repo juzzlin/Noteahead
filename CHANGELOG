@@ -44,6 +44,7 @@ New features:
 
 Bug fixes:
 
+* Solo on a send effect plays its return alone instead of doing nothing
 * Drum Synth V2: a drum's Inserts dialog opens on its rack instead of an empty one
 * Filter knobs read out the frequency the filter actually runs at
 * A high-pass knob reads Bypass at the bottom of its travel, not the top

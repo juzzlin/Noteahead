@@ -882,7 +882,22 @@ void AudioEngine::process(AudioContext & context)
             }
         }
 
-        for (const auto & wetBuffer : m_effectWetBuffers) {
+        // Solo on a send effect is the return's, as on a return track: the master plays only the
+        // soloed returns, while every device still feeds every send. Not the chain effects': they
+        // are inserts on the return, and their Solo passes only what they add to it.
+        const auto soloed = [&effects](size_t busIndex) {
+            const auto & candidate = effects[busIndex];
+            return candidate && candidate->enabled() && candidate->solo();
+        };
+        const bool anySoloed = std::ranges::any_of(std::views::iota(size_t { 0 }, sendCount), soloed);
+        if (anySoloed) {
+            std::fill(context.buffer.begin(), context.buffer.begin() + bufferSize, 0.0);
+        }
+        for (size_t busIndex = 0; busIndex < sendCount && busIndex < m_effectWetBuffers.size(); busIndex++) {
+            if (anySoloed && !soloed(busIndex)) {
+                continue;
+            }
+            const auto & wetBuffer = m_effectWetBuffers[busIndex];
             for (uint32_t i = 0; i < bufferSize; i++) {
                 context.buffer[i] += wetBuffer[i];
             }
