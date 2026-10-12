@@ -13,14 +13,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef UTILITY_TEST_HPP
-#define UTILITY_TEST_HPP
+#ifndef PHASE_SCOPE_TEST_HPP
+#define PHASE_SCOPE_TEST_HPP
 
 #include <QObject>
 
 namespace noteahead {
 
-class UtilityTest : public QObject
+class PhaseScopeTest : public QObject
 {
     Q_OBJECT
 
@@ -38,8 +38,9 @@ private slots:
     void test_reading_invertedReference_shouldCancel();
     void test_capture_hit_shouldHoldBothWaves();
     void test_isSettled_delay_shouldHoldTheTail();
+    void test_effectFactory_formerName_shouldStillLoad();
 };
 
 } // namespace noteahead
 
-#endif // UTILITY_TEST_HPP
+#endif // PHASE_SCOPE_TEST_HPP

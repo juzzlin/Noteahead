@@ -281,11 +281,11 @@
 </ul>
 <p>The detector is a peak follower that rises instantly and falls over about fifteen milliseconds. Instantly on the way up because a gate that opened on an average would let the front of every transient through while still closed; fifteen milliseconds on the way down because a faster one falls into the gaps between the cycles of a low note and gates a bass on every period.</p>
 
-<h3>Utility</h3>
-<p>The plain tools for putting a signal right against another one, and the <strong>Phase Scope</strong> that shows whether it is right yet. It is made for the low end: a kick and a bass that hit together either add up or take each other away, depending on how their waves line up, and which of the two it is cannot be heard from either on its own.</p>
+<h3>Phase Scope</h3>
+<p>The plain tools for putting a signal right against another one, and the <strong>Scope</strong> that shows whether it is right yet. It is made for the low end: a kick and a bass that hit together either add up or take each other away, depending on how their waves line up, and which of the two it is cannot be heard from either on its own.</p>
 <ul>
     <li><strong>Reference</strong>: the device to compare this signal with, usually the kick when this is the bass.</li>
-    <li><strong>Phase Scope</strong>: every hit of the reference, frozen, with the reference in grey and this signal in colour over the same 40 ms, so the two waves can be read against each other. Where they swing the same way they add up; where they swing apart they cancel.</li>
+    <li><strong>Scope</strong>: every hit of the reference, frozen, with the reference in grey and this signal in colour over the same 40 ms, so the two waves can be read against each other. Where they swing the same way they add up; where they swing apart they cancel.</li>
     <li><strong>Correlation</strong>: 1 where the two are alike, 0 where they are unrelated, below 0 where they oppose. <strong>Summed</strong> says what adding them does, against two unrelated signals of their levels: about +3 dB when they reinforce, 0 when they are unrelated, and well below 0 when they cancel.</li>
     <li><strong>Invert L</strong> and <strong>Invert R</strong>: flip the polarity of a channel, or of both. The first thing to try when the two cancel.</li>
     <li><strong>Channels</strong>: <strong>Stereo</strong>, only <strong>Left</strong> or <strong>Right</strong> on both, <strong>Swap</strong>, or <strong>Mono</strong>.</li>
@@ -294,7 +294,7 @@
     <li><strong>Delay</strong>: up to 20 ms, to slide this signal later against the reference; <strong>&minus;1</strong> and <strong>+1</strong> move it a sample at a time. Only later: an effect cannot move a signal earlier than it arrives, so delay the reference instead when this one is behind. Unlike a linear-phase filter's delay this one is the point, so a render keeps it.</li>
     <li><strong>Gain</strong>: &plusmn;24 dB. <strong>DC Block</strong> removes an offset below hearing that costs headroom.</li>
 </ul>
-<p>An <strong>All-Pass Filter</strong> placed before the Utility is the third lever: it turns the phase around one frequency without touching the level, which is often what lines a bass up with a kick when neither polarity nor delay does.</p>
+<p>An <strong>All-Pass Filter</strong> placed before the Phase Scope is the third lever: it turns the phase around one frequency without touching the level, which is often what lines a bass up with a kick when neither polarity nor delay does.</p>
 
 <h3>Monitor</h3>
 <p>The listening half of what the Stereo Field Meter measures. The meter tells you a mix is at risk in mono; this lets you hear it, by folding the signal down where it is inserted. Put it last in the master rack to check the whole mix, or on a single device to find which part is causing the trouble.</p>

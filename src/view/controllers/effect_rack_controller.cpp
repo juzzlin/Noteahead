@@ -48,6 +48,7 @@
 #include "../../domain/effects/monitor.hpp"
 #include "../../domain/effects/multiband_compressor.hpp"
 #include "../../domain/effects/panner.hpp"
+#include "../../domain/effects/phase_scope.hpp"
 #include "../../domain/effects/phaser.hpp"
 #include "../../domain/effects/reference.hpp"
 #include "../../domain/effects/reference_environments.hpp"
@@ -57,7 +58,6 @@
 #include "../../domain/effects/stereo_widener.hpp"
 #include "../../domain/effects/tremolo.hpp"
 #include "../../domain/effects/tube_stage.hpp"
-#include "../../domain/effects/utility.hpp"
 #include "../../domain/effects/wave_designer.hpp"
 #include "../../domain/utility/dbtp_meter.hpp"
 #include "../../domain/utility/lufs_meter.hpp"
@@ -371,7 +371,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Simple EQ", Constants::RackEffectType::simpleEq().toStdString());
     addEffect("Limiter", Constants::RackEffectType::limiter().toStdString());
     addEffect("Gain", Constants::RackEffectType::gain().toStdString());
-    addEffect("Utility", Constants::RackEffectType::utility().toStdString());
+    addEffect("PhaseScope", Constants::RackEffectType::phaseScope().toStdString());
     addEffect("Monitor", Constants::RackEffectType::monitor().toStdString());
     addEffect("Reference", Constants::RackEffectType::reference().toStdString());
     addEffect("Multiband Compressor", Constants::RackEffectType::multibandCompressor().toStdString());
@@ -977,7 +977,7 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                     return QString { "(Graphical, %1, %2)" }.arg(modeName, tr("Linear Phase"));
                 }
                 return QString { "(Graphical, %1)" }.arg(modeName);
-            } else if (type == Constants::RackEffectType::utility()) {
+            } else if (type == Constants::RackEffectType::phaseScope()) {
                 // Only what is set away from neutral, which is what tells two of them apart
                 namespace C = Constants::NahdXml;
                 const auto valueOf = [&effect](const QString & key) {
@@ -998,10 +998,10 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                 if (valueOf(C::xmlKeyMonoBass()) > 0.5f) {
                     items << tr("bass mono");
                 }
-                if (const auto ms = valueOf(C::xmlKeyDelayTime()) * Utility::MaxDelayMs; ms > 0.0) {
+                if (const auto ms = valueOf(C::xmlKeyDelayTime()) * PhaseScope::MaxDelayMs; ms > 0.0) {
                     items << QString { "%1 %2 ms" }.arg(tr("delay")).arg(ms, 0, 'f', 2);
                 }
-                if (const auto db = (valueOf(C::xmlKeyGain()) * 2.0 - 1.0) * Utility::MaxGainDb; std::abs(db) >= 0.05) {
+                if (const auto db = (valueOf(C::xmlKeyGain()) * 2.0 - 1.0) * PhaseScope::MaxGainDb; std::abs(db) >= 0.05) {
                     items << QString { "%1%2 dB" }.arg(db > 0 ? "+" : "").arg(db, 0, 'f', 1);
                 }
                 return items.isEmpty() ? QString { "(%1)" }.arg(tr("neutral")) : QString { "(%1)" }.arg(items.join(", "));
@@ -2690,93 +2690,93 @@ QString EffectRackController::airBandEqType() const
     return Constants::RackEffectType::airBandEq();
 }
 
-QString EffectRackController::utilityType() const
+QString EffectRackController::phaseScopeType() const
 {
-    return Constants::RackEffectType::utility();
+    return Constants::RackEffectType::phaseScope();
 }
 
-QString EffectRackController::utilityGainKey() const
+QString EffectRackController::phaseScopeGainKey() const
 {
     return Constants::NahdXml::xmlKeyGain();
 }
 
-QString EffectRackController::utilityInvertLeftKey() const
+QString EffectRackController::phaseScopeInvertLeftKey() const
 {
     return Constants::NahdXml::xmlKeyInvertLeft();
 }
 
-QString EffectRackController::utilityInvertRightKey() const
+QString EffectRackController::phaseScopeInvertRightKey() const
 {
     return Constants::NahdXml::xmlKeyInvertRight();
 }
 
-QString EffectRackController::utilityChannelModeKey() const
+QString EffectRackController::phaseScopeChannelModeKey() const
 {
     return Constants::NahdXml::xmlKeyChannelMode();
 }
 
-QString EffectRackController::utilityWidthKey() const
+QString EffectRackController::phaseScopeWidthKey() const
 {
     return Constants::NahdXml::xmlKeyWidth();
 }
 
-QString EffectRackController::utilityMonoBassKey() const
+QString EffectRackController::phaseScopeMonoBassKey() const
 {
     return Constants::NahdXml::xmlKeyMonoBass();
 }
 
-QString EffectRackController::utilityMonoBassFrequencyKey() const
+QString EffectRackController::phaseScopeMonoBassFrequencyKey() const
 {
     return Constants::NahdXml::xmlKeyMonoBassFrequency();
 }
 
-QString EffectRackController::utilityDelayKey() const
+QString EffectRackController::phaseScopeDelayKey() const
 {
     return Constants::NahdXml::xmlKeyDelayTime();
 }
 
-QString EffectRackController::utilityDcBlockKey() const
+QString EffectRackController::phaseScopeDcBlockKey() const
 {
     return Constants::NahdXml::xmlKeyDcBlock();
 }
 
-QString EffectRackController::utilityReferenceKey() const
+QString EffectRackController::phaseScopeReferenceKey() const
 {
     return Constants::NahdXml::xmlKeySideChainSourceDevice();
 }
 
-int EffectRackController::utilityDelaySamples(quint32 effectIndex) const
+int EffectRackController::phaseScopeDelaySamples(quint32 effectIndex) const
 {
-    const auto effect = std::dynamic_pointer_cast<Utility>(effectAt(effectIndex));
+    const auto effect = std::dynamic_pointer_cast<PhaseScope>(effectAt(effectIndex));
     if (!effect) {
         return 0;
     }
     const auto delay = effect->parameter(Constants::NahdXml::xmlKeyDelayTime().toStdString());
-    return delay ? static_cast<int>(Utility::delaySamples(delay->get().value(), effect->sampleRate())) : 0;
+    return delay ? static_cast<int>(PhaseScope::delaySamples(delay->get().value(), effect->sampleRate())) : 0;
 }
 
-void EffectRackController::utilitySetDelaySamples(quint32 effectIndex, int samples)
+void EffectRackController::phaseScopeSetDelaySamples(quint32 effectIndex, int samples)
 {
-    const auto effect = std::dynamic_pointer_cast<Utility>(effectAt(effectIndex));
+    const auto effect = std::dynamic_pointer_cast<PhaseScope>(effectAt(effectIndex));
     if (!effect || effect->sampleRate() <= 0.0) {
         return;
     }
-    const auto maxSamples = static_cast<int>(Utility::delaySamples(1.0f, effect->sampleRate()));
+    const auto maxSamples = static_cast<int>(PhaseScope::delaySamples(1.0f, effect->sampleRate()));
     const double ms = static_cast<double>(std::clamp(samples, 0, maxSamples)) * 1000.0 / effect->sampleRate();
-    setParameterValue(effectIndex, Constants::NahdXml::xmlKeyDelayTime(), static_cast<float>(ms / Utility::MaxDelayMs));
+    setParameterValue(effectIndex, Constants::NahdXml::xmlKeyDelayTime(), static_cast<float>(ms / PhaseScope::MaxDelayMs));
 }
 
-void EffectRackController::utilitySetActive(quint32 effectIndex, bool active)
+void EffectRackController::phaseScopeSetActive(quint32 effectIndex, bool active)
 {
-    if (const auto effect = std::dynamic_pointer_cast<Utility>(effectAt(effectIndex)); effect) {
+    if (const auto effect = std::dynamic_pointer_cast<PhaseScope>(effectAt(effectIndex)); effect) {
         effect->setAnalysisEnabled(active);
     }
 }
 
-QVariantMap EffectRackController::utilityReading(quint32 effectIndex) const
+QVariantMap EffectRackController::phaseScopeReading(quint32 effectIndex) const
 {
     QVariantMap map;
-    if (const auto effect = std::dynamic_pointer_cast<Utility>(effectAt(effectIndex)); effect) {
+    if (const auto effect = std::dynamic_pointer_cast<PhaseScope>(effectAt(effectIndex)); effect) {
         const auto reading = effect->reading();
         map["hasReference"] = reading.hasReference;
         map["correlation"] = reading.correlation;
@@ -2787,10 +2787,10 @@ QVariantMap EffectRackController::utilityReading(quint32 effectIndex) const
     return map;
 }
 
-QVariantMap EffectRackController::utilityCapture(quint32 effectIndex, int maxPoints) const
+QVariantMap EffectRackController::phaseScopeCapture(quint32 effectIndex, int maxPoints) const
 {
     QVariantMap map;
-    if (const auto effect = std::dynamic_pointer_cast<Utility>(effectAt(effectIndex)); effect) {
+    if (const auto effect = std::dynamic_pointer_cast<PhaseScope>(effectAt(effectIndex)); effect) {
         const auto capture = effect->capture();
         // Every n-th sample, the same n for both, so that the two stay aligned
         const auto decimate = [](const std::vector<float> & samples, size_t stride) {

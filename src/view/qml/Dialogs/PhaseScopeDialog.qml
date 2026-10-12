@@ -22,7 +22,7 @@ import "../Components"
 
 EffectDialog {
     id: root
-    title: "<strong>" + qsTr("Utility (Slot %1)").arg(effectIndex + 1) + "</strong>"
+    title: "<strong>" + qsTr("Phase Scope (Slot %1)").arg(effectIndex + 1) + "</strong>"
     modal: true
     focus: true
     width: parent ? parent.width * Constants.largeDialogScale : 1000
@@ -45,10 +45,10 @@ EffectDialog {
         effectRackController.setParameterValue(root.effectIndex, key, value);
     }
 
-    // The scope is gated on the dialog being open, so a Utility left in a rack costs nothing
+    // The scope is gated on the dialog being open, so a Phase Scope left in a rack costs nothing
     onVisibleChanged: {
         if (effectIndex >= 0) {
-            effectRackController.utilitySetActive(effectIndex, visible);
+            effectRackController.phaseScopeSetActive(effectIndex, visible);
         }
     }
 
@@ -59,10 +59,10 @@ EffectDialog {
         running: root.visible && root.effectIndex >= 0
         repeat: true
         onTriggered: {
-            const capture = effectRackController.utilityCapture(root.effectIndex, 512);
+            const capture = effectRackController.phaseScopeCapture(root.effectIndex, 512);
             scope.reference = capture.reference || [];
             scope.trace = capture.signal || [];
-            root.reading = effectRackController.utilityReading(root.effectIndex);
+            root.reading = effectRackController.phaseScopeReading(root.effectIndex);
         }
     }
 
@@ -107,8 +107,8 @@ EffectDialog {
                         }
                         return items;
                     }
-                    currentIndex: root.parameterValue(effectRackController.utilityReferenceKey()) + 1
-                    onActivated: index => root.setParameterValue(effectRackController.utilityReferenceKey(), index - 1)
+                    currentIndex: root.parameterValue(effectRackController.phaseScopeReferenceKey()) + 1
+                    onActivated: index => root.setParameterValue(effectRackController.phaseScopeReferenceKey(), index - 1)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -123,13 +123,13 @@ EffectDialog {
                 RowLayout {
                     CheckBox {
                         text: qsTr("Invert L")
-                        checked: root.parameterValue(effectRackController.utilityInvertLeftKey()) > 0.5
-                        onToggled: root.setParameterValue(effectRackController.utilityInvertLeftKey(), checked ? 1 : 0)
+                        checked: root.parameterValue(effectRackController.phaseScopeInvertLeftKey()) > 0.5
+                        onToggled: root.setParameterValue(effectRackController.phaseScopeInvertLeftKey(), checked ? 1 : 0)
                     }
                     CheckBox {
                         text: qsTr("Invert R")
-                        checked: root.parameterValue(effectRackController.utilityInvertRightKey()) > 0.5
-                        onToggled: root.setParameterValue(effectRackController.utilityInvertRightKey(), checked ? 1 : 0)
+                        checked: root.parameterValue(effectRackController.phaseScopeInvertRightKey()) > 0.5
+                        onToggled: root.setParameterValue(effectRackController.phaseScopeInvertRightKey(), checked ? 1 : 0)
                     }
                 }
 
@@ -141,8 +141,8 @@ EffectDialog {
                 ComboBox {
                     Layout.fillWidth: true
                     model: [qsTr("Stereo"), qsTr("Left"), qsTr("Right"), qsTr("Swap"), qsTr("Mono")]
-                    currentIndex: Math.round(root.parameterValue(effectRackController.utilityChannelModeKey()))
-                    onActivated: index => root.setParameterValue(effectRackController.utilityChannelModeKey(), index)
+                    currentIndex: Math.round(root.parameterValue(effectRackController.phaseScopeChannelModeKey()))
+                    onActivated: index => root.setParameterValue(effectRackController.phaseScopeChannelModeKey(), index)
                 }
 
                 Knob {
@@ -152,15 +152,15 @@ EffectDialog {
                     suffix: "%"
                     from: 0
                     to: 200
-                    value: root.parameterValue(effectRackController.utilityWidthKey()) * 200
-                    onMoved: v => root.setParameterValue(effectRackController.utilityWidthKey(), v / 200)
+                    value: root.parameterValue(effectRackController.phaseScopeWidthKey()) * 200
+                    onMoved: v => root.setParameterValue(effectRackController.phaseScopeWidthKey(), v / 200)
                     Layout.fillWidth: true
                     Layout.topMargin: 6
                 }
                 CheckBox {
                     text: qsTr("Bass Mono")
-                    checked: root.parameterValue(effectRackController.utilityMonoBassKey()) > 0.5
-                    onToggled: root.setParameterValue(effectRackController.utilityMonoBassKey(), checked ? 1 : 0)
+                    checked: root.parameterValue(effectRackController.phaseScopeMonoBassKey()) > 0.5
+                    onToggled: root.setParameterValue(effectRackController.phaseScopeMonoBassKey(), checked ? 1 : 0)
                     ToolTip.delay: Constants.toolTipDelay
                     ToolTip.timeout: Constants.toolTipTimeout
                     ToolTip.visible: hovered
@@ -172,9 +172,9 @@ EffectDialog {
                     from: 20
                     to: 500
                     isInteger: true
-                    enabled: root.parameterValue(effectRackController.utilityMonoBassKey()) > 0.5
-                    value: 20 + root.parameterValue(effectRackController.utilityMonoBassFrequencyKey()) * 480
-                    onMoved: v => root.setParameterValue(effectRackController.utilityMonoBassFrequencyKey(), (v - 20) / 480)
+                    enabled: root.parameterValue(effectRackController.phaseScopeMonoBassKey()) > 0.5
+                    value: 20 + root.parameterValue(effectRackController.phaseScopeMonoBassFrequencyKey()) * 480
+                    onMoved: v => root.setParameterValue(effectRackController.phaseScopeMonoBassFrequencyKey(), (v - 20) / 480)
                     Layout.fillWidth: true
                 }
 
@@ -185,22 +185,22 @@ EffectDialog {
                     from: 0
                     to: 20
                     isInteger: false
-                    value: root.parameterValue(effectRackController.utilityDelayKey()) * 20
-                    onMoved: v => root.setParameterValue(effectRackController.utilityDelayKey(), v / 20)
+                    value: root.parameterValue(effectRackController.phaseScopeDelayKey()) * 20
+                    onMoved: v => root.setParameterValue(effectRackController.phaseScopeDelayKey(), v / 20)
                     Layout.fillWidth: true
                     Layout.topMargin: 6
                 }
                 RowLayout {
                     readonly property int samples: {
                         effectRackController.revision;
-                        return effectRackController.utilityDelaySamples(root.effectIndex);
+                        return effectRackController.phaseScopeDelaySamples(root.effectIndex);
                     }
                     id: delaySamples
                     AppButton {
                         text: "−1"
                         implicitWidth: 40
                         toolTipText: qsTr("One sample earlier")
-                        onClicked: effectRackController.utilitySetDelaySamples(root.effectIndex, delaySamples.samples - 1)
+                        onClicked: effectRackController.phaseScopeSetDelaySamples(root.effectIndex, delaySamples.samples - 1)
                     }
                     Label {
                         text: qsTr("%1 samples").arg(delaySamples.samples)
@@ -211,7 +211,7 @@ EffectDialog {
                         text: "+1"
                         implicitWidth: 40
                         toolTipText: qsTr("One sample later")
-                        onClicked: effectRackController.utilitySetDelaySamples(root.effectIndex, delaySamples.samples + 1)
+                        onClicked: effectRackController.phaseScopeSetDelaySamples(root.effectIndex, delaySamples.samples + 1)
                     }
                 }
 
@@ -221,15 +221,15 @@ EffectDialog {
                     from: -24
                     to: 24
                     isInteger: false
-                    value: root.parameterValue(effectRackController.utilityGainKey()) * 48 - 24
-                    onMoved: v => root.setParameterValue(effectRackController.utilityGainKey(), (v + 24) / 48)
+                    value: root.parameterValue(effectRackController.phaseScopeGainKey()) * 48 - 24
+                    onMoved: v => root.setParameterValue(effectRackController.phaseScopeGainKey(), (v + 24) / 48)
                     Layout.fillWidth: true
                     Layout.topMargin: 6
                 }
                 CheckBox {
                     text: qsTr("DC Block")
-                    checked: root.parameterValue(effectRackController.utilityDcBlockKey()) > 0.5
-                    onToggled: root.setParameterValue(effectRackController.utilityDcBlockKey(), checked ? 1 : 0)
+                    checked: root.parameterValue(effectRackController.phaseScopeDcBlockKey()) > 0.5
+                    onToggled: root.setParameterValue(effectRackController.phaseScopeDcBlockKey(), checked ? 1 : 0)
                 }
             }
         }
@@ -246,7 +246,7 @@ EffectDialog {
             Layout.fillHeight: true
 
             Label {
-                text: qsTr("Phase Scope")
+                text: qsTr("Scope")
                 font.bold: true
                 font.pixelSize: 16
                 color: themeService.accentColor

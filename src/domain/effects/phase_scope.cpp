@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#include "utility.hpp"
+#include "phase_scope.hpp"
 
 #include <QtGlobal>
 
@@ -50,7 +50,7 @@ double toDb(double meanSquare)
 
 } // namespace
 
-Utility::Utility()
+PhaseScope::PhaseScope()
 {
     namespace C = Constants::NahdXml;
     using Display = ParameterDisplay;
@@ -78,28 +78,28 @@ Utility::Utility()
     describe(C::xmlKeyDelayTime(), { .unit = "ms", .min = 0.0, .max = MaxDelayMs, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Delay") });
 }
 
-std::string Utility::typeIdString()
+std::string PhaseScope::typeIdString()
 {
-    return Constants::RackEffectType::utility().toStdString();
+    return Constants::RackEffectType::phaseScope().toStdString();
 }
 
-std::string Utility::type() const
-{
-    return typeIdString();
-}
-
-std::string Utility::typeId() const
+std::string PhaseScope::type() const
 {
     return typeIdString();
 }
 
-uint32_t Utility::delaySamples(float parameterValue, double sampleRate)
+std::string PhaseScope::typeId() const
+{
+    return typeIdString();
+}
+
+uint32_t PhaseScope::delaySamples(float parameterValue, double sampleRate)
 {
     const double ms = static_cast<double>(std::clamp(parameterValue, 0.0f, 1.0f)) * MaxDelayMs;
     return static_cast<uint32_t>(std::lround(ms * sampleRate / 1000.0));
 }
 
-std::optional<size_t> Utility::sidechainSourceDeviceIndex() const
+std::optional<size_t> PhaseScope::sidechainSourceDeviceIndex() const
 {
     if (const auto p = parameter(Constants::NahdXml::xmlKeySideChainSourceDevice().toStdString()); p) {
         if (const auto index = p->get().xmlValue(); index >= 0) {
@@ -109,7 +109,7 @@ std::optional<size_t> Utility::sidechainSourceDeviceIndex() const
     return {};
 }
 
-void Utility::syncParameters()
+void PhaseScope::syncParameters()
 {
     namespace C = Constants::NahdXml;
     const auto valueOf = [this](const QString & key) {
@@ -134,7 +134,7 @@ void Utility::syncParameters()
     m_delaySamples = delaySamples(valueOf(C::xmlKeyDelayTime()), rate);
 }
 
-void Utility::updateBuffers()
+void PhaseScope::updateBuffers()
 {
     const auto rate = static_cast<uint32_t>(m_sampleRate);
     if (rate != m_lastSampleRate) {
@@ -160,7 +160,7 @@ void Utility::updateBuffers()
     }
 }
 
-void Utility::processFrame(double & left, double & right)
+void PhaseScope::processFrame(double & left, double & right)
 {
     m_quietFrames = (left != 0.0 || right != 0.0) ? 0 : m_quietFrames + 1;
 
@@ -221,13 +221,13 @@ void Utility::processFrame(double & left, double & right)
     right *= m_gain;
 }
 
-void Utility::processSample(double & left, double & right)
+void PhaseScope::processSample(double & left, double & right)
 {
     updateBuffers();
     processFrame(left, right);
 }
 
-void Utility::processBlock(AudioContext & context)
+void PhaseScope::processBlock(AudioContext & context)
 {
     updateBuffers();
     const bool analysing = m_analysisEnabled.load(std::memory_order_relaxed);
@@ -266,7 +266,7 @@ void Utility::processBlock(AudioContext & context)
     }
 }
 
-void Utility::analyse(double referenceSample, double signalSample, bool hasReference)
+void PhaseScope::analyse(double referenceSample, double signalSample, bool hasReference)
 {
     const double c = m_smoothing;
     m_productSum = c * m_productSum + (1.0 - c) * referenceSample * signalSample;
@@ -303,7 +303,7 @@ void Utility::analyse(double referenceSample, double signalSample, bool hasRefer
     }
 }
 
-void Utility::reset()
+void PhaseScope::reset()
 {
     for (auto && blocker : m_dcBlockers) {
         blocker.reset();
@@ -319,28 +319,28 @@ void Utility::reset()
     m_capturing = false;
 }
 
-void Utility::sync()
+void PhaseScope::sync()
 {
     m_shouldUpdateBuffers = true;
 }
 
-bool Utility::isSettled() const
+bool PhaseScope::isSettled() const
 {
     return !m_analysisEnabled.load(std::memory_order_relaxed) && m_quietFrames >= m_delaySamples;
 }
 
-void Utility::setAnalysisEnabled(bool enabled)
+void PhaseScope::setAnalysisEnabled(bool enabled)
 {
     m_analysisEnabled.store(enabled, std::memory_order_relaxed);
 }
 
-Utility::Reading Utility::reading() const
+PhaseScope::Reading PhaseScope::reading() const
 {
     const std::lock_guard<std::mutex> lock { m_publishMutex };
     return m_reading;
 }
 
-Utility::Capture Utility::capture() const
+PhaseScope::Capture PhaseScope::capture() const
 {
     const std::lock_guard<std::mutex> lock { m_publishMutex };
     return m_capture;

@@ -284,7 +284,7 @@ QString lufsMeter();
 QString dbtpMeter();
 QString rta();
 QString monitor();
-QString utility();
+QString phaseScope();
 QString crossfeed();
 QString reference();
 QString gain();

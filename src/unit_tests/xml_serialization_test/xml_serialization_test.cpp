@@ -70,6 +70,7 @@
 #include "../../domain/effects/limiter.hpp"
 #include "../../domain/effects/monitor.hpp"
 #include "../../domain/effects/multiband_compressor.hpp"
+#include "../../domain/effects/phase_scope.hpp"
 #include "../../domain/effects/phaser.hpp"
 #include "../../domain/effects/reference.hpp"
 #include "../../domain/effects/reference_environments.hpp"
@@ -81,7 +82,6 @@
 #include "../../domain/effects/stereo_widener.hpp"
 #include "../../domain/effects/tremolo.hpp"
 #include "../../domain/effects/tube_stage.hpp"
-#include "../../domain/effects/utility.hpp"
 #include "../../domain/effects/vintage_passive_eq.hpp"
 #include "../../domain/effects/wave_designer.hpp"
 #include "../../domain/tracker/auto_note_off_offset.hpp"
@@ -2362,14 +2362,14 @@ void XmlSerializationTest::test_toXmlFromXml_eq32BandGraphicalEffect_shouldLoadC
     QVERIFY(std::abs(valueOf(Constants::NahdXml::xmlKeyGain()) - 0.4f) < 0.001f);
 }
 
-void XmlSerializationTest::test_toXmlFromXml_utilityEffect_shouldLoadCorrectly()
+void XmlSerializationTest::test_toXmlFromXml_phaseScopeEffect_shouldLoadCorrectly()
 {
     const auto engineOut = std::make_shared<AudioEngine>();
     DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
 
-    auto utility = std::make_shared<Utility>();
-    const auto setParam = [&utility](const QString & key, float value) {
-        if (auto p = utility->parameter(key.toStdString()); p) {
+    auto phaseScope = std::make_shared<PhaseScope>();
+    const auto setParam = [&phaseScope](const QString & key, float value) {
+        if (auto p = phaseScope->parameter(key.toStdString()); p) {
             p->get().setValue(value);
         }
     };
@@ -2383,7 +2383,7 @@ void XmlSerializationTest::test_toXmlFromXml_utilityEffect_shouldLoadCorrectly()
     setParam(C::xmlKeyDelayTime(), 0.123f);
     setParam(C::xmlKeyDcBlock(), 1.0f);
     setParam(C::xmlKeySideChainSourceDevice(), 2.0f);
-    deviceServiceOut.insertEffectRack().setEffect(0, utility);
+    deviceServiceOut.insertEffectRack().setEffect(0, phaseScope);
 
     EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
     connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
@@ -2395,7 +2395,7 @@ void XmlSerializationTest::test_toXmlFromXml_utilityEffect_shouldLoadCorrectly()
     connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
     editorServiceIn.fromXml(xml);
 
-    const auto restored = std::dynamic_pointer_cast<Utility>(deviceServiceIn.insertEffectRack().effect(0));
+    const auto restored = std::dynamic_pointer_cast<PhaseScope>(deviceServiceIn.insertEffectRack().effect(0));
     QVERIFY(restored);
     const auto valueOf = [&restored](const QString & key) {
         const auto p = restored->parameter(key.toStdString());

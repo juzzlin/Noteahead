@@ -120,7 +120,7 @@ set(HEADER_FILES
     effects/saturator.hpp
     effects/tremolo.hpp
     effects/tube_stage.hpp
-    effects/utility.hpp
+    effects/phase_scope.hpp
     effects/simple_eq.hpp
     effects/vintage_passive_eq.hpp
     effects/stereo_enhancer.hpp
@@ -307,7 +307,7 @@ set(SOURCE_FILES
     effects/saturator.cpp
     effects/tremolo.cpp
     effects/tube_stage.cpp
-    effects/utility.cpp
+    effects/phase_scope.cpp
     effects/simple_eq.cpp
     effects/vintage_passive_eq.cpp
     effects/stereo_enhancer.cpp

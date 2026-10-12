@@ -46,6 +46,7 @@
 #include "monitor.hpp"
 #include "multiband_compressor.hpp"
 #include "panner.hpp"
+#include "phase_scope.hpp"
 #include "phaser.hpp"
 #include "reference.hpp"
 #include "reverb.hpp"
@@ -56,7 +57,6 @@
 #include "stereo_widener.hpp"
 #include "tremolo.hpp"
 #include "tube_stage.hpp"
-#include "utility.hpp"
 #include "vintage_passive_eq.hpp"
 #include "wave_designer.hpp"
 
@@ -138,7 +138,9 @@ void EffectFactory::init()
     registerEffect(Reference::typeIdString(), []() { return std::make_shared<Reference>(); });
     registerEffect(Monitor::typeIdString(), []() { return std::make_shared<Monitor>(); });
     // Its type id and its type are the same string, as the All-Pass Filter's are
-    registerEffect(Utility::typeIdString(), []() { return std::make_shared<Utility>(); });
+    registerEffect(PhaseScope::typeIdString(), []() { return std::make_shared<PhaseScope>(); });
+    // The type id it was saved under for the first hour it existed, as Utility
+    registerEffect("utility", []() { return std::make_shared<PhaseScope>(); });
     registerEffect(Gain::typeIdString(), []() { return std::make_shared<Gain>(); });
     registerEffect(MultibandCompressor::typeIdString(), []() { return std::make_shared<MultibandCompressor>(); });
     registerEffect(Panner::typeIdString(), []() { return std::make_shared<Panner>(); });

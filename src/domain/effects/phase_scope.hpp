@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef UTILITY_HPP
-#define UTILITY_HPP
+#ifndef PHASE_SCOPE_HPP
+#define PHASE_SCOPE_HPP
 
 #include "../dsp/dc_blocker.hpp"
 #include "../dsp/linkwitz_riley_crossover.hpp"
@@ -42,10 +42,10 @@ namespace noteahead {
 //!
 //! The delay is the signal moving, not latency: it is never reported as latency, so a render does
 //! not take it back out the way it does a linear-phase filter's.
-class Utility : public Effect
+class PhaseScope : public Effect
 {
 public:
-    Utility();
+    PhaseScope();
 
     static std::string typeIdString();
     std::string type() const override;
@@ -156,4 +156,4 @@ private:
 
 } // namespace noteahead
 
-#endif // UTILITY_HPP
+#endif // PHASE_SCOPE_HPP

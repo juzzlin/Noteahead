@@ -329,9 +329,9 @@ QString monitor()
     return "monitor";
 }
 
-QString utility()
+QString phaseScope()
 {
-    return "utility";
+    return "phasescope";
 }
 
 QString crossfeed()

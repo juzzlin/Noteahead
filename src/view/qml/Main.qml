@@ -728,8 +728,8 @@ ApplicationWindow {
         id: eq32BandGraphicalDialog
         anchors.centerIn: parent
     }
-    UtilityDialog {
-        id: utilityDialog
+    PhaseScopeDialog {
+        id: phaseScopeDialog
         anchors.centerIn: parent
     }
     AirBandEqDialog {

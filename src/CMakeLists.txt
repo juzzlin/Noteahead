@@ -291,7 +291,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_MidiEffects.qml
     ${QML_BASE_DIR}/Dialogs/TrackSettingsDialog_TimingSettings.qml
     ${QML_BASE_DIR}/Dialogs/UnsavedChangesDialog.qml
-    ${QML_BASE_DIR}/Dialogs/UtilityDialog.qml
+    ${QML_BASE_DIR}/Dialogs/PhaseScopeDialog.qml
     ${QML_BASE_DIR}/Dialogs/WhatsNewDialog.qml
     ${QML_BASE_DIR}/Dialogs/VintagePassiveEqDialog.qml
     ${QML_BASE_DIR}/Dialogs/WaveDesignerDialog.qml
