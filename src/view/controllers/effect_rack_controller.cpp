@@ -412,7 +412,7 @@ QVariantList EffectRackController::availableEffects() const
     addEffect("Simple EQ", Constants::RackEffectType::simpleEq().toStdString());
     addEffect("Limiter", Constants::RackEffectType::limiter().toStdString());
     addEffect("Gain", Constants::RackEffectType::gain().toStdString());
-    addEffect("PhaseScope", Constants::RackEffectType::phaseScope().toStdString());
+    addEffect("Phase Scope", Constants::RackEffectType::phaseScope().toStdString());
     addEffect("Monitor", Constants::RackEffectType::monitor().toStdString());
     addEffect("Reference", Constants::RackEffectType::reference().toStdString());
     addEffect("Multiband Compressor", Constants::RackEffectType::multibandCompressor().toStdString());

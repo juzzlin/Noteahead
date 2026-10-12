@@ -1450,6 +1450,15 @@ void EffectRackControllerTest::test_availableEffects_shouldOfferTheMonitoringEff
     QVERIFY2(types.contains(Constants::RackEffectType::crossfeed()), qPrintable(types.join(", ")));
 }
 
+void EffectRackControllerTest::test_effectDisplayName_phaseScope_shouldBeTwoWords()
+{
+    // The gallery and the rack both read the name from the same list
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+    QCOMPARE(controller.effectDisplayName(controller.phaseScopeType()), QString { "Phase Scope" });
+}
+
 void EffectRackControllerTest::test_availableEffects_shouldOfferTheAmbience()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();

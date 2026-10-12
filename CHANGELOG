@@ -55,6 +55,7 @@ New features:
 
 Bug fixes:
 
+* The rack and the effects gallery name the Phase Scope as two words
 * Relative parameter automation leaves the knob where it was set; Absolute still moves it
 * Parameter automation resets on Stop and on a jump in the play order
 * Wavetable Synth and FM Synth: the dialog follows Octave, automation and incoming MIDI CC
