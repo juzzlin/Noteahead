@@ -23,6 +23,7 @@
 #include "../../domain/dsp/lfo.hpp"
 #include "../../domain/effects/air_band_eq.hpp"
 #include "../../domain/effects/all_pass_filter.hpp"
+#include "../../domain/effects/ambience.hpp"
 #include "../../domain/effects/analog_fuzz.hpp"
 #include "../../domain/effects/auto_ducker.hpp"
 #include "../../domain/effects/auto_filter.hpp"
@@ -340,6 +341,7 @@ QVariantList EffectRackController::availableEffects() const
     };
 
     addEffect("All-Pass Filter", AllPassFilter::typeIdString());
+    addEffect("Ambience", Ambience::typeIdString());
     addEffect("Analog Fuzz", Constants::RackEffectType::analogFuzz().toStdString());
     addEffect("Auto Ducker", Constants::RackEffectType::autoDucker().toStdString());
     addEffect("Auto Filter", Constants::RackEffectType::autoFilter().toStdString());
@@ -850,6 +852,16 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                       .arg(static_cast<int>(std::round(ParameterMapper::mapLogFrequency(upperCrossover->get().value(), 20.0, 20000.0))))
                       .arg(scName);
                 }
+            } else if (type == Constants::RackEffectType::ambience()) {
+                namespace C = Constants::NahdXml;
+                const auto valueOf = [&effect](const QString & key) {
+                    const auto p = effect->parameter(key.toStdString());
+                    return p ? p->get().value() : 0.0f;
+                };
+                return QString { "(size=%1%, decay=%2s, mix=%3%)" }
+                  .arg(static_cast<int>(std::round(valueOf(C::xmlKeySize()) * 100.0f)))
+                  .arg(Ambience::decaySeconds(valueOf(C::xmlKeyDecay())), 0, 'f', 2)
+                  .arg(static_cast<int>(std::round(valueOf(C::xmlKeyMix()) * 100.0f)));
             } else if (type == Constants::RackEffectType::earlyReflections()) {
                 const auto size { effect->parameter(Constants::NahdXml::xmlKeySize().toStdString()) };
                 const auto preDelay { effect->parameter(Constants::NahdXml::xmlKeyPreDelay().toStdString()) };
@@ -2711,6 +2723,81 @@ QString EffectRackController::vintagePassiveEqType() const
 QString EffectRackController::airBandEqType() const
 {
     return Constants::RackEffectType::airBandEq();
+}
+
+QString EffectRackController::ambienceType() const
+{
+    return Constants::RackEffectType::ambience();
+}
+
+QString EffectRackController::ambienceSizeKey() const
+{
+    return Constants::NahdXml::xmlKeySize();
+}
+
+QString EffectRackController::ambienceDecayKey() const
+{
+    return Constants::NahdXml::xmlKeyDecay();
+}
+
+QString EffectRackController::ambiencePreDelayKey() const
+{
+    return Constants::NahdXml::xmlKeyPreDelay();
+}
+
+QString EffectRackController::ambienceDiffusionKey() const
+{
+    return Constants::NahdXml::xmlKeyDiffusion();
+}
+
+QString EffectRackController::ambienceShapeKey() const
+{
+    return Constants::NahdXml::xmlKeyShape();
+}
+
+QString EffectRackController::ambienceEarlyLateKey() const
+{
+    return Constants::NahdXml::xmlKeyEarlyLate();
+}
+
+QString EffectRackController::ambienceDampingKey() const
+{
+    return Constants::NahdXml::xmlKeyDamping();
+}
+
+QString EffectRackController::ambienceModRateKey() const
+{
+    return Constants::NahdXml::xmlKeyRate();
+}
+
+QString EffectRackController::ambienceModDepthKey() const
+{
+    return Constants::NahdXml::xmlKeyDepth();
+}
+
+QString EffectRackController::ambienceLowCutKey() const
+{
+    return Constants::NahdXml::xmlKeyHpfCutoff();
+}
+
+QString EffectRackController::ambienceHighCutKey() const
+{
+    return Constants::NahdXml::xmlKeyLpfCutoff();
+}
+
+QString EffectRackController::ambienceWidthKey() const
+{
+    return Constants::NahdXml::xmlKeyWidth();
+}
+
+QString EffectRackController::ambienceMixKey() const
+{
+    return Constants::NahdXml::xmlKeyMix();
+}
+
+QString EffectRackController::ambienceSoloKey() const
+{
+    return Constants::NahdXml::xmlKeySolo();
 }
 
 QString EffectRackController::dynamicEqType() const

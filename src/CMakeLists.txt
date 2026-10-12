@@ -80,6 +80,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/AddPitchBendAutomationDialog.qml
     ${QML_BASE_DIR}/Dialogs/AirBandEqDialog.qml
     ${QML_BASE_DIR}/Dialogs/AllPassFilterDialog.qml
+    ${QML_BASE_DIR}/Dialogs/AmbienceDialog.qml
     ${QML_BASE_DIR}/Dialogs/AnalogFuzzDialog.qml
     ${QML_BASE_DIR}/Dialogs/AnimatedDialog.qml
     ${QML_BASE_DIR}/Dialogs/BitCrusherDialog.qml

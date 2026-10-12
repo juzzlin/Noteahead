@@ -120,6 +120,9 @@ QtObject {
         } else if (effectType === effectRackController.vintagePassiveEqType) {
             vintagePassiveEqDialog.effectIndex = index;
             vintagePassiveEqDialog.open();
+        } else if (effectType === effectRackController.ambienceType) {
+            ambienceDialog.effectIndex = index;
+            ambienceDialog.open();
         } else if (effectType === effectRackController.dynamicEqType) {
             dynamicEqDialog.effectIndex = index;
             dynamicEqDialog.open();

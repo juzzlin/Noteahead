@@ -31,6 +31,10 @@ New features:
   - Polarity, channels, width, bass mono, sample-exact delay, gain and DC block
   - Scope: this signal against a reference, frozen on every hit, with correlation
 
+* Ambience
+  - A short, dense space to glue a mix: diffusion, an early field and a modulated tail
+  - Factory presets: Booth, Drum Room, Live Room, Mix Glue, Vocal Air, Wide Ambience
+
 * Dynamic EQ
   - One Bell, Shelf or Flat band that cuts or boosts only while its detector is over the threshold
   - Detects the band only or the full range, of this signal or a side chain, with a level meter

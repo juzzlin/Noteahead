@@ -75,6 +75,7 @@ class EffectRackController : public QObject
     Q_PROPERTY(QString eq32BandGraphicalType READ eq32BandGraphicalType CONSTANT)
     Q_PROPERTY(QString phaseScopeType READ phaseScopeType CONSTANT)
     Q_PROPERTY(QString dynamicEqType READ dynamicEqType CONSTANT)
+    Q_PROPERTY(QString ambienceType READ ambienceType CONSTANT)
     Q_PROPERTY(QString simpleEqType READ simpleEqType CONSTANT)
     Q_PROPERTY(QString pannerType READ pannerType CONSTANT)
     Q_PROPERTY(QString autoPannerType READ autoPannerType CONSTANT)
@@ -158,6 +159,7 @@ public:
     QString eq32BandGraphicalType() const;
     QString phaseScopeType() const;
     QString dynamicEqType() const;
+    QString ambienceType() const;
     QString simpleEqType() const;
     QString pannerType() const;
     QString reverbType() const;
@@ -520,6 +522,22 @@ public:
     //! Every slider back to 0 dB, leaving the stereo mode and the output gain where they are, which
     //! is how this differs from the Flat preset.
     Q_INVOKABLE void eq32BandGraphicalFlatten(quint32 effectIndex);
+
+    // Ambience
+    Q_INVOKABLE QString ambienceSizeKey() const;
+    Q_INVOKABLE QString ambienceDecayKey() const;
+    Q_INVOKABLE QString ambiencePreDelayKey() const;
+    Q_INVOKABLE QString ambienceDiffusionKey() const;
+    Q_INVOKABLE QString ambienceShapeKey() const;
+    Q_INVOKABLE QString ambienceEarlyLateKey() const;
+    Q_INVOKABLE QString ambienceDampingKey() const;
+    Q_INVOKABLE QString ambienceModRateKey() const;
+    Q_INVOKABLE QString ambienceModDepthKey() const;
+    Q_INVOKABLE QString ambienceLowCutKey() const;
+    Q_INVOKABLE QString ambienceHighCutKey() const;
+    Q_INVOKABLE QString ambienceWidthKey() const;
+    Q_INVOKABLE QString ambienceMixKey() const;
+    Q_INVOKABLE QString ambienceSoloKey() const;
 
     // DynamicEq
     Q_INVOKABLE QString dynamicEqTypeKey() const;

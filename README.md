@@ -161,6 +161,8 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
   - A single "Sounds Good" knob sweeping a fixed loudness-smile curve: low-shelf body, a gentle low-mid scoop and a high-shelf air lift.
 - FDN Reverb
   - High-quality Feedback Delay Network algorithm with 8 studio presets (Hall, Cathedral, etc.) and fine-grained controls.
+- Ambience
+  - A short, dense space to glue a mix and take the dryness off, rather than a tail to be heard: input diffusion, an early field of irregular reflections and a short tail that drifts slowly so it never rings, with the space's own low and high cut.
 - Endless Reverb
   - Large ambient reverb built on an 8-line modulated Householder FDN with input diffusion, plus a Freeze switch for an infinite tail.
 - Early Reflections

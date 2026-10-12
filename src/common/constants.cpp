@@ -339,6 +339,11 @@ QString dynamicEq()
     return "dynamiceq";
 }
 
+QString ambience()
+{
+    return "ambience";
+}
+
 QString crossfeed()
 {
     return "crossfeed";
@@ -1853,6 +1858,11 @@ QString xmlKeyDamping()
 QString xmlKeyDiffusion()
 {
     return "diffusion";
+}
+
+QString xmlKeyEarlyLate()
+{
+    return "earlyLate";
 }
 
 QString xmlKeyPreDelay()

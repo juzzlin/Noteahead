@@ -22,6 +22,7 @@
 #include "../utility/stereo_field_meter.hpp"
 #include "air_band_eq.hpp"
 #include "all_pass_filter.hpp"
+#include "ambience.hpp"
 #include "analog_fuzz.hpp"
 #include "auto_ducker.hpp"
 #include "auto_filter.hpp"
@@ -140,6 +141,7 @@ void EffectFactory::init()
     registerEffect(Monitor::typeIdString(), []() { return std::make_shared<Monitor>(); });
     // Its type id and its type are the same string, as the All-Pass Filter's are
     registerEffect(DynamicEq::typeIdString(), []() { return std::make_shared<DynamicEq>(); });
+    registerEffect(Ambience::typeIdString(), []() { return std::make_shared<Ambience>(); });
     registerEffect(PhaseScope::typeIdString(), []() { return std::make_shared<PhaseScope>(); });
     // The type id it was saved under for the first hour it existed, as Utility
     registerEffect("utility", []() { return std::make_shared<PhaseScope>(); });

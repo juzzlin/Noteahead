@@ -1448,6 +1448,24 @@ void EffectRackControllerTest::test_availableEffects_shouldOfferTheMonitoringEff
     QVERIFY2(types.contains(Constants::RackEffectType::crossfeed()), qPrintable(types.join(", ")));
 }
 
+void EffectRackControllerTest::test_availableEffects_shouldOfferTheAmbience()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+    QStringList types;
+    for (auto && entry : controller.availableEffects()) {
+        types << entry.toMap()["typeId"].toString();
+    }
+    QVERIFY2(types.contains(controller.ambienceType()), qPrintable(types.join(", ")));
+
+    // And the factory can make what the gallery offers
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, controller.ambienceType());
+    QCOMPARE(controller.effectType(0), controller.ambienceType());
+    QCOMPARE(controller.effectParametersSummary(0), QString { "(size=40%, decay=0.80s, mix=30%)" });
+}
+
 void EffectRackControllerTest::test_targetSubIndex_devicesWithParts_shouldAddressThePartRack()
 {
     // The rack was looked up by device type, and the Drum Synth V2 was missing from the list: its

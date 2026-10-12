@@ -728,6 +728,10 @@ ApplicationWindow {
         id: eq32BandGraphicalDialog
         anchors.centerIn: parent
     }
+    AmbienceDialog {
+        id: ambienceDialog
+        anchors.centerIn: parent
+    }
     DynamicEqDialog {
         id: dynamicEqDialog
         anchors.centerIn: parent

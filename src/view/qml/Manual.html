@@ -106,7 +106,7 @@
 <h3>Available Effects</h3>
 <ul>
     <li><strong>Equalizers</strong>: <strong>EQ 8-Band Parametric</strong> (Bell, Shelf, Cut and Notch types per band, plus Mid/Side modes), <strong>EQ 32-Band Graphical</strong> (a third-octave graphic equalizer for mastering), <strong>Vintage Passive EQ</strong> (EQP-1A style, with interacting low Boost/Atten shelves and a high bell), <strong>Air Band EQ</strong> (fixed parallel-summed bands added back to the dry signal) and <strong>Simple EQ</strong> (a single "Sounds Good" knob sweeping a loudness-smile curve).</li>
-    <li><strong>Reverbs</strong>: <strong>Reverb</strong> (the FDN reverb described below), <strong>Endless Reverb</strong> (a large modulated ambient reverb with a Freeze switch for an infinite tail) and <strong>Early Reflections</strong> (the room a sound is in, without a tail, described below).</li>
+    <li><strong>Reverbs</strong>: <strong>Ambience</strong> (a short, dense space to glue a mix, described below), <strong>Reverb</strong> (the FDN reverb described below), <strong>Endless Reverb</strong> (a large modulated ambient reverb with a Freeze switch for an infinite tail) and <strong>Early Reflections</strong> (the room a sound is in, without a tail, described below).</li>
     <li><strong>Dynamics</strong>: <strong>Compressor</strong> (with side-chain support), <strong>Multiband Compressor</strong> (three bands split by Linkwitz-Riley crossovers, described below), <strong>Gate</strong> (a noise gate that is also a downward expander, described below), <strong>Auto Ducker</strong> (side-chain driven ducking or boosting), <strong>Dynamic EQ</strong> (one band that moves only while it is loud, described below), <strong>Limiter</strong> (lookahead brickwall with gain reduction metering), <strong>Gain</strong> (a plain +/-24 dB trim with a clip indicator, described below), <strong>Clipper</strong> and <strong>Wave Designer</strong> (transient shaper, described below).</li>
     <li><strong>Saturation &amp; Lo-fi</strong>: <strong>Drive</strong> (Soft, Hard, Fold and Dist algorithms), <strong>Saturator</strong>, <strong>Tube Stage</strong> (valve preamp, described below), <strong>Analog Fuzz</strong> (a synth's drive knob: a fuzz stage played through the filter it overdrives, described below), <strong>Bass Grinder</strong> (split-band bass preamp distortion, described below), <strong>Bit Crusher</strong> (word length and sample rate thrown away separately, described below) and <strong>Stereo Exciter</strong> (harmonic generator, described below).</li>
     <li><strong>Filters & Modulation</strong>: <strong>Auto Filter</strong> (swept filter with two LFOs and an envelope follower, described below), <strong>Phaser</strong> (swept all-pass cascade, described below), <strong>Flanger</strong> (swept short delay, described below), <strong>Chorus</strong>, <strong>Tremolo</strong> (level modulated by an LFO, described below), <strong>Delay</strong> (Mono, Ping Pong and Tape modes, with BPM sync) and <strong>All-Pass Filter</strong>.</li>
@@ -211,6 +211,24 @@
     <li><strong>Solo</strong>: passes only the side signal being built.</li>
 </ul>
 <p>Working on the <em>difference</em> between the two copies is what makes this free: they appear in the side signal with opposite signs and nowhere else, so summing the output back to mono returns exactly the centre that came in. No setting of any control here can cost a mono listener anything, which is the opposite of how width is usually bought.</p>
+
+<h3>Ambience</h3>
+<p>A short, dense space to glue a mix and take the dryness off it, rather than a tail to be heard: what a studio ambience program does under a whole mix at a low level. Put it on a send and send everything a little, drums and vocals a little more, or use it low on an insert. Mix starts at 30 %, so it is heard as soon as it is added.</p>
+<p>The signal goes through three stages. <strong>Input diffusion</strong> smears a transient before anything reflects it, so a snare comes back as a burst of noise rather than as a slap. An <strong>early field</strong> of irregular reflections gives the space its size and shape. A short <strong>tail</strong> joins the two up, and its lines drift slowly in length, which is what stops a decay this short from ringing metallic.</p>
+<ul>
+    <li><strong>Size</strong>: from a vocal booth to a large live room. Sets both how far the early reflections spread and the length of the tail's lines.</li>
+    <li><strong>Pre-Delay</strong>: 0 to 100 ms before the space starts. A few milliseconds keep the source in front of its room.</li>
+    <li><strong>Diffusion</strong>: how much a transient is smeared first.</li>
+    <li><strong>Shape</strong>: the envelope of the early reflections: fading away at the bottom, even in the middle, building up at the top.</li>
+    <li><strong>Early/Late</strong>: the balance of the early reflections against the tail, at equal power across the travel.</li>
+    <li><strong>Decay</strong>: 0.2 to 3 s, as the time the tail takes to fall by 60 dB, whatever the Size and the sample rate.</li>
+    <li><strong>Damping</strong>: how much faster the top dies away than the rest.</li>
+    <li><strong>Mod Rate</strong> and <strong>Mod Depth</strong>: how fast and how far the tail drifts, 0.1 to 2 Hz and a few cents at most. Enough to break up the ringing, never enough to be heard as a chorus.</li>
+    <li><strong>Low Cut</strong> and <strong>High Cut</strong>: filter the space only, so it adds air without mud or fizz. The dry signal is never touched. Low Cut is off at the bottom of its travel and High Cut at the top.</li>
+    <li><strong>Width</strong>: 0 % is mono, 100 % as it comes, 200 % twice the side. The two channels are a little correlated at 100 %, so the space keeps a centre and holds up in mono.</li>
+    <li><strong>Mix</strong> adds the space on top of the dry signal, which on a send bus makes it the send amount. <strong>Solo</strong> passes only the space.</li>
+</ul>
+<p>The factory presets are <strong>Booth</strong>, <strong>Drum Room</strong>, <strong>Live Room</strong>, <strong>Mix Glue</strong>, <strong>Vocal Air</strong> and <strong>Wide Ambience</strong>.</p>
 
 <h3>Early Reflections Parameters</h3>
 <p>Puts a sound in a room without putting a tail on it. Depth and width are separate axes and a reverb only really addresses one of them: what tells the ear how far away something is is not how long the tail is but what arrives in the first eighty milliseconds. A long tail turned down low is a poor substitute, because it fills the gaps between notes rather than placing the notes themselves -- which is why more reverb so often buys atmosphere without buying distance.</p>
