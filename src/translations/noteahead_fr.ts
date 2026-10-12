@@ -2304,6 +2304,161 @@
     </message>
 </context>
 <context>
+    <name>DynamicEqDialog</name>
+    <message>
+        <source>Dynamic EQ (Slot %1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Type</translation>
+    </message>
+    <message>
+        <source>Bell</source>
+        <translation type="unfinished">Cloche</translation>
+    </message>
+    <message>
+        <source>Low Shelf</source>
+        <translation type="unfinished">Shelf grave</translation>
+    </message>
+    <message>
+        <source>High Shelf</source>
+        <translation type="unfinished">Shelf aigu</translation>
+    </message>
+    <message>
+        <source>Flat</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Flat moves the whole signal rather than a band of it, which makes a ducker driven by what the detector hears</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stereo Mode</source>
+        <translation type="unfinished">Mode stéréo</translation>
+    </message>
+    <message>
+        <source>Stereo</source>
+        <translation type="unfinished">Stéréo</translation>
+    </message>
+    <message>
+        <source>Mid</source>
+        <translation type="unfinished">Médiums</translation>
+    </message>
+    <message>
+        <source>Side</source>
+        <translation type="unfinished">Side</translation>
+    </message>
+    <message>
+        <source>Listen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Play what the detector hears instead of the output, to find the frequency to react to</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation type="unfinished">Gain</translation>
+    </message>
+    <message>
+        <source>Detector</source>
+        <translation type="unfinished">Détecteur</translation>
+    </message>
+    <message>
+        <source>What the detector hears, against the threshold in white. The band moves only while this is over the line.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Freq</source>
+        <translation type="unfinished">Fréq.</translation>
+    </message>
+    <message>
+        <source>Q</source>
+        <translation type="unfinished">Q</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How far the band can move: negative cuts what gets too loud, positive brings it up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="unfinished">Sortie</translation>
+    </message>
+    <message>
+        <source>Threshold</source>
+        <translation type="unfinished">Seuil</translation>
+    </message>
+    <message>
+        <source>Ratio</source>
+        <translation type="unfinished">Ratio</translation>
+    </message>
+    <message>
+        <source>Knee</source>
+        <translation type="unfinished">Coude</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation type="unfinished">Attaque</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation type="unfinished">Relâchement</translation>
+    </message>
+    <message>
+        <source>Detector:</source>
+        <translation type="unfinished">Détecteur :</translation>
+    </message>
+    <message>
+        <source>Self</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Side Chain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Band only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Full range</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Band only hears what is around the band&apos;s frequency, through a band-pass of the same Freq and Q; Full range hears the whole signal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation type="unfinished">Aucun</translation>
+    </message>
+    <message>
+        <source>Device %1</source>
+        <translation type="unfinished">Appareil %1</translation>
+    </message>
+    <message>
+        <source>Device %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Device %1: %2 — %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF</source>
+        <translation type="unfinished">LPF</translation>
+    </message>
+    <message>
+        <source>Low-pass the detector, so that it reacts to the low end and ignores the top</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>EarlyReflectionsDialog</name>
     <message>
         <source>Early Reflections (Slot %1)</source>
@@ -6154,6 +6309,30 @@
     <message>
         <source>HPF Cutoff</source>
         <translation type="unfinished">Coupure du HPF</translation>
+    </message>
+    <message>
+        <source>Frequency</source>
+        <translation type="unfinished">Fréquence</translation>
+    </message>
+    <message>
+        <source>Q</source>
+        <translation type="unfinished">Q</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Threshold</source>
+        <translation type="unfinished">Seuil</translation>
+    </message>
+    <message>
+        <source>Ratio</source>
+        <translation type="unfinished">Ratio</translation>
+    </message>
+    <message>
+        <source>Knee</source>
+        <translation type="unfinished">Coude</translation>
     </message>
     <message>
         <source>Output Gain</source>
@@ -11512,6 +11691,26 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
     </message>
     <message>
         <source>Linear Phase</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bell</source>
+        <translation type="unfinished">Cloche</translation>
+    </message>
+    <message>
+        <source>Low Shelf</source>
+        <translation type="unfinished">Shelf grave</translation>
+    </message>
+    <message>
+        <source>High Shelf</source>
+        <translation type="unfinished">Shelf aigu</translation>
+    </message>
+    <message>
+        <source>Flat</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>sidechain</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -2303,6 +2303,161 @@
     </message>
 </context>
 <context>
+    <name>DynamicEqDialog</name>
+    <message>
+        <source>Dynamic EQ (Slot %1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">类型</translation>
+    </message>
+    <message>
+        <source>Bell</source>
+        <translation type="unfinished">钟形</translation>
+    </message>
+    <message>
+        <source>Low Shelf</source>
+        <translation type="unfinished">低架</translation>
+    </message>
+    <message>
+        <source>High Shelf</source>
+        <translation type="unfinished">高架</translation>
+    </message>
+    <message>
+        <source>Flat</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Flat moves the whole signal rather than a band of it, which makes a ducker driven by what the detector hears</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stereo Mode</source>
+        <translation type="unfinished">立体声模式</translation>
+    </message>
+    <message>
+        <source>Stereo</source>
+        <translation type="unfinished">立体声</translation>
+    </message>
+    <message>
+        <source>Mid</source>
+        <translation type="unfinished">中频</translation>
+    </message>
+    <message>
+        <source>Side</source>
+        <translation type="unfinished">侧向</translation>
+    </message>
+    <message>
+        <source>Listen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Play what the detector hears instead of the output, to find the frequency to react to</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation type="unfinished">增益</translation>
+    </message>
+    <message>
+        <source>Detector</source>
+        <translation type="unfinished">检测方式</translation>
+    </message>
+    <message>
+        <source>What the detector hears, against the threshold in white. The band moves only while this is over the line.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Freq</source>
+        <translation type="unfinished">频率</translation>
+    </message>
+    <message>
+        <source>Q</source>
+        <translation type="unfinished">Q</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How far the band can move: negative cuts what gets too loud, positive brings it up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="unfinished">输出</translation>
+    </message>
+    <message>
+        <source>Threshold</source>
+        <translation type="unfinished">阈值</translation>
+    </message>
+    <message>
+        <source>Ratio</source>
+        <translation type="unfinished">压缩比</translation>
+    </message>
+    <message>
+        <source>Knee</source>
+        <translation type="unfinished">拐点</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation type="unfinished">起音</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation type="unfinished">释音</translation>
+    </message>
+    <message>
+        <source>Detector:</source>
+        <translation type="unfinished">检测方式：</translation>
+    </message>
+    <message>
+        <source>Self</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Side Chain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Band only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Full range</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Band only hears what is around the band&apos;s frequency, through a band-pass of the same Freq and Q; Full range hears the whole signal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation type="unfinished">无</translation>
+    </message>
+    <message>
+        <source>Device %1</source>
+        <translation type="unfinished">设备 %1</translation>
+    </message>
+    <message>
+        <source>Device %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Device %1: %2 — %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LPF</source>
+        <translation type="unfinished">LPF</translation>
+    </message>
+    <message>
+        <source>Low-pass the detector, so that it reacts to the low end and ignores the top</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>EarlyReflectionsDialog</name>
     <message>
         <source>Early Reflections (Slot %1)</source>
@@ -6153,6 +6308,30 @@
     <message>
         <source>HPF Cutoff</source>
         <translation type="unfinished">高通截止频率</translation>
+    </message>
+    <message>
+        <source>Frequency</source>
+        <translation type="unfinished">频率</translation>
+    </message>
+    <message>
+        <source>Q</source>
+        <translation type="unfinished">Q</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Threshold</source>
+        <translation type="unfinished">阈值</translation>
+    </message>
+    <message>
+        <source>Ratio</source>
+        <translation type="unfinished">压缩比</translation>
+    </message>
+    <message>
+        <source>Knee</source>
+        <translation type="unfinished">拐点</translation>
     </message>
     <message>
         <source>Output Gain</source>
@@ -11510,6 +11689,26 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>Linear Phase</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bell</source>
+        <translation type="unfinished">钟形</translation>
+    </message>
+    <message>
+        <source>Low Shelf</source>
+        <translation type="unfinished">低架</translation>
+    </message>
+    <message>
+        <source>High Shelf</source>
+        <translation type="unfinished">高架</translation>
+    </message>
+    <message>
+        <source>Flat</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>sidechain</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
