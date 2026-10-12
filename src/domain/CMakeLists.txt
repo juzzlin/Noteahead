@@ -39,6 +39,7 @@ set(HEADER_FILES
     dsp/drum/crash_engine.hpp
     dsp/drum/drum_amp_envelope.hpp
     dsp/drum/drum_engine.hpp
+    dsp/drum/fm_drum_engine.hpp
     dsp/drum/hihat_engine.hpp
     dsp/drum/kick_808_engine.hpp
     dsp/drum/kick_engine.hpp
@@ -227,6 +228,7 @@ set(SOURCE_FILES
     dsp/drum/clap_engine.cpp
     dsp/drum/crash_engine.cpp
     dsp/drum/drum_amp_envelope.cpp
+    dsp/drum/fm_drum_engine.cpp
     dsp/drum/hihat_engine.cpp
     dsp/drum/kick_808_engine.cpp
     dsp/drum/kick_engine.cpp
