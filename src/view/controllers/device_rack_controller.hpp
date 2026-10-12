@@ -181,6 +181,7 @@ signals:
     void bassSynthDialogRequested();
     void drumSynthDialogRequested();
     void drumSynthV2DialogRequested();
+    void fmDrumsDialogRequested();
     void pianoSynthDialogRequested();
     void pianoSynthV2DialogRequested();
     void pianoSynthV3DialogRequested();

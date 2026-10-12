@@ -50,6 +50,7 @@ class PresetService;
 class BassSynthController;
 class DrumSynthController;
 class DrumSynthV2Controller;
+class FmDrumsController;
 class Kick808Controller;
 class PianoSynthController;
 class PianoSynthV2Controller;
@@ -188,6 +189,7 @@ private:
     std::shared_ptr<BassSynthController> m_bassSynthController;
     std::shared_ptr<DrumSynthController> m_drumSynthController;
     std::shared_ptr<DrumSynthV2Controller> m_drumSynthV2Controller;
+    std::shared_ptr<FmDrumsController> m_fmDrumsController;
     std::shared_ptr<PianoSynthController> m_pianoSynthController;
     std::shared_ptr<PianoSynthV2Controller> m_pianoSynthV2Controller;
     std::shared_ptr<PianoSynthV3Controller> m_pianoSynthV3Controller;

@@ -21,6 +21,7 @@
 #include "../../domain/devices/bass_synth_device.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/drum_synth_v2_device.hpp"
+#include "../../domain/devices/fm_drums_device.hpp"
 #include "../../domain/devices/fm_synth_device.hpp"
 #include "../../domain/devices/kick_808_device.hpp"
 #include "../../domain/devices/piano_synth_device.hpp"
@@ -42,6 +43,7 @@
 #include "../../view/controllers/bass_synth_controller.hpp"
 #include "../../view/controllers/drum_synth_controller.hpp"
 #include "../../view/controllers/drum_synth_v2_controller.hpp"
+#include "../../view/controllers/fm_drums_controller.hpp"
 #include "../../view/controllers/effect_rack_controller.hpp"
 #include "../../view/controllers/fm_synth_controller.hpp"
 #include "../../view/controllers/kick_808_controller.hpp"
@@ -148,6 +150,7 @@ std::vector<Case> cases()
         makeCase<StringVoiceV3Device, StringVoiceV3Controller>("String & Voice V3"),
         makeDrumCase<DrumSynthDevice, DrumSynthController>("Drum Synth"),
         makeDrumCase<DrumSynthV2Device, DrumSynthV2Controller>("Drum Synth V2"),
+        makeDrumCase<FmDrumsDevice, FmDrumsController>("FM Drums"),
     };
 }
 

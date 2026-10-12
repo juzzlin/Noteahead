@@ -8,6 +8,8 @@ set(HEADER_FILES
     controllers/drum_synth_controller.hpp
     controllers/drum_synth_v2_controller.hpp
     controllers/effect_rack_controller.hpp
+    controllers/fm_drum_operator_controller.hpp
+    controllers/fm_drums_controller.hpp
     controllers/fm_operator_controller.hpp
     controllers/fm_synth_controller.hpp
     controllers/knob_controller.hpp
@@ -44,6 +46,8 @@ set(SOURCE_FILES
     controllers/drum_synth_controller.cpp
     controllers/drum_synth_v2_controller.cpp
     controllers/effect_rack_controller.cpp
+    controllers/fm_drum_operator_controller.cpp
+    controllers/fm_drums_controller.cpp
     controllers/fm_operator_controller.cpp
     controllers/fm_synth_controller.cpp
     controllers/knob_controller.cpp
