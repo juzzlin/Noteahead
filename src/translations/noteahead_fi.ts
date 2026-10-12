@@ -6439,6 +6439,18 @@
         <source>Noise Level</source>
         <translation type="unfinished">Kohinan taso</translation>
     </message>
+    <message>
+        <source>Width</source>
+        <translation type="unfinished">Leveys</translation>
+    </message>
+    <message>
+        <source>Bass Mono Frequency</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">Delay</translation>
+    </message>
 </context>
 <context>
     <name>PhaserDialog</name>
@@ -10749,6 +10761,149 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     </message>
 </context>
 <context>
+    <name>UtilityDialog</name>
+    <message>
+        <source>Utility (Slot %1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reference</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation type="unfinished">Ei mitään</translation>
+    </message>
+    <message>
+        <source>Device %1</source>
+        <translation type="unfinished">Laite %1</translation>
+    </message>
+    <message>
+        <source>Device %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Device %1: %2 — %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>What the scope compares this signal with: usually the kick when this is the bass.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Polarity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invert L</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invert R</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Channels</source>
+        <translation type="unfinished">Kanavat</translation>
+    </message>
+    <message>
+        <source>Stereo</source>
+        <translation type="unfinished">Stereo</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation type="unfinished">Vasen</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation type="unfinished">Oikea</translation>
+    </message>
+    <message>
+        <source>Swap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mono</source>
+        <translation type="unfinished">Mono</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation type="unfinished">Leveys</translation>
+    </message>
+    <message>
+        <source>Bass Mono</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Both channels carry the same signal below the frequency, so the low end cannot cancel itself when played in mono.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bass Mono Frequency</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">Delay</translation>
+    </message>
+    <message>
+        <source>One sample earlier</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 samples</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>One sample later</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation type="unfinished">Vahvistus</translation>
+    </message>
+    <message>
+        <source>DC Block</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Phase Scope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Each hit of the reference, frozen: the reference in grey, this signal in colour. Where they swing the same way they add up; where they swing apart they cancel.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose a reference to compare this signal with. Without one the scope shows this signal alone.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Correlation</source>
+        <translation type="unfinished">Korrelaatio</translation>
+    </message>
+    <message>
+        <source>Summed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Signal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reinforcing: the two add up when they hit together.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancelling: they take each other away. Try Invert, nudge the Delay, or an All-Pass Filter before this effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unrelated: neither adding up nor cancelling much.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>VelocityScale</name>
     <message>
         <source>%1 %</source>
@@ -11357,6 +11512,38 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     </message>
     <message>
         <source>Linear Phase</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation type="unfinished">Vasen</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation type="unfinished">Oikea</translation>
+    </message>
+    <message>
+        <source>Swap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mono</source>
+        <translation type="unfinished">Mono</translation>
+    </message>
+    <message>
+        <source>width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>bass mono</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>delay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>neutral</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
