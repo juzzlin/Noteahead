@@ -49,6 +49,8 @@ EndlessReverb::EndlessReverb()
     addParameter({ Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), 0.8f, 0, 10000, 8000, 100 });
     addParameter({ Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.2f, 0, 10000, 2000, 100 });
     addMixParameter(0.0f, MixLaw::Additive);
+    // As on the Reverb: the tail on its own, off by default
+    addSoloParameter();
     addParameter({ Constants::NahdXml::xmlKeyFreeze().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
 
     for (auto && delay : m_delays) {

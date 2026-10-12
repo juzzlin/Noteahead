@@ -243,6 +243,20 @@ EffectDialog {
                 }
             }
 
+            // Last, on a row of its own: it is about hearing the whole reverb, gate and all
+            Switch {
+                text: qsTr("Solo")
+                checked: {
+                    effectRackController.revision;
+                    return effectRackController.parameterValue(root.effectIndex, effectRackController.reverbSoloKey()) > 0.5;
+                }
+                onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.reverbSoloKey(), checked ? 1 : 0)
+                ToolTip.delay: Constants.toolTipDelay
+                ToolTip.timeout: Constants.toolTipTimeout
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Pass only the reverb, so the tail can be heard without the source")
+            }
+
             Item { Layout.fillHeight: true }
         }
     }

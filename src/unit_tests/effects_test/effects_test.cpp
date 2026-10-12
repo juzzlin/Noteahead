@@ -1262,6 +1262,79 @@ void EffectsTest::test_endlessReverb_mixZero_shouldPassDrySignal()
     QVERIFY(std::abs(right + 0.3) < 1.0e-9);
 }
 
+namespace {
+
+//! Solo has to leave exactly what the reverb adds: the same reverb without it, less the dry. Checked
+//! both a sample at a time and a block at a time, the second being the path the rack takes.
+template<typename ReverbType>
+void verifySoloPassesOnlyTheTail()
+{
+    const auto make = [](bool solo) {
+        auto effect = std::make_unique<ReverbType>();
+        effect->setSampleRate(44100.0);
+        effect->parameter(Constants::NahdXml::xmlKeyMix().toStdString())->get().setValue(0.6f);
+        effect->parameter(Constants::NahdXml::xmlKeySolo().toStdString())->get().setValue(solo ? 1.0f : 0.0f);
+        effect->sync();
+        return effect;
+    };
+    // Off by default, so a project saved before it existed plays as it did
+    {
+        ReverbType fresh;
+        const auto solo = fresh.parameter(Constants::NahdXml::xmlKeySolo().toStdString());
+        QVERIFY(solo.has_value());
+        QCOMPARE(solo->get().value(), 0.0f);
+    }
+    std::vector<double> input(8192 * 2);
+    uint32_t seed = 1;
+    for (auto && sample : input) {
+        seed = seed * 1664525u + 1013904223u;
+        sample = (static_cast<double>(seed >> 8) / static_cast<double>(1u << 24) - 0.5) * 0.5;
+    }
+
+    {
+        auto plain = make(false);
+        auto soloed = make(true);
+        for (size_t i = 0; i < input.size() / 2; i++) {
+            double plainL = input[i * 2];
+            double plainR = input[i * 2 + 1];
+            double soloL = plainL;
+            double soloR = plainR;
+            plain->process(plainL, plainR);
+            soloed->process(soloL, soloR);
+            QVERIFY(std::abs(soloL - (plainL - input[i * 2])) < 1.0e-9);
+            QVERIFY(std::abs(soloR - (plainR - input[i * 2 + 1])) < 1.0e-9);
+        }
+    }
+    {
+        auto plain = make(false);
+        auto soloed = make(true);
+        auto plainOut = input;
+        auto soloOut = input;
+        AudioContext plainContext { std::span(plainOut.data(), plainOut.size()), 8192, 44100 };
+        AudioContext soloContext { std::span(soloOut.data(), soloOut.size()), 8192, 44100 };
+        plain->process(plainContext);
+        soloed->process(soloContext);
+        double tail = 0.0;
+        for (size_t i = 0; i < input.size(); i++) {
+            QVERIFY(std::abs(soloOut[i] - (plainOut[i] - input[i])) < 1.0e-9);
+            tail += soloOut[i] * soloOut[i];
+        }
+        QVERIFY(tail > 0.0);
+    }
+}
+
+} // namespace
+
+void EffectsTest::test_reverb_solo_shouldPassOnlyTheTail()
+{
+    verifySoloPassesOnlyTheTail<Reverb>();
+}
+
+void EffectsTest::test_endlessReverb_solo_shouldPassOnlyTheTail()
+{
+    verifySoloPassesOnlyTheTail<EndlessReverb>();
+}
+
 void EffectsTest::test_endlessReverb_freeze_shouldSustainTail()
 {
     EndlessReverb effect;

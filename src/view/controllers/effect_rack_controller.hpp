@@ -253,6 +253,7 @@ public:
     Q_INVOKABLE QString reverbLpfCutoffKey() const;
     Q_INVOKABLE QString reverbHpfCutoffKey() const;
     Q_INVOKABLE QString reverbMixKey() const;
+    Q_INVOKABLE QString reverbSoloKey() const;
     Q_INVOKABLE QString reverbGatedKey() const;
     Q_INVOKABLE QString reverbGateThresholdKey() const;
     Q_INVOKABLE QString reverbGateAttackKey() const;
@@ -411,6 +412,7 @@ public:
     Q_INVOKABLE QString endlessLpfCutoffKey() const;
     Q_INVOKABLE QString endlessHpfCutoffKey() const;
     Q_INVOKABLE QString endlessMixKey() const;
+    Q_INVOKABLE QString endlessSoloKey() const;
     Q_INVOKABLE QString endlessFreezeKey() const;
 
     Q_INVOKABLE QString saturatorModeKey() const;

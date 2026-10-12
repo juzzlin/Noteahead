@@ -5,6 +5,8 @@ Release date:
 
 New features:
 
+* Reverb and Endless Reverb: Solo, to hear the tail on its own
+
 * Wavetable Synth: Velocity Sensitivity in the Amp Envelope, 100% by default as before
 
 * Octave, -2 to +2, in the Global section of every instrument but the Sampler and the drum machines

@@ -189,6 +189,18 @@ EffectDialog {
                         font.pointSize: 10
                         Layout.fillWidth: true
                     }
+                    Switch {
+                        text: qsTr("Solo")
+                        checked: {
+                            effectRackController.revision;
+                            return effectRackController.parameterValue(root.effectIndex, effectRackController.endlessSoloKey()) > 0.5;
+                        }
+                        onToggled: effectRackController.setParameterValue(root.effectIndex, effectRackController.endlessSoloKey(), checked ? 1 : 0)
+                        ToolTip.delay: Constants.toolTipDelay
+                        ToolTip.timeout: Constants.toolTipTimeout
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Pass only the reverb, so the tail can be heard without the source")
+                    }
                 }
             }
 

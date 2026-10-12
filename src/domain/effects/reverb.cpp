@@ -37,6 +37,9 @@ Reverb::Reverb()
     addParameter({ Constants::NahdXml::xmlKeyLpfCutoff().toStdString(), 0.85f, 0, 10000, 8500, 100, Parameter::Type::Continuous, { "reverbLpfCutoff" } });
     addParameter({ Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), 0.2f, 0, 10000, 2000, 100, Parameter::Type::Continuous, { "reverbHpfCutoff" } });
     addMixParameter(0.0f, MixLaw::Additive, 0, 10000, 100, { "reverbMix" });
+    // The tail on its own, so it can be set without the dry on top of it. Off by default, so a
+    // project saved before it existed plays as it did.
+    addSoloParameter();
 
     addParameter({ Constants::NahdXml::xmlKeyGated().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
     addParameter({ Constants::NahdXml::xmlKeyThreshold().toStdString(), 0.333f, 0, 10000, 3333, 100 });

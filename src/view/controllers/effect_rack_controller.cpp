@@ -1231,6 +1231,11 @@ QString EffectRackController::reverbMixKey() const
     return Constants::NahdXml::xmlKeyMix();
 }
 
+QString EffectRackController::reverbSoloKey() const
+{
+    return Constants::NahdXml::xmlKeySolo();
+}
+
 QString EffectRackController::reverbGatedKey() const
 {
     return Constants::NahdXml::xmlKeyGated();
@@ -3187,6 +3192,11 @@ QString EffectRackController::endlessHpfCutoffKey() const
 QString EffectRackController::endlessMixKey() const
 {
     return Constants::NahdXml::xmlKeyMix();
+}
+
+QString EffectRackController::endlessSoloKey() const
+{
+    return Constants::NahdXml::xmlKeySolo();
 }
 
 QString EffectRackController::endlessFreezeKey() const
