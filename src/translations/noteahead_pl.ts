@@ -2359,6 +2359,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Gain now</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Gain</source>
         <translation type="unfinished">Wzmocnienie</translation>
     </message>
@@ -2377,10 +2381,6 @@
     <message>
         <source>Q</source>
         <translation type="unfinished">Q</translation>
-    </message>
-    <message>
-        <source>Range</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>How far the band can move: negative cuts what gets too loud, positive brings it up</source>
@@ -6318,10 +6318,6 @@
     <message>
         <source>Q</source>
         <translation type="unfinished">Q</translation>
-    </message>
-    <message>
-        <source>Range</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Threshold</source>
