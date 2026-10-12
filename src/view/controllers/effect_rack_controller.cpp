@@ -211,13 +211,7 @@ EffectRackController::EffectRackOpt EffectRackController::rackAt(const QString &
     } else {
         if (const auto device = m_deviceService->device(deviceName.toStdString()); device) {
             if (subIndex >= 0) {
-                if (const auto sampler = std::dynamic_pointer_cast<SamplerDevice>(device)) {
-                    return std::ref(sampler->sampleEffectRack(static_cast<uint8_t>(subIndex)));
-                }
-                if (const auto drum = std::dynamic_pointer_cast<DrumSynthDevice>(device)) {
-                    return std::ref(drum->voiceEffectRack(subIndex));
-                }
-                return std::nullopt;
+                return device->partEffectRack(static_cast<size_t>(subIndex));
             }
             return std::ref(device->insertEffectRack());
         }

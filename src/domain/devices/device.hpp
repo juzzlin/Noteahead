@@ -275,6 +275,12 @@ public:
     using EffectRackList = std::vector<std::reference_wrapper<EffectRack>>;
     virtual EffectRackList effectRacks();
 
+    //! The insert rack of one part of the device -- a Sampler pad, a drum machine's drum -- or
+    //! nothing for a device that has no parts, or no such part. Asked of the device rather than
+    //! decided by its type, so that a device with parts cannot be left out of the list.
+    using EffectRackOpt = std::optional<std::reference_wrapper<EffectRack>>;
+    virtual EffectRackOpt partEffectRack(size_t partIndex);
+
     //! Renews the id of every effect in every rack the device owns. For a device read from
     //! anywhere but its own project: see EffectRack::renewEffectIds().
     void renewEffectIds();

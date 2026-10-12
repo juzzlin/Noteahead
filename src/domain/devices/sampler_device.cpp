@@ -1744,6 +1744,14 @@ EffectRack & SamplerDevice::sampleEffectRack(uint8_t note)
     return *slot->effectRack;
 }
 
+Device::EffectRackOpt SamplerDevice::partEffectRack(size_t partIndex)
+{
+    if (partIndex >= static_cast<size_t>(maxSamples)) {
+        return std::nullopt;
+    }
+    return std::ref(sampleEffectRack(static_cast<uint8_t>(partIndex)));
+}
+
 Device::EffectRackList SamplerDevice::effectRacks()
 {
     auto racks = Device::effectRacks();

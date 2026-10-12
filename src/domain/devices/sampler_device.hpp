@@ -308,6 +308,7 @@ public:
 
     //! The insert rack, then the rack of every pad that has one.
     EffectRackList effectRacks() override;
+    EffectRackOpt partEffectRack(size_t partIndex) override;
 
     //! Every pad is a send source of its own: @p sourceIndex is the note the pad sits on.
     size_t sendSourceCount() const override;

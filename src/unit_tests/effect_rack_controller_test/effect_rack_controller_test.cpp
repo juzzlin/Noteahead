@@ -6,6 +6,8 @@
 #include "../../common/parameter_mapper.hpp"
 #include "../../domain/devices/device_factory.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
+#include "../../domain/devices/drum_synth_v2_device.hpp"
+#include "../../domain/devices/sampler_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/dsp/svf_filter.hpp"
 #include "../../domain/effects/air_band_eq.hpp"
@@ -20,6 +22,7 @@
 #include "../../domain/effects/endless_reverb.hpp"
 #include "../../domain/effects/eq_8_band_parametric.hpp"
 #include "../../domain/effects/eq_8_band_parametric_presets.hpp"
+#include "../../domain/effects/gain.hpp"
 #include "../../domain/effects/panner.hpp"
 #include "../../domain/effects/phaser.hpp"
 #include "../../domain/effects/reverb.hpp"
@@ -1443,6 +1446,47 @@ void EffectRackControllerTest::test_availableEffects_shouldOfferTheMonitoringEff
 
     QVERIFY2(types.contains(Constants::RackEffectType::reference()), qPrintable(types.join(", ")));
     QVERIFY2(types.contains(Constants::RackEffectType::crossfeed()), qPrintable(types.join(", ")));
+}
+
+void EffectRackControllerTest::test_targetSubIndex_devicesWithParts_shouldAddressThePartRack()
+{
+    // The rack was looked up by device type, and the Drum Synth V2 was missing from the list: its
+    // drums' insert dialogs opened on no rack at all, with no slots to add an effect to
+    DeviceFactory::init();
+    for (auto && typeId : { SamplerDevice::typeIdString(), DrumSynthDevice::typeIdString(), DrumSynthV2Device::typeIdString() }) {
+        const auto audioEngine = std::make_shared<AudioEngine>();
+        const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+        EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+        const auto device = DeviceFactory::createDevice(typeId, "Parts");
+        QVERIFY(device);
+        deviceService->setDevice(0, device);
+
+        controller.setIsInsertRack(true);
+        controller.setTargetDeviceName("Parts");
+        controller.setTargetSubIndex(2);
+        QVERIFY2(controller.effectCount() > 0, typeId.c_str());
+
+        controller.setEffect(0, QString::fromStdString(Gain::typeIdString()));
+        const auto partRack = device->partEffectRack(2);
+        QVERIFY2(partRack && partRack->get().effect(0), typeId.c_str());
+        QVERIFY2(!device->insertEffectRack().effect(0), typeId.c_str());
+    }
+}
+
+void EffectRackControllerTest::test_targetSubIndex_deviceWithoutParts_shouldHaveNoRack()
+{
+    DeviceFactory::init();
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+    const auto device = DeviceFactory::createDevice(SynthDevice::typeIdString(), "Synth");
+    deviceService->setDevice(0, device);
+
+    controller.setIsInsertRack(true);
+    controller.setTargetDeviceName("Synth");
+    controller.setTargetSubIndex(2);
+    QCOMPARE(controller.effectCount(), 0);
+    QVERIFY(!device->partEffectRack(2));
 }
 
 void EffectRackControllerTest::test_targetSubIndex_masterSendRack_shouldAddressTheBusChain()

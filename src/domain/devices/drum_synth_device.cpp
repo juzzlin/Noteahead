@@ -560,6 +560,14 @@ EffectRack & DrumSynthDevice::voiceEffectRack(int index)
     return m_voices.at(std::clamp(index, 0, NumVoices - 1)).effectRack;
 }
 
+Device::EffectRackOpt DrumSynthDevice::partEffectRack(size_t partIndex)
+{
+    if (partIndex >= static_cast<size_t>(NumVoices)) {
+        return std::nullopt;
+    }
+    return std::ref(voiceEffectRack(static_cast<int>(partIndex)));
+}
+
 Device::EffectRackList DrumSynthDevice::effectRacks()
 {
     auto racks = Device::effectRacks();

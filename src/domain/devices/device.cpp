@@ -752,6 +752,11 @@ const EffectRack & Device::insertEffectRack() const
     return m_insertEffectRack;
 }
 
+Device::EffectRackOpt Device::partEffectRack(size_t)
+{
+    return std::nullopt;
+}
+
 Device::EffectRackList Device::effectRacks()
 {
     return { m_insertEffectRack };

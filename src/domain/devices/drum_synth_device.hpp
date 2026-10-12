@@ -83,6 +83,7 @@ public:
     EffectRack & voiceEffectRack(int index);
 
     EffectRackList effectRacks() override;
+    EffectRackOpt partEffectRack(size_t partIndex) override;
 
     //! Every voice is a send source of its own: @p sourceIndex is the voice.
     size_t sendSourceCount() const override;

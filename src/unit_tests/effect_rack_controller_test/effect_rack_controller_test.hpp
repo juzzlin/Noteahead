@@ -41,6 +41,8 @@ private slots:
     void test_partSend_shouldAddressOnePadOnly();
     void test_partSend_negativeSubIndex_shouldBeTheDeviceItself();
     void test_targetSubIndex_masterSendRack_shouldAddressTheBusChain();
+    void test_targetSubIndex_devicesWithParts_shouldAddressThePartRack();
+    void test_targetSubIndex_deviceWithoutParts_shouldHaveNoRack();
     void test_sendChainEffectCount_shouldCountTheChainOfTheGivenBus();
     void test_effectParametersSummary_lufsMeter_shouldPadReadingsToConstantWidth();
     void test_effectParametersSummary_dbtpMeter_shouldPadReadingsToConstantWidth();
