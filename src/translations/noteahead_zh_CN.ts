@@ -3246,6 +3246,14 @@
         <source>Sustain the tail infinitely</source>
         <translation>无限延续尾音</translation>
     </message>
+    <message>
+        <source>Solo</source>
+        <translation type="unfinished">独奏</translation>
+    </message>
+    <message>
+        <source>Pass only the reverb, so the tail can be heard without the source</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Eq32BandGraphicalDialog</name>
@@ -7440,6 +7448,14 @@
     <message>
         <source>HPF</source>
         <translation>HPF</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <translation type="unfinished">独奏</translation>
+    </message>
+    <message>
+        <source>Pass only the reverb, so the tail can be heard without the source</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Gate</source>
