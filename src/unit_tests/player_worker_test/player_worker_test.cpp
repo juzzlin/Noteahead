@@ -25,7 +25,10 @@
 #include "../../domain/tracker/note_data.hpp"
 
 #include <QTest>
+
+#include <atomic>
 #include <memory>
+#include <thread>
 
 namespace noteahead {
 
@@ -347,6 +350,63 @@ void PlayerWorkerTest::test_playback_shouldSendMidiEvents()
     QCOMPARE(midiService->playNoteCallCount, 1);
     worker.test_handleEvent(eventOff);
     QCOMPARE(midiService->stopNoteCallCount, 1);
+}
+
+namespace {
+
+//! Counts what reaches it from the playback thread, which the plain mock's counters cannot do
+//! safely while that thread is still running.
+class CountingMidiService : public MockMidiService
+{
+public:
+    void playNote(InstrumentW, MidiNoteDataCR) override
+    {
+        // Slow enough that a stop nearly always arrives while one is in flight, which is the case
+        // the barrier is there for
+        std::this_thread::sleep_for(std::chrono::milliseconds { 1 });
+        sent++;
+    }
+
+    std::atomic<int> sent { 0 };
+};
+
+} // namespace
+
+void PlayerWorkerTest::test_stop_shouldLeaveNothingToBeSentAfterItReturns()
+{
+    // What a stop clears -- automation above all -- must not be written again by a tick that was
+    // still being sent when the stop came. A jump in the play order is a stop and a play back to
+    // back, and a straggler there carried the old pattern's automation into the new one.
+    const auto midiService { std::make_shared<CountingMidiService>() };
+    const auto mixerService { std::make_shared<MixerService>() };
+    PlayerWorker worker { midiService, mixerService, nullptr };
+    mixerService->setTrackIndices({ 0 });
+    mixerService->setColumnIndices(0, { 0 });
+
+    const auto instrument { std::make_shared<Instrument>("TestPort") };
+    instrument->setMidiAddress(MidiAddress { "TestPort", 0 });
+    PlayerWorker::EventList events;
+    // A note on every tick for far longer than the test runs, so there is always one being sent
+    for (quint64 tick = 0; tick < 100000; tick++) {
+        NoteData noteData { 0, 0 };
+        noteData.setAsNoteOn(60, 100);
+        const auto event { std::make_shared<Event>(tick, noteData) };
+        event->setInstrument(instrument);
+        events.push_back(event);
+    }
+    worker.initialize(events, PlayerWorker::Timing { 300, 4, 6 });
+
+    std::thread playback { [&worker] { worker.play(); } };
+    QTRY_VERIFY_WITH_TIMEOUT(midiService->sent > 10, 5000);
+
+    worker.stop();
+    const int atStop = midiService->sent;
+    std::this_thread::sleep_for(std::chrono::milliseconds { 100 });
+    const int later = midiService->sent;
+    playback.join();
+
+    QCOMPARE(later, atStop);
+    QVERIFY(!worker.isPlaying());
 }
 
 void PlayerWorkerTest::test_noteOff_soloedElsewhere_shouldNotBeSent()

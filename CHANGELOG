@@ -55,6 +55,7 @@ New features:
 
 Bug fixes:
 
+* Parameter automation resets on Stop and on a jump in the play order
 * Wavetable Synth and FM Synth: the dialog follows Octave, automation and incoming MIDI CC
 * Parameter automation editor: switching to Relative no longer narrows the dropdowns
 * Effect and device knobs follow parameter automation while their dialog is open, at a screen's pace

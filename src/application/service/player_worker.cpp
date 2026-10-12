@@ -106,6 +106,11 @@ void PlayerWorker::stop()
 
     setIsPlaying(false);
     m_cv.notify_one(); // Wake up wait loop if sleeping
+    // Wait out a tick being sent, if there is one: from here on the loop sends nothing more. Not
+    // taken by the loop itself when it stops at the end of the song, so this cannot deadlock.
+    {
+        const std::lock_guard<std::mutex> barrier { m_eventMutex };
+    }
 
     stopAllNotes();
     stopTransport();
@@ -301,49 +306,56 @@ void PlayerWorker::processEvents()
     // its lyric would land on a different line every time round.
     std::optional<quint64> previousEffectiveTick;
     while (m_isPlaying && (tick <= maxTick || m_isLooping)) {
-        const auto effectiveTick = this->effectiveTick(tick, minTick, maxTick);
-        if (previousEffectiveTick && effectiveTick < *previousEffectiveTick) {
-            seekDevices();
-        }
-        previousEffectiveTick = effectiveTick;
-        if (m_timing.ticksPerLine > 0 && effectiveTick % m_timing.ticksPerLine == 0) {
-            emit tickUpdated(static_cast<quint64>(effectiveTick));
-        }
-        if (auto && eventsAtTick = m_eventMap.find(effectiveTick); eventsAtTick != m_eventMap.end()) {
-            // The moment this tick is actually due, which is a lookahead from now. Passed on only
-            // when the song is running ahead; otherwise the events go out the way they always did.
-            const auto due = m_scheduleLookahead.count()
-              ? std::optional { timeForTickOffset(tick - minTick) }
-              : std::nullopt;
-            for (auto && event : eventsAtTick->second) {
-                handleEvent(*event, due);
-            }
-        }
-
         quint64 step = 1;
+        std::chrono::steady_clock::time_point nextTickTime;
+        {
+            // See m_eventMutex: re-checked under it, so a stop that has passed its barrier is final
+            const std::lock_guard<std::mutex> eventLock { m_eventMutex };
+            if (!m_isPlaying) {
+                break;
+            }
+            const auto effectiveTick = this->effectiveTick(tick, minTick, maxTick);
+            if (previousEffectiveTick && effectiveTick < *previousEffectiveTick) {
+                seekDevices();
+            }
+            previousEffectiveTick = effectiveTick;
+            if (m_timing.ticksPerLine > 0 && effectiveTick % m_timing.ticksPerLine == 0) {
+                emit tickUpdated(static_cast<quint64>(effectiveTick));
+            }
+            if (auto && eventsAtTick = m_eventMap.find(effectiveTick); eventsAtTick != m_eventMap.end()) {
+                // The moment this tick is actually due, which is a lookahead from now. Passed on only
+                // when the song is running ahead; otherwise the events go out the way they always did.
+                const auto due = m_scheduleLookahead.count()
+                  ? std::optional { timeForTickOffset(tick - minTick) }
+                  : std::nullopt;
+                for (auto && event : eventsAtTick->second) {
+                    handleEvent(*event, due);
+                }
+            }
 
-        quint64 distToNextLine = std::numeric_limits<quint64>::max();
-        if (m_timing.ticksPerLine > 0) {
-            const quint64 rem = effectiveTick % m_timing.ticksPerLine;
-            distToNextLine = m_timing.ticksPerLine - rem;
+            quint64 distToNextLine = std::numeric_limits<quint64>::max();
+            if (m_timing.ticksPerLine > 0) {
+                const quint64 rem = effectiveTick % m_timing.ticksPerLine;
+                distToNextLine = m_timing.ticksPerLine - rem;
+            }
+
+            quint64 distToNextEvent = std::numeric_limits<quint64>::max();
+            if (auto it = m_eventMap.upper_bound(effectiveTick); it != m_eventMap.end()) {
+                distToNextEvent = it->first - effectiveTick;
+            }
+
+            quint64 distToLoopEnd = std::numeric_limits<quint64>::max();
+            distToLoopEnd = maxTick - effectiveTick + 1;
+
+            step = std::min({ distToNextLine, distToNextEvent, distToLoopEnd });
+            if (step < 1) {
+                step = 1;
+            }
+
+            // When the next tick is due, less the lookahead the timeline was pushed forward by: what is
+            // waited for is the same moment as before any of this.
+            nextTickTime = timeForTickOffset(tick - minTick + step) - m_scheduleLookahead;
         }
-
-        quint64 distToNextEvent = std::numeric_limits<quint64>::max();
-        if (auto it = m_eventMap.upper_bound(effectiveTick); it != m_eventMap.end()) {
-            distToNextEvent = it->first - effectiveTick;
-        }
-
-        quint64 distToLoopEnd = std::numeric_limits<quint64>::max();
-        distToLoopEnd = maxTick - effectiveTick + 1;
-
-        step = std::min({ distToNextLine, distToNextEvent, distToLoopEnd });
-        if (step < 1) {
-            step = 1;
-        }
-
-        // When the next tick is due, less the lookahead the timeline was pushed forward by: what is
-        // waited for is the same moment as before any of this.
-        const auto nextTickTime = timeForTickOffset(tick - minTick + step) - m_scheduleLookahead;
 
         std::unique_lock<std::mutex> lock { m_mutex };
 

@@ -827,6 +827,14 @@ void Application::connectPlayerService()
     });
     connect(m_playerService.get(), &PlayerService::tickUpdated, m_editorService.get(), &EditorService::requestPositionByTick);
 
+    // Playback is over, so nothing it wrote may outlive it: the devices go back to the values the
+    // user set, and a save from here on stores those. At once, so that a jump in the play order --
+    // a stop and a play back to back -- starts the next pattern from the set values rather than
+    // from wherever the last one's automation had taken them.
+    connect(m_playerService.get(), &PlayerService::playbackStopped, this, [this]() {
+        m_deviceService->clearAutomation();
+    });
+
     connect(m_playerService.get(), &PlayerService::isPlayingChanged, this, [this]() {
         const auto isPlaying = m_playerService->isPlaying();
         m_midiService->setIsPlaying(isPlaying);
@@ -835,8 +843,8 @@ void Application::connectPlayerService()
             // starts over with the song rather than carrying whatever was auditioned beforehand.
             m_deviceService->resetLoudnessMeters();
         } else {
-            // Playback is over, so nothing it wrote may outlive it: the devices go back to the
-            // values the user set, and a save from here on stores those.
+            // Playback ran to its end. A stop asked for clears on playbackStopped() instead, at
+            // once; this one arrives queued, and only clears if nothing has started since.
             m_deviceService->clearAutomation();
         }
         if (m_settingsService->recordingEnabled()) {

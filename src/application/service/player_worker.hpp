@@ -135,6 +135,11 @@ private:
 
     std::condition_variable m_cv;
     std::mutex m_mutex;
+    //! Held while a tick's events are read and sent, and taken once by stop() after playback is
+    //! flagged off. Once stop() returns nothing more goes out, so whatever clears the state playback
+    //! left behind -- automation above all -- cannot be undone by a straggler from the loop, and the
+    //! event map can be rebuilt for the next play without the old loop still reading it.
+    std::mutex m_eventMutex;
     bool m_mixerChanged = false;
 private slots:
     void onMixerChanged();

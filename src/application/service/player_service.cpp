@@ -153,6 +153,7 @@ void PlayerService::stop()
     juzzlin::L(TAG).debug() << "Stop requested";
     stopWorker();
     m_song.reset();
+    emit playbackStopped();
 }
 
 void PlayerService::prev()

@@ -75,6 +75,10 @@ public:
     void setSong(SongS song);
 
 signals:
+    //! Emitted by stop() on the caller's thread, once the worker can send nothing more. What playback
+    //! left behind has to be cleared here rather than on isPlayingChanged(), which arrives queued:
+    //! by then a jump to another song position may already be playing again.
+    void playbackStopped();
     void isPlayingChanged();
     void isLoopingChanged();
 
