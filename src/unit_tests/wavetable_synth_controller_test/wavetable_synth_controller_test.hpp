@@ -25,6 +25,7 @@ class WavetableSynthControllerTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_ampVelocitySensitivity_shouldReachTheDevice();
     void test_presetNames_shouldListTheFactoryPatches();
     void test_loadPreset_factory_shouldApplyThePatch();
     void test_loadPreset_userPreset_shouldApplyTheStoredPatch();

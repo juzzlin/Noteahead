@@ -177,6 +177,9 @@ WavetableSynthDevice::WavetableSynthDevice(std::string name)
     // Zero is the straight-line envelope this synth has always had, so a project saved before the
     // knob existed loads with exactly the shape it was written with.
     addParameter(Parameter { Constants::NahdXml::xmlKeyAmpCurve().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    // Full by default: velocity was applied in full before this existed, so a project or a preset
+    // without it plays exactly as it did
+    addParameter(Parameter { Constants::NahdXml::xmlKeyAmpVelocitySensitivity().toStdString(), 1.0f, 0, 10000, 10000, 100 });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyModAttack().toStdString(), 0.1f, 0, 10000, 1000, 100, Parameter::Type::Continuous, { "wavetableSynthModAttack" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyModDecay().toStdString(), 0.2f, 0, 10000, 2000, 100, Parameter::Type::Continuous, { "wavetableSynthModDecay" } });
@@ -639,7 +642,8 @@ void WavetableSynthDevice::releaseVoicesAbove(size_t count)
 void WavetableSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
 {
     const double freq = midiNoteToFreq(note);
-    const float finalVel = static_cast<float>(velocity) / 127.0f;
+    // At no sensitivity every note is at full level; at full, the level is the velocity itself
+    const float finalVel = std::clamp((1.0f - m_ampVelocitySensitivity) + m_ampVelocitySensitivity * static_cast<float>(velocity) / 127.0f, 0.0f, 1.0f);
 
     if (m_voiceMode == VoiceMode::Mono) {
         // Mono keeps the sounding voice alive on purpose, so it cannot go through the stacked path.
@@ -971,6 +975,7 @@ void WavetableSynthDevice::syncParameters()
     updateParam(Constants::NahdXml::xmlKeyAmpSustain(), m_ampSustain);
     updateParam(Constants::NahdXml::xmlKeyAmpRelease(), m_ampRelease);
     updateParam(Constants::NahdXml::xmlKeyAmpCurve(), m_ampCurve);
+    updateParam(Constants::NahdXml::xmlKeyAmpVelocitySensitivity(), m_ampVelocitySensitivity);
 
     updateParam(Constants::NahdXml::xmlKeyModAttack(), m_modAttack);
     updateParam(Constants::NahdXml::xmlKeyModDecay(), m_modDecay);
@@ -1335,6 +1340,20 @@ void WavetableSynthDevice::setAmpRelease(float r)
 {
     if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyAmpRelease().toStdString()); synthParameter) {
         synthParameter->get().setValue(r);
+        syncParameters();
+        emit dataChanged();
+    }
+}
+
+float WavetableSynthDevice::ampVelocitySensitivity() const
+{
+    return m_ampVelocitySensitivity;
+}
+
+void WavetableSynthDevice::setAmpVelocitySensitivity(float sensitivity)
+{
+    if (const auto synthParameter = parameter(Constants::NahdXml::xmlKeyAmpVelocitySensitivity().toStdString()); synthParameter) {
+        synthParameter->get().setValue(sensitivity);
         syncParameters();
         emit dataChanged();
     }

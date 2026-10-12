@@ -58,6 +58,7 @@ class WavetableSynthController : public DeviceController
     Q_PROPERTY(int ampSustain READ ampSustain WRITE setAmpSustain NOTIFY ampSustainChanged)
     Q_PROPERTY(int ampRelease READ ampRelease WRITE setAmpRelease NOTIFY ampReleaseChanged)
     Q_PROPERTY(int ampCurve READ ampCurve WRITE setAmpCurve NOTIFY ampCurveChanged)
+    Q_PROPERTY(int ampVelocitySensitivity READ ampVelocitySensitivity WRITE setAmpVelocitySensitivity NOTIFY ampVelocitySensitivityChanged)
 
     // Mod EG
     Q_PROPERTY(int modAttack READ modAttack WRITE setModAttack NOTIFY modAttackChanged)
@@ -164,6 +165,8 @@ public:
     int ampRelease() const;
     void setAmpRelease(int r);
     int ampCurve() const;
+    int ampVelocitySensitivity() const;
+    void setAmpVelocitySensitivity(int sensitivity);
     void setAmpCurve(int curve);
 
     // Mod EG
@@ -274,6 +277,7 @@ signals:
     void ampSustainChanged();
     void ampReleaseChanged();
     void ampCurveChanged();
+    void ampVelocitySensitivityChanged();
     void modAttackChanged();
     void modDecayChanged();
     void modSustainChanged();

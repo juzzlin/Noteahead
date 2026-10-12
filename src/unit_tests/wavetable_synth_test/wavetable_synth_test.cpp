@@ -1026,6 +1026,87 @@ void WavetableSynthTest::test_curve_serialization_shouldPreserveState()
     QCOMPARE(synth2.modCurve(), 0.4f);
 }
 
+namespace {
+
+//! The level of one note at @p velocity, as the RMS of its first block.
+double noteLevel(float sensitivity, uint8_t velocity)
+{
+    WavetableSynthDevice synth { "Test Synth" };
+    setupBasicSynth(synth);
+    synth.setAmpVelocitySensitivity(sensitivity);
+    synth.processMidiNoteOn(60, velocity);
+    std::vector<double> buffer(4096 * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), 4096, 44100 };
+    synth.processAudio(context);
+    double sum = 0.0;
+    for (const double sample : buffer) {
+        sum += sample * sample;
+    }
+    return std::sqrt(sum / static_cast<double>(buffer.size()));
+}
+
+} // namespace
+
+void WavetableSynthTest::test_ampVelocitySensitivity_default_shouldBeFull()
+{
+    // Velocity was applied in full before the knob existed, so that is where it starts
+    QCOMPARE(WavetableSynthDevice { "Test Synth" }.ampVelocitySensitivity(), 1.0f);
+}
+
+void WavetableSynthTest::test_ampVelocitySensitivity_shouldScaleHowMuchVelocityMatters()
+{
+    // Full: the level is the velocity, as it always was. None: every note as loud as the hardest.
+    const double hard = noteLevel(1.0f, 127);
+    QVERIFY(hard > 0.0);
+    QVERIFY2(std::abs(noteLevel(1.0f, 32) / hard - 32.0 / 127.0) < 0.01, qPrintable(QString::number(noteLevel(1.0f, 32) / hard)));
+    QVERIFY2(std::abs(noteLevel(0.0f, 32) / hard - 1.0) < 0.01, qPrintable(QString::number(noteLevel(0.0f, 32) / hard)));
+    // Half way between the two
+    const double expected = 0.5 + 0.5 * 32.0 / 127.0;
+    QVERIFY2(std::abs(noteLevel(0.5f, 32) / hard - expected) < 0.01, qPrintable(QString::number(noteLevel(0.5f, 32) / hard)));
+}
+
+void WavetableSynthTest::test_ampVelocitySensitivity_serialization_shouldPreserveState()
+{
+    WavetableSynthDevice synth1 { "Test Synth 1" };
+    synth1.setAmpVelocitySensitivity(0.35f);
+
+    QString xml;
+    NahdXmlWriter writer { xml };
+    synth1.serializeToXml(writer);
+
+    WavetableSynthDevice synth2 { "Test Synth 2" };
+    NahdXmlReader reader { xml };
+    if (reader.readNextStartElement()) {
+        synth2.deserializeFromXml(reader);
+    }
+    QVERIFY(std::abs(synth2.ampVelocitySensitivity() - 0.35f) < 0.001f);
+}
+
+void WavetableSynthTest::test_ampVelocitySensitivity_missingFromProject_shouldPlayAsBefore()
+{
+    // A project saved before the knob existed has no such parameter, and has to load at full
+    // sensitivity, which is how it was played when it was saved
+    WavetableSynthDevice synth1 { "Test Synth 1" };
+    synth1.setAmpVelocitySensitivity(0.2f);
+    QString xml;
+    NahdXmlWriter writer { xml };
+    synth1.serializeToXml(writer);
+    const auto key = Constants::NahdXml::xmlKeyAmpVelocitySensitivity();
+    const auto start = xml.indexOf("name=\"" + key + "\"");
+    QVERIFY(start > 0);
+    const auto elementStart = xml.lastIndexOf('<', start);
+    const auto elementEnd = xml.indexOf('>', start);
+    xml.remove(elementStart, elementEnd - elementStart + 1);
+    QVERIFY(!xml.contains(key));
+
+    WavetableSynthDevice synth2 { "Test Synth 2" };
+    NahdXmlReader reader { xml };
+    if (reader.readNextStartElement()) {
+        synth2.deserializeFromXml(reader);
+    }
+    QCOMPARE(synth2.ampVelocitySensitivity(), 1.0f);
+}
+
 void WavetableSynthTest::test_repeatedNote_afterVoiceRetired_shouldSweepTheSameWay()
 {
     // A voice is retired on its amp envelope alone, so its mod envelope stops being advanced

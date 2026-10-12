@@ -187,6 +187,10 @@ public:
     void setAmpRelease(float r);
     float ampCurve() const;
     void setAmpCurve(float curve);
+    //! How far the level follows the note's velocity: at 0 every note is as loud as the hardest, at 1
+    //! the level is the velocity. 1 by default, which is how the synth played before it had this.
+    float ampVelocitySensitivity() const;
+    void setAmpVelocitySensitivity(float sensitivity);
 
     // Mod EG
     float modAttack() const;
@@ -328,6 +332,7 @@ private:
     float m_ampSustain { 1.0f };
     float m_ampRelease { 0.1f };
     float m_ampCurve { 0.0f };
+    float m_ampVelocitySensitivity { 1.0f };
 
     float m_modAttack { 0.01f };
     float m_modDecay { 0.1f };

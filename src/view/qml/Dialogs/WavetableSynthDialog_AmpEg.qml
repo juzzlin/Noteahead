@@ -76,4 +76,10 @@ ColumnLayout {
         onMoved: v => wavetableSynthController.ampCurve = v
         Layout.fillWidth: true
     }
+    Knob {
+        label: qsTr("Velocity Sensitivity")
+        value: wavetableSynthController.ampVelocitySensitivity
+        onMoved: v => wavetableSynthController.ampVelocitySensitivity = v
+        Layout.fillWidth: true
+    }
 }

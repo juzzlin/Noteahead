@@ -287,6 +287,20 @@ void WavetableSynthControllerTest::test_loadPreset_userPreset_shouldApplyTheStor
     QVERIFY(std::abs(synth->lpfCutoff() - 0.4f) < 0.001f);
 }
 
+void WavetableSynthControllerTest::test_ampVelocitySensitivity_shouldReachTheDevice()
+{
+    const auto synth = std::make_shared<WavetableSynthDevice>("Test Synth");
+    WavetableSynthController controller { synth };
+    QCOMPARE(controller.ampVelocitySensitivity(), static_cast<int>(Constants::uiInternalScaling()));
+    QSignalSpy spy { &controller, &WavetableSynthController::ampVelocitySensitivityChanged };
+    controller.setAmpVelocitySensitivity(static_cast<int>(0.25 * Constants::uiInternalScaling()));
+    QVERIFY(std::abs(synth->ampVelocitySensitivity() - 0.25f) < 0.001f);
+    QCOMPARE(controller.ampVelocitySensitivity(), static_cast<int>(0.25 * Constants::uiInternalScaling()));
+    // Re-read with every other setting, so a dialog follows a project load or a preset
+    controller.requestSettings();
+    QVERIFY(spy.count() >= 1);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::WavetableSynthControllerTest)

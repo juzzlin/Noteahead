@@ -92,6 +92,10 @@ private slots:
 
     void test_ampCurve_shouldSteepenTheAudibleDecay();
     void test_curve_serialization_shouldPreserveState();
+    void test_ampVelocitySensitivity_default_shouldBeFull();
+    void test_ampVelocitySensitivity_shouldScaleHowMuchVelocityMatters();
+    void test_ampVelocitySensitivity_serialization_shouldPreserveState();
+    void test_ampVelocitySensitivity_missingFromProject_shouldPlayAsBefore();
     void test_repeatedNote_afterVoiceRetired_shouldSweepTheSameWay();
 };
 
