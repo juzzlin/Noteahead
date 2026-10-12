@@ -293,7 +293,6 @@ private:
     std::shared_ptr<FmSynthDevice> m_synth;
     std::shared_ptr<DeviceService> m_deviceService;
     std::vector<FmOperatorController *> m_operators;
-
 };
 
 } // namespace noteahead

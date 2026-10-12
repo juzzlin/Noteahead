@@ -25,8 +25,8 @@
 #include "../tracker/parameter_display.hpp"
 
 #include <QUuid>
-#include <QtGlobal>
 #include <QVariant>
+#include <QtGlobal>
 
 #include <algorithm>
 #include <cmath>

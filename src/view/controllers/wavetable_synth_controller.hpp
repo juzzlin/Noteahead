@@ -312,7 +312,6 @@ signals:
 private:
     std::shared_ptr<WavetableSynthDevice> m_synth;
     std::shared_ptr<DeviceService> m_deviceService;
-
 };
 
 } // namespace noteahead
