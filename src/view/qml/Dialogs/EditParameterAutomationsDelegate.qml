@@ -168,10 +168,20 @@ GroupBox {
                     Layout.columnSpan: 2
                     Layout.fillWidth: true
                 }
-                Label {
-                    text: delegateRoot.isRelative && delegateRoot.parameter ? qsTr("At the current setting: %1 to %2").arg(Targets.relativeReadout(delegateRoot.parameter, model.value0)).arg(Targets.relativeReadout(delegateRoot.parameter, model.value1)) : ""
-                    wrapMode: Text.WordWrap
+                Item {
                     Layout.fillWidth: true
+                }
+                Label {
+                    // A row of its own across the whole grid: in a column of the grid, the text that
+                    // appears with Relative took its share of the width from every other column,
+                    // which narrowed the dropdowns above whenever the mode was switched. The line is
+                    // kept, blank, in Absolute, so the dialog does not jump either.
+                    text: delegateRoot.isRelative && delegateRoot.parameter ? qsTr("At the current setting: %1 to %2").arg(Targets.relativeReadout(delegateRoot.parameter, model.value0)).arg(Targets.relativeReadout(delegateRoot.parameter, model.value1)) : " "
+                    elide: Text.ElideRight
+                    horizontalAlignment: Text.AlignHCenter
+                    Layout.columnSpan: 5
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 0
                 }
             }
         }
