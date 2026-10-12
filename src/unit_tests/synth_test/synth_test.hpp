@@ -42,7 +42,7 @@ private slots:
     void test_applyParameterAutomation_absolute_shouldDriveTheFilter();
     void test_applyParameterAutomation_relative_shouldScaleTheKnob();
     void test_applyParameterAutomation_unknownOrSwitch_shouldBeRefused();
-    void test_applyParameterAutomation_shouldNotifyTheDialogs();
+    void test_applyParameterAutomation_shouldNotSignalFromTheAudioThread();
     void test_clearParameterAutomation_shouldRestoreTheKnob();
     void test_display_cutoffs_shouldMatchTheFilters();
 

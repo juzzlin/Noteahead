@@ -500,6 +500,7 @@ void DeviceService::clearAutomation()
     for (const auto & name : internalDeviceNames()) {
         if (const auto dev = device(name)) {
             dev->clearAutomation();
+            emit dev->parameterAutomationScheduled(0);
         }
     }
 }
@@ -1189,7 +1190,13 @@ void DeviceService::scheduleParameterChange(const ParameterData & data, std::opt
 void DeviceService::notifyParameterAutomation(const ParameterData & data, std::chrono::milliseconds delay)
 {
     if (const auto target = data.target().lock(); target) {
-        emit parameterAutomationScheduled(reinterpret_cast<quintptr>(target.get()), std::max<qint64>(0, delay.count()));
+        const auto delayMs = std::max<qint64>(0, delay.count());
+        emit parameterAutomationScheduled(reinterpret_cast<quintptr>(target.get()), delayMs);
+        // A device's dialog listens to the device itself, which spares every device controller from
+        // having to know about this service
+        if (const auto device = std::dynamic_pointer_cast<Device>(target); device) {
+            emit device->parameterAutomationScheduled(delayMs);
+        }
     }
 }
 

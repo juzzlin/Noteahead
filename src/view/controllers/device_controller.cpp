@@ -29,6 +29,8 @@ namespace noteahead {
 DeviceController::DeviceController(QObject * parent)
   : QObject { parent }
 {
+    // Re-reads every property of the shown device, as incoming MIDI CC does
+    connect(&m_automationRefresh, &AutomationRefreshThrottle::refreshDue, this, [this]() { requestSettings(); });
 }
 
 void DeviceController::setPresetService(PresetServiceS presetService)
@@ -336,6 +338,7 @@ void DeviceController::connectDeviceSignals()
         connect(dev.get(), &Device::dataChanged, this, &DeviceController::requestSettings, Qt::UniqueConnection);
         // The open dialog still follows incoming MIDI CC, but nothing else in the application does
         connect(dev.get(), &Device::parametersChanged, this, &DeviceController::requestSettings, Qt::UniqueConnection);
+        connect(dev.get(), &Device::parameterAutomationScheduled, &m_automationRefresh, &AutomationRefreshThrottle::schedule, Qt::UniqueConnection);
     }
 }
 

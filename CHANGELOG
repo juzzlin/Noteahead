@@ -48,7 +48,7 @@ New features:
 
 Bug fixes:
 
-* Effect knobs follow parameter automation while their dialog is open
+* Effect and device knobs follow parameter automation while their dialog is open, at a screen's pace
 * Solo on a send effect plays its return alone instead of doing nothing
 * Drum Synth V2: a drum's Inserts dialog opens on its rack instead of an empty one
 * Filter knobs read out the frequency the filter actually runs at

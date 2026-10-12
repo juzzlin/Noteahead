@@ -31,6 +31,8 @@ private slots:
     void test_midiCc_shouldNotEmitDataChanged();
     void test_midiCc_drumSynthVoice_shouldNotEmitDataChanged();
     void test_clearAutomation_shouldRestoreEveryDevice();
+    void test_notifyParameterAutomation_device_shouldAnnounceOnTheDevice();
+    void test_clearAutomation_shouldAnnounceOnEveryDevice();
     void test_allNotesOff_sampler_shouldNotEmitDataChanged();
     void test_exportDeviceSettings_shouldGenerateCorrectXml();
     void test_importDeviceSettings_shouldRestoreParameters();

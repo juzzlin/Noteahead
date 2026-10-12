@@ -1,5 +1,6 @@
 set(HEADER_FILES
     controllers/audio_analysis_controller.hpp
+    controllers/automation_refresh_throttle.hpp
     controllers/bass_synth_controller.hpp
     controllers/device_controller.hpp
     controllers/device_rack_controller.hpp
@@ -34,6 +35,7 @@ set(HEADER_FILES
 
 set(SOURCE_FILES
     controllers/audio_analysis_controller.cpp
+    controllers/automation_refresh_throttle.cpp
     controllers/bass_synth_controller.cpp
     controllers/device_controller.cpp
     controllers/device_rack_controller.cpp

@@ -206,6 +206,43 @@ void DeviceServiceTest::test_midiCc_drumSynthVoice_shouldNotEmitDataChanged()
     QVERIFY(structuralSpy.count() > 0);
 }
 
+void DeviceServiceTest::test_notifyParameterAutomation_device_shouldAnnounceOnTheDevice()
+{
+    // The device's own dialog listens to the device, so the announcement has to reach it there,
+    // carrying how long until the change lands
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    DeviceService deviceService { audioEngine, std::make_shared<DataService>() };
+    const auto device = std::make_shared<SynthDevice>("Synth 1");
+    const auto other = std::make_shared<SynthDevice>("Synth 2");
+    deviceService.setDevice(0, device);
+    deviceService.setDevice(1, other);
+
+    QSignalSpy deviceSpy { device.get(), &Device::parameterAutomationScheduled };
+    QSignalSpy otherSpy { other.get(), &Device::parameterAutomationScheduled };
+    QSignalSpy serviceSpy { &deviceService, &DeviceService::parameterAutomationScheduled };
+    const ParameterData data { 0, 0, std::static_pointer_cast<ParameterAutomationTarget>(device), Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), ParameterAutomation::Mode::Absolute, 0.5 };
+    deviceService.notifyParameterAutomation(data, std::chrono::milliseconds { 42 });
+
+    QCOMPARE(deviceSpy.count(), 1);
+    QCOMPARE(deviceSpy.at(0).at(0).toLongLong(), 42);
+    QCOMPARE(otherSpy.count(), 0);
+    QCOMPARE(serviceSpy.count(), 1);
+    QCOMPARE(serviceSpy.at(0).at(0).value<quintptr>(), reinterpret_cast<quintptr>(static_cast<ParameterAutomationTarget *>(device.get())));
+}
+
+void DeviceServiceTest::test_clearAutomation_shouldAnnounceOnEveryDevice()
+{
+    // Stopping lets go of every automation, and every dialog has to show the set values again
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    DeviceService deviceService { audioEngine, std::make_shared<DataService>() };
+    const auto device = std::make_shared<SynthDevice>("Synth 1");
+    deviceService.setDevice(0, device);
+    QSignalSpy deviceSpy { device.get(), &Device::parameterAutomationScheduled };
+
+    deviceService.clearAutomation();
+    QCOMPARE(deviceSpy.count(), 1);
+}
+
 void DeviceServiceTest::test_clearAutomation_shouldRestoreEveryDevice()
 {
     // The sweep the transport runs when playback stops. Devices also restore themselves on CC 121,

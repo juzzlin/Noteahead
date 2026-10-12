@@ -444,6 +444,10 @@ signals:
     //! through dataChanged() reset the Device Rack model and rebuilt the port lists per event.
     void parametersChanged();
     void sampleRateChanged();
+    //! An automation will move a parameter of this device @p delayMs from now, or has just let go of
+    //! them all. Announced by the playback that schedules it, never by the audio thread that applies
+    //! it, so only the device's own dialog listens. See AutomationRefreshThrottle.
+    void parameterAutomationScheduled(qint64 delayMs);
 
 protected:
     //! How long the note now being started lasts, in beats, or nothing when nobody said.

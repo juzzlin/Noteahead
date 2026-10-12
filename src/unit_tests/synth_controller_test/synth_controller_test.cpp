@@ -8,6 +8,8 @@
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/devices/synth_presets.hpp"
 #include "../../domain/dsp/lfo.hpp"
+#include "../../infra/xml/nahd_xml_reader.hpp"
+#include "../../infra/xml/nahd_xml_writer.hpp"
 #include "../../view/controllers/synth_controller.hpp"
 
 #include <QMetaProperty>
@@ -353,6 +355,51 @@ void SynthControllerTest::test_scopeActive_shouldFollowShownInstance()
     // Hiding the scope stops all capture.
     controller.setScopeActive(false);
     QVERIFY(!synthB->scope().active());
+}
+
+void SynthControllerTest::test_parameterAutomation_announced_shouldRefreshWhenTheChangeLands()
+{
+    // The audio thread that applies an automation signals nothing: the playback that schedules it
+    // announces it, and the dialog re-reads the device when the change lands
+    const auto synth = std::make_shared<SynthDevice>("Test Synth");
+    SynthController controller { synth };
+    QSignalSpy spy { &controller, &SynthController::hpfCutoffChanged };
+
+    emit synth->parameterAutomationScheduled(80);
+    QTest::qWait(30);
+    QCOMPARE(spy.count(), 0);
+    QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 1, 1000);
+}
+
+void SynthControllerTest::test_parameterAutomation_savedWhileShown_shouldKeepTheAuthoredValue()
+{
+    // Saving in the middle of an automation once wrote the knob where the automation had taken it.
+    // The dialog now follows the automation, so the refresh must read the live value and write
+    // nothing: what is saved is still the value the user set.
+    const auto synth = std::make_shared<SynthDevice>("Test Synth");
+    SynthController controller { synth };
+    const auto key = Constants::NahdXml::xmlKeyHpfCutoff().toStdString();
+    synth->setHpfCutoff(0.1f);
+    QVERIFY(synth->applyParameterAutomation(key, ParameterAutomation::Mode::Absolute, 0.7));
+
+    QSignalSpy spy { &controller, &SynthController::hpfCutoffChanged };
+    emit synth->parameterAutomationScheduled(0);
+    QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 1, 1000);
+    // What the knob now shows is the automation
+    QCOMPARE(controller.hpfCutoff(), static_cast<int>(std::round(0.7 * Constants::uiInternalScaling())));
+
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        synth->serializeToXml(writer);
+    }
+    NahdXmlReader reader { xml };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+    SynthDevice saved { "Saved" };
+    saved.deserializeFromXml(reader);
+    QVERIFY2(std::abs(saved.hpfCutoff() - 0.1f) < 1.0e-3f, qPrintable(QString::number(saved.hpfCutoff())));
+    QVERIFY(synth->parameter(key)->get().isAutomated());
 }
 
 void SynthControllerTest::test_loadPreset_shouldShowTheLoadedPreset()

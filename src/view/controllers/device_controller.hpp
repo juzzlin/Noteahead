@@ -16,6 +16,8 @@
 #ifndef DEVICE_CONTROLLER_HPP
 #define DEVICE_CONTROLLER_HPP
 
+#include "automation_refresh_throttle.hpp"
+
 #include <QObject>
 #include <QStringList>
 #include <QVariantList>
@@ -130,6 +132,10 @@ private:
     //! The user's presets for the device's type, or an empty list when no store is set.
     QStringList userPresetNames() const;
     QString deviceTypeId() const;
+
+    //! Refreshes the dialog when an automation of the shown device lands. Nothing writes back on a
+    //! refresh: the knobs write only when moved, and saving takes the authored values.
+    AutomationRefreshThrottle m_automationRefresh;
 
     PresetServiceS m_presetService;
     int m_currentPresetIndex = 0;

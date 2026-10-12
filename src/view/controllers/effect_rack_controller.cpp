@@ -120,19 +120,11 @@ EffectRackController::EffectRackController(DeviceServiceS deviceService, EditorS
         connect(m_deviceService.get(), &DeviceService::parameterAutomationScheduled, this, &EffectRackController::handleParameterAutomation);
     }
 
-    m_clock.start();
-    m_automationRefreshTimer.setSingleShot(true);
-    connect(&m_automationRefreshTimer, &QTimer::timeout, this, &EffectRackController::refreshForAutomation);
+    connect(&m_automationRefresh, &AutomationRefreshThrottle::refreshDue, this, [this]() {
+        m_revision++;
+        emit revisionChanged();
+    });
 }
-
-namespace {
-
-//! The fastest a dialog is refreshed for automation, about as often as a screen redraws a knob.
-//! Refreshing re-reads every binding on the revision, which is not worth doing for each event of a
-//! busy automation.
-constexpr qint64 automationRefreshIntervalMs { 33 };
-
-} // namespace
 
 bool EffectRackController::isInCurrentRack(quintptr target) const
 {
@@ -152,28 +144,8 @@ bool EffectRackController::isInCurrentRack(quintptr target) const
 
 void EffectRackController::handleParameterAutomation(quintptr target, qint64 delayMs)
 {
-    if (!isInCurrentRack(target)) {
-        return;
-    }
-    const auto now = m_clock.elapsed();
-    m_automationPendingUntil = std::max(m_automationPendingUntil, now + delayMs);
-    if (!m_automationRefreshTimer.isActive()) {
-        const auto earliest = m_lastAutomationRefresh < 0 ? now : m_lastAutomationRefresh + automationRefreshIntervalMs;
-        m_automationRefreshTimer.start(static_cast<int>(std::max<qint64>({ 0, delayMs, earliest - now })));
-    }
-}
-
-void EffectRackController::refreshForAutomation()
-{
-    const auto now = m_clock.elapsed();
-    m_lastAutomationRefresh = now;
-    m_revision++;
-    emit revisionChanged();
-    // Changes that land after this one still have to be shown once they do
-    if (m_automationPendingUntil > now) {
-        m_automationRefreshTimer.start(static_cast<int>(std::max(m_automationPendingUntil - now, automationRefreshIntervalMs)));
-    } else {
-        m_automationPendingUntil = -1;
+    if (isInCurrentRack(target)) {
+        m_automationRefresh.schedule(delayMs);
     }
 }
 

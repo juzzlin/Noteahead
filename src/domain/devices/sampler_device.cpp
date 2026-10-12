@@ -538,7 +538,7 @@ bool SamplerDevice::applyParameterAutomation(const std::string & key, ParameterA
             }
         }
     }
-    emit parametersChanged();
+    // Not signalled, as in Device::applyParameterAutomation()
     return true;
 }
 

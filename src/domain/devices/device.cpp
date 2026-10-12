@@ -111,8 +111,9 @@ bool Device::applyParameterAutomation(const std::string & key, ParameterAutomati
         p->get().setAutomationValue(ParameterAutomation::effectiveValue(mode, value, p->get()));
         syncParameters();
     }
-    // Outside the lock, as everywhere else this is emitted: the dialogs read back from the device.
-    emit parametersChanged();
+    // Nothing is signalled: this runs on the audio thread, where posting an event allocates and
+    // takes a lock, and every event used to re-read the whole dialog. The playback that scheduled
+    // the change announces it instead. See DeviceService::notifyParameterAutomation().
     return true;
 }
 

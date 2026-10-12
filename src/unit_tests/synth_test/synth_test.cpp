@@ -3256,14 +3256,19 @@ void SynthTest::test_applyParameterAutomation_unknownOrSwitch_shouldBeRefused()
     QCOMPARE(synth.parameter(slopeKey)->get().value(), slope);
 }
 
-void SynthTest::test_applyParameterAutomation_shouldNotifyTheDialogs()
+void SynthTest::test_applyParameterAutomation_shouldNotSignalFromTheAudioThread()
 {
+    // The audio thread applies it, and posting a Qt event from there allocates and locks; every
+    // event also used to re-read the whole dialog. The playback that schedules the change
+    // announces it instead, throttled, through parameterAutomationScheduled().
     SynthDevice synth { "Synth" };
-    QSignalSpy spy { &synth, &Device::parametersChanged };
+    QSignalSpy parametersSpy { &synth, &Device::parametersChanged };
+    QSignalSpy automationSpy { &synth, &Device::parameterAutomationScheduled };
 
     QVERIFY(synth.applyParameterAutomation(Constants::NahdXml::xmlKeyHpfCutoff().toStdString(), ParameterAutomation::Mode::Absolute, 0.2));
 
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(parametersSpy.count(), 0);
+    QCOMPARE(automationSpy.count(), 0);
 }
 
 void SynthTest::test_clearParameterAutomation_shouldRestoreTheKnob()

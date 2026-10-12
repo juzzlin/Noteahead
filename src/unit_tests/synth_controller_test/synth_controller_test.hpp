@@ -15,6 +15,8 @@ class SynthControllerTest : public QObject
 private slots:
     void test_lfoRateDivider_shouldReachTheDevice();
     void test_requestSettings_shouldNotifyEveryProperty();
+    void test_parameterAutomation_announced_shouldRefreshWhenTheChangeLands();
+    void test_parameterAutomation_savedWhileShown_shouldKeepTheAuthoredValue();
     void test_loadPreset_shouldShowTheLoadedPreset();
     void test_presetNames_withUserPresets_shouldContinueTheFactoryNumbering();
     void test_loadPreset_userPreset_shouldApplyTheStoredPatch();
