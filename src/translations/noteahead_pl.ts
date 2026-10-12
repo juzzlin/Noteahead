@@ -6011,6 +6011,17 @@
     </message>
 </context>
 <context>
+    <name>OctaveSelector</name>
+    <message>
+        <source>Octave</source>
+        <translation type="unfinished">Oktawa</translation>
+    </message>
+    <message>
+        <source>Plays every note this many octaves up or down. Kept with the project, not in presets.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Oscilloscope</name>
     <message>
         <source>Cycles</source>
