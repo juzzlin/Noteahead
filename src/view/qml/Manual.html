@@ -71,6 +71,7 @@
     <li><strong>Inputting Notes</strong>: Use your PC keyboard as a virtual piano (e.g., <code>Z</code> is C, <code>S</code> is C#, <code>X</code> is D).</li>
     <li><strong>Playback</strong>: Press <strong>SPACE</strong> to start or stop playback.</li>
 </ol>
+<p><code>File => Recent files...</code> lists the projects opened lately. Type in its filter field to narrow the list: every word typed must appear in the name or the folder, in any order and case, and <strong>Enter</strong> opens the first match.</p>
 
 <h2>Main Context Menu</h2>
 <p>The main context menu can be accessed by <strong>right-clicking</strong> anywhere in the editor view. It provides a comprehensive set of tools for manipulating your sequence at different scopes.</p>
@@ -577,6 +578,7 @@
     <tr><td><strong>DELETE</strong></td><td>Clear current event</td></tr>
     <tr><td><strong>A</strong></td><td>Insert Note Off event</td></tr>
     <tr><td><strong>F3 / F4</strong></td><td>Decrease / Increase current octave</td></tr>
+    <tr><td><strong>Ctrl + Shift + R</strong></td><td>Start / stop audio recording (also <code>Edit => Audio recording</code>)</td></tr>
 </table>
 
 <h3>Clipboard Operations</h3>
@@ -834,7 +836,7 @@
     </li>
 </ul>
 
-<h3>BassSynth</h3>
+<h3>Bass Synth</h3>
 <p>The BassSynth is a specialized monophonic instrument designed for classic acid basslines and powerful low-end sounds.</p>
 <ul>
     <li><strong>Selection</strong>: Assign a track to a specific BassSynth by selecting its name (e.g., "Noteahead BassSynth 1") in the <strong>Track Settings</strong> port list.</li>
@@ -847,7 +849,7 @@
     </li>
     <li><strong>Filters</strong>:
         <ul>
-            <li><strong>LPF Cutoff & Resonance</strong>: A classic 24dB resonant low-pass filter, perfect for squelchy acid sweeps.</li>
+            <li><strong>LPF Cutoff & Resonance</strong>: A diode ladder low-pass filter with the resonance of a classic acid bass machine, perfect for squelchy acid sweeps.</li>
             <li><strong>HPF Cutoff</strong>: A 12dB high-pass filter for sculpting the low-end.</li>
             <li><strong>Env Mod</strong>: Controls how much the internal decay envelope affects the LPF cutoff.</li>
         </ul>
@@ -870,6 +872,7 @@
             <li><strong>Level</strong>: Sets the output level of the distortion stage.</li>
         </ul>
     </li>
+    <li><strong>Presets</strong>: From <strong>Acid Squelch</strong> and <strong>Acid Lead</strong> to <strong>Deep Sub</strong> and <strong>Dub Bass</strong>, voiced to sweep through the bass range as a classic acid bass machine does. Save and delete presets of your own.</li>
     <li><strong>Automation</strong>: Supports real-time MIDI CC automation for Volume (CC 7), Pan (CC 10), LPF Cutoff (CC 74), and HPF Cutoff (CC 81).</li>
 </ul>
 
@@ -896,7 +899,7 @@
     <li><strong>Presets</strong>: <strong>Dark Neck</strong> and <strong>Jazz Open</strong> are fitted to Karoryfer's black-and-blue-basses and growlybass; the others, among them three P-Bass sounds, Dub and Thumb, are playing styles built from them.</li>
 </ul>
 
-<h3>DrumSynth</h3>
+<h3>Drum Synth</h3>
 <p>The DrumSynth is a specialized internal instrument for synthesizing drum sounds, featuring 11 independent voices with dedicated synthesis engines.</p>
 <ul>
     <li><strong>Selection</strong>: Assign a track to a specific DrumSynth by selecting its name (e.g., "Noteahead DrumSynth 1") in the <strong>Track Settings</strong> port list.</li>
@@ -934,7 +937,7 @@
     <li><strong>Rim</strong>: a rim shot on <strong>C#3</strong>, with a <strong>Click</strong> control for how much stick is in it.</li>
     <li><strong>Everything else</strong>: as the original &mdash; the same eleven voices besides Rim, the same per-voice Level, Pan, filters, Tune, Decay and Attack, the same Advanced controls, and the same per-voice <strong>FX</strong> button.</li>
     <li><strong>Per-Voice Sends</strong>: a voice can be routed to the global send buses on its own, independently of what the device sends, so one drum sits in the reverb while the rest of the kit stays dry.</li>
-    <li><strong>Kit</strong>: the selector above the pads. <strong>Init</strong> puts every voice back as the device starts out; <strong>Save</strong> keeps the whole kit as one of your own, and <strong>Delete</strong> removes the selected one of your own.</li>
+    <li><strong>Kit</strong>: the selector above the pads. <strong>Init</strong> puts every voice back as the device starts out, mixed against the kick and panned across the stereo field; <strong>Save</strong> keeps the whole kit as one of your own, and <strong>Delete</strong> removes the selected one of your own.</li>
 </ul>
 
 <h3>Drum Synth 909</h3>
@@ -949,6 +952,18 @@
     <li><strong>Kits</strong>: <strong>Init</strong> mixes the drums against the kick, the snare 2.5 dB under it down to the crash and ride about 10 dB under, panned across the stereo field. <strong>Mono</strong> has every pad in the centre at the same levels, <strong>Equal</strong> every pad as loud as the kick, and <strong>Mono Equal</strong> both. Save and delete kits of your own.</li>
 </ul>
 
+<h3>Drum Synth 808</h3>
+<p>A TR-808, every drum modelled on recordings of an RD-8 with its knobs swept one at a time, and given the knobs the RD-8 has for it and no others. The knobs read 0 to 10, as on the panel. Its twelve pads sit on Drum Synth V2's notes, with the same per-pad Level, Pan, filters, amp envelope, <strong>FX</strong> button and sends, so a beat moves between them unchanged.</p>
+<ul>
+    <li><strong>Kick</strong>: the Kick 808's engine on the RD-8's <strong>Tuning</strong> range, with <strong>Tone</strong> and <strong>Decay</strong>.</li>
+    <li><strong>Snare</strong>: <strong>Tone</strong> and <strong>Snappy</strong>.</li>
+    <li><strong>Toms</strong>: <strong>Tuning</strong>, and a switch that plays the <strong>Conga</strong> on the same pad, as the RD-8's switch does.</li>
+    <li><strong>Rim</strong> and <strong>Clap</strong>: the Rim switches to <strong>Claves</strong>; the Clap has <strong>Offset</strong> and switches to <strong>Maracas</strong>.</li>
+    <li><strong>Hi-hats</strong>: <strong>Tone</strong> on both, and <strong>Decay</strong> on the open hat. The closed hat chokes the open one.</li>
+    <li><strong>Cymbal</strong>, <strong>Cowbell</strong> and <strong>Reverse Cymbal</strong>: on the pads where Drum Synth V2 has its crash, ride and reverse crash. The cymbals have <strong>Tone</strong> and <strong>Decay</strong>; the cowbell has no knobs.</li>
+    <li><strong>Kits</strong>: as on Drum Synth 909, <strong>Init</strong> mixes the drums against the kick and pans them across the stereo field, <strong>Mono</strong> has every pad in the centre at the same levels, <strong>Equal</strong> every pad as loud as the kick, and <strong>Mono Equal</strong> both. Save and delete kits of your own.</li>
+</ul>
+
 <h3>FM Drums</h3>
 <p>A drum machine with the same four-operator FM voice on every pad, in the way of the Volca Drum and the Digitone, rather than an engine of its own per drum as the Drum Synths have. A pad is a set of settings for that one voice, so any pad can become any drum. Its twelve pads sit on the same notes as Drum Synth V2's, so a beat moves between the two unchanged.</p>
 <ul>
@@ -956,7 +971,7 @@
     <li><strong>Operators</strong>: four, each with a waveform, <strong>Ratio</strong>, <strong>Level</strong> and an <strong>Attack</strong>, <strong>Decay</strong> and <strong>Curve</strong> envelope. There is no release: a drum is struck rather than held, and the pad rings out on its own.</li>
     <li><strong>Noise</strong>: filtered noise with its own <strong>Attack</strong>, <strong>Decay</strong> and <strong>Curve</strong>, a filter with <strong>Cutoff</strong> and <strong>Reso</strong>, <strong>Mix</strong> for how much of it is heard, and <strong>FM</strong> for how much it modulates the operator chosen as the <strong>FM Target</strong>, which is where snares and hats get their rattle.</li>
     <li><strong>Filter and level</strong>: per pad an <strong>LPF</strong> and an <strong>HPF</strong>, Level and Pan, with <strong>Velocity</strong> for how much quieter a soft hit is and <strong>Vel &gt; FM</strong> for how much duller. The slopes of the filters are set for the whole device, in the Global section.</li>
-    <li><strong>Kits</strong>: <strong>Default</strong>, <strong>Analog</strong>, voiced against Drum Synth V2, and <strong>Percussion</strong>, from Boom and Timbale to Cowbell and Woodblock. Save and delete kits of your own. Loading a kit, or a drum from one, sets the FM voice and the filters, never a pad's level, pan or effects.</li>
+    <li><strong>Kits</strong>: <strong>Default</strong>, <strong>Analog</strong>, voiced against Drum Synth V2, and <strong>Percussion</strong>, from Boom and Timbale to Cowbell and Woodblock. Save and delete kits of your own. Loading a kit, or a drum from one, sets the FM voice and the filters, never a pad's level, pan or effects. A new FM Drums starts mixed against the kick and panned across the stereo field.</li>
     <li><strong>Per-pad effects and sends</strong>: the small <strong>FX</strong> button on a pad opens the insert effects and sends for that pad alone, as on Drum Synth V2.</li>
     <li><strong>Parameter Automation</strong>: each pad is a target of its own. See <em>Parameter Automation</em>.</li>
 </ul>
@@ -1083,7 +1098,7 @@
     <li><strong>Presets</strong>: <strong>Init</strong> is the recording; the others are voicings built from it.</li>
 </ul>
 
-<h3>Kick808</h3>
+<h3>Kick 808</h3>
 <p>A TR-808-style bass drum. Where the Drum Synth's kick follows the 909 lineage — a pitch-swept oscillator under an amplitude envelope — this one models the 808's bridged-T network as a high-Q resonator that the trigger pulse rings. That is what gives it the very long, near-pure sub tail, and it means overlapping hits sum into the ringing tail instead of cutting it off.</p>
 <p>It is deliberately a <em>pitched, monophonic</em> instrument rather than a drum machine voice, because the 808 kick is played as a bass line at least as often as it is played as a drum. Notes are one-shot: <strong>Decay</strong> owns the tail and a note off does not cut it, exactly like the hardware. Only <em>Stop all notes</em> chokes a ringing hit.</p>
 <ul>
@@ -1094,7 +1109,11 @@
     <li><strong>Pitch Depth</strong> and <strong>Pitch Decay</strong>: The downward sweep at the start of the hit — the "pop" of the attack.</li>
     <li><strong>Key Track</strong>: On, the voice follows the note column and <strong>Glide</strong> slurs between notes, which is how 808 bass lines are written. Off, it stays at a fixed C2 and behaves like the hardware's single tuned voice.</li>
     <li><strong>LPF/HPF Cutoff</strong>: The same output filters the other internal devices have, in the Global section.</li>
+    <li><strong>Amp Envelope</strong>: Attack, Hold, Decay, Sustain, Release and Curve on top of the drum, as on the Kick Synth. At its defaults it leaves the drum as it is.</li>
+    <li><strong>Waveform</strong>: one hit is drawn under the presets, with the envelope over it and a playhead running while the drum sounds.</li>
+    <li><strong>Presets</strong>: <strong>Init</strong>, <strong>Click Layer</strong>, <strong>Distorted</strong>, <strong>Hard Techno</strong>, <strong>Long Boom</strong>, <strong>Short Punch</strong>, <strong>Sub Glide</strong> and <strong>Techno</strong>. Save and delete presets of your own.</li>
 </ul>
+<p>Tuning, Tone and Decay read 0 to 10, as on the RD-8, and are fitted to its recordings at those marks.</p>
 <p>Being monophonic, a new hit takes the voice over rather than piling onto the one before it: the ring that is still sounding fades out from under it over a few milliseconds. That is what keeps every hit weighing the same in a fast pattern, and it means a run of kicks stays even instead of drifting in and out of reinforcement.</p>
 <p><em>Every</em> parameter above is reachable over MIDI CC, so a whole kick can be automated per line from a note column. LPF and HPF sit on the same controller numbers the other devices use for them.</p>
 
@@ -1108,10 +1127,12 @@
     <li><strong>Drive</strong>: Overdrives the drum towards a square wave, for hard techno and gabber kicks, with the level held about the same.</li>
     <li><strong>Amp Envelope</strong>: Attack, Hold, Decay, Sustain, Release and Curve on top of the drum, as on the Kick Synth. At its defaults it leaves the drum as it is.</li>
     <li><strong>Chromatic</strong>: The note moves the drum as Pitch does, C-3 playing it as set, so it plays bass lines as a tuned 909. The decays stay as they are.</li>
+    <li><strong>Waveform</strong>: one hit is drawn under the presets, with the envelope over it and a playhead running while the drum sounds.</li>
+    <li><strong>Presets</strong>: from <strong>Bare 909</strong> and <strong>Classic Long</strong> to <strong>Deep House</strong>, <strong>Gabber</strong> and <strong>Tuned Sub</strong>. Save and delete presets of your own.</li>
 </ul>
 
 <h3>Kick Synth</h3>
-<p>A physically modelled acoustic bass drum. Where the Kick808 is an electronic circuit, this models the drum itself: the batter head the beater strikes, the front head the air inside drives, the pillow between them, and where the microphone is. Its presets are fitted to recordings of real kicks.</p>
+<p>A physically modelled acoustic bass drum. Where the Kick 808 is an electronic circuit, this models the drum itself: the batter head the beater strikes, the front head the air inside drives, the pillow between them, and where the microphone is. Its presets are fitted to recordings of real kicks.</p>
 <ul>
     <li><strong>Head</strong>:
         <ul>
@@ -1138,7 +1159,7 @@
             <li><strong>Mic</strong>: Inside the drum by the beater at zero, outside the front head at full: attack against boom.</li>
         </ul>
     </li>
-    <li><strong>Amp Envelope</strong>: One hit is drawn under the presets with the envelope over it, as on the Snare Synth. At its defaults it does nothing; pull Sustain down to cut the drum short.</li>
+    <li><strong>Amp Envelope</strong>: One hit is drawn under the presets with the envelope over it and a playhead running while the drum sounds, as on the Snare Synth. At its defaults it does nothing; pull Sustain down to cut the drum short.</li>
     <li><strong>Global</strong>: Gain, Fader, Pan, <strong>Drive</strong>, <strong>Velocity</strong> sensitivity, the LPF and HPF, and <strong>Chromatic</strong>, which plays the drum like a sampler: an octave up is an octave higher and twice as short.</li>
     <li><strong>Presets</strong>: <strong>Damped 24</strong>, <strong>Open 24</strong>, <strong>Inside 20</strong>, <strong>Outside 20</strong> and <strong>Tuned Up</strong> are fitted to the loudest hits of real kicks from Karoryfer's Big Rusty Drums and Unruly Drums and from Virtuosity Drums, and the rest start from them: kit kicks, the <strong>Techno</strong> kicks, and the <strong>Tom</strong> presets. <strong>Tom Rack 14</strong>, <strong>Tom Mallet 14</strong> and <strong>Tom Floor 18</strong> are fitted to Big Rusty Drums toms.</li>
     <li><strong>Toms</strong>: The same drum tuned up is a tom. Load a <strong>Tom</strong> preset and turn on <strong>Chromatic</strong> to play a whole set of toms from one device, a note apart or an interval.</li>
@@ -1147,12 +1168,12 @@
 <h3>Snare Synth</h3>
 <p>A physically modelled acoustic snare drum synthesizer. Rather than relying on simple filtered noise or static samples, Snare Synth models the acoustic interaction between the struck batter head, the bottom resonant head, the shell body, and the flexible snare wires chattering against the resonant membrane.</p>
 <ul>
-    <li><strong>Batter Head &amp; Pitch</strong>:
+    <li><strong>Head / Membrane</strong>:
         <ul>
-            <li><strong>Tune</strong>: Fundamental pitch of the batter head. In Key Track mode, follows incoming MIDI note pitch.</li>
+            <li><strong>Tune</strong>: Fundamental pitch of the batter head.</li>
             <li><strong>Tone</strong>: Spectral damping of higher circular and radial drum head Bessel modes. Lower values create a darker, warmer membrane ring.</li>
             <li><strong>Decay</strong>: Damping decay time of the batter head modal resonators.</li>
-            <li><strong>Tension</strong>: Pitch ratio between the bottom resonant head and the top batter head.</li>
+            <li><strong>Head Tension</strong>: Pitch ratio between the bottom resonant head and the top batter head.</li>
             <li><strong>Pitch Depth</strong> &amp; <strong>Pitch Decay</strong>: Envelope downward pitch drop modeling initial transient membrane stretch on impact.</li>
             <li><strong>Punch</strong>: Extra head level in the first few tens of milliseconds, as a hard hit has before the head settles into its ring. Turn it up, with Tone, for a big rock snare instead of a long ringing note.</li>
         </ul>
@@ -1160,13 +1181,13 @@
     <li><strong>Snare Wires</strong>:
         <ul>
             <li><strong>Snappy</strong>: Wire rattle level relative to membrane tone.</li>
-            <li><strong>Decay</strong>: Release damping and decay time of the wire chatter.</li>
-            <li><strong>Tension</strong>: Snare strainer wire tension. Higher tension tightens contact chatter, shifting response to crisp, high-frequency snap.</li>
-            <li><strong>Buzz</strong>: Non-linear contact buzz dynamics, capturing the sustaining rasp of loose or resting snare wires.</li>
+            <li><strong>Snare Decay</strong>: Release damping and decay time of the wire chatter.</li>
+            <li><strong>Snare Tension</strong>: Snare strainer wire tension. Higher tension tightens contact chatter, shifting response to crisp, high-frequency snap.</li>
+            <li><strong>Snare Buzz</strong>: Non-linear contact buzz dynamics, capturing the sustaining rasp of loose or resting snare wires.</li>
             <li><strong>Wire Width</strong>: Spreads the wires from their tuned band down into the low mids, building up over the first 15 ms, as wires sound under a hard hit. At zero they stay in the band.</li>
         </ul>
     </li>
-    <li><strong>Stick Strike &amp; Body</strong>:
+    <li><strong>Stick &amp; Shell</strong>:
         <ul>
             <li><strong>Click</strong>: Level of the initial high-frequency impact transient.</li>
             <li><strong>Hardness</strong>: Stick tip hardness (soft felt to hard nylon tip).</li>
@@ -1176,13 +1197,13 @@
             <li><strong>Drive</strong>: Non-linear soft-clipping saturation. Fully bypassed at zero.</li>
         </ul>
     </li>
-    <li><strong>Amp Envelope</strong>: One hit of the drum is drawn under the presets, with the envelope laid over it and the audible length under it, redrawn as the knobs settle. <strong>Attack</strong>, <strong>Hold</strong>, <strong>Decay</strong>, <strong>Sustain</strong>, <strong>Release</strong> and <strong>Curve</strong> shape what the drum plays rather than replacing it, as on the drum machines' pads. At the defaults, Sustain at full with no attack or release, the envelope does nothing; pull Sustain down for a one-shot that ends where Hold and Decay say, which is how a snare is gated. Release takes effect on note-off.</li>
+    <li><strong>Amp Envelope</strong>: One hit of the drum is drawn under the presets, with the envelope laid over it, the audible length under it and a playhead running while the drum sounds, redrawn as the knobs settle. <strong>Attack</strong>, <strong>Hold</strong>, <strong>Decay</strong>, <strong>Sustain</strong>, <strong>Release</strong> and <strong>Curve</strong> shape what the drum plays rather than replacing it, as on the drum machines' pads. At the defaults, Sustain at full with no attack or release, the envelope does nothing; pull Sustain down for a one-shot that ends where Hold and Decay say, which is how a snare is gated. Release takes effect on note-off.</li>
     <li><strong>Global &amp; Stereo</strong>:
         <ul>
             <li><strong>Pan Spread</strong>: Mid/Side spatial acoustic width. Spreads wire rattle and higher membrane modes across the stereo image while maintaining a solid mono center punch.</li>
-            <li><strong>Key Track</strong>: When enabled, the snare pitch tracks the played MIDI note key. When disabled, hits trigger at the fixed base pitch.</li>
+            <li><strong>Chromatic</strong>: Plays the drum like a sampler: an octave up is an octave higher and twice as short. Off, every note plays the drum as set.</li>
             <li><strong>LPF / HPF Cutoff</strong>: 2-pole cascaded state-variable output filters.</li>
-            <li><strong>Presets</strong>: Factory and User preset support. The four <strong>Rock</strong> presets (Aluminium, Maple, Rimshot, Sapele) are fitted to recordings of real snares hit hard. For the gated sound of the 80s, follow one with a compressor, a short room and a <strong>Gate</strong> in the device's insert effects.</li>
+            <li><strong>Presets</strong>: Factory and User preset support, from <strong>Piccolo</strong> and <strong>Tight Funk</strong> to <strong>Deep Rock</strong>, <strong>Gated 80s</strong>, <strong>Trap Snare</strong> and <strong>Snares Off</strong>. The four <strong>Rock</strong> presets (Aluminium, Maple, Rimshot, Sapele) are fitted to recordings of real snares hit hard. For the gated sound of the 80s, follow one with a compressor, a short room and a <strong>Gate</strong> in the device's insert effects.</li>
         </ul>
     </li>
 </ul>
@@ -1259,7 +1280,7 @@
 <p>Not an instrument but a grouping device: it sums other devices so a whole set is mixed and processed as one entity — for example everything except the lead synth through a single compressor.</p>
 <ul>
     <li><strong>Members</strong>: Choose which devices feed the Sub Mixer. Members keep their own send levels to the master send effects.</li>
-    <li><strong>Processing</strong>: The Sub Mixer has its own insert effect rack plus Gain, Fader and Pan.</li>
+    <li><strong>Processing</strong>: The Sub Mixer has its own insert effect rack plus Gain, Fader, Pan and Width, which acts as on the Mixer.</li>
     <li><strong>Nesting</strong>: Sub Mixers can feed other Sub Mixers.</li>
     <li><strong>Automation</strong>: Its Volume and Pan can be ridden from a track over MIDI CC, so assign a track to it as you would to an instrument.</li>
 </ul>
@@ -1304,7 +1325,8 @@
 <h3>Mixer</h3>
 <p>Opened from <code>View => Mixer...</code>, the Mixer shows every device in the rack side by side as channel strips, so a whole mix can be balanced without opening each device in turn.</p>
 <ul>
-    <li><strong>Strips</strong>: each carries the same <strong>Gain</strong>, <strong>Fader</strong> and <strong>Pan</strong> controls as the device's own dialog — Gain trims the device into its insert effects, the Fader balances it, Pan places it — plus its level meter and clip LED. A strip is labelled with the device name and the tracks that play it.</li>
+    <li><strong>Strips</strong>: each carries the same <strong>Gain</strong>, <strong>Fader</strong> and <strong>Pan</strong> controls as the device's own dialog — Gain trims the device into its insert effects, the Fader balances it, Pan places it — plus <strong>Width</strong>, its level meter and clip LED.</li>
+    <li><strong>Width</strong>: narrows the device's stereo image towards mono where it is panned, from 100 %, the device as it is, to 0 %, mono at its pan position. A hard-panned device stays where it is. It acts before the insert effects, so widening is left to them: <strong>Stereo Widener</strong>, <strong>Dimension</strong> or <strong>Doubler</strong>. Width is saved with the device and can be automated. A strip is labelled with the device name and the tracks that play it.</li>
     <li><strong>Buttons</strong>: <strong>Device</strong> opens the instrument's editor, <strong>Insert FX</strong> its own effect rack, and <strong>Sends</strong> its levels to the master send effects.</li>
     <li><strong>Clear clips</strong>: resets every latched clip LED at once, so a pass can be checked from a clean slate.</li>
 </ul>
@@ -1326,7 +1348,7 @@
             <li><strong>JACK</strong>: High-performance low-latency backend. Device routing and buffer size are managed externally (e.g., via Carla or qpwgraph). **Required** for Jack Transport and BPM synchronization.</li>
         </ul>
     </li>
-    <li><strong>Audio Recorder & Player</strong>: Enable in <code>Settings => Audio</code> to capture your performance directly from your system's audio input and play back recorded files.
+    <li><strong>Audio Recorder & Player</strong>: Enable in <code>Settings => Audio</code> to capture your performance directly from your system's audio input and play back recorded files. <code>Edit => Audio recording</code>, or <strong>Ctrl + Shift + R</strong>, starts and stops a recording.
         <ul>
             <li><strong>Wave View</strong>: When enabled, a waveform of the recording is shown at the bottom of the editor.</li>
             <li><strong>Playback</strong>: Use the play button next to the waveform to start or stop audio playback.</li>
@@ -1366,6 +1388,7 @@
     <li><strong>Accent</strong>: the highlight color used across the interface, from dialog headings to the labels above every knob.</li>
     <li><strong>Cursor</strong>: the color of the editor cursor.</li>
     <li><strong>Accent blend</strong>: how far the track and automation colors are pulled towards the accent color. 0 % keeps the original palette, 100 % puts every color on the accent hue.</li>
+    <li><strong>Column Flash</strong>: flashes a column's background in its track color when it plays a note. On by default.</li>
 </ul>
 <p>Under <code>Settings => General</code>: the number of lines visible in the editor, the track header font size, <strong>Pattern Peek</strong>, how automations are drawn (<strong>Tint</strong> or <strong>Curve</strong>, and the curve's line thickness), and the gain staging target the Device Rack meters mark.</p>
 
