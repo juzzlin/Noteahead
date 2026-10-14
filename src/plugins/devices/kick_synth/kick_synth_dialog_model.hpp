@@ -17,9 +17,7 @@
 #define KICK_SYNTH_DIALOG_MODEL_HPP
 
 #include "../../../view/controllers/device_dialog_model.hpp"
-
-#include <QTimer>
-#include <QVariantList>
+#include "../../../view/controllers/drum_hit_waveform_model.hpp"
 
 #include <memory>
 
@@ -60,17 +58,8 @@ class KickSynthDialogModel : public DeviceDialogModel
     Q_PROPERTY(int hpfCutoff READ hpfCutoff WRITE setHpfCutoff NOTIFY knobsChanged)
     Q_PROPERTY(bool chromatic READ chromatic WRITE setChromatic NOTIFY knobsChanged)
 
-    // One hit, rendered for the waveform view, with the envelope it was rendered with: the overlay
-    // never runs ahead of the waveform under it
-    Q_PROPERTY(QVariantList waveformData READ waveformData NOTIFY waveformChanged)
-    Q_PROPERTY(double waveformDuration READ waveformDuration NOTIFY waveformChanged)
-    Q_PROPERTY(double audibleLength READ audibleLength NOTIFY waveformChanged)
-    Q_PROPERTY(double waveformEnvelopeAttack READ waveformEnvelopeAttack NOTIFY waveformChanged)
-    Q_PROPERTY(double waveformEnvelopeHold READ waveformEnvelopeHold NOTIFY waveformChanged)
-    Q_PROPERTY(double waveformEnvelopeDecay READ waveformEnvelopeDecay NOTIFY waveformChanged)
-    Q_PROPERTY(double waveformEnvelopeSustain READ waveformEnvelopeSustain NOTIFY waveformChanged)
-    Q_PROPERTY(double waveformEnvelopeRelease READ waveformEnvelopeRelease NOTIFY waveformChanged)
-    Q_PROPERTY(double waveformEnvelopeCurve READ waveformEnvelopeCurve NOTIFY waveformChanged)
+    //! One hit rendered for the waveform view, with the envelope and the playhead over it
+    Q_PROPERTY(QObject * waveform READ waveform CONSTANT)
 
 public:
     explicit KickSynthDialogModel(std::shared_ptr<KickSynthDevice> device, QObject * parent = nullptr);
@@ -134,53 +123,19 @@ public:
     bool chromatic() const;
     void setChromatic(bool value);
 
-    QVariantList waveformData() const;
-    double waveformDuration() const;
-    double audibleLength() const;
-    double waveformEnvelopeAttack() const;
-    double waveformEnvelopeHold() const;
-    double waveformEnvelopeDecay() const;
-    double waveformEnvelopeSustain() const;
-    double waveformEnvelopeRelease() const;
-    double waveformEnvelopeCurve() const;
-    //! How many points the waveform view has room for, and whether it is on screen: the drum is only
-    //! rendered while someone can see it
-    Q_INVOKABLE void setWaveformRequest(int peakCount, bool visible);
+    QObject * waveform() const;
 
     Q_INVOKABLE void requestSettings() override;
 
 signals:
     void deviceChanged();
     void knobsChanged();
-    void waveformChanged();
 
 private:
     int knob(const QString & key) const;
     void setKnob(const QString & key, int value);
-    //! Waits for the knobs to settle before rendering: a drag would otherwise render on every step
-    void scheduleWaveform(int delayMs = WaveformDebounceMs);
-    void renderWaveform();
 
-    static constexpr int WaveformDebounceMs { 150 };
-
-    QTimer m_waveformTimer;
-    int m_waveformPeakCount { 0 };
-    bool m_waveformVisible { false };
-    QVariantList m_waveformData;
-    double m_waveformDuration { 0.0 };
-    double m_audibleLength { 0.0 };
-
-    struct WaveformEnvelope
-    {
-        double attack {};
-        double hold {};
-        double decay {};
-        double sustain { 1.0 };
-        double release {};
-        double curve {};
-    };
-
-    WaveformEnvelope m_waveformEnvelope;
+    DrumHitWaveformModel * m_waveform { nullptr };
 
     std::shared_ptr<KickSynthDevice> m_device;
 };

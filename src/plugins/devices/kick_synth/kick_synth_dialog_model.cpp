@@ -18,7 +18,8 @@
 #include "../../../common/constants.hpp"
 #include "kick_synth_device.hpp"
 #include "kick_synth_presets.hpp"
-#include "kick_synth_preview.hpp"
+
+#include "../../../application/service/drum_hit_preview.hpp"
 
 #include <cmath>
 
@@ -32,8 +33,40 @@ KickSynthDialogModel::KickSynthDialogModel(std::shared_ptr<KickSynthDevice> devi
   : DeviceDialogModel { parent }
   , m_device { std::move(device) }
 {
-    m_waveformTimer.setSingleShot(true);
-    connect(&m_waveformTimer, &QTimer::timeout, this, &KickSynthDialogModel::renderWaveform);
+    m_waveform = new DrumHitWaveformModel {
+        {
+          .render = [this](int peakCount) -> DrumHitPreview::Preview {
+              if (!m_device) {
+                  return {};
+              }
+              const auto createCopy = [this] { return std::make_unique<KickSynthDevice>(m_device->name()); };
+              const auto bypassEnvelope = [](Device & copy) {
+                  auto && kick = static_cast<KickSynthDevice &>(copy);
+                  kick.setKnob(Xml::xmlKeyAmpAttack(), 0.0f);
+                  kick.setKnob(Xml::xmlKeyAmpSustain(), 1.0f);
+                  kick.setKnob(Xml::xmlKeyAmpRelease(), 0.0f);
+              };
+              return DrumHitPreview::render(*m_device, createCopy, bypassEnvelope, KickSynthDevice::RootNote, peakCount, Constants::defaultSampleRate());
+          },
+          .envelope = [this]() -> DrumHitWaveformModel::Envelope {
+              if (!m_device) {
+                  return {};
+              }
+              return {
+                  .attack = m_device->ampAttackSeconds(),
+                  .hold = m_device->ampHoldSeconds(),
+                  .decay = m_device->ampDecaySeconds(),
+                  .sustain = static_cast<double>(m_device->knob(Xml::xmlKeyAmpSustain())),
+                  .release = m_device->ampReleaseSeconds(),
+                  .curve = static_cast<double>(m_device->knob(Xml::xmlKeyAmpCurve())),
+              };
+          },
+          .elapsedSeconds = [this]() -> std::optional<double> {
+              return m_device ? m_device->elapsedSeconds() : std::nullopt;
+          },
+        },
+        this
+    };
     connectDeviceSignals();
 }
 
@@ -347,96 +380,14 @@ void KickSynthDialogModel::setChromatic(bool value)
     }
 }
 
-QVariantList KickSynthDialogModel::waveformData() const
+QObject * KickSynthDialogModel::waveform() const
 {
-    return m_waveformData;
-}
-
-double KickSynthDialogModel::waveformDuration() const
-{
-    return m_waveformDuration;
-}
-
-double KickSynthDialogModel::audibleLength() const
-{
-    return m_audibleLength;
-}
-
-double KickSynthDialogModel::waveformEnvelopeAttack() const
-{
-    return m_waveformEnvelope.attack;
-}
-
-double KickSynthDialogModel::waveformEnvelopeHold() const
-{
-    return m_waveformEnvelope.hold;
-}
-
-double KickSynthDialogModel::waveformEnvelopeDecay() const
-{
-    return m_waveformEnvelope.decay;
-}
-
-double KickSynthDialogModel::waveformEnvelopeSustain() const
-{
-    return m_waveformEnvelope.sustain;
-}
-
-double KickSynthDialogModel::waveformEnvelopeRelease() const
-{
-    return m_waveformEnvelope.release;
-}
-
-double KickSynthDialogModel::waveformEnvelopeCurve() const
-{
-    return m_waveformEnvelope.curve;
-}
-
-void KickSynthDialogModel::setWaveformRequest(int peakCount, bool visible)
-{
-    const bool changed = peakCount != m_waveformPeakCount || visible != m_waveformVisible;
-    m_waveformPeakCount = peakCount;
-    m_waveformVisible = visible;
-    if (changed) {
-        scheduleWaveform();
-    }
-}
-
-void KickSynthDialogModel::scheduleWaveform(int delayMs)
-{
-    if (!m_waveformVisible || m_waveformPeakCount <= 0) {
-        m_waveformTimer.stop();
-        return;
-    }
-    m_waveformTimer.setInterval(delayMs);
-    m_waveformTimer.start();
-}
-
-void KickSynthDialogModel::renderWaveform()
-{
-    m_waveformTimer.stop();
-    if (!m_device || !m_waveformVisible || m_waveformPeakCount <= 0) {
-        return;
-    }
-
-    const auto preview = KickSynthPreview::render(*m_device, m_waveformPeakCount, Constants::defaultSampleRate());
-    m_waveformData = preview.peaks;
-    m_waveformDuration = preview.durationSeconds;
-    m_audibleLength = preview.audibleSeconds;
-    m_waveformEnvelope = {
-        .attack = m_device->ampAttackSeconds(),
-        .hold = m_device->ampHoldSeconds(),
-        .decay = m_device->ampDecaySeconds(),
-        .sustain = static_cast<double>(m_device->knob(Xml::xmlKeyAmpSustain())),
-        .release = m_device->ampReleaseSeconds(),
-        .curve = static_cast<double>(m_device->knob(Xml::xmlKeyAmpCurve()))
-    };
-    emit waveformChanged();
+    return m_waveform;
 }
 
 void KickSynthDialogModel::requestSettings()
 {
-    scheduleWaveform();
+    m_waveform->schedule();
     emit volumeChanged();
     emit gainChanged();
     emit panChanged();

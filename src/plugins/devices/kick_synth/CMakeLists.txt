@@ -5,9 +5,6 @@ noteahead_add_device(
         kick_synth_presets.cpp
         kick_synth_presets.hpp
         kick_synth_registration.cpp
-    APPLICATION_SOURCES
-        kick_synth_preview.cpp
-        kick_synth_preview.hpp
     VIEW_SOURCES
         kick_synth_dialog_model.cpp
         kick_synth_dialog_model.hpp
@@ -20,5 +17,4 @@ noteahead_add_device(
         KickSynthDialog_Global.qml
         KickSynthDialog_Head.qml
         KickSynthDialog_Presets.qml
-        KickSynthDialog_Waveform.qml
 )

@@ -144,8 +144,15 @@ public:
     bool ampEnvelopeEnabled() const;
 
     // Playback parameters
+    //! C-3: the note that plays the drum as it is set in Chromatic mode.
+    static constexpr int RootNote { 36 };
+
     bool chromatic() const;
     void setChromatic(bool chromatic);
+
+    //! How far into the hit, as struck at RootNote, the drum is sounding now, in seconds, or nothing
+    //! when it is silent. What the waveform view's playhead runs on.
+    std::optional<double> elapsedSeconds() const;
     float velocitySensitivity() const;
     void setVelocitySensitivity(float sensitivity);
 
@@ -165,9 +172,6 @@ private:
     double speedRatio(uint8_t note) const;
     double engineSampleRate(double sampleRate) const;
     void syncAmpEnvelope();
-
-    //! C-3: the note that plays the drum as it is set in Chromatic mode.
-    static constexpr int RootNote { 36 };
 
     std::string m_name;
     SnarePmEngine m_engine {};
@@ -220,6 +224,8 @@ private:
     bool m_chromatic { false };
     //! The speed of the note that last struck the drum.
     double m_speedRatio { 1.0 };
+    //! Output frames since the drum was last struck, for the playhead
+    size_t m_elapsedFrames { 0 };
     float m_velocitySensitivity { 0.7f };
 
     float m_lpfCutoff { 1.0f };

@@ -25,6 +25,8 @@ Bug fixes:
 
 * Kick 909: Decay, click and Attack match an RD-9, and the waveform shows a playhead
 
+* Kick Synth, Snare Synth: the waveform shows a playhead
+
 * Kick 808 and Kick 909: the sound knobs read 0–10, as on the machines
 
 * Drum Synth V2: hi-hats, crash and clap refitted closer to the 909 and 808, without the hats' high-end ramp

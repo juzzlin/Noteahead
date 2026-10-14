@@ -40,6 +40,7 @@ private slots:
     void test_device_noteOff_withoutEnvelope_shouldLetTheDrumRing();
     void test_device_ampEnvelope_shouldShortenTheHit();
     void test_preview_render_shouldDrawTheHit();
+    void test_preview_playhead_shouldFollowTheHit();
 };
 
 } // namespace noteahead

@@ -19,9 +19,12 @@
 #include "../../../../../domain/dsp/audio_context.hpp"
 #include "../../../../../domain/dsp/cascaded_svf.hpp"
 #include "../../../../../domain/dsp/drum/kick_pm_engine.hpp"
+#include "../../../../../view/controllers/drum_hit_waveform_model.hpp"
 #include "../../kick_synth_device.hpp"
+#include "../../kick_synth_dialog_model.hpp"
 #include "../../kick_synth_presets.hpp"
-#include "../../kick_synth_preview.hpp"
+
+#include <QSignalSpy>
 
 #include <QString>
 #include <QTest>
@@ -385,13 +388,35 @@ void KickSynthTest::test_device_ampEnvelope_shouldShortenTheHit()
 
 void KickSynthTest::test_preview_render_shouldDrawTheHit()
 {
-    KickSynthDevice device { "Kick" };
-    const auto preview = KickSynthPreview::render(device, 200, SampleRate);
-    QCOMPARE(preview.peaks.size(), 200);
-    QVERIFY(preview.durationSeconds > 0.2);
-    QVERIFY(std::abs(preview.audibleSeconds - preview.durationSeconds) < 0.01);
-    // And the device in the rack was not struck by it
-    QVERIFY(!device.hasActiveAudio());
+    const auto device = std::make_shared<KickSynthDevice>("Kick");
+    KickSynthDialogModel model { device };
+    const auto waveform = qobject_cast<DrumHitWaveformModel *>(model.waveform());
+    QVERIFY(waveform);
+    QSignalSpy spy { waveform, &DrumHitWaveformModel::waveformChanged };
+    waveform->setRequest(200, true);
+    QVERIFY(spy.wait(2000));
+    QCOMPARE(waveform->waveformData().size(), 200);
+    QVERIFY(waveform->waveformDuration() > 0.2);
+    QVERIFY(std::abs(waveform->audibleLength() - waveform->waveformDuration()) < 0.01);
+    // Drawn on a copy: the device in the rack was never struck
+    QVERIFY(!device->hasActiveAudio());
+}
+
+void KickSynthTest::test_preview_playhead_shouldFollowTheHit()
+{
+    const auto device = std::make_shared<KickSynthDevice>("Kick");
+    KickSynthDialogModel model { device };
+    const auto waveform = qobject_cast<DrumHitWaveformModel *>(model.waveform());
+    QSignalSpy spy { waveform, &DrumHitWaveformModel::waveformChanged };
+    waveform->setRequest(200, true);
+    QVERIFY(spy.wait(2000));
+    QVERIFY(!waveform->sounding());
+
+    // Struck and rendered in whole blocks of 512 frames
+    const auto rendered = renderDevice(*device, 0.1);
+    QVERIFY(waveform->sounding());
+    const double expected = static_cast<double>(rendered.size()) / SampleRate / waveform->waveformDuration();
+    QVERIFY2(std::abs(waveform->playbackPosition() - expected) < 0.02, qPrintable(QString::number(waveform->playbackPosition()) + " vs " + QString::number(expected)));
 }
 
 } // namespace noteahead

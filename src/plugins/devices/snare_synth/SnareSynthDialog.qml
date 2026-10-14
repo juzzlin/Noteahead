@@ -77,7 +77,8 @@ AnimatedDialog {
 
         // Under the presets, as Drum Synth V2 puts its own: what the knobs below are being set
         // against, so it stays put while they scroll
-        SnareSynthDialog_Waveform {
+        DrumHitWaveformView {
+            model: snareSynthController.waveform
             dialogVisible: root.visible
         }
 
