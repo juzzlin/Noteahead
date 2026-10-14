@@ -18,8 +18,9 @@
 #include "infra/xml/nahd_xml_reader.hpp"
 #include "infra/xml/nahd_xml_writer.hpp"
 #include "plugins/devices/snare_synth/snare_synth_device.hpp"
+#include "plugins/devices/snare_synth/snare_synth_dialog_model.hpp"
 #include "plugins/devices/snare_synth/snare_synth_presets.hpp"
-#include "plugins/devices/snare_synth/snare_synth_preview.hpp"
+#include "view/controllers/drum_hit_waveform_model.hpp"
 
 #include <QSignalSpy>
 #include <QTest>
@@ -480,22 +481,49 @@ void SnareSynthTest::test_ampEnvelope_release_shouldEndTheHitOnNoteOff()
 
 void SnareSynthTest::test_preview_shouldDrawTheHitAndMeasureTheEnvelope()
 {
-    SnareSynthDevice device { "Preview" };
-    device.setDecay(1.0f);
-    const auto open = SnareSynthPreview::render(device, 200, SampleRate);
-    QCOMPARE(open.peaks.size(), 200);
-    QVERIFY(open.durationSeconds > 0.1);
-    QVERIFY(std::abs(open.audibleSeconds - open.durationSeconds) < 0.01);
+    const auto device = std::make_shared<SnareSynthDevice>("Preview");
+    device->setDecay(1.0f);
+    SnareSynthDialogModel model { device };
+    const auto waveform = qobject_cast<DrumHitWaveformModel *>(model.waveform());
+    QVERIFY(waveform);
+    QSignalSpy spy { waveform, &DrumHitWaveformModel::waveformChanged };
+    waveform->setRequest(200, true);
+    QVERIFY(spy.wait(2000));
+    QCOMPARE(waveform->waveformData().size(), 200);
+    const double openDuration = waveform->waveformDuration();
+    const double openAudible = waveform->audibleLength();
+    QVERIFY(openDuration > 0.1);
+    QVERIFY(std::abs(openAudible - openDuration) < 0.01);
 
     // The picture is the drum without the envelope, and only the audible length follows it
-    device.setAmpDecay(0.2f);
-    device.setAmpSustain(0.0f);
-    const auto cut = SnareSynthPreview::render(device, 200, SampleRate);
-    QVERIFY(std::abs(cut.durationSeconds - open.durationSeconds) < 0.01);
-    QVERIFY(cut.audibleSeconds < open.audibleSeconds * 0.5);
+    device->setAmpDecay(0.2f);
+    device->setAmpSustain(0.0f);
+    waveform->schedule();
+    QVERIFY(spy.wait(2000));
+    QVERIFY(std::abs(waveform->waveformDuration() - openDuration) < 0.01);
+    QVERIFY(waveform->audibleLength() < openAudible * 0.5);
 
     // And the device in the rack was not touched by it
-    QCOMPARE(device.hasActiveAudio(), false);
+    QCOMPARE(device->hasActiveAudio(), false);
+}
+
+void SnareSynthTest::test_preview_playhead_shouldFollowTheHit()
+{
+    const auto device = std::make_shared<SnareSynthDevice>("Preview");
+    device->setDecay(1.0f);
+    SnareSynthDialogModel model { device };
+    const auto waveform = qobject_cast<DrumHitWaveformModel *>(model.waveform());
+    QSignalSpy spy { waveform, &DrumHitWaveformModel::waveformChanged };
+    waveform->setRequest(200, true);
+    QVERIFY(spy.wait(2000));
+    QVERIFY(!waveform->sounding());
+
+    device->processDeviceMidiNoteOn(SnareSynthDevice::RootNote, 127);
+    constexpr uint32_t Frames = 4410;
+    renderDeviceAudio(*device, Frames);
+    QVERIFY(waveform->sounding());
+    const double expected = static_cast<double>(Frames) / SampleRate / waveform->waveformDuration();
+    QVERIFY2(std::abs(waveform->playbackPosition() - expected) < 0.02, qPrintable(QString::number(waveform->playbackPosition()) + " vs " + QString::number(expected)));
 }
 
 } // namespace noteahead

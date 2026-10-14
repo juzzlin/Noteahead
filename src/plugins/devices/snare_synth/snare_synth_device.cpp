@@ -222,6 +222,7 @@ void SnareSynthDevice::processDeviceMidiNoteOn(uint8_t note, uint8_t velocity)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     m_speedRatio = speedRatio(note);
+    m_elapsedFrames = 0;
     m_engine.setSampleRate(engineSampleRate(static_cast<double>(sampleRate())));
     m_engine.setTune(tuneFrequency());
     const float rawVel = static_cast<float>(velocity) / 127.0f;
@@ -325,6 +326,17 @@ void SnareSynthDevice::processAudio(AudioContext & context)
         context.buffer[i * 2] += m_dcBlockerL.process(sampleL);
         context.buffer[i * 2 + 1] += m_dcBlockerR.process(sampleR);
     }
+    m_elapsedFrames += context.frameCount;
+}
+
+std::optional<double> SnareSynthDevice::elapsedSeconds() const
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    if (!hasActiveAudio() || sampleRate() <= 0.0) {
+        return {};
+    }
+    // A note away from the root plays the drum faster or slower than the picture, drawn at the root
+    return static_cast<double>(m_elapsedFrames) / sampleRate() * m_speedRatio;
 }
 
 bool SnareSynthDevice::hasActiveAudio() const

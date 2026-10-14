@@ -48,6 +48,7 @@ private slots:
     void test_ampEnvelope_sustainZero_shouldCutTheTail();
     void test_ampEnvelope_release_shouldEndTheHitOnNoteOff();
     void test_preview_shouldDrawTheHitAndMeasureTheEnvelope();
+    void test_preview_playhead_shouldFollowTheHit();
 };
 
 } // namespace noteahead

@@ -18,7 +18,8 @@
 #include "../../../common/constants.hpp"
 #include "snare_synth_device.hpp"
 #include "snare_synth_presets.hpp"
-#include "snare_synth_preview.hpp"
+
+#include "../../../application/service/drum_hit_preview.hpp"
 
 #include <cmath>
 
@@ -28,8 +29,40 @@ SnareSynthDialogModel::SnareSynthDialogModel(std::shared_ptr<SnareSynthDevice> d
   : DeviceDialogModel { parent }
   , m_device { std::move(device) }
 {
-    m_waveformTimer.setSingleShot(true);
-    connect(&m_waveformTimer, &QTimer::timeout, this, &SnareSynthDialogModel::renderWaveform);
+    m_waveform = new DrumHitWaveformModel {
+        {
+          .render = [this](int peakCount) -> DrumHitPreview::Preview {
+              if (!m_device) {
+                  return {};
+              }
+              const auto createCopy = [this] { return std::make_unique<SnareSynthDevice>(m_device->name()); };
+              const auto bypassEnvelope = [](Device & copy) {
+                  auto && snare = static_cast<SnareSynthDevice &>(copy);
+                  snare.setAmpAttack(0.0f);
+                  snare.setAmpSustain(1.0f);
+                  snare.setAmpRelease(0.0f);
+              };
+              return DrumHitPreview::render(*m_device, createCopy, bypassEnvelope, SnareSynthDevice::RootNote, peakCount, Constants::defaultSampleRate());
+          },
+          .envelope = [this]() -> DrumHitWaveformModel::Envelope {
+              if (!m_device) {
+                  return {};
+              }
+              return {
+                  .attack = m_device->ampAttackSeconds(),
+                  .hold = m_device->ampHoldSeconds(),
+                  .decay = m_device->ampDecaySeconds(),
+                  .sustain = static_cast<double>(m_device->ampSustain()),
+                  .release = m_device->ampReleaseSeconds(),
+                  .curve = static_cast<double>(m_device->ampCurve()),
+              };
+          },
+          .elapsedSeconds = [this]() -> std::optional<double> {
+              return m_device ? m_device->elapsedSeconds() : std::nullopt;
+          },
+        },
+        this
+    };
     connectDeviceSignals();
 }
 
@@ -355,91 +388,9 @@ void SnareSynthDialogModel::setAmpCurve(int value)
     }
 }
 
-QVariantList SnareSynthDialogModel::waveformData() const
+QObject * SnareSynthDialogModel::waveform() const
 {
-    return m_waveformData;
-}
-
-double SnareSynthDialogModel::waveformDuration() const
-{
-    return m_waveformDuration;
-}
-
-double SnareSynthDialogModel::audibleLength() const
-{
-    return m_audibleLength;
-}
-
-double SnareSynthDialogModel::waveformEnvelopeAttack() const
-{
-    return m_waveformEnvelope.attack;
-}
-
-double SnareSynthDialogModel::waveformEnvelopeHold() const
-{
-    return m_waveformEnvelope.hold;
-}
-
-double SnareSynthDialogModel::waveformEnvelopeDecay() const
-{
-    return m_waveformEnvelope.decay;
-}
-
-double SnareSynthDialogModel::waveformEnvelopeSustain() const
-{
-    return m_waveformEnvelope.sustain;
-}
-
-double SnareSynthDialogModel::waveformEnvelopeRelease() const
-{
-    return m_waveformEnvelope.release;
-}
-
-double SnareSynthDialogModel::waveformEnvelopeCurve() const
-{
-    return m_waveformEnvelope.curve;
-}
-
-void SnareSynthDialogModel::setWaveformRequest(int peakCount, bool visible)
-{
-    const bool changed = peakCount != m_waveformPeakCount || visible != m_waveformVisible;
-    m_waveformPeakCount = peakCount;
-    m_waveformVisible = visible;
-    if (changed) {
-        scheduleWaveform();
-    }
-}
-
-void SnareSynthDialogModel::scheduleWaveform(int delayMs)
-{
-    if (!m_waveformVisible || m_waveformPeakCount <= 0) {
-        m_waveformTimer.stop();
-        return;
-    }
-    m_waveformTimer.setInterval(delayMs);
-    m_waveformTimer.start();
-}
-
-void SnareSynthDialogModel::renderWaveform()
-{
-    m_waveformTimer.stop();
-    if (!m_device || !m_waveformVisible || m_waveformPeakCount <= 0) {
-        return;
-    }
-
-    const auto preview = SnareSynthPreview::render(*m_device, m_waveformPeakCount, Constants::defaultSampleRate());
-    m_waveformData = preview.peaks;
-    m_waveformDuration = preview.durationSeconds;
-    m_audibleLength = preview.audibleSeconds;
-    m_waveformEnvelope = {
-        .attack = m_device->ampAttackSeconds(),
-        .hold = m_device->ampHoldSeconds(),
-        .decay = m_device->ampDecaySeconds(),
-        .sustain = static_cast<double>(m_device->ampSustain()),
-        .release = m_device->ampReleaseSeconds(),
-        .curve = static_cast<double>(m_device->ampCurve())
-    };
-    emit waveformChanged();
+    return m_waveform;
 }
 
 int SnareSynthDialogModel::drive() const
@@ -516,7 +467,7 @@ void SnareSynthDialogModel::setHpfCutoff(int value)
 
 void SnareSynthDialogModel::requestSettings()
 {
-    scheduleWaveform();
+    m_waveform->schedule();
 
     emit volumeChanged();
     emit gainChanged();

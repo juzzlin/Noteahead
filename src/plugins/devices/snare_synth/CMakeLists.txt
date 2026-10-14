@@ -5,9 +5,6 @@ noteahead_add_device(
         snare_synth_presets.cpp
         snare_synth_presets.hpp
         snare_synth_registration.cpp
-    APPLICATION_SOURCES
-        snare_synth_preview.cpp
-        snare_synth_preview.hpp
     VIEW_SOURCES
         snare_synth_dialog_model.cpp
         snare_synth_dialog_model.hpp
@@ -20,5 +17,4 @@ noteahead_add_device(
         SnareSynthDialog_Presets.qml
         SnareSynthDialog_Snares.qml
         SnareSynthDialog_Strike.qml
-        SnareSynthDialog_Waveform.qml
 )
