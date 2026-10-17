@@ -19,6 +19,9 @@ New features:
 * Synth: LPF and HPF for the Multi Engine, like the oscillators have
   - Reachable from the Mod EG, both LFOs, parameter automation and the LFO device
 
+* Synth: a built-in Chorus beside the Delay, off by default
+  - On in the pad, pluck, clav, organ and bell presets
+
 * Octave, -2 to +2, in the Global section of every instrument but the Sampler and the drum machines
   - Saved with the project, not in presets
 

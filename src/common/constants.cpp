@@ -2000,6 +2000,31 @@ QString xmlKeyDelayMix()
     return "delayMix";
 }
 
+QString xmlKeyChorusRate()
+{
+    return "chorusRate";
+}
+
+QString xmlKeyChorusDepth()
+{
+    return "chorusDepth";
+}
+
+QString xmlKeyChorusDelay()
+{
+    return "chorusDelay";
+}
+
+QString xmlKeyChorusWidth()
+{
+    return "chorusWidth";
+}
+
+QString xmlKeyChorusMix()
+{
+    return "chorusMix";
+}
+
 QString xmlKeyDelaySync()
 {
     return "delaySync";

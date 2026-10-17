@@ -66,6 +66,12 @@ private slots:
     void test_multiFilter_lowPass_shouldDarkenTheMultiEngine();
     void test_multiFilter_settings_shouldRoundTrip();
     void test_multiFilter_automation_shouldOfferCutoffsAndResonance();
+    void test_chorus_default_shouldBeDry();
+    void test_chorus_mix_shouldWidenAMonoNote();
+    void test_chorus_settings_shouldRoundTrip();
+    void test_chorus_absentFromXml_shouldLoadDry();
+    void test_chorus_automation_shouldOfferMixRateAndDepth();
+    void test_presets_chorus_shouldBeOnOnlyWhereIntended();
     void initTestCase();
     void cleanupTestCase();
 

@@ -685,6 +685,117 @@ void SynthTest::test_multiFilter_automation_shouldOfferCutoffsAndResonance()
     QVERIFY(automatable.contains(Constants::NahdXml::xmlKeyMultiHpfCutoff().toStdString()));
 }
 
+void SynthTest::test_chorus_default_shouldBeDry()
+{
+    // A project saved before the chorus existed has no chorus parameters, and has to sound as it did
+    const SynthDevice synth { "Synth" };
+    QCOMPARE(synth.chorusMix(), 0.0f);
+}
+
+void SynthTest::test_chorus_mix_shouldWidenAMonoNote()
+{
+    // One voice in the middle of the field is the same in both channels; the chorus's two
+    // modulated taps, a quarter cycle apart, are not.
+    const auto stereoDifference = [](float chorusMix) {
+        SynthDevice synth { "Synth" };
+        synth.setChorusMix(chorusMix);
+        const auto buffer = renderSynth(synth);
+        double difference = 0.0;
+        double level = 0.0;
+        for (size_t i = 0; i < buffer.size(); i += 2) {
+            difference += std::abs(buffer[i] - buffer[i + 1]);
+            level += std::abs(buffer[i]);
+        }
+        return difference / level;
+    };
+
+    QVERIFY2(stereoDifference(0.0f) < 1.0e-9, qPrintable(QString::number(stereoDifference(0.0f))));
+    QVERIFY2(stereoDifference(0.5f) > 0.05, qPrintable(QString::number(stereoDifference(0.5f))));
+}
+
+void SynthTest::test_chorus_settings_shouldRoundTrip()
+{
+    SynthDevice synth { "Synth" };
+    synth.setChorusRate(0.3f);
+    synth.setChorusDepth(0.6f);
+    synth.setChorusDelay(0.2f);
+    synth.setChorusWidth(0.7f);
+    synth.setChorusMix(0.4f);
+
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        synth.serializeToXml(writer);
+    }
+
+    NahdXmlReader reader { xml };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+    SynthDevice loaded { "Synth" };
+    loaded.deserializeFromXml(reader);
+
+    QVERIFY(std::abs(loaded.chorusRate() - 0.3f) < 0.001f);
+    QVERIFY(std::abs(loaded.chorusDepth() - 0.6f) < 0.001f);
+    QVERIFY(std::abs(loaded.chorusDelay() - 0.2f) < 0.001f);
+    QVERIFY(std::abs(loaded.chorusWidth() - 0.7f) < 0.001f);
+    QVERIFY(std::abs(loaded.chorusMix() - 0.4f) < 0.001f);
+}
+
+void SynthTest::test_chorus_absentFromXml_shouldLoadDry()
+{
+    SynthDevice out { "Synth" };
+    out.setChorusMix(0.4f);
+
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        out.serializeToXml(writer);
+    }
+
+    QRegularExpression chorus { R"(<Parameter name="chorus[^"]*"[^>]*(/>|>\s*</Parameter>))" };
+    const auto legacy = QString { xml }.remove(chorus);
+    QVERIFY2(legacy.length() < xml.length(), "nothing was stripped, so the test proves nothing");
+
+    NahdXmlReader reader { legacy };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+    SynthDevice in { "Synth" };
+    in.deserializeFromXml(reader);
+
+    QCOMPARE(in.chorusMix(), 0.0f);
+}
+
+void SynthTest::test_chorus_automation_shouldOfferMixRateAndDepth()
+{
+    const SynthDevice synth { "Synth" };
+    std::set<std::string> automatable;
+    for (auto && entry : synth.automatableParameters()) {
+        automatable.insert(entry.key);
+    }
+    QVERIFY(automatable.contains(Constants::NahdXml::xmlKeyChorusMix().toStdString()));
+    QVERIFY(automatable.contains(Constants::NahdXml::xmlKeyChorusRate().toStdString()));
+    QVERIFY(automatable.contains(Constants::NahdXml::xmlKeyChorusDepth().toStdString()));
+}
+
+void SynthTest::test_presets_chorus_shouldBeOnOnlyWhereIntended()
+{
+    // Pads, plucks, keys and bells. Basses keep their low end in mono, and the stacked and drifting
+    // patches get their width from their voices already.
+    const std::set<std::string> chorused { "Warm Pad", "String Pad", "Glass Pad", "Formant Pad", "Pluck", "Clav", "Organ", "Bell" };
+
+    const auto & presets = SynthPresets::presets();
+    for (int i = 0; i < static_cast<int>(presets.size()); i++) {
+        SynthDevice synth { "Synth" };
+        synth.loadPreset(i);
+        const auto & name = presets.at(static_cast<size_t>(i)).name;
+        if (chorused.contains(name)) {
+            QVERIFY2(synth.chorusMix() > 0.0f, name.c_str());
+        } else {
+            QVERIFY2(synth.chorusMix() == 0.0f, name.c_str());
+        }
+    }
+}
+
 void SynthTest::initTestCase()
 {
 }

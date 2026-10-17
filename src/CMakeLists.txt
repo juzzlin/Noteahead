@@ -279,6 +279,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/SynthDialog.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_AmpEg.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Analog.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDialog_Chorus.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Delay.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Drive.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Filter.qml

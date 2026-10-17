@@ -187,6 +187,11 @@ class SynthController : public DeviceController
     Q_PROPERTY(int delayFeedback READ delayFeedback WRITE setDelayFeedback NOTIFY delayFeedbackChanged)
     Q_PROPERTY(int delayDepth READ delayDepth WRITE setDelayDepth NOTIFY delayDepthChanged)
     Q_PROPERTY(int delayMix READ delayMix WRITE setDelayMix NOTIFY delayMixChanged)
+    Q_PROPERTY(int chorusRate READ chorusRate WRITE setChorusRate NOTIFY chorusRateChanged)
+    Q_PROPERTY(int chorusDepth READ chorusDepth WRITE setChorusDepth NOTIFY chorusDepthChanged)
+    Q_PROPERTY(int chorusDelay READ chorusDelay WRITE setChorusDelay NOTIFY chorusDelayChanged)
+    Q_PROPERTY(int chorusWidth READ chorusWidth WRITE setChorusWidth NOTIFY chorusWidthChanged)
+    Q_PROPERTY(int chorusMix READ chorusMix WRITE setChorusMix NOTIFY chorusMixChanged)
     Q_PROPERTY(bool delaySync READ delaySync WRITE setDelaySync NOTIFY delaySyncChanged)
     Q_PROPERTY(int delaySyncDivision READ delaySyncDivision WRITE setDelaySyncDivision NOTIFY delaySyncDivisionChanged)
     Q_PROPERTY(int delayFeedbackLpf READ delayFeedbackLpf WRITE setDelayFeedbackLpf NOTIFY delayFeedbackLpfChanged)
@@ -458,6 +463,16 @@ public:
     void setDelayDepth(int d);
     int delayMix() const;
     void setDelayMix(int mix);
+    int chorusRate() const;
+    void setChorusRate(int value);
+    int chorusDepth() const;
+    void setChorusDepth(int value);
+    int chorusDelay() const;
+    void setChorusDelay(int value);
+    int chorusWidth() const;
+    void setChorusWidth(int value);
+    int chorusMix() const;
+    void setChorusMix(int value);
     bool delaySync() const;
     void setDelaySync(bool sync);
     int delaySyncDivision() const;
@@ -585,6 +600,11 @@ signals:
     void delayFeedbackChanged();
     void delayDepthChanged();
     void delayMixChanged();
+    void chorusRateChanged();
+    void chorusDepthChanged();
+    void chorusDelayChanged();
+    void chorusWidthChanged();
+    void chorusMixChanged();
     void delaySyncChanged();
     void delaySyncDivisionChanged();
     void delayFeedbackLpfChanged();

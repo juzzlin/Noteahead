@@ -538,6 +538,26 @@ void SynthControllerTest::test_lfoRateDivider_shouldReachTheDevice()
     QCOMPARE(synth->lfo2RateDivider(), 64);
 }
 
+void SynthControllerTest::test_chorus_properties_shouldReachTheDevice()
+{
+    const auto synth = std::make_shared<SynthDevice>("Chorus");
+    SynthController controller { synth };
+    const auto scaling = Constants::uiInternalScaling();
+
+    controller.setChorusRate(static_cast<int>(0.3 * scaling));
+    controller.setChorusDepth(static_cast<int>(0.6 * scaling));
+    controller.setChorusDelay(static_cast<int>(0.2 * scaling));
+    controller.setChorusWidth(static_cast<int>(0.7 * scaling));
+    controller.setChorusMix(static_cast<int>(0.4 * scaling));
+
+    QVERIFY(std::abs(synth->chorusRate() - 0.3f) < 0.001f);
+    QVERIFY(std::abs(synth->chorusDepth() - 0.6f) < 0.001f);
+    QVERIFY(std::abs(synth->chorusDelay() - 0.2f) < 0.001f);
+    QVERIFY(std::abs(synth->chorusWidth() - 0.7f) < 0.001f);
+    QVERIFY(std::abs(synth->chorusMix() - 0.4f) < 0.001f);
+    QCOMPARE(controller.chorusMix(), static_cast<int>(0.4 * scaling));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SynthControllerTest)

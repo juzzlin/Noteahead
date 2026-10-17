@@ -25,6 +25,7 @@
 #include "../dsp/poly_blep_oscillator.hpp"
 #include "../dsp/saturating_svf.hpp"
 #include "../dsp/upsampler.hpp"
+#include "../effects/chorus.hpp"
 #include "../effects/delay.hpp"
 #include "device.hpp"
 #include "synth_presets.hpp"
@@ -415,6 +416,18 @@ public:
     float crossModDepth() const;
     void setCrossModDepth(float depth);
 
+    // Chorus parameters, in knob travel: the Chorus effect maps them to Hz and ms
+    float chorusRate() const;
+    void setChorusRate(float rate);
+    float chorusDepth() const;
+    void setChorusDepth(float depth);
+    float chorusDelay() const;
+    void setChorusDelay(float delay);
+    float chorusWidth() const;
+    void setChorusWidth(float width);
+    float chorusMix() const;
+    void setChorusMix(float mix);
+
     // Delay parameters
     Delay::Type delayType() const;
     void setDelayType(Delay::Type type);
@@ -645,6 +658,13 @@ private:
     float m_oscillatorInstability { 0.0f };
     float m_filterDrive { 0.0f };
     float m_crossModDepth { 0.0f };
+
+    //! The rack Chorus, ahead of the delay so that the echoes repeat the chorused sound.
+    Chorus m_chorus;
+    float m_chorusMix { 0.0f };
+    //! Whether the chorus ran on the last sample, so that it starts from silence when Mix comes up
+    //! from zero instead of replaying what was in its delay line when it stopped.
+    bool m_chorusRunning { false };
 
     Delay m_delay;
     Delay::Type m_delayType { Delay::Type::Stereo };

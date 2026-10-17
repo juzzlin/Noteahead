@@ -61,6 +61,18 @@ float lfoRateKnob(double hz)
     return static_cast<float>(ParameterMapper::unmapLfoFrequency(hz, 0.05, 20.0));
 }
 
+//! The chorus's rate and base delay, on the curves the Chorus effect runs them on: 0.1 to 10 Hz in
+//! equal ratios, and 5 to 30 ms in a straight line.
+float chorusRateKnob(double hz)
+{
+    return static_cast<float>(ParameterMapper::unmapExponential(hz, 0.1, 10.0));
+}
+
+float chorusDelayKnob(double ms)
+{
+    return static_cast<float>(std::clamp((ms - 5.0) / 25.0, 0.0, 1.0));
+}
+
 //! The intensity knobs are bipolar and their centre is off, so a depth is written as an offset
 //! from the middle rather than as an absolute position. Positive opens, negative closes.
 float intensity(double amount)
@@ -227,6 +239,10 @@ const std::vector<SynthPreset> & SynthPresets::presets()
                                        { "ampAttack", attackKnob(0.35) },
                                        { "ampSustain", 1.0f },
                                        { "ampRelease", releaseKnob(1.5) },
+                                       { "chorusRate", chorusRateKnob(0.4) },
+                                       { "chorusDepth", 0.7f },
+                                       { "chorusDelay", chorusDelayKnob(15.0) },
+                                       { "chorusMix", 0.35f },
                                      } });
 
         list.push_back({ "String Pad", {
@@ -243,6 +259,10 @@ const std::vector<SynthPreset> & SynthPresets::presets()
                                          { "ampAttack", attackKnob(0.35) },
                                          { "ampSustain", 1.0f },
                                          { "ampRelease", releaseKnob(1.0) },
+                                         { "chorusRate", chorusRateKnob(0.6) },
+                                         { "chorusDepth", 0.5f },
+                                         { "chorusDelay", chorusDelayKnob(12.0) },
+                                         { "chorusMix", 0.4f },
                                        } });
 
         // A pad that moves: the LFO walks the corner slowly up and down, which is the one thing a
@@ -276,6 +296,10 @@ const std::vector<SynthPreset> & SynthPresets::presets()
                                         { "ampSustain", 1.0f },
                                         { "ampRelease", releaseKnob(1.4) },
                                         { "delayMix", 0.25f },
+                                        { "chorusRate", chorusRateKnob(0.3) },
+                                        { "chorusDepth", 0.3f },
+                                        { "chorusDelay", chorusDelayKnob(15.0) },
+                                        { "chorusMix", 0.25f },
                                       } });
 
         // --- Keys and plucks ---
@@ -294,6 +318,10 @@ const std::vector<SynthPreset> & SynthPresets::presets()
                                     { "ampSustain", 0.0f },
                                     { "ampRelease", releaseKnob(0.25) },
                                     { "ampCurve", 0.6f },
+                                    { "chorusRate", chorusRateKnob(0.8) },
+                                    { "chorusDepth", 0.3f },
+                                    { "chorusDelay", chorusDelayKnob(10.0) },
+                                    { "chorusMix", 0.25f },
                                   } });
 
         list.push_back({ "Clav", {
@@ -311,6 +339,10 @@ const std::vector<SynthPreset> & SynthPresets::presets()
                                    { "ampSustain", 0.1f },
                                    { "ampRelease", releaseKnob(0.12) },
                                    { "ampCurve", 0.6f },
+                                   { "chorusRate", chorusRateKnob(1.0) },
+                                   { "chorusDepth", 0.3f },
+                                   { "chorusDelay", chorusDelayKnob(8.0) },
+                                   { "chorusMix", 0.25f },
                                  } });
 
         list.push_back({ "Organ", {
@@ -324,6 +356,10 @@ const std::vector<SynthPreset> & SynthPresets::presets()
                                     { "ampAttack", attackKnob(0.005) },
                                     { "ampSustain", 1.0f },
                                     { "ampRelease", releaseKnob(0.03) },
+                                    { "chorusRate", chorusRateKnob(1.5) },
+                                    { "chorusDepth", 0.3f },
+                                    { "chorusDelay", chorusDelayKnob(8.0) },
+                                    { "chorusMix", 0.2f },
                                   } });
 
         list.push_back({ "Bell", {
@@ -338,6 +374,10 @@ const std::vector<SynthPreset> & SynthPresets::presets()
                                    { "ampSustain", 0.0f },
                                    { "ampRelease", releaseKnob(1.2) },
                                    { "ampCurve", 0.6f },
+                                   { "chorusRate", chorusRateKnob(0.3) },
+                                   { "chorusDepth", 0.3f },
+                                   { "chorusDelay", chorusDelayKnob(15.0) },
+                                   { "chorusMix", 0.15f },
                                  } });
 
         // --- Texture ---
@@ -488,6 +528,10 @@ const std::vector<SynthPreset> & SynthPresets::presets()
                                           { "ampAttack", attackKnob(0.15) },
                                           { "ampSustain", 1.0f },
                                           { "ampRelease", releaseKnob(1.2) },
+                                          { "chorusRate", chorusRateKnob(0.5) },
+                                          { "chorusDepth", 0.5f },
+                                          { "chorusDelay", chorusDelayKnob(12.0) },
+                                          { "chorusMix", 0.3f },
                                         } });
 
         // Drift gives every voice its own slow wander instead of a fixed detune, so no two notes of

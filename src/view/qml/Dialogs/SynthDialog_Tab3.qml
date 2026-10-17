@@ -47,7 +47,12 @@ ScrollView {
             Layout.fillWidth: true
 
             SynthDialog_Delay {
-                Layout.preferredWidth: moduleWidth * 3 + 20
+                Layout.preferredWidth: moduleWidth * 2
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignTop
+            }
+            SynthDialog_Chorus {
+                Layout.preferredWidth: moduleWidth
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignTop
             }

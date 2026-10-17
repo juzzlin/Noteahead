@@ -1367,6 +1367,66 @@ void SynthController::setDelayMix(int mix)
     }
 }
 
+int SynthController::chorusRate() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->chorusRate() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setChorusRate(int value)
+{
+    if (m_synth) {
+        m_synth->setChorusRate(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int SynthController::chorusDepth() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->chorusDepth() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setChorusDepth(int value)
+{
+    if (m_synth) {
+        m_synth->setChorusDepth(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int SynthController::chorusDelay() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->chorusDelay() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setChorusDelay(int value)
+{
+    if (m_synth) {
+        m_synth->setChorusDelay(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int SynthController::chorusWidth() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->chorusWidth() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setChorusWidth(int value)
+{
+    if (m_synth) {
+        m_synth->setChorusWidth(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int SynthController::chorusMix() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->chorusMix() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setChorusMix(int value)
+{
+    if (m_synth) {
+        m_synth->setChorusMix(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
 bool SynthController::delaySync() const
 {
     return m_synth ? m_synth->delaySync() : false;
@@ -1547,6 +1607,11 @@ void SynthController::requestSettings()
     emit delayFeedbackChanged();
     emit delayDepthChanged();
     emit delayMixChanged();
+    emit chorusRateChanged();
+    emit chorusDepthChanged();
+    emit chorusDelayChanged();
+    emit chorusWidthChanged();
+    emit chorusMixChanged();
     emit delaySyncChanged();
     emit delaySyncDivisionChanged();
     emit delayFeedbackLpfChanged();

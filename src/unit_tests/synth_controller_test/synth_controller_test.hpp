@@ -14,6 +14,7 @@ class SynthControllerTest : public QObject
 
 private slots:
     void test_lfoRateDivider_shouldReachTheDevice();
+    void test_chorus_properties_shouldReachTheDevice();
     void test_requestSettings_shouldNotifyEveryProperty();
     void test_parameterAutomation_announced_shouldRefreshWhenTheChangeLands();
     void test_parameterAutomation_savedWhileShown_shouldKeepTheAuthoredValue();

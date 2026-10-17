@@ -275,6 +275,13 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayFeedback().toStdString(), 0.3f, 0, 10000, 3000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayDepth().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayMix().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    // The chorus starts dry, so a project saved before it existed sounds as it did. The rest are
+    // the rack Chorus's own defaults: about 0.3 Hz, a 15 ms delay swept 2 ms either way, full width.
+    addParameter(Parameter { Constants::NahdXml::xmlKeyChorusRate().toStdString(), 0.25f, 0, 10000, 2500, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyChorusDepth().toStdString(), 0.5f, 0, 10000, 5000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyChorusDelay().toStdString(), 0.4f, 0, 10000, 4000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyChorusWidth().toStdString(), 1.0f, 0, 10000, 10000, 100 });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyChorusMix().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelaySync().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelaySyncDivision().toStdString(), 0.25f, 0, 10000, 2500, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayFeedbackLpf().toStdString(), 1.0f, 0, 10000, 10000, 100 });
@@ -336,6 +343,9 @@ SynthDevice::SynthDevice(std::string name)
     DeviceParameterDisplay::percent(*this, C::xmlKeyVoiceDepth(), QT_TRANSLATE_NOOP("ParameterDisplay", "Voice Depth"));
     DeviceParameterDisplay::percent(*this, C::xmlKeyPanSpread(), QT_TRANSLATE_NOOP("ParameterDisplay", "Pan Spread"));
     DeviceParameterDisplay::percent(*this, C::xmlKeyDelayMix(), QT_TRANSLATE_NOOP("ParameterDisplay", "Delay Mix"));
+    DeviceParameterDisplay::percent(*this, C::xmlKeyChorusMix(), QT_TRANSLATE_NOOP("ParameterDisplay", "Chorus Mix"));
+    DeviceParameterDisplay::percent(*this, C::xmlKeyChorusRate(), QT_TRANSLATE_NOOP("ParameterDisplay", "Chorus Rate"));
+    DeviceParameterDisplay::percent(*this, C::xmlKeyChorusDepth(), QT_TRANSLATE_NOOP("ParameterDisplay", "Chorus Depth"));
     DeviceParameterDisplay::percent(*this, C::xmlKeyDelayFeedback(), QT_TRANSLATE_NOOP("ParameterDisplay", "Delay Feedback"));
 
     SynthDevice::syncParameters();
@@ -458,6 +468,7 @@ void SynthDevice::processAudio(AudioContext & context)
 void SynthDevice::prepareForProcessing(AudioContext & context)
 {
     setSampleRate(context.sampleRate);
+    m_chorus.setSampleRate(static_cast<double>(context.sampleRate));
     m_delay.setSampleRate(static_cast<double>(context.sampleRate));
 
     const size_t requiredSize = static_cast<size_t>(context.frameCount) * clampOversampleFactor(context.oversampleFactor) * 2;
@@ -764,6 +775,18 @@ void SynthDevice::applyGlobalEffects(AudioContext & context)
         double l = m_dcBlockerL.process(static_cast<double>(m_downsamplerL.process(highL.data(), oversampleFactor)));
         double r = m_dcBlockerR.process(static_cast<double>(m_downsamplerR.process(highR.data(), oversampleFactor)));
 
+        // Skipped while dry: the effect runs at a Mix of zero as well, and every Synth would pay
+        // for a chorus nobody turned on.
+        if (m_chorusMix >= 0.001f) {
+            if (!m_chorusRunning) {
+                m_chorus.reset();
+                m_chorusRunning = true;
+            }
+            m_chorus.process(l, r);
+        } else {
+            m_chorusRunning = false;
+        }
+
         // Ahead of the delay, not after it: the feedback path would otherwise integrate the offset.
         m_delay.process(l, r);
 
@@ -881,6 +904,8 @@ void SynthDevice::resetAudio()
     for (auto && voice : m_voices) {
         voice.reset();
     }
+    m_chorus.reset();
+    m_chorusRunning = false;
     m_delay.reset();
     m_downsamplerL.reset();
     m_downsamplerR.reset();
@@ -1686,6 +1711,18 @@ void SynthDevice::syncParameters()
         m_delay.setFeedbackLpf(p->get().value());
     if (const auto p = parameter(Constants::NahdXml::xmlKeyDelayFeedbackHpf().toStdString()); p)
         m_delay.setFeedbackHpf(p->get().value());
+
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyChorusRate().toStdString()); p)
+        m_chorus.setRate(p->get().value());
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyChorusDepth().toStdString()); p)
+        m_chorus.setDepth(p->get().value());
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyChorusDelay().toStdString()); p)
+        m_chorus.setDelay(p->get().value());
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyChorusWidth().toStdString()); p)
+        m_chorus.setWidth(p->get().value());
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyChorusMix().toStdString()); p)
+        m_chorusMix = p->get().value();
+    m_chorus.setMix(m_chorusMix);
 
     m_delay.setType(m_delayType);
     m_delay.setTime(m_delayTime);
@@ -2632,6 +2669,56 @@ float SynthDevice::delayDepth() const
 void SynthDevice::setDelayDepth(float depth)
 {
     setContinuousParameterValue(Constants::NahdXml::xmlKeyDelayDepth().toStdString(), depth);
+}
+
+float SynthDevice::chorusRate() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyChorusRate(), static_cast<float>(m_chorus.rate()));
+}
+
+void SynthDevice::setChorusRate(float rate)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyChorusRate().toStdString(), rate);
+}
+
+float SynthDevice::chorusDepth() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyChorusDepth(), static_cast<float>(m_chorus.depth()));
+}
+
+void SynthDevice::setChorusDepth(float depth)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyChorusDepth().toStdString(), depth);
+}
+
+float SynthDevice::chorusDelay() const
+{
+    return static_cast<float>(m_chorus.delay());
+}
+
+void SynthDevice::setChorusDelay(float delay)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyChorusDelay().toStdString(), delay);
+}
+
+float SynthDevice::chorusWidth() const
+{
+    return static_cast<float>(m_chorus.width());
+}
+
+void SynthDevice::setChorusWidth(float width)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyChorusWidth().toStdString(), width);
+}
+
+float SynthDevice::chorusMix() const
+{
+    return shownParameterValue(Constants::NahdXml::xmlKeyChorusMix(), m_chorusMix);
+}
+
+void SynthDevice::setChorusMix(float mix)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyChorusMix().toStdString(), mix);
 }
 
 float SynthDevice::delayMix() const
