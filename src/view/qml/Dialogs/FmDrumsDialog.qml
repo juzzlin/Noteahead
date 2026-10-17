@@ -39,8 +39,8 @@ AnimatedDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -133,7 +133,7 @@ AnimatedDialog {
                     Rectangle {
                         Layout.preferredWidth: 1
                         Layout.fillHeight: true
-                        color: "#333"
+                        color: Theme.separator
                     }
 
                     ColumnLayout {
@@ -195,7 +195,7 @@ AnimatedDialog {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 1
-                    color: "#333"
+                    color: Theme.separator
                 }
 
                 // Then the four operators side by side, and the noise: the whole of the pad's sound
@@ -225,7 +225,7 @@ AnimatedDialog {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 1
-                    color: "#333"
+                    color: Theme.separator
                 }
 
                 // Last what changes least: the envelope over the voice and the kit's own settings
@@ -245,7 +245,7 @@ AnimatedDialog {
                     Rectangle {
                         Layout.preferredWidth: 1
                         Layout.fillHeight: true
-                        color: "#333"
+                        color: Theme.separator
                     }
 
                     ColumnLayout {

@@ -33,8 +33,8 @@ EffectDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -157,7 +157,7 @@ EffectDialog {
                 text: qsTr("Rate Divider divides the Rate by anything from 1 to %1, in both modes: a tempo-locked sweep can be stretched over several bars, and a free-running one over minutes.").arg(effectRackController.autoPannerMaxRateDivider())
                 wrapMode: Text.WordWrap
                 font.pixelSize: 11
-                color: "#aaa"
+                color: Theme.textSecondary
                 Layout.fillWidth: true
             }
 

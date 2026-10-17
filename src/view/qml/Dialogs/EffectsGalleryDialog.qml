@@ -34,8 +34,8 @@ AnimatedDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -92,9 +92,9 @@ AnimatedDialog {
             delegate: Rectangle {
                 width: effectListView.width
                 height: 50
-                color: (effectListView.hoveredIndex === index && root.activeFocus) ? themeService.accentColor : "#333"
+                color: (effectListView.hoveredIndex === index && root.activeFocus) ? themeService.accentColor : Theme.surfacePanel
                 radius: 5
-                border.color: "#555"
+                border.color: Theme.borderStrong
                 MouseArea {
                     id: mouseArea
                     anchors.fill: parent

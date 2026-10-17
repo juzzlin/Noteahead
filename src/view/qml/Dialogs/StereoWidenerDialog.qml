@@ -31,8 +31,8 @@ EffectDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -99,7 +99,7 @@ EffectDialog {
 
                 Rectangle {
                     width: 1
-                    color: "#333"
+                    color: Theme.separator
                     Layout.fillHeight: true
                     Layout.leftMargin: 8
                     Layout.rightMargin: 8
@@ -145,7 +145,7 @@ EffectDialog {
             Rectangle {
                 Layout.fillWidth: true
                 height: 1
-                color: "#333"
+                color: Theme.separator
             }
 
             RowLayout {
@@ -175,7 +175,7 @@ EffectDialog {
         // Every band but the first is fenced off from the one before it.
         Rectangle {
             width: 1
-            color: "#333"
+            color: Theme.separator
             visible: band.bandIndex > 0
             Layout.fillHeight: true
             Layout.rightMargin: 8
@@ -221,7 +221,7 @@ EffectDialog {
                 text: qsTr("Correlation")
                 font.bold: true
                 font.pixelSize: 11
-                color: "#aaa"
+                color: Theme.textSecondary
                 Layout.alignment: Qt.AlignHCenter
             }
 
@@ -230,8 +230,8 @@ EffectDialog {
             // sustained to the left of it will cancel when the mix is summed to mono.
             Rectangle {
                 height: 18
-                color: "#111"
-                border.color: "#333"
+                color: Theme.surfaceSunken
+                border.color: Theme.borderSubtle
                 Layout.fillWidth: true
 
                 Rectangle {

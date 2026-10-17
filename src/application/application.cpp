@@ -304,6 +304,7 @@ void Application::registerTypes()
     qmlRegisterType<UtilService>("Noteahead", majorVersion, minorVersion, "UtilService");
 
     qmlRegisterSingletonType(QUrl(QML_ROOT_DIR + QString { "/Constants.qml" }), "Noteahead", majorVersion, minorVersion, "Constants");
+    qmlRegisterSingletonType(QUrl(QML_ROOT_DIR + QString { "/Theme.qml" }), "Noteahead", majorVersion, minorVersion, "Theme");
     qmlRegisterSingletonType(QUrl(QML_ROOT_DIR + QString { "/UiService.qml" }), "Noteahead", majorVersion, minorVersion, "UiService");
 }
 

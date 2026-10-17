@@ -32,8 +32,8 @@ EffectDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -138,8 +138,8 @@ EffectDialog {
                 Rectangle {
                     width: 30
                     height: 200
-                    color: "#111"
-                    border.color: "#333"
+                    color: Theme.surfaceSunken
+                    border.color: Theme.borderSubtle
                     Layout.alignment: Qt.AlignHCenter
 
                     Rectangle {

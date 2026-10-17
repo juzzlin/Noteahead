@@ -30,8 +30,8 @@ EffectDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -47,7 +47,7 @@ EffectDialog {
             text: comboBoxColumn.label
             font.bold: true
             font.pixelSize: 11
-            color: "#aaa"
+            color: Theme.textSecondary
         }
         ComboBox {
             id: comboBox
@@ -71,7 +71,7 @@ EffectDialog {
 
             Label {
                 text: qsTr("Level modulated by an LFO: the Auto Panner's mechanism pointed at loudness instead of position. Unlike panning it survives a fold to mono, because it genuinely takes level away and puts it back.")
-                color: "#aaa"
+                color: Theme.textSecondary
                 font.pixelSize: 12
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true

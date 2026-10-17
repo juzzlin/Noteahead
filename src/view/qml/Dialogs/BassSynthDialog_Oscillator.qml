@@ -55,7 +55,7 @@ GroupBox {
         Rectangle {
             Layout.fillWidth: true
             height: 1
-            color: "#333"
+            color: Theme.separator
         }
 
         RowLayout {

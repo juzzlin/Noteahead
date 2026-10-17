@@ -57,7 +57,7 @@ Item {
 
             Text {
                 text: root.formatLufs(root.integratedLufs)
-                color: root.hasReading ? "white" : "#666"
+                color: root.hasReading ? "white" : Theme.textDim
                 font.pointSize: 12
                 font.bold: true
                 horizontalAlignment: Text.AlignRight
@@ -67,7 +67,7 @@ Item {
             Text {
                 // Not translated: a unit is a unit in every localised DAW there is.
                 text: "LUFS"
-                color: "#888"
+                color: Theme.textMuted
                 font.pointSize: 8
             }
         }
@@ -76,7 +76,7 @@ Item {
             // "S" is the standard short-term label on a loudness meter, and stays put untranslated
             // for the same reason the unit does.
             text: "S " + root.formatLufs(root.shortTermLufs)
-            color: "#999"
+            color: Theme.textTertiary
             font.pointSize: 9
             horizontalAlignment: Text.AlignRight
             Layout.fillWidth: true

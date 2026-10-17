@@ -43,8 +43,8 @@ AnimatedDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -109,7 +109,7 @@ AnimatedDialog {
 
         Label {
             text: qsTr("No devices yet. Add them in the Device Rack.")
-            color: "#aaa"
+            color: Theme.textSecondary
             font.italic: true
             font.pointSize: 12
             visible: root.populatedCount === 0
@@ -140,9 +140,9 @@ AnimatedDialog {
                         Layout.preferredHeight: 76
                         // A modulator makes no sound, so a strip would be controls that do nothing
                         visible: deviceType !== "" && producesAudio
-                        color: "#333"
+                        color: Theme.surfacePanel
                         radius: 5
-                        border.color: "#555"
+                        border.color: Theme.borderStrong
 
                         readonly property string deviceType: {
                             deviceRackController.revision;
@@ -215,7 +215,7 @@ AnimatedDialog {
 
                                     Text {
                                         text: strip.trackNames === "" ? strip.deviceTypeName : qsTr("%1 — %2").arg(strip.deviceTypeName).arg(strip.trackNames)
-                                        color: "#aaa"
+                                        color: Theme.textSecondary
                                         font.pointSize: 10
                                         elide: Text.ElideRight
                                         Layout.fillWidth: true
@@ -280,7 +280,7 @@ AnimatedDialog {
                             Rectangle {
                                 Layout.preferredWidth: 1
                                 Layout.fillHeight: true
-                                color: "#555"
+                                color: Theme.separatorStrong
                             }
 
                             // Two taps of the same device, at the two points each is actually read
@@ -295,7 +295,7 @@ AnimatedDialog {
 
                                 Text {
                                     text: "IN:"
-                                    color: "#aaa"
+                                    color: Theme.textSecondary
                                     font.pointSize: 9
                                     Layout.alignment: Qt.AlignVCenter
                                 }
@@ -315,7 +315,7 @@ AnimatedDialog {
 
                                 Text {
                                     text: "OUT:"
-                                    color: "#aaa"
+                                    color: Theme.textSecondary
                                     font.pointSize: 9
                                     Layout.leftMargin: 6
                                     Layout.alignment: Qt.AlignVCenter
@@ -351,7 +351,7 @@ AnimatedDialog {
                             Rectangle {
                                 Layout.preferredWidth: 1
                                 Layout.fillHeight: true
-                                color: "#555"
+                                color: Theme.separatorStrong
                             }
 
                             AppButton {
@@ -375,7 +375,7 @@ AnimatedDialog {
 
         Text {
             text: qsTr("These are the very same controls as in each device's own dialog: Gain trims the device into its insert effects, the Fader balances it, Pan places it.") + " " + qsTr("IN meters the level Gain is set against. OUT is the loudness the device finally contributes: to place one device 2 dB under another, aim for an integrated reading 2 LU lower.")
-            color: "#aaa"
+            color: Theme.textSecondary
             font.italic: true
             font.pointSize: 11
             Layout.fillWidth: true

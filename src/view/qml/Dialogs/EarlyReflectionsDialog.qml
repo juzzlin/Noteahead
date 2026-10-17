@@ -30,8 +30,8 @@ EffectDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -54,7 +54,7 @@ EffectDialog {
 
             Label {
                 text: qsTr("The reflections that arrive before a reverb becomes a wash. This is the axis a tail cannot buy: how far away something is, not how large the room around it sounds.")
-                color: "#aaa"
+                color: Theme.textSecondary
                 font.pixelSize: 12
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true

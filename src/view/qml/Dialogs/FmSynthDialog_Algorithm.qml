@@ -184,7 +184,7 @@ ColumnLayout {
     Label {
         text: qsTr("Feedback is on operator") + " " + fmSynthController.operators.length
         font.pixelSize: 11
-        color: "#888"
+        color: Theme.textMuted
         Layout.fillWidth: true
         wrapMode: Text.WordWrap
     }

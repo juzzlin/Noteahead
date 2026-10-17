@@ -32,8 +32,8 @@ AnimatedDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -104,7 +104,7 @@ AnimatedDialog {
             Rectangle {
                 Layout.preferredWidth: 1
                 Layout.fillHeight: true
-                color: "#333"
+                color: Theme.separator
             }
 
             // String section
@@ -125,7 +125,7 @@ AnimatedDialog {
             Rectangle {
                 Layout.preferredWidth: 1
                 Layout.fillHeight: true
-                color: "#333"
+                color: Theme.separator
             }
 
             // Hammer section

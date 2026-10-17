@@ -40,7 +40,7 @@ ColumnLayout {
         text: qsTr("Lower (below C4)")
         font.bold: true
         font.pixelSize: 13
-        color: "#aaa"
+        color: Theme.textSecondary
         Layout.alignment: Qt.AlignLeft
     }
     Knob {
@@ -60,7 +60,7 @@ ColumnLayout {
         text: qsTr("Upper (C4 and above)")
         font.bold: true
         font.pixelSize: 13
-        color: "#aaa"
+        color: Theme.textSecondary
         Layout.alignment: Qt.AlignLeft
         Layout.topMargin: 6
     }
@@ -79,7 +79,7 @@ ColumnLayout {
 
     Label {
         text: qsTr("The female voice sounds only above the split, an octave up, as on the hardware.")
-        color: "#aaa"
+        color: Theme.textSecondary
         font.italic: true
         font.pixelSize: 11
         wrapMode: Text.WordWrap

@@ -33,8 +33,8 @@ EffectDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -231,7 +231,7 @@ EffectDialog {
                     Label {
                         text: qsTr("Split takes everything below it out of the clipper, so the fundamental of a kick or a bass comes through whole while the band above it is ground up. Blend sets how much of that band the clipper replaces. At the bottom of its travel Split is below the audible range and the whole signal is distorted.")
                         font.pixelSize: 11
-                        color: "#999"
+                        color: Theme.textTertiary
                         wrapMode: Text.WordWrap
                         Layout.fillWidth: true
                         // Wrapping text must not drive the column's width, or the dialog reflows.
@@ -251,8 +251,8 @@ EffectDialog {
                     Rectangle {
                         width: 30
                         height: 200
-                        color: "#111"
-                        border.color: "#333"
+                        color: Theme.surfaceSunken
+                        border.color: Theme.borderSubtle
                         Layout.alignment: Qt.AlignHCenter
 
                         Rectangle {
@@ -271,7 +271,7 @@ EffectDialog {
                                 Rectangle {
                                     width: parent.width
                                     height: 1
-                                    color: "#555"
+                                    color: Theme.separatorStrong
                                     opacity: 0.5
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     y: (index / 6) * parent.height

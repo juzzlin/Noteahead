@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 import QtQuick 2.15
+import Noteahead 1.0
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts 1.15
@@ -48,13 +49,13 @@ ColumnLayout {
         }
         Label {
             text: root.label
-            color: "#dddddd"
+            color: Theme.textBright
             font.bold: true
         }
         Label {
             Layout.fillWidth: true
             text: root.fileName !== "" ? root.fileName : qsTr("No file")
-            color: root.fileName !== "" ? "white" : "#777777"
+            color: root.fileName !== "" ? "white" : Theme.textFaint
             elide: Text.ElideMiddle
         }
         BusyIndicator {

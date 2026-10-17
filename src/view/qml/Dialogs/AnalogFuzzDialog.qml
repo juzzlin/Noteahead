@@ -32,8 +32,8 @@ EffectDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -53,7 +53,7 @@ EffectDialog {
 
             Label {
                 text: qsTr("A synth's drive knob: the fuzz stage is played through the filter it is overdriving, so the resonant peak gives way as Drive comes up and the harmonics come out rounded instead of sitting on top.")
-                color: "#aaa"
+                color: Theme.textSecondary
                 font.pixelSize: 12
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
@@ -177,8 +177,8 @@ EffectDialog {
                         Layout.alignment: Qt.AlignHCenter
                     }
                     Rectangle {
-                        color: "#111"
-                        border.color: "#333"
+                        color: Theme.surfaceSunken
+                        border.color: Theme.borderSubtle
                         Layout.alignment: Qt.AlignHCenter
                         Layout.preferredWidth: 30
                         Layout.preferredHeight: 160
@@ -203,7 +203,7 @@ EffectDialog {
                                 Rectangle {
                                     width: parent.width
                                     height: 1
-                                    color: "#555"
+                                    color: Theme.separatorStrong
                                     opacity: 0.5
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     y: (index / 6) * parent.height
@@ -223,7 +223,7 @@ EffectDialog {
             Label {
                 text: qsTr("Fuzz runs from a soft valve-like knee to a hard, nearly square clip. Bias sets where on that curve the signal sits: centred is odd harmonics and a hollow tone, off to either side brings in the even ones, and far out the stage starves and gates.")
                 font.pixelSize: 11
-                color: "#999"
+                color: Theme.textTertiary
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
                 // Wrapping text must not drive the column's width, or the dialog reflows.

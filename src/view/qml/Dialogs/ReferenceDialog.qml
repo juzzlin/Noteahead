@@ -30,8 +30,8 @@ EffectDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -49,7 +49,7 @@ EffectDialog {
 
             Label {
                 text: qsTr("Plays the mix the way another system would: its band limits, its voicing, the room or box it rings in, and the compression it applies. Indicative rather than exact, and heard only: an export is never touched.")
-                color: "#aaa"
+                color: Theme.textSecondary
                 font.pixelSize: 12
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
@@ -65,7 +65,7 @@ EffectDialog {
 
                 Label {
                     text: qsTr("System")
-                    color: "#aaaaaa"
+                    color: Theme.textSecondary
                     font.pixelSize: 12
                 }
 

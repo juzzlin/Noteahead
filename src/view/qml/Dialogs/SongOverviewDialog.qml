@@ -39,8 +39,8 @@ AnimatedDialog {
     }
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -62,7 +62,7 @@ AnimatedDialog {
         Label {
             text: qsTr("Signal flow as the engine runs it. Each device's chain is drawn in its real order, so a device whose fader sits after its inserts reads differently from one whose fader comes first. Click a box to open its editor.")
             wrapMode: Text.WordWrap
-            color: "#aaaaaa"
+            color: Theme.textSecondary
             font.pixelSize: 12
             Layout.fillWidth: true
         }

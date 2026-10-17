@@ -30,8 +30,8 @@ EffectDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -110,7 +110,7 @@ EffectDialog {
                 Rectangle {
                     Layout.fillHeight: true
                     Layout.preferredWidth: 1
-                    color: "#333"
+                    color: Theme.separator
                 }
 
                 // The five band passes are summed in parallel with the dry signal, so they interact: pulling
@@ -199,7 +199,7 @@ EffectDialog {
             id: caption
             font.bold: true
             font.pixelSize: 11
-            color: "#aaa"
+            color: Theme.textSecondary
             Layout.alignment: Qt.AlignHCenter
         }
         ComboBox {

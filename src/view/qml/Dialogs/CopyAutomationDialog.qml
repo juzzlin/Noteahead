@@ -82,7 +82,7 @@ AnimatedDialog {
 
         Label {
             text: qsTr("No automations to copy.")
-            color: "#aaa"
+            color: Theme.textSecondary
             visible: !automationList.count
             Layout.alignment: Qt.AlignHCenter
         }
@@ -105,9 +105,9 @@ AnimatedDialog {
                 id: row
                 width: automationList.width
                 height: rowContent.implicitHeight + 16
-                color: automationList.hoveredIndex === index ? themeService.accentColor : "#333"
+                color: automationList.hoveredIndex === index ? themeService.accentColor : Theme.surfacePanel
                 radius: 5
-                border.color: "#555"
+                border.color: Theme.borderStrong
 
                 // Value ranges and controller names are per port, so the name has to be looked up
                 // through the automation's own track rather than the one the form sits on.

@@ -51,7 +51,7 @@ ColumnLayout {
         text: qsTr("Voice section only. The Strings have their own, always on.")
         font.italic: true
         font.pixelSize: 12
-        color: "#aaa"
+        color: Theme.textSecondary
         wrapMode: Text.WordWrap
         Layout.fillWidth: true
     }

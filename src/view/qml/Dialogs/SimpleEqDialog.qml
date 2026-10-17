@@ -30,8 +30,8 @@ EffectDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -60,7 +60,7 @@ EffectDialog {
 
         Label {
             text: qsTr("Turn it up until it sounds good.")
-            color: "#aaa"
+            color: Theme.textSecondary
             font.italic: true
             Layout.alignment: Qt.AlignHCenter
         }

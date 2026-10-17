@@ -31,8 +31,8 @@ AnimatedDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -105,7 +105,7 @@ AnimatedDialog {
                 id: separator
                 Layout.preferredWidth: 1
                 Layout.fillHeight: true
-                color: "#333"
+                color: Theme.separator
                 Layout.leftMargin: 10
                 Layout.rightMargin: 10
             }

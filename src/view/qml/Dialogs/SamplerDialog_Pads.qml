@@ -46,8 +46,8 @@ GridView {
             // On assigned pads the accent color is the background, so use a text
             // color that contrasts with it (dark on bright accents like mint).
             readonly property color textColor: isLoaded ? themeService.accentTextColor : "#888888"
-            color: isLoaded ? themeService.accentColor : "#333333"
-            border.color: samplerController.selectedPad === index ? themeService.accentColor : (mouseArea.pressed ? "white" : "#555")
+            color: isLoaded ? themeService.accentColor : Theme.surfacePanel
+            border.color: samplerController.selectedPad === index ? themeService.accentColor : (mouseArea.pressed ? "white" : Theme.borderStrong)
             border.width: samplerController.selectedPad === index ? 3 : 2
 
             ColumnLayout {

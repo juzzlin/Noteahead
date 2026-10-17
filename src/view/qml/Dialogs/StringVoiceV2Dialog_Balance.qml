@@ -38,7 +38,7 @@ ColumnLayout {
 
     Label {
         text: qsTr("One level per section, so the two can be balanced without re-tuning each footage.")
-        color: "#aaa"
+        color: Theme.textSecondary
         font.italic: true
         font.pixelSize: 11
         wrapMode: Text.WordWrap

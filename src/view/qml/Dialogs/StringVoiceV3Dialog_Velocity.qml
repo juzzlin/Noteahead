@@ -38,7 +38,7 @@ ColumnLayout {
 
     Label {
         text: qsTr("How far both sections follow how hard a key is struck. Fully down they ignore it.")
-        color: "#aaa"
+        color: Theme.textSecondary
         font.italic: true
         font.pixelSize: 11
         wrapMode: Text.WordWrap

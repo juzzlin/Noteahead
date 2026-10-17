@@ -57,7 +57,7 @@ ColumnLayout {
 
     Label {
         text: qsTr("Drive works on the main low pass, not on the per-oscillator filters. The level is held roughly where it was, so the knob changes the tone rather than the balance.")
-        color: "#aaa"
+        color: Theme.textSecondary
         font.italic: true
         font.pixelSize: 12
         wrapMode: Text.WordWrap

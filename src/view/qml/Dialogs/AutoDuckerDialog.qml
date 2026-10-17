@@ -32,8 +32,8 @@ EffectDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -165,7 +165,7 @@ EffectDialog {
                         Layout.columnSpan: 3
                         Layout.fillWidth: true
                         text: qsTr("Negative Amount ducks the signal, positive lifts it. Without a side chain source the effect listens to its own input.")
-                        color: "#aaa"
+                        color: Theme.textSecondary
                         font.italic: true
                         font.pointSize: 10
                         wrapMode: Text.WordWrap
@@ -235,8 +235,8 @@ EffectDialog {
                         id: meterContainer
                         width: 30
                         height: 300
-                        color: "#111"
-                        border.color: "#333"
+                        color: Theme.surfaceSunken
+                        border.color: Theme.borderSubtle
                         Layout.alignment: Qt.AlignHCenter
 
                         Rectangle {
@@ -257,7 +257,7 @@ EffectDialog {
                                 Rectangle {
                                     width: parent.width
                                     height: index === 4 ? 2 : 1
-                                    color: index === 4 ? "#888" : "#555"
+                                    color: index === 4 ? "#888" : Theme.surfaceRaised
                                     opacity: index === 4 ? 0.9 : 0.5
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     y: (index / 8) * parent.height

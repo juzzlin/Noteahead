@@ -41,8 +41,8 @@ AnimatedDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -69,7 +69,7 @@ AnimatedDialog {
 
         Label {
             text: qsTr("The selected rack replaces the current one, effects and bypass state alike.")
-            color: "#aaa"
+            color: Theme.textSecondary
             font.pointSize: 12
             Layout.fillWidth: true
             horizontalAlignment: Text.AlignHCenter
@@ -78,7 +78,7 @@ AnimatedDialog {
 
         Label {
             text: qsTr("No racks to copy.")
-            color: "#aaa"
+            color: Theme.textSecondary
             font.pointSize: 12
             visible: root.sources.length === 0
             Layout.alignment: Qt.AlignHCenter
@@ -96,9 +96,9 @@ AnimatedDialog {
             delegate: Rectangle {
                 width: sourceListView.width
                 height: 50
-                color: (sourceListView.hoveredIndex === index && root.activeFocus) ? themeService.accentColor : "#333"
+                color: (sourceListView.hoveredIndex === index && root.activeFocus) ? themeService.accentColor : Theme.surfacePanel
                 radius: 5
-                border.color: "#555"
+                border.color: Theme.borderStrong
                 MouseArea {
                     anchors.fill: parent
                     hoverEnabled: true
@@ -127,7 +127,7 @@ AnimatedDialog {
                         // An empty rack is a valid choice -- it is how one clears a rack in one go --
                         // so it is worth saying which ones are empty before they are picked.
                         text: modelData.effectCount === 0 ? qsTr("empty") : qsTr("%n effect(s)", "", modelData.effectCount)
-                        color: "#aaa"
+                        color: Theme.textSecondary
                         font.pointSize: 11
                         horizontalAlignment: Text.AlignRight
                         Layout.preferredWidth: 100

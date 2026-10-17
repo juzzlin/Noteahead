@@ -52,14 +52,14 @@ ColumnLayout {
         Label {
             text: root.op.carrier ? qsTr("Carrier") : qsTr("Modulator")
             font.pixelSize: 12
-            color: root.op.carrier ? themeService.accentColor : "#888"
+            color: root.op.carrier ? themeService.accentColor : Theme.textMuted
         }
     }
 
     Label {
         text: root.op.modulatedBy.length ? qsTr("Modulated by") + " " + root.op.modulatedBy.join(", ") : qsTr("Not modulated")
         font.pixelSize: 11
-        color: "#888"
+        color: Theme.textMuted
         Layout.fillWidth: true
         elide: Text.ElideRight
     }

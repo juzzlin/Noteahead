@@ -83,8 +83,8 @@ ColumnLayout {
             background: Rectangle {
                 id: recordBackground
                 radius: height / 2
-                color: samplerController.recording ? "#440000" : "#333333"
-                border.color: samplerController.recording ? "#FF0000" : "#555555"
+                color: samplerController.recording ? "#440000" : Theme.separator
+                border.color: samplerController.recording ? "#FF0000" : Theme.borderStrong
                 border.width: 1
 
                 // Breathing while it is actually recording, which is what tells it apart from the
@@ -240,7 +240,7 @@ ColumnLayout {
     Label {
         Layout.fillWidth: true
         elide: Text.ElideRight
-        color: "#999"
+        color: Theme.textTertiary
         // Said plainly rather than hidden in a tooltip: a recording made before the project has
         // anywhere to live is only kept because saving writes it out, and that is worth knowing
         // before you record something you cannot do twice.

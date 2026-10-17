@@ -30,8 +30,8 @@ EffectDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -49,7 +49,7 @@ EffectDialog {
 
             Label {
                 text: qsTr("Throws away word length and sample rate, separately. Fewer bits is grit that follows the signal; a lower rate folds everything above its Nyquist back down as aliases, which is the metallic half of the sound. Neither is oversampled, because here the aliases are the point.")
-                color: "#aaa"
+                color: Theme.textSecondary
                 font.pixelSize: 12
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true

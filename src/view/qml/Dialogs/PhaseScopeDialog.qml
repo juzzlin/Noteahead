@@ -32,8 +32,8 @@ EffectDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -237,7 +237,7 @@ EffectDialog {
         Rectangle {
             Layout.fillHeight: true
             Layout.preferredWidth: 1
-            color: "#333"
+            color: Theme.separator
         }
 
         ColumnLayout {
@@ -255,7 +255,7 @@ EffectDialog {
                 text: root.reading.hasReference ? qsTr("Each hit of the reference, frozen: the reference in grey, this signal in colour. Where they swing the same way they add up; where they swing apart they cancel.") : qsTr("Choose a reference to compare this signal with. Without one the scope shows this signal alone.")
                 wrapMode: Text.WordWrap
                 font.pixelSize: 11
-                color: "#aaa"
+                color: Theme.textSecondary
                 Layout.fillWidth: true
             }
             PhaseScopeRenderer {

@@ -30,8 +30,8 @@ EffectDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -49,7 +49,7 @@ EffectDialog {
 
             Label {
                 text: qsTr("Pulls the quiet parts further down and lets the loud ones through: a gate for tightening drums or removing a noise floor, and a downward expander when Ratio is low. Hold and the six dB hysteresis are what keep it from chattering on a level sitting near the threshold.")
-                color: "#aaa"
+                color: Theme.textSecondary
                 font.pixelSize: 12
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true

@@ -41,8 +41,8 @@ Rectangle {
     // The accent colour is the background on the selected pad, so the text has to be the one that
     // contrasts with it rather than a fixed white.
     readonly property color textColor: root.selected ? themeService.accentTextColor : "#dddddd"
-    color: root.selected ? themeService.accentColor : "#333333"
-    border.color: root.selected ? themeService.accentColor : (mouseArea.pressed ? "white" : "#555")
+    color: root.selected ? themeService.accentColor : Theme.surfacePanel
+    border.color: root.selected ? themeService.accentColor : (mouseArea.pressed ? "white" : Theme.borderStrong)
     border.width: root.selected ? 3 : 2
 
     Label {

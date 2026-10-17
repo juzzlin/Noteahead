@@ -32,8 +32,8 @@ EffectDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -149,7 +149,7 @@ EffectDialog {
 
                         Label {
                             text: qsTr("Lift threshold to ceiling for maximum loudness")
-                            color: "#aaa"
+                            color: Theme.textSecondary
                             font.italic: true
                             font.pointSize: 10
                             wrapMode: Text.WordWrap
@@ -171,8 +171,8 @@ EffectDialog {
                         id: meterContainer
                         width: 30
                         height: 260
-                        color: "#111"
-                        border.color: "#333"
+                        color: Theme.surfaceSunken
+                        border.color: Theme.borderSubtle
                         Layout.alignment: Qt.AlignHCenter
 
                         Rectangle {
@@ -192,7 +192,7 @@ EffectDialog {
                                 Rectangle {
                                     width: parent.width
                                     height: 1
-                                    color: "#555"
+                                    color: Theme.separatorStrong
                                     opacity: 0.5
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     y: (index / 6) * parent.height

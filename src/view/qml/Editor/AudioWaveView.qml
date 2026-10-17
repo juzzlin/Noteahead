@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 import QtQuick 2.15
+import Noteahead 1.0
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts 1.15
@@ -23,7 +24,7 @@ import "../Components"
 Rectangle {
     id: rootItem
     color: "#222222"
-    border.color: "#444444"
+    border.color: Theme.borderMedium
     border.width: 1
 
     property var waveformData: []
@@ -150,8 +151,8 @@ Rectangle {
 
             background: Rectangle {
                 radius: height / 2
-                color: audioService.isPlayingPlayback ? "#004400" : "#333333"
-                border.color: audioService.isPlayingPlayback ? "#00FF00" : "#555555"
+                color: audioService.isPlayingPlayback ? "#004400" : Theme.separator
+                border.color: audioService.isPlayingPlayback ? "#00FF00" : Theme.borderStrong
                 border.width: 1
             }
 
@@ -190,8 +191,8 @@ Rectangle {
 
             background: Rectangle {
                 radius: height / 2
-                color: enableRecordingButton.checked ? "#440000" : "#333333"
-                border.color: enableRecordingButton.checked ? "#FF0000" : "#555555"
+                color: enableRecordingButton.checked ? "#440000" : Theme.separator
+                border.color: enableRecordingButton.checked ? "#FF0000" : Theme.borderStrong
                 border.width: 1
             }
 

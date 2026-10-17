@@ -41,8 +41,8 @@ AnimatedDialog {
     }
 
     background: Rectangle {
-        color: "#222"
-        border.color: "#444"
+        color: Theme.surfaceInset
+        border.color: Theme.borderMedium
         radius: 10
     }
 

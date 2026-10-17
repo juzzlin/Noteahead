@@ -33,8 +33,8 @@ EffectDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -77,7 +77,7 @@ EffectDialog {
 
             Label {
                 text: qsTr("A short, dense space to glue a mix and take the dryness off, rather than a tail to be heard. Use it on a send, or low on an insert.")
-                color: "#aaa"
+                color: Theme.textSecondary
                 font.pixelSize: 12
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true

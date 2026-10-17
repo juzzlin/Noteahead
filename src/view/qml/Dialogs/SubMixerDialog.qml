@@ -35,8 +35,8 @@ AnimatedDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -81,9 +81,9 @@ AnimatedDialog {
                 required property int index
                 width: memberListView.width
                 height: 60
-                color: (memberListView.hoveredIndex === index && root.activeFocus) ? themeService.accentColor : "#333"
+                color: (memberListView.hoveredIndex === index && root.activeFocus) ? themeService.accentColor : Theme.surfacePanel
                 radius: 5
-                border.color: "#555"
+                border.color: Theme.borderStrong
 
                 MouseArea {
                     anchors.fill: parent
@@ -129,7 +129,7 @@ AnimatedDialog {
 
                     Text {
                         text: modelData.owner >= 0 && !modelData.member ? qsTr("in Sub Mixer %1").arg(modelData.owner + 1) : (modelData.blocked ? qsTr("would create a loop") : "")
-                        color: "#aaa"
+                        color: Theme.textSecondary
                         font.pointSize: 11
                         font.italic: true
                         horizontalAlignment: Text.AlignRight
@@ -138,7 +138,7 @@ AnimatedDialog {
 
                     Text {
                         text: modelData.trackNames
-                        color: "#aaa"
+                        color: Theme.textSecondary
                         font.pointSize: 11
                         Layout.preferredWidth: 150
                         horizontalAlignment: Text.AlignRight
@@ -201,7 +201,7 @@ AnimatedDialog {
 
         Text {
             text: qsTr("Devices checked here are mixed as one group and no longer reach the master on their own. Effects on this Sub Mixer apply to the whole group. Their reverb sends keep working.")
-            color: "#aaa"
+            color: Theme.textSecondary
             font.italic: true
             font.pointSize: 11
             Layout.fillWidth: true

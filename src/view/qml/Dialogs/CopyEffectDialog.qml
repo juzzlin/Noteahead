@@ -39,8 +39,8 @@ AnimatedDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -67,7 +67,7 @@ AnimatedDialog {
 
         Label {
             text: qsTr("No effects to copy.")
-            color: "#aaa"
+            color: Theme.textSecondary
             font.pointSize: 12
             visible: root.effects.length === 0 || (root.effects.length === 1 && root.effects[0].slotIndex === root.slotIndex)
             Layout.alignment: Qt.AlignHCenter
@@ -87,9 +87,9 @@ AnimatedDialog {
                 height: 50
                 // The target slot itself is not a valid copy source.
                 visible: modelData.slotIndex !== root.slotIndex
-                color: (effectListView.hoveredIndex === index && root.activeFocus) ? themeService.accentColor : "#333"
+                color: (effectListView.hoveredIndex === index && root.activeFocus) ? themeService.accentColor : Theme.surfacePanel
                 radius: 5
-                border.color: "#555"
+                border.color: Theme.borderStrong
                 MouseArea {
                     anchors.fill: parent
                     hoverEnabled: true

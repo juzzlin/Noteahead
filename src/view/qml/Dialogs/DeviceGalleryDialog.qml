@@ -40,8 +40,8 @@ AnimatedDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -88,7 +88,7 @@ AnimatedDialog {
 
         Label {
             text: qsTr("Replacing %1 — insert effects, sends and mixer settings are kept.").arg(root.replacedDeviceTypeName)
-            color: "#aaa"
+            color: Theme.textSecondary
             font.pointSize: 12
             visible: root.replacedDeviceTypeName !== ""
             Layout.fillWidth: true
@@ -108,9 +108,9 @@ AnimatedDialog {
             delegate: Rectangle {
                 width: deviceListView.width
                 height: 50
-                color: (deviceListView.hoveredIndex === index && root.activeFocus) ? themeService.accentColor : "#333"
+                color: (deviceListView.hoveredIndex === index && root.activeFocus) ? themeService.accentColor : Theme.surfacePanel
                 radius: 5
-                border.color: "#555"
+                border.color: Theme.borderStrong
                 MouseArea {
                     id: mouseArea
                     anchors.fill: parent

@@ -14,13 +14,14 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 import QtQuick 2.15
+import Noteahead 1.0
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 2.15
 import ".."
 
 Rectangle {
     id: rootItem
-    color: "#222222"
+    color: Theme.surfaceInset
     RowLayout {
         anchors.fill: parent
         spacing: 2

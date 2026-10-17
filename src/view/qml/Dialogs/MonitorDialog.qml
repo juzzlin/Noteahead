@@ -40,8 +40,8 @@ EffectDialog {
     }
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -114,7 +114,7 @@ EffectDialog {
                     }
                 }
                 wrapMode: Text.WordWrap
-                color: "#aaaaaa"
+                color: Theme.textSecondary
                 font.pixelSize: 12
                 Layout.fillWidth: true
             }

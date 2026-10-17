@@ -61,7 +61,7 @@ ColumnLayout {
 
     Label {
         text: qsTr("Anything between slashes is read as literal phonemes: hello /w er l d/\nAn apostrophe marks the stressed syllable: A'merica")
-        color: "#999"
+        color: Theme.textTertiary
         font.pixelSize: 11
         wrapMode: Text.WordWrap
         Layout.fillWidth: true
@@ -78,7 +78,7 @@ ColumnLayout {
     // bad formant, and the two need completely different fixes.
     Rectangle {
         color: "#141414"
-        border.color: "#333"
+        border.color: Theme.borderSubtle
         radius: 2
         Layout.fillWidth: true
         Layout.preferredHeight: Math.max(60, phonemeLabel.implicitHeight + 16)
@@ -87,7 +87,7 @@ ColumnLayout {
             anchors.fill: parent
             anchors.margins: 8
             text: speechController.phrasePhonemes
-            color: "#ddd"
+            color: Theme.textBright
             font.family: "monospace"
             font.pixelSize: 12
             wrapMode: Text.WordWrap
@@ -100,7 +100,7 @@ ColumnLayout {
         text: speechController.triggerMode === 2
             ? qsTr("%1 line(s), %2 syllable(s)").arg(speechController.lineCount).arg(speechController.syllableCount)
             : qsTr("%1 syllable(s)").arg(speechController.syllableCount)
-        color: "#999"
+        color: Theme.textTertiary
         font.pixelSize: 11
     }
 

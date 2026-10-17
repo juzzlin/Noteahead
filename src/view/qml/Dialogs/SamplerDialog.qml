@@ -71,8 +71,8 @@ AnimatedDialog {
     }
 
     background: Rectangle {
-        color: "#222"
-        border.color: "#444"
+        color: Theme.surfaceInset
+        border.color: Theme.borderMedium
         radius: 10
     }
 
@@ -148,7 +148,7 @@ AnimatedDialog {
                 Rectangle {
                     Layout.preferredWidth: 1
                     Layout.fillHeight: true
-                    color: "#333"
+                    color: Theme.separator
                 }
 
                 SamplerDialog_PadSettings {
@@ -161,7 +161,7 @@ AnimatedDialog {
                 Rectangle {
                     Layout.preferredWidth: 1
                     Layout.fillHeight: true
-                    color: "#333"
+                    color: Theme.separator
                 }
 
                 SamplerDialog_PadAmpEg {
@@ -174,7 +174,7 @@ AnimatedDialog {
                 Rectangle {
                     Layout.preferredWidth: 1
                     Layout.fillHeight: true
-                    color: "#333"
+                    color: Theme.separator
                 }
 
                 SamplerDialog_Global {

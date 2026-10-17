@@ -33,8 +33,8 @@ EffectDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -174,7 +174,7 @@ EffectDialog {
                         // What the detector hears against the threshold: a side chain that never
                         // crosses the line is why a band does not move
                         text: qsTr("Detector") + " " + (root.detectorDb <= -100 ? "-inf" : root.detectorDb.toFixed(1)) + " dB"
-                        color: root.detectorDb > root.thresholdDb ? themeService.accentColor : "#aaa"
+                        color: root.detectorDb > root.thresholdDb ? themeService.accentColor : Theme.textSecondary
                         font.family: "Monospace"
                     }
                 }
@@ -230,8 +230,8 @@ EffectDialog {
                         function yOf(db: real): real {
                             return (1 - Math.max(0, Math.min(1, (db - floorDb) / -floorDb))) * height;
                         }
-                        color: "#111"
-                        border.color: "#333"
+                        color: Theme.surfaceSunken
+                        border.color: Theme.borderSubtle
                         Layout.preferredWidth: 14
                         Layout.fillHeight: true
                         Rectangle {

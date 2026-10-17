@@ -32,8 +32,8 @@ EffectDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -164,7 +164,7 @@ EffectDialog {
                     Label {
                         text: qsTr("Bias sets where the valve idles on its curve. Away from centre the two halves of the waveform are shaped differently, which is what generates the even harmonics a valve is wanted for.")
                         font.pixelSize: 11
-                        color: "#999"
+                        color: Theme.textTertiary
                         wrapMode: Text.WordWrap
                         Layout.fillWidth: true
                         // Wrapping text must not drive the column's width, or the dialog reflows.
@@ -184,8 +184,8 @@ EffectDialog {
                     Rectangle {
                         width: 30
                         height: 200
-                        color: "#111"
-                        border.color: "#333"
+                        color: Theme.surfaceSunken
+                        border.color: Theme.borderSubtle
                         Layout.alignment: Qt.AlignHCenter
 
                         Rectangle {
@@ -204,7 +204,7 @@ EffectDialog {
                                 Rectangle {
                                     width: parent.width
                                     height: 1
-                                    color: "#555"
+                                    color: Theme.separatorStrong
                                     opacity: 0.5
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     y: (index / 6) * parent.height

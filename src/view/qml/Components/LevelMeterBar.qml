@@ -39,7 +39,7 @@ Item {
         id: track
         anchors.fill: parent
         color: "#1a1a1a"
-        border.color: "#555"
+        border.color: Theme.borderStrong
         radius: 2
 
         Rectangle {
@@ -62,7 +62,7 @@ Item {
             anchors.bottom: parent.bottom
             anchors.margins: 1
             x: Math.max(1, Math.min(track.width - 3, (track.width - 2) * root.positionOf(root.peakDb)))
-            color: root.peakDb > -1 ? "#ff6060" : "#e0e0e0"
+            color: root.peakDb > -1 ? Theme.danger : "#e0e0e0"
             visible: root.peakDb > root.minimumDb
         }
 

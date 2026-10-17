@@ -34,8 +34,8 @@ EffectDialog {
     property bool clipped: false
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -93,7 +93,7 @@ EffectDialog {
             Label {
                 text: qsTr("The clip light comes on when the trim pushes the signal to full scale. Click the light to clear it.")
                 wrapMode: Text.WordWrap
-                color: "#aaaaaa"
+                color: Theme.textSecondary
                 font.pixelSize: 12
                 Layout.fillWidth: true
             }

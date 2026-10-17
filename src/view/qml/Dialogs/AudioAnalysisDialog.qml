@@ -117,7 +117,7 @@ AnimatedDialog {
         Label {
             Layout.fillWidth: true
             text: qsTr("Third-octave balance. Bars are B - A: above the line B has more, and that is the cut B needs to match A.")
-            color: "#aaaaaa"
+            color: Theme.textSecondary
             font.pixelSize: 11
             wrapMode: Text.Wrap
         }

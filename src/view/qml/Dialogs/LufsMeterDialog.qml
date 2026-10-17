@@ -32,8 +32,8 @@ EffectDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -108,7 +108,7 @@ EffectDialog {
                         }
                         Label {
                             text: modelData.window
-                            color: "#888"
+                            color: Theme.textMuted
                             font.pointSize: 8
                             Layout.alignment: Qt.AlignHCenter
                         }
@@ -116,8 +116,8 @@ EffectDialog {
                         Rectangle {
                             width: 50
                             height: 280
-                            color: "#111"
-                            border.color: "#333"
+                            color: Theme.surfaceSunken
+                            border.color: Theme.borderSubtle
                             Layout.alignment: Qt.AlignHCenter
 
                             // Scale tick marks and labels
@@ -128,12 +128,12 @@ EffectDialog {
                                         property real frac: root.lufsToFraction(modelData)
                                         width: parent.width
                                         height: 1
-                                        color: "#555"
+                                        color: Theme.separatorStrong
                                         opacity: 0.6
                                         y: (1.0 - frac) * (parent.height - 4) + 2
                                         Label {
                                             text: modelData === 0 ? "0" : modelData.toString()
-                                            color: "#777"
+                                            color: Theme.textFaint
                                             font.pointSize: 7
                                             anchors.right: parent.right
                                             anchors.rightMargin: 2
@@ -164,7 +164,7 @@ EffectDialog {
                         }
                         Label {
                             text: qsTr("LUFS")
-                            color: "#888"
+                            color: Theme.textMuted
                             font.pointSize: 8
                             Layout.alignment: Qt.AlignHCenter
                         }

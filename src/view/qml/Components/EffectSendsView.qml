@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 import QtQuick 2.15
+import Noteahead 1.0
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts 1.15
@@ -113,7 +114,7 @@ ColumnLayout {
 
     Label {
         text: qsTr("Nothing to send to yet: add an effect to the master send rack first.")
-        color: "#aaa"
+        color: Theme.textSecondary
         font.italic: true
         font.pointSize: 11
         wrapMode: Text.WordWrap

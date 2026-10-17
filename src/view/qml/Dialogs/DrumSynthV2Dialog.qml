@@ -41,8 +41,8 @@ AnimatedDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -138,7 +138,7 @@ AnimatedDialog {
                 Rectangle {
                     Layout.preferredWidth: 1
                     Layout.fillHeight: true
-                    color: "#333"
+                    color: Theme.separator
                 }
 
                 // Two columns rather than one long row: the controls then stand beside the pads in
@@ -278,7 +278,7 @@ AnimatedDialog {
                 Rectangle {
                     Layout.preferredWidth: 1
                     Layout.fillHeight: true
-                    color: "#333"
+                    color: Theme.separator
                 }
 
                 DrumPadDialog_AmpEg {
@@ -292,7 +292,7 @@ AnimatedDialog {
                 Rectangle {
                     Layout.preferredWidth: 1
                     Layout.fillHeight: true
-                    color: "#333"
+                    color: Theme.separator
                 }
 
                 // Last of the columns, as the Sampler puts its own global section last.

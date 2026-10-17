@@ -51,7 +51,7 @@ Item {
         anchors.bottom: channelLabel.top
         anchors.bottomMargin: 2
         color: "#1a1a1a"
-        border.color: "#555"
+        border.color: Theme.borderStrong
         radius: 2
 
         Rectangle {
@@ -75,7 +75,7 @@ Item {
             anchors.margins: 1
             // Measured from the bottom like the bar, so both read against the same scale.
             y: Math.max(1, Math.min(track.height - 3, (track.height - 2) * (1.0 - root.positionOf(root.peakDb))))
-            color: root.peakDb > -1 ? "#ff6060" : "#e0e0e0"
+            color: root.peakDb > -1 ? Theme.danger : "#e0e0e0"
             visible: root.peakDb > root.minimumDb
         }
 
@@ -96,7 +96,7 @@ Item {
         anchors.bottom: parent.bottom
         // Not translated: L and R are what every mixer in the world calls them.
         text: root.label
-        color: "#999"
+        color: Theme.textTertiary
         font.pointSize: 8
     }
 

@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 import QtQuick 2.15
+import Noteahead 1.0
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts 1.15
@@ -22,7 +23,7 @@ import ".."
 Rectangle {
     id: rootItem
     color: "#222222"
-    border.color: "#444444"
+    border.color: Theme.borderMedium
     border.width: 1
 
     property var waveformData: []
@@ -279,7 +280,7 @@ Rectangle {
         text: rootItem.placeholderText
         // The thing you see in an empty view, so it carries the weight the clock that replaces it does.
         // Grey rather than accented: it is a hint about what to do, not a value being reported.
-        color: "#888"
+        color: Theme.textMuted
         font.pixelSize: Constants.waveViewOverlayFontSize
         font.bold: true
         visible: text !== "" && (!rootItem.waveformData || rootItem.waveformData.length === 0)
@@ -299,7 +300,7 @@ Rectangle {
             const bpm = Math.round(60000 / ms);
             return Math.round(ms) + " ms \u00b7 " + qsTr("max %1 BPM").arg(bpm);
         }
-        color: "#aaa"
+        color: Theme.textSecondary
         font.pixelSize: 10
         visible: rootItem.audibleLength > 0
     }

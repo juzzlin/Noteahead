@@ -39,8 +39,8 @@ AnimatedDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -87,9 +87,9 @@ AnimatedDialog {
             delegate: Rectangle {
                 width: deviceListView.width
                 height: 60
-                color: (deviceListView.hoveredIndex === index && root.activeFocus) ? themeService.accentColor : "#333"
+                color: (deviceListView.hoveredIndex === index && root.activeFocus) ? themeService.accentColor : Theme.surfacePanel
                 radius: 5
-                border.color: "#555"
+                border.color: Theme.borderStrong
                 readonly property string deviceType: {
                     deviceRackController.revision;
                     return deviceRackController.deviceType(index);
@@ -189,7 +189,7 @@ AnimatedDialog {
 
                     Text {
                         text: usageSummary
-                        color: "#aaa"
+                        color: Theme.textSecondary
                         font.pointSize: 11
                         // Shares the slack with the name in proportion to their lengths, so a long
                         // list of tracks is not cut to a fixed stub while the name has room to spare
@@ -238,7 +238,7 @@ AnimatedDialog {
                         text: deviceLoad.toFixed(1) + " %"
                         // Amber past a third of the budget, red past two thirds: one device eating
                         // that much of a callback is what tips a busy song over.
-                        color: deviceLoad > 66 ? "#ff6060" : (deviceLoad > 33 ? "#d0a040" : "#aaa")
+                        color: deviceLoad > 66 ? Theme.danger : (deviceLoad > 33 ? "#d0a040" : Theme.textSecondary)
                         font.pointSize: 11
                         Layout.preferredWidth: 55
                         horizontalAlignment: Text.AlignRight
@@ -316,7 +316,7 @@ AnimatedDialog {
                     return deviceRackController.totalPeakLoad();
                 }
                 text: qsTr("DSP load: %1 % (peak %2 %)").arg(load.toFixed(1)).arg(peak.toFixed(1))
-                color: peak > 90 ? "#ff6060" : "#aaa"
+                color: peak > 90 ? Theme.danger : Theme.textSecondary
                 font.pointSize: 11
             }
 
@@ -326,7 +326,7 @@ AnimatedDialog {
                     return deviceRackController.overrunCount();
                 }
                 text: qsTr("Dropouts: %1").arg(dropouts)
-                color: dropouts > 0 ? "#ff6060" : "#aaa"
+                color: dropouts > 0 ? Theme.danger : Theme.textSecondary
                 font.pointSize: 11
             }
 
@@ -337,7 +337,7 @@ AnimatedDialog {
 
         Text {
             text: qsTr("To assign an internal device to a track, select its name from the port list in the Track Settings dialog, or click the faded device icon in the track header.")
-            color: "#aaa"
+            color: Theme.textSecondary
             font.italic: true
             font.pointSize: 11
             Layout.fillWidth: true

@@ -31,8 +31,8 @@ EffectDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -64,7 +64,7 @@ EffectDialog {
             text: comboBoxColumn.label
             font.bold: true
             font.pixelSize: 11
-            color: "#aaa"
+            color: Theme.textSecondary
         }
         ComboBox {
             id: comboBox
@@ -246,7 +246,7 @@ EffectDialog {
                 text: qsTr("Rate Divider divides the Rate by anything from 1 to %1, in both modes: a tempo-locked sweep can be stretched over several bars, and a free-running one over minutes.").arg(effectRackController.phaserMaxRateDivider())
                 wrapMode: Text.WordWrap
                 font.pixelSize: 11
-                color: "#aaa"
+                color: Theme.textSecondary
                 Layout.fillWidth: true
             }
 
@@ -254,7 +254,7 @@ EffectDialog {
                 text: qsTr("The notches are deepest at 50 % Mix, where the dry and the swept signal meet at equal amounts. Feedback sharpens the peaks between them, and its two polarities cancel at different frequencies.")
                 wrapMode: Text.WordWrap
                 font.pixelSize: 11
-                color: "#aaa"
+                color: Theme.textSecondary
                 Layout.fillWidth: true
                 Layout.topMargin: 10
             }

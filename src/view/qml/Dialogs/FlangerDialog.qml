@@ -30,8 +30,8 @@ EffectDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -47,7 +47,7 @@ EffectDialog {
             text: comboBoxColumn.label
             font.bold: true
             font.pixelSize: 11
-            color: "#aaa"
+            color: Theme.textSecondary
         }
         ComboBox {
             id: comboBox
@@ -71,7 +71,7 @@ EffectDialog {
 
             Label {
                 text: qsTr("A swept short delay summed back with the dry signal. The fixed time offset combs at harmonically spaced notches and sweeping it drags the whole series along, which the ear follows as one moving resonance -- the jet whoosh a phaser cannot do, because its notches are not harmonically related.")
-                color: "#aaa"
+                color: Theme.textSecondary
                 font.pixelSize: 12
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true

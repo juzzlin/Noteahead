@@ -45,7 +45,7 @@ ColumnLayout {
         }
         Label {
             text: speechController.triggerMode === 0 ? qsTr("A note speaks the whole phrase.") : (speechController.triggerMode === 1 ? qsTr("A note speaks the next syllable.") : qsTr("A note speaks the next line. A full stop, ! or ? starts a new one."))
-            color: "#999"
+            color: Theme.textTertiary
             font.pixelSize: 11
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
@@ -63,7 +63,7 @@ ColumnLayout {
         }
         Label {
             text: speechController.syncMode === 0 ? qsTr("Natural durations, set by Rate.") : (speechController.syncMode === 1 ? (speechController.triggerMode === 2 ? qsTr("Each line fills the note that speaks it.") : qsTr("The phrase is stretched to span Length.")) : qsTr("Each syllable takes one Division."))
-            color: "#999"
+            color: Theme.textTertiary
             font.pixelSize: 11
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
@@ -94,7 +94,7 @@ ColumnLayout {
 
     Label {
         text: qsTr("Hold a note on one column and play the melody on another: the second column moves the pitch without starting the next line.")
-        color: "#999"
+        color: Theme.textTertiary
         font.pixelSize: 11
         wrapMode: Text.WordWrap
         Layout.fillWidth: true

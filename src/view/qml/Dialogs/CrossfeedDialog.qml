@@ -30,8 +30,8 @@ EffectDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -49,7 +49,7 @@ EffectDialog {
 
             Label {
                 text: qsTr("Gives each ear a little of the other channel, late and dark, the way a pair of speakers does. For headphones: it pulls a hard-panned part out of the middle of the head. Heard only, never rendered.")
-                color: "#aaa"
+                color: Theme.textSecondary
                 font.pixelSize: 12
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true

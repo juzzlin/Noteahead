@@ -59,7 +59,7 @@ ColumnLayout {
     Label {
         text: qsTr("On, the pitch follows the note column and Glide slurs between notes. Off, it stays at a fixed C2. Tuning offsets either by up to two octaves.")
         font.pixelSize: 11
-        color: "#999"
+        color: Theme.textTertiary
         wrapMode: Text.WordWrap
         Layout.fillWidth: true
         // Wrapping text must not push the column wider than its siblings, or the whole dialog

@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 import QtQuick 2.15
+import Noteahead 1.0
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts 1.15
@@ -118,7 +119,7 @@ AnimatedDialog {
                 delegate: Rectangle {
                     height: 32
                     width: listView.width
-                    color: index % 2 === 0 ? "#222222" : "#444444"
+                    color: index % 2 === 0 ? Theme.surfaceInset : "#444444"
 
                     RowLayout {
                         anchors.fill: parent

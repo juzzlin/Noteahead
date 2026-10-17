@@ -61,7 +61,7 @@ Item {
                 text: root.formatDb(root.peakDb)
                 // Red once the peak is within a dB of full scale, which is the same threshold the
                 // bar itself turns at.
-                color: root.peakDb > -1 ? "#ff6060" : (root.hasReading ? "white" : "#666")
+                color: root.peakDb > -1 ? Theme.danger : (root.hasReading ? "white" : Theme.textDim)
                 font.pointSize: 12
                 font.bold: true
                 horizontalAlignment: Text.AlignRight
@@ -71,7 +71,7 @@ Item {
             Text {
                 // Not translated: a unit is a unit in every localised DAW there is.
                 text: "dBFS"
-                color: "#888"
+                color: Theme.textMuted
                 font.pointSize: 8
             }
         }

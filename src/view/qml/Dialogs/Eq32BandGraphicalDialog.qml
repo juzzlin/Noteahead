@@ -33,8 +33,8 @@ EffectDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -155,7 +155,7 @@ EffectDialog {
             // A tenth of a decibel is as fine as a slider this short can be read
             text: Math.abs(band.gainDb) < 0.05 ? "0" : (band.gainDb > 0 ? "+" : "") + band.gainDb.toFixed(1)
             font.pixelSize: 9
-            color: Math.abs(band.gainDb) < 0.05 ? "#aaa" : themeService.accentColor
+            color: Math.abs(band.gainDb) < 0.05 ? Theme.textSecondary : themeService.accentColor
             horizontalAlignment: Text.AlignHCenter
             // Every child fills, or the column cannot grow past its narrowest width and the row
             // leaves the right end of the dialog empty
@@ -205,7 +205,7 @@ EffectDialog {
             // "1.25 kHz" does not fit under a slider this narrow; "1.25k" does
             text: effectRackController.eq32BandGraphicalBandLabel(band.bandIndex).replace(" kHz", "k").replace(" Hz", "")
             font.pixelSize: 9
-            color: "#aaa"
+            color: Theme.textSecondary
             horizontalAlignment: Text.AlignHCenter
             Layout.fillWidth: true
         }

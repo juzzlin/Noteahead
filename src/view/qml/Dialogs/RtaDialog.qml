@@ -34,8 +34,8 @@ EffectDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -99,7 +99,7 @@ EffectDialog {
             // Band count
             ColumnLayout {
                 spacing: 2
-                Label { text: qsTr("Bands"); color: "#aaaaaa"; font.pixelSize: 11 }
+                Label { text: qsTr("Bands"); color: Theme.textSecondary; font.pixelSize: 11 }
                 ComboBox {
                     id: bandCountCombo
                     model: ["32", "64", "96", "128"]
@@ -115,7 +115,7 @@ EffectDialog {
             // dB range
             ColumnLayout {
                 spacing: 2
-                Label { text: qsTr("dB Range"); color: "#aaaaaa"; font.pixelSize: 11 }
+                Label { text: qsTr("dB Range"); color: Theme.textSecondary; font.pixelSize: 11 }
                 ComboBox {
                     id: dbRangeCombo
                     model: ["-30 dB", "-45 dB", "-60 dB", "-80 dB"]
@@ -133,7 +133,7 @@ EffectDialog {
             // Speed
             ColumnLayout {
                 spacing: 2
-                Label { text: qsTr("Speed"); color: "#aaaaaa"; font.pixelSize: 11 }
+                Label { text: qsTr("Speed"); color: Theme.textSecondary; font.pixelSize: 11 }
                 ComboBox {
                     id: speedCombo
                     model: [qsTr("Fast"), qsTr("Normal"), qsTr("Slow")]
@@ -149,7 +149,7 @@ EffectDialog {
             // FFT Rate
             ColumnLayout {
                 spacing: 2
-                Label { text: qsTr("FFT Rate"); color: "#aaaaaa"; font.pixelSize: 11 }
+                Label { text: qsTr("FFT Rate"); color: Theme.textSecondary; font.pixelSize: 11 }
                 ComboBox {
                     id: fftRateCombo
                     model: [qsTr("Fast"), qsTr("Normal"), qsTr("Slow")]
@@ -165,7 +165,7 @@ EffectDialog {
             // FPS
             ColumnLayout {
                 spacing: 2
-                Label { text: qsTr("FPS"); color: "#aaaaaa"; font.pixelSize: 11 }
+                Label { text: qsTr("FPS"); color: Theme.textSecondary; font.pixelSize: 11 }
                 ComboBox {
                     id: fpsCombo
                     model: ["15", "30", "60"]
@@ -178,7 +178,7 @@ EffectDialog {
             // Pink noise toggle
             ColumnLayout {
                 spacing: 2
-                Label { text: qsTr("Pink Noise"); color: "#aaaaaa"; font.pixelSize: 11 }
+                Label { text: qsTr("Pink Noise"); color: Theme.textSecondary; font.pixelSize: 11 }
                 CheckBox {
                     id: pinkNoiseCheck
                     checked: renderer.showPinkNoise
@@ -195,7 +195,7 @@ EffectDialog {
             ColumnLayout {
                 spacing: 2
                 enabled: renderer.showPinkNoise
-                Label { text: qsTr("Pink Level"); color: "#aaaaaa"; font.pixelSize: 11 }
+                Label { text: qsTr("Pink Level"); color: Theme.textSecondary; font.pixelSize: 11 }
                 Knob {
                     id: pinkLevelKnob
                     label: ""

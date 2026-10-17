@@ -73,8 +73,8 @@ AnimatedDialog {
     }
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -177,9 +177,9 @@ AnimatedDialog {
             delegate: Rectangle {
                 width: effectListView.width
                 height: 60
-                color: (effectListView.hoveredIndex === index && root.activeFocus) ? themeService.accentColor : "#333"
+                color: (effectListView.hoveredIndex === index && root.activeFocus) ? themeService.accentColor : Theme.surfacePanel
                 radius: 5
-                border.color: "#555"
+                border.color: Theme.borderStrong
                 readonly property string effectType: {
                     effectRackController.revision;
                     return effectRackController.effectType(index);
@@ -330,7 +330,7 @@ AnimatedDialog {
             text: root.sendsAvailable && tabBar.currentIndex === 1
                 ? qsTr("How much of this goes to each global send effect. Click a send's name to open it.")
                 : qsTr("Insert effects are processed in order. Dry/Wet mix is handled by each effect.")
-            color: "#aaa"
+            color: Theme.textSecondary
             font.italic: true
             font.pointSize: 11
             Layout.fillWidth: true

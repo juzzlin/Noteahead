@@ -54,7 +54,7 @@ ColumnLayout {
 
     Label {
         text: qsTr("Press and hold pad to play, release to stop. Right-click to load, change or clear. Assignments are saved with the song project. To use the sampler, select '%1' as the port in Track Settings.").arg(applicationService.samplerDeviceName)
-        color: "#aaa"
+        color: Theme.textSecondary
         font.pointSize: 10
         Layout.fillWidth: true
         wrapMode: Text.Wrap

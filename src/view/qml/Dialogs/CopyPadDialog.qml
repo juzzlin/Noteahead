@@ -40,8 +40,8 @@ AnimatedDialog {
     Universal.accent: themeService.accentColor
 
     background: Rectangle {
-        color: "#1e1e1e"
-        border.color: "#333"
+        color: Theme.surfaceDialog
+        border.color: Theme.borderSubtle
         radius: 2
     }
 
@@ -68,7 +68,7 @@ AnimatedDialog {
 
         Label {
             text: qsTr("No pads to copy.")
-            color: "#aaa"
+            color: Theme.textSecondary
             font.pointSize: 12
             visible: root.pads.length === 0 || (root.pads.length === 1 && root.pads[0].padIndex === root.padIndex)
             Layout.alignment: Qt.AlignHCenter
@@ -88,9 +88,9 @@ AnimatedDialog {
                 height: 50
                 // The target pad itself is not a valid copy source.
                 visible: modelData.padIndex !== root.padIndex
-                color: (padListView.hoveredIndex === index && root.activeFocus) ? themeService.accentColor : "#333"
+                color: (padListView.hoveredIndex === index && root.activeFocus) ? themeService.accentColor : Theme.surfacePanel
                 radius: 5
-                border.color: "#555"
+                border.color: Theme.borderStrong
                 MouseArea {
                     anchors.fill: parent
                     hoverEnabled: true

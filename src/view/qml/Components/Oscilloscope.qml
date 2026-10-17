@@ -149,7 +149,7 @@ Item {
                 // What the lock is following, so it is obvious when there is no pitch to lock to
                 // and the scope has fallen back to its fixed window.
                 text: root.lockedFrequency > 0 ? qsTr("%1 Hz").arg(Math.round(root.lockedFrequency)) : qsTr("free")
-                color: "#888"
+                color: Theme.textMuted
                 font.pixelSize: 11
                 font.family: "Monospace"
                 Layout.fillWidth: true
