@@ -77,8 +77,7 @@ A short synth demo:
 
 Full songs with Noteahead's built-in synths and drums only:
 
-- [Arctic Music Project - Halla Once More (SoundCloud)](https://soundcloud.com/arctic-music-project/halla-once-more)
-- [Arctic Music Project - Fairytale (SoundCloud)](https://soundcloud.com/arctic-music-project/fairytale)
+- [Arctic Music Project - Halla (SoundCloud)](https://soundcloud.com/arctic-music-project/halla-2026)
 - [Arctic Music Project - Massive (Spotify)](https://open.spotify.com/track/2whivQNa9qIfSSLSuYgUFf)
 
 Albums:
