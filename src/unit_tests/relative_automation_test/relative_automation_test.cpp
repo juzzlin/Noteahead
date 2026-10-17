@@ -348,4 +348,4 @@ void RelativeAutomationTest::test_notifyParameterAutomation_relative_shouldNotRe
 
 } // namespace noteahead
 
-QTEST_MAIN(noteahead::RelativeAutomationTest)
+QTEST_GUILESS_MAIN(noteahead::RelativeAutomationTest)
