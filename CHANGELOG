@@ -5,99 +5,67 @@ Release date:
 
 New features:
 
-* JU Synth: a six-voice polysynth after the Juno-60, with its chorus I, II and I+II
-  - A 4-pole ladder filter that self-oscillates, and twelve classic presets
-  - Pan Spread across the voices, off by default
+Bug fixes:
 
-* LFO: a device with four LFOs, each moving any device or effect parameter
-  - Free, synced or one-shot, with a rate divider; notes on its track can restart it
-  - Bipolar Depth reads as the swing either way of the setting, in % of the knob's travel
+Other:
+
+10.0.0
+=====
+
+Release date:
+
+Sat, 17 Oct 2026 12:28:15 +0300
+
+New features:
+
+* JU Synth: a six-voice polysynth after the Juno-60
+  - Self-oscillating ladder filter, Chorus I, II and I+II, and twelve presets
 
 * FM Drums: a drum machine with a four-operator FM voice on every pad
-  - Pitch envelope and filtered noise per pad, on the same notes as Drum Synth V2
-  - Default, Analog and Percussion kits, and any kit's drum loadable onto any pad
+  - Default, Analog and Percussion kits, on the same notes as Drum Synth V2
+
+* LFO: a device with four LFOs, each moving any device or effect parameter
+  - Free, synced or one-shot, with a rate divider and restart on note
+
+* Parameter automation
+  - Automate any device or effect parameter in its own units (Hz, ms, dB)
+  - Relative mode scales the knob's own setting, like Expression
+
+* New effects: EQ 32-Band Graphical, Dynamic EQ, Ambience and Phase Scope
+
+* Synth
+  - LPF and HPF for the Multi Engine, and the Delay's filters as modulation targets
+  - A built-in Chorus beside the Delay, off by default
+
+* Synth, Wavetable Synth and FM Synth
+  - LFO Free Run, Rate Divider and a phase LED
+  - Phase Randomness: 0% starts every note of a unison stack equally loud
+
+* Wavetable Synth: factory and user presets, and Velocity Sensitivity
+
+* Octave, -2 to +2, on every instrument but the Sampler and the drum machines
+
+* User presets for Reverb, Endless Reverb, Compressor, Multiband Compressor
+  and Early Reflections
 
 * Reverb and Endless Reverb: Solo, to hear the tail on its own
 
-* Wavetable Synth: Velocity Sensitivity in the Amp Envelope, 100% by default as before
-
-* Synth: LPF and HPF for the Multi Engine, like the oscillators have
-  - Reachable from the Mod EG, both LFOs, parameter automation and the LFO device
-
-* Synth: a built-in Chorus beside the Delay, off by default
-  - On in the pad, pluck, clav, organ and bell presets
-
-* Synth: the Delay's LPF and HPF as targets
-  - For both LFOs, parameter automation and the LFO device
-
-* Octave, -2 to +2, in the Global section of every instrument but the Sampler and the drum machines
-  - Saved with the project, not in presets
-
-* An effect added to a send starts with Mix at 100%, and keeps its Mix across presets
-
-* Send knobs are twice as wide
-
-* Cut, copy and paste a column or a track in all patterns at once, in one undo step
-
-* Parameter automation
-  - Automate a device's or an effect's parameters directly, in their own units (Hz, ms, dB)
-  - Relative mode scales the knob's own setting, like Expression
-  - Sampler pads and drum machine drums, each listed as a target of its own
-  - Every instrument offers its filter and the controls that define its sound
-  - Every device's Fader, Gain and Pan; a relative Fader works exactly like Expression
-
-* Synth, Wavetable Synth and FM Synth: LFO Free Run, off by default
-  - One LFO for all the voices, running on regardless of the notes
-
-* Phase LEDs on the LFOs of the synths, Speech and the LFO device
-
-* Synth, Wavetable Synth and FM Synth
-  - Phase Randomness: 0% starts every note of a unison stack equally loud
-  - LFO Rate Divider, for sweeps over many bars or minutes
+* Cut, copy and paste a column or a track in all patterns at once
 
 * Assign a device to a track from its header icon or its right-click menu
 
-* Wavetable Synth
-  - Factory presets, one or two for each wavetable
-  - Save and delete presets of your own, as on the other synths
-
-* EQ 32-Band Graphical
-  - A third-octave mastering EQ whose curve passes through its sliders
-  - Linear Phase mode; a render takes the master's latency back out
-
-* Phase Scope
-  - Polarity, channels, width, bass mono, sample-exact delay, gain and DC block
-  - Scope: this signal against a reference, frozen on every hit, with correlation
-
-* Ambience
-  - A short, dense space to glue a mix: diffusion, an early field and a modulated tail
-  - Factory presets: Booth, Drum Room, Live Room, Mix Glue, Vocal Air, Wide Ambience
-
-* Dynamic EQ
-  - One Bell, Shelf or Flat band that cuts or boosts only while its detector is over the threshold
-  - Detects the band only or the full range, of this signal or a side chain, with a level meter
-
-* Reverb, Compressor, Endless Reverb, Multiband Compressor and Early Reflections
-  - Save and delete presets of your own, as on the other effects
+* An effect added to a send starts with Mix at 100%, and send knobs are wider
 
 Bug fixes:
 
-* The rack and the effects gallery name the Phase Scope as two words
-* Relative parameter automation leaves the knob where it was set; Absolute still moves it
-* Parameter automation resets on Stop and on a jump in the play order
-* Wavetable Synth and FM Synth: the dialog follows Octave, automation and incoming MIDI CC
-* Parameter automation editor: switching to Relative no longer narrows the dropdowns
-* Effect and device knobs follow parameter automation while their dialog is open, at a screen's pace
-* Solo on a send effect plays its return alone instead of doing nothing
-* Drum Synth V2: a drum's Inserts dialog opens on its rack instead of an empty one
-* Filter knobs read out the frequency the filter actually runs at
-* A high-pass knob reads Bypass at the bottom of its travel, not the top
-* Sampler: pad Attack and Hold rise smoothly from zero instead of jumping to 5 ms; saved pads keep their times
-* All-Pass Filter: the rack shows the frequency in hertz, not the knob position
+* Solo on a send effect plays its return alone
 * Wavetable Synth and FM Synth: Pan Spread works in Poly mode
-* Device knobs stay on their setting while the LFO device moves them
-
-Other:
+* Wavetable Synth and FM Synth: the dialog follows incoming MIDI CC
+* Drum Synth V2: a drum's Inserts dialog opens on its rack
+* Filter knobs read out the frequency the filter actually runs at
+* A high-pass knob reads Bypass at the bottom of its travel
+* Sampler: pad Attack and Hold rise smoothly from zero
+* All-Pass Filter: the rack shows the frequency in hertz
 
 9.0.0
 =====

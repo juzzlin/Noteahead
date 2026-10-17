@@ -18,6 +18,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts
 import ".."
+import "../Components"
 
 SectionBox {
     title: qsTr("Modulation")

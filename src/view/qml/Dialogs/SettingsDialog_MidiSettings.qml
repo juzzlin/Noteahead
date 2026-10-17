@@ -18,6 +18,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts
 import ".."
+import "../Components"
 
 SectionBox {
     // A width bound through anchors here fights the explicit width the owning ScrollView assigns
