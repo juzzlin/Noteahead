@@ -3934,6 +3934,14 @@
         <translation>LFO 1</translation>
     </message>
     <message>
+        <source>Free Run</source>
+        <translation>自由运行</translation>
+    </message>
+    <message>
+        <source>One LFO for all the voices that runs on regardless of the notes. Its Delay and Fade restart on the first note after silence. Off, every note restarts its own LFO.</source>
+        <translation>所有声部共用一个 LFO，不受音符影响持续运行。其延迟和 Fade 在静音后的第一个音符时重新开始。关闭时，每个音符都会重新启动自己的 LFO。</translation>
+    </message>
+    <message>
         <source>Rate</source>
         <translation>速率</translation>
     </message>
@@ -3963,6 +3971,14 @@
     <message>
         <source>LFO 2</source>
         <translation>LFO 2</translation>
+    </message>
+    <message>
+        <source>Free Run</source>
+        <translation>自由运行</translation>
+    </message>
+    <message>
+        <source>One LFO for all the voices that runs on regardless of the notes. Its Delay and Fade restart on the first note after silence. Off, every note restarts its own LFO.</source>
+        <translation>所有声部共用一个 LFO，不受音符影响持续运行。其延迟和 Fade 在静音后的第一个音符时重新开始。关闭时，每个音符都会重新启动自己的 LFO。</translation>
     </message>
     <message>
         <source>Rate</source>
@@ -11166,6 +11182,14 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <translation>LFO 1</translation>
     </message>
     <message>
+        <source>Free Run</source>
+        <translation>自由运行</translation>
+    </message>
+    <message>
+        <source>One LFO for all the voices that runs on regardless of the notes. Its Delay and Fade restart on the first note after silence. Off, every note restarts its own LFO.</source>
+        <translation>所有声部共用一个 LFO，不受音符影响持续运行。其延迟和 Fade 在静音后的第一个音符时重新开始。关闭时，每个音符都会重新启动自己的 LFO。</translation>
+    </message>
+    <message>
         <source>Rate</source>
         <translation>速率</translation>
     </message>
@@ -11195,6 +11219,14 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>LFO 2</source>
         <translation>LFO 2</translation>
+    </message>
+    <message>
+        <source>Free Run</source>
+        <translation>自由运行</translation>
+    </message>
+    <message>
+        <source>One LFO for all the voices that runs on regardless of the notes. Its Delay and Fade restart on the first note after silence. Off, every note restarts its own LFO.</source>
+        <translation>所有声部共用一个 LFO，不受音符影响持续运行。其延迟和 Fade 在静音后的第一个音符时重新开始。关闭时，每个音符都会重新启动自己的 LFO。</translation>
     </message>
     <message>
         <source>Rate</source>
@@ -12241,6 +12273,14 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <translation>LFO 1</translation>
     </message>
     <message>
+        <source>Free Run</source>
+        <translation>自由运行</translation>
+    </message>
+    <message>
+        <source>One LFO for all the voices that runs on regardless of the notes. Its Delay and Fade restart on the first note after silence. Off, every note restarts its own LFO.</source>
+        <translation>所有声部共用一个 LFO，不受音符影响持续运行。其延迟和 Fade 在静音后的第一个音符时重新开始。关闭时，每个音符都会重新启动自己的 LFO。</translation>
+    </message>
+    <message>
         <source>Rate</source>
         <translation>速率</translation>
     </message>
@@ -12270,6 +12310,14 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>LFO 2</source>
         <translation>LFO 2</translation>
+    </message>
+    <message>
+        <source>Free Run</source>
+        <translation>自由运行</translation>
+    </message>
+    <message>
+        <source>One LFO for all the voices that runs on regardless of the notes. Its Delay and Fade restart on the first note after silence. Off, every note restarts its own LFO.</source>
+        <translation>所有声部共用一个 LFO，不受音符影响持续运行。其延迟和 Fade 在静音后的第一个音符时重新开始。关闭时，每个音符都会重新启动自己的 LFO。</translation>
     </message>
     <message>
         <source>Rate</source>

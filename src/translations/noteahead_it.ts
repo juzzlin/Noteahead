@@ -3935,6 +3935,14 @@
         <translation>LFO 1</translation>
     </message>
     <message>
+        <source>Free Run</source>
+        <translation>Libero</translation>
+    </message>
+    <message>
+        <source>One LFO for all the voices that runs on regardless of the notes. Its Delay and Fade restart on the first note after silence. Off, every note restarts its own LFO.</source>
+        <translation>Un LFO per tutte le voci che continua a girare indipendentemente dalle note. Delay e Fade ripartono alla prima nota dopo il silenzio. Disattivato, ogni nota fa ripartire il proprio LFO.</translation>
+    </message>
+    <message>
         <source>Rate</source>
         <translation>Velocità</translation>
     </message>
@@ -3964,6 +3972,14 @@
     <message>
         <source>LFO 2</source>
         <translation>LFO 2</translation>
+    </message>
+    <message>
+        <source>Free Run</source>
+        <translation>Libero</translation>
+    </message>
+    <message>
+        <source>One LFO for all the voices that runs on regardless of the notes. Its Delay and Fade restart on the first note after silence. Off, every note restarts its own LFO.</source>
+        <translation>Un LFO per tutte le voci che continua a girare indipendentemente dalle note. Delay e Fade ripartono alla prima nota dopo il silenzio. Disattivato, ogni nota fa ripartire il proprio LFO.</translation>
     </message>
     <message>
         <source>Rate</source>
@@ -11168,6 +11184,14 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
         <translation>LFO 1</translation>
     </message>
     <message>
+        <source>Free Run</source>
+        <translation>Libero</translation>
+    </message>
+    <message>
+        <source>One LFO for all the voices that runs on regardless of the notes. Its Delay and Fade restart on the first note after silence. Off, every note restarts its own LFO.</source>
+        <translation>Un LFO per tutte le voci che continua a girare indipendentemente dalle note. Delay e Fade ripartono alla prima nota dopo il silenzio. Disattivato, ogni nota fa ripartire il proprio LFO.</translation>
+    </message>
+    <message>
         <source>Rate</source>
         <translation>Velocità</translation>
     </message>
@@ -11197,6 +11221,14 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
     <message>
         <source>LFO 2</source>
         <translation>LFO 2</translation>
+    </message>
+    <message>
+        <source>Free Run</source>
+        <translation>Libero</translation>
+    </message>
+    <message>
+        <source>One LFO for all the voices that runs on regardless of the notes. Its Delay and Fade restart on the first note after silence. Off, every note restarts its own LFO.</source>
+        <translation>Un LFO per tutte le voci che continua a girare indipendentemente dalle note. Delay e Fade ripartono alla prima nota dopo il silenzio. Disattivato, ogni nota fa ripartire il proprio LFO.</translation>
     </message>
     <message>
         <source>Rate</source>
@@ -12243,6 +12275,14 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
         <translation>LFO 1</translation>
     </message>
     <message>
+        <source>Free Run</source>
+        <translation>Libero</translation>
+    </message>
+    <message>
+        <source>One LFO for all the voices that runs on regardless of the notes. Its Delay and Fade restart on the first note after silence. Off, every note restarts its own LFO.</source>
+        <translation>Un LFO per tutte le voci che continua a girare indipendentemente dalle note. Delay e Fade ripartono alla prima nota dopo il silenzio. Disattivato, ogni nota fa ripartire il proprio LFO.</translation>
+    </message>
+    <message>
         <source>Rate</source>
         <translation>Velocità</translation>
     </message>
@@ -12272,6 +12312,14 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
     <message>
         <source>LFO 2</source>
         <translation>LFO 2</translation>
+    </message>
+    <message>
+        <source>Free Run</source>
+        <translation>Libero</translation>
+    </message>
+    <message>
+        <source>One LFO for all the voices that runs on regardless of the notes. Its Delay and Fade restart on the first note after silence. Off, every note restarts its own LFO.</source>
+        <translation>Un LFO per tutte le voci che continua a girare indipendentemente dalle note. Delay e Fade ripartono alla prima nota dopo il silenzio. Disattivato, ogni nota fa ripartire il proprio LFO.</translation>
     </message>
     <message>
         <source>Rate</source>

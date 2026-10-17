@@ -3935,6 +3935,14 @@
         <translation>LFO 1</translation>
     </message>
     <message>
+        <source>Free Run</source>
+        <translation>Vapaa</translation>
+    </message>
+    <message>
+        <source>One LFO for all the voices that runs on regardless of the notes. Its Delay and Fade restart on the first note after silence. Off, every note restarts its own LFO.</source>
+        <translation>Yksi LFO kaikille äänille, joka käy nuoteista riippumatta. Sen Delay ja Fade alkavat alusta ensimmäisestä nuotista hiljaisuuden jälkeen. Pois päältä jokainen nuotti käynnistää oman LFO:nsa alusta.</translation>
+    </message>
+    <message>
         <source>Rate</source>
         <translation>Nopeus</translation>
     </message>
@@ -3964,6 +3972,14 @@
     <message>
         <source>LFO 2</source>
         <translation>LFO 2</translation>
+    </message>
+    <message>
+        <source>Free Run</source>
+        <translation>Vapaa</translation>
+    </message>
+    <message>
+        <source>One LFO for all the voices that runs on regardless of the notes. Its Delay and Fade restart on the first note after silence. Off, every note restarts its own LFO.</source>
+        <translation>Yksi LFO kaikille äänille, joka käy nuoteista riippumatta. Sen Delay ja Fade alkavat alusta ensimmäisestä nuotista hiljaisuuden jälkeen. Pois päältä jokainen nuotti käynnistää oman LFO:nsa alusta.</translation>
     </message>
     <message>
         <source>Rate</source>
@@ -11168,6 +11184,14 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <translation>LFO 1</translation>
     </message>
     <message>
+        <source>Free Run</source>
+        <translation>Vapaa</translation>
+    </message>
+    <message>
+        <source>One LFO for all the voices that runs on regardless of the notes. Its Delay and Fade restart on the first note after silence. Off, every note restarts its own LFO.</source>
+        <translation>Yksi LFO kaikille äänille, joka käy nuoteista riippumatta. Sen Delay ja Fade alkavat alusta ensimmäisestä nuotista hiljaisuuden jälkeen. Pois päältä jokainen nuotti käynnistää oman LFO:nsa alusta.</translation>
+    </message>
+    <message>
         <source>Rate</source>
         <translation>Nopeus</translation>
     </message>
@@ -11197,6 +11221,14 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     <message>
         <source>LFO 2</source>
         <translation>LFO 2</translation>
+    </message>
+    <message>
+        <source>Free Run</source>
+        <translation>Vapaa</translation>
+    </message>
+    <message>
+        <source>One LFO for all the voices that runs on regardless of the notes. Its Delay and Fade restart on the first note after silence. Off, every note restarts its own LFO.</source>
+        <translation>Yksi LFO kaikille äänille, joka käy nuoteista riippumatta. Sen Delay ja Fade alkavat alusta ensimmäisestä nuotista hiljaisuuden jälkeen. Pois päältä jokainen nuotti käynnistää oman LFO:nsa alusta.</translation>
     </message>
     <message>
         <source>Rate</source>
@@ -12243,6 +12275,14 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <translation>LFO 1</translation>
     </message>
     <message>
+        <source>Free Run</source>
+        <translation>Vapaa</translation>
+    </message>
+    <message>
+        <source>One LFO for all the voices that runs on regardless of the notes. Its Delay and Fade restart on the first note after silence. Off, every note restarts its own LFO.</source>
+        <translation>Yksi LFO kaikille äänille, joka käy nuoteista riippumatta. Sen Delay ja Fade alkavat alusta ensimmäisestä nuotista hiljaisuuden jälkeen. Pois päältä jokainen nuotti käynnistää oman LFO:nsa alusta.</translation>
+    </message>
+    <message>
         <source>Rate</source>
         <translation>Nopeus</translation>
     </message>
@@ -12272,6 +12312,14 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     <message>
         <source>LFO 2</source>
         <translation>LFO 2</translation>
+    </message>
+    <message>
+        <source>Free Run</source>
+        <translation>Vapaa</translation>
+    </message>
+    <message>
+        <source>One LFO for all the voices that runs on regardless of the notes. Its Delay and Fade restart on the first note after silence. Off, every note restarts its own LFO.</source>
+        <translation>Yksi LFO kaikille äänille, joka käy nuoteista riippumatta. Sen Delay ja Fade alkavat alusta ensimmäisestä nuotista hiljaisuuden jälkeen. Pois päältä jokainen nuotti käynnistää oman LFO:nsa alusta.</translation>
     </message>
     <message>
         <source>Rate</source>

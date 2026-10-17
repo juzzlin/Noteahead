@@ -3935,6 +3935,14 @@
         <translation>LFO 1</translation>
     </message>
     <message>
+        <source>Free Run</source>
+        <translation>Vrijlopend</translation>
+    </message>
+    <message>
+        <source>One LFO for all the voices that runs on regardless of the notes. Its Delay and Fade restart on the first note after silence. Off, every note restarts its own LFO.</source>
+        <translation>Eén LFO voor alle stemmen die doorloopt, los van de noten. Delay en Fade starten opnieuw bij de eerste noot na stilte. Uit start elke noot zijn eigen LFO opnieuw.</translation>
+    </message>
+    <message>
         <source>Rate</source>
         <translation>Snelheid</translation>
     </message>
@@ -3964,6 +3972,14 @@
     <message>
         <source>LFO 2</source>
         <translation>LFO 2</translation>
+    </message>
+    <message>
+        <source>Free Run</source>
+        <translation>Vrijlopend</translation>
+    </message>
+    <message>
+        <source>One LFO for all the voices that runs on regardless of the notes. Its Delay and Fade restart on the first note after silence. Off, every note restarts its own LFO.</source>
+        <translation>Eén LFO voor alle stemmen die doorloopt, los van de noten. Delay en Fade starten opnieuw bij de eerste noot na stilte. Uit start elke noot zijn eigen LFO opnieuw.</translation>
     </message>
     <message>
         <source>Rate</source>
@@ -11168,6 +11184,14 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
         <translation>LFO 1</translation>
     </message>
     <message>
+        <source>Free Run</source>
+        <translation>Vrijlopend</translation>
+    </message>
+    <message>
+        <source>One LFO for all the voices that runs on regardless of the notes. Its Delay and Fade restart on the first note after silence. Off, every note restarts its own LFO.</source>
+        <translation>Eén LFO voor alle stemmen die doorloopt, los van de noten. Delay en Fade starten opnieuw bij de eerste noot na stilte. Uit start elke noot zijn eigen LFO opnieuw.</translation>
+    </message>
+    <message>
         <source>Rate</source>
         <translation>Snelheid</translation>
     </message>
@@ -11197,6 +11221,14 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     <message>
         <source>LFO 2</source>
         <translation>LFO 2</translation>
+    </message>
+    <message>
+        <source>Free Run</source>
+        <translation>Vrijlopend</translation>
+    </message>
+    <message>
+        <source>One LFO for all the voices that runs on regardless of the notes. Its Delay and Fade restart on the first note after silence. Off, every note restarts its own LFO.</source>
+        <translation>Eén LFO voor alle stemmen die doorloopt, los van de noten. Delay en Fade starten opnieuw bij de eerste noot na stilte. Uit start elke noot zijn eigen LFO opnieuw.</translation>
     </message>
     <message>
         <source>Rate</source>
@@ -12243,6 +12275,14 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
         <translation>LFO 1</translation>
     </message>
     <message>
+        <source>Free Run</source>
+        <translation>Vrijlopend</translation>
+    </message>
+    <message>
+        <source>One LFO for all the voices that runs on regardless of the notes. Its Delay and Fade restart on the first note after silence. Off, every note restarts its own LFO.</source>
+        <translation>Eén LFO voor alle stemmen die doorloopt, los van de noten. Delay en Fade starten opnieuw bij de eerste noot na stilte. Uit start elke noot zijn eigen LFO opnieuw.</translation>
+    </message>
+    <message>
         <source>Rate</source>
         <translation>Snelheid</translation>
     </message>
@@ -12272,6 +12312,14 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
     <message>
         <source>LFO 2</source>
         <translation>LFO 2</translation>
+    </message>
+    <message>
+        <source>Free Run</source>
+        <translation>Vrijlopend</translation>
+    </message>
+    <message>
+        <source>One LFO for all the voices that runs on regardless of the notes. Its Delay and Fade restart on the first note after silence. Off, every note restarts its own LFO.</source>
+        <translation>Eén LFO voor alle stemmen die doorloopt, los van de noten. Delay en Fade starten opnieuw bij de eerste noot na stilte. Uit start elke noot zijn eigen LFO opnieuw.</translation>
     </message>
     <message>
         <source>Rate</source>
