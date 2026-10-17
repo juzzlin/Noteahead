@@ -174,6 +174,15 @@ private slots:
     void test_oscillatorInstability_oscillatorsInUnison_shouldBeatAgainstEachOther();
     void test_oscillatorInstability_off_shouldLeaveTheStackStanding();
     void test_phaseSync_vco4_shouldStartEveryNoteFromTheSamePhase();
+
+    void test_lfoFreeRun_default_shouldBeOff();
+    void test_lfoFreeRun_shouldRoundTrip();
+    void test_lfoFreeRun_projectWithoutIt_shouldLoadOff();
+    void test_lfoFreeRun_off_shouldStartEveryNoteFromTheTop();
+    void test_lfoFreeRun_on_shouldKeepRunningThroughTheSilence();
+    void test_lfoFreeRun_idle_shouldKeepTimeAsRenderingDoes();
+    void test_lfoLed_noteOn_shouldRestartTheShape();
+    void test_lfoLed_freeRun_shouldNotRestartOnTheNote();
 };
 
 } // namespace noteahead

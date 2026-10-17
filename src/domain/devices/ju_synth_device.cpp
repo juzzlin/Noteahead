@@ -356,6 +356,7 @@ void JuSynthDevice::processAudio(AudioContext & context)
         m_lfoDelayElapsed += 1.0 / context.sampleRate;
         m_lfoBlock[i] = m_lfo.nextSample() * level;
     }
+    publishLfoLed(0, m_lfo.shapeValue());
 
     // Silent once the last voice and the few milliseconds of the chorus and filters after it are
     // done, rather than running six idle voices' worth of output stages forever.
@@ -507,6 +508,16 @@ double JuSynthDevice::nextNoise(Voice & voice) const
     x ^= x >> 17;
     x ^= x << 5;
     return static_cast<double>(x) / 2147483648.0 - 1.0;
+}
+
+void JuSynthDevice::advanceIdle(const AudioContext & context)
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    m_lfo.setSampleRate(context.sampleRate);
+    m_lfo.setFrequency(ParameterMapper::mapExponential(m_lfoRate, LfoMinHz, LfoMaxHz));
+    m_lfo.advance(context.frameCount);
+    m_lfoDelayElapsed += static_cast<double>(context.frameCount) / context.sampleRate;
+    publishLfoLed(0, m_lfo.shapeValue());
 }
 
 bool JuSynthDevice::hasActiveAudio() const

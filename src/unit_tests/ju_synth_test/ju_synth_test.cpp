@@ -390,6 +390,27 @@ void JuSynthTest::test_automatableParameters_shouldOfferTheMainControls()
     }
 }
 
+void JuSynthTest::test_advanceIdle_shouldKeepTheLfoRunning()
+{
+    // The engine skips a silent device, and the LFO has to go on running through it as the Juno's does
+    const auto ledAfterSilence = [](bool idle) {
+        JuSynthDevice synth { "JU" };
+        const auto rate = static_cast<uint32_t>(Constants::defaultSampleRate());
+        constexpr uint32_t frames { 3000 };
+        std::vector<double> silence(static_cast<size_t>(frames) * 2, 0.0);
+        AudioContext context { std::span(silence.data(), silence.size()), frames, rate };
+        if (idle) {
+            synth.advanceIdle(context);
+        } else {
+            synth.processAudio(context);
+        }
+        return synth.lfoLed(0);
+    };
+    const float rendered = ledAfterSilence(false);
+    QVERIFY2(rendered > -0.99f, qPrintable(QString::number(rendered)));
+    QVERIFY2(std::abs(ledAfterSilence(true) - rendered) < 1.0e-4f, qPrintable(QString::number(ledAfterSilence(true))));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::JuSynthTest)

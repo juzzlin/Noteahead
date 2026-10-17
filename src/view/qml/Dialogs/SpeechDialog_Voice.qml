@@ -121,11 +121,18 @@ ColumnLayout {
         ToolTip.text: qsTr("How far the pitch falls across a phrase. At zero every phrase is a monotone.")
         Layout.fillWidth: true
     }
-    Knob {
-        label: qsTr("Vibrato Rate")
-        value: speechController.vibratoRate
-        onMoved: v => speechController.vibratoRate = v
+    RowLayout {
         Layout.fillWidth: true
+        Knob {
+            label: qsTr("Vibrato Rate")
+            value: speechController.vibratoRate
+            onMoved: v => speechController.vibratoRate = v
+            Layout.fillWidth: true
+        }
+        LfoLed {
+            controller: speechController
+            lfoIndex: 0
+        }
     }
     Knob {
         label: qsTr("Vibrato Depth")

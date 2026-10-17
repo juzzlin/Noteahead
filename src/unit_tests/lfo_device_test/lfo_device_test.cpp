@@ -338,6 +338,18 @@ void LfoDeviceTest::test_automatableParameters_shouldBeGroupedByLfo()
     QVERIFY(std::ranges::any_of(list, [](auto && entry) { return entry.key == LfoDevice::lfoKey(1, NahdXml::xmlKeyRate()); }));
 }
 
+void LfoDeviceTest::test_lfoLed_shouldFollowTheShape()
+{
+    LfoDevice device { "LFO" };
+    set(device, 2, NahdXml::xmlKeyWaveform(), static_cast<float>(Lfo::Waveform::Saw));
+    std::vector<LfoDevice::Step> steps;
+    device.evaluate(0, 512, SampleRate, 120.0, steps);
+    const float early = device.lfoLed(1);
+    device.evaluate(512, 12000, SampleRate, 120.0, steps);
+    // A saw only rises until it wraps, and the default rate takes far longer than this to wrap
+    QVERIFY2(device.lfoLed(1) > early, qPrintable(QString { "%1 -> %2" }.arg(early).arg(device.lfoLed(1))));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::LfoDeviceTest)

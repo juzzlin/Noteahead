@@ -41,6 +41,7 @@ private slots:
     void test_xmlSerialization_shouldRestoreTargetsAndControls();
     void test_xmlSerialization_untouched_shouldWriteNoTargets();
     void test_automatableParameters_shouldBeGroupedByLfo();
+    void test_lfoLed_shouldFollowTheShape();
 };
 
 } // namespace noteahead

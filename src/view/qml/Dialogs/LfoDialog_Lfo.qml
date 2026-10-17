@@ -39,8 +39,14 @@ ColumnLayout {
     Layout.alignment: Qt.AlignTop
     spacing: 6
 
-    SectionHeading {
-        text: "LFO " + (root.lfo.index + 1)
+    RowLayout {
+        SectionHeading {
+            text: "LFO " + (root.lfo.index + 1)
+        }
+        LfoLed {
+            controller: lfoController
+            lfoIndex: root.lfo.index
+        }
     }
 
     // What it moves: the device or effect, then the parameter, from the same list automation offers

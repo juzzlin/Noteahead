@@ -26,9 +26,15 @@ ColumnLayout {
     Layout.fillWidth: true
     Layout.alignment: Qt.AlignTop
 
-    SectionHeading {
-        text: qsTr("LFO")
+    RowLayout {
         Layout.topMargin: 10
+        SectionHeading {
+            text: qsTr("LFO")
+        }
+        LfoLed {
+            controller: juSynthController
+            lfoIndex: 0
+        }
     }
     Knob {
         label: qsTr("Rate")

@@ -257,6 +257,8 @@ SynthDevice::SynthDevice(std::string name)
     // One: the rate as it always was
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoRateDivider().toStdString(), 1.0f, 1, Lfo::MaxRateDivider, 1, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2RateDivider().toStdString(), 1.0f, 1, Lfo::MaxRateDivider, 1, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfoFreeRun().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2FreeRun().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceMode().toStdString(), 0.0f, 0, 5, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceDepth().toStdString(), 0.0f, 0, 10000, 0, 100 });
@@ -447,6 +449,7 @@ void SynthDevice::processAudio(AudioContext & context)
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
     prepareForProcessing(context);
+    renderGlobalLfos(context);
 
     const uint8_t oversampleFactor = clampOversampleFactor(context.oversampleFactor);
     m_oversampleFactor = oversampleFactor;
@@ -680,7 +683,7 @@ void SynthDevice::renderVoice(Voice & voice, AudioContext & context, uint8_t ove
 
             voice.glideFrequency += (voice.frequency - voice.glideFrequency) * portamentoCoeff;
 
-            const ModulationValues mods = calculateModulation(voice);
+            const ModulationValues mods = calculateModulation(voice, i);
             float voiceSample = generateVoiceSample(voice, mods, oversampledRate, pbRatio);
             if (damped) {
                 voice.unisonDamp.process(static_cast<double>(voiceSample));
@@ -796,8 +799,8 @@ void SynthDevice::applyGlobalEffects(AudioContext & context)
         }
 
         if (delayModulated) {
-            const double lfoValue = m_delayLfo.nextSample() * m_lfoInt;
-            const double lfo2Value = m_delayLfo2.nextSample() * m_lfo2Int;
+            const double lfoValue = (m_lfoFreeRun ? m_globalLfoBlock[i] : m_delayLfo.nextSample()) * m_lfoInt;
+            const double lfo2Value = (m_lfo2FreeRun ? m_globalLfo2Block[i] : m_delayLfo2.nextSample()) * m_lfo2Int;
             m_delay.setFeedbackLpfModulation(delayFilterModulation(LfoTarget::DelayLpf, lfoValue, lfo2Value));
             m_delay.setFeedbackHpfModulation(delayFilterModulation(LfoTarget::DelayHpf, lfoValue, lfo2Value));
         } else {
@@ -817,6 +820,33 @@ bool SynthDevice::hasActiveAudio() const
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
     return std::ranges::any_of(m_voices, [](const auto & voice) { return voice.active; });
+}
+
+void SynthDevice::advanceIdle(const AudioContext & context)
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    m_globalLfo.setSampleRate(context.sampleRate);
+    m_globalLfo2.setSampleRate(context.sampleRate);
+    m_globalLfo.advance(context.frameCount);
+    m_globalLfo2.advance(context.frameCount);
+    publishLfoLed(0, m_globalLfo.shapeValue());
+    publishLfoLed(1, m_globalLfo2.shapeValue());
+}
+
+void SynthDevice::renderGlobalLfos(const AudioContext & context)
+{
+    m_globalLfo.setSampleRate(context.sampleRate);
+    m_globalLfo2.setSampleRate(context.sampleRate);
+    if (m_globalLfoBlock.size() < context.frameCount) {
+        m_globalLfoBlock.resize(context.frameCount);
+        m_globalLfo2Block.resize(context.frameCount);
+    }
+    for (uint32_t i = 0; i < context.frameCount; i++) {
+        m_globalLfoBlock[i] = m_globalLfo.nextSample();
+        m_globalLfo2Block[i] = m_globalLfo2.nextSample();
+    }
+    publishLfoLed(0, m_globalLfo.shapeValue());
+    publishLfoLed(1, m_globalLfo2.shapeValue());
 }
 
 void SynthDevice::processDeviceMidiNoteOn(uint8_t note, uint8_t velocity)
@@ -927,6 +957,8 @@ void SynthDevice::resetAudio()
     m_delay.reset();
     m_delayLfo.reset();
     m_delayLfo2.reset();
+    m_globalLfo.reset();
+    m_globalLfo2.reset();
     m_downsamplerL.reset();
     m_downsamplerR.reset();
     m_dcBlockerL.reset();
@@ -949,10 +981,22 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
     const float vel = static_cast<float>(velocity) / 127.0f;
     const float finalVel = std::clamp((1.0f - m_ampVelocitySensitivity) + m_ampVelocitySensitivity * vel, 0.0f, 1.0f);
 
-    if (std::ranges::none_of(m_voices, [](auto && voice) { return voice.active; })) {
+    const bool silent = std::ranges::none_of(m_voices, [](auto && voice) { return voice.active; });
+    if (silent) {
         m_delayLfo.trigger();
         m_delayLfo2.trigger();
     }
+    // A free-running LFO only has its delay restarted, and only by a note out of silence. Otherwise
+    // it restarts with every note, as the voice the note lands on does.
+    const auto restartGlobalLfo = [silent](Lfo & lfo, bool freeRun) {
+        if (!freeRun) {
+            lfo.trigger();
+        } else if (silent) {
+            lfo.restartEnvelope();
+        }
+    };
+    restartGlobalLfo(m_globalLfo, m_lfoFreeRun);
+    restartGlobalLfo(m_globalLfo2, m_lfo2FreeRun);
 
     if (m_voiceMode == VoiceMode::Mono) {
         // Mono keeps the sounding voice alive on purpose, so the release-first pass below would undo
@@ -1165,13 +1209,13 @@ double SynthDevice::midiNoteToFreq(uint8_t note) const
     return 440.0 * std::pow(2.0, (note - 69) / 12.0);
 }
 
-SynthDevice::ModulationValues SynthDevice::calculateModulation(Voice & voice) const
+SynthDevice::ModulationValues SynthDevice::calculateModulation(Voice & voice, uint32_t frame) const
 {
     ModulationValues mods;
     mods.ampEnvelope = voice.ampEg.nextSample();
     const double modEnv = voice.modEg.nextSample() * m_modInt;
-    const double lfoVal = voice.lfo.nextSample() * m_lfoInt;
-    const double lfo2Val = voice.lfo2.nextSample() * m_lfo2Int;
+    const double lfoVal = (m_lfoFreeRun ? m_globalLfoBlock[frame] : voice.lfo.nextSample()) * m_lfoInt;
+    const double lfo2Val = (m_lfo2FreeRun ? m_globalLfo2Block[frame] : voice.lfo2.nextSample()) * m_lfo2Int;
 
     mods.cutoffMod = (m_modTarget == ModTarget::Cutoff) ? modEnv : 0.0;
     if (m_lfoTarget == LfoTarget::Cutoff) {
@@ -1697,6 +1741,10 @@ void SynthDevice::syncParameters()
         m_lfoRateDivider = std::clamp(p->get().xmlValue(), 1, Lfo::MaxRateDivider);
     if (const auto p = parameter(Constants::NahdXml::xmlKeyLfo2RateDivider().toStdString()); p)
         m_lfo2RateDivider = std::clamp(p->get().xmlValue(), 1, Lfo::MaxRateDivider);
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoFreeRun().toStdString()); p)
+        m_lfoFreeRun = p->get().value() > 0.5f;
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyLfo2FreeRun().toStdString()); p)
+        m_lfo2FreeRun = p->get().value() > 0.5f;
 
     if (const auto p = parameter(Constants::NahdXml::xmlKeyVoiceMode().toStdString()); p)
         m_voiceMode = static_cast<VoiceMode>(p->get().xmlValue());
@@ -1787,6 +1835,10 @@ void SynthDevice::syncParameters()
 
     configureLfo1(m_delayLfo);
     configureLfo2(m_delayLfo2);
+    configureLfo1(m_globalLfo);
+    configureLfo2(m_globalLfo2);
+    m_globalLfo.setFreeRunning(m_lfoFreeRun);
+    m_globalLfo2.setFreeRunning(m_lfo2FreeRun);
 }
 
 void SynthDevice::configureLfo1(Lfo & lfo) const
@@ -2600,6 +2652,26 @@ int SynthDevice::lfo2RateDivider() const
 void SynthDevice::setLfo2RateDivider(int divider)
 {
     setDiscreteParameterValue(Constants::NahdXml::xmlKeyLfo2RateDivider().toStdString(), std::clamp(divider, 1, Lfo::MaxRateDivider));
+}
+
+bool SynthDevice::lfoFreeRun() const
+{
+    return m_lfoFreeRun;
+}
+
+void SynthDevice::setLfoFreeRun(bool freeRun)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfoFreeRun().toStdString(), freeRun ? 1.0f : 0.0f);
+}
+
+bool SynthDevice::lfo2FreeRun() const
+{
+    return m_lfo2FreeRun;
+}
+
+void SynthDevice::setLfo2FreeRun(bool freeRun)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfo2FreeRun().toStdString(), freeRun ? 1.0f : 0.0f);
 }
 
 // Voice / Global

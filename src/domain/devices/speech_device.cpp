@@ -675,6 +675,7 @@ void SpeechDevice::processAudio(AudioContext & context)
         context.buffer[i * 2] += m_dcBlockerL.process(outL);
         context.buffer[i * 2 + 1] += m_dcBlockerR.process(outR);
     }
+    publishLfoLed(0, m_vibrato.shapeValue());
 }
 
 bool SpeechDevice::hasActiveAudio() const

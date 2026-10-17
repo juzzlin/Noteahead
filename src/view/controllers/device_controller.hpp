@@ -85,6 +85,9 @@ public:
     //! Pitch the scope's last cycle-locked read found, in Hz, or 0 when there was none to find.
     Q_INVOKABLE double scopeFrequency() const;
 
+    //! Where the device's LFO @p index is in its shape, -1..1, for its phase LED.
+    Q_INVOKABLE float lfoLed(int index) const;
+
     //! The device's built-in patches. A device without any leaves this alone and still gets the
     //! user's own presets, which is the whole reason the list lives here rather than in the two
     //! controllers that happen to ship factory patches today.

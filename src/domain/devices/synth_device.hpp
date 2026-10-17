@@ -167,6 +167,7 @@ public:
 
     void processAudio(AudioContext & context) override;
     bool hasActiveAudio() const override;
+    void advanceIdle(const AudioContext & context) override;
 
     //! Whether the given oscillator's own filter section does anything at all: a control off its
     //! neutral end, or a modulation source pointing at one of its two corners.
@@ -385,6 +386,13 @@ public:
     void setLfoRateDivider(int divider);
     int lfo2RateDivider() const;
     void setLfo2RateDivider(int divider);
+    //! Whether the LFO is one for the whole device that runs on regardless of the notes, rather than
+    //! one per voice restarted by every note. Its delay and fade restart on the first note after
+    //! silence.
+    bool lfoFreeRun() const;
+    void setLfoFreeRun(bool freeRun);
+    bool lfo2FreeRun() const;
+    void setLfo2FreeRun(bool freeRun);
 
     // Voice / Global
     VoiceMode voiceMode() const;
@@ -647,6 +655,15 @@ private:
     float m_lfo2Fade { 0.0f };
     int m_lfoRateDivider { 1 };
     int m_lfo2RateDivider { 1 };
+    bool m_lfoFreeRun { false };
+    bool m_lfo2FreeRun { false };
+    //! Device-wide LFO 1 and 2. What the voices read in Free Run; otherwise restarted by every note,
+    //! like the newest voice's own, and only shown on the phase LEDs.
+    Lfo m_globalLfo;
+    Lfo m_globalLfo2;
+    //! This block's values of the device-wide LFOs, one per frame.
+    std::vector<double> m_globalLfoBlock;
+    std::vector<double> m_globalLfo2Block;
 
     VoiceMode m_voiceMode { VoiceMode::Poly };
     uint64_t m_nextTriggerId { 1 };
@@ -746,7 +763,7 @@ private:
         std::array<double, SourceFilterCount> sourceHpfCutoffMod {};
     };
 
-    ModulationValues calculateModulation(Voice & voice) const;
+    ModulationValues calculateModulation(Voice & voice, uint32_t frame) const;
     float generateVoiceSample(Voice & voice, const ModulationValues & mods, double oversampledRate, double pbRatio);
 
     void prepareForProcessing(AudioContext & context);
@@ -770,6 +787,8 @@ private:
     void applyGlobalEffects(AudioContext & context);
     void configureLfo1(Lfo & lfo) const;
     void configureLfo2(Lfo & lfo) const;
+    //! Steps the device-wide LFOs through the block and publishes them to the phase LEDs.
+    void renderGlobalLfos(const AudioContext & context);
     //! Offset an LFO pointing at \a target adds to the delay's feedback filter, at this sample.
     double delayFilterModulation(LfoTarget target, double lfoValue, double lfo2Value) const;
 

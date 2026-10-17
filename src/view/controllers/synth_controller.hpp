@@ -164,6 +164,8 @@ class SynthController : public DeviceController
     Q_PROPERTY(int lfo2Fade READ lfo2Fade WRITE setLfo2Fade NOTIFY lfo2FadeChanged)
     Q_PROPERTY(int lfoRateDivider READ lfoRateDivider WRITE setLfoRateDivider NOTIFY lfoRateDividerChanged)
     Q_PROPERTY(int lfo2RateDivider READ lfo2RateDivider WRITE setLfo2RateDivider NOTIFY lfo2RateDividerChanged)
+    Q_PROPERTY(bool lfoFreeRun READ lfoFreeRun WRITE setLfoFreeRun NOTIFY lfoFreeRunChanged)
+    Q_PROPERTY(bool lfo2FreeRun READ lfo2FreeRun WRITE setLfo2FreeRun NOTIFY lfo2FreeRunChanged)
     Q_PROPERTY(int maxLfoRateDivider READ maxLfoRateDivider CONSTANT)
 
     // Global
@@ -425,6 +427,10 @@ public:
     void setLfoRateDivider(int divider);
     int lfo2RateDivider() const;
     void setLfo2RateDivider(int divider);
+    bool lfoFreeRun() const;
+    void setLfoFreeRun(bool freeRun);
+    bool lfo2FreeRun() const;
+    void setLfo2FreeRun(bool freeRun);
     int maxLfoRateDivider() const;
 
     int voiceMode() const;
@@ -586,6 +592,8 @@ signals:
     void lfo2FadeChanged();
     void lfoRateDividerChanged();
     void lfo2RateDividerChanged();
+    void lfoFreeRunChanged();
+    void lfo2FreeRunChanged();
     void voiceModeChanged();
     void voiceDepthChanged();
     void portamentoChanged();

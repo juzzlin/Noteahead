@@ -79,6 +79,7 @@ public:
 
     void processAudio(AudioContext & context) override;
     bool hasActiveAudio() const override;
+    void advanceIdle(const AudioContext & context) override;
 
     void reset() override;
     void resetAudio() override;

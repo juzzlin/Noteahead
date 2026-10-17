@@ -207,6 +207,8 @@ void FmSynthController::requestSettings()
     emit lfo2FadeChanged();
     emit lfoRateDividerChanged();
     emit lfo2RateDividerChanged();
+    emit lfoFreeRunChanged();
+    emit lfo2FreeRunChanged();
     emit voiceModeChanged();
     emit voiceDepthChanged();
     emit phaseRandomnessChanged();
@@ -643,6 +645,30 @@ void FmSynthController::setLfo2RateDivider(int divider)
 {
     if (m_synth) {
         m_synth->setLfo2RateDivider(divider);
+    }
+}
+
+bool FmSynthController::lfoFreeRun() const
+{
+    return m_synth ? m_synth->lfoFreeRun() : false;
+}
+
+void FmSynthController::setLfoFreeRun(bool freeRun)
+{
+    if (m_synth) {
+        m_synth->setLfoFreeRun(freeRun);
+    }
+}
+
+bool FmSynthController::lfo2FreeRun() const
+{
+    return m_synth ? m_synth->lfo2FreeRun() : false;
+}
+
+void FmSynthController::setLfo2FreeRun(bool freeRun)
+{
+    if (m_synth) {
+        m_synth->setLfo2FreeRun(freeRun);
     }
 }
 

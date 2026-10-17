@@ -167,6 +167,9 @@ void processDeviceTask(void * context, size_t taskIndex, size_t workerIndex)
         device->outputStereoMeter().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
         device->outputLoudnessMeter().write(workBuffer.deviceBuffer.data(), deviceContext.frameCount, deviceContext.sampleRate);
         device->loadMeter().addBlock(std::chrono::nanoseconds::zero(), bufferSeconds);
+        // What keeps time while silent, like a free-running LFO, has to hear about the block anyway
+        const AudioContext idleContext { std::span(workBuffer.deviceBuffer.data(), deviceContext.bufferSize), deviceContext.frameCount, deviceContext.sampleRate, deviceContext.bpm, deviceContext.deviceOutputBuffers, deviceContext.oversampleFactor, deviceContext.offline, deviceContext.startFrame };
+        device->advanceIdle(idleContext);
         return;
     }
 

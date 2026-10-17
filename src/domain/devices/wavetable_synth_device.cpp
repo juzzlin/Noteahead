@@ -206,6 +206,8 @@ WavetableSynthDevice::WavetableSynthDevice(std::string name)
     // One: the rate as it always was
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoRateDivider().toStdString(), 1.0f, 1, Lfo::MaxRateDivider, 1, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2RateDivider().toStdString(), 1.0f, 1, Lfo::MaxRateDivider, 1, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfoFreeRun().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2FreeRun().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
 
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceMode().toStdString(), 0.0f, 0, 5, 0, 1, Parameter::Type::Discrete, { "wavetableSynthVoiceMode" } });
     addParameter(Parameter { Constants::NahdXml::xmlKeyVoiceDepth().toStdString(), 0.1f, 0, 10000, 1000, 100, Parameter::Type::Continuous, { "wavetableSynthVoiceDepth" } });
@@ -292,29 +294,12 @@ void WavetableSynthDevice::processAudio(AudioContext & context)
     const double pbOffset = (static_cast<double>(m_pitchBend) - 8192.0) / 8192.0 * m_pitchBendRange;
     const double pbRatio = std::exp2(pbOffset / 12.0);
 
+    renderGlobalLfos(context);
+
     for (size_t index = 0; index < m_voices.size(); index++) {
         auto & voice = m_voices.at(index);
-        voice.lfo.setWaveform(m_lfoWaveform);
-        voice.lfo.setMode(m_lfoMode);
-        if (m_lfoMode == Lfo::Mode::BPM) {
-            voice.lfo.setFrequency(m_bpm, m_lfoRate);
-        } else {
-            voice.lfo.setFrequency(ParameterMapper::mapLfoFrequency(m_lfoRate, 0.05, 20.0));
-        }
-        voice.lfo.setDelayTime(ParameterMapper::mapCubic(m_lfoDelay, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
-        voice.lfo.setFadeTime(ParameterMapper::mapCubic(m_lfoFade, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
-        voice.lfo.setRateDivider(m_lfoRateDivider);
-
-        voice.lfo2.setWaveform(m_lfo2Waveform);
-        voice.lfo2.setMode(m_lfo2Mode);
-        if (m_lfo2Mode == Lfo::Mode::BPM) {
-            voice.lfo2.setFrequency(m_bpm, m_lfo2Rate);
-        } else {
-            voice.lfo2.setFrequency(ParameterMapper::mapLfoFrequency(m_lfo2Rate, 0.05, 20.0));
-        }
-        voice.lfo2.setDelayTime(ParameterMapper::mapCubic(m_lfo2Delay, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
-        voice.lfo2.setFadeTime(ParameterMapper::mapCubic(m_lfo2Fade, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
-        voice.lfo2.setRateDivider(m_lfo2RateDivider);
+        configureLfo1(voice.lfo);
+        configureLfo2(voice.lfo2);
 
         if (voice.active) {
             renderVoice(voice, context, oversampleFactor, oversampledRate, portamentoCoeff, pbRatio, index);
@@ -466,7 +451,7 @@ void WavetableSynthDevice::renderVoice(Voice & voice, AudioContext & context, ui
     for (uint32_t i = 0; i < context.frameCount; i++) {
         for (uint8_t subSample = 0; subSample < oversampleFactor; subSample++) {
             voice.glideFrequency += (voice.frequency - voice.glideFrequency) * portamentoCoeff;
-            const ModulationValues mods = calculateModulation(voice);
+            const ModulationValues mods = calculateModulation(voice, i);
             float voiceSample = generateVoiceSample(voice, mods, oversampledRate, pbRatio);
             if (damped) {
                 voice.damping.process(static_cast<double>(voiceSample));
@@ -508,6 +493,69 @@ void WavetableSynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversam
 
     voice.lpf.setResonance(m_lpfResonance);
     voice.hpf.setResonance(0.0f);
+}
+
+void WavetableSynthDevice::configureLfo1(Lfo & lfo) const
+{
+    lfo.setWaveform(m_lfoWaveform);
+    lfo.setMode(m_lfoMode);
+    if (m_lfoMode == Lfo::Mode::BPM) {
+        lfo.setFrequency(m_bpm, m_lfoRate);
+    } else {
+        lfo.setFrequency(ParameterMapper::mapLfoFrequency(m_lfoRate, 0.05, 20.0));
+    }
+    lfo.setDelayTime(ParameterMapper::mapCubic(m_lfoDelay, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
+    lfo.setFadeTime(ParameterMapper::mapCubic(m_lfoFade, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
+    lfo.setRateDivider(m_lfoRateDivider);
+}
+
+void WavetableSynthDevice::configureLfo2(Lfo & lfo) const
+{
+    lfo.setWaveform(m_lfo2Waveform);
+    lfo.setMode(m_lfo2Mode);
+    if (m_lfo2Mode == Lfo::Mode::BPM) {
+        lfo.setFrequency(m_bpm, m_lfo2Rate);
+    } else {
+        lfo.setFrequency(ParameterMapper::mapLfoFrequency(m_lfo2Rate, 0.05, 20.0));
+    }
+    lfo.setDelayTime(ParameterMapper::mapCubic(m_lfo2Delay, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
+    lfo.setFadeTime(ParameterMapper::mapCubic(m_lfo2Fade, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
+    lfo.setRateDivider(m_lfo2RateDivider);
+}
+
+void WavetableSynthDevice::renderGlobalLfos(const AudioContext & context)
+{
+    configureLfo1(m_globalLfo);
+    configureLfo2(m_globalLfo2);
+    m_globalLfo.setFreeRunning(m_lfoFreeRun);
+    m_globalLfo2.setFreeRunning(m_lfo2FreeRun);
+    m_globalLfo.setSampleRate(context.sampleRate);
+    m_globalLfo2.setSampleRate(context.sampleRate);
+    if (m_globalLfoBlock.size() < context.frameCount) {
+        m_globalLfoBlock.resize(context.frameCount);
+        m_globalLfo2Block.resize(context.frameCount);
+    }
+    for (uint32_t i = 0; i < context.frameCount; i++) {
+        m_globalLfoBlock[i] = m_globalLfo.nextSample();
+        m_globalLfo2Block[i] = m_globalLfo2.nextSample();
+    }
+    publishLfoLed(0, m_globalLfo.shapeValue());
+    publishLfoLed(1, m_globalLfo2.shapeValue());
+}
+
+void WavetableSynthDevice::advanceIdle(const AudioContext & context)
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    configureLfo1(m_globalLfo);
+    configureLfo2(m_globalLfo2);
+    m_globalLfo.setFreeRunning(m_lfoFreeRun);
+    m_globalLfo2.setFreeRunning(m_lfo2FreeRun);
+    m_globalLfo.setSampleRate(context.sampleRate);
+    m_globalLfo2.setSampleRate(context.sampleRate);
+    m_globalLfo.advance(context.frameCount);
+    m_globalLfo2.advance(context.frameCount);
+    publishLfoLed(0, m_globalLfo.shapeValue());
+    publishLfoLed(1, m_globalLfo2.shapeValue());
 }
 
 bool WavetableSynthDevice::hasActiveAudio() const
@@ -624,6 +672,8 @@ void WavetableSynthDevice::resetAudio()
     for (auto && voice : m_voices) {
         voice.reset();
     }
+    m_globalLfo.reset();
+    m_globalLfo2.reset();
     m_polyNextVoice = 0;
     m_dualNextPair = 0;
     m_monoPanSlot.reset();
@@ -644,6 +694,19 @@ void WavetableSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
     const double freq = midiNoteToFreq(note);
     // At no sensitivity every note is at full level; at full, the level is the velocity itself
     const float finalVel = std::clamp((1.0f - m_ampVelocitySensitivity) + m_ampVelocitySensitivity * static_cast<float>(velocity) / 127.0f, 0.0f, 1.0f);
+
+    // A free-running LFO only has its delay restarted, and only by a note out of silence. Otherwise
+    // it restarts with every note, as the voice the note lands on does.
+    const bool silent = std::ranges::none_of(m_voices, [](auto && voice) { return voice.active; });
+    const auto restartGlobalLfo = [silent](Lfo & lfo, bool freeRun) {
+        if (!freeRun) {
+            lfo.trigger();
+        } else if (silent) {
+            lfo.restartEnvelope();
+        }
+    };
+    restartGlobalLfo(m_globalLfo, m_lfoFreeRun);
+    restartGlobalLfo(m_globalLfo2, m_lfo2FreeRun);
 
     if (m_voiceMode == VoiceMode::Mono) {
         // Mono keeps the sounding voice alive on purpose, so it cannot go through the stacked path.
@@ -806,13 +869,13 @@ double WavetableSynthDevice::midiNoteToFreq(uint8_t note) const
     return 440.0 * std::pow(2.0, (note - 69) / 12.0);
 }
 
-WavetableSynthDevice::ModulationValues WavetableSynthDevice::calculateModulation(Voice & voice) const
+WavetableSynthDevice::ModulationValues WavetableSynthDevice::calculateModulation(Voice & voice, uint32_t frame) const
 {
     ModulationValues mods = ModulationValues {};
     mods.ampEnvelope = voice.ampEg.nextSample();
     mods.modEnvelope = voice.modEg.nextSample() * m_modDepth;
-    mods.lfoValue = voice.lfo.nextSample() * m_lfoDepth;
-    mods.lfo2Value = voice.lfo2.nextSample() * m_lfo2Depth;
+    mods.lfoValue = (m_lfoFreeRun ? m_globalLfoBlock[frame] : voice.lfo.nextSample()) * m_lfoDepth;
+    mods.lfo2Value = (m_lfo2FreeRun ? m_globalLfo2Block[frame] : voice.lfo2.nextSample()) * m_lfo2Depth;
 
     if (m_modTarget == ModTarget::Cutoff) {
         mods.cutoffMod = mods.modEnvelope;
@@ -1003,6 +1066,12 @@ void WavetableSynthDevice::syncParameters()
     updateParam(Constants::NahdXml::xmlKeyLfo2Fade(), m_lfo2Fade);
     updateDiscreteParam(Constants::NahdXml::xmlKeyLfoRateDivider(), m_lfoRateDivider);
     updateDiscreteParam(Constants::NahdXml::xmlKeyLfo2RateDivider(), m_lfo2RateDivider);
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyLfoFreeRun().toStdString()); p) {
+        m_lfoFreeRun = p->get().value() > 0.5f;
+    }
+    if (const auto p = parameter(Constants::NahdXml::xmlKeyLfo2FreeRun().toStdString()); p) {
+        m_lfo2FreeRun = p->get().value() > 0.5f;
+    }
     m_lfoRateDivider = std::clamp(m_lfoRateDivider, 1, Lfo::MaxRateDivider);
     m_lfo2RateDivider = std::clamp(m_lfo2RateDivider, 1, Lfo::MaxRateDivider);
 
@@ -1664,6 +1733,26 @@ int WavetableSynthDevice::lfo2RateDivider() const
 void WavetableSynthDevice::setLfo2RateDivider(int divider)
 {
     setDiscreteParameterValue(Constants::NahdXml::xmlKeyLfo2RateDivider().toStdString(), std::clamp(divider, 1, Lfo::MaxRateDivider));
+}
+
+bool WavetableSynthDevice::lfoFreeRun() const
+{
+    return m_lfoFreeRun;
+}
+
+void WavetableSynthDevice::setLfoFreeRun(bool freeRun)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfoFreeRun().toStdString(), freeRun ? 1.0f : 0.0f);
+}
+
+bool WavetableSynthDevice::lfo2FreeRun() const
+{
+    return m_lfo2FreeRun;
+}
+
+void WavetableSynthDevice::setLfo2FreeRun(bool freeRun)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfo2FreeRun().toStdString(), freeRun ? 1.0f : 0.0f);
 }
 
 void WavetableSynthDevice::setLfo2Target(LfoTarget target)

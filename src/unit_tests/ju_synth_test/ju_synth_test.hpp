@@ -43,6 +43,7 @@ private slots:
     void test_presets_shouldAllLoadAndBeNamedOnce();
     void test_programChange_shouldLoadThePreset();
     void test_automatableParameters_shouldOfferTheMainControls();
+    void test_advanceIdle_shouldKeepTheLfoRunning();
 };
 
 } // namespace noteahead

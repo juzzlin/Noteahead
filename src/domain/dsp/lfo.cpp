@@ -98,6 +98,20 @@ void Lfo::trigger()
     m_elapsedSamples = 0;
 }
 
+void Lfo::restartEnvelope()
+{
+    if (m_mode == Mode::OneShot) {
+        trigger();
+        return;
+    }
+    m_elapsedSamples = 0;
+}
+
+void Lfo::setFreeRunning(bool freeRunning)
+{
+    m_freeRunning = freeRunning;
+}
+
 void Lfo::reset()
 {
     trigger();
@@ -131,6 +145,9 @@ double Lfo::nextSample()
         // The phase is held rather than advanced, so a one-shot sweep happens after the delay
         // instead of being spent during it and every note starts its first cycle from the same
         // place. Zero is the value that modulates nothing, whatever the destination.
+        if (m_freeRunning) {
+            advancePhase(m_phaseStep);
+        }
         return 0.0;
     }
 
@@ -140,25 +157,47 @@ double Lfo::nextSample()
         return m_oneShotHold * fade;
     }
 
-    double value = waveformValue(m_phase);
+    const double value = waveformValue(m_phase);
+    // Park on the value the shape ends on rather than snapping to zero. Zero made the two things a
+    // one-shot is for impossible: leaving the target somewhere other than where it started, and
+    // doing so without a step — a saw jumping from +1 to 0 is an audible click at the end of every
+    // note.
+    return (advancePhase(m_phaseStep) ? m_oneShotHold : value) * fade;
+}
 
-    m_phase += m_phaseStep;
-    if (m_phase >= 1.0) {
-        m_phase -= 1.0;
-        if (m_mode == Mode::OneShot) {
-            m_oneShotActive = false;
-            // Park on the value the shape ends on rather than snapping to zero. Zero made the two
-            // things a one-shot is for impossible: leaving the target somewhere other than where it
-            // started, and doing so without a step — a saw jumping from +1 to 0 is an audible click
-            // at the end of every note.
-            m_oneShotHold = waveformValue(1.0);
-            value = m_oneShotHold;
-        } else if (m_waveform == Waveform::Random) {
-            m_randomValue = m_dist(m_rng);
-        }
+bool Lfo::advancePhase(double phaseIncrement)
+{
+    if (m_mode == Mode::OneShot && !m_oneShotActive) {
+        return false;
     }
+    m_phase += phaseIncrement;
+    if (m_phase < 1.0) {
+        return false;
+    }
+    m_phase -= std::floor(m_phase);
+    if (m_mode == Mode::OneShot) {
+        m_oneShotActive = false;
+        m_oneShotHold = waveformValue(1.0);
+        return true;
+    }
+    if (m_waveform == Waveform::Random) {
+        m_randomValue = m_dist(m_rng);
+    }
+    return false;
+}
 
-    return value * fade;
+void Lfo::advance(uint64_t samples)
+{
+    // A held phase only starts moving where the delay runs out.
+    const auto delayLeft = m_freeRunning ? 0.0 : std::max(0.0, std::ceil(m_delaySamples - static_cast<double>(m_elapsedSamples)));
+    const auto moving = std::max(0.0, static_cast<double>(samples) - delayLeft);
+    m_elapsedSamples += samples;
+    advancePhase(moving * m_phaseStep);
+}
+
+double Lfo::shapeValue() const
+{
+    return m_mode == Mode::OneShot && !m_oneShotActive ? m_oneShotHold : waveformValue(m_phase);
 }
 
 void Lfo::updatePhaseStep()

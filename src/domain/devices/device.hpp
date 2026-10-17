@@ -394,6 +394,17 @@ public:
         return true;
     }
 
+    //! Called by the engine instead of rendering, for a block it skips because the device is idle.
+    //! For what has to keep time while nothing sounds, like a free-running LFO. Does nothing by
+    //! default.
+    virtual void advanceIdle(const AudioContext & context);
+
+    //! How many LFOs the device shows a phase LED for.
+    static constexpr size_t MaxLfoLeds { 4 };
+    //! Where LFO @p index is in its shape, -1..1, as the audio thread last published it. Safe to call
+    //! from any thread.
+    float lfoLed(size_t index) const;
+
     virtual void setBpm(float bpm);
 
     virtual void reset() override;
@@ -496,6 +507,9 @@ signals:
     void parameterAutomationScheduled(qint64 delayMs);
 
 protected:
+    //! For the audio thread: publishes where LFO @p index is in its shape, -1..1.
+    void publishLfoLed(size_t index, double shapeValue);
+
     //! The device's own note handling, given the note already shifted by the octave.
     virtual void processDeviceMidiNoteOn(uint8_t note, uint8_t velocity) = 0;
     virtual void processDeviceMidiNoteOff(uint8_t note) = 0;
@@ -588,6 +602,8 @@ private:
     void applyScheduledModulations(uint64_t frame);
     std::optional<uint64_t> nextScheduledModulationFrame(uint64_t from, uint64_t to) const;
     std::optional<double> m_nextNoteBeats;
+
+    std::array<std::atomic<float>, MaxLfoLeds> m_lfoLeds {};
 
     mutable std::recursive_mutex m_mutex;
 };

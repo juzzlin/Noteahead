@@ -1166,6 +1166,30 @@ void SynthController::setLfo2RateDivider(int divider)
     }
 }
 
+bool SynthController::lfoFreeRun() const
+{
+    return m_synth ? m_synth->lfoFreeRun() : false;
+}
+
+void SynthController::setLfoFreeRun(bool freeRun)
+{
+    if (m_synth) {
+        m_synth->setLfoFreeRun(freeRun);
+    }
+}
+
+bool SynthController::lfo2FreeRun() const
+{
+    return m_synth ? m_synth->lfo2FreeRun() : false;
+}
+
+void SynthController::setLfo2FreeRun(bool freeRun)
+{
+    if (m_synth) {
+        m_synth->setLfo2FreeRun(freeRun);
+    }
+}
+
 int SynthController::maxLfoRateDivider() const
 {
     return Lfo::MaxRateDivider;
@@ -1586,6 +1610,8 @@ void SynthController::requestSettings()
     emit lfo2FadeChanged();
     emit lfoRateDividerChanged();
     emit lfo2RateDividerChanged();
+    emit lfoFreeRunChanged();
+    emit lfo2FreeRunChanged();
 
     emit voiceModeChanged();
     emit voiceDepthChanged();

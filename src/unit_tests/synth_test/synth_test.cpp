@@ -3878,6 +3878,144 @@ void SynthTest::test_lfoRateDivider_shouldSlowTheVoicesLfo()
     QVERIFY2(slowTurns <= 1, qPrintable(QString::number(slowTurns)));
 }
 
+namespace {
+
+//! Renders a held tremolo note that starts after @p silentFrames of silence, rendered or, with
+//! @p idle, skipped the way the engine skips a silent device.
+std::vector<double> tremoloNoteAfterSilence(bool freeRun, uint32_t silentFrames, bool idle = false)
+{
+    SynthDevice synth { "Free Run" };
+    synth.setAmpAttack(0.0f);
+    synth.setAmpSustain(1.0f);
+    synth.setLfoTarget(SynthDevice::LfoTarget::Volume);
+    synth.setLfoRate(static_cast<float>(ParameterMapper::unmapLfoFrequency(4.0, 0.05, 20.0)));
+    synth.setLfoInt(1.0f);
+    synth.setLfoFreeRun(freeRun);
+    const auto rate = static_cast<uint32_t>(Constants::defaultSampleRate());
+    if (silentFrames > 0) {
+        std::vector<double> silence(static_cast<size_t>(silentFrames) * 2, 0.0);
+        AudioContext silentContext { std::span(silence.data(), silence.size()), silentFrames, rate };
+        if (idle) {
+            synth.advanceIdle(silentContext);
+        } else {
+            synth.processAudio(silentContext);
+        }
+    }
+    synth.processMidiNoteOn(64, 100);
+    const auto frames = rate / 2;
+    std::vector<double> buffer(static_cast<size_t>(frames) * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), frames, rate };
+    synth.processAudio(context);
+    return buffer;
+}
+
+double largestDifference(const std::vector<double> & a, const std::vector<double> & b)
+{
+    double largest = 0.0;
+    for (size_t i = 0; i < std::min(a.size(), b.size()); i++) {
+        largest = std::max(largest, std::abs(a[i] - b[i]));
+    }
+    return largest;
+}
+
+//! The phase LED of a saw LFO 1 just after a note that follows @p silentFrames of silence.
+float sawLedAfterNote(bool freeRun, uint32_t silentFrames)
+{
+    SynthDevice synth { "LED" };
+    synth.setLfoWaveform(Lfo::Waveform::Saw);
+    synth.setLfoRate(static_cast<float>(ParameterMapper::unmapLfoFrequency(4.0, 0.05, 20.0)));
+    synth.setLfoFreeRun(freeRun);
+    const auto rate = static_cast<uint32_t>(Constants::defaultSampleRate());
+    std::vector<double> silence(static_cast<size_t>(silentFrames) * 2, 0.0);
+    AudioContext silentContext { std::span(silence.data(), silence.size()), silentFrames, rate };
+    synth.processAudio(silentContext);
+    synth.processMidiNoteOn(64, 100);
+    std::vector<double> buffer(2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), 1, rate };
+    synth.processAudio(context);
+    return synth.lfoLed(0);
+}
+
+} // namespace
+
+void SynthTest::test_lfoFreeRun_default_shouldBeOff()
+{
+    const SynthDevice synth { "Free Run" };
+    QVERIFY(!synth.lfoFreeRun());
+    QVERIFY(!synth.lfo2FreeRun());
+}
+
+void SynthTest::test_lfoFreeRun_shouldRoundTrip()
+{
+    SynthDevice out { "Free Run" };
+    out.setLfo2FreeRun(true);
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        out.serializeToXml(writer);
+    }
+    NahdXmlReader reader { xml };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+    SynthDevice in { "Free Run" };
+    in.deserializeFromXml(reader);
+    QVERIFY(!in.lfoFreeRun());
+    QVERIFY(in.lfo2FreeRun());
+}
+
+void SynthTest::test_lfoFreeRun_projectWithoutIt_shouldLoadOff()
+{
+    SynthDevice out { "Free Run" };
+    out.setLfoFreeRun(true);
+    out.setLfo2FreeRun(true);
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        out.serializeToXml(writer);
+    }
+    // As a project saved before the switch existed has it
+    xml.remove(QRegularExpression { R"(<Parameter name="lfo2?FreeRun"[^>]*/>)" });
+    QVERIFY(!xml.contains("FreeRun"));
+    NahdXmlReader reader { xml };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+    SynthDevice in { "Free Run" };
+    in.deserializeFromXml(reader);
+    QVERIFY(!in.lfoFreeRun());
+    QVERIFY(!in.lfo2FreeRun());
+}
+
+void SynthTest::test_lfoFreeRun_off_shouldStartEveryNoteFromTheTop()
+{
+    QCOMPARE(largestDifference(tremoloNoteAfterSilence(false, 0), tremoloNoteAfterSilence(false, 3000)), 0.0);
+}
+
+void SynthTest::test_lfoFreeRun_on_shouldKeepRunningThroughTheSilence()
+{
+    // A quarter of a 4 Hz cycle: the note comes in on another part of the tremolo
+    const double difference = largestDifference(tremoloNoteAfterSilence(true, 0), tremoloNoteAfterSilence(true, 3000));
+    QVERIFY2(difference > 0.01, qPrintable(QString::number(difference)));
+}
+
+void SynthTest::test_lfoFreeRun_idle_shouldKeepTimeAsRenderingDoes()
+{
+    const double difference = largestDifference(tremoloNoteAfterSilence(true, 3000, true), tremoloNoteAfterSilence(true, 3000, false));
+    QVERIFY2(difference < 1.0e-6, qPrintable(QString::number(difference)));
+}
+
+void SynthTest::test_lfoLed_noteOn_shouldRestartTheShape()
+{
+    const float led = sawLedAfterNote(false, 3000);
+    QVERIFY2(led < -0.99f, qPrintable(QString::number(led)));
+}
+
+void SynthTest::test_lfoLed_freeRun_shouldNotRestartOnTheNote()
+{
+    // A quarter of the way round the saw
+    const float led = sawLedAfterNote(true, 3000);
+    QVERIFY2(std::abs(led - -0.5f) < 0.01f, qPrintable(QString::number(led)));
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SynthTest)

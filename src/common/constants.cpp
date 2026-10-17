@@ -2715,6 +2715,16 @@ QString xmlKeyLfo2RateDivider()
     return "lfo2RateDivider";
 }
 
+QString xmlKeyLfoFreeRun()
+{
+    return "lfoFreeRun";
+}
+
+QString xmlKeyLfo2FreeRun()
+{
+    return "lfo2FreeRun";
+}
+
 QString xmlKeyWavetableIndex()
 {
     return "wavetableIndex";

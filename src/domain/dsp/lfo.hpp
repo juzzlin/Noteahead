@@ -68,7 +68,19 @@ public:
     double phase() const;
     //! Restarts the shape and the delay/fade envelope, leaving the random sequence where it is.
     void trigger();
+    //! Restarts only the delay/fade envelope, leaving the shape where it is: how a free-running LFO
+    //! answers the first note after silence. A one-shot has no cycle to run free, so it restarts
+    //! entirely.
+    void restartEnvelope();
+    //! Keeps the shape moving through the delay instead of holding it, so that the delay only gates
+    //! the depth. Off, the default, holds the phase, which is what this LFO has always done.
+    void setFreeRunning(bool freeRunning);
     double nextSample();
+    //! Moves on by \a samples at once, as many calls to nextSample() would, for an LFO whose device
+    //! is not being rendered.
+    void advance(uint64_t samples);
+    //! Where the shape is now, -1..1, before the delay and fade: what a phase LED shows.
+    double shapeValue() const;
     void reset();
 
 private:
@@ -79,6 +91,7 @@ private:
     Mode m_mode { Mode::Normal };
     double m_phase { 0.0 };
     double m_phaseStep { 0.0 };
+    bool m_freeRunning { false };
     bool m_oneShotActive { true };
     //! Value a finished one-shot parks on: the level its shape ends at.
     double m_oneShotHold { 0.0 };
@@ -102,6 +115,10 @@ private:
 
     //! Depth in effect \a samplesSinceDelay samples after the delay expired, 0..1.
     double fadeLevel(double samplesSinceDelay) const;
+
+    //! Moves the phase on by \a phaseIncrement, wrapping and ending a one-shot as it goes. Returns
+    //! whether a one-shot ended.
+    bool advancePhase(double phaseIncrement);
 
     double waveformValue(double phase) const;
 };

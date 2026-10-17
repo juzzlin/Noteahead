@@ -607,6 +607,22 @@ void Device::setDiscreteParameterValue(const std::string & key, int value)
         emit dataChanged();
 }
 
+void Device::advanceIdle(const AudioContext &)
+{
+}
+
+float Device::lfoLed(size_t index) const
+{
+    return index < m_lfoLeds.size() ? m_lfoLeds.at(index).load(std::memory_order_relaxed) : 0.0f;
+}
+
+void Device::publishLfoLed(size_t index, double shapeValue)
+{
+    if (index < m_lfoLeds.size()) {
+        m_lfoLeds.at(index).store(static_cast<float>(shapeValue), std::memory_order_relaxed);
+    }
+}
+
 void Device::setBpm(float bpm)
 {
     m_insertEffectRack.setBpm(bpm);

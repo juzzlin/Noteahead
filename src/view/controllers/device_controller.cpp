@@ -302,6 +302,14 @@ double DeviceController::scopeFrequency() const
     return 0.0;
 }
 
+float DeviceController::lfoLed(int index) const
+{
+    if (const auto dev = device(); dev && index >= 0) {
+        return dev->lfoLed(static_cast<size_t>(index));
+    }
+    return 0.0f;
+}
+
 int DeviceController::scopeSampleRate() const
 {
     if (const auto dev = device(); dev) {

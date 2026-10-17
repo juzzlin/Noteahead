@@ -86,6 +86,15 @@ private slots:
     void test_delay_atZeroMix_shouldLeaveNothingBehind();
     void test_delay_shouldRepeatAfterTheNoteStops();
     void test_voiceMode_unison_shouldDetuneTheStack();
+
+    void test_lfoFreeRun_default_shouldBeOff();
+    void test_lfoFreeRun_shouldRoundTrip();
+    void test_lfoFreeRun_projectWithoutIt_shouldLoadOff();
+    void test_lfoFreeRun_off_shouldStartEveryNoteFromTheTop();
+    void test_lfoFreeRun_on_shouldKeepRunningThroughTheSilence();
+    void test_lfoFreeRun_idle_shouldKeepTimeAsRenderingDoes();
+    void test_lfoLed_noteOn_shouldRestartTheShape();
+    void test_lfoLed_freeRun_shouldNotRestartOnTheNote();
 };
 
 } // namespace noteahead

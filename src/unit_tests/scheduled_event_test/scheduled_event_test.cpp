@@ -89,6 +89,16 @@ public:
         return m_note != 0;
     }
 
+    void advanceIdle(const AudioContext & context) override
+    {
+        m_idleFrames += context.frameCount;
+    }
+
+    uint64_t idleFrames() const
+    {
+        return m_idleFrames;
+    }
+
     void reset() override
     {
         m_note = 0;
@@ -125,6 +135,7 @@ public:
 
 private:
     uint8_t m_note { 0 };
+    uint64_t m_idleFrames { 0 };
     std::vector<Piece> m_pieces;
     std::vector<std::pair<uint8_t, uint8_t>> m_ccLog;
 };
@@ -342,6 +353,26 @@ void ScheduledEventTest::test_engine_scheduledNote_shouldStartOnItsOwnFrame()
     }
 
     QCOMPARE(firstFrameOf(stream, 60), 512 + 300);
+}
+
+void ScheduledEventTest::test_engine_silentDevice_shouldBeToldOfTheBlocksItSkips()
+{
+    // What keeps a free-running LFO going while nothing sounds
+    AudioEngine engine;
+    const auto device = std::make_shared<MarkerDevice>();
+    engine.setDevice(0, device);
+
+    std::vector<double> buffer(512 * 2, 0.0);
+    for (uint32_t block = 0; block < 2; block++) {
+        AudioContext context;
+        context.buffer = std::span<double> { buffer };
+        context.frameCount = 512;
+        context.sampleRate = SampleRate;
+        engine.process(context);
+    }
+
+    QVERIFY(device->pieces().empty());
+    QCOMPARE(device->idleFrames(), uint64_t { 1024 });
 }
 
 void ScheduledEventTest::test_frameAnchor_beforeAnythingRendered_shouldSayItIsNotRunning()

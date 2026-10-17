@@ -334,6 +334,11 @@ void LfoDevice::evaluate(uint64_t startFrame, uint32_t frameCount, double sample
             }
         }
     }
+
+    static_assert(LfoCount <= MaxLfoLeds);
+    for (size_t lfo = 0; lfo < LfoCount; lfo++) {
+        publishLfoLed(lfo, m_slots.at(lfo).lfo.shapeValue());
+    }
 }
 
 Device::AutomatableParameterList LfoDevice::automatableParameters() const

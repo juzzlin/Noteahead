@@ -69,6 +69,14 @@ private slots:
     void test_fadeTime_shouldStartFromZeroAndRampToFullDepth();
     void test_fadeTime_shouldRampMonotonically();
     void test_fadeTime_shouldStartWhereTheDelayEnds();
+
+    void test_freeRunning_delay_shouldKeepThePhaseMoving();
+    void test_restartEnvelope_shouldLeaveThePhaseAlone();
+    void test_restartEnvelope_oneShot_shouldRestartTheSweep();
+    void test_advance_heldDelay_shouldMatchNextSample();
+    void test_advance_freeRunning_shouldMatchNextSample();
+    void test_advance_random_shouldDrawOnTheWrap();
+    void test_shapeValue_shouldIgnoreTheFade();
 };
 
 } // namespace noteahead

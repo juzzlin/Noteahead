@@ -99,6 +99,15 @@ private slots:
     void test_ampVelocitySensitivity_serialization_shouldPreserveState();
     void test_ampVelocitySensitivity_missingFromProject_shouldPlayAsBefore();
     void test_repeatedNote_afterVoiceRetired_shouldSweepTheSameWay();
+
+    void test_lfoFreeRun_default_shouldBeOff();
+    void test_lfoFreeRun_shouldRoundTrip();
+    void test_lfoFreeRun_projectWithoutIt_shouldLoadOff();
+    void test_lfoFreeRun_off_shouldStartEveryNoteFromTheTop();
+    void test_lfoFreeRun_on_shouldKeepRunningThroughTheSilence();
+    void test_lfoFreeRun_idle_shouldKeepTimeAsRenderingDoes();
+    void test_lfoLed_noteOn_shouldRestartTheShape();
+    void test_lfoLed_freeRun_shouldNotRestartOnTheNote();
 };
 
 } // namespace noteahead

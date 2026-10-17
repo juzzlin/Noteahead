@@ -26,10 +26,26 @@ ColumnLayout {
     Layout.fillWidth: true
     Layout.alignment: Qt.AlignTop
 
-    SectionHeading {
-        text: qsTr("LFO 2")
-        Layout.alignment: Qt.AlignLeft
+    RowLayout {
+        Layout.fillWidth: true
         Layout.topMargin: 10
+        SectionHeading {
+            text: qsTr("LFO 2")
+        }
+        LfoLed {
+            controller: fmSynthController
+            lfoIndex: 1
+        }
+        Item {
+            Layout.fillWidth: true
+        }
+        CheckBox {
+            text: qsTr("Free Run")
+            checked: fmSynthController.lfo2FreeRun
+            onToggled: fmSynthController.lfo2FreeRun = checked
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("One LFO for all the voices that runs on regardless of the notes. Its Delay and Fade restart on the first note after silence. Off, every note restarts its own LFO.")
+        }
     }
 
     ComboBox {

@@ -225,6 +225,8 @@ FmSynthDevice::FmSynthDevice(std::string name)
     // One: the rate as it always was
     addParameter(Parameter { NahdXml::xmlKeyLfoRateDivider().toStdString(), 1.0f, 1, Lfo::MaxRateDivider, 1, 1, Parameter::Type::Discrete });
     addParameter(Parameter { NahdXml::xmlKeyLfo2RateDivider().toStdString(), 1.0f, 1, Lfo::MaxRateDivider, 1, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { NahdXml::xmlKeyLfoFreeRun().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
+    addParameter(Parameter { NahdXml::xmlKeyLfo2FreeRun().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
 
     addParameter(Parameter { NahdXml::xmlKeyVoiceMode().toStdString(), 0.0f, 0, 5, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { NahdXml::xmlKeyVoiceDepth().toStdString(), 0.1f, 0, 10000, 1000, 100 });
@@ -420,6 +422,7 @@ void FmSynthDevice::processAudio(AudioContext & context)
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
     prepareForProcessing(context);
+    renderGlobalLfos(context);
 
     const uint8_t oversampleFactor = clampOversampleFactor(context.oversampleFactor);
     const uint32_t oversampledRate = context.sampleRate * oversampleFactor;
@@ -431,27 +434,8 @@ void FmSynthDevice::processAudio(AudioContext & context)
 
     for (size_t index = 0; index < m_voices.size(); index++) {
         auto & voice = m_voices.at(index);
-        voice.lfo.setWaveform(m_lfoWaveform);
-        voice.lfo.setMode(m_lfoMode);
-        if (m_lfoMode == Lfo::Mode::BPM) {
-            voice.lfo.setFrequency(m_bpm, m_lfoRate);
-        } else {
-            voice.lfo.setFrequency(ParameterMapper::mapLfoFrequency(m_lfoRate, 0.05, 20.0));
-        }
-        voice.lfo.setDelayTime(ParameterMapper::mapCubic(m_lfoDelay, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
-        voice.lfo.setFadeTime(ParameterMapper::mapCubic(m_lfoFade, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
-        voice.lfo.setRateDivider(m_lfoRateDivider);
-
-        voice.lfo2.setWaveform(m_lfo2Waveform);
-        voice.lfo2.setMode(m_lfo2Mode);
-        if (m_lfo2Mode == Lfo::Mode::BPM) {
-            voice.lfo2.setFrequency(m_bpm, m_lfo2Rate);
-        } else {
-            voice.lfo2.setFrequency(ParameterMapper::mapLfoFrequency(m_lfo2Rate, 0.05, 20.0));
-        }
-        voice.lfo2.setDelayTime(ParameterMapper::mapCubic(m_lfo2Delay, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
-        voice.lfo2.setFadeTime(ParameterMapper::mapCubic(m_lfo2Fade, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
-        voice.lfo2.setRateDivider(m_lfo2RateDivider);
+        configureLfo1(voice.lfo);
+        configureLfo2(voice.lfo2);
 
         if (voice.active) {
             renderVoice(voice, context, oversampleFactor, oversampledRate, portamentoCoeff, pbRatio, index);
@@ -502,7 +486,7 @@ void FmSynthDevice::renderVoice(Voice & voice, AudioContext & context, uint8_t o
     for (uint32_t i = 0; i < context.frameCount; i++) {
         for (uint8_t subSample = 0; subSample < oversampleFactor; subSample++) {
             voice.glideFrequency += (voice.frequency - voice.glideFrequency) * portamentoCoeff;
-            const ModulationValues mods = calculateModulation(voice);
+            const ModulationValues mods = calculateModulation(voice, i);
             float voiceSample = generateVoiceSample(voice, mods, oversampledRate, pbRatio);
             if (damped) {
                 voice.damping.process(static_cast<double>(voiceSample));
@@ -551,13 +535,13 @@ void FmSynthDevice::updateVoiceParameters(Voice & voice, uint32_t oversampledRat
     voice.hpf.setResonance(0.0f);
 }
 
-FmSynthDevice::ModulationValues FmSynthDevice::calculateModulation(Voice & voice) const
+FmSynthDevice::ModulationValues FmSynthDevice::calculateModulation(Voice & voice, uint32_t frame) const
 {
     ModulationValues mods = ModulationValues {};
     mods.ampEnvelope = voice.ampEg.nextSample();
     mods.modEnvelope = voice.modEg.nextSample() * m_modDepth;
-    mods.lfoValue = voice.lfo.nextSample() * m_lfoDepth;
-    mods.lfo2Value = voice.lfo2.nextSample() * m_lfo2Depth;
+    mods.lfoValue = (m_lfoFreeRun ? m_globalLfoBlock[frame] : voice.lfo.nextSample()) * m_lfoDepth;
+    mods.lfo2Value = (m_lfo2FreeRun ? m_globalLfo2Block[frame] : voice.lfo2.nextSample()) * m_lfo2Depth;
 
     // The index multiplier starts at unity and is scaled, not offset: modulation of the brightness
     // has to fold back to exactly the patch's own index when the modulator sits at zero.
@@ -665,6 +649,69 @@ float FmSynthDevice::generateVoiceSample(Voice & voice, const ModulationValues &
     const float velocityGain = 1.0f - m_ampVelocitySensitivity + m_ampVelocitySensitivity * voice.velocity;
 
     return voice.hpf.process(voice.lpf.process(blocked)) * static_cast<float>(mods.ampEnvelope) * ampMod * velocityGain;
+}
+
+void FmSynthDevice::configureLfo1(Lfo & lfo) const
+{
+    lfo.setWaveform(m_lfoWaveform);
+    lfo.setMode(m_lfoMode);
+    if (m_lfoMode == Lfo::Mode::BPM) {
+        lfo.setFrequency(m_bpm, m_lfoRate);
+    } else {
+        lfo.setFrequency(ParameterMapper::mapLfoFrequency(m_lfoRate, 0.05, 20.0));
+    }
+    lfo.setDelayTime(ParameterMapper::mapCubic(m_lfoDelay, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
+    lfo.setFadeTime(ParameterMapper::mapCubic(m_lfoFade, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
+    lfo.setRateDivider(m_lfoRateDivider);
+}
+
+void FmSynthDevice::configureLfo2(Lfo & lfo) const
+{
+    lfo.setWaveform(m_lfo2Waveform);
+    lfo.setMode(m_lfo2Mode);
+    if (m_lfo2Mode == Lfo::Mode::BPM) {
+        lfo.setFrequency(m_bpm, m_lfo2Rate);
+    } else {
+        lfo.setFrequency(ParameterMapper::mapLfoFrequency(m_lfo2Rate, 0.05, 20.0));
+    }
+    lfo.setDelayTime(ParameterMapper::mapCubic(m_lfo2Delay, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
+    lfo.setFadeTime(ParameterMapper::mapCubic(m_lfo2Fade, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
+    lfo.setRateDivider(m_lfo2RateDivider);
+}
+
+void FmSynthDevice::renderGlobalLfos(const AudioContext & context)
+{
+    configureLfo1(m_globalLfo);
+    configureLfo2(m_globalLfo2);
+    m_globalLfo.setFreeRunning(m_lfoFreeRun);
+    m_globalLfo2.setFreeRunning(m_lfo2FreeRun);
+    m_globalLfo.setSampleRate(context.sampleRate);
+    m_globalLfo2.setSampleRate(context.sampleRate);
+    if (m_globalLfoBlock.size() < context.frameCount) {
+        m_globalLfoBlock.resize(context.frameCount);
+        m_globalLfo2Block.resize(context.frameCount);
+    }
+    for (uint32_t i = 0; i < context.frameCount; i++) {
+        m_globalLfoBlock[i] = m_globalLfo.nextSample();
+        m_globalLfo2Block[i] = m_globalLfo2.nextSample();
+    }
+    publishLfoLed(0, m_globalLfo.shapeValue());
+    publishLfoLed(1, m_globalLfo2.shapeValue());
+}
+
+void FmSynthDevice::advanceIdle(const AudioContext & context)
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    configureLfo1(m_globalLfo);
+    configureLfo2(m_globalLfo2);
+    m_globalLfo.setFreeRunning(m_lfoFreeRun);
+    m_globalLfo2.setFreeRunning(m_lfo2FreeRun);
+    m_globalLfo.setSampleRate(context.sampleRate);
+    m_globalLfo2.setSampleRate(context.sampleRate);
+    m_globalLfo.advance(context.frameCount);
+    m_globalLfo2.advance(context.frameCount);
+    publishLfoLed(0, m_globalLfo.shapeValue());
+    publishLfoLed(1, m_globalLfo2.shapeValue());
 }
 
 bool FmSynthDevice::hasActiveAudio() const
@@ -783,6 +830,8 @@ void FmSynthDevice::resetAudio()
     for (auto && voice : m_voices) {
         voice.reset();
     }
+    m_globalLfo.reset();
+    m_globalLfo2.reset();
     m_polyNextVoice = 0;
     m_dualNextPair = 0;
     m_monoPanSlot.reset();
@@ -802,6 +851,19 @@ void FmSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
 {
     const double freq = midiNoteToFreq(note);
     const float finalVel = static_cast<float>(velocity) / 127.0f;
+
+    // A free-running LFO only has its delay restarted, and only by a note out of silence. Otherwise
+    // it restarts with every note, as the voice the note lands on does.
+    const bool silent = std::ranges::none_of(m_voices, [](auto && voice) { return voice.active; });
+    const auto restartGlobalLfo = [silent](Lfo & lfo, bool freeRun) {
+        if (!freeRun) {
+            lfo.trigger();
+        } else if (silent) {
+            lfo.restartEnvelope();
+        }
+    };
+    restartGlobalLfo(m_globalLfo, m_lfoFreeRun);
+    restartGlobalLfo(m_globalLfo2, m_lfo2FreeRun);
 
     if (m_voiceMode == VoiceMode::Mono) {
         handleMonoNoteOn(note, freq, finalVel);
@@ -1091,6 +1153,12 @@ void FmSynthDevice::syncParameters()
     updateParam(NahdXml::xmlKeyLfo2Fade(), m_lfo2Fade);
     updateDiscreteParam(NahdXml::xmlKeyLfoRateDivider(), m_lfoRateDivider);
     updateDiscreteParam(NahdXml::xmlKeyLfo2RateDivider(), m_lfo2RateDivider);
+    if (const auto p = parameter(NahdXml::xmlKeyLfoFreeRun().toStdString()); p) {
+        m_lfoFreeRun = p->get().value() > 0.5f;
+    }
+    if (const auto p = parameter(NahdXml::xmlKeyLfo2FreeRun().toStdString()); p) {
+        m_lfo2FreeRun = p->get().value() > 0.5f;
+    }
     m_lfoRateDivider = std::clamp(m_lfoRateDivider, 1, Lfo::MaxRateDivider);
     m_lfo2RateDivider = std::clamp(m_lfo2RateDivider, 1, Lfo::MaxRateDivider);
 
@@ -1134,27 +1202,8 @@ void FmSynthDevice::syncParameters()
             op.envelope().setSustainLevel(m_operatorSustain.at(i));
         }
 
-        voice.lfo.setWaveform(m_lfoWaveform);
-        voice.lfo.setMode(m_lfoMode);
-        if (m_lfoMode == Lfo::Mode::BPM) {
-            voice.lfo.setFrequency(m_bpm, m_lfoRate);
-        } else {
-            voice.lfo.setFrequency(ParameterMapper::mapLfoFrequency(m_lfoRate, 0.05, 20.0));
-        }
-        voice.lfo.setDelayTime(ParameterMapper::mapCubic(m_lfoDelay, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
-        voice.lfo.setFadeTime(ParameterMapper::mapCubic(m_lfoFade, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
-        voice.lfo.setRateDivider(m_lfoRateDivider);
-
-        voice.lfo2.setWaveform(m_lfo2Waveform);
-        voice.lfo2.setMode(m_lfo2Mode);
-        if (m_lfo2Mode == Lfo::Mode::BPM) {
-            voice.lfo2.setFrequency(m_bpm, m_lfo2Rate);
-        } else {
-            voice.lfo2.setFrequency(ParameterMapper::mapLfoFrequency(m_lfo2Rate, 0.05, 20.0));
-        }
-        voice.lfo2.setDelayTime(ParameterMapper::mapCubic(m_lfo2Delay, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
-        voice.lfo2.setFadeTime(ParameterMapper::mapCubic(m_lfo2Fade, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
-        voice.lfo2.setRateDivider(m_lfo2RateDivider);
+        configureLfo1(voice.lfo);
+        configureLfo2(voice.lfo2);
 
         voice.ampEg.setAttackTime(ParameterMapper::mapExponential(m_ampAttack, 0.001, 10.0));
         voice.ampEg.setDecayTime(ParameterMapper::mapExponential(m_ampDecay, 0.01, 10.0));
@@ -1789,6 +1838,26 @@ int FmSynthDevice::lfo2RateDivider() const
 void FmSynthDevice::setLfo2RateDivider(int divider)
 {
     setDiscreteParameterValue(Constants::NahdXml::xmlKeyLfo2RateDivider().toStdString(), std::clamp(divider, 1, Lfo::MaxRateDivider));
+}
+
+bool FmSynthDevice::lfoFreeRun() const
+{
+    return m_lfoFreeRun;
+}
+
+void FmSynthDevice::setLfoFreeRun(bool freeRun)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfoFreeRun().toStdString(), freeRun ? 1.0f : 0.0f);
+}
+
+bool FmSynthDevice::lfo2FreeRun() const
+{
+    return m_lfo2FreeRun;
+}
+
+void FmSynthDevice::setLfo2FreeRun(bool freeRun)
+{
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyLfo2FreeRun().toStdString(), freeRun ? 1.0f : 0.0f);
 }
 
 void FmSynthDevice::setLfo2Target(FmSynthDevice::LfoTarget value)

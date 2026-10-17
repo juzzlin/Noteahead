@@ -530,6 +530,86 @@ void LfoTest::test_fadeTime_shouldStartWhereTheDelayEnds()
     QVERIFY(std::abs(samples.at(200) - 1.0) < 1e-9);
 }
 
+void LfoTest::test_freeRunning_delay_shouldKeepThePhaseMoving()
+{
+    auto lfo = createEnvelopeLfo(Lfo::Waveform::Saw, 1.0, 0.1, 0.0);
+    lfo.setFreeRunning(true);
+    const auto samples = collectSamples(lfo, 101);
+
+    QCOMPARE(leadingSilence(samples), size_t { 100 });
+    // A tenth of the way round when the delay lets go, rather than at the start of the cycle
+    QVERIFY(std::abs(samples.at(100) - (2.0 * 0.1 - 1.0)) < 1e-9);
+}
+
+void LfoTest::test_restartEnvelope_shouldLeaveThePhaseAlone()
+{
+    auto lfo = createEnvelopeLfo(Lfo::Waveform::Saw, 1.0, 0.1, 0.0);
+    lfo.setFreeRunning(true);
+    collectSamples(lfo, 300);
+    const double phase = lfo.phase();
+
+    lfo.restartEnvelope();
+
+    QCOMPARE(lfo.phase(), phase);
+    QCOMPARE(leadingSilence(collectSamples(lfo, 150)), size_t { 100 });
+}
+
+void LfoTest::test_restartEnvelope_oneShot_shouldRestartTheSweep()
+{
+    auto lfo = createEnvelopeLfo(Lfo::Waveform::Saw, 1.0, 0.0, 0.0);
+    lfo.setMode(Lfo::Mode::OneShot);
+    collectSamples(lfo, 300);
+
+    lfo.restartEnvelope();
+
+    QCOMPARE(lfo.phase(), 0.0);
+}
+
+void LfoTest::test_advance_heldDelay_shouldMatchNextSample()
+{
+    auto stepped = createEnvelopeLfo(Lfo::Waveform::Saw, 1.0, 0.1, 0.0);
+    auto skipped = createEnvelopeLfo(Lfo::Waveform::Saw, 1.0, 0.1, 0.0);
+    collectSamples(stepped, 350);
+
+    skipped.advance(350);
+
+    QVERIFY(std::abs(skipped.phase() - stepped.phase()) < 1e-9);
+    QCOMPARE(skipped.nextSample(), stepped.nextSample());
+}
+
+void LfoTest::test_advance_freeRunning_shouldMatchNextSample()
+{
+    auto stepped = createEnvelopeLfo(Lfo::Waveform::Saw, 1.0, 0.1, 0.0);
+    auto skipped = createEnvelopeLfo(Lfo::Waveform::Saw, 1.0, 0.1, 0.0);
+    stepped.setFreeRunning(true);
+    skipped.setFreeRunning(true);
+    collectSamples(stepped, 2350);
+
+    skipped.advance(2350);
+
+    QVERIFY(std::abs(skipped.phase() - stepped.phase()) < 1e-9);
+}
+
+void LfoTest::test_advance_random_shouldDrawOnTheWrap()
+{
+    auto lfo = createEnvelopeLfo(Lfo::Waveform::Random, 1.0, 0.0, 0.0);
+    const double first = lfo.shapeValue();
+
+    lfo.advance(500);
+    QCOMPARE(lfo.shapeValue(), first);
+
+    lfo.advance(600);
+    QVERIFY(lfo.shapeValue() != first);
+}
+
+void LfoTest::test_shapeValue_shouldIgnoreTheFade()
+{
+    auto lfo = createEnvelopeLfo(Lfo::Waveform::Square, 0.1, 0.0, 10.0);
+    collectSamples(lfo, 10);
+
+    QCOMPARE(lfo.shapeValue(), 1.0);
+}
+
 namespace {
 
 //! How far round its cycle the LFO gets in @p samples.
