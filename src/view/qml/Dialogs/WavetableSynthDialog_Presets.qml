@@ -61,11 +61,8 @@ RowLayout {
         onClicked: UiService.requestPresetDeleteConfirmation(wavetableSynthController, wavetableSynthController.currentUserPresetName())
     }
 
-    Label {
+    SectionHeading {
         text: qsTr("Eight voices, six wavetables")
-        font.bold: true
-        font.pixelSize: 16
-        color: themeService.accentColor
         Layout.fillWidth: true
         horizontalAlignment: Text.AlignRight
         elide: Text.ElideRight

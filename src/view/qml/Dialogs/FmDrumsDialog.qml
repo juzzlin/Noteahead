@@ -101,10 +101,8 @@ AnimatedDialog {
                         Layout.alignment: Qt.AlignTop
                         spacing: 10
 
-                        Label {
+                        SectionHeading {
                             text: qsTr("Voices")
-                            font.bold: true
-                            color: themeService.accentColor
                         }
 
                         GridLayout {
@@ -146,10 +144,8 @@ AnimatedDialog {
                             voiceName: root.voiceLabel(fmDrumsController.selectedVoice)
                         }
 
-                        Label {
+                        SectionHeading {
                             text: qsTr("Mix")
-                            font.bold: true
-                            color: themeService.accentColor
                             Layout.topMargin: 6
                         }
 
@@ -254,10 +250,8 @@ AnimatedDialog {
                         Layout.alignment: Qt.AlignTop
                         spacing: 10
 
-                        Label {
+                        SectionHeading {
                             text: qsTr("Global")
-                            font.bold: true
-                            color: themeService.accentColor
                         }
 
                         Knob {

@@ -26,11 +26,8 @@ ColumnLayout {
     Layout.fillWidth: true
     Layout.alignment: Qt.AlignTop
 
-    Label {
+    SectionHeading {
         text: qsTr("Mod Envelope")
-        font.bold: true
-        font.pixelSize: 16
-        color: themeService.accentColor
         Layout.topMargin: 10
     }
 

@@ -27,11 +27,8 @@ ColumnLayout {
     Layout.alignment: Qt.AlignTop
     spacing: 12
 
-    Label {
+    SectionHeading {
         text: qsTr("Bass Section")
-        font.bold: true
-        font.pixelSize: 16
-        color: themeService.accentColor
         Layout.alignment: Qt.AlignLeft
         Layout.topMargin: 5
     }
@@ -64,11 +61,8 @@ ColumnLayout {
         Layout.fillWidth: true
     }
 
-    Label {
+    SectionHeading {
         text: qsTr("Upper Section")
-        font.bold: true
-        font.pixelSize: 16
-        color: themeService.accentColor
         Layout.alignment: Qt.AlignLeft
         Layout.topMargin: 15
     }

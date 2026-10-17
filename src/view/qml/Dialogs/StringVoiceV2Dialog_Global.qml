@@ -28,11 +28,8 @@ ColumnLayout {
     Layout.alignment: Qt.AlignTop
     spacing: 12
 
-    Label {
+    SectionHeading {
         text: qsTr("Global")
-        font.bold: true
-        font.pixelSize: 16
-        color: themeService.accentColor
         Layout.alignment: Qt.AlignLeft
         Layout.topMargin: 5
     }
@@ -67,11 +64,8 @@ ColumnLayout {
         Layout.fillWidth: true
     }
 
-    Label {
+    SectionHeading {
         text: qsTr("Filter")
-        font.bold: true
-        font.pixelSize: 14
-        color: themeService.accentColor
         Layout.topMargin: 10
     }
 

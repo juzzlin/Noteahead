@@ -27,11 +27,8 @@ ColumnLayout {
     Layout.alignment: Qt.AlignTop
     spacing: 10
 
-    Label {
+    SectionHeading {
         text: qsTr("Phrase")
-        font.bold: true
-        font.pixelSize: 16
-        color: themeService.accentColor
         Layout.topMargin: 10
     }
 
@@ -67,10 +64,8 @@ ColumnLayout {
         Layout.fillWidth: true
     }
 
-    Label {
+    SectionHeading {
         text: qsTr("Phonemes")
-        font.bold: true
-        color: themeService.accentColor
         Layout.topMargin: 10
     }
 

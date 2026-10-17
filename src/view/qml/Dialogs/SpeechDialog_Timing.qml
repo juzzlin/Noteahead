@@ -27,11 +27,8 @@ ColumnLayout {
     Layout.alignment: Qt.AlignTop
     spacing: 10
 
-    Label {
+    SectionHeading {
         text: qsTr("Timing")
-        font.bold: true
-        font.pixelSize: 16
-        color: themeService.accentColor
         Layout.topMargin: 10
     }
 

@@ -37,11 +37,8 @@ ColumnLayout {
         Layout.fillWidth: true
         Layout.topMargin: 10
 
-        Label {
+        SectionHeading {
             text: root.op.title
-            font.bold: true
-            font.pixelSize: 16
-            color: themeService.accentColor
         }
 
         Item {

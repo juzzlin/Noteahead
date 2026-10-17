@@ -27,11 +27,8 @@ ColumnLayout {
     Layout.alignment: Qt.AlignTop
     spacing: 12
 
-    Label {
+    SectionHeading {
         text: qsTr("Envelope")
-        font.bold: true
-        font.pixelSize: 16
-        color: themeService.accentColor
         Layout.alignment: Qt.AlignLeft
         Layout.topMargin: 5
     }
@@ -63,11 +60,8 @@ ColumnLayout {
         wrapMode: Text.WordWrap
     }
 
-    Label {
+    SectionHeading {
         text: qsTr("Modulation")
-        font.bold: true
-        font.pixelSize: 16
-        color: themeService.accentColor
         Layout.alignment: Qt.AlignLeft
         Layout.topMargin: 15
     }
@@ -79,11 +73,8 @@ ColumnLayout {
         Layout.fillWidth: true
     }
 
-    Label {
+    SectionHeading {
         text: qsTr("Phaser")
-        font.bold: true
-        font.pixelSize: 16
-        color: themeService.accentColor
         Layout.alignment: Qt.AlignLeft
         Layout.topMargin: 15
     }

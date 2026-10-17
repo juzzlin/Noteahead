@@ -61,11 +61,8 @@ RowLayout {
         onClicked: UiService.requestPresetDeleteConfirmation(bassSynthController, bassSynthController.currentUserPresetName())
     }
 
-    Label {
+    SectionHeading {
         text: qsTr("A monophonic bass synthesizer with accent and slide")
-        font.bold: true
-        font.pixelSize: 16
-        color: themeService.accentColor
         Layout.fillWidth: true
         horizontalAlignment: Text.AlignRight
         elide: Text.ElideRight

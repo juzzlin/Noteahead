@@ -39,11 +39,8 @@ ColumnLayout {
     Layout.alignment: Qt.AlignTop
     spacing: 6
 
-    Label {
+    SectionHeading {
         text: "LFO " + (root.lfo.index + 1)
-        font.bold: true
-        font.pixelSize: 16
-        color: themeService.accentColor
     }
 
     // What it moves: the device or effect, then the parameter, from the same list automation offers

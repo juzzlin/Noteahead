@@ -26,10 +26,8 @@ ColumnLayout {
     spacing: 15
 
     // Global Settings
-    Label {
+    SectionHeading {
         text: qsTr("Global Settings")
-        font.bold: true
-        color: themeService.accentColor
     }
 
     Knob {

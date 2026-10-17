@@ -38,10 +38,8 @@ ColumnLayout {
     RowLayout {
         Layout.fillWidth: true
 
-        Label {
+        SectionHeading {
             text: root.op.title
-            font.bold: true
-            color: themeService.accentColor
         }
 
         Item {

@@ -32,10 +32,8 @@ ColumnLayout {
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
 
-    Label {
+    SectionHeading {
         text: qsTr("Noise")
-        font.bold: true
-        color: themeService.accentColor
     }
 
     RowLayout {

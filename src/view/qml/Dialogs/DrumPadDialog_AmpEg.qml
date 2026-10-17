@@ -37,10 +37,8 @@ ColumnLayout {
 
     // A heading rather than a framed box, as the Sampler and every other device dialog head their
     // sections: the accent colour is what says "section", not a rectangle around it.
-    Label {
+    SectionHeading {
         text: qsTr("Amp Envelope") + (root.voiceName === "" ? "" : " (" + root.voiceName + ")")
-        font.bold: true
-        color: themeService.accentColor
     }
 
 

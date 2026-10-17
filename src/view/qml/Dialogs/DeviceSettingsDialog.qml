@@ -66,11 +66,8 @@ AnimatedDialog {
             width: parent.width
             spacing: 14
 
-            Label {
+            SectionHeading {
                 text: qsTr("Signal Flow")
-                font.bold: true
-                font.pixelSize: 16
-                color: themeService.accentColor
             }
 
             Label {
@@ -107,11 +104,8 @@ AnimatedDialog {
                 wrapMode: Text.WordWrap
             }
 
-            Label {
+            SectionHeading {
                 text: qsTr("Effect Sends")
-                font.bold: true
-                font.pixelSize: 16
-                color: themeService.accentColor
                 Layout.topMargin: 10
             }
 

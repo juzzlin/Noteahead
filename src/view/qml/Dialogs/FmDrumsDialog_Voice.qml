@@ -35,10 +35,8 @@ ColumnLayout {
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
 
-    Label {
+    SectionHeading {
         text: qsTr("Voice") + (root.voiceName === "" ? "" : " (" + root.voiceName + ")")
-        font.bold: true
-        color: themeService.accentColor
     }
 
     // Any pad can be any drum: this loads a sound onto the selected pad and leaves its mix alone

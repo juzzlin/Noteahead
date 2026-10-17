@@ -47,6 +47,7 @@ QtObject {
     readonly property color textMuted: "#888888"
     readonly property color textFaint: "#777777"
     readonly property color textDim: "#666666"
+    readonly property color headingText: "#e0e0e0"
 
     // States
     readonly property color danger: "#ff6060"

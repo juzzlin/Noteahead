@@ -27,11 +27,8 @@ ColumnLayout {
     Layout.alignment: Qt.AlignTop
     spacing: 6
 
-    Label {
+    SectionHeading {
         text: qsTr("Voice")
-        font.bold: true
-        font.pixelSize: 16
-        color: themeService.accentColor
         Layout.topMargin: 10
     }
 

@@ -25,10 +25,8 @@ ColumnLayout {
     Layout.alignment: Qt.AlignTop
     spacing: 15
 
-    Label {
+    SectionHeading {
         text: qsTr("Pad Settings")
-        font.bold: true
-        color: themeService.accentColor
     }
 
     // Pan Knob

@@ -245,11 +245,8 @@ EffectDialog {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            Label {
+            SectionHeading {
                 text: qsTr("Scope")
-                font.bold: true
-                font.pixelSize: 16
-                color: themeService.accentColor
             }
             Label {
                 text: root.reading.hasReference ? qsTr("Each hit of the reference, frozen: the reference in grey, this signal in colour. Where they swing the same way they add up; where they swing apart they cancel.") : qsTr("Choose a reference to compare this signal with. Without one the scope shows this signal alone.")

@@ -61,11 +61,8 @@ RowLayout {
         onClicked: UiService.requestPresetDeleteConfirmation(synthController, synthController.currentUserPresetName())
     }
 
-    Label {
+    SectionHeading {
         text: qsTr("A general purpose 6-voice synthesizer")
-        font.bold: true
-        font.pixelSize: 16
-        color: themeService.accentColor
         Layout.fillWidth: true
         horizontalAlignment: Text.AlignRight
         elide: Text.ElideRight

@@ -33,11 +33,8 @@ ColumnLayout {
     Layout.fillWidth: true
     Layout.alignment: Qt.AlignTop
 
-    Label {
+    SectionHeading {
         text: qsTr("Filter Drive")
-        font.bold: true
-        font.pixelSize: 16
-        color: themeService.accentColor
         Layout.alignment: Qt.AlignLeft
         Layout.topMargin: 10
     }
