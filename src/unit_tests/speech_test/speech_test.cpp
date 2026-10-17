@@ -1825,6 +1825,14 @@ void SpeechTest::test_device_sampleRate_shouldNotChangeTheVoice()
     QVERIFY2(std::abs(at44.high - at48.high) < 1.0, qPrintable(QString::number(at48.high) + " -> " + QString::number(at44.high)));
 }
 
+void SpeechTest::test_device_lfoLed_idle_shouldGoDark()
+{
+    SpeechDevice device { "Speech" };
+    std::vector<double> buffer(2, 0.0);
+    device.advanceIdle(AudioContext { std::span(buffer.data(), buffer.size()), 1, 48000 });
+    QCOMPARE(device.lfoLed(0), -1.0f);
+}
+
 } // namespace noteahead
 
 QTEST_GUILESS_MAIN(noteahead::SpeechTest)

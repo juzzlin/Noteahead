@@ -1687,6 +1687,35 @@ float sawLedAfterNote(bool freeRun, uint32_t silentFrames)
     return synth.lfoLed(0);
 }
 
+//! The LED over two blocks of silence after a note has died away, rendered as the engine renders a
+//! silent device with events scheduled, or skipped as it skips one without
+std::pair<float, float> sawLedsOnceSilent(bool freeRun, bool rendered)
+{
+    WavetableSynthDevice synth { "LED" };
+    synth.setLfoWaveform(Lfo::Waveform::Saw);
+    synth.setLfoRate(static_cast<float>(ParameterMapper::unmapLfoFrequency(4.0, 0.05, 20.0)));
+    synth.setLfoFreeRun(freeRun);
+    const auto rate = static_cast<uint32_t>(Constants::defaultSampleRate());
+    std::vector<double> buffer(3000 * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), 3000, rate };
+    synth.processMidiNoteOn(64, 100);
+    synth.processAudio(context);
+    synth.processMidiNoteOff(64);
+    for (int block = 0; block < 1000 && synth.hasActiveAudio(); block++) {
+        synth.processAudio(context);
+    }
+    const auto silentBlock = [&] {
+        if (rendered) {
+            synth.processAudio(context);
+        } else {
+            synth.advanceIdle(context);
+        }
+        return synth.lfoLed(0);
+    };
+    const float first = silentBlock();
+    return { first, silentBlock() };
+}
+
 } // namespace
 
 void WavetableSynthTest::test_lfoFreeRun_default_shouldBeOff()
@@ -1765,6 +1794,23 @@ void WavetableSynthTest::test_lfoLed_freeRun_shouldNotRestartOnTheNote()
     // A quarter of the way round the saw
     const float led = sawLedAfterNote(true, 3000);
     QVERIFY2(std::abs(led - -0.5f) < 0.01f, qPrintable(QString::number(led)));
+}
+
+void WavetableSynthTest::test_lfoLed_idle_shouldGoDark()
+{
+    QCOMPARE(sawLedsOnceSilent(false, false), std::make_pair(-1.0f, -1.0f));
+}
+
+void WavetableSynthTest::test_lfoLed_renderedSilence_shouldGoDark()
+{
+    QCOMPARE(sawLedsOnceSilent(false, true), std::make_pair(-1.0f, -1.0f));
+}
+
+void WavetableSynthTest::test_lfoLed_idleFreeRun_shouldKeepShowingTheLfo()
+{
+    // A quarter of a cycle apart
+    const auto [first, second] = sawLedsOnceSilent(true, false);
+    QVERIFY2(std::abs(std::abs(second - first) - 0.5f) < 0.01f || std::abs(std::abs(second - first) - 1.5f) < 0.01f, qPrintable(QString { "%1 -> %2" }.arg(first).arg(second)));
 }
 
 } // namespace noteahead

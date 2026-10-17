@@ -422,6 +422,7 @@ private:
     void configureLfo2(Lfo & lfo) const;
     //! Steps the device-wide LFOs through the block and publishes them to the phase LEDs.
     void renderGlobalLfos(const AudioContext & context);
+    void publishLfoLeds();
     float generateVoiceSample(Voice & voice, const ModulationValues & mods, double oversampledRate, double pbRatio);
 
     void prepareForProcessing(AudioContext & context);

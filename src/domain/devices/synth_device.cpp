@@ -829,8 +829,7 @@ void SynthDevice::advanceIdle(const AudioContext & context)
     m_globalLfo2.setSampleRate(context.sampleRate);
     m_globalLfo.advance(context.frameCount);
     m_globalLfo2.advance(context.frameCount);
-    publishLfoLed(0, m_globalLfo.shapeValue());
-    publishLfoLed(1, m_globalLfo2.shapeValue());
+    publishLfoLeds();
 }
 
 void SynthDevice::renderGlobalLfos(const AudioContext & context)
@@ -845,8 +844,17 @@ void SynthDevice::renderGlobalLfos(const AudioContext & context)
         m_globalLfoBlock[i] = m_globalLfo.nextSample();
         m_globalLfo2Block[i] = m_globalLfo2.nextSample();
     }
-    publishLfoLed(0, m_globalLfo.shapeValue());
-    publishLfoLed(1, m_globalLfo2.shapeValue());
+    publishLfoLeds();
+}
+
+void SynthDevice::publishLfoLeds()
+{
+    // Without Free Run every note has its own LFO, and with no note sounding there is none to show.
+    // Checked on every block, rendered or not: the engine renders a silent device too, for one with
+    // events scheduled or an effect tail still ringing.
+    const bool sounding = hasActiveAudio();
+    publishLfoLed(0, m_lfoFreeRun || sounding ? m_globalLfo.shapeValue() : LfoLedDark);
+    publishLfoLed(1, m_lfo2FreeRun || sounding ? m_globalLfo2.shapeValue() : LfoLedDark);
 }
 
 void SynthDevice::processDeviceMidiNoteOn(uint8_t note, uint8_t velocity)

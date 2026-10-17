@@ -675,7 +675,14 @@ void SpeechDevice::processAudio(AudioContext & context)
         context.buffer[i * 2] += m_dcBlockerL.process(outL);
         context.buffer[i * 2 + 1] += m_dcBlockerR.process(outR);
     }
-    publishLfoLed(0, m_vibrato.shapeValue());
+    // The vibrato restarts with every word, so between them there is none to show
+    publishLfoLed(0, m_sequencer.isActive() ? m_vibrato.shapeValue() : LfoLedDark);
+}
+
+void SpeechDevice::advanceIdle(const AudioContext &)
+{
+    // Nothing is being said, as in processAudio()
+    publishLfoLed(0, LfoLedDark);
 }
 
 bool SpeechDevice::hasActiveAudio() const

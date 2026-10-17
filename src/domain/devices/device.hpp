@@ -404,6 +404,8 @@ public:
     //! Where LFO @p index is in its shape, -1..1, as the audio thread last published it. Safe to call
     //! from any thread.
     float lfoLed(size_t index) const;
+    //! An LED with no LFO behind it to show, as the bottom of the shape.
+    static constexpr double LfoLedDark { -1.0 };
 
     virtual void setBpm(float bpm);
 

@@ -183,6 +183,9 @@ private slots:
     void test_lfoFreeRun_idle_shouldKeepTimeAsRenderingDoes();
     void test_lfoLed_noteOn_shouldRestartTheShape();
     void test_lfoLed_freeRun_shouldNotRestartOnTheNote();
+    void test_lfoLed_idle_shouldGoDark();
+    void test_lfoLed_renderedSilence_shouldGoDark();
+    void test_lfoLed_idleFreeRun_shouldKeepShowingTheLfo();
 };
 
 } // namespace noteahead

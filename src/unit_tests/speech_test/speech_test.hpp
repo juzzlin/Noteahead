@@ -104,6 +104,7 @@ private slots:
 
     void test_device_allNotesOff_shouldStopSpeaking();
     void test_device_reset_shouldRestoreTheDefaultPhrase();
+    void test_device_lfoLed_idle_shouldGoDark();
 };
 
 } // namespace noteahead

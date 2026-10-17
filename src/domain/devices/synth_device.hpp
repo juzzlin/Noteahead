@@ -789,6 +789,7 @@ private:
     void configureLfo2(Lfo & lfo) const;
     //! Steps the device-wide LFOs through the block and publishes them to the phase LEDs.
     void renderGlobalLfos(const AudioContext & context);
+    void publishLfoLeds();
     //! Offset an LFO pointing at \a target adds to the delay's feedback filter, at this sample.
     double delayFilterModulation(LfoTarget target, double lfoValue, double lfo2Value) const;
 
