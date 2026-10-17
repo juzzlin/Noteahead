@@ -20,7 +20,7 @@ import QtQuick.Layouts
 import ".."
 import "../Components"
 
-GroupBox {
+SectionBox {
     property int targetIndex
     title: qsTr("Target %1").arg(targetIndex)
     function initialize(enabled: bool, controller: int, targetValue: int, releaseValue: int): void {

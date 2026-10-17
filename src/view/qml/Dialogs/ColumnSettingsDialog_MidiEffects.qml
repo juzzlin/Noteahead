@@ -30,7 +30,7 @@ ColumnLayout {
         midiDelayFeedbackSpinBox.value = columnSettingsModel.midiDelayFeedback
         midiDelayMaxRepetitionsSpinBox.value = columnSettingsModel.midiDelayMaxRepetitions
     }
-    GroupBox {
+    SectionBox {
         title: qsTr("Chord Automation")
         Layout.fillWidth: true
         ColumnLayout {
@@ -312,7 +312,7 @@ ColumnLayout {
             }
         }
     }
-    GroupBox {
+    SectionBox {
         title: qsTr("MIDI Delay")
         Layout.fillWidth: true
         ColumnLayout {

@@ -20,7 +20,7 @@ import QtQuick.Layouts
 import ".."
 import "../Components"
 
-GroupBox {
+SectionBox {
     title: qsTr("MIDI Effects")
     Layout.fillWidth: true
     width: parent.width
@@ -72,7 +72,7 @@ GroupBox {
             }
         }
         LayoutSeparator {}
-        GroupBox {
+        SectionBox {
             id: sideChainGroup
             title: qsTr("MIDI Side-chain")
             Layout.fillWidth: true

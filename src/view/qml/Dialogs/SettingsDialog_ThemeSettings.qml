@@ -21,7 +21,7 @@ import QtQuick.Layouts
 import ".."
 import "../Components"
 
-GroupBox {
+SectionBox {
     title: qsTr("Theme")
     // A width bound through anchors here fights the explicit width the owning ScrollView assigns
     // to this instance while its StackLayout page is inactive (Settings dialog, MIDI/Audio/Theme
@@ -33,7 +33,7 @@ GroupBox {
                 anchors.right: parent.right
         spacing: 10
 
-        GroupBox {
+        SectionBox {
             title: qsTr("Colors")
             Layout.fillWidth: true
 
@@ -152,7 +152,7 @@ GroupBox {
             }
         }
 
-        GroupBox {
+        SectionBox {
             title: qsTr("Volume Meter")
             Layout.fillWidth: true
 

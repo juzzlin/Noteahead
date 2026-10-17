@@ -20,7 +20,7 @@ import QtQuick.Layouts
 import ".."
 import "../Components"
 
-GroupBox {
+SectionBox {
     title: qsTr("General")
     width: parent.width
     ColumnLayout {
@@ -28,7 +28,7 @@ GroupBox {
         anchors.right: parent.right
         spacing: 10
 
-        GroupBox {
+        SectionBox {
             title: qsTr("Editor")
             Layout.fillWidth: true
             GridLayout {
@@ -204,7 +204,7 @@ GroupBox {
             }
         }
 
-        GroupBox {
+        SectionBox {
             title: qsTr("Device Rack")
             Layout.fillWidth: true
             GridLayout {
@@ -240,7 +240,7 @@ GroupBox {
             }
         }
 
-        GroupBox {
+        SectionBox {
             title: qsTr("Playback")
             Layout.fillWidth: true
             GridLayout {

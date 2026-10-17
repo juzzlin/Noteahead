@@ -20,7 +20,7 @@ import QtQuick.Layouts
 import ".."
 import "../Components"
 
-GroupBox {
+SectionBox {
     title: qsTr("Instrument")
     Layout.fillWidth: true
     width: parent.width

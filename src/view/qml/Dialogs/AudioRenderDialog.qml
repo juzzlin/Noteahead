@@ -52,7 +52,7 @@ AnimatedDialog {
             width: renderScrollView.availableWidth
             spacing: 20
 
-            GroupBox {
+            SectionBox {
                 title: qsTr("Render Mode")
                 Layout.fillWidth: true
                 ColumnLayout {
@@ -68,7 +68,7 @@ AnimatedDialog {
                 }
             }
 
-            GroupBox {
+            SectionBox {
                 title: qsTr("Audio Settings")
                 Layout.fillWidth: true
                 RowLayout {
@@ -202,7 +202,7 @@ AnimatedDialog {
                 }
             }
 
-            GroupBox {
+            SectionBox {
                 title: qsTr("Export Options")
                 Layout.fillWidth: true
                 ColumnLayout {
@@ -422,7 +422,7 @@ AnimatedDialog {
                 }
             }
 
-            GroupBox {
+            SectionBox {
                 title: qsTr("Metadata")
                 Layout.fillWidth: true
                 GridLayout {

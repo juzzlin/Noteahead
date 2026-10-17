@@ -55,7 +55,7 @@ AnimatedDialog {
         ColumnLayout {
             width: scrollView.availableWidth
             spacing: 10
-            GroupBox {
+            SectionBox {
                 title: qsTr("Song")
                 Layout.fillWidth: true
                 GridLayout {

@@ -19,7 +19,7 @@ import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts
 import ".."
 
-GroupBox {
+SectionBox {
     // A width bound through anchors here fights the explicit width the owning ScrollView assigns
     // to this instance while its StackLayout page is inactive (Settings dialog, MIDI/Audio/Theme
     // tabs) -- a plain width binding, like General's, does not.
@@ -29,7 +29,7 @@ GroupBox {
         anchors.left: parent.left
                 anchors.right: parent.right
         spacing: 10
-        GroupBox {
+        SectionBox {
             title: qsTr("Controller")
             Layout.fillWidth: true
             GridLayout {
@@ -92,7 +92,7 @@ GroupBox {
                 }
             }
         }
-        GroupBox {
+        SectionBox {
             title: qsTr("Synchronization")
             Layout.fillWidth: true
             GridLayout {
@@ -153,7 +153,7 @@ GroupBox {
                 }
             }
         }
-        GroupBox {
+        SectionBox {
             title: qsTr("Miscellaneous")
             Layout.fillWidth: true
             GridLayout {

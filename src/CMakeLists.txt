@@ -68,6 +68,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Components/OutputMeter.qml
     ${QML_BASE_DIR}/Components/OutputMeter_Level.qml
     ${QML_BASE_DIR}/Components/ScreenshotTour.qml
+    ${QML_BASE_DIR}/Components/SectionBox.qml
     ${QML_BASE_DIR}/Components/SectionHeading.qml
     ${QML_BASE_DIR}/Components/ShortcutHintAction.qml
     ${QML_BASE_DIR}/Components/SyncSlider.qml

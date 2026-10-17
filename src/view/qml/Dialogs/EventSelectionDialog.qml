@@ -64,7 +64,7 @@ AnimatedDialog {
     ColumnLayout {
         anchors.fill: parent
         spacing: 12
-        GroupBox {
+        SectionBox {
             title: qsTr("Predefined MIDI events")
             Layout.fillWidth: true
             ColumnLayout {

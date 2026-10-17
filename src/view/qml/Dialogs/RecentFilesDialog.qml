@@ -26,7 +26,7 @@ AnimatedDialog {
     modal: true
     signal fileSelected(string filePath)
     property string selectedFile
-    GroupBox {
+    SectionBox {
         title: qsTr("Recent files")
         anchors.fill: parent
         clip: true

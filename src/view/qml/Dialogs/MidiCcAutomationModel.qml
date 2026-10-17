@@ -122,7 +122,7 @@ Item {
     ColumnLayout {
         anchors.fill: parent
         spacing: 10
-        GroupBox {
+        SectionBox {
             title: qsTr("Controller number")
             Layout.fillWidth: true
             MidiCcSelector {
@@ -135,7 +135,7 @@ Item {
                 }
             }
         }
-        GroupBox {
+        SectionBox {
             title: qsTr("Interpolation settings")
             Layout.fillWidth: true
             GridLayout {
@@ -239,7 +239,7 @@ Item {
                 }
             }
         }
-        GroupBox {
+        SectionBox {
             title: qsTr("Output settings")
             Layout.fillWidth: true
             GridLayout {
@@ -287,7 +287,7 @@ Item {
         ModulationGroupBox {
             id: modulationGroupBox
         }
-        GroupBox {
+        SectionBox {
             title: qsTr("Comment")
             Layout.fillWidth: true
             TextField {

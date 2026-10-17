@@ -104,7 +104,7 @@ AnimatedDialog {
                 }
             }
 
-            GroupBox {
+            SectionBox {
                 title: qsTr("Options")
                 Layout.fillWidth: true
                 ColumnLayout {

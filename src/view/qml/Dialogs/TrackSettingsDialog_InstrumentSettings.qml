@@ -55,7 +55,7 @@ ColumnLayout {
         repeat: false
         onTriggered: trackSettingsModel.requestTestSound(UiService._activeVelocity)
     }
-    GroupBox {
+    SectionBox {
         title: qsTr("Instrument")
         Layout.fillWidth: true
         ColumnLayout {
@@ -301,7 +301,7 @@ ColumnLayout {
             }
         }
     }
-    GroupBox {
+    SectionBox {
         title: qsTr("Velocity Key Track")
         Layout.fillWidth: true
         GridLayout {

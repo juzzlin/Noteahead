@@ -98,7 +98,7 @@ Item {
     ColumnLayout {
         anchors.fill: parent
         spacing: 10
-        GroupBox {
+        SectionBox {
             title: qsTr("Interpolation settings")
             Layout.fillWidth: true
             GridLayout {
@@ -194,7 +194,7 @@ Item {
         ModulationGroupBox {
             id: modulationGroupBox
         }
-        GroupBox {
+        SectionBox {
             title: qsTr("Comment")
             Layout.fillWidth: true
             Layout.row: 2

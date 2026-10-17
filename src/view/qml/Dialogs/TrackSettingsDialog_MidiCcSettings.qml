@@ -20,7 +20,7 @@ import QtQuick.Layouts
 import ".."
 import "../Components"
 
-GroupBox {
+SectionBox {
     title: qsTr("MIDI CC Settings")
     Layout.fillWidth: true
     Layout.fillHeight: true // Allow the GroupBox to grow vertically

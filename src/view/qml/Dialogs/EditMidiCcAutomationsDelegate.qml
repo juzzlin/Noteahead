@@ -21,7 +21,7 @@ import ".."
 import "../Components"
 import "../ToolBar"
 
-GroupBox {
+SectionBox {
     id: rootItem
     title: `Pattern: ${model.pattern}, Track: ${model.track}, Column: ${model.column}`
     //! Value ranges are per port, so every lookup here has to go through the track's instrument.
@@ -77,7 +77,7 @@ GroupBox {
             onCheckedChanged: model.enabled = checked
             Component.onCompleted: checked = model.enabled
         }
-        GroupBox {
+        SectionBox {
             title: qsTr("Interpolation")
             Layout.row: 0
             Layout.column: 1
@@ -219,7 +219,7 @@ GroupBox {
                 }
             }
         }
-        GroupBox {
+        SectionBox {
             title: qsTr("Output")
             Layout.row: 1
             Layout.column: 1
@@ -273,7 +273,7 @@ GroupBox {
                 }
             }
         }
-        GroupBox {
+        SectionBox {
             title: qsTr("Modulation")
             Layout.row: 1
             Layout.column: 5

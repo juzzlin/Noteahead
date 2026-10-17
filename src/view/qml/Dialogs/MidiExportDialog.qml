@@ -76,13 +76,13 @@ AnimatedDialog {
                     to: editorService.songLength
                 }
             }
-            GroupBox {
+            SectionBox {
                 title: qsTr("Options")
                 Layout.fillWidth: true
                 RowLayout {
                     anchors.fill: parent
                     spacing: 10
-                    GroupBox {
+                    SectionBox {
                         title: qsTr("Events")
                         Layout.fillWidth: true
                         Layout.fillHeight: true
@@ -110,7 +110,7 @@ AnimatedDialog {
                             }
                         }
                     }
-                    GroupBox {
+                    SectionBox {
                         title: qsTr("Channels")
                         Layout.fillWidth: true
                         Layout.fillHeight: true

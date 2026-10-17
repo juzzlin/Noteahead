@@ -19,7 +19,7 @@ import QtQuick.Controls.Universal 2.15
 import QtQuick.Layouts
 import ".."
 
-GroupBox {
+SectionBox {
     title: qsTr("Modulation")
     Layout.fillWidth: true
 

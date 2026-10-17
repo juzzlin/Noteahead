@@ -20,7 +20,7 @@ import QtQuick.Controls.Universal 2.15
 import Noteahead 1.0
 import "../Components"
 
-GroupBox {
+SectionBox {
     title: qsTr("Oscillator")
     Layout.fillWidth: true
     

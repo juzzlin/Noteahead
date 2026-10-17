@@ -21,7 +21,7 @@ import ".."
 Row {
     id: rootItem
     spacing: 10
-    GroupBox {
+    SectionBox {
         id: songGroupBox
         label: Row {
             spacing: 5
@@ -182,7 +182,7 @@ Row {
             }
         }
     }
-    GroupBox {
+    SectionBox {
         label: Row {
             spacing: 5
             TextField {
@@ -279,7 +279,7 @@ Row {
             }
         }
     }
-    GroupBox {
+    SectionBox {
         label: Row {
             spacing: 5
             TextField {
@@ -380,7 +380,7 @@ Row {
             }
         }
     }
-    GroupBox {
+    SectionBox {
         label: Row {
             spacing: 5
             TextField {

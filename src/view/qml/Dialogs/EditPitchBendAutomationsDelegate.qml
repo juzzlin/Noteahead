@@ -21,7 +21,7 @@ import ".."
 import "../ToolBar"
 import "../Components"
 
-GroupBox {
+SectionBox {
     id: delegateRoot
     title: `Pattern: ${model.pattern}, Track: ${model.track}, Column: ${model.column}`
     //! ComboBox shadows the delegate's model with its own, so the line range has to be resolved here
@@ -73,7 +73,7 @@ GroupBox {
             onCheckedChanged: model.enabled = checked
             Component.onCompleted: checked = model.enabled
         }
-        GroupBox {
+        SectionBox {
             title: qsTr("Interpolation")
             Layout.row: 0
             Layout.column: 1
@@ -185,7 +185,7 @@ GroupBox {
                 }
             }
         }
-        GroupBox {
+        SectionBox {
             title: qsTr("Modulation")
             Layout.row: 1
             Layout.column: 1

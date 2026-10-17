@@ -23,7 +23,7 @@ import "ParameterAutomationTargets.js" as Targets
 
 //! One parameter automation in the edit dialog. What it drives is shown but not edited: a different
 //! target is a different automation.
-GroupBox {
+SectionBox {
     id: delegateRoot
     title: qsTr("Pattern: %1, Track: %2, Column: %3").arg(model.pattern).arg(model.track).arg(model.column)
 
@@ -86,7 +86,7 @@ GroupBox {
             Layout.columnSpan: 2
             Layout.fillWidth: true
         }
-        GroupBox {
+        SectionBox {
             title: qsTr("Interpolation")
             Layout.row: 1
             Layout.column: 0
@@ -185,7 +185,7 @@ GroupBox {
                 }
             }
         }
-        GroupBox {
+        SectionBox {
             title: qsTr("Modulation")
             Layout.row: 2
             Layout.column: 0

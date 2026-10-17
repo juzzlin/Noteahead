@@ -169,7 +169,7 @@ Item {
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
         }
-        GroupBox {
+        SectionBox {
             title: qsTr("Target")
             enabled: rootItem.targets.length > 0
             Layout.fillWidth: true
@@ -213,7 +213,7 @@ Item {
                 }
             }
         }
-        GroupBox {
+        SectionBox {
             title: qsTr("Interpolation settings")
             Layout.fillWidth: true
             GridLayout {
@@ -279,7 +279,7 @@ Item {
                 }
             }
         }
-        GroupBox {
+        SectionBox {
             title: qsTr("Output settings")
             Layout.fillWidth: true
             GridLayout {
@@ -330,7 +330,7 @@ Item {
         ModulationGroupBox {
             id: modulationGroupBox
         }
-        GroupBox {
+        SectionBox {
             title: qsTr("Comment")
             Layout.fillWidth: true
             TextField {

@@ -50,7 +50,7 @@ AnimatedDialog {
     ColumnLayout {
         anchors.fill: parent
         spacing: 10
-        GroupBox {
+        SectionBox {
             title: qsTr("Timing")
             Layout.fillWidth: true
             ColumnLayout {
