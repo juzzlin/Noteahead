@@ -4360,6 +4360,10 @@
         <translation>Panorointi</translation>
     </message>
     <message>
+        <source>Pan Spread</source>
+        <translation>Panoroinnin levitys</translation>
+    </message>
+    <message>
         <source>Portamento</source>
         <translation>Portamento</translation>
     </message>

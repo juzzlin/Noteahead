@@ -4360,6 +4360,10 @@
         <translation>Panorama</translation>
     </message>
     <message>
+        <source>Pan Spread</source>
+        <translation>Espalhamento do panorama</translation>
+    </message>
+    <message>
         <source>Portamento</source>
         <translation>Portamento</translation>
     </message>

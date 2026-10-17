@@ -4360,6 +4360,10 @@
         <translation>Panning</translation>
     </message>
     <message>
+        <source>Pan Spread</source>
+        <translation>Panning-spreiding</translation>
+    </message>
+    <message>
         <source>Portamento</source>
         <translation>Portamento</translation>
     </message>

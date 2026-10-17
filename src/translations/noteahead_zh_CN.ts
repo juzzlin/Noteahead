@@ -4359,6 +4359,10 @@
         <translation>声像</translation>
     </message>
     <message>
+        <source>Pan Spread</source>
+        <translation>声像扩散</translation>
+    </message>
+    <message>
         <source>Portamento</source>
         <translation>滑音</translation>
     </message>

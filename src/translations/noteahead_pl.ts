@@ -4361,6 +4361,10 @@
         <translation>Panorama</translation>
     </message>
     <message>
+        <source>Pan Spread</source>
+        <translation>Rozpiętość panoramy</translation>
+    </message>
+    <message>
         <source>Portamento</source>
         <translation>Portamento</translation>
     </message>

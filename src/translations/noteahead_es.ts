@@ -4360,6 +4360,10 @@
         <translation>Paneo</translation>
     </message>
     <message>
+        <source>Pan Spread</source>
+        <translation>Dispersión del paneo</translation>
+    </message>
+    <message>
         <source>Portamento</source>
         <translation>Portamento</translation>
     </message>
