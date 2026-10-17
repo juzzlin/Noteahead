@@ -10664,8 +10664,8 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
         <translation>噪声</translation>
     </message>
     <message>
-        <source>Filter / Envelope</source>
-        <translation>滤波器 / 包络</translation>
+        <source>Global Filter / Envelope</source>
+        <translation>全局滤波器 / 包络</translation>
     </message>
     <message>
         <source>LFO / Effects</source>

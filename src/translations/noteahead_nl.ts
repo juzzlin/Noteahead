@@ -10666,8 +10666,8 @@ Een apostrof markeert de beklemtoonde lettergreep: A&apos;merica</translation>
         <translation>Ruis</translation>
     </message>
     <message>
-        <source>Filter / Envelope</source>
-        <translation>Filter / envelop</translation>
+        <source>Global Filter / Envelope</source>
+        <translation>Globaal filter / envelop</translation>
     </message>
     <message>
         <source>LFO / Effects</source>

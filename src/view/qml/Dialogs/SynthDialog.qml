@@ -167,7 +167,7 @@ AnimatedDialog {
                         text: qsTr("Noise")
                     }
                     AppTabButton {
-                        text: qsTr("Filter / Envelope")
+                        text: qsTr("Global Filter / Envelope")
                     }
                     AppTabButton {
                         text: qsTr("LFO / Effects")

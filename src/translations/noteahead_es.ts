@@ -10666,8 +10666,8 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
         <translation>Ruido</translation>
     </message>
     <message>
-        <source>Filter / Envelope</source>
-        <translation>Filtro / envolvente</translation>
+        <source>Global Filter / Envelope</source>
+        <translation>Filtro global / envolvente</translation>
     </message>
     <message>
         <source>LFO / Effects</source>

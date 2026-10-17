@@ -10666,8 +10666,8 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
         <translation>Rumore</translation>
     </message>
     <message>
-        <source>Filter / Envelope</source>
-        <translation>Filtro / inviluppo</translation>
+        <source>Global Filter / Envelope</source>
+        <translation>Filtro globale / inviluppo</translation>
     </message>
     <message>
         <source>LFO / Effects</source>

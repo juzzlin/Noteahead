@@ -10666,8 +10666,8 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
         <translation>Rauschen</translation>
     </message>
     <message>
-        <source>Filter / Envelope</source>
-        <translation>Filter / Hüllkurve</translation>
+        <source>Global Filter / Envelope</source>
+        <translation>Globaler Filter / Hüllkurve</translation>
     </message>
     <message>
         <source>LFO / Effects</source>

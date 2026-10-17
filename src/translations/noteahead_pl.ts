@@ -10668,8 +10668,8 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
         <translation>Szum</translation>
     </message>
     <message>
-        <source>Filter / Envelope</source>
-        <translation>Filtr / obwiednia</translation>
+        <source>Global Filter / Envelope</source>
+        <translation>Globalny filtr / obwiednia</translation>
     </message>
     <message>
         <source>LFO / Effects</source>

@@ -10666,8 +10666,8 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
         <translation>Bruit</translation>
     </message>
     <message>
-        <source>Filter / Envelope</source>
-        <translation>Filtre / enveloppe</translation>
+        <source>Global Filter / Envelope</source>
+        <translation>Filtre global / enveloppe</translation>
     </message>
     <message>
         <source>LFO / Effects</source>

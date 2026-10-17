@@ -10666,8 +10666,8 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
         <translation>Kohina</translation>
     </message>
     <message>
-        <source>Filter / Envelope</source>
-        <translation>Suodin / verhokäyrä</translation>
+        <source>Global Filter / Envelope</source>
+        <translation>Globaali suodin / verhokäyrä</translation>
     </message>
     <message>
         <source>LFO / Effects</source>
