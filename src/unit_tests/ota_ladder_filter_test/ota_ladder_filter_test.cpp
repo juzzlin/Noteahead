@@ -103,11 +103,13 @@ void OtaLadderFilterTest::test_resonance_half_shouldDieAway()
     QVERIFY2(peak < 1.0e-6, qPrintable(QString::number(peak)));
 }
 
-void OtaLadderFilterTest::test_resonance_raised_shouldThinTheBass()
+void OtaLadderFilterTest::test_resonance_raised_shouldThinTheBassOnlySlightly()
 {
+    // A Juno-106 loses about 1.2 dB of bass to a resonance that lifts the highs by 10 dB
     const double open = gainAt(2000.0, 0.0, 100.0);
     const double resonant = gainAt(2000.0, 0.85, 100.0);
-    QVERIFY2(resonant < 0.7 * open, qPrintable(QString { "%1 vs %2" }.arg(resonant).arg(open)));
+    QVERIFY2(resonant < 0.95 * open, qPrintable(QString { "%1 vs %2" }.arg(resonant).arg(open)));
+    QVERIFY2(resonant > 0.75 * open, qPrintable(QString { "%1 vs %2" }.arg(resonant).arg(open)));
 }
 
 void OtaLadderFilterTest::test_process_loudInput_shouldStayBounded()

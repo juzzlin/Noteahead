@@ -29,7 +29,7 @@ private slots:
     void test_process_twoOctavesAbove_shouldBeDownBy24DbPerOctave();
     void test_resonance_full_shouldSelfOscillateAtTheCutoff();
     void test_resonance_half_shouldDieAway();
-    void test_resonance_raised_shouldThinTheBass();
+    void test_resonance_raised_shouldThinTheBassOnlySlightly();
     void test_process_loudInput_shouldStayBounded();
 };
 

@@ -42,9 +42,9 @@ public:
 
     //! Feedback at the top of the resonance control. Four is where an ideal ladder starts to sing.
     static constexpr double MaxFeedback { 4.2 };
-    //! How much of the passband the resonance takes away is given back at the input. A little, not
-    //! all: a Juno does get thinner as it gets more resonant.
-    static constexpr double BassCompensation { 0.3 };
+    //! How much of the passband the resonance takes away is given back at the input. Most, not all:
+    //! a Juno-106 recording loses about 1.2 dB of bass to a resonance that lifts the highs by 10 dB.
+    static constexpr double BassCompensation { 0.8 };
 
 private:
     double m_cutoff { 1000.0 };
