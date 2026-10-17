@@ -103,16 +103,16 @@ AnimatedDialog {
             }
         }
 
-        TabBar {
+        AppTabBar {
             id: tabBar
             width: parent.width
-            TabButton {
+            AppTabButton {
                 text: qsTr("Instrument")
             }
-            TabButton {
+            AppTabButton {
                 text: qsTr("Timing")
             }
-            TabButton {
+            AppTabButton {
                 text: qsTr("MIDI Effects")
             }
         }

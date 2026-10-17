@@ -94,19 +94,19 @@ AnimatedDialog {
                 }
             }
         }
-        TabBar {
+        AppTabBar {
             id: tabBar
             width: parent.width
-            TabButton {
+            AppTabButton {
                 text: qsTr("General")
             }
-            TabButton {
+            AppTabButton {
                 text: qsTr("MIDI")
             }
-            TabButton {
+            AppTabButton {
                 text: qsTr("Audio")
             }
-            TabButton {
+            AppTabButton {
                 text: qsTr("Theme")
             }
         }

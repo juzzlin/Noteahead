@@ -157,25 +157,25 @@ AnimatedDialog {
                     }
                 }
 
-                TabBar {
+                AppTabBar {
                     id: synthTabBar
                     Layout.fillWidth: true
-                    TabButton {
+                    AppTabButton {
                         text: qsTr("Oscillators")
                     }
-                    TabButton {
+                    AppTabButton {
                         text: qsTr("Noise")
                     }
-                    TabButton {
+                    AppTabButton {
                         text: qsTr("Filter / Envelope")
                     }
-                    TabButton {
+                    AppTabButton {
                         text: qsTr("LFO / Effects")
                     }
-                    TabButton {
+                    AppTabButton {
                         text: qsTr("Drive / Analog")
                     }
-                    TabButton {
+                    AppTabButton {
                         text: qsTr("Scope")
                     }
                 }

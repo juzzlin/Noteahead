@@ -289,11 +289,11 @@ AnimatedDialog {
             }
         }
 
-        TabBar {
+        AppTabBar {
             id: tabBar
             Layout.fillWidth: true
             Universal.theme: Universal.Dark
-            TabButton {
+            AppTabButton {
                 text: qsTr("Insert Effects")
                 onClicked: {
                     effectRackController.isInsertRack = true;
@@ -301,7 +301,7 @@ AnimatedDialog {
                     effectRackController.targetSubIndex = -1;
                 }
             }
-            TabButton {
+            AppTabButton {
                 text: qsTr("Send Effects")
                 onClicked: {
                     effectRackController.isInsertRack = false;

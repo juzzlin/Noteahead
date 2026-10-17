@@ -49,6 +49,8 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/${MAIN}
     ${QML_BASE_DIR}/BottomBar.qml
     ${QML_BASE_DIR}/Components/AppButton.qml
+    ${QML_BASE_DIR}/Components/AppTabBar.qml
+    ${QML_BASE_DIR}/Components/AppTabButton.qml
     ${QML_BASE_DIR}/Components/ClipLed.qml
     ${QML_BASE_DIR}/Components/DateField.qml
     ${QML_BASE_DIR}/Components/DeviceMenuButton.qml

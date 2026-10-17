@@ -313,15 +313,15 @@ AnimatedDialog {
 
         // Along the bottom, where the master rack keeps its own. One dialog per device, with its inserts and its routing side by side: a pad's sends were
         // reachable from nowhere at all before this.
-        TabBar {
+        AppTabBar {
             id: tabBar
             Layout.fillWidth: true
             visible: root.sendsAvailable
             Universal.theme: Universal.Dark
-            TabButton {
+            AppTabButton {
                 text: qsTr("Insert Effects")
             }
-            TabButton {
+            AppTabButton {
                 text: qsTr("Sends")
             }
         }

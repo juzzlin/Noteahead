@@ -129,16 +129,16 @@ AnimatedDialog {
                         moduleWidth: mainRow.moduleWidth
                     }
                 }
-                TabBar {
+                AppTabBar {
                     id: synthTabBar
                     Layout.fillWidth: true
-                    TabButton {
+                    AppTabButton {
                         text: qsTr("Oscillators")
                     }
-                    TabButton {
+                    AppTabButton {
                         text: qsTr("Filter / Envelopes")
                     }
-                    TabButton {
+                    AppTabButton {
                         text: qsTr("LFOs")
                     }
                 }

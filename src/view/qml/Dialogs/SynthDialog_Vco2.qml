@@ -169,13 +169,13 @@ ColumnLayout {
         }
     }
 
-    TabBar {
+    AppTabBar {
         id: vcoTabBar
         Layout.fillWidth: true
-        TabButton {
+        AppTabButton {
             text: qsTr("Shape")
         }
-        TabButton {
+        AppTabButton {
             // A tab hides what is behind it, so the label says when this oscillator is being
             // filtered at all -- by a control moved off its end, or by something sweeping one.
             text: qsTr("Filter")
