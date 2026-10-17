@@ -4360,6 +4360,116 @@
     </message>
 </context>
 <context>
+    <name>LfoDialog</name>
+    <message>
+        <source>Ok</source>
+        <translation type="unfinished">OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Abbrechen</translation>
+    </message>
+</context>
+<context>
+    <name>LfoDialog_Lfo</name>
+    <message>
+        <source>Target</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Parameter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation type="unfinished">Keine</translation>
+    </message>
+    <message>
+        <source>Target missing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Free</source>
+        <translation type="unfinished">Frei</translation>
+    </message>
+    <message>
+        <source>Sync</source>
+        <translation type="unfinished">Sync</translation>
+    </message>
+    <message>
+        <source>One-shot</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bipolar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unipolar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tremolo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bipolar swings either way of the setting. Unipolar moves from the setting towards the control&apos;s rest. Tremolo scales a fader&apos;s gain, like Expression.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation type="unfinished">Rate</translation>
+    </message>
+    <message>
+        <source>Rate Divider</source>
+        <translation type="unfinished">Raten-Teiler</translation>
+    </message>
+    <message>
+        <source>Divides the Rate by up to %1, in both modes: a tempo-locked LFO stretched over several bars, a free-running one over minutes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation type="unfinished">Tiefe</translation>
+    </message>
+    <message>
+        <source>Phase</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Smoothing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rounds off the steps of Square and Random, which otherwise click.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">Delay</translation>
+    </message>
+    <message>
+        <source>Fade</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Velocity</source>
+        <translation type="unfinished">Velocity</translation>
+    </message>
+    <message>
+        <source>How much a softer note on this device&apos;s track lessens the depth.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restart on note</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Notes on this device&apos;s track start the LFO over. One-shot always does.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>LimiterDialog</name>
     <message>
         <source>Limiter Parameters (Slot %1)</source>
@@ -6966,6 +7076,22 @@
     <message>
         <source>Rate</source>
         <translation type="unfinished">Rate</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation type="unfinished">Tiefe</translation>
+    </message>
+    <message>
+        <source>Fade</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Phase</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Smoothing</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Portamento</source>
