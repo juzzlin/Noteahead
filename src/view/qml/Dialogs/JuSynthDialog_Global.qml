@@ -54,6 +54,12 @@ ColumnLayout {
         Layout.fillWidth: true
     }
     Knob {
+        label: qsTr("Pan Spread")
+        value: juSynthController.panSpread
+        onMoved: v => juSynthController.panSpread = v
+        Layout.fillWidth: true
+    }
+    Knob {
         label: qsTr("Portamento")
         value: juSynthController.portamento
         onMoved: v => juSynthController.portamento = v

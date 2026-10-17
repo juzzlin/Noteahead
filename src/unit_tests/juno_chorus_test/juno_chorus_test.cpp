@@ -46,6 +46,25 @@ void JunoChorusTest::test_process_off_shouldPassTheInputToBothSides()
     }
 }
 
+void JunoChorusTest::test_process_stereoOn_shouldKeepEachSideOnItsOwnLine()
+{
+    // A voice panned hard left stays there: the right is its own line and hears nothing of it
+    for (auto && mode : onModes) {
+        JunoChorus chorus;
+        chorus.setSampleRate(SampleRate);
+        chorus.setMode(mode);
+        double leftEnergy = 0.0;
+        for (int i = 0; i < 48000; i++) {
+            double left = 0.0;
+            double right = 0.0;
+            chorus.process(std::sin(i * 0.05), 0.0, left, right);
+            QCOMPARE(right, 0.0);
+            leftEnergy += left * left;
+        }
+        QVERIFY(leftEnergy > 1000.0);
+    }
+}
+
 void JunoChorusTest::test_delayRange_modes_shouldMatchTheJuno60()
 {
     QCOMPARE(JunoChorus::minDelayMs(JunoChorus::Mode::I), 1.66);

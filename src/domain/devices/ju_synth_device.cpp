@@ -139,6 +139,7 @@ JuSynthDevice::JuSynthDevice(std::string name)
 
     addParameter(Parameter { C::xmlKeyPortamento().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { C::xmlKeyPitchBendRange().toStdString(), 2.0f, 0, 24, 2, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { C::xmlKeyPanSpread().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
     for (size_t i = 0; i < m_voices.size(); i++) {
         m_voices[i].noiseState = static_cast<uint32_t>(0x9E3779B9u * (i + 1));
@@ -154,8 +155,10 @@ JuSynthDevice::JuSynthDevice(std::string name)
         voice.gate.setReleaseTime(GateReleaseSeconds);
     }
     m_lfo.setWaveform(Lfo::Waveform::Triangle);
-    m_hpf.setMode(CascadedSvf::Mode::HighPass);
-    m_hpf.setOrder(2);
+    for (auto && hpf : m_hpfs) {
+        hpf.setMode(CascadedSvf::Mode::HighPass);
+        hpf.setOrder(2);
+    }
 
     JuSynthDevice::syncParameters();
 
@@ -169,6 +172,7 @@ JuSynthDevice::JuSynthDevice(std::string name)
     DeviceParameterDisplay::percent(*this, C::xmlKeyNoiseLevel(), QT_TRANSLATE_NOOP("ParameterDisplay", "Noise Level"));
     DeviceParameterDisplay::percent(*this, C::xmlKeyEnvMod(), QT_TRANSLATE_NOOP("ParameterDisplay", "Env Mod"));
     DeviceParameterDisplay::percent(*this, C::xmlKeyFilterLfoDepth(), QT_TRANSLATE_NOOP("ParameterDisplay", "VCF LFO"));
+    DeviceParameterDisplay::percent(*this, C::xmlKeyPanSpread(), QT_TRANSLATE_NOOP("ParameterDisplay", "Pan Spread"));
 }
 
 JuSynthDevice::~JuSynthDevice() = default;
@@ -363,7 +367,7 @@ void JuSynthDevice::processAudio(AudioContext & context)
         m_tailFrames -= std::min<uint32_t>(m_tailFrames, static_cast<uint32_t>(frames));
     }
 
-    m_oversampledBuffer.assign(frames * oversampleFactor, 0.0f);
+    m_oversampledBuffer.assign(frames * oversampleFactor * 2, 0.0f);
 
     const double portamentoTime = ParameterMapper::mapExponential(m_portamento, PortamentoMinSeconds, PortamentoMaxSeconds);
     const double portamentoCoeff = m_portamento > 0.0f ? 1.0 - std::pow(0.001, 1.0 / (portamentoTime * oversampledRate)) : 1.0;
@@ -376,9 +380,14 @@ void JuSynthDevice::processAudio(AudioContext & context)
     }
 
     // The high pass and the chorus are on the sum of the voices, as on the Juno, at the output rate.
-    m_hpf.setSampleRate(context.sampleRate);
-    m_hpf.setCutoff(static_cast<double>(m_hpfCutoff));
-    m_dcBlocker.setSampleRate(context.sampleRate);
+    // A side each, so that the pan spread survives them.
+    for (auto && hpf : m_hpfs) {
+        hpf.setSampleRate(context.sampleRate);
+        hpf.setCutoff(static_cast<double>(m_hpfCutoff));
+    }
+    for (auto && dcBlocker : m_dcBlockers) {
+        dcBlocker.setSampleRate(context.sampleRate);
+    }
     m_chorus.setSampleRate(static_cast<double>(context.sampleRate));
     m_chorus.setMode(m_chorusMode);
 
@@ -387,11 +396,19 @@ void JuSynthDevice::processAudio(AudioContext & context)
     const double panL = std::cos(panAngle) * std::numbers::sqrt2;
     const double panR = std::sin(panAngle) * std::numbers::sqrt2;
 
+    std::array<std::array<float, 4>, 2> highRate {};
     for (size_t i = 0; i < frames; i++) {
-        const double mono = m_hpf.process(m_dcBlocker.process(static_cast<double>(m_decimator.process(&m_oversampledBuffer[i * oversampleFactor], oversampleFactor))));
+        std::array<double, 2> voices {};
+        for (size_t side = 0; side < 2; side++) {
+            for (uint8_t os = 0; os < oversampleFactor; os++) {
+                highRate[side][os] = m_oversampledBuffer[(i * oversampleFactor + os) * 2 + side];
+            }
+            const double decimated = static_cast<double>(m_decimators[side].process(highRate[side].data(), oversampleFactor));
+            voices[side] = m_hpfs[side].process(m_dcBlockers[side].process(decimated));
+        }
         double left = 0.0;
         double right = 0.0;
-        m_chorus.process(mono, left, right);
+        m_chorus.process(voices[0], voices[1], left, right);
         context.buffer[i * 2] += left * panL;
         context.buffer[i * 2 + 1] += right * panR;
     }
@@ -418,6 +435,11 @@ void JuSynthDevice::renderVoice(Voice & voice, size_t frameCount, uint8_t oversa
     const double envSign = m_envInverted ? -1.0 : 1.0;
     const double pitchLfoSemitones = static_cast<double>(m_pitchLfoDepth * m_pitchLfoDepth) * MaxPitchLfoSemitones;
     const double rangeRatio = octaveRatio(m_range);
+    // Constant power with the middle at unity, so that with no spread both sides carry the voice as
+    // the mono sum did before there were two
+    const double panAngle = static_cast<double>(voice.pan) * std::numbers::pi * 0.5;
+    const double panL = std::cos(panAngle) * std::numbers::sqrt2;
+    const double panR = std::sin(panAngle) * std::numbers::sqrt2;
 
     for (size_t i = 0; i < frameCount; i++) {
         const double lfo = m_lfoBlock[i];
@@ -465,7 +487,9 @@ void JuSynthDevice::renderVoice(Voice & voice, size_t frameCount, uint8_t oversa
             const double filtered = voice.vcf.process(mix * FilterInputLevel) * FilterMakeupGain;
 
             const double amp = m_vcaMode == VcaMode::Gate ? gate : env;
-            m_oversampledBuffer[i * oversampleFactor + os] += static_cast<float>(filtered * amp * gain);
+            const double sample = filtered * amp * gain;
+            m_oversampledBuffer[(i * oversampleFactor + os) * 2] += static_cast<float>(sample * panL);
+            m_oversampledBuffer[(i * oversampleFactor + os) * 2 + 1] += static_cast<float>(sample * panR);
         }
     }
 
@@ -507,11 +531,18 @@ void JuSynthDevice::resetAudio()
         m_voices[i].noiseState = static_cast<uint32_t>(0x9E3779B9u * (i + 1));
     }
     m_noteCounter = 0;
+    m_nextVoice = 0;
     m_lfo.reset();
     m_lfoDelayElapsed = 0.0;
-    m_decimator.reset();
-    m_dcBlocker.reset();
-    m_hpf.reset();
+    for (auto && decimator : m_decimators) {
+        decimator.reset();
+    }
+    for (auto && dcBlocker : m_dcBlockers) {
+        dcBlocker.reset();
+    }
+    for (auto && hpf : m_hpfs) {
+        hpf.reset();
+    }
     m_chorus.reset();
     m_tailFrames = 0;
 }
@@ -569,7 +600,8 @@ void JuSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
         m_lfoDelayElapsed = 0.0;
     }
 
-    auto & voice = m_voices[allocateVoice(note)];
+    const size_t slot = allocateVoice(note);
+    auto & voice = m_voices[slot];
     const double frequency = 440.0 * std::exp2((static_cast<double>(note) - 69.0) / 12.0);
     if (!voice.active) {
         // A fresh voice starts from silence, its oscillators in step and its filter empty
@@ -586,6 +618,7 @@ void JuSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
     voice.frequency = frequency;
     voice.note = note;
     voice.velocity = static_cast<float>(velocity) / 127.0f;
+    voice.pan = voiceSpreadPan(slot);
     voice.active = true;
     voice.gated = true;
     voice.startedAt = ++m_noteCounter;
@@ -606,16 +639,17 @@ void JuSynthDevice::handleNoteOff(uint8_t note)
 
 size_t JuSynthDevice::allocateVoice(uint8_t note)
 {
-    // The same note again takes its own voice back, then a silent voice, then the oldest released
-    // one, and only then the oldest of all.
+    // The same note again takes its own voice back, then the next silent voice round from the last
+    // one taken, then the oldest released one, and only then the oldest of all.
     for (size_t i = 0; i < m_voices.size(); i++) {
         if (m_voices[i].active && m_voices[i].note == note) {
             return i;
         }
     }
     for (size_t i = 0; i < m_voices.size(); i++) {
-        if (!m_voices[i].active) {
-            return i;
+        if (const size_t index = (m_nextVoice + i) % m_voices.size(); !m_voices[index].active) {
+            m_nextVoice = (index + 1) % m_voices.size();
+            return index;
         }
     }
     std::optional<size_t> oldestReleased;
@@ -629,6 +663,15 @@ size_t JuSynthDevice::allocateVoice(uint8_t note)
         }
     }
     return oldestReleased.value_or(oldest);
+}
+
+float JuSynthDevice::voiceSpreadPan(size_t slot) const
+{
+    // The Synth's distribution: consecutive slots swap sides and step in towards the centre, so any
+    // number of voices held at once is still balanced left to right.
+    const float side = (slot % 2 == 0) ? -1.0f : 1.0f;
+    const float depth = 1.0f - static_cast<float>(slot / 2) * (2.0f / static_cast<float>(MaxVoices));
+    return 0.5f + side * depth * m_panSpread * 0.5f;
 }
 
 void JuSynthDevice::syncParameters()
@@ -674,6 +717,7 @@ void JuSynthDevice::syncParameters()
     m_chorusMode = static_cast<JunoChorus::Mode>(std::clamp(index(C::xmlKeyChorusMode()), 0, 3));
     value(C::xmlKeyPortamento(), m_portamento);
     m_pitchBendRange = index(C::xmlKeyPitchBendRange());
+    value(C::xmlKeyPanSpread(), m_panSpread);
 
     for (auto && voice : m_voices) {
         voice.env.setAttackTime(ParameterMapper::mapExponential(m_attack, AttackMinSeconds, AttackMaxSeconds));
@@ -941,6 +985,16 @@ int JuSynthDevice::pitchBendRange() const
 void JuSynthDevice::setPitchBendRange(int range)
 {
     setDiscreteParameterValue(C::xmlKeyPitchBendRange().toStdString(), range);
+}
+
+float JuSynthDevice::panSpread() const
+{
+    return shownParameterValue(C::xmlKeyPanSpread(), m_panSpread);
+}
+
+void JuSynthDevice::setPanSpread(float spread)
+{
+    setContinuousParameterValue(C::xmlKeyPanSpread().toStdString(), spread);
 }
 
 } // namespace noteahead

@@ -25,6 +25,7 @@ class JunoChorusTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_process_stereoOn_shouldKeepEachSideOnItsOwnLine();
     void test_process_off_shouldPassTheInputToBothSides();
     void test_delayRange_modes_shouldMatchTheJuno60();
     void test_sweep_modes_shouldStayInRangeAndMirror();

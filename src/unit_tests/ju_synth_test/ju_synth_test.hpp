@@ -35,6 +35,9 @@ private slots:
     void test_chorusMode_off_shouldBeMono();
     void test_chorusMode_on_shouldSpreadTheSides();
     void test_voices_seventhNote_shouldStealTheOldest();
+    void test_panSpread_zero_shouldBeMono();
+    void test_panSpread_full_shouldAlternateSides();
+    void test_panSpread_full_shouldKeepTheChordBalanced();
     void test_vcaMode_gate_shouldIgnoreTheEnvelope();
     void test_settings_shouldRoundTrip();
     void test_presets_shouldAllLoadAndBeNamedOnce();

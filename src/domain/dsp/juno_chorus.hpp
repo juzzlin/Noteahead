@@ -51,6 +51,9 @@ public:
 
     //! One mono sample in, a stereo pair out. With the chorus off both sides are the input as is.
     void process(double input, double & left, double & right);
+    //! A stereo pair in and out. Each side is delayed on its own line, so what is panned stays
+    //! where it is: the left only ever hears the left. Equal inputs are the mono case.
+    void process(double inputL, double inputR, double & left, double & right);
     void reset();
 
     //! The delay range and LFO rate a mode runs at.
@@ -62,10 +65,11 @@ public:
     std::pair<double, double> currentDelaysMs() const;
 
 private:
-    double readDelayed(double delaySamples) const;
+    double readDelayed(const std::vector<double> & buffer, double delaySamples) const;
 
     Mode m_mode { Mode::Off };
-    std::vector<double> m_buffer;
+    std::vector<double> m_bufferL;
+    std::vector<double> m_bufferR;
     size_t m_writePos { 0 };
     double m_lfoPhase { 0.0 };
     std::pair<double, double> m_currentDelaysMs { 0.0, 0.0 };

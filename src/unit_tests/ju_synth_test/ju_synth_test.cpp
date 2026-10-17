@@ -66,6 +66,24 @@ double magnitudeAt(const std::vector<double> & buffer, double hz)
     return std::hypot(re, im) / static_cast<double>(frames);
 }
 
+//! RMS of one side of an interleaved buffer, 0 left and 1 right.
+double sideRms(const std::vector<double> & buffer, size_t side)
+{
+    double sum = 0.0;
+    for (size_t i = side; i < buffer.size(); i += 2) {
+        sum += buffer[i] * buffer[i];
+    }
+    return std::sqrt(sum / static_cast<double>(buffer.size() / 2));
+}
+
+std::vector<double> renderFrames(JuSynthDevice & synth, size_t frames)
+{
+    std::vector<double> buffer(frames * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frames), SampleRate };
+    synth.processAudio(context);
+    return buffer;
+}
+
 double rms(const std::vector<double> & buffer)
 {
     double sum = 0.0;
@@ -203,6 +221,49 @@ void JuSynthTest::test_voices_seventhNote_shouldStealTheOldest()
              qPrintable(QString { "48: %1, 52: %2" }.arg(magnitudeAt(buffer, noteHz(48))).arg(magnitudeAt(buffer, noteHz(52)))));
 }
 
+void JuSynthTest::test_panSpread_zero_shouldBeMono()
+{
+    JuSynthDevice synth { "JU" };
+    for (auto && note : { 48, 55, 60 }) {
+        synth.processMidiNoteOn(static_cast<uint8_t>(note), 127);
+    }
+    const auto buffer = renderFrames(synth, 8192);
+    for (size_t i = 0; i < buffer.size(); i += 2) {
+        QVERIFY(std::abs(buffer[i] - buffer[i + 1]) < 1.0e-9);
+    }
+}
+
+void JuSynthTest::test_panSpread_full_shouldAlternateSides()
+{
+    // Two notes one after the other, the first let go before the second: each takes the next voice,
+    // so they come out on opposite sides rather than both on the first voice's
+    JuSynthDevice synth { "JU" };
+    synth.setPanSpread(1.0f);
+    synth.processMidiNoteOn(60, 127);
+    const auto first = renderFrames(synth, 8192);
+    synth.processMidiNoteOff(60);
+    renderFrames(synth, 48000);
+    QVERIFY(!synth.hasActiveAudio());
+    synth.processMidiNoteOn(64, 127);
+    const auto second = renderFrames(synth, 8192);
+
+    QVERIFY2(sideRms(first, 0) > 10.0 * sideRms(first, 1), qPrintable(QString { "%1 vs %2" }.arg(sideRms(first, 0)).arg(sideRms(first, 1))));
+    QVERIFY2(sideRms(second, 1) > 10.0 * sideRms(second, 0), qPrintable(QString { "%1 vs %2" }.arg(sideRms(second, 1)).arg(sideRms(second, 0))));
+}
+
+void JuSynthTest::test_panSpread_full_shouldKeepTheChordBalanced()
+{
+    JuSynthDevice synth { "JU" };
+    synth.setPanSpread(1.0f);
+    for (auto && note : { 48, 52, 55, 59, 62, 65 }) {
+        synth.processMidiNoteOn(static_cast<uint8_t>(note), 127);
+    }
+    renderFrames(synth, 4096);
+    const auto buffer = renderFrames(synth, 16384);
+    const double balanceDb = 20.0 * std::log10(sideRms(buffer, 0) / sideRms(buffer, 1));
+    QVERIFY2(std::abs(balanceDb) < 0.5, qPrintable(QString::number(balanceDb)));
+}
+
 void JuSynthTest::test_vcaMode_gate_shouldIgnoreTheEnvelope()
 {
     const auto level = [](JuSynthDevice::VcaMode mode) {
@@ -245,6 +306,7 @@ void JuSynthTest::test_settings_shouldRoundTrip()
     out.setChorusMode(JunoChorus::Mode::Both);
     out.setPortamento(0.5f);
     out.setPitchBendRange(7);
+    out.setPanSpread(0.8f);
 
     QString xml;
     {
@@ -284,6 +346,7 @@ void JuSynthTest::test_settings_shouldRoundTrip()
     QCOMPARE(in.chorusMode(), JunoChorus::Mode::Both);
     QVERIFY(near(in.portamento(), 0.5f));
     QCOMPARE(in.pitchBendRange(), 7);
+    QVERIFY(near(in.panSpread(), 0.8f));
 }
 
 void JuSynthTest::test_presets_shouldAllLoadAndBeNamedOnce()
@@ -322,7 +385,7 @@ void JuSynthTest::test_automatableParameters_shouldOfferTheMainControls()
         automatable.insert(entry.key);
     }
     namespace C = Constants::NahdXml;
-    for (auto && key : { C::xmlKeyLpfCutoff(), C::xmlKeyLpfResonance(), C::xmlKeyHpfCutoff(), C::xmlKeyEnvMod(), C::xmlKeyPulseWidth(), C::xmlKeyLfoRate() }) {
+    for (auto && key : { C::xmlKeyLpfCutoff(), C::xmlKeyLpfResonance(), C::xmlKeyHpfCutoff(), C::xmlKeyEnvMod(), C::xmlKeyPulseWidth(), C::xmlKeyLfoRate(), C::xmlKeyPanSpread() }) {
         QVERIFY2(automatable.contains(key.toStdString()), qPrintable(key));
     }
 }

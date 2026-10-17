@@ -51,11 +51,13 @@ JunoChorus::JunoChorus()
 
 void JunoChorus::setSampleRate(double sampleRate)
 {
-    if (sampleRate == m_sampleRate && !m_buffer.empty()) {
+    if (sampleRate == m_sampleRate && !m_bufferL.empty()) {
         return;
     }
     DspComponent::setSampleRate(sampleRate);
-    m_buffer.assign(static_cast<size_t>(std::ceil(BufferMs * 0.001 * sampleRate)) + 4, 0.0);
+    const auto size = static_cast<size_t>(std::ceil(BufferMs * 0.001 * sampleRate)) + 4;
+    m_bufferL.assign(size, 0.0);
+    m_bufferR.assign(size, 0.0);
     m_writePos = 0;
     for (auto && filter : m_lowPassL) {
         filter.calculate(DelayLowPassHz, sampleRate);
@@ -105,20 +107,20 @@ std::pair<double, double> JunoChorus::currentDelaysMs() const
     return m_currentDelaysMs;
 }
 
-double JunoChorus::readDelayed(double delaySamples) const
+double JunoChorus::readDelayed(const std::vector<double> & buffer, double delaySamples) const
 {
     // Cubic Hermite between the four samples around the read point: linear interpolation is itself
     // a low pass that moves with the fractional delay, which would make the sweep audible as a
     // flutter in the treble on top of the pitch movement the chorus is for.
-    const auto size = static_cast<double>(m_buffer.size());
+    const auto size = static_cast<double>(buffer.size());
     double readPos = static_cast<double>(m_writePos) - delaySamples;
     while (readPos < 0.0) {
         readPos += size;
     }
     const auto index = static_cast<size_t>(readPos);
     const double fraction = readPos - static_cast<double>(index);
-    const auto at = [this](size_t i) { return m_buffer[i % m_buffer.size()]; };
-    const double xm1 = at(index + m_buffer.size() - 1);
+    const auto at = [&buffer](size_t i) { return buffer[i % buffer.size()]; };
+    const double xm1 = at(index + buffer.size() - 1);
     const double x0 = at(index);
     const double x1 = at(index + 1);
     const double x2 = at(index + 2);
@@ -130,13 +132,19 @@ double JunoChorus::readDelayed(double delaySamples) const
 
 void JunoChorus::process(double input, double & left, double & right)
 {
+    process(input, input, left, right);
+}
+
+void JunoChorus::process(double inputL, double inputR, double & left, double & right)
+{
     // Written even while off, so that switching on starts from the signal that is playing rather
     // than from whatever was in the line when it was last used.
-    m_buffer[m_writePos] = input;
+    m_bufferL[m_writePos] = inputL;
+    m_bufferR[m_writePos] = inputR;
 
     if (m_mode == Mode::Off) {
-        left = input;
-        right = input;
+        left = inputL;
+        right = inputR;
         m_currentDelaysMs = { 0.0, 0.0 };
     } else {
         // A triangle, -1 to 1. The right-hand delay runs on its inverse.
@@ -152,8 +160,8 @@ void JunoChorus::process(double input, double & left, double & right)
         const double rightMs = centreMs - sweepMs * triangle;
         m_currentDelaysMs = { leftMs, rightMs };
 
-        double wetL = readDelayed(leftMs * 0.001 * m_sampleRate);
-        double wetR = readDelayed(rightMs * 0.001 * m_sampleRate);
+        double wetL = readDelayed(m_bufferL, leftMs * 0.001 * m_sampleRate);
+        double wetR = readDelayed(m_bufferR, rightMs * 0.001 * m_sampleRate);
         for (auto && filter : m_lowPassL) {
             filter.process(wetL);
             wetL = filter.lowPass();
@@ -163,16 +171,17 @@ void JunoChorus::process(double input, double & left, double & right)
             wetR = filter.lowPass();
         }
 
-        left = (input + wetL) * WetPairGain;
-        right = (input + wetR) * WetPairGain;
+        left = (inputL + wetL) * WetPairGain;
+        right = (inputR + wetR) * WetPairGain;
     }
 
-    m_writePos = (m_writePos + 1) % m_buffer.size();
+    m_writePos = (m_writePos + 1) % m_bufferL.size();
 }
 
 void JunoChorus::reset()
 {
-    std::fill(m_buffer.begin(), m_buffer.end(), 0.0);
+    std::fill(m_bufferL.begin(), m_bufferL.end(), 0.0);
+    std::fill(m_bufferR.begin(), m_bufferR.end(), 0.0);
     m_writePos = 0;
     m_lfoPhase = 0.0;
     m_currentDelaysMs = { 0.0, 0.0 };

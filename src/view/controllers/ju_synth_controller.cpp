@@ -292,6 +292,18 @@ void JuSynthController::setPortamento(int value)
     }
 }
 
+int JuSynthController::panSpread() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->panSpread() * Constants::uiInternalScaling())) : 0;
+}
+
+void JuSynthController::setPanSpread(int value)
+{
+    if (m_device) {
+        m_device->setPanSpread(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
 int JuSynthController::range() const
 {
     return m_device ? static_cast<int>(m_device->range()) : 0;
@@ -416,6 +428,7 @@ void JuSynthController::requestSettings()
     emit sustainChanged();
     emit releaseChanged();
     emit portamentoChanged();
+    emit panSpreadChanged();
     emit rangeChanged();
     emit pwmSourceChanged();
     emit vcaModeChanged();

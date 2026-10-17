@@ -154,6 +154,10 @@ public:
     void setPortamento(float portamento);
     int pitchBendRange() const;
     void setPitchBendRange(int range);
+    //! How far apart the voices are panned: 0 is all of them in the middle, as on the Juno, whose
+    //! voices are mono until the chorus; 1 is the first two hard left and right.
+    float panSpread() const;
+    void setPanSpread(float spread);
 
 protected:
     void syncParameters() override;
@@ -176,6 +180,8 @@ private:
         double frequency { 0.0 };
         double glideFrequency { 0.0 };
         float velocity { 1.0f };
+        //! Where the voice sits, 0 left to 1 right, set from its slot when a note starts.
+        float pan { 0.5f };
         bool active { false };
         bool gated { false };
         //! When the voice last started a note, for choosing which to take when all six are busy.
@@ -187,11 +193,15 @@ private:
     void handleNoteOn(uint8_t note, uint8_t velocity);
     void handleNoteOff(uint8_t note);
     size_t allocateVoice(uint8_t note);
+    float voiceSpreadPan(size_t slot) const;
     void renderVoice(Voice & voice, size_t frameCount, uint8_t oversampleFactor, uint32_t oversampledRate, double portamentoCoeff, double pitchBendRatio);
     double nextNoise(Voice & voice) const;
 
     std::array<Voice, MaxVoices> m_voices;
     uint64_t m_noteCounter { 0 };
+    //! Where the search for a silent voice starts, so that successive notes take successive voices
+    //! and, with the pan spread open, alternate sides.
+    size_t m_nextVoice { 0 };
 
     //! One LFO for every voice, as on the Juno, and the delay before it comes in. The delay restarts
     //! when a key goes down with none held.
@@ -200,10 +210,11 @@ private:
     //! The LFO for the block being rendered, one value per output frame, delay already applied.
     std::vector<double> m_lfoBlock;
 
+    //! The voices' sum at the oversampled rate, left and right interleaved.
     std::vector<float> m_oversampledBuffer;
-    Decimator m_decimator;
-    DcBlocker m_dcBlocker;
-    CascadedSvf m_hpf;
+    std::array<Decimator, 2> m_decimators;
+    std::array<DcBlocker, 2> m_dcBlockers;
+    std::array<CascadedSvf, 2> m_hpfs;
     JunoChorus m_chorus;
 
     uint32_t m_tailFrames { 0 };
@@ -235,6 +246,7 @@ private:
     JunoChorus::Mode m_chorusMode { JunoChorus::Mode::Off };
     float m_portamento { 0.0f };
     int m_pitchBendRange { 2 };
+    float m_panSpread { 0.0f };
 
     std::string m_name;
 };
