@@ -57,56 +57,34 @@ ColumnLayout {
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
 
-    //! Whether the control runs either way of a centre -- pan, a bipolar tuning, a gain in decibels --
-    //! so that its fill grows out from the middle and shows which way it is set.
-    readonly property bool centred: mapping === "pan" || mapping === "cubicCentered" || mapping === "bipolar" || mapping === "intensity" || mapping === "decibel"
-
-    spacing: 1
-
-    // The name and the value on one line, apart: a name may be cut to fit, but the value never is
-    RowLayout {
+    spacing: 2
+    Label {
+        id: valueLabel
+        text: `${knobRoot.label} (${knobRoot.displayValue})`
+        font.pixelSize: 11
+        color: themeService.accentColor
+        // A long name must not widen the knob's column, so the label takes the width the layout
+        // gives it and is cut in the middle rather than at the end: the head of the name and the
+        // value in brackets are the two parts worth keeping.
+        elide: Text.ElideMiddle
+        horizontalAlignment: Text.AlignHCenter
         Layout.fillWidth: true
-        spacing: 4
+        Layout.preferredWidth: 0
 
-        Label {
-            id: valueLabel
-            text: knobRoot.label
-            font.pixelSize: Theme.bodyPixelSize
-            color: Theme.textSecondary
-            elide: Text.ElideRight
-            Layout.fillWidth: true
-            Layout.preferredWidth: 0
-            // The full name is in the tooltip once it has been cut
-            readonly property bool cut: truncated
-
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.IBeamCursor
-                onDoubleClicked: valueEditor.open()
-                ToolTip.visible: containsMouse && !valueEditor.visible
-                ToolTip.delay: 1000
-                ToolTip.text: valueLabel.truncated ? knobRoot.label + " - " + qsTr("Double-click to type an exact value") : qsTr("Double-click to type an exact value")
-            }
-        }
-
-        Label {
-            id: valueReadout
-            text: knobRoot.displayValue
-            font.pixelSize: Theme.bodyPixelSize
-            color: slider.pressed || knobHoverHandler.hovered ? themeService.accentColor : Theme.textBright
-            horizontalAlignment: Text.AlignRight
-
-            MouseArea {
-                anchors.fill: parent
-                cursorShape: Qt.IBeamCursor
-                onDoubleClicked: valueEditor.open()
-            }
+        MouseArea {
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.IBeamCursor
+            onDoubleClicked: valueEditor.open()
+            ToolTip.visible: containsMouse && !valueEditor.visible
+            ToolTip.delay: 1000
+            // Once the label is cut there is nowhere else to read the full name
+            ToolTip.text: valueLabel.truncated ? knobRoot.label + " - " + qsTr("Double-click to type an exact value") : qsTr("Double-click to type an exact value")
         }
 
         Popup {
             id: valueEditor
-            x: (knobRoot.width - width) / 2
+            x: (valueLabel.width - width) / 2
             y: 0
             width: Math.max(knobRoot.width, 140)
             padding: 2
@@ -148,38 +126,7 @@ ColumnLayout {
         stepSize: (knobRoot.sliderTo - knobRoot.sliderFrom) / 1000
         value: knobRoot.value
         Layout.fillWidth: true
-        implicitHeight: 16
-
-        // A thin track with the accent on the set part only: the accent marks values, nothing else
-        background: Rectangle {
-            x: slider.leftPadding
-            y: slider.topPadding + (slider.availableHeight - height) / 2
-            width: slider.availableWidth
-            height: 4
-            radius: 2
-            color: Theme.controlTrack
-            border.color: Theme.controlTrackBorder
-
-            Rectangle {
-                readonly property real origin: knobRoot.centred ? 0.5 : 0.0
-                readonly property real position: slider.visualPosition
-                x: Math.min(origin, position) * parent.width
-                width: Math.abs(position - origin) * parent.width
-                height: parent.height
-                radius: 2
-                color: themeService.accentColor
-            }
-        }
-
-        handle: Rectangle {
-            x: slider.leftPadding + slider.visualPosition * (slider.availableWidth - width)
-            y: slider.topPadding + (slider.availableHeight - height) / 2
-            width: 6
-            height: 14
-            radius: 1
-            color: slider.pressed || slider.hovered ? themeService.accentColor : Theme.controlHandle
-        }
-
+        
         onMoved: {
             knobRoot.moved(value);
         }

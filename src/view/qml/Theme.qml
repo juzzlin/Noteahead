@@ -37,8 +37,6 @@ QtObject {
     readonly property color borderSubtle: "#333333"
     readonly property color borderMedium: "#444444"
     readonly property color borderStrong: "#555555"
-    // The frame around a group of controls: has to read on the dialog surface without a fill
-    readonly property color frameBorder: "#4a4a4a"
     readonly property color separator: "#333333"
     readonly property color separatorStrong: "#555555"
 
@@ -53,11 +51,6 @@ QtObject {
 
     // States
     readonly property color danger: "#ff6060"
-
-    // Controls: the slider track a value runs along, and the handle that sets it
-    readonly property color controlTrack: "#454545"
-    readonly property color controlTrackBorder: "#141414"
-    readonly property color controlHandle: "#c8c8c8"
 
     // Type, in pixels so that every size is one unit. Body is what a control's label reads in;
     // caption is smaller print beside it.
