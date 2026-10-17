@@ -70,6 +70,25 @@ void KnobControllerTest::test_panMapping_shouldMapValuesCorrectly()
     QCOMPARE(controller.mapPan(1.0, from, to), 1000.0);
 }
 
+void KnobControllerTest::test_format_swing_shouldReadHalfTheDepthEitherWay()
+{
+    // A bipolar modulation at 40 % depth swings 20 % of the travel either way of the setting
+    KnobController controller;
+    QCOMPARE(controller.format(0.4, "swing", "%", 0.0, 50.0), QString { "±20.0%" });
+    QCOMPARE(controller.format(1.0, "swing", "%", 0.0, 50.0), QString { "±50.0%" });
+    QCOMPARE(controller.format(0.0, "swing", "%", 0.0, 50.0), QString { "±0.0%" });
+}
+
+void KnobControllerTest::test_parse_swing_shouldTakeTheSwing()
+{
+    KnobController controller;
+    for (auto && text : { "20", "20%", "±20%", "+20 %" }) {
+        QVERIFY2(std::abs(controller.parse(text, "swing", "%", 0.0, 50.0).toDouble() - 0.4) < 1.0e-9, text);
+    }
+    QCOMPARE(controller.parse("80", "swing", "%", 0.0, 50.0).toDouble(), 1.0);
+    QVERIFY(!controller.parse("x", "swing", "%", 0.0, 50.0).isValid());
+}
+
 void KnobControllerTest::test_panToString_shouldFormatPanLabels()
 {
     KnobController controller;

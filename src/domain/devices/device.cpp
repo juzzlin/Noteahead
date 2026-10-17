@@ -225,8 +225,8 @@ void Device::processMidiNoteOff(uint8_t note)
 
 float Device::shownParameterValue(const QString & key, float live) const
 {
-    if (const auto p = parameter(key.toStdString()); p && p->get().isRelativelyAutomated()) {
-        return p->get().authoredValue();
+    if (const auto p = parameter(key.toStdString()); p && (p->get().isRelativelyAutomated() || p->get().isModulated())) {
+        return p->get().shownValue();
     }
     return live;
 }

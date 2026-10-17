@@ -705,7 +705,7 @@ float BassSynthDevice::currentPitchBendOffset() const
 
 float BassSynthDevice::distDrive() const
 {
-    return m_distDrive;
+    return shownParameterValue(Constants::NahdXml::xmlKeyDistDrive(), m_distDrive);
 }
 
 void BassSynthDevice::setDistDrive(float drive)

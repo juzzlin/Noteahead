@@ -1118,7 +1118,7 @@ void WavetableSynthDevice::deserializeFromXml(ProjectReader & reader)
 // Accessors (Osc 1)
 float WavetableSynthDevice::osc1Pos() const
 {
-    return m_osc1Pos;
+    return shownParameterValue(Constants::NahdXml::xmlKeyOsc1Pos(), m_osc1Pos);
 }
 
 void WavetableSynthDevice::setOsc1Pos(float pos)

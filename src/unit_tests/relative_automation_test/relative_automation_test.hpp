@@ -30,6 +30,9 @@ private slots:
     void test_deviceDialogs_absoluteAutomation_shouldMoveTheKnobs();
     void test_effectRack_relativeAutomation_shouldLeaveTheKnobAlone();
     void test_samplerPad_relativeAutomation_shouldLeaveTheKnobAlone();
+    void test_deviceDialogs_modulation_shouldLeaveEveryKnobAlone();
+    void test_effectRack_modulation_shouldLeaveTheKnobAlone();
+    void test_samplerPad_modulation_shouldLeaveTheKnobAlone();
     void test_deviceFader_relativeAutomation_shouldMatchExpression();
     void test_notifyParameterAutomation_relative_shouldNotRefresh();
 };

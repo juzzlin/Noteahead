@@ -174,6 +174,10 @@ QString KnobController::format(double value, const QString & type, const QString
     if (type == "intensity" || type == "cubicCentered" || type == "bipolar") {
         return bipolarToString(mappedValue, suffix, min, max);
     }
+    // How far either way of a setting something swings: a modulation depth, in percent of travel
+    if (type == "swing") {
+        return QString { "±%1%" }.arg(mappedValue, 0, 'f', 1);
+    }
     // Reads the mapped value out as the number, in whatever unit the knob is in: a width control
     // runs to 200 %, and renormalising it onto the travel would flatten it back onto 0 - 100 %.
     // Percent sits tight against its number the way it is written everywhere else here; any other
@@ -266,6 +270,12 @@ QVariant KnobController::parse(const QString & text, const QString & type, const
         }
         const double hz = input->number * (input->unit.startsWith('k') ? 1000.0 : 1.0);
         return clampToPosition(unmap(hz, type, min, max));
+    }
+
+    if (type == "swing") {
+        // The readout leads with a ±, which says nothing a typed number needs to
+        const auto swing = splitNumberAndUnit(trimmed.startsWith(QChar { 0x00B1 }) ? trimmed.mid(1) : trimmed);
+        return swing ? clampToPosition(unmap(std::abs(swing->number), type, min, max)) : QVariant {};
     }
 
     const auto input = splitNumberAndUnit(trimmed);

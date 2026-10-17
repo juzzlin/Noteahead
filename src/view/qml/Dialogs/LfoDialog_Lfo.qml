@@ -152,6 +152,9 @@ ColumnLayout {
         }
         Knob {
             label: qsTr("Depth")
+            // Bipolar swings half the depth either way of the setting, so it reads as that swing
+            mapping: root.lfo.modulationMode === 0 ? "swing" : "linear"
+            mapMax: root.lfo.modulationMode === 0 ? 50 : to
             value: root.lfo.depth
             onMoved: value => root.lfo.depth = value
             Layout.fillWidth: true

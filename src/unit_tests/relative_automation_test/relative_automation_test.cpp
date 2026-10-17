@@ -39,6 +39,7 @@
 #include "../../domain/effects/auto_filter.hpp"
 #include "../../domain/effects/effect_factory.hpp"
 #include "../../domain/tracker/parameter_data.hpp"
+#include "../../domain/tracker/parameter_modulation.hpp"
 #include "../../infra/audio/audio_engine.hpp"
 #include "../../infra/data_service.hpp"
 #include "../../view/controllers/bass_synth_controller.hpp"
@@ -249,6 +250,63 @@ void RelativeAutomationTest::test_samplerPad_relativeAutomation_shouldLeaveTheKn
         QVERIFY2(std::abs(read() - authored) < 1.0e-6f, qPrintable(key));
         QVERIFY(sampler.applyParameterAutomation(padKey, ParameterAutomation::Mode::Absolute, 0.1));
         QVERIFY2(std::abs(read() - 0.1f) < 1.0e-6f, qPrintable(key));
+    }
+}
+
+void RelativeAutomationTest::test_deviceDialogs_modulation_shouldLeaveEveryKnobAlone()
+{
+    // An LFO rides on top of the setting, and the knob is the setting: a knob that shook with the
+    // LFO could neither show what it is modulated around nor be set
+    for (auto && testCase : cases()) {
+        const auto controller = testCase.controller(testCase.device);
+        const auto before = snapshot(controller.get());
+        int followed = 0;
+        for (auto && entry : testCase.device->automatableParameters()) {
+            const float authored = entry.parameter.value();
+            const double source = authored > 0.5f ? -1.0 : 1.0;
+            if (testCase.device->applyParameterModulation(entry.key, ParameterModulation::Mode::Bipolar, source, 0.6)) {
+                if (const auto p = testCase.device->parameter(entry.key); p && std::abs(p->get().value() - authored) > 1.0e-6f) {
+                    followed++;
+                }
+            }
+        }
+        QVERIFY2(followed > 0, qPrintable(testCase.name + ": the modulation did nothing"));
+        const auto moved = differences(before, snapshot(controller.get()));
+        QVERIFY2(moved.isEmpty(), qPrintable(testCase.name + ": " + moved.join("; ")));
+    }
+}
+
+void RelativeAutomationTest::test_effectRack_modulation_shouldLeaveTheKnobAlone()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    EffectFactory::init();
+    EffectRackController controller { deviceService, std::make_shared<EditorService>() };
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(AutoFilter::typeIdString()));
+    const auto effect = deviceService->insertEffectRack().effect(0);
+    QVERIFY(effect);
+    const auto key = Constants::NahdXml::xmlKeyCutoff();
+    const float authored = controller.parameterValue(0, key);
+
+    QVERIFY(effect->applyParameterModulation(key.toStdString(), ParameterModulation::Mode::Bipolar, authored > 0.5f ? -1.0 : 1.0, 0.6));
+    QVERIFY(std::abs(effect->parameter(key.toStdString())->get().value() - authored) > 1.0e-6f);
+    QCOMPARE(controller.parameterValue(0, key), authored);
+}
+
+void RelativeAutomationTest::test_samplerPad_modulation_shouldLeaveTheKnobAlone()
+{
+    SamplerDevice sampler { "Sampler" };
+    sampler.sampleEffectRack(60); // Gives pad 60 its parameters
+    sampler.setSampleCutoff(60, 0.6f);
+    sampler.setSampleDetune(60, 0.7f);
+    for (auto && [key, read] : std::vector<std::pair<QString, std::function<float()>>> {
+           { Constants::NahdXml::xmlKeyCutoff(), [&] { return sampler.sampleCutoff(60); } },
+           { Constants::NahdXml::xmlKeyDetune(), [&] { return sampler.sampleDetune(60); } } }) {
+        const float authored = read();
+        const auto padKey = SamplerDevice::padAutomationKey(60, key.toStdString());
+        QVERIFY2(sampler.applyParameterModulation(padKey, ParameterModulation::Mode::Bipolar, -1.0, 0.6), qPrintable(key));
+        QVERIFY2(std::abs(read() - authored) < 1.0e-6f, qPrintable(key));
     }
 }
 

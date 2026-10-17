@@ -11,6 +11,7 @@ New features:
 
 * LFO: a device with four LFOs, each moving any device or effect parameter
   - Free, synced or one-shot, with a rate divider; notes on its track can restart it
+  - Bipolar Depth reads as the swing either way of the setting, in % of the knob's travel
 
 * FM Drums: a drum machine with a four-operator FM voice on every pad
   - Pitch envelope and filtered noise per pad, on the same notes as Drum Synth V2
@@ -89,6 +90,7 @@ Bug fixes:
 * Sampler: pad Attack and Hold rise smoothly from zero instead of jumping to 5 ms; saved pads keep their times
 * All-Pass Filter: the rack shows the frequency in hertz, not the knob position
 * Wavetable Synth and FM Synth: Pan Spread works in Poly mode
+* Device knobs stay on their setting while the LFO device moves them
 
 Other:
 

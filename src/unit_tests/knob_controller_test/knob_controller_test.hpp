@@ -30,6 +30,8 @@ private slots:
     void test_intensityToString_shouldFormatPercentageStrings();
     void test_panMapping_shouldMapValuesCorrectly();
     void test_panToString_shouldFormatPanLabels();
+    void test_format_swing_shouldReadHalfTheDepthEitherWay();
+    void test_parse_swing_shouldTakeTheSwing();
     void test_timeMapping_shouldMapTimeValuesCorrectly();
     void test_timeToString_shouldFormatTimeStrings();
     void test_percentageToString_shouldFormatPercentageStrings();

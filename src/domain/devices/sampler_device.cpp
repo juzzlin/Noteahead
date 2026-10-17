@@ -2303,8 +2303,8 @@ void SamplerDevice::updateNormalizeGain(Sample & sample)
 float SamplerDevice::shownSampleValue(const Sample & sample, const QString & key, float live)
 {
     // As Device::shownParameterValue(), for a pad's own parameters
-    if (const auto p = sample.parameter(key.toStdString()); p && p->get().isRelativelyAutomated()) {
-        return p->get().authoredValue();
+    if (const auto p = sample.parameter(key.toStdString()); p && (p->get().isRelativelyAutomated() || p->get().isModulated())) {
+        return p->get().shownValue();
     }
     return live;
 }
