@@ -49,6 +49,8 @@ class ApplicationService : public QObject
     Q_PROPERTY(QString drumSynthV2DeviceName READ drumSynthV2DeviceName CONSTANT)
     Q_PROPERTY(QString fmDrumsDeviceName READ fmDrumsDeviceName CONSTANT)
     Q_PROPERTY(QString lfoDeviceName READ lfoDeviceName CONSTANT)
+    //! Where --screenshots writes the screenshot tour, or empty for a normal run.
+    Q_PROPERTY(QString screenshotDirectory READ screenshotDirectory CONSTANT)
     Q_PROPERTY(QString pianoSynthDeviceName READ pianoSynthDeviceName CONSTANT)
     Q_PROPERTY(QString pianoSynthV2DeviceName READ pianoSynthV2DeviceName CONSTANT)
     Q_PROPERTY(QString pianoSynthV3DeviceName READ pianoSynthV3DeviceName CONSTANT)
@@ -92,6 +94,15 @@ public:
     Q_INVOKABLE QString drumSynthV2DeviceName() const;
     Q_INVOKABLE QString fmDrumsDeviceName() const;
     Q_INVOKABLE QString lfoDeviceName() const;
+
+    QString screenshotDirectory() const;
+    void setScreenshotDirectory(QString directory);
+    //! Writes what the main window shows, open dialogs included, to @p name .png in the screenshot
+    //! directory. For the screenshot tour that reviews UI changes.
+    Q_INVOKABLE bool saveScreenshot(const QString & name) const;
+    //! Closes every dialog the main window has open. For the screenshot tour, which opens them one
+    //! after another: popups are not among a window's QML data, so QML cannot find them to close.
+    Q_INVOKABLE int closeAllPopups() const;
     Q_INVOKABLE QString pianoSynthDeviceName() const;
     Q_INVOKABLE QString pianoSynthV2DeviceName() const;
     Q_INVOKABLE QString pianoSynthV3DeviceName() const;
@@ -248,6 +259,7 @@ private:
     PlayerServiceS m_playerService;
 
     QString m_initialFilePath;
+    QString m_screenshotDirectory;
 
     bool m_editMode = false;
 };

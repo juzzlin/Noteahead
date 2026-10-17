@@ -486,6 +486,12 @@ ApplicationWindow {
     EffectDialogLauncher {
         id: effectDialogLauncher
     }
+    // Only for --screenshots: see ScreenshotTour.qml
+    Loader {
+        active: applicationService.screenshotDirectory !== ""
+        sourceComponent: ScreenshotTour {
+        }
+    }
 
     MasterEffectsDialog {
         id: masterEffectsDialog

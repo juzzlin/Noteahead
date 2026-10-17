@@ -413,6 +413,8 @@ void Application::handleCommandLineArguments(int & argc, char ** argv)
 
     ae.addOption({ "--lang" }, [this](const std::string & value) { m_languageService->setCommandLineLanguage(QString::fromStdString(value)); }, false, "Force the UI language, e.g. 'fi'. Overrides the language chosen in the UI.");
 
+    ae.addOption({ "--screenshots" }, [this](const std::string & value) { m_applicationService->setScreenshotDirectory(QString::fromStdString(value)); }, false, "Open the example, save the main view and every dialog as PNGs into the given directory, and quit. For reviewing UI changes.");
+
     ae.setPositionalArgumentCallback([this](const std::vector<std::string> & args) {
         if (!args.empty()) {
             const QString path = QString::fromStdString(args.front());

@@ -24,7 +24,11 @@
 #include "../state_machine.hpp"
 #include "editor_service.hpp"
 #include "player_service.hpp"
+
 #include "recent_files_manager.hpp"
+#include <QDir>
+#include <QGuiApplication>
+#include <QQuickWindow>
 
 #include <QDateTime>
 #include <QFile>
@@ -171,6 +175,47 @@ QString ApplicationService::fmDrumsDeviceName() const
 QString ApplicationService::lfoDeviceName() const
 {
     return Constants::lfoDeviceName();
+}
+
+QString ApplicationService::screenshotDirectory() const
+{
+    return m_screenshotDirectory;
+}
+
+void ApplicationService::setScreenshotDirectory(QString directory)
+{
+    m_screenshotDirectory = std::move(directory);
+}
+
+int ApplicationService::closeAllPopups() const
+{
+    int closed = 0;
+    for (auto && window : QGuiApplication::topLevelWindows()) {
+        // By class name rather than by type: QQuickPopup is private API
+        for (auto && child : window->findChildren<QObject *>()) {
+            if (child->inherits("QQuickPopup") && child->property("visible").toBool()) {
+                QMetaObject::invokeMethod(child, "close");
+                closed++;
+            }
+        }
+    }
+    return closed;
+}
+
+bool ApplicationService::saveScreenshot(const QString & name) const
+{
+    if (m_screenshotDirectory.isEmpty()) {
+        return false;
+    }
+    // The window rather than an item of it: grabbing an item leaves out the popups over it, which
+    // is where every dialog lives
+    for (auto && window : QGuiApplication::topLevelWindows()) {
+        if (const auto quickWindow = qobject_cast<QQuickWindow *>(window); quickWindow && quickWindow->isVisible()) {
+            QDir {}.mkpath(m_screenshotDirectory);
+            return quickWindow->grabWindow().save(QDir { m_screenshotDirectory }.filePath(name + ".png"));
+        }
+    }
+    return false;
 }
 
 QString ApplicationService::pianoSynthDeviceName() const
