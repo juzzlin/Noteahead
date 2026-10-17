@@ -4,7 +4,7 @@
 
 Noteahead is a pattern-based MIDI sequencer and music production environment for Linux, built around the tracker workflow: fast, keyboard-driven editing with the whole song in front of you.
 
-It is also a complete studio. Sixteen internal instruments, a virtual device rack with per-device insert effects and sends, a mixer view, 41 rack effects and analyzers, and a sample-accurate offline renderer take a song from the first note to a finished master without ever leaving the application. Point it outwards instead and it drives a room full of MIDI hardware with the same precision — or does both at once, in the same song.
+It is also a complete studio. Eighteen internal instruments, an LFO modulator, a virtual device rack with per-device insert effects and sends, a mixer view, 45 rack effects and analyzers, and a sample-accurate offline renderer take a song from the first note to a finished master without ever leaving the application. Point it outwards instead and it drives a room full of MIDI hardware with the same precision — or does both at once, in the same song.
 
 Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It builds with CMake and uses CTest + Qt Test framework for unit tests.
 
@@ -48,9 +48,9 @@ Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It bui
 ##
 ## What you can do with it
 
-**Produce entire songs in the box.** Sixteen internal instruments cover a lot of ground: a six-voice virtual analog Synth, an eight-voice Wavetable Synth, a four-operator FM Synth, an acid Bass Synth, two eleven-voice Drum Synths, a 16-pad Sampler, three physically modelled pianos, a TR-808-style Kick808, four vintage string machines after the VP-330/VC340 and the Solina, and a formant speech synth. Each one sits in a slot of the Virtual Device Rack with its own insert effects, sends, fader, level meter and clip LED.
+**Produce entire songs in the box.** Eighteen internal instruments cover a lot of ground: a six-voice virtual analog Synth, a Juno-60-style JU Synth, an eight-voice Wavetable Synth, a four-operator FM Synth, an acid Bass Synth, two Drum Synths and an FM drum machine, a 16-pad Sampler, three physically modelled pianos, a TR-808-style Kick808, four vintage string machines after the VP-330/VC340 and the Solina, and a formant speech synth. Each one sits in a slot of the Virtual Device Rack with its own insert effects, sends, fader, level meter and clip LED, and the LFO device can sweep any of their controls, or any effect's.
 
-**Mix and master without leaving the application.** All 41 rack effects and analyzers are available both on the master bus and as per-device inserts: four EQs including an 8-band parametric with Mid/Side, two reverbs and an early-reflections room, single-band and multiband compression, a gate, a lookahead limiter, transient shaping, saturation and tube stages, a bit crusher, chorus, flanger, phaser and tremolo, an auto filter — plus LUFS, true-peak, RTA and goniometer metering, and reference monitoring to tell you where you stand. The Mixer view puts every device side by side as channel strips.
+**Mix and master without leaving the application.** All 45 rack effects and analyzers are available both on the master bus and as per-device inserts: four EQs including an 8-band parametric with Mid/Side, two reverbs and an early-reflections room, single-band and multiband compression, a gate, a lookahead limiter, transient shaping, saturation and tube stages, a bit crusher, chorus, flanger, phaser and tremolo, an auto filter — plus LUFS, true-peak, RTA and goniometer metering, and reference monitoring to tell you where you stand. The Mixer view puts every device side by side as channel strips.
 
 **Sequence external gear.** Noteahead began as a MIDI brain and is still a very good one. Ports are hot-plugged, every track routes to its own port and channel, and CC and pitch bend automation, an arpeggiator, chords, step recording and MIDI side-chaining are all there. Internal and external instruments live happily in the same song.
 
@@ -108,18 +108,23 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
   - Per-slot level meter with a gain staging marker, a load readout, and a clip LED that latches on any full-scale output until clicked.
   - Faders run from -inf to +10 dB, with unity three quarters up the throw, on devices and Sampler pads alike.
   - A track without a device gets one from its header icon or its right-click menu, which opens the rack and offers the device just added.
+  - Every instrument but the Sampler and the drum machines has an Octave control, -2 to +2, saved with the project.
 - Synth
-  - Polyphonic VA synthesizer (up to 6 voices) with four oscillators at organ footages (32'..2'), each with a low and a high pass of its own, a digital Multi engine, multi-mode filters with Drive, ADSR/Mod EGs, two LFOs that can modulate a single oscillator's pitch and that can be delayed, faded in and slowed by a rate divider, Poly/Unison/Dual/Supersaw/Drift/Mono voice modes, Instability, Phase Sync and Phase Randomness, and a built-in Delay.
+  - Polyphonic VA synthesizer (up to 6 voices) with four oscillators at organ footages (32'..2'), each with a low and a high pass of its own, a digital Multi engine with its own low and high pass, multi-mode filters with Drive, ADSR/Mod EGs, two LFOs that can modulate a single oscillator's pitch and that can be delayed, faded in, slowed by a rate divider and set to Free Run as one LFO for all the voices, Poly/Unison/Dual/Supersaw/Drift/Mono voice modes, Instability, Phase Sync and Phase Randomness, and a built-in Delay with its own filters and a Chorus.
 - Wavetable Synth
-  - 8-voice wavetable synthesizer with two independent wavetable oscillators over six tables (Classic Morph, Spectral Additive, Pulse Width, Vocal Formant, Resonant Sweep, Organ Drawbar), noise generator, cascaded LPF/HPF filters, Amp and Mod EGs, two LFOs with delayed and faded engagement and rate dividers, and the shared voice modes with stereo pan spread and Phase Randomness. Features 2× oversampling, portamento, ten factory presets and presets of your own.
+  - 8-voice wavetable synthesizer with two independent wavetable oscillators over six tables (Classic Morph, Spectral Additive, Pulse Width, Vocal Formant, Resonant Sweep, Organ Drawbar), noise generator, cascaded LPF/HPF filters, Amp and Mod EGs with velocity sensitivity, two LFOs with delayed and faded engagement, rate dividers and Free Run, and the shared voice modes with stereo pan spread and Phase Randomness. Features 2× oversampling, portamento, ten factory presets and presets of your own.
 - FM Synth
-  - 8-voice four-operator phase-modulation synthesizer in the shape of Yamaha's four-operator machines. Eight algorithms with feedback on the top operator, eight operator waveforms, and per-operator ratio, detune, level, velocity sensitivity, key scaling and envelope. LPF/HPF, Amp and Mod EGs, two LFOs with delayed and faded engagement and rate dividers, and the shared voice modes with Phase Randomness. Ships with sixteen factory presets and a button that assembles a playable patch at random.
+  - 8-voice four-operator phase-modulation synthesizer in the shape of Yamaha's four-operator machines. Eight algorithms with feedback on the top operator, eight operator waveforms, and per-operator ratio, detune, level, velocity sensitivity, key scaling and envelope. LPF/HPF, Amp and Mod EGs, two LFOs with delayed and faded engagement, rate dividers and Free Run, and the shared voice modes with Phase Randomness. Ships with sixteen factory presets and a button that assembles a playable patch at random.
+- JU Synth
+  - Six-voice polysynth after the Juno-60 and JU-06A: one DCO per voice with saw, pulse with PWM, sub and noise, a self-oscillating four-pole ladder filter of its own, one shared ADSR, a free-running LFO with delay, the high pass on the voice sum, and the Juno's Chorus I, II and I+II. Pan Spread, twelve factory presets and presets of your own.
 - Bass Synth
   - Monophonic acid-style synthesizer with sub-oscillator, resonant 24dB LPF, and TB-303 style accent/slide.
 - Drum Synth
   - Multi-engine drum machine with 11 independent voices (Kick, Snare, Toms, etc.) and dedicated per-voice controls.
 - Drum Synth V2
-  - A second Drum Synth to build on, kept separate so every kit in an existing project keeps playing the original. Adds an amp envelope per voice — Attack, Hold, Decay and Curve — riding on top of what the voice already plays, so pulling Hold down tightens the drum.
+  - A second Drum Synth to build on, kept separate so every kit in an existing project keeps playing the original. Adds a Rim voice and an amp envelope per voice — Attack, Hold, Decay and Curve — riding on top of what the voice already plays, so pulling Hold down tightens the drum.
+- FM Drums
+  - A drum machine with the same four-operator FM voice on every one of its twelve pads, on Drum Synth V2's notes. Per pad an algorithm, four operators with their own envelopes, feedback, a pitch envelope and filtered noise that can modulate an operator, LPF/HPF, and its own insert effects and sends. Default, Analog and Percussion kits, and any kit's drum loadable onto any pad.
 - Sampler
   - 16-pad internal sampler for WAV and FLAC with per-pad pan, fader, LPF/HPF, tuning, an amp envelope with hold and curve, trimming, reverse, loop, normalize and choke groups, plus recording straight onto a pad with a metronome count-in. Pads can be sent to the global send buses one at a time, so a single pad sits in the reverb while the rest of the kit stays dry.
 - Piano Synth
@@ -142,6 +147,10 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
   - Formant speech synthesizer that says a typed phrase, pitched to the notes played. English text is read by a letter-to-sound rule set with stress; anything between slashes is taken as literal phonemes, and an apostrophe marks the stressed syllable. Trigger a whole phrase from one note, a syllable per note, or a sentence per note so that one device carries a whole lyric — free-running, stretched to a set length, or fitted to the note that speaks it. Nine voice types, from Male and Female through Child, Deep and Breathy to Giant, Elder, Alien and Monster, the last of which growls on a doubled glottal period rather than on an unsteady one. Formant Shift, Glide, Sibilance, Breathiness, Intonation and a Portamento that slides between notes played over a line already being spoken.
 - Sub Mixer
   - Groups other devices so a whole set is mixed and processed as one entity, with its own insert effects, Volume, Gain and Pan. Members keep their own reverb sends, Sub Mixers can be nested, and Volume/Pan can be ridden from a track over MIDI CC.
+- LFO
+  - A modulator rather than an instrument: four LFOs, each sweeping any device's or effect's parameter. Free, tempo-synced or one-shot, with a rate divider up to 64, Bipolar/Unipolar/Tremolo modes, delay, fade, phase, smoothing, and restart and velocity from the notes on its own track. It rides on top of the knob's setting, so the knob stays where it was set.
+- Phase LEDs
+  - A red LED on every device LFO glows with its shape, so its rate and waveform can be read at a glance.
 - Dynamic Routing
   - Per-device Effect Sends for flexible mixing.
 - Mixer View
@@ -163,7 +172,7 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
 - Simple EQ
   - A single "Sounds Good" knob sweeping a fixed loudness-smile curve: low-shelf body, a gentle low-mid scoop and a high-shelf air lift.
 - FDN Reverb
-  - High-quality Feedback Delay Network algorithm with 8 studio presets (Hall, Cathedral, etc.) and fine-grained controls.
+  - High-quality Feedback Delay Network algorithm with 8 studio presets (Hall, Cathedral, etc.), fine-grained controls and a Solo to hear the tail alone.
 - Ambience
   - A short, dense space to glue a mix and take the dryness off, rather than a tail to be heard: input diffusion, an early field of irregular reflections and a short tail that drifts slowly so it never rings, with the space's own low and high cut.
 - Endless Reverb
@@ -232,8 +241,6 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
   - A plain level trim, for gain staging into the rest of the chain.
 - Metering & Analysis
   - LUFS loudness meter with a live gated integrated reading, dBTP true-peak meter, a real-time analyzer (RTA), and a Stereo Field Meter with goniometer and correlation.
-- Integrated Effects
-  - Includes High-Pass/Low-Pass filters and Panning/Volume utilities.
 
 ### Editing & Sequencing
 - Keyboard-Driven Workflow
@@ -245,6 +252,7 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
 - Pattern-Based Sequencing
   - Flexible play order management with independent pattern lengths.
 - Track & Column Management
+  - Cut, copy, paste and transpose a column or a track in all patterns at once, in one undo step.
   - Move tracks and note columns left or right, wrapping around the ends, and delete a column. Deleting is a soft delete: adding a column back restores the most recently deleted one with its notes, automations and mixer settings, and the columns left behind keep their own.
 - Arpeggiator & Chords
   - Integrated arpeggiator with multiple patterns (Up, Down, Random) and customizable chord offsets.
@@ -427,7 +435,7 @@ The section below is only a quick start — the manual is the authoritative refe
 **1) Give a track a sound.** Click the settings icon on a track header to open **Track Settings**. A track plays either an external MIDI instrument or one of Noteahead's internal devices:
 
 * **External MIDI**: pick the MIDI output port and channel of your synth or drum machine. Devices are hot-plugged, so they appear as they come online.
-* **Internal device**: click **Device Rack...** in the same dialog (also under **Devices => Device rack...**), press **(+)** on a free slot, pick an instrument from the **Device Gallery** — Synth, Wavetable Synth, FM Synth, Bass Synth, Drum Synth, Sampler, Piano Synth, Piano Synth V2, Piano Synth V3, Kick 808, String & Voice, String & Voice V2, String Ensemble, Speech or Sub Mixer — and then select its internal port (e.g. *Noteahead Synth 1*) back in Track Settings. Nothing external is needed; Noteahead renders these itself.
+* **Internal device**: click **Device Rack...** in the same dialog (also under **Devices => Device rack...**), press **(+)** on a free slot, pick an instrument from the **Device Gallery** — Synth, Wavetable Synth, FM Synth, JU Synth, Bass Synth, Drum Synth, Drum Synth V2, FM Drums, Sampler, Piano Synth, Piano Synth V2, Piano Synth V3, Kick 808, String & Voice, String & Voice V2, String & Voice V3, String Ensemble or Speech, or the Sub Mixer or LFO — and then select its internal port (e.g. *Noteahead Synth 1*) back in Track Settings. Nothing external is needed; Noteahead renders these itself.
 
 **2) Set up the track.** Click the track name to rename it. `[+]`/`[-]` in the track header adds or removes note columns.
 
