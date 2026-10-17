@@ -21,48 +21,60 @@ import Noteahead 1.0
 import "../Components"
 
 // The multi engine's own filter section, the same as each oscillator's. A module of its own rather
-// than a page behind a tab: the noise tab has the room, so nothing needs hiding.
+// than a page behind a tab: the noise tab has the room, so nothing needs hiding. It reads as the
+// Multi Engine's continuation, so it has no heading.
 ColumnLayout {
     Universal.theme: Universal.Dark
     Universal.accent: themeService.accentColor
     Layout.fillWidth: true
     Layout.alignment: Qt.AlignTop
 
-    SectionHeading {
-        text: qsTr("Multi Filter")
-        Layout.alignment: Qt.AlignLeft
+    // No heading of its own: the slope labels take the row the Multi Engine's heading sits in, at
+    // the heading's height, so that every control here lines up with the one beside it.
+    FontMetrics {
+        id: headingMetrics
+        font.bold: true
+        font.pixelSize: Theme.headingPixelSize
+    }
+
+    RowLayout {
+        spacing: 10
+        Layout.fillWidth: true
         Layout.topMargin: 10
+        Layout.preferredHeight: headingMetrics.height
+        Label {
+            text: qsTr("LPF Slope")
+            verticalAlignment: Text.AlignBottom
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.preferredWidth: 1
+        }
+        Label {
+            text: qsTr("HPF Slope")
+            verticalAlignment: Text.AlignBottom
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.preferredWidth: 1
+        }
     }
 
     RowLayout {
         spacing: 10
         Layout.fillWidth: true
         Layout.bottomMargin: Constants.dropDownBottomMargin
-
-        ColumnLayout {
+        ComboBox {
+            model: ["12 dB/oct", "24 dB/oct"]
+            currentIndex: synthController.multiLpfSlope
+            onActivated: idx => synthController.multiLpfSlope = idx
             Layout.fillWidth: true
-            Label {
-                text: qsTr("LPF Slope")
-            }
-            ComboBox {
-                model: ["12 dB/oct", "24 dB/oct"]
-                currentIndex: synthController.multiLpfSlope
-                onActivated: idx => synthController.multiLpfSlope = idx
-                Layout.fillWidth: true
-            }
+            Layout.preferredWidth: 1
         }
-
-        ColumnLayout {
+        ComboBox {
+            model: ["12 dB/oct", "24 dB/oct"]
+            currentIndex: synthController.multiHpfSlope
+            onActivated: idx => synthController.multiHpfSlope = idx
             Layout.fillWidth: true
-            Label {
-                text: qsTr("HPF Slope")
-            }
-            ComboBox {
-                model: ["12 dB/oct", "24 dB/oct"]
-                currentIndex: synthController.multiHpfSlope
-                onActivated: idx => synthController.multiHpfSlope = idx
-                Layout.fillWidth: true
-            }
+            Layout.preferredWidth: 1
         }
     }
 
