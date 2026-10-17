@@ -88,6 +88,8 @@ public:
 
     QColor accentTextColor() const;
 
+    static QColor defaultAccentColor();
+
     QColor cursorColor() const;
     void setCursorColor(const QColor & cursorColor);
 

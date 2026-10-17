@@ -92,7 +92,7 @@ QColor blendColor(const QColor & from, const QColor & to, double amount)
 } // namespace
 
 ThemeService::ThemeService()
-  : m_accentColor { Settings::accentColor(QColor { "orange" }) }
+  : m_accentColor { Settings::accentColor(defaultAccentColor()) }
   , m_cursorColor { Settings::cursorColor(defaultCursorColor()) }
   , m_paletteAccentBlend { Settings::paletteAccentBlend(defaultPaletteAccentBlend()) }
   , m_volumeMeterStyle { Settings::volumeMeterStyle(Constants::defaultVolumeMeterStyle()) }
@@ -115,6 +115,12 @@ void ThemeService::setAccentColor(const QColor & accentColor)
         emit trackHeaderTextColorsChanged();
         emit automationCurveColorsChanged();
     }
+}
+
+QColor ThemeService::defaultAccentColor()
+{
+    // Mint green
+    return QColor { "#8ff0a4" };
 }
 
 int ThemeService::defaultPaletteAccentBlend()
