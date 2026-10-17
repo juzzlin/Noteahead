@@ -26,6 +26,9 @@ New features:
 * Synth: a built-in Chorus beside the Delay, off by default
   - On in the pad, pluck, clav, organ and bell presets
 
+* Synth: the Delay's LPF and HPF as targets
+  - For both LFOs, parameter automation and the LFO device
+
 * Octave, -2 to +2, in the Global section of every instrument but the Sampler and the drum machines
   - Saved with the project, not in presets
 

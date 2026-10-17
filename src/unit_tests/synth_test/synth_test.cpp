@@ -777,6 +777,84 @@ void SynthTest::test_chorus_automation_shouldOfferMixRateAndDepth()
     QVERIFY(automatable.contains(Constants::NahdXml::xmlKeyChorusDepth().toStdString()));
 }
 
+void SynthTest::test_delayFilter_automation_shouldOfferBothCutoffs()
+{
+    const SynthDevice synth { "Synth" };
+    std::set<std::string> automatable;
+    for (auto && entry : synth.automatableParameters()) {
+        automatable.insert(entry.key);
+    }
+    QVERIFY(automatable.contains(Constants::NahdXml::xmlKeyDelayFeedbackLpf().toStdString()));
+    QVERIFY(automatable.contains(Constants::NahdXml::xmlKeyDelayFeedbackHpf().toStdString()));
+}
+
+namespace {
+
+//! The echoes of one short note, after the note itself has gone.
+std::vector<double> renderEchoes(SynthDevice & synth)
+{
+    const auto rate = static_cast<uint32_t>(Constants::defaultSampleRate());
+    synth.processMidiNoteOn(60, 127);
+    std::vector<double> note(2048 * 2, 0.0);
+    AudioContext noteContext { std::span(note.data(), note.size()), 2048, rate };
+    synth.processAudio(noteContext);
+    synth.processMidiNoteOff(60);
+    std::vector<double> tail(48000 * 2, 0.0);
+    AudioContext tailContext { std::span(tail.data(), tail.size()), 48000, rate };
+    synth.processAudio(tailContext);
+    return tail;
+}
+
+std::unique_ptr<SynthDevice> echoingSynth()
+{
+    auto synth = std::make_unique<SynthDevice>("Synth");
+    synth->setVco1Waveform(PolyBlepOscillator::Waveform::Saw);
+    synth->setAmpRelease(0.0f);
+    synth->setDelayMix(1.0f);
+    synth->setDelayTime(0.01f);
+    synth->setDelayFeedback(0.8f);
+    return synth;
+}
+
+} // namespace
+
+void SynthTest::test_delayFilter_lfoTarget_shouldDarkenTheEchoes()
+{
+    // Sample-to-sample difference stands in for the top of the spectrum
+    const auto highEnergy = [](const std::vector<double> & buffer) {
+        double sum = 0.0;
+        for (size_t i = 2; i < buffer.size(); i += 2) {
+            const double difference = buffer[i] - buffer[i - 2];
+            sum += difference * difference;
+        }
+        return sum;
+    };
+
+    auto plain = echoingSynth();
+    const auto open = highEnergy(renderEchoes(*plain));
+
+    // Fully negative, so the sweep pulls the wide-open feedback low pass down
+    auto swept = echoingSynth();
+    swept->setLfoTarget(SynthDevice::LfoTarget::DelayLpf);
+    swept->setLfoInt(0.0f);
+    swept->setLfoRate(0.8f);
+    const auto darkened = highEnergy(renderEchoes(*swept));
+
+    QVERIFY(open > 0.0);
+    QVERIFY2(darkened < open * 0.7, qPrintable(QString { "%1 vs %2" }.arg(darkened).arg(open)));
+}
+
+void SynthTest::test_delayFilter_lfoTarget_shouldLeaveTheControlsAlone()
+{
+    // The sweep rides on top of the knobs, which stay where they were put
+    auto synth = echoingSynth();
+    synth->setLfoTarget(SynthDevice::LfoTarget::DelayHpf);
+    synth->setLfoInt(1.0f);
+    renderEchoes(*synth);
+    QCOMPARE(synth->delayFeedbackLpf(), 1.0f);
+    QCOMPARE(synth->delayFeedbackHpf(), 0.0f);
+}
+
 void SynthTest::test_presets_chorus_shouldBeOnOnlyWhereIntended()
 {
     // Pads, plucks, keys and bells. Basses keep their low end in mono, and the stacked and drifting

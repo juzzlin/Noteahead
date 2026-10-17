@@ -65,12 +65,19 @@ public:
     void setFeedbackHpf(double cutoff);
     double feedbackHpf() const;
 
+    //! Offsets added to the feedback filter cutoffs by a modulator outside the effect, such as the
+    //! LFOs of the device it is built into. The cutoffs themselves stay where the controls put them.
+    void setFeedbackLpfModulation(double offset);
+    void setFeedbackHpfModulation(double offset);
+
 private:
     double calculateDelaySamples() const;
     double readFromBuffer(const std::vector<double> & buffer, double delay) const;
     void applyFeedbackFilters(double & fbL, double & fbR);
     void applyMix(double & left, double & right, double outL, double outR) const;
     void applyTapeSaturation(double & fbL, double & fbR);
+    double effectiveFeedbackLpf() const;
+    double effectiveFeedbackHpf() const;
     void updateBuffers(uint32_t sampleRate);
     void updateFilters();
     void updateWriteBuffer(double inputL, double inputR, double fbL, double fbR, double & outL, double & outR);
@@ -84,6 +91,8 @@ private:
     double m_syncDivision { 0.25 };
     double m_feedbackLpfCutoff { 1.0 };
     double m_feedbackHpfCutoff { 0.0 };
+    double m_feedbackLpfModulation { 0.0 };
+    double m_feedbackHpfModulation { 0.0 };
 
     std::vector<double> m_bufferL;
     std::vector<double> m_bufferR;

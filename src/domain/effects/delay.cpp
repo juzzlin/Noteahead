@@ -109,10 +109,10 @@ void Delay::processSample(double & left, double & right)
 
 void Delay::updateFilters()
 {
-    m_fbLpfL.setCutoff(m_feedbackLpfCutoff);
-    m_fbLpfR.setCutoff(m_feedbackLpfCutoff);
-    m_fbHpfL.setCutoff(std::max(0.001, m_feedbackHpfCutoff));
-    m_fbHpfR.setCutoff(std::max(0.001, m_feedbackHpfCutoff));
+    m_fbLpfL.setCutoff(effectiveFeedbackLpf());
+    m_fbLpfR.setCutoff(effectiveFeedbackLpf());
+    m_fbHpfL.setCutoff(std::max(0.001, effectiveFeedbackHpf()));
+    m_fbHpfR.setCutoff(std::max(0.001, effectiveFeedbackHpf()));
 }
 
 void Delay::updateWriteBuffer(double inputL, double inputR, double fbL, double fbR, double & outL, double & outR)
@@ -193,11 +193,13 @@ double Delay::readFromBuffer(const std::vector<double> & buffer, double delay) c
 
 void Delay::applyFeedbackFilters(double & fbL, double & fbR)
 {
-    if (m_feedbackLpfCutoff < 0.999) {
+    // Kept running while modulated even at the stops, so a sweep across them does not switch a
+    // filter in with whatever it was left holding.
+    if (effectiveFeedbackLpf() < 0.999 || m_feedbackLpfModulation != 0.0) {
         fbL = m_fbLpfL.process(fbL);
         fbR = m_fbLpfR.process(fbR);
     }
-    if (m_feedbackHpfCutoff > 0.001) {
+    if (effectiveFeedbackHpf() > 0.001 || m_feedbackHpfModulation != 0.0) {
         fbL = m_fbHpfL.process(fbL);
         fbR = m_fbHpfR.process(fbR);
     }
@@ -369,6 +371,26 @@ void Delay::setFeedbackHpf(double cutoff)
 double Delay::feedbackHpf() const
 {
     return m_feedbackHpfCutoff;
+}
+
+void Delay::setFeedbackLpfModulation(double offset)
+{
+    m_feedbackLpfModulation = offset;
+}
+
+void Delay::setFeedbackHpfModulation(double offset)
+{
+    m_feedbackHpfModulation = offset;
+}
+
+double Delay::effectiveFeedbackLpf() const
+{
+    return std::clamp(m_feedbackLpfCutoff + m_feedbackLpfModulation, 0.0, 1.0);
+}
+
+double Delay::effectiveFeedbackHpf() const
+{
+    return std::clamp(m_feedbackHpfCutoff + m_feedbackHpfModulation, 0.0, 1.0);
 }
 
 void Delay::updateBuffers(uint32_t sampleRate)

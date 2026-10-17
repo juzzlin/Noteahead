@@ -139,7 +139,11 @@ public:
         //! Appended with the multi engine's filter section, which continues the same pattern as the
         //! fifth source after the four VCOs.
         MultiLpf,
-        MultiHpf
+        MultiHpf,
+        //! The delay's feedback filters. The delay is shared by every voice, so these are moved by
+        //! a device-wide copy of the LFO rather than by the voices' own.
+        DelayLpf,
+        DelayHpf
     };
 
     explicit SynthDevice(std::string name);
@@ -667,6 +671,10 @@ private:
     bool m_chorusRunning { false };
 
     Delay m_delay;
+    //! Device-wide copies of LFO 1 and 2 for the targets the voices share, the delay's filters. They
+    //! restart with the first note after silence, the way a held chord's LFOs would.
+    Lfo m_delayLfo;
+    Lfo m_delayLfo2;
     Delay::Type m_delayType { Delay::Type::Stereo };
     float m_delayTime { 0.5f };
     float m_delayFeedback { 0.3f };
@@ -760,6 +768,10 @@ private:
 
     void renderVoice(Voice & voice, AudioContext & context, uint8_t oversampleFactor, uint32_t oversampledRate, double portamentoCoeff, double pbRatio, size_t index);
     void applyGlobalEffects(AudioContext & context);
+    void configureLfo1(Lfo & lfo) const;
+    void configureLfo2(Lfo & lfo) const;
+    //! Offset an LFO pointing at \a target adds to the delay's feedback filter, at this sample.
+    double delayFilterModulation(LfoTarget target, double lfoValue, double lfo2Value) const;
 
     std::string m_name;
 };

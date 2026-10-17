@@ -243,7 +243,7 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoMode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete }); // Normal default
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoRate().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoIntensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyLfoTarget().toStdString(), 0.0f, 0, 20, 0, 1, Parameter::Type::Discrete }); // Pitch default
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfoTarget().toStdString(), 0.0f, 0, 22, 0, 1, Parameter::Type::Discrete }); // Pitch default
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoDelay().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfoFade().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
@@ -251,7 +251,7 @@ SynthDevice::SynthDevice(std::string name)
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Mode().toStdString(), 0.0f, 0, 2, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Rate().toStdString(), 0.5f, 0, 10000, 5000, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Intensity().toStdString(), 0.5f, -10000, 10000, 0, 100 });
-    addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Target().toStdString(), 0.0f, 0, 20, 0, 1, Parameter::Type::Discrete });
+    addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Target().toStdString(), 0.0f, 0, 22, 0, 1, Parameter::Type::Discrete });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Delay().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { Constants::NahdXml::xmlKeyLfo2Fade().toStdString(), 0.0f, 0, 10000, 0, 100 });
     // One: the rate as it always was
@@ -328,6 +328,8 @@ SynthDevice::SynthDevice(std::string name)
     describe(C::xmlKeyMultiLpfCutoff(), { .mapping = Display::Mapping::LogFrequency, .unit = "Hz", .min = 20.0, .max = 20000.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Multi LPF Cutoff") });
     describe(C::xmlKeyMultiLpfResonance(), { .unit = "%", .max = 100.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Multi LPF Resonance") });
     describe(C::xmlKeyMultiHpfCutoff(), { .mapping = Display::Mapping::LogFrequencyHighPass, .unit = "Hz", .min = 20.0, .max = 20000.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Multi HPF Cutoff") });
+    describe(C::xmlKeyDelayFeedbackLpf(), { .mapping = Display::Mapping::LogFrequency, .unit = "Hz", .min = 20.0, .max = 20000.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Delay LPF Cutoff") });
+    describe(C::xmlKeyDelayFeedbackHpf(), { .mapping = Display::Mapping::LogFrequencyHighPass, .unit = "Hz", .min = 20.0, .max = 20000.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Delay HPF Cutoff") });
     DeviceParameterDisplay::lfos(*this);
     DeviceParameterDisplay::bipolar(*this, C::xmlKeyModIntensity(), QT_TRANSLATE_NOOP("ParameterDisplay", "Mod EG Intensity"));
     DeviceParameterDisplay::percent(*this, C::xmlKeyVco1Shape(), QT_TRANSLATE_NOOP("ParameterDisplay", "VCO 1 Shape"));
@@ -517,7 +519,7 @@ struct SourceFilterTarget
     bool lowPass {};
 };
 
-//! Both target enums end with the same ten entries in the same order -- VCO order with the multi
+//! Both target enums share the same ten entries in the same order -- VCO order with the multi
 //! engine last, low pass then high pass -- so the ordinal alone says where a target points, and the
 //! Mod EG and the two LFOs share one lookup instead of ten branches each.
 std::optional<SourceFilterTarget> sourceFilterTargetOf(int target, int firstTarget)
@@ -764,6 +766,12 @@ void SynthDevice::applyGlobalEffects(AudioContext & context)
     const uint8_t oversampleFactor = clampOversampleFactor(context.oversampleFactor);
     m_dcBlockerL.setSampleRate(context.sampleRate);
     m_dcBlockerR.setSampleRate(context.sampleRate);
+    m_delayLfo.setSampleRate(context.sampleRate);
+    m_delayLfo2.setSampleRate(context.sampleRate);
+    const auto pointsAtDelay = [](LfoTarget target) {
+        return target == LfoTarget::DelayLpf || target == LfoTarget::DelayHpf;
+    };
+    const bool delayModulated = pointsAtDelay(m_lfoTarget) || pointsAtDelay(m_lfo2Target);
     std::array<float, 4> highL {};
     std::array<float, 4> highR {};
     for (uint32_t i = 0; i < context.frameCount; i++) {
@@ -785,6 +793,16 @@ void SynthDevice::applyGlobalEffects(AudioContext & context)
             m_chorus.process(l, r);
         } else {
             m_chorusRunning = false;
+        }
+
+        if (delayModulated) {
+            const double lfoValue = m_delayLfo.nextSample() * m_lfoInt;
+            const double lfo2Value = m_delayLfo2.nextSample() * m_lfo2Int;
+            m_delay.setFeedbackLpfModulation(delayFilterModulation(LfoTarget::DelayLpf, lfoValue, lfo2Value));
+            m_delay.setFeedbackHpfModulation(delayFilterModulation(LfoTarget::DelayHpf, lfoValue, lfo2Value));
+        } else {
+            m_delay.setFeedbackLpfModulation(0.0);
+            m_delay.setFeedbackHpfModulation(0.0);
         }
 
         // Ahead of the delay, not after it: the feedback path would otherwise integrate the offset.
@@ -907,6 +925,8 @@ void SynthDevice::resetAudio()
     m_chorus.reset();
     m_chorusRunning = false;
     m_delay.reset();
+    m_delayLfo.reset();
+    m_delayLfo2.reset();
     m_downsamplerL.reset();
     m_downsamplerR.reset();
     m_dcBlockerL.reset();
@@ -928,6 +948,11 @@ void SynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
     const double freq = midiNoteToFreq(note);
     const float vel = static_cast<float>(velocity) / 127.0f;
     const float finalVel = std::clamp((1.0f - m_ampVelocitySensitivity) + m_ampVelocitySensitivity * vel, 0.0f, 1.0f);
+
+    if (std::ranges::none_of(m_voices, [](auto && voice) { return voice.active; })) {
+        m_delayLfo.trigger();
+        m_delayLfo2.trigger();
+    }
 
     if (m_voiceMode == VoiceMode::Mono) {
         // Mono keeps the sounding voice alive on purpose, so the release-first pass below would undo
@@ -1742,33 +1767,8 @@ void SynthDevice::syncParameters()
         voice.vco3.setShape(m_vco3Shape);
         voice.vco4.setShape(m_vco4Shape);
 
-        voice.lfo.setWaveform(m_lfoWaveform);
-        voice.lfo.setMode(m_lfoMode);
-
-        double freq = 0.0;
-        if (m_lfoMode == Lfo::Mode::BPM) {
-            freq = (m_delay.bpm() / 60.0f) * (0.25f / std::max(0.0001f, m_lfoRate));
-        } else {
-            freq = static_cast<float>(ParameterMapper::mapLfoFrequency(m_lfoRate, 0.05, 20.0));
-        }
-        voice.lfo.setFrequency(freq);
-        voice.lfo.setDelayTime(ParameterMapper::mapCubic(m_lfoDelay, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
-        voice.lfo.setFadeTime(ParameterMapper::mapCubic(m_lfoFade, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
-        voice.lfo.setRateDivider(m_lfoRateDivider);
-
-        voice.lfo2.setWaveform(m_lfo2Waveform);
-        voice.lfo2.setMode(m_lfo2Mode);
-
-        double freq2 = 0.0;
-        if (m_lfo2Mode == Lfo::Mode::BPM) {
-            freq2 = (m_delay.bpm() / 60.0f) * (0.25f / std::max(0.0001f, m_lfo2Rate));
-        } else {
-            freq2 = static_cast<float>(ParameterMapper::mapLfoFrequency(m_lfo2Rate, 0.05, 20.0));
-        }
-        voice.lfo2.setFrequency(freq2);
-        voice.lfo2.setDelayTime(ParameterMapper::mapCubic(m_lfo2Delay, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
-        voice.lfo2.setFadeTime(ParameterMapper::mapCubic(m_lfo2Fade, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
-        voice.lfo2.setRateDivider(m_lfo2RateDivider);
+        configureLfo1(voice.lfo);
+        configureLfo2(voice.lfo2);
 
         voice.ampEg.setAttackTime(ParameterMapper::mapExponential(m_ampAttack, 0.000001, 20.0));
         voice.ampEg.setDecayTime(ParameterMapper::mapExponential(m_ampDecay, 0.01, 60.0));
@@ -1784,6 +1784,55 @@ void SynthDevice::syncParameters()
         voice.modEg.setReleaseTime(ParameterMapper::mapExponential(m_modDecay, 0.01, 60.0));
         voice.modEg.setCurve(m_modCurve);
     }
+
+    configureLfo1(m_delayLfo);
+    configureLfo2(m_delayLfo2);
+}
+
+void SynthDevice::configureLfo1(Lfo & lfo) const
+{
+    lfo.setWaveform(m_lfoWaveform);
+    lfo.setMode(m_lfoMode);
+
+    double freq = 0.0;
+    if (m_lfoMode == Lfo::Mode::BPM) {
+        freq = (m_delay.bpm() / 60.0f) * (0.25f / std::max(0.0001f, m_lfoRate));
+    } else {
+        freq = static_cast<float>(ParameterMapper::mapLfoFrequency(m_lfoRate, 0.05, 20.0));
+    }
+    lfo.setFrequency(freq);
+    lfo.setDelayTime(ParameterMapper::mapCubic(m_lfoDelay, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
+    lfo.setFadeTime(ParameterMapper::mapCubic(m_lfoFade, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
+    lfo.setRateDivider(m_lfoRateDivider);
+}
+
+void SynthDevice::configureLfo2(Lfo & lfo) const
+{
+    lfo.setWaveform(m_lfo2Waveform);
+    lfo.setMode(m_lfo2Mode);
+
+    double freq = 0.0;
+    if (m_lfo2Mode == Lfo::Mode::BPM) {
+        freq = (m_delay.bpm() / 60.0f) * (0.25f / std::max(0.0001f, m_lfo2Rate));
+    } else {
+        freq = static_cast<float>(ParameterMapper::mapLfoFrequency(m_lfo2Rate, 0.05, 20.0));
+    }
+    lfo.setFrequency(freq);
+    lfo.setDelayTime(ParameterMapper::mapCubic(m_lfo2Delay, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
+    lfo.setFadeTime(ParameterMapper::mapCubic(m_lfo2Fade, 0.0, Constants::maxLfoEnvelopeTimeSeconds()));
+    lfo.setRateDivider(m_lfo2RateDivider);
+}
+
+double SynthDevice::delayFilterModulation(LfoTarget target, double lfoValue, double lfo2Value) const
+{
+    double offset = 0.0;
+    if (m_lfoTarget == target) {
+        offset += lfoValue;
+    }
+    if (m_lfo2Target == target) {
+        offset += lfo2Value;
+    }
+    return offset;
 }
 
 void SynthDevice::serializeToXml(ProjectWriter & writer) const
@@ -2753,7 +2802,7 @@ void SynthDevice::setDelaySyncDivision(float division)
 
 float SynthDevice::delayFeedbackLpf() const
 {
-    return m_delay.feedbackLpf();
+    return shownParameterValue(Constants::NahdXml::xmlKeyDelayFeedbackLpf(), static_cast<float>(m_delay.feedbackLpf()));
 }
 
 void SynthDevice::setFeedbackLpf(float cutoff)
@@ -2763,7 +2812,7 @@ void SynthDevice::setFeedbackLpf(float cutoff)
 
 float SynthDevice::delayFeedbackHpf() const
 {
-    return m_delay.feedbackHpf();
+    return shownParameterValue(Constants::NahdXml::xmlKeyDelayFeedbackHpf(), static_cast<float>(m_delay.feedbackHpf()));
 }
 
 void SynthDevice::setFeedbackHpf(float cutoff)

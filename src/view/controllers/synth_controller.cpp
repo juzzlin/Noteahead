@@ -137,7 +137,7 @@ QStringList SynthController::lfoTargetNames() const
     // Ordinal order again, which is why the single-VCO pitches trail the list. See LfoTarget.
     return QStringList { tr("Pitch"), tr("Shape"), tr("Cutoff"), tr("Volume"), tr("Resonance"), tr("Pan"),
                          tr("Pitch 1"), tr("Pitch 2"), tr("Pitch 3"), tr("HPF Cutoff"), tr("Pitch 4") }
-    + vcoFilterTargetNames();
+    + vcoFilterTargetNames() + QStringList { tr("Delay LPF"), tr("Delay HPF") };
 }
 
 QStringList SynthController::lfo2WaveformNames() const

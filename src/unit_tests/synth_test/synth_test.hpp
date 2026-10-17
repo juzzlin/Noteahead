@@ -72,6 +72,9 @@ private slots:
     void test_chorus_absentFromXml_shouldLoadDry();
     void test_chorus_automation_shouldOfferMixRateAndDepth();
     void test_presets_chorus_shouldBeOnOnlyWhereIntended();
+    void test_delayFilter_automation_shouldOfferBothCutoffs();
+    void test_delayFilter_lfoTarget_shouldDarkenTheEchoes();
+    void test_delayFilter_lfoTarget_shouldLeaveTheControlsAlone();
     void initTestCase();
     void cleanupTestCase();
 

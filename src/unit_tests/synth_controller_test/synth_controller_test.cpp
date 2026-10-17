@@ -296,7 +296,7 @@ void SynthControllerTest::test_lfoTargetNames()
     const auto synth = std::make_shared<SynthDevice>("Test Synth");
     SynthController controller { synth };
     const auto targets = controller.lfoTargetNames();
-    QCOMPARE(targets.size(), 21);
+    QCOMPARE(targets.size(), 23);
     // The order is the serialized LfoTarget ordinal, so it is append-only: reordering these would
     // change the LFO destination of every project saved before the change.
     QCOMPARE(targets.at(0), QString("Pitch"));
@@ -325,6 +325,9 @@ void SynthControllerTest::test_lfoTargetNames()
     // The multi engine's filter, appended after the oscillators' for the same reason.
     QCOMPARE(targets.at(19), QString("Multi LPF"));
     QCOMPARE(targets.at(20), QString("Multi HPF"));
+    // The delay's feedback filters, appended after those.
+    QCOMPARE(targets.at(21), QString("Delay LPF"));
+    QCOMPARE(targets.at(22), QString("Delay HPF"));
 
     // LFO 2 offers the same destinations.
     QCOMPARE(controller.lfo2TargetNames(), targets);
