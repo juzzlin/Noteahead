@@ -112,8 +112,9 @@ public:
     //! Advances every LFO over [startFrame, startFrame + frameCount) and appends the steps that
     //! change anything to @p steps. For the engine, on the audio thread, before any device renders.
     //!
-    //! The grid is aligned to the timeline, not to the block, so the same stretch gives the same
-    //! steps however it is cut into blocks. Notes queued for this device are applied here, at the
+    //! The grid runs from the first frame evaluated after a reset, not from each block, so the same
+    //! stretch gives the same steps however it is cut into blocks, and a render -- which resets
+    //! every device as it starts -- steps the same each time it is run. Notes queued for this device are applied here, at the
     //! step they land on, rather than when the device renders.
     void evaluate(uint64_t startFrame, uint32_t frameCount, double sampleRate, double bpm, std::vector<Step> & steps);
 
@@ -151,6 +152,8 @@ private:
     std::string m_name;
     std::array<Slot, LfoCount> m_slots;
     double m_bpm { 120.0 };
+    //! Where the grid started: the first frame evaluated since the last reset.
+    std::optional<uint64_t> m_gridOrigin;
 };
 
 } // namespace noteahead

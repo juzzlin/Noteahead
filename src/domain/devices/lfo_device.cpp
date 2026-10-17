@@ -215,6 +215,7 @@ void LfoDevice::resetAudio()
         slot.lastSent.reset();
         slot.lastMode.reset();
     }
+    m_gridOrigin.reset();
 }
 
 double LfoDevice::effectiveDepth(const Slot & slot) const
@@ -297,8 +298,12 @@ void LfoDevice::evaluate(uint64_t startFrame, uint32_t frameCount, double sample
         }
     }
 
+    if (!m_gridOrigin || *m_gridOrigin > startFrame) {
+        m_gridOrigin = startFrame;
+    }
     const uint64_t end = startFrame + frameCount;
-    for (uint64_t frame = (startFrame + gridFrames - 1) / gridFrames * gridFrames; frame < end; frame += gridFrames) {
+    const uint64_t sinceOrigin = startFrame - *m_gridOrigin;
+    for (uint64_t frame = *m_gridOrigin + (sinceOrigin + gridFrames - 1) / gridFrames * gridFrames; frame < end; frame += gridFrames) {
         // Notes due by this step restart what they restart before it is taken
         applyScheduledEvents(frame);
         for (size_t lfo = 0; lfo < LfoCount; lfo++) {

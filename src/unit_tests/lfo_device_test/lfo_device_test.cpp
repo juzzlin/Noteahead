@@ -105,13 +105,13 @@ void LfoDeviceTest::test_evaluate_shouldStepOnTheMillisecondGrid()
     set(device, 0, NahdXml::xmlKeyWaveform(), static_cast<float>(Lfo::Waveform::Sine));
     device.setTarget(0, cutoffTarget());
 
-    // Starting between two grid points: the first step is the next one on the timeline, not the block
+    // The grid starts where the device was first evaluated, and runs on from there across blocks
     const auto steps = run(device, 100, 4800);
 
     QVERIFY(steps.size() > 90);
-    QCOMPARE(steps.front().frame, uint64_t { 144 });
+    QCOMPARE(steps.front().frame, uint64_t { 100 });
     for (auto && step : steps) {
-        QCOMPARE(step.frame % GridFrames, uint64_t { 0 });
+        QCOMPARE((step.frame - 100) % GridFrames, uint64_t { 0 });
         QCOMPARE(step.target, cutoffTarget());
         QCOMPARE(step.mode, std::optional { ParameterModulation::Mode::Bipolar });
     }
@@ -204,6 +204,7 @@ void LfoDeviceTest::test_retrigger_note_shouldRestartAtItsStep()
     const auto steps = run(device, 24000, 4800);
 
     const auto restart = std::ranges::find_if(steps, [](auto && step) { return step.frame == 24144; });
+    // 24144 being the first step after the note: the grid started at 0
     QVERIFY(restart != steps.end());
     QVERIFY(std::abs(restart->source + 1.0) < 1.0e-9);
 }

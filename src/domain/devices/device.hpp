@@ -246,6 +246,23 @@ public:
     //! finished: skipping it would drop the note it is holding rather than merely save the work.
     bool hasScheduledEvents() const;
 
+    //! A modulation step for this block, held back until its frame as a scheduled event is.
+    struct ScheduledModulation
+    {
+        uint64_t frame {};
+        //! The parameter's key. Not owned: the engine keeps it alive until the block is rendered,
+        //! which is all the time an entry spends here, so queueing one never allocates.
+        const std::string * key {};
+        ParameterModulation::Mode mode {};
+        double source {};
+        double depth {};
+    };
+
+    //! Queues a modulation step for the block about to be rendered, to be applied at its own frame.
+    //! For the engine, on the audio thread, before the block renders. Anything left over once the
+    //! block is rendered is applied then, so nothing is ever carried into a block it was not meant for.
+    void scheduleModulation(const ScheduledModulation & modulation);
+
     virtual void processAudio(AudioContext & context) = 0;
 
     //! Renders one block, breaking it wherever an event was scheduled.
@@ -561,6 +578,10 @@ private:
     ClipDetector m_clipDetector;
 
     std::vector<ScheduledEvent> m_scheduledEvents;
+    //! Not in time order across sources, so it is searched rather than walked from the front.
+    std::vector<ScheduledModulation> m_scheduledModulations;
+    void applyScheduledModulations(uint64_t frame);
+    std::optional<uint64_t> nextScheduledModulationFrame(uint64_t from, uint64_t to) const;
     std::optional<double> m_nextNoteBeats;
 
     mutable std::recursive_mutex m_mutex;

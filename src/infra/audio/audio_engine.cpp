@@ -475,6 +475,12 @@ AudioEngine::AudioEngine()
         m_sendChainRacks.push_back(std::make_unique<EffectRack>());
     }
     m_sendChainSnapshots.resize(m_sendChainRacks.size());
+    // So that the audio thread does not allocate to evaluate four LFOs through a render's longest block
+    m_modulationSteps.reserve(1024);
+    m_modulationSources.reserve(Constants::deviceRackSize());
+    m_effectModulationSteps.reserve(64);
+    m_activeModulations.reserve(64);
+    m_modulationTargetCache.reserve(64);
     m_sendChainVersions.assign(m_sendChainRacks.size(), std::numeric_limits<uint64_t>::max());
     // So that the audio thread does not allocate while a song is getting going.
     m_parameterChanges.reserve(256);
@@ -537,12 +543,18 @@ void AudioEngine::refreshSendChainSnapshots()
 void AudioEngine::setDevice(size_t slotIndex, DeviceS device)
 {
     std::lock_guard<std::mutex> lock { m_mutex };
+    if (const auto it = m_devices.find(slotIndex); it != m_devices.end() && it->second && it->second != device) {
+        releaseModulationsOf(it->second.get());
+    }
     m_devices[slotIndex] = std::move(device);
 }
 
 void AudioEngine::clearDevice(size_t slotIndex)
 {
     std::lock_guard<std::mutex> lock { m_mutex };
+    if (const auto it = m_devices.find(slotIndex); it != m_devices.end() && it->second) {
+        releaseModulationsOf(it->second.get());
+    }
     m_devices.erase(slotIndex);
 
     // Nothing writes this slot's output buffer once its device is gone, so whatever it last
@@ -632,6 +644,131 @@ void AudioEngine::clearParameterAutomation()
     m_automatedTargets.clear();
 }
 
+std::shared_ptr<ParameterAutomationTarget> AudioEngine::resolveModulationTarget(const ParameterAutomation::Target & target)
+{
+    for (auto && cached : m_modulationTargetCache) {
+        if (cached.target == target) {
+            if (auto resolved = cached.resolved.lock(); resolved) {
+                return resolved;
+            }
+            break;
+        }
+    }
+
+    std::shared_ptr<ParameterAutomationTarget> resolved;
+    if (target.owner == ParameterAutomation::Target::Owner::Device) {
+        for (auto && [slot, device] : m_devices) {
+            if (device && device->uuid() == target.ownerId) {
+                resolved = device;
+                break;
+            }
+        }
+    } else {
+        const auto search = [&target, &resolved](const EffectRack & rack) {
+            for (size_t i = 0; i < rack.effectCount() && !resolved; i++) {
+                if (const auto effect = rack.effect(i); effect && effect->id() == target.ownerId) {
+                    resolved = effect;
+                }
+            }
+        };
+        search(*m_insertEffectRack);
+        search(*m_sendEffectRack);
+        for (auto && chain : m_sendChainRacks) {
+            search(*chain);
+        }
+        for (auto && [slot, device] : m_devices) {
+            if (device && !resolved) {
+                for (auto && rack : device->effectRacks()) {
+                    search(rack.get());
+                }
+            }
+        }
+    }
+
+    if (resolved) {
+        const auto cached = std::ranges::find_if(m_modulationTargetCache, [&target](auto && entry) { return entry.target == target; });
+        if (cached != m_modulationTargetCache.end()) {
+            cached->resolved = resolved;
+        } else {
+            m_modulationTargetCache.push_back({ target, resolved });
+        }
+    }
+    return resolved;
+}
+
+void AudioEngine::releaseModulationsOf(const Device * device)
+{
+    for (auto && active : m_activeModulations) {
+        if (active.device == device) {
+            if (const auto target = resolveModulationTarget(active.target); target) {
+                target->clearParameterModulation(active.target.parameter);
+            }
+        }
+    }
+    std::erase_if(m_activeModulations, [device](auto && active) { return active.device == device; });
+}
+
+void AudioEngine::evaluateModulation(const AudioContext & context)
+{
+    m_modulationSteps.clear();
+    m_modulationSources.clear();
+    for (auto && [slot, device] : m_devices) {
+        if (const auto lfoDevice = dynamic_cast<LfoDevice *>(device.get()); lfoDevice) {
+            m_modulationSources.push_back({ lfoDevice, m_modulationSteps.size() });
+            lfoDevice->evaluate(context.startFrame, context.frameCount, static_cast<double>(context.sampleRate), context.bpm, m_modulationSteps);
+        }
+    }
+    if (m_modulationSteps.empty()) {
+        return;
+    }
+
+    m_effectModulationSteps.clear();
+    for (size_t source = 0; source < m_modulationSources.size(); source++) {
+        const auto lfoDevice = m_modulationSources.at(source).first;
+        const size_t end = source + 1 < m_modulationSources.size() ? m_modulationSources.at(source + 1).second : m_modulationSteps.size();
+        for (size_t i = m_modulationSources.at(source).second; i < end; i++) {
+            const auto & step = m_modulationSteps.at(i);
+            const auto target = resolveModulationTarget(step.target);
+            if (!target) {
+                continue;
+            }
+            const auto active = std::ranges::find_if(m_activeModulations, [&](auto && entry) { return entry.device == lfoDevice && entry.lfo == step.lfo && entry.target == step.target; });
+            if (!step.mode) {
+                target->clearParameterModulation(step.target.parameter);
+                if (active != m_activeModulations.end()) {
+                    m_activeModulations.erase(active);
+                }
+                continue;
+            }
+            if (active == m_activeModulations.end()) {
+                m_activeModulations.push_back({ lfoDevice, step.lfo, step.target });
+            }
+            if (step.target.owner == ParameterAutomation::Target::Owner::Device) {
+                if (const auto device = dynamic_cast<Device *>(target.get()); device) {
+                    device->scheduleModulation({ step.frame, &step.target.parameter, *step.mode, step.source, step.depth });
+                }
+            } else {
+                // An effect runs once per block, so only the last step of each LFO is worth syncing
+                const auto previous = std::ranges::find_if(m_effectModulationSteps, [&](size_t index) {
+                    const auto & other = m_modulationSteps.at(index);
+                    return index >= m_modulationSources.at(source).second && index < end && other.lfo == step.lfo;
+                });
+                if (previous != m_effectModulationSteps.end()) {
+                    *previous = i;
+                } else {
+                    m_effectModulationSteps.push_back(i);
+                }
+            }
+        }
+    }
+    for (const size_t index : m_effectModulationSteps) {
+        const auto & step = m_modulationSteps.at(index);
+        if (const auto target = resolveModulationTarget(step.target); target) {
+            target->applyParameterModulation(step.target.parameter, *step.mode, step.source, step.depth);
+        }
+    }
+}
+
 void AudioEngine::applyParameterChanges(uint64_t blockEndFrame)
 {
     const std::lock_guard<std::mutex> lock { m_parameterChangesMutex };
@@ -675,6 +812,7 @@ void AudioEngine::process(AudioContext & context)
     // render worker all build their context without one, and every context derived below -- each
     // device's, each send bus's -- copies this field.
     context.bpm = static_cast<double>(m_bpm.load());
+    evaluateModulation(context);
     // Refresh the cached send-effects snapshot only when the rack actually changed, so the common
     // case avoids copying the vector (and bumping shared_ptr refcounts) under a lock every callback.
     if (const auto version = m_sendEffectRack->version(); version != m_sendEffectsVersion) {
@@ -1008,9 +1146,11 @@ void AudioEngine::clear()
     std::lock_guard<std::mutex> lock { m_mutex };
     for (auto const & [index, device] : m_devices) {
         if (device) {
+            releaseModulationsOf(device.get());
             device->resetAudio();
         }
     }
+    m_modulationTargetCache.clear();
     m_devices.clear();
     m_sendEffectRack->reset();
     m_insertEffectRack->reset();

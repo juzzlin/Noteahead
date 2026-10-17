@@ -76,6 +76,9 @@ Device::Device()
     m_volume = Constants::faderUnityPosition();
 
     m_reverbSends.resize(Constants::effectRackSize(), 0.0f);
+    // Enough for four LFOs stepping every millisecond through the longest block a render uses, so
+    // the audio thread does not allocate to queue them
+    m_scheduledModulations.reserve(1024);
 }
 
 size_t Device::id() const
@@ -669,10 +672,13 @@ void Device::renderBlock(AudioContext & context)
     while (rendered < context.frameCount) {
         const uint64_t at = context.startFrame + rendered;
         applyScheduledEvents(at);
+        applyScheduledModulations(at);
 
         // Where the next event falls, and so where this piece has to stop. Looking from the frame
         // after this one, since whatever was due at `at` has just been applied.
-        const auto next = nextScheduledEventFrame(at + 1, blockEnd);
+        const auto nextEvent = nextScheduledEventFrame(at + 1, blockEnd);
+        const auto nextModulation = nextScheduledModulationFrame(at + 1, blockEnd);
+        const auto next = nextEvent && nextModulation ? std::optional { std::min(*nextEvent, *nextModulation) } : (nextEvent ? nextEvent : nextModulation);
         const uint32_t until = next ? static_cast<uint32_t>(*next - context.startFrame) : context.frameCount;
 
         AudioContext piece = context;
@@ -686,6 +692,8 @@ void Device::renderBlock(AudioContext & context)
 
         rendered = until;
     }
+    // Nothing is meant for a later block, but whatever is left is let go of rather than carried over
+    applyScheduledModulations(blockEnd);
 }
 
 void Device::scheduleMidiEvent(const ScheduledEvent & event)
@@ -773,6 +781,7 @@ void Device::clearScheduledEvents()
 {
     const std::lock_guard<std::recursive_mutex> lock { m_mutex };
     m_scheduledEvents.clear();
+    m_scheduledModulations.clear();
 }
 
 size_t Device::scheduledEventCount() const
@@ -784,7 +793,41 @@ size_t Device::scheduledEventCount() const
 bool Device::hasScheduledEvents() const
 {
     const std::lock_guard<std::recursive_mutex> lock { m_mutex };
-    return !m_scheduledEvents.empty();
+    // A modulation counts: a silent device still has to take it, or its next note starts unmodulated
+    return !m_scheduledEvents.empty() || !m_scheduledModulations.empty();
+}
+
+void Device::scheduleModulation(const ScheduledModulation & modulation)
+{
+    const std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    m_scheduledModulations.push_back(modulation);
+}
+
+void Device::applyScheduledModulations(uint64_t frame)
+{
+    const std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    if (m_scheduledModulations.empty()) {
+        return;
+    }
+    // In the order queued, so that of two due at once from the same source the later one wins
+    for (auto && modulation : m_scheduledModulations) {
+        if (modulation.frame <= frame && modulation.key) {
+            applyParameterModulation(*modulation.key, modulation.mode, modulation.source, modulation.depth);
+        }
+    }
+    std::erase_if(m_scheduledModulations, [frame](auto && modulation) { return modulation.frame <= frame; });
+}
+
+std::optional<uint64_t> Device::nextScheduledModulationFrame(uint64_t from, uint64_t to) const
+{
+    const std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    std::optional<uint64_t> next;
+    for (auto && modulation : m_scheduledModulations) {
+        if (modulation.frame >= from && modulation.frame < to && (!next || modulation.frame < *next)) {
+            next = modulation.frame;
+        }
+    }
+    return next;
 }
 
 void Device::processInsertEffects(AudioContext & context)
