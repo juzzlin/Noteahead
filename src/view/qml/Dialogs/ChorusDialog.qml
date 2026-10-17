@@ -83,8 +83,8 @@ EffectDialog {
                     label: qsTr("Delay")
                     suffix: "ms"
                     mapping: "linear"
-                    mapMin: 1.0
-                    mapMax: 50.0
+                    mapMin: 5.0
+                    mapMax: 30.0
                     value: {
                         effectRackController.revision;
                         return effectRackController.parameterValue(root.effectIndex, effectRackController.chorusDelayKey()) * Constants.uiInternalScaling;
