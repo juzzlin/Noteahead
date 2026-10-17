@@ -25,6 +25,7 @@
 #include "../domain/devices/device_factory.hpp"
 #include "../domain/devices/drum_synth_device.hpp"
 #include "../domain/devices/fm_synth_device.hpp"
+#include "../domain/devices/ju_synth_device.hpp"
 #include "../domain/devices/kick_808_device.hpp"
 #include "../domain/devices/piano_synth_device.hpp"
 #include "../domain/devices/piano_synth_v2_device.hpp"
@@ -52,10 +53,11 @@
 #include "../view/controllers/drum_synth_v2_controller.hpp"
 #include "../view/controllers/effect_rack_controller.hpp"
 #include "../view/controllers/fm_drums_controller.hpp"
-#include "../view/controllers/lfo_controller.hpp"
 #include "../view/controllers/fm_synth_controller.hpp"
+#include "../view/controllers/ju_synth_controller.hpp"
 #include "../view/controllers/kick_808_controller.hpp"
 #include "../view/controllers/knob_controller.hpp"
+#include "../view/controllers/lfo_controller.hpp"
 #include "../view/controllers/piano_synth_controller.hpp"
 #include "../view/controllers/piano_synth_v2_controller.hpp"
 #include "../view/controllers/piano_synth_v3_controller.hpp"
@@ -158,6 +160,7 @@ Application::Application(int & argc, char ** argv)
   , m_synthController { std::make_shared<SynthController>(std::make_shared<SynthDevice>("Default Synth")) }
   , m_wavetableSynthController { std::make_shared<WavetableSynthController>(std::make_shared<WavetableSynthDevice>("Default WavetableSynth")) }
   , m_fmSynthController { std::make_shared<FmSynthController>(std::make_shared<FmSynthDevice>("Default FmSynth")) }
+  , m_juSynthController { std::make_shared<JuSynthController>(std::make_shared<JuSynthDevice>("Default JuSynth")) }
   , m_bassSynthController { std::make_shared<BassSynthController>(std::make_shared<BassSynthDevice>("Default BassSynth")) }
   , m_drumSynthController { std::make_shared<DrumSynthController>(m_deviceService) }
   , m_drumSynthV2Controller { std::make_shared<DrumSynthV2Controller>(m_deviceService) }
@@ -175,7 +178,7 @@ Application::Application(int & argc, char ** argv)
   , m_effectRackController { std::make_shared<EffectRackController>(m_deviceService, m_editorService) }
   , m_songOverviewService { std::make_shared<SongOverviewService>(m_deviceService, m_editorService) }
   , m_songOverviewController { std::make_shared<SongOverviewController>(m_songOverviewService, m_effectRackController) }
-  , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, std::vector<DeviceController::DeviceControllerS> { m_samplerController, m_synthController, m_wavetableSynthController, m_fmSynthController, m_bassSynthController, m_drumSynthController, m_drumSynthV2Controller, m_fmDrumsController, m_pianoSynthController, m_pianoSynthV2Controller, m_pianoSynthV3Controller, m_kick808Controller, m_stringVoiceController, m_stringVoiceV2Controller, m_stringVoiceV3Controller, m_stringEnsembleController, m_speechController, m_lfoController }, m_editorService) }
+  , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, std::vector<DeviceController::DeviceControllerS> { m_samplerController, m_synthController, m_wavetableSynthController, m_fmSynthController, m_juSynthController, m_bassSynthController, m_drumSynthController, m_drumSynthV2Controller, m_fmDrumsController, m_pianoSynthController, m_pianoSynthV2Controller, m_pianoSynthV3Controller, m_kick808Controller, m_stringVoiceController, m_stringVoiceV2Controller, m_stringVoiceV3Controller, m_stringEnsembleController, m_speechController, m_lfoController }, m_editorService) }
   , m_knobController { std::make_shared<KnobController>() }
   , m_jackService { std::make_shared<JackService>(m_settingsService, m_audioEngine) }
   , m_audioService { std::make_shared<AudioService>(m_settingsService, m_jackService, m_audioEngine) }
@@ -296,6 +299,7 @@ void Application::registerTypes()
     qmlRegisterType<SynthController>("Noteahead", majorVersion, minorVersion, "SynthController");
     qmlRegisterType<WavetableSynthController>("Noteahead", majorVersion, minorVersion, "WavetableSynthController");
     qmlRegisterType<FmSynthController>("Noteahead", majorVersion, minorVersion, "FmSynthController");
+    qmlRegisterType<JuSynthController>("Noteahead", majorVersion, minorVersion, "JuSynthController");
     qmlRegisterType<SelectionService>("Noteahead", majorVersion, minorVersion, "SelectionService");
     qmlRegisterType<SettingsService>("Noteahead", majorVersion, minorVersion, "SettingsService");
     qmlRegisterType<SideChainService>("Noteahead", majorVersion, minorVersion, "SideChainService");
@@ -322,6 +326,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("synthController", m_synthController.get());
     m_engine->rootContext()->setContextProperty("wavetableSynthController", m_wavetableSynthController.get());
     m_engine->rootContext()->setContextProperty("fmSynthController", m_fmSynthController.get());
+    m_engine->rootContext()->setContextProperty("juSynthController", m_juSynthController.get());
     m_engine->rootContext()->setContextProperty("bassSynthController", m_bassSynthController.get());
     m_engine->rootContext()->setContextProperty("drumSynthController", m_drumSynthController.get());
     m_engine->rootContext()->setContextProperty("audioAnalysisController", m_audioAnalysisController.get());

@@ -101,6 +101,7 @@ class UiLogger;
 class UtilService;
 class WavetableSynthController;
 class FmSynthController;
+class JuSynthController;
 
 class Application : public QObject
 {
@@ -187,6 +188,7 @@ private:
     std::shared_ptr<SynthController> m_synthController;
     std::shared_ptr<WavetableSynthController> m_wavetableSynthController;
     std::shared_ptr<FmSynthController> m_fmSynthController;
+    std::shared_ptr<JuSynthController> m_juSynthController;
     std::shared_ptr<BassSynthController> m_bassSynthController;
     std::shared_ptr<DrumSynthController> m_drumSynthController;
     std::shared_ptr<DrumSynthV2Controller> m_drumSynthV2Controller;

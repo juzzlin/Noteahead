@@ -34,9 +34,10 @@
 #include "../../domain/devices/drum_synth_v2_constants.hpp"
 #include "../../domain/devices/drum_synth_v2_device.hpp"
 #include "../../domain/devices/fm_drums_device.hpp"
-#include "../../domain/devices/lfo_device.hpp"
 #include "../../domain/devices/fm_synth_device.hpp"
+#include "../../domain/devices/ju_synth_device.hpp"
 #include "../../domain/devices/kick_808_device.hpp"
+#include "../../domain/devices/lfo_device.hpp"
 #include "../../domain/devices/piano_synth_v2_device.hpp"
 #include "../../domain/devices/piano_synth_v3_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
@@ -1601,6 +1602,38 @@ void XmlSerializationTest::test_toXmlFromXml_fmDrumsDevice_shouldComeBackAsFmDru
     const auto effect = drumIn->voiceEffectRack(snare).effect(0);
     QVERIFY(effect);
     QCOMPARE(effect->id(), reverbOut->id());
+}
+
+void XmlSerializationTest::test_toXmlFromXml_juSynthDevice_shouldComeBackAsJuSynth()
+{
+    // Not pre-created on the way back in, so this also proves the factory knows the type
+    DeviceFactory::init();
+
+    DeviceService deviceServiceOut { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+    const auto synthOut = std::make_shared<JuSynthDevice>("Noteahead Internal Device 1");
+    synthOut->setChorusMode(JunoChorus::Mode::II);
+    synthOut->setPwmSource(JuSynthDevice::PwmSource::Lfo);
+    synthOut->setPulseWidth(0.6f);
+    synthOut->setLpfResonance(0.7f);
+    deviceServiceOut.setDevice(0, synthOut);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto deviceServiceIn = std::make_shared<DeviceService>(std::make_shared<AudioEngine>(), std::make_shared<DataService>());
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, deviceServiceIn.get(), &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto synthIn = std::dynamic_pointer_cast<JuSynthDevice>(deviceServiceIn->device(0));
+    QVERIFY(synthIn);
+    QCOMPARE(synthIn->chorusMode(), JunoChorus::Mode::II);
+    QCOMPARE(synthIn->pwmSource(), JuSynthDevice::PwmSource::Lfo);
+    QVERIFY(std::abs(synthIn->pulseWidth() - 0.6f) < 0.001f);
+    QVERIFY(std::abs(synthIn->lpfResonance() - 0.7f) < 0.001f);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_lfoDevice_shouldComeBackWithItsTargets()

@@ -189,6 +189,11 @@ QString drumSynthV2DeviceName()
     return "Noteahead DrumSynth V2";
 }
 
+QString juSynthDeviceName()
+{
+    return "Noteahead JuSynth";
+}
+
 QString pianoSynthDeviceName()
 {
     return "Noteahead PianoSynth";
@@ -2023,6 +2028,51 @@ QString xmlKeyChorusWidth()
 QString xmlKeyChorusMix()
 {
     return "chorusMix";
+}
+
+QString xmlKeyPitchLfoDepth()
+{
+    return "pitchLfoDepth";
+}
+
+QString xmlKeyFilterLfoDepth()
+{
+    return "filterLfoDepth";
+}
+
+QString xmlKeyEnvPolarity()
+{
+    return "envPolarity";
+}
+
+QString xmlKeyPulseWidth()
+{
+    return "pulseWidth";
+}
+
+QString xmlKeyPwmSource()
+{
+    return "pwmSource";
+}
+
+QString xmlKeySawEnabled()
+{
+    return "sawEnabled";
+}
+
+QString xmlKeyPulseEnabled()
+{
+    return "pulseEnabled";
+}
+
+QString xmlKeyVcaMode()
+{
+    return "vcaMode";
+}
+
+QString xmlKeyChorusMode()
+{
+    return "chorusMode";
 }
 
 QString xmlKeyDelaySync()

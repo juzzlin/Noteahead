@@ -14,6 +14,8 @@ set(HEADER_FILES
     devices/fm_drums_presets.hpp
     devices/fm_synth_device.hpp
     devices/fm_synth_presets.hpp
+    devices/ju_synth_device.hpp
+    devices/ju_synth_presets.hpp
     devices/kick_808_device.hpp
     devices/lfo_device.hpp
     devices/piano_synth_device.hpp
@@ -55,6 +57,7 @@ set(HEADER_FILES
     dsp/fm_operator.hpp
     dsp/graphic_eq_designer.hpp
     dsp/high_pass_filter.hpp
+    dsp/juno_chorus.hpp
     dsp/lfo.hpp
     dsp/linear_phase_fir.hpp
     dsp/matched_bell_filter.hpp
@@ -66,6 +69,7 @@ set(HEADER_FILES
     dsp/modal_piano_string_v3.hpp
     dsp/multi_engine.hpp
     dsp/one_pole_filter.hpp
+    dsp/ota_ladder_filter.hpp
     dsp/panning.hpp
     dsp/ensemble_phaser.hpp
     dsp/poly_blep_oscillator.hpp
@@ -207,6 +211,8 @@ set(SOURCE_FILES
     devices/fm_drums_presets.cpp
     devices/fm_synth_device.cpp
     devices/fm_synth_presets.cpp
+    devices/ju_synth_device.cpp
+    devices/ju_synth_presets.cpp
     devices/kick_808_device.cpp
     devices/lfo_device.cpp
     devices/piano_synth_device.cpp
@@ -249,6 +255,7 @@ set(SOURCE_FILES
     dsp/fm_operator.cpp
     dsp/graphic_eq_designer.cpp
     dsp/high_pass_filter.cpp
+    dsp/juno_chorus.cpp
     dsp/lfo.cpp
     dsp/linear_phase_fir.cpp
     dsp/matched_bell_filter.cpp
@@ -260,6 +267,7 @@ set(SOURCE_FILES
     dsp/modal_piano_string_v3.cpp
     dsp/multi_engine.cpp
     dsp/one_pole_filter.cpp
+    dsp/ota_ladder_filter.cpp
     dsp/panning.cpp
     dsp/ensemble_phaser.cpp
     dsp/poly_blep_oscillator.cpp

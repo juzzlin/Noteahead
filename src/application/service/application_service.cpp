@@ -152,6 +152,11 @@ QString ApplicationService::fmSynthDeviceName() const
     return Constants::fmSynthDeviceName();
 }
 
+QString ApplicationService::juSynthDeviceName() const
+{
+    return Constants::juSynthDeviceName();
+}
+
 QString ApplicationService::bassSynthDeviceName() const
 {
     return Constants::bassSynthDeviceName();

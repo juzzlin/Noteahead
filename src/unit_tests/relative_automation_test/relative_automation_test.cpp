@@ -23,6 +23,7 @@
 #include "../../domain/devices/drum_synth_v2_device.hpp"
 #include "../../domain/devices/fm_drums_device.hpp"
 #include "../../domain/devices/fm_synth_device.hpp"
+#include "../../domain/devices/ju_synth_device.hpp"
 #include "../../domain/devices/kick_808_device.hpp"
 #include "../../domain/devices/piano_synth_device.hpp"
 #include "../../domain/devices/piano_synth_v2_device.hpp"
@@ -46,6 +47,7 @@
 #include "../../view/controllers/effect_rack_controller.hpp"
 #include "../../view/controllers/fm_drums_controller.hpp"
 #include "../../view/controllers/fm_synth_controller.hpp"
+#include "../../view/controllers/ju_synth_controller.hpp"
 #include "../../view/controllers/kick_808_controller.hpp"
 #include "../../view/controllers/piano_synth_controller.hpp"
 #include "../../view/controllers/piano_synth_v2_controller.hpp"
@@ -138,6 +140,7 @@ std::vector<Case> cases()
         makeCase<SynthDevice, SynthController>("Synth"),
         makeCase<WavetableSynthDevice, WavetableSynthController>("Wavetable Synth"),
         makeCase<FmSynthDevice, FmSynthController>("FM Synth"),
+        makeCase<JuSynthDevice, JuSynthController>("JU Synth"),
         makeCase<BassSynthDevice, BassSynthController>("Bass Synth"),
         makeCase<Kick808Device, Kick808Controller>("Kick 808"),
         makeCase<PianoSynthDevice, PianoSynthController>("Piano Synth"),

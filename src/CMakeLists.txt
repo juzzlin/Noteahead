@@ -93,6 +93,16 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/CrossfeedDialog.qml
     ${QML_BASE_DIR}/Dialogs/FlangerDialog.qml
     ${QML_BASE_DIR}/Dialogs/GateDialog.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynthDialog.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynthDialog_Chorus.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynthDialog_Dco.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynthDialog_Env.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynthDialog_Global.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynthDialog_Hpf.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynthDialog_Lfo.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynthDialog_Presets.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynthDialog_Vca.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynthDialog_Vcf.qml
     ${QML_BASE_DIR}/Dialogs/TremoloDialog.qml
     ${QML_BASE_DIR}/Dialogs/DbtpMeterDialog.qml
     ${QML_BASE_DIR}/Dialogs/LimiterDialog.qml

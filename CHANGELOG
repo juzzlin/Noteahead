@@ -5,6 +5,9 @@ Release date:
 
 New features:
 
+* JU Synth: a six-voice polysynth after the Juno-60, with its chorus I, II and I+II
+  - A 4-pole ladder filter that self-oscillates, and twelve classic presets
+
 * LFO: a device with four LFOs, each moving any device or effect parameter
   - Free, synced or one-shot, with a rate divider; notes on its track can restart it
 
