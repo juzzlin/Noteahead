@@ -19,9 +19,9 @@ import QtQuick.Controls 2.15
 import Noteahead 1.0
 
 // The noise source, which is not an oscillator and had been sharing the oscillator tab with four of
-// them. It is one module rather than four, so it is laid out at a module's width and left where the
-// oscillators are rather than stretched across the dialog: the knobs then read at the same size
-// they do everywhere else.
+// them, and its filter. They are laid out at a module's width and left where the oscillators are
+// rather than stretched across the dialog: the knobs then read at the same size they do everywhere
+// else.
 ScrollView {
     clip: true
     property real moduleWidth: 0
@@ -35,6 +35,11 @@ ScrollView {
             Layout.fillWidth: true
 
             SynthDialog_Multi {
+                Layout.preferredWidth: moduleWidth
+                Layout.alignment: Qt.AlignTop
+            }
+
+            SynthDialog_MultiFilter {
                 Layout.preferredWidth: moduleWidth
                 Layout.alignment: Qt.AlignTop
             }

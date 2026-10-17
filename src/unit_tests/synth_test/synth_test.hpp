@@ -61,6 +61,11 @@ private slots:
     void test_vcoFilter_lowPass_shouldDarkenOnlyItsOwnOscillator();
     void test_vcoFilter_settings_shouldRoundTrip();
     void test_vcoFilter_absentFromXml_shouldLoadWideOpen();
+    void test_multiFilter_default_shouldBeDisengaged();
+    void test_multiFilter_lfoTarget_shouldEngageItAlone();
+    void test_multiFilter_lowPass_shouldDarkenTheMultiEngine();
+    void test_multiFilter_settings_shouldRoundTrip();
+    void test_multiFilter_automation_shouldOfferCutoffsAndResonance();
     void initTestCase();
     void cleanupTestCase();
 

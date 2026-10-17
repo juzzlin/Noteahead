@@ -117,12 +117,13 @@ QStringList SynthController::modTargetNames() const
 
 QStringList SynthController::vcoFilterTargetNames() const
 {
-    // The per-oscillator filter corners, trailing both target lists because their ordinals are
-    // persisted. Shared, since the Mod EG and the LFOs reach exactly the same eight.
+    // The per-oscillator and multi engine filter corners, trailing both target lists because their
+    // ordinals are persisted. Shared, since the Mod EG and the LFOs reach exactly the same ten.
     QStringList names;
     for (int vco = 1; vco <= static_cast<int>(SynthDevice::VcoCount); vco++) {
         names << tr("VCO %1 LPF").arg(vco) << tr("VCO %1 HPF").arg(vco);
     }
+    names << tr("Multi LPF") << tr("Multi HPF");
     return names;
 }
 
@@ -640,6 +641,68 @@ void SynthController::setMultiKeyTrack(int t)
 {
     if (m_synth) {
         m_synth->setMultiKeyTrack(static_cast<float>(t) / Constants::uiInternalScaling());
+    }
+}
+
+int SynthController::multiLpfCutoff() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->multiLpfCutoff() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setMultiLpfCutoff(int value)
+{
+    if (m_synth) {
+        m_synth->setMultiLpfCutoff(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int SynthController::multiLpfResonance() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->multiLpfResonance() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setMultiLpfResonance(int value)
+{
+    if (m_synth) {
+        m_synth->setMultiLpfResonance(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int SynthController::multiLpfSlope() const
+{
+    return m_synth ? m_synth->multiLpfSlope() : 0;
+}
+
+void SynthController::setMultiLpfSlope(int value)
+{
+    if (m_synth) {
+        m_synth->setMultiLpfSlope(value);
+        emit multiLpfSlopeChanged();
+    }
+}
+
+int SynthController::multiHpfCutoff() const
+{
+    return m_synth ? static_cast<int>(std::round(m_synth->multiHpfCutoff() * Constants::uiInternalScaling())) : 0;
+}
+
+void SynthController::setMultiHpfCutoff(int value)
+{
+    if (m_synth) {
+        m_synth->setMultiHpfCutoff(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int SynthController::multiHpfSlope() const
+{
+    return m_synth ? m_synth->multiHpfSlope() : 0;
+}
+
+void SynthController::setMultiHpfSlope(int value)
+{
+    if (m_synth) {
+        m_synth->setMultiHpfSlope(value);
+        emit multiHpfSlopeChanged();
     }
 }
 
@@ -1415,6 +1478,11 @@ void SynthController::requestSettings()
     emit multiShapeChanged();
     emit multiLevelChanged();
     emit multiKeyTrackChanged();
+    emit multiLpfCutoffChanged();
+    emit multiLpfResonanceChanged();
+    emit multiLpfSlopeChanged();
+    emit multiHpfCutoffChanged();
+    emit multiHpfSlopeChanged();
 
     emit mixVco1Changed();
     emit mixVco2Changed();

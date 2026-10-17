@@ -31,6 +31,7 @@
 #include <QRegularExpression>
 #include <QSignalSpy>
 #include <QTest>
+
 #include <algorithm>
 #include <cmath>
 #include <format>
@@ -39,6 +40,7 @@
 #include <numeric>
 #include <optional>
 #include <ranges>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -578,6 +580,109 @@ void SynthTest::test_vcoFilter_absentFromXml_shouldLoadWideOpen()
         QCOMPARE(in.vcoLpfResonance(vco), 0.0f);
         QVERIFY(!in.vcoFilterEngaged(vco));
     }
+}
+
+void SynthTest::test_multiFilter_default_shouldBeDisengaged()
+{
+    const SynthDevice synth { "Synth" };
+    QVERIFY(!synth.multiFilterEngaged());
+    QCOMPARE(synth.multiLpfCutoff(), 1.0f);
+    QCOMPARE(synth.multiHpfCutoff(), 0.0f);
+    QCOMPARE(synth.multiLpfResonance(), 0.0f);
+    QCOMPARE(synth.multiLpfSlope(), 0);
+    QCOMPARE(synth.multiHpfSlope(), 0);
+}
+
+void SynthTest::test_multiFilter_lfoTarget_shouldEngageItAlone()
+{
+    SynthDevice synth { "Synth" };
+    synth.setLfoTarget(SynthDevice::LfoTarget::MultiHpf);
+
+    QVERIFY(synth.multiFilterEngaged());
+    for (size_t vco = 0; vco < SynthDevice::VcoCount; vco++) {
+        QVERIFY2(!synth.vcoFilterEngaged(vco), qPrintable(QString::number(vco)));
+    }
+
+    synth.setLfoTarget(SynthDevice::LfoTarget::Vco4Hpf);
+    QVERIFY(!synth.multiFilterEngaged());
+    QVERIFY(synth.vcoFilterEngaged(3));
+}
+
+void SynthTest::test_multiFilter_lowPass_shouldDarkenTheMultiEngine()
+{
+    const auto renderWith = [](float cutoff) {
+        SynthDevice synth { "Synth" };
+        synth.setMixVco1(0.0f);
+        synth.setMixVco2(0.0f);
+        synth.setMixVco3(0.0f);
+        synth.setMixVco4(0.0f);
+        // A high pass at the bottom of its range, which is white noise across the whole spectrum
+        synth.setMultiType(MultiEngine::Type::High);
+        synth.setMultiShape(0.0f);
+        synth.setMultiLevel(1.0f);
+        synth.setMultiLpfCutoff(cutoff);
+        return renderSynth(synth);
+    };
+
+    // Sample-to-sample difference stands in for the top of the spectrum
+    const auto highEnergy = [](const std::vector<double> & buffer) {
+        double sum = 0.0;
+        for (size_t i = 2; i < buffer.size(); i += 2) {
+            const double difference = buffer[i] - buffer[i - 2];
+            sum += difference * difference;
+        }
+        return sum;
+    };
+
+    const auto open = renderWith(1.0f);
+    const auto closed = renderWith(0.3f);
+    QVERIFY(highEnergy(open) > 0.0);
+    QVERIFY2(highEnergy(closed) < highEnergy(open) * 0.1,
+             qPrintable(QString { "open %1, closed %2" }.arg(highEnergy(open)).arg(highEnergy(closed))));
+}
+
+void SynthTest::test_multiFilter_settings_shouldRoundTrip()
+{
+    SynthDevice synth { "Synth" };
+    synth.setMultiLpfCutoff(0.4f);
+    synth.setMultiLpfResonance(0.6f);
+    synth.setMultiHpfCutoff(0.2f);
+    synth.setMultiLpfSlope(1);
+    synth.setMultiHpfSlope(1);
+
+    QString xml;
+    {
+        NahdXmlWriter writer { xml };
+        synth.serializeToXml(writer);
+    }
+
+    NahdXmlReader reader { xml };
+    while (reader.readNextStartElement() && reader.name() != Constants::NahdXml::xmlKeyDevice()) {
+    }
+    SynthDevice loaded { "Synth" };
+    loaded.deserializeFromXml(reader);
+
+    QVERIFY(std::abs(loaded.multiLpfCutoff() - 0.4f) < 0.001f);
+    QVERIFY(std::abs(loaded.multiLpfResonance() - 0.6f) < 0.001f);
+    QVERIFY(std::abs(loaded.multiHpfCutoff() - 0.2f) < 0.001f);
+    QCOMPARE(loaded.multiLpfSlope(), 1);
+    QCOMPARE(loaded.multiHpfSlope(), 1);
+    // The oscillators' own filters are not the multi engine's
+    for (size_t vco = 0; vco < SynthDevice::VcoCount; vco++) {
+        QCOMPARE(loaded.vcoLpfCutoff(vco), 1.0f);
+    }
+}
+
+void SynthTest::test_multiFilter_automation_shouldOfferCutoffsAndResonance()
+{
+    const SynthDevice synth { "Synth" };
+    std::set<std::string> automatable;
+    for (auto && entry : synth.automatableParameters()) {
+        automatable.insert(entry.key);
+    }
+    QVERIFY(automatable.contains(Constants::NahdXml::xmlKeyMultiLpfCutoff().toStdString()));
+    QVERIFY(automatable.contains(Constants::NahdXml::xmlKeyMultiLpfResonance().toStdString()));
+    QVERIFY(automatable.contains(Constants::NahdXml::xmlKeyMultiHpfCutoff().toStdString()));
 }
 
 void SynthTest::initTestCase()

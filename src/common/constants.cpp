@@ -1570,6 +1570,31 @@ QString xmlKeyMultiKeyTrack()
     return "multiKeyTrack";
 }
 
+QString xmlKeyMultiLpfCutoff()
+{
+    return "multiLpfCutoff";
+}
+
+QString xmlKeyMultiLpfResonance()
+{
+    return "multiLpfResonance";
+}
+
+QString xmlKeyMultiLpfSlope()
+{
+    return "multiLpfSlope";
+}
+
+QString xmlKeyMultiHpfCutoff()
+{
+    return "multiHpfCutoff";
+}
+
+QString xmlKeyMultiHpfSlope()
+{
+    return "multiHpfSlope";
+}
+
 QString xmlKeyMode()
 {
     return "mode";

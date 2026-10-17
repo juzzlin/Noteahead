@@ -82,6 +82,11 @@ class SynthController : public DeviceController
     Q_PROPERTY(int multiShape READ multiShape WRITE setMultiShape NOTIFY multiShapeChanged)
     Q_PROPERTY(int multiLevel READ multiLevel WRITE setMultiLevel NOTIFY multiLevelChanged)
     Q_PROPERTY(int multiKeyTrack READ multiKeyTrack WRITE setMultiKeyTrack NOTIFY multiKeyTrackChanged)
+    Q_PROPERTY(int multiLpfCutoff READ multiLpfCutoff WRITE setMultiLpfCutoff NOTIFY multiLpfCutoffChanged)
+    Q_PROPERTY(int multiLpfResonance READ multiLpfResonance WRITE setMultiLpfResonance NOTIFY multiLpfResonanceChanged)
+    Q_PROPERTY(int multiLpfSlope READ multiLpfSlope WRITE setMultiLpfSlope NOTIFY multiLpfSlopeChanged)
+    Q_PROPERTY(int multiHpfCutoff READ multiHpfCutoff WRITE setMultiHpfCutoff NOTIFY multiHpfCutoffChanged)
+    Q_PROPERTY(int multiHpfSlope READ multiHpfSlope WRITE setMultiHpfSlope NOTIFY multiHpfSlopeChanged)
 
     // Mixer
     Q_PROPERTY(int mixVco1 READ mixVco1 WRITE setMixVco1 NOTIFY mixVco1Changed)
@@ -323,6 +328,16 @@ public:
     void setMultiLevel(int lvl);
     int multiKeyTrack() const;
     void setMultiKeyTrack(int t);
+    int multiLpfCutoff() const;
+    void setMultiLpfCutoff(int value);
+    int multiLpfResonance() const;
+    void setMultiLpfResonance(int value);
+    int multiLpfSlope() const;
+    void setMultiLpfSlope(int value);
+    int multiHpfCutoff() const;
+    void setMultiHpfCutoff(int value);
+    int multiHpfSlope() const;
+    void setMultiHpfSlope(int value);
 
     int mixVco1() const;
     void setMixVco1(int lvl);
@@ -513,6 +528,11 @@ signals:
     void multiShapeChanged();
     void multiLevelChanged();
     void multiKeyTrackChanged();
+    void multiLpfCutoffChanged();
+    void multiLpfResonanceChanged();
+    void multiLpfSlopeChanged();
+    void multiHpfCutoffChanged();
+    void multiHpfSlopeChanged();
     void mixVco1Changed();
     void mixVco2Changed();
     void mixVco3Changed();

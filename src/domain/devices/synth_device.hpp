@@ -97,7 +97,11 @@ public:
         Vco3Lpf,
         Vco3Hpf,
         Vco4Lpf,
-        Vco4Hpf
+        Vco4Hpf,
+        //! Appended with the multi engine's filter section, which continues the same pattern as the
+        //! fifth source after the four VCOs.
+        MultiLpf,
+        MultiHpf
     };
 
     //! Serialized as a raw ordinal, so this is append-only: inserting a value would silently change
@@ -130,7 +134,11 @@ public:
         Vco3Lpf,
         Vco3Hpf,
         Vco4Lpf,
-        Vco4Hpf
+        Vco4Hpf,
+        //! Appended with the multi engine's filter section, which continues the same pattern as the
+        //! fifth source after the four VCOs.
+        MultiLpf,
+        MultiHpf
     };
 
     explicit SynthDevice(std::string name);
@@ -272,6 +280,19 @@ public:
     void setMultiLevel(float level);
     float multiKeyTrack() const;
     void setMultiKeyTrack(float keyTrack);
+
+    //! The multi engine's own filter section, the same as each oscillator's.
+    float multiLpfCutoff() const;
+    void setMultiLpfCutoff(float cutoff);
+    float multiLpfResonance() const;
+    void setMultiLpfResonance(float resonance);
+    int multiLpfSlope() const;
+    void setMultiLpfSlope(int slope);
+    float multiHpfCutoff() const;
+    void setMultiHpfCutoff(float cutoff);
+    int multiHpfSlope() const;
+    void setMultiHpfSlope(int slope);
+    bool multiFilterEngaged() const;
 
     // Mixer
     float mixVco1() const;
@@ -418,6 +439,12 @@ public:
     void loadPreset(int index);
 
 private:
+    //! The sources with a filter section of their own: the four VCOs, then the multi engine.
+    static constexpr size_t MultiFilterIndex = VcoCount;
+    static constexpr size_t SourceFilterCount = VcoCount + 1;
+
+    bool sourceFilterEngaged(size_t sourceIndex) const;
+
     //! Everything a note-on hands to a voice. Passed whole so the deferred path below can hold on to
     //! it for a millisecond and apply exactly what the immediate path would have.
     struct Trigger
@@ -448,11 +475,11 @@ private:
         //! of the first: the linear one has to keep behaving exactly as it did, down to the sample,
         //! for every patch that leaves Drive alone.
         std::array<SaturatingSvf, 2> drivenLpf;
-        //! A low pass and a high pass of its own for each VCO, ahead of the mix. Indexed in VCO
-        //! order, and skipped altogether while a pair sits at the ends of its travel -- which is
+        //! A low pass and a high pass of its own for each VCO and the multi engine, ahead of the mix.
+        //! Indexed in VCO order with the multi engine last, and skipped altogether while a pair sits at the ends of its travel -- which is
         //! where they start, so a patch that does not reach for them costs nothing.
-        std::array<CascadedSvf, VcoCount> vcoLpf;
-        std::array<CascadedSvf, VcoCount> vcoHpf;
+        std::array<CascadedSvf, SourceFilterCount> sourceLpf;
+        std::array<CascadedSvf, SourceFilterCount> sourceHpf;
         AdsrEnvelope ampEg;
         AdsrEnvelope modEg;
         Lfo lfo;
@@ -552,17 +579,17 @@ private:
     float m_mixVco3 { 0.0f };
     float m_mixVco4 { 0.0f };
 
-    //! The per-oscillator filter sections, in VCO order. Open at both ends and flat by default, so
+    //! The per-source filter sections, in VCO order with the multi engine last. Open at both ends and flat by default, so
     //! a project saved before they existed sounds exactly as it did.
-    std::array<float, VcoCount> m_vcoLpfCutoff { 1.0f, 1.0f, 1.0f, 1.0f };
-    std::array<float, VcoCount> m_vcoLpfResonance { 0.0f, 0.0f, 0.0f, 0.0f };
-    std::array<float, VcoCount> m_vcoHpfCutoff { 0.0f, 0.0f, 0.0f, 0.0f };
+    std::array<float, SourceFilterCount> m_sourceLpfCutoff { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f };
+    std::array<float, SourceFilterCount> m_sourceLpfResonance {};
+    std::array<float, SourceFilterCount> m_sourceHpfCutoff {};
     //! Zero is twelve decibels an octave, one is twenty-four, as in the voice's own filter.
-    std::array<float, VcoCount> m_vcoLpfSlope { 0.0f, 0.0f, 0.0f, 0.0f };
-    std::array<float, VcoCount> m_vcoHpfSlope { 0.0f, 0.0f, 0.0f, 0.0f };
-    //! vcoFilterEngaged() as it stood when the block started, so the answer cannot change under the
+    std::array<float, SourceFilterCount> m_sourceLpfSlope {};
+    std::array<float, SourceFilterCount> m_sourceHpfSlope {};
+    //! sourceFilterEngaged() as it stood when the block started, so the answer cannot change under the
     //! voices halfway through one.
-    std::array<bool, VcoCount> m_vcoFilterEngagedThisBlock {};
+    std::array<bool, SourceFilterCount> m_sourceFilterEngagedThisBlock {};
 
     float m_lpfCutoff { 1.0f };
     float m_lpfResonance { 0.0f };
@@ -685,10 +712,10 @@ private:
         double resonanceMod { 0.0 };
         double panMod { 0.0 };
         double volumeMod { 0.0 };
-        //! Per-oscillator filter modulation, in VCO order. Summed from whichever of the Mod EG and
-        //! the two LFOs point at that oscillator's filters.
-        std::array<double, VcoCount> vcoLpfCutoffMod {};
-        std::array<double, VcoCount> vcoHpfCutoffMod {};
+        //! Per-source filter modulation, in VCO order with the multi engine last. Summed from
+        //! whichever of the Mod EG and the two LFOs point at that source's filters.
+        std::array<double, SourceFilterCount> sourceLpfCutoffMod {};
+        std::array<double, SourceFilterCount> sourceHpfCutoffMod {};
     };
 
     ModulationValues calculateModulation(Voice & voice) const;

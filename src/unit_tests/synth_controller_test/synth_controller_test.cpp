@@ -218,7 +218,7 @@ void SynthControllerTest::test_modTargetNames()
     const auto synth = std::make_shared<SynthDevice>("Test Synth");
     SynthController controller { synth };
     const auto targets = controller.modTargetNames();
-    QCOMPARE(targets.size(), 19);
+    QCOMPARE(targets.size(), 21);
 
     // The first four are what the Mod EG has always offered, and a project saved before the rest
     // were added stores one of these ordinals. They must not move.
@@ -240,6 +240,9 @@ void SynthControllerTest::test_modTargetNames()
     QCOMPARE(targets.at(16), QString("VCO 3 HPF"));
     QCOMPARE(targets.at(17), QString("VCO 4 LPF"));
     QCOMPARE(targets.at(18), QString("VCO 4 HPF"));
+    // The multi engine's filter, appended after the oscillators' for the same reason.
+    QCOMPARE(targets.at(19), QString("Multi LPF"));
+    QCOMPARE(targets.at(20), QString("Multi HPF"));
 
     // Appended to bring the Mod EG up to the LFOs' destinations.
     QCOMPARE(targets.at(4), QString("Pitch"));
@@ -293,7 +296,7 @@ void SynthControllerTest::test_lfoTargetNames()
     const auto synth = std::make_shared<SynthDevice>("Test Synth");
     SynthController controller { synth };
     const auto targets = controller.lfoTargetNames();
-    QCOMPARE(targets.size(), 19);
+    QCOMPARE(targets.size(), 21);
     // The order is the serialized LfoTarget ordinal, so it is append-only: reordering these would
     // change the LFO destination of every project saved before the change.
     QCOMPARE(targets.at(0), QString("Pitch"));
@@ -319,6 +322,9 @@ void SynthControllerTest::test_lfoTargetNames()
     QCOMPARE(targets.at(16), QString("VCO 3 HPF"));
     QCOMPARE(targets.at(17), QString("VCO 4 LPF"));
     QCOMPARE(targets.at(18), QString("VCO 4 HPF"));
+    // The multi engine's filter, appended after the oscillators' for the same reason.
+    QCOMPARE(targets.at(19), QString("Multi LPF"));
+    QCOMPARE(targets.at(20), QString("Multi HPF"));
 
     // LFO 2 offers the same destinations.
     QCOMPARE(controller.lfo2TargetNames(), targets);

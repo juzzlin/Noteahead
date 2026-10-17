@@ -287,6 +287,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Lfo2.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_ModEg.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Multi.qml
+    ${QML_BASE_DIR}/Dialogs/SynthDialog_MultiFilter.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_TabNoise.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Presets.qml
     ${QML_BASE_DIR}/Dialogs/SynthDialog_Tab1.qml

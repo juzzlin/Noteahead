@@ -16,6 +16,9 @@ New features:
 
 * Wavetable Synth: Velocity Sensitivity in the Amp Envelope, 100% by default as before
 
+* Synth: LPF and HPF for the Multi Engine, like the oscillators have
+  - Reachable from the Mod EG, both LFOs, parameter automation and the LFO device
+
 * Octave, -2 to +2, in the Global section of every instrument but the Sampler and the drum machines
   - Saved with the project, not in presets
 
