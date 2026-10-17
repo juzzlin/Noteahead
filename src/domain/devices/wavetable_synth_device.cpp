@@ -748,9 +748,8 @@ void WavetableSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
         m_voices.at(voiceIndex).glideFrequency = freq;
     }
 
-    // Poly stays centred: the pan spread is a property of a stack, and widening poly here would
-    // move every note of every project saved before the other voice modes existed.
-    m_voices.at(voiceIndex).trigger(note, freq, 0.5f, finalVel, m_nextTriggerId++);
+    // Each voice takes the position of its own slot, so round-robin notes spread across the field
+    m_voices.at(voiceIndex).trigger(note, freq, voiceSpreadPan(voiceIndex), finalVel, m_nextTriggerId++);
     m_polyNextVoice = (voiceIndex + 1) % MaxVoices;
 }
 

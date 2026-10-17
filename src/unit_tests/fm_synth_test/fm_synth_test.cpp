@@ -31,6 +31,7 @@
 #include <ranges>
 #include <set>
 #include <span>
+#include <utility>
 #include <vector>
 
 namespace noteahead {
@@ -57,6 +58,35 @@ std::vector<double> renderMono(FmSynthDevice & synth, size_t blocks)
         }
     }
     return mono;
+}
+
+//! Left and right RMS of one short Poly note, rendered after the previous one has died away.
+std::pair<double, double> polyNoteSides(FmSynthDevice & synth, uint8_t note)
+{
+    synth.processMidiNoteOn(note, 127);
+    std::vector<double> buffer(FrameCount * 2, 0.0);
+    AudioContext context { std::span<double> { buffer.data(), buffer.size() }, FrameCount, SampleRate };
+    synth.processAudio(context);
+    synth.processMidiNoteOff(note);
+    renderMono(synth, 64);
+
+    double left = 0.0;
+    double right = 0.0;
+    for (uint32_t i = 0; i < FrameCount; i++) {
+        left += buffer[i * 2] * buffer[i * 2];
+        right += buffer[i * 2 + 1] * buffer[i * 2 + 1];
+    }
+    return { std::sqrt(left), std::sqrt(right) };
+}
+
+std::unique_ptr<FmSynthDevice> polySpreadSynth(float spread)
+{
+    auto synth = std::make_unique<FmSynthDevice>("Test FM");
+    synth->setAmpRelease(0.0f);
+    synth->setVoiceMode(FmSynthDevice::VoiceMode::Poly);
+    synth->setPan(0.5f);
+    synth->setPanSpread(spread);
+    return synth;
 }
 
 double rootMeanSquare(const std::vector<double> & samples)
@@ -585,6 +615,27 @@ void FmSynthTest::test_allNotesOff_shouldReleaseEveryVoice()
     renderMono(synth, 64);
 
     QVERIFY(!synth.hasActiveAudio());
+}
+
+void FmSynthTest::test_panSpread_poly_shouldAlternateSides()
+{
+    // Poly hands notes out round-robin, so two staccato notes land on the first two slots' sides
+    auto synth = polySpreadSynth(1.0f);
+    const auto [firstLeft, firstRight] = polyNoteSides(*synth, NoteA4);
+    QVERIFY(!synth->hasActiveAudio());
+    const auto [secondLeft, secondRight] = polyNoteSides(*synth, NoteA4 + 2);
+    QVERIFY2(firstLeft > 4.0 * firstRight, qPrintable(QString { "%1 vs %2" }.arg(firstLeft).arg(firstRight)));
+    QVERIFY2(secondRight > 4.0 * secondLeft, qPrintable(QString { "%1 vs %2" }.arg(secondRight).arg(secondLeft)));
+}
+
+void FmSynthTest::test_panSpread_polyZero_shouldBeMono()
+{
+    auto synth = polySpreadSynth(0.0f);
+    for (auto && note : { NoteA4, static_cast<uint8_t>(NoteA4 + 2) }) {
+        const auto [left, right] = polyNoteSides(*synth, note);
+        QVERIFY(left > 0.0);
+        QVERIFY2(std::abs(left - right) < 1.0e-9 * left, qPrintable(QString { "%1 vs %2" }.arg(left).arg(right)));
+    }
 }
 
 void FmSynthTest::test_polyphony_shouldPlayEveryVoice()

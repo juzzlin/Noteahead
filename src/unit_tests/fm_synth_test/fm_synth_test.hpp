@@ -76,6 +76,8 @@ private slots:
     void test_noteOff_shouldNotChangeTheTimbre();
     void test_allNotesOff_shouldReleaseEveryVoice();
     void test_polyphony_shouldPlayEveryVoice();
+    void test_panSpread_poly_shouldAlternateSides();
+    void test_panSpread_polyZero_shouldBeMono();
     void test_pitchBend_shouldChangeTheOutput();
     void test_midiCcModWheel_atRest_shouldLeaveThePatchAlone();
     void test_midiCcModWheel_shouldNotMoveTheIntensityKnob();

@@ -69,6 +69,8 @@ private slots:
     void test_lfoTarget_volume_shouldModulateAmplitude();
     void test_lfoTarget_resonance_shouldModulateResonance();
     void test_lfoTarget_pan_shouldModulatePanning();
+    void test_panSpread_poly_shouldAlternateSides();
+    void test_panSpread_polyZero_shouldBeMono();
     void test_lfo2Target_volume_shouldModulateAmplitude();
     void test_lfo2Target_resonance_shouldModulateResonance();
     void test_lfo2Target_pan_shouldModulatePanning();

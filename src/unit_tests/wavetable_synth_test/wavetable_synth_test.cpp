@@ -625,6 +625,63 @@ void WavetableSynthTest::test_lfoTarget_pan_shouldModulatePanning()
     QVERIFY2(sumDiff > 0.001, "Pan LFO did not create any stereo difference");
 }
 
+namespace {
+
+//! Left and right RMS of one short Poly note, rendered after the previous one has died away.
+std::pair<double, double> polyNoteSides(WavetableSynthDevice & synth, uint8_t note)
+{
+    synth.processMidiNoteOn(note, 100);
+    const int frameCount = 4096;
+    std::vector<double> buffer(static_cast<size_t>(frameCount) * 2, 0.0);
+    AudioContext context { std::span(buffer.data(), buffer.size()), static_cast<uint32_t>(frameCount), 44100 };
+    synth.processAudio(context);
+    synth.processMidiNoteOff(note);
+    std::vector<double> tail(static_cast<size_t>(frameCount) * 4, 0.0);
+    AudioContext tailContext { std::span(tail.data(), tail.size()), static_cast<uint32_t>(frameCount) * 2, 44100 };
+    synth.processAudio(tailContext);
+
+    double left = 0.0;
+    double right = 0.0;
+    for (size_t i = 0; i < buffer.size(); i += 2) {
+        left += buffer[i] * buffer[i];
+        right += buffer[i + 1] * buffer[i + 1];
+    }
+    return { std::sqrt(left), std::sqrt(right) };
+}
+
+std::unique_ptr<WavetableSynthDevice> polySpreadSynth(float spread)
+{
+    auto synth = std::make_unique<WavetableSynthDevice>("Test Synth");
+    setupBasicSynth(*synth);
+    synth->setAmpRelease(0.0f);
+    synth->setVoiceMode(WavetableSynthDevice::VoiceMode::Poly);
+    synth->setPan(0.5f);
+    synth->setPanSpread(spread);
+    return synth;
+}
+
+} // namespace
+
+void WavetableSynthTest::test_panSpread_poly_shouldAlternateSides()
+{
+    // Poly hands notes out round-robin, so two staccato notes land on the first two slots' sides
+    auto synth = polySpreadSynth(1.0f);
+    const auto [firstLeft, firstRight] = polyNoteSides(*synth, 60);
+    const auto [secondLeft, secondRight] = polyNoteSides(*synth, 62);
+    QVERIFY2(firstLeft > 4.0 * firstRight, qPrintable(QString { "%1 vs %2" }.arg(firstLeft).arg(firstRight)));
+    QVERIFY2(secondRight > 4.0 * secondLeft, qPrintable(QString { "%1 vs %2" }.arg(secondRight).arg(secondLeft)));
+}
+
+void WavetableSynthTest::test_panSpread_polyZero_shouldBeMono()
+{
+    auto synth = polySpreadSynth(0.0f);
+    for (auto && note : { 60, 62 }) {
+        const auto [left, right] = polyNoteSides(*synth, static_cast<uint8_t>(note));
+        QVERIFY(left > 0.0);
+        QVERIFY2(std::abs(left - right) < 1.0e-9 * left, qPrintable(QString { "%1 vs %2" }.arg(left).arg(right)));
+    }
+}
+
 void WavetableSynthTest::test_lfo2Target_volume_shouldModulateAmplitude()
 {
     WavetableSynthDevice synthNoMod { "Test Synth" };
