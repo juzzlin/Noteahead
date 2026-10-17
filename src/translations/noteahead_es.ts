@@ -6952,6 +6952,14 @@
         <translation>Corte del HPF multi</translation>
     </message>
     <message>
+        <source>Delay LPF Cutoff</source>
+        <translation>Corte del LPF del retardo</translation>
+    </message>
+    <message>
+        <source>Delay HPF Cutoff</source>
+        <translation>Corte del HPF del retardo</translation>
+    </message>
+    <message>
         <source>VCO 1 Shape</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13061,6 +13069,14 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     <message>
         <source>1-Shot</source>
         <translation>One-shot</translation>
+    </message>
+    <message>
+        <source>Delay LPF</source>
+        <translation>LPF del retardo</translation>
+    </message>
+    <message>
+        <source>Delay HPF</source>
+        <translation>HPF del retardo</translation>
     </message>
 </context>
 <context>

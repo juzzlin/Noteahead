@@ -6951,6 +6951,14 @@
         <translation>多重高通截止频率</translation>
     </message>
     <message>
+        <source>Delay LPF Cutoff</source>
+        <translation>延迟低通截止频率</translation>
+    </message>
+    <message>
+        <source>Delay HPF Cutoff</source>
+        <translation>延迟高通截止频率</translation>
+    </message>
+    <message>
         <source>VCO 1 Shape</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13059,6 +13067,14 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>1-Shot</source>
         <translation>单次</translation>
+    </message>
+    <message>
+        <source>Delay LPF</source>
+        <translation>延迟低通</translation>
+    </message>
+    <message>
+        <source>Delay HPF</source>
+        <translation>延迟高通</translation>
     </message>
 </context>
 <context>

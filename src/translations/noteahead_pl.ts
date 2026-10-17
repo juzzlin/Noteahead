@@ -6953,6 +6953,14 @@
         <translation>Odcięcie HPF multi</translation>
     </message>
     <message>
+        <source>Delay LPF Cutoff</source>
+        <translation>Odcięcie LPF delay</translation>
+    </message>
+    <message>
+        <source>Delay HPF Cutoff</source>
+        <translation>Odcięcie HPF delay</translation>
+    </message>
+    <message>
         <source>VCO 1 Shape</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13063,6 +13071,14 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     <message>
         <source>1-Shot</source>
         <translation>One-shot</translation>
+    </message>
+    <message>
+        <source>Delay LPF</source>
+        <translation>LPF delay</translation>
+    </message>
+    <message>
+        <source>Delay HPF</source>
+        <translation>HPF delay</translation>
     </message>
 </context>
 <context>

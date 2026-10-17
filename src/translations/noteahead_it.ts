@@ -6952,6 +6952,14 @@
         <translation>Taglio HPF multi</translation>
     </message>
     <message>
+        <source>Delay LPF Cutoff</source>
+        <translation>Taglio LPF del delay</translation>
+    </message>
+    <message>
+        <source>Delay HPF Cutoff</source>
+        <translation>Taglio HPF del delay</translation>
+    </message>
+    <message>
         <source>VCO 1 Shape</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13061,6 +13069,14 @@ Un apostrofo indica la sillaba accentata: A&apos;merica</translation>
     <message>
         <source>1-Shot</source>
         <translation>One-shot</translation>
+    </message>
+    <message>
+        <source>Delay LPF</source>
+        <translation>LPF del delay</translation>
+    </message>
+    <message>
+        <source>Delay HPF</source>
+        <translation>HPF del delay</translation>
     </message>
 </context>
 <context>

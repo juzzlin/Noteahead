@@ -6952,6 +6952,14 @@
         <translation>Multi HPF cutoff</translation>
     </message>
     <message>
+        <source>Delay LPF Cutoff</source>
+        <translation>Delay LPF cutoff</translation>
+    </message>
+    <message>
+        <source>Delay HPF Cutoff</source>
+        <translation>Delay HPF cutoff</translation>
+    </message>
+    <message>
         <source>VCO 1 Shape</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13061,6 +13069,14 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     <message>
         <source>1-Shot</source>
         <translation>1-Shot</translation>
+    </message>
+    <message>
+        <source>Delay LPF</source>
+        <translation>Delay LPF</translation>
+    </message>
+    <message>
+        <source>Delay HPF</source>
+        <translation>Delay HPF</translation>
     </message>
 </context>
 <context>

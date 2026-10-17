@@ -6952,6 +6952,14 @@
         <translation>Coupure du HPF multi</translation>
     </message>
     <message>
+        <source>Delay LPF Cutoff</source>
+        <translation>Coupure du LPF du delay</translation>
+    </message>
+    <message>
+        <source>Delay HPF Cutoff</source>
+        <translation>Coupure du HPF du delay</translation>
+    </message>
+    <message>
         <source>VCO 1 Shape</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13061,6 +13069,14 @@ Une apostrophe marque la syllabe accentuée : A&apos;merica</translation>
     <message>
         <source>1-Shot</source>
         <translation>One-shot</translation>
+    </message>
+    <message>
+        <source>Delay LPF</source>
+        <translation>LPF du delay</translation>
+    </message>
+    <message>
+        <source>Delay HPF</source>
+        <translation>HPF du delay</translation>
     </message>
 </context>
 <context>
