@@ -2227,7 +2227,7 @@
     </message>
     <message>
         <source>LPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">低通斜率</translation>
     </message>
     <message>
         <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
@@ -2235,7 +2235,7 @@
     </message>
     <message>
         <source>HPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">高通斜率</translation>
     </message>
     <message>
         <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
@@ -2326,7 +2326,7 @@
     </message>
     <message>
         <source>LPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">低通斜率</translation>
     </message>
     <message>
         <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
@@ -2334,7 +2334,7 @@
     </message>
     <message>
         <source>HPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">高通斜率</translation>
     </message>
     <message>
         <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
@@ -3570,7 +3570,7 @@
     </message>
     <message>
         <source>LPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">低通斜率</translation>
     </message>
     <message>
         <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
@@ -3578,7 +3578,7 @@
     </message>
     <message>
         <source>HPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">高通斜率</translation>
     </message>
     <message>
         <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
@@ -3865,7 +3865,7 @@
     </message>
     <message>
         <source>LPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">低通斜率</translation>
     </message>
     <message>
         <source>How steeply the low pass rolls off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
@@ -3877,7 +3877,7 @@
     </message>
     <message>
         <source>HPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">高通斜率</translation>
     </message>
     <message>
         <source>How steeply the high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
@@ -4254,6 +4254,220 @@
     <message>
         <source>End line:</source>
         <translation>结束行：</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynthDialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>确定</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynthDialog_Chorus</name>
+    <message>
+        <source>Chorus</source>
+        <translation>Chorus</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynthDialog_Dco</name>
+    <message>
+        <source>DCO</source>
+        <translation>DCO</translation>
+    </message>
+    <message>
+        <source>Saw</source>
+        <translation>锯齿波</translation>
+    </message>
+    <message>
+        <source>Pulse</source>
+        <translation>脉冲</translation>
+    </message>
+    <message>
+        <source>PWM Source</source>
+        <translation>PWM 来源</translation>
+    </message>
+    <message>
+        <source>LFO</source>
+        <translation>LFO</translation>
+    </message>
+    <message>
+        <source>Manual</source>
+        <translation>手动</translation>
+    </message>
+    <message>
+        <source>Env</source>
+        <translation>Env</translation>
+    </message>
+    <message>
+        <source>PWM</source>
+        <translation>PWM</translation>
+    </message>
+    <message>
+        <source>Sub</source>
+        <translation>Sub</translation>
+    </message>
+    <message>
+        <source>Noise</source>
+        <translation>噪声</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynthDialog_Env</name>
+    <message>
+        <source>ENV</source>
+        <translation>ENV</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>起音</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>衰减</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation>延持</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>释音</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynthDialog_Global</name>
+    <message>
+        <source>Global</source>
+        <translation>全局</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>增益</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>推子</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>声像</translation>
+    </message>
+    <message>
+        <source>Portamento</source>
+        <translation>滑音</translation>
+    </message>
+    <message>
+        <source>Pitch Bend Range</source>
+        <translation>弯音范围</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynthDialog_Hpf</name>
+    <message>
+        <source>HPF</source>
+        <translation>HPF</translation>
+    </message>
+    <message>
+        <source>Freq</source>
+        <translation>频率</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynthDialog_Lfo</name>
+    <message>
+        <source>LFO</source>
+        <translation>LFO</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation>速率</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation>延迟</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynthDialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation>预设：</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>保存</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A six-voice polysynth after the Juno-60, with its chorus</source>
+        <translation>仿 Juno-60 的六复音合成器，带有其合唱效果</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynthDialog_Vca</name>
+    <message>
+        <source>VCA</source>
+        <translation>VCA</translation>
+    </message>
+    <message>
+        <source>Env</source>
+        <translation>Env</translation>
+    </message>
+    <message>
+        <source>Gate</source>
+        <translation>门控</translation>
+    </message>
+    <message>
+        <source>Velocity</source>
+        <translation>力度</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynthDialog_Vcf</name>
+    <message>
+        <source>VCF</source>
+        <translation>VCF</translation>
+    </message>
+    <message>
+        <source>Freq</source>
+        <translation>频率</translation>
+    </message>
+    <message>
+        <source>Res</source>
+        <translation>Res</translation>
+    </message>
+    <message>
+        <source>Env</source>
+        <translation>Env</translation>
+    </message>
+    <message>
+        <source>Invert</source>
+        <translation>反相</translation>
+    </message>
+    <message>
+        <source>LFO</source>
+        <translation>LFO</translation>
+    </message>
+    <message>
+        <source>Kybd</source>
+        <translation>Kybd</translation>
     </message>
 </context>
 <context>
@@ -7256,6 +7470,22 @@
         <source>Delay</source>
         <translation type="unfinished">延迟</translation>
     </message>
+    <message>
+        <source>LFO Rate</source>
+        <translation>LFO 速率</translation>
+    </message>
+    <message>
+        <source>DCO LFO</source>
+        <translation>DCO LFO</translation>
+    </message>
+    <message>
+        <source>PWM</source>
+        <translation>PWM</translation>
+    </message>
+    <message>
+        <source>VCF LFO</source>
+        <translation>VCF LFO</translation>
+    </message>
 </context>
 <context>
     <name>PhaseScopeDialog</name>
@@ -8061,7 +8291,7 @@
     </message>
     <message>
         <source>LPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">低通斜率</translation>
     </message>
     <message>
         <source>How steeply every pad&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
@@ -8069,7 +8299,7 @@
     </message>
     <message>
         <source>HPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">高通斜率</translation>
     </message>
     <message>
         <source>How steeply every pad&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
@@ -10855,7 +11085,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>LPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">低通斜率</translation>
     </message>
     <message>
         <source>How steeply the low pass rolls off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
@@ -10875,7 +11105,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>HPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">高通斜率</translation>
     </message>
     <message>
         <source>How steeply the high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
@@ -11119,11 +11349,11 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>LPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">低通斜率</translation>
     </message>
     <message>
         <source>HPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">高通斜率</translation>
     </message>
     <message>
         <source>LPF Cutoff</source>
@@ -11182,11 +11412,11 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>LPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">低通斜率</translation>
     </message>
     <message>
         <source>HPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">高通斜率</translation>
     </message>
     <message>
         <source>LPF Cutoff</source>
@@ -11241,11 +11471,11 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>LPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">低通斜率</translation>
     </message>
     <message>
         <source>HPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">高通斜率</translation>
     </message>
     <message>
         <source>LPF Cutoff</source>
@@ -11300,11 +11530,11 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>LPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">低通斜率</translation>
     </message>
     <message>
         <source>HPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">高通斜率</translation>
     </message>
     <message>
         <source>LPF Cutoff</source>
@@ -11930,7 +12160,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>LPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">低通斜率</translation>
     </message>
     <message>
         <source>How steeply the low pass rolls off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
@@ -11942,7 +12172,7 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
     <message>
         <source>HPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">高通斜率</translation>
     </message>
     <message>
         <source>How steeply the high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>

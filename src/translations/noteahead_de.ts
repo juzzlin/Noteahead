@@ -2228,7 +2228,7 @@
     </message>
     <message>
         <source>LPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">LPF-Flankensteilheit</translation>
     </message>
     <message>
         <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
@@ -2236,7 +2236,7 @@
     </message>
     <message>
         <source>HPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">HPF-Flankensteilheit</translation>
     </message>
     <message>
         <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
@@ -2327,7 +2327,7 @@
     </message>
     <message>
         <source>LPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">LPF-Flankensteilheit</translation>
     </message>
     <message>
         <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
@@ -2335,7 +2335,7 @@
     </message>
     <message>
         <source>HPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">HPF-Flankensteilheit</translation>
     </message>
     <message>
         <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
@@ -3571,7 +3571,7 @@
     </message>
     <message>
         <source>LPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">LPF-Flankensteilheit</translation>
     </message>
     <message>
         <source>How steeply every voice&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
@@ -3579,7 +3579,7 @@
     </message>
     <message>
         <source>HPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">HPF-Flankensteilheit</translation>
     </message>
     <message>
         <source>How steeply every voice&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
@@ -3866,7 +3866,7 @@
     </message>
     <message>
         <source>LPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">LPF-Flankensteilheit</translation>
     </message>
     <message>
         <source>How steeply the low pass rolls off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
@@ -3878,7 +3878,7 @@
     </message>
     <message>
         <source>HPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">HPF-Flankensteilheit</translation>
     </message>
     <message>
         <source>How steeply the high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
@@ -4255,6 +4255,220 @@
     <message>
         <source>End line:</source>
         <translation>Endzeile:</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynthDialog</name>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Abbrechen</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynthDialog_Chorus</name>
+    <message>
+        <source>Chorus</source>
+        <translation>Chorus</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynthDialog_Dco</name>
+    <message>
+        <source>DCO</source>
+        <translation>DCO</translation>
+    </message>
+    <message>
+        <source>Saw</source>
+        <translation>Sägezahn</translation>
+    </message>
+    <message>
+        <source>Pulse</source>
+        <translation>Puls</translation>
+    </message>
+    <message>
+        <source>PWM Source</source>
+        <translation>PWM-Quelle</translation>
+    </message>
+    <message>
+        <source>LFO</source>
+        <translation>LFO</translation>
+    </message>
+    <message>
+        <source>Manual</source>
+        <translation>Manuell</translation>
+    </message>
+    <message>
+        <source>Env</source>
+        <translation>Env</translation>
+    </message>
+    <message>
+        <source>PWM</source>
+        <translation>PWM</translation>
+    </message>
+    <message>
+        <source>Sub</source>
+        <translation>Sub</translation>
+    </message>
+    <message>
+        <source>Noise</source>
+        <translation>Rauschen</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynthDialog_Env</name>
+    <message>
+        <source>ENV</source>
+        <translation>ENV</translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation>Attack</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation>Decay</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation>Sustain</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Release</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynthDialog_Global</name>
+    <message>
+        <source>Global</source>
+        <translation>Global</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation>Gain</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation>Fader</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation>Panorama</translation>
+    </message>
+    <message>
+        <source>Portamento</source>
+        <translation>Portamento</translation>
+    </message>
+    <message>
+        <source>Pitch Bend Range</source>
+        <translation>Pitch-Bend-Bereich</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynthDialog_Hpf</name>
+    <message>
+        <source>HPF</source>
+        <translation>HPF</translation>
+    </message>
+    <message>
+        <source>Freq</source>
+        <translation>Freq</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynthDialog_Lfo</name>
+    <message>
+        <source>LFO</source>
+        <translation>LFO</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation>Rate</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation>Delay</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynthDialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation>Preset:</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Speichern</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A six-voice polysynth after the Juno-60, with its chorus</source>
+        <translation>Ein sechsstimmiger Polysynth nach dem Vorbild des Juno-60, mit seinem Chorus</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynthDialog_Vca</name>
+    <message>
+        <source>VCA</source>
+        <translation>VCA</translation>
+    </message>
+    <message>
+        <source>Env</source>
+        <translation>Env</translation>
+    </message>
+    <message>
+        <source>Gate</source>
+        <translation>Gate</translation>
+    </message>
+    <message>
+        <source>Velocity</source>
+        <translation>Velocity</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynthDialog_Vcf</name>
+    <message>
+        <source>VCF</source>
+        <translation>VCF</translation>
+    </message>
+    <message>
+        <source>Freq</source>
+        <translation>Freq</translation>
+    </message>
+    <message>
+        <source>Res</source>
+        <translation>Res</translation>
+    </message>
+    <message>
+        <source>Env</source>
+        <translation>Env</translation>
+    </message>
+    <message>
+        <source>Invert</source>
+        <translation>Invertieren</translation>
+    </message>
+    <message>
+        <source>LFO</source>
+        <translation>LFO</translation>
+    </message>
+    <message>
+        <source>Kybd</source>
+        <translation>Kybd</translation>
     </message>
 </context>
 <context>
@@ -7257,6 +7471,22 @@
         <source>Delay</source>
         <translation type="unfinished">Delay</translation>
     </message>
+    <message>
+        <source>LFO Rate</source>
+        <translation>LFO-Rate</translation>
+    </message>
+    <message>
+        <source>DCO LFO</source>
+        <translation>DCO LFO</translation>
+    </message>
+    <message>
+        <source>PWM</source>
+        <translation>PWM</translation>
+    </message>
+    <message>
+        <source>VCF LFO</source>
+        <translation>VCF LFO</translation>
+    </message>
 </context>
 <context>
     <name>PhaseScopeDialog</name>
@@ -8062,7 +8292,7 @@
     </message>
     <message>
         <source>LPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">LPF-Flankensteilheit</translation>
     </message>
     <message>
         <source>How steeply every pad&apos;s low pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
@@ -8070,7 +8300,7 @@
     </message>
     <message>
         <source>HPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">HPF-Flankensteilheit</translation>
     </message>
     <message>
         <source>How steeply every pad&apos;s high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
@@ -10857,7 +11087,7 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
     </message>
     <message>
         <source>LPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">LPF-Flankensteilheit</translation>
     </message>
     <message>
         <source>How steeply the low pass rolls off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
@@ -10877,7 +11107,7 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
     </message>
     <message>
         <source>HPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">HPF-Flankensteilheit</translation>
     </message>
     <message>
         <source>How steeply the high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
@@ -11121,11 +11351,11 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
     </message>
     <message>
         <source>LPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">LPF-Flankensteilheit</translation>
     </message>
     <message>
         <source>HPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">HPF-Flankensteilheit</translation>
     </message>
     <message>
         <source>LPF Cutoff</source>
@@ -11184,11 +11414,11 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
     </message>
     <message>
         <source>LPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">LPF-Flankensteilheit</translation>
     </message>
     <message>
         <source>HPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">HPF-Flankensteilheit</translation>
     </message>
     <message>
         <source>LPF Cutoff</source>
@@ -11243,11 +11473,11 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
     </message>
     <message>
         <source>LPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">LPF-Flankensteilheit</translation>
     </message>
     <message>
         <source>HPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">HPF-Flankensteilheit</translation>
     </message>
     <message>
         <source>LPF Cutoff</source>
@@ -11302,11 +11532,11 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
     </message>
     <message>
         <source>LPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">LPF-Flankensteilheit</translation>
     </message>
     <message>
         <source>HPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">HPF-Flankensteilheit</translation>
     </message>
     <message>
         <source>LPF Cutoff</source>
@@ -11932,7 +12162,7 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
     </message>
     <message>
         <source>LPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">LPF-Flankensteilheit</translation>
     </message>
     <message>
         <source>How steeply the low pass rolls off. The gentler one keeps the top of a sound where the steeper one takes it away.</source>
@@ -11944,7 +12174,7 @@ Ein Apostroph markiert die betonte Silbe: A&apos;merica</translation>
     </message>
     <message>
         <source>HPF Slope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">HPF-Flankensteilheit</translation>
     </message>
     <message>
         <source>How steeply the high pass rolls off. The steeper one clears more out of the way at the same cutoff.</source>
