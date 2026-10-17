@@ -50,4 +50,16 @@ QtObject {
 
     // States
     readonly property color danger: "#ff6060"
+
+    // Controls: the slider track a value runs along, and the handle that sets it
+    readonly property color controlTrack: "#141414"
+    readonly property color controlTrackBorder: "#2e2e2e"
+    readonly property color controlHandle: "#c8c8c8"
+
+    // Type, in pixels so that every size is one unit. Body is what a control's label reads in;
+    // caption is smaller print beside it.
+    readonly property int captionPixelSize: 10
+    readonly property int bodyPixelSize: 11
+    readonly property int headingPixelSize: 13
+    readonly property int titlePixelSize: 16
 }
