@@ -62,8 +62,8 @@ AnimatedDialog {
         Label {
             text: qsTr("Members")
             font.bold: true
-            font.pointSize: 18
-            color: "white"
+            font.pixelSize: Theme.titlePixelSize
+            color: Theme.headingText
             Layout.alignment: Qt.AlignHCenter
         }
 

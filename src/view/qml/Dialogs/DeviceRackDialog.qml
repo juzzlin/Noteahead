@@ -64,13 +64,6 @@ AnimatedDialog {
             onTriggered: deviceListView.meterTick++
         }
 
-        Label {
-            text: qsTr("Device Rack")
-            font.bold: true
-            font.pointSize: 18
-            color: "white"
-            Layout.alignment: Qt.AlignHCenter
-        }
 
         ListView {
             id: deviceListView
@@ -101,6 +94,10 @@ AnimatedDialog {
                 readonly property string deviceTypeName: {
                     deviceRackController.revision;
                     return deviceRackController.deviceTypeName(index);
+                }
+                readonly property string displayName: {
+                    deviceRackController.revision;
+                    return deviceRackController.deviceDisplayName(index);
                 }
                 readonly property string deviceName: {
                     deviceRackController.revision;
@@ -174,7 +171,7 @@ AnimatedDialog {
                     spacing: 10
 
                     Text {
-                        text: deviceType === "" ? "" : qsTr("Slot %1: %2 (%3)").arg(index + 1).arg(deviceName).arg(deviceTypeName)
+                        text: deviceType === "" ? "" : qsTr("Slot %1: %2").arg(index + 1).arg(displayName)
                         color: "white"
                         font.pointSize: 13
                         font.bold: deviceListView.hoveredIndex === index && root.activeFocus

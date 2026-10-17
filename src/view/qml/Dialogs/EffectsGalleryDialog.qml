@@ -75,8 +75,8 @@ AnimatedDialog {
         Label {
             text: qsTr("Select Effect")
             font.bold: true
-            font.pointSize: 16
-            color: "white"
+            font.pixelSize: Theme.titlePixelSize
+            color: Theme.headingText
             Layout.alignment: Qt.AlignHCenter
         }
 

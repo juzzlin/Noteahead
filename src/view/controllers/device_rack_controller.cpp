@@ -518,6 +518,14 @@ QVariantList DeviceRackController::availableDevices() const
     return deviceTypes();
 }
 
+QString DeviceRackController::deviceDisplayName(int slotIndex) const
+{
+    if (const auto name = displayNameOf(deviceType(slotIndex)); !name.isEmpty()) {
+        return name;
+    }
+    return deviceTypeName(slotIndex);
+}
+
 QString DeviceRackController::displayNameOf(const QString & typeId)
 {
     for (auto && item : deviceTypes()) {

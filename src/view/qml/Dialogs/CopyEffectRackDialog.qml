@@ -62,8 +62,8 @@ AnimatedDialog {
         Label {
             text: root.targetName !== "" ? qsTr("Copy Into %1").arg(root.targetName) : qsTr("Copy Effect Rack")
             font.bold: true
-            font.pointSize: 16
-            color: "white"
+            font.pixelSize: Theme.titlePixelSize
+            color: Theme.headingText
             Layout.alignment: Qt.AlignHCenter
         }
 

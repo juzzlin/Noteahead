@@ -1948,10 +1948,6 @@
         <translation>导入设置...</translation>
     </message>
     <message>
-        <source>Slot %1: %2 (%3)</source>
-        <translation>插槽 %1：%2（%3）</translation>
-    </message>
-    <message>
         <source>Insert FX</source>
         <translation>插入效果</translation>
     </message>
@@ -1982,6 +1978,10 @@
     <message>
         <source>Insert effects of this device</source>
         <translation>此设备的插入效果</translation>
+    </message>
+    <message>
+        <source>Slot %1: %2</source>
+        <translation>插槽 %1：%2</translation>
     </message>
     <message>
         <source>Send levels of this device to the master send effects</source>
@@ -6029,10 +6029,6 @@
     <message>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
-    </message>
-    <message>
-        <source>%1 — %2</source>
-        <translation>%1 — %2</translation>
     </message>
     <message>
         <source>Gain</source>

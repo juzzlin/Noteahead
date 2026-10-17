@@ -110,8 +110,8 @@ AnimatedDialog {
             Label {
                 text: qsTr("Master Effect Rack")
                 font.bold: true
-                font.pointSize: 18
-                color: "white"
+                font.pixelSize: Theme.titlePixelSize
+                color: Theme.headingText
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
             }

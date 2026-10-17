@@ -100,14 +100,6 @@ AnimatedDialog {
         }
 
         Label {
-            text: qsTr("Mixer")
-            font.bold: true
-            font.pointSize: 18
-            color: "white"
-            Layout.alignment: Qt.AlignHCenter
-        }
-
-        Label {
             text: qsTr("No devices yet. Add them in the Device Rack.")
             color: Theme.textSecondary
             font.italic: true
@@ -155,6 +147,10 @@ AnimatedDialog {
                         readonly property string deviceTypeName: {
                             deviceRackController.revision;
                             return deviceRackController.deviceTypeName(index);
+                        }
+                        readonly property string displayName: {
+                            deviceRackController.revision;
+                            return deviceRackController.deviceDisplayName(index);
                         }
                         readonly property string deviceName: {
                             deviceRackController.revision;
@@ -205,7 +201,8 @@ AnimatedDialog {
                                     spacing: 2
 
                                     Text {
-                                        text: qsTr("%1: %2").arg(index + 1).arg(strip.deviceName)
+                                        // What it is, not the port name the tracks route to
+                                        text: qsTr("%1: %2").arg(index + 1).arg(strip.displayName)
                                         color: nameArea.containsMouse ? themeService.accentColor : "white"
                                         font.pointSize: 12
                                         font.bold: true
@@ -214,7 +211,7 @@ AnimatedDialog {
                                     }
 
                                     Text {
-                                        text: strip.trackNames === "" ? strip.deviceTypeName : qsTr("%1 — %2").arg(strip.deviceTypeName).arg(strip.trackNames)
+                                        text: strip.trackNames === "" ? strip.deviceName : strip.trackNames
                                         color: Theme.textSecondary
                                         font.pointSize: 10
                                         elide: Text.ElideRight

@@ -38,9 +38,9 @@ ColumnLayout {
         }
         Label {
             text: qsTr("Emulation of a 16-pad sampler")
-            color: "white"
+            color: Theme.headingText
             font.bold: true
-            font.pointSize: 20
+            font.pixelSize: Theme.titlePixelSize
             Layout.fillWidth: true
             horizontalAlignment: Text.AlignHCenter
         }

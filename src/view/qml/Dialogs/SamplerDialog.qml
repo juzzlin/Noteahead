@@ -24,7 +24,7 @@ import "../Components"
 
 AnimatedDialog {
     id: root
-    title: "<strong>" + applicationService.samplerDeviceName + "</strong>"
+    title: samplerController.displayName
     modal: true
     focus: true
     width: parent ? parent.width * Constants.largeDialogScale : 1000

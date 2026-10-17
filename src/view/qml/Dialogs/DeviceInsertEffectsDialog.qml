@@ -151,8 +151,8 @@ AnimatedDialog {
                     return root.subIndex >= 0 ? qsTr("%1 — %2 Insert Effects").arg(deviceName).arg(root.subLabel) : qsTr("%1 Insert Effects").arg(deviceName);
                 }
                 font.bold: true
-                font.pointSize: 18
-                color: "white"
+                font.pixelSize: Theme.titlePixelSize
+                color: Theme.headingText
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
             }

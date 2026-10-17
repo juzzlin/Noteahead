@@ -100,6 +100,9 @@ public:
     static QVariantList deviceTypes();
     //! The name a device type is shown under, "Bass Synth", or empty for a type not in the gallery.
     static QString displayNameOf(const QString & typeId);
+    //! The name the device in a slot is shown under, or its type's internal name for one the
+    //! gallery does not list.
+    Q_INVOKABLE QString deviceDisplayName(int slotIndex) const;
 
     //! Every occupied slot a SubMixer could take, with whether it already belongs to one.
     //!

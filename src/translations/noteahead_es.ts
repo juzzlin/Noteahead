@@ -1949,10 +1949,6 @@
         <translation>Importar ajustes...</translation>
     </message>
     <message>
-        <source>Slot %1: %2 (%3)</source>
-        <translation>Ranura %1: %2 (%3)</translation>
-    </message>
-    <message>
         <source>Insert FX</source>
         <translation>Efectos de inserción</translation>
     </message>
@@ -1983,6 +1979,10 @@
     <message>
         <source>Insert effects of this device</source>
         <translation>Efectos de inserción de este dispositivo</translation>
+    </message>
+    <message>
+        <source>Slot %1: %2</source>
+        <translation>Ranura %1: %2</translation>
     </message>
     <message>
         <source>Send levels of this device to the master send effects</source>
@@ -6030,10 +6030,6 @@
     <message>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
-    </message>
-    <message>
-        <source>%1 — %2</source>
-        <translation>%1 — %2</translation>
     </message>
     <message>
         <source>Gain</source>
