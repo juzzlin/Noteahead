@@ -2604,6 +2604,28 @@ void SamplerTest::test_automatableParameters_loadedPad_shouldBeListedUnderItsKey
     }));
 }
 
+void SamplerTest::test_applyParameterModulation_pad_shouldModulateThePadAndClearBack()
+{
+    // A pad's key reaches the pad, as an automation's does, and its knob stays where it was set
+    auto sampler = makeMonoSampler();
+    sampler->setSampleCutoff(60, 0.8f);
+    const auto key = SamplerDevice::padAutomationKey(60, Constants::NahdXml::xmlKeyCutoff().toStdString());
+    const auto padParameter = [&] {
+        const auto parameters = sampler->automatableParameters();
+        return std::ranges::find_if(parameters, [&key](auto && candidate) { return candidate.key == key; })->parameter;
+    };
+
+    // Half way from the knob towards the bottom, where a cutoff rests
+    QVERIFY(sampler->applyParameterModulation(key, ParameterModulation::Mode::Unipolar, 1.0, 0.5));
+    QVERIFY(std::abs(padParameter().value() - 0.4f) < 1.0e-6f);
+    QCOMPARE(padParameter().shownValue(), 0.8f);
+    // An empty pad has nothing to modulate
+    QVERIFY(!sampler->applyParameterModulation(SamplerDevice::padAutomationKey(61, Constants::NahdXml::xmlKeyCutoff().toStdString()), ParameterModulation::Mode::Unipolar, 1.0, 1.0));
+
+    sampler->clearParameterModulation(key);
+    QCOMPARE(padParameter().value(), 0.8f);
+}
+
 void SamplerTest::test_applyParameterAutomation_pad_shouldDriveThePadAndClearBack()
 {
     auto sampler = makeMonoSampler();

@@ -47,6 +47,11 @@ private slots:
     void test_effectiveValue_relativeCentred_shouldScaleFromTheCentre();
     void test_effectiveValue_relative_shouldFollowTheAuthoredValue();
     void test_effectiveValue_relativeFader_shouldScaleTheGain();
+    void test_modulation_shouldMoveOnlyTheValueInEffect();
+    void test_modulation_underAutomation_shouldKeepItsOffset();
+    void test_modulation_clearAutomation_shouldStay();
+    void test_modulation_clear_shouldRestoreTheUnmodulatedValue();
+    void test_modulation_switch_shouldBeRefused();
 };
 
 } // namespace noteahead

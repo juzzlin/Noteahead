@@ -27,6 +27,7 @@ class SamplerTest : public QObject
 private slots:
     void test_automatableParameters_loadedPad_shouldBeListedUnderItsKey();
     void test_applyParameterAutomation_pad_shouldDriveThePadAndClearBack();
+    void test_applyParameterModulation_pad_shouldModulateThePadAndClearBack();
     void test_applyParameterAutomation_padRelative_shouldScaleTheKnob();
     void test_applyParameterAutomation_padMissing_shouldBeRefused();
     void test_parsePadAutomationKey_shouldRoundTrip();

@@ -131,6 +131,28 @@ bool Device::applyParameterAutomation(const std::string & key, ParameterAutomati
     return true;
 }
 
+bool Device::applyParameterModulation(const std::string & key, ParameterModulation::Mode mode, double source, double depth)
+{
+    std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    const auto p = parameter(key);
+    if (!p || p->get().type() != Parameter::Type::Continuous) {
+        return false;
+    }
+    p->get().setModulatedValue(ParameterModulation::modulatedValue(mode, source, depth, p->get()));
+    syncAutomatedParameter(key);
+    // Not signalled, as automation is not: this runs on the audio thread
+    return true;
+}
+
+void Device::clearParameterModulation(const std::string & key)
+{
+    std::lock_guard<std::recursive_mutex> lock { m_mutex };
+    if (const auto p = parameter(key); p && p->get().isModulated()) {
+        p->get().clearModulation();
+        syncAutomatedParameter(key);
+    }
+}
+
 void Device::syncAutomatedParameter(const std::string &)
 {
     syncParameters();

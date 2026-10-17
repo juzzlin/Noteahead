@@ -82,6 +82,8 @@ public:
 
     bool applyParameterAutomation(const std::string & key, ParameterAutomation::Mode mode, double value) override;
     void clearParameterAutomation() override;
+    bool applyParameterModulation(const std::string & key, ParameterModulation::Mode mode, double source, double depth) override;
+    void clearParameterModulation(const std::string & key) override;
 
     //! The two entry points the rack calls. Deliberately not virtual: this is where the controls
     //! every effect shares are applied around the effect's own work, so that no effect has to

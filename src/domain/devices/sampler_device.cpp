@@ -546,6 +546,52 @@ bool SamplerDevice::applyParameterAutomation(const std::string & key, ParameterA
     return true;
 }
 
+bool SamplerDevice::applyParameterModulation(const std::string & key, ParameterModulation::Mode mode, double source, double depth)
+{
+    const auto pad = parsePadAutomationKey(key);
+    if (!pad) {
+        return Device::applyParameterModulation(key, mode, source, depth);
+    }
+    std::lock_guard<std::recursive_mutex> lock { mutex() };
+    const auto & sample = m_samples.at(pad->first);
+    if (!sample) {
+        return false;
+    }
+    const auto parameter = sample->parameter(pad->second);
+    if (!parameter || parameter->get().type() != Parameter::Type::Continuous) {
+        return false;
+    }
+    parameter->get().setModulatedValue(ParameterModulation::modulatedValue(mode, source, depth, parameter->get()));
+    syncSampleFields(*sample);
+    for (auto && voice : m_voices) {
+        if (voice.active && voice.sample == sample.get()) {
+            updateVoiceEffects(voice);
+        }
+    }
+    return true;
+}
+
+void SamplerDevice::clearParameterModulation(const std::string & key)
+{
+    const auto pad = parsePadAutomationKey(key);
+    if (!pad) {
+        Device::clearParameterModulation(key);
+        return;
+    }
+    std::lock_guard<std::recursive_mutex> lock { mutex() };
+    if (const auto & sample = m_samples.at(pad->first); sample) {
+        if (const auto parameter = sample->parameter(pad->second); parameter && parameter->get().isModulated()) {
+            parameter->get().clearModulation();
+            syncSampleFields(*sample);
+            for (auto && voice : m_voices) {
+                if (voice.active && voice.sample == sample.get()) {
+                    updateVoiceEffects(voice);
+                }
+            }
+        }
+    }
+}
+
 bool SamplerDevice::updatePadParameter(int note, const std::string & parameterName, float value)
 {
     if (note < 0 || note >= static_cast<int>(maxSamples) || !m_samples.at(static_cast<size_t>(note))) {

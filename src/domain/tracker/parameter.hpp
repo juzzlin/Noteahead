@@ -46,8 +46,12 @@ public:
 
     const std::string & name() const;
 
-    //! The value in effect: what the DSP runs on and what a knob shows. Automation moves this one.
+    //! The value in effect: what the DSP runs on. Automation moves this one, and a modulation rides
+    //! on top of whatever automation and the user left it at.
     float value() const;
+    //! The value in effect before any modulation: what an automation or the user set it to. What a
+    //! modulation is computed from, so that it moves around the setting rather than around itself.
+    float unmodulatedValue() const;
     //! The value the user set, and the only one that is ever saved. Automation leaves it alone.
     float authoredValue() const;
 
@@ -66,12 +70,22 @@ public:
     void setRelativeAutomationValue(float val);
     //! What a knob shows: the value in effect, except under a relative automation, where it is the
     //! authored value the automation is scaling. Absolute automation and MIDI CC replace the value,
-    //! and the knob follows them.
+    //! and the knob follows them. A modulation never moves it: a knob that shook with an LFO could
+    //! not be set.
     float shownValue() const;
     bool isRelativelyAutomated() const;
-    //! Puts the authored value back in effect. A no-op unless automation has written here.
+    //! Puts the authored value back in effect. A no-op unless automation has written here. A
+    //! modulation in effect stays, riding on the authored value instead.
     void clearAutomation();
     bool isAutomated() const;
+
+    //! Sets the value in effect to @p val without touching what it is modulated around. An LFO
+    //! writes here on every step; automation and the user keep writing underneath it, and keep the
+    //! modulation's offset from what they set until its next step. Continuous parameters only.
+    void setModulatedValue(float val);
+    //! Puts the unmodulated value back in effect. A no-op unless a modulation has written here.
+    void clearModulation();
+    bool isModulated() const;
 
     int xmlValue() const;
     //! The authored value in XML units. This, not xmlValue(), is what serialization writes.
@@ -104,11 +118,16 @@ public:
 
 private:
     int xmlValueOf(float value) const;
+    //! Makes @p base the unmodulated value, keeping a modulation's current offset from it.
+    void rebase(float base);
     float clampToRange(float val) const;
 
     std::string m_name;
     float m_value = 0.0f;
     float m_authoredValue = 0.0f;
+    //! The value in effect before modulation: the authored value, or what automation replaced it with.
+    float m_baseValue = 0.0f;
+    bool m_modulated = false;
     bool m_automated = false;
     bool m_relativelyAutomated = false;
     int m_xmlMin = 0;

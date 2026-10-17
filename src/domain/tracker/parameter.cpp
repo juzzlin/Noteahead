@@ -79,6 +79,18 @@ float Parameter::authoredValue() const
     return m_authoredValue;
 }
 
+float Parameter::unmodulatedValue() const
+{
+    return m_baseValue;
+}
+
+void Parameter::rebase(float base)
+{
+    const float offset = m_modulated ? m_value - m_baseValue : 0.0f;
+    m_baseValue = base;
+    m_value = m_modulated ? clampToRange(base + offset) : base;
+}
+
 bool Parameter::isAutomated() const
 {
     return m_automated;
@@ -86,8 +98,8 @@ bool Parameter::isAutomated() const
 
 void Parameter::setValue(float val)
 {
-    m_value = clampToRange(val);
-    m_authoredValue = m_value;
+    m_authoredValue = clampToRange(val);
+    rebase(m_authoredValue);
     // Whatever automation had written here is gone: the user just said what this value is.
     m_automated = false;
     m_relativelyAutomated = false;
@@ -95,14 +107,14 @@ void Parameter::setValue(float val)
 
 void Parameter::setAutomationValue(float val)
 {
-    m_value = clampToRange(val);
+    rebase(clampToRange(val));
     m_automated = true;
     m_relativelyAutomated = false;
 }
 
 void Parameter::setRelativeAutomationValue(float val)
 {
-    m_value = clampToRange(val);
+    rebase(clampToRange(val));
     m_automated = true;
     m_relativelyAutomated = true;
 }
@@ -114,16 +126,38 @@ bool Parameter::isRelativelyAutomated() const
 
 float Parameter::shownValue() const
 {
-    return m_relativelyAutomated ? m_authoredValue : m_value;
+    return m_relativelyAutomated ? m_authoredValue : m_baseValue;
 }
 
 void Parameter::clearAutomation()
 {
     if (m_automated) {
-        m_value = m_authoredValue;
+        rebase(m_authoredValue);
         m_automated = false;
         m_relativelyAutomated = false;
     }
+}
+
+void Parameter::setModulatedValue(float val)
+{
+    if (m_type != Type::Continuous) {
+        return;
+    }
+    m_value = clampToRange(val);
+    m_modulated = true;
+}
+
+void Parameter::clearModulation()
+{
+    if (m_modulated) {
+        m_value = m_baseValue;
+        m_modulated = false;
+    }
+}
+
+bool Parameter::isModulated() const
+{
+    return m_modulated;
 }
 
 bool Parameter::update(float val)
@@ -199,12 +233,12 @@ void Parameter::setFromXml(int xmlVal, std::optional<int> xmlMin, std::optional<
     const int min = xmlMin.value_or(m_xmlMin);
     const int max = xmlMax.value_or(m_xmlMax);
     if (m_type == Type::Discrete || m_type == Type::Boolean) {
-        m_value = static_cast<float>(std::clamp(xmlVal, std::min(min, max), std::max(min, max)));
+        m_authoredValue = static_cast<float>(std::clamp(xmlVal, std::min(min, max), std::max(min, max)));
     } else {
-        m_value = xmlValueToInternal(xmlVal, min, max);
+        m_authoredValue = xmlValueToInternal(xmlVal, min, max);
     }
     // Loading a project authors every value it carries.
-    m_authoredValue = m_value;
+    rebase(m_authoredValue);
     m_automated = false;
     m_relativelyAutomated = false;
 }

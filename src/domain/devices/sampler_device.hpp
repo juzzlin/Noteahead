@@ -283,6 +283,9 @@ public:
     AutomatableParameterList automatableParameters() const override;
     //! Routes a pad's key to that pad, and anything else to the device's own parameters.
     bool applyParameterAutomation(const std::string & key, ParameterAutomation::Mode mode, double value) override;
+    //! Routes a pad's key to that pad, and anything else to the device's own parameters.
+    bool applyParameterModulation(const std::string & key, ParameterModulation::Mode mode, double source, double depth) override;
+    void clearParameterModulation(const std::string & key) override;
     //! A pad's attack or hold position saved under the old names, on the curve those used, moved to
     //! the position on today's curve that gives the same time.
     static float envelopePositionFromLegacy(float legacyPosition);

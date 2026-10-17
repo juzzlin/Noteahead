@@ -126,6 +126,24 @@ void Effect::clearParameterAutomation()
     sync();
 }
 
+bool Effect::applyParameterModulation(const std::string & key, ParameterModulation::Mode mode, double source, double depth)
+{
+    if (const auto p = parameter(key); p && p->get().type() == Parameter::Type::Continuous) {
+        p->get().setModulatedValue(ParameterModulation::modulatedValue(mode, source, depth, p->get()));
+        sync();
+        return true;
+    }
+    return false;
+}
+
+void Effect::clearParameterModulation(const std::string & key)
+{
+    if (const auto p = parameter(key); p && p->get().isModulated()) {
+        p->get().clearModulation();
+        sync();
+    }
+}
+
 std::string Effect::newId()
 {
     return QUuid::createUuid().toString(QUuid::WithoutBraces).toStdString();

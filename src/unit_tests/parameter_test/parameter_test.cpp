@@ -260,6 +260,75 @@ void ParameterTest::test_effectiveValue_relativeCentred_shouldScaleFromTheCentre
     QVERIFY(std::abs(ParameterAutomation::effectiveValue(ParameterAutomation::Mode::Relative, 0.5, parameter) - 0.3f) < 1.0e-6f);
 }
 
+void ParameterTest::test_modulation_shouldMoveOnlyTheValueInEffect()
+{
+    // An LFO moves what the DSP runs on, never the knob, nor what is saved
+    auto parameter = continuousParameter();
+    parameter.setModulatedValue(0.6f);
+
+    QCOMPARE(parameter.value(), 0.6f);
+    QCOMPARE(parameter.unmodulatedValue(), 0.25f);
+    QCOMPARE(parameter.shownValue(), 0.25f);
+    QCOMPARE(parameter.authoredValue(), 0.25f);
+    QCOMPARE(parameter.xmlAuthoredValue(), 2500);
+    QVERIFY(parameter.isModulated());
+    QVERIFY(!parameter.isAutomated());
+}
+
+void ParameterTest::test_modulation_underAutomation_shouldKeepItsOffset()
+{
+    // Between two LFO steps an automation step moves the base, and the wobble rides along with it
+    auto parameter = continuousParameter();
+    parameter.setModulatedValue(0.35f);
+
+    parameter.setAutomationValue(0.5f);
+    QCOMPARE(parameter.unmodulatedValue(), 0.5f);
+    QVERIFY(std::abs(parameter.value() - 0.6f) < 1.0e-6f);
+    // The knob follows absolute automation, as it always has, but not the modulation
+    QCOMPARE(parameter.shownValue(), 0.5f);
+
+    // And the user's own edit is the base too
+    parameter.setValue(0.1f);
+    QVERIFY(std::abs(parameter.value() - 0.2f) < 1.0e-6f);
+}
+
+void ParameterTest::test_modulation_clearAutomation_shouldStay()
+{
+    // Stopping clears automation; a free-running LFO keeps going, riding on the authored value
+    auto parameter = continuousParameter();
+    parameter.setAutomationValue(0.5f);
+    parameter.setModulatedValue(0.55f);
+
+    parameter.clearAutomation();
+
+    QVERIFY(parameter.isModulated());
+    QCOMPARE(parameter.unmodulatedValue(), 0.25f);
+    QVERIFY(std::abs(parameter.value() - 0.3f) < 1.0e-6f);
+}
+
+void ParameterTest::test_modulation_clear_shouldRestoreTheUnmodulatedValue()
+{
+    auto parameter = continuousParameter();
+    parameter.setAutomationValue(0.5f);
+    parameter.setModulatedValue(0.9f);
+
+    parameter.clearModulation();
+
+    QVERIFY(!parameter.isModulated());
+    QCOMPARE(parameter.value(), 0.5f);
+    QVERIFY(parameter.isAutomated());
+}
+
+void ParameterTest::test_modulation_switch_shouldBeRefused()
+{
+    // A position between two choices means nothing
+    Parameter choice { "mode", 1.0f, 0, 3, 1, 1, Parameter::Type::Discrete };
+    choice.setModulatedValue(2.6f);
+
+    QCOMPARE(choice.value(), 1.0f);
+    QVERIFY(!choice.isModulated());
+}
+
 void ParameterTest::test_effectiveValue_relativeFader_shouldScaleTheGain()
 {
     // What Expression does over MIDI: half is half the amplitude of wherever the fader stands, not
