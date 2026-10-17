@@ -22,7 +22,7 @@ import "../Components"
 
 AnimatedDialog {
     id: root
-    title: applicationService.bassSynthDeviceName
+    title: bassSynthController.displayName
     modal: true
     focus: true
     width: parent ? parent.width * Constants.largeDialogScale : 900

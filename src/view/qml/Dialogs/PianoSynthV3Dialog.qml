@@ -22,7 +22,7 @@ import "../Components"
 
 AnimatedDialog {
     id: root
-    title: applicationService.pianoSynthV3DeviceName
+    title: pianoSynthV3Controller.displayName
     modal: true
     focus: true
     width: parent ? parent.width * Constants.largeDialogScale : 900

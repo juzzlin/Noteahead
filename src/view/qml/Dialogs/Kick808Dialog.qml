@@ -22,7 +22,7 @@ import "../Components"
 
 AnimatedDialog {
     id: root
-    title: applicationService.kick808DeviceName
+    title: kick808Controller.displayName
     modal: true
     focus: true
     width: parent ? parent.width * Constants.largeDialogScale : 800

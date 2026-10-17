@@ -14,6 +14,7 @@
 // along with Noteahead. If not, see <http://www.gnu.org/licenses/>.
 
 #include "device_controller.hpp"
+#include "device_rack_controller.hpp"
 
 #include "../../application/service/preset_service.hpp"
 #include "../../common/constants.hpp"
@@ -344,8 +345,15 @@ void DeviceController::stopNote(int note)
     }
 }
 
+QString DeviceController::displayName() const
+{
+    return DeviceRackController::displayNameOf(deviceTypeId());
+}
+
 void DeviceController::connectDeviceSignals()
 {
+    // Every controller calls this as it takes a device, which is when the name can change
+    emit displayNameChanged();
     if (auto dev = device(); dev) {
         connect(dev.get(), &Device::sampleRateChanged, this, &DeviceController::requestSettings, Qt::UniqueConnection);
         connect(dev.get(), &Device::dataChanged, this, &DeviceController::requestSettings, Qt::UniqueConnection);

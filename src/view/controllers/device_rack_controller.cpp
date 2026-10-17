@@ -23,9 +23,9 @@
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/drum_synth_v2_device.hpp"
 #include "../../domain/devices/fm_drums_device.hpp"
-#include "../../domain/devices/lfo_device.hpp"
 #include "../../domain/devices/fm_synth_device.hpp"
 #include "../../domain/devices/kick_808_device.hpp"
+#include "../../domain/devices/lfo_device.hpp"
 #include "../../domain/devices/piano_synth_device.hpp"
 #include "../../domain/devices/piano_synth_v2_device.hpp"
 #include "../../domain/devices/piano_synth_v3_device.hpp"
@@ -514,6 +514,21 @@ QString DeviceRackController::usageSummary(int slotIndex) const
 }
 
 QVariantList DeviceRackController::availableDevices() const
+{
+    return deviceTypes();
+}
+
+QString DeviceRackController::displayNameOf(const QString & typeId)
+{
+    for (auto && item : deviceTypes()) {
+        if (const auto map = item.toMap(); map["typeId"].toString() == typeId) {
+            return map["name"].toString();
+        }
+    }
+    return {};
+}
+
+QVariantList DeviceRackController::deviceTypes()
 {
     QVariantList list;
 

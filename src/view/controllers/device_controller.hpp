@@ -32,6 +32,8 @@ class DeviceController : public QObject
 {
     Q_OBJECT
 
+    //! What the device is shown as: "Bass Synth" rather than its type's internal name.
+    Q_PROPERTY(QString displayName READ displayName NOTIFY displayNameChanged)
     Q_PROPERTY(int volume READ volume WRITE setVolume NOTIFY volumeChanged)
     Q_PROPERTY(int gain READ gain WRITE setGain NOTIFY gainChanged)
     Q_PROPERTY(int pan READ pan WRITE setPan NOTIFY panChanged)
@@ -118,6 +120,7 @@ public:
     Q_INVOKABLE virtual void stopNote(int note);
 
 signals:
+    void displayNameChanged();
     void volumeChanged();
     void gainChanged();
     void panChanged();
@@ -137,6 +140,7 @@ private:
     //! The user's presets for the device's type, or an empty list when no store is set.
     QStringList userPresetNames() const;
     QString deviceTypeId() const;
+    QString displayName() const;
 
     //! Refreshes the dialog when an automation of the shown device lands. Nothing writes back on a
     //! refresh: the knobs write only when moved, and saving takes the authored values.

@@ -22,7 +22,7 @@ import "../Components"
 
 AnimatedDialog {
     id: root
-    title: applicationService.fmDrumsDeviceName
+    title: fmDrumsController.displayName
     modal: true
     focus: true
     width: parent ? parent.width * Constants.largeDialogScale : 800

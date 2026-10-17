@@ -43,6 +43,34 @@ Dialog {
     // scrollable content areas are what should give way, and this is the net under them.
     clip: true
 
+    // One title style for every dialog, set off from the content by a rule. Styled text, because a
+    // few titles still carry their own markup.
+    header: Label {
+        text: root.title
+        visible: root.title !== ""
+        textFormat: Text.StyledText
+        font.pixelSize: Theme.titlePixelSize
+        font.bold: true
+        color: Theme.headingText
+        elide: Text.ElideRight
+        leftPadding: 20
+        rightPadding: 20
+        topPadding: 14
+        bottomPadding: 10
+
+        background: Item {
+            Rectangle {
+                anchors.bottom: parent.bottom
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.leftMargin: 12
+                anchors.rightMargin: 12
+                height: 1
+                color: Theme.separator
+            }
+        }
+    }
+
     // A plain onVisibleChanged would be replaced by any dialog that declares one of its own
     Connections {
         target: root

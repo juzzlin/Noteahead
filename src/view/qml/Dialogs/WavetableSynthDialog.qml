@@ -22,7 +22,7 @@ import "../Components"
 
 AnimatedDialog {
     id: root
-    title: applicationService.wavetableSynthDeviceName
+    title: wavetableSynthController.displayName
     modal: true
     focus: true
     width: parent ? parent.width * Constants.largeDialogScale : 900

@@ -95,6 +95,11 @@ public:
     //! tracks its members play on.
     Q_INVOKABLE QString usageSummary(int slotIndex) const;
     Q_INVOKABLE QVariantList availableDevices() const;
+    //! Every device the gallery offers, by the name it is shown under: the one list both the gallery
+    //! and the dialogs' titles read, so a device's name is set in one place.
+    static QVariantList deviceTypes();
+    //! The name a device type is shown under, "Bass Synth", or empty for a type not in the gallery.
+    static QString displayNameOf(const QString & typeId);
 
     //! Every occupied slot a SubMixer could take, with whether it already belongs to one.
     //!

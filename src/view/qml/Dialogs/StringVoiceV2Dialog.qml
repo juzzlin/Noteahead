@@ -22,7 +22,7 @@ import "../Components"
 
 AnimatedDialog {
     id: root
-    title: applicationService.stringVoiceV2DeviceName
+    title: stringVoiceV2Controller.displayName
     modal: true
     focus: true
     width: parent ? parent.width * Constants.largeDialogScale : 1400
