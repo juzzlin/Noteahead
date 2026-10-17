@@ -23,6 +23,7 @@
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/drum_synth_v2_device.hpp"
 #include "../../domain/devices/fm_drums_device.hpp"
+#include "../../domain/devices/lfo_device.hpp"
 #include "../../domain/devices/fm_synth_device.hpp"
 #include "../../domain/devices/kick_808_device.hpp"
 #include "../../domain/devices/piano_synth_device.hpp"
@@ -173,6 +174,8 @@ void DeviceRackController::openDevice(const QString & name)
                     emit drumSynthV2DialogRequested();
                 } else if (typeId == FmDrumsDevice::typeIdString()) {
                     emit fmDrumsDialogRequested();
+                } else if (typeId == LfoDevice::typeIdString()) {
+                    emit lfoDialogRequested();
                 } else if (typeId == PianoSynthDevice::typeIdString()) {
                     emit pianoSynthDialogRequested();
                 } else if (typeId == PianoSynthV2Device::typeIdString()) {
@@ -449,6 +452,12 @@ QString DeviceRackController::deviceType(int slotIndex) const
     return "";
 }
 
+bool DeviceRackController::deviceProducesAudio(int slotIndex) const
+{
+    const auto device = m_deviceService ? m_deviceService->device(static_cast<size_t>(slotIndex)) : nullptr;
+    return !device || device->producesAudio();
+}
+
 QString DeviceRackController::deviceTypeName(int slotIndex) const
 {
     if (const auto device = m_deviceService->device(static_cast<size_t>(slotIndex))) {
@@ -533,6 +542,7 @@ QVariantList DeviceRackController::availableDevices() const
     addDevice("String Ensemble", QString::fromStdString(StringEnsembleDevice::typeIdString()));
     addDevice("Speech", QString::fromStdString(SpeechDevice::typeIdString()));
     addDevice("Sub Mixer", QString::fromStdString(SubMixerDevice::typeIdString()));
+    addDevice("LFO", QString::fromStdString(LfoDevice::typeIdString()));
 
     return list;
 }

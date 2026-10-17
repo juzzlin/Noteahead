@@ -155,6 +155,10 @@ public:
     //! -- where an octave up would play something else entirely.
     virtual bool supportsOctave() const;
 
+    //! False for a device that makes no sound of its own -- a modulator -- whose fader, pan, sends
+    //! and insert rack would only be controls that do nothing.
+    virtual bool producesAudio() const;
+
     //! Whether this device counts the notes it is given, and so has a position the song does not
     //! carry. Nothing does unless it says so, and the player skips the work of finding out when
     //! nothing does.

@@ -138,7 +138,8 @@ AnimatedDialog {
                         id: strip
                         Layout.fillWidth: true
                         Layout.preferredHeight: 76
-                        visible: deviceType !== ""
+                        // A modulator makes no sound, so a strip would be controls that do nothing
+                        visible: deviceType !== "" && producesAudio
                         color: "#333"
                         radius: 5
                         border.color: "#555"
@@ -146,6 +147,10 @@ AnimatedDialog {
                         readonly property string deviceType: {
                             deviceRackController.revision;
                             return deviceRackController.deviceType(index);
+                        }
+                        readonly property bool producesAudio: {
+                            deviceRackController.revision;
+                            return deviceRackController.deviceProducesAudio(index);
                         }
                         readonly property string deviceTypeName: {
                             deviceRackController.revision;

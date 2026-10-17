@@ -5,6 +5,9 @@ Release date:
 
 New features:
 
+* LFO: a device with four LFOs, each moving any device or effect parameter
+  - Free, synced or one-shot, with a rate divider; notes on its track can restart it
+
 * FM Drums: a drum machine with a four-operator FM voice on every pad
   - Pitch envelope and filtered noise per pad, on the same notes as Drum Synth V2
   - Default, Analog and Percussion kits, and any kit's drum loadable onto any pad

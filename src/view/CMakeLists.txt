@@ -14,6 +14,8 @@ set(HEADER_FILES
     controllers/fm_synth_controller.hpp
     controllers/knob_controller.hpp
     controllers/kick_808_controller.hpp
+    controllers/lfo_controller.hpp
+    controllers/lfo_panel_controller.hpp
     controllers/piano_synth_controller.hpp
     controllers/piano_synth_v2_controller.hpp
     controllers/piano_synth_v3_controller.hpp
@@ -52,6 +54,8 @@ set(SOURCE_FILES
     controllers/fm_synth_controller.cpp
     controllers/knob_controller.cpp
     controllers/kick_808_controller.cpp
+    controllers/lfo_controller.cpp
+    controllers/lfo_panel_controller.cpp
     controllers/piano_synth_controller.cpp
     controllers/piano_synth_v2_controller.cpp
     controllers/piano_synth_v3_controller.cpp

@@ -94,6 +94,10 @@ AnimatedDialog {
                     deviceRackController.revision;
                     return deviceRackController.deviceType(index);
                 }
+                readonly property bool producesAudio: {
+                    deviceRackController.revision;
+                    return deviceRackController.deviceProducesAudio(index);
+                }
                 readonly property string deviceTypeName: {
                     deviceRackController.revision;
                     return deviceRackController.deviceTypeName(index);
@@ -246,7 +250,7 @@ AnimatedDialog {
                         toolTipText: qsTr("Insert effects of this device")
                         onClicked: UiService.requestDeviceInsertEffectsDialog(deviceName)
                         Layout.preferredWidth: 80
-                        visible: deviceType !== ""
+                        visible: deviceType !== "" && producesAudio
                     }
 
                     AppButton {
@@ -254,7 +258,7 @@ AnimatedDialog {
                         toolTipText: qsTr("Send levels of this device to the master send effects")
                         onClicked: UiService.requestEffectSendsDialog(deviceName)
                         Layout.preferredWidth: 80
-                        visible: deviceType !== ""
+                        visible: deviceType !== "" && producesAudio
                     }
 
                     AppButton {

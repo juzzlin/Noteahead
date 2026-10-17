@@ -463,7 +463,7 @@ void DeviceRackControllerTest::test_availableDevices_shouldReturnCorrectList()
     DeviceRackController controller { nullptr, {}, nullptr };
     const auto list = controller.availableDevices();
 
-    QCOMPARE(list.size(), 18);
+    QCOMPARE(list.size(), 19);
     QCOMPARE(list.at(0).toMap()["name"].toString(), QString("Sampler"));
     QCOMPARE(list.at(1).toMap()["name"].toString(), QString("Synth"));
     QCOMPARE(list.at(2).toMap()["name"].toString(), QString("Wavetable Synth"));
@@ -482,6 +482,7 @@ void DeviceRackControllerTest::test_availableDevices_shouldReturnCorrectList()
     QCOMPARE(list.at(15).toMap()["name"].toString(), QString("String Ensemble"));
     QCOMPARE(list.at(16).toMap()["name"].toString(), QString("Speech"));
     QCOMPARE(list.at(17).toMap()["name"].toString(), QString("Sub Mixer"));
+    QCOMPARE(list.at(18).toMap()["name"].toString(), QString("LFO"));
 }
 
 void DeviceRackControllerTest::test_deviceMeterLevels_shouldReportPreInsertLevel()

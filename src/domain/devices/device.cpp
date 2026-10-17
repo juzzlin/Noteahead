@@ -249,6 +249,11 @@ bool Device::supportsOctave() const
     return true;
 }
 
+bool Device::producesAudio() const
+{
+    return true;
+}
+
 void Device::processMidiCc(uint8_t controller, uint8_t value, uint8_t channel)
 {
     if (controller == static_cast<uint8_t>(MidiCcMapping::Controller::ExpressionControllerMSB)) {

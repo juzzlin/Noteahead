@@ -156,6 +156,11 @@ bool LfoDevice::supportsOctave() const
     return false;
 }
 
+bool LfoDevice::producesAudio() const
+{
+    return false;
+}
+
 void LfoDevice::restart(Slot & slot) const
 {
     slot.lfo.trigger();

@@ -188,6 +188,8 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/Kick808Dialog_Global.qml
     ${QML_BASE_DIR}/Dialogs/Kick808Dialog_Kick.qml
     ${QML_BASE_DIR}/Dialogs/Kick808Dialog_Pitch.qml
+    ${QML_BASE_DIR}/Dialogs/LfoDialog.qml
+    ${QML_BASE_DIR}/Dialogs/LfoDialog_Lfo.qml
     ${QML_BASE_DIR}/Dialogs/PianoSynthDialog.qml
     ${QML_BASE_DIR}/Dialogs/PianoSynthDialog_Global.qml
     ${QML_BASE_DIR}/Dialogs/PianoSynthDialog_String.qml

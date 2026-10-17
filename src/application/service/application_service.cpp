@@ -168,6 +168,11 @@ QString ApplicationService::fmDrumsDeviceName() const
     return Constants::fmDrumsDeviceName();
 }
 
+QString ApplicationService::lfoDeviceName() const
+{
+    return Constants::lfoDeviceName();
+}
+
 QString ApplicationService::pianoSynthDeviceName() const
 {
     return Constants::pianoSynthDeviceName();

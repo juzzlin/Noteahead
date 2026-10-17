@@ -86,6 +86,8 @@ public:
     Q_INVOKABLE QVariantList populatedDevices() const;
 
     Q_INVOKABLE QString deviceType(int slotIndex) const;
+    //! False for a device with no sound of its own, whose mixer strip, sends and inserts are hidden.
+    Q_INVOKABLE bool deviceProducesAudio(int slotIndex) const;
     Q_INVOKABLE QString deviceTypeName(int slotIndex) const;
     Q_INVOKABLE QString deviceName(int slotIndex) const;
     Q_INVOKABLE QString trackNames(int slotIndex) const;
@@ -182,6 +184,7 @@ signals:
     void drumSynthDialogRequested();
     void drumSynthV2DialogRequested();
     void fmDrumsDialogRequested();
+    void lfoDialogRequested();
     void pianoSynthDialogRequested();
     void pianoSynthV2DialogRequested();
     void pianoSynthV3DialogRequested();
