@@ -34,6 +34,7 @@
 #include "../../domain/devices/drum_synth_v2_constants.hpp"
 #include "../../domain/devices/drum_synth_v2_device.hpp"
 #include "../../domain/devices/fm_drums_device.hpp"
+#include "../../domain/devices/lfo_device.hpp"
 #include "../../domain/devices/fm_synth_device.hpp"
 #include "../../domain/devices/kick_808_device.hpp"
 #include "../../domain/devices/piano_synth_v2_device.hpp"
@@ -1600,6 +1601,37 @@ void XmlSerializationTest::test_toXmlFromXml_fmDrumsDevice_shouldComeBackAsFmDru
     const auto effect = drumIn->voiceEffectRack(snare).effect(0);
     QVERIFY(effect);
     QCOMPARE(effect->id(), reverbOut->id());
+}
+
+void XmlSerializationTest::test_toXmlFromXml_lfoDevice_shouldComeBackWithItsTargets()
+{
+    // Not pre-created on the way back in, so this also proves the factory knows the type
+    DeviceFactory::init();
+
+    const auto lfoName = "Noteahead Internal Device 1";
+    const ParameterAutomation::Target target { ParameterAutomation::Target::Owner::Device, "some-synth", Constants::NahdXml::xmlKeyLpfCutoff().toStdString() };
+
+    DeviceService deviceServiceOut { std::make_shared<AudioEngine>(), std::make_shared<DataService>() };
+    const auto lfoOut = std::make_shared<LfoDevice>(lfoName);
+    lfoOut->setTarget(2, target);
+    lfoOut->updateLfoParameter(2, Constants::NahdXml::xmlKeyRateDivider(), 8.0f);
+    deviceServiceOut.setDevice(0, lfoOut);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto deviceServiceIn = std::make_shared<DeviceService>(std::make_shared<AudioEngine>(), std::make_shared<DataService>());
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, deviceServiceIn.get(), &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto lfoIn = std::dynamic_pointer_cast<LfoDevice>(deviceServiceIn->device(0));
+    QVERIFY(lfoIn);
+    QCOMPARE(lfoIn->target(2), target);
+    QCOMPARE(lfoIn->lfoParameterValue(2, Constants::NahdXml::xmlKeyRateDivider()), 8.0f);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_samplerDevice_relativePath_shouldLoadCorrectly()

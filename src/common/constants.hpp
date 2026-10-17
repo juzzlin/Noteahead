@@ -97,6 +97,7 @@ QString stringEnsembleDeviceName();
 QString speechDeviceName();
 QString fmSynthDeviceName();
 QString fmDrumsDeviceName();
+QString lfoDeviceName();
 
 QString internalDevicePortPrefix();
 double defaultSampleRate();
@@ -890,6 +891,7 @@ QString xmlValueEaseInOut();
 QString xmlValueSamplers();
 QString xmlValueSynths();
 QString xmlValueMixers();
+QString xmlValueModulators();
 QString xmlValueDrums();
 
 QString xmlKeyStringsBalance();
@@ -926,6 +928,13 @@ QString xmlKeyPhaserColor();
 QString xmlKeyPhaserRate();
 QString xmlKeyVelocitySensitivity();
 QString xmlKeyModVelocitySensitivity();
+QString xmlKeyFade();
+QString xmlKeyPhase();
+QString xmlKeySmoothing();
+QString xmlKeyRetrigger();
+QString xmlKeyModulationMode();
+QString xmlKeyLfo();
+QString xmlKeyLfos();
 QString xmlKeyFaderPosition();
 QString xmlKeySendTap();
 

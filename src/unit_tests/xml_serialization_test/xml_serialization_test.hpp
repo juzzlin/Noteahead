@@ -88,6 +88,7 @@ private slots:
     void test_toXmlFromXml_device_withoutUuid_shouldBeGivenOne();
     void test_toXmlFromXml_drumSynthV2Device_shouldComeBackAsV2();
     void test_toXmlFromXml_fmDrumsDevice_shouldComeBackAsFmDrums();
+    void test_toXmlFromXml_lfoDevice_shouldComeBackWithItsTargets();
     void test_toXmlFromXml_samplerDevice_relativePath_shouldLoadCorrectly();
     void test_toXmlFromXml_samplerDevice_unembedding_shouldNotLoseTheSample();
     void test_toXmlFromXml_samplerDevice_saveAs_shouldPreserveEmbeddedData();

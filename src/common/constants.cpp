@@ -169,6 +169,11 @@ QString fmDrumsDeviceName()
     return "Noteahead FmDrums";
 }
 
+QString lfoDeviceName()
+{
+    return "Noteahead LFO";
+}
+
 QString bassSynthDeviceName()
 {
     return "Noteahead BassSynth";
@@ -3034,6 +3039,11 @@ QString xmlValueMixers()
     return "Mixers";
 }
 
+QString xmlValueModulators()
+{
+    return "Modulators";
+}
+
 QString xmlValueSynths()
 {
     return "Synths";
@@ -3292,6 +3302,41 @@ QString xmlKeyVelocitySensitivity()
 QString xmlKeyModVelocitySensitivity()
 {
     return "modVelocitySensitivity";
+}
+
+QString xmlKeyFade()
+{
+    return "fade";
+}
+
+QString xmlKeyPhase()
+{
+    return "phase";
+}
+
+QString xmlKeySmoothing()
+{
+    return "smoothing";
+}
+
+QString xmlKeyRetrigger()
+{
+    return "retrigger";
+}
+
+QString xmlKeyModulationMode()
+{
+    return "modulationMode";
+}
+
+QString xmlKeyLfo()
+{
+    return "Lfo";
+}
+
+QString xmlKeyLfos()
+{
+    return "Lfos";
 }
 
 QString xmlKeyFaderPosition()

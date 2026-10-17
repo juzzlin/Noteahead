@@ -20,6 +20,7 @@
 #include "fm_drums_device.hpp"
 #include "fm_synth_device.hpp"
 #include "kick_808_device.hpp"
+#include "lfo_device.hpp"
 #include "piano_synth_device.hpp"
 #include "piano_synth_v2_device.hpp"
 #include "piano_synth_v3_device.hpp"
@@ -55,6 +56,9 @@ void DeviceFactory::init()
     });
     registerDevice(Kick808Device::typeIdString(), [](const std::string & name) {
         return std::make_shared<Kick808Device>(name);
+    });
+    registerDevice(LfoDevice::typeIdString(), [](const std::string & name) {
+        return std::make_shared<LfoDevice>(name);
     });
     registerDevice(SamplerDevice::typeIdString(), [](const std::string & name) {
         return std::make_shared<SamplerDevice>(name);
