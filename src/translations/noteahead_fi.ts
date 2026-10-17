@@ -6722,6 +6722,18 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Multi LPF Cutoff</source>
+        <translation>Multi LPF cutoff</translation>
+    </message>
+    <message>
+        <source>Multi LPF Resonance</source>
+        <translation>Multi LPF-resonanssi</translation>
+    </message>
+    <message>
+        <source>Multi HPF Cutoff</source>
+        <translation>Multi HPF cutoff</translation>
+    </message>
+    <message>
         <source>VCO 1 Shape</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6760,6 +6772,18 @@
     <message>
         <source>Cross Mod</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Chorus Mix</source>
+        <translation>Chorus mix</translation>
+    </message>
+    <message>
+        <source>Chorus Rate</source>
+        <translation>Chorus-nopeus</translation>
+    </message>
+    <message>
+        <source>Chorus Depth</source>
+        <translation>Chorus-syvyys</translation>
     </message>
     <message>
         <source>HPF Cutoff</source>
@@ -10737,6 +10761,33 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     </message>
 </context>
 <context>
+    <name>SynthDialog_Chorus</name>
+    <message>
+        <source>Chorus Effect</source>
+        <translation>Chorus-efekti</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation>Nopeus</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation>Syvyys</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation>Delay</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation>Leveys</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>Mix</translation>
+    </message>
+</context>
+<context>
     <name>SynthDialog_Delay</name>
     <message>
         <source>Delay Effect</source>
@@ -10974,6 +11025,37 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     <message>
         <source>Level</source>
         <translation>Taso</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDialog_MultiFilter</name>
+    <message>
+        <source>LPF Slope</source>
+        <translation>LPF-jyrkkyys</translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation>HPF-jyrkkyys</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation>LPF cutoff</translation>
+    </message>
+    <message>
+        <source>Rolls the top off the multi engine alone, before it reaches the mix and the voice&apos;s own filter.</source>
+        <translation>Leikkaa diskantin pelkästä multi-moottorista ennen kuin se päätyy miksaukseen ja äänen omaan suotimeen.</translation>
+    </message>
+    <message>
+        <source>LPF Resonance</source>
+        <translation>LPF-resonanssi</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation>HPF cutoff</translation>
+    </message>
+    <message>
+        <source>Thins out the multi engine alone, which is how noise is made to sit over the oscillators rather than across them.</source>
+        <translation>Ohentaa pelkkää multi-moottoria, jolloin kohina asettuu oskillaattorien päälle eikä niiden sekaan.</translation>
     </message>
 </context>
 <context>
@@ -12725,6 +12807,14 @@ Heittomerkki merkitsee painollisen tavun: A&apos;merica</translation>
     <message>
         <source>VCO %1 HPF</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Multi LPF</source>
+        <translation>Multi LPF</translation>
+    </message>
+    <message>
+        <source>Multi HPF</source>
+        <translation>Multi HPF</translation>
     </message>
     <message>
         <source>Normal</source>

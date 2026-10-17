@@ -6722,6 +6722,18 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Multi LPF Cutoff</source>
+        <translation>Corte del LPF multi</translation>
+    </message>
+    <message>
+        <source>Multi LPF Resonance</source>
+        <translation>Resonancia del LPF multi</translation>
+    </message>
+    <message>
+        <source>Multi HPF Cutoff</source>
+        <translation>Corte del HPF multi</translation>
+    </message>
+    <message>
         <source>VCO 1 Shape</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6760,6 +6772,18 @@
     <message>
         <source>Cross Mod</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Chorus Mix</source>
+        <translation>Mezcla del chorus</translation>
+    </message>
+    <message>
+        <source>Chorus Rate</source>
+        <translation>Velocidad del chorus</translation>
+    </message>
+    <message>
+        <source>Chorus Depth</source>
+        <translation>Profundidad del chorus</translation>
     </message>
     <message>
         <source>HPF Cutoff</source>
@@ -10737,6 +10761,33 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     </message>
 </context>
 <context>
+    <name>SynthDialog_Chorus</name>
+    <message>
+        <source>Chorus Effect</source>
+        <translation>Efecto de chorus</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation>Velocidad</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation>Profundidad</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation>Retardo</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation>Anchura</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>Mezcla</translation>
+    </message>
+</context>
+<context>
     <name>SynthDialog_Delay</name>
     <message>
         <source>Delay Effect</source>
@@ -10974,6 +11025,37 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     <message>
         <source>Level</source>
         <translation>Nivel</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDialog_MultiFilter</name>
+    <message>
+        <source>LPF Slope</source>
+        <translation>Pendiente del LPF</translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation>Pendiente del HPF</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation>Corte del LPF</translation>
+    </message>
+    <message>
+        <source>Rolls the top off the multi engine alone, before it reaches the mix and the voice&apos;s own filter.</source>
+        <translation>Recorta los agudos solo del motor multi, antes de que llegue a la mezcla y al filtro propio de la voz.</translation>
+    </message>
+    <message>
+        <source>LPF Resonance</source>
+        <translation>Resonancia del LPF</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation>Corte del HPF</translation>
+    </message>
+    <message>
+        <source>Thins out the multi engine alone, which is how noise is made to sit over the oscillators rather than across them.</source>
+        <translation>Adelgaza solo el motor multi: así el ruido se coloca por encima de los osciladores en lugar de cubrirlos.</translation>
     </message>
 </context>
 <context>
@@ -12725,6 +12807,14 @@ Un apóstrofo marca la sílaba tónica: A&apos;merica</translation>
     <message>
         <source>VCO %1 HPF</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Multi LPF</source>
+        <translation>LPF multi</translation>
+    </message>
+    <message>
+        <source>Multi HPF</source>
+        <translation>HPF multi</translation>
     </message>
     <message>
         <source>Normal</source>

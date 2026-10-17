@@ -6723,6 +6723,18 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Multi LPF Cutoff</source>
+        <translation>Odcięcie LPF multi</translation>
+    </message>
+    <message>
+        <source>Multi LPF Resonance</source>
+        <translation>Rezonans LPF multi</translation>
+    </message>
+    <message>
+        <source>Multi HPF Cutoff</source>
+        <translation>Odcięcie HPF multi</translation>
+    </message>
+    <message>
         <source>VCO 1 Shape</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6761,6 +6773,18 @@
     <message>
         <source>Cross Mod</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Chorus Mix</source>
+        <translation>Mix chorus</translation>
+    </message>
+    <message>
+        <source>Chorus Rate</source>
+        <translation>Szybkość chorus</translation>
+    </message>
+    <message>
+        <source>Chorus Depth</source>
+        <translation>Głębokość chorus</translation>
     </message>
     <message>
         <source>HPF Cutoff</source>
@@ -10739,6 +10763,33 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     </message>
 </context>
 <context>
+    <name>SynthDialog_Chorus</name>
+    <message>
+        <source>Chorus Effect</source>
+        <translation>Efekt chorus</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation>Szybkość</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation>Głębokość</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation>Delay</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation>Szerokość</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>Mix</translation>
+    </message>
+</context>
+<context>
     <name>SynthDialog_Delay</name>
     <message>
         <source>Delay Effect</source>
@@ -10976,6 +11027,37 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     <message>
         <source>Level</source>
         <translation>Poziom</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDialog_MultiFilter</name>
+    <message>
+        <source>LPF Slope</source>
+        <translation>Nachylenie LPF</translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation>Nachylenie HPF</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation>Odcięcie LPF</translation>
+    </message>
+    <message>
+        <source>Rolls the top off the multi engine alone, before it reaches the mix and the voice&apos;s own filter.</source>
+        <translation>Obcina górę samego silnika multi, zanim trafi on do miksu i do filtra głosu.</translation>
+    </message>
+    <message>
+        <source>LPF Resonance</source>
+        <translation>Rezonans LPF</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation>Odcięcie HPF</translation>
+    </message>
+    <message>
+        <source>Thins out the multi engine alone, which is how noise is made to sit over the oscillators rather than across them.</source>
+        <translation>Odchudza sam silnik multi – dzięki temu szum układa się nad oscylatorami, a nie w poprzek nich.</translation>
     </message>
 </context>
 <context>
@@ -12727,6 +12809,14 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     <message>
         <source>VCO %1 HPF</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Multi LPF</source>
+        <translation>LPF multi</translation>
+    </message>
+    <message>
+        <source>Multi HPF</source>
+        <translation>HPF multi</translation>
     </message>
     <message>
         <source>Normal</source>

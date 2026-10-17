@@ -6721,6 +6721,18 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Multi LPF Cutoff</source>
+        <translation>多重低通截止频率</translation>
+    </message>
+    <message>
+        <source>Multi LPF Resonance</source>
+        <translation>多重低通共振</translation>
+    </message>
+    <message>
+        <source>Multi HPF Cutoff</source>
+        <translation>多重高通截止频率</translation>
+    </message>
+    <message>
         <source>VCO 1 Shape</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6759,6 +6771,18 @@
     <message>
         <source>Cross Mod</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Chorus Mix</source>
+        <translation>合唱混合</translation>
+    </message>
+    <message>
+        <source>Chorus Rate</source>
+        <translation>合唱速率</translation>
+    </message>
+    <message>
+        <source>Chorus Depth</source>
+        <translation>合唱深度</translation>
     </message>
     <message>
         <source>HPF Cutoff</source>
@@ -10735,6 +10759,33 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     </message>
 </context>
 <context>
+    <name>SynthDialog_Chorus</name>
+    <message>
+        <source>Chorus Effect</source>
+        <translation>合唱效果</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation>速率</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation>深度</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation>延迟</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation>宽度</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>混合</translation>
+    </message>
+</context>
+<context>
     <name>SynthDialog_Delay</name>
     <message>
         <source>Delay Effect</source>
@@ -10972,6 +11023,37 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>Level</source>
         <translation>电平</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDialog_MultiFilter</name>
+    <message>
+        <source>LPF Slope</source>
+        <translation>低通斜率</translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation>高通斜率</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation>低通截止频率</translation>
+    </message>
+    <message>
+        <source>Rolls the top off the multi engine alone, before it reaches the mix and the voice&apos;s own filter.</source>
+        <translation>仅削减多重引擎的高频，在其进入混音和声部自身的滤波器之前。</translation>
+    </message>
+    <message>
+        <source>LPF Resonance</source>
+        <translation>低通共振</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation>高通截止频率</translation>
+    </message>
+    <message>
+        <source>Thins out the multi engine alone, which is how noise is made to sit over the oscillators rather than across them.</source>
+        <translation>仅让多重引擎变薄，使噪声位于振荡器之上，而不是与它们混在一起。</translation>
     </message>
 </context>
 <context>
@@ -12723,6 +12805,14 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>VCO %1 HPF</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Multi LPF</source>
+        <translation>多重低通</translation>
+    </message>
+    <message>
+        <source>Multi HPF</source>
+        <translation>多重高通</translation>
     </message>
     <message>
         <source>Normal</source>

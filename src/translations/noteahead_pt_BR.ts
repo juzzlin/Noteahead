@@ -6722,6 +6722,18 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Multi LPF Cutoff</source>
+        <translation>Corte do LPF multi</translation>
+    </message>
+    <message>
+        <source>Multi LPF Resonance</source>
+        <translation>Ressonância do LPF multi</translation>
+    </message>
+    <message>
+        <source>Multi HPF Cutoff</source>
+        <translation>Corte do HPF multi</translation>
+    </message>
+    <message>
         <source>VCO 1 Shape</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6760,6 +6772,18 @@
     <message>
         <source>Cross Mod</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Chorus Mix</source>
+        <translation>Mistura do chorus</translation>
+    </message>
+    <message>
+        <source>Chorus Rate</source>
+        <translation>Taxa do chorus</translation>
+    </message>
+    <message>
+        <source>Chorus Depth</source>
+        <translation>Profundidade do chorus</translation>
     </message>
     <message>
         <source>HPF Cutoff</source>
@@ -10737,6 +10761,33 @@ Um apóstrofo marca a sílaba tônica: A&apos;merica</translation>
     </message>
 </context>
 <context>
+    <name>SynthDialog_Chorus</name>
+    <message>
+        <source>Chorus Effect</source>
+        <translation>Efeito de chorus</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation>Taxa</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation>Profundidade</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation>Delay</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation>Largura</translation>
+    </message>
+    <message>
+        <source>Mix</source>
+        <translation>Mistura</translation>
+    </message>
+</context>
+<context>
     <name>SynthDialog_Delay</name>
     <message>
         <source>Delay Effect</source>
@@ -10974,6 +11025,37 @@ Um apóstrofo marca a sílaba tônica: A&apos;merica</translation>
     <message>
         <source>Level</source>
         <translation>Nível</translation>
+    </message>
+</context>
+<context>
+    <name>SynthDialog_MultiFilter</name>
+    <message>
+        <source>LPF Slope</source>
+        <translation>Inclinação do LPF</translation>
+    </message>
+    <message>
+        <source>HPF Slope</source>
+        <translation>Inclinação do HPF</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation>Corte do LPF</translation>
+    </message>
+    <message>
+        <source>Rolls the top off the multi engine alone, before it reaches the mix and the voice&apos;s own filter.</source>
+        <translation>Corta os agudos só do motor multi, antes que ele chegue à mistura e ao filtro da própria voz.</translation>
+    </message>
+    <message>
+        <source>LPF Resonance</source>
+        <translation>Ressonância do LPF</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation>Corte do HPF</translation>
+    </message>
+    <message>
+        <source>Thins out the multi engine alone, which is how noise is made to sit over the oscillators rather than across them.</source>
+        <translation>Afina só o motor multi: é assim que o ruído fica acima dos osciladores em vez de atravessá-los.</translation>
     </message>
 </context>
 <context>
@@ -12725,6 +12807,14 @@ Um apóstrofo marca a sílaba tônica: A&apos;merica</translation>
     <message>
         <source>VCO %1 HPF</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Multi LPF</source>
+        <translation>LPF multi</translation>
+    </message>
+    <message>
+        <source>Multi HPF</source>
+        <translation>HPF multi</translation>
     </message>
     <message>
         <source>Normal</source>
