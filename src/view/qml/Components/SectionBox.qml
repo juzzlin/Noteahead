@@ -34,7 +34,7 @@ GroupBox {
         width: parent.width
         height: parent.height - control.topPadding + control.bottomPadding
         color: "transparent"
-        border.color: Theme.borderSubtle
+        border.color: Theme.frameBorder
         radius: 2
     }
 }
