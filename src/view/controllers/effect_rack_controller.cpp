@@ -607,8 +607,11 @@ QString EffectRackController::summaryFor(const EffectRack::EffectS & effect) con
                 const auto freq = effect->parameter(Constants::NahdXml::xmlKeyFrequency().toStdString());
                 const auto stages = effect->parameter(Constants::NahdXml::xmlKeyStages().toStdString());
                 if (freq && stages) {
+                    // In hertz, as the filter runs at it: the stored number is the knob's position
+                    // spread linearly over 20 to 20000, not a frequency
+                    const auto hz = ParameterMapper::mapLogFrequency(static_cast<double>(freq->get().value()), 20.0, 20000.0);
                     return QString { "(freq=%1Hz, stages=%2)" }
-                      .arg(freq->get().xmlValue())
+                      .arg(static_cast<int>(std::lround(hz)))
                       .arg(stages->get().xmlValue());
                 }
             } else if (type == Constants::RackEffectType::autoPanner()) {

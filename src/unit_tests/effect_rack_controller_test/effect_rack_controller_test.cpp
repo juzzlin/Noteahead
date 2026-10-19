@@ -3,11 +3,13 @@
 #include "../../application/service/editor_service.hpp"
 #include "../../application/service/preset_service.hpp"
 #include "../../common/constants.hpp"
+#include "../../common/parameter_mapper.hpp"
 #include "../../domain/devices/device_factory.hpp"
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/synth_device.hpp"
 #include "../../domain/dsp/svf_filter.hpp"
 #include "../../domain/effects/air_band_eq.hpp"
+#include "../../domain/effects/all_pass_filter.hpp"
 #include "../../domain/effects/auto_filter.hpp"
 #include "../../domain/effects/auto_panner.hpp"
 #include "../../domain/effects/chorus.hpp"
@@ -139,6 +141,23 @@ void EffectRackControllerTest::test_effectParametersSummary_reverb_shouldReturnF
 
     const auto summary2 = controller.effectParametersSummary(0);
     QCOMPARE(summary2, QString { "(pre=50ms, decay=3000ms)" });
+}
+
+void EffectRackControllerTest::test_effectParametersSummary_allPassFilter_shouldReportHertz()
+{
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    const auto editorService = std::make_shared<EditorService>();
+    EffectRackController controller { deviceService, editorService };
+
+    controller.setIsInsertRack(true);
+    controller.setEffect(0, QString::fromStdString(AllPassFilter::typeIdString()));
+
+    // The frequency the filter runs at, not the knob position the project stores: 80 Hz read out
+    // as 4036 before, which is where 80 Hz sits on the log knob spread linearly over 20..20000
+    QCOMPARE(controller.effectParametersSummary(0), QString { "(freq=40Hz, stages=1)" });
+    controller.setParameterValue(0, controller.allPassFilterFrequencyKey(), static_cast<float>(ParameterMapper::unmapLogFrequency(80.0, 20.0, 20000.0)));
+    QCOMPARE(controller.effectParametersSummary(0), QString { "(freq=80Hz, stages=1)" });
 }
 
 void EffectRackControllerTest::test_effectParametersSummary_endlessReverb_shouldReportPreDelay()

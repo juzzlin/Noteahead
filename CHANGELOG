@@ -33,6 +33,7 @@ Bug fixes:
 * Filter knobs read out the frequency the filter actually runs at
 * A high-pass knob reads Bypass at the bottom of its travel, not the top
 * Sampler: pad Attack and Hold rise smoothly from zero instead of jumping to 5 ms; saved pads keep their times
+* All-Pass Filter: the rack shows the frequency in hertz, not the knob position
 
 Other:
 

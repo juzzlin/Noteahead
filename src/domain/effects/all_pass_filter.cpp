@@ -26,7 +26,8 @@ namespace noteahead {
 
 AllPassFilter::AllPassFilter()
 {
-    // Log-mapped: internal [0,1] → mapLogFrequency(internal, 20, 20000). Default 100 Hz ≈ internal 0.101.
+    // Log-mapped: internal [0,1] → mapLogFrequency(internal, 20, 20000), so the XML value is the knob's
+    // position spread over 20..20000 rather than a frequency. The default of 0.101 is about 40 Hz.
     addParameter(Parameter { Constants::NahdXml::xmlKeyFrequency().toStdString(),
                              Parameter::xmlValueToInternal(2038, 20, 20000),
                              20,
