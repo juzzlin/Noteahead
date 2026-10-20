@@ -53,6 +53,7 @@ class DrumSynthV2Controller;
 class FmDrumsController;
 class LfoController;
 class Kick808Controller;
+class SnareSynthController;
 class PianoSynthController;
 class PianoSynthV2Controller;
 class SongOverviewController;
@@ -198,6 +199,7 @@ private:
     std::shared_ptr<PianoSynthV2Controller> m_pianoSynthV2Controller;
     std::shared_ptr<PianoSynthV3Controller> m_pianoSynthV3Controller;
     std::shared_ptr<Kick808Controller> m_kick808Controller;
+    std::shared_ptr<SnareSynthController> m_snareSynthController;
     std::shared_ptr<StringVoiceController> m_stringVoiceController;
     std::shared_ptr<StringVoiceV2Controller> m_stringVoiceV2Controller;
     std::shared_ptr<StringVoiceV3Controller> m_stringVoiceV3Controller;

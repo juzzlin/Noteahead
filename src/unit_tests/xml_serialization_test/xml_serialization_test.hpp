@@ -119,6 +119,7 @@ private slots:
     void test_toXmlFromXml_pianoSynthV2Device_shouldLoadCorrectly();
     void test_toXmlFromXml_pianoSynthV3Device_shouldLoadCorrectly();
     void test_toXmlFromXml_kick808Device_shouldLoadCorrectly();
+    void test_toXmlFromXml_snareSynthDevice_shouldLoadCorrectly();
     void test_toXmlFromXml_tubeStage_shouldLoadCorrectly();
     void test_toXmlFromXml_bassGrinder_shouldLoadCorrectly();
     void test_toXmlFromXml_simpleEqEffect_shouldLoadCorrectly();

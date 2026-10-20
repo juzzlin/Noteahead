@@ -18,6 +18,8 @@ set(HEADER_FILES
     devices/ju_synth_presets.hpp
     devices/kick_808_device.hpp
     devices/lfo_device.hpp
+    devices/snare_synth_device.hpp
+    devices/snare_synth_presets.hpp
     devices/piano_synth_device.hpp
     devices/piano_synth_v2_device.hpp
     devices/piano_synth_v3_device.hpp
@@ -51,6 +53,7 @@ set(HEADER_FILES
     dsp/drum/ride_engine.hpp
     dsp/drum/rim_engine.hpp
     dsp/drum/snare_engine.hpp
+    dsp/drum/snare_pm_engine.hpp
     dsp/drum/tom_engine.hpp
     dsp/dsp_component.hpp
     dsp/fft.hpp
@@ -215,6 +218,8 @@ set(SOURCE_FILES
     devices/ju_synth_presets.cpp
     devices/kick_808_device.cpp
     devices/lfo_device.cpp
+    devices/snare_synth_device.cpp
+    devices/snare_synth_presets.cpp
     devices/piano_synth_device.cpp
     devices/piano_synth_v2_device.cpp
     devices/piano_synth_v3_device.cpp
@@ -248,6 +253,7 @@ set(SOURCE_FILES
     dsp/drum/ride_engine.cpp
     dsp/drum/rim_engine.cpp
     dsp/drum/snare_engine.cpp
+    dsp/drum/snare_pm_engine.cpp
     dsp/drum/tom_engine.cpp
     dsp/dsp_component.cpp
     dsp/ensemble_chorus.cpp

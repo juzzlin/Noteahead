@@ -48,7 +48,7 @@ Noteahead is written in Qt/QML/C++20 on top of RtMidi back-end + RtAudio. It bui
 ##
 ## What you can do with it
 
-**Produce entire songs in the box.** Eighteen internal instruments cover a lot of ground: a six-voice virtual analog Synth, a Juno-60-style JU Synth, an eight-voice Wavetable Synth, a four-operator FM Synth, an acid Bass Synth, two Drum Synths and an FM drum machine, a 16-pad Sampler, three physically modelled pianos, a TR-808-style Kick808, four vintage string machines after the VP-330/VC340 and the Solina, and a formant speech synth. Each one sits in a slot of the Virtual Device Rack with its own insert effects, sends, fader, level meter and clip LED, and the LFO device can sweep any of their controls, or any effect's.
+**Produce entire songs in the box.** Nineteen internal instruments cover a lot of ground: a six-voice virtual analog Synth, a Juno-60-style JU Synth, an eight-voice Wavetable Synth, a four-operator FM Synth, an acid Bass Synth, two Drum Synths and an FM drum machine, a physically modelled Snare Synth, a 16-pad Sampler, three physically modelled pianos, a TR-808-style Kick808, four vintage string machines after the VP-330/VC340 and the Solina, and a formant speech synth. Each one sits in a slot of the Virtual Device Rack with its own insert effects, sends, fader, level meter and clip LED, and the LFO device can sweep any of their controls, or any effect's.
 
 **Mix and master without leaving the application.** All 45 rack effects and analyzers are available both on the master bus and as per-device inserts: four EQs including an 8-band parametric with Mid/Side, two reverbs and an early-reflections room, single-band and multiband compression, a gate, a lookahead limiter, transient shaping, saturation and tube stages, a bit crusher, chorus, flanger, phaser and tremolo, an auto filter — plus LUFS, true-peak, RTA and goniometer metering, and reference monitoring to tell you where you stand. The Mixer view puts every device side by side as channel strips.
 
@@ -139,6 +139,8 @@ All **Arctic Music Project** songs (sequenced or completely produced with Noteah
   - A corrected revision of the CP-80 model, kept as a separate device so songs written against V2 keep playing V2. The piezo pickup's alternating sign is preserved through the strike comb, a partial standing in for a unison pair carries the pair's weight, and the stringing is bichord over the whole compass, as a CP-80 is. Adds Velocity Sensitivity, defaulting to half, which lifts softer strikes toward the loud ones without changing their tone.
 - Kick808
   - TR-808-style bass drum built on a pulse-excited resonator, sweeping from a short click to a long sub boom. Pitched and monophonic, so Key Track and Glide let it play bass lines as well as drums, with Tuning, Tone, Decay, Drive and a pitch envelope.
+- Snare Synth
+  - Physically modelled snare drum synthesizer combining an eight-mode batter membrane with coupled resonant bottom head, non-linear contact snare wire chatter, stick strike dynamics (click, hardness, radial position), shell resonance, drive, and stereo pan spread.
 - String & Voice
   - Vintage string/choir ensemble inspired by the Roland VP-330 / Behringer VC340, with strings and voice registers, BBD ensemble chorus, and a sidechain vocoder.
 - String & Voice V2

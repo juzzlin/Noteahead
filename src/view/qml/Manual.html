@@ -908,6 +908,46 @@
 <p>Being monophonic, a new hit takes the voice over rather than piling onto the one before it: the ring that is still sounding fades out from under it over a few milliseconds. That is what keeps every hit weighing the same in a fast pattern, and it means a run of kicks stays even instead of drifting in and out of reinforcement.</p>
 <p><em>Every</em> parameter above is reachable over MIDI CC, so a whole kick can be automated per line from a note column. LPF and HPF sit on the same controller numbers the other devices use for them.</p>
 
+<h3>Snare Synth</h3>
+<p>A physically modelled acoustic snare drum synthesizer. Rather than relying on simple filtered noise or static samples, Snare Synth models the acoustic interaction between the struck batter head, the bottom resonant head, the shell body, and the flexible snare wires chattering against the resonant membrane.</p>
+<ul>
+    <li><strong>Batter Head &amp; Pitch</strong>:
+        <ul>
+            <li><strong>Tune</strong>: Fundamental pitch of the batter head. In Key Track mode, follows incoming MIDI note pitch.</li>
+            <li><strong>Tone</strong>: Spectral damping of higher circular and radial drum head Bessel modes. Lower values create a darker, warmer membrane ring.</li>
+            <li><strong>Decay</strong>: Damping decay time of the batter head modal resonators.</li>
+            <li><strong>Tension</strong>: Pitch ratio between the bottom resonant head and the top batter head.</li>
+            <li><strong>Pitch Depth</strong> &amp; <strong>Pitch Decay</strong>: Envelope downward pitch drop modeling initial transient membrane stretch on impact.</li>
+        </ul>
+    </li>
+    <li><strong>Snare Wires</strong>:
+        <ul>
+            <li><strong>Snappy</strong>: Wire rattle level relative to membrane tone.</li>
+            <li><strong>Decay</strong>: Release damping and decay time of the wire chatter.</li>
+            <li><strong>Tension</strong>: Snare strainer wire tension. Higher tension tightens contact chatter, shifting response to crisp, high-frequency snap.</li>
+            <li><strong>Buzz</strong>: Non-linear contact buzz dynamics, capturing the sustaining rasp of loose or resting snare wires.</li>
+        </ul>
+    </li>
+    <li><strong>Stick Strike &amp; Body</strong>:
+        <ul>
+            <li><strong>Click</strong>: Level of the initial high-frequency impact transient.</li>
+            <li><strong>Hardness</strong>: Stick tip hardness (soft felt to hard nylon tip).</li>
+            <li><strong>Position</strong>: Radial strike point from center (0 = center hit, strong fundamental) to rim (1 = edge hit, rich in high non-harmonic rim modes).</li>
+            <li><strong>Body</strong>: Acoustic shell cavity resonance and weight.</li>
+            <li><strong>Drive</strong>: Non-linear soft-clipping saturation. Fully bypassed at zero.</li>
+        </ul>
+    </li>
+    <li><strong>Global &amp; Stereo</strong>:
+        <ul>
+            <li><strong>Pan Spread</strong>: Mid/Side spatial acoustic width. Spreads wire rattle and higher membrane modes across the stereo image while maintaining a solid mono center punch.</li>
+            <li><strong>Key Track</strong>: When enabled, the snare pitch tracks the played MIDI note key. When disabled, hits trigger at the fixed base pitch.</li>
+            <li><strong>LPF / HPF Cutoff</strong>: 2-pole cascaded state-variable output filters.</li>
+            <li><strong>Presets</strong>: Factory and User preset support.</li>
+        </ul>
+    </li>
+</ul>
+<p>Every parameter is automatable and fully controllable via MIDI CC (CC 14&ndash;28, with standard CC 74 for LPF and CC 75 for HPF).</p>
+
 <h3>String &amp; Voice</h3>
 <p>A vintage string and choir ensemble inspired by the Roland VP-330 and Behringer VC340.</p>
 <ul>

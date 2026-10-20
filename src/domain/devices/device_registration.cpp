@@ -26,6 +26,7 @@
 #include "piano_synth_v2_device.hpp"
 #include "piano_synth_v3_device.hpp"
 #include "sampler_device.hpp"
+#include "snare_synth_device.hpp"
 #include "speech_device.hpp"
 #include "string_ensemble_device.hpp"
 #include "string_voice_device.hpp"
@@ -99,6 +100,9 @@ void DeviceFactory::init()
     });
     registerDevice(SpeechDevice::typeIdString(), [](const std::string & name) {
         return std::make_shared<SpeechDevice>(name);
+    });
+    registerDevice(SnareSynthDevice::typeIdString(), [](const std::string & name) {
+        return std::make_shared<SnareSynthDevice>(name);
     });
 }
 

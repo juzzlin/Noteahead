@@ -29,6 +29,7 @@
 #include "../../domain/devices/piano_synth_v2_device.hpp"
 #include "../../domain/devices/piano_synth_v3_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
+#include "../../domain/devices/snare_synth_device.hpp"
 #include "../../domain/devices/speech_device.hpp"
 #include "../../domain/devices/string_ensemble_device.hpp"
 #include "../../domain/devices/string_voice_device.hpp"
@@ -575,6 +576,7 @@ void PropertyServiceTest::test_automationTargets_everySynth_shouldOfferItsContro
     namespace C = Constants::NahdXml;
     check(std::make_shared<BassSynthDevice>("Bass"), { C::xmlKeyLpfResonance(), C::xmlKeyEnvMod(), C::xmlKeyAccent(), C::xmlKeyPitch(), C::xmlKeyDistDrive() });
     check(std::make_shared<Kick808Device>("Kick"), { C::xmlKeyTune(), C::xmlKeyDecay(), C::xmlKeyPitchDepth() });
+    check(std::make_shared<SnareSynthDevice>("Snare"), { C::xmlKeyTune(), C::xmlKeyDecay(), C::xmlKeySnappy(), C::xmlKeyPanSpread() });
     check(std::make_shared<WavetableSynthDevice>("Wavetable"), { C::xmlKeyLpfResonance(), C::xmlKeyOsc1Pos(), C::xmlKeyOsc2Pos(), C::xmlKeyLfoRate(), C::xmlKeyLfo2Intensity(), C::xmlKeyModIntensity() });
     check(std::make_shared<FmSynthDevice>("FM"), { C::xmlKeyLpfResonance(), C::xmlKeyFeedback(), C::xmlKeyOperatorLevel(1), C::xmlKeyOperatorDetune(3), C::xmlKeyLfoRate() });
     check(std::make_shared<PianoSynthDevice>("Piano"), { C::xmlKeyBrightness(), C::xmlKeyHardness() });

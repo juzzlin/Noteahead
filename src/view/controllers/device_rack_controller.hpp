@@ -173,6 +173,7 @@ public:
     Q_INVOKABLE void addPianoSynthV2();
     Q_INVOKABLE void addPianoSynthV3();
     Q_INVOKABLE void addKick808();
+    Q_INVOKABLE void addSnareSynth();
     Q_INVOKABLE void addStringVoice();
     Q_INVOKABLE void addSubMixer();
     Q_INVOKABLE void removeDevice(const QString & name);
@@ -198,6 +199,7 @@ signals:
     void pianoSynthV2DialogRequested();
     void pianoSynthV3DialogRequested();
     void kick808DialogRequested();
+    void snareSynthDialogRequested();
     void stringVoiceDialogRequested();
     void stringVoiceV2DialogRequested();
     void stringVoiceV3DialogRequested();

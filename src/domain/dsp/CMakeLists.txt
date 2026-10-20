@@ -28,6 +28,7 @@ set(DSP_SOURCES
     drum/kick_engine.cpp
     drum/ride_engine.cpp
     drum/snare_engine.cpp
+    drum/snare_pm_engine.cpp
     drum/tom_engine.cpp
     speech/formant_voice.cpp
     speech/glottal_source.cpp

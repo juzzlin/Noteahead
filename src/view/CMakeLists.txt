@@ -21,6 +21,7 @@ set(HEADER_FILES
     controllers/piano_synth_v2_controller.hpp
     controllers/piano_synth_v3_controller.hpp
     controllers/sampler_controller.hpp
+    controllers/snare_synth_controller.hpp
     controllers/string_ensemble_controller.hpp
     controllers/string_voice_v2_controller.hpp
     controllers/string_voice_v3_controller.hpp
@@ -62,6 +63,7 @@ set(SOURCE_FILES
     controllers/piano_synth_v2_controller.cpp
     controllers/piano_synth_v3_controller.cpp
     controllers/sampler_controller.cpp
+    controllers/snare_synth_controller.cpp
     controllers/string_ensemble_controller.cpp
     controllers/string_voice_controller.cpp
     controllers/string_voice_v2_controller.cpp

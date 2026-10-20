@@ -29,6 +29,7 @@
 #include "../../domain/devices/piano_synth_v2_device.hpp"
 #include "../../domain/devices/piano_synth_v3_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
+#include "../../domain/devices/snare_synth_device.hpp"
 #include "../../domain/devices/speech_device.hpp"
 #include "../../domain/devices/string_ensemble_device.hpp"
 #include "../../domain/devices/string_voice_device.hpp"
@@ -53,6 +54,7 @@
 #include "../../view/controllers/piano_synth_controller.hpp"
 #include "../../view/controllers/piano_synth_v2_controller.hpp"
 #include "../../view/controllers/piano_synth_v3_controller.hpp"
+#include "../../view/controllers/snare_synth_controller.hpp"
 #include "../../view/controllers/speech_controller.hpp"
 #include "../../view/controllers/string_ensemble_controller.hpp"
 #include "../../view/controllers/string_voice_controller.hpp"
@@ -144,6 +146,7 @@ std::vector<Case> cases()
         makeCase<JuSynthDevice, JuSynthController>("JU Synth"),
         makeCase<BassSynthDevice, BassSynthController>("Bass Synth"),
         makeCase<Kick808Device, Kick808Controller>("Kick 808"),
+        makeCase<SnareSynthDevice, SnareSynthController>("Snare Synth"),
         makeCase<PianoSynthDevice, PianoSynthController>("Piano Synth"),
         makeCase<PianoSynthV2Device, PianoSynthV2Controller>("Piano Synth V2"),
         makeCase<PianoSynthV3Device, PianoSynthV3Controller>("Piano Synth V3"),

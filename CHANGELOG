@@ -5,6 +5,13 @@ Release date:
 
 New features:
 
+* Snare Synth: physical modelling snare drum synthesizer
+  - Modal batter and resonant membrane resonators with tension coupling
+  - Non-linear contact buzz wire simulation with decay and tension
+  - Stick strike model with click, hardness, and radial strike position
+  - Shell body resonance, saturation drive, stereo pan spread, and output LPF/HPF
+  - Factory and user presets with full MIDI CC and relative automation support
+
 * Support mouse drag glissando on VirtualKeyboard
 
 * Update JU Synth terminology and UI labels

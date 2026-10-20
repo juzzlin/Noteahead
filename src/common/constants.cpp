@@ -214,6 +214,11 @@ QString kick808DeviceName()
     return "Noteahead Kick808";
 }
 
+QString snareSynthDeviceName()
+{
+    return "Noteahead SnareSynth";
+}
+
 QString subMixerDeviceName()
 {
     return "Noteahead SubMixer";
@@ -3003,6 +3008,31 @@ QString xmlKeyClickTune()
 QString xmlKeySnappy()
 {
     return "snappy";
+}
+
+QString xmlKeySnareDecay()
+{
+    return "snareDecay";
+}
+
+QString xmlKeySnareTension()
+{
+    return "snareTension";
+}
+
+QString xmlKeySnareBuzz()
+{
+    return "snareBuzz";
+}
+
+QString xmlKeyHeadTension()
+{
+    return "headTension";
+}
+
+QString xmlKeyBody()
+{
+    return "body";
 }
 
 QString xmlKeyTone()

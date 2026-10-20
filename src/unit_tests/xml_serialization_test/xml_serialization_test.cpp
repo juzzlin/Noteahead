@@ -41,6 +41,7 @@
 #include "../../domain/devices/piano_synth_v2_device.hpp"
 #include "../../domain/devices/piano_synth_v3_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
+#include "../../domain/devices/snare_synth_device.hpp"
 #include "../../domain/devices/speech_device.hpp"
 #include "../../domain/devices/string_ensemble_device.hpp"
 #include "../../domain/devices/string_voice_device.hpp"
@@ -3206,6 +3207,81 @@ void XmlSerializationTest::test_toXmlFromXml_kick808Device_shouldLoadCorrectly()
     QCOMPARE(restored->keyTrack(), false);
     QVERIFY(std::abs(restored->lpfCutoff() - 0.65f) < 0.001f);
     QVERIFY(std::abs(restored->hpfCutoff() - 0.2f) < 0.001f);
+
+    QCOMPARE(static_cast<int>(restored->faderPosition()), static_cast<int>(Device::FaderPosition::PostInserts));
+    QCOMPARE(static_cast<int>(restored->sendTap()), static_cast<int>(Device::SendTap::PreFader));
+}
+
+void XmlSerializationTest::test_toXmlFromXml_snareSynthDevice_shouldLoadCorrectly()
+{
+    DeviceFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    auto snare = std::make_shared<SnareSynthDevice>("SnareSynth");
+    snare->setTune(0.58f);
+    snare->setTone(0.35f);
+    snare->setDecay(0.72f);
+    snare->setHeadTension(0.65f);
+    snare->setPitchDepth(0.42f);
+    snare->setPitchDecay(0.18f);
+    snare->setSnappy(0.85f);
+    snare->setSnareDecay(0.40f);
+    snare->setSnareTension(0.60f);
+    snare->setSnareBuzz(0.75f);
+    snare->setClick(0.30f);
+    snare->setHardness(0.55f);
+    snare->setPosition(0.28f);
+    snare->setBody(0.68f);
+    snare->setDrive(0.32f);
+    snare->setPanSpread(0.45f);
+    snare->setKeyTrack(false);
+    snare->setLpfCutoff(0.88f);
+    snare->setHpfCutoff(0.15f);
+    snare->setVolume(0.77f);
+    snare->setPan(0.40f);
+    snare->setFaderPosition(Device::FaderPosition::PostInserts);
+    snare->setSendTap(Device::SendTap::PreFader);
+    deviceServiceOut.setDevice(1, snare);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto restored = std::dynamic_pointer_cast<SnareSynthDevice>(deviceServiceIn.device(size_t { 1 }));
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), SnareSynthDevice::typeIdString());
+
+    QVERIFY(std::abs(restored->tune() - 0.58f) < 0.001f);
+    QVERIFY(std::abs(restored->tone() - 0.35f) < 0.001f);
+    QVERIFY(std::abs(restored->decay() - 0.72f) < 0.001f);
+    QVERIFY(std::abs(restored->headTension() - 0.65f) < 0.001f);
+    QVERIFY(std::abs(restored->pitchDepth() - 0.42f) < 0.001f);
+    QVERIFY(std::abs(restored->pitchDecay() - 0.18f) < 0.001f);
+    QVERIFY(std::abs(restored->snappy() - 0.85f) < 0.001f);
+    QVERIFY(std::abs(restored->snareDecay() - 0.40f) < 0.001f);
+    QVERIFY(std::abs(restored->snareTension() - 0.60f) < 0.001f);
+    QVERIFY(std::abs(restored->snareBuzz() - 0.75f) < 0.001f);
+    QVERIFY(std::abs(restored->click() - 0.30f) < 0.001f);
+    QVERIFY(std::abs(restored->hardness() - 0.55f) < 0.001f);
+    QVERIFY(std::abs(restored->position() - 0.28f) < 0.001f);
+    QVERIFY(std::abs(restored->body() - 0.68f) < 0.001f);
+    QVERIFY(std::abs(restored->drive() - 0.32f) < 0.001f);
+    QVERIFY(std::abs(restored->panSpread() - 0.45f) < 0.001f);
+    QCOMPARE(restored->keyTrack(), false);
+    QVERIFY(std::abs(restored->lpfCutoff() - 0.88f) < 0.001f);
+    QVERIFY(std::abs(restored->hpfCutoff() - 0.15f) < 0.001f);
+    QVERIFY(std::abs(restored->volume() - 0.77f) < 0.001f);
+    QVERIFY(std::abs(restored->pan() - 0.40f) < 0.001f);
 
     QCOMPARE(static_cast<int>(restored->faderPosition()), static_cast<int>(Device::FaderPosition::PostInserts));
     QCOMPARE(static_cast<int>(restored->sendTap()), static_cast<int>(Device::SendTap::PreFader));
