@@ -33,6 +33,9 @@ ColumnLayout {
     RowLayout {
         Layout.fillWidth: true
         Layout.bottomMargin: Constants.dropDownBottomMargin
+        Label {
+            text: qsTr("Range")
+        }
         ComboBox {
             // Footages, the way the panel marks them
             model: ["16'", "8'", "4'"]
@@ -40,15 +43,21 @@ ColumnLayout {
             onActivated: i => juSynthController.range = i
             Layout.fillWidth: true
         }
+    }
+    RowLayout {
+        Layout.fillWidth: true
+        Layout.bottomMargin: Constants.dropDownBottomMargin
         CheckBox {
             text: qsTr("Saw")
             checked: juSynthController.sawEnabled
             onToggled: juSynthController.sawEnabled = checked
+            Layout.fillWidth: true
         }
         CheckBox {
             text: qsTr("Pulse")
             checked: juSynthController.pulseEnabled
             onToggled: juSynthController.pulseEnabled = checked
+            Layout.fillWidth: true
         }
     }
     RowLayout {
@@ -75,19 +84,19 @@ ColumnLayout {
         Layout.fillWidth: true
     }
     Knob {
-        label: qsTr("LFO")
+        label: qsTr("LFO Mod")
         value: juSynthController.pitchLfoDepth
         onMoved: v => juSynthController.pitchLfoDepth = v
         Layout.fillWidth: true
     }
     Knob {
-        label: qsTr("Sub")
+        label: qsTr("Sub Level")
         value: juSynthController.subLevel
         onMoved: v => juSynthController.subLevel = v
         Layout.fillWidth: true
     }
     Knob {
-        label: qsTr("Noise")
+        label: qsTr("Noise Level")
         value: juSynthController.noiseLevel
         onMoved: v => juSynthController.noiseLevel = v
         Layout.fillWidth: true

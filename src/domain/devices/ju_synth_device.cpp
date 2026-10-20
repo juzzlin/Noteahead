@@ -172,7 +172,9 @@ JuSynthDevice::JuSynthDevice(std::string name)
     DeviceParameterDisplay::percent(*this, C::xmlKeyNoiseLevel(), QT_TRANSLATE_NOOP("ParameterDisplay", "Noise Level"));
     DeviceParameterDisplay::percent(*this, C::xmlKeyEnvMod(), QT_TRANSLATE_NOOP("ParameterDisplay", "Env Mod"));
     DeviceParameterDisplay::percent(*this, C::xmlKeyFilterLfoDepth(), QT_TRANSLATE_NOOP("ParameterDisplay", "VCF LFO"));
+    DeviceParameterDisplay::percent(*this, C::xmlKeyKeyTrack(), QT_TRANSLATE_NOOP("ParameterDisplay", "Key Track"));
     DeviceParameterDisplay::percent(*this, C::xmlKeyPanSpread(), QT_TRANSLATE_NOOP("ParameterDisplay", "Pan Spread"));
+    DeviceParameterDisplay::percent(*this, C::xmlKeyVelocitySensitivity(), QT_TRANSLATE_NOOP("ParameterDisplay", "Velocity Sensitivity"));
 }
 
 JuSynthDevice::~JuSynthDevice() = default;

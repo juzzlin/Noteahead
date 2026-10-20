@@ -31,14 +31,14 @@ ColumnLayout {
         Layout.topMargin: 10
     }
     FilterKnob {
-        label: qsTr("Freq")
+        label: qsTr("Cutoff")
         controller: juSynthController
         value: juSynthController.lpfCutoff
         onMoved: v => juSynthController.lpfCutoff = v
         Layout.fillWidth: true
     }
     Knob {
-        label: qsTr("Res")
+        label: qsTr("Resonance")
         value: juSynthController.lpfResonance
         onMoved: v => juSynthController.lpfResonance = v
         Layout.fillWidth: true
@@ -46,7 +46,7 @@ ColumnLayout {
     RowLayout {
         Layout.fillWidth: true
         Knob {
-            label: qsTr("Env")
+            label: qsTr("Env Mod")
             value: juSynthController.envMod
             onMoved: v => juSynthController.envMod = v
             Layout.fillWidth: true
@@ -59,13 +59,13 @@ ColumnLayout {
         }
     }
     Knob {
-        label: qsTr("LFO")
+        label: qsTr("LFO Mod")
         value: juSynthController.filterLfoDepth
         onMoved: v => juSynthController.filterLfoDepth = v
         Layout.fillWidth: true
     }
     Knob {
-        label: qsTr("Kybd")
+        label: qsTr("Key Track")
         value: juSynthController.keyTrack
         onMoved: v => juSynthController.keyTrack = v
         Layout.fillWidth: true

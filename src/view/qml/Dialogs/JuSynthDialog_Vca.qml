@@ -33,6 +33,9 @@ ColumnLayout {
     RowLayout {
         Layout.fillWidth: true
         Layout.bottomMargin: Constants.dropDownBottomMargin
+        Label {
+            text: qsTr("Mode")
+        }
         ComboBox {
             model: {
                 languageService.activeLanguage;
@@ -44,7 +47,7 @@ ColumnLayout {
         }
     }
     Knob {
-        label: qsTr("Velocity")
+        label: qsTr("Velocity Sensitivity")
         value: juSynthController.velocitySensitivity
         onMoved: v => juSynthController.velocitySensitivity = v
         Layout.fillWidth: true

@@ -31,7 +31,7 @@ ColumnLayout {
         Layout.topMargin: 10
     }
     FilterKnob {
-        label: qsTr("Freq")
+        label: qsTr("Cutoff")
         controller: juSynthController
         isHpf: true
         value: juSynthController.hpfCutoff
