@@ -37,6 +37,7 @@ Item {
     property int velocityKeyTrack: 0
     property int velocityKeyTrackOffset: 0
     property var activeNotes: []
+    property int mousePressedNote: -1
 
     function getVelocityColor(note: int, baseColor: color): color {
         if (velocityKeyTrack <= 0) {
@@ -68,12 +69,63 @@ Item {
     // Between A-B=2, B-C=1, C-D=2, D-E=2, E-F=1, F-G=2, G-A=2
     readonly property var whiteIntervals: [2, 1, 2, 2, 1, 2, 2]
 
+    // A–B has black (A#), B–C none, C–D (C#), D–E (D#), E–F none, F–G (F#), G–A (G#)
+    // Represent as 1 if black key between current white and next
+    readonly property var blackMap: [1, 0, 1, 1, 0, 1, 1]
+
     // Compute semitone offset from the first white key (A0)
     function whiteOffset(i) {
         var s = 0;
         for (var k = 0; k < i; ++k)
             s += whiteIntervals[k % 7];
         return s;
+    }
+
+    function noteAt(x, y) {
+        if (x < 0 || x >= width || y < 0 || y >= height || width <= 0 || height <= 0 || whiteKeyWidth <= 0) {
+            return -1;
+        }
+
+        // Check black keys in top 60% of keyboard height
+        if (y <= height * 0.6) {
+            const boundary = Math.round(x / whiteKeyWidth);
+            const bIndex = boundary - 1;
+            if (bIndex >= 0 && bIndex < whiteKeyCount - 1 && blackMap[bIndex % 7] === 1) {
+                const bCenter = boundary * whiteKeyWidth;
+                const bHalfWidth = (whiteKeyWidth * 0.6) * 0.5;
+                if (Math.abs(x - bCenter) <= bHalfWidth) {
+                    return baseNote + whiteOffset(bIndex) + 1;
+                }
+            }
+        }
+
+        // White key
+        const wIndex = Math.floor(x / whiteKeyWidth);
+        if (wIndex >= 0 && wIndex < whiteKeyCount) {
+            return baseNote + whiteOffset(wIndex);
+        }
+        return -1;
+    }
+
+    onEnabledChanged: {
+        if (!enabled && mousePressedNote !== -1) {
+            noteOffRequested(mousePressedNote);
+            mousePressedNote = -1;
+        }
+    }
+
+    onVisibleChanged: {
+        if (!visible && mousePressedNote !== -1) {
+            noteOffRequested(mousePressedNote);
+            mousePressedNote = -1;
+        }
+    }
+
+    Component.onDestruction: {
+        if (mousePressedNote !== -1) {
+            noteOffRequested(mousePressedNote);
+            mousePressedNote = -1;
+        }
     }
 
     Rectangle {
@@ -99,7 +151,7 @@ Item {
                     y: pressed ? 1 : 0
                     height: parent.height - (pressed ? 1 : 0)
                     radius: rootItem.keyRadius
-                    property bool pressed: false
+                    property bool pressed: rootItem.mousePressedNote === note
                     property int note: rootItem.baseNote + rootItem.whiteOffset(index)
                     // The key-track tint stays the key's own colour; the gradient is derived from it
                     // so a tinted key still shades from back to front.
@@ -149,19 +201,6 @@ Item {
                         opacity: 0.3
                         visible: rootItem.activeNotes.includes(parent.note)
                     }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onPressed: {
-                            wkey.pressed = true;
-                            rootItem.noteOnRequested(wkey.note);
-                        }
-                        onReleased: {
-                            wkey.pressed = false;
-                            rootItem.noteOffRequested(wkey.note);
-                        }
-                    }
                 }
             }
         }
@@ -172,22 +211,18 @@ Item {
             anchors.fill: parent
             z: 2
 
-            // A–B has black (A#), B–C none, C–D (C#), D–E (D#), E–F none, F–G (F#), G–A (G#)
-            // Represent as 1 if black key between current white and next
-            readonly property var blackMap: [1, 0, 1, 1, 0, 1, 1]
-
             Repeater {
                 model: rootItem.whiteKeyCount - 1
 
                 delegate: Item {
                     id: bkeySlot
-                    visible: blackLayer.blackMap[index % 7] === 1
+                    visible: rootItem.blackMap[index % 7] === 1
                     width: rootItem.whiteKeyWidth * 0.6
                     height: parent.height * 0.6
                     x: (index + 1) * rootItem.whiteKeyWidth - width / 2
                     y: 0
-                    property bool pressed: false
                     property int note: rootItem.baseNote + rootItem.whiteOffset(index) + 1
+                    property bool pressed: rootItem.mousePressedNote === note
 
                     // Cast onto the white keys below. A rectangle rather than an effect: 36 of these
                     // are on screen at once and a blur on each is not worth the frame.
@@ -249,19 +284,6 @@ Item {
                             visible: rootItem.activeNotes.includes(bkeySlot.note)
                         }
                     }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onPressed: {
-                            bkeySlot.pressed = true;
-                            rootItem.noteOnRequested(bkeySlot.note);
-                        }
-                        onReleased: {
-                            bkeySlot.pressed = false;
-                            rootItem.noteOffRequested(bkeySlot.note);
-                        }
-                    }
                 }
             }
         }
@@ -305,6 +327,52 @@ Item {
                 GradientStop {
                     position: 1.0
                     color: "transparent"
+                }
+            }
+        }
+
+        MouseArea {
+            id: keyboardMouseArea
+            anchors.fill: parent
+            z: 10
+            cursorShape: Qt.PointingHandCursor
+            acceptedButtons: Qt.LeftButton
+            preventStealing: true
+
+            function updateNote(x, y) {
+                const note = rootItem.noteAt(x, y);
+                if (note !== rootItem.mousePressedNote) {
+                    if (rootItem.mousePressedNote !== -1) {
+                        rootItem.noteOffRequested(rootItem.mousePressedNote);
+                    }
+                    rootItem.mousePressedNote = note;
+                    if (note !== -1) {
+                        rootItem.noteOnRequested(note);
+                    }
+                }
+            }
+
+            onPressed: mouse => {
+                updateNote(mouse.x, mouse.y);
+            }
+
+            onPositionChanged: mouse => {
+                if (pressed) {
+                    updateNote(mouse.x, mouse.y);
+                }
+            }
+
+            onReleased: {
+                if (rootItem.mousePressedNote !== -1) {
+                    rootItem.noteOffRequested(rootItem.mousePressedNote);
+                    rootItem.mousePressedNote = -1;
+                }
+            }
+
+            onCanceled: {
+                if (rootItem.mousePressedNote !== -1) {
+                    rootItem.noteOffRequested(rootItem.mousePressedNote);
+                    rootItem.mousePressedNote = -1;
                 }
             }
         }
