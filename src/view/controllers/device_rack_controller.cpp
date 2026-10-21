@@ -138,13 +138,16 @@ void DeviceRackController::refresh()
 {
     m_revision++;
     emit revisionChanged();
-    beginResetModel();
-    if (m_deviceService) {
-        m_devices = m_deviceService->internalDeviceNamesQt();
+    const auto names = m_deviceService ? m_deviceService->internalDeviceNamesQt() : QStringList {};
+    if (names != m_devices) {
+        beginResetModel();
+        m_devices = names;
+        endResetModel();
+        // Slots may have gained a device since the gate was last set, and a new device's taps start off.
+        applyMetersActive();
+    } else {
+        emit dataChanged(index(0, 0), index(deviceCount() - 1, 0));
     }
-    endResetModel();
-    // Slots may have gained a device since the gate was last set, and a new device's taps start off.
-    applyMetersActive();
 }
 
 void DeviceRackController::openDevice(const QString & name)

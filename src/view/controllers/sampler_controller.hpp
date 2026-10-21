@@ -43,10 +43,13 @@ class SamplerController : public DeviceController
     Q_PROPERTY(double selectedPadVolume READ selectedPadVolume WRITE setSelectedPadVolume NOTIFY selectedPadVolumeChanged)
     Q_PROPERTY(double selectedPadCutoff READ selectedPadCutoff WRITE setSelectedPadCutoff NOTIFY selectedPadCutoffChanged)
     Q_PROPERTY(double selectedPadHpfCutoff READ selectedPadHpfCutoff WRITE setSelectedPadHpfCutoff NOTIFY selectedPadHpfCutoffChanged)
+    Q_PROPERTY(double selectedPadStartOffset READ selectedPadStartOffset WRITE setSelectedPadStartOffset NOTIFY selectedPadStartOffsetChanged)
     Q_PROPERTY(int selectedPadStartOffsetSeconds READ selectedPadStartOffsetSeconds WRITE setSelectedPadStartOffsetSeconds NOTIFY selectedPadStartOffsetChanged)
     Q_PROPERTY(int selectedPadStartOffsetMilliseconds READ selectedPadStartOffsetMilliseconds WRITE setSelectedPadStartOffsetMilliseconds NOTIFY selectedPadStartOffsetChanged)
+    Q_PROPERTY(double selectedPadEndOffset READ selectedPadEndOffset WRITE setSelectedPadEndOffset NOTIFY selectedPadEndOffsetChanged)
     Q_PROPERTY(int selectedPadEndOffsetSeconds READ selectedPadEndOffsetSeconds WRITE setSelectedPadEndOffsetSeconds NOTIFY selectedPadEndOffsetChanged)
     Q_PROPERTY(int selectedPadEndOffsetMilliseconds READ selectedPadEndOffsetMilliseconds WRITE setSelectedPadEndOffsetMilliseconds NOTIFY selectedPadEndOffsetChanged)
+    Q_PROPERTY(double selectedPadLoopStart READ selectedPadLoopStart WRITE setSelectedPadLoopStart NOTIFY selectedPadLoopStartChanged)
     Q_PROPERTY(int selectedPadLoopStartSeconds READ selectedPadLoopStartSeconds WRITE setSelectedPadLoopStartSeconds NOTIFY selectedPadLoopStartChanged)
     Q_PROPERTY(int selectedPadLoopStartMilliseconds READ selectedPadLoopStartMilliseconds WRITE setSelectedPadLoopStartMilliseconds NOTIFY selectedPadLoopStartChanged)
     Q_PROPERTY(double selectedPadTune READ selectedPadTune WRITE setSelectedPadTune NOTIFY selectedPadTuneChanged)
@@ -125,17 +128,26 @@ public:
     double selectedPadHpfCutoff() const;
     void setSelectedPadHpfCutoff(double cutoff);
 
+    double selectedPadStartOffset() const;
+    void setSelectedPadStartOffset(double seconds);
+
     int selectedPadStartOffsetSeconds() const;
     void setSelectedPadStartOffsetSeconds(int seconds);
 
     int selectedPadStartOffsetMilliseconds() const;
     void setSelectedPadStartOffsetMilliseconds(int milliseconds);
 
+    double selectedPadEndOffset() const;
+    void setSelectedPadEndOffset(double seconds);
+
     int selectedPadEndOffsetSeconds() const;
     void setSelectedPadEndOffsetSeconds(int seconds);
 
     int selectedPadEndOffsetMilliseconds() const;
     void setSelectedPadEndOffsetMilliseconds(int milliseconds);
+
+    double selectedPadLoopStart() const;
+    void setSelectedPadLoopStart(double seconds);
 
     int selectedPadLoopStartSeconds() const;
     void setSelectedPadLoopStartSeconds(int seconds);

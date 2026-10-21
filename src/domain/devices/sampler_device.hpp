@@ -173,6 +173,9 @@ public:
         // Per-pad insert effect rack. Shared so Sample stays copyable (saveState/restoreState deep-copy)
         // and so every voice/note playing this sample runs through the same stateful effect chain.
         std::shared_ptr<EffectRack> effectRack;
+
+        static constexpr size_t PeakBlockSize { 256 };
+        std::vector<float> peakBlocks;
     };
 
     void loadSample(uint8_t note, const std::string & filePath);
@@ -454,6 +457,7 @@ private:
 
     //! One pad per octave, which is the layout chromatic mode has always had.
     static std::array<int, static_cast<size_t>(padCount)> defaultChromaticPadNotes();
+    static void ensurePeakBlocks(Sample & sample);
     static void updateNormalizeGain(Sample & sample);
 
     //! Writes one of the two trims, clamped to the sample it trims.

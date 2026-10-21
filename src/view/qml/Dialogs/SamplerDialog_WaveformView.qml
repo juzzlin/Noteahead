@@ -44,14 +44,13 @@ WaveformView {
     playbackPosition: samplerController.playbackPosition
     startOffset: {
         if (samplerController.selectedPadDuration > 0) {
-            return (samplerController.selectedPadStartOffsetSeconds + samplerController.selectedPadStartOffsetMilliseconds / 1000.0) / samplerController.selectedPadDuration;
+            return samplerController.selectedPadStartOffset / samplerController.selectedPadDuration;
         }
         return 0.0;
     }
     endOffset: {
         if (samplerController.selectedPadDuration > 0) {
-            const trim = samplerController.selectedPadEndOffsetSeconds + samplerController.selectedPadEndOffsetMilliseconds / 1000.0;
-            return 1.0 - trim / samplerController.selectedPadDuration;
+            return 1.0 - samplerController.selectedPadEndOffset / samplerController.selectedPadDuration;
         }
         return 1.0;
     }
@@ -61,8 +60,7 @@ WaveformView {
         if (!samplerController.selectedPadLoop || samplerController.selectedPadDuration <= 0) {
             return -1.0;
         }
-        const loopStart = samplerController.selectedPadLoopStartSeconds + samplerController.selectedPadLoopStartMilliseconds / 1000.0;
-        return Math.min(endOffset, startOffset + loopStart / samplerController.selectedPadDuration);
+        return Math.min(endOffset, startOffset + samplerController.selectedPadLoopStart / samplerController.selectedPadDuration);
     }
 
     showEnvelope: fileName !== ""
@@ -128,29 +126,16 @@ WaveformView {
         onTriggered: waveform.recordingTick++
     }
 
-    //! The offsets are two properties, a whole second and a millisecond, and rounding to whole
-    //! milliseconds before splitting keeps the two halves from disagreeing at the seam.
-    function splitSeconds(seconds) {
-        const milliseconds = Math.max(0, Math.round(seconds * 1000));
-        return [Math.floor(milliseconds / 1000), milliseconds % 1000];
-    }
-
     function writeStartOffset(seconds) {
-        const parts = splitSeconds(seconds);
-        samplerController.selectedPadStartOffsetSeconds = parts[0];
-        samplerController.selectedPadStartOffsetMilliseconds = parts[1];
+        samplerController.selectedPadStartOffset = seconds;
     }
 
     function writeEndOffset(seconds) {
-        const parts = splitSeconds(seconds);
-        samplerController.selectedPadEndOffsetSeconds = parts[0];
-        samplerController.selectedPadEndOffsetMilliseconds = parts[1];
+        samplerController.selectedPadEndOffset = seconds;
     }
 
     function writeLoopStart(seconds) {
-        const parts = splitSeconds(seconds);
-        samplerController.selectedPadLoopStartSeconds = parts[0];
-        samplerController.selectedPadLoopStartMilliseconds = parts[1];
+        samplerController.selectedPadLoopStart = seconds;
     }
 
     //! What the picture is drawn from. Everything else about a pad -- its trims, its envelope, the

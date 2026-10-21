@@ -108,7 +108,10 @@ Item {
                 return;
             }
             const position = (root.x + mouse.x - grabOffset) / root.parent.width;
-            root.moved(Math.max(root.minimumPosition, Math.min(root.maximumPosition, position)));
+            const clamped = Math.max(root.minimumPosition, Math.min(root.maximumPosition, position));
+            if (Math.abs(clamped - root.position) > 1e-5) {
+                root.moved(clamped);
+            }
         }
     }
 }

@@ -206,6 +206,21 @@ SamplerController::OffsetParts SamplerController::splitSeconds(double seconds)
     return { static_cast<int>(milliseconds / 1000), static_cast<int>(milliseconds % 1000) };
 }
 
+double SamplerController::selectedPadStartOffset() const
+{
+    const auto note = selectedNote();
+    return note ? m_sampler->sampleStartOffset(*note) : 0.0;
+}
+
+void SamplerController::setSelectedPadStartOffset(double seconds)
+{
+    if (const auto note = selectedNote(); note) {
+        m_sampler->setSampleStartOffset(*note, seconds);
+        emit selectedPadStartOffsetChanged();
+        emit selectedPadDurationChanged();
+    }
+}
+
 int SamplerController::selectedPadStartOffsetSeconds() const
 {
     const auto note = selectedNote();
@@ -220,6 +235,7 @@ void SamplerController::setSelectedPadStartOffsetSeconds(int seconds)
         // The device clamps the offset to the length of the sample, so what it holds afterwards is
         // not necessarily what was asked for. Saying so is what lets the field snap back to it.
         emit selectedPadStartOffsetChanged();
+        emit selectedPadDurationChanged();
     }
 }
 
@@ -235,6 +251,7 @@ void SamplerController::setSelectedPadStartOffsetMilliseconds(int milliseconds)
         const auto current = splitSeconds(m_sampler->sampleStartOffset(*note));
         m_sampler->setSampleStartOffset(*note, current.seconds + milliseconds / 1000.0);
         emit selectedPadStartOffsetChanged();
+        emit selectedPadDurationChanged();
     }
 }
 
@@ -244,6 +261,21 @@ std::optional<uint8_t> SamplerController::selectedNote() const
         return std::nullopt;
     }
     return static_cast<uint8_t>(noteForPad(m_selectedPad));
+}
+
+double SamplerController::selectedPadEndOffset() const
+{
+    const auto note = selectedNote();
+    return note ? m_sampler->sampleEndOffset(*note) : 0.0;
+}
+
+void SamplerController::setSelectedPadEndOffset(double seconds)
+{
+    if (const auto note = selectedNote(); note) {
+        m_sampler->setSampleEndOffset(*note, seconds);
+        emit selectedPadEndOffsetChanged();
+        emit selectedPadDurationChanged();
+    }
 }
 
 int SamplerController::selectedPadEndOffsetSeconds() const
@@ -258,6 +290,7 @@ void SamplerController::setSelectedPadEndOffsetSeconds(int seconds)
         const auto current = splitSeconds(m_sampler->sampleEndOffset(*note));
         m_sampler->setSampleEndOffset(*note, seconds + current.milliseconds / 1000.0);
         emit selectedPadEndOffsetChanged();
+        emit selectedPadDurationChanged();
     }
 }
 
@@ -273,6 +306,21 @@ void SamplerController::setSelectedPadEndOffsetMilliseconds(int milliseconds)
         const auto current = splitSeconds(m_sampler->sampleEndOffset(*note));
         m_sampler->setSampleEndOffset(*note, current.seconds + milliseconds / 1000.0);
         emit selectedPadEndOffsetChanged();
+        emit selectedPadDurationChanged();
+    }
+}
+
+double SamplerController::selectedPadLoopStart() const
+{
+    const auto note = selectedNote();
+    return note ? m_sampler->sampleLoopStart(*note) : 0.0;
+}
+
+void SamplerController::setSelectedPadLoopStart(double seconds)
+{
+    if (const auto note = selectedNote(); note) {
+        m_sampler->setSampleLoopStart(*note, seconds);
+        emit selectedPadLoopStartChanged();
     }
 }
 

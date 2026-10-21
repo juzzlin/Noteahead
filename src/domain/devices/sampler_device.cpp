@@ -1404,13 +1404,21 @@ void SamplerDevice::setOffsetParameter(uint8_t note, const std::string & paramet
         }
         // Neither trim can reach past the end of the sample it is trimming. The pair can still meet in
         // the middle, which playRange() reads as a pad with nothing left to play.
-        const double duration = sampleDurationOf(*slot);
+        const double duration { sampleDurationOf(*slot) };
+        const double clampedOffset { std::clamp(offset, 0.0, duration) };
         if (auto p = slot->parameter(parameterName); p) {
-            p->get().setValue(static_cast<float>(std::clamp(offset, 0.0, duration) / 60.0));
+            p->get().setValue(static_cast<float>(std::clamp(clampedOffset / 60.0, 0.0, 1.0)));
+        }
+        if (parameterName == Constants::NahdXml::xmlKeyStartOffset().toStdString()) {
+            slot->startOffset = clampedOffset;
+        } else if (parameterName == Constants::NahdXml::xmlKeyEndOffset().toStdString()) {
+            slot->endOffset = clampedOffset;
+        } else if (parameterName == Constants::NahdXml::xmlKeyLoopStart().toStdString()) {
+            slot->loopStart = clampedOffset;
         }
         syncSampleFields(*slot);
     }
-    emit dataChanged();
+    emit parametersChanged();
 }
 
 double SamplerDevice::sampleDurationOf(const Sample & sample)
@@ -2258,10 +2266,36 @@ void SamplerDevice::setPadValue(uint8_t note, const std::string & parameterName,
 //! common footing, and a pad that arrives already at the ceiling leaves nowhere to go but down.
 constexpr float NormalizeTargetPeak { 0.5012f }; // -6 dBFS
 
+void SamplerDevice::ensurePeakBlocks(Sample & sample)
+{
+    if (!sample.data || sample.channels <= 0) {
+        sample.peakBlocks.clear();
+        return;
+    }
+    const auto channels { static_cast<size_t>(sample.channels) };
+    const auto totalFrames { sample.data->size() / channels };
+    const auto numBlocks { (totalFrames + Sample::PeakBlockSize - 1) / Sample::PeakBlockSize };
+    if (sample.peakBlocks.size() == numBlocks) {
+        return;
+    }
+    sample.peakBlocks.resize(numBlocks);
+    const auto * rawData { sample.data->data() };
+    for (size_t b { 0 }; b < numBlocks; ++b) {
+        const size_t frameStart { b * Sample::PeakBlockSize };
+        const size_t frameEnd { std::min(totalFrames, frameStart + Sample::PeakBlockSize) };
+        float blockMax { 0.0f };
+        const size_t sampleStart { frameStart * channels };
+        const size_t sampleEnd { frameEnd * channels };
+        for (size_t i { sampleStart }; i < sampleEnd; ++i) {
+            blockMax = std::max(blockMax, std::abs(rawData[i]));
+        }
+        sample.peakBlocks[b] = blockMax;
+    }
+}
+
 //! Measures what it takes to bring the trimmed range to the target level.
 //!
-//! Only ever a scan when the range has actually moved: syncSampleFields() runs on every pad value
-//! there is, and walking a few million frames because somebody nudged the pan would be felt.
+//! Uses a precomputed block-peak cache to avoid full multi-million frame scans on every marker drag.
 void SamplerDevice::updateNormalizeGain(Sample & sample)
 {
     if (!sample.normalize) {
@@ -2278,19 +2312,45 @@ void SamplerDevice::updateNormalizeGain(Sample & sample)
     sample.normalizeGainEnd = sample.endOffset;
     sample.normalizeGain = 1.0f;
 
-    const auto range = playRange(sample);
+    const auto range { playRange(sample) };
     if (!range || !sample.data || sample.channels <= 0) {
         return;
     }
 
-    const auto & data = *sample.data;
-    const auto channels = static_cast<size_t>(sample.channels);
-    const auto from = static_cast<size_t>(std::max(0.0, range->first));
-    const auto to = std::min(data.size() / channels, static_cast<size_t>(range->last) + 1);
-    float peak = 0.0f;
-    for (auto frame = from; frame < to; frame++) {
-        for (size_t channel = 0; channel < channels; channel++) {
-            peak = std::max(peak, std::abs(data.at(frame * channels + channel)));
+    ensurePeakBlocks(sample);
+
+    const auto & data { *sample.data };
+    const auto * rawData { data.data() };
+    const auto channels { static_cast<size_t>(sample.channels) };
+    const auto totalFrames { data.size() / channels };
+    const auto from { static_cast<size_t>(std::clamp(range->first, 0.0, static_cast<double>(totalFrames))) };
+    const auto to { std::min(totalFrames, static_cast<size_t>(range->last) + 1) };
+    if (to <= from) {
+        return;
+    }
+
+    float peak { 0.0f };
+    const size_t firstBlock { from / Sample::PeakBlockSize };
+    const size_t lastBlock { (to - 1) / Sample::PeakBlockSize };
+
+    if (firstBlock == lastBlock || sample.peakBlocks.empty()) {
+        const size_t sampleStart { from * channels };
+        const size_t sampleEnd { to * channels };
+        for (size_t i { sampleStart }; i < sampleEnd; ++i) {
+            peak = std::max(peak, std::abs(rawData[i]));
+        }
+    } else {
+        const size_t headEnd { (firstBlock + 1) * Sample::PeakBlockSize * channels };
+        for (size_t i { from * channels }; i < headEnd; ++i) {
+            peak = std::max(peak, std::abs(rawData[i]));
+        }
+        for (size_t b { firstBlock + 1 }; b < lastBlock; ++b) {
+            peak = std::max(peak, sample.peakBlocks[b]);
+        }
+        const size_t tailStart { lastBlock * Sample::PeakBlockSize * channels };
+        const size_t tailEnd { to * channels };
+        for (size_t i { tailStart }; i < tailEnd; ++i) {
+            peak = std::max(peak, std::abs(rawData[i]));
         }
     }
 
@@ -2321,10 +2381,16 @@ void SamplerDevice::syncSampleFields(Sample & sample)
         sample.cutoff = p->get().value();
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyHpfCutoff().toStdString()); p)
         sample.hpfCutoff = p->get().value();
-    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyStartOffset().toStdString()); p)
-        sample.startOffset = static_cast<double>(p->get().value()) * 60.0;
-    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyEndOffset().toStdString()); p)
-        sample.endOffset = static_cast<double>(p->get().value()) * 60.0;
+    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyStartOffset().toStdString()); p) {
+        if (sample.startOffset <= 60.0 || p->get().value() < 1.0f) {
+            sample.startOffset = static_cast<double>(p->get().value()) * 60.0;
+        }
+    }
+    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyEndOffset().toStdString()); p) {
+        if (sample.endOffset <= 60.0 || p->get().value() < 1.0f) {
+            sample.endOffset = static_cast<double>(p->get().value()) * 60.0;
+        }
+    }
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyTune().toStdString()); p)
         sample.tune = p->get().value();
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyDetune().toStdString()); p)
@@ -2347,8 +2413,11 @@ void SamplerDevice::syncSampleFields(Sample & sample)
         sample.loop = p->get().value() > 0.5f;
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyMono().toStdString()); p)
         sample.mono = p->get().value() > 0.5f;
-    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyLoopStart().toStdString()); p)
-        sample.loopStart = static_cast<double>(p->get().value()) * 60.0;
+    if (auto p = sample.parameter(Constants::NahdXml::xmlKeyLoopStart().toStdString()); p) {
+        if (sample.loopStart <= 60.0 || p->get().value() < 1.0f) {
+            sample.loopStart = static_cast<double>(p->get().value()) * 60.0;
+        }
+    }
     if (auto p = sample.parameter(Constants::NahdXml::xmlKeyChokeGroup().toStdString()); p)
         sample.chokeGroup = static_cast<int>(std::lround(p->get().value()));
 
