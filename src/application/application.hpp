@@ -253,8 +253,7 @@ private:
 
     std::unique_ptr<QTimer> m_instrumentTimer;
 
-    std::shared_ptr<Instrument> m_livePositionNoteInstrument;
-    std::optional<uint8_t> m_livePositionNote;
+
 };
 
 } // namespace noteahead

@@ -118,7 +118,7 @@ public:
     void setAutomationService(AutomationServiceS automationService);
 
     using SongS = std::shared_ptr<Song>;
-    SongS song() const;
+    virtual SongS song() const;
     void setSong(SongS song);
 
     SelectionServiceS selectionService() const

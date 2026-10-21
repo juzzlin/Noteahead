@@ -22,8 +22,11 @@
 #include <QVariantMap>
 
 #include <memory>
+#include <unordered_map>
+#include <vector>
 
 #include "../../domain/midi/midi_import_mode.hpp"
+#include "../../domain/tracker/arpeggiator.hpp"
 #include "../../infra/midi/export/midi_exporter.hpp"
 
 namespace noteahead {
@@ -149,6 +152,9 @@ public:
     Q_INVOKABLE void rejectUnsavedChangesDialog();
 
     Q_INVOKABLE void requestAllNotesOff();
+    Q_INVOKABLE void stopAllLiveNotes();
+    Q_INVOKABLE virtual void requestLiveMidiNoteOff(quint8 note);
+    Q_INVOKABLE virtual void requestLiveMidiNoteOn(quint8 note, quint8 velocity);
     Q_INVOKABLE virtual void requestLiveNoteOff(quint8 key, quint8 octave);
     Q_INVOKABLE virtual void requestLiveNoteOffAtCurrentPosition();
     Q_INVOKABLE virtual void requestLiveNoteOn(quint8 key, quint8 octave, quint8 velocity);
@@ -264,6 +270,16 @@ private:
     QString m_screenshotDirectory;
 
     bool m_editMode = false;
+    struct ActiveLiveNote
+    {
+        InstrumentS instrument;
+        std::vector<uint8_t> soundingNotes;
+        std::vector<QTimer *> delayedTimers;
+        QTimer * arpeggiatorTimer { nullptr };
+        std::vector<Arpeggiator::NoteInfo> arpeggioSequence;
+        size_t currentArpIndex { 0 };
+    };
+    std::unordered_map<uint8_t, ActiveLiveNote> m_activeLiveNotes;
 };
 
 } // namespace noteahead

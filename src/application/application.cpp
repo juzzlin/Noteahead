@@ -550,20 +550,6 @@ void Application::connectApplicationService()
     m_tipService->setEditMode(m_applicationService->editMode());
 
     connect(m_applicationService.get(), &ApplicationService::applyAllTrackSettingsRequested, this, &Application::applyAllInstruments);
-    connect(m_applicationService.get(), &ApplicationService::liveNoteOnAtCurrentPositionRequested, [this](std::shared_ptr<Instrument> instrument) {
-        if (const auto noteData = m_editorService->song()->noteDataAtPosition(m_editorService->position()); noteData && noteData->note().has_value() && instrument) {
-            m_livePositionNoteInstrument = instrument;
-            m_livePositionNote = noteData->note();
-            m_midiService->playNote(instrument, { *noteData->note(), noteData->velocity() });
-        }
-    });
-    connect(m_applicationService.get(), &ApplicationService::liveNoteOffAtCurrentPositionRequested, [this](std::shared_ptr<Instrument>) {
-        if (m_livePositionNoteInstrument && m_livePositionNote) {
-            m_midiService->stopNote(m_livePositionNoteInstrument, { *m_livePositionNote, 0 });
-            m_livePositionNoteInstrument.reset();
-            m_livePositionNote.reset();
-        }
-    });
     connect(m_applicationService.get(), &ApplicationService::liveNoteOnRequested, m_midiService.get(), &MidiService::playNote);
     connect(m_applicationService.get(), &ApplicationService::liveNoteOffRequested, m_midiService.get(), &MidiService::stopNote);
     connect(m_applicationService.get(), &ApplicationService::allNotesOffRequested, this, &Application::stopAllNotes);
@@ -747,12 +733,7 @@ void Application::connectMidiService()
 
     // Play a note via a MIDI controller
     connect(m_midiService.get(), &MidiService::noteOnReceived, this, [this](const auto &, const auto & data) {
-        if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
-            juzzlin::L(TAG).debug() << "Live note ON " << NoteConverter::midiToString(data.note()) << " requested on instrument " << instrument->toString().toStdString();
-            m_midiService->playNote(instrument, data);
-        } else {
-            juzzlin::L(TAG).info() << "No instrument set on track!";
-        }
+        m_applicationService->requestLiveMidiNoteOn(data.note(), data.velocity());
     });
 
     // Note insertion via a MIDI controller
@@ -769,12 +750,7 @@ void Application::connectMidiService()
 
     // Stop a note via a MIDI controller
     connect(m_midiService.get(), &MidiService::noteOffReceived, this, [this](const auto &, const auto & data) {
-        if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
-            juzzlin::L(TAG).debug() << "Live note OFF " << NoteConverter::midiToString(data.note()) << " requested on instrument " << instrument->toString().toStdString();
-            m_midiService->stopNote(instrument, data);
-        } else {
-            juzzlin::L(TAG).info() << "No instrument set on track!";
-        }
+        m_applicationService->requestLiveMidiNoteOff(data.note());
     });
 
     // Apply pitch bend via a MIDI controller

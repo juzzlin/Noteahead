@@ -1040,7 +1040,7 @@ EditorService::ColumnSettingsS EditorService::columnSettings(quint64 trackIndex,
 {
     // The view can still be holding the index of a column that was just deleted
     try {
-        return m_song->columnSettings(trackIndex, columnIndex);
+        return m_song ? m_song->columnSettings(trackIndex, columnIndex) : nullptr;
     } catch (...) {
         juzzlin::L(TAG).warning() << "Cannot get settings for column, trackIndex=" << trackIndex << ", columnIndex=" << columnIndex;
         return {};

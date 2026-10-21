@@ -36,6 +36,11 @@ private slots:
     void test_recentFiles_shouldBeManagedCorrectly();
     void test_stateMachineInteractions_shouldTriggerCorrectActions();
     void test_liveNoteLogic_shouldTriggerCorrectSignals();
+    void test_livePlay_withColumnTranspose_shouldApplyTranspose();
+    void test_livePlay_withChordAutomation_shouldPlayChordNotes();
+    void test_livePlay_withChordAutomationDelay_shouldPlayDelayedChordNote();
+    void test_livePlay_fromMidiController_shouldApplyAllEffects();
+    void test_livePlay_noteOff_shouldStopAllSoundingNotes();
     void test_importMidiFile_shouldAddRecentFile();
     void test_isMidiFile_shouldDetectCorrectExtensions();
     void test_requestAlertDialog_shouldEmitSignal();

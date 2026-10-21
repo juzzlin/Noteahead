@@ -19,11 +19,18 @@
 #include "../../common/utils.hpp"
 #include "../../contrib/SimpleLogger/src/simple_logger.hpp"
 #include "../../domain/midi/midi_note_data.hpp"
+#include "../../domain/tracker/column_settings.hpp"
 #include "../../domain/tracker/instrument.hpp"
+#include "../../domain/tracker/song.hpp"
 #include "../note_converter.hpp"
 #include "../state_machine.hpp"
 #include "editor_service.hpp"
 #include "player_service.hpp"
+#include "random_service.hpp"
+
+#include <algorithm>
+#include <cmath>
+#include <random>
 
 #include "recent_files_manager.hpp"
 #include <QDir>
@@ -420,26 +427,228 @@ void ApplicationService::importMidiFile(QUrl url, int importMode, int patternLen
     emit midiImportRequested(fileName, static_cast<MidiImportMode>(importMode), patternLength, quantizeNoteOn, quantizeNoteOff, connectMidiPorts);
 }
 
-void ApplicationService::requestLiveNoteOn(quint8 key, quint8 octave, quint8 velocity)
+void ApplicationService::requestLiveMidiNoteOn(quint8 rawNote, quint8 velocity)
 {
-    if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
-        if (const auto midiNote = NoteConverter::keyAndOctaveToMidiNote(key, octave, instrument->settings().transpose); midiNote.has_value()) {
-            juzzlin::L(TAG).debug() << "Live note ON " << midiNote->first << " requested on instrument " << instrument->toString().toStdString();
-            const auto scaledVelocity = Utils::Midi::scaleVelocityByKey(velocity, midiNote->second, instrument->settings().midiEffects.velocityKeyTrack, instrument->settings().midiEffects.velocityKeyTrackOffset);
-            emit liveNoteOnRequested(instrument, { midiNote->second, scaledVelocity });
+    if (!m_editorService) {
+        return;
+    }
+    const auto position = m_editorService->position();
+    const auto instrument = m_editorService->instrument(position.track);
+    if (!instrument) {
+        juzzlin::L(TAG).info() << "No instrument set on track!";
+        return;
+    }
+
+    if (m_activeLiveNotes.contains(rawNote)) {
+        requestLiveMidiNoteOff(rawNote);
+    }
+
+    const auto colSettings = m_editorService->columnSettings(position.track, position.column);
+
+    const int instrumentTranspose { instrument->settings().transpose };
+    const int columnTranspose { colSettings ? colSettings->transpose : 0 };
+    const int totalTranspose { instrumentTranspose + columnTranspose };
+
+    const int transposedRoot { static_cast<int>(rawNote) + totalTranspose };
+    if (transposedRoot < 0 || transposedRoot > 127) {
+        juzzlin::L(TAG).warning() << "Transposed root note out of MIDI range: " << transposedRoot;
+        return;
+    }
+    const auto rootNote = static_cast<uint8_t>(transposedRoot);
+
+    uint8_t rootVelocity { velocity };
+    rootVelocity = Utils::Midi::scaleVelocityByKey(
+        rootVelocity,
+        rootNote,
+        instrument->settings().midiEffects.velocityKeyTrack,
+        instrument->settings().midiEffects.velocityKeyTrackOffset);
+
+    if (const int jitter = instrument->settings().midiEffects.velocityJitter; jitter > 0) {
+        const int maxDelta { (static_cast<int>(rootVelocity) * jitter) / 100 };
+        std::uniform_int_distribution<int> dist { -maxDelta, 0 };
+        rootVelocity = static_cast<uint8_t>(std::clamp(static_cast<int>(rootVelocity) + dist(RandomService::generator()), 0, 127));
+    }
+
+    ActiveLiveNote activeNote;
+    activeNote.instrument = instrument;
+
+    const bool chordEnabled { colSettings && colSettings->chordAutomationSettings.isEnabled() };
+
+    if (chordEnabled && colSettings->chordAutomationSettings.arpeggiator.enabled) {
+        std::vector<Arpeggiator::NoteInfo> chordNotes;
+        chordNotes.push_back({ rootNote, rootVelocity });
+
+        auto addChordNote = [&](const ColumnSettings::ChordAutomationSettings::ChordNote & chordNote) {
+            if (chordNote.offset != 0) {
+                const int chordMidi { static_cast<int>(rootNote) + chordNote.offset };
+                if (chordMidi >= 0 && chordMidi <= 127) {
+                    const int calculatedVel { static_cast<int>(std::round(static_cast<float>(rootVelocity) * (static_cast<float>(chordNote.velocity) / 100.f))) };
+                    uint8_t vel { static_cast<uint8_t>(std::clamp(calculatedVel, 1, 127)) };
+                    vel = Utils::Midi::scaleVelocityByKey(
+                        vel,
+                        static_cast<uint8_t>(chordMidi),
+                        instrument->settings().midiEffects.velocityKeyTrack,
+                        instrument->settings().midiEffects.velocityKeyTrackOffset);
+                    if (const int jitter = instrument->settings().midiEffects.velocityJitter; jitter > 0) {
+                        const int maxDelta { (static_cast<int>(vel) * jitter) / 100 };
+                        std::uniform_int_distribution<int> dist { -maxDelta, 0 };
+                        vel = static_cast<uint8_t>(std::clamp(static_cast<int>(vel) + dist(RandomService::generator()), 0, 127));
+                    }
+                    chordNotes.push_back({ static_cast<uint8_t>(chordMidi), vel });
+                }
+            }
+        };
+        addChordNote(colSettings->chordAutomationSettings.note1);
+        addChordNote(colSettings->chordAutomationSettings.note2);
+        addChordNote(colSettings->chordAutomationSettings.note3);
+
+        const auto arpeggioSequence = Arpeggiator::generate(colSettings->chordAutomationSettings.arpeggiator.pattern, chordNotes);
+        if (!arpeggioSequence.empty()) {
+            activeNote.arpeggioSequence = arpeggioSequence;
+            activeNote.currentArpIndex = 0;
+
+            const auto firstNote = arpeggioSequence[0];
+            emit liveNoteOnRequested(instrument, { firstNote.note, firstNote.velocity });
+            activeNote.soundingNotes.push_back(firstNote.note);
+
+            const double bpm { m_editorService->song() ? static_cast<double>(m_editorService->song()->beatsPerMinute()) : 120.0 };
+            const double msPerBeat { 60000.0 / std::max(1.0, bpm) };
+            const auto eventsPerBeat { std::max(uint8_t(1), colSettings->chordAutomationSettings.arpeggiator.eventsPerBeat) };
+            const int intervalMs { std::max(10, static_cast<int>(std::round(msPerBeat / static_cast<double>(eventsPerBeat)))) };
+
+            auto * arpTimer = new QTimer { this };
+            arpTimer->setInterval(intervalMs);
+            connect(arpTimer, &QTimer::timeout, this, [this, rawNote]() {
+                if (const auto it = m_activeLiveNotes.find(rawNote); it != m_activeLiveNotes.end() && !it->second.arpeggioSequence.empty()) {
+                    auto & noteInfo = it->second;
+                    const auto prevNote = noteInfo.arpeggioSequence[noteInfo.currentArpIndex % noteInfo.arpeggioSequence.size()].note;
+                    emit liveNoteOffRequested(noteInfo.instrument, { prevNote, 0 });
+                    std::erase(noteInfo.soundingNotes, prevNote);
+
+                    noteInfo.currentArpIndex++;
+                    const auto nextNote = noteInfo.arpeggioSequence[noteInfo.currentArpIndex % noteInfo.arpeggioSequence.size()];
+                    emit liveNoteOnRequested(noteInfo.instrument, { nextNote.note, nextNote.velocity });
+                    noteInfo.soundingNotes.push_back(nextNote.note);
+                }
+            });
+            activeNote.arpeggiatorTimer = arpTimer;
+            arpTimer->start();
         }
     } else {
-        juzzlin::L(TAG).info() << "No instrument set on track!";
+        // Play root note
+        emit liveNoteOnRequested(instrument, { rootNote, rootVelocity });
+        activeNote.soundingNotes.push_back(rootNote);
+
+        if (chordEnabled) {
+            auto triggerChordNote = [&](const ColumnSettings::ChordAutomationSettings::ChordNote & chordNote) {
+                if (chordNote.offset != 0) {
+                    const int chordMidi { static_cast<int>(rootNote) + chordNote.offset };
+                    if (chordMidi >= 0 && chordMidi <= 127) {
+                        const int calculatedVel { static_cast<int>(std::round(static_cast<float>(rootVelocity) * (static_cast<float>(chordNote.velocity) / 100.f))) };
+                        uint8_t vel { static_cast<uint8_t>(std::clamp(calculatedVel, 1, 127)) };
+                        vel = Utils::Midi::scaleVelocityByKey(
+                            vel,
+                            static_cast<uint8_t>(chordMidi),
+                            instrument->settings().midiEffects.velocityKeyTrack,
+                            instrument->settings().midiEffects.velocityKeyTrackOffset);
+                        if (const int jitter = instrument->settings().midiEffects.velocityJitter; jitter > 0) {
+                            const int maxDelta { (static_cast<int>(vel) * jitter) / 100 };
+                            std::uniform_int_distribution<int> dist { -maxDelta, 0 };
+                            vel = static_cast<uint8_t>(std::clamp(static_cast<int>(vel) + dist(RandomService::generator()), 0, 127));
+                        }
+                        const auto finalNote = static_cast<uint8_t>(chordMidi);
+                        if (chordNote.delay <= 0) {
+                            emit liveNoteOnRequested(instrument, { finalNote, vel });
+                            activeNote.soundingNotes.push_back(finalNote);
+                        } else {
+                            auto * timer = new QTimer { this };
+                            timer->setSingleShot(true);
+                            connect(timer, &QTimer::timeout, this, [this, rawNote, instrument, finalNote, vel, timer]() {
+                                if (const auto it = m_activeLiveNotes.find(rawNote); it != m_activeLiveNotes.end()) {
+                                    emit liveNoteOnRequested(instrument, { finalNote, vel });
+                                    it->second.soundingNotes.push_back(finalNote);
+                                    std::erase(it->second.delayedTimers, timer);
+                                }
+                                timer->deleteLater();
+                            });
+                            activeNote.delayedTimers.push_back(timer);
+                            timer->start(chordNote.delay);
+                        }
+                    }
+                }
+            };
+            triggerChordNote(colSettings->chordAutomationSettings.note1);
+            triggerChordNote(colSettings->chordAutomationSettings.note2);
+            triggerChordNote(colSettings->chordAutomationSettings.note3);
+        }
     }
+
+    m_activeLiveNotes[rawNote] = std::move(activeNote);
+}
+
+void ApplicationService::requestLiveMidiNoteOff(quint8 rawNote)
+{
+    if (const auto it = m_activeLiveNotes.find(rawNote); it != m_activeLiveNotes.end()) {
+        auto & noteInfo = it->second;
+
+        for (auto * timer : noteInfo.delayedTimers) {
+            timer->stop();
+            timer->deleteLater();
+        }
+        noteInfo.delayedTimers.clear();
+
+        if (noteInfo.arpeggiatorTimer) {
+            noteInfo.arpeggiatorTimer->stop();
+            noteInfo.arpeggiatorTimer->deleteLater();
+            noteInfo.arpeggiatorTimer = nullptr;
+        }
+
+        for (const auto note : noteInfo.soundingNotes) {
+            emit liveNoteOffRequested(noteInfo.instrument, { note, 0 });
+        }
+        noteInfo.soundingNotes.clear();
+
+        m_activeLiveNotes.erase(it);
+    } else {
+        if (!m_editorService) {
+            return;
+        }
+        if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
+            const auto colSettings = m_editorService->columnSettings(m_editorService->position().track, m_editorService->position().column);
+            const int totalTranspose { instrument->settings().transpose + (colSettings ? colSettings->transpose : 0) };
+            const int transposed { static_cast<int>(rawNote) + totalTranspose };
+            if (transposed >= 0 && transposed <= 127) {
+                emit liveNoteOffRequested(instrument, { static_cast<uint8_t>(transposed), 0 });
+            }
+        }
+    }
+}
+
+void ApplicationService::requestLiveNoteOn(quint8 key, quint8 octave, quint8 velocity)
+{
+    if (key < 1 || key > 12) {
+        return;
+    }
+    const auto rawNote = static_cast<uint8_t>(octave * 12 + (key - 1));
+    requestLiveMidiNoteOn(rawNote, velocity);
 }
 
 void ApplicationService::requestLiveNoteOnAtCurrentPosition()
 {
-    if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
-        juzzlin::L(TAG).debug() << "Live note ON requested on instrument " << instrument->toString().toStdString();
-        emit liveNoteOnAtCurrentPositionRequested(instrument);
-    } else {
+    if (!m_editorService) {
+        return;
+    }
+    const auto instrument = m_editorService->instrument(m_editorService->position().track);
+    if (!instrument) {
         juzzlin::L(TAG).info() << "No instrument set on track!";
+        return;
+    }
+    juzzlin::L(TAG).debug() << "Live note ON requested on instrument " << instrument->toString().toStdString();
+    emit liveNoteOnAtCurrentPositionRequested(instrument);
+    if (m_editorService->song()) {
+        if (const auto noteData = m_editorService->song()->noteDataAtPosition(m_editorService->position()); noteData && noteData->note().has_value()) {
+            requestLiveMidiNoteOn(*noteData->note(), noteData->velocity());
+        }
     }
 }
 
@@ -449,31 +658,61 @@ void ApplicationService::requestInstrumentReset()
     emit applyAllTrackSettingsRequested();
 }
 
+void ApplicationService::stopAllLiveNotes()
+{
+    for (auto & [rawNote, noteInfo] : m_activeLiveNotes) {
+        for (auto * timer : noteInfo.delayedTimers) {
+            timer->stop();
+            timer->deleteLater();
+        }
+        noteInfo.delayedTimers.clear();
+
+        if (noteInfo.arpeggiatorTimer) {
+            noteInfo.arpeggiatorTimer->stop();
+            noteInfo.arpeggiatorTimer->deleteLater();
+            noteInfo.arpeggiatorTimer = nullptr;
+        }
+
+        for (const auto note : noteInfo.soundingNotes) {
+            emit liveNoteOffRequested(noteInfo.instrument, { note, 0 });
+        }
+        noteInfo.soundingNotes.clear();
+    }
+    m_activeLiveNotes.clear();
+}
+
 void ApplicationService::requestAllNotesOff()
 {
     juzzlin::L(TAG).info() << "All notes off requested";
+    stopAllLiveNotes();
     emit allNotesOffRequested();
 }
 
 void ApplicationService::requestLiveNoteOff(quint8 key, quint8 octave)
 {
-    if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
-        if (const auto midiNote = NoteConverter::keyAndOctaveToMidiNote(key, octave, instrument->settings().transpose); midiNote.has_value()) {
-            juzzlin::L(TAG).debug() << "Live note OFF " << midiNote->first << " requested on instrument " << instrument->toString().toStdString();
-            emit liveNoteOffRequested(instrument, { midiNote->second, 0 });
-        }
-    } else {
-        juzzlin::L(TAG).info() << "No instrument set on track!";
+    if (key < 1 || key > 12) {
+        return;
     }
+    const auto rawNote = static_cast<uint8_t>(octave * 12 + (key - 1));
+    requestLiveMidiNoteOff(rawNote);
 }
 
 void ApplicationService::requestLiveNoteOffAtCurrentPosition()
 {
-    if (const auto instrument = m_editorService->instrument(m_editorService->position().track); instrument) {
-        juzzlin::L(TAG).debug() << "Live note OFF at current position requested on instrument " << instrument->toString().toStdString();
-        emit liveNoteOffAtCurrentPositionRequested(instrument);
-    } else {
+    if (!m_editorService) {
+        return;
+    }
+    const auto instrument = m_editorService->instrument(m_editorService->position().track);
+    if (!instrument) {
         juzzlin::L(TAG).info() << "No instrument set on track!";
+        return;
+    }
+    juzzlin::L(TAG).debug() << "Live note OFF at current position requested on instrument " << instrument->toString().toStdString();
+    emit liveNoteOffAtCurrentPositionRequested(instrument);
+    if (m_editorService->song()) {
+        if (const auto noteData = m_editorService->song()->noteDataAtPosition(m_editorService->position()); noteData && noteData->note().has_value()) {
+            requestLiveMidiNoteOff(*noteData->note());
+        }
     }
 }
 
@@ -702,6 +941,9 @@ void ApplicationService::setInitialFilePath(QString initialFilePath)
     m_initialFilePath = initialFilePath;
 }
 
-ApplicationService::~ApplicationService() = default;
+ApplicationService::~ApplicationService()
+{
+    stopAllLiveNotes();
+}
 
 } // namespace noteahead

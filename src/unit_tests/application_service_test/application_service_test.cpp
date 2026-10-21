@@ -24,7 +24,9 @@
 
 #include "../../application/note_converter.hpp"
 #include "../../domain/midi/midi_note_data.hpp"
+#include "../../domain/tracker/column_settings.hpp"
 #include "../../domain/tracker/instrument.hpp"
+#include "../../domain/tracker/song.hpp"
 
 #include <QSignalSpy>
 #include <QTest>
@@ -57,9 +59,34 @@ public:
         m_instruments[trackIndex] = instrument;
     }
 
+    ColumnSettingsS columnSettings(quint64 trackIndex, quint64 columnIndex) const override
+    {
+        if (const auto it = m_columnSettings.find({ trackIndex, columnIndex }); it != m_columnSettings.end()) {
+            return it->second;
+        }
+        return nullptr;
+    }
+
+    void setMockColumnSettings(quint64 trackIndex, quint64 columnIndex, ColumnSettingsS settings)
+    {
+        m_columnSettings[{ trackIndex, columnIndex }] = settings;
+    }
+
+    SongS song() const override
+    {
+        return m_mockSong;
+    }
+
+    void setMockSong(SongS song)
+    {
+        m_mockSong = song;
+    }
+
 private:
     Position m_position;
     std::map<quint64, InstrumentS> m_instruments;
+    std::map<std::pair<quint64, quint64>, ColumnSettingsS> m_columnSettings;
+    SongS m_mockSong;
 };
 
 class MockPlayerService : public PlayerService
@@ -334,6 +361,199 @@ void ApplicationServiceTest::test_liveNoteLogic_shouldTriggerCorrectSignals()
     service.requestLiveNoteOnAtCurrentPosition();
     QCOMPARE(currentSpy.count(), 1);
     QCOMPARE(currentSpy.takeFirst().at(0).value<std::shared_ptr<Instrument>>(), instrument);
+}
+
+void ApplicationServiceTest::test_livePlay_withColumnTranspose_shouldApplyTranspose()
+{
+    ApplicationService service;
+    const auto editorService = std::make_shared<MockEditorService>();
+    service.setEditorService(editorService);
+
+    const auto instrument = std::make_shared<Instrument>("Test Port");
+    InstrumentSettings instrSettings;
+    instrSettings.transpose = 2;
+    instrument->setSettings(instrSettings);
+    editorService->setMockInstrument(0, instrument);
+    editorService->setMockPosition({ 0, 0, 0, 0, 0 });
+
+    const auto columnSettings = std::make_shared<ColumnSettings>();
+    columnSettings->transpose = 3;
+    editorService->setMockColumnSettings(0, 0, columnSettings);
+
+    QSignalSpy onSpy { &service, &ApplicationService::liveNoteOnRequested };
+    QSignalSpy offSpy { &service, &ApplicationService::liveNoteOffRequested };
+
+    // Play note 60 (total transpose = +5 -> 65)
+    service.requestLiveMidiNoteOn(60, 100);
+    QCOMPARE(onSpy.count(), 1);
+    const auto onArgs = onSpy.takeFirst();
+    QCOMPARE(onArgs.at(0).value<std::shared_ptr<Instrument>>(), instrument);
+    QCOMPARE(onArgs.at(1).value<MidiNoteData>().note(), static_cast<uint8_t>(65));
+    QCOMPARE(onArgs.at(1).value<MidiNoteData>().velocity(), static_cast<uint8_t>(100));
+
+    service.requestLiveMidiNoteOff(60);
+    QCOMPARE(offSpy.count(), 1);
+    const auto offArgs = offSpy.takeFirst();
+    QCOMPARE(offArgs.at(0).value<std::shared_ptr<Instrument>>(), instrument);
+    QCOMPARE(offArgs.at(1).value<MidiNoteData>().note(), static_cast<uint8_t>(65));
+}
+
+void ApplicationServiceTest::test_livePlay_withChordAutomation_shouldPlayChordNotes()
+{
+    ApplicationService service;
+    const auto editorService = std::make_shared<MockEditorService>();
+    service.setEditorService(editorService);
+
+    const auto instrument = std::make_shared<Instrument>("Test Port");
+    editorService->setMockInstrument(0, instrument);
+    editorService->setMockPosition({ 0, 0, 0, 0, 0 });
+
+    const auto columnSettings = std::make_shared<ColumnSettings>();
+    columnSettings->chordAutomationSettings.note1.offset = 4;
+    columnSettings->chordAutomationSettings.note1.velocity = 100;
+    columnSettings->chordAutomationSettings.note1.delay = 0;
+    columnSettings->chordAutomationSettings.note2.offset = 7;
+    columnSettings->chordAutomationSettings.note2.velocity = 80;
+    columnSettings->chordAutomationSettings.note2.delay = 0;
+    editorService->setMockColumnSettings(0, 0, columnSettings);
+
+    QSignalSpy onSpy { &service, &ApplicationService::liveNoteOnRequested };
+    QSignalSpy offSpy { &service, &ApplicationService::liveNoteOffRequested };
+
+    // Play note 60, velocity 100
+    service.requestLiveMidiNoteOn(60, 100);
+    QCOMPARE(onSpy.count(), 3);
+
+    // Root note: 60, velocity 100
+    const auto rootArgs = onSpy.at(0);
+    QCOMPARE(rootArgs.at(1).value<MidiNoteData>().note(), static_cast<uint8_t>(60));
+    QCOMPARE(rootArgs.at(1).value<MidiNoteData>().velocity(), static_cast<uint8_t>(100));
+
+    // Chord note 1: 64, velocity 100
+    const auto chord1Args = onSpy.at(1);
+    QCOMPARE(chord1Args.at(1).value<MidiNoteData>().note(), static_cast<uint8_t>(64));
+    QCOMPARE(chord1Args.at(1).value<MidiNoteData>().velocity(), static_cast<uint8_t>(100));
+
+    // Chord note 2: 67, velocity 80
+    const auto chord2Args = onSpy.at(2);
+    QCOMPARE(chord2Args.at(1).value<MidiNoteData>().note(), static_cast<uint8_t>(67));
+    QCOMPARE(chord2Args.at(1).value<MidiNoteData>().velocity(), static_cast<uint8_t>(80));
+
+    // Release root note 60 -> should turn off all sounding notes (60, 64, 67)
+    service.requestLiveMidiNoteOff(60);
+    QCOMPARE(offSpy.count(), 3);
+    QCOMPARE(offSpy.at(0).at(1).value<MidiNoteData>().note(), static_cast<uint8_t>(60));
+    QCOMPARE(offSpy.at(1).at(1).value<MidiNoteData>().note(), static_cast<uint8_t>(64));
+    QCOMPARE(offSpy.at(2).at(1).value<MidiNoteData>().note(), static_cast<uint8_t>(67));
+}
+
+void ApplicationServiceTest::test_livePlay_withChordAutomationDelay_shouldPlayDelayedChordNote()
+{
+    ApplicationService service;
+    const auto editorService = std::make_shared<MockEditorService>();
+    service.setEditorService(editorService);
+
+    const auto instrument = std::make_shared<Instrument>("Test Port");
+    editorService->setMockInstrument(0, instrument);
+    editorService->setMockPosition({ 0, 0, 0, 0, 0 });
+
+    const auto columnSettings = std::make_shared<ColumnSettings>();
+    columnSettings->chordAutomationSettings.note1.offset = 4;
+    columnSettings->chordAutomationSettings.note1.velocity = 100;
+    columnSettings->chordAutomationSettings.note1.delay = 30; // 30 ms delay
+    editorService->setMockColumnSettings(0, 0, columnSettings);
+
+    QSignalSpy onSpy { &service, &ApplicationService::liveNoteOnRequested };
+    QSignalSpy offSpy { &service, &ApplicationService::liveNoteOffRequested };
+
+    service.requestLiveMidiNoteOn(60, 100);
+    // Initially only root note
+    QCOMPARE(onSpy.count(), 1);
+    QCOMPARE(onSpy.at(0).at(1).value<MidiNoteData>().note(), static_cast<uint8_t>(60));
+
+    // Wait for the delayed note
+    QTRY_COMPARE_WITH_TIMEOUT(onSpy.count(), 2, 500);
+    QCOMPARE(onSpy.at(1).at(1).value<MidiNoteData>().note(), static_cast<uint8_t>(64));
+
+    // Note off should release both notes
+    service.requestLiveMidiNoteOff(60);
+    QCOMPARE(offSpy.count(), 2);
+    QCOMPARE(offSpy.at(0).at(1).value<MidiNoteData>().note(), static_cast<uint8_t>(60));
+    QCOMPARE(offSpy.at(1).at(1).value<MidiNoteData>().note(), static_cast<uint8_t>(64));
+}
+
+void ApplicationServiceTest::test_livePlay_fromMidiController_shouldApplyAllEffects()
+{
+    ApplicationService service;
+    const auto editorService = std::make_shared<MockEditorService>();
+    service.setEditorService(editorService);
+
+    const auto instrument = std::make_shared<Instrument>("Test Port");
+    editorService->setMockInstrument(0, instrument);
+    editorService->setMockPosition({ 0, 0, 0, 0, 0 });
+
+    const auto columnSettings = std::make_shared<ColumnSettings>();
+    columnSettings->transpose = 12; // +1 octave
+    columnSettings->chordAutomationSettings.note1.offset = 7;
+    columnSettings->chordAutomationSettings.note1.velocity = 100;
+    columnSettings->chordAutomationSettings.note1.delay = 0;
+    editorService->setMockColumnSettings(0, 0, columnSettings);
+
+    QSignalSpy onSpy { &service, &ApplicationService::liveNoteOnRequested };
+    QSignalSpy offSpy { &service, &ApplicationService::liveNoteOffRequested };
+
+    // Raw MIDI note 48 (C-3) from controller
+    service.requestLiveMidiNoteOn(48, 90);
+    QCOMPARE(onSpy.count(), 2);
+    // Transposed root note: 48 + 12 = 60
+    QCOMPARE(onSpy.at(0).at(1).value<MidiNoteData>().note(), static_cast<uint8_t>(60));
+    // Chord note 1: 60 + 7 = 67
+    QCOMPARE(onSpy.at(1).at(1).value<MidiNoteData>().note(), static_cast<uint8_t>(67));
+
+    service.requestLiveMidiNoteOff(48);
+    QCOMPARE(offSpy.count(), 2);
+    QCOMPARE(offSpy.at(0).at(1).value<MidiNoteData>().note(), static_cast<uint8_t>(60));
+    QCOMPARE(offSpy.at(1).at(1).value<MidiNoteData>().note(), static_cast<uint8_t>(67));
+}
+
+void ApplicationServiceTest::test_livePlay_noteOff_shouldStopAllSoundingNotes()
+{
+    ApplicationService service;
+    const auto editorService = std::make_shared<MockEditorService>();
+    service.setEditorService(editorService);
+
+    const auto instrument = std::make_shared<Instrument>("Test Port");
+    editorService->setMockInstrument(0, instrument);
+    editorService->setMockPosition({ 0, 0, 0, 0, 0 });
+
+    const auto columnSettings = std::make_shared<ColumnSettings>();
+    columnSettings->chordAutomationSettings.note1.offset = 4;
+    columnSettings->chordAutomationSettings.note1.velocity = 100;
+    columnSettings->chordAutomationSettings.note1.delay = 500; // delayed by 500ms
+    editorService->setMockColumnSettings(0, 0, columnSettings);
+
+    QSignalSpy onSpy { &service, &ApplicationService::liveNoteOnRequested };
+    QSignalSpy offSpy { &service, &ApplicationService::liveNoteOffRequested };
+
+    service.requestLiveMidiNoteOn(60, 100);
+    QCOMPARE(onSpy.count(), 1);
+
+    // Release note before delayed note fires: delayed timer should be cancelled
+    service.requestLiveMidiNoteOff(60);
+    QCOMPARE(offSpy.count(), 1);
+    QCOMPARE(offSpy.at(0).at(1).value<MidiNoteData>().note(), static_cast<uint8_t>(60));
+
+    // Wait to ensure delayed note was indeed cancelled and never triggers
+    QTest::qWait(600);
+    QCOMPARE(onSpy.count(), 1);
+    QCOMPARE(offSpy.count(), 1);
+
+    // Also verify stopAllLiveNotes
+    service.requestLiveMidiNoteOn(60, 100);
+    service.requestLiveMidiNoteOn(64, 100);
+    service.stopAllLiveNotes();
+    // Stop all should have turned off both
+    QVERIFY(offSpy.count() >= 3);
 }
 
 void ApplicationServiceTest::test_importMidiFile_shouldAddRecentFile()
