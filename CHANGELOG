@@ -12,11 +12,17 @@ New features:
   - Shell body resonance, saturation drive, stereo pan spread, and output LPF/HPF
   - Factory and user presets with full MIDI CC and relative automation support
 
+* Live play applies column and track MIDI effects
+  - Play chords, strum delays, arpeggios, jitter and transpose via computer keyboard, MIDI controller or cursor preview
+  - Sounding chord notes, pending delay timers and arpeggiator instances stop cleanly on note-off
+
 * Support mouse drag glissando on VirtualKeyboard
 
 * Update JU Synth terminology and UI labels
 
 Bug fixes:
+
+* Sampler: draggable offset and loop markers drag smoothly without stuttering on large samples
 
 Other:
 
