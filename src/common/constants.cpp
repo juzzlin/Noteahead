@@ -194,6 +194,11 @@ QString juSynthDeviceName()
     return "Noteahead JuSynth";
 }
 
+QString juSynth08DeviceName()
+{
+    return "Noteahead JU Synth 08";
+}
+
 QString pianoSynthDeviceName()
 {
     return "Noteahead PianoSynth";
@@ -3487,6 +3492,116 @@ QString xmlKeyFaderPosition()
 QString xmlKeySendTap()
 {
     return "sendTap";
+}
+
+QString xmlKeyCrossMod()
+{
+    return "crossMod";
+}
+
+QString xmlKeyVco1Range()
+{
+    return "vco1Range";
+}
+
+QString xmlKeyVco1Level()
+{
+    return "vco1Level";
+}
+
+QString xmlKeyVco2Range()
+{
+    return "vco2Range";
+}
+
+QString xmlKeyVco2FineTune()
+{
+    return "vco2FineTune";
+}
+
+QString xmlKeyVco2Level()
+{
+    return "vco2Level";
+}
+
+QString xmlKeyPitchEnvDepth()
+{
+    return "pitchEnvDepth";
+}
+
+QString xmlKeyPitchEnvTarget()
+{
+    return "pitchEnvTarget";
+}
+
+QString xmlKeyVcfSlope()
+{
+    return "vcfSlope";
+}
+
+QString xmlKeyVcaLfoDepth()
+{
+    return "vcaLfoDepth";
+}
+
+QString xmlKeyEnv1Attack()
+{
+    return "env1Attack";
+}
+
+QString xmlKeyEnv1Decay()
+{
+    return "env1Decay";
+}
+
+QString xmlKeyEnv1Sustain()
+{
+    return "env1Sustain";
+}
+
+QString xmlKeyEnv1Release()
+{
+    return "env1Release";
+}
+
+QString xmlKeyEnv1KeyFollow()
+{
+    return "env1KeyFollow";
+}
+
+QString xmlKeyEnv2Attack()
+{
+    return "env2Attack";
+}
+
+QString xmlKeyEnv2Decay()
+{
+    return "env2Decay";
+}
+
+QString xmlKeyEnv2Sustain()
+{
+    return "env2Sustain";
+}
+
+QString xmlKeyEnv2Release()
+{
+    return "env2Release";
+}
+
+QString xmlKeyEnv2KeyFollow()
+{
+    return "env2KeyFollow";
+}
+
+QString xmlKeyUnisonDetune()
+{
+    return "unisonDetune";
+}
+
+QString xmlKeyDelayLevel()
+{
+    return "delayLevel";
 }
 
 } // namespace NahdXml

@@ -33,6 +33,15 @@ namespace noteahead {
 class OtaLadderFilter : public DspComponent
 {
 public:
+    enum class Slope
+    {
+        Slope12dB,
+        Slope24dB
+    };
+
+    void setSlope(Slope slope);
+    Slope slope() const;
+
     //! \param frequency Corner in Hz.
     void setCutoff(double frequency);
     //! \param resonance 0 for none, about 0.87 for the edge of self-oscillation, 1 for a steady sine.
@@ -47,6 +56,7 @@ public:
     static constexpr double BassCompensation { 0.8 };
 
 private:
+    Slope m_slope { Slope::Slope24dB };
     double m_cutoff { 1000.0 };
     double m_feedback { 0.0 };
     double m_lastCutoff { -1.0 };

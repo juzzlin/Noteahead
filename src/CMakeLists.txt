@@ -104,6 +104,23 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/JuSynthDialog_Presets.qml
     ${QML_BASE_DIR}/Dialogs/JuSynthDialog_Vca.qml
     ${QML_BASE_DIR}/Dialogs/JuSynthDialog_Vcf.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Presets.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Global.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Tab1.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Tab2.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Tab3.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Tab4.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Vco1.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Vco2.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_VcoMod.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Hpf.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Vcf.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Vca.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Env1.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Env2.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Lfo.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Delay.qml
     ${QML_BASE_DIR}/Dialogs/TremoloDialog.qml
     ${QML_BASE_DIR}/Dialogs/DbtpMeterDialog.qml
     ${QML_BASE_DIR}/Dialogs/LimiterDialog.qml

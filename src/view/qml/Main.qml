@@ -402,6 +402,10 @@ ApplicationWindow {
         id: juSynthDialog
         anchors.centerIn: parent
     }
+    JuSynth08Dialog {
+        id: juSynth08Dialog
+        anchors.centerIn: parent
+    }
     DrumSynthDialog {
         id: drumSynthDialog
         anchors.centerIn: parent
@@ -1103,6 +1107,7 @@ ApplicationWindow {
         deviceRackController.drumSynthV2DialogRequested.connect(drumSynthV2Dialog.open);
         deviceRackController.fmDrumsDialogRequested.connect(fmDrumsDialog.open);
         deviceRackController.juSynthDialogRequested.connect(juSynthDialog.open);
+        deviceRackController.juSynth08DialogRequested.connect(juSynth08Dialog.open);
         deviceRackController.lfoDialogRequested.connect(lfoDialog.open);
         deviceRackController.pianoSynthDialogRequested.connect(pianoSynthDialog.open);
         deviceRackController.pianoSynthV2DialogRequested.connect(pianoSynthV2Dialog.open);

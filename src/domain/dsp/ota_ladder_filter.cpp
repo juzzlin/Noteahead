@@ -21,6 +21,16 @@
 
 namespace noteahead {
 
+void OtaLadderFilter::setSlope(Slope slope)
+{
+    m_slope = slope;
+}
+
+OtaLadderFilter::Slope OtaLadderFilter::slope() const
+{
+    return m_slope;
+}
+
 void OtaLadderFilter::setCutoff(double frequency)
 {
     m_cutoff = frequency;
@@ -45,12 +55,26 @@ double OtaLadderFilter::process(double input)
         m_lastSampleRate = m_sampleRate;
     }
 
-    // Each stage is y = G x + s / (1 + g), so the last one is G^4 times the ladder's input plus
-    // what the four states contribute. Solving the loop for its input takes no delay at all.
     const double G = m_stageGain;
     const double stateShare = 1.0 / (1.0 + m_g);
-    const double fromStates = (G * G * G * m_state[0] + G * G * m_state[1] + G * m_state[2] + m_state[3]) * stateShare;
     const double compensated = input * (1.0 + BassCompensation * m_feedback);
+
+    if (m_slope == Slope::Slope12dB) {
+        const double fromStates = (G * m_state[0] + m_state[1]) * stateShare;
+        const double ladderInput = std::tanh((compensated - m_feedback * fromStates) / (1.0 + m_feedback * G * G));
+
+        double value = ladderInput;
+        for (int i = 0; i < 2; ++i) {
+            const double v = (value - m_state[i]) * G;
+            value = v + m_state[i];
+            m_state[i] = value + v;
+        }
+        return value;
+    }
+
+    // Each stage is y = G x + s / (1 + g), so the last one is G^4 times the ladder's input plus
+    // what the four states contribute. Solving the loop for its input takes no delay at all.
+    const double fromStates = (G * G * G * m_state[0] + G * G * m_state[1] + G * m_state[2] + m_state[3]) * stateShare;
     const double ladderInput = std::tanh((compensated - m_feedback * fromStates) / (1.0 + m_feedback * G * G * G * G));
 
     double value = ladderInput;

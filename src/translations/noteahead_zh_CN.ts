@@ -4297,6 +4297,10 @@
         <translation>DCO</translation>
     </message>
     <message>
+        <source>Range</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Saw</source>
         <translation>锯齿波</translation>
     </message>
@@ -4325,12 +4329,16 @@
         <translation>PWM</translation>
     </message>
     <message>
-        <source>Sub</source>
-        <translation>Sub</translation>
+        <source>LFO Mod</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Noise</source>
-        <translation>噪声</translation>
+        <source>Sub Level</source>
+        <translation type="unfinished">超低频电平</translation>
+    </message>
+    <message>
+        <source>Noise Level</source>
+        <translation type="unfinished">噪声电平</translation>
     </message>
 </context>
 <context>
@@ -4394,8 +4402,8 @@
         <translation>HPF</translation>
     </message>
     <message>
-        <source>Freq</source>
-        <translation>频率</translation>
+        <source>Cutoff</source>
+        <translation type="unfinished">截止频率</translation>
     </message>
 </context>
 <context>
@@ -4447,6 +4455,10 @@
         <translation>VCA</translation>
     </message>
     <message>
+        <source>Mode</source>
+        <translation type="unfinished">模式</translation>
+    </message>
+    <message>
         <source>Env</source>
         <translation>Env</translation>
     </message>
@@ -4455,8 +4467,8 @@
         <translation>门控</translation>
     </message>
     <message>
-        <source>Velocity</source>
-        <translation>力度</translation>
+        <source>Velocity Sensitivity</source>
+        <translation type="unfinished">力度灵敏度</translation>
     </message>
 </context>
 <context>
@@ -4466,28 +4478,28 @@
         <translation>VCF</translation>
     </message>
     <message>
-        <source>Freq</source>
-        <translation>频率</translation>
+        <source>Cutoff</source>
+        <translation type="unfinished">截止频率</translation>
     </message>
     <message>
-        <source>Res</source>
-        <translation>Res</translation>
+        <source>Resonance</source>
+        <translation type="unfinished">共振</translation>
     </message>
     <message>
-        <source>Env</source>
-        <translation>Env</translation>
+        <source>Env Mod</source>
+        <translation type="unfinished">包络调制</translation>
+    </message>
+    <message>
+        <source>LFO Mod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Key Track</source>
+        <translation type="unfinished">键位跟踪</translation>
     </message>
     <message>
         <source>Invert</source>
         <translation>反相</translation>
-    </message>
-    <message>
-        <source>LFO</source>
-        <translation>LFO</translation>
-    </message>
-    <message>
-        <source>Kybd</source>
-        <translation>Kybd</translation>
     </message>
 </context>
 <context>
@@ -7514,6 +7526,70 @@
         <source>VCF LFO</source>
         <translation>VCF LFO</translation>
     </message>
+    <message>
+        <source>Key Track</source>
+        <translation type="unfinished">键位跟踪</translation>
+    </message>
+    <message>
+        <source>Head Tension</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Snare Decay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Snare Tension</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Snare Buzz</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Click</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hardness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation type="unfinished">位置</translation>
+    </message>
+    <message>
+        <source>Body</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO LFO</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO 2 Fine Tune</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pitch Env Depth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pulse Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCF Env Mod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCA LFO</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delay Level</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PhaseScopeDialog</name>
@@ -9412,6 +9488,164 @@ Audio files will appear next to the current project file.</source>
     <message>
         <source>Turn it up until it sounds good.</source>
         <translation>调高直到听起来不错。</translation>
+    </message>
+</context>
+<context>
+    <name>SnareSynthDialog</name>
+    <message>
+        <source>Ok</source>
+        <translation type="unfinished">确定</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">取消</translation>
+    </message>
+</context>
+<context>
+    <name>SnareSynthDialog_Global</name>
+    <message>
+        <source>Global</source>
+        <translation type="unfinished">全局</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation type="unfinished">增益</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation type="unfinished">推子</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation type="unfinished">声像</translation>
+    </message>
+    <message>
+        <source>Pan Spread</source>
+        <translation type="unfinished">声像扩散</translation>
+    </message>
+    <message>
+        <source>Drive</source>
+        <translation type="unfinished">驱动</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation type="unfinished">低通截止频率</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation type="unfinished">高通截止频率</translation>
+    </message>
+    <message>
+        <source>Key Track</source>
+        <translation type="unfinished">键位跟踪</translation>
+    </message>
+</context>
+<context>
+    <name>SnareSynthDialog_Head</name>
+    <message>
+        <source>Head / Membrane</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tune</source>
+        <translation type="unfinished">调音</translation>
+    </message>
+    <message>
+        <source>Tone</source>
+        <translation type="unfinished">音色</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation type="unfinished">衰减</translation>
+    </message>
+    <message>
+        <source>Head Tension</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pitch Depth</source>
+        <translation type="unfinished">音高深度</translation>
+    </message>
+    <message>
+        <source>Pitch Decay</source>
+        <translation type="unfinished">音高衰减</translation>
+    </message>
+</context>
+<context>
+    <name>SnareSynthDialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation type="unfinished">预设：</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation type="unfinished">保存</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Acoustic physical modelling snare drum synthesizer</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SnareSynthDialog_Snares</name>
+    <message>
+        <source>Snare Wires</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Snappy</source>
+        <translation type="unfinished">响弦</translation>
+    </message>
+    <message>
+        <source>Snare Decay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Snare Tension</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Snare Buzz</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SnareSynthDialog_Strike</name>
+    <message>
+        <source>Stick &amp; Shell</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Click</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hardness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation type="unfinished">位置</translation>
+    </message>
+    <message>
+        <source>Body</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation type="unfinished">力度灵敏度</translation>
     </message>
 </context>
 <context>
@@ -11603,6 +11837,410 @@ An apostrophe marks the stressed syllable: A&apos;merica</source>
     <message>
         <source>Filter</source>
         <translation>滤波器</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog</name>
+    <message>
+        <source>Ok</source>
+        <translation type="unfinished">确定</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">取消</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog_Delay</name>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">延迟</translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation type="unfinished">时间</translation>
+    </message>
+    <message>
+        <source>Feedback</source>
+        <translation type="unfinished">反馈</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation type="unfinished">电平</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog_Env1</name>
+    <message>
+        <source>ENV-1 (Mod)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation type="unfinished">起音</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation type="unfinished">衰减</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation type="unfinished">延持</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation type="unfinished">释音</translation>
+    </message>
+    <message>
+        <source>Key Follow</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog_Env2</name>
+    <message>
+        <source>ENV-2 (Amp)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation type="unfinished">起音</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation type="unfinished">衰减</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation type="unfinished">延持</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation type="unfinished">释音</translation>
+    </message>
+    <message>
+        <source>Key Follow</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog_Global</name>
+    <message>
+        <source>Global</source>
+        <translation type="unfinished">全局</translation>
+    </message>
+    <message>
+        <source>Voice Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Poly</source>
+        <translation type="unfinished">复音</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <translation type="unfinished">独奏</translation>
+    </message>
+    <message>
+        <source>Unison</source>
+        <translation type="unfinished">齐奏</translation>
+    </message>
+    <message>
+        <source>Unison Detune</source>
+        <translation type="unfinished">齐奏失谐</translation>
+    </message>
+    <message>
+        <source>Portamento</source>
+        <translation type="unfinished">滑音</translation>
+    </message>
+    <message>
+        <source>Pan Spread</source>
+        <translation type="unfinished">声像扩散</translation>
+    </message>
+    <message>
+        <source>Pitch Bend Range</source>
+        <translation type="unfinished">弯音范围</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation type="unfinished">增益</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation type="unfinished">推子</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation type="unfinished">声像</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog_Lfo</name>
+    <message>
+        <source>LFO</source>
+        <translation type="unfinished">LFO</translation>
+    </message>
+    <message>
+        <source>Waveform</source>
+        <translation type="unfinished">波形</translation>
+    </message>
+    <message>
+        <source>Sine</source>
+        <translation type="unfinished">正弦波</translation>
+    </message>
+    <message>
+        <source>Triangle</source>
+        <translation type="unfinished">三角波</translation>
+    </message>
+    <message>
+        <source>Saw</source>
+        <translation type="unfinished">锯齿波</translation>
+    </message>
+    <message>
+        <source>Square</source>
+        <translation type="unfinished">方波</translation>
+    </message>
+    <message>
+        <source>S&amp;H</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Noise</source>
+        <translation type="unfinished">噪声</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation type="unfinished">速率</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">延迟</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation type="unfinished">预设：</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation type="unfinished">保存</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog_Vca</name>
+    <message>
+        <source>VCA &amp; Noise</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation type="unfinished">模式</translation>
+    </message>
+    <message>
+        <source>ENV-2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Velocity</source>
+        <translation type="unfinished">力度</translation>
+    </message>
+    <message>
+        <source>LFO Mod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Noise Level</source>
+        <translation type="unfinished">噪声电平</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog_Vcf</name>
+    <message>
+        <source>HPF &amp; VCF</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation type="unfinished">高通截止频率</translation>
+    </message>
+    <message>
+        <source>Slope</source>
+        <translation type="unfinished">斜率</translation>
+    </message>
+    <message>
+        <source>Cutoff</source>
+        <translation type="unfinished">截止频率</translation>
+    </message>
+    <message>
+        <source>Resonance</source>
+        <translation type="unfinished">共振</translation>
+    </message>
+    <message>
+        <source>Env Mod</source>
+        <translation type="unfinished">包络调制</translation>
+    </message>
+    <message>
+        <source>Invert</source>
+        <translation type="unfinished">反相</translation>
+    </message>
+    <message>
+        <source>LFO Mod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Key Track</source>
+        <translation type="unfinished">键位跟踪</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog_Vco1</name>
+    <message>
+        <source>VCO 1</source>
+        <translation type="unfinished">VCO 1</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Waveform</source>
+        <translation type="unfinished">波形</translation>
+    </message>
+    <message>
+        <source>Triangle</source>
+        <translation type="unfinished">三角波</translation>
+    </message>
+    <message>
+        <source>Saw</source>
+        <translation type="unfinished">锯齿波</translation>
+    </message>
+    <message>
+        <source>Square</source>
+        <translation type="unfinished">方波</translation>
+    </message>
+    <message>
+        <source>Sine</source>
+        <translation type="unfinished">正弦波</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation type="unfinished">电平</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog_Vco2</name>
+    <message>
+        <source>VCO 2</source>
+        <translation type="unfinished">VCO 2</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Waveform</source>
+        <translation type="unfinished">波形</translation>
+    </message>
+    <message>
+        <source>Saw</source>
+        <translation type="unfinished">锯齿波</translation>
+    </message>
+    <message>
+        <source>Square</source>
+        <translation type="unfinished">方波</translation>
+    </message>
+    <message>
+        <source>Triangle</source>
+        <translation type="unfinished">三角波</translation>
+    </message>
+    <message>
+        <source>Noise</source>
+        <translation type="unfinished">噪声</translation>
+    </message>
+    <message>
+        <source>Fine Tune</source>
+        <translation type="unfinished">微调</translation>
+    </message>
+    <message>
+        <source>Sync (Lock to VCO 1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation type="unfinished">电平</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog_VcoMod</name>
+    <message>
+        <source>VCO Mod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cross Mod (FM)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LFO Mod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Env Mod</source>
+        <translation type="unfinished">包络调制</translation>
+    </message>
+    <message>
+        <source>Env Target</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO 1</source>
+        <translation type="unfinished">VCO 1</translation>
+    </message>
+    <message>
+        <source>VCO 2</source>
+        <translation type="unfinished">VCO 2</translation>
+    </message>
+    <message>
+        <source>Both</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PWM Source</source>
+        <translation type="unfinished">PWM 来源</translation>
+    </message>
+    <message>
+        <source>Manual</source>
+        <translation type="unfinished">手动</translation>
+    </message>
+    <message>
+        <source>LFO</source>
+        <translation type="unfinished">LFO</translation>
+    </message>
+    <message>
+        <source>ENV-1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pulse Width</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

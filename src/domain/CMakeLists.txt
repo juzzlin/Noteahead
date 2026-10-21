@@ -16,6 +16,8 @@ set(HEADER_FILES
     devices/fm_synth_presets.hpp
     devices/ju_synth_device.hpp
     devices/ju_synth_presets.hpp
+    devices/ju_synth_08_device.hpp
+    devices/ju_synth_08_presets.hpp
     devices/kick_808_device.hpp
     devices/lfo_device.hpp
     devices/snare_synth_device.hpp
@@ -216,6 +218,8 @@ set(SOURCE_FILES
     devices/fm_synth_presets.cpp
     devices/ju_synth_device.cpp
     devices/ju_synth_presets.cpp
+    devices/ju_synth_08_device.cpp
+    devices/ju_synth_08_presets.cpp
     devices/kick_808_device.cpp
     devices/lfo_device.cpp
     devices/snare_synth_device.cpp

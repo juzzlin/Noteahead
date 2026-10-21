@@ -28,10 +28,11 @@ namespace {
 constexpr double SampleRate { 48000.0 };
 
 //! Steady-state gain for a quiet sine, so the OTAs stay linear.
-double gainAt(double cutoff, double resonance, double hz)
+double gainAt(double cutoff, double resonance, double hz, OtaLadderFilter::Slope slope = OtaLadderFilter::Slope::Slope24dB)
 {
     OtaLadderFilter filter;
     filter.setSampleRate(SampleRate);
+    filter.setSlope(slope);
     filter.setCutoff(cutoff);
     filter.setResonance(resonance);
     constexpr double amplitude { 0.01 };
@@ -59,6 +60,13 @@ void OtaLadderFilterTest::test_process_twoOctavesAbove_shouldBeDownBy24DbPerOcta
     // Four poles: well past the corner each octave takes 24 dB, so two take about 48
     const double db = 20.0 * std::log10(gainAt(1000.0, 0.0, 4000.0));
     QVERIFY2(db < -40.0 && db > -56.0, qPrintable(QString::number(db)));
+}
+
+void OtaLadderFilterTest::test_process_twoOctavesAbove_shouldBeDownBy12DbPerOctaveIn12DbMode()
+{
+    // Two poles: well past the corner each octave takes 12 dB, so two take about 24
+    const double db = 20.0 * std::log10(gainAt(1000.0, 0.0, 4000.0, OtaLadderFilter::Slope::Slope12dB));
+    QVERIFY2(db < -20.0 && db > -30.0, qPrintable(QString::number(db)));
 }
 
 void OtaLadderFilterTest::test_resonance_full_shouldSelfOscillateAtTheCutoff()

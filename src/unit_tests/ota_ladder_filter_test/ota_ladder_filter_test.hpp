@@ -27,6 +27,7 @@ class OtaLadderFilterTest : public QObject
 private slots:
     void test_process_belowCutoff_shouldPassAtUnity();
     void test_process_twoOctavesAbove_shouldBeDownBy24DbPerOctave();
+    void test_process_twoOctavesAbove_shouldBeDownBy12DbPerOctaveIn12DbMode();
     void test_resonance_full_shouldSelfOscillateAtTheCutoff();
     void test_resonance_half_shouldDieAway();
     void test_resonance_raised_shouldThinTheBassOnlySlightly();

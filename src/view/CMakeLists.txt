@@ -13,6 +13,7 @@ set(HEADER_FILES
     controllers/fm_operator_controller.hpp
     controllers/fm_synth_controller.hpp
     controllers/ju_synth_controller.hpp
+    controllers/ju_synth_08_controller.hpp
     controllers/knob_controller.hpp
     controllers/kick_808_controller.hpp
     controllers/lfo_controller.hpp
@@ -55,6 +56,7 @@ set(SOURCE_FILES
     controllers/fm_operator_controller.cpp
     controllers/fm_synth_controller.cpp
     controllers/ju_synth_controller.cpp
+    controllers/ju_synth_08_controller.cpp
     controllers/knob_controller.cpp
     controllers/kick_808_controller.cpp
     controllers/lfo_controller.cpp

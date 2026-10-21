@@ -4299,6 +4299,10 @@
         <translation>DCO</translation>
     </message>
     <message>
+        <source>Range</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Saw</source>
         <translation>Piła</translation>
     </message>
@@ -4327,12 +4331,16 @@
         <translation>PWM</translation>
     </message>
     <message>
-        <source>Sub</source>
-        <translation>Sub</translation>
+        <source>LFO Mod</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Noise</source>
-        <translation>Szum</translation>
+        <source>Sub Level</source>
+        <translation type="unfinished">Poziom sub</translation>
+    </message>
+    <message>
+        <source>Noise Level</source>
+        <translation type="unfinished">Poziom szumu</translation>
     </message>
 </context>
 <context>
@@ -4396,8 +4404,8 @@
         <translation>HPF</translation>
     </message>
     <message>
-        <source>Freq</source>
-        <translation>Częst.</translation>
+        <source>Cutoff</source>
+        <translation type="unfinished">Odcięcie</translation>
     </message>
 </context>
 <context>
@@ -4449,6 +4457,10 @@
         <translation>VCA</translation>
     </message>
     <message>
+        <source>Mode</source>
+        <translation type="unfinished">Tryb</translation>
+    </message>
+    <message>
         <source>Env</source>
         <translation>Env</translation>
     </message>
@@ -4457,8 +4469,8 @@
         <translation>Bramka</translation>
     </message>
     <message>
-        <source>Velocity</source>
-        <translation>Velocity</translation>
+        <source>Velocity Sensitivity</source>
+        <translation type="unfinished">Czułość velocity</translation>
     </message>
 </context>
 <context>
@@ -4468,28 +4480,28 @@
         <translation>VCF</translation>
     </message>
     <message>
-        <source>Freq</source>
-        <translation>Częst.</translation>
+        <source>Cutoff</source>
+        <translation type="unfinished">Odcięcie</translation>
     </message>
     <message>
-        <source>Res</source>
-        <translation>Res</translation>
+        <source>Resonance</source>
+        <translation type="unfinished">Rezonans</translation>
     </message>
     <message>
-        <source>Env</source>
-        <translation>Env</translation>
+        <source>Env Mod</source>
+        <translation type="unfinished">Mod. obwiedni</translation>
+    </message>
+    <message>
+        <source>LFO Mod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Key Track</source>
+        <translation type="unfinished">Śledzenie klawiatury</translation>
     </message>
     <message>
         <source>Invert</source>
         <translation>Odwróć</translation>
-    </message>
-    <message>
-        <source>LFO</source>
-        <translation>LFO</translation>
-    </message>
-    <message>
-        <source>Kybd</source>
-        <translation>Kybd</translation>
     </message>
 </context>
 <context>
@@ -7516,6 +7528,70 @@
         <source>VCF LFO</source>
         <translation>VCF LFO</translation>
     </message>
+    <message>
+        <source>Key Track</source>
+        <translation type="unfinished">Śledzenie klawiatury</translation>
+    </message>
+    <message>
+        <source>Head Tension</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Snare Decay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Snare Tension</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Snare Buzz</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Click</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hardness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation type="unfinished">Pozycja</translation>
+    </message>
+    <message>
+        <source>Body</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO LFO</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO 2 Fine Tune</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pitch Env Depth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pulse Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCF Env Mod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCA LFO</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delay Level</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PhaseScopeDialog</name>
@@ -9416,6 +9492,164 @@ Pliki dźwiękowe pojawią się obok bieżącego pliku projektu.</translation>
     <message>
         <source>Turn it up until it sounds good.</source>
         <translation>Podkręć, aż zabrzmi dobrze.</translation>
+    </message>
+</context>
+<context>
+    <name>SnareSynthDialog</name>
+    <message>
+        <source>Ok</source>
+        <translation type="unfinished">OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Anuluj</translation>
+    </message>
+</context>
+<context>
+    <name>SnareSynthDialog_Global</name>
+    <message>
+        <source>Global</source>
+        <translation type="unfinished">Globalne</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation type="unfinished">Wzmocnienie</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation type="unfinished">Suwak</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation type="unfinished">Panorama</translation>
+    </message>
+    <message>
+        <source>Pan Spread</source>
+        <translation type="unfinished">Rozpiętość panoramy</translation>
+    </message>
+    <message>
+        <source>Drive</source>
+        <translation type="unfinished">Drive</translation>
+    </message>
+    <message>
+        <source>LPF Cutoff</source>
+        <translation type="unfinished">Odcięcie LPF</translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation type="unfinished">Odcięcie HPF</translation>
+    </message>
+    <message>
+        <source>Key Track</source>
+        <translation type="unfinished">Śledzenie klawiatury</translation>
+    </message>
+</context>
+<context>
+    <name>SnareSynthDialog_Head</name>
+    <message>
+        <source>Head / Membrane</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tune</source>
+        <translation type="unfinished">Strojenie</translation>
+    </message>
+    <message>
+        <source>Tone</source>
+        <translation type="unfinished">Barwa</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation type="unfinished">Opadanie</translation>
+    </message>
+    <message>
+        <source>Head Tension</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pitch Depth</source>
+        <translation type="unfinished">Głębokość pitch</translation>
+    </message>
+    <message>
+        <source>Pitch Decay</source>
+        <translation type="unfinished">Opadanie pitch</translation>
+    </message>
+</context>
+<context>
+    <name>SnareSynthDialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation type="unfinished">Preset:</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation type="unfinished">Zapisz</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Acoustic physical modelling snare drum synthesizer</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SnareSynthDialog_Snares</name>
+    <message>
+        <source>Snare Wires</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Snappy</source>
+        <translation type="unfinished">Snappy</translation>
+    </message>
+    <message>
+        <source>Snare Decay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Snare Tension</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Snare Buzz</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SnareSynthDialog_Strike</name>
+    <message>
+        <source>Stick &amp; Shell</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Click</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hardness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation type="unfinished">Pozycja</translation>
+    </message>
+    <message>
+        <source>Body</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Velocity Sensitivity</source>
+        <translation type="unfinished">Czułość velocity</translation>
     </message>
 </context>
 <context>
@@ -11607,6 +11841,410 @@ Apostrof oznacza sylabę akcentowaną: A&apos;merica</translation>
     <message>
         <source>Filter</source>
         <translation>Filtr</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog</name>
+    <message>
+        <source>Ok</source>
+        <translation type="unfinished">OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Anuluj</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog_Delay</name>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">Delay</translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation type="unfinished">Czas</translation>
+    </message>
+    <message>
+        <source>Feedback</source>
+        <translation type="unfinished">Sprzężenie</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation type="unfinished">Poziom</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog_Env1</name>
+    <message>
+        <source>ENV-1 (Mod)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation type="unfinished">Atak</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation type="unfinished">Opadanie</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation type="unfinished">Podtrzymanie</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation type="unfinished">Zwolnienie</translation>
+    </message>
+    <message>
+        <source>Key Follow</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog_Env2</name>
+    <message>
+        <source>ENV-2 (Amp)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation type="unfinished">Atak</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation type="unfinished">Opadanie</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation type="unfinished">Podtrzymanie</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation type="unfinished">Zwolnienie</translation>
+    </message>
+    <message>
+        <source>Key Follow</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog_Global</name>
+    <message>
+        <source>Global</source>
+        <translation type="unfinished">Globalne</translation>
+    </message>
+    <message>
+        <source>Voice Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Poly</source>
+        <translation type="unfinished">Poly</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <translation type="unfinished">Solo</translation>
+    </message>
+    <message>
+        <source>Unison</source>
+        <translation type="unfinished">Unisono</translation>
+    </message>
+    <message>
+        <source>Unison Detune</source>
+        <translation type="unfinished">Rozstrojenie unisono</translation>
+    </message>
+    <message>
+        <source>Portamento</source>
+        <translation type="unfinished">Portamento</translation>
+    </message>
+    <message>
+        <source>Pan Spread</source>
+        <translation type="unfinished">Rozpiętość panoramy</translation>
+    </message>
+    <message>
+        <source>Pitch Bend Range</source>
+        <translation type="unfinished">Zakres pitch bend</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation type="unfinished">Wzmocnienie</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation type="unfinished">Suwak</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation type="unfinished">Panorama</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog_Lfo</name>
+    <message>
+        <source>LFO</source>
+        <translation type="unfinished">LFO</translation>
+    </message>
+    <message>
+        <source>Waveform</source>
+        <translation type="unfinished">Kształt fali</translation>
+    </message>
+    <message>
+        <source>Sine</source>
+        <translation type="unfinished">Sinus</translation>
+    </message>
+    <message>
+        <source>Triangle</source>
+        <translation type="unfinished">Trójkąt</translation>
+    </message>
+    <message>
+        <source>Saw</source>
+        <translation type="unfinished">Piła</translation>
+    </message>
+    <message>
+        <source>Square</source>
+        <translation type="unfinished">Prostokąt</translation>
+    </message>
+    <message>
+        <source>S&amp;H</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Noise</source>
+        <translation type="unfinished">Szum</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation type="unfinished">Szybkość</translation>
+    </message>
+    <message>
+        <source>Delay</source>
+        <translation type="unfinished">Delay</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog_Presets</name>
+    <message>
+        <source>Preset:</source>
+        <translation type="unfinished">Preset:</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation type="unfinished">Zapisz</translation>
+    </message>
+    <message>
+        <source>Save the current settings as a preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the selected preset of your own</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog_Vca</name>
+    <message>
+        <source>VCA &amp; Noise</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation type="unfinished">Tryb</translation>
+    </message>
+    <message>
+        <source>ENV-2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gate</source>
+        <translation type="unfinished">Bramka</translation>
+    </message>
+    <message>
+        <source>Velocity</source>
+        <translation type="unfinished">Velocity</translation>
+    </message>
+    <message>
+        <source>LFO Mod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Noise Level</source>
+        <translation type="unfinished">Poziom szumu</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog_Vcf</name>
+    <message>
+        <source>HPF &amp; VCF</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HPF Cutoff</source>
+        <translation type="unfinished">Odcięcie HPF</translation>
+    </message>
+    <message>
+        <source>Slope</source>
+        <translation type="unfinished">Nachylenie</translation>
+    </message>
+    <message>
+        <source>Cutoff</source>
+        <translation type="unfinished">Odcięcie</translation>
+    </message>
+    <message>
+        <source>Resonance</source>
+        <translation type="unfinished">Rezonans</translation>
+    </message>
+    <message>
+        <source>Env Mod</source>
+        <translation type="unfinished">Mod. obwiedni</translation>
+    </message>
+    <message>
+        <source>Invert</source>
+        <translation type="unfinished">Odwróć</translation>
+    </message>
+    <message>
+        <source>LFO Mod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Key Track</source>
+        <translation type="unfinished">Śledzenie klawiatury</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog_Vco1</name>
+    <message>
+        <source>VCO 1</source>
+        <translation type="unfinished">VCO 1</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Waveform</source>
+        <translation type="unfinished">Kształt fali</translation>
+    </message>
+    <message>
+        <source>Triangle</source>
+        <translation type="unfinished">Trójkąt</translation>
+    </message>
+    <message>
+        <source>Saw</source>
+        <translation type="unfinished">Piła</translation>
+    </message>
+    <message>
+        <source>Square</source>
+        <translation type="unfinished">Prostokąt</translation>
+    </message>
+    <message>
+        <source>Sine</source>
+        <translation type="unfinished">Sinus</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation type="unfinished">Poziom</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog_Vco2</name>
+    <message>
+        <source>VCO 2</source>
+        <translation type="unfinished">VCO 2</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Waveform</source>
+        <translation type="unfinished">Kształt fali</translation>
+    </message>
+    <message>
+        <source>Saw</source>
+        <translation type="unfinished">Piła</translation>
+    </message>
+    <message>
+        <source>Square</source>
+        <translation type="unfinished">Prostokąt</translation>
+    </message>
+    <message>
+        <source>Triangle</source>
+        <translation type="unfinished">Trójkąt</translation>
+    </message>
+    <message>
+        <source>Noise</source>
+        <translation type="unfinished">Szum</translation>
+    </message>
+    <message>
+        <source>Fine Tune</source>
+        <translation type="unfinished">Strojenie precyzyjne</translation>
+    </message>
+    <message>
+        <source>Sync (Lock to VCO 1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation type="unfinished">Poziom</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog_VcoMod</name>
+    <message>
+        <source>VCO Mod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cross Mod (FM)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LFO Mod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Env Mod</source>
+        <translation type="unfinished">Mod. obwiedni</translation>
+    </message>
+    <message>
+        <source>Env Target</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VCO 1</source>
+        <translation type="unfinished">VCO 1</translation>
+    </message>
+    <message>
+        <source>VCO 2</source>
+        <translation type="unfinished">VCO 2</translation>
+    </message>
+    <message>
+        <source>Both</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PWM Source</source>
+        <translation type="unfinished">Źródło PWM</translation>
+    </message>
+    <message>
+        <source>Manual</source>
+        <translation type="unfinished">Ręcznie</translation>
+    </message>
+    <message>
+        <source>LFO</source>
+        <translation type="unfinished">LFO</translation>
+    </message>
+    <message>
+        <source>ENV-1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pulse Width</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

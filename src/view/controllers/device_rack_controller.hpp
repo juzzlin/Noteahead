@@ -194,6 +194,7 @@ signals:
     void drumSynthV2DialogRequested();
     void fmDrumsDialogRequested();
     void juSynthDialogRequested();
+    void juSynth08DialogRequested();
     void lfoDialogRequested();
     void pianoSynthDialogRequested();
     void pianoSynthV2DialogRequested();

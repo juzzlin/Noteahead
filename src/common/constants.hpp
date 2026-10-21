@@ -86,6 +86,7 @@ QString bassSynthDeviceName();
 QString drumSynthDeviceName();
 QString drumSynthV2DeviceName();
 QString juSynthDeviceName();
+QString juSynth08DeviceName();
 QString pianoSynthDeviceName();
 QString pianoSynthV2DeviceName();
 QString pianoSynthV3DeviceName();
@@ -965,6 +966,29 @@ QString xmlKeyLfo();
 QString xmlKeyLfos();
 QString xmlKeyFaderPosition();
 QString xmlKeySendTap();
+
+QString xmlKeyCrossMod();
+QString xmlKeyVco1Range();
+QString xmlKeyVco1Level();
+QString xmlKeyVco2Range();
+QString xmlKeyVco2FineTune();
+QString xmlKeyVco2Level();
+QString xmlKeyPitchEnvDepth();
+QString xmlKeyPitchEnvTarget();
+QString xmlKeyVcfSlope();
+QString xmlKeyVcaLfoDepth();
+QString xmlKeyEnv1Attack();
+QString xmlKeyEnv1Decay();
+QString xmlKeyEnv1Sustain();
+QString xmlKeyEnv1Release();
+QString xmlKeyEnv1KeyFollow();
+QString xmlKeyEnv2Attack();
+QString xmlKeyEnv2Decay();
+QString xmlKeyEnv2Sustain();
+QString xmlKeyEnv2Release();
+QString xmlKeyEnv2KeyFollow();
+QString xmlKeyUnisonDetune();
+QString xmlKeyDelayLevel();
 
 } // namespace NahdXml
 } // namespace noteahead::Constants
