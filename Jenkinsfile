@@ -1,5 +1,9 @@
 pipeline {
     agent any
+    options {
+        // Every archived build carries ~400 MB of packages: keep the logs, drop old artifacts.
+        buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '3'))
+    }
     stages {
         stage('Build and run tests') {
             matrix {
@@ -20,6 +24,14 @@ pipeline {
                         steps {
                             sh "mkdir -p build-$BUILD_TYPE && cd build-$BUILD_TYPE && cmake -GNinja -DCMAKE_BUILD_TYPE=$BUILD_TYPE .. && cmake --build . && ctest --output-on-failure --timeout 600 --parallel \$(nproc)"
                         }
+                    }
+                }
+                post {
+                    always {
+                        // The test binaries take ~22 GB per Debug workspace, and every matrix
+                        // cell keeps a workspace of its own. Removed inside the container,
+                        // which owns the files.
+                        sh "rm -rf build-$BUILD_TYPE/unit_tests"
                     }
                 }
             }
