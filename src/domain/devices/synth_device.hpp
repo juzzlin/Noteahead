@@ -17,6 +17,7 @@
 #define SYNTH_DEVICE_HPP
 
 #include "../dsp/adsr_envelope.hpp"
+#include "../dsp/analog_drift.hpp"
 #include "../dsp/cascaded_svf.hpp"
 #include "../dsp/dc_blocker.hpp"
 #include "../dsp/lfo.hpp"
@@ -522,8 +523,7 @@ private:
         //! The same wander again, once per oscillator instead of once per voice. What makes two VCOs
         //! at the same pitch beat against each other: the voice-wide drift above moves all four by
         //! the very same ratio, which leaves their relative tuning exactly as steady as it was.
-        std::array<double, VcoCount> oscDriftPhase {};
-        std::array<double, VcoCount> oscDriftRate {};
+        std::array<AnalogDrift, VcoCount> oscDrifts;
         //! Rolls the top off the outer voices of a stacked mode, where the beating is roughest.
         OnePoleFilter unisonDamp;
 

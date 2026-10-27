@@ -357,15 +357,6 @@ SynthDevice::SynthDevice(std::string name)
 
 namespace {
 
-//! Slowest and fastest an oscillator's own wander runs, in Hz. Slow enough to read as tuning that
-//! will not sit still rather than as vibrato, and spread widely enough that no two oscillators
-//! return to the same relative tuning on any musical timescale.
-constexpr double OscDriftMinRateHz { 0.05 };
-constexpr double OscDriftRateSpreadHz { 0.28 };
-//! Fractional parts of the golden and silver ratios, the two irrationals the rates and the starting
-//! phases are drawn from.
-constexpr double GoldenRatioFraction { 0.6180339887498949 };
-constexpr double SilverRatioFraction { 0.4142135623730951 };
 //! Cents each oscillator wanders either side of its pitch at full instability. Two oscillators can
 //! therefore drift up to a fifth of a semitone apart, which beats audibly without sounding out of
 //! tune -- and at the bottom of the knob it is a few cents, the tuning error of a VCO that has been
@@ -391,15 +382,10 @@ void SynthDevice::initializeVoiceDrift()
         m_voices[i].driftRate = driftRates[i];
         m_voices[i].driftPhase = static_cast<double>(i) / MaxVoices;
 
-        // A rate and a phase of its own for every oscillator of every voice -- twenty-four of them,
-        // too many to pick by hand and far too many to let repeat. The fractional parts of the
-        // multiples of an irrational number never do: they fill the interval without ever landing on
-        // each other, which is exactly the property the hand-picked voice rates above are after. Two
-        // different irrationals keep the rates from deciding the phases with them.
+        // A wander of its own for every oscillator of every voice -- twenty-four of them, too many
+        // to pick by hand and far too many to let repeat. AnalogDrift draws them from irrationals.
         for (size_t j = 0; j < VcoCount; j++) {
-            const auto index = static_cast<double>(i * VcoCount + j + 1);
-            m_voices[i].oscDriftRate[j] = OscDriftMinRateHz + OscDriftRateSpreadHz * std::fmod(index * GoldenRatioFraction, 1.0);
-            m_voices[i].oscDriftPhase[j] = std::fmod(index * SilverRatioFraction, 1.0);
+            m_voices[i].oscDrifts[j].initialize(i * VcoCount + j);
         }
     }
 }
@@ -1408,14 +1394,13 @@ float SynthDevice::generateVoiceSample(Voice & voice, const ModulationValues & m
     // And the same thing one level down, which is the one two oscillators can hear on each other.
     // The drift above moves the whole voice by a single ratio, so a stack of VCOs at one pitch keeps
     // whatever phase relationship it started the note with forever, however far that knob is turned
-    // up: it sums to one static waveform. Here each oscillator wanders on a rate of its own, so a
-    // pair of them beats slowly, never at a steady rate, and never combs.
+    // up: it sums to one static waveform. Here each oscillator wanders on a course of its own, so a
+    // pair of them beats slowly, never at a steady rate. A single sine each closed them in and parted
+    // them again on a regular cycle, which swept the comb of their sum like a flanger.
     const double instabilityCents = static_cast<double>(m_oscillatorInstability) * InstabilityMaxCents;
     if (instabilityCents > 0.0) {
         const auto wander = [&](size_t index) {
-            auto & phase = voice.oscDriftPhase[index];
-            phase = std::fmod(phase + voice.oscDriftRate[index] / oversampledRate, 1.0);
-            return std::exp2(instabilityCents / 1200.0 * std::sin(phase * (2.0 * M_PI)));
+            return std::exp2(instabilityCents / 1200.0 * voice.oscDrifts[index].next(oversampledRate));
         };
         vco1Freq *= wander(0);
         vco2Freq *= wander(1);
