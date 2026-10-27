@@ -1071,6 +1071,37 @@ ApplicationWindow {
         enabled: !UiService.isPlaying()
         onActivated: UiService.rewindSong()
     }
+    // The Device Rack, the Mixer and the Master Effects, one key each, for the same reason. A key
+    // closes its own window, or switches to it from either of the others.
+    Shortcut {
+        sequence: "Ctrl+D"
+        context: Qt.ApplicationShortcut
+        onActivated: _toggleRackWindow(deviceRackDialog, () => applicationService.requestDeviceRackDialog())
+    }
+    Shortcut {
+        sequence: "Ctrl+M"
+        context: Qt.ApplicationShortcut
+        onActivated: _toggleRackWindow(mixerDialog, () => UiService.requestMixerDialog())
+    }
+    Shortcut {
+        sequence: "Ctrl+B"
+        context: Qt.ApplicationShortcut
+        onActivated: _toggleRackWindow(masterEffectsDialog, () => applicationService.requestMasterEffectsDialog())
+    }
+    //! Closes whichever of the three windows is open and opens @p target through @p open, the path the
+    //! menus take, unless @p target was the one open. Closed as by Ok, so that the rack's
+    //! device-assignment offer still follows it.
+    function _toggleRackWindow(target, open): void {
+        const wasOpen = target.visible;
+        for (const window of [deviceRackDialog, mixerDialog, masterEffectsDialog]) {
+            if (window.visible) {
+                window.accept();
+            }
+        }
+        if (!wasOpen) {
+            open();
+        }
+    }
     function _getWindowTitle(): string {
         const nameAndVersion = `${applicationService.applicationName()} v${applicationService.applicationVersion()}`;
         const songTitle = (editorService.songMetadataTitle ? " - " + editorService.songMetadataTitle : "");

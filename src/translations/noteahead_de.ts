@@ -10182,6 +10182,30 @@ Die Audiodateien erscheinen neben der aktuellen Projektdatei.</translation>
         <translation>An den Songanfang zurückspulen und die Spureinstellungen zurücksetzen</translation>
     </message>
     <message>
+        <source>Ctrl + D</source>
+        <translation>Ctrl + D</translation>
+    </message>
+    <message>
+        <source>Open or close the Device Rack</source>
+        <translation>Geräte-Rack öffnen oder schließen</translation>
+    </message>
+    <message>
+        <source>Ctrl + M</source>
+        <translation>Ctrl + M</translation>
+    </message>
+    <message>
+        <source>Open or close the Mixer</source>
+        <translation>Mixer öffnen oder schließen</translation>
+    </message>
+    <message>
+        <source>Ctrl + B</source>
+        <translation>Ctrl + B</translation>
+    </message>
+    <message>
+        <source>Open or close the Master Effects</source>
+        <translation>Master-Effekt-Rack öffnen oder schließen</translation>
+    </message>
+    <message>
         <source>INSERT</source>
         <translation>INSERT</translation>
     </message>

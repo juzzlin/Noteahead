@@ -10182,6 +10182,30 @@ De audiobestanden verschijnen naast het huidige projectbestand.</translation>
         <translation>Terugspoelen naar het begin van de song en de trackinstellingen resetten</translation>
     </message>
     <message>
+        <source>Ctrl + D</source>
+        <translation>Ctrl + D</translation>
+    </message>
+    <message>
+        <source>Open or close the Device Rack</source>
+        <translation>Apparatenrek openen of sluiten</translation>
+    </message>
+    <message>
+        <source>Ctrl + M</source>
+        <translation>Ctrl + M</translation>
+    </message>
+    <message>
+        <source>Open or close the Mixer</source>
+        <translation>Mixer openen of sluiten</translation>
+    </message>
+    <message>
+        <source>Ctrl + B</source>
+        <translation>Ctrl + B</translation>
+    </message>
+    <message>
+        <source>Open or close the Master Effects</source>
+        <translation>Master-effectenrek openen of sluiten</translation>
+    </message>
+    <message>
         <source>INSERT</source>
         <translation>INSERT</translation>
     </message>

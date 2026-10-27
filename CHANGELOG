@@ -59,6 +59,8 @@ New features:
 
 * Support mouse drag glissando on VirtualKeyboard
 
+* Ctrl+D, Ctrl+M and Ctrl+B open and close the Device Rack, the Mixer and the Master Effects
+
 * Update JU Synth terminology and UI labels
 
 * Drum Synth V2: Wobble knob on Crash and Reverse Crash

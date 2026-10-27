@@ -10182,6 +10182,30 @@ I file audio compariranno accanto al file di progetto corrente.</translation>
         <translation>Riavvolgi all&apos;inizio del brano e reimposta le impostazioni delle tracce</translation>
     </message>
     <message>
+        <source>Ctrl + D</source>
+        <translation>Ctrl + D</translation>
+    </message>
+    <message>
+        <source>Open or close the Device Rack</source>
+        <translation>Apri o chiudi il rack dispositivi</translation>
+    </message>
+    <message>
+        <source>Ctrl + M</source>
+        <translation>Ctrl + M</translation>
+    </message>
+    <message>
+        <source>Open or close the Mixer</source>
+        <translation>Apri o chiudi il mixer</translation>
+    </message>
+    <message>
+        <source>Ctrl + B</source>
+        <translation>Ctrl + B</translation>
+    </message>
+    <message>
+        <source>Open or close the Master Effects</source>
+        <translation>Apri o chiudi il rack effetti master</translation>
+    </message>
+    <message>
         <source>INSERT</source>
         <translation>INSERT</translation>
     </message>

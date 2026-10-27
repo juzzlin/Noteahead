@@ -10182,6 +10182,30 @@ Audio files will appear next to the current project file.</source>
         <translation>Kelaa kappaleen alkuun ja nollaa raita-asetukset</translation>
     </message>
     <message>
+        <source>Ctrl + D</source>
+        <translation>Ctrl + D</translation>
+    </message>
+    <message>
+        <source>Open or close the Device Rack</source>
+        <translation>Avaa tai sulje laiteräkki</translation>
+    </message>
+    <message>
+        <source>Ctrl + M</source>
+        <translation>Ctrl + M</translation>
+    </message>
+    <message>
+        <source>Open or close the Mixer</source>
+        <translation>Avaa tai sulje mikseri</translation>
+    </message>
+    <message>
+        <source>Ctrl + B</source>
+        <translation>Ctrl + B</translation>
+    </message>
+    <message>
+        <source>Open or close the Master Effects</source>
+        <translation>Avaa tai sulje masterin efektiräkki</translation>
+    </message>
+    <message>
         <source>INSERT</source>
         <translation>INSERT</translation>
     </message>

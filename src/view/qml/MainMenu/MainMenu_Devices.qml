@@ -21,13 +21,16 @@ import "../Components"
 
 Menu {
     title: qsTr("&Devices")
-    Action {
+    // The sequences are registered as application shortcuts in Main.qml. See ShortcutHintAction.
+    ShortcutHintAction {
         text: qsTr("Device rack...")
+        shortcutHint: "Ctrl+D"
         onTriggered: applicationService.requestDeviceRackDialog()
     }
     MenuSeparator {}
-    Action {
+    ShortcutHintAction {
         text: qsTr("Mixer...")
+        shortcutHint: "Ctrl+M"
         onTriggered: UiService.requestMixerDialog()
     }
     delegate: MenuItemDelegate {}

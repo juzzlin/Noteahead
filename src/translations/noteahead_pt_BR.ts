@@ -10182,6 +10182,30 @@ Os arquivos de áudio aparecerão ao lado do arquivo do projeto atual.</translat
         <translation>Retroceder para o início da música e redefinir as configurações das faixas</translation>
     </message>
     <message>
+        <source>Ctrl + D</source>
+        <translation>Ctrl + D</translation>
+    </message>
+    <message>
+        <source>Open or close the Device Rack</source>
+        <translation>Abrir ou fechar o rack de dispositivos</translation>
+    </message>
+    <message>
+        <source>Ctrl + M</source>
+        <translation>Ctrl + M</translation>
+    </message>
+    <message>
+        <source>Open or close the Mixer</source>
+        <translation>Abrir ou fechar o mixer</translation>
+    </message>
+    <message>
+        <source>Ctrl + B</source>
+        <translation>Ctrl + B</translation>
+    </message>
+    <message>
+        <source>Open or close the Master Effects</source>
+        <translation>Abrir ou fechar o rack de efeitos master</translation>
+    </message>
+    <message>
         <source>INSERT</source>
         <translation>INSERT</translation>
     </message>

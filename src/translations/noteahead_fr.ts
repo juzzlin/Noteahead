@@ -10182,6 +10182,30 @@ Les fichiers audio apparaîtront à côté du fichier de projet actuel.</transla
         <translation>Revenir au début du morceau et réinitialiser les paramètres de piste</translation>
     </message>
     <message>
+        <source>Ctrl + D</source>
+        <translation>Ctrl + D</translation>
+    </message>
+    <message>
+        <source>Open or close the Device Rack</source>
+        <translation>Ouvrir ou fermer le rack d&apos;appareils</translation>
+    </message>
+    <message>
+        <source>Ctrl + M</source>
+        <translation>Ctrl + M</translation>
+    </message>
+    <message>
+        <source>Open or close the Mixer</source>
+        <translation>Ouvrir ou fermer le mixeur</translation>
+    </message>
+    <message>
+        <source>Ctrl + B</source>
+        <translation>Ctrl + B</translation>
+    </message>
+    <message>
+        <source>Open or close the Master Effects</source>
+        <translation>Ouvrir ou fermer le rack d&apos;effets master</translation>
+    </message>
+    <message>
         <source>INSERT</source>
         <translation>INSERT</translation>
     </message>

@@ -57,6 +57,18 @@ AnimatedDialog {
             description: qsTr("Rewind to the start of the song and reset track settings")
         },
         {
+            key: qsTr("Ctrl + D"),
+            description: qsTr("Open or close the Device Rack")
+        },
+        {
+            key: qsTr("Ctrl + M"),
+            description: qsTr("Open or close the Mixer")
+        },
+        {
+            key: qsTr("Ctrl + B"),
+            description: qsTr("Open or close the Master Effects")
+        },
+        {
             key: qsTr("INSERT"),
             description: qsTr("Insert empty line and move subsequent lines down")
         },

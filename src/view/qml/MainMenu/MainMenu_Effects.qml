@@ -21,8 +21,10 @@ import "../Components"
 
 Menu {
     title: qsTr("&Effects")
-    Action {
+    // The sequence is registered as an application shortcut in Main.qml. See ShortcutHintAction.
+    ShortcutHintAction {
         text: qsTr("Master effect rack...")
+        shortcutHint: "Ctrl+B"
         onTriggered: applicationService.requestMasterEffectsDialog()
     }
     delegate: MenuItemDelegate {}
