@@ -28,6 +28,7 @@
 #include "../../domain/devices/ju_synth_device.hpp"
 #include "../../domain/devices/kick_808_device.hpp"
 #include "../../domain/devices/lfo_device.hpp"
+#include "../../domain/devices/noise_fx_device.hpp"
 #include "../../domain/devices/piano_synth_device.hpp"
 #include "../../domain/devices/piano_synth_v2_device.hpp"
 #include "../../domain/devices/piano_synth_v3_device.hpp"
@@ -207,6 +208,8 @@ void DeviceRackController::openDevice(const QString & name)
                     emit stringEnsembleDialogRequested();
                 } else if (typeId == SpeechDevice::typeIdString()) {
                     emit speechDialogRequested();
+                } else if (typeId == NoiseFxDevice::typeIdString()) {
+                    emit noiseFxDialogRequested();
                 }
                 return;
             }
@@ -580,6 +583,7 @@ QVariantList DeviceRackController::deviceTypes()
     addDevice("String & Voice V3", QString::fromStdString(StringVoiceV3Device::typeIdString()));
     addDevice("String Ensemble", QString::fromStdString(StringEnsembleDevice::typeIdString()));
     addDevice("Speech", QString::fromStdString(SpeechDevice::typeIdString()));
+    addDevice("Noise FX", QString::fromStdString(NoiseFxDevice::typeIdString()));
     addDevice("Sub Mixer", QString::fromStdString(SubMixerDevice::typeIdString()));
     addDevice("LFO", QString::fromStdString(LfoDevice::typeIdString()));
 

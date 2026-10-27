@@ -64,6 +64,7 @@ class ApplicationService : public QObject
     Q_PROPERTY(QString stringVoiceV2DeviceName READ stringVoiceV2DeviceName CONSTANT)
     Q_PROPERTY(QString stringVoiceV3DeviceName READ stringVoiceV3DeviceName CONSTANT)
     Q_PROPERTY(QString speechDeviceName READ speechDeviceName CONSTANT)
+    Q_PROPERTY(QString noiseFxDeviceName READ noiseFxDeviceName CONSTANT)
     Q_PROPERTY(QString stringEnsembleDeviceName READ stringEnsembleDeviceName CONSTANT)
 
 public:
@@ -117,6 +118,7 @@ public:
     Q_INVOKABLE QString stringVoiceV2DeviceName() const;
     Q_INVOKABLE QString stringVoiceV3DeviceName() const;
     Q_INVOKABLE QString speechDeviceName() const;
+    Q_INVOKABLE QString noiseFxDeviceName() const;
     Q_INVOKABLE QString stringEnsembleDeviceName() const;
 
     Q_INVOKABLE QStringList recentFiles() const;

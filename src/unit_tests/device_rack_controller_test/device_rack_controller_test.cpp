@@ -469,7 +469,7 @@ void DeviceRackControllerTest::test_availableDevices_shouldReturnCorrectList()
     DeviceRackController controller { nullptr, {}, nullptr };
     const auto list = controller.availableDevices();
 
-    QCOMPARE(list.size(), 22);
+    QCOMPARE(list.size(), 23);
     QCOMPARE(list.at(0).toMap()["name"].toString(), QString("Sampler"));
     QCOMPARE(list.at(1).toMap()["name"].toString(), QString("Synth"));
     QCOMPARE(list.at(2).toMap()["name"].toString(), QString("Wavetable Synth"));
@@ -490,8 +490,9 @@ void DeviceRackControllerTest::test_availableDevices_shouldReturnCorrectList()
     QCOMPARE(list.at(17).toMap()["name"].toString(), QString("String & Voice V3"));
     QCOMPARE(list.at(18).toMap()["name"].toString(), QString("String Ensemble"));
     QCOMPARE(list.at(19).toMap()["name"].toString(), QString("Speech"));
-    QCOMPARE(list.at(20).toMap()["name"].toString(), QString("Sub Mixer"));
-    QCOMPARE(list.at(21).toMap()["name"].toString(), QString("LFO"));
+    QCOMPARE(list.at(20).toMap()["name"].toString(), QString("Noise FX"));
+    QCOMPARE(list.at(21).toMap()["name"].toString(), QString("Sub Mixer"));
+    QCOMPARE(list.at(22).toMap()["name"].toString(), QString("LFO"));
 }
 
 void DeviceRackControllerTest::test_deviceMeterLevels_shouldReportPreInsertLevel()

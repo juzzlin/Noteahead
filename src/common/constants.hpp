@@ -103,6 +103,7 @@ QString speechDeviceName();
 QString fmSynthDeviceName();
 QString fmDrumsDeviceName();
 QString lfoDeviceName();
+QString noiseFxDeviceName();
 
 QString internalDevicePortPrefix();
 double defaultSampleRate();
@@ -992,6 +993,12 @@ QString xmlKeyEnv2Release();
 QString xmlKeyEnv2KeyFollow();
 QString xmlKeyUnisonDetune();
 QString xmlKeyDelayLevel();
+QString xmlKeyStart();
+QString xmlKeyEnd();
+QString xmlKeySampleHoldRate();
+QString xmlKeyCrackle();
+QString xmlKeyPlayToEnd();
+QString xmlKeyRingMod();
 
 } // namespace NahdXml
 } // namespace noteahead::Constants

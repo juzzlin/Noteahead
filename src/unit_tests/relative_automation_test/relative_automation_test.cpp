@@ -25,6 +25,7 @@
 #include "../../domain/devices/fm_synth_device.hpp"
 #include "../../domain/devices/ju_synth_device.hpp"
 #include "../../domain/devices/kick_808_device.hpp"
+#include "../../domain/devices/noise_fx_device.hpp"
 #include "../../domain/devices/piano_synth_device.hpp"
 #include "../../domain/devices/piano_synth_v2_device.hpp"
 #include "../../domain/devices/piano_synth_v3_device.hpp"
@@ -51,6 +52,7 @@
 #include "../../view/controllers/fm_synth_controller.hpp"
 #include "../../view/controllers/ju_synth_controller.hpp"
 #include "../../view/controllers/kick_808_controller.hpp"
+#include "../../view/controllers/noise_fx_controller.hpp"
 #include "../../view/controllers/piano_synth_controller.hpp"
 #include "../../view/controllers/piano_synth_v2_controller.hpp"
 #include "../../view/controllers/piano_synth_v3_controller.hpp"
@@ -150,6 +152,7 @@ std::vector<Case> cases()
         makeCase<PianoSynthDevice, PianoSynthController>("Piano Synth"),
         makeCase<PianoSynthV2Device, PianoSynthV2Controller>("Piano Synth V2"),
         makeCase<PianoSynthV3Device, PianoSynthV3Controller>("Piano Synth V3"),
+        makeCase<NoiseFxDevice, NoiseFxController>("Noise FX"),
         makeCase<SpeechDevice, SpeechController>("Speech"),
         makeCase<StringEnsembleDevice, StringEnsembleController>("String Ensemble"),
         makeCase<StringVoiceDevice, StringVoiceController>("String & Voice"),

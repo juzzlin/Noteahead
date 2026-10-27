@@ -7008,6 +7008,344 @@
     </message>
 </context>
 <context>
+    <name>NoiseFxDialog</name>
+    <message>
+        <source>Ok</source>
+        <translation type="unfinished">OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Cancelar</translation>
+    </message>
+    <message>
+        <source>Sound</source>
+        <translation>Som</translation>
+    </message>
+    <message>
+        <source>Modulation</source>
+        <translation type="unfinished">Modulação</translation>
+    </message>
+</context>
+<context>
+    <name>NoiseFxDialog_Amp</name>
+    <message>
+        <source>Amp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <translation type="unfinished">Ataque</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <translation type="unfinished">Decaimento</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <translation type="unfinished">Sustentação</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation type="unfinished">Liberação</translation>
+    </message>
+    <message>
+        <source>Velocity</source>
+        <translation type="unfinished">Velocidade</translation>
+    </message>
+    <message>
+        <source>Play to End</source>
+        <translation>Tocar até o fim</translation>
+    </message>
+    <message>
+        <source>A note plays until Sweep A has run its course, whenever its note-off comes</source>
+        <translation>Uma nota toca até a Varredura A terminar, não importa quando chegue seu note-off</translation>
+    </message>
+</context>
+<context>
+    <name>NoiseFxDialog_Filter</name>
+    <message>
+        <source>Filter</source>
+        <translation type="unfinished">Filtro</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Tipo</translation>
+    </message>
+    <message>
+        <source>Cutoff</source>
+        <translation type="unfinished">Corte</translation>
+    </message>
+    <message>
+        <source>Resonance</source>
+        <translation type="unfinished">Ressonância</translation>
+    </message>
+    <message>
+        <source>Drive</source>
+        <translation type="unfinished">Drive</translation>
+    </message>
+    <message>
+        <source>Key Track</source>
+        <translation type="unfinished">Seguimento de tecla</translation>
+    </message>
+</context>
+<context>
+    <name>NoiseFxDialog_Gate</name>
+    <message>
+        <source>Gate</source>
+        <translation type="unfinished">Gate</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation type="unfinished">Taxa</translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation type="unfinished">Profundidade</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation type="unfinished">Largura</translation>
+    </message>
+    <message>
+        <source>Smoothing</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>NoiseFxDialog_Global</name>
+    <message>
+        <source>Global</source>
+        <translation type="unfinished">Global</translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <translation type="unfinished">Ganho</translation>
+    </message>
+    <message>
+        <source>Fader</source>
+        <translation type="unfinished">Fader</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation type="unfinished">Panorama</translation>
+    </message>
+</context>
+<context>
+    <name>NoiseFxDialog_Lfo</name>
+    <message>
+        <source>LFO</source>
+        <translation type="unfinished">LFO</translation>
+    </message>
+    <message>
+        <source>Waveform</source>
+        <translation type="unfinished">Forma de onda</translation>
+    </message>
+    <message>
+        <source>Saw</source>
+        <translation type="unfinished">Serra</translation>
+    </message>
+    <message>
+        <source>Triangle</source>
+        <translation type="unfinished">Triangular</translation>
+    </message>
+    <message>
+        <source>Square</source>
+        <translation type="unfinished">Quadrada</translation>
+    </message>
+    <message>
+        <source>Sine</source>
+        <translation type="unfinished">Senoide</translation>
+    </message>
+    <message>
+        <source>Random</source>
+        <translation type="unfinished">Aleatório</translation>
+    </message>
+    <message>
+        <source>Smooth Random</source>
+        <translation>Aleatório suave</translation>
+    </message>
+    <message>
+        <source>Sync</source>
+        <translation type="unfinished">Sinc.</translation>
+    </message>
+    <message>
+        <source>Rate</source>
+        <translation type="unfinished">Taxa</translation>
+    </message>
+</context>
+<context>
+    <name>NoiseFxDialog_Noise</name>
+    <message>
+        <source>Noise</source>
+        <translation type="unfinished">Ruído</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation>Nível</translation>
+    </message>
+    <message>
+        <source>Colour</source>
+        <translation>Cor</translation>
+    </message>
+    <message>
+        <source>S&amp;H Rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Crackle</source>
+        <translation>Estalos</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation type="unfinished">Largura</translation>
+    </message>
+</context>
+<context>
+    <name>NoiseFxDialog_Route</name>
+    <message>
+        <source>None</source>
+        <translation type="unfinished">Nenhum</translation>
+    </message>
+    <message>
+        <source>Cutoff</source>
+        <translation type="unfinished">Corte</translation>
+    </message>
+    <message>
+        <source>Resonance</source>
+        <translation type="unfinished">Ressonância</translation>
+    </message>
+    <message>
+        <source>Colour</source>
+        <translation>Cor</translation>
+    </message>
+    <message>
+        <source>S&amp;H Rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation type="unfinished">Nível</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <translation type="unfinished">Panorama</translation>
+    </message>
+    <message>
+        <source>Pitch</source>
+        <translation type="unfinished">Altura</translation>
+    </message>
+    <message>
+        <source>Blend</source>
+        <translation type="unfinished">Mesclagem</translation>
+    </message>
+    <message>
+        <source>LFO Rate</source>
+        <translation type="unfinished">Taxa do LFO</translation>
+    </message>
+    <message>
+        <source>LFO Depth</source>
+        <translation>Profundidade do LFO</translation>
+    </message>
+    <message>
+        <source>Gate Rate</source>
+        <translation>Taxa do gate</translation>
+    </message>
+    <message>
+        <source>Target</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation type="unfinished">Profundidade</translation>
+    </message>
+</context>
+<context>
+    <name>NoiseFxDialog_Sweep</name>
+    <message>
+        <source>Sweep A</source>
+        <translation>Varredura A</translation>
+    </message>
+    <message>
+        <source>Sweep B</source>
+        <translation>Varredura B</translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation type="unfinished">Modo</translation>
+    </message>
+    <message>
+        <source>Hold</source>
+        <translation type="unfinished">Retenção</translation>
+    </message>
+    <message>
+        <source>Loop</source>
+        <translation type="unfinished">Loop</translation>
+    </message>
+    <message>
+        <source>Ping-Pong</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation>Início</translation>
+    </message>
+    <message>
+        <source>End</source>
+        <translation>Fim</translation>
+    </message>
+    <message>
+        <source>Curve</source>
+        <translation type="unfinished">Curva</translation>
+    </message>
+    <message>
+        <source>Sync</source>
+        <translation type="unfinished">Sinc.</translation>
+    </message>
+    <message>
+        <source>Length</source>
+        <translation>Duração</translation>
+    </message>
+</context>
+<context>
+    <name>NoiseFxDialog_Tone</name>
+    <message>
+        <source>Tone</source>
+        <translation type="unfinished">Tom</translation>
+    </message>
+    <message>
+        <source>Waveform</source>
+        <translation type="unfinished">Forma de onda</translation>
+    </message>
+    <message>
+        <source>Triangle</source>
+        <translation type="unfinished">Triangular</translation>
+    </message>
+    <message>
+        <source>Saw</source>
+        <translation type="unfinished">Serra</translation>
+    </message>
+    <message>
+        <source>Square</source>
+        <translation type="unfinished">Quadrada</translation>
+    </message>
+    <message>
+        <source>Sine</source>
+        <translation type="unfinished">Senoide</translation>
+    </message>
+    <message>
+        <source>Pitch</source>
+        <translation type="unfinished">Altura</translation>
+    </message>
+    <message>
+        <source>Blend</source>
+        <translation type="unfinished">Mesclagem</translation>
+    </message>
+    <message>
+        <source>Ring Mod</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>NoteColumnHeader</name>
     <message>
         <source>Set velocity scale for this COLUMN, 0-100 %. All note velocities will be scaled according to this setting, taking into account the track-level scale.</source>
@@ -7264,6 +7602,26 @@
 </context>
 <context>
     <name>ParameterDisplay</name>
+    <message>
+        <source>Colour</source>
+        <translation>Cor</translation>
+    </message>
+    <message>
+        <source>S&amp;H Rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Crackle</source>
+        <translation>Estalos</translation>
+    </message>
+    <message>
+        <source>Blend</source>
+        <translation type="unfinished">Mesclagem</translation>
+    </message>
+    <message>
+        <source>Ring Mod</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>Cutoff</source>
         <translation type="unfinished">Corte</translation>

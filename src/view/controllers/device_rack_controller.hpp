@@ -206,6 +206,7 @@ signals:
     void stringVoiceV3DialogRequested();
     void stringEnsembleDialogRequested();
     void speechDialogRequested();
+    void noiseFxDialogRequested();
     void deviceSettingsDialogRequested(QString deviceName);
     void subMixerDialogRequested(int slotIndex);
     void effectSendsDialogRequested(const QString & deviceName);

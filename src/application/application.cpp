@@ -28,6 +28,7 @@
 #include "../domain/devices/ju_synth_08_device.hpp"
 #include "../domain/devices/ju_synth_device.hpp"
 #include "../domain/devices/kick_808_device.hpp"
+#include "../domain/devices/noise_fx_device.hpp"
 #include "../domain/devices/piano_synth_device.hpp"
 #include "../domain/devices/piano_synth_v2_device.hpp"
 #include "../domain/devices/piano_synth_v3_device.hpp"
@@ -61,6 +62,7 @@
 #include "../view/controllers/kick_808_controller.hpp"
 #include "../view/controllers/knob_controller.hpp"
 #include "../view/controllers/lfo_controller.hpp"
+#include "../view/controllers/noise_fx_controller.hpp"
 #include "../view/controllers/piano_synth_controller.hpp"
 #include "../view/controllers/piano_synth_v2_controller.hpp"
 #include "../view/controllers/piano_synth_v3_controller.hpp"
@@ -181,10 +183,11 @@ Application::Application(int & argc, char ** argv)
   , m_stringVoiceV3Controller { std::make_shared<StringVoiceV3Controller>(std::make_shared<StringVoiceV3Device>("Default StringVoiceV3")) }
   , m_stringEnsembleController { std::make_shared<StringEnsembleController>(std::make_shared<StringEnsembleDevice>("Default StringEnsemble")) }
   , m_speechController { std::make_shared<SpeechController>(std::make_shared<SpeechDevice>("Default Speech")) }
+  , m_noiseFxController { std::make_shared<NoiseFxController>(std::make_shared<NoiseFxDevice>("Default Noise FX")) }
   , m_effectRackController { std::make_shared<EffectRackController>(m_deviceService, m_editorService) }
   , m_songOverviewService { std::make_shared<SongOverviewService>(m_deviceService, m_editorService) }
   , m_songOverviewController { std::make_shared<SongOverviewController>(m_songOverviewService, m_effectRackController) }
-  , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, std::vector<DeviceController::DeviceControllerS> { m_samplerController, m_synthController, m_wavetableSynthController, m_fmSynthController, m_juSynthController, m_juSynth08Controller, m_bassSynthController, m_drumSynthController, m_drumSynthV2Controller, m_fmDrumsController, m_pianoSynthController, m_pianoSynthV2Controller, m_pianoSynthV3Controller, m_kick808Controller, m_snareSynthController, m_stringVoiceController, m_stringVoiceV2Controller, m_stringVoiceV3Controller, m_stringEnsembleController, m_speechController, m_lfoController }, m_editorService) }
+  , m_deviceRackController { std::make_shared<DeviceRackController>(m_deviceService, std::vector<DeviceController::DeviceControllerS> { m_samplerController, m_synthController, m_wavetableSynthController, m_fmSynthController, m_juSynthController, m_juSynth08Controller, m_bassSynthController, m_drumSynthController, m_drumSynthV2Controller, m_fmDrumsController, m_pianoSynthController, m_pianoSynthV2Controller, m_pianoSynthV3Controller, m_kick808Controller, m_snareSynthController, m_stringVoiceController, m_stringVoiceV2Controller, m_stringVoiceV3Controller, m_stringEnsembleController, m_speechController, m_noiseFxController, m_lfoController }, m_editorService) }
   , m_knobController { std::make_shared<KnobController>() }
   , m_jackService { std::make_shared<JackService>(m_settingsService, m_audioEngine) }
   , m_audioService { std::make_shared<AudioService>(m_settingsService, m_jackService, m_audioEngine) }
@@ -302,6 +305,7 @@ void Application::registerTypes()
     qmlRegisterType<StringVoiceV2Controller>("Noteahead", majorVersion, minorVersion, "StringVoiceV2Controller");
     qmlRegisterType<StringVoiceV3Controller>("Noteahead", majorVersion, minorVersion, "StringVoiceV3Controller");
     qmlRegisterType<SpeechController>("Noteahead", majorVersion, minorVersion, "SpeechController");
+    qmlRegisterType<NoiseFxController>("Noteahead", majorVersion, minorVersion, "NoiseFxController");
     qmlRegisterType<StringEnsembleController>("Noteahead", majorVersion, minorVersion, "StringEnsembleController");
     qmlRegisterType<SynthController>("Noteahead", majorVersion, minorVersion, "SynthController");
     qmlRegisterType<WavetableSynthController>("Noteahead", majorVersion, minorVersion, "WavetableSynthController");
@@ -352,6 +356,7 @@ void Application::setContextProperties()
     m_engine->rootContext()->setContextProperty("stringVoiceV3Controller", m_stringVoiceV3Controller.get());
     m_engine->rootContext()->setContextProperty("stringEnsembleController", m_stringEnsembleController.get());
     m_engine->rootContext()->setContextProperty("speechController", m_speechController.get());
+    m_engine->rootContext()->setContextProperty("noiseFxController", m_noiseFxController.get());
     m_engine->rootContext()->setContextProperty("effectRackController", m_effectRackController.get());
     m_engine->rootContext()->setContextProperty("songOverviewController", m_songOverviewController.get());
     m_engine->rootContext()->setContextProperty("selectionService", m_selectionService.get());

@@ -39,6 +39,7 @@
 #include "../../domain/devices/ju_synth_device.hpp"
 #include "../../domain/devices/kick_808_device.hpp"
 #include "../../domain/devices/lfo_device.hpp"
+#include "../../domain/devices/noise_fx_device.hpp"
 #include "../../domain/devices/piano_synth_v2_device.hpp"
 #include "../../domain/devices/piano_synth_v3_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
@@ -3203,6 +3204,115 @@ void XmlSerializationTest::test_toXmlFromXml_pianoSynthV3Device_shouldLoadCorrec
     QVERIFY(std::abs(restored->hpfCutoff() - 0.12f) < 0.001f);
     QVERIFY(std::abs(restored->releaseTime() - 0.26f) < 0.001f);
     QVERIFY(std::abs(restored->stereoWidth() - 0.37f) < 0.001f);
+}
+
+void XmlSerializationTest::test_toXmlFromXml_noiseFxDevice_shouldLoadCorrectly()
+{
+    // Devices are rebuilt through DeviceFactory, so this also covers the factory registration:
+    // without it the device would silently vanish from a reloaded project.
+    DeviceFactory::init();
+
+    const auto engineOut = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceOut { engineOut, std::make_shared<DataService>() };
+
+    using Constants::NahdXml::xmlKeyEnd;
+    using Constants::NahdXml::xmlKeyLength;
+    using Constants::NahdXml::xmlKeyMode;
+    using Constants::NahdXml::xmlKeySync;
+    using Constants::NahdXml::xmlKeySyncLength;
+
+    auto noise = std::make_shared<NoiseFxDevice>("NoiseFx");
+    noise->setColour(0.21f);
+    noise->setSampleHoldRate(0.43f);
+    noise->setCrackle(0.17f);
+    noise->setNoiseLevel(0.38f);
+    noise->setFilterType(NoiseFxDevice::FilterType::BandPass);
+    noise->setCutoff(0.66f);
+    noise->setResonance(0.72f);
+    noise->setDrive(0.35f);
+    noise->setKeyTrack(0.5f);
+    noise->setAmpAttack(0.12f);
+    noise->setAmpDecay(0.34f);
+    noise->setAmpSustain(0.56f);
+    noise->setAmpRelease(0.78f);
+    noise->setVelocitySensitivity(0.9f);
+    noise->setPlayToEnd(false);
+    noise->setSweepParameterValue(0, xmlKeyEnd(), 0.4f);
+    noise->setSweepParameterValue(0, xmlKeySyncLength(), 8.0f);
+    noise->setSweepParameterValue(1, xmlKeyMode(), static_cast<float>(SweepEnvelope::Mode::PingPong));
+    noise->setSweepParameterValue(1, xmlKeySync(), 0.0f);
+    noise->setSweepParameterValue(1, xmlKeyLength(), 0.27f);
+    noise->setSweepTarget(1, 1, NoiseFxDevice::Destination::Colour);
+    noise->setSweepDepth(1, 1, 0.15f);
+    noise->setWidth(0.31f);
+    noise->setToneWaveform(PolyBlepOscillator::Waveform::Square);
+    noise->setPitch(0.62f);
+    noise->setBlend(0.44f);
+    noise->setRingMod(0.58f);
+    noise->setLfoParameterValue(Constants::NahdXml::xmlKeyWaveform(), static_cast<float>(NoiseFxDevice::SmoothRandomWaveform));
+    noise->setLfoParameterValue(Constants::NahdXml::xmlKeySync(), 1.0f);
+    noise->setLfoParameterValue(Constants::NahdXml::xmlKeyRate(), 0.83f);
+    noise->setLfoTarget(1, NoiseFxDevice::Destination::GateRate);
+    noise->setLfoDepth(1, 0.07f);
+    noise->setGateParameterValue(Constants::NahdXml::xmlKeyRate(), 5.0f);
+    noise->setGateParameterValue(Constants::NahdXml::xmlKeyDepth(), 0.64f);
+    noise->setGateParameterValue(Constants::NahdXml::xmlKeyWidth(), 0.29f);
+    noise->setGateParameterValue(Constants::NahdXml::xmlKeySmoothing(), 0.13f);
+    deviceServiceOut.setDevice(1, noise);
+
+    EditorService editorServiceOut { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceOut, &EditorService::devicesSerializationRequested, &deviceServiceOut, &DeviceService::serializeToXml);
+
+    const auto xml = editorServiceOut.toXml();
+
+    const auto engineIn = std::make_shared<AudioEngine>();
+    DeviceService deviceServiceIn { engineIn, std::make_shared<DataService>() };
+    EditorService editorServiceIn { std::make_shared<SelectionService>(), std::make_shared<SettingsService>(), std::make_shared<AutomationService>(std::make_shared<PropertyService>()), std::make_shared<DataService>() };
+    connect(&editorServiceIn, &EditorService::devicesDeserializationRequested, &deviceServiceIn, &DeviceService::deserializeFromXml);
+
+    editorServiceIn.fromXml(xml);
+
+    const auto restored = std::dynamic_pointer_cast<NoiseFxDevice>(deviceServiceIn.device(size_t { 1 }));
+    QVERIFY(restored);
+    QCOMPARE(restored->typeId(), NoiseFxDevice::typeIdString());
+
+    QVERIFY(std::abs(restored->colour() - 0.21f) < 0.001f);
+    QVERIFY(std::abs(restored->sampleHoldRate() - 0.43f) < 0.001f);
+    QVERIFY(std::abs(restored->crackle() - 0.17f) < 0.001f);
+    QVERIFY(std::abs(restored->noiseLevel() - 0.38f) < 0.001f);
+    QCOMPARE(restored->filterType(), NoiseFxDevice::FilterType::BandPass);
+    QVERIFY(std::abs(restored->cutoff() - 0.66f) < 0.001f);
+    QVERIFY(std::abs(restored->resonance() - 0.72f) < 0.001f);
+    QVERIFY(std::abs(restored->drive() - 0.35f) < 0.001f);
+    QVERIFY(std::abs(restored->keyTrack() - 0.5f) < 0.001f);
+    QVERIFY(std::abs(restored->ampAttack() - 0.12f) < 0.001f);
+    QVERIFY(std::abs(restored->ampDecay() - 0.34f) < 0.001f);
+    QVERIFY(std::abs(restored->ampSustain() - 0.56f) < 0.001f);
+    QVERIFY(std::abs(restored->ampRelease() - 0.78f) < 0.001f);
+    QVERIFY(std::abs(restored->velocitySensitivity() - 0.9f) < 0.001f);
+    QCOMPARE(restored->playToEnd(), false);
+    QVERIFY(std::abs(restored->sweepParameterValue(0, xmlKeyEnd()) - 0.4f) < 0.001f);
+    QCOMPARE(restored->sweepParameterValue(0, xmlKeySyncLength()), 8.0f);
+    QCOMPARE(restored->sweepParameterValue(1, xmlKeyMode()), static_cast<float>(SweepEnvelope::Mode::PingPong));
+    QCOMPARE(restored->sweepParameterValue(1, xmlKeySync()), 0.0f);
+    QVERIFY(std::abs(restored->sweepParameterValue(1, xmlKeyLength()) - 0.27f) < 0.001f);
+    QCOMPARE(restored->sweepTarget(0, 0), NoiseFxDevice::Destination::Cutoff);
+    QCOMPARE(restored->sweepTarget(1, 1), NoiseFxDevice::Destination::Colour);
+    QVERIFY(std::abs(restored->sweepDepth(1, 1) - 0.15f) < 0.001f);
+    QVERIFY(std::abs(restored->width() - 0.31f) < 0.001f);
+    QCOMPARE(restored->toneWaveform(), PolyBlepOscillator::Waveform::Square);
+    QVERIFY(std::abs(restored->pitch() - 0.62f) < 0.001f);
+    QVERIFY(std::abs(restored->blend() - 0.44f) < 0.001f);
+    QVERIFY(std::abs(restored->ringMod() - 0.58f) < 0.001f);
+    QCOMPARE(restored->lfoParameterValue(Constants::NahdXml::xmlKeyWaveform()), static_cast<float>(NoiseFxDevice::SmoothRandomWaveform));
+    QCOMPARE(restored->lfoParameterValue(Constants::NahdXml::xmlKeySync()), 1.0f);
+    QVERIFY(std::abs(restored->lfoParameterValue(Constants::NahdXml::xmlKeyRate()) - 0.83f) < 0.001f);
+    QCOMPARE(restored->lfoTarget(1), NoiseFxDevice::Destination::GateRate);
+    QVERIFY(std::abs(restored->lfoDepth(1) - 0.07f) < 0.001f);
+    QCOMPARE(restored->gateParameterValue(Constants::NahdXml::xmlKeyRate()), 5.0f);
+    QVERIFY(std::abs(restored->gateParameterValue(Constants::NahdXml::xmlKeyDepth()) - 0.64f) < 0.001f);
+    QVERIFY(std::abs(restored->gateParameterValue(Constants::NahdXml::xmlKeyWidth()) - 0.29f) < 0.001f);
+    QVERIFY(std::abs(restored->gateParameterValue(Constants::NahdXml::xmlKeySmoothing()) - 0.13f) < 0.001f);
 }
 
 void XmlSerializationTest::test_toXmlFromXml_kick808Device_shouldLoadCorrectly()

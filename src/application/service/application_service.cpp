@@ -271,6 +271,11 @@ QString ApplicationService::speechDeviceName() const
     return Constants::speechDeviceName();
 }
 
+QString ApplicationService::noiseFxDeviceName() const
+{
+    return Constants::noiseFxDeviceName();
+}
+
 QString ApplicationService::stringEnsembleDeviceName() const
 {
     return Constants::stringEnsembleDeviceName();

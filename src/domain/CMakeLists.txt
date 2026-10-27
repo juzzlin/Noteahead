@@ -20,6 +20,8 @@ set(HEADER_FILES
     devices/ju_synth_08_presets.hpp
     devices/kick_808_device.hpp
     devices/lfo_device.hpp
+    devices/noise_fx_device.hpp
+    devices/noise_fx_presets.hpp
     devices/snare_synth_device.hpp
     devices/snare_synth_presets.hpp
     devices/piano_synth_device.hpp
@@ -74,6 +76,7 @@ set(HEADER_FILES
     dsp/modal_piano_string.hpp
     dsp/modal_piano_string_v3.hpp
     dsp/multi_engine.hpp
+    dsp/noise_source.hpp
     dsp/one_pole_filter.hpp
     dsp/ota_ladder_filter.hpp
     dsp/panning.hpp
@@ -86,6 +89,7 @@ set(HEADER_FILES
     dsp/speech/speech_sequencer.hpp
     dsp/speech/text_to_phonemes.hpp
     dsp/svf_filter.hpp
+    dsp/sweep_envelope.hpp
     dsp/true_stereo_panner.hpp
     dsp/upsampler.hpp
     dsp/volume.hpp
@@ -227,6 +231,8 @@ set(SOURCE_FILES
     devices/ju_synth_08_presets.cpp
     devices/kick_808_device.cpp
     devices/lfo_device.cpp
+    devices/noise_fx_device.cpp
+    devices/noise_fx_presets.cpp
     devices/snare_synth_device.cpp
     devices/snare_synth_presets.cpp
     devices/piano_synth_device.cpp
@@ -282,6 +288,7 @@ set(SOURCE_FILES
     dsp/modal_piano_string.cpp
     dsp/modal_piano_string_v3.cpp
     dsp/multi_engine.cpp
+    dsp/noise_source.cpp
     dsp/one_pole_filter.cpp
     dsp/ota_ladder_filter.cpp
     dsp/panning.cpp
@@ -294,6 +301,7 @@ set(SOURCE_FILES
     dsp/speech/speech_sequencer.cpp
     dsp/speech/text_to_phonemes.cpp
     dsp/svf_filter.cpp
+    dsp/sweep_envelope.cpp
     dsp/true_stereo_panner.cpp
     dsp/upsampler.cpp
     dsp/volume.cpp

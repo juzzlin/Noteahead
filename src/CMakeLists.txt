@@ -233,6 +233,16 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/SnareSynthDialog_Strike.qml
     ${QML_BASE_DIR}/Dialogs/LfoDialog.qml
     ${QML_BASE_DIR}/Dialogs/LfoDialog_Lfo.qml
+    ${QML_BASE_DIR}/Dialogs/NoiseFxDialog.qml
+    ${QML_BASE_DIR}/Dialogs/NoiseFxDialog_Amp.qml
+    ${QML_BASE_DIR}/Dialogs/NoiseFxDialog_Filter.qml
+    ${QML_BASE_DIR}/Dialogs/NoiseFxDialog_Gate.qml
+    ${QML_BASE_DIR}/Dialogs/NoiseFxDialog_Global.qml
+    ${QML_BASE_DIR}/Dialogs/NoiseFxDialog_Lfo.qml
+    ${QML_BASE_DIR}/Dialogs/NoiseFxDialog_Noise.qml
+    ${QML_BASE_DIR}/Dialogs/NoiseFxDialog_Route.qml
+    ${QML_BASE_DIR}/Dialogs/NoiseFxDialog_Sweep.qml
+    ${QML_BASE_DIR}/Dialogs/NoiseFxDialog_Tone.qml
     ${QML_BASE_DIR}/Dialogs/PianoSynthDialog.qml
     ${QML_BASE_DIR}/Dialogs/PianoSynthDialog_Global.qml
     ${QML_BASE_DIR}/Dialogs/PianoSynthDialog_String.qml

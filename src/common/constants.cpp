@@ -179,6 +179,11 @@ QString lfoDeviceName()
     return "Noteahead LFO";
 }
 
+QString noiseFxDeviceName()
+{
+    return "Noteahead Noise FX";
+}
+
 QString bassSynthDeviceName()
 {
     return "Noteahead BassSynth";
@@ -3612,6 +3617,36 @@ QString xmlKeyUnisonDetune()
 QString xmlKeyDelayLevel()
 {
     return "delayLevel";
+}
+
+QString xmlKeyStart()
+{
+    return "start";
+}
+
+QString xmlKeyEnd()
+{
+    return "end";
+}
+
+QString xmlKeySampleHoldRate()
+{
+    return "sampleHoldRate";
+}
+
+QString xmlKeyCrackle()
+{
+    return "crackle";
+}
+
+QString xmlKeyPlayToEnd()
+{
+    return "playToEnd";
+}
+
+QString xmlKeyRingMod()
+{
+    return "ringMod";
 }
 
 } // namespace NahdXml
