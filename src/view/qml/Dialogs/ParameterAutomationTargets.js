@@ -71,6 +71,19 @@ function findTargetIndex(targets, owner, ownerId, key) {
     return first;
 }
 
+//! Index of the parameter @p key in @p target, or -1. By key rather than by object: the targets
+//! come over from C++ as variant lists, and each read of one hands out fresh copies.
+function findParameterIndex(target, key) {
+    if (target) {
+        for (let i = 0; i < target.parameters.length; i++) {
+            if (target.parameters[i].key === key) {
+                return i;
+            }
+        }
+    }
+    return -1;
+}
+
 function findParameter(target, key) {
     if (target) {
         for (let i = 0; i < target.parameters.length; i++) {

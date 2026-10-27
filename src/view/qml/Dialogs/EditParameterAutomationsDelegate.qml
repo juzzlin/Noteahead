@@ -21,14 +21,14 @@ import ".."
 import "../Components"
 import "ParameterAutomationTargets.js" as Targets
 
-//! One parameter automation in the edit dialog. What it drives is shown but not edited: a different
-//! target is a different automation.
+//! One parameter automation in the edit dialog, what it drives included.
 SectionBox {
     id: delegateRoot
     title: qsTr("Pattern: %1, Track: %2, Column: %3").arg(model.pattern).arg(model.track).arg(model.column)
 
     property var targets: []
-    readonly property var target: Targets.findTarget(targets, model.owner, model.ownerId, model.parameter)
+    readonly property int targetIndex: Targets.findTargetIndex(targets, model.owner, model.ownerId, model.parameter)
+    readonly property var target: targets[targetIndex] || null
     readonly property var parameter: Targets.findParameter(target, model.parameter)
     readonly property bool isRelative: model.mode === 1
     readonly property var knobSetup: Targets.knobSetup(parameter, isRelative)
@@ -47,6 +47,14 @@ SectionBox {
     function setModulationType(type: int): void {
         rowModel.modulationType = type;
     }
+    //! Moves the automation to parameter @p key of the target at @p index in targets.
+    function setTarget(index: int, key: string): void {
+        const target = targets[index];
+        if (target) {
+            parameterAutomationsModel.setTarget(rowIndex, target.owner, target.ownerId, key);
+        }
+    }
+    readonly property int rowIndex: index
 
     // A copy replaces this automation wholesale, and a control typed into no longer follows the
     // model, so the row is read again rather than left showing what it was replaced from.
@@ -76,15 +84,38 @@ SectionBox {
             Layout.column: 0
             Layout.row: 0
         }
-        Label {
+        ComboBox {
+            id: targetComboBox
+            model: delegateRoot.targets.map(target => Targets.targetLabel(target))
+            currentIndex: delegateRoot.targetIndex
             // A target that is gone renders nothing, and says so here rather than silently
-            text: delegateRoot.target ? Targets.targetLabel(delegateRoot.target) + " - " + (delegateRoot.parameter ? delegateRoot.parameter.label : model.parameter) : qsTr("Missing target: this automation does nothing")
-            color: delegateRoot.target ? themeService.accentColor : "orange"
-            elide: Text.ElideMiddle
+            displayText: currentIndex >= 0 ? currentText : qsTr("Missing target: this automation does nothing")
+            // The same parameter where the new target has one, as on another of the same device;
+            // otherwise its first
+            onActivated: index => {
+                const target = delegateRoot.targets[index];
+                const keeps = Targets.findParameter(target, delegateRoot.rowModel.parameter);
+                delegateRoot.setTarget(index, keeps ? keeps.key : (target.parameters.length ? target.parameters[0].key : ""));
+                currentIndex = Qt.binding(() => delegateRoot.targetIndex);
+            }
             Layout.column: 1
             Layout.row: 0
-            Layout.columnSpan: 2
             Layout.fillWidth: true
+            Layout.preferredWidth: delegateRoot.width * 0.45
+        }
+        ComboBox {
+            id: parameterComboBox
+            model: delegateRoot.target ? delegateRoot.target.parameters.map(parameter => parameter.label) : []
+            currentIndex: Targets.findParameterIndex(delegateRoot.target, delegateRoot.rowModel.parameter)
+            enabled: delegateRoot.target !== null
+            onActivated: index => {
+                delegateRoot.setTarget(delegateRoot.targetIndex, delegateRoot.target.parameters[index].key);
+                currentIndex = Qt.binding(() => Targets.findParameterIndex(delegateRoot.target, delegateRoot.rowModel.parameter));
+            }
+            Layout.column: 2
+            Layout.row: 0
+            Layout.fillWidth: true
+            Layout.preferredWidth: delegateRoot.width * 0.3
         }
         SectionBox {
             title: qsTr("Interpolation")

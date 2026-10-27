@@ -205,8 +205,8 @@ bool ParameterAutomationsModel::setData(const QModelIndex & index, const QVarian
     case DataRole::Value1:
         interpolation.value1 = std::clamp(value.toDouble(), 0.0, 1.0);
         break;
-    // Where an automation sits and what it drives are not edited here: a different target is a
-    // different automation.
+    // Where an automation sits is not edited here, and what it drives only all at once, through
+    // setTarget()
     case DataRole::Column:
     case DataRole::Owner:
     case DataRole::OwnerId:
@@ -312,6 +312,27 @@ void ParameterAutomationsModel::applyValues(int index, const QVariantMap & value
     }
 
     emit automationReplaced(index);
+}
+
+bool ParameterAutomationsModel::setTarget(int index, const QString & owner, const QString & ownerId, const QString & parameter)
+{
+    if (index < 0 || static_cast<size_t>(index) >= m_parameterAutomations.size()) {
+        return false;
+    }
+
+    auto automation = m_parameterAutomations.at(static_cast<size_t>(index));
+    const ParameterAutomation::Target target { ParameterAutomation::Target::ownerFromString(owner), ownerId.toStdString(), parameter.toStdString() };
+    if (target == automation.target()) {
+        return false;
+    }
+
+    automation.setTarget(target);
+    m_parameterAutomations[static_cast<size_t>(index)] = automation;
+    m_changed.erase(automation);
+    m_changed.insert(automation);
+    const auto modelIndex = this->index(index);
+    emit dataChanged(modelIndex, modelIndex, { static_cast<int>(DataRole::Owner), static_cast<int>(DataRole::OwnerId), static_cast<int>(DataRole::Parameter) });
+    return true;
 }
 
 void ParameterAutomationsModel::applyAll()

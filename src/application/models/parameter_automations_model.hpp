@@ -92,6 +92,11 @@ public:
     //! the map are left alone.
     Q_INVOKABLE void applyValues(int index, const QVariantMap & values);
 
+    //! Points the automation at the given row at another parameter, which may be of another owner.
+    //! The three parts of a target are set together, as no one of them means anything without the
+    //! others. Held like any other edit until applyAll(). Returns false when nothing changed.
+    Q_INVOKABLE bool setTarget(int index, const QString & owner, const QString & ownerId, const QString & parameter);
+
 signals:
     void parameterAutomationChanged(const ParameterAutomation & parameterAutomation);
     void parameterAutomationDeleted(const ParameterAutomation & parameterAutomation);

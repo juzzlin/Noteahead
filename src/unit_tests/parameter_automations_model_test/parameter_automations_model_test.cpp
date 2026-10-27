@@ -125,6 +125,34 @@ void ParameterAutomationsModelTest::test_setData_target_shouldBeRefused()
     QCOMPARE(dataOf(model, 0, Role::Parameter).toString(), QString { "cutoff" });
 }
 
+void ParameterAutomationsModelTest::test_setTarget_shouldMoveTheWholeTargetOnApply()
+{
+    ParameterAutomationsModel model;
+    model.setParameterAutomations({ automation(1, { 0, 0, 0 }, 0, 8) });
+    QSignalSpy changedSpy { &model, &ParameterAutomationsModel::parameterAutomationChanged };
+    QSignalSpy dataChangedSpy { &model, &ParameterAutomationsModel::dataChanged };
+
+    QVERIFY(model.setTarget(0, "device", "synth", "resonance"));
+    // The same target again is no edit
+    QVERIFY(!model.setTarget(0, "device", "synth", "resonance"));
+    QCOMPARE(dataChangedSpy.count(), 1);
+    QCOMPARE(dataOf(model, 0, Role::Owner).toString(), QString { "device" });
+    QCOMPARE(dataOf(model, 0, Role::OwnerId).toString(), QString { "synth" });
+    QCOMPARE(dataOf(model, 0, Role::Parameter).toString(), QString { "resonance" });
+    QCOMPARE(changedSpy.count(), 0);
+    QVERIFY(!model.setTarget(1, "device", "synth", "resonance"));
+
+    model.applyAll();
+
+    QCOMPARE(changedSpy.count(), 1);
+    const auto changed = changedSpy.at(0).at(0).value<ParameterAutomation>();
+    QCOMPARE(changed.target().owner, ParameterAutomation::Target::Owner::Device);
+    QCOMPARE(changed.target().ownerId, std::string { "synth" });
+    QCOMPARE(changed.target().parameter, std::string { "resonance" });
+    // Nothing but the target moves
+    QCOMPARE(changed.id(), size_t { 1 });
+}
+
 void ParameterAutomationsModelTest::test_removeAt_shouldDeleteOnApply()
 {
     ParameterAutomationsModel model;

@@ -30,6 +30,7 @@ private slots:
     void test_requestParameterAutomationsBySelection_shouldFilterOnOverlap();
     void test_setData_shouldHoldTheEditUntilApplied();
     void test_setData_target_shouldBeRefused();
+    void test_setTarget_shouldMoveTheWholeTargetOnApply();
     void test_removeAt_shouldDeleteOnApply();
     void test_applyValues_shouldKeepLocationEnabledAndTarget();
 };
