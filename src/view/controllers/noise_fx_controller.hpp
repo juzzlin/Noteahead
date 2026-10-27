@@ -55,6 +55,7 @@ class NoiseFxController : public DeviceController
     Q_PROPERTY(int ampRelease READ ampRelease WRITE setAmpRelease NOTIFY ampReleaseChanged)
     Q_PROPERTY(int velocitySensitivity READ velocitySensitivity WRITE setVelocitySensitivity NOTIFY velocitySensitivityChanged)
     Q_PROPERTY(bool playToEnd READ playToEnd WRITE setPlayToEnd NOTIFY playToEndChanged)
+    Q_PROPERTY(bool chromatic READ chromatic WRITE setChromatic NOTIFY chromaticChanged)
     Q_PROPERTY(int lfoWaveform READ lfoWaveform WRITE setLfoWaveform NOTIFY lfoWaveformChanged)
     Q_PROPERTY(bool lfoSync READ lfoSync WRITE setLfoSync NOTIFY lfoSyncChanged)
     Q_PROPERTY(int lfoRate READ lfoRate WRITE setLfoRate NOTIFY lfoRateChanged)
@@ -130,6 +131,8 @@ public:
     void setVelocitySensitivity(int value);
     bool playToEnd() const;
     void setPlayToEnd(bool value);
+    bool chromatic() const;
+    void setChromatic(bool value);
     int lfoWaveform() const;
     void setLfoWaveform(int value);
     bool lfoSync() const;
@@ -184,6 +187,7 @@ signals:
     void ampReleaseChanged();
     void velocitySensitivityChanged();
     void playToEndChanged();
+    void chromaticChanged();
     void lfoWaveformChanged();
     void lfoSyncChanged();
     void lfoRateChanged();

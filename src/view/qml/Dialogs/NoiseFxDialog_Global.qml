@@ -56,4 +56,12 @@ ColumnLayout {
     OctaveKnob {
         controller: noiseFxController
     }
+    CheckBox {
+        text: qsTr("Chromatic")
+        checked: noiseFxController.chromatic
+        onToggled: noiseFxController.chromatic = checked
+        ToolTip.visible: hovered
+        ToolTip.delay: Constants.toolTipDelay
+        ToolTip.text: qsTr("Plays the patch like a sampler: an octave up is an octave higher and twice as fast")
+    }
 }

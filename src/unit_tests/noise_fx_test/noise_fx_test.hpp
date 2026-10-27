@@ -32,6 +32,10 @@ private slots:
     void test_noiseFx_playToEnd_noteOff_shouldBeIgnored();
     void test_noiseFx_playToEnd_off_noteOff_shouldRelease();
     void test_noiseFx_playToEnd_loopingSweep_noteOff_shouldRelease();
+    void test_noiseFx_chromatic_shouldScaleTimesWithNote_data();
+    void test_noiseFx_chromatic_shouldScaleTimesWithNote();
+    void test_noiseFx_chromatic_shouldScaleCutoffWithNote_data();
+    void test_noiseFx_chromatic_shouldScaleCutoffWithNote();
     void test_noiseFx_sweepCutoff_shouldOpenFilter();
     void test_noiseFx_sweepLevel_positiveDepth_shouldFadeIn();
     void test_noiseFx_resetAudio_shouldRenderIdentically();

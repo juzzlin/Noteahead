@@ -7132,6 +7132,14 @@
         <source>Pan</source>
         <translation type="unfinished">声像</translation>
     </message>
+    <message>
+        <source>Chromatic</source>
+        <translation>半音</translation>
+    </message>
+    <message>
+        <source>Plays the patch like a sampler: an octave up is an octave higher and twice as fast</source>
+        <translation>像采样器一样演奏音色：高一个八度即音高升高一个八度、速度加倍</translation>
+    </message>
 </context>
 <context>
     <name>NoiseFxDialog_Lfo</name>

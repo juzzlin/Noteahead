@@ -7133,6 +7133,14 @@
         <source>Pan</source>
         <translation type="unfinished">Panning</translation>
     </message>
+    <message>
+        <source>Chromatic</source>
+        <translation>Chromatisch</translation>
+    </message>
+    <message>
+        <source>Plays the patch like a sampler: an octave up is an octave higher and twice as fast</source>
+        <translation>Speelt de patch als een sampler: een octaaf hoger klinkt een octaaf hoger en twee keer zo snel</translation>
+    </message>
 </context>
 <context>
     <name>NoiseFxDialog_Lfo</name>

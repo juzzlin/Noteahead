@@ -212,6 +212,68 @@ void NoiseFxTest::test_noiseFx_playToEnd_loopingSweep_noteOff_shouldRelease()
     QVERIFY(framesUntilInactive(device, SampleRate) < SampleRate / 10);
 }
 
+void NoiseFxTest::test_noiseFx_chromatic_shouldScaleTimesWithNote_data()
+{
+    QTest::addColumn<bool>("chromatic");
+    QTest::addColumn<int>("note");
+    QTest::addColumn<double>("expectedSeconds");
+
+    // A sweep length of 0.5 is 0.01 * 6000^0.5 = 0.775 s.
+    QTest::newRow("off, octave up") << false << 72 << 0.775;
+    QTest::newRow("on, middle C") << true << 60 << 0.775;
+    QTest::newRow("on, octave up") << true << 72 << 0.387;
+    QTest::newRow("on, octave down") << true << 48 << 1.549;
+}
+
+void NoiseFxTest::test_noiseFx_chromatic_shouldScaleTimesWithNote()
+{
+    QFETCH(bool, chromatic);
+    QFETCH(int, note);
+    QFETCH(double, expectedSeconds);
+
+    NoiseFxDevice device { "Noise FX" };
+    makeNeutral(device);
+    device.setChromatic(chromatic);
+    device.setPlayToEnd(true);
+    device.setSweepParameterValue(0, Constants::NahdXml::xmlKeySync(), 0.0f);
+    device.setSweepParameterValue(0, Constants::NahdXml::xmlKeyLength(), 0.5f);
+
+    device.processDeviceMidiNoteOn(static_cast<uint8_t>(note), 100);
+    const auto frames = framesUntilInactive(device, SampleRate * 5);
+    const double seconds = static_cast<double>(frames) / SampleRate;
+    QVERIFY2(std::abs(seconds - expectedSeconds) < 0.03, qPrintable(QString::number(seconds)));
+}
+
+void NoiseFxTest::test_noiseFx_chromatic_shouldScaleCutoffWithNote_data()
+{
+    QTest::addColumn<bool>("chromatic");
+    QTest::addColumn<double>("minRatio");
+    QTest::addColumn<double>("maxRatio");
+
+    QTest::newRow("off") << false << 0.8 << 1.25;
+    QTest::newRow("on") << true << 1.6 << 2.5;
+}
+
+void NoiseFxTest::test_noiseFx_chromatic_shouldScaleCutoffWithNote()
+{
+    QFETCH(bool, chromatic);
+    QFETCH(double, minRatio);
+    QFETCH(double, maxRatio);
+
+    // Brightness an octave up over brightness at middle C, through a low-pass at 160 Hz.
+    const auto brightness = [chromatic](uint8_t note) {
+        NoiseFxDevice device { "Noise FX" };
+        makeNeutral(device);
+        device.setChromatic(chromatic);
+        device.setCutoff(0.3f);
+        device.processDeviceMidiNoteOn(note, 100);
+        const auto buffer = render(device, SampleRate / 2);
+        return differenceRms(buffer, 4800, 9600) / rms(buffer, 4800, 9600);
+    };
+    const double ratio = brightness(72) / brightness(60);
+    QVERIFY2(ratio > minRatio && ratio < maxRatio, qPrintable(QString::number(ratio)));
+}
+
 void NoiseFxTest::test_noiseFx_sweepCutoff_shouldOpenFilter()
 {
     // The default patch: Sweep A opens a low-pass over four bars.

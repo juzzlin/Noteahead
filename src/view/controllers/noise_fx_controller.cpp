@@ -358,6 +358,18 @@ void NoiseFxController::setPlayToEnd(bool value)
     }
 }
 
+bool NoiseFxController::chromatic() const
+{
+    return m_device && m_device->chromatic();
+}
+
+void NoiseFxController::setChromatic(bool value)
+{
+    if (m_device) {
+        m_device->setChromatic(value);
+    }
+}
+
 int NoiseFxController::lfoWaveform() const
 {
     return m_device ? static_cast<int>(std::lround(m_device->lfoParameterValue(NahdXml::xmlKeyWaveform()))) : 0;
@@ -554,6 +566,7 @@ void NoiseFxController::requestSettings()
     emit ampReleaseChanged();
     emit velocitySensitivityChanged();
     emit playToEndChanged();
+    emit chromaticChanged();
     emit lfoWaveformChanged();
     emit lfoSyncChanged();
     emit lfoRateChanged();

@@ -190,6 +190,7 @@ NoiseFxDevice::NoiseFxDevice(std::string name)
     continuous(NahdXml::xmlKeyAmpRelease(), m_ampRelease);
     continuous(NahdXml::xmlKeyVelocitySensitivity(), m_velocitySensitivity);
     addParameter(Parameter { NahdXml::xmlKeyPlayToEnd().toStdString(), 1.0f, 0, 1, 1, 1, Parameter::Type::Boolean });
+    addParameter(Parameter { NahdXml::xmlKeyChromaticMode().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
 
     for (size_t sweep = 0; sweep < SweepCount; sweep++) {
         addSweepParameters(sweep);
@@ -326,13 +327,14 @@ void NoiseFxDevice::processDeviceMidiNoteOn(uint8_t note, uint8_t velocity)
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
     auto & voice = m_voices.at(allocateVoice());
+    const double speed = speedRatio(note);
     voice.filterL.setSampleRate(sampleRate());
     voice.filterR.setSampleRate(sampleRate());
     voice.amp.setSampleRate(sampleRate());
-    configureAmp(voice.amp);
+    configureAmp(voice.amp, speed);
     for (size_t sweep = 0; sweep < SweepCount; sweep++) {
         voice.sweeps.at(sweep).setSampleRate(sampleRate());
-        configureSweep(voice.sweeps.at(sweep), m_sweeps.at(sweep));
+        configureSweep(voice.sweeps.at(sweep), m_sweeps.at(sweep), speed);
         voice.sweeps.at(sweep).trigger();
     }
     voice.lfo.trigger();
@@ -456,7 +458,12 @@ size_t NoiseFxDevice::allocateVoice()
     return stolen;
 }
 
-void NoiseFxDevice::configureSweep(SweepEnvelope & envelope, const SweepSettings & settings) const
+double NoiseFxDevice::speedRatio(uint8_t note) const
+{
+    return m_chromatic ? std::exp2((static_cast<double>(note) - KeyTrackCentreNote) / 12.0) : 1.0;
+}
+
+void NoiseFxDevice::configureSweep(SweepEnvelope & envelope, const SweepSettings & settings, double speedRatio) const
 {
     envelope.setStartValue(static_cast<double>(settings.start));
     envelope.setEndValue(static_cast<double>(settings.end));
@@ -465,16 +472,16 @@ void NoiseFxDevice::configureSweep(SweepEnvelope & envelope, const SweepSettings
     if (settings.sync) {
         envelope.setLengthBeats(syncLengthBeats().at(static_cast<size_t>(settings.syncLength)));
     } else {
-        envelope.setLengthSeconds(ParameterMapper::mapExponential(static_cast<double>(settings.length), MinSweepSeconds, MaxSweepSeconds));
+        envelope.setLengthSeconds(ParameterMapper::mapExponential(static_cast<double>(settings.length), MinSweepSeconds, MaxSweepSeconds) / speedRatio);
     }
 }
 
-void NoiseFxDevice::configureAmp(AdsrEnvelope & amp) const
+void NoiseFxDevice::configureAmp(AdsrEnvelope & amp, double speedRatio) const
 {
-    amp.setAttackTime(ParameterMapper::mapExponential(static_cast<double>(m_ampAttack), MinAttackSeconds, MaxAttackSeconds));
-    amp.setDecayTime(ParameterMapper::mapExponential(static_cast<double>(m_ampDecay), MinDecaySeconds, MaxDecaySeconds));
+    amp.setAttackTime(ParameterMapper::mapExponential(static_cast<double>(m_ampAttack), MinAttackSeconds, MaxAttackSeconds) / speedRatio);
+    amp.setDecayTime(ParameterMapper::mapExponential(static_cast<double>(m_ampDecay), MinDecaySeconds, MaxDecaySeconds) / speedRatio);
     amp.setSustainLevel(static_cast<double>(m_ampSustain));
-    amp.setReleaseTime(ParameterMapper::mapExponential(static_cast<double>(m_ampRelease), MinDecaySeconds, MaxDecaySeconds));
+    amp.setReleaseTime(ParameterMapper::mapExponential(static_cast<double>(m_ampRelease), MinDecaySeconds, MaxDecaySeconds) / speedRatio);
 }
 
 void NoiseFxDevice::applyRoute(const Route & route, double value, double value01, bool isLfo, Modulation & modulation)
@@ -526,13 +533,13 @@ void NoiseFxDevice::applyRoute(const Route & route, double value, double value01
     }
 }
 
-double NoiseFxDevice::lfoFrequency(double rate, double bpm) const
+double NoiseFxDevice::lfoFrequency(double rate, double bpm, double speedRatio) const
 {
     if (m_lfo.sync) {
         const double bars = lfoSyncBars().at(indexOf(rate, lfoSyncBars()));
         return bpm / 60.0 * 0.25 / bars;
     }
-    return ParameterMapper::mapExponential(rate, MinLfoHz, MaxLfoHz);
+    return ParameterMapper::mapExponential(rate, MinLfoHz, MaxLfoHz) * speedRatio;
 }
 
 double NoiseFxDevice::nextLfoValue(Voice & voice) const
@@ -558,6 +565,7 @@ double NoiseFxDevice::nextLfoValue(Voice & voice) const
 
 void NoiseFxDevice::renderVoice(Voice & voice, double sampleRate, double bpm, double & left, double & right)
 {
+    const double speed = speedRatio(voice.note);
     Modulation modulation;
     for (size_t sweep = 0; sweep < SweepCount; sweep++) {
         const double value = voice.sweeps.at(sweep).nextSample();
@@ -565,7 +573,7 @@ void NoiseFxDevice::renderVoice(Voice & voice, double sampleRate, double bpm, do
     }
 
     // The LFO comes after the sweeps so that they can move its rate and depth.
-    voice.lfo.setFrequency(lfoFrequency(static_cast<double>(m_lfo.rate) + modulation.lfoRate, bpm));
+    voice.lfo.setFrequency(lfoFrequency(static_cast<double>(m_lfo.rate) + modulation.lfoRate, bpm, speed));
     const double lfoValue = nextLfoValue(voice) * std::max(0.0, modulation.lfoDepth);
     applyRoute(m_lfo.route, lfoValue, (lfoValue + 1.0) * 0.5, true, modulation);
 
@@ -574,7 +582,7 @@ void NoiseFxDevice::renderVoice(Voice & voice, double sampleRate, double bpm, do
     voice.noise.setColour(colour);
     voice.sideNoise.setColour(colour);
     const double holdRate = std::clamp(static_cast<double>(m_sampleHoldRate) + modulation.holdRate, 0.0, 1.0);
-    const auto holdRateHz = holdRate < 1.0 ? std::optional { ParameterMapper::mapExponential(holdRate, MinHoldRateHz, MaxHoldRateHz) } : std::nullopt;
+    const auto holdRateHz = holdRate < 1.0 ? std::optional { ParameterMapper::mapExponential(holdRate, MinHoldRateHz, MaxHoldRateHz) * speed } : std::nullopt;
     voice.noise.setHoldRate(holdRateHz);
     voice.sideNoise.setHoldRate(holdRateHz);
     const double mainNoise = voice.noise.nextSample();
@@ -601,7 +609,8 @@ void NoiseFxDevice::renderVoice(Voice & voice, double sampleRate, double bpm, do
     const double inputR = noiseR * noiseGain + tone * blend + crackle;
 
     // Filter
-    const double keyTrackOctaves = (static_cast<double>(voice.note) - KeyTrackCentreNote) / 12.0 * static_cast<double>(m_keyTrack);
+    const double keyTrack = m_chromatic ? 1.0 : static_cast<double>(m_keyTrack);
+    const double keyTrackOctaves = (static_cast<double>(voice.note) - KeyTrackCentreNote) / 12.0 * keyTrack;
     const double cutoffHz = ParameterMapper::mapExponential(static_cast<double>(m_cutoff) + modulation.cutoff, MinCutoffHz, MaxCutoffHz) * std::exp2(keyTrackOctaves);
     const double clampedCutoffHz = std::clamp(cutoffHz, MinCutoffHz, sampleRate * MaxFrequencyRatio);
     const double resonance = std::clamp(static_cast<double>(m_resonance) + modulation.resonance, 0.0, 1.0) * MaxResonance;
@@ -665,7 +674,7 @@ void NoiseFxDevice::processAudio(AudioContext & context)
         voice.noise.setSampleRate(sampleRate);
         voice.sideNoise.setSampleRate(sampleRate);
         voice.crackle.setSampleRate(sampleRate);
-        voice.crackle.setDensity(crackleDensity);
+        voice.crackle.setDensity(crackleDensity * speedRatio(voice.note));
         voice.tone.setSampleRate(sampleRate);
         voice.tone.setWaveform(m_toneWaveform);
         for (auto * filter : { &voice.filterL, &voice.filterR }) {
@@ -673,7 +682,7 @@ void NoiseFxDevice::processAudio(AudioContext & context)
             filter->setSaturation(saturation);
         }
         voice.amp.setSampleRate(sampleRate);
-        configureAmp(voice.amp);
+        configureAmp(voice.amp, speedRatio(voice.note));
         voice.lfo.setSampleRate(sampleRate);
         voice.lfo.setWaveform(m_lfo.waveform == SmoothRandomWaveform ? Lfo::Waveform::Random : static_cast<Lfo::Waveform>(m_lfo.waveform));
         // The tempo is picked up on every block, so a synced sweep follows a tempo change in the
@@ -682,7 +691,7 @@ void NoiseFxDevice::processAudio(AudioContext & context)
             auto & envelope = voice.sweeps.at(sweep);
             envelope.setSampleRate(sampleRate);
             envelope.setBpm(context.bpm);
-            configureSweep(envelope, m_sweeps.at(sweep));
+            configureSweep(envelope, m_sweeps.at(sweep), speedRatio(voice.note));
         }
     }
     m_panner.setPan(static_cast<double>(panInternal()));
@@ -828,6 +837,7 @@ void NoiseFxDevice::syncParameters()
     readParameter(*this, NahdXml::xmlKeyAmpRelease().toStdString(), m_ampRelease);
     readParameter(*this, NahdXml::xmlKeyVelocitySensitivity().toStdString(), m_velocitySensitivity);
     readParameter(*this, NahdXml::xmlKeyPlayToEnd().toStdString(), m_playToEnd);
+    readParameter(*this, NahdXml::xmlKeyChromaticMode().toStdString(), m_chromatic);
 
     for (size_t sweep = 0; sweep < SweepCount; sweep++) {
         auto & settings = m_sweeps.at(sweep);
@@ -1074,6 +1084,17 @@ bool NoiseFxDevice::playToEnd() const
 void NoiseFxDevice::setPlayToEnd(bool playToEnd)
 {
     setDiscreteParameterValue(NahdXml::xmlKeyPlayToEnd().toStdString(), playToEnd ? 1 : 0);
+}
+
+bool NoiseFxDevice::chromatic() const
+{
+    const std::lock_guard<std::recursive_mutex> lock { mutex() };
+    return m_chromatic;
+}
+
+void NoiseFxDevice::setChromatic(bool chromatic)
+{
+    setDiscreteParameterValue(NahdXml::xmlKeyChromaticMode().toStdString(), chromatic ? 1 : 0);
 }
 
 float NoiseFxDevice::sweepParameterValue(size_t sweep, const QString & key) const

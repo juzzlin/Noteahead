@@ -3237,6 +3237,7 @@ void XmlSerializationTest::test_toXmlFromXml_noiseFxDevice_shouldLoadCorrectly()
     noise->setAmpRelease(0.78f);
     noise->setVelocitySensitivity(0.9f);
     noise->setPlayToEnd(false);
+    noise->setChromatic(true);
     noise->setSweepParameterValue(0, xmlKeyEnd(), 0.4f);
     noise->setSweepParameterValue(0, xmlKeySyncLength(), 8.0f);
     noise->setSweepParameterValue(1, xmlKeyMode(), static_cast<float>(SweepEnvelope::Mode::PingPong));
@@ -3291,6 +3292,7 @@ void XmlSerializationTest::test_toXmlFromXml_noiseFxDevice_shouldLoadCorrectly()
     QVERIFY(std::abs(restored->ampRelease() - 0.78f) < 0.001f);
     QVERIFY(std::abs(restored->velocitySensitivity() - 0.9f) < 0.001f);
     QCOMPARE(restored->playToEnd(), false);
+    QCOMPARE(restored->chromatic(), true);
     QVERIFY(std::abs(restored->sweepParameterValue(0, xmlKeyEnd()) - 0.4f) < 0.001f);
     QCOMPARE(restored->sweepParameterValue(0, xmlKeySyncLength()), 8.0f);
     QCOMPARE(restored->sweepParameterValue(1, xmlKeyMode()), static_cast<float>(SweepEnvelope::Mode::PingPong));

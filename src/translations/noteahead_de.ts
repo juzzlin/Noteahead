@@ -7133,6 +7133,14 @@
         <source>Pan</source>
         <translation type="unfinished">Panorama</translation>
     </message>
+    <message>
+        <source>Chromatic</source>
+        <translation>Chromatisch</translation>
+    </message>
+    <message>
+        <source>Plays the patch like a sampler: an octave up is an octave higher and twice as fast</source>
+        <translation>Spielt den Patch wie ein Sampler: eine Oktave höher klingt eine Oktave höher und doppelt so schnell</translation>
+    </message>
 </context>
 <context>
     <name>NoiseFxDialog_Lfo</name>

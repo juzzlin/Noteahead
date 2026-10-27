@@ -7133,6 +7133,14 @@
         <source>Pan</source>
         <translation type="unfinished">Panorointi</translation>
     </message>
+    <message>
+        <source>Chromatic</source>
+        <translation>Kromaattinen</translation>
+    </message>
+    <message>
+        <source>Plays the patch like a sampler: an octave up is an octave higher and twice as fast</source>
+        <translation>Soittaa patchia kuin sampleri: oktaavia ylempänä oktaavin korkeammalta ja kaksi kertaa nopeammin</translation>
+    </message>
 </context>
 <context>
     <name>NoiseFxDialog_Lfo</name>

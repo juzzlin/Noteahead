@@ -43,6 +43,10 @@ namespace noteahead {
 //! With Play to End on, a note ignores its note-off and is released when Sweep A has run its course,
 //! note-off or not, which is what makes a single tracker note a whole riser. A repeating Sweep A
 //! never ends, so there the note-off releases the note as usual.
+//!
+//! In Chromatic mode the note plays the whole patch like a sampler plays a sample: an octave up the
+//! filter, the S&H rate and the crackle sit an octave higher, and the envelopes, the unsynced sweeps
+//! and the free LFO run twice as fast. Middle C plays the patch as it is set.
 class NoiseFxDevice : public Device
 {
 public:
@@ -172,6 +176,10 @@ public:
     void setVelocitySensitivity(float sensitivity);
     bool playToEnd() const;
     void setPlayToEnd(bool playToEnd);
+    //! Plays the note like a sampler: replaces the key track with full tracking and scales the
+    //! times. Sweeps synced to beats keep their length, as they must land on the beat.
+    bool chromatic() const;
+    void setChromatic(bool chromatic);
 
     //! The key sweep @p sweep's control @p key is stored under, "sweep1_start".
     static std::string sweepKey(size_t sweep, const QString & key);
@@ -309,15 +317,18 @@ private:
     float keyedParameterValue(const std::string & key) const;
     void setKeyedParameterValue(const std::string & key, float value);
 
-    void configureSweep(SweepEnvelope & envelope, const SweepSettings & settings) const;
-    void configureAmp(AdsrEnvelope & amp) const;
+    //! How much faster @p note plays the patch: 1 unless Chromatic, and then 2 an octave above
+    //! middle C.
+    double speedRatio(uint8_t note) const;
+    void configureSweep(SweepEnvelope & envelope, const SweepSettings & settings, double speedRatio) const;
+    void configureAmp(AdsrEnvelope & amp, double speedRatio) const;
     size_t allocateVoice();
     void releaseVoice(Voice & voice);
 
     //! Adds what @p route does with @p value to @p modulation. @p value01 is the same value on 0..1,
     //! which the factors use.
     static void applyRoute(const Route & route, double value, double value01, bool isLfo, Modulation & modulation);
-    double lfoFrequency(double rate, double bpm) const;
+    double lfoFrequency(double rate, double bpm, double speedRatio) const;
     //! The voice's LFO, -1..1, with Smooth Random gliding between the values Random steps through.
     double nextLfoValue(Voice & voice) const;
     void renderVoice(Voice & voice, double sampleRate, double bpm, double & left, double & right);
@@ -350,6 +361,7 @@ private:
     float m_ampRelease { 0.3f };
     float m_velocitySensitivity { 0.5f };
     bool m_playToEnd { true };
+    bool m_chromatic { false };
     std::array<SweepSettings, SweepCount> m_sweeps {};
     LfoSettings m_lfo;
     GateSettings m_gate;

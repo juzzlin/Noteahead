@@ -86,6 +86,7 @@ void NoiseFxControllerTest::test_properties_shouldReachTheDevice()
     controller.setFilterType(static_cast<int>(NoiseFxDevice::FilterType::HighPass));
     controller.setToneWaveform(static_cast<int>(PolyBlepOscillator::Waveform::Square));
     controller.setPlayToEnd(false);
+    controller.setChromatic(true);
     controller.setLfoSync(true);
     controller.setLfoTarget2(static_cast<int>(NoiseFxDevice::Destination::Pan));
     controller.setLfoDepth2(static_cast<int>(0.8 * scaling));
@@ -97,6 +98,7 @@ void NoiseFxControllerTest::test_properties_shouldReachTheDevice()
     QCOMPARE(device->filterType(), NoiseFxDevice::FilterType::HighPass);
     QCOMPARE(device->toneWaveform(), PolyBlepOscillator::Waveform::Square);
     QVERIFY(!device->playToEnd());
+    QVERIFY(device->chromatic());
     QCOMPARE(device->lfoParameterValue(NahdXml::xmlKeySync()), 1.0f);
     QCOMPARE(device->lfoTarget(1), NoiseFxDevice::Destination::Pan);
     QVERIFY(std::abs(device->lfoDepth(1) - 0.8f) < 0.001f);
