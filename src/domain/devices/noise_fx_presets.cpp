@@ -320,6 +320,151 @@ const std::vector<SynthPreset> & NoiseFxPresets::presets()
                                    { sweepRoute(0, NahdXml::xmlKeyDepth(), 2), depthKnob(0.85) },
                                  } });
 
+        // Dark noise driven hard, its filter slamming shut over two seconds while a sine an octave
+        // under the note falls with it: the blast and the thump under it. Play low.
+        list.push_back({ "Explosion", Parameters {
+                                        { key(NahdXml::xmlKeyColor()), 0.35f },
+                                        { key(NahdXml::xmlKeyCrackle()), 0.15f },
+                                        { key(NahdXml::xmlKeyWidth()), 0.8f },
+                                        { key(NahdXml::xmlKeyWaveform()), ordinal(PolyBlepOscillator::Waveform::Sine) },
+                                        { key(NahdXml::xmlKeyPitch()), pitchKnob(-12.0) },
+                                        { key(NahdXml::xmlKeyBlend()), 0.15f },
+                                        { key(NahdXml::xmlKeyCutoff()), cutoffKnob(80.0) },
+                                        { key(NahdXml::xmlKeyResonance()), 0.15f },
+                                        { key(NahdXml::xmlKeyDrive()), 0.6f },
+                                        { key(NahdXml::xmlKeyAmpDecay()), decayKnob(3.0) },
+                                        { key(NahdXml::xmlKeyAmpSustain()), 0.0f },
+                                        { key(NahdXml::xmlKeyAmpRelease()), decayKnob(1.5) },
+                                        { sweepA(NahdXml::xmlKeyStart()), 1.0f },
+                                        { sweepA(NahdXml::xmlKeyEnd()), 0.0f },
+                                        { sweepA(NahdXml::xmlKeyCurve()), 0.3f },
+                                        { sweepA(NahdXml::xmlKeySync()), Off },
+                                        { sweepA(NahdXml::xmlKeyLength()), sweepSecondsKnob(2.0) },
+                                        { sweepRoute(0, NahdXml::xmlKeyDepth(), 1), depthKnob(0.8) },
+                                        { sweepRoute(0, NahdXml::xmlKeyTarget(), 2), ordinal(Destination::Pitch) },
+                                        { sweepRoute(0, NahdXml::xmlKeyDepth(), 2), depthKnob(0.25) },
+                                      } });
+
+        // The same blast heard from a few kilometres off: the top gone, a long low roll left.
+        list.push_back({ "Distant Explosion", Parameters {
+                                                { key(NahdXml::xmlKeyColor()), 0.05f },
+                                                { key(NahdXml::xmlKeyWidth()), 1.0f },
+                                                { key(NahdXml::xmlKeyCutoff()), cutoffKnob(100.0) },
+                                                { key(NahdXml::xmlKeyResonance()), 0.1f },
+                                                { key(NahdXml::xmlKeyDrive()), 0.3f },
+                                                { key(NahdXml::xmlKeyAmpAttack()), attackKnob(0.03) },
+                                                { key(NahdXml::xmlKeyAmpDecay()), decayKnob(5.0) },
+                                                { key(NahdXml::xmlKeyAmpSustain()), 0.0f },
+                                                { key(NahdXml::xmlKeyAmpRelease()), decayKnob(3.0) },
+                                                { sweepA(NahdXml::xmlKeyStart()), 1.0f },
+                                                { sweepA(NahdXml::xmlKeyEnd()), 0.0f },
+                                                { sweepA(NahdXml::xmlKeyCurve()), 0.3f },
+                                                { sweepA(NahdXml::xmlKeySync()), Off },
+                                                { sweepA(NahdXml::xmlKeyLength()), sweepSecondsKnob(4.0) },
+                                                { sweepRoute(0, NahdXml::xmlKeyDepth(), 1), depthKnob(0.4) },
+                                                { lfo(NahdXml::xmlKeyWaveform()), static_cast<float>(NoiseFxDevice::SmoothRandomWaveform) },
+                                                { lfo(NahdXml::xmlKeyRate()), lfoRateKnob(3.0) },
+                                                { lfoRoute(NahdXml::xmlKeyTarget(), 1), ordinal(Destination::Level) },
+                                                { lfoRoute(NahdXml::xmlKeyDepth(), 1), depthKnob(0.4) },
+                                              } });
+
+        // The sharp bang of late-nineties trance, fitted to the one ending the break of Feel the
+        // Beat: a sub boom falling from 260 Hz to an octave under the note in a tenth of a second,
+        // under flat white noise, with the mids between scooped out by the notch. Nothing closes
+        // down: the noise stays bright until it is gone, a second later, which is what keeps this
+        // apart from an explosion.
+        list.push_back({ "Trance Bang", Parameters {
+                                          { key(NahdXml::xmlKeyColor()), 0.5f },
+                                          { key(NahdXml::xmlKeyWidth()), 1.0f },
+                                          { key(NahdXml::xmlKeyWaveform()), ordinal(PolyBlepOscillator::Waveform::Sine) },
+                                          { key(NahdXml::xmlKeyPitch()), pitchKnob(-12.0) },
+                                          { key(NahdXml::xmlKeyBlend()), 0.75f },
+                                          { key(NahdXml::xmlKeyFilterType()), ordinal(NoiseFxDevice::FilterType::Notch) },
+                                          { key(NahdXml::xmlKeyCutoff()), cutoffKnob(800.0) },
+                                          { key(NahdXml::xmlKeyResonance()), 0.0f },
+                                          { key(NahdXml::xmlKeyDrive()), 0.1f },
+                                          { key(NahdXml::xmlKeyAmpDecay()), decayKnob(1.0) },
+                                          { key(NahdXml::xmlKeyAmpSustain()), 0.0f },
+                                          { key(NahdXml::xmlKeyAmpRelease()), decayKnob(1.0) },
+                                          { sweepRoute(0, NahdXml::xmlKeyTarget(), 1), ordinal(Destination::None) },
+                                          { sweepB(NahdXml::xmlKeyStart()), 1.0f },
+                                          { sweepB(NahdXml::xmlKeyEnd()), 0.0f },
+                                          { sweepB(NahdXml::xmlKeyCurve()), 0.2f },
+                                          { sweepB(NahdXml::xmlKeySync()), Off },
+                                          { sweepB(NahdXml::xmlKeyLength()), sweepSecondsKnob(0.15) },
+                                          { sweepRoute(1, NahdXml::xmlKeyTarget(), 1), ordinal(Destination::Pitch) },
+                                          { sweepRoute(1, NahdXml::xmlKeyDepth(), 1), depthKnob(0.5) },
+                                        } });
+
+        // The same bang cut short, gone in a third of a second, for hits on the beat.
+        list.push_back({ "Short Bang", Parameters {
+                                         { key(NahdXml::xmlKeyColor()), 0.5f },
+                                         { key(NahdXml::xmlKeyWidth()), 1.0f },
+                                         { key(NahdXml::xmlKeyWaveform()), ordinal(PolyBlepOscillator::Waveform::Sine) },
+                                         { key(NahdXml::xmlKeyPitch()), pitchKnob(-12.0) },
+                                         { key(NahdXml::xmlKeyBlend()), 0.75f },
+                                         { key(NahdXml::xmlKeyFilterType()), ordinal(NoiseFxDevice::FilterType::Notch) },
+                                         { key(NahdXml::xmlKeyCutoff()), cutoffKnob(800.0) },
+                                         { key(NahdXml::xmlKeyResonance()), 0.0f },
+                                         { key(NahdXml::xmlKeyDrive()), 0.1f },
+                                         { key(NahdXml::xmlKeyAmpDecay()), decayKnob(0.3) },
+                                         { key(NahdXml::xmlKeyAmpSustain()), 0.0f },
+                                         { key(NahdXml::xmlKeyAmpRelease()), decayKnob(0.3) },
+                                         { sweepRoute(0, NahdXml::xmlKeyTarget(), 1), ordinal(Destination::None) },
+                                         { sweepB(NahdXml::xmlKeyStart()), 1.0f },
+                                         { sweepB(NahdXml::xmlKeyEnd()), 0.0f },
+                                         { sweepB(NahdXml::xmlKeyCurve()), 0.2f },
+                                         { sweepB(NahdXml::xmlKeySync()), Off },
+                                         { sweepB(NahdXml::xmlKeyLength()), sweepSecondsKnob(0.06) },
+                                         { sweepRoute(1, NahdXml::xmlKeyTarget(), 1), ordinal(Destination::Pitch) },
+                                         { sweepRoute(1, NahdXml::xmlKeyDepth(), 1), depthKnob(0.5) },
+                                       } });
+
+        // A short, bright blast full of crackling debris that turns to grit as it dies away.
+        list.push_back({ "Debris Blast", Parameters {
+                                           { key(NahdXml::xmlKeyColor()), 0.45f },
+                                           { key(NahdXml::xmlKeyCrackle()), 0.6f },
+                                           { key(NahdXml::xmlKeyWidth()), 1.0f },
+                                           { key(NahdXml::xmlKeyCutoff()), cutoffKnob(200.0) },
+                                           { key(NahdXml::xmlKeyResonance()), 0.25f },
+                                           { key(NahdXml::xmlKeyDrive()), 0.5f },
+                                           { key(NahdXml::xmlKeyAmpDecay()), decayKnob(1.2) },
+                                           { key(NahdXml::xmlKeyAmpSustain()), 0.0f },
+                                           { key(NahdXml::xmlKeyAmpRelease()), decayKnob(0.8) },
+                                           { sweepA(NahdXml::xmlKeyStart()), 1.0f },
+                                           { sweepA(NahdXml::xmlKeyEnd()), 0.0f },
+                                           { sweepA(NahdXml::xmlKeyCurve()), 0.2f },
+                                           { sweepA(NahdXml::xmlKeySync()), Off },
+                                           { sweepA(NahdXml::xmlKeyLength()), sweepSecondsKnob(1.2) },
+                                           { sweepRoute(0, NahdXml::xmlKeyDepth(), 1), depthKnob(0.6) },
+                                           { sweepRoute(0, NahdXml::xmlKeyTarget(), 2), ordinal(Destination::SampleHoldRate) },
+                                           { sweepRoute(0, NahdXml::xmlKeyDepth(), 2), depthKnob(0.5) },
+                                           { key(NahdXml::xmlKeySampleHoldRate()), holdRateKnob(3000.0) },
+                                         } });
+
+        // A fire: a roar of dark noise flickering in level and brightness, with wood popping in it.
+        // High passed, so the roar stays off the subs and the pops come through bright. Held, it
+        // burns.
+        list.push_back({ "Fire", Parameters {
+                                   { key(NahdXml::xmlKeyColor()), 0.15f },
+                                   { key(NahdXml::xmlKeyCrackle()), 0.4f },
+                                   { key(NahdXml::xmlKeyWidth()), 0.7f },
+                                   { key(NahdXml::xmlKeyFilterType()), ordinal(NoiseFxDevice::FilterType::HighPass) },
+                                   { key(NahdXml::xmlKeyCutoff()), cutoffKnob(150.0) },
+                                   { key(NahdXml::xmlKeyResonance()), 0.05f },
+                                   { key(NahdXml::xmlKeyDrive()), 0.2f },
+                                   { key(NahdXml::xmlKeyAmpAttack()), attackKnob(0.8) },
+                                   { key(NahdXml::xmlKeyAmpRelease()), decayKnob(1.5) },
+                                   { key(NahdXml::xmlKeyPlayToEnd()), Off },
+                                   { sweepRoute(0, NahdXml::xmlKeyTarget(), 1), ordinal(Destination::None) },
+                                   { lfo(NahdXml::xmlKeyWaveform()), static_cast<float>(NoiseFxDevice::SmoothRandomWaveform) },
+                                   { lfo(NahdXml::xmlKeyRate()), lfoRateKnob(1.5) },
+                                   { lfoRoute(NahdXml::xmlKeyTarget(), 1), ordinal(Destination::Level) },
+                                   { lfoRoute(NahdXml::xmlKeyDepth(), 1), depthKnob(0.35) },
+                                   { lfoRoute(NahdXml::xmlKeyTarget(), 2), ordinal(Destination::Cutoff) },
+                                   { lfoRoute(NahdXml::xmlKeyDepth(), 2), depthKnob(0.1) },
+                                 } });
+
         return list;
     }();
     return presetList;
