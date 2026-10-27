@@ -219,7 +219,7 @@ void JuSynth08Device::setupParameters()
     addParameter(Parameter { C::xmlKeyUnisonDetune().toStdString(), 0.2f, 0, 10000, 2000, 100 });
     addParameter(Parameter { C::xmlKeyPortamento().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { C::xmlKeyPitchBendRange().toStdString(), 2.0f, 0, 24, 2, 1, Parameter::Type::Discrete });
-    addParameter(Parameter { C::xmlKeyPanSpread().toStdString(), 0.5f, 0, 10000, 5000, 100 });
+    addParameter(Parameter { C::xmlKeyPanSpread().toStdString(), 0.3f, 0, 10000, 3000, 100 });
     addParameter(Parameter { C::xmlKeyOscillatorDrift().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { C::xmlKeyOscillatorInstability().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { C::xmlKeyVoiceTolerance().toStdString(), 0.0f, 0, 10000, 0, 100 });
@@ -308,7 +308,8 @@ void JuSynth08Device::handleNoteOn(uint8_t note, uint8_t velocity)
         if (!legato) {
             voice.frequency = targetFrequency;
             voice.glideFrequency = targetFrequency;
-            voice.pan = 0.5;
+            voice.panPosition = spreadPosition(m_nextVoice);
+            m_nextVoice = (m_nextVoice + 1) % MaxVoices;
             voice.detuneCents = 0.0;
             voice.active = true;
             voice.startedAt = ++m_noteCounter;
@@ -338,7 +339,7 @@ void JuSynth08Device::handleNoteOn(uint8_t note, uint8_t velocity)
             voice.phaseVco1 = std::fmod(static_cast<double>(i) * 0.618034, 1.0);
             voice.phaseVco2 = std::fmod(static_cast<double>(i) * 0.381966 + 0.25, 1.0);
             voice.detuneCents = UnisonSpreads[i] * maxDetuneCents;
-            voice.pan = voiceSpreadPan(i);
+            voice.panPosition = spreadPosition(i);
             voice.frequency = fromFrequency;
             voice.glideFrequency = targetFrequency;
             voice.note = note;
@@ -366,7 +367,7 @@ void JuSynth08Device::handleNoteOn(uint8_t note, uint8_t velocity)
     voice.velocity = vel;
     voice.frequency = targetFrequency;
     voice.glideFrequency = targetFrequency;
-    voice.pan = voiceSpreadPan(slot);
+    voice.panPosition = spreadPosition(slot);
     voice.detuneCents = 0.0;
     voice.active = true;
     voice.gated = true;
@@ -396,8 +397,9 @@ size_t JuSynth08Device::allocateVoice(uint8_t note)
         }
     }
     for (size_t i = 0; i < MaxVoices; i++) {
-        if (!m_voices[i].active) {
-            return i;
+        if (const size_t index = (m_nextVoice + i) % MaxVoices; !m_voices[index].active) {
+            m_nextVoice = (index + 1) % MaxVoices;
+            return index;
         }
     }
     for (size_t i = 0; i < MaxVoices; i++) {
@@ -416,13 +418,15 @@ size_t JuSynth08Device::allocateVoice(uint8_t note)
     return oldest;
 }
 
-double JuSynth08Device::voiceSpreadPan(size_t voiceIndex) const
+double JuSynth08Device::spreadPosition(size_t index) const
 {
-    constexpr std::array<double, MaxVoices> PolyPans {
-        0.5, 0.4, 0.6, 0.3, 0.7, 0.2, 0.8, 0.5
-    };
-    const double baseOffset = PolyPans[voiceIndex % MaxVoices] - 0.5;
-    return std::clamp(0.5 + baseOffset * m_panSpread, 0.0, 1.0);
+    // The Synth's distribution: consecutive voices swap sides and step in towards the centre, so any
+    // number of them sounding at once is balanced left to right. The first and last voices sat in
+    // the middle, which left a line played one note at a time there however far the knob was open.
+    const size_t slot = index % MaxVoices;
+    const double side = slot % 2 == 0 ? -1.0 : 1.0;
+    const double depth = 1.0 - static_cast<double>(slot / 2) * (2.0 / MaxVoices);
+    return side * depth;
 }
 
 double JuSynth08Device::rangeMultiplier(int range) const
@@ -700,8 +704,9 @@ void JuSynth08Device::processAudio(AudioContext & context)
             }
 
             // Stereo Panning
-            const double panL = std::cos(voice.pan * (std::numbers::pi / 2.0)) * vcaGain;
-            const double panR = std::sin(voice.pan * (std::numbers::pi / 2.0)) * vcaGain;
+            const double pan = 0.5 + 0.5 * voice.panPosition * static_cast<double>(m_panSpread);
+            const double panL = std::cos(pan * (std::numbers::pi / 2.0)) * vcaGain;
+            const double panR = std::sin(pan * (std::numbers::pi / 2.0)) * vcaGain;
 
             // 2x Oversampled synthesis of VCOs and VCF
             for (size_t os = 0; os < Oversampling; os++) {

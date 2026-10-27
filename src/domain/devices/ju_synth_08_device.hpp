@@ -304,7 +304,9 @@ private:
         double frequency { 440.0 };
         double glideFrequency { 440.0 };
         double detuneCents { 0.0 };
-        double pan { 0.5 };
+        //! Where the voice sits at full pan spread, -1 left to 1 right. The spread scales it as the
+        //! voice renders, so turning the knob moves notes already sounding.
+        double panPosition { 0.0 };
 
         double phaseVco1 { 0.0 };
         double phaseVco2 { 0.0 };
@@ -327,7 +329,7 @@ private:
             frequency = 440.0;
             glideFrequency = 440.0;
             detuneCents = 0.0;
-            pan = 0.5;
+            panPosition = 0.0;
             phaseVco1 = 0.0;
             phaseVco2 = 0.0;
             vcf.reset();
@@ -349,7 +351,8 @@ private:
     void handleNoteOff(uint8_t note);
     size_t allocateVoice(uint8_t note);
     double rangeMultiplier(int range) const;
-    double voiceSpreadPan(size_t voiceIndex) const;
+    //! Where the voice that takes @p index sits at full pan spread, -1 to 1.
+    double spreadPosition(size_t index) const;
     //! Puts every voice's and every VCO's wander back to where it starts.
     void initializeDrift();
 
@@ -413,7 +416,7 @@ private:
     VoiceMode m_voiceMode { VoiceMode::Poly };
     float m_unisonDetune { 0.2f };
     float m_portamento { 0.0f };
-    float m_panSpread { 0.5f };
+    float m_panSpread { 0.3f };
     float m_oscillatorDrift { 0.0f };
     float m_oscillatorInstability { 0.0f };
     float m_voiceTolerance { 0.0f };
@@ -425,6 +428,9 @@ private:
     std::array<AnalogDrift, MaxVoices> m_drifts;
     std::array<std::array<AnalogDrift, 2>, MaxVoices> m_vcoDrifts;
     uint64_t m_noteCounter { 0 };
+    //! Where the search for a silent voice starts, so that successive notes take successive voices
+    //! and, with the pan spread open, alternate sides. The solo voice steps through the same
+    //! positions note by note.
     size_t m_nextVoice { 0 };
     Lfo m_lfo;
     double m_lfoDelayElapsed { 0.0 };

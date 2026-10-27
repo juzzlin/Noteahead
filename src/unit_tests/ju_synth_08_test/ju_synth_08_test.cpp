@@ -245,6 +245,41 @@ double peak(const std::vector<double> & samples)
     return std::ranges::max(samples, {}, [](double sample) { return std::abs(sample); });
 }
 
+//! Renders @p seconds and returns the left and right RMS.
+std::pair<double, double> sideLevels(JuSynth08Device & synth, double seconds)
+{
+    const auto frames = static_cast<uint32_t>(seconds * 48000.0);
+    std::vector<double> buffer(static_cast<size_t>(frames) * 2, 0.0);
+    AudioContext context { .buffer = buffer, .frameCount = frames, .sampleRate = 48000 };
+    synth.processAudio(context);
+    double left = 0.0;
+    double right = 0.0;
+    for (size_t i = 0; i < frames; i++) {
+        left += buffer[i * 2] * buffer[i * 2];
+        right += buffer[i * 2 + 1] * buffer[i * 2 + 1];
+    }
+    return { std::sqrt(left / frames), std::sqrt(right / frames) };
+}
+
+//! Plays two notes one after the other and returns how far right of centre each sounded, in dB.
+std::array<double, 2> successiveNoteBalance(JuSynth08Device::VoiceMode mode, float panSpread)
+{
+    JuSynth08Device synth;
+    synth.setSampleRate(48000.0);
+    synth.setVoiceMode(static_cast<int>(mode));
+    synth.setPanSpread(panSpread);
+    synth.setEnv2Release(0.0f);
+    std::array<double, 2> balance {};
+    for (auto && db : balance) {
+        synth.processDeviceMidiNoteOn(60, 100);
+        const auto [left, right] = sideLevels(synth, 0.2);
+        db = 20.0 * std::log10(right / left);
+        synth.processDeviceMidiNoteOff(60);
+        sideLevels(synth, 0.2);
+    }
+    return balance;
+}
+
 //! Where the strongest partial within ten cents of @p hz sits, in cents from it, over the samples
 //! from @p from to @p to.
 double centsOff(const std::vector<double> & samples, size_t from, size_t to, double hz)
@@ -441,6 +476,80 @@ void JuSynth08Test::test_voiceTolerance_full_shouldTuneTheVoicesApart()
     const auto apart = offsets(1.0f);
     QVERIFY2(std::abs(apart[0] - apart[1]) > 2.0, qPrintable(QString::number(apart[0]) + " " + QString::number(apart[1])));
     QVERIFY2(std::abs(apart[0]) < 5.5 && std::abs(apart[1]) < 5.5, qPrintable(QString::number(apart[0]) + " " + QString::number(apart[1])));
+}
+
+void JuSynth08Test::test_panSpread_zero_shouldBeCentredInEveryMode()
+{
+    for (auto && mode : { JuSynth08Device::VoiceMode::Poly, JuSynth08Device::VoiceMode::Solo, JuSynth08Device::VoiceMode::Unison }) {
+        for (auto && db : successiveNoteBalance(mode, 0.0f)) {
+            QVERIFY2(std::abs(db) < 0.01, qPrintable(QString::number(db)));
+        }
+    }
+}
+
+void JuSynth08Test::test_panSpread_poly_shouldAlternateSuccessiveNotes()
+{
+    // One note at a time took the first voice every time, which sat in the middle
+    const auto balance = successiveNoteBalance(JuSynth08Device::VoiceMode::Poly, 1.0f);
+    QVERIFY2(balance[0] < -10.0 && balance[1] > 10.0, qPrintable(QString::number(balance[0]) + " " + QString::number(balance[1])));
+}
+
+void JuSynth08Test::test_panSpread_solo_shouldAlternateSuccessiveNotes()
+{
+    const auto balance = successiveNoteBalance(JuSynth08Device::VoiceMode::Solo, 1.0f);
+    QVERIFY2(balance[0] < -10.0 && balance[1] > 10.0, qPrintable(QString::number(balance[0]) + " " + QString::number(balance[1])));
+}
+
+void JuSynth08Test::test_panSpread_solo_legato_shouldKeepTheSide()
+{
+    // A legato note is the same note moving, so it stays where it started
+    JuSynth08Device synth;
+    synth.setSampleRate(48000.0);
+    synth.setVoiceMode(static_cast<int>(JuSynth08Device::VoiceMode::Solo));
+    synth.setPanSpread(1.0f);
+    synth.processDeviceMidiNoteOn(60, 100);
+    sideLevels(synth, 0.1);
+    synth.processDeviceMidiNoteOn(64, 100);
+    const auto [left, right] = sideLevels(synth, 0.2);
+    QVERIFY2(left > 3.0 * right, qPrintable(QString::number(left) + " " + QString::number(right)));
+}
+
+void JuSynth08Test::test_panSpread_unison_shouldWidenTheStack()
+{
+    // The stack stays balanced, but its voices move apart: the difference of the sides grows
+    const auto width = [](float panSpread) {
+        JuSynth08Device synth;
+        synth.setSampleRate(48000.0);
+        synth.setVoiceMode(static_cast<int>(JuSynth08Device::VoiceMode::Unison));
+        synth.setUnisonDetune(0.5f);
+        synth.setPanSpread(panSpread);
+        synth.processDeviceMidiNoteOn(48, 100);
+        constexpr uint32_t frames { 48000 };
+        std::vector<double> buffer(frames * 2, 0.0);
+        AudioContext context { .buffer = buffer, .frameCount = frames, .sampleRate = 48000 };
+        synth.processAudio(context);
+        double mid = 0.0;
+        double side = 0.0;
+        for (size_t i = 0; i < frames; i++) {
+            mid += std::pow(buffer[i * 2] + buffer[i * 2 + 1], 2.0);
+            side += std::pow(buffer[i * 2] - buffer[i * 2 + 1], 2.0);
+        }
+        return std::sqrt(side / mid);
+    };
+    QVERIFY2(width(0.0f) < 1.0e-6, qPrintable(QString::number(width(0.0f))));
+    QVERIFY2(width(1.0f) > 0.3, qPrintable(QString::number(width(1.0f))));
+}
+
+void JuSynth08Test::test_panSpread_changed_shouldMoveTheHeldNote()
+{
+    JuSynth08Device synth;
+    synth.setSampleRate(48000.0);
+    synth.setPanSpread(0.0f);
+    synth.processDeviceMidiNoteOn(60, 100);
+    sideLevels(synth, 0.1);
+    synth.setPanSpread(1.0f);
+    const auto [left, right] = sideLevels(synth, 0.2);
+    QVERIFY2(left > 3.0 * right, qPrintable(QString::number(left) + " " + QString::number(right)));
 }
 
 void JuSynth08Test::test_xmlSerialization()

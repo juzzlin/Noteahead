@@ -42,6 +42,12 @@ private slots:
     void test_oscillatorInstability_full_shouldBeatTheTwoVcos();
     void test_oscillatorDrift_afterReset_shouldRenderTheSame();
     void test_voiceTolerance_full_shouldTuneTheVoicesApart();
+    void test_panSpread_zero_shouldBeCentredInEveryMode();
+    void test_panSpread_poly_shouldAlternateSuccessiveNotes();
+    void test_panSpread_solo_shouldAlternateSuccessiveNotes();
+    void test_panSpread_solo_legato_shouldKeepTheSide();
+    void test_panSpread_unison_shouldWidenTheStack();
+    void test_panSpread_changed_shouldMoveTheHeldNote();
     void test_xmlSerialization();
 };
 
