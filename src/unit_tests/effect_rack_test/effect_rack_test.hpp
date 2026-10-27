@@ -60,6 +60,7 @@ private slots:
     void test_moveEffect_downwards_shouldShiftSlotsInBetweenUp();
     void test_moveEffect_sameSlot_shouldDoNothing();
     void test_moveEffect_outOfBounds_shouldDoNothing();
+    void test_insertRack_everyDevice_shouldBeLeftToTheEngine();
 };
 
 } // namespace noteahead

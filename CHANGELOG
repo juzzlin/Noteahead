@@ -13,6 +13,8 @@ Bug fixes:
 
 * JU Synth 08: fader, expression, gain and pan had no effect
 
+* JU Synth 08: insert effects ran twice per block, which made them buzz
+
 Other:
 
 11.0.0

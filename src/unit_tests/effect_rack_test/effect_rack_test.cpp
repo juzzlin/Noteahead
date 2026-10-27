@@ -15,6 +15,8 @@
 
 #include "effect_rack_test.hpp"
 #include "../../common/constants.hpp"
+#include "../../domain/devices/device.hpp"
+#include "../../domain/devices/device_factory.hpp"
 #include "../../domain/dsp/audio_context.hpp"
 #include "../../domain/dsp/volume.hpp"
 #include "../../domain/effects/drive.hpp"
@@ -51,6 +53,25 @@ std::unique_ptr<EffectRack> roundTrip(const EffectRack & rack)
     }
     return loaded;
 }
+
+//! Counts the frames it is handed and leaves them alone.
+class CountingEffect : public Effect
+{
+public:
+    std::string type() const override
+    {
+        return "counting";
+    }
+    std::string typeId() const override
+    {
+        return "counting";
+    }
+    void processSample(double &, double &) override
+    {
+        frames++;
+    }
+    size_t frames { 0 };
+};
 
 } // namespace
 
@@ -718,6 +739,27 @@ void EffectRackTest::test_moveEffect_outOfBounds_shouldDoNothing()
 
     QCOMPARE(rack.effect(0), reverb);
     QCOMPARE(rack.version(), version);
+}
+
+void EffectRackTest::test_insertRack_everyDevice_shouldBeLeftToTheEngine()
+{
+    // The engine runs a device's inserts after the device has rendered, pre- or post-fader. A
+    // device that also ran them itself put every block through them twice, which tore the
+    // filters' and compressors' state at each block edge into a buzz.
+    DeviceFactory::init();
+    for (auto && typeId : DeviceFactory::typeIds()) {
+        const auto device = DeviceFactory::createDevice(typeId, "Fixture");
+        QVERIFY2(device, typeId.c_str());
+        const auto counter = std::make_shared<CountingEffect>();
+        device->insertEffectRack().setEffect(0, counter);
+        device->setSampleRate(48000);
+        device->processMidiNoteOn(60, 100);
+        std::vector<double> buffer(512 * 2, 0.0);
+        AudioContext context { std::span(buffer.data(), buffer.size()), 512, 48000 };
+        device->processAudio(context);
+        QVERIFY2(counter->frames == 0, typeId.c_str());
+    }
+    DeviceFactory::clear();
 }
 
 } // namespace noteahead

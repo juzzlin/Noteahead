@@ -759,8 +759,6 @@ void JuSynth08Device::processAudio(AudioContext & context)
         context.buffer[frame * 2 + 1] += static_cast<double>(m_dcBlockers[1].process(mixedRight)) * gain * masterPanR;
     }
 
-    processInsertEffects(context);
-
     publishLfoLed(0, m_lfo.shapeValue());
 
     // Active voice tracking for idle management
