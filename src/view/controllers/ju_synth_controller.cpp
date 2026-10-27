@@ -304,6 +304,30 @@ void JuSynthController::setPanSpread(int value)
     }
 }
 
+int JuSynthController::oscillatorDrift() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->oscillatorDrift() * Constants::uiInternalScaling())) : 0;
+}
+
+void JuSynthController::setOscillatorDrift(int value)
+{
+    if (m_device) {
+        m_device->setOscillatorDrift(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int JuSynthController::voiceTolerance() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->voiceTolerance() * Constants::uiInternalScaling())) : 0;
+}
+
+void JuSynthController::setVoiceTolerance(int value)
+{
+    if (m_device) {
+        m_device->setVoiceTolerance(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
 int JuSynthController::range() const
 {
     return m_device ? static_cast<int>(m_device->range()) : 0;
@@ -429,6 +453,8 @@ void JuSynthController::requestSettings()
     emit releaseChanged();
     emit portamentoChanged();
     emit panSpreadChanged();
+    emit oscillatorDriftChanged();
+    emit voiceToleranceChanged();
     emit rangeChanged();
     emit pwmSourceChanged();
     emit vcaModeChanged();

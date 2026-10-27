@@ -4349,6 +4349,41 @@
         <source>Amp / Delay</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Analog</source>
+        <translation>Analoginen</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog_Analog</name>
+    <message>
+        <source>Analog</source>
+        <translation>Analoginen</translation>
+    </message>
+    <message>
+        <source>Drift</source>
+        <translation>Ajautuma</translation>
+    </message>
+    <message>
+        <source>How far each voice slowly wanders out of tune, every voice on a course of its own</source>
+        <translation>Kuinka paljon kukin ääni ajautuu hitaasti epävireeseen, jokainen omaa reittiään</translation>
+    </message>
+    <message>
+        <source>Instability</source>
+        <translation>Epävakaus</translation>
+    </message>
+    <message>
+        <source>How far each VCO wanders on its own, so that the two of a voice beat slowly against each other</source>
+        <translation>Kuinka paljon kukin VCO ajautuu omillaan, jolloin äänen kaksi oskillaattoria huojuvat hitaasti toisiaan vasten</translation>
+    </message>
+    <message>
+        <source>Tolerance</source>
+        <translation>Toleranssi</translation>
+    </message>
+    <message>
+        <source>How far the voices differ from each other in tuning and in filter cutoff</source>
+        <translation>Kuinka paljon äänet eroavat toisistaan vireeltään ja suotimen cutoffilta</translation>
+    </message>
 </context>
 <context>
     <name>JuSynth08Dialog_Delay</name>
@@ -4743,6 +4778,29 @@
     <message>
         <source>Cancel</source>
         <translation>Peruuta</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynthDialog_Analog</name>
+    <message>
+        <source>Analog</source>
+        <translation>Analoginen</translation>
+    </message>
+    <message>
+        <source>Drift</source>
+        <translation>Ajautuma</translation>
+    </message>
+    <message>
+        <source>How far each voice slowly wanders out of tune, every voice on a course of its own</source>
+        <translation>Kuinka paljon kukin ääni ajautuu hitaasti epävireeseen, jokainen omaa reittiään</translation>
+    </message>
+    <message>
+        <source>Tolerance</source>
+        <translation>Toleranssi</translation>
+    </message>
+    <message>
+        <source>How far the voices differ from each other in tuning and in filter cutoff</source>
+        <translation>Kuinka paljon äänet eroavat toisistaan vireeltään ja suotimen cutoffilta</translation>
     </message>
 </context>
 <context>
@@ -8469,6 +8527,18 @@
     <message>
         <source>Delay Level</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drift</source>
+        <translation>Ajautuma</translation>
+    </message>
+    <message>
+        <source>Instability</source>
+        <translation>Epävakaus</translation>
+    </message>
+    <message>
+        <source>Tolerance</source>
+        <translation>Toleranssi</translation>
     </message>
 </context>
 <context>

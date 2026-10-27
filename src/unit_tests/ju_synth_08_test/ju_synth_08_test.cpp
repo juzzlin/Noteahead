@@ -23,8 +23,11 @@
 #include <QBuffer>
 #include <QSignalSpy>
 #include <QTest>
+#include <algorithm>
+#include <array>
 #include <cmath>
 #include <numeric>
+#include <utility>
 #include <vector>
 
 using namespace noteahead;
@@ -242,6 +245,49 @@ double peak(const std::vector<double> & samples)
     return std::ranges::max(samples, {}, [](double sample) { return std::abs(sample); });
 }
 
+//! Where the strongest partial within ten cents of @p hz sits, in cents from it, over the samples
+//! from @p from to @p to.
+double centsOff(const std::vector<double> & samples, size_t from, size_t to, double hz)
+{
+    const size_t count = to - from;
+    double bestCents = 0.0;
+    double bestMagnitude = 0.0;
+    for (double cents = -10.0; cents <= 10.0; cents += 0.05) {
+        const double probe = hz * std::exp2(cents / 1200.0);
+        double re = 0.0;
+        double im = 0.0;
+        for (size_t i = 0; i < count; i++) {
+            const double window = 0.5 - 0.5 * std::cos(2.0 * M_PI * static_cast<double>(i) / static_cast<double>(count));
+            const double phase = 2.0 * M_PI * probe * static_cast<double>(i) / 48000.0;
+            re += window * samples[from + i] * std::cos(phase);
+            im += window * samples[from + i] * std::sin(phase);
+        }
+        if (const double magnitude = std::hypot(re, im); magnitude > bestMagnitude) {
+            bestMagnitude = magnitude;
+            bestCents = cents;
+        }
+    }
+    return bestCents;
+}
+
+//! How far a held C5 on VCO 1 alone wanders over four seconds, in cents from its lowest to its
+//! highest, and the furthest it gets from concert pitch.
+std::pair<double, double> wander(JuSynth08Device & synth)
+{
+    synth.setSampleRate(48000.0);
+    synth.setVco2Level(0.0f);
+    const auto mono = renderHeldNote(synth, 72, 4.0);
+    constexpr size_t window { 12000 };
+    double lowest = 100.0;
+    double highest = -100.0;
+    for (size_t from = 0; from + window <= mono.size(); from += window) {
+        const double cents = centsOff(mono, from, from + window, 523.2511306);
+        lowest = std::min(lowest, cents);
+        highest = std::max(highest, cents);
+    }
+    return { highest - lowest, std::max(std::abs(lowest), std::abs(highest)) };
+}
+
 } // namespace
 
 void JuSynth08Test::test_unisonNoteOn_shouldNotSpikeOnTheAttack()
@@ -303,12 +349,109 @@ void JuSynth08Test::test_initPreset_heldNote_shouldPlayAtConcertPitch()
     QVERIFY2(std::abs(hz - 440.0) < 2.0, qPrintable(QString::number(hz)));
 }
 
+void JuSynth08Test::test_oscillatorDrift_zero_shouldHoldThePitch()
+{
+    JuSynth08Device synth;
+    const auto [spread, furthest] = wander(synth);
+    QVERIFY2(spread < 0.2, qPrintable(QString::number(spread)));
+    QVERIFY2(furthest < 0.2, qPrintable(QString::number(furthest)));
+}
+
+void JuSynth08Test::test_oscillatorDrift_full_shouldWanderAFewCents()
+{
+    JuSynth08Device synth;
+    synth.setOscillatorDrift(1.0f);
+    const auto [spread, furthest] = wander(synth);
+    QVERIFY2(spread > 2.0, qPrintable(QString::number(spread)));
+    QVERIFY2(furthest < 5.5, qPrintable(QString::number(furthest)));
+}
+
+void JuSynth08Test::test_oscillatorInstability_full_shouldWanderAFewCents()
+{
+    JuSynth08Device synth;
+    synth.setOscillatorInstability(1.0f);
+    const auto [spread, furthest] = wander(synth);
+    QVERIFY2(spread > 2.0, qPrintable(QString::number(spread)));
+    QVERIFY2(furthest < 3.5, qPrintable(QString::number(furthest)));
+}
+
+void JuSynth08Test::test_oscillatorInstability_full_shouldBeatTheTwoVcos()
+{
+    // The two VCOs at one pitch sum to a level that never moves, until each wanders on its own
+    const auto levelSpread = [](float instability) {
+        JuSynth08Device synth;
+        synth.setSampleRate(48000.0);
+        synth.setOscillatorInstability(instability);
+        const auto mono = renderHeldNote(synth, 60, 4.0);
+        double lowest = 1.0;
+        double highest = 0.0;
+        for (size_t from = 24000; from + 4800 <= mono.size(); from += 4800) {
+            const double level = rms(mono, from, from + 4800);
+            lowest = std::min(lowest, level);
+            highest = std::max(highest, level);
+        }
+        return 20.0 * std::log10(highest / lowest);
+    };
+    const double steady = levelSpread(0.0f);
+    QVERIFY2(steady < 0.1, qPrintable(QString::number(steady)));
+    const double beating = levelSpread(1.0f);
+    QVERIFY2(beating > 1.0, qPrintable(QString::number(beating)));
+}
+
+void JuSynth08Test::test_oscillatorDrift_afterReset_shouldRenderTheSame()
+{
+    // As on the Synth: a bounce is repeatable, whatever was played before it
+    const auto configure = [](JuSynth08Device & synth) {
+        synth.setSampleRate(48000.0);
+        synth.setOscillatorDrift(1.0f);
+        synth.setOscillatorInstability(1.0f);
+        synth.setVoiceTolerance(1.0f);
+    };
+    JuSynth08Device synth;
+    configure(synth);
+    const auto first = renderHeldNote(synth, 60, 1.0);
+    synth.resetAudio();
+    QVERIFY(renderHeldNote(synth, 60, 1.0) == first);
+    JuSynth08Device other;
+    configure(other);
+    QVERIFY(renderHeldNote(other, 60, 1.0) == first);
+}
+
+void JuSynth08Test::test_voiceTolerance_full_shouldTuneTheVoicesApart()
+{
+    // C5 on the first voice alone, then on the second with C#4 holding the first: no partial of
+    // C#4 comes within ten cents of C5
+    const auto offsets = [](float tolerance) {
+        std::array<double, 2> cents {};
+        for (size_t slot = 0; slot < cents.size(); slot++) {
+            JuSynth08Device synth;
+            synth.setSampleRate(48000.0);
+            synth.setVco2Level(0.0f);
+            synth.setVoiceTolerance(tolerance);
+            if (slot == 1) {
+                synth.processDeviceMidiNoteOn(61, 100);
+            }
+            const auto mono = renderHeldNote(synth, 72, 0.5);
+            cents[slot] = centsOff(mono, mono.size() / 4, mono.size(), 523.2511306);
+        }
+        return cents;
+    };
+    const auto exact = offsets(0.0f);
+    QVERIFY2(std::abs(exact[0]) < 0.2 && std::abs(exact[1]) < 0.2, qPrintable(QString::number(exact[0]) + " " + QString::number(exact[1])));
+    const auto apart = offsets(1.0f);
+    QVERIFY2(std::abs(apart[0] - apart[1]) > 2.0, qPrintable(QString::number(apart[0]) + " " + QString::number(apart[1])));
+    QVERIFY2(std::abs(apart[0]) < 5.5 && std::abs(apart[1]) < 5.5, qPrintable(QString::number(apart[0]) + " " + QString::number(apart[1])));
+}
+
 void JuSynth08Test::test_xmlSerialization()
 {
     JuSynth08Device synth { "JuSynth08Source" };
     synth.setVcfSlope(static_cast<int>(JuSynth08Device::VcfSlope::Slope12dB));
     synth.setCrossMod(0.65f);
     synth.setUnisonDetune(0.42f);
+    synth.setOscillatorDrift(0.35f);
+    synth.setOscillatorInstability(0.45f);
+    synth.setVoiceTolerance(0.55f);
 
     QString xml;
     {
@@ -325,6 +468,9 @@ void JuSynth08Test::test_xmlSerialization()
     QCOMPARE(restored.vcfSlope(), static_cast<int>(JuSynth08Device::VcfSlope::Slope12dB));
     QCOMPARE(restored.crossMod(), 0.65f);
     QCOMPARE(restored.unisonDetune(), 0.42f);
+    QCOMPARE(restored.oscillatorDrift(), 0.35f);
+    QCOMPARE(restored.oscillatorInstability(), 0.45f);
+    QCOMPARE(restored.voiceTolerance(), 0.55f);
 }
 
 QTEST_GUILESS_MAIN(JuSynth08Test)

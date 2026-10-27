@@ -49,6 +49,8 @@ class JuSynthController : public DeviceController
     Q_PROPERTY(int release READ release WRITE setRelease NOTIFY releaseChanged)
     Q_PROPERTY(int portamento READ portamento WRITE setPortamento NOTIFY portamentoChanged)
     Q_PROPERTY(int panSpread READ panSpread WRITE setPanSpread NOTIFY panSpreadChanged)
+    Q_PROPERTY(int oscillatorDrift READ oscillatorDrift WRITE setOscillatorDrift NOTIFY oscillatorDriftChanged)
+    Q_PROPERTY(int voiceTolerance READ voiceTolerance WRITE setVoiceTolerance NOTIFY voiceToleranceChanged)
     Q_PROPERTY(int range READ range WRITE setRange NOTIFY rangeChanged)
     Q_PROPERTY(int pwmSource READ pwmSource WRITE setPwmSource NOTIFY pwmSourceChanged)
     Q_PROPERTY(int vcaMode READ vcaMode WRITE setVcaMode NOTIFY vcaModeChanged)
@@ -107,6 +109,10 @@ public:
     void setPortamento(int value);
     int panSpread() const;
     void setPanSpread(int value);
+    int oscillatorDrift() const;
+    void setOscillatorDrift(int value);
+    int voiceTolerance() const;
+    void setVoiceTolerance(int value);
     int range() const;
     void setRange(int value);
     int pwmSource() const;
@@ -147,6 +153,8 @@ signals:
     void releaseChanged();
     void portamentoChanged();
     void panSpreadChanged();
+    void oscillatorDriftChanged();
+    void voiceToleranceChanged();
     void rangeChanged();
     void pwmSourceChanged();
     void vcaModeChanged();

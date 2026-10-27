@@ -134,6 +134,10 @@ AnimatedDialog {
                     JuSynth08Dialog_Tab3 {
                         moduleWidth: mainRow.moduleWidth
                     }
+
+                    JuSynth08Dialog_Tab4 {
+                        moduleWidth: mainRow.moduleWidth
+                    }
                 }
 
                 AppTabBar {
@@ -147,6 +151,9 @@ AnimatedDialog {
                     }
                     AppTabButton {
                         text: qsTr("Amp / Delay")
+                    }
+                    AppTabButton {
+                        text: qsTr("Analog")
                     }
                 }
             }

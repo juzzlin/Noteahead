@@ -99,6 +99,7 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/FlangerDialog.qml
     ${QML_BASE_DIR}/Dialogs/GateDialog.qml
     ${QML_BASE_DIR}/Dialogs/JuSynthDialog.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynthDialog_Analog.qml
     ${QML_BASE_DIR}/Dialogs/JuSynthDialog_Chorus.qml
     ${QML_BASE_DIR}/Dialogs/JuSynthDialog_Dco.qml
     ${QML_BASE_DIR}/Dialogs/JuSynthDialog_Env.qml
@@ -110,10 +111,12 @@ set(QML_SOURCE_FILES
     ${QML_BASE_DIR}/Dialogs/JuSynthDialog_Vcf.qml
     ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog.qml
     ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Presets.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Analog.qml
     ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Global.qml
     ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Tab1.qml
     ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Tab2.qml
     ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Tab3.qml
+    ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Tab4.qml
     ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Vco1.qml
     ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_Vco2.qml
     ${QML_BASE_DIR}/Dialogs/JuSynth08Dialog_VcoMod.qml

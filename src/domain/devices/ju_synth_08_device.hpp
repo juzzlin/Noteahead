@@ -17,6 +17,7 @@
 #define DOMAIN_DEVICES_JU_SYNTH_08_DEVICE_HPP
 
 #include "../dsp/adsr_envelope.hpp"
+#include "../dsp/analog_drift.hpp"
 #include "../dsp/dc_blocker.hpp"
 #include "../dsp/lfo.hpp"
 #include "../dsp/one_pole_filter.hpp"
@@ -280,6 +281,17 @@ public:
     float panSpread() const;
     void setPanSpread(float spread);
 
+    //! How far each voice wanders out of tune, both VCOs together, slowly and on a course of its own.
+    float oscillatorDrift() const;
+    void setOscillatorDrift(float drift);
+    //! How far each VCO wanders on its own, so that the two of a voice beat slowly against each other.
+    float oscillatorInstability() const;
+    void setOscillatorInstability(float instability);
+    //! How far the voices differ from each other in tuning and in filter cutoff, as the parts of
+    //! eight voices built by hand do.
+    float voiceTolerance() const;
+    void setVoiceTolerance(float tolerance);
+
 private:
     struct Voice
     {
@@ -338,6 +350,8 @@ private:
     size_t allocateVoice(uint8_t note);
     double rangeMultiplier(int range) const;
     double voiceSpreadPan(size_t voiceIndex) const;
+    //! Puts every voice's and every VCO's wander back to where it starts.
+    void initializeDrift();
 
     std::string m_name;
     uint16_t m_pitchBend { 8192 };
@@ -400,9 +414,16 @@ private:
     float m_unisonDetune { 0.2f };
     float m_portamento { 0.0f };
     float m_panSpread { 0.5f };
+    float m_oscillatorDrift { 0.0f };
+    float m_oscillatorInstability { 0.0f };
+    float m_voiceTolerance { 0.0f };
 
     // DSP Engine State
     std::array<Voice, MaxVoices> m_voices;
+    //! The wander of each voice and of each of its two VCOs, by slot. Outside Voice so that a note
+    //! starting does not put it back.
+    std::array<AnalogDrift, MaxVoices> m_drifts;
+    std::array<std::array<AnalogDrift, 2>, MaxVoices> m_vcoDrifts;
     uint64_t m_noteCounter { 0 };
     size_t m_nextVoice { 0 };
     Lfo m_lfo;

@@ -2130,6 +2130,11 @@ QString xmlKeyOscillatorInstability()
     return "oscillatorInstability";
 }
 
+QString xmlKeyVoiceTolerance()
+{
+    return "voiceTolerance";
+}
+
 QString xmlKeyFilterDrive()
 {
     return "filterDrive";

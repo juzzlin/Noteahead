@@ -38,6 +38,7 @@ set(HEADER_FILES
     devices/wavetable_synth_device.hpp
     devices/wavetable_synth_presets.hpp
     dsp/adsr_envelope.hpp
+    dsp/analog_drift.hpp
     dsp/all_pass_chain.hpp
     dsp/auto_gain.hpp
     dsp/base_rate_source.hpp
@@ -250,6 +251,7 @@ set(SOURCE_FILES
     devices/wavetable_synth_device.cpp
     devices/wavetable_synth_presets.cpp
     dsp/adsr_envelope.cpp
+    dsp/analog_drift.cpp
     dsp/all_pass_chain.cpp
     dsp/auto_gain.cpp
     dsp/base_rate_source.cpp

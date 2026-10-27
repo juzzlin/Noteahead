@@ -664,6 +664,7 @@ QString xmlKeyDelayFeedbackLpf();
 QString xmlKeyDelayFeedbackHpf();
 QString xmlKeyOscillatorDrift();
 QString xmlKeyOscillatorInstability();
+QString xmlKeyVoiceTolerance();
 QString xmlKeyFilterDrive();
 QString xmlKeyCrossModDepth();
 

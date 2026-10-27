@@ -36,6 +36,19 @@ constexpr double MaxPitchLfoSemitones { 2.0 };
 constexpr double MaxPitchEnvSemitones { 24.0 };
 constexpr double MaxFineTuneCents { 50.0 };
 
+//! Cents a voice wanders either side of its pitch at the top of Drift, as on the Synth, and each VCO
+//! at the top of Instability: half the Synth's, which is for stacks of oscillators. Two VCOs at one
+//! pitch twelve cents apart at most were a flanger; a Jupiter-8 that has warmed up drifts a few.
+constexpr double MaxDriftCents { 5.0 };
+constexpr double MaxInstabilityCents { 3.0 };
+//! At the top of Tolerance, how far off a voice's tuning sits, in cents either way, and its filter's
+//! cutoff, in octaves either way. See the JU Synth.
+constexpr double MaxToleranceCents { 5.0 };
+constexpr double MaxToleranceCutoffOctaves { 0.3 };
+//! The components AnalogDrift::tolerance() tells apart.
+constexpr size_t ToleranceTune { 0 };
+constexpr size_t ToleranceCutoff { 1 };
+
 //! The filter's corner over its knob, 20 Hz to 20 kHz in equal octaves. The envelope, the LFO and the
 //! key follow all move the cutoff in this knob travel, as on the JU Synth.
 constexpr double FilterLowestHz { 20.0 };
@@ -105,7 +118,20 @@ JuSynth08Device::JuSynth08Device(const std::string & name)
     setSampleRate(Constants::defaultSampleRate());
     m_lfo.setFreeRunning(true);
     setupParameters();
+    initializeDrift();
     syncParameters();
+}
+
+void JuSynth08Device::initializeDrift()
+{
+    // Free-running, so put back on every reset: a render that inherited where earlier playback left
+    // the wander would detune its notes differently every time. The VCOs take the indices after the
+    // voices', so none of them moves with a voice.
+    for (size_t i = 0; i < MaxVoices; i++) {
+        m_drifts[i].initialize(i);
+        m_vcoDrifts[i][0].initialize(MaxVoices + i * 2);
+        m_vcoDrifts[i][1].initialize(MaxVoices + i * 2 + 1);
+    }
 }
 
 JuSynth08Device::~JuSynth08Device() = default;
@@ -194,6 +220,9 @@ void JuSynth08Device::setupParameters()
     addParameter(Parameter { C::xmlKeyPortamento().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { C::xmlKeyPitchBendRange().toStdString(), 2.0f, 0, 24, 2, 1, Parameter::Type::Discrete });
     addParameter(Parameter { C::xmlKeyPanSpread().toStdString(), 0.5f, 0, 10000, 5000, 100 });
+    addParameter(Parameter { C::xmlKeyOscillatorDrift().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { C::xmlKeyOscillatorInstability().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { C::xmlKeyVoiceTolerance().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
     using Display = ParameterDisplay;
     setParameterDisplay(C::xmlKeyLfoRate().toStdString(), { .mapping = Display::Mapping::Exponential, .unit = "Hz", .min = 0.1, .max = 30.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "LFO Rate") });
@@ -228,6 +257,9 @@ void JuSynth08Device::setupParameters()
     setParameterDisplay(C::xmlKeyUnisonDetune().toStdString(), { .mapping = Display::Mapping::Linear, .unit = "cents", .min = 0.0, .max = 50.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Unison Detune") });
     setParameterDisplay(C::xmlKeyPortamento().toStdString(), { .mapping = Display::Mapping::Linear, .unit = "ms", .min = 0.0, .max = 2000.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Portamento") });
     setParameterDisplay(C::xmlKeyPanSpread().toStdString(), { .mapping = Display::Mapping::Linear, .unit = "%", .min = 0.0, .max = 100.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Pan Spread") });
+    setParameterDisplay(C::xmlKeyOscillatorDrift().toStdString(), { .mapping = Display::Mapping::Linear, .unit = "%", .min = 0.0, .max = 100.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Drift") });
+    setParameterDisplay(C::xmlKeyOscillatorInstability().toStdString(), { .mapping = Display::Mapping::Linear, .unit = "%", .min = 0.0, .max = 100.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Instability") });
+    setParameterDisplay(C::xmlKeyVoiceTolerance().toStdString(), { .mapping = Display::Mapping::Linear, .unit = "%", .min = 0.0, .max = 100.0, .label = QT_TRANSLATE_NOOP("ParameterDisplay", "Tolerance") });
 }
 
 std::vector<MidiCcController> JuSynth08Device::deviceMidiCcControllers() const
@@ -561,6 +593,9 @@ void JuSynth08Device::processAudio(AudioContext & context)
     // Both are bipolar with their centre at half travel
     const double pitchEnvDepthSemitones = (static_cast<double>(m_pitchEnvDepth) * 2.0 - 1.0) * MaxPitchEnvSemitones;
     const double vco2FineRatio = std::exp2((static_cast<double>(m_vco2FineTune) * 2.0 - 1.0) * MaxFineTuneCents / 1200.0);
+    const double driftCents = static_cast<double>(m_oscillatorDrift) * MaxDriftCents;
+    const double instabilityCents = static_cast<double>(m_oscillatorInstability) * MaxInstabilityCents;
+    const double tolerance = static_cast<double>(m_voiceTolerance);
 
     for (size_t frame = 0; frame < frameCount; frame++) {
         // The LFO runs whether or not anything is playing; the delay holds it off for half its time
@@ -576,7 +611,8 @@ void JuSynth08Device::processAudio(AudioContext & context)
         std::array<float, Oversampling> highRateLeft {};
         std::array<float, Oversampling> highRateRight {};
 
-        for (auto && voice : m_voices) {
+        for (size_t slot = 0; slot < m_voices.size(); slot++) {
+            auto & voice = m_voices[slot];
             if (!voice.active) {
                 continue;
             }
@@ -604,10 +640,19 @@ void JuSynth08Device::processAudio(AudioContext & context)
             const double vibrato = pitchLfoSemitones > 0.0 ? std::exp2(lfo * pitchLfoSemitones / 12.0) : 1.0;
 
             const double unisonDetuneRatio = voice.detuneCents != 0.0 ? std::exp2(voice.detuneCents / 1200.0) : 1.0;
-            const double baseFreq = voice.frequency * pitchBendRatio * unisonDetuneRatio;
+            // The analogue part: the voice's own tuning, where its wander has got to, and where each
+            // of its VCOs' own has
+            const double driftOffsetCents = tolerance * MaxToleranceCents * AnalogDrift::tolerance(slot, ToleranceTune)
+              + (driftCents > 0.0 ? driftCents * m_drifts[slot].next(context.sampleRate) : 0.0);
+            const double analogRatio = driftOffsetCents != 0.0 ? std::exp2(driftOffsetCents / 1200.0) : 1.0;
+            const double baseFreq = voice.frequency * pitchBendRatio * unisonDetuneRatio * analogRatio;
 
             double pitchModVco1 = vibrato;
             double pitchModVco2 = vibrato;
+            if (instabilityCents > 0.0) {
+                pitchModVco1 *= std::exp2(instabilityCents * m_vcoDrifts[slot][0].next(context.sampleRate) / 1200.0);
+                pitchModVco2 *= std::exp2(instabilityCents * m_vcoDrifts[slot][1].next(context.sampleRate) / 1200.0);
+            }
 
             if (pitchEnvDepthSemitones != 0.0) {
                 const double pitchEnvSemitones = pitchEnvDepthSemitones * env1;
@@ -635,7 +680,8 @@ void JuSynth08Device::processAudio(AudioContext & context)
             // The VCF moves in knob travel: the envelope opens it from where the knob is, the LFO
             // swings it either way and full key follow tracks an octave per octave from middle C.
             const double keyTrackOffset = static_cast<double>(m_keyTrack) * (static_cast<double>(voice.note) - 60.0) / 12.0 / std::log2(FilterHighestHz / FilterLowestHz);
-            const double cutoff = std::clamp(static_cast<double>(m_lpfCutoff) + envSign * static_cast<double>(m_envMod) * env1 + lfo * static_cast<double>(m_filterLfoDepth) * MaxFilterLfoSweep + keyTrackOffset, 0.0, 1.0);
+            const double toleranceCutoffOffset = tolerance * MaxToleranceCutoffOctaves * AnalogDrift::tolerance(slot, ToleranceCutoff) / std::log2(FilterHighestHz / FilterLowestHz);
+            const double cutoff = std::clamp(static_cast<double>(m_lpfCutoff) + envSign * static_cast<double>(m_envMod) * env1 + lfo * static_cast<double>(m_filterLfoDepth) * MaxFilterLfoSweep + keyTrackOffset + toleranceCutoffOffset, 0.0, 1.0);
             voice.vcf.setSampleRate(oversampledRate);
             voice.vcf.setCutoff(FilterLowestHz * std::exp2(cutoff * filterOctaves));
             voice.vcf.setResonance(m_lpfResonance);
@@ -807,6 +853,7 @@ void JuSynth08Device::resetAudio()
         m_voices[i].reset();
         m_voices[i].noiseState = static_cast<uint32_t>(0x9E3779B9u * (i + 1));
     }
+    initializeDrift();
     m_noteCounter = 0;
     m_nextVoice = 0;
     m_lfo.reset();
@@ -890,6 +937,9 @@ void JuSynth08Device::syncParameters()
     m_portamento = read(C::xmlKeyPortamento());
     m_pitchBendRange = static_cast<int>(read(C::xmlKeyPitchBendRange()));
     m_panSpread = read(C::xmlKeyPanSpread());
+    m_oscillatorDrift = read(C::xmlKeyOscillatorDrift());
+    m_oscillatorInstability = read(C::xmlKeyOscillatorInstability());
+    m_voiceTolerance = read(C::xmlKeyVoiceTolerance());
     updateSampleRateDependencies();
 }
 
@@ -1441,6 +1491,36 @@ float JuSynth08Device::panSpread() const
 void JuSynth08Device::setPanSpread(float spread)
 {
     setContinuousParameterValue(C::xmlKeyPanSpread().toStdString(), spread);
+}
+
+float JuSynth08Device::oscillatorDrift() const
+{
+    return shownParameterValue(C::xmlKeyOscillatorDrift(), m_oscillatorDrift);
+}
+
+void JuSynth08Device::setOscillatorDrift(float drift)
+{
+    setContinuousParameterValue(C::xmlKeyOscillatorDrift().toStdString(), drift);
+}
+
+float JuSynth08Device::oscillatorInstability() const
+{
+    return shownParameterValue(C::xmlKeyOscillatorInstability(), m_oscillatorInstability);
+}
+
+void JuSynth08Device::setOscillatorInstability(float instability)
+{
+    setContinuousParameterValue(C::xmlKeyOscillatorInstability().toStdString(), instability);
+}
+
+float JuSynth08Device::voiceTolerance() const
+{
+    return shownParameterValue(C::xmlKeyVoiceTolerance(), m_voiceTolerance);
+}
+
+void JuSynth08Device::setVoiceTolerance(float tolerance)
+{
+    setContinuousParameterValue(C::xmlKeyVoiceTolerance().toStdString(), tolerance);
 }
 
 } // namespace noteahead

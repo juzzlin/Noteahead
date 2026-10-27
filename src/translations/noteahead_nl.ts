@@ -4349,6 +4349,41 @@
         <source>Amp / Delay</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Analog</source>
+        <translation>Analoog</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog_Analog</name>
+    <message>
+        <source>Analog</source>
+        <translation>Analoog</translation>
+    </message>
+    <message>
+        <source>Drift</source>
+        <translation>Drift</translation>
+    </message>
+    <message>
+        <source>How far each voice slowly wanders out of tune, every voice on a course of its own</source>
+        <translation>Hoe ver elke stem langzaam ontstemd raakt, elke stem op haar eigen manier</translation>
+    </message>
+    <message>
+        <source>Instability</source>
+        <translation>Instabiliteit</translation>
+    </message>
+    <message>
+        <source>How far each VCO wanders on its own, so that the two of a voice beat slowly against each other</source>
+        <translation>Hoe ver elke VCO op zichzelf afdrijft, zodat de twee van een stem langzaam tegen elkaar zweven</translation>
+    </message>
+    <message>
+        <source>Tolerance</source>
+        <translation>Tolerantie</translation>
+    </message>
+    <message>
+        <source>How far the voices differ from each other in tuning and in filter cutoff</source>
+        <translation>Hoeveel de stemmen onderling verschillen in stemming en filtercutoff</translation>
+    </message>
 </context>
 <context>
     <name>JuSynth08Dialog_Delay</name>
@@ -4743,6 +4778,29 @@
     <message>
         <source>Cancel</source>
         <translation>Annuleren</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynthDialog_Analog</name>
+    <message>
+        <source>Analog</source>
+        <translation>Analoog</translation>
+    </message>
+    <message>
+        <source>Drift</source>
+        <translation>Drift</translation>
+    </message>
+    <message>
+        <source>How far each voice slowly wanders out of tune, every voice on a course of its own</source>
+        <translation>Hoe ver elke stem langzaam ontstemd raakt, elke stem op haar eigen manier</translation>
+    </message>
+    <message>
+        <source>Tolerance</source>
+        <translation>Tolerantie</translation>
+    </message>
+    <message>
+        <source>How far the voices differ from each other in tuning and in filter cutoff</source>
+        <translation>Hoeveel de stemmen onderling verschillen in stemming en filtercutoff</translation>
     </message>
 </context>
 <context>
@@ -8469,6 +8527,18 @@
     <message>
         <source>Delay Level</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drift</source>
+        <translation>Drift</translation>
+    </message>
+    <message>
+        <source>Instability</source>
+        <translation>Instabiliteit</translation>
+    </message>
+    <message>
+        <source>Tolerance</source>
+        <translation>Tolerantie</translation>
     </message>
 </context>
 <context>

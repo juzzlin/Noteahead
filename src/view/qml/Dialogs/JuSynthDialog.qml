@@ -122,6 +122,8 @@ AnimatedDialog {
                         }
                         JuSynthDialog_Chorus {
                         }
+                        JuSynthDialog_Analog {
+                        }
                     }
                     JuSynthDialog_Dco {
                         Layout.preferredWidth: 1

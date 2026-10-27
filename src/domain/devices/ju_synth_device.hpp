@@ -17,6 +17,7 @@
 #define JU_SYNTH_DEVICE_HPP
 
 #include "../dsp/adsr_envelope.hpp"
+#include "../dsp/analog_drift.hpp"
 #include "../dsp/cascaded_svf.hpp"
 #include "../dsp/dc_blocker.hpp"
 #include "../dsp/juno_chorus.hpp"
@@ -160,6 +161,16 @@ public:
     float panSpread() const;
     void setPanSpread(float spread);
 
+    // Analog
+    //! How far each voice wanders out of tune, slowly and on a course of its own. The Juno's DCOs
+    //! hold their tuning, so this is for a less stable instrument than the one on the panel.
+    float oscillatorDrift() const;
+    void setOscillatorDrift(float drift);
+    //! How far the voices differ from each other in tuning and in filter cutoff, as the parts of
+    //! six voices built by hand do.
+    float voiceTolerance() const;
+    void setVoiceTolerance(float tolerance);
+
 protected:
     void syncParameters() override;
 
@@ -195,10 +206,12 @@ private:
     void handleNoteOff(uint8_t note);
     size_t allocateVoice(uint8_t note);
     float voiceSpreadPan(size_t slot) const;
-    void renderVoice(Voice & voice, size_t frameCount, uint8_t oversampleFactor, uint32_t oversampledRate, double portamentoCoeff, double pitchBendRatio);
+    void renderVoice(size_t slot, size_t frameCount, uint8_t oversampleFactor, uint32_t oversampledRate, double portamentoCoeff, double pitchBendRatio);
     double nextNoise(Voice & voice) const;
 
     std::array<Voice, MaxVoices> m_voices;
+    //! Each voice's wander, by slot. Outside Voice so that a note starting does not put it back.
+    std::array<AnalogDrift, MaxVoices> m_drifts;
     uint64_t m_noteCounter { 0 };
     //! Where the search for a silent voice starts, so that successive notes take successive voices
     //! and, with the pan spread open, alternate sides.
@@ -248,6 +261,8 @@ private:
     float m_portamento { 0.0f };
     int m_pitchBendRange { 2 };
     float m_panSpread { 0.0f };
+    float m_oscillatorDrift { 0.0f };
+    float m_voiceTolerance { 0.0f };
 
     std::string m_name;
 };

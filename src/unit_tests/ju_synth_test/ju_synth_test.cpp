@@ -24,9 +24,12 @@
 
 #include <QTest>
 
+#include <algorithm>
+#include <array>
 #include <cmath>
 #include <set>
 #include <span>
+#include <utility>
 #include <vector>
 
 namespace noteahead {
@@ -91,6 +94,48 @@ double rms(const std::vector<double> & buffer)
         sum += sample * sample;
     }
     return std::sqrt(sum / static_cast<double>(buffer.size()));
+}
+
+//! Where the strongest partial within ten cents of @p hz sits, in cents from it, over the frames
+//! from @p from to @p to of the left channel.
+double centsOff(const std::vector<double> & buffer, size_t from, size_t to, double hz)
+{
+    const size_t frames = to - from;
+    double bestCents = 0.0;
+    double bestMagnitude = 0.0;
+    for (double cents = -10.0; cents <= 10.0; cents += 0.05) {
+        const double probe = hz * std::exp2(cents / 1200.0);
+        double re = 0.0;
+        double im = 0.0;
+        for (size_t i = 0; i < frames; i++) {
+            const double window = 0.5 - 0.5 * std::cos(2.0 * M_PI * static_cast<double>(i) / static_cast<double>(frames));
+            const double phase = 2.0 * M_PI * probe * static_cast<double>(i) / SampleRate;
+            re += window * buffer[(from + i) * 2] * std::cos(phase);
+            im += window * buffer[(from + i) * 2] * std::sin(phase);
+        }
+        if (const double magnitude = std::hypot(re, im); magnitude > bestMagnitude) {
+            bestMagnitude = magnitude;
+            bestCents = cents;
+        }
+    }
+    return bestCents;
+}
+
+//! How far a held C5 wanders over four seconds, in cents from its lowest to its highest, and the
+//! furthest it gets from concert pitch.
+std::pair<double, double> wander(JuSynthDevice & synth)
+{
+    synth.processMidiNoteOn(72, 127);
+    const auto buffer = renderFrames(synth, SampleRate * 4);
+    constexpr size_t window { SampleRate / 4 };
+    double lowest = 100.0;
+    double highest = -100.0;
+    for (size_t from = 0; from + window <= SampleRate * 4; from += window) {
+        const double cents = centsOff(buffer, from, from + window, MiddleC * 2.0);
+        lowest = std::min(lowest, cents);
+        highest = std::max(highest, cents);
+    }
+    return { highest - lowest, std::max(std::abs(lowest), std::abs(highest)) };
 }
 
 } // namespace
@@ -338,6 +383,8 @@ void JuSynthTest::test_settings_shouldRoundTrip()
     out.setPortamento(0.5f);
     out.setPitchBendRange(7);
     out.setPanSpread(0.8f);
+    out.setOscillatorDrift(0.35f);
+    out.setVoiceTolerance(0.45f);
 
     QString xml;
     {
@@ -378,6 +425,69 @@ void JuSynthTest::test_settings_shouldRoundTrip()
     QVERIFY(near(in.portamento(), 0.5f));
     QCOMPARE(in.pitchBendRange(), 7);
     QVERIFY(near(in.panSpread(), 0.8f));
+    QVERIFY(near(in.oscillatorDrift(), 0.35f));
+    QVERIFY(near(in.voiceTolerance(), 0.45f));
+}
+
+void JuSynthTest::test_oscillatorDrift_zero_shouldHoldThePitch()
+{
+    JuSynthDevice synth { "JU" };
+    const auto [spread, furthest] = wander(synth);
+    QVERIFY2(spread < 0.2, qPrintable(QString::number(spread)));
+    QVERIFY2(furthest < 0.2, qPrintable(QString::number(furthest)));
+}
+
+void JuSynthTest::test_oscillatorDrift_full_shouldWanderAFewCents()
+{
+    JuSynthDevice synth { "JU" };
+    synth.setOscillatorDrift(1.0f);
+    const auto [spread, furthest] = wander(synth);
+    QVERIFY2(spread > 2.0, qPrintable(QString::number(spread)));
+    QVERIFY2(furthest < 5.5, qPrintable(QString::number(furthest)));
+}
+
+void JuSynthTest::test_oscillatorDrift_afterReset_shouldRenderTheSame()
+{
+    // As on the Synth: a bounce is repeatable, whatever was played before it
+    const auto play = [](JuSynthDevice & synth) {
+        synth.processMidiNoteOn(60, 127);
+        synth.processMidiNoteOn(64, 127);
+        return renderFrames(synth, SampleRate);
+    };
+    JuSynthDevice synth { "JU" };
+    synth.setOscillatorDrift(1.0f);
+    synth.setVoiceTolerance(1.0f);
+    const auto first = play(synth);
+    synth.resetAudio();
+    QVERIFY(play(synth) == first);
+    JuSynthDevice other { "JU" };
+    other.setOscillatorDrift(1.0f);
+    other.setVoiceTolerance(1.0f);
+    QVERIFY(play(other) == first);
+}
+
+void JuSynthTest::test_voiceTolerance_full_shouldTuneTheVoicesApart()
+{
+    // The same note on the first voice and then on the second, which the allocation takes next
+    const auto offsets = [](float tolerance) {
+        JuSynthDevice synth { "JU" };
+        synth.setVoiceTolerance(tolerance);
+        synth.setRelease(0.0f);
+        std::array<double, 2> cents {};
+        for (auto && offset : cents) {
+            synth.processMidiNoteOn(72, 127);
+            const auto buffer = renderFrames(synth, SampleRate / 2);
+            offset = centsOff(buffer, SampleRate / 8, SampleRate / 2, MiddleC * 2.0);
+            synth.processMidiNoteOff(72);
+            renderFrames(synth, SampleRate / 10);
+        }
+        return cents;
+    };
+    const auto exact = offsets(0.0f);
+    QVERIFY2(std::abs(exact[0]) < 0.2 && std::abs(exact[1]) < 0.2, qPrintable(QString::number(exact[0]) + " " + QString::number(exact[1])));
+    const auto apart = offsets(1.0f);
+    QVERIFY2(std::abs(apart[0] - apart[1]) > 2.0, qPrintable(QString::number(apart[0]) + " " + QString::number(apart[1])));
+    QVERIFY2(std::abs(apart[0]) < 5.5 && std::abs(apart[1]) < 5.5, qPrintable(QString::number(apart[0]) + " " + QString::number(apart[1])));
 }
 
 void JuSynthTest::test_presets_shouldAllLoadAndBeNamedOnce()

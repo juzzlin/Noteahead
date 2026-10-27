@@ -79,6 +79,17 @@ constexpr double FilterMakeupGain { 0.5 / FilterInputLevel };
 //! How long the output stages keep running after the last voice has gone quiet.
 constexpr double TailSeconds { 0.1 };
 
+//! Cents a voice wanders either side of its pitch at the top of Drift, as on the Synth.
+constexpr double MaxDriftCents { 5.0 };
+//! At the top of Tolerance, how far off a voice's tuning sits, in cents either way, and its filter's
+//! cutoff, in octaves either way: a detuning that thickens a chord and a spread in brightness that
+//! makes the voices of a repeated note sound different, without either sounding broken.
+constexpr double MaxToleranceCents { 5.0 };
+constexpr double MaxToleranceCutoffOctaves { 0.3 };
+//! The components AnalogDrift::tolerance() tells apart.
+constexpr size_t ToleranceTune { 0 };
+constexpr size_t ToleranceCutoff { 1 };
+
 constexpr double PortamentoMinSeconds { 0.01 };
 constexpr double PortamentoMaxSeconds { 2.0 };
 
@@ -141,9 +152,12 @@ JuSynthDevice::JuSynthDevice(std::string name)
     addParameter(Parameter { C::xmlKeyPortamento().toStdString(), 0.0f, 0, 10000, 0, 100 });
     addParameter(Parameter { C::xmlKeyPitchBendRange().toStdString(), 2.0f, 0, 24, 2, 1, Parameter::Type::Discrete });
     addParameter(Parameter { C::xmlKeyPanSpread().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { C::xmlKeyOscillatorDrift().toStdString(), 0.0f, 0, 10000, 0, 100 });
+    addParameter(Parameter { C::xmlKeyVoiceTolerance().toStdString(), 0.0f, 0, 10000, 0, 100 });
 
     for (size_t i = 0; i < m_voices.size(); i++) {
         m_voices[i].noiseState = static_cast<uint32_t>(0x9E3779B9u * (i + 1));
+        m_drifts[i].initialize(i);
     }
     for (auto && voice : m_voices) {
         voice.saw.setWaveform(PolyBlepOscillator::Waveform::Saw);
@@ -176,6 +190,8 @@ JuSynthDevice::JuSynthDevice(std::string name)
     DeviceParameterDisplay::percent(*this, C::xmlKeyKeyTrack(), QT_TRANSLATE_NOOP("ParameterDisplay", "Key Track"));
     DeviceParameterDisplay::percent(*this, C::xmlKeyPanSpread(), QT_TRANSLATE_NOOP("ParameterDisplay", "Pan Spread"));
     DeviceParameterDisplay::percent(*this, C::xmlKeyVelocitySensitivity(), QT_TRANSLATE_NOOP("ParameterDisplay", "Velocity Sensitivity"));
+    DeviceParameterDisplay::percent(*this, C::xmlKeyOscillatorDrift(), QT_TRANSLATE_NOOP("ParameterDisplay", "Drift"));
+    DeviceParameterDisplay::percent(*this, C::xmlKeyVoiceTolerance(), QT_TRANSLATE_NOOP("ParameterDisplay", "Tolerance"));
 }
 
 JuSynthDevice::~JuSynthDevice() = default;
@@ -377,9 +393,9 @@ void JuSynthDevice::processAudio(AudioContext & context)
     const double portamentoCoeff = m_portamento > 0.0f ? 1.0 - std::pow(0.001, 1.0 / (portamentoTime * oversampledRate)) : 1.0;
     const double pitchBendRatio = std::exp2((static_cast<double>(m_pitchBend) - 8192.0) / 8192.0 * m_pitchBendRange / 12.0);
 
-    for (auto && voice : m_voices) {
-        if (voice.active) {
-            renderVoice(voice, frames, oversampleFactor, oversampledRate, portamentoCoeff, pitchBendRatio);
+    for (size_t slot = 0; slot < m_voices.size(); slot++) {
+        if (m_voices[slot].active) {
+            renderVoice(slot, frames, oversampleFactor, oversampledRate, portamentoCoeff, pitchBendRatio);
         }
     }
 
@@ -418,8 +434,10 @@ void JuSynthDevice::processAudio(AudioContext & context)
     }
 }
 
-void JuSynthDevice::renderVoice(Voice & voice, size_t frameCount, uint8_t oversampleFactor, uint32_t oversampledRate, double portamentoCoeff, double pitchBendRatio)
+void JuSynthDevice::renderVoice(size_t slot, size_t frameCount, uint8_t oversampleFactor, uint32_t oversampledRate, double portamentoCoeff, double pitchBendRatio)
 {
+    auto & voice = m_voices[slot];
+    auto & drift = m_drifts[slot];
     voice.saw.setSampleRate(oversampledRate);
     voice.pulse.setSampleRate(oversampledRate);
     voice.sub.setSampleRate(oversampledRate);
@@ -439,6 +457,12 @@ void JuSynthDevice::renderVoice(Voice & voice, size_t frameCount, uint8_t oversa
     const double envSign = m_envInverted ? -1.0 : 1.0;
     const double pitchLfoSemitones = static_cast<double>(m_pitchLfoDepth * m_pitchLfoDepth) * MaxPitchLfoSemitones;
     const double rangeRatio = octaveRatio(m_range);
+    // The voice's own parts: tuned a little off and its filter a little brighter or darker
+    const double tolerance = static_cast<double>(m_voiceTolerance);
+    const double toleranceRatio = std::exp2(tolerance * MaxToleranceCents * AnalogDrift::tolerance(slot, ToleranceTune) / 1200.0);
+    const double toleranceCutoffOffset = tolerance * MaxToleranceCutoffOctaves * AnalogDrift::tolerance(slot, ToleranceCutoff) / std::log2(FilterHighestHz / FilterLowestHz);
+    const double driftCents = static_cast<double>(m_oscillatorDrift) * MaxDriftCents;
+    const double outputRate = static_cast<double>(oversampledRate) / oversampleFactor;
     // Constant power with the middle at unity, so that with no spread both sides carry the voice as
     // the mono sum did before there were two
     const double panAngle = static_cast<double>(voice.pan) * std::numbers::pi * 0.5;
@@ -448,11 +472,12 @@ void JuSynthDevice::renderVoice(Voice & voice, size_t frameCount, uint8_t oversa
     for (size_t i = 0; i < frameCount; i++) {
         const double lfo = m_lfoBlock[i];
         const double vibrato = pitchLfoSemitones > 0.0 ? std::exp2(lfo * pitchLfoSemitones / 12.0) : 1.0;
-        const double cutoffBase = static_cast<double>(m_lpfCutoff) + lfo * static_cast<double>(m_filterLfoDepth) * MaxFilterLfoSweep + keyTrackOffset;
+        const double driftRatio = driftCents > 0.0 ? std::exp2(driftCents * drift.next(outputRate) / 1200.0) : 1.0;
+        const double cutoffBase = static_cast<double>(m_lpfCutoff) + lfo * static_cast<double>(m_filterLfoDepth) * MaxFilterLfoSweep + keyTrackOffset + toleranceCutoffOffset;
 
         for (uint8_t os = 0; os < oversampleFactor; os++) {
             voice.glideFrequency += (voice.frequency - voice.glideFrequency) * portamentoCoeff;
-            const double frequency = voice.glideFrequency * rangeRatio * pitchBendRatio * vibrato;
+            const double frequency = voice.glideFrequency * rangeRatio * pitchBendRatio * vibrato * driftRatio * toleranceRatio;
 
             const double env = voice.env.nextSample();
             const double gate = voice.gate.nextSample();
@@ -543,6 +568,9 @@ void JuSynthDevice::resetAudio()
     for (size_t i = 0; i < m_voices.size(); i++) {
         m_voices[i].reset();
         m_voices[i].noiseState = static_cast<uint32_t>(0x9E3779B9u * (i + 1));
+        // Free-running, so put back here: a render that inherited where earlier playback left the
+        // wander would detune its notes differently every time
+        m_drifts[i].initialize(i);
     }
     m_noteCounter = 0;
     m_nextVoice = 0;
@@ -737,6 +765,8 @@ void JuSynthDevice::syncParameters()
     value(C::xmlKeyPortamento(), m_portamento);
     m_pitchBendRange = index(C::xmlKeyPitchBendRange());
     value(C::xmlKeyPanSpread(), m_panSpread);
+    value(C::xmlKeyOscillatorDrift(), m_oscillatorDrift);
+    value(C::xmlKeyVoiceTolerance(), m_voiceTolerance);
 
     for (auto && voice : m_voices) {
         voice.env.setAttackTime(ParameterMapper::mapExponential(m_attack, AttackMinSeconds, AttackMaxSeconds));
@@ -1014,6 +1044,26 @@ float JuSynthDevice::panSpread() const
 void JuSynthDevice::setPanSpread(float spread)
 {
     setContinuousParameterValue(C::xmlKeyPanSpread().toStdString(), spread);
+}
+
+float JuSynthDevice::oscillatorDrift() const
+{
+    return shownParameterValue(C::xmlKeyOscillatorDrift(), m_oscillatorDrift);
+}
+
+void JuSynthDevice::setOscillatorDrift(float drift)
+{
+    setContinuousParameterValue(C::xmlKeyOscillatorDrift().toStdString(), drift);
+}
+
+float JuSynthDevice::voiceTolerance() const
+{
+    return shownParameterValue(C::xmlKeyVoiceTolerance(), m_voiceTolerance);
+}
+
+void JuSynthDevice::setVoiceTolerance(float tolerance)
+{
+    setContinuousParameterValue(C::xmlKeyVoiceTolerance().toStdString(), tolerance);
 }
 
 } // namespace noteahead

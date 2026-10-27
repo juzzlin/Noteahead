@@ -41,6 +41,10 @@ private slots:
     void test_panSpread_full_shouldKeepTheChordBalanced();
     void test_vcaMode_gate_shouldIgnoreTheEnvelope();
     void test_settings_shouldRoundTrip();
+    void test_oscillatorDrift_zero_shouldHoldThePitch();
+    void test_oscillatorDrift_full_shouldWanderAFewCents();
+    void test_oscillatorDrift_afterReset_shouldRenderTheSame();
+    void test_voiceTolerance_full_shouldTuneTheVoicesApart();
     void test_presets_shouldAllLoadAndBeNamedOnce();
     void test_programChange_shouldLoadThePreset();
     void test_automatableParameters_shouldOfferTheMainControls();

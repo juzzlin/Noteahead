@@ -4349,6 +4349,41 @@
         <source>Amp / Delay</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Analog</source>
+        <translation>Analogico</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog_Analog</name>
+    <message>
+        <source>Analog</source>
+        <translation>Analogico</translation>
+    </message>
+    <message>
+        <source>Drift</source>
+        <translation>Deriva</translation>
+    </message>
+    <message>
+        <source>How far each voice slowly wanders out of tune, every voice on a course of its own</source>
+        <translation>Quanto ogni voce si scorda lentamente, ognuna per conto suo</translation>
+    </message>
+    <message>
+        <source>Instability</source>
+        <translation>Instabilità</translation>
+    </message>
+    <message>
+        <source>How far each VCO wanders on its own, so that the two of a voice beat slowly against each other</source>
+        <translation>Quanto ogni VCO deriva per conto suo, così i due di una voce battono lentamente tra loro</translation>
+    </message>
+    <message>
+        <source>Tolerance</source>
+        <translation>Tolleranza</translation>
+    </message>
+    <message>
+        <source>How far the voices differ from each other in tuning and in filter cutoff</source>
+        <translation>Quanto le voci differiscono tra loro per intonazione e cutoff del filtro</translation>
+    </message>
 </context>
 <context>
     <name>JuSynth08Dialog_Delay</name>
@@ -4743,6 +4778,29 @@
     <message>
         <source>Cancel</source>
         <translation>Annulla</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynthDialog_Analog</name>
+    <message>
+        <source>Analog</source>
+        <translation>Analogico</translation>
+    </message>
+    <message>
+        <source>Drift</source>
+        <translation>Deriva</translation>
+    </message>
+    <message>
+        <source>How far each voice slowly wanders out of tune, every voice on a course of its own</source>
+        <translation>Quanto ogni voce si scorda lentamente, ognuna per conto suo</translation>
+    </message>
+    <message>
+        <source>Tolerance</source>
+        <translation>Tolleranza</translation>
+    </message>
+    <message>
+        <source>How far the voices differ from each other in tuning and in filter cutoff</source>
+        <translation>Quanto le voci differiscono tra loro per intonazione e cutoff del filtro</translation>
     </message>
 </context>
 <context>
@@ -8469,6 +8527,18 @@
     <message>
         <source>Delay Level</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drift</source>
+        <translation>Deriva</translation>
+    </message>
+    <message>
+        <source>Instability</source>
+        <translation>Instabilità</translation>
+    </message>
+    <message>
+        <source>Tolerance</source>
+        <translation>Tolleranza</translation>
     </message>
 </context>
 <context>

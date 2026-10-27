@@ -36,6 +36,12 @@ private slots:
     void test_envMod_closedEnvelope_shouldLeaveTheCutoffAtTheKnob();
     void test_presets_heldNote_shouldBeAudibleAndUnclipped();
     void test_initPreset_heldNote_shouldPlayAtConcertPitch();
+    void test_oscillatorDrift_zero_shouldHoldThePitch();
+    void test_oscillatorDrift_full_shouldWanderAFewCents();
+    void test_oscillatorInstability_full_shouldWanderAFewCents();
+    void test_oscillatorInstability_full_shouldBeatTheTwoVcos();
+    void test_oscillatorDrift_afterReset_shouldRenderTheSame();
+    void test_voiceTolerance_full_shouldTuneTheVoicesApart();
     void test_xmlSerialization();
 };
 

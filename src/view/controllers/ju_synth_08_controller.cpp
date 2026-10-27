@@ -651,6 +651,42 @@ void JuSynth08Controller::setPanSpread(int value)
     }
 }
 
+int JuSynth08Controller::oscillatorDrift() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->oscillatorDrift() * Constants::uiInternalScaling())) : 0;
+}
+
+void JuSynth08Controller::setOscillatorDrift(int value)
+{
+    if (m_device) {
+        m_device->setOscillatorDrift(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int JuSynth08Controller::oscillatorInstability() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->oscillatorInstability() * Constants::uiInternalScaling())) : 0;
+}
+
+void JuSynth08Controller::setOscillatorInstability(int value)
+{
+    if (m_device) {
+        m_device->setOscillatorInstability(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
+int JuSynth08Controller::voiceTolerance() const
+{
+    return m_device ? static_cast<int>(std::round(m_device->voiceTolerance() * Constants::uiInternalScaling())) : 0;
+}
+
+void JuSynth08Controller::setVoiceTolerance(int value)
+{
+    if (m_device) {
+        m_device->setVoiceTolerance(static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
 void JuSynth08Controller::requestSettings()
 {
     emit lfoRateChanged();
@@ -710,6 +746,9 @@ void JuSynth08Controller::requestSettings()
     emit portamentoChanged();
     emit pitchBendRangeChanged();
     emit panSpreadChanged();
+    emit oscillatorDriftChanged();
+    emit oscillatorInstabilityChanged();
+    emit voiceToleranceChanged();
 
     emit volumeChanged();
     emit gainChanged();

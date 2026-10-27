@@ -92,6 +92,9 @@ class JuSynth08Controller : public DeviceController
     Q_PROPERTY(int portamento READ portamento WRITE setPortamento NOTIFY portamentoChanged)
     Q_PROPERTY(int pitchBendRange READ pitchBendRange WRITE setPitchBendRange NOTIFY pitchBendRangeChanged)
     Q_PROPERTY(int panSpread READ panSpread WRITE setPanSpread NOTIFY panSpreadChanged)
+    Q_PROPERTY(int oscillatorDrift READ oscillatorDrift WRITE setOscillatorDrift NOTIFY oscillatorDriftChanged)
+    Q_PROPERTY(int oscillatorInstability READ oscillatorInstability WRITE setOscillatorInstability NOTIFY oscillatorInstabilityChanged)
+    Q_PROPERTY(int voiceTolerance READ voiceTolerance WRITE setVoiceTolerance NOTIFY voiceToleranceChanged)
 
 public:
     explicit JuSynth08Controller(std::shared_ptr<JuSynth08Device> device = nullptr, QObject * parent = nullptr);
@@ -254,6 +257,12 @@ public:
 
     int panSpread() const;
     void setPanSpread(int value);
+    int oscillatorDrift() const;
+    void setOscillatorDrift(int value);
+    int oscillatorInstability() const;
+    void setOscillatorInstability(int value);
+    int voiceTolerance() const;
+    void setVoiceTolerance(int value);
 
 public slots:
     void requestSettings() override;
@@ -318,6 +327,9 @@ signals:
     void portamentoChanged();
     void pitchBendRangeChanged();
     void panSpreadChanged();
+    void oscillatorDriftChanged();
+    void oscillatorInstabilityChanged();
+    void voiceToleranceChanged();
 
 private:
     std::shared_ptr<JuSynth08Device> m_device;

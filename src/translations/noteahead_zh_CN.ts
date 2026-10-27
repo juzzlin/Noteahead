@@ -4348,6 +4348,41 @@
         <source>Amp / Delay</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Analog</source>
+        <translation>模拟</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynth08Dialog_Analog</name>
+    <message>
+        <source>Analog</source>
+        <translation>模拟</translation>
+    </message>
+    <message>
+        <source>Drift</source>
+        <translation>漂移</translation>
+    </message>
+    <message>
+        <source>How far each voice slowly wanders out of tune, every voice on a course of its own</source>
+        <translation>每个声部缓慢跑调的程度，各自独立变化</translation>
+    </message>
+    <message>
+        <source>Instability</source>
+        <translation>不稳定度</translation>
+    </message>
+    <message>
+        <source>How far each VCO wanders on its own, so that the two of a voice beat slowly against each other</source>
+        <translation>每个 VCO 各自漂移的程度，使同一声部的两个振荡器缓慢拍频</translation>
+    </message>
+    <message>
+        <source>Tolerance</source>
+        <translation>容差</translation>
+    </message>
+    <message>
+        <source>How far the voices differ from each other in tuning and in filter cutoff</source>
+        <translation>各声部之间在音准和滤波器截止频率上的差异程度</translation>
+    </message>
 </context>
 <context>
     <name>JuSynth08Dialog_Delay</name>
@@ -4742,6 +4777,29 @@
     <message>
         <source>Cancel</source>
         <translation>取消</translation>
+    </message>
+</context>
+<context>
+    <name>JuSynthDialog_Analog</name>
+    <message>
+        <source>Analog</source>
+        <translation>模拟</translation>
+    </message>
+    <message>
+        <source>Drift</source>
+        <translation>漂移</translation>
+    </message>
+    <message>
+        <source>How far each voice slowly wanders out of tune, every voice on a course of its own</source>
+        <translation>每个声部缓慢跑调的程度，各自独立变化</translation>
+    </message>
+    <message>
+        <source>Tolerance</source>
+        <translation>容差</translation>
+    </message>
+    <message>
+        <source>How far the voices differ from each other in tuning and in filter cutoff</source>
+        <translation>各声部之间在音准和滤波器截止频率上的差异程度</translation>
     </message>
 </context>
 <context>
@@ -8468,6 +8526,18 @@
     <message>
         <source>Delay Level</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drift</source>
+        <translation>漂移</translation>
+    </message>
+    <message>
+        <source>Instability</source>
+        <translation>不稳定度</translation>
+    </message>
+    <message>
+        <source>Tolerance</source>
+        <translation>容差</translation>
     </message>
 </context>
 <context>
