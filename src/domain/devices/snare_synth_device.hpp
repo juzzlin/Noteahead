@@ -31,6 +31,11 @@ namespace noteahead {
 //! Simulates circular membrane modal resonators (batter and resonant heads), non-linear
 //! snare wire chatter, stick strike modeling with hardness and position control, shell body
 //! resonance, pan spread, and an output filtering stage.
+//!
+//! Every note plays the drum as it is set, unless Chromatic is on: then the note plays it like a
+//! sampler plays a sample. C-3 plays it as set. The engine runs at the sample rate divided by the
+//! note's speed, so an octave above C-3 every pitch is an octave higher and every decay half as
+//! long, and an octave below it twice as long. The output filters stay where they are set.
 class SnareSynthDevice : public Device
 {
 public:
@@ -46,6 +51,9 @@ public:
 
     static std::string typeIdString();
 
+    //! A note picks the speed in Chromatic mode and nothing otherwise, so there is no octave to
+    //! shift it by: one left saved would silently play every note faster.
+    bool supportsOctave() const override;
     void processDeviceMidiNoteOn(uint8_t note, uint8_t velocity) override;
     void processDeviceMidiNoteOff(uint8_t note) override;
     void processDeviceMidiCc(uint8_t controller, uint8_t value, uint8_t channel) override;
@@ -102,8 +110,8 @@ public:
     void setPanSpread(float spread);
 
     // Playback parameters
-    bool keyTrack() const;
-    void setKeyTrack(bool keyTrack);
+    bool chromatic() const;
+    void setChromatic(bool chromatic);
     float velocitySensitivity() const;
     void setVelocitySensitivity(float sensitivity);
 
@@ -117,9 +125,14 @@ protected:
     void syncParameters() override;
 
 private:
-    float effectiveFrequency(uint8_t note) const;
+    float tuneFrequency() const;
+    //! How much faster @p note plays the drum: 1 unless Chromatic, and then 2 an octave above
+    //! C-3.
+    double speedRatio(uint8_t note) const;
+    double engineSampleRate(double sampleRate) const;
 
-    static constexpr float ReferenceNote { 38.0f }; // GM Snare 1 (D2)
+    //! C-3: the note that plays the drum as it is set in Chromatic mode.
+    static constexpr int RootNote { 36 };
 
     std::string m_name;
     SnarePmEngine m_engine {};
@@ -154,7 +167,9 @@ private:
     float m_drive { 0.0f };
     float m_panSpread { 0.5f };
 
-    bool m_keyTrack { false };
+    bool m_chromatic { false };
+    //! The speed of the note that last struck the drum.
+    double m_speedRatio { 1.0 };
     float m_velocitySensitivity { 0.7f };
 
     float m_lpfCutoff { 1.0f };

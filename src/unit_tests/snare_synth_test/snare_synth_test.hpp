@@ -30,7 +30,11 @@ private slots:
     void test_allNotesOff_shouldChokeVoice();
     void test_panSpread_zero_shouldBeStrictlyMono();
     void test_panSpread_full_shouldCreateStereoSeparation();
-    void test_keyTrack_shouldFollowPitchOnlyWhenEnabled();
+    void test_chromatic_shouldScaleDecayWithNote_data();
+    void test_chromatic_shouldScaleDecayWithNote();
+    void test_chromatic_shouldScaleBrightnessWithNote();
+    void test_chromatic_c3_shouldMatchOff();
+    void test_chromatic_octave_shouldBeIgnored();
     void test_filters_lpf_and_hpf_shouldAttenuate();
     void test_snareBuzz_shouldAffectSustainRattle();
     void test_click_shouldAffectAttackTransient();

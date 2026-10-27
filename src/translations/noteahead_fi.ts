@@ -10460,8 +10460,12 @@ Audio files will appear next to the current project file.</source>
         <translation type="unfinished">HPF cutoff</translation>
     </message>
     <message>
-        <source>Key Track</source>
-        <translation type="unfinished">Koskettimen seuranta</translation>
+        <source>Chromatic</source>
+        <translation>Kromaattinen</translation>
+    </message>
+    <message>
+        <source>Plays the drum like a sampler: an octave up is an octave higher and twice as short</source>
+        <translation>Soittaa rumpua kuin sampleri: oktaavia ylempänä oktaavin korkeammalta ja puolet lyhyemmin</translation>
     </message>
 </context>
 <context>

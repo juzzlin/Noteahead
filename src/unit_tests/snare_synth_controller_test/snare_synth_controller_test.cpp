@@ -65,7 +65,7 @@ void SnareSynthControllerTest::test_properties_shouldReachTheDevice()
     controller.setSnappy(static_cast<int>(0.85 * scaling));
     controller.setPanSpread(static_cast<int>(0.90 * scaling));
     controller.setDrive(static_cast<int>(0.30 * scaling));
-    controller.setKeyTrack(true);
+    controller.setChromatic(true);
 
     QVERIFY(std::abs(snare->tune() - 0.65f) < 0.01f);
     QVERIFY(std::abs(snare->tone() - 0.45f) < 0.01f);
@@ -73,7 +73,7 @@ void SnareSynthControllerTest::test_properties_shouldReachTheDevice()
     QVERIFY(std::abs(snare->snappy() - 0.85f) < 0.01f);
     QVERIFY(std::abs(snare->panSpread() - 0.90f) < 0.01f);
     QVERIFY(std::abs(snare->drive() - 0.30f) < 0.01f);
-    QVERIFY(snare->keyTrack());
+    QVERIFY(snare->chromatic());
 }
 
 void SnareSynthControllerTest::test_factoryPresetNames_shouldListThePresets()

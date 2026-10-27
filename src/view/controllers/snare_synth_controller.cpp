@@ -283,15 +283,15 @@ void SnareSynthController::setPanSpread(int value)
     }
 }
 
-bool SnareSynthController::keyTrack() const
+bool SnareSynthController::chromatic() const
 {
-    return m_device ? m_device->keyTrack() : false;
+    return m_device ? m_device->chromatic() : false;
 }
 
-void SnareSynthController::setKeyTrack(bool value)
+void SnareSynthController::setChromatic(bool value)
 {
     if (m_device) {
-        m_device->setKeyTrack(value);
+        m_device->setChromatic(value);
     }
 }
 
@@ -352,7 +352,7 @@ void SnareSynthController::requestSettings()
     emit driveChanged();
     emit panSpreadChanged();
 
-    emit keyTrackChanged();
+    emit chromaticChanged();
     emit velocitySensitivityChanged();
 
     emit lpfCutoffChanged();

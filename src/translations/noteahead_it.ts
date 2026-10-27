@@ -10460,8 +10460,12 @@ I file audio compariranno accanto al file di progetto corrente.</translation>
         <translation type="unfinished">Taglio HPF</translation>
     </message>
     <message>
-        <source>Key Track</source>
-        <translation type="unfinished">Key tracking</translation>
+        <source>Chromatic</source>
+        <translation>Cromatico</translation>
+    </message>
+    <message>
+        <source>Plays the drum like a sampler: an octave up is an octave higher and twice as short</source>
+        <translation>Suona il tamburo come un campionatore: un&apos;ottava sopra suona un&apos;ottava più acuto e lungo la metà</translation>
     </message>
 </context>
 <context>

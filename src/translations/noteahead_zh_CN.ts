@@ -10458,8 +10458,12 @@ Audio files will appear next to the current project file.</source>
         <translation type="unfinished">高通截止频率</translation>
     </message>
     <message>
-        <source>Key Track</source>
-        <translation type="unfinished">键位跟踪</translation>
+        <source>Chromatic</source>
+        <translation>半音</translation>
+    </message>
+    <message>
+        <source>Plays the drum like a sampler: an octave up is an octave higher and twice as short</source>
+        <translation>像采样器一样演奏鼓：高一个八度即音高升高一个八度、时长减半</translation>
     </message>
 </context>
 <context>

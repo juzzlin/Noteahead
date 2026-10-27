@@ -31,6 +31,9 @@ namespace noteahead {
 
 namespace {
 
+//! Keeps the engine's sample rate where its filters and decays stay well behaved.
+constexpr double MaxChromaticOctaves = 4.0;
+
 struct CcParameter
 {
     uint8_t controller {};
@@ -63,7 +66,7 @@ const std::vector<CcParameter> & ccParameters()
         { .controller = static_cast<uint8_t>(Controller::GeneralPurpose7), .label = "Pitch Depth", .key = Xml::xmlKeyPitchDepth().toStdString() },
         { .controller = static_cast<uint8_t>(Controller::GeneralPurpose8), .label = "Pitch Decay", .key = Xml::xmlKeyPitchDecay().toStdString() },
         { .controller = static_cast<uint8_t>(Controller::EffectControl1MSB), .label = "Velocity Sensitivity", .key = Xml::xmlKeyVelocitySensitivity().toStdString() },
-        { .controller = static_cast<uint8_t>(Controller::EffectControl2MSB), .label = "Key Track", .key = Xml::xmlKeyKeyTrack().toStdString(), .isSwitch = true }
+        { .controller = static_cast<uint8_t>(Controller::EffectControl2MSB), .label = "Chromatic", .key = Xml::xmlKeyChromaticMode().toStdString(), .isSwitch = true }
     };
     return parameters;
 }
@@ -93,7 +96,7 @@ SnareSynthDevice::SnareSynthDevice(std::string name)
     addParameter(Parameter(Xml::xmlKeyDrive().toStdString(), 0.0f, 0, 10000, 0, 100));
     addParameter(Parameter(Xml::xmlKeyPanSpread().toStdString(), 0.5f, 0, 10000, 5000, 100));
 
-    addParameter(Parameter { Xml::xmlKeyKeyTrack().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
+    addParameter(Parameter { Xml::xmlKeyChromaticMode().toStdString(), 0.0f, 0, 1, 0, 1, Parameter::Type::Boolean });
     addParameter(Parameter(Xml::xmlKeyVelocitySensitivity().toStdString(), 0.7f, 0, 10000, 7000, 100));
 
     addParameter(Parameter(Xml::xmlKeyLpfCutoff().toStdString(), 1.0f, 0, 10000, 10000, 100));
@@ -162,21 +165,36 @@ std::vector<MidiCcController> SnareSynthDevice::deviceMidiCcControllers() const
     return controllers;
 }
 
-float SnareSynthDevice::effectiveFrequency(uint8_t note) const
+float SnareSynthDevice::tuneFrequency() const
 {
-    const float baseTuneHz = 100.0f + m_tune * 350.0f;
-    if (!m_keyTrack) {
-        return baseTuneHz;
+    return 100.0f + m_tune * 350.0f;
+}
+
+bool SnareSynthDevice::supportsOctave() const
+{
+    return false;
+}
+
+double SnareSynthDevice::speedRatio(uint8_t note) const
+{
+    if (!m_chromatic) {
+        return 1.0;
     }
-    const float semitones = static_cast<float>(note) - ReferenceNote;
-    return baseTuneHz * std::pow(2.0f, semitones / 12.0f);
+    const double octaves = static_cast<double>(static_cast<int>(note) - RootNote) / 12.0;
+    return std::exp2(std::clamp(octaves, -MaxChromaticOctaves, MaxChromaticOctaves));
+}
+
+double SnareSynthDevice::engineSampleRate(double sampleRate) const
+{
+    return sampleRate / m_speedRatio;
 }
 
 void SnareSynthDevice::processDeviceMidiNoteOn(uint8_t note, uint8_t velocity)
 {
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
-    m_engine.setSampleRate(sampleRate());
-    m_engine.setTune(effectiveFrequency(note));
+    m_speedRatio = speedRatio(note);
+    m_engine.setSampleRate(engineSampleRate(static_cast<double>(sampleRate())));
+    m_engine.setTune(tuneFrequency());
     const float rawVel = static_cast<float>(velocity) / 127.0f;
     const float vel = (1.0f - m_velocitySensitivity) + m_velocitySensitivity * rawVel;
     m_engine.trigger(vel);
@@ -233,7 +251,7 @@ void SnareSynthDevice::processAudio(AudioContext & context)
     setSampleRate(context.sampleRate);
     const std::lock_guard<std::recursive_mutex> lock { mutex() };
 
-    m_engine.setSampleRate(context.sampleRate);
+    m_engine.setSampleRate(engineSampleRate(static_cast<double>(context.sampleRate)));
     m_dcBlockerL.setSampleRate(context.sampleRate);
     m_dcBlockerR.setSampleRate(context.sampleRate);
     m_lpfL.setSampleRate(context.sampleRate);
@@ -449,8 +467,8 @@ void SnareSynthDevice::syncParameters()
         m_panSpread = p->get().value();
         m_engine.setPanSpread(m_panSpread);
     }
-    if (const auto p = parameter(Xml::xmlKeyKeyTrack().toStdString()); p) {
-        m_keyTrack = p->get().value() >= 0.5f;
+    if (const auto p = parameter(Xml::xmlKeyChromaticMode().toStdString()); p) {
+        m_chromatic = p->get().value() >= 0.5f;
     }
     if (const auto p = parameter(Xml::xmlKeyVelocitySensitivity().toStdString()); p) {
         m_velocitySensitivity = p->get().value();
@@ -623,14 +641,14 @@ void SnareSynthDevice::setPanSpread(float spread)
     setContinuousParameterValue(Constants::NahdXml::xmlKeyPanSpread().toStdString(), spread);
 }
 
-bool SnareSynthDevice::keyTrack() const
+bool SnareSynthDevice::chromatic() const
 {
-    return m_keyTrack;
+    return m_chromatic;
 }
 
-void SnareSynthDevice::setKeyTrack(bool keyTrack)
+void SnareSynthDevice::setChromatic(bool chromatic)
 {
-    setContinuousParameterValue(Constants::NahdXml::xmlKeyKeyTrack().toStdString(), keyTrack ? 1.0f : 0.0f);
+    setContinuousParameterValue(Constants::NahdXml::xmlKeyChromaticMode().toStdString(), chromatic ? 1.0f : 0.0f);
 }
 
 float SnareSynthDevice::velocitySensitivity() const

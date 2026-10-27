@@ -50,7 +50,7 @@ class SnareSynthController : public DeviceController
     Q_PROPERTY(int panSpread READ panSpread WRITE setPanSpread NOTIFY panSpreadChanged)
 
     // Playback parameters
-    Q_PROPERTY(bool keyTrack READ keyTrack WRITE setKeyTrack NOTIFY keyTrackChanged)
+    Q_PROPERTY(bool chromatic READ chromatic WRITE setChromatic NOTIFY chromaticChanged)
     Q_PROPERTY(int velocitySensitivity READ velocitySensitivity WRITE setVelocitySensitivity NOTIFY velocitySensitivityChanged)
 
     // Output filters
@@ -107,8 +107,8 @@ public:
     void setPanSpread(int value);
 
     // Playback
-    bool keyTrack() const;
-    void setKeyTrack(bool value);
+    bool chromatic() const;
+    void setChromatic(bool value);
     int velocitySensitivity() const;
     void setVelocitySensitivity(int value);
 
@@ -141,7 +141,7 @@ signals:
     void driveChanged();
     void panSpreadChanged();
 
-    void keyTrackChanged();
+    void chromaticChanged();
     void velocitySensitivityChanged();
 
     void lpfCutoffChanged();

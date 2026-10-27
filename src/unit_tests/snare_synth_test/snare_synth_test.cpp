@@ -43,6 +43,43 @@ std::vector<double> renderDeviceAudio(SnareSynthDevice & device, uint32_t frames
     return buffer;
 }
 
+//! Seconds until the left channel last reaches 40 dB under its peak.
+double decaySeconds(const std::vector<double> & buffer)
+{
+    double peak = 0.0;
+    for (size_t i = 0; i < buffer.size(); i += 2) {
+        peak = std::max(peak, std::abs(buffer[i]));
+    }
+    size_t last = 0;
+    for (size_t i = 0; i < buffer.size(); i += 2) {
+        if (std::abs(buffer[i]) > peak * 0.01) {
+            last = i / 2;
+        }
+    }
+    return static_cast<double>(last) / SampleRate;
+}
+
+//! RMS of the first difference over the RMS of the left channel: a brightness measure.
+double brightness(const std::vector<double> & buffer)
+{
+    double sum = 0.0;
+    double differenceSum = 0.0;
+    for (size_t i = 2; i < buffer.size(); i += 2) {
+        sum += buffer[i] * buffer[i];
+        const double difference = buffer[i] - buffer[i - 2];
+        differenceSum += difference * difference;
+    }
+    return std::sqrt(differenceSum / sum);
+}
+
+std::vector<double> renderChromaticHit(uint8_t note, bool chromatic, uint32_t frames)
+{
+    SnareSynthDevice device { "Chromatic" };
+    device.setChromatic(chromatic);
+    device.processDeviceMidiNoteOn(note, 100);
+    return renderDeviceAudio(device, frames);
+}
+
 } // namespace
 
 void SnareSynthTest::test_midiNoteOn_shouldActivateAudio()
@@ -116,37 +153,49 @@ void SnareSynthTest::test_panSpread_full_shouldCreateStereoSeparation()
     QVERIFY(maxDiff > 0.001);
 }
 
-void SnareSynthTest::test_keyTrack_shouldFollowPitchOnlyWhenEnabled()
+void SnareSynthTest::test_chromatic_shouldScaleDecayWithNote_data()
 {
-    SnareSynthDevice devKeyTrackOn { "KeyTrackOn" };
-    devKeyTrackOn.setKeyTrack(true);
-    devKeyTrackOn.setSnappy(0.0f);
-    devKeyTrackOn.processDeviceMidiNoteOn(38, 100);
-    const auto buf38 = renderDeviceAudio(devKeyTrackOn, 1024);
+    QTest::addColumn<bool>("chromatic");
+    QTest::addColumn<int>("note");
+    QTest::addColumn<double>("expectedRatio");
 
-    devKeyTrackOn.resetAudio();
-    devKeyTrackOn.processDeviceMidiNoteOn(50, 100);
-    const auto buf50 = renderDeviceAudio(devKeyTrackOn, 1024);
+    QTest::newRow("off, octave up") << false << 48 << 1.0;
+    QTest::newRow("on, octave up") << true << 48 << 0.5;
+    QTest::newRow("on, octave down") << true << 24 << 2.0;
+}
 
-    double diffOn = 0.0;
-    for (size_t i = 0; i < 1024 * 2; i++) {
-        diffOn = std::max(diffOn, std::abs(buf38[i] - buf50[i]));
-    }
-    QVERIFY(diffOn > 0.01);
+void SnareSynthTest::test_chromatic_shouldScaleDecayWithNote()
+{
+    QFETCH(bool, chromatic);
+    QFETCH(int, note);
+    QFETCH(double, expectedRatio);
 
-    SnareSynthDevice devKeyTrackOff { "KeyTrackOff" };
-    devKeyTrackOff.setKeyTrack(false);
-    devKeyTrackOff.setSnappy(0.0f);
-    devKeyTrackOff.processDeviceMidiNoteOn(38, 100);
-    const auto bufOff38 = renderDeviceAudio(devKeyTrackOff, 1024);
+    const double reference = decaySeconds(renderChromaticHit(36, chromatic, SampleRate * 3));
+    const double played = decaySeconds(renderChromaticHit(static_cast<uint8_t>(note), chromatic, SampleRate * 3));
+    const double ratio = played / reference;
+    QVERIFY2(std::abs(ratio / expectedRatio - 1.0) < 0.15, qPrintable(QString { "%1 s -> %2 s" }.arg(reference).arg(played)));
+}
 
-    devKeyTrackOff.resetAudio();
-    devKeyTrackOff.processDeviceMidiNoteOn(50, 100);
-    const auto bufOff50 = renderDeviceAudio(devKeyTrackOff, 1024);
+void SnareSynthTest::test_chromatic_shouldScaleBrightnessWithNote()
+{
+    const double reference = brightness(renderChromaticHit(36, true, SampleRate / 4));
+    const double octaveUp = brightness(renderChromaticHit(48, true, SampleRate / 4));
+    QVERIFY2(octaveUp / reference > 1.5, qPrintable(QString { "%1 -> %2" }.arg(reference).arg(octaveUp)));
+}
 
-    for (size_t i = 0; i < 1024 * 2; i++) {
-        QCOMPARE(bufOff38[i], bufOff50[i]);
-    }
+void SnareSynthTest::test_chromatic_c3_shouldMatchOff()
+{
+    QCOMPARE(renderChromaticHit(36, true, 4096), renderChromaticHit(36, false, 4096));
+}
+
+void SnareSynthTest::test_chromatic_octave_shouldBeIgnored()
+{
+    SnareSynthDevice shifted { "Shifted" };
+    shifted.setChromatic(true);
+    shifted.setOctave(2);
+    QCOMPARE(shifted.octave(), 0);
+    shifted.processMidiNoteOn(36, 100);
+    QCOMPARE(renderDeviceAudio(shifted, 4096), renderChromaticHit(36, false, 4096));
 }
 
 void SnareSynthTest::test_filters_lpf_and_hpf_shouldAttenuate()
@@ -301,7 +350,7 @@ void SnareSynthTest::test_serialization_shouldRestoreParameters()
     device.setBody(0.5f);
     device.setDrive(0.3f);
     device.setPanSpread(0.8f);
-    device.setKeyTrack(true);
+    device.setChromatic(true);
     device.setVelocitySensitivity(0.9f);
     device.setLpfCutoff(0.8f);
     device.setHpfCutoff(0.15f);
@@ -332,7 +381,7 @@ void SnareSynthTest::test_serialization_shouldRestoreParameters()
     QCOMPARE(restored.body(), 0.5f);
     QCOMPARE(restored.drive(), 0.3f);
     QCOMPARE(restored.panSpread(), 0.8f);
-    QCOMPARE(restored.keyTrack(), true);
+    QCOMPARE(restored.chromatic(), true);
     QCOMPARE(restored.velocitySensitivity(), 0.9f);
     QCOMPARE(restored.lpfCutoff(), 0.8f);
     QCOMPARE(restored.hpfCutoff(), 0.15f);

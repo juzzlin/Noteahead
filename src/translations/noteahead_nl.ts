@@ -10460,8 +10460,12 @@ De audiobestanden verschijnen naast het huidige projectbestand.</translation>
         <translation type="unfinished">HPF-cutoff</translation>
     </message>
     <message>
-        <source>Key Track</source>
-        <translation type="unfinished">Key tracking</translation>
+        <source>Chromatic</source>
+        <translation>Chromatisch</translation>
+    </message>
+    <message>
+        <source>Plays the drum like a sampler: an octave up is an octave higher and twice as short</source>
+        <translation>Speelt de trom als een sampler: een octaaf hoger klinkt een octaaf hoger en half zo lang</translation>
     </message>
 </context>
 <context>

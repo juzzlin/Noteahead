@@ -82,14 +82,14 @@ ColumnLayout {
         onMoved: v => snareSynthController.hpfCutoff = v
         Layout.fillWidth: true
     }
-    OctaveKnob {
-        controller: snareSynthController
-    }
     CheckBox {
-        text: qsTr("Key Track")
-        checked: snareSynthController.keyTrack
-        onToggled: snareSynthController.keyTrack = checked
+        text: qsTr("Chromatic")
+        checked: snareSynthController.chromatic
+        onToggled: snareSynthController.chromatic = checked
         Layout.fillWidth: true
         Layout.topMargin: 5
+        ToolTip.visible: hovered
+        ToolTip.delay: Constants.toolTipDelay
+        ToolTip.text: qsTr("Plays the drum like a sampler: an octave up is an octave higher and twice as short")
     }
 }

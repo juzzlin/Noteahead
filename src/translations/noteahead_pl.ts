@@ -10462,8 +10462,12 @@ Pliki dźwiękowe pojawią się obok bieżącego pliku projektu.</translation>
         <translation type="unfinished">Odcięcie HPF</translation>
     </message>
     <message>
-        <source>Key Track</source>
-        <translation type="unfinished">Śledzenie klawiatury</translation>
+        <source>Chromatic</source>
+        <translation>Chromatyczny</translation>
+    </message>
+    <message>
+        <source>Plays the drum like a sampler: an octave up is an octave higher and twice as short</source>
+        <translation>Gra bęben jak sampler: oktawę wyżej brzmi oktawę wyżej i dwa razy krócej</translation>
     </message>
 </context>
 <context>

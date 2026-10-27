@@ -3396,7 +3396,7 @@ void XmlSerializationTest::test_toXmlFromXml_snareSynthDevice_shouldLoadCorrectl
     snare->setBody(0.68f);
     snare->setDrive(0.32f);
     snare->setPanSpread(0.45f);
-    snare->setKeyTrack(false);
+    snare->setChromatic(true);
     snare->setLpfCutoff(0.88f);
     snare->setHpfCutoff(0.15f);
     snare->setVolume(0.77f);
@@ -3437,7 +3437,7 @@ void XmlSerializationTest::test_toXmlFromXml_snareSynthDevice_shouldLoadCorrectl
     QVERIFY(std::abs(restored->body() - 0.68f) < 0.001f);
     QVERIFY(std::abs(restored->drive() - 0.32f) < 0.001f);
     QVERIFY(std::abs(restored->panSpread() - 0.45f) < 0.001f);
-    QCOMPARE(restored->keyTrack(), false);
+    QCOMPARE(restored->chromatic(), true);
     QVERIFY(std::abs(restored->lpfCutoff() - 0.88f) < 0.001f);
     QVERIFY(std::abs(restored->hpfCutoff() - 0.15f) < 0.001f);
     QVERIFY(std::abs(restored->volume() - 0.77f) < 0.001f);

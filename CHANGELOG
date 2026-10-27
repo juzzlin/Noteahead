@@ -19,6 +19,7 @@ New features:
   - Stick strike model with click, hardness, and radial strike position
   - Shell body resonance, saturation drive, stereo pan spread, and output LPF/HPF
   - Factory and user presets with full MIDI CC and relative automation support
+  - Chromatic mode plays the drum like a sampler: as set on C-3, slower below it and faster above
 
 * Live play applies column and track MIDI effects
   - Play chords, strum delays, arpeggios, jitter and transpose via computer keyboard, MIDI controller or cursor preview

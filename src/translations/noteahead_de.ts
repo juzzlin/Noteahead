@@ -10460,8 +10460,12 @@ Die Audiodateien erscheinen neben der aktuellen Projektdatei.</translation>
         <translation type="unfinished">HPF-Cutoff</translation>
     </message>
     <message>
-        <source>Key Track</source>
-        <translation type="unfinished">Key-Tracking</translation>
+        <source>Chromatic</source>
+        <translation>Chromatisch</translation>
+    </message>
+    <message>
+        <source>Plays the drum like a sampler: an octave up is an octave higher and twice as short</source>
+        <translation>Spielt die Trommel wie ein Sampler: eine Oktave höher klingt eine Oktave höher und halb so lang</translation>
     </message>
 </context>
 <context>
