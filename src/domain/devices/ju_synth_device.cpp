@@ -101,6 +101,7 @@ void JuSynthDevice::Voice::reset()
     active = false;
     gated = false;
     glideFrequency = 0.0;
+    startedAt = 0;
 }
 
 JuSynthDevice::JuSynthDevice(std::string name)
@@ -613,6 +614,13 @@ void JuSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
         m_lfoDelayElapsed = 0.0;
     }
 
+    // Where the last note played has got to, mid-glide or not: the glide starts there whichever
+    // voice the new note lands on. Read before the allocation, which may hand that very voice over.
+    // Each voice's own last pitch is a note played up to six notes ago, which made a glide come in
+    // from nowhere in particular, and not at all on a voice not used yet.
+    const auto latest = std::ranges::max_element(m_voices, {}, [](const auto & voice) { return voice.startedAt; });
+    const double glideFrom = latest->startedAt > 0 ? latest->glideFrequency : 0.0;
+
     const size_t slot = allocateVoice(note);
     auto & voice = m_voices[slot];
     const double frequency = 440.0 * std::exp2((static_cast<double>(note) - 69.0) / 12.0);
@@ -625,9 +633,7 @@ void JuSynthDevice::handleNoteOn(uint8_t note, uint8_t velocity)
         voice.env.reset();
         voice.gate.reset();
     }
-    if (voice.glideFrequency == 0.0 || m_portamento <= 0.0f) {
-        voice.glideFrequency = frequency;
-    }
+    voice.glideFrequency = glideFrom > 0.0 && m_portamento > 0.0f ? glideFrom : frequency;
     voice.frequency = frequency;
     voice.note = note;
     voice.velocity = static_cast<float>(velocity) / 127.0f;

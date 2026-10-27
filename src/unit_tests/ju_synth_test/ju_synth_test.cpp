@@ -95,6 +95,37 @@ double rms(const std::vector<double> & buffer)
 
 } // namespace
 
+void JuSynthTest::test_portamento_poly_shouldGlideFromThePreviousNote()
+{
+    // Six notes, each on a voice of its own, then a seventh that lands back on the first voice. It
+    // has to glide in from the sixth note, A4, not from the C4 that voice played last.
+    JuSynthDevice synth { "Test" };
+    synth.setSampleRate(SampleRate);
+    synth.setPortamento(0.5f);
+    synth.setRelease(0.0f);
+    for (uint8_t note : { 60, 62, 64, 65, 67, 69 }) {
+        synth.processMidiNoteOn(note, 127);
+        renderFrames(synth, 4800);
+        synth.processMidiNoteOff(note);
+        renderFrames(synth, 4800);
+    }
+    synth.processMidiNoteOn(72, 127);
+    const auto buffer = renderFrames(synth, 960);
+
+    // Rising zero crossings over the first 20 ms, past the few samples of latency
+    std::vector<double> crossings;
+    for (size_t i = 49; i < 960; i++) {
+        const double a = buffer[(i - 1) * 2];
+        const double b = buffer[i * 2];
+        if (a < 0.0 && b >= 0.0) {
+            crossings.push_back(static_cast<double>(i - 1) + a / (a - b));
+        }
+    }
+    QVERIFY(crossings.size() > 2);
+    const double hz = static_cast<double>(crossings.size() - 1) * SampleRate / (crossings.back() - crossings.front());
+    QVERIFY2(hz > 420.0 && hz < 530.0, qPrintable(QString::number(hz)));
+}
+
 void JuSynthTest::test_noteOn_default_shouldPlayTheNotePitch()
 {
     JuSynthDevice synth { "JU" };

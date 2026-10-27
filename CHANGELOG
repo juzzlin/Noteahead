@@ -11,6 +11,8 @@ Bug fixes:
 
 * Delay: Mix did not start at 100 % on a master send, and presets overwrote it there
 
+* JU Synth: portamento glided in from an earlier note, not from the one before
+
 * JU Synth 08: fader, expression, gain and pan had no effect
 
 * JU Synth 08: insert effects ran twice per block, which made them buzz

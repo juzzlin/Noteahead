@@ -25,6 +25,7 @@ class JuSynthTest : public QObject
     Q_OBJECT
 
 private slots:
+    void test_portamento_poly_shouldGlideFromThePreviousNote();
     void test_noteOn_default_shouldPlayTheNotePitch();
     void test_range_16Feet_shouldPlayAnOctaveDown();
     void test_subLevel_shouldAddAnOctaveBelow();
