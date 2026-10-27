@@ -258,6 +258,22 @@ void DrumSynthV2Controller::setVoiceResonance(int value)
     }
 }
 
+int DrumSynthV2Controller::voiceWobble() const
+{
+    if (!m_device) {
+        return 500;
+    }
+    const auto parameter = m_device->parameter(currentVoicePrefix() + Constants::NahdXml::xmlKeyWobble().toStdString());
+    return parameter ? static_cast<int>(std::round(parameter->get().shownValue() * Constants::uiInternalScaling())) : 500;
+}
+
+void DrumSynthV2Controller::setVoiceWobble(int value)
+{
+    if (m_device) {
+        m_device->updateVoiceParameter(m_selectedVoice, Constants::NahdXml::xmlKeyWobble().toStdString(), static_cast<float>(value) / Constants::uiInternalScaling());
+    }
+}
+
 bool DrumSynthV2Controller::isKick() const
 {
     return m_selectedVoice == static_cast<int>(DrumSynthV2::VoiceIndex::Kick);
@@ -288,6 +304,11 @@ bool DrumSynthV2Controller::hasAttack() const
     return isKick() || (m_selectedVoice == static_cast<int>(DrumSynthV2::VoiceIndex::Crash) || m_selectedVoice == static_cast<int>(DrumSynthV2::VoiceIndex::ReverseCrash));
 }
 
+bool DrumSynthV2Controller::hasWobble() const
+{
+    return m_selectedVoice == static_cast<int>(DrumSynthV2::VoiceIndex::Crash) || m_selectedVoice == static_cast<int>(DrumSynthV2::VoiceIndex::ReverseCrash);
+}
+
 void DrumSynthV2Controller::requestSettings()
 {
     DrumPadController::requestSettings();
@@ -305,6 +326,7 @@ void DrumSynthV2Controller::requestSettings()
     emit tomPitchDepthChanged();
     emit tomPitchDecayChanged();
     emit voiceResonanceChanged();
+    emit voiceWobbleChanged();
 }
 
 } // namespace noteahead

@@ -59,6 +59,9 @@ public:
     void setDecay(float decay);
     void setResonance(float resonance);
     void setAttack(float attack);
+    //! How far the pitch wobbles, 0..1. Half way is the wobble the crash has always had; none
+    //! holds the pitch still.
+    void setWobble(float wobble);
 
 private:
     Mode m_mode { Mode::Normal };
@@ -76,6 +79,7 @@ private:
     float m_decay { 0.5f };
     float m_resonance { 0.3f };
     float m_attack { 0.0f };
+    float m_wobble { 0.5f };
     float m_velocity { 1.0f };
 
     //! Fixed so a render is reproducible: the engine is re-seeded in reset(), which

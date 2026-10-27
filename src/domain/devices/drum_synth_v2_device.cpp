@@ -177,6 +177,10 @@ void DrumSynthV2Device::addEngineParameters(int index, const std::string & prefi
         addCymbalParameters(prefix);
     else if (voiceIdx == VoiceIndex::Rim)
         addRimParameters(prefix);
+
+    // The ride has no wobble to set: only the crash engine has one.
+    if (voiceIdx == VoiceIndex::Crash || voiceIdx == VoiceIndex::ReverseCrash)
+        addParameter(Parameter { prefix + Constants::NahdXml::xmlKeyWobble().toStdString(), 0.5f, 0, 10000, 5000, 100 });
 }
 
 void DrumSynthV2Device::addKickParameters(const std::string & prefix)
@@ -343,6 +347,8 @@ void DrumSynthV2Device::syncCymbalParameters(int index, const std::string & pref
             engine.setResonance(p->get().value());
         if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyAttack().toStdString()); p)
             engine.setAttack(p->get().value());
+        if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyWobble().toStdString()); p)
+            engine.setWobble(p->get().value());
     } else if (voiceIdx == VoiceIndex::Ride) {
         auto & engine { static_cast<RideEngine &>(voiceEngine(index)) };
         if (auto p = parameter(prefix + Constants::NahdXml::xmlKeyResonance().toStdString()); p)

@@ -45,6 +45,7 @@ class DrumSynthV2Controller : public DrumPadController
 
     // HiHat / Cymbal Specific
     Q_PROPERTY(int voiceResonance READ voiceResonance WRITE setVoiceResonance NOTIFY voiceResonanceChanged)
+    Q_PROPERTY(int voiceWobble READ voiceWobble WRITE setVoiceWobble NOTIFY voiceWobbleChanged)
 
     // Global
 
@@ -56,6 +57,7 @@ class DrumSynthV2Controller : public DrumPadController
     Q_PROPERTY(bool isCymbal READ isCymbal NOTIFY selectedVoiceChanged)
     Q_PROPERTY(bool hasResonance READ hasResonance NOTIFY selectedVoiceChanged)
     Q_PROPERTY(bool hasAttack READ hasAttack NOTIFY selectedVoiceChanged)
+    Q_PROPERTY(bool hasWobble READ hasWobble NOTIFY selectedVoiceChanged)
 
 public:
     explicit DrumSynthV2Controller(std::shared_ptr<DeviceService> deviceService, QObject * parent = nullptr);
@@ -97,6 +99,8 @@ public:
 
     int voiceResonance() const;
     void setVoiceResonance(int value);
+    int voiceWobble() const;
+    void setVoiceWobble(int value);
 
     bool isKick() const;
     bool isSnare() const;
@@ -104,6 +108,7 @@ public:
     bool isCymbal() const;
     bool hasResonance() const;
     bool hasAttack() const;
+    bool hasWobble() const;
 
     void requestSettings() override;
 
@@ -125,6 +130,7 @@ signals:
     void tomPitchDepthChanged();
     void tomPitchDecayChanged();
     void voiceResonanceChanged();
+    void voiceWobbleChanged();
 
 protected:
     bool acceptsDevice(const DeviceS & device) const override;

@@ -21,6 +21,7 @@
 #include "../../domain/devices/drum_synth_device.hpp"
 #include "../../domain/devices/drum_synth_v2_constants.hpp"
 #include "../../domain/devices/drum_synth_v2_device.hpp"
+#include "../../domain/dsp/drum/crash_engine.hpp"
 #include "../../domain/dsp/fft.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
 #include "../../infra/xml/nahd_xml_writer.hpp"
@@ -823,6 +824,50 @@ void DrumSynthV2Test::test_cymbals_crash_shouldBloom()
              qPrintable(QString { "the crash does not open out: %1 Hz at the strike, %2 Hz after it" }.arg(struck).arg(open)));
 }
 
+void DrumSynthV2Test::test_cymbals_crashWobble_default_shouldKeepTheSound()
+{
+    // The knob's middle is the wobble the crash had before there was a knob, so a project saved
+    // without it plays exactly as it did.
+    CrashEngine untouched;
+    CrashEngine centred;
+    for (auto * engine : { &untouched, &centred }) {
+        engine->setSampleRate(sampleRate);
+        engine->setVoicing(CrashEngine::Voicing::Rd9);
+    }
+    centred.setWobble(0.5f);
+    untouched.trigger(1.0f);
+    centred.trigger(1.0f);
+    for (uint32_t i = 0; i < sampleRate; i++) {
+        QCOMPARE(centred.nextSample(), untouched.nextSample());
+    }
+
+    DrumSynthV2Device device { "V2" };
+    const auto wobbleKey = DrumSynthV2::voiceId(static_cast<int>(DrumSynthV2::VoiceIndex::Crash)) + "_" + Constants::NahdXml::xmlKeyWobble().toStdString();
+    const auto wobble = device.parameter(wobbleKey);
+    QVERIFY(wobble.has_value());
+    QCOMPARE(wobble->get().value(), 0.5f);
+}
+
+void DrumSynthV2Test::test_cymbals_crashWobble_shouldReachBothCrashes()
+{
+    for (const auto voice : { DrumSynthV2::VoiceIndex::Crash, DrumSynthV2::VoiceIndex::ReverseCrash }) {
+        const auto index = static_cast<int>(voice);
+        DrumSynthV2Device reference { "Reference" };
+        const auto centred = reference.renderVoiceAlone(index, sampleRate, 1.0);
+        for (const float wobble : { 0.0f, 1.0f }) {
+            DrumSynthV2Device device { "V2" };
+            device.updateVoiceParameter(index, Constants::NahdXml::xmlKeyWobble().toStdString(), wobble);
+            QVERIFY2(device.renderVoiceAlone(index, sampleRate, 1.0) != centred,
+                     qPrintable(QString { "wobble %1 does not reach voice %2" }.arg(wobble).arg(index)));
+        }
+    }
+
+    // The ride has no wobble to set.
+    DrumSynthV2Device device { "V2" };
+    const auto rideKey = DrumSynthV2::voiceId(static_cast<int>(DrumSynthV2::VoiceIndex::Ride)) + "_" + Constants::NahdXml::xmlKeyWobble().toStdString();
+    QVERIFY(!device.parameter(rideKey).has_value());
+}
+
 void DrumSynthV2Test::test_cymbals_crash_shouldPeakInTheSplashBand()
 {
     // What makes a crash splash is where its weight sits: the recording peaks between four and
@@ -950,6 +995,10 @@ void DrumSynthV2Test::test_drumSynthV2Device_xmlSerialization_shouldRestoreParam
 
     const std::string tuneKey { DrumSynthV2::voiceId(0) + "_" + Constants::NahdXml::xmlKeyTune().toStdString() };
     const std::string snappyKey { DrumSynthV2::voiceId(1) + "_" + Constants::NahdXml::xmlKeySnappy().toStdString() };
+    const std::string wobbleKey { DrumSynthV2::voiceId(static_cast<int>(DrumSynthV2::VoiceIndex::Crash)) + "_" + Constants::NahdXml::xmlKeyWobble().toStdString() };
+    if (auto p = device.parameter(wobbleKey); p) {
+        p->get().setValue(0.85f);
+    }
     if (auto p = device.parameter(tuneKey); p) {
         p->get().setValue(0.75f);
     }
@@ -974,6 +1023,9 @@ void DrumSynthV2Test::test_drumSynthV2Device_xmlSerialization_shouldRestoreParam
     const auto snappy = restored.parameter(snappyKey);
     QVERIFY(snappy.has_value());
     QCOMPARE(snappy->get().value(), 0.25f);
+    const auto wobble = restored.parameter(wobbleKey);
+    QVERIFY(wobble.has_value());
+    QCOMPARE(wobble->get().value(), 0.85f);
 }
 
 void DrumSynthV2Test::test_applyParameterAutomation_voiceKey_shouldReachOnlyThatVoice()

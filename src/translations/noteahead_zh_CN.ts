@@ -2324,6 +2324,10 @@
         <translation>取消</translation>
     </message>
     <message>
+        <source>Wobble</source>
+        <translation>Wobble</translation>
+    </message>
+    <message>
         <source>Global</source>
         <translation>全局</translation>
     </message>

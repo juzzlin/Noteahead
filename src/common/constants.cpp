@@ -3649,6 +3649,11 @@ QString xmlKeyRingMod()
     return "ringMod";
 }
 
+QString xmlKeyWobble()
+{
+    return "wobble";
+}
+
 } // namespace NahdXml
 
 } // namespace noteahead::Constants

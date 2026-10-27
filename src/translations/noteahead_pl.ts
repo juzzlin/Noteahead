@@ -2326,6 +2326,10 @@
         <translation>Anuluj</translation>
     </message>
     <message>
+        <source>Wobble</source>
+        <translation>Wobble</translation>
+    </message>
+    <message>
         <source>Global</source>
         <translation>Globalne</translation>
     </message>

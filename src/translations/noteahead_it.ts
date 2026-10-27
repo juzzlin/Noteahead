@@ -2325,6 +2325,10 @@
         <translation>Annulla</translation>
     </message>
     <message>
+        <source>Wobble</source>
+        <translation>Wobble</translation>
+    </message>
+    <message>
         <source>Global</source>
         <translation>Globale</translation>
     </message>

@@ -62,6 +62,9 @@ constexpr double Rd9BaseFreq { 700.0 };
 constexpr float Rd9BloomSeconds { 0.046f };
 //! How much of the top is already there at the strike. Not zero: a crash is struck, not faded in.
 constexpr float Rd9BloomFloor { 0.25f };
+//! Pitch wobble at the middle of the Wobble knob, which is what the crash had before the knob.
+//! The depth goes with the square of the knob from there, up to four times this at the top.
+constexpr double DefaultWobbleDepth { 0.005 };
 constexpr float Rd9BodySeconds { 0.080f };
 constexpr float Rd9BodyGain { 0.850f };
 constexpr float Rd9DecayScale { 1.05f };
@@ -246,7 +249,8 @@ float CrashEngine::nextSample()
     m_wobblePhase += wobbleFreq / sr;
     if (m_wobblePhase >= 1.0)
         m_wobblePhase -= 1.0;
-    const double wobble = 1.0 + 0.005 * std::sin(m_wobblePhase * 2.0 * std::numbers::pi);
+    const double wobbleScale = static_cast<double>(m_wobble) / 0.5;
+    const double wobble = 1.0 + DefaultWobbleDepth * wobbleScale * wobbleScale * std::sin(m_wobblePhase * 2.0 * std::numbers::pi);
 
     // Body component: noise-based impact for "weight" (OHH approach)
     // Centered around the 909's 568Hz peak
@@ -389,6 +393,11 @@ void CrashEngine::setResonance(float resonance)
 void CrashEngine::setAttack(float attack)
 {
     m_attack = attack;
+}
+
+void CrashEngine::setWobble(float wobble)
+{
+    m_wobble = std::clamp(wobble, 0.0f, 1.0f);
 }
 
 } // namespace noteahead

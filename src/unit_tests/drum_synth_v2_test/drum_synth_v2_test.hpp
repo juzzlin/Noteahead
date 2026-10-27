@@ -50,6 +50,8 @@ private slots:
     void test_cymbals_tune_shouldOnlyEverBrighten();
     void test_cymbals_crash_shouldBloom();
     void test_cymbals_crash_shouldPeakInTheSplashBand();
+    void test_cymbals_crashWobble_default_shouldKeepTheSound();
+    void test_cymbals_crashWobble_shouldReachBothCrashes();
     void test_cymbals_shouldHaveABody();
     void test_everyVoice_shouldHaveANameAndANoteOfItsOwn();
     void test_rim_shouldBeAShortPitchedClick();

@@ -999,6 +999,7 @@ QString xmlKeySampleHoldRate();
 QString xmlKeyCrackle();
 QString xmlKeyPlayToEnd();
 QString xmlKeyRingMod();
+QString xmlKeyWobble();
 
 } // namespace NahdXml
 } // namespace noteahead::Constants

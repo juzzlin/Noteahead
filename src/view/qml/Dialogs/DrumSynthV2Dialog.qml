@@ -270,6 +270,12 @@ AnimatedDialog {
                             value: drumSynthV2Controller.voiceResonance
                             onMoved: (val) => drumSynthV2Controller.voiceResonance = val
                         }
+                        Knob {
+                            visible: drumSynthV2Controller.hasWobble
+                            label: qsTr("Wobble")
+                            value: drumSynthV2Controller.voiceWobble
+                            onMoved: (val) => drumSynthV2Controller.voiceWobble = val
+                        }
                     }
                 }
 
