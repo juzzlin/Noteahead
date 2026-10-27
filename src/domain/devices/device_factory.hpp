@@ -19,6 +19,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace noteahead {
 
@@ -31,6 +32,8 @@ public:
 
     static void registerDevice(const std::string & typeId, Creator creator);
     static std::shared_ptr<Device> createDevice(const std::string & typeId, const std::string & name);
+    //! Every type id registered, aliases included, in order.
+    static std::vector<std::string> typeIds();
     static void init();
     static void clear();
 };

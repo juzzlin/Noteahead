@@ -41,6 +41,7 @@ private slots:
     void test_midiCc7_fullValue_shouldLandOnUnity();
     void test_midiCc7_extendedValue_shouldReachTheBoostRange();
     void test_midiCcController_fader_shouldDeclareTheExtendedRange();
+    void test_globalControls_everyDevice_shouldTakeEffect();
 };
 
 } // namespace noteahead

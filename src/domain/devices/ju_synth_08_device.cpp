@@ -827,6 +827,7 @@ void JuSynth08Device::resetAudio()
 
 void JuSynth08Device::syncParameters()
 {
+    Device::syncParameters();
     const auto read = [this](const QString & key) {
         if (const auto p = parameter(key.toStdString()); p) {
             return p->get().value();

@@ -48,6 +48,16 @@ std::shared_ptr<Device> DeviceFactory::createDevice(const std::string & typeId, 
     return nullptr;
 }
 
+std::vector<std::string> DeviceFactory::typeIds()
+{
+    std::vector<std::string> ids;
+    ids.reserve(registry().size());
+    for (auto && [typeId, creator] : registry()) {
+        ids.push_back(typeId);
+    }
+    return ids;
+}
+
 void DeviceFactory::clear()
 {
     registry().clear();

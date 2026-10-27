@@ -17,6 +17,7 @@
 
 #include "../../common/constants.hpp"
 #include "../../common/parameter_mapper.hpp"
+#include "../../domain/devices/device_factory.hpp"
 #include "../../domain/devices/piano_synth_device.hpp"
 #include "../../domain/devices/sampler_device.hpp"
 #include "../../infra/xml/nahd_xml_reader.hpp"
@@ -206,6 +207,34 @@ void FaderTest::test_midiCc7_fullValue_shouldLandOnUnity()
 
     QCOMPARE(device.volume(), Constants::faderUnityPosition());
     QVERIFY(std::abs(gainOf(device) - 1.0) < 1.0e-6);
+}
+
+void FaderTest::test_globalControls_everyDevice_shouldTakeEffect()
+{
+    // Every device's global controls are read in Device::syncParameters(), so a device whose own
+    // sync forgets to call it keeps playing at their defaults whatever they are set to. Checked on
+    // the values in effect rather than on the parameters, which move either way. Gain and pan are
+    // read in the same place, so they are covered too.
+    DeviceFactory::init();
+    const auto typeIds = DeviceFactory::typeIds();
+    QVERIFY(!typeIds.empty());
+    for (auto && typeId : typeIds) {
+        const auto device = DeviceFactory::createDevice(typeId, "Fixture");
+        QVERIFY2(device, typeId.c_str());
+        // Nothing to fade on a device that makes no sound, such as the LFO device
+        if (!device->producesAudio()) {
+            continue;
+        }
+        device->processMidiCc(7, 0, 0);
+        QVERIFY2(device->faderGain() < 1.0e-6, typeId.c_str());
+        device->processMidiCc(11, 0, 0);
+        QVERIFY2(device->expression() < 1.0e-6f, typeId.c_str());
+        device->setFaderPosition(Device::FaderPosition::PostInserts);
+        QVERIFY2(device->faderPosition() == Device::FaderPosition::PostInserts, typeId.c_str());
+        device->setSendTap(Device::SendTap::PreFader);
+        QVERIFY2(device->sendTap() == Device::SendTap::PreFader, typeId.c_str());
+    }
+    DeviceFactory::clear();
 }
 
 } // namespace noteahead
