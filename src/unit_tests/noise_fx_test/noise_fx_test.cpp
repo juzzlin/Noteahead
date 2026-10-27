@@ -353,24 +353,29 @@ void NoiseFxTest::test_noiseFx_width_full_shouldDecorrelateChannels()
 
 void NoiseFxTest::test_noiseFx_tone_shouldPlayNotePitch_data()
 {
+    QTest::addColumn<bool>("chromatic");
     QTest::addColumn<int>("note");
     QTest::addColumn<float>("pitch");
     QTest::addColumn<double>("expectedHz");
 
-    QTest::newRow("A4") << 69 << 0.5f << 440.0;
-    QTest::newRow("A3") << 57 << 0.5f << 220.0;
-    QTest::newRow("A4 + octave") << 69 << 0.75f << 880.0;
-    QTest::newRow("A4 - 2 octaves") << 69 << 0.0f << 110.0;
+    QTest::newRow("A4") << true << 69 << 0.5f << 440.0;
+    QTest::newRow("A3") << true << 57 << 0.5f << 220.0;
+    QTest::newRow("A4 + octave") << true << 69 << 0.75f << 880.0;
+    QTest::newRow("A4 - 2 octaves") << true << 69 << 0.0f << 110.0;
+    QTest::newRow("off, A4") << false << 69 << 0.5f << 261.63;
+    QTest::newRow("off, A3 + octave") << false << 57 << 0.75f << 523.25;
 }
 
 void NoiseFxTest::test_noiseFx_tone_shouldPlayNotePitch()
 {
+    QFETCH(bool, chromatic);
     QFETCH(int, note);
     QFETCH(float, pitch);
     QFETCH(double, expectedHz);
 
     NoiseFxDevice device { "Noise FX" };
     makeNeutral(device);
+    device.setChromatic(chromatic);
     device.setBlend(1.0f);
     device.setPitch(pitch);
 
@@ -384,6 +389,7 @@ void NoiseFxTest::test_noiseFx_sweepPitch_shouldRaisePitch()
 {
     NoiseFxDevice device { "Noise FX" };
     makeNeutral(device);
+    device.setChromatic(true);
     device.setBlend(1.0f);
     // Half depth over one bar: 24 semitones up by the end.
     device.setSweepTarget(0, 0, NoiseFxDevice::Destination::Pitch);

@@ -78,7 +78,9 @@ constexpr double MaxDecaySeconds = 20.0;
 constexpr double MinSweepSeconds = 0.01;
 constexpr double MaxSweepSeconds = 60.0;
 
-constexpr double KeyTrackCentreNote = 60.0;
+//! Middle C: the note that plays a patch as it is set, and the one every note plays like when
+//! Chromatic is off.
+constexpr double CentreNote = 60.0;
 constexpr double TuningReferenceNote = 69.0;
 constexpr double TuningReferenceHz = 440.0;
 
@@ -460,7 +462,7 @@ size_t NoiseFxDevice::allocateVoice()
 
 double NoiseFxDevice::speedRatio(uint8_t note) const
 {
-    return m_chromatic ? std::exp2((static_cast<double>(note) - KeyTrackCentreNote) / 12.0) : 1.0;
+    return m_chromatic ? std::exp2((static_cast<double>(note) - CentreNote) / 12.0) : 1.0;
 }
 
 void NoiseFxDevice::configureSweep(SweepEnvelope & envelope, const SweepSettings & settings, double speedRatio) const
@@ -595,7 +597,9 @@ void NoiseFxDevice::renderVoice(Voice & voice, double sampleRate, double bpm, do
 
     // Tone
     const double semitones = bipolar(m_pitch) * PitchRangeSemitones + modulation.pitch * PitchModulationSemitones;
-    const double toneHz = TuningReferenceHz * std::exp2((static_cast<double>(voice.note) - TuningReferenceNote + semitones) / 12.0);
+    // Off Chromatic, an effect sounds the same on every note, as a one-shot sample would.
+    const double toneNote = m_chromatic ? static_cast<double>(voice.note) : CentreNote;
+    const double toneHz = TuningReferenceHz * std::exp2((toneNote - TuningReferenceNote + semitones) / 12.0);
     voice.tone.setFrequency(std::clamp(toneHz, MinToneHz, sampleRate * MaxFrequencyRatio));
     const double ringMod = static_cast<double>(m_ringMod);
     const double dryTone = voice.tone.nextSample();
@@ -610,7 +614,7 @@ void NoiseFxDevice::renderVoice(Voice & voice, double sampleRate, double bpm, do
 
     // Filter
     const double keyTrack = m_chromatic ? 1.0 : static_cast<double>(m_keyTrack);
-    const double keyTrackOctaves = (static_cast<double>(voice.note) - KeyTrackCentreNote) / 12.0 * keyTrack;
+    const double keyTrackOctaves = (static_cast<double>(voice.note) - CentreNote) / 12.0 * keyTrack;
     const double cutoffHz = ParameterMapper::mapExponential(static_cast<double>(m_cutoff) + modulation.cutoff, MinCutoffHz, MaxCutoffHz) * std::exp2(keyTrackOctaves);
     const double clampedCutoffHz = std::clamp(cutoffHz, MinCutoffHz, sampleRate * MaxFrequencyRatio);
     const double resonance = std::clamp(static_cast<double>(m_resonance) + modulation.resonance, 0.0, 1.0) * MaxResonance;

@@ -44,7 +44,8 @@ namespace noteahead {
 //! note-off or not, which is what makes a single tracker note a whole riser. A repeating Sweep A
 //! never ends, so there the note-off releases the note as usual.
 //!
-//! In Chromatic mode the note plays the whole patch like a sampler plays a sample: an octave up the
+//! Every note plays the patch as it is set, the tone at its middle C pitch, unless Chromatic is on:
+//! then the note plays the whole patch like a sampler plays a sample. An octave up the tone, the
 //! filter, the S&H rate and the crackle sit an octave higher, and the envelopes, the unsynced sweeps
 //! and the free LFO run twice as fast. Middle C plays the patch as it is set.
 class NoiseFxDevice : public Device
@@ -176,8 +177,9 @@ public:
     void setVelocitySensitivity(float sensitivity);
     bool playToEnd() const;
     void setPlayToEnd(bool playToEnd);
-    //! Plays the note like a sampler: replaces the key track with full tracking and scales the
-    //! times. Sweeps synced to beats keep their length, as they must land on the beat.
+    //! Plays the note like a sampler: the tone follows the note, full tracking replaces the key
+    //! track and the times scale. Sweeps synced to beats keep their length, as they must land on the
+    //! beat. Off, the tone plays at its middle C pitch on every note.
     bool chromatic() const;
     void setChromatic(bool chromatic);
 
