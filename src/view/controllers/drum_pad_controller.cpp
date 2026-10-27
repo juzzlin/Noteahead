@@ -200,7 +200,45 @@ void DrumPadController::renderWaveform()
     m_waveformData = preview.peaks;
     m_waveformDuration = preview.durationSeconds;
     m_audibleLength = preview.audibleSeconds;
+    m_waveformEnvelope = {
+        .attack = voiceAmpAttackSeconds(),
+        .hold = voiceAmpHoldSeconds(),
+        .decay = voiceAmpDecaySeconds(),
+        .sustain = static_cast<double>(voiceAmpSustain()) / Constants::uiInternalScaling(),
+        .release = voiceAmpReleaseSeconds(),
+        .curve = static_cast<double>(voiceAmpCurve()) / Constants::uiInternalScaling()
+    };
     emit waveformChanged();
+}
+
+double DrumPadController::waveformEnvelopeAttack() const
+{
+    return m_waveformEnvelope.attack;
+}
+
+double DrumPadController::waveformEnvelopeHold() const
+{
+    return m_waveformEnvelope.hold;
+}
+
+double DrumPadController::waveformEnvelopeDecay() const
+{
+    return m_waveformEnvelope.decay;
+}
+
+double DrumPadController::waveformEnvelopeSustain() const
+{
+    return m_waveformEnvelope.sustain;
+}
+
+double DrumPadController::waveformEnvelopeRelease() const
+{
+    return m_waveformEnvelope.release;
+}
+
+double DrumPadController::waveformEnvelopeCurve() const
+{
+    return m_waveformEnvelope.curve;
 }
 
 int DrumPadController::voiceLevel() const

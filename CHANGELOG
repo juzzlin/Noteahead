@@ -17,6 +17,8 @@ Bug fixes:
 
 * Drum Synth V2: the Crash sounded like breaking glass: no body, and a whining tail
 
+* Drum Synth V2: the envelope overlay redrew during a knob drag instead of with the waveform
+
 * Delay: Mix did not start at 100 % on a master send, and presets overwrote it there
 
 * JU Synth: portamento glided in from an earlier note, not from the one before

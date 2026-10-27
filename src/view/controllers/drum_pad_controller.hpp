@@ -49,12 +49,16 @@ class DrumPadController : public DeviceController
     Q_PROPERTY(double waveformDuration READ waveformDuration NOTIFY waveformChanged)
     //! What is actually heard, in seconds, envelope and effects included.
     Q_PROPERTY(double audibleLength READ audibleLength NOTIFY waveformChanged)
-    //! The envelope's segment times in seconds, as the voices run them. The waveform view draws
-    //! the overlay on the same axis as the picture, so it needs seconds rather than knob travel.
-    Q_PROPERTY(double voiceAmpAttackSeconds READ voiceAmpAttackSeconds NOTIFY voiceAmpAttackChanged)
-    Q_PROPERTY(double voiceAmpHoldSeconds READ voiceAmpHoldSeconds NOTIFY voiceAmpHoldChanged)
-    Q_PROPERTY(double voiceAmpDecaySeconds READ voiceAmpDecaySeconds NOTIFY voiceAmpDecayChanged)
-    Q_PROPERTY(double voiceAmpReleaseSeconds READ voiceAmpReleaseSeconds NOTIFY voiceAmpReleaseChanged)
+    //! The amp envelope the picture was rendered with, for the overlay drawn on it: segment times
+    //! in seconds, on the same axis as the picture, and sustain and curve on 0..1. Taken when the
+    //! picture is, not followed live, so that a knob drag moves neither until it has settled and
+    //! the overlay never runs ahead of the waveform underneath it.
+    Q_PROPERTY(double waveformEnvelopeAttack READ waveformEnvelopeAttack NOTIFY waveformChanged)
+    Q_PROPERTY(double waveformEnvelopeHold READ waveformEnvelopeHold NOTIFY waveformChanged)
+    Q_PROPERTY(double waveformEnvelopeDecay READ waveformEnvelopeDecay NOTIFY waveformChanged)
+    Q_PROPERTY(double waveformEnvelopeSustain READ waveformEnvelopeSustain NOTIFY waveformChanged)
+    Q_PROPERTY(double waveformEnvelopeRelease READ waveformEnvelopeRelease NOTIFY waveformChanged)
+    Q_PROPERTY(double waveformEnvelopeCurve READ waveformEnvelopeCurve NOTIFY waveformChanged)
     Q_PROPERTY(int lpfSlope READ lpfSlope WRITE setLpfSlope NOTIFY lpfSlopeChanged)
     Q_PROPERTY(int hpfSlope READ hpfSlope WRITE setHpfSlope NOTIFY hpfSlopeChanged)
 
@@ -89,10 +93,12 @@ public:
     void setHpfSlope(int value);
     void setSelectedVoice(int index);
 
-    double voiceAmpAttackSeconds() const;
-    double voiceAmpHoldSeconds() const;
-    double voiceAmpDecaySeconds() const;
-    double voiceAmpReleaseSeconds() const;
+    double waveformEnvelopeAttack() const;
+    double waveformEnvelopeHold() const;
+    double waveformEnvelopeDecay() const;
+    double waveformEnvelopeSustain() const;
+    double waveformEnvelopeRelease() const;
+    double waveformEnvelopeCurve() const;
 
     double playbackPosition() const;
     bool voiceSounding() const;
@@ -187,6 +193,22 @@ private:
     //! Long enough that a knob drag settles into one render, short enough that letting go of the
     //! knob and looking at the picture feels like the same action.
     static constexpr int WaveformDebounceMs { 250 };
+
+    double voiceAmpAttackSeconds() const;
+    double voiceAmpHoldSeconds() const;
+    double voiceAmpDecaySeconds() const;
+    double voiceAmpReleaseSeconds() const;
+
+    struct WaveformEnvelope
+    {
+        double attack { 0.0 };
+        double hold { 0.0 };
+        double decay { 0.0 };
+        double sustain { 0.0 };
+        double release { 0.0 };
+        double curve { 0.0 };
+    };
+    WaveformEnvelope m_waveformEnvelope;
 
     QVariantList m_waveformData;
     double m_waveformDuration { 0.0 };

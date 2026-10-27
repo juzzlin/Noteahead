@@ -97,6 +97,38 @@ void DrumSynthControllerTest::test_waveform_whileHidden_shouldNotRender()
     QVERIFY(controller.waveformData().isEmpty());
 }
 
+void DrumSynthControllerTest::test_waveform_envelopeDrag_shouldMoveTheOverlayOnlyWhenSettled()
+{
+    // The overlay is drawn on the picture, so it waits for the picture: following the knob live it
+    // ran ahead of a waveform still showing the old envelope for the whole of the drag.
+    const auto audioEngine = std::make_shared<AudioEngine>();
+    const auto deviceService = std::make_shared<DeviceService>(audioEngine, std::make_shared<DataService>());
+    DrumSynthV2Controller controller { deviceService };
+
+    const auto device = std::make_shared<DrumSynthV2Device>(Constants::drumSynthV2DeviceName().toStdString());
+    deviceService->setDevice(0, device);
+    controller.setDevice(Constants::drumSynthV2DeviceName());
+    controller.setWaveformRequest(64, true);
+
+    QSignalSpy spy { &controller, &DrumSynthV2Controller::waveformChanged };
+    QVERIFY(spy.wait(2000));
+    spy.clear();
+    const double attackBefore = controller.waveformEnvelopeAttack();
+    const double sustainBefore = controller.waveformEnvelopeSustain();
+
+    for (int step = 1; step <= 10; step++) {
+        controller.setVoiceAmpAttack(step * 50);
+        controller.setVoiceAmpSustain(1000 - step * 50);
+    }
+    QCOMPARE(controller.waveformEnvelopeAttack(), attackBefore);
+    QCOMPARE(controller.waveformEnvelopeSustain(), sustainBefore);
+
+    QVERIFY(spy.wait(2000));
+    QCOMPARE(spy.count(), 1);
+    QVERIFY(controller.waveformEnvelopeAttack() > attackBefore);
+    QVERIFY(std::abs(controller.waveformEnvelopeSustain() - 0.5) < 1e-9);
+}
+
 void DrumSynthControllerTest::test_sampleRateChange_shouldUpdateHzValues()
 {
     const auto audioEngine = std::make_shared<AudioEngine>();

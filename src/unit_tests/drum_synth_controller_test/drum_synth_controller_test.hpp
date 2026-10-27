@@ -16,6 +16,7 @@ private slots:
     void test_waveform_voiceChange_shouldNotRenderInTheCall();
     void test_waveform_rapidChanges_shouldRenderOnce();
     void test_waveform_whileHidden_shouldNotRender();
+    void test_waveform_envelopeDrag_shouldMoveTheOverlayOnlyWhenSettled();
     void test_sampleRateChange_shouldUpdateHzValues();
     void test_properties_shouldUpdateDeviceAndEmitSignals();
     void test_reset_shouldRestoreDefaultValues();

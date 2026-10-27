@@ -41,13 +41,15 @@ WaveformView {
     showPlayhead: root.controller.voiceSounding
     playbackPosition: root.controller.playbackPosition
 
+    // The envelope the picture was rendered with rather than the knobs' live values, so the overlay
+    // waits for a drag to settle along with the waveform under it.
     showEnvelope: true
-    envelopeAttack: root.controller.voiceAmpAttackSeconds
-    envelopeHold: root.controller.voiceAmpHoldSeconds
-    envelopeDecay: root.controller.voiceAmpDecaySeconds
-    envelopeSustain: root.controller.voiceAmpSustain / Constants.uiInternalScaling
-    envelopeRelease: root.controller.voiceAmpReleaseSeconds
-    envelopeCurve: root.controller.voiceAmpCurve / Constants.uiInternalScaling
+    envelopeAttack: root.controller.waveformEnvelopeAttack
+    envelopeHold: root.controller.waveformEnvelopeHold
+    envelopeDecay: root.controller.waveformEnvelopeDecay
+    envelopeSustain: root.controller.waveformEnvelopeSustain
+    envelopeRelease: root.controller.waveformEnvelopeRelease
+    envelopeCurve: root.controller.waveformEnvelopeCurve
 
     // The picture is as wide as the view, so a resize invalidates it as surely as a knob does. Both
     // go through the controller's own wait, which is what stops a drag on the dialog edge rendering
