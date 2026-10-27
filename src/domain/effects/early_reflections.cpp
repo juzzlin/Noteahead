@@ -315,4 +315,46 @@ void EarlyReflections::sync()
     m_shouldSyncParameters = true;
 }
 
+const EffectPresetList & EarlyReflections::factoryPresets() const
+{
+    namespace C = Constants::NahdXml;
+    // In the units the knobs show, put back into the positions syncParameters() maps them from
+    const auto room = [](float size, double preDelayMs, float damping, float diffusion, float width, double lowCutHz, float mix) {
+        return std::map<std::string, float> {
+            { C::xmlKeySize().toStdString(), size },
+            { C::xmlKeyPreDelay().toStdString(), static_cast<float>(preDelayMs / maxPreDelayMs) },
+            { C::xmlKeyDamping().toStdString(), damping },
+            { C::xmlKeyDiffusion().toStdString(), diffusion },
+            { C::xmlKeyWidth().toStdString(), static_cast<float>(width / maxWidth) },
+            { C::xmlKeyHpfCutoff().toStdString(), static_cast<float>(ParameterMapper::unmapLogFrequency(lowCutHz, minLowCutHz, maxLowCutHz)) },
+            { C::xmlKeyMix().toStdString(), mix },
+        };
+    };
+    // Init first, as the way back; the rest alphabetical
+    static const EffectPresetList presets {
+        { "Init", {} },
+        // Tiny and dead: a voice-over booth
+        { "Booth", room(0.05f, 2.0, 0.6f, 0.5f, 0.8f, 200.0, 0.2f) },
+        // The front of a large stage, wide and soft
+        { "Concert Stage", room(0.75f, 20.0, 0.4f, 0.8f, 1.5f, 100.0, 0.25f) },
+        // Bright and punchy around a kit, the kick kept out of it
+        { "Drum Ambience", room(0.3f, 4.0, 0.3f, 0.6f, 1.4f, 250.0, 0.35f) },
+        // The first reflections of a hall, for a reverb to follow
+        { "Hall Early", room(1.0f, 30.0, 0.45f, 0.85f, 1.6f, 100.0, 0.25f) },
+        // A room that sounds like a room, nothing more
+        { "Small Room", room(0.2f, 5.0, 0.5f, 0.6f, 1.0f, 150.0, 0.25f) },
+        // A tracking room with some life in it
+        { "Studio Live Room", room(0.45f, 10.0, 0.35f, 0.7f, 1.2f, 120.0, 0.3f) },
+        // Hard walls and no absorption: close, bright and sparse
+        { "Tiled Bathroom", room(0.15f, 3.0, 0.05f, 0.3f, 1.0f, 150.0, 0.35f) },
+        // Held off and thinned so the words stay in front
+        { "Vocal Space", room(0.25f, 25.0, 0.5f, 0.7f, 1.1f, 300.0, 0.2f) },
+        // Pushed wide, to spread a mono source
+        { "Wide Stereo", room(0.5f, 15.0, 0.4f, 0.6f, 2.0f, 200.0, 0.3f) },
+        // Warm and absorbent
+        { "Wood Room", room(0.35f, 8.0, 0.55f, 0.75f, 1.0f, 180.0, 0.3f) },
+    };
+    return presets;
+}
+
 } // namespace noteahead

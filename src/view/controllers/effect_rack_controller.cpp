@@ -301,7 +301,7 @@ void EffectRackController::setEffect(int slotIndex, const QString & typeId)
         // starts at the top there, where every effect is heard as itself. Only a start: the knob
         // is free to move after, and an effect loaded with a project keeps what it was saved with.
         if (isMasterSendRack()) {
-            if (const auto mix = effect->parameter(Constants::NahdXml::xmlKeyMix().toStdString()); mix) {
+            if (const auto mix = effect->parameter(effect->mixParameterKey()); mix) {
                 mix->get().setValue(1.0f);
                 effect->sync();
             }
@@ -3698,7 +3698,7 @@ void EffectRackController::loadEffectPreset(quint32 effectIndex, int presetIndex
 
     // On a send, Mix belongs to the routing as much as to the sound, like the side-chain source a
     // preset leaves alone: the preset brings its sound and the Mix stays where it was set
-    const auto mix = effect->parameter(Constants::NahdXml::xmlKeyMix().toStdString());
+    const auto mix = effect->parameter(effect->mixParameterKey());
     const auto keptMix = isMasterSendRack() && mix ? std::optional<float> { mix->get().shownValue() } : std::nullopt;
 
     const auto factoryCount = effectFactoryPresetCount(effectIndex);

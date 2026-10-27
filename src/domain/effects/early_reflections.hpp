@@ -71,6 +71,8 @@ public:
     void reset() override;
     void sync() override;
 
+    const EffectPresetList & factoryPresets() const override;
+
     static constexpr size_t NumTaps = 16;
     static constexpr size_t NumDiffusers = 4;
 

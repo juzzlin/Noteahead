@@ -15,6 +15,7 @@
 
 #include "snare_synth_test.hpp"
 #include "domain/devices/snare_synth_device.hpp"
+#include "domain/devices/snare_synth_presets.hpp"
 #include "infra/midi/midi_cc_mapping.hpp"
 #include "infra/xml/nahd_xml_reader.hpp"
 #include "infra/xml/nahd_xml_writer.hpp"
@@ -351,6 +352,30 @@ void SnareSynthTest::test_presetInit_shouldResetParameters()
     device.loadPreset(0); // "Init"
     QCOMPARE(device.tune(), defaultTune);
     QCOMPARE(device.snappy(), defaultSnappy);
+}
+
+void SnareSynthTest::test_presets_hit_shouldBeAudibleAndUnclipped()
+{
+    const auto & presets = SnareSynthPresets::presets();
+    QVERIFY(presets.size() > 1);
+    QCOMPARE(presets.front().name, std::string { "Init" });
+    for (size_t i = 0; i < presets.size(); i++) {
+        const auto name = QString::fromStdString(presets[i].name);
+        SnareSynthDevice device { "Test Snare" };
+        for (auto && [key, value] : presets[i].parameters) {
+            QVERIFY2(device.parameter(key).has_value(), qPrintable(name + ": " + QString::fromStdString(key)));
+            QVERIFY2(value >= 0.0f && value <= 1.0f, qPrintable(name + ": " + QString::fromStdString(key)));
+        }
+        device.loadPreset(static_cast<int>(i));
+        device.processDeviceMidiNoteOn(38, 127);
+        double peak = 0.0;
+        for (double sample : renderDeviceAudio(device, SampleRate)) {
+            QVERIFY2(std::isfinite(sample), qPrintable(name));
+            peak = std::max(peak, std::abs(sample));
+        }
+        const double db = 20.0 * std::log10(peak);
+        QVERIFY2(db > -40.0 && db < -1.0, qPrintable(name + ": " + QString::number(db)));
+    }
 }
 
 } // namespace noteahead

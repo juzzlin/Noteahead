@@ -29,6 +29,7 @@
 #include "../../domain/effects/clipper.hpp"
 #include "../../domain/effects/delay.hpp"
 #include "../../domain/effects/drive.hpp"
+#include "../../domain/effects/early_reflections.hpp"
 #include "../../domain/effects/endless_reverb.hpp"
 #include "../../domain/effects/eq_8_band_parametric.hpp"
 #include "../../domain/effects/limiter.hpp"
@@ -1335,6 +1336,35 @@ void EffectsTest::test_reverb_solo_shouldPassOnlyTheTail()
 void EffectsTest::test_endlessReverb_solo_shouldPassOnlyTheTail()
 {
     verifySoloPassesOnlyTheTail<EndlessReverb>();
+}
+
+void EffectsTest::test_factoryPresets_reverbs_shouldNameRealParameters()
+{
+    const std::vector<std::shared_ptr<Effect>> effects { std::make_shared<EndlessReverb>(), std::make_shared<EarlyReflections>() };
+    for (auto && effect : effects) {
+        const auto & presets = effect->factoryPresets();
+        QCOMPARE(presets.size(), size_t { 11 });
+        QCOMPARE(presets.front().name, std::string { "Init" });
+        for (auto && preset : presets) {
+            for (auto && [key, value] : preset.parameters) {
+                QVERIFY2(effect->parameter(key).has_value(), qPrintable(QString::fromStdString(preset.name + ": " + key)));
+                QVERIFY2(value >= 0.0f && value <= 1.0f, qPrintable(QString::fromStdString(preset.name + ": " + key)));
+            }
+        }
+    }
+}
+
+void EffectsTest::test_initPreset_reverbs_shouldRestoreTheDefaults()
+{
+    const std::vector<std::shared_ptr<Effect>> effects { std::make_shared<EndlessReverb>(), std::make_shared<EarlyReflections>() };
+    const auto key = Constants::NahdXml::xmlKeySize().toStdString();
+    for (auto && effect : effects) {
+        const float defaultSize = effect->parameter(key)->get().value();
+        QVERIFY(effect->applyFactoryPreset(1));
+        QVERIFY(effect->parameter(key)->get().value() != defaultSize);
+        QVERIFY(effect->applyFactoryPreset(0));
+        QCOMPARE(effect->parameter(key)->get().value(), defaultSize);
+    }
 }
 
 void EffectsTest::test_endlessReverb_freeze_shouldSustainTail()

@@ -376,6 +376,11 @@ void Effect::reset()
 {
 }
 
+std::string Effect::mixParameterKey() const
+{
+    return Constants::NahdXml::xmlKeyMix().toStdString();
+}
+
 const EffectPresetList & Effect::factoryPresets() const
 {
     static const EffectPresetList none;

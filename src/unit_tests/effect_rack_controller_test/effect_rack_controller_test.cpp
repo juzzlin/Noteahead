@@ -28,6 +28,7 @@
 #include "../../domain/effects/reverb.hpp"
 #include "../../domain/effects/saturator.hpp"
 #include "../../domain/effects/simple_eq.hpp"
+#include "../../domain/effects/tremolo.hpp"
 #include "../../domain/tracker/parameter_data.hpp"
 #include "../../domain/utility/dbtp_meter.hpp"
 #include "../../domain/utility/lufs_meter.hpp"
@@ -1374,7 +1375,7 @@ void EffectRackControllerTest::test_saveEffectUserPreset_effectWithoutFactoryPre
 {
     // An effect that ships no patches still shows its row on request, so the first preset the user
     // saves there has to become the whole list, and the one selected.
-    PresetFixture f { EndlessReverb::typeIdString() };
+    PresetFixture f { Tremolo::typeIdString() };
     QVERIFY(f.controller.effectPresetNames(0).isEmpty());
 
     QVERIFY(f.controller.saveEffectUserPreset(0, "My Space"));
@@ -1673,6 +1674,11 @@ void EffectRackControllerTest::test_setEffect_masterSendRack_shouldStartMixAtThe
     controller.setTargetSubIndex(0);
     controller.setEffect(0, controller.ambienceType());
     QCOMPARE(controller.parameterValue(0, controller.ambienceMixKey()), 0.3f);
+
+    // The Delay keeps its Mix under a key of its own
+    controller.setTargetSubIndex(-1);
+    controller.setEffect(0, controller.delayType());
+    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeyDelayMix()), 1.0f);
 }
 
 void EffectRackControllerTest::test_loadEffectPreset_masterSendRack_shouldKeepTheMix()
@@ -1706,6 +1712,14 @@ void EffectRackControllerTest::test_loadEffectPreset_masterSendRack_shouldKeepTh
     controller.setParameterValue(0, controller.ambienceMixKey(), 0.6f);
     controller.loadEffectPreset(0, mixGlue());
     QCOMPARE(controller.parameterValue(0, controller.ambienceMixKey()), 0.2f);
+
+    // And so does the Delay, whose Mix has a key of its own
+    controller.setIsInsertRack(false);
+    controller.setEffect(0, controller.delayType());
+    controller.setParameterValue(0, Constants::NahdXml::xmlKeyDelayMix(), 0.6f);
+    QVERIFY(controller.effectPresetNames(0).size() > 1);
+    controller.loadEffectPreset(0, 1);
+    QCOMPARE(controller.parameterValue(0, Constants::NahdXml::xmlKeyDelayMix()), 0.6f);
 }
 
 void EffectRackControllerTest::test_targetSubIndex_devicesWithParts_shouldAddressThePartRack()

@@ -50,6 +50,7 @@ public:
     //! of silence has been written into the line.
     bool isSettled() const override;
 
+    std::string mixParameterKey() const override;
     const EffectPresetList & factoryPresets() const override;
 
     void setType(Type type);

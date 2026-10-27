@@ -62,6 +62,8 @@ private slots:
     void test_endlessReverb_freeze_shouldSustainTail();
     void test_reverb_solo_shouldPassOnlyTheTail();
     void test_endlessReverb_solo_shouldPassOnlyTheTail();
+    void test_factoryPresets_reverbs_shouldNameRealParameters();
+    void test_initPreset_reverbs_shouldRestoreTheDefaults();
     void test_eq8BandParametricEffect_shouldApplyBandsAndBeStable();
     void test_eq8BandParametricEffect_bell_shouldDefaultToOneOctave();
     void test_eq8BandParametricEffect_magnitude_shouldMatchWhatIsHeard_data();

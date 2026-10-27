@@ -42,6 +42,8 @@ public:
     void reset() override;
     void sync() override;
 
+    const EffectPresetList & factoryPresets() const override;
+
 private:
     void syncParameters();
     void updateBuffers();

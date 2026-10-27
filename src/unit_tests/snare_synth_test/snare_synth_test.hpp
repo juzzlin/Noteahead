@@ -39,6 +39,7 @@ private slots:
     void test_midiCc_shouldReachParameters();
     void test_serialization_shouldRestoreParameters();
     void test_presetInit_shouldResetParameters();
+    void test_presets_hit_shouldBeAudibleAndUnclipped();
 };
 
 } // namespace noteahead

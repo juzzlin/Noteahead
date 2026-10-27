@@ -358,4 +358,50 @@ std::string EndlessReverb::typeId() const
     return typeIdString();
 }
 
+const EffectPresetList & EndlessReverb::factoryPresets() const
+{
+    namespace C = Constants::NahdXml;
+    // In the units the knobs show, put back into the positions syncParameters() maps them from
+    const auto space = [](float size, float decay, float damping, double preDelayMs, float depth, double rateHz, float width, double lpfHz, double hpfHz, float mix) {
+        const auto cutoff = [](double hz) { return static_cast<float>(std::log2(hz / 20.0) / std::log2(1000.0)); };
+        return std::map<std::string, float> {
+            { C::xmlKeySize().toStdString(), size },
+            { C::xmlKeyDecay().toStdString(), decay },
+            { C::xmlKeyDamping().toStdString(), damping },
+            { C::xmlKeyPreDelay().toStdString(), static_cast<float>(preDelayMs / 500.0) },
+            { C::xmlKeyDepth().toStdString(), depth },
+            { C::xmlKeyRate().toStdString(), static_cast<float>((rateHz - 0.05) / 3.0) },
+            { C::xmlKeyWidth().toStdString(), width / 2.0f },
+            { C::xmlKeyLpfCutoff().toStdString(), cutoff(lpfHz) },
+            { C::xmlKeyHpfCutoff().toStdString(), cutoff(hpfHz) },
+            { C::xmlKeyMix().toStdString(), mix },
+        };
+    };
+    // Init first, as the way back; the rest alphabetical
+    static const EffectPresetList presets {
+        { "Init", {} },
+        // Swells under a guitar or a lead without washing out the attack
+        { "Ambient Guitar", space(0.75f, 0.87f, 0.4f, 50.0, 0.35f, 0.35, 1.5f, 9000.0, 180.0, 0.35f) },
+        // Open and airy, the lows kept out so it floats above the mix
+        { "Bright Haze", space(0.7f, 0.88f, 0.1f, 60.0, 0.5f, 0.6, 1.5f, 16000.0, 400.0, 0.3f) },
+        // A huge stone space: long, a little dark, barely moving
+        { "Cathedral", space(0.8f, 0.8f, 0.45f, 40.0, 0.25f, 0.3, 1.2f, 9000.0, 120.0, 0.3f) },
+        // As big as it gets, slowly churning, for pads and drones
+        { "Cosmic Pad", space(1.0f, 0.95f, 0.35f, 80.0, 0.6f, 0.2, 1.6f, 10000.0, 200.0, 0.4f) },
+        // Deep and murky, the top rolled right off
+        { "Dark Abyss", space(0.9f, 0.92f, 0.8f, 30.0, 0.4f, 0.15, 1.4f, 3000.0, 60.0, 0.35f) },
+        // Held well back and thinned, so a stab throws a tail rather than a wash
+        { "Dub Space", space(0.6f, 0.85f, 0.6f, 150.0, 0.35f, 0.4, 1.3f, 5000.0, 300.0, 0.3f) },
+        // Close to frozen: the tail all but never dies
+        { "Infinite Wash", space(1.0f, 1.0f, 0.5f, 100.0, 0.5f, 0.15, 2.0f, 8000.0, 150.0, 0.35f) },
+        // Smaller and quicker, a halo around a part rather than a space
+        { "Short Halo", space(0.25f, 0.7f, 0.3f, 10.0, 0.2f, 0.4, 1.2f, 12000.0, 150.0, 0.2f) },
+        // A long pre-delay keeps the words in front while the tail blooms behind them
+        { "Vocal Bloom", space(0.45f, 0.75f, 0.35f, 90.0, 0.2f, 0.5, 1.0f, 11000.0, 250.0, 0.25f) },
+        // Modulation at the top: the tail wobbles like a stretched tape
+        { "Warped Tape", space(0.6f, 0.85f, 0.5f, 20.0, 1.0f, 0.8, 1.2f, 7000.0, 150.0, 0.3f) },
+    };
+    return presets;
+}
+
 } // namespace noteahead

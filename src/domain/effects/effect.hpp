@@ -119,6 +119,10 @@ public:
     virtual void reset() override;
     virtual void sync();
 
+    //! The key of the parameter that sets how much of the effect is heard: Mix on every effect but
+    //! the Delay, which predates the shared key.
+    virtual std::string mixParameterKey() const;
+
     //! The effect's built-in patches, in the order they are offered. Empty unless the effect ships
     //! any, so the preset row shows up only where there is something in it.
     virtual const EffectPresetList & factoryPresets() const;

@@ -43,6 +43,11 @@ Delay::Delay()
     addParameter(Parameter { Constants::NahdXml::xmlKeyDelayFeedbackHpf().toStdString(), 0.0f, 0, 10000, 0, 100 });
 }
 
+std::string Delay::mixParameterKey() const
+{
+    return Constants::NahdXml::xmlKeyDelayMix().toStdString();
+}
+
 const EffectPresetList & Delay::factoryPresets() const
 {
     return DelayPresets::presets();

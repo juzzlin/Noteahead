@@ -5,7 +5,11 @@ Release date:
 
 New features:
 
+* Endless Reverb, Early Reflections and Snare Synth: factory presets
+
 Bug fixes:
+
+* Delay: Mix did not start at 100 % on a master send, and presets overwrote it there
 
 * JU Synth 08: fader, expression, gain and pan had no effect
 
