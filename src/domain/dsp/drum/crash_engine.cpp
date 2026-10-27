@@ -65,7 +65,29 @@ constexpr float Rd9BloomFloor { 0.25f };
 //! Pitch wobble at the middle of the Wobble knob, which is what the crash had before the knob.
 //! The depth goes with the square of the knob from there, up to four times this at the top.
 constexpr double DefaultWobbleDepth { 0.005 };
-constexpr float Rd9BodySeconds { 0.080f };
+//! How much faster a partial dies the higher it is: its amplitude falls by this times its
+//! frequency squared, in nepers a second, on top of the envelope everything shares.
+//!
+//! Without it the spectrum froze a third of a second in and the partials from eight to eleven
+//! kilohertz rang on unchanged for as long as the pad held, which is the whine in the tail. Metal
+//! loses its top first, and the recording does too, but it ends at 0.9 s and is no guide to the
+//! tail itself. Its band levels asked for twice this, which took the eight to twelve kilohertz
+//! partials down to a quarter of that band's energy by half a second, where the recording still has
+//! half. Here they keep 37 per cent then, against 58 undamped, and none from a second and a half --
+//! ten kilohertz loses five decibels a second more than the body, three kilohertz half a decibel.
+constexpr double Rd9HighDamping { 0.6e-8 };
+//! The body: a band of noise struck at full and decaying to a floor that it then holds, falling
+//! only with the envelope everything shares.
+//!
+//! It used to decay to nothing in eighty milliseconds, from a centre near 315 Hz. The fit only
+//! looked at the first third of a second, and so missed that the recording keeps its 400 Hz to
+//! 1.3 kHz for the whole sound, about eleven decibels under the splash -- by its last half second
+//! ours was forty under. With nothing below two kilohertz left the cymbal was all top, which is
+//! heard as breaking glass rather than as a crash. Moving the band up to the recording's own body
+//! also dropped the strike's centroid from 2.6 kHz to its 2.2.
+constexpr float Rd9BodyCutoff { 0.38f };
+constexpr float Rd9BodySeconds { 0.060f };
+constexpr float Rd9BodyFloor { 0.16f };
 constexpr float Rd9BodyGain { 0.850f };
 constexpr float Rd9DecayScale { 1.05f };
 //! Restores what the fit cost in level.
@@ -107,6 +129,7 @@ void CrashEngine::trigger(float velocity)
     m_attackEnv = 0.0f;
     m_bloomEnv = 0.0f;
     m_reverseProgress = 0.0;
+    m_elapsedSeconds = 0.0;
     m_hpf.reset();
     m_bpf.reset();
     m_lpf.reset();
@@ -124,7 +147,7 @@ void CrashEngine::trigger(float velocity)
     }
 }
 
-float CrashEngine::nextMetallicBaseSample(double pitchScale)
+float CrashEngine::nextMetallicBaseSample(double pitchScale, double partialAge)
 {
     const double baseFreq { ((m_voicing == Voicing::Rd9 ? Rd9BaseFreq : 350.0) + m_tune * 400.0) * pitchScale };
     // Twenty-four, of which the Classic voicing sounds the first twelve. Twelve is too few for a
@@ -163,7 +186,11 @@ float CrashEngine::nextMetallicBaseSample(double pitchScale)
         if (m_phases[i] >= 1.0)
             m_phases[i] -= 1.0;
         const double weight = m_voicing == Voicing::Rd9 ? rd9Weights[i] * std::pow(ratios[i], Rd9MetalTilt) : 1.0;
-        metallicSource += weight * (m_phases[i] < 0.5 ? 1.0 : -1.0);
+        // Summed into the source but not into weightSum, which would otherwise scale the damping
+        // straight back out again.
+        const double frequency = baseFreq * ratios[i];
+        const double damping = m_voicing == Voicing::Rd9 ? std::exp(-Rd9HighDamping * frequency * frequency * partialAge) : 1.0;
+        metallicSource += weight * damping * (m_phases[i] < 0.5 ? 1.0 : -1.0);
         weightSum += weight;
     }
     return static_cast<float>(metallicSource / std::max(1.0, weightSum));
@@ -197,6 +224,7 @@ float CrashEngine::nextSample()
         m_reverseProgress = std::min(1.0, m_reverseProgress + 1.0 / (swellSeconds * sr));
         remaining = static_cast<float>((1.0 - m_reverseProgress) * swellSeconds);
     }
+    m_elapsedSeconds += 1.0 / sr;
 
     // Attack envelope to soften the initial hit
     if (m_attackEnv < 1.0f) {
@@ -255,19 +283,20 @@ float CrashEngine::nextSample()
     // Body component: noise-based impact for "weight" (OHH approach)
     // Centered around the 909's 568Hz peak
     m_bodyFilter.setSampleRate(sr);
-    m_bodyFilter.setCutoff(0.35f + m_tune * 0.2f);
+    m_bodyFilter.setCutoff((rd9 ? Rd9BodyCutoff : 0.35f) + m_tune * 0.2f);
     m_bodyFilter.setResonance(0.4f);
 
     // Body is more prominent if decay is long (OHH approach)
     const float bodyGain = (m_voicing == Voicing::Rd9 ? Rd9BodyGain : 0.6f) * std::min(1.0f, m_decay * 2.0f);
-    const float bodySource = m_bodyFilter.process(noise) * m_bodyEnv * bodyGain;
+    const float bodyLevel = rd9 ? Rd9BodyFloor + (1.0f - Rd9BodyFloor) * m_bodyEnv : m_bodyEnv;
+    const float bodySource = m_bodyFilter.process(noise) * bodyLevel * bodyGain;
 
     // Metallic part: 12 square wave oscillators with ratios tuned for 2kHz-8kHz clusters, generated
     // at the base rate and interpolated up so the bank sounds the same at every oversampling
     // factor. See BaseRateSource.
     m_metallicBank.setOversampleFactor(oversampleFactor());
     if (m_metallicBank.needsBaseSample()) {
-        m_metallicBank.setBaseSample(nextMetallicBaseSample(pitchMod * wobble));
+        m_metallicBank.setBaseSample(nextMetallicBaseSample(pitchMod * wobble, reversed ? remaining : m_elapsedSeconds));
     }
     const double metallicSource { m_metallicBank.nextSample() };
 

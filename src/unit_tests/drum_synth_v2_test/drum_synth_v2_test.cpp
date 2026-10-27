@@ -53,13 +53,13 @@ constexpr uint32_t sampleRate = 44100;
 //! magnitudes are Rayleigh distributed, so the geometric mean falls far under the arithmetic one
 //! and white noise scores about 0.6 rather than 1.0. Measured that way these cymbals looked like
 //! they were matching the hardware while they were nothing like it.
-std::vector<double> spectrum(const std::vector<double> & frames, double seconds)
+std::vector<double> spectrumBetween(const std::vector<double> & frames, double from, double to)
 {
     constexpr int size = 2048;
     std::vector<double> acc(size / 2, 0.0);
-    const auto limit = std::min(frames.size() / 2, static_cast<size_t>(seconds * sampleRate));
+    const auto limit = std::min(frames.size() / 2, static_cast<size_t>(to * sampleRate));
     int windows = 0;
-    for (size_t start = 0; start + size <= limit; start += size / 2) {
+    for (auto start = static_cast<size_t>(from * sampleRate); start + size <= limit; start += size / 2) {
         std::vector<double> re(size), im(size, 0.0);
         for (int i = 0; i < size; i++) {
             re[static_cast<size_t>(i)] = frames.at((start + static_cast<size_t>(i)) * 2) * (0.5 - 0.5 * std::cos(2.0 * M_PI * i / (size - 1)));
@@ -74,6 +74,11 @@ std::vector<double> spectrum(const std::vector<double> & frames, double seconds)
         value /= std::max(1, windows);
     }
     return acc;
+}
+
+std::vector<double> spectrum(const std::vector<double> & frames, double seconds)
+{
+    return spectrumBetween(frames, 0.0, seconds);
 }
 
 size_t binOf(double hz)
@@ -822,6 +827,37 @@ void DrumSynthV2Test::test_cymbals_crash_shouldBloom()
              qPrintable(QString { "the crash is not dark at the strike: %1 Hz" }.arg(struck)));
     QVERIFY2(open - struck > 2000.0,
              qPrintable(QString { "the crash does not open out: %1 Hz at the strike, %2 Hz after it" }.arg(struck).arg(open)));
+}
+
+void DrumSynthV2Test::test_cymbals_crashTail_shouldDarken()
+{
+    // The partials from eight to eleven kilohertz used to ring on unchanged for as long as the pad
+    // held, so the tail was a high whine with the same balance as the splash. Metal loses its top
+    // first. Measured here, the top falls 2.5 dB against the middle and undamped 0.1: the band is
+    // mostly the steady wash, so the partials going quiet moves its level little.
+    DrumSynthV2Device v2 { "V2" };
+    const auto rendered = v2.renderVoiceAlone(static_cast<int>(DrumSynthV2::VoiceIndex::Crash), sampleRate, 4.0);
+    const auto topOverMiddle = [&](double from, double to) {
+        const auto ps = spectrumBetween(rendered, from, to);
+        return 10.0 * std::log10(bandPower(ps, 8000.0, 12000.0) / bandPower(ps, 2000.0, 4000.0));
+    };
+    const auto splash = topOverMiddle(0.3, 0.6);
+    const auto tail = topOverMiddle(2.0, 3.0);
+    QVERIFY2(splash - tail > 1.5,
+             qPrintable(QString { "the crash tail does not darken: the top is %1 dB under the middle in the splash, %2 dB in the tail" }.arg(-splash).arg(-tail)));
+}
+
+void DrumSynthV2Test::test_cymbals_crashBody_shouldLast()
+{
+    // The recording keeps its 400 Hz to 1.3 kHz for the whole sound, about ten decibels under the
+    // splash. The body used to be gone in eighty milliseconds, so that by half a second this was
+    // twenty-six under and the crash was all top: heard as breaking glass. Measured here, 10.3.
+    DrumSynthV2Device v2 { "V2" };
+    const auto rendered = v2.renderVoiceAlone(static_cast<int>(DrumSynthV2::VoiceIndex::Crash), sampleRate, 2.0);
+    const auto ps = spectrumBetween(rendered, 0.5, 0.9);
+    const auto body = 10.0 * std::log10(bandPower(ps, 400.0, 1300.0) / bandPower(ps, 3000.0, 6000.0));
+    QVERIFY2(body > -14.0,
+             qPrintable(QString { "the crash body does not last: %1 dB under the splash at half a second" }.arg(-body)));
 }
 
 void DrumSynthV2Test::test_cymbals_crashWobble_default_shouldKeepTheSound()

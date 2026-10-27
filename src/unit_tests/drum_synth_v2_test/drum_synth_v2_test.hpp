@@ -50,6 +50,8 @@ private slots:
     void test_cymbals_tune_shouldOnlyEverBrighten();
     void test_cymbals_crash_shouldBloom();
     void test_cymbals_crash_shouldPeakInTheSplashBand();
+    void test_cymbals_crashTail_shouldDarken();
+    void test_cymbals_crashBody_shouldLast();
     void test_cymbals_crashWobble_default_shouldKeepTheSound();
     void test_cymbals_crashWobble_shouldReachBothCrashes();
     void test_cymbals_shouldHaveABody();

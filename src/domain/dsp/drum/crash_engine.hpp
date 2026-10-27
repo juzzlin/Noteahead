@@ -75,6 +75,8 @@ private:
     float m_bloomEnv { 0.0f };
     //! How far through the reverse swell, 0 to 1. The envelopes are read at the time remaining.
     double m_reverseProgress { 0.0 };
+    //! Time since the strike.
+    double m_elapsedSeconds { 0.0 };
     float m_tune { 0.5f };
     float m_decay { 0.5f };
     float m_resonance { 0.3f };
@@ -95,7 +97,9 @@ private:
     //! Bank of square oscillators, run at the base rate so it is oversampling-independent.
     BaseRateSource m_metallicBank;
     BaseRateSource m_noiseBank;
-    float nextMetallicBaseSample(double pitchScale);
+    //! partialAge is how long the partials have been ringing, which damps the high ones: see
+    //! Rd9HighDamping.
+    float nextMetallicBaseSample(double pitchScale, double partialAge);
 
     std::array<double, 24> m_phases {};
     float m_sizzleEnv { 0.0f };
