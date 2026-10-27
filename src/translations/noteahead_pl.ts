@@ -4351,8 +4351,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Analog</source>
-        <translation>Analogowy</translation>
+        <source>Effects</source>
+        <translation>Efekty</translation>
     </message>
 </context>
 <context>

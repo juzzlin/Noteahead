@@ -153,7 +153,7 @@ AnimatedDialog {
                         text: qsTr("Amp / Delay")
                     }
                     AppTabButton {
-                        text: qsTr("Analog")
+                        text: qsTr("Effects")
                     }
                 }
             }

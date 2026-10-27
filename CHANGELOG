@@ -23,7 +23,7 @@ New features:
   - Switchable 12 dB / 24 dB resonant low-pass filter and high-pass filter
   - Dual ADSR envelopes, comprehensive LFO, built-in stereo delay, and Poly, Solo and Unison modes
   - Factory presets and full parameter automation support
-  - Analog tab: Drift, Instability and Tolerance, off by default and the same on every render
+  - Effects tab: Drift, Instability and Tolerance, off by default and the same on every render
 
 * JU Synth: Analog section with Drift and Tolerance, off by default and the same on every render
 

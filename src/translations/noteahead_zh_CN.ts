@@ -4349,8 +4349,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Analog</source>
-        <translation>模拟</translation>
+        <source>Effects</source>
+        <translation>效果</translation>
     </message>
 </context>
 <context>

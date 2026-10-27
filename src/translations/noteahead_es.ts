@@ -4350,8 +4350,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Analog</source>
-        <translation>Analógico</translation>
+        <source>Effects</source>
+        <translation>Efectos</translation>
     </message>
 </context>
 <context>
