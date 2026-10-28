@@ -48,6 +48,11 @@ NoiseSource::NoiseSource(uint32_t seed)
 
 void NoiseSource::setSampleRate(double sampleRate)
 {
+    // Devices set the rate on every block, and the normalization below renders a second of
+    // impulse response
+    if (sampleRate == this->sampleRate()) {
+        return;
+    }
     DspComponent::setSampleRate(sampleRate);
     updateCoefficients();
     updateCrossfade();
